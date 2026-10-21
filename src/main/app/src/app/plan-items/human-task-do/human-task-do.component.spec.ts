@@ -243,11 +243,11 @@ describe("HumanTaskDoComponent", () => {
 
       fixture.detectChanges();
       await sleep();
+      fixture.detectChanges();
 
       httpTestingController
         .expectOne("/rest/identity/groups/1/users")
         .flush([]);
-      await initialise();
     });
 
     it("should prefill group control, populate user options, and enable user control when groepId matches", async () => {
@@ -293,6 +293,7 @@ describe("HumanTaskDoComponent", () => {
       await initialise();
 
       getFormControl("group")?.setValue(group);
+      fixture.detectChanges();
       await sleep();
 
       expect(component["form"].get("user")?.enabled).toBe(true);
@@ -301,6 +302,63 @@ describe("HumanTaskDoComponent", () => {
           formField.type === "auto-complete" && formField.key === "user",
       ) as { options?: unknown[] } | undefined;
       expect(userField?.options).toEqual(mockUsers);
+    });
+
+    it("should load the users of a group that is picked after the user typed in the group field", async () => {
+      await initialise();
+
+      getFormControl("group")?.setValue("groe");
+      fixture.detectChanges();
+      httpTestingController.expectNone((request) =>
+        request.url.endsWith("/users"),
+      );
+
+      getFormControl("group")?.setValue(group);
+      fixture.detectChanges();
+      await sleep();
+
+      const users = [
+        fromPartial<GeneratedType<"RestUser">>({ id: "u1", naam: "User One" }),
+      ];
+      httpTestingController
+        .expectOne("/rest/identity/groups/1/users")
+        .flush(users);
+      await sleep();
+      fixture.detectChanges();
+      await sleep();
+      fixture.detectChanges();
+
+      const userField = component["formFields"].find(
+        (formField) =>
+          formField.type === "auto-complete" && formField.key === "user",
+      ) as { options?: unknown[] } | undefined;
+      expect(userField?.options).toEqual(users);
+    });
+
+    it("should keep the picked user when the users of the group are read again", async () => {
+      const users = [
+        fromPartial<GeneratedType<"RestUser">>({ id: "u1", naam: "User One" }),
+      ];
+      seedUsersOfGroup(users);
+      await initialise();
+      getFormControl("group")?.setValue(group);
+      fixture.detectChanges();
+      getFormControl("user")?.setValue(users[0]);
+
+      testQueryClient.setQueryData(
+        identityService.listUsersInGroup(group.id).queryKey,
+        [
+          ...users,
+          fromPartial<GeneratedType<"RestUser">>({
+            id: "u2",
+            naam: "User Two",
+          }),
+        ],
+      );
+      fixture.detectChanges();
+      await sleep();
+
+      expect(getFormControl("user")?.value).toEqual(users[0]);
     });
 
     it("should reset and disable the user control when the group is cleared", async () => {

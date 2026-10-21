@@ -109,6 +109,8 @@ describe(TaakEditComponent.name, () => {
     fixture.detectChanges();
     await sleep();
     fixture.detectChanges();
+    await sleep();
+    fixture.detectChanges();
   }
 
   const groepSelect = () => screen.getByRole("combobox", { name: /Groep/ });
@@ -285,6 +287,56 @@ describe(TaakEditComponent.name, () => {
         "fakeUserNaam",
         "fakeUserNaam99",
       ]);
+    });
+  });
+
+  describe("reading the groups and users again", () => {
+    it("keeps the groep that the user picked", async () => {
+      await setup(makeTask(), {
+        groups: [
+          makeGroup(),
+          makeGroup({ id: "fakeOtherGroupId", naam: "fakeOtherGroupNaam" }),
+        ],
+      });
+      await user.click(groepSelect());
+      await user.click(
+        screen.getByRole("option", { name: "fakeOtherGroupNaam" }),
+      );
+      await respondWith("/rest/identity/groups/fakeOtherGroupId/users", []);
+
+      void testQueryClient.invalidateQueries();
+      await respondWith(
+        "/rest/identity/zaaktype/fakeZaaktypeOmschrijving/behandelaar-groups",
+        [
+          makeGroup(),
+          makeGroup({ id: "fakeOtherGroupId", naam: "fakeOtherGroupNaam" }),
+          makeGroup({ id: "fakeNewGroupId", naam: "fakeNewGroupNaam" }),
+        ],
+      );
+
+      expect(groepSelect()).toHaveTextContent("fakeOtherGroupNaam");
+    });
+
+    it("keeps the behandelaar that the user picked", async () => {
+      await setup(makeTask({ behandelaar: makeUser() }), {
+        users: [
+          makeUser(),
+          makeUser({ id: "fakeUserId99", naam: "fakeUserNaam99" }),
+        ],
+      });
+      await user.click(behandelaarSelect());
+      await user.click(screen.getByRole("option", { name: "fakeUserNaam99" }));
+
+      void testQueryClient.invalidateQueries({
+        queryKey: ["/rest/identity/groups/{groupId}/users"],
+      });
+      await respondWith("/rest/identity/groups/fakeGroupId/users", [
+        makeUser(),
+        makeUser({ id: "fakeUserId99", naam: "fakeUserNaam99" }),
+        makeUser({ id: "fakeNewUserId", naam: "fakeNewUserNaam" }),
+      ]);
+
+      expect(behandelaarSelect()).toHaveTextContent("fakeUserNaam99");
     });
   });
 

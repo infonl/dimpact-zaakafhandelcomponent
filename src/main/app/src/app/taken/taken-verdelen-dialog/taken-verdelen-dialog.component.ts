@@ -3,7 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, inject } from "@angular/core";
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -19,13 +26,12 @@ import { MatError } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacInput } from "../../shared/form/input/input";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { runQuery } from "../../shared/http/run-query";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { TakenService } from "../taken.service";
@@ -56,7 +62,6 @@ export class TakenVerdelenDialogComponent {
   private readonly takenService = inject(TakenService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly identityService = inject(IdentityService);
-  private readonly queryClient = inject(QueryClient);
 
   protected readonly data = inject<{
     taken: TaakZoekObject[];
@@ -89,9 +94,28 @@ export class TakenVerdelenDialogComponent {
     return groupsQuery !== undefined && groupsQuery.length === 0;
   });
 
-  protected users: GeneratedType<"RestUser">[] = [];
+  private readonly selectedGroupId = signal<string | undefined>(undefined);
+
+  private readonly usersQuery = injectQuery(() => ({
+    ...this.identityService.listUsersInGroup(this.selectedGroupId() ?? ""),
+    enabled: !!this.selectedGroupId(),
+  }));
+
+  protected readonly users = computed(() => this.usersQuery.data() ?? []);
 
   constructor() {
+    effect(() => {
+      const usersLoaded =
+        !!this.selectedGroupId() && this.usersQuery.isSuccess();
+      untracked(() => {
+        if (usersLoaded) {
+          this.form.controls.medewerker.enable();
+        } else {
+          this.form.controls.medewerker.disable();
+        }
+      });
+    });
+
     if (!this.data.taken.length) {
       this.form.disable();
       return;
@@ -103,23 +127,12 @@ export class TakenVerdelenDialogComponent {
       ),
     });
 
-    this.form.controls.medewerker.disable();
-
     this.form.controls.groep.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((group) => {
         this.form.controls.medewerker.setValue(null);
-        this.form.controls.medewerker.disable();
         // While the user types, the autocomplete reports the typed text instead of a group.
-        if (!group?.id) return;
-
-        runQuery(
-          this.queryClient,
-          this.identityService.listUsersInGroup(group.id),
-        ).subscribe((users) => {
-          this.form.controls.medewerker.enable();
-          this.users = users;
-        });
+        this.selectedGroupId.set(group?.id);
       });
   }
 

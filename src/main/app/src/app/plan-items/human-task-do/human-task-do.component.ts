@@ -6,10 +6,12 @@
 import {
   Component,
   DestroyRef,
-  OnInit,
+  effect,
   inject,
   input,
+  OnInit,
   output,
+  signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
@@ -20,8 +22,7 @@ import { MatProgressSpinner } from "@angular/material/progress-spinner";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbar } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
-import { EMPTY, switchMap } from "rxjs";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import { mapFormGroupToTaskData } from "../../formulieren/taken/taak.utils";
@@ -32,7 +33,6 @@ import {
   FormField,
 } from "../../shared/form/composed-form/form-field.types";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { runQuery } from "../../shared/http/run-query";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { PlanItemsService } from "../plan-items.service";
 
@@ -67,6 +67,13 @@ export class HumanTaskDoComponent implements OnInit {
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
   readonly done = output<void>();
 
+  private readonly selectedGroupId = signal<string | undefined>(undefined);
+
+  private readonly usersQuery = injectQuery(() => ({
+    ...this.identityService.listUsersInGroup(this.selectedGroupId() ?? ""),
+    enabled: !!this.selectedGroupId(),
+  }));
+
   protected readonly doHumanTaskPlanItemMutation = injectMutation(
     () => this.planItemsService.doHumanTaskPlanItem(this.zaak().uuid),
     { onSuccess: () => this.done.emit() },
@@ -78,6 +85,14 @@ export class HumanTaskDoComponent implements OnInit {
   protected formConfig: FormConfig = {
     submitLabel: "actie.starten",
   };
+
+  constructor() {
+    effect(() => {
+      const users = this.usersQuery.data();
+      if (!users) return;
+      this.updateUserOptions(users);
+    });
+  }
 
   async ngOnInit() {
     const planItem = this.planItem();
@@ -150,32 +165,22 @@ export class HumanTaskDoComponent implements OnInit {
 
       if (groupControl.value) {
         userControl.enable();
-        runQuery(
-          this.queryClient,
-          this.identityService.listUsersInGroup(groupControl.value.id),
-        )
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe((users) => this.updateUserOptions(users));
+        this.selectedGroupId.set(groupControl.value.id);
       }
       groupControl.valueChanges
-        .pipe(
-          takeUntilDestroyed(this.destroyRef),
-          switchMap((value) => {
-            userControl.reset();
-            if (!value) {
-              userControl.disable();
-              return EMPTY;
-            }
-            userControl.enable();
-            // While the user types, the autocomplete reports the typed text instead of a group.
-            if (!value.id) return EMPTY;
-            return runQuery(
-              this.queryClient,
-              this.identityService.listUsersInGroup(value.id),
-            );
-          }),
-        )
-        .subscribe((users) => this.updateUserOptions(users));
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((value) => {
+          userControl.reset();
+          if (!value) {
+            userControl.disable();
+            this.selectedGroupId.set(undefined);
+            return;
+          }
+          userControl.enable();
+          // While the user types, the autocomplete reports the typed text instead of a group.
+          if (!value.id) return;
+          this.selectedGroupId.set(value.id);
+        });
     } catch (error) {
       this.foutAfhandelingService.openFoutDialog(
         error instanceof Error ? error.message : String(error),

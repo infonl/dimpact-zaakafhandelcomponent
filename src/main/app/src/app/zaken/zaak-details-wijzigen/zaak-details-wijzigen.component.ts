@@ -7,10 +7,12 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   input,
   OnInit,
   signal,
+  untracked,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import {
@@ -27,9 +29,9 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer, MatSidenavModule } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
-import { map, Observable, of } from "rxjs";
+import { map } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { ZacCheckbox } from "src/app/shared/form/checkbox/checkbox";
 import { ZacDate } from "src/app/shared/form/date/date";
@@ -41,7 +43,6 @@ import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { IdentityService } from "../../identity/identity.service";
 import { FormHelper } from "../../shared/form/helpers";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { runQuery } from "../../shared/http/run-query";
 import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZakenService } from "../zaken.service";
 
@@ -81,20 +82,61 @@ export class CaseDetailsEditComponent implements OnInit {
   private readonly identityService = inject(IdentityService);
   private readonly translateService = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly queryClient = inject(QueryClient);
 
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
   readonly loggedInUser = input.required<GeneratedType<"RestLoggedInUser">>();
   readonly sideNav = input.required<MatDrawer>();
 
-  protected groups: Observable<GeneratedType<"RestGroup">[]> = of([]);
+  private readonly groupsQuery = injectQuery(() => ({
+    ...this.identityService.listBehandelaarGroupsForZaaktype(
+      this.zaak().zaaktype.omschrijving ?? "",
+    ),
+    enabled: !!this.zaak().zaaktype.omschrijving,
+  }));
+
+  protected readonly groups = computed(() => {
+    const behandelaarGroups = this.groupsQuery.data();
+    if (!behandelaarGroups) return [];
+    const currentGroup = this.zaak().groep;
+    if (
+      currentGroup &&
+      !behandelaarGroups.some(({ id }) => id === currentGroup.id)
+    ) {
+      return [currentGroup, ...behandelaarGroups];
+    }
+    return behandelaarGroups;
+  });
+
+  private readonly selectedGroupId = signal<string | undefined>(undefined);
+
+  private readonly usersQuery = injectQuery(() => ({
+    ...this.identityService.listUsersInGroup(this.selectedGroupId() ?? ""),
+    enabled: !!this.selectedGroupId(),
+  }));
+
+  protected readonly users = computed(() => {
+    const users = this.usersQuery.data() ?? [];
+    const zaak = this.zaak();
+    const currentBehandelaar = zaak.behandelaar;
+    if (
+      currentBehandelaar &&
+      zaak.isZaakspecifiekGeautoriseerd &&
+      this.selectedGroupId() === zaak.groep?.id &&
+      !users.some(({ id }) => id === currentBehandelaar.id)
+    ) {
+      return [currentBehandelaar, ...users];
+    }
+    return users;
+  });
+
+  private isGroupPrefilled = false;
+  private behandelaarPrefilledForGroupId?: string;
   protected readonly groupDisplayValue = (
     group: GeneratedType<"RestGroup">,
   ): string =>
     group.isActive === false
       ? `${group.naam ?? ""} (${this.translateService.instant("inactief").toLowerCase()})`
       : (group.naam ?? "");
-  protected readonly users = signal<GeneratedType<"RestUser">[]>([]);
   protected readonly communicationChannels = signal<string[]>([]);
   protected confidentialityDesignations =
     VertrouwelijkaanduidingToTranslationKeyPipe.selectList;
@@ -174,25 +216,48 @@ export class CaseDetailsEditComponent implements OnInit {
       this.updateZaakMutation.isSuccess(),
   );
 
+  constructor() {
+    effect(() => {
+      const groups = this.groups();
+      if (!this.groupsQuery.isSuccess() || this.isGroupPrefilled) return;
+      this.isGroupPrefilled = true;
+
+      const zaakGroupId = this.zaak().groep?.id;
+      untracked(() =>
+        this.form.controls.groep.setValue(
+          groups.find(({ id }) => id === zaakGroupId) ?? null,
+        ),
+      );
+    });
+
+    effect(() => {
+      const groupId = this.selectedGroupId();
+      const users = this.users();
+      if (
+        !groupId ||
+        !this.usersQuery.isSuccess() ||
+        this.behandelaarPrefilledForGroupId === groupId
+      )
+        return;
+      this.behandelaarPrefilledForGroupId = groupId;
+
+      const zaakBehandelaarId = this.zaak().behandelaar?.id;
+      untracked(() => {
+        const changedUser = users.find(
+          ({ id }) => id === this.form.controls.behandelaar.value?.id,
+        );
+        const zaakUser = users.find(({ id }) => id === zaakBehandelaarId);
+        this.form.controls.behandelaar.setValue(
+          changedUser ?? zaakUser ?? null,
+        );
+      });
+    });
+  }
+
   ngOnInit() {
     const zaak = this.zaak();
     const dateChangesAllowed = Boolean(
       zaak.rechten.canWijzigen && zaak.rechten.canWijzigenDoorlooptijd,
-    );
-
-    this.groups = runQuery(
-      this.queryClient,
-      this.identityService.listBehandelaarGroupsForZaaktype(
-        zaak.zaaktype.omschrijving!,
-      ),
-    ).pipe(
-      map((groups) => {
-        const currentGroup = zaak.groep;
-        if (currentGroup && !groups.find((g) => g.id === currentGroup.id)) {
-          return [currentGroup, ...groups];
-        }
-        return groups;
-      }),
     );
 
     if (!zaak.rechten.canWijzigen) {
@@ -266,6 +331,8 @@ export class CaseDetailsEditComponent implements OnInit {
         if (!group) {
           this.form.controls.behandelaar.reset();
           this.form.controls.behandelaar.disable();
+          this.selectedGroupId.set(undefined);
+          this.behandelaarPrefilledForGroupId = undefined;
           return;
         }
 
@@ -273,36 +340,8 @@ export class CaseDetailsEditComponent implements OnInit {
           this.form.controls.behandelaar.enable();
         }
 
-        runQuery(
-          this.queryClient,
-          this.identityService.listUsersInGroup(group.id),
-        ).subscribe((users) => {
-          const currentBehandelaar = zaak.behandelaar;
-          const options =
-            currentBehandelaar &&
-            zaak.isZaakspecifiekGeautoriseerd &&
-            group.id === zaak.groep?.id &&
-            !users.some(({ id }) => id === currentBehandelaar.id)
-              ? [currentBehandelaar, ...users]
-              : users;
-          this.users.set(options);
-
-          const zaakUser = options.find(
-            ({ id }) => id === zaak.behandelaar?.id,
-          );
-          const changedUser = options.find(
-            ({ id }) => id === this.form.controls.behandelaar.value?.id,
-          );
-          this.form.controls.behandelaar.setValue(
-            changedUser ?? zaakUser ?? null,
-          );
-        });
+        this.selectedGroupId.set(group.id);
       });
-
-    this.groups.subscribe((groups) => {
-      const group = groups.find(({ id }) => id === zaak.groep?.id);
-      this.form.controls.groep.setValue(group ?? null);
-    });
 
     const { startdatum, einddatumGepland, uiterlijkeEinddatumAfdoening } = zaak;
 

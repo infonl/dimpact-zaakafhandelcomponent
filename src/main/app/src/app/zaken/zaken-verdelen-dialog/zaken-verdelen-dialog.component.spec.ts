@@ -25,7 +25,6 @@ import { screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
-import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZakenVerdelenDialogComponent } from "./zaken-verdelen-dialog.component";
@@ -62,12 +61,7 @@ const setup = async (
       { provide: MatDialogRef, useValue: dialogRefMock },
     ],
   });
-  const identityService = TestBed.inject(IdentityService);
   const httpTestingController = TestBed.inject(HttpTestingController);
-  testQueryClient.setQueryData(
-    identityService.listUsersInGroup(mockGroups[0].id).queryKey,
-    [],
-  );
   const fixture: ComponentFixture<ZakenVerdelenDialogComponent> =
     TestBed.createComponent(ZakenVerdelenDialogComponent);
   fixture.detectChanges();
@@ -279,6 +273,51 @@ describe(ZakenVerdelenDialogComponent.name, () => {
           name: "zaken.zaakspecifiek-geautoriseerd",
         }),
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("picking a groep", () => {
+    const mockUser: GeneratedType<"RestUser"> = {
+      id: "user-1",
+      naam: "Gebruiker Een",
+    };
+
+    it("offers the users of the picked groep as medewerker", async () => {
+      const { fixture, component, httpTestingController } = await setup([
+        makeZaakZoekObject(),
+      ]);
+      expect(component["form"].controls.medewerker.disabled).toBe(true);
+
+      component["form"].controls.groep.setValue(mockGroups[0]);
+      fixture.detectChanges();
+      await sleep();
+      httpTestingController
+        .expectOne("/rest/identity/groups/groep-1/users")
+        .flush([mockUser]);
+      await sleep();
+      fixture.detectChanges();
+      await sleep();
+      fixture.detectChanges();
+
+      expect(component["form"].controls.medewerker.enabled).toBe(true);
+      expect(component["users"]()).toEqual([mockUser]);
+    });
+
+    it("does not read users while the user types in the groep field", async () => {
+      const { fixture, component, httpTestingController } = await setup([
+        makeZaakZoekObject(),
+      ]);
+
+      component["form"].controls.groep.setValue(
+        "Groep" as unknown as GeneratedType<"RestGroup">,
+      );
+      fixture.detectChanges();
+      await sleep();
+
+      httpTestingController.expectNone((request) =>
+        request.url.endsWith("/users"),
+      );
+      expect(component["form"].controls.medewerker.disabled).toBe(true);
     });
   });
 });
