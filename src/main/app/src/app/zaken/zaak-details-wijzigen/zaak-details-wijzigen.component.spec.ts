@@ -713,6 +713,7 @@ describe(CaseDetailsEditComponent.name, () => {
       });
       component["form"].controls.behandelaar.enable();
       component["form"].controls.behandelaar.setValue(null);
+      component["form"].controls.behandelaar.markAsDirty();
       component["form"].controls.reden.enable();
       component["form"].controls.reden.setValue("reden");
 
@@ -722,6 +723,68 @@ describe(CaseDetailsEditComponent.name, () => {
       const request = expectUpdateZaakRequest();
       expect(request.request.body.isBehandelaarVrijgegeven).toBe(true);
       expect(request.request.body.zaak.behandelaar).toBeUndefined();
+      request.flush({});
+    });
+
+    it("keeps a behandelaar that the form left empty because they are no longer in the group of the zaak", async () => {
+      const group = fromPartial<GeneratedType<"RestGroup">>({
+        id: "g1",
+        naam: "Groep 1",
+      });
+      jest
+        .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
+        .mockReturnValue(of([group]));
+      renderComponent({
+        groep: group,
+        behandelaar: fromPartial<GeneratedType<"RestUser">>({
+          id: "user-123",
+          naam: "testuser",
+        }),
+      });
+      await fixture.whenStable();
+      component["form"].controls.reden.enable();
+      component["form"].controls.reden.setValue("reden");
+
+      component["onSubmit"]();
+      await new Promise(requestAnimationFrame);
+
+      const request = expectUpdateZaakRequest();
+      expect(request.request.body.isBehandelaarVrijgegeven).toBe(false);
+      request.flush({});
+    });
+
+    it("releases the behandelaar when the groep changes to one they are not a member of", async () => {
+      const currentGroup = fromPartial<GeneratedType<"RestGroup">>({
+        id: "g1",
+        naam: "Groep 1",
+      });
+      const otherGroup = fromPartial<GeneratedType<"RestGroup">>({
+        id: "g2",
+        naam: "Groep 2",
+      });
+      jest
+        .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
+        .mockReturnValue(of([currentGroup, otherGroup]));
+      renderComponent({
+        groep: currentGroup,
+        behandelaar: fromPartial<GeneratedType<"RestUser">>({
+          id: "user-123",
+          naam: "testuser",
+        }),
+      });
+      await fixture.whenStable();
+      component["form"].controls.groep.setValue(otherGroup);
+      component["form"].controls.reden.enable();
+      component["form"].controls.reden.setValue("reden");
+
+      component["onSubmit"]();
+      await new Promise(requestAnimationFrame);
+
+      const request = expectUpdateZaakRequest();
+      expect(request.request.body.isBehandelaarVrijgegeven).toBe(true);
+      expect(request.request.body.zaak.groep).toEqual(
+        expect.objectContaining({ id: "g2" }),
+      );
       request.flush({});
     });
 
@@ -1056,6 +1119,7 @@ describe(CaseDetailsEditComponent.name, () => {
       });
       component["form"].controls.behandelaar.enable();
       component["form"].controls.behandelaar.setValue(null);
+      component["form"].controls.behandelaar.markAsDirty();
       component["form"].controls.reden.enable();
       component["form"].controls.reden.setValue("reden");
 

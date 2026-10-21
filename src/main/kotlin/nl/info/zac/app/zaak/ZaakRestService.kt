@@ -902,8 +902,8 @@ class ZaakRestService @Inject constructor(
 
     /**
      * An absent `behandelaar` keeps the one the zaak already has, so that a partial update never releases a
-     * behandelaar by leaving it out. A client that sends the complete assignment, like the 'Zaak bewerken'
-     * form, releases the behandelaar explicitly with `isBehandelaarVrijgegeven`.
+     * behandelaar by leaving it out. A client that sends the complete assignment releases the behandelaar
+     * explicitly with `isBehandelaarVrijgegeven`.
      */
     private fun resolveRequestedAssignment(
         zaak: Zaak,
