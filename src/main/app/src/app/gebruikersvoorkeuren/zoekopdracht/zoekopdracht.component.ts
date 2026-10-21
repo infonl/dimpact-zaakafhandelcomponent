@@ -19,8 +19,11 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslatePipe } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Subscription } from "rxjs";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { runQuery } from "../../shared/http/run-query";
+import { StaleTimes } from "../../shared/http/zac-query-client";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { hasActiveSearchFilters } from "../../zoeken/model/zoek-parameters";
@@ -58,6 +61,7 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     GebruikersvoorkeurenService,
   );
   private readonly dialog = inject(MatDialog);
+  private readonly queryClient = inject(QueryClient);
   private readonly deleteZoekopdrachtMutation = injectMutation(
     () => this.gebruikersvoorkeurenService.deleteZoekOpdrachten(),
     {
@@ -124,16 +128,17 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   }
 
   private loadZoekopdrachten() {
-    this.gebruikersvoorkeurenService
-      .listZoekOpdrachten(this.werklijst())
-      .subscribe((zoekopdrachten) => {
-        this.zoekopdrachten = zoekopdrachten;
-        this.actieveZoekopdracht = zoekopdrachten.find((z) => z.actief) ?? null;
-        this.actieveFilters = this.heeftActieveFilters();
+    runQuery(this.queryClient, {
+      ...this.gebruikersvoorkeurenService.listZoekOpdrachten(this.werklijst()),
+      staleTime: StaleTimes.Instant,
+    }).subscribe((zoekopdrachten) => {
+      this.zoekopdrachten = zoekopdrachten;
+      this.actieveZoekopdracht = zoekopdrachten.find((z) => z.actief) ?? null;
+      this.actieveFilters = this.heeftActieveFilters();
 
-        if (!this.actieveZoekopdracht) return;
-        this.zoekopdracht.emit(this.actieveZoekopdracht);
-      });
+      if (!this.actieveZoekopdracht) return;
+      this.zoekopdracht.emit(this.actieveZoekopdracht);
+    });
   }
 
   private heeftActieveFilters(): boolean {

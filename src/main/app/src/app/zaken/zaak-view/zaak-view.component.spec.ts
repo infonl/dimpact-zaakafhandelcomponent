@@ -39,7 +39,6 @@ import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { TakenService } from "../../taken/taken.service";
 import { ZaakBetrokkeneListComponent } from "../zaak-betrokkenen-list/zaak-betrokkene-list.component";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 import { ZaakProcessFlowComponent } from "../zaak-process-flow/zaak-process-flow.component";
@@ -66,7 +65,6 @@ describe(ZaakViewComponent.name, () => {
   let bagObjectenQuery: ReturnType<typeof createQueryOptions<never[]>>;
   let planItemsService: PlanItemsService;
   let dialogRef: MatDialogRef<unknown>;
-  let takenService: TakenService;
   let websocketService: WebsocketService;
   let zaakafhandelParametersService: ZaakafhandelParametersService;
 
@@ -173,9 +171,6 @@ describe(ZaakViewComponent.name, () => {
     jest
       .spyOn(planItemsService, "listHumanTaskPlanItemsQuery")
       .mockReturnValue(planItemsQuery([]));
-
-    takenService = TestBed.inject(TakenService);
-    jest.spyOn(takenService, "listTakenVoorZaak").mockReturnValue(of([]));
 
     jest.spyOn(KlantenService.prototype, "readPersoon").mockReturnValue(
       queryOptions({

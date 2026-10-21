@@ -64,6 +64,7 @@ import {
 } from "../../shared/form/composed-form/form-field.types";
 import { PatchBody, PutBody } from "../../shared/http/http-client";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { runQuery } from "../../shared/http/run-query";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
@@ -218,7 +219,10 @@ export class TaakViewComponent
         ObjectType.TAAK,
         data.taak.id,
         () => {
-          this.takenService.readTaak(data.taak.id).subscribe((task) => {
+          runQuery(
+            this.queryClient,
+            this.takenService.readTaak(data.taak.id),
+          ).subscribe((task) => {
             this.init(task, false);
           });
         },
@@ -392,11 +396,12 @@ export class TaakViewComponent
   private loadHistorie() {
     if (!this.taak?.id) return;
 
-    this.takenService
-      .listHistorieVoorTaak(this.taak.id)
-      .subscribe((historie) => {
-        this.historieSrc.data = historie;
-      });
+    runQuery(
+      this.queryClient,
+      this.takenService.listHistorieVoorTaak(this.taak.id),
+    ).subscribe((historie) => {
+      this.historieSrc.data = historie;
+    });
   }
 
   editTaak() {

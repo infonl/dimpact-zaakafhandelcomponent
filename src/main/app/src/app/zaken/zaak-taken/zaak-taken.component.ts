@@ -91,7 +91,7 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
 
   protected readonly takenQuery = injectQuery(() =>
-    this.takenService.listTakenVoorZaakQuery(this.zaak().uuid),
+    this.takenService.listTakenVoorZaak(this.zaak().uuid),
   );
 
   protected takenDataSource = new MatTableDataSource<
