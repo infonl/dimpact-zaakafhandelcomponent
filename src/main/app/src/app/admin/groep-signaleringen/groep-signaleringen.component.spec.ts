@@ -40,12 +40,12 @@ const zaakOpNaam = fromPartial<GeneratedType<"RestSignaleringInstellingen">>({
 describe(GroepSignaleringenComponent.name, () => {
   let fixture: ComponentFixture<GroepSignaleringenComponent>;
   let httpTestingController: HttpTestingController;
-  let utilService: Pick<UtilService, "setTitle" | "setLoading">;
+  let utilService: Pick<UtilService, "setLoading">;
 
   const user = userEvent.setup();
 
   async function setup() {
-    utilService = { setTitle: jest.fn(), setLoading: jest.fn() };
+    utilService = { setLoading: jest.fn() };
 
     ({ fixture } = await render(GroepSignaleringenComponent, {
       imports: [TranslateModule.forRoot(), NoopAnimationsModule],
@@ -91,11 +91,6 @@ describe(GroepSignaleringenComponent.name, () => {
 
   it("sets the title and offers every group to choose from", async () => {
     await setup();
-
-    expect(utilService.setTitle).toHaveBeenCalledWith(
-      "title.signaleringen.settings.groep",
-      undefined,
-    );
 
     await user.click(screen.getByRole("combobox", { name: "groep.kies" }));
 

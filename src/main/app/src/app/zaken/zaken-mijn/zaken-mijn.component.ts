@@ -41,6 +41,7 @@ import { ZakenMijnDatasource } from "./zaken-mijn-datasource";
 
 import { detailExpand } from "../../shared/animations/animations";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 
 @Component({
   templateUrl: "./zaken-mijn.component.html",
@@ -48,6 +49,7 @@ import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
   animations: [detailExpand],
   standalone: true,
   imports: [
+    ZaakIdentificatieComponent,
     I18nKeyPipe,
     CdkDrag,
     CdkDropList,
@@ -113,7 +115,6 @@ export class ZakenMijnComponent
       this.zoekenService,
       this.utilService,
     );
-    this.utilService.setTitle("title.zaken.mijn");
     this.dataSource.initColumns(this.defaultColumns());
   }
 

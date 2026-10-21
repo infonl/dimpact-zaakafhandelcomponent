@@ -4,6 +4,8 @@
  */
 package nl.info.client.klant
 
+import nl.info.client.klanten.model.generated.Actor
+import nl.info.client.klanten.model.generated.Actoridentificator
 import nl.info.client.klanten.model.generated.BetrokkeneForeignKey
 import nl.info.client.klanten.model.generated.CategorieRelatie
 import nl.info.client.klanten.model.generated.CategorieRelatieForeignKey
@@ -158,8 +160,27 @@ fun createBetrokkeneForeignKey(
 fun createKlantcontact(
     uuid: UUID = UUID.randomUUID(),
     uri: URI = URI("https://example.com/fakeUri"),
-    hadBetrokkenen: List<BetrokkeneForeignKey> = listOf(createBetrokkeneForeignKey())
-) = Klantcontact(uuid, uri, emptyList(), emptyList(), emptyList(), hadBetrokkenen, emptyList())
+    hadBetrokkenen: List<BetrokkeneForeignKey> = listOf(createBetrokkeneForeignKey()),
+    hadBetrokkenActoren: List<Actor> = emptyList()
+) = Klantcontact(uuid, uri, emptyList(), hadBetrokkenActoren, emptyList(), hadBetrokkenen, emptyList())
+
+fun createActor(
+    naam: String? = "fakeActorNaam",
+    actoridentificator: Actoridentificator = createActoridentificator()
+) = Actor().apply {
+    this.naam = naam
+    this.actoridentificator = actoridentificator
+}
+
+fun createActoridentificator(
+    codeObjecttype: String = "fakeCodeObjecttype",
+    codeRegister: String = "fakeCodeRegister",
+    objectId: String = "fakeObjectId"
+) = Actoridentificator().apply {
+    this.codeObjecttype = codeObjecttype
+    this.codeRegister = codeRegister
+    this.objectId = objectId
+}
 
 fun createPaginatedKlantcontactList(
     klantcontacten: List<Klantcontact> = listOf(createKlantcontact())

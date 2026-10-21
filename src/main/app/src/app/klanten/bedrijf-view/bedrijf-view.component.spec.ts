@@ -17,7 +17,6 @@ import { of, Subject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { KlantContactmomentenTabelComponent } from "../../contactmomenten/klant-contactmomenten-tabel/klant-contactmomenten-tabel.component";
-import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantZakenTabelComponent } from "../klant-zaken-tabel/klant-zaken-tabel.component";
 import { KlantenService } from "../klanten.service";
@@ -105,7 +104,6 @@ describe(BedrijfViewComponent.name, () => {
 
   let component: BedrijfViewComponent;
   let fixture: ComponentFixture<BedrijfViewComponent>;
-  let utilService: UtilService;
   let klantenService: KlantenService;
 
   const routeDataSubject = new Subject<{
@@ -149,21 +147,13 @@ describe(BedrijfViewComponent.name, () => {
       })
       .compileComponents();
 
-    utilService = TestBed.inject(UtilService);
     klantenService = TestBed.inject(KlantenService);
-    jest.spyOn(utilService, "setTitle").mockImplementation(() => undefined);
 
     fixture = TestBed.createComponent(BedrijfViewComponent);
     component = fixture.componentInstance;
   });
 
   describe("initialisation", () => {
-    it("sets the page title on construction", () => {
-      routeDataSubject.next({ bedrijf: null });
-      fixture.detectChanges();
-      expect(utilService.setTitle).toHaveBeenCalledWith("bedrijfsgegevens");
-    });
-
     it("populates bedrijf from route resolver data", () => {
       const bedrijf = makeBedrijf();
       routeDataSubject.next({ bedrijf });

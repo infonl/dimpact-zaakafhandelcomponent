@@ -128,7 +128,7 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
             reason = restZaakAssignmentToLoggedInUserData.reason
         )
 
-        return restZaakOverzichtConverter.convert(zaak, loggedInUser)
+        return restZaakOverzichtConverter.convertToRestZaakOverzicht(zaak, loggedInUser)
     }
 
     /**

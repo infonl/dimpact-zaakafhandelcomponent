@@ -16,10 +16,9 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import nl.info.zac.app.admin.converter.RestCaseDefinitionConverter
-import net.atos.zac.flowable.cmmn.CmmnService
+import nl.info.zac.admin.model.ProcessEngine
+import nl.info.zac.app.admin.converter.RestProcessDefinitionConverter
 import nl.info.client.zgw.util.extractUuid
-import net.atos.zac.app.admin.model.RESTCaseDefinition
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -35,10 +34,12 @@ import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeConfigurationsUnderTest
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
+import nl.info.zac.app.admin.model.createRestProcessDefinition
 import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
 import nl.info.zac.app.admin.model.createRestZaaktypeOverzicht
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_VALIDATION_GENERIC
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_USER_NOT_IN_GROUP
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.identity.IdentityService
@@ -52,24 +53,22 @@ import java.util.UUID
 class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val configurationService = mockk<ConfigurationService>()
-    val cmmnService = mockk<CmmnService>()
     val zaaktypeConfigurationBeheerService = mockk<ZaaktypeConfigurationBeheerService>()
     val referenceTableService = mockk<ReferenceTableService>()
     val restZaaktypeConfigurationConverter = mockk<RestZaaktypeConfigurationConverter>()
     val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
-    val caseDefinitionConverter = mockk<RestCaseDefinitionConverter>()
+    val processDefinitionConverter = mockk<RestProcessDefinitionConverter>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val policyService = mockk<PolicyService>()
     val identityService = mockk<IdentityService>()
     val zaaktypeConfigurationRestService = ZaaktypeConfigurationRestService(
         ztcClientService = ztcClientService,
         configurationService = configurationService,
-        cmmnService = cmmnService,
         zaaktypeConfigurationService = zaaktypeConfigurationService,
         zaaktypeConfigurationBeheerService = zaaktypeConfigurationBeheerService,
         referenceTableService = referenceTableService,
         restZaaktypeConfigurationConverter = restZaaktypeConfigurationConverter,
-        caseDefinitionConverter = caseDefinitionConverter,
+        processDefinitionConverter = processDefinitionConverter,
         smartDocumentsTemplatesService = smartDocumentsTemplatesService,
         policyService = policyService,
         identityService = identityService,
@@ -115,7 +114,8 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
 
             `when`("the zaakafhandelparameters are created") {
                 val returnedRestZaakafhandelParameters =
-                    zaaktypeConfigurationRestService.createOrUpdateZaaktypeCmmnConfiguration(
+                    zaaktypeConfigurationRestService.createOrUpdateZaaktypeConfiguration(
+                        restZaakafhandelParameters.zaaktype.uuid,
                         restZaakafhandelParameters
                     )
 
@@ -151,7 +151,8 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
 
             `when`("the zaakafhandelparameters are created") {
                 val exception = shouldThrow<InputValidationFailedException> {
-                    zaaktypeConfigurationRestService.createOrUpdateZaaktypeCmmnConfiguration(
+                    zaaktypeConfigurationRestService.createOrUpdateZaaktypeConfiguration(
+                        restZaakafhandelParameters.zaaktype.uuid,
                         restZaakafhandelParameters
                     )
                 }
@@ -204,7 +205,8 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                 defaultGroupId = behandelaarGroupId
             )
             val exception = shouldThrow<InputValidationFailedException> {
-                zaaktypeConfigurationRestService.createOrUpdateZaaktypeCmmnConfiguration(
+                zaaktypeConfigurationRestService.createOrUpdateZaaktypeConfiguration(
+                    restZaakafhandelParameters.zaaktype.uuid,
                     restZaakafhandelParameters
                 )
             }
@@ -215,6 +217,45 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                 verify(exactly = 0) {
                     zaaktypeConfigurationBeheerService.storeConfiguration(zaaktypeCmmnConfiguration)
                 }
+            }
+        }
+    }
+
+    given("a configuration for another zaaktype version than the one in the path") {
+        val restZaaktypeConfiguration = createRestZaaktypeConfiguration()
+        val otherZaaktypeUuid = UUID.randomUUID()
+        every { policyService.readOverigeRechten().canBeheren } returns true
+
+        `when`("it is stored") {
+            val exception = shouldThrow<InputValidationFailedException> {
+                zaaktypeConfigurationRestService.createOrUpdateZaaktypeConfiguration(
+                    otherZaaktypeUuid,
+                    restZaaktypeConfiguration
+                )
+            }
+
+            then("it is rejected and nothing is stored") {
+                exception.errorCode shouldBe ERROR_CODE_VALIDATION_GENERIC
+                verify(exactly = 0) { zaaktypeConfigurationBeheerService.storeConfiguration(any()) }
+            }
+        }
+    }
+
+    given("a configuration that names no process definition") {
+        val restZaaktypeConfiguration = createRestZaaktypeConfiguration(restProcessDefinition = null)
+        every { policyService.readOverigeRechten().canBeheren } returns true
+
+        `when`("it is stored") {
+            val exception = shouldThrow<InputValidationFailedException> {
+                zaaktypeConfigurationRestService.createOrUpdateZaaktypeConfiguration(
+                    restZaaktypeConfiguration.zaaktype.uuid,
+                    restZaaktypeConfiguration
+                )
+            }
+
+            then("it is rejected and nothing is stored") {
+                exception.errorCode shouldBe ERROR_CODE_VALIDATION_GENERIC
+                verify(exactly = 0) { zaaktypeConfigurationBeheerService.storeConfiguration(any()) }
             }
         }
     }
@@ -283,20 +324,20 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
         }
     }
 
-    context("reading case definition and listing endpoints") {
-        given("a case definition key") {
-            val caseDefinition = RESTCaseDefinition().apply {
-                key = "fakeCaseDefinitionKey"
-                naam = "fakeCaseDefinitionName"
-            }
+    context("listing endpoints") {
+        given("the process definitions of both process engines") {
+            val processDefinitions = listOf(
+                createRestProcessDefinition(processEngine = ProcessEngine.CMMN, key = "fakeCaseDefinitionKey"),
+                createRestProcessDefinition(processEngine = ProcessEngine.BPMN, key = "fakeProcessDefinitionKey")
+            )
             every { policyService.readOverigeRechten().canBeheren } returns true
-            every { caseDefinitionConverter.convertToRestCaseDefinition("fakeCaseDefinitionKey", true) } returns caseDefinition
+            every { processDefinitionConverter.listProcessDefinitions() } returns processDefinitions
 
-            `when`("reading case definition") {
-                val returnedCaseDef = zaaktypeConfigurationRestService.readCaseDefinition("fakeCaseDefinitionKey")
+            `when`("a beheerder lists the process definitions") {
+                val returnedProcessDefinitions = zaaktypeConfigurationRestService.listBindableProcessDefinitions()
 
-                then("case definition is returned from converter") {
-                    returnedCaseDef shouldBe caseDefinition
+                then("those of both engines are returned") {
+                    returnedProcessDefinitions shouldBe processDefinitions
                 }
             }
         }

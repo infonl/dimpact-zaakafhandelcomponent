@@ -15,14 +15,17 @@ import nl.info.zac.app.zaak.model.RestGerelateerdeZaak
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.ZaakRechten
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.model.canBeUnlinkedFromDeelzaak
 import nl.info.zac.zaak.model.canBeUnlinkedFromRelatedZaak
 import nl.info.zac.zaak.model.toZaakLinkData
+import nl.info.zac.zaak.readZaakAutorisatieGegevens
 
 class RestGerelateerdeZaakConverter @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
-    private val policyService: PolicyService
+    private val policyService: PolicyService,
+    private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService
 ) {
     fun convert(
         fromZaak: Zaak,
@@ -32,13 +35,19 @@ class RestGerelateerdeZaakConverter @Inject constructor(
         relatieType: RelatieType?
     ): RestGerelateerdeZaak {
         val zaaktype = ztcClientService.readZaaktype(gerelateerdeZaak.zaaktype)
+        val zaakAutorisatieGegevens = zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(
+            zrcClientService,
+            gerelateerdeZaak
+        )
         val zaakrechten = policyService.readZaakRechten(
             zaak = gerelateerdeZaak,
             zaaktype = zaaktype,
-            loggedInUser = loggedInUser
+            loggedInUser = loggedInUser,
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens
         )
         return RestGerelateerdeZaak(
             identificatie = gerelateerdeZaak.identificatie,
+            isZaakspecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd,
             relatieType = relatieType,
             rechten = zaakrechten.toRestZaakRechten(),
             zaaktypeOmschrijving = takeIf { zaakrechten.canLezen }?.let { zaaktype.omschrijving },

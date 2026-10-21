@@ -4,9 +4,9 @@
 
 
 > **Colofon** <br>
-> Datum :13-10-2026 <br>
-> Versie :   1.10.2 <br>
-> Verandering : Zaakspecifieke autorisatie bij taken <br>
+> Datum :19-10-2026 <br>
+> Versie :   1.10.5 <br>
+> Verandering : Slot-icoon bij zaakspecifiek geautoriseerde zaken in alle lijsten <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -47,6 +47,7 @@ Versiegeschiedenis:
 | 1.10.2 | Toevoeging zaakspecifieke autorisatie bij taken                                                                                            |
 | 1.10.3 | Toevoeging medewerker ontkoppelen bij zaakspecifieke autorisatie                                                                           |
 | 1.10.4 | Toevoeging zaakspecifieke autorisatie opheffen                                                                                             |
+| 1.10.5 | Toevoeging slot-icoon bij zaakspecifiek geautoriseerde zaken in alle lijsten                                                               |
 
 <div style="page-break-after: always"></div>
 
@@ -554,6 +555,12 @@ Je kunt in dezelfde stap ook een andere behandelaar kiezen. Dan geldt de nieuwe 
 Een zaakspecifiek geautoriseerde zaak toont een slot-icoon voor het zaaknummer. Ga met de muis over het icoon voor de tekst ‘Zaak is zaakspecifiek geautoriseerd’.
 
 ![Zaakspecifiek geautoriseerde zaak](./images/zaak-zaakspecifiek-geautoriseerd-icoon.png)
+
+Het slot-icoon staat overal waar ZAC het zaaknummer van een zaakspecifiek geautoriseerde zaak toont. Bijvoorbeeld:
+
+- op de zaakdetailpagina, en bij de zaak op de taak- en documentdetailpagina
+- in de werkvoorraden van zaken en taken
+- op de dashboardkaarten en in de zoekresultaten
 
 ### Werken met een zaakspecifiek geautoriseerde zaak
 

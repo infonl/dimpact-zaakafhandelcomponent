@@ -155,7 +155,6 @@ export class InboxDocumentenListComponent
 
   ngOnInit() {
     super.ngOnInit();
-    this.utilService.setTitle("title.documenten.inbox-documenten");
     this.listParameters = SessionStorageUtil.getItem(
       "INBOX_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.createDefaultParameters(),
@@ -254,7 +253,7 @@ export class InboxDocumentenListComponent
     } satisfies typeof this.listParametersSort;
   }
 
-  zoekopdrachtChanged(actieveZoekopdracht: GeneratedType<"RESTZoekopdracht">) {
+  zoekopdrachtChanged(actieveZoekopdracht: GeneratedType<"RestZoekopdracht">) {
     if (actieveZoekopdracht?.json) {
       this.listParameters = JSON.parse(actieveZoekopdracht.json);
       this.sort().active = this.listParametersSort.sort;

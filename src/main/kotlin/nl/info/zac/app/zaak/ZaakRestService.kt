@@ -446,7 +446,8 @@ class ZaakRestService @Inject constructor(
                     uiterlijkeEinddatumAfdoeningWaarschuwing = uiterlijkeEinddatumAfdoeningWaarschuwing
                 )
             }
-            .map { restZaakOverzichtConverter.convert(zaak = it, loggedInUser = loggedInUser) }
+            .map { restZaakOverzichtConverter.convertToRestZaakOverzicht(zaak = it, loggedInUser = loggedInUser) }
+            .filter { it.rechten?.canLezen == true && it.behandelaar?.id == loggedInUser.id }
     }
 
     @GET
@@ -761,6 +762,7 @@ class ZaakRestService @Inject constructor(
         assertPolicy(zaakRechten.canVerlengen)
         val updatedZaak = suspensionZaakHelper.extendZaak(
             zaak = zaak,
+            zaakType = zaakType,
             dueDate = restZaakVerlengGegevens.einddatumGepland,
             fatalDate = restZaakVerlengGegevens.uiterlijkeEinddatumAfdoening,
             extensionReason = restZaakVerlengGegevens.redenVerlenging,

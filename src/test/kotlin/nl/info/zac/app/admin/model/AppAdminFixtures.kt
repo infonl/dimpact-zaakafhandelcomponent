@@ -5,6 +5,7 @@
 package nl.info.zac.app.admin.model
 
 import net.atos.zac.app.admin.model.RestZaakbeeindigReden
+import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.app.zaak.model.RestResultaattype
 import java.time.LocalDate
@@ -69,10 +70,12 @@ fun createRestZaaktypeConfiguration(
     defaultGroupId: String? = "fakeGroupId",
     defaultBehandelaarId: String? = null,
     restBetrokkeneKoppelingen: RestBetrokkeneKoppelingen = RestBetrokkeneKoppelingen(),
-    restBrpDoelbindingen: RestBrpDoelbindingen = RestBrpDoelbindingen()
+    restBrpDoelbindingen: RestBrpDoelbindingen = RestBrpDoelbindingen(),
+    restProcessDefinition: RestProcessDefinition? = createRestProcessDefinition()
 ) = RestZaaktypeConfiguration(
     id = id,
     zaaktype = restZaaktypeOverzicht,
+    processDefinition = restProcessDefinition,
     productaanvraagtype = productaanvraagtype,
     smartDocuments = RestSmartDocuments(
         isEnabledGlobally = true,
@@ -84,33 +87,16 @@ fun createRestZaaktypeConfiguration(
     brpDoelbindingen = restBrpDoelbindingen
 )
 
+fun createRestProcessDefinition(
+    processEngine: ProcessEngine = ProcessEngine.CMMN,
+    key: String = "fakeProcessDefinitionKey",
+    naam: String? = "fakeProcessDefinitionName"
+) = RestProcessDefinition(processEngine = processEngine, key = key, naam = naam)
+
 fun createRestBetrokkeneKoppelingen(
     brpKoppelen: Boolean = false,
     kvkKoppelen: Boolean = false
 ) = RestBetrokkeneKoppelingen(isBrpKoppelenEnabled = brpKoppelen, isKvkKoppelenEnabled = kvkKoppelen)
-
-@Suppress("LongParameterList")
-fun createRestZaaktypeBpmnConfiguration(
-    id: Long = 1L,
-    zaaktypeUuid: UUID = UUID.randomUUID(),
-    bpmnProcessDefinitionKey: String = "fakeProcessDefinitionKey",
-    zaaktypeOmschrijving: String = "fakeZaaktypeOmschrijving",
-    groepNaam: String? = "fakeGroupName",
-    productaanvraagtype: String? = null,
-    zaakNietOntvankelijkResultaattype: RestResultaattype? = null,
-    zaakBeeindigParameters: List<RestZaakbeeindigParameter> = emptyList(),
-    smartDocuments: RestSmartDocuments? = null
-) = RestZaaktypeBpmnConfiguration(
-    id = id,
-    zaaktypeUuid = zaaktypeUuid,
-    bpmnProcessDefinitionKey = bpmnProcessDefinitionKey,
-    zaaktypeOmschrijving = zaaktypeOmschrijving,
-    groepNaam = groepNaam,
-    productaanvraagtype = productaanvraagtype,
-    zaakNietOntvankelijkResultaattype = zaakNietOntvankelijkResultaattype,
-    zaakbeeindigParameters = zaakBeeindigParameters,
-    smartDocuments = smartDocuments
-)
 
 @Suppress("LongParameterList")
 fun createRestZaaktypeOverzicht(

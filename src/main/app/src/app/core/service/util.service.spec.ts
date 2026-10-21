@@ -9,7 +9,6 @@ import { Observable, of } from "rxjs";
 import { Signal } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSnackBar } from "@angular/material/snack-bar";
-import { Title } from "@angular/platform-browser";
 import { TranslateService } from "@ngx-translate/core";
 import { ProgressDialogComponent } from "src/app/shared/progress-dialog/progress-dialog.component";
 import { UtilService } from "./util.service";
@@ -20,16 +19,11 @@ class MatSnackBarRefMock {
 
 describe(UtilService.name, () => {
   let service: UtilService;
-  let titleService: Title;
   let snackbar: MatSnackBar;
   let dialog: MatDialog;
   let translateService: TranslateService;
 
   beforeEach(() => {
-    const titleServiceMock = {
-      setTitle: jest.fn(),
-    };
-
     const snackbarMock = {
       open: jest.fn().mockReturnValue(new MatSnackBarRefMock()),
     };
@@ -48,13 +42,11 @@ describe(UtilService.name, () => {
         { provide: MatSnackBar, useValue: snackbarMock },
         { provide: MatDialog, useValue: dialogMock },
         { provide: TranslateService, useValue: translateServiceMock },
-        { provide: Title, useValue: titleServiceMock },
       ],
       imports: [],
     });
 
     service = TestBed.inject(UtilService);
-    titleService = TestBed.inject(Title);
     snackbar = TestBed.inject(MatSnackBar);
     dialog = TestBed.inject(MatDialog);
     translateService = TestBed.inject(TranslateService);
@@ -62,35 +54,6 @@ describe(UtilService.name, () => {
 
   it("should be created", () => {
     expect(service).toBeTruthy();
-  });
-
-  it("should set the title correctly using translate and update headerTitle", () => {
-    // Arrange
-    const title = "pageTitle";
-    const translatedTitle = "Translated Page Title";
-    const translatedFullTitle = "Translated Full Title";
-
-    // Mock the behavior of the translation service
-    (translateService.instant as jest.Mock).mockImplementation(
-      (key: string) => {
-        if (key === title) return translatedTitle;
-        if (key === "title") return `Translated Full Title`;
-        return key;
-      },
-    );
-
-    const headerTitleSpy = jest.spyOn(service["headerTitle"], "next");
-
-    // Act
-    service.setTitle(title);
-
-    // Assert
-    expect(translateService.instant).toHaveBeenCalledWith(title, undefined);
-    expect(translateService.instant).toHaveBeenCalledWith("title", {
-      title: translatedTitle,
-    });
-    expect(titleService.setTitle).toHaveBeenCalledWith(translatedFullTitle);
-    expect(headerTitleSpy).toHaveBeenCalledWith(translatedTitle);
   });
 
   it("should return the label and value of every enum value, looking up the label by the lowercase kebab-case key", () => {

@@ -102,8 +102,8 @@ class BagRestServiceTest : BehaviorSpec({
                 "it should invoke the BAG client service with the correct arguments and return the expected addresses"
             ) {
                 with(result) {
-                    totaal shouldBe 2
-                    resultaten.forEachIndexed { index, restBagAdres ->
+                    resultCount shouldBe 2
+                    results.forEachIndexed { index, restBagAdres ->
                         restBagAdres.huisnummer shouldBe addresses[index].huisnummer
                         restBagAdres.postcode shouldBe addresses[index].postcode
                         restBagAdres.woonplaatsNaam shouldBe addresses[index].woonplaatsNaam

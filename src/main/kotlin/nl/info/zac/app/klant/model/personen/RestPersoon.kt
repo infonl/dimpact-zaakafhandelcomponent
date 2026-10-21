@@ -7,7 +7,7 @@
 
 package nl.info.zac.app.klant.model.personen
 
-import net.atos.zac.app.shared.RESTResultaat
+import nl.info.zac.app.shared.RestResultaat
 import nl.info.client.brp.model.generated.AbstractDatum
 import nl.info.client.brp.model.generated.AbstractVerblijfplaats
 import nl.info.client.brp.model.generated.Adres
@@ -148,7 +148,7 @@ fun PersonenQueryResponse.toRestPersonen(): List<RestPersoon> =
         else -> emptyList()
     }
 
-fun List<RestPersoon>.toRestResultaat() = RESTResultaat(this)
+fun List<RestPersoon>.toRestResultaat() = RestResultaat(this)
 
 private fun Waardetabel.toDescription(): String =
     if (!this.omschrijving.isNullOrBlank()) this.omschrijving else this.code

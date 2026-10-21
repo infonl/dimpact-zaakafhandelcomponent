@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.signalering.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
@@ -14,6 +15,10 @@ data class RestSignaleringTaskSummary(
     var id: String,
     var naam: String,
     var zaakIdentificatie: String,
+
+    @get:JsonbProperty("isZaakspecifiekGeautoriseerd")
+    var isZaakspecifiekGeautoriseerd: Boolean,
+
     var zaaktypeOmschrijving: String,
     var creatiedatumTijd: ZonedDateTime
 )

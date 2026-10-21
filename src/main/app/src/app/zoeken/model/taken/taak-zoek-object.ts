@@ -20,6 +20,7 @@ export type TaakZoekObject =
     zaaktypeOmschrijving: string;
     zaakUuid: string;
     zaakIdentificatie: string;
+    isZaakspecifiekGeautoriseerd: boolean;
     zaakOmschrijving: string;
     zaakToelichting: string;
     creatiedatum: string;

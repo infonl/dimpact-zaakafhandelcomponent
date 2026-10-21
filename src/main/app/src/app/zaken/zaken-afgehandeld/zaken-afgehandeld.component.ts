@@ -45,6 +45,7 @@ import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-r
 import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filter/facet-filter.component";
 import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { ZakenAfgehandeldDatasource } from "./zaken-afgehandeld-datasource";
@@ -55,6 +56,7 @@ import { ZakenAfgehandeldDatasource } from "./zaken-afgehandeld-datasource";
   animations: [detailExpand],
   standalone: true,
   imports: [
+    ZaakIdentificatieComponent,
     I18nKeyPipe,
     CdkDrag,
     CdkDropList,
@@ -124,7 +126,6 @@ export class ZakenAfgehandeldComponent
 
   ngOnInit(): void {
     super.ngOnInit();
-    this.utilService.setTitle("title.zaken.afgehandeld");
     this.dataSource.initColumns(this.defaultColumns());
   }
 

@@ -9,6 +9,7 @@ import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.servlet.http.HttpSession
 import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.NotFoundException
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
@@ -143,6 +144,18 @@ class NotificationReceiver @Inject constructor(
         }
     }
 
+    private fun deleteZaakSignaleringenOfFormerBehandelaren(zaakUUID: UUID) {
+        try {
+            signaleringService.deleteZaakSignaleringenOfFormerBehandelaren(zaakUUID).also {
+                LOG.info("Deleted $it zaak signaleringen of former behandelaren for zaak with UUID '$zaakUUID'.")
+            }
+        } catch (notFoundException: NotFoundException) {
+            LOG.log(Level.FINE, notFoundException) {
+                "Zaak with UUID '$zaakUUID' of a deleted rol no longer exists. Therefore no signaleringen are deleted."
+            }
+        }
+    }
+
     private fun isAuthenticated(headers: HttpHeaders) = secret == headers.getHeaderString(HttpHeaders.AUTHORIZATION)
 
     /**
@@ -202,6 +215,12 @@ class NotificationReceiver @Inject constructor(
                 notification.action == Action.DELETE
             ) {
                 deleteSignaleringenForZaak(notification.resourceUrl.extractUuid())
+            }
+            if (notification.channel == Channel.ZAKEN &&
+                notification.resource == Resource.ROL &&
+                notification.action == Action.DELETE
+            ) {
+                notification.mainResourceUrl.extractUuid().let(::deleteZaakSignaleringenOfFormerBehandelaren)
             }
             // send signalering events for this notification
             SignaleringEventUtil.getEvents(

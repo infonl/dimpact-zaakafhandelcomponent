@@ -14,7 +14,7 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import net.atos.zac.csv.CsvService
-import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
+import nl.info.zac.gebruikersvoorkeuren.model.TabelInstellingen
 import net.atos.zac.util.MediaTypes
 import nl.info.zac.app.search.converter.RestZoekParametersConverter
 import nl.info.zac.app.search.model.RestZoekParameters

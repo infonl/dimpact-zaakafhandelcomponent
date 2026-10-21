@@ -14,7 +14,16 @@
         'actie.' + zoekObject().type?.toLowerCase() + '.bekijken' | translate
       }}"
     >
-      <read-more maxLength="25" [text]="getName()"></read-more>
+      @if (zoekObject().type === "ZAAK") {
+        <zac-zaak-identificatie
+          [identificatie]="getName()"
+          [isZaakspecifiekGeautoriseerd]="
+            zaakZoekObject.isZaakspecifiekGeautoriseerd
+          "
+        />
+      } @else {
+        <read-more maxLength="25" [text]="getName()"></read-more>
+      }
       <mat-icon>visibility</mat-icon>
     </a>
   </div>

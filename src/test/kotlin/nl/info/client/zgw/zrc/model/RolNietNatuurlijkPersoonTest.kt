@@ -66,6 +66,21 @@ class RolNietNatuurlijkPersoonTest : BehaviorSpec({
         }
     }
 
+    given("a NietNatuurlijkPersoonIdentificatie with a statutaireNaam") {
+        val rol = createRolNietNatuurlijkPersoon(
+            nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(kvkNummer = "fakeKvkNummer")
+                .apply { statutaireNaam = "fakeStatutaireNaam" }
+        )
+
+        `when`("getNaam is called") {
+            val naam = rol.naam
+
+            then("it returns the statutaireNaam") {
+                naam shouldBe "fakeStatutaireNaam"
+            }
+        }
+    }
+
     given("a NietNatuurlijkPersoonIdentificatie with a blank statutaireNaam") {
         val rol = createRolNietNatuurlijkPersoon(
             nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(kvkNummer = "fakeKvkNummer")

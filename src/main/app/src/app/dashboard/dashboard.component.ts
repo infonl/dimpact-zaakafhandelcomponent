@@ -44,7 +44,6 @@ import {
 } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { forkJoin } from "rxjs";
-import { UtilService } from "../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { injectMutation } from "../shared/http/inject-mutation";
 import { runQuery } from "../shared/http/run-query";
@@ -176,12 +175,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   editMode = new FormControl(false);
   showHint = false;
 
-  instellingen: GeneratedType<"RESTDashboardCardInstelling">[] = []; // the last loaded card settings
+  instellingen: GeneratedType<"RestDashboardCardInstelling">[] = []; // the last loaded card settings
   available: DashboardCard[] = []; // cards that are not on the dashboard
   grid: Array<DashboardCard[]> = []; // cards that are on the dashboard
 
   constructor(
-    private readonly utilService: UtilService,
     private readonly signaleringenService: SignaleringenService,
     private readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
   ) {
@@ -197,7 +195,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.utilService.setTitle("title.dashboard");
     this.loadCards(SessionStorageUtil.getItem("dashboardWidth", 3));
     // TODO instead of session storage use userpreferences in a db
     SessionStorageUtil.setItem("dashboardOpened", moment());
@@ -482,7 +479,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       cardId: card.id,
       signaleringType: card.signaleringType,
       // Add other required properties with default values if needed
-    } satisfies GeneratedType<"RESTDashboardCardInstelling">;
+    } satisfies GeneratedType<"RestDashboardCardInstelling">;
   }
 }
 

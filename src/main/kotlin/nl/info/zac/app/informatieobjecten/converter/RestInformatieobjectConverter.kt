@@ -329,7 +329,8 @@ class RestInformatieobjectConverter @Inject constructor(
     fun convertToREST(
         zaakInformatieObject: ZaakInformatieObject,
         relatieType: RelatieType,
-        zaak: Zaak
+        zaak: Zaak,
+        zaakAutorisatieGegevens: ZaakAutorisatieGegevens
     ): RestGekoppeldeZaakEnkelvoudigInformatieObject {
         val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(
             zaakInformatieObject.informatieobject
@@ -343,7 +344,8 @@ class RestInformatieobjectConverter @Inject constructor(
         val documentRechten = policyService.readDocumentRechten(
             enkelvoudigInformatieobject = enkelvoudigInformatieObject,
             zaak = zaak,
-            lock = lock
+            lock = lock,
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens
         )
         val restEnkelvoudigInformatieobject = RestGekoppeldeZaakEnkelvoudigInformatieObject()
         restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID
@@ -357,6 +359,8 @@ class RestInformatieobjectConverter @Inject constructor(
             )
             restEnkelvoudigInformatieobject.relatieType = relatieType
             restEnkelvoudigInformatieobject.zaakIdentificatie = zaak.identificatie
+            restEnkelvoudigInformatieobject.isZaakspecifiekGeautoriseerd =
+                zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd
             restEnkelvoudigInformatieobject.zaakUUID = zaak.uuid
         } else {
             restEnkelvoudigInformatieobject.titel = enkelvoudigInformatieObject.identificatie
