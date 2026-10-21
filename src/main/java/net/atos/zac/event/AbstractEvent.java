@@ -7,23 +7,13 @@ package net.atos.zac.event;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import jakarta.json.bind.annotation.JsonbTransient;
 
 public abstract class AbstractEvent<TYPE, ID> implements Serializable {
-    private static final Logger LOG = Logger.getLogger(AbstractEvent.class.getName());
-
     private long timestamp;
 
     private Opcode opcode;
 
     private ID objectId;
-
-    @JsonbTransient
-    private int delay;
 
     /**
      * Constructor for the sake of JAXB
@@ -50,21 +40,6 @@ public abstract class AbstractEvent<TYPE, ID> implements Serializable {
 
     public ID getObjectId() {
         return objectId;
-    }
-
-    public void delay() {
-        if (0 < delay) {
-            try {
-                TimeUnit.SECONDS.sleep(delay);
-            } catch (InterruptedException e) {
-                LOG.log(Level.WARNING, "Thread interrupted", e);
-                Thread.currentThread().interrupt();
-            }
-        }
-    }
-
-    public void setDelay(final int seconds) {
-        this.delay = seconds;
     }
 
     @Override
@@ -98,7 +73,6 @@ public abstract class AbstractEvent<TYPE, ID> implements Serializable {
 
     @Override
     public String toString() {
-        final String className = 0 < delay ? getClass().getSimpleName() + String.format("+%ds", delay) : getClass().getSimpleName();
-        return String.format("%s %s %s %s", className, getOpcode(), getObjectType(), getObjectId());
+        return String.format("%s %s %s %s", getClass().getSimpleName(), getOpcode(), getObjectType(), getObjectId());
     }
 }

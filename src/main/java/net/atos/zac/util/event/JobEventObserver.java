@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -40,7 +40,6 @@ public class JobEventObserver {
     public void onFire(final @ObservesAsync JobEvent event) {
         try {
             LOG.fine(() -> String.format("Job event ontvangen: %s", event.toString()));
-            event.delay();
             if (Objects.requireNonNull(event.getObjectId()) == JobId.SIGNALERINGEN_JOB) {
                 zaakTaskDueDateEmailNotificationService.sendDueDateEmailNotifications();
             }
