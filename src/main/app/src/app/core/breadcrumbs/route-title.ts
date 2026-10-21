@@ -55,7 +55,8 @@ export function breadcrumbs(root: ActivatedRouteSnapshot) {
     // A route without a title of its own inherits the title of its parent.
     if (route.routeConfig?.title !== undefined && route.title) {
       const details = route.data["breadcrumbDetails"] as
-        BreadcrumbDetailsFn | undefined;
+        | BreadcrumbDetailsFn
+        | undefined;
       crumbs.push({
         title: route.title,
         url:
