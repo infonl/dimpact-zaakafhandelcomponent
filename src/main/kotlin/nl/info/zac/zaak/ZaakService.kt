@@ -12,9 +12,9 @@ import nl.info.client.zgw.zrc.model.RolMedewerker
 import nl.info.client.zgw.zrc.model.RolNatuurlijkPersoon
 import nl.info.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
-import net.atos.zac.event.EventingService
+import nl.info.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.shared.exception.MultipleBehandelaarRolesException

@@ -8,9 +8,9 @@ package net.atos.zac.signalering.event;
 
 import java.io.Serial;
 
-import net.atos.zac.event.AbstractEvent;
-import net.atos.zac.event.Opcode;
 import net.atos.zac.signalering.model.SignaleringType;
+import nl.info.zac.event.AbstractEvent;
+import nl.info.zac.event.Opcode;
 import nl.info.zac.identity.model.User;
 
 public class SignaleringEvent<ID> extends AbstractEvent<SignaleringType.Type, SignaleringEventId<ID>> {

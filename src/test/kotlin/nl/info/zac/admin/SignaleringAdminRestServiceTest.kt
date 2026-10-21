@@ -16,7 +16,7 @@ import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
-import net.atos.zac.event.EventingService
+import nl.info.zac.event.EventingService
 import net.atos.zac.util.event.JobEvent
 import net.atos.zac.util.event.JobId
 import nl.info.zac.app.admin.SignaleringAdminRestService

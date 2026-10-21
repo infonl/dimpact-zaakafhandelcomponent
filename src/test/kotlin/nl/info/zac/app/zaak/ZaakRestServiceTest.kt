@@ -33,9 +33,9 @@ import java.net.URI
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.*
-import net.atos.zac.event.EventingService
+import nl.info.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.websocket.event.ScreenEvent
+import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.or.`object`.model.createORObject
 import nl.info.client.zgw.drc.DrcClientService

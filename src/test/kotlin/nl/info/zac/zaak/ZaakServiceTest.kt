@@ -21,11 +21,11 @@ import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.concurrent.locks.ReentrantLock
-import net.atos.zac.event.EventingService
-import net.atos.zac.event.Opcode
+import nl.info.zac.event.EventingService
+import nl.info.zac.event.Opcode
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.websocket.event.ScreenEvent
-import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.zac.websocket.event.ScreenEvent
+import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.model.createPabcGroupRepresentation
 import nl.info.client.zgw.model.createMedewerkerIdentificatie

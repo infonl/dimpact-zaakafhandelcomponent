@@ -15,8 +15,8 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.event.EventingService
-import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.zac.event.EventingService
+import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.app.note.converter.NoteConverter
 import nl.info.zac.app.note.model.RestNote
 import nl.info.zac.app.note.model.toNote
