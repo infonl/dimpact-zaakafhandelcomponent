@@ -603,8 +603,23 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     ): List<RestGekoppeldeZaakEnkelvoudigInformatieObject> =
         zaakURI.let(zrcClientService::readZaak)
             .let { zaak ->
-                zrcClientService.listZaakinformatieobjecten(zaak)
-                    .map { restInformatieobjectConverter.convertToREST(it, relatieType, zaak) }
+                val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(zaak)
+                if (zaakInformatieobjecten.isEmpty()) {
+                    emptyList()
+                } else {
+                    val zaakAutorisatieGegevens = zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(
+                        zrcClientService,
+                        zaak
+                    )
+                    zaakInformatieobjecten.map {
+                        restInformatieobjectConverter.convertToREST(
+                            zaakInformatieObject = it,
+                            relatieType = relatieType,
+                            zaak = zaak,
+                            zaakAutorisatieGegevens = zaakAutorisatieGegevens
+                        )
+                    }
+                }
             }
 
     private fun listGekoppeldeZaakInformatieObjectenVoorZaak(
@@ -637,13 +652,16 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private fun toRestZaakInformatieobject(zaakInformatieobject: ZaakInformatieObject): RestZaakInformatieobject {
         val zaak = zrcClientService.readZaak(zaakInformatieobject.zaak)
         val zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype())
+        val zaakAutorisatieGegevens = zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, zaak)
         val zaakrechten = policyService.readZaakRechten(
             zaak = zaak,
             zaaktype = zaaktype,
-            loggedInUser = loggedInUserInstance.get()
+            loggedInUser = loggedInUserInstance.get(),
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens
         )
         return RestZaakInformatieobject(
             zaakIdentificatie = zaak.getIdentificatie(),
+            isZaakspecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd,
             zaakRechten = zaakrechten.toRestZaakRechten(),
             zaakStartDatum = takeIf { zaakrechten.canLezen }?.let { zaak.getStartdatum() },
             zaakEinddatumGepland = takeIf { zaakrechten.canLezen }?.let { zaak.getEinddatumGepland() },

@@ -215,17 +215,31 @@ def configure_zaakafhandelparameters(
 
     status, response_body = zac_client.http_request(
         "GET",
-        f"{zac_url}/rest/zaakafhandelparameters/case-definitions/{CASE_DEFINITION_KEY}",
+        f"{zac_url}/rest/zaakafhandelparameters/process-definitions",
         headers=zac_client.auth_headers(token_manager.get_token()),
     )
     if status != 200:
         return {
             "success": False,
-            "step": "read case definition",
+            "step": "read process definitions",
             "status_code": status,
             "error": response_body[:300],
         }
-    case_definition = json.loads(response_body)
+    case_definition = next(
+        (
+            process_definition
+            for process_definition in json.loads(response_body)
+            if process_definition["processEngine"] == "CMMN" and process_definition["key"] == CASE_DEFINITION_KEY
+        ),
+        None,
+    )
+    if case_definition is None:
+        return {
+            "success": False,
+            "step": "read process definitions",
+            "status_code": status,
+            "error": f"no CMMN case definition with key '{CASE_DEFINITION_KEY}' found",
+        }
 
     human_task_parameters, error = _build_human_task_parameters(case_definition, token_manager, zac_url)
     if error:
@@ -266,7 +280,7 @@ def configure_zaakafhandelparameters(
         }
 
     configuration["defaultGroepId"] = zac_testdata.ZAAK_GROUP_ID
-    configuration["caseDefinition"] = case_definition
+    configuration["processDefinition"] = case_definition
     configuration["zaakNietOntvankelijkResultaattype"] = niet_ontvankelijk_resultaattype
     configuration["zaakAfzenders"] = _merge_zaak_afzender_ids(
         ZAAK_AFZENDERS, configuration.get("zaakAfzenders", [])
@@ -280,7 +294,7 @@ def configure_zaakafhandelparameters(
 
     status, response_body = zac_client.http_request(
         "PUT",
-        f"{zac_url}/rest/zaakafhandelparameters",
+        f"{zac_url}/rest/zaakafhandelparameters/{zaaktype_uuid}",
         body=configuration,
         headers=zac_client.auth_headers(token_manager.get_token()),
     )
@@ -332,7 +346,7 @@ def main() -> None:
     if result["success"]:
         print(
             f"  [OK] defaultGroepId='{zac_testdata.ZAAK_GROUP_ID}',"
-            f" caseDefinition='{CASE_DEFINITION_KEY}',"
+            f" processDefinition='{CASE_DEFINITION_KEY}',"
             f" zaakNietOntvankelijkResultaattype='{NIET_ONTVANKELIJK_RESULTAATTYPE_NAAM}',"
             f" zaakAfzenders={[afzender['mail'] for afzender in ZAAK_AFZENDERS]},"
             f" humanTaskParameters and userEventListenerParameters set for every human task"

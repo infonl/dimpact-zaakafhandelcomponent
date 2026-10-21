@@ -19,14 +19,17 @@ import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.delegate.exception.InvalidExtensionPeriodException
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.model.createOpschorting
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_EXTENSION_PERIOD_INVALID
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
@@ -368,6 +371,7 @@ class SuspensionZaakHelperTest : BehaviorSpec({
             `when`("it is extended") {
                 val updatedZaak = suspensionZaakHelper.extendZaak(
                     zaak = zaak,
+                    zaakType = createZaakType(),
                     dueDate = today,
                     fatalDate = tomorrow,
                     extensionReason = description,
@@ -391,6 +395,84 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                             reden shouldBe description
                         }
                     }
+                }
+            }
+        }
+        given("a zaak of a zaaktype with a maximum extension term of 30 days") {
+            val zaak = createZaak()
+            val zaakType = createZaakType(verlengingMogelijk = true, verlengingstermijn = "P30D")
+            val zaakSlot = slot<Zaak>()
+            every { zrcClientService.patchZaak(zaak.uuid, capture(zaakSlot), any()) } returns zaak
+
+            `when`("it is extended by exactly the maximum extension term") {
+                val updatedZaak = suspensionZaakHelper.extendZaak(
+                    zaak = zaak,
+                    zaakType = zaakType,
+                    dueDate = today,
+                    fatalDate = tomorrow,
+                    extensionReason = "fakeExtensionReason",
+                    numberOfDays = 30
+                )
+
+                then("the zaak is extended") {
+                    updatedZaak shouldBe zaak
+                    zaakSlot.captured.verlenging.duur shouldBe "P30D"
+                }
+            }
+        }
+
+        given("a zaak of a zaaktype with a maximum extension term of 30 days and an extension of 365 days") {
+            val zaak = createZaak()
+            val zaakType = createZaakType(verlengingMogelijk = true, verlengingstermijn = "P30D")
+
+            `when`("it is extended") {
+                val invalidExtensionPeriodException = shouldThrow<InvalidExtensionPeriodException> {
+                    suspensionZaakHelper.extendZaak(
+                        zaak = zaak,
+                        zaakType = zaakType,
+                        dueDate = today,
+                        fatalDate = tomorrow,
+                        extensionReason = "fakeExtensionReason",
+                        numberOfDays = 365
+                    )
+                }
+
+                then("the extension is rejected because it exceeds the maximum extension term") {
+                    invalidExtensionPeriodException.errorCode shouldBe ERROR_CODE_EXTENSION_PERIOD_INVALID
+                    invalidExtensionPeriodException.message shouldBe
+                        "Zaaktype '${zaakType.identificatie}' has a maximum extension term of 30 days, " +
+                        "but requested extension is for 365 days"
+                }
+
+                and("the zaak is not extended") {
+                    verify(exactly = 0) { zrcClientService.patchZaak(zaak.uuid, any(), any()) }
+                }
+            }
+        }
+
+        given("a zaak and an extension of 0 days") {
+            val zaak = createZaak()
+
+            `when`("it is extended") {
+                val invalidExtensionPeriodException = shouldThrow<InvalidExtensionPeriodException> {
+                    suspensionZaakHelper.extendZaak(
+                        zaak = zaak,
+                        zaakType = createZaakType(verlengingMogelijk = true, verlengingstermijn = "P30D"),
+                        dueDate = today,
+                        fatalDate = tomorrow,
+                        extensionReason = "fakeExtensionReason",
+                        numberOfDays = 0
+                    )
+                }
+
+                then("the extension is rejected because it is not at least 1 day") {
+                    invalidExtensionPeriodException.errorCode shouldBe ERROR_CODE_EXTENSION_PERIOD_INVALID
+                    invalidExtensionPeriodException.message shouldBe
+                        "Requested extension is for 0 days, but it must be at least 1 day"
+                }
+
+                and("the zaak is not extended") {
+                    verify(exactly = 0) { zrcClientService.patchZaak(zaak.uuid, any(), any()) }
                 }
             }
         }

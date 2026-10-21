@@ -154,11 +154,11 @@ def _cmmn_body(zaaktype: dict) -> dict:
                     {
                         "veld": "ADVIES",
                         "tabel": {
-                            "aantalWaarden": 5,
+                            "valuesCount": 5,
                             "code": "ADVIES",
                             "id": 1,
-                            "naam": "Advies",
-                            "systeem": True,
+                            "name": "Advies",
+                            "isSystemTable": True,
                         },
                     }
                 ],
@@ -224,26 +224,27 @@ def _cmmn_body(zaaktype: dict) -> dict:
             {"id": "INTAKE_AFRONDEN", "naam": "Intake afronden", "toelichting": None},
             {"id": "ZAAK_AFHANDELEN", "naam": "Zaak afhandelen", "toelichting": None},
         ],
-        "valide": False,
+        "isValide": False,
         "zaakAfzenders": [
-            {"defaultMail": True, "mail": "GEMEENTE", "speciaal": True, "replyTo": "GEMEENTE"},
-            {"defaultMail": False, "mail": "MEDEWERKER", "speciaal": True, "replyTo": None},
+            {"isDefaultMail": True, "mail": "GEMEENTE", "isSpeciaal": True, "replyTo": "GEMEENTE"},
+            {"isDefaultMail": False, "mail": "MEDEWERKER", "isSpeciaal": True, "replyTo": None},
         ],
         "zaakbeeindigParameters": [],
         "zaaktype": {
             "beginGeldigheid": "2023-09-21",
             "doel": zaaktype["description"],
             "identificatie": zaaktype["identificatie"],
-            "nuGeldig": True,
+            "isNuGeldig": True,
             "omschrijving": zaaktype["description"],
-            "servicenorm": False,
+            "hasServicenorm": False,
             "uuid": zaaktype["uuid"],
             "versiedatum": "2023-09-21",
             "vertrouwelijkheidaanduiding": "OPENBAAR",
         },
         "intakeMail": "BESCHIKBAAR_UIT",
         "afrondenMail": "BESCHIKBAAR_UIT",
-        "caseDefinition": {
+        "processDefinition": {
+            "processEngine": "CMMN",
             "humanTaskDefinitions": [
                 {
                     "defaultFormulierDefinitie": "AANVULLENDE_INFORMATIE",
@@ -302,23 +303,23 @@ def _cmmn_body(zaaktype: dict) -> dict:
         "zaakNietOntvankelijkResultaattype": {
             "archiefNominatie": "VERNIETIGEN",
             "archiefTermijn": "5 jaren",
-            "besluitVerplicht": False,
+            "isBesluitVerplicht": False,
             "id": zaaktype["niet_ontvankelijk_uuid"],
             "naam": zaaktype["niet_ontvankelijk_naam"],
             "naamGeneriek": zaaktype["niet_ontvankelijk_naam"],
             "toelichting": "Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het "
             "doen of laten van een derde waar het orgaan bevoegd is om over te beslissen",
-            "vervaldatumBesluitVerplicht": False,
+            "isVervaldatumBesluitVerplicht": False,
         },
-        "smartDocuments": {"enabledForZaaktype": True},
-        "betrokkeneKoppelingen": {"brpKoppelen": True, "kvkKoppelen": True},
+        "smartDocuments": {"isEnabledForZaaktype": True},
+        "betrokkeneKoppelingen": {"isBrpKoppelenEnabled": True, "isKvkKoppelenEnabled": True},
         "brpDoelbindingen": {
             "zoekWaarde": "BRPACT-ZoekenAlgemeen",
             "raadpleegWaarde": "BRPACT-AlgemeneTaken",
             "verwerkingregisterWaarde": "Algemeen",
         },
         "automaticEmailConfirmation": {
-            "enabled": True,
+            "isEnabled": True,
             "templateName": "Ontvangstbevestiging",
             "emailSender": "GEMEENTE",
             "emailReply": "reply@example.com",
@@ -327,31 +328,40 @@ def _cmmn_body(zaaktype: dict) -> dict:
 
 
 def _bpmn_body(zaaktype: dict) -> dict:
-    """Build the POST /rest/zaaktype-bpmn-configuration payload for a BPMN zaaktype."""
+    """Build the PUT /rest/zaakafhandelparameters/{zaaktypeUUID} payload for a BPMN zaaktype."""
     return {
-        "zaaktypeUuid": zaaktype["uuid"],
-        "zaaktypeOmschrijving": zaaktype["description"],
-        "bpmnProcessDefinitionKey": zaaktype["process_key"],
+        "zaaktype": {
+            "uuid": zaaktype["uuid"],
+            "omschrijving": zaaktype["description"],
+        },
+        "processDefinition": {
+            "processEngine": "BPMN",
+            "key": zaaktype["process_key"],
+        },
         "productaanvraagtype": zaaktype["productaanvraagtype"],
-        "groepNaam": zac_testdata.ZAAK_GROUP_ID,
+        "defaultGroepId": zac_testdata.ZAAK_GROUP_ID,
         "defaultBehandelaarId": zac_client.ZAAK_USER,
-        "betrokkeneKoppelingen": {"brpKoppelen": True, "kvkKoppelen": True},
+        "betrokkeneKoppelingen": {"isBrpKoppelenEnabled": True, "isKvkKoppelenEnabled": True},
         "brpDoelbindingen": {
             "zoekWaarde": "BRPACT-ZoekenAlgemeen",
             "raadpleegWaarde": "BRPACT-AlgemeneTaken",
             "verwerkingregisterWaarde": "Algemeen",
         },
+        "zaakAfzenders": [
+            {"isDefaultMail": True, "mail": "GEMEENTE", "isSpeciaal": True, "replyTo": "GEMEENTE"},
+        ],
         "zaakbeeindigParameters": [],
         "zaakNietOntvankelijkResultaattype": {
             "archiefNominatie": "VERNIETIGEN",
             "archiefTermijn": "5 jaren",
-            "besluitVerplicht": False,
+            "isBesluitVerplicht": False,
             "id": zaaktype["niet_ontvankelijk_uuid"],
             "naam": "Geweigerd",
             "naamGeneriek": "Geweigerd",
             "toelichting": "fakeNietOntvankelijkToelichting",
-            "vervaldatumBesluitVerplicht": False,
+            "isVervaldatumBesluitVerplicht": False,
         },
+        "smartDocuments": {"isEnabledForZaaktype": False},
     }
 
 
@@ -446,7 +456,10 @@ def create_zaakafhandelparameters(token: str, zac_url: str) -> None:
     """Create zaakafhandelparameters for all 8 zaaktypes (4 CMMN, 4 BPMN)."""
     print("\n=== Creating zaakafhandelparameters ===")
 
-    for zaaktype in zac_testdata.CMMN_ZAAKTYPES:
+    engine_zaaktypes = [("CMMN", zaaktype, _cmmn_body) for zaaktype in zac_testdata.CMMN_ZAAKTYPES] + [
+        ("BPMN", zaaktype, _bpmn_body) for zaaktype in zac_testdata.BPMN_ZAAKTYPES
+    ]
+    for engine, zaaktype, build_body in engine_zaaktypes:
         # GET first: ZAC's PUT uses JPA merge semantics. When a record already exists every
         # nested entity needs its numeric DB id in the request body, otherwise Hibernate raises
         # "detached entity passed to persist". We fetch the existing config and merge the IDs.
@@ -455,36 +468,22 @@ def create_zaakafhandelparameters(token: str, zac_url: str) -> None:
             f"{zac_url}/rest/zaakafhandelparameters/{zaaktype['uuid']}",
             headers=zac_client.auth_headers(token),
         )
-        desired = _cmmn_body(zaaktype)
+        desired = build_body(zaaktype)
         if get_status == 200:
             desired = _merge_existing_ids(desired, json.loads(get_body))
 
         t0 = time.monotonic()
         status, body = zac_client.http_request(
             "PUT",
-            f"{zac_url}/rest/zaakafhandelparameters",
+            f"{zac_url}/rest/zaakafhandelparameters/{zaaktype['uuid']}",
             body=desired,
             headers=zac_client.auth_headers(token),
         )
         elapsed = int((time.monotonic() - t0) * 1000)
         ok = "OK" if status == 200 else "FAIL"
-        print(f"  [{ok}] CMMN {zaaktype['description']}: HTTP {status} ({elapsed}ms)")
+        print(f"  [{ok}] {engine} {zaaktype['description']}: HTTP {status} ({elapsed}ms)")
         if status != 200:
             print(f"         Response: {body[:500]}")
-
-    for zaaktype in zac_testdata.BPMN_ZAAKTYPES:
-        t0 = time.monotonic()
-        status, body = zac_client.http_request(
-            "POST",
-            f"{zac_url}/rest/zaaktype-bpmn-configuration",
-            body=_bpmn_body(zaaktype),
-            headers=zac_client.auth_headers(token),
-        )
-        elapsed = int((time.monotonic() - t0) * 1000)
-        ok = "OK" if status == 200 else "FAIL"
-        print(f"  [{ok}] BPMN {zaaktype['description']}: HTTP {status} ({elapsed}ms)")
-        if status != 200:
-            print(f"         Response: {body[:300]}")
 
 
 # ---------------------------------------------------------------------------

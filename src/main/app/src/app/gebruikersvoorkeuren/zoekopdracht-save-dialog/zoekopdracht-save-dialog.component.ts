@@ -46,7 +46,7 @@ export class ZoekopdrachtSaveDialogComponent {
     MatDialogRef<ZoekopdrachtSaveDialogComponent>,
   );
   protected readonly data = inject<{
-    zoekopdrachten: GeneratedType<"RESTZoekopdracht">[];
+    zoekopdrachten: GeneratedType<"RestZoekopdracht">[];
     lijstID: GeneratedType<"Werklijst">;
     zoekopdracht: unknown;
   }>(MAT_DIALOG_DATA);
@@ -104,7 +104,7 @@ export class ZoekopdrachtSaveDialogComponent {
           json: JSON.stringify(this.data.zoekopdracht),
           lijstID: this.data.lijstID,
         };
-    return zoekopdracht as GeneratedType<"RESTZoekopdracht">;
+    return zoekopdracht as GeneratedType<"RestZoekopdracht">;
   }
 
   private findExisting(naam: string | null | undefined) {

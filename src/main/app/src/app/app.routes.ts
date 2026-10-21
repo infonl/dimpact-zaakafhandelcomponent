@@ -4,10 +4,16 @@
  */
 
 import { Routes } from "@angular/router";
+import {
+  BREADCRUMB_ORIGIN,
+  translatedTitle,
+} from "./core/breadcrumbs/route-title";
 
 export const APP_ROUTES: Routes = [
   {
     path: "",
+    title: translatedTitle("title.dashboard"),
+    data: BREADCRUMB_ORIGIN,
     loadComponent: () =>
       import("./dashboard/dashboard.component").then(
         (m) => m.DashboardComponent,
@@ -22,6 +28,7 @@ export const APP_ROUTES: Routes = [
   },
   {
     path: "persoon",
+    title: translatedTitle("persoonsgegevens"),
     loadChildren: () =>
       import("./klanten/klanten.routes").then(
         (module) => module.PERSOON_ROUTES,
@@ -29,6 +36,7 @@ export const APP_ROUTES: Routes = [
   },
   {
     path: "bedrijf",
+    title: translatedTitle("bedrijfsgegevens"),
     loadChildren: () =>
       import("./klanten/klanten.routes").then(
         (module) => module.BEDRIJF_ROUTES,
@@ -36,21 +44,25 @@ export const APP_ROUTES: Routes = [
   },
   {
     path: "zaken",
+    title: translatedTitle("zaken"),
     loadChildren: () =>
       import("./zaken/zaken.routes").then((module) => module.ZAKEN_ROUTES),
   },
   {
     path: "taken",
+    title: translatedTitle("taken"),
     loadChildren: () =>
       import("./taken/taken.routes").then((module) => module.TAKEN_ROUTES),
   },
   {
     path: "admin",
+    title: translatedTitle("actie.admin"),
     loadChildren: () =>
       import("./admin/admin.routes").then((module) => module.ADMIN_ROUTES),
   },
   {
     path: "bag-objecten",
+    title: translatedTitle("bagobjectgegevens"),
     loadChildren: () =>
       import("./bag/bag.routes").then((module) => module.BAG_ROUTES),
   },
@@ -63,6 +75,7 @@ export const APP_ROUTES: Routes = [
   },
   {
     path: "documenten",
+    title: translatedTitle("documenten"),
     loadChildren: () =>
       import("./documenten/documenten.routes").then(
         (module) => module.DOCUMENTEN_ROUTES,
@@ -70,6 +83,7 @@ export const APP_ROUTES: Routes = [
   },
   {
     path: "informatie-objecten",
+    title: translatedTitle("documenten"),
     loadChildren: () =>
       import("./informatie-objecten/informatie-objecten.routes").then(
         (module) => module.INFORMATIE_OBJECTEN_ROUTES,

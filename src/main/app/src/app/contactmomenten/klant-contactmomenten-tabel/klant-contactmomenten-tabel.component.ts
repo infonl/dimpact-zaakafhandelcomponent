@@ -9,7 +9,6 @@ import {
   effect,
   inject,
   input,
-  OnInit,
   untracked,
   viewChild,
 } from "@angular/core";
@@ -41,9 +40,7 @@ import { ContactmomentenService } from "../contactmomenten.service";
     EmptyPipe,
   ],
 })
-export class KlantContactmomentenTabelComponent
-  implements OnInit, AfterViewInit
-{
+export class KlantContactmomentenTabelComponent implements AfterViewInit {
   readonly bsn = input<string>();
   readonly vestigingsnummer = input<string>();
   readonly paginator = viewChild.required(MatPaginator);
@@ -81,11 +78,6 @@ export class KlantContactmomentenTabelComponent
     });
   }
 
-  ngOnInit(): void {
-    this.listParameters.bsn = this.bsn();
-    this.listParameters.vestigingsnummer = this.vestigingsnummer();
-  }
-
   ngAfterViewInit(): void {
     this.init = true;
     const stopLoading = () => {
@@ -110,6 +102,8 @@ export class KlantContactmomentenTabelComponent
 
   private loadContactmomenten() {
     this.listParameters.page = this.paginator().pageIndex;
+    this.listParameters.bsn = this.bsn();
+    this.listParameters.vestigingsnummer = this.vestigingsnummer();
     return this.contactmomentenService.listContactmomenten(this.listParameters);
   }
 }

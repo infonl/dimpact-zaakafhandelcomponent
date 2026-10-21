@@ -111,9 +111,8 @@ class ZaaktypeConfigurationTest : BehaviorSpec({
 
             `when`("binding to CMMN") {
                 config.bindTo(ProcessEngine.CMMN, "fakeCaseDefinition")
-                config.getOrCreateCmmnExtension()
 
-                then("processBinding and cmmnExtension are set") {
+                then("it is bound to the case definition and has a CMMN extension for the settings of its plan items") {
                     config.getProcessEngine() shouldBe ProcessEngine.CMMN
                     config.processBinding?.definitionKey shouldBe "fakeCaseDefinition"
                     config.cmmnExtension.shouldNotBeNull()

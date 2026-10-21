@@ -70,15 +70,15 @@ class HealthCheckRestService @Inject constructor(
             )
         }
 
-    private fun listZaaktypes(): List<ZaakType> {
-        val bpmnZaaktypeUuids = zaaktypeConfigurationService.listConfigurationsBoundTo(ProcessEngine.BPMN)
-            .map { it.zaaktypeUuid }
-            .toSet()
-        return ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
+    private fun listZaaktypes() =
+        ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
             .filter { !it.concept }
             .filter { it.isNuGeldig() }
-            .filter { it.url.extractUuid() !in bpmnZaaktypeUuids }
-    }
+            .filterNot(::isBoundToBpmn)
+
+    private fun isBoundToBpmn(zaaktype: ZaakType) =
+        zaaktypeConfigurationService.findConfiguration(zaaktype.url.extractUuid())?.getProcessEngine() ==
+            ProcessEngine.BPMN
 
     private fun convertToREST(check: ZaaktypeInrichtingscheck): RestZaaktypeInrichtingscheck =
         RestZaaktypeInrichtingscheck(

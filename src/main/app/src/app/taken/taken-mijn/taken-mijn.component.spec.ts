@@ -22,21 +22,18 @@ import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
-import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { TakenMijnComponent } from "./taken-mijn.component";
 
 describe(TakenMijnComponent.name, () => {
   let fixture: ComponentFixture<TakenMijnComponent>;
-  let setTitle: jest.SpyInstance;
   let httpTestingController: HttpTestingController;
 
   const user = userEvent.setup();
 
   beforeEach(() => {
     sessionStorage.clear();
-    setTitle = jest.spyOn(UtilService.prototype, "setTitle");
   });
 
   async function renderTakenMijn() {
@@ -91,12 +88,6 @@ describe(TakenMijnComponent.name, () => {
       .getAllByRole("columnheader")
       .map((header) => header.textContent?.trim());
   }
-
-  it("sets the page title", async () => {
-    await renderTakenMijn();
-
-    expect(setTitle).toHaveBeenCalledWith("title.taken.mijn");
-  });
 
   it("shows the default set of columns", async () => {
     await renderTakenMijn();

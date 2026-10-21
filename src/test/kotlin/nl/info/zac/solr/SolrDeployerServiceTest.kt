@@ -83,6 +83,39 @@ class SolrDeployerServiceTest : BehaviorSpec({
         }
     }
 
+    given("ZAC Solr schema version 1 is currently installed and version 2 is available") {
+        mockkConstructor(SolrPing::class)
+        every { anyConstructed<SolrPing>().setActionPing().process(any()).status } returns 0
+        mockkConstructor(Fields::class)
+        every { anyConstructed<Fields>().process(any()).fields } returns listOf(
+            mapOf(NAME to "fakeFieldName"),
+            mapOf(NAME to "schema_version_1")
+        )
+        val solrSchemaUpdateInstance = mockk<Instance<SolrSchemaUpdate>>()
+        val solrSchemaUpdate1 = mockk<SolrSchemaUpdate>()
+        val solrSchemaUpdate2 = mockk<SolrSchemaUpdate>()
+        every { solrSchemaUpdateInstance.iterator() } returns
+            mutableListOf(solrSchemaUpdate1, solrSchemaUpdate2).iterator()
+        every { solrSchemaUpdate1.versie } returns 1
+        every { solrSchemaUpdate2.versie } returns 2
+        every { solrSchemaUpdate2.schemaUpdates } returns listOf(mockk<SchemaRequest.Update>())
+        every { solrSchemaUpdate2.teHerindexerenZoekObjectTypes } returns setOf(ZoekObjectType.TAAK)
+        mockkConstructor(MultiUpdate::class)
+        every { anyConstructed<MultiUpdate>().process(any()) } returns null
+        every { indexingService.reindexAllAsync(any()) } just runs
+        solrDeployerService.setSchemaUpdates(solrSchemaUpdateInstance)
+
+        `when`("the ZAC Solr deployer service is started") {
+            solrDeployerService.onStartup(Any())
+
+            then("only the zoekobject types of schema version 2 are reindexed") {
+                verify(exactly = 1) {
+                    indexingService.reindexAllAsync(setOf(ZoekObjectType.TAAK))
+                }
+            }
+        }
+    }
+
     given("Solr is not available yet and the thread waiting for it becomes interrupted") {
         mockkConstructor(SolrPing::class)
         every { anyConstructed<SolrPing>().setActionPing().process(any()) } throws

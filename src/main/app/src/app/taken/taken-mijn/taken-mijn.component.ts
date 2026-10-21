@@ -44,6 +44,7 @@ import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werkli
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { TakenMijnDatasource } from "./taken-mijn-datasource";
 
 @Component({
@@ -52,6 +53,7 @@ import { TakenMijnDatasource } from "./taken-mijn-datasource";
   animations: [detailExpand],
   standalone: true,
   imports: [
+    ZaakIdentificatieComponent,
     I18nKeyPipe,
     DragDropModule,
     MatTableModule,
@@ -109,7 +111,6 @@ export class TakenMijnComponent
 
   ngOnInit(): void {
     super.ngOnInit();
-    this.utilService.setTitle("title.taken.mijn");
     this.dataSource.initColumns(this.defaultColumns());
   }
 

@@ -67,16 +67,19 @@
               <th mat-header-cell *matHeaderCellDef>
                 <mat-form-field subscriptSizing="dynamic">
                   <mat-select
-                    [compareWith]="compareCaseDefinition"
-                    [value]="filterParameters.caseDefinition"
+                    [compareWith]="compareProcessDefinition"
+                    [value]="filterParameters.processDefinition"
                     (selectionChange)="
-                      applyFilter({ event: $event, filter: 'caseDefinition' })
+                      applyFilter({
+                        event: $event,
+                        filter: 'processDefinition',
+                      })
                     "
-                    id="caseDefinition_filter"
+                    id="processDefinition_filter"
                     placeholder="{{ 'filter.alle' | translate }}"
                   >
                     <mat-option>{{ "filter.alle" | translate }}</mat-option>
-                    @for (value of caseDefinitions; track value) {
+                    @for (value of processDefinitions; track value) {
                       <mat-option [value]="value">{{ value.naam }}</mat-option>
                     }
                   </mat-select>
@@ -154,10 +157,10 @@
             </ng-container>
             <ng-container matColumnDef="model">
               <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                {{ "zaak-model" | translate }}
+                {{ "procesmodel" | translate }}
               </th>
               <td mat-cell *matCellDef="let row">
-                {{ row.caseDefinition | empty: "naam" }}
+                {{ row.processDefinition | empty: "naam" }}
               </td>
             </ng-container>
             <ng-container matColumnDef="creatiedatum">

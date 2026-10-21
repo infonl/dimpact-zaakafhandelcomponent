@@ -11,6 +11,7 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.signalering.event.SignaleringEventUtil
+import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -21,6 +22,7 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.flowable.task.readZaakUUID
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import org.flowable.task.api.Task
@@ -37,7 +39,8 @@ class TaskService @Inject constructor(
     private val eventingService: EventingService,
     private val zrcClientService: ZrcClientService,
     private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
-    private val taskHistoryService: TaskHistoryService
+    private val taskHistoryService: TaskHistoryService,
+    private val signaleringService: SignaleringService
 ) {
     companion object {
         private val LOG = Logger.getLogger(TaskService::class.java.name)
@@ -84,6 +87,7 @@ class TaskService @Inject constructor(
             userId != null -> zaakspecifiekeAutorisatieService.lockForZaak(readZaakUUID(task)).withLock {
                 grantZaakspecifiekeAutorisatieToNewAssignee(task, userId)
                 flowableTaskService.assignTaskToUser(task.id, userId, reason)
+                    .also { deleteTaakOpNaamSignaleringenExceptFor(it, userId) }
             }.also { sendTaakOpNaamSignalering(it, loggedInUser) }
             task.assignee != null -> releaseTask(task, reason, loggedInUser)
             else -> task
@@ -94,7 +98,9 @@ class TaskService @Inject constructor(
     }
 
     private fun releaseTask(task: Task, reason: String?, loggedInUser: LoggedInUser): Task =
-        flowableTaskService.releaseTask(task, reason).also { sendTaakOpNaamSignalering(it, loggedInUser) }
+        zaakspecifiekeAutorisatieService.lockForZaak(readZaakUUID(task)).withLock {
+            flowableTaskService.releaseTask(task, reason).also { deleteTaakOpNaamSignaleringenExceptFor(it, null) }
+        }.also { sendTaakOpNaamSignalering(it, loggedInUser) }
 
     fun listTasksForZaak(zaakUUID: UUID): List<TaskInfo> = flowableTaskService.listTasksForZaak(zaakUUID)
 
@@ -183,6 +189,14 @@ class TaskService @Inject constructor(
             taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, assignee)
         }
     }
+
+    private fun deleteTaakOpNaamSignaleringenExceptFor(task: Task, assignee: String?) =
+        signaleringService.deleteUserSignaleringenExceptFor(
+            subjecttype = SignaleringSubject.TAAK,
+            subject = task.id,
+            types = setOf(SignaleringType.Type.TAAK_OP_NAAM),
+            keptUserId = assignee
+        )
 
     private fun sendTaakOpNaamSignalering(task: Task, loggedInUser: LoggedInUser) {
         eventingService.send(SignaleringEventUtil.event(SignaleringType.Type.TAAK_OP_NAAM, task, loggedInUser))

@@ -47,7 +47,7 @@ describe(BedrijfZoekComponent.name, () => {
   } = {}) {
     listBedrijven = jest.fn().mockReturnValue(
       createQueryOptions(
-        fromPartial<GeneratedType<"RESTResultaatRestBedrijf">>({
+        fromPartial<GeneratedType<"RestResultaatRestBedrijf">>({
           resultaten: [fakeBedrijf],
         }),
       ),

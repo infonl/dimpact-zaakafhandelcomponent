@@ -20,7 +20,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
   const user = userEvent.setup();
 
   let pendingSearches: ((
-    resultaat: GeneratedType<"RESTResultaatRestContactmoment">,
+    resultaat: GeneratedType<"RestResultaatRestContactmoment">,
   ) => void)[] = [];
   let detectChanges: () => void;
   let setLoading: jest.SpyInstance;
@@ -36,7 +36,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     ) => ({
       queryKey: ["contactmomenten", ++searchCount],
       queryFn: () =>
-        new Promise<GeneratedType<"RESTResultaatRestContactmoment">>(
+        new Promise<GeneratedType<"RestResultaatRestContactmoment">>(
           (resolve) => pendingSearches.push(resolve),
         ),
     }),
@@ -77,7 +77,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
   }
 
   function resolveContactmomenten(
-    resultaat: GeneratedType<"RESTResultaatRestContactmoment">,
+    resultaat: GeneratedType<"RestResultaatRestContactmoment">,
   ) {
     pendingSearches.forEach((resolve) => resolve(resultaat));
     pendingSearches = [];
@@ -88,7 +88,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     totaal = resultaten.length,
   ) {
     resolveContactmomenten(
-      fromPartial<GeneratedType<"RESTResultaatRestContactmoment">>({
+      fromPartial<GeneratedType<"RestResultaatRestContactmoment">>({
         resultaten,
         totaal,
       }),
@@ -99,7 +99,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
   afterEach(async () => {
     // a search still in flight is cancelled when the query cache is cleared, which rejects into the next test
     resolveContactmomenten(
-      fromPartial<GeneratedType<"RESTResultaatRestContactmoment">>({}),
+      fromPartial<GeneratedType<"RestResultaatRestContactmoment">>({}),
     );
     await sleep();
   });
@@ -219,7 +219,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     await setup({ bsn: "999993896" });
 
     resolveContactmomenten(
-      fromPartial<GeneratedType<"RESTResultaatRestContactmoment">>({}),
+      fromPartial<GeneratedType<"RestResultaatRestContactmoment">>({}),
     );
     await sleep();
 
@@ -249,7 +249,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     expect(lastSearch().page).toBe(0);
   });
 
-  it("keeps searching for the bsn it was first rendered with when the bsn changes", async () => {
+  it("searches for the new bsn when the bsn changes", async () => {
     await setup({ bsn: "999993896", vestigingsnummer: "000099998888" });
     await receive([]);
 
@@ -259,13 +259,13 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     expect(listContactmomenten).toHaveBeenCalledTimes(2);
     expect(lastSearch()).toEqual(
       expect.objectContaining({
-        bsn: "999993896",
+        bsn: "999990408",
         vestigingsnummer: "000099998888",
       }),
     );
   });
 
-  it("keeps searching for the vestigingsnummer it was first rendered with when the vestigingsnummer changes", async () => {
+  it("searches for the new vestigingsnummer when the vestigingsnummer changes", async () => {
     await setup({ bsn: "999993896", vestigingsnummer: "000099998888" });
     await receive([]);
 
@@ -276,7 +276,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     expect(lastSearch()).toEqual(
       expect.objectContaining({
         bsn: "999993896",
-        vestigingsnummer: "000099998888",
+        vestigingsnummer: "000011112222",
       }),
     );
   });

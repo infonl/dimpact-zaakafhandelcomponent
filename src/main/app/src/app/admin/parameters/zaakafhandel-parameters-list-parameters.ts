@@ -12,7 +12,8 @@ export class ZaakafhandelParametersListParameters extends ListParameters {
   valide: ToggleSwitchOptions = ToggleSwitchOptions.CHECKED;
   geldig: ToggleSwitchOptions = ToggleSwitchOptions.CHECKED;
   zaaktype: Partial<GeneratedType<"RestZaaktype">> | null = null;
-  caseDefinition: Partial<GeneratedType<"RESTCaseDefinition">> | null = null;
+  processDefinition: Partial<GeneratedType<"RestProcessDefinition">> | null =
+    null;
   beginGeldigheid: GeneratedType<"RestDatumRange"> = { van: null, tot: null };
   eindeGeldigheid: GeneratedType<"RestDatumRange"> = { van: null, tot: null };
 

@@ -24,6 +24,7 @@ import { DatumPipe } from "../../../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../../../shared/pipes/empty.pipe";
 import { I18nKeyPipe } from "../../../../shared/pipes/i18n-key.pipe";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
+import { ZaakIdentificatieComponent } from "../../../../shared/zaak-identificatie/zaak-identificatie.component";
 
 @Component({
   selector: "zac-zaak-details-gerelateerde-zaken-tab",
@@ -32,6 +33,7 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   styles: [":host { display: block; }"],
   standalone: true,
   imports: [
+    ZaakIdentificatieComponent,
     RouterLink,
     MatIcon,
     MatIconAnchor,

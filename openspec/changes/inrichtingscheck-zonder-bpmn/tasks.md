@@ -5,8 +5,7 @@
 ## 2. BPMN zaaktypes hidden from the inrichtingscheck (PR 2)
 
 - [ ] 2.1 `HealthCheckRestService.listZaaktypeInrichtingschecks` skips every zaaktype bound to BPMN, found with
-      one call to `ZaaktypeConfigurationService.listConfigurationsBoundTo(ProcessEngine.BPMN)`, before it
-      builds a check.
+      `ZaaktypeConfigurationService.findConfiguration`, before it builds a check.
 - [ ] 2.2 Unit tests: a BPMN zaaktype is not returned and not read from Open Zaak; CMMN and unconfigured
       zaaktypes are still checked; concept and expired zaaktypes stay excluded.
 - [ ] 2.3 Handleiding: add that zaaktypes with BPMN in the zaakafhandelparameters are not checked or shown.

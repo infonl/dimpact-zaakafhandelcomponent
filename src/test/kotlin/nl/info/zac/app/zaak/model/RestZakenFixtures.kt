@@ -219,7 +219,7 @@ fun createRestZaakCreateData(
     uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.of(2023, 10, 10),
     einddatumGepland: LocalDate? = null,
     communicatiekanaal: String? = "fakeCommunicatiekanaal",
-    startDatum: LocalDate = LocalDate.of(2023, 9, 15),
+    startDatum: LocalDate? = LocalDate.of(2023, 9, 15),
     vertrouwelijkheidaanduiding: String = RestVertrouwelijkheidaanduiding.OPENBAAR.name,
     isZaakspecifiekGeautoriseerd: Boolean? = null
 ) = RestZaakCreateData(

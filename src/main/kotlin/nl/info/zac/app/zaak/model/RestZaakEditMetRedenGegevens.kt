@@ -5,6 +5,7 @@
 package nl.info.zac.app.zaak.model
 
 import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -14,5 +15,6 @@ data class RestZaakEditMetRedenGegevens(
     @field:Valid
     var zaak: RestZaakCreateData,
 
+    @field:NotBlank
     var reden: String
 )

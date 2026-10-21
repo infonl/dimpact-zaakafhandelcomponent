@@ -31,7 +31,7 @@ export class ZaakafhandelParametersService {
   }
 
   readZaakafhandelparameters(zaaktypeUUID: string) {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/zaakafhandelparameters/{zaaktypeUUID}",
       {
         path: { zaaktypeUUID },
@@ -40,7 +40,7 @@ export class ZaakafhandelParametersService {
   }
 
   listZaakbeeindigRedenen() {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/zaakafhandelparameters/zaakbeeindigredenen",
     );
   }
@@ -55,7 +55,7 @@ export class ZaakafhandelParametersService {
   }
 
   listResultaattypes(zaaktypeUUID: string) {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/zaakafhandelparameters/resultaattypes/{zaaktypeUUID}",
       {
         path: { zaaktypeUUID },
@@ -63,17 +63,22 @@ export class ZaakafhandelParametersService {
     );
   }
 
-  listCaseDefinitions() {
-    return this.zacHttpClient.GET(
-      "/rest/zaakafhandelparameters/case-definitions",
+  listProcessDefinitions() {
+    return this.zacQueryClient.GET(
+      "/rest/zaakafhandelparameters/process-definitions",
     );
   }
 
-  updateZaakafhandelparameters() {
+  updateZaakafhandelparameters(zaaktypeUUID: string) {
     return mergeMutationOptions(
-      this.zacQueryClient.PUT("/rest/zaakafhandelparameters"),
+      this.zacQueryClient.PUT("/rest/zaakafhandelparameters/{zaaktypeUUID}", {
+        path: { zaaktypeUUID },
+      }),
       {
         onSuccess: () => {
+          void this.queryClient?.invalidateQueries({
+            queryKey: this.readZaakafhandelparameters(zaaktypeUUID).queryKey,
+          });
           void this.queryClient?.invalidateQueries({
             queryKey:
               this.mailtemplateKoppelingService.listMailtemplateKoppelingen()
@@ -88,30 +93,14 @@ export class ZaakafhandelParametersService {
     );
   }
 
-  getZaaktypeBpmnConfiguration() {
-    return this.zacHttpClient.GET("/rest/zaaktype-bpmn-configuration");
-  }
-
-  createOrUpdateBpmnZaakafhandelparameters() {
-    return mergeMutationOptions(
-      this.zacQueryClient.POST("/rest/zaaktype-bpmn-configuration"),
-      {
-        onSuccess: () =>
-          this.utilService.openSnackbar(
-            "msg.zaakafhandelparameters.opgeslagen",
-          ),
-      },
-    );
-  }
-
   listFormulierDefinities() {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/zaakafhandelparameters/formulierdefinities",
     );
   }
 
   listReplyTos() {
-    return this.zacHttpClient.GET("/rest/zaakafhandelparameters/replyTo");
+    return this.zacQueryClient.GET("/rest/zaakafhandelparameters/replyTo");
   }
 
   listSmartDocumentsGroupTemplateNames(

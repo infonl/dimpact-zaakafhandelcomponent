@@ -16,8 +16,8 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ZaaktypeConfigurationService
-import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
+import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.healthcheck.createBuildInformation
@@ -57,7 +57,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
         )
         every { policyService.readOverigeRechten().canBeheren } returns true
         every { configurationService.readDefaultCatalogusURI() } returns catalogusURI
-        every { zaaktypeConfigurationService.listConfigurationsBoundTo(ProcessEngine.BPMN) } returns emptyList()
+        every { zaaktypeConfigurationService.findConfiguration(any()) } returns null
         every { ztcClientService.listZaaktypen(catalogusURI) } returns zaaktypen
         zaaktypen.forEachIndexed { index, zaaktype ->
             every { healthCheckService.controleerZaaktype(zaaktypen[index].url) } returns zaaktypeInrichtingschecks[index]
@@ -91,7 +91,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
         val zaaktype = createZaakType()
         every { policyService.readOverigeRechten().canBeheren } returns true
         every { configurationService.readDefaultCatalogusURI() } returns catalogusURI
-        every { zaaktypeConfigurationService.listConfigurationsBoundTo(ProcessEngine.BPMN) } returns emptyList()
+        every { zaaktypeConfigurationService.findConfiguration(any()) } returns null
         every { ztcClientService.listZaaktypen(catalogusURI) } returns listOf(zaaktype)
         every { healthCheckService.controleerZaaktype(zaaktype.url) } returns createZaaktypeInrichtingscheck(
             zaaktype = zaaktype,
@@ -123,9 +123,12 @@ class HealthCheckRestServiceTest : BehaviorSpec({
         val cmmnZaaktype = createZaakType()
         every { policyService.readOverigeRechten().canBeheren } returns true
         every { configurationService.readDefaultCatalogusURI() } returns catalogusURI
-        every { zaaktypeConfigurationService.listConfigurationsBoundTo(ProcessEngine.BPMN) } returns listOf(
-            createZaaktypeBpmnConfiguration(zaaktypeUUID = bpmnZaaktype.url.extractUuid())
-        )
+        every {
+            zaaktypeConfigurationService.findConfiguration(bpmnZaaktype.url.extractUuid())
+        } returns createZaaktypeBpmnConfiguration(zaaktypeUUID = bpmnZaaktype.url.extractUuid())
+        every {
+            zaaktypeConfigurationService.findConfiguration(cmmnZaaktype.url.extractUuid())
+        } returns createZaaktypeCmmnConfiguration(zaaktypeUUID = cmmnZaaktype.url.extractUuid())
         every { ztcClientService.listZaaktypen(catalogusURI) } returns listOf(bpmnZaaktype, cmmnZaaktype)
         every { healthCheckService.controleerZaaktype(cmmnZaaktype.url) } returns createZaaktypeInrichtingscheck(
             zaaktype = cmmnZaaktype
@@ -147,7 +150,6 @@ class HealthCheckRestServiceTest : BehaviorSpec({
         val catalogusURI = URI("https://example.com/catalogs/${UUID.randomUUID()}")
         every { policyService.readOverigeRechten().canBeheren } returns true
         every { configurationService.readDefaultCatalogusURI() } returns catalogusURI
-        every { zaaktypeConfigurationService.listConfigurationsBoundTo(ProcessEngine.BPMN) } returns emptyList()
         every { ztcClientService.listZaaktypen(catalogusURI) } returns emptyList()
 
         `when`("listZaaktypeInrichtingschecks is called") {

@@ -153,7 +153,7 @@ describe(InrichtingscheckComponent.name, () => {
   let component: TestInrichtingscheckComponent;
   let loader: HarnessLoader;
   let healthCheckService: HealthCheckService;
-  let utilServiceMock: Pick<UtilService, "setTitle" | "openSnackbar">;
+  let utilServiceMock: Pick<UtilService, "openSnackbar">;
 
   const user = userEvent.setup();
 
@@ -169,7 +169,6 @@ describe(InrichtingscheckComponent.name, () => {
 
   beforeEach(async () => {
     utilServiceMock = {
-      setTitle: jest.fn(),
       openSnackbar: jest.fn(),
     };
 
@@ -226,13 +225,6 @@ describe(InrichtingscheckComponent.name, () => {
     tick(0);
     fixture.detectChanges();
   }));
-
-  it("should call setTitle on init", () => {
-    expect(utilServiceMock.setTitle).toHaveBeenCalledWith(
-      "title.inrichtingscheck",
-      undefined,
-    );
-  });
 
   it("should call both health-check endpoints on init", () => {
     expect(healthCheckService.listZaaktypeInrichtingschecks).toHaveBeenCalled();

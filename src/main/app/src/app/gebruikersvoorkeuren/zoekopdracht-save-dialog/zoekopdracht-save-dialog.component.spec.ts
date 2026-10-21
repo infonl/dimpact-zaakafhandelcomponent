@@ -20,24 +20,25 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { sleep, testQueryClient } from "../../../../setupJest";
+import { fromPartial } from "../../../test-helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZoekopdrachtSaveDialogComponent } from "./zoekopdracht-save-dialog.component";
 
 const makeZoekopdracht = (
   naam: string,
-  overrides: Partial<GeneratedType<"RESTZoekopdracht">> = {},
-): GeneratedType<"RESTZoekopdracht"> => ({
+  overrides: Partial<GeneratedType<"RestZoekopdracht">> = {},
+): GeneratedType<"RestZoekopdracht"> => ({
   naam,
   json: "{}",
   lijstID: "TAKEN_WERKVOORRAAD" as GeneratedType<"Werklijst">,
   ...overrides,
 });
 
-async function setup(zoekopdrachten: GeneratedType<"RESTZoekopdracht">[] = []) {
-  const dialogRef = {
+async function setup(zoekopdrachten: GeneratedType<"RestZoekopdracht">[] = []) {
+  const dialogRef = fromPartial<MatDialogRef<ZoekopdrachtSaveDialogComponent>>({
     close: jest.fn(),
     disableClose: false,
-  } as unknown as MatDialogRef<ZoekopdrachtSaveDialogComponent>;
+  });
 
   await TestBed.configureTestingModule({
     imports: [

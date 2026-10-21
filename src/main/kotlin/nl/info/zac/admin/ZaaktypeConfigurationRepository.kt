@@ -63,21 +63,6 @@ class ZaaktypeConfigurationRepository @Inject constructor(
             )
         }
 
-    /**
-     * Returns the configurations bound to the engine in the order in which they were stored.
-     */
-    fun listBoundTo(processEngine: ProcessEngine): List<ZaaktypeConfiguration> =
-        query { criteriaBuilder, _, root ->
-            listOf(
-                criteriaBuilder.equal(
-                    root.join<ZaaktypeConfiguration, ZaaktypeProcessBinding>(
-                        ZaaktypeConfiguration::processBinding.name
-                    ).get<ProcessEngine>(PROCESS_ENGINE_VARIABLE_NAME),
-                    processEngine
-                )
-            )
-        }.sortedBy { it.id }
-
     fun listDistinctDefinitionKeys(processEngine: ProcessEngine): List<String> {
         val criteriaBuilder = entityManager.criteriaBuilder
         val query = criteriaBuilder.createQuery(String::class.java)

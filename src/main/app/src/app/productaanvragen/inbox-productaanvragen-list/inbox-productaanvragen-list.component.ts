@@ -168,7 +168,6 @@ export class InboxProductaanvragenListComponent
 
   ngOnInit() {
     super.ngOnInit();
-    this.utilService.setTitle("title.productaanvragen.inbox-productaanvragen");
   }
 
   ngAfterViewInit() {
@@ -238,7 +237,7 @@ export class InboxProductaanvragenListComponent
   }
 
   protected zoekopdrachtChanged(
-    actieveZoekopdracht: GeneratedType<"RESTZoekopdracht">,
+    actieveZoekopdracht: GeneratedType<"RestZoekopdracht">,
   ) {
     if (actieveZoekopdracht?.json) {
       this.listParameters = this.withSupportedSort({

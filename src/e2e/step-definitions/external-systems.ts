@@ -154,8 +154,7 @@ When(
       timeout: FORTY_SECONDS_IN_MS,
     });
 
-    const anchorLocator = this.page.locator('a[title="Document bekijken"]');
-    await anchorLocator.click();
+    await this.page.getByRole("link", { name: "Document bekijken" }).click();
   },
 );
 
