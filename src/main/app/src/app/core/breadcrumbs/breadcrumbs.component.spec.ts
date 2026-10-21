@@ -16,7 +16,7 @@ import {
   TitleStrategy,
 } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { render, screen, within } from "@testing-library/angular";
+import { render, screen, waitFor, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
 import { navigationTrail } from "../../shared/navigation/navigation-origin";
@@ -343,10 +343,11 @@ describe(BreadcrumbsComponent.name, () => {
     zaakspecifiekGeautoriseerdeZaken = [];
 
     TestBed.inject(Location).back();
-    await fixture.whenStable();
-    fixture.detectChanges();
 
-    expect(TestBed.inject(Router).url).toBe("/zaken/ZAAK-ZAAKSPECIFIEK");
+    await waitFor(() =>
+      expect(TestBed.inject(Router).url).toBe("/zaken/ZAAK-ZAAKSPECIFIEK"),
+    );
+    fixture.detectChanges();
     expect(
       screen.queryByRole("img", { name: "Zaakspecifiek geautoriseerd" }),
     ).not.toBeInTheDocument();
@@ -368,10 +369,11 @@ describe(BreadcrumbsComponent.name, () => {
     await TestBed.inject(Router).navigateByUrl("/taken/1");
 
     location.back();
-    await fixture.whenStable();
-    fixture.detectChanges();
 
-    expect(TestBed.inject(Router).url).toBe("/zaken/ZAAK-ZAAKSPECIFIEK");
+    await waitFor(() =>
+      expect(TestBed.inject(Router).url).toBe("/zaken/ZAAK-ZAAKSPECIFIEK"),
+    );
+    fixture.detectChanges();
     expect(
       within(screen.getByRole("listitem", { current: "page" })).getByRole(
         "img",
