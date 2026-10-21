@@ -10,6 +10,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.mockk.CapturingSlot
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearMocks
@@ -59,6 +60,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ResultaattypeReferenceService
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.ZaaktypeConfigurationService.Companion.INADMISSIBLE_TERMINATION_ID
@@ -80,8 +82,10 @@ import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
 import nl.info.zac.app.zaak.exception.DueDateNotAllowed
 import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.CreateZaakResponse
+import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestReden
 import nl.info.zac.app.zaak.model.RestZaakAanmaakGegevens
+import nl.info.zac.app.zaak.model.RestZaakAanmaakKoppeling
 import nl.info.zac.app.zaak.model.RestZaakAfbrekenGegevens
 import nl.info.zac.app.zaak.model.RestZaakAfsluitenGegevens
 import nl.info.zac.app.zaak.model.RestZaakEditMetRedenGegevens
@@ -123,6 +127,7 @@ import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
+import nl.info.zac.policy.output.ZaakRechten
 import nl.info.zac.policy.output.createOverigeRechten
 import nl.info.zac.policy.output.createOverigeRechtenAllDeny
 import nl.info.zac.policy.output.createZaakRechten
@@ -136,6 +141,7 @@ import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.websocket.event.ScreenEvent
+import nl.info.zac.zaak.ZaakKoppelenService
 import nl.info.zac.zaak.ZaakService
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
@@ -182,6 +188,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     val zaakHistoryService = mockk<ZaakHistoryService>()
     val identificationService = mockk<IdentificationService>()
     val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
+    val zaakKoppelenService = mockk<ZaakKoppelenService>()
     val zaakRestService = ZaakRestService(
         bpmnService = bpmnService,
         configurationService = configurationService,
@@ -210,7 +217,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService,
         identificationService = identificationService,
-        zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService
+        zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService,
+        zaakKoppelenService = zaakKoppelenService
     )
 
     afterEach {
@@ -848,6 +856,449 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                     then("An error should be thrown") {
                         exception.errorCode shouldBe ErrorCode.ERROR_CODE_CASE_BETROKKENE_NOT_ALLOWED
+                    }
+                }
+            }
+        }
+
+        fun createLinkedZaakAanmaakGegevens(newZaaktypeUuid: UUID, koppeling: RestZaakAanmaakKoppeling?) =
+            RestZaakAanmaakGegevens(
+                zaak = createRestZaakCreateData(restZaakType = RestZaaktype(uuid = newZaaktypeUuid)).apply {
+                    behandelaar = null
+                    groep = null
+                    initiatorIdentificatie = null
+                },
+                koppeling = koppeling
+            )
+
+        fun stubChecksOfNewZaak(newZaaktypeUuid: UUID, newZaakType: ZaakType) {
+            every { zaakService.readZaakTypeByUUID(newZaaktypeUuid) } returns newZaakType
+            every {
+                zaaktypeConfigurationService.findConfiguration(newZaaktypeUuid)
+            } returns createZaaktypeCmmnConfiguration()
+            every {
+                policyService.readOverigeRechten(newZaakType.omschrijving)
+            } returns createOverigeRechtenAllDeny(startenZaak = true)
+        }
+
+        fun stubCreationOfNewZaak(newZaak: Zaak, newZaakType: ZaakType, createdZaakSlot: CapturingSlot<Zaak>) {
+            every { configurationService.readBronOrganisatie() } returns "fakeBronOrganisatie"
+            every { configurationService.readVerantwoordelijkeOrganisatie() } returns "fakeVerantwoordelijkeOrganisatie"
+            every { zgwApiService.createZaak(capture(createdZaakSlot)) } returns newZaak
+            every {
+                zaakProcessService.start(
+                    zaaktypeConfiguration = any(),
+                    zaak = newZaak,
+                    zaaktype = newZaakType,
+                    processStartData = any()
+                )
+            } just runs
+        }
+
+        fun stubZaakToLinkTo(
+            zaakToLinkTo: Zaak,
+            zaakToLinkToType: ZaakType,
+            loggedInUser: LoggedInUser,
+            zaakRechten: ZaakRechten
+        ) {
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every {
+                zaakService.readZaakAndZaakTypeByZaakUUID(zaakToLinkTo.uuid)
+            } returns Pair(zaakToLinkTo, zaakToLinkToType)
+            every {
+                policyService.readZaakRechten(zaak = zaakToLinkTo, zaaktype = zaakToLinkToType, loggedInUser = loggedInUser)
+            } returns zaakRechten
+        }
+
+        context("Creating a zaak as gerelateerde zaak of another zaak") {
+            given("an open zaak on which the user may link zaken") {
+                val newZaaktypeUuid = UUID.randomUUID()
+                val newZaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$newZaaktypeUuid"))
+                val newZaak = createZaak(zaaktypeUri = newZaakType.url)
+                val zaakToLinkToType = createZaakType()
+                val zaakToLinkTo = createZaak(zaaktypeUri = zaakToLinkToType.url)
+                val loggedInUser = createLoggedInUser()
+                val createdZaakSlot = slot<Zaak>()
+                stubChecksOfNewZaak(newZaaktypeUuid, newZaakType)
+                stubCreationOfNewZaak(newZaak, newZaakType, createdZaakSlot)
+                stubZaakToLinkTo(
+                    zaakToLinkTo = zaakToLinkTo,
+                    zaakToLinkToType = zaakToLinkToType,
+                    loggedInUser = loggedInUser,
+                    zaakRechten = createZaakRechten()
+                )
+                every {
+                    zaakKoppelenService.addGerelateerdeZaak(
+                        zaak = zaakToLinkTo,
+                        gerelateerdeZaak = newZaak,
+                        explanation = "Aangemaakt als gerelateerde zaak"
+                    )
+                } just runs
+
+                `when`("a zaak is created linked to that zaak as gerelateerde zaak") {
+                    val createZaakResponse = zaakRestService.createZaak(
+                        createLinkedZaakAanmaakGegevens(
+                            newZaaktypeUuid = newZaaktypeUuid,
+                            koppeling = RestZaakAanmaakKoppeling(
+                                zaakUuid = zaakToLinkTo.uuid,
+                                relatieType = RelatieType.GERELATEERD
+                            )
+                        )
+                    )
+
+                    then("the new zaak is created with that zaak as its only gerelateerde zaak and without hoofdzaak") {
+                        createZaakResponse shouldBe CreateZaakResponse(newZaak.identificatie)
+                        createdZaakSlot.captured.gerelateerdeZaken.map { it.url } shouldBe listOf(zaakToLinkTo.url)
+                        createdZaakSlot.captured.hoofdzaak shouldBe null
+                    }
+
+                    and(
+                        "the rights on that zaak are checked before the new zaak is created, " +
+                            "which is then added to the gerelateerde zaken of that zaak"
+                    ) {
+                        verifyOrder {
+                            policyService.readZaakRechten(
+                                zaak = zaakToLinkTo,
+                                zaaktype = zaakToLinkToType,
+                                loggedInUser = loggedInUser
+                            )
+                            zgwApiService.createZaak(any())
+                            zaakKoppelenService.addGerelateerdeZaak(
+                                zaak = zaakToLinkTo,
+                                gerelateerdeZaak = newZaak,
+                                explanation = "Aangemaakt als gerelateerde zaak"
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        context("Creating a zaak as gerelateerde zaak of a zaak that cannot be patched") {
+            given("an open zaak on which the user may link zaken, but which Open Zaak fails to patch") {
+                val newZaaktypeUuid = UUID.randomUUID()
+                val newZaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$newZaaktypeUuid"))
+                val newZaak = createZaak(zaaktypeUri = newZaakType.url)
+                val zaakToLinkToType = createZaakType()
+                val zaakToLinkTo = createZaak(zaaktypeUri = zaakToLinkToType.url)
+                val createdZaakSlot = slot<Zaak>()
+                stubChecksOfNewZaak(newZaaktypeUuid, newZaakType)
+                stubCreationOfNewZaak(newZaak, newZaakType, createdZaakSlot)
+                stubZaakToLinkTo(
+                    zaakToLinkTo = zaakToLinkTo,
+                    zaakToLinkToType = zaakToLinkToType,
+                    loggedInUser = createLoggedInUser(),
+                    zaakRechten = createZaakRechten()
+                )
+                every {
+                    zaakKoppelenService.addGerelateerdeZaak(zaakToLinkTo, newZaak, "Aangemaakt als gerelateerde zaak")
+                } throws RuntimeException("fakeZrcError")
+
+                `when`("a zaak is created linked to that zaak as gerelateerde zaak") {
+                    val runtimeException = shouldThrow<RuntimeException> {
+                        zaakRestService.createZaak(
+                            createLinkedZaakAanmaakGegevens(
+                                newZaaktypeUuid = newZaaktypeUuid,
+                                koppeling = RestZaakAanmaakKoppeling(
+                                    zaakUuid = zaakToLinkTo.uuid,
+                                    relatieType = RelatieType.GERELATEERD
+                                )
+                            )
+                        )
+                    }
+
+                    then("the new zaak exists, and the error of Open Zaak is returned") {
+                        runtimeException.message shouldBe "fakeZrcError"
+                        verify(exactly = 1) { zgwApiService.createZaak(any()) }
+                    }
+                }
+            }
+        }
+
+        context("Creating a zaak as deelzaak of another zaak") {
+            given("an open zaak on which the user may link zaken and whose zaaktype lists the new zaaktype as deelzaaktype") {
+                val newZaaktypeUuid = UUID.randomUUID()
+                val newZaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$newZaaktypeUuid"))
+                val newZaak = createZaak(zaaktypeUri = newZaakType.url)
+                val zaakToLinkToType = createZaakType().apply { deelzaaktypen = listOf(newZaakType.url) }
+                val zaakToLinkTo = createZaak(zaaktypeUri = zaakToLinkToType.url)
+                val createdZaakSlot = slot<Zaak>()
+                stubChecksOfNewZaak(newZaaktypeUuid, newZaakType)
+                stubCreationOfNewZaak(newZaak, newZaakType, createdZaakSlot)
+                stubZaakToLinkTo(
+                    zaakToLinkTo = zaakToLinkTo,
+                    zaakToLinkToType = zaakToLinkToType,
+                    loggedInUser = createLoggedInUser(),
+                    zaakRechten = createZaakRechten()
+                )
+                every { zaakKoppelenService.updateHoofdzaak(zaakToLinkTo.uuid) } just runs
+
+                `when`("a zaak is created linked to that zaak as deelzaak") {
+                    zaakRestService.createZaak(
+                        createLinkedZaakAanmaakGegevens(
+                            newZaaktypeUuid = newZaaktypeUuid,
+                            koppeling = RestZaakAanmaakKoppeling(
+                                zaakUuid = zaakToLinkTo.uuid,
+                                relatieType = RelatieType.DEELZAAK
+                            )
+                        )
+                    )
+
+                    then("the new zaak is created with that zaak as hoofdzaak and without gerelateerde zaken") {
+                        createdZaakSlot.captured.hoofdzaak shouldBe zaakToLinkTo.url
+                        createdZaakSlot.captured.gerelateerdeZaken.isNullOrEmpty() shouldBe true
+                    }
+
+                    and("the hoofdzaak is updated after the new zaak is created") {
+                        verifyOrder {
+                            zgwApiService.createZaak(any())
+                            zaakKoppelenService.updateHoofdzaak(zaakToLinkTo.uuid)
+                        }
+                    }
+                }
+            }
+        }
+
+        context("Creating a zaak linked to a zaak without the koppelen right") {
+            given("an open zaak on which the user may not link zaken") {
+                val newZaaktypeUuid = UUID.randomUUID()
+                val newZaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$newZaaktypeUuid"))
+                val zaakToLinkToType = createZaakType()
+                val zaakToLinkTo = createZaak(zaaktypeUri = zaakToLinkToType.url)
+                stubChecksOfNewZaak(newZaaktypeUuid, newZaakType)
+                stubZaakToLinkTo(
+                    zaakToLinkTo = zaakToLinkTo,
+                    zaakToLinkToType = zaakToLinkToType,
+                    loggedInUser = createLoggedInUser(),
+                    zaakRechten = createZaakRechten(koppelen = false)
+                )
+
+                `when`("a zaak is created linked to that zaak as gerelateerde zaak") {
+                    val policyException = shouldThrow<PolicyException> {
+                        zaakRestService.createZaak(
+                            createLinkedZaakAanmaakGegevens(
+                                newZaaktypeUuid = newZaaktypeUuid,
+                                koppeling = RestZaakAanmaakKoppeling(
+                                    zaakUuid = zaakToLinkTo.uuid,
+                                    relatieType = RelatieType.GERELATEERD
+                                )
+                            )
+                        )
+                    }
+
+                    then("the request is refused as not authorised and no zaak is created") {
+                        policyException shouldNotBe null
+                        verify(exactly = 0) { zgwApiService.createZaak(any()) }
+                    }
+                }
+            }
+        }
+
+        context("Creating a zaak linked to a zaak without the lezen right") {
+            given("an open zaak that the user may not read") {
+                val newZaaktypeUuid = UUID.randomUUID()
+                val newZaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$newZaaktypeUuid"))
+                val zaakToLinkToType = createZaakType()
+                val zaakToLinkTo = createZaak(zaaktypeUri = zaakToLinkToType.url)
+                stubChecksOfNewZaak(newZaaktypeUuid, newZaakType)
+                stubZaakToLinkTo(
+                    zaakToLinkTo = zaakToLinkTo,
+                    zaakToLinkToType = zaakToLinkToType,
+                    loggedInUser = createLoggedInUser(),
+                    zaakRechten = createZaakRechten(lezen = false)
+                )
+
+                `when`("a zaak is created linked to that zaak as gerelateerde zaak") {
+                    val policyException = shouldThrow<PolicyException> {
+                        zaakRestService.createZaak(
+                            createLinkedZaakAanmaakGegevens(
+                                newZaaktypeUuid = newZaaktypeUuid,
+                                koppeling = RestZaakAanmaakKoppeling(
+                                    zaakUuid = zaakToLinkTo.uuid,
+                                    relatieType = RelatieType.GERELATEERD
+                                )
+                            )
+                        )
+                    }
+
+                    then("the request is refused as not authorised and no zaak is created") {
+                        policyException shouldNotBe null
+                        verify(exactly = 0) { zgwApiService.createZaak(any()) }
+                    }
+                }
+            }
+        }
+
+        context("Creating a zaak as deelzaak of a zaak whose zaaktype does not list the new zaaktype as deelzaaktype") {
+            given("an open zaak on which the user may link zaken and whose zaaktype has another deelzaaktype") {
+                val newZaaktypeUuid = UUID.randomUUID()
+                val newZaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$newZaaktypeUuid"))
+                val zaakToLinkToType = createZaakType().apply { deelzaaktypen = listOf(createZaakType().url) }
+                val zaakToLinkTo = createZaak(zaaktypeUri = zaakToLinkToType.url)
+                stubChecksOfNewZaak(newZaaktypeUuid, newZaakType)
+                stubZaakToLinkTo(
+                    zaakToLinkTo = zaakToLinkTo,
+                    zaakToLinkToType = zaakToLinkToType,
+                    loggedInUser = createLoggedInUser(),
+                    zaakRechten = createZaakRechten()
+                )
+
+                `when`("a zaak is created linked to that zaak as deelzaak") {
+                    val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
+                        zaakRestService.createZaak(
+                            createLinkedZaakAanmaakGegevens(
+                                newZaaktypeUuid = newZaaktypeUuid,
+                                koppeling = RestZaakAanmaakKoppeling(
+                                    zaakUuid = zaakToLinkTo.uuid,
+                                    relatieType = RelatieType.DEELZAAK
+                                )
+                            )
+                        )
+                    }
+
+                    then("the request is refused with a validation error and no zaak is created") {
+                        inputValidationFailedException.errorCode shouldBe ErrorCode.ERROR_CODE_VALIDATION_GENERIC
+                        inputValidationFailedException.message shouldBe
+                            "A new zaak cannot be linked to zaak '${zaakToLinkTo.identificatie}' as DEELZAAK: " +
+                            "ZAAKTYPE_DOES_NOT_ALLOW_DEELZAAK"
+                        verify(exactly = 0) { zgwApiService.createZaak(any()) }
+                    }
+                }
+            }
+        }
+
+        context("Creating a zaak as deelzaak of a zaak that is a deelzaak") {
+            given("an open deelzaak on which the user may link zaken and whose zaaktype lists the new zaaktype") {
+                val newZaaktypeUuid = UUID.randomUUID()
+                val newZaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$newZaaktypeUuid"))
+                val zaakToLinkToType = createZaakType().apply { deelzaaktypen = listOf(newZaakType.url) }
+                val zaakToLinkTo = createZaak(zaaktypeUri = zaakToLinkToType.url, hoofdzaakUri = createZaak().url)
+                stubChecksOfNewZaak(newZaaktypeUuid, newZaakType)
+                stubZaakToLinkTo(
+                    zaakToLinkTo = zaakToLinkTo,
+                    zaakToLinkToType = zaakToLinkToType,
+                    loggedInUser = createLoggedInUser(),
+                    zaakRechten = createZaakRechten()
+                )
+
+                `when`("a zaak is created linked to that zaak as deelzaak") {
+                    val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
+                        zaakRestService.createZaak(
+                            createLinkedZaakAanmaakGegevens(
+                                newZaaktypeUuid = newZaaktypeUuid,
+                                koppeling = RestZaakAanmaakKoppeling(
+                                    zaakUuid = zaakToLinkTo.uuid,
+                                    relatieType = RelatieType.DEELZAAK
+                                )
+                            )
+                        )
+                    }
+
+                    then("the request is refused with a validation error and no zaak is created") {
+                        inputValidationFailedException.message shouldBe
+                            "A new zaak cannot be linked to zaak '${zaakToLinkTo.identificatie}' as DEELZAAK: IS_DEELZAAK"
+                        verify(exactly = 0) { zgwApiService.createZaak(any()) }
+                    }
+                }
+            }
+        }
+
+        context("Creating a zaak linked to a closed zaak") {
+            given("a closed zaak on which the user may link zaken") {
+                val newZaaktypeUuid = UUID.randomUUID()
+                val newZaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$newZaaktypeUuid"))
+                val zaakToLinkToType = createZaakType()
+                val zaakToLinkTo = createZaak(
+                    zaaktypeUri = zaakToLinkToType.url,
+                    archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
+                )
+                stubChecksOfNewZaak(newZaaktypeUuid, newZaakType)
+                stubZaakToLinkTo(
+                    zaakToLinkTo = zaakToLinkTo,
+                    zaakToLinkToType = zaakToLinkToType,
+                    loggedInUser = createLoggedInUser(),
+                    zaakRechten = createZaakRechten()
+                )
+
+                `when`("a zaak is created linked to that zaak as gerelateerde zaak") {
+                    val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
+                        zaakRestService.createZaak(
+                            createLinkedZaakAanmaakGegevens(
+                                newZaaktypeUuid = newZaaktypeUuid,
+                                koppeling = RestZaakAanmaakKoppeling(
+                                    zaakUuid = zaakToLinkTo.uuid,
+                                    relatieType = RelatieType.GERELATEERD
+                                )
+                            )
+                        )
+                    }
+
+                    then("the request is refused with a validation error and no zaak is created") {
+                        inputValidationFailedException.message shouldBe
+                            "A new zaak cannot be linked to zaak '${zaakToLinkTo.identificatie}' as GERELATEERD: AFGEHANDELD"
+                        verify(exactly = 0) { zgwApiService.createZaak(any()) }
+                    }
+                }
+            }
+        }
+
+        context("Creating a zaak linked to another zaak with an unsupported relatie type") {
+            given("a request to link the new zaak as hoofdzaak") {
+                val newZaaktypeUuid = UUID.randomUUID()
+                val newZaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$newZaaktypeUuid"))
+                stubChecksOfNewZaak(newZaaktypeUuid, newZaakType)
+
+                `when`("the zaak is created") {
+                    val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
+                        zaakRestService.createZaak(
+                            createLinkedZaakAanmaakGegevens(
+                                newZaaktypeUuid = newZaaktypeUuid,
+                                koppeling = RestZaakAanmaakKoppeling(
+                                    zaakUuid = UUID.randomUUID(),
+                                    relatieType = RelatieType.HOOFDZAAK
+                                )
+                            )
+                        )
+                    }
+
+                    then("the request is refused with a validation error and no zaak is created") {
+                        inputValidationFailedException.errorCode shouldBe ErrorCode.ERROR_CODE_VALIDATION_GENERIC
+                        inputValidationFailedException.message shouldBe
+                            "RelatieType HOOFDZAAK cannot be used to link a new zaak"
+                        verify(exactly = 0) {
+                            zaakService.readZaakAndZaakTypeByZaakUUID(any())
+                            zgwApiService.createZaak(any())
+                        }
+                    }
+                }
+            }
+        }
+
+        context("Creating a zaak without a zaak to link to") {
+            given("a request without koppeling") {
+                val newZaaktypeUuid = UUID.randomUUID()
+                val newZaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$newZaaktypeUuid"))
+                val newZaak = createZaak(zaaktypeUri = newZaakType.url)
+                val createdZaakSlot = slot<Zaak>()
+                stubChecksOfNewZaak(newZaaktypeUuid, newZaakType)
+                stubCreationOfNewZaak(newZaak, newZaakType, createdZaakSlot)
+
+                `when`("the zaak is created") {
+                    zaakRestService.createZaak(
+                        createLinkedZaakAanmaakGegevens(newZaaktypeUuid = newZaaktypeUuid, koppeling = null)
+                    )
+
+                    then("the zaak is created without hoofdzaak and without gerelateerde zaken") {
+                        createdZaakSlot.captured.hoofdzaak shouldBe null
+                        createdZaakSlot.captured.gerelateerdeZaken.isNullOrEmpty() shouldBe true
+                    }
+
+                    and("no other zaak is linked or updated") {
+                        verify(exactly = 0) {
+                            zaakService.readZaakAndZaakTypeByZaakUUID(any())
+                            zaakKoppelenService.addGerelateerdeZaak(any(), any(), any())
+                            zaakKoppelenService.updateHoofdzaak(any())
+                        }
                     }
                 }
             }

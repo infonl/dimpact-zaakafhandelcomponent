@@ -31,6 +31,7 @@ import nl.info.client.zgw.zrc.model.DeleteGeoJsonGeometry
 import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import nl.info.client.zgw.zrc.model.ZaakListParameters
+import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.zrc.util.isOpen
@@ -58,12 +59,14 @@ import nl.info.zac.app.zaak.exception.DueDateNotAllowed
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
 import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.CreateZaakResponse
+import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestDetachDocumentData
 import nl.info.zac.app.zaak.model.RestReden
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.app.zaak.model.RestStatustype
 import nl.info.zac.app.zaak.model.RestZaak
 import nl.info.zac.app.zaak.model.RestZaakAanmaakGegevens
+import nl.info.zac.app.zaak.model.RestZaakAanmaakKoppeling
 import nl.info.zac.app.zaak.model.RestZaakAfbrekenGegevens
 import nl.info.zac.app.zaak.model.RestZaakAfsluitenGegevens
 import nl.info.zac.app.zaak.model.RestZaakBetrokkene
@@ -84,6 +87,8 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.event.EventingService
+import nl.info.zac.exception.ErrorCode
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.ProcessStartData
 import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.flowable.ZaakVariabelenService
@@ -94,6 +99,7 @@ import nl.info.zac.identification.IdentificatieType
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.ZaakRechten
 import nl.info.zac.productaanvraag.InboxProductaanvraagService
 import nl.info.zac.productaanvraag.ProductaanvraagDocumentService
@@ -105,12 +111,20 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toLocalDate
 import nl.info.zac.websocket.event.ScreenEventType
+import nl.info.zac.zaak.ZaakKoppelenService
 import nl.info.zac.zaak.ZaakService
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
+import nl.info.zac.zaak.model.ZaakNotLinkableReason
+import nl.info.zac.zaak.model.canLinkNewZaakAs
+import nl.info.zac.zaak.model.getDeelzaaktypenSet
+import nl.info.zac.zaak.model.newZaakNotLinkableReason
+import nl.info.zac.zaak.model.toZaakLinkData
 import nl.info.zac.zaak.readZaakAutorisatieGegevens
 import java.time.LocalDate
 import java.util.UUID
+import java.util.logging.Level
+import java.util.logging.Logger
 
 @Path("zaken")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -147,12 +161,15 @@ class ZaakRestService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
     private val identificationService: IdentificationService,
-    private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService
+    private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
+    private val zaakKoppelenService: ZaakKoppelenService
 ) {
     companion object {
+        private val LOG = Logger.getLogger(ZaakRestService::class.java.name)
         private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"
         private const val ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
         private const val AANMAKEN_ZAAK_REDEN = "Aanmaken zaak"
+        private const val AANGEMAAKT_ALS_GERELATEERDE_ZAAK_REDEN = "Aangemaakt als gerelateerde zaak"
 
         /**
          * A behandelaar is removed through the vrijgeven and toekennen endpoints and an individual
@@ -229,6 +246,9 @@ class ZaakRestService @Inject constructor(
         restZaak.einddatumGepland?.let {
             zaakType.isServicenormAvailable() || throw DueDateNotAllowed()
         }
+        val zaakToLinkToAndRelatieType = restZaakAanmaakGegevens.koppeling?.let {
+            readZaakToLinkNewZaakTo(it, zaaktypeUUID) to it.relatieType
+        }
         val zaakAssignment = if (restZaak.groep != null || restZaak.behandelaar != null) {
             zaakService.readZaakAssignment(groupId = restZaak.groep?.id, userName = restZaak.behandelaar?.username)
         } else {
@@ -240,7 +260,9 @@ class ZaakRestService @Inject constructor(
             zaaktype = zaakType,
             bronOrganisatie = bronOrganisatie,
             verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie
-        ).let(zgwApiService::createZaak)
+        ).apply {
+            zaakToLinkToAndRelatieType?.let { (zaakToLinkTo, relatieType) -> linkTo(zaakToLinkTo, relatieType) }
+        }.let(zgwApiService::createZaak)
 
         addInitiator(restZaak, zaak, zaakType)
         zaakAssignment?.let {
@@ -251,6 +273,9 @@ class ZaakRestService @Inject constructor(
         restZaakAanmaakGegevens.inboxProductaanvraag?.let { koppelInboxProductaanvraag(zaak, it) }
         restZaakAanmaakGegevens.bagObjecten?.forEach {
             zrcClientService.createZaakobject(it.toZaakobjectRequest(zaak))
+        }
+        zaakToLinkToAndRelatieType?.let { (zaakToLinkTo, relatieType) ->
+            completeLinkOfNewZaak(newZaak = zaak, zaakToLinkTo = zaakToLinkTo, relatieType = relatieType)
         }
         return CreateZaakResponse(zaak.identificatie)
     }
@@ -803,6 +828,67 @@ class ZaakRestService @Inject constructor(
             zaak = zaak,
             explanation = explanation
         )
+    }
+
+    private fun readZaakToLinkNewZaakTo(koppeling: RestZaakAanmaakKoppeling, newZaaktypeUuid: UUID): Zaak {
+        assertCanLinkNewZaakAs(koppeling.relatieType)
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(koppeling.zaakUuid)
+        val zaakRechten = policyService.readZaakRechten(
+            zaak = zaak,
+            zaaktype = zaakType,
+            loggedInUser = loggedInUserInstance.get()
+        )
+        return when (
+            val zaakNotLinkableReason = zaak.toZaakLinkData(zaakRechten).newZaakNotLinkableReason(
+                relatieType = koppeling.relatieType,
+                newZaaktypeUuid = newZaaktypeUuid,
+                allowedDeelzaaktypes = zaakType.getDeelzaaktypenSet()
+            )
+        ) {
+            null -> zaak
+            ZaakNotLinkableReason.NOT_AUTHORISED_TO_KOPPELEN -> throw PolicyException()
+            else -> throw InputValidationFailedException(
+                errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
+                message = "A new zaak cannot be linked to zaak '${zaak.identificatie}' as " +
+                    "${koppeling.relatieType}: $zaakNotLinkableReason"
+            )
+        }
+    }
+
+    private fun assertCanLinkNewZaakAs(relatieType: RelatieType) {
+        if (!canLinkNewZaakAs(relatieType)) {
+            throw InputValidationFailedException(
+                errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
+                message = "RelatieType $relatieType cannot be used to link a new zaak"
+            )
+        }
+    }
+
+    private fun Zaak.linkTo(zaakToLinkTo: Zaak, relatieType: RelatieType) {
+        when (relatieType) {
+            RelatieType.DEELZAAK -> hoofdzaak = zaakToLinkTo.url
+            else -> gerelateerdeZaken = listOf(GerelateerdeZaak().apply { url = zaakToLinkTo.url })
+        }
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun completeLinkOfNewZaak(newZaak: Zaak, zaakToLinkTo: Zaak, relatieType: RelatieType) {
+        when (relatieType) {
+            RelatieType.DEELZAAK -> zaakKoppelenService.updateHoofdzaak(zaakToLinkTo.uuid)
+            else -> try {
+                zaakKoppelenService.addGerelateerdeZaak(
+                    zaak = zaakToLinkTo,
+                    gerelateerdeZaak = newZaak,
+                    explanation = AANGEMAAKT_ALS_GERELATEERDE_ZAAK_REDEN
+                )
+            } catch (runtimeException: RuntimeException) {
+                LOG.log(Level.SEVERE, runtimeException) {
+                    "Zaak '${newZaak.identificatie}' was created with gerelateerde zaak " +
+                        "'${zaakToLinkTo.identificatie}', but could not be added to the gerelateerde zaken of that zaak"
+                }
+                throw runtimeException
+            }
+        }
     }
 
     private fun addInitiator(

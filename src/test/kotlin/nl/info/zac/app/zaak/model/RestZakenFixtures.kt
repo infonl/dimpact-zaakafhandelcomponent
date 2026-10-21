@@ -365,7 +365,8 @@ fun createRestZaakRechten(
     creerenDocument: Boolean = true,
     versturenEmail: Boolean = true,
     wijzigenLocatie: Boolean = true,
-    brondatumZetten: Boolean = true
+    brondatumZetten: Boolean = true,
+    koppelen: Boolean = true
 ) = RestZaakRechten(
     canLezen = lezen,
     canWijzigen = wijzigen,
@@ -386,7 +387,8 @@ fun createRestZaakRechten(
     canCreerenDocument = creerenDocument,
     canVersturenEmail = versturenEmail,
     canWijzigenLocatie = wijzigenLocatie,
-    canBrondatumZetten = brondatumZetten
+    canBrondatumZetten = brondatumZetten,
+    canKoppelen = koppelen
 )
 
 fun createRestZaakResultaat() = RestZaakResultaat()
