@@ -52,6 +52,8 @@ class RequestAuthorizationFilterPageRightsTest : BehaviorSpec({
                 setSessionUser(readUser)
                 every { httpServletRequest.contextPath } returns "fakeContextPath"
                 every { httpServletRequest.requestURI } returns path
+                every { httpServletRequest.servletPath } returns path
+                every { httpServletRequest.pathInfo } returns null
                 every { httpServletRequest.method } returns "GET"
                 every { policyService.readWerklijstRechten() } returns createWerklijstRechten(inbox = false)
                 every { httpServletResponse.sendError(any()) } just runs
@@ -75,6 +77,8 @@ class RequestAuthorizationFilterPageRightsTest : BehaviorSpec({
                 setSessionUser(readUser)
                 every { httpServletRequest.contextPath } returns "fakeContextPath"
                 every { httpServletRequest.requestURI } returns path
+                every { httpServletRequest.servletPath } returns path
+                every { httpServletRequest.pathInfo } returns null
                 every { httpServletRequest.method } returns "GET"
                 every { policyService.readWerklijstRechten() } returns createWerklijstRechten(inbox = true)
                 every { filterChain.doFilter(any(), any()) } just runs
@@ -96,6 +100,8 @@ class RequestAuthorizationFilterPageRightsTest : BehaviorSpec({
             setSessionUser(readUser)
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.requestURI } returns "/zaken/create"
+            every { httpServletRequest.servletPath } returns "/zaken/create"
+            every { httpServletRequest.pathInfo } returns null
             every { httpServletRequest.method } returns "GET"
             every { policyService.readOverigeRechten() } returns createOverigeRechten(startenZaak = false)
             every { httpServletResponse.sendError(any()) } just runs
@@ -119,6 +125,8 @@ class RequestAuthorizationFilterPageRightsTest : BehaviorSpec({
             setSessionUser(readUser)
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.requestURI } returns "/zaken/create"
+            every { httpServletRequest.servletPath } returns "/zaken/create"
+            every { httpServletRequest.pathInfo } returns null
             every { httpServletRequest.method } returns "GET"
             every { policyService.readOverigeRechten() } returns createOverigeRechten(startenZaak = true)
             every { filterChain.doFilter(any(), any()) } just runs
@@ -146,6 +154,8 @@ class RequestAuthorizationFilterPageRightsTest : BehaviorSpec({
                 setSessionUser(readUser)
                 every { httpServletRequest.contextPath } returns "fakeContextPath"
                 every { httpServletRequest.requestURI } returns path
+                every { httpServletRequest.servletPath } returns path
+                every { httpServletRequest.pathInfo } returns null
                 every { httpServletRequest.method } returns "GET"
                 every { filterChain.doFilter(any(), any()) } just runs
 
@@ -159,6 +169,42 @@ class RequestAuthorizationFilterPageRightsTest : BehaviorSpec({
                         verify(exactly = 0) {
                             policyService.readWerklijstRechten()
                             policyService.readOverigeRechten()
+                        }
+                    }
+                }
+            }
+        }
+
+        mapOf(
+            "/%64ocumenten/inbox" to "/documenten/inbox",
+            "/documenten/inbox;view=list" to "/documenten/inbox",
+            "/zaken/%63reate" to "/zaken/create",
+            "/zaken/create;view=form" to "/zaken/create"
+        ).forEach { (requestUri, servletPath) ->
+            given("A user without the right for '$servletPath' requests it as '$requestUri'") {
+                val filter = RequestAuthorizationFilter(policyService)
+                setSessionUser(readUser)
+                every { httpServletRequest.contextPath } returns "fakeContextPath"
+                every { httpServletRequest.requestURI } returns requestUri
+                every { httpServletRequest.servletPath } returns servletPath
+                every { httpServletRequest.pathInfo } returns null
+                every { httpServletRequest.method } returns "GET"
+                if (servletPath == "/zaken/create") {
+                    every { policyService.readOverigeRechten() } returns createOverigeRechten(startenZaak = false)
+                } else {
+                    every { policyService.readWerklijstRechten() } returns createWerklijstRechten(inbox = false)
+                }
+                every { httpServletResponse.sendError(any()) } just runs
+
+                `when`("the filter processes the request") {
+                    filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
+
+                    then("a 403 with the generic no-permission error page is returned, as for '$servletPath'") {
+                        verify(exactly = 1) {
+                            httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN)
+                        }
+                        verify(exactly = 0) {
+                            filterChain.doFilter(any(), any())
                         }
                     }
                 }

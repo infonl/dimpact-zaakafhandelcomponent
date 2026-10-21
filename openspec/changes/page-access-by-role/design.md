@@ -37,7 +37,8 @@ The zaak and taak werklijsten (`/zaken/werkvoorraad`, `/zaken/mijn`, `/zaken/afg
 - No Angular route guards. The toolbar already hides the links, and the `/admin` check is server-side only too.
 - No check on pages of a single zaak, taak or document: their access depends on the object, which the REST call
   already checks.
-- No change to the admin check, the read role check, OPA policies or the REST endpoints.
+- No change to the read role check, OPA policies or the REST endpoints. The admin check only changes in which form of
+  the path it matches.
 - No new error page or text.
 
 ## Decisions
@@ -60,6 +61,14 @@ page load of a few pages, and it grows `LoggedInUser` for this one filter.
 
 Alternative: check the roles in Kotlin, as `hasBeheerderApplicationRole` does. Rejected, because then the roles per
 right are defined both in the `.rego` files and in Kotlin, and the toolbar and the page could disagree.
+
+### Match the admin and page rules on the servlet path, not on the request URI
+
+The request URI is raw, so `/%64ocumenten/inbox` or `/admin;view=list` would not match a rule, while the
+container and the app still treat it as the guarded page. The admin and page rules therefore match on
+`servletPath + pathInfo`, which the container has decoded, normalized and stripped of path parameters. The public
+path rules keep matching on the raw request URI: a variant that does not match them falls through to the
+authenticated checks, which is stricter.
 
 ### Refuse with the existing 403 page
 

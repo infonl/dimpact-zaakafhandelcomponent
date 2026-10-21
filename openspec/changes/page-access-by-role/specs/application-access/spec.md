@@ -15,6 +15,9 @@ a user who holds the right. A user without a read role SHALL keep getting the ba
 Other paths, such as the pages of a single zaak, taak or document under `/zaken/`, `/taken/` and
 `/informatie-objecten/`, and the REST API, SHALL keep their existing access rules.
 
+ZAC SHALL apply these rules and the rule for the admin paths in the same way to a variant of a path that has
+percent-encoded characters or path parameters (`;name=value`), such as `/%64ocumenten/inbox` or `/admin;view=list`.
+
 #### Scenario: A raadpleger cannot open the documenten inbox
 - **WHEN** a user who holds only `raadpleger` opens `/documenten/inbox`
 - **THEN** ZAC answers with HTTP 403 and shows the "U heeft geen toestemming om deze pagina te bekijken." page with a
@@ -50,3 +53,11 @@ Other paths, such as the pages of a single zaak, taak or document under `/zaken/
 - **WHEN** a user who holds only `brp_zoeken` opens `/documenten/inbox`
 - **THEN** ZAC answers with HTTP 403 and shows the "U heeft minstens één basisrol nodig om deze applicatie te kunnen
   gebruiken." page
+
+#### Scenario: An encoded or parameterised variant of a guarded page is refused as well
+- **WHEN** a user who holds only `behandelaar` opens `/%64ocumenten/inbox` or `/documenten/inbox;view=list`
+- **THEN** ZAC answers with HTTP 403 and shows the "U heeft geen toestemming om deze pagina te bekijken." page
+
+#### Scenario: An encoded or parameterised variant of an admin path is refused as well
+- **WHEN** a user who holds `behandelaar` but not `beheerder` opens `/%61dmin` or `/admin;view=list`
+- **THEN** ZAC answers with HTTP 403 and shows the "U heeft geen toestemming om deze pagina te bekijken." page

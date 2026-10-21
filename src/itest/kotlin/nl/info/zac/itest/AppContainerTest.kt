@@ -240,6 +240,21 @@ class AppContainerTest : BehaviorSpec({
                 }
             }
         }
+        listOf("/%61dmin", "/admin;view=list", "/%64ocumenten/inbox", "/documenten/inbox;view=list").forEach { path ->
+            `when`("$path is requested for a user who has the 'behandelaar' role but not the right for that page") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_BASE_URI$path",
+                    testUser = BEHANDELAAR_1
+                )
+                then("the response is forbidden and shows the generic no-permission page with a home button") {
+                    response.code shouldBe HTTP_FORBIDDEN
+                    with(response.bodyAsString) {
+                        shouldContain("U heeft geen toestemming om deze pagina te bekijken.")
+                        shouldContain("class=\"home-button\"")
+                    }
+                }
+            }
+        }
         `when`("/zaken/create is requested for a user who has the 'behandelaar' role") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_BASE_URI/zaken/create",

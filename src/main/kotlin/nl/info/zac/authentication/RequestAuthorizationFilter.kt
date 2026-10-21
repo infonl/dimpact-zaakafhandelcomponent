@@ -102,15 +102,22 @@ class RequestAuthorizationFilter @Inject constructor(
 
     private fun authorizeUser(request: HttpServletRequest, requestPath: String): Authorization {
         val user = request.getSession(false)?.let(::getLoggedInUser) ?: return Authorization.FORBIDDEN
+        val canonicalPath by lazy { canonicalPath(request) }
         return when {
             requestPath == SERVER_ERROR_TEXTS_PATH && request.method == GET -> Authorization.ALLOWED
             !user.hasReadApplicationRole -> Authorization.NO_READ_APPLICATION_ROLE
-            ADMIN_URI_PREFIXES.any(requestPath::startsWith) && !hasBeheerderApplicationRole(user) ->
+            ADMIN_URI_PREFIXES.any(canonicalPath::startsWith) && !hasBeheerderApplicationRole(user) ->
                 Authorization.FORBIDDEN
-            !hasPageRight(requestPath) -> Authorization.FORBIDDEN
+            !hasPageRight(canonicalPath) -> Authorization.FORBIDDEN
             else -> Authorization.ALLOWED
         }
     }
+
+    /**
+     * Unlike the request URI, the servlet path and path info are decoded, normalized and stripped of path
+     * parameters, so that a percent-encoded or `;`-parameterised variant of a path matches the same rule.
+     */
+    private fun canonicalPath(request: HttpServletRequest) = request.servletPath + (request.pathInfo ?: "")
 
     private fun hasPageRight(requestPath: String): Boolean = when {
         isInboxPage(requestPath) -> policyService.readWerklijstRechten().canInbox
