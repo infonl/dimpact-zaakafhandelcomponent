@@ -107,6 +107,7 @@ nl.info.zac.itest.TaskRestServiceZaakspecifiekAutorisatieTest
 nl.info.zac.itest.ZaakKoppelenRestServiceTest
 nl.info.zac.itest.ZaakRestServiceBrondatumAfleidingswijzeEigenschapArchiveTest
 nl.info.zac.itest.ZaakRestServiceBrondatumAfleidingswijzeVervaldatumBesluitArchiveTest
+nl.info.zac.itest.ZaakRestServiceCreateLinkedZaakTest
 nl.info.zac.itest.ZaakRestServiceHistoryTest
 nl.info.zac.itest.bpmn.ZaaktypeConfigurationRestServiceBpmnSmartDocumentsTest
 nl.info.zac.itest.ZaaktypeConfigurationRestServiceTest
