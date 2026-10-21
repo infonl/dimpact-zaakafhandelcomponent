@@ -375,6 +375,10 @@ export class CaseDetailsEditComponent implements OnInit {
     const value = this.form.getRawValue();
     this.updateZaakMutation.mutate({
       reden: value.reden ?? "",
+      isBehandelaarVrijgegeven:
+        !value.behandelaar &&
+        (this.form.controls.behandelaar.dirty ||
+          value.groep?.id !== this.zaak().groep?.id),
       zaak: {
         groep: value.groep ?? undefined,
         behandelaar: value.behandelaar ?? undefined,

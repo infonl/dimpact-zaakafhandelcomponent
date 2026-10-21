@@ -1311,6 +1311,64 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
+    context("Releasing the behandelaar of a zaak with the 'update zaak' endpoint") {
+        given("a zaak that is assigned to a group and a behandelaar") {
+            val (_, zaakUuid) = zaakHelper.createZaak(
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_3_UUID,
+                group = GROUP_BEHANDELAARS_TEST_1,
+                testUser = BEHANDELAAR_1,
+                behandelaarId = BEHANDELAAR_1.username,
+                behandelaarName = BEHANDELAAR_1.displayName
+            )
+            val groupFields = """
+                "groep": {
+                    "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
+                    "naam": "${GROUP_BEHANDELAARS_TEST_1.description}"
+                }
+            """.trimIndent()
+
+            `when`("the 'update zaak' endpoint is called with the group but without a behandelaar") {
+                val response = updateZaak(zaakUuid = zaakUuid, zaakFields = groupFields, testUser = BEHANDELAAR_1)
+
+                then("the zaak keeps its behandelaar") {
+                    logger.info { "Response: ${response.bodyAsString}" }
+                    response.code shouldBe HTTP_OK
+                    with(zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1)) {
+                        code shouldBe HTTP_OK
+                        JSONObject(bodyAsString).getJSONObject("behandelaar")
+                            .getString("id") shouldBe BEHANDELAAR_1.username
+                    }
+                }
+            }
+
+            `when`("the 'update zaak' endpoint is called with the group and with the behandelaar released") {
+                val response = itestHttpClient.performPatchRequest(
+                    url = "$ZAC_API_URI/zaken/zaak/$zaakUuid",
+                    requestBodyAsString = """
+                        {
+                            "zaak": { $groupFields },
+                            "reden": "fakeReason",
+                            "isBehandelaarVrijgegeven": true
+                        }
+                    """.trimIndent(),
+                    testUser = BEHANDELAAR_1
+                )
+
+                then("the zaak no longer has a behandelaar and is still assigned to the group") {
+                    logger.info { "Response: ${response.bodyAsString}" }
+                    response.code shouldBe HTTP_OK
+                    with(zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1)) {
+                        code shouldBe HTTP_OK
+                        JSONObject(bodyAsString).apply {
+                            has("behandelaar") shouldBe false
+                            getJSONObject("groep").getString("id") shouldBe GROUP_BEHANDELAARS_TEST_1.name
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     context("Listing afzenders for a zaak") {
         given(
             """
