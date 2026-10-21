@@ -936,7 +936,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-init:
-    image: openformulieren/open-forms:3.5.10@sha256:a71bb4a76bfa0886391b9dcf87a9c4857a7b76076c084b61d38db820fd09d6dc
+    image: openformulieren/open-forms:3.5.11@sha256:594ab8d2c4e8de13d86ef9a4e97296da008c02ec63c19d9471d1bc82883c95c8
     # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
@@ -1053,7 +1053,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-web:
-    image: openformulieren/open-forms:3.5.10@sha256:a71bb4a76bfa0886391b9dcf87a9c4857a7b76076c084b61d38db820fd09d6dc
+    image: openformulieren/open-forms:3.5.11@sha256:594ab8d2c4e8de13d86ef9a4e97296da008c02ec63c19d9471d1bc82883c95c8
     # For now, we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
@@ -1080,7 +1080,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-celery:
-    image: openformulieren/open-forms:3.5.10@sha256:a71bb4a76bfa0886391b9dcf87a9c4857a7b76076c084b61d38db820fd09d6dc
+    image: openformulieren/open-forms:3.5.11@sha256:594ab8d2c4e8de13d86ef9a4e97296da008c02ec63c19d9471d1bc82883c95c8
     # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
@@ -1108,7 +1108,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-celery-beat:
-    image: openformulieren/open-forms:3.5.10@sha256:a71bb4a76bfa0886391b9dcf87a9c4857a7b76076c084b61d38db820fd09d6dc
+    image: openformulieren/open-forms:3.5.11@sha256:594ab8d2c4e8de13d86ef9a4e97296da008c02ec63c19d9471d1bc82883c95c8
     # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
