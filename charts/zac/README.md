@@ -378,10 +378,15 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |
 | solr-operator.solr.jobs.nodeSelector | object | `{}` | nodeSelector for jobs |
 | solr-operator.solr.jobs.tolerations | list | `[]` | tolerations for jobs |
-| solr-operator.solr.livenessProbe | object | `{"failureThreshold":6,"httpGet":{"path":"/solr/admin/info/health","port":8983},"periodSeconds":20,"timeoutSeconds":1}` | livenessProbe override for solr in solrcloud. Overrides the Solr Operator default which checks /solr/admin/info/system and does not reflect ZooKeeper connectivity. Using /solr/admin/info/health ensures the pod is restarted when ZooKeeper connectivity is lost for an extended period. failureThreshold of 6 (6 x 20s = 120s) provides tolerance for brief ZooKeeper restarts. |
+| solr-operator.solr.livenessProbe | object | `{"exec":{"command":["sh","-c","curl -sf -o /dev/null --max-time 4 -u \"$(cat /etc/secrets/*-solrcloud-basic-auth/username):$(cat /etc/secrets/*-solrcloud-basic-auth/password)\" http://localhost:8983/solr/admin/info/health"]},"failureThreshold":6,"periodSeconds":20,"timeoutSeconds":5}` | livenessProbe override for solr in solrcloud. Checks /solr/admin/info/health, which fails when Solr lost ZooKeeper or shut down its CoreContainer, so the pod is restarted. failureThreshold of 6 (6 x 20s = 120s) provides tolerance for brief ZooKeeper restarts. An exec probe with `curl -f`, not httpGet: with basic auth (probesRequireAuth) the Solr Operator turns an httpGet probe into `solr api -get ... | grep -v JAVA_TOOL_OPTIONS`, whose exit code is grep's and is 0 whenever anything is printed, errors included, so that probe never fails. The credentials come from the operator-mounted basic-auth secret. |
 | solr-operator.solr.logLevel | string | `"INFO"` |  |
 | solr-operator.solr.nodeSelector | object | `{}` | nodeSelector for solr in solrcloud |
-| solr-operator.solr.readinessProbe | object | `{}` |  |
+| solr-operator.solr.readinessProbe.exec.command[0] | string | `"sh"` |  |
+| solr-operator.solr.readinessProbe.exec.command[1] | string | `"-c"` |  |
+| solr-operator.solr.readinessProbe.exec.command[2] | string | `"curl -sf -o /dev/null --max-time 4 -u \"$(cat /etc/secrets/*-solrcloud-basic-auth/username):$(cat /etc/secrets/*-solrcloud-basic-auth/password)\" http://localhost:8983/solr/admin/info/health"` |  |
+| solr-operator.solr.readinessProbe.failureThreshold | int | `2` |  |
+| solr-operator.solr.readinessProbe.periodSeconds | int | `10` |  |
+| solr-operator.solr.readinessProbe.timeoutSeconds | int | `5` |  |
 | solr-operator.solr.replicas | int | `3` | replicas for solr in solrcloud, should be an odd number |
 | solr-operator.solr.resources | object | `{}` |  |
 | solr-operator.solr.startupProbe | object | `{}` |  |

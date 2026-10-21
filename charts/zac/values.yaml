@@ -571,20 +571,40 @@ solr-operator:
      # -- startupProbe override for solr in solrcloud. The Solr Operator defaults to /solr/admin/info/system.
      # Override only if custom startup timing is needed.
     startupProbe: {}
-     # -- livenessProbe override for solr in solrcloud. Overrides the Solr Operator default which checks
-     # /solr/admin/info/system and does not reflect ZooKeeper connectivity. Using /solr/admin/info/health
-     # ensures the pod is restarted when ZooKeeper connectivity is lost for an extended period.
+     # -- livenessProbe override for solr in solrcloud. Checks /solr/admin/info/health, which fails when
+     # Solr lost ZooKeeper or shut down its CoreContainer, so the pod is restarted.
      # failureThreshold of 6 (6 x 20s = 120s) provides tolerance for brief ZooKeeper restarts.
+     # An exec probe with `curl -f`, not httpGet: with basic auth (probesRequireAuth) the Solr Operator
+     # turns an httpGet probe into `solr api -get ... | grep -v JAVA_TOOL_OPTIONS`, whose exit code is
+     # grep's and is 0 whenever anything is printed, errors included, so that probe never fails.
+     # The credentials come from the operator-mounted basic-auth secret.
     livenessProbe:
-      httpGet:
-        path: /solr/admin/info/health
-        port: 8983
+      exec:
+        command:
+          - sh
+          - -c
+          - >-
+            curl -sf -o /dev/null --max-time 4
+            -u "$(cat /etc/secrets/*-solrcloud-basic-auth/username):$(cat /etc/secrets/*-solrcloud-basic-auth/password)"
+            http://localhost:8983/solr/admin/info/health
       failureThreshold: 6
       periodSeconds: 20
-      timeoutSeconds: 1
-     # -- readinessProbe override for solr in solrcloud. The Solr Operator already defaults to
-     # /solr/admin/info/health for readiness. Override only if custom thresholds are needed.
-    readinessProbe: {}
+      timeoutSeconds: 5
+     # -- readinessProbe override for solr in solrcloud. Same check as the livenessProbe, so a node that
+     # cannot serve is taken out of the Service at once. The Solr Operator's own readiness probe has
+     # the same never-failing `| grep -v` pipeline when probesRequireAuth is set.
+    readinessProbe:
+      exec:
+        command:
+          - sh
+          - -c
+          - >-
+            curl -sf -o /dev/null --max-time 4
+            -u "$(cat /etc/secrets/*-solrcloud-basic-auth/username):$(cat /etc/secrets/*-solrcloud-basic-auth/password)"
+            http://localhost:8983/solr/admin/info/health
+      failureThreshold: 2
+      periodSeconds: 10
+      timeoutSeconds: 5
    # -- tolerations for solr-operator
   tolerations: []
    # -- a comma-seperated list of namespaces to watch, watches all namespaces if empty
