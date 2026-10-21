@@ -193,8 +193,10 @@ export class ReferentieTabelService {
     );
   }
 
-  listServerErrorTexts() {
-    return this.zacHttpClient.GET("/rest/referentietabellen/server-error-text");
+  listServerErrorTextsQuery() {
+    return this.zacQueryClient.GET(
+      "/rest/referentietabellen/server-error-text",
+    );
   }
 
   listBrpSearchValues() {

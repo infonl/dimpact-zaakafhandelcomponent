@@ -3,8 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AsyncPipe } from "@angular/common";
-import { Component, Inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import {
   MAT_DIALOG_DATA,
@@ -15,6 +14,7 @@ import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 
 @Component({
@@ -26,22 +26,26 @@ import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
     MatDividerModule,
     MatIconModule,
     MatToolbarModule,
-    AsyncPipe,
   ],
 })
 export class FoutDetailedDialogComponent {
-  constructor(
-    private referentieTabelService: ReferentieTabelService,
-    public dialogRef: MatDialogRef<FoutDetailedDialogComponent>,
-    @Inject(MAT_DIALOG_DATA)
-    public data: {
-      error: string;
-      details: string;
-      showServerErrorTexts?: boolean;
-    },
-  ) {}
+  private readonly referentieTabelService = inject(ReferentieTabelService);
+  private readonly dialogRef = inject(
+    MatDialogRef<FoutDetailedDialogComponent>,
+  );
+  protected readonly data = inject<{
+    error: string;
+    details: string;
+    showServerErrorTexts?: boolean;
+  }>(MAT_DIALOG_DATA);
 
-  serverErrorTexts = this.referentieTabelService.listServerErrorTexts();
+  protected readonly serverErrorTextsQuery = injectQuery(() => ({
+    ...this.referentieTabelService.listServerErrorTextsQuery(),
+    enabled: Boolean(this.data.showServerErrorTexts),
+    // Shown inside the error dialog, so a failure must not open another one.
+    meta: { reportErrors: false },
+    retry: false,
+  }));
 
   close(): void {
     this.dialogRef.close();
