@@ -12,6 +12,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.buildHeaders
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_BASE_URI
@@ -290,6 +291,33 @@ class AppContainerTest : BehaviorSpec({
             then("the response should redirect to the ZAC root") {
                 response.code shouldBe HTTP_MOVED_TEMP
                 response.headers["Location"] shouldBe "$ZAC_BASE_URI/"
+            }
+        }
+    }
+
+    given("An OIDC callback URL of a login attempt that is no longer in progress") {
+        val callbackUrl = "$ZAC_BASE_URI/documenten/inbox?state=fakeState&session_state=fakeSessionState&code=fakeCode"
+
+        `when`("the callback URL is requested without a state cookie") {
+            val response = itestHttpClient.performGetRequest(url = callbackUrl)
+
+            then("the response redirects to the same page without the OIDC parameters, so that a new login starts") {
+                response.code shouldBe HTTP_MOVED_TEMP
+                response.headers["Location"] shouldBe "/documenten/inbox"
+            }
+        }
+
+        `when`("the callback URL is requested with the state cookie of another login attempt") {
+            val response = itestHttpClient.performGetRequest(
+                url = callbackUrl,
+                headers = buildHeaders(acceptType = null).newBuilder()
+                    .add("Cookie", "OAuth_Token_Request_State=fakeOtherState")
+                    .build()
+            )
+
+            then("the response redirects to the same page without the OIDC parameters, so that a new login starts") {
+                response.code shouldBe HTTP_MOVED_TEMP
+                response.headers["Location"] shouldBe "/documenten/inbox"
             }
         }
     }

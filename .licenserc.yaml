@@ -48,6 +48,8 @@ header:
     - "src/main/resources/cmmn/**"
     - "src/main/resources/openapi-generator-templates/**"
     - "src/main/resources/policies/policies"
+    # the Undertow handler file format has no comment syntax
+    - "src/main/webapp/WEB-INF/undertow-handlers.conf"
     # ignore Flyway DB migration files without SPDX headers
     # adding SPDX headers to these files would break the migration on existing databases
     - "src/main/resources/schemas/V34__*.sql"
