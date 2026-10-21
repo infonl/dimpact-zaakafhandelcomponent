@@ -47,6 +47,7 @@ nl.info.zac.itest.ZaaktypeConfigurationSplitMigrationTest
 nl.info.zac.itest.IndexingAdminRestServiceTest
 nl.info.zac.itest.KlantRestServiceTest
 nl.info.zac.itest.SignaleringRestServiceRolDestroyTest
+nl.info.zac.itest.SignaleringRestServiceZaakspecifiekAutorisatieTest
 
 # other specs
 nl.info.zac.itest.AanvullendeInformatieTaskCompleteTest
