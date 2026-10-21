@@ -6,7 +6,7 @@
 import { ComponentFixture } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import {
   provideAngularQuery,
   QueryClient,
@@ -85,8 +85,9 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
     });
 
     const rendered = await render(BpmnProcessDefinitionsComponent, {
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideAngularQuery(
           new QueryClient({ defaultOptions: { queries: { retry: false } } }),
         ),

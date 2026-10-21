@@ -17,7 +17,7 @@ import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import {
   provideQueryClient,
   provideTanStackQuery,
@@ -111,11 +111,11 @@ describe(InformatieObjectAddComponent.name, () => {
         FormsModule,
         ReactiveFormsModule,
         MatIconModule,
-        TranslateModule.forRoot(),
         NoopAnimationsModule,
         VertrouwelijkaanduidingToTranslationKeyPipe,
       ],
       providers: [
+        provideTranslateService(),
         provideZonelessChangeDetection(),
         provideTanStackQuery(testQueryClient),
         provideQueryClient(testQueryClient),

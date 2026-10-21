@@ -12,7 +12,7 @@ import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatProgressSpinnerHarness } from "@angular/material/progress-spinner/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import {
   provideTanStackQuery,
   QueryClient,
@@ -78,12 +78,12 @@ describe(BedrijfsgegevensComponent.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [
-        BedrijfsgegevensComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
+      imports: [BedrijfsgegevensComponent, NoopAnimationsModule],
+      providers: [
+        provideTranslateService(),
+        KlantenService,
+        provideTanStackQuery(queryClient),
       ],
-      providers: [KlantenService, provideTanStackQuery(queryClient)],
     });
 
     klantenService = TestBed.inject(KlantenService);

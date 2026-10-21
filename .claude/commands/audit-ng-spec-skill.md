@@ -19,7 +19,9 @@ You did NOT write this spec. Treat it with completely fresh eyes.
 4. Derive the template path (`.component.html`), read it if it exists.
 5. From `src/main/app/`, run the check that CI applies to a touched spec, and treat every problem it reports as a FAIL:
    `ESLINT_USE_FLAT_CONFIG=false npx eslint -c .eslintrc.strict-specs.js <spec path relative to src/main/app>`.
-   It already covers `any`, `NO_ERRORS_SCHEMA`, DOM queries outside Testing Library, and object literals cast through `unknown`.
+   It already covers `any`, `NO_ERRORS_SCHEMA`, DOM queries outside Testing Library (`By.css`, `querySelector`, node access such as `.children` or `.closest()`), `fireEvent` instead of `userEvent.setup()`, rendering in `beforeEach`, and object literals cast through `unknown`.
+   Fix those as `.claude/rules/angular-specs.md` describes; never replace one banned query with another.
+   It does not catch `debugElement.query(By.directive(…))` or `within(fixture.nativeElement)`; mark those FAIL yourself.
 
 **Step 2 — Audit**
 
@@ -45,7 +47,7 @@ For each item, mark **PASS** or **FAIL** with a one-line reason and the exact li
     ```
   - `useValue` is acceptable when genuinely difficult to avoid (e.g. a service with a deeply complex DI tree that cannot be satisfied without significant setup). Flag it with a comment explaining why.
   - **Always acceptable exceptions**: Angular built-in injection tokens (`MAT_DIALOG_DATA`, `LOCALE_ID`, `APP_BASE_HREF`, etc.) where no real class exists to inject.
-  - `TranslateService` → use `TranslateModule.forRoot()` in `imports`, then `TestBed.inject(TranslateService)` + `jest.spyOn`.
+  - `TranslateService` → use `provideTranslateService()` in `providers`, then `TestBed.inject(TranslateService)` + `jest.spyOn`.
   - Services using `ZacHttpClient` → add `provideHttpClient()` to providers.
   - Services using `Router` → add `provideRouter([])` to providers.
 - [ ] `provideHttpClient()` present if any service in the tree uses `ZacHttpClient`

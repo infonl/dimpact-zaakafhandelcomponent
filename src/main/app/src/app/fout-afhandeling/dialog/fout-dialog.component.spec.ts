@@ -9,7 +9,7 @@ import { TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { FoutDialogComponent } from "./fout-dialog.component";
 
 function setup(data: string) {
@@ -18,12 +18,9 @@ function setup(data: string) {
   };
 
   TestBed.configureTestingModule({
-    imports: [
-      FoutDialogComponent,
-      NoopAnimationsModule,
-      TranslateModule.forRoot(),
-    ],
+    imports: [FoutDialogComponent, NoopAnimationsModule],
     providers: [
+      provideTranslateService(),
       { provide: MatDialogRef, useValue: mockDialogRef },
       { provide: MAT_DIALOG_DATA, useValue: data },
     ],

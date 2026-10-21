@@ -10,7 +10,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatCardHarness } from "@angular/material/card/testing";
 import { MatChipHarness } from "@angular/material/chips/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { sleep } from "../../../../setupJest";
 import { GeneratedType } from "../utils/generated-types";
 import { VersionComponent, VersionLayout } from "./version.component";
@@ -31,11 +31,8 @@ describe(VersionComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        VersionComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
-      ],
+      imports: [VersionComponent, NoopAnimationsModule],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     httpTestingController = TestBed.inject(HttpTestingController);

@@ -6,7 +6,7 @@
 import { HttpHeaders, HttpResponse } from "@angular/common/http";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { notifyManager } from "@tanstack/query-core";
 import { fireEvent, render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
@@ -120,8 +120,9 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     const rendered = await render(BpmnProcessDefinitionItemComponent, {
       inputs: { processDefinition },
       on: { bpmnFormListChanged },
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         { provide: BpmnService, useValue: bpmnService },
         { provide: UtilService, useValue: utilService },
         { provide: FoutAfhandelingService, useValue: foutAfhandelingService },

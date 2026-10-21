@@ -22,7 +22,7 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatToolbarHarness } from "@angular/material/toolbar/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { within } from "@testing-library/angular";
@@ -42,7 +42,7 @@ const makeZaak = (
   });
 
 const makeSideNav = (): MatDrawer =>
-  ({ close: jest.fn() }) as unknown as MatDrawer;
+  fromPartial<MatDrawer>({ close: jest.fn() });
 
 describe(ZaakdataComponent.name, () => {
   let fixture: ComponentFixture<ZaakdataComponent>;
@@ -69,7 +69,6 @@ describe(ZaakdataComponent.name, () => {
       imports: [
         ZaakdataComponent,
         NoopAnimationsModule,
-        TranslateModule.forRoot(),
         ReactiveFormsModule,
         MatToolbarModule,
         MatButtonModule,
@@ -80,6 +79,7 @@ describe(ZaakdataComponent.name, () => {
         MatInputModule,
       ],
       providers: [
+        provideTranslateService(),
         provideHttpClient(),
         provideRouter([]),
         provideQueryClient(testQueryClient),

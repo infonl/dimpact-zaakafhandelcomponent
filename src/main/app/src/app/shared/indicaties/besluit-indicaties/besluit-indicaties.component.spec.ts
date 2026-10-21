@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
+import { TranslateLoader, provideTranslateService } from "@ngx-translate/core";
 import { render, screen, within } from "@testing-library/angular";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
@@ -28,8 +28,8 @@ const makeBesluit = (
 const setup = (besluit: GeneratedType<"RestBesluit">) =>
   render(BesluitIndicatiesComponent, {
     inputs: { besluit, layout: IndicatiesLayout.EXTENDED },
-    imports: [
-      TranslateModule.forRoot({
+    providers: [
+      provideTranslateService({
         loader: {
           provide: TranslateLoader,
           useValue: { getTranslation: () => of(translations) },

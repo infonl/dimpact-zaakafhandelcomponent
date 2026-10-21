@@ -6,7 +6,9 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
+import { screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import {
   NotificationDialogComponent,
   NotificationDialogData,
@@ -16,17 +18,15 @@ describe("NotificationDialogComponent", () => {
   let fixture: ComponentFixture<NotificationDialogComponent>;
   let mockDialogRef: Pick<MatDialogRef<NotificationDialogComponent>, "close">;
   let dialogData: NotificationDialogData;
+  const user = userEvent.setup();
 
   beforeEach(async () => {
     mockDialogRef = { close: jest.fn() };
 
     await TestBed.configureTestingModule({
-      imports: [
-        NotificationDialogComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+      imports: [NotificationDialogComponent, NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         { provide: MatDialogRef, useValue: mockDialogRef },
         {
           provide: MAT_DIALOG_DATA,
@@ -41,14 +41,12 @@ describe("NotificationDialogComponent", () => {
   });
 
   it("displays the message as HTML", () => {
-    const p = fixture.nativeElement.querySelector(
-      "[mat-dialog-content] p",
-    ) as HTMLElement;
-    expect(p.innerHTML).toBe(dialogData.melding);
+    const paragraph = screen.getByRole("paragraph");
+    expect(paragraph.innerHTML).toBe(dialogData.melding);
   });
 
-  it("closes the dialog with true when the user confirms", () => {
-    fixture.nativeElement.querySelector("#confirmButton").click();
+  it("closes the dialog with true when the user confirms", async () => {
+    await user.click(screen.getByRole("button", { name: "actie.ok" }));
     expect(mockDialogRef.close).toHaveBeenCalledWith(true);
   });
 });

@@ -7,7 +7,7 @@ import { HttpTestingController } from "@angular/common/http/testing";
 import { booleanAttribute, Component, input, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
@@ -82,11 +82,8 @@ describe(KlantKoppelBetrokkeneComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        KlantKoppelBetrokkeneComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+      imports: [KlantKoppelBetrokkeneComponent, NoopAnimationsModule],
+      providers: [provideTranslateService()],
     })
       .overrideComponent(KlantKoppelBetrokkeneComponent, {
         remove: { imports: [PersoonZoekComponent, BedrijfZoekComponent] },

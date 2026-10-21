@@ -5,7 +5,7 @@
 
 import { TestBed } from "@angular/core/testing";
 import { MatDialog } from "@angular/material/dialog";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { ConfirmDialogComponent } from "../shared/confirm-dialog/confirm-dialog.component";
 import { RedenDialogFormComponent } from "../shared/dialog/reden-dialog-form/reden-dialog-form.component";
@@ -15,8 +15,8 @@ const setup = () => {
   const open = jest.fn().mockReturnValue({ afterClosed: () => of(true) });
 
   TestBed.configureTestingModule({
-    imports: [TranslateModule.forRoot()],
     providers: [
+      provideTranslateService(),
       DocumentDialogService,
       { provide: MatDialog, useValue: { open } },
     ],

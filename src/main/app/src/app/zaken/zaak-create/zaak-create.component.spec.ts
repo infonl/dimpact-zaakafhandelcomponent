@@ -15,7 +15,7 @@ import { MatInputHarness } from "@angular/material/input/testing";
 import { MatSelectHarness } from "@angular/material/select/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { Router, RouterModule, Routes } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import {
   provideQueryClient,
   QueryClient,
@@ -55,6 +55,7 @@ describe(ZaakCreateComponent.name, () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
+        provideTranslateService(),
         ZakenService,
         KlantenService,
         ReferentieTabelService,
@@ -65,7 +66,6 @@ describe(ZaakCreateComponent.name, () => {
       imports: [
         ZaakCreateComponent,
         RouterModule.forRoot(routes),
-        TranslateModule.forRoot(),
         NoopAnimationsModule,
         MatHint,
         MatIcon,

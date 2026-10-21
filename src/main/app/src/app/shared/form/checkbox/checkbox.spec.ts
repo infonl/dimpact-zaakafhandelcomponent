@@ -17,7 +17,7 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatCheckboxHarness } from "@angular/material/checkbox/testing";
 import { MatErrorHarness } from "@angular/material/form-field/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { ZacCheckbox } from "./checkbox";
 
@@ -47,10 +47,10 @@ describe(ZacCheckbox.name, () => {
         HostComponent,
         ReactiveFormsModule,
         NoopAnimationsModule,
-        TranslateModule.forRoot(),
         MatCheckboxModule,
         CapitalizeFirstLetterPipe,
       ],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(HostComponent);

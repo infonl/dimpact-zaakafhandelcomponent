@@ -4,7 +4,7 @@
  */
 
 import { TestBed } from "@angular/core/testing";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateService, provideTranslateService } from "@ngx-translate/core";
 import { I18nLabelPipe } from "./i18n-label.pipe";
 
 describe(I18nLabelPipe.name, () => {
@@ -12,8 +12,7 @@ describe(I18nLabelPipe.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
-      providers: [I18nLabelPipe],
+      providers: [provideTranslateService(), I18nLabelPipe],
     });
     const translateService = TestBed.inject(TranslateService);
     translateService.setTranslation("nl", {

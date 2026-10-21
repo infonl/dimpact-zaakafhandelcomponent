@@ -5,7 +5,7 @@
 
 import { MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import { userEvent } from "@testing-library/user-event";
 import { ZaakspecifiekeAutorisatieOpheffenDialogComponent } from "./zaakspecifieke-autorisatie-opheffen-dialog.component";
@@ -16,8 +16,11 @@ describe(ZaakspecifiekeAutorisatieOpheffenDialogComponent.name, () => {
   async function setup() {
     dialogRef = { close: jest.fn() };
     await render(ZaakspecifiekeAutorisatieOpheffenDialogComponent, {
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
-      providers: [{ provide: MatDialogRef, useValue: dialogRef }],
+      imports: [NoopAnimationsModule],
+      providers: [
+        provideTranslateService(),
+        { provide: MatDialogRef, useValue: dialogRef },
+      ],
     });
   }
 

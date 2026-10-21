@@ -10,7 +10,7 @@ import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { queryOptions } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { Observable, of, ReplaySubject } from "rxjs";
@@ -118,12 +118,12 @@ describe(ZaakViewComponent.name, () => {
         SideNavComponent,
         StaticTextComponent,
         ZaakProcessFlowComponent,
-        TranslateModule.forRoot(),
         VertrouwelijkaanduidingToTranslationKeyPipe,
         NoopAnimationsModule,
         EmptyPipe,
       ],
       providers: [
+        provideTranslateService(),
         PlanItemsService,
         {
           provide: ActivatedRoute,

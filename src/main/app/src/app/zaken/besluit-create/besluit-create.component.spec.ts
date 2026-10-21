@@ -7,7 +7,7 @@ import { provideHttpClient } from "@angular/common/http";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
@@ -81,8 +81,9 @@ describe(BesluitCreateComponent.name, () => {
 
     const { rerender } = await render(BesluitCreateComponent, {
       inputs: { zaak: fakeZaak, sideNav },
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideHttpClient(),
         provideQueryClient(testQueryClient),
         provideRouter([]),

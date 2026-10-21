@@ -5,7 +5,7 @@
 
 import { TestBed } from "@angular/core/testing";
 import { MatDialog } from "@angular/material/dialog";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import {
@@ -21,8 +21,11 @@ const setup = () => {
   const open = jest.fn().mockReturnValue({ afterClosed: () => of(true) });
 
   TestBed.configureTestingModule({
-    imports: [TranslateModule.forRoot()],
-    providers: [ZaakDialogService, { provide: MatDialog, useValue: { open } }],
+    providers: [
+      provideTranslateService(),
+      ZaakDialogService,
+      { provide: MatDialog, useValue: { open } },
+    ],
   });
 
   return { service: TestBed.inject(ZaakDialogService), open };

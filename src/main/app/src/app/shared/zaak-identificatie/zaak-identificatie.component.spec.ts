@@ -7,7 +7,7 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { TestBed } from "@angular/core/testing";
 import { MatTooltipHarness } from "@angular/material/tooltip/testing";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateService, provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import { ZaakIdentificatieComponent } from "./zaak-identificatie.component";
 
@@ -18,8 +18,8 @@ describe(ZaakIdentificatieComponent.name, () => {
   ) => {
     const { fixture } = await render(ZaakIdentificatieComponent, {
       inputs: { identificatie, isZaakspecifiekGeautoriseerd },
-      imports: [TranslateModule.forRoot()],
-      providers: [provideNoopAnimations()],
+
+      providers: [provideTranslateService(), provideNoopAnimations()],
     });
 
     const translateService = TestBed.inject(TranslateService);
