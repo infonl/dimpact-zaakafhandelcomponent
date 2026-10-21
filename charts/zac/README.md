@@ -369,7 +369,8 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.busyBoxImage.pullPolicy | string | `"IfNotPresent"` | solr busybox image imagePullPolicy |
 | solr-operator.solr.busyBoxImage.repository | string | `"library/busybox"` | solr busybox image reposity |
 | solr-operator.solr.busyBoxImage.tag | string | `"1.38.0-glibc@sha256:99813cb178ace2cd9c6c53ee3bddef5d2f5708aa438335111d7a9e3c5e1aaebe"` | solr busybox image tag |
-| solr-operator.solr.containerSecurityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]}}` | securityContext for the solr container in solrcloud; the Solr Operator applies it to that container only. Capabilities and privilege escalation can only be set per container, so the init containers keep the defaults for those. |
+| solr-operator.solr.containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
+| solr-operator.solr.containerSecurityContext.capabilities.drop[0] | string | `"ALL"` |  |
 | solr-operator.solr.enabled | bool | `true` |  |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
@@ -390,7 +391,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.storage.reclaimPolicy | string | `"Delete"` | solr storage reclaimPolicy |
 | solr-operator.solr.storage.size | string | `"1Gi"` | solr storage size |
 | solr-operator.solr.storage.storageClassName | string | `"managed-csi"` | solr storage storageClassName |
-| solr-operator.solr.tolerations | list | `[]` | tolerations for solr in solrcloud |
+| solr-operator.solr.tolerations | list | `[]` |  |
 | solr-operator.solr.topologySpreadConstraints | list | `[{"labelSelector":{"matchLabels":{"technology":"solr-cloud"}},"matchLabelKeys":["controller-revision-hash"],"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"DoNotSchedule"}]` | topologySpreadConstraints for solr in solrcloud |
 | solr-operator.tolerations | list | `[]` |  |
 | solr-operator.watchNamespaces | string | `"default"` | a comma-seperated list of namespaces to watch, watches all namespaces if empty |
