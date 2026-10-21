@@ -113,7 +113,11 @@ export class BreadcrumbsComponent {
 
   private updateZaken() {
     const trail = this.withCurrentZaken(this.breadcrumbs());
-    if (trail.every((breadcrumb, index) => breadcrumb === this.breadcrumbs()[index]))
+    if (
+      trail.every(
+        (breadcrumb, index) => breadcrumb === this.breadcrumbs()[index],
+      )
+    )
       return;
 
     this.saveTrail(trail);
@@ -121,7 +125,10 @@ export class BreadcrumbsComponent {
     this.breadcrumbs.set(trail);
   }
 
-  private withCurrentZaken(trail: Breadcrumb[], resolvedTrail: Breadcrumb[] = []) {
+  private withCurrentZaken(
+    trail: Breadcrumb[],
+    resolvedTrail: Breadcrumb[] = [],
+  ) {
     return trail.map((breadcrumb) => {
       const uuid = breadcrumb.details?.zaak?.uuid;
       if (!uuid) return breadcrumb;

@@ -292,7 +292,10 @@ describe(BreadcrumbsComponent.name, () => {
   });
 
   it("removes the lock as soon as the zaakspecifieke autorisatie of the zaak is lifted, without a navigation", async () => {
-    const fixture = await navigateTo("/zaken/mijn", "/zaken/ZAAK-ZAAKSPECIFIEK");
+    const fixture = await navigateTo(
+      "/zaken/mijn",
+      "/zaken/ZAAK-ZAAKSPECIFIEK",
+    );
 
     TestBed.inject(ZakenService).cacheZaak(zaak("ZAAK-ZAAKSPECIFIEK", false));
     fixture.detectChanges();
