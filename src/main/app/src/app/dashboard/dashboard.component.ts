@@ -316,7 +316,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       this.grid.push([]);
     }
     forkJoin([
-      this.gebruikersvoorkeurenService.listDashboardCards(),
+      runQuery(
+        this.queryClient,
+        this.gebruikersvoorkeurenService.listDashboardCards(),
+      ),
       runQuery(
         this.queryClient,
         this.signaleringenService.listDashboardSignaleringTypen(),
