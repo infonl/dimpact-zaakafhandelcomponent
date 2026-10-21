@@ -142,7 +142,7 @@ describe(ZaakProcessFlowComponent.name, () => {
       expect(getZoomTransform()).toBe("scale(1)");
     });
 
-    it("zooms in when the diagram container is clicked", async () => {
+    it("zooms in when the diagram is clicked", async () => {
       await clickAndRender(getImage());
       expect(getZoomTransform()).toBe("scale(1.25)");
     });

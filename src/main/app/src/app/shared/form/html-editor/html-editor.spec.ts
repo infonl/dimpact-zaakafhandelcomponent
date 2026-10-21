@@ -15,11 +15,10 @@ import {
   Validators,
 } from "@angular/forms";
 import { MatErrorHarness } from "@angular/material/form-field/testing";
-import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
-import { NgxEditorComponent, Toolbar } from "ngx-editor";
+import { Toolbar } from "ngx-editor";
 import { CustomValidators } from "../../validators/customValidators";
 import { ZacHtmlEditor } from "./html-editor";
 
@@ -34,9 +33,6 @@ describe(ZacHtmlEditor.name, () => {
   let componentRef: ComponentRef<typeof component>;
   let fixture: ComponentFixture<typeof component>;
   let loader: HarnessLoader;
-
-  const editor = () =>
-    fixture.debugElement.query(By.directive(NgxEditorComponent));
 
   const createTestForm = () => {
     return new FormGroup<TestForm>({
@@ -65,8 +61,11 @@ describe(ZacHtmlEditor.name, () => {
       fixture.detectChanges();
     });
 
-    it("should display the editor", () => {
-      expect(editor()).not.toBeNull();
+    it("should display the control value in the editor", () => {
+      component.form().controls.content.setValue("Test content");
+      fixture.detectChanges();
+
+      expect(screen.getByText("Test content")).toBeInTheDocument();
     });
 
     it("should display the editor menu", () => {
@@ -79,6 +78,20 @@ describe(ZacHtmlEditor.name, () => {
 
       expect(component.form().controls.content.value).toBe(
         "<p>Test content</p>",
+      );
+    });
+  });
+
+  describe("outputFormat", () => {
+    it("should output an HTML string when the user edits a control that starts as null", () => {
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "content");
+      fixture.detectChanges();
+
+      component["editor"]().commands.insertText("Typed content").exec();
+
+      expect(component.form().controls.content.value).toBe(
+        "<p>Typed content</p>",
       );
     });
   });
@@ -100,7 +113,7 @@ describe(ZacHtmlEditor.name, () => {
   });
 
   describe("Validation", () => {
-    it("should apply maxlength constraint", () => {
+    it("should show a character counter for the maxlength validator", () => {
       const form = createTestForm();
       form.controls.content.addValidators(Validators.maxLength(100));
       componentRef.setInput("form", form);
@@ -200,19 +213,6 @@ describe(ZacHtmlEditor.name, () => {
       fixture.detectChanges();
 
       expect(component.form().controls.content.value).toBe("Test content");
-    });
-  });
-
-  describe("outputFormat", () => {
-    it("should output HTML string even when form control starts with null", () => {
-      const form = createTestForm();
-      componentRef.setInput("form", form);
-      componentRef.setInput("key", "content");
-      fixture.detectChanges();
-
-      expect(editor().injector.get(NgxEditorComponent).outputFormat).toBe(
-        "html",
-      );
     });
   });
 });

@@ -18,7 +18,7 @@ import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateService, provideTranslateService } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { ZacAutoComplete } from "./auto-complete";
 
 interface TestOption {
@@ -62,7 +62,7 @@ describe(ZacAutoComplete.name, () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ZacAutoComplete, NoopAnimationsModule],
-      providers: [provideTranslateService(), TranslateService],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(

@@ -49,7 +49,7 @@ describe(ZacInput.name, () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ZacInput, ReactiveFormsModule, NoopAnimationsModule],
-      providers: [provideTranslateService(), TranslateService],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     translateService = TestBed.inject(TranslateService);

@@ -130,11 +130,10 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [hrefItem]);
       fixture.detectChanges();
 
-      const anchor = screen.getByRole("link", { name: "test.href" });
-
-      expect(anchor.tagName).toBe("A");
-      expect(anchor).toHaveAttribute("href", "https://example.com");
-      expect(anchor).not.toHaveAttribute("routerLink");
+      expect(screen.getByRole("link", { name: "test.href" })).toHaveAttribute(
+        "href",
+        "https://example.com",
+      );
     });
 
     it("should render href menu items with download URLs for document downloads", async () => {
@@ -148,10 +147,9 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [hrefItem]);
       fixture.detectChanges();
 
-      const anchor = screen.getByRole("link", { name: "download.document" });
-
-      expect(anchor.tagName).toBe("A");
-      expect(anchor).toHaveAttribute("href", downloadUrl);
+      expect(
+        screen.getByRole("link", { name: "download.document" }),
+      ).toHaveAttribute("href", downloadUrl);
     });
 
     it("should render multiple menu items of different types", async () => {

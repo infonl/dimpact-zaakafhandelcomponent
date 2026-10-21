@@ -21,7 +21,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
-import { within } from "@testing-library/angular";
+import { screen } from "@testing-library/angular";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
@@ -142,7 +142,7 @@ describe(ZakenVerdelenDialogComponent.name, () => {
     await sleep();
     fixture.detectChanges();
     expect(
-      within(fixture.nativeElement).getByRole("progressbar", { hidden: true }),
+      screen.getByRole("progressbar", { hidden: true }),
     ).toBeInTheDocument();
     httpTestingController.expectOne("/rest/zaken/lijst/verdelen").flush({});
   });

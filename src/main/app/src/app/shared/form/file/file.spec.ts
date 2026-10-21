@@ -80,7 +80,6 @@ describe(ZacFile.name, () => {
       imports: [ZacFile, NoopAnimationsModule],
       providers: [
         provideTranslateService(),
-        TranslateService,
         provideHttpClient(),
         provideTanStackQuery(testQueryClient),
       ],

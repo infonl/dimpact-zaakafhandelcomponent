@@ -46,7 +46,7 @@ describe(ZacSelect.name, () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ZacSelect, ReactiveFormsModule, NoopAnimationsModule],
-      providers: [provideTranslateService(), TranslateService],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(

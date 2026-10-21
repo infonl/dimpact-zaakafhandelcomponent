@@ -20,7 +20,7 @@ import {
   MatRadioGroupHarness,
 } from "@angular/material/radio/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateService, provideTranslateService } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import { ZacRadio } from "./radio";
 
@@ -64,7 +64,7 @@ describe(ZacRadio.name, () => {
         MatRadioModule,
         NoopAnimationsModule,
       ],
-      providers: [provideTranslateService(), TranslateService],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(
