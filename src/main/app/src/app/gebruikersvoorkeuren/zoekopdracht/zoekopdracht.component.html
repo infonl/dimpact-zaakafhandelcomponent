@@ -4,9 +4,9 @@
   -->
 
 <div class="flex-row">
-  @if (zoekopdrachten.length) {
+  @if (zoekopdrachten().length) {
     <div class="filter-control">
-      @if (!actieveZoekopdracht && !actieveFilters) {
+      @if (!actieveZoekopdracht() && !actieveFilters()) {
         <button
           mat-icon-button
           [matMenuTriggerFor]="filterMenu"
@@ -21,9 +21,9 @@
           </mat-icon>
         </button>
       }
-      @if (actieveZoekopdracht || actieveFilters) {
+      @if (actieveZoekopdracht() || actieveFilters()) {
         <button
-          [matTooltip]="actieveZoekopdracht?.naam"
+          [matTooltip]="actieveZoekopdracht()?.naam"
           mat-icon-button
           (click)="clearActief(true)"
           id="clearZoekopdrachtButton2"
@@ -42,18 +42,20 @@
   } @else {
     <div class="filter-control">
       <button
-        [disabled]="!actieveFilters"
+        [disabled]="!actieveFilters()"
         mat-icon-button
         (click)="clearActief(true)"
         id="clearZoekopdrachtButton1"
         [attr.aria-label]="'actie.zoekopdracht.wissen' | translate"
       >
         <mat-icon
-          [ngClass]="actieveFilters ? 'filter-icon' : 'material-icons-outlined'"
+          [ngClass]="
+            actieveFilters() ? 'filter-icon' : 'material-icons-outlined'
+          "
         >
           filter_alt
         </mat-icon>
-        @if (actieveFilters) {
+        @if (actieveFilters()) {
           <mat-icon
             class="filter-button"
             title="{{ 'actie.zoekopdracht.wissen' | translate }}"
@@ -65,23 +67,23 @@
     </div>
   }
   <button
-    [disabled]="actieveZoekopdracht !== null"
+    [disabled]="actieveZoekopdracht() !== null"
     mat-icon-button
     (click)="saveSearch()"
     id="saveZoekopdrachtButton"
     [attr.aria-label]="'actie.zoekopdracht.opslaan' | translate"
   >
     <mat-icon
-      [attr.outlined]="actieveZoekopdracht === null ? true : null"
+      [attr.outlined]="actieveZoekopdracht() === null ? true : null"
       title="{{
-        actieveZoekopdracht?.naam ?? 'actie.zoekopdracht.opslaan' | translate
+        actieveZoekopdracht()?.naam ?? 'actie.zoekopdracht.opslaan' | translate
       }}"
     >
       star
     </mat-icon>
   </button>
   <mat-menu class="filter-menu" #filterMenu="matMenu" xPosition="before">
-    @for (value of zoekopdrachten; track value) {
+    @for (value of zoekopdrachten(); track value) {
       <button
         mat-menu-item
         (click)="setActief(value)"

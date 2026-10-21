@@ -9,8 +9,10 @@ import {
   OnDestroy,
   OnInit,
   computed,
+  effect,
   inject,
   signal,
+  untracked,
   viewChild,
 } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
@@ -64,7 +66,6 @@ import {
 } from "../../shared/form/composed-form/form-field.types";
 import { PatchBody, PutBody } from "../../shared/http/http-client";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { runQuery } from "../../shared/http/run-query";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
@@ -190,6 +191,20 @@ export class TaakViewComponent
   );
 
   private readonly queryClient = inject(QueryClient);
+
+  private readonly taakIdToReread = signal<string | null>(null);
+  private readonly rereadTaakQuery = injectQuery(() => ({
+    ...this.takenService.readTaak(this.taakIdToReread()!),
+    enabled: !!this.taakIdToReread(),
+    structuralSharing: false,
+  }));
+
+  private readonly historieTaakId = signal<string | null>(null);
+  private readonly historieQuery = injectQuery(() => ({
+    ...this.takenService.listHistorieVoorTaak(this.historieTaakId()!),
+    enabled: !!this.historieTaakId(),
+  }));
+
   private readonly lastSubmitFailed = signal(false);
   protected readonly hasFailed = this.lastSubmitFailed.asReadonly();
 
@@ -207,6 +222,16 @@ export class TaakViewComponent
     private readonly foutAfhandelingService: FoutAfhandelingService,
   ) {
     super();
+
+    effect(() => {
+      const task = this.rereadTaakQuery.data();
+      if (!task) return;
+      untracked(() => this.init(task, false));
+    });
+
+    effect(() => {
+      this.historieSrc.data = this.historieQuery.data() ?? [];
+    });
   }
 
   ngOnInit() {
@@ -218,14 +243,7 @@ export class TaakViewComponent
         Opcode.ANY,
         ObjectType.TAAK,
         data.taak.id,
-        () => {
-          runQuery(
-            this.queryClient,
-            this.takenService.readTaak(data.taak.id),
-          ).subscribe((task) => {
-            this.init(task, false);
-          });
-        },
+        () => this.rereadTaak(data.taak.id),
       );
 
       this.historieSrc.sortingDataAccessor = (item, property) => {
@@ -393,15 +411,22 @@ export class TaakViewComponent
     }
   }
 
+  private rereadTaak(taakId: string) {
+    if (this.taakIdToReread() === taakId) {
+      void this.rereadTaakQuery.refetch();
+      return;
+    }
+    this.taakIdToReread.set(taakId);
+  }
+
   private loadHistorie() {
     if (!this.taak?.id) return;
 
-    runQuery(
-      this.queryClient,
-      this.takenService.listHistorieVoorTaak(this.taak.id),
-    ).subscribe((historie) => {
-      this.historieSrc.data = historie;
-    });
+    if (this.historieTaakId() === this.taak.id) {
+      void this.historieQuery.refetch();
+      return;
+    }
+    this.historieTaakId.set(this.taak.id);
   }
 
   editTaak() {

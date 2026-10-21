@@ -16,11 +16,13 @@ import { NgClass } from "@angular/common";
 import {
   AfterViewInit,
   Component,
+  computed,
   effect,
   ElementRef,
   inject,
   OnDestroy,
   OnInit,
+  untracked,
   viewChild,
   viewChildren,
 } from "@angular/core";
@@ -40,13 +42,11 @@ import { MatSlideToggle } from "@angular/material/slide-toggle";
 import { TranslateDirective, TranslatePipe } from "@ngx-translate/core";
 import {
   injectIsFetching,
-  QueryClient,
+  injectQuery,
 } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { forkJoin } from "rxjs";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { injectMutation } from "../shared/http/inject-mutation";
-import { runQuery } from "../shared/http/run-query";
 import { I18nKeyPipe } from "../shared/pipes/i18n-key.pipe";
 import { SessionStorageUtil } from "../shared/storage/session-storage.util";
 import { GeneratedType } from "../shared/utils/generated-types";
@@ -104,35 +104,34 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   );
 
   private readonly fetchingCount = injectIsFetching();
-  private readonly queryClient = inject(QueryClient);
+  private readonly gebruikersvoorkeurenService = inject(
+    GebruikersvoorkeurenService,
+  );
+  private readonly signaleringenService = inject(SignaleringenService);
+
+  private readonly dashboardCardsQuery = injectQuery(() =>
+    this.gebruikersvoorkeurenService.listDashboardCards(),
+  );
+  private readonly dashboardSignaleringTypenQuery = injectQuery(() =>
+    this.signaleringenService.listDashboardSignaleringTypen(),
+  );
+  private readonly instellingen = computed(
+    () => this.dashboardCardsQuery.data() ?? [],
+  );
+  private cardsPlaced = false;
 
   private resizeObserver?: ResizeObserver;
   private syncScheduled = false;
   private suppressObserverUntil = 0;
   private pendingSyncTimer?: ReturnType<typeof setTimeout>;
-  private readonly deleteDashboardCardMutation = injectMutation(
-    () => this.gebruikersvoorkeurenService.deleteDashboardCard(),
-    {
-      onSuccess: (dashboardInstellingen) => {
-        this.instellingen = dashboardInstellingen;
-      },
-    },
+  private readonly deleteDashboardCardMutation = injectMutation(() =>
+    this.gebruikersvoorkeurenService.deleteDashboardCard(),
   );
-  private readonly updateDashboardCardsMutation = injectMutation(
-    () => this.gebruikersvoorkeurenService.updateDashboardCards(),
-    {
-      onSuccess: (dashboardInstellingen) => {
-        this.instellingen = dashboardInstellingen;
-      },
-    },
+  private readonly updateDashboardCardsMutation = injectMutation(() =>
+    this.gebruikersvoorkeurenService.updateDashboardCards(),
   );
-  private readonly addDashboardCardMutation = injectMutation(
-    () => this.gebruikersvoorkeurenService.addDashboardCard(),
-    {
-      onSuccess: (dashboardInstellingen) => {
-        this.instellingen = dashboardInstellingen;
-      },
-    },
+  private readonly addDashboardCardMutation = injectMutation(() =>
+    this.gebruikersvoorkeurenService.addDashboardCard(),
   );
   private static readonly TRANSITION_DURATION_MS = 200;
   // Must match the `@media (max-width: 1200px)` breakpoint in the .less file
@@ -176,14 +175,22 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   editMode = new FormControl(false);
   showHint = false;
 
-  instellingen: GeneratedType<"RestDashboardCardInstelling">[] = []; // the last loaded card settings
   available: DashboardCard[] = []; // cards that are not on the dashboard
   grid: Array<DashboardCard[]> = []; // cards that are on the dashboard
 
-  constructor(
-    private readonly signaleringenService: SignaleringenService,
-    private readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-  ) {
+  constructor() {
+    this.addColumns(SessionStorageUtil.getItem("dashboardWidth", 3));
+    effect(() => {
+      const dashboardInstellingen = this.dashboardCardsQuery.data();
+      const signaleringInstellingen =
+        this.dashboardSignaleringTypenQuery.data();
+      if (!dashboardInstellingen || !signaleringInstellingen) return;
+      if (this.cardsPlaced) return;
+      this.cardsPlaced = true;
+      untracked(() =>
+        this.placeCards(dashboardInstellingen, [...signaleringInstellingen]),
+      );
+    });
     effect(() => {
       this.cardElements();
       this.observeCards();
@@ -196,7 +203,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.loadCards(SessionStorageUtil.getItem("dashboardWidth", 3));
     // TODO instead of session storage use userpreferences in a db
     SessionStorageUtil.setItem("dashboardOpened", moment());
     void this.signaleringenService.invalidateLatestSignalering();
@@ -311,32 +317,25 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private loadCards(width: number) {
+  private addColumns(width: number) {
     while (this.grid.length < width) {
       this.grid.push([]);
     }
-    forkJoin([
-      runQuery(
-        this.queryClient,
-        this.gebruikersvoorkeurenService.listDashboardCards(),
-      ),
-      runQuery(
-        this.queryClient,
-        this.signaleringenService.listDashboardSignaleringTypen(),
-      ),
-    ]).subscribe(([dashboardInstellingen, cachedSignaleringInstellingen]) => {
-      const signaleringInstellingen = [...cachedSignaleringInstellingen];
-      this.instellingen = dashboardInstellingen;
-      this.addExistingCards(dashboardInstellingen, signaleringInstellingen);
-      this.addNewCards(signaleringInstellingen);
-      this.updateWidth();
-      this.updateAvailable();
-    });
+  }
+
+  private placeCards(
+    dashboardInstellingen: GeneratedType<"RestDashboardCardInstelling">[],
+    signaleringInstellingen: GeneratedType<"Type">[],
+  ) {
+    this.addExistingCards(dashboardInstellingen, signaleringInstellingen);
+    this.addNewCards(signaleringInstellingen);
+    this.updateWidth();
+    this.updateAvailable();
   }
 
   // add configured cards (except when disabled by corresponding signaleringen settings)
   private addExistingCards(
-    dashboardInstellingen: typeof this.instellingen,
+    dashboardInstellingen: GeneratedType<"RestDashboardCardInstelling">[],
     signaleringenInstellingen: GeneratedType<"Type">[],
   ) {
     dashboardInstellingen.forEach((instelling) => {
@@ -475,7 +474,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private getInstelling(card: DashboardCard) {
-    const existing = this.instellingen.find((inst) => inst.cardId === card.id);
+    const existing = this.instellingen().find(
+      (inst) => inst.cardId === card.id,
+    );
     if (existing) {
       return { ...existing, signaleringType: card.signaleringType };
     }
