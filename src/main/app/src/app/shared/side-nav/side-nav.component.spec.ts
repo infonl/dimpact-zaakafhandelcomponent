@@ -13,7 +13,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
 import { screen, waitFor, within } from "@testing-library/angular";
-import { userEvent } from "@testing-library/user-event";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { ButtonMenuItem } from "./menu-item/button-menu-item";
@@ -28,6 +28,7 @@ describe(SideNavComponent.name, () => {
   let component: SideNavComponent;
   let loader: HarnessLoader;
   let utilServiceMock: { setLoading: jest.Mock };
+  const user = userEvent.setup();
 
   beforeEach(async () => {
     utilServiceMock = {
@@ -133,7 +134,6 @@ describe(SideNavComponent.name, () => {
 
       expect(anchor.tagName).toBe("A");
       expect(anchor).toHaveAttribute("href", "https://example.com");
-      // a routerLink would intercept the native navigation
       expect(anchor).not.toHaveAttribute("routerLink");
     });
 
@@ -346,9 +346,7 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [buttonItem]);
       fixture.detectChanges();
 
-      await userEvent
-        .setup()
-        .click(screen.getByRole("button", { name: "test.button" }));
+      await user.click(screen.getByRole("button", { name: "test.button" }));
 
       expect(mockFn).toHaveBeenCalled();
     });
@@ -361,9 +359,7 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [buttonItem]);
       fixture.detectChanges();
 
-      await userEvent
-        .setup()
-        .click(screen.getByRole("button", { name: "test.button" }));
+      await user.click(screen.getByRole("button", { name: "test.button" }));
 
       expect(mockFn).not.toHaveBeenCalled();
     });
@@ -381,9 +377,7 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [buttonItem]);
       fixture.detectChanges();
 
-      await userEvent
-        .setup()
-        .click(screen.getByRole("button", { name: "test.button" }));
+      await user.click(screen.getByRole("button", { name: "test.button" }));
 
       expect(activeItemChangeSpy).toHaveBeenCalledWith("test.button");
     });
@@ -398,9 +392,7 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [asyncButtonItem]);
       fixture.detectChanges();
 
-      await userEvent
-        .setup()
-        .click(screen.getByRole("button", { name: "test.async" }));
+      await user.click(screen.getByRole("button", { name: "test.async" }));
 
       expect(utilServiceMock.setLoading).toHaveBeenCalledWith(true);
     });
@@ -415,9 +407,7 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [asyncButtonItem]);
       fixture.detectChanges();
 
-      await userEvent
-        .setup()
-        .click(screen.getByRole("button", { name: "test.async" }));
+      await user.click(screen.getByRole("button", { name: "test.async" }));
 
       await waitFor(() => {
         expect(asyncButtonItem.disabled).toBe(false);

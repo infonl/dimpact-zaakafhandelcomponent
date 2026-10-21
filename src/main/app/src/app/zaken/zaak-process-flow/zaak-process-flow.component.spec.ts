@@ -10,7 +10,7 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
-import { userEvent } from "@testing-library/user-event";
+import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
 import { ZaakProcessFlowComponent } from "./zaak-process-flow.component";
 
@@ -27,7 +27,7 @@ const ZAAK = {
 describe(ZaakProcessFlowComponent.name, () => {
   let fixture: ComponentFixture<ZaakProcessFlowComponent>;
   let closeMock: jest.Mock;
-  let user: ReturnType<typeof userEvent.setup>;
+  const user = userEvent.setup();
 
   const getButton = (tooltip: string): HTMLButtonElement =>
     screen.getByRole("button", { description: tooltip });
@@ -53,7 +53,6 @@ describe(ZaakProcessFlowComponent.name, () => {
 
   beforeEach(async () => {
     closeMock = jest.fn();
-    user = userEvent.setup();
 
     await TestBed.configureTestingModule({
       imports: [ZaakProcessFlowComponent, NoopAnimationsModule],
@@ -173,7 +172,7 @@ describe(ZaakProcessFlowComponent.name, () => {
         left: -100,
         behavior: "smooth",
       });
-      expect(scrollByMock.mock.contexts[0]).toContainElement(getImage());
+      expect(scrollByMock.mock.contexts[0]).toHaveClass("diagram-container");
     });
 
     it("scrolls the diagram container right on ArrowRight", async () => {
@@ -185,7 +184,7 @@ describe(ZaakProcessFlowComponent.name, () => {
         left: 100,
         behavior: "smooth",
       });
-      expect(scrollByMock.mock.contexts[0]).toContainElement(getImage());
+      expect(scrollByMock.mock.contexts[0]).toHaveClass("diagram-container");
     });
 
     it("does not zoom when an input element has focus", async () => {

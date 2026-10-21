@@ -8,7 +8,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
-import { userEvent } from "@testing-library/user-event";
+import userEvent from "@testing-library/user-event";
 import {
   NotificationDialogComponent,
   NotificationDialogData,
@@ -18,6 +18,7 @@ describe("NotificationDialogComponent", () => {
   let fixture: ComponentFixture<NotificationDialogComponent>;
   let mockDialogRef: Pick<MatDialogRef<NotificationDialogComponent>, "close">;
   let dialogData: NotificationDialogData;
+  const user = userEvent.setup();
 
   beforeEach(async () => {
     mockDialogRef = { close: jest.fn() };
@@ -45,9 +46,7 @@ describe("NotificationDialogComponent", () => {
   });
 
   it("closes the dialog with true when the user confirms", async () => {
-    await userEvent
-      .setup()
-      .click(screen.getByRole("button", { name: "actie.ok" }));
+    await user.click(screen.getByRole("button", { name: "actie.ok" }));
     expect(mockDialogRef.close).toHaveBeenCalledWith(true);
   });
 });

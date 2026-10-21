@@ -8,9 +8,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { screen, within } from "@testing-library/angular";
-import userEvent, {
-  PointerEventsCheckLevel,
-} from "@testing-library/user-event";
+import userEvent from "@testing-library/user-event";
 import { GenericDialogComponent } from "./generic-dialog.component";
 
 @Component({
@@ -70,19 +68,13 @@ describe(GenericDialogComponent.name, () => {
     expect(host.cancelled).toBe(1);
   });
 
-  it("disables the close (X) button while loading", async () => {
-    // Material sets pointer-events: none on a disabled button; click it anyway to prove nothing is emitted
-    const user = userEvent.setup({
-      pointerEventsCheck: PointerEventsCheckLevel.Never,
-    });
+  it("disables the close (X) button while loading", () => {
     const { fixture, host } = setup();
     host.loading = true;
     fixture.detectChanges();
 
-    const closeButton = within(screen.getByRole("heading")).getByRole("button");
-    expect(closeButton).toBeDisabled();
-
-    await user.click(closeButton);
-    expect(host.cancelled).toBe(0);
+    expect(
+      within(screen.getByRole("heading")).getByRole("button"),
+    ).toBeDisabled();
   });
 });

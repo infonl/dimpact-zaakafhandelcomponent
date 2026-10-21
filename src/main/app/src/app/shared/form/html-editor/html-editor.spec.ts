@@ -210,7 +210,9 @@ describe(ZacHtmlEditor.name, () => {
       componentRef.setInput("key", "content");
       fixture.detectChanges();
 
-      expect(editor().componentInstance.outputFormat).toBe("html");
+      expect(editor().injector.get(NgxEditorComponent).outputFormat).toBe(
+        "html",
+      );
     });
   });
 });

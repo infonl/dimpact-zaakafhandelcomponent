@@ -51,14 +51,14 @@ describe(ConfirmDialogComponent.name, () => {
         ),
       );
       expect(screen.getByRole("strong")).toHaveTextContent("extra");
-      expect(screen.getAllByRole("paragraph")[1]).toHaveTextContent(
+      expect(screen.getByText(/explanation/)).toHaveTextContent(
         "Some extra explanation",
       );
     });
 
     it("hides uitleg when not provided", () => {
       setup(new ConfirmDialogData("msg.key"));
-      expect(screen.getAllByRole("paragraph")).toHaveLength(1);
+      expect(screen.getByRole("paragraph")).toHaveTextContent("msg.key");
     });
   });
 
