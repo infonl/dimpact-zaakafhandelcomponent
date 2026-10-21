@@ -23,15 +23,15 @@ Public repo `Dimpact-Samenwerking/helm-charts`, file `charts/podiumd/values.yaml
 - List all tags via `gh api --paginate "repos/Dimpact-Samenwerking/helm-charts/tags?per_page=100" --jq '.[].name'` and all branches via `gh api --paginate "repos/Dimpact-Samenwerking/helm-charts/branches?per_page=100" --jq '.[].name'`.
 - Read the selected ref via `https://raw.githubusercontent.com/Dimpact-Samenwerking/helm-charts/<tag-or-branch>/charts/podiumd/values.yaml`.
 
-- Per PodiumD release `X.Y` (from the user's table): use the highest `podiumd-X.Y.z` tag. If there is no tag yet, use branch `feature/podiumd-X.Y.0` and say the column is unreleased and can still change.
-- Per top-level section, take the uncommented `tag:` that belongs to the app image itself; strip `@sha256…`. Sections hold more images (nginx, redis, exporters, config-cli, …), so pair each `tag:` with its `repository:` and never just take the first tag.
-- Sections: `openformulieren` (the image is pinned here, not under `openforms`), `openarchiefbeheer`, `openklant`, `opennotificaties`, `openzaak`, `keycloak` (may use the YAML anchor `&keycloakImageVersion`; its value is the version).
-- Open Object: `-` while the release still uses `objecten` with image `maykinmedia/objects-api`; the `objecten` tag once that section uses image `maykinmedia/open-object`.
+- Per PodiumD release `X.Y` (from the user's table): use the highest tag that matches exactly `^podiumd-X\.Y\.[0-9]+$`, compared by number (`sort -V`). Ignore tags with a suffix, such as `…-snapshot`. If there is no such tag yet, use the branch named exactly `feature/podiumd-X.Y.0` (ignore `feature/podiumd-X.Y.0-*` and other variants) and say the column is unreleased and can still change. If that exact branch does not exist either, show `?` and say so.
+- Per top-level section, the app image is the `image:` block directly under the section (2-space indent). Take its uncommented `tag:`, whether or not that block has a `repository:` line (the subchart often sets it); strip `@sha256…`. Ignore deeper nested `image:` blocks (nginx, redis, exporters, keycloak-config-cli, …).
+- Sections: `openformulieren` (the image is pinned here, not under `openforms`), `openarchiefbeheer`, `openklant`, `opennotificaties`, `openzaak`, `keycloak` (may use the YAML anchor `&keycloakImageVersion`; its value is the version). Never use the keycloak-config-cli tag, even when its comments mention a Keycloak version.
+- Open Object: `-` unless the `objecten` image block has `repository: maykinmedia/open-object`; then its tag.
 
 ## 3. Our Version on TEST
 
 PRIVATE repo `infonl/dimpact-provisioning`, branch `main`, via `gh api repos/infonl/dimpact-provisioning/contents/<path> --jq .content | base64 -d`.
 
-- Default image pin in `.github/workflows/azure-provision-<x>.yml` for `open-formulieren`, `archiefbeheer`, `open-object`, `open-klant`, `open-notificaties`, `open-zaak`. Line: `<name>_docker_image_override: ${{ inputs.tag || '<VERSION>@sha256…' }}`.
-- Keycloak: the `FROM` line in `containers/keycloak/Dockerfile`.
+- Default image pin in `.github/workflows/azure-provision-<x>.yml` for `open-formulieren`, `archiefbeheer`, `open-object`, `open-klant`, `open-notificaties`, `open-zaak`. Grep for `_docker_image_override:`; the line is `<prefix>_docker_image_override: ${{ inputs.tag || '<VERSION>@sha256…' }}`, with prefixes `openformulieren`, `openarchiefbeheer`, `openobject`, `openklant`, `opennotificaties`, `openzaak`.
+- Keycloak: the version in the last `FROM` line of `containers/keycloak/Dockerfile` (the first one is the builder stage).
 - These are the pins for the next deploy; a manual run with a tag can override them.
