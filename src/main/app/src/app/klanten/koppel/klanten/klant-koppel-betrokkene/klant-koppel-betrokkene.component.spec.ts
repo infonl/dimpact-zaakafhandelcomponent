@@ -116,6 +116,8 @@ describe(KlantKoppelBetrokkeneComponent.name, () => {
       .flush([fakeRoltype]);
     await sleep();
     fixture.detectChanges();
+    await sleep();
+    fixture.detectChanges();
   }
 
   function roltypenRequests() {
@@ -247,7 +249,7 @@ describe(KlantKoppelBetrokkeneComponent.name, () => {
       expect(roltypenRequests()).toHaveLength(0);
     });
 
-    it("does not reload the roltypen when the zaaktypeUUID changes", async () => {
+    it("loads the betrokkene roltypen of the new zaaktype when the zaaktypeUUID changes", async () => {
       await initialiseWith({
         type: "persoon",
         zaaktypeUUID: "fakeZaaktypeUuid",
@@ -257,7 +259,9 @@ describe(KlantKoppelBetrokkeneComponent.name, () => {
       fixture.detectChanges();
       await sleep();
 
-      expect(roltypenRequests()).toHaveLength(0);
+      httpTestingController.expectOne(
+        "/rest/klanten/roltype/fakeOtherZaaktypeUuid/betrokkene",
+      );
     });
   });
 

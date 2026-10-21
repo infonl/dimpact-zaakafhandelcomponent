@@ -221,6 +221,9 @@ describe(ExternAdviesMailTaskForm.name, () => {
             }),
           );
         await sleep();
+        TestBed.tick();
+        await sleep();
+        TestBed.tick();
         expect(
           formFields.find((f) => f.key === "emailadres")?.control?.value,
         ).toBe("initiator@example.com");

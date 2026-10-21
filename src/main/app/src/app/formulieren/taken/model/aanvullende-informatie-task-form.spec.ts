@@ -6,6 +6,7 @@
 import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { of } from "rxjs";
 import { sleep } from "../../../../../setupJest";
@@ -77,7 +78,9 @@ describe(AanvullendeInformatieTaskForm.name, () => {
     httpTestingController
       .expectOne(`/rest/mailtemplates/TAAK_AANVULLENDE_INFORMATIE/${zaak.uuid}`)
       .flush(mailtemplate);
-    return fields;
+    const formFields = await fields;
+    TestBed.tick();
+    return formFields;
   }
 
   async function respondWithContactDetails(
@@ -89,6 +92,9 @@ describe(AanvullendeInformatieTaskForm.name, () => {
       .expectOne(`/rest/klanten/contactdetails/person/${temporaryPersonId}`)
       .flush(contactDetails);
     await sleep();
+    TestBed.tick();
+    await sleep();
+    TestBed.tick();
   }
 
   describe("requestForm", () => {
@@ -393,6 +399,35 @@ describe(AanvullendeInformatieTaskForm.name, () => {
 
         const emailField = fields.find((f) => f.key === "emailadres");
         expect(emailField?.control?.value).toBe("test@example.com");
+      });
+
+      it("should not overwrite an email that the user typed when the contact details are fetched again", async () => {
+        const zaakWithInitiator = fromPartial<GeneratedType<"RestZaak">>({
+          ...mockZaak,
+          initiatorIdentificatie: {
+            type: "BSN",
+            temporaryPersonId: "person-123",
+          },
+        });
+        const fields = await requestForm(zaakWithInitiator);
+        await respondWithContactDetails(
+          "person-123",
+          fromPartial<GeneratedType<"RestContactDetails">>({
+            emailadres: "test@example.com",
+          }),
+        );
+        const emailField = fields.find((f) => f.key === "emailadres");
+        emailField?.control?.setValue("typed@example.com");
+
+        void TestBed.inject(QueryClient).invalidateQueries();
+        await respondWithContactDetails(
+          "person-123",
+          fromPartial<GeneratedType<"RestContactDetails">>({
+            emailadres: "refetched@example.com",
+          }),
+        );
+
+        expect(emailField?.control?.value).toBe("typed@example.com");
       });
 
       it("should not request the contact details when initiatorIdentificatie is absent", async () => {

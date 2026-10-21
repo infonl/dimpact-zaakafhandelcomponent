@@ -9,7 +9,6 @@ import { HttpTestingController } from "@angular/common/http/testing";
 import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
-import { MatExpansionPanelHarness } from "@angular/material/expansion/testing";
 import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatProgressSpinnerHarness } from "@angular/material/progress-spinner/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -20,7 +19,8 @@ import {
 } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { screen } from "@testing-library/angular";
-import { createQueryOptions, fromPartial } from "src/test-helpers";
+import userEvent from "@testing-library/user-event";
+import { fromPartial } from "src/test-helpers";
 import { sleep } from "../../../../setupJest";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
@@ -43,8 +43,8 @@ function makeBedrijfsprofiel(
 }
 
 describe(BedrijfsgegevensComponent.name, () => {
+  const user = userEvent.setup();
   let fixture: ComponentFixture<BedrijfsgegevensComponent>;
-  let component: BedrijfsgegevensComponent;
   let componentRef: ComponentRef<BedrijfsgegevensComponent>;
   let loader: HarnessLoader;
   let httpController: HttpTestingController;
@@ -93,7 +93,6 @@ describe(BedrijfsgegevensComponent.name, () => {
     });
 
     fixture = TestBed.createComponent(BedrijfsgegevensComponent);
-    component = fixture.componentInstance;
 
     componentRef = fixture.componentRef;
     componentRef.setInput("zaak", testZaak);
@@ -186,18 +185,16 @@ describe(BedrijfsgegevensComponent.name, () => {
       notifyManager.setScheduler(queueMicrotask);
     });
 
-    it("should expand the panel", async () => {
-      const panel = await loader.getHarness(MatExpansionPanelHarness);
-      expect(await panel.isExpanded()).toBe(true);
+    it("should expand the panel", () => {
+      expect(
+        screen.getByRole("button", { expanded: true }),
+      ).toBeInTheDocument();
     });
 
-    it("should show the visit link", async () => {
-      const link = await loader.getHarnessOrNull(
-        MatButtonHarness.with({
-          selector: 'a[title="actie.bedrijf.bekijken"]',
-        }),
-      );
-      expect(link).toBeTruthy();
+    it("should show the visit link", () => {
+      expect(
+        screen.getByRole("link", { name: "actie.bedrijf.bekijken" }),
+      ).toBeInTheDocument();
     });
   });
 
@@ -401,7 +398,27 @@ describe(BedrijfsgegevensComponent.name, () => {
     },
   );
 
-  describe("ophalenProfiel()", () => {
+  describe("profiel ophalen", () => {
+    const vestigingsprofielUrl = "/rest/klanten/vestigingsprofiel/12345678";
+    const basisprofielUrl = "/rest/klanten/basisprofiel/12345678";
+
+    async function clickProfielOphalen() {
+      await user.click(
+        screen.getByRole("button", { name: "bedrijf.profiel.ophalen" }),
+      );
+      fixture.detectChanges();
+      await sleep();
+    }
+
+    async function flushProfiel(
+      url: string,
+      profiel: GeneratedType<"RestBedrijfsprofiel">,
+    ) {
+      httpController.expectOne(url).flush(profiel);
+      await sleep();
+      fixture.detectChanges();
+    }
+
     describe("for a vestiging", () => {
       beforeEach(async () => {
         notifyManager.setScheduler((fn) => fn());
@@ -421,48 +438,24 @@ describe(BedrijfsgegevensComponent.name, () => {
         notifyManager.setScheduler(queueMicrotask);
       });
 
-      it("calls readVestigingsprofiel with the vestigingsnummer", async () => {
-        jest
-          .spyOn(klantenService, "readVestigingsprofiel")
-          .mockReturnValue(createQueryOptions(makeBedrijfsprofiel()) as never);
-        component["ophalenProfiel"]();
-        await sleep();
-        expect(klantenService.readVestigingsprofiel).toHaveBeenCalledWith(
-          "12345678",
-        );
+      it("does not fetch a profiel before the button is clicked", () => {
+        httpController.expectNone(vestigingsprofielUrl);
+        httpController.expectNone(basisprofielUrl);
       });
 
-      it("does not call readBasisprofiel", async () => {
-        jest
-          .spyOn(klantenService, "readVestigingsprofiel")
-          .mockReturnValue(createQueryOptions(makeBedrijfsprofiel()) as never);
-        const spy = jest.spyOn(klantenService, "readBasisprofiel");
-        component["ophalenProfiel"]();
-        await sleep();
-        expect(spy).not.toHaveBeenCalled();
-      });
+      it("fetches the vestigingsprofiel and not the basisprofiel", async () => {
+        await clickProfielOphalen();
 
-      it("populates profiel signal after service call", async () => {
-        const profiel = makeBedrijfsprofiel();
-        jest
-          .spyOn(klantenService, "readVestigingsprofiel")
-          .mockReturnValue(createQueryOptions(profiel) as never);
-        component["ophalenProfiel"]();
-        await sleep();
-        expect(component["profiel"]()).toEqual(profiel);
+        httpController.expectOne(vestigingsprofielUrl);
+        httpController.expectNone(basisprofielUrl);
       });
 
       it("renders totaalWerkzamePersonen after profiel is loaded", async () => {
-        jest
-          .spyOn(klantenService, "readVestigingsprofiel")
-          .mockReturnValue(
-            createQueryOptions(
-              makeBedrijfsprofiel({ totaalWerkzamePersonen: 25 }),
-            ) as never,
-          );
-        component["ophalenProfiel"]();
-        await sleep();
-        fixture.detectChanges();
+        await clickProfielOphalen();
+        await flushProfiel(
+          vestigingsprofielUrl,
+          makeBedrijfsprofiel({ totaalWerkzamePersonen: 25 }),
+        );
 
         expect(
           screen.getByText("totaal-werkzame-personen"),
@@ -471,32 +464,22 @@ describe(BedrijfsgegevensComponent.name, () => {
       });
 
       it("renders hoofdactiviteit after profiel is loaded", async () => {
-        jest
-          .spyOn(klantenService, "readVestigingsprofiel")
-          .mockReturnValue(
-            createQueryOptions(
-              makeBedrijfsprofiel({ sbiHoofdActiviteit: "Software" }),
-            ) as never,
-          );
-        component["ophalenProfiel"]();
-        await sleep();
-        fixture.detectChanges();
+        await clickProfielOphalen();
+        await flushProfiel(
+          vestigingsprofielUrl,
+          makeBedrijfsprofiel({ sbiHoofdActiviteit: "Software" }),
+        );
 
         expect(screen.getByText("hoofdactiviteit")).toBeInTheDocument();
         expect(screen.getByText("Software")).toBeInTheDocument();
       });
 
       it("renders website after profiel is loaded", async () => {
-        jest
-          .spyOn(klantenService, "readVestigingsprofiel")
-          .mockReturnValue(
-            createQueryOptions(
-              makeBedrijfsprofiel({ website: "https://test.nl" }),
-            ) as never,
-          );
-        component["ophalenProfiel"]();
-        await sleep();
-        fixture.detectChanges();
+        await clickProfielOphalen();
+        await flushProfiel(
+          vestigingsprofielUrl,
+          makeBedrijfsprofiel({ website: "https://test.nl" }),
+        );
 
         expect(screen.getByText("website")).toBeInTheDocument();
         expect(screen.getByText("https://test.nl")).toBeInTheDocument();
@@ -522,123 +505,85 @@ describe(BedrijfsgegevensComponent.name, () => {
         notifyManager.setScheduler(queueMicrotask);
       });
 
-      it("calls readBasisprofiel with the kvkNummer", async () => {
-        jest
-          .spyOn(klantenService, "readBasisprofiel")
-          .mockReturnValue(createQueryOptions(makeBedrijfsprofiel()) as never);
-        component["ophalenProfiel"]();
-        await sleep();
-        expect(klantenService.readBasisprofiel).toHaveBeenCalledWith(
-          "12345678",
-        );
-      });
+      it("fetches the basisprofiel and not the vestigingsprofiel", async () => {
+        await clickProfielOphalen();
 
-      it("does not call readVestigingsprofiel", async () => {
-        jest
-          .spyOn(klantenService, "readBasisprofiel")
-          .mockReturnValue(createQueryOptions(makeBedrijfsprofiel()) as never);
-        const spy = jest.spyOn(klantenService, "readVestigingsprofiel");
-        component["ophalenProfiel"]();
-        await sleep();
-        expect(spy).not.toHaveBeenCalled();
-      });
-
-      it("populates profiel signal after service call", async () => {
-        const profiel = makeBedrijfsprofiel({ rechtsvorm: "BV" });
-        jest
-          .spyOn(klantenService, "readBasisprofiel")
-          .mockReturnValue(createQueryOptions(profiel) as never);
-        component["ophalenProfiel"]();
-        await sleep();
-        expect(component["profiel"]()).toEqual(profiel);
+        httpController.expectOne(basisprofielUrl);
+        httpController.expectNone(vestigingsprofielUrl);
       });
 
       it("renders rechtsvorm after profiel is loaded", async () => {
-        jest
-          .spyOn(klantenService, "readBasisprofiel")
-          .mockReturnValue(
-            createQueryOptions(
-              makeBedrijfsprofiel({ rechtsvorm: "BV" }),
-            ) as never,
-          );
-        component["ophalenProfiel"]();
-        await sleep();
-        fixture.detectChanges();
+        await clickProfielOphalen();
+        await flushProfiel(
+          basisprofielUrl,
+          makeBedrijfsprofiel({ rechtsvorm: "BV" }),
+        );
 
         expect(screen.getByText("rechtsvorm")).toBeInTheDocument();
         expect(screen.getByText("BV")).toBeInTheDocument();
       });
 
       it("renders uitgebreideRechtsvorm after profiel is loaded", async () => {
-        jest.spyOn(klantenService, "readBasisprofiel").mockReturnValue(
-          createQueryOptions(
-            makeBedrijfsprofiel({
-              uitgebreideRechtsvorm: "Besloten Vennootschap",
-            }),
-          ) as never,
+        await clickProfielOphalen();
+        await flushProfiel(
+          basisprofielUrl,
+          makeBedrijfsprofiel({
+            uitgebreideRechtsvorm: "Besloten Vennootschap",
+          }),
         );
-        component["ophalenProfiel"]();
-        await sleep();
-        fixture.detectChanges();
 
         expect(screen.getByText("uitgebreide-rechtsvorm")).toBeInTheDocument();
         expect(screen.getByText("Besloten Vennootschap")).toBeInTheDocument();
       });
 
       it("renders statutaireNaam after profiel is loaded", async () => {
-        jest
-          .spyOn(klantenService, "readBasisprofiel")
-          .mockReturnValue(
-            createQueryOptions(
-              makeBedrijfsprofiel({ statutaireNaam: "Test BV Statutair" }),
-            ) as never,
-          );
-        component["ophalenProfiel"]();
-        await sleep();
-        fixture.detectChanges();
+        await clickProfielOphalen();
+        await flushProfiel(
+          basisprofielUrl,
+          makeBedrijfsprofiel({ statutaireNaam: "Test BV Statutair" }),
+        );
 
         expect(screen.getByText("statutaire-naam")).toBeInTheDocument();
         expect(screen.getByText("Test BV Statutair")).toBeInTheDocument();
       });
     });
-  });
 
-  describe("when initiatorIdentificatie changes after profiel is loaded", () => {
-    beforeEach(async () => {
-      notifyManager.setScheduler((fn) => fn());
-      const request = httpController.expectOne(vestigingUrl);
-      request.flush(testBedrijf);
-      await sleep();
-      fixture.detectChanges();
+    describe("when initiatorIdentificatie changes after profiel is loaded", () => {
+      beforeEach(async () => {
+        notifyManager.setScheduler((fn) => fn());
+        httpController.expectOne(vestigingUrl).flush(testBedrijf);
+        await sleep();
+        fixture.detectChanges();
 
-      jest
-        .spyOn(klantenService, "readVestigingsprofiel")
-        .mockReturnValue(createQueryOptions(makeBedrijfsprofiel()) as never);
-      component["ophalenProfiel"]();
-      await sleep();
-    });
+        await clickProfielOphalen();
+        await flushProfiel(
+          vestigingsprofielUrl,
+          makeBedrijfsprofiel({ website: "https://test.nl" }),
+        );
+      });
 
-    afterEach(() => {
-      notifyManager.setScheduler(queueMicrotask);
-    });
+      afterEach(() => {
+        notifyManager.setScheduler(queueMicrotask);
+      });
 
-    it("clears profiel signal", () => {
-      expect(component["profiel"]()).not.toBeNull();
+      it("hides the profiel of the previous initiator", () => {
+        expect(screen.getByText("https://test.nl")).toBeInTheDocument();
 
-      componentRef.setInput(
-        "zaak",
-        fromPartial<GeneratedType<"RestZaak">>({
-          ...testZaak,
-          initiatorIdentificatie: fromPartial<BetrokkeneIdentificatie>({
-            type: "VN",
-            kvkNummer: "99999999",
-            vestigingsnummer: "99999999",
+        componentRef.setInput(
+          "zaak",
+          fromPartial<GeneratedType<"RestZaak">>({
+            ...testZaak,
+            initiatorIdentificatie: fromPartial<BetrokkeneIdentificatie>({
+              type: "VN",
+              kvkNummer: "99999999",
+              vestigingsnummer: "99999999",
+            }),
           }),
-        }),
-      );
-      fixture.detectChanges();
+        );
+        fixture.detectChanges();
 
-      expect(component["profiel"]()).toBeNull();
+        expect(screen.queryByText("https://test.nl")).not.toBeInTheDocument();
+      });
     });
   });
 });

@@ -10,7 +10,7 @@ import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { lastValueFrom } from "rxjs";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
-import { KlantenService } from "../../../klanten/klanten.service";
+import { injectContactEmailPrefill } from "../../../klanten/inject-contact-email-prefill";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
 import { FormField } from "../../../shared/form/composed-form/form-field.types";
 import { runQuery } from "../../../shared/http/run-query";
@@ -28,7 +28,7 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
   private readonly informatieObjectenService = inject(
     InformatieObjectenService,
   );
-  private readonly klantenService = inject(KlantenService);
+  private readonly prefillContactEmail = injectContactEmailPrefill();
   private readonly destroyRef = inject(DestroyRef);
   private readonly queryClient = inject(QueryClient);
 
@@ -101,23 +101,7 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
       Validators.required,
       Validators.email,
     ]);
-    const emailAddress = zaak.zaakSpecificContactDetails?.emailAddress;
-    if (emailAddress) {
-      emailControl.setValue(emailAddress);
-    } else {
-      const temporaryPersonId = zaak.initiatorIdentificatie?.temporaryPersonId;
-      if (temporaryPersonId) {
-        runQuery(
-          this.queryClient,
-          this.klantenService.getContactDetailsForPerson(temporaryPersonId),
-        )
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe((value) => {
-            if (!value.emailadres) return;
-            emailControl.setValue(value.emailadres);
-          });
-      }
-    }
+    this.prefillContactEmail(emailControl, zaak);
 
     const formFields: FormField[] = [
       {
