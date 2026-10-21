@@ -13,6 +13,7 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Opschorting
 import nl.info.client.zgw.zrc.model.generated.Verlenging
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.util.isEerderOpgeschort
 import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.client.zgw.ztc.model.extensions.extensionPeriodDays
 import nl.info.client.zgw.ztc.model.generated.ZaakType
@@ -48,6 +49,7 @@ class SuspensionZaakHelper @Inject constructor(
         val loggedInUser = loggedInUserInstance.get()
         assertPolicy(policyService.readZaakRechten(zaak, loggedInUser).canOpschorten)
         assertPolicy(zaak.opschorting.reden.isNullOrEmpty())
+        assertPolicy(!zaak.isEerderOpgeschort())
 
         val zaakUUID = zaak.uuid
         val toelichting = "$SUSPENSION: $suspensionReason"

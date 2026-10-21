@@ -146,6 +146,29 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                 then("it throws exception with no message") { exception.message shouldBe null }
             }
         }
+
+        given("a zaak that was suspended before and was resumed without a reason") {
+            val zaak = createZaak(
+                opschorting = createOpschorting(reden = "", indicatie = false, eerdereOpschorting = true),
+                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1)
+            )
+            val loggedInUser = createLoggedInUser()
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(opschorten = true)
+
+            `when`("a user with access suspends the zaak again") {
+                val policyException = shouldThrow<PolicyException> {
+                    suspensionZaakHelper.suspendZaak(zaak, numberOfDays, "fakeReason")
+                }
+
+                then("the zaak is not suspended a second time") {
+                    policyException.message shouldBe null
+                    verify(exactly = 0) {
+                        zrcClientService.patchZaak(zaak.uuid, any(), any())
+                    }
+                }
+            }
+        }
     }
 
     context("Resume zaak") {
