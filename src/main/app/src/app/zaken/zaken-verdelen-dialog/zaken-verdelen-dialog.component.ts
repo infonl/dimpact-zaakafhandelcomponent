@@ -22,8 +22,8 @@ import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { ZacInput } from "../../shared/form/input/input";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZakenService } from "../zaken.service";
 
