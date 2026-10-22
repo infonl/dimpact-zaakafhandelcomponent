@@ -18,13 +18,16 @@ ngx-translate v18 removes `TranslateModule`. On v17, `TranslatePipe` and `Transl
 
 Batches, in this order (folders under `src/main/app/src/app/`):
 
-| # | Batch | Folders |
-|---|---|---|
-| 1 | zaken | `zaken` |
-| 2 | shared | `shared` |
-| 3 | admin | `admin` |
-| 4 | klanten, zoeken, dashboard, taken, informatie-objecten | `klanten` `zoeken` `dashboard` `taken` `informatie-objecten` |
-| 5 | remaining areas | every other folder, plus files directly in `src/app/` |
+| # | Batch | Folders | Jira | Status |
+|---|---|---|---|---|
+| 0 | specs | all `*.spec.ts` | PZ-13152 | done (#7565) |
+| 1 | zaken | `zaken` | PZ-13153 | migrated, PR pending |
+| 2 | shared | `shared` | | |
+| 3 | admin | `admin` | | |
+| 4 | klanten, zoeken, dashboard, taken, informatie-objecten | `klanten` `zoeken` `dashboard` `taken` `informatie-objecten` | | |
+| 5 | remaining areas | every other folder, plus files directly in `src/app/` | | |
+
+The Status column is a convenience; the grep and the open-PR check below decide. After finishing a batch, fill in its Jira key and set its status to "migrated, PR pending" (the user updates it to "done (#PR)" after the merge).
 
 1. Make sure you work on an up-to-date `main` (`git fetch` and compare; do not switch branches yourself — if the working tree is not on a fresh `main`, tell the user and stop).
 2. Count the remaining non-spec files per folder:
