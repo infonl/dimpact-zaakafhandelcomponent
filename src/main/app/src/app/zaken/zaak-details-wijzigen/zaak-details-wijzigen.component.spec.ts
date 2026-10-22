@@ -1007,35 +1007,44 @@ describe(CaseDetailsEditComponent.name, () => {
       id: "g1",
       naam: "G1",
     });
+    const andereGroep = fromPartial<GeneratedType<"RestGroup">>({
+      id: "g2",
+      naam: "G2",
+    });
     const behandelaar = fromPartial<GeneratedType<"RestUser">>({
       id: "u1",
       naam: "User 1",
+    });
+    const groepslid = fromPartial<GeneratedType<"RestUser">>({
+      id: "u2",
+      naam: "User 2",
     });
     const autoriseerbaarZaaktype = fromPartial<GeneratedType<"RestZaaktype">>({
       uuid: "zaaktype-123",
       omschrijving: "Test zaaktype",
       zaakafhandelparameters: { isZaakspecifiekAutoriseerbaar: true },
     });
+    const explanation =
+      "zaak.zaakspecifiek-geautoriseerd.behandelaar-verplicht";
 
-    const renderWithReden = async (
+    const render = async (
       zaakOverrides: Partial<GeneratedType<"RestZaak">>,
-      groupUsers: GeneratedType<"RestUser">[] = [behandelaar],
+      membersOfGroep: GeneratedType<"RestUser">[] = [behandelaar],
     ) => {
       jest
         .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
-        .mockReturnValue(of([groep]));
+        .mockReturnValue(of([groep, andereGroep]));
       jest
         .spyOn(identityService, "listUsersInGroup")
-        .mockReturnValue(of(groupUsers));
+        .mockImplementation((groupId) =>
+          of(groupId === groep.id ? membersOfGroep : [groepslid]),
+        );
       renderComponent({
         groep,
         zaaktype: autoriseerbaarZaaktype,
         ...zaakOverrides,
       });
       await fixture.whenStable();
-      component["form"].controls.reden.enable();
-      component["form"].controls.reden.setValue("fakeReden");
-      component["form"].markAsDirty();
       fixture.detectChanges();
     };
 
@@ -1043,85 +1052,108 @@ describe(CaseDetailsEditComponent.name, () => {
       screen.getByRole("combobox", { name: /behandelaar/i });
     const opslaanButton = () =>
       screen.getByRole("button", { name: /actie.opslaan/ });
+    const zaakspecifiekCheckbox = () =>
+      screen.getByRole("checkbox", { name: /is-zaakspecifiek-geautoriseerd/i });
+
+    const choose = async (
+      user: ReturnType<typeof userEvent.setup>,
+      select: HTMLElement,
+      option: string,
+    ) => {
+      await user.click(select);
+      fixture.detectChanges();
+      await user.click(screen.getByRole("option", { name: option }));
+      fixture.detectChanges();
+    };
+
+    const changeOmschrijvingWithReden = async (
+      user: ReturnType<typeof userEvent.setup>,
+    ) => {
+      const omschrijving = screen.getByRole("textbox", {
+        name: /omschrijving/i,
+      });
+      await user.clear(omschrijving);
+      await user.type(omschrijving, "fakeOmschrijving");
+      fixture.detectChanges();
+      await user.type(
+        screen.getByRole("textbox", { name: /reden/i }),
+        "fakeReden",
+      );
+      fixture.detectChanges();
+    };
 
     it("is required and explained on a zaakspecifiek geautoriseerde zaak", async () => {
-      await renderWithReden({ isZaakspecifiekGeautoriseerd: true });
+      await render({ isZaakspecifiekGeautoriseerd: true });
 
       expect(behandelaarSelect()).toBeRequired();
-      expect(
-        screen.getByText(
-          "zaak.zaakspecifiek-geautoriseerd.behandelaar-verplicht",
-        ),
-      ).toBeInTheDocument();
+      expect(screen.getByText(explanation)).toBeInTheDocument();
     });
 
     it("keeps opslaan disabled while no behandelaar is chosen", async () => {
-      await renderWithReden({ isZaakspecifiekGeautoriseerd: true });
+      const user = userEvent.setup();
+      await render({ isZaakspecifiekGeautoriseerd: true });
 
-      component["form"].controls.behandelaar.setValue(null);
-      fixture.detectChanges();
+      await changeOmschrijvingWithReden(user);
 
       expect(opslaanButton()).toBeDisabled();
     });
 
     it("enables opslaan once a behandelaar is chosen", async () => {
-      await renderWithReden({ isZaakspecifiekGeautoriseerd: true });
+      const user = userEvent.setup();
+      await render({ isZaakspecifiekGeautoriseerd: true });
 
-      component["form"].controls.behandelaar.setValue(behandelaar);
-      fixture.detectChanges();
+      await choose(user, behandelaarSelect(), "User 1");
+      await changeOmschrijvingWithReden(user);
 
       expect(opslaanButton()).toBeEnabled();
     });
 
-    describe("whose behandelaar is no longer a member of its group", () => {
-      const groepslid = fromPartial<GeneratedType<"RestUser">>({
-        id: "u2",
-        naam: "User 2",
-      });
+    it("keeps the explanation visible once the empty behandelaar is flagged", async () => {
+      await render({ isZaakspecifiekGeautoriseerd: true });
 
-      it("keeps that behandelaar, so that other zaakgegevens can still be saved", async () => {
-        await renderWithReden(
-          { isZaakspecifiekGeautoriseerd: true, behandelaar },
-          [groepslid],
-        );
+      // jsdom does not deliver the blur that marks a mat-select as touched
+      component["form"].controls.behandelaar.markAsTouched();
+      fixture.detectChanges();
 
-        expect(component["form"].controls.behandelaar.value).toEqual(
-          behandelaar,
-        );
-        expect(opslaanButton()).toBeEnabled();
-      });
-
-      it("offers only the members of another group once that group is chosen", async () => {
-        await renderWithReden(
-          { isZaakspecifiekGeautoriseerd: true, behandelaar },
-          [groepslid],
-        );
-
-        component["form"].controls.groep.setValue(
-          fromPartial<GeneratedType<"RestGroup">>({ id: "g2", naam: "G2" }),
-        );
-        fixture.detectChanges();
-
-        expect(component["users"]()).toEqual([groepslid]);
-        expect(component["form"].controls.behandelaar.value).toBeNull();
-        expect(opslaanButton()).toBeDisabled();
-      });
+      expect(behandelaarSelect()).toBeInvalid();
+      expect(screen.getByText(explanation)).toBeInTheDocument();
     });
 
     it("becomes required when the zaak is marked zaakspecifiek geautoriseerd in the form", async () => {
-      await renderWithReden({ isZaakspecifiekGeautoriseerd: false });
+      const user = userEvent.setup();
+      await render({ isZaakspecifiekGeautoriseerd: false });
 
-      component["form"].controls.isZaakspecifiekGeautoriseerd.setValue(true);
-      component["form"].controls.behandelaar.setValue(null);
+      await user.click(zaakspecifiekCheckbox());
       fixture.detectChanges();
+      await changeOmschrijvingWithReden(user);
 
       expect(behandelaarSelect()).toBeRequired();
       expect(opslaanButton()).toBeDisabled();
     });
 
+    it("keeps opslaan disabled when marking a zaak without behandelaar by an employee who cannot assign one", async () => {
+      const user = userEvent.setup();
+      await render({
+        isZaakspecifiekGeautoriseerd: false,
+        rechten: fromPartial<GeneratedType<"RestZaakRechten">>({
+          canWijzigen: true,
+          canWijzigenDoorlooptijd: true,
+          canToekennen: false,
+        }),
+      });
+
+      await user.click(zaakspecifiekCheckbox());
+      fixture.detectChanges();
+      await changeOmschrijvingWithReden(user);
+
+      expect(behandelaarSelect()).toHaveAttribute("aria-disabled", "true");
+      expect(screen.getByText(explanation)).toBeInTheDocument();
+      expect(opslaanButton()).toBeDisabled();
+    });
+
     it("offers no behandelaar again once the zaakspecifieke autorisatie is unticked", async () => {
       const user = userEvent.setup();
-      await renderWithReden({ isZaakspecifiekGeautoriseerd: true });
+      await render({ isZaakspecifiekGeautoriseerd: true });
 
       await user.click(behandelaarSelect());
       fixture.detectChanges();
@@ -1130,11 +1162,7 @@ describe(CaseDetailsEditComponent.name, () => {
       ).not.toBeInTheDocument();
       await user.keyboard("{Escape}");
 
-      await user.click(
-        screen.getByRole("checkbox", {
-          name: /is-zaakspecifiek-geautoriseerd/i,
-        }),
-      );
+      await user.click(zaakspecifiekCheckbox());
       fixture.detectChanges();
       await user.click(behandelaarSelect());
       fixture.detectChanges();
@@ -1145,18 +1173,64 @@ describe(CaseDetailsEditComponent.name, () => {
     });
 
     it("is optional when the zaak is not zaakspecifiek geautoriseerd", async () => {
-      await renderWithReden({ isZaakspecifiekGeautoriseerd: false });
+      const user = userEvent.setup();
+      await render({ isZaakspecifiekGeautoriseerd: false });
 
-      component["form"].controls.behandelaar.setValue(null);
-      fixture.detectChanges();
+      await changeOmschrijvingWithReden(user);
 
       expect(behandelaarSelect()).not.toBeRequired();
-      expect(
-        screen.queryByText(
-          "zaak.zaakspecifiek-geautoriseerd.behandelaar-verplicht",
-        ),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText(explanation)).not.toBeInTheDocument();
       expect(opslaanButton()).toBeEnabled();
+    });
+
+    describe("whose behandelaar is no longer a member of its group", () => {
+      it("keeps that behandelaar, so that other zaakgegevens can still be saved", async () => {
+        const user = userEvent.setup();
+        await render({ isZaakspecifiekGeautoriseerd: true, behandelaar }, [
+          groepslid,
+        ]);
+
+        await changeOmschrijvingWithReden(user);
+
+        expect(behandelaarSelect()).toHaveTextContent("User 1");
+        expect(opslaanButton()).toBeEnabled();
+      });
+
+      it("offers only the members of another group once that group is chosen", async () => {
+        const user = userEvent.setup();
+        await render({ isZaakspecifiekGeautoriseerd: true, behandelaar }, [
+          groepslid,
+        ]);
+
+        await choose(
+          user,
+          screen.getByRole("combobox", { name: /groep/i }),
+          "G2",
+        );
+        await user.click(behandelaarSelect());
+        fixture.detectChanges();
+
+        expect(
+          screen.queryByRole("option", { name: "User 1" }),
+        ).not.toBeInTheDocument();
+        expect(
+          screen.getByRole("option", { name: "User 2" }),
+        ).toBeInTheDocument();
+      });
+
+      it("is not offered on a zaak that is not zaakspecifiek geautoriseerd", async () => {
+        const user = userEvent.setup();
+        await render({ isZaakspecifiekGeautoriseerd: false, behandelaar }, [
+          groepslid,
+        ]);
+
+        await user.click(behandelaarSelect());
+        fixture.detectChanges();
+
+        expect(
+          screen.queryByRole("option", { name: "User 1" }),
+        ).not.toBeInTheDocument();
+      });
     });
   });
   describe("lifting the zaakspecifieke autorisatie", () => {
