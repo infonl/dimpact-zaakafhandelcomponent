@@ -251,10 +251,19 @@ export class CaseDetailsEditComponent implements OnInit {
         }
 
         this.identityService.listUsersInGroup(group.id).subscribe((users) => {
-          this.users.set(users);
+          const currentBehandelaar = zaak.behandelaar;
+          const options =
+            currentBehandelaar &&
+            group.id === zaak.groep?.id &&
+            !users.some(({ id }) => id === currentBehandelaar.id)
+              ? [currentBehandelaar, ...users]
+              : users;
+          this.users.set(options);
 
-          const zaakUser = users.find(({ id }) => id === zaak.behandelaar?.id);
-          const changedUser = users.find(
+          const zaakUser = options.find(
+            ({ id }) => id === zaak.behandelaar?.id,
+          );
+          const changedUser = options.find(
             ({ id }) => id === this.form.controls.behandelaar.value?.id,
           );
           this.form.controls.behandelaar.setValue(

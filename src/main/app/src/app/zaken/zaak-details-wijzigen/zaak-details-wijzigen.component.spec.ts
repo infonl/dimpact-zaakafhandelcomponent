@@ -1019,13 +1019,14 @@ describe(CaseDetailsEditComponent.name, () => {
 
     const renderWithReden = async (
       zaakOverrides: Partial<GeneratedType<"RestZaak">>,
+      groupUsers: GeneratedType<"RestUser">[] = [behandelaar],
     ) => {
       jest
         .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
         .mockReturnValue(of([groep]));
       jest
         .spyOn(identityService, "listUsersInGroup")
-        .mockReturnValue(of([behandelaar]));
+        .mockReturnValue(of(groupUsers));
       renderComponent({
         groep,
         zaaktype: autoriseerbaarZaaktype,
@@ -1070,6 +1071,41 @@ describe(CaseDetailsEditComponent.name, () => {
       fixture.detectChanges();
 
       expect(opslaanButton()).toBeEnabled();
+    });
+
+    describe("whose behandelaar is no longer a member of its group", () => {
+      const groepslid = fromPartial<GeneratedType<"RestUser">>({
+        id: "u2",
+        naam: "User 2",
+      });
+
+      it("keeps that behandelaar, so that other zaakgegevens can still be saved", async () => {
+        await renderWithReden(
+          { isZaakspecifiekGeautoriseerd: true, behandelaar },
+          [groepslid],
+        );
+
+        expect(component["form"].controls.behandelaar.value).toEqual(
+          behandelaar,
+        );
+        expect(opslaanButton()).toBeEnabled();
+      });
+
+      it("offers only the members of another group once that group is chosen", async () => {
+        await renderWithReden(
+          { isZaakspecifiekGeautoriseerd: true, behandelaar },
+          [groepslid],
+        );
+
+        component["form"].controls.groep.setValue(
+          fromPartial<GeneratedType<"RestGroup">>({ id: "g2", naam: "G2" }),
+        );
+        fixture.detectChanges();
+
+        expect(component["users"]()).toEqual([groepslid]);
+        expect(component["form"].controls.behandelaar.value).toBeNull();
+        expect(opslaanButton()).toBeDisabled();
+      });
     });
 
     it("becomes required when the zaak is marked zaakspecifiek geautoriseerd in the form", async () => {
