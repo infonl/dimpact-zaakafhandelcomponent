@@ -16,7 +16,7 @@ import { FormGroup } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 
 @Component({
   selector: "zac-form-actions",
@@ -27,7 +27,7 @@ import { TranslateModule } from "@ngx-translate/core";
     MatButtonModule,
     MatProgressSpinnerModule,
     MatIconModule,
-    TranslateModule,
+    TranslatePipe,
   ],
 })
 export class ZacFormActions {

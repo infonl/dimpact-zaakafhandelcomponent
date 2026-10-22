@@ -11,17 +11,12 @@ import {
   MatDialogContent,
   MatDialogRef,
 } from "@angular/material/dialog";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 
 @Component({
   templateUrl: "./notification-dialog.component.html",
   standalone: true,
-  imports: [
-    MatDialogContent,
-    MatDialogActions,
-    MatButtonModule,
-    TranslateModule,
-  ],
+  imports: [MatDialogContent, MatDialogActions, MatButtonModule, TranslatePipe],
 })
 export class NotificationDialogComponent {
   constructor(

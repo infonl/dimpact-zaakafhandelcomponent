@@ -9,7 +9,7 @@ import { Component, computed, input } from "@angular/core";
 import { MatChipsModule } from "@angular/material/chips";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTooltipModule } from "@angular/material/tooltip";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { IndicatieItem } from "../../model/indicatie-item";
 import { I18nKeyPipe } from "../../pipes/i18n-key.pipe";
 import { GeneratedType } from "../../utils/generated-types";
@@ -26,7 +26,7 @@ import { IndicatiesComponent } from "../indicaties.component";
     MatChipsModule,
     MatIconModule,
     MatTooltipModule,
-    TranslateModule,
+    TranslatePipe,
   ],
 })
 export class PersoonIndicatiesComponent extends IndicatiesComponent {

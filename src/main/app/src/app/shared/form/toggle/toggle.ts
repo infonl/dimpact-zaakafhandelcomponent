@@ -11,7 +11,7 @@ import {
   MatSlideToggle,
   MatSlideToggleModule,
 } from "@angular/material/slide-toggle";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { SingleInputFormField } from "../BaseFormField";
 
@@ -26,7 +26,7 @@ import { SingleInputFormField } from "../BaseFormField";
     MatError,
     MatHint,
     MatLabel,
-    TranslateModule,
+    TranslatePipe,
     CapitalizeFirstLetterPipe,
   ],
 })
