@@ -47,6 +47,27 @@ behandelaar, and SHALL keep *Opslaan* disabled until a behandelaar is chosen.
 - **WHEN** the checkbox is not ticked
 - **THEN** the behandelaar is optional and no notice is shown
 
+### Requirement: A zaakspecifiek geautoriseerde zaak can be handed over to another behandelaar
+
+The system SHALL let an employee assign a zaakspecifiek geautoriseerde zaak to another behandelaar, from the
+zaakdetailpagina as well as from the zaken werkvoorraad. The previous behandelaar SHALL keep access to the zaak as a
+*Zaakspecifiek geautoriseerde medewerker*. Removing the behandelaar without a new one stays a release, which is
+refused.
+
+#### Scenario: Handing over from the werkvoorraad
+- **GIVEN** a zaakspecifiek geautoriseerde zaak with behandelaar Z
+- **WHEN** an employee distributes it to a group and medewerker M
+- **THEN** M is the behandelaar of the zaak
+- **AND** Z keeps access to the zaak as a *Zaakspecifiek geautoriseerde medewerker*
+
+## REMOVED Requirements
+
+### Requirement: The behandelaar cannot be changed while a zaak is zaakspecifiek geautoriseerd
+**Reason**: Since [PZ-10202](https://dimpact.atlassian.net/browse/PZ-10202) a zaakspecifiek geautoriseerde zaak can
+be handed over and the previous behandelaar keeps access. This spec was not updated then; the requirement above
+describes the current behaviour.
+**Migration**: None. The backend already hands such a zaak over.
+
 ## MODIFIED Requirements
 
 ### Requirement: The werkvoorraad dialogs state that zaakspecifiek geautoriseerde zaken were left out

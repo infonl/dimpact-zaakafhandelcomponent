@@ -25,7 +25,8 @@ None.
 ### Modified Capabilities
 
 - `zaakspecifieke-autorisatie-activatie`: the verdelen dialog and the edit form require a behandelaar for a
-  zaakspecifiek geautoriseerde zaak; verdelen no longer leaves such a zaak out.
+  zaakspecifiek geautoriseerde zaak; verdelen no longer leaves such a zaak out. The outdated requirement that
+  forbids handing such a zaak over is replaced by the handover behaviour that exists since PZ-10202.
 
 ## Impact
 
