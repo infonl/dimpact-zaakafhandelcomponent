@@ -27,3 +27,7 @@ too, as the backend requires; unticking it lifts the requirement.
 
 With a medewerker required, verdelen cannot leave a zaakspecifiek geautoriseerde zaak out, so the werkvoorraad
 drops that message and its texts. Vrijgeven keeps its message.
+
+The backend still skips a handover when the zaaktype lacks the *Zaakspecifiek geautoriseerde medewerker*
+roltype. The dropped message never covered that case (it only counted zaken without a chosen medewerker), so no
+feedback is lost. The inrichtingscheck already reports the missing roltype.

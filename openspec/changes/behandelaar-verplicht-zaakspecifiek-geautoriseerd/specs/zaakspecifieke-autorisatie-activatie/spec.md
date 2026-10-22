@@ -52,13 +52,21 @@ behandelaar, and SHALL keep *Opslaan* disabled until a behandelaar is chosen.
 The system SHALL let an employee assign a zaakspecifiek geautoriseerde zaak to another behandelaar, from the
 zaakdetailpagina as well as from the zaken werkvoorraad. The previous behandelaar SHALL keep access to the zaak as a
 *Zaakspecifiek geautoriseerde medewerker*. Removing the behandelaar without a new one stays a release, which is
-refused.
+refused. When the zaaktype does not define the *Zaakspecifiek geautoriseerde medewerker* roltype, the previous
+behandelaar cannot keep access, so the handover SHALL be refused and the zaak keeps its behandelaar.
 
 #### Scenario: Handing over from the werkvoorraad
-- **GIVEN** a zaakspecifiek geautoriseerde zaak with behandelaar Z
+- **GIVEN** a zaakspecifiek geautoriseerde zaak with behandelaar Z, of a zaaktype that defines the
+  *Zaakspecifiek geautoriseerde medewerker* roltype
 - **WHEN** an employee distributes it to a group and medewerker M
 - **THEN** M is the behandelaar of the zaak
 - **AND** Z keeps access to the zaak as a *Zaakspecifiek geautoriseerde medewerker*
+
+#### Scenario: Handing over a zaak of a zaaktype without the roltype
+- **GIVEN** a zaakspecifiek geautoriseerde zaak with behandelaar Z, of a zaaktype that does not define the
+  *Zaakspecifiek geautoriseerde medewerker* roltype
+- **WHEN** an employee distributes it to a group and medewerker M
+- **THEN** the zaak is skipped and Z stays its behandelaar
 
 ## REMOVED Requirements
 
@@ -74,8 +82,9 @@ describes the current behaviour.
 
 When a werkvoorraad vrijgeven action leaves one or more of the selected zaken unprocessed because they are
 zaakspecifiek geautoriseerd, the system SHALL tell the employee how many zaken were left out and that this is the
-reason. Verdelen never leaves such a zaak out, because the verdelen dialog requires a behandelaar for it. The
-werkvoorraad lists open zaken only, so no other skip reason can occur there.
+reason. Verdelen never leaves such a zaak out for a missing behandelaar, because the verdelen dialog requires one
+for it. A handover the backend refuses because the zaaktype lacks the *Zaakspecifiek geautoriseerde medewerker*
+roltype is a configuration error; this capability adds no reason message for it.
 
 #### Scenario: Releasing a selection containing zaakspecifiek geautoriseerde zaken
 - **WHEN** an employee releases a selection of zaken in which some are zaakspecifiek geautoriseerd
@@ -83,6 +92,7 @@ werkvoorraad lists open zaken only, so no other skip reason can occur there.
   in a message that names that reason
 
 #### Scenario: Distributing a selection containing zaakspecifiek geautoriseerde zaken
+- **GIVEN** every zaaktype in the selection defines the *Zaakspecifiek geautoriseerde medewerker* roltype
 - **WHEN** an employee distributes a selection of zaken in which some are zaakspecifiek geautoriseerd, to a group
   and a medewerker
 - **THEN** every zaak is distributed and no reason message is shown
