@@ -191,6 +191,11 @@ conversion branch.
 The conversion pull request contains no functional changes, so a reviewer can read it as a pure conversion.
 REST paths and JSON payloads stay the same.
 
+### Update the test data scripts when a REST API changes
+The Python scripts in `scripts/test-data/` call the ZAC REST API directly with hand-written JSON payloads.
+When a change alters a REST path, a JSON payload or the validation of a REST endpoint, update the affected scripts
+in the same pull request and run them against a local environment. No automated test covers these scripts.
+
 ### Conventional Commits
 PR titles and commit messages follow: `<type>[optional scope]: <description>`
 PR footer must include: `Solves PZ-XXX` (Jira ticket reference)
