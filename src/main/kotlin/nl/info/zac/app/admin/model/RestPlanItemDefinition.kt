@@ -15,6 +15,8 @@ import nl.info.zac.util.NoArgConstructor
 data class RestPlanItemDefinition(
     var id: String,
     var naam: String?,
-    var type: PlanItemType,
-    var defaultFormulierDefinitie: FormulierDefinitie = id.toFormulierDefinitie()
-)
+    var type: PlanItemType
+) {
+    val defaultFormulierDefinitie: FormulierDefinitie
+        get() = id.toFormulierDefinitie()
+}

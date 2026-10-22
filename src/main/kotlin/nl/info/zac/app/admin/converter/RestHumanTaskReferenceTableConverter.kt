@@ -37,7 +37,7 @@ class RestHumanTaskReferenceTableConverter @Inject constructor(
         veld = this@toHumanTaskReferentieTabel.veld
         // The tabel is just a reference here, so don't update it from the REST but fetch it from the database
         tabel = referenceTableService.readReferenceTable(
-            checkNotNull(this@toHumanTaskReferentieTabel.tabel.id) { "Reference table of veld '$veld' has no id" }
+            checkNotNull(this@toHumanTaskReferentieTabel.tabel?.id) { "Reference table of veld '$veld' has no id" }
         )
     }
 }

@@ -64,7 +64,7 @@ class RestHumanTaskParametersConverter @Inject constructor(
             setFormulierDefinitieID(restHumanTaskParameters.formulierDefinitieId)
             setReferentieTabellen(
                 restHumanTaskReferenceTableConverter.toHumanTaskReferentieTabellen(
-                    restHumanTaskParameters.referentieTabellen
+                    restHumanTaskParameters.referentieTabellen.orEmpty()
                 )
             )
         }

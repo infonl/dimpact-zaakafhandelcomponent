@@ -12,5 +12,5 @@ import nl.info.zac.util.NoArgConstructor
 data class RestHumanTaskReferenceTable(
     var id: Long? = null,
     var veld: String,
-    var tabel: RestReferenceTable
+    var tabel: RestReferenceTable? = null
 )

@@ -52,6 +52,13 @@ private fun Any?.withoutDatabaseIds(): Any? = when (this) {
     else -> this
 }
 
+private fun JSONObject.withoutReferentieTabellen() = JSONObject(toString()).also { configuration ->
+    configuration.getJSONArray("humanTaskParameters").forEach { (it as JSONObject).remove("referentieTabellen") }
+}
+
+private fun JSONObject.humanTaskParametersWithoutReferentieTabellen() =
+    withoutReferentieTabellen().getJSONArray("humanTaskParameters").withoutDatabaseIds().toString()
+
 private fun JSONObject.roundTrippedFields() = JSONObject().also { fields ->
     ROUND_TRIPPED_FIELDS.forEach { field -> fields.put(field, opt(field).withoutDatabaseIds() ?: JSONObject.NULL) }
 }.toString()
@@ -65,6 +72,34 @@ class ZaaktypeConfigurationRestServiceRoundTripTest : BehaviorSpec({
     ).let {
         it.code shouldBe HTTP_OK
         JSONObject(it.bodyAsString)
+    }
+
+    given("the stored configuration of a CMMN zaaktype with human task parameters") {
+        val storedConfiguration = read(ZAAKTYPE_CMMN_TEST_3_UUID)
+
+        `when`("a beheerder stores it with human task parameters without referentieTabellen, and reads it back") {
+            val storeResponse = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_CMMN_TEST_3_UUID",
+                requestBodyAsString = storedConfiguration.withoutReferentieTabellen().toString(),
+                testUser = BEHEERDER_1
+            )
+            val readBackConfiguration = read(ZAAKTYPE_CMMN_TEST_3_UUID)
+            val restoreResponse = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_CMMN_TEST_3_UUID",
+                requestBodyAsString = storedConfiguration.toString(),
+                testUser = BEHEERDER_1
+            )
+
+            then("the configuration is stored") {
+                storeResponse.code shouldBe HTTP_OK
+                restoreResponse.code shouldBe HTTP_OK
+            }
+
+            and("the human task parameters other than the referentieTabellen have the same values as before") {
+                readBackConfiguration.humanTaskParametersWithoutReferentieTabellen() shouldEqualJsonIgnoringOrder
+                    storedConfiguration.humanTaskParametersWithoutReferentieTabellen()
+            }
+        }
     }
 
     listOf(

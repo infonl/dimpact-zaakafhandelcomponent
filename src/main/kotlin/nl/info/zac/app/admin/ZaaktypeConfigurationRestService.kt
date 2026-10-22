@@ -15,7 +15,6 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import nl.info.zac.app.admin.converter.RestProcessDefinitionConverter
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ReferenceTableService
@@ -26,6 +25,7 @@ import nl.info.zac.admin.ZaaktypeConfigurationService.Companion.INADMISSIBLE_TER
 import nl.info.zac.admin.model.FormulierDefinitie
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.AFZENDER
 import nl.info.zac.admin.model.ZaaktypeConfiguration
+import nl.info.zac.app.admin.converter.RestProcessDefinitionConverter
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
 import nl.info.zac.app.admin.model.RestProcessDefinition
 import nl.info.zac.app.admin.model.RestReplyTo

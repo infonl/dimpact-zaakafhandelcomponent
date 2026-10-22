@@ -19,5 +19,5 @@ data class RestHumanTaskParameters(
     var doorlooptijd: Int? = null,
     var defaultGroepId: String? = null,
     var formulierDefinitieId: String? = null,
-    var referentieTabellen: List<RestHumanTaskReferenceTable> = emptyList()
+    var referentieTabellen: List<RestHumanTaskReferenceTable>? = emptyList()
 )

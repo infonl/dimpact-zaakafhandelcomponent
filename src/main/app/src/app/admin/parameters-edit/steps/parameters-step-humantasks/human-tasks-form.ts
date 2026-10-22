@@ -32,8 +32,9 @@ export type HumanTasksForm = FormArray<HumanTaskForm>;
 export function createHumanTaskReferentieTabelForm({
   id,
   tabel,
-}: Partial<
-  GeneratedType<"RestHumanTaskReferenceTable">
+}: Pick<
+  GeneratedType<"RestHumanTaskReferenceTable">,
+  "id" | "tabel"
 >): HumanTaskReferentieTabelForm {
   return new FormGroup({
     id: new FormControl(id ?? null),
@@ -175,9 +176,12 @@ export function toHumanTaskParameters(
       defaultGroepId: defaultGroepId || undefined,
       doorlooptijd: doorlooptijd ?? undefined,
       actief,
-      referentieTabellen: Object.entries(referentieTabellen).flatMap(
-        ([veld, { id: referentieTabelId, tabel }]) =>
-          tabel ? [{ id: referentieTabelId ?? undefined, veld, tabel }] : [],
+      referentieTabellen: Object.entries(referentieTabellen).map(
+        ([veld, { id: referentieTabelId, tabel }]) => ({
+          id: referentieTabelId ?? undefined,
+          veld,
+          tabel: tabel ?? undefined,
+        }),
       ),
     };
   });

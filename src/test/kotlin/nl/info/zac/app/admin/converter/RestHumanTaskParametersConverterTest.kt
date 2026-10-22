@@ -9,6 +9,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import jakarta.json.bind.JsonbBuilder
 import nl.info.zac.admin.model.createZaaktypeCmmnHumantaskParameters
 import nl.info.zac.app.admin.model.RestHumanTaskParameters
 import nl.info.zac.app.admin.model.RestHumanTaskReferenceTable
@@ -99,6 +100,30 @@ class RestHumanTaskParametersConverterTest : BehaviorSpec({
                     result[0].planItemDefinitionID shouldBe "AANVULLENDE_INFORMATIE"
                     result[0].groepID shouldBe "fakeGroepId"
                     result[0].doorlooptijd shouldBe 3
+                }
+            }
+        }
+
+        given("A JSON request with human task parameters without referentieTabellen") {
+            val restHumanTaskParameters = JsonbBuilder.create().fromJson(
+                """
+                {
+                  "actief": true,
+                  "planItemDefinition": { "id": "AANVULLENDE_INFORMATIE", "naam": "fakeNaam", "type": "HUMAN_TASK" }
+                }
+                """.trimIndent(),
+                RestHumanTaskParameters::class.java
+            )
+            every { restHumanTaskReferenceTableConverter.toHumanTaskReferentieTabellen(emptyList()) } returns emptyList()
+
+            `when`("convertRestHumanTaskParameters is called") {
+                val result = converter.convertRestHumanTaskParameters(listOf(restHumanTaskParameters))
+
+                then("the human task parameters are converted without referentie tabellen") {
+                    result.size shouldBe 1
+                    result[0].isActief shouldBe true
+                    result[0].planItemDefinitionID shouldBe "AANVULLENDE_INFORMATIE"
+                    result[0].getReferentieTabellen() shouldBe emptyList()
                 }
             }
         }

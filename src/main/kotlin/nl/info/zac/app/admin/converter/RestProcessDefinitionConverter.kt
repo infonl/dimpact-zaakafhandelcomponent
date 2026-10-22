@@ -5,10 +5,10 @@
 package nl.info.zac.app.admin.converter
 
 import jakarta.inject.Inject
-import nl.info.zac.app.admin.model.RestPlanItemDefinition
 import net.atos.zac.flowable.cmmn.CmmnService
 import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.admin.model.ZaaktypeProcessBinding
+import nl.info.zac.app.admin.model.RestPlanItemDefinition
 import nl.info.zac.app.admin.model.RestProcessDefinition
 import nl.info.zac.app.planitems.model.PlanItemType.HUMAN_TASK
 import nl.info.zac.app.planitems.model.PlanItemType.USER_EVENT_LISTENER

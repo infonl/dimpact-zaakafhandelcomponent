@@ -10,9 +10,9 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import nl.info.zac.admin.ReferenceTableService
+import nl.info.zac.admin.model.FormulierVeldDefinitie
 import nl.info.zac.admin.model.HumanTaskReferentieTabel
 import nl.info.zac.admin.model.createReferenceTable
-import nl.info.zac.admin.model.FormulierVeldDefinitie
 import nl.info.zac.app.admin.model.RestHumanTaskReferenceTable
 import nl.info.zac.app.admin.model.RestReferenceTable
 
@@ -34,7 +34,7 @@ class RestHumanTaskReferenceTableConverterTest : BehaviorSpec({
 
                 then("the returned REST entry has veld set and tabel resolved via the service") {
                     result.veld shouldBe veldDefinitie.name
-                    result.tabel.id shouldBe 99L
+                    result.tabel?.id shouldBe 99L
                 }
             }
         }
