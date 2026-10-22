@@ -27,8 +27,8 @@ Check the prerequisites yourself; when one is missing, ask the user to fix it an
 - Supporting componenten, Externe API's and Samenvatting read the ZAC repo via `git show origin/main:<file>`.
   - Check the session runs in the ZAC repo: `git remote get-url origin` must point to `infonl/dimpact-zaakafhandelcomponent`. If not, ask the user to start Claude Code in their ZAC checkout.
   - Run `git fetch origin main` first, so `origin/main` is current. It only updates the remote ref; it never touches the user's branch or working tree.
-- For the table tasks: ask the user to paste the current table from Confluence if they did not, so you can report what changed. It is optional; continue without it if they say so.
-- The output is only rendered (copyable into Confluence) in the VS Code extension or desktop app. If the session runs in a plain terminal, tell the user once.
+- For the table tasks: ask the user to paste the current table from Confluence if they did not, so you can report what changed. It is optional; continue without it if they say so. The pasted table is only for comparing: fetch every value live from the sources on the task page and never copy a value from it.
+- The output is only rendered (copyable into Confluence) in the VS Code extension or desktop app. You cannot detect where the session runs, so mention this once in every run.
 
 ## Rules for every task
 
@@ -40,10 +40,12 @@ Check the prerequisites yourself; when one is missing, ask the user to fix it an
 The Samenvatting has its own output rules on its page.
 
 - ONE rendered markdown table, NOT in a code block, so it can be copied straight into Confluence.
-- ONLY the version columns of that table, rows in the fixed order of the task page, no component-name column.
-- Below the table, max 3 short lines: what changed compared to the table the user pasted (if any), remarks on the page that are now outdated, and values that could not be verified.
+- ONLY the version columns of that table, rows in the fixed order of the task page, no component-name column. Fill ALL of them with current values, including Our Version on TEST.
+- Below the table, max 4 short lines (the source line and the logout reminder do not count): what changed compared to the table the user pasted (if any), remarks in the pasted table that are now outdated, and values that could not be verified.
 
 ## Tooling notes
 
 - `gh` on macOS needs the sandbox disabled, otherwise the keychain is blocked and gh fails with `x509: OSStatus -26276`.
+- Do not assume `yq`, `helm` or PyYAML are installed. Read YAML paths by indentation with `grep`/`awk`.
+- `git fetch` over SSH also needs the sandbox disabled; otherwise it fails with `This proxy requires authentication` and `origin/main` stays stale.
 - The anonymous GitHub API allows only 60 requests/hour. Use `gh api` or the sources named on the task page instead of paging through GitHub tags.
