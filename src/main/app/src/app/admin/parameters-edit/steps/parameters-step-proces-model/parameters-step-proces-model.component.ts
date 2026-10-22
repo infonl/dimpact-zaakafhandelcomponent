@@ -5,7 +5,7 @@
 
 import { Component, computed, inject, input } from "@angular/core";
 import { MatIconModule } from "@angular/material/icon";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ZacSelect } from "../../../../shared/form/select/select";
 import { ZaakafhandelParametersService } from "../../../zaakafhandel-parameters.service";
@@ -15,7 +15,7 @@ import { ProcessDefinition, ProcessModelForm } from "./process-model-form";
   selector: "zac-parameters-step-proces-model",
   templateUrl: "./parameters-step-proces-model.component.html",
   standalone: true,
-  imports: [MatIconModule, TranslateModule, ZacSelect],
+  imports: [MatIconModule, TranslatePipe, ZacSelect],
 })
 export class ParametersStepProcesModelComponent {
   readonly form = input.required<ProcessModelForm>();

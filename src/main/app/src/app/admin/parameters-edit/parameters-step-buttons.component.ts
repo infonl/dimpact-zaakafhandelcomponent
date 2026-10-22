@@ -6,12 +6,12 @@
 import { Component, input, output } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatStepperModule } from "@angular/material/stepper";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 
 @Component({
   selector: "zac-parameters-step-buttons",
   standalone: true,
-  imports: [MatButtonModule, MatStepperModule, TranslateModule],
+  imports: [MatButtonModule, MatStepperModule, TranslatePipe],
   styles: [
     `
       .button-group {

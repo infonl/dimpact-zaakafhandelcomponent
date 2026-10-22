@@ -23,7 +23,7 @@ import {
   MatTreeFlattener,
   MatTreeModule,
 } from "@angular/material/tree";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { firstValueFrom } from "rxjs";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
@@ -55,7 +55,7 @@ interface FlatNode {
     MatIconModule,
     MatSlideToggleModule,
     MatTreeModule,
-    TranslateModule,
+    TranslatePipe,
     SmartDocumentsFormItemComponent,
   ],
 })

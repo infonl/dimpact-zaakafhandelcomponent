@@ -23,7 +23,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { lastValueFrom } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
 import { FoutAfhandelingService } from "../../../fout-afhandeling/fout-afhandeling.service";
@@ -58,7 +58,7 @@ import { extractAttachmentFilename, readFileContent } from "../file.helper";
     DatePipe,
     EmptyPipe,
     StaticTextComponent,
-    TranslateModule,
+    TranslatePipe,
     FileDragAndDropDirective,
     MatExpansionModule,
   ],

@@ -14,7 +14,7 @@ import {
 } from "@angular/core";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatIconModule } from "@angular/material/icon";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../../../core/service/util.service";
 import { IdentityService } from "../../../../identity/identity.service";
@@ -40,7 +40,7 @@ import {
     NgClass,
     MatExpansionModule,
     MatIconModule,
-    TranslateModule,
+    TranslatePipe,
     I18nKeyPipe,
     ZacInput,
     ZacSelect,

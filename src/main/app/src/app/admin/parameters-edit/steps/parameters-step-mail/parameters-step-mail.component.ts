@@ -21,7 +21,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatRadioModule } from "@angular/material/radio";
 import { MatTableModule } from "@angular/material/table";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslateDirective, TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ZacSelect } from "../../../../shared/form/select/select";
 import { ZacToggle } from "../../../../shared/form/toggle/toggle";
@@ -53,7 +53,8 @@ import {
     MatMenuModule,
     MatRadioModule,
     MatTableModule,
-    TranslateModule,
+    TranslateDirective,
+    TranslatePipe,
     I18nKeyPipe,
     ZacSelect,
     ZacToggle,

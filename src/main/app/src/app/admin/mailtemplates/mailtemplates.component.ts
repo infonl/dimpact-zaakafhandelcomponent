@@ -33,7 +33,7 @@ import {
 import { MatSortModule, Sort } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterModule } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -76,7 +76,7 @@ import { MailtemplateKoppelingService } from "../mailtemplate-koppeling.service"
     MatInputModule,
     MatDialogModule,
     RouterModule,
-    TranslateModule,
+    TranslatePipe,
     SideNavComponent,
     ReadMoreComponent,
   ],

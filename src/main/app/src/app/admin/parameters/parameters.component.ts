@@ -17,7 +17,7 @@ import {
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { ClientMatcher } from "../../shared/dynamic-table/filter/clientMatcher";
@@ -40,7 +40,7 @@ import { ZaakafhandelParametersListParameters } from "./zaakafhandel-parameters-
   standalone: true,
   imports: [
     RouterLink,
-    TranslateModule,
+    TranslatePipe,
     MatSidenavModule,
     MatCardModule,
     MatTableModule,
