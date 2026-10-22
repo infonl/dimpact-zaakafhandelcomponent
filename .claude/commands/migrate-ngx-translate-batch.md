@@ -21,8 +21,8 @@ Batches, in this order (folders under `src/main/app/src/app/`):
 | # | Batch | Folders | Jira | Status |
 |---|---|---|---|---|
 | 0 | specs | all `*.spec.ts` | PZ-13152 | done (#7565) |
-| 1 | zaken | `zaken` | PZ-13153 | migrated, PR pending |
-| 2 | shared | `shared` | | |
+| 1 | zaken | `zaken` | PZ-13153 | done (#7572) |
+| 2 | shared | `shared` | PZ-13154 | migrated, PR pending |
 | 3 | admin | `admin` | | |
 | 4 | klanten, zoeken, dashboard, taken, informatie-objecten | `klanten` `zoeken` `dashboard` `taken` `informatie-objecten` | | |
 | 5 | remaining areas | every other folder, plus files directly in `src/app/` | | |

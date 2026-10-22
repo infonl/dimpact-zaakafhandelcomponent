@@ -7,7 +7,7 @@ import { Component } from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatRadioModule } from "@angular/material/radio";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { MultiInputFormField } from "../BaseFormField";
 
@@ -19,7 +19,7 @@ import { MultiInputFormField } from "../BaseFormField";
     ReactiveFormsModule,
     MatRadioModule,
     MatFormFieldModule,
-    TranslateModule,
+    TranslatePipe,
     CapitalizeFirstLetterPipe,
   ],
 })

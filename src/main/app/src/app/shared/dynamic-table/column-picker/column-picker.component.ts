@@ -13,7 +13,7 @@ import {
   MatSelectionListChange,
 } from "@angular/material/list";
 import { MatMenu, MatMenuTrigger } from "@angular/material/menu";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { toI18nKey } from "../../utils/i18n-key";
 import { ZoekenColumn } from "../model/zoeken-column";
 import { SortPipe } from "../pipes/sort.pipe";
@@ -32,7 +32,7 @@ import { ColumnPickerValue } from "./column-picker-value";
     MatIcon,
     MatSelectionList,
     MatListOption,
-    TranslateModule,
+    TranslatePipe,
     SortPipe,
   ],
 })
