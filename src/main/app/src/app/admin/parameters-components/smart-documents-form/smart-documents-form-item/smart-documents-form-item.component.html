@@ -35,12 +35,6 @@
   </mat-form-field>
   <mat-form-field subscriptSizing="dynamic">
     <mat-label>{{ "vertrouwelijkheidaanduiding" | translate }}</mat-label>
-    <input
-      matInput
-      [formControl]="confidentiality"
-      translate="{{
-        'vertrouwelijkheidaanduiding.' + confidentiality.getRawValue() | i18nKey
-      }}"
-    />
+    <input matInput [formControl]="confidentiality" />
   </mat-form-field>
 </fieldset>

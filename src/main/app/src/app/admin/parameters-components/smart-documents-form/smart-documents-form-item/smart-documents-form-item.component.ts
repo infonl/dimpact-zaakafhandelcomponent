@@ -10,12 +10,7 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
-import {
-  TranslateDirective,
-  TranslatePipe,
-  TranslateService,
-} from "@ngx-translate/core";
-import { I18nKeyPipe } from "../../../../shared/pipes/i18n-key.pipe";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { toI18nKey } from "../../../../shared/utils/i18n-key";
 
@@ -25,13 +20,11 @@ import { toI18nKey } from "../../../../shared/utils/i18n-key";
   styleUrls: ["./smart-documents-form-item.component.less"],
   standalone: true,
   imports: [
-    I18nKeyPipe,
     ReactiveFormsModule,
     MatCheckboxModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    TranslateDirective,
     TranslatePipe,
   ],
 })
