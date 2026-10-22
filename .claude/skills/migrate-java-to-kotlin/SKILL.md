@@ -3,7 +3,7 @@ name: migrate-java-to-kotlin
 description: Migrate a Java package or class to Kotlin using the Kotlin and other coding conventions of this project.
 ---
 
-Migrate the Java package `$ARGUMENTS` to Kotlin, following the project's history-preserving two-step commit strategy.
+Migrate the Java package `$ARGUMENTS` to Kotlin.
 
 ## Derive paths from the package name
 
@@ -57,24 +57,17 @@ Write idiomatic Kotlin tests with Kotest `BehaviorSpec` and MockK, following the
 ```
 Fix any failing tests.
 
-## Step 4 — Create target directories
+## Step 4 — Move the files to the target directory
 
-Create the full target directory tree (mirroring all sub-directories found).
-
-## Step 5 — Rename commit (history anchor)
-
-For every `.java` file found, run `git mv <old-path> <new-path>` changing:
+Create the full target directory tree (mirroring all sub-directories found). For every `.java` file found, run
+`git mv <old-path> <new-path>` changing:
 - Path prefix: `src/main/java/net/atos/` → `src/main/kotlin/nl/info/`
 - Extension: `.java` → `.kt`
 
-Then commit:
-```
-chore: rename $ARGUMENTS Java files to .kt for Kotlin conversion
-```
+Do not commit the moved files separately. The repository squash-merges pull requests, so a separate rename commit
+does not keep the history of the Java files.
 
-At this point the `.kt` files still contain Java source — that is intentional and temporary.
-
-## Step 6 — Convert each file to Kotlin
+## Step 5 — Convert each file to Kotlin
 
 Edit every `.kt` file in the target directory. Apply these transformations:
 
@@ -213,7 +206,7 @@ This mirrors the nullability rule in (n): check real usage before defaulting to 
 
 Also follow the [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html) throughout the conversion (naming, formatting, idiomatic collection operations, etc.) — this project's own conventions in `.claude/rules/kotlin.md` are a superset of them, not a replacement.
 
-## Step 7 — Update all call sites
+## Step 6 — Update all call sites
 
 Search for all files that still import the old package:
 ```bash
@@ -227,23 +220,23 @@ Update imports in every found file (Java callers use the same `nl.info.*` import
 3. Update every match to the new name, then rerun `npm run build` (or at minimum `npm run lint` plus a targeted `ng test` on the affected specs) from `src/main/app/` to confirm the frontend compiles and its tests still pass.
 4. This applies to *any* JAX-RS model rename, not just acronym casing — moving a REST model to a new Kotlin class name for any reason has the same effect on the generated frontend types.
 
-## Step 8 — Verify and fix compilation
+## Step 7 — Verify and fix compilation
 
 Run:
 ```bash
 ./gradlew compileKotlin compileJava
 ```
-A clean compile is not proof that nullability was chosen correctly — see step 6n: Java platform types let nullable and non-null signatures compile equally well, so a successful build here doesn't rule out a call site being tightened past what its data actually guarantees.
+A clean compile is not proof that nullability was chosen correctly — see step 5n: Java platform types let nullable and non-null signatures compile equally well, so a successful build here doesn't rule out a call site being tightened past what its data actually guarantees.
 Fix any type errors (common: nullable/non-null mismatches, missing `@Suppress` annotations).
 
-## Step 9 — Format and lint
+## Step 8 — Format and lint
 
 ```bash
 ./gradlew spotlessApply detektApply
 ```
 Fix any remaining Detekt violations — the most common in API interfaces is `LongParameterList`, which should be suppressed with `@Suppress("LongParameterList")` since the parameter count is dictated by the external API contract.
 
-## Step 10 — Run tests again
+## Step 9 — Run tests again
 
 ```bash
 ./gradlew test
@@ -251,7 +244,7 @@ Fix any remaining Detekt violations — the most common in API interfaces is `Lo
 ```
 Fix any failing tests.
 
-## Step 11 — Conversion commit
+## Step 10 — Conversion commit
 
 Stage all changes and commit:
 ```
@@ -261,19 +254,12 @@ Moves all classes from $ARGUMENTS to <target-package>
 and converts Java syntax to idiomatic Kotlin.
 ```
 
-## Step 12 — Verify git history
-
-```bash
-git log --oneline --follow -- src/main/kotlin/nl/info/<path>/<MainClass>.kt
-```
-The log should show: the conversion commit + the rename commit + the full original Java history.
-
-## Step 13 — Open the conversion pull request
+## Step 11 — Open the conversion pull request
 
 Push the conversion branch and open its pull request, with the branch below it as base. Use a Conventional Commits
 title such as `refactor(<scope>): convert <classes> to Kotlin` and end the description with the `Solves PZ-XXX`
 footer. Describe in the description how the change was verified, including any OpenAPI schema name that changed
-and the frontend files updated for it (Step 7).
+and the frontend files updated for it (Step 6).
 
 ## Key references
 
