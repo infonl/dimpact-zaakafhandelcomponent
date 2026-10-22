@@ -14,7 +14,8 @@ import nl.info.zac.util.NoArgConstructor
 class RestUserConverter @Inject constructor(
     private val identityService: IdentityService
 ) {
-    fun convertUserId(userId: String) = identityService.readUser(userId).toRestUser()
+    fun convertUserId(userId: String, logContext: String? = null) =
+        identityService.readUser(userId = userId, logContext = logContext).toRestUser()
 
     fun List<String>.convertUserIds(): List<RestUser> = this.map(::convertUserId)
 }

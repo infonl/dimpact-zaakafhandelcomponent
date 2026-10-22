@@ -115,13 +115,23 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
             every { candidateIdentityLink.groupId } returns "fakeGroupId"
             every { taskInfo.identityLinks } returns listOf(candidateIdentityLink)
 
-            every { identityService.readUser("fakeAssigneeId") } returns createUser(
+            every {
+                identityService.readUser(
+                    userId = "fakeAssigneeId",
+                    logContext = "task '$fakeTaskId' of zaak 'fakeZaakIdentificatie'"
+                )
+            } returns createUser(
                 id = "fakeAssigneeId",
                 firstName = "Fake",
                 lastName = "User",
                 fullName = "Fake User"
             )
-            every { identityService.readGroup("fakeGroupId") } returns createGroup(
+            every {
+                identityService.readGroup(
+                    groupId = "fakeGroupId",
+                    logContext = "task '$fakeTaskId' of zaak 'fakeZaakIdentificatie'"
+                )
+            } returns createGroup(
                 id = "fakeGroupId",
                 name = "Fake Group"
             )
