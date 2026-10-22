@@ -70,7 +70,7 @@ Then deliver:
 - A table: file → `TranslatePipe` / `TranslateDirective` / both / removed.
 - The result of each check.
 - Branch name (the user creates it): `refactor/PZ-XXXXX--ngx-translate-v18-migration--translate-pipe--<batch slug>`
-- PR title: `refactor(app): replace TranslateModule with TranslatePipe/TranslateDirective in <batch name>`
+- PR title: `refactor(app): <batch #> of 5 - replace TranslateModule with TranslatePipe/TranslateDirective in <batch name>` (batch # from the table in Step 1, so reviewers see how far the migration is)
 - PR body in a fenced block: at most 3 short paragraphs (what and why, effect, one line of test proof) plus `Solves PZ-XXXXX`. No headings, no attribution line.
 - Fill `PZ-XXXXX` with the key from `$ARGUMENTS`; without it, ask the user instead of leaving the placeholder.
 
