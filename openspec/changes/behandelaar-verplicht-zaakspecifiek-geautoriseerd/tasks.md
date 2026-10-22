@@ -7,8 +7,8 @@
 
 ## 2. Zaak edit form
 
-- [ ] 2.1 Behandelaar required with a notice while *Zaak zaakspecifiek autoriseren* is ticked.
-- [ ] 2.2 i18n texts in `nl.json` and `en.json`; specs for the form.
+- [x] 2.1 Behandelaar required with a notice while *Zaak zaakspecifiek autoriseren* is ticked.
+- [x] 2.2 i18n texts in `nl.json` and `en.json`; specs for the form.
 
 ## 3. Wrap-up
 

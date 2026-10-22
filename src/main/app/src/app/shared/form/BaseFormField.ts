@@ -115,9 +115,9 @@ export class SingleInputFormField<
     );
   });
 
-  protected isRequired = computed(
-    () => this.control()?.hasValidator(Validators.required) ?? false,
-  );
+  protected isRequired() {
+    return this.control()?.hasValidator(Validators.required) ?? false;
+  }
 
   ngOnDestroy() {
     this.destroy$.next();

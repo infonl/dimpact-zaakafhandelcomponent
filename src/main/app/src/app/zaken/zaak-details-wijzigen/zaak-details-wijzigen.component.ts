@@ -117,6 +117,8 @@ export class CaseDetailsEditComponent implements OnInit {
     isZaakspecifiekGeautoriseerd: this.formBuilder.control(false),
   });
 
+  protected readonly isBehandelaarRequired = signal(false);
+
   protected readonly showZaakspecifiekGeautoriseerd = computed(() =>
     Boolean(
       this.zaak().zaaktype.zaakafhandelparameters
@@ -207,6 +209,12 @@ export class CaseDetailsEditComponent implements OnInit {
         this.form.controls.reden.enable({ emitEvent: false });
       });
 
+    this.form.controls.isZaakspecifiekGeautoriseerd.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((isZaakspecifiekGeautoriseerd) =>
+        this.setBehandelaarRequired(Boolean(isZaakspecifiekGeautoriseerd)),
+      );
+
     this.form.patchValue({
       ...zaak,
       startdatum: moment(zaak.startdatum),
@@ -281,6 +289,17 @@ export class CaseDetailsEditComponent implements OnInit {
     this.form.controls.uiterlijkeEinddatumAfdoening.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.validateDates("uiterlijkeEinddatumAfdoening"));
+  }
+
+  private setBehandelaarRequired(isRequired: boolean) {
+    const behandelaar = this.form.controls.behandelaar;
+    if (isRequired) {
+      behandelaar.addValidators(Validators.required);
+    } else {
+      behandelaar.removeValidators(Validators.required);
+    }
+    behandelaar.updateValueAndValidity({ emitEvent: false });
+    this.isBehandelaarRequired.set(isRequired);
   }
 
   private validateDates(
