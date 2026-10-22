@@ -25,6 +25,8 @@ _SCRIPT_DIR = pathlib.Path(__file__).parent
 # Group used when creating zaken
 ZAAK_GROUP_ID = "behandelaars-test-1"
 ZAAK_GROUP_NAME = "Test group behandelaars domein test 1"
+# Member of ZAAK_GROUP_ID, as required for the default behandelaar of a zaaktype configuration
+ZAAK_DEFAULT_BEHANDELAAR_ID = "behandelaar1"
 
 # Single BPMN process definition uploaded and shared by all 4 BPMN zaaktypes
 LOAD_TEST_PROCESS_KEY = "loadTestProcess"

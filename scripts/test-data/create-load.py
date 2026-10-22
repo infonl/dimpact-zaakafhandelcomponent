@@ -340,7 +340,7 @@ def _bpmn_body(zaaktype: dict) -> dict:
         },
         "productaanvraagtype": zaaktype["productaanvraagtype"],
         "defaultGroepId": zac_testdata.ZAAK_GROUP_ID,
-        "defaultBehandelaarId": zac_client.ZAAK_USER,
+        "defaultBehandelaarId": zac_testdata.ZAAK_DEFAULT_BEHANDELAAR_ID,
         "betrokkeneKoppelingen": {"isBrpKoppelenEnabled": True, "isKvkKoppelenEnabled": True},
         "brpDoelbindingen": {
             "zoekWaarde": "BRPACT-ZoekenAlgemeen",
