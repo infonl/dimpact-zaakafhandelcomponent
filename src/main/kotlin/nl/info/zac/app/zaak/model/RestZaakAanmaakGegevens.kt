@@ -18,5 +18,7 @@ data class RestZaakAanmaakGegevens(
 
     var inboxProductaanvraag: RestInboxProductaanvraag? = null,
 
-    var bagObjecten: List<RestBagObject>? = null
+    var bagObjecten: List<RestBagObject>? = null,
+
+    var koppeling: RestZaakAanmaakKoppeling? = null
 )

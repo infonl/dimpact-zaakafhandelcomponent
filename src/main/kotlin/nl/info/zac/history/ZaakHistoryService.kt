@@ -42,6 +42,8 @@ private const val RESOURCE_ZAAKOBJECT = "zaakobject"
 private const val RESOURCE_EXTENSION = "verlenging"
 private const val RESOURCE_SUSPENSION = "opschorting"
 
+private val ZAAK_LINK_ATTRIBUTES = setOf("hoofdzaak", "gerelateerdeZaken")
+
 class ZaakHistoryService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
@@ -75,12 +77,34 @@ class ZaakHistoryService @Inject constructor(
                 newValues = new
             )
 
+            ACTION_CREATE if auditTrailLine.resource == RESOURCE_ZAAK && new != null
+            -> listOfNotNull(convertLine(auditTrailLine, old, new)) + convertLinksOfCreatedZaak(auditTrailLine, new)
+
             ACTION_CREATE, ACTION_UPDATE, ACTION_DESTROY
             -> listOfNotNull(convertLine(auditTrailLine, old, new))
 
             else -> emptyList()
         }
     }
+
+    private fun convertLinksOfCreatedZaak(
+        auditTrailLine: ZrcAuditTrailRegel,
+        newValues: Map<String, *>
+    ): List<HistoryLine> =
+        newValues
+            .filter { (attribute, value) -> attribute in ZAAK_LINK_ATTRIBUTES && value.isLink() }
+            .takeIf { it.isNotEmpty() }
+            ?.let {
+                zaakHistoryPartialUpdateConverter.convertPartialUpdate(
+                    auditTrailLine = auditTrailLine,
+                    historyAction = HistoryAction.GEKOPPELD,
+                    oldValues = emptyMap<String, Any>(),
+                    newValues = it
+                )
+            }
+            .orEmpty()
+
+    private fun Any?.isLink() = this != null && (this !is List<*> || this.isNotEmpty())
 
     private fun convertLine(auditTrail: ZrcAuditTrailRegel, old: Map<String, *>?, new: Map<String, *>?): HistoryLine? =
         (old ?: new)

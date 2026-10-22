@@ -16,9 +16,6 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import nl.info.zac.event.EventingService
-import nl.info.zac.websocket.event.ScreenEventType
-import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.GerelateerdeZakenZaakPatch
 import nl.info.client.zgw.zrc.model.NillableHoofdzaakZaakPatch
@@ -40,7 +37,6 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
-import nl.info.zac.search.IndexingService
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.DatumRange
 import nl.info.zac.search.model.DatumVeld
@@ -57,6 +53,7 @@ import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.model.ZaakLinkData
+import nl.info.zac.zaak.ZaakKoppelenService
 import nl.info.zac.zaak.ZaakService
 import nl.info.zac.zaak.model.alreadyGerelateerdReason
 import nl.info.zac.zaak.model.canBeHoofdzaakFor
@@ -64,6 +61,7 @@ import nl.info.zac.zaak.model.canBeRelatedTo
 import nl.info.zac.zaak.model.canBeUnlinkedFromDeelzaak
 import nl.info.zac.zaak.model.ZaakNotLinkableReason
 import nl.info.zac.zaak.model.canBeUnlinkedFromRelatedZaak
+import nl.info.zac.zaak.model.getDeelzaaktypenSet
 import nl.info.zac.zaak.model.gerelateerdNotLinkableReason
 import nl.info.zac.zaak.model.hoofdzaakDeelzaakNotLinkableReason
 import nl.info.zac.zaak.model.statusNotLinkableReason
@@ -79,8 +77,6 @@ import java.util.UUID
 @AllOpen
 @Suppress("TooManyFunctions", "LongParameterList")
 class ZaakKoppelenRestService @Inject constructor(
-    private val eventingService: EventingService,
-    private val indexingService: IndexingService,
     private val policyService: PolicyService,
     private val searchService: SearchService,
     private val zaakService: ZaakService,
@@ -89,6 +85,7 @@ class ZaakKoppelenRestService @Inject constructor(
     private val loggedInUserInstance: Instance<LoggedInUser>,
     private val restZaaktypeConverter: RestZaaktypeConverter,
     private val configurationService: ConfigurationService,
+    private val zaakKoppelenService: ZaakKoppelenService
 ) {
     @PUT
     @Path("gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken")
@@ -124,7 +121,7 @@ class ZaakKoppelenRestService @Inject constructor(
                     zaakToLinkTo.toZaakLinkData(user, zaakToLinkToZaakType)
                 )
             ).also {
-                koppelGerelateerdeZaken(zaak, zaakToLinkTo, restZaakLinkData.reden)
+                zaakKoppelenService.addGerelateerdeZaak(zaak, zaakToLinkTo, restZaakLinkData.reden)
             }
             RelatieType.HOOFDZAAK -> assertPolicy(
                 zaakToLinkTo
@@ -134,7 +131,7 @@ class ZaakKoppelenRestService @Inject constructor(
                     zaakToLinkToZaakType.getDeelzaaktypenSet()
                 )
             ).also {
-                koppelHoofdEnDeelzaak(zaakToLinkTo, zaak)
+                zaakKoppelenService.linkHoofdzaakAndDeelzaak(hoofdzaak = zaakToLinkTo, deelzaak = zaak)
             }
             RelatieType.DEELZAAK -> assertPolicy(
                 zaak
@@ -145,7 +142,7 @@ class ZaakKoppelenRestService @Inject constructor(
 
                 )
             ).also {
-                koppelHoofdEnDeelzaak(zaak, zaakToLinkTo)
+                zaakKoppelenService.linkHoofdzaakAndDeelzaak(hoofdzaak = zaak, deelzaak = zaakToLinkTo)
             }
             else -> throw IllegalArgumentException(
                 "RelatieType ${restZaakLinkData.relatieType} cannot be used for linking zaken"
@@ -219,10 +216,6 @@ class ZaakKoppelenRestService @Inject constructor(
             .filter { it.isNuGeldig() }
             .map(restZaaktypeConverter::convert)
             .toList()
-
-    private fun ZaakType.getDeelzaaktypenSet() = this.deelzaaktypen
-        .map{ it.extractUuid() }
-        .toSet()
 
     private fun ZaakZoekObject.toZaakLinkData() =
         policyService.readZaakRechtenForZaakZoekObject(this).let{ rechten ->
@@ -333,41 +326,6 @@ class ZaakKoppelenRestService @Inject constructor(
             nietKoppelbaarReden = notLinkableReason,
         )
 
-    private fun addGerelateerdeZaak(
-        gerelateerdeZaken: MutableList<GerelateerdeZaak>?,
-        andereZaakURI: URI
-    ): List<GerelateerdeZaak> {
-        val gerelateerdeZaak = GerelateerdeZaak().apply { url = andereZaakURI }
-        return gerelateerdeZaken?.apply {
-            if (none { it.url == andereZaakURI }) add(gerelateerdeZaak)
-        } ?: listOf(gerelateerdeZaak)
-    }
-
-    private fun koppelGerelateerdeZaken(
-        zaak: Zaak,
-        otherZaak: Zaak,
-        explanation: String?
-    ) {
-        zrcClientService.patchZaak(
-            zaakUUID = zaak.uuid,
-            zaak = GerelateerdeZakenZaakPatch(
-                gerelateerdeZaken = addGerelateerdeZaak(zaak.gerelateerdeZaken, otherZaak.url)
-            ),
-            explanation = explanation
-        )
-    }
-
-    private fun koppelHoofdEnDeelzaak(hoofdZaak: Zaak, deelZaak: Zaak) {
-        zrcClientService.patchZaak(
-            zaakUUID = deelZaak.uuid,
-            zaak = NillableHoofdzaakZaakPatch(hoofdzaak = hoofdZaak.url)
-        )
-        // Open Zaak only sends a notification for the deelzaak.
-        // So we manually send a ScreenEvent for the hoofdzaak.
-        indexingService.addOrUpdateZaakOrThrow(hoofdZaak.uuid, false)
-        eventingService.send(ScreenEventType.ZAAK.updated(hoofdZaak.uuid))
-    }
-
     private fun ontkoppelGerelateerdeZaken(
         zaak: Zaak,
         andereZaak: Zaak,
@@ -390,10 +348,7 @@ class ZaakKoppelenRestService @Inject constructor(
             zaak = NillableHoofdzaakZaakPatch(hoofdzaak = null),
             explanation = explanation
         )
-        // Hiervoor wordt door open zaak alleen voor de deelzaak een notificatie verstuurd.
-        // Dus zelf het ScreenEvent versturen voor de hoofdzaak!
-        indexingService.addOrUpdateZaakOrThrow(hoofdZaak.uuid, false)
-        eventingService.send(ScreenEventType.ZAAK.updated(hoofdZaak.uuid))
+        zaakKoppelenService.updateHoofdzaak(hoofdZaak.uuid)
     }
 
     private fun removeGerelateerdeZaak(

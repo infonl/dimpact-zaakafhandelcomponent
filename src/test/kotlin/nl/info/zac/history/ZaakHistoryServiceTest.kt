@@ -19,6 +19,7 @@ import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.zac.history.converter.ZaakHistoryPartialUpdateConverter
 import nl.info.zac.history.model.HistoryAction
+import nl.info.zac.history.model.HistoryLine
 import java.net.URI
 import java.util.UUID
 
@@ -379,6 +380,123 @@ class ZaakHistoryServiceTest : BehaviorSpec({
                     explanation shouldBe "hologram"
                     action shouldBe HistoryAction.GEWIJZIGD
                 }
+            }
+        }
+    }
+
+    given("Audit trail has resource zaak with action created for a zaak created as deelzaak") {
+        val zaakUUID = UUID.randomUUID()
+        val hoofdzaakUrl = "https://example.com/zaken/${UUID.randomUUID()}"
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
+            bron = Bron.ZAKEN_API,
+            actie = "create",
+            actieWeergave = "Object aangemaakt",
+            resultaat = 201,
+            hoofdObject = URI("https://example.com/somePath"),
+            resource = "zaak",
+            resourceUrl = URI("https://example.com/somePath"),
+            toelichting = "fakeToelichting",
+            wijzigingen = Wijzigingen().apply {
+                nieuw = mapOf(
+                    "identificatie" to "fakeZaakIdentificatie",
+                    "hoofdzaak" to hoofdzaakUrl,
+                    "gerelateerdeZaken" to emptyList<Any>()
+                )
+            }
+        )
+        val hoofdzaakHistoryLine = HistoryLine("hoofdzaak", null, "fakeHoofdzaakIdentificatie")
+        every { zrcClientService.listAuditTrail(zaakUUID) } returns listOf(zrcAuditTrailRegel)
+        every {
+            zaakHistoryPartialUpdateConverter.convertPartialUpdate(
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEKOPPELD,
+                oldValues = emptyMap<String, Any>(),
+                newValues = mapOf("hoofdzaak" to hoofdzaakUrl)
+            )
+        } returns listOf(hoofdzaakHistoryLine)
+
+        `when`("converted to REST historie regel") {
+            val historyLines = zaakHistoryService.getZaakHistory(zaakUUID)
+
+            then("the creation of the zaak is followed by the link to its hoofdzaak") {
+                historyLines.size shouldBe 2
+                with(historyLines.first()) {
+                    attributeLabel shouldBe "zaak"
+                    newValue shouldBe "fakeZaakIdentificatie"
+                    action shouldBe HistoryAction.AANGEMAAKT
+                }
+                historyLines[1] shouldBe hoofdzaakHistoryLine
+            }
+        }
+    }
+
+    given("Audit trail has resource zaak with action created for a zaak created as gerelateerde zaak") {
+        val zaakUUID = UUID.randomUUID()
+        val gerelateerdeZaken = listOf(mapOf("url" to "https://example.com/zaken/${UUID.randomUUID()}"))
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
+            bron = Bron.ZAKEN_API,
+            actie = "create",
+            actieWeergave = "Object aangemaakt",
+            resultaat = 201,
+            hoofdObject = URI("https://example.com/somePath"),
+            resource = "zaak",
+            resourceUrl = URI("https://example.com/somePath"),
+            toelichting = "fakeToelichting",
+            wijzigingen = Wijzigingen().apply {
+                nieuw = mapOf(
+                    "identificatie" to "fakeZaakIdentificatie",
+                    "hoofdzaak" to null,
+                    "gerelateerdeZaken" to gerelateerdeZaken
+                )
+            }
+        )
+        val gerelateerdeZakenHistoryLine = HistoryLine("gerelateerdeZaken", null, "fakeGerelateerdeZaakIdentificatie")
+        every { zrcClientService.listAuditTrail(zaakUUID) } returns listOf(zrcAuditTrailRegel)
+        every {
+            zaakHistoryPartialUpdateConverter.convertPartialUpdate(
+                auditTrailLine = zrcAuditTrailRegel,
+                historyAction = HistoryAction.GEKOPPELD,
+                oldValues = emptyMap<String, Any>(),
+                newValues = mapOf("gerelateerdeZaken" to gerelateerdeZaken)
+            )
+        } returns listOf(gerelateerdeZakenHistoryLine)
+
+        `when`("converted to REST historie regel") {
+            val historyLines = zaakHistoryService.getZaakHistory(zaakUUID)
+
+            then("the creation of the zaak is followed by the link to its gerelateerde zaak") {
+                historyLines.map { it.attributeLabel } shouldBe listOf("zaak", "gerelateerdeZaken")
+                historyLines[1] shouldBe gerelateerdeZakenHistoryLine
+            }
+        }
+    }
+
+    given("Audit trail has resource zaak with action created for a zaak without hoofdzaak and gerelateerde zaken") {
+        val zaakUUID = UUID.randomUUID()
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
+            bron = Bron.ZAKEN_API,
+            actie = "create",
+            actieWeergave = "Object aangemaakt",
+            resultaat = 201,
+            hoofdObject = URI("https://example.com/somePath"),
+            resource = "zaak",
+            resourceUrl = URI("https://example.com/somePath"),
+            toelichting = "fakeToelichting",
+            wijzigingen = Wijzigingen().apply {
+                nieuw = mapOf(
+                    "identificatie" to "fakeZaakIdentificatie",
+                    "hoofdzaak" to null,
+                    "gerelateerdeZaken" to emptyList<Any>()
+                )
+            }
+        )
+        every { zrcClientService.listAuditTrail(zaakUUID) } returns listOf(zrcAuditTrailRegel)
+
+        `when`("converted to REST historie regel") {
+            val historyLines = zaakHistoryService.getZaakHistory(zaakUUID)
+
+            then("only the creation of the zaak is shown") {
+                historyLines.map { it.attributeLabel } shouldBe listOf("zaak")
             }
         }
     }
