@@ -304,7 +304,7 @@ class NotificationReceiver @Inject constructor(
     }
 
     /**
-     * Reindexes the zaak, its open taken and, asynchronously, its documenten, but only when the
+     * Reindexes the zaak, its taken and, asynchronously, its documenten, but only when the
      * changed zaakeigenschap is ZAAK_GEAUTORISEERD: a zaak can have many eigenschappen that change
      * far more often than its zaakspecifiek geautoriseerd status, and reindexing the zaak's
      * documenten requires a ZGW call per document, so reindexing on every zaakeigenschap
@@ -325,7 +325,7 @@ class NotificationReceiver @Inject constructor(
         ) {
             return
         }
-        indexingService.addOrUpdateZaak(zaakUUID, inclusiefTaken = true)
+        indexingService.addOrUpdateZaakWithTaken(zaakUUID)
         indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID)
     }
 

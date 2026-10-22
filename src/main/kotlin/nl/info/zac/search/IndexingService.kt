@@ -17,6 +17,7 @@ import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.authentication.runAsSystemUser
+import nl.info.zac.flowable.util.isOpen
 import nl.info.zac.search.converter.DocumentZoekObjectConverter
 import nl.info.zac.search.converter.TaakZoekObjectConverter
 import nl.info.zac.search.converter.ZaakZoekObjectConverter
@@ -284,22 +285,23 @@ class IndexingService @Inject constructor(
      */
     fun addOrUpdateZaak(zaakUUID: UUID, inclusiefTaken: Boolean): Boolean {
         val zaakAutorisatieGegevens = reindexSupportService.memoizedZaakAutorisatieGegevens()
-        val isZaakIndexed = reindexSupportService.continueOnExceptions(ZoekObjectType.ZAAK) {
-            reindexSupportService.addToSolrIndex(
-                listOf(
-                    reindexSupportService.continueOnExceptions(ZoekObjectType.ZAAK) {
-                        zaakZoekObjectConverter.convert(zaakUUID.toString(), zaakAutorisatieGegevens)
-                    }
-                ),
-                performCommit = false
-            )
-        } != null
+        val isZaakIndexed = addOrUpdateZaak(zaakUUID, zaakAutorisatieGegevens)
         if (inclusiefTaken) {
             flowableTaskService.listOpenTasksForZaak(zaakUUID)
                 .map { it.id }
                 .forEach { addOrUpdateTaak(it, zaakAutorisatieGegevens) }
         }
         return isZaakIndexed
+    }
+
+    /**
+     * Reindexes the zaak and, through [addOrUpdateTakenForZaak], all of its taken, sharing one memoized
+     * `zaakAutorisatieGegevens` lookup between the zaak and its taken.
+     */
+    fun addOrUpdateZaakWithTaken(zaakUUID: UUID) {
+        val zaakAutorisatieGegevens = reindexSupportService.memoizedZaakAutorisatieGegevens()
+        addOrUpdateZaak(zaakUUID, zaakAutorisatieGegevens)
+        addOrUpdateTakenForZaak(zaakUUID, zaakAutorisatieGegevens)
     }
 
     /**
@@ -314,16 +316,25 @@ class IndexingService @Inject constructor(
     }
 
     /**
-     * Reindexes the open taken of a zaak, sharing one memoized `zaakAutorisatieGegevens` lookup
-     * across all of them. Completed taken are left out, because a taak is removed from the Solr
-     * index when it is completed, by [net.atos.zac.flowable.cmmn.CompleteTaskInterceptor] and
-     * [net.atos.zac.flowable.bpmn.UserTaskCompletionListener].
+     * Reindexes the open taken of a zaak and removes its finished taken from the index, sharing one
+     * memoized `zaakAutorisatieGegevens` lookup across all of them. A completed taak is already removed
+     * on completion, by [net.atos.zac.flowable.cmmn.CompleteTaskInterceptor] and
+     * [net.atos.zac.flowable.bpmn.UserTaskCompletionListener], but a taak that is terminated with its
+     * zaak is not, and would otherwise keep a stale zaakspecifiek geautoriseerd flag.
      */
-    fun addOrUpdateTakenForZaak(zaakUUID: UUID) {
-        val zaakAutorisatieGegevens = reindexSupportService.memoizedZaakAutorisatieGegevens()
-        flowableTaskService.listOpenTasksForZaak(zaakUUID)
-            .map { it.id }
-            .forEach { addOrUpdateTaak(it, zaakAutorisatieGegevens) }
+    fun addOrUpdateTakenForZaak(
+        zaakUUID: UUID,
+        zaakAutorisatieGegevens: ((UUID) -> ZaakAutorisatieGegevens)? = null
+    ) {
+        val resolvedZaakAutorisatieGegevens =
+            zaakAutorisatieGegevens ?: reindexSupportService.memoizedZaakAutorisatieGegevens()
+        flowableTaskService.listTasksForZaak(zaakUUID).forEach {
+            if (it.isOpen()) {
+                addOrUpdateTaak(it.id, resolvedZaakAutorisatieGegevens)
+            } else {
+                reindexSupportService.continueOnExceptions(ZoekObjectType.TAAK) { removeTaak(it.id) }
+            }
+        }
     }
 
     /**
@@ -331,7 +342,7 @@ class IndexingService @Inject constructor(
      * who may see a zaakspecifiek geautoriseerde zaak changed.
      */
     fun addOrUpdateZaakWithTakenAndInformatieobjecten(zaakUUID: UUID) {
-        addOrUpdateZaak(zaakUUID, inclusiefTaken = true)
+        addOrUpdateZaakWithTaken(zaakUUID)
         addOrUpdateInformatieobjectenForZaak(zaakUUID)
     }
 
@@ -392,6 +403,18 @@ class IndexingService @Inject constructor(
      * [zaakAutorisatieGegevens] instead of always deriving it directly. Used by [addOrUpdateZaak]
      * and [addOrUpdateTakenForZaak] to share one memoized lookup across the taken of one zaak.
      */
+    private fun addOrUpdateZaak(zaakUUID: UUID, zaakAutorisatieGegevens: (UUID) -> ZaakAutorisatieGegevens) =
+        reindexSupportService.continueOnExceptions(ZoekObjectType.ZAAK) {
+            reindexSupportService.addToSolrIndex(
+                listOf(
+                    reindexSupportService.continueOnExceptions(ZoekObjectType.ZAAK) {
+                        zaakZoekObjectConverter.convert(zaakUUID.toString(), zaakAutorisatieGegevens)
+                    }
+                ),
+                performCommit = false
+            )
+        } != null
+
     private fun addOrUpdateTaak(taskID: String, zaakAutorisatieGegevens: (UUID) -> ZaakAutorisatieGegevens) =
         reindexSupportService.continueOnExceptions(ZoekObjectType.TAAK) {
             reindexSupportService.addToSolrIndex(
