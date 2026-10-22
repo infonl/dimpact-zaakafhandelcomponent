@@ -52,7 +52,7 @@
       </zac-input>
       @for (veld of veldDefinities(humanTaskForm); track veld) {
         @if (
-          humanTaskForm.controls.referentieTabellen.controls[veld.naam ?? ""];
+          humanTaskForm.controls.referentieTabellen.controls[veld.naam];
           as referentieTabelForm
         ) {
           <zac-select
