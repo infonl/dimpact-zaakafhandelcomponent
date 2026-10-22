@@ -12,6 +12,7 @@ import {
   input,
   OnDestroy,
   SecurityContext,
+  inject,
 } from "@angular/core";
 import {
   AbstractControl,
@@ -60,13 +61,15 @@ const plainTextSchema = new Schema({
   ],
 })
 export class ZacHtmlEditor<
-    Form extends Record<string, AbstractControl>,
-    Key extends keyof Form,
-    Option extends Form[Key]["value"] = string | null,
-  >
+  Form extends Record<string, AbstractControl>,
+  Key extends keyof Form,
+  Option extends Form[Key]["value"] = string | null,
+>
   extends SingleInputFormField<Form, Key, Option>
   implements OnDestroy
 {
+  private readonly domSanitizer = inject(DomSanitizer);
+
   protected isPlainText = input(false, { transform: booleanAttribute });
   protected toolbar = input<Toolbar>([
     ["bold", "italic", "underline"],
@@ -100,7 +103,7 @@ export class ZacHtmlEditor<
     FormHelper.getValidatorValue("maxLength", this.control() ?? null),
   );
 
-  constructor(private readonly domSanitizer: DomSanitizer) {
+  constructor() {
     super();
 
     effect(() => {

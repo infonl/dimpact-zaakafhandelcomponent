@@ -32,13 +32,6 @@ class TestAdminComponent extends AdminComponent {
     }),
   );
 
-  public constructor(
-    utilService: UtilService,
-    configuratieService: ConfiguratieService,
-  ) {
-    super(utilService, configuratieService);
-  }
-
   callSetupMenu(title: string): void {
     this.setupMenu(title);
   }

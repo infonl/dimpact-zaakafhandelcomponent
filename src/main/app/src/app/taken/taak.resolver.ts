@@ -1,9 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
 import { TakenService } from "./taken.service";
 
@@ -11,7 +11,7 @@ import { TakenService } from "./taken.service";
   providedIn: "root",
 })
 export class TaakResolver {
-  constructor(private takenService: TakenService) {}
+  private takenService = inject(TakenService);
 
   resolve(route: ActivatedRouteSnapshot) {
     const taakID = route.paramMap.get("id");

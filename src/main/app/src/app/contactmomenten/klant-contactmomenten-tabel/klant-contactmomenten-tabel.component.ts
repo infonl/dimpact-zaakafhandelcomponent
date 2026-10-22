@@ -41,6 +41,9 @@ import { ContactmomentenService } from "../contactmomenten.service";
   ],
 })
 export class KlantContactmomentenTabelComponent implements AfterViewInit {
+  private readonly contactmomentenService = inject(ContactmomentenService);
+  private readonly utilService = inject(UtilService);
+
   readonly bsn = input<string>();
   readonly vestigingsnummer = input<string>();
   readonly paginator = viewChild.required(MatPaginator);
@@ -62,10 +65,7 @@ export class KlantContactmomentenTabelComponent implements AfterViewInit {
 
   private readonly queryClient = inject(QueryClient);
 
-  constructor(
-    private readonly contactmomentenService: ContactmomentenService,
-    private readonly utilService: UtilService,
-  ) {
+  constructor() {
     effect(() => {
       this.bsn();
       this.vestigingsnummer();

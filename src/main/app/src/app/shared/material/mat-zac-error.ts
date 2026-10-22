@@ -3,14 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AfterViewInit, Directive, ElementRef } from "@angular/core";
+import { AfterViewInit, Directive, ElementRef, inject } from "@angular/core";
 
 @Directive({
   selector: "[appEnhanceMatError]",
   standalone: true,
 })
 export class EnhanceMatErrorDirective implements AfterViewInit {
-  constructor(private elRef: ElementRef) {}
+  private elRef = inject(ElementRef);
 
   ngAfterViewInit() {
     const css = `

@@ -34,8 +34,6 @@ import {
 import { RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { WebsocketService } from "../../core/websocket/websocket.service";
-import { IdentityService } from "../../identity/identity.service";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -83,6 +81,8 @@ export class ZakenCardComponent
   extends DashboardCardComponent<GeneratedType<"RestZaakOverzicht">>
   implements OnDestroy
 {
+  private readonly signaleringenService = inject(SignaleringenService);
+
   private readonly destroyRef = inject(DestroyRef);
 
   columns = [
@@ -119,12 +119,8 @@ export class ZakenCardComponent
     enabled: this.parameters().signaleringType != null,
   }));
 
-  constructor(
-    private readonly signaleringenService: SignaleringenService,
-    protected readonly identityService: IdentityService,
-    protected readonly websocketService: WebsocketService,
-  ) {
-    super(identityService, websocketService);
+  constructor() {
+    super();
 
     effect(() => {
       this.dataSource.data = this.zakenQuery.data()?.resultaten ?? [];

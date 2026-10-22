@@ -3,10 +3,19 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { LOCALE_ID } from "@angular/core";
+import { TestBed } from "@angular/core/testing";
 import { DatumPipe } from "./datum.pipe";
 
 describe("DatumPipe", () => {
-  const pipe = new DatumPipe("nl-NL");
+  let pipe: DatumPipe;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [{ provide: LOCALE_ID, useValue: "nl-NL" }],
+    });
+    pipe = TestBed.runInInjectionContext(() => new DatumPipe());
+  });
 
   it.each([
     ["2021-06-23T00:00:00Z", "short", "23\u201106\u20112021 02:00"],

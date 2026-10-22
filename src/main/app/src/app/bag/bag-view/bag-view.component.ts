@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { ActivatedRoute } from "@angular/router";
@@ -29,6 +29,8 @@ import { BagZakenTabelComponent } from "../bag-zaken-tabel/bag-zaken-tabel.compo
   ],
 })
 export class BAGViewComponent implements OnInit {
+  private readonly activatedRoute = inject(ActivatedRoute);
+
   protected bagIdentificatie!: string;
   protected adres?: GeneratedType<"RestBagAdres">;
   protected adresRegels?: string;
@@ -37,8 +39,6 @@ export class BAGViewComponent implements OnInit {
   protected pand?: GeneratedType<"RestPand">;
   protected nummeraanduiding?: GeneratedType<"RestNummeraanduiding">;
   protected geometrie?: GeneratedType<"RestGeometry">;
-
-  constructor(private readonly activatedRoute: ActivatedRoute) {}
 
   ngOnInit() {
     this.activatedRoute.data.subscribe((data) => {

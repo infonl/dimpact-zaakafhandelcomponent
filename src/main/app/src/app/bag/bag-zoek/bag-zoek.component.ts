@@ -61,6 +61,10 @@ import { BAGService } from "../bag.service";
   ],
 })
 export class BagZoekComponent {
+  private bagService = inject(BAGService);
+  private utilService = inject(UtilService);
+  private router = inject(Router);
+
   readonly bagObject = output<GeneratedType<"RestBagObject">>();
   readonly isSelectable = input(false, { transform: booleanAttribute });
   readonly gekoppeldeBagObjecten = input<
@@ -83,12 +87,6 @@ export class BagZoekComponent {
   ];
 
   private readonly queryClient = inject(QueryClient);
-
-  constructor(
-    private bagService: BAGService,
-    private utilService: UtilService,
-    private router: Router,
-  ) {}
 
   protected zoek() {
     this.bagObjecten.data = [];

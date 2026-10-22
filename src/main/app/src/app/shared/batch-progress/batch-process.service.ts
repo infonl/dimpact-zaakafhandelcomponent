@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable, computed, effect, signal } from "@angular/core";
+import { Injectable, computed, effect, signal, inject } from "@angular/core";
 import { UtilService } from "src/app/core/service/util.service";
 import { ObjectType } from "src/app/core/websocket/model/object-type";
 import { Opcode } from "src/app/core/websocket/model/opcode";
@@ -36,6 +36,9 @@ type Options = {
   providedIn: "root",
 })
 export class BatchProcessService {
+  private readonly websocketService = inject(WebsocketService);
+  private readonly utilService = inject(UtilService);
+
   private state = signal<Record<string, boolean>>({});
   private values = computed(() => Object.values(this.state()));
   private progress = computed(() => {
@@ -49,10 +52,7 @@ export class BatchProcessService {
   private timeout?: ReturnType<typeof setTimeout>;
   private progressTimeout?: ProgressTimeout;
 
-  constructor(
-    private readonly websocketService: WebsocketService,
-    private readonly utilService: UtilService,
-  ) {
+  constructor() {
     effect(() => {
       if (this.progress() === 100 && !this.options?.finalSubscription) {
         Promise.resolve(this.options?.finally()).finally(() => this.stop());

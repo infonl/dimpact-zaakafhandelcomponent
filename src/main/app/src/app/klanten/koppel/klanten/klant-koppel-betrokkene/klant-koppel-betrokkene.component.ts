@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, input, output } from "@angular/core";
+import { Component, computed, input, output, inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ZacInput } from "src/app/shared/form/input/input";
@@ -60,6 +60,9 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
   `,
 })
 export class KlantKoppelBetrokkeneComponent {
+  private readonly klantenService = inject(KlantenService);
+  private readonly formBuilder = inject(FormBuilder);
+
   readonly type = input.required<"persoon" | "bedrijf">();
   readonly zaaktypeUUID = input<string | null | undefined>(null);
   readonly klantGegevens = output<KlantGegevens>();
@@ -81,11 +84,6 @@ export class KlantKoppelBetrokkeneComponent {
   protected readonly betrokkeneRoltypen = computed(
     () => this.betrokkeneRoltypenQuery.data() ?? [],
   );
-
-  constructor(
-    private readonly klantenService: KlantenService,
-    private readonly formBuilder: FormBuilder,
-  ) {}
 
   klantGeselecteerd(klant: GeneratedType<"RestPersoon" | "RestBedrijf">) {
     const { value } = this.form;

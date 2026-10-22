@@ -10,6 +10,7 @@ import {
   OnDestroy,
   OnInit,
   viewChild,
+  inject,
 } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";
@@ -101,6 +102,13 @@ export class InboxDocumentenListComponent
   extends WerklijstComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
+  private readonly inboxDocumentenService = inject(InboxDocumentenService);
+  private readonly infoService = inject(InformatieObjectenService);
+  private readonly utilService = inject(UtilService);
+  private readonly dialog = inject(MatDialog);
+  readonly gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
+  readonly route = inject(ActivatedRoute);
+
   protected isLoadingResults = true;
   protected dataSource = new MatTableDataSource<
     GeneratedType<"RestInboxDocument">
@@ -141,17 +149,6 @@ export class InboxDocumentenListComponent
       onSuccess: () => this.filterChange.emit(),
     },
   );
-
-  constructor(
-    private readonly inboxDocumentenService: InboxDocumentenService,
-    private readonly infoService: InformatieObjectenService,
-    private readonly utilService: UtilService,
-    private readonly dialog: MatDialog,
-    public readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    public readonly route: ActivatedRoute,
-  ) {
-    super();
-  }
 
   ngOnInit() {
     super.ngOnInit();

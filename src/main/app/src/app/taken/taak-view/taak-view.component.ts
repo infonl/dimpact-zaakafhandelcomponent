@@ -122,6 +122,20 @@ export class TaakViewComponent
   extends ActionsViewComponent
   implements OnInit, OnDestroy
 {
+  private readonly route = inject(ActivatedRoute);
+  private readonly takenService = inject(TakenService);
+  private readonly zakenService = inject(ZakenService);
+  private readonly websocketService = inject(WebsocketService);
+  private readonly taakFormulierenService = inject(TaakFormulierenService);
+  private readonly identityService = inject(IdentityService);
+  private readonly formioSetupService = inject(FormioSetupService);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
+
   readonly actionsSidenav = viewChild.required<MatDrawer>("actionsSidenav");
   readonly menuSidenav = viewChild.required<MatSidenav>("menuSidenav");
   readonly sideNavContainer =
@@ -191,22 +205,6 @@ export class TaakViewComponent
   private readonly queryClient = inject(QueryClient);
   private readonly lastSubmitFailed = signal(false);
   protected readonly hasFailed = this.lastSubmitFailed.asReadonly();
-
-  constructor(
-    private readonly route: ActivatedRoute,
-    private readonly takenService: TakenService,
-    private readonly zakenService: ZakenService,
-    private readonly websocketService: WebsocketService,
-    private readonly taakFormulierenService: TaakFormulierenService,
-    private readonly identityService: IdentityService,
-    private readonly formioSetupService: FormioSetupService,
-    private readonly changeDetectorRef: ChangeDetectorRef,
-    private readonly formBuilder: FormBuilder,
-    private readonly informatieObjectenService: InformatieObjectenService,
-    private readonly foutAfhandelingService: FoutAfhandelingService,
-  ) {
-    super();
-  }
 
   ngOnInit() {
     this.route.data.subscribe((data) => {
@@ -406,8 +404,7 @@ export class TaakViewComponent
 
   onHardCodedFormSubmit(formGroup: FormGroup, partial = false) {
     const taskBody:
-      | PutBody<"/rest/taken/taakdata">
-      | PatchBody<"/rest/taken/complete"> = {
+      PutBody<"/rest/taken/taakdata"> | PatchBody<"/rest/taken/complete"> = {
       ...this.taak!,
       taakdata: {
         ...this.taak!.taakdata,

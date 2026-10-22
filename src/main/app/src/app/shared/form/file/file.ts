@@ -16,6 +16,7 @@ import {
   OnDestroy,
   OnInit,
   viewChild,
+  inject,
 } from "@angular/core";
 import {
   AbstractControl,
@@ -52,12 +53,16 @@ import { SingleInputFormField } from "../BaseFormField";
   ],
 })
 export class ZacFile<
-    Form extends Record<string, AbstractControl>,
-    Key extends keyof Form,
-  >
+  Form extends Record<string, AbstractControl>,
+  Key extends keyof Form,
+>
   extends SingleInputFormField<Form, Key, File>
   implements OnInit, OnDestroy
 {
+  private readonly changeDetector = inject(ChangeDetectorRef);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly configuratieService = inject(ConfiguratieService);
+
   protected maxFileSizeMB = input(0, { transform: numberAttribute });
   protected fileInput = viewChild<ElementRef>("fileInput");
 
@@ -85,11 +90,7 @@ export class ZacFile<
     () => !this.allowedFormats().length,
   );
 
-  constructor(
-    private readonly changeDetector: ChangeDetectorRef,
-    private readonly formBuilder: FormBuilder,
-    private readonly configuratieService: ConfiguratieService,
-  ) {
+  constructor() {
     super();
 
     effect(() => {

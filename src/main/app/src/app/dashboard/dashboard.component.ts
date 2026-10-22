@@ -97,6 +97,11 @@ import { ZakenCardComponent } from "./zaken-card/zaken-card.component";
   ],
 })
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
+  private readonly signaleringenService = inject(SignaleringenService);
+  private readonly gebruikersvoorkeurenService = inject(
+    GebruikersvoorkeurenService,
+  );
+
   readonly menuTrigger = viewChild(MatMenuTrigger);
   readonly cardElements = viewChildren<string, ElementRef<HTMLElement>>(
     "cardElement",
@@ -180,10 +185,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   available: DashboardCard[] = []; // cards that are not on the dashboard
   grid: Array<DashboardCard[]> = []; // cards that are on the dashboard
 
-  constructor(
-    private readonly signaleringenService: SignaleringenService,
-    private readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-  ) {
+  constructor() {
     effect(() => {
       this.cardElements();
       this.observeCards();

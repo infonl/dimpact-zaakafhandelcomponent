@@ -10,6 +10,7 @@ import {
   OnDestroy,
   OnInit,
   viewChild,
+  inject,
 } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";
@@ -106,6 +107,17 @@ export class InboxProductaanvragenListComponent
   extends WerklijstComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
+  private readonly inboxProductaanvragenService = inject(
+    InboxProductaanvragenService,
+  );
+  private readonly infoService = inject(InformatieObjectenService);
+  private readonly utilService = inject(UtilService);
+  private readonly dialog = inject(MatDialog);
+  readonly gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
+  readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly sanitizer = inject(DomSanitizer);
+
   protected isLoadingResults = true;
   protected dataSource = new MatTableDataSource<
     GeneratedType<"RestInboxProductaanvraag">
@@ -152,19 +164,6 @@ export class InboxProductaanvragenListComponent
       onSuccess: () => this.filterChange.emit(),
     },
   );
-
-  constructor(
-    private readonly inboxProductaanvragenService: InboxProductaanvragenService,
-    private readonly infoService: InformatieObjectenService,
-    private readonly utilService: UtilService,
-    private readonly dialog: MatDialog,
-    public readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    public readonly route: ActivatedRoute,
-    private readonly router: Router,
-    private readonly sanitizer: DomSanitizer,
-  ) {
-    super();
-  }
 
   ngOnInit() {
     super.ngOnInit();

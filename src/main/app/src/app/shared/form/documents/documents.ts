@@ -4,7 +4,13 @@
  *
  */
 
-import { booleanAttribute, Component, effect, input } from "@angular/core";
+import {
+  booleanAttribute,
+  Component,
+  effect,
+  input,
+  inject,
+} from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatIconAnchor } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
@@ -45,6 +51,10 @@ export class ZacDocuments<
   Key extends keyof Form,
   Option extends GeneratedType<"RestEnkelvoudigInformatieobject">,
 > extends MultiInputFormField<Form, Key, Option, () => string> {
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
+
   protected readonly indicatiesLayout = IndicatiesLayout;
 
   protected selectLabel = input<string>();
@@ -66,9 +76,7 @@ export class ZacDocuments<
     "url",
   ] as const;
 
-  constructor(
-    private readonly informatieObjectenService: InformatieObjectenService,
-  ) {
+  constructor() {
     super();
 
     effect(() => {

@@ -17,10 +17,6 @@ export abstract class ActionsViewComponent
 {
   abstract readonly actionsSidenav: Signal<MatDrawer>;
 
-  protected constructor() {
-    super();
-  }
-
   ngAfterViewInit(): void {
     super.ngAfterViewInit();
     this.actionsSidenav().closedStart.subscribe(() => {

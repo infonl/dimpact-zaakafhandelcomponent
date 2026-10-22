@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { ActivatedRoute } from "@angular/router";
@@ -29,9 +29,11 @@ import { KlantZakenTabelComponent } from "../klant-zaken-tabel/klant-zaken-tabel
   ],
 })
 export class PersoonViewComponent {
+  private readonly route = inject(ActivatedRoute);
+
   protected persoon: GeneratedType<"RestPersoon"> | null = null;
 
-  constructor(private readonly route: ActivatedRoute) {
+  constructor() {
     this.route.data.subscribe((data) => {
       this.persoon = data.persoon;
     });

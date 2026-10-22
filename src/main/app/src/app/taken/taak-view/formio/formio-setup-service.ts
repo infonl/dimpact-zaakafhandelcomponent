@@ -75,19 +75,17 @@ const ROW_LINKS: Record<string, RowLink> = {
   providedIn: "root",
 })
 export class FormioSetupService {
+  utilService = inject(UtilService);
+  private zakenService = inject(ZakenService);
+  private referenceTableService = inject(ReferentieTabelService);
+  private informatieObjectenService = inject(InformatieObjectenService);
+  private smartDocumentsService = inject(SmartDocumentsService);
+  private translateService = inject(TranslateService);
+
   private readonly queryClient = inject(QueryClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
 
   private formioChangeData?: Record<string, string>;
-
-  constructor(
-    public utilService: UtilService,
-    private zakenService: ZakenService,
-    private referenceTableService: ReferentieTabelService,
-    private informatieObjectenService: InformatieObjectenService,
-    private smartDocumentsService: SmartDocumentsService,
-    private translateService: TranslateService,
-  ) {}
 
   /**
    * `taak` is passed down rather than stored: this service is a singleton, setups overlap, and the

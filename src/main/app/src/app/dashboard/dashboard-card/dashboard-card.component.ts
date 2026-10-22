@@ -31,12 +31,16 @@ import { DashboardCard } from "../model/dashboard-card";
   standalone: true,
 })
 export abstract class DashboardCardComponent<
-    T extends
-      GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject"> = GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">,
-    C extends readonly string[] = readonly string[],
-  >
+  T extends
+    GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject"> =
+    GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">,
+  C extends readonly string[] = readonly string[],
+>
   implements OnInit, AfterViewInit, OnDestroy
 {
+  protected identityService = inject(IdentityService);
+  protected websocketService = inject(WebsocketService);
+
   readonly data = input.required<DashboardCard>();
 
   readonly paginator = viewChild(MatPaginator);
@@ -53,11 +57,6 @@ export abstract class DashboardCardComponent<
   // binding must opt out, otherwise MatTableDataSource overwrites
   // paginator.length with the current page size (data.length).
   protected serverSidePagination = false;
-
-  protected constructor(
-    protected identityService: IdentityService,
-    protected websocketService: WebsocketService,
-  ) {}
 
   ngOnInit(): void {
     this.onLoad();

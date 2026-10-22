@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { MatDialogModule, MatDialogRef } from "@angular/material/dialog";
 import { KlantZoekComponent } from "../../../../klanten/zoek/klanten/klant-zoek.component";
 
@@ -14,5 +14,5 @@ import { KlantZoekComponent } from "../../../../klanten/zoek/klanten/klant-zoek.
   imports: [MatDialogModule, KlantZoekComponent],
 })
 export class KlantZoekDialog {
-  constructor(public dialogRef: MatDialogRef<KlantZoekDialog>) {}
+  dialogRef = inject<MatDialogRef<KlantZoekDialog>>(MatDialogRef);
 }

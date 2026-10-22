@@ -4,7 +4,7 @@
  */
 
 import { HttpErrorResponse } from "@angular/common/http";
-import { Injectable, isDevMode } from "@angular/core";
+import { Injectable, isDevMode, inject } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
@@ -43,15 +43,13 @@ export function isLoggedOut(error: HttpErrorResponse) {
   providedIn: "root",
 })
 export class FoutAfhandelingService {
+  private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
+  private readonly utilService = inject(UtilService);
+  private readonly translateService = inject(TranslateService);
+
   foutmelding = "";
   bericht = "";
-
-  constructor(
-    private readonly router: Router,
-    private readonly dialog: MatDialog,
-    private readonly utilService: UtilService,
-    private readonly translateService: TranslateService,
-  ) {}
 
   foutAfhandelen(
     err: HttpErrorResponse | HttpParamsError | JakartaBeanValidationError,

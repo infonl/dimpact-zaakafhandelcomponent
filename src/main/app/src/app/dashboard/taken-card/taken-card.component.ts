@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, effect } from "@angular/core";
+import { Component, computed, effect, inject } from "@angular/core";
 import { MatIconAnchor } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import { MatPaginator } from "@angular/material/paginator";
@@ -25,8 +25,6 @@ import {
 import { RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { WebsocketService } from "../../core/websocket/websocket.service";
-import { IdentityService } from "../../identity/identity.service";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -70,6 +68,8 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
 export class TakenCardComponent extends DashboardCardComponent<
   GeneratedType<"RestSignaleringTaskSummary">
 > {
+  private readonly signaleringenService = inject(SignaleringenService);
+
   readonly columns: string[] = [
     "naam",
     "creatiedatumTijd",
@@ -89,12 +89,8 @@ export class TakenCardComponent extends DashboardCardComponent<
     enabled: this.parameters().signaleringType != null,
   }));
 
-  constructor(
-    private readonly signaleringenService: SignaleringenService,
-    protected readonly identityService: IdentityService,
-    protected readonly websocketService: WebsocketService,
-  ) {
-    super(identityService, websocketService);
+  constructor() {
+    super();
 
     effect(() => {
       this.dataSource.data = this.takenQuery.data() ?? [];
