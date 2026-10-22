@@ -182,9 +182,12 @@ class ZaakService @Inject constructor(
     fun readZaakAssignment(groupId: String?, userName: String?): ZaakAssignment {
         val user = userName?.takeIf { it.isNotEmpty() }?.let { userNameToAssign ->
             groupId?.let { identityService.validateIfUserIsInGroup(userNameToAssign, it) }
-            identityService.readUser(userNameToAssign)
+            identityService.readUser(userId = userNameToAssign, logContext = "assigning a zaak")
         }
-        return ZaakAssignment(group = groupId?.let(identityService::readGroup), user = user)
+        return ZaakAssignment(
+            group = groupId?.let { identityService.readGroup(groupId = it, logContext = "assigning a zaak") },
+            user = user
+        )
     }
 
     /**

@@ -168,14 +168,20 @@ class BpmnTaskFormRuntimeService @Inject constructor(
     private fun getGroepForZaakDefaultValue(zaak: Zaak) =
         zgwApiService.findGroepForZaak(zaak).let { group ->
             group?.betrokkeneIdentificatie?.identificatie?.let {
-                identityService.readGroup(it).name
+                identityService.readGroup(
+                    groupId = it,
+                    logContext = "the default value of a form field for zaak '${zaak.identificatie}'"
+                ).name
             }
         }
 
     private fun getBehandelaarForZaakDefaultValue(zaak: Zaak) =
         zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak).let { behandelaar ->
             behandelaar?.identificatienummer?.let {
-                identityService.readUser(it).id
+                identityService.readUser(
+                    userId = it,
+                    logContext = "the default value of a form field for zaak '${zaak.identificatie}'"
+                ).id
             }
         }
 

@@ -75,6 +75,8 @@ class TaakZoekObjectConverter @Inject constructor(
         // is always taken from the taak itself, even if [zaak] were ever supplied for a different zaak
         val zaakUUID = readZaakUUID(taskInfo)
         val zaaktype = ztcClientService.readZaaktype(readZaaktypeUUID(taskInfo))
+        val zaakIdentificatie = readZaakIdentificatie(taskInfo)
+        val logContext = "task '$id' of zaak '$zaakIdentificatie'"
         return TaakZoekObject(
             id = id,
             type = ZoekObjectType.TAAK.name
@@ -89,7 +91,7 @@ class TaakZoekObjectConverter @Inject constructor(
             zaaktypeOmschrijving = zaaktype.omschrijving
             zaaktypeUuid = zaaktype.url.extractUuid().toString()
             this.zaakUUID = zaakUUID.toString()
-            zaakIdentificatie = readZaakIdentificatie(taskInfo)
+            this.zaakIdentificatie = zaakIdentificatie
             zaakOmschrijving = zaak.omschrijving
             zaakToelichting = zaak.toelichting
             zaakAutorisatieGegevens(zaakUUID).let { gegevens ->
@@ -103,14 +105,14 @@ class TaakZoekObjectConverter @Inject constructor(
             taakData = readTaskData(taskInfo).entries.map { "${it.key}|${it.value}" }
             taakInformatie = readTaskInformation(taskInfo).entries.map { "${it.key}|${it.value}" }
             taskInfo.assignee?.let {
-                identityService.readUser(it).let { user ->
+                identityService.readUser(userId = it, logContext = logContext).let { user ->
                     behandelaarNaam = user.getFullName()
                     behandelaarGebruikersnaam = user.id
                 }
                 isToegekend = true
             }
             extractGroupId(taskInfo.identityLinks)?.let {
-                identityService.readGroup(it).let { group ->
+                identityService.readGroup(groupId = it, logContext = logContext).let { group ->
                     groepID = group.name
                     groepNaam = group.description
                 }

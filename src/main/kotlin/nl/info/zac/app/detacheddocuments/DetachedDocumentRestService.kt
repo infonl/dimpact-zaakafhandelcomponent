@@ -84,7 +84,9 @@ class DetachedDocumentRestService @Inject constructor(
                 restDetachedDocumentResult.filterOntkoppeldDoor = listOf(user)
             }
         } else {
-            restDetachedDocumentResult.filterOntkoppeldDoor = with(userConverter) { ontkoppeldDoor.convertUserIds() }
+            restDetachedDocumentResult.filterOntkoppeldDoor = with(userConverter) {
+                ontkoppeldDoor.convertUserIds(logContext = "the ontkoppeld door filter of the ontkoppelde documenten")
+            }
         }
         return restDetachedDocumentResult
     }

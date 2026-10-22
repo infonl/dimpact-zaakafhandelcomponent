@@ -94,11 +94,11 @@ class RestZaakOverzichtConverter @Inject constructor(
         zaak: Zaak
     ): RestUser? = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
         ?.identificatienummer
-        ?.let(userConverter::convertUserId)
+        ?.let { userConverter.convertUserId(userId = it, logContext = "zaak '${zaak.identificatie}'") }
 
     private fun getGroupForZaak(
         zaak: Zaak
     ): RestGroup? = zgwApiService.findGroepForZaak(zaak)
         ?.betrokkeneIdentificatie
-        ?.let { groupConverter.convertGroupId(it.identificatie) }
+        ?.let { groupConverter.convertGroupId(groupId = it.identificatie, logContext = "zaak '${zaak.identificatie}'") }
 }

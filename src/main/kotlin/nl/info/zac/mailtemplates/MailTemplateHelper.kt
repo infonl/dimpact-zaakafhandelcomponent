@@ -180,7 +180,7 @@ class MailTemplateHelper @Inject constructor(
                 taskInfo.identityLinks
                     .filter { IdentityLinkType.CANDIDATE == it.type }
                     .map { it.groupId }
-                    .map { identityService.readGroup(it) }
+                    .map { identityService.readGroup(groupId = it, logContext = taskInfo.toLogContext()) }
                     .map(Group::description)
                     .firstOrNull()
             )
@@ -188,7 +188,9 @@ class MailTemplateHelper @Inject constructor(
         if (resolvedTekst.contains(MailTemplateVariables.TAAK_BEHANDELAAR_MEDEWERKER.getVariable())) {
             resolvedTekst = replaceVariable(
                 targetString = resolvedTekst, MailTemplateVariables.TAAK_BEHANDELAAR_MEDEWERKER,
-                value = taskInfo.assignee?.let { identityService.readUser(it).getFullName() }
+                value = taskInfo.assignee?.let {
+                    identityService.readUser(userId = it, logContext = taskInfo.toLogContext()).getFullName()
+                }
             )
         }
         return resolvedTekst
@@ -383,3 +385,5 @@ class MailTemplateHelper @Inject constructor(
         )
     }
 }
+
+private fun TaskInfo.toLogContext() = "task '$id' of zaak '${readZaakIdentificatie(this)}'"

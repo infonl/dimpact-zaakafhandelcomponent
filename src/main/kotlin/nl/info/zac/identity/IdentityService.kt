@@ -108,20 +108,40 @@ class IdentityService @Inject constructor(
             .map { it.id }
             .toSet()
 
-    fun readUser(userId: String): User = keycloakZacRealmResource.users()
+    /**
+     * Reads the user with [userId] from Keycloak, or returns a placeholder user when it cannot be found.
+     * The optional [logContext], for example the task and zaak that refer to the user, is added to the warning
+     * that is logged when the user cannot be found.
+     */
+    fun readUser(userId: String, logContext: String? = null): User = keycloakZacRealmResource.users()
         .searchByUsername(userId, true)
         .map { it.toUser() }.firstOrNull()
         ?: run {
-            log(LOG, Level.WARNING, "User with id '$userId' could not be found in Keycloak. Returning a placeholder.")
+            log(
+                LOG,
+                Level.WARNING,
+                "User with id '$userId' could not be found in Keycloak${logContext.toLogContextSuffix()}. " +
+                    "Returning a placeholder."
+            )
             User(userId)
         }
 
-    fun readGroup(groupId: String): Group = keycloakZacRealmResource.groups()
+    /**
+     * Reads the group with [groupId] from Keycloak, or returns a placeholder group when it cannot be found.
+     * The optional [logContext], for example the task and zaak that refer to the group, is added to the warning
+     * that is logged when the group cannot be found.
+     */
+    fun readGroup(groupId: String, logContext: String? = null): Group = keycloakZacRealmResource.groups()
         // retrieve groups with 'full representation' or else the group attributes will not be filled
         .groups(groupId, true, 0, 1, false)
         .firstOrNull()?.toGroup()
         ?: run {
-            log(LOG, Level.WARNING, "Group with id '$groupId' could not be found in Keycloak. Returning a placeholder.")
+            log(
+                LOG,
+                Level.WARNING,
+                "Group with id '$groupId' could not be found in Keycloak${logContext.toLogContextSuffix()}. " +
+                    "Returning a placeholder."
+            )
             Group(groupId)
         }
 
@@ -164,3 +184,5 @@ class IdentityService @Inject constructor(
         return members
     }
 }
+
+private fun String?.toLogContextSuffix() = this?.let { " for $it" }.orEmpty()

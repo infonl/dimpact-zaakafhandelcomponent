@@ -96,7 +96,12 @@ class RestTaskConverterTest : BehaviorSpec({
                 zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)
             } returns zaaktypeCmmnConfiguration
             every { zaaktypeCmmnConfiguration.cmmnExtension?.getHumanTaskParametersCollection() } returns setOf(humanTaskParameters)
-            every { medewerkerConverter.convertUserId("fakeAssigneeId") } returns createRestUser(id = "fakeAssigneeId")
+            every {
+                medewerkerConverter.convertUserId(
+                    userId = "fakeAssigneeId",
+                    logContext = "task 'fakeTaskId' of zaak 'fakeZaakIdentificatie'"
+                )
+            } returns createRestUser(id = "fakeAssigneeId")
 
             `when`("convert is called") {
                 val restTask = restTaskConverter.toRestTask(taskInfo)

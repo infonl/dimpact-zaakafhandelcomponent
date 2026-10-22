@@ -35,7 +35,7 @@ class TaskHistoryService @Inject constructor(
                 FIELD_VISIBILITY_STRATEGY.toJson(
                     ValueChangeData(
                         "",
-                        identityService.readUser(medewerkerId).getFullName(),
+                        identityService.readUser(userId = medewerkerId, logContext = "task '${task.id}'").getFullName(),
                         ZaakspecifiekeAutorisatieService.ROLTOELICHTING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER
                     )
                 )

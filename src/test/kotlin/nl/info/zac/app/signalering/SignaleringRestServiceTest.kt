@@ -194,7 +194,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
         val restSignaleringInstellingen = listOf(createRestSignaleringInstellingen())
 
         every { policyService.readOverigeRechten().canBeheren } returns true
-        every { identityService.readGroup(groupId) } returns group
+        every { identityService.readGroup(groupId, any()) } returns group
         every { signaleringService.listInstellingenInclusiefMogelijke(any()) } returns signaleringInstellingen
         every { restSignaleringInstellingenConverter.convert(signaleringInstellingen) } returns restSignaleringInstellingen
 
@@ -214,7 +214,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
         val restSignaleringInstellingen = createRestSignaleringInstellingen()
 
         every { policyService.readOverigeRechten().canBeheren } returns true
-        every { identityService.readGroup(groupId) } returns group
+        every { identityService.readGroup(groupId, any()) } returns group
         every {
             restSignaleringInstellingenConverter.convert(restSignaleringInstellingen, group)
         } returns signaleringInstellingen
@@ -233,7 +233,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
         val groupId = "invalid-group-id"
         val restSignaleringInstellingen = createRestSignaleringInstellingen()
         every { policyService.readOverigeRechten().canBeheren } returns true
-        every { identityService.readGroup(groupId) } throws IllegalArgumentException("Group not found")
+        every { identityService.readGroup(groupId, any()) } throws IllegalArgumentException("Group not found")
 
         `when`("listGroupSignaleringInstellingen is called") {
             val exception = shouldThrow<IllegalArgumentException> {
