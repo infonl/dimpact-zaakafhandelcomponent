@@ -4,14 +4,14 @@
  */
 package nl.info.zac.app.inboxdocument.model
 
-import net.atos.zac.app.shared.RESTListParameters
+import nl.info.zac.app.shared.RestListParameters
 import nl.info.zac.app.search.model.RestDatumRange
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
 @AllOpen
 @NoArgConstructor
-class RestInboxDocumentListParameters : RESTListParameters() {
+class RestInboxDocumentListParameters : RestListParameters() {
     var titel: String? = null
 
     var identificatie: String? = null
