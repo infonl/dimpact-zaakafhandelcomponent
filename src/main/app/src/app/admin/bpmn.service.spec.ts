@@ -7,7 +7,7 @@ import { HttpResponse } from "@angular/common/http";
 import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { MatDialog } from "@angular/material/dialog";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { type MutationFunctionContext } from "@tanstack/angular-query-experimental";
 import { sleep, testQueryClient } from "../../../setupJest";
 import { fromPartial, runMutationOnSuccess } from "../../test-helpers";
@@ -23,8 +23,7 @@ describe(BpmnService.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
-      providers: [],
+      providers: [provideTranslateService()],
     });
 
     service = TestBed.inject(BpmnService);

@@ -8,6 +8,7 @@ import { provideLocationMocks } from "@angular/common/testing";
 import { Component } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { provideRouter, Router } from "@angular/router";
+import { provideTranslateService } from "@ngx-translate/core";
 import { waitFor } from "@testing-library/angular";
 import { BreadcrumbsComponent } from "../../core/breadcrumbs/breadcrumbs.component";
 import {
@@ -31,6 +32,7 @@ describe(findOrigin.name, () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
+        provideTranslateService(),
         provideRouter([
           {
             path: "",

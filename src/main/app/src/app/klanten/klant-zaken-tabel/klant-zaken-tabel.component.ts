@@ -26,7 +26,7 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
-import { lastValueFrom, merge, Observable, of } from "rxjs";
+import { merge, Observable, of } from "rxjs";
 import { catchError, map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { runQuery } from "../../shared/http/run-query";
@@ -110,15 +110,8 @@ export class KlantZakenTabelComponent implements AfterViewInit {
   private laatsteBetrokkenheid?: string | null = null;
 
   protected distinctRoltypenQuery = injectQuery(() => ({
-    queryKey: ["klantenService", "listRoltypen", "distinct"],
-    queryFn: () =>
-      lastValueFrom(
-        this.klantenService.listRoltypen().pipe(
-          map((typen) => {
-            return [...new Set(typen.map(({ naam }) => naam))];
-          }),
-        ),
-      ),
+    ...this.klantenService.listRoltypen(),
+    select: (roltypen) => [...new Set(roltypen.map(({ naam }) => naam))],
   }));
 
   private readonly queryClient = inject(QueryClient);

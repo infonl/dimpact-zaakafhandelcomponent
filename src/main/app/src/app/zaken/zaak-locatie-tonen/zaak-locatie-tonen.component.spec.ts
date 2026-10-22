@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: EUPL-1.2+
 
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
@@ -106,8 +106,11 @@ describe(LocatieTonenComponent.name, () => {
 
   const setup = async (currentLocation: GeneratedType<"RestGeometry">) => {
     await TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot(), LocatieTonenComponent],
-      providers: [{ provide: LocationService, useValue: locationService }],
+      imports: [LocatieTonenComponent],
+      providers: [
+        provideTranslateService(),
+        { provide: LocationService, useValue: locationService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LocatieTonenComponent);

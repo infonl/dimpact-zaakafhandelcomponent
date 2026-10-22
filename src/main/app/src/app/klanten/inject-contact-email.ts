@@ -27,9 +27,8 @@ export function injectContactEmail(
   );
 
   const contactDetailsQuery = injectQuery(() => ({
-    ...klantenService.getContactDetailsForPersonQuery(
-      temporaryPersonId() ?? "",
-    ),
+    ...klantenService.getContactDetailsForPerson(temporaryPersonId() ?? ""),
+    meta: { reportErrors: false },
     enabled: !zaakSpecificEmail() && !!temporaryPersonId(),
   }));
 

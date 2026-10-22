@@ -5,7 +5,7 @@
 
 import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { sleep, testQueryClient } from "../../../setupJest";
 import { fromPartial, runMutationOnSuccess } from "../../test-helpers";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
@@ -20,8 +20,10 @@ describe("PlanItemServiceService", () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
-      providers: [{ provide: FoutAfhandelingService, useValue: {} }],
+      providers: [
+        provideTranslateService(),
+        { provide: FoutAfhandelingService, useValue: {} },
+      ],
     });
 
     service = TestBed.inject(PlanItemsService);

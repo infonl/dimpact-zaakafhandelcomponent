@@ -16,7 +16,7 @@ import {
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import {
   provideQueryClient,
   queryOptions,
@@ -156,12 +156,12 @@ describe(ZaakViewComponent.name, () => {
         SideNavComponent,
         StaticTextComponent,
         ZaakProcessFlowComponent,
-        TranslateModule.forRoot(),
         VertrouwelijkaanduidingToTranslationKeyPipe,
         NoopAnimationsModule,
         EmptyPipe,
       ],
       providers: [
+        provideTranslateService(),
         provideQueryClient(testQueryClient),
         PlanItemsService,
         {
@@ -216,7 +216,10 @@ describe(ZaakViewComponent.name, () => {
       );
 
     bagService = TestBed.inject(BAGService);
-    jest.spyOn(bagService, "list").mockReturnValue(of([]));
+    jest.spyOn(bagService, "list").mockReturnValue({
+      ...createQueryOptions([]),
+      queryKey: ["fakeBagObjectenQueryKey"],
+    } as never);
 
     planItemsService = TestBed.inject(PlanItemsService);
     userEventListenerPlanItemsQuerySpy = jest
@@ -1058,6 +1061,16 @@ describe(ZaakViewComponent.name, () => {
           fromPartial<GeneratedType<"RestMailtemplate">>({}),
         );
       }
+      const klantenService = TestBed.inject(KlantenService);
+      testQueryClient.setQueryData(
+        klantenService.getPersonenParameters().queryKey,
+        [],
+      );
+      testQueryClient.setQueryData(
+        klantenService.listBetrokkeneRoltypen(zaakWithEveryPanel.zaaktype.uuid)
+          .queryKey,
+        [],
+      );
       jest
         .spyOn(
           TestBed.inject(InformatieObjectenService),

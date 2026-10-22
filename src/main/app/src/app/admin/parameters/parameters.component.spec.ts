@@ -9,7 +9,7 @@ import { MatNativeDateModule } from "@angular/material/core";
 import { MatSelectChange } from "@angular/material/select";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
@@ -195,13 +195,9 @@ describe(ParametersComponent.name, () => {
     >;
 
     await TestBed.configureTestingModule({
-      imports: [
-        ParametersComponent,
-        NoopAnimationsModule,
-        MatNativeDateModule,
-        TranslateModule.forRoot(),
-      ],
+      imports: [ParametersComponent, NoopAnimationsModule, MatNativeDateModule],
       providers: [
+        provideTranslateService(),
         { provide: UtilService, useValue: utilServiceMock },
         { provide: ConfiguratieService, useValue: {} },
         {

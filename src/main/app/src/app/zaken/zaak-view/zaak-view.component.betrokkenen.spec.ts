@@ -10,13 +10,13 @@ import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { queryOptions } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { Observable, of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
-import { fromPartial } from "src/test-helpers";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
@@ -59,6 +59,7 @@ describe(ZaakViewComponent.name, () => {
   let utilService: UtilService;
   let zakenService: ZakenService;
   let bagService: BAGService;
+  let bagObjectenQuery: ReturnType<typeof createQueryOptions<never[]>>;
   let planItemsService: PlanItemsService;
   let dialogRef: MatDialogRef<unknown>;
   let takenService: TakenService;
@@ -117,12 +118,12 @@ describe(ZaakViewComponent.name, () => {
         SideNavComponent,
         StaticTextComponent,
         ZaakProcessFlowComponent,
-        TranslateModule.forRoot(),
         VertrouwelijkaanduidingToTranslationKeyPipe,
         NoopAnimationsModule,
         EmptyPipe,
       ],
       providers: [
+        provideTranslateService(),
         PlanItemsService,
         {
           provide: ActivatedRoute,
@@ -148,7 +149,11 @@ describe(ZaakViewComponent.name, () => {
       );
 
     bagService = TestBed.inject(BAGService);
-    jest.spyOn(bagService, "list").mockReturnValue(of([]));
+    bagObjectenQuery = {
+      ...createQueryOptions([]),
+      queryKey: ["fakeBagObjectenQueryKey"],
+    };
+    jest.spyOn(bagService, "list").mockReturnValue(bagObjectenQuery as never);
 
     planItemsService = TestBed.inject(PlanItemsService);
     jest
@@ -522,11 +527,7 @@ describe(ZaakViewComponent.name, () => {
       const openSnackbar = jest.spyOn(utilService, "openSnackbar");
       const httpTestingController = TestBed.inject(HttpTestingController);
       httpTestingController.match(() => true);
-      // the view already listed them while initialising, so ignore that call
-      const list = jest
-        .spyOn(bagService, "list")
-        .mockClear()
-        .mockReturnValue(of([]));
+      bagObjectenQuery.queryFn.mockClear();
 
       fixture.componentInstance["adresGeselecteerd"](bagObject);
       await new Promise(requestAnimationFrame);
@@ -541,7 +542,7 @@ describe(ZaakViewComponent.name, () => {
         zaakUuid: zaak.uuid,
         zaakobject: bagObject,
       });
-      expect(list).toHaveBeenCalledWith(zaak.uuid);
+      expect(bagObjectenQuery.queryFn).toHaveBeenCalled();
       expect(openSnackbar).toHaveBeenCalledWith("msg.bag-object.gekoppeld");
     });
   });

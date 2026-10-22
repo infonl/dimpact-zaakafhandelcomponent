@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: EUPL-1.2+
 
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 
 jest.mock("ol/coordinate.js", () => ({}));
 jest.mock("ol/extent.js", () => ({
@@ -102,7 +102,8 @@ describe(BagLocatieComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BagLocatieComponent, TranslateModule.forRoot()],
+      imports: [BagLocatieComponent],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(BagLocatieComponent);

@@ -14,7 +14,7 @@ import {
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
@@ -48,8 +48,9 @@ describe(GroepSignaleringenComponent.name, () => {
     utilService = { setLoading: jest.fn() };
 
     ({ fixture } = await render(GroepSignaleringenComponent, {
-      imports: [TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideRouter([]),

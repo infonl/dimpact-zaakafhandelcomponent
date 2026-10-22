@@ -9,7 +9,7 @@ import {
 } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { testQueryClient } from "../../setupJest";
 import { AppComponent } from "./app.component";
@@ -22,8 +22,9 @@ describe(AppComponent.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [AppComponent, TranslateModule.forRoot()],
+      imports: [AppComponent],
       providers: [
+        provideTranslateService(),
         IdentityService,
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),

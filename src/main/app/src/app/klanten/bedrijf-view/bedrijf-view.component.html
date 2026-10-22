@@ -43,15 +43,15 @@
               label="type"
               [value]="bedrijf?.type | i18nKey | translate"
             />
-            @if (profiel) {
-              <zac-static-text label="rsin" [value]="profiel.rsin" />
+            @if (profiel()) {
+              <zac-static-text label="rsin" [value]="profiel()?.rsin" />
             } @else {
               <zac-static-text
                 [label]="bedrijf?.adres?.type ?? 'adres'"
                 [value]="bedrijf?.adres?.volledigAdres"
               />
             }
-            @for (adres of profiel?.adressen; track adres) {
+            @for (adres of profiel()?.adressen; track adres) {
               <zac-static-text
                 [label]="adres.type"
                 [value]="adres.volledigAdres"
@@ -62,43 +62,43 @@
               [value]="bedrijf?.telefoonnummer"
             />
             <zac-static-text label="emailadres" [value]="bedrijf?.emailadres" />
-            @if (profiel) {
+            @if (profiel()) {
               <zac-static-text
                 label="totaal-werkzame-personen"
-                [value]="profiel.totaalWerkzamePersonen"
+                [value]="profiel()?.totaalWerkzamePersonen"
               />
             }
-            @if (profiel) {
+            @if (profiel()) {
               <zac-static-text
                 label="hoofdactiviteit"
-                [value]="profiel.sbiHoofdActiviteit"
+                [value]="profiel()?.sbiHoofdActiviteit"
               />
             }
-            @if (profiel) {
+            @if (profiel()) {
               <zac-static-text
                 label="activiteiten"
-                [value]="profiel.sbiActiviteiten?.join(',\r\n')"
+                [value]="profiel()?.sbiActiviteiten?.join(',\r\n')"
               />
             }
-            @if (profiel) {
-              <zac-static-text label="website" [value]="profiel.website" />
+            @if (profiel()) {
+              <zac-static-text label="website" [value]="profiel()?.website" />
             }
-            @if (profiel?.rechtsvorm) {
+            @if (profiel()?.rechtsvorm) {
               <zac-static-text
                 label="rechtsvorm"
-                [value]="profiel?.rechtsvorm"
+                [value]="profiel()?.rechtsvorm"
               />
             }
-            @if (profiel?.uitgebreideRechtsvorm) {
+            @if (profiel()?.uitgebreideRechtsvorm) {
               <zac-static-text
                 label="uitgebreide-rechtsvorm"
-                [value]="profiel?.uitgebreideRechtsvorm"
+                [value]="profiel()?.uitgebreideRechtsvorm"
               />
             }
-            @if (profiel?.statutaireNaam) {
+            @if (profiel()?.statutaireNaam) {
               <zac-static-text
                 label="statutaire-naam"
-                [value]="profiel?.statutaireNaam"
+                [value]="profiel()?.statutaireNaam"
               />
             }
           </div>

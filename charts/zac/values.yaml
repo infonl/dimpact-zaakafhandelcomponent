@@ -554,9 +554,29 @@ solr-operator:
       storageClassName: managed-csi
        # -- solr storage size
       size: 1Gi
-     # -- resource limits and requests for solr in solrcloud
+    # -- resource limits and requests for solr in solrcloud
     resources: {}
-     # -- tolerations for solr in solrcloud
+     # -- pod securityContext for solr in solrcloud. The Solr Operator sets no securityContext on its own init
+     # containers (cp-solr-xml, setup-zk), so they inherit this one: without it the busybox cp-solr-xml container
+     # runs as root. 8983 is the solr image's own user, which owns the existing Solr data.
+    podSecurityContext:
+      runAsNonRoot: true
+      runAsUser: 8983
+      runAsGroup: 8983
+      fsGroup: 8983
+      # only change ownership when the volume root does not match, so a large index is not re-chowned on every start
+      fsGroupChangePolicy: OnRootMismatch
+      seccompProfile:
+        type: RuntimeDefault
+    # -- securityContext for the solr container in solrcloud; the Solr Operator applies it to that container only.
+    # Capabilities and privilege escalation can only be set per container, so the init containers keep the defaults
+    # for those.
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+    # -- tolerations for solr in solrcloud
     tolerations: []
      # -- topologySpreadConstraints for solr in solrcloud
     topologySpreadConstraints:
@@ -751,7 +771,7 @@ opentelemetry-collector:
   image:
     repository: otel/opentelemetry-collector-contrib
     pullPolicy: IfNotPresent
-    tag: "0.163.1@sha256:1175b03003053962012f5a231f5567f66a3e8fdb960c7835c0e48f7aa1555806"
+    tag: "0.163.2@sha256:7f22d2a6748110ffb6a59bc0df448bccbf501cdb667d610ede4c61d3863d5849"
   presets:
     clusterMetrics:
       enabled: false

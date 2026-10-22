@@ -3,18 +3,30 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { Location } from "@angular/common";
 import { provideLocationMocks } from "@angular/common/testing";
 import { Component } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { Title } from "@angular/platform-browser";
-import { provideRouter, Router, TitleStrategy } from "@angular/router";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { render, screen, within } from "@testing-library/angular";
+import { provideNoopAnimations } from "@angular/platform-browser/animations";
+import {
+  ActivatedRouteSnapshot,
+  provideRouter,
+  Router,
+  TitleStrategy,
+} from "@angular/router";
+import { provideTranslateService, TranslateService } from "@ngx-translate/core";
+import { render, screen, waitFor, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
+import { fromPartial } from "src/test-helpers";
+import { navigationTrail } from "../../shared/navigation/navigation-origin";
+import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZakenService } from "../../zaken/zaken.service";
 import { BreadcrumbsComponent } from "./breadcrumbs.component";
 import {
   BREADCRUMB_DETAIL,
   BREADCRUMB_ORIGIN,
+  breadcrumbDetails,
   translatedTitle,
 } from "./route-title";
 import { ZacTitleStrategy } from "./zac-title-strategy";
@@ -23,10 +35,24 @@ import { ZacTitleStrategy } from "./zac-title-strategy";
 class PageStubComponent {}
 
 describe(BreadcrumbsComponent.name, () => {
+  let zaakspecifiekGeautoriseerdeZaken: string[];
+
+  beforeEach(() => {
+    zaakspecifiekGeautoriseerdeZaken = ["ZAAK-ZAAKSPECIFIEK"];
+  });
+
+  function zaak(identificatie: string, isZaakspecifiekGeautoriseerd: boolean) {
+    return fromPartial<GeneratedType<"RestZaak">>({
+      uuid: `uuid-${identificatie}`,
+      identificatie,
+      isZaakspecifiekGeautoriseerd,
+    });
+  }
+
   async function navigateTo(...urls: string[]) {
     const { fixture } = await render(BreadcrumbsComponent, {
-      imports: [TranslateModule.forRoot()],
       providers: [
+        provideTranslateService(),
         provideRouter([
           { path: "untitled", component: PageStubComponent },
           {
@@ -42,7 +68,24 @@ describe(BreadcrumbsComponent.name, () => {
               {
                 path: ":id",
                 title: (route) => route.paramMap.get("id") ?? "",
-                data: BREADCRUMB_DETAIL,
+                resolve: {
+                  zaak: (route: ActivatedRouteSnapshot) => {
+                    const identificatie = route.paramMap.get("id") ?? "";
+                    return zaak(
+                      identificatie,
+                      zaakspecifiekGeautoriseerdeZaken.includes(identificatie),
+                    );
+                  },
+                },
+                data: {
+                  ...BREADCRUMB_DETAIL,
+                  ...breadcrumbDetails((route) => {
+                    const { uuid, isZaakspecifiekGeautoriseerd } = route.data[
+                      "zaak"
+                    ] as GeneratedType<"RestZaak">;
+                    return { zaak: { uuid, isZaakspecifiekGeautoriseerd } };
+                  }),
+                },
                 component: PageStubComponent,
               },
             ],
@@ -92,6 +135,7 @@ describe(BreadcrumbsComponent.name, () => {
         ]),
         { provide: TitleStrategy, useClass: ZacTitleStrategy },
         provideLocationMocks(),
+        provideNoopAnimations(),
       ],
     });
     TestBed.inject(TranslateService).setTranslation("nl", {
@@ -99,12 +143,14 @@ describe(BreadcrumbsComponent.name, () => {
       breadcrumbs: "Kruimelpad",
       "actie.admin": "Beheer-instellingen",
       "title.parameters": "Zaakafhandelparameters",
+      "zaak.is-zaakspecifiek-geautoriseerd": "Zaakspecifiek geautoriseerd",
     });
     TestBed.inject(TranslateService).use("nl");
     for (const url of urls) {
       await TestBed.inject(Router).navigateByUrl(url);
     }
     fixture.detectChanges();
+    return fixture;
   }
 
   function crumbs() {
@@ -199,5 +245,140 @@ describe(BreadcrumbsComponent.name, () => {
     await userEvent.setup().click(screen.getByRole("link", { name: "ZAAK-1" }));
 
     expect(crumbs()).toEqual(["Zaken", "Mijn zaken", "ZAAK-1"]);
+  });
+
+  it("shows a lock that screen readers announce as zaakspecifiek geautoriseerd beside the zaaknummer of a zaakspecifiek geautoriseerde zaak", async () => {
+    await navigateTo("/zaken/mijn", "/zaken/ZAAK-ZAAKSPECIFIEK");
+
+    const currentPage = screen.getByRole("listitem", { current: "page" });
+    expect(currentPage).toHaveTextContent("ZAAK-ZAAKSPECIFIEK");
+    expect(
+      within(currentPage).getByRole("img", {
+        name: "Zaakspecifiek geautoriseerd",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("keeps the lock on the zaak crumb when a taak is opened from a zaakspecifiek geautoriseerde zaak", async () => {
+    await navigateTo("/zaken/mijn", "/zaken/ZAAK-ZAAKSPECIFIEK", "/taken/1");
+
+    const zaakLink = screen.getByRole("link", { name: /ZAAK-ZAAKSPECIFIEK/ });
+    expect(zaakLink).toHaveAttribute("href", "/zaken/ZAAK-ZAAKSPECIFIEK");
+    expect(
+      within(zaakLink).getByRole("img", {
+        name: "Zaakspecifiek geautoriseerd",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows no lock beside the zaaknummer of a zaak that is not zaakspecifiek geautoriseerd", async () => {
+    await navigateTo("/zaken/mijn", "/zaken/ZAAK-1");
+
+    expect(screen.getByText("ZAAK-1")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("img", { name: "Zaakspecifiek geautoriseerd" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows the lock as soon as the zaak is saved as zaakspecifiek geautoriseerd, without a navigation", async () => {
+    const fixture = await navigateTo("/zaken/mijn", "/zaken/ZAAK-1");
+
+    TestBed.inject(ZakenService).cacheZaak(zaak("ZAAK-1", true));
+    fixture.detectChanges();
+
+    expect(
+      screen.getByRole("img", { name: "Zaakspecifiek geautoriseerd" }),
+    ).toBeInTheDocument();
+  });
+
+  it("removes the lock as soon as the zaakspecifieke autorisatie of the zaak is lifted, without a navigation", async () => {
+    const fixture = await navigateTo(
+      "/zaken/mijn",
+      "/zaken/ZAAK-ZAAKSPECIFIEK",
+    );
+
+    TestBed.inject(ZakenService).cacheZaak(zaak("ZAAK-ZAAKSPECIFIEK", false));
+    fixture.detectChanges();
+
+    expect(
+      screen.queryByRole("img", { name: "Zaakspecifiek geautoriseerd" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("saves the changed zaakspecifieke autorisatie in the trail of the page, for a reload", async () => {
+    await navigateTo("/zaken/mijn", "/zaken/ZAAK-1");
+
+    TestBed.inject(ZakenService).cacheZaak(zaak("ZAAK-1", true));
+
+    expect(navigationTrail(TestBed.inject(Location)).at(-1)).toEqual(
+      expect.objectContaining({
+        title: "ZAAK-1",
+        details: {
+          zaak: { uuid: "uuid-ZAAK-1", isZaakspecifiekGeautoriseerd: true },
+        },
+      }),
+    );
+  });
+
+  it("keeps the changed lock on the zaak crumb when a taak is opened after the save", async () => {
+    const fixture = await navigateTo("/zaken/mijn", "/zaken/ZAAK-1");
+    TestBed.inject(ZakenService).cacheZaak(zaak("ZAAK-1", true));
+
+    await TestBed.inject(Router).navigateByUrl("/taken/1");
+    fixture.detectChanges();
+
+    expect(
+      within(screen.getByRole("link", { name: /ZAAK-1/ })).getByRole("img", {
+        name: "Zaakspecifiek geautoriseerd",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows the current zaakspecifieke autorisatie of the zaak when its page is restored from the history", async () => {
+    const fixture = await navigateTo(
+      "/zaken/mijn",
+      "/zaken/ZAAK-ZAAKSPECIFIEK",
+      "/taken/1",
+    );
+    zaakspecifiekGeautoriseerdeZaken = [];
+
+    TestBed.inject(Location).back();
+
+    await waitFor(() =>
+      expect(TestBed.inject(Router).url).toBe("/zaken/ZAAK-ZAAKSPECIFIEK"),
+    );
+    fixture.detectChanges();
+    expect(
+      screen.queryByRole("img", { name: "Zaakspecifiek geautoriseerd" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows the lock on a page restored from the history whose saved trail has no details of its zaak", async () => {
+    const fixture = await navigateTo(
+      "/zaken/mijn",
+      "/zaken/ZAAK-ZAAKSPECIFIEK",
+    );
+    const location = TestBed.inject(Location);
+    location.replaceState(location.path(), "", {
+      navigationTrail: navigationTrail(location).map(({ title, url, key }) => ({
+        title,
+        url,
+        key,
+      })),
+    });
+    await TestBed.inject(Router).navigateByUrl("/taken/1");
+
+    location.back();
+
+    await waitFor(() =>
+      expect(TestBed.inject(Router).url).toBe("/zaken/ZAAK-ZAAKSPECIFIEK"),
+    );
+    fixture.detectChanges();
+    expect(
+      within(screen.getByRole("listitem", { current: "page" })).getByRole(
+        "img",
+        { name: "Zaakspecifiek geautoriseerd" },
+      ),
+    ).toBeInTheDocument();
   });
 });

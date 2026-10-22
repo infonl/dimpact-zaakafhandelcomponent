@@ -5,7 +5,7 @@
 
 import { TestBed } from "@angular/core/testing";
 import { ActivatedRouteSnapshot, convertToParamMap } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../setupJest";
 import { GeneratedType } from "../shared/utils/generated-types";
@@ -26,7 +26,7 @@ describe(ZaakafhandelParametersResolver.name, () => {
   let resolver: ZaakafhandelParametersResolver;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ imports: [TranslateModule.forRoot()] });
+    TestBed.configureTestingModule({ providers: [provideTranslateService()] });
     resolver = TestBed.inject(ZaakafhandelParametersResolver);
     jest.spyOn(testQueryClient, "fetchQuery").mockResolvedValue(configuration);
   });

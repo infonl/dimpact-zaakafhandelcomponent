@@ -16,7 +16,7 @@ import { provideNativeDateAdapter } from "@angular/material/core";
 import { MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Data, provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { screen } from "@testing-library/angular";
 import { userEvent } from "@testing-library/user-event";
@@ -59,12 +59,9 @@ describe(TakenWerkvoorraadComponent.name, () => {
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [
-        TakenWerkvoorraadComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+      imports: [TakenWerkvoorraadComponent, NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideRouter([]),
         {
           provide: ActivatedRoute,

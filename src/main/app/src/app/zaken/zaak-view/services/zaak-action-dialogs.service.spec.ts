@@ -11,7 +11,7 @@ import {
 import { TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatSidenav } from "@angular/material/sidenav";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of, Subject } from "rxjs";
 import { sleep, testQueryClient } from "../../../../../setupJest";
@@ -64,8 +64,8 @@ describe(ZaakActionDialogsService.name, () => {
     closed = new Subject<unknown>();
 
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
       providers: [
+        provideTranslateService(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),

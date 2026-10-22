@@ -5,7 +5,7 @@
 
 import { TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateService, provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { ZoekenColumn } from "../model/zoeken-column";
@@ -24,11 +24,8 @@ describe(ColumnPickerComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        ColumnPickerComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+      imports: [ColumnPickerComponent, NoopAnimationsModule],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     const translateService = TestBed.inject(TranslateService);

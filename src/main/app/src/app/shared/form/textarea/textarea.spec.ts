@@ -22,7 +22,7 @@ import {
 import { MatInputModule } from "@angular/material/input";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { ZacTextarea } from "./textarea";
 
@@ -58,11 +58,11 @@ describe(ZacTextarea.name, () => {
         HostComponent,
         ReactiveFormsModule,
         NoopAnimationsModule,
-        TranslateModule.forRoot(),
         MatFormFieldModule,
         MatInputModule,
         CapitalizeFirstLetterPipe,
       ],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(HostComponent);
@@ -84,12 +84,11 @@ describe(ZacTextarea.name, () => {
     expect(host.form.controls.notes.value).toBe("new text");
   });
 
-  it("is readonly when the readonly input is set", () => {
+  it("is readonly when the readonly input is set", async () => {
     host.readonly = true;
     fixture.detectChanges();
-    const textarea: HTMLTextAreaElement =
-      fixture.nativeElement.querySelector("textarea");
-    expect(textarea.readOnly).toBe(true);
+    const input = await loader.getHarness(MatInputHarness);
+    expect(await input.isReadonly()).toBe(true);
   });
 
   it("is disabled when the form control is disabled", async () => {

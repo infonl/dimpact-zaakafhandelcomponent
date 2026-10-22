@@ -11,7 +11,7 @@ import {
 import { TestBed } from "@angular/core/testing";
 import { MatDialogRef } from "@angular/material/dialog";
 import { MatSidenav } from "@angular/material/sidenav";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { Subject } from "rxjs";
 import { testQueryClient } from "../../../../../setupJest";
@@ -107,8 +107,8 @@ describe(ZaakBetrokkenenService.name, () => {
     foutAfhandelen = jest.fn();
 
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
       providers: [
+        provideTranslateService(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),

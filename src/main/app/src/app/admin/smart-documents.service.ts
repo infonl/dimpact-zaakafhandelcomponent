@@ -3,14 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import {
   QueryClient,
   queryOptions,
 } from "@tanstack/angular-query-experimental";
 import { PostBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
@@ -22,14 +21,11 @@ export interface TemplateMapping {
 
 @Injectable({ providedIn: "root" })
 export class SmartDocumentsService {
-  constructor(
-    private readonly zacHttpClient: ZacHttpClient,
-    private readonly zacQueryClient: ZacQueryClient,
-    private readonly queryClient: QueryClient,
-  ) {}
+  private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly queryClient = inject(QueryClient);
 
   getAllSmartDocumentsTemplateGroups() {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/zaakafhandelparameters/smartdocuments-templates",
     );
   }

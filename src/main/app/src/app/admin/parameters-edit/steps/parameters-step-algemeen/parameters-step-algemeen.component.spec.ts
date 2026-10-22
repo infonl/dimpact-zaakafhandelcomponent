@@ -4,7 +4,7 @@
  */
 
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen, waitFor } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
@@ -47,7 +47,7 @@ describe(ParametersStepAlgemeenComponent.name, () => {
     const form = createAlgemeenForm(settings);
 
     await render(ParametersStepAlgemeenComponent, {
-      imports: [TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [NoopAnimationsModule],
       inputs: {
         form,
         zaaktype: {
@@ -58,6 +58,7 @@ describe(ParametersStepAlgemeenComponent.name, () => {
         isZaakspecifiekAutoriseerbaar,
       },
       providers: [
+        provideTranslateService(),
         {
           provide: IdentityService,
           useValue: fromPartial<IdentityService>({

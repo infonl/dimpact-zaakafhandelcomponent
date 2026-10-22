@@ -31,6 +31,14 @@ spec:
       resources:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with (index .Values "solr-operator").solr.podSecurityContext }}
+      podSecurityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (index .Values "solr-operator").solr.containerSecurityContext }}
+      containerSecurityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with (index .Values "solr-operator").solr.startupProbe }}
       startupProbe:
         {{- toYaml . | nindent 8 }}

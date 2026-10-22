@@ -11,7 +11,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MatToolbarHarness } from "@angular/material/toolbar/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { fromPartial } from "src/test-helpers";
@@ -32,12 +32,9 @@ const setup = (data: ZaakZoekObject[]) => {
   const dialogRefMock = { close: jest.fn(), disableClose: false };
   const mutationFn = jest.fn().mockResolvedValue(undefined);
   TestBed.configureTestingModule({
-    imports: [
-      ZakenVrijgevenDialogComponent,
-      NoopAnimationsModule,
-      TranslateModule.forRoot(),
-    ],
+    imports: [ZakenVrijgevenDialogComponent, NoopAnimationsModule],
     providers: [
+      provideTranslateService(),
       provideHttpClient(),
       provideRouter([]),
       provideQueryClient(testQueryClient),

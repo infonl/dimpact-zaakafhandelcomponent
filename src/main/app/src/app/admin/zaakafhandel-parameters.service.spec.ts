@@ -5,7 +5,7 @@
 
 import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { sleep, testQueryClient } from "../../../setupJest";
 import { fromPartial, runMutationOnSuccess } from "../../test-helpers";
 import { UtilService } from "../core/service/util.service";
@@ -22,8 +22,7 @@ describe(ZaakafhandelParametersService.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
-      providers: [],
+      providers: [provideTranslateService()],
     });
 
     service = TestBed.inject(ZaakafhandelParametersService);

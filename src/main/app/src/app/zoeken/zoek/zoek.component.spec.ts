@@ -14,7 +14,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatPaginator, PageEvent } from "@angular/material/paginator";
 import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { screen } from "@testing-library/angular";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
@@ -40,8 +40,9 @@ describe(ZoekComponent.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [ZoekComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [ZoekComponent, NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideTanStackQuery(testQueryClient),

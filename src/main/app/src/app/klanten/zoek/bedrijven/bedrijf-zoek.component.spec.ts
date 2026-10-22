@@ -7,7 +7,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter, Router } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
@@ -62,8 +62,9 @@ describe(BedrijfZoekComponent.name, () => {
         isSelectable: !!onBedrijf,
       },
       on: { ...(onBedrijf && { bedrijf: onBedrijf }) },
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideQueryClient(testQueryClient),
         provideRouter([]),
         {

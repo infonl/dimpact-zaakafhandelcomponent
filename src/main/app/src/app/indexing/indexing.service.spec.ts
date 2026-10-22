@@ -5,7 +5,7 @@
 
 import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { sleep, testQueryClient } from "../../../setupJest";
 import { runMutation } from "../shared/http/run-mutation";
 import { IndexingService } from "./indexing.service";
@@ -16,8 +16,7 @@ describe(IndexingService.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
-      providers: [],
+      providers: [provideTranslateService()],
     });
 
     service = TestBed.inject(IndexingService);
