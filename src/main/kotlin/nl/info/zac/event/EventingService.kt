@@ -11,11 +11,11 @@ import jakarta.inject.Inject
 import net.atos.zac.signalering.event.SignaleringEvent
 import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.util.event.JobEvent
-import nl.info.zac.websocket.event.ScreenEvent
-import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.websocket.event.ScreenEvent
+import nl.info.zac.websocket.event.ScreenEventType
 import java.util.logging.Level
 import java.util.logging.Logger
 

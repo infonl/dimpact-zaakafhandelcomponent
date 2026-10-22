@@ -13,13 +13,13 @@ import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.unmockkAll
 import io.mockk.verify
-import nl.info.zac.event.EventingService
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
-import nl.info.zac.websocket.event.ScreenEvent
-import nl.info.zac.websocket.event.ScreenEventType
+import nl.info.zac.event.EventingService
 import nl.info.zac.flowable.task.ZacCreateUserTaskInterceptor.Companion.VAR_PROCESS_OWNER
 import nl.info.zac.search.IndexingService
+import nl.info.zac.websocket.event.ScreenEvent
+import nl.info.zac.websocket.event.ScreenEventType
 import org.flowable.common.engine.impl.cfg.TransactionContext
 import org.flowable.common.engine.impl.cfg.TransactionListener
 import org.flowable.common.engine.impl.cfg.TransactionState

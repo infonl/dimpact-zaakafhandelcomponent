@@ -20,7 +20,6 @@ import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
-import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_ZAAKVERTROUWELIJK
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_UUID
 import nl.info.zac.itest.config.ItestConfiguration.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
@@ -28,6 +27,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_ZAAKVERTROUWELIJK
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BELANGHEBBENDE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_CONTACTPERSOON
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_MEDEAANVRAGER

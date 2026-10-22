@@ -13,13 +13,13 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.addEnkelvoudigInformatieobjectVersion
 import nl.info.zac.itest.client.createEnkelvoudigInformatieobjectForZaak
 import nl.info.zac.itest.config.BEHANDELAAR_1
-import nl.info.zac.itest.config.RECORDMANAGER_1
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_MAX_IN_MEMORY_FILE_SIZE_IN_MB
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MEDIA_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.RECORDMANAGER_1
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject

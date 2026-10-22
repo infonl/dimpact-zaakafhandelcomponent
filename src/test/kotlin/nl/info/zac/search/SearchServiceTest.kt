@@ -31,8 +31,8 @@ import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.solr.SolrClientFactory
-import org.apache.solr.client.solrj.beans.DocumentObjectBinder
 import org.apache.solr.client.solrj.SolrRequest
+import org.apache.solr.client.solrj.beans.DocumentObjectBinder
 import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.client.solrj.response.QueryResponse
 import org.apache.solr.common.SolrDocument

@@ -8,12 +8,12 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
+import nl.info.zac.gebruikersvoorkeuren.exception.ZoekopdrachtWithSameNameAlreadyExistsException
 import nl.info.zac.gebruikersvoorkeuren.model.DashboardCardInstelling
 import nl.info.zac.gebruikersvoorkeuren.model.TabelInstellingen
 import nl.info.zac.gebruikersvoorkeuren.model.Werklijst
 import nl.info.zac.gebruikersvoorkeuren.model.Zoekopdracht
 import nl.info.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters
-import nl.info.zac.gebruikersvoorkeuren.exception.ZoekopdrachtWithSameNameAlreadyExistsException
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor

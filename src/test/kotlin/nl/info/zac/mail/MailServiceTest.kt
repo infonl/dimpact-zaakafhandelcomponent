@@ -29,9 +29,9 @@ import jakarta.ws.rs.WebApplicationException
 import nl.info.client.officeconverter.OfficeConverterClientService
 import nl.info.client.officeconverter.exception.MessageEntityDataCouldNotBeBufferedException
 import nl.info.client.zgw.drc.DrcClientService
-import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.shared.ZgwApiService

@@ -11,12 +11,12 @@ import io.mockk.every
 import io.mockk.mockk
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
 import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import java.time.LocalDate
 
 class RestZaaktypeConverterTest : BehaviorSpec({

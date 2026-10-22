@@ -18,10 +18,10 @@ import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
+import nl.info.zac.itest.config.ItestConfiguration.DOCX_MEDIA_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
 import nl.info.zac.itest.config.ItestConfiguration.PDF_MEDIA_TYPE
-import nl.info.zac.itest.config.ItestConfiguration.DOCX_MEDIA_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.SMART_DOCUMENTS_DOCX_FILE_ID

@@ -17,15 +17,7 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import io.mockk.verifyOrder
-import java.net.URI
-import java.time.ZonedDateTime
-import java.util.UUID
-import java.util.concurrent.locks.ReentrantLock
-import nl.info.zac.event.EventingService
-import nl.info.zac.event.Opcode
 import net.atos.zac.flowable.ZaakVariabelenService
-import nl.info.zac.websocket.event.ScreenEvent
-import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.model.createPabcGroupRepresentation
 import nl.info.client.zgw.model.createMedewerkerIdentificatie
@@ -62,6 +54,8 @@ import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.event.EventingService
+import nl.info.zac.event.Opcode
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.identity.IdentityService
@@ -70,9 +64,15 @@ import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.websocket.event.ScreenEvent
+import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import nl.info.zac.zaak.model.ZaakAssignment
 import nl.info.zac.zaak.model.createZaakToewijzing
+import java.net.URI
+import java.time.ZonedDateTime
+import java.util.UUID
+import java.util.concurrent.locks.ReentrantLock
 
 @Suppress("LargeClass")
 class ZaakServiceTest : BehaviorSpec({

@@ -17,8 +17,8 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.createZaakAndRetrieve
 import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.client.createZaakAndRetrieve
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHANDELAAR_2
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1

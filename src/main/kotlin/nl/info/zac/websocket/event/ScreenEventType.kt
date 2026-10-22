@@ -4,15 +4,15 @@
  */
 package nl.info.zac.websocket.event
 
-import nl.info.zac.event.Opcode
-import nl.info.zac.event.Opcode.DELETED
-import nl.info.zac.event.Opcode.SKIPPED
-import nl.info.zac.event.Opcode.UPDATED
 import net.atos.zac.signalering.model.Signalering
 import nl.info.client.zgw.brc.model.generated.Besluit
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.zac.event.Opcode
+import nl.info.zac.event.Opcode.DELETED
+import nl.info.zac.event.Opcode.SKIPPED
+import nl.info.zac.event.Opcode.UPDATED
 import nl.info.zac.notification.Action
 import nl.info.zac.notification.Channel
 import nl.info.zac.notification.Notification

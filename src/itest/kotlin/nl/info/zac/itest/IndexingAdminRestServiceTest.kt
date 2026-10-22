@@ -16,9 +16,9 @@ import nl.info.zac.itest.client.createZaakAndRetrieve
 import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
-import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_ZAAKVERTROUWELIJK
 import nl.info.zac.itest.config.ItestConfiguration.PDF_MEDIA_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_ZAAKVERTROUWELIJK
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY

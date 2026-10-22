@@ -14,14 +14,14 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-import nl.info.zac.event.EventingService
-import nl.info.zac.websocket.event.ScreenEvent
-import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.app.note.converter.NoteConverter
+import nl.info.zac.event.EventingService
 import nl.info.zac.note.NoteService
 import nl.info.zac.note.createNote
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
+import nl.info.zac.websocket.event.ScreenEvent
+import nl.info.zac.websocket.event.ScreenEventType
 import java.util.UUID
 
 class NoteRestServiceTest : BehaviorSpec({

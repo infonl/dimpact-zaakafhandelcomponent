@@ -12,8 +12,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import java.net.URI
-import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.drc.DrcClientService
@@ -34,6 +32,8 @@ import nl.info.zac.search.model.createZaakAutorisatieGegevens
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import org.flowable.task.api.Task
+import java.net.URI
+import java.util.UUID
 
 private data class ZaakGedrevenReindexServiceTestContext(
     val reindexSupportService: ReindexSupportService,

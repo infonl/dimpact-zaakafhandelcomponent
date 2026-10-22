@@ -15,11 +15,10 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import nl.info.zac.app.shared.RestResultaat
-import nl.info.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
 import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
+import nl.info.zac.app.shared.RestResultaat
 import nl.info.zac.app.signalering.converter.RestSignaleringInstellingenConverter
 import nl.info.zac.app.signalering.exception.SignaleringException
 import nl.info.zac.app.signalering.model.RestSignaleringInstellingen
@@ -31,6 +30,7 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.signalering.model.SignaleringInstellingen
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime

@@ -8,6 +8,8 @@ import jakarta.json.bind.serializer.DeserializationContext
 import jakarta.json.bind.serializer.JsonbDeserializer
 import jakarta.json.stream.JsonParser
 import nl.info.client.zgw.util.JSONB
+import nl.info.client.zgw.zrc.exception.ZrcRuntimeException
+import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum
 import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdres
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding
@@ -15,8 +17,6 @@ import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats
-import nl.info.client.zgw.zrc.exception.ZrcRuntimeException
-import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum
 import java.lang.reflect.Type
 
 class ZaakObjectJsonbDeserializer : JsonbDeserializer<Zaakobject> {

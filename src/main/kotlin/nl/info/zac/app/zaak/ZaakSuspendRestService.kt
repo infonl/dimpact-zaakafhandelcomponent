@@ -16,8 +16,8 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.zac.app.zaak.converter.RestZaakConverter
-import nl.info.zac.app.zaak.model.RestZaakOpschorting
 import nl.info.zac.app.zaak.model.RestZaak
+import nl.info.zac.app.zaak.model.RestZaakOpschorting
 import nl.info.zac.app.zaak.model.RestZaakResumeData
 import nl.info.zac.app.zaak.model.RestZaakSuspendData
 import nl.info.zac.authentication.LoggedInUser

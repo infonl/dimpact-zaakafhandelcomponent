@@ -20,7 +20,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
-import nl.info.zac.app.shared.RestResultaat
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.exception.BrpPersonNotFoundException
 import nl.info.client.klant.KlantClientService
@@ -54,6 +53,7 @@ import nl.info.zac.app.klant.model.personen.toPersonenQuery
 import nl.info.zac.app.klant.model.personen.toRestPersonen
 import nl.info.zac.app.klant.model.personen.toRestPersoon
 import nl.info.zac.app.klant.model.personen.toRestResultaat
+import nl.info.zac.app.shared.RestResultaat
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.identification.IdentificationService

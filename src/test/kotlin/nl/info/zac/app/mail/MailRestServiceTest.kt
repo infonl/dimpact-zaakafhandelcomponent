@@ -13,11 +13,11 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import nl.info.zac.app.mail.model.RestMailGegevens
-import nl.info.zac.app.mail.model.createRestMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.zac.app.mail.model.RestMailGegevens
+import nl.info.zac.app.mail.model.createRestMailGegevens
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService

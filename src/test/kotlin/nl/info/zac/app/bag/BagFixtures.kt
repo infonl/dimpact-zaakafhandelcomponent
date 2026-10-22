@@ -5,10 +5,6 @@
 
 package nl.info.zac.app.bag
 
-import nl.info.zac.app.bag.model.BagObjectType
-import nl.info.zac.app.bag.model.RestBagAdres
-import nl.info.zac.app.bag.model.RestListAdressenParameters
-import nl.info.zac.app.bag.model.RestWoonplaats
 import nl.info.client.bag.model.generated.AdresseerbaarObjectIOHal
 import nl.info.client.bag.model.generated.Ligplaats
 import nl.info.client.bag.model.generated.LigplaatsIOHal
@@ -21,6 +17,10 @@ import nl.info.client.bag.model.generated.StatusVerblijfsobject
 import nl.info.client.bag.model.generated.Surface
 import nl.info.client.bag.model.generated.Verblijfsobject
 import nl.info.client.bag.model.generated.VerblijfsobjectIOHal
+import nl.info.zac.app.bag.model.BagObjectType
+import nl.info.zac.app.bag.model.RestBagAdres
+import nl.info.zac.app.bag.model.RestListAdressenParameters
+import nl.info.zac.app.bag.model.RestWoonplaats
 import java.math.BigDecimal
 
 fun createLigplaatsAdresseerbaarObject(status: StatusPlaats) =

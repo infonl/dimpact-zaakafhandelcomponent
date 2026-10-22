@@ -4,8 +4,8 @@
  */
 package nl.info.zac.app.detacheddocuments.model
 
-import nl.info.zac.app.shared.RestResultaat
 import nl.info.zac.app.identity.model.RestUser
+import nl.info.zac.app.shared.RestResultaat
 
 class RestDetachedDocumentResult(
     results: Collection<RestDetachedDocument>,

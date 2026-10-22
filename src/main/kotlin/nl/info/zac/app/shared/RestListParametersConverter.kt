@@ -5,14 +5,14 @@
 
 package nl.info.zac.app.shared
 
-import net.atos.zac.app.shared.RESTListParameters
+import nl.info.zac.app.shared.RestListParameters
 import nl.info.zac.shared.model.ListParameters
 import nl.info.zac.shared.model.Paging
 import nl.info.zac.shared.model.Sorting
 import nl.info.zac.shared.model.fromValue
 
-fun <LP : ListParameters> RESTListParameters.applyCommonParametersTo(listParameters: LP): LP {
-    if (!sort.isNullOrBlank()) listParameters.sorting = Sorting(sort, fromValue(order))
+fun <LP : ListParameters> RestListParameters.applyCommonParametersTo(listParameters: LP): LP {
+    sort?.takeIf { it.isNotBlank() }?.let { listParameters.sorting = Sorting(it, fromValue(order)) }
     listParameters.paging = Paging(page, maxResults)
     return listParameters
 }

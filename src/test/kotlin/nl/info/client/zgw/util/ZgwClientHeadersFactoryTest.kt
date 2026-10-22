@@ -14,11 +14,11 @@ import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.MultivaluedHashMap
-import java.util.concurrent.TimeUnit.SECONDS
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.authentication.createLoggedInUser
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit.SECONDS
 
 private const val LATCH_TIMEOUT_SECONDS = 5L
 

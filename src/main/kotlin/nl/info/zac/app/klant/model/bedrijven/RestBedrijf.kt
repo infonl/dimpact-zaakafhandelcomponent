@@ -4,11 +4,11 @@
  */
 package nl.info.zac.app.klant.model.bedrijven
 
-import nl.info.zac.app.shared.RestResultaat
 import nl.info.client.kvk.zoeken.model.generated.AdresType
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.klant.model.klant.RestKlant
+import nl.info.zac.app.shared.RestResultaat
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NON_BREAKING_SPACE
 import nl.info.zac.util.NoArgConstructor

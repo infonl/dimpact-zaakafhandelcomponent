@@ -14,9 +14,12 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import nl.info.zac.gebruikersvoorkeuren.GebruikersvoorkeurenService
+import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.app.gebruikersvoorkeuren.model.RestDashboardCardInstelling
 import nl.info.zac.app.gebruikersvoorkeuren.model.RestZoekopdracht
+import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.gebruikersvoorkeuren.GebruikersvoorkeurenService
 import nl.info.zac.gebruikersvoorkeuren.model.DashboardCardId
 import nl.info.zac.gebruikersvoorkeuren.model.DashboardCardInstelling
 import nl.info.zac.gebruikersvoorkeuren.model.TabelInstellingen
@@ -26,10 +29,7 @@ import nl.info.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters
 import nl.info.zac.gebruikersvoorkeuren.model.createDashboardCardInstelling
 import nl.info.zac.gebruikersvoorkeuren.model.createTabelInstellingen
 import nl.info.zac.gebruikersvoorkeuren.model.createZoekopdracht
-import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.policy.PolicyService
-import net.atos.zac.signalering.model.SignaleringType
 
 class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
     val gebruikersvoorkeurenService = mockk<GebruikersvoorkeurenService>()

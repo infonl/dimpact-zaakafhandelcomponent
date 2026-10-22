@@ -6,13 +6,7 @@ package nl.info.client.zgw.shared
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import nl.info.client.zgw.zrc.model.Rol
-import nl.info.client.zgw.zrc.model.RolListParameters
-import nl.info.client.zgw.zrc.model.RolMedewerker
-import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
-import nl.info.client.zgw.zrc.model.zaakUUID
 import nl.info.client.zgw.drc.DrcClientService
-import nl.info.zac.document.content.DocumentContent
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
@@ -22,6 +16,10 @@ import nl.info.client.zgw.shared.exception.StatusTypeNotFoundException
 import nl.info.client.zgw.util.convertToDateTime
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.Rol
+import nl.info.client.zgw.zrc.model.RolListParameters
+import nl.info.client.zgw.zrc.model.RolMedewerker
+import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.client.zgw.zrc.model.generated.ResultaatSub
@@ -32,6 +30,7 @@ import nl.info.client.zgw.zrc.model.generated.ZaakAfsluiten
 import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
+import nl.info.client.zgw.zrc.model.zaakUUID
 import nl.info.client.zgw.zrc.util.toZaakSub
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
@@ -40,6 +39,7 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.client.zgw.ztc.model.generated.StatusType
+import nl.info.zac.document.content.DocumentContent
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.NotSupportedException

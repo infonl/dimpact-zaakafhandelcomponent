@@ -20,11 +20,7 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import java.time.LocalDate
-import java.util.UUID
-import nl.info.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
-import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.shared.ZgwApiService
@@ -44,9 +40,9 @@ import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ResultaattypeReferenceService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.ZaaktypeConfigurationService.Companion.INADMISSIBLE_TERMINATION_ID
 import nl.info.zac.admin.ZaaktypeConfigurationService.Companion.INADMISSIBLE_TERMINATION_REASON
-import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.admin.model.ZaaktypeZaakafzenderParameters
 import nl.info.zac.app.admin.model.RestZaakAfzender
@@ -89,8 +85,9 @@ import nl.info.zac.app.zaak.model.toZaak
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
-import nl.info.zac.flowable.ZaakProcessService
+import nl.info.zac.event.EventingService
 import nl.info.zac.flowable.ProcessStartData
+import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.history.model.HistoryLine
@@ -107,10 +104,13 @@ import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toLocalDate
+import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.ZaakService
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
 import nl.info.zac.zaak.readZaakAutorisatieGegevens
+import java.time.LocalDate
+import java.util.UUID
 
 @Path("zaken")
 @Consumes(MediaType.APPLICATION_JSON)

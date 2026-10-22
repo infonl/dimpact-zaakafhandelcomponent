@@ -5,11 +5,11 @@
 
 package nl.info.zac.app.zaak.model
 
+import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
+import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
 import nl.info.zac.app.bag.model.RestBagObject
 import nl.info.zac.app.bag.model.RestOpenbareRuimte
 import nl.info.zac.app.bag.model.RestPand
-import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
-import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.klant.model.klant.IdentificatieType

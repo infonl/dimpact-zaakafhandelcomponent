@@ -13,10 +13,9 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import nl.info.client.zgw.shared.exception.ZgwErrorException
-import nl.info.zac.app.shared.RestResultaat
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.client.zgw.shared.exception.ZgwErrorException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.detacheddocuments.converter.RestDetachedDocumentConverter
@@ -25,6 +24,7 @@ import nl.info.zac.app.detacheddocuments.model.RestDetachedDocument
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentResult
 import nl.info.zac.app.identity.converter.RestUserConverter
+import nl.info.zac.app.shared.RestResultaat
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy

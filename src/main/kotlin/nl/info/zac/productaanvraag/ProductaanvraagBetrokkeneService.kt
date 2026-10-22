@@ -6,12 +6,12 @@ package nl.info.zac.productaanvraag
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import nl.info.client.zgw.shared.ZgwApiService
-import nl.info.client.zgw.zrc.model.RolNatuurlijkPersoon
-import nl.info.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import nl.info.client.kvk.util.validateKvKVestigingsnummer
 import nl.info.client.kvk.util.validateKvkNummer
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.RolNatuurlijkPersoon
+import nl.info.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak

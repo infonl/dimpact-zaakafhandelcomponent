@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Dimpact
+ * SPDX-FileCopyrightText: 2024 Dimpact, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.history.converter
@@ -8,12 +8,12 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import nl.info.client.zgw.shared.model.Bron
-import nl.info.client.zgw.shared.model.ObjectType
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.createBesluit
 import nl.info.client.zgw.brc.model.generated.Besluit
 import nl.info.client.zgw.brc.model.generated.createBesluitInformatieObject
+import nl.info.client.zgw.shared.model.Bron
+import nl.info.client.zgw.shared.model.ObjectType
 import nl.info.client.zgw.shared.model.audit.AuditTrailRegel
 import nl.info.client.zgw.shared.model.audit.AuditWijziging
 import nl.info.client.zgw.shared.model.audit.besluiten.BesluitInformatieobjectWijziging

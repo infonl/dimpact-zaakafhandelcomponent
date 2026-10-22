@@ -15,7 +15,6 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_10_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2025_07_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2026_07_23
-import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_TAAK_OP_NAAM_MAIL
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_TAAK_OP_NAAM_NAME
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_TAAK_VERLOPEN_MAIL
@@ -48,6 +47,7 @@ import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_3
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_4
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_UUID

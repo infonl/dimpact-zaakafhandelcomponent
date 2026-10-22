@@ -6,9 +6,6 @@ package nl.info.zac.app.informatieobjecten.converter
 
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
-import nl.info.client.zgw.shared.exception.ZgwErrorException
-import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
-import nl.info.client.zgw.zrc.model.zaakUUID
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
@@ -16,20 +13,23 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateL
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.client.zgw.shared.exception.ZgwErrorException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
+import nl.info.client.zgw.zrc.model.zaakUUID
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.configuration.model.toRestTaal
 import nl.info.zac.app.identity.model.toRestUser
 import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens
 import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
-import nl.info.zac.app.shared.toDrcVertrouwelijkheidaanduidingEnum
-import nl.info.zac.app.shared.toRestVertrouwelijkheidaanduiding
 import nl.info.zac.app.informatieobjecten.model.RestFileUpload
 import nl.info.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject
 import nl.info.zac.app.informatieobjecten.model.toRestOndertekening
 import nl.info.zac.app.policy.model.toRestDocumentRechten
+import nl.info.zac.app.shared.toDrcVertrouwelijkheidaanduidingEnum
+import nl.info.zac.app.shared.toRestVertrouwelijkheidaanduiding
 import nl.info.zac.app.task.model.RestTaskDocumentData
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.authentication.LoggedInUser

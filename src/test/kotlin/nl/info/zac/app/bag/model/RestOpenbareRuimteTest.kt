@@ -9,7 +9,6 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import nl.info.client.bag.model.createAdresIOHal
 import nl.info.client.bag.model.createHalLink
 import nl.info.client.bag.model.createOpenbareRuimte
@@ -17,15 +16,16 @@ import nl.info.client.bag.model.createWoonplaats
 import nl.info.client.bag.model.createWoonplaatsIOHalBasis
 import nl.info.client.bag.model.generated.Indicatie
 import nl.info.client.bag.model.generated.OpenbareRuimteEmbedded
+import nl.info.client.bag.model.generated.OpenbareRuimteIOHal
+import nl.info.client.bag.model.generated.OpenbareRuimteIOHalBasis
 import nl.info.client.bag.model.generated.OpenbareRuimteLinks
 import nl.info.client.bag.model.generated.StatusNaamgeving
 import nl.info.client.bag.model.generated.TypeOpenbareRuimte
 import nl.info.client.bag.model.generated.WoonplaatsLinks
-import nl.info.client.bag.model.generated.OpenbareRuimteIOHal
-import nl.info.client.bag.model.generated.OpenbareRuimteIOHalBasis
 import nl.info.client.zgw.model.createObjectOpenbareRuimte
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakobjectOpenbareRuimte
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import java.net.URI
 
 class RestOpenbareRuimteTest : BehaviorSpec({

@@ -9,7 +9,6 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.ws.rs.HttpMethod
 import jakarta.ws.rs.core.UriBuilder
-import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import nl.info.client.smartdocuments.model.document.File
 import nl.info.client.smartdocuments.model.document.SmartDocument
 import nl.info.client.smartdocuments.model.document.Variables
@@ -18,6 +17,7 @@ import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.authentication.LoggedInUser
