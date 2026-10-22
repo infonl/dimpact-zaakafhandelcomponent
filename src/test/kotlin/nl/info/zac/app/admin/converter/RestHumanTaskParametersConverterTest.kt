@@ -9,11 +9,14 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import jakarta.json.bind.JsonbBuilder
+import nl.info.zac.admin.model.FormulierVeldDefinitie
 import nl.info.zac.admin.model.createZaaktypeCmmnHumantaskParameters
 import nl.info.zac.app.admin.model.RestHumanTaskParameters
 import nl.info.zac.app.admin.model.RestHumanTaskReferenceTable
 import nl.info.zac.app.admin.model.createRestPlanItemDefinition
+import nl.info.zac.app.admin.model.createRestReferenceTable
 import nl.info.zac.app.planitems.model.PlanItemType
 
 class RestHumanTaskParametersConverterTest : BehaviorSpec({
@@ -48,6 +51,65 @@ class RestHumanTaskParametersConverterTest : BehaviorSpec({
                     result[0].defaultGroepId shouldBe "fakeGroepId"
                     result[0].doorlooptijd shouldBe 5
                     result[0].planItemDefinition shouldBe fakePlanItemDefinition
+                }
+            }
+        }
+
+        given("Human task parameters of the ADVIES form without a saved reference table for its ADVIES field") {
+            val restPlanItemDefinition = createRestPlanItemDefinition(id = "ADVIES_INTERN")
+            val zaaktypeCmmnHumantaskParameters = createZaaktypeCmmnHumantaskParameters(
+                planItemDefinitionId = "ADVIES_INTERN"
+            )
+            val defaultRestHumanTaskReferenceTable = RestHumanTaskReferenceTable(
+                veld = FormulierVeldDefinitie.ADVIES.name,
+                tabel = createRestReferenceTable(code = "ADVIES")
+            )
+            every {
+                restHumanTaskReferenceTableConverter.toRestHumanTaskReferenceTables(
+                    zaaktypeCmmnHumantaskParameters.getReferentieTabellen()
+                )
+            } returns emptyList()
+            every {
+                restHumanTaskReferenceTableConverter.convertDefault(FormulierVeldDefinitie.ADVIES)
+            } returns defaultRestHumanTaskReferenceTable
+
+            `when`("convertHumanTaskParametersCollection is called") {
+                val result = converter.convertHumanTaskParametersCollection(
+                    listOf(zaaktypeCmmnHumantaskParameters),
+                    listOf(restPlanItemDefinition)
+                )
+
+                then("the ADVIES field gets the default reference table") {
+                    result.single().referentieTabellen shouldBe listOf(defaultRestHumanTaskReferenceTable)
+                }
+            }
+        }
+
+        given("Human task parameters of the ADVIES form with a saved reference table for its ADVIES field") {
+            val restPlanItemDefinition = createRestPlanItemDefinition(id = "ADVIES_INTERN")
+            val zaaktypeCmmnHumantaskParameters = createZaaktypeCmmnHumantaskParameters(
+                planItemDefinitionId = "ADVIES_INTERN"
+            )
+            val savedRestHumanTaskReferenceTable = RestHumanTaskReferenceTable(
+                id = 7L,
+                veld = FormulierVeldDefinitie.ADVIES.name,
+                tabel = createRestReferenceTable(code = "fakeSavedReferenceTableCode")
+            )
+            every {
+                restHumanTaskReferenceTableConverter.toRestHumanTaskReferenceTables(
+                    zaaktypeCmmnHumantaskParameters.getReferentieTabellen()
+                )
+            } returns listOf(savedRestHumanTaskReferenceTable)
+
+            `when`("convertHumanTaskParametersCollection is called") {
+                val result = converter.convertHumanTaskParametersCollection(
+                    listOf(zaaktypeCmmnHumantaskParameters),
+                    listOf(restPlanItemDefinition)
+                )
+
+                then("the ADVIES field keeps its saved reference table and gets no default one") {
+                    result.single().referentieTabellen shouldBe listOf(savedRestHumanTaskReferenceTable)
+                    verify(exactly = 0) { restHumanTaskReferenceTableConverter.convertDefault(any()) }
                 }
             }
         }
