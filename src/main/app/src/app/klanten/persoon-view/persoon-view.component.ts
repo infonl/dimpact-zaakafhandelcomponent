@@ -7,7 +7,7 @@ import { Component } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { ActivatedRoute } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { KlantContactmomentenTabelComponent } from "../../contactmomenten/klant-contactmomenten-tabel/klant-contactmomenten-tabel.component";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
@@ -21,7 +21,7 @@ import { KlantZakenTabelComponent } from "../klant-zaken-tabel/klant-zaken-tabel
   imports: [
     MatSidenavModule,
     MatCardModule,
-    TranslateModule,
+    TranslatePipe,
     DatumPipe,
     StaticTextComponent,
     KlantZakenTabelComponent,

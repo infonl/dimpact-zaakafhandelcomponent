@@ -18,7 +18,7 @@ import { MatDividerModule } from "@angular/material/divider";
 import { MatError } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
@@ -43,7 +43,7 @@ import { TakenService } from "../taken.service";
     MatDividerModule,
     MatButtonModule,
     MatError,
-    TranslateModule,
+    TranslatePipe,
     ZacAutoComplete,
     ZacFormActions,
     ZacInput,

@@ -23,7 +23,7 @@ import {
   MatTable,
 } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { firstValueFrom } from "rxjs";
 import { WebsocketService } from "../../core/websocket/websocket.service";
@@ -65,7 +65,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
     MatIconAnchor,
     MatIcon,
     RouterLink,
-    TranslateModule,
+    TranslatePipe,
     DatumPipe,
     DagenPipe,
     EmptyPipe,

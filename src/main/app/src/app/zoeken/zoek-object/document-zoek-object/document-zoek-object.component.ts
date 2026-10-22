@@ -5,7 +5,7 @@
 
 import { Component, input } from "@angular/core";
 import { MatSidenav } from "@angular/material/sidenav";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { DatumPipe } from "../../../shared/pipes/datum.pipe";
 import { I18nKeyPipe } from "../../../shared/pipes/i18n-key.pipe";
 import { StaticTextComponent } from "../../../shared/static-text/static-text.component";
@@ -25,7 +25,7 @@ import { ZoekObjectComponent } from "../zoek-object/zoek-object-component";
     ZoekObjectLinkComponent,
     StaticTextComponent,
     DatumPipe,
-    TranslateModule,
+    TranslatePipe,
   ],
 })
 export class DocumentZoekObjectComponent extends ZoekObjectComponent {

@@ -6,7 +6,7 @@
 import { Component, inject, output } from "@angular/core";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTabsModule } from "@angular/material/tabs";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { PolicyService } from "../../../policy/policy.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
@@ -21,7 +21,7 @@ import { PersoonZoekComponent } from "../personen/persoon-zoek.component";
   imports: [
     MatTabsModule,
     MatIconModule,
-    TranslateModule,
+    TranslatePipe,
     PersoonZoekComponent,
     BedrijfZoekComponent,
   ],

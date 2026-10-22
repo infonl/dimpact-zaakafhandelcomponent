@@ -24,7 +24,7 @@ import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { merge, Observable, of } from "rxjs";
 import { catchError, map, startWith, switchMap } from "rxjs/operators";
@@ -68,7 +68,7 @@ import { KlantenService } from "../klanten.service";
     MatButtonModule,
     MatIconModule,
     RouterLink,
-    TranslateModule,
+    TranslatePipe,
     DatumPipe,
     EmptyPipe,
     TekstFilterComponent,

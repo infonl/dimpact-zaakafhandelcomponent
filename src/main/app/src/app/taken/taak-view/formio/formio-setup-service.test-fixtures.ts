@@ -13,7 +13,7 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { ExtendedComponentSchema } from "@formio/angular";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import {
   provideQueryClient,
   QueryClient,
@@ -168,12 +168,7 @@ export const taak: GeneratedType<"RestTask"> = {
 
 export function configureFormioSetupServiceTestBed() {
   TestBed.configureTestingModule({
-    imports: [
-      MatSidenav,
-      RouterModule.forRoot([]),
-      TranslateModule.forRoot(),
-      NoopAnimationsModule,
-    ],
+    imports: [MatSidenav, RouterModule.forRoot([]), NoopAnimationsModule],
     providers: [
       UtilService,
       IdentityService,
@@ -187,6 +182,7 @@ export function configureFormioSetupServiceTestBed() {
       provideHttpClient(withInterceptorsFromDi()),
       provideHttpClientTesting(),
       provideQueryClient(testQueryClient),
+      provideTranslateService(),
     ],
   }).compileComponents();
 

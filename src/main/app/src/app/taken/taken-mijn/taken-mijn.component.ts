@@ -21,7 +21,7 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTable, MatTableModule } from "@angular/material/table";
 import { ActivatedRoute, RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { UtilService } from "../../core/service/util.service";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
 import { ColumnPickerComponent } from "../../shared/dynamic-table/column-picker/column-picker.component";
@@ -63,7 +63,7 @@ import { TakenMijnDatasource } from "./taken-mijn-datasource";
     MatIconButton,
     MatIconAnchor,
     RouterLink,
-    TranslateModule,
+    TranslatePipe,
     SlicePipe,
     EmptyPipe,
     DatumPipe,

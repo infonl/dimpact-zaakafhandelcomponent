@@ -6,7 +6,7 @@
 import { Component, input, output } from "@angular/core";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTabsModule } from "@angular/material/tabs";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { KlantGegevens } from "../../../model/klanten/klant-gegevens";
 import { BedrijfZoekComponent } from "../../../zoek/bedrijven/bedrijf-zoek.component";
@@ -17,7 +17,7 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
   imports: [
     MatIconModule,
     MatTabsModule,
-    TranslateModule,
+    TranslatePipe,
     PersoonZoekComponent,
     BedrijfZoekComponent,
   ],
