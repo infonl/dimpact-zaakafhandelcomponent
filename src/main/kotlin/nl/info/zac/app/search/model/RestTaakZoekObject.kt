@@ -5,13 +5,13 @@
 package nl.info.zac.app.search.model
 
 import jakarta.json.bind.annotation.JsonbProperty
-import nl.info.zac.util.time.convertToLocalDate
 import nl.info.zac.app.policy.model.RestTaakRechten
 import nl.info.zac.app.policy.model.toRestTaakRechten
 import nl.info.zac.app.task.model.TaakStatus
 import nl.info.zac.policy.output.TaakRechten
 import nl.info.zac.search.model.zoekobject.TaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.util.time.convertToLocalDate
 import java.time.LocalDate
 
 data class RestTaakZoekObject(

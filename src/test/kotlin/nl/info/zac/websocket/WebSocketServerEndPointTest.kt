@@ -17,9 +17,9 @@ import jakarta.servlet.http.HttpSession
 import jakarta.websocket.CloseReason
 import jakarta.websocket.EndpointConfig
 import jakarta.websocket.Session
-import nl.info.zac.websocket.WebsocketHandshakeInterceptor.Companion.HTTP_SESSION
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.LoggedInUserProvider.Companion.LOGGED_IN_USER_SESSION_ATTRIBUTE
+import nl.info.zac.websocket.WebsocketHandshakeInterceptor.Companion.HTTP_SESSION
 
 class WebSocketServerEndPointTest : BehaviorSpec({
     val sessionRegistry = mockk<SessionRegistry>()

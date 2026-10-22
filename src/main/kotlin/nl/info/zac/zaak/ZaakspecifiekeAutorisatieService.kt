@@ -6,6 +6,7 @@ package nl.info.zac.zaak
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.pabc.ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -29,7 +30,6 @@ import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRolty
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekeAutorisatieNotAllowedException
 import nl.info.zac.app.zaak.exception.ZaaktypeNotZaakspecifiekAutoriseerbaarException
-import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.User
@@ -38,8 +38,8 @@ import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.task.TaskHistoryService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.zaak.model.ZaakspecifiekGeautoriseerdeMedewerkerRol
 import nl.info.zac.zaak.model.ZaakToewijzing
+import nl.info.zac.zaak.model.ZaakspecifiekGeautoriseerdeMedewerkerRol
 import java.util.UUID
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock

@@ -14,7 +14,6 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import nl.info.zac.app.shared.RestResultaat
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -23,6 +22,7 @@ import nl.info.zac.app.inboxdocument.model.RestInboxDocument
 import nl.info.zac.app.inboxdocument.model.RestInboxDocumentDeleteResult
 import nl.info.zac.app.inboxdocument.model.RestInboxDocumentListParameters
 import nl.info.zac.app.inboxdocument.model.toRestInboxDocuments
+import nl.info.zac.app.shared.RestResultaat
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
 import nl.info.zac.policy.PolicyService

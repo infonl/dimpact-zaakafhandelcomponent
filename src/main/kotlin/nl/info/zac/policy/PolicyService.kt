@@ -7,9 +7,6 @@ package nl.info.zac.policy
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
-import nl.info.zac.flowable.task.readZaakUUID
-import nl.info.zac.flowable.task.readZaaktypeOmschrijving
-import nl.info.zac.flowable.util.isOpen
 import nl.info.client.opa.model.OpaRuleResult
 import nl.info.client.opa.model.RuleQuery
 import nl.info.client.opa.model.RuleResponse
@@ -29,6 +26,9 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
 import nl.info.zac.enkelvoudiginformatieobject.util.isSigned
+import nl.info.zac.flowable.task.readZaakUUID
+import nl.info.zac.flowable.task.readZaaktypeOmschrijving
+import nl.info.zac.flowable.util.isOpen
 import nl.info.zac.policy.exception.OpaRuleNotConfiguredException
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.input.BrpInput

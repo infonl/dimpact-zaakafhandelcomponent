@@ -8,7 +8,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
-import nl.info.zac.app.bag.createSurface
 import nl.info.client.bag.model.createHalLink
 import nl.info.client.bag.model.createPand
 import nl.info.client.bag.model.createPandIOHal
@@ -21,6 +20,7 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakobjectPand
 import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectPand
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
+import nl.info.zac.app.bag.createSurface
 import nl.info.zac.app.zaak.model.RestGeometryType
 import java.net.URI
 import java.util.UUID

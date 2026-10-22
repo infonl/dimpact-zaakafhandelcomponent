@@ -6,8 +6,8 @@
 package net.atos.zac.flowable.delegate
 
 import net.atos.zac.flowable.FlowableHelper
-import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.websocket.event.ScreenEventType
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
 import java.util.logging.Logger

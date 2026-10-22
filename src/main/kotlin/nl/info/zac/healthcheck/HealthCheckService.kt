@@ -6,9 +6,9 @@ package nl.info.zac.healthcheck
 
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
-import nl.info.zac.util.time.dateNowIsBetween
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum.INGANGSDATUM_BESLUIT
@@ -21,7 +21,6 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.INITIATOR
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.KLANTCONTACTER
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.MEDE_INITIATOR
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.ZAAKCOORDINATOR
-import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.ZaaktypeConfigurationService
@@ -42,6 +41,7 @@ import nl.info.zac.healthcheck.model.BuildInformation
 import nl.info.zac.healthcheck.model.ZaaktypeInrichtingscheck
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.isPureAscii
+import nl.info.zac.util.time.dateNowIsBetween
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.io.File
 import java.io.IOException

@@ -5,13 +5,13 @@
 package nl.info.zac.app.zaak.model
 
 import jakarta.json.bind.annotation.JsonbProperty
-import nl.info.zac.util.time.PeriodUtil
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.time.PeriodUtil
 import java.time.Period
 import java.util.UUID
 

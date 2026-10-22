@@ -4,8 +4,8 @@
  */
 package nl.info.zac.app.productaanvraag.model
 
-import nl.info.zac.app.shared.RestListParameters
 import nl.info.zac.app.search.model.RestDatumRange
+import nl.info.zac.app.shared.RestListParameters
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 

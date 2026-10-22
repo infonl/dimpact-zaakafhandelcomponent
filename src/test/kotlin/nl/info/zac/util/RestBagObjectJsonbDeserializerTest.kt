@@ -4,11 +4,11 @@
  */
 package nl.info.zac.util
 
-import net.atos.zac.util.JsonbConfiguration
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import net.atos.zac.util.JsonbConfiguration
 import nl.info.zac.app.bag.model.RestAdresseerbaarObject
 import nl.info.zac.app.bag.model.RestBagAdres
 import nl.info.zac.app.bag.model.RestBagObjectGegevens

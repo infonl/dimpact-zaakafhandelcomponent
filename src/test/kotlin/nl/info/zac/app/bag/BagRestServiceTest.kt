@@ -4,12 +4,12 @@
  */
 package nl.info.zac.app.bag
 
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.checkUnnecessaryStub
@@ -18,12 +18,6 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import nl.info.zac.app.bag.model.BagObjectType
-import nl.info.zac.app.bag.model.RestBagObjectGegevens
-import nl.info.zac.app.bag.model.RestNummeraanduiding
-import nl.info.zac.app.bag.model.RestOpenbareRuimte
-import nl.info.zac.app.bag.model.RestPand
-import nl.info.zac.app.bag.model.RestWoonplaats
 import nl.info.client.bag.BagClientService
 import nl.info.client.bag.model.BevraagAdressenParameters
 import nl.info.client.bag.model.createAdresIOHal
@@ -49,6 +43,12 @@ import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdresRequest
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectRequest
+import nl.info.zac.app.bag.model.BagObjectType
+import nl.info.zac.app.bag.model.RestBagObjectGegevens
+import nl.info.zac.app.bag.model.RestNummeraanduiding
+import nl.info.zac.app.bag.model.RestOpenbareRuimte
+import nl.info.zac.app.bag.model.RestPand
+import nl.info.zac.app.bag.model.RestWoonplaats
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.policy.PolicyService

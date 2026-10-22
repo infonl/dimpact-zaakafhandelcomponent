@@ -5,8 +5,8 @@
 
 package nl.info.client.zgw.shared.model.audit.documenten
 
-import nl.info.client.zgw.shared.model.ObjectType
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.client.zgw.shared.model.ObjectType
 import nl.info.client.zgw.shared.model.audit.AuditWijziging
 
 class EnkelvoudigInformatieobjectWijziging : AuditWijziging<EnkelvoudigInformatieObject>() {

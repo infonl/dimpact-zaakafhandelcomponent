@@ -6,11 +6,7 @@ package nl.info.zac.mailtemplates
 
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.UriBuilder
-import nl.info.client.zgw.zrc.model.Rol
 import net.atos.zac.flowable.ZaakVariabelenService
-import nl.info.zac.flowable.task.readZaakIdentificatie
-import nl.info.zac.flowable.task.readZaaktypeOmschrijving
-import nl.info.zac.util.time.convertToLocalDate
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.model.generated.Persoon
 import nl.info.client.brp.util.toAddressString
@@ -21,11 +17,14 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.flowable.task.readZaakIdentificatie
+import nl.info.zac.flowable.task.readZaaktypeOmschrijving
 import nl.info.zac.identification.findRechtspersoonOrVestiging
 import nl.info.zac.identification.toIdentificatieType
 import nl.info.zac.identity.IdentityService
@@ -36,6 +35,7 @@ import nl.info.zac.mailtemplates.model.MailTemplateVariables
 import nl.info.zac.mailtemplates.model.MailTemplateVariables.Companion.ZAAKDATA_VARIABLE_PREFIX
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.time.convertToLocalDate
 import org.apache.commons.text.StringEscapeUtils
 import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo

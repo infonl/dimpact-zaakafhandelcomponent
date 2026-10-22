@@ -7,7 +7,6 @@ package nl.info.zac.app.zaak.converter
 import jakarta.inject.Inject
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ONTVANGSTBEVESTIGING_VERSTUURD
-import nl.info.zac.util.time.PeriodUtil
 import nl.info.client.klant.KlantClientService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.shared.ZgwApiService
@@ -30,10 +29,10 @@ import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.shared.toRestVertrouwelijkheidaanduiding
-import nl.info.zac.app.zaak.model.RestZaakKenmerk
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestGerelateerdeZaak
 import nl.info.zac.app.zaak.model.RestZaak
+import nl.info.zac.app.zaak.model.RestZaakKenmerk
 import nl.info.zac.app.zaak.model.toRestGeometry
 import nl.info.zac.app.zaak.model.toRestZaakBpmnProcessDefinition
 import nl.info.zac.app.zaak.model.toRestZaakStatus
@@ -48,6 +47,7 @@ import nl.info.zac.search.model.ZaakIndicatie.HOOFDZAAK
 import nl.info.zac.search.model.ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD
 import nl.info.zac.search.model.ZaakIndicatie.OPSCHORTING
 import nl.info.zac.search.model.ZaakIndicatie.VERLENGD
+import nl.info.zac.util.time.PeriodUtil
 import nl.info.zac.zaak.ZaakService
 import java.time.Period
 import java.util.EnumSet.noneOf

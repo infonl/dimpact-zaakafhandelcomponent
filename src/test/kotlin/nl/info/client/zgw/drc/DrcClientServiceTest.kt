@@ -7,6 +7,7 @@ package nl.info.client.zgw.drc
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
@@ -19,26 +20,25 @@ import io.mockk.verify
 import jakarta.json.JsonObject
 import jakarta.ws.rs.core.Response
 import nl.info.client.zgw.drc.exception.DrcRuntimeException
-import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
-import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockRequest
-import nl.info.client.zgw.drc.model.createLockEnkelvoudigInformatieObject
-import nl.info.client.zgw.drc.model.generated.LockEnkelvoudigInformatieObject
-import nl.info.client.zgw.util.ZgwClientHeadersFactory
-import nl.info.zac.configuration.ConfigurationService
-import io.kotest.matchers.string.shouldContain
 import nl.info.client.zgw.drc.model.createBestandsDeel
+import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockSub
+import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockRequest
+import nl.info.client.zgw.drc.model.createLockEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.BestandsDeel
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
+import nl.info.client.zgw.drc.model.generated.LockEnkelvoudigInformatieObject
+import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.util.extractUuid
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.content.InMemoryDocumentContent
 import nl.info.zac.document.content.TemporaryFileDocumentContent
+import java.io.ByteArrayInputStream
+import java.io.InputStream
 import java.net.URI
 import java.nio.file.Files
 import java.util.Base64
-import java.io.ByteArrayInputStream
-import java.io.InputStream
 import java.util.UUID
 
 class DrcClientServiceTest : BehaviorSpec({

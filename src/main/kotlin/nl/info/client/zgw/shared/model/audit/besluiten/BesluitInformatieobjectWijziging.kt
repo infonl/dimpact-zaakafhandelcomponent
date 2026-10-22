@@ -5,8 +5,8 @@
 
 package nl.info.client.zgw.shared.model.audit.besluiten
 
-import nl.info.client.zgw.shared.model.ObjectType
 import nl.info.client.zgw.brc.model.generated.BesluitInformatieObject
+import nl.info.client.zgw.shared.model.ObjectType
 import nl.info.client.zgw.shared.model.audit.AuditWijziging
 
 class BesluitInformatieobjectWijziging : AuditWijziging<BesluitInformatieObject>() {

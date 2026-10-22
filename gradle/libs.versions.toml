@@ -157,6 +157,7 @@ github-kotlin-logging = { group = "io.github.oshai", name = "kotlin-logging-jvm"
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 okhttp-urlconnection = { group = "com.squareup.okhttp3", name = "okhttp-urlconnection", version.ref = "okhttp" }
 jacoco-agent = { group = "org.jacoco", name="org.jacoco.agent", version.ref = "jacoco" }
+detekt-rules-ktlint-wrapper = { group = "dev.detekt", name = "detekt-rules-ktlint-wrapper", version.ref = "detekt" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
