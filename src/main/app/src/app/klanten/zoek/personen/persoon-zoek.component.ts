@@ -80,7 +80,12 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
 
   private readonly destroy$ = new Subject<void>();
 
-  queries: GeneratedType<"RestPersonenParameters">[] = [];
+  private readonly personenParametersQuery = injectQuery(() =>
+    this.klantenService.getPersonenParameters(),
+  );
+  private readonly queries = computed(
+    () => this.personenParametersQuery.data() ?? [],
+  );
   persoonColumns = [
     "bsn",
     "naam",
@@ -142,12 +147,6 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
     private readonly configuratieService: ConfiguratieService,
     private readonly formCommunicationService: FormCommunicatieService,
   ) {
-    this.klantenService
-      .getPersonenParameters()
-      .subscribe((personenParameters) => {
-        this.queries = personenParameters;
-      });
-
     this.formGroup.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
@@ -216,7 +215,7 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
         );
       }
       return acc;
-    }, this.queries);
+    }, this.queries());
   }
 
   private getQueriesWithoutCardinality(

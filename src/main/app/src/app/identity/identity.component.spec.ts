@@ -10,8 +10,10 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatCardHarness } from "@angular/material/card/testing";
 import { MatListItemHarness } from "@angular/material/list/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { screen } from "@testing-library/angular";
+import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../setupJest";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { IdentityComponent } from "./identity.component";
@@ -20,16 +22,14 @@ import { IdentityService } from "./identity.service";
 const makeLoggedInUser = (
   fields: Partial<GeneratedType<"RestLoggedInUser">> = {},
 ): GeneratedType<"RestLoggedInUser"> =>
-  ({
+  fromPartial<GeneratedType<"RestLoggedInUser">>({
     id: "user-1",
     naam: "Test User",
     groupIds: [],
     functionalRoles: [],
     applicationRoles: {},
     ...fields,
-  }) as Partial<
-    GeneratedType<"RestLoggedInUser">
-  > as unknown as GeneratedType<"RestLoggedInUser">;
+  });
 
 describe(IdentityComponent.name, () => {
   let fixture: ComponentFixture<IdentityComponent>;
@@ -38,12 +38,9 @@ describe(IdentityComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        IdentityComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+      imports: [IdentityComponent, NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         IdentityService,
         provideHttpClient(),
         provideQueryClient(testQueryClient),
@@ -138,31 +135,24 @@ describe(IdentityComponent.name, () => {
   it("renders the h1 heading for Rollen per zaaktype", async () => {
     setup(makeLoggedInUser());
 
-    const h1 = (fixture.nativeElement as Element).querySelector(
-      "h1",
-    ) as HTMLElement;
-    expect(h1.textContent).toContain("Rollen per zaaktype");
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Rollen per zaaktype" }),
+    ).toBeInTheDocument();
   });
 
   it("renders group code elements inside the Groepen list", async () => {
     setup(makeLoggedInUser({ groupIds: ["my-group"] }));
 
-    const nativeElement = fixture.nativeElement as Element;
-    const codeElements = nativeElement.querySelectorAll("code");
-    const texts = Array.from(codeElements).map((el) =>
-      (el as HTMLElement).textContent?.trim(),
-    );
-    expect(texts).toContain("my-group");
+    expect(
+      screen.getByText("my-group", { selector: "code" }),
+    ).toBeInTheDocument();
   });
 
   it("renders role code elements inside the Rollen list", async () => {
     setup(makeLoggedInUser({ functionalRoles: ["ROLE_ADMIN"] }));
 
-    const nativeElement = fixture.nativeElement as Element;
-    const codeElements = nativeElement.querySelectorAll("code");
-    const texts = Array.from(codeElements).map((el) =>
-      (el as HTMLElement).textContent?.trim(),
-    );
-    expect(texts).toContain("ROLE_ADMIN");
+    expect(
+      screen.getByText("ROLE_ADMIN", { selector: "code" }),
+    ).toBeInTheDocument();
   });
 });

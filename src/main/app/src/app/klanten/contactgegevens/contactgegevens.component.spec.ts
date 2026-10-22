@@ -5,17 +5,14 @@
 
 import { TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { ContactgegevensComponent } from "./contactgegevens.component";
 
 describe("ContactgegevensComponent", () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        ContactgegevensComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
-      ],
+      imports: [ContactgegevensComponent, NoopAnimationsModule],
+      providers: [provideTranslateService()],
     }).compileComponents();
   });
 

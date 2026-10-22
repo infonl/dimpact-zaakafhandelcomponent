@@ -5,7 +5,7 @@
 
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
@@ -32,12 +32,9 @@ describe(ExportButtonComponent.name, () => {
     utilServiceMock = { downloadBlobResponse: jest.fn() };
 
     await TestBed.configureTestingModule({
-      imports: [
-        ExportButtonComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+      imports: [ExportButtonComponent, NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         { provide: CsvService, useValue: csvServiceMock },
         { provide: UtilService, useValue: utilServiceMock },
       ],

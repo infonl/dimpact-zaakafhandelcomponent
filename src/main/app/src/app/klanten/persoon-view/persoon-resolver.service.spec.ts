@@ -9,7 +9,7 @@ import {
 } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { convertToParamMap } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "src/test-helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -25,12 +25,12 @@ describe(PersoonResolverService.name, () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
+        provideTranslateService(),
         PersoonResolverService,
         KlantenService,
         QueryClient,
         provideHttpClient(withInterceptorsFromDi()),
       ],
-      imports: [TranslateModule.forRoot()],
     });
 
     persoonResolverService = TestBed.inject(PersoonResolverService);

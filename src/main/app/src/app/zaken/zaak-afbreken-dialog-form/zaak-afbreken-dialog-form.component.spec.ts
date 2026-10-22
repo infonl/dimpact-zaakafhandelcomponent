@@ -7,7 +7,8 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
+import { screen } from "@testing-library/angular";
 import { of, throwError } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { ZacSelect } from "../../shared/form/select/select";
@@ -33,12 +34,9 @@ const setup = (data: Partial<ZaakAfbrekenDialogData> = {}) => {
   };
 
   TestBed.configureTestingModule({
-    imports: [
-      ZaakAfbrekenDialogFormComponent,
-      NoopAnimationsModule,
-      TranslateModule.forRoot(),
-    ],
+    imports: [ZaakAfbrekenDialogFormComponent, NoopAnimationsModule],
     providers: [
+      provideTranslateService(),
       { provide: MAT_DIALOG_DATA, useValue: dialogData },
       { provide: MatDialogRef, useValue: dialogRefMock },
     ],
@@ -56,11 +54,8 @@ const setup = (data: Partial<ZaakAfbrekenDialogData> = {}) => {
   };
 };
 
-const submitButton = (
-  fixture: ComponentFixture<ZaakAfbrekenDialogFormComponent>,
-) =>
-  fixture.debugElement.query(By.css('button[type="submit"]'))
-    .nativeElement as HTMLButtonElement;
+const submitButton = () =>
+  screen.getByRole("button", { name: "actie.zaak.afbreken" });
 
 describe(ZaakAfbrekenDialogFormComponent.name, () => {
   it("renders a select for the reden", () => {
@@ -70,13 +65,13 @@ describe(ZaakAfbrekenDialogFormComponent.name, () => {
 
   it("disables submit until a reden is selected", () => {
     const { fixture, component } = setup();
-    expect(submitButton(fixture).disabled).toBe(true);
+    expect(submitButton()).toBeDisabled();
 
     component["form"].controls.reden.setValue(reden);
     component["form"].controls.reden.markAsDirty();
     fixture.detectChanges();
 
-    expect(submitButton(fixture).disabled).toBe(false);
+    expect(submitButton()).not.toBeDisabled();
   });
 
   it("invokes the callback with the selected reden and closes with its result", () => {

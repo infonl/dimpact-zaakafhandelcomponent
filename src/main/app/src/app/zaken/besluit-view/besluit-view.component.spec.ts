@@ -8,7 +8,7 @@ import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
@@ -58,8 +58,9 @@ describe(BesluitViewComponent.name, () => {
     const { fixture } = await render(BesluitViewComponent, {
       inputs: { besluiten, readonly },
       on: { besluitWijzigen },
-      imports: [TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),

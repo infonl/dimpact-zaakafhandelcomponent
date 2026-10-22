@@ -5,7 +5,7 @@
 
 import { provideHttpClient } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { fromPartial } from "../../../../test-helpers";
 import { FormField } from "../../../shared/form/composed-form/form-field.types";
 import { GeneratedType } from "../../../shared/utils/generated-types";
@@ -16,8 +16,7 @@ describe(DefaultTaskForm.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
-      providers: [provideHttpClient()],
+      providers: [provideTranslateService(), provideHttpClient()],
     });
 
     formulier = TestBed.inject(DefaultTaskForm);

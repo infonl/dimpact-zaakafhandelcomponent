@@ -349,9 +349,10 @@ describe(SmartDocumentsService.name, () => {
     async () => {
       const templateGroups = [{ id: "group-1", name: "Group 1" }];
 
-      const request = firstValueFrom(
+      const request = testQueryClient.fetchQuery(
         smartDocumentsService.getAllSmartDocumentsTemplateGroups(),
       );
+      await sleep();
 
       httpTestingController
         .expectOne("/rest/zaakafhandelparameters/smartdocuments-templates")

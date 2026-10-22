@@ -8,8 +8,9 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialogModule, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { screen } from "@testing-library/angular";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../../../setupJest";
 import { KlantZoekComponent } from "../../../../klanten/zoek/klanten/klant-zoek.component";
@@ -27,9 +28,9 @@ describe(KlantZoekDialog.name, () => {
         KlantZoekComponent,
         NoopAnimationsModule,
         MatDialogModule,
-        TranslateModule.forRoot(),
       ],
       providers: [
+        provideTranslateService(),
         provideHttpClient(),
         provideRouter([]),
         provideQueryClient(testQueryClient),
@@ -42,8 +43,9 @@ describe(KlantZoekDialog.name, () => {
   });
 
   it("renders the klant-zoek component", () => {
-    const klantZoek = fixture.nativeElement.querySelector("zac-klant-zoek");
-    expect(klantZoek).not.toBeNull();
+    expect(
+      screen.getByRole("tab", { name: /actie\.zoeken\.bedrijf/ }),
+    ).toBeInTheDocument();
   });
 
   it("closes the dialog with the klant when klant event is emitted", () => {

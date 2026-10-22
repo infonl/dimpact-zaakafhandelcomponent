@@ -19,7 +19,7 @@ import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateService, provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { screen, within } from "@testing-library/angular";
 import { userEvent } from "@testing-library/user-event";
@@ -70,12 +70,9 @@ describe("HumanTaskDoComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        HumanTaskDoComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
-      ],
+      imports: [HumanTaskDoComponent, NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         FormBuilder,
         TaakFormulierenService,
         InformatieObjectenService,

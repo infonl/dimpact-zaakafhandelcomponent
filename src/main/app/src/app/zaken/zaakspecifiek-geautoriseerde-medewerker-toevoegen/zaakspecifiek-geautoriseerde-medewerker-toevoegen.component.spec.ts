@@ -7,7 +7,7 @@ import { HttpTestingController } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
@@ -45,7 +45,8 @@ describe(ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent.name, () => {
     const rendered = await render(
       ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent,
       {
-        imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+        imports: [NoopAnimationsModule],
+        providers: [provideTranslateService()],
         inputs: { zaak, sideNav },
       },
     );

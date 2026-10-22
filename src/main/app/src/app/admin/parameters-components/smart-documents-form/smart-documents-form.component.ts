@@ -129,14 +129,9 @@ export class SmartDocumentsFormComponent {
     );
   }
 
-  private readonly allSmartDocumentTemplateGroupsQuery = injectQuery(() => ({
-    queryKey: ["allSmartDocumentTemplateGroupsQuery"],
-    refetchOnWindowFocus: false,
-    queryFn: () =>
-      firstValueFrom(
-        this.smartDocumentsService.getAllSmartDocumentsTemplateGroups(),
-      ),
-  }));
+  private readonly allSmartDocumentTemplateGroupsQuery = injectQuery(() =>
+    this.smartDocumentsService.getAllSmartDocumentsTemplateGroups(),
+  );
 
   private readonly currentTemplateMappingsQuery = injectQuery(() => ({
     ...this.smartDocumentsService.getTemplatesMappingQuery(this.zaakTypeUuid()),

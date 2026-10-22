@@ -20,7 +20,7 @@ import { MatInputHarness } from "@angular/material/input/testing";
 import { MatRadioGroupHarness } from "@angular/material/radio/testing";
 import { MatSelectHarness } from "@angular/material/select/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import { of } from "rxjs";
 import { fromPartial } from "../../../../test-helpers";
@@ -126,12 +126,8 @@ describe(AbstractTaskForm.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        ReactiveFormsModule,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
-      providers: [],
+      imports: [ReactiveFormsModule, NoopAnimationsModule],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     formulier = TestBed.runInInjectionContext(() => new TestForm());

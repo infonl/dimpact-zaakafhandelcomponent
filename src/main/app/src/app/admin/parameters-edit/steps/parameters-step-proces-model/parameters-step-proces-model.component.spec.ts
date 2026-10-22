@@ -4,7 +4,7 @@
  */
 
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
@@ -52,12 +52,13 @@ describe(ParametersStepProcesModelComponent.name, () => {
     ],
   ) {
     await render(ParametersStepProcesModelComponent, {
-      imports: [TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [NoopAnimationsModule],
       inputs: {
         form,
         zaaktypeOmschrijving: "Test zaaktype omschrijving",
       },
       providers: [
+        provideTranslateService(),
         {
           provide: ZaakafhandelParametersService,
           useValue: fromPartial<ZaakafhandelParametersService>({

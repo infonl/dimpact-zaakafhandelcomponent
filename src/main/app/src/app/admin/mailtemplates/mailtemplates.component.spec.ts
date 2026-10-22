@@ -7,7 +7,7 @@ import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen, waitFor, within } from "@testing-library/angular";
 import { userEvent } from "@testing-library/user-event";
 import { sleep } from "../../../../setupJest";
@@ -48,8 +48,9 @@ describe(MailtemplatesComponent.name, () => {
     utilServiceMock = { openSnackbar: jest.fn() };
 
     const rendered = await render(MailtemplatesComponent, {
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideRouter([]),
         { provide: UtilService, useValue: utilServiceMock },
         {

@@ -7,7 +7,7 @@ import { provideHttpClient } from "@angular/common/http";
 import { inputBinding } from "@angular/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import {
   provideQueryClient,
   queryOptions,
@@ -61,8 +61,9 @@ const setup = (
       inputBinding("betrokkene", () => betrokkene),
       inputBinding("zaaktypeUuid", () => zaaktypeUuid),
     ],
-    imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+    imports: [NoopAnimationsModule],
     providers: [
+      provideTranslateService(),
       provideHttpClient(),
       provideRouter([]),
       provideQueryClient(testQueryClient),

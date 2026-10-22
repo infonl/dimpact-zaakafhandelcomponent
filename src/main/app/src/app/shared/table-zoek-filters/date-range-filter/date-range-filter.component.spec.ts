@@ -6,7 +6,7 @@
 import { TestBed } from "@angular/core/testing";
 import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { GeneratedType } from "../../utils/generated-types";
@@ -25,12 +25,8 @@ describe(DateRangeFilterComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        DateRangeFilterComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
-      providers: [provideMomentDateAdapter()],
+      imports: [DateRangeFilterComponent, NoopAnimationsModule],
+      providers: [provideTranslateService(), provideMomentDateAdapter()],
     }).compileComponents();
   });
 

@@ -6,7 +6,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { within } from "@testing-library/angular";
 import { fromPartial } from "src/test-helpers";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
@@ -41,12 +41,8 @@ describe(ZaakDetailsGerelateerdeZakenTabComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        ZaakDetailsGerelateerdeZakenTabComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
-      providers: [provideRouter([])],
+      imports: [ZaakDetailsGerelateerdeZakenTabComponent, NoopAnimationsModule],
+      providers: [provideTranslateService(), provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ZaakDetailsGerelateerdeZakenTabComponent);

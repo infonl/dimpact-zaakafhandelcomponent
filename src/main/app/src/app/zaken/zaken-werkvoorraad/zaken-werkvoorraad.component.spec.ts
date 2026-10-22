@@ -9,7 +9,7 @@ import { provideNativeDateAdapter } from "@angular/material/core";
 import { MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Data } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { EMPTY, of } from "rxjs";
@@ -51,8 +51,9 @@ describe(ZakenWerkvoorraadComponent.name, () => {
     const { fixture: renderedFixture } = await render(
       ZakenWerkvoorraadComponent,
       {
-        imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+        imports: [NoopAnimationsModule],
         providers: [
+          provideTranslateService(),
           {
             provide: ActivatedRoute,
             useValue: mockActivatedRoute,

@@ -7,7 +7,7 @@ import { HttpErrorResponse, provideHttpClient } from "@angular/common/http";
 import { provideNativeDateAdapter } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
@@ -61,8 +61,9 @@ describe(BagZakenTabelComponent.name, () => {
 
     const rendered = await render(BagZakenTabelComponent, {
       inputs: { BagObjectIdentificatie: "0363010000000001" },
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideQueryClient(testQueryClient),
         provideHttpClient(),
         provideRouter([]),

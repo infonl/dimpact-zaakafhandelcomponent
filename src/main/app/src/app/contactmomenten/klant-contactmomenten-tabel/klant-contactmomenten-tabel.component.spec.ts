@@ -5,7 +5,7 @@
 
 import { provideHttpClient } from "@angular/common/http";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen, waitFor } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
@@ -52,8 +52,9 @@ describe(KlantContactmomentenTabelComponent.name, () => {
       .mockImplementation(() => undefined);
     const rendered = await render(KlantContactmomentenTabelComponent, {
       inputs,
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideQueryClient(testQueryClient),
         provideHttpClient(),
         {

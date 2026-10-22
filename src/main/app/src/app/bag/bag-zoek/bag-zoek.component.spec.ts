@@ -9,7 +9,7 @@ import { FormControl } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter, Router } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
@@ -58,8 +58,9 @@ describe(BagZoekComponent.name, () => {
         isSelectable: !!onBagObject,
       },
       on: onBagObject ? { bagObject: onBagObject } : {},
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideQueryClient(testQueryClient),
         provideHttpClient(),
         provideRouter([]),

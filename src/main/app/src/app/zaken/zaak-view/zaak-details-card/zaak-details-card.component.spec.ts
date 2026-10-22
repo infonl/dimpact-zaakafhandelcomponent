@@ -16,7 +16,7 @@ import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatTabGroupHarness } from "@angular/material/tabs/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { within } from "@testing-library/angular";
 import { fromPartial } from "src/test-helpers";
@@ -99,12 +99,9 @@ describe(ZaakDetailsCardComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        ZaakDetailsCardComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+      imports: [ZaakDetailsCardComponent, NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),

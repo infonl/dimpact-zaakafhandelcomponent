@@ -8,7 +8,7 @@ import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialogRef } from "@angular/material/dialog";
 import { Router } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { within } from "@testing-library/angular";
@@ -80,8 +80,9 @@ describe(ZaakDetailsMedewerkersTabComponent.name, () => {
     openDetachSpy = jest.fn().mockReturnValue(dialogRef);
 
     await TestBed.configureTestingModule({
-      imports: [ZaakDetailsMedewerkersTabComponent, TranslateModule.forRoot()],
+      imports: [ZaakDetailsMedewerkersTabComponent],
       providers: [
+        provideTranslateService(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),

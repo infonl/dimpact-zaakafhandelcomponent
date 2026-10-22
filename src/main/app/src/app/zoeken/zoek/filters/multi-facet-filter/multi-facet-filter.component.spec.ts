@@ -5,7 +5,7 @@
 
 import { ComponentFixture } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
@@ -38,7 +38,8 @@ describe(MultiFacetFilterComponent.name, () => {
     const rendered = await render(MultiFacetFilterComponent, {
       inputs: { label, filter, opties },
       on: { changed },
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule],
+      providers: [provideTranslateService()],
     });
     fixture = rendered.fixture;
   }

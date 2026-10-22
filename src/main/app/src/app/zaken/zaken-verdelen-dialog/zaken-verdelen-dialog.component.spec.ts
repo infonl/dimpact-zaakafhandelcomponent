@@ -19,8 +19,9 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MatToolbarHarness } from "@angular/material/toolbar/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
+import { screen } from "@testing-library/angular";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
@@ -49,12 +50,9 @@ const setup = async (
   const dialogRefMock = { close: jest.fn(), disableClose: false };
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
-    imports: [
-      ZakenVerdelenDialogComponent,
-      NoopAnimationsModule,
-      TranslateModule.forRoot(),
-    ],
+    imports: [ZakenVerdelenDialogComponent, NoopAnimationsModule],
     providers: [
+      provideTranslateService(),
       provideZoneChangeDetection(),
       provideHttpClient(withInterceptorsFromDi()),
       provideHttpClientTesting(),
@@ -143,7 +141,9 @@ describe(ZakenVerdelenDialogComponent.name, () => {
     component["verdeel"]();
     await sleep();
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector("mat-spinner")).not.toBeNull();
+    expect(
+      screen.getByRole("progressbar", { hidden: true }),
+    ).toBeInTheDocument();
     httpTestingController.expectOne("/rest/zaken/lijst/verdelen").flush({});
   });
 

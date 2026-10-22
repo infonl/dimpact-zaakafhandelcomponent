@@ -8,7 +8,7 @@ import { Provider } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { screen } from "@testing-library/angular";
 import { sleep } from "../../../../setupJest";
@@ -20,12 +20,9 @@ const SERVER_ERROR_TEXTS_URL = "/rest/referentietabellen/server-error-text";
 
 function setup(showServerErrorTexts: boolean, providers: Provider[] = []) {
   TestBed.configureTestingModule({
-    imports: [
-      FoutDetailedDialogComponent,
-      NoopAnimationsModule,
-      TranslateModule.forRoot(),
-    ],
+    imports: [FoutDetailedDialogComponent, NoopAnimationsModule],
     providers: [
+      provideTranslateService(),
       { provide: MatDialogRef, useValue: { close: jest.fn() } },
       {
         provide: MAT_DIALOG_DATA,

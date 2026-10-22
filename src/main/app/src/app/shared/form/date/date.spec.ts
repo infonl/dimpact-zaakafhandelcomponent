@@ -18,7 +18,7 @@ import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import moment from "moment";
 import { ZacDate } from "./date";
 
@@ -40,8 +40,8 @@ describe(ZacDate.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ZacDate, TranslateModule.forRoot(), NoopAnimationsModule],
-      providers: [TranslateService],
+      imports: [ZacDate, NoopAnimationsModule],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(

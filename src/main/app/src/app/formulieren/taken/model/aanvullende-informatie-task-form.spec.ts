@@ -5,13 +5,13 @@
 
 import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { of } from "rxjs";
 import { sleep } from "../../../../../setupJest";
 import { createQueryOptions, fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
-import { KlantenService } from "../../../klanten/klanten.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZakenService } from "../../../zaken/zaken.service";
 import { AanvullendeInformatieTaskForm } from "./aanvullende-informatie-task-form";
@@ -22,7 +22,6 @@ describe(AanvullendeInformatieTaskForm.name, () => {
   let httpTestingController: HttpTestingController;
   let mailtemplate: GeneratedType<"RestMailtemplate">;
   let listEnkelvoudigInformatieobjectenSpy: jest.SpyInstance;
-  let getContactDetailsForPersonSpy: jest.SpyInstance;
 
   const mockZaak = fromPartial<GeneratedType<"RestZaak">>({
     uuid: "zaak-uuid",
@@ -48,7 +47,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
+      providers: [provideTranslateService()],
     });
     httpTestingController = TestBed.inject(HttpTestingController);
     mailtemplate = fromPartial<GeneratedType<"RestMailtemplate">>({
@@ -65,9 +64,6 @@ describe(AanvullendeInformatieTaskForm.name, () => {
         "listEnkelvoudigInformatieobjecten",
       )
       .mockReturnValue(createQueryOptions([]) as never);
-    getContactDetailsForPersonSpy = jest
-      .spyOn(TestBed.inject(KlantenService), "getContactDetailsForPerson")
-      .mockReturnValue(of({}));
 
     formulier = TestBed.inject(AanvullendeInformatieTaskForm);
   });
@@ -82,7 +78,23 @@ describe(AanvullendeInformatieTaskForm.name, () => {
     httpTestingController
       .expectOne(`/rest/mailtemplates/TAAK_AANVULLENDE_INFORMATIE/${zaak.uuid}`)
       .flush(mailtemplate);
-    return fields;
+    const formFields = await fields;
+    TestBed.tick();
+    return formFields;
+  }
+
+  async function respondWithContactDetails(
+    temporaryPersonId: string,
+    contactDetails: GeneratedType<"RestContactDetails">,
+  ) {
+    await sleep();
+    httpTestingController
+      .expectOne(`/rest/klanten/contactdetails/person/${temporaryPersonId}`)
+      .flush(contactDetails);
+    await sleep();
+    TestBed.tick();
+    await sleep();
+    TestBed.tick();
   }
 
   describe("requestForm", () => {
@@ -369,13 +381,6 @@ describe(AanvullendeInformatieTaskForm.name, () => {
       });
 
       it("should pre-fill the email from initiatorIdentificatie when both type and temporaryPersonId are set", async () => {
-        getContactDetailsForPersonSpy.mockReturnValue(
-          of(
-            fromPartial<GeneratedType<"RestContactDetails">>({
-              emailadres: "test@example.com",
-            }),
-          ),
-        );
         const zaakWithInitiator = fromPartial<GeneratedType<"RestZaak">>({
           ...mockZaak,
           initiatorIdentificatie: {
@@ -385,24 +390,56 @@ describe(AanvullendeInformatieTaskForm.name, () => {
         });
 
         const fields = await requestForm(zaakWithInitiator);
-
-        expect(getContactDetailsForPersonSpy).toHaveBeenCalledWith(
+        await respondWithContactDetails(
           "person-123",
+          fromPartial<GeneratedType<"RestContactDetails">>({
+            emailadres: "test@example.com",
+          }),
         );
+
         const emailField = fields.find((f) => f.key === "emailadres");
         expect(emailField?.control?.value).toBe("test@example.com");
       });
 
-      it("should not call getContactDetailsForPerson when initiatorIdentificatie is absent", async () => {
-        await requestForm(mockZaak);
+      it("should not overwrite an email that the user typed when the contact details are fetched again", async () => {
+        const zaakWithInitiator = fromPartial<GeneratedType<"RestZaak">>({
+          ...mockZaak,
+          initiatorIdentificatie: {
+            type: "BSN",
+            temporaryPersonId: "person-123",
+          },
+        });
+        const fields = await requestForm(zaakWithInitiator);
+        await respondWithContactDetails(
+          "person-123",
+          fromPartial<GeneratedType<"RestContactDetails">>({
+            emailadres: "test@example.com",
+          }),
+        );
+        const emailField = fields.find((f) => f.key === "emailadres");
+        emailField?.control?.setValue("typed@example.com");
 
-        expect(getContactDetailsForPersonSpy).not.toHaveBeenCalled();
+        void TestBed.inject(QueryClient).invalidateQueries();
+        await respondWithContactDetails(
+          "person-123",
+          fromPartial<GeneratedType<"RestContactDetails">>({
+            emailadres: "refetched@example.com",
+          }),
+        );
+
+        expect(emailField?.control?.value).toBe("typed@example.com");
       });
 
-      it("should not set email when getContactDetailsForPerson returns no emailadres", async () => {
-        getContactDetailsForPersonSpy.mockReturnValue(
-          of(fromPartial<GeneratedType<"RestContactDetails">>({})),
+      it("should not request the contact details when initiatorIdentificatie is absent", async () => {
+        await requestForm(mockZaak);
+        await sleep();
+
+        httpTestingController.expectNone((request) =>
+          request.url.startsWith("/rest/klanten/contactdetails/person/"),
         );
+      });
+
+      it("should not set email when the contact details have no emailadres", async () => {
         const zaakWithInitiator = fromPartial<GeneratedType<"RestZaak">>({
           ...mockZaak,
           initiatorIdentificatie: {
@@ -412,6 +449,10 @@ describe(AanvullendeInformatieTaskForm.name, () => {
         });
 
         const fields = await requestForm(zaakWithInitiator);
+        await respondWithContactDetails(
+          "person-123",
+          fromPartial<GeneratedType<"RestContactDetails">>({}),
+        );
 
         const emailField = fields.find((f) => f.key === "emailadres");
         expect(emailField?.control?.value).toBeNull();

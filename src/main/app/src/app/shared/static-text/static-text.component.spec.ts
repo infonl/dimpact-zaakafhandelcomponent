@@ -6,7 +6,7 @@
 import { TestBed } from "@angular/core/testing";
 import { FormControl } from "@angular/forms";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateService, provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { TextIcon } from "../edit/text-icon";
@@ -43,7 +43,8 @@ describe(StaticTextComponent.name, () => {
     const { fixture } = await render(StaticTextComponent, {
       inputs,
       on: { iconClicked },
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule],
+      providers: [provideTranslateService()],
     });
 
     return { fixture, iconClicked };
@@ -113,11 +114,8 @@ describe(StaticTextComponent.name, () => {
           <span position="content">fakeProjectedValue</span>
         </zac-static-text>`,
         {
-          imports: [
-            StaticTextComponent,
-            NoopAnimationsModule,
-            TranslateModule.forRoot(),
-          ],
+          imports: [StaticTextComponent, NoopAnimationsModule],
+          providers: [provideTranslateService()],
         },
       );
 
@@ -146,11 +144,8 @@ describe(StaticTextComponent.name, () => {
       await render(
         `<zac-static-text value="fakeLongValue" maxLength="8"></zac-static-text>`,
         {
-          imports: [
-            StaticTextComponent,
-            NoopAnimationsModule,
-            TranslateModule.forRoot(),
-          ],
+          imports: [StaticTextComponent, NoopAnimationsModule],
+          providers: [provideTranslateService()],
         },
       );
 

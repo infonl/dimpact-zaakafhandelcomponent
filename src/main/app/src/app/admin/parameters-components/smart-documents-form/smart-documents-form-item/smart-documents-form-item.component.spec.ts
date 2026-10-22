@@ -4,7 +4,7 @@
  */
 
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
@@ -38,7 +38,8 @@ describe(SmartDocumentsFormItemComponent.name, () => {
     const selectionChange = jest.fn();
 
     const rendered = await render(SmartDocumentsFormItemComponent, {
-      imports: [TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [NoopAnimationsModule],
+      providers: [provideTranslateService()],
       inputs: { node, informationObjectTypes },
       on: { selectionChange },
     });

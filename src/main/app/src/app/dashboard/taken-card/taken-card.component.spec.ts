@@ -6,7 +6,7 @@
 import { HttpTestingController } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
@@ -59,8 +59,11 @@ describe(TakenCardComponent.name, () => {
 
     ({ fixture } = await render(TakenCardComponent, {
       inputs: { data: card },
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
-      providers: [{ provide: WebsocketService, useValue: websocketService }],
+      imports: [NoopAnimationsModule],
+      providers: [
+        provideTranslateService(),
+        { provide: WebsocketService, useValue: websocketService },
+      ],
     }));
 
     httpTestingController = TestBed.inject(HttpTestingController);

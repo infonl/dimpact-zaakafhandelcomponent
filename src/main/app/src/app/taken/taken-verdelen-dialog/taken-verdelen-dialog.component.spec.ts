@@ -20,12 +20,13 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MatToolbarHarness } from "@angular/material/toolbar/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import {
   mutationOptions,
   provideTanStackQuery,
 } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
+import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
@@ -44,11 +45,11 @@ const mockUser: GeneratedType<"RestUser"> = {
 };
 
 const makeTaak = (id: string): TaakZoekObject =>
-  ({
+  fromPartial<TaakZoekObject>({
     id,
     zaakUuid: `zaak-${id}`,
     zaaktypeOmschrijving: "fakeZaaktypeOmschrijving",
-  }) as Partial<TaakZoekObject> as unknown as TaakZoekObject;
+  });
 
 const makeDialogData = (
   taken: TaakZoekObject[],
@@ -59,18 +60,15 @@ async function setup(
   data = makeDialogData([makeTaak("1"), makeTaak("2")]),
   groups: GeneratedType<"RestGroup">[] = [mockGroup],
 ) {
-  const dialogRef = {
+  const dialogRef = fromPartial<MatDialogRef<TakenVerdelenDialogComponent>>({
     close: jest.fn(),
-  } as unknown as MatDialogRef<TakenVerdelenDialogComponent>;
+  });
 
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
-    imports: [
-      TakenVerdelenDialogComponent,
-      NoopAnimationsModule,
-      TranslateModule.forRoot(),
-    ],
+    imports: [TakenVerdelenDialogComponent, NoopAnimationsModule],
     providers: [
+      provideTranslateService(),
       provideZoneChangeDetection(),
       provideHttpClient(withInterceptorsFromDi()),
       provideHttpClientTesting(),

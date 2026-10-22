@@ -18,7 +18,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateService, provideTranslateService } from "@ngx-translate/core";
 import {
   provideQueryClient,
   provideTanStackQuery,
@@ -101,10 +101,10 @@ describe(InformatieObjectEditComponent.name, () => {
         FormsModule,
         ReactiveFormsModule,
         MatIconModule,
-        TranslateModule.forRoot(),
         NoopAnimationsModule,
       ],
       providers: [
+        provideTranslateService(),
         provideZonelessChangeDetection(),
         provideTanStackQuery(testQueryClient),
         provideQueryClient(testQueryClient),

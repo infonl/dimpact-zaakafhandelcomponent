@@ -15,7 +15,7 @@ import { provideZonelessChangeDetection } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../../setupJest";
@@ -28,12 +28,9 @@ async function setup() {
   >({ close: jest.fn(), disableClose: false });
 
   await TestBed.configureTestingModule({
-    imports: [
-      ReferentieTabelCreateDialogComponent,
-      NoopAnimationsModule,
-      TranslateModule.forRoot(),
-    ],
+    imports: [ReferentieTabelCreateDialogComponent, NoopAnimationsModule],
     providers: [
+      provideTranslateService(),
       provideZonelessChangeDetection(),
       provideHttpClient(withInterceptorsFromDi()),
       provideHttpClientTesting(),
