@@ -23,8 +23,6 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createOndertekening
@@ -52,9 +50,11 @@ import nl.info.zac.configuration.FileSizeConfiguration
 import nl.info.zac.event.EventingService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.flowable.task.TaakVariabelenService.Companion.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
 import nl.info.zac.flowable.task.TaakVariabelenService.Companion.TAAK_DATA_VERZENDDATUM
+import nl.info.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
@@ -247,7 +247,7 @@ class TaskRestServiceTest : BehaviorSpec({
             ).apply {
                 fataledatum = LocalDate.parse("2024-03-19")
             }
-            every { flowableTaskService.readOpenTask(restTaak.id) } returns task
+            every { flowableTaskService.readOpenTask(restTaak.id!!) } returns task
             every { flowableTaskService.updateTask(task) } returns task
             every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
             every { taakVariabelenService.setTaskInformation(task, null) } just runs
@@ -264,6 +264,20 @@ class TaskRestServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         flowableTaskService.updateTask(task)
                     }
+                }
+            }
+        }
+        given("task data without a task id") {
+            val restTask = createRestTask().apply { id = null }
+
+            `when`("'updateTaakdata' is called") {
+                val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
+                    taskRestService.updateTaskData(restTask)
+                }
+
+                then("the request is rejected without reading a task") {
+                    inputValidationFailedException.message shouldBe "A task id is required"
+                    verify(exactly = 0) { flowableTaskService.readOpenTask(any()) }
                 }
             }
         }
@@ -295,7 +309,7 @@ class TaskRestServiceTest : BehaviorSpec({
             val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(uuid = enkelvoudigInformatieObjectUUID)
 
             every { loggedInUserInstance.get() } returns loggedInUser
-            every { flowableTaskService.readOpenTask(restTaak.id) } returns task
+            every { flowableTaskService.readOpenTask(restTaak.id!!) } returns task
             every { flowableTaskService.updateTask(task) } returns task
             every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
             every { httpSessionInstance.get() } returns httpSession
@@ -365,7 +379,7 @@ class TaskRestServiceTest : BehaviorSpec({
             val httpSession = mockk<HttpSession>()
             val enkelvoudigInformatieObjectUUID = UUID.randomUUID()
 
-            every { flowableTaskService.readOpenTask(restTaak.id) } returns task
+            every { flowableTaskService.readOpenTask(restTaak.id!!) } returns task
             every { flowableTaskService.updateTask(task) } returns task
             every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
             every { taakVariabelenService.setTaskInformation(task, null) } just runs
@@ -451,7 +465,7 @@ class TaskRestServiceTest : BehaviorSpec({
             val historicTaskInstance = mockk<HistoricTaskInstance>()
 
             every { loggedInUserInstance.get() } returns loggedInUser
-            every { flowableTaskService.readOpenTask(restTask.id) } returns openTask
+            every { flowableTaskService.readOpenTask(restTask.id!!) } returns openTask
             every { policyService.readTaakRechten(openTask) } returns createTaakRechtenAllDeny(wijzigen = true)
             every {
                 flowableTaskService.assignTaskToUser(openTask.id, loggedInUser.id, "Afgesloten")

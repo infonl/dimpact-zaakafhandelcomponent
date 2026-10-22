@@ -23,7 +23,6 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import kotlinx.coroutines.CoroutineDispatcher
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import nl.info.client.zgw.drc.DrcClientService
@@ -51,6 +50,7 @@ import nl.info.zac.configuration.FileSizeConfiguration
 import nl.info.zac.event.EventingService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.flowable.task.TaakVariabelenService.Companion.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
 import nl.info.zac.flowable.task.TaakVariabelenService.Companion.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER
@@ -161,7 +161,7 @@ class TaskRestService @Inject constructor(
     @PUT
     @Path("taakdata")
     fun updateTaskData(restTask: RestTask): RestTask {
-        flowableTaskService.readOpenTask(restTask.id).let {
+        readOpenTask(restTask).let {
             assertPolicy(it.isOpen() && policyService.readTaakRechten(it).canWijzigen)
             taakVariabelenService.setTaskData(it, restTask.taakdata)
             taakVariabelenService.setTaskInformation(it, restTask.taakinformatie)
@@ -173,7 +173,7 @@ class TaskRestService @Inject constructor(
     }
 
     private fun updateDescriptionAndDueDate(restTask: RestTask): Task {
-        flowableTaskService.readOpenTask(restTask.id).let { task ->
+        readOpenTask(restTask).let { task ->
             restTask.toelichting?.let { task.description = it }
             restTask.fataledatum?.let { task.dueDate = convertToDate(it) }
             return flowableTaskService.updateTask(task)
@@ -243,7 +243,7 @@ class TaskRestService @Inject constructor(
     @PATCH
     @Path("complete")
     fun completeTask(restTask: RestTask): RestTask {
-        val openTask = flowableTaskService.readOpenTask(restTask.id)
+        val openTask = readOpenTask(restTask)
         assertPolicy(openTask.isOpen() && policyService.readTaakRechten(openTask).canWijzigen)
 
         val loggedInUserId = loggedInUserInstance.get().id
@@ -410,6 +410,10 @@ class TaskRestService @Inject constructor(
                 }
         }
     }
+
+    private fun readOpenTask(restTask: RestTask) =
+        restTask.id?.let(flowableTaskService::readOpenTask)
+            ?: throw InputValidationFailedException(message = "A task id is required")
 
     private fun deleteSignaleringen(taskInfo: TaskInfo) {
         loggedInUserInstance.get().let { loggedInUser ->

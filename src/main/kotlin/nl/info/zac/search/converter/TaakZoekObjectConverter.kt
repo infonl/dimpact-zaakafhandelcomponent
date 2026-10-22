@@ -5,11 +5,11 @@
 package nl.info.zac.search.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.task.readTaskData
 import nl.info.zac.flowable.task.readTaskInformation
 import nl.info.zac.flowable.task.readZaakIdentificatie

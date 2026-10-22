@@ -4,7 +4,7 @@
  */
 package net.atos.zac.flowable.cmmn
 
-import net.atos.zac.flowable.processengine.ProcessEngineLookupImpl
+import nl.info.zac.flowable.processengine.ProcessEngineLookupImpl
 import org.flowable.cdi.spi.CmmnEngineLookup
 import org.flowable.cmmn.engine.CmmnEngine
 

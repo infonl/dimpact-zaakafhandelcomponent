@@ -11,7 +11,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
-import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
 import nl.info.client.zgw.shared.ZgwApiService
@@ -22,6 +21,7 @@ import nl.info.client.zgw.zrc.model.ZaakListParameters
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.app.task.model.TaakSortering
 import nl.info.zac.authentication.systemUserContext
+import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.search.converter.ZoekObjectConverter
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.ZoekObject
@@ -430,10 +430,10 @@ class ReindexSupportService @Inject constructor(
     ): ReindexCounts {
         val firstResult = pageNumber * TAKEN_MAX_RESULTS
         val tasks = flowableTaskService.listOpenTasks(
-            TaakSortering.CREATIEDATUM,
-            SorteerRichting.DESCENDING,
-            firstResult,
-            TAKEN_MAX_RESULTS
+            taakSortering = TaakSortering.CREATIEDATUM,
+            sorteerRichting = SorteerRichting.DESCENDING,
+            firstResult = firstResult,
+            maxResults = TAKEN_MAX_RESULTS
         )
         if (tasks.isEmpty()) {
             return ReindexCounts()

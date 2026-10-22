@@ -221,6 +221,26 @@ class TaskRestServiceTest : BehaviorSpec({
                     }
                 }
             }
+            and("the task history shows the new behandelaar together with the reason") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/taken/$task1ID/historie",
+                    testUser = COORDINATOR_1
+                )
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+                val behandelaarHistoryLines = JSONArray(responseBody).let { historyLines ->
+                    (0 until historyLines.length())
+                        .map(historyLines::getJSONObject)
+                        .filter { it.getString("attribuutLabel") == "behandelaar" }
+                }
+                behandelaarHistoryLines.size shouldBe 1
+                with(behandelaarHistoryLines.first()) {
+                    getString("oudeWaarde") shouldBe ""
+                    getString("nieuweWaarde") shouldBe BEHANDELAAR_1.username
+                    getString("toelichting") shouldBe "fakeTasksAssignReason"
+                }
+            }
         }
     }
 

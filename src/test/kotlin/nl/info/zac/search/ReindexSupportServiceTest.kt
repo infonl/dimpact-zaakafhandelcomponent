@@ -14,7 +14,6 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.ws.rs.ProcessingException
 import kotlinx.coroutines.Dispatchers
-import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
@@ -32,6 +31,7 @@ import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.zac.app.task.model.TaakSortering
 import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.authentication.runAsSystemUser
+import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.search.converter.ZoekObjectConverter
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObject
@@ -562,7 +562,12 @@ class ReindexSupportServiceTest : BehaviorSpec({
 
         every { ctx.flowableTaskService.countOpenTasks() } returns 1
         every {
-            ctx.flowableTaskService.listOpenTasks(TaakSortering.CREATIEDATUM, SorteerRichting.DESCENDING, 0, 100)
+            ctx.flowableTaskService.listOpenTasks(
+                taakSortering = TaakSortering.CREATIEDATUM,
+                sorteerRichting = SorteerRichting.DESCENDING,
+                firstResult = 0,
+                maxResults = 100
+            )
         } returns listOf(openTask)
         every { taakZoekObjectConverter.supports(ZoekObjectType.TAAK) } returns true
         every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
