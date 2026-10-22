@@ -5,7 +5,7 @@
 
 import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { sleep, testQueryClient } from "../../../setupJest";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
@@ -21,8 +21,7 @@ describe(InformatieObjectenService.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
-      providers: [],
+      providers: [provideTranslateService()],
     });
 
     service = TestBed.inject(InformatieObjectenService);

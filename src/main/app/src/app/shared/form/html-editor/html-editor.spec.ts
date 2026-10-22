@@ -16,7 +16,8 @@ import {
 } from "@angular/forms";
 import { MatErrorHarness } from "@angular/material/form-field/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
+import { screen } from "@testing-library/angular";
 import { Toolbar } from "ngx-editor";
 import { CustomValidators } from "../../validators/customValidators";
 import { ZacHtmlEditor } from "./html-editor";
@@ -43,7 +44,8 @@ describe(ZacHtmlEditor.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ZacHtmlEditor, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [ZacHtmlEditor, NoopAnimationsModule],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ZacHtmlEditor<TestForm, keyof TestForm>);
@@ -59,15 +61,15 @@ describe(ZacHtmlEditor.name, () => {
       fixture.detectChanges();
     });
 
-    it("should display the editor", () => {
-      const editorElement = fixture.nativeElement.querySelector("ngx-editor");
-      expect(editorElement).toBeTruthy();
+    it("should display the control value in the editor", () => {
+      component.form().controls.content.setValue("Test content");
+      fixture.detectChanges();
+
+      expect(screen.getByText("Test content")).toBeInTheDocument();
     });
 
     it("should display the editor menu", () => {
-      const menuElement =
-        fixture.nativeElement.querySelector("ngx-editor-menu");
-      expect(menuElement).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Bold" })).toBeInTheDocument();
     });
 
     it("should bind to the form control", () => {
@@ -76,6 +78,20 @@ describe(ZacHtmlEditor.name, () => {
 
       expect(component.form().controls.content.value).toBe(
         "<p>Test content</p>",
+      );
+    });
+  });
+
+  describe("outputFormat", () => {
+    it("should output an HTML string when the user edits a control that starts as null", () => {
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "content");
+      fixture.detectChanges();
+
+      component["editor"]().commands.insertText("Typed content").exec();
+
+      expect(component.form().controls.content.value).toBe(
+        "<p>Typed content</p>",
       );
     });
   });
@@ -97,15 +113,14 @@ describe(ZacHtmlEditor.name, () => {
   });
 
   describe("Validation", () => {
-    it("should apply maxlength constraint", () => {
+    it("should show a character counter for the maxlength validator", () => {
       const form = createTestForm();
       form.controls.content.addValidators(Validators.maxLength(100));
       componentRef.setInput("form", form);
       componentRef.setInput("key", "content");
       fixture.detectChanges();
 
-      const editorElement = fixture.nativeElement.querySelector("ngx-editor");
-      expect(editorElement.getAttribute("maxlength")).toBe("100");
+      expect(screen.getByText("0 / 100")).toBeInTheDocument();
     });
 
     it("should display required validation error when field is empty and has required validator", async () => {
@@ -198,18 +213,6 @@ describe(ZacHtmlEditor.name, () => {
       fixture.detectChanges();
 
       expect(component.form().controls.content.value).toBe("Test content");
-    });
-  });
-
-  describe("outputFormat", () => {
-    it("should output HTML string even when form control starts with null", () => {
-      const form = createTestForm();
-      componentRef.setInput("form", form);
-      componentRef.setInput("key", "content");
-      fixture.detectChanges();
-
-      const editorElement = fixture.nativeElement.querySelector("ngx-editor");
-      expect(editorElement.getAttribute("outputformat")).toBe("html");
     });
   });
 });

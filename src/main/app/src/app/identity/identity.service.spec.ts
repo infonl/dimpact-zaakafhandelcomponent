@@ -8,7 +8,7 @@ import {
   withInterceptorsFromDi,
 } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { testQueryClient } from "../../../setupJest";
@@ -24,8 +24,8 @@ describe(IdentityService.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
       providers: [
+        provideTranslateService(),
         { provide: FoutAfhandelingService, useValue: {} },
         provideHttpClient(withInterceptorsFromDi()),
         provideQueryClient(testQueryClient),

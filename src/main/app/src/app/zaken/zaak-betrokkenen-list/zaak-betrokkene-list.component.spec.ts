@@ -14,7 +14,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialogRef } from "@angular/material/dialog";
 import { MatTableHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { Observable, of } from "rxjs";
@@ -90,12 +90,9 @@ describe(ZaakBetrokkeneListComponent.name, () => {
     openOntkoppelBetrokkeneSpy = jest.fn().mockReturnValue(dialogRef);
 
     await TestBed.configureTestingModule({
-      imports: [
-        ZaakBetrokkeneListComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+      imports: [ZaakBetrokkeneListComponent, NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),

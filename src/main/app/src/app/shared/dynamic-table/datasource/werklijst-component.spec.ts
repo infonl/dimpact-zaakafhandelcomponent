@@ -9,7 +9,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { PageEvent } from "@angular/material/paginator";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { createMutationOptions, fromPartial } from "src/test-helpers";
@@ -49,12 +49,9 @@ describe(WerklijstComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        ConcreteWerklijstComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+      imports: [ConcreteWerklijstComponent, NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideHttpClient(),
         provideQueryClient(testQueryClient),
         provideRouter([]),

@@ -4,7 +4,7 @@
  */
 
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
@@ -24,7 +24,8 @@ describe(ParametersStepActiesComponent.name, () => {
       { id: "event-1", naam: "Event 1", toelichting: "initial toelichting" },
     ]);
     await render(ParametersStepActiesComponent, {
-      imports: [TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [NoopAnimationsModule],
+      providers: [provideTranslateService()],
       inputs: { form },
     });
     return form;

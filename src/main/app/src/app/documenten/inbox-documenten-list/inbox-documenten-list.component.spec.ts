@@ -16,7 +16,7 @@ import { provideNativeDateAdapter } from "@angular/material/core";
 import { MatPaginatorIntl } from "@angular/material/paginator";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateService, provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
@@ -50,8 +50,9 @@ describe(InboxDocumentenListComponent.name, () => {
     const { fixture: renderedFixture } = await render(
       InboxDocumentenListComponent,
       {
-        imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+        imports: [NoopAnimationsModule],
         providers: [
+          provideTranslateService(),
           provideRouter([]),
           {
             provide: MatPaginatorIntl,

@@ -7,7 +7,7 @@ import { HttpTestingController } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import { userEvent } from "@testing-library/user-event";
 import { of } from "rxjs";
@@ -44,8 +44,9 @@ describe(ZaakOpschortenDialogComponent.name, () => {
     };
 
     ({ fixture } = await render(ZaakOpschortenDialogComponent, {
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideZacDateAdapter(),
         { provide: MAT_DIALOG_DATA, useValue: { zaak } },
         { provide: MatDialogRef, useValue: dialogRef },

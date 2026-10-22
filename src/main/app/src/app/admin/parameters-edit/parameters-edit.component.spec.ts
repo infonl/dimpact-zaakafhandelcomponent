@@ -5,7 +5,7 @@
 
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen, waitFor, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
@@ -121,8 +121,9 @@ describe(ParametersEditComponent.name, () => {
       createMutationOptions(savedConfiguration);
 
     await render(ParametersEditComponent, {
-      imports: [TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideRouter([]),
         {
           provide: ActivatedRoute,
@@ -180,7 +181,8 @@ describe(ParametersEditComponent.name, () => {
         {
           provide: SmartDocumentsService,
           useValue: fromPartial<SmartDocumentsService>({
-            getAllSmartDocumentsTemplateGroups: () => of([]),
+            getAllSmartDocumentsTemplateGroups: () =>
+              createQueryOptions([]) as never,
             getTemplatesMappingQuery: () => createQueryOptions([]) as never,
             addParentIdsToTemplates: () => [],
             addTemplateMappings: () => [],

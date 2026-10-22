@@ -5,7 +5,7 @@
 
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { ZaakInitiatorToevoegenComponent } from "./zaak-initiator-toevoegen.component";
@@ -17,11 +17,8 @@ describe(ZaakInitiatorToevoegenComponent.name, () => {
 
   const setup = async (toevoegenToegestaan: boolean) => {
     await TestBed.configureTestingModule({
-      imports: [
-        ZaakInitiatorToevoegenComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+      imports: [ZaakInitiatorToevoegenComponent, NoopAnimationsModule],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ZaakInitiatorToevoegenComponent);

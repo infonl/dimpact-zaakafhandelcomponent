@@ -6,7 +6,7 @@
 import { ComponentFixture } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { Subject } from "rxjs";
@@ -36,7 +36,8 @@ describe(ZaakBetrokkeneFilterComponent.name, () => {
     const rendered = await render(ZaakBetrokkeneFilterComponent, {
       inputs: { zoekparameters },
       on: { changed },
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule],
+      providers: [provideTranslateService()],
     });
     fixture = rendered.fixture;
     await fixture.whenStable();

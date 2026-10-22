@@ -6,7 +6,7 @@
 import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
@@ -51,8 +51,11 @@ describe(ZoekObjectLinkComponent.name, () => {
     const sideNav = fromPartial<MatSidenav>({ close: jest.fn() });
     const { fixture } = await render(ZoekObjectLinkComponent, {
       inputs: { zoekObject, sideNav },
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
-      providers: [provideRouter([{ path: "**", children: [] }])],
+      imports: [NoopAnimationsModule],
+      providers: [
+        provideTranslateService(),
+        provideRouter([{ path: "**", children: [] }]),
+      ],
     });
     return { fixture, sideNav, user };
   };

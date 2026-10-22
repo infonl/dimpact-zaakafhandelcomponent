@@ -4,25 +4,31 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class HealthCheckService {
-  private readonly zacHttpClient = inject(ZacHttpClient);
+  private readonly zacQueryClient = inject(ZacQueryClient);
 
   listZaaktypeInrichtingschecks() {
-    return this.zacHttpClient.GET("/rest/health-check/zaaktypes");
+    return {
+      ...this.zacQueryClient.GET("/rest/health-check/zaaktypes"),
+      staleTime: StaleTimes.Instant,
+    };
   }
 
   readBestaatCommunicatiekanaalEformulier() {
-    return this.zacHttpClient.GET(
-      "/rest/health-check/bestaat-communicatiekanaal-eformulier",
-    );
+    return {
+      ...this.zacQueryClient.GET(
+        "/rest/health-check/bestaat-communicatiekanaal-eformulier",
+      ),
+      staleTime: StaleTimes.Instant,
+    };
   }
 
   readBuildInformatie() {
-    return this.zacHttpClient.GET("/rest/health-check/build-informatie");
+    return this.zacQueryClient.GET("/rest/health-check/build-informatie");
   }
 }

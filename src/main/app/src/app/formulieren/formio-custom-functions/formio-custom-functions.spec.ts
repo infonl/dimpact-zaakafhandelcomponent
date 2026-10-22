@@ -6,7 +6,7 @@
 import { LOCALE_ID } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { Evaluator } from "@formio/core";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { of, throwError } from "rxjs";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -40,8 +40,8 @@ describe(FormioCustomFunctions.name, () => {
     };
 
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
       providers: [
+        provideTranslateService(),
         { provide: LOCALE_ID, useValue: "nl-NL" },
         {
           provide: InformatieObjectenService,

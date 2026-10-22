@@ -15,7 +15,7 @@ import {
   Signal,
 } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../setupJest";
@@ -47,8 +47,9 @@ describe(injectContactEmail.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TestHostComponent, TranslateModule.forRoot()],
+      imports: [TestHostComponent],
       providers: [
+        provideTranslateService(),
         provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
