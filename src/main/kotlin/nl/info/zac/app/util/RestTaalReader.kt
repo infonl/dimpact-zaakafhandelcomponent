@@ -31,5 +31,5 @@ class RestTaalReader : MessageBodyReader<RestTaal> {
         mediaType: MediaType,
         httpHeaders: MultivaluedMap<String, String>,
         entityStream: InputStream
-    ): RestTaal = ObjectMapper().readValue(entityStream, RestTaal::class.java)
+    ): RestTaal? = ObjectMapper().readValue(entityStream, RestTaal::class.java)
 }

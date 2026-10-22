@@ -10,7 +10,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldStartWith
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.MultivaluedHashMap
 import nl.info.zac.app.configuration.model.RestTaal
@@ -73,23 +75,37 @@ class RestTaalReaderTest : BehaviorSpec({
                 val readRestTaal = readFrom(ObjectMapper().writeValueAsBytes(restTaal))
 
                 then("the RestTaal is returned") {
-                    readRestTaal shouldBeEqualToComparingFields restTaal
+                    readRestTaal.shouldNotBeNull() shouldBeEqualToComparingFields restTaal
+                }
+            }
+        }
+
+        given("a JSON null") {
+            `when`("readFrom is called") {
+                val readRestTaal = readFrom("null".toByteArray())
+
+                then("null is returned") {
+                    readRestTaal shouldBe null
                 }
             }
         }
 
         given("binary data that is not JSON") {
             `when`("readFrom is called") {
+                val jsonParseException = shouldThrow<JsonParseException> { readFrom(byteArrayOf(12, 13, 14)) }
+
                 then("a JSON parse exception is thrown") {
-                    shouldThrow<JsonParseException> { readFrom(byteArrayOf(12, 13, 14)) }
+                    jsonParseException.message shouldStartWith "Illegal character ((CTRL-CHAR, code 12))"
                 }
             }
         }
 
         given("a string that is not JSON") {
             `when`("readFrom is called") {
+                val jsonParseException = shouldThrow<JsonParseException> { readFrom("unrecognized data".toByteArray()) }
+
                 then("a JSON parse exception is thrown") {
-                    shouldThrow<JsonParseException> { readFrom("unrecognized data".toByteArray()) }
+                    jsonParseException.message shouldStartWith "Unrecognized token 'unrecognized'"
                 }
             }
         }

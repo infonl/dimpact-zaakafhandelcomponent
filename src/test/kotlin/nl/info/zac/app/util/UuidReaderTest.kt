@@ -69,16 +69,20 @@ class UuidReaderTest : BehaviorSpec({
 
         given("an empty string") {
             `when`("readFrom is called") {
+                val illegalArgumentException = shouldThrow<IllegalArgumentException> { readFrom("") }
+
                 then("an illegal argument exception is thrown") {
-                    shouldThrow<IllegalArgumentException> { readFrom("") }
+                    illegalArgumentException.message shouldBe "Invalid UUID string: "
                 }
             }
         }
 
         given("a mis-formatted UUID string") {
             `when`("readFrom is called") {
+                val illegalArgumentException = shouldThrow<IllegalArgumentException> { readFrom("aa-bbb-cccc-ddddd-ee-ff") }
+
                 then("an illegal argument exception is thrown") {
-                    shouldThrow<IllegalArgumentException> { readFrom("aa-bbb-cccc-ddddd-ee-ff") }
+                    illegalArgumentException.message shouldBe "Invalid UUID string: aa-bbb-cccc-ddddd-ee-ff"
                 }
             }
         }
