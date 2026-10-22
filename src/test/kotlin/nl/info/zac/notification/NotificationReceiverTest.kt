@@ -386,8 +386,7 @@ class NotificationReceiverTest : BehaviorSpec({
         every {
             zrcClientService.readZaakeigenschap(zaakUUID, zaakeigenschapUUID)
         } returns createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, uuid = zaakeigenschapUUID)
-        every { indexingService.addOrUpdateZaak(zaakUUID, false) } returns true
-        every { indexingService.addOrUpdateTakenForZaak(zaakUUID) } just Runs
+        every { indexingService.addOrUpdateZaakWithTaken(zaakUUID) } just Runs
         every { indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID) } just Runs
         every { eventingService.send(any<ScreenEvent>()) } just Runs
 
@@ -400,8 +399,7 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
-                    indexingService.addOrUpdateZaak(zaakUUID, false)
-                    indexingService.addOrUpdateTakenForZaak(zaakUUID)
+                    indexingService.addOrUpdateZaakWithTaken(zaakUUID)
                     indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID)
                 }
             }
@@ -433,7 +431,7 @@ class NotificationReceiverTest : BehaviorSpec({
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 0) {
                     indexingService.addOrUpdateZaak(any(), any())
-                    indexingService.addOrUpdateTakenForZaak(any())
+                    indexingService.addOrUpdateZaakWithTaken(any())
                     indexingService.addOrUpdateInformatieobjectenForZaakAsync(any())
                 }
             }
@@ -453,8 +451,7 @@ class NotificationReceiverTest : BehaviorSpec({
         )
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
-        every { indexingService.addOrUpdateZaak(zaakUUID, false) } returns true
-        every { indexingService.addOrUpdateTakenForZaak(zaakUUID) } just Runs
+        every { indexingService.addOrUpdateZaakWithTaken(zaakUUID) } just Runs
         every { indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID) } just Runs
         every { eventingService.send(any<ScreenEvent>()) } just Runs
 
@@ -467,8 +464,7 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
-                    indexingService.addOrUpdateZaak(zaakUUID, false)
-                    indexingService.addOrUpdateTakenForZaak(zaakUUID)
+                    indexingService.addOrUpdateZaakWithTaken(zaakUUID)
                     indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID)
                 }
                 verify(exactly = 0) {
@@ -497,8 +493,7 @@ class NotificationReceiverTest : BehaviorSpec({
         every {
             zrcClientService.readZaakeigenschap(zaakUUID, zaakeigenschapUUID)
         } throws NotFoundException()
-        every { indexingService.addOrUpdateZaak(zaakUUID, false) } returns true
-        every { indexingService.addOrUpdateTakenForZaak(zaakUUID) } just Runs
+        every { indexingService.addOrUpdateZaakWithTaken(zaakUUID) } just Runs
         every { indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID) } just Runs
         every { eventingService.send(any<ScreenEvent>()) } just Runs
 
@@ -511,8 +506,7 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
-                    indexingService.addOrUpdateZaak(zaakUUID, false)
-                    indexingService.addOrUpdateTakenForZaak(zaakUUID)
+                    indexingService.addOrUpdateZaakWithTaken(zaakUUID)
                     indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID)
                 }
             }
@@ -538,8 +532,7 @@ class NotificationReceiverTest : BehaviorSpec({
         every {
             zrcClientService.readZaakeigenschap(zaakUUID, zaakeigenschapUUID)
         } throws ServiceUnavailableException()
-        every { indexingService.addOrUpdateZaak(zaakUUID, false) } returns true
-        every { indexingService.addOrUpdateTakenForZaak(zaakUUID) } just Runs
+        every { indexingService.addOrUpdateZaakWithTaken(zaakUUID) } just Runs
         every { indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID) } just Runs
         every { eventingService.send(any<ScreenEvent>()) } just Runs
 
@@ -552,8 +545,7 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
-                    indexingService.addOrUpdateZaak(zaakUUID, false)
-                    indexingService.addOrUpdateTakenForZaak(zaakUUID)
+                    indexingService.addOrUpdateZaakWithTaken(zaakUUID)
                     indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID)
                 }
             }
