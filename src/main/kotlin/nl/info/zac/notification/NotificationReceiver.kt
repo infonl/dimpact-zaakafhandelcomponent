@@ -325,8 +325,7 @@ class NotificationReceiver @Inject constructor(
         ) {
             return
         }
-        indexingService.addOrUpdateZaak(zaakUUID, false)
-        indexingService.addOrUpdateTakenForZaak(zaakUUID)
+        indexingService.addOrUpdateZaak(zaakUUID, inclusiefTaken = true)
         indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID)
     }
 

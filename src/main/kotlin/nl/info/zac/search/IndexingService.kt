@@ -316,7 +316,8 @@ class IndexingService @Inject constructor(
     /**
      * Reindexes the open taken of a zaak, sharing one memoized `zaakAutorisatieGegevens` lookup
      * across all of them. Completed taken are left out, because a taak is removed from the Solr
-     * index when it is completed.
+     * index when it is completed, by [net.atos.zac.flowable.cmmn.CompleteTaskInterceptor] and
+     * [net.atos.zac.flowable.bpmn.UserTaskCompletionListener].
      */
     fun addOrUpdateTakenForZaak(zaakUUID: UUID) {
         val zaakAutorisatieGegevens = reindexSupportService.memoizedZaakAutorisatieGegevens()
@@ -330,8 +331,8 @@ class IndexingService @Inject constructor(
      * who may see a zaakspecifiek geautoriseerde zaak changed.
      */
     fun addOrUpdateZaakWithTakenAndInformatieobjecten(zaakUUID: UUID) {
-        addOrUpdateZaak(zaakUUID, inclusiefTaken = false)
-        addOrUpdateTakenAndInformatieobjectenForZaak(zaakUUID)
+        addOrUpdateZaak(zaakUUID, inclusiefTaken = true)
+        addOrUpdateInformatieobjectenForZaak(zaakUUID)
     }
 
     fun addOrUpdateTakenAndInformatieobjectenForZaak(zaakUUID: UUID) {

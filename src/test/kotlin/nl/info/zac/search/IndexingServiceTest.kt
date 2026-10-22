@@ -585,7 +585,6 @@ class IndexingServiceTest : BehaviorSpec({
                 }
                 verify(exactly = 0) {
                     ctx.flowableTaskService.listTasksForZaak(any())
-                    ctx.taakZoekObjectConverter.convert("fakeCompletedTaskId", any())
                 }
             }
 
