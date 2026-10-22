@@ -12,7 +12,7 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatSort, MatSortHeader } from "@angular/material/sort";
 import { MatTable, MatTableModule } from "@angular/material/table";
 import { ActivatedRoute, RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import moment from "moment";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { UtilService } from "../../core/service/util.service";
@@ -62,7 +62,7 @@ import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak
     MatSortHeader,
     MatTableModule,
     RouterLink,
-    TranslateModule,
+    TranslatePipe,
     ZoekopdrachtComponent,
     ColumnPickerComponent,
     ExportButtonComponent,

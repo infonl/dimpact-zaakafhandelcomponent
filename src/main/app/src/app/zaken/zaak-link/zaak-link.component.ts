@@ -28,7 +28,7 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { MatTableModule } from "@angular/material/table";
 import { MatToolbar } from "@angular/material/toolbar";
 import { MatTooltip } from "@angular/material/tooltip";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { UtilService } from "src/app/core/service/util.service";
 import { ZacAutoComplete } from "src/app/shared/form/auto-complete/auto-complete";
@@ -57,7 +57,7 @@ const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
   imports: [
     ZaakIdentificatieComponent,
     ReactiveFormsModule,
-    TranslateModule,
+    TranslatePipe,
     MatToolbar,
     MatIconButton,
     MatIcon,

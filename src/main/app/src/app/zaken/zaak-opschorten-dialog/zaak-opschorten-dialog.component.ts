@@ -18,7 +18,7 @@ import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
 import { ZacDate } from "../../shared/form/date/date";
 import { ZacInput } from "../../shared/form/input/input";
@@ -41,7 +41,7 @@ import { ZakenService } from "../zaken.service";
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    TranslateModule,
+    TranslatePipe,
     ZacInput,
     ZacDate,
     ZacTextarea,

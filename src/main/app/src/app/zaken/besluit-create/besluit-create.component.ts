@@ -17,7 +17,7 @@ import { MatExpansionModule } from "@angular/material/expansion";
 import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
@@ -43,7 +43,7 @@ import { ZakenService } from "../zaken.service";
     MatButtonModule,
     MatDividerModule,
     MatExpansionModule,
-    TranslateModule,
+    TranslatePipe,
     ZacSelect,
     ZacDate,
     ZacTextarea,

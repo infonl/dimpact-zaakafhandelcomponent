@@ -17,7 +17,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTooltipModule } from "@angular/material/tooltip";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 
@@ -38,7 +38,7 @@ const SCROLL_STEP = 100;
     MatToolbarModule,
     MatTooltipModule,
     StaticTextComponent,
-    TranslateModule,
+    TranslatePipe,
   ],
 })
 export class ZaakProcessFlowComponent {

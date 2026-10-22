@@ -28,7 +28,7 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatRadioModule } from "@angular/material/radio";
 import { MatSelectModule } from "@angular/material/select";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { Observable, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
@@ -62,7 +62,7 @@ import { ZakenService } from "../zaken.service";
     MatSelectModule,
     MatExpansionModule,
     MatProgressSpinnerModule,
-    TranslateModule,
+    TranslatePipe,
   ],
 })
 export class IntakeAfrondenDialogComponent implements OnDestroy {
