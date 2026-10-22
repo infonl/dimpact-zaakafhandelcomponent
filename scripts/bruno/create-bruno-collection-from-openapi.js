@@ -25,6 +25,8 @@ const path = require('path');
 const https = require('https');
 const http = require('http');
 
+const OPEN_COLLECTION_FILENAME = 'opencollection.yml';
+
 // ANSI color codes for console output
 const colors = {
     reset: '\x1b[0m',
@@ -149,36 +151,59 @@ function generateDefaultFromSchema(schema, openApiSpec, visited = new Set()) {
 }
 
 /**
- * Generate Bruno request file content
+ * Format a value as a YAML scalar, quoting it unless it is a plain identifier
+ */
+function toYamlScalar(value) {
+    const text = String(value);
+    const isPlainIdentifier = /^[A-Za-z_][A-Za-z0-9_-]*$/.test(text)
+        && !/^(true|false|yes|no|on|off|null)$/i.test(text);
+    return isPlainIdentifier ? text : JSON.stringify(text);
+}
+
+/**
+ * Format multi-line text as a YAML literal block scalar at the given indentation
+ */
+function toYamlBlock(text, indentation) {
+    // A literal block cannot start with whitespace without an explicit indentation indicator
+    if (!text.includes('\n') || /^\s/.test(text)) {
+        return JSON.stringify(text);
+    }
+    const indent = ' '.repeat(indentation);
+    return `|-\n${text.split('\n').map(line => line ? `${indent}${line}` : '').join('\n')}`;
+}
+
+/**
+ * Generate Bruno request file content in the YAML (OpenCollection) format
  */
 function generateBrunoRequest(operationId, method, urlPath, operation, servers = [], openApiSpec = {}) {
     const name = operation.summary || operationId || urlPath;
     const description = operation.description || '';
 
     // Determine auth mode
-    // INFO.nl: we always use inherit mode for auth, and define the authorisation configuration globally in the collection.bru file.
+    // INFO.nl: we always use inherit mode for auth, and define the authorisation configuration globally in the opencollection.yml file.
     const authInfo = { mode: 'inherit' };
     // determineAuthMode(operation, openApiSpec);
 
     // Build query parameters
     const queryParams = (operation.parameters || [])
         .filter(p => p.in === 'query')
-        .map(p => `  ${p.name}: ${p.example || p.default || ''}`);
+        .map(p => ({ name: p.name, value: p.example || p.default || '', type: 'query' }));
 
     // Build headers
     const headerParams = (operation.parameters || [])
         .filter(p => p.in === 'header')
-        .map(p => `  ${p.name}: ${p.example || p.default || ''}`);
+        .map(p => ({ name: p.name, value: p.example || p.default || '' }));
 
     // Build path parameters (as variables in URL)
     const pathParams = (operation.parameters || [])
         .filter(p => p.in === 'path');
 
     // Build path variables with example values
-    const pathVariables = pathParams.map(p => {
-        const value = p.example || p.default || `{${p.name}}`;
-        return `  ${p.name}: ${value}`;
-    });
+    const pathVariables = pathParams.map(p => ({
+        name: p.name,
+        value: p.example || p.default || `{${p.name}}`,
+        type: 'path'
+    }));
 
     // Replace path parameters with Bruno variables
     let brunoUrl = urlPath;
@@ -213,69 +238,69 @@ function generateBrunoRequest(operationId, method, urlPath, operation, servers =
         }
     }
 
-    // Build the .bru file content
-    let bruContent = `meta {
-  name: ${name}
+    // Build the .yml file content
+    let yamlContent = `info:
+  name: ${toYamlScalar(name)}
   type: http
   seq: 1
-}
 
-${method} {
-  url: {{baseUrl}}${brunoUrl}
-  body: ${bodyType}
-  auth: ${authInfo.mode}
-}
+http:
+  method: ${method.toUpperCase()}
+  url: ${toYamlScalar(`{{baseUrl}}${brunoUrl}`)}
 `;
-
-    // Add path params section
-    if (pathVariables.length > 0) {
-        bruContent += `\nparams:path {
-${pathVariables.join('\n')}
-}
-`;
-    }
-
-    // Add query params section
-    if (queryParams.length > 0) {
-        bruContent += `\nquery {
-${queryParams.join('\n')}
-}
-`;
-    }
 
     // Add headers section
     if (headerParams.length > 0) {
-        bruContent += `\nheaders {
-${headerParams.join('\n')}
-}
+        yamlContent += '  headers:\n';
+        for (const header of headerParams) {
+            yamlContent += `    - name: ${toYamlScalar(header.name)}
+      value: ${toYamlScalar(header.value)}
 `;
+        }
+    }
+
+    // Add path and query params section
+    const params = [...pathVariables, ...queryParams];
+    if (params.length > 0) {
+        yamlContent += '  params:\n';
+        for (const param of params) {
+            yamlContent += `    - name: ${toYamlScalar(param.name)}
+      value: ${toYamlScalar(param.value)}
+      type: ${param.type}
+`;
+        }
     }
 
     // Add body section
     if (bodyType === 'json' && bodyContent) {
-        bruContent += `\nbody:json {
-  ${bodyContent.split('\n').join('\n  ')}
-}
+        yamlContent += `  body:
+    type: json
+    data: ${toYamlBlock(bodyContent, 6)}
 `;
     }
 
-    // Add auth section for bearer tokens
-    if (authInfo.mode === 'bearer' && authInfo.tokenVar) {
-        bruContent += `\nauth:bearer {
-  token: {{${authInfo.tokenVar}}}
-}
+    yamlContent += `  auth: ${authInfo.mode}
 `;
-    }
 
     // Add docs section
     if (description) {
-        bruContent += `\ndocs {
-  ${description}
-}
+        yamlContent += `
+docs:
+  content: ${toYamlBlock(description, 4)}
+  type: text/markdown
 `;
     }
 
-    return bruContent;
+    yamlContent += `
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+`;
+
+    return yamlContent;
 }
 
 /**
@@ -321,8 +346,8 @@ function findExistingCollection(parentFolder) {
         const stat = fs.statSync(entryPath);
 
         if (stat.isDirectory()) {
-            const brunoJsonPath = path.join(entryPath, 'bruno.json');
-            if (fs.existsSync(brunoJsonPath)) {
+            const openCollectionPath = path.join(entryPath, OPEN_COLLECTION_FILENAME);
+            if (fs.existsSync(openCollectionPath)) {
                 collections.push({
                     path: entryPath,
                     name: entry,
@@ -345,10 +370,10 @@ function findExistingCollection(parentFolder) {
  * Open collection in Bruno
  */
 function openInBruno(collectionPath) {
-    const brunoJsonPath = path.join(collectionPath, 'bruno.json');
+    const openCollectionPath = path.join(collectionPath, OPEN_COLLECTION_FILENAME);
 
-    if (!fs.existsSync(brunoJsonPath)) {
-        error('Cannot open in Bruno: bruno.json not found');
+    if (!fs.existsSync(openCollectionPath)) {
+        error(`Cannot open in Bruno: ${OPEN_COLLECTION_FILENAME} not found`);
         return;
     }
 
@@ -416,8 +441,17 @@ function convertOpenApiToBruno(openApiSpec, options = {}) {
 }
 
 /**
+ * Read the collection name from the info section of an opencollection.yml file
+ */
+function readCollectionName(openCollectionPath) {
+    const openCollection = fs.readFileSync(openCollectionPath, 'utf8');
+    const match = openCollection.match(/^info:\s*\n(?:[ \t]+.*\n)*?[ \t]+name:[ \t]*(.+)$/m);
+    return match ? match[1].trim().replace(/^(["'])(.*)\1$/, '$2') : path.basename(path.dirname(openCollectionPath));
+}
+
+/**
  * Update an existing Bruno collection with OpenAPI data, or create a new one.
- * Preserves environments/ and collection.bru; regenerates all request files.
+ * Preserves environments/ and opencollection.yml; regenerates all request files.
  */
 function createBrunoCollectionFromOpenapi(parentFolder, openApiSpec, options = {}) {
     const { dryRun = false, organizeByTags = false } = options;
@@ -433,8 +467,7 @@ function createBrunoCollectionFromOpenapi(parentFolder, openApiSpec, options = {
 
     if (existingCollection) {
         collectionPath = existingCollection;
-        const brunoJson = JSON.parse(fs.readFileSync(path.join(collectionPath, 'bruno.json'), 'utf8'));
-        collectionName = brunoJson.name;
+        collectionName = readCollectionName(path.join(collectionPath, OPEN_COLLECTION_FILENAME));
         log(`Updating existing collection: ${path.basename(collectionPath)}`, 'bright');
     } else {
         const apiTitle = openApiSpec.info?.title || 'api';
@@ -443,31 +476,31 @@ function createBrunoCollectionFromOpenapi(parentFolder, openApiSpec, options = {
         log(`No existing collection found - creating new collection: ${collectionName}`, 'yellow');
         if (!dryRun) {
             ensureDirectory(collectionPath);
+            fs.writeFileSync(
+                path.join(collectionPath, OPEN_COLLECTION_FILENAME),
+                `opencollection: 1.0.0
+
+info:
+  name: ${toYamlScalar(collectionName)}
+
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git
+`,
+                'utf8'
+            );
         }
-    }
-
-    // Write/update bruno.json
-    const brunoJson = {
-        version: '1',
-        name: collectionName,
-        type: 'collection',
-        ignore: ['node_modules', '.git']
-    };
-
-    if (!dryRun) {
-        fs.writeFileSync(
-            path.join(collectionPath, 'bruno.json'),
-            JSON.stringify(brunoJson, null, 2),
-            'utf8'
-        );
     }
 
     log(`Collection: ${collectionName}`, 'blue');
 
-    // Remove existing request directories and loose .bru files,
-    // preserving environments/ and collection.bru
+    // Remove existing request directories and loose request files,
+    // preserving environments/ and opencollection.yml
     const preservedDirs = new Set(['environments']);
-    const preservedFiles = new Set(['bruno.json', 'collection.bru']);
+    const preservedFiles = new Set([OPEN_COLLECTION_FILENAME]);
 
     if (fs.existsSync(collectionPath)) {
         for (const entry of fs.readdirSync(collectionPath)) {
@@ -516,10 +549,10 @@ function createBrunoCollectionFromOpenapi(parentFolder, openApiSpec, options = {
         }
 
         for (const request of folderRequests) {
-            const filename = `${sanitizeFilename(request.name)}.bru`;
+            const filename = `${sanitizeFilename(request.name)}.yml`;
             const filePath = path.join(folderPath, filename);
 
-            const bruContent = generateBrunoRequest(
+            const yamlContent = generateBrunoRequest(
                 request.operationId,
                 request.method,
                 request.urlPath,
@@ -531,7 +564,7 @@ function createBrunoCollectionFromOpenapi(parentFolder, openApiSpec, options = {
             if (dryRun) {
                 log(`[DRY RUN] Would create: ${folder}/${filename}`, 'cyan');
             } else {
-                fs.writeFileSync(filePath, bruContent, 'utf8');
+                fs.writeFileSync(filePath, yamlContent, 'utf8');
                 createdCount++;
             }
         }
@@ -577,7 +610,7 @@ ${colors.bright}Examples:${colors.reset}
 
 ${colors.bright}Note:${colors.reset}
   - Updates the most recent existing collection in the collections folder in place
-  - Preserves environments/ and collection.bru; regenerates all request files
+  - Preserves environments/ and opencollection.yml; regenerates all request files as YAML
   - If no existing collection is found, a new one is created
   - Opens the updated collection in Bruno automatically
 `);
