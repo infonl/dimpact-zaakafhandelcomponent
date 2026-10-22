@@ -13,10 +13,6 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import java.net.URI
-import java.time.ZoneId
-import java.util.Date
-import java.util.UUID
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.model.createNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createResultaat
@@ -43,6 +39,10 @@ import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.createZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import java.net.URI
+import java.time.ZoneId
+import java.util.Date
+import java.util.UUID
 
 class ZaakZoekObjectConverterTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()

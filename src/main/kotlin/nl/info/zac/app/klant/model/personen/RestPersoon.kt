@@ -7,7 +7,6 @@
 
 package nl.info.zac.app.klant.model.personen
 
-import nl.info.zac.app.shared.RestResultaat
 import nl.info.client.brp.model.generated.AbstractDatum
 import nl.info.client.brp.model.generated.AbstractVerblijfplaats
 import nl.info.client.brp.model.generated.Adres
@@ -31,6 +30,7 @@ import nl.info.client.brp.model.generated.ZoekMetPostcodeEnHuisnummerResponse
 import nl.info.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.klant.model.klant.RestKlant
+import nl.info.zac.app.shared.RestResultaat
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NON_BREAKING_SPACE
 import nl.info.zac.util.NoArgConstructor

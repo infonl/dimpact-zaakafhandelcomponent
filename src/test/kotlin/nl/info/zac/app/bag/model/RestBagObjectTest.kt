@@ -11,8 +11,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.every
 import io.mockk.mockk
-import nl.info.zac.app.bag.createPuntOfVlak
-import nl.info.zac.app.bag.createSurface
 import nl.info.client.bag.model.generated.PuntOfVlak
 import nl.info.client.bag.model.generated.StatusNaamgeving
 import nl.info.client.bag.model.generated.TypeAdresseerbaarObject
@@ -23,6 +21,7 @@ import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum
 import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectAdres
 import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectNummeraanduiding
 import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectWoonplaats
+import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdres
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdresRequest
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding
@@ -31,7 +30,8 @@ import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimteRequest
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectPandRequest
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaatsRequest
-import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
+import nl.info.zac.app.bag.createPuntOfVlak
+import nl.info.zac.app.bag.createSurface
 import nl.info.zac.app.zaak.model.RestGeometryType
 import org.apache.commons.lang3.NotImplementedException
 import java.math.BigDecimal

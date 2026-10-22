@@ -14,10 +14,10 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import nl.info.zac.app.mail.model.RestMailGegevens
-import nl.info.zac.app.mail.model.toMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.zac.app.mail.model.RestMailGegevens
+import nl.info.zac.app.mail.model.toMailGegevens
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.mail.MailService

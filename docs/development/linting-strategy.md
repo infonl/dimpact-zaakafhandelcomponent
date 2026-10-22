@@ -104,6 +104,7 @@ Coding conventions that a linter can check are enforced there rather than only d
 | No `requireNotNull` or `runCatching`                          | detekt `ForbiddenMethodCall`                                     |
 | Boolean properties start with is/has/are/can/should           | detekt `BooleanPropertyNaming`                                   |
 | A call with more than three arguments names them             | detekt `NamedArguments`, unless an argument is already named after its parameter |
+| Kotlin imports are sorted in the IntelliJ IDEA order          | detekt `ImportOrdering` (ktlint wrapper), fixed by `detektApply` |
 | No unused MockK stubs in unit tests                           | `UnnecessaryStubCheckingTestListener` in `ZacTestProjectConfig`  |
 | No `NO_ERRORS_SCHEMA`, no `any`                               | ESLint `no-restricted-imports`, `@typescript-eslint/no-explicit-any` |
 | Component inputs use `input()`, not the `@Input()` decorator  | ESLint `@angular-eslint/prefer-signals`                          |

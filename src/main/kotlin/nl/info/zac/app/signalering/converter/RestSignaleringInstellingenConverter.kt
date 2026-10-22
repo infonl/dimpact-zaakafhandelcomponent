@@ -5,12 +5,12 @@
 package nl.info.zac.app.signalering.converter
 
 import jakarta.inject.Inject
-import nl.info.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringTarget
 import nl.info.zac.app.signalering.model.RestSignaleringInstellingen
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.signalering.model.SignaleringInstellingen
 
 class RestSignaleringInstellingenConverter @Inject constructor(
     private var signaleringService: SignaleringService

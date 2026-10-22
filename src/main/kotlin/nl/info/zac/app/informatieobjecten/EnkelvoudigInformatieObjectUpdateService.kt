@@ -9,10 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import net.atos.zac.flowable.task.FlowableTaskService
-import nl.info.zac.flowable.task.TaakVariabelenService
-import nl.info.zac.flowable.task.readTaskDocuments
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
@@ -24,11 +21,14 @@ import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.content.DocumentContent
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
+import nl.info.zac.flowable.task.TaakVariabelenService
+import nl.info.zac.flowable.task.readTaskDocuments
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen

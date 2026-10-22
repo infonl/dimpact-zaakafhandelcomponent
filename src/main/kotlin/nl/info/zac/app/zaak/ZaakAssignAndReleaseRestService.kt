@@ -18,12 +18,12 @@ import kotlinx.coroutines.CoroutineDispatcher
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
-import nl.info.zac.app.zaak.model.RestZakenVerdeelGegevens
-import nl.info.zac.app.zaak.model.RestZakenVrijgevenGegevens
 import nl.info.zac.app.zaak.model.RestZaak
 import nl.info.zac.app.zaak.model.RestZaakAssignmentData
 import nl.info.zac.app.zaak.model.RestZaakAssignmentToLoggedInUserData
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
+import nl.info.zac.app.zaak.model.RestZakenVerdeelGegevens
+import nl.info.zac.app.zaak.model.RestZakenVrijgevenGegevens
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.launchAsLoggedInUser
 import nl.info.zac.identity.IdentityService

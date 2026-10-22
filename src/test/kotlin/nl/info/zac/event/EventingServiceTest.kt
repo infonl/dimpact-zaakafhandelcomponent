@@ -18,12 +18,12 @@ import net.atos.zac.signalering.event.SignaleringEvent
 import net.atos.zac.signalering.event.SignaleringEventId
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.util.event.JobEvent
-import nl.info.zac.websocket.event.ScreenEvent
-import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.LoggedInUserProvider.Companion.FUNCTIONEEL_GEBRUIKER
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.identity.model.createUser
+import nl.info.zac.websocket.event.ScreenEvent
+import nl.info.zac.websocket.event.ScreenEventType
 import java.net.URI
 import java.util.UUID
 import java.util.concurrent.CompletableFuture

@@ -219,6 +219,8 @@ dependencies {
     // for our unit tests we use the reference implementation
     testImplementation(libs.glassfish.expressly)
 
+    detektPlugins(libs.detekt.rules.ktlint.wrapper)
+
     jacocoAgentJarForItest(variantOf(libs.jacoco.agent) { classifier("runtime") })
 }
 

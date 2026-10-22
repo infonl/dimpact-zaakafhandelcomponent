@@ -5,14 +5,14 @@
 package nl.info.zac.history.converter
 
 import jakarta.inject.Inject
+import nl.info.client.zgw.brc.model.generated.Besluit
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
 import nl.info.client.zgw.shared.model.ObjectType.BESLUIT
 import nl.info.client.zgw.shared.model.ObjectType.BESLUIT_INFORMATIEOBJECT
 import nl.info.client.zgw.shared.model.ObjectType.ENKELVOUDIG_INFORMATIEOBJECT
 import nl.info.client.zgw.shared.model.ObjectType.GEBRUIKSRECHTEN
 import nl.info.client.zgw.shared.model.audit.AuditTrailRegel
-import nl.info.client.zgw.brc.model.generated.Besluit
-import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
-import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
 import nl.info.client.zgw.shared.model.audit.AuditWijziging
 import nl.info.client.zgw.shared.model.audit.besluiten.BesluitInformatieobjectWijziging
 import nl.info.zac.history.converter.besluiten.AuditBesluitConverter

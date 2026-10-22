@@ -19,9 +19,9 @@ import io.mockk.runs
 import io.mockk.verify
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.exception.VariableNotFoundException
+import org.flowable.common.engine.api.scope.ScopeTypes
 import org.flowable.engine.TaskService
 import org.flowable.task.api.Task
-import org.flowable.common.engine.api.scope.ScopeTypes
 import org.flowable.task.api.TaskInfo
 import java.io.File
 import java.util.UUID

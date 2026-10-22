@@ -10,8 +10,6 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import java.net.URI
-import java.util.UUID
 import nl.info.client.bag.model.createAdresIOHal
 import nl.info.client.bag.model.createAdresIOLinks
 import nl.info.client.bag.model.createHalLink
@@ -38,6 +36,8 @@ import nl.info.zac.app.bag.createSurface
 import nl.info.zac.app.zaak.model.RestCoordinates
 import nl.info.zac.app.zaak.model.RestGeometry
 import nl.info.zac.app.zaak.model.RestGeometryType
+import java.net.URI
+import java.util.UUID
 
 class RestBagAdresTest : BehaviorSpec({
     val adresseerbaarObjectGeometry = RestGeometry(

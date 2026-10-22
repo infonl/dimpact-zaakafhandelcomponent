@@ -13,10 +13,9 @@ import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
-import io.mockk.just
-import org.flowable.engine.history.HistoricProcessInstance
 import io.mockk.verify
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_OMSCHRIJVING
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_UUID
@@ -39,6 +38,7 @@ import org.flowable.engine.HistoryService
 import org.flowable.engine.ProcessEngine
 import org.flowable.engine.RepositoryService
 import org.flowable.engine.RuntimeService
+import org.flowable.engine.history.HistoricProcessInstance
 import org.flowable.engine.repository.Deployment
 import org.flowable.engine.repository.DeploymentQuery
 import org.flowable.engine.runtime.ProcessInstance

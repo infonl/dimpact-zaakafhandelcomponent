@@ -6,7 +6,6 @@ package nl.info.zac.webdav
 
 import jakarta.enterprise.inject.spi.CDI
 import jakarta.servlet.http.HttpSession
-import nl.info.zac.util.time.convertToDate
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
 import nl.info.webdav.ITransaction
@@ -15,6 +14,7 @@ import nl.info.webdav.StoredObject
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.authentication.setLoggedInUser
 import nl.info.zac.document.content.DocumentContentReader
+import nl.info.zac.util.time.convertToDate
 import org.apache.commons.collections4.map.LRUMap
 import org.apache.commons.io.FilenameUtils
 import java.io.File

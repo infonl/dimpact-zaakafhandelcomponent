@@ -8,9 +8,9 @@ package net.atos.zac.flowable.delegate
 import jakarta.enterprise.inject.spi.CDI
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
-import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.websocket.event.ScreenEventType
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
 import java.util.UUID

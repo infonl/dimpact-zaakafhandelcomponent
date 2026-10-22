@@ -11,8 +11,6 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import java.net.URI
-import java.util.UUID
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
@@ -30,6 +28,8 @@ import nl.info.zac.search.ReindexSupportService
 import nl.info.zac.search.model.DocumentIndicatie
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.createZaakAutorisatieGegevens
+import java.net.URI
+import java.util.UUID
 
 class DocumentZoekObjectConverterTest : BehaviorSpec({
     val identityService = mockk<IdentityService>()

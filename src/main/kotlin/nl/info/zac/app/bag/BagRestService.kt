@@ -16,7 +16,6 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import nl.info.zac.app.shared.RestResultaat
 import nl.info.client.bag.BagClientService
 import nl.info.client.bag.model.BevraagAdressenParameters
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -35,6 +34,7 @@ import nl.info.zac.app.bag.model.toRestOpenbareRuimte
 import nl.info.zac.app.bag.model.toRestPand
 import nl.info.zac.app.bag.model.toRestWoonplaats
 import nl.info.zac.app.bag.model.toZaakobjectRequest
+import nl.info.zac.app.shared.RestResultaat
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy

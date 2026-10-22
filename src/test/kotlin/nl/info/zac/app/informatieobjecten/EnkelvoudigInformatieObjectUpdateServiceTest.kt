@@ -16,7 +16,6 @@ import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.flowable.task.FlowableTaskService
-import nl.info.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
@@ -35,6 +34,7 @@ import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.content.InMemoryDocumentContent
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.enkelvoudiginformatieobject.model.createEnkelvoudigInformatieObjectLock
+import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createTaakRechten
 import java.time.LocalDate

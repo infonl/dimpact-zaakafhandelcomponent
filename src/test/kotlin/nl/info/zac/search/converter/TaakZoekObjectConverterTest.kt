@@ -14,7 +14,6 @@ import io.mockk.verify
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_UUID
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_IDENTIFICATIE
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
-import java.util.UUID
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -32,6 +31,7 @@ import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.Task
 import org.flowable.task.api.TaskInfo
+import java.util.UUID
 
 class TaakZoekObjectConverterTest : BehaviorSpec({
     val identityService = mockk<IdentityService>()

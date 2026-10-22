@@ -14,7 +14,6 @@ import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.unmockkAll
 import io.mockk.verify
-import nl.info.zac.event.EventingService
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor.Companion.VAR_TRANSIENT_DESCRIPTION
 import net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor.Companion.VAR_TRANSIENT_DUE_DATE
@@ -22,10 +21,11 @@ import net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor.Companion.VAR_TR
 import net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor.Companion.VAR_TRANSIENT_ZAAK_UUID
 import net.atos.zac.signalering.event.SignaleringEvent
 import net.atos.zac.signalering.model.SignaleringType
-import nl.info.zac.websocket.event.ScreenEvent
-import nl.info.zac.websocket.event.ScreenEventType
+import nl.info.zac.event.EventingService
 import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.search.IndexingService
+import nl.info.zac.websocket.event.ScreenEvent
+import nl.info.zac.websocket.event.ScreenEventType
 import org.flowable.cmmn.engine.impl.persistence.entity.PlanItemInstanceEntity
 import org.flowable.cmmn.engine.interceptor.CreateHumanTaskAfterContext
 import org.flowable.common.engine.impl.cfg.TransactionContext

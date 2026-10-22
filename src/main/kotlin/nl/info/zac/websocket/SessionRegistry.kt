@@ -10,11 +10,11 @@ import com.google.common.collect.SetMultimap
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.websocket.Session
 import nl.info.zac.event.Opcode
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.websocket.event.ScreenEventId
 import nl.info.zac.websocket.event.ScreenEventType
-import nl.info.zac.util.AllOpen
-import nl.info.zac.util.NoArgConstructor
 import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.Pattern

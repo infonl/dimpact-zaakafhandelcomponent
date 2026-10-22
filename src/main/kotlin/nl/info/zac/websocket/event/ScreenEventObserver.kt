@@ -11,9 +11,9 @@ import jakarta.enterprise.event.ObservesAsync
 import jakarta.inject.Inject
 import jakarta.inject.Named
 import nl.info.zac.event.AbstractEventObserver
-import nl.info.zac.websocket.SessionRegistry
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.websocket.SessionRegistry
 import java.util.logging.Level
 import java.util.logging.Logger
 

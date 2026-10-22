@@ -15,11 +15,11 @@ import jakarta.websocket.OnMessage
 import jakarta.websocket.OnOpen
 import jakarta.websocket.Session
 import jakarta.websocket.server.ServerEndpoint
+import nl.info.zac.authentication.LoggedInUserProvider.Companion.LOGGED_IN_USER_SESSION_ATTRIBUTE
+import nl.info.zac.authentication.getLoggedInUser
 import nl.info.zac.websocket.SubscriptionType.DELETE_ALL
 import nl.info.zac.websocket.SubscriptionType.SubscriptionMessage
 import nl.info.zac.websocket.WebsocketHandshakeInterceptor.Companion.HTTP_SESSION
-import nl.info.zac.authentication.LoggedInUserProvider.Companion.LOGGED_IN_USER_SESSION_ATTRIBUTE
-import nl.info.zac.authentication.getLoggedInUser
 import java.io.IOException
 import java.util.logging.Level
 import java.util.logging.Logger

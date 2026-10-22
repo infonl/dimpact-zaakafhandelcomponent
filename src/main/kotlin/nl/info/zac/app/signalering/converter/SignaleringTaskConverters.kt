@@ -4,10 +4,10 @@
  */
 package nl.info.zac.app.signalering.converter
 
+import nl.info.zac.app.signalering.model.RestSignaleringTaskSummary
 import nl.info.zac.flowable.task.readZaakIdentificatie
 import nl.info.zac.flowable.task.readZaaktypeOmschrijving
 import nl.info.zac.util.time.convertToZonedDateTime
-import nl.info.zac.app.signalering.model.RestSignaleringTaskSummary
 import org.flowable.task.api.TaskInfo
 
 fun TaskInfo.toRestSignaleringTaakSummary(isZaakspecifiekGeautoriseerd: Boolean) =

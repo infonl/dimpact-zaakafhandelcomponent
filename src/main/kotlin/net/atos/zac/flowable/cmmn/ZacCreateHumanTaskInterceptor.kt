@@ -7,8 +7,8 @@ package net.atos.zac.flowable.cmmn
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.signalering.model.SignaleringType
-import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.websocket.event.ScreenEventType
 import org.flowable.cmmn.engine.interceptor.CreateHumanTaskAfterContext
 import org.flowable.cmmn.engine.interceptor.CreateHumanTaskBeforeContext
 import org.flowable.cmmn.engine.interceptor.CreateHumanTaskInterceptor
