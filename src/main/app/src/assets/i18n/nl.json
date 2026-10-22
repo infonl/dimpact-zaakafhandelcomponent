@@ -394,7 +394,6 @@
   "zaak.zaakspecifiek-geautoriseerd.hint": "Alleen de behandelaar en medewerkers die zaakspecifiek geautoriseerd zijn voor dit zaaktype kunnen deze zaak nog inzien. Een behandelaar die de zaak overdraagt houdt toegang tot deze zaak.",
   "msg.zaken-verdelen.behandelaar-verplicht": "Kies een behandelaar. Een zaakspecifiek geautoriseerde zaak kun je niet zonder behandelaar verdelen.",
   "zaken.zaakspecifiek-geautoriseerd": "Zaakspecifiek geautoriseerde zaken",
-  "zaak.zaakspecifiek-geautoriseerd.behandelaar-verplicht": "Een zaakspecifiek geautoriseerde zaak heeft altijd een behandelaar.",
   "title.zaakspecifieke-autorisatie.opheffen": "Zaakspecifieke autorisatie opheffen",
   "msg.zaakspecifieke-autorisatie.opheffen.bevestigen": "Weet je zeker dat je de zaakspecifieke autorisatie wilt opheffen? Deze zaak zal dan weer toegankelijk zijn voor alle medewerkers die toegang hebben tot dit zaaktype.",
   "actie.opheffen": "Opheffen",

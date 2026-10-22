@@ -394,7 +394,6 @@
   "zaak.zaakspecifiek-geautoriseerd.hint": "Only the behandelaar and employees who are zaakspecifiek geautoriseerd for this zaaktype will still be able to see this zaak. A behandelaar who hands the zaak over keeps access to it.",
   "msg.zaken-verdelen.behandelaar-verplicht": "Choose a behandelaar. A zaakspecifiek geautoriseerde zaak cannot be distributed without a behandelaar.",
   "zaken.zaakspecifiek-geautoriseerd": "Zaakspecifiek geautoriseerde zaken",
-  "zaak.zaakspecifiek-geautoriseerd.behandelaar-verplicht": "A zaakspecifiek geautoriseerde zaak always has a behandelaar.",
   "title.zaakspecifieke-autorisatie.opheffen": "Lift zaakspecifieke autorisatie",
   "msg.zaakspecifieke-autorisatie.opheffen.bevestigen": "Are you sure you want to lift the zaakspecifieke autorisatie? This zaak will then be accessible again to all employees who have access to this zaaktype.",
   "actie.opheffen": "Lift",
