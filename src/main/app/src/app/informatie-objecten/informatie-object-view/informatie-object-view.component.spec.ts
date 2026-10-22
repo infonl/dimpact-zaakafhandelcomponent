@@ -149,6 +149,10 @@ describe(InformatieObjectViewComponent.name, () => {
     fixture.detectChanges();
   });
 
+  it("resizes the content along with the menu, so that the document card does not end up behind a menu that renders after the page", () => {
+    expect(component.sideNavContainer().autosize).toBe(true);
+  });
+
   describe("actie.nieuwe.versie.toevoegen", () => {
     it("should not have a button when the user does not have the right to add a new version", async () => {
       jest
