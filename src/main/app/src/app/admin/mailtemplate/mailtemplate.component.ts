@@ -20,7 +20,6 @@ import {
   MatSidenavModule,
 } from "@angular/material/sidenav";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -46,7 +45,6 @@ import { mailSelectList } from "../model/mail-utils";
     MatCardModule,
     MatExpansionModule,
     RouterModule,
-    TranslateModule,
     SideNavComponent,
     ZacSelect,
     ZacInput,

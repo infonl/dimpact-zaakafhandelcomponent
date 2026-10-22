@@ -5,7 +5,7 @@
 
 import { Component, inject, input } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ZacSelect } from "../../../../shared/form/select/select";
 import { ZacToggle } from "../../../../shared/form/toggle/toggle";
@@ -16,7 +16,7 @@ import { KoppelingenForm } from "./koppelingen-form";
   selector: "zac-parameters-step-koppelingen",
   templateUrl: "./parameters-step-koppelingen.component.html",
   standalone: true,
-  imports: [MatCardModule, TranslateModule, ZacSelect, ZacToggle],
+  imports: [MatCardModule, TranslatePipe, ZacSelect, ZacToggle],
 })
 export class ParametersStepKoppelingenComponent {
   readonly form = input.required<KoppelingenForm>();

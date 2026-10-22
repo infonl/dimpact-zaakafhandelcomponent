@@ -22,7 +22,7 @@ import {
 } from "@angular/material/sidenav";
 import { MatStepperModule } from "@angular/material/stepper";
 import { ActivatedRoute } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -65,7 +65,7 @@ import {
     MatProgressSpinnerModule,
     MatSidenavModule,
     MatStepperModule,
-    TranslateModule,
+    TranslatePipe,
     SideNavComponent,
     SmartDocumentsFormComponent,
     ParametersStepButtonsComponent,

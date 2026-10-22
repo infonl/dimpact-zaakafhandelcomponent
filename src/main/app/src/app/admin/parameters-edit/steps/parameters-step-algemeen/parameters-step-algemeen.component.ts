@@ -15,7 +15,7 @@ import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { ReactiveFormsModule } from "@angular/forms";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { startWith, switchMap } from "rxjs";
 import { IdentityService } from "../../../../identity/identity.service";
@@ -38,7 +38,7 @@ type Zaaktype = Pick<
     ReactiveFormsModule,
     MatFormFieldModule,
     MatIconModule,
-    TranslateModule,
+    TranslatePipe,
     StaticTextComponent,
     ZacInput,
     ZacSelect,

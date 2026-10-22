@@ -22,7 +22,7 @@ import {
   MatSidenavModule,
 } from "@angular/material/sidenav";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { finalize, Observable } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
@@ -50,7 +50,7 @@ import { SignaleringenSettingsBeheerService } from "../signaleringen-settings-be
     MatTableModule,
     MatCheckboxModule,
     SideNavComponent,
-    TranslateModule,
+    TranslatePipe,
   ],
 })
 export class GroepSignaleringenComponent

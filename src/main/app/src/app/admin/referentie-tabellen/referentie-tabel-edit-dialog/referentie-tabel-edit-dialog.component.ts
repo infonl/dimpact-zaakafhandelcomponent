@@ -19,7 +19,7 @@ import {
 import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { ZacFormActions } from "../../../shared/form/form-actions/form-actions.component";
 import { ZacInput } from "../../../shared/form/input/input";
 import { injectMutation } from "../../../shared/http/inject-mutation";
@@ -37,7 +37,7 @@ import { ReferentieTabelService } from "../../referentie-tabel.service";
     MatDividerModule,
     MatIconModule,
     MatToolbarModule,
-    TranslateModule,
+    TranslatePipe,
     ZacFormActions,
     ZacInput,
   ],

@@ -7,7 +7,7 @@ import { Component, computed, inject, input } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { MatCardModule } from "@angular/material/card";
 import { MatTableModule } from "@angular/material/table";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslateDirective, TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../../../core/service/util.service";
 import { ZacCheckbox } from "../../../../shared/form/checkbox/checkbox";
@@ -35,7 +35,8 @@ type ZaakbeeindigingRow = {
     ReactiveFormsModule,
     MatCardModule,
     MatTableModule,
-    TranslateModule,
+    TranslateDirective,
+    TranslatePipe,
     ZacCheckbox,
     ZacSelect,
   ],

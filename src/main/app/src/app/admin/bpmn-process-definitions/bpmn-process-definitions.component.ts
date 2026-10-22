@@ -25,7 +25,7 @@ import {
 } from "@angular/material/sidenav";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatTreeModule } from "@angular/material/tree";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -66,7 +66,7 @@ type Node =
     MatTooltipModule,
     MatTreeModule,
     SideNavComponent,
-    TranslateModule,
+    TranslatePipe,
     BpmnNodeRowDirective,
     BpmnProcessDefinitionItemComponent,
     FileDragAndDropDirective,
