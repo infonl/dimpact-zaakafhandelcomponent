@@ -18,7 +18,6 @@ import {
   OnInit,
   untracked,
   viewChild,
-  inject,
 } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatExpansionModule } from "@angular/material/expansion";
@@ -34,6 +33,8 @@ import { MatSortModule, Sort } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
+import { ConfiguratieService } from "../../configuratie/configuratie.service";
+import { UtilService } from "../../core/service/util.service";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
@@ -83,8 +84,6 @@ export class InrichtingscheckComponent
   extends AdminComponent
   implements OnInit
 {
-  private healtCheckService = inject(HealthCheckService);
-
   protected readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
   protected readonly menuSidenav =
@@ -121,8 +120,12 @@ export class InrichtingscheckComponent
     Boolean(this.bestaatCommunicatiekanaalEformulierQuery.data()),
   );
 
-  constructor() {
-    super();
+  constructor(
+    public utilService: UtilService,
+    public configuratieService: ConfiguratieService,
+    private healtCheckService: HealthCheckService,
+  ) {
+    super(utilService, configuratieService);
 
     this.dataSource.filterPredicate = (data, filter: string) => {
       if (

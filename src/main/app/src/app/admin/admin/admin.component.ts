@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject } from "@angular/core";
+import { Component } from "@angular/core";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { ViewComponent } from "../../shared/abstract-view/view-component";
@@ -16,11 +16,15 @@ import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
   standalone: true,
 })
 export abstract class AdminComponent extends ViewComponent {
-  readonly utilService = inject(UtilService);
-  readonly configuratieService = inject(ConfiguratieService);
-
   protected menu: MenuItem[] = [];
   protected activeMenu = "";
+
+  protected constructor(
+    public readonly utilService: UtilService,
+    public readonly configuratieService: ConfiguratieService,
+  ) {
+    super();
+  }
 
   protected setupMenu(title: string) {
     this.activeMenu = title;

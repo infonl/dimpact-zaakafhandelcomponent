@@ -22,23 +22,6 @@ import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.servic
 import { ParametersComponent } from "./parameters.component";
 import { ZaakafhandelParametersListParameters } from "./zaakafhandel-parameters-list-parameters";
 
-const createParametersComponent = () => {
-  TestBed.configureTestingModule({
-    providers: [
-      { provide: UtilService, useValue: fromPartial<UtilService>({}) },
-      {
-        provide: ConfiguratieService,
-        useValue: fromPartial<ConfiguratieService>({}),
-      },
-      {
-        provide: ZaakafhandelParametersService,
-        useValue: fromPartial<ZaakafhandelParametersService>({}),
-      },
-    ],
-  });
-  return TestBed.runInInjectionContext(() => new ParametersComponent());
-};
-
 describe(`${ParametersComponent.name} applyFilter`, () => {
   const filterTestCases = [
     {
@@ -92,7 +75,14 @@ describe(`${ParametersComponent.name} applyFilter`, () => {
         .spyOn(SessionStorageUtil, "setItem")
         .mockImplementation(jest.fn());
 
-      const component = createParametersComponent();
+      const component = TestBed.runInInjectionContext(
+        () =>
+          new ParametersComponent(
+            fromPartial<UtilService>({}),
+            fromPartial<ConfiguratieService>({}),
+            fromPartial<ZaakafhandelParametersService>({}),
+          ),
+      );
 
       component["storedParameterFilters"] = "test-key";
       component["filterParameters"] = {
@@ -123,9 +113,19 @@ describe(`${ParametersComponent.name} applyFilter`, () => {
 });
 
 describe(`${ParametersComponent.name} compare functions`, () => {
+  const makeComponent = () =>
+    TestBed.runInInjectionContext(
+      () =>
+        new ParametersComponent(
+          fromPartial<UtilService>({}),
+          fromPartial<ConfiguratieService>({}),
+          fromPartial<ZaakafhandelParametersService>({}),
+        ),
+    );
+
   describe("compareZaaktype", () => {
     it("should return true when identificatie matches", () => {
-      const component = createParametersComponent();
+      const component = makeComponent();
       const a = fromPartial<GeneratedType<"RestZaaktype">>({
         identificatie: "ZT-001",
       });
@@ -136,7 +136,7 @@ describe(`${ParametersComponent.name} compare functions`, () => {
     });
 
     it("should return false when identificatie differs", () => {
-      const component = createParametersComponent();
+      const component = makeComponent();
       const a = fromPartial<GeneratedType<"RestZaaktype">>({
         identificatie: "ZT-001",
       });
@@ -149,7 +149,7 @@ describe(`${ParametersComponent.name} compare functions`, () => {
 
   describe("compareProcessDefinition", () => {
     it("should return true when key matches", () => {
-      const component = createParametersComponent();
+      const component = makeComponent();
       const a = fromPartial<GeneratedType<"RestProcessDefinition">>({
         key: "key-1",
       });
@@ -160,7 +160,7 @@ describe(`${ParametersComponent.name} compare functions`, () => {
     });
 
     it("should return false when key differs", () => {
-      const component = createParametersComponent();
+      const component = makeComponent();
       const a = fromPartial<GeneratedType<"RestProcessDefinition">>({
         key: "key-1",
       });

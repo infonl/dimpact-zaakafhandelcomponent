@@ -18,7 +18,6 @@ import {
   computed,
   effect,
   viewChild,
-  inject,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -36,6 +35,8 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterModule } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
+import { ConfiguratieService } from "../../configuratie/configuratie.service";
+import { UtilService } from "../../core/service/util.service";
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
@@ -84,10 +85,6 @@ export class MailtemplatesComponent
   extends AdminComponent
   implements OnInit, AfterViewInit
 {
-  private dialog = inject(MatDialog);
-  private mailtemplateBeheerService = inject(MailtemplateBeheerService);
-  private mailtemplateKoppelingService = inject(MailtemplateKoppelingService);
-
   protected readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
   protected readonly menuSidenav =
@@ -130,8 +127,14 @@ export class MailtemplatesComponent
   private filterValue = "";
   protected expandedRow: GeneratedType<"RestMailtemplate"> | null = null;
 
-  constructor() {
-    super();
+  constructor(
+    private dialog: MatDialog,
+    public utilService: UtilService,
+    public configuratieService: ConfiguratieService,
+    private mailtemplateBeheerService: MailtemplateBeheerService,
+    private mailtemplateKoppelingService: MailtemplateKoppelingService,
+  ) {
+    super(utilService, configuratieService);
 
     effect(() => {
       if (this.isLoadingResults()) return;

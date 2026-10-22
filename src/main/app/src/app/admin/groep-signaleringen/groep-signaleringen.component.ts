@@ -25,6 +25,8 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { finalize, Observable } from "rxjs";
+import { ConfiguratieService } from "../../configuratie/configuratie.service";
+import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { runMutation } from "../../shared/http/run-mutation";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
@@ -55,9 +57,6 @@ export class GroepSignaleringenComponent
   extends AdminComponent
   implements OnInit
 {
-  private identityService = inject(IdentityService);
-  private service = inject(SignaleringenSettingsBeheerService);
-
   protected readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
   protected readonly menuSidenav =
@@ -84,8 +83,13 @@ export class GroepSignaleringenComponent
     enabled: this.groepId() != null,
   }));
 
-  constructor() {
-    super();
+  constructor(
+    public utilService: UtilService,
+    public configuratieService: ConfiguratieService,
+    private identityService: IdentityService,
+    private service: SignaleringenSettingsBeheerService,
+  ) {
+    super(utilService, configuratieService);
 
     effect(() => {
       this.dataSource.data = this.instellingenQuery.data() ?? [];
