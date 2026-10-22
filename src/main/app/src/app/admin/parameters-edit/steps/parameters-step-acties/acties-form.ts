@@ -16,7 +16,7 @@ export type ActiesForm = FormArray<ActieForm>;
 
 export function createActiesForm(
   userEventListenerParameters?:
-    | GeneratedType<"RESTUserEventListenerParameter">[]
+    | GeneratedType<"RestUserEventListenerParameter">[]
     | null,
 ): ActiesForm {
   return new FormArray(
@@ -52,7 +52,7 @@ export function createActiesFormForProcessDefinition(
 
 export function toUserEventListenerParameters(
   form: ActiesForm,
-): GeneratedType<"RESTUserEventListenerParameter">[] {
+): GeneratedType<"RestUserEventListenerParameter">[] {
   return form.controls.map((actieForm) => {
     const { id, naam, toelichting } = actieForm.getRawValue();
     return { id, naam, toelichting: toelichting ?? undefined };

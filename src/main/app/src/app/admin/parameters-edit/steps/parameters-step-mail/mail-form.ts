@@ -158,7 +158,7 @@ export function createMailForm({
 
 export function toMailtemplateKoppelingen(
   form: MailForm,
-): GeneratedType<"RESTMailtemplateKoppeling">[] {
+): GeneratedType<"RestMailtemplateKoppeling">[] {
   return Object.values(form.controls.mailtemplateKoppelingen.getRawValue())
     .filter((mailtemplate) => mailtemplate !== null)
     .map((mailtemplate) => ({ mailtemplate }));

@@ -16,10 +16,6 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import nl.info.zac.app.admin.converter.RestProcessDefinitionConverter
-import net.atos.zac.app.admin.converter.RESTZaakbeeindigRedenConverter
-import net.atos.zac.app.admin.model.RESTTaakFormulierDefinitie
-import net.atos.zac.app.admin.model.RESTTaakFormulierVeldDefinitie
-import net.atos.zac.app.admin.model.RestZaakbeeindigReden
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ReferenceTableService
@@ -33,8 +29,12 @@ import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
 import nl.info.zac.app.admin.model.RestProcessDefinition
 import nl.info.zac.app.admin.model.RestReplyTo
+import nl.info.zac.app.admin.model.RestTaakFormulierDefinitie
+import nl.info.zac.app.admin.model.RestTaakFormulierVeldDefinitie
+import nl.info.zac.app.admin.model.RestZaakbeeindigReden
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
 import nl.info.zac.app.admin.model.toRestReplyTos
+import nl.info.zac.app.admin.model.toRestZaakbeeindigReden
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
 import nl.info.zac.configuration.ConfigurationService
@@ -155,9 +155,7 @@ class ZaaktypeConfigurationRestService @Inject constructor(
     @Path("zaakbeeindigredenen")
     fun listZaakbeeindigRedenen(): List<RestZaakbeeindigReden> {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
-        return RESTZaakbeeindigRedenConverter.convertZaakbeeindigRedenen(
-            zaaktypeConfigurationService.listZaakbeeindigRedenen()
-        )
+        return zaaktypeConfigurationService.listZaakbeeindigRedenen().map { it.toRestZaakbeeindigReden() }
     }
 
     /**
@@ -196,13 +194,13 @@ class ZaaktypeConfigurationRestService @Inject constructor(
      */
     @GET
     @Path("formulierdefinities")
-    fun listTaskFormDefinitions(): List<RESTTaakFormulierDefinitie> =
+    fun listTaskFormDefinitions(): List<RestTaakFormulierDefinitie> =
         FormulierDefinitie.entries.toTypedArray()
             .map {
-                RESTTaakFormulierDefinitie(
+                RestTaakFormulierDefinitie(
                     it.name,
                     it.veldDefinities.map { formulierVeldDefinitie ->
-                        RESTTaakFormulierVeldDefinitie(
+                        RestTaakFormulierVeldDefinitie(
                             formulierVeldDefinitie.name,
                             formulierVeldDefinitie.defaultTabel.name
                         )
@@ -268,17 +266,17 @@ class ZaaktypeConfigurationRestService @Inject constructor(
 
     private fun createHardcodedZaakTerminationReasons() =
         listOf(
-            RestZaakbeeindigReden().apply {
-                id = INADMISSIBLE_TERMINATION_ID
+            RestZaakbeeindigReden(
+                id = INADMISSIBLE_TERMINATION_ID,
                 naam = INADMISSIBLE_TERMINATION_REASON
-            }
+            )
         )
 
     private fun readManagedZaakTerminationReasons(zaaktypeUUID: UUID): List<RestZaakbeeindigReden> =
         zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)
             ?.getZaakbeeindigParameters()
-            ?.map { it.zaakbeeindigReden }
-            ?.let { RESTZaakbeeindigRedenConverter.convertZaakbeeindigRedenen(it) }.orEmpty()
+            ?.map { it.zaakbeeindigReden.toRestZaakbeeindigReden() }
+            .orEmpty()
 
     /**
      * Returns the configuration of the zaaktype version, or a new one when the zaaktype version has none yet, so that

@@ -30,7 +30,7 @@ const mailtemplate = (
     ...fields,
   });
 
-const koppeling = fromPartial<GeneratedType<"RESTMailtemplateKoppeling">>({
+const koppeling = fromPartial<GeneratedType<"RestMailtemplateKoppeling">>({
   id: 1,
   mailtemplate: { id: 1 },
   zaakafhandelParameters: {
@@ -69,7 +69,7 @@ describe(MailtemplatesComponent.name, () => {
     koppelingen = [],
   }: {
     mailtemplates?: GeneratedType<"RestMailtemplate">[];
-    koppelingen?: GeneratedType<"RESTMailtemplateKoppeling">[];
+    koppelingen?: GeneratedType<"RestMailtemplateKoppeling">[];
   } = {}) {
     const rendered = await renderMailtemplates();
     await respondWithMailtemplates(mailtemplates);

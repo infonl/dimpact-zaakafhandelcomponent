@@ -2,61 +2,42 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.app.admin.converter
 
-package net.atos.zac.app.admin.converter;
+import jakarta.inject.Inject
+import nl.info.zac.admin.ReferenceTableService
+import nl.info.zac.admin.model.FormulierVeldDefinitie
+import nl.info.zac.admin.model.HumanTaskReferentieTabel
+import nl.info.zac.admin.model.toRestReferenceTable
+import nl.info.zac.app.admin.model.RestHumanTaskReferenceTable
 
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+class RestHumanTaskReferenceTableConverter @Inject constructor(
+    private val referenceTableService: ReferenceTableService
+) {
+    fun convertDefault(veldDefinitie: FormulierVeldDefinitie) = RestHumanTaskReferenceTable(
+        veld = veldDefinitie.name,
+        tabel = referenceTableService.readReferenceTable(veldDefinitie.defaultTabel.name).toRestReferenceTable(false)
+    )
 
-import jakarta.inject.Inject;
+    fun toRestHumanTaskReferenceTables(humanTaskReferentieTabellen: Collection<HumanTaskReferentieTabel>) =
+        humanTaskReferentieTabellen.map { it.toRestHumanTaskReferenceTable() }
 
-import net.atos.zac.app.admin.model.RestHumanTaskReferenceTable;
-import nl.info.zac.admin.ReferenceTableService;
-import nl.info.zac.admin.model.FormulierVeldDefinitie;
-import nl.info.zac.admin.model.HumanTaskReferentieTabel;
-import nl.info.zac.admin.model.ReferenceTable;
-import nl.info.zac.admin.model.ReferenceTableKt;
+    fun toHumanTaskReferentieTabellen(restHumanTaskReferenceTables: List<RestHumanTaskReferenceTable>) =
+        restHumanTaskReferenceTables.map { it.toHumanTaskReferentieTabel() }
 
+    private fun HumanTaskReferentieTabel.toRestHumanTaskReferenceTable() = RestHumanTaskReferenceTable(
+        id = id,
+        veld = checkNotNull(veld) { "Human task referentie tabel with id '$id' has no veld" },
+        tabel = checkNotNull(tabel) { "Human task referentie tabel with id '$id' has no tabel" }
+            .toRestReferenceTable(false)
+    )
 
-public class RestHumanTaskReferenceTableConverter {
-
-    @Inject
-    private ReferenceTableService referenceTableService;
-
-    public RestHumanTaskReferenceTable convertDefault(final FormulierVeldDefinitie veldDefinitie) {
-        final ReferenceTable referenceTable = referenceTableService.readReferenceTable(veldDefinitie.getDefaultTabel().name());
-        final RestHumanTaskReferenceTable restHumanTaskReferenceTable = new RestHumanTaskReferenceTable(veldDefinitie);
-        restHumanTaskReferenceTable.tabel = ReferenceTableKt.toRestReferenceTable(referenceTable, false);
-        return restHumanTaskReferenceTable;
-    }
-
-    public List<RestHumanTaskReferenceTable> convert(final Collection<HumanTaskReferentieTabel> humanTaskReferentieTabellen) {
-        return humanTaskReferentieTabellen.stream()
-                .map(RestHumanTaskReferenceTableConverter::convert)
-                .collect(Collectors.toList());
-    }
-
-    public List<HumanTaskReferentieTabel> convert(final List<RestHumanTaskReferenceTable> restHumanTaskrestHumanTaskReferentieTabellen) {
-        return restHumanTaskrestHumanTaskReferentieTabellen.stream()
-                .map(this::convert)
-                .toList();
-    }
-
-    private static RestHumanTaskReferenceTable convert(final HumanTaskReferentieTabel humanTaskReferentieTabel) {
-        final RestHumanTaskReferenceTable restHumanTaskReferenceTable = new RestHumanTaskReferenceTable();
-        restHumanTaskReferenceTable.id = humanTaskReferentieTabel.getId();
-        restHumanTaskReferenceTable.veld = humanTaskReferentieTabel.getVeld();
-        restHumanTaskReferenceTable.tabel = ReferenceTableKt.toRestReferenceTable(humanTaskReferentieTabel.getTabel(), false);
-        return restHumanTaskReferenceTable;
-    }
-
-    private HumanTaskReferentieTabel convert(final RestHumanTaskReferenceTable restHumanTaskReferenceTable) {
-        HumanTaskReferentieTabel humanTaskReferentieTabel = new HumanTaskReferentieTabel();
-        humanTaskReferentieTabel.setId(restHumanTaskReferenceTable.id);
-        humanTaskReferentieTabel.setVeld(restHumanTaskReferenceTable.veld);
+    private fun RestHumanTaskReferenceTable.toHumanTaskReferentieTabel() = HumanTaskReferentieTabel().apply {
+        id = this@toHumanTaskReferentieTabel.id
+        veld = this@toHumanTaskReferentieTabel.veld
         // The tabel is just a reference here, so don't update it from the REST but fetch it from the database
-        humanTaskReferentieTabel.setTabel(referenceTableService.readReferenceTable(restHumanTaskReferenceTable.tabel.getId()));
-        return humanTaskReferentieTabel;
+        tabel = referenceTableService.readReferenceTable(
+            checkNotNull(this@toHumanTaskReferentieTabel.tabel.id) { "Reference table of veld '$veld' has no id" }
+        )
     }
 }

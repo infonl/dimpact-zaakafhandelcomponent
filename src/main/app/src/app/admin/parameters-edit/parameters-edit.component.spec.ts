@@ -62,7 +62,7 @@ const sharedSettings = {
 };
 
 const formulierDefinities = [
-  fromPartial<GeneratedType<"RESTTaakFormulierDefinitie">>({
+  fromPartial<GeneratedType<"RestTaakFormulierDefinitie">>({
     id: "ADVIES",
     veldDefinities: [{ naam: "ADVIES" }],
   }),

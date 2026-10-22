@@ -2,9 +2,9 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.admin.model;
+package nl.info.zac.app.admin.model
 
-import java.util.List;
-
-public record RESTTaakFormulierDefinitie(String id, List<RESTTaakFormulierVeldDefinitie> veldDefinities) {
-}
+data class RestTaakFormulierDefinitie(
+    val id: String,
+    val veldDefinities: List<RestTaakFormulierVeldDefinitie>
+)

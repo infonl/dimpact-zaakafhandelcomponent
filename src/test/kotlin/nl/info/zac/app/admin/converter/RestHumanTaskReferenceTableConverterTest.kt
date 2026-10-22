@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.admin.converter
+package nl.info.zac.app.admin.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -12,23 +12,20 @@ import io.mockk.mockk
 import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.model.HumanTaskReferentieTabel
 import nl.info.zac.admin.model.createReferenceTable
+import nl.info.zac.admin.model.FormulierVeldDefinitie
+import nl.info.zac.app.admin.model.RestHumanTaskReferenceTable
 import nl.info.zac.app.admin.model.RestReferenceTable
 
 class RestHumanTaskReferenceTableConverterTest : BehaviorSpec({
     val referenceTableService = mockk<ReferenceTableService>()
 
-    val converter = RestHumanTaskReferenceTableConverter().also { instance ->
-        instance.javaClass.getDeclaredField("referenceTableService").also {
-            it.isAccessible = true
-            it.set(instance, referenceTableService)
-        }
-    }
+    val converter = RestHumanTaskReferenceTableConverter(referenceTableService)
 
     afterEach { checkUnnecessaryStub() }
 
     context("convertDefault(FormulierVeldDefinitie)") {
         given("A veld definitie with a default tabel") {
-            val veldDefinitie = nl.info.zac.admin.model.FormulierVeldDefinitie.ADVIES
+            val veldDefinitie = FormulierVeldDefinitie.ADVIES
             val fakeReferenceTable = createReferenceTable(id = 99L)
             every { referenceTableService.readReferenceTable(veldDefinitie.defaultTabel.name) } returns fakeReferenceTable
 
@@ -43,15 +40,15 @@ class RestHumanTaskReferenceTableConverterTest : BehaviorSpec({
         }
     }
 
-    context("convert(Collection<HumanTaskReferentieTabel>)") {
+    context("toRestHumanTaskReferenceTables") {
         given("A collection of two HumanTaskReferentieTabel entries") {
             val fakeReferenceTable1 = createReferenceTable(code = "FAKE_TABLE_1")
             val fakeReferenceTable2 = createReferenceTable(code = "FAKE_TABLE_2")
             val entry1 = HumanTaskReferentieTabel("fakeVeld1", fakeReferenceTable1).apply { id = 1L }
             val entry2 = HumanTaskReferentieTabel("fakeVeld2", fakeReferenceTable2).apply { id = 2L }
 
-            `when`("convert is called with the collection") {
-                val result = converter.convert(listOf(entry1, entry2))
+            `when`("toRestHumanTaskReferenceTables is called with the collection") {
+                val result = converter.toRestHumanTaskReferenceTables(listOf(entry1, entry2))
 
                 then("a list of two RestHumanTaskReferenceTable objects is returned with all fields mapped") {
                     result.size shouldBe 2
@@ -64,18 +61,18 @@ class RestHumanTaskReferenceTableConverterTest : BehaviorSpec({
         }
     }
 
-    context("convert(List<RestHumanTaskReferenceTable>)") {
+    context("toHumanTaskReferentieTabellen") {
         given("A list of one RestHumanTaskReferenceTable") {
             val fakeReferenceTable = createReferenceTable(id = 99L)
-            val restEntry = net.atos.zac.app.admin.model.RestHumanTaskReferenceTable().apply {
-                id = 5L
-                veld = "fakeVeld"
+            val restHumanTaskReferenceTable = RestHumanTaskReferenceTable(
+                id = 5L,
+                veld = "fakeVeld",
                 tabel = RestReferenceTable(id = 99L, code = "fakeCode", name = "fakeNaam")
-            }
+            )
             every { referenceTableService.readReferenceTable(99L) } returns fakeReferenceTable
 
-            `when`("convert is called with the list") {
-                val result = converter.convert(listOf(restEntry))
+            `when`("toHumanTaskReferentieTabellen is called with the list") {
+                val result = converter.toHumanTaskReferentieTabellen(listOf(restHumanTaskReferenceTable))
 
                 then("a list of one HumanTaskReferentieTabel is returned with tabel fetched from service") {
                     result.size shouldBe 1

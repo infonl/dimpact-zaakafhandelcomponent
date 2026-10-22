@@ -1,31 +1,20 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.app.admin.model
 
-package net.atos.zac.app.admin.model;
+import nl.info.zac.admin.model.FormulierDefinitie
+import nl.info.zac.app.planitems.converter.toFormulierDefinitie
+import nl.info.zac.app.planitems.model.PlanItemType
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
-import nl.info.zac.admin.model.FormulierDefinitie;
-import nl.info.zac.app.planitems.converter.FormulierKoppelingConverterKt;
-import nl.info.zac.app.planitems.model.PlanItemType;
-
-public class RESTPlanItemDefinition {
-
-    public String id;
-
-    public String naam;
-
-    public PlanItemType type;
-
-    public FormulierDefinitie defaultFormulierDefinitie;
-
-    public RESTPlanItemDefinition() {
-    }
-
-    public RESTPlanItemDefinition(final String id, final String naam, final PlanItemType type) {
-        this.id = id;
-        this.naam = naam;
-        this.type = type;
-        this.defaultFormulierDefinitie = FormulierKoppelingConverterKt.toFormulierDefinitie(id);
-    }
-}
+@NoArgConstructor
+@AllOpen
+data class RestPlanItemDefinition(
+    var id: String,
+    var naam: String?,
+    var type: PlanItemType,
+    var defaultFormulierDefinitie: FormulierDefinitie = id.toFormulierDefinitie()
+)

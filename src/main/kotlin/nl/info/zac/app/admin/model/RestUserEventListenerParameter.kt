@@ -1,15 +1,33 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.app.admin.model
 
-package net.atos.zac.app.admin.model;
+import nl.info.zac.admin.model.ZaaktypeCmmnUsereventlistenerParameters
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
-public class RESTUserEventListenerParameter {
+@NoArgConstructor
+@AllOpen
+data class RestUserEventListenerParameter(
+    var id: String,
+    var naam: String? = null,
+    var toelichting: String? = null
+)
 
-    public String id;
+fun RestPlanItemDefinition.toRestUserEventListenerParameter(
+    zaaktypeCmmnUsereventlistenerParametersCollection: Collection<ZaaktypeCmmnUsereventlistenerParameters>
+) = RestUserEventListenerParameter(
+    id = id,
+    naam = naam,
+    toelichting = zaaktypeCmmnUsereventlistenerParametersCollection
+        .find { it.planItemDefinitionID == id }
+        ?.toelichting
+)
 
-    public String naam;
-
-    public String toelichting;
-}
+fun RestUserEventListenerParameter.toZaaktypeCmmnUsereventlistenerParameters() =
+    ZaaktypeCmmnUsereventlistenerParameters().apply {
+        planItemDefinitionID = this@toZaaktypeCmmnUsereventlistenerParameters.id
+        toelichting = this@toZaaktypeCmmnUsereventlistenerParameters.toelichting
+    }

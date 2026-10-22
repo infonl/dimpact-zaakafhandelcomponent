@@ -4,7 +4,6 @@
  */
 package nl.info.zac.app.admin.model
 
-import net.atos.zac.app.admin.model.RestZaakbeeindigReden
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor

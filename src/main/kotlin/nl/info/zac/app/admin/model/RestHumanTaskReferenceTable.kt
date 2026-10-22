@@ -1,25 +1,16 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.app.admin.model
 
-package net.atos.zac.app.admin.model;
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
-import nl.info.zac.admin.model.FormulierVeldDefinitie;
-import nl.info.zac.app.admin.model.RestReferenceTable;
-
-public class RestHumanTaskReferenceTable {
-
-    public Long id;
-
-    public String veld;
-
-    public RestReferenceTable tabel;
-
-    public RestHumanTaskReferenceTable() {
-    }
-
-    public RestHumanTaskReferenceTable(final FormulierVeldDefinitie veldDefinitie) {
-        veld = veldDefinitie.name();
-    }
-}
+@NoArgConstructor
+@AllOpen
+data class RestHumanTaskReferenceTable(
+    var id: Long? = null,
+    var veld: String,
+    var tabel: RestReferenceTable
+)
