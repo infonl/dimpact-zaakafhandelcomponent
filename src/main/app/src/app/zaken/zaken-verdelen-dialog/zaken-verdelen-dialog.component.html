@@ -43,8 +43,33 @@
           key="medewerker"
           optionDisplayValue="naam"
           [options]="users"
-        ></zac-auto-complete>
+        >
+          @if (isBehandelaarRequired) {
+            <mat-hint>{{
+              "msg.zaken-verdelen.behandelaar-verplicht" | translate
+            }}</mat-hint>
+          }
+        </zac-auto-complete>
       </section>
+      @if (isBehandelaarRequired) {
+        <section class="row">
+          <div class="col-12">
+            <p id="zaakspecifiek-geautoriseerde-zaken">
+              {{ "zaken.zaakspecifiek-geautoriseerd" | translate }}
+            </p>
+            <ul aria-labelledby="zaakspecifiek-geautoriseerde-zaken">
+              @for (zaak of zaakspecifiekGeautoriseerdeZaken; track zaak.id) {
+                <li>
+                  <zac-zaak-identificatie
+                    [identificatie]="zaak.identificatie"
+                    [isZaakspecifiekGeautoriseerd]="true"
+                  ></zac-zaak-identificatie>
+                </li>
+              }
+            </ul>
+          </div>
+        </section>
+      }
     </fieldset>
     <fieldset class="p-0">
       <section class="row">

@@ -34,7 +34,14 @@
           key="behandelaar"
           [options]="users()"
           optionDisplayValue="naam"
-        ></zac-select>
+        >
+          @if (isBehandelaarRequired()) {
+            <mat-hint>{{
+              "zaak.zaakspecifiek-geautoriseerd.behandelaar-verplicht"
+                | translate
+            }}</mat-hint>
+          }
+        </zac-select>
         <zac-select
           class="col-12 col-md-4"
           [form]="form"

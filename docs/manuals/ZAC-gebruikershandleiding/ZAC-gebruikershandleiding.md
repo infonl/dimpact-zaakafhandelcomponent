@@ -4,9 +4,9 @@
 
 
 > **Colofon** <br>
-> Datum :19-10-2026 <br>
-> Versie :   1.10.5 <br>
-> Verandering : Slot-icoon bij zaakspecifiek geautoriseerde zaken in alle lijsten <br>
+> Datum :22-10-2026 <br>
+> Versie :   1.10.6 <br>
+> Verandering : Behandelaar verplicht bij zaakspecifiek geautoriseerde zaken <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -48,6 +48,7 @@ Versiegeschiedenis:
 | 1.10.3 | Toevoeging medewerker ontkoppelen bij zaakspecifieke autorisatie                                                                           |
 | 1.10.4 | Toevoeging zaakspecifieke autorisatie opheffen                                                                                             |
 | 1.10.5 | Toevoeging slot-icoon bij zaakspecifiek geautoriseerde zaken in alle lijsten                                                               |
+| 1.10.6 | Behandelaar verplicht bij verdelen en wijzigen van zaakspecifiek geautoriseerde zaken                                                      |
 
 <div style="page-break-after: always"></div>
 
@@ -353,7 +354,7 @@ Als de Zaken-werkvoorraad of Taken-werkvoorraad geopend is dan kan de verdeelfun
 6 Klik op ‘Verdelen’ om de actie uit te voeren
 > Let op! <br>Als eenmaal 'Verdelen' is gestart, is dit niet meer te onderbreken.
 
-> Een zaakspecifiek geautoriseerde zaak moet altijd een behandelaar hebben. Als je alleen een groep kiest, dan verdeelt ZAC deze zaak niet. Een melding toont hoeveel zaken ZAC niet verdeelde.
+> Een zaakspecifiek geautoriseerde zaak moet altijd een behandelaar hebben. Zit er zo'n zaak tussen de geselecteerde zaken, dan is het veld Medewerker verplicht. Het scherm toont welke geselecteerde zaken zaakspecifiek geautoriseerd zijn. De knop 'Verdelen' blijft uitgeschakeld tot je een behandelaar kiest.
 
 ## Werk vrijgeven
 
@@ -565,6 +566,7 @@ Het slot-icoon staat overal waar ZAC het zaaknummer van een zaakspecifiek geauto
 ### Werken met een zaakspecifiek geautoriseerde zaak
 
 - Een zaakspecifiek geautoriseerde zaak heeft altijd een behandelaar. Je kunt de zaak niet vrijgeven.
+- Als je de zaak wijzigt, dan is het veld Behandelaar verplicht. De knop Opslaan blijft uitgeschakeld tot je een behandelaar kiest.
 - Je kunt de zaak aan een andere behandelaar toekennen. De vorige behandelaar houdt dan toegang tot de zaak. ZAC registreert de vorige behandelaar als Zaakspecifiek geautoriseerde medewerker op de zaak.
 - Als je een taak start en een medewerker als taakbehandelaar kiest, dan krijgt deze medewerker toegang tot de zaak.
 - Als je een taak aan een andere medewerker toekent, dan krijgt de nieuwe taakbehandelaar toegang. De vorige taakbehandelaar houdt toegang. Dit geldt ook voor ‘Aan mij toekennen’ en voor taken verdelen.

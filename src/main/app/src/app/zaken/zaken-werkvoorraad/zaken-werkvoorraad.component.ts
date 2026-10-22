@@ -315,8 +315,6 @@ export class ZakenWerkvoorraadComponent
     const geautoriseerdeZaken = this.selection.selected.filter(
       ({ isZaakspecifiekGeautoriseerd }) => isZaakspecifiekGeautoriseerd,
     );
-    // Verdelen only leaves a zaakspecifiek geautoriseerde zaak behind when the dialog returns no
-    // behandelaar, which is known once it closes; vrijgeven always leaves it behind.
     const zaken = release
       ? this.selection.selected.filter(
           ({ isZaakspecifiekGeautoriseerd, behandelaarGebruikersnaam }) =>
@@ -325,7 +323,7 @@ export class ZakenWerkvoorraadComponent
       : this.selection.selected;
 
     if (!zaken.length) {
-      this.showSkippedZakenMessage(release, geautoriseerdeZaken.length);
+      this.showSkippedZakenMessage(geautoriseerdeZaken.length);
       return;
     }
     this.batchProcessService.subscribe({
@@ -370,8 +368,7 @@ export class ZakenWerkvoorraadComponent
           return;
         }
 
-        const skippedZaken =
-          release || !this.toekenning?.medewerker ? geautoriseerdeZaken : [];
+        const skippedZaken = release ? geautoriseerdeZaken : [];
         const verwerkteZaken = zaken.filter(
           (zaak) => !skippedZaken.includes(zaak),
         );
@@ -405,15 +402,14 @@ export class ZakenWerkvoorraadComponent
             this.utilService.openSnackbar("msg.error.timeout");
           },
         });
-        this.showSkippedZakenMessage(release, skippedZaken.length);
+        this.showSkippedZakenMessage(skippedZaken.length);
       });
   }
 
-  private showSkippedZakenMessage(release: boolean, aantal: number) {
+  private showSkippedZakenMessage(aantal: number) {
     if (!aantal) return;
-    const action = release ? "vrijgeven" : "verdelen";
     this.utilService.openSnackbar(
-      `msg.zaken.${action}.overgeslagen.zaakspecifiek-geautoriseerd.${
+      `msg.zaken.vrijgeven.overgeslagen.zaakspecifiek-geautoriseerd.${
         aantal === 1 ? "enkelvoud" : "meervoud"
       }`,
       { aantal },
