@@ -445,8 +445,39 @@ function convertOpenApiToBruno(openApiSpec, options = {}) {
  */
 function readCollectionName(openCollectionPath) {
     const openCollection = fs.readFileSync(openCollectionPath, 'utf8');
-    const match = openCollection.match(/^info:\s*\n(?:[ \t]+.*\n)*?[ \t]+name:[ \t]*(.+)$/m);
-    return match ? match[1].trim().replace(/^(["'])(.*)\1$/, '$2') : path.basename(path.dirname(openCollectionPath));
+    const lines = openCollection.split(/\r?\n/);
+    const fallbackName = path.basename(path.dirname(openCollectionPath));
+
+    let infoIndex = -1;
+    for (let i = 0; i < lines.length; i++) {
+        if (/^info:\s*$/.test(lines[i])) {
+            infoIndex = i;
+            break;
+        }
+    }
+
+    if (infoIndex === -1) {
+        return fallbackName;
+    }
+
+    for (let i = infoIndex + 1; i < lines.length; i++) {
+        const line = lines[i];
+
+        if (line.trim() === '') {
+            continue;
+        }
+
+        if (!/^[ \t]+/.test(line)) {
+            break;
+        }
+
+        const nameMatch = line.match(/^[ \t]+name:[ \t]*(.+)\s*$/);
+        if (nameMatch) {
+            return nameMatch[1].trim().replace(/^(["'])(.*)\1$/, '$2');
+        }
+    }
+
+    return fallbackName;
 }
 
 /**
