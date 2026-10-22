@@ -5,7 +5,6 @@
 
 import { Component, input } from "@angular/core";
 import { MatSidenav } from "@angular/material/sidenav";
-import { TranslateModule } from "@ngx-translate/core";
 import { DatumPipe } from "../../../shared/pipes/datum.pipe";
 import { StaticTextComponent } from "../../../shared/static-text/static-text.component";
 import { ZaakZoekObject } from "../../model/zaken/zaak-zoek-object";
@@ -17,12 +16,7 @@ import { ZoekObjectComponent } from "../zoek-object/zoek-object-component";
   styleUrls: ["../zoek-object/zoek-object.component.less"],
   templateUrl: "./zaak-zoek-object.component.html",
   standalone: true,
-  imports: [
-    ZoekObjectLinkComponent,
-    StaticTextComponent,
-    DatumPipe,
-    TranslateModule,
-  ],
+  imports: [ZoekObjectLinkComponent, StaticTextComponent, DatumPipe],
 })
 export class ZaakZoekObjectComponent extends ZoekObjectComponent {
   readonly zaak = input.required<ZaakZoekObject>();

@@ -20,7 +20,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import {
@@ -64,7 +64,7 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
     MatFormFieldModule,
     MatIconModule,
     MatToolbarModule,
-    TranslateModule,
+    TranslatePipe,
     ZacAutoComplete,
     ZacDate,
     ZacInput,

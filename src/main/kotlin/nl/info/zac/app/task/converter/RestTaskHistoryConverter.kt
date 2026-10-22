@@ -59,7 +59,8 @@ class RestTaskHistoryConverter @Inject constructor(
             else -> historicTaskLogEntry.data?.let {
                 convertData(
                     HistoricTaskLogEntryType.valueOf(historicTaskLogEntry.type),
-                    it
+                    it,
+                    historicTaskLogEntry.taskId
                 )
             }
         }
@@ -67,7 +68,11 @@ class RestTaskHistoryConverter @Inject constructor(
         return restTaakHistorieRegel
     }
 
-    private fun convertData(historicTaskLogEntryType: HistoricTaskLogEntryType, data: String): RestTaskHistoryLine? =
+    private fun convertData(
+        historicTaskLogEntryType: HistoricTaskLogEntryType,
+        data: String,
+        taskId: String?
+    ): RestTaskHistoryLine? =
         when (historicTaskLogEntryType) {
             HistoricTaskLogEntryType.USER_TASK_CREATED -> RestTaskHistoryLine(
                 attribuutLabel = STATUS_ATTRIBUUT_LABEL,
@@ -81,7 +86,7 @@ class RestTaskHistoryConverter @Inject constructor(
                 nieuweWaarde = COMPLETED_ATTRIBUUT_LABEL,
                 toelichting = null
             )
-            HistoricTaskLogEntryType.USER_TASK_OWNER_CHANGED -> convertOwnerChanged(data)
+            HistoricTaskLogEntryType.USER_TASK_OWNER_CHANGED -> convertOwnerChanged(data, taskId)
             HistoricTaskLogEntryType.USER_TASK_DUEDATE_CHANGED -> convertDueDateChanged(data)
             // unsupported types result in null return value
             else -> null
@@ -103,19 +108,19 @@ class RestTaskHistoryConverter @Inject constructor(
         var previousAssigneeId: String? = null
     }
 
-    private fun convertOwnerChanged(data: String): RestTaskHistoryLine {
+    private fun convertOwnerChanged(data: String, taskId: String?): RestTaskHistoryLine {
         JsonbUtil.JSONB.fromJson(data, AssigneeChangedData::class.java).let {
             return RestTaskHistoryLine(
                 attribuutLabel = AANGEMAAKT_DOOR_ATTRIBUUT_LABEL,
-                oudeWaarde = it.previousAssigneeId?.let(::getMedewerkerFullName),
-                nieuweWaarde = it.newAssigneeId?.let(::getMedewerkerFullName),
+                oudeWaarde = it.previousAssigneeId?.let { medewerkerId -> getMedewerkerFullName(medewerkerId, taskId) },
+                nieuweWaarde = it.newAssigneeId?.let { medewerkerId -> getMedewerkerFullName(medewerkerId, taskId) },
                 toelichting = null
             )
         }
     }
 
-    private fun getMedewerkerFullName(medewerkerId: String): String =
-        identityService.readUser(medewerkerId).getFullName()
+    private fun getMedewerkerFullName(medewerkerId: String, taskId: String?): String =
+        identityService.readUser(userId = medewerkerId, logContext = "the history of task '$taskId'").getFullName()
 
     class DuedateChangedData {
         @JsonbDateFormat(JsonbDateFormat.TIME_IN_MILLIS)

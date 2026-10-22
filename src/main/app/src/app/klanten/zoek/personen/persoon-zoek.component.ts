@@ -28,7 +28,7 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Router } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { Subject, takeUntil } from "rxjs";
@@ -64,7 +64,7 @@ import { FormCommunicatieService } from "../form-communicatie-service";
     MatButtonModule,
     MatIconModule,
     MatExpansionPanelActionRow,
-    TranslateModule,
+    TranslatePipe,
     EmptyPipe,
     DatumPipe,
   ],

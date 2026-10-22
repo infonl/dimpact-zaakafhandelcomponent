@@ -50,6 +50,8 @@ class RestTaskConverter @Inject constructor(
         zaakAutorisatieGegevens: ZaakAutorisatieGegevens? = null
     ): RestTask {
         val zaaktypeOmschrijving = readZaaktypeOmschrijving(taskInfo)
+        val zaakIdentificatie = readZaakIdentificatie(taskInfo)
+        val logContext = "task '${taskInfo.id}' of zaak '$zaakIdentificatie'"
         val restTaakRechten = policyService.readTaakRechten(
             taskInfo = taskInfo,
             zaaktypeOmschrijving = zaaktypeOmschrijving,
@@ -60,7 +62,7 @@ class RestTaskConverter @Inject constructor(
             naam = taskInfo.name,
             status = taskInfo.taakStatus(),
             zaakUuid = readZaakUUID(taskInfo),
-            zaakIdentificatie = readZaakIdentificatie(taskInfo),
+            zaakIdentificatie = zaakIdentificatie,
             rechten = restTaakRechten,
             zaaktypeOmschrijving = if (restTaakRechten.canLezen) zaaktypeOmschrijving else null,
             zaaktypeUUID = readZaaktypeUUID(taskInfo),
@@ -81,16 +83,14 @@ class RestTaskConverter @Inject constructor(
                 null
             },
             behandelaar = if (restTaakRechten.canLezen) {
-                taskInfo.assignee?.let {
-                    medewerkerConverter.convertUserId(
-                        it
-                    )
-                }
+                taskInfo.assignee?.let { medewerkerConverter.convertUserId(userId = it, logContext = logContext) }
             } else {
                 null
             },
             groep = if (restTaakRechten.canLezen) {
-                extractGroupId(taskInfo.identityLinks)?.let { groepConverter.convertGroupId(it) }
+                extractGroupId(taskInfo.identityLinks)?.let {
+                    groepConverter.convertGroupId(groupId = it, logContext = logContext)
+                }
             } else {
                 null
             },

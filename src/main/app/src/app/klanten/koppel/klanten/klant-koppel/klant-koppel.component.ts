@@ -11,7 +11,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatTabsModule } from "@angular/material/tabs";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { KlantGegevens } from "../../../model/klanten/klant-gegevens";
 import { KlantKoppelBetrokkeneComponent } from "../klant-koppel-betrokkene/klant-koppel-betrokkene.component";
 import { KlantKoppelInitiator } from "../klant-koppel-initiator/klant-koppel-initiator.component";
@@ -28,7 +28,7 @@ import { KlantKoppelInitiator } from "../klant-koppel-initiator/klant-koppel-ini
     MatToolbarModule,
     KlantKoppelBetrokkeneComponent,
     KlantKoppelInitiator,
-    TranslateModule,
+    TranslatePipe,
   ],
   template: `
     <div class="side-nav-container">

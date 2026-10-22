@@ -220,19 +220,23 @@ class IdentityServiceTest : BehaviorSpec({
                 realmResource.users().searchByUsername(userId, true)
             } returns emptyList()
 
-            `when`("the user is retrieved") {
-                val user = identityService.readUser(userId)
+            `when`("the user is retrieved with the task and zaak that refer to it as log context") {
+                val user = identityService.readUser(
+                    userId = userId,
+                    logContext = "task 'fakeTaskId' of zaak 'fakeZaakIdentificatie'"
+                )
 
                 then("a placeholder user containing only the id is returned") {
                     user.id shouldBe userId
                 }
 
-                then("the miss is logged at the level WARNING") {
+                then("the miss is logged at the level WARNING, together with the task and zaak") {
                     verify(exactly = 1) {
                         log(
                             any(),
                             Level.WARNING,
-                            "User with id '$userId' could not be found in Keycloak. Returning a placeholder."
+                            "User with id '$userId' could not be found in Keycloak for task 'fakeTaskId' " +
+                                "of zaak 'fakeZaakIdentificatie'. Returning a placeholder."
                         )
                     }
                 }
@@ -265,19 +269,20 @@ class IdentityServiceTest : BehaviorSpec({
                 realmResource.groups().groups(groupId, true, 0, 1, false)
             } returns emptyList()
 
-            `when`("the group is retrieved") {
-                val group = identityService.readGroup(groupId)
+            `when`("the group is retrieved with the zaak that refers to it as log context") {
+                val group = identityService.readGroup(groupId = groupId, logContext = "zaak 'fakeZaakIdentificatie'")
 
                 then("a placeholder group containing only the id is returned") {
                     group.name shouldBe groupId
                 }
 
-                then("the miss is logged at the level WARNING") {
+                then("the miss is logged at the level WARNING, together with the zaak") {
                     verify(exactly = 1) {
                         log(
                             any(),
                             Level.WARNING,
-                            "Group with id '$groupId' could not be found in Keycloak. Returning a placeholder."
+                            "Group with id '$groupId' could not be found in Keycloak for zaak " +
+                                "'fakeZaakIdentificatie'. Returning a placeholder."
                         )
                     }
                 }

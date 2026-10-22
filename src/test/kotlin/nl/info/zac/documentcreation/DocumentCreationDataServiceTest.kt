@@ -648,7 +648,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         every { flowableTaskService.readTask(taskId) } returns taskInfo
         every { taskInfo.name } returns "fakeTaskName"
         every { taskInfo.assignee } returns assigneeId
-        every { identityService.readUser(assigneeId) } returns user
+        every { identityService.readUser(assigneeId, any()) } returns user
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(

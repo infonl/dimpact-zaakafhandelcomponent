@@ -13,7 +13,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { takeUntil } from "rxjs";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { MultiInputFormField } from "../BaseFormField";
@@ -31,7 +31,7 @@ import { MultiInputFormField } from "../BaseFormField";
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    TranslateModule,
+    TranslatePipe,
     CapitalizeFirstLetterPipe,
   ],
 })

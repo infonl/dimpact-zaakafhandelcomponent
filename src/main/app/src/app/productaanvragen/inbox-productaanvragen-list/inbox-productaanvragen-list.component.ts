@@ -37,7 +37,7 @@ import {
 } from "@angular/material/table";
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { merge } from "rxjs";
 import { startWith, switchMap, tap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
@@ -95,7 +95,7 @@ type InboxProductaanvraagListParameters =
     MatFormField,
     MatSelect,
     MatOption,
-    TranslateModule,
+    TranslatePipe,
     TekstFilterComponent,
     DateRangeFilterComponent,
     ZoekopdrachtComponent,

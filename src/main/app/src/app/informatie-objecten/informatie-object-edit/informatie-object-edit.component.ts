@@ -13,7 +13,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
@@ -45,7 +45,7 @@ import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
     MatFormFieldModule,
     MatIconModule,
     MatToolbarModule,
-    TranslateModule,
+    TranslatePipe,
     ZacDate,
     ZacFile,
     ZacFormActions,

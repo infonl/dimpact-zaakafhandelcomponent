@@ -22,7 +22,7 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Router } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
@@ -58,7 +58,7 @@ import { FormCommunicatieService } from "../form-communicatie-service";
     MatButtonModule,
     MatIconModule,
     MatExpansionPanelActionRow,
-    TranslateModule,
+    TranslatePipe,
     TitleCasePipe,
   ],
 })

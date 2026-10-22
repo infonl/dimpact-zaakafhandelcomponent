@@ -7,7 +7,7 @@ import { Component, effect, input, output, untracked } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatSelectModule } from "@angular/material/select";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { I18nKeyPipe } from "../../pipes/i18n-key.pipe";
 import { GeneratedType } from "../../utils/generated-types";
 
@@ -21,7 +21,7 @@ import { GeneratedType } from "../../utils/generated-types";
     ReactiveFormsModule,
     MatFormFieldModule,
     MatSelectModule,
-    TranslateModule,
+    TranslatePipe,
   ],
 })
 export class FacetFilterComponent {

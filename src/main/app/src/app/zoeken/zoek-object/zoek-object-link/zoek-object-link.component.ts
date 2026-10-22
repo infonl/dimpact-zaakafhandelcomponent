@@ -7,7 +7,7 @@ import { Component, HostListener, input } from "@angular/core";
 import { MatIconModule } from "@angular/material/icon";
 import { MatSidenav } from "@angular/material/sidenav";
 import { RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { IndicatiesLayout } from "../../../shared/indicaties/indicaties.component";
 import { InformatieObjectIndicatiesComponent } from "../../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { ZaakIndicatiesComponent } from "../../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
@@ -28,7 +28,7 @@ import { ZaakZoekObject } from "../../model/zaken/zaak-zoek-object";
     ZaakIdentificatieComponent,
     RouterLink,
     MatIconModule,
-    TranslateModule,
+    TranslatePipe,
     ReadMoreComponent,
     ZaakIndicatiesComponent,
     InformatieObjectIndicatiesComponent,

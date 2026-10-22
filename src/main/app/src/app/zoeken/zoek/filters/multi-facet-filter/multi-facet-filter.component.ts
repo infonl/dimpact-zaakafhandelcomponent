@@ -9,7 +9,7 @@ import { FormBuilder, FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatCardModule } from "@angular/material/card";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatIconModule } from "@angular/material/icon";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { ZacNarrowMatCheckboxDirective } from "../../../../shared/material/narrow-checkbox.directive";
 import { I18nKeyPipe } from "../../../../shared/pipes/i18n-key.pipe";
 import { ReadMoreComponent } from "../../../../shared/read-more/read-more.component";
@@ -27,7 +27,7 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
     MatCardModule,
     MatCheckboxModule,
     MatIconModule,
-    TranslateModule,
+    TranslatePipe,
     ZacNarrowMatCheckboxDirective,
     ReadMoreComponent,
   ],

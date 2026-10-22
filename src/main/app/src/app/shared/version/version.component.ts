@@ -8,7 +8,7 @@ import { MatCardModule } from "@angular/material/card";
 import { MatChipsModule } from "@angular/material/chips";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTooltipModule } from "@angular/material/tooltip";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { HealthCheckService } from "../../admin/health-check.service";
 import { DatumPipe } from "../pipes/datum.pipe";
@@ -29,7 +29,7 @@ export enum VersionLayout {
     MatIconModule,
     MatCardModule,
     DatumPipe,
-    TranslateModule,
+    TranslatePipe,
   ],
 })
 export class VersionComponent {

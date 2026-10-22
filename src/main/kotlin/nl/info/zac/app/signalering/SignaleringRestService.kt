@@ -124,7 +124,9 @@ class SignaleringRestService @Inject constructor(
         @PathParam("groupId") groupId: String
     ): List<RestSignaleringInstellingen> {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
-        return SignaleringInstellingenZoekParameters(identityService.readGroup(groupId))
+        return SignaleringInstellingenZoekParameters(
+            identityService.readGroup(groupId = groupId, logContext = "listing the signaleringinstellingen of the group")
+        )
             .let(signaleringService::listInstellingenInclusiefMogelijke)
             .let(restSignaleringInstellingenConverter::convert)
     }
@@ -136,7 +138,7 @@ class SignaleringRestService @Inject constructor(
         restInstellingen: RestSignaleringInstellingen
     ): SignaleringInstellingen? {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
-        return identityService.readGroup(groupId)
+        return identityService.readGroup(groupId = groupId, logContext = "updating the signaleringinstellingen of the group")
             .let { restSignaleringInstellingenConverter.convert(restInstellingen, it) }
             .let(signaleringService::createUpdateOrDeleteInstellingen)
     }

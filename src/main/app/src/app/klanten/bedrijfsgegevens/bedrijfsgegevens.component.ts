@@ -17,7 +17,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
@@ -40,7 +40,7 @@ import { KlantenService } from "../klanten.service";
     MatTooltipModule,
     MatButtonModule,
     RouterLink,
-    TranslateModule,
+    TranslatePipe,
     StaticTextComponent,
   ],
 })

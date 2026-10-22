@@ -10,7 +10,7 @@ import { MatExpansionModule } from "@angular/material/expansion";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 
 @Component({
@@ -25,7 +25,7 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
     MatInputModule,
     MatDatepickerModule,
     MatIconModule,
-    TranslateModule,
+    TranslatePipe,
   ],
 })
 export class DateFilterComponent implements OnInit {

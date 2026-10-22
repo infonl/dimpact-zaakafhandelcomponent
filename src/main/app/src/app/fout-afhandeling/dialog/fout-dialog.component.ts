@@ -15,7 +15,7 @@ import {
 import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 
 @Component({
   templateUrl: "fout-dialog.component.html",
@@ -29,7 +29,7 @@ import { TranslateModule } from "@ngx-translate/core";
     MatDividerModule,
     MatButtonModule,
     MatIconModule,
-    TranslateModule,
+    TranslatePipe,
   ],
 })
 export class FoutDialogComponent {

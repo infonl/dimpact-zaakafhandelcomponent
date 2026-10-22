@@ -105,14 +105,14 @@ class RestZaakConverter @Inject constructor(
         val roles = zrcClientService.listRollen(zaak)
         val groep = zgwApiService.findGroepForZaak(zaak, roles)?.let { rolOrganisatorischeEenheid ->
             rolOrganisatorischeEenheid.betrokkeneIdentificatie?.let {
-                restGroupConverter.convertGroupId(it.identificatie)
+                restGroupConverter.convertGroupId(groupId = it.identificatie, logContext = "zaak '${zaak.identificatie}'")
             }
         }
         val besluiten = brcClientService.listBesluiten(zaak)
             .map { restBesluitConverter.convertToRestBesluit(it) }
         val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak, roles)
             ?.identificatienummer
-            ?.let(restUserConverter::convertUserId)
+            ?.let { restUserConverter.convertUserId(userId = it, logContext = "zaak '${zaak.identificatie}'") }
         val initiator = zgwApiService.findInitiatorRoleForZaak(zaak, roles)
         val initiatorIdentificatie = initiator?.let {
             identificationService.createBetrokkeneIdentificatieForInitiatorRole(it)

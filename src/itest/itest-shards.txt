@@ -37,9 +37,7 @@ nl.info.zac.itest.ZaakRestServiceExtensionTest
 nl.info.zac.itest.ZaakRestServiceLinkParentChildZaken
 nl.info.zac.itest.ZaakspecifiekeAutorisatieRestServiceTest
 nl.info.zac.itest.bpmn.ZaaktypeConfigurationRestServiceBpmnTest
-nl.info.zac.itest.ZaaktypeConfigurationSchemaRepairMigrationTest
 nl.info.zac.itest.bpmn.ZaaktypeConfigurationRestServiceBpmnUpdateTest
-nl.info.zac.itest.ZaaktypeConfigurationSplitMigrationTest
 
 [shard 2]
 
@@ -73,8 +71,6 @@ nl.info.zac.itest.ZaakRestServiceBrondatumAfleidingswijzeAfgehandeldArchiveTest
 nl.info.zac.itest.ZaakRestServiceBrondatumAfleidingswijzeIngangsdatumBesluitArchiveTest
 nl.info.zac.itest.ZaakRestServiceBrondatumAfleidingswijzeTermijnArchiveTest
 nl.info.zac.itest.ZaakSuspendRestServiceTest
-nl.info.zac.itest.ZaaktypeConfigurationZaakSettingsMigrationTest
-nl.info.zac.itest.ZaaktypeConfigurationResultaattypeUuidMigrationTest
 
 [shard 3]
 

@@ -18,7 +18,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { MatIconModule } from "@angular/material/icon";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatTooltipModule } from "@angular/material/tooltip";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { Subscription } from "rxjs";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
@@ -39,7 +39,7 @@ import { ZoekFilters } from "./zoekfilters.model";
     MatIconModule,
     MatMenuModule,
     MatTooltipModule,
-    TranslateModule,
+    TranslatePipe,
     ReadMoreComponent,
   ],
 })
