@@ -5,7 +5,6 @@
 
 import { Component, computed, input, output } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ZacInput } from "src/app/shared/form/input/input";
 import { ZacSelect } from "src/app/shared/form/select/select";
@@ -18,7 +17,6 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
 @Component({
   selector: "zac-klant-koppel-betrokkene-persoon",
   imports: [
-    TranslateModule,
     ReactiveFormsModule,
     PersoonZoekComponent,
     BedrijfZoekComponent,

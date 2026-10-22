@@ -7,7 +7,7 @@ import { Component, input, output } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatIconModule } from "@angular/material/icon";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 
@@ -20,7 +20,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
     MatExpansionModule,
     MatButtonModule,
     MatIconModule,
-    TranslateModule,
+    TranslatePipe,
     StaticTextComponent,
   ],
 })

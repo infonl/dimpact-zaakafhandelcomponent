@@ -11,7 +11,7 @@ import { MatExpansionPanelActionRow } from "@angular/material/expansion";
 import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { UtilService } from "../../core/service/util.service";
@@ -36,7 +36,7 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
     MatIconModule,
     MatToolbarModule,
     ReactiveFormsModule,
-    TranslateModule,
+    TranslatePipe,
     ZacDate,
     ZacDocuments,
     ZacFormActions,

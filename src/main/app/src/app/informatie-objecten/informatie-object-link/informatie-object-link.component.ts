@@ -22,7 +22,7 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "src/app/core/service/util.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
@@ -55,7 +55,7 @@ type DocumentAction = "actie.document.koppelen" | "actie.document.verplaatsen";
     MatSortModule,
     MatTableModule,
     MatToolbarModule,
-    TranslateModule,
+    TranslatePipe,
     ZacInput,
     EmptyPipe,
   ],

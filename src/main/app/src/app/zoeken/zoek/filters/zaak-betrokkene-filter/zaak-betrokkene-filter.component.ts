@@ -12,7 +12,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { ZoekVeld } from "../../../model/zoek-veld";
 import { KlantZoekDialog } from "./klant-zoek-dialog.component";
@@ -31,7 +31,7 @@ import { KlantZoekDialog } from "./klant-zoek-dialog.component";
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    TranslateModule,
+    TranslatePipe,
   ],
 })
 export class ZaakBetrokkeneFilterComponent implements OnInit {

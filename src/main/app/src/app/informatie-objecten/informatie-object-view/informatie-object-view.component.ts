@@ -28,7 +28,7 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatTabsModule } from "@angular/material/tabs";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Observable, of } from "rxjs";
 import { map, tap } from "rxjs/operators";
@@ -91,7 +91,7 @@ import { FileFormat, FileFormatUtil } from "../model/file-format";
     MatTabsModule,
     MatTooltipModule,
     RouterModule,
-    TranslateModule,
+    TranslatePipe,
     DocumentViewerComponent,
     DocumentIconComponent,
     InformatieObjectIndicatiesComponent,

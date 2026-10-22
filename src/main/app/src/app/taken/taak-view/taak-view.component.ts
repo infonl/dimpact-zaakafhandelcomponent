@@ -31,7 +31,7 @@ import { MatTabsModule } from "@angular/material/tabs";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { ActivatedRoute } from "@angular/router";
 import type { FormioForm } from "@formio/angular";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { QueryClient, injectQuery } from "@tanstack/angular-query-experimental";
 import { ZaakDocumentenComponent } from "src/app/zaken/zaak-documenten/zaak-documenten.component";
 import { ObjectType } from "../../core/websocket/model/object-type";
@@ -99,7 +99,7 @@ import { FormioSetupService } from "./formio/formio-setup-service";
     MatTableModule,
     MatTabsModule,
     MatTooltipModule,
-    TranslateModule,
+    TranslatePipe,
     DatumPipe,
     EmptyPipe,
     I18nKeyPipe,

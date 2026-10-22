@@ -12,7 +12,7 @@ import { MatExpansionPanelActionRow } from "@angular/material/expansion";
 import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacSelect } from "../../shared/form/select/select";
@@ -32,7 +32,7 @@ import { TakenService } from "../taken.service";
     MatButtonModule,
     MatDividerModule,
     MatExpansionPanelActionRow,
-    TranslateModule,
+    TranslatePipe,
     ZacSelect,
     ZacTextarea,
     ZacFormActions,
