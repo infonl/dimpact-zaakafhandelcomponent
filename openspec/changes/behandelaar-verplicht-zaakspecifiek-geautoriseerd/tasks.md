@@ -12,5 +12,5 @@
 
 ## 3. Wrap-up
 
-- [ ] 3.1 Update the gebruikershandleiding.
-- [ ] 3.2 Run the linters and tests.
+- [x] 3.1 Update the gebruikershandleiding.
+- [x] 3.2 Run the linters and tests.
