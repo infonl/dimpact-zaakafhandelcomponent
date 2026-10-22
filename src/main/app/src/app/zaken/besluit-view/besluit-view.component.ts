@@ -15,7 +15,7 @@ import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatTabsModule } from "@angular/material/tabs";
 import { MatTooltipModule } from "@angular/material/tooltip";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { skip } from "rxjs";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { TextIcon } from "../../shared/edit/text-icon";
@@ -46,7 +46,7 @@ import { BesluitIntrekkenDialogComponent } from "./besluit-intrekken-dialog/besl
     MatTableModule,
     MatTabsModule,
     MatTooltipModule,
-    TranslateModule,
+    TranslatePipe,
     DatumPipe,
     EmptyPipe,
     I18nKeyPipe,

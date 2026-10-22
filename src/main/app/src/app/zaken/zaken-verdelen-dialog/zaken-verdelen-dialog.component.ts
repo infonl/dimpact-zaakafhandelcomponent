@@ -17,7 +17,7 @@ import { MatError } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { ZacInput } from "../../shared/form/input/input";
@@ -39,7 +39,7 @@ import { ZakenService } from "../zaken.service";
     MatDialogModule,
     MatProgressSpinnerModule,
     MatError,
-    TranslateModule,
+    TranslatePipe,
     ZacAutoComplete,
     ZacInput,
   ],

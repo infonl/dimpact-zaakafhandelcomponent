@@ -23,7 +23,7 @@ import { MatInputModule } from "@angular/material/input";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTooltipModule } from "@angular/material/tooltip";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ZacInput } from "../../shared/form/input/input";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -45,7 +45,7 @@ import { ZakenService } from "../zaken.service";
     MatExpansionModule,
     MatFormFieldModule,
     MatInputModule,
-    TranslateModule,
+    TranslatePipe,
     ZacInput,
     ClipboardModule,
     MatTooltipModule,

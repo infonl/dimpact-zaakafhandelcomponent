@@ -28,7 +28,7 @@ import { MatSlideToggle } from "@angular/material/slide-toggle";
 import { MatSort, MatSortHeader, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
@@ -72,7 +72,7 @@ import { TakenService } from "../../taken/taken.service";
     MatTableModule,
     ReactiveFormsModule,
     RouterLink,
-    TranslateModule,
+    TranslatePipe,
     DatumPipe,
     EmptyPipe,
     StaticTextComponent,

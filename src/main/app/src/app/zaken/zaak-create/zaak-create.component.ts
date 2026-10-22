@@ -12,7 +12,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatSidenav, MatSidenavModule } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { Observable, of } from "rxjs";
@@ -50,7 +50,7 @@ import { ZakenService } from "../zaken.service";
     MatExpansionModule,
     MatFormFieldModule,
     MatIconModule,
-    TranslateModule,
+    TranslatePipe,
     KlantKoppelComponent,
     BagZoekComponent,
     ZacAutoComplete,

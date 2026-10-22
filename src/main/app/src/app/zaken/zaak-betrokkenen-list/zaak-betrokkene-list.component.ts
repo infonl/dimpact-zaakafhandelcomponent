@@ -8,7 +8,7 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
 import { KlantenService } from "../../klanten/klanten.service";
@@ -31,7 +31,7 @@ import { ZakenService } from "../zaken.service";
     MatIconModule,
     MatTableModule,
     MatTooltipModule,
-    TranslateModule,
+    TranslatePipe,
     ReadMoreComponent,
     BetrokkeneLinkComponent,
   ],

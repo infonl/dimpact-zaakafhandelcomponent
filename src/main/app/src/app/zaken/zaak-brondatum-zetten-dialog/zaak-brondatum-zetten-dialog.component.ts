@@ -25,7 +25,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { ZacDate } from "../../shared/form/date/date";
@@ -51,7 +51,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
     MatExpansionModule,
     MatFormFieldModule,
     MatProgressSpinnerModule,
-    TranslateModule,
+    TranslatePipe,
     ZacDate,
   ],
 })

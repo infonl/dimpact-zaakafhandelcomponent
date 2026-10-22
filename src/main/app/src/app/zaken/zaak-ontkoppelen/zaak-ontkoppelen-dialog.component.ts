@@ -15,7 +15,7 @@ import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { ZacTextarea } from "../../shared/form/textarea/textarea";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -32,7 +32,7 @@ import { ZakenService } from "../zaken.service";
     MatDividerModule,
     MatDialogModule,
     MatProgressSpinnerModule,
-    TranslateModule,
+    TranslatePipe,
     ZacTextarea,
   ],
 })

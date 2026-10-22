@@ -8,7 +8,7 @@ import { MatIconAnchor } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";
 import { RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
@@ -28,7 +28,7 @@ import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak
     MatIconModule,
     MatIconAnchor,
     RouterLink,
-    TranslateModule,
+    TranslatePipe,
     StaticTextComponent,
     EmptyPipe,
     DatumPipe,

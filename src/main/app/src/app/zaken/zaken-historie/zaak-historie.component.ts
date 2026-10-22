@@ -7,7 +7,7 @@ import { Component, effect, inject, input, viewChild } from "@angular/core";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
@@ -28,7 +28,7 @@ import { ZakenService } from "../zaken.service";
     MatSortModule,
     MatTableModule,
     MatTooltipModule,
-    TranslateModule,
+    TranslatePipe,
     DatumPipe,
     EmptyPipe,
     I18nKeyPipe,

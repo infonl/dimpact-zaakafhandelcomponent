@@ -9,7 +9,7 @@ import { MatIcon } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { buildBedrijfRouteLink } from "../../klanten/bedrijf-route-link";
@@ -27,7 +27,7 @@ import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
     MatProgressSpinnerModule,
     MatTooltipModule,
     RouterLink,
-    TranslateModule,
+    TranslatePipe,
   ],
 })
 export class BetrokkeneLinkComponent {

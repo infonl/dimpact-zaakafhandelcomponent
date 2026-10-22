@@ -17,7 +17,7 @@ import { MatFormFieldModule, MatHint } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
 import { Subject, takeUntil } from "rxjs";
 import { ZacCheckbox } from "../../shared/form/checkbox/checkbox";
@@ -41,7 +41,7 @@ import { ZakenService } from "../zaken.service";
     MatHint,
     MatIconModule,
     MatProgressSpinnerModule,
-    TranslateModule,
+    TranslatePipe,
     ZacInput,
     ZacDate,
     ZacCheckbox,
