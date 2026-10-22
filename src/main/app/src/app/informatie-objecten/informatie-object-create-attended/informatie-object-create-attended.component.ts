@@ -6,11 +6,11 @@
 import {
   Component,
   effect,
+  inject,
   input,
   OnDestroy,
   OnInit,
   output,
-  inject,
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";

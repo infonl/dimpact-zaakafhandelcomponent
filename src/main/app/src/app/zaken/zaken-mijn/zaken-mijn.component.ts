@@ -8,9 +8,9 @@ import { SlicePipe } from "@angular/common";
 import {
   AfterViewInit,
   Component,
+  inject,
   OnDestroy,
   viewChild,
-  inject,
 } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";

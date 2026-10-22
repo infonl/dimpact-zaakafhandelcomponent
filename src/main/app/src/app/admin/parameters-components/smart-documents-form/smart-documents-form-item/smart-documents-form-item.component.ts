@@ -4,7 +4,7 @@
  *
  */
 
-import { Component, input, OnInit, output, inject } from "@angular/core";
+import { Component, inject, input, OnInit, output } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";

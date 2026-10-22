@@ -19,7 +19,7 @@ type FormioFunctionFactory = (
 
 function stripTags(value: string) {
   let stripped = value;
-  for (let previous = ""; stripped !== previous;) {
+  for (let previous = ""; stripped !== previous; ) {
     previous = stripped;
     stripped = stripped.replace(/<[^>]*>/g, "");
   }

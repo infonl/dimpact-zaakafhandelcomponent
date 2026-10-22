@@ -5,7 +5,7 @@
 
 import { FlatTreeControl } from "@angular/cdk/tree";
 
-import { Component, effect, input, untracked, inject } from "@angular/core";
+import { Component, effect, inject, input, untracked } from "@angular/core";
 import {
   FormBuilder,
   FormControl,
@@ -156,8 +156,8 @@ export class SmartDocumentsFormComponent {
       level: level,
       expandable: Boolean(
         "templates" in node &&
-        Array.isArray(node.templates) &&
-        node.templates.length,
+          Array.isArray(node.templates) &&
+          node.templates.length,
       ),
     };
   };

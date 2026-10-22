@@ -8,8 +8,8 @@ import {
   booleanAttribute,
   Component,
   effect,
-  input,
   inject,
+  input,
 } from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatIconAnchor } from "@angular/material/button";

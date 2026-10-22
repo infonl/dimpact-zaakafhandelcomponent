@@ -10,11 +10,11 @@ import { SlicePipe } from "@angular/common";
 import {
   AfterViewInit,
   Component,
+  inject,
   OnDestroy,
   OnInit,
   signal,
   viewChild,
-  inject,
 } from "@angular/core";
 import { MatBadge } from "@angular/material/badge";
 import {

@@ -7,10 +7,10 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  inject,
   OnDestroy,
   OnInit,
   viewChild,
-  inject,
 } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";

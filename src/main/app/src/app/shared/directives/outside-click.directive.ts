@@ -8,11 +8,11 @@ import {
   Directive,
   DOCUMENT,
   ElementRef,
+  inject,
   OnDestroy,
   OnInit,
   output,
   PLATFORM_ID,
-  inject,
 } from "@angular/core";
 import { fromEvent, Subscription } from "rxjs";
 import { filter } from "rxjs/operators";

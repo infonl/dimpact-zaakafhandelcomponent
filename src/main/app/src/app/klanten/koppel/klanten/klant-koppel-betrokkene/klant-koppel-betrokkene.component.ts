@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, input, output, inject } from "@angular/core";
+import { Component, computed, inject, input, output } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ZacInput } from "src/app/shared/form/input/input";

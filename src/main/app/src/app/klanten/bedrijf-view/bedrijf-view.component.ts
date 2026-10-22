@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, signal, inject } from "@angular/core";
+import { Component, computed, inject, signal } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";

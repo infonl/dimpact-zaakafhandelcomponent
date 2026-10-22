@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable, computed, effect, signal, inject } from "@angular/core";
+import { Injectable, computed, effect, inject, signal } from "@angular/core";
 import { UtilService } from "src/app/core/service/util.service";
 import { ObjectType } from "src/app/core/websocket/model/object-type";
 import { Opcode } from "src/app/core/websocket/model/opcode";

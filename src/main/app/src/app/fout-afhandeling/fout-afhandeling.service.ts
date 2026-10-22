@@ -4,7 +4,7 @@
  */
 
 import { HttpErrorResponse } from "@angular/common/http";
-import { Injectable, isDevMode, inject } from "@angular/core";
+import { Injectable, inject, isDevMode } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";

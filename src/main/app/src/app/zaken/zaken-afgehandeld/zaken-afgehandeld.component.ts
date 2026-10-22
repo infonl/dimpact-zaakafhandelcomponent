@@ -8,10 +8,10 @@ import { SlicePipe } from "@angular/common";
 import {
   AfterViewInit,
   Component,
+  inject,
   OnDestroy,
   OnInit,
   viewChild,
-  inject,
 } from "@angular/core";
 
 import { detailExpand } from "../../shared/animations/animations";
