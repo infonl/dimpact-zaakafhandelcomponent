@@ -558,8 +558,7 @@ class IndexingServiceTest : BehaviorSpec({
         val ctx = setupContext()
         val zaakUUID = UUID.randomUUID()
         val openTask = mockk<Task>().apply { every { id } returns "fakeOpenTaskId" }
-        val completedTask = mockk<Task>().apply { every { id } returns "fakeCompletedTaskId" }
-        val taakZoekObjecten = listOf(createTaakZoekObject(), createTaakZoekObject())
+        val taakZoekObject = createTaakZoekObject()
 
         every { ctx.zrcClientService.listZaakeigenschappen(zaakUUID) } returns listOf(
             createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
@@ -568,22 +567,24 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", any()) } answers {
             // simulates the converter resolving the memoized flag lookup for this same zaak
             secondArg<(UUID) -> ZaakAutorisatieGegevens>().invoke(zaakUUID).geautoriseerdeMedewerkers
-            taakZoekObjecten[0]
+            taakZoekObject
         }
-        every { ctx.taakZoekObjectConverter.convert("fakeCompletedTaskId", any()) } answers {
-            secondArg<(UUID) -> ZaakAutorisatieGegevens>().invoke(zaakUUID).geautoriseerdeMedewerkers
-            taakZoekObjecten[1]
-        }
-        every { ctx.flowableTaskService.listTasksForZaak(zaakUUID) } returns listOf(openTask, completedTask)
+        every { ctx.flowableTaskService.listOpenTasksForZaak(zaakUUID) } returns listOf(openTask)
         every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
 
         `when`("addOrUpdateTakenForZaak is called") {
             ctx.indexingService.addOrUpdateTakenForZaak(zaakUUID)
 
-            then("both the open and the completed taak are reindexed") {
+            then(
+                "only the open taak is reindexed, so that the completed taak, which was removed from the index " +
+                    "on completion, does not reappear in werklijsten and zoekresultaten"
+            ) {
                 verify(exactly = 1) {
-                    ctx.flowableTaskService.listTasksForZaak(zaakUUID)
+                    ctx.flowableTaskService.listOpenTasksForZaak(zaakUUID)
                     ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", any())
+                }
+                verify(exactly = 0) {
+                    ctx.flowableTaskService.listTasksForZaak(any())
                     ctx.taakZoekObjectConverter.convert("fakeCompletedTaskId", any())
                 }
             }
@@ -600,11 +601,10 @@ class IndexingServiceTest : BehaviorSpec({
         val ctx = setupContext()
         val zaak = createZaak()
         val openTask = mockk<Task>().apply { every { id } returns "fakeOpenTaskId" }
-        val completedTask = mockk<Task>().apply { every { id } returns "fakeCompletedTaskId" }
         val zaakInformatieobject = createZaakInformatieobjectForReads(zaak = zaak.url)
         val documentUUID = zaakInformatieobject.informatieobject.extractUuid().toString()
         every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString(), any()) } returns createZaakZoekObject()
-        every { ctx.flowableTaskService.listTasksForZaak(zaak.uuid) } returns listOf(openTask, completedTask)
+        every { ctx.flowableTaskService.listOpenTasksForZaak(zaak.uuid) } returns listOf(openTask)
         every { ctx.taakZoekObjectConverter.convert(any(), any()) } returns createTaakZoekObject()
         every { ctx.zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { ctx.zrcClientService.listZaakinformatieobjecten(zaak) } returns listOf(zaakInformatieobject)
@@ -614,12 +614,14 @@ class IndexingServiceTest : BehaviorSpec({
         `when`("the zaak is reindexed with its taken and informatieobjecten") {
             ctx.indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid)
 
-            then("the zaak, both its open and its completed taak, and its document are reindexed") {
+            then("the zaak, its open taak and its document are reindexed, but not its completed taak") {
                 verify(exactly = 1) {
                     ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString(), any())
                     ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", any())
-                    ctx.taakZoekObjectConverter.convert("fakeCompletedTaskId", any())
                     ctx.documentZoekObjectConverter.convert(documentUUID, any())
+                }
+                verify(exactly = 0) {
+                    ctx.flowableTaskService.listTasksForZaak(any())
                 }
             }
         }
@@ -631,7 +633,7 @@ class IndexingServiceTest : BehaviorSpec({
         val task = mockk<Task>().apply { every { id } returns "fakeTaskId" }
         val zaakInformatieobject = createZaakInformatieobjectForReads(zaak = zaak.url)
         val documentUUID = zaakInformatieobject.informatieobject.extractUuid().toString()
-        every { ctx.flowableTaskService.listTasksForZaak(zaak.uuid) } returns listOf(task)
+        every { ctx.flowableTaskService.listOpenTasksForZaak(zaak.uuid) } returns listOf(task)
         every { ctx.taakZoekObjectConverter.convert("fakeTaskId", any()) } returns createTaakZoekObject()
         every { ctx.zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { ctx.zrcClientService.listZaakinformatieobjecten(zaak) } returns listOf(zaakInformatieobject)
@@ -1634,16 +1636,16 @@ class IndexingServiceTest : BehaviorSpec({
         }
     }
 
-    given("A zaak with an open and a completed taak, where indexing the open taak to Solr fails") {
+    given("A zaak with two open taken, where indexing the first taak to Solr fails") {
         val ctx = setupContext()
         val zaakUUID = UUID.randomUUID()
-        val openTask = mockk<Task>().apply { every { id } returns "fakeOpenTaskId" }
-        val completedTask = mockk<Task>().apply { every { id } returns "fakeCompletedTaskId" }
+        val firstTask = mockk<Task>().apply { every { id } returns "fakeFirstTaskId" }
+        val secondTask = mockk<Task>().apply { every { id } returns "fakeSecondTaskId" }
         val taakZoekObjecten = listOf(createTaakZoekObject(), createTaakZoekObject())
 
-        every { ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", any()) } returns taakZoekObjecten[0]
-        every { ctx.taakZoekObjectConverter.convert("fakeCompletedTaskId", any()) } returns taakZoekObjecten[1]
-        every { ctx.flowableTaskService.listTasksForZaak(zaakUUID) } returns listOf(openTask, completedTask)
+        every { ctx.taakZoekObjectConverter.convert("fakeFirstTaskId", any()) } returns taakZoekObjecten[0]
+        every { ctx.taakZoekObjectConverter.convert("fakeSecondTaskId", any()) } returns taakZoekObjecten[1]
+        every { ctx.flowableTaskService.listOpenTasksForZaak(zaakUUID) } returns listOf(firstTask, secondTask)
         every { ctx.solrClient.addBeans(listOf(taakZoekObjecten[0])) } throws
             SolrServerException("fake Solr failure")
         every { ctx.solrClient.addBeans(listOf(taakZoekObjecten[1])) } returns UpdateResponse()
@@ -1653,13 +1655,13 @@ class IndexingServiceTest : BehaviorSpec({
                 ctx.indexingService.addOrUpdateTakenForZaak(zaakUUID)
             }
 
-            then("the completed taak is still indexed despite the open taak's Solr indexing failing") {
+            then("the second taak is still indexed despite the first taak's Solr indexing failing") {
                 verify(exactly = 1) {
                     ctx.solrClient.addBeans(listOf(taakZoekObjecten[1]))
                 }
             }
 
-            then("the open taak's Solr indexing failure is logged instead of being thrown to the caller") {
+            then("the first taak's Solr indexing failure is logged instead of being thrown to the caller") {
                 logRecords.any {
                     it.message == "[TAAK] Error during indexing" && it.thrown?.cause?.message == "fake Solr failure"
                 } shouldBe true
@@ -2459,7 +2461,7 @@ class IndexingServiceTest : BehaviorSpec({
                 .geautoriseerdeMedewerkers
             createTaakZoekObject()
         }
-        every { ctx.flowableTaskService.listTasksForZaak(zaakUUID) } returns listOf(openTask)
+        every { ctx.flowableTaskService.listOpenTasksForZaak(zaakUUID) } returns listOf(openTask)
         every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
 
         `when`("the zaak's taken are reindexed twice") {

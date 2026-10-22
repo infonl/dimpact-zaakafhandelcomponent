@@ -314,25 +314,20 @@ class IndexingService @Inject constructor(
     }
 
     /**
-     * Reindexes both the open and the completed taken of a zaak, sharing one memoized
-     * `zaakAutorisatieGegevens` lookup across all of them. Unlike [addOrUpdateZaak]'s
-     * `inclusiefTaken` flag, this also covers completed taken, since a taak-level flag (such as
-     * `taak_zaakspecifiekGeautoriseerd`) can go stale on a completed taak just as easily as on an
-     * open one. Calling this on every zaak update would add a `HistoricTaskInstanceQuery` per
-     * notificatie, so it is reserved for triggers where a completed taak can plausibly go stale,
-     * such as a zaakeigenschap change.
+     * Reindexes the open taken of a zaak, sharing one memoized `zaakAutorisatieGegevens` lookup
+     * across all of them. Completed taken are left out, because a taak is removed from the Solr
+     * index when it is completed.
      */
     fun addOrUpdateTakenForZaak(zaakUUID: UUID) {
         val zaakAutorisatieGegevens = reindexSupportService.memoizedZaakAutorisatieGegevens()
-        flowableTaskService.listTasksForZaak(zaakUUID)
+        flowableTaskService.listOpenTasksForZaak(zaakUUID)
             .map { it.id }
             .forEach { addOrUpdateTaak(it, zaakAutorisatieGegevens) }
     }
 
     /**
      * Reindexes a zaak together with everything whose search visibility follows from it, e.g. after the medewerkers
-     * who may see a zaakspecifiek geautoriseerde zaak changed. The taken go through [addOrUpdateTakenForZaak] rather
-     * than the `inclusiefTaken` flag, so completed taken are reindexed as well.
+     * who may see a zaakspecifiek geautoriseerde zaak changed.
      */
     fun addOrUpdateZaakWithTakenAndInformatieobjecten(zaakUUID: UUID) {
         addOrUpdateZaak(zaakUUID, inclusiefTaken = false)

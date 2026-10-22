@@ -304,12 +304,11 @@ class NotificationReceiver @Inject constructor(
     }
 
     /**
-     * Reindexes the zaak (including both its open and its completed taken, since a taak-level flag
-     * can go stale on a completed taak just as easily as on an open one) and, asynchronously, its
-     * documenten, but only when the changed zaakeigenschap is ZAAK_GEAUTORISEERD: a zaak can have
-     * many eigenschappen that change far more often than its zaakspecifiek geautoriseerd status, and
-     * reindexing the zaak's documenten requires a ZGW call per document, so reindexing on every
-     * zaakeigenschap notificatie would be expensive on a path that Open Notificaties retries on
+     * Reindexes the zaak, its open taken and, asynchronously, its documenten, but only when the
+     * changed zaakeigenschap is ZAAK_GEAUTORISEERD: a zaak can have many eigenschappen that change
+     * far more often than its zaakspecifiek geautoriseerd status, and reindexing the zaak's
+     * documenten requires a ZGW call per document, so reindexing on every zaakeigenschap
+     * notificatie would be expensive on a path that Open Notificaties retries on
      * timeout. A 'destroy' notificatie cannot be read back to check its naam, so it always triggers
      * a reindex, as does a zaakeigenschap that cannot be read back for any other reason: whether it
      * has already been deleted (a 404) or the read itself failed (e.g. a ZGW timeout or 5xx), the safe
