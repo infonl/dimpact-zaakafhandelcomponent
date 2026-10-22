@@ -72,7 +72,7 @@ class RestHumanTaskParametersConverterTest : BehaviorSpec({
         }
     }
 
-    context("convertRestHumanTaskParameters") {
+    context("toZaaktypeCmmnHumantaskParameters") {
         given("A list with one RestHumanTaskParameters") {
             val fakePlanItemDefinition = createRestPlanItemDefinition(id = "AANVULLENDE_INFORMATIE")
             val fakeReferentieTabellen = emptyList<RestHumanTaskReferenceTable>()
@@ -90,8 +90,8 @@ class RestHumanTaskParametersConverterTest : BehaviorSpec({
                 restHumanTaskReferenceTableConverter.toHumanTaskReferentieTabellen(fakeReferentieTabellen)
             } returns emptyList()
 
-            `when`("convertRestHumanTaskParameters is called") {
-                val result = converter.convertRestHumanTaskParameters(listOf(restHumanTaskParameters))
+            `when`("toZaaktypeCmmnHumantaskParameters is called") {
+                val result = with(converter) { listOf(restHumanTaskParameters).toZaaktypeCmmnHumantaskParameters() }
 
                 then("the result contains one ZaaktypeCmmnHumantaskParameters with all fields mapped") {
                     result.size shouldBe 1
@@ -116,8 +116,8 @@ class RestHumanTaskParametersConverterTest : BehaviorSpec({
             )
             every { restHumanTaskReferenceTableConverter.toHumanTaskReferentieTabellen(emptyList()) } returns emptyList()
 
-            `when`("convertRestHumanTaskParameters is called") {
-                val result = converter.convertRestHumanTaskParameters(listOf(restHumanTaskParameters))
+            `when`("toZaaktypeCmmnHumantaskParameters is called") {
+                val result = with(converter) { listOf(restHumanTaskParameters).toZaaktypeCmmnHumantaskParameters() }
 
                 then("the human task parameters are converted without referentie tabellen") {
                     result.size shouldBe 1
@@ -146,8 +146,10 @@ class RestHumanTaskParametersConverterTest : BehaviorSpec({
                 restHumanTaskReferenceTableConverter.toHumanTaskReferentieTabellen(fakeReferentieTabellen)
             } returns emptyList()
 
-            `when`("convertRestHumanTaskParameters is called with two entries") {
-                val result = converter.convertRestHumanTaskParameters(listOf(restHumanTaskParameters1, restHumanTaskParameters2))
+            `when`("toZaaktypeCmmnHumantaskParameters is called with two entries") {
+                val result = with(converter) {
+                    listOf(restHumanTaskParameters1, restHumanTaskParameters2).toZaaktypeCmmnHumantaskParameters()
+                }
 
                 then("the result list has size 2") {
                     result.size shouldBe 2

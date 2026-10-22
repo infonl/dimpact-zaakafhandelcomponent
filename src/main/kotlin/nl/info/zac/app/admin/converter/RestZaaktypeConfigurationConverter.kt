@@ -151,7 +151,7 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
             intakeMail = restZaaktypeConfiguration.intakeMail?.name
             afrondenMail = restZaaktypeConfiguration.afrondenMail?.name
             restZaaktypeConfiguration.humanTaskParameters.ifSupplied {
-                setHumanTaskParametersCollection(humanTaskParametersConverter.convertRestHumanTaskParameters(it))
+                setHumanTaskParametersCollection(with(humanTaskParametersConverter) { it.toZaaktypeCmmnHumantaskParameters() })
             }
             restZaaktypeConfiguration.userEventListenerParameters.ifSupplied {
                 setUserEventListenerParametersCollection(it.map { parameter -> parameter.toZaaktypeCmmnUsereventlistenerParameters() })

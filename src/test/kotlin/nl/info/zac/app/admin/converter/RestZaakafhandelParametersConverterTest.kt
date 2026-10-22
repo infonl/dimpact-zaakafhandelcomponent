@@ -35,6 +35,7 @@ import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCompletionParameters
 import nl.info.zac.admin.model.createZaaktypeBrpParameters
+import nl.info.zac.app.admin.model.RestHumanTaskParameters
 import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakAfzender
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
@@ -176,7 +177,9 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         every {
             zaaktypeConfigurationBeheerService.findConfiguration(restZaakafhandelParameters.zaaktype.uuid)
         } returns zaaktypeCmmnConfiguration
-        every { restHumanTaskParametersConverter.convertRestHumanTaskParameters(any()) } returns emptyList()
+        every {
+            with(restHumanTaskParametersConverter) { any<List<RestHumanTaskParameters>>().toZaaktypeCmmnHumantaskParameters() }
+        } returns emptyList()
         every { resultaattypeReferenceService.readOmschrijving(restResultType.id) } returns "fakeNietOntvankelijk"
         every { zaakbeeindigParameterConverter.toZaaktypeCompletionParameters(any()) } returns emptyList()
 
@@ -474,7 +477,9 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                 zaaktypeConfigurationBeheerService.findConfiguration(restZaaktypeConfig.zaaktype.uuid)
             } returns baseConfig
             every {
-                restHumanTaskParametersConverter.convertRestHumanTaskParameters(any())
+                with(restHumanTaskParametersConverter) {
+                    any<List<RestHumanTaskParameters>>().toZaaktypeCmmnHumantaskParameters()
+                }
             } returns emptyList()
             every {
                 resultaattypeReferenceService.readOmschrijving(restZaaktypeConfig.zaakNietOntvankelijkResultaattype!!.id)

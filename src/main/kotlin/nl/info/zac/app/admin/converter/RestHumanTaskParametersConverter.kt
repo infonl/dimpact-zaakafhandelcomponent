@@ -25,8 +25,8 @@ class RestHumanTaskParametersConverter @Inject constructor(
             ?: humanTaskDefinition.toDefaultRestHumanTaskParameters()
     }
 
-    fun convertRestHumanTaskParameters(restHumanTaskParametersList: List<RestHumanTaskParameters>) =
-        restHumanTaskParametersList.map { it.toZaaktypeCmmnHumantaskParameters() }
+    fun List<RestHumanTaskParameters>.toZaaktypeCmmnHumantaskParameters() =
+        map { it.toZaaktypeCmmnHumantaskParameters() }
 
     private fun ZaaktypeCmmnHumantaskParameters.toRestHumanTaskParameters(
         humanTaskDefinition: RestPlanItemDefinition
