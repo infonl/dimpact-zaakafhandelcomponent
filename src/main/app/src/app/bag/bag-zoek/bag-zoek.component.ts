@@ -28,7 +28,7 @@ import {
 } from "@angular/material/table";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { Router } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { catchError, EMPTY, finalize } from "rxjs";
 import { UtilService } from "../../core/service/util.service";
@@ -57,7 +57,7 @@ import { BAGService } from "../bag.service";
     MatTableModule,
     MatToolbarModule,
     ReactiveFormsModule,
-    TranslateModule,
+    TranslatePipe,
   ],
 })
 export class BagZoekComponent {

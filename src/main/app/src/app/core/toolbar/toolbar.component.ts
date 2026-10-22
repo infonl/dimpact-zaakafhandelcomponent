@@ -33,7 +33,7 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { MatToolbar } from "@angular/material/toolbar";
 import { MatTooltip } from "@angular/material/tooltip";
 import { Router, RouterLink, RouterLinkActive } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { IdentityService } from "../../identity/identity.service";
@@ -77,7 +77,7 @@ import { WebsocketService } from "../websocket/websocket.service";
     MatInput,
     MatTooltip,
     MatDivider,
-    TranslateModule,
+    TranslatePipe,
     BackButtonDirective,
     VersionComponent,
   ],

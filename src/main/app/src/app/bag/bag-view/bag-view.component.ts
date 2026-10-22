@@ -7,7 +7,7 @@ import { Component, OnInit } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { ActivatedRoute } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -22,7 +22,7 @@ import { BagZakenTabelComponent } from "../bag-zaken-tabel/bag-zaken-tabel.compo
     I18nKeyPipe,
     MatCardModule,
     MatSidenavModule,
-    TranslateModule,
+    TranslatePipe,
     StaticTextComponent,
     BagZakenTabelComponent,
     BagLocatieComponent,
