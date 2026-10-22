@@ -21,7 +21,8 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
-import { screen } from "@testing-library/angular";
+import { screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
@@ -168,5 +169,114 @@ describe(ZakenVerdelenDialogComponent.name, () => {
     req.flush({});
     await sleep();
     expect(dialogRefMock.close).toHaveBeenCalledWith(component["form"].value);
+  });
+
+  describe("with a zaakspecifiek geautoriseerde zaak in the selection", () => {
+    const gewoneZaak = makeZaakZoekObject({
+      id: "uuid-1",
+      identificatie: "ZAAK-001",
+    });
+    const geautoriseerdeZaak = makeZaakZoekObject({
+      id: "uuid-2",
+      identificatie: "ZAAK-002",
+      isZaakspecifiekGeautoriseerd: true,
+    });
+    const medewerker = fromPartial<GeneratedType<"RestUser">>({
+      id: "user-1",
+      naam: "Gebruiker Een",
+    });
+
+    const verdelenButton = () =>
+      screen.getByRole("button", { name: /actie.verdelen/ });
+
+    it("keeps verdelen disabled when only a groep is chosen, so that the zaak is never distributed without a behandelaar", async () => {
+      const { fixture, component } = await setup([
+        gewoneZaak,
+        geautoriseerdeZaak,
+      ]);
+
+      component["form"].controls.groep.setValue(mockGroups[0]);
+      fixture.detectChanges();
+
+      expect(verdelenButton()).toBeDisabled();
+    });
+
+    it("enables verdelen once a behandelaar is chosen", async () => {
+      const { fixture, component } = await setup([
+        gewoneZaak,
+        geautoriseerdeZaak,
+      ]);
+
+      component["form"].controls.groep.setValue(mockGroups[0]);
+      component["form"].controls.medewerker.setValue(medewerker);
+      fixture.detectChanges();
+
+      expect(verdelenButton()).toBeEnabled();
+    });
+
+    it("keeps verdelen disabled when a medewerker name is typed but not chosen from the list", async () => {
+      const user = userEvent.setup();
+      const { fixture, component } = await setup([geautoriseerdeZaak]);
+      component["form"].controls.groep.setValue(mockGroups[0]);
+      fixture.detectChanges();
+
+      await user.type(
+        screen.getByRole("combobox", { name: /medewerker/i }),
+        "Gebruiker",
+      );
+      fixture.detectChanges();
+
+      expect(verdelenButton()).toBeDisabled();
+    });
+
+    it("marks the behandelaar as required and says why", async () => {
+      const { fixture, component } = await setup([geautoriseerdeZaak]);
+
+      component["form"].controls.groep.setValue(mockGroups[0]);
+      fixture.detectChanges();
+
+      expect(
+        screen.getByRole("combobox", { name: /medewerker/i }),
+      ).toBeRequired();
+      expect(
+        screen.getByText("msg.zaken-verdelen.behandelaar-verplicht"),
+      ).toBeInTheDocument();
+    });
+
+    it("lists only the zaakspecifiek geautoriseerde zaken", async () => {
+      await setup([gewoneZaak, geautoriseerdeZaak]);
+
+      const list = screen.getByRole("list", {
+        name: "zaken.zaakspecifiek-geautoriseerd",
+      });
+      expect(within(list).getByText("ZAAK-002")).toBeInTheDocument();
+      expect(within(list).queryByText("ZAAK-001")).not.toBeInTheDocument();
+    });
+  });
+
+  describe("without a zaakspecifiek geautoriseerde zaak in the selection", () => {
+    it("enables verdelen with only a groep chosen", async () => {
+      const { fixture, component } = await setup([makeZaakZoekObject()]);
+
+      component["form"].controls.groep.setValue(mockGroups[0]);
+      fixture.detectChanges();
+
+      expect(
+        screen.getByRole("button", { name: /actie.verdelen/ }),
+      ).toBeEnabled();
+    });
+
+    it("shows neither the behandelaar notice nor a list of zaken", async () => {
+      await setup([makeZaakZoekObject()]);
+
+      expect(
+        screen.queryByText("msg.zaken-verdelen.behandelaar-verplicht"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("list", {
+          name: "zaken.zaakspecifiek-geautoriseerd",
+        }),
+      ).not.toBeInTheDocument();
+    });
   });
 });
