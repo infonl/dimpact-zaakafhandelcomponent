@@ -173,7 +173,7 @@ export class MailtemplatesComponent
         acc.push(koppeling);
       }
       return acc;
-    }, [] as GeneratedType<"RESTMailtemplateKoppeling">[]);
+    }, [] as GeneratedType<"RestMailtemplateKoppeling">[]);
   }
 
   private getMailtemplateKoppeling(

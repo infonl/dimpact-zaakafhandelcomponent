@@ -6,7 +6,6 @@ package nl.info.zac.app.admin.model
 
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
-import net.atos.zac.app.admin.model.RESTPlanItemDefinition
 import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -26,6 +25,6 @@ data class RestProcessDefinition(
     @field:NotBlank
     var key: String,
     var naam: String? = null,
-    var humanTaskDefinitions: List<RESTPlanItemDefinition> = emptyList(),
-    var userEventListenerDefinitions: List<RESTPlanItemDefinition> = emptyList()
+    var humanTaskDefinitions: List<RestPlanItemDefinition> = emptyList(),
+    var userEventListenerDefinitions: List<RestPlanItemDefinition> = emptyList()
 )

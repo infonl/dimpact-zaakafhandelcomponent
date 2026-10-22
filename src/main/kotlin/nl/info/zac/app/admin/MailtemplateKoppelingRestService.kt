@@ -14,11 +14,11 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling
 import nl.info.zac.admin.MailTemplateKoppelingenService
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
 import nl.info.zac.app.admin.converter.toRestMailtemplateKoppeling
 import nl.info.zac.app.admin.converter.toZaaktypeMailtemplateParameters
+import nl.info.zac.app.admin.model.RestMailtemplateKoppeling
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.NoArgConstructor
@@ -35,7 +35,7 @@ class MailtemplateKoppelingRestService @Inject constructor(
 ) {
     @GET
     @Path("{id}")
-    fun readMailtemplateKoppeling(@PathParam("id") id: Long): RESTMailtemplateKoppeling {
+    fun readMailtemplateKoppeling(@PathParam("id") id: Long): RestMailtemplateKoppeling {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
         return mailTemplateKoppelingenService.readMailtemplateKoppeling(id).toRestMailtemplateKoppeling()
     }
@@ -48,7 +48,7 @@ class MailtemplateKoppelingRestService @Inject constructor(
     }
 
     @GET
-    fun listMailtemplateKoppelingen(): List<RESTMailtemplateKoppeling> {
+    fun listMailtemplateKoppelingen(): List<RestMailtemplateKoppeling> {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
         return mailTemplateKoppelingenService.listMailtemplateKoppelingen().map { zaaktypeMailtemplateParameters ->
             zaaktypeMailtemplateParameters.toRestMailtemplateKoppeling().apply {
@@ -62,7 +62,7 @@ class MailtemplateKoppelingRestService @Inject constructor(
 
     @PUT
     @Path("")
-    fun storeMailtemplateKoppeling(mailtemplateKoppeling: RESTMailtemplateKoppeling): RESTMailtemplateKoppeling {
+    fun storeMailtemplateKoppeling(mailtemplateKoppeling: RestMailtemplateKoppeling): RestMailtemplateKoppeling {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
         return mailTemplateKoppelingenService.storeMailtemplateKoppeling(
             mailtemplateKoppeling.toZaaktypeMailtemplateParameters()

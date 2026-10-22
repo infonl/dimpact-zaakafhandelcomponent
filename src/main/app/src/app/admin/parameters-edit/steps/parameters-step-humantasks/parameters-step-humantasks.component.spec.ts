@@ -20,11 +20,11 @@ import {
 import { ParametersStepHumantasksComponent } from "./parameters-step-humantasks.component";
 
 const formulierDefinities = [
-  fromPartial<GeneratedType<"RESTTaakFormulierDefinitie">>({
+  fromPartial<GeneratedType<"RestTaakFormulierDefinitie">>({
     id: "DEFAULT_TAAKFORMULIER",
     veldDefinities: [],
   }),
-  fromPartial<GeneratedType<"RESTTaakFormulierDefinitie">>({
+  fromPartial<GeneratedType<"RestTaakFormulierDefinitie">>({
     id: "ADVIES",
     veldDefinities: [{ naam: "ADVIES" }],
   }),
@@ -37,14 +37,14 @@ const adviesTabel = fromPartial<GeneratedType<"RestReferenceTable">>({
 });
 
 const humanTaskParameters = [
-  fromPartial<GeneratedType<"RESTHumanTaskParameters">>({
+  fromPartial<GeneratedType<"RestHumanTaskParameters">>({
     planItemDefinition: { id: "task-1", naam: "Taak 1", type: "HUMAN_TASK" },
     actief: true,
     doorlooptijd: 5,
     formulierDefinitieId: undefined,
     referentieTabellen: [],
   }),
-  fromPartial<GeneratedType<"RESTHumanTaskParameters">>({
+  fromPartial<GeneratedType<"RestHumanTaskParameters">>({
     planItemDefinition: {
       id: "task-3",
       naam: "Verlenging aanvragen",
@@ -55,7 +55,7 @@ const humanTaskParameters = [
     formulierDefinitieId: "DEFAULT_TAAKFORMULIER",
     referentieTabellen: [],
   }),
-  fromPartial<GeneratedType<"RESTHumanTaskParameters">>({
+  fromPartial<GeneratedType<"RestHumanTaskParameters">>({
     planItemDefinition: {
       id: "task-2",
       naam: "Uitstel aanvragen",

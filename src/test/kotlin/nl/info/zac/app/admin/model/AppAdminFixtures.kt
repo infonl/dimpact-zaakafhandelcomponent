@@ -4,10 +4,12 @@
  */
 package nl.info.zac.app.admin.model
 
-import net.atos.zac.app.admin.model.RestZaakbeeindigReden
 import nl.info.zac.admin.model.ProcessEngine
+import nl.info.zac.app.planitems.model.PlanItemType
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.app.zaak.model.RestResultaattype
+import nl.info.zac.mailtemplates.model.Mail
+import nl.info.zac.mailtemplates.model.MailTemplateVariables
 import java.time.LocalDate
 import java.util.UUID
 
@@ -126,10 +128,10 @@ fun createRestZaaktypeOverzicht(
 fun createRestZaakbeeindigReden(
     id: String = "fakeZaakbeeindigRedenId",
     name: String = "fakeZaakbeeindigRedenName"
-) = RestZaakbeeindigReden().apply {
-    this.id = id
-    this.naam = name
-}
+) = RestZaakbeeindigReden(
+    id = id,
+    naam = name
+)
 
 @Suppress("LongParameterList")
 fun createRestResultaattype(
@@ -156,4 +158,33 @@ fun createRestZaakbeeindigParameter(
     id = id,
     zaakbeeindigReden = zaakbeeindigReden,
     resultaattype = resultaattype
+)
+
+fun createRestPlanItemDefinition(
+    id: String = "fakeId",
+    naam: String = "fakePlanItemNaam",
+    type: PlanItemType = PlanItemType.HUMAN_TASK
+) = RestPlanItemDefinition(
+    id = id,
+    naam = naam,
+    type = type
+)
+
+@Suppress("LongParameterList")
+fun createRestMailTemplate(
+    id: Long = 1234L,
+    mailTemplateName: String = "fakeTemplateName",
+    subject: String = "fakeSubject",
+    body: String = "fakeBody",
+    mail: Mail = Mail.ZAAK_ALGEMEEN,
+    mailTemplateVariables: Set<MailTemplateVariables> = emptySet(),
+    defaultTemplate: Boolean = false
+) = RestMailtemplate(
+    id = id,
+    mailTemplateNaam = mailTemplateName,
+    onderwerp = subject,
+    body = body,
+    mail = mail,
+    variabelen = mailTemplateVariables,
+    isDefaultMailtemplate = defaultTemplate
 )

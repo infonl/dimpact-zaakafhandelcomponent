@@ -14,7 +14,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.json.bind.JsonbBuilder
-import net.atos.zac.app.admin.converter.RESTHumanTaskParametersConverter
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER
 import nl.info.client.zgw.util.extractUuid
@@ -36,6 +35,7 @@ import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCompletionParameters
 import nl.info.zac.admin.model.createZaaktypeBrpParameters
+import nl.info.zac.app.admin.model.RestHumanTaskParameters
 import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakAfzender
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
@@ -53,7 +53,7 @@ import java.util.UUID
 class RestZaakafhandelParametersConverterTest : BehaviorSpec({
     val processDefinitionConverter = mockk<RestProcessDefinitionConverter>()
     val zaakbeeindigParameterConverter = mockk<RestZaakbeeindigParameterConverter>()
-    val restHumanTaskParametersConverter = mockk<RESTHumanTaskParametersConverter>()
+    val restHumanTaskParametersConverter = mockk<RestHumanTaskParametersConverter>()
     val ztcClientService = mockk<ZtcClientService>()
     val zaaktypeConfigurationBeheerService = mockk<ZaaktypeConfigurationBeheerService>()
     val smartDocumentsService = mockk<SmartDocumentsService>()
@@ -177,7 +177,9 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         every {
             zaaktypeConfigurationBeheerService.findConfiguration(restZaakafhandelParameters.zaaktype.uuid)
         } returns zaaktypeCmmnConfiguration
-        every { restHumanTaskParametersConverter.convertRESTHumanTaskParameters(any()) } returns emptyList()
+        every {
+            with(restHumanTaskParametersConverter) { any<List<RestHumanTaskParameters>>().toZaaktypeCmmnHumantaskParameters() }
+        } returns emptyList()
         every { resultaattypeReferenceService.readOmschrijving(restResultType.id) } returns "fakeNietOntvankelijk"
         every { zaakbeeindigParameterConverter.toZaaktypeCompletionParameters(any()) } returns emptyList()
 
@@ -475,7 +477,9 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                 zaaktypeConfigurationBeheerService.findConfiguration(restZaaktypeConfig.zaaktype.uuid)
             } returns baseConfig
             every {
-                restHumanTaskParametersConverter.convertRESTHumanTaskParameters(any())
+                with(restHumanTaskParametersConverter) {
+                    any<List<RestHumanTaskParameters>>().toZaaktypeCmmnHumantaskParameters()
+                }
             } returns emptyList()
             every {
                 resultaattypeReferenceService.readOmschrijving(restZaaktypeConfig.zaakNietOntvankelijkResultaattype!!.id)

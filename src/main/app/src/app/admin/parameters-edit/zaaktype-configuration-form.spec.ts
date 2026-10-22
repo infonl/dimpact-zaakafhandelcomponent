@@ -75,7 +75,11 @@ const caseDefinition = fromPartial<GeneratedType<"RestProcessDefinition">>({
   humanTaskDefinitions: [{ id: "fakeTaskId", naam: "Taak" }],
   userEventListenerDefinitions: [
     { id: "INTAKE_AFRONDEN", naam: "Intake afronden" },
-    { id: "ZAAK_AFHANDELEN", naam: "Zaak afhandelen" },
+    {
+      id: "ZAAK_AFHANDELEN",
+      naam: "Zaak afhandelen",
+      type: "USER_EVENT_LISTENER",
+    },
   ],
 });
 
@@ -250,7 +254,11 @@ describe("The configuration of a zaaktype in the admin screen", () => {
     applyProcessDefinition(form, {
       ...caseDefinition,
       userEventListenerDefinitions: [
-        { id: "ZAAK_AFHANDELEN", naam: "Zaak afhandelen" },
+        {
+          id: "ZAAK_AFHANDELEN",
+          naam: "Zaak afhandelen",
+          type: "USER_EVENT_LISTENER",
+        },
       ],
     });
 

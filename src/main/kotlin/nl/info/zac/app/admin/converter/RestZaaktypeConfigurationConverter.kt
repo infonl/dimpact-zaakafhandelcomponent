@@ -5,9 +5,6 @@
 package nl.info.zac.app.admin.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.app.admin.converter.RESTHumanTaskParametersConverter
-import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter
-import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter.convertRESTUserEventListenerParameters
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ResultaattypeReferenceService
@@ -22,11 +19,13 @@ import nl.info.zac.app.admin.model.toRestAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
 import nl.info.zac.app.admin.model.toRestSmartDocuments
+import nl.info.zac.app.admin.model.toRestUserEventListenerParameter
 import nl.info.zac.app.admin.model.toRestZaakAfzenders
 import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
 import nl.info.zac.app.admin.model.toZaakAfzenders
 import nl.info.zac.app.admin.model.toZaaktypeBetrokkenParameters
 import nl.info.zac.app.admin.model.toZaaktypeBrpParameters
+import nl.info.zac.app.admin.model.toZaaktypeCmmnUsereventlistenerParameters
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.smartdocuments.SmartDocumentsService
@@ -41,7 +40,7 @@ import java.time.ZonedDateTime
 class RestZaaktypeConfigurationConverter @Inject constructor(
     val processDefinitionConverter: RestProcessDefinitionConverter,
     val zaakbeeindigParameterConverter: RestZaakbeeindigParameterConverter,
-    val humanTaskParametersConverter: RESTHumanTaskParametersConverter,
+    val humanTaskParametersConverter: RestHumanTaskParametersConverter,
     val ztcClientService: ZtcClientService,
     val resultaattypeReferenceService: ResultaattypeReferenceService,
     val zaaktypeConfigurationBeheerService: ZaaktypeConfigurationBeheerService,
@@ -152,10 +151,10 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
             intakeMail = restZaaktypeConfiguration.intakeMail?.name
             afrondenMail = restZaaktypeConfiguration.afrondenMail?.name
             restZaaktypeConfiguration.humanTaskParameters.ifSupplied {
-                setHumanTaskParametersCollection(humanTaskParametersConverter.convertRESTHumanTaskParameters(it))
+                setHumanTaskParametersCollection(with(humanTaskParametersConverter) { it.toZaaktypeCmmnHumantaskParameters() })
             }
             restZaaktypeConfiguration.userEventListenerParameters.ifSupplied {
-                setUserEventListenerParametersCollection(convertRESTUserEventListenerParameters(it))
+                setUserEventListenerParametersCollection(it.map { parameter -> parameter.toZaaktypeCmmnUsereventlistenerParameters() })
             }
         }
     }
@@ -169,11 +168,10 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
                 cmmnExtension?.getHumanTaskParametersCollection().orEmpty(),
                 it.humanTaskDefinitions
             )
-            userEventListenerParameters = RESTUserEventListenerParametersConverter
-                .convertUserEventListenerParametersCollection(
-                    cmmnExtension?.getUserEventListenerParametersCollection().orEmpty(),
-                    it.userEventListenerDefinitions
-                )
+            val userEventListenerParametersCollection = cmmnExtension?.getUserEventListenerParametersCollection().orEmpty()
+            userEventListenerParameters = it.userEventListenerDefinitions.map { userEventListenerDefinition ->
+                userEventListenerDefinition.toRestUserEventListenerParameter(userEventListenerParametersCollection)
+            }
         }
         resultaattypeReferenceService.findNietOntvankelijkResultaattype(zaaktypeConfiguration)?.let {
             this.zaakNietOntvankelijkResultaattype = it.toRestResultaatType()

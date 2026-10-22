@@ -5,10 +5,10 @@
 package nl.info.zac.app.admin.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.app.admin.model.RESTPlanItemDefinition
 import net.atos.zac.flowable.cmmn.CmmnService
 import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.admin.model.ZaaktypeProcessBinding
+import nl.info.zac.app.admin.model.RestPlanItemDefinition
 import nl.info.zac.app.admin.model.RestProcessDefinition
 import nl.info.zac.app.planitems.model.PlanItemType.HUMAN_TASK
 import nl.info.zac.app.planitems.model.PlanItemType.USER_EVENT_LISTENER
@@ -53,7 +53,7 @@ class RestProcessDefinitionConverter @Inject constructor(
     private fun ProcessDefinition.toRestProcessDefinition() =
         RestProcessDefinition(processEngine = ProcessEngine.BPMN, key = key, naam = name)
 
-    private fun HumanTask.toRestPlanItemDefinition() = RESTPlanItemDefinition(id, name, HUMAN_TASK)
+    private fun HumanTask.toRestPlanItemDefinition() = RestPlanItemDefinition(id, name, HUMAN_TASK)
 
-    private fun UserEventListener.toRestPlanItemDefinition() = RESTPlanItemDefinition(id, name, USER_EVENT_LISTENER)
+    private fun UserEventListener.toRestPlanItemDefinition() = RestPlanItemDefinition(id, name, USER_EVENT_LISTENER)
 }

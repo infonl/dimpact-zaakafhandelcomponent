@@ -19,7 +19,7 @@ export type HumanTaskReferentieTabelForm = FormGroup<{
 
 export type HumanTaskForm = FormGroup<{
   id: FormControl<number | null>;
-  planItemDefinition: FormControl<GeneratedType<"RESTPlanItemDefinition">>;
+  planItemDefinition: FormControl<GeneratedType<"RestPlanItemDefinition">>;
   formulierDefinitieId: FormControl<string | null>;
   defaultGroepId: FormControl<string | null>;
   doorlooptijd: FormControl<number | null>;
@@ -32,7 +32,10 @@ export type HumanTasksForm = FormArray<HumanTaskForm>;
 export function createHumanTaskReferentieTabelForm({
   id,
   tabel,
-}: GeneratedType<"RestHumanTaskReferenceTable">): HumanTaskReferentieTabelForm {
+}: Pick<
+  GeneratedType<"RestHumanTaskReferenceTable">,
+  "id" | "tabel"
+>): HumanTaskReferentieTabelForm {
   return new FormGroup({
     id: new FormControl(id ?? null),
     tabel: new FormControl(tabel ?? null, [Validators.required]),
@@ -50,7 +53,7 @@ export function syncReferentieTabellen(
     referentieTabellen,
   }: {
     formulierDefinities: ReadonlyArray<
-      GeneratedType<"RESTTaakFormulierDefinitie">
+      GeneratedType<"RestTaakFormulierDefinitie">
     >;
     referentieTabellen: ReadonlyArray<GeneratedType<"RestReferenceTable">>;
   },
@@ -77,7 +80,7 @@ export function syncReferentieTabellen(
 }
 
 function createHumanTaskForm(
-  humanTaskParameters: GeneratedType<"RESTHumanTaskParameters">,
+  humanTaskParameters: GeneratedType<"RestHumanTaskParameters">,
 ): HumanTaskForm {
   const referentieTabellen = new FormRecord<HumanTaskReferentieTabelForm>({});
   for (const referentieTabel of humanTaskParameters.referentieTabellen ?? []) {
@@ -119,7 +122,7 @@ function createHumanTaskForm(
 }
 
 export function createHumanTasksForm(
-  humanTaskParameters?: GeneratedType<"RESTHumanTaskParameters">[] | null,
+  humanTaskParameters?: GeneratedType<"RestHumanTaskParameters">[] | null,
 ): HumanTasksForm {
   return new FormArray(
     [...(humanTaskParameters ?? [])]
@@ -155,7 +158,7 @@ export function createHumanTasksFormForProcessDefinition(
 
 export function toHumanTaskParameters(
   form: HumanTasksForm,
-): GeneratedType<"RESTHumanTaskParameters">[] {
+): GeneratedType<"RestHumanTaskParameters">[] {
   return form.controls.map((humanTaskForm) => {
     const {
       id,

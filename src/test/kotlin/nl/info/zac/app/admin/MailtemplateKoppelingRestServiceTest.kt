@@ -13,8 +13,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling
-import net.atos.zac.app.admin.model.createRestMailTemplate
 import nl.info.zac.admin.MailTemplateKoppelingenService
 import nl.info.zac.admin.model.createMailTemplate
 import nl.info.zac.admin.model.createMailtemplateKoppelingen
@@ -22,6 +20,8 @@ import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
 import nl.info.zac.app.admin.converter.toRestMailtemplateKoppeling
+import nl.info.zac.app.admin.model.RestMailtemplateKoppeling
+import nl.info.zac.app.admin.model.createRestMailTemplate
 import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
@@ -68,7 +68,7 @@ class MailtemplateKoppelingRestServiceTest : BehaviorSpec({
             `when`("readMailtemplateKoppeling is called with ID 42") {
                 val result = service.readMailtemplateKoppeling(42L)
 
-                then("the converted RESTMailtemplateKoppeling is returned") {
+                then("the converted RestMailtemplateKoppeling is returned") {
                     result.id shouldBe fakeKoppeling.toRestMailtemplateKoppeling().id
                 }
             }
@@ -146,9 +146,7 @@ class MailtemplateKoppelingRestServiceTest : BehaviorSpec({
                 zaaktypeConfiguration = createZaaktypeCmmnConfiguration(),
                 mailTemplate = createMailTemplate()
             )
-            val restKoppeling = RESTMailtemplateKoppeling().apply {
-                mailtemplate = createRestMailTemplate()
-            }
+            val restKoppeling = RestMailtemplateKoppeling(mailtemplate = createRestMailTemplate())
             every { policyService.readOverigeRechten(null) } returns createOverigeRechten(beheren = true)
             every { mailTemplateKoppelingenService.storeMailtemplateKoppeling(any()) } returns fakeKoppeling
 

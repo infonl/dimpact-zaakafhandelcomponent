@@ -5,11 +5,11 @@
 package nl.info.zac.app.admin.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.app.admin.converter.RESTZaakbeeindigRedenConverter.convertRESTZaakbeeindigReden
-import net.atos.zac.app.admin.converter.RESTZaakbeeindigRedenConverter.convertZaakbeeindigReden
 import nl.info.zac.admin.ResultaattypeReferenceService
 import nl.info.zac.admin.model.ZaaktypeCompletionParameters
 import nl.info.zac.app.admin.model.RestZaakbeeindigParameter
+import nl.info.zac.app.admin.model.toRestZaakbeeindigReden
+import nl.info.zac.app.admin.model.toZaakbeeindigReden
 import nl.info.zac.app.zaak.model.toRestResultaatType
 
 class RestZaakbeeindigParameterConverter @Inject constructor(
@@ -26,7 +26,7 @@ class RestZaakbeeindigParameterConverter @Inject constructor(
         restZaakbeeindigParameters.map { restZaakbeeindigParameter ->
             ZaaktypeCompletionParameters().apply {
                 id = restZaakbeeindigParameter.id
-                zaakbeeindigReden = convertRESTZaakbeeindigReden(restZaakbeeindigParameter.zaakbeeindigReden)
+                zaakbeeindigReden = restZaakbeeindigParameter.zaakbeeindigReden.toZaakbeeindigReden()
                 resultaattypeOmschrijving =
                     resultaattypeReferenceService.readOmschrijving(restZaakbeeindigParameter.resultaattype.id)
             }
@@ -38,7 +38,7 @@ class RestZaakbeeindigParameterConverter @Inject constructor(
         resultaattypeReferenceService.findResultaattype(zaaktypeCompletionParameters)?.let {
             RestZaakbeeindigParameter(
                 id = zaaktypeCompletionParameters.id,
-                zaakbeeindigReden = convertZaakbeeindigReden(zaaktypeCompletionParameters.zaakbeeindigReden),
+                zaakbeeindigReden = zaaktypeCompletionParameters.zaakbeeindigReden.toRestZaakbeeindigReden(),
                 resultaattype = it.toRestResultaatType()
             )
         }

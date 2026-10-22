@@ -9,9 +9,6 @@ import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
-import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling
-import net.atos.zac.app.admin.model.RESTHumanTaskParameters
-import net.atos.zac.app.admin.model.RESTUserEventListenerParameter
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.util.AllOpen
@@ -63,15 +60,15 @@ data class RestZaaktypeConfiguration(
     /**
      * The frontend currently requires this field to be non-null
      */
-    var humanTaskParameters: List<RESTHumanTaskParameters> = emptyList(),
+    var humanTaskParameters: List<RestHumanTaskParameters> = emptyList(),
     /**
      * The frontend currently requires this field to be non-null
      */
-    var userEventListenerParameters: List<RESTUserEventListenerParameter> = emptyList(),
+    var userEventListenerParameters: List<RestUserEventListenerParameter> = emptyList(),
     /**
      * The frontend currently requires this field to be non-null
      */
-    var mailtemplateKoppelingen: List<RESTMailtemplateKoppeling> = emptyList(),
+    var mailtemplateKoppelingen: List<RestMailtemplateKoppeling> = emptyList(),
     /**
      * The frontend currently requires this field to be non-null
      */
