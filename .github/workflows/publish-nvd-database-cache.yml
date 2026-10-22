@@ -30,7 +30,7 @@ permissions:
   packages: write
 
 env:
-  JAVA_VERSION: "25.0.4"
+  JAVA_VERSION: "25.0.5"
   NVD_DATABASE_CACHE_IMAGE: ghcr.io/infonl/nvd-database-cache
 
 jobs:
