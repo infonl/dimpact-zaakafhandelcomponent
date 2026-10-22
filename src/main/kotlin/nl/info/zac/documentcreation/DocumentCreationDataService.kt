@@ -63,7 +63,7 @@ class DocumentCreationDataService @Inject constructor(
             aanvragerData = createAanvragerData(zaak, loggedInUser),
             gebruikerData = createGebruikerData(loggedInUser),
             startformulierData = createStartformulierData(zaak.url),
-            taskData = taskId?.let { createTaskData(it) },
+            taskData = taskId?.let { createTaskData(taskId = it, zaak = zaak) },
             zaakData = createZaakData(zaak)
         )
 
@@ -173,11 +173,16 @@ class DocumentCreationDataService @Inject constructor(
             }
             .singleOrNull()
 
-    private fun createTaskData(taskId: String): TaskData =
+    private fun createTaskData(taskId: String, zaak: Zaak): TaskData =
         flowableTaskService.readTask(taskId).let { taskInfo ->
             TaskData(
                 naam = taskInfo.name,
-                behandelaar = taskInfo.assignee?.let { identityService.readUser(it).getFullName() }
+                behandelaar = taskInfo.assignee?.let {
+                    identityService.readUser(
+                        userId = it,
+                        logContext = "task '$taskId' of zaak '${zaak.identificatie}'"
+                    ).getFullName()
+                }
             )
         }
 }

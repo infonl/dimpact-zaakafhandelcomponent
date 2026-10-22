@@ -35,7 +35,7 @@ class NoteConverterTest : BehaviorSpec({
                 fullName = "fakeFirstName fakeLastName"
             )
             val loggedInUser = createLoggedInUser(id = "fakeAuthor")
-            every { identityService.readUser("fakeAuthor") } returns author
+            every { identityService.readUser("fakeAuthor", any()) } returns author
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("toRestNote is called") {
@@ -67,7 +67,7 @@ class NoteConverterTest : BehaviorSpec({
                 fullName = "fakeFirstName fakeLastName"
             )
             val loggedInUser = createLoggedInUser(id = "fakeOtherUserId")
-            every { identityService.readUser("fakeAuthor") } returns author
+            every { identityService.readUser("fakeAuthor", any()) } returns author
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("toRestNote is called") {

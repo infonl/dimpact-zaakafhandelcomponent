@@ -218,7 +218,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
                 zaakToewijzing.behandelaarRollen.none { it.identificatienummer == medewerkerId } &&
                 grantZaakspecifiekeAutorisatie(
                     zaak = zaak,
-                    medewerker = readMedewerkerIdentificatie(medewerkerId),
+                    medewerker = readMedewerkerIdentificatie(medewerkerId = medewerkerId, zaak = zaak),
                     reason = ROLTOELICHTING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER,
                     zaakspecifiekGeautoriseerdeMedewerkers = zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers
                 )
@@ -321,7 +321,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
             if (zaakToewijzing.isGeautoriseerdeMedewerker(medewerkerId)) {
                 throw MedewerkerAlreadyZaakspecifiekGeautoriseerdException()
             }
-            identityService.readUser(medewerkerId).also {
+            identityService.readUser(userId = medewerkerId, logContext = "zaak '${zaak.identificatie}'").also {
                 grantZaakspecifiekeAutorisatie(
                     zaak = zaak,
                     medewerker = it.toMedewerkerIdentificatie(),
@@ -393,8 +393,9 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         zaakToewijzing.behandelaarRollen.mapNotNull { it.identificatienummer }.toSet() +
             flowableTaskService.listOpenTasksForZaak(zaak.uuid).mapNotNull { it.assignee }
 
-    private fun readMedewerkerIdentificatie(medewerkerId: String) =
-        identityService.readUser(medewerkerId).toMedewerkerIdentificatie()
+    private fun readMedewerkerIdentificatie(medewerkerId: String, zaak: Zaak) =
+        identityService.readUser(userId = medewerkerId, logContext = "zaak '${zaak.identificatie}'")
+            .toMedewerkerIdentificatie()
 
     private fun User.toMedewerkerIdentificatie() = MedewerkerIdentificatie().apply {
         identificatie = this@toMedewerkerIdentificatie.id

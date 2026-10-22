@@ -230,18 +230,13 @@ class IdentityServiceTest : BehaviorSpec({
                     user.id shouldBe userId
                 }
 
-                then("the miss is logged at the level WARNING, with the task, the zaak and the ZAC code that asked for the user") {
+                then("the miss is logged at the level WARNING, together with the task and zaak") {
                     verify(exactly = 1) {
                         log(
                             any(),
                             Level.WARNING,
-                            match {
-                                it.startsWith(
-                                    "User with id '$userId' could not be found in Keycloak for task 'fakeTaskId' " +
-                                        "of zaak 'fakeZaakIdentificatie'. Returning a placeholder. " +
-                                        "Called from: IdentityServiceTest"
-                                )
-                            }
+                            "User with id '$userId' could not be found in Keycloak for task 'fakeTaskId' " +
+                                "of zaak 'fakeZaakIdentificatie'. Returning a placeholder."
                         )
                     }
                 }
@@ -281,17 +276,13 @@ class IdentityServiceTest : BehaviorSpec({
                     group.name shouldBe groupId
                 }
 
-                then("the miss is logged at the level WARNING, with the zaak and the ZAC code that asked for the group") {
+                then("the miss is logged at the level WARNING, together with the zaak") {
                     verify(exactly = 1) {
                         log(
                             any(),
                             Level.WARNING,
-                            match {
-                                it.startsWith(
-                                    "Group with id '$groupId' could not be found in Keycloak for zaak " +
-                                        "'fakeZaakIdentificatie'. Returning a placeholder. Called from: IdentityServiceTest"
-                                )
-                            }
+                            "Group with id '$groupId' could not be found in Keycloak for zaak " +
+                                "'fakeZaakIdentificatie'. Returning a placeholder."
                         )
                     }
                 }

@@ -23,14 +23,20 @@ class SignaleringMailHelper @Inject constructor(
     fun getTargetMail(signalering: Signalering): SignaleringTarget.Mail? =
         when (signalering.targettype) {
             SignaleringTarget.GROUP -> {
-                identityService.readGroup(signalering.target).let { group ->
+                identityService.readGroup(
+                    groupId = signalering.target,
+                    logContext = "signalering '${signalering.id}'"
+                ).let { group ->
                     group.email?.let {
                         SignaleringTarget.Mail(group.description, it)
                     }
                 }
             }
             SignaleringTarget.USER -> {
-                identityService.readUser(signalering.target).let { user ->
+                identityService.readUser(
+                    userId = signalering.target,
+                    logContext = "signalering '${signalering.id}'"
+                ).let { user ->
                     user.email?.let {
                         SignaleringTarget.Mail(user.getFullName(), it)
                     }

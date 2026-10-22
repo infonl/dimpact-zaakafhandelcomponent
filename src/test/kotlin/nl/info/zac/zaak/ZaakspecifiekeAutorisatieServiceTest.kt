@@ -906,7 +906,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             every {
                 zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
             } returns listOf(geautoriseerdeMedewerkerRol)
-            every { identityService.readUser("fakeTaakbehandelaarId") } returns createUser(id = "fakeTaakbehandelaarId")
+            every { identityService.readUser("fakeTaakbehandelaarId", any()) } returns createUser(id = "fakeTaakbehandelaarId")
             every {
                 zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak.zaaktype)
             } returns createZaakspecifiekGeautoriseerdeMedewerkerRolType(zaakTypeUri = zaak.zaaktype)
@@ -940,7 +940,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             every {
                 zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
             } returns emptyList()
-            every { identityService.readUser("fakeTaakbehandelaarId") } returns createUser(
+            every { identityService.readUser("fakeTaakbehandelaarId", any()) } returns createUser(
                 id = "fakeTaakbehandelaarId",
                 firstName = "fakeFirstName",
                 lastName = "fakeLastName"
@@ -994,7 +994,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             every {
                 zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
             } returns emptyList()
-            every { identityService.readUser("fakeTaakbehandelaarId") } returns createUser(id = "fakeTaakbehandelaarId")
+            every { identityService.readUser("fakeTaakbehandelaarId", any()) } returns createUser(id = "fakeTaakbehandelaarId")
             every { zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak.zaaktype) } returns null
 
             `when`("a taakbehandelaar is granted access") {
@@ -1477,7 +1477,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             every {
                 zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
             } returns emptyList()
-            every { identityService.readUser("fakeMedewerkerId") } returns createUser(id = "fakeMedewerkerId")
+            every { identityService.readUser("fakeMedewerkerId", any()) } returns createUser(id = "fakeMedewerkerId")
             every { zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak.zaaktype) } returns null
 
             `when`("a medewerker is added") {
@@ -1527,7 +1527,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             every {
                 zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
             } returns emptyList()
-            every { identityService.readUser("fakeMedewerkerId") } returns createUser(
+            every { identityService.readUser("fakeMedewerkerId", any()) } returns createUser(
                 id = "fakeMedewerkerId",
                 firstName = "fakeFirstName",
                 lastName = "fakeLastName"
@@ -1854,7 +1854,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             every {
                 zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
             } returns emptyList()
-            every { identityService.readUser("fakeTaakbehandelaarId") } returns createUser(id = "fakeTaakbehandelaarId")
+            every { identityService.readUser("fakeTaakbehandelaarId", any()) } returns createUser(id = "fakeTaakbehandelaarId")
             every {
                 zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak.zaaktype)
             } returns createZaakspecifiekGeautoriseerdeMedewerkerRolType(zaakTypeUri = zaak.zaaktype)

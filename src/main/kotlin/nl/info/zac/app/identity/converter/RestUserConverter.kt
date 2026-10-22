@@ -17,5 +17,6 @@ class RestUserConverter @Inject constructor(
     fun convertUserId(userId: String, logContext: String? = null) =
         identityService.readUser(userId = userId, logContext = logContext).toRestUser()
 
-    fun List<String>.convertUserIds(): List<RestUser> = this.map(::convertUserId)
+    fun List<String>.convertUserIds(logContext: String? = null): List<RestUser> =
+        this.map { convertUserId(userId = it, logContext = logContext) }
 }

@@ -44,7 +44,7 @@ class RestDetachedDocumentConverterTest : BehaviorSpec({
             lock = "LOCKED"
         )
 
-        every { userConverter.convertUserId(userId) } returns convertedUser
+        every { userConverter.convertUserId(userId, any()) } returns convertedUser
         every { lockService.findLock(uuid) } returns lock
 
         `when`("convert is invoked") {
@@ -89,7 +89,7 @@ class RestDetachedDocumentConverterTest : BehaviorSpec({
 
         val convertedUser = createRESTUser(id = userId)
 
-        every { userConverter.convertUserId(userId) } returns convertedUser
+        every { userConverter.convertUserId(userId, any()) } returns convertedUser
         every { lockService.findLock(uuid) } returns null
 
         `when`("convert is invoked") {
@@ -115,7 +115,7 @@ class RestDetachedDocumentConverterTest : BehaviorSpec({
         val firstInformatieobjectTypeUUID = UUID.randomUUID()
         val secondInformatieobjectTypeUUID = UUID.randomUUID()
 
-        every { userConverter.convertUserId("fakeUserId") } returns createRESTUser(id = "fakeUserId")
+        every { userConverter.convertUserId("fakeUserId", any()) } returns createRESTUser(id = "fakeUserId")
         every { lockService.findLock(firstDetachedDocument.documentUUID) } returns null
         every { lockService.findLock(secondDetachedDocument.documentUUID) } returns null
 

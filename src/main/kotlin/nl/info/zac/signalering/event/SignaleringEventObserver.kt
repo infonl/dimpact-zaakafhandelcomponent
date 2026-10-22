@@ -118,7 +118,12 @@ class SignaleringEventObserver @Inject constructor(
             val medewerkerIdentificatie = checkNotNull(rolMedewerker.betrokkeneIdentificatie) {
                 "Rol '${rolMedewerker.uuid}' has no medewerker"
             }
-            setTarget(identityService.readUser(medewerkerIdentificatie.identificatie))
+            setTarget(
+                identityService.readUser(
+                    userId = medewerkerIdentificatie.identificatie,
+                    logContext = "a signalering about zaak '${zaak.identificatie}'"
+                )
+            )
         }
 
     private fun getSignaleringVoorGroup(
@@ -131,7 +136,12 @@ class SignaleringEventObserver @Inject constructor(
             val organisatorischeEenheidIdentificatie = checkNotNull(rolOrganisatorischeEenheid.betrokkeneIdentificatie) {
                 "Rol '${rolOrganisatorischeEenheid.uuid}' has no organisatorische eenheid"
             }
-            setTarget(identityService.readGroup(organisatorischeEenheidIdentificatie.identificatie))
+            setTarget(
+                identityService.readGroup(
+                    groupId = organisatorischeEenheidIdentificatie.identificatie,
+                    logContext = "a signalering about zaak '${zaak.identificatie}'"
+                )
+            )
         }
     } else {
         null
@@ -150,7 +160,7 @@ class SignaleringEventObserver @Inject constructor(
         task.assignee?.let { assignee ->
             signaleringService.signaleringInstance(event.objectType).apply {
                 setSubject(task)
-                setTarget(identityService.readUser(assignee))
+                setTarget(identityService.readUser(userId = assignee, logContext = "a signalering about task '${task.id}'"))
             }
         }
 

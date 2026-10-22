@@ -18,7 +18,6 @@ import nl.info.zac.identity.model.getFullName
 import nl.info.zac.identity.model.toGroup
 import nl.info.zac.identity.model.toUser
 import nl.info.zac.log.log
-import nl.info.zac.log.zacCallChain
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.keycloak.admin.client.resource.GroupResource
@@ -122,8 +121,7 @@ class IdentityService @Inject constructor(
                 LOG,
                 Level.WARNING,
                 "User with id '$userId' could not be found in Keycloak${logContext.toLogContextSuffix()}. " +
-                    "Returning a placeholder. " +
-                    "Called from: ${zacCallChain(IdentityService::class)}"
+                    "Returning a placeholder."
             )
             User(userId)
         }
@@ -142,8 +140,7 @@ class IdentityService @Inject constructor(
                 LOG,
                 Level.WARNING,
                 "Group with id '$groupId' could not be found in Keycloak${logContext.toLogContextSuffix()}. " +
-                    "Returning a placeholder. " +
-                    "Called from: ${zacCallChain(IdentityService::class)}"
+                    "Returning a placeholder."
             )
             Group(groupId)
         }

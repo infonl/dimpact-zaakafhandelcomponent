@@ -173,7 +173,12 @@ class RestInformatieobjectConverter @Inject constructor(
         restEnkelvoudigInformatieobject.beschrijving = enkelvoudigInformatieObject.beschrijving
         restEnkelvoudigInformatieobject.ontvangstdatum = enkelvoudigInformatieObject.ontvangstdatum
         restEnkelvoudigInformatieobject.verzenddatum = enkelvoudigInformatieObject.verzenddatum
-        lock?.userId?.let { restEnkelvoudigInformatieobject.gelockedDoor = identityService.readUser(it).toRestUser() }
+        lock?.userId?.let {
+            restEnkelvoudigInformatieobject.gelockedDoor = identityService.readUser(
+                userId = it,
+                logContext = "the lock on informatieobject '${enkelvoudigInformatieObject.identificatie}'"
+            ).toRestUser()
+        }
         restEnkelvoudigInformatieobject.bestandsomvang = enkelvoudigInformatieObject.bestandsomvang?.toLong() ?: 0
         restEnkelvoudigInformatieobject.informatieobjectTypeOmschrijving = ztcClientService
             .readInformatieobjecttype(enkelvoudigInformatieObject.informatieobjecttype).omschrijving
