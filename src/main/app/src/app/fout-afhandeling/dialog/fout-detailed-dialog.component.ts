@@ -13,14 +13,14 @@ import {
 import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 
 @Component({
   templateUrl: "fout-detailed-dialog.component.html",
   imports: [
-    TranslateModule,
+    TranslatePipe,
     MatButtonModule,
     MatDialogModule,
     MatDividerModule,

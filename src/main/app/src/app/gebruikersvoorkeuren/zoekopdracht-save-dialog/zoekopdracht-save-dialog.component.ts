@@ -17,7 +17,7 @@ import {
 import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { UtilService } from "../../core/service/util.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { injectMutation } from "../../shared/http/inject-mutation";
@@ -37,7 +37,7 @@ import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
     MatDividerModule,
     MatIconModule,
     MatToolbarModule,
-    TranslateModule,
+    TranslatePipe,
     ZacAutoComplete,
   ],
 })

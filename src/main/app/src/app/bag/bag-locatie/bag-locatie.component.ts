@@ -14,7 +14,7 @@ import {
   viewChild,
 } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { Coordinate } from "ol/coordinate.js";
 import * as extent from "ol/extent.js";
 import * as geom from "ol/geom.js";
@@ -38,7 +38,7 @@ type Geometry = GeneratedType<"RestGeometry">;
   templateUrl: "./bag-locatie.component.html",
   styleUrls: ["./bag-locatie.component.less"],
   standalone: true,
-  imports: [MatCardModule, TranslateModule],
+  imports: [MatCardModule, TranslatePipe],
 })
 export class BagLocatieComponent implements OnInit, AfterViewInit {
   readonly bagGeometrie = input<Geometry>();

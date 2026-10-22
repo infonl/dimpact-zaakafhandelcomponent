@@ -15,7 +15,7 @@ import {
 import { MatCardModule } from "@angular/material/card";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { startWith, switchMap, tap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
@@ -35,7 +35,7 @@ import { ContactmomentenService } from "../contactmomenten.service";
     MatCardModule,
     MatTableModule,
     MatPaginatorModule,
-    TranslateModule,
+    TranslatePipe,
     DatumPipe,
     EmptyPipe,
   ],

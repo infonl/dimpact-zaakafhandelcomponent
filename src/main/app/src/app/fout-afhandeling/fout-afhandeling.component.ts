@@ -6,7 +6,7 @@
 import { Component, inject, OnInit } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ReferentieTabelService } from "../admin/referentie-tabel.service";
 import { FoutAfhandelingService } from "./fout-afhandeling.service";
@@ -16,7 +16,7 @@ import { FoutAfhandelingService } from "./fout-afhandeling.service";
   templateUrl: "./fout-afhandeling.component.html",
   styleUrls: ["./fout-afhandeling.component.less"],
   standalone: true,
-  imports: [MatCardModule, MatIconModule, TranslateModule],
+  imports: [MatCardModule, MatIconModule, TranslatePipe],
 })
 export class FoutAfhandelingComponent implements OnInit {
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
