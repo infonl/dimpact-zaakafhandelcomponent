@@ -21,9 +21,6 @@ import org.flowable.engine.ProcessEngine
 import org.flowable.cmmn.engine.impl.cfg.DelegateExpressionFieldInjectionMode as CmmnDelegateExpressionFieldInjectionMode
 import org.flowable.engine.impl.cfg.DelegateExpressionFieldInjectionMode as BpmnDelegateExpressionFieldInjectionMode
 
-/**
- * Looks up the ZAC Flowable process engine.
- */
 class ProcessEngineLookupImpl : ProcessEngineLookup {
     companion object {
         const val DATABASE_SCHEMA = "flowable"
@@ -53,7 +50,7 @@ class ProcessEngineLookupImpl : ProcessEngineLookup {
                     add(TaskFunctionsDelegate())
                 }
                 configurators = listOf(
-                        CmmnEngineConfigurator().apply { cmmnEngineConfiguration = createCmmnEngineConfiguration() }
+                    CmmnEngineConfigurator().apply { cmmnEngineConfiguration = createCmmnEngineConfiguration() }
                 )
             }
 
