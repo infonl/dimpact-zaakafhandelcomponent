@@ -195,7 +195,6 @@ jobs:
               - '!**/*.md'
               - '!**/*.pdf'
               - '!**/*.png'
-              - '!charts/**'
               - '!docs/**'
               - '!src/e2e/**'
               - '!openspec/**'
@@ -499,6 +498,8 @@ jobs:
       KIND_VERSION: v0.33.0 # kind version updated by renovate
       KUBECTL_VERSION: v1.37.0 # kubectl version updated by renovate
       ZAC_ITEST_KIND_CLUSTER_NAME: zac-itest
+      # port 25 is taken on GitHub runners; ZAC reaches GreenMail inside the cluster, so it needs no host port
+      KIND_PORT_GREENMAIL_SMTP: "0"
       # the runner is thrown away after the job, and the steps below that run on a failure need the cluster
       ZAC_ITEST_KEEP_STACK: "true"
     steps:
