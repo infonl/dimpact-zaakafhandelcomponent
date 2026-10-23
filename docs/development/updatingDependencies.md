@@ -146,5 +146,6 @@ Make sure to commit every update command you run with a format like:
   the Jest packages.
 - Some Angular CLI migrations fail on the `../tsconfig.spec.json` path of the test target in
   [angular.json](../../src/main/app/angular.json). Change it to `tsconfig.spec.json`, run the migrations again with
-  `ng update @angular/cli --migrate-only --from=[old version] --to=[new version]`, and change the path back.
+  `ng update @angular/cli --migrate-only --from=[old version] --to=[new version] --allow-dirty`, and change the path
+  back.
 
