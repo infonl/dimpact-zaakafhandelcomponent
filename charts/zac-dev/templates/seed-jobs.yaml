@@ -1,3 +1,71 @@
+# The media volume of the openzaak release, with the documents that the Open Zaak test data refers to, like
+# scripts/docker-compose/imports/openzaak/zac-scripts/copy-test-pdf-and-start-openzaak.sh in Docker Compose
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: openzaak-media
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seed-openzaak-media
+  namespace: {{ .Release.Namespace }}
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      enableServiceLinks: false
+      restartPolicy: OnFailure
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+        # the user of the Open Zaak image, which has to be able to add uploads next to these documents
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: copy
+          image: {{ .Values.images.postgres }}
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              for month in 10 11 12; do
+                mkdir -p /app/private-media/uploads/2023/$month
+                cp /seed/fake-test-document.pdf /app/private-media/uploads/2023/$month/
+              done
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
+            readOnlyRootFilesystem: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+          volumeMounts:
+            # the subPath of the openzaak chart for private media
+            - name: media
+              mountPath: /app/private-media
+              subPath: openzaak/private_media
+            - name: seed
+              mountPath: /seed
+      volumes:
+        - name: media
+          persistentVolumeClaim:
+            claimName: openzaak-media
+        - name: seed
+          configMap:
+            name: seed-openzaak-uploads
+---
 # Open Klant API token for ZAC; runs once Open Klant has migrated its database, like
 # scripts/docker-compose/imports/openklant-database/fill-data-on-startup.sh in Docker Compose
 apiVersion: batch/v1

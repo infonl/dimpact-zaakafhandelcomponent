@@ -1,6 +1,9 @@
-# Keycloak as in Docker Compose: 'start-dev --import-realm' with the realm export of
-# scripts/docker-compose/imports/keycloak/realms. The ConfigMaps with that export and with the e-mail addresses
-# that it refers to come from hack/kind-spike/up.sh.
+# Keycloak with the realm export of scripts/docker-compose/imports/keycloak/realms, imported with '--import-realm'
+# as in Docker Compose. The ConfigMaps with that export and with the e-mail addresses that it refers to come from
+# hack/kind-spike/up.sh.
+# Unlike Docker Compose ('start-dev'), the container first builds Keycloak for Postgres, which takes most of its
+# start-up time and needs no database, then waits for Postgres, and then starts the built Keycloak. That way the
+# build overlaps with the Postgres start-up, which restores the Open Zaak seed data.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -19,18 +22,26 @@ spec:
       enableServiceLinks: false
       securityContext:
         {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
-      initContainers:
-        {{- include "zac-dev.waitForPostgres" . | nindent 8 }}
       containers:
         - name: keycloak
           image: {{ .Values.images.keycloak }}
-          args: ["start-dev", "--import-realm"]
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              set -e
+              /opt/keycloak/bin/kc.sh build
+              # Postgres only accepts TCP connections once its init scripts have run
+              until (exec 3<> /dev/tcp/postgres/5432) 2> /dev/null; do sleep 1; done
+              exec /opt/keycloak/bin/kc.sh start --optimized --import-realm
           env:
             - name: KC_BOOTSTRAP_ADMIN_USERNAME
               value: admin
             {{- include "zac-dev.passwordEnv" (list . "KC_BOOTSTRAP_ADMIN_PASSWORD" "keycloak-admin") | nindent 12 }}
             - name: KC_HEALTH_ENABLED
               value: "true"
+            # one Keycloak, so no cluster
+            - name: KC_CACHE
+              value: local
             - name: KC_HOSTNAME
               value: {{ .Values.keycloak.hostname | quote }}
             - name: KC_HTTP_ENABLED

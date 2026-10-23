@@ -135,27 +135,39 @@ auths = json.load(open(os.path.expanduser("~/.docker/config.json"))).get("auths"
 print(auths.get("https://index.docker.io/v1/", {}).get("auth", ""))')
 fi
 
-# Every image of the stack, pulled in parallel inside the node as soon as the node exists. Without this the kubelet
-# pulls an image only once its pod is scheduled, which for the ZAC pod is minutes later.
-PULL_PIDS=()
+# The images of the stack, pulled in parallel inside the node as soon as the node exists, in two waves that share
+# the bandwidth: first the images of the ZAC dependencies, then those of the ZAC pod, which starts last. Without
+# this the kubelet pulls an image only once its pod is scheduled. CronJob images are left out: no CronJob runs.
+images_of() {
+  awk '/^---/ { kind = "" } /^kind:/ { kind = $2 }
+       kind != "CronJob" && match($0, /^ *(- )?image: *"?[^" ]+/) {
+         image = substr($0, RSTART, RLENGTH); sub(/^ *(- )?image: *"?/, "", image); print image }' "$@" |
+    sort -u | grep -v "^${ZAC_IMAGE%:*}:"
+}
+pull() {
+  local image=$1 auth=()
+  # Docker Hub images: no registry host (a first path segment without a dot) or docker.io
+  if [ -n "$DOCKER_HUB_AUTH" ] && { [[ $image == docker.io/* ]] || [[ ${image%%/*} != *.* ]] || [[ $image != */* ]]; }; then
+    auth=(--auth "$DOCKER_HUB_AUTH")
+  fi
+  local pull_start status
+  pull_start=$(date +%s)
+  if docker exec "$NODE" crictl pull ${auth[@]+"${auth[@]}"} "$image" > /dev/null 2>&1; then status=ok; else status=failed; fi
+  printf '%s\t%s\t%s\t%s\n' "$image" "$(($(date +%s) - pull_start))" "$(($(date +%s) - START))" "$status" \
+    >> "$REPORT_DIR/image-pulls.tsv"
+}
+PULL_PID=
 if [ "${PREPULL:-1}" != "0" ]; then
-  step "pull every image in parallel"
-  IMAGES=$( (cat "$WORK_DIR"/manifests/*.yaml | sed -nE 's/^ *(- )?image: *"?([^" ]+)"?.*/\2/p') |
-    sort -u | grep -v "^${ZAC_IMAGE%:*}:")
-  for image in $IMAGES; do
-    (
-      auth=()
-      # Docker Hub images: no registry host (a first path segment without a dot) or docker.io
-      if [ -n "$DOCKER_HUB_AUTH" ] && { [[ $image == docker.io/* ]] || [[ ${image%%/*} != *.* ]] || [[ $image != */* ]]; }; then
-        auth=(--auth "$DOCKER_HUB_AUTH")
-      fi
-      pull_start=$(date +%s)
-      if docker exec "$NODE" crictl pull ${auth[@]+"${auth[@]}"} "$image" > /dev/null 2>&1; then status=ok; else status=failed; fi
-      printf '%s\t%s\t%s\t%s\n' "$image" "$(($(date +%s) - pull_start))" "$(($(date +%s) - START))" "$status" \
-        >> "$REPORT_DIR/image-pulls.tsv"
-    ) &
-    PULL_PIDS+=($!)
-  done
+  step "pull the images in two waves"
+  FIRST_WAVE=$(images_of "$WORK_DIR"/manifests/{zac-dev,openzaak,openklant,openobject}.yaml)
+  SECOND_WAVE=$(images_of "$WORK_DIR/manifests/zac.yaml" | grep -vxF "$FIRST_WAVE" || true)
+  (
+    for image in $FIRST_WAVE; do pull "$image" & done
+    wait
+    for image in $SECOND_WAVE; do pull "$image" & done
+    wait
+  ) &
+  PULL_PID=$!
 fi
 
 # ZAC itself comes from the local Docker daemon, in the background as well
@@ -268,7 +280,7 @@ sort -t$'\t' -k3 -n "$REPORT_DIR/ready.tsv" | tee -a "$TIMINGS_FILE"
 [ "$wait_ready_status" = 0 ] || exit "$wait_ready_status"
 mark all-ready
 
-for pid in ${PULL_PIDS[@]+"${PULL_PIDS[@]}"}; do wait "$pid" || true; done
+[ -z "$PULL_PID" ] || wait "$PULL_PID" || true
 if [ -s "$REPORT_DIR/image-pulls.tsv" ]; then
   printf 'images-pulled\t-\t%s\n' "$(sort -t$'\t' -k3 -n "$REPORT_DIR/image-pulls.tsv" | tail -1 | cut -f3)" | tee -a "$TIMINGS_FILE"
 fi
