@@ -67,3 +67,6 @@ user.json
 
 # playwright-bdd
 .features-gen/
+# Tests written by the Claude QA run; they are kept as run artifacts, not in git
+/claude-qa/tests/*
+!/claude-qa/tests/smoke.spec.ts

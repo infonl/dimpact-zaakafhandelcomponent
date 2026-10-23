@@ -1,0 +1,162 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# Pilot: Claude tests yesterday's merges on the dev environment and posts a short summary to Slack.
+# See .github/qa/README.md.
+name: Claude QA
+
+on:
+  schedule:
+    # Weekdays 05:30 UTC (07:30 Amsterdam in summer, 06:30 in winter): after the nightly e2e run,
+    # and after yesterday's merges have been provisioned on the dev environment.
+    - cron: "30 5 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: "What to test: yesterday | <N>d (e.g. 7d) | since:YYYY-MM-DD"
+        default: yesterday
+        type: string
+      model:
+        description: "Model for the QA agent"
+        default: claude-haiku-5-5
+        type: choice
+        options:
+          - claude-haiku-5-5
+          - claude-sonnet-5-5
+      max_budget_usd:
+        description: "Hard cost limit of the run in USD"
+        default: "2"
+        type: string
+      post_to_slack:
+        description: "Post the summary to Slack"
+        default: true
+        type: boolean
+
+concurrency:
+  group: claude-qa
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  claude-qa:
+    name: "Claude QA"
+    runs-on: ubuntu-26.04
+    timeout-minutes: 60
+    environment: azure-dimpact-dta
+    env:
+      SCOPE: ${{ inputs.scope || vars.CLAUDE_QA_SCOPE || 'yesterday' }}
+      MODEL: ${{ inputs.model || vars.CLAUDE_QA_MODEL || 'claude-haiku-5-5' }}
+      MAX_BUDGET_USD: ${{ inputs.max_budget_usd || vars.CLAUDE_QA_MAX_BUDGET_USD || '2' }}
+      LANGUAGE: ${{ vars.CLAUDE_QA_LANGUAGE || 'English' }}
+      JIRA_BASE_URL: https://dimpact.atlassian.net
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # gather.sh reads the diffs from the merge commits.
+          fetch-depth: 0
+
+      - name: Gather merged PRs and Jira tickets
+        id: gather
+        run: bash .github/qa/gather.sh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JIRA_EMAIL: ${{ secrets.CLAUDE_QA_JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.CLAUDE_QA_JIRA_API_TOKEN }}
+
+      - name: Login to Azure
+        if: steps.gather.outputs.pr_count != '0'
+        uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3.1.0
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Allow this runner through the dev environment firewall
+        id: firewall
+        if: steps.gather.outputs.pr_count != '0'
+        uses: azure/cli@9eb25b8360668fb0ecbafa808d40e2197b2f5f52 # v3.0.0
+        with:
+          azcliversion: latest
+          # Its own rule name and priority, so it never collides with the rule of the nightly e2e run.
+          inlineScript: |
+            runner_ip=$(curl -sS https://api.ipify.org)
+            az network nsg rule create -g zac-infra --nsg-name k8s-test-nsg -n allow_claude_qa_runner --priority 296 --source-address-prefixes "$runner_ip" --destination-port-ranges '*' --direction Inbound --access allow --protocol '*' --destination-address-prefixes '*'
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        if: steps.gather.outputs.pr_count != '0'
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install Playwright and Claude Code
+        if: steps.gather.outputs.pr_count != '0'
+        run: |
+          cd src/e2e && npm ci --ignore-scripts && npx playwright install --with-deps chromium
+          npm install -g @anthropic-ai/claude-code@2.1.309
+
+      - name: Check that the dev environment is up
+        if: steps.gather.outputs.pr_count != '0'
+        run: curl -sS -o /dev/null --fail --max-time 30 --retry 3 "$ZAC_URL"
+        env:
+          ZAC_URL: ${{ secrets.ZAC_URL }}
+
+      - name: Run the QA agent
+        if: steps.gather.outputs.pr_count != '0'
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Keeps the Anthropic key out of the environment of the tests the agent runs.
+          CLAUDE_CODE_SUBPROCESS_ENV_SCRUB: "1"
+          ZAC_URL: ${{ secrets.ZAC_URL }}
+          E2E_TEST_USER_1_USERNAME: ${{ secrets.ZAC_E2E_TEST_USER_1_USERNAME }}
+          E2E_TEST_USER_1_PASSWORD: ${{ secrets.ZAC_E2E_TEST_USER_1_PASSWORD }}
+          E2E_TEST_USER_2_USERNAME: ${{ secrets.ZAC_E2E_TEST_USER_2_USERNAME }}
+          E2E_TEST_USER_2_PASSWORD: ${{ secrets.ZAC_E2E_TEST_USER_2_PASSWORD }}
+          SINCE: ${{ steps.gather.outputs.since }}
+          UNTIL: ${{ steps.gather.outputs.until }}
+        run: |
+          mkdir -p qa-output
+          claude -p "Run a QA pass for the PRs merged into main from $SINCE to $UNTIL.
+          Read .github/qa/QA_INSTRUCTIONS.md and follow it. The gathered context is in qa-context/manifest.md.
+          Write the Slack message in $LANGUAGE.
+          You are done when qa-output/results.json and qa-output/report.md exist." \
+            --model "$MODEL" \
+            --max-turns 80 \
+            --max-budget-usd "$MAX_BUDGET_USD" \
+            --permission-mode dontAsk \
+            --strict-mcp-config \
+            --no-session-persistence \
+            --allowedTools "Read,Glob,Grep,Edit(src/e2e/claude-qa/tests/**),Write(src/e2e/claude-qa/tests/**),Edit(qa-output/**),Write(qa-output/**),Bash(npm --prefix src/e2e run claude-qa:*)" \
+            --output-format json \
+            > qa-output/claude-run.json
+          jq '{subtype, num_turns, total_cost_usd, duration_ms}' qa-output/claude-run.json
+
+      - name: Write the job summary
+        if: always() && steps.gather.outputs.pr_count != '0'
+        run: bash .github/qa/post-summary.sh
+
+      - name: Post to Slack
+        if: always() && steps.gather.outputs.pr_count != '0' && inputs.post_to_slack != false
+        run: bash .github/qa/post-slack.sh
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.CLAUDE_QA_SLACK_WEBHOOK_URL }}
+
+      - name: Upload screenshots, traces and tests
+        if: always() && steps.gather.outputs.pr_count != '0'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: claude-qa-${{ github.run_id }}
+          retention-days: 14
+          path: |
+            qa-output/
+            qa-context/manifest.md
+            src/e2e/claude-qa/tests/
+
+      - name: Remove the firewall rule
+        if: always() && steps.firewall.outcome != 'skipped'
+        uses: azure/cli@9eb25b8360668fb0ecbafa808d40e2197b2f5f52 # v3.0.0
+        with:
+          azcliversion: latest
+          inlineScript: |
+            az network nsg rule delete -g zac-infra --nsg-name k8s-test-nsg -n allow_claude_qa_runner

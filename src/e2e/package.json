@@ -11,7 +11,8 @@
     "e2e:generate:report": "node generate-report.mjs",
     "e2e:extract:metrics": "node extract-metrics.mjs",
     "bdd:ci": "npx bddgen && npx playwright test",
-    "bdd": "npx bddgen && npx playwright test --ui"
+    "bdd": "npx bddgen && npx playwright test --ui",
+    "claude-qa": "playwright test -c claude-qa/playwright.config.ts"
   },
   "private": true,
   "dependencies": {
