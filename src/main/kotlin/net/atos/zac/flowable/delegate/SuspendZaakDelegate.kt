@@ -37,11 +37,6 @@ class SuspendZaakDelegate : AbstractDelegate() {
             LOG,
             "User '${loggedInUser.id}' not authorised to suspend zaak '${zaak.identificatie}'"
         )
-        assertPolicy(
-            zaak.opschorting?.reden.isNullOrEmpty(),
-            LOG,
-            "Zaak '${zaak.identificatie}' already has a suspension reason; not allowed to suspend again"
-        )
 
         LOG.fine(
             "Suspending zaak '${zaak.identificatie}' from activity '${execution.currentActivityName}' " +

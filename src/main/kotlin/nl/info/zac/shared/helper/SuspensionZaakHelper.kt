@@ -24,6 +24,7 @@ import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.time.convertToDate
 import nl.info.zac.util.time.convertToLocalDate
+import nl.info.zac.zaak.exception.ZaakCannotBeSuspendedAgainException
 import org.flowable.task.api.Task
 import java.time.LocalDate
 import java.time.Period
@@ -48,8 +49,11 @@ class SuspensionZaakHelper @Inject constructor(
     fun suspendZaak(zaak: Zaak, numberOfDays: Long, suspensionReason: String?): Zaak {
         val loggedInUser = loggedInUserInstance.get()
         assertPolicy(policyService.readZaakRechten(zaak, loggedInUser).canOpschorten)
-        assertPolicy(zaak.opschorting.reden.isNullOrEmpty())
-        assertPolicy(!zaak.isEerderOpgeschort())
+        if (!zaak.opschorting.reden.isNullOrEmpty() || zaak.isEerderOpgeschort()) {
+            throw ZaakCannotBeSuspendedAgainException(
+                "Zaak '${zaak.identificatie}' was suspended before. A zaak can be suspended only one time."
+            )
+        }
 
         val zaakUUID = zaak.uuid
         val toelichting = "$SUSPENSION: $suspensionReason"

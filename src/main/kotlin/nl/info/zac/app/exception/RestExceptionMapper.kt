@@ -51,6 +51,7 @@ import nl.info.zac.exception.ZacSetupException
 import nl.info.zac.log.log
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
+import nl.info.zac.zaak.exception.ZaakCannotBeSuspendedAgainException
 import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
 import java.lang.reflect.InvocationTargetException
 import java.net.ConnectException
@@ -151,6 +152,12 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             is ZaakWithABesluitCannotBeTerminatedException -> generateResponse(
                 responseStatus = Response.Status.BAD_REQUEST,
                 errorCode = ErrorCode.ERROR_CODE_ZAAK_WITH_BESLUIT_CANNOT_BE_TERMINATED,
+                exception = exception,
+                logLevel = Level.FINE
+            )
+            is ZaakCannotBeSuspendedAgainException -> generateResponse(
+                responseStatus = Response.Status.CONFLICT,
+                errorCode = ErrorCode.ERROR_CODE_ZAAK_CANNOT_BE_SUSPENDED_AGAIN,
                 exception = exception,
                 logLevel = Level.FINE
             )

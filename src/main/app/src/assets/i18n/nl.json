@@ -905,6 +905,7 @@
   "msg.error.bad.brp.protocollering.configuration": "Ongeldige BRP Protocollering-configuratie.",
   "msg.error.extension.period.invalid": "Ongeldige verlengingsperiode.",
   "msg.error.zaak.has.besluit.cannot.be.terminated": "De zaak kan niet afgebroken worden als er een besluit aan hangt.",
+  "msg.error.zaak.cannot.be.suspended.again": "De zaak kan niet opgeschort worden, omdat de zaak al eerder opgeschort is. Een zaak kan maar één keer opgeschort worden.",
   "msg.error.afleidingwijze.brondatum.not.supported": "Het zetten van de brondatum wordt niet ondersteund voor deze afleidingswijze brondatum.",
   "msg.error.brondatum.cannot.be.before.end.date": "De brondatum kan niet voor de einddatum van de zaak liggen.",
   "msg.error.zaaktype.not.zaakspecifiek-autoriseerbaar": "Dit zaaktype is niet zaakspecifiek autoriseerbaar. De zaak kan daarom niet zaakspecifiek geautoriseerd worden.",
