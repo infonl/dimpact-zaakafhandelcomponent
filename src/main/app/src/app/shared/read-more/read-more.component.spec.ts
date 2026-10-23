@@ -13,6 +13,7 @@ describe(ReadMoreComponent.name, () => {
       inputs,
       imports: [NoopAnimationsModule],
     });
+    await fixture.whenStable();
 
     return { fixture, container };
   };
@@ -82,6 +83,7 @@ describe(ReadMoreComponent.name, () => {
 
     fixture.componentRef.setInput("text", "fakeLongText");
     fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(screen.getByText("fakeLon...")).toHaveAccessibleDescription(
       "fakeLongText",
