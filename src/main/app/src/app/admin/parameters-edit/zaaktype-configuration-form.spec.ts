@@ -240,12 +240,40 @@ describe("The configuration of a zaaktype in the admin screen", () => {
 
     expect(controls.humanTasks.disabled).toBe(true);
     expect(controls.acties.disabled).toBe(true);
-    expect(controls.mail.controls.intakeMail.disabled).toBe(true);
-    expect(controls.mail.controls.afrondenMail.disabled).toBe(true);
-    expect(controls.mail.controls.automaticEmailConfirmation.disabled).toBe(
+    expect(controls.mail.disabled).toBe(true);
+    expect(valid).toBe(true);
+  });
+
+  it("does not demand a default zaakafzender for a BPMN process definition, and stores its mail settings as they were read", () => {
+    const configuration = fromPartial<ZaaktypeConfiguration>({
+      ...bpmnConfiguration,
+      zaakAfzenders: [
+        { ...sharedSettings.zaakAfzenders[0], isDefaultMail: false },
+      ],
+    });
+    const form = toForm(configuration, brpSetup);
+
+    const restConfiguration = toRestConfiguration(form, configuration);
+
+    expect(form.valid).toBe(true);
+    expect(restConfiguration).toEqual(
+      expect.objectContaining({
+        mailtemplateKoppelingen: sharedSettings.mailtemplateKoppelingen,
+        zaakAfzenders: configuration.zaakAfzenders,
+      }),
+    );
+  });
+
+  it("demands the mail settings again once a BPMN configuration is bound to a case definition", () => {
+    const form = toForm(bpmnConfiguration, brpSetup);
+
+    applyProcessDefinition(form, caseDefinition);
+
+    expect(form.controls.mail.enabled).toBe(true);
+    expect(form.controls.mail.controls.intakeMail.enabled).toBe(true);
+    expect(form.controls.mail.controls.automaticEmailConfirmation.enabled).toBe(
       true,
     );
-    expect(valid).toBe(true);
   });
 
   it("offers the mail on completing a plan item only for the plan items that the process definition has", () => {

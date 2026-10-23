@@ -76,22 +76,23 @@ export function applyProcessDefinition(
   processDefinition: ProcessDefinition | null,
 ) {
   const { humanTasks, acties, mail } = form.controls;
+  const isCmmn = processDefinition?.processEngine === "CMMN";
   const settingsInUse: [{ enable(): void; disable(): void }, boolean][] = [
     [humanTasks, Boolean(processDefinition?.humanTaskDefinitions?.length)],
     [acties, Boolean(processDefinition?.userEventListenerDefinitions?.length)],
+    // The mail settings of a BPMN zaaktype are not released to beheerders yet; their stored values are still saved.
+    // The group comes before its controls, because enabling the group enables them all.
+    [mail, isCmmn],
     [
       mail.controls.intakeMail,
-      hasUserEventListener(processDefinition, "INTAKE_AFRONDEN"),
+      isCmmn && hasUserEventListener(processDefinition, "INTAKE_AFRONDEN"),
     ],
     [
       mail.controls.afrondenMail,
-      hasUserEventListener(processDefinition, "ZAAK_AFHANDELEN"),
+      isCmmn && hasUserEventListener(processDefinition, "ZAAK_AFHANDELEN"),
     ],
     // A BPMN process sends the confirmation of receipt itself.
-    [
-      mail.controls.automaticEmailConfirmation,
-      processDefinition?.processEngine === "CMMN",
-    ],
+    [mail.controls.automaticEmailConfirmation, isCmmn],
   ];
 
   for (const [control, isInUse] of settingsInUse) {
