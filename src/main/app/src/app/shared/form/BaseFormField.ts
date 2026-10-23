@@ -46,6 +46,7 @@ export class SingleInputFormField<
   private readonly translateService = inject(TranslateService);
 
   private readonly controlErrors = signal<ValidationErrors | null>(null);
+  protected readonly isRequired = signal(false);
 
   private readonly mutatingCount = injectIsMutating();
 
@@ -81,11 +82,13 @@ export class SingleInputFormField<
       const control = this.control();
       if (!control) {
         this.controlErrors.set(null);
+        this.isRequired.set(false);
         return;
       }
 
       control.statusChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
         this.controlErrors.set(control.errors);
+        this.isRequired.set(control.hasValidator(Validators.required));
       });
 
       control.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
@@ -105,6 +108,7 @@ export class SingleInputFormField<
 
       // Set initial errors
       this.controlErrors.set(control.errors);
+      this.isRequired.set(control.hasValidator(Validators.required));
     });
   }
 
@@ -114,10 +118,6 @@ export class SingleInputFormField<
       this.translateService,
     );
   });
-
-  protected isRequired = computed(
-    () => this.control()?.hasValidator(Validators.required) ?? false,
-  );
 
   ngOnDestroy() {
     this.destroy$.next();
