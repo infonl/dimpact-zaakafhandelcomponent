@@ -43,7 +43,6 @@ Optional repository variables:
 |---|---|---|
 | `QA_AGENT_SCOPE` | `yesterday` | Scope of the scheduled run. |
 | `QA_AGENT_MODEL` | `claude-haiku-5.5` | Copilot model of the scheduled run. |
-| `QA_AGENT_MAX_AI_CREDITS` | `500` | Safety limit per run in AI credits (100 credits = 1 USD); a normal run uses a few. |
 | `QA_AGENT_LANGUAGE` | `English` | Language of the Slack message, e.g. `Dutch`. |
 
 ## Running it
@@ -51,7 +50,7 @@ Optional repository variables:
 - **Scheduled**: weekdays at 05:30 UTC, scope `yesterday` (on Monday: Friday to Sunday). Days without
   testable PRs post nothing.
 - **By hand**: Actions, QA Agent, Run workflow. Pick a scope (`yesterday`, `7d`, `since:2026-10-01`),
-  a model, a credit limit, and whether to post to Slack. The first run is best done with Slack off.
+  a model, and whether to post to Slack. The first run is best done with Slack off.
 - **Weekly instead of daily**: change the cron to e.g. `"30 5 * * 1"` and set `QA_AGENT_SCOPE` to `7d`.
   `gather.sh` hands the agent at most 15 PRs per run (`MAX_PRS`), newest first.
 
@@ -60,9 +59,10 @@ Optional repository variables:
 ## Cost
 
 Through Copilot, Claude Haiku 5.5 costs $0.10 per million input tokens and $0.50 per million output
-tokens, the same as at Anthropic. A trial on one busy day (15 PRs) used about $0.01 of model time,
-without browser tests. The run stops at the credit limit; the limit is a soft cap, so the last model
-call can go slightly over it. The job summary shows the usage the CLI reports. Pick `claude-sonnet-5.5`
+tokens, the same as at Anthropic. A run on one busy day (15 PRs) used about 1.2 AI credits ($0.01).
+The run has no credit limit: with `--max-ai-credits` set, Haiku kept saying its budget was tight and
+skipped tests, even far below the limit. The 60-minute job timeout caps the cost instead. The job summary shows the usage the
+CLI reports. Pick `claude-sonnet-5.5`
 ($2 / $10) by hand when Haiku's tests are not good enough.
 
 ## Safety

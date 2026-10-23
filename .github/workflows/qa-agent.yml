@@ -28,10 +28,6 @@ on:
         options:
           - claude-haiku-5.5
           - claude-sonnet-5.5
-      max_ai_credits:
-        description: "Cost limit of the run in Copilot AI credits (100 credits = 1 USD)"
-        default: "500"
-        type: string
       post_to_slack:
         description: "Post the summary to Slack"
         default: true
@@ -58,7 +54,6 @@ jobs:
     env:
       SCOPE: ${{ inputs.scope || vars.QA_AGENT_SCOPE || 'yesterday' }}
       MODEL: ${{ inputs.model || vars.QA_AGENT_MODEL || 'claude-haiku-5.5' }}
-      MAX_AI_CREDITS: ${{ inputs.max_ai_credits || vars.QA_AGENT_MAX_AI_CREDITS || '500' }}
       LANGUAGE: ${{ vars.QA_AGENT_LANGUAGE || 'English' }}
       JIRA_BASE_URL: https://dimpact.atlassian.net
     steps:
@@ -136,7 +131,6 @@ jobs:
           You are done when qa-output/results.json and qa-output/report.md exist." \
             --add-dir "$GITHUB_WORKSPACE" \
             --model "$MODEL" \
-            --max-ai-credits "$MAX_AI_CREDITS" \
             --allow-tool='write, shell(npm run:*)' \
             --no-ask-user \
             --no-custom-instructions \
