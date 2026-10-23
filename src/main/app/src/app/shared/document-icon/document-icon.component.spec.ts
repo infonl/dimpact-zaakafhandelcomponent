@@ -39,7 +39,10 @@ describe(DocumentIconComponent.name, () => {
 
       const documentIcon = screen.getByTitle(title);
       expect(documentIcon).toHaveTextContent(icon);
-      expect(documentIcon).toHaveStyle({ color });
+      expect(documentIcon).toHaveAttribute(
+        "style",
+        expect.stringContaining(`color: ${color}`),
+      );
     },
   );
 
@@ -92,6 +95,9 @@ describe(DocumentIconComponent.name, () => {
 
     const documentIcon = screen.getByTitle("XLSX-bestand");
     expect(documentIcon).toHaveTextContent("table");
-    expect(documentIcon).toHaveStyle({ color: "green" });
+    expect(documentIcon).toHaveAttribute(
+      "style",
+      expect.stringContaining("color: green"),
+    );
   });
 });

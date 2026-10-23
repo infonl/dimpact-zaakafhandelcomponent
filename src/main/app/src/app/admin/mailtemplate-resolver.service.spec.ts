@@ -49,7 +49,7 @@ describe(MailtemplateResolver.name, () => {
           },
         }),
       ),
-    ).toThrowError("MailtemplateResolver: no 'id' parameter found in route");
+    ).toThrow("MailtemplateResolver: no 'id' parameter found in route");
   });
 
   it("should fetch the mailtemplate via the query client for the given id", async () => {

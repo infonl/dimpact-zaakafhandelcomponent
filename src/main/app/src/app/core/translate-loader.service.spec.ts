@@ -4,36 +4,18 @@
  */
 
 import { HttpClient } from "@angular/common/http";
+import { fromPartial } from "src/test-helpers";
 import {
   CacheBustingTranslateLoader,
   createCacheBustingTranslateLoader,
 } from "./translate-loader.service";
-
-// Mock window.location for testing
-Object.defineProperty(window, "location", {
-  value: {
-    hostname: "localhost",
-  },
-  writable: true,
-});
 
 describe("CacheBustingTranslateLoader", () => {
   let loader: CacheBustingTranslateLoader;
   let httpClient: HttpClient;
 
   beforeEach(() => {
-    // Create a simple mock HttpClient for testing
-    httpClient = {
-      get: jest.fn(),
-      post: jest.fn(),
-      put: jest.fn(),
-      delete: jest.fn(),
-      patch: jest.fn(),
-      head: jest.fn(),
-      options: jest.fn(),
-      request: jest.fn(),
-      handler: {},
-    } as unknown as HttpClient;
+    httpClient = fromPartial<HttpClient>({ get: jest.fn() });
 
     loader = createCacheBustingTranslateLoader(httpClient);
   });
