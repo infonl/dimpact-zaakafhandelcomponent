@@ -262,6 +262,20 @@ kc -n $NAMESPACE wait --for=condition=available deploy/keycloak deploy/openzaak 
 mark zac-dependencies-ready
 wait "$ZAC_IMAGE_PID"
 mark zac-image-ready
+# ZAC calls its OPA sidecar while it boots, and the kubelet starts the ZAC container before it pulls the OPA image,
+# so a slow pull gives ZAC a boot error that only the liveness probe resolves (16 x 30s). Have the images of the ZAC
+# pod in the node first; with PREPULL they usually are already.
+ZAC_POD_IMAGES=$(python3 - "$WORK_DIR/manifests/zac.yaml" <<'PY'
+import re, sys
+for document in open(sys.argv[1]).read().split("\n---"):
+    if re.search(r"^kind: Deployment$", document, re.M) and re.search(r"^  name: zac$", document, re.M):
+        print("\n".join(re.findall(r'^ *(?:- )?image: *"?([^" \n]+)', document, re.M)))
+PY
+)
+for image in $(echo "$ZAC_POD_IMAGES" | sort -u | grep -v "^${ZAC_IMAGE%:*}:"); do
+  docker exec "$NODE" crictl inspecti "$image" > /dev/null 2>&1 || pull "$image"
+done
+mark zac-pod-images-ready
 
 # 8. ZAC -----------------------------------------------------------------------------------------------
 step "ZAC"
