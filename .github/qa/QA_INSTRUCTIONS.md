@@ -85,6 +85,10 @@ screenshot, use `page.screenshot({ path: test.info().outputPath("<name>.png") })
 - Only write files in `src/e2e/qa-agent/tests/` and `qa-output/`.
 - The dev environment is shared with the team and the nightly e2e run:
   - you may create zaken and taken; always use `createZaak`, so the omschrijving starts with "QA Agent"
+  - create as few zaken as you can: only for tests about zaak behaviour, and one zaak per spec file,
+    created in `test.beforeAll` and shared by its tests. Pages and lists need no zaak of your own.
+  - don't abort or close your zaken yourself, unless that is what you test: after the run, every open
+    "QA Agent" zaak is aborted automatically
   - only change zaken you created in this run
   - on `/admin` pages, look but never save
   - never send e-mail to a real address; use `@example.com`

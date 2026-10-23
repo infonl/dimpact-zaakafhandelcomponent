@@ -17,7 +17,7 @@ GitHub, Jira  Playwright on dev env          post-slack.sh   ──► Slack mes
 | `.github/qa/QA_INSTRUCTIONS.md` | What the agent does and the rules it follows on the shared dev environment. |
 | `.github/qa/post-summary.sh` | Writes the report, the usage of the run and the skipped PRs to the job summary. |
 | `.github/qa/post-slack.sh` | Posts the message of the agent to Slack. A crashed run posts a warning instead. |
-| `src/e2e/qa-agent/` | Playwright config, `login` and `createZaak` helpers. Tests the agent writes go to `tests/` and end up in the run artifact, not in git. |
+| `src/e2e/qa-agent/` | Playwright config, `login` and `createZaak` helpers. Tests the agent writes go to `tests/` and end up in the run artifact, not in git. `cleanup/` aborts the open "QA Agent" zaken after every run. |
 
 ## Setup
 
@@ -72,6 +72,11 @@ CLI reports. Pick `claude-sonnet-5.5`
   change or delete files, URL fetching and the built-in GitHub MCP server are off.
   Copilot CLI cannot limit file writes to a folder, so the Slack webhook is only used in a separate
   report job, with a fresh checkout that reads nothing but the report data. The agent job cannot push.
+- The zaken the agent creates have an omschrijving starting with "QA Agent:". ZAC cannot delete a zaak,
+  so after every run the cleanup step aborts the open ones; they leave the werkvoorraden and the
+  dashboard, but stay findable as afgehandelde zaken.
+- The Azure session that opens the firewall is cleared before the agent starts, because tests it writes
+  can run any program on the runner.
 - Jira credentials never reach the agent; `gather.sh` fetches everything up front. The workflow token
   is read-only and redacted from the output by Copilot CLI.
 - The test users have broad rights (bob can open admin pages). The instructions forbid saving on admin pages, real e-mail

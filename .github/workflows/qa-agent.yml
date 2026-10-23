@@ -87,6 +87,12 @@ jobs:
             runner_ip=$(curl -sS https://api.ipify.org)
             az network nsg rule create -g zac-infra --nsg-name k8s-test-nsg -n allow_qa_agent_runner --priority 296 --source-address-prefixes "$runner_ip" --destination-port-ranges '*' --direction Inbound --access allow --protocol '*' --destination-address-prefixes '*'
 
+      # Tests written by the agent can run any program, including the Azure CLI, so no Azure session may
+      # be left on the runner while they run. The firewall rule is removed with a new login at the end.
+      - name: Sign out of Azure
+        if: always() && steps.firewall.outcome != 'skipped'
+        run: az account clear
+
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         if: steps.gather.outputs.pr_count != '0'
         with:
@@ -119,8 +125,8 @@ jobs:
           E2E_TEST_USER_2_PASSWORD: ${{ secrets.ZAC_E2E_TEST_USER_2_PASSWORD }}
           SINCE: ${{ steps.gather.outputs.since }}
           UNTIL: ${{ steps.gather.outputs.until }}
-        # Copilot CLI can only allow file writes as a whole, not per folder. The runner is thrown away
-        # after the run and the job cannot push, so a stray write has no effect.
+        # Copilot CLI can only allow file writes as a whole, not per folder. So the later steps restore what
+        # they run from git, the Slack webhook lives in the separate report job, and the job cannot push.
         run: |
           mkdir -p "$GITHUB_WORKSPACE/qa-output"
           copilot -p "Run a QA pass for the PRs merged into main from $SINCE to $UNTIL.
@@ -139,6 +145,18 @@ jobs:
             --usage-output-file "$GITHUB_WORKSPACE/qa-output/copilot-usage.json" \
             --share "$GITHUB_WORKSPACE/qa-output/session.md"
 
+      - name: Abort the zaken the QA agent created
+        if: always() && steps.gather.outputs.pr_count != '0'
+        continue-on-error: true
+        env:
+          ZAC_URL: ${{ secrets.ZAC_URL }}
+          E2E_TEST_USER_1_USERNAME: ${{ secrets.ZAC_E2E_TEST_USER_1_USERNAME }}
+          E2E_TEST_USER_1_PASSWORD: ${{ secrets.ZAC_E2E_TEST_USER_1_PASSWORD }}
+        # The cleanup comes from git, not from the files the agent may have changed.
+        run: |
+          git checkout HEAD -- src/e2e/package.json src/e2e/qa-agent/helpers.ts src/e2e/qa-agent/cleanup.config.ts src/e2e/qa-agent/cleanup
+          cd src/e2e && npm run qa-agent:cleanup
+
       - name: Upload screenshots, traces and tests
         if: always() && steps.gather.outputs.pr_count != '0'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -150,6 +168,12 @@ jobs:
             qa-context/manifest.md
             qa-context/skipped.json
             src/e2e/qa-agent/tests/
+
+      - name: Login to Azure again
+        if: always() && steps.firewall.outcome != 'skipped'
+        uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3.1.0
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
 
       - name: Remove the firewall rule
         if: always() && steps.firewall.outcome != 'skipped'
