@@ -34,10 +34,10 @@ test("abort the open zaken created by the QA agent", async ({ page }) => {
       },
     });
     expect(response.ok()).toBeTruthy();
-    const { results } = (await response.json()) as {
-      results: ZaakZoekObject[];
+    const { resultaten } = (await response.json()) as {
+      resultaten: ZaakZoekObject[];
     };
-    return results.filter(
+    return resultaten.filter(
       (zaak) =>
         zaak.omschrijving?.startsWith(OMSCHRIJVING_PREFIX) &&
         !zaak.isAfgehandeld,
