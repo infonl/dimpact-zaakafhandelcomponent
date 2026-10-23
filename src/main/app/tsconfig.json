@@ -19,6 +19,7 @@
   "angularCompilerOptions": {
     "strictInjectionParameters": true,
     "strictTemplates": true,
+    "typeCheckHostBindings": true,
     "extendedDiagnostics": {
       "checks": {
         "unusedStandaloneImports": "error"
