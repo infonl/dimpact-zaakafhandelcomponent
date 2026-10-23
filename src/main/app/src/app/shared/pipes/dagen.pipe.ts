@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Pipe, PipeTransform } from "@angular/core";
+import { Pipe, PipeTransform, inject } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
 
@@ -12,7 +12,7 @@ import moment from "moment";
   standalone: true,
 })
 export class DagenPipe implements PipeTransform {
-  constructor(private translate: TranslateService) {}
+  private translate = inject(TranslateService);
 
   transform(value: unknown) {
     if (!value) return null;

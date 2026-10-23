@@ -28,6 +28,12 @@ export type Progress = {
   providedIn: "root",
 })
 export class UtilService {
+  private breakpointObserver = inject(BreakpointObserver);
+  private translate = inject(TranslateService);
+  private router = inject(Router);
+  private snackbar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
+
   readonly loading = signal(false);
 
   readonly progress = signal<Progress | null>(null);
@@ -49,14 +55,6 @@ export class UtilService {
     );
 
   private readonly document = inject(DOCUMENT);
-
-  constructor(
-    private breakpointObserver: BreakpointObserver,
-    private translate: TranslateService,
-    private router: Router,
-    private snackbar: MatSnackBar,
-    private dialog: MatDialog,
-  ) {}
 
   /**
    * Check whether there is an active edit overlay on the screen eg. autocomplete or datepicker

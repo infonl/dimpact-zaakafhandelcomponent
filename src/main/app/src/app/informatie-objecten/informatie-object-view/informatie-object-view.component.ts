@@ -112,6 +112,17 @@ export class InformatieObjectViewComponent
   extends ActionsViewComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
+  private informatieObjectenService = inject(InformatieObjectenService);
+  private route = inject(ActivatedRoute);
+  private readonly utilService = inject(UtilService);
+  private websocketService = inject(WebsocketService);
+  private router = inject(Router);
+  private readonly location = inject(Location);
+  private translate = inject(TranslateService);
+  private dialog = inject(MatDialog);
+  private zakenService = inject(ZakenService);
+  private documentDialogService = inject(DocumentDialogService);
+
   private readonly queryClient = inject(QueryClient);
 
   readonly indicatiesLayout = IndicatiesLayout;
@@ -142,21 +153,6 @@ export class InformatieObjectViewComponent
     viewChild.required<MatSidenavContainer>("sideNavContainer");
   readonly sort = viewChild(MatSort);
   private documentListener?: WebsocketListener;
-
-  constructor(
-    private informatieObjectenService: InformatieObjectenService,
-    private route: ActivatedRoute,
-    private readonly utilService: UtilService,
-    private websocketService: WebsocketService,
-    private router: Router,
-    private readonly location: Location,
-    private translate: TranslateService,
-    private dialog: MatDialog,
-    private zakenService: ZakenService,
-    private documentDialogService: DocumentDialogService,
-  ) {
-    super();
-  }
 
   ngOnInit() {
     this.subscriptions$.push(

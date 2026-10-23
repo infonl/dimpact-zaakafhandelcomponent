@@ -30,7 +30,7 @@ import { IndicatiesComponent } from "../indicaties.component";
 export class InformatieObjectIndicatiesComponent extends IndicatiesComponent {
   private readonly translateService = inject(TranslateService);
 
-  datumPipe = new DatumPipe("nl");
+  datumPipe = new DatumPipe();
 
   readonly document = input<GeneratedType<"RestEnkelvoudigInformatieobject">>();
   readonly documentZoekObject = input<DocumentZoekObject>();

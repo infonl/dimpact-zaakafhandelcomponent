@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import {
   MatDialogActions,
@@ -32,9 +32,8 @@ import { TranslatePipe } from "@ngx-translate/core";
   ],
 })
 export class ActieOnmogelijkDialogComponent {
-  constructor(
-    private dialogRef: MatDialogRef<ActieOnmogelijkDialogComponent>,
-  ) {}
+  private dialogRef =
+    inject<MatDialogRef<ActieOnmogelijkDialogComponent>>(MatDialogRef);
 
   protected close(): void {
     this.dialogRef.close();

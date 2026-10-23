@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, effect } from "@angular/core";
+import { Component, effect, inject } from "@angular/core";
 import { MatIconAnchor } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import { MatPaginator } from "@angular/material/paginator";
@@ -26,8 +26,6 @@ import { RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { firstValueFrom } from "rxjs";
-import { WebsocketService } from "../../core/websocket/websocket.service";
-import { IdentityService } from "../../identity/identity.service";
 import { DagenPipe } from "../../shared/pipes/dagen.pipe";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
@@ -74,6 +72,8 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
 export class ZaakWaarschuwingenCardComponent extends DashboardCardComponent<
   GeneratedType<"RestZaakOverzicht">
 > {
+  private zakenService = inject(ZakenService);
+
   columns = [
     "identificatie",
     "streefdatum",
@@ -88,12 +88,9 @@ export class ZaakWaarschuwingenCardComponent extends DashboardCardComponent<
     queryFn: () => firstValueFrom(this.zakenService.listZaakWaarschuwingen()),
   }));
 
-  constructor(
-    private zakenService: ZakenService,
-    protected identityService: IdentityService,
-    protected websocketService: WebsocketService,
-  ) {
-    super(identityService, websocketService);
+  constructor() {
+    super();
+
     effect(() => {
       this.dataSource.data = this.zakenQuery.data() ?? [];
     });

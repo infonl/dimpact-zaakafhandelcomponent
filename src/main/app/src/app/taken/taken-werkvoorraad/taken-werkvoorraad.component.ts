@@ -10,6 +10,7 @@ import { SlicePipe } from "@angular/common";
 import {
   AfterViewInit,
   Component,
+  inject,
   OnDestroy,
   OnInit,
   signal,
@@ -105,6 +106,16 @@ export class TakenWerkvoorraadComponent
   extends WerklijstComponent
   implements AfterViewInit, OnInit, OnDestroy
 {
+  override route = inject(ActivatedRoute);
+  private takenService = inject(TakenService);
+  protected utilService = inject(UtilService);
+  private identityService = inject(IdentityService);
+  private dialog = inject(MatDialog);
+  private zoekenService = inject(ZoekenService);
+  override gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
+  private translateService = inject(TranslateService);
+  private batchProcessService = inject(BatchProcessService);
+
   protected selection = new SelectionModel<TaakZoekObject>(true, []);
   protected dataSource: TakenWerkvoorraadDatasource;
   private readonly paginator = viewChild.required(MatPaginator);
@@ -147,17 +158,7 @@ export class TakenWerkvoorraadComponent
     },
   );
 
-  constructor(
-    public override route: ActivatedRoute,
-    private takenService: TakenService,
-    protected utilService: UtilService,
-    private identityService: IdentityService,
-    private dialog: MatDialog,
-    private zoekenService: ZoekenService,
-    public override gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    private translateService: TranslateService,
-    private batchProcessService: BatchProcessService,
-  ) {
+  constructor() {
     super();
     this.dataSource = new TakenWerkvoorraadDatasource(
       this.zoekenService,

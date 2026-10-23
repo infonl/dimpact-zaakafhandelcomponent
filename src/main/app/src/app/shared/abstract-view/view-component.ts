@@ -22,8 +22,6 @@ export abstract class ViewComponent implements OnDestroy, AfterViewInit {
   protected subscriptions$: Subscription[] = [];
   protected sideNaveMode: MatDrawerMode = SideNavUtil.getMode();
 
-  protected constructor() {}
-
   ngAfterViewInit(): void {
     this.menuSidenav().openedStart.subscribe(() => {
       this.sideNavContainer().hasBackdrop = false;

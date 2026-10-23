@@ -16,6 +16,9 @@ import { GeneratedType } from "../shared/utils/generated-types";
   providedIn: "root",
 })
 export class ConfiguratieService {
+  private http = inject(HttpClient);
+  private foutAfhandelingService = inject(FoutAfhandelingService);
+
   private readonly zacQueryClient = inject(ZacQueryClient);
 
   private readonly basepath = "/rest/configuratie";
@@ -25,11 +28,6 @@ export class ConfiguratieService {
   private gemeenteNaam$?: Observable<string>;
   private pabcIntegration$?: Observable<boolean>;
   private brpDoelbindingSetupEnabled$?: Observable<boolean>;
-
-  constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
-  ) {}
 
   listTalen() {
     if (!this.talen$) {

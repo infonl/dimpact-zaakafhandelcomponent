@@ -5,7 +5,13 @@
 
 import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
 import { SlicePipe } from "@angular/common";
-import { AfterViewInit, Component, OnDestroy, viewChild } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  inject,
+  OnDestroy,
+  viewChild,
+} from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import { MatPaginator } from "@angular/material/paginator";
@@ -81,6 +87,11 @@ export class ZakenMijnComponent
   extends WerklijstComponent
   implements AfterViewInit, OnDestroy
 {
+  gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
+  route = inject(ActivatedRoute);
+  private zoekenService = inject(ZoekenService);
+  utilService = inject(UtilService);
+
   readonly indicatiesLayout = IndicatiesLayout;
   dataSource: ZakenMijnDatasource;
   readonly paginator = viewChild.required(MatPaginator);
@@ -104,12 +115,7 @@ export class ZakenMijnComponent
     "error",
   );
 
-  constructor(
-    public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    public route: ActivatedRoute,
-    private zoekenService: ZoekenService,
-    public utilService: UtilService,
-  ) {
+  constructor() {
     super();
     this.dataSource = new ZakenMijnDatasource(
       this.zoekenService,

@@ -4,7 +4,7 @@
  */
 
 import { AsyncPipe } from "@angular/common";
-import { Component, Inject, OnDestroy } from "@angular/core";
+import { Component, OnDestroy, inject } from "@angular/core";
 import {
   AbstractControl,
   FormBuilder,
@@ -66,6 +66,18 @@ import { ZakenService } from "../zaken.service";
   ],
 })
 export class IntakeAfrondenDialogComponent implements OnDestroy {
+  dialogRef = inject<MatDialogRef<IntakeAfrondenDialogComponent>>(MatDialogRef);
+  data = inject<{
+    zaak: GeneratedType<"RestZaak">;
+    planItem: GeneratedType<"RestPlanItem">;
+  }>(MAT_DIALOG_DATA);
+  private formBuilder = inject(FormBuilder);
+  private translateService = inject(TranslateService);
+  private planItemsService = inject(PlanItemsService);
+  private mailtemplateService = inject(MailtemplateService);
+  private zakenService = inject(ZakenService);
+  private utilService = inject(UtilService);
+
   protected readonly zaakOntvankelijkMailQuery = injectQuery(() =>
     this.mailtemplateService.findMailtemplate(
       "ZAAK_ONTVANKELIJK",
@@ -95,20 +107,7 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
     },
   );
 
-  constructor(
-    public dialogRef: MatDialogRef<IntakeAfrondenDialogComponent>,
-    @Inject(MAT_DIALOG_DATA)
-    public data: {
-      zaak: GeneratedType<"RestZaak">;
-      planItem: GeneratedType<"RestPlanItem">;
-    },
-    private formBuilder: FormBuilder,
-    private translateService: TranslateService,
-    private planItemsService: PlanItemsService,
-    private mailtemplateService: MailtemplateService,
-    private zakenService: ZakenService,
-    private utilService: UtilService,
-  ) {
+  constructor() {
     this.afzenders = this.zakenService.listAfzendersVoorZaak(
       this.data.zaak.uuid,
     );

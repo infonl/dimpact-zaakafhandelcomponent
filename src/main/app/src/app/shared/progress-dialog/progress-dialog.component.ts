@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-import { Component, Inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 
@@ -13,15 +13,12 @@ import { MatProgressBarModule } from "@angular/material/progress-bar";
   imports: [MatProgressBarModule],
 })
 export class ProgressDialogComponent {
-  constructor(
-    public dialogRef: MatDialogRef<ProgressDialogComponent>,
-    @Inject(MAT_DIALOG_DATA)
-    public data: {
-      message: string;
-      action?: string;
-      progressPercentage?: () => number;
-    },
-  ) {}
+  dialogRef = inject<MatDialogRef<ProgressDialogComponent>>(MatDialogRef);
+  data = inject<{
+    message: string;
+    action?: string;
+    progressPercentage?: () => number;
+  }>(MAT_DIALOG_DATA);
 
   progressMode() {
     const percentage = this.data.progressPercentage?.();

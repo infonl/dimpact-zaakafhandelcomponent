@@ -37,6 +37,9 @@ export abstract class DashboardCardComponent<
   >
   implements OnInit, AfterViewInit, OnDestroy
 {
+  protected identityService = inject(IdentityService);
+  protected websocketService = inject(WebsocketService);
+
   readonly data = input.required<DashboardCard>();
 
   readonly paginator = viewChild(MatPaginator);
@@ -53,11 +56,6 @@ export abstract class DashboardCardComponent<
   // binding must opt out, otherwise MatTableDataSource overwrites
   // paginator.length with the current page size (data.length).
   protected serverSidePagination = false;
-
-  protected constructor(
-    protected identityService: IdentityService,
-    protected websocketService: WebsocketService,
-  ) {}
 
   ngOnInit(): void {
     this.onLoad();

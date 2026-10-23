@@ -83,6 +83,14 @@ import { WebsocketService } from "../websocket/websocket.service";
   ],
 })
 export class ToolbarComponent implements OnDestroy {
+  private readonly identityService = inject(IdentityService);
+  protected readonly zoekenService = inject(ZoekenService);
+  private readonly signaleringenService = inject(SignaleringenService);
+  private readonly websocketService = inject(WebsocketService);
+  private readonly policyService = inject(PolicyService);
+  private readonly router = inject(Router);
+  private readonly zakenService = inject(ZakenService);
+
   protected readonly queryClient = inject(QueryClient);
   protected readonly createZaakMutationKey =
     this.zakenService.createZaak().mutationKey;
@@ -128,15 +136,7 @@ export class ToolbarComponent implements OnDestroy {
       .join(""),
   );
 
-  constructor(
-    private readonly identityService: IdentityService,
-    protected readonly zoekenService: ZoekenService,
-    private readonly signaleringenService: SignaleringenService,
-    private readonly websocketService: WebsocketService,
-    private readonly policyService: PolicyService,
-    private readonly router: Router,
-    private readonly zakenService: ZakenService,
-  ) {
+  constructor() {
     effect(() => {
       const loggedInUser = this.loggedInUserQuery.data();
       if (!loggedInUser) return;

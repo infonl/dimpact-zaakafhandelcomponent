@@ -66,6 +66,9 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
   ],
 })
 export class BagZakenTabelComponent implements OnInit, AfterViewInit {
+  private readonly utilService = inject(UtilService);
+  private readonly zoekenService = inject(ZoekenService);
+
   readonly BagObjectIdentificatie = input.required<string>();
   private readonly paginator = viewChild.required(MatPaginator);
   private readonly sort = viewChild.required(MatSort);
@@ -90,10 +93,7 @@ export class BagZakenTabelComponent implements OnInit, AfterViewInit {
 
   private readonly queryClient = inject(QueryClient);
 
-  constructor(
-    private readonly utilService: UtilService,
-    private readonly zoekenService: ZoekenService,
-  ) {
+  constructor() {
     effect(() => {
       this.BagObjectIdentificatie();
       untracked(() => {

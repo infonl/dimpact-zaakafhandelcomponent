@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Inject, LOCALE_ID, Pipe, PipeTransform } from "@angular/core";
+import { LOCALE_ID, Pipe, PipeTransform, inject } from "@angular/core";
 import { KB_IN_BYTES, MB_IN_BYTES } from "../utils/constants";
 
 @Pipe({
@@ -11,7 +11,7 @@ import { KB_IN_BYTES, MB_IN_BYTES } from "../utils/constants";
   standalone: true,
 })
 export class BestandsomvangPipe implements PipeTransform {
-  constructor(@Inject(LOCALE_ID) public locale: string) {}
+  locale = inject(LOCALE_ID);
 
   transform(value: number) {
     if (value) {

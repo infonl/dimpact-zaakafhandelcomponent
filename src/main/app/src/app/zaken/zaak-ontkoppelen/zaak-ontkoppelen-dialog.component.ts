@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import {
@@ -37,20 +37,19 @@ import { ZakenService } from "../zaken.service";
   ],
 })
 export class ZaakOntkoppelenDialogComponent {
+  protected readonly dialogRef =
+    inject<MatDialogRef<ZaakOntkoppelenDialogComponent>>(MatDialogRef);
+  private readonly data =
+    inject<Omit<GeneratedType<"RestZaakUnlinkData">, "reden">>(MAT_DIALOG_DATA);
+  private readonly zakenService = inject(ZakenService);
+  private readonly formBuilder = inject(FormBuilder);
+
   protected readonly form = this.formBuilder.group({
     reden: this.formBuilder.control<string>("", [
       Validators.required,
       Validators.maxLength(100),
     ]),
   });
-
-  constructor(
-    protected readonly dialogRef: MatDialogRef<ZaakOntkoppelenDialogComponent>,
-    @Inject(MAT_DIALOG_DATA)
-    private readonly data: Omit<GeneratedType<"RestZaakUnlinkData">, "reden">,
-    private readonly zakenService: ZakenService,
-    private readonly formBuilder: FormBuilder,
-  ) {}
 
   protected readonly ontkoppelZaakMutation = injectMutation(
     () => this.zakenService.ontkoppelZaak(),

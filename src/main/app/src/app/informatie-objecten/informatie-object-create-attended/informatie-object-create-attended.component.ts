@@ -6,6 +6,7 @@
 import {
   Component,
   effect,
+  inject,
   input,
   OnDestroy,
   OnInit,
@@ -75,6 +76,19 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
 export class InformatieObjectCreateAttendedComponent
   implements OnInit, OnDestroy
 {
+  private readonly smartDocumentsService = inject(SmartDocumentsService);
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
+  private readonly identityService = inject(IdentityService);
+  private readonly vertrouwelijkaanduidingToTranslationKeyPipe = inject(
+    VertrouwelijkaanduidingToTranslationKeyPipe,
+  );
+  private readonly translateService = inject(TranslateService);
+  private readonly dialog = inject(MatDialog);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly queryClient = inject(QueryClient);
+
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
   readonly taak = input<GeneratedType<"RestTask">>();
   readonly sideNav = input.required<MatDrawer>();
@@ -133,16 +147,7 @@ export class InformatieObjectCreateAttendedComponent
     this.informatieObjectenService.createDocumentAttendedMutation(),
   );
 
-  constructor(
-    private readonly smartDocumentsService: SmartDocumentsService,
-    private readonly informatieObjectenService: InformatieObjectenService,
-    private readonly identityService: IdentityService,
-    private readonly vertrouwelijkaanduidingToTranslationKeyPipe: VertrouwelijkaanduidingToTranslationKeyPipe,
-    private readonly translateService: TranslateService,
-    private readonly dialog: MatDialog,
-    private readonly formBuilder: FormBuilder,
-    private readonly queryClient: QueryClient,
-  ) {
+  constructor() {
     effect(() => {
       this.form.controls.author.setValue(
         this.loggedInUserQuery.data()?.naam ?? null,

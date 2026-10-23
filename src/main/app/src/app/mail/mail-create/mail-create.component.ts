@@ -52,6 +52,15 @@ import { MailService } from "../mail.service";
   ],
 })
 export class MailCreateComponent implements OnInit {
+  private readonly zakenService = inject(ZakenService);
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
+  private readonly mailService = inject(MailService);
+  private readonly mailtemplateService = inject(MailtemplateService);
+  private readonly utilService = inject(UtilService);
+  private readonly formBuilder = inject(FormBuilder);
+
   protected readonly zaak = input.required<GeneratedType<"RestZaak">>();
   protected readonly sideNav = input.required<MatDrawer>();
 
@@ -99,15 +108,6 @@ export class MailCreateComponent implements OnInit {
   protected documents: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
 
   private readonly queryClient = inject(QueryClient);
-
-  constructor(
-    private readonly zakenService: ZakenService,
-    private readonly informatieObjectenService: InformatieObjectenService,
-    private readonly mailService: MailService,
-    private readonly mailtemplateService: MailtemplateService,
-    private readonly utilService: UtilService,
-    private readonly formBuilder: FormBuilder,
-  ) {}
 
   ngOnInit() {
     this.zakenService

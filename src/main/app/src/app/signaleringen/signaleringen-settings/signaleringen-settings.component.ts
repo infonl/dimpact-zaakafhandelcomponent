@@ -4,7 +4,7 @@
  */
 
 import { NgClass } from "@angular/common";
-import { Component, effect } from "@angular/core";
+import { Component, effect, inject } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
@@ -35,6 +35,9 @@ const SETTING_PER_COLUMN = {
   ],
 })
 export class SignaleringenSettingsComponent {
+  private readonly service = inject(SignaleringenSettingsService);
+  private readonly utilService = inject(UtilService);
+
   protected readonly columns = [
     "subjecttype",
     "type",
@@ -52,10 +55,7 @@ export class SignaleringenSettingsComponent {
     onSettled: () => this.utilService.setLoading(false),
   });
 
-  constructor(
-    private readonly service: SignaleringenSettingsService,
-    private readonly utilService: UtilService,
-  ) {
+  constructor() {
     effect(() => {
       this.dataSource.data = this.instellingenQuery.data() ?? [];
     });

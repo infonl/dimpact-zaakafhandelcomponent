@@ -8,15 +8,13 @@ import {
   Directive,
   DOCUMENT,
   ElementRef,
-  Inject,
+  inject,
   OnDestroy,
   OnInit,
-  Optional,
   output,
   PLATFORM_ID,
 } from "@angular/core";
 import { fromEvent, Subscription } from "rxjs";
-import { HasEventTargetAddRemove } from "rxjs/internal/observable/fromEvent";
 import { filter } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 
@@ -24,6 +22,11 @@ import { UtilService } from "../../core/service/util.service";
   selector: "[zacOutsideClick]",
 })
 export class OutsideClickDirective implements OnInit, OnDestroy {
+  private element = inject(ElementRef);
+  private document = inject(DOCUMENT);
+  private platformId = inject<Record<string, unknown>>(PLATFORM_ID);
+  private utilService = inject(UtilService);
+
   private static inclusions: string[] = [
     "mat-option-text",
     "mdc-list-item__primary-text",
@@ -32,17 +35,6 @@ export class OutsideClickDirective implements OnInit, OnDestroy {
   readonly outsideClick = output<MouseEvent>({ alias: "zacOutsideClick" });
 
   private subscription: Subscription | null = null;
-
-  constructor(
-    private element: ElementRef,
-    @Optional()
-    @Inject(DOCUMENT)
-    private document:
-      | HasEventTargetAddRemove<MouseEvent>
-      | ArrayLike<HasEventTargetAddRemove<MouseEvent>>,
-    @Inject(PLATFORM_ID) private platformId: Record<string, unknown>,
-    private utilService: UtilService,
-  ) {}
 
   ngOnInit() {
     if (!isPlatformBrowser(this.platformId)) {

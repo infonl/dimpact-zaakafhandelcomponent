@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import {
   MAT_DIALOG_DATA,
@@ -33,10 +33,8 @@ import { TranslatePipe } from "@ngx-translate/core";
   ],
 })
 export class FoutDialogComponent {
-  constructor(
-    private dialogRef: MatDialogRef<FoutDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: string,
-  ) {}
+  private dialogRef = inject<MatDialogRef<FoutDialogComponent>>(MatDialogRef);
+  data = inject<string>(MAT_DIALOG_DATA);
 
   protected close(): void {
     this.dialogRef.close();

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -48,6 +48,14 @@ import { ZakenService } from "../zaken.service";
   ],
 })
 export class ZaakOpschortenDialogComponent {
+  protected readonly dialogRef =
+    inject<MatDialogRef<ZaakOpschortenDialogComponent>>(MatDialogRef);
+  protected readonly data = inject<{
+    zaak: GeneratedType<"RestZaak">;
+  }>(MAT_DIALOG_DATA);
+  private readonly zakenService = inject(ZakenService);
+  private readonly formBuilder = inject(FormBuilder);
+
   protected loading = true;
 
   protected readonly form = this.formBuilder.group({
@@ -66,13 +74,7 @@ export class ZaakOpschortenDialogComponent {
     ]),
   });
 
-  constructor(
-    protected readonly dialogRef: MatDialogRef<ZaakOpschortenDialogComponent>,
-    @Inject(MAT_DIALOG_DATA)
-    protected readonly data: { zaak: GeneratedType<"RestZaak"> },
-    private readonly zakenService: ZakenService,
-    private readonly formBuilder: FormBuilder,
-  ) {
+  constructor() {
     if (this.data.zaak.einddatumGepland) {
       this.form.controls.einddatumGepland.setValidators([
         Validators.required,

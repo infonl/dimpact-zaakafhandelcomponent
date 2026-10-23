@@ -4,7 +4,7 @@
  */
 
 import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError, mergeMap } from "rxjs/operators";
 import { environment } from "src/environments/environment";
@@ -14,6 +14,9 @@ import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.
   providedIn: "root",
 })
 export class LocationService {
+  private http = inject(HttpClient);
+  private foutAfhandelingService = inject(FoutAfhandelingService);
+
   private readonly flSuggest: string = "type,weergavenaam,id";
 
   private readonly flLookup: string = "id,weergavenaam,centroide_ll,type";
@@ -21,11 +24,6 @@ export class LocationService {
   private readonly typeSuggest: string = "type:adres";
 
   private baseUrl = environment.LOCATION_SERVER_API_URL;
-
-  constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
-  ) {}
 
   addressSuggest(
     zoekOpdracht: string,

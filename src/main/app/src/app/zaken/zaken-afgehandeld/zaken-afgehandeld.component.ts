@@ -8,6 +8,7 @@ import { SlicePipe } from "@angular/common";
 import {
   AfterViewInit,
   Component,
+  inject,
   OnDestroy,
   OnInit,
   viewChild,
@@ -88,6 +89,11 @@ export class ZakenAfgehandeldComponent
   extends WerklijstComponent
   implements AfterViewInit, OnInit, OnDestroy
 {
+  gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
+  route = inject(ActivatedRoute);
+  private zoekenService = inject(ZoekenService);
+  protected utilService = inject(UtilService);
+
   protected dataSource: ZakenAfgehandeldDatasource;
   private readonly paginator = viewChild.required(MatPaginator);
   private readonly sort = viewChild.required(MatSort);
@@ -111,12 +117,7 @@ export class ZakenAfgehandeldComponent
     "error",
   );
 
-  constructor(
-    public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    public route: ActivatedRoute,
-    private zoekenService: ZoekenService,
-    protected utilService: UtilService,
-  ) {
+  constructor() {
     super();
     this.dataSource = new ZakenAfgehandeldDatasource(
       this.zoekenService,

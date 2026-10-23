@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import {
   MAT_DIALOG_DATA,
@@ -36,12 +36,11 @@ import { Observable } from "rxjs";
   ],
 })
 export class ConfirmDialogComponent {
-  protected loading = false;
+  private readonly dialogRef =
+    inject<MatDialogRef<ConfirmDialogComponent>>(MatDialogRef);
+  protected readonly data = inject<ConfirmDialogData>(MAT_DIALOG_DATA);
 
-  constructor(
-    private readonly dialogRef: MatDialogRef<ConfirmDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) protected readonly data: ConfirmDialogData,
-  ) {}
+  protected loading = false;
 
   protected confirm(): void {
     if (this.data.observable) {

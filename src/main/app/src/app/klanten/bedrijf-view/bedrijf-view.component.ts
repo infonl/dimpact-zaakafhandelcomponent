@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, signal } from "@angular/core";
+import { Component, computed, inject, signal } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";
@@ -36,6 +36,9 @@ import { KlantenService } from "../klanten.service";
   ],
 })
 export class BedrijfViewComponent {
+  private readonly route = inject(ActivatedRoute);
+  private readonly klantenService = inject(KlantenService);
+
   protected bedrijf: GeneratedType<"RestBedrijf"> | null = null;
   protected profielOphalenMogelijk = true;
   warningIcon = new TextIcon(
@@ -75,10 +78,7 @@ export class BedrijfViewComponent {
     return this.basisprofielQuery.data() ?? null;
   });
 
-  constructor(
-    private readonly route: ActivatedRoute,
-    private readonly klantenService: KlantenService,
-  ) {
+  constructor() {
     this.route.data.subscribe((data) => {
       this.bedrijf = data.bedrijf;
       this.profielOphalenMogelijk =

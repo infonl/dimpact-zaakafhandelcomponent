@@ -4,7 +4,7 @@
  *
  */
 
-import { Component, input, OnInit, output } from "@angular/core";
+import { Component, inject, input, OnInit, output } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -29,6 +29,8 @@ import { toI18nKey } from "../../../../shared/utils/i18n-key";
   ],
 })
 export class SmartDocumentsFormItemComponent implements OnInit {
+  private readonly translateService = inject(TranslateService);
+
   readonly node =
     input.required<GeneratedType<"RestMappedSmartDocumentsTemplate">>();
   readonly informationObjectTypes =
@@ -40,8 +42,6 @@ export class SmartDocumentsFormItemComponent implements OnInit {
   protected checkbox = new FormControl({ value: false, disabled: false });
 
   private previousInformatieObjectTypeUUID: string | undefined = undefined;
-
-  constructor(private readonly translateService: TranslateService) {}
 
   ngOnInit() {
     this.previousInformatieObjectTypeUUID =

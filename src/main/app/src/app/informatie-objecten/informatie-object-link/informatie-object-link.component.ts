@@ -61,6 +61,12 @@ type DocumentAction = "actie.document.koppelen" | "actie.document.verplaatsen";
   ],
 })
 export class InformatieObjectLinkComponent {
+  private readonly zoekenService = inject(ZoekenService);
+  private readonly informatieObjectService = inject(InformatieObjectenService);
+  private readonly utilService = inject(UtilService);
+  private readonly translate = inject(TranslateService);
+  private readonly formBuilder = inject(FormBuilder);
+
   readonly infoObject = input<GeneratedType<
     | "RestDetachedDocument"
     | "RestInboxDocument"
@@ -119,13 +125,7 @@ export class InformatieObjectLinkComponent {
 
   private readonly queryClient = inject(QueryClient);
 
-  constructor(
-    private readonly zoekenService: ZoekenService,
-    private readonly informatieObjectService: InformatieObjectenService,
-    private readonly utilService: UtilService,
-    private readonly translate: TranslateService,
-    private readonly formBuilder: FormBuilder,
-  ) {
+  constructor() {
     effect(() => {
       if (this.infoObject()) {
         untracked(() => this.reset());

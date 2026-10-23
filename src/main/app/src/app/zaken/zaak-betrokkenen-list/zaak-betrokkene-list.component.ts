@@ -42,7 +42,7 @@ export class ZaakBetrokkeneListComponent {
   private readonly zaakDialogService = inject(ZaakDialogService);
   private readonly utilService = inject(UtilService);
   private readonly queryClient = inject(QueryClient);
-  private readonly datumPipe = new DatumPipe("nl");
+  private readonly datumPipe = new DatumPipe();
 
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
 

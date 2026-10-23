@@ -127,6 +127,21 @@ export class ZaakViewComponent
   extends ActionsViewComponent
   implements AfterViewInit, OnDestroy
 {
+  private zakenService = inject(ZakenService);
+  private identityService = inject(IdentityService);
+  private planItemsService = inject(PlanItemsService);
+  private zaakafhandelParametersService = inject(ZaakafhandelParametersService);
+  private route = inject(ActivatedRoute);
+  private utilService = inject(UtilService);
+  private websocketService = inject(WebsocketService);
+  private dialog = inject(MatDialog);
+  private translate = inject(TranslateService);
+  private bagService = inject(BAGService);
+  private policyService = inject(PolicyService);
+  private zaakDialogService = inject(ZaakDialogService);
+  protected sideActions = inject(ZaakSideActionService);
+  protected dialogs = inject(ZaakActionDialogsService);
+
   private readonly queryClient = inject(QueryClient);
   private readonly betrokkenenService = inject(ZaakBetrokkenenService);
 
@@ -252,22 +267,7 @@ export class ZaakViewComponent
     },
   );
 
-  constructor(
-    private zakenService: ZakenService,
-    private identityService: IdentityService,
-    private planItemsService: PlanItemsService,
-    private zaakafhandelParametersService: ZaakafhandelParametersService,
-    private route: ActivatedRoute,
-    private utilService: UtilService,
-    private websocketService: WebsocketService,
-    private dialog: MatDialog,
-    private translate: TranslateService,
-    private bagService: BAGService,
-    private policyService: PolicyService,
-    private zaakDialogService: ZaakDialogService,
-    protected sideActions: ZaakSideActionService,
-    protected dialogs: ZaakActionDialogsService,
-  ) {
+  constructor() {
     super();
     this.route.data.pipe(takeUntilDestroyed()).subscribe((data) => {
       const zaak = data["zaak"] as GeneratedType<"RestZaak">;

@@ -77,6 +77,11 @@ import { KlantenService } from "../klanten.service";
   ],
 })
 export class KlantZakenTabelComponent implements AfterViewInit {
+  private readonly utilService = inject(UtilService);
+  private readonly zoekenService = inject(ZoekenService);
+  private readonly klantenService = inject(KlantenService);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
+
   protected readonly klant =
     input.required<GeneratedType<"RestBedrijf" | "RestPersoon">>();
 
@@ -115,13 +120,6 @@ export class KlantZakenTabelComponent implements AfterViewInit {
   }));
 
   private readonly queryClient = inject(QueryClient);
-
-  constructor(
-    private readonly utilService: UtilService,
-    private readonly zoekenService: ZoekenService,
-    private readonly klantenService: KlantenService,
-    private readonly changeDetectorRef: ChangeDetectorRef,
-  ) {}
 
   private loadZaken(): Observable<ZoekResultaat<ZaakZoekObject>> {
     if (this.laatsteBetrokkenheid) {

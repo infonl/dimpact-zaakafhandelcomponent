@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { inject, Injectable, LOCALE_ID } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { lastValueFrom } from "rxjs";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
@@ -111,7 +111,7 @@ export class FormioCustomFunctions {
   );
   private readonly translateService = inject(TranslateService);
 
-  private readonly datumPipe = new DatumPipe(inject(LOCALE_ID));
+  private readonly datumPipe = new DatumPipe();
 
   private readonly reportedPaths = new Set<string>();
 

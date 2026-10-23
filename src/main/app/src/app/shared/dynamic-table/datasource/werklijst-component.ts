@@ -26,8 +26,6 @@ export abstract class WerklijstComponent implements OnInit {
 
   protected readonly queryClient = inject(QueryClient);
 
-  protected constructor() {}
-
   ngOnInit(): void {
     this.route.data.subscribe((data) => {
       const tabelGegevens: TabelGegevens = data.tabelGegevens;

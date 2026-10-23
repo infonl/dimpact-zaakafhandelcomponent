@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, input } from "@angular/core";
+import { Component, inject, input } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { TranslatePipe } from "@ngx-translate/core";
@@ -18,14 +18,12 @@ import { GeneratedType } from "../utils/generated-types";
   imports: [MatButtonModule, MatIconModule, TranslatePipe],
 })
 export class ExportButtonComponent {
+  private csvService = inject(CsvService);
+  private utilService = inject(UtilService);
+
   readonly zoekParameters =
     input.required<GeneratedType<"RestZoekParameters">>();
   readonly filename = input.required<string>();
-
-  constructor(
-    private csvService: CsvService,
-    private utilService: UtilService,
-  ) {}
 
   downloadExport() {
     this.csvService.exportToCSV(this.zoekParameters()).subscribe((response) => {

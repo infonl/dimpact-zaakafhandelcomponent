@@ -38,8 +38,6 @@ import {
 import { RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { WebsocketService } from "../../core/websocket/websocket.service";
-import { IdentityService } from "../../identity/identity.service";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -83,6 +81,8 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
   ],
 })
 export class TaakZoekenCardComponent extends DashboardCardComponent {
+  private zoekenService = inject(ZoekenService);
+
   private readonly destroyRef = inject(DestroyRef);
 
   columns = [
@@ -114,12 +114,9 @@ export class TaakZoekenCardComponent extends DashboardCardComponent {
     refetchInterval: 60 * 1000,
   }));
 
-  constructor(
-    private zoekenService: ZoekenService,
-    protected identityService: IdentityService,
-    protected websocketService: WebsocketService,
-  ) {
-    super(identityService, websocketService);
+  constructor() {
+    super();
+
     effect(() => {
       this.dataSource.data = this.zoekQuery.data()?.resultaten ?? [];
     });
