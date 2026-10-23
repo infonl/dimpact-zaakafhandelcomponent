@@ -10,7 +10,9 @@ on a test that keeps failing.
 ## About ZAC
 
 ZAC (zaakafhandelcomponent) is a Dutch case management app for municipalities. Employees handle
-*zaken* (cases) and *taken* (tasks). The UI is Angular with Angular Material, in Dutch.
+*zaken* (cases) and *taken* (tasks). The UI is Angular with Angular Material. It follows the browser
+language (Dutch or English); your tests run with a Dutch browser, so look up labels in
+`src/main/app/src/assets/i18n/nl.json`. The Keycloak login page stays in English.
 
 Main pages (relative to `$ZAC_URL`):
 
@@ -71,7 +73,7 @@ the test user credentials are set for the tests; you can't and don't need to see
 - Only open pages on `$ZAC_URL` (Keycloak login redirects are fine). Never another host.
 - Only write files in `src/e2e/claude-qa/tests/` and `qa-output/`.
 - The dev environment is shared with the team and the nightly e2e run:
-  - you may create zaken and taken; always use `createZaak`, so the omschrijving starts with "Claude QA"
+  - you may create zaken and taken; always use `createZaak`, so the omschrijving starts with "QA Agent"
   - only change zaken you created in this run
   - on `/admin` pages, look but never save
   - never send e-mail to a real address; use `@example.com`

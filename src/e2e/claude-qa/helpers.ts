@@ -40,7 +40,7 @@ export const TEST_PERSON_BSN = "999993896";
 
 /**
  * Creates a zaak for test person Héndrika Janse, assigned to "Test groep A", and returns its zaaknummer.
- * The omschrijving starts with "Claude QA", so the zaak is recognisable on the shared environment.
+ * The omschrijving starts with "QA Agent", so the zaak is recognisable on the shared environment.
  */
 export async function createZaak(
   page: Page,
@@ -107,10 +107,10 @@ export async function createZaak(
 
   await page.getByLabel("Communicatiekanaal").click();
   await page.getByRole("option", { name: " E-mail " }).click();
-  await page.getByLabel("Omschrijving").fill(`Claude QA: ${omschrijving}`);
+  await page.getByLabel("Omschrijving").fill(`QA Agent: ${omschrijving}`);
   await page
     .getByLabel("Toelichting")
-    .fill(`CREATED BY: Claude QA run ${process.env.GITHUB_RUN_ID ?? "local"}`);
+    .fill(`CREATED BY: QA Agent run ${process.env.GITHUB_RUN_ID ?? "local"}`);
   await page.getByRole("button", { name: "Aanmaken" }).click();
 
   await page.waitForURL(/\/zaken\/ZAAK-\d{4}-\d+/, { timeout: 40_000 });
