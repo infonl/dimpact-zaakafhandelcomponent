@@ -1,8 +1,8 @@
 # Managing the Solr search engine
 
 ZAC uses Solr as the search engine. It is used both for search functionality and for lists like the 
-various 'werkvoorraden' in ZAC. It is run as a separate Docker container in the local ZAC Docker Compose setup
-and as a separate service in the Kubernetes setup.
+various 'werkvoorraden' in ZAC. It is run as a separate service, both in the local
+[kind](installKind.md) setup and in the Kubernetes setup.
 
 The ZAC Solr index contains the following ZAC object types:
 - zaken
@@ -17,24 +17,17 @@ configured through a `security.json` file, and ZAC authenticates every request i
 credentials from the `SOLR_USERNAME` and `SOLR_PASSWORD` environment variables.
 ZAC fails to start when these are not set.
 
-### Local Docker Compose setup
+### Local kind setup
 
-The local Solr container installs [security.json](../../scripts/docker-compose/imports/solr/security.json)
-on startup. It contains the developer credentials `zac` / `fakeSolrPassword`, which are also the defaults for
-`SOLR_USERNAME` and `SOLR_PASSWORD` in [docker-compose.yaml](../../docker-compose.yaml).
-Use the same credentials to log in to the Solr admin UI on http://localhost:8983.
+The local kind stack runs a standalone Solr with a `security.json` that `./start-kind.sh` generates for one user:
+`SOLR_USERNAME` (default `zac`) with a [generated password](installKind.md#generated-passwords), or with
+`SOLR_PASSWORD` when you set it in your `.env` file or in the environment. ZAC in the cluster gets the same
+credentials. Use them to log in to the Solr admin UI on http://localhost:8983.
 
-To use different credentials, set `SOLR_USERNAME` and `SOLR_PASSWORD` in your `.env` file and replace the
-`credentials` and `user-role` entries in `security.json`. Solr does not store the password itself but
-`base64(sha256(sha256(salt + password)))` followed by a space and `base64(salt)`, which you can generate with:
+To read the generated password:
 
 ```shell
-python3 -c "
-import base64, hashlib, os
-salt = os.urandom(32)
-password = b'yourPassword'
-print(base64.b64encode(hashlib.sha256(hashlib.sha256(salt + password).digest()).digest()).decode() + ' ' + base64.b64encode(salt).decode())
-"
+kubectl --context kind-zac -n zac get secret zac-dev-generated -o jsonpath='{.data.solr-password}' | base64 -d
 ```
 
 ### Kubernetes setup

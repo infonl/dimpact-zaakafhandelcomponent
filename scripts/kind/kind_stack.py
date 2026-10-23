@@ -344,8 +344,8 @@ def write_values(stack_file, output_dir, mode, profiles, existing_secret_file):
     keycloak_url = (environment.get("KEYCLOAK_HOSTNAME")
                     or f"http://{KEYCLOAK_HOST}:{host_ports.get('HOST_PORT_KEYCLOAK', 8081)}")
     email_addresses = {
-        name.replace("DOCKER_COMPOSE_", "ZAC_", 1): value for name, value in environment.items()
-        if re.fullmatch(r"DOCKER_COMPOSE_[A-Z0-9_]+_EMAIL_ADDRESS", name) and value}
+        name.replace("KIND_", "ZAC_", 1): value for name, value in environment.items()
+        if re.fullmatch(r"KIND_[A-Z0-9_]+_EMAIL_ADDRESS", name) and value}
     write_json(os.path.join(output_dir, "zac-dev.json"), {
         "zacOutsideCluster": mode == "ide",
         "profiles": {profile: profile in profiles.split(",") for profile in

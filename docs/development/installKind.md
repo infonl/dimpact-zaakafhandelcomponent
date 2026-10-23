@@ -100,7 +100,7 @@ variables override them, from your `.env` file or from the environment, with the
 `SMTP_USERNAME`, `VERANTWOORDELIJKE_ORGANISATIE_RSIN` and `ZAC_INTERNAL_ENDPOINTS_API_KEY`.
 
 The other settings of ZAC, such as the URLs of Open Zaak and Keycloak, point at the services in the cluster and
-stay as they are. The `DOCKER_COMPOSE_<NAME>_EMAIL_ADDRESS` variables set the e-mail addresses of the test users and
+stay as they are. The `KIND_<NAME>_EMAIL_ADDRESS` variables set the e-mail addresses of the test users and
 groups in Keycloak. The settings of the other services are in [scripts/kind](../../scripts/kind) only.
 
 ### Generated passwords
@@ -233,6 +233,53 @@ kubectl --context kind-zac -n zac logs deploy/zac --follow
 ```
 
 The script writes the files that it generates, such as the Helm values, to `build/kind/<cluster name>`.
+
+## Seed data
+
+The stack loads the seed data of [seed](../../scripts/kind/seed) when it creates the cluster. Use `-d` to start
+from the seed data again after you change it.
+
+### Keycloak realm
+
+Keycloak imports the `zaakafhandelcomponent` realm, with its clients, roles and [test users](testing.md#local-test-users),
+from [zaakafhandelcomponent-realm.json](../../scripts/kind/seed/keycloak/zaakafhandelcomponent-realm.json). To change
+the realm, change it in the Keycloak admin console and export it, including the users, over the seed file:
+
+```shell
+kubectl --context kind-zac -n zac exec deploy/keycloak -- /opt/keycloak/bin/kc.sh export \
+  --dir /tmp/realm-export --users realm_file --realm zaakafhandelcomponent --http-management-port 9002
+kubectl --context kind-zac -n zac exec deploy/keycloak -- cat /tmp/realm-export/zaakafhandelcomponent-realm.json \
+  > scripts/kind/seed/keycloak/zaakafhandelcomponent-realm.json
+./gradlew spotlessApply
+```
+
+The export has the values of the running realm, so review the changes with `git diff` and keep these parts of the
+seed file before you commit it:
+
+- the `${ZAC_<NAME>_EMAIL_ADDRESS}` placeholders of the e-mail addresses of the test users and groups;
+- the fixed client secrets, such as `keycloakZaakafhandelcomponentClientSecret` of the `zaakafhandelcomponent` client;
+- the redirect URIs and web origins without the `localhost` ports that `./start-kind.sh` adds.
+
+### Open Zaak database
+
+The Open Zaak database starts from a pre-migrated dump of the Open Zaak database,
+[00-restore-migrated-database.sql](../../scripts/kind/seed/openzaak/00-restore-migrated-database.sql). Postgres
+restores it when it creates the cluster, and then runs the SQL scripts in
+[seed/openzaak/database](../../scripts/kind/seed/openzaak/database) with the ZAC test data: zaaktypes, applications,
+services and so on. Because the schema is already there, Open Zaak has no database migrations left to apply when it
+starts, which saves more than a minute on every new cluster and on every integration test run.
+
+The dump belongs to the Open Zaak image in [charts/zac-dev/values.yaml](../../scripts/kind/charts/zac-dev/values.yaml).
+After a change of that image, regenerate the dump and commit the result:
+
+```shell
+./scripts/kind/regenerate-openzaak-database-dump.sh
+```
+
+The script starts Open Zaak on an empty database in temporary Docker containers, with the images of the stack, waits
+until Open Zaak has applied its migrations, dumps the database and removes the containers again. Like
+`./start-kind.sh`, it uses the arm64 images on an arm64 host; set `DOCKER_USE_ARM64_CONTAINERS=false` to use the
+default images.
 
 ## Integration tests
 
