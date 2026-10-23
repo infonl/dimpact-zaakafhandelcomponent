@@ -1,0 +1,56 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# Values for charts/zac (release 'zac') when the integration tests run against the kind stack: the integration tests
+# pass this file to scripts/kind/up.sh in KIND_ZAC_VALUES, on top of scripts/kind/values/zac.yaml. ZAC talks to the
+# test doubles of the 'itest' profile, and the JaCoCo agent records the coverage of the integration tests, which they
+# collect through the zac-jacoco port of scripts/kind/ports.json. The integration tests create the ConfigMap
+# 'jacoco-agent' with the agent.
+
+javaOptions: >-
+  -javaagent:/jacoco-agent/org.jacoco.agent-runtime.jar=output=tcpserver,address=*,port=6300
+  -Xms1024m -Xmx1024m -Xlog:gc::time,uptime
+
+bagApi:
+  url: http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/
+
+brpApi:
+  protocollering:
+    enabled: true
+    doelbinding:
+      perZaaktype: true
+
+kvkApi:
+  url: http://kvk-wiremock:8080
+
+mail:
+  smtp:
+    server: greenmail
+    port: 25
+
+smartDocuments:
+  enabled: true
+  url: http://smartdocuments-wiremock:8080
+
+signaleringen:
+  deleteOlderThanDays: "0"
+  # never: the integration tests call the signaleringen endpoints themselves
+  sendZaakSignaleringenSchedule: "0 0 31 2 *"
+  deleteOldSignaleringenSchedule: "0 0 31 2 *"
+
+zacInternalEndpointsApiKey: zacItestInternalEndpointsApiKey
+
+extraEnv:
+  - name: APP_ENV
+    value: itest
+
+extraVolumes:
+  - name: jacoco-agent
+    configMap:
+      name: jacoco-agent
+
+extraVolumeMounts:
+  - name: jacoco-agent
+    mountPath: /jacoco-agent
+    readOnly: true
