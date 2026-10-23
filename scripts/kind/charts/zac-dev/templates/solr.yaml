@@ -2,7 +2,8 @@
 # SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-# Standalone Solr with basic authentication and a pre-created 'zac' core, as in Docker Compose.
+# Standalone Solr with basic authentication and a pre-created 'zac' core. scripts/kind/up.sh generates its
+# security.json with the user and the password of ZAC.
 # The ZAC chart's own option, SolrCloud through the solr-operator with three ZooKeepers, is too heavy for a laptop.
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -42,8 +43,8 @@ spec:
         fsGroup: 8983
       initContainers:
         - name: security
-          image: {{ include "zac-dev.image" (list . "solr") }}
-          command: ["sh", "-c", "mkdir -p /var/solr/data && cp /opt/zac/security.json /var/solr/data/security.json"]
+          image: {{ .Values.solr.image }}
+          command: ["sh", "-c", "mkdir -p /var/solr/data && cp /opt/zac/solr-security.json /var/solr/data/security.json"]
           securityContext:
             {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
             readOnlyRootFilesystem: true
@@ -61,7 +62,7 @@ spec:
               mountPath: /opt/zac
       containers:
         - name: solr
-          image: {{ include "zac-dev.image" (list . "solr") }}
+          image: {{ .Values.solr.image }}
           command: ["solr-precreate", "zac"]
           ports:
             - containerPort: 8983
@@ -86,8 +87,11 @@ spec:
           persistentVolumeClaim:
             claimName: solr-data
         - name: security
-          configMap:
-            name: solr-security
+          secret:
+            secretName: {{ .Values.generatedSecret }}
+            items:
+              - key: solr-security.json
+                path: solr-security.json
 ---
 apiVersion: v1
 kind: Service

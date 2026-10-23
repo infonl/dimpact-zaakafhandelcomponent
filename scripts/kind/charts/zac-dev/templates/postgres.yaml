@@ -2,21 +2,36 @@
 # SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-# One Postgres server with a database per component, where Docker Compose runs a server per component. Services
-# with the Docker Compose names of those servers point to it, so that the Docker Compose settings work unchanged.
-# The roles, the seed data and the BAG settings of the Open Zaak test data are Secrets and ConfigMaps that
-# scripts/kind/up.sh creates from docker-compose.yaml and scripts/docker-compose/imports.
+# One Postgres server with a database per component. A Service per component with the host name of its database in
+# the settings and the seed data points to it.
+# The passwords of the roles come from the Secret with the generated passwords; scripts/kind/up.sh sets them again
+# on every start, so that a role of an older cluster or a changed DB_PASSWORD gets the password of the Secret.
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgres-initdb
   namespace: {{ .Release.Namespace }}
 data:
+  00-roles-and-databases.sh: |
+    #!/bin/bash
+    set -euo pipefail
+    {{- range .Values.postgres.databases }}
+    psql --username postgres --set ON_ERROR_STOP=1 --quiet \
+      --set owner={{ .owner | quote }} --set database={{ .name | quote }} \
+      --set password="$DB_PASSWORD_{{ .owner | upper }}" <<'SQL'
+    CREATE ROLE :"owner" LOGIN SUPERUSER PASSWORD :'password';
+    CREATE DATABASE :"database" OWNER :"owner";
+    SQL
+    {{- end }}
   10-openzaak.sh: |
     #!/bin/bash
     set -euo pipefail
     psql --username openzaak --dbname openzaak --set ON_ERROR_STOP=1 --quiet \
       --file /seed/openzaak-dump/00-restore-migrated-database.sql > /dev/null
+    psql --username openzaak --dbname openzaak --set ON_ERROR_STOP=1 --quiet \
+      --set admin_password_hash="$ADMIN_PASSWORD_HASH" <<'SQL'
+    UPDATE accounts_user SET password = :'admin_password_hash' WHERE username = 'admin';
+    SQL
     for file in /seed/openzaak-data/*.sql; do
       echo "Running $file ..."
       psql --username openzaak --dbname openzaak --set ON_ERROR_STOP=1 \
@@ -67,17 +82,17 @@ spec:
         fsGroup: 999
       containers:
         - name: postgres
-          image: {{ include "zac-dev.image" (list . "postgres") }}
+          image: {{ .Values.postgres.image }}
           args: ["-c", "max_connections=400"]
           env:
             # a directory that the 'postgres' user creates itself, so that it owns it whatever the volume allows
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.generatedSecret }}
-                  key: postgres-password
+            {{- include "zac-dev.generatedSecretEnv" (list . "POSTGRES_PASSWORD" "postgres-password") | nindent 12 }}
+            {{- include "zac-dev.generatedSecretEnv" (list . "ADMIN_PASSWORD_HASH" "admin-password-hash") | nindent 12 }}
+            {{- range .Values.postgres.databases }}
+            {{- include "zac-dev.generatedSecretEnv" (list $ (printf "DB_PASSWORD_%s" (upper .owner)) (printf "db-password-%s" .owner)) | nindent 12 }}
+            {{- end }}
           envFrom:
             - secretRef:
                 name: openzaak-seed-env
@@ -128,12 +143,8 @@ spec:
             medium: Memory
             sizeLimit: 256Mi
         - name: initdb
-          projected:
-            sources:
-              - secret:
-                  name: postgres-initdb-roles
-              - configMap:
-                  name: postgres-initdb
+          configMap:
+            name: postgres-initdb
         - name: openzaak-dump
           configMap:
             name: seed-openzaak-dump
@@ -143,7 +154,7 @@ spec:
         - name: zac
           configMap:
             name: seed-zac-database
-{{- range $name := list "postgres" "zac-database" "openzaak-database" "open-object-database" "openklant-database" "keycloak-database" "pabc-database" }}
+{{- range $name := list "postgres" "zac-database" "openzaak-database" "open-object-database" "openklant-database" "keycloak-database" "pabc-database" "opennotificaties-database" "openarchiefbeheer-database" "openformulieren-database" }}
 ---
 apiVersion: v1
 kind: Service

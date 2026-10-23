@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-# One Redis for the caches and Celery brokers of Open Zaak, Open Klant and Open Object, as in Docker Compose
+# One Redis for the caches and Celery brokers of every component
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -27,7 +27,7 @@ spec:
         fsGroup: 999
       containers:
         - name: redis
-          image: {{ include "zac-dev.image" (list . "redis") }}
+          image: {{ .Values.redis.image }}
           args: ["redis-server", "--save", "", "--appendonly", "no"]
           ports:
             - containerPort: 6379

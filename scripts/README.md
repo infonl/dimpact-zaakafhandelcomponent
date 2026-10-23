@@ -14,7 +14,7 @@ Docker compose volumes and init scripts
 Contains Linux override to workaround `host.docker.internal`
 
 ## [kind](kind)
-Run the local ZAC development stack in a kind cluster, as an alternative to Docker Compose; started through
+Run the local ZAC development stack in a kind cluster, with its images, settings and seed data; started through
 `start-kind.sh`. See [Running ZAC locally on Kubernetes (kind)](../docs/development/installKind.md).
 
 ## [file-templates](file-templates)

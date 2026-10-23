@@ -63,8 +63,9 @@ Before running the integration tests, make sure that a new ZAC Docker image has 
 
 ### Local Kubernetes Stack (kind)
 ```bash
-./start-kind.sh                     # Start all services but ZAC in a kind cluster, same host ports as Docker Compose
+./start-kind.sh                     # Start all services but ZAC in a kind cluster
 ./start-kind.sh -l                  # ... with the locally built ZAC image (-z: registry image, -b: build first)
+./start-kind.sh -l -o -n            # ... plus optional services (-o Open Object, -n Open Notificaties, -a, -f, -t, -m)
 ./stop-kind.sh                      # Stop the cluster (-d: delete it)
 ```
 

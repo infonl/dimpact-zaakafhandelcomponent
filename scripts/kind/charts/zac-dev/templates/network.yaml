@@ -23,9 +23,9 @@ spec:
       nodePort: {{ $port.nodePort }}
 {{- end }}
 {{- /*
-  Docker Compose host names in the ZAC settings and test data (http://openzaak.local:8000 and so on). A host name
+  Host names with a dot in the ZAC settings and the seed data (http://openzaak.local:8000 and so on). A host name
   with a dot cannot be a Service name, so CoreDNS rewrites each of them to one of these Services (see
-  scripts/kind/up.sh), which listen on the Docker Compose port. bag-wiremock.local is rewritten to bag-wiremock.
+  scripts/kind/up.sh), which listen on the port in those URLs. bag-wiremock.local is rewritten to bag-wiremock.
 */}}
 {{- range $alias := list
   (dict "name" "openzaak-local" "selector" "openzaak-nginx" "port" 8000 "targetPort" 8080)
