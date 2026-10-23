@@ -3,15 +3,15 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { Component, computed, inject, signal } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { ActivatedRoute } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { KlantContactmomentenTabelComponent } from "../../contactmomenten/klant-contactmomenten-tabel/klant-contactmomenten-tabel.component";
-import { UtilService } from "../../core/service/util.service";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
@@ -29,15 +29,17 @@ import { KlantenService } from "../klanten.service";
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    TranslateModule,
+    TranslatePipe,
     StaticTextComponent,
     KlantZakenTabelComponent,
     KlantContactmomentenTabelComponent,
   ],
 })
 export class BedrijfViewComponent {
+  private readonly route = inject(ActivatedRoute);
+  private readonly klantenService = inject(KlantenService);
+
   protected bedrijf: GeneratedType<"RestBedrijf"> | null = null;
-  protected profiel: GeneratedType<"RestBedrijfsprofiel"> | null = null;
   protected profielOphalenMogelijk = true;
   warningIcon = new TextIcon(
     () => true,
@@ -46,13 +48,37 @@ export class BedrijfViewComponent {
     "",
     "error",
   );
+  private readonly profielAanvraag = signal<Pick<
+    GeneratedType<"RestBedrijf">,
+    "vestigingsnummer" | "kvkNummer"
+  > | null>(null);
 
-  constructor(
-    private readonly utilService: UtilService,
-    private readonly route: ActivatedRoute,
-    private readonly klantenService: KlantenService,
-  ) {
-    this.utilService.setTitle("bedrijfsgegevens");
+  private readonly vestigingsprofielQuery = injectQuery(() => {
+    const vestigingsnummer = this.profielAanvraag()?.vestigingsnummer;
+    return {
+      ...this.klantenService.readVestigingsprofiel(vestigingsnummer ?? ""),
+      enabled: !!vestigingsnummer,
+    };
+  });
+
+  private readonly basisprofielQuery = injectQuery(() => {
+    const profielAanvraag = this.profielAanvraag();
+    return {
+      ...this.klantenService.readBasisprofiel(profielAanvraag?.kvkNummer ?? ""),
+      enabled:
+        !profielAanvraag?.vestigingsnummer && !!profielAanvraag?.kvkNummer,
+    };
+  });
+
+  protected readonly profiel = computed(() => {
+    const profielAanvraag = this.profielAanvraag();
+    if (!profielAanvraag) return null;
+    if (profielAanvraag.vestigingsnummer)
+      return this.vestigingsprofielQuery.data() ?? null;
+    return this.basisprofielQuery.data() ?? null;
+  });
+
+  constructor() {
     this.route.data.subscribe((data) => {
       this.bedrijf = data.bedrijf;
       this.profielOphalenMogelijk =
@@ -63,18 +89,9 @@ export class BedrijfViewComponent {
 
   protected ophalenProfiel() {
     this.profielOphalenMogelijk = false;
-    if (this.bedrijf?.vestigingsnummer) {
-      this.klantenService
-        .readVestigingsprofiel(this.bedrijf.vestigingsnummer)
-        .subscribe((value) => {
-          this.profiel = value;
-        });
-    } else if (this.bedrijf?.kvkNummer) {
-      this.klantenService
-        .readBasisprofiel(this.bedrijf.kvkNummer)
-        .subscribe((value) => {
-          this.profiel = value;
-        });
-    }
+    this.profielAanvraag.set({
+      vestigingsnummer: this.bedrijf?.vestigingsnummer,
+      kvkNummer: this.bedrijf?.kvkNummer,
+    });
   }
 }

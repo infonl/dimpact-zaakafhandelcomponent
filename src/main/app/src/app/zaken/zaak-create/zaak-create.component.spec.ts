@@ -15,7 +15,7 @@ import { MatInputHarness } from "@angular/material/input/testing";
 import { MatSelectHarness } from "@angular/material/select/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { Router, RouterModule, Routes } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import {
   provideQueryClient,
   QueryClient,
@@ -25,7 +25,6 @@ import { screen } from "@testing-library/angular";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
-import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { KlantenService } from "../../klanten/klanten.service";
@@ -48,8 +47,6 @@ interface AnimationMock {
 describe(ZaakCreateComponent.name, () => {
   let identityService: IdentityService;
   let zakenService: ZakenService;
-  let zaakafhandelParametersService: ZaakafhandelParametersService;
-  let utilService: UtilService;
   let referentieTabelService: ReferentieTabelService;
   let fixture: ComponentFixture<ZaakCreateComponent>;
   let loader: HarnessLoader;
@@ -58,6 +55,7 @@ describe(ZaakCreateComponent.name, () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
+        provideTranslateService(),
         ZakenService,
         KlantenService,
         ReferentieTabelService,
@@ -68,7 +66,6 @@ describe(ZaakCreateComponent.name, () => {
       imports: [
         ZaakCreateComponent,
         RouterModule.forRoot(routes),
-        TranslateModule.forRoot(),
         NoopAnimationsModule,
         MatHint,
         MatIcon,
@@ -115,6 +112,7 @@ describe(ZaakCreateComponent.name, () => {
           omschrijving: "test-bpmn-description-1",
           vertrouwelijkheidaanduiding: "OPENBAAR",
           zaakafhandelparameters: {
+            defaultGroepId: "test-bpmn-group-id",
             zaaktype: { uuid: "uuid-test-bpmn-zaaktype-1" },
           },
         }),
@@ -129,24 +127,6 @@ describe(ZaakCreateComponent.name, () => {
           }),
         ),
     });
-
-    zaakafhandelParametersService = TestBed.inject(
-      ZaakafhandelParametersService,
-    );
-    jest
-      .spyOn(zaakafhandelParametersService, "getZaaktypeBpmnConfiguration")
-      .mockReturnValue(
-        of([
-          fromPartial<GeneratedType<"RestZaaktypeBpmnConfiguration">>({
-            bpmnProcessDefinitionKey: "bpmn-process-1",
-            groepNaam: "test-bpmn-group-id",
-            zaaktypeUuid: "uuid-test-bpmn-zaaktype-1",
-          }),
-        ]),
-      );
-
-    utilService = TestBed.inject(UtilService);
-    jest.spyOn(utilService, "setTitle").mockImplementation(jest.fn());
 
     referentieTabelService = TestBed.inject(ReferentieTabelService);
     jest

@@ -7,6 +7,7 @@ package nl.info.zac.itest
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -18,6 +19,7 @@ import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHANDELAAR_1_EN_BRP_ZOEKER_2
+import nl.info.zac.itest.config.BEHANDELAAR_BPMN_WAARSCHUWING_1
 import nl.info.zac.itest.config.BEHANDELAAR_LONG_NAME_TEST
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_LONG_NAME_TEST
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
@@ -32,6 +34,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
 import java.util.UUID
@@ -70,6 +73,13 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
             requestBodyAsString = """
                 { "groepId": "${group.name}", "medewerkerId": "${medewerker.username}" }
             """.trimIndent(),
+            testUser = testUser
+        )
+
+    fun removeMedewerker(zaakUuid: UUID, medewerker: TestUser, testUser: TestUser) =
+        itestHttpClient.performDeleteRequest(
+            url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/zaakspecifiek-geautoriseerde-medewerkers/${medewerker.username}",
+            requestBodyAsString = """{ "reden": "fakeReden" }""",
             testUser = testUser
         )
 
@@ -143,8 +153,11 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
         `when`("the zaakbehandelaar lists the kandidaten of the behandelaar groep") {
             val kandidaten = listKandidaten(zaakUuid, GROUP_BEHANDELAARS_TEST_1, BEHANDELAAR_1)
 
-            then("only the medewerker without access is returned") {
-                kandidaten shouldBe listOf(BEHANDELAAR_1_EN_BRP_ZOEKER_2.username)
+            then("only the medewerkers without access are returned") {
+                kandidaten shouldContainExactlyInAnyOrder listOf(
+                    BEHANDELAAR_1_EN_BRP_ZOEKER_2.username,
+                    BEHANDELAAR_BPMN_WAARSCHUWING_1.username
+                )
             }
 
             and("that medewerker cannot read the zaak yet") {
@@ -212,7 +225,8 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
             }
 
             and("the medewerker is no longer a kandidaat") {
-                listKandidaten(zaakUuid, GROUP_BEHANDELAARS_TEST_1, BEHANDELAAR_1) shouldBe emptyList()
+                listKandidaten(zaakUuid, GROUP_BEHANDELAARS_TEST_1, BEHANDELAAR_1) shouldBe
+                    listOf(BEHANDELAAR_BPMN_WAARSCHUWING_1.username)
             }
         }
 
@@ -243,6 +257,92 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
             then("that medewerker can read the zaak as well") {
                 response.code shouldBe HTTP_OK
                 readZaak(zaakUuid, BEHANDELAAR_LONG_NAME_TEST).code shouldBe HTTP_OK
+            }
+        }
+
+        `when`("the medewerkers with access are listed") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/zaakspecifiek-geautoriseerde-medewerkers",
+                testUser = BEHANDELAAR_1
+            )
+
+            then("only the added medewerkers can be detached, not the zaakbehandelaar") {
+                response.code shouldBe HTTP_OK
+                JSONArray(response.bodyAsString).let { medewerkers ->
+                    (0 until medewerkers.length())
+                        .map(medewerkers::getJSONObject)
+                        .associate { it.getString("id") to it.getBoolean("isDetachable") }
+                } shouldBe mapOf(
+                    BEHANDELAAR_1.username to false,
+                    BEHANDELAAR_1_EN_BRP_ZOEKER_2.username to true,
+                    BEHANDELAAR_LONG_NAME_TEST.username to true
+                )
+            }
+        }
+
+        `when`("a medewerker is detached without a reden") {
+            val response = itestHttpClient.performDeleteRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/zaakspecifiek-geautoriseerde-medewerkers/" +
+                    BEHANDELAAR_1_EN_BRP_ZOEKER_2.username,
+                requestBodyAsString = """{ "reden": " " }""",
+                testUser = BEHANDELAAR_1
+            )
+
+            then("the request is refused as invalid and the medewerker keeps access") {
+                response.code shouldBe HTTP_BAD_REQUEST
+                zaakspecifiekGeautoriseerdeMedewerkerIds(zaakUuid) shouldContain BEHANDELAAR_1_EN_BRP_ZOEKER_2.username
+            }
+        }
+
+        `when`("the added medewerker detaches the zaakbehandelaar") {
+            val response = removeMedewerker(zaakUuid, BEHANDELAAR_1, BEHANDELAAR_1_EN_BRP_ZOEKER_2)
+
+            then("the request is refused and the zaakbehandelaar keeps access") {
+                response.code shouldBe HTTP_BAD_REQUEST
+                response.bodyAsString shouldContain "msg.error.medewerker.cannot.be.detached"
+                readZaak(zaakUuid, BEHANDELAAR_1).code shouldBe HTTP_OK
+            }
+        }
+
+        `when`("the zaakbehandelaar detaches the first added medewerker with a reden") {
+            val response = removeMedewerker(zaakUuid, BEHANDELAAR_1_EN_BRP_ZOEKER_2, BEHANDELAAR_1)
+
+            then("the medewerker is no longer a zaakspecifiek geautoriseerde medewerker of the zaak in Open Zaak") {
+                response.code shouldBe HTTP_NO_CONTENT
+                zaakspecifiekGeautoriseerdeMedewerkerIds(zaakUuid) shouldBe listOf(BEHANDELAAR_LONG_NAME_TEST.username)
+            }
+
+            and("the medewerker can no longer read the zaak and no longer finds the zaak, its taak and its document") {
+                readZaak(zaakUuid, BEHANDELAAR_1_EN_BRP_ZOEKER_2).code shouldBe HTTP_FORBIDDEN
+                eventually(30.seconds) {
+                    searchTotalForAddedMedewerker("ZAAK", "ZAAK_IDENTIFICATIE", zaakIdentificatie) shouldBe 0
+                    searchTotalForAddedMedewerker("TAAK", "TAAK_ZAAK_ID", zaakIdentificatie) shouldBe 0
+                    searchTotalForAddedMedewerker("DOCUMENT", "DOCUMENT_TITEL", documentTitle) shouldBe 0
+                }
+            }
+
+            and("the zaakhistorie shows that the zaakspecifiek geautoriseerde medewerker was detached with the reden") {
+                itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/historie",
+                    testUser = BEHANDELAAR_1
+                ).let { historieResponse ->
+                    historieResponse.code shouldBe HTTP_OK
+                    JSONArray(historieResponse.bodyAsString).let { lines ->
+                        (0 until lines.length())
+                            .map(lines::getJSONObject)
+                            .filter { it.getString("attribuutLabel") == ROLTYPE_NAME_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER }
+                            .map { listOf(it.getString("actie"), it.optString("oudeWaarde"), it.optString("toelichting")) }
+                    } shouldContain listOf("ONTKOPPELD", BEHANDELAAR_1_EN_BRP_ZOEKER_2.displayName, "fakeReden")
+                }
+            }
+        }
+
+        `when`("the detached medewerker is detached again") {
+            val response = removeMedewerker(zaakUuid, BEHANDELAAR_1_EN_BRP_ZOEKER_2, BEHANDELAAR_1)
+
+            then("the request is refused, because the medewerker holds no zaakspecifiek geautoriseerde medewerker rol") {
+                response.code shouldBe HTTP_BAD_REQUEST
+                response.bodyAsString shouldContain "msg.error.medewerker.not.zaakspecifiek.geautoriseerd"
             }
         }
     }

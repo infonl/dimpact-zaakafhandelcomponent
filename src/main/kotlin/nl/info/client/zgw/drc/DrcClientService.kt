@@ -5,17 +5,13 @@
 package nl.info.client.zgw.drc
 
 import jakarta.enterprise.context.ApplicationScoped
+import jakarta.inject.Inject
 import jakarta.json.Json
 import jakarta.json.JsonObject
 import jakarta.json.bind.JsonbBuilder
-import jakarta.inject.Inject
 import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.WebApplicationException
 import jakarta.ws.rs.core.Response
-import nl.info.client.zgw.shared.model.Results
-import nl.info.client.zgw.shared.exception.ZgwRuntimeException
-import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
-import nl.info.client.zgw.shared.model.audit.AuditTrailRegel
 import nl.info.client.zgw.drc.exception.DrcRuntimeException
 import nl.info.client.zgw.drc.model.BestandsDeelInputStream
 import nl.info.client.zgw.drc.model.BestandsDeelMultipartBody
@@ -27,6 +23,10 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateL
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
 import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
 import nl.info.client.zgw.drc.model.generated.LockEnkelvoudigInformatieObject
+import nl.info.client.zgw.shared.exception.ZgwRuntimeException
+import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
+import nl.info.client.zgw.shared.model.Results
+import nl.info.client.zgw.shared.model.audit.AuditTrailRegel
 import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.util.validateZgwApiUri
@@ -38,8 +38,8 @@ import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.io.FilterInputStream
-import java.io.StringReader
 import java.io.InputStream
+import java.io.StringReader
 import java.net.URI
 import java.util.UUID
 import java.util.logging.Logger

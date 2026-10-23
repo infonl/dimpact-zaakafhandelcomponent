@@ -10,7 +10,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatProgressBarHarness } from "@angular/material/progress-bar/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { Router } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { screen } from "@testing-library/angular";
@@ -28,12 +28,9 @@ describe(LoadingComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        LoadingComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+      imports: [LoadingComponent, NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         {
           provide: UtilService,
           useValue: {

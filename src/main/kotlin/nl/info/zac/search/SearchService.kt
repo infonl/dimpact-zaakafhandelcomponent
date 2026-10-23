@@ -9,6 +9,7 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import nl.info.client.pabc.ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.IndexingService.Companion.SOLR_CORE
 import nl.info.zac.search.model.FilterParameters
@@ -58,6 +59,8 @@ class SearchService @Inject constructor(
         // terms query's values cannot be told apart from the rest of the query.
         private const val ZAAKTYPEN_ZONDER_ZAAKSPECIFIEK_GEAUTORISEERD_PARAMETER =
             "zaaktypenZonderZaakspecifiekGeautoriseerd"
+
+        private const val GEZOCHTE_WAARDEN_PARAMETER = "gezochteWaarden"
     }
 
     init {
@@ -67,8 +70,10 @@ class SearchService @Inject constructor(
     @Suppress("LongMethod")
     fun search(zoekParameters: ZoekParameters): ZoekResultaat<out ZoekObject> {
         val query = SolrQuery("*:*")
-        getAllowedZaaktypenFilterQuery()?.let(query::addFilterQuery)
-        addZaakspecifiekGeautoriseerdFilterQuery(query)
+        if (!isSystemWork()) {
+            getAllowedZaaktypenFilterQuery()?.let(query::addFilterQuery)
+            addZaakspecifiekGeautoriseerdFilterQuery(query)
+        }
         zoekParameters.type?.let { query.addFilterQuery("type:${zoekParameters.type}") }
         getFilterQueriesForZoekenParameters(zoekParameters).forEach(query::addFilterQuery)
         getFilterQueriesForDatumsParameters(zoekParameters).forEach(query::addFilterQuery)
@@ -86,9 +91,11 @@ class SearchService @Inject constructor(
         query.setParam("q.op", SimpleParams.AND_OPERATOR)
         query.rows = zoekParameters.rows
         query.start = zoekParameters.start
-        if (zoekParameters.sortering.richting != SorteerRichting.NONE) {
+        val primarySorteerVeld = zoekParameters.sortering.sorteerVeld
+            .takeIf { zoekParameters.sortering.richting != SorteerRichting.NONE }
+        primarySorteerVeld?.let {
             query.addSort(
-                zoekParameters.sortering.sorteerVeld.veld,
+                it.veld,
                 if (zoekParameters.sortering.richting == SorteerRichting.DESCENDING) {
                     SolrQuery.ORDER.desc
                 } else {
@@ -97,10 +104,10 @@ class SearchService @Inject constructor(
             )
         }
 
-        if (zoekParameters.sortering.sorteerVeld != SorteerVeld.CREATED) {
+        if (primarySorteerVeld != SorteerVeld.CREATED) {
             query.addSort(SorteerVeld.CREATED.veld, SolrQuery.ORDER.desc)
         }
-        if (zoekParameters.sortering.sorteerVeld != SorteerVeld.ZAAK_IDENTIFICATIE) {
+        if (primarySorteerVeld != SorteerVeld.ZAAK_IDENTIFICATIE) {
             query.addSort(SorteerVeld.ZAAK_IDENTIFICATIE.veld, SolrQuery.ORDER.desc)
         }
 
@@ -108,6 +115,32 @@ class SearchService @Inject constructor(
         query.addSort("id", SolrQuery.ORDER.desc)
 
         return solrSearch(query)
+    }
+
+    fun listZaakspecifiekGeautoriseerdeWaarden(
+        waarden: Collection<String>,
+        type: ZoekObjectType = ZoekObjectType.ZAAK,
+        veld: String = ZoekVeld.ZAAK_IDENTIFICATIE.veld
+    ): Set<String> {
+        val distinctWaarden = waarden.toSet()
+        if (distinctWaarden.isEmpty()) return emptySet()
+        val query = SolrQuery("*:*").apply {
+            addFilterQuery("type:$type")
+            addFilterQuery("${ZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD}:true")
+            set(GEZOCHTE_WAARDEN_PARAMETER, distinctWaarden.joinToString(TERMS_SEPARATOR))
+            addFilterQuery("{!terms f=$veld separator='$TERMS_SEPARATOR' v=\$$GEZOCHTE_WAARDEN_PARAMETER}")
+            setFields(veld)
+            rows = distinctWaarden.size
+        }
+        try {
+            return solrClient.query(query, SolrRequest.METHOD.POST).results
+                .map { it.getFieldValue(veld).toString() }
+                .toSet()
+        } catch (ioException: IOException) {
+            throw SearchException("Failed to look up zaakspecifiek geautoriseerde $type objects", ioException)
+        } catch (solrServerException: SolrServerException) {
+            throw SearchException("Failed to look up zaakspecifiek geautoriseerde $type objects", solrServerException)
+        }
     }
 
     private fun solrSearch(query: SolrQuery): ZoekResultaat<out ZoekObject> {
@@ -180,6 +213,8 @@ class SearchService @Inject constructor(
                 null
             }
         }
+
+    private fun isSystemWork() = LoggedInUserProvider.systemUser.get()
 
     // Mirrors OPA's `lezen` rules, which evaluate the roles for the zaaktype together with the overall roles.
     private fun getAllowedZaaktypenFilterQuery(): String? =

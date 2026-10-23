@@ -12,14 +12,18 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.buildHeaders
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHEERDER_1
+import nl.info.zac.itest.config.COORDINATOR_1
+import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_MANAGEMENT_URI
-import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.config.USER_WITHOUT_ANY_ROLE
 import nl.info.zac.itest.config.USER_WITHOUT_READ_ROLE
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import java.net.HttpURLConnection.HTTP_MOVED_TEMP
 import java.net.HttpURLConnection.HTTP_OK
@@ -214,6 +218,67 @@ class AppContainerTest : BehaviorSpec({
                 }
             }
         }
+        listOf("/documenten/inbox", "/productaanvragen/inbox").forEach { path ->
+            `when`("$path is requested for a user who has the 'coordinator' role") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_BASE_URI$path",
+                    testUser = COORDINATOR_1
+                )
+                then("the response should be ok") {
+                    response.code shouldBe HTTP_OK
+                }
+            }
+            `when`("$path is requested for a user who has the 'behandelaar' role but not the 'inbox' right") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_BASE_URI$path",
+                    testUser = BEHANDELAAR_1
+                )
+                then("the response is forbidden and shows the generic no-permission page with a home button") {
+                    response.code shouldBe HTTP_FORBIDDEN
+                    with(response.bodyAsString) {
+                        shouldContain("U heeft geen toestemming om deze pagina te bekijken.")
+                        shouldContain("class=\"home-button\"")
+                    }
+                }
+            }
+        }
+        listOf("/%61dmin", "/admin;view=list", "/%64ocumenten/inbox", "/documenten/inbox;view=list").forEach { path ->
+            `when`("$path is requested for a user who has the 'behandelaar' role but not the right for that page") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_BASE_URI$path",
+                    testUser = BEHANDELAAR_1
+                )
+                then("the response is forbidden and shows the generic no-permission page with a home button") {
+                    response.code shouldBe HTTP_FORBIDDEN
+                    with(response.bodyAsString) {
+                        shouldContain("U heeft geen toestemming om deze pagina te bekijken.")
+                        shouldContain("class=\"home-button\"")
+                    }
+                }
+            }
+        }
+        `when`("/zaken/create is requested for a user who has the 'behandelaar' role") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_BASE_URI/zaken/create",
+                testUser = BEHANDELAAR_1
+            )
+            then("the response should be ok") {
+                response.code shouldBe HTTP_OK
+            }
+        }
+        `when`("/zaken/create is requested for a user who has only the 'raadpleger' role") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_BASE_URI/zaken/create",
+                testUser = RAADPLEGER_1
+            )
+            then("the response is forbidden and shows the generic no-permission page with a home button") {
+                response.code shouldBe HTTP_FORBIDDEN
+                with(response.bodyAsString) {
+                    shouldContain("U heeft geen toestemming om deze pagina te bekijken.")
+                    shouldContain("class=\"home-button\"")
+                }
+            }
+        }
     }
 
     given("A logged-in user who does not have any of the ZAC application roles") {
@@ -290,6 +355,64 @@ class AppContainerTest : BehaviorSpec({
             then("the response should redirect to the ZAC root") {
                 response.code shouldBe HTTP_MOVED_TEMP
                 response.headers["Location"] shouldBe "$ZAC_BASE_URI/"
+            }
+        }
+    }
+
+    given("An OIDC callback URL of a login attempt that is no longer in progress") {
+        val callbackUrl = "$ZAC_BASE_URI/documenten/inbox?state=fakeState&session_state=fakeSessionState&code=fakeCode"
+
+        `when`("the callback URL is requested without a state cookie") {
+            val response = itestHttpClient.performGetRequest(url = callbackUrl)
+
+            then("the response redirects to the same page without the OIDC parameters, so that a new login starts") {
+                response.code shouldBe HTTP_MOVED_TEMP
+                response.headers["Location"] shouldBe "/documenten/inbox"
+            }
+        }
+
+        `when`("the callback URL is requested with the state cookie of another login attempt") {
+            val response = itestHttpClient.performGetRequest(
+                url = callbackUrl,
+                headers = buildHeaders(acceptType = null).newBuilder()
+                    .add("Cookie", "OAuth_Token_Request_State=fakeOtherState")
+                    .build()
+            )
+
+            then("the response redirects to the same page without the OIDC parameters, so that a new login starts") {
+                response.code shouldBe HTTP_MOVED_TEMP
+                response.headers["Location"] shouldBe "/documenten/inbox"
+            }
+        }
+
+        `when`("the callback URL is requested with the state cookie of the same login attempt") {
+            val response = itestHttpClient.performGetRequest(
+                url = callbackUrl,
+                headers = buildHeaders(acceptType = null).newBuilder()
+                    .add("Cookie", "OAuth_Token_Request_State=fakeState")
+                    .build()
+            )
+
+            then(
+                "the request is not redirected to itself but handled as an OIDC callback, which is forbidden " +
+                    "because the code is not valid"
+            ) {
+                response.code shouldBe HTTP_FORBIDDEN
+                response.headers["Location"] shouldBe null
+            }
+        }
+
+        `when`("the callback URL with a path that starts with two slashes is requested without a state cookie") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_BASE_URI//attacker.example/documenten/inbox?state=fakeState&code=fakeCode"
+            )
+
+            then(
+                "the response is a bad request and does not redirect to the path, because a browser would open " +
+                    "that path on another host"
+            ) {
+                response.code shouldBe HTTP_BAD_REQUEST
+                response.headers["Location"] shouldBe null
             }
         }
     }

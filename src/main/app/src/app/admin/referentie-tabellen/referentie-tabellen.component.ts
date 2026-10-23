@@ -24,7 +24,7 @@ import {
   MatSidenavModule,
 } from "@angular/material/sidenav";
 import { MatTooltipModule } from "@angular/material/tooltip";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -53,7 +53,7 @@ import { ReferentieTabelRowDirective } from "./referentie-tabel-row.directive";
     MatIconModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    TranslateModule,
+    TranslatePipe,
     SideNavComponent,
     ReferentieTabelItemComponent,
     ReferentieTabelRowDirective,

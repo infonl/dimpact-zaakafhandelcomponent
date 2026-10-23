@@ -10,15 +10,13 @@
     @if (bericht) {
       <p>{{ bericht }}</p>
     }
-    @if ((serverErrorTexts | async)?.length ?? 0 > 0) {
-      @for (
-        serverErrorText of serverErrorTexts | async;
-        track serverErrorText
-      ) {
-        <p>
-          {{ serverErrorText }}
-        </p>
-      }
+    @for (
+      serverErrorText of serverErrorTextsQuery.data() ?? [];
+      track serverErrorText
+    ) {
+      <p>
+        {{ serverErrorText }}
+      </p>
     }
   </mat-card-content>
 </mat-card>

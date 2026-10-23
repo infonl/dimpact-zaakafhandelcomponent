@@ -15,8 +15,6 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.event.EventingService
-import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.createBesluit
 import nl.info.client.zgw.model.createZaak
@@ -33,6 +31,7 @@ import nl.info.zac.app.zaak.model.createRestBesluitCreateData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.besluit.BesluitService
+import nl.info.zac.event.EventingService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.policy.PolicyService
@@ -41,6 +40,7 @@ import nl.info.zac.policy.output.createWerklijstRechten
 import nl.info.zac.policy.output.createWerklijstRechtenAllDeny
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
+import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.zaak.ZaakService
 import java.net.URI
 import java.time.LocalDate

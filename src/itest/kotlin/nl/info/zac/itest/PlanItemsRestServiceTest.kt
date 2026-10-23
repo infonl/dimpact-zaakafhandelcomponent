@@ -17,8 +17,8 @@ import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
-import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
+import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_AANVULLENDE_INFORMATIE_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_AANVULLENDE_INFORMATIE_MAIL_BODY

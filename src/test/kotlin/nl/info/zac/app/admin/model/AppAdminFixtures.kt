@@ -4,9 +4,12 @@
  */
 package nl.info.zac.app.admin.model
 
-import net.atos.zac.app.admin.model.RestZaakbeeindigReden
+import nl.info.zac.admin.model.ProcessEngine
+import nl.info.zac.app.planitems.model.PlanItemType
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.app.zaak.model.RestResultaattype
+import nl.info.zac.mailtemplates.model.Mail
+import nl.info.zac.mailtemplates.model.MailTemplateVariables
 import java.time.LocalDate
 import java.util.UUID
 
@@ -69,10 +72,12 @@ fun createRestZaaktypeConfiguration(
     defaultGroupId: String? = "fakeGroupId",
     defaultBehandelaarId: String? = null,
     restBetrokkeneKoppelingen: RestBetrokkeneKoppelingen = RestBetrokkeneKoppelingen(),
-    restBrpDoelbindingen: RestBrpDoelbindingen = RestBrpDoelbindingen()
+    restBrpDoelbindingen: RestBrpDoelbindingen = RestBrpDoelbindingen(),
+    restProcessDefinition: RestProcessDefinition? = createRestProcessDefinition()
 ) = RestZaaktypeConfiguration(
     id = id,
     zaaktype = restZaaktypeOverzicht,
+    processDefinition = restProcessDefinition,
     productaanvraagtype = productaanvraagtype,
     smartDocuments = RestSmartDocuments(
         isEnabledGlobally = true,
@@ -84,33 +89,16 @@ fun createRestZaaktypeConfiguration(
     brpDoelbindingen = restBrpDoelbindingen
 )
 
+fun createRestProcessDefinition(
+    processEngine: ProcessEngine = ProcessEngine.CMMN,
+    key: String = "fakeProcessDefinitionKey",
+    naam: String? = "fakeProcessDefinitionName"
+) = RestProcessDefinition(processEngine = processEngine, key = key, naam = naam)
+
 fun createRestBetrokkeneKoppelingen(
     brpKoppelen: Boolean = false,
     kvkKoppelen: Boolean = false
 ) = RestBetrokkeneKoppelingen(isBrpKoppelenEnabled = brpKoppelen, isKvkKoppelenEnabled = kvkKoppelen)
-
-@Suppress("LongParameterList")
-fun createRestZaaktypeBpmnConfiguration(
-    id: Long = 1L,
-    zaaktypeUuid: UUID = UUID.randomUUID(),
-    bpmnProcessDefinitionKey: String = "fakeProcessDefinitionKey",
-    zaaktypeOmschrijving: String = "fakeZaaktypeOmschrijving",
-    groepNaam: String? = "fakeGroupName",
-    productaanvraagtype: String? = null,
-    zaakNietOntvankelijkResultaattype: RestResultaattype? = null,
-    zaakBeeindigParameters: List<RestZaakbeeindigParameter> = emptyList(),
-    smartDocuments: RestSmartDocuments? = null
-) = RestZaaktypeBpmnConfiguration(
-    id = id,
-    zaaktypeUuid = zaaktypeUuid,
-    bpmnProcessDefinitionKey = bpmnProcessDefinitionKey,
-    zaaktypeOmschrijving = zaaktypeOmschrijving,
-    groepNaam = groepNaam,
-    productaanvraagtype = productaanvraagtype,
-    zaakNietOntvankelijkResultaattype = zaakNietOntvankelijkResultaattype,
-    zaakbeeindigParameters = zaakBeeindigParameters,
-    smartDocuments = smartDocuments
-)
 
 @Suppress("LongParameterList")
 fun createRestZaaktypeOverzicht(
@@ -140,10 +128,10 @@ fun createRestZaaktypeOverzicht(
 fun createRestZaakbeeindigReden(
     id: String = "fakeZaakbeeindigRedenId",
     name: String = "fakeZaakbeeindigRedenName"
-) = RestZaakbeeindigReden().apply {
-    this.id = id
-    this.naam = name
-}
+) = RestZaakbeeindigReden(
+    id = id,
+    naam = name
+)
 
 @Suppress("LongParameterList")
 fun createRestResultaattype(
@@ -170,4 +158,33 @@ fun createRestZaakbeeindigParameter(
     id = id,
     zaakbeeindigReden = zaakbeeindigReden,
     resultaattype = resultaattype
+)
+
+fun createRestPlanItemDefinition(
+    id: String = "fakeId",
+    naam: String = "fakePlanItemNaam",
+    type: PlanItemType = PlanItemType.HUMAN_TASK
+) = RestPlanItemDefinition(
+    id = id,
+    naam = naam,
+    type = type
+)
+
+@Suppress("LongParameterList")
+fun createRestMailTemplate(
+    id: Long = 1234L,
+    mailTemplateName: String = "fakeTemplateName",
+    subject: String = "fakeSubject",
+    body: String = "fakeBody",
+    mail: Mail = Mail.ZAAK_ALGEMEEN,
+    mailTemplateVariables: Set<MailTemplateVariables> = emptySet(),
+    defaultTemplate: Boolean = false
+) = RestMailtemplate(
+    id = id,
+    mailTemplateNaam = mailTemplateName,
+    onderwerp = subject,
+    body = body,
+    mail = mail,
+    variabelen = mailTemplateVariables,
+    isDefaultMailtemplate = defaultTemplate
 )

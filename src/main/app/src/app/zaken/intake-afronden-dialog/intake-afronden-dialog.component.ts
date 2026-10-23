@@ -4,7 +4,7 @@
  */
 
 import { AsyncPipe } from "@angular/common";
-import { Component, Inject, OnDestroy } from "@angular/core";
+import { Component, OnDestroy, inject } from "@angular/core";
 import {
   AbstractControl,
   FormBuilder,
@@ -28,7 +28,8 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatRadioModule } from "@angular/material/radio";
 import { MatSelectModule } from "@angular/material/select";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { Observable, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
@@ -61,12 +62,34 @@ import { ZakenService } from "../zaken.service";
     MatSelectModule,
     MatExpansionModule,
     MatProgressSpinnerModule,
-    TranslateModule,
+    TranslatePipe,
   ],
 })
 export class IntakeAfrondenDialogComponent implements OnDestroy {
-  zaakOntvankelijkMail?: GeneratedType<"RestMailtemplate">;
-  zaakNietOntvankelijkMail?: GeneratedType<"RestMailtemplate">;
+  dialogRef = inject<MatDialogRef<IntakeAfrondenDialogComponent>>(MatDialogRef);
+  data = inject<{
+    zaak: GeneratedType<"RestZaak">;
+    planItem: GeneratedType<"RestPlanItem">;
+  }>(MAT_DIALOG_DATA);
+  private formBuilder = inject(FormBuilder);
+  private translateService = inject(TranslateService);
+  private planItemsService = inject(PlanItemsService);
+  private mailtemplateService = inject(MailtemplateService);
+  private zakenService = inject(ZakenService);
+  private utilService = inject(UtilService);
+
+  protected readonly zaakOntvankelijkMailQuery = injectQuery(() =>
+    this.mailtemplateService.findMailtemplate(
+      "ZAAK_ONTVANKELIJK",
+      this.data.zaak.uuid,
+    ),
+  );
+  protected readonly zaakNietOntvankelijkMailQuery = injectQuery(() =>
+    this.mailtemplateService.findMailtemplate(
+      "ZAAK_NIET_ONTVANKELIJK",
+      this.data.zaak.uuid,
+    ),
+  );
   mailBeschikbaar = false;
   sendMailDefault = false;
   protected readonly contactEmailAddress = injectContactEmail(
@@ -84,33 +107,10 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
     },
   );
 
-  constructor(
-    public dialogRef: MatDialogRef<IntakeAfrondenDialogComponent>,
-    @Inject(MAT_DIALOG_DATA)
-    public data: {
-      zaak: GeneratedType<"RestZaak">;
-      planItem: GeneratedType<"RestPlanItem">;
-    },
-    private formBuilder: FormBuilder,
-    private translateService: TranslateService,
-    private planItemsService: PlanItemsService,
-    private mailtemplateService: MailtemplateService,
-    private zakenService: ZakenService,
-    private utilService: UtilService,
-  ) {
+  constructor() {
     this.afzenders = this.zakenService.listAfzendersVoorZaak(
       this.data.zaak.uuid,
     );
-    this.mailtemplateService
-      .findMailtemplate("ZAAK_ONTVANKELIJK", this.data.zaak.uuid)
-      .subscribe((mailtemplate) => {
-        this.zaakOntvankelijkMail = mailtemplate;
-      });
-    this.mailtemplateService
-      .findMailtemplate("ZAAK_NIET_ONTVANKELIJK", this.data.zaak.uuid)
-      .subscribe((mailtemplate) => {
-        this.zaakNietOntvankelijkMail = mailtemplate;
-      });
 
     const zap = this.data.zaak.zaaktype.zaakafhandelparameters;
     this.mailBeschikbaar = zap?.intakeMail !== "NIET_BESCHIKBAAR";
@@ -175,8 +175,8 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
     this.dialogRef.disableClose = true;
     const values = this.formGroup.value;
     const mailtemplate = values.ontvankelijk
-      ? this.zaakOntvankelijkMail
-      : this.zaakNietOntvankelijkMail;
+      ? this.zaakOntvankelijkMailQuery.data()
+      : this.zaakNietOntvankelijkMailQuery.data();
 
     this.afrondenMutation.mutate({
       actie: "INTAKE_AFRONDEN",

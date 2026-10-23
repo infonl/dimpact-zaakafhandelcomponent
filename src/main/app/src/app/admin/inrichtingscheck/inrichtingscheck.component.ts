@@ -11,8 +11,14 @@ import {
   trigger,
 } from "@angular/animations";
 
-import { AfterViewInit, Component, OnInit, viewChild } from "@angular/core";
-import { MatButtonModule } from "@angular/material/button";
+import {
+  Component,
+  computed,
+  effect,
+  OnInit,
+  untracked,
+  viewChild,
+} from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -25,10 +31,10 @@ import {
 } from "@angular/material/sidenav";
 import { MatSortModule, Sort } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
-import { injectMutation } from "../../shared/http/inject-mutation";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
@@ -66,8 +72,7 @@ import { HealthCheckService } from "../health-check.service";
     MatSortModule,
     MatFormFieldModule,
     MatInputModule,
-    MatButtonModule,
-    TranslateModule,
+    TranslatePipe,
     DatumPipe,
     SideNavComponent,
     ToggleFilterComponent,
@@ -77,7 +82,7 @@ import { HealthCheckService } from "../health-check.service";
 })
 export class InrichtingscheckComponent
   extends AdminComponent
-  implements OnInit, AfterViewInit
+  implements OnInit
 {
   protected readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
@@ -88,8 +93,6 @@ export class InrichtingscheckComponent
   protected dataSource: MatTableDataSource<
     GeneratedType<"RestZaaktypeInrichtingscheck">
   > = new MatTableDataSource<GeneratedType<"RestZaaktypeInrichtingscheck">>();
-  protected loadingZaaktypes = true;
-  protected loadingCommunicatiekanaal = true;
   protected columnsToDisplay = [
     "valide",
     "expand",
@@ -101,16 +104,20 @@ export class InrichtingscheckComponent
     null;
   protected valideFilter: ToggleSwitchOptions = ToggleSwitchOptions.UNCHECKED;
   private filterValue = "";
-  protected bestaatCommunicatiekanaalEformulier = false;
-  protected ztcCacheTime = "";
-  private readonly clearZTCCachesMutation = injectMutation(
-    () => this.healtCheckService.clearZTCCaches(),
-    {
-      onSuccess: (value) => {
-        this.ztcCacheTime = value;
-        this.checkZaaktypes();
-      },
-    },
+  private readonly zaaktypeInrichtingschecksQuery = injectQuery(() =>
+    this.healtCheckService.listZaaktypeInrichtingschecks(),
+  );
+  protected readonly loadingZaaktypes = computed(() =>
+    this.zaaktypeInrichtingschecksQuery.isFetching(),
+  );
+  private readonly bestaatCommunicatiekanaalEformulierQuery = injectQuery(() =>
+    this.healtCheckService.readBestaatCommunicatiekanaalEformulier(),
+  );
+  protected readonly loadingCommunicatiekanaal = computed(() =>
+    this.bestaatCommunicatiekanaalEformulierQuery.isPending(),
+  );
+  protected readonly bestaatCommunicatiekanaalEformulier = computed(() =>
+    Boolean(this.bestaatCommunicatiekanaalEformulierQuery.data()),
   );
 
   constructor(
@@ -119,14 +126,7 @@ export class InrichtingscheckComponent
     private healtCheckService: HealthCheckService,
   ) {
     super(utilService, configuratieService);
-  }
 
-  ngOnInit(): void {
-    this.setupMenu("title.inrichtingscheck");
-  }
-
-  ngAfterViewInit(): void {
-    super.ngAfterViewInit();
     this.dataSource.filterPredicate = (data, filter: string) => {
       if (
         this.valideFilter === ToggleSwitchOptions.CHECKED &&
@@ -146,17 +146,16 @@ export class InrichtingscheckComponent
       return dataString.indexOf(filter.trim().toLowerCase()) !== -1;
     };
 
-    this.healtCheckService
-      .readBestaatCommunicatiekanaalEformulier()
-      .subscribe((value) => {
-        this.loadingCommunicatiekanaal = false;
-        this.bestaatCommunicatiekanaalEformulier = value;
-      });
-
-    this.checkZaaktypes();
-    this.healtCheckService.readZTCCacheTime().subscribe((value) => {
-      this.ztcCacheTime = value;
+    effect(() => {
+      const zaaktypeInrichtingschecks = this.loadingZaaktypes()
+        ? []
+        : (this.zaaktypeInrichtingschecksQuery.data() ?? []);
+      untracked(() => this.showZaaktypes(zaaktypeInrichtingschecks));
     });
+  }
+
+  ngOnInit(): void {
+    this.setupMenu("title.inrichtingscheck");
   }
 
   protected needsAttention(
@@ -186,25 +185,15 @@ export class InrichtingscheckComponent
     }
   }
 
-  protected clearZTCCache($event: MouseEvent) {
-    $event.stopPropagation();
-    this.clearZTCCachesMutation.mutate();
-  }
-
-  private checkZaaktypes() {
-    this.loadingZaaktypes = true;
-    this.dataSource.data = [];
-    this.healtCheckService
-      .listZaaktypeInrichtingschecks()
-      .subscribe((value) => {
-        this.loadingZaaktypes = false;
-        this.dataSource.data = value.sort((a, b) =>
-          (a.zaaktype.omschrijving ?? "").localeCompare(
-            b.zaaktype.omschrijving ?? "",
-          ),
-        );
-        this.applyFilter();
-      });
+  private showZaaktypes(
+    zaaktypeInrichtingschecks: GeneratedType<"RestZaaktypeInrichtingscheck">[],
+  ) {
+    this.dataSource.data = [...zaaktypeInrichtingschecks].sort((a, b) =>
+      (a.zaaktype.omschrijving ?? "").localeCompare(
+        b.zaaktype.omschrijving ?? "",
+      ),
+    );
+    this.applyFilter();
   }
 
   protected sortData(sort: Sort) {

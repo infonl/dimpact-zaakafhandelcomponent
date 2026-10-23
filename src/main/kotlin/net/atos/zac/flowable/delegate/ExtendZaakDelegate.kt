@@ -6,10 +6,8 @@
 package net.atos.zac.flowable.delegate
 
 import net.atos.zac.flowable.FlowableHelper
-import net.atos.zac.flowable.delegate.exception.InvalidExtensionPeriodException
-import net.atos.zac.websocket.event.ScreenEventType
-import nl.info.client.zgw.ztc.model.extensions.extensionPeriodDays
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.websocket.event.ScreenEventType
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
 import java.util.logging.Logger
@@ -55,17 +53,9 @@ class ExtendZaakDelegate : AbstractDelegate() {
         )
 
         val numberOfDays = aantalDagen.resolveValueAsInt(execution)
-        zaaktype.extensionPeriodDays()?.let {
-            if (numberOfDays > it) {
-                throw InvalidExtensionPeriodException(
-                    "Zaaktype '${zaaktype.identificatie}' has a maximum extension term of $it days, " +
-                        "but requested extension is for $numberOfDays days"
-                )
-            }
-        }
-
         val updatedZaak = flowableHelper.suspensionZaakHelper.extendZaak(
             zaak = zaak,
+            zaakType = zaaktype,
             dueDate = zaak.einddatumGepland?.plusDays(numberOfDays.toLong()),
             fatalDate = zaak.uiterlijkeEinddatumAfdoening.plusDays(numberOfDays.toLong()),
             extensionReason = verlengingReden.resolveValueAsString(execution),

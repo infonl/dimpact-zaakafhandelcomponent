@@ -8,7 +8,7 @@ import { Component, computed, inject, input } from "@angular/core";
 import { MatChipsModule } from "@angular/material/chips";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTooltipModule } from "@angular/material/tooltip";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { ZaakZoekObject } from "../../../zoeken/model/zaken/zaak-zoek-object";
 import { IndicatieItem } from "../../model/indicatie-item";
 import { I18nKeyPipe } from "../../pipes/i18n-key.pipe";
@@ -26,7 +26,7 @@ import { IndicatiesComponent } from "../indicaties.component";
     MatChipsModule,
     MatIconModule,
     MatTooltipModule,
-    TranslateModule,
+    TranslatePipe,
   ],
 })
 export class ZaakIndicatiesComponent extends IndicatiesComponent {

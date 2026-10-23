@@ -28,7 +28,7 @@ import {
 } from "@angular/material/table";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { Router } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { catchError, EMPTY, finalize } from "rxjs";
 import { UtilService } from "../../core/service/util.service";
@@ -57,10 +57,14 @@ import { BAGService } from "../bag.service";
     MatTableModule,
     MatToolbarModule,
     ReactiveFormsModule,
-    TranslateModule,
+    TranslatePipe,
   ],
 })
 export class BagZoekComponent {
+  private bagService = inject(BAGService);
+  private utilService = inject(UtilService);
+  private router = inject(Router);
+
   readonly bagObject = output<GeneratedType<"RestBagObject">>();
   readonly isSelectable = input(false, { transform: booleanAttribute });
   readonly gekoppeldeBagObjecten = input<
@@ -83,12 +87,6 @@ export class BagZoekComponent {
   ];
 
   private readonly queryClient = inject(QueryClient);
-
-  constructor(
-    private bagService: BAGService,
-    private utilService: UtilService,
-    private router: Router,
-  ) {}
 
   protected zoek() {
     this.bagObjecten.data = [];

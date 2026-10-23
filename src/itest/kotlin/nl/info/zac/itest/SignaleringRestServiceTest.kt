@@ -10,6 +10,7 @@ import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.date.shouldBeBetween
 import io.kotest.matchers.shouldBe
@@ -22,13 +23,13 @@ import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_31
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
-import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BEHANDELAAR
 import nl.info.zac.itest.config.ItestConfiguration.START_DATE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MEDIA_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
@@ -83,6 +84,27 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
                 then("the response should be 'ok'") {
                     response.code shouldBe HTTP_OK
+                }
+            }
+        }
+
+        `when`("the signalering types for which the dashboard is turned on are requested") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/signaleringen/typen/dashboard",
+                testUser = BEHANDELAAR_1
+            )
+
+            then("all signalering types for which the dashboard was turned on are returned") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+                with(JSONArray(responseBody)) {
+                    (0 until length()).map(::getString) shouldContainExactlyInAnyOrder listOf(
+                        "ZAAK_DOCUMENT_TOEGEVOEGD",
+                        "ZAAK_OP_NAAM",
+                        "ZAAK_VERLOPEND",
+                        "TAAK_OP_NAAM"
+                    )
                 }
             }
         }

@@ -7,6 +7,7 @@ import { SlicePipe } from "@angular/common";
 import {
   AfterViewInit,
   Component,
+  inject,
   OnDestroy,
   OnInit,
   viewChild,
@@ -21,7 +22,7 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTable, MatTableModule } from "@angular/material/table";
 import { ActivatedRoute, RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { UtilService } from "../../core/service/util.service";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
 import { ColumnPickerComponent } from "../../shared/dynamic-table/column-picker/column-picker.component";
@@ -44,6 +45,7 @@ import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werkli
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { TakenMijnDatasource } from "./taken-mijn-datasource";
 
 @Component({
@@ -52,6 +54,7 @@ import { TakenMijnDatasource } from "./taken-mijn-datasource";
   animations: [detailExpand],
   standalone: true,
   imports: [
+    ZaakIdentificatieComponent,
     I18nKeyPipe,
     DragDropModule,
     MatTableModule,
@@ -61,7 +64,7 @@ import { TakenMijnDatasource } from "./taken-mijn-datasource";
     MatIconButton,
     MatIconAnchor,
     RouterLink,
-    TranslateModule,
+    TranslatePipe,
     SlicePipe,
     EmptyPipe,
     DatumPipe,
@@ -79,6 +82,11 @@ export class TakenMijnComponent
   extends WerklijstComponent
   implements AfterViewInit, OnInit, OnDestroy
 {
+  route = inject(ActivatedRoute);
+  utilService = inject(UtilService);
+  private zoekenService = inject(ZoekenService);
+  gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
+
   dataSource: TakenMijnDatasource;
   readonly paginator = viewChild.required(MatPaginator);
   readonly sort = viewChild.required(MatSort);
@@ -94,12 +102,7 @@ export class TakenMijnComponent
     "error",
   );
 
-  constructor(
-    public route: ActivatedRoute,
-    public utilService: UtilService,
-    private zoekenService: ZoekenService,
-    public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-  ) {
+  constructor() {
     super();
     this.dataSource = new TakenMijnDatasource(
       this.zoekenService,
@@ -109,7 +112,6 @@ export class TakenMijnComponent
 
   ngOnInit(): void {
     super.ngOnInit();
-    this.utilService.setTitle("title.taken.mijn");
     this.dataSource.initColumns(this.defaultColumns());
   }
 

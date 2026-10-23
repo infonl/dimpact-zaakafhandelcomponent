@@ -4,9 +4,9 @@
 
 
 > **Colofon** <br>
-> Datum :13-10-2026 <br>
-> Versie :   1.10.2 <br>
-> Verandering : Zaakspecifieke autorisatie bij taken <br>
+> Datum :22-10-2026 <br>
+> Versie :   1.10.6 <br>
+> Verandering : Behandelaar verplicht bij zaakspecifiek geautoriseerde zaken <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -45,6 +45,10 @@ Versiegeschiedenis:
 | 1.10   | Toevoeging zaakspecifieke autorisatie                                                                                                      |
 | 1.10.1 | Toevoeging tabblad Medewerkers bij zaakspecifieke autorisatie                                                                              |
 | 1.10.2 | Toevoeging zaakspecifieke autorisatie bij taken                                                                                            |
+| 1.10.3 | Toevoeging medewerker ontkoppelen bij zaakspecifieke autorisatie                                                                           |
+| 1.10.4 | Toevoeging zaakspecifieke autorisatie opheffen                                                                                             |
+| 1.10.5 | Toevoeging slot-icoon bij zaakspecifiek geautoriseerde zaken in alle lijsten                                                               |
+| 1.10.6 | Behandelaar verplicht bij verdelen en wijzigen van zaakspecifiek geautoriseerde zaken                                                      |
 
 <div style="page-break-after: always"></div>
 
@@ -83,6 +87,8 @@ Versiegeschiedenis:
     - [Werken met een zaakspecifiek geautoriseerde zaak](#werken-met-een-zaakspecifiek-geautoriseerde-zaak)
     - [Medewerkers](#medewerkers)
     - [Medewerker toevoegen](#medewerker-toevoegen)
+    - [Medewerker ontkoppelen](#medewerker-ontkoppelen)
+    - [Zaakspecifieke autorisatie opheffen](#zaakspecifieke-autorisatie-opheffen)
   - [Locatie koppelen](#locatie-koppelen)
   - [Locatie wijzigen](#locatie-wijzigen)
   - [Locatie ontkoppelen](#locatie-ontkoppelen)
@@ -348,7 +354,7 @@ Als de Zaken-werkvoorraad of Taken-werkvoorraad geopend is dan kan de verdeelfun
 6 Klik op ‘Verdelen’ om de actie uit te voeren
 > Let op! <br>Als eenmaal 'Verdelen' is gestart, is dit niet meer te onderbreken.
 
-> Een zaakspecifiek geautoriseerde zaak moet altijd een behandelaar hebben. Als je alleen een groep kiest, dan verdeelt ZAC deze zaak niet. Een melding toont hoeveel zaken ZAC niet verdeelde.
+> Een zaakspecifiek geautoriseerde zaak moet altijd een behandelaar hebben. Zit er zo'n zaak tussen de geselecteerde zaken, dan is het veld Medewerker verplicht. Het scherm toont welke geselecteerde zaken zaakspecifiek geautoriseerd zijn. De knop 'Verdelen' blijft uitgeschakeld tot je een behandelaar kiest.
 
 ## Werk vrijgeven
 
@@ -542,7 +548,7 @@ Die rol bepaalt wat de medewerker met de zaak mag doen.
 
 ![Zaak zaakspecifiek autoriseren](./images/zaak-zaakspecifiek-autoriseren.png)
 
-> Let op! <br>Je kunt de zaakspecifieke autorisatie niet meer ongedaan maken.
+Je kunt de zaakspecifieke autorisatie later weer opheffen. Zie [Zaakspecifieke autorisatie opheffen](#zaakspecifieke-autorisatie-opheffen).
 
 Alleen de behandelaar van de zaak en medewerkers met de rol Zaakspecifiek geautoriseerd kunnen een zaak zaakspecifiek autoriseren.
 Je kunt in dezelfde stap ook een andere behandelaar kiezen. Dan geldt de nieuwe behandelaar als behandelaar.
@@ -551,9 +557,16 @@ Een zaakspecifiek geautoriseerde zaak toont een slot-icoon voor het zaaknummer. 
 
 ![Zaakspecifiek geautoriseerde zaak](./images/zaak-zaakspecifiek-geautoriseerd-icoon.png)
 
+Het slot-icoon staat overal waar ZAC het zaaknummer van een zaakspecifiek geautoriseerde zaak toont. Bijvoorbeeld:
+
+- op de zaakdetailpagina, en bij de zaak op de taak- en documentdetailpagina
+- in de werkvoorraden van zaken en taken
+- op de dashboardkaarten en in de zoekresultaten
+
 ### Werken met een zaakspecifiek geautoriseerde zaak
 
 - Een zaakspecifiek geautoriseerde zaak heeft altijd een behandelaar. Je kunt de zaak niet vrijgeven.
+- Als je de zaak wijzigt, dan is het veld Behandelaar verplicht. De knop Opslaan blijft uitgeschakeld tot je een behandelaar kiest.
 - Je kunt de zaak aan een andere behandelaar toekennen. De vorige behandelaar houdt dan toegang tot de zaak. ZAC registreert de vorige behandelaar als Zaakspecifiek geautoriseerde medewerker op de zaak.
 - Als je een taak start en een medewerker als taakbehandelaar kiest, dan krijgt deze medewerker toegang tot de zaak.
 - Als je een taak aan een andere medewerker toekent, dan krijgt de nieuwe taakbehandelaar toegang. De vorige taakbehandelaar houdt toegang. Dit geldt ook voor ‘Aan mij toekennen’ en voor taken verdelen.
@@ -596,6 +609,62 @@ Bij een zaakspecifiek geautoriseerde zaak kun je extra medewerkers toegang geven
 De toegevoegde medewerker heeft vanaf dan toegang tot de zaak, met de rechten van de eigen rol voor het zaaktype.
 De zaakhistorie toont dat de medewerker is toegevoegd als Zaakspecifiek geautoriseerde medewerker. Het tabblad ‘Medewerkers’ toont de medewerker ook.
 Een toegevoegde medewerker die de zaak mag wijzigen, kan zelf ook medewerkers toevoegen.
+
+### Medewerker ontkoppelen
+
+Bij een zaakspecifiek geautoriseerde zaak kun je de toegang van een Zaakspecifiek geautoriseerde medewerker weer intrekken.
+Bijvoorbeeld als per ongeluk de verkeerde medewerker is toegevoegd.
+
+Je kunt deze medewerkers ontkoppelen: handmatig toegevoegde medewerkers, vorige behandelaars en vorige taakbehandelaars.
+De behandelaar van de zaak en de behandelaars van open taken van de zaak kun je niet ontkoppelen. Je kunt ook jezelf ontkoppelen: je hebt daarna meestal geen toegang meer tot de zaak, en ZAC brengt je naar het dashboard.
+
+> De optie is alleen beschikbaar bij een zaakspecifiek geautoriseerde zaak, en alleen als je de zaak mag wijzigen.
+
+**Stappen**
+
+1 Ga in de zaak naar het tabblad ‘Medewerkers’
+
+2 Klik bij de medewerker op het ontkoppel-icoon. Alleen medewerkers die je kunt ontkoppelen hebben dit icoon.
+
+![Tabblad Medewerkers met ontkoppel-icoon](./images/zaak-tabblad-medewerkers-ontkoppelen.png)
+
+3 Geef de verplichte reden op
+
+4 Klik op Medewerker ontkoppelen
+
+![Medewerker ontkoppelen](./images/medewerker-ontkoppelen.png)
+
+De medewerker heeft vanaf dan geen toegang meer tot de zaak. De medewerker ziet de zaak, de taken en de documenten van de zaak niet meer in de werklijsten en de zoekresultaten.
+Het tabblad ‘Medewerkers’ toont de medewerker niet meer. De zaakhistorie toont dat de Zaakspecifiek geautoriseerde medewerker is ontkoppeld, met de reden.
+
+Heeft de medewerker de rol Zaakspecifiek geautoriseerd voor het zaaktype, dan houdt de medewerker via die rol wel toegang. Deze medewerkers staan niet in het tabblad ‘Medewerkers’.
+
+### Zaakspecifieke autorisatie opheffen
+
+Heeft een zaak geen zaakspecifieke autorisatie meer nodig, dan kun je deze opheffen. De zaak is daarna weer een gewone zaak.
+
+> De optie is alleen beschikbaar als je de zaak mag wijzigen.
+
+**Stappen**
+
+1 In een zaak in het tabblad ‘Gegevens’ klik je op het potlood
+
+2 Zet het vinkje bij ‘Zaak zaakspecifiek autoriseren’ uit
+
+3 Geef de verplichte reden voor de aanpassing op
+
+4 Klik op Opslaan
+
+5 ZAC vraagt of je de zaakspecifieke autorisatie wilt opheffen. Klik op Opheffen. Klik je op Sluiten, dan slaat ZAC niets op.
+
+Na het opheffen:
+
+- hebben alle medewerkers met een rol voor het zaaktype weer toegang tot de zaak, met de rechten van die rol
+- verdwijnen het slot-icoon en het tabblad ‘Medewerkers’
+- kun je de zaak weer vrijgeven
+- haalt ZAC alle Zaakspecifiek geautoriseerde medewerkers van de zaak. De zaakhistorie toont dit, met de reden.
+
+Autoriseer je de zaak later opnieuw zaakspecifiek, dan hebben de eerder toegevoegde medewerkers geen toegang meer. Voeg ze zo nodig opnieuw toe.
 
 ## Locatie koppelen
 

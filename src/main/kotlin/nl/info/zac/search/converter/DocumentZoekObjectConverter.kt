@@ -5,15 +5,14 @@
 package nl.info.zac.search.converter
 
 import jakarta.inject.Inject
-import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
-import nl.info.client.zgw.zrc.model.zaakUUID
-import nl.info.zac.util.time.convertToDate
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
+import nl.info.client.zgw.zrc.model.zaakUUID
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
@@ -24,6 +23,7 @@ import nl.info.zac.search.model.DocumentIndicatie
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.DocumentZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.util.time.convertToDate
 import java.util.UUID
 
 class DocumentZoekObjectConverter @Inject constructor(
@@ -152,7 +152,10 @@ class DocumentZoekObjectConverter @Inject constructor(
             if (informatieobject.locked) {
                 enkelvoudigInformatieObjectLockService.readLock(informatieobjectUUID).userId?.let {
                     vergrendeldDoorGebruikersnaam = it
-                    vergrendeldDoorNaam = identityService.readUser(it).getFullName()
+                    vergrendeldDoorNaam = identityService.readUser(
+                        userId = it,
+                        logContext = "the lock on informatieobject '${informatieobject.identificatie}'"
+                    ).getFullName()
                 }
             }
         }

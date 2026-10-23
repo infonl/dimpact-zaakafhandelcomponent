@@ -4,8 +4,13 @@
  */
 
 import { Routes } from "@angular/router";
+import { translatedTitle } from "../core/breadcrumbs/route-title";
 import { SignaleringenSettingsComponent } from "./signaleringen-settings/signaleringen-settings.component";
 
 export const SIGNALERINGEN_ROUTES: Routes = [
-  { path: "settings", component: SignaleringenSettingsComponent },
+  {
+    path: "settings",
+    title: translatedTitle("title.signaleringen.settings"),
+    component: SignaleringenSettingsComponent,
+  },
 ];

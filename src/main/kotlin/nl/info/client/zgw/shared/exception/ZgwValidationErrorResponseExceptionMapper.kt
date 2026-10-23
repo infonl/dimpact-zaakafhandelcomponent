@@ -6,8 +6,8 @@ package nl.info.client.zgw.shared.exception
 
 import jakarta.ws.rs.core.MultivaluedMap
 import jakarta.ws.rs.core.Response
-import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper
 import nl.info.client.zgw.shared.model.ZgwValidationError
+import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper
 
 /**
  * Maps all responses with status code 400 (Bad Request) from the ZGW APIs to [ZgwValidationErrorException]s.

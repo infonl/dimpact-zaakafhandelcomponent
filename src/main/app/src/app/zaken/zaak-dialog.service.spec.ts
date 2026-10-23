@@ -5,7 +5,7 @@
 
 import { TestBed } from "@angular/core/testing";
 import { MatDialog } from "@angular/material/dialog";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import {
@@ -15,13 +15,17 @@ import {
 import { GeneratedType } from "../shared/utils/generated-types";
 import { ZaakAfbrekenDialogFormComponent } from "./zaak-afbreken-dialog-form/zaak-afbreken-dialog-form.component";
 import { ZaakDialogService } from "./zaak-dialog.service";
+import { ZaakspecifiekeAutorisatieOpheffenDialogComponent } from "./zaakspecifieke-autorisatie-opheffen-dialog/zaakspecifieke-autorisatie-opheffen-dialog.component";
 
 const setup = () => {
   const open = jest.fn().mockReturnValue({ afterClosed: () => of(true) });
 
   TestBed.configureTestingModule({
-    imports: [TranslateModule.forRoot()],
-    providers: [ZaakDialogService, { provide: MatDialog, useValue: { open } }],
+    providers: [
+      provideTranslateService(),
+      ZaakDialogService,
+      { provide: MatDialog, useValue: { open } },
+    ],
   });
 
   return { service: TestBed.inject(ZaakDialogService), open };
@@ -89,6 +93,24 @@ describe(ZaakDialogService.name, () => {
     expect(data.multiline).toBe(true);
   });
 
+  it("detachZaakspecifiekGeautoriseerdeMedewerker opens a multiline reden dialog naming the medewerker", () => {
+    const { service, open } = setup();
+
+    service.openDetachZaakspecifiekGeautoriseerdeMedewerker(
+      "Emma Jansen",
+      jest.fn(),
+    );
+
+    const data = openedRedenData(open);
+    expect(data.titleKey).toBe(
+      "actie.zaakspecifiek-geautoriseerde-medewerker.ontkoppelen",
+    );
+    expect(data.multiline).toBe(true);
+    expect(data.melding).toBe(
+      "msg.zaakspecifiek-geautoriseerde-medewerker.ontkoppelen.bevestigen",
+    );
+  });
+
   it("verwijderBagObject opens a reden dialog with uitleg and maxlength 80", () => {
     const { service, open } = setup();
 
@@ -116,5 +138,15 @@ describe(ZaakDialogService.name, () => {
     const data = open.mock.calls.at(-1)![1].data;
     expect(data.options).toBe(options);
     expect(data.callback).toBe(callback);
+  });
+
+  it("zaakspecifiekeAutorisatieOpheffen opens the dedicated confirmation dialog without a reden", () => {
+    const { service, open } = setup();
+
+    service.openZaakspecifiekeAutorisatieOpheffen();
+
+    expect(open).toHaveBeenCalledWith(
+      ZaakspecifiekeAutorisatieOpheffenDialogComponent,
+    );
   });
 });

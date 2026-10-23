@@ -9,7 +9,7 @@ import { LOCALE_ID } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatIconHarness } from "@angular/material/icon/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { within } from "@testing-library/angular";
 import moment from "moment";
 import { fromPartial } from "src/test-helpers";
@@ -45,12 +45,11 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        ZaakDetailsAlgemeenTabComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
+      imports: [ZaakDetailsAlgemeenTabComponent, NoopAnimationsModule],
+      providers: [
+        provideTranslateService(),
+        { provide: LOCALE_ID, useValue: "nl-NL" },
       ],
-      providers: [{ provide: LOCALE_ID, useValue: "nl-NL" }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ZaakDetailsAlgemeenTabComponent);

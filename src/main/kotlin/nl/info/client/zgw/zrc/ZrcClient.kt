@@ -17,19 +17,14 @@ import jakarta.ws.rs.core.MediaType
 import nl.info.client.zgw.shared.exception.ZgwErrorExceptionMapper
 import nl.info.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionMapper
 import nl.info.client.zgw.shared.model.Results
+import nl.info.client.zgw.shared.model.audit.ZrcAuditTrailRegel
 import nl.info.client.zgw.util.JsonbConfiguration
+import nl.info.client.zgw.util.ZgwClientHeadersFactory
+import nl.info.client.zgw.zrc.exception.ZrcResponseExceptionMapper
 import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.RolListParameters
 import nl.info.client.zgw.zrc.model.ZaakInformatieobjectListParameters
-import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
-import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
 import nl.info.client.zgw.zrc.model.ZaakListParameters
-import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
-import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
-import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectRequest
-import nl.info.client.zgw.shared.model.audit.ZrcAuditTrailRegel
-import nl.info.client.zgw.util.ZgwClientHeadersFactory
-import nl.info.client.zgw.zrc.exception.ZrcResponseExceptionMapper
 import nl.info.client.zgw.zrc.model.ZaakUuid
 import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.client.zgw.zrc.model.generated.Status
@@ -37,6 +32,11 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.model.generated.ZaakAfsluiten
 import nl.info.client.zgw.zrc.model.generated.ZaakBijwerken
 import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
+import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectRequest
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParams
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
@@ -171,6 +171,10 @@ interface ZrcClient {
         @PathParam("uuid") uuid: UUID,
         zaakeigenschap: ZaakEigenschap
     ): ZaakEigenschap
+
+    @DELETE
+    @Path("zaken/{zaak_uuid}/zaakeigenschappen/{uuid}")
+    fun zaakeigenschapDelete(@PathParam("zaak_uuid") zaakUUID: UUID, @PathParam("uuid") uuid: UUID)
 
     @POST
     @Path("zaak_afsluiten/{uuid}")

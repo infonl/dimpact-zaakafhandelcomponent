@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.349](https://img.shields.io/badge/Version-1.0.349-informational?style=flat-square) ![AppVersion: 5.10](https://img.shields.io/badge/AppVersion-5.10-informational?style=flat-square)
+![Version: 1.0.358](https://img.shields.io/badge/Version-1.0.358-informational?style=flat-square) ![AppVersion: 5.10](https://img.shields.io/badge/AppVersion-5.10-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.176.0 |
+| @opentelemetry | opentelemetry-collector | 0.177.0 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -209,7 +209,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.existingConfigmap | string | `nil` |  |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"docker.io/nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.31.6@sha256:929e1d5e610e8aa89a1715ba44dce5edb4d42c172a208c171233292f472560c5"` |  |
+| nginx.image.tag | string | `"1.31.7@sha256:94193d5c4c5df716f412bb08eb97956d98fe6b59886f0bc57d6d3a3402a88a02"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
@@ -246,7 +246,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | office_converter.env.CHROMIUM_DISABLE_ROUTES | string | `"true"` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
 | office_converter.image.repository | string | `"docker.io/gotenberg/gotenberg"` |  |
-| office_converter.image.tag | string | `"8.37.0@sha256:f29984bd1e226bf1b93ba90af06000afa8b315853e99d27b9aaa41b93f15c769"` |  |
+| office_converter.image.tag | string | `"8.38.1@sha256:aa552cc115db488e0f0bcb07446aac13071ad51505b642c84bb894500907b42b"` |  |
 | office_converter.imagePullSecrets | list | `[]` |  |
 | office_converter.name | string | `"office-converter"` |  |
 | office_converter.nodeSelector | object | `{}` |  |
@@ -274,7 +274,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"docker.io/openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.21.2-static@sha256:0843d2adce51655422e8b95a803629ab9f424803c4bd27876e7f44cce9a2b84d"` |  |
+| opa.image.tag | string | `"1.21.3-static@sha256:bf27411c17e72f3d16063725a74c69f711fb267eb9a4cebdae78028b72adc847"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
@@ -306,7 +306,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opentelemetry-collector.enabled | bool | `false` |  |
 | opentelemetry-collector.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opentelemetry-collector.image.repository | string | `"otel/opentelemetry-collector-contrib"` |  |
-| opentelemetry-collector.image.tag | string | `"0.162.0@sha256:39923a8e431bd1f57be82411999d389fcfe40857492e4365456d97a4c1f74be6"` |  |
+| opentelemetry-collector.image.tag | string | `"0.163.2@sha256:7f22d2a6748110ffb6a59bc0df448bccbf501cdb667d610ede4c61d3863d5849"` |  |
 | opentelemetry-collector.mode | string | `"deployment"` |  |
 | opentelemetry-collector.ports.jaeger-compact.enabled | bool | `false` |  |
 | opentelemetry-collector.ports.jaeger-grpc.enabled | bool | `false` |  |
@@ -370,6 +370,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.busyBoxImage.pullPolicy | string | `"IfNotPresent"` | solr busybox image imagePullPolicy |
 | solr-operator.solr.busyBoxImage.repository | string | `"library/busybox"` | solr busybox image reposity |
 | solr-operator.solr.busyBoxImage.tag | string | `"1.38.0-glibc@sha256:99813cb178ace2cd9c6c53ee3bddef5d2f5708aa438335111d7a9e3c5e1aaebe"` | solr busybox image tag |
+| solr-operator.solr.containerSecurityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]}}` | securityContext for the solr container in solrcloud; the Solr Operator applies it to that container only. Capabilities and privilege escalation can only be set per container, so the init containers keep the defaults for those. |
 | solr-operator.solr.enabled | bool | `true` |  |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
@@ -379,12 +380,13 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |
 | solr-operator.solr.jobs.nodeSelector | object | `{}` | nodeSelector for jobs |
 | solr-operator.solr.jobs.tolerations | list | `[]` | tolerations for jobs |
-| solr-operator.solr.livenessProbe | object | `{"failureThreshold":6,"httpGet":{"path":"/solr/admin/info/health","port":8983},"periodSeconds":20,"timeoutSeconds":1}` | livenessProbe override for solr in solrcloud. Overrides the Solr Operator default which checks /solr/admin/info/system and does not reflect ZooKeeper connectivity. Using /solr/admin/info/health ensures the pod is restarted when ZooKeeper connectivity is lost for an extended period. failureThreshold of 6 (6 x 20s = 120s) provides tolerance for brief ZooKeeper restarts. |
+| solr-operator.solr.livenessProbe | object | `{"exec":{"command":["sh","-c","set -- /etc/secrets/*-solrcloud-basic-auth; [ \"$#\" -eq 1 ] && [ -r \"$1/password\" ] || { echo \"expected one *-solrcloud-basic-auth secret in /etc/secrets\" >&2; exit 1; }; scheme=http; [ \"${SOLR_SSL_ENABLED:-false}\" = true ] && scheme=https; printf 'user = \"%s:%s\"\\n' \"$(sed 's/[\\\\\"]/\\\\&/g' \"$1/username\")\" \"$(sed 's/[\\\\\"]/\\\\&/g' \"$1/password\")\" | curl -sfk -o /dev/null --max-time 4 -K - \"$scheme://localhost:${SOLR_PORT:-8983}/solr/admin/info/health\""]},"failureThreshold":6,"periodSeconds":20,"timeoutSeconds":5}` | livenessProbe override for solr in solrcloud: restarts a node whose /solr/admin/info/health fails (500 while the CoreContainer is shut down, 503 without ZooKeeper). failureThreshold 6 x 20s = 120s rides out a ZooKeeper restart. An exec probe with `curl -f`, not httpGet: with basic auth (probesRequireAuth) the Solr Operator turns an httpGet probe into `solr api -get ... | grep -v JAVA_TOOL_OPTIONS`, which passes whenever anything is printed, errors included. The credentials come from the one basic-auth secret the operator mounts under /etc/secrets and go to curl on stdin (`-K -`), not in its argv. Port and scheme follow the operator's SOLR_PORT and SOLR_SSL_ENABLED env. |
 | solr-operator.solr.logLevel | string | `"INFO"` |  |
 | solr-operator.solr.nodeSelector | object | `{}` | nodeSelector for solr in solrcloud |
-| solr-operator.solr.readinessProbe | object | `{}` |  |
+| solr-operator.solr.podSecurityContext | object | `{"fsGroup":8983,"fsGroupChangePolicy":"OnRootMismatch","runAsGroup":8983,"runAsNonRoot":true,"runAsUser":8983,"seccompProfile":{"type":"RuntimeDefault"}}` | pod securityContext for solr in solrcloud. The Solr Operator sets no securityContext on its own init containers (cp-solr-xml, setup-zk), so they inherit this one: without it the busybox cp-solr-xml container runs as root. 8983 is the solr image's own user, which owns the existing Solr data. |
+| solr-operator.solr.readinessProbe | object | `{"exec":{"command":["sh","-c","set -- /etc/secrets/*-solrcloud-basic-auth; [ \"$#\" -eq 1 ] && [ -r \"$1/password\" ] || { echo \"expected one *-solrcloud-basic-auth secret in /etc/secrets\" >&2; exit 1; }; scheme=http; [ \"${SOLR_SSL_ENABLED:-false}\" = true ] && scheme=https; printf 'user = \"%s:%s\"\\n' \"$(sed 's/[\\\\\"]/\\\\&/g' \"$1/username\")\" \"$(sed 's/[\\\\\"]/\\\\&/g' \"$1/password\")\" | curl -sfk -o /dev/null --max-time 4 -K - \"$scheme://localhost:${SOLR_PORT:-8983}/solr/admin/info/health\""]},"failureThreshold":6,"periodSeconds":10,"timeoutSeconds":5}` | readinessProbe override for solr in solrcloud: takes a node whose /solr/admin/info/health fails out of the Service. failureThreshold 6 x 10s = 60s rides out a short ZooKeeper restart, so the nodes don't all leave the Service at once. The same exec probe as the livenessProbe, for the same reason: the Solr Operator's own readiness probe has the never-failing `| grep -v` pipeline when probesRequireAuth is set. |
 | solr-operator.solr.replicas | int | `3` | replicas for solr in solrcloud, should be an odd number |
-| solr-operator.solr.resources | object | `{}` |  |
+| solr-operator.solr.resources | object | `{}` | resource limits and requests for solr in solrcloud |
 | solr-operator.solr.startupProbe | object | `{}` |  |
 | solr-operator.solr.storage.reclaimPolicy | string | `"Delete"` | solr storage reclaimPolicy |
 | solr-operator.solr.storage.size | string | `"1Gi"` | solr storage size |

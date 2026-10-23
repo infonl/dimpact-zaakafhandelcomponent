@@ -4,12 +4,12 @@
  */
 package nl.info.zac.app.detacheddocuments.model
 
-import net.atos.zac.app.shared.RESTResultaat
 import nl.info.zac.app.identity.model.RestUser
+import nl.info.zac.app.shared.RestResultaat
 
 class RestDetachedDocumentResult(
-    resultaten: Collection<RestDetachedDocument>,
-    aantalTotaal: Long
-) : RESTResultaat<RestDetachedDocument>(resultaten, aantalTotaal) {
+    results: Collection<RestDetachedDocument>,
+    resultCount: Long
+) : RestResultaat<RestDetachedDocument>(results, resultCount) {
     var filterOntkoppeldDoor: List<RestUser> = emptyList()
 }

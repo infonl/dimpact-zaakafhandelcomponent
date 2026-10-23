@@ -4,7 +4,7 @@
  */
 
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { Editor } from "ngx-editor";
@@ -27,7 +27,8 @@ describe(VariabelenKiesMenuComponent.name, () => {
 
     const { fixture } = await render(VariabelenKiesMenuComponent, {
       inputs: { editor, variabelen },
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule],
+      providers: [provideTranslateService()],
     });
 
     return { fixture, insertText, exec };

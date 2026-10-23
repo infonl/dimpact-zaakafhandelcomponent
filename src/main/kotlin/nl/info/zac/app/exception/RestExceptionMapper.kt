@@ -12,7 +12,6 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.ext.ExceptionMapper
 import jakarta.ws.rs.ext.Provider
-import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
 import net.atos.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
 import nl.info.client.bag.BagClientService
 import nl.info.client.brp.BrpClientService
@@ -24,6 +23,7 @@ import nl.info.client.zgw.brc.exception.BrcRuntimeException
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.exception.DrcRuntimeException
 import nl.info.client.zgw.shared.exception.ZgwRuntimeException
+import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.exception.ZaakGeometrieNotSupportedException
 import nl.info.client.zgw.zrc.exception.ZrcRuntimeException

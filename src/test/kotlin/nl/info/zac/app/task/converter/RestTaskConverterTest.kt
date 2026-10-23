@@ -11,11 +11,11 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import jakarta.json.JsonObject
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_OMSCHRIJVING
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_UUID
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_IDENTIFICATIE
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
-import jakarta.json.JsonObject
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.createHumanTaskParameters
@@ -96,7 +96,12 @@ class RestTaskConverterTest : BehaviorSpec({
                 zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)
             } returns zaaktypeCmmnConfiguration
             every { zaaktypeCmmnConfiguration.cmmnExtension?.getHumanTaskParametersCollection() } returns setOf(humanTaskParameters)
-            every { medewerkerConverter.convertUserId("fakeAssigneeId") } returns createRestUser(id = "fakeAssigneeId")
+            every {
+                medewerkerConverter.convertUserId(
+                    userId = "fakeAssigneeId",
+                    logContext = "task 'fakeTaskId' of zaak 'fakeZaakIdentificatie'"
+                )
+            } returns createRestUser(id = "fakeAssigneeId")
 
             `when`("convert is called") {
                 val restTask = restTaskConverter.toRestTask(taskInfo)

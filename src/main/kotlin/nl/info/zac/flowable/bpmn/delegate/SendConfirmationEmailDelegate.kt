@@ -4,11 +4,11 @@
  */
 package nl.info.zac.flowable.bpmn.delegate
 
-import nl.info.client.zgw.zrc.model.Rol
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.delegate.AbstractDelegate
 import net.atos.zac.flowable.delegate.resolveValueAsString
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.zac.app.klant.model.contactdetails.toContactDetails

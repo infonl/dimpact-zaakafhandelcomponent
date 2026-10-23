@@ -6,6 +6,8 @@
 package nl.info.zac.app.zaak.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -20,6 +22,7 @@ import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createZaakRechten
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 
 class RestZaakOverzichtConverterTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
@@ -30,6 +33,7 @@ class RestZaakOverzichtConverterTest : BehaviorSpec({
     val openstaandeTakenConverter = mockk<RestOpenstaandeTakenConverter>()
     val policyService = mockk<PolicyService>()
     val zrcClientService = mockk<ZrcClientService>()
+    val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
     val restZaakOverzichtConverter = RestZaakOverzichtConverter(
         ztcClientService,
         zgwApiService,
@@ -38,28 +42,35 @@ class RestZaakOverzichtConverterTest : BehaviorSpec({
         userConverter,
         openstaandeTakenConverter,
         policyService,
-        zrcClientService
+        zrcClientService,
+        zaakspecifiekeAutorisatieService
     )
 
     afterEach {
         checkUnnecessaryStub()
     }
 
-    given("A zaak") {
+    given("A zaak that the logged-in user may read") {
         val zaak = createZaak()
         val zaakType = createZaakType()
         val loggedInUser = createLoggedInUser()
 
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
         every {
-            policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+            policyService.readZaakRechten(
+                zaak = zaak,
+                zaaktype = zaakType,
+                loggedInUser = loggedInUser,
+                zaakAutorisatieGegevens = any()
+            )
         } returns createZaakRechten()
 
         `when`("converted to dashboard version of RestZaakOverzicht") {
-            val result = restZaakOverzichtConverter.convertForDisplay(zaak, loggedInUser)
+            val result = restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaak, loggedInUser)
 
             then("it contains only the minimal set of properties") {
-                with(result) {
+                with(result.shouldNotBeNull()) {
                     identificatie shouldBe zaak.identificatie
                     startdatum shouldBe zaak.startdatum
                     omschrijving shouldBe zaak.omschrijving
@@ -68,7 +79,7 @@ class RestZaakOverzichtConverterTest : BehaviorSpec({
             }
 
             and("none of the other fields are populated") {
-                with(result) {
+                with(result.shouldNotBeNull()) {
                     toelichting shouldBe null
                     uuid shouldBe null
                     einddatum shouldBe null
@@ -81,6 +92,31 @@ class RestZaakOverzichtConverterTest : BehaviorSpec({
                     openstaandeTaken shouldBe null
                     rechten shouldBe null
                 }
+            }
+        }
+    }
+
+    given("A zaak that the logged-in user may not read") {
+        val zaak = createZaak()
+        val zaakType = createZaakType()
+        val loggedInUser = createLoggedInUser()
+
+        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+        every {
+            policyService.readZaakRechten(
+                zaak = zaak,
+                zaaktype = zaakType,
+                loggedInUser = loggedInUser,
+                zaakAutorisatieGegevens = any()
+            )
+        } returns createZaakRechten(lezen = false)
+
+        `when`("converted to dashboard version of RestZaakOverzicht") {
+            val result = restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaak, loggedInUser)
+
+            then("no overzicht is returned") {
+                result.shouldBeNull()
             }
         }
     }

@@ -10,7 +10,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 
 import { ZacFormActions } from "./form-actions.component";
 
@@ -23,11 +23,8 @@ describe(ZacFormActions.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        ZacFormActions,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
-      ],
+      imports: [ZacFormActions, NoopAnimationsModule],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     const formBuilder = TestBed.inject(FormBuilder);

@@ -18,7 +18,7 @@ import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { DagenPipe } from "../../pipes/dagen.pipe";
@@ -37,7 +37,7 @@ import { FormHelper } from "../helpers";
     MatDatepickerModule,
     MatButtonModule,
     MatIconModule,
-    TranslateModule,
+    TranslatePipe,
     CapitalizeFirstLetterPipe,
     DagenPipe,
   ],

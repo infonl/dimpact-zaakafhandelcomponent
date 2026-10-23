@@ -3,16 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
-import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { provideTranslateService } from "@ngx-translate/core";
 import { of } from "rxjs";
-import { testQueryClient } from "../../../../../setupJest";
+import { sleep } from "../../../../../setupJest";
 import { createQueryOptions, fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
-import { KlantenService } from "../../../klanten/klanten.service";
-import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
 import { FormField } from "../../../shared/form/composed-form/form-field.types";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZakenService } from "../../../zaken/zaken.service";
@@ -21,9 +18,8 @@ import { ExternAdviesMailTaskForm } from "./extern-advies-mail-task-form";
 describe(ExternAdviesMailTaskForm.name, () => {
   let formulier: ExternAdviesMailTaskForm;
   let zakenService: ZakenService;
-  let mailtemplateService: MailtemplateService;
+  let httpTestingController: HttpTestingController;
   let informatieObjectenService: InformatieObjectenService;
-  let klantenService: KlantenService;
 
   const mockZaak = fromPartial<GeneratedType<"RestZaak">>({
     uuid: "zaak-uuid",
@@ -44,24 +40,14 @@ describe(ExternAdviesMailTaskForm.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
-      providers: [provideHttpClient(), provideQueryClient(testQueryClient)],
+      providers: [provideTranslateService()],
     });
+    httpTestingController = TestBed.inject(HttpTestingController);
 
     zakenService = TestBed.inject(ZakenService);
-    mailtemplateService = TestBed.inject(MailtemplateService);
     informatieObjectenService = TestBed.inject(InformatieObjectenService);
-    klantenService = TestBed.inject(KlantenService);
 
     jest.spyOn(zakenService, "listAfzendersVoorZaak").mockReturnValue(of([]));
-    jest.spyOn(mailtemplateService, "findMailtemplate").mockReturnValue(
-      of(
-        fromPartial<GeneratedType<"RestMailtemplate">>({
-          body: "mail-template-body",
-          variabelen: [],
-        }),
-      ),
-    );
     jest
       .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
       .mockReturnValue(createQueryOptions([]) as never);
@@ -69,11 +55,27 @@ describe(ExternAdviesMailTaskForm.name, () => {
     formulier = TestBed.inject(ExternAdviesMailTaskForm);
   });
 
+  async function requestForm(zaak: GeneratedType<"RestZaak">) {
+    const fields = formulier.requestForm(zaak);
+    await sleep();
+    httpTestingController
+      .match(`/rest/mailtemplates/TAAK_ADVIES_EXTERN/${zaak.uuid}`)
+      .forEach((request) =>
+        request.flush(
+          fromPartial<GeneratedType<"RestMailtemplate">>({
+            body: "mail-template-body",
+            variabelen: [],
+          }),
+        ),
+      );
+    return fields;
+  }
+
   describe("requestForm (_initStartForm)", () => {
     let fields: FormField[];
 
     beforeEach(async () => {
-      fields = await formulier.requestForm(mockZaak);
+      fields = await requestForm(mockZaak);
     });
 
     describe("service calls", () => {
@@ -83,10 +85,11 @@ describe(ExternAdviesMailTaskForm.name, () => {
         );
       });
 
-      it("should call findMailtemplate with TAAK_ADVIES_EXTERN and the zaak uuid", () => {
-        expect(mailtemplateService.findMailtemplate).toHaveBeenCalledWith(
-          "TAAK_ADVIES_EXTERN",
-          "zaak-uuid",
+      it("should reuse the mailtemplate it already fetched for the zaak", async () => {
+        await formulier.requestForm(mockZaak);
+
+        httpTestingController.expectNone(
+          "/rest/mailtemplates/TAAK_ADVIES_EXTERN/zaak-uuid",
         );
       });
 
@@ -132,7 +135,7 @@ describe(ExternAdviesMailTaskForm.name, () => {
         jest
           .spyOn(zakenService, "listAfzendersVoorZaak")
           .mockReturnValue(of([mockAfzender, mockDefaultAfzender]));
-        fields = await formulier.requestForm(mockZaak);
+        fields = await requestForm(mockZaak);
         const control = fields.find((f) => f.key === "verzender")?.control;
         expect((control?.value as { mail?: string } | null)?.mail).toBe(
           mockDefaultAfzender.mail,
@@ -148,7 +151,7 @@ describe(ExternAdviesMailTaskForm.name, () => {
         jest
           .spyOn(zakenService, "listAfzendersVoorZaak")
           .mockReturnValue(of([mockAfzender, mockDefaultAfzender]));
-        fields = await formulier.requestForm(mockZaak);
+        fields = await requestForm(mockZaak);
         const field = fields.find((f) => f.key === "verzender");
         expect(
           "options" in field! ? (field.options as unknown[]).length : 0,
@@ -197,40 +200,40 @@ describe(ExternAdviesMailTaskForm.name, () => {
           uuid: "zaak-uuid",
           zaakSpecificContactDetails: { emailAddress: "contact@example.com" },
         });
-        const formFields = await formulier.requestForm(zaakWithContactEmail);
+        const formFields = await requestForm(zaakWithContactEmail);
         expect(
           formFields.find((f) => f.key === "emailadres")?.control?.value,
         ).toBe("contact@example.com");
       });
 
       it("should load emailadres from initiator contact details when no zaakSpecificContactDetails emailAddress", async () => {
-        jest
-          .spyOn(klantenService, "getContactDetailsForPerson")
-          .mockReturnValue(
-            of(
-              fromPartial<GeneratedType<"RestContactDetails">>({
-                emailadres: "initiator@example.com",
-              }),
-            ),
-          );
         const zaakWithInitiator = fromPartial<GeneratedType<"RestZaak">>({
           uuid: "zaak-uuid",
           initiatorIdentificatie: { temporaryPersonId: "person-123" },
         });
-        const formFields = await formulier.requestForm(zaakWithInitiator);
+        const formFields = await requestForm(zaakWithInitiator);
+        await sleep();
+        httpTestingController
+          .expectOne("/rest/klanten/contactdetails/person/person-123")
+          .flush(
+            fromPartial<GeneratedType<"RestContactDetails">>({
+              emailadres: "initiator@example.com",
+            }),
+          );
+        await sleep();
+        TestBed.tick();
+        await sleep();
+        TestBed.tick();
         expect(
           formFields.find((f) => f.key === "emailadres")?.control?.value,
         ).toBe("initiator@example.com");
-        expect(klantenService.getContactDetailsForPerson).toHaveBeenCalledWith(
-          "person-123",
-        );
       });
 
       it("should leave emailadres null when neither contact details nor initiator temporaryPersonId is set", async () => {
         const zaakWithoutEmail = fromPartial<GeneratedType<"RestZaak">>({
           uuid: "zaak-uuid",
         });
-        const formFields = await formulier.requestForm(zaakWithoutEmail);
+        const formFields = await requestForm(zaakWithoutEmail);
         expect(
           formFields.find((f) => f.key === "emailadres")?.control?.value,
         ).toBeNull();
@@ -269,7 +272,7 @@ describe(ExternAdviesMailTaskForm.name, () => {
         jest
           .spyOn(zakenService, "listAfzendersVoorZaak")
           .mockReturnValue(of([mockAfzender, mockDefaultAfzender]));
-        fields = await formulier.requestForm(mockZaak);
+        fields = await requestForm(mockZaak);
 
         const verzenderControl = fields.find(
           (f) => f.key === "verzender",
@@ -287,7 +290,7 @@ describe(ExternAdviesMailTaskForm.name, () => {
       });
 
       it("should set replyTo to null when verzender is cleared", async () => {
-        fields = await formulier.requestForm(mockZaak);
+        fields = await requestForm(mockZaak);
         fields.find((f) => f.key === "verzender")?.control?.setValue(null);
         expect(
           fields.find((f) => f.key === "replyTo")?.control?.value,

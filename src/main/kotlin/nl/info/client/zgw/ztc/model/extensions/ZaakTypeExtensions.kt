@@ -4,13 +4,12 @@
  */
 package nl.info.client.zgw.ztc.model.extensions
 
-import nl.info.zac.util.time.PeriodUtil
 import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.util.time.PeriodUtil
 import java.time.LocalDate
 import java.time.Period
 
-fun ZaakType.isServicenormAvailable(): Boolean =
-    this.servicenorm != null && !Period.parse(this.servicenorm).normalized().isZero
+fun ZaakType.isServicenormAvailable(): Boolean = this.servicenorm != null
 
 fun ZaakType.isNuGeldig(): Boolean =
     this.eindeGeldigheid.let { eindeGeldigheid ->

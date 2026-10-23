@@ -181,7 +181,7 @@ export class ReferentieTabelService {
   }
 
   listAfzenders() {
-    return this.zacHttpClient.GET("/rest/referentietabellen/afzender");
+    return this.zacQueryClient.GET("/rest/referentietabellen/afzender");
   }
 
   listCommunicatiekanalen(inclusiefEFormulier?: boolean) {
@@ -193,24 +193,26 @@ export class ReferentieTabelService {
     );
   }
 
-  listServerErrorTexts() {
-    return this.zacHttpClient.GET("/rest/referentietabellen/server-error-text");
+  listServerErrorTextsQuery() {
+    return this.zacQueryClient.GET(
+      "/rest/referentietabellen/server-error-text",
+    );
   }
 
   listBrpSearchValues() {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/referentietabellen/brp-doelbinding-zoek-waarde",
     );
   }
 
   listBrpViewValues() {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/referentietabellen/brp-doelbinding-raadpleeg-waarde",
     );
   }
 
   listBrpProcessingValues() {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/referentietabellen/brp-verwerkingregister-waarde",
     );
   }

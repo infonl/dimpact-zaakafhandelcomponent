@@ -8,7 +8,7 @@ import { LOCALE_ID } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import { fromPartial } from "src/test-helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -30,12 +30,9 @@ const makeZaak = (fields: Partial<GeneratedType<"RestZaak">> = {}) =>
 
 const setup = (zaak = makeZaak()) => {
   TestBed.configureTestingModule({
-    imports: [
-      ZaakVerkortComponent,
-      NoopAnimationsModule,
-      TranslateModule.forRoot(),
-    ],
+    imports: [ZaakVerkortComponent, NoopAnimationsModule],
     providers: [
+      provideTranslateService(),
       provideHttpClient(),
       provideRouter([]),
       { provide: LOCALE_ID, useValue: "nl" },
@@ -54,7 +51,7 @@ describe(ZaakVerkortComponent.name, () => {
   it("renders the zaak identificatie in the card title", () => {
     setup(makeZaak({ identificatie: "ZAAK-2026-001" }));
 
-    expect(screen.getByText("zaak ZAAK-2026-001")).toBeVisible();
+    expect(screen.getByText("ZAAK-2026-001")).toBeVisible();
   });
 
   it("renders zaaktype omschrijving as subtitle", () => {
@@ -152,6 +149,6 @@ describe(ZaakVerkortComponent.name, () => {
     );
     fixture.detectChanges();
 
-    expect(screen.getByText("zaak ZAAK-2026-002")).toBeVisible();
+    expect(screen.getByText("ZAAK-2026-002")).toBeVisible();
   });
 });

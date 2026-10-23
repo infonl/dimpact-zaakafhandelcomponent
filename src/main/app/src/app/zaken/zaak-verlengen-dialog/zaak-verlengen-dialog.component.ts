@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Inject, OnDestroy } from "@angular/core";
+import { Component, OnDestroy, inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import {
@@ -17,7 +17,7 @@ import { MatFormFieldModule, MatHint } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
 import { Subject, takeUntil } from "rxjs";
 import { ZacCheckbox } from "../../shared/form/checkbox/checkbox";
@@ -41,13 +41,22 @@ import { ZakenService } from "../zaken.service";
     MatHint,
     MatIconModule,
     MatProgressSpinnerModule,
-    TranslateModule,
+    TranslatePipe,
     ZacInput,
     ZacDate,
     ZacCheckbox,
   ],
 })
 export class ZaakVerlengenDialogComponent implements OnDestroy {
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly translateService = inject(TranslateService);
+  private readonly dialogRef =
+    inject<MatDialogRef<ZaakVerlengenDialogComponent>>(MatDialogRef);
+  private readonly zakenService = inject(ZakenService);
+  protected readonly data = inject<{
+    zaak: GeneratedType<"RestZaak">;
+  }>(MAT_DIALOG_DATA);
+
   private readonly destroy$ = new Subject<void>();
 
   protected extendZaakMutation = injectMutation(
@@ -115,14 +124,9 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
   });
   protected verlengduurHint: string;
 
-  constructor(
-    private readonly formBuilder: FormBuilder,
-    private readonly translateService: TranslateService,
-    private readonly dialogRef: MatDialogRef<ZaakVerlengenDialogComponent>,
-    private readonly zakenService: ZakenService,
-    @Inject(MAT_DIALOG_DATA)
-    protected readonly data: { zaak: GeneratedType<"RestZaak"> },
-  ) {
+  constructor() {
+    const data = this.data;
+
     this.verlengduurHint = this.translateService.instant(
       `hint.zaak.dialoog.verlengen.verlengduur${Number(this.data.zaak.zaaktype.verlengingstermijn) > 1 ? ".meervoud" : ""}`,
       {

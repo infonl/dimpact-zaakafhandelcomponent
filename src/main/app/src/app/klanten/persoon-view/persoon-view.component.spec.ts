@@ -7,7 +7,7 @@ import { Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import { of } from "rxjs";
 import { KlantContactmomentenTabelComponent } from "../../contactmomenten/klant-contactmomenten-tabel/klant-contactmomenten-tabel.component";
@@ -55,7 +55,6 @@ const configureTestBed = (
   TestBed.configureTestingModule({
     imports: [
       NoopAnimationsModule,
-      TranslateModule.forRoot(),
       PersoonViewComponent,
       KlantZakenTabelStubComponent,
       KlantContactmomentenTabelStubComponent,
@@ -63,6 +62,7 @@ const configureTestBed = (
       DatumPipe,
     ],
     providers: [
+      provideTranslateService(),
       provideRouter([]),
       {
         provide: ActivatedRoute,
@@ -88,23 +88,15 @@ describe(PersoonViewComponent.name, () => {
   describe("with a full persoon", () => {
     let component: PersoonViewComponent;
     let fixture: ComponentFixture<PersoonViewComponent>;
-    let utilService: UtilService;
-    let setTitleSpy: jest.SpiedFunction<UtilService["setTitle"]>;
 
     beforeEach(async () => {
       await configureTestBed();
-      utilService = TestBed.inject(UtilService);
-      setTitleSpy = jest.spyOn(utilService, "setTitle");
       fixture = TestBed.createComponent(PersoonViewComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
     });
 
     describe("initialisation", () => {
-      it("sets the page title to 'persoonsgegevens'", () => {
-        expect(setTitleSpy).toHaveBeenCalledWith("persoonsgegevens");
-      });
-
       it("loads persoon from route resolver data", () => {
         expect(component["persoon"]).toEqual(makePersoon());
       });

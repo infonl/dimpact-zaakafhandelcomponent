@@ -9,7 +9,7 @@ import { MatDialogContent } from "@angular/material/dialog";
 import { MatDivider } from "@angular/material/divider";
 import { MatIcon } from "@angular/material/icon";
 import { MatToolbar } from "@angular/material/toolbar";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 
 /**
  * Presentational confirm-dialog shell: renders the toolbar (title, optional
@@ -27,7 +27,7 @@ import { TranslateModule } from "@ngx-translate/core";
     MatIconButton,
     MatDivider,
     MatDialogContent,
-    TranslateModule,
+    TranslatePipe,
   ],
 })
 export class GenericDialogComponent {

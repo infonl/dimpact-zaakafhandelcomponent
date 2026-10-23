@@ -36,6 +36,7 @@ import nl.info.client.zgw.ztc.model.createBehandelaarRolType
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakspecifiekGeautoriseerdeMedewerkerRolType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
@@ -44,7 +45,6 @@ import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.signalering.model.createSignalering
 import nl.info.zac.signalering.model.createSignaleringInstellingen
 import nl.info.zac.signalering.model.createSignaleringType
-import nl.info.test.org.flowable.task.api.createTestTask
 import java.net.URI
 import java.util.UUID
 
@@ -87,7 +87,7 @@ class SignaleringEventObserverTest : BehaviorSpec({
             every {
                 signaleringService.signaleringInstance(SignaleringType.Type.ZAAK_OP_NAAM)
             } returns createSignalering(zaak = null)
-            every { identityService.readUser(user.id) } returns user
+            every { identityService.readUser(user.id, any()) } returns user
             every { signaleringService.isNecessary(any(), null) } returns true
             every { signaleringService.readInstellingen(any()) } returns createSignaleringInstellingen(
                 isDashboard = true,
@@ -135,7 +135,7 @@ class SignaleringEventObserverTest : BehaviorSpec({
             every {
                 signaleringService.signaleringInstance(SignaleringType.Type.ZAAK_OP_NAAM)
             } returns createSignalering(zaak = null)
-            every { identityService.readGroup(group.name) } returns group
+            every { identityService.readGroup(group.name, any()) } returns group
             every { signaleringService.isNecessary(any(), null) } returns true
             every { signaleringService.readInstellingen(any()) } returns createSignaleringInstellingen(
                 isDashboard = true,
@@ -242,7 +242,7 @@ class SignaleringEventObserverTest : BehaviorSpec({
             every {
                 signaleringService.signaleringInstance(SignaleringType.Type.ZAAK_OP_NAAM)
             } returns createSignalering(zaak = null)
-            every { identityService.readUser(user.id) } returns user
+            every { identityService.readUser(user.id, any()) } returns user
             every { signaleringService.isNecessary(any(), user.id) } returns false
 
             `when`("the event is handled") {
@@ -353,7 +353,7 @@ class SignaleringEventObserverTest : BehaviorSpec({
                 ),
                 zaak = null
             )
-            every { identityService.readUser(user.id) } returns user
+            every { identityService.readUser(user.id, any()) } returns user
             every { signaleringService.isNecessary(any(), null) } returns true
             every { signaleringService.readInstellingen(any()) } returns createSignaleringInstellingen(
                 isDashboard = true,
@@ -407,8 +407,8 @@ class SignaleringEventObserverTest : BehaviorSpec({
             )
             val sentSignalering = slot<Signalering>()
             every { flowableTaskService.readOpenTask(task.id) } returns task
-            every { identityService.readUser(owner.id) } returns owner
-            every { identityService.readUser(assignee.id) } returns assignee
+            every { identityService.readUser(owner.id, any()) } returns owner
+            every { identityService.readUser(assignee.id, any()) } returns assignee
             every {
                 signaleringService.signaleringInstance(SignaleringType.Type.TAAK_OP_NAAM)
             } returns createSignalering(
@@ -448,7 +448,7 @@ class SignaleringEventObserverTest : BehaviorSpec({
             )
             val sentSignalering = slot<Signalering>()
             every { flowableTaskService.readOpenTask(task.id) } returns task
-            every { identityService.readUser(assignee.id) } returns assignee
+            every { identityService.readUser(assignee.id, any()) } returns assignee
             every {
                 signaleringService.signaleringInstance(SignaleringType.Type.TAAK_OP_NAAM)
             } returns createSignalering(

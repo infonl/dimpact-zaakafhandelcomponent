@@ -7,6 +7,7 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  inject,
   OnDestroy,
   OnInit,
   viewChild,
@@ -37,7 +38,7 @@ import {
 } from "@angular/material/table";
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { merge } from "rxjs";
 import { startWith, switchMap, tap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
@@ -95,7 +96,7 @@ type InboxProductaanvraagListParameters =
     MatFormField,
     MatSelect,
     MatOption,
-    TranslateModule,
+    TranslatePipe,
     TekstFilterComponent,
     DateRangeFilterComponent,
     ZoekopdrachtComponent,
@@ -106,6 +107,17 @@ export class InboxProductaanvragenListComponent
   extends WerklijstComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
+  private readonly inboxProductaanvragenService = inject(
+    InboxProductaanvragenService,
+  );
+  private readonly infoService = inject(InformatieObjectenService);
+  private readonly utilService = inject(UtilService);
+  private readonly dialog = inject(MatDialog);
+  readonly gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
+  readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly sanitizer = inject(DomSanitizer);
+
   protected isLoadingResults = true;
   protected dataSource = new MatTableDataSource<
     GeneratedType<"RestInboxProductaanvraag">
@@ -153,22 +165,8 @@ export class InboxProductaanvragenListComponent
     },
   );
 
-  constructor(
-    private readonly inboxProductaanvragenService: InboxProductaanvragenService,
-    private readonly infoService: InformatieObjectenService,
-    private readonly utilService: UtilService,
-    private readonly dialog: MatDialog,
-    public readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    public readonly route: ActivatedRoute,
-    private readonly router: Router,
-    private readonly sanitizer: DomSanitizer,
-  ) {
-    super();
-  }
-
   ngOnInit() {
     super.ngOnInit();
-    this.utilService.setTitle("title.productaanvragen.inbox-productaanvragen");
   }
 
   ngAfterViewInit() {
@@ -238,7 +236,7 @@ export class InboxProductaanvragenListComponent
   }
 
   protected zoekopdrachtChanged(
-    actieveZoekopdracht: GeneratedType<"RESTZoekopdracht">,
+    actieveZoekopdracht: GeneratedType<"RestZoekopdracht">,
   ) {
     if (actieveZoekopdracht?.json) {
       this.listParameters = this.withSupportedSort({

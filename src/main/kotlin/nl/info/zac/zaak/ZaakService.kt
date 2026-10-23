@@ -7,19 +7,17 @@ package nl.info.zac.zaak
 import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.inject.Inject
-import nl.info.client.zgw.zrc.model.Rol
-import nl.info.client.zgw.zrc.model.RolMedewerker
-import nl.info.client.zgw.zrc.model.RolNatuurlijkPersoon
-import nl.info.client.zgw.zrc.model.RolNietNatuurlijkPersoon
-import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
-import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.shared.exception.MultipleBehandelaarRolesException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.Rol
+import nl.info.client.zgw.zrc.model.RolMedewerker
+import nl.info.client.zgw.zrc.model.RolNatuurlijkPersoon
+import nl.info.client.zgw.zrc.model.RolNietNatuurlijkPersoon
+import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
 import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
@@ -34,9 +32,12 @@ import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.ZaakRestService.Companion.VESTIGING_IDENTIFICATIE_DELIMITER
+import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
+import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
+import nl.info.zac.event.EventingService
 import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
@@ -46,8 +47,7 @@ import nl.info.zac.identity.model.ZacApplicationRole.BEHANDELAAR
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
-import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
-import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
+import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import nl.info.zac.zaak.model.ZaakAssignment
@@ -182,9 +182,12 @@ class ZaakService @Inject constructor(
     fun readZaakAssignment(groupId: String?, userName: String?): ZaakAssignment {
         val user = userName?.takeIf { it.isNotEmpty() }?.let { userNameToAssign ->
             groupId?.let { identityService.validateIfUserIsInGroup(userNameToAssign, it) }
-            identityService.readUser(userNameToAssign)
+            identityService.readUser(userId = userNameToAssign, logContext = "assigning a zaak")
         }
-        return ZaakAssignment(group = groupId?.let(identityService::readGroup), user = user)
+        return ZaakAssignment(
+            group = groupId?.let { identityService.readGroup(groupId = it, logContext = "assigning a zaak") },
+            user = user
+        )
     }
 
     /**

@@ -6,10 +6,10 @@ package nl.info.client.zgw.brc
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import nl.info.client.zgw.shared.model.audit.AuditTrailRegel
 import nl.info.client.zgw.brc.model.BesluitenListParameters
 import nl.info.client.zgw.brc.model.generated.Besluit
 import nl.info.client.zgw.brc.model.generated.BesluitInformatieObject
+import nl.info.client.zgw.shared.model.audit.AuditTrailRegel
 import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak

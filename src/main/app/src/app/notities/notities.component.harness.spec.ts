@@ -14,7 +14,7 @@ import {
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { screen } from "@testing-library/angular";
 import { userEvent } from "@testing-library/user-event";
@@ -46,12 +46,9 @@ describe("NotitiesComponent harness", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        TestHostComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+      imports: [TestHostComponent, NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),

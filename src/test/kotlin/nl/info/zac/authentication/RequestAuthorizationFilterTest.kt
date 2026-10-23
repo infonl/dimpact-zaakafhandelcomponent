@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.servlet.http.HttpSession
 import nl.info.zac.identity.model.ZacApplicationRole
+import nl.info.zac.policy.PolicyService
 
 class RequestAuthorizationFilterTest : BehaviorSpec({
     val httpServletRequest = mockk<HttpServletRequest>()
@@ -24,6 +25,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
     val filterChain = mockk<FilterChain>()
     val httpSession = mockk<HttpSession>(relaxed = true)
     val requestDispatcher = mockk<RequestDispatcher>()
+    val policyService = mockk<PolicyService>()
 
     afterEach {
         checkUnnecessaryStub()
@@ -61,7 +63,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
 
     context("Public endpoints and method restrictions") {
         given("An unauthenticated POST request on '/rest/notificaties'") {
-            val filter = RequestAuthorizationFilter()
+            val filter = RequestAuthorizationFilter(policyService)
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.requestURI } returns "/rest/notificaties"
             every { httpServletRequest.method } returns "POST"
@@ -82,7 +84,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
         }
 
         given("An unauthenticated GET request on '/rest/notificaties'") {
-            val filter = RequestAuthorizationFilter()
+            val filter = RequestAuthorizationFilter(policyService)
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.requestURI } returns "/rest/notificaties"
             every { httpServletRequest.method } returns "GET"
@@ -103,7 +105,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
         }
 
         given("An unauthenticated GET request on '/rest/internal/*'") {
-            val filter = RequestAuthorizationFilter()
+            val filter = RequestAuthorizationFilter(policyService)
             every { httpServletRequest.requestURI } returns "/rest/internal/something"
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { filterChain.doFilter(any(), any()) } just runs
@@ -134,7 +136,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
         }
 
         given("An unauthenticated GET request on '/websocket'") {
-            val filter = RequestAuthorizationFilter()
+            val filter = RequestAuthorizationFilter(policyService)
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.requestURI } returns "/websocket"
 
@@ -166,7 +168,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
         }
 
         given("An unauthenticated GET request on '/sign-out'") {
-            val filter = RequestAuthorizationFilter()
+            val filter = RequestAuthorizationFilter(policyService)
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.requestURI } returns "/sign-out"
 
@@ -198,7 +200,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
         }
 
         given("An unauthenticated PUT request on '/webdav/*'") {
-            val filter = RequestAuthorizationFilter()
+            val filter = RequestAuthorizationFilter(policyService)
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.requestURI } returns "/webdav/path"
             every { httpServletRequest.method } returns "PUT"
@@ -216,7 +218,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
         }
 
         given("An unauthenticated POST request on SmartDocuments '/callback' endpoint") {
-            val filter = RequestAuthorizationFilter()
+            val filter = RequestAuthorizationFilter(policyService)
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.requestURI } returns "/rest/document-creation/smartdocuments/callback/xyz"
             every { httpServletRequest.method } returns "POST"
@@ -234,7 +236,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
         }
 
         given("An unauthenticated GET request on SmartDocuments '/callback' endpoint") {
-            val filter = RequestAuthorizationFilter()
+            val filter = RequestAuthorizationFilter(policyService)
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.requestURI } returns "/rest/document-creation/smartdocuments/callback/xyz"
             every { httpServletRequest.method } returns "GET"
@@ -252,7 +254,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
         }
 
         given("An unauthenticated GET request on '/static/smart-documents-result.html'") {
-            val filter = RequestAuthorizationFilter()
+            val filter = RequestAuthorizationFilter(policyService)
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.requestURI } returns "/static/smart-documents-result.html"
             every { httpServletRequest.method } returns "GET"
@@ -271,7 +273,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
 
         listOf("/favicon.ico", "/favicon.svg", "/apple-touch-icon.png", "/site.webmanifest").forEach { path ->
             given("An unauthenticated GET request on '$path'") {
-                val filter = RequestAuthorizationFilter()
+                val filter = RequestAuthorizationFilter(policyService)
                 every { httpServletRequest.contextPath } returns "fakeContextPath"
                 every { httpServletRequest.requestURI } returns path
                 every { httpServletRequest.method } returns "GET"
@@ -292,7 +294,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
 
             given("An unauthenticated POST request on '$path'") {
-                val filter = RequestAuthorizationFilter()
+                val filter = RequestAuthorizationFilter(policyService)
                 every { httpServletRequest.contextPath } returns "fakeContextPath"
                 every { httpServletRequest.requestURI } returns path
                 every { httpServletRequest.method } returns "POST"
@@ -314,7 +316,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
         }
 
         given("An unauthenticated POST request on '/assets/*'") {
-            val filter = RequestAuthorizationFilter()
+            val filter = RequestAuthorizationFilter(policyService)
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.requestURI } returns "/assets/app.css"
             every { httpServletRequest.method } returns "POST"
@@ -335,7 +337,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
     context("Application-role based access") {
         listOf("/app/home", "/rest/zaken/zaak/fakeUuid").forEach { path ->
             given("An authenticated user with a read application role requests '$path'") {
-                val filter = RequestAuthorizationFilter()
+                val filter = RequestAuthorizationFilter(policyService)
                 val user = createLoggedInUser(
                     applicationRolesPerZaaktype = mapOf("fakeZaaktype1" to setOf("raadpleger")),
                     hasReadApplicationRole = true
@@ -343,6 +345,8 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
                 setSessionUser(user)
                 every { httpServletRequest.contextPath } returns "fakeContextPath"
                 every { httpServletRequest.requestURI } returns path
+                every { httpServletRequest.servletPath } returns path
+                every { httpServletRequest.pathInfo } returns null
                 every { httpServletRequest.method } returns "GET"
                 every { filterChain.doFilter(any(), any()) } just runs
 
@@ -358,7 +362,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
 
             given("An authenticated user with only application roles without read rights requests '$path'") {
-                val filter = RequestAuthorizationFilter()
+                val filter = RequestAuthorizationFilter(policyService)
                 val user = createLoggedInUser(
                     applicationRolesPerZaaktype = mapOf("fakeZaaktype1" to setOf("brp_zoeken")),
                     overallRoles = setOf("brp_zoeken"),
@@ -384,7 +388,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
         }
 
         given("An authenticated user without any PABC role accesses '/app/home'") {
-            val filter = RequestAuthorizationFilter()
+            val filter = RequestAuthorizationFilter(policyService)
             val user = createLoggedInUser(applicationRolesPerZaaktype = emptyMap())
             setSessionUser(user)
             every { httpServletRequest.contextPath } returns "fakeContextPath"
@@ -402,7 +406,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
         }
 
         given("An authenticated user with only application roles without read rights accesses '/admin/settings'") {
-            val filter = RequestAuthorizationFilter()
+            val filter = RequestAuthorizationFilter(policyService)
             val user = createLoggedInUser(
                 applicationRolesPerZaaktype = mapOf("fakeZaaktype1" to setOf("brp_zoeken")),
                 hasReadApplicationRole = false
@@ -426,7 +430,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
         }
 
         given("An authenticated user without a read application role requests the server error texts") {
-            val filter = RequestAuthorizationFilter()
+            val filter = RequestAuthorizationFilter(policyService)
             val user = createLoggedInUser(
                 applicationRolesPerZaaktype = mapOf("fakeZaaktype1" to setOf("brp_zoeken")),
                 hasReadApplicationRole = false
@@ -449,7 +453,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
         }
 
         given("An authenticated user without a read application role changes the server error texts") {
-            val filter = RequestAuthorizationFilter()
+            val filter = RequestAuthorizationFilter(policyService)
             val user = createLoggedInUser(hasReadApplicationRole = false)
             setSessionUser(user)
             every { httpServletRequest.contextPath } returns "fakeContextPath"
@@ -467,7 +471,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
         }
 
         given("An authenticated beheerder accesses '/rest/admin/*'") {
-            val filter = RequestAuthorizationFilter()
+            val filter = RequestAuthorizationFilter(policyService)
             val user = createLoggedInUser(
                 applicationRolesPerZaaktype = mapOf(
                     "fakeZaaktypeDescription" to setOf(ZacApplicationRole.BEHEERDER.value)
@@ -476,6 +480,8 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             )
             setSessionUser(user)
             every { httpServletRequest.requestURI } returns "/rest/admin/util/health"
+            every { httpServletRequest.servletPath } returns "/rest"
+            every { httpServletRequest.pathInfo } returns "/admin/util/health"
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.method } returns "GET"
             every { filterChain.doFilter(any(), any()) } just runs
@@ -492,13 +498,15 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
         }
 
         given("A non-beheerder user accesses '/admin/settings'") {
-            val filter = RequestAuthorizationFilter()
+            val filter = RequestAuthorizationFilter(policyService)
             val user = createLoggedInUser(
                 applicationRolesPerZaaktype = mapOf("fakeZaakTypeDescription" to setOf("raadpleger")),
                 hasReadApplicationRole = true
             )
             setSessionUser(user)
             every { httpServletRequest.requestURI } returns "/admin/settings"
+            every { httpServletRequest.servletPath } returns "/admin/settings"
+            every { httpServletRequest.pathInfo } returns null
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.method } returns "GET"
             every { httpServletResponse.sendError(any()) } just runs
@@ -517,7 +525,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
         given(
             "An authenticated user with beheerder in overallRoles (no applicationRolesPerZaaktype) accesses '/rest/admin/*'"
         ) {
-            val filter = RequestAuthorizationFilter()
+            val filter = RequestAuthorizationFilter(policyService)
             val user = createLoggedInUser(
                 applicationRolesPerZaaktype = emptyMap(),
                 overallRoles = setOf(ZacApplicationRole.BEHEERDER.value),
@@ -525,6 +533,8 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             )
             setSessionUser(user)
             every { httpServletRequest.requestURI } returns "/rest/admin/util/health"
+            every { httpServletRequest.servletPath } returns "/rest"
+            every { httpServletRequest.pathInfo } returns "/admin/util/health"
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.method } returns "GET"
             every { filterChain.doFilter(any(), any()) } just runs
@@ -540,8 +550,38 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
         }
 
+        listOf("/%61dmin/settings", "/admin;view=list/settings").forEach { requestUri ->
+            given("A non-beheerder user accesses '/admin/settings' as '$requestUri'") {
+                val filter = RequestAuthorizationFilter(policyService)
+                val user = createLoggedInUser(
+                    applicationRolesPerZaaktype = mapOf("fakeZaaktype1" to setOf("behandelaar")),
+                    hasReadApplicationRole = true
+                )
+                setSessionUser(user)
+                every { httpServletRequest.contextPath } returns "fakeContextPath"
+                every { httpServletRequest.requestURI } returns requestUri
+                every { httpServletRequest.servletPath } returns "/admin/settings"
+                every { httpServletRequest.pathInfo } returns null
+                every { httpServletRequest.method } returns "GET"
+                every { httpServletResponse.sendError(any()) } just runs
+
+                `when`("the filter processes the request") {
+                    filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
+
+                    then("a 403 is returned, as for '/admin/settings'") {
+                        verify(exactly = 1) {
+                            httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN)
+                        }
+                        verify(exactly = 0) {
+                            filterChain.doFilter(any(), any())
+                        }
+                    }
+                }
+            }
+        }
+
         given("An authenticated user with only a non-beheerder role in overallRoles accesses '/rest/admin/*'") {
-            val filter = RequestAuthorizationFilter()
+            val filter = RequestAuthorizationFilter(policyService)
             val user = createLoggedInUser(
                 applicationRolesPerZaaktype = emptyMap(),
                 overallRoles = setOf("raadpleger"),
@@ -549,6 +589,8 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             )
             setSessionUser(user)
             every { httpServletRequest.requestURI } returns "/rest/admin/util/health"
+            every { httpServletRequest.servletPath } returns "/rest"
+            every { httpServletRequest.pathInfo } returns "/admin/util/health"
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.method } returns "GET"
             every { httpServletResponse.sendError(any()) } just runs
@@ -567,7 +609,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
 
     context("Unauthenticated requests to protected endpoints") {
         given("An unauthenticated GET request on the server error texts") {
-            val filter = RequestAuthorizationFilter()
+            val filter = RequestAuthorizationFilter(policyService)
             setSessionUser(null)
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.requestURI } returns "/rest/referentietabellen/server-error-text"
@@ -590,7 +632,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
 
 
         given("An unauthenticated GET request on '/app/home'") {
-            val filter = RequestAuthorizationFilter()
+            val filter = RequestAuthorizationFilter(policyService)
             setSessionUser(null)
             every { httpServletRequest.requestURI } returns "/app/home"
             every { httpServletRequest.contextPath } returns "fakeContextPath"

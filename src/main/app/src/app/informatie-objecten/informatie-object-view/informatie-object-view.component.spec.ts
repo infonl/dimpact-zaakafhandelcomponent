@@ -6,6 +6,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
+import { Location } from "@angular/common";
 import { HttpTestingController } from "@angular/common/http/testing";
 import { Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
@@ -13,13 +14,14 @@ import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { ActivatedRoute, Router } from "@angular/router";
+import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of, ReplaySubject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep } from "../../../../setupJest";
+import { Breadcrumb } from "../../core/breadcrumbs/route-title";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { ConfirmDialogData } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { RedenDialogData } from "../../shared/dialog/reden-dialog-form/reden-dialog-form.component";
@@ -90,12 +92,9 @@ describe(InformatieObjectViewComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        InformatieObjectViewComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
-      ],
+      imports: [InformatieObjectViewComponent, NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         {
           provide: ActivatedRoute,
           useValue: mockActivatedRoute,
@@ -148,6 +147,10 @@ describe(InformatieObjectViewComponent.name, () => {
     });
 
     fixture.detectChanges();
+  });
+
+  it("resizes the content along with the menu, so that the document card does not end up behind a menu that renders after the page", () => {
+    expect(component.sideNavContainer().autosize).toBe(true);
   });
 
   describe("actie.nieuwe.versie.toevoegen", () => {
@@ -573,6 +576,65 @@ describe(InformatieObjectViewComponent.name, () => {
         await new Promise(requestAnimationFrame);
 
         expect(foutAfhandelen).toHaveBeenCalled();
+      });
+    });
+
+    describe("once the document is deleted", () => {
+      let router: Router;
+
+      beforeEach(() => {
+        jest
+          .mocked(dialog.open)
+          .mockReturnValue(
+            fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(true) }),
+          );
+        router = TestBed.inject(Router);
+        jest.spyOn(router, "navigateByUrl").mockResolvedValue(true);
+      });
+
+      function givenNavigationTrail(navigationTrail: Breadcrumb[]) {
+        TestBed.inject(Location).replaceState(
+          `/informatie-objecten/${enkelvoudigInformatieobject.uuid}`,
+          "",
+          { navigationTrail },
+        );
+      }
+
+      it("returns to the page the document was opened from", () => {
+        givenNavigationTrail([
+          { title: "fakeZaak", url: "/zaken/fakeZaak", key: "fakeKey" },
+          { title: "fakeDocument", url: "/informatie-objecten/fakeUuid" },
+        ]);
+        component.zaak = zaak;
+
+        component["openDocumentVerwijderenDialog"]();
+
+        expect(router.navigateByUrl).toHaveBeenCalledWith("/zaken/fakeZaak");
+      });
+
+      it("goes to the zaak of the document when it was not opened from another page, so that a new tab does not land on a page the user may not see", () => {
+        givenNavigationTrail([
+          { title: "fakeDocumenten", url: "/informatie-objecten" },
+          { title: "fakeDocument", url: "/informatie-objecten/fakeUuid" },
+        ]);
+        component.zaak = zaak;
+
+        component["openDocumentVerwijderenDialog"]();
+
+        expect(router.navigateByUrl).toHaveBeenCalledWith(
+          `/zaken/${zaak.identificatie}`,
+        );
+      });
+
+      it("goes to the ontkoppelde documenten when it was not opened from another page and has no zaak", () => {
+        givenNavigationTrail([]);
+        component.zaak = undefined;
+
+        component["openDocumentVerwijderenDialog"]();
+
+        expect(router.navigateByUrl).toHaveBeenCalledWith(
+          "/documenten/ontkoppelde",
+        );
       });
     });
   });

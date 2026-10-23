@@ -5,16 +5,16 @@
 
 package nl.info.zac.app.bag.model
 
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import nl.info.zac.app.bag.createLigplaatsAdresseerbaarObject
-import nl.info.zac.app.bag.createStandplaatsAdresseerbaarObject
-import nl.info.zac.app.bag.createVerblijfsAdresseerbaarObject
 import nl.info.client.bag.model.generated.StatusPlaats
 import nl.info.client.bag.model.generated.StatusVerblijfsobject
 import nl.info.client.bag.model.generated.TypeAdresseerbaarObject
+import nl.info.zac.app.bag.createLigplaatsAdresseerbaarObject
+import nl.info.zac.app.bag.createStandplaatsAdresseerbaarObject
+import nl.info.zac.app.bag.createVerblijfsAdresseerbaarObject
 import nl.info.zac.app.zaak.model.RestGeometryType
 
 class RestAdresseerbaarObjectTest : BehaviorSpec({

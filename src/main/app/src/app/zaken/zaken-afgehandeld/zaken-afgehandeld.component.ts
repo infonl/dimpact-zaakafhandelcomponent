@@ -8,6 +8,7 @@ import { SlicePipe } from "@angular/common";
 import {
   AfterViewInit,
   Component,
+  inject,
   OnDestroy,
   OnInit,
   viewChild,
@@ -21,7 +22,7 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatSort, MatSortHeader } from "@angular/material/sort";
 import { MatTable, MatTableModule } from "@angular/material/table";
 import { ActivatedRoute, RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import moment from "moment";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { UtilService } from "../../core/service/util.service";
@@ -45,6 +46,7 @@ import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-r
 import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filter/facet-filter.component";
 import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { ZakenAfgehandeldDatasource } from "./zaken-afgehandeld-datasource";
@@ -55,6 +57,7 @@ import { ZakenAfgehandeldDatasource } from "./zaken-afgehandeld-datasource";
   animations: [detailExpand],
   standalone: true,
   imports: [
+    ZaakIdentificatieComponent,
     I18nKeyPipe,
     CdkDrag,
     CdkDropList,
@@ -67,7 +70,7 @@ import { ZakenAfgehandeldDatasource } from "./zaken-afgehandeld-datasource";
     MatSortHeader,
     MatTableModule,
     RouterLink,
-    TranslateModule,
+    TranslatePipe,
     ZoekopdrachtComponent,
     ColumnPickerComponent,
     ExportButtonComponent,
@@ -86,6 +89,11 @@ export class ZakenAfgehandeldComponent
   extends WerklijstComponent
   implements AfterViewInit, OnInit, OnDestroy
 {
+  gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
+  route = inject(ActivatedRoute);
+  private zoekenService = inject(ZoekenService);
+  protected utilService = inject(UtilService);
+
   protected dataSource: ZakenAfgehandeldDatasource;
   private readonly paginator = viewChild.required(MatPaginator);
   private readonly sort = viewChild.required(MatSort);
@@ -109,12 +117,7 @@ export class ZakenAfgehandeldComponent
     "error",
   );
 
-  constructor(
-    public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    public route: ActivatedRoute,
-    private zoekenService: ZoekenService,
-    protected utilService: UtilService,
-  ) {
+  constructor() {
     super();
     this.dataSource = new ZakenAfgehandeldDatasource(
       this.zoekenService,
@@ -124,7 +127,6 @@ export class ZakenAfgehandeldComponent
 
   ngOnInit(): void {
     super.ngOnInit();
-    this.utilService.setTitle("title.zaken.afgehandeld");
     this.dataSource.initColumns(this.defaultColumns());
   }
 

@@ -19,7 +19,11 @@ class RestDetachedDocumentConverter @Inject constructor(
     private val userConverter: RestUserConverter,
     private val lockService: EnkelvoudigInformatieObjectLockService
 ) {
-    fun convert(detachedDocument: DetachedDocument, informatieobjectTypeUUID: UUID): RestDetachedDocument {
+    fun convertToRestDetachedDocument(
+        detachedDocument: DetachedDocument,
+        informatieobjectTypeUUID: UUID,
+        isZaakspecifiekGeautoriseerd: Boolean
+    ): RestDetachedDocument {
         val lock = lockService.findLock(detachedDocument.documentUUID)
         return RestDetachedDocument(
             id = checkNotNull(detachedDocument.id) {
@@ -30,15 +34,29 @@ class RestDetachedDocumentConverter @Inject constructor(
             informatieobjectTypeUUID = informatieobjectTypeUUID,
             titel = detachedDocument.titel,
             zaakID = detachedDocument.zaakID,
+            isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd,
             creatiedatum = detachedDocument.creatiedatum,
             bestandsnaam = detachedDocument.bestandsnaam,
-            ontkoppeldDoor = userConverter.convertUserId(detachedDocument.ontkoppeldDoor),
+            ontkoppeldDoor = userConverter.convertUserId(
+                userId = detachedDocument.ontkoppeldDoor,
+                logContext = "ontkoppeld document '${detachedDocument.documentID}' of zaak '${detachedDocument.zaakID}'"
+            ),
             ontkoppeldOp = detachedDocument.ontkoppeldOp,
             reden = detachedDocument.reden,
             isVergrendeld = lock != null && lock.lock != null
         )
     }
 
-    fun convert(documenten: List<DetachedDocument>, informatieobjectTypeUUIDs: List<UUID>): List<RestDetachedDocument> =
-        documenten.indices.map { index -> convert(documenten[index], informatieobjectTypeUUIDs[index]) }
+    fun convertToRestDetachedDocuments(
+        documenten: List<DetachedDocument>,
+        informatieobjectTypeUUIDs: List<UUID>,
+        zaakspecifiekGeautoriseerdeZaakIDs: Set<String>
+    ): List<RestDetachedDocument> =
+        documenten.indices.map { index ->
+            convertToRestDetachedDocument(
+                detachedDocument = documenten[index],
+                informatieobjectTypeUUID = informatieobjectTypeUUIDs[index],
+                isZaakspecifiekGeautoriseerd = documenten[index].zaakID in zaakspecifiekGeautoriseerdeZaakIDs
+            )
+        }
 }

@@ -7,6 +7,7 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  inject,
   OnDestroy,
   OnInit,
   viewChild,
@@ -35,7 +36,7 @@ import {
   MatTableDataSource,
 } from "@angular/material/table";
 import { ActivatedRoute, RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { merge } from "rxjs";
 import { startWith, switchMap, tap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
@@ -88,7 +89,7 @@ import { InboxDocumentenService } from "../inbox-documenten.service";
     MatIconButton,
     MatIconAnchor,
     MatIcon,
-    TranslateModule,
+    TranslatePipe,
     TekstFilterComponent,
     DateRangeFilterComponent,
     ReadMoreComponent,
@@ -101,6 +102,13 @@ export class InboxDocumentenListComponent
   extends WerklijstComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
+  private readonly inboxDocumentenService = inject(InboxDocumentenService);
+  private readonly infoService = inject(InformatieObjectenService);
+  private readonly utilService = inject(UtilService);
+  private readonly dialog = inject(MatDialog);
+  readonly gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
+  readonly route = inject(ActivatedRoute);
+
   protected isLoadingResults = true;
   protected dataSource = new MatTableDataSource<
     GeneratedType<"RestInboxDocument">
@@ -142,20 +150,8 @@ export class InboxDocumentenListComponent
     },
   );
 
-  constructor(
-    private readonly inboxDocumentenService: InboxDocumentenService,
-    private readonly infoService: InformatieObjectenService,
-    private readonly utilService: UtilService,
-    private readonly dialog: MatDialog,
-    public readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    public readonly route: ActivatedRoute,
-  ) {
-    super();
-  }
-
   ngOnInit() {
     super.ngOnInit();
-    this.utilService.setTitle("title.documenten.inbox-documenten");
     this.listParameters = SessionStorageUtil.getItem(
       "INBOX_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.createDefaultParameters(),
@@ -254,7 +250,7 @@ export class InboxDocumentenListComponent
     } satisfies typeof this.listParametersSort;
   }
 
-  zoekopdrachtChanged(actieveZoekopdracht: GeneratedType<"RESTZoekopdracht">) {
+  zoekopdrachtChanged(actieveZoekopdracht: GeneratedType<"RestZoekopdracht">) {
     if (actieveZoekopdracht?.json) {
       this.listParameters = JSON.parse(actieveZoekopdracht.json);
       this.sort().active = this.listParametersSort.sort;

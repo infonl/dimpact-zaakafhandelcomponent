@@ -26,10 +26,11 @@ import { MatSelectHarness } from "@angular/material/select/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import moment from "moment";
 import { of } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
@@ -39,6 +40,7 @@ import { testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
 import { FormHelper } from "../../shared/form/helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZakenService } from "../zaken.service";
 import { CaseDetailsEditComponent } from "./zaak-details-wijzigen.component";
 
@@ -81,12 +83,9 @@ describe(CaseDetailsEditComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        CaseDetailsEditComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
-      ],
+      imports: [CaseDetailsEditComponent, NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
@@ -703,6 +702,115 @@ describe(CaseDetailsEditComponent.name, () => {
       request.flush({});
     });
 
+    it("releases a cleared behandelaar explicitly, so the update does not keep the current one", async () => {
+      renderComponent({
+        behandelaar: fromPartial<GeneratedType<"RestUser">>({
+          id: "user-123",
+          naam: "testuser",
+        }),
+      });
+      component["form"].controls.behandelaar.enable();
+      component["form"].controls.behandelaar.setValue(null);
+      component["form"].controls.behandelaar.markAsDirty();
+      component["form"].controls.reden.enable();
+      component["form"].controls.reden.setValue("reden");
+
+      component["onSubmit"]();
+      await new Promise(requestAnimationFrame);
+
+      const request = expectUpdateZaakRequest();
+      expect(request.request.body.isBehandelaarVrijgegeven).toBe(true);
+      expect(request.request.body.zaak.behandelaar).toBeUndefined();
+      request.flush({});
+    });
+
+    it("keeps a behandelaar that the form left empty because they are no longer in the group of the zaak", async () => {
+      const group = fromPartial<GeneratedType<"RestGroup">>({
+        id: "g1",
+        naam: "Groep 1",
+      });
+      jest
+        .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
+        .mockReturnValue(of([group]));
+      renderComponent({
+        groep: group,
+        behandelaar: fromPartial<GeneratedType<"RestUser">>({
+          id: "user-123",
+          naam: "testuser",
+        }),
+      });
+      await fixture.whenStable();
+      component["form"].controls.reden.enable();
+      component["form"].controls.reden.setValue("reden");
+
+      component["onSubmit"]();
+      await new Promise(requestAnimationFrame);
+
+      const request = expectUpdateZaakRequest();
+      expect(request.request.body.isBehandelaarVrijgegeven).toBe(false);
+      request.flush({});
+    });
+
+    it("releases the behandelaar when the groep changes to one they are not a member of", async () => {
+      const currentGroup = fromPartial<GeneratedType<"RestGroup">>({
+        id: "g1",
+        naam: "Groep 1",
+      });
+      const otherGroup = fromPartial<GeneratedType<"RestGroup">>({
+        id: "g2",
+        naam: "Groep 2",
+      });
+      jest
+        .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
+        .mockReturnValue(of([currentGroup, otherGroup]));
+      renderComponent({
+        groep: currentGroup,
+        behandelaar: fromPartial<GeneratedType<"RestUser">>({
+          id: "user-123",
+          naam: "testuser",
+        }),
+      });
+      await fixture.whenStable();
+      component["form"].controls.groep.setValue(otherGroup);
+      component["form"].controls.reden.enable();
+      component["form"].controls.reden.setValue("reden");
+
+      component["onSubmit"]();
+      await new Promise(requestAnimationFrame);
+
+      const request = expectUpdateZaakRequest();
+      expect(request.request.body.isBehandelaarVrijgegeven).toBe(true);
+      expect(request.request.body.zaak.groep).toEqual(
+        expect.objectContaining({ id: "g2" }),
+      );
+      request.flush({});
+    });
+
+    it("does not release a behandelaar that is still selected", async () => {
+      renderComponent({
+        behandelaar: fromPartial<GeneratedType<"RestUser">>({
+          id: "user-123",
+          naam: "testuser",
+        }),
+      });
+      component["form"].controls.behandelaar.enable();
+      component["form"].controls.behandelaar.setValue(
+        fromPartial<GeneratedType<"RestUser">>({
+          id: "user-123",
+          naam: "testuser",
+        }),
+      );
+      component["form"].controls.reden.enable();
+      component["form"].controls.reden.setValue("reden");
+
+      component["onSubmit"]();
+      await new Promise(requestAnimationFrame);
+
+      const request = expectUpdateZaakRequest();
+      expect(request.request.body.isBehandelaarVrijgegeven).toBe(false);
+      request.flush({});
+    });
+
     it("sends a single request when behandelaar and groep are unchanged", async () => {
       renderComponent();
       jest.spyOn(zakenService, "toekennenAanIngelogdeMedewerker");
@@ -820,7 +928,7 @@ describe(CaseDetailsEditComponent.name, () => {
       ).toBe(false);
     });
 
-    it("cannot be unset again once the zaak is marked, because the marking cannot be lifted", () => {
+    it("is checked and enabled on a marked zaak, so that the marking can be lifted", () => {
       renderComponent({
         zaaktype: fromPartial<GeneratedType<"RestZaaktype">>(
           autoriseerbaarZaaktype,
@@ -828,14 +936,29 @@ describe(CaseDetailsEditComponent.name, () => {
         isZaakspecifiekGeautoriseerd: true,
       });
 
+      const checkbox = screen.getByRole("checkbox", {
+        name: /is-zaakspecifiek-geautoriseerd/i,
+      });
+      expect(checkbox).toBeEnabled();
+      expect(checkbox).toBeChecked();
+    });
+
+    it("is disabled on a marked zaak for an employee who may not change it", () => {
+      renderComponent({
+        zaaktype: fromPartial<GeneratedType<"RestZaaktype">>(
+          autoriseerbaarZaaktype,
+        ),
+        isZaakspecifiekGeautoriseerd: true,
+        rechten: fromPartial<GeneratedType<"RestZaakRechten">>({
+          canWijzigen: false,
+        }),
+      });
+
       expect(
         screen.getByRole("checkbox", {
           name: /is-zaakspecifiek-geautoriseerd/i,
         }),
       ).toBeDisabled();
-      expect(component["form"].getRawValue().isZaakspecifiekGeautoriseerd).toBe(
-        true,
-      );
     });
 
     it("sends the marking in the update request when the control is checked", async () => {
@@ -879,6 +1002,307 @@ describe(CaseDetailsEditComponent.name, () => {
       request.flush({});
     });
   });
+  describe("behandelaar of a zaakspecifiek geautoriseerde zaak", () => {
+    const groep = fromPartial<GeneratedType<"RestGroup">>({
+      id: "g1",
+      naam: "G1",
+    });
+    const andereGroep = fromPartial<GeneratedType<"RestGroup">>({
+      id: "g2",
+      naam: "G2",
+    });
+    const behandelaar = fromPartial<GeneratedType<"RestUser">>({
+      id: "u1",
+      naam: "User 1",
+    });
+    const groepslid = fromPartial<GeneratedType<"RestUser">>({
+      id: "u2",
+      naam: "User 2",
+    });
+    const autoriseerbaarZaaktype = fromPartial<GeneratedType<"RestZaaktype">>({
+      uuid: "zaaktype-123",
+      omschrijving: "Test zaaktype",
+      zaakafhandelparameters: { isZaakspecifiekAutoriseerbaar: true },
+    });
+    const explanation =
+      "zaak.zaakspecifiek-geautoriseerd.behandelaar-verplicht";
+
+    const render = async (
+      zaakOverrides: Partial<GeneratedType<"RestZaak">>,
+      membersOfGroep: GeneratedType<"RestUser">[] = [behandelaar],
+    ) => {
+      jest
+        .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
+        .mockReturnValue(of([groep, andereGroep]));
+      jest
+        .spyOn(identityService, "listUsersInGroup")
+        .mockImplementation((groupId) =>
+          of(groupId === groep.id ? membersOfGroep : [groepslid]),
+        );
+      renderComponent({
+        groep,
+        zaaktype: autoriseerbaarZaaktype,
+        ...zaakOverrides,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    const behandelaarSelect = () =>
+      screen.getByRole("combobox", { name: /behandelaar/i });
+    const opslaanButton = () =>
+      screen.getByRole("button", { name: /actie.opslaan/ });
+    const zaakspecifiekCheckbox = () =>
+      screen.getByRole("checkbox", { name: /is-zaakspecifiek-geautoriseerd/i });
+
+    const choose = async (
+      user: ReturnType<typeof userEvent.setup>,
+      select: HTMLElement,
+      option: string,
+    ) => {
+      await user.click(select);
+      fixture.detectChanges();
+      await user.click(screen.getByRole("option", { name: option }));
+      fixture.detectChanges();
+    };
+
+    const changeOmschrijvingWithReden = async (
+      user: ReturnType<typeof userEvent.setup>,
+    ) => {
+      const omschrijving = screen.getByRole("textbox", {
+        name: /omschrijving/i,
+      });
+      await user.clear(omschrijving);
+      await user.type(omschrijving, "fakeOmschrijving");
+      fixture.detectChanges();
+      await user.type(
+        screen.getByRole("textbox", { name: /reden/i }),
+        "fakeReden",
+      );
+      fixture.detectChanges();
+    };
+
+    it("is required and explained on a zaakspecifiek geautoriseerde zaak", async () => {
+      await render({ isZaakspecifiekGeautoriseerd: true });
+
+      expect(behandelaarSelect()).toBeRequired();
+      expect(screen.getByText(explanation)).toBeInTheDocument();
+    });
+
+    it("keeps opslaan disabled while no behandelaar is chosen", async () => {
+      const user = userEvent.setup();
+      await render({ isZaakspecifiekGeautoriseerd: true });
+
+      await changeOmschrijvingWithReden(user);
+
+      expect(opslaanButton()).toBeDisabled();
+    });
+
+    it("enables opslaan once a behandelaar is chosen", async () => {
+      const user = userEvent.setup();
+      await render({ isZaakspecifiekGeautoriseerd: true });
+
+      await choose(user, behandelaarSelect(), "User 1");
+      await changeOmschrijvingWithReden(user);
+
+      expect(opslaanButton()).toBeEnabled();
+    });
+
+    it("keeps the explanation visible once the empty behandelaar is flagged", async () => {
+      await render({ isZaakspecifiekGeautoriseerd: true });
+
+      // jsdom does not deliver the blur that marks a mat-select as touched
+      component["form"].controls.behandelaar.markAsTouched();
+      fixture.detectChanges();
+
+      expect(behandelaarSelect()).toBeInvalid();
+      expect(screen.getByText(explanation)).toBeInTheDocument();
+    });
+
+    it("becomes required when the zaak is marked zaakspecifiek geautoriseerd in the form", async () => {
+      const user = userEvent.setup();
+      await render({ isZaakspecifiekGeautoriseerd: false });
+
+      await user.click(zaakspecifiekCheckbox());
+      fixture.detectChanges();
+      await changeOmschrijvingWithReden(user);
+
+      expect(behandelaarSelect()).toBeRequired();
+      expect(opslaanButton()).toBeDisabled();
+    });
+
+    it("keeps opslaan disabled when marking a zaak without behandelaar by an employee who cannot assign one", async () => {
+      const user = userEvent.setup();
+      await render({
+        isZaakspecifiekGeautoriseerd: false,
+        rechten: fromPartial<GeneratedType<"RestZaakRechten">>({
+          canWijzigen: true,
+          canWijzigenDoorlooptijd: true,
+          canToekennen: false,
+        }),
+      });
+
+      await user.click(zaakspecifiekCheckbox());
+      fixture.detectChanges();
+      await changeOmschrijvingWithReden(user);
+
+      expect(behandelaarSelect()).toHaveAttribute("aria-disabled", "true");
+      expect(screen.getByText(explanation)).toBeInTheDocument();
+      expect(opslaanButton()).toBeDisabled();
+    });
+
+    it("offers no behandelaar again once the zaakspecifieke autorisatie is unticked", async () => {
+      const user = userEvent.setup();
+      await render({ isZaakspecifiekGeautoriseerd: true });
+
+      await user.click(behandelaarSelect());
+      fixture.detectChanges();
+      expect(
+        screen.queryByRole("option", { name: "geen.generiek" }),
+      ).not.toBeInTheDocument();
+      await user.keyboard("{Escape}");
+
+      await user.click(zaakspecifiekCheckbox());
+      fixture.detectChanges();
+      await user.click(behandelaarSelect());
+      fixture.detectChanges();
+
+      expect(
+        screen.getByRole("option", { name: "geen.generiek" }),
+      ).toBeInTheDocument();
+    });
+
+    it("is optional when the zaak is not zaakspecifiek geautoriseerd", async () => {
+      const user = userEvent.setup();
+      await render({ isZaakspecifiekGeautoriseerd: false });
+
+      await changeOmschrijvingWithReden(user);
+
+      expect(behandelaarSelect()).not.toBeRequired();
+      expect(screen.queryByText(explanation)).not.toBeInTheDocument();
+      expect(opslaanButton()).toBeEnabled();
+    });
+
+    describe("whose behandelaar is no longer a member of its group", () => {
+      it("keeps that behandelaar, so that other zaakgegevens can still be saved", async () => {
+        const user = userEvent.setup();
+        await render({ isZaakspecifiekGeautoriseerd: true, behandelaar }, [
+          groepslid,
+        ]);
+
+        await changeOmschrijvingWithReden(user);
+
+        expect(behandelaarSelect()).toHaveTextContent("User 1");
+        expect(opslaanButton()).toBeEnabled();
+      });
+
+      it("offers only the members of another group once that group is chosen", async () => {
+        const user = userEvent.setup();
+        await render({ isZaakspecifiekGeautoriseerd: true, behandelaar }, [
+          groepslid,
+        ]);
+
+        await choose(
+          user,
+          screen.getByRole("combobox", { name: /groep/i }),
+          "G2",
+        );
+        await user.click(behandelaarSelect());
+        fixture.detectChanges();
+
+        expect(
+          screen.queryByRole("option", { name: "User 1" }),
+        ).not.toBeInTheDocument();
+        expect(
+          screen.getByRole("option", { name: "User 2" }),
+        ).toBeInTheDocument();
+      });
+
+      it("is not offered on a zaak that is not zaakspecifiek geautoriseerd", async () => {
+        const user = userEvent.setup();
+        await render({ isZaakspecifiekGeautoriseerd: false, behandelaar }, [
+          groepslid,
+        ]);
+
+        await user.click(behandelaarSelect());
+        fixture.detectChanges();
+
+        expect(
+          screen.queryByRole("option", { name: "User 1" }),
+        ).not.toBeInTheDocument();
+      });
+    });
+  });
+  describe("lifting the zaakspecifieke autorisatie", () => {
+    const markedZaak = {
+      zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
+        uuid: "zaaktype-123",
+        omschrijving: "Test zaaktype",
+        zaakafhandelparameters: { isZaakspecifiekAutoriseerbaar: true },
+      }),
+      isZaakspecifiekGeautoriseerd: true,
+    };
+
+    const mockOpheffenDialog = (isConfirmed: boolean) =>
+      jest
+        .spyOn(
+          TestBed.inject(ZaakDialogService),
+          "openZaakspecifiekeAutorisatieOpheffen",
+        )
+        .mockReturnValue(fromPartial({ afterClosed: () => of(isConfirmed) }));
+
+    const submitWithReden = async () => {
+      component["form"].controls.reden.enable();
+      component["form"].controls.reden.setValue("fakeReden");
+      component["onSubmit"]();
+      await new Promise(requestAnimationFrame);
+    };
+
+    it("asks for confirmation and then sends the lifting in the update request", async () => {
+      const openOpheffenDialog = mockOpheffenDialog(true);
+      renderComponent(markedZaak);
+      component["form"].controls.isZaakspecifiekGeautoriseerd.setValue(false);
+
+      await submitWithReden();
+
+      expect(openOpheffenDialog).toHaveBeenCalledTimes(1);
+      const request = expectUpdateZaakRequest();
+      expect(request.request.body.zaak).toEqual(
+        expect.objectContaining({ isZaakspecifiekGeautoriseerd: false }),
+      );
+      request.flush({});
+    });
+
+    it("saves nothing and keeps the form open when the dialog is closed", async () => {
+      jest.mocked(mockSideNav.close).mockClear();
+      mockOpheffenDialog(false);
+      renderComponent(markedZaak);
+      component["form"].controls.isZaakspecifiekGeautoriseerd.setValue(false);
+
+      await submitWithReden();
+
+      httpTestingController.expectNone(
+        (request) =>
+          request.method === "PATCH" &&
+          request.url.includes("/rest/zaken/zaak/zaak-123"),
+      );
+      expect(mockSideNav.close).not.toHaveBeenCalled();
+    });
+
+    it("asks for no confirmation when the marking stays", async () => {
+      const openOpheffenDialog = mockOpheffenDialog(true);
+      renderComponent(markedZaak);
+
+      await submitWithReden();
+
+      expect(openOpheffenDialog).not.toHaveBeenCalled();
+      const request = expectUpdateZaakRequest();
+      expect(request.request.body.zaak?.isZaakspecifiekGeautoriseerd).toBe(
+        true,
+      );
+      request.flush({});
+    });
+  });
   describe("refusal of a zaakspecifiek geautoriseerde zaak", () => {
     const refusal = (message: string) => ({
       body: { message },
@@ -908,7 +1332,7 @@ describe(CaseDetailsEditComponent.name, () => {
       fixture.detectChanges();
 
       expect(
-        screen.getByText(
+        await screen.findByText(
           "msg.error.zaakspecifiek.geautoriseerde.medewerker.roltype.not.found",
         ),
       ).toBeInTheDocument();
@@ -924,6 +1348,7 @@ describe(CaseDetailsEditComponent.name, () => {
       });
       component["form"].controls.behandelaar.enable();
       component["form"].controls.behandelaar.setValue(null);
+      component["form"].controls.behandelaar.markAsDirty();
       component["form"].controls.reden.enable();
       component["form"].controls.reden.setValue("reden");
 
@@ -938,7 +1363,7 @@ describe(CaseDetailsEditComponent.name, () => {
       fixture.detectChanges();
 
       expect(
-        screen.getByText(
+        await screen.findByText(
           "msg.error.zaakspecifiek.geautoriseerde.zaak.cannot.be.released",
         ),
       ).toBeInTheDocument();

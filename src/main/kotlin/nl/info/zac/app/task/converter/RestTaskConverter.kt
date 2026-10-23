@@ -5,6 +5,13 @@
 package nl.info.zac.app.task.converter
 
 import jakarta.inject.Inject
+import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
+import nl.info.zac.app.identity.converter.RestGroupConverter
+import nl.info.zac.app.identity.converter.RestUserConverter
+import nl.info.zac.app.policy.model.toRestTaakRechten
+import nl.info.zac.app.task.model.RestTask
+import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
 import nl.info.zac.flowable.task.readTaskData
 import nl.info.zac.flowable.task.readTaskDocuments
 import nl.info.zac.flowable.task.readTaskInformation
@@ -14,17 +21,10 @@ import nl.info.zac.flowable.task.readZaaktypeOmschrijving
 import nl.info.zac.flowable.task.readZaaktypeUUID
 import nl.info.zac.flowable.util.isCmmnTask
 import nl.info.zac.flowable.util.taakStatus
-import nl.info.zac.util.time.convertToLocalDate
-import nl.info.zac.util.time.convertToZonedDateTime
-import nl.info.zac.admin.ZaaktypeConfigurationService
-import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
-import nl.info.zac.app.identity.converter.RestGroupConverter
-import nl.info.zac.app.identity.converter.RestUserConverter
-import nl.info.zac.app.policy.model.toRestTaakRechten
-import nl.info.zac.app.task.model.RestTask
-import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
+import nl.info.zac.util.time.convertToLocalDate
+import nl.info.zac.util.time.convertToZonedDateTime
 import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo
@@ -50,6 +50,8 @@ class RestTaskConverter @Inject constructor(
         zaakAutorisatieGegevens: ZaakAutorisatieGegevens? = null
     ): RestTask {
         val zaaktypeOmschrijving = readZaaktypeOmschrijving(taskInfo)
+        val zaakIdentificatie = readZaakIdentificatie(taskInfo)
+        val logContext = "task '${taskInfo.id}' of zaak '$zaakIdentificatie'"
         val restTaakRechten = policyService.readTaakRechten(
             taskInfo = taskInfo,
             zaaktypeOmschrijving = zaaktypeOmschrijving,
@@ -60,7 +62,7 @@ class RestTaskConverter @Inject constructor(
             naam = taskInfo.name,
             status = taskInfo.taakStatus(),
             zaakUuid = readZaakUUID(taskInfo),
-            zaakIdentificatie = readZaakIdentificatie(taskInfo),
+            zaakIdentificatie = zaakIdentificatie,
             rechten = restTaakRechten,
             zaaktypeOmschrijving = if (restTaakRechten.canLezen) zaaktypeOmschrijving else null,
             zaaktypeUUID = readZaaktypeUUID(taskInfo),
@@ -81,16 +83,14 @@ class RestTaskConverter @Inject constructor(
                 null
             },
             behandelaar = if (restTaakRechten.canLezen) {
-                taskInfo.assignee?.let {
-                    medewerkerConverter.convertUserId(
-                        it
-                    )
-                }
+                taskInfo.assignee?.let { medewerkerConverter.convertUserId(userId = it, logContext = logContext) }
             } else {
                 null
             },
             groep = if (restTaakRechten.canLezen) {
-                extractGroupId(taskInfo.identityLinks)?.let { groepConverter.convertGroupId(it) }
+                extractGroupId(taskInfo.identityLinks)?.let {
+                    groepConverter.convertGroupId(groupId = it, logContext = logContext)
+                }
             } else {
                 null
             },

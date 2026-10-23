@@ -5,11 +5,11 @@
 
 package nl.info.zac.app.zaak.model
 
+import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
+import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
 import nl.info.zac.app.bag.model.RestBagObject
 import nl.info.zac.app.bag.model.RestOpenbareRuimte
 import nl.info.zac.app.bag.model.RestPand
-import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
-import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.klant.model.klant.IdentificatieType
@@ -219,7 +219,7 @@ fun createRestZaakCreateData(
     uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.of(2023, 10, 10),
     einddatumGepland: LocalDate? = null,
     communicatiekanaal: String? = "fakeCommunicatiekanaal",
-    startDatum: LocalDate = LocalDate.of(2023, 9, 15),
+    startDatum: LocalDate? = LocalDate.of(2023, 9, 15),
     vertrouwelijkheidaanduiding: String = RestVertrouwelijkheidaanduiding.OPENBAAR.name,
     isZaakspecifiekGeautoriseerd: Boolean? = null
 ) = RestZaakCreateData(

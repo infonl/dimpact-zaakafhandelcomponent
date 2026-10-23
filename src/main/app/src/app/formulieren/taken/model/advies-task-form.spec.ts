@@ -6,7 +6,7 @@
 import { provideHttpClient } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 
 import { testQueryClient } from "../../../../../setupJest";
@@ -29,8 +29,8 @@ describe(AdviesTaskForm.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
       providers: [
+        provideTranslateService(),
         provideQueryClient(testQueryClient),
         provideHttpClient(),
         provideRouter([]),

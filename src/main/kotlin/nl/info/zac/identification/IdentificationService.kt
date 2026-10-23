@@ -6,8 +6,8 @@ package nl.info.zac.identification
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.brp.exception.BrpTemporaryPersonIdNotCachedException
+import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NATUURLIJK_PERSOON
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.VESTIGING

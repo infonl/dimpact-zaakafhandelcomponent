@@ -144,12 +144,6 @@ SHALL keep exposing and accepting resultaattype UUIDs.
 - **WHEN** a client reads the configuration through the REST resources
 - **THEN** the response has no niet-ontvankelijk resultaattype, and a warning is logged
 
-#### Scenario: Reference without omschrijving is quarantined when the UUID columns are dropped
-- **GIVEN** a zaakbeeindig parameter that holds a resultaattype UUID but no omschrijving
-- **WHEN** the migration that drops the resultaattype UUID columns runs
-- **THEN** the parameter row is in the quarantine table with its complete data, the startup log has a warning
-  with the count, and ZAC starts
-
 ### Requirement: Engine-agnostic settings apply to BPMN zaken
 
 The system SHALL apply these settings to a zaak of a BPMN zaaktype in the same way as to a zaak of a CMMN
@@ -176,22 +170,3 @@ key. A CMMN configuration SHALL also have a niet-ontvankelijk resultaattype.
 - **GIVEN** a configuration for zaaktype UUID `U` without a process binding
 - **WHEN** a user lists the zaaktypen for zaak creation
 - **THEN** `U` is not in the list, and the health check reports `U` as not valid
-
-### Requirement: Schema migrations keep rows that block a new constraint
-
-When a database migration of this change finds an existing configuration row that would violate a constraint
-the migration adds, the system SHALL move that row and its dependent rows, with their complete data, into a
-quarantine table, SHALL log a warning with the number of moved rows per reason, and SHALL complete the
-migration. The system SHALL NOT delete such a row without a copy, and SHALL NOT fail the migration because of
-it.
-
-#### Scenario: Duplicate one-to-one child is quarantined
-- **GIVEN** a configuration with two BRP parameter rows, stored before this change
-- **WHEN** the migrations of this change run
-- **THEN** the BRP parameter row with the highest id stays, the other row is in the quarantine table with its
-  complete data, the startup log has a warning with the count, and ZAC starts
-
-#### Scenario: Clean data quarantines nothing
-- **GIVEN** a database without rows that violate the new constraints
-- **WHEN** the migrations of this change run
-- **THEN** the quarantine table is empty

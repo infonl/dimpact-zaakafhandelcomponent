@@ -11,17 +11,18 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import nl.info.client.zgw.shared.model.Results
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.model.createAdres
 import nl.info.client.brp.model.createAdressering
 import nl.info.client.brp.model.createPersoon
+import nl.info.client.brp.model.createVerblijfadresBinnenland
 import nl.info.client.brp.model.generated.Adres
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.model.createResultaatItem
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.or.`object`.model.createModelObject
+import nl.info.client.smartdocuments.model.document.AanvragerData
 import nl.info.client.zgw.model.createNietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createOpschorting
 import nl.info.client.zgw.model.createResultaat
@@ -35,6 +36,7 @@ import nl.info.client.zgw.model.createVerlenging
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakobjectProductaanvraag
 import nl.info.client.zgw.shared.ZgwApiService
+import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -87,7 +89,12 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
             )
         val persoon = createPersoon(
             address = createAdressering(),
-            verblijfplaats = createAdres()
+            verblijfplaats = createAdres(
+                verblijfAdresBinnenland = createVerblijfadresBinnenland(huisnummer = 12).apply {
+                    huisletter = "A"
+                    huisnummertoevoeging = "bis"
+                }
+            )
         )
         val zaakType = createZaakType()
         val zaak = createZaak(zaaktypeUri = zaakType.url)
@@ -114,7 +121,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                     with(aanvragerData!!) {
                         naam shouldBe persoon.naam
                         straat shouldBe (persoon.verblijfplaats as Adres).verblijfadres.officieleStraatnaam
-                        huisnummer shouldBe (persoon.verblijfplaats as Adres).verblijfadres.huisnummer.toString()
+                        huisnummer shouldBe "12Abis"
                         postcode shouldBe (persoon.verblijfplaats as Adres).verblijfadres.postcode
                         woonplaats shouldBe (persoon.verblijfplaats as Adres).verblijfadres.woonplaats
                     }
@@ -396,6 +403,37 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         }
     }
 
+    given("A zaak with an initiator of type niet-natuurlijk persoon with only a KVK number and no KVK address") {
+        val loggedInUser = createLoggedInUser()
+        val kvkNummer = "fakeKvkNummer"
+        val rolNietNatuurlijkPersoon =
+            createRolNietNatuurlijkPersoon(
+                rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR),
+                nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(kvkNummer = kvkNummer)
+            )
+        val zaakType = createZaakType()
+        val zaak = createZaak(zaaktypeUri = zaakType.url)
+        val resultaatItem = createResultaatItem(adres = null, type = "rechtspersoon")
+
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
+        every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns resultaatItem
+        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
+        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
+        every { zgwApiService.findGroepForZaak(zaak) } returns null
+        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+
+        `when`("SmartDocuments data is created") {
+            val data = documentCreationDataService.createData(
+                loggedInUser = loggedInUser,
+                zaak = zaak
+            )
+
+            then("the aanvrager data contains the name of the rechtspersoon and no address") {
+                data.aanvragerData shouldBe AanvragerData(naam = resultaatItem.naam, huisnummer = "")
+            }
+        }
+    }
+
     given(
         "A zaak with an initiator of type niet-natuurlijk persoon with neither an RSIN, a KVK number nor a vestigingsnummer"
     ) {
@@ -610,7 +648,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         every { flowableTaskService.readTask(taskId) } returns taskInfo
         every { taskInfo.name } returns "fakeTaskName"
         every { taskInfo.assignee } returns assigneeId
-        every { identityService.readUser(assigneeId) } returns user
+        every { identityService.readUser(assigneeId, any()) } returns user
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(

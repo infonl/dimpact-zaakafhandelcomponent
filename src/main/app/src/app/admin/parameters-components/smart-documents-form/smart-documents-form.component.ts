@@ -5,7 +5,7 @@
 
 import { FlatTreeControl } from "@angular/cdk/tree";
 
-import { Component, effect, input, untracked } from "@angular/core";
+import { Component, effect, inject, input, untracked } from "@angular/core";
 import {
   FormBuilder,
   FormControl,
@@ -23,7 +23,7 @@ import {
   MatTreeFlattener,
   MatTreeModule,
 } from "@angular/material/tree";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { firstValueFrom } from "rxjs";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
@@ -55,11 +55,15 @@ interface FlatNode {
     MatIconModule,
     MatSlideToggleModule,
     MatTreeModule,
-    TranslateModule,
+    TranslatePipe,
     SmartDocumentsFormItemComponent,
   ],
 })
 export class SmartDocumentsFormComponent {
+  private smartDocumentsService = inject(SmartDocumentsService);
+  private informatieObjectenService = inject(InformatieObjectenService);
+  private formBuilder = inject(FormBuilder);
+
   readonly zaakTypeUuid = input.required<string>();
   readonly enabledGlobally = input.required<boolean>();
   readonly enabledForZaaktype = input(false);
@@ -84,11 +88,7 @@ export class SmartDocumentsFormComponent {
   newTemplateMappings: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] =
     [];
 
-  constructor(
-    private smartDocumentsService: SmartDocumentsService,
-    private informatieObjectenService: InformatieObjectenService,
-    private formBuilder: FormBuilder,
-  ) {
+  constructor() {
     effect(() => this.prepareDatasource());
     effect(() => {
       const enabledForZaaktype = this.enabledForZaaktype();
@@ -129,14 +129,9 @@ export class SmartDocumentsFormComponent {
     );
   }
 
-  private readonly allSmartDocumentTemplateGroupsQuery = injectQuery(() => ({
-    queryKey: ["allSmartDocumentTemplateGroupsQuery"],
-    refetchOnWindowFocus: false,
-    queryFn: () =>
-      firstValueFrom(
-        this.smartDocumentsService.getAllSmartDocumentsTemplateGroups(),
-      ),
-  }));
+  private readonly allSmartDocumentTemplateGroupsQuery = injectQuery(() =>
+    this.smartDocumentsService.getAllSmartDocumentsTemplateGroups(),
+  );
 
   private readonly currentTemplateMappingsQuery = injectQuery(() => ({
     ...this.smartDocumentsService.getTemplatesMappingQuery(this.zaakTypeUuid()),

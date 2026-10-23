@@ -4,10 +4,6 @@
  */
 package nl.info.zac.itest.config
 
-import org.json.JSONArray
-import org.json.JSONObject
-import java.util.Base64
-import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 /**
@@ -22,95 +18,27 @@ object ItestPlatform {
     private const val KUBE_CONTEXT_ENV_VAR = "ZAC_ITEST_KUBE_CONTEXT"
     private const val KIND_HOST_PORT_OFFSET = 20000
     private const val KUBECTL_TIMEOUT_MINUTES = 2L
-    private const val FLYWAY_TIMEOUT_MINUTES = 6L
-    private const val FLYWAY_MIGRATIONS_CONFIG_MAP = "zac-flyway-migrations"
+
+    private const val NAMESPACE = "zac"
 
     val isKind = (System.getProperty(PLATFORM_SYSTEM_PROPERTY) ?: System.getenv(PLATFORM_ENV_VAR)) == "kind"
 
     private val kubeContext = System.getenv(KUBE_CONTEXT_ENV_VAR) ?: "kind-zac-spike"
-
-    /**
-     * The namespace of ZAC and of every service that it needs.
-     */
-    const val NAMESPACE = "zac"
-    private const val PASSWORDS_SECRET = "zac-dev-passwords"
 
     fun hostPort(composeHostPort: Int) = if (isKind) composeHostPort + KIND_HOST_PORT_OFFSET else composeHostPort
 
     /**
      * Runs kubectl against the kind cluster and returns its standard output.
      */
-    fun kubectl(vararg arguments: String, input: String? = null, timeoutMinutes: Long = KUBECTL_TIMEOUT_MINUTES): String {
+    fun kubectl(vararg arguments: String): String {
         val process = ProcessBuilder(listOf("kubectl", "--context", kubeContext) + arguments)
             .redirectError(ProcessBuilder.Redirect.PIPE)
             .start()
-        process.outputStream.use { standardInput -> input?.let { standardInput.write(it.toByteArray()) } }
         val standardOutput = process.inputStream.bufferedReader().readText()
         val standardError = process.errorStream.bufferedReader().readText()
-        check(process.waitFor(timeoutMinutes, TimeUnit.MINUTES)) { "kubectl ${arguments.toList()} timed out" }
+        check(process.waitFor(KUBECTL_TIMEOUT_MINUTES, TimeUnit.MINUTES)) { "kubectl ${arguments.toList()} timed out" }
         check(process.exitValue() == 0) { "kubectl ${arguments.toList()} failed: $standardOutput $standardError" }
         return standardOutput
-    }
-
-    private val flywayMigrationsConfigMap by lazy {
-        val configMap = kubectl(
-            "create", "configmap", FLYWAY_MIGRATIONS_CONFIG_MAP, "--namespace", NAMESPACE,
-            "--from-file=src/main/resources/schemas", "--dry-run=client", "--output=yaml"
-        )
-        kubectl("apply", "--server-side", "--force-conflicts", "--filename=-", input = configMap)
-        FLYWAY_MIGRATIONS_CONFIG_MAP
-    }
-
-    /**
-     * Runs Flyway in a pod next to the Postgres of the kind cluster and returns its output; the kind equivalent of
-     * the Flyway container that shares the network of the Docker Compose database container.
-     * The migrations come from a ConfigMap, copied to an emptyDir first, because Flyway would also find the
-     * migrations in the hidden directories of a ConfigMap volume.
-     */
-    fun runFlyway(flywayVersion: String, flywayArguments: List<String>): String {
-        val podName = "flyway-${UUID.randomUUID().toString().take(8)}"
-        val pod = JSONObject().put(
-            "spec",
-            JSONObject()
-                .put(
-                    "containers",
-                    JSONArray().put(
-                        JSONObject()
-                            .put("name", "flyway")
-                            .put("image", "flyway/flyway:$flywayVersion")
-                            .put("command", JSONArray(listOf("sh", "-c", "cp /migrations/* /flyway/sql/ && exec flyway \"$@\"", "flyway")))
-                            .put("args", JSONArray(flywayArguments))
-                            .put(
-                                "volumeMounts",
-                                JSONArray()
-                                    .put(JSONObject().put("name", "migrations").put("mountPath", "/migrations"))
-                                    .put(JSONObject().put("name", "sql").put("mountPath", "/flyway/sql"))
-                            )
-                    )
-                )
-                .put(
-                    "volumes",
-                    JSONArray()
-                        .put(JSONObject().put("name", "migrations").put("configMap", JSONObject().put("name", flywayMigrationsConfigMap)))
-                        .put(JSONObject().put("name", "sql").put("emptyDir", JSONObject()))
-                )
-        )
-        return kubectl(
-            "run", podName, "--namespace", NAMESPACE, "--image=flyway/flyway:$flywayVersion", "--restart=Never",
-            "--rm", "--attach", "--quiet", "--pod-running-timeout=5m", "--overrides=$pod",
-            timeoutMinutes = FLYWAY_TIMEOUT_MINUTES
-        )
-    }
-
-    /**
-     * The password of the 'zac' database role, which `hack/kind-spike/up.sh` generates for every new cluster.
-     */
-    val zacDatabasePassword by lazy {
-        String(
-            Base64.getDecoder().decode(
-                kubectl("get", "secret", PASSWORDS_SECRET, "--namespace", NAMESPACE, "--output=jsonpath={.data.zac}")
-            )
-        )
     }
 
     fun queryZacDatabaseWithKubectl(sql: String) = kubectl(

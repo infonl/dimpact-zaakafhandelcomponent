@@ -4,11 +4,11 @@
  */
 
 import { NgClass } from "@angular/common";
-import { Component, effect, OnInit } from "@angular/core";
+import { Component, effect, inject } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
 import { injectMutation } from "../../shared/http/inject-mutation";
@@ -31,10 +31,13 @@ const SETTING_PER_COLUMN = {
     MatCardModule,
     MatTableModule,
     MatCheckboxModule,
-    TranslateModule,
+    TranslatePipe,
   ],
 })
-export class SignaleringenSettingsComponent implements OnInit {
+export class SignaleringenSettingsComponent {
+  private readonly service = inject(SignaleringenSettingsService);
+  private readonly utilService = inject(UtilService);
+
   protected readonly columns = [
     "subjecttype",
     "type",
@@ -52,17 +55,10 @@ export class SignaleringenSettingsComponent implements OnInit {
     onSettled: () => this.utilService.setLoading(false),
   });
 
-  constructor(
-    private readonly service: SignaleringenSettingsService,
-    private readonly utilService: UtilService,
-  ) {
+  constructor() {
     effect(() => {
       this.dataSource.data = this.instellingenQuery.data() ?? [];
     });
-  }
-
-  ngOnInit() {
-    this.utilService.setTitle("title.signaleringen.settings");
   }
 
   protected changed(

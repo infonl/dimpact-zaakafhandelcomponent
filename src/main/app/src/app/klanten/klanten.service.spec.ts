@@ -11,7 +11,7 @@ import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { MatDialog } from "@angular/material/dialog";
 import { Router } from "@angular/router";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateService, provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { testQueryClient } from "../../../setupJest";
 import { UtilService } from "../core/service/util.service";
@@ -32,8 +32,8 @@ describe(KlantenService.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
       providers: [
+        provideTranslateService(),
         Router,
         MatDialog,
         UtilService,

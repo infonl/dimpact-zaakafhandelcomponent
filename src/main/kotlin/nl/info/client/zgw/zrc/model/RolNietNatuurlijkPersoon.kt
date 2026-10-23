@@ -7,7 +7,6 @@ package nl.info.client.zgw.zrc.model
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.ztc.model.generated.RolType
-import org.apache.commons.lang3.StringUtils
 import java.net.URI
 import java.util.Objects
 import java.util.UUID
@@ -65,7 +64,7 @@ class RolNietNatuurlijkPersoon : Rol<NietNatuurlijkPersoonIdentificatie> {
     override val naam: String?
         get() {
             val identificatie = betrokkeneIdentificatie ?: return null
-            return if (StringUtils.isNotEmpty(identificatie.statutaireNaam)) identificatie.statutaireNaam else identificatienummer
+            return if (!identificatie.statutaireNaam.isNullOrEmpty()) identificatie.statutaireNaam else identificatienummer
         }
 
     override val identificatienummer: String?
@@ -73,10 +72,10 @@ class RolNietNatuurlijkPersoon : Rol<NietNatuurlijkPersoonIdentificatie> {
             val identificatie = betrokkeneIdentificatie ?: return null
             return when {
                 // new 'RSIN-type' initiators only have a KVK number (but no vestigingsnummer)
-                StringUtils.isNotBlank(identificatie.kvkNummer) && StringUtils.isBlank(identificatie.vestigingsNummer) ->
+                !identificatie.kvkNummer.isNullOrBlank() && identificatie.vestigingsNummer.isNullOrBlank() ->
                     identificatie.kvkNummer
                 // we also support 'legacy' RSIN-type initiators with only an RSIN (no KVK number)
-                StringUtils.isNotEmpty(identificatie.innNnpId) -> identificatie.innNnpId
+                !identificatie.innNnpId.isNullOrEmpty() -> identificatie.innNnpId
                 // lastly we support the 'vestiging-type' initiators that have both a KVK number and a vestigingsnummer
                 // note that the KVK number is not part of this class but returned differently
                 else -> identificatie.vestigingsNummer

@@ -3,12 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { ActivatedRoute } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
-import { UtilService } from "../../core/service/util.service";
+import { TranslatePipe } from "@ngx-translate/core";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -23,13 +22,15 @@ import { BagZakenTabelComponent } from "../bag-zaken-tabel/bag-zaken-tabel.compo
     I18nKeyPipe,
     MatCardModule,
     MatSidenavModule,
-    TranslateModule,
+    TranslatePipe,
     StaticTextComponent,
     BagZakenTabelComponent,
     BagLocatieComponent,
   ],
 })
 export class BAGViewComponent implements OnInit {
+  private readonly activatedRoute = inject(ActivatedRoute);
+
   protected bagIdentificatie!: string;
   protected adres?: GeneratedType<"RestBagAdres">;
   protected adresRegels?: string;
@@ -39,13 +40,7 @@ export class BAGViewComponent implements OnInit {
   protected nummeraanduiding?: GeneratedType<"RestNummeraanduiding">;
   protected geometrie?: GeneratedType<"RestGeometry">;
 
-  constructor(
-    private readonly utilService: UtilService,
-    private readonly activatedRoute: ActivatedRoute,
-  ) {}
-
   ngOnInit() {
-    this.utilService.setTitle("bagobjectgegevens");
     this.activatedRoute.data.subscribe((data) => {
       const bagObject: GeneratedType<"RestBagObject"> = data.bagObject;
       this.bagIdentificatie = bagObject.identificatie!;

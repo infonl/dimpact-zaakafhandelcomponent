@@ -7,6 +7,7 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  inject,
   OnDestroy,
   OnInit,
   viewChild,
@@ -37,7 +38,7 @@ import {
   MatTableDataSource,
 } from "@angular/material/table";
 import { ActivatedRoute, RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { merge } from "rxjs";
 import { startWith, switchMap, tap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
@@ -63,6 +64,7 @@ import {
 import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
 import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service";
 
 @Component({
@@ -70,6 +72,7 @@ import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service"
   styleUrls: ["./ontkoppelde-documenten-list.component.less"],
   standalone: true,
   imports: [
+    ZaakIdentificatieComponent,
     RouterLink,
     MatDrawerContainer,
     MatDrawer,
@@ -93,7 +96,7 @@ import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service"
     MatFormField,
     MatSelect,
     MatOption,
-    TranslateModule,
+    TranslatePipe,
     TekstFilterComponent,
     DateRangeFilterComponent,
     ReadMoreComponent,
@@ -106,6 +109,15 @@ export class OntkoppeldeDocumentenListComponent
   extends WerklijstComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
+  private readonly ontkoppeldeDocumentenService = inject(
+    OntkoppeldeDocumentenService,
+  );
+  private readonly infoService = inject(InformatieObjectenService);
+  private readonly utilService = inject(UtilService);
+  private readonly dialog = inject(MatDialog);
+  readonly gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
+  readonly route = inject(ActivatedRoute);
+
   protected isLoadingResults = true;
   protected dataSource = new MatTableDataSource<
     GeneratedType<"RestDetachedDocument">
@@ -154,20 +166,8 @@ export class OntkoppeldeDocumentenListComponent
     },
   );
 
-  constructor(
-    private readonly ontkoppeldeDocumentenService: OntkoppeldeDocumentenService,
-    private readonly infoService: InformatieObjectenService,
-    private readonly utilService: UtilService,
-    private readonly dialog: MatDialog,
-    public readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    public readonly route: ActivatedRoute,
-  ) {
-    super();
-  }
-
   ngOnInit() {
     super.ngOnInit();
-    this.utilService.setTitle("title.documenten.ontkoppelde-documenten");
     this.listParameters = SessionStorageUtil.getItem(
       "ONTKOPPELDE_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.createDefaultParameters(),
@@ -269,7 +269,7 @@ export class OntkoppeldeDocumentenListComponent
   }
 
   protected zoekopdrachtChanged(
-    actieveZoekopdracht: GeneratedType<"RESTZoekopdracht">,
+    actieveZoekopdracht: GeneratedType<"RestZoekopdracht">,
   ) {
     if (actieveZoekopdracht) {
       this.listParameters = JSON.parse(actieveZoekopdracht.json || "{}");

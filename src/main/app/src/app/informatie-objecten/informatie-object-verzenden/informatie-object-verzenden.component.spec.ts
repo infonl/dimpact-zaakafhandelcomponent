@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import {
   provideHttpClient,
   withInterceptorsFromDi,
@@ -14,11 +15,12 @@ import {
 import { provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
+import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { fireEvent, render, screen, within } from "@testing-library/angular";
+import { render, screen, within } from "@testing-library/angular";
 import userEvent, { UserEvent } from "@testing-library/user-event";
 import { EMPTY } from "rxjs";
 import { fromPartial } from "src/test-helpers";
@@ -72,8 +74,9 @@ describe(InformatieObjectVerzendenComponent.name, () => {
     } = await render(InformatieObjectVerzendenComponent, {
       inputs: { zaak, sideNav },
       on: { documentSent },
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideZonelessChangeDetection(),
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
@@ -175,8 +178,12 @@ describe(InformatieObjectVerzendenComponent.name, () => {
     await showDocuments();
 
     await selectDocument("Document 1");
-    fireEvent.input(field("verzenddatum"), { target: { value: "" } });
-    fireEvent.blur(field("verzenddatum"));
+    const clearVerzenddatumButton = await TestbedHarnessEnvironment.loader(
+      fixture,
+    ).getHarness(
+      MatButtonHarness.with({ ancestor: "zac-date", text: "clear" }),
+    );
+    await clearVerzenddatumButton.click();
     await fixture.whenStable();
 
     expect(submitButton()).toBeDisabled();

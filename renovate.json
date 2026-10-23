@@ -412,8 +412,14 @@
         "lockFileMaintenance"
       ],
       "automerge": true,
+      "platformAutomerge": false,
+      "automergeSchedule": [
+        "* 0,4-23 * * 1-5",
+        "* * * * 0,6"
+      ],
       "description": [
-        "Automerge all patch-level updates and weekly lockfile maintenance. The renovate-approve GitHub app provides the required approving review"
+        "Automerge all patch-level updates and weekly lockfile maintenance. The renovate-approve GitHub app provides the required approving review",
+        "No automerge 01:00-04:00 UTC on weekdays, so no deploy disturbs the nightly E2E run that starts at 01:00 (see run-e2e.yml)"
       ]
     },
     {
@@ -421,11 +427,13 @@
       "matchPackageNames": [
         "/^@angular\\//",
         "/^@angular-eslint\\//",
-        "/^@angular-builders\\//"
+        "/^@angular-builders\\//",
+        "ngx-bootstrap"
       ],
       "allowedVersions": "< 21.0.0",
       "description": [
         "Group all Angular ecosystem packages (framework, CLI, components, eslint, builders) so the CLI/build packages never upgrade ahead of the framework",
+        "ngx-bootstrap is a peer dependency of @formio/angular and each of its majors supports exactly one Angular major, so it must upgrade together with Angular or npm ci fails on a peer conflict",
         "Pinned to v20.x until the staged Angular 19 -> 20 migration completes"
       ]
     },

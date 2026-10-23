@@ -14,14 +14,10 @@
     <section class="flex-row space-between items-center">
       <div>
         <mat-card-title>
-          @if (zaak().isZaakspecifiekGeautoriseerd) {
-            <mat-icon
-              title="{{ 'zaak.is-zaakspecifiek-geautoriseerd' | translate }}"
-              class="zaakspecifiek-geautoriseerd-icon"
-              >lock</mat-icon
-            >
-          }
-          {{ zaak().identificatie }}
+          <zac-zaak-identificatie
+            [identificatie]="zaak().identificatie"
+            [isZaakspecifiekGeautoriseerd]="zaak().isZaakspecifiekGeautoriseerd"
+          />
         </mat-card-title>
         <mat-card-subtitle>{{
           zaak().zaaktype.omschrijving
@@ -91,6 +87,7 @@
           <ng-template matTabContent>
             <zac-zaak-details-medewerkers-tab
               [zaakUuid]="zaak().uuid"
+              [canDetach]="zaak().rechten.canWijzigen"
             ></zac-zaak-details-medewerkers-tab>
           </ng-template>
         </mat-tab>

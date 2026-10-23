@@ -4,13 +4,14 @@
  */
 package nl.info.zac.app.search.model
 
-import nl.info.zac.util.time.convertToLocalDate
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.app.policy.model.RestTaakRechten
 import nl.info.zac.app.policy.model.toRestTaakRechten
 import nl.info.zac.app.task.model.TaakStatus
 import nl.info.zac.policy.output.TaakRechten
 import nl.info.zac.search.model.zoekobject.TaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.util.time.convertToLocalDate
 import java.time.LocalDate
 
 data class RestTaakZoekObject(
@@ -24,6 +25,10 @@ data class RestTaakZoekObject(
     val zaakIdentificatie: String? = null,
     val zaakOmschrijving: String? = null,
     val zaakToelichting: String? = null,
+
+    @get:JsonbProperty("isZaakspecifiekGeautoriseerd")
+    val isZaakspecifiekGeautoriseerd: Boolean = false,
+
     val zaaktypeUuid: String? = null,
     val zaaktypeIdentificatie: String? = null,
     val zaaktypeOmschrijving: String? = null,
@@ -57,5 +62,6 @@ fun TaakZoekObject.toRestTaakZoekObject(taakRechten: TaakRechten) = RestTaakZoek
     zaakUuid = this@toRestTaakZoekObject.zaakUUID,
     zaakToelichting = this@toRestTaakZoekObject.zaakToelichting,
     zaakOmschrijving = this@toRestTaakZoekObject.zaakOmschrijving,
+    isZaakspecifiekGeautoriseerd = this@toRestTaakZoekObject.isZaakspecifiekGeautoriseerd,
     rechten = taakRechten.toRestTaakRechten()
 )

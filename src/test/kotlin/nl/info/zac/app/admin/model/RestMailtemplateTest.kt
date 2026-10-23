@@ -8,7 +8,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import jakarta.validation.Validation
-import net.atos.zac.app.admin.model.createRestMailTemplate
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.createMailTemplate
 

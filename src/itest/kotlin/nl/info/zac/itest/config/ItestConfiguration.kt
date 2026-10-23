@@ -433,6 +433,8 @@ object ItestConfiguration {
     const val ZAAKTYPE_BPMN_TEST_4_IDENTIFICATIE = "bpmn-test-zaaktype-4"
     const val ZAAKTYPE_BPMN_TEST_4_DESCRIPTION = "BPMN test zaaktype 4"
     const val ZAAKTYPE_BPMN_TEST_4_PRODUCTAANVRAAG_TYPE = "bpmn-test-4-productaanvraagtype"
+    const val ZAAKTYPE_BPMN_TEST_4_DOORLOOPTIJD_DAYS = 30L
+    const val ZAAKTYPE_BPMN_TEST_4_SERVICENORM_DAYS = 10L
     val ZAAKTYPE_BPMN_TEST_4_RESULTAATTYPE_AFGEBROKEN_UUID: UUID = UUID.fromString(
         "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
     )
@@ -449,6 +451,7 @@ object ItestConfiguration {
     )
 
     const val BPMN_TEST_PROCESS_DEFINITION_KEY = "itProcessDefinition"
+    const val BPMN_TEST_PROCESS_DEFINITION_NAME = "Integration Tests BPMN Process Definition"
     const val BPMN_TEST_PROCESS_RESOURCE_PATH = "bpmn/$BPMN_TEST_PROCESS_DEFINITION_KEY.bpmn"
     const val BPMN_TEST_FORM_RESOURCE_PATH = "bpmn/testForm.json"
     const val BPMN_SUMMARY_FORM_RESOURCE_PATH = "bpmn/summaryForm.json"

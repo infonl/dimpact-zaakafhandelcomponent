@@ -9,6 +9,7 @@ import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.servlet.http.HttpSession
 import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.NotFoundException
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
@@ -16,28 +17,28 @@ import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import net.atos.zac.event.EventingService
 import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
-import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
-import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.setFunctioneelGebruiker
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
+import nl.info.zac.event.EventingService
+import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.task.TaskService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.websocket.event.ScreenEventType
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.util.UUID
 import java.util.logging.Level
@@ -143,6 +144,18 @@ class NotificationReceiver @Inject constructor(
         }
     }
 
+    private fun deleteZaakSignaleringenOfFormerBehandelaren(zaakUUID: UUID) {
+        try {
+            signaleringService.deleteZaakSignaleringenOfFormerBehandelaren(zaakUUID).also {
+                LOG.info("Deleted $it zaak signaleringen of former behandelaren for zaak with UUID '$zaakUUID'.")
+            }
+        } catch (notFoundException: NotFoundException) {
+            LOG.log(Level.FINE, notFoundException) {
+                "Zaak with UUID '$zaakUUID' of a deleted rol no longer exists. Therefore no signaleringen are deleted."
+            }
+        }
+    }
+
     private fun isAuthenticated(headers: HttpHeaders) = secret == headers.getHeaderString(HttpHeaders.AUTHORIZATION)
 
     /**
@@ -202,6 +215,12 @@ class NotificationReceiver @Inject constructor(
                 notification.action == Action.DELETE
             ) {
                 deleteSignaleringenForZaak(notification.resourceUrl.extractUuid())
+            }
+            if (notification.channel == Channel.ZAKEN &&
+                notification.resource == Resource.ROL &&
+                notification.action == Action.DELETE
+            ) {
+                notification.mainResourceUrl.extractUuid().let(::deleteZaakSignaleringenOfFormerBehandelaren)
             }
             // send signalering events for this notification
             SignaleringEventUtil.getEvents(
@@ -285,12 +304,11 @@ class NotificationReceiver @Inject constructor(
     }
 
     /**
-     * Reindexes the zaak (including both its open and its completed taken, since a taak-level flag
-     * can go stale on a completed taak just as easily as on an open one) and, asynchronously, its
-     * documenten, but only when the changed zaakeigenschap is ZAAK_GEAUTORISEERD: a zaak can have
-     * many eigenschappen that change far more often than its zaakspecifiek geautoriseerd status, and
-     * reindexing the zaak's documenten requires a ZGW call per document, so reindexing on every
-     * zaakeigenschap notificatie would be expensive on a path that Open Notificaties retries on
+     * Reindexes the zaak, its taken and, asynchronously, its documenten, but only when the
+     * changed zaakeigenschap is ZAAK_GEAUTORISEERD: a zaak can have many eigenschappen that change
+     * far more often than its zaakspecifiek geautoriseerd status, and reindexing the zaak's
+     * documenten requires a ZGW call per document, so reindexing on every zaakeigenschap
+     * notificatie would be expensive on a path that Open Notificaties retries on
      * timeout. A 'destroy' notificatie cannot be read back to check its naam, so it always triggers
      * a reindex, as does a zaakeigenschap that cannot be read back for any other reason: whether it
      * has already been deleted (a 404) or the read itself failed (e.g. a ZGW timeout or 5xx), the safe
@@ -307,8 +325,7 @@ class NotificationReceiver @Inject constructor(
         ) {
             return
         }
-        indexingService.addOrUpdateZaak(zaakUUID, false)
-        indexingService.addOrUpdateTakenForZaak(zaakUUID)
+        indexingService.addOrUpdateZaakWithTaken(zaakUUID)
         indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID)
     }
 

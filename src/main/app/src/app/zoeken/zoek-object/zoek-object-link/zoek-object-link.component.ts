@@ -7,13 +7,14 @@ import { Component, HostListener, input } from "@angular/core";
 import { MatIconModule } from "@angular/material/icon";
 import { MatSidenav } from "@angular/material/sidenav";
 import { RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { IndicatiesLayout } from "../../../shared/indicaties/indicaties.component";
 import { InformatieObjectIndicatiesComponent } from "../../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { ZaakIndicatiesComponent } from "../../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
 import { openedFromSearchState } from "../../../shared/navigation/navigation-origin";
 import { ReadMoreComponent } from "../../../shared/read-more/read-more.component";
 import { GeneratedType } from "../../../shared/utils/generated-types";
+import { ZaakIdentificatieComponent } from "../../../shared/zaak-identificatie/zaak-identificatie.component";
 import { DocumentZoekObject } from "../../model/documenten/document-zoek-object";
 import { TaakZoekObject } from "../../model/taken/taak-zoek-object";
 import { ZaakZoekObject } from "../../model/zaken/zaak-zoek-object";
@@ -24,9 +25,10 @@ import { ZaakZoekObject } from "../../model/zaken/zaak-zoek-object";
   templateUrl: "./zoek-object-link.component.html",
   standalone: true,
   imports: [
+    ZaakIdentificatieComponent,
     RouterLink,
     MatIconModule,
-    TranslateModule,
+    TranslatePipe,
     ReadMoreComponent,
     ZaakIndicatiesComponent,
     InformatieObjectIndicatiesComponent,

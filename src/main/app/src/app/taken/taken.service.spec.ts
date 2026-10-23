@@ -3,13 +3,15 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { Location } from "@angular/common";
 import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
+import { provideLocationMocks } from "@angular/common/testing";
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial, runMutationOnSuccess } from "src/test-helpers";
@@ -27,10 +29,11 @@ describe(TakenService.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
       providers: [
+        provideTranslateService(),
         provideHttpClient(withInterceptorsFromDi()),
         provideQueryClient(testQueryClient),
+        provideLocationMocks(),
       ],
     });
 
@@ -183,26 +186,22 @@ describe(TakenService.name, () => {
         jest.spyOn(router, "navigateByUrl").mockResolvedValue(true);
       });
 
-      it("returns to the page the taak was opened from", async () => {
+      it("returns to the page before the taak in the navigation trail", async () => {
         jest.spyOn(router, "url", "get").mockReturnValue("/taken/1");
-        const zaakUrl = router.parseUrl("/zaken/ZAAK-1");
-        jest.spyOn(router, "lastSuccessfulNavigation", "get").mockReturnValue(
-          fromPartial({
-            extras: {},
-            previousNavigation: { finalUrl: zaakUrl },
-          }),
-        );
+        TestBed.inject(Location).replaceState("/taken/1", "", {
+          navigationTrail: [
+            { title: "ZAAK-1", url: "/zaken/ZAAK-1" },
+            { title: "Taak", url: "/taken/1" },
+          ],
+        });
 
         await runMutationOnSuccess(service.complete());
 
-        expect(router.navigateByUrl).toHaveBeenCalledWith(zaakUrl);
+        expect(router.navigateByUrl).toHaveBeenCalledWith("/zaken/ZAAK-1");
       });
 
-      it("goes to the dashboard when the taak has no page it was opened from", async () => {
+      it("goes to the dashboard when the navigation trail has no page before the taak", async () => {
         jest.spyOn(router, "url", "get").mockReturnValue("/taken/1");
-        jest
-          .spyOn(router, "lastSuccessfulNavigation", "get")
-          .mockReturnValue(null);
 
         await runMutationOnSuccess(service.complete());
 

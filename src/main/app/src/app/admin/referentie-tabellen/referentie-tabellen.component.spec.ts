@@ -13,7 +13,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
@@ -59,7 +59,6 @@ const geladenTabelA = fromPartial<GeneratedType<"RestReferenceTable">>({
 describe(ReferentieTabellenComponent.name, () => {
   let fixture: ComponentFixture<ReferentieTabellenComponent>;
   let service: ReferentieTabelService;
-  let setTitle: jest.SpyInstance;
   let dialogOpen: jest.SpyInstance;
   let deleteReferentieTabelMutation: ReturnType<
     typeof createMutationOptions<undefined>
@@ -81,8 +80,9 @@ describe(ReferentieTabellenComponent.name, () => {
   async function setup({ seedDetail = false } = {}) {
     const rendered = await render(ReferentieTabellenComponent, {
       detectChangesOnRender: false,
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideZonelessChangeDetection(),
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
@@ -100,9 +100,6 @@ describe(ReferentieTabellenComponent.name, () => {
       .mockReturnValue(deleteReferentieTabelMutation as never);
 
     const utilService = TestBed.inject(UtilService);
-    setTitle = jest
-      .spyOn(utilService, "setTitle")
-      .mockImplementation(() => undefined);
     jest.spyOn(utilService, "openSnackbar").mockImplementation(() => undefined);
 
     dialogOpen = jest
@@ -136,10 +133,6 @@ describe(ReferentieTabellenComponent.name, () => {
   it("sets the title and shows a row per reference table", async () => {
     await setup();
 
-    expect(setTitle).toHaveBeenCalledWith(
-      "title.referentietabellen",
-      undefined,
-    );
     expect(screen.getByRole("button", { name: "TABEL_A" })).toBeVisible();
     expect(screen.getByRole("button", { name: "TABEL_B" })).toBeVisible();
     expect(screen.getByText("Tabel A")).toBeVisible();

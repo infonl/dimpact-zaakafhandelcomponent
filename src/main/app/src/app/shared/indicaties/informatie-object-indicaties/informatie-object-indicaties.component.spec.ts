@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
+import { LOCALE_ID } from "@angular/core";
+import { TranslateLoader, provideTranslateService } from "@ngx-translate/core";
 import { render, screen, within } from "@testing-library/angular";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
@@ -57,8 +58,9 @@ const setup = (inputs: {
 }) =>
   render(InformatieObjectIndicatiesComponent, {
     inputs,
-    imports: [
-      TranslateModule.forRoot({
+    providers: [
+      { provide: LOCALE_ID, useValue: "nl-NL" },
+      provideTranslateService({
         loader: {
           provide: TranslateLoader,
           useValue: { getTranslation: () => of(translations) },

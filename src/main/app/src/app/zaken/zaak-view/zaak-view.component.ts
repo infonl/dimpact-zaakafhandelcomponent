@@ -127,6 +127,21 @@ export class ZaakViewComponent
   extends ActionsViewComponent
   implements AfterViewInit, OnDestroy
 {
+  private zakenService = inject(ZakenService);
+  private identityService = inject(IdentityService);
+  private planItemsService = inject(PlanItemsService);
+  private zaakafhandelParametersService = inject(ZaakafhandelParametersService);
+  private route = inject(ActivatedRoute);
+  private utilService = inject(UtilService);
+  private websocketService = inject(WebsocketService);
+  private dialog = inject(MatDialog);
+  private translate = inject(TranslateService);
+  private bagService = inject(BAGService);
+  private policyService = inject(PolicyService);
+  private zaakDialogService = inject(ZaakDialogService);
+  protected sideActions = inject(ZaakSideActionService);
+  protected dialogs = inject(ZaakActionDialogsService);
+
   private readonly queryClient = inject(QueryClient);
   private readonly betrokkenenService = inject(ZaakBetrokkenenService);
 
@@ -189,8 +204,25 @@ export class ZaakViewComponent
     );
   });
 
-  bagObjecten: GeneratedType<"RestBagObjectGegevens">[] = [];
-  gekoppeldeBagObjecten: GeneratedType<"RestBagObject">[] = [];
+  private readonly bagObjectenQuery = injectQuery(() => {
+    const uuid = this.zaakUuid();
+    return {
+      ...this.bagService.list(uuid ?? ""),
+      staleTime: StaleTimes.Instant,
+      gcTime: 0,
+      enabled: Boolean(uuid),
+    };
+  });
+
+  protected readonly bagObjecten = computed(
+    () => this.bagObjectenQuery.data() ?? [],
+  );
+
+  protected readonly gekoppeldeBagObjecten = computed(() =>
+    this.bagObjecten().flatMap(({ zaakobject }) =>
+      zaakobject ? [zaakobject] : [],
+    ),
+  );
   teWijzigenBesluit!: GeneratedType<"RestBesluit">;
   documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
@@ -230,27 +262,12 @@ export class ZaakViewComponent
     {
       onSuccess: () => {
         this.utilService.openSnackbar("msg.bag-object.gekoppeld");
-        this.loadBagObjecten();
+        this.invalidateBagObjecten();
       },
     },
   );
 
-  constructor(
-    private zakenService: ZakenService,
-    private identityService: IdentityService,
-    private planItemsService: PlanItemsService,
-    private zaakafhandelParametersService: ZaakafhandelParametersService,
-    private route: ActivatedRoute,
-    private utilService: UtilService,
-    private websocketService: WebsocketService,
-    private dialog: MatDialog,
-    private translate: TranslateService,
-    private bagService: BAGService,
-    private policyService: PolicyService,
-    private zaakDialogService: ZaakDialogService,
-    protected sideActions: ZaakSideActionService,
-    protected dialogs: ZaakActionDialogsService,
-  ) {
+  constructor() {
     super();
     this.route.data.pipe(takeUntilDestroyed()).subscribe((data) => {
       const zaak = data["zaak"] as GeneratedType<"RestZaak">;
@@ -298,19 +315,6 @@ export class ZaakViewComponent
         zaak.uuid,
         () => this.invalidatePlanItems(),
       );
-
-      this.utilService.setTitle("title.zaak", {
-        zaak: zaak.identificatie,
-      });
-    });
-
-    effect(() => {
-      const uuid = this.zaakUuid();
-      if (!uuid) return;
-      // loadBagObjecten reads the whole zaak getter internally (for .uuid) —
-      // untracked so that doesn't also make this effect re-run on unrelated
-      // content changes.
-      untracked(() => this.loadBagObjecten());
     });
 
     effect(() => {
@@ -410,7 +414,7 @@ export class ZaakViewComponent
     await this.queryClient.refetchQueries({ queryKey });
 
     // Not part of RestZaak, so the echo check below says nothing about these.
-    this.loadBagObjecten();
+    this.invalidateBagObjecten();
     this.dialogs.loadOpschorting(this.zaak);
     this.invalidateZaakHistorie();
 
@@ -482,12 +486,9 @@ export class ZaakViewComponent
     this.betrokkenenService.betrokkeneGeselecteerd(this.zaak, klantgegevens);
   }
 
-  private loadBagObjecten() {
-    this.bagService.list(this.zaak.uuid).subscribe((bagObjecten) => {
-      this.gekoppeldeBagObjecten = bagObjecten
-        .map(({ zaakobject }) => zaakobject!)
-        .filter(Boolean);
-      this.bagObjecten = bagObjecten;
+  private invalidateBagObjecten() {
+    void this.queryClient.invalidateQueries({
+      queryKey: this.bagService.list(this.zaak.uuid).queryKey,
     });
   }
 
@@ -584,7 +585,7 @@ export class ZaakViewComponent
         this.sideActions.clear();
         if (!result) return;
 
-        this.loadBagObjecten();
+        this.invalidateBagObjecten();
         this.utilService.openSnackbar("msg.bag-object.ontkoppelen.uitgevoerd", {
           omschrijving: bagObject?.omschrijving,
         });

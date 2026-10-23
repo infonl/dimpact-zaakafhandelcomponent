@@ -11,7 +11,7 @@ import {
   ReactiveFormsModule,
 } from "@angular/forms";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateService, provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { ZacSelect } from "./select";
@@ -45,13 +45,8 @@ describe(ZacSelect.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        ZacSelect,
-        ReactiveFormsModule,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
-      ],
-      providers: [TranslateService],
+      imports: [ZacSelect, ReactiveFormsModule, NoopAnimationsModule],
+      providers: [provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(

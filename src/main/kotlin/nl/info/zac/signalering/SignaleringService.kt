@@ -8,6 +8,9 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
+import jakarta.persistence.criteria.CriteriaBuilder
+import jakarta.persistence.criteria.Predicate
+import jakarta.persistence.criteria.Root
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
@@ -15,11 +18,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
-import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.task.FlowableTaskService
-import nl.info.zac.flowable.task.readZaakUUID
 import net.atos.zac.signalering.model.Signalering
-import net.atos.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringTarget
@@ -27,9 +27,9 @@ import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringVerzonden
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
-import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
@@ -41,20 +41,32 @@ import nl.info.zac.app.signalering.model.RestSignaleringTaskSummary
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.event.EventingService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.flowable.task.readZaakUUID
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mailtemplates.model.MailGegevens
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.SorteerRichting
 import nl.info.zac.search.model.SorteerVeld
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.signalering.model.CheckedSignaleringen
+import nl.info.zac.signalering.model.InvalidSignalering
+import nl.info.zac.signalering.model.SignaleringInstellingen
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.validateObject
+import nl.info.zac.websocket.event.ScreenEventType
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
+import org.flowable.task.api.TaskInfo
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.logging.Logger
+import kotlin.concurrent.withLock
 
 @ApplicationScoped
 @Transactional(SUPPORTS)
@@ -72,6 +84,10 @@ class SignaleringService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val restZaakOverzichtConverter: RestZaakOverzichtConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>,
+    private val searchService: SearchService,
+    private val zgwApiService: ZgwApiService,
+    private val policyService: PolicyService,
+    private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
     dispatcher: CoroutineDispatcher
 ) {
     companion object {
@@ -110,8 +126,8 @@ class SignaleringService @Inject constructor(
      */
     fun signaleringInstellingenInstance(
         signaleringsType: SignaleringType.Type,
-        ownerType: SignaleringTarget?,
-        ownerId: String?
+        ownerType: SignaleringTarget,
+        ownerId: String
     ) = SignaleringInstellingen(signaleringTypeInstance(signaleringsType), ownerType, ownerId)
 
     /**
@@ -194,15 +210,62 @@ class SignaleringService @Inject constructor(
      * grouped by signalering target and type.
      */
     @Transactional(REQUIRED)
-    fun deleteSignaleringen(parameters: SignaleringZoekParameters): Int {
-        val signaleringen = listSignaleringen(parameters)
-        signaleringen.forEach(entityManager::remove)
-        // only send separate screen events when signalering target and/or type differ
-        signaleringen.associateBy { it.target + ';' + it.type.type }.values
-            .forEach { value ->
-                eventingService.send(ScreenEventType.SIGNALERINGEN.updated(value))
-            }
-        return signaleringen.size
+    fun deleteSignaleringen(parameters: SignaleringZoekParameters) = listSignaleringen(parameters).let(::deleteSignaleringen)
+
+    /**
+     * Deletes the user signaleringen of the given types for the given subject, except those of [keptUserId].
+     * When [keptUserId] is `null`, all user signaleringen of these types for the subject are deleted.
+     */
+    @Transactional(REQUIRED)
+    @Suppress("SpreadOperator")
+    fun deleteUserSignaleringenExceptFor(
+        subjecttype: SignaleringSubject,
+        subject: String,
+        types: Set<SignaleringType.Type>,
+        keptUserId: String?
+    ) = SignaleringZoekParameters(subjecttype, subject).types(*types.toTypedArray())
+        .let(::listSignaleringen)
+        .filter { it.targettype == SignaleringTarget.USER && it.target != keptUserId }
+        .let(::deleteSignaleringen)
+
+    /**
+     * Deletes the user signaleringen of the zaak that belong to a user who is not its current behandelaar.
+     */
+    @Transactional(REQUIRED)
+    fun deleteZaakSignaleringenOfFormerBehandelaren(zaakUuid: UUID) =
+        // a reassignment briefly leaves the zaak without behandelaar, so look it up under the lock of the assignment
+        zaakspecifiekeAutorisatieService.lockForZaak(zaakUuid).withLock {
+            deleteUserSignaleringenExceptFor(
+                subjecttype = SignaleringSubject.ZAAK,
+                subject = zaakUuid.toString(),
+                types = setOf(SignaleringType.Type.ZAAK_OP_NAAM, SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD),
+                keptUserId = zrcClientService.readZaak(zaakUuid)
+                    .let(zgwApiService::findBehandelaarMedewerkerRoleForZaak)
+                    ?.identificatienummer
+            )
+        }
+
+    private fun deleteSignaleringen(
+        signaleringen: List<Signalering>,
+        deletePredicate: (CriteriaBuilder, Root<Signalering>) -> Predicate = { _, root ->
+            root.get<Long>("id").`in`(signaleringen.map { it.id })
+        }
+    ): Int {
+        if (signaleringen.isEmpty()) return 0
+        val criteriaBuilder = entityManager.criteriaBuilder
+        val query = criteriaBuilder.createCriteriaDelete(Signalering::class.java)
+        val root = query.from(Signalering::class.java)
+        query.where(deletePredicate(criteriaBuilder, root))
+        // a bulk delete, because removing the entities one by one fails when a concurrent request already deleted them
+        val deletedCount = entityManager.createQuery(query).executeUpdate()
+        if (deletedCount > 0) {
+            // only send separate screen events when signalering target and/or type differ
+            signaleringen.associateBy { it.target + ';' + it.type.type }.values
+                .forEach { value ->
+                    eventingService.send(ScreenEventType.SIGNALERINGEN.updated(value))
+                }
+        }
+        return deletedCount
     }
 
     /**
@@ -399,17 +462,18 @@ class SignaleringService @Inject constructor(
     }
 
     /**
-     * Lists a page of zaken signaleringen for the given signaleringsType.
+     * Lists a page of zaken signaleringen for the given signaleringsType, split into the valid ones and the
+     * invalid ones that [deleteInvalidSignaleringen] deletes.
      *
      * sortField = SIGNALERING_TIJDSTIP → JPA paged by tijdstip desc (fast path).
      * Any other sortField sorts a RestZaakOverzicht field in memory after materialising
      * all matches, since the signaleringen table can't express that ordering.
      */
-    fun listZakenSignaleringenPage(
+    fun listCheckedZakenSignaleringenPage(
         signaleringsType: SignaleringType.Type,
         pageParameters: RestSignaleringPageParameters,
         loggedInUser: LoggedInUser
-    ): List<RestZaakOverzicht> {
+    ): CheckedSignaleringen<RestZaakOverzicht> {
         validateZakenSortField(pageParameters.sortField)
         val searchParameters = SignaleringZoekParameters(loggedInUser)
             .types(signaleringsType)
@@ -419,16 +483,21 @@ class SignaleringService @Inject constructor(
                 "Listing page ${pageParameters.page} (${pageParameters.rows} elements) for zaken signaleringen " +
                     "of type '$signaleringsType' ..."
             }
-            listSignaleringen(searchParameters, pageParameters).toRestZaakOverzichten(loggedInUser)
+            listSignaleringen(searchParameters, pageParameters)
+                .toCheckedZaakOverzichten(loggedInUser)
+                .toCheckedSignaleringen()
         } else {
             LOG.fine {
                 "Listing page ${pageParameters.page} (${pageParameters.rows} elements) for zaken signaleringen " +
                     "of type '$signaleringsType' sorted by '${pageParameters.sortField}' ${pageParameters.sortOrder} ..."
             }
             listSignaleringen(searchParameters)
-                .toRestZaakOverzichten(loggedInUser)
-                .sortedWith(zaakOverzichtComparator(pageParameters.sortField, pageParameters.sortOrder))
-                .slicePage(pageParameters.page, pageParameters.rows)
+                .toCheckedZaakOverzichten(loggedInUser)
+                .toCheckedSignaleringen()
+                .mapValid {
+                    it.sortedWith(zaakOverzichtComparator(pageParameters.sortField, pageParameters.sortOrder))
+                        .slicePage(pageParameters.page, pageParameters.rows)
+                }
         }.also {
             LOG.fine {
                 "Successfully listed page ${pageParameters.page} for zaken signaleringen of type '$signaleringsType'."
@@ -439,19 +508,83 @@ class SignaleringService @Inject constructor(
     // Parallelise the N readZaak round-trips — sequentially they dominate render time,
     // especially on the sort path. Bounded parallelism caps concurrent ZRC calls; awaitAll
     // preserves order for stable secondary sort.
-    private fun List<Signalering>.toRestZaakOverzichten(loggedInUser: LoggedInUser): List<RestZaakOverzicht> =
+    private fun List<Signalering>.toCheckedZaakOverzichten(
+        loggedInUser: LoggedInUser
+    ): List<CheckedSignalering<RestZaakOverzicht>> =
         if (isEmpty()) {
             emptyList()
         } else {
             runBlocking(zrcFanoutDispatcher) {
                 map { signalering ->
-                    async {
-                        val zaak = zrcClientService.readZaak(UUID.fromString(signalering.subject))
-                        restZaakOverzichtConverter.convertForDisplay(zaak, loggedInUser)
-                    }
+                    async { checkZaakSignalering(signalering, loggedInUser) }
                 }.awaitAll()
             }
         }
+
+    private fun checkZaakSignalering(
+        signalering: Signalering,
+        loggedInUser: LoggedInUser
+    ): CheckedSignalering<RestZaakOverzicht> {
+        val zaak = UUID.fromString(signalering.subject).let(zrcClientService::readZaak)
+        if (zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.identificatienummer != loggedInUser.id) {
+            return CheckedSignalering(signalering, invalidReason = "the user is not the behandelaar of the zaak")
+        }
+        return restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaak, loggedInUser)
+            ?.let { CheckedSignalering(signalering, result = it) }
+            ?: CheckedSignalering(signalering, invalidReason = "the user has no read rights on the zaak")
+    }
+
+    private fun checkTaakSignalering(signalering: Signalering, loggedInUser: LoggedInUser): CheckedSignalering<TaskInfo> {
+        val task = flowableTaskService.readTask(signalering.subject)
+        return when {
+            task.assignee != loggedInUser.id ->
+                CheckedSignalering(signalering, invalidReason = "the user is not the assignee of the taak")
+            !policyService.readTaakRechten(task).canLezen ->
+                CheckedSignalering(signalering, invalidReason = "the user has no read rights on the taak")
+            else -> CheckedSignalering(signalering, result = task)
+        }
+    }
+
+    /**
+     * Deletes signaleringen that a listing found invalid, and logs a warning for each.
+     */
+    @Transactional(REQUIRED)
+    @Suppress("SpreadOperator")
+    fun deleteInvalidSignaleringen(invalidSignaleringen: List<InvalidSignalering>): Int {
+        invalidSignaleringen.forEach {
+            LOG.warning {
+                "Deleting signalering with id '${it.signalering.id}' of type '${it.signalering.type.type}' for " +
+                    "${it.signalering.subjecttype} '${it.signalering.subject}', because ${it.reason}."
+            }
+        }
+        val signaleringen = invalidSignaleringen.map { it.signalering }
+        return deleteSignaleringen(signaleringen) { criteriaBuilder, root ->
+            signaleringen.map {
+                criteriaBuilder.and(
+                    criteriaBuilder.equal(root.get<Long>("id"), it.id),
+                    criteriaBuilder.equal(root.get<ZonedDateTime>("tijdstip"), it.tijdstip)
+                )
+            }.let { criteriaBuilder.or(*it.toTypedArray()) }
+        }.also { deletedCount ->
+            if (deletedCount < signaleringen.size) {
+                LOG.info {
+                    "Kept ${signaleringen.size - deletedCount} invalid signaleringen, because they were stored " +
+                        "again or deleted after they were checked."
+                }
+            }
+        }
+    }
+
+    private fun <T : Any> List<CheckedSignalering<T>>.toCheckedSignaleringen() =
+        CheckedSignaleringen(
+            valid = mapNotNull { it.result },
+            invalid = mapNotNull { checkedSignalering ->
+                checkedSignalering.invalidReason?.let { InvalidSignalering(checkedSignalering.signalering, it) }
+            }
+        )
+
+    private fun <T : Any, R : Any> CheckedSignaleringen<T>.mapValid(transform: (List<T>) -> List<R>) =
+        CheckedSignaleringen(valid = transform(valid), invalid = invalid)
 
     private fun <T> List<T>.slicePage(page: Int, rows: Int): List<T> {
         val fromIndex = (page * rows).coerceAtMost(size)
@@ -493,23 +626,34 @@ class SignaleringService @Inject constructor(
         )
 
     /**
-     * Lists a page of taken signaleringen for the given signaleringsType
+     * Lists the taken signaleringen for the given signaleringsType, split into the valid ones and the invalid ones
+     * that [deleteInvalidSignaleringen] deletes.
      */
-    fun listTakenSignaleringenPage(
+    fun listCheckedTakenSignaleringen(
         signaleringsType: SignaleringType.Type
-    ): List<RestSignaleringTaskSummary> =
-        SignaleringZoekParameters(loggedInUserInstance.get())
+    ): CheckedSignaleringen<RestSignaleringTaskSummary> {
+        val loggedInUser = loggedInUserInstance.get()
+        return SignaleringZoekParameters(loggedInUser)
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.TAAK)
             .let {
                 LOG.fine { "Listing taken signaleringen of type '$signaleringsType' ..." }
                 listSignaleringen(it)
             }
-            .map { flowableTaskService.readTask(it.subject) }
-            .map { it.toRestSignaleringTaakSummary() }
+            .map { checkTaakSignalering(it, loggedInUser) }
+            .toCheckedSignaleringen()
+            .mapValid { taken ->
+                val zaakspecifiekGeautoriseerdeTaakIds = searchService.listZaakspecifiekGeautoriseerdeWaarden(
+                    waarden = taken.map { it.id },
+                    type = ZoekObjectType.TAAK,
+                    veld = "id"
+                )
+                taken.map { it.toRestSignaleringTaakSummary(it.id in zaakspecifiekGeautoriseerdeTaakIds) }
+            }
             .also {
                 LOG.fine { "Successfully listed taken signaleringen of type '$signaleringsType'." }
             }
+    }
 
     /**
      * Lists a page of information objects signaleringen for the given signaleringsType

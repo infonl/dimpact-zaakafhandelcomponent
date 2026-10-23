@@ -15,10 +15,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import nl.info.client.zgw.shared.model.Results
-import nl.info.client.zgw.zrc.model.RolListParameters
-import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
-import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
@@ -33,10 +29,14 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.shared.exception.MultipleBehandelaarRolesException
 import nl.info.client.zgw.shared.exception.StatusTypeNotFoundException
+import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.RolListParameters
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.model.generated.ZaakAfsluiten
 import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.exception.RoltypeNotFoundException
 import nl.info.client.zgw.ztc.model.createBehandelaarRolType
@@ -44,8 +44,8 @@ import nl.info.client.zgw.ztc.model.createBrondatumArchiefprocedure
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createStatusType
-import nl.info.client.zgw.ztc.model.createZaakspecifiekGeautoriseerdeMedewerkerRolType
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.client.zgw.ztc.model.createZaakspecifiekGeautoriseerdeMedewerkerRolType
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.Eigenschap
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
@@ -129,37 +129,6 @@ class ZgwApiServiceTest : BehaviorSpec({
                         // the servicenorm is 10 days, so the einddatumGepland should be 10 days
                         // after the start date
                         this.einddatumGepland shouldBe LocalDate.of(1975, 12, 15)
-                    }
-                }
-            }
-        }
-        given("Zaak input data and a zaaktype with a doorlooptijd and a servicenorm is set, and then cleared") {
-            val zaakType = createZaakType(
-                doorloopTijd = "P5D",
-                servicenorm = "P0Y0M0D"
-            )
-            val zaak = createZaak(
-                startDate = LocalDate.of(1975, 12, 5),
-                zaaktypeUri = zaakType.url
-            )
-            val createdZaak = createZaak()
-            val zaakSlot = slot<Zaak>()
-            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
-            every { zrcClientService.createZaak(capture(zaakSlot)) } returns createdZaak
-
-            `when`("a zaak is created") {
-                val returnedZaak = zgwApiService.createZaak(zaak)
-
-                then("the zaak is created in the ZGW API with the correct 'uiterlijke einddatum afdoening'") {
-                    returnedZaak shouldBe createdZaak
-                    with(zaakSlot.captured) {
-                        this.identificatie shouldBe zaak.identificatie
-                        this.zaaktype shouldBe zaakType.url
-                        // the doorlooptijd is 5 days, so the uiterlijkeEinddatumAfdoening should be 5 days
-                        // after the start date
-                        this.uiterlijkeEinddatumAfdoening shouldBe LocalDate.of(1975, 12, 10)
-                        // the zaaktype has no 'servicenorm' so the einddatumGepland should be null
-                        this.einddatumGepland shouldBe null
                     }
                 }
             }

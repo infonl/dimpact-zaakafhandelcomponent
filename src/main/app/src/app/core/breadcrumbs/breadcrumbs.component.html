@@ -1,0 +1,38 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+@if (breadcrumbs().length) {
+  <nav [attr.aria-label]="'breadcrumbs' | translate">
+    <ol>
+      @for (breadcrumb of breadcrumbs(); track $index) {
+        @if ($last) {
+          <li aria-current="page">
+            @if (breadcrumb.details?.zaak?.isZaakspecifiekGeautoriseerd) {
+              <zac-zaak-identificatie
+                [identificatie]="breadcrumb.title"
+                [isZaakspecifiekGeautoriseerd]="true"
+              />
+            } @else {
+              {{ breadcrumb.title }}
+            }
+          </li>
+        } @else {
+          <li>
+            <a [href]="breadcrumb.url" (click)="navigate($event, breadcrumb)">
+              @if (breadcrumb.details?.zaak?.isZaakspecifiekGeautoriseerd) {
+                <zac-zaak-identificatie
+                  [identificatie]="breadcrumb.title"
+                  [isZaakspecifiekGeautoriseerd]="true"
+                />
+              } @else {
+                {{ breadcrumb.title }}
+              }
+            </a>
+          </li>
+        }
+      }
+    </ol>
+  </nav>
+}

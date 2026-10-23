@@ -3,18 +3,15 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
-import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { provideTranslateService } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { of } from "rxjs";
-import { testQueryClient } from "../../../../../setupJest";
+import { sleep } from "../../../../../setupJest";
 import { createQueryOptions, fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
-import { KlantenService } from "../../../klanten/klanten.service";
-import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZakenService } from "../../../zaken/zaken.service";
 import { AanvullendeInformatieTaskForm } from "./aanvullende-informatie-task-form";
@@ -22,9 +19,9 @@ import { AanvullendeInformatieTaskForm } from "./aanvullende-informatie-task-for
 describe(AanvullendeInformatieTaskForm.name, () => {
   let formulier: AanvullendeInformatieTaskForm;
   let listAfzendersVoorZaakSpy: jest.SpyInstance;
-  let findMailtemplateSpy: jest.SpyInstance;
+  let httpTestingController: HttpTestingController;
+  let mailtemplate: GeneratedType<"RestMailtemplate">;
   let listEnkelvoudigInformatieobjectenSpy: jest.SpyInstance;
-  let getContactDetailsForPersonSpy: jest.SpyInstance;
 
   const mockZaak = fromPartial<GeneratedType<"RestZaak">>({
     uuid: "zaak-uuid",
@@ -50,44 +47,60 @@ describe(AanvullendeInformatieTaskForm.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
-      providers: [
-        provideHttpClient(),
-        provideRouter([]),
-        provideQueryClient(testQueryClient),
-      ],
+      providers: [provideTranslateService()],
+    });
+    httpTestingController = TestBed.inject(HttpTestingController);
+    mailtemplate = fromPartial<GeneratedType<"RestMailtemplate">>({
+      body: "template body",
+      variabelen: [],
     });
 
     listAfzendersVoorZaakSpy = jest
       .spyOn(TestBed.inject(ZakenService), "listAfzendersVoorZaak")
       .mockReturnValue(of([]));
-    findMailtemplateSpy = jest
-      .spyOn(TestBed.inject(MailtemplateService), "findMailtemplate")
-      .mockReturnValue(
-        of(
-          fromPartial<GeneratedType<"RestMailtemplate">>({
-            body: "template body",
-            variabelen: [],
-          }),
-        ),
-      );
     listEnkelvoudigInformatieobjectenSpy = jest
       .spyOn(
         TestBed.inject(InformatieObjectenService),
         "listEnkelvoudigInformatieobjecten",
       )
       .mockReturnValue(createQueryOptions([]) as never);
-    getContactDetailsForPersonSpy = jest
-      .spyOn(TestBed.inject(KlantenService), "getContactDetailsForPerson")
-      .mockReturnValue(of({}));
 
     formulier = TestBed.inject(AanvullendeInformatieTaskForm);
   });
 
+  async function requestForm(
+    ...[zaak, planItem]: Parameters<
+      AanvullendeInformatieTaskForm["requestForm"]
+    >
+  ) {
+    const fields = formulier.requestForm(zaak, planItem);
+    await sleep();
+    httpTestingController
+      .expectOne(`/rest/mailtemplates/TAAK_AANVULLENDE_INFORMATIE/${zaak.uuid}`)
+      .flush(mailtemplate);
+    const formFields = await fields;
+    TestBed.tick();
+    return formFields;
+  }
+
+  async function respondWithContactDetails(
+    temporaryPersonId: string,
+    contactDetails: GeneratedType<"RestContactDetails">,
+  ) {
+    await sleep();
+    httpTestingController
+      .expectOne(`/rest/klanten/contactdetails/person/${temporaryPersonId}`)
+      .flush(contactDetails);
+    await sleep();
+    TestBed.tick();
+    await sleep();
+    TestBed.tick();
+  }
+
   describe("requestForm", () => {
     describe("field structure", () => {
       it("should not add zaakOpschorten for a non-suspendable zaak", async () => {
-        const fields = await formulier.requestForm(mockZaak);
+        const fields = await requestForm(mockZaak);
 
         expect(fields.map((f) => f.key)).not.toContain("zaakOpschorten");
       });
@@ -102,13 +115,13 @@ describe(AanvullendeInformatieTaskForm.name, () => {
           hasEerdereOpschorting: false,
         });
 
-        const fields = await formulier.requestForm(suspendableZaak);
+        const fields = await requestForm(suspendableZaak);
 
         expect(fields.map((f) => f.key)).toContain("zaakOpschorten");
       });
 
       it("should return fields in the expected order", async () => {
-        const fields = await formulier.requestForm(mockZaak);
+        const fields = await requestForm(mockZaak);
 
         expect(fields.map((f) => f.key)).toEqual([
           "verzender",
@@ -123,14 +136,14 @@ describe(AanvullendeInformatieTaskForm.name, () => {
       });
 
       it("should set replyTo as hidden", async () => {
-        const fields = await formulier.requestForm(mockZaak);
+        const fields = await requestForm(mockZaak);
 
         const field = fields.find((f) => f.key === "replyTo");
         expect(field?.hidden).toBe(true);
       });
 
       it("should set datumGevraagd as hidden with a moment value", async () => {
-        const fields = await formulier.requestForm(mockZaak);
+        const fields = await requestForm(mockZaak);
 
         const field = fields.find((f) => f.key === "datumGevraagd");
         expect(field?.hidden).toBe(true);
@@ -138,23 +151,14 @@ describe(AanvullendeInformatieTaskForm.name, () => {
       });
 
       it("should set body control value to mail template body", async () => {
-        const fields = await formulier.requestForm(mockZaak);
+        const fields = await requestForm(mockZaak);
 
         const field = fields.find((f) => f.key === "body");
         expect(field?.control?.value).toBe("template body");
       });
 
-      it("should call findMailtemplate with TAAK_AANVULLENDE_INFORMATIE and zaak uuid", async () => {
-        await formulier.requestForm(mockZaak);
-
-        expect(findMailtemplateSpy).toHaveBeenCalledWith(
-          "TAAK_AANVULLENDE_INFORMATIE",
-          "zaak-uuid",
-        );
-      });
-
       it("should call listEnkelvoudigInformatieobjecten with zaak uuid for bijlagen", async () => {
-        await formulier.requestForm(mockZaak);
+        await requestForm(mockZaak);
 
         expect(listEnkelvoudigInformatieobjectenSpy).toHaveBeenCalledWith({
           zaakUUID: "zaak-uuid",
@@ -162,16 +166,12 @@ describe(AanvullendeInformatieTaskForm.name, () => {
       });
 
       it("should use empty array for body variables when mailtemplate variabelen is null", async () => {
-        findMailtemplateSpy.mockReturnValue(
-          of(
-            fromPartial<GeneratedType<"RestMailtemplate">>({
-              body: "template body",
-              variabelen: null,
-            }),
-          ),
-        );
+        mailtemplate = fromPartial<GeneratedType<"RestMailtemplate">>({
+          body: "template body",
+          variabelen: null,
+        });
 
-        const fields = await formulier.requestForm(mockZaak);
+        const fields = await requestForm(mockZaak);
 
         const field = fields.find((f) => f.key === "body");
         expect("variables" in field! ? field.variables : undefined).toEqual([]);
@@ -184,7 +184,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
           of([mockAfzender, mockDefaultAfzender]),
         );
 
-        const fields = await formulier.requestForm(mockZaak);
+        const fields = await requestForm(mockZaak);
 
         const field = fields.find((f) => f.key === "verzender");
         expect(
@@ -197,7 +197,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
           of([mockAfzender, mockDefaultAfzender]),
         );
 
-        const fields = await formulier.requestForm(mockZaak);
+        const fields = await requestForm(mockZaak);
 
         const field = fields.find((f) => f.key === "verzender");
         expect((field?.control?.value as { mail: string })?.mail).toBe(
@@ -208,7 +208,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
       it("should set verzender to null when no default afzender exists", async () => {
         listAfzendersVoorZaakSpy.mockReturnValue(of([mockAfzender]));
 
-        const fields = await formulier.requestForm(mockZaak);
+        const fields = await requestForm(mockZaak);
 
         const field = fields.find((f) => f.key === "verzender");
         expect(field?.control?.value).toBeNull();
@@ -219,7 +219,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
           of([mockAfzender, mockDefaultAfzender]),
         );
 
-        const fields = await formulier.requestForm(mockZaak);
+        const fields = await requestForm(mockZaak);
 
         const verzenderField = fields.find((f) => f.key === "verzender");
         const replyToField = fields.find((f) => f.key === "replyTo");
@@ -236,7 +236,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
       it("should set replyTo to null when verzender is cleared", async () => {
         listAfzendersVoorZaakSpy.mockReturnValue(of([mockDefaultAfzender]));
 
-        const fields = await formulier.requestForm(mockZaak);
+        const fields = await requestForm(mockZaak);
 
         const verzenderField = fields.find((f) => f.key === "verzender");
         const replyToField = fields.find((f) => f.key === "replyTo");
@@ -251,14 +251,14 @@ describe(AanvullendeInformatieTaskForm.name, () => {
       it("should not pre-fill taakFataleDatum when planItem has no fataleDatum", async () => {
         const planItem = fromPartial<GeneratedType<"RestPlanItem">>({});
 
-        const fields = await formulier.requestForm(mockZaak, planItem);
+        const fields = await requestForm(mockZaak, planItem);
 
         const datumField = fields.find((f) => f.key === "taakFataledatum");
         expect(datumField?.control?.value).toBeNull();
       });
 
       it("should not pre-fill taakFataleDatum when planItem is undefined", async () => {
-        const fields = await formulier.requestForm(mockZaak, undefined);
+        const fields = await requestForm(mockZaak, undefined);
 
         const datumField = fields.find((f) => f.key === "taakFataledatum");
         expect(datumField?.control?.value).toBeNull();
@@ -270,7 +270,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
           fataleDatum,
         });
 
-        const fields = await formulier.requestForm(mockZaak, planItem);
+        const fields = await requestForm(mockZaak, planItem);
 
         const datumField = fields.find((f) => f.key === "taakFataledatum");
         expect(moment.isMoment(datumField?.control?.value)).toBe(true);
@@ -285,7 +285,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
 
     describe("messageField", () => {
       it("should return leeg message key when zaak has no uiterlijkeEinddatumAfdoening", async () => {
-        const fields = await formulier.requestForm(mockZaak);
+        const fields = await requestForm(mockZaak);
 
         const field = fields.find((f) => f.key === "messageField");
         expect(field?.control?.value).toBe(
@@ -300,7 +300,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
           zaaktype: { isOpschortingMogelijk: false },
         });
 
-        const fields = await formulier.requestForm(zaakWithFatalDatum);
+        const fields = await requestForm(zaakWithFatalDatum);
 
         const field = fields.find((f) => f.key === "messageField");
         expect(field?.control?.value).toBe(
@@ -316,7 +316,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
           rechten: { canBehandelen: true },
         });
 
-        const fields = await formulier.requestForm(zaakWithFatalDatum);
+        const fields = await requestForm(zaakWithFatalDatum);
 
         const field = fields.find((f) => f.key === "messageField");
         expect(field?.control?.value).toBe(
@@ -331,7 +331,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
           zaaktype: { isOpschortingMogelijk: false },
         });
 
-        const fields = await formulier.requestForm(zaakWithFatalDatum);
+        const fields = await requestForm(zaakWithFatalDatum);
 
         const taakFataledatumField = fields.find(
           (f) => f.key === "taakFataledatum",
@@ -352,7 +352,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
           zaaktype: { isOpschortingMogelijk: false },
         });
 
-        const fields = await formulier.requestForm(zaakWithFatalDatum);
+        const fields = await requestForm(zaakWithFatalDatum);
 
         const taakFataledatumField = fields.find(
           (f) => f.key === "taakFataledatum",
@@ -374,20 +374,13 @@ describe(AanvullendeInformatieTaskForm.name, () => {
           zaakSpecificContactDetails: { emailAddress: "specific@example.com" },
         });
 
-        const fields = await formulier.requestForm(zaakWithEmail);
+        const fields = await requestForm(zaakWithEmail);
 
         const emailField = fields.find((f) => f.key === "emailadres");
         expect(emailField?.control?.value).toBe("specific@example.com");
       });
 
       it("should pre-fill the email from initiatorIdentificatie when both type and temporaryPersonId are set", async () => {
-        getContactDetailsForPersonSpy.mockReturnValue(
-          of(
-            fromPartial<GeneratedType<"RestContactDetails">>({
-              emailadres: "test@example.com",
-            }),
-          ),
-        );
         const zaakWithInitiator = fromPartial<GeneratedType<"RestZaak">>({
           ...mockZaak,
           initiatorIdentificatie: {
@@ -396,25 +389,57 @@ describe(AanvullendeInformatieTaskForm.name, () => {
           },
         });
 
-        const fields = await formulier.requestForm(zaakWithInitiator);
-
-        expect(getContactDetailsForPersonSpy).toHaveBeenCalledWith(
+        const fields = await requestForm(zaakWithInitiator);
+        await respondWithContactDetails(
           "person-123",
+          fromPartial<GeneratedType<"RestContactDetails">>({
+            emailadres: "test@example.com",
+          }),
         );
+
         const emailField = fields.find((f) => f.key === "emailadres");
         expect(emailField?.control?.value).toBe("test@example.com");
       });
 
-      it("should not call getContactDetailsForPerson when initiatorIdentificatie is absent", async () => {
-        await formulier.requestForm(mockZaak);
+      it("should not overwrite an email that the user typed when the contact details are fetched again", async () => {
+        const zaakWithInitiator = fromPartial<GeneratedType<"RestZaak">>({
+          ...mockZaak,
+          initiatorIdentificatie: {
+            type: "BSN",
+            temporaryPersonId: "person-123",
+          },
+        });
+        const fields = await requestForm(zaakWithInitiator);
+        await respondWithContactDetails(
+          "person-123",
+          fromPartial<GeneratedType<"RestContactDetails">>({
+            emailadres: "test@example.com",
+          }),
+        );
+        const emailField = fields.find((f) => f.key === "emailadres");
+        emailField?.control?.setValue("typed@example.com");
 
-        expect(getContactDetailsForPersonSpy).not.toHaveBeenCalled();
+        void TestBed.inject(QueryClient).invalidateQueries();
+        await respondWithContactDetails(
+          "person-123",
+          fromPartial<GeneratedType<"RestContactDetails">>({
+            emailadres: "refetched@example.com",
+          }),
+        );
+
+        expect(emailField?.control?.value).toBe("typed@example.com");
       });
 
-      it("should not set email when getContactDetailsForPerson returns no emailadres", async () => {
-        getContactDetailsForPersonSpy.mockReturnValue(
-          of(fromPartial<GeneratedType<"RestContactDetails">>({})),
+      it("should not request the contact details when initiatorIdentificatie is absent", async () => {
+        await requestForm(mockZaak);
+        await sleep();
+
+        httpTestingController.expectNone((request) =>
+          request.url.startsWith("/rest/klanten/contactdetails/person/"),
         );
+      });
+
+      it("should not set email when the contact details have no emailadres", async () => {
         const zaakWithInitiator = fromPartial<GeneratedType<"RestZaak">>({
           ...mockZaak,
           initiatorIdentificatie: {
@@ -423,7 +448,11 @@ describe(AanvullendeInformatieTaskForm.name, () => {
           },
         });
 
-        const fields = await formulier.requestForm(zaakWithInitiator);
+        const fields = await requestForm(zaakWithInitiator);
+        await respondWithContactDetails(
+          "person-123",
+          fromPartial<GeneratedType<"RestContactDetails">>({}),
+        );
 
         const emailField = fields.find((f) => f.key === "emailadres");
         expect(emailField?.control?.value).toBeNull();
@@ -441,7 +470,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
       });
 
       it("should not include zaakOpschorten field when zaak is not suspendable", async () => {
-        const fields = await formulier.requestForm(mockZaak);
+        const fields = await requestForm(mockZaak);
 
         expect(fields.find((f) => f.key === "zaakOpschorten")).toBeUndefined();
       });
@@ -452,7 +481,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
           redenOpschorting: "already suspended",
         });
 
-        const fields = await formulier.requestForm(zaak);
+        const fields = await requestForm(zaak);
 
         expect(fields.find((f) => f.key === "zaakOpschorten")).toBeUndefined();
       });
@@ -463,7 +492,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
           isHeropend: true,
         });
 
-        const fields = await formulier.requestForm(zaak);
+        const fields = await requestForm(zaak);
 
         expect(fields.find((f) => f.key === "zaakOpschorten")).toBeUndefined();
       });
@@ -474,7 +503,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
           rechten: { canBehandelen: false },
         });
 
-        const fields = await formulier.requestForm(zaak);
+        const fields = await requestForm(zaak);
 
         expect(fields.find((f) => f.key === "zaakOpschorten")).toBeUndefined();
       });
@@ -485,26 +514,26 @@ describe(AanvullendeInformatieTaskForm.name, () => {
           hasEerdereOpschorting: true,
         });
 
-        const fields = await formulier.requestForm(zaak);
+        const fields = await requestForm(zaak);
 
         expect(fields.find((f) => f.key === "zaakOpschorten")).toBeUndefined();
       });
 
       it("should include zaakOpschorten field when zaak is suspendable", async () => {
-        const fields = await formulier.requestForm(suspendableZaak);
+        const fields = await requestForm(suspendableZaak);
 
         expect(fields.find((f) => f.key === "zaakOpschorten")).toBeDefined();
       });
 
       it("should initialize zaakOpschorten as false", async () => {
-        const fields = await formulier.requestForm(suspendableZaak);
+        const fields = await requestForm(suspendableZaak);
 
         const field = fields.find((f) => f.key === "zaakOpschorten");
         expect(field?.control?.value).toBe(false);
       });
 
       it("should add required validator to taakFataleDatum when zaakOpschorten is checked", async () => {
-        const fields = await formulier.requestForm(suspendableZaak);
+        const fields = await requestForm(suspendableZaak);
 
         const zaakOpschortenField = fields.find(
           (f) => f.key === "zaakOpschorten",
@@ -522,7 +551,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
       });
 
       it("should remove required validator from taakFataleDatum when zaakOpschorten is unchecked", async () => {
-        const fields = await formulier.requestForm(suspendableZaak);
+        const fields = await requestForm(suspendableZaak);
 
         const zaakOpschortenField = fields.find(
           (f) => f.key === "zaakOpschorten",

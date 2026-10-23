@@ -20,11 +20,7 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import java.time.LocalDate
-import java.util.UUID
-import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.shared.ZgwApiService
@@ -44,9 +40,9 @@ import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ResultaattypeReferenceService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.ZaaktypeConfigurationService.Companion.INADMISSIBLE_TERMINATION_ID
 import nl.info.zac.admin.ZaaktypeConfigurationService.Companion.INADMISSIBLE_TERMINATION_REASON
-import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.admin.model.ZaaktypeZaakafzenderParameters
 import nl.info.zac.app.admin.model.RestZaakAfzender
@@ -89,8 +85,9 @@ import nl.info.zac.app.zaak.model.toZaak
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
-import nl.info.zac.flowable.ZaakProcessService
+import nl.info.zac.event.EventingService
 import nl.info.zac.flowable.ProcessStartData
+import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.history.model.HistoryLine
@@ -107,10 +104,13 @@ import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toLocalDate
+import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.ZaakService
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
 import nl.info.zac.zaak.readZaakAutorisatieGegevens
+import java.time.LocalDate
+import java.util.UUID
 
 @Path("zaken")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -446,7 +446,8 @@ class ZaakRestService @Inject constructor(
                     uiterlijkeEinddatumAfdoeningWaarschuwing = uiterlijkeEinddatumAfdoeningWaarschuwing
                 )
             }
-            .map { restZaakOverzichtConverter.convert(zaak = it, loggedInUser = loggedInUser) }
+            .map { restZaakOverzichtConverter.convertToRestZaakOverzicht(zaak = it, loggedInUser = loggedInUser) }
+            .filter { it.rechten?.canLezen == true && it.behandelaar?.id == loggedInUser.id }
     }
 
     @GET
@@ -652,6 +653,7 @@ class ZaakRestService @Inject constructor(
 
     @PATCH
     @Path("zaak/{uuid}")
+    @Suppress("LongMethod")
     fun updateZaak(
         @PathParam("uuid") zaakUUID: UUID,
         @Valid restZaakEditMetRedenGegevens: RestZaakEditMetRedenGegevens
@@ -671,14 +673,17 @@ class ZaakRestService @Inject constructor(
         val currentBehandelaarId = currentBehandelaarId(zaak)
         val requestedAssignment = resolveRequestedAssignment(
             zaak = zaak,
-            restZaak = restZaakEditMetRedenGegevens.zaak,
+            restZaakEditMetRedenGegevens = restZaakEditMetRedenGegevens,
             currentBehandelaarId = currentBehandelaarId
         )
+        val shouldZaakspecifiekeAutorisatieBeRemoved = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd &&
+            restZaakEditMetRedenGegevens.zaak.isZaakspecifiekGeautoriseerd == false
         val zaakAssignment = requestedAssignment?.let {
             assertPolicy(zaakRechten.canToekennen)
             zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
                 zaak = zaak,
-                isZaakspecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd,
+                isZaakspecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd &&
+                    !shouldZaakspecifiekeAutorisatieBeRemoved,
                 currentBehandelaarId = currentBehandelaarId,
                 requestedBehandelaarId = it.behandelaarId
             )
@@ -698,6 +703,9 @@ class ZaakRestService @Inject constructor(
         )
         if (shouldBeMarkedZaakspecifiekGeautoriseerd) {
             zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak)
+        }
+        if (shouldZaakspecifiekeAutorisatieBeRemoved) {
+            zaakspecifiekeAutorisatieService.removeZaakspecifiekeAutorisatie(zaak, restZaakEditMetRedenGegevens.reden)
         }
         zaakAssignment?.let {
             zaakService.assignZaak(zaak = zaak, zaakAssignment = it, reason = restZaakEditMetRedenGegevens.reden)
@@ -754,6 +762,7 @@ class ZaakRestService @Inject constructor(
         assertPolicy(zaakRechten.canVerlengen)
         val updatedZaak = suspensionZaakHelper.extendZaak(
             zaak = zaak,
+            zaakType = zaakType,
             dueDate = restZaakVerlengGegevens.einddatumGepland,
             fatalDate = restZaakVerlengGegevens.uiterlijkeEinddatumAfdoening,
             extensionReason = restZaakVerlengGegevens.redenVerlenging,
@@ -892,15 +901,17 @@ class ZaakRestService @Inject constructor(
             ?.identificatie
 
     /**
-     * An absent `behandelaar` keeps the one the zaak already has: a partial update never releases a
-     * behandelaar, that goes through the dedicated vrijgeven endpoint.
+     * An absent `behandelaar` keeps the one the zaak already has, so that a partial update never releases a
+     * behandelaar by leaving it out. A client that sends the complete assignment releases the behandelaar
+     * explicitly with `isBehandelaarVrijgegeven`.
      */
     private fun resolveRequestedAssignment(
         zaak: Zaak,
-        restZaak: RestZaakCreateData,
+        restZaakEditMetRedenGegevens: RestZaakEditMetRedenGegevens,
         currentBehandelaarId: String?
-    ) = restZaak.groep?.id?.let { requestedGroupId ->
-        val requestedBehandelaarId = restZaak.behandelaar?.id ?: currentBehandelaarId
+    ) = restZaakEditMetRedenGegevens.zaak.groep?.id?.let { requestedGroupId ->
+        val requestedBehandelaarId = restZaakEditMetRedenGegevens.zaak.behandelaar?.id
+            ?: currentBehandelaarId.takeUnless { restZaakEditMetRedenGegevens.isBehandelaarVrijgegeven }
         val currentGroupId = zgwApiService.findGroepForZaak(zaak)
             ?.betrokkeneIdentificatie
             ?.identificatie

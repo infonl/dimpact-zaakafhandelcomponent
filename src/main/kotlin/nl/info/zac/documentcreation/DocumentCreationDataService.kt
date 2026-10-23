@@ -5,11 +5,7 @@
 package nl.info.zac.documentcreation
 
 import jakarta.inject.Inject
-import nl.info.client.zgw.zrc.model.Rol
-import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
-import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.util.StringUtil
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.model.generated.Adres
 import nl.info.client.brp.model.generated.Persoon
@@ -26,12 +22,15 @@ import nl.info.client.smartdocuments.model.document.toAanvragerDataBedrijf
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NATUURLIJK_PERSOON
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.VESTIGING
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -42,8 +41,8 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.joinNonBlank
 import java.net.URI
-import java.util.Objects
 import java.util.UUID
 
 @NoArgConstructor
@@ -64,7 +63,7 @@ class DocumentCreationDataService @Inject constructor(
             aanvragerData = createAanvragerData(zaak, loggedInUser),
             gebruikerData = createGebruikerData(loggedInUser),
             startformulierData = createStartformulierData(zaak.url),
-            taskData = taskId?.let { createTaskData(it) },
+            taskData = taskId?.let { createTaskData(taskId = it, zaak = zaak) },
             zaakData = createZaakData(zaak)
         )
 
@@ -137,11 +136,11 @@ class DocumentCreationDataService @Inject constructor(
         )
 
     private fun convertToHuisnummer(verblijfadres: VerblijfadresBinnenland) =
-        StringUtil.joinNonBlank(
-            Objects.toString(verblijfadres.huisnummer, null),
-            verblijfadres.huisnummertoevoeging,
-            verblijfadres.huisletter
-        )
+        listOf(
+            verblijfadres.huisnummer?.toString(),
+            verblijfadres.huisletter,
+            verblijfadres.huisnummertoevoeging
+        ).joinNonBlank()
 
     private fun createAanvragerDataVestiging(vestigingsnummer: String): AanvragerData? =
         kvkClientService.findVestiging(vestigingsnummer)?.toAanvragerDataBedrijf()
@@ -174,11 +173,16 @@ class DocumentCreationDataService @Inject constructor(
             }
             .singleOrNull()
 
-    private fun createTaskData(taskId: String): TaskData =
+    private fun createTaskData(taskId: String, zaak: Zaak): TaskData =
         flowableTaskService.readTask(taskId).let { taskInfo ->
             TaskData(
                 naam = taskInfo.name,
-                behandelaar = taskInfo.assignee?.let { identityService.readUser(it).getFullName() }
+                behandelaar = taskInfo.assignee?.let {
+                    identityService.readUser(
+                        userId = it,
+                        logContext = "task '$taskId' of zaak '${zaak.identificatie}'"
+                    ).getFullName()
+                }
             )
         }
 }

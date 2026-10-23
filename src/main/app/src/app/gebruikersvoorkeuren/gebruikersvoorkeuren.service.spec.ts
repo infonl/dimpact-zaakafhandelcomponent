@@ -5,7 +5,7 @@
 
 import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { type MutationFunctionContext } from "@tanstack/angular-query-experimental";
 import { sleep, testQueryClient } from "../../../setupJest";
 import { fromPartial } from "../../test-helpers";
@@ -19,8 +19,7 @@ describe(GebruikersvoorkeurenService.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
-      providers: [],
+      providers: [provideTranslateService()],
     });
 
     service = TestBed.inject(GebruikersvoorkeurenService);
@@ -29,7 +28,7 @@ describe(GebruikersvoorkeurenService.name, () => {
 
   describe("createOrUpdateZoekOpdrachten", () => {
     it("posts the zoekopdracht to save", async () => {
-      const zoekopdracht = fromPartial<GeneratedType<"RESTZoekopdracht">>({
+      const zoekopdracht = fromPartial<GeneratedType<"RestZoekopdracht">>({
         naam: "mijn zoekopdracht",
         json: "{}",
         lijstID: "WERKVOORRAAD_ZAKEN",
@@ -53,7 +52,7 @@ describe(GebruikersvoorkeurenService.name, () => {
 
   describe("setZoekopdrachtActief", () => {
     it("puts the zoekopdracht that became active", async () => {
-      const zoekopdracht = fromPartial<GeneratedType<"RESTZoekopdracht">>({
+      const zoekopdracht = fromPartial<GeneratedType<"RestZoekopdracht">>({
         id: 42,
       });
 
@@ -93,7 +92,7 @@ describe(GebruikersvoorkeurenService.name, () => {
   describe("addDashboardCard", () => {
     it("puts the card instelling", async () => {
       const instelling = fromPartial<
-        GeneratedType<"RESTDashboardCardInstelling">
+        GeneratedType<"RestDashboardCardInstelling">
       >({ column: 1, row: 2 });
 
       runMutation(
@@ -115,7 +114,7 @@ describe(GebruikersvoorkeurenService.name, () => {
   describe("updateDashboardCards", () => {
     it("puts the whole set of card instellingen", async () => {
       const instellingen = [
-        fromPartial<GeneratedType<"RESTDashboardCardInstelling">>({
+        fromPartial<GeneratedType<"RestDashboardCardInstelling">>({
           column: 0,
           row: 0,
         }),

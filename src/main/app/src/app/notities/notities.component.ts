@@ -20,7 +20,7 @@ import { MatCardModule } from "@angular/material/card";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { ObjectType } from "../core/websocket/model/object-type";
 import { Opcode } from "../core/websocket/model/opcode";
@@ -56,7 +56,7 @@ function nieuwsteWijzigingEerst(
     MatFormFieldModule,
     MatInputModule,
     CdkTextareaAutosize,
-    TranslateModule,
+    TranslatePipe,
     DatumPipe,
   ],
 })

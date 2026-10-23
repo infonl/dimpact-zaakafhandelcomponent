@@ -26,7 +26,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { firstValueFrom } from "rxjs";
@@ -61,7 +61,7 @@ import { ZakenService } from "../zaken.service";
     MatExpansionModule,
     MatFormFieldModule,
     MatProgressSpinnerModule,
-    TranslateModule,
+    TranslatePipe,
     StaticTextComponent,
     ZacSelect,
     EmptyPipe,
@@ -120,16 +120,12 @@ export class ZaakAfhandelenDialogComponent {
       ),
   }));
 
-  protected readonly mailtemplateQuery = injectQuery(() => ({
-    queryKey: ["mailtemplate", this.data.zaak.uuid],
-    queryFn: () =>
-      firstValueFrom(
-        this.mailtemplateService.findMailtemplate(
-          "ZAAK_AFGEHANDELD",
-          this.data.zaak.uuid,
-        ),
-      ),
-  }));
+  protected readonly mailtemplateQuery = injectQuery(() =>
+    this.mailtemplateService.findMailtemplate(
+      "ZAAK_AFGEHANDELD",
+      this.data.zaak.uuid,
+    ),
+  );
 
   protected readonly afsluitenMutation = injectMutation(
     () => this.zakenService.afsluitenMutation(this.data.zaak.uuid),

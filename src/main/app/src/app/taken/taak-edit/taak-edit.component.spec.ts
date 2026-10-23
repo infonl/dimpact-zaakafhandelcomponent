@@ -14,7 +14,7 @@ import {
 import { TestBed } from "@angular/core/testing";
 import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
@@ -77,8 +77,9 @@ describe(TaakEditComponent.name, () => {
 
     const { fixture } = await render(TaakEditComponent, {
       inputs: { task, sideNav },
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         { provide: IdentityService, useValue: identityService },
         TakenService,
         provideHttpClient(withInterceptorsFromDi()),

@@ -15,12 +15,12 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import nl.info.client.zgw.shared.exception.ZgwErrorException
-import nl.info.client.zgw.shared.model.ZgwError
-import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.client.zgw.model.createZaakInformatieobjectForReads
+import nl.info.client.zgw.shared.exception.ZgwErrorException
+import nl.info.client.zgw.shared.model.ZgwError
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.detacheddocuments.converter.RestDetachedDocumentConverter
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocument
@@ -35,6 +35,7 @@ import nl.info.zac.document.detacheddocument.repository.model.createDetachedDocu
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createWerklijstRechten
+import nl.info.zac.search.SearchService
 import java.net.URI
 import java.util.UUID
 
@@ -45,13 +46,15 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
     val restDetachedDocumentConverter = mockk<RestDetachedDocumentConverter>()
     val userConverter = mockk<RestUserConverter>()
     val policyService = mockk<PolicyService>()
+    val searchService = mockk<SearchService>()
     val detachedDocumentRestService = DetachedDocumentRestService(
         detachedDocumentService,
         drcClientService,
         zrcClientService,
         restDetachedDocumentConverter,
         userConverter,
-        policyService
+        policyService,
+        searchService
     )
 
     afterEach {
@@ -236,7 +239,10 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 drcClientService.readEnkelvoudigInformatieobject(detachedDocument.documentUUID)
             } returns informatieObject
             every {
-                restDetachedDocumentConverter.convert(listOf(detachedDocument), any())
+                searchService.listZaakspecifiekGeautoriseerdeWaarden(listOf(detachedDocument.zaakID))
+            } returns emptySet()
+            every {
+                restDetachedDocumentConverter.convertToRestDetachedDocuments(listOf(detachedDocument), any(), emptySet())
             } returns listOf(restDocument)
 
             `when`("the list endpoint is called") {
@@ -265,7 +271,10 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
             } returns informatieObject
             every {
-                restDetachedDocumentConverter.convert(listOf(document), any())
+                searchService.listZaakspecifiekGeautoriseerdeWaarden(listOf(document.zaakID))
+            } returns emptySet()
+            every {
+                restDetachedDocumentConverter.convertToRestDetachedDocuments(listOf(document), any(), emptySet())
             } returns listOf(restDocument)
 
             `when`("the list endpoint is called") {
@@ -295,9 +304,12 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
             } returns informatieObject
             every {
-                restDetachedDocumentConverter.convert(listOf(document), any())
+                searchService.listZaakspecifiekGeautoriseerdeWaarden(listOf(document.zaakID))
+            } returns emptySet()
+            every {
+                restDetachedDocumentConverter.convertToRestDetachedDocuments(listOf(document), any(), emptySet())
             } returns listOf(restDocument)
-            every { with(userConverter) { dbUserIds.convertUserIds() } } returns convertedUsers
+            every { with(userConverter) { dbUserIds.convertUserIds(any()) } } returns convertedUsers
 
             `when`("the list endpoint is called") {
                 val result = detachedDocumentRestService.listDetachedDocuments(restListParameters)

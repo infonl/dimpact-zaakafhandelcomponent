@@ -7,13 +7,16 @@ package nl.info.zac.app.admin
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.ws.rs.Consumes
-import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
+import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
+import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.app.admin.model.RestBuildInformation
 import nl.info.zac.app.admin.model.RestZaaktypeInrichtingscheck
 import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
@@ -23,7 +26,6 @@ import nl.info.zac.healthcheck.model.ZaaktypeInrichtingscheck
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.NoArgConstructor
-import java.time.ZonedDateTime
 
 @Singleton
 @Path("health-check")
@@ -34,7 +36,8 @@ class HealthCheckRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val configurationService: ConfigurationService,
     private val healthCheckService: HealthCheckService,
-    private val policyService: PolicyService
+    private val policyService: PolicyService,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService
 ) {
     @GET
     @Path("zaaktypes")
@@ -50,29 +53,6 @@ class HealthCheckRestService @Inject constructor(
     fun readBestaatCommunicatiekanaalEformulier(): Boolean {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
         return healthCheckService.bestaatCommunicatiekanaalEformulier()
-    }
-
-    @DELETE
-    @Path("ztc-cache")
-    fun clearZTCCaches(): ZonedDateTime {
-        assertPolicy(policyService.readOverigeRechten().canBeheren)
-        ztcClientService.clearZaaktypeCache()
-        ztcClientService.clearStatustypeCache()
-        ztcClientService.clearResultaattypeCache()
-        ztcClientService.clearInformatieobjecttypeCache()
-        ztcClientService.clearZaaktypeInformatieobjecttypeCache()
-        ztcClientService.clearBesluittypeCache()
-        ztcClientService.clearRoltypeCache()
-        ztcClientService.clearEigenschapCache()
-        ztcClientService.clearCacheTime()
-        return ztcClientService.resetCacheTimeToNow()
-    }
-
-    @GET
-    @Path("ztc-cache")
-    fun readZTCCacheTime(): ZonedDateTime {
-        assertPolicy(policyService.readOverigeRechten().canBeheren)
-        return ztcClientService.resetCacheTimeToNow()
     }
 
     /**
@@ -94,6 +74,11 @@ class HealthCheckRestService @Inject constructor(
         ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
             .filter { !it.concept }
             .filter { it.isNuGeldig() }
+            .filterNot(::isBoundToBpmn)
+
+    private fun isBoundToBpmn(zaaktype: ZaakType) =
+        zaaktypeConfigurationService.findConfiguration(zaaktype.url.extractUuid())?.getProcessEngine() ==
+            ProcessEngine.BPMN
 
     private fun convertToREST(check: ZaaktypeInrichtingscheck): RestZaaktypeInrichtingscheck =
         RestZaaktypeInrichtingscheck(

@@ -8,14 +8,14 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { MatCard, MatCardContent } from "@angular/material/card";
 import { MatIcon } from "@angular/material/icon";
 import { ActivatedRoute } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 
 @Component({
   selector: "zac-error-card",
   templateUrl: "./error-card.component.html",
   styleUrl: "./error-card.component.less",
   host: { class: "error-card-host" },
-  imports: [MatCard, MatCardContent, MatIcon, TranslateModule],
+  imports: [MatCard, MatCardContent, MatIcon, TranslatePipe],
 })
 export class ErrorCardComponent {
   readonly title = input<string | undefined>("error-card.title.default");

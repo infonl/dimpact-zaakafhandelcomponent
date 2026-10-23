@@ -18,7 +18,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { MatIconModule } from "@angular/material/icon";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatTooltipModule } from "@angular/material/tooltip";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { Subscription } from "rxjs";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
@@ -39,18 +39,18 @@ import { ZoekFilters } from "./zoekfilters.model";
     MatIconModule,
     MatMenuModule,
     MatTooltipModule,
-    TranslateModule,
+    TranslatePipe,
     ReadMoreComponent,
   ],
 })
 export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   readonly werklijst = input.required<GeneratedType<"Werklijst">>();
   readonly zoekFilters = input.required<ZoekFilters>();
-  readonly zoekopdracht = output<GeneratedType<"RESTZoekopdracht">>();
+  readonly zoekopdracht = output<GeneratedType<"RestZoekopdracht">>();
   readonly filtersChanged = input.required<EventEmitter<void>>();
 
-  protected zoekopdrachten: GeneratedType<"RESTZoekopdracht">[] = [];
-  protected actieveZoekopdracht: GeneratedType<"RESTZoekopdracht"> | null =
+  protected zoekopdrachten: GeneratedType<"RestZoekopdracht">[] = [];
+  protected actieveZoekopdracht: GeneratedType<"RestZoekopdracht"> | null =
     null;
   protected actieveFilters = false;
   private filtersChangedSubscription$!: Subscription;
@@ -97,7 +97,7 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     });
   }
 
-  protected setActief(zoekopdracht: GeneratedType<"RESTZoekopdracht">) {
+  protected setActief(zoekopdracht: GeneratedType<"RestZoekopdracht">) {
     this.actieveZoekopdracht = zoekopdracht;
     this.actieveFilters = true;
     this.zoekopdracht.emit(this.actieveZoekopdracht);
@@ -106,7 +106,7 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
 
   protected deleteZoekopdracht(
     $event: MouseEvent,
-    zoekopdracht: GeneratedType<"RESTZoekopdracht">,
+    zoekopdracht: GeneratedType<"RestZoekopdracht">,
   ) {
     $event.stopPropagation();
     this.deleteZoekopdrachtMutation.mutate(zoekopdracht.id!);

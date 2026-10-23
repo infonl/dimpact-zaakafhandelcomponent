@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import {
   MAT_DIALOG_DATA,
@@ -11,23 +11,17 @@ import {
   MatDialogContent,
   MatDialogRef,
 } from "@angular/material/dialog";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 
 @Component({
   templateUrl: "./notification-dialog.component.html",
   standalone: true,
-  imports: [
-    MatDialogContent,
-    MatDialogActions,
-    MatButtonModule,
-    TranslateModule,
-  ],
+  imports: [MatDialogContent, MatDialogActions, MatButtonModule, TranslatePipe],
 })
 export class NotificationDialogComponent {
-  constructor(
-    private readonly dialogRef: MatDialogRef<NotificationDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) protected readonly data: NotificationDialogData,
-  ) {}
+  private readonly dialogRef =
+    inject<MatDialogRef<NotificationDialogComponent>>(MatDialogRef);
+  protected readonly data = inject<NotificationDialogData>(MAT_DIALOG_DATA);
 
   protected confirm(): void {
     this.dialogRef.close(true);

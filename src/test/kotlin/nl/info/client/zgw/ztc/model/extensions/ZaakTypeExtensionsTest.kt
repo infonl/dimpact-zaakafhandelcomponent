@@ -5,29 +5,15 @@
 
 package nl.info.client.zgw.ztc.model.extensions
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.client.zgw.ztc.model.createZaakType
-import java.time.DateTimeException
 
 class ZaakTypeExtensionsTest : BehaviorSpec({
 
     context("Service norm") {
         given("servicenorm was never set") {
             val zaakType = createZaakType(servicenorm = null)
-
-            `when`("calling isServicenormAvailable") {
-                val isServicenormAvailable = zaakType.isServicenormAvailable()
-
-                then("it should return false") {
-                    isServicenormAvailable shouldBe false
-                }
-            }
-        }
-
-        given("servicenorm is not set") {
-            val zaakType = createZaakType(servicenorm = "P0Y0M0W0D")
 
             `when`("calling isServicenormAvailable") {
                 val isServicenormAvailable = zaakType.isServicenormAvailable()
@@ -46,20 +32,6 @@ class ZaakTypeExtensionsTest : BehaviorSpec({
 
                 then("it should return true") {
                     isServicenormAvailable shouldBe true
-                }
-            }
-        }
-
-        given("servicenorm has unexpected format") {
-            val zaakType = createZaakType(servicenorm = "P0Y0M0W30D1H")
-
-            `when`("calling isServicenormAvailable") {
-                val result = shouldThrow<DateTimeException> {
-                    zaakType.isServicenormAvailable()
-                }
-
-                then("it should error") {
-                    result.message shouldBe "Text cannot be parsed to a Period"
                 }
             }
         }

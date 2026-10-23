@@ -4,7 +4,6 @@
  */
 package nl.info.zac.util
 
-import org.apache.commons.lang3.StringUtils
 import java.util.regex.Pattern
 
 /**
@@ -17,4 +16,4 @@ private val HTML_PARAGRAPH_TAG_PATTERN: Pattern = Pattern.compile("</?p>", Patte
 fun stripHtmlParagraphTags(text: String): String =
     HTML_PARAGRAPH_TAG_PATTERN
         .matcher(text)
-        .replaceAll(StringUtils.EMPTY)
+        .replaceAll("")

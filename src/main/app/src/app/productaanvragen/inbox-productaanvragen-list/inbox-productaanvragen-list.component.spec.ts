@@ -15,7 +15,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router, provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
@@ -55,8 +55,9 @@ describe(InboxProductaanvragenListComponent.name, () => {
     const { fixture: renderedFixture } = await render(
       InboxProductaanvragenListComponent,
       {
-        imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+        imports: [NoopAnimationsModule],
         providers: [
+          provideTranslateService(),
           provideRouter([]),
           {
             provide: ActivatedRoute,
@@ -183,7 +184,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
     await showProductaanvragen([inboxProductaanvraag]);
 
     fixture.componentInstance["zoekopdrachtChanged"](
-      fromPartial<GeneratedType<"RESTZoekopdracht">>({
+      fromPartial<GeneratedType<"RestZoekopdracht">>({
         json: JSON.stringify({ type: "type-B" }),
       }),
     );
@@ -202,7 +203,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
     await showProductaanvragen([inboxProductaanvraag]);
 
     fixture.componentInstance["zoekopdrachtChanged"](
-      fromPartial<GeneratedType<"RESTZoekopdracht">>({
+      fromPartial<GeneratedType<"RestZoekopdracht">>({
         json: JSON.stringify({ sort: "type", type: "type-B" }),
       }),
     );
@@ -301,7 +302,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
     await showProductaanvragen([inboxProductaanvraag]);
 
     fixture.componentInstance["zoekopdrachtChanged"](
-      fromPartial<GeneratedType<"RESTZoekopdracht">>({
+      fromPartial<GeneratedType<"RestZoekopdracht">>({
         json: JSON.stringify({ sort: "initiator", order: "asc" }),
       }),
     );

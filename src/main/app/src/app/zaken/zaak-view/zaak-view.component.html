@@ -57,7 +57,7 @@
     @if (activeAction === "actie.bag-object.koppelen") {
       @defer (on immediate) {
         <zac-bag-zoek
-          [gekoppeldeBagObjecten]="gekoppeldeBagObjecten"
+          [gekoppeldeBagObjecten]="gekoppeldeBagObjecten()"
           [sideNav]="actionsSidenav"
           isSelectable
           (bagObject)="adresGeselecteerd($event)"
@@ -216,7 +216,7 @@
         class="w50 flex-1"
         [zaak]="zaak"
         [zaakOpschorting]="dialogs.opschorting()"
-        [bagObjecten]="bagObjecten"
+        [bagObjecten]="bagObjecten()"
         [showBetrokkeneKoppelingen]="showBetrokkeneKoppelingen()"
         (editCaseDetails)="editCaseDetails()"
         (editLocationDetails)="editLocationDetails()"
@@ -241,15 +241,16 @@
         (documentMoveToCase)="documentMoveToCase($event)"
       ></zac-zaak-documenten>
     </div>
+    @if (
+      notitieRechtenQuery.data()?.canLezen ||
+      notitieRechtenQuery.data()?.canWijzigen
+    ) {
+      @defer (on immediate) {
+        <zac-notities
+          [zaakUuid]="zaak.uuid"
+          [notitieRechten]="notitieRechtenQuery.data()"
+        ></zac-notities>
+      }
+    }
   </mat-drawer-content>
 </mat-drawer-container>
-
-@if (
-  notitieRechtenQuery.data()?.canLezen ||
-  notitieRechtenQuery.data()?.canWijzigen
-) {
-  <zac-notities
-    [zaakUuid]="zaak.uuid"
-    [notitieRechten]="notitieRechtenQuery.data()"
-  ></zac-notities>
-}

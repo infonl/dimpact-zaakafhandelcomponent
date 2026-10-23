@@ -12,9 +12,6 @@ import jakarta.json.JsonString
 import jakarta.json.JsonValue
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.FlowableTaskService
-import nl.info.zac.flowable.task.TaakVariabelenService
-import nl.info.zac.util.time.convertToDate
-import nl.info.zac.util.time.convertToLocalDate
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
@@ -23,9 +20,12 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.app.task.model.RestTask
+import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.task.model.BpmnTaskFormData
+import nl.info.zac.util.time.convertToDate
+import nl.info.zac.util.time.convertToLocalDate
 import org.flowable.task.api.Task
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -168,14 +168,20 @@ class BpmnTaskFormRuntimeService @Inject constructor(
     private fun getGroepForZaakDefaultValue(zaak: Zaak) =
         zgwApiService.findGroepForZaak(zaak).let { group ->
             group?.betrokkeneIdentificatie?.identificatie?.let {
-                identityService.readGroup(it).name
+                identityService.readGroup(
+                    groupId = it,
+                    logContext = "the default value of a form field for zaak '${zaak.identificatie}'"
+                ).name
             }
         }
 
     private fun getBehandelaarForZaakDefaultValue(zaak: Zaak) =
         zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak).let { behandelaar ->
             behandelaar?.identificatienummer?.let {
-                identityService.readUser(it).id
+                identityService.readUser(
+                    userId = it,
+                    logContext = "the default value of a form field for zaak '${zaak.identificatie}'"
+                ).id
             }
         }
 

@@ -10,7 +10,7 @@ Run:
 ./create-bruno-collection.sh
 ```
 
-This will (re)generate the Bruno endpoint stubs (`.bru` files) under the most recently generated collection in `scripts/bruno/collections` (typically `zaakafhandelcomponent_backend_api/rest`), and will automatically open the collection in the Bruno application.
+This will (re)generate the Bruno endpoint stubs (`.yml` files in the [YAML collection format](https://docs.usebruno.com/bru-lang/yaml-migration)) under the most recently generated collection in `scripts/bruno/collections` (typically `zaakafhandelcomponent_backend_api/rest`), and will automatically open the collection in the Bruno application.
 
 Be careful never to commit any secret variables in the environment files, except for the 'ZAC localhost' environment.
 
@@ -38,7 +38,7 @@ The collection contains its environments in `collections/zaakafhandelcomponent_b
 | `ZAC Localhost` | ZAC running locally, with Keycloak from the Docker Compose stack | None |
 | `ZAC INFO TEST` | The INFO TEST environment | Set `keycloakClientSecret` |
 
-Each environment defines these variables, which the OAuth2 configuration in `collection.bru` uses:
+Each environment defines these variables, which the OAuth2 configuration in `opencollection.yml` uses:
 
 | Variable | Description |
 |---|---|

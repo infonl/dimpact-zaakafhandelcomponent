@@ -39,8 +39,8 @@ class TestAdminComponent extends AdminComponent {
     super(utilService, configuratieService);
   }
 
-  callSetupMenu(title: string, params?: Record<string, unknown>): void {
-    this.setupMenu(title, params);
+  callSetupMenu(title: string): void {
+    this.setupMenu(title);
   }
 
   get testMenu(): MenuItem[] {
@@ -55,15 +55,12 @@ class TestAdminComponent extends AdminComponent {
 describe(AdminComponent.name, () => {
   let fixture: ComponentFixture<TestAdminComponent>;
   let component: TestAdminComponent;
-  let utilServiceMock: Pick<UtilService, "setTitle">;
 
   beforeEach(async () => {
-    utilServiceMock = { setTitle: jest.fn() };
-
     await TestBed.configureTestingModule({
       imports: [TestAdminComponent],
       providers: [
-        { provide: UtilService, useValue: utilServiceMock },
+        { provide: UtilService, useValue: {} },
         {
           provide: ConfiguratieService,
           useValue: {} satisfies Partial<ConfiguratieService>,
@@ -74,14 +71,6 @@ describe(AdminComponent.name, () => {
     fixture = TestBed.createComponent(TestAdminComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-  });
-
-  it("should call setTitle with the provided title on setupMenu", () => {
-    component.callSetupMenu("title.mailtemplates");
-    expect(utilServiceMock.setTitle).toHaveBeenCalledWith(
-      "title.mailtemplates",
-      undefined,
-    );
   });
 
   it("should set activeMenu to the provided title on setupMenu", () => {

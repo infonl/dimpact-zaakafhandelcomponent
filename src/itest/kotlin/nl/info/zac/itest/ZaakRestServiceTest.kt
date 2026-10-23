@@ -15,6 +15,7 @@ import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.inspectors.forAtLeastOne
 import io.kotest.matchers.collections.shouldBeIn
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -26,6 +27,7 @@ import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.createZaakAndRetrieve
 import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.BEHANDELAAR_1_EN_BRP_ZOEKER_2
 import nl.info.zac.itest.config.BEHANDELAAR_2
 import nl.info.zac.itest.config.BEHANDELAAR_LONG_NAME_TEST
 import nl.info.zac.itest.config.BEHEERDER_1
@@ -45,7 +47,6 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_2020_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2021_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2020_01_01
-import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BEHANDELAAR
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BELANGHEBBENDE
@@ -61,6 +62,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.VERANTWOORDELIJKE_ORGANISATIE
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
@@ -70,6 +72,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_DESCRIPT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_DESCRIPTION
@@ -568,6 +571,37 @@ class ZaakRestServiceTest : BehaviorSpec({
                     }
                 }
             }
+
+            `when`("the create zaak endpoint is called with a due date for a zaaktype without a servicenorm") {
+                val response = itestHttpClient.performJSONPostRequest(
+                    url = "$ZAC_API_URI/zaken/zaak",
+                    requestBodyAsString = """
+                    {
+                        "zaak": {
+                            "zaaktype": { "uuid": "$ZAAKTYPE_CMMN_TEST_3_UUID" },
+                            "startdatum": "$DATE_TIME_2020_01_01",
+                            "einddatumGepland": "$DATE_2021_01_01",
+                            "groep": {
+                                "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
+                                "naam": "${GROUP_BEHANDELAARS_TEST_1.description}"
+                            },
+                            "communicatiekanaal": "$COMMUNICATIEKANAAL_TEST_1",
+                            "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR",
+                            "omschrijving": "$ZAAK_DESCRIPTION_2"
+                        },
+                        "bagObjecten": []
+                    }
+                    """.trimIndent(),
+                    testUser = BEHANDELAAR_1
+                )
+
+                then("the response should be a 400 HTTP response with the 'case cannot have due date' error") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_BAD_REQUEST
+                    JSONObject(responseBody).getString("message") shouldBe "msg.error.case.cannot.have.due.date"
+                }
+            }
         }
     }
 
@@ -682,6 +716,21 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "returnValueViolations" : [ ]
                     }
                     """.trimIndent()
+                }
+            }
+
+            `when`("the 'update zaak' endpoint is called with a due date for a zaaktype without a servicenorm") {
+                val response = updateZaak(
+                    zaakUuid = zaak2UUID,
+                    zaakFields = """"einddatumGepland": "$fatalDateNew"""",
+                    testUser = BEHANDELAAR_1
+                )
+
+                then("the response should be a 400 HTTP response with the 'case cannot have due date' error") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_BAD_REQUEST
+                    JSONObject(responseBody).getString("message") shouldBe "msg.error.case.cannot.have.due.date"
                 }
             }
 
@@ -927,6 +976,34 @@ class ZaakRestServiceTest : BehaviorSpec({
                             getString("identificatieType") shouldBe "BSN"
                         }
                     }
+                }
+            }
+        }
+    }
+
+    context("Updating the due date of a zaak") {
+        given("a zaak of a zaaktype with a servicenorm") {
+            val zaakUuid = zacClient.createZaakAndRetrieve(
+                zaakTypeUUID = ZAAKTYPE_BPMN_TEST_4_UUID,
+                groupId = GROUP_BEHANDELAARS_TEST_1.name,
+                groupName = GROUP_BEHANDELAARS_TEST_1.description,
+                startDate = DATE_TIME_2020_01_01,
+                testUser = BEHANDELAAR_1
+            ).let { JSONObject(it.bodyAsString).getString("uuid").let(UUID::fromString) }
+            val newDueDate = DATE_2021_01_01
+
+            `when`("the 'update zaak' endpoint is called with a new due date") {
+                val response = updateZaak(
+                    zaakUuid = zaakUuid,
+                    zaakFields = """"einddatumGepland": "$newDueDate"""",
+                    testUser = BEHANDELAAR_1
+                )
+
+                then("the response should be a 200 HTTP response with the new due date") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody.shouldContainJsonKeyValue("einddatumGepland", newDueDate.toString())
                 }
             }
         }
@@ -1234,6 +1311,64 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
+    context("Releasing the behandelaar of a zaak with the 'update zaak' endpoint") {
+        given("a zaak that is assigned to a group and a behandelaar") {
+            val (_, zaakUuid) = zaakHelper.createZaak(
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_3_UUID,
+                group = GROUP_BEHANDELAARS_TEST_1,
+                testUser = BEHANDELAAR_1,
+                behandelaarId = BEHANDELAAR_1.username,
+                behandelaarName = BEHANDELAAR_1.displayName
+            )
+            val groupFields = """
+                "groep": {
+                    "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
+                    "naam": "${GROUP_BEHANDELAARS_TEST_1.description}"
+                }
+            """.trimIndent()
+
+            `when`("the 'update zaak' endpoint is called with the group but without a behandelaar") {
+                val response = updateZaak(zaakUuid = zaakUuid, zaakFields = groupFields, testUser = BEHANDELAAR_1)
+
+                then("the zaak keeps its behandelaar") {
+                    logger.info { "Response: ${response.bodyAsString}" }
+                    response.code shouldBe HTTP_OK
+                    with(zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1)) {
+                        code shouldBe HTTP_OK
+                        JSONObject(bodyAsString).getJSONObject("behandelaar")
+                            .getString("id") shouldBe BEHANDELAAR_1.username
+                    }
+                }
+            }
+
+            `when`("the 'update zaak' endpoint is called with the group and with the behandelaar released") {
+                val response = itestHttpClient.performPatchRequest(
+                    url = "$ZAC_API_URI/zaken/zaak/$zaakUuid",
+                    requestBodyAsString = """
+                        {
+                            "zaak": { $groupFields },
+                            "reden": "fakeReason",
+                            "isBehandelaarVrijgegeven": true
+                        }
+                    """.trimIndent(),
+                    testUser = BEHANDELAAR_1
+                )
+
+                then("the zaak no longer has a behandelaar and is still assigned to the group") {
+                    logger.info { "Response: ${response.bodyAsString}" }
+                    response.code shouldBe HTTP_OK
+                    with(zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1)) {
+                        code shouldBe HTTP_OK
+                        JSONObject(bodyAsString).apply {
+                            has("behandelaar") shouldBe false
+                            getJSONObject("groep").getString("id") shouldBe GROUP_BEHANDELAARS_TEST_1.name
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     context("Listing afzenders for a zaak") {
         given(
             """
@@ -1408,22 +1543,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            `when`("an attempt is made to lift the marking") {
-                val response = updateZaak(
-                    zaakUuid = zaakUuid,
-                    zaakFields = """"omschrijving": "itestOmschrijving", "isZaakspecifiekGeautoriseerd": false""",
-                    testUser = BEHANDELAAR_1
-                )
-
-                then("the request is refused with its own error code and the zaak stays marked") {
-                    response.code shouldBe HTTP_BAD_REQUEST
-                    JSONObject(response.bodyAsString).getString("message") shouldBe
-                        "msg.error.zaakspecifieke.autorisatie.cannot.be.lifted"
-                    JSONObject(zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1).bodyAsString)
-                        .getBoolean("isZaakspecifiekGeautoriseerd") shouldBe true
-                }
-            }
-
             `when`("an attempt is made to release the zaak") {
                 val response = itestHttpClient.performPatchRequest(
                     url = "$ZAC_API_URI/zaken/toekennen",
@@ -1546,6 +1665,99 @@ class ZaakRestServiceTest : BehaviorSpec({
                         code shouldBe HTTP_OK
                         JSONObject(bodyAsString).getJSONObject("rechten").getBoolean("canLezen") shouldBe true
                     }
+                }
+            }
+        }
+    }
+
+    context("Removing the zaakspecifieke autorisatie of a zaak") {
+        given(
+            """
+            a zaakspecifiek geautoriseerde zaak with behandelaar BEHANDELAAR_1 and BEHANDELAAR_1_EN_BRP_ZOEKER_2 as
+            zaakspecifiek geautoriseerde medewerker
+            """
+        ) {
+            val (zaakIdentificatie, zaakUuid) = zaakHelper.createZaak(
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+                group = GROUP_BEHANDELAARS_TEST_1,
+                indexZaak = true,
+                testUser = BEHANDELAAR_1,
+                behandelaarId = BEHANDELAAR_1.username,
+                behandelaarName = BEHANDELAAR_1.displayName
+            )
+            markZaakspecifiekGeautoriseerd(zaakUuid, BEHANDELAAR_1).code shouldBe HTTP_OK
+            itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/zaakspecifiek-geautoriseerde-medewerkers",
+                requestBodyAsString = """
+                    { "groepId": "${GROUP_BEHANDELAARS_TEST_1.name}", "medewerkerId": "${BEHANDELAAR_1_EN_BRP_ZOEKER_2.username}" }
+                """.trimIndent(),
+                testUser = BEHANDELAAR_1
+            ).code shouldBe HTTP_OK
+
+            `when`("the zaakspecifiek geautoriseerde medewerker removes the marking") {
+                val response = updateZaak(
+                    zaakUuid = zaakUuid,
+                    zaakFields = """"omschrijving": "itestOmschrijving", "isZaakspecifiekGeautoriseerd": false""",
+                    testUser = BEHANDELAAR_1_EN_BRP_ZOEKER_2
+                )
+
+                then("the zaak reports itself as no longer zaakspecifiek geautoriseerd") {
+                    logger.info { "Response: ${response.bodyAsString}" }
+                    response.code shouldBe HTTP_OK
+                    JSONObject(response.bodyAsString).getBoolean("isZaakspecifiekGeautoriseerd") shouldBe false
+                }
+
+                and("the marking and the zaakspecifiek geautoriseerde medewerker rol are gone, the behandelaar stays") {
+                    val zaakeigenschappen = JSONArray(openZaakClient.getZaakeigenschappenForZaak(zaakUuid).bodyAsString)
+                    (0 until zaakeigenschappen.length())
+                        .map(zaakeigenschappen::getJSONObject)
+                        .count { it.getString("naam") == "ZAAK_GEAUTORISEERD" } shouldBe 0
+                    rolIdentificaties(
+                        rollenForZaak(zaakUuid),
+                        ROLTYPE_NAME_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER,
+                        "medewerker"
+                    ) shouldBe emptySet()
+                    rolIdentificaties(rollenForZaak(zaakUuid), ROLTYPE_NAME_BEHANDELAAR, "medewerker") shouldBe
+                        setOf(BEHANDELAAR_1.username)
+                }
+
+                and("a colleague with an application role for the zaaktype opens and finds the zaak again") {
+                    zacClient.retrieveZaak(zaakUuid, COORDINATOR_1).code shouldBe HTTP_OK
+                    eventually(30.seconds) {
+                        with(findZaakInWerklijst(zaakIdentificatie, COORDINATOR_1)) {
+                            code shouldBe HTTP_OK
+                            JSONObject(bodyAsString).getInt("totaal") shouldBe 1
+                        }
+                    }
+                }
+
+                and("the zaakhistorie shows that the zaakspecifiek geautoriseerde medewerker was ontkoppeld with the reden") {
+                    itestHttpClient.performGetRequest(
+                        url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/historie",
+                        testUser = BEHANDELAAR_1
+                    ).let { historieResponse ->
+                        historieResponse.code shouldBe HTTP_OK
+                        JSONArray(historieResponse.bodyAsString).let { lines ->
+                            (0 until lines.length())
+                                .map(lines::getJSONObject)
+                                .filter { it.getString("attribuutLabel") == ROLTYPE_NAME_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER }
+                                .map { listOf(it.getString("actie"), it.optString("oudeWaarde"), it.optString("toelichting")) }
+                        } shouldContain listOf("ONTKOPPELD", BEHANDELAAR_1_EN_BRP_ZOEKER_2.displayName, "fakeReason")
+                    }
+                }
+            }
+
+            `when`("the behandelaar marks the zaak again") {
+                val response = markZaakspecifiekGeautoriseerd(zaakUuid, BEHANDELAAR_1)
+
+                then("the earlier zaakspecifiek geautoriseerde medewerker does not get access back") {
+                    response.code shouldBe HTTP_OK
+                    rolIdentificaties(
+                        rollenForZaak(zaakUuid),
+                        ROLTYPE_NAME_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER,
+                        "medewerker"
+                    ) shouldBe emptySet()
+                    zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1_EN_BRP_ZOEKER_2).code shouldBe HTTP_FORBIDDEN
                 }
             }
         }

@@ -7,7 +7,7 @@ import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
@@ -15,7 +15,6 @@ import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { KlantenService } from "../../klanten/klanten.service";
-import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
@@ -95,8 +94,9 @@ describe(IntakeAfrondenDialogComponent.name, () => {
     }
 
     const rendered = await render(IntakeAfrondenDialogComponent, {
-      imports: [TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         { provide: MAT_DIALOG_DATA, useValue: { zaak, planItem } },
         { provide: MatDialogRef, useValue: dialogRef },
         {
@@ -106,17 +106,6 @@ describe(IntakeAfrondenDialogComponent.name, () => {
             readDefaultAfzenderVoorZaak: () => of(afzender),
           }),
         },
-        {
-          provide: MailtemplateService,
-          useValue: fromPartial<MailtemplateService>({
-            findMailtemplate: (key: GeneratedType<"Mail">) =>
-              of(
-                key === "ZAAK_ONTVANKELIJK"
-                  ? mailtemplateOntvankelijk
-                  : mailtemplateNietOntvankelijk,
-              ),
-          }),
-        },
         PlanItemsService,
         KlantenService,
         UtilService,
@@ -124,6 +113,14 @@ describe(IntakeAfrondenDialogComponent.name, () => {
     });
 
     httpTestingController = TestBed.inject(HttpTestingController);
+    httpTestingController
+      .expectOne("/rest/mailtemplates/ZAAK_ONTVANKELIJK/fakeZaakUuid")
+      .flush(mailtemplateOntvankelijk);
+    httpTestingController
+      .expectOne("/rest/mailtemplates/ZAAK_NIET_ONTVANKELIJK/fakeZaakUuid")
+      .flush(mailtemplateNietOntvankelijk);
+    await sleep();
+    rendered.fixture.detectChanges();
     return rendered;
   }
 

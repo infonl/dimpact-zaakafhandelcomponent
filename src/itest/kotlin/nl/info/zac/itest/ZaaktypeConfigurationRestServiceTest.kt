@@ -13,15 +13,17 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
-import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_DEFINITION_KEY
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_DEFINITION_NAME
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_3
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_RESULTAATTYPE_GEWEIGERD_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_RESULTAATTYPE_GEWEIGERD_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE
@@ -35,6 +37,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BEEINDIG_ZAAK_IS_EEN_DUP
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
+import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_OK
@@ -98,13 +101,6 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
-                      "afrondenMail" : "BESCHIKBAAR_UIT",
-                       "automaticEmailConfirmation": {
-                         "emailReply": "reply@example.com",
-                         "emailSender": "GEMEENTE",
-                         "isEnabled": true,
-                         "templateName": "Ontvangstbevestiging"
-                      },
                       "betrokkeneKoppelingen": {
                         "isBrpKoppelenEnabled": true,
                         "isKvkKoppelenEnabled": true
@@ -114,111 +110,8 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                         "verwerkingregisterWaarde": "Algemeen",
                         "zoekWaarde": "BRPACT-ZoekenAlgemeen"
                       },
-                      "caseDefinition" : {
-                        "humanTaskDefinitions" : [ {
-                          "defaultFormulierDefinitie" : "AANVULLENDE_INFORMATIE",
-                          "id" : "AANVULLENDE_INFORMATIE",
-                          "naam" : "Aanvullende informatie",
-                          "type" : "HUMAN_TASK"
-                        }, {
-                          "defaultFormulierDefinitie" : "GOEDKEUREN",
-                          "id" : "GOEDKEUREN",
-                          "naam" : "Goedkeuren",
-                          "type" : "HUMAN_TASK"
-                        }, {
-                          "defaultFormulierDefinitie" : "EXTERN_ADVIES_VASTLEGGEN",
-                          "id" : "ADVIES_EXTERN",
-                          "naam" : "Advies extern",
-                          "type" : "HUMAN_TASK"
-                        }, {
-                          "defaultFormulierDefinitie" : "DOCUMENT_VERZENDEN_POST",
-                          "id" : "DOCUMENT_VERZENDEN_POST",
-                          "naam" : "Document verzenden",
-                          "type" : "HUMAN_TASK"
-                        }, {
-                          "defaultFormulierDefinitie" : "ADVIES",
-                          "id" : "ADVIES_INTERN",
-                          "naam" : "Advies intern",
-                          "type" : "HUMAN_TASK"
-                        } ],
-                        "key" : "generiek-zaakafhandelmodel",
-                        "naam" : "Generiek zaakafhandelmodel",
-                        "userEventListenerDefinitions" : [ {
-                          "defaultFormulierDefinitie" : "DEFAULT_TAAKFORMULIER",
-                          "id" : "INTAKE_AFRONDEN",
-                          "naam" : "Intake afronden",
-                          "type" : "USER_EVENT_LISTENER"
-                        }, {
-                          "defaultFormulierDefinitie" : "DEFAULT_TAAKFORMULIER",
-                          "id" : "ZAAK_AFHANDELEN",
-                          "naam" : "Zaak afhandelen",
-                          "type" : "USER_EVENT_LISTENER"
-                        } ]
-                      },
-                      "defaultGroepId" : "${GROUP_BEHANDELAARS_TEST_1.name}",
-                      "humanTaskParameters" : [ {
-                        "actief" : true,
-                        "formulierDefinitieId" : "AANVULLENDE_INFORMATIE",
-                        "planItemDefinition" : {
-                          "defaultFormulierDefinitie" : "AANVULLENDE_INFORMATIE",
-                          "id" : "AANVULLENDE_INFORMATIE",
-                          "naam" : "Aanvullende informatie",
-                          "type" : "HUMAN_TASK"
-                        },
-                        "referentieTabellen" : [ ]
-                      }, {
-                        "actief" : true,
-                        "formulierDefinitieId" : "GOEDKEUREN",
-                        "planItemDefinition" : {
-                          "defaultFormulierDefinitie" : "GOEDKEUREN",
-                          "id" : "GOEDKEUREN",
-                          "naam" : "Goedkeuren",
-                          "type" : "HUMAN_TASK"
-                        },
-                        "referentieTabellen" : [ ]
-                      }, {
-                        "actief" : true,
-                        "formulierDefinitieId" : "EXTERN_ADVIES_VASTLEGGEN",
-                        "planItemDefinition" : {
-                          "defaultFormulierDefinitie" : "EXTERN_ADVIES_VASTLEGGEN",
-                          "id" : "ADVIES_EXTERN",
-                          "naam" : "Advies extern",
-                          "type" : "HUMAN_TASK"
-                        },
-                        "referentieTabellen" : [ ]
-                      }, {
-                        "actief" : true,
-                        "formulierDefinitieId" : "DOCUMENT_VERZENDEN_POST",
-                        "planItemDefinition" : {
-                          "defaultFormulierDefinitie" : "DOCUMENT_VERZENDEN_POST",
-                          "id" : "DOCUMENT_VERZENDEN_POST",
-                          "naam" : "Document verzenden",
-                          "type" : "HUMAN_TASK"
-                        },
-                        "referentieTabellen" : [ ]
-                      }, {
-                        "actief" : true,
-                        "formulierDefinitieId" : "ADVIES",
-                        "planItemDefinition" : {
-                          "defaultFormulierDefinitie" : "ADVIES",
-                          "id" : "ADVIES_INTERN",
-                          "naam" : "Advies intern",
-                          "type" : "HUMAN_TASK"
-                        },
-                        "referentieTabellen" : [ {
-                          "tabel" : {
-                            "valuesCount" : 5,
-                            "code" : "ADVIES",
-                            "id" : 1,
-                            "name" : "Advies",
-                            "systemTable" : true,
-                            "values" : [ ]
-                          },
-                          "veld" : "ADVIES"
-                        } ]
-                      } ],
-                      "intakeMail" : "BESCHIKBAAR_UIT",
-                      "mailtemplateKoppelingen" : [
+                      "defaultGroepId": "${GROUP_BEHANDELAARS_TEST_1.name}",
+                      "mailtemplateKoppelingen": [
                         {
                           "mailtemplate": {
                             "body": "<p>Beste {ZAAK_INITIATOR},</p><p></p><p>Uw verzoek over {ZAAKTYPE_OMSCHRIJVING} met zaaknummer {ZAAK_NUMMER} wordt niet in behandeling genomen. Voor meer informatie gaat u naar Mijn Loket.</p><p></p><p>Met vriendelijke groet,</p><p></p><p>Gemeente Dommeldam</p>",
@@ -245,34 +138,30 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                           }
                         }
                       ],
-                      "productaanvraagtype" : "$PRODUCTAANVRAAG_TYPE_2",
-                      "smartDocuments" : {
-                        "isEnabledForZaaktype" : true,
-                        "isEnabledGlobally" : true
+                      "productaanvraagtype": "$PRODUCTAANVRAAG_TYPE_2",
+                      "smartDocuments": {
+                        "isEnabledForZaaktype": true,
+                        "isEnabledGlobally": true
                       },
                       "uiterlijkeEinddatumAfdoeningWaarschuwing": 1,
-                      "userEventListenerParameters" : [ {
-                        "id" : "INTAKE_AFRONDEN",
-                        "naam" : "Intake afronden"
-                      }, {
-                        "id" : "ZAAK_AFHANDELEN",
-                        "naam" : "Zaak afhandelen"
-                      } ],
-                      "isValide" : true,
-                      "zaakAfzenders" : [ {
-                        "isDefaultMail" : true,
-                        "mail" : "GEMEENTE",
-                        "replyTo" : "GEMEENTE",
-                        "isSpeciaal" : true
-                      }, {
-                        "isDefaultMail" : false,
-                        "mail" : "MEDEWERKER",
-                        "isSpeciaal" : true
-                      } ],
-                      "zaakNietOntvankelijkResultaattype" : {
-                        "archiefNominatie" : "VERNIETIGEN",
-                        "archiefTermijn" : "1 jaar",
-                        "isBesluitVerplicht" : false,
+                      "isValide": true,
+                      "zaakAfzenders": [
+                        {
+                          "isDefaultMail": true,
+                          "mail": "GEMEENTE",
+                          "replyTo": "GEMEENTE",
+                          "isSpeciaal": true
+                        },
+                        {
+                          "isDefaultMail": false,
+                          "mail": "MEDEWERKER",
+                          "isSpeciaal": true
+                        }
+                      ],
+                      "zaakNietOntvankelijkResultaattype": {
+                        "archiefNominatie": "VERNIETIGEN",
+                        "archiefTermijn": "1 jaar",
+                        "isBesluitVerplicht": false,
                         "bronArchiefprocedure": {
                           "afleidingswijze": "afgehandeld",
                           "datumkenmerk": "",
@@ -281,40 +170,181 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                           "registratie": ""
                         },
                         "isDatumKenmerkVerplicht": false,
-                        "id" : "$ZAAKTYPE_CMMN_TEST_2_RESULTAATTYPE_GEWEIGERD_UUID",
-                        "naam" : "Geweigerd",
-                        "naamGeneriek" : "Geweigerd",
-                        "toelichting" : "Het afhandelen van een geschil dat door een derde aanhangig wordt gemaakt omdat deze een (vermeend) nadeel heeft ondervonden door het (niet) handelen van de instelling",
-                        "isVervaldatumBesluitVerplicht" : false
+                        "id": "$ZAAKTYPE_CMMN_TEST_2_RESULTAATTYPE_GEWEIGERD_UUID",
+                        "naam": "Geweigerd",
+                        "naamGeneriek": "Geweigerd",
+                        "toelichting": "Het afhandelen van een geschil dat door een derde aanhangig wordt gemaakt omdat deze een (vermeend) nadeel heeft ondervonden door het (niet) handelen van de instelling",
+                        "isVervaldatumBesluitVerplicht": false
                       },
-                      "zaakbeeindigParameters" : [ ],
-                      "isZaakspecifiekAutoriseerbaar" : true,
-                      "zaaktype" : {
-                        "beginGeldigheid" : "2023-10-01",
-                        "doel" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
-                        "identificatie" : "$ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE",
-                        "isNuGeldig" : true,
-                        "omschrijving" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
-                        "hasServicenorm" : false,
-                        "uuid" : "$ZAAKTYPE_CMMN_TEST_2_UUID",
-                        "versiedatum" : "2023-10-01",
-                        "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
+                      "zaakbeeindigParameters": [],
+                      "isZaakspecifiekAutoriseerbaar": true,
+                      "zaaktype": {
+                        "beginGeldigheid": "2023-10-01",
+                        "doel": "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE",
+                        "isNuGeldig": true,
+                        "omschrijving": "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
+                        "hasServicenorm": false,
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_2_UUID",
+                        "versiedatum": "2023-10-01",
+                        "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
+                      },
+                      "processDefinition": {
+                        "processEngine": "CMMN",
+                        "humanTaskDefinitions": [
+                          {
+                            "defaultFormulierDefinitie": "AANVULLENDE_INFORMATIE",
+                            "id": "AANVULLENDE_INFORMATIE",
+                            "naam": "Aanvullende informatie",
+                            "type": "HUMAN_TASK"
+                          },
+                          {
+                            "defaultFormulierDefinitie": "GOEDKEUREN",
+                            "id": "GOEDKEUREN",
+                            "naam": "Goedkeuren",
+                            "type": "HUMAN_TASK"
+                          },
+                          {
+                            "defaultFormulierDefinitie": "EXTERN_ADVIES_VASTLEGGEN",
+                            "id": "ADVIES_EXTERN",
+                            "naam": "Advies extern",
+                            "type": "HUMAN_TASK"
+                          },
+                          {
+                            "defaultFormulierDefinitie": "DOCUMENT_VERZENDEN_POST",
+                            "id": "DOCUMENT_VERZENDEN_POST",
+                            "naam": "Document verzenden",
+                            "type": "HUMAN_TASK"
+                          },
+                          {
+                            "defaultFormulierDefinitie": "ADVIES",
+                            "id": "ADVIES_INTERN",
+                            "naam": "Advies intern",
+                            "type": "HUMAN_TASK"
+                          }
+                        ],
+                        "key": "generiek-zaakafhandelmodel",
+                        "naam": "Generiek zaakafhandelmodel",
+                        "userEventListenerDefinitions": [
+                          {
+                            "defaultFormulierDefinitie": "DEFAULT_TAAKFORMULIER",
+                            "id": "INTAKE_AFRONDEN",
+                            "naam": "Intake afronden",
+                            "type": "USER_EVENT_LISTENER"
+                          },
+                          {
+                            "defaultFormulierDefinitie": "DEFAULT_TAAKFORMULIER",
+                            "id": "ZAAK_AFHANDELEN",
+                            "naam": "Zaak afhandelen",
+                            "type": "USER_EVENT_LISTENER"
+                          }
+                        ]
+                      },
+                      "intakeMail": "BESCHIKBAAR_UIT",
+                      "afrondenMail": "BESCHIKBAAR_UIT",
+                      "humanTaskParameters": [
+                        {
+                          "actief": true,
+                          "formulierDefinitieId": "AANVULLENDE_INFORMATIE",
+                          "planItemDefinition": {
+                            "defaultFormulierDefinitie": "AANVULLENDE_INFORMATIE",
+                            "id": "AANVULLENDE_INFORMATIE",
+                            "naam": "Aanvullende informatie",
+                            "type": "HUMAN_TASK"
+                          },
+                          "referentieTabellen": []
+                        },
+                        {
+                          "actief": true,
+                          "formulierDefinitieId": "GOEDKEUREN",
+                          "planItemDefinition": {
+                            "defaultFormulierDefinitie": "GOEDKEUREN",
+                            "id": "GOEDKEUREN",
+                            "naam": "Goedkeuren",
+                            "type": "HUMAN_TASK"
+                          },
+                          "referentieTabellen": []
+                        },
+                        {
+                          "actief": true,
+                          "formulierDefinitieId": "EXTERN_ADVIES_VASTLEGGEN",
+                          "planItemDefinition": {
+                            "defaultFormulierDefinitie": "EXTERN_ADVIES_VASTLEGGEN",
+                            "id": "ADVIES_EXTERN",
+                            "naam": "Advies extern",
+                            "type": "HUMAN_TASK"
+                          },
+                          "referentieTabellen": []
+                        },
+                        {
+                          "actief": true,
+                          "formulierDefinitieId": "DOCUMENT_VERZENDEN_POST",
+                          "planItemDefinition": {
+                            "defaultFormulierDefinitie": "DOCUMENT_VERZENDEN_POST",
+                            "id": "DOCUMENT_VERZENDEN_POST",
+                            "naam": "Document verzenden",
+                            "type": "HUMAN_TASK"
+                          },
+                          "referentieTabellen": []
+                        },
+                        {
+                          "actief": true,
+                          "formulierDefinitieId": "ADVIES",
+                          "planItemDefinition": {
+                            "defaultFormulierDefinitie": "ADVIES",
+                            "id": "ADVIES_INTERN",
+                            "naam": "Advies intern",
+                            "type": "HUMAN_TASK"
+                          },
+                          "referentieTabellen": [
+                            {
+                              "tabel": {
+                                "valuesCount": 5,
+                                "code": "ADVIES",
+                                "id": 1,
+                                "name": "Advies",
+                                "systemTable": true,
+                                "values": []
+                              },
+                              "veld": "ADVIES"
+                            }
+                          ]
+                        }
+                      ],
+                      "userEventListenerParameters": [
+                        {
+                          "id": "INTAKE_AFRONDEN",
+                          "naam": "Intake afronden"
+                        },
+                        {
+                          "id": "ZAAK_AFHANDELEN",
+                          "naam": "Zaak afhandelen"
+                        }
+                      ],
+                      "automaticEmailConfirmation": {
+                        "emailReply": "reply@example.com",
+                        "emailSender": "GEMEENTE",
+                        "isEnabled": true,
+                        "templateName": "Ontvangstbevestiging"
                       }
                     }
                 """.trimIndent()
             }
         }
-        `when`("the list case definitions endpoint is called") {
+        `when`("the list process definitions endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaakafhandelparameters/case-definitions",
+                url = "$ZAC_API_URI/zaakafhandelparameters/process-definitions",
                 testUser = BEHEERDER_1
             )
-            then("the response should be ok and it should return all available case definitions") {
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
+            val processDefinitions = JSONArray(response.bodyAsString).let { array ->
+                (0 until array.length()).map(array::getJSONObject)
+            }
+            then("the response should be ok and it should return all available CMMN case definitions with their plan items") {
+                logger.info { "Response: ${response.bodyAsString}" }
                 response.code shouldBe HTTP_OK
-                responseBody shouldEqualJsonIgnoringOrder """
+                JSONArray(processDefinitions.filter { it.getString("processEngine") == "CMMN" }).toString() shouldEqualJsonIgnoringOrder """
                     [ {
+                      "processEngine" : "CMMN",
                       "humanTaskDefinitions" : [ {
                         "defaultFormulierDefinitie" : "AANVULLENDE_INFORMATIE",
                         "id" : "AANVULLENDE_INFORMATIE",
@@ -355,6 +385,17 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                         "type" : "USER_EVENT_LISTENER"
                       } ]
                     } ]
+                """.trimIndent()
+            }
+            and("it also returns the BPMN process definitions, which have no plan items") {
+                processDefinitions.single { it.getString("key") == BPMN_TEST_PROCESS_DEFINITION_KEY }.toString() shouldEqualJson """
+                    {
+                      "processEngine": "BPMN",
+                      "key": "$BPMN_TEST_PROCESS_DEFINITION_KEY",
+                      "naam": "$BPMN_TEST_PROCESS_DEFINITION_NAME",
+                      "humanTaskDefinitions": [],
+                      "userEventListenerDefinitions": []
+                    }
                 """.trimIndent()
             }
         }
@@ -449,7 +490,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                         {
                           "constraintType": "PARAMETER",
                           "message": "must not be blank",
-                          "path": "createOrUpdateZaaktypeCmmnConfiguration.arg0.defaultGroepId",
+                          "path": "createOrUpdateZaaktypeConfiguration.arg1.defaultGroepId",
                           "value": ""
                         }
                       ],

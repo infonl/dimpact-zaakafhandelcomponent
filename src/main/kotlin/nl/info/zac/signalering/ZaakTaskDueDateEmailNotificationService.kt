@@ -8,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
 import net.atos.zac.signalering.model.Signalering
 import net.atos.zac.signalering.model.SignaleringDetail
 import net.atos.zac.signalering.model.SignaleringTarget
@@ -22,6 +21,7 @@ import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.gebruikersvoorkeuren.model.TabelInstellingen
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.DatumRange
 import nl.info.zac.search.model.DatumVeld

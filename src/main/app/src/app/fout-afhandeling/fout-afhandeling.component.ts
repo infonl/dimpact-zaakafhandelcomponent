@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AsyncPipe } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { Component, inject, OnInit } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ReferentieTabelService } from "../admin/referentie-tabel.service";
 import { FoutAfhandelingService } from "./fout-afhandeling.service";
 
@@ -16,18 +16,20 @@ import { FoutAfhandelingService } from "./fout-afhandeling.service";
   templateUrl: "./fout-afhandeling.component.html",
   styleUrls: ["./fout-afhandeling.component.less"],
   standalone: true,
-  imports: [AsyncPipe, MatCardModule, MatIconModule, TranslateModule],
+  imports: [MatCardModule, MatIconModule, TranslatePipe],
 })
 export class FoutAfhandelingComponent implements OnInit {
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
+  private readonly referentieTabelService = inject(ReferentieTabelService);
+
   protected bericht: string | null = null;
   protected foutmelding: string | null = null;
-  protected serverErrorTexts =
-    this.referentieTabelService.listServerErrorTexts();
-
-  constructor(
-    private readonly foutAfhandelingService: FoutAfhandelingService,
-    private readonly referentieTabelService: ReferentieTabelService,
-  ) {}
+  protected readonly serverErrorTextsQuery = injectQuery(() => ({
+    ...this.referentieTabelService.listServerErrorTextsQuery(),
+    // A failure would open the error dialog, which loads these texts again.
+    meta: { reportErrors: false },
+    retry: false,
+  }));
 
   ngOnInit() {
     this.foutmelding = this.foutAfhandelingService.foutmelding;

@@ -9,14 +9,13 @@ import {
   effect,
   inject,
   input,
-  OnInit,
   untracked,
   viewChild,
 } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { startWith, switchMap, tap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
@@ -36,14 +35,15 @@ import { ContactmomentenService } from "../contactmomenten.service";
     MatCardModule,
     MatTableModule,
     MatPaginatorModule,
-    TranslateModule,
+    TranslatePipe,
     DatumPipe,
     EmptyPipe,
   ],
 })
-export class KlantContactmomentenTabelComponent
-  implements OnInit, AfterViewInit
-{
+export class KlantContactmomentenTabelComponent implements AfterViewInit {
+  private readonly contactmomentenService = inject(ContactmomentenService);
+  private readonly utilService = inject(UtilService);
+
   readonly bsn = input<string>();
   readonly vestigingsnummer = input<string>();
   readonly paginator = viewChild.required(MatPaginator);
@@ -65,10 +65,7 @@ export class KlantContactmomentenTabelComponent
 
   private readonly queryClient = inject(QueryClient);
 
-  constructor(
-    private readonly contactmomentenService: ContactmomentenService,
-    private readonly utilService: UtilService,
-  ) {
+  constructor() {
     effect(() => {
       this.bsn();
       this.vestigingsnummer();
@@ -79,11 +76,6 @@ export class KlantContactmomentenTabelComponent
         }
       });
     });
-  }
-
-  ngOnInit(): void {
-    this.listParameters.bsn = this.bsn();
-    this.listParameters.vestigingsnummer = this.vestigingsnummer();
   }
 
   ngAfterViewInit(): void {
@@ -110,6 +102,8 @@ export class KlantContactmomentenTabelComponent
 
   private loadContactmomenten() {
     this.listParameters.page = this.paginator().pageIndex;
+    this.listParameters.bsn = this.bsn();
+    this.listParameters.vestigingsnummer = this.vestigingsnummer();
     return this.contactmomentenService.listContactmomenten(this.listParameters);
   }
 }

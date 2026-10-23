@@ -36,13 +36,12 @@ import {
   MatTable,
 } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { WebsocketService } from "../../core/websocket/websocket.service";
-import { IdentityService } from "../../identity/identity.service";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { ZakenMijnDatasource } from "../../zaken/zaken-mijn/zaken-mijn-datasource";
 import { getDefaultZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekenService } from "../../zoeken/zoeken.service";
@@ -57,6 +56,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
   ],
   standalone: true,
   imports: [
+    ZaakIdentificatieComponent,
     MatTable,
     MatSort,
     MatColumnDef,
@@ -75,12 +75,14 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
     MatIconAnchor,
     MatIcon,
     RouterLink,
-    TranslateModule,
+    TranslatePipe,
     DatumPipe,
     EmptyPipe,
   ],
 })
 export class ZaakZoekenCardComponent extends DashboardCardComponent {
+  private zoekenService = inject(ZoekenService);
+
   private readonly destroyRef = inject(DestroyRef);
 
   columns = [
@@ -112,12 +114,9 @@ export class ZaakZoekenCardComponent extends DashboardCardComponent {
     refetchInterval: 60 * 1000,
   }));
 
-  constructor(
-    private zoekenService: ZoekenService,
-    protected identityService: IdentityService,
-    protected websocketService: WebsocketService,
-  ) {
-    super(identityService, websocketService);
+  constructor() {
+    super();
+
     effect(() => {
       this.dataSource.data = this.zoekQuery.data()?.resultaten ?? [];
     });

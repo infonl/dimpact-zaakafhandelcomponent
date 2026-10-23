@@ -6,12 +6,9 @@ package nl.info.zac.app.admin.model
 
 import jakarta.annotation.Nullable
 import jakarta.json.bind.annotation.JsonbProperty
+import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
-import net.atos.zac.app.admin.model.RESTCaseDefinition
-import net.atos.zac.app.admin.model.RESTHumanTaskParameters
-import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling
-import net.atos.zac.app.admin.model.RESTUserEventListenerParameter
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.util.AllOpen
@@ -19,18 +16,24 @@ import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
 
 /**
+ * The configuration of a zaaktype version (zaakafhandelparameters).
+ *
+ * [processDefinition] names the process that the zaken of the zaaktype run with; a configuration that was never
+ * saved has none. The plan item settings, [humanTaskParameters] and [userEventListenerParameters], configure the plan
+ * items of that process definition. So does the mail on completing them: [intakeMail] and [afrondenMail]. A process
+ * definition without such plan items has none of these settings.
+ *
  * Currently, this class is used both for creating and updating as well as for reading
- * zaaktype configuration (zaakafhandelparameters).
- * For this reason, all fields are currently nullable.
- * In future, we should consider splitting this class into separate classes, depending
- * on the CRUD operation.
+ * zaaktype configuration.
+ * For this reason, most fields are nullable.
  */
 @NoArgConstructor
 @AllOpen
 data class RestZaaktypeConfiguration(
     var id: Long? = null,
     var zaaktype: RestZaaktypeOverzicht,
-    var caseDefinition: RESTCaseDefinition? = null,
+    @field:Valid
+    var processDefinition: RestProcessDefinition? = null,
     var defaultBehandelaarId: String? = null,
     @field:NotBlank
     var defaultGroepId: String? = null,
@@ -57,18 +60,19 @@ data class RestZaaktypeConfiguration(
     /**
      * The frontend currently requires this field to be non-null
      */
-    var humanTaskParameters: List<RESTHumanTaskParameters> = emptyList(),
+    var humanTaskParameters: List<RestHumanTaskParameters> = emptyList(),
     /**
      * The frontend currently requires this field to be non-null
      */
-    var userEventListenerParameters: List<RESTUserEventListenerParameter> = emptyList(),
+    var userEventListenerParameters: List<RestUserEventListenerParameter> = emptyList(),
     /**
      * The frontend currently requires this field to be non-null
      */
-    var mailtemplateKoppelingen: List<RESTMailtemplateKoppeling> = emptyList(),
+    var mailtemplateKoppelingen: List<RestMailtemplateKoppeling> = emptyList(),
     /**
      * The frontend currently requires this field to be non-null
      */
+    @field:Valid
     var automaticEmailConfirmation: RestAutomaticEmailConfirmation = RestAutomaticEmailConfirmation(),
     /**
      * The frontend currently requires this field to be non-null

@@ -12,8 +12,13 @@ import {
   OnInit,
   signal,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import {
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidatorFn,
+  Validators,
+} from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatExpansionModule } from "@angular/material/expansion";
@@ -35,7 +40,15 @@ import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { IdentityService } from "../../identity/identity.service";
 import { FormHelper } from "../../shared/form/helpers";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZakenService } from "../zaken.service";
+
+const behandelaarVerplicht: ValidatorFn = ({ value }) =>
+  value
+    ? null
+    : FormHelper.CustomErrorMessage(
+        "zaak.zaakspecifiek-geautoriseerd.behandelaar-verplicht",
+      );
 
 @Component({
   selector: "zac-case-details-edit",
@@ -60,6 +73,7 @@ import { ZakenService } from "../zaken.service";
 })
 export class CaseDetailsEditComponent implements OnInit {
   private readonly zakenService = inject(ZakenService);
+  private readonly zaakDialogService = inject(ZaakDialogService);
   private readonly referentieTabelService = inject(ReferentieTabelService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly identityService = inject(IdentityService);
@@ -114,6 +128,13 @@ export class CaseDetailsEditComponent implements OnInit {
     ]),
     isZaakspecifiekGeautoriseerd: this.formBuilder.control(false),
   });
+
+  protected readonly isBehandelaarRequired = toSignal(
+    this.form.controls.isZaakspecifiekGeautoriseerd.valueChanges.pipe(
+      map(Boolean),
+    ),
+    { initialValue: false },
+  );
 
   protected readonly showZaakspecifiekGeautoriseerd = computed(() =>
     Boolean(
@@ -184,7 +205,7 @@ export class CaseDetailsEditComponent implements OnInit {
       this.form.controls.groep.disable();
     }
 
-    if (zaak.isZaakspecifiekGeautoriseerd || !zaak.rechten.canWijzigen) {
+    if (!zaak.rechten.canWijzigen) {
       this.form.controls.isZaakspecifiekGeautoriseerd.disable();
     }
 
@@ -204,6 +225,12 @@ export class CaseDetailsEditComponent implements OnInit {
         if (!this.form.dirty) return;
         this.form.controls.reden.enable({ emitEvent: false });
       });
+
+    this.form.controls.isZaakspecifiekGeautoriseerd.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((isZaakspecifiekGeautoriseerd) =>
+        this.setBehandelaarRequired(Boolean(isZaakspecifiekGeautoriseerd)),
+      );
 
     this.form.patchValue({
       ...zaak,
@@ -241,10 +268,20 @@ export class CaseDetailsEditComponent implements OnInit {
         }
 
         this.identityService.listUsersInGroup(group.id).subscribe((users) => {
-          this.users.set(users);
+          const currentBehandelaar = zaak.behandelaar;
+          const options =
+            currentBehandelaar &&
+            zaak.isZaakspecifiekGeautoriseerd &&
+            group.id === zaak.groep?.id &&
+            !users.some(({ id }) => id === currentBehandelaar.id)
+              ? [currentBehandelaar, ...users]
+              : users;
+          this.users.set(options);
 
-          const zaakUser = users.find(({ id }) => id === zaak.behandelaar?.id);
-          const changedUser = users.find(
+          const zaakUser = options.find(
+            ({ id }) => id === zaak.behandelaar?.id,
+          );
+          const changedUser = options.find(
             ({ id }) => id === this.form.controls.behandelaar.value?.id,
           );
           this.form.controls.behandelaar.setValue(
@@ -279,6 +316,23 @@ export class CaseDetailsEditComponent implements OnInit {
     this.form.controls.uiterlijkeEinddatumAfdoening.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.validateDates("uiterlijkeEinddatumAfdoening"));
+  }
+
+  private setBehandelaarRequired(isRequired: boolean) {
+    const behandelaar = this.form.controls.behandelaar;
+    const validators = [behandelaarVerplicht, Validators.required];
+    if (isRequired) {
+      behandelaar.addValidators(validators);
+    } else {
+      behandelaar.removeValidators(validators);
+    }
+    behandelaar.updateValueAndValidity();
+  }
+
+  protected isBehandelaarMissing() {
+    return (
+      this.isBehandelaarRequired() && !this.form.controls.behandelaar.value
+    );
   }
 
   private validateDates(
@@ -352,8 +406,31 @@ export class CaseDetailsEditComponent implements OnInit {
     }
 
     const value = this.form.getRawValue();
+    const isLiftingZaakspecifiekeAutorisatie =
+      this.zaak().isZaakspecifiekGeautoriseerd &&
+      !value.isZaakspecifiekGeautoriseerd;
+
+    if (!isLiftingZaakspecifiekeAutorisatie) {
+      this.save(value.isZaakspecifiekGeautoriseerd || undefined);
+      return;
+    }
+
+    this.zaakDialogService
+      .openZaakspecifiekeAutorisatieOpheffen()
+      .afterClosed()
+      .subscribe((isConfirmed) => {
+        if (isConfirmed) this.save(false);
+      });
+  }
+
+  private save(isZaakspecifiekGeautoriseerd: boolean | undefined) {
+    const value = this.form.getRawValue();
     this.updateZaakMutation.mutate({
       reden: value.reden ?? "",
+      isBehandelaarVrijgegeven:
+        !value.behandelaar &&
+        (this.form.controls.behandelaar.dirty ||
+          value.groep?.id !== this.zaak().groep?.id),
       zaak: {
         groep: value.groep ?? undefined,
         behandelaar: value.behandelaar ?? undefined,
@@ -365,8 +442,7 @@ export class CaseDetailsEditComponent implements OnInit {
           value.uiterlijkeEinddatumAfdoening?.toISOString(),
         omschrijving: value.omschrijving ?? "",
         toelichting: value.toelichting ?? undefined,
-        isZaakspecifiekGeautoriseerd:
-          value.isZaakspecifiekGeautoriseerd || undefined,
+        isZaakspecifiekGeautoriseerd,
       },
     });
   }

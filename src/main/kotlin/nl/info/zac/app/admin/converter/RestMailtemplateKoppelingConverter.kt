@@ -4,16 +4,17 @@
  */
 package nl.info.zac.app.admin.converter
 
-import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling
 import nl.info.zac.admin.model.ZaaktypeMailtemplateParameters
+import nl.info.zac.app.admin.model.RestMailtemplateKoppeling
 import nl.info.zac.app.admin.model.toMailTemplate
 import nl.info.zac.app.admin.model.toRestMailtemplate
 
-fun ZaaktypeMailtemplateParameters.toRestMailtemplateKoppeling() = RESTMailtemplateKoppeling().apply {
-    id = this@toRestMailtemplateKoppeling.id
-    mailtemplate = this@toRestMailtemplateKoppeling.mailTemplate?.toRestMailtemplate()
-}
+fun ZaaktypeMailtemplateParameters.toRestMailtemplateKoppeling() = RestMailtemplateKoppeling(
+    id = id,
+    mailtemplate = checkNotNull(mailTemplate) { "Mailtemplate koppeling with id '$id' has no mailtemplate" }
+        .toRestMailtemplate()
+)
 
-fun RESTMailtemplateKoppeling.toZaaktypeMailtemplateParameters() = ZaaktypeMailtemplateParameters().apply {
+fun RestMailtemplateKoppeling.toZaaktypeMailtemplateParameters() = ZaaktypeMailtemplateParameters().apply {
     mailTemplate = this@toZaaktypeMailtemplateParameters.mailtemplate.toMailTemplate()
 }

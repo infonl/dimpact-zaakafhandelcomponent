@@ -11,8 +11,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.every
 import io.mockk.mockk
-import nl.info.zac.app.bag.createPuntOfVlak
-import nl.info.zac.app.bag.createSurface
 import nl.info.client.bag.model.generated.PuntOfVlak
 import nl.info.client.bag.model.generated.StatusNaamgeving
 import nl.info.client.bag.model.generated.TypeAdresseerbaarObject
@@ -23,6 +21,7 @@ import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum
 import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectAdres
 import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectNummeraanduiding
 import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectWoonplaats
+import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdres
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdresRequest
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding
@@ -31,7 +30,8 @@ import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimteRequest
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectPandRequest
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaatsRequest
-import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
+import nl.info.zac.app.bag.createPuntOfVlak
+import nl.info.zac.app.bag.createSurface
 import nl.info.zac.app.zaak.model.RestGeometryType
 import org.apache.commons.lang3.NotImplementedException
 import java.math.BigDecimal
@@ -195,6 +195,48 @@ class RestBagObjectTest : BehaviorSpec({
 
                 then("the huisletter is appended and the huisnummertoevoeging follows after a dash") {
                     huisnummerWeergave shouldBe "12A-2"
+                }
+            }
+        }
+    }
+
+    context("createHuisnummerWeergave") {
+        given("A huisnummer with a huisletter and a huisnummertoevoeging") {
+            `when`("the huisnummer weergave is created") {
+                val huisnummerWeergave = createHuisnummerWeergave(12, "A", "bis")
+
+                then("the huisletter follows the huisnummer and the huisnummertoevoeging follows a hyphen") {
+                    huisnummerWeergave shouldBe "12A-bis"
+                }
+            }
+        }
+
+        given("A huisnummer with a blank huisletter and a blank huisnummertoevoeging") {
+            `when`("the huisnummer weergave is created") {
+                val huisnummerWeergave = createHuisnummerWeergave(12, " ", " ")
+
+                then("only the huisnummer is shown") {
+                    huisnummerWeergave shouldBe "12"
+                }
+            }
+        }
+
+        given("A huisnummer with a huisnummertoevoeging with a trailing space") {
+            `when`("the huisnummer weergave is created") {
+                val huisnummerWeergave = createHuisnummerWeergave(12, null, "bis ")
+
+                then("the trailing space is trimmed") {
+                    huisnummerWeergave shouldBe "12-bis"
+                }
+            }
+        }
+
+        given("A huisnummer with only a huisnummertoevoeging") {
+            `when`("the huisnummer weergave is created") {
+                val huisnummerWeergave = createHuisnummerWeergave(12, null, "bis")
+
+                then("the huisnummertoevoeging follows the huisnummer after a hyphen") {
+                    huisnummerWeergave shouldBe "12-bis"
                 }
             }
         }

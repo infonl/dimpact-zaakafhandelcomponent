@@ -13,7 +13,7 @@ import {
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MatIconModule } from "@angular/material/icon";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { TextIcon } from "../edit/text-icon";
 import { EmptyPipe } from "../pipes/empty.pipe";
 import { ReadMoreComponent } from "../read-more/read-more.component";
@@ -25,7 +25,7 @@ import { ReadMoreComponent } from "../read-more/read-more.component";
   imports: [
     NgClass,
     MatIconModule,
-    TranslateModule,
+    TranslatePipe,
     ReadMoreComponent,
     EmptyPipe,
   ],

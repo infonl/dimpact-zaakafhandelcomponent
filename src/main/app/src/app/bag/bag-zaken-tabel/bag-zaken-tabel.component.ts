@@ -23,7 +23,7 @@ import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterModule } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Observable, merge, of } from "rxjs";
 import { catchError, map, startWith, switchMap } from "rxjs/operators";
@@ -35,6 +35,7 @@ import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-r
 import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filter/facet-filter.component";
 import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { getDefaultZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
@@ -46,6 +47,7 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
   styleUrls: ["./bag-zaken-tabel.component.less"],
   standalone: true,
   imports: [
+    ZaakIdentificatieComponent,
     ReactiveFormsModule,
     MatCardModule,
     MatTableModule,
@@ -55,7 +57,7 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
     MatIconModule,
     MatButtonModule,
     RouterModule,
-    TranslateModule,
+    TranslatePipe,
     TekstFilterComponent,
     FacetFilterComponent,
     DateRangeFilterComponent,
@@ -64,6 +66,9 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
   ],
 })
 export class BagZakenTabelComponent implements OnInit, AfterViewInit {
+  private readonly utilService = inject(UtilService);
+  private readonly zoekenService = inject(ZoekenService);
+
   readonly BagObjectIdentificatie = input.required<string>();
   private readonly paginator = viewChild.required(MatPaginator);
   private readonly sort = viewChild.required(MatSort);
@@ -88,10 +93,7 @@ export class BagZakenTabelComponent implements OnInit, AfterViewInit {
 
   private readonly queryClient = inject(QueryClient);
 
-  constructor(
-    private readonly utilService: UtilService,
-    private readonly zoekenService: ZoekenService,
-  ) {
+  constructor() {
     effect(() => {
       this.BagObjectIdentificatie();
       untracked(() => {

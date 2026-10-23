@@ -14,7 +14,6 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.app.shared.RESTResultaat
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -23,6 +22,7 @@ import nl.info.zac.app.inboxdocument.model.RestInboxDocument
 import nl.info.zac.app.inboxdocument.model.RestInboxDocumentDeleteResult
 import nl.info.zac.app.inboxdocument.model.RestInboxDocumentListParameters
 import nl.info.zac.app.inboxdocument.model.toRestInboxDocuments
+import nl.info.zac.app.shared.RestResultaat
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
 import nl.info.zac.policy.PolicyService
@@ -50,7 +50,7 @@ class InboxDocumentRestService @Inject constructor(
     }
 
     @PUT
-    fun listInboxDocuments(restListParameters: RestInboxDocumentListParameters): RESTResultaat<RestInboxDocument> {
+    fun listInboxDocuments(restListParameters: RestInboxDocumentListParameters): RestResultaat<RestInboxDocument> {
         assertPolicy(policyService.readWerklijstRechten().canInbox)
         val listParameters = restListParameters.toInboxDocumentListParameters()
         val inboxDocuments = inboxDocumentService.list(listParameters)
@@ -58,7 +58,7 @@ class InboxDocumentRestService @Inject constructor(
         // values if the enkelvoudiginformatieobject for a specific inbox document could not be found
         val informatieobjectTypeUUIDs = inboxDocuments.map(::getInformatieobjectTypeUUID).toList()
         val restInboxDocuments = inboxDocuments.toRestInboxDocuments(informatieobjectTypeUUIDs)
-        return RESTResultaat<RestInboxDocument>(
+        return RestResultaat<RestInboxDocument>(
             restInboxDocuments,
             inboxDocumentService.count(listParameters)
         )

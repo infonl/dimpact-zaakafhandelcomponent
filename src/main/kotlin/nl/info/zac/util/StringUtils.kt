@@ -7,4 +7,12 @@ package nl.info.zac.util
 
 import java.nio.charset.StandardCharsets
 
+const val NON_BREAKING_SPACE = "\u00A0"
+
 fun String.isPureAscii(): Boolean = StandardCharsets.US_ASCII.newEncoder().canEncode(this)
+
+fun Iterable<String?>.joinNonBlank(separator: String = "") =
+    this.filterNot { it.isNullOrBlank() }.joinToString(separator)
+
+fun String.abbreviate(maxWidth: Int, ellipsis: String = "...") =
+    if (length <= maxWidth) this else take(maxWidth - ellipsis.length) + ellipsis

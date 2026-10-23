@@ -12,7 +12,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
@@ -43,7 +43,7 @@ import { MailService } from "../mail.service";
     MatDividerModule,
     MatExpansionPanelActionRow,
     MatFormFieldModule,
-    TranslateModule,
+    TranslatePipe,
     ZacSelect,
     ZacFormActions,
     ZacInput,
@@ -52,6 +52,15 @@ import { MailService } from "../mail.service";
   ],
 })
 export class MailCreateComponent implements OnInit {
+  private readonly zakenService = inject(ZakenService);
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
+  private readonly mailService = inject(MailService);
+  private readonly mailtemplateService = inject(MailtemplateService);
+  private readonly utilService = inject(UtilService);
+  private readonly formBuilder = inject(FormBuilder);
+
   protected readonly zaak = input.required<GeneratedType<"RestZaak">>();
   protected readonly sideNav = input.required<MatDrawer>();
 
@@ -100,15 +109,6 @@ export class MailCreateComponent implements OnInit {
 
   private readonly queryClient = inject(QueryClient);
 
-  constructor(
-    private readonly zakenService: ZakenService,
-    private readonly informatieObjectenService: InformatieObjectenService,
-    private readonly mailService: MailService,
-    private readonly mailtemplateService: MailtemplateService,
-    private readonly utilService: UtilService,
-    private readonly formBuilder: FormBuilder,
-  ) {}
-
   ngOnInit() {
     this.zakenService
       .listAfzendersVoorZaak(this.zaak().uuid)
@@ -116,15 +116,19 @@ export class MailCreateComponent implements OnInit {
         this.verzenderOptions = afzenders;
       });
 
-    this.mailtemplateService
-      .findMailtemplate("ZAAK_ALGEMEEN", this.zaak().uuid)
-      .subscribe((mailTemplate) => {
-        this.form.patchValue({
-          onderwerp: mailTemplate.onderwerp,
-          body: mailTemplate.body,
-        });
-        this.variabelen = mailTemplate.variabelen ?? [];
+    runQuery(
+      this.queryClient,
+      this.mailtemplateService.findMailtemplate(
+        "ZAAK_ALGEMEEN",
+        this.zaak().uuid,
+      ),
+    ).subscribe((mailTemplate) => {
+      this.form.patchValue({
+        onderwerp: mailTemplate.onderwerp,
+        body: mailTemplate.body,
       });
+      this.variabelen = mailTemplate.variabelen ?? [];
+    });
 
     this.zakenService
       .readDefaultAfzenderVoorZaak(this.zaak().uuid)

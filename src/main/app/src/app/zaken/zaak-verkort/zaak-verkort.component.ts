@@ -8,13 +8,14 @@ import { MatIconAnchor } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";
 import { RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { DateConditionals } from "../../shared/utils/date-conditionals";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 
 @Component({
   selector: "zac-zaak-verkort",
@@ -22,11 +23,12 @@ import { GeneratedType } from "../../shared/utils/generated-types";
   styleUrls: ["./zaak-verkort.component.less"],
   standalone: true,
   imports: [
+    ZaakIdentificatieComponent,
     MatCardModule,
     MatIconModule,
     MatIconAnchor,
     RouterLink,
-    TranslateModule,
+    TranslatePipe,
     StaticTextComponent,
     EmptyPipe,
     DatumPipe,

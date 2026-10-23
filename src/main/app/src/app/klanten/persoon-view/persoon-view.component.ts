@@ -3,13 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { ActivatedRoute } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { KlantContactmomentenTabelComponent } from "../../contactmomenten/klant-contactmomenten-tabel/klant-contactmomenten-tabel.component";
-import { UtilService } from "../../core/service/util.service";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -22,7 +21,7 @@ import { KlantZakenTabelComponent } from "../klant-zaken-tabel/klant-zaken-tabel
   imports: [
     MatSidenavModule,
     MatCardModule,
-    TranslateModule,
+    TranslatePipe,
     DatumPipe,
     StaticTextComponent,
     KlantZakenTabelComponent,
@@ -30,13 +29,11 @@ import { KlantZakenTabelComponent } from "../klant-zaken-tabel/klant-zaken-tabel
   ],
 })
 export class PersoonViewComponent {
+  private readonly route = inject(ActivatedRoute);
+
   protected persoon: GeneratedType<"RestPersoon"> | null = null;
 
-  constructor(
-    private readonly utilService: UtilService,
-    private readonly route: ActivatedRoute,
-  ) {
-    this.utilService.setTitle("persoonsgegevens");
+  constructor() {
     this.route.data.subscribe((data) => {
       this.persoon = data.persoon;
     });

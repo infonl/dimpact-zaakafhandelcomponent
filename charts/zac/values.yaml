@@ -428,7 +428,7 @@ opa:
     annotations: {}
   image:
     repository: docker.io/openpolicyagent/opa
-    tag: "1.21.2-static@sha256:0843d2adce51655422e8b95a803629ab9f424803c4bd27876e7f44cce9a2b84d"
+    tag: "1.21.3-static@sha256:bf27411c17e72f3d16063725a74c69f711fb267eb9a4cebdae78028b72adc847"
     pullPolicy: IfNotPresent
    # The settings below will be ignored when running as a sidecar (the zac values will be used instead), except for 'resources' and 'securityContext' which are always applied
   autoscaling:
@@ -554,9 +554,29 @@ solr-operator:
       storageClassName: managed-csi
        # -- solr storage size
       size: 1Gi
-     # -- resource limits and requests for solr in solrcloud
+    # -- resource limits and requests for solr in solrcloud
     resources: {}
-     # -- tolerations for solr in solrcloud
+     # -- pod securityContext for solr in solrcloud. The Solr Operator sets no securityContext on its own init
+     # containers (cp-solr-xml, setup-zk), so they inherit this one: without it the busybox cp-solr-xml container
+     # runs as root. 8983 is the solr image's own user, which owns the existing Solr data.
+    podSecurityContext:
+      runAsNonRoot: true
+      runAsUser: 8983
+      runAsGroup: 8983
+      fsGroup: 8983
+      # only change ownership when the volume root does not match, so a large index is not re-chowned on every start
+      fsGroupChangePolicy: OnRootMismatch
+      seccompProfile:
+        type: RuntimeDefault
+    # -- securityContext for the solr container in solrcloud; the Solr Operator applies it to that container only.
+    # Capabilities and privilege escalation can only be set per container, so the init containers keep the defaults
+    # for those.
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+    # -- tolerations for solr in solrcloud
     tolerations: []
      # -- topologySpreadConstraints for solr in solrcloud
     topologySpreadConstraints:
@@ -571,20 +591,47 @@ solr-operator:
      # -- startupProbe override for solr in solrcloud. The Solr Operator defaults to /solr/admin/info/system.
      # Override only if custom startup timing is needed.
     startupProbe: {}
-     # -- livenessProbe override for solr in solrcloud. Overrides the Solr Operator default which checks
-     # /solr/admin/info/system and does not reflect ZooKeeper connectivity. Using /solr/admin/info/health
-     # ensures the pod is restarted when ZooKeeper connectivity is lost for an extended period.
-     # failureThreshold of 6 (6 x 20s = 120s) provides tolerance for brief ZooKeeper restarts.
+    # -- livenessProbe override for solr in solrcloud: restarts a node whose /solr/admin/info/health
+    # fails (500 while the CoreContainer is shut down, 503 without ZooKeeper).
+    # failureThreshold 6 x 20s = 120s rides out a ZooKeeper restart.
+    # An exec probe with `curl -f`, not httpGet: with basic auth (probesRequireAuth) the Solr Operator
+    # turns an httpGet probe into `solr api -get ... | grep -v JAVA_TOOL_OPTIONS`, which passes whenever
+    # anything is printed, errors included. The credentials come from the one basic-auth secret the
+    # operator mounts under /etc/secrets and go to curl on stdin (`-K -`), not in its argv. Port and
+    # scheme follow the operator's SOLR_PORT and SOLR_SSL_ENABLED env.
     livenessProbe:
-      httpGet:
-        path: /solr/admin/info/health
-        port: 8983
+      exec:
+        command:
+          - sh
+          - -c
+          - >-
+            set -- /etc/secrets/*-solrcloud-basic-auth;
+            [ "$#" -eq 1 ] && [ -r "$1/password" ] || { echo "expected one *-solrcloud-basic-auth secret in /etc/secrets" >&2; exit 1; };
+            scheme=http; [ "${SOLR_SSL_ENABLED:-false}" = true ] && scheme=https;
+            printf 'user = "%s:%s"\n' "$(sed 's/[\\"]/\\&/g' "$1/username")" "$(sed 's/[\\"]/\\&/g' "$1/password")"
+            | curl -sfk -o /dev/null --max-time 4 -K - "$scheme://localhost:${SOLR_PORT:-8983}/solr/admin/info/health"
       failureThreshold: 6
       periodSeconds: 20
-      timeoutSeconds: 1
-     # -- readinessProbe override for solr in solrcloud. The Solr Operator already defaults to
-     # /solr/admin/info/health for readiness. Override only if custom thresholds are needed.
-    readinessProbe: {}
+      timeoutSeconds: 5
+    # -- readinessProbe override for solr in solrcloud: takes a node whose /solr/admin/info/health
+    # fails out of the Service. failureThreshold 6 x 10s = 60s rides out a short ZooKeeper restart,
+    # so the nodes don't all leave the Service at once.
+    # The same exec probe as the livenessProbe, for the same reason: the Solr Operator's own readiness
+    # probe has the never-failing `| grep -v` pipeline when probesRequireAuth is set.
+    readinessProbe:
+      exec:
+        command:
+          - sh
+          - -c
+          - >-
+            set -- /etc/secrets/*-solrcloud-basic-auth;
+            [ "$#" -eq 1 ] && [ -r "$1/password" ] || { echo "expected one *-solrcloud-basic-auth secret in /etc/secrets" >&2; exit 1; };
+            scheme=http; [ "${SOLR_SSL_ENABLED:-false}" = true ] && scheme=https;
+            printf 'user = "%s:%s"\n' "$(sed 's/[\\"]/\\&/g' "$1/username")" "$(sed 's/[\\"]/\\&/g' "$1/password")"
+            | curl -sfk -o /dev/null --max-time 4 -K - "$scheme://localhost:${SOLR_PORT:-8983}/solr/admin/info/health"
+      failureThreshold: 6
+      periodSeconds: 10
+      timeoutSeconds: 5
    # -- tolerations for solr-operator
   tolerations: []
    # -- a comma-seperated list of namespaces to watch, watches all namespaces if empty
@@ -669,7 +716,7 @@ office_converter:
    # url: ""
   image:
     repository: docker.io/gotenberg/gotenberg
-    tag: "8.37.0@sha256:f29984bd1e226bf1b93ba90af06000afa8b315853e99d27b9aaa41b93f15c769"
+    tag: "8.38.1@sha256:aa552cc115db488e0f0bcb07446aac13071ad51505b642c84bb894500907b42b"
     pullPolicy: IfNotPresent
   name: "office-converter"
   replicas: 1
@@ -727,7 +774,7 @@ opentelemetry-collector:
   image:
     repository: otel/opentelemetry-collector-contrib
     pullPolicy: IfNotPresent
-    tag: "0.162.0@sha256:39923a8e431bd1f57be82411999d389fcfe40857492e4365456d97a4c1f74be6"
+    tag: "0.163.2@sha256:7f22d2a6748110ffb6a59bc0df448bccbf501cdb667d610ede4c61d3863d5849"
   presets:
     clusterMetrics:
       enabled: false
@@ -758,7 +805,7 @@ nginx:
   image:
     repository: docker.io/nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.31.6@sha256:929e1d5e610e8aa89a1715ba44dce5edb4d42c172a208c171233292f472560c5
+    tag: 1.31.7@sha256:94193d5c4c5df716f412bb08eb97956d98fe6b59886f0bc57d6d3a3402a88a02
   service:
     type: ClusterIP
     port: 80

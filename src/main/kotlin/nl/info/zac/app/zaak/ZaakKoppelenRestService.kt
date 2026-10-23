@@ -16,8 +16,6 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.event.EventingService
-import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.GerelateerdeZakenZaakPatch
@@ -31,13 +29,14 @@ import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.search.model.RestZaakKoppelenZoekObject
 import nl.info.zac.app.search.model.RestZoekResultaat
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
-import nl.info.zac.app.zaak.model.RestFindLinkableZakenRequest
 import nl.info.zac.app.zaak.model.RelatieType
+import nl.info.zac.app.zaak.model.RestFindLinkableZakenRequest
 import nl.info.zac.app.zaak.model.RestZaakLinkData
 import nl.info.zac.app.zaak.model.RestZaakUnlinkData
 import nl.info.zac.app.zaak.model.RestZaaktype
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.event.EventingService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.IndexingService
@@ -56,13 +55,14 @@ import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.zaak.model.ZaakLinkData
+import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.ZaakService
+import nl.info.zac.zaak.model.ZaakLinkData
+import nl.info.zac.zaak.model.ZaakNotLinkableReason
 import nl.info.zac.zaak.model.alreadyGerelateerdReason
 import nl.info.zac.zaak.model.canBeHoofdzaakFor
 import nl.info.zac.zaak.model.canBeRelatedTo
 import nl.info.zac.zaak.model.canBeUnlinkedFromDeelzaak
-import nl.info.zac.zaak.model.ZaakNotLinkableReason
 import nl.info.zac.zaak.model.canBeUnlinkedFromRelatedZaak
 import nl.info.zac.zaak.model.gerelateerdNotLinkableReason
 import nl.info.zac.zaak.model.hoofdzaakDeelzaakNotLinkableReason
@@ -329,6 +329,7 @@ class ZaakKoppelenRestService @Inject constructor(
             omschrijving = omschrijving,
             zaaktypeOmschrijving = zaaktypeOmschrijving,
             statustypeOmschrijving = statustypeOmschrijving,
+            isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd,
             nietKoppelbaarReden = notLinkableReason,
         )
 

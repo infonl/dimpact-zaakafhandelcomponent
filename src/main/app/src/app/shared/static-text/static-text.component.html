@@ -10,14 +10,16 @@
   </label>
   <div class="static-text-content">
     <ng-content select="[position=content-before]"></ng-content>
-    @if (maxLength(); as maxLength) {
-      <read-more
-        [maxLength]="maxLength"
-        text="{{ value() | empty }}"
-      ></read-more>
-    } @else {
-      <ng-container>{{ value() | empty }}</ng-container>
-    }
+    <ng-content select="[position=content]">
+      @if (maxLength(); as maxLength) {
+        <read-more
+          [maxLength]="maxLength"
+          text="{{ value() | empty }}"
+        ></read-more>
+      } @else {
+        <ng-container>{{ value() | empty }}</ng-container>
+      }
+    </ng-content>
     @if (icon(); as icon) {
       @if (showIcon()) {
         <mat-icon

@@ -64,7 +64,6 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_DETACHED_DOCUMENT_NOT_FOUND("msg.error.detached.document.not.found"),
     ERROR_CODE_DOCUMENT_HAS_ALREADY_BEEN_SIGNED("msg.error.document.has.already.been.signed"),
     ERROR_CODE_ZAAKTYPE_CONFIGURATION_NOT_FOUND("msg.error.zaaktype.configuration.not.found"),
-    ERROR_CODE_MULTIPLE_ZAAKTYPE_CONFIGURATIONS_FOUND("msg.error.multiple.zaaktype.configurations.found"),
     ERROR_CODE_BAD_BRP_PROTOCOLLERING_CONFIGURATION("msg.error.bad.brp.protocollering.configuration"),
     ERROR_CODE_EXTENSION_PERIOD_INVALID("msg.error.extension.period.invalid"),
     ERROR_CODE_AFLEIDINGSWIJZE_BRONDATUM_NOT_SUPPORTED("msg.error.afleidingwijze.brondatum.not.supported"),
@@ -72,7 +71,6 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_ZAAKTYPE_NOT_ZAAKSPECIFIEK_AUTORISEERBAAR("msg.error.zaaktype.not.zaakspecifiek-autoriseerbaar"),
     ERROR_CODE_ZAAK_WITHOUT_BEHANDELAAR_CANNOT_BE_MARKED("msg.error.zaak.without.behandelaar.cannot.be.marked"),
     ERROR_CODE_ZAAKSPECIFIEKE_AUTORISATIE_NOT_ALLOWED("msg.error.zaakspecifieke.autorisatie.not.allowed"),
-    ERROR_CODE_ZAAKSPECIFIEKE_AUTORISATIE_CANNOT_BE_LIFTED("msg.error.zaakspecifieke.autorisatie.cannot.be.lifted"),
     ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_ZAAK_CANNOT_BE_RELEASED(
         "msg.error.zaakspecifiek.geautoriseerde.zaak.cannot.be.released"
     ),
@@ -81,7 +79,10 @@ enum class ErrorCode(val value: String) {
     ),
     ERROR_CODE_ZAAK_NOT_ZAAKSPECIFIEK_GEAUTORISEERD("msg.error.zaak.not.zaakspecifiek.geautoriseerd"),
     ERROR_CODE_MEDEWERKER_ALREADY_ZAAKSPECIFIEK_GEAUTORISEERD("msg.error.medewerker.already.zaakspecifiek.geautoriseerd"),
+    ERROR_CODE_ZOEKOPDRACHT_WITH_SAME_NAME_ALREADY_EXISTS("msg.error.zoekopdracht.with.same.name.already.exists"),
     ERROR_CODE_GROUP_NOT_BEHANDELAAR_FOR_ZAAKTYPE("msg.error.group.not.behandelaar.for.zaaktype"),
+    ERROR_CODE_MEDEWERKER_NOT_ZAAKSPECIFIEK_GEAUTORISEERD("msg.error.medewerker.not.zaakspecifiek.geautoriseerd"),
+    ERROR_CODE_MEDEWERKER_CANNOT_BE_DETACHED("msg.error.medewerker.cannot.be.detached"),
     ERROR_CODE_MAIL_TEMPLATE_NOT_CONFIGURED("msg.error.mailtemplate.not.configured"),
     ERROR_CODE_CATALOGUS_NOT_CONFIGURED("msg.error.catalogus.not.configured"),
     ERROR_CODE_OPA_RULE_NOT_CONFIGURED("msg.error.opa.rule.not.configured"),

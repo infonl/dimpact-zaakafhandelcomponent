@@ -13,10 +13,9 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import nl.info.client.zgw.shared.exception.ZgwErrorException
-import net.atos.zac.app.shared.RESTResultaat
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.client.zgw.shared.exception.ZgwErrorException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.detacheddocuments.converter.RestDetachedDocumentConverter
@@ -25,9 +24,11 @@ import nl.info.zac.app.detacheddocuments.model.RestDetachedDocument
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentResult
 import nl.info.zac.app.identity.converter.RestUserConverter
+import nl.info.zac.app.shared.RestResultaat
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.search.SearchService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.jetty.http.HttpStatus
@@ -45,7 +46,8 @@ class DetachedDocumentRestService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val restDetachedDocumentConverter: RestDetachedDocumentConverter,
     private val userConverter: RestUserConverter,
-    private val policyService: PolicyService
+    private val policyService: PolicyService,
+    private val searchService: SearchService
 ) {
     companion object {
         private val LOG = Logger.getLogger(DetachedDocumentRestService::class.java.name)
@@ -55,7 +57,7 @@ class DetachedDocumentRestService @Inject constructor(
     @Path("")
     fun listDetachedDocuments(
         restListParameters: RestDetachedDocumentListParameters
-    ): RESTResultaat<RestDetachedDocument> {
+    ): RestResultaat<RestDetachedDocument> {
         assertPolicy(policyService.readWerklijstRechten().canInbox)
         val listParameters = restListParameters.toDetachedDocumentListParameters()
         val resultaat = detachedDocumentService.getDetachedDocumentResult(listParameters)
@@ -67,8 +69,14 @@ class DetachedDocumentRestService @Inject constructor(
                 .extractUuid()
         }
         val restDetachedDocumentResult = RestDetachedDocumentResult(
-            resultaten = restDetachedDocumentConverter.convert(ontkoppeldeDocumenten, informationObjectTypeUUIDs),
-            aantalTotaal = resultaat.count
+            results = restDetachedDocumentConverter.convertToRestDetachedDocuments(
+                documenten = ontkoppeldeDocumenten,
+                informatieobjectTypeUUIDs = informationObjectTypeUUIDs,
+                zaakspecifiekGeautoriseerdeZaakIDs = searchService.listZaakspecifiekGeautoriseerdeWaarden(
+                    ontkoppeldeDocumenten.map { it.zaakID }
+                )
+            ),
+            resultCount = resultaat.count
         )
         val ontkoppeldDoor = resultaat.detachedByFilter
         if (ontkoppeldDoor.isEmpty()) {
@@ -76,7 +84,9 @@ class DetachedDocumentRestService @Inject constructor(
                 restDetachedDocumentResult.filterOntkoppeldDoor = listOf(user)
             }
         } else {
-            restDetachedDocumentResult.filterOntkoppeldDoor = with(userConverter) { ontkoppeldDoor.convertUserIds() }
+            restDetachedDocumentResult.filterOntkoppeldDoor = with(userConverter) {
+                ontkoppeldDoor.convertUserIds(logContext = "the ontkoppeld door filter of the ontkoppelde documenten")
+            }
         }
         return restDetachedDocumentResult
     }

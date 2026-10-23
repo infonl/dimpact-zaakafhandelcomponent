@@ -23,7 +23,6 @@ import nl.info.zac.search.model.DatumRange
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import org.apache.commons.lang3.StringUtils
 import java.util.Locale
 import java.util.UUID
 
@@ -106,7 +105,7 @@ class DetachedDocumentRepository @Inject constructor(
     ): Predicate {
         val builder = entityManager.criteriaBuilder
         val predicates: MutableList<Predicate> = mutableListOf()
-        if (StringUtils.isNotBlank(listParameters.zaakID)) {
+        if (!listParameters.zaakID.isNullOrBlank()) {
             predicates.add(
                 builder.like(
                     root.get(ZAAK_ID_PROPERTY_NAME),

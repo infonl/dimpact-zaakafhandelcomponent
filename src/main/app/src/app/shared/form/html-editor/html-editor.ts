@@ -9,6 +9,7 @@ import {
   Component,
   computed,
   effect,
+  inject,
   input,
   OnDestroy,
   SecurityContext,
@@ -67,6 +68,8 @@ export class ZacHtmlEditor<
   extends SingleInputFormField<Form, Key, Option>
   implements OnDestroy
 {
+  private readonly domSanitizer = inject(DomSanitizer);
+
   protected isPlainText = input(false, { transform: booleanAttribute });
   protected toolbar = input<Toolbar>([
     ["bold", "italic", "underline"],
@@ -100,7 +103,7 @@ export class ZacHtmlEditor<
     FormHelper.getValidatorValue("maxLength", this.control() ?? null),
   );
 
-  constructor(private readonly domSanitizer: DomSanitizer) {
+  constructor() {
     super();
 
     effect(() => {

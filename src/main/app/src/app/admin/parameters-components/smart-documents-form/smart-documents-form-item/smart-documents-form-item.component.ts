@@ -4,14 +4,13 @@
  *
  */
 
-import { Component, input, OnInit, output } from "@angular/core";
+import { Component, inject, input, OnInit, output } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { I18nKeyPipe } from "../../../../shared/pipes/i18n-key.pipe";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { toI18nKey } from "../../../../shared/utils/i18n-key";
 
@@ -21,16 +20,17 @@ import { toI18nKey } from "../../../../shared/utils/i18n-key";
   styleUrls: ["./smart-documents-form-item.component.less"],
   standalone: true,
   imports: [
-    I18nKeyPipe,
     ReactiveFormsModule,
     MatCheckboxModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    TranslateModule,
+    TranslatePipe,
   ],
 })
 export class SmartDocumentsFormItemComponent implements OnInit {
+  private readonly translateService = inject(TranslateService);
+
   readonly node =
     input.required<GeneratedType<"RestMappedSmartDocumentsTemplate">>();
   readonly informationObjectTypes =
@@ -42,8 +42,6 @@ export class SmartDocumentsFormItemComponent implements OnInit {
   protected checkbox = new FormControl({ value: false, disabled: false });
 
   private previousInformatieObjectTypeUUID: string | undefined = undefined;
-
-  constructor(private readonly translateService: TranslateService) {}
 
   ngOnInit() {
     this.previousInformatieObjectTypeUUID =

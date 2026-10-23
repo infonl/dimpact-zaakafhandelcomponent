@@ -32,13 +32,12 @@ import {
   MatTable,
 } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { WebsocketService } from "../../core/websocket/websocket.service";
-import { IdentityService } from "../../identity/identity.service";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { SignaleringenService } from "../../signaleringen.service";
 import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
 
@@ -54,6 +53,7 @@ const DEFAULT_SORT_ORDER: GeneratedType<"SorteerRichting"> = "DESC";
   ],
   standalone: true,
   imports: [
+    ZaakIdentificatieComponent,
     MatTable,
     MatSort,
     MatColumnDef,
@@ -72,7 +72,7 @@ const DEFAULT_SORT_ORDER: GeneratedType<"SorteerRichting"> = "DESC";
     MatIconAnchor,
     MatIcon,
     RouterLink,
-    TranslateModule,
+    TranslatePipe,
     DatumPipe,
     EmptyPipe,
   ],
@@ -81,6 +81,8 @@ export class ZakenCardComponent
   extends DashboardCardComponent<GeneratedType<"RestZaakOverzicht">>
   implements OnDestroy
 {
+  private readonly signaleringenService = inject(SignaleringenService);
+
   private readonly destroyRef = inject(DestroyRef);
 
   columns = [
@@ -117,15 +119,25 @@ export class ZakenCardComponent
     enabled: this.parameters().signaleringType != null,
   }));
 
-  constructor(
-    private readonly signaleringenService: SignaleringenService,
-    protected readonly identityService: IdentityService,
-    protected readonly websocketService: WebsocketService,
-  ) {
-    super(identityService, websocketService);
+  constructor() {
+    super();
 
     effect(() => {
       this.dataSource.data = this.zakenQuery.data()?.resultaten ?? [];
+    });
+
+    // Listing the signaleringen deletes the stale ones, so the total can drop below the page this card shows.
+    // Asking for that page again is rejected by the backend, so move to the last page that still exists.
+    // The cached pages are marked stale first, because they were loaded before the stale signaleringen
+    // were deleted.
+    effect(() => {
+      const totaal = this.zakenQuery.data()?.totaal;
+      if (totaal == null || this.zakenQuery.isFetching()) return;
+      const lastPageNumber = Math.max(0, Math.ceil(totaal / this.pageSize) - 1);
+      if (this.pageNumber() > lastPageNumber) {
+        void this.signaleringenService.markZakenSignaleringStale();
+        this.pageNumber.set(lastPageNumber);
+      }
     });
   }
 

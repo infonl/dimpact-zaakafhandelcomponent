@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AsyncPipe, NgClass } from "@angular/common";
+import { NgClass } from "@angular/common";
 import {
   Component,
   computed,
@@ -11,7 +11,6 @@ import {
   inject,
   input,
   OnDestroy,
-  OnInit,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
@@ -34,10 +33,9 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { MatToolbar } from "@angular/material/toolbar";
 import { MatTooltip } from "@angular/material/tooltip";
 import { Router, RouterLink, RouterLinkActive } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { Observable } from "rxjs";
 import { IdentityService } from "../../identity/identity.service";
 import { PolicyService } from "../../policy/policy.service";
 import {
@@ -49,7 +47,6 @@ import { VersionComponent } from "../../shared/version/version.component";
 import { SignaleringenService } from "../../signaleringen.service";
 import { ZakenService } from "../../zaken/zaken.service";
 import { ZoekenService } from "../../zoeken/zoeken.service";
-import { UtilService } from "../service/util.service";
 import { ObjectType } from "../websocket/model/object-type";
 import { Opcode } from "../websocket/model/opcode";
 import { WebsocketListener } from "../websocket/model/websocket-listener";
@@ -62,7 +59,6 @@ import { WebsocketService } from "../websocket/websocket.service";
   standalone: true,
   imports: [
     NgClass,
-    AsyncPipe,
     ReactiveFormsModule,
     RouterLink,
     RouterLinkActive,
@@ -81,20 +77,26 @@ import { WebsocketService } from "../websocket/websocket.service";
     MatInput,
     MatTooltip,
     MatDivider,
-    TranslateModule,
+    TranslatePipe,
     BackButtonDirective,
     VersionComponent,
   ],
 })
-export class ToolbarComponent implements OnInit, OnDestroy {
+export class ToolbarComponent implements OnDestroy {
+  private readonly identityService = inject(IdentityService);
+  protected readonly zoekenService = inject(ZoekenService);
+  private readonly signaleringenService = inject(SignaleringenService);
+  private readonly websocketService = inject(WebsocketService);
+  private readonly policyService = inject(PolicyService);
+  private readonly router = inject(Router);
+  private readonly zakenService = inject(ZakenService);
+
   protected readonly queryClient = inject(QueryClient);
   protected readonly createZaakMutationKey =
     this.zakenService.createZaak().mutationKey;
 
   readonly zoekenSideNav = input.required<MatSidenav>();
   protected zoekenFormControl = new FormControl<string>("");
-
-  protected headerTitle$?: Observable<string>;
 
   private signaleringListener?: WebsocketListener;
 
@@ -134,16 +136,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
       .join(""),
   );
 
-  constructor(
-    private readonly utilService: UtilService,
-    private readonly identityService: IdentityService,
-    protected readonly zoekenService: ZoekenService,
-    private readonly signaleringenService: SignaleringenService,
-    private readonly websocketService: WebsocketService,
-    private readonly policyService: PolicyService,
-    private readonly router: Router,
-    private readonly zakenService: ZakenService,
-  ) {
+  constructor() {
     effect(() => {
       const loggedInUser = this.loggedInUserQuery.data();
       if (!loggedInUser) return;
@@ -171,10 +164,6 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     this.zoekenService.reset$.pipe(takeUntilDestroyed()).subscribe(() => {
       this.zoekenFormControl.setValue(null);
     });
-  }
-
-  ngOnInit() {
-    this.headerTitle$ = this.utilService.headerTitle$;
   }
 
   ngOnDestroy() {

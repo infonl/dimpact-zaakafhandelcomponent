@@ -11,7 +11,7 @@ import { MatListModule } from "@angular/material/list";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { RouterModule } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { finalize } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { rotate180, sideNavToggle } from "../animations/animations";
@@ -36,7 +36,7 @@ import { SideNavUtil } from "./side-nav.util";
     MatButtonModule,
     MatTooltipModule,
     RouterModule,
-    TranslateModule,
+    TranslatePipe,
   ],
 })
 export class SideNavComponent {

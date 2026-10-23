@@ -7,7 +7,7 @@ import { Component, input } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
@@ -26,8 +26,6 @@ class BagZakenTabelStubComponent {
 }
 
 describe(BAGViewComponent.name, () => {
-  const setTitle = jest.fn();
-
   function zaakSearchedFor() {
     return screen
       .getByText(/^zaken of:/)
@@ -41,30 +39,19 @@ describe(BAGViewComponent.name, () => {
     });
 
     await render(BAGViewComponent, {
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         { provide: ActivatedRoute, useValue: { data: of({ bagObject }) } },
         {
           provide: UtilService,
           useValue: fromPartial<UtilService>({
-            setTitle,
             setLoading: jest.fn(),
           }),
         },
       ],
     });
   }
-
-  it("titles the page after the bag object it shows", async () => {
-    await setup(
-      fromPartial<GeneratedType<"RestBagObject">>({
-        bagObjectType: "WOONPLAATS",
-        identificatie: "3594",
-      }),
-    );
-
-    expect(setTitle).toHaveBeenCalledWith("bagobjectgegevens");
-  });
 
   it("shows an adres and the zaken it is linked to", async () => {
     await setup(

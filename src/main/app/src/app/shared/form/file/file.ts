@@ -11,6 +11,7 @@ import {
   computed,
   effect,
   ElementRef,
+  inject,
   input,
   numberAttribute,
   OnDestroy,
@@ -58,6 +59,10 @@ export class ZacFile<
   extends SingleInputFormField<Form, Key, File>
   implements OnInit, OnDestroy
 {
+  private readonly changeDetector = inject(ChangeDetectorRef);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly configuratieService = inject(ConfiguratieService);
+
   protected maxFileSizeMB = input(0, { transform: numberAttribute });
   protected fileInput = viewChild<ElementRef>("fileInput");
 
@@ -85,11 +90,7 @@ export class ZacFile<
     () => !this.allowedFormats().length,
   );
 
-  constructor(
-    private readonly changeDetector: ChangeDetectorRef,
-    private readonly formBuilder: FormBuilder,
-    private readonly configuratieService: ConfiguratieService,
-  ) {
+  constructor() {
     super();
 
     effect(() => {

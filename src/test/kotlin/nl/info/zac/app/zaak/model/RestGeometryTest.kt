@@ -4,9 +4,9 @@
  */
 package nl.info.zac.app.zaak.model
 
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import nl.info.client.bag.model.generated.PuntOfVlak
 import nl.info.zac.app.bag.createPuntOfVlak

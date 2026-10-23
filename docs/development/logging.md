@@ -86,7 +86,7 @@ Observed usage of `java.util.logging.Level` in this codebase:
 - `nl/info/client/{brp,kvk,klant,keycloak,zgw}` — external API client warnings and failures.
 - `nl/info/zac/notification`, `nl/info/zac/signalering`, `nl/info/zac/mail` — notification receipt,
   signalering cleanup/due-date emails, mail send outcomes.
-- `net/atos/zac/websocket` and `net/atos/zac/util` — websocket connection lifecycle and a JSON
+- `nl/info/zac/websocket` and `net/atos/zac/util` — websocket connection lifecycle and a JSON
   request/response logging filter (`JsonLoggingFilter`).
 
 ## Frontend
@@ -279,7 +279,7 @@ treated as personal data on its own.
   `LOG.fine("Sending mail to '$toAddress' from '$fromAddress' ...")`. Suspected rather than confirmed
   because these are configured per BPMN process — they may resolve to a citizen address or a fixed
   organizational mailbox depending on how the process is set up.
-- [`net/atos/zac/websocket/WebSocketServerEndPoint.java`](../../src/main/java/net/atos/zac/websocket/WebSocketServerEndPoint.java) —
+- [`nl/info/zac/websocket/WebSocketServerEndPoint.kt`](../../src/main/kotlin/nl/info/zac/websocket/WebSocketServerEndPoint.kt) —
   stores the authenticated user's ID (the same Keycloak `preferred_username` as the `UserPrincipalFilter`
   finding above) as a websocket session property, then logs it on every `open`/`processMessage`/`error`/
   `close`/`denyAccess` event. Unlike `UserPrincipalFilter`, this is not once per session: `processMessage`

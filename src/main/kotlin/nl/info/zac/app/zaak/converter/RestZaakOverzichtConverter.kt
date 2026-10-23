@@ -18,6 +18,8 @@ import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import nl.info.zac.app.zaak.model.RestZaakResultaat
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.policy.PolicyService
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
+import nl.info.zac.zaak.readZaakAutorisatieGegevens
 
 @Suppress("LongParameterList")
 class RestZaakOverzichtConverter @Inject constructor(
@@ -29,13 +31,21 @@ class RestZaakOverzichtConverter @Inject constructor(
     private val openstaandeTakenConverter: RestOpenstaandeTakenConverter,
     private val policyService: PolicyService,
     private val zrcClientService: ZrcClientService,
+    private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService
 ) {
-    fun convert(zaak: Zaak, loggedInUser: LoggedInUser): RestZaakOverzicht {
+    fun convertToRestZaakOverzicht(zaak: Zaak, loggedInUser: LoggedInUser): RestZaakOverzicht {
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
-        val zaakrechten = policyService.readZaakRechten(zaak = zaak, zaaktype = zaaktype, loggedInUser = loggedInUser)
+        val zaakAutorisatieGegevens = zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, zaak)
+        val zaakrechten = policyService.readZaakRechten(
+            zaak = zaak,
+            zaaktype = zaaktype,
+            loggedInUser = loggedInUser,
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens
+        )
         return RestZaakOverzicht(
             uuid = zaak.uuid,
             identificatie = zaak.identificatie,
+            isZaakspecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd,
             rechten = zaakrechten.toRestZaakRechten(),
             startdatum = zaakrechten.canLezen.takeIf { it }?.let { zaak.startdatum },
             einddatum = zaakrechten.canLezen.takeIf { it }?.let { zaak.einddatum },
@@ -54,18 +64,27 @@ class RestZaakOverzichtConverter @Inject constructor(
         )
     }
 
-    fun convertForDisplay(zaak: Zaak, loggedInUser: LoggedInUser): RestZaakOverzicht {
+    /**
+     * Converts [zaak] to the limited zaak overview shown on the dashboard.
+     * Returns `null` when [loggedInUser] has no read rights on [zaak].
+     */
+    fun convertToDashboardZaakOverzichtOrNull(zaak: Zaak, loggedInUser: LoggedInUser): RestZaakOverzicht? {
         val zaakType = ztcClientService.readZaaktype(zaak.zaaktype)
-        val zaakrechten = policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+        val zaakAutorisatieGegevens = zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, zaak)
+        val zaakrechten = policyService.readZaakRechten(
+            zaak = zaak,
+            zaaktype = zaakType,
+            loggedInUser = loggedInUser,
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens
+        )
+        if (!zaakrechten.canLezen) return null
         return RestZaakOverzicht(
             identificatie = zaak.identificatie,
-        ).apply {
-            if (zaakrechten.canLezen) {
-                startdatum = zaak.startdatum
-                omschrijving = zaak.omschrijving
-                zaaktype = zaakType.omschrijving
-            }
-        }
+            isZaakspecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd,
+            startdatum = zaak.startdatum,
+            omschrijving = zaak.omschrijving,
+            zaaktype = zaakType.omschrijving
+        )
     }
 
     private fun Zaak.toRestZaakResultaat(): RestZaakResultaat? = this.resultaat
@@ -75,11 +94,11 @@ class RestZaakOverzichtConverter @Inject constructor(
         zaak: Zaak
     ): RestUser? = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
         ?.identificatienummer
-        ?.let(userConverter::convertUserId)
+        ?.let { userConverter.convertUserId(userId = it, logContext = "zaak '${zaak.identificatie}'") }
 
     private fun getGroupForZaak(
         zaak: Zaak
     ): RestGroup? = zgwApiService.findGroepForZaak(zaak)
         ?.betrokkeneIdentificatie
-        ?.let { groupConverter.convertGroupId(it.identificatie) }
+        ?.let { groupConverter.convertGroupId(groupId = it.identificatie, logContext = "zaak '${zaak.identificatie}'") }
 }

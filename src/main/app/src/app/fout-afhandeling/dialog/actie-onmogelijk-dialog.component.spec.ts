@@ -9,7 +9,7 @@ import { TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { ActieOnmogelijkDialogComponent } from "./actie-onmogelijk-dialog.component";
 
 function setup() {
@@ -19,12 +19,11 @@ function setup() {
   > = { close: jest.fn() };
 
   TestBed.configureTestingModule({
-    imports: [
-      ActieOnmogelijkDialogComponent,
-      NoopAnimationsModule,
-      TranslateModule.forRoot(),
+    imports: [ActieOnmogelijkDialogComponent, NoopAnimationsModule],
+    providers: [
+      provideTranslateService(),
+      { provide: MatDialogRef, useValue: mockDialogRef },
     ],
-    providers: [{ provide: MatDialogRef, useValue: mockDialogRef }],
   });
 
   const fixture = TestBed.createComponent(ActieOnmogelijkDialogComponent);

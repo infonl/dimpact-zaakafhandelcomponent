@@ -11,7 +11,6 @@ import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
-import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
@@ -19,10 +18,11 @@ import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVA
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_MAIL
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_SUBJECT
-import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.TEST_AANVULLENDE_INFORMATIE_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_AANVULLENDE_INFORMATIE_MAIL_BODY
+import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.TestGroup
 import nl.info.zac.itest.config.TestUser
@@ -71,6 +71,10 @@ class ZacClient(
         )
     }
 
+    /**
+     * Stores the configuration of a zaaktype version that is bound to a BPMN process definition, through the one REST
+     * resource of the zaaktype configuration.
+     */
     @Suppress("LongParameterList")
     fun createZaaktypeBpmnConfiguration(
         zaakTypeUuid: UUID,
@@ -83,21 +87,33 @@ class ZacClient(
         brpDoelbindingenRaadpleegWaarde: String = "BRPACT-AlgemeneTaken",
         brpVerwerkingregisterWaarde: String = "Algemeen",
         nietOntvankelijkResultaattype: UUID,
+        einddatumGeplandWarningWindow: Int? = null,
+        fatalDateWarningWindow: Int? = null,
+        isSmartDocumentsEnabledForZaaktype: Boolean = false,
+        mailtemplateKoppelingenJson: String = "[]",
+        zaakAfzendersJson: String = "[]",
         testUser: TestUser
     ): ResponseContent {
         logger.info {
             "Creating a zaaktype BPMN configuration in ZAC for zaaktype with description: $zaakTypeDescription " +
                 "and UUID: $zaakTypeUuid"
         }
-        return itestHttpClient.performJSONPostRequest(
-            url = "$ZAC_API_URI/zaaktype-bpmn-configuration",
-            requestBodyAsString = """{ 
-              "zaaktypeUuid": "$zaakTypeUuid",
-              "zaaktypeOmschrijving": "$zaakTypeDescription",
-              "bpmnProcessDefinitionKey": "$bpmnProcessDefinitionKey",
+        return itestHttpClient.performPutRequest(
+            url = "$ZAC_API_URI/zaakafhandelparameters/$zaakTypeUuid",
+            requestBodyAsString = """{
+              "zaaktype": {
+                "uuid": "$zaakTypeUuid",
+                "omschrijving": "$zaakTypeDescription"
+              },
+              "processDefinition": {
+                "processEngine": "BPMN",
+                "key": "$bpmnProcessDefinitionKey"
+              },
               "productaanvraagtype": "$productaanvraagType",
-              "groepNaam": "$defaultGroupName",
+              "defaultGroepId": "$defaultGroupName",
               "defaultBehandelaarId": "$defaultBehandelaarId",
+              "einddatumGeplandWaarschuwing": $einddatumGeplandWarningWindow,
+              "uiterlijkeEinddatumAfdoeningWaarschuwing": $fatalDateWarningWindow,
               "betrokkeneKoppelingen": {
                 "isBrpKoppelenEnabled": true,
                 "isKvkKoppelenEnabled": true
@@ -107,6 +123,8 @@ class ZacClient(
                 "raadpleegWaarde": "$brpDoelbindingenRaadpleegWaarde",
                 "verwerkingregisterWaarde": "$brpVerwerkingregisterWaarde"
               },
+              "mailtemplateKoppelingen": $mailtemplateKoppelingenJson,
+              "zaakAfzenders": $zaakAfzendersJson,
               "zaakbeeindigParameters": [],
               "zaakNietOntvankelijkResultaattype": {
                 "archiefNominatie": "VERNIETIGEN",
@@ -117,6 +135,9 @@ class ZacClient(
                 "naamGeneriek": "Geweigerd",
                 "toelichting": "fakeNietOntvankelijkToelichting",
                 "isVervaldatumBesluitVerplicht": false
+              },
+              "smartDocuments": {
+                "isEnabledForZaaktype": $isSmartDocumentsEnabledForZaaktype
               }
             }
             """.trimIndent(),
@@ -144,8 +165,51 @@ class ZacClient(
                 "and UUID: $zaakTypeUuid"
         }
         return itestHttpClient.performPutRequest(
-            url = "$ZAC_API_URI/zaakafhandelparameters",
+            url = "$ZAC_API_URI/zaakafhandelparameters/$zaakTypeUuid",
             requestBodyAsString = """{
+              "mailtemplateKoppelingen": [
+                {
+                  "mailtemplate": {
+                    "body": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_BODY",
+                    "defaultMailtemplate": true,
+                    "id": 2,
+                    "mail": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_MAIL",
+                    "mailTemplateNaam": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_NAME",
+                    "onderwerp": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_SUBJECT",
+                    "variabelen": [
+                      "GEMEENTE",
+                      "ZAAK_NUMMER",
+                      "ZAAKTYPE_OMSCHRIJVING",
+                      "ZAAKTYPE_OMSCHRIJVING_GENERIEK",
+                      "ZAAK_STATUS",
+                      "ZAAK_REGISTRATIEDATUM",
+                      "ZAAK_STARTDATUM",
+                      "ZAAK_STREEFDATUM",
+                      "ZAAK_FATALEDATUM",
+                      "ZAAK_OMSCHRIJVING",
+                      "ZAAK_TOELICHTING",
+                      "ZAAK_INITIATOR",
+                      "ZAAK_INITIATOR_ADRES"
+                    ]
+                  }
+                }
+              ],
+              "isValide": false,
+              "zaakAfzenders": [
+              {
+                 "isDefaultMail": true,
+                 "mail": "$defaultZaakafzenderMail",
+                 "isSpeciaal": true,
+                 "replyTo": "GEMEENTE"
+                },
+                {
+                  "isDefaultMail": false,
+                  "mail": "MEDEWERKER",
+                  "isSpeciaal": true,
+                  "replyTo": null
+                }
+              ],
+              "zaakbeeindigParameters": [],
               "humanTaskParameters": [
                 {
                   "planItemDefinition": {
@@ -224,33 +288,6 @@ class ZacClient(
                   "doorlooptijd": null
                 }
               ],
-              "mailtemplateKoppelingen": [
-                {
-                  "mailtemplate": {
-                    "body": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_BODY",
-                    "defaultMailtemplate": true,
-                    "id": 2,
-                    "mail": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_MAIL",
-                    "mailTemplateNaam": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_NAME",
-                    "onderwerp": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_SUBJECT",
-                    "variabelen": [
-                      "GEMEENTE",
-                      "ZAAK_NUMMER",
-                      "ZAAKTYPE_OMSCHRIJVING",
-                      "ZAAKTYPE_OMSCHRIJVING_GENERIEK",
-                      "ZAAK_STATUS",
-                      "ZAAK_REGISTRATIEDATUM",
-                      "ZAAK_STARTDATUM",
-                      "ZAAK_STREEFDATUM",
-                      "ZAAK_FATALEDATUM",
-                      "ZAAK_OMSCHRIJVING",
-                      "ZAAK_TOELICHTING",
-                      "ZAAK_INITIATOR",
-                      "ZAAK_INITIATOR_ADRES"
-                    ]
-                  }
-                }
-              ],
               "userEventListenerParameters": [
                 {
                   "id": "INTAKE_AFRONDEN",
@@ -263,36 +300,10 @@ class ZacClient(
                   "toelichting": null
                 }
               ],
-              "isValide": false,
-              "zaakAfzenders": [
-              {
-                 "isDefaultMail": true,
-                 "mail": "$defaultZaakafzenderMail",
-                 "isSpeciaal": true,
-                 "replyTo": "GEMEENTE"
-                },
-                {
-                  "isDefaultMail": false,
-                  "mail": "MEDEWERKER",
-                  "isSpeciaal": true,
-                  "replyTo": null
-                }
-              ],
-              "zaakbeeindigParameters": [],
-              "zaaktype": {
-                "beginGeldigheid": "2023-09-21",
-                "doel": "$zaakTypeDescription",
-                "identificatie": "$zaakTypeIdentificatie",
-                "isNuGeldig": true,
-                "omschrijving": "$zaakTypeDescription",
-                "hasServicenorm": false,
-                "uuid": "$zaakTypeUuid",
-                "versiedatum": "2023-09-21",
-                "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
-              },
               "intakeMail": "BESCHIKBAAR_UIT",
               "afrondenMail": "BESCHIKBAAR_UIT",
-              "caseDefinition": {
+              "processDefinition": {
+                "processEngine": "CMMN",
                 "humanTaskDefinitions": [
                   {
                     "defaultFormulierDefinitie": "AANVULLENDE_INFORMATIE",
@@ -341,7 +352,24 @@ class ZacClient(
                     "type": "USER_EVENT_LISTENER"
                   }
                 ]
-              },             
+              },
+              "automaticEmailConfirmation": {
+                "isEnabled": true,
+                "templateName": "Ontvangstbevestiging",
+                "emailSender": "GEMEENTE",
+                "emailReply": "$automaticEmailConfirmationReply"
+              },
+              "zaaktype": {
+                "beginGeldigheid": "2023-09-21",
+                "doel": "$zaakTypeDescription",
+                "identificatie": "$zaakTypeIdentificatie",
+                "isNuGeldig": true,
+                "omschrijving": "$zaakTypeDescription",
+                "hasServicenorm": false,
+                "uuid": "$zaakTypeUuid",
+                "versiedatum": "2023-09-21",
+                "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
+              },
               "defaultGroepId": ${defaultGroepId?.let { "\"$it\"" }},
               "defaultBehandelaarId": null,
               "einddatumGeplandWaarschuwing": null,
@@ -368,14 +396,7 @@ class ZacClient(
                 "zoekWaarde": "$brpDoelbindingenZoekWaarde",
                 "raadpleegWaarde": "$brpDoelbindingenRaadpleegWaarde",
                 "verwerkingregisterWaarde": "$brpVerwerkingregisterWaarde"
-              },
-              "automaticEmailConfirmation": {
-                "isEnabled": true,
-                "templateName": "Ontvangstbevestiging",
-                "emailSender": "GEMEENTE",
-                "emailReply": "$automaticEmailConfirmationReply"
-              }
-            }
+              }            }
             """.trimIndent(),
             testUser = testUser
         )

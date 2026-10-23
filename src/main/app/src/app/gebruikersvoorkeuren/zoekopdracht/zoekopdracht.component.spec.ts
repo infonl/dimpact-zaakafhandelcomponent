@@ -15,7 +15,7 @@ import { EventEmitter } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
@@ -33,9 +33,9 @@ const ACTIEF_URL = "/rest/gebruikersvoorkeuren/zoekopdracht/actief";
 const REMOVE_ACTIEF_URL = `/rest/gebruikersvoorkeuren/zoekopdracht/${WERKLIJST}/actief`;
 
 const makeZoekopdracht = (
-  fields: Partial<GeneratedType<"RESTZoekopdracht">> = {},
+  fields: Partial<GeneratedType<"RestZoekopdracht">> = {},
 ) =>
-  fromPartial<GeneratedType<"RESTZoekopdracht">>({
+  fromPartial<GeneratedType<"RestZoekopdracht">>({
     id: 1,
     naam: "Zoekopdracht A",
     actief: false,
@@ -71,8 +71,9 @@ describe(ZoekopdrachtComponent.name, () => {
         filtersChanged,
       },
       on: { zoekopdracht: zoekopdrachtEmitted },
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
@@ -89,7 +90,7 @@ describe(ZoekopdrachtComponent.name, () => {
   }
 
   async function loadZoekopdrachten(
-    zoekopdrachten: GeneratedType<"RESTZoekopdracht">[] = [],
+    zoekopdrachten: GeneratedType<"RestZoekopdracht">[] = [],
   ) {
     httpTestingController.expectOne(ZOEKOPDRACHTEN_URL).flush(zoekopdrachten);
     await sleep();

@@ -11,7 +11,7 @@ import { MatExpansionPanelActionRow } from "@angular/material/expansion";
 import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
@@ -39,7 +39,7 @@ import { MailService } from "../mail.service";
     MatButtonModule,
     MatDividerModule,
     MatExpansionPanelActionRow,
-    TranslateModule,
+    TranslatePipe,
     ZacSelect,
     ZacFormActions,
     ZacInput,
@@ -117,13 +117,17 @@ export class OntvangstbevestigingComponent implements OnInit {
         this.form.controls.verzender.setValue(defaultVerzenderVoorZaak);
       });
 
-    this.mailtemplateService
-      .findMailtemplate("TAAK_ONTVANGSTBEVESTIGING", this.zaak().uuid)
-      .subscribe((mailtemplate) => {
-        this.form.controls.onderwerp.setValue(mailtemplate?.onderwerp);
-        this.form.controls.body.setValue(mailtemplate?.body);
-        this.variables = mailtemplate?.variabelen ?? [];
-      });
+    runQuery(
+      this.queryClient,
+      this.mailtemplateService.findMailtemplate(
+        "TAAK_ONTVANGSTBEVESTIGING",
+        this.zaak().uuid,
+      ),
+    ).subscribe((mailtemplate) => {
+      this.form.controls.onderwerp.setValue(mailtemplate?.onderwerp);
+      this.form.controls.body.setValue(mailtemplate?.body);
+      this.variables = mailtemplate?.variabelen ?? [];
+    });
   }
 
   protected setOntvanger() {

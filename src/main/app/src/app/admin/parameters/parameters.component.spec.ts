@@ -9,7 +9,7 @@ import { MatNativeDateModule } from "@angular/material/core";
 import { MatSelectChange } from "@angular/material/select";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
@@ -43,7 +43,7 @@ describe(`${ParametersComponent.name} applyFilter`, () => {
     },
     {
       event: { value: { key: "a", naam: "Case" } } as MatSelectChange,
-      filter: "caseDefinition" as keyof ZaakafhandelParametersListParameters,
+      filter: "processDefinition" as keyof ZaakafhandelParametersListParameters,
       expectedValue: { key: "a", naam: "Case" },
     },
     {
@@ -89,7 +89,7 @@ describe(`${ParametersComponent.name} applyFilter`, () => {
         valide: ToggleSwitchOptions.INDETERMINATE,
         geldig: ToggleSwitchOptions.INDETERMINATE,
         zaaktype: null,
-        caseDefinition: null,
+        processDefinition: null,
         beginGeldigheid: { van: null, tot: null },
         eindeGeldigheid: { van: null, tot: null },
         sort: "",
@@ -147,27 +147,27 @@ describe(`${ParametersComponent.name} compare functions`, () => {
     });
   });
 
-  describe("compareCaseDefinition", () => {
+  describe("compareProcessDefinition", () => {
     it("should return true when key matches", () => {
       const component = makeComponent();
-      const a = fromPartial<GeneratedType<"RESTCaseDefinition">>({
+      const a = fromPartial<GeneratedType<"RestProcessDefinition">>({
         key: "key-1",
       });
-      const b = fromPartial<GeneratedType<"RESTCaseDefinition">>({
+      const b = fromPartial<GeneratedType<"RestProcessDefinition">>({
         key: "key-1",
       });
-      expect(component["compareCaseDefinition"](a, b)).toBe(true);
+      expect(component["compareProcessDefinition"](a, b)).toBe(true);
     });
 
     it("should return false when key differs", () => {
       const component = makeComponent();
-      const a = fromPartial<GeneratedType<"RESTCaseDefinition">>({
+      const a = fromPartial<GeneratedType<"RestProcessDefinition">>({
         key: "key-1",
       });
-      const b = fromPartial<GeneratedType<"RESTCaseDefinition">>({
+      const b = fromPartial<GeneratedType<"RestProcessDefinition">>({
         key: "key-2",
       });
-      expect(component["compareCaseDefinition"](a, b)).toBe(false);
+      expect(component["compareProcessDefinition"](a, b)).toBe(false);
     });
   });
 });
@@ -175,10 +175,7 @@ describe(`${ParametersComponent.name} compare functions`, () => {
 describe(ParametersComponent.name, () => {
   let fixture: ComponentFixture<ParametersComponent>;
   let component: ParametersComponent;
-  let utilServiceMock: Pick<
-    UtilService,
-    "setTitle" | "getUniqueItemsList" | "loading"
-  >;
+  let utilServiceMock: Pick<UtilService, "getUniqueItemsList" | "loading">;
   let zaakafhandelParametersServiceMock: Pick<
     ZaakafhandelParametersService,
     "listZaakafhandelParameters"
@@ -186,13 +183,9 @@ describe(ParametersComponent.name, () => {
 
   beforeEach(async () => {
     utilServiceMock = {
-      setTitle: jest.fn(),
       getUniqueItemsList: jest.fn().mockReturnValue([]),
       loading: signal(false),
-    } satisfies Pick<
-      UtilService,
-      "setTitle" | "getUniqueItemsList" | "loading"
-    >;
+    } satisfies Pick<UtilService, "getUniqueItemsList" | "loading">;
 
     zaakafhandelParametersServiceMock = {
       listZaakafhandelParameters: jest.fn().mockReturnValue(of([])),
@@ -202,13 +195,9 @@ describe(ParametersComponent.name, () => {
     >;
 
     await TestBed.configureTestingModule({
-      imports: [
-        ParametersComponent,
-        NoopAnimationsModule,
-        MatNativeDateModule,
-        TranslateModule.forRoot(),
-      ],
+      imports: [ParametersComponent, NoopAnimationsModule, MatNativeDateModule],
       providers: [
+        provideTranslateService(),
         { provide: UtilService, useValue: utilServiceMock },
         { provide: ConfiguratieService, useValue: {} },
         {
@@ -228,10 +217,6 @@ describe(ParametersComponent.name, () => {
 
   it("should create and call setupMenu on init", () => {
     expect(component).toBeTruthy();
-    expect(utilServiceMock.setTitle).toHaveBeenCalledWith(
-      "title.parameters",
-      undefined,
-    );
   });
 
   it("should show no-data message when data is empty and not loading", () => {

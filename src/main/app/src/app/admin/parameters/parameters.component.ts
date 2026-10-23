@@ -17,7 +17,7 @@ import {
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { ClientMatcher } from "../../shared/dynamic-table/filter/clientMatcher";
@@ -40,7 +40,7 @@ import { ZaakafhandelParametersListParameters } from "./zaakafhandel-parameters-
   standalone: true,
   imports: [
     RouterLink,
-    TranslateModule,
+    TranslatePipe,
     MatSidenavModule,
     MatCardModule,
     MatTableModule,
@@ -77,7 +77,7 @@ export class ParametersComponent
   private storedParameterFilters = "parameterFilters";
 
   protected zaaktypes: GeneratedType<"RestZaaktypeOverzicht">[] = [];
-  protected caseDefinitions: GeneratedType<"RESTCaseDefinition">[] = [];
+  protected processDefinitions: GeneratedType<"RestProcessDefinition">[] = [];
 
   constructor(
     public readonly utilService: UtilService,
@@ -104,7 +104,7 @@ export class ParametersComponent
         case "omschrijving":
           return String(item.zaaktype.omschrijving);
         case "model":
-          return String(item.caseDefinition?.naam);
+          return String(item.processDefinition?.naam);
         case "valide":
           return Number(item.isValide);
         case "geldig":
@@ -154,13 +154,13 @@ export class ParametersComponent
           );
       }
 
-      if (parsedFilter.caseDefinition) {
+      if (parsedFilter.processDefinition) {
         match =
           match &&
           ClientMatcher.matchObject(
             "key",
-            data.caseDefinition,
-            parsedFilter.caseDefinition,
+            data.processDefinition,
+            parsedFilter.processDefinition,
           );
       }
       if (
@@ -226,9 +226,9 @@ export class ParametersComponent
           "identificatie",
           "omschrijving",
         );
-        this.caseDefinitions = this.utilService.getUniqueItemsList(
+        this.processDefinitions = this.utilService.getUniqueItemsList(
           parameters,
-          "caseDefinition",
+          "processDefinition",
           "key",
           "naam",
         );
@@ -242,10 +242,10 @@ export class ParametersComponent
     return zaaktype1?.identificatie === zaaktype2?.identificatie;
   };
 
-  protected compareCaseDefinition = (
-    caseDefinition1?: GeneratedType<"RESTCaseDefinition">,
-    caseDefinition2?: GeneratedType<"RESTCaseDefinition">,
+  protected compareProcessDefinition = (
+    processDefinition1?: GeneratedType<"RestProcessDefinition">,
+    processDefinition2?: GeneratedType<"RestProcessDefinition">,
   ) => {
-    return caseDefinition1?.key === caseDefinition2?.key;
+    return processDefinition1?.key === processDefinition2?.key;
   };
 }

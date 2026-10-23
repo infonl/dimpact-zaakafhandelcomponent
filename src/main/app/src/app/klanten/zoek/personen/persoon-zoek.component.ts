@@ -28,7 +28,7 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Router } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { Subject, takeUntil } from "rxjs";
@@ -64,12 +64,19 @@ import { FormCommunicatieService } from "../form-communicatie-service";
     MatButtonModule,
     MatIconModule,
     MatExpansionPanelActionRow,
-    TranslateModule,
+    TranslatePipe,
     EmptyPipe,
     DatumPipe,
   ],
 })
 export class PersoonZoekComponent implements OnInit, OnDestroy {
+  private readonly klantenService = inject(KlantenService);
+  private readonly utilService = inject(UtilService);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly configuratieService = inject(ConfiguratieService);
+  private readonly formCommunicationService = inject(FormCommunicatieService);
+
   readonly persoon = output<GeneratedType<"RestPersoon">>();
   readonly isSelectable = input(false, { transform: booleanAttribute });
   readonly zaaktypeUUID = input<string | null | undefined>(null);
@@ -80,7 +87,12 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
 
   private readonly destroy$ = new Subject<void>();
 
-  queries: GeneratedType<"RestPersonenParameters">[] = [];
+  private readonly personenParametersQuery = injectQuery(() =>
+    this.klantenService.getPersonenParameters(),
+  );
+  private readonly queries = computed(
+    () => this.personenParametersQuery.data() ?? [],
+  );
   persoonColumns = [
     "bsn",
     "naam",
@@ -134,20 +146,7 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
 
   private readonly queryClient = inject(QueryClient);
 
-  constructor(
-    private readonly klantenService: KlantenService,
-    private readonly utilService: UtilService,
-    private readonly formBuilder: FormBuilder,
-    private readonly router: Router,
-    private readonly configuratieService: ConfiguratieService,
-    private readonly formCommunicationService: FormCommunicatieService,
-  ) {
-    this.klantenService
-      .getPersonenParameters()
-      .subscribe((personenParameters) => {
-        this.queries = personenParameters;
-      });
-
+  constructor() {
     this.formGroup.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
@@ -216,7 +215,7 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
         );
       }
       return acc;
-    }, this.queries);
+    }, this.queries());
   }
 
   private getQueriesWithoutCardinality(

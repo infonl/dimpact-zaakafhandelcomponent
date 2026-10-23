@@ -29,7 +29,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import * as proj from "ol/proj.js";
 import * as style from "ol/style.js";
 import { BehaviorSubject, Subject } from "rxjs";
@@ -68,7 +68,7 @@ import { ZakenService } from "../zaken.service";
     NgClass,
     ReactiveFormsModule,
     StaticTextComponent,
-    TranslateModule,
+    TranslatePipe,
     ZacFormActions,
   ],
 })

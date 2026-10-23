@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen, within } from "@testing-library/angular";
 import { fromPartial } from "src/test-helpers";
 import { GeneratedType } from "../../utils/generated-types";
@@ -39,7 +39,7 @@ const setup = (
 ) =>
   render(PersoonIndicatiesComponent, {
     inputs: { persoon, layout },
-    imports: [TranslateModule.forRoot()],
+    providers: [provideTranslateService()],
   });
 
 const chipWithTooltip = (tooltip: string) =>

@@ -43,9 +43,11 @@ type ZaakDetailsUpdate = Partial<
   >
 >;
 
-type ZaakDetailsUpdateVariables = {
+type ZaakDetailsUpdateVariables = Pick<
+  GeneratedType<"RestZaakEditMetRedenGegevens">,
+  "reden" | "isBehandelaarVrijgegeven"
+> & {
   zaak: ZaakDetailsUpdate;
-  reden: string;
 };
 
 @Injectable({
@@ -112,9 +114,14 @@ export class ZakenService {
     });
     // Endpoint accepts a partial zaak; the generated body type requires the
     // full RestZaakCreateData, so assert the partial here (one spot).
-    const toBody = ({ zaak, reden }: ZaakDetailsUpdateVariables) => ({
+    const toBody = ({
+      zaak,
+      reden,
+      isBehandelaarVrijgegeven,
+    }: ZaakDetailsUpdateVariables) => ({
       zaak: zaak as PatchBody<"/rest/zaken/zaak/{uuid}">["zaak"],
       reden,
+      isBehandelaarVrijgegeven,
     });
 
     return this.zaakMutation(
@@ -315,18 +322,46 @@ export class ZakenService {
             "msg.zaakspecifiek-geautoriseerde-medewerker.toegevoegd",
             { medewerker: medewerker.naam },
           );
-          this.queryClient.invalidateQueries({
-            queryKey: [
-              "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten",
-            ],
-          });
-          this.queryClient.invalidateQueries({
-            queryKey: this.listGeautoriseerdeMedewerkersQuery(uuid).queryKey,
-          });
-          this.invalidateHistorie(uuid);
+          this.invalidateGeautoriseerdeMedewerkers(uuid);
         },
       },
     );
+  }
+
+  deleteZaakspecifiekGeautoriseerdeMedewerker(uuid: string) {
+    return mergeMutationOptions(
+      this.zacQueryClient.DELETE(
+        "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/{medewerkerId}",
+        ({
+          medewerkerId,
+          reden,
+        }: {
+          medewerkerId: string;
+          reden: string;
+          isLoggedInUser?: boolean;
+        }) => ({
+          parameters: { path: { uuid, medewerkerId } },
+          body: { reden },
+        }),
+      ),
+      {
+        onSuccess: (_data, { isLoggedInUser }) => {
+          if (!isLoggedInUser) this.invalidateGeautoriseerdeMedewerkers(uuid);
+        },
+      },
+    );
+  }
+
+  private invalidateGeautoriseerdeMedewerkers(uuid: string) {
+    this.queryClient.invalidateQueries({
+      queryKey: [
+        "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten",
+      ],
+    });
+    this.queryClient.invalidateQueries({
+      queryKey: this.listGeautoriseerdeMedewerkersQuery(uuid).queryKey,
+    });
+    this.invalidateHistorie(uuid);
   }
 
   listBetrokkenenVoorZaakQuery(uuid: string) {

@@ -6,7 +6,7 @@
 import { ComponentFixture } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import {
   provideAngularQuery,
   QueryClient,
@@ -61,10 +61,7 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
     | "uploadProcessDefinitionForm"
     | "deleteProcessDefinitionForm"
   >;
-  let utilService: Pick<
-    UtilService,
-    "setLoading" | "setTitle" | "openSnackbar"
-  >;
+  let utilService: Pick<UtilService, "setLoading" | "openSnackbar">;
   let foutAfhandelingService: Pick<FoutAfhandelingService, "foutAfhandelen">;
   let deleteProcessDefinitionMutation: ReturnType<
     typeof createMutationOptions<object, { key: string; name: string }>
@@ -88,8 +85,9 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
     });
 
     const rendered = await render(BpmnProcessDefinitionsComponent, {
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideAngularQuery(
           new QueryClient({ defaultOptions: { queries: { retry: false } } }),
         ),
@@ -163,7 +161,6 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
     };
     utilService = {
       setLoading: jest.fn(),
-      setTitle: jest.fn(),
       openSnackbar: jest.fn(),
     };
     foutAfhandelingService = { foutAfhandelen: jest.fn() };
@@ -177,10 +174,6 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
   it("sets the title and shows a row per process definition", async () => {
     await setup();
 
-    expect(utilService.setTitle).toHaveBeenCalledWith(
-      "title.bpmn-procesdefinities",
-      undefined,
-    );
     expect(screen.getByRole("button", { name: "Process A" })).toBeVisible();
   });
 

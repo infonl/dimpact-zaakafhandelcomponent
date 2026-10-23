@@ -47,6 +47,13 @@ export class SignaleringenService {
     );
   }
 
+  markZakenSignaleringStale() {
+    return this.queryClient.invalidateQueries({
+      queryKey: ["/rest/signaleringen/zaken/{type}"],
+      refetchType: "none",
+    });
+  }
+
   listTakenSignalering(
     signaleringType: GeneratedType<"RestSignaleringInstellingen">["type"],
   ) {

@@ -9,22 +9,22 @@ This document lists the Docker images and versions that the corresponding versio
 - **postgis**: 17-3.4
 - **redis**: 8.6.7
 - **solr**: 9.11.0-slim
-- **openpolicyagent/opa**: 1.21.2-static
-- **brp-api/personen-mock**: 2.7.0-202610130804
-- **gotenberg**: 8.37.0
-- **otel/opentelemetry-collector-contrib**: 0.162.0
-- **grafana/tempo**: 3.1.0
-- **prom/prometheus**: v3.15.0
+- **openpolicyagent/opa**: 1.21.3-static
+- **brp-api/personen-mock**: 2.7.0-202610201628
+- **gotenberg**: 8.38.1
+- **otel/opentelemetry-collector-contrib**: 0.163.2
+- **grafana/tempo**: 3.1.1
+- **prom/prometheus**: v3.15.1
 - **grafana/grafana**: 13.2.4
 - **greenmail/standalone**: 2.1.14
-- **nginxinc/nginx-unprivileged**: 1.31.6
+- **nginxinc/nginx-unprivileged**: 1.31.7
 
 ## Common Ground components
 
 - **open-zaak**: 1.31.0
 - **open-object**: 4.1.1
 - **open-klant**: 2.15.0
-- **open-forms**: 3.5.10
+- **open-forms**: 3.5.11
 - **open-notificaties**: 1.17.0
 - **open-archiefbeheer**: 2.0.0
 - **pabc-migrations**: 2.1.0
@@ -32,5 +32,5 @@ This document lists the Docker images and versions that the corresponding versio
 
 ## Update Process
 
-This file is automatically kept in sync with the main [Docker Compose](docker-compose.yaml) file by Renovate. 
+This file is automatically kept in sync with the main [Docker Compose](docker-compose.yaml) file by Renovate.
 When a Docker image version is updated in the main Docker Compose file, Renovate will automatically update this file in the same PR.

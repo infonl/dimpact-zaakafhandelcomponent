@@ -28,7 +28,7 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { MatTableModule } from "@angular/material/table";
 import { MatToolbar } from "@angular/material/toolbar";
 import { MatTooltip } from "@angular/material/tooltip";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { UtilService } from "src/app/core/service/util.service";
 import { ZacAutoComplete } from "src/app/shared/form/auto-complete/auto-complete";
@@ -40,6 +40,7 @@ import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { toI18nKey } from "../../shared/utils/i18n-key";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { ZakenService } from "../zaken.service";
 
 const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
@@ -54,8 +55,9 @@ const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
   styleUrls: ["./zaak-link.component.less"],
   standalone: true,
   imports: [
+    ZaakIdentificatieComponent,
     ReactiveFormsModule,
-    TranslateModule,
+    TranslatePipe,
     MatToolbar,
     MatIconButton,
     MatIcon,

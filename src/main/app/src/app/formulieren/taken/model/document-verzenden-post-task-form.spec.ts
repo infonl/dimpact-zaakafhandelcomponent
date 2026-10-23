@@ -5,7 +5,7 @@
 
 import { provideHttpClient } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateService, provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { of } from "rxjs";
@@ -37,8 +37,11 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
-      providers: [provideQueryClient(testQueryClient), provideHttpClient()],
+      providers: [
+        provideTranslateService(),
+        provideQueryClient(testQueryClient),
+        provideHttpClient(),
+      ],
     });
 
     informatieObjectenService = TestBed.inject(InformatieObjectenService);

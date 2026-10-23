@@ -16,7 +16,7 @@ import {
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import {
   provideQueryClient,
   queryOptions,
@@ -35,6 +35,7 @@ import { WebsocketService } from "../../core/websocket/websocket.service";
 import { InformatieObjectCreateAttendedComponent } from "../../informatie-objecten/informatie-object-create-attended/informatie-object-create-attended.component";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../klanten/klanten.service";
+import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { NotitiesComponent } from "../../notities/notities.component";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { PolicyService } from "../../policy/policy.service";
@@ -155,12 +156,12 @@ describe(ZaakViewComponent.name, () => {
         SideNavComponent,
         StaticTextComponent,
         ZaakProcessFlowComponent,
-        TranslateModule.forRoot(),
         VertrouwelijkaanduidingToTranslationKeyPipe,
         NoopAnimationsModule,
         EmptyPipe,
       ],
       providers: [
+        provideTranslateService(),
         provideQueryClient(testQueryClient),
         PlanItemsService,
         {
@@ -194,7 +195,6 @@ describe(ZaakViewComponent.name, () => {
       .compileComponents();
 
     utilService = TestBed.inject(UtilService);
-    jest.spyOn(utilService, "setTitle").mockImplementation();
 
     zakenService = TestBed.inject(ZakenService);
     // Invalidating the zaak query refetches it; serve the refetch from the
@@ -216,7 +216,10 @@ describe(ZaakViewComponent.name, () => {
       );
 
     bagService = TestBed.inject(BAGService);
-    jest.spyOn(bagService, "list").mockReturnValue(of([]));
+    jest.spyOn(bagService, "list").mockReturnValue({
+      ...createQueryOptions([]),
+      queryKey: ["fakeBagObjectenQueryKey"],
+    } as never);
 
     planItemsService = TestBed.inject(PlanItemsService);
     userEventListenerPlanItemsQuerySpy = jest
@@ -1011,7 +1014,10 @@ describe(ZaakViewComponent.name, () => {
         zaakafhandelparameters: fromPartial<
           GeneratedType<"RestZaaktypeConfiguration">
         >({
-          caseDefinition: fromPartial<GeneratedType<"RESTCaseDefinition">>({
+          processDefinition: fromPartial<
+            GeneratedType<"RestProcessDefinition">
+          >({
+            processEngine: "CMMN",
             key: "fakeCaseDefinitionKey",
           }),
           smartDocuments: {
@@ -1042,6 +1048,27 @@ describe(ZaakViewComponent.name, () => {
       const configuratieService = TestBed.inject(ConfiguratieService);
       testQueryClient.setQueryData(
         configuratieService.readAllowedFileTypesQuery().queryKey,
+        [],
+      );
+      const mailtemplateService = TestBed.inject(MailtemplateService);
+      for (const mail of [
+        "ZAAK_ALGEMEEN",
+        "TAAK_ONTVANGSTBEVESTIGING",
+      ] as const) {
+        testQueryClient.setQueryData(
+          mailtemplateService.findMailtemplate(mail, zaakWithEveryPanel.uuid)
+            .queryKey,
+          fromPartial<GeneratedType<"RestMailtemplate">>({}),
+        );
+      }
+      const klantenService = TestBed.inject(KlantenService);
+      testQueryClient.setQueryData(
+        klantenService.getPersonenParameters().queryKey,
+        [],
+      );
+      testQueryClient.setQueryData(
+        klantenService.listBetrokkeneRoltypen(zaakWithEveryPanel.zaaktype.uuid)
+          .queryKey,
         [],
       );
       jest

@@ -140,8 +140,7 @@ fi
 PULL_PIDS=()
 if [ "${PREPULL:-1}" != "0" ]; then
   step "pull every image in parallel"
-  FLYWAY_VERSION=$(sed -nE 's/^flyway = "([^"]+)"/\1/p' "$ROOT/gradle/libs.versions.toml")
-  IMAGES=$( (cat "$WORK_DIR"/manifests/*.yaml | sed -nE 's/^ *(- )?image: *"?([^" ]+)"?.*/\2/p'; echo "flyway/flyway:$FLYWAY_VERSION") |
+  IMAGES=$( (cat "$WORK_DIR"/manifests/*.yaml | sed -nE 's/^ *(- )?image: *"?([^" ]+)"?.*/\2/p') |
     sort -u | grep -v "^${ZAC_IMAGE%:*}:")
   for image in $IMAGES; do
     (

@@ -9,7 +9,7 @@ import {
 } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { convertToParamMap } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import {
   KVK_LENGTH,
@@ -33,13 +33,13 @@ describe(BedrijfResolverService.name, () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
+        provideTranslateService(),
         BedrijfResolverService,
         FoutAfhandelingService,
         KlantenService,
         QueryClient,
         provideHttpClient(withInterceptorsFromDi()),
       ],
-      imports: [TranslateModule.forRoot()],
     });
 
     bedrijfResolverService = TestBed.inject(BedrijfResolverService);

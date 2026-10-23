@@ -14,7 +14,7 @@ import {
 import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
 import { UtilService } from "../../../core/service/util.service";
 import { ZacDate } from "../../../shared/form/date/date";
@@ -42,7 +42,7 @@ type VervalRedenOption = {
     MatIconModule,
     MatDialogModule,
     MatDividerModule,
-    TranslateModule,
+    TranslatePipe,
     ZacDate,
     ZacSelect,
     ZacInput,

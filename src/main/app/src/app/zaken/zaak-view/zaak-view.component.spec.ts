@@ -10,7 +10,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import {
   provideQueryClient,
   queryOptions,
@@ -20,7 +20,7 @@ import { within } from "@testing-library/angular";
 import { of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
-import { fromPartial } from "src/test-helpers";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
@@ -63,6 +63,7 @@ describe(ZaakViewComponent.name, () => {
   let utilService: UtilService;
   let zakenService: ZakenService;
   let bagService: BAGService;
+  let bagObjectenQuery: ReturnType<typeof createQueryOptions<never[]>>;
   let planItemsService: PlanItemsService;
   let dialogRef: MatDialogRef<unknown>;
   let takenService: TakenService;
@@ -121,12 +122,12 @@ describe(ZaakViewComponent.name, () => {
         SideNavComponent,
         StaticTextComponent,
         ZaakProcessFlowComponent,
-        TranslateModule.forRoot(),
         VertrouwelijkaanduidingToTranslationKeyPipe,
         NoopAnimationsModule,
         EmptyPipe,
       ],
       providers: [
+        provideTranslateService(),
         provideQueryClient(testQueryClient),
         PlanItemsService,
         {
@@ -144,7 +145,6 @@ describe(ZaakViewComponent.name, () => {
     }).compileComponents();
 
     utilService = TestBed.inject(UtilService);
-    jest.spyOn(utilService, "setTitle").mockImplementation();
 
     zakenService = TestBed.inject(ZakenService);
     jest
@@ -154,7 +154,11 @@ describe(ZaakViewComponent.name, () => {
       );
 
     bagService = TestBed.inject(BAGService);
-    jest.spyOn(bagService, "list").mockReturnValue(of([]));
+    bagObjectenQuery = {
+      ...createQueryOptions([]),
+      queryKey: ["fakeBagObjectenQueryKey"],
+    };
+    jest.spyOn(bagService, "list").mockReturnValue(bagObjectenQuery as never);
 
     planItemsService = TestBed.inject(PlanItemsService);
     jest
@@ -307,7 +311,7 @@ describe(ZaakViewComponent.name, () => {
       policyService = TestBed.inject(PolicyService);
     });
 
-    it("should render <zac-notities> when notitieRechten.lezen is true", () => {
+    it("should render <zac-notities> when notitieRechten.lezen is true", async () => {
       testQueryClient.setQueryData(
         policyService.readNotitieRechten().queryKey,
         { canLezen: true, canWijzigen: false },
@@ -316,11 +320,11 @@ describe(ZaakViewComponent.name, () => {
       fixture.detectChanges();
 
       expect(
-        screen().getByRole("button", { name: "Notities" }),
+        await screen().findByRole("button", { name: "Notities" }),
       ).toBeInTheDocument();
     });
 
-    it("should render <zac-notities> when notitieRechten.wijzigen is true", () => {
+    it("should render <zac-notities> when notitieRechten.wijzigen is true", async () => {
       testQueryClient.setQueryData(
         policyService.readNotitieRechten().queryKey,
         { canLezen: false, canWijzigen: true },
@@ -329,7 +333,7 @@ describe(ZaakViewComponent.name, () => {
       fixture.detectChanges();
 
       expect(
-        screen().getByRole("button", { name: "Notities" }),
+        await screen().findByRole("button", { name: "Notities" }),
       ).toBeInTheDocument();
     });
 
@@ -430,7 +434,7 @@ describe(ZaakViewComponent.name, () => {
     beforeEach(() => {
       mockActivatedRoute.data.next({ zaak: opschortbareZaak });
       fixture.detectChanges();
-      jest.mocked(bagService.list).mockClear();
+      bagObjectenQuery.queryFn.mockClear();
     });
 
     it("does not reload BAG objects when only zaak content changes", () => {
@@ -440,7 +444,7 @@ describe(ZaakViewComponent.name, () => {
       });
       fixture.detectChanges();
 
-      expect(bagService.list).not.toHaveBeenCalled();
+      expect(bagObjectenQuery.queryFn).not.toHaveBeenCalled();
     });
 
     it("rebuilds the action menu when rechten change", () => {
@@ -588,23 +592,25 @@ describe(ZaakViewComponent.name, () => {
     });
 
     it("reloads the bag objecten, which are fetched separately from the zaak", async () => {
-      jest.mocked(bagService.list).mockClear();
+      bagObjectenQuery.queryFn.mockClear();
 
       const pending = zaakChangedCallback(zaakChangedEvent);
       await flushRefetch({ ...zaak, omschrijving: "changedByOtherUser" });
       await pending;
 
       expect(bagService.list).toHaveBeenCalledWith(zaak.uuid);
+      expect(bagObjectenQuery.queryFn).toHaveBeenCalled();
     });
 
     it("reloads the bag objecten of an unchanged zaak, since they are not part of it", async () => {
-      jest.mocked(bagService.list).mockClear();
+      bagObjectenQuery.queryFn.mockClear();
 
       const pending = zaakChangedCallback(zaakChangedEvent);
       await flushRefetch({ ...zaak });
       await pending;
 
       expect(bagService.list).toHaveBeenCalledWith(zaak.uuid);
+      expect(bagObjectenQuery.queryFn).toHaveBeenCalled();
     });
 
     it("reloads the opschorting of a zaak that was already opgeschort before the change", async () => {

@@ -5,7 +5,7 @@
 package nl.info.zac.app.planitems.model
 
 import jakarta.json.bind.annotation.JsonbProperty
-import net.atos.zac.app.mail.model.RestMailGegevens
+import nl.info.zac.app.mail.model.RestMailGegevens
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
 

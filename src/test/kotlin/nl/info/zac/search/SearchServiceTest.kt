@@ -31,8 +31,8 @@ import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.solr.SolrClientFactory
-import org.apache.solr.client.solrj.beans.DocumentObjectBinder
 import org.apache.solr.client.solrj.SolrRequest
+import org.apache.solr.client.solrj.beans.DocumentObjectBinder
 import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.client.solrj.response.QueryResponse
 import org.apache.solr.common.SolrDocument
@@ -492,6 +492,38 @@ class SearchServiceTest : BehaviorSpec({
             then("it should not add a sort to the query") {
                 with(solrParamsSlot.captured) {
                     get("sort") shouldNotInclude "zaak_statustypeOmschrijving"
+                }
+            }
+        }
+
+        `when`("searching ${SorteerRichting.NONE.value} on ${SorteerVeld.ZAAK_IDENTIFICATIE}") {
+            zoekService.search(
+                createZoekParameters(
+                    zoekObjectType = ZoekObjectType.ZAAK,
+                    sorteerRichting = SorteerRichting.NONE,
+                    sorteerVeld = SorteerVeld.ZAAK_IDENTIFICATIE
+                )
+            )
+
+            then("it should sort in the default order, including the zaak identificatie") {
+                with(solrParamsSlot.captured) {
+                    get("sort") shouldBe "created desc,zaak_identificatie desc,id desc"
+                }
+            }
+        }
+
+        `when`("searching ${SorteerRichting.NONE.value} on ${SorteerVeld.CREATED}") {
+            zoekService.search(
+                createZoekParameters(
+                    zoekObjectType = ZoekObjectType.ZAAK,
+                    sorteerRichting = SorteerRichting.NONE,
+                    sorteerVeld = SorteerVeld.CREATED
+                )
+            )
+
+            then("it should sort in the default order, including the creation date") {
+                with(solrParamsSlot.captured) {
+                    get("sort") shouldBe "created desc,zaak_identificatie desc,id desc"
                 }
             }
         }

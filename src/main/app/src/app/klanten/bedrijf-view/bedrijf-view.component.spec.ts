@@ -3,24 +3,22 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter, Routes } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { of, Subject } from "rxjs";
+import { Subject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { KlantContactmomentenTabelComponent } from "../../contactmomenten/klant-contactmomenten-tabel/klant-contactmomenten-tabel.component";
-import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantZakenTabelComponent } from "../klant-zaken-tabel/klant-zaken-tabel.component";
-import { KlantenService } from "../klanten.service";
 import { BedrijfViewComponent } from "./bedrijf-view.component";
 
 @Component({
@@ -100,17 +98,36 @@ function profielOphalenButton() {
   return screen.getByRole("button", { name: "bedrijf.profiel.ophalen" });
 }
 
+const vestigingsprofielUrl = "/rest/klanten/vestigingsprofiel/000011112222";
+const basisprofielUrl = "/rest/klanten/basisprofiel/12345678";
+
 describe(BedrijfViewComponent.name, () => {
   const user = userEvent.setup();
 
   let component: BedrijfViewComponent;
   let fixture: ComponentFixture<BedrijfViewComponent>;
-  let utilService: UtilService;
-  let klantenService: KlantenService;
+  let httpController: HttpTestingController;
 
   const routeDataSubject = new Subject<{
     bedrijf: GeneratedType<"RestBedrijf"> | null;
   }>();
+
+  async function clickProfielOphalen() {
+    await user.click(profielOphalenButton());
+    fixture.detectChanges();
+    await sleep();
+  }
+
+  async function flushProfiel(
+    url: string,
+    profiel: GeneratedType<"RestBedrijfsprofiel">,
+  ) {
+    httpController.expectOne(url).flush(profiel);
+    await sleep();
+    fixture.detectChanges();
+    await sleep();
+    fixture.detectChanges();
+  }
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -119,12 +136,11 @@ describe(BedrijfViewComponent.name, () => {
         TestErrorRouteComponent,
         KlantZakenTabelStubComponent,
         NoopAnimationsModule,
-        TranslateModule.forRoot(),
         KlantContactmomentenTabelStubComponent,
       ],
       providers: [
+        provideTranslateService(),
         provideNativeDateAdapter(),
-        provideHttpClient(),
         provideRouter(testRoutes),
         provideQueryClient(testQueryClient),
         {
@@ -149,21 +165,13 @@ describe(BedrijfViewComponent.name, () => {
       })
       .compileComponents();
 
-    utilService = TestBed.inject(UtilService);
-    klantenService = TestBed.inject(KlantenService);
-    jest.spyOn(utilService, "setTitle").mockImplementation(() => undefined);
+    httpController = TestBed.inject(HttpTestingController);
 
     fixture = TestBed.createComponent(BedrijfViewComponent);
     component = fixture.componentInstance;
   });
 
   describe("initialisation", () => {
-    it("sets the page title on construction", () => {
-      routeDataSubject.next({ bedrijf: null });
-      fixture.detectChanges();
-      expect(utilService.setTitle).toHaveBeenCalledWith("bedrijfsgegevens");
-    });
-
     it("populates bedrijf from route resolver data", () => {
       const bedrijf = makeBedrijf();
       routeDataSubject.next({ bedrijf });
@@ -299,7 +307,7 @@ describe(BedrijfViewComponent.name, () => {
       expect(profielOphalenButton()).toBeDisabled();
     });
 
-    it("calls readVestigingsprofiel when vestigingsnummer is present", async () => {
+    it("fetches the vestigingsprofiel when vestigingsnummer is present", async () => {
       routeDataSubject.next({
         bedrijf: makeBedrijf({
           type: "RECHTSPERSOON",
@@ -307,17 +315,14 @@ describe(BedrijfViewComponent.name, () => {
         }),
       });
       fixture.detectChanges();
-      jest
-        .spyOn(klantenService, "readVestigingsprofiel")
-        .mockReturnValue(of(makeBedrijfsprofiel()));
-      await user.click(profielOphalenButton());
-      fixture.detectChanges();
-      expect(klantenService.readVestigingsprofiel).toHaveBeenCalledWith(
-        "000011112222",
-      );
+
+      await clickProfielOphalen();
+
+      httpController.expectOne(vestigingsprofielUrl);
+      httpController.expectNone(basisprofielUrl);
     });
 
-    it("calls readBasisprofiel when type is RECHTSPERSOON without vestigingsnummer", async () => {
+    it("fetches the basisprofiel when type is RECHTSPERSOON without vestigingsnummer", async () => {
       routeDataSubject.next({
         bedrijf: makeBedrijf({
           type: "RECHTSPERSOON",
@@ -326,85 +331,36 @@ describe(BedrijfViewComponent.name, () => {
         }),
       });
       fixture.detectChanges();
-      jest
-        .spyOn(klantenService, "readBasisprofiel")
-        .mockReturnValue(of(makeBedrijfsprofiel()));
-      await user.click(profielOphalenButton());
-      fixture.detectChanges();
-      expect(klantenService.readBasisprofiel).toHaveBeenCalledWith("12345678");
-    });
-  });
 
-  describe("ophalenProfiel()", () => {
-    it("sets profielOphalenMogelijk to false immediately", () => {
+      await clickProfielOphalen();
+
+      httpController.expectOne(basisprofielUrl);
+    });
+
+    it("is disabled after it is clicked", async () => {
       routeDataSubject.next({ bedrijf: makeBedrijf() });
       fixture.detectChanges();
-      jest
-        .spyOn(klantenService, "readVestigingsprofiel")
-        .mockReturnValue(of(makeBedrijfsprofiel()));
-      component["ophalenProfiel"]();
-      expect(component["profielOphalenMogelijk"]).toBe(false);
+
+      await clickProfielOphalen();
+
+      expect(profielOphalenButton()).toBeDisabled();
     });
 
-    it("populates profiel on success for vestiging", () => {
+    it("does not fetch a profiel before it is clicked", () => {
       routeDataSubject.next({ bedrijf: makeBedrijf() });
       fixture.detectChanges();
-      const profiel = makeBedrijfsprofiel();
-      jest
-        .spyOn(klantenService, "readVestigingsprofiel")
-        .mockReturnValue(of(profiel));
-      component["ophalenProfiel"]();
-      fixture.detectChanges();
-      expect(component["profiel"]).toEqual(profiel);
-    });
 
-    it("populates profiel on success for rechtspersoon", () => {
-      routeDataSubject.next({
-        bedrijf: makeBedrijf({
-          vestigingsnummer: undefined,
-          type: "RECHTSPERSOON",
-          kvkNummer: "12345678",
-        }),
-      });
-      fixture.detectChanges();
-      const profiel = makeBedrijfsprofiel({
-        rechtsvorm: "BV",
-        uitgebreideRechtsvorm: "Besloten Vennootschap",
-        statutaireNaam: "Test BV",
-      });
-      jest
-        .spyOn(klantenService, "readBasisprofiel")
-        .mockReturnValue(of(profiel));
-      component["ophalenProfiel"]();
-      fixture.detectChanges();
-      expect(component["profiel"]).toEqual(profiel);
-    });
-
-    it("does nothing when bedrijf has no vestigingsnummer and no kvkNummer", () => {
-      routeDataSubject.next({
-        bedrijf: makeBedrijf({
-          vestigingsnummer: undefined,
-          kvkNummer: undefined,
-        }),
-      });
-      fixture.detectChanges();
-      const vestigingSpy = jest.spyOn(klantenService, "readVestigingsprofiel");
-      const rechtspersoonSpy = jest.spyOn(klantenService, "readBasisprofiel");
-      component["ophalenProfiel"]();
-      expect(vestigingSpy).not.toHaveBeenCalled();
-      expect(rechtspersoonSpy).not.toHaveBeenCalled();
+      httpController.expectNone(vestigingsprofielUrl);
+      httpController.expectNone(basisprofielUrl);
     });
   });
 
   describe("profiel fields", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       routeDataSubject.next({ bedrijf: makeBedrijf() });
       fixture.detectChanges();
-      jest
-        .spyOn(klantenService, "readVestigingsprofiel")
-        .mockReturnValue(of(makeBedrijfsprofiel()));
-      component["ophalenProfiel"]();
-      fixture.detectChanges();
+      await clickProfielOphalen();
+      await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
     });
 
     it("hides adres field when profiel is loaded", () => {
@@ -439,21 +395,21 @@ describe(BedrijfViewComponent.name, () => {
       expect(screen.queryByText("rsin")).not.toBeInTheDocument();
     });
 
-    it("renders rsin when profiel is loaded", () => {
+    it("renders rsin when profiel is loaded", async () => {
       routeDataSubject.next({ bedrijf: makeBedrijf() });
       fixture.detectChanges();
-      jest
-        .spyOn(klantenService, "readVestigingsprofiel")
-        .mockReturnValue(of(makeBedrijfsprofiel({ rsin: "123456789" })));
-      component["ophalenProfiel"]();
-      fixture.detectChanges();
+      await clickProfielOphalen();
+      await flushProfiel(
+        vestigingsprofielUrl,
+        makeBedrijfsprofiel({ rsin: "123456789" }),
+      );
 
       expectStaticText("rsin", "123456789");
     });
   });
 
   describe("rechtspersoon profiel fields", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       routeDataSubject.next({
         bedrijf: makeBedrijf({
           vestigingsnummer: undefined,
@@ -462,17 +418,15 @@ describe(BedrijfViewComponent.name, () => {
         }),
       });
       fixture.detectChanges();
-      jest.spyOn(klantenService, "readBasisprofiel").mockReturnValue(
-        of(
-          makeBedrijfsprofiel({
-            rechtsvorm: "BV",
-            uitgebreideRechtsvorm: "Besloten Vennootschap",
-            statutaireNaam: "Test BV Statutair",
-          }),
-        ),
+      await clickProfielOphalen();
+      await flushProfiel(
+        basisprofielUrl,
+        makeBedrijfsprofiel({
+          rechtsvorm: "BV",
+          uitgebreideRechtsvorm: "Besloten Vennootschap",
+          statutaireNaam: "Test BV Statutair",
+        }),
       );
-      component["ophalenProfiel"]();
-      fixture.detectChanges();
     });
 
     it("renders rechtsvorm when profiel is loaded", () => {

@@ -16,9 +16,6 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.event.EventingService
-import nl.info.zac.util.time.dateNowIsBetween
-import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.util.isOpen
@@ -32,12 +29,15 @@ import nl.info.zac.app.zaak.model.besluit.RestBesluitWithdrawalData
 import nl.info.zac.app.zaak.model.besluit.toRestBesluitTypes
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.besluit.BesluitService
+import nl.info.zac.event.EventingService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.time.dateNowIsBetween
+import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.ZaakService
 import org.apache.commons.collections4.CollectionUtils
 import java.util.UUID

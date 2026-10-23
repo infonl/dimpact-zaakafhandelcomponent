@@ -6,12 +6,10 @@
 import {
   Component,
   computed,
-  effect,
   inject,
   input,
+  linkedSignal,
   output,
-  signal,
-  untracked,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatExpansionModule } from "@angular/material/expansion";
@@ -19,7 +17,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
@@ -42,7 +40,7 @@ import { KlantenService } from "../klanten.service";
     MatTooltipModule,
     MatButtonModule,
     RouterLink,
-    TranslateModule,
+    TranslatePipe,
     StaticTextComponent,
   ],
 })
@@ -69,24 +67,38 @@ export class BedrijfsgegevensComponent {
     return !!data?.vestigingsnummer || !!data?.kvkNummer;
   });
 
-  protected profiel = signal<GeneratedType<"RestBedrijfsprofiel"> | null>(null);
+  private readonly profielOpgevraagd = linkedSignal({
+    source: () => JSON.stringify(this.initiatorIdentificatie()),
+    computation: () => false,
+  });
 
-  private _prevIdentificatie: string | null = null;
+  private readonly vestigingsnummer = computed(
+    () => this.bedrijfQuery.data()?.vestigingsnummer,
+  );
 
-  constructor() {
-    effect(() => {
-      const currentId = JSON.stringify(this.initiatorIdentificatie());
-      untracked(() => {
-        if (
-          this._prevIdentificatie !== null &&
-          this._prevIdentificatie !== currentId
-        ) {
-          this.profiel.set(null);
-        }
-        this._prevIdentificatie = currentId;
-      });
-    });
-  }
+  private readonly kvkNummer = computed(
+    () => this.bedrijfQuery.data()?.kvkNummer,
+  );
+
+  private readonly vestigingsprofielQuery = injectQuery(() => ({
+    ...this.klantenService.readVestigingsprofiel(this.vestigingsnummer() ?? ""),
+    enabled: this.profielOpgevraagd() && !!this.vestigingsnummer(),
+  }));
+
+  private readonly basisprofielQuery = injectQuery(() => ({
+    ...this.klantenService.readBasisprofiel(this.kvkNummer() ?? ""),
+    enabled:
+      this.profielOpgevraagd() &&
+      !this.vestigingsnummer() &&
+      !!this.kvkNummer(),
+  }));
+
+  protected readonly profiel = computed(() => {
+    if (!this.profielOpgevraagd()) return null;
+    if (this.vestigingsnummer())
+      return this.vestigingsprofielQuery.data() ?? null;
+    return this.basisprofielQuery.data() ?? null;
+  });
 
   protected warningIcon = new TextIcon(
     () => true,
@@ -101,19 +113,6 @@ export class BedrijfsgegevensComponent {
   }
 
   protected ophalenProfiel() {
-    const data = this.bedrijfQuery.data();
-    if (data?.vestigingsnummer) {
-      this.klantenService
-        .readVestigingsprofiel(data.vestigingsnummer)
-        .subscribe((value) => {
-          this.profiel.set(value);
-        });
-    } else if (data?.kvkNummer) {
-      this.klantenService
-        .readBasisprofiel(data.kvkNummer)
-        .subscribe((value) => {
-          this.profiel.set(value);
-        });
-    }
+    this.profielOpgevraagd.set(true);
   }
 }

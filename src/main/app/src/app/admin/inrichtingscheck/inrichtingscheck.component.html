@@ -21,47 +21,6 @@
     <mat-card>
       <mat-card-header>
         <mat-card-title>
-          {{ "health-check.synchroniseer.ztc.title" | translate }}
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <mat-expansion-panel hideToggle>
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              <button
-                (click)="clearZTCCache($event)"
-                [disabled]="loadingZaaktypes"
-                mat-raised-button
-                color="primary"
-              >
-                <mat-icon>{{
-                  loadingZaaktypes ? "sync_lock" : "sync"
-                }}</mat-icon>
-                {{ "health-check.synchroniseer.ztc.button" | translate }}
-              </button>
-            </mat-panel-title>
-            <mat-panel-description>
-              {{
-                "health-check.synchroniseer.ztc.description"
-                  | translate
-                    : {
-                        ztcCacheTime: (ztcCacheTime | datum: "medium"),
-                      }
-              }}
-            </mat-panel-description>
-            <mat-icon>help</mat-icon>
-          </mat-expansion-panel-header>
-          <p>
-            {{ "health-check.synchroniseer.ztc.uitleg.1" | translate }}
-            <br />{{ "health-check.synchroniseer.ztc.uitleg.2" | translate }}
-          </p>
-        </mat-expansion-panel>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
           {{ "health-check.zaaktype.inrichtingscheck" | translate }}
         </mat-card-title>
       </mat-card-header>
@@ -69,7 +28,7 @@
         <mat-card>
           <mat-card-content>
             <div class="table-wrapper">
-              @if (!loadingZaaktypes) {
+              @if (!loadingZaaktypes()) {
                 <table
                   mat-table
                   [dataSource]="dataSource"
@@ -507,12 +466,12 @@
                 </table>
               }
             </div>
-            @if (dataSource.data.length === 0 && !loadingZaaktypes) {
+            @if (dataSource.data.length === 0 && !loadingZaaktypes()) {
               <p>
                 {{ "msg.geen.gegevens.gevonden" | translate }}
               </p>
             }
-            @if (dataSource.data.length === 0 && loadingZaaktypes) {
+            @if (dataSource.data.length === 0 && loadingZaaktypes()) {
               <p>
                 {{ "msg.loading" | translate }}
               </p>
@@ -532,18 +491,18 @@
         <mat-expansion-panel hideToggle>
           <mat-expansion-panel-header>
             <mat-panel-title>
-              @if (loadingCommunicatiekanaal) {
+              @if (loadingCommunicatiekanaal()) {
                 <mat-icon>hourglass_empty</mat-icon>
               }
               @if (
-                !loadingCommunicatiekanaal &&
-                bestaatCommunicatiekanaalEformulier
+                !loadingCommunicatiekanaal() &&
+                bestaatCommunicatiekanaalEformulier()
               ) {
                 <mat-icon outlined color="primary">check_circle </mat-icon>
               }
               @if (
-                !loadingCommunicatiekanaal &&
-                !bestaatCommunicatiekanaalEformulier
+                !loadingCommunicatiekanaal() &&
+                !bestaatCommunicatiekanaalEformulier()
               ) {
                 <mat-icon outlined color="warn">error </mat-icon>
               }
@@ -552,9 +511,9 @@
               </div>
             </mat-panel-title>
             <mat-panel-description>
-              @if (!loadingCommunicatiekanaal) {
+              @if (!loadingCommunicatiekanaal()) {
                 <div>
-                  @if (bestaatCommunicatiekanaalEformulier) {
+                  @if (bestaatCommunicatiekanaalEformulier()) {
                     {{
                       "health-check.communicatiekanaal.e-formulier.beschikbaar"
                         | translate

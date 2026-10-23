@@ -7,19 +7,22 @@ package nl.info.zac.shared.helper
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.delegate.exception.InvalidExtensionPeriodException
 import net.atos.zac.flowable.task.FlowableTaskService
-import nl.info.zac.util.time.convertToDate
-import nl.info.zac.util.time.convertToLocalDate
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Opschorting
 import nl.info.client.zgw.zrc.model.generated.Verlenging
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isOpgeschort
+import nl.info.client.zgw.ztc.model.extensions.extensionPeriodDays
+import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.zaak.ZaakRestService.Companion.AANVULLENDE_INFORMATIE_TASK_NAME
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.time.convertToDate
+import nl.info.zac.util.time.convertToLocalDate
 import org.flowable.task.api.Task
 import java.time.LocalDate
 import java.time.Period
@@ -105,16 +108,20 @@ class SuspensionZaakHelper @Inject constructor(
         return zrcClientService.patchZaak(zaak.uuid, createZaakPatch(endDatePlanned, finalCompletionDate), description)
     }
 
+    @Suppress("LongParameterList")
     fun extendZaak(
         zaak: Zaak,
+        zaakType: ZaakType,
         dueDate: LocalDate?,
         fatalDate: LocalDate?,
         extensionReason: String?,
         numberOfDays: Int
-    ): Zaak =
-        convertToPatch(zaak, dueDate, fatalDate, extensionReason, numberOfDays).let {
+    ): Zaak {
+        assertExtensionPeriodIsValid(zaakType, numberOfDays)
+        return convertToPatch(zaak, dueDate, fatalDate, extensionReason, numberOfDays).let {
             zrcClientService.patchZaak(zaak.uuid, it, "$VERLENGING: $extensionReason")
         }
+    }
 
     fun extendTasks(zaak: Zaak, numberOfDays: Int): List<Task> =
         flowableTaskService.listOpenTasksForZaak(zaak.uuid)
@@ -135,6 +142,22 @@ class SuspensionZaakHelper @Inject constructor(
                 it.dueDate = convertToDate(zaakFatalDate)
                 flowableTaskService.updateTask(it)
             }
+
+    private fun assertExtensionPeriodIsValid(zaakType: ZaakType, numberOfDays: Int) {
+        if (numberOfDays <= 0) {
+            throw InvalidExtensionPeriodException(
+                "Requested extension is for $numberOfDays days, but it must be at least 1 day"
+            )
+        }
+        zaakType.extensionPeriodDays()?.let { maximumNumberOfDays ->
+            if (numberOfDays > maximumNumberOfDays) {
+                throw InvalidExtensionPeriodException(
+                    "Zaaktype '${zaakType.identificatie}' has a maximum extension term of $maximumNumberOfDays days, " +
+                        "but requested extension is for $numberOfDays days"
+                )
+            }
+        }
+    }
 
     private fun createZaakPatch(endDatePlanned: LocalDate?, finalCompletionDate: LocalDate): Zaak =
         Zaak().apply {

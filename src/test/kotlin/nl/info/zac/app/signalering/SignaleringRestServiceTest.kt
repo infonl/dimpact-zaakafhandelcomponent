@@ -12,11 +12,14 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
+import io.mockk.verifyOrder
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.app.signalering.converter.RestSignaleringInstellingenConverter
 import nl.info.zac.app.signalering.exception.SignaleringException
 import nl.info.zac.app.signalering.model.RestSignaleringPageParameters
+import nl.info.zac.app.signalering.model.createRestSignaleringTaskSummary
 import nl.info.zac.app.zaak.model.createRESTZaakOverzicht
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
@@ -27,7 +30,10 @@ import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.search.model.SorteerRichting
 import nl.info.zac.search.model.SorteerVeld
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.signalering.model.CheckedSignaleringen
+import nl.info.zac.signalering.model.InvalidSignalering
 import nl.info.zac.signalering.model.createRestSignaleringInstellingen
+import nl.info.zac.signalering.model.createSignalering
 import nl.info.zac.signalering.model.createSignaleringInstellingen
 
 class SignaleringRestServiceTest : BehaviorSpec({
@@ -64,16 +70,17 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
         every { signaleringService.countZakenSignaleringen(signaleringType) } returns numberOfElements.toLong()
         every {
-            signaleringService.listZakenSignaleringenPage(signaleringType, restPageParameters, loggedInUser)
-        } returns restZaakOverzichtList
+            signaleringService.listCheckedZakenSignaleringenPage(signaleringType, restPageParameters, loggedInUser)
+        } returns CheckedSignaleringen(valid = restZaakOverzichtList, invalid = emptyList())
+        every { signaleringService.deleteInvalidSignaleringen(emptyList()) } returns 0
         every { loggedInUserInstance.get() } returns loggedInUser
 
         `when`("listing zaken signaleringen with proper page parameters") {
             val restResultaat = signaleringRestService.listZakenSignaleringen(signaleringType, restPageParameters)
 
             then("correct response is returned") {
-                restResultaat.totaal shouldBe numberOfElements
-                restResultaat.resultaten shouldBe restZaakOverzichtList
+                restResultaat.resultCount shouldBe numberOfElements
+                restResultaat.results shouldBe restZaakOverzichtList
             }
         }
 
@@ -96,6 +103,61 @@ class SignaleringRestServiceTest : BehaviorSpec({
         }
     }
 
+    given("zaken signaleringen for ZAAK_OP_NAAM of which the listed page contains two invalid ones") {
+        val signaleringType = SignaleringType.Type.ZAAK_OP_NAAM
+        val restPageParameters = RestSignaleringPageParameters(
+            page = 0,
+            rows = 5,
+            sortField = SorteerVeld.SIGNALERING_TIJDSTIP,
+            sortOrder = SorteerRichting.DESC
+        )
+        val restZaakOverzichtList = List(3) { createRESTZaakOverzicht() }
+        val invalidSignaleringen = List(2) { InvalidSignalering(signalering = createSignalering(), reason = "fakeReason") }
+        val loggedInUser = createLoggedInUser()
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { signaleringService.countZakenSignaleringen(signaleringType) } returnsMany listOf(11L, 9L)
+        every {
+            signaleringService.listCheckedZakenSignaleringenPage(signaleringType, restPageParameters, loggedInUser)
+        } returns CheckedSignaleringen(valid = restZaakOverzichtList, invalid = invalidSignaleringen)
+        every { signaleringService.deleteInvalidSignaleringen(invalidSignaleringen) } returns 2
+
+        `when`("listing zaken signaleringen") {
+            val restResultaat = signaleringRestService.listZakenSignaleringen(signaleringType, restPageParameters)
+
+            then("only the valid zaken are returned") {
+                restResultaat.results shouldBe restZaakOverzichtList
+            }
+            and("the invalid signaleringen are deleted before the total is counted, so it leaves them out") {
+                verifyOrder {
+                    signaleringService.countZakenSignaleringen(signaleringType)
+                    signaleringService.deleteInvalidSignaleringen(invalidSignaleringen)
+                    signaleringService.countZakenSignaleringen(signaleringType)
+                }
+                restResultaat.resultCount shouldBe 9
+            }
+        }
+    }
+
+    given("taken signaleringen for TAAK_OP_NAAM of which one is invalid") {
+        val restSignaleringTaskSummary = createRestSignaleringTaskSummary()
+        val invalidSignaleringen = listOf(InvalidSignalering(signalering = createSignalering(), reason = "fakeReason"))
+        every {
+            signaleringService.listCheckedTakenSignaleringen(SignaleringType.Type.TAAK_OP_NAAM)
+        } returns CheckedSignaleringen(valid = listOf(restSignaleringTaskSummary), invalid = invalidSignaleringen)
+        every { signaleringService.deleteInvalidSignaleringen(invalidSignaleringen) } returns 1
+
+        `when`("listing taken signaleringen") {
+            val restSignaleringTaskSummaries = signaleringRestService.listTakenSignaleringen(
+                SignaleringType.Type.TAAK_OP_NAAM
+            )
+
+            then("only the valid taak is returned and the invalid signalering is deleted") {
+                restSignaleringTaskSummaries shouldBe listOf(restSignaleringTaskSummary)
+                verify(exactly = 1) { signaleringService.deleteInvalidSignaleringen(invalidSignaleringen) }
+            }
+        }
+    }
+
     given("zaken signaleringen for ZAAK_OP_NAAM with sort parameters") {
         val signaleringType = SignaleringType.Type.ZAAK_OP_NAAM
         val numberOfElements = 7
@@ -110,16 +172,17 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
         every { signaleringService.countZakenSignaleringen(signaleringType) } returns numberOfElements.toLong()
         every {
-            signaleringService.listZakenSignaleringenPage(signaleringType, sortedPageParameters, loggedInUser)
-        } returns restZaakOverzichtList
+            signaleringService.listCheckedZakenSignaleringenPage(signaleringType, sortedPageParameters, loggedInUser)
+        } returns CheckedSignaleringen(valid = restZaakOverzichtList, invalid = emptyList())
+        every { signaleringService.deleteInvalidSignaleringen(emptyList()) } returns 0
         every { loggedInUserInstance.get() } returns loggedInUser
 
         `when`("listing zaken signaleringen with the sort parameters") {
             val restResultaat = signaleringRestService.listZakenSignaleringen(signaleringType, sortedPageParameters)
 
             then("the sort parameters are passed through unchanged and the response is returned") {
-                restResultaat.totaal shouldBe numberOfElements
-                restResultaat.resultaten shouldBe restZaakOverzichtList
+                restResultaat.resultCount shouldBe numberOfElements
+                restResultaat.results shouldBe restZaakOverzichtList
             }
         }
     }
@@ -131,7 +194,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
         val restSignaleringInstellingen = listOf(createRestSignaleringInstellingen())
 
         every { policyService.readOverigeRechten().canBeheren } returns true
-        every { identityService.readGroup(groupId) } returns group
+        every { identityService.readGroup(groupId, any()) } returns group
         every { signaleringService.listInstellingenInclusiefMogelijke(any()) } returns signaleringInstellingen
         every { restSignaleringInstellingenConverter.convert(signaleringInstellingen) } returns restSignaleringInstellingen
 
@@ -151,7 +214,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
         val restSignaleringInstellingen = createRestSignaleringInstellingen()
 
         every { policyService.readOverigeRechten().canBeheren } returns true
-        every { identityService.readGroup(groupId) } returns group
+        every { identityService.readGroup(groupId, any()) } returns group
         every {
             restSignaleringInstellingenConverter.convert(restSignaleringInstellingen, group)
         } returns signaleringInstellingen
@@ -170,7 +233,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
         val groupId = "invalid-group-id"
         val restSignaleringInstellingen = createRestSignaleringInstellingen()
         every { policyService.readOverigeRechten().canBeheren } returns true
-        every { identityService.readGroup(groupId) } throws IllegalArgumentException("Group not found")
+        every { identityService.readGroup(groupId, any()) } throws IllegalArgumentException("Group not found")
 
         `when`("listGroupSignaleringInstellingen is called") {
             val exception = shouldThrow<IllegalArgumentException> {

@@ -12,10 +12,10 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.ws.rs.NotFoundException
-import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.inboxdocument.model.RestInboxDocumentListParameters
 import nl.info.zac.document.inboxdocument.InboxDocumentService
@@ -76,7 +76,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                         drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID)
                     }
 
-                    result.totaal shouldBe 1
+                    result.resultCount shouldBe 1
                 }
             }
 
@@ -100,8 +100,8 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                         drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID)
                     }
 
-                    result.totaal shouldBe 1
-                    result.resultaten.size shouldBe 0
+                    result.resultCount shouldBe 1
+                    result.results.size shouldBe 0
                 }
             }
 
@@ -163,9 +163,9 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                     }
 
                     // Total count should still be 3 as it comes from the service
-                    result.totaal shouldBe 3
+                    result.resultCount shouldBe 3
                     // But the actual list should only contain 2 documents (the ones that were successfully retrieved)
-                    result.resultaten.size shouldBe 2
+                    result.results.size shouldBe 2
                 }
             }
         }

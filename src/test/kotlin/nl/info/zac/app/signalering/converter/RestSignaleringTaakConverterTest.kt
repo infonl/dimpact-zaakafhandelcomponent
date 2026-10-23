@@ -35,7 +35,7 @@ class RestSignaleringTaakConverterTest : BehaviorSpec({
         )
 
         `when`("the task is converted to a rest signalering task summary") {
-            val summary = task.toRestSignaleringTaakSummary()
+            val summary = task.toRestSignaleringTaakSummary(isZaakspecifiekGeautoriseerd = false)
 
             then("it returns correct history lines") {
                 with(summary) {

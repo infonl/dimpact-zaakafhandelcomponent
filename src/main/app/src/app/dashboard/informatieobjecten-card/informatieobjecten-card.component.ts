@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, effect } from "@angular/core";
+import { Component, computed, effect, inject } from "@angular/core";
 import { MatIconAnchor } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import { MatPaginator } from "@angular/material/paginator";
@@ -23,10 +23,8 @@ import {
   MatTable,
 } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { WebsocketService } from "../../core/websocket/websocket.service";
-import { IdentityService } from "../../identity/identity.service";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -60,7 +58,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
     MatIconAnchor,
     MatIcon,
     RouterLink,
-    TranslateModule,
+    TranslatePipe,
     DatumPipe,
     EmptyPipe,
   ],
@@ -68,6 +66,8 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
 export class InformatieobjectenCardComponent extends DashboardCardComponent<
   GeneratedType<"RestEnkelvoudigInformatieobject">
 > {
+  private signaleringenService = inject(SignaleringenService);
+
   columns = [
     "titel",
     "registratiedatumTijd",
@@ -87,12 +87,8 @@ export class InformatieobjectenCardComponent extends DashboardCardComponent<
     enabled: this.parameters().signaleringType != null,
   }));
 
-  constructor(
-    private signaleringenService: SignaleringenService,
-    protected identityService: IdentityService,
-    protected websocketService: WebsocketService,
-  ) {
-    super(identityService, websocketService);
+  constructor() {
+    super();
 
     effect(() => {
       this.dataSource.data = this.ioQuery.data() ?? [];

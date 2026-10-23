@@ -15,11 +15,10 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.app.shared.RESTResultaat
-import net.atos.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
 import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
+import nl.info.zac.app.shared.RestResultaat
 import nl.info.zac.app.signalering.converter.RestSignaleringInstellingenConverter
 import nl.info.zac.app.signalering.exception.SignaleringException
 import nl.info.zac.app.signalering.model.RestSignaleringInstellingen
@@ -31,6 +30,7 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.signalering.model.SignaleringInstellingen
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
@@ -66,25 +66,24 @@ class SignaleringRestService @Inject constructor(
     fun listZakenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type,
         @Valid restSignaleringPageParameters: RestSignaleringPageParameters
-    ): RESTResultaat<RestZaakOverzicht> {
+    ): RestResultaat<RestZaakOverzicht> {
         val loggedInUser = loggedInUserInstance.get()
-        return signaleringService.countZakenSignaleringen(signaleringsType).let { objectsCount ->
-            objectsCount.maxPages(restSignaleringPageParameters.rows).let { maxPages ->
+        signaleringService.countZakenSignaleringen(signaleringsType).maxPages(restSignaleringPageParameters.rows)
+            .let { maxPages ->
                 if (restSignaleringPageParameters.page > maxPages) {
                     throw SignaleringException(
                         "Requested page ${restSignaleringPageParameters.page} must be <= $maxPages"
                     )
                 }
             }
-            RESTResultaat(
-                signaleringService.listZakenSignaleringenPage(
-                    signaleringsType = signaleringsType,
-                    pageParameters = restSignaleringPageParameters,
-                    loggedInUser = loggedInUser
-                ),
-                objectsCount
-            )
-        }
+        val checkedZakenSignaleringen = signaleringService.listCheckedZakenSignaleringenPage(
+            signaleringsType = signaleringsType,
+            pageParameters = restSignaleringPageParameters,
+            loggedInUser = loggedInUser
+        )
+        signaleringService.deleteInvalidSignaleringen(checkedZakenSignaleringen.invalid)
+        return signaleringService.countZakenSignaleringen(signaleringsType)
+            .let { RestResultaat(checkedZakenSignaleringen.valid, it) }
     }
 
     private fun Long.maxPages(pageSize: Int) = (this + pageSize - 1) / pageSize
@@ -94,7 +93,9 @@ class SignaleringRestService @Inject constructor(
     fun listTakenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type
     ): List<RestSignaleringTaskSummary> =
-        signaleringService.listTakenSignaleringenPage(signaleringsType)
+        signaleringService.listCheckedTakenSignaleringen(signaleringsType)
+            .also { signaleringService.deleteInvalidSignaleringen(it.invalid) }
+            .valid
 
     @GET
     @Path("/informatieobjecten/{type}")
@@ -123,7 +124,9 @@ class SignaleringRestService @Inject constructor(
         @PathParam("groupId") groupId: String
     ): List<RestSignaleringInstellingen> {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
-        return SignaleringInstellingenZoekParameters(identityService.readGroup(groupId))
+        return SignaleringInstellingenZoekParameters(
+            identityService.readGroup(groupId = groupId, logContext = "listing the signaleringinstellingen of the group")
+        )
             .let(signaleringService::listInstellingenInclusiefMogelijke)
             .let(restSignaleringInstellingenConverter::convert)
     }
@@ -135,7 +138,7 @@ class SignaleringRestService @Inject constructor(
         restInstellingen: RestSignaleringInstellingen
     ): SignaleringInstellingen? {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
-        return identityService.readGroup(groupId)
+        return identityService.readGroup(groupId = groupId, logContext = "updating the signaleringinstellingen of the group")
             .let { restSignaleringInstellingenConverter.convert(restInstellingen, it) }
             .let(signaleringService::createUpdateOrDeleteInstellingen)
     }

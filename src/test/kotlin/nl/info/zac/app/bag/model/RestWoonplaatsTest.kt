@@ -4,13 +4,11 @@
  */
 package nl.info.zac.app.bag.model
 
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectWoonplaats
-import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats
 import nl.info.client.bag.model.generated.HalLink
 import nl.info.client.bag.model.generated.Indicatie
 import nl.info.client.bag.model.generated.StatusWoonplaats
@@ -18,6 +16,8 @@ import nl.info.client.bag.model.generated.Woonplaats
 import nl.info.client.bag.model.generated.WoonplaatsIOHalBasis
 import nl.info.client.bag.model.generated.WoonplaatsLinks
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectWoonplaats
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats
 import java.net.URI
 import java.util.UUID
 

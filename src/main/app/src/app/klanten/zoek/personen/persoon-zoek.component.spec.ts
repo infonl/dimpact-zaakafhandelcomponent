@@ -17,7 +17,7 @@ import { MatInputHarness } from "@angular/material/input/testing";
 import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { Router } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
@@ -59,9 +59,9 @@ describe(PersoonZoekComponent.name, () => {
         ReactiveFormsModule,
         MatIconModule,
         NoopAnimationsModule,
-        TranslateModule.forRoot(),
       ],
       providers: [
+        provideTranslateService(),
         {
           provide: UtilService,
           useValue: {
@@ -80,8 +80,9 @@ describe(PersoonZoekComponent.name, () => {
     }).compileComponents();
 
     klantenService = TestBed.inject(KlantenService);
-    jest.spyOn(klantenService, "getPersonenParameters").mockReturnValue(
-      of([
+    testQueryClient.setQueryData(
+      klantenService.getPersonenParameters().queryKey,
+      [
         {
           bsn: "REQ",
           geboortedatum: "OPT",
@@ -93,13 +94,13 @@ describe(PersoonZoekComponent.name, () => {
           voornamen: "NON",
           voorvoegsel: "NON",
         },
-      ]),
+      ],
     );
     jest
       .spyOn(klantenService, "listPersonen")
       .mockReturnValue(
         createQueryOptions(
-          fromPartial<GeneratedType<"RESTResultaatRestPersoon">>({}),
+          fromPartial<GeneratedType<"RestResultaatRestPersoon">>({}),
         ) as never,
       );
 
@@ -291,7 +292,7 @@ describe(PersoonZoekComponent.name, () => {
     beforeEach(() => {
       jest.spyOn(klantenService, "listPersonen").mockReturnValue(
         createQueryOptions(
-          fromPartial<GeneratedType<"RESTResultaatRestPersoon">>({
+          fromPartial<GeneratedType<"RestResultaatRestPersoon">>({
             resultaten: [fakePersoon],
           }),
         ) as never,
@@ -390,7 +391,7 @@ describe(PersoonZoekComponent.name, () => {
     beforeEach(() => {
       jest.spyOn(klantenService, "listPersonen").mockReturnValue(
         createQueryOptions(
-          fromPartial<GeneratedType<"RESTResultaatRestPersoon">>({
+          fromPartial<GeneratedType<"RestResultaatRestPersoon">>({
             resultaten: [fakePersoon],
           }),
         ) as never,

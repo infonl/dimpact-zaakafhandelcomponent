@@ -136,6 +136,28 @@ class RestPersoonTest : BehaviorSpec({
         }
     }
 
+    given("BRP Persoon with a domestic address with a blank house number addition and a blank postal code") {
+        val persoon = createPersoon(
+            verblijfplaats = Adres().apply {
+                verblijfadres = VerblijfadresBinnenland().apply {
+                    officieleStraatnaam = "street name"
+                    huisnummer = 11
+                    huisnummertoevoeging = " "
+                    postcode = " "
+                    woonplaats = "city"
+                }
+            }
+        )
+
+        `when`("converted to RestPersoon") {
+            val restPersoon = persoon.toRestPersoon()
+
+            then("the blank address details are left out, so no separator is doubled") {
+                restPersoon.verblijfplaats shouldBe "street\u00A0name\u00A011,\u00A0city"
+            }
+        }
+    }
+
     given("BRP Persoon with foreign address") {
         val persoon = createPersoon(
             verblijfplaats = VerblijfplaatsBuitenland().apply {
@@ -154,6 +176,30 @@ class RestPersoonTest : BehaviorSpec({
 
             then("conversion contains the address details, separated with NBSP") {
                 restPersoon.verblijfplaats shouldBe "first\u00A0line,\u00A0Far\u00A0away"
+            }
+        }
+    }
+
+    given("BRP Persoon with a foreign address with a blank second line") {
+        val persoon = createPersoon(
+            verblijfplaats = VerblijfplaatsBuitenland().apply {
+                verblijfadres = VerblijfadresBuitenland().apply {
+                    regel1 = "first line"
+                    regel2 = " "
+                    regel3 = "third line"
+                    land = Waardetabel().apply {
+                        code = "Galaxy"
+                        omschrijving = "Far away"
+                    }
+                }
+            }
+        )
+
+        `when`("converted to RestPersoon") {
+            val restPersoon = persoon.toRestPersoon()
+
+            then("the blank line is left out, so no separator is doubled") {
+                restPersoon.verblijfplaats shouldBe "first\u00A0line,\u00A0third\u00A0line,\u00A0Far\u00A0away"
             }
         }
     }
@@ -330,6 +376,62 @@ class RestPersoonTest : BehaviorSpec({
 
             then("conversion contains the country description") {
                 restPersoon.verblijfplaats shouldBe "first\u00A0line,\u00A0Far\u00A0away"
+            }
+        }
+    }
+
+    given("BRP PersoonBeperkt with an address with a blank second line") {
+        val persoon = createPersoonBeperkt(
+            address = AdresseringBeperkt().apply {
+                adresregel1 = "first line"
+                adresregel2 = " "
+                adresregel3 = "third line"
+                land = Waardetabel().apply {
+                    code = "Galaxy"
+                    omschrijving = "Far away"
+                }
+            }
+        )
+
+        `when`("converted to RestPersoon") {
+            val restPersoon = persoon.toRestPersoon()
+
+            then("the blank line is left out, so no separator is doubled") {
+                restPersoon.verblijfplaats shouldBe "first\u00A0line,\u00A0third\u00A0line,\u00A0Far\u00A0away"
+            }
+        }
+    }
+
+    given("BRP Persoon with a geslacht that has an omschrijving") {
+        val persoon = createPersoon().apply {
+            geslacht = Waardetabel().apply {
+                code = "V"
+                omschrijving = "vrouw"
+            }
+        }
+
+        `when`("converted to RestPersoon") {
+            val restPersoon = persoon.toRestPersoon()
+
+            then("the geslacht is the omschrijving") {
+                restPersoon.geslacht shouldBe "vrouw"
+            }
+        }
+    }
+
+    given("BRP Persoon with a geslacht that has a blank omschrijving") {
+        val persoon = createPersoon().apply {
+            geslacht = Waardetabel().apply {
+                code = "V"
+                omschrijving = " "
+            }
+        }
+
+        `when`("converted to RestPersoon") {
+            val restPersoon = persoon.toRestPersoon()
+
+            then("the geslacht is the code") {
+                restPersoon.geslacht shouldBe "V"
             }
         }
     }

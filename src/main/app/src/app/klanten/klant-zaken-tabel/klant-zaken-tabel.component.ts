@@ -24,9 +24,9 @@ import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
-import { lastValueFrom, merge, Observable, of } from "rxjs";
+import { merge, Observable, of } from "rxjs";
 import { catchError, map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { runQuery } from "../../shared/http/run-query";
@@ -36,6 +36,7 @@ import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-r
 import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filter/facet-filter.component";
 import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import {
@@ -54,6 +55,7 @@ import { KlantenService } from "../klanten.service";
   styleUrls: ["./klant-zaken-tabel.component.less"],
   standalone: true,
   imports: [
+    ZaakIdentificatieComponent,
     NgClass,
     ReactiveFormsModule,
     MatCardModule,
@@ -66,7 +68,7 @@ import { KlantenService } from "../klanten.service";
     MatButtonModule,
     MatIconModule,
     RouterLink,
-    TranslateModule,
+    TranslatePipe,
     DatumPipe,
     EmptyPipe,
     TekstFilterComponent,
@@ -75,6 +77,11 @@ import { KlantenService } from "../klanten.service";
   ],
 })
 export class KlantZakenTabelComponent implements AfterViewInit {
+  private readonly utilService = inject(UtilService);
+  private readonly zoekenService = inject(ZoekenService);
+  private readonly klantenService = inject(KlantenService);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
+
   protected readonly klant =
     input.required<GeneratedType<"RestBedrijf" | "RestPersoon">>();
 
@@ -108,25 +115,11 @@ export class KlantZakenTabelComponent implements AfterViewInit {
   private laatsteBetrokkenheid?: string | null = null;
 
   protected distinctRoltypenQuery = injectQuery(() => ({
-    queryKey: ["klantenService", "listRoltypen", "distinct"],
-    queryFn: () =>
-      lastValueFrom(
-        this.klantenService.listRoltypen().pipe(
-          map((typen) => {
-            return [...new Set(typen.map(({ naam }) => naam))];
-          }),
-        ),
-      ),
+    ...this.klantenService.listRoltypen(),
+    select: (roltypen) => [...new Set(roltypen.map(({ naam }) => naam))],
   }));
 
   private readonly queryClient = inject(QueryClient);
-
-  constructor(
-    private readonly utilService: UtilService,
-    private readonly zoekenService: ZoekenService,
-    private readonly klantenService: KlantenService,
-    private readonly changeDetectorRef: ChangeDetectorRef,
-  ) {}
 
   private loadZaken(): Observable<ZoekResultaat<ZaakZoekObject>> {
     if (this.laatsteBetrokkenheid) {

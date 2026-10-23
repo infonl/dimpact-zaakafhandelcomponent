@@ -15,7 +15,7 @@ import { MatDialogModule, MatDialogRef } from "@angular/material/dialog";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { UtilService } from "../../../core/service/util.service";
 import { ZacFormActions } from "../../../shared/form/form-actions/form-actions.component";
 import { ZacInput } from "../../../shared/form/input/input";
@@ -34,7 +34,7 @@ import { ReferentieTabelService } from "../../referentie-tabel.service";
     MatDividerModule,
     MatIconModule,
     MatToolbarModule,
-    TranslateModule,
+    TranslatePipe,
     ZacFormActions,
     ZacInput,
   ],

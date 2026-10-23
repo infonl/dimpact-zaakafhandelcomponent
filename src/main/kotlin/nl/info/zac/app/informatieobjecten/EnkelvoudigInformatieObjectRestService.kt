@@ -18,15 +18,12 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.Context
-import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.HttpHeaders
+import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.StreamingOutput
 import jakarta.ws.rs.core.UriInfo
-import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
-import net.atos.zac.event.EventingService
 import net.atos.zac.util.MediaTypes
-import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.StatusEnum
@@ -35,6 +32,8 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
+import nl.info.client.zgw.zrc.model.zaakUUID
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
@@ -59,6 +58,7 @@ import nl.info.zac.document.content.DocumentContentReader
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import nl.info.zac.event.EventingService
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_DOCUMENT_UPLOAD_INVALID
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
@@ -69,9 +69,9 @@ import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.webdav.WebdavHelper
+import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.readZaakAutorisatieGegevens
-import nl.info.client.zgw.zrc.model.zaakUUID
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
 import java.io.IOException
 import java.net.URI
@@ -603,8 +603,23 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     ): List<RestGekoppeldeZaakEnkelvoudigInformatieObject> =
         zaakURI.let(zrcClientService::readZaak)
             .let { zaak ->
-                zrcClientService.listZaakinformatieobjecten(zaak)
-                    .map { restInformatieobjectConverter.convertToREST(it, relatieType, zaak) }
+                val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(zaak)
+                if (zaakInformatieobjecten.isEmpty()) {
+                    emptyList()
+                } else {
+                    val zaakAutorisatieGegevens = zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(
+                        zrcClientService,
+                        zaak
+                    )
+                    zaakInformatieobjecten.map {
+                        restInformatieobjectConverter.convertToREST(
+                            zaakInformatieObject = it,
+                            relatieType = relatieType,
+                            zaak = zaak,
+                            zaakAutorisatieGegevens = zaakAutorisatieGegevens
+                        )
+                    }
+                }
             }
 
     private fun listGekoppeldeZaakInformatieObjectenVoorZaak(
@@ -637,13 +652,16 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private fun toRestZaakInformatieobject(zaakInformatieobject: ZaakInformatieObject): RestZaakInformatieobject {
         val zaak = zrcClientService.readZaak(zaakInformatieobject.zaak)
         val zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype())
+        val zaakAutorisatieGegevens = zaakspecifiekeAutorisatieService.readZaakAutorisatieGegevens(zrcClientService, zaak)
         val zaakrechten = policyService.readZaakRechten(
             zaak = zaak,
             zaaktype = zaaktype,
-            loggedInUser = loggedInUserInstance.get()
+            loggedInUser = loggedInUserInstance.get(),
+            zaakAutorisatieGegevens = zaakAutorisatieGegevens
         )
         return RestZaakInformatieobject(
             zaakIdentificatie = zaak.getIdentificatie(),
+            isZaakspecifiekGeautoriseerd = zaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd,
             zaakRechten = zaakrechten.toRestZaakRechten(),
             zaakStartDatum = takeIf { zaakrechten.canLezen }?.let { zaak.getStartdatum() },
             zaakEinddatumGepland = takeIf { zaakrechten.canLezen }?.let { zaak.getEinddatumGepland() },

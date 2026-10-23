@@ -7,7 +7,6 @@ package nl.info.zac.app.zaak.converter
 import jakarta.inject.Inject
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ONTVANGSTBEVESTIGING_VERSTUURD
-import nl.info.zac.util.time.PeriodUtil
 import nl.info.client.klant.KlantClientService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.shared.ZgwApiService
@@ -30,10 +29,10 @@ import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.shared.toRestVertrouwelijkheidaanduiding
-import nl.info.zac.app.zaak.model.RestZaakKenmerk
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestGerelateerdeZaak
 import nl.info.zac.app.zaak.model.RestZaak
+import nl.info.zac.app.zaak.model.RestZaakKenmerk
 import nl.info.zac.app.zaak.model.toRestGeometry
 import nl.info.zac.app.zaak.model.toRestZaakBpmnProcessDefinition
 import nl.info.zac.app.zaak.model.toRestZaakStatus
@@ -48,6 +47,7 @@ import nl.info.zac.search.model.ZaakIndicatie.HOOFDZAAK
 import nl.info.zac.search.model.ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD
 import nl.info.zac.search.model.ZaakIndicatie.OPSCHORTING
 import nl.info.zac.search.model.ZaakIndicatie.VERLENGD
+import nl.info.zac.util.time.PeriodUtil
 import nl.info.zac.zaak.ZaakService
 import java.time.Period
 import java.util.EnumSet.noneOf
@@ -105,14 +105,14 @@ class RestZaakConverter @Inject constructor(
         val roles = zrcClientService.listRollen(zaak)
         val groep = zgwApiService.findGroepForZaak(zaak, roles)?.let { rolOrganisatorischeEenheid ->
             rolOrganisatorischeEenheid.betrokkeneIdentificatie?.let {
-                restGroupConverter.convertGroupId(it.identificatie)
+                restGroupConverter.convertGroupId(groupId = it.identificatie, logContext = "zaak '${zaak.identificatie}'")
             }
         }
         val besluiten = brcClientService.listBesluiten(zaak)
             .map { restBesluitConverter.convertToRestBesluit(it) }
         val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak, roles)
             ?.identificatienummer
-            ?.let(restUserConverter::convertUserId)
+            ?.let { restUserConverter.convertUserId(userId = it, logContext = "zaak '${zaak.identificatie}'") }
         val initiator = zgwApiService.findInitiatorRoleForZaak(zaak, roles)
         val initiatorIdentificatie = initiator?.let {
             identificationService.createBetrokkeneIdentificatieForInitiatorRole(it)

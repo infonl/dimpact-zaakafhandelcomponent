@@ -11,7 +11,7 @@ import {
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { render, screen } from "@testing-library/angular";
@@ -72,8 +72,9 @@ describe(ZakenCardComponent.name, () => {
 
     const rendered = await render(ZakenCardComponent, {
       inputs: { data: cardData },
-      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule],
       providers: [
+        provideTranslateService(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
@@ -165,6 +166,51 @@ describe(ZakenCardComponent.name, () => {
 
     expect(request.request.body).toMatchObject({ page: 1 });
     expect(screen.getByText(/10 of 25/)).toBeVisible();
+  });
+
+  it("moves to the last page that still exists when the total shrinks below the current page", async () => {
+    await setup();
+    await respondWith(makeResultaat(15, 5));
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    await sleep();
+    await respondWith(makeResultaat(15, 5));
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    await sleep();
+
+    await respondWith(makeResultaat(4, 0));
+    fixture.detectChanges();
+    await sleep();
+    const request = await respondWith(makeResultaat(4));
+
+    expect(request.request.body).toMatchObject({ page: 0 });
+    expect(screen.getAllByRole("row", { name: /ZAAK-FOUND/ })).toHaveLength(4);
+    expect(screen.getByText(/1 – 4 of 4/)).toBeVisible();
+  });
+
+  it("keeps the user on a revisited page while it refetches, so a total cached before the zaken grew does not move the user away", async () => {
+    await setup();
+    await respondWith(makeResultaat(15, 5));
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    await sleep();
+    await respondWith(makeResultaat(15, 5));
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    await sleep();
+    await respondWith(makeResultaat(4, 0));
+    fixture.detectChanges();
+    await sleep();
+    await respondWith(makeResultaat(15, 5));
+
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    await sleep();
+    await respondWith(makeResultaat(15, 5));
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    await sleep();
+    fixture.detectChanges();
+    await sleep();
+    const request = await respondWith(makeResultaat(15, 5));
+
+    expect(request.request.body).toMatchObject({ page: 2 });
+    expect(screen.getByText(/11 – 15 of 15/)).toBeVisible();
   });
 
   it("sorts by the column the user clicks and returns to the first page", async () => {

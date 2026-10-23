@@ -7,11 +7,13 @@ package net.atos.zac.flowable.cmmn
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.signalering.model.SignaleringType
-import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.websocket.event.ScreenEventType
 import org.flowable.cmmn.engine.interceptor.CreateHumanTaskAfterContext
 import org.flowable.cmmn.engine.interceptor.CreateHumanTaskBeforeContext
 import org.flowable.cmmn.engine.interceptor.CreateHumanTaskInterceptor
+import org.flowable.common.engine.impl.cfg.TransactionState
+import org.flowable.common.engine.impl.context.Context
 import java.util.Date
 import java.util.UUID
 
@@ -28,11 +30,6 @@ class ZacCreateHumanTaskInterceptor : CreateHumanTaskInterceptor {
         const val VAR_TRANSIENT_CANDIDATE_GROUP = "candidateGroupId"
         const val VAR_TRANSIENT_ASSIGNEE = "assignee"
         const val VAR_TRANSIENT_OWNER = "owner"
-
-        /**
-         * This must be lower than the DEFAULT_SUSPENSION_TIMEOUT defined in `websockets.service.ts`
-         */
-        const val SECONDS_TO_DELAY: Int = 3
     }
 
     override fun beforeCreateHumanTask(context: CreateHumanTaskBeforeContext) {
@@ -67,22 +64,21 @@ class ZacCreateHumanTaskInterceptor : CreateHumanTaskInterceptor {
             )?.let {
             context.getTaskEntity().description = it
         }
-        (context.getPlanItemInstanceEntity().getTransientVariable(VAR_TRANSIENT_ZAAK_UUID) as UUID).let {
-            val screenEvent = ScreenEventType.ZAAK_TAKEN.updated(it)
-            // Wait some time before handling the event to make sure that the task has been created.
-            screenEvent.setDelay(SECONDS_TO_DELAY)
-            FlowableHelper.getInstance().eventingService.send(screenEvent)
+        val screenEvent = ScreenEventType.ZAAK_TAKEN.updated(
+            context.getPlanItemInstanceEntity().getTransientVariable(VAR_TRANSIENT_ZAAK_UUID) as UUID
+        )
+        // On creation of a human task the event observer will assume its owner is the actor who created it.
+        val signaleringEvent = context.getTaskEntity().assignee?.let {
+            SignaleringEventUtil.event(SignaleringType.Type.TAAK_OP_NAAM, context.getTaskEntity(), null)
         }
-        context.getTaskEntity().assignee?.let {
-            // On creation of a human task the event observer will assume its owner is the actor who created it.
-            val signaleringEvent = SignaleringEventUtil.event(
-                SignaleringType.Type.TAAK_OP_NAAM,
-                context.getTaskEntity(),
-                null
-            )
-            // Wait some time before handling the event to make sure that the task has been created.
-            signaleringEvent.setDelay(SECONDS_TO_DELAY)
-            FlowableHelper.getInstance().eventingService.send(signaleringEvent)
+        // The handlers of these events read the task, which only exists for them once Flowable has committed
+        // the transaction. The task listeners in the same transaction, such as the one of the
+        // aanvullende informatie task, call external APIs, so no fixed delay is long enough.
+        Context.getTransactionContext().addTransactionListener(TransactionState.COMMITTED) {
+            with(FlowableHelper.getInstance().eventingService) {
+                send(screenEvent)
+                signaleringEvent?.let(::send)
+            }
         }
         FlowableHelper.getInstance().indexeerService.addOrUpdateTaak(context.getTaskEntity().id)
     }

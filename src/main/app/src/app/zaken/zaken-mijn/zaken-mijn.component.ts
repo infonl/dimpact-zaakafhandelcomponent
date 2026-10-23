@@ -5,14 +5,20 @@
 
 import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
 import { SlicePipe } from "@angular/common";
-import { AfterViewInit, Component, OnDestroy, viewChild } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  inject,
+  OnDestroy,
+  viewChild,
+} from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort, MatSortHeader } from "@angular/material/sort";
 import { MatTable, MatTableModule } from "@angular/material/table";
 import { ActivatedRoute, RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import moment from "moment";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { UtilService } from "../../core/service/util.service";
@@ -41,6 +47,7 @@ import { ZakenMijnDatasource } from "./zaken-mijn-datasource";
 
 import { detailExpand } from "../../shared/animations/animations";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 
 @Component({
   templateUrl: "./zaken-mijn.component.html",
@@ -48,6 +55,7 @@ import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
   animations: [detailExpand],
   standalone: true,
   imports: [
+    ZaakIdentificatieComponent,
     I18nKeyPipe,
     CdkDrag,
     CdkDropList,
@@ -60,7 +68,7 @@ import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
     MatSortHeader,
     MatTableModule,
     RouterLink,
-    TranslateModule,
+    TranslatePipe,
     ZoekopdrachtComponent,
     ColumnPickerComponent,
     ExportButtonComponent,
@@ -79,6 +87,11 @@ export class ZakenMijnComponent
   extends WerklijstComponent
   implements AfterViewInit, OnDestroy
 {
+  gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
+  route = inject(ActivatedRoute);
+  private zoekenService = inject(ZoekenService);
+  utilService = inject(UtilService);
+
   readonly indicatiesLayout = IndicatiesLayout;
   dataSource: ZakenMijnDatasource;
   readonly paginator = viewChild.required(MatPaginator);
@@ -102,18 +115,12 @@ export class ZakenMijnComponent
     "error",
   );
 
-  constructor(
-    public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    public route: ActivatedRoute,
-    private zoekenService: ZoekenService,
-    public utilService: UtilService,
-  ) {
+  constructor() {
     super();
     this.dataSource = new ZakenMijnDatasource(
       this.zoekenService,
       this.utilService,
     );
-    this.utilService.setTitle("title.zaken.mijn");
     this.dataSource.initColumns(this.defaultColumns());
   }
 

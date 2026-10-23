@@ -19,24 +19,24 @@ import jakarta.ws.rs.NotFoundException
 import jakarta.ws.rs.ServiceUnavailableException
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.Response
-import net.atos.zac.event.EventingService
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
-import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.model.createZaakEigenschap
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
-import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
+import nl.info.zac.event.EventingService
+import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.task.TaskService
+import nl.info.zac.websocket.event.ScreenEvent
 import java.net.URI
 import java.util.UUID
 
@@ -317,6 +317,58 @@ class NotificationReceiverTest : BehaviorSpec({
             }
         }
     }
+    given("a request containing an authorization header and a rol destroy notificatie for an existing zaak") {
+        val zaakUUID = UUID.randomUUID()
+        val notificatie = createNotificatie(
+            channel = Channel.ZAKEN,
+            resource = Resource.ROL,
+            resourceUrl = URI("https://example.com/fakezaak/$zaakUUID/rollen/${UUID.randomUUID()}"),
+            mainResourceUrl = URI("https://example.com/fakezaak/$zaakUUID"),
+            action = Action.DELETE
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+        every { signaleringService.deleteZaakSignaleringenOfFormerBehandelaren(zaakUUID) } returns 1
+        every { zrcClientService.listZaakeigenschappen(zaakUUID) } returns emptyList()
+        every { indexingService.addOrUpdateZaak(zaakUUID, false) } returns true
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
+
+        `when`("notificatieReceive is called with the rol destroy notificatie") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            then("the zaak signaleringen of users who are no longer behandelaar of the zaak are deleted") {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 1) { signaleringService.deleteZaakSignaleringenOfFormerBehandelaren(zaakUUID) }
+            }
+        }
+    }
+    given("a request containing an authorization header and a rol destroy notificatie for a zaak that no longer exists") {
+        val zaakUUID = UUID.randomUUID()
+        val notificatie = createNotificatie(
+            channel = Channel.ZAKEN,
+            resource = Resource.ROL,
+            resourceUrl = URI("https://example.com/fakezaak/$zaakUUID/rollen/${UUID.randomUUID()}"),
+            mainResourceUrl = URI("https://example.com/fakezaak/$zaakUUID"),
+            action = Action.DELETE
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+        every {
+            signaleringService.deleteZaakSignaleringenOfFormerBehandelaren(zaakUUID)
+        } throws NotFoundException("fakeNotFound")
+        every { zrcClientService.listZaakeigenschappen(zaakUUID) } returns emptyList()
+        every { indexingService.addOrUpdateZaak(zaakUUID, false) } returns true
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
+
+        `when`("notificatieReceive is called with the rol destroy notificatie") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            then("no signaleringen are deleted and the rest of the notification is still handled") {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 1) { indexingService.addOrUpdateZaak(zaakUUID, false) }
+            }
+        }
+    }
     given("a request containing an authorization header and a notificatie for a ZAAK_GEAUTORISEERD zaakeigenschap update") {
         val zaakUUID = UUID.randomUUID()
         val zaakeigenschapUUID = UUID.randomUUID()
@@ -334,8 +386,7 @@ class NotificationReceiverTest : BehaviorSpec({
         every {
             zrcClientService.readZaakeigenschap(zaakUUID, zaakeigenschapUUID)
         } returns createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, uuid = zaakeigenschapUUID)
-        every { indexingService.addOrUpdateZaak(zaakUUID, false) } returns true
-        every { indexingService.addOrUpdateTakenForZaak(zaakUUID) } just Runs
+        every { indexingService.addOrUpdateZaakWithTaken(zaakUUID) } just Runs
         every { indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID) } just Runs
         every { eventingService.send(any<ScreenEvent>()) } just Runs
 
@@ -348,8 +399,7 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
-                    indexingService.addOrUpdateZaak(zaakUUID, false)
-                    indexingService.addOrUpdateTakenForZaak(zaakUUID)
+                    indexingService.addOrUpdateZaakWithTaken(zaakUUID)
                     indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID)
                 }
             }
@@ -381,7 +431,7 @@ class NotificationReceiverTest : BehaviorSpec({
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 0) {
                     indexingService.addOrUpdateZaak(any(), any())
-                    indexingService.addOrUpdateTakenForZaak(any())
+                    indexingService.addOrUpdateZaakWithTaken(any())
                     indexingService.addOrUpdateInformatieobjectenForZaakAsync(any())
                 }
             }
@@ -401,8 +451,7 @@ class NotificationReceiverTest : BehaviorSpec({
         )
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
-        every { indexingService.addOrUpdateZaak(zaakUUID, false) } returns true
-        every { indexingService.addOrUpdateTakenForZaak(zaakUUID) } just Runs
+        every { indexingService.addOrUpdateZaakWithTaken(zaakUUID) } just Runs
         every { indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID) } just Runs
         every { eventingService.send(any<ScreenEvent>()) } just Runs
 
@@ -415,8 +464,7 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
-                    indexingService.addOrUpdateZaak(zaakUUID, false)
-                    indexingService.addOrUpdateTakenForZaak(zaakUUID)
+                    indexingService.addOrUpdateZaakWithTaken(zaakUUID)
                     indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID)
                 }
                 verify(exactly = 0) {
@@ -445,8 +493,7 @@ class NotificationReceiverTest : BehaviorSpec({
         every {
             zrcClientService.readZaakeigenschap(zaakUUID, zaakeigenschapUUID)
         } throws NotFoundException()
-        every { indexingService.addOrUpdateZaak(zaakUUID, false) } returns true
-        every { indexingService.addOrUpdateTakenForZaak(zaakUUID) } just Runs
+        every { indexingService.addOrUpdateZaakWithTaken(zaakUUID) } just Runs
         every { indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID) } just Runs
         every { eventingService.send(any<ScreenEvent>()) } just Runs
 
@@ -459,8 +506,7 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
-                    indexingService.addOrUpdateZaak(zaakUUID, false)
-                    indexingService.addOrUpdateTakenForZaak(zaakUUID)
+                    indexingService.addOrUpdateZaakWithTaken(zaakUUID)
                     indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID)
                 }
             }
@@ -486,8 +532,7 @@ class NotificationReceiverTest : BehaviorSpec({
         every {
             zrcClientService.readZaakeigenschap(zaakUUID, zaakeigenschapUUID)
         } throws ServiceUnavailableException()
-        every { indexingService.addOrUpdateZaak(zaakUUID, false) } returns true
-        every { indexingService.addOrUpdateTakenForZaak(zaakUUID) } just Runs
+        every { indexingService.addOrUpdateZaakWithTaken(zaakUUID) } just Runs
         every { indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID) } just Runs
         every { eventingService.send(any<ScreenEvent>()) } just Runs
 
@@ -500,8 +545,7 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
-                    indexingService.addOrUpdateZaak(zaakUUID, false)
-                    indexingService.addOrUpdateTakenForZaak(zaakUUID)
+                    indexingService.addOrUpdateZaakWithTaken(zaakUUID)
                     indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID)
                 }
             }

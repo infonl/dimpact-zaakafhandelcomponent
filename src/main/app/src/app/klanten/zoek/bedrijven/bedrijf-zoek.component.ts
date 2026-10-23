@@ -22,7 +22,7 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Router } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
@@ -58,11 +58,17 @@ import { FormCommunicatieService } from "../form-communicatie-service";
     MatButtonModule,
     MatIconModule,
     MatExpansionPanelActionRow,
-    TranslateModule,
+    TranslatePipe,
     TitleCasePipe,
   ],
 })
 export class BedrijfZoekComponent implements OnInit, OnDestroy {
+  private readonly klantenService = inject(KlantenService);
+  private readonly utilService = inject(UtilService);
+  private readonly formCommunicationService = inject(FormCommunicatieService);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly router = inject(Router);
+
   readonly bedrijf = output<GeneratedType<"RestBedrijf">>();
   readonly isSelectable = input(false, { transform: booleanAttribute });
   readonly sideNav = input<MatSidenav>();
@@ -124,13 +130,7 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
 
   private readonly queryClient = inject(QueryClient);
 
-  constructor(
-    private readonly klantenService: KlantenService,
-    private readonly utilService: UtilService,
-    private readonly formCommunicationService: FormCommunicatieService,
-    private readonly formBuilder: FormBuilder,
-    private readonly router: Router,
-  ) {
+  constructor() {
     this.formGroup.controls.type.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((type) => {

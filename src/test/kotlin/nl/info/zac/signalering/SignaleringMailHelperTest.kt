@@ -35,7 +35,7 @@ class SignaleringMailHelperTest : BehaviorSpec({
                 type = createSignaleringType(type = SignaleringType.Type.ZAAK_OP_NAAM),
                 targetGroup = fakeGroup
             )
-            every { identityService.readGroup(signalering.target) } returns fakeGroup
+            every { identityService.readGroup(signalering.target, any()) } returns fakeGroup
 
             `when`("getTargetMail is called") {
                 val result = signaleringMailHelper.getTargetMail(signalering)
@@ -53,7 +53,7 @@ class SignaleringMailHelperTest : BehaviorSpec({
                 type = createSignaleringType(type = SignaleringType.Type.ZAAK_OP_NAAM),
                 targetGroup = fakeGroup
             )
-            every { identityService.readGroup(signalering.target) } returns fakeGroup
+            every { identityService.readGroup(signalering.target, any()) } returns fakeGroup
 
             `when`("getTargetMail is called") {
                 val result = signaleringMailHelper.getTargetMail(signalering)
@@ -77,7 +77,7 @@ class SignaleringMailHelperTest : BehaviorSpec({
                 type = createSignaleringType(type = SignaleringType.Type.ZAAK_OP_NAAM),
                 targetUser = fakeUser
             )
-            every { identityService.readUser(signalering.target) } returns fakeUser
+            every { identityService.readUser(signalering.target, any()) } returns fakeUser
 
             `when`("getTargetMail is called") {
                 val result = signaleringMailHelper.getTargetMail(signalering)
@@ -95,7 +95,7 @@ class SignaleringMailHelperTest : BehaviorSpec({
                 type = createSignaleringType(type = SignaleringType.Type.ZAAK_OP_NAAM),
                 targetUser = fakeUser
             )
-            every { identityService.readUser(signalering.target) } returns fakeUser
+            every { identityService.readUser(signalering.target, any()) } returns fakeUser
 
             `when`("getTargetMail is called") {
                 val result = signaleringMailHelper.getTargetMail(signalering)

@@ -15,7 +15,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import jakarta.json.bind.JsonbException
 import jakarta.ws.rs.ProcessingException
-import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createMedewerkerIdentificatie
 import nl.info.client.zgw.model.createOrganisatorischeEenheidIdentificatie
@@ -26,13 +25,14 @@ import nl.info.client.zgw.model.createRolOrganisatorischeEenheidForReads
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.model.createZaakobjectPand
-import nl.info.client.zgw.ztc.model.createBehandelaarRolType
-import nl.info.client.zgw.ztc.model.createZaakspecifiekGeautoriseerdeMedewerkerRolType
+import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.exception.ZaakGeometrieNotSupportedException
 import nl.info.client.zgw.zrc.model.ZaakListParameters
 import nl.info.client.zgw.zrc.model.ZaakUuid
+import nl.info.client.zgw.ztc.model.createBehandelaarRolType
+import nl.info.client.zgw.ztc.model.createZaakspecifiekGeautoriseerdeMedewerkerRolType
 import nl.info.zac.configuration.ConfigurationService
 import java.net.ConnectException
 import java.util.UUID
@@ -292,6 +292,25 @@ class ZrcClientServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zgwClientHeadersFactory.withAuditExplanation<Any?>(auditExplanation, any())
                     zrcClient.rolDelete(rol.uuid!!)
+                }
+            }
+        }
+    }
+
+    given("A zaakeigenschap to be deleted") {
+        val zaakUuid = UUID.randomUUID()
+        val zaakeigenschapUuid = UUID.randomUUID()
+        val auditExplanation = "fakeExplanation"
+        every { zrcClient.zaakeigenschapDelete(zaakUuid, zaakeigenschapUuid) } just Runs
+        every { zgwClientHeadersFactory.withAuditExplanation<Any?>(auditExplanation, any()) } answers { secondArg<() -> Any?>()() }
+
+        `when`("deleteZaakeigenschap is called") {
+            zrcClientService.deleteZaakeigenschap(zaakUuid, zaakeigenschapUuid, auditExplanation)
+
+            then("it should delete the zaakeigenschap and set the audit description") {
+                verify(exactly = 1) {
+                    zgwClientHeadersFactory.withAuditExplanation<Any?>(auditExplanation, any())
+                    zrcClient.zaakeigenschapDelete(zaakUuid, zaakeigenschapUuid)
                 }
             }
         }

@@ -1,0 +1,22 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-accordion class="flex-col">
+  @for (actieForm of form().controls; track actieForm) {
+    <mat-expansion-panel class="flex-col">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          {{ actieForm.controls.naam.value }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <zac-textarea
+        class="w33 w100-md"
+        [form]="actieForm"
+        key="toelichting"
+        label="toelichting"
+      ></zac-textarea>
+    </mat-expansion-panel>
+  }
+</mat-accordion>

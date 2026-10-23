@@ -1,9 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
 import { InformatieObjectenService } from "./informatie-objecten.service";
 
@@ -11,7 +11,7 @@ import { InformatieObjectenService } from "./informatie-objecten.service";
   providedIn: "root",
 })
 export class InformatieObjectResolver {
-  constructor(private informatieObjectenService: InformatieObjectenService) {}
+  private informatieObjectenService = inject(InformatieObjectenService);
 
   resolve(route: ActivatedRouteSnapshot) {
     const informatieObjectUUID = route.paramMap.get("uuid");

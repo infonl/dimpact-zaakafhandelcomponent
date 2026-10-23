@@ -17,21 +17,19 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.delegate.exception.InvalidExtensionPeriodException
-import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
-import nl.info.zac.exception.ErrorCode
+import nl.info.zac.event.EventingService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.shared.helper.SuspensionZaakHelper
+import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.zaak.ZaakService
 import org.flowable.common.engine.impl.el.JuelExpression
 import org.flowable.engine.delegate.DelegateExecution
@@ -89,6 +87,7 @@ class ExtendZaakDelegateTest : BehaviorSpec({
         every {
             suspensionZaakHelper.extendZaak(
                 zaak = zaak,
+                zaakType = zaaktype,
                 dueDate = capture(dueDateSlot),
                 fatalDate = capture(fatalDateSlot),
                 extensionReason = any<String>(),
@@ -122,6 +121,7 @@ class ExtendZaakDelegateTest : BehaviorSpec({
                 verify(exactly = 1) {
                     suspensionZaakHelper.extendZaak(
                         zaak = zaak,
+                        zaakType = zaaktype,
                         dueDate = any<LocalDate>(),
                         fatalDate = any<LocalDate>(),
                         extensionReason = any<String>(),
@@ -139,82 +139,6 @@ class ExtendZaakDelegateTest : BehaviorSpec({
             and("events are sent") {
                 // 1 task event + 1 zaak event
                 verify(exactly = 2) {
-                    eventingService.send(any<ScreenEvent>())
-                }
-            }
-        }
-    }
-
-    given("Process using ExtendZaakDelegate with a extend days bigger than allowed extension term") {
-        val zaak = createZaak(einddatumGepland = LocalDate.now())
-        val zaaktype = createZaakType(uri = zaak.zaaktype, verlengingMogelijk = true, verlengingstermijn = "P10D")
-        val extendDays = 11
-
-        mockkObject(FlowableHelper)
-        val flowableHelper = mockk<FlowableHelper>()
-        every { FlowableHelper.getInstance() } returns flowableHelper
-        every { flowableHelper.zaakService } returns zaakService
-        every { flowableHelper.policyService } returns policyService
-        every { flowableHelper.loggedInUserInstance } returns loggedInUserInstance
-
-        every { delegateExecution.parent } returns parentDelegateExecution
-        every { delegateExecution.currentActivityName } returns "activity"
-        every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns zaak.identificatie
-
-        every { zaakService.readZaakAndZaakTypeByZaakID(zaak.identificatie) } returns Pair(zaak, zaaktype)
-
-        every { loggedInUserInstance.get() } returns loggedInUser
-        every {
-            policyService.readZaakRechten(zaak = zaak, zaaktype = zaaktype, loggedInUser = loggedInUser)
-        } returns createZaakRechtenAllDeny(verlengen = true)
-
-        val aantalDagenExpression = mockk<JuelExpression>()
-        every { aantalDagenExpression.getValue(delegateExecution) } returns extendDays
-
-        val verlengingRedenExpression = mockk<JuelExpression>()
-        val takenVerlengenExpression = mockk<JuelExpression>()
-
-        val extendZaakDelegate = ExtendZaakDelegate().apply {
-            aantalDagen = aantalDagenExpression
-            verlengingReden = verlengingRedenExpression
-            takenVerlengen = takenVerlengenExpression
-        }
-
-        `when`("Extending the zaak") {
-            val exception = shouldThrow<InvalidExtensionPeriodException> {
-                extendZaakDelegate.execute(delegateExecution)
-            }
-
-            then("exception is thrown") {
-                exception.errorCode shouldBe ErrorCode.ERROR_CODE_EXTENSION_PERIOD_INVALID
-            }
-
-            and("correct expressions resolution is attempted") {
-                verify(exactly = 1) {
-                    aantalDagenExpression.getValue(delegateExecution)
-                }
-                verify(exactly = 0) {
-                    verlengingRedenExpression.getValue(delegateExecution)
-                    takenVerlengenExpression.getValue(delegateExecution)
-                }
-            }
-
-            and("no zaak or tasks are extended") {
-                verify(exactly = 0) {
-                    suspensionZaakHelper.extendZaak(
-                        zaak = zaak,
-                        dueDate = any<LocalDate>(),
-                        fatalDate = any<LocalDate>(),
-                        extensionReason = any<String>(),
-                        numberOfDays = extendDays
-                    )
-                    suspensionZaakHelper.extendTasks(zaak, extendDays)
-                }
-            }
-
-            and("no events are sent") {
-                // 1 task event + 1 zaak event
-                verify(exactly = 0) {
                     eventingService.send(any<ScreenEvent>())
                 }
             }
@@ -260,6 +184,7 @@ class ExtendZaakDelegateTest : BehaviorSpec({
                 verify(exactly = 0) {
                     suspensionZaakHelper.extendZaak(
                         zaak = any(),
+                        zaakType = any(),
                         dueDate = any(),
                         fatalDate = any(),
                         extensionReason = any(),

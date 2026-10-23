@@ -1,0 +1,7 @@
+variables:
+  - name: baseUrl
+    value: https://zaakafhandelcomponent-zac-dev.dimpact.lifely.nl
+  - name: keycloakBaseUrl
+    value: https://keycloak-zac-dev.dimpact.lifely.nl
+  - secret: true
+    name: keycloakClientSecret

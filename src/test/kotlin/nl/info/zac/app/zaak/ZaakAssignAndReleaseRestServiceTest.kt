@@ -79,8 +79,13 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
                 zaakService.assignZaken(zaakUUIDs = any(), group = any(), user = any(), explanation = any(), screenEventResourceId = any())
             } just runs
             every { loggedInUserInstance.get() } returns createLoggedInUser()
-            every { identityService.readGroup(group.name) } returns group
-            every { identityService.readUser(restZakenVerdeelGegevens.behandelaarGebruikersnaam!!) } returns user
+            every { identityService.readGroup(group.name, "assigning zaken from the werklijst") } returns group
+            every {
+                identityService.readUser(
+                    restZakenVerdeelGegevens.behandelaarGebruikersnaam!!,
+                    "assigning zaken from the werklijst"
+                )
+            } returns user
 
             `when`("the assign zaken from a list function is called") {
                 runTest(testDispatcher) {
@@ -319,8 +324,8 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
             var userResolvedWhileAssigning: LoggedInUser? = null
             every { loggedInUserInstance.get() } returns loggedInUser
             every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
-            every { identityService.readGroup(group.name) } returns group
-            every { identityService.readUser(user.id) } returns user
+            every { identityService.readGroup(group.name, "assigning zaken from the werklijst") } returns group
+            every { identityService.readUser(user.id, "assigning zaken from the werklijst") } returns user
             every {
                 zaakService.assignZaken(zaakUUIDs = any(), group = any(), user = any(), explanation = any(), screenEventResourceId = any())
             } answers {

@@ -63,7 +63,7 @@ VALUES
     'Schade en aansprakelijkheid',
     'Behandelen',
     'P30D',
-    NULL,
+    'P10D',
     true,
     true,
     'P1M',
