@@ -329,6 +329,49 @@ describe(ZaakCreateComponent.name, () => {
         expect(form.controls.behandelaar.value).toBeNull();
       });
 
+      it("keeps the vertrouwelijkheidaanduiding of the picked zaaktype while the user types in the zaaktype field", async () => {
+        const inputs = await loader.getAllHarnesses(MatInputHarness);
+        const { autocompleteOptions } = await getAutocompleteOptions({
+          loader,
+          inputs,
+          inputIndex: 0,
+          query: "cmmn",
+        });
+        await autocompleteOptions[0].click();
+        const form = fixture.componentInstance["form"];
+        const vertrouwelijkheidaanduiding =
+          form.controls.vertrouwelijkheidaanduiding.value;
+
+        await inputs[0].setValue("bpmn");
+        await fixture.whenStable();
+
+        expect(vertrouwelijkheidaanduiding).toBeTruthy();
+        expect(form.controls.vertrouwelijkheidaanduiding.value).toEqual(
+          vertrouwelijkheidaanduiding,
+        );
+      });
+
+      it("keeps offering the users of the picked groep while the user types in the groep field", async () => {
+        const inputs = await loader.getAllHarnesses(MatInputHarness);
+        const { autocompleteOptions } = await getAutocompleteOptions({
+          loader,
+          inputs,
+          inputIndex: 0,
+          query: "cmmn",
+        });
+        await autocompleteOptions[0].click();
+
+        fixture.componentInstance["form"].controls.groep.setValue(
+          "test" as unknown as GeneratedType<"RestGroup">,
+        );
+        await sleep();
+        await fixture.whenStable();
+
+        expect(fixture.componentInstance["users"]()).toEqual([
+          { id: "test-user-id", naam: "test user" },
+        ]);
+      });
+
       it("should handle BPMN case type selection", async () => {
         const inputs = await loader.getAllHarnesses(MatInputHarness);
         expect(zakenService.listZaaktypesForCreation).toHaveBeenCalled();
