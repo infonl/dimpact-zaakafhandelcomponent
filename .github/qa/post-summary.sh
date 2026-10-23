@@ -11,7 +11,7 @@
 set -euo pipefail
 
 REPORT=qa-output/report.md
-RUN=qa-output/claude-run.json
+USAGE=qa-output/copilot-usage.json
 SKIPPED=qa-context/skipped.json
 SUMMARY="${GITHUB_STEP_SUMMARY:-/dev/stdout}"
 
@@ -30,11 +30,10 @@ SUMMARY="${GITHUB_STEP_SUMMARY:-/dev/stdout}"
   echo
   echo "- Scope: \`${SCOPE:-yesterday}\`"
   echo "- Model: \`${MODEL:-unknown}\`"
-  if [[ -f "$RUN" ]]; then
-    jq -r '
-      "- Cost: $\(.total_cost_usd // 0 | . * 100 | round / 100)",
-      "- Turns: \(.num_turns // "?"), duration: \((.duration_ms // 0) / 60000 | floor) min",
-      "- Ended with: \(.subtype // "unknown")"' "$RUN"
+  # The format of the Copilot CLI usage file is not documented, so show its top-level values as they are.
+  if [[ -f "$USAGE" ]]; then
+    jq -r 'to_entries[] | select(.value | type != "object" and type != "array") | "- \(.key): \(.value)"' "$USAGE" \
+      || true
   fi
   if [[ -f "$SKIPPED" ]] && [[ $(jq length "$SKIPPED") -gt 0 ]]; then
     echo

@@ -72,6 +72,6 @@ check-for-running-containers.sh
 ### Bruno ###
 scripts/bruno/collections/zaakafhandelcomponent_backend_api/rest/
 
-### Claude QA run ###
+### QA Agent run ###
 qa-context/
 qa-output/

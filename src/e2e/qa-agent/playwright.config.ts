@@ -5,7 +5,7 @@
 
 import { defineConfig, devices } from "@playwright/test";
 
-// Kept apart from the Cucumber and BDD suites, so tests written by the Claude QA run never interfere with them.
+// Kept apart from the Cucumber and BDD suites, so tests written by the QA Agent run never interfere with them.
 export default defineConfig({
   testDir: "./tests",
   outputDir: "../../../qa-output/test-results",

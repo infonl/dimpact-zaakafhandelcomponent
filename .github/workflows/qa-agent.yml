@@ -2,9 +2,9 @@
 # SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-# Pilot: Claude tests yesterday's merges on the dev environment and posts a short summary to Slack.
+# Pilot: an AI agent tests yesterday's merges on the dev environment and posts a short summary to Slack.
 # See .github/qa/README.md.
-name: Claude QA
+name: QA Agent
 
 on:
   schedule:
@@ -18,15 +18,15 @@ on:
         default: yesterday
         type: string
       model:
-        description: "Model for the QA agent"
-        default: claude-haiku-5-5
+        description: "Copilot model for the QA agent"
+        default: claude-haiku-5.5
         type: choice
         options:
-          - claude-haiku-5-5
-          - claude-sonnet-5-5
-      max_budget_usd:
-        description: "Hard cost limit of the run in USD"
-        default: "2"
+          - claude-haiku-5.5
+          - claude-sonnet-5.5
+      max_ai_credits:
+        description: "Cost limit of the run in Copilot AI credits (100 credits = 1 USD)"
+        default: "200"
         type: string
       post_to_slack:
         description: "Post the summary to Slack"
@@ -34,24 +34,26 @@ on:
         type: boolean
 
 concurrency:
-  group: claude-qa
+  group: qa-agent
   cancel-in-progress: false
 
 permissions:
   contents: read
   pull-requests: read
+  # Copilot CLI requests are billed to the organization through the workflow token.
+  copilot-requests: write
 
 jobs:
-  claude-qa:
-    name: "Claude QA"
+  qa-agent:
+    name: "QA Agent"
     runs-on: ubuntu-26.04
     timeout-minutes: 60
     environment: azure-dimpact-dta
     env:
-      SCOPE: ${{ inputs.scope || vars.CLAUDE_QA_SCOPE || 'yesterday' }}
-      MODEL: ${{ inputs.model || vars.CLAUDE_QA_MODEL || 'claude-haiku-5-5' }}
-      MAX_BUDGET_USD: ${{ inputs.max_budget_usd || vars.CLAUDE_QA_MAX_BUDGET_USD || '2' }}
-      LANGUAGE: ${{ vars.CLAUDE_QA_LANGUAGE || 'English' }}
+      SCOPE: ${{ inputs.scope || vars.QA_AGENT_SCOPE || 'yesterday' }}
+      MODEL: ${{ inputs.model || vars.QA_AGENT_MODEL || 'claude-haiku-5.5' }}
+      MAX_AI_CREDITS: ${{ inputs.max_ai_credits || vars.QA_AGENT_MAX_AI_CREDITS || '200' }}
+      LANGUAGE: ${{ vars.QA_AGENT_LANGUAGE || 'English' }}
       JIRA_BASE_URL: https://dimpact.atlassian.net
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -64,8 +66,8 @@ jobs:
         run: bash .github/qa/gather.sh
         env:
           GH_TOKEN: ${{ github.token }}
-          JIRA_EMAIL: ${{ secrets.CLAUDE_QA_JIRA_EMAIL }}
-          JIRA_API_TOKEN: ${{ secrets.CLAUDE_QA_JIRA_API_TOKEN }}
+          JIRA_EMAIL: ${{ secrets.QA_AGENT_JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.QA_AGENT_JIRA_API_TOKEN }}
 
       - name: Login to Azure
         if: steps.gather.outputs.pr_count != '0'
@@ -82,18 +84,18 @@ jobs:
           # Its own rule name and priority, so it never collides with the rule of the nightly e2e run.
           inlineScript: |
             runner_ip=$(curl -sS https://api.ipify.org)
-            az network nsg rule create -g zac-infra --nsg-name k8s-test-nsg -n allow_claude_qa_runner --priority 296 --source-address-prefixes "$runner_ip" --destination-port-ranges '*' --direction Inbound --access allow --protocol '*' --destination-address-prefixes '*'
+            az network nsg rule create -g zac-infra --nsg-name k8s-test-nsg -n allow_qa_agent_runner --priority 296 --source-address-prefixes "$runner_ip" --destination-port-ranges '*' --direction Inbound --access allow --protocol '*' --destination-address-prefixes '*'
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         if: steps.gather.outputs.pr_count != '0'
         with:
           node-version-file: .nvmrc
 
-      - name: Install Playwright and Claude Code
+      - name: Install Playwright and Copilot CLI
         if: steps.gather.outputs.pr_count != '0'
         run: |
           cd src/e2e && npm ci --ignore-scripts && npx playwright install --with-deps chromium
-          npm install -g @anthropic-ai/claude-code@2.1.309
+          npm install -g @github/copilot@1.0.103
 
       - name: Check that the dev environment is up
         if: steps.gather.outputs.pr_count != '0'
@@ -104,10 +106,11 @@ jobs:
       - name: Run the QA agent
         if: steps.gather.outputs.pr_count != '0'
         continue-on-error: true
+        # Started in src/e2e, so the one allowed command is a plain "npm run qa-agent"; --add-dir gives
+        # the agent the rest of the repository.
+        working-directory: src/e2e
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          # Keeps the Anthropic key out of the environment of the tests the agent runs.
-          CLAUDE_CODE_SUBPROCESS_ENV_SCRUB: "1"
+          GITHUB_TOKEN: ${{ github.token }}
           ZAC_URL: ${{ secrets.ZAC_URL }}
           E2E_TEST_USER_1_USERNAME: ${{ secrets.ZAC_E2E_TEST_USER_1_USERNAME }}
           E2E_TEST_USER_1_PASSWORD: ${{ secrets.ZAC_E2E_TEST_USER_1_PASSWORD }}
@@ -115,22 +118,26 @@ jobs:
           E2E_TEST_USER_2_PASSWORD: ${{ secrets.ZAC_E2E_TEST_USER_2_PASSWORD }}
           SINCE: ${{ steps.gather.outputs.since }}
           UNTIL: ${{ steps.gather.outputs.until }}
+        # Copilot CLI can only allow file writes as a whole, not per folder. The runner is thrown away
+        # after the run and the job cannot push, so a stray write has no effect.
         run: |
-          mkdir -p qa-output
-          claude -p "Run a QA pass for the PRs merged into main from $SINCE to $UNTIL.
-          Read .github/qa/QA_INSTRUCTIONS.md and follow it. The gathered context is in qa-context/manifest.md.
+          mkdir -p "$GITHUB_WORKSPACE/qa-output"
+          copilot -p "Run a QA pass for the PRs merged into main from $SINCE to $UNTIL.
+          The repository root is $GITHUB_WORKSPACE; all paths in the instructions are relative to it.
+          Read $GITHUB_WORKSPACE/.github/qa/QA_INSTRUCTIONS.md and follow it.
+          The gathered context is in $GITHUB_WORKSPACE/qa-context/manifest.md.
           Write the Slack message in $LANGUAGE.
           You are done when qa-output/results.json and qa-output/report.md exist." \
+            --add-dir "$GITHUB_WORKSPACE" \
             --model "$MODEL" \
-            --max-turns 80 \
-            --max-budget-usd "$MAX_BUDGET_USD" \
-            --permission-mode dontAsk \
-            --strict-mcp-config \
-            --no-session-persistence \
-            --allowedTools "Read,Glob,Grep,Edit(src/e2e/claude-qa/tests/**),Write(src/e2e/claude-qa/tests/**),Edit(qa-output/**),Write(qa-output/**),Bash(npm --prefix src/e2e run claude-qa:*)" \
-            --output-format json \
-            > qa-output/claude-run.json
-          jq '{subtype, num_turns, total_cost_usd, duration_ms}' qa-output/claude-run.json
+            --max-ai-credits "$MAX_AI_CREDITS" \
+            --allow-tool='write, shell(npm run:*)' \
+            --no-ask-user \
+            --no-custom-instructions \
+            --disable-builtin-mcps \
+            --no-auto-update \
+            --usage-output-file "$GITHUB_WORKSPACE/qa-output/copilot-usage.json" \
+            --share "$GITHUB_WORKSPACE/qa-output/session.md"
 
       - name: Write the job summary
         if: always() && steps.gather.outputs.pr_count != '0'
@@ -140,18 +147,18 @@ jobs:
         if: always() && steps.gather.outputs.pr_count != '0' && inputs.post_to_slack != false
         run: bash .github/qa/post-slack.sh
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.CLAUDE_QA_SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.QA_AGENT_SLACK_WEBHOOK_URL }}
 
       - name: Upload screenshots, traces and tests
         if: always() && steps.gather.outputs.pr_count != '0'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: claude-qa-${{ github.run_id }}
+          name: qa-agent-${{ github.run_id }}
           retention-days: 14
           path: |
             qa-output/
             qa-context/manifest.md
-            src/e2e/claude-qa/tests/
+            src/e2e/qa-agent/tests/
 
       - name: Remove the firewall rule
         if: always() && steps.firewall.outcome != 'skipped'
@@ -159,4 +166,4 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
-            az network nsg rule delete -g zac-infra --nsg-name k8s-test-nsg -n allow_claude_qa_runner
+            az network nsg rule delete -g zac-infra --nsg-name k8s-test-nsg -n allow_qa_agent_runner
