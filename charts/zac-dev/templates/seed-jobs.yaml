@@ -158,6 +158,7 @@ spec:
             {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
             # the 'maykin' user of the image
             runAsUser: 1000
+            readOnlyRootFilesystem: true
           resources:
             requests:
               cpu: 50m
@@ -166,9 +167,13 @@ spec:
               cpu: "1"
               memory: 512Mi
           volumeMounts:
+            - name: tmp
+              mountPath: /tmp
             - name: fixtures
               mountPath: /app/src/objects/fixtures
       volumes:
+        - name: tmp
+          emptyDir: {}
         - name: fixtures
           configMap:
             name: seed-objecten-fixtures
