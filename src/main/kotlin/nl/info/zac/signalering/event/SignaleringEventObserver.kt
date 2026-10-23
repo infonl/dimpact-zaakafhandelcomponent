@@ -8,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.event.ObservesAsync
 import jakarta.inject.Inject
 import jakarta.inject.Named
-import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.signalering.event.SignaleringEvent
 import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.signalering.model.Signalering
@@ -27,6 +26,7 @@ import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.event.AbstractEventObserver
+import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.util.AllOpen

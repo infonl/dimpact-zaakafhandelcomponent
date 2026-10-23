@@ -18,8 +18,6 @@ import io.mockk.slot
 import io.mockk.verify
 import io.mockk.verifyOrder
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
-import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.signalering.event.SignaleringEvent
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringType
@@ -34,6 +32,8 @@ import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRolty
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.event.EventingService
 import nl.info.zac.event.Opcode
+import nl.info.zac.flowable.task.FlowableTaskService
+import nl.info.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.signalering.SignaleringService

@@ -30,7 +30,6 @@ import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import kotlinx.coroutines.Dispatchers
-import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.signalering.model.Signalering
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringTarget
@@ -53,6 +52,7 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.event.EventingService
 import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.mail.MailService
