@@ -5,7 +5,8 @@
 #
 # SPIKE (PZ-13059): waits until every Deployment and StatefulSet in the namespace is ready and every Job has
 # completed, and prints when each of them got there (seconds after this script started).
-# Usage: wait-ready.py <kube context> <timeout seconds> [<start epoch seconds> [<namespace>]]
+# Usage: wait-ready.py <kube context> <timeout seconds> [<start epoch seconds> [<namespace> [<required>,...]]]
+# where <required> is a workload (<namespace>/<name>) that has to exist before everything counts as ready.
 import json
 import subprocess
 import sys
@@ -13,6 +14,7 @@ import time
 
 context, timeout = sys.argv[1], int(sys.argv[2])
 namespaces = [sys.argv[4] if len(sys.argv) > 4 else "zac"]
+required = set(sys.argv[5].split(",")) if len(sys.argv) > 5 else set()
 start = float(sys.argv[3]) if len(sys.argv) > 3 else time.time()
 ready_at = {}
 
@@ -45,7 +47,7 @@ while True:
         if is_ready and name not in ready_at:
             ready_at[name] = elapsed
             print(f"ready:{name}\t-\t{elapsed}", flush=True)
-    if states and all(states.values()):
+    if states and required <= states.keys() and all(states.values()):
         break
     if elapsed > timeout:
         not_ready = sorted(name for name, is_ready in states.items() if not is_ready)

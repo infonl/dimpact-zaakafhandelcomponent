@@ -4,6 +4,7 @@
 #
 # SPIKE (PZ-13059): values for the upstream maykinmedia/openklant chart (release 'openklant', namespace 'zac'),
 # mirroring the Open Klant service of docker-compose.yaml. The database password comes from up.sh.
+# Chart 1.11.0 is the one for Open Klant 2.15.0: later charts probe /_healthz/, which 2.15.0 does not have.
 
 # the version of docker-compose.yaml
 image:
@@ -36,16 +37,17 @@ settings:
 persistence:
   enabled: false
 
-startupProbe:
-  initialDelaySeconds: 5
-  periodSeconds: 2
+# Open Klant migrates its empty database when it starts, which takes minutes on a busy CI runner
+livenessProbe:
+  initialDelaySeconds: 300
+  periodSeconds: 10
   timeoutSeconds: 5
-  failureThreshold: 300
+  failureThreshold: 6
 readinessProbe:
   initialDelaySeconds: 0
-  periodSeconds: 5
+  periodSeconds: 3
   timeoutSeconds: 5
-  failureThreshold: 5
+  failureThreshold: 6
 
 resources:
   requests:
@@ -57,8 +59,6 @@ resources:
 # Docker Compose runs neither a Celery worker nor nginx for Open Klant
 worker:
   replicaCount: 0
-flower:
-  enabled: false
 nginx:
   replicaCount: 0
   # the image of the openzaak release, so that the image pulls skip the chart default 'stable'

@@ -32,7 +32,7 @@ REPORT_DIR=$(dirname "$TIMINGS_FILE")
 WORK_DIR=$ROOT/build/kind-spike
 MAYKIN_CHARTS=https://maykinmedia.github.io/charts/
 OPENZAAK_CHART_VERSION=1.15.0
-OPENKLANT_CHART_VERSION=1.14.2
+OPENKLANT_CHART_VERSION=1.11.0
 OPENOBJECT_CHART_VERSION=1.2.0
 if [ -z "${ARCH_VALUES:-}" ] && [ "$(uname -m)" = "arm64" -o "$(uname -m)" = "aarch64" ]; then
   ARCH_VALUES=arm64
@@ -237,6 +237,10 @@ for release in zac-dev openzaak openklant openobject; do
 done
 for pid in "${INSTALL_PIDS[@]}"; do wait "$pid"; done
 mark releases-installed
+# records when each workload gets ready, from now on; it finishes once ZAC is ready as well
+python3 "$HACK/wait-ready.py" "$CONTEXT" "${WAIT_TIMEOUT_SECONDS:-1500}" "$START" "$NAMESPACE" zac/zac \
+  > "$REPORT_DIR/ready.tsv" &
+WAIT_READY_PID=$!
 
 # ZAC records boot errors and stays unhealthy until the liveness probe restarts it (16 x 30s) when Keycloak,
 # Open Zaak or PABC are not there yet when it boots; Docker Compose has depends_on for this.
@@ -255,7 +259,13 @@ mark zac-installed
 
 # 9. Wait until everything is ready ---------------------------------------------------------------------
 step "waiting for all workloads"
-python3 "$HACK/wait-ready.py" "$CONTEXT" "${WAIT_TIMEOUT_SECONDS:-1500}" "$START" "$NAMESPACE" | tee -a "$TIMINGS_FILE"
+wait_ready_status=0
+wait "$WAIT_READY_PID" || wait_ready_status=$?
+# the events tell when each image was pulled and each container started, for the report artifact
+kc -n $NAMESPACE get events --sort-by=.lastTimestamp -o wide > "$REPORT_DIR/events.txt" 2>&1 || true
+kc -n $NAMESPACE get pods -o json > "$REPORT_DIR/pods.json" 2>&1 || true
+sort -t$'\t' -k3 -n "$REPORT_DIR/ready.tsv" | tee -a "$TIMINGS_FILE"
+[ "$wait_ready_status" = 0 ] || exit "$wait_ready_status"
 mark all-ready
 
 for pid in ${PULL_PIDS[@]+"${PULL_PIDS[@]}"}; do wait "$pid" || true; done
