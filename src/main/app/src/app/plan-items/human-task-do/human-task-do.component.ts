@@ -177,7 +177,6 @@ export class HumanTaskDoComponent implements OnInit {
             return;
           }
           userControl.enable();
-          // While the user types, the autocomplete reports the typed text instead of a group.
           if (!value.id) return;
           this.selectedGroupId.set(value.id);
         });

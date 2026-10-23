@@ -193,7 +193,6 @@ export class ZaakCreateComponent {
           this.behandelaarPrefilledForGroupId = undefined;
           return;
         }
-        // While the user types, the autocomplete reports the typed text instead of a group.
         if (!value.id) return;
 
         this.selectedGroupId.set(value.id);
@@ -266,7 +265,6 @@ export class ZaakCreateComponent {
 
     const { vertrouwelijkheidaanduiding } = caseType;
     this.form.controls.groep.enable();
-    // While the user types, the autocomplete reports the typed text instead of a zaaktype.
     if (!caseType.omschrijving) return;
 
     this.selectedCaseType.set(caseType);

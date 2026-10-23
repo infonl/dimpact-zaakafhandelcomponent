@@ -134,7 +134,6 @@ export class ZakenVerdelenDialogComponent {
       .pipe(takeUntilDestroyed())
       .subscribe((group) => {
         this.form.controls.medewerker.setValue(null);
-        // While the user types, the autocomplete reports the typed text instead of a group.
         this.selectedGroupId.set(group?.id);
       });
   }
