@@ -9,7 +9,7 @@ Write at least one spec for each `test` item, and one smoke test for each area a
 "Not tested in this run" is never a valid result for a `test` or `smoke` item: test it, or say what
 blocked it. Keep tests short, and never loop on a test that keeps failing.
 
-The test users are normal employees, and you don't know exactly which rights they have. When a ticket is
+You don't know exactly which rights the test users have (bob can open admin pages). When a ticket is
 about users *without* a certain right, a test user may well have that right; if the result could be
 explained by that, mark it `needs-human` instead of `fail`.
 
@@ -38,7 +38,7 @@ Main pages (relative to `$ZAC_URL`):
 
 Search is the "Zoeken" field in the toolbar; Enter opens the results in a side panel. It has no route.
 
-Test users (both normal employees, not beheerders):
+Test users (their exact rights are unknown; bob can open the admin pages):
 
 | Helper name | Display name | Group |
 |---|---|---|

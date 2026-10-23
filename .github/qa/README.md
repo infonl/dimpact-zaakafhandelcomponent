@@ -59,7 +59,7 @@ Optional repository variables:
 ## Cost
 
 Through Copilot, Claude Haiku 5.5 costs $0.10 per million input tokens and $0.50 per million output
-tokens, the same as at Anthropic. A run on one busy day (15 PRs) used about 1.2 AI credits ($0.01).
+tokens, the same as at Anthropic. A run on one busy day (15 PRs, 35 browser tests) used about 9 AI credits ($0.09) in 30 minutes.
 The run has no credit limit: with `--max-ai-credits` set, Haiku kept saying its budget was tight and
 skipped tests, even far below the limit. The 60-minute job timeout caps the cost instead. The job summary shows the usage the
 CLI reports. Pick `claude-sonnet-5.5`
@@ -74,7 +74,7 @@ CLI reports. Pick `claude-sonnet-5.5`
   report job, with a fresh checkout that reads nothing but the report data. The agent job cannot push.
 - Jira credentials never reach the agent; `gather.sh` fetches everything up front. The workflow token
   is read-only and redacted from the output by Copilot CLI.
-- The test users are normal employees. The instructions forbid saving on admin pages, real e-mail
+- The test users have broad rights (bob can open admin pages). The instructions forbid saving on admin pages, real e-mail
   addresses and BSNs other than the test person's, and changing zaken the agent did not create.
 - The tests the agent writes run with the test user passwords in their environment. PR descriptions and
   Jira tickets reach the agent as input, so this pilot trusts the people who write them.
