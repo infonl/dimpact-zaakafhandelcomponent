@@ -15,7 +15,6 @@ type ZaakZoekObject = {
   id: string;
   identificatie: string;
   omschrijving?: string;
-  zaaktypeUuid?: string;
   isAfgehandeld?: boolean;
 };
 
@@ -48,9 +47,13 @@ test("abort the open zaken created by the QA agent", async ({ page }) => {
   console.log(`Found ${zaken.length} open QA Agent zaken`);
 
   for (const zaak of zaken) {
+    // Search results don't carry the zaaktype UUID, so read it from the zaak itself.
+    const { zaaktype } = (await (
+      await page.request.get(`/rest/zaken/zaak/${zaak.id}`)
+    ).json()) as { zaaktype: { uuid: string } };
     const redenen = (await (
       await page.request.get(
-        `/rest/zaakafhandelparameters/zaakbeeindigredenen/${zaak.zaaktypeUuid}`,
+        `/rest/zaakafhandelparameters/zaakbeeindigredenen/${zaaktype.uuid}`,
       )
     ).json()) as { id: string; naam: string }[];
     // Prefer a reason managed for the zaaktype; "niet ontvankelijk" only works when the zaaktype has a resultaattype for it.
