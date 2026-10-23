@@ -49,6 +49,8 @@ jobs:
     runs-on: ubuntu-26.04
     timeout-minutes: 60
     environment: azure-dimpact-dta
+    outputs:
+      pr_count: ${{ steps.gather.outputs.pr_count }}
     env:
       SCOPE: ${{ inputs.scope || vars.QA_AGENT_SCOPE || 'yesterday' }}
       MODEL: ${{ inputs.model || vars.QA_AGENT_MODEL || 'claude-haiku-5.5' }}
@@ -139,16 +141,6 @@ jobs:
             --usage-output-file "$GITHUB_WORKSPACE/qa-output/copilot-usage.json" \
             --share "$GITHUB_WORKSPACE/qa-output/session.md"
 
-      - name: Write the job summary
-        if: always() && steps.gather.outputs.pr_count != '0'
-        run: bash .github/qa/post-summary.sh
-
-      - name: Post to Slack
-        if: always() && steps.gather.outputs.pr_count != '0' && inputs.post_to_slack != false
-        run: bash .github/qa/post-slack.sh
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.QA_AGENT_SLACK_WEBHOOK_URL }}
-
       - name: Upload screenshots, traces and tests
         if: always() && steps.gather.outputs.pr_count != '0'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -158,6 +150,7 @@ jobs:
           path: |
             qa-output/
             qa-context/manifest.md
+            qa-context/skipped.json
             src/e2e/qa-agent/tests/
 
       - name: Remove the firewall rule
@@ -167,3 +160,37 @@ jobs:
           azcliversion: latest
           inlineScript: |
             az network nsg rule delete -g zac-infra --nsg-name k8s-test-nsg -n allow_qa_agent_runner
+
+  # The agent can write anywhere in its own checkout, so the Slack webhook is only used here, on a fresh
+  # runner whose scripts come from git and which only reads the report data from the artifact.
+  report:
+    name: "Report"
+    needs: qa-agent
+    if: always() && needs.qa-agent.outputs.pr_count != '0'
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    environment: azure-dimpact-dta
+    env:
+      SCOPE: ${{ inputs.scope || vars.QA_AGENT_SCOPE || 'yesterday' }}
+      MODEL: ${{ inputs.model || vars.QA_AGENT_MODEL || 'claude-haiku-5.5' }}
+      JIRA_BASE_URL: https://dimpact.atlassian.net
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: .github/qa
+
+      - name: Download the report data
+        continue-on-error: true
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: qa-agent-${{ github.run_id }}
+
+      - name: Write the job summary
+        run: bash .github/qa/post-summary.sh
+
+      - name: Post to Slack
+        # Dispatch inputs are empty on scheduled runs, and an empty input compares equal to false.
+        if: github.event_name != 'workflow_dispatch' || inputs.post_to_slack
+        run: bash .github/qa/post-slack.sh
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.QA_AGENT_SLACK_WEBHOOK_URL }}

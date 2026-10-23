@@ -105,7 +105,10 @@ doesn't mean you can't test: read files with your file tools, and run tests with
    - test bug (wrong locator, timing): fix it, at most 2 attempts, then mark `needs-human`
    - app bug (behaviour contradicts the ticket): keep the test as is and describe the bug
    - unclear (ticket ambiguous): `needs-human`, explain what a person should check
-4. **Report**: write the two files below. Do this even when you ran out of time for some items.
+4. **Final run**: run all your tests once more with `npm run qa-agent`, without a file name. Every run
+   clears the screenshots and traces of the run before it, so the report must use the results and
+   screenshot paths under `qa-output/test-results/` from this final run.
+5. **Report**: write the two files below. Do this even when you ran out of time for some items.
 
 ## `qa-output/results.json`
 
