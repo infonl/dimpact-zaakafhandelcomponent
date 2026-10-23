@@ -41,14 +41,13 @@ To build the ZAC Docker image using the generated JAR archive from the previous 
 
 There are various ways to run ZAC locally.
 - For local backend development purposes we recommend to run ZAC from the IntelliJ IDEA.
-- For local frontend development and testing purposes we recommend to run ZAC in a Docker container.
+- For local frontend development and testing purposes we recommend to run ZAC in the local [kind](installKind.md) cluster.
 - For local e2e testing you can follow the [end-to-end-testing](testing.md#end-to-end-e2e-tests) from the [testing](testing.md) documentation.
 
 ### Prerequisites
 
 - Access to all services (such as Keycloak, Open Zaak, etc) that are required by ZAC.
-You either run these locally (using [Docker Compose](installDockerCompose.md) or [kind](installKind.md)) or on a
-central development environment.
+You either run these locally in a [kind](installKind.md) cluster or on a central development environment.
 - Environment variables required by ZAC. See the section below.
 
 #### Environment variables
@@ -69,25 +68,14 @@ In the section below we describe how to use the 1Password CLI extensions when ru
 
 Check the instructions in [IDE Configuration](./ideConfig.md#run-zac-in-intellij)
 
-### Run ZAC in a Docker container
+### Run ZAC in a local Kubernetes cluster using kind
 
-As an alternative to running ZAC in IntelliJ you can also run ZAC in a Docker container.
-There are several ways to do this.
+As an alternative to running ZAC in IntelliJ, you can run ZAC and all services it needs in a local Kubernetes
+cluster, with the ZAC Helm chart. Please see the [kind instructions](installKind.md) for more information.
 
-#### Run ZAC in a Docker container using Docker Compose
+### Run ZAC in a Docker container by itself
 
-If you also wish to run all services that are required by
-ZAC locally, the easiest way is to use our Docker Compose setup with can also run ZAC.
-Please see the [Docker Compose instructions](installDockerCompose.md) for more information.
-
-#### Run ZAC in a local Kubernetes cluster using kind
-
-As an alternative to Docker Compose, you can run ZAC and all services it needs in a local Kubernetes cluster, with
-the ZAC Helm chart. Please see the [kind instructions](installKind.md) for more information.
-
-#### Run ZAC in a Docker container by itself
-
-As an alternative to run ZAC as a Docker container by itself you use the following command:
+To run ZAC as a Docker container by itself, use the following command:
 
 ```shell
 docker run -p 8080:8080 --env-file .env --name zaakafhandelcomponent zaakafhandelcomponent:latest

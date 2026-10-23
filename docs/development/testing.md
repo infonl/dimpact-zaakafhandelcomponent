@@ -39,7 +39,7 @@ A `zac-itest` cluster that ZAC already ran in holds the data of an earlier run, 
 before they start a new one. The integration tests never touch the cluster of `./start-kind.sh`.
 
 The cluster publishes its services on the same host ports as `./start-kind.sh`. When those ports are taken, for
-example by your own kind or Docker Compose stack, move them with the environment variables of
+example by your own kind stack, move them with the environment variables of
 [installKind.md](installKind.md), which the integration tests follow too. For example:
 
 ```shell
@@ -272,9 +272,9 @@ This contains the details on how to run ACT tests.
 The policies are unit tested with OPA's own test runner. The tests run in the backend unit test job of the
 CI pipeline, not in the integration test stack, so the integration test shards no longer wait for them.
 
-To run them yourself, use the Docker Compose service that the pipeline uses:
+To run them yourself, use the OPA image that the pipeline uses:
 ```shell
-docker compose --profile opa-tests run --rm --no-deps opa-tests
+docker run --rm --volume "$PWD/src:/src:ro" openpolicyagent/opa:1.21.3-static test /src/main/resources/policies /src/test/resources/policies
 ```
 
 There are several useful flags that can be used to develop and debug [tests with OPA](https://www.openpolicyagent.org/docs/latest/policy-testing/).
@@ -283,13 +283,12 @@ There are several useful flags that can be used to develop and debug [tests with
 
 ### Local test users
 
-Several local test users are provisioned in Keycloak when you run ZAC locally using our Docker Compose set-up or
-our [kind set-up](installKind.md).
+Several local test users are provisioned in Keycloak when you run ZAC locally using our [kind set-up](installKind.md).
 You can use these users to log in to ZAC when running it locally. 
 
 For all of these local test users the password is equal to the username.
 
-You can find the set of these local test users in the [ZAC Keycloak realm import file](../../scripts/docker-compose/imports/keycloak/realms/zaakafhandelcomponent-realm.json) 
+You can find the set of these local test users in the [ZAC Keycloak realm import file](../../scripts/kind/seed/keycloak/zaakafhandelcomponent-realm.json) 
 or in the set of [integration test user constants](../../src/itest/kotlin/nl/info/zac/itest/config/TestUsers.kt). 
 
 ### Using Postman
