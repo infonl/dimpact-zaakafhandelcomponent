@@ -152,9 +152,10 @@ We use [Cucumber](https://cucumber.io/) to write reusable end-to-end tests in hu
 ### Running the e2e tests
 
 The end-to-end tests are located in the `src/e2e` folder.
-You can use the [start-e2e-with-local-env.sh](../../start-e2e-with-local-env.sh) script if you want to run the end-to-end tests against a local environment,
+You can use the [start-e2e-with-local-env.sh](../../start-e2e-with-local-env.sh) script if you want to run the end-to-end tests against the [local kind stack](#running-e2e-tests-locally),
 or [start-e2e-with-test-env.sh](../../start-e2e-with-test-env.sh) if you want to run the end-to-end tests against the INFO TEST environment (accessible for INFO developers only).
-Note that currently not all end-to-end tests can be run against a local environment.
+Most features need the users, groups and zaaktypes of the TEST environment, which the local stack does not have.
+These features have the tag `@live-env-only`, and the local script leaves them out.
 
 To run the tests in headless mode you can use the following command:
 
@@ -225,29 +226,37 @@ Then you will have all the autocomplete features available to you
 
 ### Running e2e tests locally
 
-Running e2e tests locally unfortunately requires some extra steps to make it work with our current setup. This is because Docker containers cannot communicate with the host machine using localhost. To make this work we need to add an entry to the `/etc/hosts` file on your machine. 
-This is only needed when running the tests locally. When running the tests in the pipeline this is not needed.
+The local e2e tests run against ZAC in the [kind stack](installKind.md). The browser of the tests runs on your
+machine and uses the same `localhost` URLs of ZAC and Keycloak as your own browser, so no `/etc/hosts` entry is needed.
 
-#### Steps to run the tests locally
+1. Start the kind stack with ZAC in the cluster, for example with a ZAC Docker image that you build first:
 
-1. Replace the following values in the `docker-compose.yml` file:
+   ```sh
+   ./start-kind.sh -b
+   ```
 
-under services -> zac -> environment
-```diff
--      - CONTEXT_URL=http://localhost:8080
-+      - CONTEXT_URL=http://host.docker.internal:8080
-```
+   `-l` uses an image that you built before, and `-z` the image of the registry (amd64 only).
 
-2. Start the Docker Compose environment including ZAC using the following command:
+2. Run the e2e tests:
+
+   ```sh
+   ./start-e2e-with-local-env.sh
+   ```
+
+The script reads the host port of ZAC from the stack, so it also works with `KIND_PORT_OFFSET` or `KIND_PORT_ZAC`.
+For a cluster with another name, set `KIND_CLUSTER_NAME` for both scripts:
+
 ```sh
-./start-docker-compose.sh -db
+KIND_CLUSTER_NAME=zac-e2e KIND_PORT_OFFSET=11000 ./start-kind.sh -b
+KIND_CLUSTER_NAME=zac-e2e HEADLESS=true ./start-e2e-with-local-env.sh
 ```
 
-3. Run the e2e tests using the following command:
+The tests log in as the [local test users](#local-test-users) `beheerder1` and `behandelaar1`. Set
+`E2E_TEST_USER_1_USERNAME`, `E2E_TEST_USER_1_PASSWORD`, `E2E_TEST_USER_2_USERNAME` and `E2E_TEST_USER_2_PASSWORD` to
+use other users, and `ZAC_URL` for a ZAC that runs elsewhere, for example in your IDE.
 
-```sh
-./start-e2e-with-local-env.sh
-```
+The [Playwright Tests on kind](../../.github/workflows/run-e2e-on-kind.yml) workflow runs the same tests in the
+pipeline, for pull requests that change the e2e tests or the kind stack.
 
 ## GitHub Action Tests
 
