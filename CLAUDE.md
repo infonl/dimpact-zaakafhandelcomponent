@@ -43,10 +43,13 @@ npm run dev                         # Dev server with HMR
 cd src/main/app && npm test         # Frontend tests only
 ```
 
-### Integration Tests (TestContainers - requires Docker)
-Before running the integration tests, make sure that a new ZAC Docker image has been built.
+### Integration Tests (kind - requires Docker, kind, kubectl and Helm)
+The integration tests start their own kind cluster `zac-itest` with the stack of `scripts/kind` and ZAC from the
+ZAC Docker image, which `itest` builds first.
 ```bash
 ./gradlew itest --info              # Run integration tests
+./gradlew itest -PitestShard=1      # Run one CI shard
+KIND_PORT_OFFSET=2000 ./gradlew itest  # Move the host ports when another stack uses them
 ```
 
 ### End-to-End Tests (Playwright + Cucumber)

@@ -153,8 +153,9 @@ def read_dotenv(path):
 
 
 def load_environment():
-    """The variables of .env with those of the environment on top."""
-    return {**read_dotenv(os.path.join(ROOT, ".env")), **os.environ}
+    """The variables of KIND_ENV_FILE (default: .env) with those of the environment on top."""
+    env_file = os.environ.get("KIND_ENV_FILE", os.path.join(ROOT, ".env"))
+    return {**(read_dotenv(env_file) if env_file else {}), **os.environ}
 
 
 def as_boolean(value):

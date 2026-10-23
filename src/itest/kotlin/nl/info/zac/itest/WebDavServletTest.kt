@@ -181,7 +181,7 @@ class WebDavServletTest : BehaviorSpec({
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
-                responseBody shouldStartWith "\"ms-word:http://localhost:8080/webdav/folder/"
+                responseBody shouldStartWith "\"ms-word:$ZAC_BASE_URI/webdav/folder/"
                 responseBody shouldEndWith ".docx\""
                 wordDocumentWebDAVToken = UUID.fromString(responseBody.substringAfterLast("/").substringBefore(".docx"))
             }

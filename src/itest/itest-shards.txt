@@ -2,7 +2,7 @@
 #
 # Every Kotest spec under src/itest/kotlin has to be listed exactly once under a '[shard N]' header;
 # the build fails when a shard is selected and this file is out of date. Every CI shard starts its own
-# Docker Compose stack and runs only its own specs, so the shards should take about the same time.
+# kind cluster and runs only its own specs, so the shards should take about the same time.
 # Use the "Slowest specs" table of the timing report (build/reports/itest/timings.md, also in the CI job
 # summary) when adding or moving specs. Specs annotated with @Isolate run one by one before the other
 # specs of a shard, so spread them evenly over the shards.
