@@ -31,8 +31,9 @@
 # executable; configuring zaakafhandelparameters additionally uses zac_client.py and
 # zac_testdata.py (also standard-library only).
 #
-# Prerequisites: Python 3.10+, `psql` on PATH, all Docker Compose services (including ZAC)
-# running, unless --skip-config is used.
+# Prerequisites: Python 3.10+, `psql` on PATH, the local kind stack of ./start-kind.sh running
+# with ZAC, unless --skip-config is used. Without --password and --pabc-password, `kubectl` on PATH
+# to read the generated database passwords of the kind cluster.
 #
 # Usage:
 #   ./scripts/test-data/create-zaaktypes.py [--count N] [--start-number N]
@@ -61,6 +62,7 @@ if sys.version_info < (3, 10):
     sys.exit(1)
 
 import argparse
+import base64
 import importlib.util
 import os
 import pathlib
@@ -218,7 +220,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--port", type=int, default=54322, help="database port (default: 54322)")
     parser.add_argument("--dbname", default="openzaak", help="database name (default: openzaak)")
     parser.add_argument("--user", default="openzaak", help="database user (default: openzaak)")
-    parser.add_argument("--password", default="openzaak", help="database password (default: openzaak)")
+    parser.add_argument(
+        "--password", help="database password (default: the generated password of the kind cluster)"
+    )
     parser.add_argument(
         "--template",
         type=pathlib.Path,
@@ -242,7 +246,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--pabc-port", type=int, default=54329, help="PABC database port (default: 54329)")
     parser.add_argument("--pabc-dbname", default="Pabc", help="PABC database name (default: Pabc)")
     parser.add_argument("--pabc-user", default="pabc", help="PABC database user (default: pabc)")
-    parser.add_argument("--pabc-password", default="pabc", help="PABC database password (default: pabc)")
+    parser.add_argument(
+        "--pabc-password", help="PABC database password (default: the generated password of the kind cluster)"
+    )
     parser.add_argument(
         "--pabc-template",
         type=pathlib.Path,
@@ -265,8 +271,23 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def kind_database_password(owner: str) -> str:
+    """The generated password of a database owner in the kind cluster $KIND_CLUSTER_NAME (default: zac)."""
+    context = f"kind-{os.environ.get('KIND_CLUSTER_NAME', 'zac')}"
+    command = ["kubectl", "--context", context, "--namespace", "zac", "get", "secret", "zac-dev-generated",
+               "--output", f"jsonpath={{.data.db-password-{owner}}}"]
+    try:
+        encoded_password = subprocess.run(command, capture_output=True, text=True, check=True).stdout
+    except (OSError, subprocess.CalledProcessError) as error:
+        sys.exit(f"ERROR: cannot read the password of the '{owner}' database from the kind cluster ({context}): "
+                 f"{(getattr(error, 'stderr', '') or str(error)).strip()}. Pass it as an option instead.")
+    return base64.b64decode(encoded_password).decode()
+
+
 def main() -> None:
     args = parse_args()
+    args.password = args.password or kind_database_password(args.user)
+    args.pabc_password = args.pabc_password or kind_database_password(args.pabc_user)
     template = args.template.read_text()
     version_update_template = args.version_update_template.read_text()
     pabc_template = args.pabc_template.read_text()
