@@ -10,14 +10,14 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.atos.zac.signalering.model.SignaleringDetail
-import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
 import nl.info.zac.mailtemplates.MailTemplateService
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
+import nl.info.zac.signalering.model.SignaleringDetail
+import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.signalering.model.createSignalering
 import nl.info.zac.signalering.model.createSignaleringType
 

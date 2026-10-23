@@ -18,14 +18,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
-import net.atos.zac.signalering.model.Signalering
-import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
-import net.atos.zac.signalering.model.SignaleringSubject
-import net.atos.zac.signalering.model.SignaleringTarget
-import net.atos.zac.signalering.model.SignaleringType
-import net.atos.zac.signalering.model.SignaleringVerzonden
-import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
-import net.atos.zac.signalering.model.SignaleringZoekParameters
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZgwApiService
@@ -55,7 +47,15 @@ import nl.info.zac.search.model.SorteerVeld
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.signalering.model.CheckedSignaleringen
 import nl.info.zac.signalering.model.InvalidSignalering
+import nl.info.zac.signalering.model.Signalering
 import nl.info.zac.signalering.model.SignaleringInstellingen
+import nl.info.zac.signalering.model.SignaleringInstellingenZoekParameters
+import nl.info.zac.signalering.model.SignaleringSubject
+import nl.info.zac.signalering.model.SignaleringTarget
+import nl.info.zac.signalering.model.SignaleringType
+import nl.info.zac.signalering.model.SignaleringVerzonden
+import nl.info.zac.signalering.model.SignaleringVerzondenZoekParameters
+import nl.info.zac.signalering.model.SignaleringZoekParameters
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.validateObject
@@ -352,7 +352,7 @@ class SignaleringService @Inject constructor(
                 SignaleringSubject.ZAAK -> {
                     bronnenBuilder.add(getZaak(signalering.subject))
                     if (signalering.type.type === SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD) {
-                        bronnenBuilder.add(getDocument(signalering.detail))
+                        bronnenBuilder.add(getDocument(checkNotNull(signalering.detail) { "Signalering $signalering has no detail" }))
                     }
                 }
                 SignaleringSubject.TAAK -> {

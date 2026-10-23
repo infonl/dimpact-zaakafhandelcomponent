@@ -15,7 +15,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifyOrder
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.app.signalering.converter.RestSignaleringInstellingenConverter
 import nl.info.zac.app.signalering.exception.SignaleringException
 import nl.info.zac.app.signalering.model.RestSignaleringPageParameters
@@ -32,6 +31,7 @@ import nl.info.zac.search.model.SorteerVeld
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.signalering.model.CheckedSignaleringen
 import nl.info.zac.signalering.model.InvalidSignalering
+import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.signalering.model.createRestSignaleringInstellingen
 import nl.info.zac.signalering.model.createSignalering
 import nl.info.zac.signalering.model.createSignaleringInstellingen

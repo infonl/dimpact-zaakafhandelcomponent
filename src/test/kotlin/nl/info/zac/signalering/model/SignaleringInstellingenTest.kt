@@ -6,8 +6,6 @@ package nl.info.zac.signalering.model
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import net.atos.zac.signalering.model.SignaleringTarget
-import net.atos.zac.signalering.model.SignaleringType
 
 class SignaleringInstellingenTest : BehaviorSpec({
     val signaleringType = SignaleringType().apply { type = SignaleringType.Type.ZAAK_OP_NAAM }

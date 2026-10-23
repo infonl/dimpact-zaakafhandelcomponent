@@ -24,7 +24,6 @@ import jakarta.persistence.criteria.Order
 import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
-import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.gebruikersvoorkeuren.exception.ZoekopdrachtWithSameNameAlreadyExistsException
 import nl.info.zac.gebruikersvoorkeuren.model.DashboardCardId
@@ -38,6 +37,7 @@ import nl.info.zac.gebruikersvoorkeuren.model.createTabelInstellingen
 import nl.info.zac.gebruikersvoorkeuren.model.createZoekopdracht
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.signalering.model.SignaleringInstellingen
+import nl.info.zac.signalering.model.SignaleringType
 
 class GebruikersvoorkeurenServiceTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>()

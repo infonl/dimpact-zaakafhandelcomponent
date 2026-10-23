@@ -8,10 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.event.ObservesAsync
 import jakarta.inject.Inject
 import jakarta.inject.Named
-import net.atos.zac.signalering.event.SignaleringEvent
-import net.atos.zac.signalering.event.SignaleringEventUtil
-import net.atos.zac.signalering.model.Signalering
-import net.atos.zac.signalering.model.SignaleringType
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
 import nl.info.client.zgw.util.extractUuid
@@ -29,6 +25,8 @@ import nl.info.zac.event.AbstractEventObserver
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.signalering.model.Signalering
+import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.task.api.TaskInfo
@@ -78,18 +76,18 @@ class SignaleringEventObserver @Inject constructor(
     private fun buildSignalering(event: SignaleringEvent<*>): Signalering? =
         when (event.objectType) {
             SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD -> {
-                val zaak = zrcClientService.readZaak(event.objectId.resource() as URI)
+                val zaak = zrcClientService.readZaak(event.objectId.resource as URI)
                 val zaakInformatieObject = zrcClientService.readZaakinformatieobject(
-                    (event.objectId.detail() as URI).extractUuid()
+                    (event.objectId.detail as URI).extractUuid()
                 )
                 getSignaleringVoorBehandelaar(event = event, zaak = zaak, zaakInformatieObject = zaakInformatieObject)
             }
             SignaleringType.Type.ZAAK_OP_NAAM -> {
-                val rol = zrcClientService.readRol(event.objectId.resource() as URI)
+                val rol = zrcClientService.readRol(event.objectId.resource as URI)
                 if (isBehandelaarRol(rol)) getSignaleringVoorBehandelaarRol(event = event, rol = rol) else null
             }
             SignaleringType.Type.TAAK_OP_NAAM -> {
-                val task = flowableTaskService.readOpenTask(event.objectId.resource() as String)
+                val task = flowableTaskService.readOpenTask(event.objectId.resource as String)
                 getSignaleringVoorBehandelaar(event = fixActor(event = event, task = task), task = task)
             }
             SignaleringType.Type.ZAAK_VERLOPEND, SignaleringType.Type.TAAK_VERLOPEN -> {
@@ -170,7 +168,7 @@ class SignaleringEventObserver @Inject constructor(
     private fun fixActor(event: SignaleringEvent<*>, task: TaskInfo): SignaleringEvent<*> =
         if (event.actor == null) {
             val actor = task.owner?.let(identityService::readUser)
-            SignaleringEventUtil.event(event.objectType, task, actor).also {
+            signaleringEvent(event.objectType, task, actor).also {
                 if (actor != null) LOG.fine { "Signalering event fixed: $it" }
             }
         } else {
