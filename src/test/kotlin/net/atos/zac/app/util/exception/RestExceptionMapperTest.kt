@@ -50,6 +50,7 @@ import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.policy.exception.OpaRuleNotConfiguredException
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.smartdocuments.exception.SmartDocumentsDisabledException
+import nl.info.zac.zaak.exception.ZaakCannotBeSuspendedAgainException
 import org.apache.http.HttpHost
 import org.apache.http.HttpStatus
 import org.apache.http.conn.HttpHostConnectException
@@ -196,6 +197,32 @@ class RestExceptionMapperTest : BehaviorSpec({
                         expectedStatus = HttpStatus.SC_BAD_REQUEST
                     )
                     verify(exactly = 1) { log(logger = any(), level = Level.WARNING, message = exception.message!!, throwable = exception) }
+                }
+            }
+        }
+
+        given("A ZaakCannotBeSuspendedAgainException exception") {
+            val zaakCannotBeSuspendedAgainException = ZaakCannotBeSuspendedAgainException(
+                "Zaak 'fakeZaakIdentificatie' was suspended before. A zaak can be suspended only one time."
+            )
+
+            `when`("the exception is mapped to a response") {
+                val response = restExceptionMapper.toResponse(zaakCannotBeSuspendedAgainException)
+
+                then("it returns the zaak cannot be suspended again error code and a conflict status, and logs at FINE") {
+                    checkResponse(
+                        response = response,
+                        errorMessage = "msg.error.zaak.cannot.be.suspended.again",
+                        expectedStatus = HttpStatus.SC_CONFLICT
+                    )
+                    verify(exactly = 1) {
+                        log(
+                            logger = any(),
+                            level = Level.FINE,
+                            message = zaakCannotBeSuspendedAgainException.message!!,
+                            throwable = zaakCannotBeSuspendedAgainException
+                        )
+                    }
                 }
             }
         }

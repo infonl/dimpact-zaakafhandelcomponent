@@ -35,6 +35,7 @@ import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.test.date.toDate
+import nl.info.zac.zaak.exception.ZaakCannotBeSuspendedAgainException
 import org.flowable.task.api.Task
 import java.time.LocalDate
 import java.time.ZonedDateTime
@@ -144,6 +145,54 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                 }
 
                 then("it throws exception with no message") { exception.message shouldBe null }
+            }
+        }
+
+        given("a zaak that was suspended before and was resumed without a reason") {
+            val zaak = createZaak(
+                opschorting = createOpschorting(reden = "", indicatie = false, eerdereOpschorting = true),
+                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1)
+            )
+            val loggedInUser = createLoggedInUser()
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(opschorten = true)
+
+            `when`("a user with access suspends the zaak again") {
+                val zaakCannotBeSuspendedAgainException = shouldThrow<ZaakCannotBeSuspendedAgainException> {
+                    suspensionZaakHelper.suspendZaak(zaak, numberOfDays, "fakeReason")
+                }
+
+                then("the zaak is not suspended a second time, because a zaak can be suspended only one time") {
+                    zaakCannotBeSuspendedAgainException.message shouldBe "Zaak '${zaak.identificatie}' was suspended before. " +
+                        "A zaak can be suspended only one time."
+                    verify(exactly = 0) {
+                        zrcClientService.patchZaak(zaak.uuid, any(), any())
+                    }
+                }
+            }
+        }
+
+        given("a zaak that has a suspension reason") {
+            val zaak = createZaak(
+                opschorting = createOpschorting(reden = "fakeExistingSuspensionReason"),
+                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1)
+            )
+            val loggedInUser = createLoggedInUser()
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(opschorten = true)
+
+            `when`("a user with access suspends the zaak") {
+                val zaakCannotBeSuspendedAgainException = shouldThrow<ZaakCannotBeSuspendedAgainException> {
+                    suspensionZaakHelper.suspendZaak(zaak, numberOfDays, "fakeReason")
+                }
+
+                then("the zaak is not suspended again") {
+                    zaakCannotBeSuspendedAgainException.message shouldBe "Zaak '${zaak.identificatie}' was suspended before. " +
+                        "A zaak can be suspended only one time."
+                    verify(exactly = 0) {
+                        zrcClientService.patchZaak(zaak.uuid, any(), any())
+                    }
+                }
             }
         }
     }
