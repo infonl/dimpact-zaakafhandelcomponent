@@ -35,7 +35,7 @@ C4Component
 ```
 
 Note that there are several ways to set up an observability architecture. 
-The above diagram illustrates just one way of doing this, and is used in our local Docker Compose setup.
+The above diagram illustrates just one way of doing this, and is used in our local [kind](../development/installKind.md) setup (`./start-kind.sh -m`).
 For example, instead of having Prometheus scrape metrics directly from the ZAC application, the Open Telemetry Collector could also be used to receive metrics data
 and pass it on to Prometheus.
 

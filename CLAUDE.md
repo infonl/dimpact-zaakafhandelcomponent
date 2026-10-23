@@ -58,12 +58,6 @@ KIND_PORT_OFFSET=2000 ./gradlew itest  # Move the host ports when another stack 
 ./start-e2e-with-local-env.sh       # E2E against ZAC in the local kind stack (./start-kind.sh -b)
 ```
 
-### Docker Compose Stack
-```bash
-./start-docker-compose.sh           # Start full local stack
-./stop-docker-compose.sh            # Stop stack
-```
-
 ### Local Kubernetes Stack (kind)
 ```bash
 ./start-kind.sh                     # Start all services but ZAC in a kind cluster
@@ -218,7 +212,7 @@ The branch name convention `renovate/` is reserved for automated dependency upda
 
 ## Key Configuration Files
 - `.env.example` — all environment variables with descriptions
-- `docker-compose.yaml` — full local stack definition
+- `scripts/kind/` — the local Kubernetes (kind) stack: images, settings and seed data
 - `src/main/resources/wildfly/configure-wildfly.cli` — WildFly configuration
 - `charts/` — Kubernetes Helm charts for deployment
 
@@ -227,7 +221,6 @@ Detailed guides live in `docs/development/`:
 - `INSTALL.md` — build and run instructions
 - `testing.md` — comprehensive testing guide
 - `ideConfig.md` — IDE setup
-- `installDockerCompose.md` — local Docker Compose setup
 - `installKind.md` — local Kubernetes (kind) setup
 - `documentFileSizes.md` — the two maximum document sizes and how to raise them
 - `endToEndTypeSafety.md` — type safety approach
