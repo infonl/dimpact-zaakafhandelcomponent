@@ -2,8 +2,9 @@
 # SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-# SPIKE (PZ-13059), do not merge: runs one integration test shard against a kind cluster with the PodiumD
-# umbrella chart instead of Docker Compose, and reports the boot time and memory use.
+# SPIKE (PZ-13059), do not merge: runs one integration test shard against a kind cluster instead of Docker Compose,
+# with the services of docker-compose.yaml from upstream charts and charts/zac-dev, and reports the boot time,
+# the image pulls and the memory use.
 name: Spike - itests on kind
 
 on:
@@ -37,6 +38,11 @@ jobs:
   itest-on-kind:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        # '1' pulls every image of the stack up front, in parallel; '0' leaves the pulls to the kubelet
+        prepull: ['1', '0']
     env:
       READ_PACKAGES_USERNAME: $${{ vars.READ_PACKAGES_USERNAME }}
       READ_PACKAGES_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }}
@@ -69,7 +75,9 @@ jobs:
 
       # The cluster bring-up runs in the background while the ZAC image is built, the same way the
       # Docker Compose itest job pulls its images while the image is built. up.sh waits for the ZAC image.
-      - name: Start the kind cluster and the PodiumD stack in the background
+      - name: Start the kind cluster and the stack in the background
+        env:
+          PREPULL: ${{ matrix.prepull }}
         run: |
           nohup hack/kind-spike/sample-memory.sh "$REPORT_DIR/memory.tsv" > /dev/null 2>&1 &
           echo $! > "$RUNNER_TEMP/sampler.pid"
@@ -140,7 +148,7 @@ jobs:
           kubectl --context kind-zac-spike get pods -A -o wide || true
           kubectl --context kind-zac-spike get events -A --sort-by=.lastTimestamp | tail -80 || true
           mkdir -p "$REPORT_DIR/logs"
-          for pod in $(kubectl --context kind-zac-spike get pods -A -o jsonpath='{range .items[*]}{.metadata.namespace}/{.metadata.name}{"\n"}{end}' | grep -E '^(podiumd|zac)/'); do
+          for pod in $(kubectl --context kind-zac-spike get pods -A -o jsonpath='{range .items[*]}{.metadata.namespace}/{.metadata.name}{"\n"}{end}' | grep -E '^zac/'); do
             kubectl --context kind-zac-spike logs -n "${pod%%/*}" "${pod##*/}" --all-containers --prefix > "$REPORT_DIR/logs/${pod//\//_}.log" 2>&1 || true
           done
 
@@ -148,7 +156,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: itest-kind-spike-reports
+          name: itest-kind-spike-reports-prepull-${{ matrix.prepull }}
           path: |
             build/reports/kind-spike
             build/reports/itest

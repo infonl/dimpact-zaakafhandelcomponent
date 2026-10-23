@@ -56,14 +56,17 @@ class MigrationTestDatabase : AutoCloseable {
             "System property 'flywayVersion' is not set"
         }
         if (ItestPlatform.isKind) {
-            return ItestPlatform.runFlyway(flywayVersion, flywayArguments(databaseHost = "postgres", version = version))
+            return ItestPlatform.runFlyway(
+                flywayVersion,
+                flywayArguments(databaseHost = "postgres", password = ItestPlatform.zacDatabasePassword, version = version)
+            )
         }
         val flywayOutput = ToStringConsumer()
         val flywayContainer = GenericContainer<Nothing>(DockerImageName.parse("$FLYWAY_IMAGE:$flywayVersion")).apply {
             // shares the network namespace of the database container, so that Flyway reaches it on localhost
             withNetworkMode("container:${zacDatabaseContainer.containerId}")
             withCopyFileToContainer(MountableFile.forHostPath("src/main/resources/schemas"), "/flyway/sql")
-            withCommand(flywayArguments(databaseHost = "localhost", version = version).joinToString(" "))
+            withCommand(flywayArguments(databaseHost = "localhost", password = DATABASE_PASSWORD, version = version).joinToString(" "))
             withStartupCheckStrategy(OneShotStartupCheckStrategy().withTimeout(FLYWAY_TIMEOUT))
             withLogConsumer(flywayOutput)
         }
@@ -80,10 +83,10 @@ class MigrationTestDatabase : AutoCloseable {
         }
     }
 
-    private fun flywayArguments(databaseHost: String, version: String) = listOf(
+    private fun flywayArguments(databaseHost: String, password: String, version: String) = listOf(
         "-url=jdbc:postgresql://$databaseHost:5432/$databaseName",
         "-user=$DATABASE_USER",
-        "-password=$DATABASE_PASSWORD",
+        "-password=$password",
         "-schemas=$ZAC_SCHEMA",
         "-placeholders.schema=$ZAC_SCHEMA",
         "-locations=filesystem:/flyway/sql",
@@ -120,7 +123,7 @@ class MigrationTestDatabase : AutoCloseable {
         )
         if (ItestPlatform.isKind) {
             return ItestPlatform.kubectl(
-                "exec", "--namespace", ItestPlatform.PODIUMD_NAMESPACE, "deploy/postgres", "--", *psqlCommand.toTypedArray()
+                "exec", "--namespace", ItestPlatform.NAMESPACE, "deploy/postgres", "--", *psqlCommand.toTypedArray()
             )
         }
         val execResult = zacDatabaseContainer.execInContainer(*psqlCommand.toTypedArray())

@@ -1,4 +1,3 @@
-{{- if eq .Values.part "zac" }}
 {{- /* WireMock test doubles. Their mappings and files are ConfigMaps that up.sh creates straight from
        scripts/docker-compose/imports, so that the Docker Compose stack and kind share one copy. */}}
 {{- range $wiremock := list
@@ -23,6 +22,8 @@ spec:
         app: {{ $wiremock.name }}
     spec:
       enableServiceLinks: false
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" $ | nindent 8 }}
       containers:
         - name: wiremock
           image: {{ $.Values.images.wiremock }}
@@ -39,10 +40,15 @@ spec:
               path: /__admin/health
               port: 8080
             periodSeconds: 2
+          securityContext:
+            {{- include "zac-dev.containerSecurityContext" $ | nindent 12 }}
           resources:
             requests:
               cpu: 10m
               memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
           volumeMounts:
             - name: mappings
               mountPath: /home/wiremock/mappings
@@ -73,17 +79,60 @@ spec:
       targetPort: 8080
 {{- end }}
 ---
-# The BRP WireMock proxies to http://brp-personen-mock:5010; the mock itself comes from the umbrella chart
+# The BRP personen mock behind brp-personen-wiremock, which proxies to http://brp-personen-mock:5010
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: brp-personen-mock
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: brp-personen-mock
+  template:
+    metadata:
+      labels:
+        app: brp-personen-mock
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+      containers:
+        - name: brp-personen-mock
+          image: {{ .Values.images.brpPersonenMock }}
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Release
+            - name: ASPNETCORE_URLS
+              value: http://+:5010
+          ports:
+            - containerPort: 5010
+          readinessProbe:
+            tcpSocket:
+              port: 5010
+            periodSeconds: 2
+          securityContext:
+            {{- include "zac-dev.containerSecurityContext" . | nindent 12 }}
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+---
 apiVersion: v1
 kind: Service
 metadata:
   name: brp-personen-mock
   namespace: {{ .Release.Namespace }}
 spec:
-  type: ExternalName
-  externalName: brp-personen-mock.{{ .Values.podiumdNamespace }}.svc.cluster.local
+  selector:
+    app: brp-personen-mock
   ports:
     - port: 5010
+      targetPort: 5010
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -101,6 +150,8 @@ spec:
         app: greenmail
     spec:
       enableServiceLinks: false
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
       containers:
         - name: greenmail
           image: {{ .Values.images.greenmail }}
@@ -119,10 +170,19 @@ spec:
             tcpSocket:
               port: 8080
             periodSeconds: 2
+          securityContext:
+            allowPrivilegeEscalation: false
+            # SMTP on port 25, as in Docker Compose
+            capabilities:
+              drop: ["ALL"]
+              add: ["NET_BIND_SERVICE"]
           resources:
             requests:
               cpu: 10m
               memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
 ---
 apiVersion: v1
 kind: Service
@@ -142,30 +202,6 @@ spec:
 ---
 # Standalone Solr with basic authentication and a pre-created 'zac' core, as in Docker Compose.
 # The ZAC chart's own option, SolrCloud through the solr-operator with three ZooKeepers, is too heavy for CI.
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: solr-security
-  namespace: {{ .Release.Namespace }}
-data:
-  security.json: |
-    {
-      "authentication": {
-        "class": "solr.BasicAuthPlugin",
-        "blockUnknown": true,
-        "realm": "ZAC Solr",
-        "forwardCredentials": false,
-        "credentials": {
-          "zac": "kaRw7O6j389zsDJZuoVFhbs0dcPJwiwTF+iRgf4pqpc= l8fGJV+B/9hxHZ5w7DIJriNspi5C+JEqraTovjMV3f4="
-        }
-      },
-      "authorization": {
-        "class": "solr.RuleBasedAuthorizationPlugin",
-        "permissions": [{ "name": "all", "role": "admin" }],
-        "user-role": { "zac": "admin" }
-      }
-    }
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -183,11 +219,24 @@ spec:
     spec:
       enableServiceLinks: false
       securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+        # the 'solr' user of the image
+        runAsUser: 8983
+        runAsGroup: 8983
         fsGroup: 8983
       initContainers:
         - name: security
           image: {{ .Values.images.solr }}
           command: ["sh", "-c", "mkdir -p /var/solr/data && cp /opt/zac/security.json /var/solr/data/security.json"]
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
           volumeMounts:
             - name: data
               mountPath: /var/solr
@@ -203,10 +252,15 @@ spec:
             tcpSocket:
               port: 8983
             periodSeconds: 2
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
           resources:
             requests:
               cpu: 100m
               memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
           volumeMounts:
             - name: data
               mountPath: /var/solr
@@ -228,4 +282,3 @@ spec:
   ports:
     - port: 8983
       targetPort: 8983
-{{- end }}

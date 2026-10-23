@@ -1,0 +1,62 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# SPIKE (PZ-13059): values for the upstream maykinmedia/openobject chart (release 'openobject', namespace 'zac'),
+# mirroring the Open Object (objecten and objecttypen in one) services of docker-compose.yaml. The database
+# password comes from up.sh.
+
+# the version of docker-compose.yaml
+image:
+  repository: maykinmedia/open-object
+  tag: "4.1.1@sha256:593571842b4af655383964fb3fa869b62313e7cd1e56a02f173afa8e4713c4b6"
+
+replicaCount: 1
+
+tags:
+  redis: false
+
+settings:
+  allowedHosts: open-object.local,localhost
+  siteDomain: open-object.local:8000
+  database:
+    host: postgres
+    name: objects
+    username: objects
+  secretKey: objectenApiSecretKey
+  cache:
+    default: redis:6379/0
+    axes: redis:6379/0
+    oidc: redis:6379/0
+  celery:
+    brokerUrl: redis://redis:6379/4
+    resultBackend: redis://redis:6379/4
+  isHttps: false
+  disable2fa: true
+
+persistence:
+  enabled: false
+
+startupProbe:
+  initialDelaySeconds: 5
+  periodSeconds: 2
+  timeoutSeconds: 5
+  failureThreshold: 300
+readinessProbe:
+  initialDelaySeconds: 0
+  periodSeconds: 5
+  timeoutSeconds: 5
+  failureThreshold: 6
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 1Gi
+
+# the Celery worker of Open Object only sends notifications, which the itests do not use
+worker:
+  replicaCount: 0
+flower:
+  enabled: false

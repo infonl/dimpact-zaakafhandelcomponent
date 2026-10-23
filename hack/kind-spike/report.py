@@ -35,6 +35,13 @@ if os.path.exists(timings):
         elif parts and parts[0] == "restarts":
             print(f"\nContainer restarts during the bring-up: {parts[2]}\n")
 
+pulls = os.path.join(report_dir, "image-pulls.tsv")
+if os.path.exists(pulls) and os.path.getsize(pulls):
+    rows = [line.rstrip("\n").split("\t") for line in open(pulls) if line.count("\t") == 3]
+    print("\n| Image pulled up front | Took | Done after | Result |\n|---|---|---|---|")
+    for image, took, done, status in sorted(rows, key=lambda row: int(row[2])):
+        print(f"| {image.split('@')[0]} | {fmt(took)} | {fmt(done)} | {status} |")
+
 job_env = os.path.join(report_dir, "job.env")
 if os.path.exists(job_env):
     values = dict(line.strip().split("=", 1) for line in open(job_env) if "=" in line)

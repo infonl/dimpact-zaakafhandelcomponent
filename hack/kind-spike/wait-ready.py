@@ -3,16 +3,16 @@
 # SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-# SPIKE (PZ-13059): waits until every Deployment and StatefulSet in the podiumd and zac namespaces is ready and
-# every Job has completed, and prints when each of them got there (seconds after this script started).
-# Usage: wait-ready.py <kube context> <timeout seconds> [<start epoch seconds>]
+# SPIKE (PZ-13059): waits until every Deployment and StatefulSet in the namespace is ready and every Job has
+# completed, and prints when each of them got there (seconds after this script started).
+# Usage: wait-ready.py <kube context> <timeout seconds> [<start epoch seconds> [<namespace>]]
 import json
 import subprocess
 import sys
 import time
 
 context, timeout = sys.argv[1], int(sys.argv[2])
-namespaces = ["podiumd", "zac"]
+namespaces = [sys.argv[4] if len(sys.argv) > 4 else "zac"]
 start = float(sys.argv[3]) if len(sys.argv) > 3 else time.time()
 ready_at = {}
 
@@ -45,9 +45,7 @@ while True:
         if is_ready and name not in ready_at:
             ready_at[name] = elapsed
             print(f"ready:{name}\t-\t{elapsed}", flush=True)
-    # the PodiumD Keycloak StatefulSet only appears once the operator has reconciled the Keycloak CR
-    keycloak_present = any(name.startswith("podiumd/keycloak") and "operator" not in name for name in states)
-    if states and keycloak_present and all(states.values()):
+    if states and all(states.values()):
         break
     if elapsed > timeout:
         not_ready = sorted(name for name, is_ready in states.items() if not is_ready)

@@ -3,24 +3,27 @@
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
-# -- namespace of the PodiumD umbrella release; the URLs inside PodiumD hardcode 'podiumd'
-podiumdNamespace: podiumd
-
-# -- what to install: 'infra' (the shared Postgres, installed before PodiumD), 'zac' (test doubles,
-# seed jobs and NodePorts, installed after PodiumD) or 'keycloak' (the ZAC layer of the PodiumD realm,
-# installed once the PodiumD realm import has finished, because that import overwrites realm settings). Two releases of this chart, so that the umbrella
-# chart finds its database on its first install.
-part: infra
-
+# -- the images, with the versions of docker-compose.yaml
 images:
   # -- ghcr.io/infonl/postgis is the arm64 build that the Docker Compose arm64 override uses as well
   postgres: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
+  redis: redis:8.6.7@sha256:a323342084bc0350cc66feb7f6e11282c8d853b5e7e729de3b0e81ed88381196
+  keycloak: quay.io/keycloak/keycloak:26.7.5@sha256:37dbaf6f0722c9ec246335f36e1ef8b2e6cb960f7c27e0d8c615121a3d475a85
+  pabcApi: ghcr.io/platform-autorisatie-beheer-component/pabc-api:2.1.0@sha256:7e4f906ea46ba4eace1997a074099a5a54038e38901890d486d117583861a61d
+  pabcMigrations: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:2.1.0@sha256:75640f1ee9dc6a155800a31457574b9c36eb0cd41827c45333b9f39d05c94abb
+  brpPersonenMock: ghcr.io/brp-api/personen-mock:2.7.0-202610130804@sha256:5fd80ccd6ce6736912a96b948813a68b0faf32f0eff830da744ffe7c1b36a058
   wiremock: wiremock/wiremock:3.13.2@sha256:0d4ecb3e4dc8213fd7a4d37d6a78f6e6b553a6d2e15bd51b0999781282ac61b3
   greenmail: greenmail/standalone:2.1.14@sha256:1ef95a966418cd09b7ea91d504d8c0826bbe7a2f6e679a75c601a831587c1626
   solr: solr:9.11.0-slim@sha256:c8a5ad7d951c00f15d5847ba0a94c1ab212de42de10668b80848831b72d75b9f
-  keycloak: quay.io/keycloak/keycloak:26.7.3@sha256:ff4257d0d64efbe99ed1ddfaf07765cc3c36dc7518bf8324d41961327f441c54
-  objecten: maykinmedia/open-object:4.1.1@sha256:593571842b4af655383964fb3fa869b62313e7cd1e56a02f173afa8e4713c4b6
-  busybox: busybox:1.38.0-glibc
+  # -- for the job that loads the Open Object test data; the same image as the openobject release
+  openObject: maykinmedia/open-object:4.1.1@sha256:593571842b4af655383964fb3fa869b62313e7cd1e56a02f173afa8e4713c4b6
+
+# -- the Secret with the generated database and admin passwords, created by hack/kind-spike/up.sh
+passwordsSecret: zac-dev-passwords
+
+keycloak:
+  # -- the issuer of the tokens: the itests on the host and ZAC in the cluster both see this URL
+  hostname: http://localhost:28081
 
 # -- the BAG API URL and key that the Open Zaak test data stores, as in the itest Docker Compose setup
 bagApi:

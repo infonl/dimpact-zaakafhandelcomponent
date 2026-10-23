@@ -6,6 +6,7 @@ package nl.info.zac.itest.config
 
 import org.json.JSONArray
 import org.json.JSONObject
+import java.util.Base64
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -28,8 +29,11 @@ object ItestPlatform {
 
     private val kubeContext = System.getenv(KUBE_CONTEXT_ENV_VAR) ?: "kind-zac-spike"
 
-    const val ZAC_NAMESPACE = "zac"
-    const val PODIUMD_NAMESPACE = "podiumd"
+    /**
+     * The namespace of ZAC and of every service that it needs.
+     */
+    const val NAMESPACE = "zac"
+    private const val PASSWORDS_SECRET = "zac-dev-passwords"
 
     fun hostPort(composeHostPort: Int) = if (isKind) composeHostPort + KIND_HOST_PORT_OFFSET else composeHostPort
 
@@ -50,7 +54,7 @@ object ItestPlatform {
 
     private val flywayMigrationsConfigMap by lazy {
         val configMap = kubectl(
-            "create", "configmap", FLYWAY_MIGRATIONS_CONFIG_MAP, "--namespace", PODIUMD_NAMESPACE,
+            "create", "configmap", FLYWAY_MIGRATIONS_CONFIG_MAP, "--namespace", NAMESPACE,
             "--from-file=src/main/resources/schemas", "--dry-run=client", "--output=yaml"
         )
         kubectl("apply", "--server-side", "--force-conflicts", "--filename=-", input = configMap)
@@ -92,16 +96,27 @@ object ItestPlatform {
                 )
         )
         return kubectl(
-            "run", podName, "--namespace", PODIUMD_NAMESPACE, "--image=flyway/flyway:$flywayVersion", "--restart=Never",
+            "run", podName, "--namespace", NAMESPACE, "--image=flyway/flyway:$flywayVersion", "--restart=Never",
             "--rm", "--attach", "--quiet", "--pod-running-timeout=5m", "--overrides=$pod",
             timeoutMinutes = FLYWAY_TIMEOUT_MINUTES
         )
     }
 
+    /**
+     * The password of the 'zac' database role, which `hack/kind-spike/up.sh` generates for every new cluster.
+     */
+    val zacDatabasePassword by lazy {
+        String(
+            Base64.getDecoder().decode(
+                kubectl("get", "secret", PASSWORDS_SECRET, "--namespace", NAMESPACE, "--output=jsonpath={.data.zac}")
+            )
+        )
+    }
+
     fun queryZacDatabaseWithKubectl(sql: String) = kubectl(
-        "exec", "--namespace", PODIUMD_NAMESPACE, "deploy/postgres", "--",
+        "exec", "--namespace", NAMESPACE, "deploy/postgres", "--",
         "psql", "-U", "zac", "-d", "zac", "-At", "-c", sql
     )
 
-    fun zacLogsWithKubectl() = kubectl("logs", "--namespace", ZAC_NAMESPACE, "deploy/zac", "-c", "zaakafhandelcomponent")
+    fun zacLogsWithKubectl() = kubectl("logs", "--namespace", NAMESPACE, "deploy/zac", "-c", "zaakafhandelcomponent")
 }

@@ -4,6 +4,7 @@
 #
 # SPIKE (PZ-13059): values for charts/zac (release 'zac', namespace 'zac') in the kind cluster, mirroring the
 # ZAC service and the itest overrides of the Docker Compose stack (see ZacItestProjectConfig).
+# The database password comes from up.sh.
 fullnameOverride: zac
 
 image:
@@ -18,15 +19,14 @@ javaOptions: "-Xms1024m -Xmx1024m -Xlog:gc::time,uptime"
 maxInMemoryFileSizeMB: 10
 
 db:
-  host: postgres.podiumd.svc.cluster.local
+  host: postgres
   name: zac
   user: zac
-  password: password
 
 auth:
-  server: http://keycloak-service.podiumd.svc.cluster.local:8080
-  realm: podiumd
-  clientId: zac
+  server: http://keycloak:8080
+  realm: zaakafhandelcomponent
+  clientId: zaakafhandelcomponent
   secret: keycloakZaakafhandelcomponentClientSecret
   sslRequired: none
   enablePkce: true
@@ -99,7 +99,7 @@ openForms:
   url: http://localhost:9999
 
 pabcApi:
-  url: http://pabc.podiumd.svc.cluster.local
+  url: http://pabc-api:8000
   apiKey: zac-test-api-key
 
 # as ZacItestProjectConfig overrides it for Docker Compose

@@ -1,11 +1,10 @@
-{{- if eq .Values.part "zac" }}
-{{- $podiumd := .Values.podiumdNamespace }}
-# The documents that the Open Zaak test data refers to (see copy-test-pdf-and-start-openzaak.sh)
+# Open Klant API token for ZAC; runs once Open Klant has migrated its database, like
+# scripts/docker-compose/imports/openklant-database/fill-data-on-startup.sh in Docker Compose
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: seed-openzaak-media
-  namespace: {{ $podiumd }}
+  name: seed-openklant
+  namespace: {{ .Release.Namespace }}
 spec:
   backoffLimit: 3
   template:
@@ -13,57 +12,16 @@ spec:
       enableServiceLinks: false
       restartPolicy: OnFailure
       securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
-      containers:
-        - name: copy
-          image: {{ .Values.images.busybox }}
-          command:
-            - sh
-            - -c
-            - |
-              set -e
-              for month in 10 11 12; do
-                mkdir -p /app/private-media/uploads/2023/$month
-                cp /seed/fake-test-document.pdf /app/private-media/uploads/2023/$month/
-              done
-          volumeMounts:
-            - name: media
-              mountPath: /app/private-media
-              subPath: openzaak/private_media
-            - name: seed
-              mountPath: /seed
-      volumes:
-        - name: media
-          persistentVolumeClaim:
-            claimName: openzaak
-        - name: seed
-          configMap:
-            name: seed-openzaak-uploads
----
-# Open Klant API token for ZAC; runs once Open Klant has migrated its database
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: seed-openklant
-  namespace: {{ $podiumd }}
-spec:
-  backoffLimit: 3
-  template:
-    spec:
-      enableServiceLinks: false
-      restartPolicy: OnFailure
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
       containers:
         - name: psql
           image: {{ .Values.images.postgres }}
           env:
             - name: PGHOST
-              value: postgres.{{ $podiumd }}.svc.cluster.local
+              value: postgres
             - name: PGUSER
               value: openklant
-            - name: PGPASSWORD
-              value: openklant
+            {{- include "zac-dev.passwordEnv" (list . "PGPASSWORD" "openklant") | nindent 12 }}
             - name: PGDATABASE
               value: openklant
           command:
@@ -76,6 +34,17 @@ spec:
                 echo "waiting for the Open Klant migrations"; sleep 2
               done
               psql --set ON_ERROR_STOP=1 --file /seed/1-setup-applicatie.sql
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
+            runAsUser: 999
+            readOnlyRootFilesystem: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 500m
+              memory: 128Mi
           volumeMounts:
             - name: seed
               mountPath: /seed
@@ -84,26 +53,30 @@ spec:
           configMap:
             name: seed-openklant
 ---
-# Open Object test data (objecttypen and productaanvragen); runs once Open Object has migrated its database
+# Open Object test data (objecttypen and productaanvragen); runs once Open Object has migrated its database,
+# like the open-object-import container of Docker Compose
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: seed-objecten
-  namespace: {{ $podiumd }}
+  name: seed-openobject
+  namespace: {{ .Release.Namespace }}
 spec:
   backoffLimit: 3
   template:
     spec:
       enableServiceLinks: false
       restartPolicy: OnFailure
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
       containers:
         - name: loaddata
-          image: {{ .Values.images.objecten }}
+          image: {{ .Values.images.openObject }}
           envFrom:
+            # the settings of the openobject release
             - configMapRef:
-                name: objecten
+                name: openobject
             - secretRef:
-                name: objecten
+                name: openobject
           command:
             - sh
             - -c
@@ -113,6 +86,17 @@ spec:
                 echo "waiting for the Open Object migrations"; sleep 3
               done
               python /app/src/manage.py loaddata demodata
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
+            # the 'maykin' user of the image
+            runAsUser: 1000
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
           volumeMounts:
             - name: fixtures
               mountPath: /app/src/objects/fixtures
@@ -120,69 +104,3 @@ spec:
         - name: fixtures
           configMap:
             name: seed-objecten-fixtures
-{{- end }}
-{{- if eq .Values.part "keycloak" }}
-{{- $podiumd := .Values.podiumdNamespace }}
-# The ZAC layer of the PodiumD Keycloak realm: test users, groups and roles from the Docker Compose realm,
-# and the client settings that the itests need. Runs once the PodiumD realm import has created the 'zac' client.
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: seed-keycloak-zac
-  namespace: {{ $podiumd }}
-spec:
-  backoffLimit: 6
-  template:
-    spec:
-      enableServiceLinks: false
-      restartPolicy: OnFailure
-      containers:
-        - name: kcadm
-          image: {{ .Values.images.keycloak }}
-          command:
-            - bash
-            - -c
-            - |
-              set -euo pipefail
-              kcadm() { /opt/keycloak/bin/kcadm.sh "$@" --config /tmp/kcadm.config; }
-              until kcadm config credentials --server http://keycloak-service.{{ $podiumd }}.svc.cluster.local:8080 \
-                  --realm master --client keycloak-operator --secret "$OPERATOR_CLIENT_SECRET" > /dev/null 2>&1; do
-                echo "waiting for Keycloak and its operator client"; sleep 3
-              done
-              until [ -n "$(kcadm get clients -r podiumd -q clientId=zac --fields id --format csv --noquotes 2>/dev/null)" ]; do
-                echo "waiting for the PodiumD realm import"; sleep 3
-              done
-              # the itests log in with the password grant; PodiumD requires every new user to set up OTP
-              kcadm update authentication/required-actions/CONFIGURE_TOTP -r podiumd -s defaultAction=false
-              # some test users have no e-mail address, which the PodiumD user profile requires
-              kcadm update authentication/required-actions/VERIFY_PROFILE -r podiumd -s enabled=false
-              # the concurrent itest specs log in the same users many times per second, which brute force
-              # detection counts as an attack; the Docker Compose realm has it off as well
-              kcadm update realms/podiumd -s bruteForceProtected=false
-              kcadm create partialImport -r podiumd -f /seed/zac-realm-layer.json
-              zac_client_id=$(kcadm get clients -r podiumd -q clientId=zac --fields id --format csv --noquotes)
-              kcadm update clients/$zac_client_id -r podiumd -s directAccessGrantsEnabled=true
-              # keycloak-config-cli creates the PodiumD clients without the realm's default client scopes, so the
-              # access tokens carry no 'aud' and no realm roles, and ZAC answers every request with 401
-              for scope_id in $(kcadm get default-default-client-scopes -r podiumd --fields id --format csv --noquotes); do
-                kcadm update clients/$zac_client_id/default-client-scopes/$scope_id -r podiumd
-              done
-              kcadm add-roles -r podiumd --uusername service-account-zaakafhandelcomponent-admin-client \
-                --cclientid realm-management --rolename view-users
-              kcadm add-roles -r podiumd --uusername service-account-zaakafhandelcomponent-admin-client \
-                --cclientid account --rolename view-groups
-              echo "ZAC realm layer imported"
-          env:
-            - name: OPERATOR_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: keycloak-operator-client-secret
-                  key: client-secret
-          volumeMounts:
-            - name: seed
-              mountPath: /seed
-      volumes:
-        - name: seed
-          configMap:
-            name: seed-keycloak-zac
-{{- end }}

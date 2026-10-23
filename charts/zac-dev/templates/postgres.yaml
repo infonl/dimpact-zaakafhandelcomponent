@@ -1,24 +1,13 @@
-{{- if eq .Values.part "infra" }}
-# One Postgres server for every component, as on a PodiumD environment (one managed Postgres server with
-# a database per component). Data lives in an emptyDir: every itest run starts from the seed data.
+# One Postgres server with a database per component; Docker Compose runs a server per component instead.
+# The data lives in an emptyDir, so that every itest run starts from the seed data. The roles and their generated
+# passwords come from a Secret that hack/kind-spike/up.sh creates; the seed data from ConfigMaps that it creates
+# straight from scripts/docker-compose/imports, so that the Docker Compose stack and kind share one copy.
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgres-initdb
-  namespace: {{ .Values.podiumdNamespace }}
+  namespace: {{ .Release.Namespace }}
 data:
-  00-roles-and-databases.sh: |
-    #!/bin/bash
-    set -euo pipefail
-    # user:password:database. Every role is a superuser: this is a throwaway test database, and the
-    # Open Zaak dump creates the postgis and pg_trgm extensions.
-    for spec in keycloak:keycloak:keycloak openzaak:openzaak:openzaak openklant:openklant:openklant \
-                objects:objects:objects pabc:pabc:Pabc zac:password:zac; do
-      IFS=: read -r user password database <<< "$spec"
-      psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname postgres \
-        -c "CREATE ROLE \"$user\" LOGIN SUPERUSER PASSWORD '$password'" \
-        -c "CREATE DATABASE \"$database\" OWNER \"$user\""
-    done
   10-openzaak.sh: |
     #!/bin/bash
     set -euo pipefail
@@ -43,7 +32,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres
-  namespace: {{ .Values.podiumdNamespace }}
+  namespace: {{ .Release.Namespace }}
   labels:
     app: postgres
 spec:
@@ -59,29 +48,47 @@ spec:
         app: postgres
     spec:
       enableServiceLinks: false
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+        # the 'postgres' user of the image
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
       containers:
         - name: postgres
           image: {{ .Values.images.postgres }}
           args: ["-c", "max_connections=400"]
           env:
-            - name: POSTGRES_USER
-              value: postgres
-            - name: POSTGRES_PASSWORD
-              value: postgres
+            # a directory that the 'postgres' user creates itself, inside the emptyDir that fsGroup makes writable
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+            {{- include "zac-dev.passwordEnv" (list . "POSTGRES_PASSWORD" "postgres") | nindent 12 }}
           ports:
             - containerPort: 5432
           readinessProbe:
             exec:
               # TCP on purpose: during the init scripts Postgres only listens on its Unix socket
-              command: ["pg_isready", "-h", "127.0.0.1", "-U", "postgres"]
+              command: ["pg_isready", "--host=127.0.0.1", "--username=postgres"]
             periodSeconds: 2
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
+            readOnlyRootFilesystem: true
           resources:
             requests:
               cpu: 100m
               memory: 256Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
+            - name: run
+              mountPath: /var/run/postgresql
+            - name: tmp
+              mountPath: /tmp
+            - name: shm
+              mountPath: /dev/shm
             - name: initdb
               mountPath: /docker-entrypoint-initdb.d
             - name: openzaak-dump
@@ -91,9 +98,21 @@ spec:
       volumes:
         - name: data
           emptyDir: {}
+        - name: run
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 256Mi
         - name: initdb
-          configMap:
-            name: postgres-initdb
+          projected:
+            sources:
+              - secret:
+                  name: postgres-initdb-roles
+              - configMap:
+                  name: postgres-initdb
         - name: openzaak-dump
           configMap:
             name: seed-openzaak-dump
@@ -105,11 +124,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: postgres
-  namespace: {{ .Values.podiumdNamespace }}
+  namespace: {{ .Release.Namespace }}
 spec:
   selector:
     app: postgres
   ports:
     - port: 5432
       targetPort: 5432
-{{- end }}

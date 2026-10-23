@@ -1,0 +1,92 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# SPIKE (PZ-13059): values for the upstream maykinmedia/openzaak chart (release 'openzaak', namespace 'zac'),
+# mirroring the Open Zaak services of docker-compose.yaml. The database password comes from up.sh.
+
+# the version of docker-compose.yaml, which the Open Zaak test data dump was made with
+image:
+  repository: openzaak/open-zaak
+  tag: "1.31.0@sha256:d25566131129d5013ea936a2b25ea40e567fd3aa38120335aa552ba54e76300c"
+
+replicaCount: 1
+
+# Redis comes from charts/zac-dev, shared by every component as in Docker Compose
+tags:
+  redis: false
+
+settings:
+  allowedHosts: openzaak.local,openzaak-nginx,localhost
+  database:
+    host: postgres
+    name: openzaak
+    username: openzaak
+  secretKey: openZaakSecretKey
+  cache:
+    default: redis:6379/0
+    axes: redis:6379/0
+  celery:
+    brokerUrl: redis://redis:6379/1
+    resultBackend: redis://redis:6379/1
+  isHttps: false
+  disable2fa: true
+  notificationsDisabled: true
+
+# the documents are uploaded into an emptyDir; the test documents that the test data refers to are mounted below
+persistence:
+  enabled: false
+
+# the test data refers to three copies of the same test document, see copy-test-pdf-and-start-openzaak.sh
+extraVolumes:
+  - name: test-document
+    configMap:
+      name: seed-openzaak-uploads
+extraVolumeMounts:
+  - name: test-document
+    mountPath: /app/private-media/uploads/2023/10/fake-test-document.pdf
+    subPath: fake-test-document.pdf
+  - name: test-document
+    mountPath: /app/private-media/uploads/2023/11/fake-test-document.pdf
+    subPath: fake-test-document.pdf
+  - name: test-document
+    mountPath: /app/private-media/uploads/2023/12/fake-test-document.pdf
+    subPath: fake-test-document.pdf
+
+# probe often, so that the stack is ready as soon as Open Zaak is
+startupProbe:
+  initialDelaySeconds: 5
+  periodSeconds: 2
+  timeoutSeconds: 5
+  failureThreshold: 300
+readinessProbe:
+  initialDelaySeconds: 0
+  periodSeconds: 5
+  timeoutSeconds: 5
+  failureThreshold: 5
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 1Gi
+
+# Docker Compose runs the Celery worker only with Open Notificaties, which the itests do not use
+worker:
+  replicaCount: 0
+beat:
+  replicaCount: 0
+flower:
+  enabled: false
+
+# everything reaches Open Zaak through nginx, as in Docker Compose, see docker-compose.yaml
+nginx:
+  image:
+    tag: "1.31.6@sha256:929e1d5e610e8aa89a1715ba44dce5edb4d42c172a208c171233292f472560c5"
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 256Mi
