@@ -43,7 +43,7 @@ Optional repository variables:
 |---|---|---|
 | `QA_AGENT_SCOPE` | `yesterday` | Scope of the scheduled run. |
 | `QA_AGENT_MODEL` | `claude-haiku-5.5` | Copilot model of the scheduled run. |
-| `QA_AGENT_MAX_AI_CREDITS` | `200` | Cost limit per run in AI credits (100 credits = 1 USD). |
+| `QA_AGENT_MAX_AI_CREDITS` | `500` | Safety limit per run in AI credits (100 credits = 1 USD); a normal run uses a few. |
 | `QA_AGENT_LANGUAGE` | `English` | Language of the Slack message, e.g. `Dutch`. |
 
 ## Running it

@@ -30,7 +30,7 @@ on:
           - claude-sonnet-5.5
       max_ai_credits:
         description: "Cost limit of the run in Copilot AI credits (100 credits = 1 USD)"
-        default: "200"
+        default: "500"
         type: string
       post_to_slack:
         description: "Post the summary to Slack"
@@ -58,7 +58,7 @@ jobs:
     env:
       SCOPE: ${{ inputs.scope || vars.QA_AGENT_SCOPE || 'yesterday' }}
       MODEL: ${{ inputs.model || vars.QA_AGENT_MODEL || 'claude-haiku-5.5' }}
-      MAX_AI_CREDITS: ${{ inputs.max_ai_credits || vars.QA_AGENT_MAX_AI_CREDITS || '200' }}
+      MAX_AI_CREDITS: ${{ inputs.max_ai_credits || vars.QA_AGENT_MAX_AI_CREDITS || '500' }}
       LANGUAGE: ${{ vars.QA_AGENT_LANGUAGE || 'English' }}
       JIRA_BASE_URL: https://dimpact.atlassian.net
     steps:
