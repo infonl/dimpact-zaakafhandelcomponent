@@ -4,17 +4,10 @@
  */
 package nl.info.zac.itest.util
 
-import nl.info.zac.itest.config.ItestConfiguration.ZAC_DATABASE_CONTAINER_SERVICE_NAME
-import nl.info.zac.itest.config.dockerComposeContainer
+import nl.info.zac.itest.config.ItestKindStack
 
 /**
- * Runs the SQL statement with `psql` on the ZAC database of the Docker Compose stack and returns its output lines.
+ * Runs the SQL statement with `psql` on the ZAC database of the kind stack and returns its output lines.
  */
-fun queryZacDatabase(sql: String): List<String> {
-    val execResult = dockerComposeContainer
-        .getContainerByServiceName(ZAC_DATABASE_CONTAINER_SERVICE_NAME)
-        .get()
-        .execInContainer("psql", "-U", "zac", "-d", "zac", "-At", "-c", sql)
-    check(execResult.exitCode == 0) { "psql failed: ${execResult.stderr}" }
-    return execResult.stdout.lines().filter { it.isNotBlank() }
-}
+fun queryZacDatabase(sql: String): List<String> =
+    ItestKindStack.queryZacDatabase(sql).lines().filter { it.isNotBlank() }
