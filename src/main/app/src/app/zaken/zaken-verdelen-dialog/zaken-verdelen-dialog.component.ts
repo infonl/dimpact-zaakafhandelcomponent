@@ -13,7 +13,7 @@ import {
   MatDialogRef,
 } from "@angular/material/dialog";
 import { MatDividerModule } from "@angular/material/divider";
-import { MatError } from "@angular/material/form-field";
+import { MatError, MatHint } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
@@ -23,6 +23,7 @@ import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { ZacInput } from "../../shared/form/input/input";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZakenService } from "../zaken.service";
 
@@ -39,9 +40,11 @@ import { ZakenService } from "../zaken.service";
     MatDialogModule,
     MatProgressSpinnerModule,
     MatError,
+    MatHint,
     TranslatePipe,
     ZacAutoComplete,
     ZacInput,
+    ZaakIdentificatieComponent,
   ],
 })
 export class ZakenVerdelenDialogComponent {
@@ -53,6 +56,13 @@ export class ZakenVerdelenDialogComponent {
   private readonly identityService = inject(IdentityService);
 
   protected readonly data = inject<ZaakZoekObject[]>(MAT_DIALOG_DATA);
+
+  protected readonly zaakspecifiekGeautoriseerdeZaken = this.data.filter(
+    ({ isZaakspecifiekGeautoriseerd }) => isZaakspecifiekGeautoriseerd,
+  );
+
+  protected readonly isBehandelaarRequired =
+    this.zaakspecifiekGeautoriseerdeZaken.length > 0;
 
   protected readonly mutation = injectMutation(
     () => this.zakenService.verdelenVanuitLijst(),
@@ -90,6 +100,9 @@ export class ZakenVerdelenDialogComponent {
     });
 
     this.form.controls.medewerker.disable();
+    if (this.isBehandelaarRequired) {
+      this.form.controls.medewerker.addValidators(Validators.required);
+    }
 
     this.form.controls.groep.valueChanges
       .pipe(takeUntilDestroyed())
@@ -110,7 +123,13 @@ export class ZakenVerdelenDialogComponent {
   }
 
   protected isDisabled() {
-    return this.form.invalid || this.mutation.isPending() || !this.data.length;
+    return (
+      this.form.invalid ||
+      (this.isBehandelaarRequired &&
+        !this.form.controls.medewerker.value?.id) ||
+      this.mutation.isPending() ||
+      !this.data.length
+    );
   }
 
   protected verdeel() {

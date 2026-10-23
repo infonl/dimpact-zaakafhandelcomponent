@@ -417,36 +417,6 @@ describe(ZakenWerkvoorraadComponent.name, () => {
       expect(openSnackbar).not.toHaveBeenCalled();
     });
 
-    it("names only the zaakspecifiek geautoriseerde reason when the dialog returns no behandelaar", async () => {
-      await setupWithMockedBatchProcess();
-      component["selection"].select(geautoriseerdeZaak, gewoneZaak);
-
-      component["openVerdelenScherm"]();
-
-      expect(openSnackbar).toHaveBeenCalledWith(
-        "msg.zaken.verdelen.overgeslagen.zaakspecifiek-geautoriseerd.enkelvoud",
-        { aantal: 1 },
-        8,
-      );
-    });
-
-    it("uses the plural message when more than one zaak is skipped for a reason", async () => {
-      await setupWithMockedBatchProcess();
-      component["selection"].select(
-        geautoriseerdeZaak,
-        tweedeGeautoriseerdeZaak,
-        gewoneZaak,
-      );
-
-      component["openVerdelenScherm"]();
-
-      expect(openSnackbar).toHaveBeenCalledWith(
-        "msg.zaken.verdelen.overgeslagen.zaakspecifiek-geautoriseerd.meervoud",
-        { aantal: 2 },
-        8,
-      );
-    });
-
     it("counts a handed-over zaakspecifiek geautoriseerde zaak in the progress message", async () => {
       await setupWithMockedBatchProcess(groepMetBehandelaar);
       component["selection"].select(geautoriseerdeZaak, gewoneZaak);
@@ -455,18 +425,6 @@ describe(ZakenWerkvoorraadComponent.name, () => {
 
       expect(showProgress).toHaveBeenCalledWith(
         "msg.verdeeld.zaken",
-        expect.anything(),
-      );
-    });
-
-    it("leaves a skipped zaakspecifiek geautoriseerde zaak out of the progress message", async () => {
-      await setupWithMockedBatchProcess();
-      component["selection"].select(geautoriseerdeZaak, gewoneZaak);
-
-      component["openVerdelenScherm"]();
-
-      expect(showProgress).toHaveBeenCalledWith(
-        "msg.verdeeld.zaak",
         expect.anything(),
       );
     });
@@ -481,6 +439,23 @@ describe(ZakenWerkvoorraadComponent.name, () => {
       expect(openSnackbar).toHaveBeenCalledWith(
         "msg.zaken.vrijgeven.overgeslagen.zaakspecifiek-geautoriseerd.enkelvoud",
         { aantal: 1 },
+        8,
+      );
+    });
+
+    it("uses the plural message when more than one geautoriseerde zaak is skipped on release", async () => {
+      await setupWithMockedBatchProcess();
+      component["selection"].select(
+        geautoriseerdeZaak,
+        tweedeGeautoriseerdeZaak,
+        gewoneZaak,
+      );
+
+      component["openVrijgevenScherm"]();
+
+      expect(openSnackbar).toHaveBeenCalledWith(
+        "msg.zaken.vrijgeven.overgeslagen.zaakspecifiek-geautoriseerd.meervoud",
+        { aantal: 2 },
         8,
       );
     });
