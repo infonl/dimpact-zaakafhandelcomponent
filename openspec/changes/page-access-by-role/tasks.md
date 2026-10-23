@@ -14,5 +14,5 @@
 
 - [x] 3.1 Run `./gradlew spotlessApply detektApply`, then `./gradlew detekt`, and verify it reports no issues
 - [x] 3.2 Run `./gradlew buildDockerImage itest` and verify no integration test fails
-- [ ] 3.3 In the local Docker Compose stack, log in as a `behandelaar`, open `/documenten/inbox` by URL, and verify ZAC shows the "U heeft geen toestemming om deze pagina te bekijken." page and its home button leads to the dashboard; then log in as a `coordinator` and verify the inbox loads
+- [ ] 3.3 In the local kind stack, log in as a `behandelaar`, open `/documenten/inbox` by URL, and verify ZAC shows the "U heeft geen toestemming om deze pagina te bekijken." page and its home button leads to the dashboard; then log in as a `coordinator` and verify the inbox loads
 - [x] 3.4 Run `openspec validate page-access-by-role --strict` and verify it passes

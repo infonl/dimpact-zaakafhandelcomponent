@@ -18,7 +18,7 @@
 # HTTP/auth lives in zac_client.py; this script contains only the zaakafhandelparameters
 # domain logic.
 #
-# Prerequisites: Python 3.10+, all Docker Compose services (including ZAC) must be running.
+# Prerequisites: Python 3.10+, the local kind stack of ./start-kind.sh must be running with ZAC.
 #
 # Usage:
 #   ./scripts/test-data/configure-zaakafhandelparameters.py ZAAKTYPE_UUID

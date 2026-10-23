@@ -32,5 +32,5 @@ This document lists the Docker images and versions that the corresponding versio
 
 ## Update Process
 
-This file is automatically kept in sync with the main [Docker Compose](docker-compose.yaml) file by Renovate.
-When a Docker image version is updated in the main Docker Compose file, Renovate will automatically update this file in the same PR.
+Renovate keeps this file in sync with the images of the local [kind stack](scripts/kind/charts/zac-dev/values.yaml).
+When it updates a Docker image version there, it updates this file in the same PR.

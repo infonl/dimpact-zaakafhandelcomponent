@@ -21,7 +21,7 @@
 # and the Angular dev server port (4200). When any value was answered at a prompt, the
 # equivalent non-interactive command line is printed too, ready to copy for a repeat run.
 #
-# Prerequisites: Python 3.10+, all Docker Compose services (including ZAC) must be running.
+# Prerequisites: Python 3.10+, the local kind stack of ./start-kind.sh must be running with ZAC.
 #
 # Usage:
 #   ./scripts/test-data/create-zaak.py [--zaaktype NAME_OR_NUMBER] [--doc-count N]

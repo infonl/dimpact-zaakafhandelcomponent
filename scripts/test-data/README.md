@@ -1,6 +1,6 @@
 # Test data scripts
 
-This directory contains scripts to generate test data in a local Docker Compose ZAC stack: zaaktypes,
+This directory contains scripts to generate test data in the local kind stack of ZAC: zaaktypes,
 zaakafhandelparameters, zaken and documents. They are used for manual testing and for load/performance testing.
 
 `zac_client.py`, `zac_testdata.py` and `zac_reporting.py` are shared modules (HTTP/auth, the zaaktype/document
@@ -28,7 +28,8 @@ are not registered in PABC and are not configured in ZAC.
 ### Prerequisites
 * Python 3.10+
 * `psql` on `PATH`
-* the Open Zaak and PABC Docker Compose services running (and ZAC + Keycloak too, unless `--skip-config` is used)
+* the local [kind stack](../../docs/development/installKind.md) running, with ZAC unless `--skip-config` is used
+* `kubectl` on `PATH`, unless you pass `--password` and `--pabc-password`
 
 ### Usage
 ```shell
@@ -48,7 +49,7 @@ are not registered in PABC and are not configured in ZAC.
 | `--port`                     | `54322`                                           | Open Zaak database port                                                               |
 | `--dbname`                   | `openzaak`                                        | Open Zaak database name                                                               |
 | `--user`                     | `openzaak`                                        | Open Zaak database user                                                               |
-| `--password`                 | `openzaak`                                        | Open Zaak database password                                                           |
+| `--password`                 | generated                                         | Open Zaak database password; by default read from the kind cluster      |
 | `--template`                 | `open-zaak/zaaktype-template.sql`                 | path to the Open Zaak SQL template                                                    |
 | `--add-extra-versions N`     | off                                               | for each zaaktype, also create N (1-10) extra superseded versions in Open Zaak first  |
 | `--version-update-template`  | `open-zaak/zaaktype-version-update-template.sql`  | path to the zaaktype-version-update SQL template                                      |
@@ -56,14 +57,16 @@ are not registered in PABC and are not configured in ZAC.
 | `--pabc-port`                | `54329`                                           | PABC database port                                                                    |
 | `--pabc-dbname`              | `Pabc`                                            | PABC database name                                                                    |
 | `--pabc-user`                | `pabc`                                            | PABC database user                                                                    |
-| `--pabc-password`            | `pabc`                                            | PABC database password                                                                |
+| `--pabc-password`            | generated                                         | PABC database password; by default read from the kind cluster          |
 | `--pabc-template`            | `pabc/add-zaaktype-template.sql`                  | path to the PABC SQL template                                                         |
 | `--zac-url`                  | `http://localhost:8080`                           | ZAC base URL, passed through to `configure-zaakafhandelparameters.py`                 |
 | `--keycloak-url`             | `http://localhost:8081`                           | Keycloak base URL, passed through to `configure-zaakafhandelparameters.py`            |
 | `--skip-config`              | off                                               | skip configuring zaakafhandelparameters in ZAC after creating each zaaktype           |
 
 The database and PABC connection options only need to be overridden when the local stack deviates from the
-defaults in `docker-compose.yaml`.
+defaults of the [kind stack](../../docs/development/installKind.md#host-ports). Without `--password` and
+`--pabc-password`, the script reads the generated database passwords from the Secret `zac-dev-generated` of the kind
+cluster `$KIND_CLUSTER_NAME` (default `zac`).
 
 ### Examples
 
