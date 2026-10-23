@@ -111,7 +111,7 @@ ones. These are:
 
 - the passwords of the databases;
 - the secret keys of Open Zaak and the other Django components;
-- the password of the `admin` user of the Keycloak admin console (http://localhost:8081/admin) and of the admin pages
+- the password of the `admin` user of the Keycloak admin console (http://keycloak.localhost:8081/admin) and of the admin pages
   of Open Zaak, Open Klant, Open Object, Open Notificaties, Open Archiefbeheer and Open Formulieren. The script
   prints it when the stack is ready;
 - the passwords of Solr and the office converter.
@@ -184,14 +184,34 @@ For example, to run a second cluster next to the first one:
 KIND_CLUSTER_NAME=zac-2 KIND_PORT_OFFSET=11000 ./start-kind.sh -l
 ```
 
-ZAC is then at http://localhost:19080 and Keycloak at http://localhost:19081.
+ZAC is then at http://localhost:19080 and Keycloak at http://keycloak.localhost:19081.
 
 ### Keycloak in the browser
 
-Keycloak issues its tokens for `http://localhost:<Keycloak host port>`, the URL that your browser uses. ZAC and
-PABC in the cluster call Keycloak at `http://keycloak:8080`, and a ZAC in your IDE can keep using
-`AUTH_SERVER=http://host.docker.internal:8081` from `.env.example`. You do not need a `host.docker.internal` entry in
-`/etc/hosts` to log in. Set `KEYCLOAK_HOSTNAME` to use another URL.
+Keycloak is at http://keycloak.localhost:8081, or at `keycloak.localhost` with the Keycloak host port that you chose.
+Its admin console is at http://keycloak.localhost:8081/admin.
+
+Keycloak puts this URL in its tokens and in the endpoints of its OpenID configuration, so your browser, the pods in
+the cluster and a ZAC in your IDE must all reach Keycloak at the same URL. ZAC uses one of these endpoints to log
+you out of Keycloak, from the server and not from your browser. A name under `localhost` makes this possible:
+
+- Browsers, and the resolvers of macOS and of most Linux distributions, resolve every name under `localhost` to
+  your own computer. You do not need an entry in `/etc/hosts`.
+- In the cluster, CoreDNS resolves `keycloak.localhost` to the Keycloak Service, and that Service also listens on the
+  Keycloak host port.
+
+ZAC and PABC in the cluster call Keycloak at `http://keycloak:8080`, and a ZAC in your IDE can keep using
+`AUTH_SERVER=http://host.docker.internal:8081` from `.env.example`, or use `http://keycloak.localhost:8081`.
+
+If your computer does not resolve `keycloak.localhost`, for example on Linux without `nss-myhostname` or
+`systemd-resolved`, add this line to `/etc/hosts`:
+
+```
+127.0.0.1 keycloak.localhost
+```
+
+Set `KEYCLOAK_HOSTNAME` to use another URL. The pods in the cluster only reach that URL when its host name contains a
+dot.
 
 ## Memory and arm64
 

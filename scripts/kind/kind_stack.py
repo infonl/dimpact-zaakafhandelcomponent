@@ -36,6 +36,9 @@ KIND_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(KIND_DIR))
 REALM_FILE = os.path.join(KIND_DIR, "seed", "keycloak", "zaakafhandelcomponent-realm.json")
 GENERATED_SECRET = "zac-dev-generated"
+# the host name of Keycloak in the browser and in the cluster: browsers and the resolvers of macOS and Linux resolve
+# every name under 'localhost' to the host itself, and up.sh rewrites it to the Keycloak Service in the cluster
+KEYCLOAK_HOST = "keycloak.localhost"
 DJANGO_ADMIN_HASH_ITERATIONS = 600000
 
 
@@ -337,7 +340,8 @@ def write_values(stack_file, output_dir, mode, profiles, existing_secret_file):
                        ("BAG_API_CLIENT_MP_REST_URL", "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/"),
                        ("BAG_API_KEY", "please-request-a-bag-api-key")]}}, seed_environment)
 
-    keycloak_url = environment.get("KEYCLOAK_HOSTNAME") or host_url("KEYCLOAK", 8081)
+    keycloak_url = (environment.get("KEYCLOAK_HOSTNAME")
+                    or f"http://{KEYCLOAK_HOST}:{host_ports.get('HOST_PORT_KEYCLOAK', 8081)}")
     email_addresses = {
         name.replace("DOCKER_COMPOSE_", "ZAC_", 1): value for name, value in environment.items()
         if re.fullmatch(r"DOCKER_COMPOSE_[A-Z0-9_]+_EMAIL_ADDRESS", name) and value}

@@ -5,6 +5,13 @@
 # Keycloak with the realm of scripts/kind/seed/keycloak, imported with '--import-realm'. The container first builds
 # Keycloak for Postgres, which takes most of its start-up time and needs no database, and then starts the built
 # Keycloak once Postgres accepts connections.
+#
+# Keycloak has the URL of the browser (keycloak.hostname) in its tokens and in the endpoints of its OpenID
+# configuration, such as the end_session_endpoint that ZAC calls to log out. The Service therefore also listens on the
+# port of that URL, and scripts/kind/up.sh rewrites its host name to this Service in CoreDNS, so that the pods reach
+# Keycloak at the URL of the browser too.
+{{- $hostnameUrl := urlParse .Values.keycloak.hostname }}
+{{- $hostnamePort := regexFind ":[0-9]+$" $hostnameUrl.host | trimPrefix ":" | default (ternary "443" "80" (eq $hostnameUrl.scheme "https")) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -102,3 +109,8 @@ spec:
     - name: management
       port: 9000
       targetPort: 9000
+    {{- if and $hostnameUrl.host (ne $hostnamePort "8080") }}
+    - name: http-hostname
+      port: {{ $hostnamePort }}
+      targetPort: 8080
+    {{- end }}
