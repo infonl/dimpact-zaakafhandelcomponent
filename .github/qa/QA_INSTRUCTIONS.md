@@ -108,9 +108,13 @@ screenshot, use `page.screenshot({ path: test.info().outputPath("<name>.png") })
      config change. Don't open a browser for these.
    Write the triage to `qa-output/test-plan.md`.
 2. **Test**. For each `test` and `smoke` item, write one spec file named after the ticket
-   (`PZ-1234.spec.ts`, or `pr-1234.spec.ts` without a ticket). Name each test after what it checks.
+   (`PZ-1234.spec.ts`, or `pr-1234.spec.ts` without a ticket). Name each test after what it really
+   checks: a test that can only check part of the ticket says so in its name, and its `summary_line`
+   doesn't claim more.
    Prefer `getByRole`, `getByLabel` and `getByText`, and look up the real labels in the Angular templates
    under `src/main/app/src/app/` instead of guessing.
+   When a test needs a zaak or taak that isn't there, create one with `createZaak` (a BPMN zaak is
+   assigned to bob) instead of skipping the test. Only use `test.skip` when you can't create the data.
 3. **When a test fails**, decide:
    - test bug (wrong locator, timing): fix it, at most 2 attempts, then mark `needs-human`
    - app bug (behaviour contradicts the ticket): keep the test as is and describe the bug
@@ -119,6 +123,8 @@ screenshot, use `page.screenshot({ path: test.info().outputPath("<name>.png") })
    clears the screenshots and traces of the run before it, so the report must use the results and
    screenshot paths under `qa-output/test-results/` from this final run.
 5. **Report**: write the two files below. Do this even when you ran out of time for some items.
+6. **Check**: run `npm run qa-agent:check`. It tells you when `results.json` isn't valid JSON or misses
+   a field. Fix the file until the check passes; you are not done before that.
 
 ## `qa-output/results.json`
 

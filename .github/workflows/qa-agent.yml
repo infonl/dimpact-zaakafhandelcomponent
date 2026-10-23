@@ -128,7 +128,7 @@ jobs:
           Read $GITHUB_WORKSPACE/.github/qa/QA_INSTRUCTIONS.md and follow it.
           The gathered context is in $GITHUB_WORKSPACE/qa-context/manifest.md.
           Write the Slack message in $LANGUAGE.
-          You are done when qa-output/results.json and qa-output/report.md exist." \
+          You are done when qa-output/report.md exists and npm run qa-agent:check passes." \
             --add-dir "$GITHUB_WORKSPACE" \
             --model "$MODEL" \
             --allow-tool='write, shell(npm run:*)' \
