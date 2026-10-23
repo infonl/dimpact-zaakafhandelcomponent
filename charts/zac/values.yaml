@@ -569,13 +569,8 @@ solr-operator:
       seccompProfile:
         type: RuntimeDefault
     # -- securityContext for the solr container in solrcloud; the Solr Operator applies it to that container only.
-    # Capabilities and privilege escalation can only be set per container, so the init containers keep the defaults
-    # for those.
-    containerSecurityContext:
-      allowPrivilegeEscalation: false
-      capabilities:
-        drop:
-          - ALL
+    # Requires the solr-operator v0.9.0 or later CRDs; older CRDs reject the SolrCloud when this is set.
+    containerSecurityContext: {}
     # -- tolerations for solr in solrcloud
     tolerations: []
      # -- topologySpreadConstraints for solr in solrcloud

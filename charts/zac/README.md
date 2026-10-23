@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.357](https://img.shields.io/badge/Version-1.0.357-informational?style=flat-square) ![AppVersion: 5.10](https://img.shields.io/badge/AppVersion-5.10-informational?style=flat-square)
+![Version: 1.0.358](https://img.shields.io/badge/Version-1.0.358-informational?style=flat-square) ![AppVersion: 5.10](https://img.shields.io/badge/AppVersion-5.10-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -369,7 +369,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.busyBoxImage.pullPolicy | string | `"IfNotPresent"` | solr busybox image imagePullPolicy |
 | solr-operator.solr.busyBoxImage.repository | string | `"library/busybox"` | solr busybox image reposity |
 | solr-operator.solr.busyBoxImage.tag | string | `"1.38.0-glibc@sha256:99813cb178ace2cd9c6c53ee3bddef5d2f5708aa438335111d7a9e3c5e1aaebe"` | solr busybox image tag |
-| solr-operator.solr.containerSecurityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]}}` | securityContext for the solr container in solrcloud; the Solr Operator applies it to that container only. Capabilities and privilege escalation can only be set per container, so the init containers keep the defaults for those. |
+| solr-operator.solr.containerSecurityContext | object | `{}` | securityContext for the solr container in solrcloud; the Solr Operator applies it to that container only. Requires the solr-operator v0.9.0 or later CRDs; older CRDs reject the SolrCloud when this is set. |
 | solr-operator.solr.enabled | bool | `true` |  |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
