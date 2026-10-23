@@ -1,0 +1,39 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+
+# -- the images; scripts/kind/up.sh takes them from docker-compose.yaml
+images:
+  postgres: ""
+  redis: ""
+  keycloak: ""
+  pabcApi: ""
+  pabcMigrations: ""
+  brpPersonenMock: ""
+  wiremock: ""
+  greenmail: ""
+  solr: ""
+  openObject: ""
+  opa: ""
+  officeConverter: ""
+
+keycloak:
+  # -- the URL of Keycloak in the browser, which is also the issuer of the tokens
+  hostname: ""
+
+# -- run OPA and the office converter for a ZAC that runs outside the cluster, for example in an IDE;
+# the ZAC Helm chart brings its own when ZAC runs in the cluster
+zacOutsideCluster: false
+
+officeConverter:
+  args: []
+
+# -- the storage class of the kind cluster
+storageClassName: standard
+
+# -- the Secret with the generated passwords, created by scripts/kind/up.sh
+generatedSecret: zac-dev-generated
+
+# -- NodePorts that the port proxy container of scripts/kind/up.sh publishes on the host, from scripts/kind/ports.json
+ports: []

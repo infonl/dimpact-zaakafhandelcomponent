@@ -1,0 +1,52 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# Values for the maykinmedia/openklant chart (release 'openklant'), mirroring the Open Klant service of
+# docker-compose.yaml. scripts/kind/up.sh adds the image, the database settings and the secret key of
+# docker-compose.yaml. Chart 1.11.0 is the one for Open Klant 2.15.0: later charts probe /_healthz/, which 2.15.0
+# does not have.
+replicaCount: 1
+
+tags:
+  redis: false
+
+settings:
+  allowedHosts: openklant.local,localhost,host.docker.internal
+  cache:
+    default: redis:6379/0
+    axes: redis:6379/0
+  celery:
+    brokerUrl: redis://redis:6379/0
+    resultBackend: redis://redis:6379/0
+  isHttps: false
+  disable2fa: true
+  notificationsDisabled: true
+
+persistence:
+  enabled: false
+
+# Open Klant migrates its empty database when it starts, which takes minutes
+livenessProbe:
+  initialDelaySeconds: 300
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+readinessProbe:
+  initialDelaySeconds: 0
+  periodSeconds: 3
+  timeoutSeconds: 5
+  failureThreshold: 6
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 1Gi
+
+# Docker Compose runs neither a Celery worker nor nginx for Open Klant
+worker:
+  replicaCount: 0
+nginx:
+  replicaCount: 0

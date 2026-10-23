@@ -61,6 +61,13 @@ Before running the integration tests, make sure that a new ZAC Docker image has 
 ./stop-docker-compose.sh            # Stop stack
 ```
 
+### Local Kubernetes Stack (kind)
+```bash
+./start-kind.sh                     # Start all services but ZAC in a kind cluster, same host ports as Docker Compose
+./start-kind.sh -l                  # ... with the locally built ZAC image (-z: registry image, -b: build first)
+./stop-kind.sh                      # Stop the cluster (-d: delete it)
+```
+
 ## Linting & Formatting commands
 
 ```bash
@@ -217,6 +224,7 @@ Detailed guides live in `docs/development/`:
 - `testing.md` — comprehensive testing guide
 - `ideConfig.md` — IDE setup
 - `installDockerCompose.md` — local Docker Compose setup
+- `installKind.md` — local Kubernetes (kind) setup
 - `documentFileSizes.md` — the two maximum document sizes and how to raise them
 - `endToEndTypeSafety.md` — type safety approach
 - `paging.md` — REST paging conventions

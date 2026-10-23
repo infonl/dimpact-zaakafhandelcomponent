@@ -1,0 +1,159 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# One Postgres server with a database per component, where Docker Compose runs a server per component. Services
+# with the Docker Compose names of those servers point to it, so that the Docker Compose settings work unchanged.
+# The roles, the seed data and the BAG settings of the Open Zaak test data are Secrets and ConfigMaps that
+# scripts/kind/up.sh creates from docker-compose.yaml and scripts/docker-compose/imports.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-initdb
+  namespace: {{ .Release.Namespace }}
+data:
+  10-openzaak.sh: |
+    #!/bin/bash
+    set -euo pipefail
+    psql --username openzaak --dbname openzaak --set ON_ERROR_STOP=1 --quiet \
+      --file /seed/openzaak-dump/00-restore-migrated-database.sql > /dev/null
+    for file in /seed/openzaak-data/*.sql; do
+      echo "Running $file ..."
+      psql --username openzaak --dbname openzaak --set ON_ERROR_STOP=1 \
+        --set BAG_API_CLIENT_MP_REST_URL="${BAG_API_CLIENT_MP_REST_URL:-}" \
+        --set BAG_API_KEY="${BAG_API_KEY:-}" \
+        --file "$file"
+    done
+  20-zac.sh: |
+    #!/bin/bash
+    set -euo pipefail
+    psql --username zac --dbname zac --set ON_ERROR_STOP=1 --file /seed/zac/init-zac-database.sql
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: {{ .Values.storageClassName }}
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+        # the 'postgres' user of the image
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+      containers:
+        - name: postgres
+          image: {{ include "zac-dev.image" (list . "postgres") }}
+          args: ["-c", "max_connections=400"]
+          env:
+            # a directory that the 'postgres' user creates itself, so that it owns it whatever the volume allows
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.generatedSecret }}
+                  key: postgres-password
+          envFrom:
+            - secretRef:
+                name: openzaak-seed-env
+          ports:
+            - containerPort: 5432
+          readinessProbe:
+            exec:
+              # TCP on purpose: while the init scripts run, Postgres only listens on its Unix socket
+              command: ["pg_isready", "--host=127.0.0.1", "--username=postgres"]
+            periodSeconds: 2
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
+            readOnlyRootFilesystem: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+            - name: run
+              mountPath: /var/run/postgresql
+            - name: tmp
+              mountPath: /tmp
+            - name: shm
+              mountPath: /dev/shm
+            - name: initdb
+              mountPath: /docker-entrypoint-initdb.d
+            - name: openzaak-dump
+              mountPath: /seed/openzaak-dump
+            - name: openzaak-data
+              mountPath: /seed/openzaak-data
+            - name: zac
+              mountPath: /seed/zac
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: postgres-data
+        - name: run
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 256Mi
+        - name: initdb
+          projected:
+            sources:
+              - secret:
+                  name: postgres-initdb-roles
+              - configMap:
+                  name: postgres-initdb
+        - name: openzaak-dump
+          configMap:
+            name: seed-openzaak-dump
+        - name: openzaak-data
+          configMap:
+            name: seed-openzaak-data
+        - name: zac
+          configMap:
+            name: seed-zac-database
+{{- range $name := list "postgres" "zac-database" "openzaak-database" "open-object-database" "openklant-database" "keycloak-database" "pabc-database" }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+{{- end }}

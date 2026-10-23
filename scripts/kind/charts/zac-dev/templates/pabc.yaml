@@ -1,0 +1,80 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# PABC with the environments of the Docker Compose services. The migrations, which also load the dataset of
+# scripts/docker-compose/imports/pabc-database, run as an init container instead of a separate one-off container.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pabc-api
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pabc-api
+  template:
+    metadata:
+      labels:
+        app: pabc-api
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+      initContainers:
+        {{- include "zac-dev.waitForPostgres" . | nindent 8 }}
+        - name: pabc-migrations
+          image: {{ include "zac-dev.image" (list . "pabcMigrations") }}
+          envFrom:
+            - secretRef:
+                name: pabc-migrations-compose-env
+          securityContext:
+            {{- include "zac-dev.containerSecurityContext" . | nindent 12 }}
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          volumeMounts:
+            - name: dataset
+              mountPath: /app/json
+      containers:
+        - name: pabc-api
+          image: {{ include "zac-dev.image" (list . "pabcApi") }}
+          envFrom:
+            - secretRef:
+                name: pabc-api-compose-env
+          ports:
+            - containerPort: 8000
+          readinessProbe:
+            tcpSocket:
+              port: 8000
+            periodSeconds: 2
+          securityContext:
+            {{- include "zac-dev.containerSecurityContext" . | nindent 12 }}
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+      volumes:
+        - name: dataset
+          configMap:
+            name: seed-pabc-dataset
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pabc-api
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: pabc-api
+  ports:
+    - port: 8000
+      targetPort: 8000
