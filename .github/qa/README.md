@@ -67,8 +67,9 @@ call can go slightly over it. The job summary shows the usage the CLI reports. P
 
 ## Safety
 
-- The agent can read the repo, create and edit files, and run one kind of shell command: `npm run`,
-  for its Playwright tests. Other commands, URLs and the built-in GitHub MCP server are off.
+- The agent can read the repo, create and edit files, run its Playwright tests with `npm run`, and use
+  the read-only shell commands Copilot CLI allows by default (`cat`, `ls`, `tail`). Commands that
+  change or delete files, URL fetching and the built-in GitHub MCP server are off.
   Copilot CLI cannot limit file writes to a folder, so the Slack webhook is only used in a separate
   report job, with a fresh checkout that reads nothing but the report data. The agent job cannot push.
 - Jira credentials never reach the agent; `gather.sh` fetches everything up front. The workflow token

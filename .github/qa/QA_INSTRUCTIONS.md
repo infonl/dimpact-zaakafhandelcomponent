@@ -64,16 +64,20 @@ person Héndrika Janse with BSN 999993896, postcode 1112GV.
 
 - Reading and searching every file in the repo and in `qa-context/`.
 - Creating and editing files, only in `src/e2e/qa-agent/tests/` and `qa-output/`.
-- One kind of shell command, to run your tests. Your shell starts in `src/e2e`; add a file name to run
-  one file:
+- A shell for running your tests and for reading (`cat`, `ls`, `tail`). Your shell starts in `src/e2e`;
+  add a file name to run one file:
 
   ```
   npm run qa-agent -- tests/<file>.spec.ts
   ```
 
-Every other shell command (`cat`, `ls`, `echo`, `python3`, pipes, loops) is refused. That is expected and
-doesn't mean you can't test: read files with your file tools, and run tests with the command above.
-`ZAC_URL` and the test user credentials are set for the tests; you can't and don't need to see them.
+Commands that delete or change files, like `rm`, are refused. You never need them: the runner is thrown
+away after the run, so there is nothing to clean up.
+`ZAC_URL` and the test user credentials are set for the tests; you don't need to see them.
+
+Playwright already takes a screenshot of every test and stores it, with the trace of a failing test,
+under `qa-output/test-results/`. Don't call `page.screenshot` with a path of your own; for an extra
+screenshot, use `page.screenshot({ path: test.info().outputPath("<name>.png") })`.
 
 ## Hard rules
 
