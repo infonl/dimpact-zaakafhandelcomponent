@@ -161,6 +161,7 @@ A small proxy container named `zac-ports` publishes the services of the cluster 
 | BRP personen mock and its WireMock             | 5010, 18084 | `KIND_PORT_BRP_PERSONEN_MOCK`, `KIND_PORT_BRP_PERSONEN_WIREMOCK` |
 | SmartDocuments, KVK and BAG WireMock (`-t`)    | 18080, 18081, 18082 | `KIND_PORT_SMARTDOCUMENTS_WIREMOCK`, `KIND_PORT_KVK_WIREMOCK`, `KIND_PORT_BAG_WIREMOCK` |
 | GreenMail API and SMTP (`-t`)                  | 18083, 25 | `KIND_PORT_GREENMAIL_API`, `KIND_PORT_GREENMAIL_SMTP` |
+| JaCoCo agent of ZAC in the integration tests (`-t`, only with ZAC in the cluster) | 6300 | `KIND_PORT_ZAC_JACOCO` |
 | Grafana, Prometheus and Tempo (`-m`)           | 3000, 9090, 3200 | `KIND_PORT_GRAFANA`, `KIND_PORT_PROMETHEUS`, `KIND_PORT_TEMPO` |
 | OpenTelemetry collector (`-m`, only when ZAC runs outside the cluster) | 4317 | `KIND_PORT_OTEL_COLLECTOR` |
 | PostgreSQL databases of ZAC, Open Zaak, Open Object, Open Klant, Keycloak, Open Notificaties, Open Archiefbeheer, PABC and Open Formulieren | 54320, 54322, 54323, 54325, 54326, 54327, 54328, 54329, 54330 | `KIND_PORT_ZAC_DATABASE`, `KIND_PORT_OPENZAAK_DATABASE`, `KIND_PORT_OPEN_OBJECT_DATABASE`, `KIND_PORT_OPENKLANT_DATABASE`, `KIND_PORT_KEYCLOAK_DATABASE`, `KIND_PORT_OPENNOTIFICATIES_DATABASE`, `KIND_PORT_OPENARCHIEFBEHEER_DATABASE`, `KIND_PORT_PABC_DATABASE`, `KIND_PORT_OPENFORMULIEREN_DATABASE` |
@@ -232,3 +233,9 @@ kubectl --context kind-zac -n zac logs deploy/zac --follow
 ```
 
 The script writes the files that it generates, such as the Helm values, to `build/kind/<cluster name>`.
+
+## Integration tests
+
+The integration tests run against a kind cluster of their own, named `zac-itest`, which they start with
+`scripts/kind/up.sh` and delete again afterwards; see [testing.md](testing.md#integration-tests). They follow the
+`KIND_PORT_*` variables above, so that they can run next to the cluster of `./start-kind.sh`.

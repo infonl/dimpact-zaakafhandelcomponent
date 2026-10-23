@@ -1,24 +1,27 @@
 #!/bin/bash
 
 #
-# SPDX-FileCopyrightText: 2024 INFO.nl
+# SPDX-FileCopyrightText: 2024, 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
 set -e
 
 help() {
-   echo "Starts the integration tests with a local ZAC Docker Image."
+   echo "Starts the integration tests with a local ZAC Docker Image, against the kind cluster of the integration tests."
    echo
    echo "Syntax: $0 [-b|c|d|s|u|h]"
    echo "options:"
    echo "-b     Build a local ZAC Docker image"
-   echo "-d     Delete local Docker named volumes before starting Docker Compose"
-   echo "-c     Keep local Docker Compose containers running after test execution"
-   echo "-s     Do not start Docker Compose containers before test execution"
+   echo "-d     Delete the kind cluster of the integration tests before the tests start"
+   echo "-c     Keep the kind cluster of the integration tests after test execution"
+   echo "-s     Do not start the kind cluster: run against the cluster that -c kept"
    echo "-u     Turn on debug logs"
    echo "-h     Print this Help"
    echo
+   echo "Environment variables:"
+   echo "   ZAC_ITEST_KIND_CLUSTER_NAME  name of the kind cluster of the integration tests (default: zac-itest)"
+   echo "   KIND_PORT_OFFSET             added to every host port of the cluster (default: 0)"
 }
 
 echoerr() {
@@ -27,18 +30,6 @@ echoerr() {
   echo 1>&2;
 }
 
-namedVolumes=(
-  "zac-keycloak-database-data"
-  "openzaak-database-data"
-  "openklant-database-data"
-  "opennotificaties-database-data"
-  "openarchiefbeheer-database-data"
-  "pabc-database-data"
-  "zac-database-data"
-  "openformulieren-database-data"
-  "solr-data"
-  "grafana-data"
-)
 args=""
 
 build=false
@@ -48,19 +39,15 @@ while getopts ':bdcsuh' OPTION; do
       build=true
       ;;
     d)
-      echo "Deleting named Docker volumes .."
-      for namedVolume in "${namedVolumes[@]}"; do
-        docker volume rm --force "zac_$namedVolume" >/dev/null 2>&1 || true
-      done
-      echo "Done"
+      KIND_CLUSTER_NAME=${ZAC_ITEST_KIND_CLUSTER_NAME:-zac-itest} DELETE_CLUSTER=true ./scripts/kind/down.sh
       ;;
     c)
-      echo "Disabling Docker Compose containers cleanup ..."
-      export TESTCONTAINERS_RYUK_DISABLED=true
+      echo "Keeping the kind cluster after the tests ..."
+      export ZAC_ITEST_KEEP_STACK=true
       ;;
     s)
-      echo "Disabling Docker Compose containers startup ..."
-      export DO_NOT_START_DOCKER_COMPOSE=true
+      echo "Using the running kind cluster ..."
+      export ZAC_ITEST_USE_RUNNING_STACK=true
       ;;
     u)
       echo "Turning on debug logs ..."
@@ -81,9 +68,6 @@ if [ $build = "true" ]; then
   # shellcheck disable=SC2086
   ./gradlew $args clean buildDockerImage
 fi
-
-export ZAC_DOCKER_IMAGE=ghcr.io/infonl/zaakafhandelcomponent:dev
-[ -f check-for-running-containers.sh ] && ./check-for-running-containers.sh
 
 # shellcheck disable=SC2086
 ./gradlew $args itest
