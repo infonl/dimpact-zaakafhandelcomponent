@@ -23,10 +23,22 @@
   },
   "helm-values": {
     "managerFilePatterns": [
-      "/(^|/)ci/.+values\\.ya?ml$/"
+      "/(^|/)ci/.+values\\.ya?ml$/",
+      "/^scripts/kind/values/arm64\\.yaml$/"
     ]
   },
   "customManagers": [
+    {
+      "customType": "regex",
+      "description": "The upstream Helm charts of the kind stack",
+      "managerFilePatterns": [
+        "/^scripts/kind/charts/zac-dev/values\\.yaml$/"
+      ],
+      "matchStrings": [
+        "\\n  (?<depName>[a-z-]+):\\n    repository: (?<registryUrl>\\S+)\\n    version: (?<currentValue>\\S+)"
+      ],
+      "datasourceTemplate": "helm"
+    },
     {
       "customType": "regex",
       "managerFilePatterns": [
@@ -687,6 +699,18 @@
       "allowedVersions": "< 2.1.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
+      ]
+    },
+    {
+      "matchPackageNames": [
+        "openklant"
+      ],
+      "matchDatasources": [
+        "helm"
+      ],
+      "allowedVersions": "< 1.12.0",
+      "description": [
+        "The Open Klant chart of the kind stack must fit the Open Klant version: later charts probe /_healthz/, which Open Klant 2.15 does not have"
       ]
     },
     {

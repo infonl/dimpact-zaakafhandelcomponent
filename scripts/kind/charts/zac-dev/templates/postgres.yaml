@@ -1,0 +1,170 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# One Postgres server with a database per component. A Service per component with the host name of its database in
+# the settings and the seed data points to it.
+# The passwords of the roles come from the Secret with the generated passwords; scripts/kind/up.sh sets them again
+# on every start, so that a role of an older cluster or a changed DB_PASSWORD gets the password of the Secret.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-initdb
+  namespace: {{ .Release.Namespace }}
+data:
+  00-roles-and-databases.sh: |
+    #!/bin/bash
+    set -euo pipefail
+    {{- range .Values.postgres.databases }}
+    psql --username postgres --set ON_ERROR_STOP=1 --quiet \
+      --set owner={{ .owner | quote }} --set database={{ .name | quote }} \
+      --set password="$DB_PASSWORD_{{ .owner | upper }}" <<'SQL'
+    CREATE ROLE :"owner" LOGIN SUPERUSER PASSWORD :'password';
+    CREATE DATABASE :"database" OWNER :"owner";
+    SQL
+    {{- end }}
+  10-openzaak.sh: |
+    #!/bin/bash
+    set -euo pipefail
+    psql --username openzaak --dbname openzaak --set ON_ERROR_STOP=1 --quiet \
+      --file /seed/openzaak-dump/00-restore-migrated-database.sql > /dev/null
+    psql --username openzaak --dbname openzaak --set ON_ERROR_STOP=1 --quiet \
+      --set admin_password_hash="$ADMIN_PASSWORD_HASH" <<'SQL'
+    UPDATE accounts_user SET password = :'admin_password_hash' WHERE username = 'admin';
+    SQL
+    for file in /seed/openzaak-data/*.sql; do
+      echo "Running $file ..."
+      psql --username openzaak --dbname openzaak --set ON_ERROR_STOP=1 \
+        --set BAG_API_CLIENT_MP_REST_URL="${BAG_API_CLIENT_MP_REST_URL:-}" \
+        --set BAG_API_KEY="${BAG_API_KEY:-}" \
+        --file "$file"
+    done
+  20-zac.sh: |
+    #!/bin/bash
+    set -euo pipefail
+    psql --username zac --dbname zac --set ON_ERROR_STOP=1 --file /seed/zac/init-zac-database.sql
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: {{ .Values.storageClassName }}
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+        # the 'postgres' user of the image
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+      containers:
+        - name: postgres
+          image: {{ .Values.postgres.image }}
+          args: ["-c", "max_connections=400"]
+          env:
+            # a directory that the 'postgres' user creates itself, so that it owns it whatever the volume allows
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+            {{- include "zac-dev.generatedSecretEnv" (list . "POSTGRES_PASSWORD" "postgres-password") | nindent 12 }}
+            {{- include "zac-dev.generatedSecretEnv" (list . "ADMIN_PASSWORD_HASH" "admin-password-hash") | nindent 12 }}
+            {{- range .Values.postgres.databases }}
+            {{- include "zac-dev.generatedSecretEnv" (list $ (printf "DB_PASSWORD_%s" (upper .owner)) (printf "db-password-%s" .owner)) | nindent 12 }}
+            {{- end }}
+          envFrom:
+            - secretRef:
+                name: openzaak-seed-env
+          ports:
+            - containerPort: 5432
+          readinessProbe:
+            exec:
+              # TCP on purpose: while the init scripts run, Postgres only listens on its Unix socket
+              command: ["pg_isready", "--host=127.0.0.1", "--username=postgres"]
+            periodSeconds: 2
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
+            readOnlyRootFilesystem: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+            - name: run
+              mountPath: /var/run/postgresql
+            - name: tmp
+              mountPath: /tmp
+            - name: shm
+              mountPath: /dev/shm
+            - name: initdb
+              mountPath: /docker-entrypoint-initdb.d
+            - name: openzaak-dump
+              mountPath: /seed/openzaak-dump
+            - name: openzaak-data
+              mountPath: /seed/openzaak-data
+            - name: zac
+              mountPath: /seed/zac
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: postgres-data
+        - name: run
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 256Mi
+        - name: initdb
+          configMap:
+            name: postgres-initdb
+        - name: openzaak-dump
+          configMap:
+            name: seed-openzaak-dump
+        - name: openzaak-data
+          configMap:
+            name: seed-openzaak-data
+        - name: zac
+          configMap:
+            name: seed-zac-database
+{{- range $name := list "postgres" "zac-database" "openzaak-database" "open-object-database" "openklant-database" "keycloak-database" "pabc-database" "opennotificaties-database" "openarchiefbeheer-database" "openformulieren-database" }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+{{- end }}
