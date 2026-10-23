@@ -40,6 +40,8 @@ class NoteService @Inject constructor(
         return entityManager.createQuery(query).getResultList()
     }
 
+    fun findNote(noteId: Long): Note? = entityManager.find(Note::class.java, noteId)
+
     @Transactional(REQUIRED)
     fun updateNote(@Valid note: Note): Note {
         validateObject(note)
