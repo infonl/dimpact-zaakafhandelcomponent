@@ -69,7 +69,14 @@ test("abort the open zaken created by the QA agent", async ({ page }) => {
     );
   }
 
-  const remaining = await findOpenQaAgentZaken();
-  console.log(`${remaining.length} QA Agent zaken are still open`);
-  expect(remaining.map(({ identificatie }) => identificatie)).toEqual([]);
+  // The search index is updated asynchronously, so an aborted zaak can show up as open for a few seconds.
+  await expect
+    .poll(
+      async () =>
+        (await findOpenQaAgentZaken()).map(
+          ({ identificatie }) => identificatie,
+        ),
+      { timeout: 60_000, intervals: [5_000] },
+    )
+    .toEqual([]);
 });
