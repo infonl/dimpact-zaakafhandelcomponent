@@ -4,7 +4,6 @@
  */
 package nl.info.zac.websocket.event
 
-import net.atos.zac.signalering.model.Signalering
 import nl.info.client.zgw.brc.model.generated.Besluit
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.util.extractUuid
@@ -17,6 +16,7 @@ import nl.info.zac.notification.Action
 import nl.info.zac.notification.Channel
 import nl.info.zac.notification.Notification
 import nl.info.zac.notification.Resource
+import nl.info.zac.signalering.model.Signalering
 import org.flowable.task.api.TaskInfo
 import java.net.URI
 import java.util.EnumSet

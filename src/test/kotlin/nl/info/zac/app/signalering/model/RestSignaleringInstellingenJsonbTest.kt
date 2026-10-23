@@ -8,7 +8,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import jakarta.json.bind.JsonbBuilder
-import net.atos.zac.signalering.model.SignaleringType
+import nl.info.zac.signalering.model.SignaleringType
 
 class RestSignaleringInstellingenJsonbTest : BehaviorSpec({
     val jsonb = JsonbBuilder.create()

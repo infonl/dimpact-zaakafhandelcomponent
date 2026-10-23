@@ -13,12 +13,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.zac.signalering.event.SignaleringEvent
-import net.atos.zac.signalering.event.SignaleringEventId
-import net.atos.zac.signalering.model.Signalering
-import net.atos.zac.signalering.model.SignaleringSubject
-import net.atos.zac.signalering.model.SignaleringTarget
-import net.atos.zac.signalering.model.SignaleringType
 import nl.info.client.zgw.model.createMedewerkerIdentificatie
 import nl.info.client.zgw.model.createOrganisatorischeEenheidIdentificatie
 import nl.info.client.zgw.model.createRolMedewerker
@@ -42,6 +36,10 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.signalering.model.Signalering
+import nl.info.zac.signalering.model.SignaleringSubject
+import nl.info.zac.signalering.model.SignaleringTarget
+import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.signalering.model.createSignalering
 import nl.info.zac.signalering.model.createSignaleringInstellingen
 import nl.info.zac.signalering.model.createSignaleringType

@@ -17,10 +17,6 @@ import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import net.atos.zac.signalering.event.SignaleringEventUtil
-import net.atos.zac.signalering.model.SignaleringSubject
-import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
-import net.atos.zac.signalering.model.SignaleringZoekParameters
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
@@ -35,6 +31,10 @@ import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.signalering.event.getSignaleringEvents
+import nl.info.zac.signalering.model.SignaleringSubject
+import nl.info.zac.signalering.model.SignaleringVerzondenZoekParameters
+import nl.info.zac.signalering.model.SignaleringZoekParameters
 import nl.info.zac.task.TaskService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -223,7 +223,7 @@ class NotificationReceiver @Inject constructor(
                 notification.mainResourceUrl.extractUuid().let(::deleteZaakSignaleringenOfFormerBehandelaren)
             }
             // send signalering events for this notification
-            SignaleringEventUtil.getEvents(
+            getSignaleringEvents(
                 notification.channel,
                 notification.getMainResourceInfo(),
                 notification.getResourceInfo()

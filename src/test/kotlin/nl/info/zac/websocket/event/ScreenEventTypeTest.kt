@@ -10,7 +10,6 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
-import net.atos.zac.signalering.model.SignaleringType
 import nl.info.client.zgw.brc.model.createBesluit
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
@@ -21,6 +20,7 @@ import nl.info.zac.notification.Action
 import nl.info.zac.notification.Channel
 import nl.info.zac.notification.Notification
 import nl.info.zac.notification.Resource
+import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.signalering.model.createSignalering
 import nl.info.zac.signalering.model.createSignaleringType
 import java.net.URI

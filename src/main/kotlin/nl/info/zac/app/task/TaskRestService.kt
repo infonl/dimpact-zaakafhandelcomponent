@@ -23,8 +23,6 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import kotlinx.coroutines.CoroutineDispatcher
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.signalering.model.SignaleringType
-import net.atos.zac.signalering.model.SignaleringZoekParameters
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.SoortEnum
 import nl.info.client.zgw.shared.ZgwApiService
@@ -65,6 +63,8 @@ import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.signalering.model.SignaleringType
+import nl.info.zac.signalering.model.SignaleringZoekParameters
 import nl.info.zac.task.BpmnTaskFormRuntimeService
 import nl.info.zac.task.TaskService
 import nl.info.zac.util.AllOpen

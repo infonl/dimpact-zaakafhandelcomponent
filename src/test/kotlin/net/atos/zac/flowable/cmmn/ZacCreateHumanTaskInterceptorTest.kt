@@ -19,11 +19,11 @@ import net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor.Companion.VAR_TR
 import net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor.Companion.VAR_TRANSIENT_DUE_DATE
 import net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor.Companion.VAR_TRANSIENT_TAAKDATA
 import net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor.Companion.VAR_TRANSIENT_ZAAK_UUID
-import net.atos.zac.signalering.event.SignaleringEvent
-import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.event.EventingService
 import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.search.IndexingService
+import nl.info.zac.signalering.event.SignaleringEvent
+import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.websocket.event.ScreenEventType
 import org.flowable.cmmn.engine.impl.persistence.entity.PlanItemInstanceEntity
@@ -120,7 +120,7 @@ class ZacCreateHumanTaskInterceptorTest : BehaviorSpec({
                 verify(exactly = 1) { eventingService.send(capture(signaleringEventSlot)) }
                 with(signaleringEventSlot.captured) {
                     objectType shouldBe SignaleringType.Type.TAAK_OP_NAAM
-                    objectId.resource() shouldBe taskId
+                    objectId.resource shouldBe taskId
                     actor shouldBe null
                 }
             }

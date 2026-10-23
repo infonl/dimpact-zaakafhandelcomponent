@@ -5,8 +5,8 @@
 package net.atos.zac.flowable.cmmn
 
 import net.atos.zac.flowable.FlowableHelper
-import net.atos.zac.signalering.event.SignaleringEventUtil
-import net.atos.zac.signalering.model.SignaleringType
+import nl.info.zac.signalering.event.signaleringEvent
+import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.websocket.event.ScreenEventType
 import org.flowable.cmmn.engine.interceptor.CreateHumanTaskAfterContext
@@ -69,7 +69,7 @@ class ZacCreateHumanTaskInterceptor : CreateHumanTaskInterceptor {
         )
         // On creation of a human task the event observer will assume its owner is the actor who created it.
         val signaleringEvent = context.getTaskEntity().assignee?.let {
-            SignaleringEventUtil.event(SignaleringType.Type.TAAK_OP_NAAM, context.getTaskEntity(), null)
+            signaleringEvent(SignaleringType.Type.TAAK_OP_NAAM, context.getTaskEntity(), null)
         }
         // The handlers of these events read the task, which only exists for them once Flowable has committed
         // the transaction. The task listeners in the same transaction, such as the one of the
