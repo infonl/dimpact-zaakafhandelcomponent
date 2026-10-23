@@ -20,7 +20,8 @@
 #   KIND_PORT_OFFSET             added to every host port (default: 0)
 #   KIND_PORT_<NAME>             the host port of one service, or 0 to not publish it, for example KIND_PORT_ZAC=18080;
 #                                see scripts/kind/ports.json for the names
-#   KEYCLOAK_HOSTNAME            the URL of Keycloak in the browser (default: http://localhost:<Keycloak host port>)
+#   KEYCLOAK_HOSTNAME            the URL of Keycloak in the browser and in the cluster
+#                                (default: http://keycloak.localhost:<Keycloak host port>)
 #   the settings of ZAC that docs/development/installKind.md lists, also from .env
 set -euo pipefail
 
@@ -192,10 +193,11 @@ done
 kc -n "$NAMESPACE" apply --server-side --force-conflicts -f "$SEED" \
   -f "$WORK_DIR/generated/secret.json" -f "$WORK_DIR/generated/openzaak-seed-env.json" > /dev/null
 
-# the host names with a dot in the ZAC settings and the seed data resolve to Services in the cluster
-python3 - "$CONTEXT" "$NAMESPACE" << 'PY'
-import subprocess, sys
-context, namespace = sys.argv[1], sys.argv[2]
+# the host names with a dot in the ZAC settings and the seed data resolve to Services in the cluster, and so does the
+# host name of Keycloak in the browser (keycloak.localhost), which is in the endpoints of its OpenID configuration
+python3 - "$CONTEXT" "$NAMESPACE" "$WORK_DIR/zac-dev.json" << 'PY'
+import json, re, subprocess, sys, urllib.parse
+context, namespace, zac_dev_values = sys.argv[1:4]
 kubectl = ["kubectl", "--context", context, "-n", "kube-system"]
 corefile = subprocess.check_output(kubectl + ["get", "cm", "coredns", "-o", "jsonpath={.data.Corefile}"]).decode()
 rules = [
@@ -204,9 +206,15 @@ rules = [
     f"rewrite name openklant.local openklant-local.{namespace}.svc.cluster.local",
     f"rewrite name bag-wiremock.local bag-wiremock.{namespace}.svc.cluster.local",
 ]
-missing = [rule for rule in rules if rule not in corefile]
-if missing:
-    corefile = corefile.replace("ready\n", "ready\n" + "".join(f"    {rule}\n" for rule in missing), 1)
+keycloak_service = f"keycloak.{namespace}.svc.cluster.local"
+keycloak_host = urllib.parse.urlsplit(json.load(open(zac_dev_values))["keycloak"]["hostname"]).hostname
+if keycloak_host and "." in keycloak_host:
+    rules.append(f"rewrite name {keycloak_host} {keycloak_service}")
+stale = re.compile(rf"^ *rewrite name \S+ {re.escape(keycloak_service)}\n", re.M)
+cleaned = stale.sub(lambda line: line.group(0) if line.group(0).strip() in rules else "", corefile)
+missing = [rule for rule in rules if rule not in cleaned]
+if missing or cleaned != corefile:
+    corefile = cleaned.replace("ready\n", "ready\n" + "".join(f"    {rule}\n" for rule in missing), 1)
     manifest = subprocess.check_output(kubectl + ["create", "cm", "coredns", f"--from-literal=Corefile={corefile}",
                                                   "--dry-run=client", "-o", "yaml"])
     subprocess.run(kubectl + ["replace", "-f", "-"], input=manifest, check=True, stdout=subprocess.DEVNULL)
@@ -284,7 +292,10 @@ step "The stack is ready"
 while IFS='=' read -r name port; do
   printf '  %-28s localhost:%s\n' "$(echo "${name#HOST_PORT_}" | tr '[:upper:]_' '[:lower:]-')" "$port"
 done < "$WORK_DIR/ports.env"
+keycloak_url=$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["keycloak"]["hostname"])' \
+  "$WORK_DIR/zac-dev.json")
 echo
+echo "Keycloak is at $keycloak_url, also for the pods in the cluster; its admin console is at $keycloak_url/admin."
 echo "The admin user of Keycloak and of the admin pages of Open Zaak and the other components is 'admin', with the"
 echo "password $(sed -n 's/^ADMIN_PASSWORD=//p' "$WORK_DIR/generated/summary.env")."
 if [ "$MODE" = ide ]; then
