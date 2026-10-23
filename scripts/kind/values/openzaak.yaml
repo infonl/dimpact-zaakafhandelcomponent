@@ -2,17 +2,16 @@
 # SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-# Values for the maykinmedia/openzaak chart (release 'openzaak'), mirroring the Open Zaak services of
-# docker-compose.yaml. scripts/kind/up.sh adds the image, the database settings, the secret key and the superuser
-# of docker-compose.yaml.
+# Values for the maykinmedia/openzaak chart (release 'openzaak'). scripts/kind/up.sh adds the image, the generated
+# passwords and, with Open Notificaties, the Celery worker that sends the notifications.
 replicaCount: 1
 
-# Redis comes from the zac-dev chart, shared by every component as in Docker Compose
+# Redis comes from the zac-dev chart, shared by every component
 tags:
   redis: false
 
 settings:
-  allowedHosts: openzaak.local,openzaak-nginx,localhost,host.docker.internal
+  allowedHosts: openzaak.local,openzaak-nginx,localhost,127.0.0.1,host.docker.internal
   cache:
     default: redis:6379/0
     axes: redis:6379/0
@@ -21,7 +20,6 @@ settings:
     resultBackend: redis://redis:6379/1
   isHttps: false
   disable2fa: true
-  notificationsDisabled: true
 
 # a ReadWriteOnce volume of the zac-dev chart, which also seeds it with the test documents of the test data
 persistence:
@@ -46,17 +44,15 @@ resources:
   limits:
     memory: 1Gi
 
-# Docker Compose runs the Celery worker only with Open Notificaties, which this stack does not have
-worker:
-  replicaCount: 0
 beat:
   replicaCount: 0
 flower:
   enabled: false
 
-# everything reaches Open Zaak through nginx, as in Docker Compose; the limits are those of
-# scripts/docker-compose/imports/openzaak/nginx/nginx.conf
+# everything reaches Open Zaak through nginx, which buffers the chunked request bodies of ZAC that uWSGI cannot read
 nginx:
+  service:
+    port: 8000
   config:
     clientMaxBodySize: 600m
     proxyReadTimeoutSeconds: 1800

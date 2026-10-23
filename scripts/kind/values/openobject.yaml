@@ -2,16 +2,15 @@
 # SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-# Values for the maykinmedia/openobject chart (release 'openobject'), mirroring the Open Object service of
-# docker-compose.yaml. scripts/kind/up.sh adds the image, the database settings and the secret key of
-# docker-compose.yaml.
+# Values for the maykinmedia/openobject chart (release 'openobject'). scripts/kind/up.sh adds the image, the
+# generated passwords and, with Open Notificaties, the Celery worker that sends the notifications.
 replicaCount: 1
 
 tags:
   redis: false
 
 settings:
-  allowedHosts: open-object.local,localhost,host.docker.internal
+  allowedHosts: open-object.local,localhost,127.0.0.1,host.docker.internal
   siteDomain: open-object.local:8000
   cache:
     default: redis:6379/0
@@ -44,8 +43,5 @@ resources:
   limits:
     memory: 1Gi
 
-# the Celery worker of Open Object only sends notifications, and this stack has no Open Notificaties
-worker:
-  replicaCount: 0
 flower:
   enabled: false

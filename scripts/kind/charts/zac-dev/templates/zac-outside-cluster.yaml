@@ -25,7 +25,7 @@ spec:
         {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
       containers:
         - name: opa
-          image: {{ include "zac-dev.image" (list . "opa") }}
+          image: {{ .Values.opa.image }}
           args: ["run", "--server", "--addr=0.0.0.0:8181", "--log-level=debug"]
           ports:
             - containerPort: 8181
@@ -79,14 +79,12 @@ spec:
         {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
       containers:
         - name: office-converter
-          image: {{ include "zac-dev.image" (list . "officeConverter") }}
-          {{- with .Values.officeConverter.args }}
-          args:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          envFrom:
-            - secretRef:
-                name: office-converter-compose-env
+          image: {{ .Values.officeConverter.image }}
+          args: ["gotenberg", "--chromium-disable-routes=true", "--api-enable-basic-auth=true"]
+          env:
+            - name: GOTENBERG_API_BASIC_AUTH_USERNAME
+              value: {{ .Values.officeConverter.username | quote }}
+            {{- include "zac-dev.generatedSecretEnv" (list . "GOTENBERG_API_BASIC_AUTH_PASSWORD" "office-converter-password") | nindent 12 }}
           ports:
             - containerPort: 3000
           readinessProbe:

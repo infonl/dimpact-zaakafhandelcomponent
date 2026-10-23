@@ -2,12 +2,18 @@
 # SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-{{- /* WireMock test doubles, with the mappings and files of scripts/docker-compose/imports as ConfigMaps. */}}
-{{- range $wiremock := list
+{{- /*
+  WireMock test doubles, with the mappings and files of scripts/kind/seed as ConfigMaps. The BRP one always runs;
+  the others and GreenMail are the test doubles of the integration tests (-t).
+*/}}
+{{- $wiremocks := list (dict "name" "brp-personen-wiremock" "files" false "templating" false) }}
+{{- if .Values.profiles.itest }}
+{{- $wiremocks = concat $wiremocks (list
   (dict "name" "smartdocuments-wiremock" "files" true "templating" true)
   (dict "name" "kvk-wiremock" "files" true "templating" true)
-  (dict "name" "bag-wiremock" "files" true "templating" true)
-  (dict "name" "brp-personen-wiremock" "files" false "templating" false) }}
+  (dict "name" "bag-wiremock" "files" true "templating" true)) }}
+{{- end }}
+{{- range $wiremock := $wiremocks }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -29,7 +35,7 @@ spec:
         {{- include "zac-dev.podSecurityContext" $ | nindent 8 }}
       containers:
         - name: wiremock
-          image: {{ include "zac-dev.image" (list $ "wiremock") }}
+          image: {{ $.Values.wiremock.image }}
           args:
             {{- if $wiremock.templating }}
             - --global-response-templating
@@ -109,10 +115,12 @@ spec:
         {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
       containers:
         - name: brp-personen-mock
-          image: {{ include "zac-dev.image" (list . "brpPersonenMock") }}
-          envFrom:
-            - secretRef:
-                name: brp-personen-mock-compose-env
+          image: {{ .Values.brpPersonenMock.image }}
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Release
+            - name: ASPNETCORE_URLS
+              value: http://+:5010
           ports:
             - containerPort: 5010
           readinessProbe:
@@ -140,6 +148,7 @@ spec:
   ports:
     - port: 5010
       targetPort: 5010
+{{- if .Values.profiles.itest }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -161,10 +170,15 @@ spec:
         {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
       containers:
         - name: greenmail
-          image: {{ include "zac-dev.image" (list . "greenmail") }}
-          envFrom:
-            - secretRef:
-                name: greenmail-compose-env
+          image: {{ .Values.greenmail.image }}
+          env:
+            - name: GREENMAIL_OPTS
+              value: >-
+                -Dgreenmail.smtp.hostname=0.0.0.0
+                -Dgreenmail.smtp.port=25
+                -Dgreenmail.hostname=0.0.0.0
+                -Dgreenmail.auth.disabled
+                -Dgreenmail.verbose
           ports:
             - containerPort: 25
             - containerPort: 8080
@@ -174,7 +188,7 @@ spec:
             periodSeconds: 2
           securityContext:
             allowPrivilegeEscalation: false
-            # SMTP on port 25, as in Docker Compose
+            # SMTP on port 25
             capabilities:
               drop: ["ALL"]
               add: ["NET_BIND_SERVICE"]
@@ -208,3 +222,4 @@ spec:
     - name: api
       port: 8080
       targetPort: 8080
+{{- end }}

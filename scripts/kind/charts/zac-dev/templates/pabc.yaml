@@ -2,8 +2,7 @@
 # SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-# PABC with the environments of the Docker Compose services. The migrations, which also load the dataset of
-# scripts/docker-compose/imports/pabc-database, run as an init container instead of a separate one-off container.
+# PABC. The migrations, which also load the dataset of scripts/kind/seed/pabc, run as an init container.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -25,10 +24,11 @@ spec:
       initContainers:
         {{- include "zac-dev.waitForPostgres" . | nindent 8 }}
         - name: pabc-migrations
-          image: {{ include "zac-dev.image" (list . "pabcMigrations") }}
-          envFrom:
-            - secretRef:
-                name: pabc-migrations-compose-env
+          image: {{ .Values.pabc.migrationsImage }}
+          env:
+            {{- include "zac-dev.pabcDatabaseEnv" . | nindent 12 }}
+            - name: JSON_DATASET_PATH
+              value: /app/json/pabc-mapping-data.json
           securityContext:
             {{- include "zac-dev.containerSecurityContext" . | nindent 12 }}
           resources:
@@ -43,10 +43,13 @@ spec:
               mountPath: /app/json
       containers:
         - name: pabc-api
-          image: {{ include "zac-dev.image" (list . "pabcApi") }}
-          envFrom:
-            - secretRef:
-                name: pabc-api-compose-env
+          image: {{ .Values.pabc.apiImage }}
+          env:
+            {{- include "zac-dev.pabcDatabaseEnv" . | nindent 12 }}
+            {{- range $name, $value := .Values.pabc.env }}
+            - name: {{ $name }}
+              value: {{ $value | quote }}
+            {{- end }}
           ports:
             - containerPort: 8000
           readinessProbe:

@@ -1,0 +1,47 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+zgw_consumers_config_enable: true
+zgw_consumers:
+  services:
+  - identifier: zaken-test
+    label: Open Zaak - Zaken API
+    api_root: http://openzaak.local:8000/zaken/api/v1/
+    api_type: zrc
+    auth_type: zgw
+    client_id: zac-client
+    secret: openzaakZaakafhandelcomponentClientSecret
+  - identifier: documenten-test
+    label: Open Zaak - Documenten API
+    api_root: http://openzaak.local:8000/documenten/api/v1/
+    api_type: drc
+    auth_type: zgw
+    client_id: zac-client
+    secret: openzaakZaakafhandelcomponentClientSecret
+  - identifier: catalogi-test
+    label: Open Zaak - Catalogi API
+    api_root: http://openzaak.local:8000/catalogi/api/v1/
+    api_type: ztc
+    auth_type: zgw
+    client_id: zac-client
+    secret: openzaakZaakafhandelcomponentClientSecret
+  - identifier: besluiten-test
+    label: Open Zaak - Besluiten API
+    api_root: http://openzaak.local:8000/besluiten/api/v1/
+    api_type: brc
+    auth_type: zgw
+    client_id: zac-client
+    secret: openzaakZaakafhandelcomponentClientSecret
+  - identifier: selectielijst
+    label: Open Zaak (public) - Selectielijst API
+    api_root: https://selectielijst.openzaak.nl/api/v1/
+    api_type: orc
+    auth_type: no_auth
+
+api_configuration_enabled: true
+api_configuration:
+  selectielijst_service_identifier: selectielijst
+
+
+oidc_db_config_enable: false

@@ -2,16 +2,122 @@
 # SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-# Values for charts/zac (release 'zac'). scripts/kind/up.sh adds the image and the settings of the ZAC service of
-# docker-compose.yaml; OPA runs as a sidecar and the office converter comes from the chart, as in production.
+# Values for charts/zac (release 'zac'): the settings of ZAC in the kind stack. scripts/kind/up.sh adds the image,
+# the generated passwords and the settings of .env and of the environment; OPA runs as a sidecar and the office
+# converter comes from the chart, as in production. The client secrets, tokens and keys are those of the seed data.
 fullnameOverride: zac
 
-# the heap of Docker Compose; the chart default sizes the heap from the memory limit instead
+# the heap of the ZAC Docker image; the chart default sizes the heap from the memory limit instead
 javaOptions: "-Xms1024m -Xmx1024m -Xlog:gc::time,uptime"
 
+auth:
+  enablePkce: true
+  realm: zaakafhandelcomponent
+  clientId: zaakafhandelcomponent
+  secret: keycloakZaakafhandelcomponentClientSecret
+  server: http://keycloak:8080
+  sslRequired: none
+
+keycloak:
+  adminClient:
+    id: zaakafhandelcomponent-admin-client
+    secret: zaakafhandelcomponentAdminClientSecret
+
+bagApi:
+  url: https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/
+  apiKey: fakeBagApiKey
+
+brpApi:
+  url: http://brp-personen-wiremock:8080/haalcentraal/api/brp
+  logLevel: INFO
+  apiKey:
+    header: ""
+  protocollering:
+    enabled: true
+    systemUser: ZacSystemUser
+    originOin:
+      oin: "123443210"
+      header: x-origin-oin
+    doelbinding:
+      perZaaktype: true
+      header: x-doelbinding
+      zoekmet: BRPACT-Totaal
+      raadpleegmet: BRPACT-Totaal
+    verwerking:
+      header: x-verwerking
+      register: Algemeen
+      extendWithZaaktype: "true"
+    gebruiker:
+      header: x-gebruiker
+    toepassing:
+      header: x-toepassing
+      value: ZAC
+
+organizations:
+  bron:
+    rsin: "123443210"
+  verantwoordelijke:
+    rsin: "316245124"
+
+db:
+  host: zac-database
+  name: zac
+  user: zac
+
+gemeente:
+  code: "9999"
+  mail: gemeente-zac-test@example.com
+  naam: FakeZacGemeente
+
+klantinteractiesApi:
+  url: http://openklant.local:8000
+  token: fakeToken
+
+kvkApi:
+  url: fakeKvkApiUrl
+  apiKey: fakeKvkApiKey
+
+objectenApi:
+  url: http://open-object.local:8000
+  token: fakeZacObjectsToken
+
+# deliberately low, so that the stack exercises the upload in parts that a production-sized document takes
+maxFileSizeMB: 500
+maxInMemoryFileSizeMB: 10
+
+openForms:
+  url: http://localhost:9999
+
+notificationsSecretKey: openNotificatiesApiSecretKey
+
+pabcApi:
+  url: http://pabc-api:8000
+  apiKey: zac-test-api-key
+
+smartDocuments:
+  enabled: false
+  url: http://smartdocuments-wiremock:8080
+  authentication: fakeSmartDocumentsAuthentication
+
+mail:
+  smtp:
+    server: in-v3.mailjet.com
+    port: 587
+
+signaleringen:
+  deleteOlderThanDays: 14
+
 solr:
-  # the zac-dev chart creates the core, as Docker Compose does
+  url: http://solr:8983
+  # the zac-dev chart creates the core
   createZacCore: false
+
+zacInternalEndpointsApiKey: fakeZacInternalEndpointsApiKey
+
+zgwApis:
+  url: http://openzaak.local:8000/
+  clientId: zac-client
+  secret: openzaakZaakafhandelcomponentClientSecret
 
 office_converter:
   resources:
@@ -19,12 +125,25 @@ office_converter:
       cpu: 50m
       memory: 256Mi
 
+# the OpenTelemetry collector of the chart, which -m switches on; it sends the traces to Tempo of the zac-dev chart
+opentelemetry-collector:
+  config:
+    exporters:
+      otlp:
+        endpoint: tempo:4317
+        tls:
+          insecure: true
+    service:
+      pipelines:
+        traces:
+          exporters:
+            - otlp
+
 resources:
   requests:
     cpu: 100m
     memory: 1536Mi
     ephemeral-storage: 512Mi
   limits:
-    # as in Docker Compose
     memory: 4Gi
     ephemeral-storage: 4Gi

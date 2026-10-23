@@ -3,9 +3,9 @@
 # SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-# Brings up the local ZAC development stack in a kind cluster, with docker-compose.yaml as the source of truth for
-# the services, images, credentials, settings and seed data. Usually started through ./start-kind.sh; see
-# docs/development/installKind.md.
+# Brings up the local ZAC development stack in a kind cluster. The images, the chart versions and the settings of the
+# stack are in scripts/kind (charts/zac-dev/values.yaml and values/), the seed data in scripts/kind/seed. Usually
+# started through ./start-kind.sh; see docs/development/installKind.md.
 #
 # Environment:
 #   KIND_CLUSTER_NAME            name of the kind cluster (default: zac)
@@ -13,12 +13,15 @@
 #                                from the local Docker daemon, or empty to run everything but ZAC
 #   ZAC_DOCKER_IMAGE             the ZAC image (default: ghcr.io/infonl/zaakafhandelcomponent:latest for 'registry',
 #                                ghcr.io/infonl/zaakafhandelcomponent:dev for 'local')
-#   DOCKER_USE_ARM64_CONTAINERS  'true' or 'false' to use the arm64 images of docker-compose.arm64-override.yaml or
-#                                not (default: 'true' on an arm64 host)
+#   KIND_PROFILES                comma-separated optional services: objecten, itest, metrics, opennotificaties,
+#                                openarchiefbeheer, openformulieren
+#   DOCKER_USE_ARM64_CONTAINERS  'true' or 'false' to use the arm64 images of scripts/kind/values/arm64.yaml or not
+#                                (default: 'true' on an arm64 host)
 #   KIND_PORT_OFFSET             added to every host port (default: 0)
 #   KIND_PORT_<NAME>             the host port of one service, or 0 to not publish it, for example KIND_PORT_ZAC=18080;
 #                                see scripts/kind/ports.json for the names
 #   KEYCLOAK_HOSTNAME            the URL of Keycloak in the browser (default: http://localhost:<Keycloak host port>)
+#   the settings of ZAC that docs/development/installKind.md lists, also from .env
 set -euo pipefail
 
 CLUSTER=${KIND_CLUSTER_NAME:-zac}
@@ -28,20 +31,25 @@ PROXY=$CLUSTER-ports
 NAMESPACE=zac
 KIND_DIR=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$KIND_DIR/../.." && pwd)
-IMPORTS=$ROOT/scripts/docker-compose/imports
+SEED_DIR=$KIND_DIR/seed
+STACK_CHART=$KIND_DIR/charts/zac-dev
 WORK_DIR=$ROOT/build/kind/$CLUSTER
 CHARTS_DIR=$ROOT/build/kind/charts
-MAYKIN_CHARTS=https://maykinmedia.github.io/charts/
-OPENZAAK_CHART_VERSION=1.15.0
-OPENKLANT_CHART_VERSION=1.11.0
-OPENOBJECT_CHART_VERSION=1.2.0
+PROFILES=${KIND_PROFILES:-}
 START=$(date +%s)
+UPSTREAM_RELEASES=(openzaak openklant openobject opennotificaties openarchiefbeheer openforms)
 
 step() { printf '\n\033[1;34m==> %s\033[0m (%ss)\n' "$1" "$(($(date +%s) - START))"; }
 fail() { printf '\n\033[1;31m%s\033[0m\n' "$*" >&2; exit 1; }
 kc() { kubectl --context "$CONTEXT" "$@"; }
 helm_release() { helm --kube-context "$CONTEXT" upgrade --install "$@" --namespace "$NAMESPACE" > "$WORK_DIR/helm-$1.log" 2>&1 ||
   fail "Installing the Helm release '$1' failed: $(cat "$WORK_DIR/helm-$1.log")"; }
+helm_uninstall() {
+  if helm --kube-context "$CONTEXT" status "$1" --namespace "$NAMESPACE" > /dev/null 2>&1; then
+    echo "Removing $1"
+    helm --kube-context "$CONTEXT" uninstall "$1" --namespace "$NAMESPACE" --wait > /dev/null
+  fi
+}
 
 case ${ZAC_IN_CLUSTER:-} in
   registry) ZAC_DOCKER_IMAGE=${ZAC_DOCKER_IMAGE:-ghcr.io/infonl/zaakafhandelcomponent:latest}; MODE=zac ;;
@@ -51,10 +59,9 @@ case ${ZAC_IN_CLUSTER:-} in
 esac
 
 missing=()
-for tool in docker kind kubectl helm python3 openssl; do
+for tool in docker kind kubectl helm python3; do
   command -v "$tool" > /dev/null || missing+=("$tool")
 done
-docker compose version > /dev/null 2>&1 || missing+=("docker compose")
 [ ${#missing[@]} -eq 0 ] || fail "Missing tools: ${missing[*]}. See docs/development/installKind.md."
 docker info > /dev/null 2>&1 || fail "Docker is not running."
 docker_memory_gib=$(($(docker info --format '{{.MemTotal}}') / 1024 / 1024 / 1024))
@@ -64,26 +71,41 @@ fi
 if [ "$MODE" = zac ] && [ "$ZAC_IN_CLUSTER" = local ] && ! docker image inspect "$ZAC_DOCKER_IMAGE" > /dev/null 2>&1; then
   fail "The image $ZAC_DOCKER_IMAGE is not in the local Docker daemon. Build it with './gradlew buildDockerImage'."
 fi
-mkdir -p "$WORK_DIR" "$CHARTS_DIR"
+mkdir -p "$WORK_DIR/generated" "$CHARTS_DIR"
+chmod 700 "$WORK_DIR/generated"
 
-step "Reading docker-compose.yaml"
-compose_files=(-f "$ROOT/docker-compose.yaml")
-[ -f "$ROOT/docker-compose.override.yml" ] && compose_files+=(-f "$ROOT/docker-compose.override.yml")
+step "Reading the stack"
+stack_values=(-f "$KIND_DIR/ports.json")
 use_arm64=${DOCKER_USE_ARM64_CONTAINERS:-}
 if [ -z "$use_arm64" ]; then
   case $(uname -m) in arm64 | aarch64) use_arm64=true ;; *) use_arm64=false ;; esac
 fi
 if [ "$use_arm64" != false ] && [ "$use_arm64" != 0 ]; then
-  echo "Using the arm64 images of docker-compose.arm64-override.yaml"
-  compose_files+=(-f "$ROOT/docker-compose.arm64-override.yaml")
+  echo "Using the arm64 images of scripts/kind/values/arm64.yaml"
+  stack_values+=(-f "$KIND_DIR/values/arm64.yaml")
 fi
-docker compose --project-directory "$ROOT" "${compose_files[@]}" --profile '*' config --format json \
-  > "$WORK_DIR/compose.json" 2> "$WORK_DIR/compose.log" ||
-  fail "docker compose config failed: $(cat "$WORK_DIR/compose.log")"
-compose_image() { python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["services"][sys.argv[2]]["image"])' "$WORK_DIR/compose.json" "$1"; }
+profile_values=()
+for profile in objecten itest metrics opennotificaties openarchiefbeheer openformulieren; do
+  profile_values+=(--set "profiles.$profile=$([[ ,$PROFILES, == *,$profile,* ]] && echo true || echo false)")
+done
+helm template zac-dev "$STACK_CHART" "${stack_values[@]}" "${profile_values[@]}" --set keycloak.hostname=- \
+  --show-only templates/stack.yaml | python3 -c '
+import json, sys
+manifest = sys.stdin.read()
+print(json.dumps(json.loads(manifest.split("stack.json: |", 1)[1])))' > "$WORK_DIR/stack.json" ||
+  fail "Reading the values of scripts/kind/charts/zac-dev failed"
+stack() { python3 -c 'import json, sys; value = json.load(open(sys.argv[1]))
+for key in sys.argv[2:]: value = value[key]
+print(value if isinstance(value, str) else json.dumps(value))' "$WORK_DIR/stack.json" "$@"; }
+active_releases=(openzaak openklant)
+[ "$(stack objecten)" = true ] && active_releases+=(openobject)
+[ "$(stack opennotificaties)" = true ] && active_releases+=(opennotificaties)
+[[ ,$PROFILES, == *,openarchiefbeheer,* ]] && active_releases+=(openarchiefbeheer)
+[[ ,$PROFILES, == *,openformulieren,* ]] && active_releases+=(openforms)
+echo "Services: ${active_releases[*]}${PROFILES:+ (options: $PROFILES)}"
 
 step "Checking the host ports"
-python3 "$KIND_DIR/kind_stack.py" ports "$KIND_DIR/ports.json" "$MODE" "$WORK_DIR" "$NODE" "$PROXY"
+python3 "$KIND_DIR/kind_stack.py" ports "$KIND_DIR/ports.json" "$MODE" "$PROFILES" "$WORK_DIR" "$NODE" "$PROXY"
 
 step "Starting the kind cluster '$CLUSTER'"
 cluster_pid=
@@ -96,9 +118,10 @@ elif [ "$(docker inspect --format '{{.State.Running}}' "$NODE")" != true ]; then
   docker start "$NODE" > /dev/null
   node_restarted=true
 fi
-for chart in "openzaak:$OPENZAAK_CHART_VERSION" "openklant:$OPENKLANT_CHART_VERSION" "openobject:$OPENOBJECT_CHART_VERSION"; do
-  if [ ! -f "$CHARTS_DIR/${chart%%:*}-${chart##*:}.tgz" ]; then
-    helm pull "${chart%%:*}" --repo "$MAYKIN_CHARTS" --version "${chart##*:}" --destination "$CHARTS_DIR"
+for release in "${active_releases[@]}"; do
+  version=$(stack charts "$release" version)
+  if [ ! -f "$CHARTS_DIR/$release-$version.tgz" ]; then
+    helm pull "$release" --repo "$(stack charts "$release" repository)" --version "$version" --destination "$CHARTS_DIR"
   fi
 done
 if ! ls "$ROOT"/charts/zac/charts/*.tgz > /dev/null 2>&1; then
@@ -120,7 +143,7 @@ publish_arguments=()
 while IFS= read -r argument; do publish_arguments+=("$argument"); done < "$WORK_DIR/publish-arguments"
 docker rm --force "$PROXY" > /dev/null 2>&1 || true
 docker create --name "$PROXY" --network kind --restart unless-stopped \
-  ${publish_arguments[@]+"${publish_arguments[@]}"} "$(compose_image openzaak.local)" > /dev/null
+  ${publish_arguments[@]+"${publish_arguments[@]}"} "$(stack images nginx)" > /dev/null
 docker cp "$WORK_DIR/nginx.conf" "$PROXY:/etc/nginx/nginx.conf"
 docker start "$PROXY" > /dev/null
 
@@ -141,37 +164,35 @@ if [ -f "$HOME/.docker/config.json" ] && grep -q '"auth"' "$HOME/.docker/config.
   docker exec "$NODE" systemctl restart kubelet
 fi
 
-step "Creating the configuration and the seed data"
+step "Creating the configuration, the passwords and the seed data"
 kc create namespace "$NAMESPACE" --dry-run=client -o yaml | kc apply -f - > /dev/null
-postgres_password=$(kc -n "$NAMESPACE" get secret zac-dev-generated -o 'jsonpath={.data.postgres-password}' 2> /dev/null |
-  base64 -d 2> /dev/null || true)
-mkdir -p "$WORK_DIR/generated"
-chmod 700 "$WORK_DIR/generated"
-printf '%s' "${postgres_password:-$(openssl rand -hex 16)}" > "$WORK_DIR/generated/postgres-password"
-python3 "$KIND_DIR/kind_stack.py" values "$WORK_DIR/compose.json" "$WORK_DIR" "$MODE"
+kc -n "$NAMESPACE" get secret zac-dev-generated -o json > "$WORK_DIR/generated/existing-secret.json" 2> /dev/null ||
+  : > "$WORK_DIR/generated/existing-secret.json"
+python3 "$KIND_DIR/kind_stack.py" values "$WORK_DIR/stack.json" "$WORK_DIR" "$MODE" "$PROFILES" \
+  "$WORK_DIR/generated/existing-secret.json"
+rm -f "$WORK_DIR/generated/existing-secret.json"
 SEED=$WORK_DIR/seed.yaml
 : > "$SEED"
 add() { kc -n "$NAMESPACE" create "$@" --dry-run=client -o yaml >> "$SEED"; echo --- >> "$SEED"; }
-add secret generic zac-dev-generated --from-file="$WORK_DIR/generated"
-add configmap seed-openzaak-dump --from-file="$IMPORTS/openzaak-database/00-restore-migrated-database.sql"
-add configmap seed-openzaak-data --from-file="$IMPORTS/openzaak-database/database"
-add configmap seed-openzaak-uploads --from-file="$IMPORTS/openzaak/uploads/fake-test-document.pdf"
-add configmap seed-openklant --from-file="$IMPORTS/openklant-database/database"
-add configmap seed-objecten-fixtures --from-file="$IMPORTS/open-object/fixtures"
-add configmap seed-objecten-init --from-file="$IMPORTS/open-object/init"
-add configmap seed-pabc-dataset --from-file="$IMPORTS/pabc-database/json-mapping/pabc-mapping-data.json"
-add configmap seed-zac-database --from-file="$IMPORTS/zac-database"
-add configmap solr-security --from-file="$IMPORTS/solr/security.json"
+add configmap seed-openzaak-dump --from-file="$SEED_DIR/openzaak/00-restore-migrated-database.sql"
+add configmap seed-openzaak-data --from-file="$SEED_DIR/openzaak/database"
+add configmap seed-openzaak-uploads --from-file="$SEED_DIR/openzaak/fake-test-document.pdf"
+add configmap seed-openklant --from-file="$SEED_DIR/openklant"
+add configmap seed-objecten-fixtures --from-file="$SEED_DIR/open-object/fixtures"
+add configmap seed-pabc-dataset --from-file="$SEED_DIR/pabc/pabc-mapping-data.json"
+add configmap seed-zac-database --from-file="$SEED_DIR/zac"
+add configmap seed-openformulieren-forms --from-file="$SEED_DIR/openformulieren/forms"
 add configmap keycloak-realm --from-file="$WORK_DIR/realm"
 for wiremock in smartdocuments-wiremock kvk-wiremock bag-wiremock brp-personen-wiremock; do
-  add configmap "$wiremock-mappings" --from-file="$IMPORTS/$wiremock/mappings"
-  if [ -d "$IMPORTS/$wiremock/__files" ]; then
-    add configmap "$wiremock-files" --from-file="$IMPORTS/$wiremock/__files"
+  add configmap "$wiremock-mappings" --from-file="$SEED_DIR/$wiremock/mappings"
+  if [ -d "$SEED_DIR/$wiremock/__files" ]; then
+    add configmap "$wiremock-files" --from-file="$SEED_DIR/$wiremock/__files"
   fi
 done
-kc -n "$NAMESPACE" apply --server-side --force-conflicts -f "$SEED" -f "$WORK_DIR/secrets.json" > /dev/null
+kc -n "$NAMESPACE" apply --server-side --force-conflicts -f "$SEED" \
+  -f "$WORK_DIR/generated/secret.json" -f "$WORK_DIR/generated/openzaak-seed-env.json" > /dev/null
 
-# the Docker Compose host names in the ZAC settings and test data resolve to Services in the cluster
+# the host names with a dot in the ZAC settings and the seed data resolve to Services in the cluster
 python3 - "$CONTEXT" "$NAMESPACE" << 'PY'
 import subprocess, sys
 context, namespace = sys.argv[1], sys.argv[2]
@@ -198,19 +219,23 @@ if [ "${ZAC_IN_CLUSTER:-}" = local ]; then
   zac_image_pid=$!
 fi
 
-step "Installing Postgres, Redis, Keycloak, PABC, Solr, the test doubles, Open Zaak, Open Klant and Open Object"
-helm_release zac-dev "$KIND_DIR/charts/zac-dev" -f "$KIND_DIR/ports.json" -f "$WORK_DIR/zac-dev.json" &
+step "Installing the services: ${active_releases[*]} and those of the zac-dev chart"
+helm_release zac-dev "$STACK_CHART" "${stack_values[@]}" -f "$WORK_DIR/zac-dev.json" &
 install_pids=("$!")
-helm_release openzaak "$CHARTS_DIR/openzaak-$OPENZAAK_CHART_VERSION.tgz" \
-  -f "$KIND_DIR/values/openzaak.yaml" -f "$WORK_DIR/openzaak.json" &
-install_pids+=("$!")
-helm_release openklant "$CHARTS_DIR/openklant-$OPENKLANT_CHART_VERSION.tgz" \
-  -f "$KIND_DIR/values/openklant.yaml" -f "$WORK_DIR/openklant.json" &
-install_pids+=("$!")
-helm_release openobject "$CHARTS_DIR/openobject-$OPENOBJECT_CHART_VERSION.tgz" \
-  -f "$KIND_DIR/values/openobject.yaml" -f "$WORK_DIR/openobject.json" &
-install_pids+=("$!")
+for release in "${active_releases[@]}"; do
+  helm_release "$release" "$CHARTS_DIR/$release-$(stack charts "$release" version).tgz" \
+    -f "$KIND_DIR/values/$release.yaml" -f "$WORK_DIR/$release.json" &
+  install_pids+=("$!")
+done
 for pid in "${install_pids[@]}"; do wait "$pid"; done
+for release in "${UPSTREAM_RELEASES[@]}"; do
+  [[ " ${active_releases[*]} " == *" $release "* ]] || helm_uninstall "$release"
+done
+
+python3 "$KIND_DIR/kind_stack.py" wait "$CONTEXT" "$NAMESPACE" 600 "$(docker inspect --format '{{.State.StartedAt}}' "$NODE")" \
+  postgres > /dev/null
+kc -n "$NAMESPACE" exec -i deploy/postgres -- psql --username postgres --quiet --set ON_ERROR_STOP=1 \
+  < "$WORK_DIR/generated/roles.sql" > /dev/null
 
 if [ "$MODE" = zac ]; then
   zac_values=(-f "$KIND_DIR/values/zac.yaml" -f "$WORK_DIR/zac.json"
@@ -223,8 +248,8 @@ if [ "$MODE" = zac ]; then
   fi
 
   # ZAC records boot errors and stays unready until the liveness probe restarts it when Keycloak, Open Zaak, PABC or
-  # its OPA sidecar are not there yet when it boots; Docker Compose has depends_on for this. The kubelet starts the
-  # ZAC container before it has pulled the OPA image, so that image goes into the node first.
+  # its OPA sidecar are not there yet when it boots. The kubelet starts the ZAC container before it has pulled the OPA
+  # image, so that image goes into the node first.
   step "Waiting for the services that ZAC needs"
   python3 "$KIND_DIR/kind_stack.py" wait "$CONTEXT" "$NAMESPACE" 1200 \
     "$(docker inspect --format '{{.State.StartedAt}}' "$NODE")" postgres keycloak openzaak openzaak-nginx pabc-api solr
@@ -247,20 +272,27 @@ PY
 
   step "Installing ZAC ($ZAC_DOCKER_IMAGE)"
   helm_release zac "$ROOT/charts/zac" "${zac_values[@]}"
-elif helm --kube-context "$CONTEXT" status zac --namespace "$NAMESPACE" > /dev/null 2>&1; then
-  step "Removing ZAC from the cluster"
-  helm --kube-context "$CONTEXT" uninstall zac --namespace "$NAMESPACE" --wait > /dev/null
+else
+  helm_uninstall zac
 fi
 
 step "Waiting until every service is ready"
 python3 "$KIND_DIR/kind_stack.py" wait "$CONTEXT" "$NAMESPACE" 1200 "$(docker inspect --format '{{.State.StartedAt}}' "$NODE")"
-kc -n "$NAMESPACE" wait --for=condition=complete job --selector=app.kubernetes.io/component=seed --timeout=10m
+kc -n "$NAMESPACE" wait --for=condition=complete job --selector=app.kubernetes.io/component=seed --timeout=15m > /dev/null
 
 step "The stack is ready"
 while IFS='=' read -r name port; do
-  printf '  %-26s localhost:%s\n' "$(echo "${name#HOST_PORT_}" | tr '[:upper:]_' '[:lower:]-')" "$port"
+  printf '  %-28s localhost:%s\n' "$(echo "${name#HOST_PORT_}" | tr '[:upper:]_' '[:lower:]-')" "$port"
 done < "$WORK_DIR/ports.env"
+echo
+echo "The admin user of Keycloak and of the admin pages of Open Zaak and the other components is 'admin', with the"
+echo "password $(sed -n 's/^ADMIN_PASSWORD=//p' "$WORK_DIR/generated/summary.env")."
 if [ "$MODE" = ide ]; then
   echo
   echo "ZAC is not running in the cluster. Run it from your IDE with the environment of .env.example."
+  if grep -qv '^ADMIN_PASSWORD=' "$WORK_DIR/generated/summary.env"; then
+    echo "These passwords of the stack differ from your environment; set them for ZAC, or set them in .env and run"
+    echo "./start-kind.sh again:"
+    grep -v '^ADMIN_PASSWORD=' "$WORK_DIR/generated/summary.env" | sed 's/^/  /'
+  fi
 fi
