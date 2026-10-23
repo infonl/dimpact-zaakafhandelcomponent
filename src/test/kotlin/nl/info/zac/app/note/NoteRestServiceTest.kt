@@ -111,8 +111,11 @@ class NoteRestServiceTest : BehaviorSpec({
         }
     }
 
-    given("A note written by the logged-in user and update data that changes the author and the zaak") {
-        val existingNote = createNote(id = 123L, employeeUsername = loggedInUser.id)
+    given(
+        "A note written by the logged-in user on a zaak the user may read, and update data that changes the author and the zaak"
+    ) {
+        val zaak = createZaak()
+        val existingNote = createNote(id = 123L, zaakUUID = zaak.uuid, employeeUsername = loggedInUser.id)
         val originalZaakUUID = existingNote.zaakUUID
         val restNote = createRestNote(
             id = 123L,
@@ -124,6 +127,8 @@ class NoteRestServiceTest : BehaviorSpec({
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readNotitieRechten().canWijzigen } returns true
         every { noteService.findNote(123L) } returns existingNote
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechten(lezen = true)
         every { noteService.updateNote(existingNote) } returns existingNote
         every { noteConverter.toRestNote(existingNote) } returns updatedRestNote
         every { eventingService.send(any<ScreenEvent>()) } just Runs
@@ -238,12 +243,15 @@ class NoteRestServiceTest : BehaviorSpec({
         }
     }
 
-    given("A note written by the logged-in user and a user with permissions to update notes") {
+    given("A note written by the logged-in user on a zaak the user may read, and a user with permissions to update notes") {
         val nodeId = 123L
-        val deletedNote = createNote(employeeUsername = loggedInUser.id)
+        val zaak = createZaak()
+        val deletedNote = createNote(zaakUUID = zaak.uuid, employeeUsername = loggedInUser.id)
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readNotitieRechten().canWijzigen } returns true
         every { noteService.findNote(nodeId) } returns deletedNote
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechten(lezen = true)
         every { noteService.deleteNote(nodeId) } returns deletedNote
         every { eventingService.send(any<ScreenEvent>()) } just Runs
 
@@ -254,6 +262,43 @@ class NoteRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     noteService.deleteNote(nodeId)
                     eventingService.send(ScreenEventType.ZAAK_NOTITIES.updated(deletedNote.zaakUUID))
+                }
+            }
+        }
+    }
+
+    given("A note written by the logged-in user on a zaak the user may not read") {
+        val zaak = createZaak()
+        val existingNote = createNote(id = 123L, zaakUUID = zaak.uuid, employeeUsername = loggedInUser.id)
+        val restNote = createRestNote(id = 123L, zaakUUID = zaak.uuid, employeeUsername = loggedInUser.id)
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readNotitieRechten().canWijzigen } returns true
+        every { noteService.findNote(123L) } returns existingNote
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechten(lezen = false)
+
+        `when`("updateNote is called") {
+            val exception = shouldThrow<PolicyException> {
+                noteRestService.updateNote(restNote)
+            }
+
+            then("it should throw a PolicyException and not update the note") {
+                exception shouldNotBe null
+                verify(exactly = 0) {
+                    noteService.updateNote(any())
+                }
+            }
+        }
+
+        `when`("deleteNote is called") {
+            val exception = shouldThrow<PolicyException> {
+                noteRestService.deleteNote(123L)
+            }
+
+            then("it should throw a PolicyException and not delete the note") {
+                exception shouldNotBe null
+                verify(exactly = 0) {
+                    noteService.deleteNote(any())
                 }
             }
         }

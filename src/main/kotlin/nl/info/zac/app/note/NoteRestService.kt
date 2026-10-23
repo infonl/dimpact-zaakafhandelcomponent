@@ -71,6 +71,7 @@ class NoteRestService @Inject constructor(
         val note = restNote.id?.let(noteService::findNote)
             ?: throw NotFoundException("Note with id '${restNote.id}' not found")
         assertIsAuthor(note)
+        assertCanReadZaak(note.zaakUUID)
         val updatedNotitie = note.apply {
             text = restNote.text
             dateTimeLastModified = ZonedDateTime.now()
@@ -85,6 +86,7 @@ class NoteRestService @Inject constructor(
         assertPolicy(policyService.readNotitieRechten().canWijzigen)
         val note = noteService.findNote(id) ?: return
         assertIsAuthor(note)
+        assertCanReadZaak(note.zaakUUID)
         noteService.deleteNote(id)?.let {
             eventingService.send(ScreenEventType.ZAAK_NOTITIES.updated(it.zaakUUID))
         }
