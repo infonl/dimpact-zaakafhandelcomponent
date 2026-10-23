@@ -1,0 +1,30 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# Values for charts/zac (release 'zac'). scripts/kind/up.sh adds the image and the settings of the ZAC service of
+# docker-compose.yaml; OPA runs as a sidecar and the office converter comes from the chart, as in production.
+fullnameOverride: zac
+
+# the heap of Docker Compose; the chart default sizes the heap from the memory limit instead
+javaOptions: "-Xms1024m -Xmx1024m -Xlog:gc::time,uptime"
+
+solr:
+  # the zac-dev chart creates the core, as Docker Compose does
+  createZacCore: false
+
+office_converter:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 1536Mi
+    ephemeral-storage: 512Mi
+  limits:
+    # as in Docker Compose
+    memory: 4Gi
+    ephemeral-storage: 4Gi

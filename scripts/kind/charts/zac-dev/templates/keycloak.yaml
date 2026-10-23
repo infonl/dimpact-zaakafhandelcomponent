@@ -1,0 +1,85 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# Keycloak with the environment of the Docker Compose service and its realm export, imported with '--import-realm'.
+# Unlike Docker Compose ('start-dev'), the container first builds Keycloak for Postgres, which takes most of its
+# start-up time and needs no database, and then starts the built Keycloak once Postgres accepts connections.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+      containers:
+        - name: keycloak
+          image: {{ include "zac-dev.image" (list . "keycloak") }}
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              set -e
+              /opt/keycloak/bin/kc.sh build
+              until (exec 3<> "/dev/tcp/$KC_DB_URL_HOST/5432") 2> /dev/null; do sleep 1; done
+              exec /opt/keycloak/bin/kc.sh start --optimized --import-realm
+          envFrom:
+            - secretRef:
+                name: keycloak-compose-env
+          env:
+            - name: KC_HOSTNAME
+              value: {{ required "keycloak.hostname is required" .Values.keycloak.hostname | quote }}
+            - name: KC_CACHE
+              value: local
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: management
+              containerPort: 9000
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: management
+            periodSeconds: 2
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 1536Mi
+          volumeMounts:
+            - name: realm
+              mountPath: /opt/keycloak/data/import
+      volumes:
+        - name: realm
+          configMap:
+            name: keycloak-realm
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: keycloak
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+    - name: management
+      port: 9000
+      targetPort: 9000
