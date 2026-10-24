@@ -1,0 +1,33 @@
+{
+  "display": "wizard",
+  "name": "testForm",
+  "title": "User details",
+  "settings": {
+    "pdf": {
+      "id": "1ec0f8ee-6685-5d98-a847-26f67b67d6f0",
+      "src": "https://files.form.io/pdf/5692b91fd1028f01000407e3/file/1ec0f8ee-6685-5d98-a847-26f67b67d6f0"
+    }
+  },
+  "components": [
+    {
+      "title": "Name",
+      "label": "nameDetails",
+      "type": "panel",
+      "key": "testPage",
+      "components": [
+        {
+          "label": "First name",
+          "placeholder": "Your first name",
+          "applyMaskOn": "change",
+          "tableView": true,
+          "validateWhenHidden": false,
+          "key": "firstName",
+          "type": "textfield",
+          "input": true
+        }
+      ],
+      "input": false,
+      "tableView": false
+    }
+  ]
+}

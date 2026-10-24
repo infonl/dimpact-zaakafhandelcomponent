@@ -1,0 +1,24 @@
+{
+  "request": {
+    "url": "/sdapi/structure",
+    "method": "GET",
+    "headers": {
+      "Accept": {
+        "equalTo": "application/json"
+      },
+      "Authorization": {
+        "equalTo": "Basic dummySmartDocumentsAuthentication"
+      },
+      "Username": {
+        "equalTo": "testuser1"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "sdapi-structure-response-body.json",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<div
+  *ngIf="showPreview"
+  class="document-viewer-wrapper"
+  [ngClass]="{ pdf: isPDF(), img: isImage() }"
+>
+  <object
+    *ngIf="isPDF()"
+    type="application/pdf"
+    [data]="previewSrc"
+    [title]="document.titel"
+    height="600px"
+    width="100%"
+  ></object>
+
+  <img
+    *ngIf="isImage()"
+    [src]="previewSrc"
+    [alt]="document.beschrijving"
+    [title]="document.bestandsnaam"
+  />
+</div>
