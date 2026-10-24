@@ -46,6 +46,7 @@ describe(StaticTextComponent.name, () => {
       imports: [NoopAnimationsModule],
       providers: [provideTranslateService()],
     });
+    await fixture.whenStable();
 
     return { fixture, iconClicked };
   };

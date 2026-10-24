@@ -63,7 +63,7 @@ describe(BedrijfResolverService.name, () => {
           },
         }),
       ),
-    ).rejects.toThrowError("BedrijfResolverService: no 'id' found in route");
+    ).rejects.toThrow("BedrijfResolverService: no 'id' found in route");
   });
 
   describe(BedrijfResolverService.prototype.resolve.name, () => {
