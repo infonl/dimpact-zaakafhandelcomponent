@@ -10,7 +10,7 @@ import { Directive, HostBinding, HostListener, output } from "@angular/core";
 })
 export class FileDragAndDropDirective {
   readonly fileDropped = output<FileList>();
-  @HostBinding("style.border") private border = "solid transparent";
+  @HostBinding("style.border") protected border = "solid transparent";
 
   @HostListener("dragover", ["$event"]) public onDragOver(evt: DragEvent) {
     evt.preventDefault();
