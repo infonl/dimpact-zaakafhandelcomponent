@@ -13,18 +13,15 @@ import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { of } from "rxjs";
 import { fromPartial, runMutationOnSuccess } from "src/test-helpers";
 import { testQueryClient } from "../../../setupJest";
 import { UtilService } from "../core/service/util.service";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { TakenService } from "./taken.service";
 
 describe(TakenService.name, () => {
   let service: TakenService;
-  let zacHttpClient: ZacHttpClient;
   let zacQueryClient: ZacQueryClient;
 
   beforeEach(() => {
@@ -38,34 +35,29 @@ describe(TakenService.name, () => {
     });
 
     service = TestBed.inject(TakenService);
-    zacHttpClient = TestBed.inject(ZacHttpClient);
     zacQueryClient = TestBed.inject(ZacQueryClient);
   });
 
   describe("readTaak", () => {
-    it("fetches with the given task id", () => {
-      jest.spyOn(zacHttpClient, "GET").mockReturnValue(of({} as never));
+    it("builds query options for the given task id", () => {
+      jest.spyOn(zacQueryClient, "GET");
       service.readTaak("taak-1");
-      expect(zacHttpClient.GET).toHaveBeenCalledWith(expect.any(String), {
+      expect(zacQueryClient.GET).toHaveBeenCalledWith(expect.any(String), {
         path: { taskId: "taak-1" },
       });
+    });
+
+    it("reads the taak again every time and keeps no cached copy, so a failed read is reported to the user instead of only logged", () => {
+      expect(service.readTaak("taak-1")).toEqual(
+        expect.objectContaining({ staleTime: 0, gcTime: 0 }),
+      );
     });
   });
 
   describe("listTakenVoorZaak", () => {
-    it("fetches with the given zaak UUID", () => {
-      jest.spyOn(zacHttpClient, "GET").mockReturnValue(of([] as never));
-      service.listTakenVoorZaak("zaak-uuid-1");
-      expect(zacHttpClient.GET).toHaveBeenCalledWith(expect.any(String), {
-        path: { zaakUUID: "zaak-uuid-1" },
-      });
-    });
-  });
-
-  describe("listTakenVoorZaakQuery", () => {
     it("builds query options for the given zaak UUID", () => {
       jest.spyOn(zacQueryClient, "GET");
-      service.listTakenVoorZaakQuery("zaak-uuid-1");
+      service.listTakenVoorZaak("zaak-uuid-1");
       expect(zacQueryClient.GET).toHaveBeenCalledWith(expect.any(String), {
         path: { zaakUUID: "zaak-uuid-1" },
       });
@@ -81,18 +73,24 @@ describe(TakenService.name, () => {
       await service.invalidateTakenVoorZaak("zaak-uuid-1");
 
       expect(invalidateQueries).toHaveBeenCalledWith({
-        queryKey: service.listTakenVoorZaakQuery("zaak-uuid-1").queryKey,
+        queryKey: service.listTakenVoorZaak("zaak-uuid-1").queryKey,
       });
     });
   });
 
   describe("listHistorieVoorTaak", () => {
-    it("fetches with the given task id", () => {
-      jest.spyOn(zacHttpClient, "GET").mockReturnValue(of([] as never));
+    it("builds query options for the given task id", () => {
+      jest.spyOn(zacQueryClient, "GET");
       service.listHistorieVoorTaak("taak-1");
-      expect(zacHttpClient.GET).toHaveBeenCalledWith(expect.any(String), {
+      expect(zacQueryClient.GET).toHaveBeenCalledWith(expect.any(String), {
         path: { taskId: "taak-1" },
       });
+    });
+
+    it("reads the historie again every time and keeps no cached copy, so a failed read is reported to the user instead of only logged", () => {
+      expect(service.listHistorieVoorTaak("taak-1")).toEqual(
+        expect.objectContaining({ staleTime: 0, gcTime: 0 }),
+      );
     });
   });
 
