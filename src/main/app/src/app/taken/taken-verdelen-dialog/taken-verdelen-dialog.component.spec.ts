@@ -14,8 +14,7 @@ import {
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { provideZoneChangeDetection } from "@angular/core";
-import { TestBed } from "@angular/core/testing";
-import { MatButtonHarness } from "@angular/material/button/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MatToolbarHarness } from "@angular/material/toolbar/testing";
 import { By } from "@angular/platform-browser";
@@ -25,7 +24,8 @@ import {
   mutationOptions,
   provideTanStackQuery,
 } from "@tanstack/angular-query-experimental";
-import { of } from "rxjs";
+import { screen } from "@testing-library/angular";
+import { userEvent } from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
@@ -80,9 +80,6 @@ async function setup(
 
   const identityService = TestBed.inject(IdentityService);
   jest
-    .spyOn(identityService, "listUsersInGroup")
-    .mockReturnValue(of([mockUser]));
-  jest
     .spyOn(identityService, "listBehandelaarGroupsForZaaktypesQuery")
     .mockReturnValue(
       mutationOptions({
@@ -110,15 +107,77 @@ async function setup(
 
 describe(TakenVerdelenDialogComponent.name, () => {
   describe("with multiple taken", () => {
+    let fixture: ComponentFixture<TakenVerdelenDialogComponent>;
     let component: TakenVerdelenDialogComponent;
     let loader: HarnessLoader;
     let httpTestingController: HttpTestingController;
     let dialogRef: MatDialogRef<TakenVerdelenDialogComponent>;
 
     beforeEach(async () => {
-      ({ component, loader, httpTestingController, dialogRef } = await setup(
-        makeDialogData([makeTaak("1"), makeTaak("2")]),
-      ));
+      ({ fixture, component, loader, httpTestingController, dialogRef } =
+        await setup(makeDialogData([makeTaak("1"), makeTaak("2")])));
+    });
+
+    async function pickGroup(group: unknown) {
+      component["form"].controls.groep.setValue(
+        group as GeneratedType<"RestGroup">,
+      );
+      fixture.detectChanges();
+      await sleep();
+    }
+
+    async function respondWithUsers(users: GeneratedType<"RestUser">[]) {
+      httpTestingController
+        .expectOne(`/rest/identity/groups/${mockGroup.id}/users`)
+        .flush(users);
+      await sleep();
+      fixture.detectChanges();
+      await sleep();
+      fixture.detectChanges();
+    }
+
+    async function fillInForm() {
+      await pickGroup(mockGroup);
+      await respondWithUsers([mockUser]);
+      component["form"].patchValue({
+        medewerker: mockUser,
+        reden: "test-reden",
+      });
+      component["form"].markAsDirty();
+      fixture.detectChanges();
+    }
+
+    it("should not let the user pick a medewerker before a groep is picked", () => {
+      expect(component["form"].controls.medewerker.disabled).toBe(true);
+    });
+
+    it("should offer the users of the picked groep as medewerker", async () => {
+      await pickGroup(mockGroup);
+      await respondWithUsers([mockUser]);
+
+      expect(component["form"].controls.medewerker.enabled).toBe(true);
+      expect(component["users"]()).toEqual([mockUser]);
+    });
+
+    it("should not read users while the user types in the groep field", async () => {
+      await pickGroup("Test");
+
+      httpTestingController.expectNone((request) =>
+        request.url.endsWith("/users"),
+      );
+      expect(component["form"].controls.medewerker.disabled).toBe(true);
+    });
+
+    it("should keep the picked medewerker when the users of the groep are read again", async () => {
+      await fillInForm();
+
+      void testQueryClient.invalidateQueries({
+        queryKey: ["/rest/identity/groups/{groupId}/users"],
+      });
+      await sleep();
+      await respondWithUsers([mockUser, { id: "user-2", naam: "Other User" }]);
+
+      expect(component["form"].controls.medewerker.value).toEqual(mockUser);
     });
 
     it("should show plural title with task count", async () => {
@@ -134,17 +193,10 @@ describe(TakenVerdelenDialogComponent.name, () => {
     });
 
     it("should send the form data on request", async () => {
-      component["form"].patchValue({
-        groep: mockGroup,
-        medewerker: mockUser,
-        reden: "test-reden",
-      });
-      component["form"].markAsDirty();
+      await fillInForm();
 
-      const button = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie.verdelen/i }),
-      );
-      const clickPromise = button.click();
+      const user = userEvent.setup();
+      await user.click(screen.getByRole("button", { name: /actie.verdelen/i }));
       await sleep();
 
       const req = httpTestingController.expectOne("/rest/taken/lijst/verdelen");
@@ -160,18 +212,10 @@ describe(TakenVerdelenDialogComponent.name, () => {
         screenEventResourceId: "screen-event-1",
       });
       req.flush({});
-      await clickPromise;
     });
 
     it("should close the dialog with form data after successful mutation", async () => {
-      const formData = {
-        groep: mockGroup,
-        medewerker: mockUser,
-        reden: "test-reden",
-      };
-
-      component["form"].patchValue(formData);
-      component["form"].markAsDirty();
+      await fillInForm();
 
       component["verdeel"]();
       await sleep();
@@ -179,7 +223,11 @@ describe(TakenVerdelenDialogComponent.name, () => {
       httpTestingController.expectOne("/rest/taken/lijst/verdelen").flush({});
       await sleep();
 
-      expect(dialogRef.close).toHaveBeenCalledWith(formData);
+      expect(dialogRef.close).toHaveBeenCalledWith({
+        groep: mockGroup,
+        medewerker: mockUser,
+        reden: "test-reden",
+      });
     });
   });
 

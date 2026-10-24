@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AsyncPipe, NgClass } from "@angular/common";
+import { NgClass } from "@angular/common";
 import {
   Component,
   effect,
@@ -24,7 +24,7 @@ import {
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
-import { finalize, Observable } from "rxjs";
+import { finalize } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -41,7 +41,6 @@ import { SignaleringenSettingsBeheerService } from "../signaleringen-settings-be
   standalone: true,
   imports: [
     I18nKeyPipe,
-    AsyncPipe,
     NgClass,
     MatSidenavModule,
     MatCardModule,
@@ -62,7 +61,6 @@ export class GroepSignaleringenComponent
   protected readonly menuSidenav =
     viewChild.required<MatSidenav>("menuSidenav");
 
-  protected groepen!: Observable<GeneratedType<"RestGroup">[]>;
   protected readonly groepId = signal<string | undefined>(undefined);
   protected columns: string[] = ["subjecttype", "type", "dashboard", "mail"];
   protected readonly settingPerColumn: Record<
@@ -77,6 +75,11 @@ export class GroepSignaleringenComponent
   >();
 
   private readonly queryClient = inject(QueryClient);
+  private readonly identityService = inject(IdentityService);
+
+  protected readonly groepenQuery = injectQuery(() =>
+    this.identityService.listGroups(),
+  );
 
   protected readonly instellingenQuery = injectQuery(() => ({
     ...this.service.list(this.groepId()!),
@@ -86,7 +89,6 @@ export class GroepSignaleringenComponent
   constructor(
     public utilService: UtilService,
     public configuratieService: ConfiguratieService,
-    private identityService: IdentityService,
     private service: SignaleringenSettingsBeheerService,
   ) {
     super(utilService, configuratieService);
@@ -98,7 +100,6 @@ export class GroepSignaleringenComponent
 
   ngOnInit(): void {
     this.setupMenu("title.signaleringen.settings.groep");
-    this.groepen = this.identityService.listGroups();
   }
 
   protected laadSignaleringSettings(groep: GeneratedType<"RestGroup">): void {

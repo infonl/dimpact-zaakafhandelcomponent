@@ -10,6 +10,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
+import { provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import {
   MAT_MOMENT_DATE_ADAPTER_OPTIONS,
@@ -36,7 +37,7 @@ import { of } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { UtilService } from "src/app/core/service/util.service";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
 import { FormHelper } from "../../shared/form/helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -90,6 +91,7 @@ describe(CaseDetailsEditComponent.name, () => {
         provideHttpClientTesting(),
         provideRouter([]),
         provideQueryClient(testQueryClient),
+        provideZonelessChangeDetection(),
         {
           provide: DateAdapter,
           useClass: MomentDateAdapter,
@@ -124,11 +126,9 @@ describe(CaseDetailsEditComponent.name, () => {
     zakenService = TestBed.inject(ZakenService);
     httpTestingController = TestBed.inject(HttpTestingController);
 
-    // Mock service methods
-    jest
-      .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
-      .mockReturnValue(of([]));
-    jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(of([]));
+    seedBehandelaarGroups([]);
+    for (const groupId of ["g1", "g2", "g-inactive"])
+      seedUsersInGroup(groupId, []);
     jest
       .spyOn(referentieTabelService, "listCommunicatiekanalen")
       .mockReturnValue(of(["email", "telefoon", "post"]));
@@ -137,6 +137,24 @@ describe(CaseDetailsEditComponent.name, () => {
       { label: "Beperkt openbaar", value: "beperkt_openbaar" },
     ]);
   });
+
+  function seedBehandelaarGroups(groups: GeneratedType<"RestGroup">[]) {
+    testQueryClient.setQueryData(
+      identityService.listBehandelaarGroupsForZaaktype("Test zaaktype")
+        .queryKey,
+      groups,
+    );
+  }
+
+  function seedUsersInGroup(
+    groupId: string,
+    users: GeneratedType<"RestUser">[],
+  ) {
+    testQueryClient.setQueryData(
+      identityService.listUsersInGroup(groupId).queryKey,
+      users,
+    );
+  }
 
   const renderComponent = (
     zaakOverrides: Partial<GeneratedType<"RestZaak">> = {},
@@ -402,13 +420,16 @@ describe(CaseDetailsEditComponent.name, () => {
   });
 
   describe("current group in groep dropdown", () => {
-    it("should call listBehandelaarGroupsForZaaktype with the zaaktype omschrijving", async () => {
-      renderComponent();
-      await fixture.whenStable();
+    it("should offer the behandelaar groups of the zaaktype of the zaak", async () => {
+      const group = fromPartial<GeneratedType<"RestGroup">>({
+        id: "g1",
+        naam: "Group",
+      });
+      seedBehandelaarGroups([group]);
 
-      expect(
-        identityService.listBehandelaarGroupsForZaaktype,
-      ).toHaveBeenCalledWith("Test zaaktype");
+      renderComponent({ groep: undefined });
+
+      expect(component["groups"]()).toEqual([group]);
     });
 
     it("should prepend the current group when it is not in the list", async () => {
@@ -417,19 +438,14 @@ describe(CaseDetailsEditComponent.name, () => {
         naam: "Active Group",
         isActive: true,
       });
-      jest
-        .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
-        .mockReturnValue(of([activeGroup]));
+      seedBehandelaarGroups([activeGroup]);
 
       renderComponent({
         groep: { id: "g-inactive", naam: "Inactive Group", isActive: false },
       });
       await fixture.whenStable();
 
-      let groups: GeneratedType<"RestGroup">[] = [];
-      component["groups"].subscribe(
-        (fetchedGroups) => (groups = fetchedGroups),
-      );
+      const groups = component["groups"]();
 
       expect(groups).toHaveLength(2);
       expect(groups[0]).toMatchObject({ id: "g-inactive", isActive: false });
@@ -442,19 +458,14 @@ describe(CaseDetailsEditComponent.name, () => {
         naam: "Active Group",
         isActive: true,
       });
-      jest
-        .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
-        .mockReturnValue(of([activeGroup]));
+      seedBehandelaarGroups([activeGroup]);
 
       renderComponent({
         groep: { id: "g1", naam: "Active Group", isActive: true },
       });
       await fixture.whenStable();
 
-      let groups: GeneratedType<"RestGroup">[] = [];
-      component["groups"].subscribe(
-        (fetchedGroups) => (groups = fetchedGroups),
-      );
+      const groups = component["groups"]();
 
       expect(groups).toHaveLength(1);
       expect(groups[0]).toEqual(activeGroup);
@@ -466,19 +477,73 @@ describe(CaseDetailsEditComponent.name, () => {
         naam: "Active Group",
         isActive: true,
       });
-      jest
-        .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
-        .mockReturnValue(of([activeGroup]));
+      seedBehandelaarGroups([activeGroup]);
 
       renderComponent({ groep: undefined });
       await fixture.whenStable();
 
-      let groups: GeneratedType<"RestGroup">[] = [];
-      component["groups"].subscribe(
-        (fetchedGroups) => (groups = fetchedGroups),
-      );
+      const groups = component["groups"]();
 
       expect(groups).toHaveLength(1);
+    });
+  });
+
+  describe("reading the groups and users again", () => {
+    const group = fromPartial<GeneratedType<"RestGroup">>({
+      id: "g1",
+      naam: "Groep 1",
+    });
+    const zaakBehandelaar = fromPartial<GeneratedType<"RestUser">>({
+      id: "user-123",
+      naam: "testuser",
+    });
+    const otherUser = fromPartial<GeneratedType<"RestUser">>({
+      id: "other-user",
+      naam: "Other user",
+    });
+
+    async function settle() {
+      await sleep();
+      await fixture.whenStable();
+    }
+
+    async function renderZaakWithGroupAndBehandelaar() {
+      seedBehandelaarGroups([group]);
+      seedUsersInGroup(group.id, [zaakBehandelaar]);
+      renderComponent({ groep: group, behandelaar: zaakBehandelaar });
+      await settle();
+    }
+
+    it("should pre-select the groep and behandelaar of the zaak", async () => {
+      await renderZaakWithGroupAndBehandelaar();
+
+      expect(component["form"].controls.groep.value).toEqual(group);
+      expect(component["form"].controls.behandelaar.value).toEqual(
+        zaakBehandelaar,
+      );
+    });
+
+    it("should keep the groep that the user cleared", async () => {
+      await renderZaakWithGroupAndBehandelaar();
+      component["form"].controls.groep.setValue(null);
+
+      seedBehandelaarGroups([
+        group,
+        fromPartial<GeneratedType<"RestGroup">>({ id: "g2", naam: "Groep 2" }),
+      ]);
+      await settle();
+
+      expect(component["form"].controls.groep.value).toBeNull();
+    });
+
+    it("should keep the behandelaar that the user cleared", async () => {
+      await renderZaakWithGroupAndBehandelaar();
+      component["form"].controls.behandelaar.setValue(null);
+
+      seedUsersInGroup(group.id, [zaakBehandelaar, otherUser]);
+      await settle();
+
+      expect(component["form"].controls.behandelaar.value).toBeNull();
     });
   });
 
@@ -575,21 +640,21 @@ describe(CaseDetailsEditComponent.name, () => {
   describe("groep valueChanges", () => {
     it("loads users and enables behandelaar when a group is selected (toekennen=true)", async () => {
       renderComponent();
+      await fixture.whenStable();
       const group = fromPartial<GeneratedType<"RestGroup">>({
         id: "g2",
         naam: "Groep 2",
       });
-      jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(
-        of([
-          fromPartial<GeneratedType<"RestUser">>({
-            id: "u1",
-            naam: "User 1",
-          }),
-        ]),
-      );
+      const usersInGroup = [
+        fromPartial<GeneratedType<"RestUser">>({
+          id: "u1",
+          naam: "User 1",
+        }),
+      ];
+      seedUsersInGroup("g2", usersInGroup);
       component["form"].controls.groep.setValue(group);
       await fixture.whenStable();
-      expect(identityService.listUsersInGroup).toHaveBeenCalledWith("g2");
+      expect(component["users"]()).toEqual(usersInGroup);
       expect(component["form"].controls.behandelaar.enabled).toBe(true);
     });
 
@@ -633,9 +698,7 @@ describe(CaseDetailsEditComponent.name, () => {
         id: "g1",
         naam: "G1",
       });
-      jest
-        .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
-        .mockReturnValue(of([group]));
+      seedBehandelaarGroups([group]);
       renderComponent({ groep: group });
       await fixture.whenStable();
       component["form"].controls.reden.enable();
@@ -729,9 +792,7 @@ describe(CaseDetailsEditComponent.name, () => {
         id: "g1",
         naam: "Groep 1",
       });
-      jest
-        .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
-        .mockReturnValue(of([group]));
+      seedBehandelaarGroups([group]);
       renderComponent({
         groep: group,
         behandelaar: fromPartial<GeneratedType<"RestUser">>({
@@ -760,9 +821,7 @@ describe(CaseDetailsEditComponent.name, () => {
         id: "g2",
         naam: "Groep 2",
       });
-      jest
-        .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
-        .mockReturnValue(of([currentGroup, otherGroup]));
+      seedBehandelaarGroups([currentGroup, otherGroup]);
       renderComponent({
         groep: currentGroup,
         behandelaar: fromPartial<GeneratedType<"RestUser">>({
@@ -772,6 +831,7 @@ describe(CaseDetailsEditComponent.name, () => {
       });
       await fixture.whenStable();
       component["form"].controls.groep.setValue(otherGroup);
+      await fixture.whenStable();
       component["form"].controls.reden.enable();
       component["form"].controls.reden.setValue("reden");
 
@@ -853,9 +913,7 @@ describe(CaseDetailsEditComponent.name, () => {
         id: "g1",
         naam: "G1",
       });
-      jest
-        .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
-        .mockReturnValue(of([group]));
+      seedBehandelaarGroups([group]);
       renderComponent({ groep: group });
       await fixture.whenStable();
       component["form"].controls.reden.enable();
@@ -1031,19 +1089,15 @@ describe(CaseDetailsEditComponent.name, () => {
       zaakOverrides: Partial<GeneratedType<"RestZaak">>,
       membersOfGroep: GeneratedType<"RestUser">[] = [behandelaar],
     ) => {
-      jest
-        .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
-        .mockReturnValue(of([groep, andereGroep]));
-      jest
-        .spyOn(identityService, "listUsersInGroup")
-        .mockImplementation((groupId) =>
-          of(groupId === groep.id ? membersOfGroep : [groepslid]),
-        );
+      seedBehandelaarGroups([groep, andereGroep]);
+      seedUsersInGroup(groep.id, membersOfGroep);
+      seedUsersInGroup(andereGroep.id, [groepslid]);
       renderComponent({
         groep,
         zaaktype: autoriseerbaarZaaktype,
         ...zaakOverrides,
       });
+      await sleep();
       await fixture.whenStable();
       fixture.detectChanges();
     };

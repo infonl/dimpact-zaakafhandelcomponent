@@ -4,59 +4,37 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-
-import { Observable } from "rxjs";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
-import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
   providedIn: "root",
 })
 export class IdentityService {
-  private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
 
-  listGroups(): Observable<GeneratedType<"RestGroup">[]> {
-    return this.zacHttpClient.GET("/rest/identity/groups");
+  listGroups() {
+    return this.zacQueryClient.GET("/rest/identity/groups");
   }
 
   listBehandelaarGroupsForZaaktypesQuery() {
     return this.zacQueryClient.POST("/rest/identity/behandelaar-groups");
   }
 
-  listBehandelaarGroupsForZaaktypeQuery(zaaktypeDescription: string) {
+  listBehandelaarGroupsForZaaktype(zaaktypeDescription: string) {
     return this.zacQueryClient.GET(
       "/rest/identity/zaaktype/{zaaktypeDescription}/behandelaar-groups",
       { path: { zaaktypeDescription } },
     );
   }
 
-  listBehandelaarGroupsForZaaktype(
-    zaaktypeDescription: string,
-  ): Observable<GeneratedType<"RestGroup">[]> {
-    return this.zacHttpClient.GET(
-      "/rest/identity/zaaktype/{zaaktypeDescription}/behandelaar-groups",
-      {
-        path: { zaaktypeDescription },
-      },
-    );
-  }
-
   listUsersInGroup(groupId: string) {
-    return this.zacHttpClient.GET("/rest/identity/groups/{groupId}/users", {
-      path: { groupId },
-    });
-  }
-
-  listUsersInGroupQuery(groupId: string) {
     return this.zacQueryClient.GET("/rest/identity/groups/{groupId}/users", {
       path: { groupId },
     });
   }
 
   listUsers() {
-    return this.zacHttpClient.GET(`/rest/identity/users`);
+    return this.zacQueryClient.GET("/rest/identity/users");
   }
 
   readLoggedInUser() {
