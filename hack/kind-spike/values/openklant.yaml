@@ -1,0 +1,66 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# SPIKE (PZ-13059): values for the upstream maykinmedia/openklant chart (release 'openklant', namespace 'zac'),
+# mirroring the Open Klant service of docker-compose.yaml. The database password comes from up.sh.
+# Chart 1.11.0 is the one for Open Klant 2.15.0: later charts probe /_healthz/, which 2.15.0 does not have.
+
+# the version of docker-compose.yaml
+image:
+  repository: maykinmedia/open-klant
+  tag: "2.15.0@sha256:ce59a2c60dab1c14e62fe34a99511839390dd2d482983c27334241e0d60c693d"
+
+replicaCount: 1
+
+tags:
+  redis: false
+
+settings:
+  allowedHosts: openklant.local,localhost
+  database:
+    host: postgres
+    name: openklant
+    username: openklant
+  # as in docker-compose.yaml
+  secretKey: openZaakSecretKey
+  cache:
+    default: redis:6379/0
+    axes: redis:6379/0
+  celery:
+    brokerUrl: redis://redis:6379/0
+    resultBackend: redis://redis:6379/0
+  isHttps: false
+  disable2fa: true
+  notificationsDisabled: true
+
+persistence:
+  enabled: false
+
+# Open Klant migrates its empty database when it starts, which takes minutes on a busy CI runner
+livenessProbe:
+  initialDelaySeconds: 300
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+readinessProbe:
+  initialDelaySeconds: 0
+  periodSeconds: 3
+  timeoutSeconds: 5
+  failureThreshold: 6
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 1Gi
+
+# Docker Compose runs neither a Celery worker nor nginx for Open Klant
+worker:
+  replicaCount: 0
+nginx:
+  replicaCount: 0
+  # the image of the openzaak release, so that the image pulls skip the chart default 'stable'
+  image:
+    tag: "1.31.6@sha256:929e1d5e610e8aa89a1715ba44dce5edb4d42c172a208c171233292f472560c5"

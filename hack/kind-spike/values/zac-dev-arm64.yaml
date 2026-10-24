@@ -1,0 +1,13 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# SPIKE (PZ-13059): arm64 (Apple Silicon) builds of the amd64-only images in charts/zac-dev, the same
+# ghcr.io/infonl images as docker-compose.arm64-override.yaml. A kind node on Docker Desktop can run a
+# single-manifest amd64 image through Rosetta, but not a manifest list with only an amd64 entry (PABC):
+# containerd refuses that on an arm64 node.
+images:
+  postgres: ghcr.io/infonl/postgis:17-3.5@sha256:62657ab3cdacebf7d99184ac2a6777ce34815447dfd819f5d11e1bf074dd6876
+  pabcApi: ghcr.io/infonl/pabc-api:2.1.0@sha256:34662191126bc2e90838287114de558b4a249485d4a212fae51e06bdff69b288
+  pabcMigrations: ghcr.io/infonl/pabc-migrations:2.1.0@sha256:664f0fae4b0f3b70f685cc7af6a639b3c893b5ba597a0055665143d9d180288a
+  openObject: ghcr.io/infonl/open-object:4.1.1@sha256:8bda80d7de276ddd381ff45ac2c5e0b52b43787bf4c02f42d1b069b5e823ebdf

@@ -1,0 +1,175 @@
+# The media volume of the openzaak release, with the documents that the Open Zaak test data refers to, like
+# scripts/docker-compose/imports/openzaak/zac-scripts/copy-test-pdf-and-start-openzaak.sh in Docker Compose
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: openzaak-media
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seed-openzaak-media
+  namespace: {{ .Release.Namespace }}
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      enableServiceLinks: false
+      restartPolicy: OnFailure
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+        # the user of the Open Zaak image, which has to be able to add uploads next to these documents
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: copy
+          image: {{ .Values.images.postgres }}
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              for month in 10 11 12; do
+                mkdir -p /app/private-media/uploads/2023/$month
+                cp /seed/fake-test-document.pdf /app/private-media/uploads/2023/$month/
+              done
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
+            readOnlyRootFilesystem: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+          volumeMounts:
+            # the subPath of the openzaak chart for private media
+            - name: media
+              mountPath: /app/private-media
+              subPath: openzaak/private_media
+            - name: seed
+              mountPath: /seed
+      volumes:
+        - name: media
+          persistentVolumeClaim:
+            claimName: openzaak-media
+        - name: seed
+          configMap:
+            name: seed-openzaak-uploads
+---
+# Open Klant API token for ZAC; runs once Open Klant has migrated its database, like
+# scripts/docker-compose/imports/openklant-database/fill-data-on-startup.sh in Docker Compose
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seed-openklant
+  namespace: {{ .Release.Namespace }}
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      enableServiceLinks: false
+      restartPolicy: OnFailure
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+      containers:
+        - name: psql
+          image: {{ .Values.images.postgres }}
+          env:
+            - name: PGHOST
+              value: postgres
+            - name: PGUSER
+              value: openklant
+            {{- include "zac-dev.passwordEnv" (list . "PGPASSWORD" "openklant") | nindent 12 }}
+            - name: PGDATABASE
+              value: openklant
+          command:
+            - bash
+            - -c
+            - |
+              set -euo pipefail
+              # the number of migrations of Open Klant 2.15.0, as in fill-data-on-startup.sh of Docker Compose
+              until [ "$(psql -At -c "SELECT count(*) FROM django_migrations" 2>/dev/null || echo 0)" -ge 176 ]; do
+                echo "waiting for the Open Klant migrations"; sleep 2
+              done
+              psql --set ON_ERROR_STOP=1 --file /seed/1-setup-applicatie.sql
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
+            runAsUser: 999
+            readOnlyRootFilesystem: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 500m
+              memory: 128Mi
+          volumeMounts:
+            - name: seed
+              mountPath: /seed
+      volumes:
+        - name: seed
+          configMap:
+            name: seed-openklant
+---
+# Open Object test data (objecttypen and productaanvragen); runs once Open Object has migrated its database,
+# like the open-object-import container of Docker Compose
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seed-openobject
+  namespace: {{ .Release.Namespace }}
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      enableServiceLinks: false
+      restartPolicy: OnFailure
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+      containers:
+        - name: loaddata
+          image: {{ .Values.images.openObject }}
+          envFrom:
+            # the settings of the openobject release
+            - configMapRef:
+                name: openobject
+            - secretRef:
+                name: openobject
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              until python /app/src/manage.py migrate --check > /dev/null 2>&1; do
+                echo "waiting for the Open Object migrations"; sleep 3
+              done
+              python /app/src/manage.py loaddata demodata
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
+            # the 'maykin' user of the image
+            runAsUser: 1000
+            # not read-only: Open Object writes outside /tmp, and 'manage.py migrate --check' then never succeeds
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          volumeMounts:
+            - name: fixtures
+              mountPath: /app/src/objects/fixtures
+      volumes:
+        - name: fixtures
+          configMap:
+            name: seed-objecten-fixtures

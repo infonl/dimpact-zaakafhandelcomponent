@@ -1,0 +1,8 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# SPIKE (PZ-13059): the arm64 build of Open Klant, as in docker-compose.arm64-override.yaml
+image:
+  repository: ghcr.io/infonl/open-klant
+  tag: "2.15.0@sha256:090741b0c2211588e882dad93741e1bb6c13ce9d95ae13d1cd2ab591339b6a36"

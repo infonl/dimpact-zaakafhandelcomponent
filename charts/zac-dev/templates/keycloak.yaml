@@ -1,0 +1,105 @@
+# Keycloak with the realm export of scripts/docker-compose/imports/keycloak/realms, imported with '--import-realm'
+# as in Docker Compose. The ConfigMaps with that export and with the e-mail addresses that it refers to come from
+# hack/kind-spike/up.sh.
+# Unlike Docker Compose ('start-dev'), the container first builds Keycloak for Postgres, which takes most of its
+# start-up time and needs no database, then waits for Postgres, and then starts the built Keycloak. That way the
+# build overlaps with the Postgres start-up, which restores the Open Zaak seed data.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+      containers:
+        - name: keycloak
+          image: {{ .Values.images.keycloak }}
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              set -e
+              /opt/keycloak/bin/kc.sh build
+              # Postgres only accepts TCP connections once its init scripts have run
+              until (exec 3<> /dev/tcp/postgres/5432) 2> /dev/null; do sleep 1; done
+              exec /opt/keycloak/bin/kc.sh start --optimized --import-realm
+          env:
+            - name: KC_BOOTSTRAP_ADMIN_USERNAME
+              value: admin
+            {{- include "zac-dev.passwordEnv" (list . "KC_BOOTSTRAP_ADMIN_PASSWORD" "keycloak-admin") | nindent 12 }}
+            - name: KC_HEALTH_ENABLED
+              value: "true"
+            # one Keycloak, so no cluster
+            - name: KC_CACHE
+              value: local
+            - name: KC_HOSTNAME
+              value: {{ .Values.keycloak.hostname | quote }}
+            - name: KC_HTTP_ENABLED
+              value: "true"
+            # ZAC and PABC reach Keycloak in the cluster on http://keycloak:8080
+            - name: KC_HOSTNAME_BACKCHANNEL_DYNAMIC
+              value: "true"
+            - name: KC_DB
+              value: postgres
+            - name: KC_DB_URL_HOST
+              value: postgres
+            - name: KC_DB_URL_DATABASE
+              value: keycloak
+            - name: KC_DB_USERNAME
+              value: keycloak
+            {{- include "zac-dev.passwordEnv" (list . "KC_DB_PASSWORD" "keycloak") | nindent 12 }}
+          envFrom:
+            - configMapRef:
+                name: keycloak-realm-env
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: management
+              containerPort: 9000
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: management
+            periodSeconds: 2
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 1536Mi
+          volumeMounts:
+            - name: realm
+              mountPath: /opt/keycloak/data/import
+      volumes:
+        - name: realm
+          configMap:
+            name: keycloak-realm
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: keycloak
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+    - name: management
+      port: 9000
+      targetPort: 9000

@@ -343,6 +343,11 @@ testing {
                             systemProperty("zac.itest.shard", itestShard)
                             filter { specsInShard.forEach { includeTestsMatching(it) } }
                         }
+                        // SPIKE: '-PitestPlatform=kind' runs the specs against the kind cluster
+                        // that 'hack/kind-spike/up.sh' brings up, instead of starting Docker Compose
+                        providers.gradleProperty("itestPlatform").orNull?.let {
+                            systemProperty("zac.itest.platform", it)
+                        }
                         // override the number of specs that run concurrently, for example with
                         // '-PitestSpecConcurrency=1' to run the specs one by one when debugging
                         providers.gradleProperty("itestSpecConcurrency").orNull?.let {
