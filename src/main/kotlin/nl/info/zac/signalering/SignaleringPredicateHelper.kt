@@ -7,13 +7,13 @@ package nl.info.zac.signalering
 import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
-import net.atos.zac.signalering.model.Signalering
-import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
-import net.atos.zac.signalering.model.SignaleringTarget
-import net.atos.zac.signalering.model.SignaleringVerzonden
-import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
-import net.atos.zac.signalering.model.SignaleringZoekParameters
+import nl.info.zac.signalering.model.Signalering
 import nl.info.zac.signalering.model.SignaleringInstellingen
+import nl.info.zac.signalering.model.SignaleringInstellingenZoekParameters
+import nl.info.zac.signalering.model.SignaleringTarget
+import nl.info.zac.signalering.model.SignaleringVerzonden
+import nl.info.zac.signalering.model.SignaleringVerzondenZoekParameters
+import nl.info.zac.signalering.model.SignaleringZoekParameters
 
 fun getSignaleringWhere(
     parameters: SignaleringZoekParameters,
@@ -27,7 +27,7 @@ fun getSignaleringWhere(
     parameters.target?.let {
         where.add(builder.equal(root.get<Any>("target"), it))
     }
-    if (!parameters.types.isNullOrEmpty()) {
+    if (parameters.types.isNotEmpty()) {
         where.add(
             root.get<Any>("type").get<Any>("id").`in`(parameters.types.map { it.toString() })
         )
@@ -49,24 +49,17 @@ fun getSignaleringInstellingenWhere(
     root: Root<SignaleringInstellingen>
 ): Predicate {
     val where: MutableList<Predicate> = ArrayList()
-    parameters.owner?.let {
-        when (parameters.ownertype) {
-            SignaleringTarget.GROUP -> {
-                where.add(builder.equal(root.get<Any>("groep"), it))
-            }
-            SignaleringTarget.USER -> {
-                where.add(builder.equal(root.get<Any>("medewerker"), it))
-            }
-            else -> null
-        }
+    when (parameters.ownertype) {
+        SignaleringTarget.GROUP -> where.add(builder.equal(root.get<Any>("groep"), parameters.owner))
+        SignaleringTarget.USER -> where.add(builder.equal(root.get<Any>("medewerker"), parameters.owner))
     }
     parameters.type?.let {
         where.add(builder.equal(root.get<Any>("type").get<Any>("id"), it.toString()))
     }
-    if (parameters.dashboard) {
+    if (parameters.isDashboard) {
         where.add(builder.isTrue(root.get("isDashboard")))
     }
-    if (parameters.mail) {
+    if (parameters.isMail) {
         where.add(builder.isTrue(root.get("isMail")))
     }
     @Suppress("SpreadOperator")
@@ -85,7 +78,7 @@ fun getSignaleringVerzondenWhere(
     parameters.target?.let {
         where.add(builder.equal(root.get<Any>("target"), it))
     }
-    if (!parameters.types.isNullOrEmpty()) {
+    if (parameters.types.isNotEmpty()) {
         where.add(
             root.get<Any>("type").get<Any>("id").`in`(parameters.types.map { it.toString() })
         )

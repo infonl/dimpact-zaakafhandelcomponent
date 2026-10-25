@@ -30,11 +30,6 @@ import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import kotlinx.coroutines.Dispatchers
-import net.atos.zac.signalering.model.Signalering
-import net.atos.zac.signalering.model.SignaleringSubject
-import net.atos.zac.signalering.model.SignaleringTarget
-import net.atos.zac.signalering.model.SignaleringType
-import net.atos.zac.signalering.model.SignaleringZoekParameters
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.model.createMedewerkerIdentificatie
@@ -66,6 +61,11 @@ import nl.info.zac.search.model.SorteerRichting
 import nl.info.zac.search.model.SorteerVeld
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.signalering.model.InvalidSignalering
+import nl.info.zac.signalering.model.Signalering
+import nl.info.zac.signalering.model.SignaleringSubject
+import nl.info.zac.signalering.model.SignaleringTarget
+import nl.info.zac.signalering.model.SignaleringType
+import nl.info.zac.signalering.model.SignaleringZoekParameters
 import nl.info.zac.signalering.model.createSignalering
 import nl.info.zac.signalering.model.createSignaleringType
 import nl.info.zac.signalering.model.createSignaleringZoekParameters

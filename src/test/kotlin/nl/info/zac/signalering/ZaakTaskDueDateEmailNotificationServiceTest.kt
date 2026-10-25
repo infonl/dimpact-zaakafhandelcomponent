@@ -13,9 +13,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import net.atos.zac.signalering.model.SignaleringSubject
-import net.atos.zac.signalering.model.SignaleringTarget
-import net.atos.zac.signalering.model.SignaleringType
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -28,6 +25,9 @@ import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.createZaakZoekObject
+import nl.info.zac.signalering.model.SignaleringSubject
+import nl.info.zac.signalering.model.SignaleringTarget
+import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.signalering.model.createSignalering
 import nl.info.zac.signalering.model.createSignaleringInstellingen
 import org.flowable.task.api.Task

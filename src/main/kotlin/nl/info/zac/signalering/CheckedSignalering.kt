@@ -4,7 +4,7 @@
  */
 package nl.info.zac.signalering
 
-import net.atos.zac.signalering.model.Signalering
+import nl.info.zac.signalering.model.Signalering
 
 internal class CheckedSignalering<T : Any>(
     val signalering: Signalering,

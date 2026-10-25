@@ -7,9 +7,6 @@ package nl.info.zac.task
 import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.inject.Inject
-import net.atos.zac.signalering.event.SignaleringEventUtil
-import net.atos.zac.signalering.model.SignaleringSubject
-import net.atos.zac.signalering.model.SignaleringType
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.task.model.RestTaskDistributeData
 import nl.info.zac.app.task.model.RestTaskReleaseData
@@ -22,6 +19,9 @@ import nl.info.zac.flowable.task.readZaakUUID
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.signalering.event.signaleringEvent
+import nl.info.zac.signalering.model.SignaleringSubject
+import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
@@ -199,7 +199,7 @@ class TaskService @Inject constructor(
         )
 
     private fun sendTaakOpNaamSignalering(task: Task, loggedInUser: LoggedInUser) {
-        eventingService.send(SignaleringEventUtil.event(SignaleringType.Type.TAAK_OP_NAAM, task, loggedInUser))
+        eventingService.send(signaleringEvent(SignaleringType.Type.TAAK_OP_NAAM, task, loggedInUser))
     }
 
     private fun sendScreenEventsAndIndex(task: Task) {
