@@ -8,10 +8,10 @@ import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.Produces
-import net.atos.zac.util.MediaTypes
 import nl.info.client.bag.exception.BagResponseExceptionMapper
 import nl.info.client.bag.model.generated.APIInfo
 import nl.info.client.bag.util.BagClientHeadersFactory
+import nl.info.zac.util.MediaTypes
 import org.eclipse.microprofile.faulttolerance.Timeout
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider

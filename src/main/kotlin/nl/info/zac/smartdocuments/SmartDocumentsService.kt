@@ -8,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.UriBuilder
-import net.atos.zac.util.MediaTypes
 import nl.info.client.smartdocuments.SmartDocumentsClient
 import nl.info.client.smartdocuments.model.document.Data
 import nl.info.client.smartdocuments.model.document.Deposit
@@ -21,6 +20,7 @@ import nl.info.zac.documentcreation.model.DocumentCreationAttendedResponse
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.smartdocuments.exception.SmartDocumentsUnsupportedOutputFormatException
 import nl.info.zac.util.AllOpen
+import nl.info.zac.util.MediaTypes
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
 import org.apache.commons.io.FilenameUtils.getExtension

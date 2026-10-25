@@ -12,7 +12,6 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
-import net.atos.zac.util.MediaTypes
 import nl.info.client.bag.BagClientService.Companion.DEFAULT_CRS
 import nl.info.client.bag.exception.BagResponseExceptionMapper
 import nl.info.client.bag.model.generated.Gebruiksdoel
@@ -21,6 +20,7 @@ import nl.info.client.bag.model.generated.VerblijfsobjectIOHal
 import nl.info.client.bag.model.generated.VerblijfsobjectIOHalCollection
 import nl.info.client.bag.model.generated.VerblijfsobjectIOLvcHalCollection
 import nl.info.client.bag.util.BagClientHeadersFactory
+import nl.info.zac.util.MediaTypes
 import org.eclipse.microprofile.faulttolerance.Timeout
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider

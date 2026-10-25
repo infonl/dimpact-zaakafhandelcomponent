@@ -7,8 +7,8 @@ package nl.info.client.zgw.brc.model
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
-import net.atos.zac.util.JsonbUtil
 import nl.info.client.zgw.brc.model.generated.VervalredenEnum
+import nl.info.zac.util.JSONB
 import java.time.LocalDate
 
 class NillableDatesBesluitPatchTest : BehaviorSpec({
@@ -24,7 +24,7 @@ class NillableDatesBesluitPatchTest : BehaviorSpec({
         )
 
         `when`("it is serialized to JSON for a ZGW request") {
-            val json = JsonbUtil.JSONB.toJson(besluitPatch)
+            val json = JSONB.toJson(besluitPatch)
 
             then("the cleared optional date fields are serialized as explicit null, so Open Zaak clears them") {
                 json shouldContain "\"vervaldatum\":null"
@@ -50,7 +50,7 @@ class NillableDatesBesluitPatchTest : BehaviorSpec({
         )
 
         `when`("it is serialized to JSON for a ZGW request") {
-            val json = JsonbUtil.JSONB.toJson(besluitPatch)
+            val json = JSONB.toJson(besluitPatch)
 
             then("the populated date fields are serialized with their value rather than null") {
                 json shouldContain "vervaldatum"

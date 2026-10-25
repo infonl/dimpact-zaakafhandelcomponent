@@ -8,12 +8,12 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.event.Event
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
-import net.atos.zac.util.event.JobEvent
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.signalering.event.SignaleringEvent
 import nl.info.zac.signalering.event.signaleringEvent
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.event.JobEvent
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.websocket.event.ScreenEventType
 import java.util.logging.Level

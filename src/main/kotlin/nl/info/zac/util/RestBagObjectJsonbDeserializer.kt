@@ -7,7 +7,6 @@ package nl.info.zac.util
 import jakarta.json.bind.serializer.DeserializationContext
 import jakarta.json.bind.serializer.JsonbDeserializer
 import jakarta.json.stream.JsonParser
-import net.atos.zac.util.JsonbUtil.JSONB
 import nl.info.zac.app.bag.model.BagObjectType
 import nl.info.zac.app.bag.model.RestAdresseerbaarObject
 import nl.info.zac.app.bag.model.RestBagAdres
