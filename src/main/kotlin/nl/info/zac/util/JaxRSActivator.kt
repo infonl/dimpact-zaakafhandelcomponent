@@ -9,4 +9,4 @@ import jakarta.ws.rs.core.Application
 
 @ApplicationPath("rest")
 @AllOpen
-class JaxRsActivator : Application()
+class JaxRSActivator : Application()
