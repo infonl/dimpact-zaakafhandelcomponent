@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HttpErrorResponse } from "@angular/common/http";
 import {
   Component,
   DestroyRef,
@@ -181,6 +182,8 @@ export class HumanTaskDoComponent implements OnInit {
           this.selectedGroupId.set(value.id);
         });
     } catch (error) {
+      // The query cache already shows the error dialog for a failed read.
+      if (error instanceof HttpErrorResponse) return;
       this.foutAfhandelingService.openFoutDialog(
         error instanceof Error ? error.message : String(error),
       );

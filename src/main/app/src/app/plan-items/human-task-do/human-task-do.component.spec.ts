@@ -542,5 +542,27 @@ describe("HumanTaskDoComponent", () => {
         "Onbekende formulierDefinitie for Angular form: FAKE",
       );
     });
+
+    it("should leave reporting a failed read of the behandelaar groups to the query cache", async () => {
+      jest
+        .spyOn(taakFormulierenService, "getAngularRequestFormBuilder")
+        .mockResolvedValue([]);
+      const openFoutDialogSpy = jest
+        .spyOn(foutAfhandelingService, "openFoutDialog")
+        .mockReturnValue(of(undefined) as never);
+      testQueryClient.clear();
+      fixture.componentRef.setInput("planItem", humanTaskPlanItem);
+
+      fixture.detectChanges();
+      await sleep();
+      httpTestingController
+        .expectOne(
+          "/rest/identity/zaaktype/fakeZaaktypeOmschrijving/behandelaar-groups",
+        )
+        .flush(null, { status: 403, statusText: "Forbidden" });
+      await initialise();
+
+      expect(openFoutDialogSpy).not.toHaveBeenCalled();
+    });
   });
 });
