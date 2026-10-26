@@ -286,6 +286,136 @@ describe(ZaakCreateComponent.name, () => {
         expect(await inputs[5].getValue()).toBe("test user");
       });
 
+      describe("when the user switches to a zaaktype with another default behandelaar", () => {
+        const pickCaseType = async (
+          caseType: GeneratedType<"RestZaaktype">,
+        ) => {
+          fixture.componentInstance["form"].controls.zaaktype.setValue(
+            caseType,
+          );
+          await sleep();
+          await fixture.whenStable();
+        };
+
+        const caseTypeWithDefaults = (
+          omschrijving: string,
+          defaultGroepId: string,
+          defaultBehandelaarId: string,
+        ) => {
+          TestBed.inject(QueryClient).setQueryData(
+            identityService.listBehandelaarGroupsForZaaktype(omschrijving)
+              .queryKey,
+            [
+              { id: "test-cmmn-group-id", naam: "test group CMMN" },
+              { id: "test-bpmn-group-id", naam: "test group BPMN" },
+            ],
+          );
+          return fromPartial<GeneratedType<"RestZaaktype">>({
+            omschrijving,
+            vertrouwelijkheidaanduiding: "OPENBAAR",
+            zaakafhandelparameters: { defaultGroepId, defaultBehandelaarId },
+          });
+        };
+
+        beforeEach(() => {
+          const usersByGroupId: Record<string, GeneratedType<"RestUser">[]> = {
+            "test-cmmn-group-id": [
+              { id: "test-user-id", naam: "test user" },
+              { id: "test-cmmn-user-id", naam: "test CMMN user" },
+            ],
+            "test-bpmn-group-id": [
+              { id: "test-bpmn-user-id", naam: "test BPMN user" },
+            ],
+          };
+          for (const groupId of Object.keys(usersByGroupId)) {
+            TestBed.inject(QueryClient).removeQueries({
+              queryKey: identityService.listUsersInGroup(groupId).queryKey,
+            });
+          }
+          const listUsersInGroup =
+            identityService.listUsersInGroup.bind(identityService);
+          jest
+            .spyOn(identityService, "listUsersInGroup")
+            .mockImplementation((groupId) => ({
+              ...listUsersInGroup(groupId),
+              queryFn: () => Promise.resolve(usersByGroupId[groupId]),
+            }));
+        });
+
+        it("pre-selects the default behandelaar of the new zaaktype when both have the same default groep", async () => {
+          TestBed.inject(QueryClient).setQueryData(
+            identityService.listUsersInGroup("test-cmmn-group-id").queryKey,
+            [
+              { id: "test-user-id", naam: "test user" },
+              { id: "test-cmmn-user-id", naam: "test CMMN user" },
+            ],
+          );
+          await pickCaseType(
+            caseTypeWithDefaults(
+              "test-zaaktype-a",
+              "test-cmmn-group-id",
+              "test-user-id",
+            ),
+          );
+
+          await pickCaseType(
+            caseTypeWithDefaults(
+              "test-zaaktype-b",
+              "test-cmmn-group-id",
+              "test-cmmn-user-id",
+            ),
+          );
+
+          expect(
+            fixture.componentInstance["form"].controls.behandelaar.value,
+          ).toEqual({ id: "test-cmmn-user-id", naam: "test CMMN user" });
+        });
+
+        it("pre-selects the default behandelaar of the new zaaktype from the members of its own default groep", async () => {
+          await pickCaseType(
+            caseTypeWithDefaults(
+              "test-zaaktype-a",
+              "test-cmmn-group-id",
+              "test-user-id",
+            ),
+          );
+
+          await pickCaseType(
+            caseTypeWithDefaults(
+              "test-zaaktype-b",
+              "test-bpmn-group-id",
+              "test-bpmn-user-id",
+            ),
+          );
+
+          expect(
+            fixture.componentInstance["form"].controls.behandelaar.value,
+          ).toEqual({ id: "test-bpmn-user-id", naam: "test BPMN user" });
+        });
+
+        it("leaves the behandelaar empty when the default behandelaar of the new zaaktype is only a member of the previous groep", async () => {
+          await pickCaseType(
+            caseTypeWithDefaults(
+              "test-zaaktype-a",
+              "test-cmmn-group-id",
+              "test-user-id",
+            ),
+          );
+
+          await pickCaseType(
+            caseTypeWithDefaults(
+              "test-zaaktype-b",
+              "test-bpmn-group-id",
+              "test-cmmn-user-id",
+            ),
+          );
+
+          expect(
+            fixture.componentInstance["form"].controls.behandelaar.value,
+          ).toBeNull();
+        });
+      });
+
       it("should keep the groep and behandelaar that the user picked when they are read again", async () => {
         const inputs = await loader.getAllHarnesses(MatInputHarness);
         const { autocompleteOptions } = await getAutocompleteOptions({

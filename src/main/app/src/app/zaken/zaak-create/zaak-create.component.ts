@@ -108,7 +108,6 @@ export class ZaakCreateComponent {
   protected readonly users = computed(() => this.usersQuery.data() ?? []);
 
   private groupPrefilledForCaseType?: GeneratedType<"RestZaaktype">;
-  private behandelaarPrefilledForGroupId?: string;
   protected caseTypes = this.zakenService.listZaaktypesForCreation();
   protected communicationChannels: string[] = [];
   protected confidentialityNotices =
@@ -190,12 +189,12 @@ export class ZaakCreateComponent {
           this.form.controls.behandelaar.setValue(null);
           this.form.controls.behandelaar.disable();
           this.selectedGroupId.set(undefined);
-          this.behandelaarPrefilledForGroupId = undefined;
           return;
         }
         if (!value.id) return;
 
         this.selectedGroupId.set(value.id);
+        void this.prefillBehandelaar(value.id);
       });
 
     effect(() => {
@@ -211,26 +210,28 @@ export class ZaakCreateComponent {
       untracked(() => this.form.controls.groep.setValue(defaultGroup));
     });
 
-    effect(() => {
-      const groupId = this.selectedGroupId();
-      const users = this.usersQuery.data();
-      if (!groupId || !users) return;
-
-      untracked(() => {
-        this.form.controls.behandelaar.enable();
-        if (this.behandelaarPrefilledForGroupId === groupId) return;
-        this.behandelaarPrefilledForGroupId = groupId;
-
-        const defaultBehandelaarId =
-          this.form.controls.zaaktype.value?.zaakafhandelparameters
-            ?.defaultBehandelaarId;
-        this.form.controls.behandelaar.setValue(
-          users.find(({ id }) => id === defaultBehandelaarId) ?? null,
-        );
-      });
-    });
-
     void this.handleProductRequest(this.inboxProductaanvraag);
+  }
+
+  private async prefillBehandelaar(groupId: string) {
+    let users: GeneratedType<"RestUser">[];
+    try {
+      users = await this.queryClient.fetchQuery(
+        this.identityService.listUsersInGroup(groupId),
+      );
+    } catch {
+      // The query cache already shows the error dialog for a failed read.
+      return;
+    }
+    if (this.form.controls.groep.value?.id !== groupId) return;
+
+    this.form.controls.behandelaar.enable();
+    const defaultBehandelaarId =
+      this.form.controls.zaaktype.value?.zaakafhandelparameters
+        ?.defaultBehandelaarId;
+    this.form.controls.behandelaar.setValue(
+      users.find(({ id }) => id === defaultBehandelaarId) ?? null,
+    );
   }
 
   formSubmit() {
