@@ -144,14 +144,12 @@ created as *Deelzaak* of zaak X, the new zaak SHALL list X as hoofdzaak and X SH
 
 ### Requirement: The history records the creation and the link
 
-The history of the new zaak SHALL show its creation, including its hoofdzaak or its gerelateerde zaak. For a
-*Gerelateerde zaak*, the history of the current zaak SHALL show that the new zaak was added to its gerelateerde zaken.
+The history of the new zaak SHALL show its creation, including its hoofdzaak or its gerelateerde zaak.
 
 #### Scenario: History after creating a gerelateerde zaak
 
 - **WHEN** an employee creates zaak Y from zaak X as *Gerelateerde zaak*
-- **THEN** the history of X has a line that its gerelateerde zaken changed, with the identificatie of Y
-- **AND** the history of Y has a line for its creation
+- **THEN** the history of Y has a line for its creation that shows X as gerelateerde zaak
 
 #### Scenario: History after creating a deelzaak
 
