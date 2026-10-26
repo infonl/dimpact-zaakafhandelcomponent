@@ -14,12 +14,11 @@ import { flushMicrotasks, fromPartial } from "src/test-helpers";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { HttpClient } from "../../shared/http/http-client";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { UtilService } from "../service/util.service";
 import { ObjectType } from "./model/object-type";
 import { Opcode } from "./model/opcode";
-import { ScreenEventId } from "./model/screen-event-id";
 import { SubscriptionMessage } from "./model/subscription-message";
-import { SubscriptionType } from "./model/subscription-type";
 import {
   FIRST_SPREAD_MS,
   MAX_SPREAD_MS,
@@ -32,6 +31,15 @@ const LONGEST_FIRST_RECONNECT_DELAY_MS = MIN_DELAY_MS + FIRST_SPREAD_MS;
 const LONGEST_SECOND_RECONNECT_DELAY_MS = MIN_DELAY_MS + FIRST_SPREAD_MS * 2;
 const LONGEST_RECONNECT_DELAY_MS = MIN_DELAY_MS + MAX_SPREAD_MS;
 const POLICY_VIOLATION_CLOSE_CODE = 1008;
+
+const subscriptionToZaak1: SubscriptionMessage = {
+  subscriptionType: "CREATE",
+  event: {
+    opcode: "UPDATED",
+    objectType: "ZAAK",
+    objectId: { resource: "zaak-1", detail: null },
+  },
+};
 
 describe(WebsocketService.name, () => {
   let service: WebsocketService;
@@ -123,12 +131,7 @@ describe(WebsocketService.name, () => {
   });
 
   it("replays an active subscription on the new connection after the connection closes cleanly", async () => {
-    const listener = service.addListener(
-      Opcode.UPDATED,
-      ObjectType.ZAAK,
-      "zaak-1",
-      jest.fn(),
-    );
+    service.addListener(Opcode.UPDATED, ObjectType.ZAAK, "zaak-1", jest.fn());
 
     // A clean close (e.g. an idle-timeout proxy) completes the connection instead of erroring it.
     sockets[0].complete();
@@ -136,27 +139,18 @@ describe(WebsocketService.name, () => {
     await flushMicrotasks();
 
     expect(sockets.length).toBe(2);
-    expect(sockets[1].next).toHaveBeenCalledWith(
-      new SubscriptionMessage(SubscriptionType.CREATE, listener.event),
-    );
+    expect(sockets[1].next).toHaveBeenCalledWith(subscriptionToZaak1);
   });
 
   it("replays an active subscription on the new connection after the connection errors", async () => {
-    const listener = service.addListener(
-      Opcode.UPDATED,
-      ObjectType.ZAAK,
-      "zaak-1",
-      jest.fn(),
-    );
+    service.addListener(Opcode.UPDATED, ObjectType.ZAAK, "zaak-1", jest.fn());
 
     sockets[0].error(new Error("connection reset"));
     jest.advanceTimersByTime(LONGEST_FIRST_RECONNECT_DELAY_MS);
     await flushMicrotasks();
 
     expect(sockets.length).toBe(2);
-    expect(sockets[1].next).toHaveBeenCalledWith(
-      new SubscriptionMessage(SubscriptionType.CREATE, listener.event),
-    );
+    expect(sockets[1].next).toHaveBeenCalledWith(subscriptionToZaak1);
   });
 
   it("does not refetch any data when the first connection opens", async () => {
@@ -308,11 +302,12 @@ describe(WebsocketService.name, () => {
   describe("a change announced by the server", () => {
     const receiveChangeOfZaak = (actorUsername: string) =>
       Subject.prototype.next.call(sockets[0], {
-        opcode: Opcode.UPDATED,
-        objectType: ObjectType.ZAAK,
-        objectId: new ScreenEventId("fakeZaakUuid"),
+        timestamp: 1,
+        opcode: "UPDATED",
+        objectType: "ZAAK",
+        objectId: { resource: "fakeZaakUuid", detail: null },
         actorUsername,
-      });
+      } satisfies GeneratedType<"ScreenEvent">);
 
     let callback: jest.Mock;
     let openSnackbar: jest.Mock;

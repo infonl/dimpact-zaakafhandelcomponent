@@ -23,6 +23,7 @@ import { WebSocketSubject } from "rxjs/webSocket";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { HttpClient } from "../../shared/http/http-client";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { toI18nKey } from "../../shared/utils/i18n-key";
 import { UtilService } from "../service/util.service";
 import { isCausedByCurrentUser } from "./is-caused-by-current-user";
@@ -32,7 +33,10 @@ import { ObjectType } from "./model/object-type";
 import { Opcode } from "./model/opcode";
 import { ScreenEvent } from "./model/screen-event";
 import { ScreenEventId } from "./model/screen-event-id";
-import { SubscriptionMessage } from "./model/subscription-message";
+import {
+  SubscriptionMessage,
+  subscriptionMessage,
+} from "./model/subscription-message";
 import { SubscriptionType } from "./model/subscription-type";
 import { WebsocketListener } from "./model/websocket-listener";
 import { reconnectDelay } from "./reconnect-delay";
@@ -41,13 +45,7 @@ import { WEBSOCKET_FACTORY } from "./websocket-factory";
 /** Sent by `WebSocketServerEndPoint` when the handshake carries no logged-in user. */
 const POLICY_VIOLATION_CLOSE_CODE = 1008;
 
-type SocketMessage = {
-  opcode: Opcode;
-  objectType: ObjectType;
-  objectId: ScreenEventId;
-  timestamp?: number;
-  actorUsername?: string;
-};
+type SocketMessage = GeneratedType<"ScreenEvent">;
 
 @Injectable({
   providedIn: "root",
@@ -127,7 +125,7 @@ export class WebsocketService {
 
   private resubscribeAll() {
     Object.values(this.subscribedEvents).forEach((event) => {
-      this.send(new SubscriptionMessage(SubscriptionType.CREATE, event));
+      this.send(subscriptionMessage(SubscriptionType.CREATE, event));
     });
   }
 
@@ -196,7 +194,6 @@ export class WebsocketService {
   }
 
   private onMessage = (message: SocketMessage) => {
-    // message is a JSON representation of ScreenEvent.java
     const event = new ScreenEvent(
       message.opcode,
       message.objectType,
@@ -242,7 +239,7 @@ export class WebsocketService {
       new ScreenEventId(objectId),
     );
     const listener = this.addCallback(event, callback);
-    this.send(new SubscriptionMessage(SubscriptionType.CREATE, event));
+    this.send(subscriptionMessage(SubscriptionType.CREATE, event));
     console.log("listener added: " + listener.key);
     return listener;
   }
@@ -312,7 +309,7 @@ export class WebsocketService {
     if (!listener) return;
 
     this.removeCallback(listener);
-    this.send(new SubscriptionMessage(SubscriptionType.DELETE, listener.event));
+    this.send(subscriptionMessage(SubscriptionType.DELETE, listener.event));
     console.log("listener removed: " + listener.key);
   }
 

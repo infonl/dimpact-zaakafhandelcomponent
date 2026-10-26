@@ -175,6 +175,7 @@ describe(TaakViewComponent.name, () => {
 
       component.instance.documentCreated();
       websocketService["onMessage"]({
+        timestamp: 1,
         opcode: Opcode.UPDATED,
         objectType: ObjectType.ZAAK_INFORMATIEOBJECTEN,
         objectId: new ScreenEventId(taak.zaakUuid),
@@ -188,6 +189,7 @@ describe(TaakViewComponent.name, () => {
       const httpTestingController = TestBed.inject(HttpTestingController);
 
       websocketService["onMessage"]({
+        timestamp: 1,
         opcode: Opcode.ANY,
         objectType: ObjectType.TAAK,
         objectId: new ScreenEventId(taak.id!),

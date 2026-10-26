@@ -6,8 +6,10 @@ package nl.info.zac.websocket.event
 
 import nl.info.zac.event.AbstractEvent
 import nl.info.zac.event.Opcode
+import org.eclipse.microprofile.openapi.annotations.media.Schema
 import java.io.Serial
 
+@Schema(requiredProperties = ["timestamp", "opcode", "objectType", "objectId"])
 class ScreenEvent(
     opcode: Opcode,
     override val objectType: ScreenEventType,

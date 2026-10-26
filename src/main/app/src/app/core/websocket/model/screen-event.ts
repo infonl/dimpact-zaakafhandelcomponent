@@ -3,19 +3,18 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ObjectType } from "./object-type";
 import { Opcode } from "./opcode";
-import { ScreenEventId } from "./screen-event-id";
 
-/**
- * @deprecated - use the `GeneratedType`
- */
+type ScreenEventId = GeneratedType<"ScreenEventId">;
+
 export class ScreenEvent {
   private _timestamp?: number;
   opcode: Opcode;
   objectType: ObjectType;
   objectId: ScreenEventId;
-  readonly actorUsername?: string;
+  readonly actorUsername?: string | null;
   private _key: string;
 
   constructor(
@@ -23,7 +22,7 @@ export class ScreenEvent {
     objectType: ObjectType,
     objectId: ScreenEventId,
     timestamp?: number,
-    actorUsername?: string,
+    actorUsername?: string | null,
   ) {
     this._timestamp = timestamp;
     this.actorUsername = actorUsername;
