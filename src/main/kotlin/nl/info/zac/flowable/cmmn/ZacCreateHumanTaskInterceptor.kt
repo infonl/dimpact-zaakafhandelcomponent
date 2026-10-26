@@ -2,9 +2,9 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.flowable.cmmn
+package nl.info.zac.flowable.cmmn
 
-import net.atos.zac.flowable.FlowableHelper
+import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.signalering.event.signaleringEvent
 import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.util.NoArgConstructor

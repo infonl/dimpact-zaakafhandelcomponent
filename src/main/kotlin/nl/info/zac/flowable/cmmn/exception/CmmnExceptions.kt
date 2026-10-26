@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.flowable.cmmn.exception
+package nl.info.zac.flowable.cmmn.exception
 
 import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
 import org.flowable.common.engine.api.FlowableException

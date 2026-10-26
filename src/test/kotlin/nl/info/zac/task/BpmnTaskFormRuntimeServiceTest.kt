@@ -13,7 +13,6 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import jakarta.json.Json
-import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createOndertekening
@@ -27,6 +26,7 @@ import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.app.task.model.createRestTask
 import nl.info.zac.app.zaak.model.createRestUser
+import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.identity.IdentityService

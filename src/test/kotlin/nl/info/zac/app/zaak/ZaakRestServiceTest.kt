@@ -21,7 +21,6 @@ import io.mockk.slot
 import io.mockk.verify
 import io.mockk.verifyOrder
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.or.`object`.model.createORObject
 import nl.info.client.zgw.drc.DrcClientService
@@ -116,6 +115,7 @@ import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.ProcessStartData
 import nl.info.zac.flowable.ZaakProcessService
+import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
 import nl.info.zac.history.ZaakHistoryService

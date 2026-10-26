@@ -318,8 +318,8 @@ class IndexingService @Inject constructor(
     /**
      * Reindexes the open taken of a zaak and removes its finished taken from the index, sharing one
      * memoized `zaakAutorisatieGegevens` lookup across all of them. A completed taak is already removed
-     * on completion, by [net.atos.zac.flowable.cmmn.CompleteTaskInterceptor] and
-     * [net.atos.zac.flowable.bpmn.UserTaskCompletionListener], but a taak that is terminated with its
+     * on completion, by [nl.info.zac.flowable.cmmn.CompleteTaskInterceptor] and
+     * [nl.info.zac.flowable.bpmn.UserTaskCompletionListener], but a taak that is terminated with its
      * zaak is not, and would otherwise keep a stale zaakspecifiek geautoriseerd flag.
      */
     fun addOrUpdateTakenForZaak(

@@ -7,7 +7,6 @@ package nl.info.zac.zaak
 import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.inject.Inject
-import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.shared.exception.MultipleBehandelaarRolesException
@@ -39,6 +38,7 @@ import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
 import nl.info.zac.event.EventingService
 import nl.info.zac.flowable.ZaakProcessService
+import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User

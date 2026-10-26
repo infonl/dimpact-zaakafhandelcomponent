@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.flowable.cmmn
+package nl.info.zac.flowable.cmmn
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -14,12 +14,12 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.task.exception.TaskNotFoundException
 import org.flowable.cmmn.api.CmmnHistoryService
 import org.flowable.cmmn.api.CmmnRepositoryService

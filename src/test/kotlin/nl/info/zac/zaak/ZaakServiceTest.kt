@@ -17,7 +17,6 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import io.mockk.verifyOrder
-import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.model.createPabcGroupRepresentation
 import nl.info.client.zgw.model.createMedewerkerIdentificatie
@@ -58,6 +57,7 @@ import nl.info.zac.event.EventingService
 import nl.info.zac.event.Opcode
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.flowable.ZaakProcessService
+import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.identity.model.createGroup

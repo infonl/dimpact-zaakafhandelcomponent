@@ -4,9 +4,9 @@
  */
 package net.atos.zac.flowable.delegate
 
-import net.atos.zac.flowable.FlowableHelper
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.app.shared.toDrcVertrouwelijkheidaanduidingEnum
+import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.getBronnenFromZaak
 import nl.info.zac.mailtemplates.model.MailGegevens

@@ -17,10 +17,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_OMSCHRIJVING
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_UUID
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_IDENTIFICATIE
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.model.createReferentieProcess
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -29,6 +25,10 @@ import nl.info.test.org.flowable.engine.repository.createProcessDefinition
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ProcessEngine.BPMN
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_OMSCHRIJVING
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_UUID
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_IDENTIFICATIE
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
 import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNotFoundException
 import org.flowable.bpmn.model.BpmnModel
 import org.flowable.bpmn.model.ExtensionElement

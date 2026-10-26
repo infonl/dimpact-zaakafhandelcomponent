@@ -22,7 +22,6 @@ import jakarta.servlet.http.HttpSession
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createOndertekening
@@ -50,6 +49,7 @@ import nl.info.zac.configuration.FileSizeConfiguration
 import nl.info.zac.event.EventingService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.flowable.task.TaakVariabelenService.Companion.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST

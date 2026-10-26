@@ -15,7 +15,6 @@ import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.WebApplicationException
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import net.atos.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
 import nl.info.client.bag.BagClientService
 import nl.info.client.brp.exception.BrpTemporaryPersonIdNotCachedException
 import nl.info.client.klant.KlantClientService
@@ -44,6 +43,7 @@ import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OB
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.ServerErrorException
 import nl.info.zac.exception.ZacSetupException
+import nl.info.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
 import nl.info.zac.log.log
 import nl.info.zac.mailtemplates.exception.MailTemplateNotConfiguredException
 import nl.info.zac.mailtemplates.model.Mail

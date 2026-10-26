@@ -2,13 +2,13 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.flowable
+package nl.info.zac.flowable
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import net.atos.zac.flowable.exception.CaseOrProcessNotFoundException
-import net.atos.zac.flowable.exception.VariableNotFoundException
+import nl.info.zac.flowable.exception.CaseOrProcessNotFoundException
+import nl.info.zac.flowable.exception.VariableNotFoundException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.CmmnHistoryService

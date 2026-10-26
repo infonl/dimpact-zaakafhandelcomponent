@@ -22,7 +22,6 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import kotlinx.coroutines.CoroutineDispatcher
-import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.SoortEnum
 import nl.info.client.zgw.shared.ZgwApiService
@@ -48,6 +47,7 @@ import nl.info.zac.configuration.FileSizeConfiguration
 import nl.info.zac.event.EventingService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.flowable.task.TaakVariabelenService.Companion.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST

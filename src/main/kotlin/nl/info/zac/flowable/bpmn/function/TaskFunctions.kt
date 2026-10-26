@@ -2,9 +2,9 @@
  * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.flowable.bpmn.function
+package nl.info.zac.flowable.bpmn.function
 
-import net.atos.zac.flowable.FlowableHelper
+import nl.info.zac.flowable.FlowableHelper
 import org.flowable.common.engine.impl.context.Context
 import org.flowable.engine.impl.util.CommandContextUtil
 import org.flowable.task.api.TaskInfo

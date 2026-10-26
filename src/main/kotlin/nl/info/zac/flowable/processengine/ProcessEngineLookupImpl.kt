@@ -4,10 +4,10 @@
  */
 package nl.info.zac.flowable.processengine
 
-import net.atos.zac.flowable.bpmn.UserTaskCompletionListener
-import net.atos.zac.flowable.bpmn.function.TaskFunctionsDelegate
-import net.atos.zac.flowable.cmmn.CompleteTaskInterceptor
-import net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor
+import nl.info.zac.flowable.bpmn.UserTaskCompletionListener
+import nl.info.zac.flowable.bpmn.function.TaskFunctionsDelegate
+import nl.info.zac.flowable.cmmn.CompleteTaskInterceptor
+import nl.info.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor
 import nl.info.zac.flowable.task.ZacCreateUserTaskInterceptor
 import org.flowable.cdi.CdiStandaloneProcessEngineConfiguration
 import org.flowable.cdi.spi.ProcessEngineLookup

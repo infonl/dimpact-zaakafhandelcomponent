@@ -4,8 +4,8 @@
  */
 package nl.info.zac.flowable.task
 
-import net.atos.zac.flowable.FlowableHelper
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
+import nl.info.zac.flowable.FlowableHelper
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
 import nl.info.zac.websocket.event.ScreenEventType
 import org.flowable.common.engine.impl.cfg.TransactionState
 import org.flowable.common.engine.impl.context.Context
