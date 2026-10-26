@@ -46,7 +46,7 @@ type SocketMessage = {
   objectType: ObjectType;
   objectId: ScreenEventId;
   timestamp?: number;
-  actorUserId?: string;
+  actorUsername?: string;
 };
 
 @Injectable({
@@ -202,7 +202,7 @@ export class WebsocketService {
       message.objectType,
       message.objectId,
       message.timestamp,
-      message.actorUserId,
+      message.actorUsername,
     );
     this.dispatch(event, event.key);
     this.dispatch(event, event.keyAnyOpcode);
@@ -255,7 +255,7 @@ export class WebsocketService {
   ) {
     return this.addListener(opcode, objectType, objectId, (event) => {
       // a screen refreshes on its own change as well, it just does not announce it as somebody else's
-      if (isCausedByCurrentUser(event, this.currentUserId())) {
+      if (isCausedByCurrentUser(event, this.currentUsername())) {
         callback(event);
         return;
       }
@@ -282,7 +282,7 @@ export class WebsocketService {
     });
   }
 
-  private currentUserId() {
+  private currentUsername() {
     return this.queryClient.getQueryData(
       this.identityService.readLoggedInUser().queryKey,
     )?.username;

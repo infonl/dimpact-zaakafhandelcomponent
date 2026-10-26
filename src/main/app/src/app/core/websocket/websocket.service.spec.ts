@@ -17,6 +17,7 @@ import { HttpClient } from "../../shared/http/http-client";
 import { UtilService } from "../service/util.service";
 import { ObjectType } from "./model/object-type";
 import { Opcode } from "./model/opcode";
+import { ScreenEventId } from "./model/screen-event-id";
 import { SubscriptionMessage } from "./model/subscription-message";
 import { SubscriptionType } from "./model/subscription-type";
 import {
@@ -302,5 +303,46 @@ describe(WebsocketService.name, () => {
 
     expect(foutAfhandelen).not.toHaveBeenCalled();
     expect(sockets.length).toBe(2);
+  });
+
+  describe("a change announced by the server", () => {
+    const receiveChangeOfZaak = (actorUsername: string) =>
+      Subject.prototype.next.call(sockets[0], {
+        opcode: Opcode.UPDATED,
+        objectType: ObjectType.ZAAK,
+        objectId: new ScreenEventId("fakeZaakUuid"),
+        actorUsername,
+      });
+
+    let callback: jest.Mock;
+    let openSnackbar: jest.Mock;
+
+    beforeEach(() => {
+      jest
+        .mocked(TestBed.inject(QueryClient).getQueryData)
+        .mockReturnValue({ username: "fakeUsername" });
+      openSnackbar = jest.mocked(TestBed.inject(UtilService).openSnackbar);
+      callback = jest.fn();
+      service.addListenerWithSnackbar(
+        Opcode.UPDATED,
+        ObjectType.ZAAK,
+        "fakeZaakUuid",
+        callback,
+      );
+    });
+
+    it("refreshes the screen without announcing a change that the logged-in user made", () => {
+      receiveChangeOfZaak("fakeUsername");
+
+      expect(callback).toHaveBeenCalled();
+      expect(openSnackbar).not.toHaveBeenCalled();
+    });
+
+    it("refreshes the screen and announces a change that another user made", () => {
+      receiveChangeOfZaak("fakeOtherUsername");
+
+      expect(callback).toHaveBeenCalled();
+      expect(openSnackbar).toHaveBeenCalled();
+    });
   });
 });

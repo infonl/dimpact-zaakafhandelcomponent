@@ -19,7 +19,7 @@ class ScreenEvent(
     }
 
     /**
-     * Identifies the user whose action caused this event, so that a screen can tell a change it made
+     * The username of the user whose action caused this event, so that a screen can tell a change it made
      * itself from one made by somebody else. Holds the functionele gebruiker for changes that
      * originate outside a user session, such as notifications and cron jobs.
      */
