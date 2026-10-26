@@ -8,6 +8,7 @@ import {
   Component,
   computed,
   effect,
+  inject,
   viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
@@ -21,8 +22,6 @@ import {
 } from "@angular/material/sidenav";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { ConfiguratieService } from "../../configuratie/configuratie.service";
-import { UtilService } from "../../core/service/util.service";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacHtmlEditor } from "../../shared/form/html-editor/html-editor";
 import { ZacInput } from "../../shared/form/input/input";
@@ -56,6 +55,11 @@ export class MailtemplateComponent
   extends AdminComponent
   implements AfterViewInit
 {
+  private mailTemplateBeheerService = inject(MailtemplateBeheerService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private readonly formBuilder = inject(FormBuilder);
+
   protected readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
   protected readonly menuSidenav =
@@ -108,15 +112,8 @@ export class MailtemplateComponent
     },
   );
 
-  constructor(
-    public utilService: UtilService,
-    public configuratieService: ConfiguratieService,
-    private mailTemplateBeheerService: MailtemplateBeheerService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private readonly formBuilder: FormBuilder,
-  ) {
-    super(utilService, configuratieService);
+  constructor() {
+    super();
 
     effect(() => {
       const mailTemplate = this.mailTemplate();

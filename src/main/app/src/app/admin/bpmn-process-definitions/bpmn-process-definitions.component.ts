@@ -27,8 +27,6 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatTreeModule } from "@angular/material/tree";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { ConfiguratieService } from "../../configuratie/configuratie.service";
-import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import {
   ConfirmDialogComponent,
@@ -118,10 +116,6 @@ export class BpmnProcessDefinitionsComponent
   private readonly deleteMutation = injectMutation(() =>
     this.bpmnService.deleteProcessDefinition(),
   );
-
-  constructor() {
-    super(inject(UtilService), inject(ConfiguratieService));
-  }
 
   ngOnInit() {
     this.setupMenu("title.bpmn-procesdefinities");

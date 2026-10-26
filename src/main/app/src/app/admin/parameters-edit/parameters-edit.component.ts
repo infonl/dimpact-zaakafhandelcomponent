@@ -25,7 +25,6 @@ import { ActivatedRoute } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
-import { UtilService } from "../../core/service/util.service";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -123,11 +122,8 @@ export class ParametersEditComponent extends AdminComponent implements OnInit {
     ),
   );
 
-  constructor(
-    public readonly utilService: UtilService,
-    public readonly configuratieService: ConfiguratieService,
-  ) {
-    super(utilService, configuratieService);
+  constructor() {
+    super();
 
     effect(() => {
       const isBrpDoelbindingSetupEnabled = this.brpDoelbindingSetupEnabled();

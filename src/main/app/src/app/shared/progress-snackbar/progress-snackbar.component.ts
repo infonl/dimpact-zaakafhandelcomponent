@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Inject, Signal, computed, inject } from "@angular/core";
+import { Component, Signal, computed, inject } from "@angular/core";
 import {
   MatProgressBar,
   ProgressBarMode,
@@ -22,14 +22,12 @@ import {
 })
 export class ProgressSnackbar {
   snackBarRef = inject(MatSnackBarRef);
+  data = inject<{ progressPercentage: Signal<number>; message: string }>(
+    MAT_SNACK_BAR_DATA,
+  );
 
   progressMode = computed<ProgressBarMode>(() => {
     const percentage = this.data.progressPercentage();
     return percentage === 100 || percentage === 0 ? "query" : "determinate";
   });
-
-  constructor(
-    @Inject(MAT_SNACK_BAR_DATA)
-    public data: { progressPercentage: Signal<number>; message: string },
-  ) {}
 }
