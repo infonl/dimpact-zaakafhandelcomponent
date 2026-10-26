@@ -19,3 +19,5 @@ ignorePatterns:
   - pattern: '^https?://.+\.example\.com'
   - pattern: '^http://release-opa\.default\.svc\.cluster\.local:8181$'
   - pattern: '^https://dimpact\.atlassian\.net/'
+  # Figma designs are confidential and need a login, so the checker cannot reach them
+  - pattern: '^https://www\.figma\.com/'
