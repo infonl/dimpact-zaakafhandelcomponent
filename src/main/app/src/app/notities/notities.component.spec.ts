@@ -14,8 +14,6 @@ import { render, screen } from "@testing-library/angular";
 import { userEvent } from "@testing-library/user-event";
 import { sleep } from "../../../setupJest";
 import { fromPartial } from "../../test-helpers";
-import { ObjectType } from "../core/websocket/model/object-type";
-import { Opcode } from "../core/websocket/model/opcode";
 import { WebsocketListener } from "../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../core/websocket/websocket.service";
 import { GeneratedType } from "../shared/utils/generated-types";
@@ -112,8 +110,8 @@ describe(NotitiesComponent.name, () => {
       await setup({ notitieRechten });
 
       expect(websocketService.addListener).toHaveBeenCalledWith(
-        Opcode.UPDATED,
-        ObjectType.ZAAK_NOTITIES,
+        "UPDATED",
+        "ZAAK_NOTITIES",
         "fakeZaakUuid",
         expect.any(Function),
       );
@@ -144,8 +142,8 @@ describe(NotitiesComponent.name, () => {
       expect(screen.getByText("fakeTekst2")).toBeInTheDocument();
       expect(websocketService.removeListener).toHaveBeenCalledTimes(1);
       expect(websocketService.addListener).toHaveBeenLastCalledWith(
-        Opcode.UPDATED,
-        ObjectType.ZAAK_NOTITIES,
+        "UPDATED",
+        "ZAAK_NOTITIES",
         "fakeZaakUuid2",
         expect.any(Function),
       );

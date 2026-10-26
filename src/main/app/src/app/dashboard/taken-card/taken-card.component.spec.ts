@@ -11,8 +11,6 @@ import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
 import { sleep } from "../../../../setupJest";
-import { ObjectType } from "../../core/websocket/model/object-type";
-import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
@@ -135,8 +133,8 @@ describe(TakenCardComponent.name, () => {
     await respondWithTaken([]);
 
     expect(websocketService.addListener).toHaveBeenCalledWith(
-      Opcode.UPDATED,
-      ObjectType.SIGNALERINGEN,
+      "UPDATED",
+      "SIGNALERINGEN",
       "user",
       expect.any(Function),
     );

@@ -35,8 +35,6 @@ import { MatTable, MatTableModule } from "@angular/material/table";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { ObjectType } from "src/app/core/websocket/model/object-type";
-import { Opcode } from "src/app/core/websocket/model/opcode";
 import { BatchProcessService } from "src/app/shared/batch-progress/batch-process.service";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
@@ -299,11 +297,11 @@ export class TakenWerkvoorraadComponent
     this.batchProcessService.subscribe({
       ids: tasks.map(({ id }) => id),
       progressSubscription: {
-        opcode: Opcode.ANY,
-        objectType: ObjectType.TAAK,
+        opcode: "ANY",
+        objectType: "TAAK",
         onNotification: (id, event) => {
-          if (event.opcode === Opcode.SKIPPED) skippedTakenCount++;
-          if (event.opcode !== Opcode.UPDATED) return;
+          if (event.opcode === "SKIPPED") skippedTakenCount++;
+          if (event.opcode !== "UPDATED") return;
 
           const taak = this.dataSource.data.find((task) => task.id === id);
           if (!taak) return;
@@ -317,8 +315,8 @@ export class TakenWerkvoorraadComponent
         },
       },
       finalSubscription: {
-        objectType: ObjectType.ANY,
-        opcode: Opcode.UPDATED,
+        objectType: "ANY",
+        opcode: "UPDATED",
         screenEventResourceId,
       },
       finally: () => {

@@ -34,8 +34,6 @@ import { Observable, of } from "rxjs";
 import { map, tap } from "rxjs/operators";
 import { AsyncButtonMenuItem } from "src/app/shared/side-nav/menu-item/subscription-button-menu-item";
 import { UtilService } from "../../core/service/util.service";
-import { ObjectType } from "../../core/websocket/model/object-type";
-import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
@@ -173,8 +171,8 @@ export class InformatieObjectViewComponent
         );
 
         this.documentListener = this.websocketService.addListener(
-          Opcode.UPDATED,
-          ObjectType.ENKELVOUDIG_INFORMATIEOBJECT,
+          "UPDATED",
+          "ENKELVOUDIG_INFORMATIEOBJECT",
           this.infoObject.uuid!,
           () => {
             this.loadInformatieObject();

@@ -24,8 +24,6 @@ import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
-import { ObjectType } from "../../core/websocket/model/object-type";
-import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
@@ -504,8 +502,8 @@ describe(ZaakViewComponent.name, () => {
     let zaakChangedCallback: (event: ScreenEvent) => Promise<void>;
 
     const zaakChangedEvent = new ScreenEvent(
-      Opcode.UPDATED,
-      ObjectType.ZAAK,
+      "UPDATED",
+      "ZAAK",
       new ScreenEventId(zaak.uuid),
     );
 
@@ -537,7 +535,7 @@ describe(ZaakViewComponent.name, () => {
       jest
         .spyOn(websocketService, "addListener")
         .mockImplementation((_opcode, objectType, _objectId, callback) => {
-          if (objectType === ObjectType.ZAAK) {
+          if (objectType === "ZAAK") {
             zaakChangedCallback = callback as unknown as (
               event: ScreenEvent,
             ) => Promise<void>;
@@ -637,19 +635,15 @@ describe(ZaakViewComponent.name, () => {
   describe("zaak rollen websocket listener", () => {
     let zaakRollenCallback: (event: ScreenEvent) => void;
 
-    const rollenEvent = (opcode: Opcode) =>
-      new ScreenEvent(
-        opcode,
-        ObjectType.ZAAK_ROLLEN,
-        new ScreenEventId(zaak.uuid),
-      );
+    const rollenEvent = (opcode: GeneratedType<"Opcode">) =>
+      new ScreenEvent(opcode, "ZAAK_ROLLEN", new ScreenEventId(zaak.uuid));
 
     beforeEach(() => {
       jest.spyOn(utilService, "openSnackbar");
       jest
         .spyOn(websocketService, "addListenerWithSnackbar")
         .mockImplementation((_opcode, objectType, _objectId, callback) => {
-          if (objectType === ObjectType.ZAAK_ROLLEN) {
+          if (objectType === "ZAAK_ROLLEN") {
             zaakRollenCallback = callback as (event: ScreenEvent) => void;
           }
           return fromPartial<WebsocketListener>({});
@@ -662,7 +656,7 @@ describe(ZaakViewComponent.name, () => {
     it("invalidates the betrokkenen query when a betrokkene changes elsewhere", () => {
       const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
 
-      zaakRollenCallback(rollenEvent(Opcode.UPDATED));
+      zaakRollenCallback(rollenEvent("UPDATED"));
 
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: zakenService.listBetrokkenenVoorZaakQuery(zaak.uuid).queryKey,
@@ -672,7 +666,7 @@ describe(ZaakViewComponent.name, () => {
     it("refetches the zaak, which carries the groep, behandelaar and rechten", () => {
       const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
 
-      zaakRollenCallback(rollenEvent(Opcode.UPDATED));
+      zaakRollenCallback(rollenEvent("UPDATED"));
 
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
@@ -682,7 +676,7 @@ describe(ZaakViewComponent.name, () => {
     it("invalidates the historie query, which lists the rol changes", () => {
       const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
 
-      zaakRollenCallback(rollenEvent(Opcode.UPDATED));
+      zaakRollenCallback(rollenEvent("UPDATED"));
 
       expect(invalidateSpy).toHaveBeenCalledWith(
         {
@@ -695,7 +689,7 @@ describe(ZaakViewComponent.name, () => {
     it("invalidates the geautoriseerde medewerkers query, so an open medewerkers tab shows a medewerker added elsewhere", () => {
       const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
 
-      zaakRollenCallback(rollenEvent(Opcode.UPDATED));
+      zaakRollenCallback(rollenEvent("UPDATED"));
 
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: zakenService.listGeautoriseerdeMedewerkersQuery(zaak.uuid)
@@ -713,7 +707,7 @@ describe(ZaakViewComponent.name, () => {
       jest
         .spyOn(websocketService, "addListenerWithSnackbar")
         .mockImplementation((_opcode, objectType, _objectId, callback) => {
-          if (objectType === ObjectType.ZAAK_BESLUITEN) {
+          if (objectType === "ZAAK_BESLUITEN") {
             zaakBesluitenCallback = callback as (event: ScreenEvent) => void;
           }
           return fromPartial<WebsocketListener>({});
@@ -733,8 +727,8 @@ describe(ZaakViewComponent.name, () => {
 
       zaakBesluitenCallback(
         new ScreenEvent(
-          Opcode.UPDATED,
-          ObjectType.ZAAK_BESLUITEN,
+          "UPDATED",
+          "ZAAK_BESLUITEN",
           new ScreenEventId(zaak.uuid),
         ),
       );
@@ -754,7 +748,7 @@ describe(ZaakViewComponent.name, () => {
       jest
         .spyOn(websocketService, "addListener")
         .mockImplementation((_opcode, objectType, _objectId, callback) => {
-          if (objectType === ObjectType.ZAAK_TAKEN) {
+          if (objectType === "ZAAK_TAKEN") {
             zaakTakenCallback = callback as (event: ScreenEvent) => void;
           }
           return fromPartial<WebsocketListener>({});
@@ -771,11 +765,7 @@ describe(ZaakViewComponent.name, () => {
       );
 
       zaakTakenCallback(
-        new ScreenEvent(
-          Opcode.UPDATED,
-          ObjectType.ZAAK_TAKEN,
-          new ScreenEventId(zaak.uuid),
-        ),
+        new ScreenEvent("UPDATED", "ZAAK_TAKEN", new ScreenEventId(zaak.uuid)),
       );
 
       expect(invalidateQueries).toHaveBeenCalledWith(

@@ -29,15 +29,12 @@ import { UtilService } from "../service/util.service";
 import { isCausedByCurrentUser } from "./is-caused-by-current-user";
 import { EventCallback } from "./model/event-callback";
 import { EventSuspension } from "./model/event-suspension";
-import { ObjectType } from "./model/object-type";
-import { Opcode } from "./model/opcode";
 import { ScreenEvent } from "./model/screen-event";
 import { ScreenEventId } from "./model/screen-event-id";
 import {
   SubscriptionMessage,
   subscriptionMessage,
 } from "./model/subscription-message";
-import { SubscriptionType } from "./model/subscription-type";
 import { WebsocketListener } from "./model/websocket-listener";
 import { reconnectDelay } from "./reconnect-delay";
 import { WEBSOCKET_FACTORY } from "./websocket-factory";
@@ -125,7 +122,7 @@ export class WebsocketService {
 
   private resubscribeAll() {
     Object.values(this.subscribedEvents).forEach((event) => {
-      this.send(subscriptionMessage(SubscriptionType.CREATE, event));
+      this.send(subscriptionMessage("CREATE", event));
     });
   }
 
@@ -228,8 +225,8 @@ export class WebsocketService {
   };
 
   public addListener(
-    opcode: Opcode,
-    objectType: ObjectType,
+    opcode: GeneratedType<"Opcode">,
+    objectType: GeneratedType<"ScreenEventType">,
     objectId: string,
     callback: EventCallback,
   ) {
@@ -239,14 +236,14 @@ export class WebsocketService {
       new ScreenEventId(objectId),
     );
     const listener = this.addCallback(event, callback);
-    this.send(subscriptionMessage(SubscriptionType.CREATE, event));
+    this.send(subscriptionMessage("CREATE", event));
     console.log("listener added: " + listener.key);
     return listener;
   }
 
   public addListenerWithSnackbar(
-    opcode: Opcode,
-    objectType: ObjectType,
+    opcode: GeneratedType<"Opcode">,
+    objectType: GeneratedType<"ScreenEventType">,
     objectId: string,
     callback: EventCallback,
   ) {
@@ -309,7 +306,7 @@ export class WebsocketService {
     if (!listener) return;
 
     this.removeCallback(listener);
-    this.send(subscriptionMessage(SubscriptionType.DELETE, listener.event));
+    this.send(subscriptionMessage("DELETE", listener.event));
     console.log("listener removed: " + listener.key);
   }
 
@@ -320,8 +317,8 @@ export class WebsocketService {
   }
 
   public longRunningOperation<T = void>(
-    opcode: Opcode,
-    objectType: ObjectType,
+    opcode: GeneratedType<"Opcode">,
+    objectType: GeneratedType<"ScreenEventType">,
     objectId: string,
     operation: () => Observable<void>,
   ): Observable<T> {

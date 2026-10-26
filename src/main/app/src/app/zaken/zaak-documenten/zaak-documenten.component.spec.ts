@@ -15,8 +15,6 @@ import { EMPTY, of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
-import { ObjectType } from "../../core/websocket/model/object-type";
-import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
@@ -143,7 +141,7 @@ describe(ZaakDocumentenComponent.name, () => {
 
   const notifyListener = (
     addListener: jest.SpyInstance,
-    objectType: ObjectType,
+    objectType: GeneratedType<"ScreenEventType">,
     event = fromPartial<ScreenEvent>({
       objectId: fromPartial<ScreenEventId>({}),
     }),
@@ -178,14 +176,14 @@ describe(ZaakDocumentenComponent.name, () => {
     const { addListener } = await setup();
 
     expect(addListener).toHaveBeenCalledWith(
-      Opcode.UPDATED,
-      ObjectType.ZAAK_INFORMATIEOBJECTEN,
+      "UPDATED",
+      "ZAAK_INFORMATIEOBJECTEN",
       fakeZaak.uuid,
       expect.any(Function),
     );
     expect(addListener).toHaveBeenCalledWith(
-      Opcode.UPDATED,
-      ObjectType.ZAAK_BESLUITEN,
+      "UPDATED",
+      "ZAAK_BESLUITEN",
       fakeZaak.uuid,
       expect.any(Function),
     );
@@ -205,8 +203,8 @@ describe(ZaakDocumentenComponent.name, () => {
 
     for (const { uuid } of documents) {
       expect(addListener).toHaveBeenCalledWith(
-        Opcode.UPDATED,
-        ObjectType.ENKELVOUDIG_INFORMATIEOBJECT,
+        "UPDATED",
+        "ENKELVOUDIG_INFORMATIEOBJECT",
         uuid,
         expect.any(Function),
       );
@@ -216,8 +214,7 @@ describe(ZaakDocumentenComponent.name, () => {
   it("reloads the documents when one of them is updated", async () => {
     const { addListener } = await setup();
     const documentListener = addListener.mock.calls.find(
-      ([, objectType]) =>
-        objectType === ObjectType.ENKELVOUDIG_INFORMATIEOBJECT,
+      ([, objectType]) => objectType === "ENKELVOUDIG_INFORMATIEOBJECT",
     );
 
     documentListener?.[3](fromPartial<ScreenEvent>({}));
@@ -231,7 +228,7 @@ describe(ZaakDocumentenComponent.name, () => {
   it("shows the document that another user linked to the zaak", async () => {
     const { addListener } = await setup();
 
-    notifyListener(addListener, ObjectType.ZAAK_INFORMATIEOBJECTEN);
+    notifyListener(addListener, "ZAAK_INFORMATIEOBJECTEN");
     await settle();
     httpTestingController
       .expectOne(LIST_URL)
@@ -265,7 +262,7 @@ describe(ZaakDocumentenComponent.name, () => {
 
     notifyListener(
       addListener,
-      ObjectType.ZAAK_INFORMATIEOBJECTEN,
+      "ZAAK_INFORMATIEOBJECTEN",
       fromPartial<ScreenEvent>({
         objectId: fromPartial<ScreenEventId>({
           detail: "fakeZaakInformatieobjectUuid",
@@ -286,7 +283,7 @@ describe(ZaakDocumentenComponent.name, () => {
   it("shows the document that was added to the zaak along with a besluit", async () => {
     const { addListener } = await setup();
 
-    notifyListener(addListener, ObjectType.ZAAK_BESLUITEN);
+    notifyListener(addListener, "ZAAK_BESLUITEN");
     await settle();
     httpTestingController
       .expectOne(LIST_URL)

@@ -36,8 +36,6 @@ import type { FormioForm } from "@formio/angular";
 import { TranslatePipe } from "@ngx-translate/core";
 import { QueryClient, injectQuery } from "@tanstack/angular-query-experimental";
 import { ZaakDocumentenComponent } from "src/app/zaken/zaak-documenten/zaak-documenten.component";
-import { ObjectType } from "../../core/websocket/model/object-type";
-import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { mapStringToDocumentenStrings } from "../../documenten/document-utils";
@@ -242,8 +240,8 @@ export class TaakViewComponent
       this.init(data.taak);
 
       this.taakListener = this.websocketService.addListenerWithSnackbar(
-        Opcode.ANY,
-        ObjectType.TAAK,
+        "ANY",
+        "TAAK",
         data.taak.id,
         () => this.rereadTaak(data.taak.id),
       );
@@ -438,8 +436,7 @@ export class TaakViewComponent
 
   onHardCodedFormSubmit(formGroup: FormGroup, partial = false) {
     const taskBody:
-      | PutBody<"/rest/taken/taakdata">
-      | PatchBody<"/rest/taken/complete"> = {
+      PutBody<"/rest/taken/taakdata"> | PatchBody<"/rest/taken/complete"> = {
       ...this.taak!,
       taakdata: {
         ...this.taak!.taakdata,
@@ -553,8 +550,8 @@ export class TaakViewComponent
 
     if (!this.taak) return;
     const listener = this.websocketService.addListener(
-      Opcode.UPDATED,
-      ObjectType.ZAAK_INFORMATIEOBJECTEN,
+      "UPDATED",
+      "ZAAK_INFORMATIEOBJECTEN",
       this.taak.zaakUuid,
       () => {
         this.websocketService.removeListener(listener);

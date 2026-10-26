@@ -14,10 +14,8 @@ import { flushMicrotasks, fromPartial } from "src/test-helpers";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { HttpClient } from "../../shared/http/http-client";
-import { GeneratedType } from "../../shared/utils/generated-types";
 import { UtilService } from "../service/util.service";
-import { ObjectType } from "./model/object-type";
-import { Opcode } from "./model/opcode";
+import { ScreenEvent } from "./model/screen-event";
 import { SubscriptionMessage } from "./model/subscription-message";
 import {
   FIRST_SPREAD_MS,
@@ -131,7 +129,7 @@ describe(WebsocketService.name, () => {
   });
 
   it("replays an active subscription on the new connection after the connection closes cleanly", async () => {
-    service.addListener(Opcode.UPDATED, ObjectType.ZAAK, "zaak-1", jest.fn());
+    service.addListener("UPDATED", "ZAAK", "zaak-1", jest.fn());
 
     // A clean close (e.g. an idle-timeout proxy) completes the connection instead of erroring it.
     sockets[0].complete();
@@ -143,7 +141,7 @@ describe(WebsocketService.name, () => {
   });
 
   it("replays an active subscription on the new connection after the connection errors", async () => {
-    service.addListener(Opcode.UPDATED, ObjectType.ZAAK, "zaak-1", jest.fn());
+    service.addListener("UPDATED", "ZAAK", "zaak-1", jest.fn());
 
     sockets[0].error(new Error("connection reset"));
     jest.advanceTimersByTime(LONGEST_FIRST_RECONNECT_DELAY_MS);
@@ -171,8 +169,8 @@ describe(WebsocketService.name, () => {
 
   it("does not replay a subscription that was removed before the reconnect", async () => {
     const listener = service.addListener(
-      Opcode.UPDATED,
-      ObjectType.ZAAK,
+      "UPDATED",
+      "ZAAK",
       "zaak-1",
       jest.fn(),
     );
@@ -193,12 +191,7 @@ describe(WebsocketService.name, () => {
     );
     const scopedSocketIndex = sockets.length;
     const scopedService = childInjector.get(WebsocketService);
-    scopedService.addListener(
-      Opcode.UPDATED,
-      ObjectType.ZAAK,
-      "zaak-1",
-      jest.fn(),
-    );
+    scopedService.addListener("UPDATED", "ZAAK", "zaak-1", jest.fn());
 
     childInjector.destroy();
     sockets[scopedSocketIndex].complete();
@@ -301,13 +294,15 @@ describe(WebsocketService.name, () => {
 
   describe("a change announced by the server", () => {
     const receiveChangeOfZaak = (actorUsername: string) =>
-      Subject.prototype.next.call(sockets[0], {
-        timestamp: 1,
-        opcode: "UPDATED",
-        objectType: "ZAAK",
-        objectId: { resource: "fakeZaakUuid", detail: null },
-        actorUsername,
-      } satisfies GeneratedType<"ScreenEvent">);
+      Subject.prototype.next.call(
+        sockets[0],
+        fromPartial<ScreenEvent>({
+          opcode: "UPDATED",
+          objectType: "ZAAK",
+          objectId: { resource: "fakeZaakUuid" },
+          actorUsername,
+        }),
+      );
 
     let callback: jest.Mock;
     let openSnackbar: jest.Mock;
@@ -319,8 +314,8 @@ describe(WebsocketService.name, () => {
       openSnackbar = jest.mocked(TestBed.inject(UtilService).openSnackbar);
       callback = jest.fn();
       service.addListenerWithSnackbar(
-        Opcode.UPDATED,
-        ObjectType.ZAAK,
+        "UPDATED",
+        "ZAAK",
         "fakeZaakUuid",
         callback,
       );

@@ -22,8 +22,6 @@ import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
-import { ObjectType } from "../../core/websocket/model/object-type";
-import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
@@ -182,8 +180,8 @@ describe(ZaakTakenComponent.name, () => {
     await setup();
 
     expect(websocketService.addListener).toHaveBeenCalledWith(
-      Opcode.UPDATED,
-      ObjectType.ZAAK_TAKEN,
+      "UPDATED",
+      "ZAAK_TAKEN",
       zaak.uuid,
       expect.any(Function),
     );

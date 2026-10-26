@@ -47,8 +47,6 @@ import { VersionComponent } from "../../shared/version/version.component";
 import { SignaleringenService } from "../../signaleringen.service";
 import { ZakenService } from "../../zaken/zaken.service";
 import { ZoekenService } from "../../zoeken/zoeken.service";
-import { ObjectType } from "../websocket/model/object-type";
-import { Opcode } from "../websocket/model/opcode";
 import { WebsocketListener } from "../websocket/model/websocket-listener";
 import { WebsocketService } from "../websocket/websocket.service";
 
@@ -142,8 +140,8 @@ export class ToolbarComponent implements OnDestroy {
       if (!loggedInUser) return;
 
       this.signaleringListener = this.websocketService.addListener(
-        Opcode.UPDATED,
-        ObjectType.SIGNALERINGEN,
+        "UPDATED",
+        "SIGNALERINGEN",
         loggedInUser.username,
         () => void this.signaleringenService.invalidateLatestSignalering(),
       );

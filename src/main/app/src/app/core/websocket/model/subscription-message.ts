@@ -5,7 +5,6 @@
 
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ScreenEvent } from "./screen-event";
-import { SubscriptionType } from "./subscription-type";
 
 /**
  * `WebSocketSubscriptionMessageDecoder` only reads these fields of the event.
@@ -21,7 +20,7 @@ export type SubscriptionMessage = Omit<
 > & { event: SubscribedEvent };
 
 export function subscriptionMessage(
-  subscriptionType: Exclude<SubscriptionType, "DELETE_ALL">,
+  subscriptionType: Exclude<GeneratedType<"SubscriptionType">, "DELETE_ALL">,
   event: ScreenEvent,
 ): SubscriptionMessage {
   return {

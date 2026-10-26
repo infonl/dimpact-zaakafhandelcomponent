@@ -29,8 +29,6 @@ import { randomUUID } from "crypto";
 import { of, ReplaySubject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
-import { ObjectType } from "../../core/websocket/model/object-type";
-import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { FormioCustomEvent } from "../../formulieren/formio-wrapper/formio-wrapper.component";
@@ -153,21 +151,21 @@ describe(TaakViewComponent.name, () => {
   });
 
   describe(TaakViewComponent.prototype.documentCreated.name, () => {
-    it(`should subscribe to ${Opcode.UPDATED} on ${ObjectType.ZAAK_INFORMATIEOBJECTEN}`, async () => {
+    it("should subscribe to UPDATED on ZAAK_INFORMATIEOBJECTEN", async () => {
       const addListener = jest.spyOn(websocketService, "addListener");
 
       component.instance.documentCreated();
 
       expect(addListener).toHaveBeenCalledTimes(1);
       expect(addListener).toHaveBeenCalledWith(
-        Opcode.UPDATED,
-        ObjectType.ZAAK_INFORMATIEOBJECTEN,
+        "UPDATED",
+        "ZAAK_INFORMATIEOBJECTEN",
         taak.zaakUuid,
         expect.any(Function),
       );
     });
 
-    it(`should reload the history when a ${Opcode.UPDATED} on ${ObjectType.ZAAK_INFORMATIEOBJECTEN} is received`, async () => {
+    it("should reload the history when an UPDATED on ZAAK_INFORMATIEOBJECTEN is received", async () => {
       const httpTestingController = TestBed.inject(HttpTestingController);
       await sleep();
       httpTestingController.expectOne("/rest/taken/test-id/historie").flush([]);
@@ -176,8 +174,8 @@ describe(TaakViewComponent.name, () => {
       component.instance.documentCreated();
       websocketService["onMessage"]({
         timestamp: 1,
-        opcode: Opcode.UPDATED,
-        objectType: ObjectType.ZAAK_INFORMATIEOBJECTEN,
+        opcode: "UPDATED",
+        objectType: "ZAAK_INFORMATIEOBJECTEN",
         objectId: new ScreenEventId(taak.zaakUuid),
       });
       await sleep();
@@ -190,8 +188,8 @@ describe(TaakViewComponent.name, () => {
 
       websocketService["onMessage"]({
         timestamp: 1,
-        opcode: Opcode.ANY,
-        objectType: ObjectType.TAAK,
+        opcode: "ANY",
+        objectType: "TAAK",
         objectId: new ScreenEventId(taak.id!),
       });
       await sleep();
