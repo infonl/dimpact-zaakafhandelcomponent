@@ -4,7 +4,8 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { QueryClient } from "@tanstack/angular-query-experimental";
+import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
@@ -12,16 +13,19 @@ import { GeneratedType } from "../shared/utils/generated-types";
   providedIn: "root",
 })
 export class GebruikersvoorkeurenService {
-  private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly queryClient = inject(QueryClient);
 
   listZoekOpdrachten(lijstID: GeneratedType<"Werklijst">) {
-    return this.zacHttpClient.GET(
-      "/rest/gebruikersvoorkeuren/zoekopdracht/{lijstID}",
-      {
-        path: { lijstID },
-      },
-    );
+    return {
+      ...this.zacQueryClient.GET(
+        "/rest/gebruikersvoorkeuren/zoekopdracht/{lijstID}",
+        {
+          path: { lijstID },
+        },
+      ),
+      meta: { reportFailedRefetch: true },
+    };
   }
 
   createOrUpdateZoekOpdrachten() {
@@ -51,42 +55,67 @@ export class GebruikersvoorkeurenService {
   }
 
   readTabelGegevens(werklijst: GeneratedType<"Werklijst">) {
-    return this.zacHttpClient.GET(
-      "/rest/gebruikersvoorkeuren/tabel-gegevens/{werklijst}",
-      {
-        path: { werklijst },
-      },
-    );
+    return {
+      ...this.zacQueryClient.GET(
+        "/rest/gebruikersvoorkeuren/tabel-gegevens/{werklijst}",
+        {
+          path: { werklijst },
+        },
+      ),
+      meta: { reportFailedRefetch: true },
+    };
   }
 
   updateAantalPerPagina(werklijst: GeneratedType<"Werklijst">, aantal: number) {
-    return this.zacQueryClient.PUT(
-      "/rest/gebruikersvoorkeuren/aantal-per-pagina/{werklijst}/{aantal}",
+    return mergeMutationOptions(
+      this.zacQueryClient.PUT(
+        "/rest/gebruikersvoorkeuren/aantal-per-pagina/{werklijst}/{aantal}",
+        {
+          path: { werklijst, aantal },
+        },
+      ),
       {
-        path: { werklijst, aantal },
+        onSuccess: () =>
+          this.queryClient.invalidateQueries({
+            queryKey: this.readTabelGegevens(werklijst).queryKey,
+          }),
       },
     );
   }
 
   listDashboardCards() {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/gebruikersvoorkeuren/dasboardcard/actief",
     );
   }
 
   updateDashboardCards() {
-    return this.zacQueryClient.PUT(
-      "/rest/gebruikersvoorkeuren/dasboardcard/actief",
+    return mergeMutationOptions(
+      this.zacQueryClient.PUT("/rest/gebruikersvoorkeuren/dasboardcard/actief"),
+      { onSuccess: (instellingen) => this.cacheDashboardCards(instellingen) },
     );
   }
 
   addDashboardCard() {
-    return this.zacQueryClient.PUT("/rest/gebruikersvoorkeuren/dasboardcard");
+    return mergeMutationOptions(
+      this.zacQueryClient.PUT("/rest/gebruikersvoorkeuren/dasboardcard"),
+      { onSuccess: (instellingen) => this.cacheDashboardCards(instellingen) },
+    );
   }
 
   deleteDashboardCard() {
-    return this.zacQueryClient.DELETE(
-      "/rest/gebruikersvoorkeuren/dasboardcard",
+    return mergeMutationOptions(
+      this.zacQueryClient.DELETE("/rest/gebruikersvoorkeuren/dasboardcard"),
+      { onSuccess: (instellingen) => this.cacheDashboardCards(instellingen) },
+    );
+  }
+
+  private cacheDashboardCards(
+    instellingen: GeneratedType<"RestDashboardCardInstelling">[],
+  ) {
+    this.queryClient.setQueryData(
+      this.listDashboardCards().queryKey,
+      instellingen,
     );
   }
 }

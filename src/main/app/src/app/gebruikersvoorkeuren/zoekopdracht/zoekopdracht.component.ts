@@ -6,12 +6,16 @@
 import { NgClass } from "@angular/common";
 import {
   Component,
+  computed,
+  effect,
   EventEmitter,
   inject,
   input,
   OnDestroy,
   OnInit,
   output,
+  signal,
+  untracked,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";
@@ -19,8 +23,10 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslatePipe } from "@ngx-translate/core";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { Subscription } from "rxjs";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { StaleTimes } from "../../shared/http/zac-query-client";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { hasActiveSearchFilters } from "../../zoeken/model/zoek-parameters";
@@ -49,19 +55,26 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   readonly zoekopdracht = output<GeneratedType<"RestZoekopdracht">>();
   readonly filtersChanged = input.required<EventEmitter<void>>();
 
-  protected zoekopdrachten: GeneratedType<"RestZoekopdracht">[] = [];
-  protected actieveZoekopdracht: GeneratedType<"RestZoekopdracht"> | null =
-    null;
-  protected actieveFilters = false;
+  protected readonly actieveZoekopdracht =
+    signal<GeneratedType<"RestZoekopdracht"> | null>(null);
+  protected readonly actieveFilters = signal(false);
   private filtersChangedSubscription$!: Subscription;
   private readonly gebruikersvoorkeurenService = inject(
     GebruikersvoorkeurenService,
   );
   private readonly dialog = inject(MatDialog);
+  private readonly queryClient = inject(QueryClient);
+  private readonly zoekopdrachtenQuery = injectQuery(() => ({
+    ...this.gebruikersvoorkeurenService.listZoekOpdrachten(this.werklijst()),
+    staleTime: StaleTimes.Instant,
+  }));
+  protected readonly zoekopdrachten = computed(
+    () => this.zoekopdrachtenQuery.data() ?? [],
+  );
   private readonly deleteZoekopdrachtMutation = injectMutation(
     () => this.gebruikersvoorkeurenService.deleteZoekOpdrachten(),
     {
-      onSuccess: () => this.loadZoekopdrachten(),
+      onSuccess: () => this.invalidateZoekopdrachten(),
     },
   );
   private readonly removeZoekopdrachtActiefMutation = injectMutation(() =>
@@ -71,6 +84,19 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     this.gebruikersvoorkeurenService.setZoekopdrachtActief(),
   );
 
+  constructor() {
+    effect(() => {
+      const zoekopdrachten = this.zoekopdrachtenQuery.data();
+      if (
+        !zoekopdrachten ||
+        this.zoekopdrachtenQuery.isFetching() ||
+        this.zoekopdrachtenQuery.isError()
+      )
+        return;
+      untracked(() => this.applyZoekopdrachten(zoekopdrachten));
+    });
+  }
+
   ngOnDestroy() {
     this.filtersChangedSubscription$.unsubscribe();
   }
@@ -79,29 +105,28 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     this.filtersChangedSubscription$ = this.filtersChanged().subscribe(() => {
       this.clearActief();
     });
-    this.loadZoekopdrachten();
   }
 
   protected saveSearch() {
     const dialogRef = this.dialog.open(ZoekopdrachtSaveDialogComponent, {
       data: {
-        zoekopdrachten: this.zoekopdrachten,
+        zoekopdrachten: this.zoekopdrachten(),
         lijstID: this.werklijst(),
         zoekopdracht: this.zoekFilters(),
       },
     });
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.loadZoekopdrachten();
+        void this.invalidateZoekopdrachten();
       }
     });
   }
 
   protected setActief(zoekopdracht: GeneratedType<"RestZoekopdracht">) {
-    this.actieveZoekopdracht = zoekopdracht;
-    this.actieveFilters = true;
-    this.zoekopdracht.emit(this.actieveZoekopdracht);
-    this.setZoekopdrachtActiefMutation.mutate(this.actieveZoekopdracht);
+    this.actieveZoekopdracht.set(zoekopdracht);
+    this.actieveFilters.set(true);
+    this.zoekopdracht.emit(zoekopdracht);
+    this.setZoekopdrachtActiefMutation.mutate(zoekopdracht);
   }
 
   protected deleteZoekopdracht(
@@ -113,27 +138,35 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   }
 
   protected clearActief(emit?: boolean) {
-    this.actieveZoekopdracht = null;
+    this.actieveZoekopdracht.set(null);
     this.removeZoekopdrachtActiefMutation.mutate(this.werklijst());
-    if (emit && this.actieveZoekopdracht) {
-      this.actieveFilters = false;
-      this.zoekopdracht.emit(this.actieveZoekopdracht);
+    const actieveZoekopdracht = this.actieveZoekopdracht();
+    if (emit && actieveZoekopdracht) {
+      this.actieveFilters.set(false);
+      this.zoekopdracht.emit(actieveZoekopdracht);
     } else {
-      this.actieveFilters = this.heeftActieveFilters();
+      this.actieveFilters.set(this.heeftActieveFilters());
     }
   }
 
-  private loadZoekopdrachten() {
-    this.gebruikersvoorkeurenService
-      .listZoekOpdrachten(this.werklijst())
-      .subscribe((zoekopdrachten) => {
-        this.zoekopdrachten = zoekopdrachten;
-        this.actieveZoekopdracht = zoekopdrachten.find((z) => z.actief) ?? null;
-        this.actieveFilters = this.heeftActieveFilters();
+  private invalidateZoekopdrachten() {
+    return this.queryClient.invalidateQueries({
+      queryKey: this.gebruikersvoorkeurenService.listZoekOpdrachten(
+        this.werklijst(),
+      ).queryKey,
+    });
+  }
 
-        if (!this.actieveZoekopdracht) return;
-        this.zoekopdracht.emit(this.actieveZoekopdracht);
-      });
+  private applyZoekopdrachten(
+    zoekopdrachten: GeneratedType<"RestZoekopdracht">[],
+  ) {
+    const actieveZoekopdracht =
+      zoekopdrachten.find((zoekopdracht) => zoekopdracht.actief) ?? null;
+    this.actieveZoekopdracht.set(actieveZoekopdracht);
+    this.actieveFilters.set(this.heeftActieveFilters());
+
+    if (!actieveZoekopdracht) return;
+    this.zoekopdracht.emit(actieveZoekopdracht);
   }
 
   private heeftActieveFilters(): boolean {

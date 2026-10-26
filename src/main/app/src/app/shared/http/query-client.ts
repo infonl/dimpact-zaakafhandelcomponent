@@ -18,6 +18,12 @@ export type ZacMeta = {
    * what went wrong. Defaults to reporting.
    */
   reportErrors?: boolean;
+  /**
+   * `true` for a read that the user is waiting on each time it runs, such as a
+   * re-read after a save. A failed refetch of such a read opens the dialog,
+   * even when a cached copy is still on screen.
+   */
+  reportFailedRefetch?: boolean;
 };
 
 declare module "@tanstack/angular-query-experimental" {
@@ -53,7 +59,11 @@ export const QUERY_CLIENT = new InjectionToken<QueryClient>("QUERY_CLIENT", {
           if (!(error instanceof HttpErrorResponse)) return;
           if (!reportsErrors(query.meta)) return;
 
-          if (query.state.data !== undefined && !isLoggedOut(error)) {
+          if (
+            query.state.data !== undefined &&
+            !query.meta?.reportFailedRefetch &&
+            !isLoggedOut(error)
+          ) {
             console.error(error);
             return;
           }

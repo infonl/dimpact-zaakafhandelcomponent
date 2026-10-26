@@ -236,7 +236,6 @@ describe(ZaakViewComponent.name, () => {
       .mockReturnValue(planItemsQuery([]));
 
     takenService = TestBed.inject(TakenService);
-    jest.spyOn(takenService, "listTakenVoorZaak").mockReturnValue(of([]));
 
     jest.spyOn(KlantenService.prototype, "readPersoon").mockReturnValue(
       queryOptions({
@@ -700,7 +699,7 @@ describe(ZaakViewComponent.name, () => {
         queryKey: zakenService.readZaakQuery(brondatumZettenZaak.uuid).queryKey,
       });
       expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: takenService.listTakenVoorZaakQuery(brondatumZettenZaak.uuid)
+        queryKey: takenService.listTakenVoorZaak(brondatumZettenZaak.uuid)
           .queryKey,
       });
       expect(snackbarSpy).toHaveBeenCalledWith("msg.zaak.brondatum.gezet");

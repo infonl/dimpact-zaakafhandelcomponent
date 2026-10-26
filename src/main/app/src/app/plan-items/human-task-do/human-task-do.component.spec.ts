@@ -482,7 +482,7 @@ describe("HumanTaskDoComponent", () => {
 
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey:
-          TestBed.inject(TakenService).listTakenVoorZaakQuery("fakeZaakUuid")
+          TestBed.inject(TakenService).listTakenVoorZaak("fakeZaakUuid")
             .queryKey,
       });
     });
