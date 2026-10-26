@@ -4,11 +4,11 @@
  */
 
 import { Injectable, computed, effect, inject, signal } from "@angular/core";
-import { GeneratedType } from "../utils/generated-types";
 import { UtilService } from "src/app/core/service/util.service";
 import { WebsocketListener } from "src/app/core/websocket/model/websocket-listener";
 import { WebsocketService } from "src/app/core/websocket/websocket.service";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
+import { GeneratedType } from "../utils/generated-types";
 
 type SubscriptionType = {
   opcode: GeneratedType<"Opcode">;
