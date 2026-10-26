@@ -3,7 +3,15 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject, viewChild } from "@angular/core";
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+  viewChild,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -13,9 +21,8 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatSidenav, MatSidenavModule } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { Observable, of } from "rxjs";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
@@ -78,8 +85,29 @@ export class ZaakCreateComponent {
 
   private readonly inboxProductaanvraag: GeneratedType<"RestInboxProductaanvraag">;
 
-  protected groups: Observable<GeneratedType<"RestGroup">[]> = of([]);
-  protected users: GeneratedType<"RestUser">[] = [];
+  private readonly selectedCaseType = signal<
+    GeneratedType<"RestZaaktype"> | undefined
+  >(undefined);
+
+  private readonly groupsQuery = injectQuery(() => ({
+    ...this.identityService.listBehandelaarGroupsForZaaktype(
+      this.selectedCaseType()?.omschrijving ?? "",
+    ),
+    enabled: !!this.selectedCaseType()?.omschrijving,
+  }));
+
+  protected readonly groups = computed(() => this.groupsQuery.data() ?? []);
+
+  private readonly selectedGroupId = signal<string | undefined>(undefined);
+
+  private readonly usersQuery = injectQuery(() => ({
+    ...this.identityService.listUsersInGroup(this.selectedGroupId() ?? ""),
+    enabled: !!this.selectedGroupId(),
+  }));
+
+  protected readonly users = computed(() => this.usersQuery.data() ?? []);
+
+  private groupPrefilledForCaseType?: GeneratedType<"RestZaaktype">;
   protected caseTypes = this.zakenService.listZaaktypesForCreation();
   protected communicationChannels: string[] = [];
   protected confidentialityNotices =
@@ -160,24 +188,50 @@ export class ZaakCreateComponent {
         if (!value) {
           this.form.controls.behandelaar.setValue(null);
           this.form.controls.behandelaar.disable();
+          this.selectedGroupId.set(undefined);
           return;
         }
+        if (!value.id) return;
 
-        this.identityService.listUsersInGroup(value.id).subscribe((users) => {
-          this.users = users ?? [];
-          this.form.controls.behandelaar.enable();
-
-          const defaultBehandelaarId =
-            this.form.controls.zaaktype.value?.zaakafhandelparameters
-              ?.defaultBehandelaarId;
-
-          this.form.controls.behandelaar.setValue(
-            this.users.find(({ id }) => id === defaultBehandelaarId) ?? null,
-          );
-        });
+        this.selectedGroupId.set(value.id);
+        void this.prefillBehandelaar(value.id);
       });
 
+    effect(() => {
+      const caseType = this.selectedCaseType();
+      const groups = this.groupsQuery.data();
+      if (!caseType || !groups || this.groupPrefilledForCaseType === caseType)
+        return;
+      this.groupPrefilledForCaseType = caseType;
+
+      const defaultGroup = groups.find(
+        ({ id }) => id === caseType.zaakafhandelparameters?.defaultGroepId,
+      );
+      untracked(() => this.form.controls.groep.setValue(defaultGroup));
+    });
+
     void this.handleProductRequest(this.inboxProductaanvraag);
+  }
+
+  private async prefillBehandelaar(groupId: string) {
+    let users: GeneratedType<"RestUser">[];
+    try {
+      users = await this.queryClient.fetchQuery(
+        this.identityService.listUsersInGroup(groupId),
+      );
+    } catch {
+      // The query cache already shows the error dialog for a failed read.
+      return;
+    }
+    if (this.form.controls.groep.value?.id !== groupId) return;
+
+    this.form.controls.behandelaar.enable();
+    const defaultBehandelaarId =
+      this.form.controls.zaaktype.value?.zaakafhandelparameters
+        ?.defaultBehandelaarId;
+    this.form.controls.behandelaar.setValue(
+      users.find(({ id }) => id === defaultBehandelaarId) ?? null,
+    );
   }
 
   formSubmit() {
@@ -210,19 +264,11 @@ export class ZaakCreateComponent {
   caseTypeSelected(caseType?: GeneratedType<"RestZaaktype"> | null) {
     if (!caseType) return;
 
-    const { zaakafhandelparameters, vertrouwelijkheidaanduiding } = caseType;
+    const { vertrouwelijkheidaanduiding } = caseType;
     this.form.controls.groep.enable();
+    if (!caseType.omschrijving) return;
 
-    this.groups = this.identityService.listBehandelaarGroupsForZaaktype(
-      caseType.omschrijving!,
-    );
-
-    this.groups.subscribe((groups) => {
-      const selectedGroup = groups?.find(
-        ({ id }) => id === zaakafhandelparameters?.defaultGroepId,
-      );
-      this.form.controls.groep.setValue(selectedGroup);
-    });
+    this.selectedCaseType.set(caseType);
 
     this.form.controls.vertrouwelijkheidaanduiding.setValue(
       this.confidentialityNotices.find(

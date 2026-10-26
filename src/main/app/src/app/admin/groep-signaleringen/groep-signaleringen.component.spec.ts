@@ -64,7 +64,9 @@ describe(GroepSignaleringenComponent.name, () => {
     }));
 
     httpTestingController = TestBed.inject(HttpTestingController);
+    await sleep();
     httpTestingController.expectOne("/rest/identity/groups").flush([groep]);
+    await sleep();
     fixture.detectChanges();
   }
 

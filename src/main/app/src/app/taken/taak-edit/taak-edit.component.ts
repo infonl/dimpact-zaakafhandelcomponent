@@ -3,7 +3,15 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, effect, inject, input } from "@angular/core";
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+  untracked,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -13,6 +21,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacSelect } from "../../shared/form/select/select";
@@ -47,8 +56,34 @@ export class TaakEditComponent {
   protected readonly sideNav = input.required<MatDrawer>();
   protected readonly task = input.required<GeneratedType<"RestTask">>();
 
-  protected groups: GeneratedType<"RestGroup">[] = [];
-  protected users: GeneratedType<"RestUser">[] = [];
+  private readonly groupsQuery = injectQuery(() => ({
+    ...this.identityService.listBehandelaarGroupsForZaaktype(
+      this.task().zaaktypeOmschrijving ?? "",
+    ),
+    enabled: !!this.task().zaaktypeOmschrijving,
+  }));
+
+  protected readonly groups = computed(() => {
+    const behandelaarGroups = this.groupsQuery.data();
+    if (!behandelaarGroups) return [];
+    const taskGroup = this.task().groep;
+    if (taskGroup && !behandelaarGroups.some(({ id }) => id === taskGroup.id)) {
+      return [taskGroup, ...behandelaarGroups];
+    }
+    return behandelaarGroups;
+  });
+
+  private readonly selectedGroupId = signal<string | undefined>(undefined);
+
+  private readonly usersQuery = injectQuery(() => ({
+    ...this.identityService.listUsersInGroup(this.selectedGroupId() ?? ""),
+    enabled: !!this.selectedGroupId(),
+  }));
+
+  protected readonly users = computed(() => this.usersQuery.data() ?? []);
+
+  private prefilledTask?: GeneratedType<"RestTask">;
+
   protected readonly groupDisplayValue = (
     group: GeneratedType<"RestGroup">,
   ): string =>
@@ -79,39 +114,42 @@ export class TaakEditComponent {
 
   constructor() {
     effect(() => {
-      this.identityService
-        .listBehandelaarGroupsForZaaktype(this.task().zaaktypeOmschrijving!)
-        .subscribe((groups) => {
-          const taskGroup = this.task().groep;
-          if (taskGroup && !groups.find((group) => group.id === taskGroup.id)) {
-            groups.unshift(taskGroup);
-          }
-          this.groups = groups;
-          this.form.patchValue({
-            groep: taskGroup,
-            behandelaar: this.task().behandelaar,
-          });
-        });
+      const task = this.task();
+      if (!this.groupsQuery.isSuccess() || this.prefilledTask === task) return;
+      this.prefilledTask = task;
 
-      if (
-        this.task().status === "AFGEROND" ||
-        !this.task().rechten.canToekennen
-      ) {
-        this.form.disable();
+      untracked(() =>
+        this.form.patchValue({
+          groep: task.groep,
+          behandelaar: task.behandelaar,
+        }),
+      );
+    });
+
+    effect(() => {
+      const task = this.task();
+      if (task.status === "AFGEROND" || !task.rechten.canToekennen) {
+        untracked(() => this.form.disable());
       }
+    });
+
+    effect(() => {
+      const usersLoaded =
+        !!this.selectedGroupId() && this.usersQuery.isSuccess();
+      untracked(() => {
+        if (usersLoaded && this.form.controls.groep.enabled) {
+          this.form.controls.behandelaar.enable();
+        } else {
+          this.form.controls.behandelaar.disable();
+        }
+      });
     });
 
     this.form.controls.groep.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((group) => {
         this.form.controls.behandelaar.setValue(null);
-        this.form.controls.behandelaar.disable();
-        if (!group) return;
-
-        this.identityService.listUsersInGroup(group.id).subscribe((users) => {
-          this.form.controls.behandelaar.enable();
-          this.users = users;
-        });
+        this.selectedGroupId.set(group?.id);
       });
   }
 

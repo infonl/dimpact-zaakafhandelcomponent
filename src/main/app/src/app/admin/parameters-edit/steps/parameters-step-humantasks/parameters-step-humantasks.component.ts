@@ -67,9 +67,7 @@ export class ParametersStepHumantasksComponent {
   protected readonly groepenQuery = injectQuery(() => {
     const omschrijving = this.zaaktypeOmschrijving();
     return {
-      ...this.identityService.listBehandelaarGroupsForZaaktypeQuery(
-        omschrijving,
-      ),
+      ...this.identityService.listBehandelaarGroupsForZaaktype(omschrijving),
       enabled: Boolean(omschrijving),
     };
   });
