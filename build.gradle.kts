@@ -211,6 +211,7 @@ dependencies {
     testImplementation(libs.eclipse.yasson)
     testImplementation(libs.kotest.runner.junit5)
     testImplementation(libs.mockk)
+    testImplementation(libs.archunit)
     testImplementation(libs.json)
     // SmallRye Health implementation for MicroProfile Health tests
     testImplementation(libs.smallrye.health)
