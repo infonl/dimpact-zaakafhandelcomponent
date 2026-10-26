@@ -179,7 +179,7 @@ class BpmnTaskFormRuntimeService @Inject constructor(
         zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak).let { behandelaar ->
             behandelaar?.identificatienummer?.let {
                 identityService.readUser(
-                    userId = it,
+                    username = it,
                     logContext = "the default value of a form field for zaak '${zaak.identificatie}'"
                 ).id
             }

@@ -73,7 +73,7 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
                     logContext = "assigning zaken from the werklijst"
                 ),
                 user = restZakenVerdeelGegevens.behandelaarGebruikersnaam?.let { userName ->
-                    identityService.readUser(userId = userName, logContext = "assigning zaken from the werklijst")
+                    identityService.readUser(username = userName, logContext = "assigning zaken from the werklijst")
                 },
                 screenEventResourceId = restZakenVerdeelGegevens.screenEventResourceId
             )

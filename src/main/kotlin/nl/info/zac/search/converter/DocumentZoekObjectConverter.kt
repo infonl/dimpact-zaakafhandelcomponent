@@ -153,7 +153,7 @@ class DocumentZoekObjectConverter @Inject constructor(
                 enkelvoudigInformatieObjectLockService.readLock(informatieobjectUUID).userId?.let {
                     vergrendeldDoorGebruikersnaam = it
                     vergrendeldDoorNaam = identityService.readUser(
-                        userId = it,
+                        username = it,
                         logContext = "the lock on informatieobject '${informatieobject.identificatie}'"
                     ).getFullName()
                 }

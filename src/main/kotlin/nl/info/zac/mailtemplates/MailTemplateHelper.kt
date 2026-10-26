@@ -189,7 +189,7 @@ class MailTemplateHelper @Inject constructor(
             resolvedTekst = replaceVariable(
                 targetString = resolvedTekst, MailTemplateVariables.TAAK_BEHANDELAAR_MEDEWERKER,
                 value = taskInfo.assignee?.let {
-                    identityService.readUser(userId = it, logContext = taskInfo.toLogContext()).getFullName()
+                    identityService.readUser(username = it, logContext = taskInfo.toLogContext()).getFullName()
                 }
             )
         }

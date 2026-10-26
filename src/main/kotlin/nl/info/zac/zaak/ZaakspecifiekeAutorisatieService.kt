@@ -321,7 +321,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
             if (zaakToewijzing.isGeautoriseerdeMedewerker(medewerkerId)) {
                 throw MedewerkerAlreadyZaakspecifiekGeautoriseerdException()
             }
-            identityService.readUser(userId = medewerkerId, logContext = "zaak '${zaak.identificatie}'").also {
+            identityService.readUser(username = medewerkerId, logContext = "zaak '${zaak.identificatie}'").also {
                 grantZaakspecifiekeAutorisatie(
                     zaak = zaak,
                     medewerker = it.toMedewerkerIdentificatie(),
@@ -394,7 +394,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
             flowableTaskService.listOpenTasksForZaak(zaak.uuid).mapNotNull { it.assignee }
 
     private fun readMedewerkerIdentificatie(medewerkerId: String, zaak: Zaak) =
-        identityService.readUser(userId = medewerkerId, logContext = "zaak '${zaak.identificatie}'")
+        identityService.readUser(username = medewerkerId, logContext = "zaak '${zaak.identificatie}'")
             .toMedewerkerIdentificatie()
 
     private fun User.toMedewerkerIdentificatie() = MedewerkerIdentificatie().apply {

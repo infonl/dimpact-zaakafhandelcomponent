@@ -179,7 +179,7 @@ class DocumentCreationDataService @Inject constructor(
                 naam = taskInfo.name,
                 behandelaar = taskInfo.assignee?.let {
                     identityService.readUser(
-                        userId = it,
+                        username = it,
                         logContext = "task '$taskId' of zaak '${zaak.identificatie}'"
                     ).getFullName()
                 }

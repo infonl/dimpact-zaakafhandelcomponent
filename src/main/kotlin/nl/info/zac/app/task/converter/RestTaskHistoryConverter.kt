@@ -120,7 +120,7 @@ class RestTaskHistoryConverter @Inject constructor(
     }
 
     private fun getMedewerkerFullName(medewerkerId: String, taskId: String?): String =
-        identityService.readUser(userId = medewerkerId, logContext = "the history of task '$taskId'").getFullName()
+        identityService.readUser(username = medewerkerId, logContext = "the history of task '$taskId'").getFullName()
 
     class DuedateChangedData {
         @JsonbDateFormat(JsonbDateFormat.TIME_IN_MILLIS)

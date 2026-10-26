@@ -118,7 +118,7 @@ class SignaleringEventObserver @Inject constructor(
             }
             setTarget(
                 identityService.readUser(
-                    userId = medewerkerIdentificatie.identificatie,
+                    username = medewerkerIdentificatie.identificatie,
                     logContext = "a signalering about zaak '${zaak.identificatie}'"
                 )
             )
@@ -158,7 +158,7 @@ class SignaleringEventObserver @Inject constructor(
         task.assignee?.let { assignee ->
             signaleringService.signaleringInstance(event.objectType).apply {
                 setSubject(task)
-                setTarget(identityService.readUser(userId = assignee, logContext = "a signalering about task '${task.id}'"))
+                setTarget(identityService.readUser(username = assignee, logContext = "a signalering about task '${task.id}'"))
             }
         }
 

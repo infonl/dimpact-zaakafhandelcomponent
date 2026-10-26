@@ -109,21 +109,21 @@ class IdentityService @Inject constructor(
             .toSet()
 
     /**
-     * Reads the user with [userId] from Keycloak, or returns a placeholder user when it cannot be found.
+     * Reads the user with [username] from Keycloak, or returns a placeholder user when it cannot be found.
      * The optional [logContext], for example the task and zaak that refer to the user, is added to the warning
      * that is logged when the user cannot be found.
      */
-    fun readUser(userId: String, logContext: String? = null): User = keycloakZacRealmResource.users()
-        .searchByUsername(userId, true)
+    fun readUser(username: String, logContext: String? = null): User = keycloakZacRealmResource.users()
+        .searchByUsername(username, true)
         .map { it.toUser() }.firstOrNull()
         ?: run {
             log(
                 LOG,
                 Level.WARNING,
-                "User with id '$userId' could not be found in Keycloak${logContext.toLogContextSuffix()}. " +
-                    "Returning a placeholder."
+                "User with username '$username' could not be found in Keycloak${logContext.toLogContextSuffix()}. " +
+                    "Returning username only, since no other data about this user could be retrieved."
             )
-            User(userId)
+            User(username)
         }
 
     /**

@@ -214,20 +214,20 @@ class IdentityServiceTest : BehaviorSpec({
     }
 
     context("Reading a user that no longer exists in Keycloak") {
-        given("A userId that used to be assigned to a zaak or task but is no longer found in Keycloak") {
-            val userId = "fakeStaleUserId"
+        given("A username that used to be assigned to a zaak or task but is no longer found in Keycloak") {
+            val username = "fakeStaleUsername"
             every {
-                realmResource.users().searchByUsername(userId, true)
+                realmResource.users().searchByUsername(username, true)
             } returns emptyList()
 
             `when`("the user is retrieved with the task and zaak that refer to it as log context") {
                 val user = identityService.readUser(
-                    userId = userId,
+                    username = username,
                     logContext = "task 'fakeTaskId' of zaak 'fakeZaakIdentificatie'"
                 )
 
-                then("a placeholder user containing only the id is returned") {
-                    user.id shouldBe userId
+                then("a user containing only the username is returned") {
+                    user.id shouldBe username
                 }
 
                 then("the miss is logged at the level WARNING, together with the task and zaak") {
@@ -235,8 +235,9 @@ class IdentityServiceTest : BehaviorSpec({
                         log(
                             any(),
                             Level.WARNING,
-                            "User with id '$userId' could not be found in Keycloak for task 'fakeTaskId' " +
-                                "of zaak 'fakeZaakIdentificatie'. Returning a placeholder."
+                            "User with username '$username' could not be found in Keycloak for task 'fakeTaskId' " +
+                                "of zaak 'fakeZaakIdentificatie'. Returning username only, since no other data " +
+                                "about this user could be retrieved."
                         )
                     }
                 }

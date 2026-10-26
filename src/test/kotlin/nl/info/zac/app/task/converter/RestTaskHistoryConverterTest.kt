@@ -136,10 +136,10 @@ class RestTaskHistoryConverterTest : BehaviorSpec({
             )
         )
         every {
-            identityService.readUser(userId = "fakePreviousUserId", logContext = any())
+            identityService.readUser(username = "fakePreviousUserId", logContext = any())
         } returns createUser(id = "fakePreviousUserId", fullName = "fakePreviousFullName")
         every {
-            identityService.readUser(userId = "fakeNewUserId", logContext = any())
+            identityService.readUser(username = "fakeNewUserId", logContext = any())
         } returns createUser(id = "fakeNewUserId", fullName = "fakeNewFullName")
 
         `when`("convert is called") {

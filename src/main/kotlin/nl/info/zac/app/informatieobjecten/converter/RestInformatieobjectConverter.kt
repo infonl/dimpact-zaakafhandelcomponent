@@ -12,7 +12,6 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
-import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.exception.ZgwErrorException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -175,7 +174,7 @@ class RestInformatieobjectConverter @Inject constructor(
         restEnkelvoudigInformatieobject.verzenddatum = enkelvoudigInformatieObject.verzenddatum
         lock?.userId?.let {
             restEnkelvoudigInformatieobject.gelockedDoor = identityService.readUser(
-                userId = it,
+                username = it,
                 logContext = "the lock on informatieobject '${enkelvoudigInformatieObject.identificatie}'"
             ).toRestUser()
         }

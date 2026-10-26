@@ -17,7 +17,7 @@ class NoteConverter @Inject constructor(
 ) {
     fun toRestNote(note: Note): RestNote {
         val medewerker = identityService.readUser(
-            userId = note.employeeUsername,
+            username = note.employeeUsername,
             logContext = "note '${note.id}' of zaak with UUID '${note.zaakUUID}'"
         )
         return RestNote(
