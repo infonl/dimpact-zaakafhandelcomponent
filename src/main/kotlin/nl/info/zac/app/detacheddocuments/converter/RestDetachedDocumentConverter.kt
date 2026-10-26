@@ -37,8 +37,8 @@ class RestDetachedDocumentConverter @Inject constructor(
             isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd,
             creatiedatum = detachedDocument.creatiedatum,
             bestandsnaam = detachedDocument.bestandsnaam,
-            ontkoppeldDoor = userConverter.convertUserId(
-                userId = detachedDocument.ontkoppeldDoor,
+            ontkoppeldDoor = userConverter.convertUsername(
+                username = detachedDocument.ontkoppeldDoor,
                 logContext = "ontkoppeld document '${detachedDocument.documentID}' of zaak '${detachedDocument.zaakID}'"
             ),
             ontkoppeldOp = detachedDocument.ontkoppeldOp,

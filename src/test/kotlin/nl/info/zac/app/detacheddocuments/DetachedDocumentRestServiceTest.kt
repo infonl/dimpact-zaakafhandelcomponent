@@ -309,7 +309,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             every {
                 restDetachedDocumentConverter.convertToRestDetachedDocuments(listOf(document), any(), emptySet())
             } returns listOf(restDocument)
-            every { with(userConverter) { dbUserIds.convertUserIds(any()) } } returns convertedUsers
+            every { with(userConverter) { dbUserIds.convertUsernames(any()) } } returns convertedUsers
 
             `when`("the list endpoint is called") {
                 val result = detachedDocumentRestService.listDetachedDocuments(restListParameters)

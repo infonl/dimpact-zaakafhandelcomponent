@@ -151,8 +151,8 @@ class RestZaakConverterTest : BehaviorSpec({
         every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
         every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
         every {
-            restUserConverter.convertUserId(
-                userId = rolMedewerker.identificatienummer!!,
+            restUserConverter.convertUsername(
+                username = rolMedewerker.identificatienummer!!,
                 logContext = "zaak '${zaak.identificatie}'"
             )
         } returns restUser
@@ -242,8 +242,8 @@ class RestZaakConverterTest : BehaviorSpec({
         every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
         every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
         every {
-            restUserConverter.convertUserId(
-                userId = rolMedewerker.identificatienummer!!,
+            restUserConverter.convertUsername(
+                username = rolMedewerker.identificatienummer!!,
                 logContext = "zaak '${zaak.identificatie}'"
             )
         } returns restUser
@@ -325,8 +325,8 @@ class RestZaakConverterTest : BehaviorSpec({
         every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
         every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
         every {
-            restUserConverter.convertUserId(
-                userId = rolMedewerker.identificatienummer!!,
+            restUserConverter.convertUsername(
+                username = rolMedewerker.identificatienummer!!,
                 logContext = "zaak '${zaak.identificatie}'"
             )
         } returns restUser
