@@ -49,7 +49,6 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.createZaakspecifiekGeautoriseerdeMedewerkerRolType
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
-import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
 import nl.info.zac.configuration.ConfigurationService
@@ -58,6 +57,7 @@ import nl.info.zac.event.Opcode
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.flowable.ZaakVariabelenService
+import nl.info.zac.identification.IdentificatieType
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.identity.model.createGroup

@@ -44,6 +44,9 @@ Code that existed before a rule was added breaks some rules. Those violations ar
 - When you fix a frozen violation, the test removes it from the store when you run it locally. Commit the changed
   store in the same pull request. The store should only shrink.
 - Do not add a new violation to the store. Fix the code instead.
+- A frozen violation is identified by its description, which contains the fully qualified names of the classes
+  involved. When you move a class, a frozen violation that mentions it gets a new description, and the test
+  reports it as a new violation. If the violation itself stays, update its description in the store.
 - A frozen rule is identified by its description in `stored.rules`. When ArchUnit does not find the description of
   a frozen rule there, it freezes all current violations of that rule. Locally, this happens without a failure.
   So when you change the description of a frozen rule, change its key in `stored.rules` to the new description

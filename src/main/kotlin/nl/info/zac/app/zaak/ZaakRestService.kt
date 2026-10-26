@@ -47,7 +47,6 @@ import nl.info.zac.admin.model.ZaaktypeZaakafzenderParameters
 import nl.info.zac.app.admin.model.RestZaakAfzender
 import nl.info.zac.app.admin.model.toRestZaakAfzenders
 import nl.info.zac.app.bag.model.toZaakobjectRequest
-import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.productaanvraag.model.RestInboxProductaanvraag
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
@@ -91,6 +90,7 @@ import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.history.model.HistoryLine
+import nl.info.zac.identification.IdentificatieType
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy

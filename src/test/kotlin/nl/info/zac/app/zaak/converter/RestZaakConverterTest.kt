@@ -39,7 +39,6 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.flowable.engine.repository.createProcessDefinition
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
-import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.createBetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.createRESTGerelateerdeZaak
@@ -55,6 +54,7 @@ import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCH
 import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ONTVANGSTBEVESTIGING_VERSTUURD
 import nl.info.zac.flowable.bpmn.BpmnService
+import nl.info.zac.identification.IdentificatieType
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD

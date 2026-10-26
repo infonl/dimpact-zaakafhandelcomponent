@@ -70,7 +70,6 @@ import nl.info.zac.admin.model.createZaakAfzender
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeConfigurationsUnderTest
-import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
@@ -119,6 +118,7 @@ import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
 import nl.info.zac.history.ZaakHistoryService
+import nl.info.zac.identification.IdentificatieType
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.identity.model.createGroup

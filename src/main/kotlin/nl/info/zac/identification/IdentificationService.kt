@@ -14,7 +14,6 @@ import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.VESTIGING
 import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie
-import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.sensitive.SensitiveDataService
 import nl.info.zac.util.AllOpen
