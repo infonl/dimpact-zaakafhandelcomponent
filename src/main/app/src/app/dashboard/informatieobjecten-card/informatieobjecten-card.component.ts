@@ -66,7 +66,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
 export class InformatieobjectenCardComponent extends DashboardCardComponent<
   GeneratedType<"RestEnkelvoudigInformatieobject">
 > {
-  private signaleringenService = inject(SignaleringenService);
+  private readonly signaleringenService = inject(SignaleringenService);
 
   columns = [
     "titel",

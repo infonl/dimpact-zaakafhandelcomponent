@@ -14,5 +14,5 @@ import { KlantZoekComponent } from "../../../../klanten/zoek/klanten/klant-zoek.
   imports: [MatDialogModule, KlantZoekComponent],
 })
 export class KlantZoekDialog {
-  dialogRef = inject<MatDialogRef<KlantZoekDialog>>(MatDialogRef);
+  readonly dialogRef = inject<MatDialogRef<KlantZoekDialog>>(MatDialogRef);
 }

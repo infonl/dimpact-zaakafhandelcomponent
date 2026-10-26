@@ -22,7 +22,7 @@ type DateFormat =
   standalone: true,
 })
 export class DatumPipe implements PipeTransform {
-  locale = inject(LOCALE_ID);
+  readonly locale = inject(LOCALE_ID);
 
   transform(
     value?: Date | moment.Moment | string | null,

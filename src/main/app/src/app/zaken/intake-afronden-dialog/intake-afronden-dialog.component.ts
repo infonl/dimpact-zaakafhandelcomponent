@@ -66,17 +66,18 @@ import { ZakenService } from "../zaken.service";
   ],
 })
 export class IntakeAfrondenDialogComponent implements OnDestroy {
-  dialogRef = inject<MatDialogRef<IntakeAfrondenDialogComponent>>(MatDialogRef);
+  readonly dialogRef =
+    inject<MatDialogRef<IntakeAfrondenDialogComponent>>(MatDialogRef);
   data = inject<{
     zaak: GeneratedType<"RestZaak">;
     planItem: GeneratedType<"RestPlanItem">;
   }>(MAT_DIALOG_DATA);
-  private formBuilder = inject(FormBuilder);
-  private translateService = inject(TranslateService);
-  private planItemsService = inject(PlanItemsService);
-  private mailtemplateService = inject(MailtemplateService);
-  private zakenService = inject(ZakenService);
-  private utilService = inject(UtilService);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly translateService = inject(TranslateService);
+  private readonly planItemsService = inject(PlanItemsService);
+  private readonly mailtemplateService = inject(MailtemplateService);
+  private readonly zakenService = inject(ZakenService);
+  private readonly utilService = inject(UtilService);
 
   protected readonly zaakOntvankelijkMailQuery = injectQuery(() =>
     this.mailtemplateService.findMailtemplate(

@@ -16,8 +16,8 @@ import {
   standalone: true,
 })
 export class ZacNarrowMatCheckboxDirective implements OnInit {
-  private el = inject(ElementRef);
-  private renderer = inject(Renderer2);
+  private readonly el = inject(ElementRef);
+  private readonly renderer = inject(Renderer2);
 
   ngOnInit(): void {
     this.renderer.addClass(this.el.nativeElement, "mat-narrow-checkbox");

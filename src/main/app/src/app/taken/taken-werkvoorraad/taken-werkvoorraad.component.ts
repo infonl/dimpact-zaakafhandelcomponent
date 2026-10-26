@@ -106,15 +106,17 @@ export class TakenWerkvoorraadComponent
   extends WerklijstComponent
   implements AfterViewInit, OnInit, OnDestroy
 {
-  override route = inject(ActivatedRoute);
-  private takenService = inject(TakenService);
-  protected utilService = inject(UtilService);
-  private identityService = inject(IdentityService);
-  private dialog = inject(MatDialog);
-  private zoekenService = inject(ZoekenService);
-  override gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
-  private translateService = inject(TranslateService);
-  private batchProcessService = inject(BatchProcessService);
+  override readonly route = inject(ActivatedRoute);
+  private readonly takenService = inject(TakenService);
+  protected readonly utilService = inject(UtilService);
+  private readonly identityService = inject(IdentityService);
+  private readonly dialog = inject(MatDialog);
+  private readonly zoekenService = inject(ZoekenService);
+  override readonly gebruikersvoorkeurenService = inject(
+    GebruikersvoorkeurenService,
+  );
+  private readonly translateService = inject(TranslateService);
+  private readonly batchProcessService = inject(BatchProcessService);
 
   protected selection = new SelectionModel<TaakZoekObject>(true, []);
   protected dataSource: TakenWerkvoorraadDatasource;

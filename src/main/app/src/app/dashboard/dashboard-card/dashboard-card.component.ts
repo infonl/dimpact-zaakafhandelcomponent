@@ -31,14 +31,15 @@ import { DashboardCard } from "../model/dashboard-card";
   standalone: true,
 })
 export abstract class DashboardCardComponent<
-    T extends
-      GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject"> = GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">,
-    C extends readonly string[] = readonly string[],
-  >
+  T extends
+    GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject"> =
+    GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">,
+  C extends readonly string[] = readonly string[],
+>
   implements OnInit, AfterViewInit, OnDestroy
 {
-  protected identityService = inject(IdentityService);
-  protected websocketService = inject(WebsocketService);
+  protected readonly identityService = inject(IdentityService);
+  protected readonly websocketService = inject(WebsocketService);
 
   readonly data = input.required<DashboardCard>();
 

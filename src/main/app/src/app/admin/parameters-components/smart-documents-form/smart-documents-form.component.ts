@@ -60,9 +60,11 @@ interface FlatNode {
   ],
 })
 export class SmartDocumentsFormComponent {
-  private smartDocumentsService = inject(SmartDocumentsService);
-  private informatieObjectenService = inject(InformatieObjectenService);
-  private formBuilder = inject(FormBuilder);
+  private readonly smartDocumentsService = inject(SmartDocumentsService);
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
+  private readonly formBuilder = inject(FormBuilder);
 
   readonly zaakTypeUuid = input.required<string>();
   readonly enabledGlobally = input.required<boolean>();
@@ -156,8 +158,8 @@ export class SmartDocumentsFormComponent {
       level: level,
       expandable: Boolean(
         "templates" in node &&
-          Array.isArray(node.templates) &&
-          node.templates.length,
+        Array.isArray(node.templates) &&
+        node.templates.length,
       ),
     };
   };

@@ -11,7 +11,7 @@ import { KB_IN_BYTES, MB_IN_BYTES } from "../utils/constants";
   standalone: true,
 })
 export class BestandsomvangPipe implements PipeTransform {
-  locale = inject(LOCALE_ID);
+  readonly locale = inject(LOCALE_ID);
 
   transform(value: number) {
     if (value) {

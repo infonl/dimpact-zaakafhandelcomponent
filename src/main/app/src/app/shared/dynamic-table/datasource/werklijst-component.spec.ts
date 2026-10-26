@@ -21,8 +21,8 @@ import { WerklijstComponent } from "./werklijst-component";
 
 @Component({ template: "", standalone: true })
 class ConcreteWerklijstComponent extends WerklijstComponent {
-  gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
-  route = inject(ActivatedRoute);
+  readonly gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
+  readonly route = inject(ActivatedRoute);
 
   constructor() {
     super();

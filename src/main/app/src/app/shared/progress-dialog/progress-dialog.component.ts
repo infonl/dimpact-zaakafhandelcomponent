@@ -13,7 +13,8 @@ import { MatProgressBarModule } from "@angular/material/progress-bar";
   imports: [MatProgressBarModule],
 })
 export class ProgressDialogComponent {
-  dialogRef = inject<MatDialogRef<ProgressDialogComponent>>(MatDialogRef);
+  readonly dialogRef =
+    inject<MatDialogRef<ProgressDialogComponent>>(MatDialogRef);
   data = inject<{
     message: string;
     action?: string;

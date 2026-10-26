@@ -28,11 +28,11 @@ export type Progress = {
   providedIn: "root",
 })
 export class UtilService {
-  private breakpointObserver = inject(BreakpointObserver);
-  private translate = inject(TranslateService);
-  private router = inject(Router);
-  private snackbar = inject(MatSnackBar);
-  private dialog = inject(MatDialog);
+  private readonly breakpointObserver = inject(BreakpointObserver);
+  private readonly translate = inject(TranslateService);
+  private readonly router = inject(Router);
+  private readonly snackbar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
 
   readonly loading = signal(false);
 
