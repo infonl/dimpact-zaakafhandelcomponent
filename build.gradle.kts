@@ -704,6 +704,14 @@ tasks {
         useJUnitPlatform()
     }
 
+    named<Test>("test") {
+        // ArchUnit freezes the violations of an unknown rule, such as a renamed one, and drops fixed violations by
+        // updating the store. On CI it may not update the store, so the build fails when the committed store is not up to date.
+        if (providers.environmentVariable("CI").orNull == "true") {
+            systemProperty("archunit.freeze.store.default.allowStoreUpdate", "false")
+        }
+    }
+
     withType<Javadoc> {
         options.encoding = "UTF-8"
     }
