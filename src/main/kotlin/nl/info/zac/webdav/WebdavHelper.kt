@@ -8,10 +8,10 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.ws.rs.core.UriInfo
-import net.atos.zac.util.MediaTypes
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.webdav.exceptions.WebdavException
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.util.MediaTypes
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.collections4.map.LRUMap
 import org.apache.commons.io.FilenameUtils.getExtension

@@ -23,7 +23,6 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.StreamingOutput
 import jakarta.ws.rs.core.UriInfo
-import net.atos.zac.util.MediaTypes
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.StatusEnum
@@ -67,6 +66,7 @@ import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.util.AllOpen
+import nl.info.zac.util.MediaTypes
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.webdav.WebdavHelper
 import nl.info.zac.websocket.event.ScreenEventType

@@ -11,7 +11,6 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
-import net.atos.zac.util.MediaTypes
 import nl.info.client.bag.exception.BagResponseExceptionMapper
 import nl.info.client.bag.model.BevraagAdressenParameters
 import nl.info.client.bag.model.generated.AdresIOHal
@@ -19,6 +18,7 @@ import nl.info.client.bag.model.generated.AdresIOHalCollection
 import nl.info.client.bag.model.generated.ZoekResultaatHalCollection
 import nl.info.client.bag.util.BagClientHeadersFactory
 import nl.info.client.bag.util.JsonbConfiguration
+import nl.info.zac.util.MediaTypes
 import org.eclipse.microprofile.faulttolerance.Timeout
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider

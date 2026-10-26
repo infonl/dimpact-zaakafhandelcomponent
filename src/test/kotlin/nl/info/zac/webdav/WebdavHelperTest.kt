@@ -15,12 +15,12 @@ import io.mockk.slot
 import jakarta.enterprise.inject.Instance
 import jakarta.ws.rs.core.UriBuilder
 import jakarta.ws.rs.core.UriInfo
-import net.atos.zac.util.MediaTypes
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.webdav.exceptions.WebdavException
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.util.MediaTypes
 import java.net.URI
 import java.util.UUID
 

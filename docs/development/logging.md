@@ -86,7 +86,7 @@ Observed usage of `java.util.logging.Level` in this codebase:
 - `nl/info/client/{brp,kvk,klant,keycloak,zgw}` — external API client warnings and failures.
 - `nl/info/zac/notification`, `nl/info/zac/signalering`, `nl/info/zac/mail` — notification receipt,
   signalering cleanup/due-date emails, mail send outcomes.
-- `nl/info/zac/websocket` and `net/atos/zac/util` — websocket connection lifecycle and a JSON
+- `nl/info/zac/websocket` and `nl/info/zac/util` — websocket connection lifecycle and a JSON
   request/response logging filter (`JsonLoggingFilter`).
 
 ## Frontend
@@ -203,7 +203,7 @@ treated as personal data on its own.
 
 ### Backend — confirmed
 
-- [`net/atos/zac/util/JsonLoggingFilter.java`](../../src/main/java/net/atos/zac/util/JsonLoggingFilter.java) —
+- [`nl/info/zac/util/JsonLoggingFilter.kt`](../../src/main/kotlin/nl/info/zac/util/JsonLoggingFilter.kt) —
   registered as a generic JAX-RS `@Provider`, so it logs the **full raw request and response body and
   headers of every outbound REST client call** at `FINE` level. Since it applies indiscriminately to
   every REST client (BRP, Open Klant, KVK, ZGW APIs, SmartDocuments, ...), any personal data flowing

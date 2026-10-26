@@ -14,7 +14,6 @@ import io.mockk.mockk
 import io.mockk.slot
 import jakarta.enterprise.event.Event
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.util.event.JobEvent
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.LoggedInUserProvider.Companion.FUNCTIONEEL_GEBRUIKER
 import nl.info.zac.authentication.createLoggedInUser
@@ -22,6 +21,7 @@ import nl.info.zac.identity.model.createUser
 import nl.info.zac.signalering.event.SignaleringEvent
 import nl.info.zac.signalering.event.SignaleringEventId
 import nl.info.zac.signalering.model.SignaleringType
+import nl.info.zac.util.event.JobEvent
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.websocket.event.ScreenEventType
 import java.net.URI

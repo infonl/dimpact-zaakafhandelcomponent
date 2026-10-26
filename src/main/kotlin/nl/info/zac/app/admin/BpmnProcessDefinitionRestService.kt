@@ -18,7 +18,6 @@ import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.Response.Status
-import net.atos.zac.util.MediaTypes
 import nl.info.zac.app.admin.model.BpmnProcessDefinitionTaskFormContent
 import nl.info.zac.app.admin.model.RestBpmnProcessDefinition
 import nl.info.zac.app.admin.model.RestBpmnProcessDefinitionDetails
@@ -30,6 +29,7 @@ import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionTaskForm
 import nl.info.zac.flowable.bpmn.model.isUsedIn
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.util.MediaTypes
 import nl.info.zac.util.NoArgConstructor
 
 @Singleton
