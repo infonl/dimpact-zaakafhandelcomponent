@@ -405,7 +405,22 @@
       "versioningTemplate": "maven"
     }
   ],
+  "lockFileMaintenance": {
+    "schedule": ["* 4-7 * * 1"]
+  },
   "packageRules": [
+    {
+      "matchUpdateTypes": [
+        "patch"
+      ],
+      "schedule": [
+        "* 0,4-23 * * 1-5",
+	"* * * * 0,6"
+      ],
+      "description": [
+        "Only create/update patch PRs inside the automerge window, so they are never left waiting outside it"
+      ]
+    },
     {
       "matchUpdateTypes": [
         "patch",
