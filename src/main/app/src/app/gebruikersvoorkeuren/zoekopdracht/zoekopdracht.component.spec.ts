@@ -290,6 +290,25 @@ describe(ZoekopdrachtComponent.name, () => {
       );
     });
 
+    it("does not apply the active saved search of a cached list when reading the list again fails", async () => {
+      testQueryClient.setQueryData(
+        [
+          "/rest/gebruikersvoorkeuren/zoekopdracht/{lijstID}",
+          { path: { lijstID: WERKLIJST } },
+        ],
+        [makeZoekopdracht({ id: 3, actief: true })],
+      );
+      await setup();
+
+      httpTestingController
+        .expectOne(ZOEKOPDRACHTEN_URL)
+        .flush(null, { status: 400, statusText: "Bad Request" });
+      await sleep();
+      fixture.detectChanges();
+
+      expect(zoekopdrachtEmitted).not.toHaveBeenCalled();
+    });
+
     it("deletes a saved search without activating it", async () => {
       await setup();
       await loadZoekopdrachten([makeZoekopdracht({ id: 7 })]);

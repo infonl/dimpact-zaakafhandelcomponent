@@ -87,7 +87,12 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   constructor() {
     effect(() => {
       const zoekopdrachten = this.zoekopdrachtenQuery.data();
-      if (!zoekopdrachten || this.zoekopdrachtenQuery.isFetching()) return;
+      if (
+        !zoekopdrachten ||
+        this.zoekopdrachtenQuery.isFetching() ||
+        this.zoekopdrachtenQuery.isError()
+      )
+        return;
       untracked(() => this.applyZoekopdrachten(zoekopdrachten));
     });
   }

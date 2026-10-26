@@ -17,12 +17,15 @@ export class GebruikersvoorkeurenService {
   private readonly queryClient = inject(QueryClient);
 
   listZoekOpdrachten(lijstID: GeneratedType<"Werklijst">) {
-    return this.zacQueryClient.GET(
-      "/rest/gebruikersvoorkeuren/zoekopdracht/{lijstID}",
-      {
-        path: { lijstID },
-      },
-    );
+    return {
+      ...this.zacQueryClient.GET(
+        "/rest/gebruikersvoorkeuren/zoekopdracht/{lijstID}",
+        {
+          path: { lijstID },
+        },
+      ),
+      meta: { reportFailedRefetch: true },
+    };
   }
 
   createOrUpdateZoekOpdrachten() {
@@ -52,12 +55,15 @@ export class GebruikersvoorkeurenService {
   }
 
   readTabelGegevens(werklijst: GeneratedType<"Werklijst">) {
-    return this.zacQueryClient.GET(
-      "/rest/gebruikersvoorkeuren/tabel-gegevens/{werklijst}",
-      {
-        path: { werklijst },
-      },
-    );
+    return {
+      ...this.zacQueryClient.GET(
+        "/rest/gebruikersvoorkeuren/tabel-gegevens/{werklijst}",
+        {
+          path: { werklijst },
+        },
+      ),
+      meta: { reportFailedRefetch: true },
+    };
   }
 
   updateAantalPerPagina(werklijst: GeneratedType<"Werklijst">, aantal: number) {

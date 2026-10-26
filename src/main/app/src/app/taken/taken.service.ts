@@ -33,6 +33,7 @@ export class TakenService {
       }),
       staleTime: StaleTimes.Instant,
       gcTime: 0,
+      meta: { reportFailedRefetch: true },
     };
   }
 
@@ -55,6 +56,7 @@ export class TakenService {
       }),
       staleTime: StaleTimes.Instant,
       gcTime: 0,
+      meta: { reportFailedRefetch: true },
     };
   }
 

@@ -185,6 +185,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       const signaleringInstellingen =
         this.dashboardSignaleringTypenQuery.data();
       if (!dashboardInstellingen || !signaleringInstellingen) return;
+      if (
+        this.dashboardCardsQuery.isFetching() ||
+        this.dashboardSignaleringTypenQuery.isFetching()
+      )
+        return;
       if (this.cardsPlaced) return;
       this.cardsPlaced = true;
       untracked(() =>
