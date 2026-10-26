@@ -63,7 +63,7 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
         ).let { response ->
             response.code shouldBe HTTP_OK
             JSONArray(response.bodyAsString).let { users ->
-                (0 until users.length()).map { users.getJSONObject(it).getString("id") }
+                (0 until users.length()).map { users.getJSONObject(it).getString("username") }
             }
         }
 
