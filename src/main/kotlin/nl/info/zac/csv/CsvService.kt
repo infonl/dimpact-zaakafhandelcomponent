@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.csv
+package nl.info.zac.csv
 
 import com.opencsv.CSVWriter
 import jakarta.ws.rs.core.StreamingOutput

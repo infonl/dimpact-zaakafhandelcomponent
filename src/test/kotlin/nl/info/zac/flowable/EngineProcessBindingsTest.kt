@@ -13,15 +13,14 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import io.mockk.verifyOrder
-import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICATIEKANAAL
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
-import net.atos.zac.flowable.cmmn.CmmnService
-import net.atos.zac.flowable.exception.CaseOrProcessNotFoundException
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICATIEKANAAL
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
 import nl.info.zac.flowable.bpmn.BpmnService
+import nl.info.zac.flowable.cmmn.CmmnService
+import nl.info.zac.flowable.exception.CaseOrProcessNotFoundException
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
 

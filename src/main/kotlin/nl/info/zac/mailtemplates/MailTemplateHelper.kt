@@ -6,7 +6,6 @@ package nl.info.zac.mailtemplates
 
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.UriBuilder
-import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.model.generated.Persoon
 import nl.info.client.brp.util.toAddressString
@@ -23,6 +22,7 @@ import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.task.readZaakIdentificatie
 import nl.info.zac.flowable.task.readZaaktypeOmschrijving
 import nl.info.zac.identification.findRechtspersoonOrVestiging

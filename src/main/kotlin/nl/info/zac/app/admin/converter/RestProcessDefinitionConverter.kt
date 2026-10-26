@@ -5,7 +5,6 @@
 package nl.info.zac.app.admin.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.flowable.cmmn.CmmnService
 import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.admin.model.ZaaktypeProcessBinding
 import nl.info.zac.app.admin.model.RestPlanItemDefinition
@@ -13,6 +12,7 @@ import nl.info.zac.app.admin.model.RestProcessDefinition
 import nl.info.zac.app.planitems.model.PlanItemType.HUMAN_TASK
 import nl.info.zac.app.planitems.model.PlanItemType.USER_EVENT_LISTENER
 import nl.info.zac.flowable.bpmn.BpmnService
+import nl.info.zac.flowable.cmmn.CmmnService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.repository.CaseDefinition

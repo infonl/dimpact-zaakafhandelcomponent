@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.flowable.cmmn
+package nl.info.zac.flowable.cmmn
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.every
@@ -12,7 +12,7 @@ import io.mockk.mockkObject
 import io.mockk.runs
 import io.mockk.unmockkAll
 import io.mockk.verify
-import net.atos.zac.flowable.FlowableHelper
+import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.search.IndexingService
 import org.flowable.cmmn.engine.CmmnEngineConfiguration
 import org.flowable.task.service.impl.persistence.entity.TaskEntity

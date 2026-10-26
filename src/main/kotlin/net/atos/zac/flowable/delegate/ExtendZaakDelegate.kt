@@ -5,7 +5,7 @@
 
 package net.atos.zac.flowable.delegate
 
-import net.atos.zac.flowable.FlowableHelper
+import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.websocket.event.ScreenEventType
 import org.flowable.common.engine.api.delegate.Expression

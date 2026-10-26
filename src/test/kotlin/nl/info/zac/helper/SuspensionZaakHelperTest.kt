@@ -18,7 +18,6 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.delegate.exception.InvalidExtensionPeriodException
 import nl.info.client.zgw.model.createOpschorting
 import nl.info.client.zgw.model.createZaak
@@ -29,6 +28,7 @@ import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_EXTENSION_PERIOD_INVALID
+import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException

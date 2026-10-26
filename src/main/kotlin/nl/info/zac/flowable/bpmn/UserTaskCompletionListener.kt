@@ -2,10 +2,10 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.flowable.bpmn
+package nl.info.zac.flowable.bpmn
 
 import jakarta.enterprise.context.ApplicationScoped
-import net.atos.zac.flowable.FlowableHelper
+import nl.info.zac.flowable.FlowableHelper
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEventType
 import org.flowable.common.engine.api.delegate.event.FlowableEntityEvent
 import org.flowable.common.engine.api.delegate.event.FlowableEvent

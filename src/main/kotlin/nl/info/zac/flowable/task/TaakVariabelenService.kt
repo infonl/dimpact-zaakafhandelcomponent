@@ -9,11 +9,11 @@ package nl.info.zac.flowable.task
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_OMSCHRIJVING
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_UUID
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_IDENTIFICATIE
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
-import net.atos.zac.flowable.exception.VariableNotFoundException
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_OMSCHRIJVING
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_UUID
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_IDENTIFICATIE
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
+import nl.info.zac.flowable.exception.VariableNotFoundException
 import nl.info.zac.flowable.util.isCmmnTask
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor

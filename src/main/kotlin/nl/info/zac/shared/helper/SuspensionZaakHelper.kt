@@ -6,7 +6,6 @@ package nl.info.zac.shared.helper
 
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
-import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.delegate.exception.InvalidExtensionPeriodException
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Opschorting
@@ -18,6 +17,7 @@ import nl.info.client.zgw.ztc.model.extensions.extensionPeriodDays
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.zaak.ZaakRestService.Companion.AANVULLENDE_INFORMATIE_TASK_NAME
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy

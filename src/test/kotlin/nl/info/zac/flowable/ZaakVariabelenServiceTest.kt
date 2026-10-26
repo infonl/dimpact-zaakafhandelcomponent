@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.flowable
+package nl.info.zac.flowable
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -15,9 +15,9 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_DATUMTIJD_OPGESCHORT
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_VERWACHTE_DAGEN_OPGESCHORT
 import nl.info.test.org.flowable.cmmn.api.runtime.createTestPlanItemInstance
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_DATUMTIJD_OPGESCHORT
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_VERWACHTE_DAGEN_OPGESCHORT
 import org.flowable.cmmn.api.CmmnHistoryService
 import org.flowable.cmmn.api.CmmnRuntimeService
 import org.flowable.cmmn.api.runtime.CaseInstance
