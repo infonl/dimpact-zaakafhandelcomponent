@@ -116,7 +116,7 @@ class ZaakZoekObjectConverter @Inject constructor(
         }
         findBehandelaar(zaak, roles)?.let {
             zaakZoekObject.behandelaarNaam = it.getFullName()
-            zaakZoekObject.behandelaarGebruikersnaam = it.id
+            zaakZoekObject.behandelaarGebruikersnaam = it.username
             zaakZoekObject.isToegekend = true
         }
         zaak.status?.let {

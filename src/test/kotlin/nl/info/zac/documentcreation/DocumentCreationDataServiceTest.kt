@@ -126,7 +126,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                         woonplaats shouldBe (persoon.verblijfplaats as Adres).verblijfadres.woonplaats
                     }
                     with(gebruikerData) {
-                        id shouldBe loggedInUser.id
+                        id shouldBe loggedInUser.username
                         naam shouldBe loggedInUser.getFullName()
                     }
                     with(zaakData) {
@@ -181,7 +181,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                         woonplaats shouldBe resultaatItem.adres.binnenlandsAdres.plaats
                     }
                     with(gebruikerData) {
-                        id shouldBe loggedInUser.id
+                        id shouldBe loggedInUser.username
                         naam shouldBe loggedInUser.getFullName()
                     }
                     with(zaakData) {
@@ -242,7 +242,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                         woonplaats shouldBe resultaatItem.adres.binnenlandsAdres.plaats
                     }
                     with(gebruikerData) {
-                        id shouldBe loggedInUser.id
+                        id shouldBe loggedInUser.username
                         naam shouldBe loggedInUser.getFullName()
                     }
                     with(zaakData) {
@@ -637,7 +637,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         val zaak = createZaak(zaaktypeUri = zaakType.url)
         val taskId = "fakeTaskId"
         val assigneeId = "fakeAssigneeId"
-        val user = createUser(id = assigneeId)
+        val user = createUser(username = assigneeId)
         val taskInfo = mockk<TaskInfo>()
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns null

@@ -61,7 +61,7 @@ describe(CaseDetailsEditComponent.name, () => {
   });
 
   const mockLoggedInUser = fromPartial<GeneratedType<"RestLoggedInUser">>({
-    id: "user-123",
+    username: "user-123",
     naam: "testuser",
   });
 
@@ -494,11 +494,11 @@ describe(CaseDetailsEditComponent.name, () => {
       naam: "Groep 1",
     });
     const zaakBehandelaar = fromPartial<GeneratedType<"RestUser">>({
-      id: "user-123",
+      username: "user-123",
       naam: "testuser",
     });
     const otherUser = fromPartial<GeneratedType<"RestUser">>({
-      id: "other-user",
+      username: "other-user",
       naam: "Other user",
     });
 
@@ -647,7 +647,7 @@ describe(CaseDetailsEditComponent.name, () => {
       });
       const usersInGroup = [
         fromPartial<GeneratedType<"RestUser">>({
-          id: "u1",
+          username: "u1",
           naam: "User 1",
         }),
       ];
@@ -743,7 +743,7 @@ describe(CaseDetailsEditComponent.name, () => {
       component["form"].controls.behandelaar.enable();
       component["form"].controls.behandelaar.setValue(
         fromPartial<GeneratedType<"RestUser">>({
-          id: "other-user",
+          username: "other-user",
           naam: "Other User",
         }),
       );
@@ -756,7 +756,7 @@ describe(CaseDetailsEditComponent.name, () => {
       const request = expectUpdateZaakRequest();
       expect(request.request.body.zaak).toEqual(
         expect.objectContaining({
-          behandelaar: expect.objectContaining({ id: "other-user" }),
+          behandelaar: expect.objectContaining({ username: "other-user" }),
         }),
       );
       expect(
@@ -768,7 +768,7 @@ describe(CaseDetailsEditComponent.name, () => {
     it("releases a cleared behandelaar explicitly, so the update does not keep the current one", async () => {
       renderComponent({
         behandelaar: fromPartial<GeneratedType<"RestUser">>({
-          id: "user-123",
+          username: "user-123",
           naam: "testuser",
         }),
       });
@@ -796,7 +796,7 @@ describe(CaseDetailsEditComponent.name, () => {
       renderComponent({
         groep: group,
         behandelaar: fromPartial<GeneratedType<"RestUser">>({
-          id: "user-123",
+          username: "user-123",
           naam: "testuser",
         }),
       });
@@ -825,7 +825,7 @@ describe(CaseDetailsEditComponent.name, () => {
       renderComponent({
         groep: currentGroup,
         behandelaar: fromPartial<GeneratedType<"RestUser">>({
-          id: "user-123",
+          username: "user-123",
           naam: "testuser",
         }),
       });
@@ -849,14 +849,14 @@ describe(CaseDetailsEditComponent.name, () => {
     it("does not release a behandelaar that is still selected", async () => {
       renderComponent({
         behandelaar: fromPartial<GeneratedType<"RestUser">>({
-          id: "user-123",
+          username: "user-123",
           naam: "testuser",
         }),
       });
       component["form"].controls.behandelaar.enable();
       component["form"].controls.behandelaar.setValue(
         fromPartial<GeneratedType<"RestUser">>({
-          id: "user-123",
+          username: "user-123",
           naam: "testuser",
         }),
       );
@@ -1070,11 +1070,11 @@ describe(CaseDetailsEditComponent.name, () => {
       naam: "G2",
     });
     const behandelaar = fromPartial<GeneratedType<"RestUser">>({
-      id: "u1",
+      username: "u1",
       naam: "User 1",
     });
     const groepslid = fromPartial<GeneratedType<"RestUser">>({
-      id: "u2",
+      username: "u2",
       naam: "User 2",
     });
     const autoriseerbaarZaaktype = fromPartial<GeneratedType<"RestZaaktype">>({
@@ -1368,7 +1368,7 @@ describe(CaseDetailsEditComponent.name, () => {
       component["form"].controls.behandelaar.enable();
       component["form"].controls.behandelaar.setValue(
         fromPartial<GeneratedType<"RestUser">>({
-          id: "other-user",
+          username: "other-user",
           naam: "Other User",
         }),
       );
@@ -1396,7 +1396,7 @@ describe(CaseDetailsEditComponent.name, () => {
     it("shows the release refusal, and the single request leaves the zaakgegevens unsaved", async () => {
       renderComponent({
         behandelaar: fromPartial<GeneratedType<"RestUser">>({
-          id: "user-123",
+          username: "user-123",
           naam: "testuser",
         }),
       });

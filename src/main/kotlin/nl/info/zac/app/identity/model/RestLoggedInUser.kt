@@ -12,16 +12,16 @@ import nl.info.zac.util.NoArgConstructor
 @NoArgConstructor
 @AllOpen
 class RestLoggedInUser(
-    id: String,
+    username: String,
     naam: String,
     var groupIds: Set<String>? = null,
     var functionalRoles: Set<String>? = null,
     var applicationRoles: Map<String, Set<String>>? = null,
-) : RestUser(id, naam)
+) : RestUser(username, naam)
 
 fun LoggedInUser.toRestLoggedInUser(): RestLoggedInUser =
     RestLoggedInUser(
-        id = this.id,
+        username = this.username,
         naam = this.getFullName(),
         groupIds = this.groupIds,
         functionalRoles = this.roles,

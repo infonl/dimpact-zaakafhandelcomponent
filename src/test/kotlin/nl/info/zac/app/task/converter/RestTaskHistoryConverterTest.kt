@@ -132,15 +132,15 @@ class RestTaskHistoryConverterTest : BehaviorSpec({
         val history = listOf(
             createHistoricTaskLogEntryEntityImpl(
                 type = HistoricTaskLogEntryType.USER_TASK_OWNER_CHANGED,
-                data = "{\"newAssigneeId\":\"fakeNewUserId\",\"previousAssigneeId\":\"fakePreviousUserId\"}"
+                data = "{\"newAssigneeId\":\"fakeNewUsername\",\"previousAssigneeId\":\"fakePreviousUsername\"}"
             )
         )
         every {
-            identityService.readUser(username = "fakePreviousUserId", logContext = any())
-        } returns createUser(id = "fakePreviousUserId", fullName = "fakePreviousFullName")
+            identityService.readUser(username = "fakePreviousUsername", logContext = any())
+        } returns createUser(username = "fakePreviousUsername", fullName = "fakePreviousFullName")
         every {
-            identityService.readUser(username = "fakeNewUserId", logContext = any())
-        } returns createUser(id = "fakeNewUserId", fullName = "fakeNewFullName")
+            identityService.readUser(username = "fakeNewUsername", logContext = any())
+        } returns createUser(username = "fakeNewUsername", fullName = "fakeNewFullName")
 
         `when`("convert is called") {
             val historieRegels = restTaskHistoryConverter.convert(history)

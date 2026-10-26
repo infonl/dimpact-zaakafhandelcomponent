@@ -12,14 +12,14 @@ import nl.info.zac.util.NoArgConstructor
 @NoArgConstructor
 @AllOpen
 data class RestUser(
-    var id: String,
+    var username: String,
 
     var naam: String
 )
 
 fun User.toRestUser() =
     RestUser(
-        id = this.id,
+        username = this.username,
         naam = this.getFullName()
     )
 

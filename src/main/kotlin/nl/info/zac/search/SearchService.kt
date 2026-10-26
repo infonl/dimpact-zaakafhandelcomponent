@@ -248,7 +248,7 @@ class SearchService @Inject constructor(
                 "-({!terms f=$ZAAKTYPE_OMSCHRIJVING_VELD separator='$TERMS_SEPARATOR' " +
                     "v=\$$ZAAKTYPEN_ZONDER_ZAAKSPECIFIEK_GEAUTORISEERD_PARAMETER} " +
                     "AND ${ZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD}:true " +
-                    "AND -${ZoekObject.ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD}:${quoted(loggedInUser.id)})"
+                    "AND -${ZoekObject.ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD}:${quoted(loggedInUser.username)})"
             )
         }
     }

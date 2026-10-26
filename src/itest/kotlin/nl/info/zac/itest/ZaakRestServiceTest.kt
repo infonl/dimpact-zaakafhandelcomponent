@@ -1083,7 +1083,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             response.code shouldBe HTTP_OK
                             with(JSONObject(response.bodyAsString)) {
                                 getJSONObject("groep").getString("id") shouldBe GROUP_BEHANDELAARS_TEST_1.name
-                                getJSONObject("behandelaar").getString("id") shouldBe BEHANDELAAR_1.username
+                                getJSONObject("behandelaar").getString("username") shouldBe BEHANDELAAR_1.username
                             }
                         }
                         zacClient.retrieveZaak(
@@ -1093,7 +1093,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             response.code shouldBe HTTP_OK
                             with(JSONObject(response.bodyAsString)) {
                                 getJSONObject("groep").getString("id") shouldBe GROUP_BEHANDELAARS_TEST_1.name
-                                getJSONObject("behandelaar").getString("id") shouldBe BEHANDELAAR_1.username
+                                getJSONObject("behandelaar").getString("username") shouldBe BEHANDELAAR_1.username
                             }
                         }
                     }
@@ -1205,7 +1205,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     with(responseBody) {
                         shouldContainJsonKeyValue("uuid", zaakUuid.toString())
                         JSONObject(this).getJSONObject("behandelaar").apply {
-                            getString("id") shouldBe BEHANDELAAR_1.username
+                            getString("username") shouldBe BEHANDELAAR_1.username
                             getString("naam") shouldBe BEHANDELAAR_1.displayName
                         }
                     }
@@ -1219,7 +1219,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     ) {
                         code shouldBe HTTP_OK
                         JSONObject(bodyAsString).getJSONObject("behandelaar").apply {
-                            getString("id") shouldBe BEHANDELAAR_1.username
+                            getString("username") shouldBe BEHANDELAAR_1.username
                             getString("naam") shouldBe BEHANDELAAR_1.displayName
                         }
                     }
@@ -1336,7 +1336,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     with(zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1)) {
                         code shouldBe HTTP_OK
                         JSONObject(bodyAsString).getJSONObject("behandelaar")
-                            .getString("id") shouldBe BEHANDELAAR_1.username
+                            .getString("username") shouldBe BEHANDELAAR_1.username
                     }
                 }
             }
@@ -1795,7 +1795,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
-                    JSONObject(responseBody).getJSONObject("behandelaar").getString("id") shouldBe
+                    JSONObject(responseBody).getJSONObject("behandelaar").getString("username") shouldBe
                         ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username
                     zacClient.retrieveZaak(zaakUuid, ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1).code shouldBe HTTP_OK
                 }
@@ -1884,7 +1884,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                 then("the original behandelaar is the behandelaar again") {
                     response.code shouldBe HTTP_OK
-                    JSONObject(response.bodyAsString).getJSONObject("behandelaar").getString("id") shouldBe
+                    JSONObject(response.bodyAsString).getJSONObject("behandelaar").getString("username") shouldBe
                         BEHANDELAAR_1.username
                 }
 
@@ -2111,7 +2111,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     eventually(30.seconds) {
                         with(zacClient.retrieveZaak(zaakUuid, ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1)) {
                             code shouldBe HTTP_OK
-                            JSONObject(bodyAsString).getJSONObject("behandelaar").getString("id") shouldBe
+                            JSONObject(bodyAsString).getJSONObject("behandelaar").getString("username") shouldBe
                                 ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username
                         }
                     }
@@ -2157,7 +2157,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     with(zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1)) {
                         code shouldBe HTTP_OK
                         JSONObject(bodyAsString).apply {
-                            getJSONObject("behandelaar").getString("id") shouldBe BEHANDELAAR_1.username
+                            getJSONObject("behandelaar").getString("username") shouldBe BEHANDELAAR_1.username
                             getJSONObject("groep").getString("id") shouldBe GROUP_BEHANDELAARS_TEST_1.name
                         }
                     }
@@ -2194,7 +2194,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     }
                     with(zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1)) {
                         code shouldBe HTTP_OK
-                        JSONObject(bodyAsString).getJSONObject("behandelaar").getString("id") shouldBe
+                        JSONObject(bodyAsString).getJSONObject("behandelaar").getString("username") shouldBe
                             BEHANDELAAR_1.username
                     }
                 }
@@ -2248,7 +2248,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                         [ {
                           "behandelaar" : {
-                            "id" : "${BEHANDELAAR_1.username}",
+                            "username" : "${BEHANDELAAR_1.username}",
                             "naam" : "${BEHANDELAAR_1.displayName}"
                           },
                           "groep" : {
@@ -2335,7 +2335,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             "naam": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.description}"
                           },
                           "behandelaar": {
-                            "id": "${BEHANDELAAR_LONG_NAME_TEST.username}",
+                            "username": "${BEHANDELAAR_LONG_NAME_TEST.username}",
                             "naam": "${BEHANDELAAR_LONG_NAME_TEST.displayName}"
                           },
                           "isOpen": true

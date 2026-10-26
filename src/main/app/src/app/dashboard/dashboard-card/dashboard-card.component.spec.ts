@@ -54,7 +54,9 @@ describe(DashboardCardComponent.name, () => {
           useValue: fromPartial<IdentityService>({
             readLoggedInUser: () =>
               createQueryOptions(
-                fromPartial<GeneratedType<"RestUser">>({ id: "fakeUserId" }),
+                fromPartial<GeneratedType<"RestUser">>({
+                  username: "fakeUserId",
+                }),
               ),
           }),
         },

@@ -172,7 +172,7 @@ class RestInformatieobjectConverter @Inject constructor(
         restEnkelvoudigInformatieobject.beschrijving = enkelvoudigInformatieObject.beschrijving
         restEnkelvoudigInformatieobject.ontvangstdatum = enkelvoudigInformatieObject.ontvangstdatum
         restEnkelvoudigInformatieobject.verzenddatum = enkelvoudigInformatieObject.verzenddatum
-        lock?.userId?.let {
+        lock?.username?.let {
             restEnkelvoudigInformatieobject.gelockedDoor = identityService.readUser(
                 username = it,
                 logContext = "the lock on informatieobject '${enkelvoudigInformatieObject.identificatie}'"

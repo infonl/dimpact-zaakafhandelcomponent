@@ -41,7 +41,7 @@ class EventingService @Inject constructor(
      * Prefer using the factory methods on [ScreenEventType] to create these events.
      */
     fun send(event: ScreenEvent) {
-        event.actorUserId = loggedInUserInstance.get().id
+        event.actorUsername = loggedInUserInstance.get().username
         screenUpdateEvent.fireAsync(event)
     }
 

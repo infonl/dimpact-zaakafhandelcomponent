@@ -230,7 +230,7 @@ class ZaakRestService @Inject constructor(
             zaakType.isServicenormAvailable() || throw DueDateNotAllowed()
         }
         val zaakAssignment = if (restZaak.groep != null || restZaak.behandelaar != null) {
-            zaakService.readZaakAssignment(groupId = restZaak.groep?.id, userName = restZaak.behandelaar?.id)
+            zaakService.readZaakAssignment(groupId = restZaak.groep?.id, userName = restZaak.behandelaar?.username)
         } else {
             null
         }
@@ -434,7 +434,7 @@ class ZaakRestService @Inject constructor(
             }
         }
         val zaakListParameters = ZaakListParameters().apply {
-            rolBetrokkeneIdentificatieMedewerkerIdentificatie = loggedInUser.id
+            rolBetrokkeneIdentificatieMedewerkerIdentificatie = loggedInUser.username
         }
         return zrcClientService.listZaken(zaakListParameters).results()
             .filter { it.isOpen() }
@@ -447,7 +447,7 @@ class ZaakRestService @Inject constructor(
                 )
             }
             .map { restZaakOverzichtConverter.convertToRestZaakOverzicht(zaak = it, loggedInUser = loggedInUser) }
-            .filter { it.rechten?.canLezen == true && it.behandelaar?.id == loggedInUser.id }
+            .filter { it.rechten?.canLezen == true && it.behandelaar?.username == loggedInUser.username }
     }
 
     @GET
@@ -910,7 +910,7 @@ class ZaakRestService @Inject constructor(
         restZaakEditMetRedenGegevens: RestZaakEditMetRedenGegevens,
         currentBehandelaarId: String?
     ) = restZaakEditMetRedenGegevens.zaak.groep?.id?.let { requestedGroupId ->
-        val requestedBehandelaarId = restZaakEditMetRedenGegevens.zaak.behandelaar?.id
+        val requestedBehandelaarId = restZaakEditMetRedenGegevens.zaak.behandelaar?.username
             ?: currentBehandelaarId.takeUnless { restZaakEditMetRedenGegevens.isBehandelaarVrijgegeven }
         val currentGroupId = zgwApiService.findGroepForZaak(zaak)
             ?.betrokkeneIdentificatie
@@ -1086,7 +1086,7 @@ class ZaakRestService @Inject constructor(
             zaaktype = zaakType,
             processStartData = ProcessStartData(
                 groupId = restZaak.groep?.id,
-                behandelaarId = restZaak.behandelaar?.id,
+                behandelaarId = restZaak.behandelaar?.username,
                 communicatiekanaal = restZaak.communicatiekanaal
             )
         )

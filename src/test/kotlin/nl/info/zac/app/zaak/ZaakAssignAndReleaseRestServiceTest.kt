@@ -71,7 +71,7 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
             val restZakenVerdeelGegevens = createRESTZakenVerdeelGegevens(
                 uuids = zaakUUIDs,
                 groepId = group.name,
-                behandelaarGebruikersnaam = user.id,
+                behandelaarGebruikersnaam = user.username,
                 reden = "fakeReason"
             )
             every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
@@ -160,8 +160,8 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
             val zaakType = createZaakType()
             val restZaak = createRestZaak()
 
-            val loggedInUserId = "loggedInUserId"
-            val loggedInUser = createLoggedInUser(id = loggedInUserId)
+            val loggedInUsername = "loggedInUsername"
+            val loggedInUser = createLoggedInUser(username = loggedInUsername)
             every { loggedInUserInstance.get() } returns loggedInUser
 
             every {
@@ -171,7 +171,7 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
                 zaakService.assignZaak(
                     zaak = zaak,
                     groupId = restZaakAssignmentToLoggedInUserData.groupId,
-                    userName = loggedInUserId,
+                    userName = loggedInUsername,
                     reason = restZaakAssignmentToLoggedInUserData.reason
                 )
             } just runs
@@ -213,8 +213,8 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
             val zaakType = createZaakType()
             val restZaak = createRestZaak()
 
-            val loggedInUserId = "loggedInUserId"
-            val loggedInUser = createLoggedInUser(id = loggedInUserId)
+            val loggedInUsername = "loggedInUsername"
+            val loggedInUser = createLoggedInUser(username = loggedInUsername)
             every { loggedInUserInstance.get() } returns loggedInUser
 
             every {
@@ -224,7 +224,7 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
                 zaakService.assignZaak(
                     zaak = zaak,
                     groupId = restZaakAssignmentToLoggedInUserData.groupId,
-                    userName = loggedInUserId,
+                    userName = loggedInUsername,
                     reason = restZaakAssignmentToLoggedInUserData.reason
                 )
             } just runs
@@ -318,14 +318,14 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
             val restZakenVerdeelGegevens = createRESTZakenVerdeelGegevens(
                 uuids = zaakUUIDs,
                 groepId = group.name,
-                behandelaarGebruikersnaam = user.id,
+                behandelaarGebruikersnaam = user.username,
                 reden = "fakeReason"
             )
             var userResolvedWhileAssigning: LoggedInUser? = null
             every { loggedInUserInstance.get() } returns loggedInUser
             every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
             every { identityService.readGroup(group.name, "assigning zaken from the werklijst") } returns group
-            every { identityService.readUser(user.id, "assigning zaken from the werklijst") } returns user
+            every { identityService.readUser(user.username, "assigning zaken from the werklijst") } returns user
             every {
                 zaakService.assignZaken(zaakUUIDs = any(), group = any(), user = any(), explanation = any(), screenEventResourceId = any())
             } answers {

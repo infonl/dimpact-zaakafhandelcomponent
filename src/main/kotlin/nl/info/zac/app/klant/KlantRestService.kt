@@ -92,7 +92,7 @@ class KlantRestService @Inject constructor(
         @PathParam("temporaryPersonId") requestedTemporaryPersonId: UUID,
         @HeaderParam(ZAAKTYPE_UUID_HEADER) zaaktypeUuid: UUID? = null,
     ) = runBlocking {
-        val username = loggedInUserInstance.get().id
+        val username = loggedInUserInstance.get().username
         val bsn = identificationService.replaceKeyWithBsn(requestedTemporaryPersonId)
         // run the two client calls concurrently in a coroutine scope,
         // so we do not need to wait for the first call to complete
@@ -222,7 +222,7 @@ class KlantRestService @Inject constructor(
                     brpClientService.retrievePersoon(
                         burgerservicenummer = bsn,
                         zaaktypeUuid = zaaktypeUuid,
-                        userName = loggedInUserInstance.get().id,
+                        userName = loggedInUserInstance.get().username,
                         gemeenteVanInschrijving = restListPersonenParameters.gemeenteVanInschrijving
                     )
                 )
@@ -233,7 +233,7 @@ class KlantRestService @Inject constructor(
             ?: brpClientService.queryPersonen(
                 restListPersonenParameters.toPersonenQuery(),
                 zaaktypeUuid,
-                loggedInUserInstance.get().id
+                loggedInUserInstance.get().username
             )
                 .toRestPersonen()
                 .map { it.apply { temporaryPersonId = identificationService.replaceBsnWithKey(bsn) } }

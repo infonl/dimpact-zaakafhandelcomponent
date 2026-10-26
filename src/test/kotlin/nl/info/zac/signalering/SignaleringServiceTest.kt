@@ -226,7 +226,7 @@ class SignaleringServiceTest : BehaviorSpec({
 
         every { criteriaBuilder.createQuery(Signalering::class.java) } returns criteriaQuery
         every { criteriaBuilder.equal(pathTarget, SignaleringTarget.USER) } returns predicate
-        every { criteriaBuilder.equal(pathTarget, loggedInUser.id) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, loggedInUser.username) } returns predicate
         every { criteriaBuilder.equal(pathTarget, SignaleringSubject.ZAAK) } returns predicate
         every { criteriaBuilder.and(*anyVararg<Predicate>()) } returns predicate
         every { criteriaBuilder.desc(pathTijdstip) } returns order
@@ -251,7 +251,7 @@ class SignaleringServiceTest : BehaviorSpec({
 
         every { zrcClientService.readZaak(UUID.fromString(signalering.subject)) } returns zaak
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(any()) } returns createRolMedewerker(
-            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = loggedInUser.id)
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = loggedInUser.username)
         )
         every { restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaak, loggedInUser) } returns restZaakOverzicht
 
@@ -295,7 +295,7 @@ class SignaleringServiceTest : BehaviorSpec({
         every { entityManager.createQuery(criteriaQuery) } returns typedQuery
         every { criteriaBuilder.createQuery(Signalering::class.java) } returns criteriaQuery
         every { criteriaBuilder.equal(pathTarget, SignaleringTarget.USER) } returns predicate
-        every { criteriaBuilder.equal(pathTarget, loggedInUser.id) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, loggedInUser.username) } returns predicate
         every { criteriaBuilder.equal(pathTarget, SignaleringSubject.ZAAK) } returns predicate
         every { criteriaBuilder.and(*anyVararg<Predicate>()) } returns predicate
         every { criteriaBuilder.desc(pathTijdstip) } returns order
@@ -316,7 +316,7 @@ class SignaleringServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(UUID.fromString(signaleringB.subject)) } returns zaakB
         every { zrcClientService.readZaak(UUID.fromString(signaleringC.subject)) } returns zaakC
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(any()) } returns createRolMedewerker(
-            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = loggedInUser.id)
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = loggedInUser.username)
         )
         every { restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaakA, loggedInUser) } returns overzichtCharlie
         every { restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaakB, loggedInUser) } returns overzichtAlpha
@@ -389,7 +389,7 @@ class SignaleringServiceTest : BehaviorSpec({
         every { entityManager.createQuery(criteriaQuery) } returns typedQuery
         every { criteriaBuilder.createQuery(Signalering::class.java) } returns criteriaQuery
         every { criteriaBuilder.equal(pathTarget, SignaleringTarget.USER) } returns predicate
-        every { criteriaBuilder.equal(pathTarget, loggedInUser.id) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, loggedInUser.username) } returns predicate
         every { criteriaBuilder.equal(pathTarget, SignaleringSubject.ZAAK) } returns predicate
         every { criteriaBuilder.and(*anyVararg<Predicate>()) } returns predicate
         every { criteriaBuilder.desc(pathTijdstip) } returns order
@@ -410,7 +410,7 @@ class SignaleringServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(UUID.fromString(signaleringB.subject)) } returns zaakB
         every { zrcClientService.readZaak(UUID.fromString(signaleringC.subject)) } returns zaakC
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(any()) } returns createRolMedewerker(
-            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = loggedInUser.id)
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = loggedInUser.username)
         )
         every { restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaakA, loggedInUser) } returns overzichtMid
         every { restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaakB, loggedInUser) } returns overzichtNew
@@ -454,7 +454,7 @@ class SignaleringServiceTest : BehaviorSpec({
         every { entityManager.createQuery(criteriaQuery) } returns typedQuery
         every { criteriaBuilder.createQuery(Signalering::class.java) } returns criteriaQuery
         every { criteriaBuilder.equal(pathTarget, SignaleringTarget.USER) } returns predicate
-        every { criteriaBuilder.equal(pathTarget, loggedInUser.id) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, loggedInUser.username) } returns predicate
         every { criteriaBuilder.equal(pathTarget, SignaleringSubject.ZAAK) } returns predicate
         every { criteriaBuilder.and(*anyVararg<Predicate>()) } returns predicate
         every { criteriaBuilder.desc(pathTijdstip) } returns order
@@ -475,7 +475,7 @@ class SignaleringServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(UUID.fromString(signaleringB.subject)) } returns zaakB
         every { zrcClientService.readZaak(UUID.fromString(signaleringC.subject)) } returns zaakC
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(any()) } returns createRolMedewerker(
-            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = loggedInUser.id)
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = loggedInUser.username)
         )
         every { restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaakA, loggedInUser) } returns overzichtZonnepanelen
         every { restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaakB, loggedInUser) } returns overzichtAanvraag
@@ -529,7 +529,7 @@ class SignaleringServiceTest : BehaviorSpec({
         every { entityManager.createQuery(criteriaQuery) } returns typedQuery
         every { criteriaBuilder.createQuery(Signalering::class.java) } returns criteriaQuery
         every { criteriaBuilder.equal(pathTarget, SignaleringTarget.USER) } returns predicate
-        every { criteriaBuilder.equal(pathTarget, loggedInUser.id) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, loggedInUser.username) } returns predicate
         every { criteriaBuilder.equal(pathTarget, SignaleringSubject.ZAAK) } returns predicate
         every { criteriaBuilder.and(*anyVararg<Predicate>()) } returns predicate
         every { criteriaBuilder.desc(pathTijdstip) } returns order
@@ -594,7 +594,7 @@ class SignaleringServiceTest : BehaviorSpec({
     }
 
     fun createSignaleringWithId(signaleringId: Long) =
-        spyk(createSignalering(targetUser = createUser(id = "fakeId1"))) { every { id } returns signaleringId }
+        spyk(createSignalering(targetUser = createUser(username = "fakeId1"))) { every { id } returns signaleringId }
 
     given("No zaak signaleringen for the given signalering zoek parameters with a subject type and subject") {
         val signaleringenZoekParameters = createSignaleringZoekParameters()
@@ -678,7 +678,7 @@ class SignaleringServiceTest : BehaviorSpec({
         )
         val zaakspecifiekGeautoriseerdeTaak = createTestTask(
             id = "fakeTaakId1",
-            assignee = loggedInUser.id,
+            assignee = loggedInUser.username,
             caseVariables = mapOf(
                 "zaakIdentificatie" to "fakeZaakIdentificatie1",
                 "zaaktypeOmschrijving" to "fakeZaaktypeOmschrijving"
@@ -686,7 +686,7 @@ class SignaleringServiceTest : BehaviorSpec({
         )
         val otherTaak = createTestTask(
             id = "fakeTaakId2",
-            assignee = loggedInUser.id,
+            assignee = loggedInUser.username,
             caseVariables = mapOf(
                 "zaakIdentificatie" to "fakeZaakIdentificatie2",
                 "zaaktypeOmschrijving" to "fakeZaaktypeOmschrijving"
@@ -697,7 +697,7 @@ class SignaleringServiceTest : BehaviorSpec({
         every { entityManager.createQuery(criteriaQuery) } returns typedQuery
         every { criteriaBuilder.createQuery(Signalering::class.java) } returns criteriaQuery
         every { criteriaBuilder.equal(pathTarget, SignaleringTarget.USER) } returns predicate
-        every { criteriaBuilder.equal(pathTarget, loggedInUser.id) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, loggedInUser.username) } returns predicate
         every { criteriaBuilder.equal(pathTarget, SignaleringSubject.TAAK) } returns predicate
         every { criteriaBuilder.and(*anyVararg<Predicate>()) } returns predicate
         every { criteriaBuilder.desc(pathTijdstip) } returns order
@@ -746,7 +746,7 @@ class SignaleringServiceTest : BehaviorSpec({
         every { entityManager.createQuery(criteriaQuery) } returns typedQuery
         every { criteriaBuilder.createQuery(Signalering::class.java) } returns criteriaQuery
         every { criteriaBuilder.equal(pathTarget, SignaleringTarget.USER) } returns predicate
-        every { criteriaBuilder.equal(pathTarget, loggedInUser.id) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, loggedInUser.username) } returns predicate
         every { criteriaBuilder.equal(pathTarget, subjecttype) } returns predicate
         every { criteriaBuilder.and(*anyVararg<Predicate>()) } returns predicate
         every { criteriaBuilder.desc(pathTijdstip) } returns order
@@ -763,14 +763,14 @@ class SignaleringServiceTest : BehaviorSpec({
         every { pathTarget.get<Any>("subjecttype") } returns pathTarget
     }
 
-    fun createZaakSignalering(zaak: Zaak, targetUserId: String = "fakeLoggedInUserName") =
-        createSignalering(zaak = zaak, targetUser = createUser(id = targetUserId))
+    fun createZaakSignalering(zaak: Zaak, targetUsername: String = "fakeLoggedInUserName") =
+        createSignalering(zaak = zaak, targetUser = createUser(username = targetUsername))
 
-    fun createZaakSignaleringWithId(signaleringId: Long, zaak: Zaak, targetUserId: String = "fakeLoggedInUserName") =
-        spyk(createZaakSignalering(zaak = zaak, targetUserId = targetUserId)) { every { id } returns signaleringId }
+    fun createZaakSignaleringWithId(signaleringId: Long, zaak: Zaak, targetUsername: String = "fakeLoggedInUserName") =
+        spyk(createZaakSignalering(zaak = zaak, targetUsername = targetUsername)) { every { id } returns signaleringId }
 
-    fun createBehandelaarRol(userId: String) =
-        createRolMedewerker(medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = userId))
+    fun createBehandelaarRol(username: String) =
+        createRolMedewerker(medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = username))
 
     fun captureSignaleringServiceWarnings(): MutableList<LogRecord> {
         val logRecords = mutableListOf<LogRecord>()
@@ -790,8 +790,8 @@ class SignaleringServiceTest : BehaviorSpec({
             stubListSignaleringen(
                 signaleringenZoekParameters = SignaleringZoekParameters(SignaleringSubject.ZAAK, zaak.uuid.toString()),
                 listedSignaleringen = listOf(
-                    createZaakSignaleringWithId(signaleringId = 1L, zaak = zaak, targetUserId = "fakeUserA"),
-                    createZaakSignalering(zaak = zaak, targetUserId = "fakeUserB")
+                    createZaakSignaleringWithId(signaleringId = 1L, zaak = zaak, targetUsername = "fakeUserA"),
+                    createZaakSignalering(zaak = zaak, targetUsername = "fakeUserB")
                 )
             )
             every { pathTarget.get<Any>("id") } returns pathTarget
@@ -837,7 +837,7 @@ class SignaleringServiceTest : BehaviorSpec({
             stubListSignaleringen(
                 signaleringenZoekParameters = SignaleringZoekParameters(SignaleringSubject.ZAAK, zaak.uuid.toString()),
                 listedSignaleringen = listOf(
-                    createZaakSignaleringWithId(signaleringId = 1L, zaak = zaak, targetUserId = "fakeUserA"),
+                    createZaakSignaleringWithId(signaleringId = 1L, zaak = zaak, targetUsername = "fakeUserA"),
                     createSignalering(zaak = zaak, targetGroup = createGroup())
                 )
             )
@@ -862,7 +862,7 @@ class SignaleringServiceTest : BehaviorSpec({
 
     context("Listing zaken signaleringen that are no longer valid") {
         given("a page with a signalering of a zaak that now has another behandelaar and one of a valid zaak") {
-            val loggedInUser = createLoggedInUser(id = "fakeLoggedInUserName")
+            val loggedInUser = createLoggedInUser(username = "fakeLoggedInUserName")
             val reassignedZaak = createZaak()
             val zaak = createZaak()
             val overzicht = createRESTZaakOverzicht()
@@ -876,7 +876,7 @@ class SignaleringServiceTest : BehaviorSpec({
             every {
                 zgwApiService.findBehandelaarMedewerkerRoleForZaak(reassignedZaak)
             } returns createBehandelaarRol("fakeOtherUserName")
-            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createBehandelaarRol(loggedInUser.id)
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createBehandelaarRol(loggedInUser.username)
             every { restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaak, loggedInUser) } returns overzicht
 
             `when`("the first page of two zaken is listed") {
@@ -904,7 +904,7 @@ class SignaleringServiceTest : BehaviorSpec({
         }
 
         given("a signalering of a zaak the user is behandelaar of but cannot read, and one of a valid zaak") {
-            val loggedInUser = createLoggedInUser(id = "fakeLoggedInUserName")
+            val loggedInUser = createLoggedInUser(username = "fakeLoggedInUserName")
             val unreadableZaak = createZaak()
             val zaak = createZaak()
             val overzicht = createRESTZaakOverzicht()
@@ -913,7 +913,7 @@ class SignaleringServiceTest : BehaviorSpec({
             every { typedQuery.resultList } returns listOf(unreadableSignalering, createZaakSignalering(zaak = zaak))
             every { zrcClientService.readZaak(unreadableZaak.uuid) } returns unreadableZaak
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(any()) } returns createBehandelaarRol(loggedInUser.id)
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(any()) } returns createBehandelaarRol(loggedInUser.username)
             every { restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(unreadableZaak, loggedInUser) } returns null
             every { restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaak, loggedInUser) } returns overzicht
 
@@ -945,7 +945,7 @@ class SignaleringServiceTest : BehaviorSpec({
         and a valid taak
         """
     ) {
-        val loggedInUser = createLoggedInUser(id = "fakeLoggedInUserName")
+        val loggedInUser = createLoggedInUser(username = "fakeLoggedInUserName")
         val taakSignaleringType = createSignaleringType(
             type = SignaleringType.Type.TAAK_OP_NAAM,
             subjecttype = SignaleringSubject.TAAK
@@ -956,8 +956,8 @@ class SignaleringServiceTest : BehaviorSpec({
         )
         val reassignedTaak = createTestTask(id = "fakeTaakId1", assignee = "fakeOtherUserName", caseVariables = caseVariables)
         val unassignedTaak = createTestTask(id = "fakeTaakId2", caseVariables = caseVariables)
-        val unreadableTaak = createTestTask(id = "fakeTaakId3", assignee = loggedInUser.id, caseVariables = caseVariables)
-        val taak = createTestTask(id = "fakeTaakId4", assignee = loggedInUser.id, caseVariables = caseVariables)
+        val unreadableTaak = createTestTask(id = "fakeTaakId3", assignee = loggedInUser.username, caseVariables = caseVariables)
+        val taak = createTestTask(id = "fakeTaakId4", assignee = loggedInUser.username, caseVariables = caseVariables)
         val taken = listOf(reassignedTaak, unassignedTaak, unreadableTaak, taak)
         val signaleringen = taken.map { createSignalering(type = taakSignaleringType, zaak = null, taskInfo = it) }
         every { loggedInUserInstance.get() } returns loggedInUser
@@ -1066,7 +1066,7 @@ class SignaleringServiceTest : BehaviorSpec({
     ) {
         val checkedTijdstip = ZonedDateTime.now().minusMinutes(5)
         val checkedSignalering = spyk(
-            createSignalering(targetUser = createUser(id = "fakeUserA"), tijdstip = checkedTijdstip)
+            createSignalering(targetUser = createUser(username = "fakeUserA"), tijdstip = checkedTijdstip)
         ) { every { id } returns 1L }
         stubDeleteUnchangedSignaleringen(signaleringen = listOf(checkedSignalering), deletedCount = 0)
 

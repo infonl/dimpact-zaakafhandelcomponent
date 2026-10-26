@@ -33,7 +33,7 @@ const makeGroup = (fields: Partial<GeneratedType<"RestGroup">> = {}) =>
 
 const makeUser = (fields: Partial<GeneratedType<"RestUser">> = {}) =>
   fromPartial<GeneratedType<"RestUser">>({
-    id: "fakeUserId",
+    username: "fakeUserId",
     naam: "fakeUserNaam",
     ...fields,
   });
@@ -155,11 +155,14 @@ describe(TaakEditComponent.name, () => {
     await setup(
       makeTask({
         groep: makeGroup({ id: "fakeGroupId42", naam: "fakeGroupNaam42" }),
-        behandelaar: makeUser({ id: "fakeUserId7", naam: "fakeUserNaam7" }),
+        behandelaar: makeUser({
+          username: "fakeUserId7",
+          naam: "fakeUserNaam7",
+        }),
       }),
       {
         groups: [makeGroup({ id: "fakeGroupId42", naam: "fakeGroupNaam42" })],
-        users: [makeUser({ id: "fakeUserId7", naam: "fakeUserNaam7" })],
+        users: [makeUser({ username: "fakeUserId7", naam: "fakeUserNaam7" })],
       },
     );
 
@@ -263,7 +266,7 @@ describe(TaakEditComponent.name, () => {
       );
       await respondWith("/rest/identity/groups/fakeOtherGroupId/users", [
         makeUser(),
-        makeUser({ id: "fakeUserId99", naam: "fakeUserNaam99" }),
+        makeUser({ username: "fakeUserId99", naam: "fakeUserNaam99" }),
       ]);
     }
 
@@ -321,7 +324,7 @@ describe(TaakEditComponent.name, () => {
       await setup(makeTask({ behandelaar: makeUser() }), {
         users: [
           makeUser(),
-          makeUser({ id: "fakeUserId99", naam: "fakeUserNaam99" }),
+          makeUser({ username: "fakeUserId99", naam: "fakeUserNaam99" }),
         ],
       });
       await user.click(behandelaarSelect());
@@ -332,8 +335,8 @@ describe(TaakEditComponent.name, () => {
       });
       await respondWith("/rest/identity/groups/fakeGroupId/users", [
         makeUser(),
-        makeUser({ id: "fakeUserId99", naam: "fakeUserNaam99" }),
-        makeUser({ id: "fakeNewUserId", naam: "fakeNewUserNaam" }),
+        makeUser({ username: "fakeUserId99", naam: "fakeUserNaam99" }),
+        makeUser({ username: "fakeNewUserId", naam: "fakeNewUserNaam" }),
       ]);
 
       expect(behandelaarSelect()).toHaveTextContent("fakeUserNaam99");
@@ -347,7 +350,7 @@ describe(TaakEditComponent.name, () => {
           id: "fakeTaakId1",
           zaakUuid: "fakeZaakUuid1",
           groep: makeGroup({ id: "fakeGroupId1" }),
-          behandelaar: makeUser({ id: "fakeUserId1" }),
+          behandelaar: makeUser({ username: "fakeUserId1" }),
         }),
       );
 

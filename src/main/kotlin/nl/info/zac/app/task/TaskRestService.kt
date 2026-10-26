@@ -229,7 +229,7 @@ class TaskRestService @Inject constructor(
         taskService.assignTask(
             task = task,
             groupId = restTaskAssignData.groepId,
-            userId = restTaskAssignData.behandelaarId,
+            username = restTaskAssignData.behandelaarId,
             reason = restTaskAssignData.reden,
             loggedInUser = loggedInUserInstance.get()
         )
@@ -246,11 +246,11 @@ class TaskRestService @Inject constructor(
         val openTask = readOpenTask(restTask)
         assertPolicy(openTask.isOpen() && policyService.readTaakRechten(openTask).canWijzigen)
 
-        val loggedInUserId = loggedInUserInstance.get().id
+        val loggedInUsername = loggedInUserInstance.get().username
         // Assigning bumps the task revision, so continue with the task as returned by the assignment.
         // Using the stale instance would fail with an optimistic locking exception further down.
-        val task = if (restTask.behandelaar?.id != loggedInUserId) {
-            flowableTaskService.assignTaskToUser(openTask.id, loggedInUserId, REDEN_TAAK_AFGESLOTEN)
+        val task = if (restTask.behandelaar?.username != loggedInUsername) {
+            flowableTaskService.assignTaskToUser(openTask.id, loggedInUsername, REDEN_TAAK_AFGESLOTEN)
         } else {
             openTask
         }
@@ -337,7 +337,7 @@ class TaskRestService @Inject constructor(
         return taskService.assignTask(
             task = task,
             groupId = restTaskAssignData.groepId,
-            userId = loggedInUser.id,
+            username = loggedInUser.username,
             reason = restTaskAssignData.reden,
             loggedInUser = loggedInUser
         )

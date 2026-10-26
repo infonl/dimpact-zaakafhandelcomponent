@@ -25,7 +25,7 @@ class SignaleringEvent<ID : Any>(
         private const val serialVersionUID = 184493471780916087L
     }
 
-    val actor: String? = actor?.id
+    val actor: String? = actor?.username
 
     override fun toString() = "${super.toString()} $actor"
 }

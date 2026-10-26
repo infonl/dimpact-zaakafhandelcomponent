@@ -25,7 +25,7 @@ class SignaleringInstellingenZoekParameters(val ownertype: SignaleringTarget, va
 
     constructor(owner: Group) : this(GROUP, owner.name)
 
-    constructor(owner: User) : this(USER, owner.id)
+    constructor(owner: User) : this(USER, owner.username)
 
     fun type(type: SignaleringType.Type) = apply { this.type = type }
 

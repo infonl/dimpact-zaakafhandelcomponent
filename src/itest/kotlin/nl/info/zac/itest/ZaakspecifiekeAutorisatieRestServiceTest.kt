@@ -186,7 +186,7 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
 
             then("the medewerker is a zaakspecifiek geautoriseerde medewerker of the zaak in Open Zaak") {
                 response.code shouldBe HTTP_OK
-                JSONObject(response.bodyAsString).getString("id") shouldBe BEHANDELAAR_1_EN_BRP_ZOEKER_2.username
+                JSONObject(response.bodyAsString).getString("username") shouldBe BEHANDELAAR_1_EN_BRP_ZOEKER_2.username
                 zaakspecifiekGeautoriseerdeMedewerkerIds(zaakUuid) shouldBe
                     listOf(BEHANDELAAR_1_EN_BRP_ZOEKER_2.username)
             }

@@ -9,10 +9,10 @@ import java.util.UUID
 
 fun createEnkelvoudigInformatieObjectLock(
     enkelvoudigInformatieObjectUUID: UUID = UUID.randomUUID(),
-    userId: String? = null,
+    username: String? = null,
     lock: String? = null
 ) = EnkelvoudigInformatieObjectLock().apply {
     enkelvoudiginformatieobjectUUID = enkelvoudigInformatieObjectUUID
-    this.userId = userId
+    this.username = username
     this.lock = lock
 }

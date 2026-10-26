@@ -22,7 +22,7 @@ import { GeneratedType } from "../shared/utils/generated-types";
 import { NotitiesComponent } from "./notities.component";
 
 const loggedInUser = fromPartial<GeneratedType<"RestLoggedInUser">>({
-  id: "currentUser",
+  username: "currentUser",
   naam: "test",
 });
 

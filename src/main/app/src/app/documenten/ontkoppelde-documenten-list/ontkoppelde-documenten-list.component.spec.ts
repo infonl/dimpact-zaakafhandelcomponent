@@ -36,7 +36,7 @@ const detachedDocument = fromPartial<GeneratedType<"RestDetachedDocument">>({
   documentUUID: "fakeDocumentUuid",
   creatiedatum: "2026-01-01",
   zaakID: "ZAAK-001",
-  ontkoppeldDoor: { id: "fakeUserId1", naam: "fakeUserName1" },
+  ontkoppeldDoor: { username: "fakeUserId1", naam: "fakeUserName1" },
   ontkoppeldOp: "2026-01-02",
   reden: "Onterecht gekoppeld",
   isVergrendeld: false,
@@ -191,7 +191,7 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
     sessionStorage.setItem(
       SEARCH_PARAMETERS_KEY,
       JSON.stringify({
-        ontkoppeldDoor: { id: "fakeUserId1", naam: "fakeUserName1" },
+        ontkoppeldDoor: { username: "fakeUserId1", naam: "fakeUserName1" },
         filtersType: "DetachedDocumentListParameters",
       }),
     );

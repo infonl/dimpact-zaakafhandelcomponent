@@ -300,7 +300,7 @@ export class OntkoppeldeDocumentenListComponent
     user1: GeneratedType<"RestUser">,
     user2: GeneratedType<"RestUser">,
   ) => {
-    return user1?.id === user2?.id;
+    return user1?.username === user2?.username;
   };
 
   getWerklijst(): GeneratedType<"Werklijst"> {

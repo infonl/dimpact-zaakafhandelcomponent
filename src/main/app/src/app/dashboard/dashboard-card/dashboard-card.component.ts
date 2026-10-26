@@ -90,11 +90,11 @@ export abstract class DashboardCardComponent<
     const reload$ = new Subject<void>();
     this.queryClient
       .ensureQueryData(this.identityService.readLoggedInUser())
-      .then(({ id }) => {
+      .then(({ username }) => {
         this.websocketService.addListener(
           Opcode.UPDATED,
           ObjectType.SIGNALERINGEN,
-          id,
+          username,
           (event: ScreenEvent) => {
             if (event.objectId.detail === signaleringType) {
               reload$.next();

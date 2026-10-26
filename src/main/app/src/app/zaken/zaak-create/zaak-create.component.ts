@@ -230,7 +230,7 @@ export class ZaakCreateComponent {
       this.form.controls.zaaktype.value?.zaakafhandelparameters
         ?.defaultBehandelaarId;
     this.form.controls.behandelaar.setValue(
-      users.find(({ id }) => id === defaultBehandelaarId) ?? null,
+      users.find(({ username }) => username === defaultBehandelaarId) ?? null,
     );
   }
 

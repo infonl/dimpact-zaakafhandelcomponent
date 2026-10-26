@@ -23,5 +23,5 @@ class ScreenEvent(
      * itself from one made by somebody else. Holds the functionele gebruiker for changes that
      * originate outside a user session, such as notifications and cron jobs.
      */
-    var actorUserId: String? = null
+    var actorUsername: String? = null
 }

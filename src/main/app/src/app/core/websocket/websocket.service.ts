@@ -285,7 +285,7 @@ export class WebsocketService {
   private currentUserId() {
     return this.queryClient.getQueryData(
       this.identityService.readLoggedInUser().queryKey,
-    )?.id;
+    )?.username;
   }
 
   public suspendListener(

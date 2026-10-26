@@ -40,8 +40,8 @@ class DocumentCreationUserStoreTest : BehaviorSpec({
         }
 
         given("two document creations started by different users") {
-            val firstUser = createLoggedInUser(id = "fakeUserId1")
-            val secondUser = createLoggedInUser(id = "fakeUserId2")
+            val firstUser = createLoggedInUser(username = "fakeUsername1")
+            val secondUser = createLoggedInUser(username = "fakeUsername2")
 
             `when`("both tokens are exchanged for a user") {
                 every { loggedInUserInstance.get() } returns firstUser

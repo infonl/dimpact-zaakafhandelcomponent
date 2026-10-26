@@ -22,8 +22,8 @@ const groups = [
 ];
 
 const usersOfDefaultGroup = [
-  { id: "test-user-id", naam: "test-user" },
-  { id: "test-user-id-2", naam: "test-user-2" },
+  { username: "test-user-id", naam: "test-user" },
+  { username: "test-user-id-2", naam: "test-user-2" },
 ];
 
 const stored: AlgemeenSettings = {

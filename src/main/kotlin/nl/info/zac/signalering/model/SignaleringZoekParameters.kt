@@ -57,7 +57,7 @@ class SignaleringZoekParameters {
 
     constructor(target: Group) : this(GROUP, target.name)
 
-    constructor(target: User) : this(USER, target.id)
+    constructor(target: User) : this(USER, target.username)
 
     fun types(vararg types: SignaleringType.Type) = apply { this.types = EnumSet.copyOf(types.asList()) }
 

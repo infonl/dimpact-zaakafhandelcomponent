@@ -50,7 +50,7 @@ class GebruikersvoorkeurenRestService @Inject constructor(
     @Path("zoekopdracht/{lijstID}")
     fun listZoekopdrachten(@PathParam("lijstID") lijstID: Werklijst): List<RestZoekopdracht> =
         gebruikersvoorkeurenService.listZoekopdrachten(
-            ZoekopdrachtListParameters(lijstID, loggedInUserInstance.get().id)
+            ZoekopdrachtListParameters(lijstID, loggedInUserInstance.get().username)
         ).map(Zoekopdracht::toRestZoekopdracht)
 
     @DELETE
@@ -72,14 +72,14 @@ class GebruikersvoorkeurenRestService @Inject constructor(
     @DELETE
     @Path("zoekopdracht/{werklijst}/actief")
     fun removeZoekopdrachtActief(@PathParam("werklijst") werklijst: Werklijst) =
-        gebruikersvoorkeurenService.removeActief(ZoekopdrachtListParameters(werklijst, loggedInUserInstance.get().id))
+        gebruikersvoorkeurenService.removeActief(ZoekopdrachtListParameters(werklijst, loggedInUserInstance.get().username))
 
     @GET
     @Path("tabel-gegevens/{werklijst}")
     fun readTabelGegevens(@PathParam("werklijst") werklijst: Werklijst): RestTabelGegevens {
         val tabelInstellingen = gebruikersvoorkeurenService.readTabelInstellingen(
             werklijst,
-            loggedInUserInstance.get().id
+            loggedInUserInstance.get().username
         )
         return RestTabelGegevens(
             aantalPerPagina = tabelInstellingen.aantalPerPagina,
@@ -98,7 +98,7 @@ class GebruikersvoorkeurenRestService @Inject constructor(
             TabelInstellingen().apply {
                 aantalPerPagina = aantal
                 lijstID = werklijst
-                medewerkerID = loggedInUserInstance.get().id
+                medewerkerID = loggedInUserInstance.get().username
             }.let(gebruikersvoorkeurenService::updateTabelInstellingen)
         }
     }
@@ -106,14 +106,14 @@ class GebruikersvoorkeurenRestService @Inject constructor(
     @GET
     @Path("dasboardcard/actief")
     fun listDashboardCards(): List<RestDashboardCardInstelling> =
-        gebruikersvoorkeurenService.listDashboardCards(loggedInUserInstance.get().id)
+        gebruikersvoorkeurenService.listDashboardCards(loggedInUserInstance.get().username)
             .map(DashboardCardInstelling::toRestDashboardCardInstelling)
 
     @PUT
     @Path("dasboardcard/actief")
     fun updateDashboardCards(instellingen: List<RestDashboardCardInstelling>): List<RestDashboardCardInstelling> {
         gebruikersvoorkeurenService.updateDashboardCards(
-            loggedInUserInstance.get().id,
+            loggedInUserInstance.get().username,
             instellingen.map(RestDashboardCardInstelling::toDashboardCardInstelling)
         )
         return listDashboardCards()
@@ -123,7 +123,7 @@ class GebruikersvoorkeurenRestService @Inject constructor(
     @Path("dasboardcard")
     fun addDashboardCard(instelling: RestDashboardCardInstelling): List<RestDashboardCardInstelling> {
         gebruikersvoorkeurenService.addDashboardCard(
-            loggedInUserInstance.get().id,
+            loggedInUserInstance.get().username,
             instelling.toDashboardCardInstelling()
         )
         return listDashboardCards()
@@ -133,7 +133,7 @@ class GebruikersvoorkeurenRestService @Inject constructor(
     @Path("dasboardcard")
     fun deleteDashboardCard(instelling: RestDashboardCardInstelling): List<RestDashboardCardInstelling> {
         gebruikersvoorkeurenService.deleteDashboardCard(
-            loggedInUserInstance.get().id,
+            loggedInUserInstance.get().username,
             instelling.toDashboardCardInstelling()
         )
         return listDashboardCards()

@@ -70,7 +70,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
     httpTestingController = TestBed.inject(HttpTestingController);
 
     testQueryClient.setQueryData(identityService.readLoggedInUser().queryKey, {
-      id: "user1",
+      username: "user1",
       naam: "testuser-1",
       groupIds: ["groupA", "groupB"],
     });
@@ -193,7 +193,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
       await clickAssignToMe();
       httpTestingController.expectOne("/rest/zaken/lijst/toekennen/mij").flush(
         fromPartial<GeneratedType<"RestZaakOverzicht">>({
-          behandelaar: { id: "user1", naam: "testuser-1" },
+          behandelaar: { username: "user1", naam: "testuser-1" },
         }),
       );
       await sleep();
@@ -374,7 +374,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
     const groepZonderBehandelaar = { groep: { id: "groupA" } };
     const groepMetBehandelaar = {
       groep: { id: "groupA" },
-      medewerker: { id: "user3", naam: "Derde Gebruiker" },
+      medewerker: { username: "user3", naam: "Derde Gebruiker" },
     };
 
     let openSnackbar: jest.SpyInstance;

@@ -108,7 +108,7 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
         zaakService.assignZaak(
             zaak = zaak,
             groupId = restZaakAssignmentToLoggedInUserData.groupId,
-            userName = loggedInUser.id,
+            userName = loggedInUser.username,
             reason = restZaakAssignmentToLoggedInUserData.reason
         )
         return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
@@ -129,7 +129,7 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
         zaakService.assignZaak(
             zaak = zaak,
             groupId = restZaakAssignmentToLoggedInUserData.groupId,
-            userName = loggedInUser.id,
+            userName = loggedInUser.username,
             reason = restZaakAssignmentToLoggedInUserData.reason
         )
 

@@ -126,7 +126,7 @@ class CmmnService @Inject constructor(
         cmmnRuntimeService.createPlanItemInstanceTransitionBuilder(planItemInstanceId)
             .transientVariable(
                 ZacCreateHumanTaskInterceptor.Companion.VAR_TRANSIENT_OWNER,
-                loggedInUserInstance.get().id
+                loggedInUserInstance.get().username
             )
             .transientVariable(ZacCreateHumanTaskInterceptor.Companion.VAR_TRANSIENT_CANDIDATE_GROUP, groupId)
             .transientVariable(ZacCreateHumanTaskInterceptor.Companion.VAR_TRANSIENT_ASSIGNEE, assignee)

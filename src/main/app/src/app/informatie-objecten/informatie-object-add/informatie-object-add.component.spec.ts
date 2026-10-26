@@ -83,7 +83,7 @@ describe(InformatieObjectAddComponent.name, () => {
   });
 
   const mockLoggedInUser = fromPartial<GeneratedType<"RestUser">>({
-    id: "1234",
+    username: "1234",
     naam: "Test User",
   });
 

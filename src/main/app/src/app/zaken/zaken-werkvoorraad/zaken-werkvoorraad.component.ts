@@ -285,7 +285,7 @@ export class ZakenWerkvoorraadComponent
           // until the response names the behandelaar it assigned
           if (!zaak.behandelaar) return;
           zaakZoekObject.behandelaarNaam = zaak.behandelaar.naam;
-          zaakZoekObject.behandelaarGebruikersnaam = zaak.behandelaar.id;
+          zaakZoekObject.behandelaarGebruikersnaam = zaak.behandelaar.username;
         },
       },
     );
@@ -295,7 +295,7 @@ export class ZakenWerkvoorraadComponent
     if (!zaakZoekObject.rechten.canToekennen) return false;
     const loggedInUser = this.loggedInUserQuery.data();
     if (!loggedInUser) return false;
-    if (loggedInUser.id === zaakZoekObject.behandelaarGebruikersnaam)
+    if (loggedInUser.username === zaakZoekObject.behandelaarGebruikersnaam)
       return false;
     return loggedInUser.groupIds?.includes(zaakZoekObject.groepId) ?? false;
   }
@@ -341,7 +341,7 @@ export class ZakenWerkvoorraadComponent
           zaak.groepId = this.toekenning?.groep?.id ?? zaak.groepId;
 
           zaak.behandelaarGebruikersnaam =
-            this.toekenning?.medewerker?.id ?? "";
+            this.toekenning?.medewerker?.username ?? "";
           zaak.behandelaarNaam = this.toekenning?.medewerker?.naam ?? "";
         },
       },
@@ -379,7 +379,7 @@ export class ZakenWerkvoorraadComponent
               (x) =>
                 skippedZaken.includes(x) ||
                 (this.toekenning?.groep?.id === x.groepId &&
-                  this.toekenning.medewerker?.id ===
+                  this.toekenning.medewerker?.username ===
                     x.behandelaarGebruikersnaam),
             )
             .map(({ id }) => id);

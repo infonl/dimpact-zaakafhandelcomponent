@@ -234,7 +234,7 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!taak.groep?.id) return false;
     const loggedInUser = this.loggedInUser.data();
     if (!loggedInUser) return false;
-    if (loggedInUser.id === taak.behandelaar?.id) return false;
+    if (loggedInUser.username === taak.behandelaar?.username) return false;
     return loggedInUser.groupIds?.includes(taak.groep.id) ?? false;
   }
 

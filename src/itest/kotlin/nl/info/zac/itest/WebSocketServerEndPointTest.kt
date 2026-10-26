@@ -162,13 +162,13 @@ class WebSocketServerEndPointTest : BehaviorSpec({
                 then("the websocket receives the complete screen event, with the id of the zaak and without a detail") {
                     webSocketTestListener.messagesReceived.forAtLeastOne {
                         with(JSONObject(it)) {
-                            keySet() shouldBe setOf("timestamp", "opcode", "objectType", "objectId", "actorUserId")
+                            keySet() shouldBe setOf("timestamp", "opcode", "objectType", "objectId", "actorUsername")
                             getLong("timestamp") shouldBeGreaterThanOrEqual testStartEpochSecond
                             getString("opcode") shouldBe "UPDATED"
                             getString("objectType") shouldBe SCREEN_EVENT_TYPE_ZAAK
                             getJSONObject("objectId").getString("resource") shouldBe zaakUuid.toString()
                             getJSONObject("objectId").isNull("detail") shouldBe true
-                            getString("actorUserId").shouldNotBeBlank()
+                            getString("actorUsername").shouldNotBeBlank()
                         }
                     }
                 }
@@ -233,7 +233,7 @@ class WebSocketServerEndPointTest : BehaviorSpec({
                             getString("objectType") shouldBe SCREEN_EVENT_TYPE_TAAK
                             getJSONObject("objectId").getString("resource") shouldBe taskId
                             getJSONObject("objectId").isNull("detail") shouldBe true
-                            getString("actorUserId") shouldBe BEHANDELAAR_1.username
+                            getString("actorUsername") shouldBe BEHANDELAAR_1.username
                         }
                     }
                 }
@@ -245,7 +245,7 @@ class WebSocketServerEndPointTest : BehaviorSpec({
                             getString("objectType") shouldBe SCREEN_EVENT_TYPE_ZAAK_TAKEN
                             getJSONObject("objectId").getString("resource") shouldBe zaakMetTaakUuid.toString()
                             getJSONObject("objectId").isNull("detail") shouldBe true
-                            getString("actorUserId") shouldBe BEHANDELAAR_1.username
+                            getString("actorUsername") shouldBe BEHANDELAAR_1.username
                         }
                     }
                 }
@@ -390,7 +390,7 @@ class WebSocketServerEndPointTest : BehaviorSpec({
                             getString("opcode") shouldBe "UPDATED"
                             getString("objectType") shouldBe SCREEN_EVENT_TYPE_ZAAK_NOTITIES
                             getJSONObject("objectId").getString("resource") shouldBe zaakUuid.toString()
-                            getString("actorUserId") shouldBe BEHANDELAAR_1.username
+                            getString("actorUsername") shouldBe BEHANDELAAR_1.username
                         }
                     }
                 }

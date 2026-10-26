@@ -257,7 +257,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
 
         given("a valid request with ontkoppeldDoor set in the request but empty in the database") {
             val werklijstRechten = createWerklijstRechten(inbox = true)
-            val requestUser = createRestUser(id = "fakeUserId1", name = "fakeUserName1")
+            val requestUser = createRestUser(username = "fakeUsername1", name = "fakeUserName1")
             val restListParameters = RestDetachedDocumentListParameters().apply {
                 ontkoppeldDoor = requestUser
             }
@@ -292,12 +292,12 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             val document = createDetachedDocument()
             val informatieObject = createEnkelvoudigInformatieObject()
             val restDocument = RestDetachedDocument()
-            val dbUserIds = listOf("fakeUserId1", "fakeUserId2")
+            val dbUsernames = listOf("fakeUsername1", "fakeUsername2")
             val convertedUsers = listOf(
-                createRestUser(id = "fakeUserId1", name = "fakeUserName1"),
-                createRestUser(id = "fakeUserId2", name = "fakeUserName2")
+                createRestUser(username = "fakeUsername1", name = "fakeUserName1"),
+                createRestUser(username = "fakeUsername2", name = "fakeUserName2")
             )
-            val resultaat = DetachedDocumentResult(listOf(document), 1L, dbUserIds)
+            val resultaat = DetachedDocumentResult(listOf(document), 1L, dbUsernames)
             every { policyService.readWerklijstRechten() } returns werklijstRechten
             every { detachedDocumentService.getDetachedDocumentResult(any()) } returns resultaat
             every {
@@ -309,7 +309,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             every {
                 restDetachedDocumentConverter.convertToRestDetachedDocuments(listOf(document), any(), emptySet())
             } returns listOf(restDocument)
-            every { with(userConverter) { dbUserIds.convertUsernames(any()) } } returns convertedUsers
+            every { with(userConverter) { dbUsernames.convertUsernames(any()) } } returns convertedUsers
 
             `when`("the list endpoint is called") {
                 val result = detachedDocumentRestService.listDetachedDocuments(restListParameters)

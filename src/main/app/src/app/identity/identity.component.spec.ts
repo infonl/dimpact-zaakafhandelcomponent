@@ -23,7 +23,7 @@ const makeLoggedInUser = (
   fields: Partial<GeneratedType<"RestLoggedInUser">> = {},
 ): GeneratedType<"RestLoggedInUser"> =>
   fromPartial<GeneratedType<"RestLoggedInUser">>({
-    id: "user-1",
+    username: "user-1",
     naam: "Test User",
     groupIds: [],
     functionalRoles: [],

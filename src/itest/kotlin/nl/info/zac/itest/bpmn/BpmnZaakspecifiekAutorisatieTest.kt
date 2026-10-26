@@ -109,7 +109,7 @@ class BpmnZaakspecifiekAutorisatieTest : BehaviorSpec({
                 eventually(30.seconds) {
                     with(zacClient.retrieveZaak(zaakUuid, COORDINATOR_1)) {
                         code shouldBe HTTP_OK
-                        JSONObject(bodyAsString).getJSONObject("behandelaar").getString("id") shouldBe
+                        JSONObject(bodyAsString).getJSONObject("behandelaar").getString("username") shouldBe
                             COORDINATOR_1.username
                     }
                 }

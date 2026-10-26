@@ -55,11 +55,11 @@ class SignaleringTest : BehaviorSpec({
             }
 
             `when`("a user is set as target") {
-                signalering.setTarget(createUser(id = "fakeUserId"))
+                signalering.setTarget(createUser(username = "fakeUsername"))
 
                 then("the target is the user id") {
                     signalering.targettype shouldBe SignaleringTarget.USER
-                    signalering.target shouldBe "fakeUserId"
+                    signalering.target shouldBe "fakeUsername"
                 }
             }
         }

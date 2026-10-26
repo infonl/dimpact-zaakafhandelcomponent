@@ -35,7 +35,7 @@ class SuspendZaakDelegate : AbstractDelegate() {
         assertPolicy(
             flowableHelper.policyService.readZaakRechten(zaak, loggedInUser).canOpschorten,
             LOG,
-            "User '${loggedInUser.id}' not authorised to suspend zaak '${zaak.identificatie}'"
+            "User '${loggedInUser.username}' not authorised to suspend zaak '${zaak.identificatie}'"
         )
 
         LOG.fine(

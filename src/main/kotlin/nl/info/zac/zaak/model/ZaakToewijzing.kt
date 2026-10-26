@@ -39,5 +39,5 @@ data class ZaakToewijzing(
             .mapNotNull { it.identificatienummer }
             .toSet()
 
-    fun isGeautoriseerdeMedewerker(userId: String) = userId in geautoriseerdeMedewerkerIds
+    fun isGeautoriseerdeMedewerker(username: String) = username in geautoriseerdeMedewerkerIds
 }

@@ -144,7 +144,7 @@ export class ToolbarComponent implements OnDestroy {
       this.signaleringListener = this.websocketService.addListener(
         Opcode.UPDATED,
         ObjectType.SIGNALERINGEN,
-        loggedInUser.id,
+        loggedInUser.username,
         () => void this.signaleringenService.invalidateLatestSignalering(),
       );
     });

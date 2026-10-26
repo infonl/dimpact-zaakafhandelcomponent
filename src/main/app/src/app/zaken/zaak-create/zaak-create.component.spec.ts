@@ -94,7 +94,7 @@ describe(ZaakCreateComponent.name, () => {
     for (const groupId of ["test-cmmn-group-id", "test-bpmn-group-id"]) {
       queryClient.setQueryData(
         identityService.listUsersInGroup(groupId).queryKey,
-        [{ id: "test-user-id", naam: "test user" }],
+        [{ username: "test-user-id", naam: "test user" }],
       );
     }
 
@@ -320,11 +320,11 @@ describe(ZaakCreateComponent.name, () => {
         beforeEach(() => {
           const usersByGroupId: Record<string, GeneratedType<"RestUser">[]> = {
             "test-cmmn-group-id": [
-              { id: "test-user-id", naam: "test user" },
-              { id: "test-cmmn-user-id", naam: "test CMMN user" },
+              { username: "test-user-id", naam: "test user" },
+              { username: "test-cmmn-user-id", naam: "test CMMN user" },
             ],
             "test-bpmn-group-id": [
-              { id: "test-bpmn-user-id", naam: "test BPMN user" },
+              { username: "test-bpmn-user-id", naam: "test BPMN user" },
             ],
           };
           for (const groupId of Object.keys(usersByGroupId)) {
@@ -346,8 +346,8 @@ describe(ZaakCreateComponent.name, () => {
           TestBed.inject(QueryClient).setQueryData(
             identityService.listUsersInGroup("test-cmmn-group-id").queryKey,
             [
-              { id: "test-user-id", naam: "test user" },
-              { id: "test-cmmn-user-id", naam: "test CMMN user" },
+              { username: "test-user-id", naam: "test user" },
+              { username: "test-cmmn-user-id", naam: "test CMMN user" },
             ],
           );
           await pickCaseType(
@@ -368,7 +368,7 @@ describe(ZaakCreateComponent.name, () => {
 
           expect(
             fixture.componentInstance["form"].controls.behandelaar.value,
-          ).toEqual({ id: "test-cmmn-user-id", naam: "test CMMN user" });
+          ).toEqual({ username: "test-cmmn-user-id", naam: "test CMMN user" });
         });
 
         it("pre-selects the default behandelaar of the new zaaktype from the members of its own default groep", async () => {
@@ -390,7 +390,7 @@ describe(ZaakCreateComponent.name, () => {
 
           expect(
             fixture.componentInstance["form"].controls.behandelaar.value,
-          ).toEqual({ id: "test-bpmn-user-id", naam: "test BPMN user" });
+          ).toEqual({ username: "test-bpmn-user-id", naam: "test BPMN user" });
         });
 
         it("leaves the behandelaar empty when the default behandelaar of the new zaaktype is only a member of the previous groep", async () => {
@@ -448,8 +448,8 @@ describe(ZaakCreateComponent.name, () => {
         queryClient.setQueryData(
           identityService.listUsersInGroup("test-bpmn-group-id").queryKey,
           [
-            { id: "test-user-id", naam: "test user" },
-            { id: "test-new-user-id", naam: "test new user" },
+            { username: "test-user-id", naam: "test user" },
+            { username: "test-new-user-id", naam: "test new user" },
           ],
         );
         await sleep();
@@ -498,7 +498,7 @@ describe(ZaakCreateComponent.name, () => {
         await fixture.whenStable();
 
         expect(fixture.componentInstance["users"]()).toEqual([
-          { id: "test-user-id", naam: "test user" },
+          { username: "test-user-id", naam: "test user" },
         ]);
       });
 

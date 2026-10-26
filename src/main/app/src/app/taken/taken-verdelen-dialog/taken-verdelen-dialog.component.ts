@@ -145,7 +145,7 @@ export class TakenVerdelenDialogComponent {
         taakId: id,
         zaakUuid,
       })),
-      behandelaarGebruikersnaam: this.form.value.medewerker?.id,
+      behandelaarGebruikersnaam: this.form.value.medewerker?.username,
       reden: this.form.value.reden ?? "",
       groepId: this.form.value.groep!.id,
       screenEventResourceId: this.data.screenEventResourceId,

@@ -48,7 +48,7 @@ class EventingServiceTest : BehaviorSpec({
 
     context("Sending a screen event") {
         given("a logged-in user") {
-            val loggedInUser = createLoggedInUser(id = "fakeUserId")
+            val loggedInUser = createLoggedInUser(username = "fakeUsername")
             val screenEvent = ScreenEventType.ZAAK.updated(UUID.randomUUID())
             val sentScreenEvent = slot<ScreenEvent>()
 
@@ -59,7 +59,7 @@ class EventingServiceTest : BehaviorSpec({
                 eventingService.send(screenEvent)
 
                 then("the event identifies the user that caused it, so that a screen can recognise its own change") {
-                    sentScreenEvent.captured.actorUserId shouldBe "fakeUserId"
+                    sentScreenEvent.captured.actorUsername shouldBe "fakeUsername"
                 }
             }
         }
@@ -75,7 +75,7 @@ class EventingServiceTest : BehaviorSpec({
                 eventingService.send(screenEvent)
 
                 then("the event identifies the functionele gebruiker, which no screen mistakes for its own user") {
-                    sentScreenEvent.captured.actorUserId shouldBe FUNCTIONEEL_GEBRUIKER.id
+                    sentScreenEvent.captured.actorUsername shouldBe FUNCTIONEEL_GEBRUIKER.username
                 }
             }
         }
@@ -83,7 +83,7 @@ class EventingServiceTest : BehaviorSpec({
 
     context("Sending a signalering event") {
         given("an observer that fails with an error") {
-            val actor = createUser(id = "fakeActorId")
+            val actor = createUser(username = "fakeActorId")
             val zaakOpNaamSignaleringEvent = SignaleringEvent(
                 SignaleringType.Type.ZAAK_OP_NAAM,
                 SignaleringEventId(URI("https://example.com/rol/fakeRolUuid"), null),
@@ -106,7 +106,7 @@ class EventingServiceTest : BehaviorSpec({
                 }
 
                 then("the actor is not logged, because a user ID is personal data") {
-                    logRecords.single().message shouldNotContain actor.id
+                    logRecords.single().message shouldNotContain actor.username
                 }
             }
         }

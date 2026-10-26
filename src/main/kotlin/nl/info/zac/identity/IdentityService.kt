@@ -88,7 +88,7 @@ class IdentityService @Inject constructor(
      * Returns the ids of the members of every group that the PABC authorises for [applicationRole] and the given
      * zaaktype. A group that the PABC knows but Keycloak does not is skipped.
      */
-    fun listUserIdsForApplicationRoleAndZaaktype(applicationRole: String, zaaktypeDescription: String): Set<String> =
+    fun listUsernamesForApplicationRoleAndZaaktype(applicationRole: String, zaaktypeDescription: String): Set<String> =
         pabcClientService.getGroupsByApplicationRoleAndZaaktype(
             applicationRole = applicationRole,
             zaaktypeDescription = zaaktypeDescription
@@ -105,7 +105,7 @@ class IdentityService @Inject constructor(
                 emptyList()
             }
         }
-            .map { it.id }
+            .map { it.username }
             .toSet()
 
     /**
@@ -156,9 +156,9 @@ class IdentityService @Inject constructor(
             .sortedBy { it.getFullName() }
     }
 
-    fun listGroupNamesForUser(userId: String): List<String> {
+    fun listGroupNamesForUser(username: String): List<String> {
         val keycloakUserId = keycloakZacRealmResource.users()
-            .searchByUsername(userId, true).firstOrNull()?.id
+            .searchByUsername(username, true).firstOrNull()?.id
             ?: throw UserNotFoundException()
         return keycloakZacRealmResource.users()
             .get(keycloakUserId)
@@ -166,11 +166,11 @@ class IdentityService @Inject constructor(
             .map { it.name }
     }
 
-    fun isUserInGroup(userId: String, groupId: String) =
-        listGroupNamesForUser(userId).contains(groupId)
+    fun isUserInGroup(username: String, groupId: String) =
+        listGroupNamesForUser(username).contains(groupId)
 
-    fun validateIfUserIsInGroup(userId: String, groupId: String) {
-        if (!isUserInGroup(userId, groupId)) {
+    fun validateIfUserIsInGroup(username: String, groupId: String) {
+        if (!isUserInGroup(username, groupId)) {
             throw UserNotInGroupException()
         }
     }

@@ -121,7 +121,7 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
                     logContext = "task '$fakeTaskId' of zaak 'fakeZaakIdentificatie'"
                 )
             } returns createUser(
-                id = "fakeAssigneeId",
+                username = "fakeAssigneeId",
                 firstName = "Fake",
                 lastName = "User",
                 fullName = "Fake User"

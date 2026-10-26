@@ -79,15 +79,15 @@ class TaskService @Inject constructor(
     fun assignTask(
         task: Task,
         groupId: String,
-        userId: String?,
+        username: String?,
         reason: String?,
         loggedInUser: LoggedInUser
     ): Task {
         val assignedTask = when {
-            userId != null -> zaakspecifiekeAutorisatieService.lockForZaak(readZaakUUID(task)).withLock {
-                grantZaakspecifiekeAutorisatieToNewAssignee(task, userId)
-                flowableTaskService.assignTaskToUser(task.id, userId, reason)
-                    .also { deleteTaakOpNaamSignaleringenExceptFor(it, userId) }
+            username != null -> zaakspecifiekeAutorisatieService.lockForZaak(readZaakUUID(task)).withLock {
+                grantZaakspecifiekeAutorisatieToNewAssignee(task, username)
+                flowableTaskService.assignTaskToUser(task.id, username, reason)
+                    .also { deleteTaakOpNaamSignaleringenExceptFor(it, username) }
             }.also { sendTaakOpNaamSignalering(it, loggedInUser) }
             task.assignee != null -> releaseTask(task, reason, loggedInUser)
             else -> task
@@ -137,7 +137,7 @@ class TaskService @Inject constructor(
                 assignTask(
                     task = flowableTaskService.readOpenTask(restTask.taakId),
                     groupId = restTaskDistributeData.groepId,
-                    userId = restTaskDistributeData.behandelaarGebruikersnaam,
+                    username = restTaskDistributeData.behandelaarGebruikersnaam,
                     reason = restTaskDistributeData.reden,
                     loggedInUser = loggedInUser
                 )
@@ -195,7 +195,7 @@ class TaskService @Inject constructor(
             subjecttype = SignaleringSubject.TAAK,
             subject = task.id,
             types = setOf(SignaleringType.Type.TAAK_OP_NAAM),
-            keptUserId = assignee
+            keptUsername = assignee
         )
 
     private fun sendTaakOpNaamSignalering(task: Task, loggedInUser: LoggedInUser) {

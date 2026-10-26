@@ -150,7 +150,7 @@ class DocumentZoekObjectConverter @Inject constructor(
             )
             setIndicatie(DocumentIndicatie.VERZONDEN, informatieobject.verzenddatum != null)
             if (informatieobject.locked) {
-                enkelvoudigInformatieObjectLockService.readLock(informatieobjectUUID).userId?.let {
+                enkelvoudigInformatieObjectLockService.readLock(informatieobjectUUID).username?.let {
                     vergrendeldDoorGebruikersnaam = it
                     vergrendeldDoorNaam = identityService.readUser(
                         username = it,

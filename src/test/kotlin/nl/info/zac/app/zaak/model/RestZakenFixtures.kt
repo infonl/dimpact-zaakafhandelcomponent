@@ -133,10 +133,10 @@ fun createRestOpenbareRuimte() = RestOpenbareRuimte()
 fun createRestPand() = RestPand()
 
 fun createRestUser(
-    id: String = "fakeId",
+    username: String = "fakeUsername",
     name: String = "fakeName",
 ) = RestUser(
-    id = id,
+    username = username,
     naam = name
 )
 

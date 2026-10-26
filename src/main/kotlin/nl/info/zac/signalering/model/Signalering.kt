@@ -81,7 +81,7 @@ class Signalering {
 
     fun setTarget(group: Group) = setTargetGroup(group.name)
 
-    fun setTarget(user: User) = setTargetUser(user.id)
+    fun setTarget(user: User) = setTargetUser(user.username)
 
     fun setTargetGroup(target: String) {
         targettype = GROUP

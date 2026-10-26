@@ -69,7 +69,7 @@ class DocumentCreationDataService @Inject constructor(
 
     private fun createGebruikerData(loggedInUser: LoggedInUser) =
         GebruikerData(
-            id = loggedInUser.id,
+            id = loggedInUser.username,
             naam = loggedInUser.getFullName()
         )
 
@@ -113,7 +113,7 @@ class DocumentCreationDataService @Inject constructor(
                 createAanvragerDataNatuurlijkPersoon(
                     bsn = this,
                     zaaktypeUuid = zaaktypeUuid,
-                    userName = loggedInUser.id
+                    userName = loggedInUser.username
                 )
             }
             VESTIGING -> initiator.identificatienummer?.run {

@@ -22,7 +22,7 @@ fun RestDetachedDocumentListParameters.toDetachedDocumentListParameters() =
             }
         }
         this.ontkoppeldDoor?.let { ontkoppeldDoor ->
-            params.ontkoppeldDoor = ontkoppeldDoor.id
+            params.ontkoppeldDoor = ontkoppeldDoor.username
         }
         this.ontkoppeldOp?.let { ontkoppeldOp ->
             if (ontkoppeldOp.hasValue()) {
