@@ -31,11 +31,10 @@ import { DashboardCard } from "../model/dashboard-card";
   standalone: true,
 })
 export abstract class DashboardCardComponent<
-  T extends
-    GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject"> =
-    GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">,
-  C extends readonly string[] = readonly string[],
->
+    T extends
+      GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject"> = GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">,
+    C extends readonly string[] = readonly string[],
+  >
   implements OnInit, AfterViewInit, OnDestroy
 {
   protected readonly identityService = inject(IdentityService);
