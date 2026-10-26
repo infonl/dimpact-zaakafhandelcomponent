@@ -15,8 +15,8 @@ and the link is easy to forget. The expertisegroep calls the shortcut a must hav
 - The initiator of the current zaak is copied to the new zaak.
 - `POST /rest/zaken/zaak` accepts an optional zaak to link the new zaak to, with the relation type. ZAC checks the
   rights and the relation rules before it creates anything, and links the new zaak in the same call.
-- A *Gerelateerde zaak* made this way is linked on both zaken, so both zaken show the relation and both histories show
-  it. A *Deelzaak* is two-sided already, because the hoofdzaak shows its deelzaken.
+- Both zaken show the relation. Open Zaak keeps a *Gerelateerde zaak* on both zaken by itself, and the hoofdzaak
+  shows its deelzaken. The history of the new zaak shows the relation.
 - After the zaak is made, the sidebar closes, the current zaak reloads, and the new zaak shows under *Gerelateerde
   zaken*, from where the employee can open it.
 
@@ -36,6 +36,6 @@ and the link is easy to forget. The expertisegroep calls the shortcut a must hav
   `ZaakLinkData`. The OpenAPI spec gets one optional field; existing clients are not affected.
 - Frontend: `zaak-link` component (tabs), `zaak-create` component (usable in the sidebar), `zaak-view`, `nl.json` and
   `en.json`, and the generated types.
-- Open Zaak: the new zaak is created with `hoofdzaak` or `gerelateerdeZaken` set; for a gerelateerde zaak the
-  current zaak is patched as well. No new Open Zaak version is needed.
+- Open Zaak: the new zaak is created with `hoofdzaak` or `gerelateerdeZaken` set; Open Zaak adds the other side of a
+  gerelateerde zaak itself, so ZAC does not patch the current zaak. No new Open Zaak version is needed.
 - Follow-up: PZ-11342 (an editable aanvrager for the new zaak) builds on this change.

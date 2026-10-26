@@ -11,7 +11,8 @@ See proposal.md for the motivation. The current state:
   `RestZaakCreateData.toZaak()` ignores its `gerelateerdeZaken`. The endpoint returns only the identificatie
   (spec `zaak-creation-rest-endpoint`).
 - `ZaakKoppelenRestService.linkZaak` and `ZaakLinkData` hold the link rules. A gerelateerde zaak link patches only the
-  source zaak, so only that zaak shows it. A hoofd/deelzaak link patches `hoofdzaak` on the deelzaak; the hoofdzaak
+  source zaak; Open Zaak then adds the source zaak to the gerelateerde zaken of the other zaak itself, without an audit
+  line on that zaak, so both zaken show it. A hoofd/deelzaak link patches `hoofdzaak` on the deelzaak; the hoofdzaak
   shows it through the read-only `deelzaken` of Open Zaak.
 - `RestZaak.zaaktype.zaaktypeRelaties` already lists the deelzaaktypen of the zaaktype; the frontend does not use it yet.
 - The zaakhistorie comes from the Open Zaak audit trail only.
@@ -30,7 +31,6 @@ See proposal.md for the motivation. The current state:
 - Choosing another aanvrager for the new zaak (PZ-11342).
 - Creating a related zaak automatically from a BPMN process (PZ-8841).
 - Creating a new zaak as *hoofdzaak* of the current zaak.
-- Making the existing *Bestaande zaak koppelen* flow or *ontkoppelen* two-sided for gerelateerde zaken.
 - Any link between the archiving (vernietiging) of the two zaken: each zaak keeps the archive rules of its own
   zaaktype, which is already the case.
 
@@ -53,16 +53,19 @@ and the new zaaktype is in `getDeelzaaktypenSet()` of its zaaktype (else a valid
 is a validation error. The checks are a small function next to the existing rules in `ZaakLinkData.kt`, so that
 `linkZaak` and `createZaak` cannot drift apart.
 
-### Set the relation when the zaak is created, and patch the other side for a gerelateerde zaak
+### Set the relation when the zaak is created, and leave the other side to Open Zaak
 
 - `DEELZAAK`: the new zaak is created with `hoofdzaak` set. Afterwards the hoofdzaak is reindexed and gets a
   `ScreenEvent`, as `koppelHoofdEnDeelzaak` does, because Open Zaak notifies only for the deelzaak.
-- `GERELATEERD`: the new zaak is created with the current zaak in `gerelateerdeZaken`, and then the current zaak is
-  patched to add the new zaak, with the explanation *Aangemaakt als gerelateerde zaak* so the history line has a
-  toelichting. This makes the relation two-sided, as the item asks, and gives the current zaak a history line.
+- `GERELATEERD`: the new zaak is created with the current zaak in `gerelateerdeZaken`. Open Zaak adds the new zaak to
+  the gerelateerde zaken of the current zaak itself, so the relation is two-sided, as the item asks.
 
-The patch helpers `addGerelateerdeZaak` and the hoofdzaak notification move from `ZaakKoppelenRestService` to a small
-service both REST services use, so the logic is not copied.
+Alternative: patch the current zaak as well, with the explanation *Aangemaakt als gerelateerde zaak*, to give it a
+history line. Rejected: by then Open Zaak has already added the new zaak, so the patch changes nothing, writes no audit
+line, and only copies logic that belongs to Open Zaak.
+
+The hoofdzaak notification moves from `ZaakKoppelenRestService` to `ZaakKoppelenService`, which both REST services use,
+so the logic is not copied. That service also holds the checks and the link of a new zaak.
 
 ### Initiator is copied by the frontend
 
@@ -153,10 +156,8 @@ confirmation after creation. These follow the existing ZAC patterns (see Assumpt
 - [Open Zaak writes no audit line on the hoofdzaak when a deelzaak is created] → The hoofdzaak shows the deelzaak
   under *Gerelateerde zaken*, and the deelzaak's history shows the hoofdzaak. Note this in the PR so the product owner
   can decide on a follow-up; it is the same for the existing *Bestaande zaak koppelen* flow.
-- [The patch of the current zaak fails after the gerelateerde zaak is created] → The new zaak exists and lists the
-  current zaak, but the current zaak does not list it yet. Log the failure and return the error; the employee can link
-  it again with *Bestaande zaak koppelen*. ZGW has no transactions, and the existing flow has the same window.
-- [Ontkoppelen a two-sided gerelateerde zaak removes only one side] → Out of scope; the other side keeps showing the
-  relation and can be removed from that zaak.
+- [Open Zaak writes no audit line on the current zaak when a gerelateerde zaak is created] → The current zaak shows
+  the new zaak under *Gerelateerde zaken*, and the history of the new zaak shows the current zaak. This is the same as
+  for a deelzaak and for the existing *Bestaande zaak koppelen* flow.
 - [Nested `mat-sidenav-container` in the drawer] → Angular Material supports it; check the BAG picker manually in the
   drawer and cover it in the component spec.
