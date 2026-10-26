@@ -55,9 +55,11 @@ export class MailtemplateComponent
   extends AdminComponent
   implements AfterViewInit
 {
-  private mailTemplateBeheerService = inject(MailtemplateBeheerService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
+  private readonly mailTemplateBeheerService = inject(
+    MailtemplateBeheerService,
+  );
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly formBuilder = inject(FormBuilder);
 
   protected readonly sideNavContainer =

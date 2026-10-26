@@ -54,7 +54,9 @@ export class GroepSignaleringenComponent
   extends AdminComponent
   implements OnInit
 {
-  private service = inject(SignaleringenSettingsBeheerService);
+  private readonly signaleringenSettingsBeheerService = inject(
+    SignaleringenSettingsBeheerService,
+  );
 
   protected readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
@@ -82,7 +84,7 @@ export class GroepSignaleringenComponent
   );
 
   protected readonly instellingenQuery = injectQuery(() => ({
-    ...this.service.list(this.groepId()!),
+    ...this.signaleringenSettingsBeheerService.list(this.groepId()!),
     enabled: this.groepId() != null,
   }));
 
@@ -111,7 +113,11 @@ export class GroepSignaleringenComponent
     if (!groepId) return;
     this.utilService.setLoading(true);
     row[this.settingPerColumn[column]] = checked;
-    runMutation(this.queryClient, this.service.put(groepId), row)
+    runMutation(
+      this.queryClient,
+      this.signaleringenSettingsBeheerService.put(groepId),
+      row,
+    )
       .pipe(finalize(() => this.utilService.setLoading(false)))
       .subscribe({ error: () => undefined });
   }

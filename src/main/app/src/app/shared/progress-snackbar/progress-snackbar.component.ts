@@ -21,10 +21,11 @@ import {
   styleUrls: ["./progress-snackbar.component.less"],
 })
 export class ProgressSnackbar {
-  snackBarRef = inject(MatSnackBarRef);
-  data = inject<{ progressPercentage: Signal<number>; message: string }>(
-    MAT_SNACK_BAR_DATA,
-  );
+  readonly snackBarRef = inject(MatSnackBarRef);
+  readonly data = inject<{
+    progressPercentage: Signal<number>;
+    message: string;
+  }>(MAT_SNACK_BAR_DATA);
 
   progressMode = computed<ProgressBarMode>(() => {
     const percentage = this.data.progressPercentage();

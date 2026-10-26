@@ -117,23 +117,25 @@ export class ZakenWerkvoorraadComponent
   extends WerklijstComponent
   implements AfterViewInit, OnInit, OnDestroy
 {
-  private zakenService = inject(ZakenService);
-  override gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
-  override route = inject(ActivatedRoute);
-  private zoekenService = inject(ZoekenService);
-  protected utilService = inject(UtilService);
-  private dialog = inject(MatDialog);
-  private identityService = inject(IdentityService);
-  private translateService = inject(TranslateService);
-  private indexService = inject(IndexingService);
-  private batchProcessService = inject(BatchProcessService);
+  private readonly zakenService = inject(ZakenService);
+  override readonly gebruikersvoorkeurenService = inject(
+    GebruikersvoorkeurenService,
+  );
+  override readonly route = inject(ActivatedRoute);
+  private readonly zoekenService = inject(ZoekenService);
+  protected readonly utilService = inject(UtilService);
+  private readonly dialog = inject(MatDialog);
+  private readonly identityService = inject(IdentityService);
+  private readonly translateService = inject(TranslateService);
+  private readonly indexingService = inject(IndexingService);
+  private readonly batchProcessService = inject(BatchProcessService);
 
   protected readonly indicatiesLayout = IndicatiesLayout;
   private readonly assignToMeMutation = injectMutation(() =>
     this.zakenService.toekennenAanIngelogdeMedewerkerVanuitLijst(),
   );
   private readonly commitPendingChangesToSearchIndexMutation = injectMutation(
-    () => this.indexService.commitPendingChangesToSearchIndex(),
+    () => this.indexingService.commitPendingChangesToSearchIndex(),
   );
   protected selection = new SelectionModel<ZaakZoekObject>(true, []);
   protected dataSource: ZakenWerkvoorraadDatasource;

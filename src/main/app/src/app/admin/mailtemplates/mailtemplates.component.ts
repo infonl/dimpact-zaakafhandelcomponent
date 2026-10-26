@@ -84,9 +84,13 @@ export class MailtemplatesComponent
   extends AdminComponent
   implements OnInit, AfterViewInit
 {
-  private dialog = inject(MatDialog);
-  private mailtemplateBeheerService = inject(MailtemplateBeheerService);
-  private mailtemplateKoppelingService = inject(MailtemplateKoppelingService);
+  private readonly dialog = inject(MatDialog);
+  private readonly mailtemplateBeheerService = inject(
+    MailtemplateBeheerService,
+  );
+  private readonly mailtemplateKoppelingService = inject(
+    MailtemplateKoppelingService,
+  );
 
   protected readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");

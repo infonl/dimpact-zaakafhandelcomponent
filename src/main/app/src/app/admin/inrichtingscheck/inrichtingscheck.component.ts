@@ -83,7 +83,7 @@ export class InrichtingscheckComponent
   extends AdminComponent
   implements OnInit
 {
-  private healtCheckService = inject(HealthCheckService);
+  private readonly healthCheckService = inject(HealthCheckService);
 
   protected readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
@@ -106,13 +106,13 @@ export class InrichtingscheckComponent
   protected valideFilter: ToggleSwitchOptions = ToggleSwitchOptions.UNCHECKED;
   private filterValue = "";
   private readonly zaaktypeInrichtingschecksQuery = injectQuery(() =>
-    this.healtCheckService.listZaaktypeInrichtingschecks(),
+    this.healthCheckService.listZaaktypeInrichtingschecks(),
   );
   protected readonly loadingZaaktypes = computed(() =>
     this.zaaktypeInrichtingschecksQuery.isFetching(),
   );
   private readonly bestaatCommunicatiekanaalEformulierQuery = injectQuery(() =>
-    this.healtCheckService.readBestaatCommunicatiekanaalEformulier(),
+    this.healthCheckService.readBestaatCommunicatiekanaalEformulier(),
   );
   protected readonly loadingCommunicatiekanaal = computed(() =>
     this.bestaatCommunicatiekanaalEformulierQuery.isPending(),
