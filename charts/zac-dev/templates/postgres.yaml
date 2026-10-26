@@ -1,0 +1,133 @@
+# One Postgres server with a database per component; Docker Compose runs a server per component instead.
+# The data lives in an emptyDir, so that every itest run starts from the seed data. The roles and their generated
+# passwords come from a Secret that hack/kind-spike/up.sh creates; the seed data from ConfigMaps that it creates
+# straight from scripts/docker-compose/imports, so that the Docker Compose stack and kind share one copy.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-initdb
+  namespace: {{ .Release.Namespace }}
+data:
+  10-openzaak.sh: |
+    #!/bin/bash
+    set -euo pipefail
+    echo ">>>> Restoring the pre-migrated Open Zaak database and the ZAC test data"
+    psql --username openzaak --dbname openzaak --set ON_ERROR_STOP=1 --quiet \
+      --file /seed/openzaak-dump/00-restore-migrated-database.sql > /dev/null
+    for file in /seed/openzaak-data/*.sql; do
+      echo "Running $file ..."
+      psql --username openzaak --dbname openzaak --set ON_ERROR_STOP=1 \
+        --set BAG_API_CLIENT_MP_REST_URL={{ .Values.bagApi.url | quote }} \
+        --set BAG_API_KEY={{ .Values.bagApi.key | quote }} \
+        --file "$file"
+    done
+  20-zac.sql: |
+    \connect zac zac
+    CREATE SCHEMA flowable;
+    GRANT CREATE, USAGE ON SCHEMA flowable TO zac;
+    CREATE SCHEMA zaakafhandelcomponent;
+    GRANT CREATE, USAGE ON SCHEMA zaakafhandelcomponent to zac;
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: postgres
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+        # the 'postgres' user of the image
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+      containers:
+        - name: postgres
+          image: {{ .Values.images.postgres }}
+          args: ["-c", "max_connections=400"]
+          env:
+            # a directory that the 'postgres' user creates itself, inside the emptyDir that fsGroup makes writable
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+            {{- include "zac-dev.passwordEnv" (list . "POSTGRES_PASSWORD" "postgres") | nindent 12 }}
+          ports:
+            - containerPort: 5432
+          readinessProbe:
+            exec:
+              # TCP on purpose: during the init scripts Postgres only listens on its Unix socket
+              command: ["pg_isready", "--host=127.0.0.1", "--username=postgres"]
+            periodSeconds: 2
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
+            readOnlyRootFilesystem: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+            - name: run
+              mountPath: /var/run/postgresql
+            - name: tmp
+              mountPath: /tmp
+            - name: shm
+              mountPath: /dev/shm
+            - name: initdb
+              mountPath: /docker-entrypoint-initdb.d
+            - name: openzaak-dump
+              mountPath: /seed/openzaak-dump
+            - name: openzaak-data
+              mountPath: /seed/openzaak-data
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: run
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 256Mi
+        - name: initdb
+          projected:
+            sources:
+              - secret:
+                  name: postgres-initdb-roles
+              - configMap:
+                  name: postgres-initdb
+        - name: openzaak-dump
+          configMap:
+            name: seed-openzaak-dump
+        - name: openzaak-data
+          configMap:
+            name: seed-openzaak-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432

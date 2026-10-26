@@ -1,0 +1,109 @@
+# PABC as in Docker Compose. The migrations, which also load the dataset of
+# scripts/docker-compose/imports/pabc-database, run as an init container instead of a separate one-off container.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pabc-api
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pabc-api
+  template:
+    metadata:
+      labels:
+        app: pabc-api
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+      initContainers:
+        {{- include "zac-dev.waitForPostgres" . | nindent 8 }}
+        - name: pabc-migrations
+          image: {{ .Values.images.pabcMigrations }}
+          env:
+            {{- include "zac-dev.passwordEnv" (list . "PABC_DATABASE_PASSWORD" "pabc") | nindent 12 }}
+            - name: ConnectionStrings__Pabc
+              value: "Host=postgres;Port=5432;Username=pabc;Password=$(PABC_DATABASE_PASSWORD);Database=Pabc"
+            - name: JSON_DATASET_PATH
+              value: /app/json/pabc-mapping-data.json
+          securityContext:
+            {{- include "zac-dev.containerSecurityContext" . | nindent 12 }}
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          volumeMounts:
+            - name: dataset
+              mountPath: /app/json
+      containers:
+        - name: pabc-api
+          image: {{ .Values.images.pabcApi }}
+          env:
+            - name: ASPNETCORE_FORWARDEDHEADERS_ENABLED
+              value: "true"
+            - name: HTTP_PORTS
+              value: "8000"
+            - name: API_KEY__0
+              value: zac-test-api-key
+            {{- include "zac-dev.passwordEnv" (list . "PABC_DATABASE_PASSWORD" "pabc") | nindent 12 }}
+            - name: ConnectionStrings__Pabc
+              value: "Host=postgres;Port=5432;Username=pabc;Password=$(PABC_DATABASE_PASSWORD);Database=Pabc"
+            - name: Oidc__Authority
+              value: http://keycloak:8080/realms/zaakafhandelcomponent/
+            - name: Oidc__ClientId
+              value: pabc
+            - name: Oidc__ClientSecret
+              value: pabcClientSecret
+            - name: Oidc__FunctioneelBeheerderRole
+              value: administrator
+            - name: Oidc__RequireHttps
+              value: "false"
+            - name: KeycloakAdmin__ClientId
+              value: pabc-admin-client
+            - name: KeycloakAdmin__ClientSecret
+              value: pabcAdminClientSecret
+            - name: KeycloakAdmin__ExcludedRoles__0
+              value: offline_access
+            - name: KeycloakAdmin__ExcludedRoles__1
+              value: uma_authorization
+            - name: KeycloakAdmin__ExcludedRoles__2
+              value: default-roles-zac
+            # off in Docker Compose as well, see docker-compose.yaml
+            - name: ZgwZaakregister__Enabled
+              value: "false"
+          ports:
+            - containerPort: 8000
+          readinessProbe:
+            tcpSocket:
+              port: 8000
+            periodSeconds: 2
+          securityContext:
+            {{- include "zac-dev.containerSecurityContext" . | nindent 12 }}
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+      volumes:
+        - name: dataset
+          configMap:
+            name: seed-pabc-dataset
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pabc-api
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: pabc-api
+  ports:
+    - port: 8000
+      targetPort: 8000

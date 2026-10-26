@@ -763,6 +763,9 @@ office_converter:
 # -- Extra objects to deploy (value evaluated as a template)
 extraDeploy: []
 
+# -- Extra environment variables for the ZAC container, for example `APP_ENV` for the integration tests
+extraEnv: []
+
 # opentelemetry-collector enable to use the included helm chart and settings to work with zac
 opentelemetry-collector:
   enabled: false

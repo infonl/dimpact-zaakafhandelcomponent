@@ -1,0 +1,14 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# SPIKE (PZ-13059): throwaway chart, never released. The services of the Docker Compose itest stack that have no
+# upstream Helm chart (Postgres, Redis, Keycloak, PABC, Solr and the test doubles), the seed data and the bits of
+# glue that the ZAC integration tests need in a kind cluster. Open Zaak, Open Klant and Open Object come from the
+# upstream Maykin Media charts, see hack/kind-spike/up.sh.
+apiVersion: v2
+name: zac-dev
+description: ZAC integration test dependencies and seed data for a kind cluster (spike, not released)
+type: application
+version: 0.0.1
+appVersion: "0.0.1"

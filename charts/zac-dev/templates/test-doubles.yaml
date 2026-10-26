@@ -1,0 +1,298 @@
+{{- /* WireMock test doubles. Their mappings and files are ConfigMaps that up.sh creates straight from
+       scripts/docker-compose/imports, so that the Docker Compose stack and kind share one copy. */}}
+{{- range $wiremock := list
+  (dict "name" "smartdocuments-wiremock" "files" true "templating" true)
+  (dict "name" "kvk-wiremock" "files" true "templating" true)
+  (dict "name" "bag-wiremock" "files" true "templating" true)
+  (dict "name" "brp-personen-wiremock" "files" false "templating" false) }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $wiremock.name }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ $wiremock.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $wiremock.name }}
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" $ | nindent 8 }}
+      containers:
+        - name: wiremock
+          image: {{ $.Values.images.wiremock }}
+          args:
+            {{- if $wiremock.templating }}
+            - --global-response-templating
+            {{- end }}
+            - --disable-gzip
+            - --verbose
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /__admin/health
+              port: 8080
+            periodSeconds: 2
+          securityContext:
+            {{- include "zac-dev.containerSecurityContext" $ | nindent 12 }}
+            readOnlyRootFilesystem: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: mappings
+              mountPath: /home/wiremock/mappings
+            # WireMock creates this directory when it is missing, which a read-only root file system does not allow
+            - name: files
+              mountPath: /home/wiremock/__files
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: mappings
+          configMap:
+            name: {{ $wiremock.name }}-mappings
+        - name: files
+          {{- if $wiremock.files }}
+          configMap:
+            name: {{ $wiremock.name }}-files
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $wiremock.name }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  selector:
+    app: {{ $wiremock.name }}
+  ports:
+    - port: 8080
+      targetPort: 8080
+{{- end }}
+---
+# The BRP personen mock behind brp-personen-wiremock, which proxies to http://brp-personen-mock:5010
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: brp-personen-mock
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: brp-personen-mock
+  template:
+    metadata:
+      labels:
+        app: brp-personen-mock
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+      containers:
+        - name: brp-personen-mock
+          image: {{ .Values.images.brpPersonenMock }}
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Release
+            - name: ASPNETCORE_URLS
+              value: http://+:5010
+          ports:
+            - containerPort: 5010
+          readinessProbe:
+            tcpSocket:
+              port: 5010
+            periodSeconds: 2
+          securityContext:
+            {{- include "zac-dev.containerSecurityContext" . | nindent 12 }}
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: brp-personen-mock
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: brp-personen-mock
+  ports:
+    - port: 5010
+      targetPort: 5010
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: greenmail
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: greenmail
+  template:
+    metadata:
+      labels:
+        app: greenmail
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+      containers:
+        - name: greenmail
+          image: {{ .Values.images.greenmail }}
+          env:
+            - name: GREENMAIL_OPTS
+              value: >-
+                -Dgreenmail.smtp.hostname=0.0.0.0
+                -Dgreenmail.smtp.port=25
+                -Dgreenmail.hostname=0.0.0.0
+                -Dgreenmail.auth.disabled
+                -Dgreenmail.verbose
+          ports:
+            - containerPort: 25
+            - containerPort: 8080
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            periodSeconds: 2
+          securityContext:
+            allowPrivilegeEscalation: false
+            # SMTP on port 25, as in Docker Compose
+            capabilities:
+              drop: ["ALL"]
+              add: ["NET_BIND_SERVICE"]
+            readOnlyRootFilesystem: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: greenmail
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: greenmail
+  ports:
+    - name: smtp
+      port: 25
+      targetPort: 25
+    - name: api
+      port: 8080
+      targetPort: 8080
+---
+# Standalone Solr with basic authentication and a pre-created 'zac' core, as in Docker Compose.
+# The ZAC chart's own option, SolrCloud through the solr-operator with three ZooKeepers, is too heavy for CI.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: solr
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: solr
+  template:
+    metadata:
+      labels:
+        app: solr
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+        # the 'solr' user of the image
+        runAsUser: 8983
+        runAsGroup: 8983
+        fsGroup: 8983
+      initContainers:
+        - name: security
+          image: {{ .Values.images.solr }}
+          command: ["sh", "-c", "mkdir -p /var/solr/data && cp /opt/zac/security.json /var/solr/data/security.json"]
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
+            readOnlyRootFilesystem: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+          volumeMounts:
+            - name: data
+              mountPath: /var/solr
+            - name: security
+              mountPath: /opt/zac
+      containers:
+        - name: solr
+          image: {{ .Values.images.solr }}
+          command: ["solr-precreate", "zac"]
+          ports:
+            - containerPort: 8983
+          readinessProbe:
+            tcpSocket:
+              port: 8983
+            periodSeconds: 2
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+          volumeMounts:
+            - name: data
+              mountPath: /var/solr
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: security
+          configMap:
+            name: solr-security
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: solr
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: solr
+  ports:
+    - port: 8983
+      targetPort: 8983

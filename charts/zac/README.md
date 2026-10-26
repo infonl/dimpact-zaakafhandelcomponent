@@ -110,6 +110,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | db.password | string | `""` |  |
 | db.user | string | `""` |  |
 | extraDeploy | list | `[]` | Extra objects to deploy (value evaluated as a template) |
+| extraEnv | list | `[]` | Extra environment variables for the ZAC container, for example `APP_ENV` for the integration tests |
 | fullnameOverride | string | `""` | fullname to use |
 | gemeente.code | string | `""` |  |
 | gemeente.mail | string | `""` |  |

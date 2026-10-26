@@ -16,9 +16,9 @@ import java.util.UUID
  * used in the entire integration test flow such as: Keycloak, Objecten, Objecttypen, Open Zaak, ZAC.
  */
 object ItestConfiguration {
-    private const val ZAC_CONTAINER_PORT = 8080
-    private const val ZAC_MANAGEMENT_PORT = 9990
-    private const val GREENMAIL_API_PORT = 18083
+    private val ZAC_CONTAINER_PORT = ItestPlatform.hostPort(8080)
+    private val ZAC_MANAGEMENT_PORT = ItestPlatform.hostPort(9990)
+    private val GREENMAIL_API_PORT = ItestPlatform.hostPort(18083)
 
     /**
      * Temporarily increase the HTTP read timeout to 60 seconds to allow for
@@ -52,8 +52,8 @@ object ItestConfiguration {
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID = "b1933137-94d6-49bc-9e12-afe712512276"
     const val INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING = "factuur"
     const val INFORMATIE_OBJECT_TYPE_FACTUUR_UUID = "eca3ae33-c9f1-4136-a48a-47dc3f4aaaf5"
-    const val KEYCLOAK_HOSTNAME_URL = "http://localhost:8081"
-    const val KEYCLOAK_HEALTH_READY_URL = "http://localhost:9001/health/ready"
+    val KEYCLOAK_HOSTNAME_URL = "http://localhost:${ItestPlatform.hostPort(8081)}"
+    val KEYCLOAK_HEALTH_READY_URL = "http://localhost:${ItestPlatform.hostPort(9001)}/health/ready"
     const val KEYCLOAK_REALM = "zaakafhandelcomponent"
     const val KEYCLOAK_CLIENT = "zaakafhandelcomponent"
     const val KEYCLOAK_CLIENT_SECRET = "keycloakZaakafhandelcomponentClientSecret"
@@ -84,8 +84,8 @@ object ItestConfiguration {
     const val OPEN_FORMULIEREN_FORMULIER_BRON_NAAM = "open-forms"
     const val OPEN_NOTIFICATIONS_API_SECRET_KEY = "openNotificatiesApiSecretKey"
     const val OPEN_ZAAK_BASE_URI = "http://openzaak.local:8000"
-    const val OPEN_ZAAK_EXTERNAL_PORT = 8001
-    const val OPEN_ZAAK_EXTERNAL_URI = "http://localhost:$OPEN_ZAAK_EXTERNAL_PORT"
+    val OPEN_ZAAK_EXTERNAL_PORT = ItestPlatform.hostPort(8001)
+    val OPEN_ZAAK_EXTERNAL_URI = "http://localhost:$OPEN_ZAAK_EXTERNAL_PORT"
     const val OPEN_ZAAK_CLIENT_ID = "zac-client"
     const val OPEN_ZAAK_CLIENT_SECRET = "openzaakZaakafhandelcomponentClientSecret"
     const val PABC_CLIENT_BASE_URI = "http://pabc-api:8000"
@@ -301,28 +301,28 @@ object ItestConfiguration {
      */
     const val ZAC_DEFAULT_DOCKER_IMAGE = "ghcr.io/infonl/zaakafhandelcomponent:dev"
 
-    const val ZAC_BASE_URI = "http://localhost:$ZAC_CONTAINER_PORT"
+    val ZAC_BASE_URI = "http://localhost:$ZAC_CONTAINER_PORT"
 
     /**
      * The ZAC API URI from outside the Docker network.
      */
-    const val ZAC_API_URI = "$ZAC_BASE_URI/rest"
+    val ZAC_API_URI = "$ZAC_BASE_URI/rest"
 
     /**
      * The ZAC websocket base URI from outside the Docker network.
      */
-    const val ZAC_WEBSOCKET_BASE_URI = "ws://localhost:$ZAC_CONTAINER_PORT/websocket"
+    val ZAC_WEBSOCKET_BASE_URI = "ws://localhost:$ZAC_CONTAINER_PORT/websocket"
 
     /**
      * GreenMail API base URI for testing sent mail
      */
-    const val GREENMAIL_API_URI = "http://localhost:$GREENMAIL_API_PORT/api"
+    val GREENMAIL_API_URI = "http://localhost:$GREENMAIL_API_PORT/api"
 
     /**
      * The ZAC management URI from outside the Docker network.
      */
-    const val ZAC_MANAGEMENT_URI = "http://localhost:$ZAC_MANAGEMENT_PORT"
-    const val ZAC_HEALTH_READY_URL = "$ZAC_MANAGEMENT_URI/health/ready"
+    val ZAC_MANAGEMENT_URI = "http://localhost:$ZAC_MANAGEMENT_PORT"
+    val ZAC_HEALTH_READY_URL = "$ZAC_MANAGEMENT_URI/health/ready"
 
     // Zaak beeindig constants
     const val ZAAK_BEEINDIG_VERZOEK_IS_DOOR_INITIATOR_INGETROKKEN_ID = "-1"
@@ -500,7 +500,7 @@ object ItestConfiguration {
     const val BPMN_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_TASK_NAME = "New zaak defaults"
     const val BPMN_USER_MANAGEMENT_COPY_FUNCTIONS_TASK_NAME = "Copy user and group"
 
-    const val BRP_WIREMOCK_API = "http://localhost:18084/__admin"
+    val BRP_WIREMOCK_API = "http://localhost:${ItestPlatform.hostPort(18084)}/__admin"
 
     // Mail template constants
     const val MAIL_TEMPLATE_ZAAK_ALGEMEEN_MAIL = "ZAAK_ALGEMEEN"

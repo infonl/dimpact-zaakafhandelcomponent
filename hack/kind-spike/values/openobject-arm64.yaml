@@ -1,0 +1,8 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# SPIKE (PZ-13059): the arm64 build of Open Object, as in docker-compose.arm64-override.yaml
+image:
+  repository: ghcr.io/infonl/open-object
+  tag: "4.1.1@sha256:8bda80d7de276ddd381ff45ac2c5e0b52b43787bf4c02f42d1b069b5e823ebdf"
