@@ -75,12 +75,14 @@ const ROW_LINKS: Record<string, RowLink> = {
   providedIn: "root",
 })
 export class FormioSetupService {
-  utilService = inject(UtilService);
-  private zakenService = inject(ZakenService);
-  private referenceTableService = inject(ReferentieTabelService);
-  private informatieObjectenService = inject(InformatieObjectenService);
-  private smartDocumentsService = inject(SmartDocumentsService);
-  private translateService = inject(TranslateService);
+  readonly utilService = inject(UtilService);
+  private readonly zakenService = inject(ZakenService);
+  private readonly referenceTableService = inject(ReferentieTabelService);
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
+  private readonly smartDocumentsService = inject(SmartDocumentsService);
+  private readonly translateService = inject(TranslateService);
 
   private readonly queryClient = inject(QueryClient);
   private readonly zacQueryClient = inject(ZacQueryClient);

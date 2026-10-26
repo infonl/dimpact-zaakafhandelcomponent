@@ -37,8 +37,8 @@ export abstract class DashboardCardComponent<
   >
   implements OnInit, AfterViewInit, OnDestroy
 {
-  protected identityService = inject(IdentityService);
-  protected websocketService = inject(WebsocketService);
+  protected readonly identityService = inject(IdentityService);
+  protected readonly websocketService = inject(WebsocketService);
 
   readonly data = input.required<DashboardCard>();
 

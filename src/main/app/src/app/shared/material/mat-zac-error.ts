@@ -10,7 +10,7 @@ import { AfterViewInit, Directive, ElementRef, inject } from "@angular/core";
   standalone: true,
 })
 export class EnhanceMatErrorDirective implements AfterViewInit {
-  private elRef = inject(ElementRef);
+  private readonly elRef = inject(ElementRef);
 
   ngAfterViewInit() {
     const css = `

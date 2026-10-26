@@ -25,8 +25,6 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { finalize } from "rxjs";
-import { ConfiguratieService } from "../../configuratie/configuratie.service";
-import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { runMutation } from "../../shared/http/run-mutation";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
@@ -56,6 +54,10 @@ export class GroepSignaleringenComponent
   extends AdminComponent
   implements OnInit
 {
+  private readonly signaleringenSettingsBeheerService = inject(
+    SignaleringenSettingsBeheerService,
+  );
+
   protected readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
   protected readonly menuSidenav =
@@ -82,16 +84,12 @@ export class GroepSignaleringenComponent
   );
 
   protected readonly instellingenQuery = injectQuery(() => ({
-    ...this.service.list(this.groepId()!),
+    ...this.signaleringenSettingsBeheerService.list(this.groepId()!),
     enabled: this.groepId() != null,
   }));
 
-  constructor(
-    public utilService: UtilService,
-    public configuratieService: ConfiguratieService,
-    private service: SignaleringenSettingsBeheerService,
-  ) {
-    super(utilService, configuratieService);
+  constructor() {
+    super();
 
     effect(() => {
       this.dataSource.data = this.instellingenQuery.data() ?? [];
@@ -115,7 +113,11 @@ export class GroepSignaleringenComponent
     if (!groepId) return;
     this.utilService.setLoading(true);
     row[this.settingPerColumn[column]] = checked;
-    runMutation(this.queryClient, this.service.put(groepId), row)
+    runMutation(
+      this.queryClient,
+      this.signaleringenSettingsBeheerService.put(groepId),
+      row,
+    )
       .pipe(finalize(() => this.utilService.setLoading(false)))
       .subscribe({ error: () => undefined });
   }

@@ -33,8 +33,9 @@ import { TranslatePipe } from "@ngx-translate/core";
   ],
 })
 export class FoutDialogComponent {
-  private dialogRef = inject<MatDialogRef<FoutDialogComponent>>(MatDialogRef);
-  data = inject<string>(MAT_DIALOG_DATA);
+  private readonly dialogRef =
+    inject<MatDialogRef<FoutDialogComponent>>(MatDialogRef);
+  readonly data = inject<string>(MAT_DIALOG_DATA);
 
   protected close(): void {
     this.dialogRef.close();

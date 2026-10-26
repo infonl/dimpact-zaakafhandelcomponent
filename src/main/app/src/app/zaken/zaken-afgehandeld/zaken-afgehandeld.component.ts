@@ -89,10 +89,10 @@ export class ZakenAfgehandeldComponent
   extends WerklijstComponent
   implements AfterViewInit, OnInit, OnDestroy
 {
-  gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
-  route = inject(ActivatedRoute);
-  private zoekenService = inject(ZoekenService);
-  protected utilService = inject(UtilService);
+  readonly gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
+  readonly route = inject(ActivatedRoute);
+  private readonly zoekenService = inject(ZoekenService);
+  protected readonly utilService = inject(UtilService);
 
   protected dataSource: ZakenAfgehandeldDatasource;
   private readonly paginator = viewChild.required(MatPaginator);

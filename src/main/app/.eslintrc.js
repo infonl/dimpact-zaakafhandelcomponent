@@ -35,7 +35,7 @@ module.exports = {
         ],
         "@angular-eslint/use-lifecycle-interface": "error",
         "@angular-eslint/prefer-standalone": "warn",
-        "@angular-eslint/prefer-inject": "warn",
+        "@angular-eslint/prefer-inject": "error",
         "@angular-eslint/prefer-signals": [
           "error",
           {

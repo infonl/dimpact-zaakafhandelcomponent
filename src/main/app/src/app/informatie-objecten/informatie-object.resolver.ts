@@ -11,7 +11,9 @@ import { InformatieObjectenService } from "./informatie-objecten.service";
   providedIn: "root",
 })
 export class InformatieObjectResolver {
-  private informatieObjectenService = inject(InformatieObjectenService);
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
 
   resolve(route: ActivatedRouteSnapshot) {
     const informatieObjectUUID = route.paramMap.get("uuid");

@@ -112,16 +112,18 @@ export class InformatieObjectViewComponent
   extends ActionsViewComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
-  private informatieObjectenService = inject(InformatieObjectenService);
-  private route = inject(ActivatedRoute);
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
+  private readonly route = inject(ActivatedRoute);
   private readonly utilService = inject(UtilService);
-  private websocketService = inject(WebsocketService);
-  private router = inject(Router);
+  private readonly websocketService = inject(WebsocketService);
+  private readonly router = inject(Router);
   private readonly location = inject(Location);
-  private translate = inject(TranslateService);
-  private dialog = inject(MatDialog);
-  private zakenService = inject(ZakenService);
-  private documentDialogService = inject(DocumentDialogService);
+  private readonly translate = inject(TranslateService);
+  private readonly dialog = inject(MatDialog);
+  private readonly zakenService = inject(ZakenService);
+  private readonly documentDialogService = inject(DocumentDialogService);
 
   private readonly queryClient = inject(QueryClient);
 

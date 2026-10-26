@@ -3,7 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AfterViewInit, Component, OnInit, viewChild } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  inject,
+  OnInit,
+  viewChild,
+} from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -18,8 +24,6 @@ import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
-import { ConfiguratieService } from "../../configuratie/configuratie.service";
-import { UtilService } from "../../core/service/util.service";
 import { ClientMatcher } from "../../shared/dynamic-table/filter/clientMatcher";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
@@ -61,6 +65,10 @@ export class ParametersComponent
   extends AdminComponent
   implements OnInit, AfterViewInit
 {
+  private readonly zaakafhandelParametersService = inject(
+    ZaakafhandelParametersService,
+  );
+
   protected readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
   protected readonly menuSidenav =
@@ -78,14 +86,6 @@ export class ParametersComponent
 
   protected zaaktypes: GeneratedType<"RestZaaktypeOverzicht">[] = [];
   protected processDefinitions: GeneratedType<"RestProcessDefinition">[] = [];
-
-  constructor(
-    public readonly utilService: UtilService,
-    public readonly configuratieService: ConfiguratieService,
-    private readonly zaakafhandelParametersService: ZaakafhandelParametersService,
-  ) {
-    super(utilService, configuratieService);
-  }
 
   ngOnInit() {
     this.setupMenu("title.parameters");

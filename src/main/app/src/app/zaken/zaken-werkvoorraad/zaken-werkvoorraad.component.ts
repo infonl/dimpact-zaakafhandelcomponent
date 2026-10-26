@@ -6,6 +6,7 @@
 import {
   AfterViewInit,
   Component,
+  inject,
   OnDestroy,
   OnInit,
   signal,
@@ -116,12 +117,25 @@ export class ZakenWerkvoorraadComponent
   extends WerklijstComponent
   implements AfterViewInit, OnInit, OnDestroy
 {
+  private readonly zakenService = inject(ZakenService);
+  override readonly gebruikersvoorkeurenService = inject(
+    GebruikersvoorkeurenService,
+  );
+  override readonly route = inject(ActivatedRoute);
+  private readonly zoekenService = inject(ZoekenService);
+  protected readonly utilService = inject(UtilService);
+  private readonly dialog = inject(MatDialog);
+  private readonly identityService = inject(IdentityService);
+  private readonly translateService = inject(TranslateService);
+  private readonly indexingService = inject(IndexingService);
+  private readonly batchProcessService = inject(BatchProcessService);
+
   protected readonly indicatiesLayout = IndicatiesLayout;
   private readonly assignToMeMutation = injectMutation(() =>
     this.zakenService.toekennenAanIngelogdeMedewerkerVanuitLijst(),
   );
   private readonly commitPendingChangesToSearchIndexMutation = injectMutation(
-    () => this.indexService.commitPendingChangesToSearchIndex(),
+    () => this.indexingService.commitPendingChangesToSearchIndex(),
   );
   protected selection = new SelectionModel<ZaakZoekObject>(true, []);
   protected dataSource: ZakenWerkvoorraadDatasource;
@@ -158,18 +172,7 @@ export class ZakenWerkvoorraadComponent
     this.identityService.readLoggedInUser(),
   );
 
-  constructor(
-    private zakenService: ZakenService,
-    public override gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    public override route: ActivatedRoute,
-    private zoekenService: ZoekenService,
-    protected utilService: UtilService,
-    private dialog: MatDialog,
-    private identityService: IdentityService,
-    private translateService: TranslateService,
-    private indexService: IndexingService,
-    private batchProcessService: BatchProcessService,
-  ) {
+  constructor() {
     super();
     this.dataSource = new ZakenWerkvoorraadDatasource(
       this.zoekenService,

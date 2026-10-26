@@ -72,7 +72,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
 export class ZaakWaarschuwingenCardComponent extends DashboardCardComponent<
   GeneratedType<"RestZaakOverzicht">
 > {
-  private zakenService = inject(ZakenService);
+  private readonly zakenService = inject(ZakenService);
 
   columns = [
     "identificatie",
