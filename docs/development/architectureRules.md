@@ -32,7 +32,8 @@ The backend has three layers. A layer may only depend on the layers below it:
 Fields annotated with `@Resource` are allowed, because JNDI resources such as a `DataSource` cannot be
 injected through a constructor.
 
-Generated code (`..generated..`) is excluded from the `javax` rule.
+Generated code (`..generated..`) is excluded from the `javax` rule. The rule allows the `javax` packages
+that are still part of Java SE, such as `javax.annotation.processing` and `javax.transaction.xa`.
 
 ## Frozen violations
 

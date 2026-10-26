@@ -64,14 +64,21 @@ class ArchitectureTest : BehaviorSpec({
                     noClasses()
                         .that().resideOutsideOfPackage(GENERATED_PACKAGE)
                         .should().dependOnClassesThat().resideInAnyPackage(
-                            "javax.annotation..",
+                            "javax.annotation",
+                            "javax.annotation.security..",
+                            "javax.annotation.sql..",
+                            "javax.ejb..",
                             "javax.enterprise..",
                             "javax.inject..",
+                            "javax.jms..",
                             "javax.json..",
+                            "javax.mail..",
                             "javax.persistence..",
+                            "javax.security.enterprise..",
                             "javax.servlet..",
-                            "javax.transaction..",
+                            "javax.transaction",
                             "javax.validation..",
+                            "javax.websocket..",
                             "javax.ws.rs.."
                         )
                         .check(zacClasses)
