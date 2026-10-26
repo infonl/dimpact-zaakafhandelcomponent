@@ -149,7 +149,7 @@ class PolicyServiceTest : BehaviorSpec({
                         isZaakspecifiekGeautoriseerd shouldBe false
                     }
                     with(zaakInput.user) {
-                        id shouldBe loggedInUser.id
+                        id shouldBe loggedInUser.username
                         rollen shouldContainExactly applicationRolesForZaakType
                         zaaktypen shouldBe setOf(zaakType.omschrijving)
                     }
@@ -289,7 +289,7 @@ class PolicyServiceTest : BehaviorSpec({
             )
             every {
                 zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
-            } returns createZaakToewijzingForBehandelaar("fakeOtherUserId")
+            } returns createZaakToewijzingForBehandelaar("fakeOtherUsername")
             every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
 
             `when`("policy rights are requested by someone who is not its behandelaar") {
@@ -320,7 +320,7 @@ class PolicyServiceTest : BehaviorSpec({
             )
             every {
                 zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
-            } returns createZaakToewijzingForBehandelaar(loggedInUser.id)
+            } returns createZaakToewijzingForBehandelaar(loggedInUser.username)
             every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
 
             `when`("policy rights are requested") {
@@ -356,12 +356,12 @@ class PolicyServiceTest : BehaviorSpec({
             } returns createZaakToewijzing(
                 behandelaarRollen = listOf(
                     createRolMedewerker(
-                        medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeOtherUserId")
+                        medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeOtherUsername")
                     )
                 ),
                 zaakspecifiekGeautoriseerdeMedewerkers = listOf(
                     createRolMedewerker(
-                        medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = loggedInUser.id)
+                        medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = loggedInUser.username)
                     )
                 ),
                 isZaakspecifiekGeautoriseerd = true
@@ -511,7 +511,7 @@ class PolicyServiceTest : BehaviorSpec({
             every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
 
             `when`("policy rights are requested by the second of them") {
-                every { loggedInUserInstance.get() } returns createLoggedInUser(id = "fakeSecondMedewerkerId")
+                every { loggedInUserInstance.get() } returns createLoggedInUser(username = "fakeSecondMedewerkerId")
                 policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
 
                 then("OPA is told the logged-in user is a geautoriseerde medewerker of the zaak") {
@@ -520,7 +520,7 @@ class PolicyServiceTest : BehaviorSpec({
             }
 
             `when`("policy rights are requested by someone who is not one of them") {
-                every { loggedInUserInstance.get() } returns createLoggedInUser(id = "fakeOtherUserId")
+                every { loggedInUserInstance.get() } returns createLoggedInUser(username = "fakeOtherUsername")
                 policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
 
                 then("OPA is told the logged-in user is not a geautoriseerde medewerker of the zaak") {
@@ -575,7 +575,7 @@ class PolicyServiceTest : BehaviorSpec({
                         isZaakspecifiekGeautoriseerd shouldBe false
                     }
                     with(ruleQuerySlot.captured.input.user) {
-                        id shouldBe loggedInUser.id
+                        id shouldBe loggedInUser.username
                         rollen shouldContainExactlyInAnyOrder userApplicationRolesForZaakType
                         zaaktypen shouldContainExactly listOf(zaakType.omschrijving)
                     }
@@ -608,7 +608,7 @@ class PolicyServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(zaakUUID) } returns zaak
             every {
                 zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
-            } returns createZaakToewijzingForBehandelaar(loggedInUser.id)
+            } returns createZaakToewijzingForBehandelaar(loggedInUser.username)
             every { opaEvaluationClient.readTaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(
                 expectedTaakRechten
             )
@@ -668,7 +668,7 @@ class PolicyServiceTest : BehaviorSpec({
                         isZaakspecifiekGeautoriseerd shouldBe false
                     }
                     with(ruleQuerySlot.captured.input.user) {
-                        id shouldBe loggedInUser.id
+                        id shouldBe loggedInUser.username
                         rollen shouldContainExactlyInAnyOrder userApplicationRolesForZaakType
                         zaaktypen shouldContainExactly listOf(zaakType.omschrijving)
                     }
@@ -725,7 +725,7 @@ class PolicyServiceTest : BehaviorSpec({
                         opaEvaluationClient.readWerklijstRechten(any<RuleQuery<UserInput>>())
                     }
                     with(ruleQuerySlot.captured.input.user) {
-                        id shouldBe loggedInUser.id
+                        id shouldBe loggedInUser.username
                         // this policy check is not zaaktype-specific,
                         // so the roles should be the union of all application roles for which at least one zaaktype is authorized
                         rollen shouldContainExactly applicationRolesForZaakType1 + applicationRolesForZaakType2
@@ -835,7 +835,7 @@ class PolicyServiceTest : BehaviorSpec({
                         isZaakspecifiekGeautoriseerd shouldBe false
                     }
                     with(ruleQuerySlot.captured.input.user) {
-                        id shouldBe loggedInUser.id
+                        id shouldBe loggedInUser.username
                         rollen shouldContainExactlyInAnyOrder userApplicationRolesForZaakType
                         zaaktypen shouldContainExactly listOf(zaakType.omschrijving)
                     }
@@ -892,7 +892,7 @@ class PolicyServiceTest : BehaviorSpec({
                         isZaakspecifiekGeautoriseerd shouldBe false
                     }
                     with(ruleQuerySlot.captured.input.user) {
-                        id shouldBe loggedInUser.id
+                        id shouldBe loggedInUser.username
                         rollen shouldContainExactlyInAnyOrder userApplicationRolesForZaakType
                         zaaktypen shouldContainExactly listOf(zaakType.omschrijving)
                     }
@@ -919,7 +919,7 @@ class PolicyServiceTest : BehaviorSpec({
             )
             every {
                 zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
-            } returns createZaakToewijzingForBehandelaar(loggedInUser.id)
+            } returns createZaakToewijzingForBehandelaar(loggedInUser.username)
             every { opaEvaluationClient.readDocumentRechten(capture(ruleQuerySlot)) } returns RuleResponse(
                 expectedDocumentRights
             )
@@ -1015,7 +1015,7 @@ class PolicyServiceTest : BehaviorSpec({
             val zaaktype = "test-zaaktype"
             val pabcRolesForZaakType = setOf("applicationRole1", "applicationRole2")
             val loggedInUserWithMappings = LoggedInUser(
-                id = "user1",
+                username = "user1",
                 firstName = "Given",
                 lastName = "Family",
                 displayName = "Full Name",
@@ -1039,7 +1039,7 @@ class PolicyServiceTest : BehaviorSpec({
                     verify(exactly = 1) { opaEvaluationClient.readOverigeRechten(any()) }
 
                     val userData = rqSlot.captured.input.user
-                    userData.id shouldBe loggedInUserWithMappings.id
+                    userData.id shouldBe loggedInUserWithMappings.username
                     userData.rollen shouldBe pabcRolesForZaakType
                     userData.zaaktypen shouldBe setOf(zaaktype)
                 }
@@ -1109,7 +1109,7 @@ class PolicyServiceTest : BehaviorSpec({
             val zaakZoekObject = createZaakZoekObject(
                 zaaktypeOmschrijving = zaaktypeOmschrijving,
                 isZaakspecifiekGeautoriseerd = true,
-                zaakGeautoriseerdeMedewerkers = listOf(loggedInUser.id)
+                zaakGeautoriseerdeMedewerkers = listOf(loggedInUser.username)
             )
             val expectedZaakRechten = createZaakRechten()
             val zaakRuleQuerySlot = slot<RuleQuery<ZaakInput>>()
@@ -1123,7 +1123,7 @@ class PolicyServiceTest : BehaviorSpec({
             )
             every {
                 zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
-            } returns createZaakToewijzingForBehandelaar(loggedInUser.id)
+            } returns createZaakToewijzingForBehandelaar(loggedInUser.username)
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("zaakrechten are read for the zaak and for the equivalent zaak zoek object") {
@@ -1205,7 +1205,7 @@ class PolicyServiceTest : BehaviorSpec({
             val taakZoekObject = createTaakZoekObject(
                 zaaktypeOmschrijving = zaakType.omschrijving,
                 isZaakspecifiekGeautoriseerd = true,
-                zaakGeautoriseerdeMedewerkers = listOf(loggedInUser.id),
+                zaakGeautoriseerdeMedewerkers = listOf(loggedInUser.username),
                 status = TaakStatus.NIET_TOEGEKEND
             )
             val zaak = createZaak(uuid = zaakUUID)
@@ -1219,7 +1219,7 @@ class PolicyServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(zaakUUID) } returns zaak
             every {
                 zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
-            } returns createZaakToewijzingForBehandelaar(loggedInUser.id)
+            } returns createZaakToewijzingForBehandelaar(loggedInUser.username)
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("taakrechten are read for the task and for the equivalent taak zoek object") {
@@ -1302,7 +1302,7 @@ class PolicyServiceTest : BehaviorSpec({
             val documentZoekObject = createDocumentZoekObject(
                 zaaktypeOmschrijving = zaaktypeOmschrijving,
                 isZaakspecifiekGeautoriseerd = true,
-                zaakGeautoriseerdeMedewerkers = listOf(loggedInUser.id)
+                zaakGeautoriseerdeMedewerkers = listOf(loggedInUser.username)
             )
             val expectedDocumentRechten = createDocumentRechten()
             val enkelvoudigInformatieobjectRuleQuerySlot = slot<RuleQuery<DocumentInput>>()
@@ -1314,7 +1314,7 @@ class PolicyServiceTest : BehaviorSpec({
             )
             every {
                 zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak = zaak, isZaakspecifiekGeautoriseerd = true)
-            } returns createZaakToewijzingForBehandelaar(loggedInUser.id)
+            } returns createZaakToewijzingForBehandelaar(loggedInUser.username)
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("documentrechten are read for the document and for the equivalent document zoek object") {

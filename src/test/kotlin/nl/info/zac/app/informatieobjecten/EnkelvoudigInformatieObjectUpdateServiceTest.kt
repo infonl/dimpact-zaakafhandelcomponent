@@ -164,13 +164,13 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
             val enkelvoudigInformatieObjectUUID = UUID.randomUUID()
             val enkelvoudigInformatieObjectWithLockRequest = createEnkelvoudigInformatieObjectWithLockRequest()
             val explanation = "fakeExplanation"
-            val userId = "fakeUserId"
+            val username = "fakeUsername"
             val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()
             val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
-            every { loggedInUserInstance.get().id } returns userId
+            every { loggedInUserInstance.get().username } returns username
             every { enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID) } returns null
             every {
-                enkelvoudigInformatieObjectLockService.createLock(enkelvoudigInformatieObjectUUID, userId)
+                enkelvoudigInformatieObjectLockService.createLock(enkelvoudigInformatieObjectUUID, username)
             } returns enkelvoudigInformatieObjectLock
             every {
                 drcClientService.updateEnkelvoudigInformatieobject(
@@ -201,7 +201,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
                 }
                 and("a temporary lock is created and deleted") {
                     verify(exactly = 1) {
-                        enkelvoudigInformatieObjectLockService.createLock(enkelvoudigInformatieObjectUUID, userId)
+                        enkelvoudigInformatieObjectLockService.createLock(enkelvoudigInformatieObjectUUID, username)
                         enkelvoudigInformatieObjectLockService.deleteLock(enkelvoudigInformatieObjectUUID)
                     }
                 }
@@ -254,13 +254,13 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
             val enkelvoudigInformatieObjectUUID = UUID.randomUUID()
             val enkelvoudigInformatieObjectWithLockRequest = createEnkelvoudigInformatieObjectWithLockRequest()
             val explanation = "fakeExplanation"
-            val userId = "fakeUserId"
+            val username = "fakeUsername"
             val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()
             val content = InMemoryDocumentContent("fakeContent".toByteArray())
-            every { loggedInUserInstance.get().id } returns userId
+            every { loggedInUserInstance.get().username } returns username
             every { enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID) } returns null
             every {
-                enkelvoudigInformatieObjectLockService.createLock(enkelvoudigInformatieObjectUUID, userId)
+                enkelvoudigInformatieObjectLockService.createLock(enkelvoudigInformatieObjectUUID, username)
             } returns enkelvoudigInformatieObjectLock
             every {
                 drcClientService.updateEnkelvoudigInformatieobject(
@@ -286,7 +286,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
                 }
                 and("the temporary lock is kept so that the incomplete content is not committed as a new version") {
                     verify(exactly = 1) {
-                        enkelvoudigInformatieObjectLockService.createLock(enkelvoudigInformatieObjectUUID, userId)
+                        enkelvoudigInformatieObjectLockService.createLock(enkelvoudigInformatieObjectUUID, username)
                     }
                     verify(exactly = 0) {
                         enkelvoudigInformatieObjectLockService.deleteLock(any())
@@ -299,16 +299,16 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
     context("Sending an enkelvoudig informatie object") {
         val uuid = UUID.randomUUID()
         val verzenddatum = LocalDate.now()
-        val userId = "fakeUserId"
+        val username = "fakeUsername"
 
         given("A UUID, verzenddatum and a toelichting") {
             val toelichting = "fakeToelichting"
             val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()
             val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
             val requestSlot = slot<EnkelvoudigInformatieObjectWithLockRequest>()
-            every { loggedInUserInstance.get().id } returns userId
+            every { loggedInUserInstance.get().username } returns username
             every { enkelvoudigInformatieObjectLockService.findLock(uuid) } returns null
-            every { enkelvoudigInformatieObjectLockService.createLock(uuid, userId) } returns enkelvoudigInformatieObjectLock
+            every { enkelvoudigInformatieObjectLockService.createLock(uuid, username) } returns enkelvoudigInformatieObjectLock
             every {
                 drcClientService.updateEnkelvoudigInformatieobject(uuid, capture(requestSlot), any())
             } returns enkelvoudigInformatieObject
@@ -335,9 +335,9 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
         given("A UUID, verzenddatum and no toelichting") {
             val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()
             val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
-            every { loggedInUserInstance.get().id } returns userId
+            every { loggedInUserInstance.get().username } returns username
             every { enkelvoudigInformatieObjectLockService.findLock(uuid) } returns null
-            every { enkelvoudigInformatieObjectLockService.createLock(uuid, userId) } returns enkelvoudigInformatieObjectLock
+            every { enkelvoudigInformatieObjectLockService.createLock(uuid, username) } returns enkelvoudigInformatieObjectLock
             every { drcClientService.updateEnkelvoudigInformatieobject(uuid, any(), any()) } returns enkelvoudigInformatieObject
             every { enkelvoudigInformatieObjectLockService.deleteLock(uuid) } returns Unit
 
@@ -355,15 +355,15 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
 
     context("Signing an enkelvoudig informatie object") {
         val uuid = UUID.randomUUID()
-        val userId = "fakeUserId"
+        val username = "fakeUsername"
 
         given("A UUID of an unsigned document") {
             val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()
             val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
             val requestSlot = slot<EnkelvoudigInformatieObjectWithLockRequest>()
-            every { loggedInUserInstance.get().id } returns userId
+            every { loggedInUserInstance.get().username } returns username
             every { enkelvoudigInformatieObjectLockService.findLock(uuid) } returns null
-            every { enkelvoudigInformatieObjectLockService.createLock(uuid, userId) } returns enkelvoudigInformatieObjectLock
+            every { enkelvoudigInformatieObjectLockService.createLock(uuid, username) } returns enkelvoudigInformatieObjectLock
             every {
                 drcClientService.updateEnkelvoudigInformatieobject(uuid, capture(requestSlot), any())
             } returns enkelvoudigInformatieObject

@@ -36,7 +36,7 @@ class TestHostComponent {
 }
 
 const currentUser: GeneratedType<"RestLoggedInUser"> = {
-  id: "currentUser",
+  username: "currentUser",
   naam: "test",
 };
 

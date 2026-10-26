@@ -28,7 +28,7 @@ class SignaleringEventUtilTest : BehaviorSpec({
     context("Creating a signalering event") {
         given("a zaak and an actor") {
             val zaak = createZaak()
-            val user = createUser(id = "fakeActorId")
+            val user = createUser(username = "fakeActorId")
 
             `when`("a signalering event is created for the zaak") {
                 val signaleringEvent = signaleringEvent(SignaleringType.Type.ZAAK_OP_NAAM, zaak, user)

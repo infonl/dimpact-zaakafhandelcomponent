@@ -73,7 +73,10 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
     const identityService = TestBed.inject(IdentityService);
     testQueryClient.setQueryData(
       identityService.readLoggedInUser().queryKey,
-      fromPartial<GeneratedType<"RestUser">>({ id: "user", naam: "Test" }),
+      fromPartial<GeneratedType<"RestUser">>({
+        username: "user",
+        naam: "Test",
+      }),
     );
 
     fixture = TestBed.createComponent(ZaakWaarschuwingenCardComponent);

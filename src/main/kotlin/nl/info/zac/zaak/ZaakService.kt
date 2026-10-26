@@ -182,7 +182,7 @@ class ZaakService @Inject constructor(
     fun readZaakAssignment(groupId: String?, userName: String?): ZaakAssignment {
         val user = userName?.takeIf { it.isNotEmpty() }?.let { userNameToAssign ->
             groupId?.let { identityService.validateIfUserIsInGroup(userNameToAssign, it) }
-            identityService.readUser(userId = userNameToAssign, logContext = "assigning a zaak")
+            identityService.readUser(username = userNameToAssign, logContext = "assigning a zaak")
         }
         return ZaakAssignment(
             group = groupId?.let { identityService.readGroup(groupId = it, logContext = "assigning a zaak") },
@@ -202,7 +202,7 @@ class ZaakService @Inject constructor(
         // lock for the given zaak so that it is impossible to assign the zaak to multiple users on quick subsequent calls
         zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid).withLock {
             val zaakToewijzing = zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak)
-            zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, user?.id)
+            zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, user?.username)
 
             val isBehandelaarChanged = changeBehandelaar(zaak, zaakToewijzing, user, reason)
             val isGroupAssigned = group != null && assignGroup(zaak, zaakToewijzing, group, reason)
@@ -254,7 +254,7 @@ class ZaakService @Inject constructor(
             roltype = zgwApiService.readBehandelaarRoltype(zaak.zaaktype),
             roltoelichting = "Behandelaar van de zaak",
             medewerkerIdentificatie = MedewerkerIdentificatie().apply {
-                identificatie = user.id
+                identificatie = user.username
                 voorletters = user.firstName
                 achternaam = user.lastName
             }
@@ -447,7 +447,7 @@ class ZaakService @Inject constructor(
         val isBehandelaarUnchanged = if (user == null) {
             behandelaarRollen.isEmpty()
         } else {
-            behandelaarRollen.size == 1 && zaakToewijzing.behandelaarId == user.id
+            behandelaarRollen.size == 1 && zaakToewijzing.behandelaarId == user.username
         }
         if (isBehandelaarUnchanged) return false
 
@@ -455,7 +455,7 @@ class ZaakService @Inject constructor(
             behandelaarRollen
                 .mapNotNull { it.betrokkeneIdentificatie }
                 .distinctBy { it.identificatie }
-                .filter { it.identificatie != user?.id }
+                .filter { it.identificatie != user?.username }
                 .forEach {
                     zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatie(
                         zaak = zaak,
@@ -469,14 +469,14 @@ class ZaakService @Inject constructor(
         user?.let { newBehandelaar ->
             zrcClientService.createRol(bepaalRolMedewerker(newBehandelaar, zaak), reason)
             zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers
-                .filter { it.identificatienummer == newBehandelaar.id }
+                .filter { it.identificatienummer == newBehandelaar.username }
                 .forEach { zrcClientService.deleteRol(it, reason) }
         }
         return true
     }
 
     private fun changeZaakDataAssignment(zaakUuid: UUID, group: Group?, user: User?) =
-        zaakProcessService.updateAssignment(zaakUuid, groupId = group?.name, behandelaarId = user?.id)
+        zaakProcessService.updateAssignment(zaakUuid, groupId = group?.name, behandelaarId = user?.username)
 
     fun listStatusTypes(zaaktypeUUID: UUID) =
         ztcClientService.readStatustypen(
@@ -506,7 +506,7 @@ class ZaakService @Inject constructor(
         zaakUUIDs: List<UUID>
     ) =
         user?.let {
-            val isInGroup = identityService.isUserInGroup(user.id, group.name)
+            val isInGroup = identityService.isUserInGroup(user.username, group.name)
             if (!isInGroup) {
                 LOG.warning(
                     "User '${user.displayName}' (id: {$user.id}) is not in the group '${group.description}'. " +

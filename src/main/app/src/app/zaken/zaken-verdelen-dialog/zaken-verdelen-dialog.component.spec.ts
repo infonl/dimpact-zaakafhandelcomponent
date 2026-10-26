@@ -178,7 +178,7 @@ describe(ZakenVerdelenDialogComponent.name, () => {
       isZaakspecifiekGeautoriseerd: true,
     });
     const medewerker = fromPartial<GeneratedType<"RestUser">>({
-      id: "user-1",
+      username: "user-1",
       naam: "Gebruiker Een",
     });
 
@@ -278,7 +278,7 @@ describe(ZakenVerdelenDialogComponent.name, () => {
 
   describe("picking a groep", () => {
     const mockUser: GeneratedType<"RestUser"> = {
-      id: "user-1",
+      username: "user-1",
       naam: "Gebruiker Een",
     };
 

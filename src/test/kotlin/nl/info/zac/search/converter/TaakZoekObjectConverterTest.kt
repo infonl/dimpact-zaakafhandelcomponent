@@ -117,11 +117,11 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
 
             every {
                 identityService.readUser(
-                    userId = "fakeAssigneeId",
+                    username = "fakeAssigneeId",
                     logContext = "task '$fakeTaskId' of zaak 'fakeZaakIdentificatie'"
                 )
             } returns createUser(
-                id = "fakeAssigneeId",
+                username = "fakeAssigneeId",
                 firstName = "Fake",
                 lastName = "User",
                 fullName = "Fake User"

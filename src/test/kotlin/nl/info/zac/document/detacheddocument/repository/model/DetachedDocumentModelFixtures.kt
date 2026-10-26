@@ -10,7 +10,7 @@ import java.util.UUID
 
 fun createDetachedDocument(
     uuid: UUID = UUID.randomUUID(),
-    userId: String = "fakeUserId",
+    username: String = "fakeUsername",
 ) = DetachedDocument().apply {
     id = 1L
     documentUUID = uuid
@@ -19,7 +19,7 @@ fun createDetachedDocument(
     zaakID = "ZAAK-001"
     creatiedatum = LocalDate.now()
     bestandsnaam = "test.pdf"
-    ontkoppeldDoor = userId
+    ontkoppeldDoor = username
     ontkoppeldOp = ZonedDateTime.now()
     reden = "fakeReason"
 }

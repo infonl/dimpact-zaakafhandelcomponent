@@ -141,7 +141,7 @@ class TaskRestServiceTest : BehaviorSpec({
                 taskService.assignTask(
                     task = task,
                     groupId = restTaakToekennenGegevens.groepId,
-                    userId = restTaakToekennenGegevens.behandelaarId,
+                    username = restTaakToekennenGegevens.behandelaarId,
                     reason = restTaakToekennenGegevens.reden,
                     loggedInUser = loggedInUser
                 )
@@ -159,7 +159,7 @@ class TaskRestServiceTest : BehaviorSpec({
                         taskService.assignTask(
                             task = task,
                             groupId = restTaakToekennenGegevens.groepId,
-                            userId = restTaakToekennenGegevens.behandelaarId,
+                            username = restTaakToekennenGegevens.behandelaarId,
                             reason = restTaakToekennenGegevens.reden,
                             loggedInUser = loggedInUser
                         )
@@ -188,7 +188,7 @@ class TaskRestServiceTest : BehaviorSpec({
                 taskService.assignTask(
                     task = task,
                     groupId = restTaakToekennenGegevens.groepId,
-                    userId = loggedInUser.id,
+                    username = loggedInUser.username,
                     reason = restTaakToekennenGegevens.reden,
                     loggedInUser = loggedInUser
                 )
@@ -206,7 +206,7 @@ class TaskRestServiceTest : BehaviorSpec({
                         taskService.assignTask(
                             task = task,
                             groupId = restTaakToekennenGegevens.groepId,
-                            userId = loggedInUser.id,
+                            username = loggedInUser.username,
                             reason = restTaakToekennenGegevens.reden,
                             loggedInUser = loggedInUser
                         )
@@ -230,7 +230,7 @@ class TaskRestServiceTest : BehaviorSpec({
         given("a task and task data to assign the task to the current user and sign the document") {
             val task = createTestTask()
             val restUser = createRESTUser(
-                id = loggedInUser.id,
+                username = loggedInUser.username,
                 name = loggedInUser.getFullName()
             )
             val restTaakDataKey = "fakeKey"
@@ -290,7 +290,7 @@ class TaskRestServiceTest : BehaviorSpec({
             val httpSession = mockk<HttpSession>()
             val historicTaskInstance = mockk<HistoricTaskInstance>()
             val restUser = createRESTUser(
-                id = loggedInUser.id,
+                username = loggedInUser.username,
                 name = loggedInUser.getFullName()
             )
             val documentUUID = UUID.randomUUID()
@@ -357,7 +357,7 @@ class TaskRestServiceTest : BehaviorSpec({
         given("a task and task data to assign the task to the current user and sign the document") {
             val task = createTestTask()
             val restUser = createRESTUser(
-                id = loggedInUser.id,
+                username = loggedInUser.username,
                 name = loggedInUser.getFullName()
             )
             val restTaakDataKey = "fakeKey"
@@ -457,7 +457,7 @@ class TaskRestServiceTest : BehaviorSpec({
             val openTask = createTestTask(description = "fakeDescriptionBeforeAssignment")
             val assignedTask = createTestTask(description = "fakeDescriptionAfterAssignment")
             val restTask = createRestTask(
-                behandelaar = createRESTUser(id = "fakeOtherUserId", name = "fakeOtherUserName"),
+                behandelaar = createRESTUser(username = "fakeOtherUsername", name = "fakeOtherUserName"),
                 formioFormulier = Json.createObjectBuilder().build()
             )
             val restTaskConverted = createRestTask()
@@ -468,7 +468,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { flowableTaskService.readOpenTask(restTask.id!!) } returns openTask
             every { policyService.readTaakRechten(openTask) } returns createTaakRechtenAllDeny(wijzigen = true)
             every {
-                flowableTaskService.assignTaskToUser(openTask.id, loggedInUser.id, "Afgesloten")
+                flowableTaskService.assignTaskToUser(openTask.id, loggedInUser.username, "Afgesloten")
             } returns assignedTask
             every { zrcClientService.readZaak(restTask.zaakUuid) } returns zaak
             every { bpmnTaskFormRuntimeService.submit(restTask, assignedTask, zaak) } returns assignedTask
@@ -496,7 +496,7 @@ class TaskRestServiceTest : BehaviorSpec({
                         taskService.assignTask(
                             task = any(),
                             groupId = any(),
-                            userId = any(),
+                            username = any(),
                             reason = any(),
                             loggedInUser = any()
                         )

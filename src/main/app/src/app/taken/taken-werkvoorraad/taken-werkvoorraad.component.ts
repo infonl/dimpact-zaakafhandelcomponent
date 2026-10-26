@@ -153,7 +153,7 @@ export class TakenWerkvoorraadComponent
         if (!taakZoekObject) return;
 
         taakZoekObject.behandelaarNaam = behandelaar.naam;
-        taakZoekObject.behandelaarGebruikersnaam = behandelaar.id;
+        taakZoekObject.behandelaarGebruikersnaam = behandelaar.username;
       },
     },
   );
@@ -180,7 +180,7 @@ export class TakenWerkvoorraadComponent
     if (!taakZoekObject.rechten.canToekennen) return false;
     const loggedInUser = this.loggedInUserQuery.data();
     if (!loggedInUser) return false;
-    if (loggedInUser.id === taakZoekObject.behandelaarGebruikersnaam)
+    if (loggedInUser.username === taakZoekObject.behandelaarGebruikersnaam)
       return false;
     return loggedInUser.groupIds?.includes(taakZoekObject.groepID) ?? false;
   }
@@ -309,7 +309,8 @@ export class TakenWerkvoorraadComponent
           taak.groepNaam = this.toekenning?.groep?.naam ?? taak.groepNaam;
           taak.groepID = this.toekenning?.groep?.id ?? taak.groepID;
 
-          taak.behandelaarGebruikersnaam = this.toekenning?.medewerker?.id;
+          taak.behandelaarGebruikersnaam =
+            this.toekenning?.medewerker?.username;
           taak.behandelaarNaam = this.toekenning?.medewerker?.naam;
         },
       },

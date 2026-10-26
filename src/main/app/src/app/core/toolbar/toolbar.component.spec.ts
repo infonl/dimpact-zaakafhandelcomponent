@@ -74,7 +74,7 @@ describe(ToolbarComponent.name, () => {
     testQueryClient.setQueryData(
       identityService.readLoggedInUser().queryKey,
       fromPartial<GeneratedType<"RestUser">>({
-        id: "user-id",
+        username: "user-id",
         naam: "Jan Jansen",
       }),
     );

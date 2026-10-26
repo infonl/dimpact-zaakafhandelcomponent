@@ -40,7 +40,7 @@ const mockGroup: GeneratedType<"RestGroup"> = {
 };
 
 const mockUser: GeneratedType<"RestUser"> = {
-  id: "user-1",
+  username: "user-1",
   naam: "Test User",
 };
 
@@ -175,7 +175,10 @@ describe(TakenVerdelenDialogComponent.name, () => {
         queryKey: ["/rest/identity/groups/{groupId}/users"],
       });
       await sleep();
-      await respondWithUsers([mockUser, { id: "user-2", naam: "Other User" }]);
+      await respondWithUsers([
+        mockUser,
+        { username: "user-2", naam: "Other User" },
+      ]);
 
       expect(component["form"].controls.medewerker.value).toEqual(mockUser);
     });
@@ -207,7 +210,7 @@ describe(TakenVerdelenDialogComponent.name, () => {
           { zaakUuid: "zaak-2", taakId: "2" },
         ],
         groepId: mockGroup.id,
-        behandelaarGebruikersnaam: mockUser.id,
+        behandelaarGebruikersnaam: mockUser.username,
         reden: "test-reden",
         screenEventResourceId: "screen-event-1",
       });

@@ -422,7 +422,8 @@ export class ZaakViewComponent
       this.queryClient.getQueryState(queryKey)?.status === "success";
     const zaakAfterRefetch = this.queryClient.getQueryData(queryKey);
     if (refetchSucceeded && zaakAfterRefetch === zaakBeforeRefetch) return;
-    if (isCausedByCurrentUser(event, this.loggedInUser.data()?.id)) return;
+    if (isCausedByCurrentUser(event, this.loggedInUser.data()?.username))
+      return;
 
     forkJoin({
       msgPart1: this.translate.get(

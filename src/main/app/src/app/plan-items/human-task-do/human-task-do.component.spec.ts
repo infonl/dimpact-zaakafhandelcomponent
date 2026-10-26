@@ -252,8 +252,14 @@ describe("HumanTaskDoComponent", () => {
 
     it("should prefill group control, populate user options, and enable user control when groepId matches", async () => {
       const mockUsers = [
-        fromPartial<GeneratedType<"RestUser">>({ id: "u1", naam: "User One" }),
-        fromPartial<GeneratedType<"RestUser">>({ id: "u2", naam: "User Two" }),
+        fromPartial<GeneratedType<"RestUser">>({
+          username: "u1",
+          naam: "User One",
+        }),
+        fromPartial<GeneratedType<"RestUser">>({
+          username: "u2",
+          naam: "User Two",
+        }),
       ];
       seedUsersOfGroup(mockUsers);
       fixture.componentRef.setInput(
@@ -286,7 +292,10 @@ describe("HumanTaskDoComponent", () => {
 
     it("should enable the user control and load its options when a group is selected", async () => {
       const mockUsers = [
-        fromPartial<GeneratedType<"RestUser">>({ id: "u1", naam: "User One" }),
+        fromPartial<GeneratedType<"RestUser">>({
+          username: "u1",
+          naam: "User One",
+        }),
       ];
       seedUsersOfGroup(mockUsers);
 
@@ -318,7 +327,10 @@ describe("HumanTaskDoComponent", () => {
       await sleep();
 
       const users = [
-        fromPartial<GeneratedType<"RestUser">>({ id: "u1", naam: "User One" }),
+        fromPartial<GeneratedType<"RestUser">>({
+          username: "u1",
+          naam: "User One",
+        }),
       ];
       httpTestingController
         .expectOne("/rest/identity/groups/1/users")
@@ -337,7 +349,10 @@ describe("HumanTaskDoComponent", () => {
 
     it("should keep the picked user when the users of the group are read again", async () => {
       const users = [
-        fromPartial<GeneratedType<"RestUser">>({ id: "u1", naam: "User One" }),
+        fromPartial<GeneratedType<"RestUser">>({
+          username: "u1",
+          naam: "User One",
+        }),
       ];
       seedUsersOfGroup(users);
       await initialise();
@@ -350,7 +365,7 @@ describe("HumanTaskDoComponent", () => {
         [
           ...users,
           fromPartial<GeneratedType<"RestUser">>({
-            id: "u2",
+            username: "u2",
             naam: "User Two",
           }),
         ],

@@ -81,7 +81,7 @@ describe(TakenWerkvoorraadComponent.name, () => {
     httpTestingController = TestBed.inject(HttpTestingController);
 
     testQueryClient.setQueryData(identityService.readLoggedInUser().queryKey, {
-      id: "user1",
+      username: "user1",
       naam: "testuser-1",
       groupIds: ["groupA", "groupB"],
     });
@@ -212,7 +212,7 @@ describe(TakenWerkvoorraadComponent.name, () => {
       await clickAssignToMe();
       httpTestingController.expectOne("/rest/taken/lijst/toekennen/mij").flush(
         fromPartial<GeneratedType<"RestTask">>({
-          behandelaar: { id: "user1", naam: "testuser-1" },
+          behandelaar: { username: "user1", naam: "testuser-1" },
         }),
       );
       await sleep();
@@ -244,7 +244,7 @@ describe(TakenWerkvoorraadComponent.name, () => {
           request.flush(
             fromPartial<GeneratedType<"RestTask">>({
               behandelaar: {
-                id: "behandelaarIdVan" + request.request.body.taakId,
+                username: "behandelaarIdVan" + request.request.body.taakId,
                 naam: "behandelaarVan" + request.request.body.taakId,
               },
             }),

@@ -199,75 +199,75 @@ class IdentityServiceTest : BehaviorSpec({
                     response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder """
                             [                               
                                 {
-                                    "id": "${RAADPLEGER_1.username}",
+                                    "username": "${RAADPLEGER_1.username}",
                                     "naam": "${RAADPLEGER_1.displayName}"
                                 },
                                 {
-                                    "id": "${RAADPLEGER_2.username}",
+                                    "username": "${RAADPLEGER_2.username}",
                                     "naam": "${RAADPLEGER_2.displayName}"
                                 },
                                 {
-                                    "id": "${BEHANDELAAR_1.username}",
+                                    "username": "${BEHANDELAAR_1.username}",
                                     "naam": "${BEHANDELAAR_1.displayName}"
                                 },
                                 {
-                                    "id": "${BEHANDELAAR_2.username}",
+                                    "username": "${BEHANDELAAR_2.username}",
                                     "naam": "${BEHANDELAAR_2.displayName}"
                                 },
                                 {
-                                    "id": "${COORDINATOR_1.username}",
+                                    "username": "${COORDINATOR_1.username}",
                                     "naam": "${COORDINATOR_1.displayName}"
                                 },
                                 {
-                                    "id": "${COORDINATOR_2.username}",
+                                    "username": "${COORDINATOR_2.username}",
                                     "naam": "${COORDINATOR_2.displayName}"
                                 },
                                 {
-                                    "id": "${RECORDMANAGER_1.username}",
+                                    "username": "${RECORDMANAGER_1.username}",
                                     "naam": "${RECORDMANAGER_1.displayName}"
                                 },
                                 {
-                                    "id": "${RECORDMANAGER_2.username}",
+                                    "username": "${RECORDMANAGER_2.username}",
                                     "naam": "${RECORDMANAGER_2.displayName}"
                                 },
                                 {
-                                    "id": "${BEHEERDER_1.username}",
+                                    "username": "${BEHEERDER_1.username}",
                                     "naam": "${BEHEERDER_1.displayName}"
                                 },
                                 {
-                                    "id": "${RAADPLEGER_EN_BEHANDELAAR_1.username}",
+                                    "username": "${RAADPLEGER_EN_BEHANDELAAR_1.username}",
                                     "naam": "${RAADPLEGER_EN_BEHANDELAAR_1.displayName}"
                                 },                              
                                 {
-                                    "id": "${USER_WITHOUT_ANY_ROLE.username}",
+                                    "username": "${USER_WITHOUT_ANY_ROLE.username}",
                                     "naam": "${USER_WITHOUT_ANY_ROLE.displayName}"
                                 },
                                 {
-                                   "id": "${PABC_ADMIN.username}",
+                                   "username": "${PABC_ADMIN.username}",
                                     "naam": "${PABC_ADMIN.displayName}"
                                 },
                                 {
-                                    "id": "${BEHANDELAAR_INACTIVE_GROUP_1.username}",
+                                    "username": "${BEHANDELAAR_INACTIVE_GROUP_1.username}",
                                     "naam": "${BEHANDELAAR_INACTIVE_GROUP_1.displayName}"
                                 },
                                 {
-                                    "id": "${BEHANDELAAR_LONG_NAME_TEST.username}",
+                                    "username": "${BEHANDELAAR_LONG_NAME_TEST.username}",
                                     "naam": "${BEHANDELAAR_LONG_NAME_TEST.displayName}"
                                 },
                                 {
-                                    "id": "${ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username}",
+                                    "username": "${ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username}",
                                     "naam": "${ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.displayName}"
                                 },
                                 {
-                                    "id": "${BEHANDELAAR_1_EN_BRP_ZOEKER_2.username}",
+                                    "username": "${BEHANDELAAR_1_EN_BRP_ZOEKER_2.username}",
                                     "naam": "${BEHANDELAAR_1_EN_BRP_ZOEKER_2.displayName}"
                                 },
                                 {
-                                    "id": "${USER_WITHOUT_READ_ROLE.username}",
+                                    "username": "${USER_WITHOUT_READ_ROLE.username}",
                                     "naam": "${USER_WITHOUT_READ_ROLE.displayName}"
                                 },
                                 {
-                                    "id": "${BEHANDELAAR_BPMN_WAARSCHUWING_1.username}",
+                                    "username": "${BEHANDELAAR_BPMN_WAARSCHUWING_1.username}",
                                     "naam": "${BEHANDELAAR_BPMN_WAARSCHUWING_1.displayName}"
                                 }
                             ]
@@ -291,15 +291,15 @@ class IdentityServiceTest : BehaviorSpec({
                     response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder """
                         [
                             {
-                                "id": "${BEHANDELAAR_1.username}",
+                                "username": "${BEHANDELAAR_1.username}",
                                 "naam": "${BEHANDELAAR_1.displayName}"
                             },
                             {
-                                "id": "${BEHANDELAAR_1_EN_BRP_ZOEKER_2.username}",
+                                "username": "${BEHANDELAAR_1_EN_BRP_ZOEKER_2.username}",
                                 "naam": "${BEHANDELAAR_1_EN_BRP_ZOEKER_2.displayName}"
                             },
                             {
-                                "id": "${BEHANDELAAR_BPMN_WAARSCHUWING_1.username}",
+                                "username": "${BEHANDELAAR_BPMN_WAARSCHUWING_1.username}",
                                 "naam": "${BEHANDELAAR_BPMN_WAARSCHUWING_1.displayName}"
                             }
                         ]
@@ -323,7 +323,7 @@ class IdentityServiceTest : BehaviorSpec({
                     response.bodyAsString shouldEqualJson """
                         [
                             {
-                                "id": "${BEHANDELAAR_INACTIVE_GROUP_1.username}",
+                                "username": "${BEHANDELAAR_INACTIVE_GROUP_1.username}",
                                 "naam": "${BEHANDELAAR_INACTIVE_GROUP_1.displayName}"
                             }
                         ]
@@ -403,7 +403,7 @@ class IdentityServiceTest : BehaviorSpec({
                     response.code shouldBe HTTP_OK
                     response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder """
                             {
-                                "id": "${BEHEERDER_1.username}",
+                                "username": "${BEHEERDER_1.username}",
                                 "naam": "${BEHEERDER_1.displayName}",
                                 "groupIds": [
                                     $expectedGroupsString

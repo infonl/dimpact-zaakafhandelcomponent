@@ -61,7 +61,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
         )
         val oidcSecurityContext = OidcSecurityContext("fakeTokenString", accessToken, null, null)
         every { httpSession.getAttribute("logged-in-user") } returns null
-        every { httpServletRequest.userPrincipal } returns OidcPrincipal("fakeUserId", oidcSecurityContext)
+        every { httpServletRequest.userPrincipal } returns OidcPrincipal("fakeUsername", oidcSecurityContext)
         every { httpServletRequest.getSession(true) } returns httpSession
         every { httpSession.setAttribute(any(), any()) } just runs
         every { filterChain.doFilter(any(), any()) } just runs
@@ -83,13 +83,13 @@ class UserPrincipalFilterTest : BehaviorSpec({
             principal with the same id as the logged-in user in the HTTP session
             """
         ) {
-            val userId = "fakeId"
+            val username = "fakeId"
             val loggedInUser = createLoggedInUser(
-                id = userId,
+                username = username,
                 applicationRolesPerZaaktype = mapOf("testZaaktype" to setOf("fakeAppRole1"))
             )
             val oidcSecurityContext = OidcSecurityContext()
-            val oidcPrincipal = OidcPrincipal(userId, oidcSecurityContext)
+            val oidcPrincipal = OidcPrincipal(username, oidcSecurityContext)
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
             every { httpServletRequest.getSession(true) } returns httpSession
             every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
@@ -132,7 +132,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             )
             val capturedLoggedInUser = slot<LoggedInUser>()
             val oidcSecurityContext = OidcSecurityContext("fakeTokenString", accessToken, null, null)
-            val oidcPrincipal = OidcPrincipal("aDifferentUserId", oidcSecurityContext)
+            val oidcPrincipal = OidcPrincipal("aDifferentUsername", oidcSecurityContext)
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
             every { httpServletRequest.getSession(true) } returns httpSession andThen newHttpSession
             every { httpServletRequest.servletContext.contextPath } returns "fakeContextPath"
@@ -210,7 +210,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 null,
                 "test-refresh-token"
             )
-            val oidcPrincipal = OidcPrincipal("fakeUserId", refreshableOidcSecurityContext)
+            val oidcPrincipal = OidcPrincipal("fakeUsername", refreshableOidcSecurityContext)
             val loggedInUserSlot = slot<LoggedInUser>()
             every { httpServletRequest.getSession(true) } returns httpSession
             every { httpSession.getAttribute("logged-in-user") } returns null
@@ -237,7 +237,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                         filterChain.doFilter(httpServletRequest, servletResponse)
                     }
                     with(loggedInUserSlot.captured) {
-                        this.id shouldBe userName
+                        this.username shouldBe userName
                         this.firstName shouldBe givenName
                         this.lastName shouldBe familyName
                         this.getFullName() shouldBe fullName
@@ -271,7 +271,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 )
             )
             val oidcSecurityContext = OidcSecurityContext("fakeTokenString", accessToken, null, null)
-            val oidcPrincipal = OidcPrincipal("fakeUserId", oidcSecurityContext)
+            val oidcPrincipal = OidcPrincipal("fakeUsername", oidcSecurityContext)
             every { httpSession.getAttribute("logged-in-user") } returns null
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
             every { httpServletRequest.getSession(true) } returns httpSession
@@ -328,7 +328,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 )
             )
             val oidcSecurityContext = OidcSecurityContext("fakeTokenString", accessToken, null, null)
-            val oidcPrincipal = OidcPrincipal("fakeUserId", oidcSecurityContext)
+            val oidcPrincipal = OidcPrincipal("fakeUsername", oidcSecurityContext)
             every { httpSession.getAttribute("logged-in-user") } returns null
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
             every { httpServletRequest.getSession(true) } returns httpSession
@@ -389,7 +389,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 )
             )
             val oidcSecurityContext = OidcSecurityContext("fakeTokenString", accessToken, null, null)
-            val oidcPrincipal = OidcPrincipal("fakeUserId", oidcSecurityContext)
+            val oidcPrincipal = OidcPrincipal("fakeUsername", oidcSecurityContext)
             every { httpSession.getAttribute("logged-in-user") } returns null
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
             every { httpServletRequest.getSession(true) } returns httpSession
@@ -440,7 +440,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 )
             )
             val oidcSecurityContext = OidcSecurityContext("fakeTokenString", accessToken, null, null)
-            val oidcPrincipal = OidcPrincipal("fakeUserId", oidcSecurityContext)
+            val oidcPrincipal = OidcPrincipal("fakeUsername", oidcSecurityContext)
             every { httpSession.getAttribute("logged-in-user") } returns null
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
             every { httpServletRequest.getSession(true) } returns httpSession
@@ -492,7 +492,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 )
             )
             val oidcSecurityContext = OidcSecurityContext("fakeTokenString", accessToken, null, null)
-            val oidcPrincipal = OidcPrincipal("fakeUserId", oidcSecurityContext)
+            val oidcPrincipal = OidcPrincipal("fakeUsername", oidcSecurityContext)
             every { httpSession.getAttribute("logged-in-user") } returns null
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
             every { httpServletRequest.getSession(true) } returns httpSession

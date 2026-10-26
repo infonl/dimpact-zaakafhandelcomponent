@@ -86,7 +86,8 @@ export class ZaakDetailsMedewerkersTabComponent {
     medewerker: GeneratedType<"RestGeautoriseerdeMedewerker">,
   ) {
     const naam = medewerker.naam ?? medewerker.id;
-    const isLoggedInUser = medewerker.id === this.loggedInUserQuery.data()?.id;
+    const isLoggedInUser =
+      medewerker.id === this.loggedInUserQuery.data()?.username;
     this.zaakDialogService
       .openDetachZaakspecifiekGeautoriseerdeMedewerker(naam, (reden) =>
         runMutation(

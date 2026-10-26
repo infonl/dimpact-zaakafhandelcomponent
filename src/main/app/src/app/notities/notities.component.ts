@@ -163,20 +163,20 @@ export class NotitiesComponent {
 
   protected maakNotitieAan(tekst: string) {
     const loggedInUser = this.loggedInUserQuery.data();
-    if (!loggedInUser?.id) return;
+    if (!loggedInUser?.username) return;
     if (tekst.length === 0) return;
     if (tekst.length > this.maxLengteTextArea) return;
 
     this.createNotitieMutation.mutate({
       zaakUUID: this.zaakUuid(),
       tekst: tekst,
-      gebruikersnaamMedewerker: loggedInUser.id,
+      gebruikersnaamMedewerker: loggedInUser.username,
     });
   }
 
   protected updateNotitie(notitie: GeneratedType<"RestNote">, tekst: string) {
     const loggedInUser = this.loggedInUserQuery.data();
-    if (!loggedInUser?.id) return;
+    if (!loggedInUser?.username) return;
 
     if (tekst.length === 0) return;
     if (tekst.length > this.maxLengteTextArea) return;
@@ -184,7 +184,7 @@ export class NotitiesComponent {
     this.updateNotitieMutation.mutate({
       ...notitie,
       tekst,
-      gebruikersnaamMedewerker: loggedInUser.id,
+      gebruikersnaamMedewerker: loggedInUser.username,
     });
   }
 

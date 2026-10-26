@@ -37,7 +37,7 @@ class EnkelvoudigInformatieObjectLock {
     var enkelvoudiginformatieobjectUUID: UUID? = null
 
     @Column(name = "id_user", nullable = false)
-    var userId: @NotBlank String? = null
+    var username: @NotBlank String? = null
 
     @Column(name = "lock", nullable = false)
     var lock: @NotBlank String? = null

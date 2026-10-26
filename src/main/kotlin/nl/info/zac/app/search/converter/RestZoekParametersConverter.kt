@@ -47,10 +47,10 @@ class RestZoekParametersConverter @Inject constructor(
             zoekParameters.addFilterQuery(ZaakZoekObject.EINDSTATUS_FIELD, BooleanUtils.TRUE)
         }
         if (restZoekParameters.isAlleenMijnZaken) {
-            zoekParameters.addFilterQuery(ZaakZoekObject.BEHANDELAAR_ID_FIELD, loggedInUserInstance.get().id)
+            zoekParameters.addFilterQuery(ZaakZoekObject.BEHANDELAAR_ID_FIELD, loggedInUserInstance.get().username)
         }
         if (restZoekParameters.isAlleenMijnTaken) {
-            zoekParameters.addFilterQuery(TaakZoekObject.BEHANDELAAR_ID_FIELD, loggedInUserInstance.get().id)
+            zoekParameters.addFilterQuery(TaakZoekObject.BEHANDELAAR_ID_FIELD, loggedInUserInstance.get().username)
         }
         restZoekParameters.zoeken?.let {
             it.forEach { (key: String, value: String) ->

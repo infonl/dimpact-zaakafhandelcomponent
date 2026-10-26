@@ -154,7 +154,7 @@ class SmartDocumentsService @Inject constructor(
                     "No SmartDocuments fixed user name configured and no user is currently logged in"
                 )
             }
-            loggedInUserInstance.get().id
+            loggedInUserInstance.get().username
         }
 
     private fun outputFormatForFileName(fileName: String): String =

@@ -68,7 +68,7 @@ class SignaleringMailHelperTest : BehaviorSpec({
     context("getTargetMail for USER target") {
         given("A signalering targeting a user that has an email address") {
             val fakeUser = User(
-                id = "fakeUserId",
+                username = "fakeUsername",
                 firstName = "fakeFirstName",
                 lastName = "fakeLastName",
                 email = "fake@user.nl"
@@ -90,7 +90,7 @@ class SignaleringMailHelperTest : BehaviorSpec({
         }
 
         given("A signalering targeting a user that has no email address") {
-            val fakeUser = User(id = "fakeUserId", firstName = "fakeFirstName", lastName = "fakeLastName", email = null)
+            val fakeUser = User(username = "fakeUsername", firstName = "fakeFirstName", lastName = "fakeLastName", email = null)
             val signalering = createSignalering(
                 type = createSignaleringType(type = SignaleringType.Type.ZAAK_OP_NAAM),
                 targetUser = fakeUser

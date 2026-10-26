@@ -460,7 +460,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                     policyService.readDocumentRechten(it, zrcClientService.readZaak(zaakUUID)).canVergrendelen
             }
         )
-        enkelvoudigInformatieObjectLockService.createLock(uuid, loggedInUserInstance.get().id)
+        enkelvoudigInformatieObjectLockService.createLock(uuid, loggedInUserInstance.get().username)
         // Hiervoor wordt door open zaak geen notificatie verstuurd. Dus zelf het ScreenEvent versturen!
         eventingService.send(ScreenEventType.ENKELVOUDIG_INFORMATIEOBJECT.updated(uuid))
         return Response.ok().build()

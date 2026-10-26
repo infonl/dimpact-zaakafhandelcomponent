@@ -71,7 +71,9 @@ describe(TakenCardComponent.name, () => {
 
     httpTestingController
       .expectOne("/rest/identity/loggedInUser")
-      .flush(fromPartial<GeneratedType<"RestLoggedInUser">>({ id: "user" }));
+      .flush(
+        fromPartial<GeneratedType<"RestLoggedInUser">>({ username: "user" }),
+      );
     await sleep();
   }
 

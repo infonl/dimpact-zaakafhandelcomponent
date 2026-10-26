@@ -83,7 +83,7 @@ class RestTaskConverter @Inject constructor(
                 null
             },
             behandelaar = if (restTaakRechten.canLezen) {
-                taskInfo.assignee?.let { medewerkerConverter.convertUserId(userId = it, logContext = logContext) }
+                taskInfo.assignee?.let { medewerkerConverter.convertUsername(username = it, logContext = logContext) }
             } else {
                 null
             },

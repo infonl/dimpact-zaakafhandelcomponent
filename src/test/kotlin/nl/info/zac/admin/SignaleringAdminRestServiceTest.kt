@@ -52,7 +52,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
             then("it should set the functioneel gebruiker in the HTTP session") {
                 verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot)) }
                 with(loggedInUserSlot.captured) {
-                    id shouldBe "FG"
+                    username shouldBe "FG"
                     firstName shouldBe ""
                     lastName shouldBe "Functionele gebruiker"
                     roles shouldBe emptySet()

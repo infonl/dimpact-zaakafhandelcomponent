@@ -139,7 +139,7 @@ class SearchServiceTest : BehaviorSpec({
                     getParams("fq") shouldBe arrayOf(
                         "{!terms f=zaaktypeOmschrijving separator='\n'}$zaakType1\n$zaakType2",
                         "-({!terms f=zaaktypeOmschrijving separator='\n' v=\$zaaktypenZonderZaakspecifiekGeautoriseerd} " +
-                            "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeId\")",
+                            "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeUsername\")",
                         "type:ZAAK",
                         "zaak_omschrijving:($zaakDescriptionSearchField)",
                         "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString]",
@@ -233,7 +233,7 @@ class SearchServiceTest : BehaviorSpec({
                     getParams("fq") shouldBe arrayOf(
                         "{!terms f=zaaktypeOmschrijving separator='\n'}$zaakType1",
                         "-({!terms f=zaaktypeOmschrijving separator='\n' v=\$zaaktypenZonderZaakspecifiekGeautoriseerd} " +
-                            "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeId\")",
+                            "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeUsername\")",
                         "type:TAAK",
                         "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString]",
                         """{!tag=ZAAKTYPE}zaaktypeOmschrijving:("$zaakType1")"""
@@ -307,7 +307,7 @@ class SearchServiceTest : BehaviorSpec({
                     getParams("fq") shouldBe arrayOf(
                         "{!terms f=zaaktypeOmschrijving separator='\n'}$zaakType1",
                         "-({!terms f=zaaktypeOmschrijving separator='\n' v=\$zaaktypenZonderZaakspecifiekGeautoriseerd} " +
-                            "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeId\")",
+                            "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeUsername\")",
                         "type:DOCUMENT"
                     )
                     get("zaaktypenZonderZaakspecifiekGeautoriseerd") shouldBe "$zaakType1"
@@ -395,7 +395,7 @@ class SearchServiceTest : BehaviorSpec({
                     getParams("fq") shouldBe arrayOf(
                         "{!terms f=zaaktypeOmschrijving separator='\n'}$zaakType1",
                         "-({!terms f=zaaktypeOmschrijving separator='\n' v=\$zaaktypenZonderZaakspecifiekGeautoriseerd} " +
-                            "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeId\")",
+                            "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeUsername\")",
                         "type:TAAK",
                         "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString]",
                         """{!tag=ZAAKTYPE}zaaktypeOmschrijving:("$zaakType1")"""
@@ -559,7 +559,7 @@ class SearchServiceTest : BehaviorSpec({
                     getParams("fq") shouldBe arrayOf(
                         "{!terms f=zaaktypeOmschrijving separator='\n'}$zaaktypeWithFlag\n$zaaktypeWithoutFlag",
                         "-({!terms f=zaaktypeOmschrijving separator='\n' v=\$zaaktypenZonderZaakspecifiekGeautoriseerd} " +
-                            "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeId\")",
+                            "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeUsername\")",
                         "type:ZAAK"
                     )
                     get("zaaktypenZonderZaakspecifiekGeautoriseerd") shouldBe "$zaaktypeWithoutFlag"
@@ -645,7 +645,7 @@ class SearchServiceTest : BehaviorSpec({
         val solrDocumentList = mockk<SolrDocumentList>()
         val solrParamsSlot = slot<SolrParams>()
         val loggedInUser = createLoggedInUser(
-            id = "fakeBehandelaarId",
+            username = "fakeBehandelaarId",
             applicationRolesPerZaaktype = mapOf(zaaktypeWithoutFlag to setOf("behandelaar"))
         )
 

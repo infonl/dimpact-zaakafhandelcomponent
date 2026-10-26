@@ -149,14 +149,14 @@ class RestSignaleringInstellingenConverterTest : BehaviorSpec({
                 isDashboard = true,
                 isMail = true
             )
-            val user = createUser(id = "fakeUserId")
+            val user = createUser(username = "fakeUsername")
             val domainInstellingen = createSignaleringInstellingen(
                 type = createSignaleringType(type = type, subjecttype = SignaleringSubject.ZAAK),
                 ownerType = SignaleringTarget.USER,
                 isDashboard = false,
                 isMail = false
             )
-            every { signaleringService.readInstellingenUser(type, user.id) } returns domainInstellingen
+            every { signaleringService.readInstellingenUser(type, user.username) } returns domainInstellingen
 
             `when`("convert(RestSignaleringInstellingen, User) is called") {
                 val result = restSignaleringInstellingenConverter.convert(restInstellingen, user)
@@ -176,13 +176,13 @@ class RestSignaleringInstellingenConverterTest : BehaviorSpec({
                 type = createSignaleringType(type = type, subjecttype = SignaleringSubject.ZAAK),
                 isDashboard = null
             )
-            val user = createUser(id = "fakeUserId")
+            val user = createUser(username = "fakeUsername")
             val domainInstellingen = createSignaleringInstellingen(
                 type = createSignaleringType(type = type, subjecttype = SignaleringSubject.ZAAK),
                 ownerType = SignaleringTarget.USER,
                 isDashboard = true
             )
-            every { signaleringService.readInstellingenUser(type, user.id) } returns domainInstellingen
+            every { signaleringService.readInstellingenUser(type, user.username) } returns domainInstellingen
 
             `when`("convert(RestSignaleringInstellingen, User) is called") {
                 val result = restSignaleringInstellingenConverter.convert(restInstellingen, user)

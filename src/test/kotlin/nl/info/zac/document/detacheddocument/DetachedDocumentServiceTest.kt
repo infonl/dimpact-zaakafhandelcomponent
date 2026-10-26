@@ -47,7 +47,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             val titel = "Ontkoppeld Document"
             val bestandsnaam = "ontkoppeld.pdf"
             val reden = "Test reden"
-            val userId = "user-123"
+            val loggedInUsername = "fakeUsername"
             val zaak = createZaak(identificatie = "ZAAK-789")
             val informatieobject = createEnkelvoudigInformatieObject(uuid = documentUuid).apply {
                 setIdentificatie(identificatie)
@@ -58,7 +58,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             val detachedDocumentSlot = slot<DetachedDocument>()
 
             every { loggedInUserInstance.get() } returns mockk<LoggedInUser> {
-                every { id } returns userId
+                every { username } returns loggedInUsername
             }
             every { detachedDocumentRepository.save(capture(detachedDocumentSlot)) } just Runs
 
@@ -73,7 +73,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
                         this.creatiedatum shouldBe creatiedatum
                         this.titel shouldBe titel
                         this.bestandsnaam shouldBe bestandsnaam
-                        this.ontkoppeldDoor shouldBe userId
+                        this.ontkoppeldDoor shouldBe loggedInUsername
                         this.zaakID shouldBe zaak.identificatie
                         this.reden shouldBe reden
                         this.ontkoppeldOp shouldNotBe null

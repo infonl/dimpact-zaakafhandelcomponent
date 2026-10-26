@@ -63,7 +63,9 @@ describe(ZaakDetailsMedewerkersTabComponent.name, () => {
     if (loggedInUserId) {
       testQueryClient.setQueryData(
         TestBed.inject(IdentityService).readLoggedInUser().queryKey,
-        fromPartial<GeneratedType<"RestLoggedInUser">>({ id: loggedInUserId }),
+        fromPartial<GeneratedType<"RestLoggedInUser">>({
+          username: loggedInUserId,
+        }),
       );
     }
     fixture = TestBed.createComponent(ZaakDetailsMedewerkersTabComponent);

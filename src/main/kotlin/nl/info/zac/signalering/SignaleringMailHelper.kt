@@ -34,7 +34,7 @@ class SignaleringMailHelper @Inject constructor(
             }
             SignaleringTarget.USER -> {
                 identityService.readUser(
-                    userId = signalering.target,
+                    username = signalering.target,
                     logContext = "signalering '${signalering.id}'"
                 ).let { user ->
                     user.email?.let {

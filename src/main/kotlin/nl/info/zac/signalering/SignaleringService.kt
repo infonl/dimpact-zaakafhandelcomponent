@@ -213,8 +213,8 @@ class SignaleringService @Inject constructor(
     fun deleteSignaleringen(parameters: SignaleringZoekParameters) = listSignaleringen(parameters).let(::deleteSignaleringen)
 
     /**
-     * Deletes the user signaleringen of the given types for the given subject, except those of [keptUserId].
-     * When [keptUserId] is `null`, all user signaleringen of these types for the subject are deleted.
+     * Deletes the user signaleringen of the given types for the given subject, except those of [keptUsername].
+     * When [keptUsername] is `null`, all user signaleringen of these types for the subject are deleted.
      */
     @Transactional(REQUIRED)
     @Suppress("SpreadOperator")
@@ -222,10 +222,10 @@ class SignaleringService @Inject constructor(
         subjecttype: SignaleringSubject,
         subject: String,
         types: Set<SignaleringType.Type>,
-        keptUserId: String?
+        keptUsername: String?
     ) = SignaleringZoekParameters(subjecttype, subject).types(*types.toTypedArray())
         .let(::listSignaleringen)
-        .filter { it.targettype == SignaleringTarget.USER && it.target != keptUserId }
+        .filter { it.targettype == SignaleringTarget.USER && it.target != keptUsername }
         .let(::deleteSignaleringen)
 
     /**
@@ -239,7 +239,7 @@ class SignaleringService @Inject constructor(
                 subjecttype = SignaleringSubject.ZAAK,
                 subject = zaakUuid.toString(),
                 types = setOf(SignaleringType.Type.ZAAK_OP_NAAM, SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD),
-                keptUserId = zrcClientService.readZaak(zaakUuid)
+                keptUsername = zrcClientService.readZaak(zaakUuid)
                     .let(zgwApiService::findBehandelaarMedewerkerRoleForZaak)
                     ?.identificatienummer
             )
@@ -526,7 +526,7 @@ class SignaleringService @Inject constructor(
         loggedInUser: LoggedInUser
     ): CheckedSignalering<RestZaakOverzicht> {
         val zaak = UUID.fromString(signalering.subject).let(zrcClientService::readZaak)
-        if (zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.identificatienummer != loggedInUser.id) {
+        if (zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.identificatienummer != loggedInUser.username) {
             return CheckedSignalering(signalering, invalidReason = "the user is not the behandelaar of the zaak")
         }
         return restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaak, loggedInUser)
@@ -537,7 +537,7 @@ class SignaleringService @Inject constructor(
     private fun checkTaakSignalering(signalering: Signalering, loggedInUser: LoggedInUser): CheckedSignalering<TaskInfo> {
         val task = flowableTaskService.readTask(signalering.subject)
         return when {
-            task.assignee != loggedInUser.id ->
+            task.assignee != loggedInUser.username ->
                 CheckedSignalering(signalering, invalidReason = "the user is not the assignee of the taak")
             !policyService.readTaakRechten(task).canLezen ->
                 CheckedSignalering(signalering, invalidReason = "the user has no read rights on the taak")

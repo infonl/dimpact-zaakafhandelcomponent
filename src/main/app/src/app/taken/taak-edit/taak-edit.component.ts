@@ -158,7 +158,7 @@ export class TaakEditComponent {
       taakId: this.task().id!,
       zaakUuid: this.task().zaakUuid!,
       groepId: this.form.value.groep!.id,
-      behandelaarId: this.form.value.behandelaar?.id,
+      behandelaarId: this.form.value.behandelaar?.username,
       reden: this.form.value.reden,
     });
   }

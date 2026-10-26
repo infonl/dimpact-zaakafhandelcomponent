@@ -25,7 +25,7 @@ class ZgwJwtTokenUtilsTest : BehaviorSpec({
             val clientSecret = "clientSecret"
             val loggedInUser = mockk<LoggedInUser>()
 
-            every { loggedInUser.id } returns "id"
+            every { loggedInUser.username } returns "id"
             mockkStatic(LoggedInUser::getFullName)
             every { loggedInUser.getFullName() } returns "fullName"
 

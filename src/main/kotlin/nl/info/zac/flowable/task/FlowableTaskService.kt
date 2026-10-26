@@ -149,14 +149,14 @@ class FlowableTaskService @Inject constructor(
         return readClosedTask(task.id)
     }
 
-    fun assignTaskToUser(taskId: String, userId: String, explanation: String?): Task {
+    fun assignTaskToUser(taskId: String, username: String, explanation: String?): Task {
         val task = readOpenTask(taskId)
-        taskService.setAssignee(taskId, userId)
+        taskService.setAssignee(taskId, username)
         createHistoricTaskLogEntry(
             task = task,
             type = USER_TASK_ASSIGNEE_CHANGED_CUSTOM,
             oldValue = task.assignee,
-            newValue = userId,
+            newValue = username,
             explanation = explanation
         )
         return readOpenTask(taskId)

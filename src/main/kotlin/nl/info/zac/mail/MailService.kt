@@ -292,7 +292,7 @@ class MailService @Inject constructor(
 
     private fun resolveVariabelen(tekst: String, bronnen: Bronnen, zaakdata: Map<String, Any>): String =
         mailTemplateHelper.resolveGemeenteVariable(tekst).let {
-            mailTemplateHelper.resolveZaakVariables(it, bronnen.zaak ?: return@let it, loggedInUserInstance.get().id)
+            mailTemplateHelper.resolveZaakVariables(it, bronnen.zaak ?: return@let it, loggedInUserInstance.get().username)
         }.let {
             mailTemplateHelper.resolveEnkelvoudigInformatieObjectVariables(it, bronnen.document ?: return@let it)
         }.let {

@@ -103,7 +103,7 @@ class WebSocketServerEndPointTest : BehaviorSpec({
         val httpSession = mockk<HttpSession>()
         val wsUserProperties = mutableMapOf<String, Any>()
         val loggedInUser = LoggedInUser(
-            id = "user-123",
+            username = "user-123",
             firstName = "Test",
             lastName = "User",
             displayName = null,

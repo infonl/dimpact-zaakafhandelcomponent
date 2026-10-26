@@ -42,13 +42,13 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
         policyService
     )
 
-    val fakeLoggedInUser = createLoggedInUser(id = "fakeUserId1")
+    val fakeLoggedInUser = createLoggedInUser(username = "fakeUsername1")
 
     afterEach { checkUnnecessaryStub() }
 
     context("listZoekopdrachten") {
         given("Zoekopdrachten exist for the logged-in user") {
-            val fakeZoekopdracht = createZoekopdracht(medewerkerID = "fakeUserId1")
+            val fakeZoekopdracht = createZoekopdracht(medewerkerID = "fakeUsername1")
             every { loggedInUserInstance.get() } returns fakeLoggedInUser
             every { gebruikersvoorkeurenService.listZoekopdrachten(any()) } returns listOf(fakeZoekopdracht)
 
@@ -107,7 +107,7 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
             )
             every { loggedInUserInstance.get() } returns fakeLoggedInUser
             every {
-                gebruikersvoorkeurenService.readTabelInstellingen(Werklijst.MIJN_TAKEN, "fakeUserId1")
+                gebruikersvoorkeurenService.readTabelInstellingen(Werklijst.MIJN_TAKEN, "fakeUsername1")
             } returns fakeTabelInstellingen
             every { policyService.readWerklijstRechten() } returns nl.info.zac.policy.output.createWerklijstRechten()
 
@@ -153,15 +153,15 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
 
     context("listDashboardCards") {
         given("Dashboard cards exist for the logged-in user") {
-            val fakeDashboardCard = createDashboardCardInstelling(medewerkerId = "fakeUserId1")
+            val fakeDashboardCard = createDashboardCardInstelling(medewerkerId = "fakeUsername1")
             every { loggedInUserInstance.get() } returns fakeLoggedInUser
-            every { gebruikersvoorkeurenService.listDashboardCards("fakeUserId1") } returns listOf(fakeDashboardCard)
+            every { gebruikersvoorkeurenService.listDashboardCards("fakeUsername1") } returns listOf(fakeDashboardCard)
 
             `when`("listDashboardCards is called") {
                 val result = gebruikersvoorkeurenRestService.listDashboardCards()
 
                 then("GebruikersvoorkeurenService.listDashboardCards is called and list is returned") {
-                    verify { gebruikersvoorkeurenService.listDashboardCards("fakeUserId1") }
+                    verify { gebruikersvoorkeurenService.listDashboardCards("fakeUsername1") }
                     result.size shouldBe 1
                 }
             }
@@ -188,7 +188,7 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
                     with(zoekopdrachtSlot.captured) {
                         id shouldBe 7L
                         lijstID shouldBe Werklijst.MIJN_TAKEN
-                        medewerkerID shouldBe "fakeUserId1"
+                        medewerkerID shouldBe "fakeUsername1"
                         naam shouldBe "fakeName"
                         isActief shouldBe true
                         json shouldBe "{}"
@@ -209,7 +209,7 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
 
                 then("the active zoekopdracht of the logged-in user for that werklijst is removed") {
                     listParametersSlot.captured.lijstID shouldBe Werklijst.MIJN_ZAKEN
-                    listParametersSlot.captured.medewerkerID shouldBe "fakeUserId1"
+                    listParametersSlot.captured.medewerkerID shouldBe "fakeUsername1"
                 }
             }
         }
@@ -242,7 +242,7 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
                     with(tabelInstellingenSlot.captured) {
                         aantalPerPagina shouldBe TabelInstellingen.AANTAL_PER_PAGINA_MIN
                         lijstID shouldBe Werklijst.MIJN_TAKEN
-                        medewerkerID shouldBe "fakeUserId1"
+                        medewerkerID shouldBe "fakeUsername1"
                     }
                 }
             }
@@ -258,13 +258,13 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
                 column = 2,
                 row = 1
             )
-            val fakeDashboardCard = createDashboardCardInstelling(medewerkerId = "fakeUserId1")
+            val fakeDashboardCard = createDashboardCardInstelling(medewerkerId = "fakeUsername1")
             val dashboardCardsSlot = slot<List<DashboardCardInstelling>>()
             every { loggedInUserInstance.get() } returns fakeLoggedInUser
             every {
-                gebruikersvoorkeurenService.updateDashboardCards("fakeUserId1", capture(dashboardCardsSlot))
+                gebruikersvoorkeurenService.updateDashboardCards("fakeUsername1", capture(dashboardCardsSlot))
             } just runs
-            every { gebruikersvoorkeurenService.listDashboardCards("fakeUserId1") } returns listOf(fakeDashboardCard)
+            every { gebruikersvoorkeurenService.listDashboardCards("fakeUsername1") } returns listOf(fakeDashboardCard)
 
             `when`("updateDashboardCards is called") {
                 val result = gebruikersvoorkeurenRestService.updateDashboardCards(listOf(restDashboardCardInstelling))
@@ -290,13 +290,13 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
                 column = 1,
                 row = 0
             )
-            val fakeDashboardCard = createDashboardCardInstelling(medewerkerId = "fakeUserId1")
+            val fakeDashboardCard = createDashboardCardInstelling(medewerkerId = "fakeUsername1")
             val dashboardCardSlot = slot<DashboardCardInstelling>()
             every { loggedInUserInstance.get() } returns fakeLoggedInUser
             every {
-                gebruikersvoorkeurenService.addDashboardCard("fakeUserId1", capture(dashboardCardSlot))
+                gebruikersvoorkeurenService.addDashboardCard("fakeUsername1", capture(dashboardCardSlot))
             } just runs
-            every { gebruikersvoorkeurenService.listDashboardCards("fakeUserId1") } returns listOf(fakeDashboardCard)
+            every { gebruikersvoorkeurenService.listDashboardCards("fakeUsername1") } returns listOf(fakeDashboardCard)
 
             `when`("addDashboardCard is called") {
                 val result = gebruikersvoorkeurenRestService.addDashboardCard(restDashboardCardInstelling)
@@ -315,9 +315,9 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
             val dashboardCardSlot = slot<DashboardCardInstelling>()
             every { loggedInUserInstance.get() } returns fakeLoggedInUser
             every {
-                gebruikersvoorkeurenService.deleteDashboardCard("fakeUserId1", capture(dashboardCardSlot))
+                gebruikersvoorkeurenService.deleteDashboardCard("fakeUsername1", capture(dashboardCardSlot))
             } just runs
-            every { gebruikersvoorkeurenService.listDashboardCards("fakeUserId1") } returns emptyList()
+            every { gebruikersvoorkeurenService.listDashboardCards("fakeUsername1") } returns emptyList()
 
             `when`("deleteDashboardCard is called") {
                 val result = gebruikersvoorkeurenRestService.deleteDashboardCard(restDashboardCardInstelling)

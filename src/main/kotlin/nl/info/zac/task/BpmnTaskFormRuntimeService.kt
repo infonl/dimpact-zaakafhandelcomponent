@@ -151,7 +151,7 @@ class BpmnTaskFormRuntimeService @Inject constructor(
             "TAAK:STARTDATUM" -> context.task.creatiedatumTijd?.format(DATUM_FORMAAT)
             "TAAK:FATALE_DATUM" -> context.task.fataledatum?.format(DATUM_FORMAAT)
             "TAAK:GROEP" -> context.task.groep?.id
-            "TAAK:BEHANDELAAR" -> context.task.behandelaar?.id
+            "TAAK:BEHANDELAAR" -> context.task.behandelaar?.username
             "ZAAK:STARTDATUM" -> context.zaak.startdatum?.format(DATUM_FORMAAT)
             "ZAAK:FATALE_DATUM" -> context.zaak.uiterlijkeEinddatumAfdoening?.format(DATUM_FORMAAT)
             "ZAAK:STREEFDATUM" -> context.zaak.einddatumGepland?.format(DATUM_FORMAAT)
@@ -179,9 +179,9 @@ class BpmnTaskFormRuntimeService @Inject constructor(
         zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak).let { behandelaar ->
             behandelaar?.identificatienummer?.let {
                 identityService.readUser(
-                    userId = it,
+                    username = it,
                     logContext = "the default value of a form field for zaak '${zaak.identificatie}'"
-                ).id
+                ).username
             }
         }
 

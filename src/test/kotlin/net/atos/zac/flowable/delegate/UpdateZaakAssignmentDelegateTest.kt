@@ -39,7 +39,7 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
     val zaak = createZaak()
     val zaaktype = createZaakType(uri = zaak.zaaktype)
     val groupId = "fakeGroupId"
-    val userId = "fakeUserId"
+    val username = "fakeUsername"
     val reason = "fakeReason"
 
     afterEach {
@@ -67,11 +67,11 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
         val groupExpression = mockk<JuelExpression>()
         every { groupExpression.getValue(delegateExecution) } returns groupId
         val userExpression = mockk<JuelExpression>()
-        every { userExpression.getValue(delegateExecution) } returns userId
+        every { userExpression.getValue(delegateExecution) } returns username
         val reasonExpression = mockk<JuelExpression>()
         every { reasonExpression.getValue(delegateExecution) } returns reason
 
-        every { zaakService.assignZaak(zaak = zaak, groupId = groupId, userName = userId, reason = reason) } just runs
+        every { zaakService.assignZaak(zaak = zaak, groupId = groupId, userName = username, reason = reason) } just runs
 
         val updateZaakAssignmentDelegate = UpdateZaakAssignmentDelegate().apply {
             groepId = groupExpression
@@ -84,7 +84,7 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
 
             then("zaak is updated with correct assignment") {
                 verify(exactly = 1) {
-                    zaakService.assignZaak(zaak = zaak, groupId = groupId, userName = userId, reason = reason)
+                    zaakService.assignZaak(zaak = zaak, groupId = groupId, userName = username, reason = reason)
                 }
             }
         }

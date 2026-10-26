@@ -35,7 +35,7 @@ import { ZaakTakenComponent } from "./zaak-taken.component";
 const zaak = fromPartial<GeneratedType<"RestZaak">>({ uuid: "fakeZaakUuid" });
 
 const loggedInUser = fromPartial<GeneratedType<"RestLoggedInUser">>({
-  id: "fakeLoggedInUserId",
+  username: "fakeLoggedInUserId",
   naam: "fakeLoggedInUserNaam",
   groupIds: ["fakeGroepId"],
 });
@@ -48,7 +48,7 @@ const taak = (fields: Partial<GeneratedType<"RestTask">> = {}) =>
     creatiedatumTijd: "2026-01-01T00:00:00Z",
     fataledatum: "2026-06-01",
     groep: { id: "fakeGroepId", naam: "fakeGroepNaam" },
-    behandelaar: { id: "fakeBehandelaarId", naam: "fakeBehandelaarNaam" },
+    behandelaar: { username: "fakeBehandelaarId", naam: "fakeBehandelaarNaam" },
     zaakUuid: "fakeZaakUuid",
     rechten: {
       canLezen: true,
@@ -216,13 +216,19 @@ describe(ZaakTakenComponent.name, () => {
         id: "eersteTaakId",
         naam: "aTaakNaam",
         groep: { id: "fakeGroepId", naam: "zGroepNaam" },
-        behandelaar: { id: "fakeBehandelaarId", naam: "zBehandelaarNaam" },
+        behandelaar: {
+          username: "fakeBehandelaarId",
+          naam: "zBehandelaarNaam",
+        },
       }),
       taak({
         id: "tweedeTaakId",
         naam: "zTaakNaam",
         groep: { id: "fakeGroepId", naam: "aGroepNaam" },
-        behandelaar: { id: "fakeBehandelaarId", naam: "aBehandelaarNaam" },
+        behandelaar: {
+          username: "fakeBehandelaarId",
+          naam: "aBehandelaarNaam",
+        },
       }),
     ];
 
@@ -435,7 +441,10 @@ describe(ZaakTakenComponent.name, () => {
     it("does not offer a taak you are already the behandelaar of", async () => {
       await setup([
         taak({
-          behandelaar: { id: loggedInUser.id, naam: loggedInUser.naam },
+          behandelaar: {
+            username: loggedInUser.username,
+            naam: loggedInUser.naam,
+          },
         }),
       ]);
 
@@ -482,7 +491,10 @@ describe(ZaakTakenComponent.name, () => {
       await sleep();
       httpTestingController.expectOne("/rest/taken/toekennen/mij").flush(
         taak({
-          behandelaar: { id: loggedInUser.id, naam: loggedInUser.naam },
+          behandelaar: {
+            username: loggedInUser.username,
+            naam: loggedInUser.naam,
+          },
         }),
       );
       await sleep();
@@ -512,7 +524,7 @@ describe(ZaakTakenComponent.name, () => {
             taak({
               id: request.request.body.taakId,
               behandelaar: {
-                id: "behandelaarIdVan" + request.request.body.taakId,
+                username: "behandelaarIdVan" + request.request.body.taakId,
                 naam: "behandelaarVan" + request.request.body.taakId,
               },
             }),
@@ -564,11 +576,11 @@ describe(ZaakTakenComponent.name, () => {
 
       await user.click(assignToMeButtonIn("fakeTaakNaam")!);
       await sleep();
-      httpTestingController
-        .expectOne("/rest/taken/toekennen/mij")
-        .flush(
-          taak({ behandelaar: { id: "andereUserId", naam: "andereNaam" } }),
-        );
+      httpTestingController.expectOne("/rest/taken/toekennen/mij").flush(
+        taak({
+          behandelaar: { username: "andereUserId", naam: "andereNaam" },
+        }),
+      );
       await sleep();
       fixture.detectChanges();
 

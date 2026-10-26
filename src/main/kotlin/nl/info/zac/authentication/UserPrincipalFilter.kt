@@ -60,9 +60,9 @@ constructor(
             val httpSession = servletRequest.getSession(true)
 
             getLoggedInUser(httpSession)?.let { loggedInUser ->
-                if (loggedInUser.id != userPrincipal.name) {
+                if (loggedInUser.username != userPrincipal.name) {
                     LOG.info {
-                        "Invalidating HTTP session of user '${loggedInUser.id}' " +
+                        "Invalidating HTTP session of user '${loggedInUser.username}' " +
                             "on context path '${servletRequest.servletContext.contextPath}'. " +
                             "Creating new session for user with user principal name '${userPrincipal.name}'."
                     }
@@ -87,7 +87,7 @@ constructor(
     ) = createLoggedInUser(oidcPrincipal.oidcSecurityContext).let { loggedInUser ->
         setLoggedInUser(httpSession, loggedInUser)
         LOG.info {
-            "User logged in: '${loggedInUser.id}' with groups: ${loggedInUser.groupIds}, " +
+            "User logged in: '${loggedInUser.username}' with groups: ${loggedInUser.groupIds}, " +
                 "functional roles: '${loggedInUser.roles}' " +
                 "and application roles per zaaktype: ${loggedInUser.applicationRolesPerZaaktype}, " +
                 "overall roles: ${loggedInUser.overallRoles}, " +
@@ -111,7 +111,7 @@ constructor(
             val applicationRolesPerZaaktype: Map<String, Set<String>> = applicationRoleMappings.rolesPerZaaktype
 
             LoggedInUser(
-                id = accessToken.preferredUsername,
+                username = accessToken.preferredUsername,
                 firstName = accessToken.givenName,
                 lastName = accessToken.familyName,
                 displayName = accessToken.name,

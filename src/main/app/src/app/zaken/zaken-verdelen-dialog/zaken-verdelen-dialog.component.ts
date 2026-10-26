@@ -146,7 +146,7 @@ export class ZakenVerdelenDialogComponent {
     return (
       this.form.invalid ||
       (this.isBehandelaarRequired &&
-        !this.form.controls.medewerker.value?.id) ||
+        !this.form.controls.medewerker.value?.username) ||
       this.mutation.isPending() ||
       !this.data.length
     );
@@ -158,7 +158,7 @@ export class ZakenVerdelenDialogComponent {
       uuids: this.data.map(({ id }) => id),
       screenEventResourceId: crypto.randomUUID(),
       groepId: this.form.value.groep!.id,
-      behandelaarGebruikersnaam: this.form.value.medewerker?.id,
+      behandelaarGebruikersnaam: this.form.value.medewerker?.username,
       reden: this.form.value.reden,
     });
   }

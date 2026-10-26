@@ -45,7 +45,7 @@ class DetachedDocumentService @Inject constructor(
             titel = enkelvoudigInformatieObject.getTitel()
             bestandsnaam = enkelvoudigInformatieObject.getBestandsnaam()
             ontkoppeldOp = ZonedDateTime.now()
-            ontkoppeldDoor = loggedInUserInstance.get().id
+            ontkoppeldDoor = loggedInUserInstance.get().username
             zaakID = zaak.getIdentificatie()
             reden = reason
         }

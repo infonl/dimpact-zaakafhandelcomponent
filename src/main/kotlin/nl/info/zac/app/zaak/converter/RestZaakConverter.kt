@@ -112,7 +112,7 @@ class RestZaakConverter @Inject constructor(
             .map { restBesluitConverter.convertToRestBesluit(it) }
         val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak, roles)
             ?.identificatienummer
-            ?.let { restUserConverter.convertUserId(userId = it, logContext = "zaak '${zaak.identificatie}'") }
+            ?.let { restUserConverter.convertUsername(username = it, logContext = "zaak '${zaak.identificatie}'") }
         val initiator = zgwApiService.findInitiatorRoleForZaak(zaak, roles)
         val initiatorIdentificatie = initiator?.let {
             identificationService.createBetrokkeneIdentificatieForInitiatorRole(it)

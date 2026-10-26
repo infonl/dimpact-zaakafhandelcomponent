@@ -36,7 +36,7 @@ class ResumeZaakDelegate : AbstractDelegate() {
         assertPolicy(
             flowableHelper.policyService.readZaakRechten(zaak, loggedInUser).canHervatten,
             LOG,
-            "User ${loggedInUser.id} not allowed to resume zaak ${zaak.identificatie}"
+            "User ${loggedInUser.username} not allowed to resume zaak ${zaak.identificatie}"
         )
         assertPolicy(
             zaak.isOpgeschort(),

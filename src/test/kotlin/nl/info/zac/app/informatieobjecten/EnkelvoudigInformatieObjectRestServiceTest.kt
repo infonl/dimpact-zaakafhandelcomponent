@@ -1569,7 +1569,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
         } returns createDocumentRechten(vergrendelen = true)
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { enkelvoudigInformatieObjectLockService.createLock(uuid, loggedInUser.id) } returns mockk()
+        every { enkelvoudigInformatieObjectLockService.createLock(uuid, loggedInUser.username) } returns mockk()
         every { eventingService.send(any<ScreenEvent>()) } just Runs
 
         `when`("lockDocument is called") {
@@ -1577,7 +1577,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             then("the document is locked and a 200 response is returned") {
                 response.status shouldBe 200
-                verify(exactly = 1) { enkelvoudigInformatieObjectLockService.createLock(uuid, loggedInUser.id) }
+                verify(exactly = 1) { enkelvoudigInformatieObjectLockService.createLock(uuid, loggedInUser.username) }
             }
         }
     }
@@ -2014,7 +2014,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     expectedIndicaties = emptySet()
                 ),
                 TestCase(
-                    gelockedDoor = RestUser(id = "fakeId", naam = "fakeName"),
+                    gelockedDoor = RestUser(username = "fakeId", naam = "fakeName"),
                     expectedIndicaties = setOf(DocumentIndicatie.VERGRENDELD)
                 ),
                 TestCase(
@@ -2034,7 +2034,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     expectedIndicaties = setOf(DocumentIndicatie.VERZONDEN)
                 ),
                 TestCase(
-                    gelockedDoor = RestUser(id = "fakeId", naam = "fakeName"),
+                    gelockedDoor = RestUser(username = "fakeId", naam = "fakeName"),
                     ondertekening = RestOndertekening(soort = "fakeSoort", datum = LocalDate.of(2026, 1, 1)),
                     hasGebruiksrecht = true,
                     isBesluitDocument = true,

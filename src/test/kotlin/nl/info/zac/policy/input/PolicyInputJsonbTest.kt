@@ -76,7 +76,7 @@ class PolicyInputJsonbTest : BehaviorSpec({
             isDefinitief = true,
             isVergrendeld = true,
             isOndertekend = true,
-            vergrendeldDoor = "fakeUserId",
+            vergrendeldDoor = "fakeUsername",
             zaaktype = "fakeZaaktype",
             isZaakOpen = true,
             isZaakspecifiekGeautoriseerd = true,

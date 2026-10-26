@@ -147,7 +147,7 @@ class PlanItemsRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(zaakUUID)
         assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).canStartenTaak)
         val taakdata = checkNotNull(humanTaskData.taakdata) { "No task data found for plan item '${humanTaskData.planItemInstanceId}'" }
-        val assignee = humanTaskData.medewerker?.id?.takeIf { it.isNotBlank() }
+        val assignee = humanTaskData.medewerker?.username?.takeIf { it.isNotBlank() }
         val zaakspecifiekGeautoriseerdeTaakbehandelaar = assignee?.takeIf {
             zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, it)
         }

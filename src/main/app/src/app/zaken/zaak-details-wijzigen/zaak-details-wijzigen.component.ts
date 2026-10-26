@@ -122,7 +122,7 @@ export class CaseDetailsEditComponent implements OnInit {
       currentBehandelaar &&
       zaak.isZaakspecifiekGeautoriseerd &&
       this.selectedGroupId() === zaak.groep?.id &&
-      !users.some(({ id }) => id === currentBehandelaar.id)
+      !users.some(({ username }) => username === currentBehandelaar.username)
     ) {
       return [currentBehandelaar, ...users];
     }
@@ -241,12 +241,15 @@ export class CaseDetailsEditComponent implements OnInit {
         return;
       this.behandelaarPrefilledForGroupId = groupId;
 
-      const zaakBehandelaarId = this.zaak().behandelaar?.id;
+      const zaakBehandelaarId = this.zaak().behandelaar?.username;
       untracked(() => {
         const changedUser = users.find(
-          ({ id }) => id === this.form.controls.behandelaar.value?.id,
+          ({ username }) =>
+            username === this.form.controls.behandelaar.value?.username,
         );
-        const zaakUser = users.find(({ id }) => id === zaakBehandelaarId);
+        const zaakUser = users.find(
+          ({ username }) => username === zaakBehandelaarId,
+        );
         this.form.controls.behandelaar.setValue(
           changedUser ?? zaakUser ?? null,
         );

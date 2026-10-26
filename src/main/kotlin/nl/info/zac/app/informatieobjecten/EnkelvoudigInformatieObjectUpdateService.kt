@@ -111,7 +111,10 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
                 enkelvoudigInformatieObjectUUID
             )
             if (enkelvoudigInformatieObjectLock == null) {
-                tempLock = enkelvoudigInformatieObjectLockService.createLock(enkelvoudigInformatieObjectUUID, loggedInUserInstance.get().id)
+                tempLock = enkelvoudigInformatieObjectLockService.createLock(
+                    enkelvoudigInformatieObjectUUID,
+                    loggedInUserInstance.get().username
+                )
                 enkelvoudigInformatieObjectWithLockRequest.lock = tempLock.lock
             } else {
                 enkelvoudigInformatieObjectWithLockRequest.lock = enkelvoudigInformatieObjectLock.lock

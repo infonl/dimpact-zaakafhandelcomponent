@@ -79,14 +79,15 @@ export class ParametersStepAlgemeenComponent {
     (this.groepenQuery.data() ?? []).map(({ id }) => id),
   );
   protected readonly medewerkerIds = computed(() =>
-    (this.medewerkersQuery.data() ?? []).map(({ id }) => id),
+    (this.medewerkersQuery.data() ?? []).map(({ username }) => username),
   );
 
   protected readonly groepNaam = (id: string | null) =>
     this.groepenQuery.data()?.find((groep) => groep.id === id)?.naam ?? "";
   protected readonly medewerkerNaam = (id: string | null) =>
-    this.medewerkersQuery.data()?.find((medewerker) => medewerker.id === id)
-      ?.naam ?? "";
+    this.medewerkersQuery
+      .data()
+      ?.find((medewerker) => medewerker.username === id)?.naam ?? "";
 
   constructor() {
     effect(() => {
@@ -104,7 +105,7 @@ export class ParametersStepAlgemeenComponent {
 
       const { defaultBehandelaarId } = untracked(this.form).controls;
       const isInGroep = medewerkers.some(
-        ({ id }) => id === defaultBehandelaarId.value,
+        ({ username }) => username === defaultBehandelaarId.value,
       );
       if (!isInGroep) defaultBehandelaarId.setValue(null);
     });

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -15,7 +15,7 @@ export class ScreenEvent {
   opcode: Opcode;
   objectType: ObjectType;
   objectId: ScreenEventId;
-  readonly actorUserId?: string;
+  readonly actorUsername?: string;
   private _key: string;
 
   constructor(
@@ -23,10 +23,10 @@ export class ScreenEvent {
     objectType: ObjectType,
     objectId: ScreenEventId,
     timestamp?: number,
-    actorUserId?: string,
+    actorUsername?: string,
   ) {
     this._timestamp = timestamp;
-    this.actorUserId = actorUserId;
+    this.actorUsername = actorUsername;
     this.opcode = opcode;
     this.objectType = objectType;
     this.objectId = objectId;

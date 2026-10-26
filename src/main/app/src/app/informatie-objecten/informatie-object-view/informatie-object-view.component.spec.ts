@@ -332,7 +332,7 @@ describe(InformatieObjectViewComponent.name, () => {
         .mockReturnValue(
           of({
             ...enkelvoudigInformatieobject,
-            gelockedDoor: { id: "user-001", naam: "Test User" },
+            gelockedDoor: { username: "user-001", naam: "Test User" },
             rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
               canOntgrendelen: false,
             }),
@@ -355,7 +355,7 @@ describe(InformatieObjectViewComponent.name, () => {
         .mockReturnValue(
           of({
             ...enkelvoudigInformatieobject,
-            gelockedDoor: { id: "user-001", naam: "Test User" },
+            gelockedDoor: { username: "user-001", naam: "Test User" },
             rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
               canOntgrendelen: true,
             }),
@@ -384,7 +384,7 @@ describe(InformatieObjectViewComponent.name, () => {
         .mockReturnValue(
           of({
             ...enkelvoudigInformatieobject,
-            gelockedDoor: { id: "user-001", naam: "Test User" },
+            gelockedDoor: { username: "user-001", naam: "Test User" },
             rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
               canOntgrendelen: true,
             }),

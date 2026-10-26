@@ -119,7 +119,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         else -> {
             if (!isZaakspecifiekAutoriseerbaar(zaakType)) throw ZaaktypeNotZaakspecifiekAutoriseerbaarException()
             if (currentAndRequestedBehandelaarIds.isEmpty()) throw ZaakWithoutBehandelaarCannotBeMarkedException()
-            if (loggedInUser.id !in currentAndRequestedBehandelaarIds &&
+            if (loggedInUser.username !in currentAndRequestedBehandelaarIds &&
                 !loggedInUser.isZaakspecifiekGeautoriseerdFor(zaakType.omschrijving)
             ) {
                 throw ZaakspecifiekeAutorisatieNotAllowedException()
@@ -290,7 +290,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         assertBehandelaarGroep(zaakType, groepId)
         val medewerkerIdsWithAccess = zaakAutorisatieGegevens.geautoriseerdeMedewerkers.toSet() +
             listZaakspecifiekGeautoriseerdeMedewerkerIdsForZaaktype(zaakType)
-        return identityService.listUsersInGroup(groepId).filter { it.id !in medewerkerIdsWithAccess }
+        return identityService.listUsersInGroup(groepId).filter { it.username !in medewerkerIdsWithAccess }
     }
 
     /**
@@ -321,7 +321,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
             if (zaakToewijzing.isGeautoriseerdeMedewerker(medewerkerId)) {
                 throw MedewerkerAlreadyZaakspecifiekGeautoriseerdException()
             }
-            identityService.readUser(userId = medewerkerId, logContext = "zaak '${zaak.identificatie}'").also {
+            identityService.readUser(username = medewerkerId, logContext = "zaak '${zaak.identificatie}'").also {
                 grantZaakspecifiekeAutorisatie(
                     zaak = zaak,
                     medewerker = it.toMedewerkerIdentificatie(),
@@ -384,7 +384,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
     }
 
     private fun listZaakspecifiekGeautoriseerdeMedewerkerIdsForZaaktype(zaakType: ZaakType) =
-        identityService.listUserIdsForApplicationRoleAndZaaktype(
+        identityService.listUsernamesForApplicationRoleAndZaaktype(
             applicationRole = ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD,
             zaaktypeDescription = zaakType.omschrijving
         )
@@ -394,11 +394,11 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
             flowableTaskService.listOpenTasksForZaak(zaak.uuid).mapNotNull { it.assignee }
 
     private fun readMedewerkerIdentificatie(medewerkerId: String, zaak: Zaak) =
-        identityService.readUser(userId = medewerkerId, logContext = "zaak '${zaak.identificatie}'")
+        identityService.readUser(username = medewerkerId, logContext = "zaak '${zaak.identificatie}'")
             .toMedewerkerIdentificatie()
 
     private fun User.toMedewerkerIdentificatie() = MedewerkerIdentificatie().apply {
-        identificatie = this@toMedewerkerIdentificatie.id
+        identificatie = this@toMedewerkerIdentificatie.username
         voorletters = firstName
         achternaam = lastName
     }
