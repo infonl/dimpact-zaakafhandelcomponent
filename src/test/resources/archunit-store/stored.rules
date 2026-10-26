@@ -1,4 +1,3 @@
 #
 #Mon Oct 26 20:15:36 CET 2026
-no\ classes\ that\ reside\ in\ a\ package\ 'nl.info.client..'\ should\ depend\ on\ classes\ that\ reside\ in\ a\ package\ 'nl.info.zac.app..'=0abbe6a7-8841-49b7-82fc-2a734ec39af1
 no\ classes\ that\ reside\ in\ any\ package\ ['nl.info.zac..',\ 'net.atos..']\ and\ reside\ outside\ of\ package\ 'nl.info.zac.app..'\ should\ depend\ on\ classes\ that\ reside\ in\ a\ package\ 'nl.info.zac.app..'=0fd75618-9098-4a5a-80fa-18830d750869
