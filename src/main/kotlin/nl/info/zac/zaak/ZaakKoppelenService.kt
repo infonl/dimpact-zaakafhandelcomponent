@@ -5,18 +5,32 @@
 package nl.info.zac.zaak
 
 import jakarta.enterprise.context.ApplicationScoped
+import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.GerelateerdeZakenZaakPatch
 import nl.info.client.zgw.zrc.model.NillableHoofdzaakZaakPatch
 import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.zac.app.zaak.model.RelatieType
+import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.event.EventingService
+import nl.info.zac.exception.ErrorCode
+import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.search.IndexingService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.websocket.event.ScreenEventType
+import nl.info.zac.zaak.model.ZaakNotLinkableReason
+import nl.info.zac.zaak.model.canLinkNewZaakAs
+import nl.info.zac.zaak.model.getDeelzaaktypenSet
+import nl.info.zac.zaak.model.newZaakNotLinkableReason
+import nl.info.zac.zaak.model.toZaakLinkData
 import java.util.UUID
+
+private const val AANGEMAAKT_ALS_GERELATEERDE_ZAAK_REDEN = "Aangemaakt als gerelateerde zaak"
 
 @ApplicationScoped
 @NoArgConstructor
@@ -24,6 +38,9 @@ import java.util.UUID
 class ZaakKoppelenService @Inject constructor(
     private val eventingService: EventingService,
     private val indexingService: IndexingService,
+    private val loggedInUserInstance: Instance<LoggedInUser>,
+    private val policyService: PolicyService,
+    private val zaakService: ZaakService,
     private val zrcClientService: ZrcClientService
 ) {
     fun addGerelateerdeZaak(zaak: Zaak, gerelateerdeZaak: Zaak, explanation: String?) {
@@ -57,5 +74,57 @@ class ZaakKoppelenService @Inject constructor(
     fun updateHoofdzaak(hoofdzaakUuid: UUID) {
         indexingService.addOrUpdateZaakOrThrow(hoofdzaakUuid, false)
         eventingService.send(ScreenEventType.ZAAK.updated(hoofdzaakUuid))
+    }
+
+    fun readZaakToLinkNewZaakTo(zaakUuid: UUID, relatieType: RelatieType, newZaaktypeUuid: UUID): Zaak {
+        assertCanLinkNewZaakAs(relatieType)
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUuid)
+        val zaakRechten = policyService.readZaakRechten(
+            zaak = zaak,
+            zaaktype = zaakType,
+            loggedInUser = loggedInUserInstance.get()
+        )
+        return when (
+            val zaakNotLinkableReason = zaak.toZaakLinkData(zaakRechten).newZaakNotLinkableReason(
+                relatieType = relatieType,
+                newZaaktypeUuid = newZaaktypeUuid,
+                allowedDeelzaaktypes = zaakType.getDeelzaaktypenSet()
+            )
+        ) {
+            null -> zaak
+            ZaakNotLinkableReason.NOT_AUTHORISED_TO_KOPPELEN -> throw PolicyException()
+            else -> throw InputValidationFailedException(
+                errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
+                message = "A new zaak cannot be linked to zaak '${zaak.identificatie}' as " +
+                    "$relatieType: $zaakNotLinkableReason"
+            )
+        }
+    }
+
+    fun addLinkToNewZaak(newZaak: Zaak, zaakToLinkTo: Zaak, relatieType: RelatieType) {
+        when (relatieType) {
+            RelatieType.DEELZAAK -> newZaak.hoofdzaak = zaakToLinkTo.url
+            else -> newZaak.gerelateerdeZaken = listOf(GerelateerdeZaak().apply { url = zaakToLinkTo.url })
+        }
+    }
+
+    fun completeLinkOfNewZaak(newZaak: Zaak, zaakToLinkTo: Zaak, relatieType: RelatieType) {
+        when (relatieType) {
+            RelatieType.DEELZAAK -> updateHoofdzaak(zaakToLinkTo.uuid)
+            else -> addGerelateerdeZaak(
+                zaak = zaakToLinkTo,
+                gerelateerdeZaak = newZaak,
+                explanation = AANGEMAAKT_ALS_GERELATEERDE_ZAAK_REDEN
+            )
+        }
+    }
+
+    private fun assertCanLinkNewZaakAs(relatieType: RelatieType) {
+        if (!canLinkNewZaakAs(relatieType)) {
+            throw InputValidationFailedException(
+                errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
+                message = "RelatieType $relatieType cannot be used to link a new zaak"
+            )
+        }
     }
 }

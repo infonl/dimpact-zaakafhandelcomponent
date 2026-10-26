@@ -13,6 +13,8 @@ import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum
 import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.history.converter.RESOURCE_GERELATEERDE_ZAKEN
+import nl.info.zac.history.converter.RESOURCE_HOOFDZAAK
 import nl.info.zac.history.converter.ZaakHistoryPartialUpdateConverter
 import nl.info.zac.history.model.HistoryAction
 import nl.info.zac.history.model.HistoryLine
@@ -42,7 +44,7 @@ private const val RESOURCE_ZAAKOBJECT = "zaakobject"
 private const val RESOURCE_EXTENSION = "verlenging"
 private const val RESOURCE_SUSPENSION = "opschorting"
 
-private val ZAAK_LINK_ATTRIBUTES = setOf("hoofdzaak", "gerelateerdeZaken")
+private val ZAAK_LINK_ATTRIBUTES = setOf(RESOURCE_HOOFDZAAK, RESOURCE_GERELATEERDE_ZAKEN)
 
 class ZaakHistoryService @Inject constructor(
     private val zrcClientService: ZrcClientService,
