@@ -5,7 +5,8 @@
 module.exports = {
   customSyntax: "postcss-less",
   rules: {
-    // A warning, not an error: existing stylesheets still use ::ng-deep.
+    // A warning, not an error: existing stylesheets still use ::ng-deep. .stylelintrc.strict.js
+    // makes it an error on the stylesheets a pull request changes.
     "selector-pseudo-element-disallowed-list": [
       ["ng-deep"],
       {

@@ -67,7 +67,18 @@ Stylelint checks the `.less` files in `src/main/app/src` and runs as part of `np
 (`npm run lint:styles` runs it on its own). It reports every `::ng-deep` as a warning. Angular has
 deprecated `::ng-deep`, so do not add new ones: style through a CSS custom property, a global
 stylesheet or the Angular Material theming API instead. Existing stylesheets still use it, so the
-rule is a warning and does not fail the build.
+rule is a warning project-wide and does not fail the build.
+
+It is an **error on every stylesheet a pull request adds or changes**, which is what
+`.stylelintrc.strict.js` is for: a stylesheet you edit has to lose its `::ng-deep` before it
+merges. The "Lint Changed Stylesheets" workflow runs it on the changed stylesheets; reproduce that
+locally with the same command:
+
+```bash
+cd src/main/app
+STYLESHEETS=$(git diff --name-only --diff-filter=d origin/main...HEAD -- '*.less' | sed 's|^src/main/app/||')
+npx stylelint --config .stylelintrc.strict.js $STYLESHEETS
+```
 
 ## Kotlin
 
