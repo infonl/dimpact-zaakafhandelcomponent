@@ -21,6 +21,7 @@ import { MatExpansionModule } from "@angular/material/expansion";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatSidenav, MatSidenavModule } from "@angular/material/sidenav";
+import { MatTooltipModule } from "@angular/material/tooltip";
 import { Router } from "@angular/router";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
@@ -64,6 +65,7 @@ import {
     MatExpansionModule,
     MatFormFieldModule,
     MatIconModule,
+    MatTooltipModule,
     TranslatePipe,
     KlantKoppelComponent,
     BagZoekComponent,
@@ -300,6 +302,12 @@ export class ZaakCreateComponent {
       inboxProductaanvraag: this.inboxProductaanvraag,
       koppeling: this.toRestZaakAanmaakKoppeling(this.koppeling()),
     });
+  }
+
+  protected copiedInitiatorTooltip(koppeling: ZaakCreateKoppeling) {
+    return koppeling.zaak.initiatorIdentificatie
+      ? "zaak.aanmaken.initiator.overgenomen"
+      : "zaak.aanmaken.initiator.geen";
   }
 
   private toRestZaakAanmaakKoppeling(

@@ -1130,6 +1130,26 @@ describe(ZaakCreateComponent.name, () => {
       );
     });
 
+    it("says that the initiator is copied from the current zaak on the initiator button, which cannot be clicked", async () => {
+      jest.spyOn(TestBed.inject(KlantenService), "readPersoon").mockReturnValue(
+        klantQueryOptions(
+          fromPartial<GeneratedType<"RestPersoon">>({
+            naam: "fakeInitiatorNaam",
+          }),
+        ),
+      );
+      await renderLinked({
+        zaak: createCurrentZaak({ initiatorIdentificatie: personInitiator }),
+        relatieType: "GERELATEERD",
+      });
+
+      expect(
+        screen.getByRole("button", {
+          name: "zaak.aanmaken.initiator.overgenomen",
+        }),
+      ).toBeDisabled();
+    });
+
     it("shows an empty initiator when the current zaak has no initiator", async () => {
       await renderLinked({
         zaak: createCurrentZaak({ initiatorIdentificatie: null }),
@@ -1142,6 +1162,17 @@ describe(ZaakCreateComponent.name, () => {
       expect(
         screen.queryByText("zaak.aanmaken.initiator.niet-overgenomen"),
       ).not.toBeInTheDocument();
+    });
+
+    it("says that the current zaak has no initiator on the initiator button, which cannot be clicked", async () => {
+      await renderLinked({
+        zaak: createCurrentZaak({ initiatorIdentificatie: null }),
+        relatieType: "GERELATEERD",
+      });
+
+      expect(
+        screen.getByRole("button", { name: "zaak.aanmaken.initiator.geen" }),
+      ).toBeDisabled();
     });
 
     it("creates the zaak with the initiator of the current zaak and the relation, and reports it instead of opening it", async () => {

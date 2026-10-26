@@ -67,8 +67,25 @@
               openSideNav('actie.initiator.koppelen')
           "
         >
-          @if (koppeling()) {
-            <mat-icon>person</mat-icon>
+          @if (koppeling(); as koppeling) {
+            <span
+              [matTooltip]="
+                copiedInitiatorTooltip(koppeling)
+                  | translate: { zaakID: koppeling.zaak.identificatie }
+              "
+            >
+              <button
+                type="button"
+                mat-icon-button
+                disabled
+                [attr.aria-label]="
+                  copiedInitiatorTooltip(koppeling)
+                    | translate: { zaakID: koppeling.zaak.identificatie }
+                "
+              >
+                <mat-icon>person</mat-icon>
+              </button>
+            </span>
           } @else {
             <button
               type="button"
