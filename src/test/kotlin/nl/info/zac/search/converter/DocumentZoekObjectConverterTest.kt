@@ -5,6 +5,7 @@
 package nl.info.zac.search.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
@@ -23,7 +24,9 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import nl.info.zac.enkelvoudiginformatieobject.model.createEnkelvoudigInformatieObjectLock
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.identity.model.createUser
 import nl.info.zac.search.ReindexSupportService
 import nl.info.zac.search.model.DocumentIndicatie
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
@@ -249,6 +252,40 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
                 verify(exactly = 0) {
                     zrcClientService.readZaak(any<UUID>())
                     zrcClientService.listZaakinformatieobjecten(any<EnkelvoudigInformatieObject>())
+                }
+            }
+        }
+    }
+
+    given("A locked enkelvoudig informatieobject with a related zaakinformatieobject for a zaak") {
+        val documentUUID = UUID.randomUUID()
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(uuid = documentUUID, locked = true)
+        val zaakInformatieobject = createZaakInformatieobjectForReads(informatieobject = URI("https://example.com/$documentUUID"))
+        val zaakType = createZaakType()
+        val zaak = createZaak(zaaktypeUri = zaakType.url)
+
+        every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns enkelvoudigInformatieObject
+        every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns listOf(zaakInformatieobject)
+        every { zrcClientService.readZaak(any<UUID>()) } returns zaak
+        every { ztcClientService.readZaaktype(any<URI>()) } returns zaakType
+        every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns createInformatieObjectType()
+        every { brcClientService.isInformatieObjectGekoppeldAanBesluit(any()) } returns false
+        every { reindexSupportService.zaakAutorisatieGegevens(zaak.uuid) } returns createZaakAutorisatieGegevens()
+        every {
+            enkelvoudigInformatieObjectLockService.readLock(documentUUID)
+        } returns createEnkelvoudigInformatieObjectLock(username = "fakeUsername")
+        every {
+            identityService.readUser(username = "fakeUsername", logContext = any())
+        } returns createUser(username = "fakeUsername", fullName = "fakeFullName")
+
+        `when`("convert is called on the UUID of the enkelvoudig informatieobject") {
+            val documentZoekObject = documentZoekObjectConverter.convert(documentUUID.toString())
+
+            then("the document is indexed as locked by the username and the full name of the user that locked it") {
+                with(documentZoekObject!!) {
+                    getDocumentIndicaties() shouldContain DocumentIndicatie.VERGRENDELD
+                    vergrendeldDoorGebruikersnaam shouldBe "fakeUsername"
+                    vergrendeldDoorNaam shouldBe "fakeFullName"
                 }
             }
         }

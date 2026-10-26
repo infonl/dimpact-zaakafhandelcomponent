@@ -17,16 +17,20 @@ import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createOndertekening
+import nl.info.client.zgw.model.createMedewerkerIdentificatie
 import nl.info.client.zgw.model.createOpschorting
+import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.app.task.model.createRestTask
+import nl.info.zac.app.zaak.model.createRestUser
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.identity.model.createUser
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import java.net.URI
 import java.time.LocalDate
@@ -382,6 +386,60 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
 
             then("resolves the defaultValue from the zaakdata map") {
                 result?.getString("defaultValue") shouldBe "myZaakValue"
+            }
+        }
+    }
+
+    given("A formio formulier with a TAAK:BEHANDELAAR defaultValue") {
+        val zaakUuid = UUID.randomUUID()
+        val restTask = createRestTask(
+            zaakUuid = zaakUuid,
+            behandelaar = createRestUser(username = "fakeUsername"),
+            formioFormulier = Json.createObjectBuilder()
+                .add("key", "behandelaar")
+                .add("defaultValue", "TAAK:BEHANDELAAR")
+                .build()
+        )
+
+        every { zrcClientService.readZaak(zaakUuid) } returns createZaak(uuid = zaakUuid)
+        every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns emptyMap()
+
+        `when`("renderFormioFormulier is called") {
+            val result = service.renderFormioFormulier(restTask)
+
+            then("resolves the defaultValue to the username of the behandelaar of the task") {
+                result?.getString("defaultValue") shouldBe "fakeUsername"
+            }
+        }
+    }
+
+    given("A formio formulier with a ZAAK:BEHANDELAAR defaultValue for a zaak with a behandelaar") {
+        val zaakUuid = UUID.randomUUID()
+        val zaak = createZaak(uuid = zaakUuid)
+        val restTask = createRestTask(
+            zaakUuid = zaakUuid,
+            formioFormulier = Json.createObjectBuilder()
+                .add("key", "behandelaar")
+                .add("defaultValue", "ZAAK:BEHANDELAAR")
+                .build()
+        )
+
+        every { zrcClientService.readZaak(zaakUuid) } returns zaak
+        every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns emptyMap()
+        every {
+            zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+        } returns createRolMedewerker(
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeUsername")
+        )
+        every {
+            identityService.readUser(username = "fakeUsername", logContext = any())
+        } returns createUser(username = "fakeUsername")
+
+        `when`("renderFormioFormulier is called") {
+            val result = service.renderFormioFormulier(restTask)
+
+            then("resolves the defaultValue to the username of the behandelaar of the zaak") {
+                result?.getString("defaultValue") shouldBe "fakeUsername"
             }
         }
     }
