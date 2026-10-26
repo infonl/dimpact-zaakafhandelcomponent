@@ -30,8 +30,6 @@ import nl.info.zac.zaak.model.newZaakNotLinkableReason
 import nl.info.zac.zaak.model.toZaakLinkData
 import java.util.UUID
 
-private const val AANGEMAAKT_ALS_GERELATEERDE_ZAAK_REDEN = "Aangemaakt als gerelateerde zaak"
-
 @ApplicationScoped
 @NoArgConstructor
 @AllOpen
@@ -108,15 +106,12 @@ class ZaakKoppelenService @Inject constructor(
         }
     }
 
-    fun completeLinkOfNewZaak(newZaak: Zaak, zaakToLinkTo: Zaak, relatieType: RelatieType) {
-        when (relatieType) {
-            RelatieType.DEELZAAK -> updateHoofdzaak(zaakToLinkTo.uuid)
-            else -> addGerelateerdeZaak(
-                zaak = zaakToLinkTo,
-                gerelateerdeZaak = newZaak,
-                explanation = AANGEMAAKT_ALS_GERELATEERDE_ZAAK_REDEN
-            )
-        }
+    /**
+     * Open Zaak adds a new gerelateerde zaak to the gerelateerde zaken of the zaak it links to by itself,
+     * so only the hoofdzaak of a new deelzaak needs an update.
+     */
+    fun completeLinkOfNewZaak(zaakToLinkTo: Zaak, relatieType: RelatieType) {
+        if (relatieType == RelatieType.DEELZAAK) updateHoofdzaak(zaakToLinkTo.uuid)
     }
 
     private fun assertCanLinkNewZaakAs(relatieType: RelatieType) {

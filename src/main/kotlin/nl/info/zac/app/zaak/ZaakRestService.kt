@@ -266,11 +266,7 @@ class ZaakRestService @Inject constructor(
             zrcClientService.createZaakobject(it.toZaakobjectRequest(zaak))
         }
         zaakToLinkToAndRelatieType?.let { (zaakToLinkTo, relatieType) ->
-            zaakKoppelenService.completeLinkOfNewZaak(
-                newZaak = zaak,
-                zaakToLinkTo = zaakToLinkTo,
-                relatieType = relatieType
-            )
+            zaakKoppelenService.completeLinkOfNewZaak(zaakToLinkTo = zaakToLinkTo, relatieType = relatieType)
         }
         return CreateZaakResponse(zaak.identificatie)
     }

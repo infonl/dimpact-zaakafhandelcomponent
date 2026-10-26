@@ -365,20 +365,18 @@ class ZaakKoppelenServiceTest : BehaviorSpec({
     }
 
     context("Completing the link of a new zaak") {
-        val newZaak = createZaak()
         val zaakToLinkTo = createZaak()
 
         given("a new zaak that was created as gerelateerde zaak") {
-            val patchZaakSlot = slot<Zaak>()
-            every {
-                zrcClientService.patchZaak(zaakToLinkTo.uuid, capture(patchZaakSlot), "Aangemaakt als gerelateerde zaak")
-            } returns zaakToLinkTo
-
             `when`("the link is completed") {
-                zaakKoppelenService.completeLinkOfNewZaak(newZaak, zaakToLinkTo, RelatieType.GERELATEERD)
+                zaakKoppelenService.completeLinkOfNewZaak(zaakToLinkTo, RelatieType.GERELATEERD)
 
-                then("the new zaak is added to the gerelateerde zaken of the zaak it was linked to") {
-                    patchZaakSlot.captured.gerelateerdeZaken.map { it.url } shouldBe listOf(newZaak.url)
+                then("the zaak it was linked to is left to Open Zaak, which adds the new zaak to its gerelateerde zaken") {
+                    verify(exactly = 0) {
+                        zrcClientService.patchZaak(any(), any(), any())
+                        indexingService.addOrUpdateZaakOrThrow(any(), any())
+                        eventingService.send(any<ScreenEvent>())
+                    }
                 }
             }
         }
@@ -389,7 +387,7 @@ class ZaakKoppelenServiceTest : BehaviorSpec({
             every { eventingService.send(capture(screenEventSlot)) } just runs
 
             `when`("the link is completed") {
-                zaakKoppelenService.completeLinkOfNewZaak(newZaak, zaakToLinkTo, RelatieType.DEELZAAK)
+                zaakKoppelenService.completeLinkOfNewZaak(zaakToLinkTo, RelatieType.DEELZAAK)
 
                 then("the hoofdzaak is reindexed and a screen event is sent for it, without patching it") {
                     verify(exactly = 1) { indexingService.addOrUpdateZaakOrThrow(zaakToLinkTo.uuid, false) }

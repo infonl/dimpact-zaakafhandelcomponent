@@ -7,14 +7,14 @@
 - [x] 1.3 Move `addGerelateerdeZaak` and the hoofdzaak reindex and `ScreenEvent` out of `ZaakKoppelenRestService` into a
       shared service; verify `ZaakKoppelenRestServiceTest` still passes.
 - [x] 1.4 In `ZaakKoppelenService`, add the check of the zaak to link to, setting `hoofdzaak` or `gerelateerdeZaken` on
-      the new zaak, and completing the link, which for `GERELATEERD` patches the current zaak with the explanation
-      *Aangemaakt als gerelateerde zaak*. `ZaakRestService.createZaak` runs the check before the zaak is created and
+      the new zaak, and completing the link, which for `DEELZAAK` updates the hoofdzaak; Open Zaak adds the other side
+      of a `GERELATEERD` link itself. `ZaakRestService.createZaak` runs the check before the zaak is created and
       completes the link after it; verify with unit tests in `ZaakKoppelenServiceTest` for each scenario of the spec
       requirement "Creating a zaak with a link checks the link before the zaak is created", and in
       `ZaakRestServiceTest` that no zaak is created when a check fails.
 - [x] 1.5 Add `koppelen` to `RestZaakRechten`, filled from `ZaakRechten.canKoppelen`; verify with the converter test.
 - [x] 1.6 Integration test: create a gerelateerde zaak and a deelzaak from an existing zaak, then read both zaken and
-      check `gerelateerdeZaken` on both sides and the history of both zaken; verify with `./gradlew itest`.
+      check `gerelateerdeZaken` on both sides and the history of the new zaak; verify with `./gradlew itest`.
 - [x] 1.7 Run `./gradlew spotlessApply detektApply detekt test` and verify it passes.
 
 ## 2. Frontend: Nieuwe zaak aanmaken tab in Zaak koppelen

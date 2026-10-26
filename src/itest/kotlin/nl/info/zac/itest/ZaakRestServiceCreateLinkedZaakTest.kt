@@ -106,14 +106,6 @@ class ZaakRestServiceCreateLinkedZaakTest : BehaviorSpec({
                     listOf(gerelateerdeZaakIdentificatie to "GERELATEERD")
             }
 
-            and("the history of the existing zaak shows that the new zaak was added to its gerelateerde zaken") {
-                val gerelateerdeZakenHistoryLine = readHistory(zaakUuid)
-                    .first { it.getString("attribuutLabel") == "gerelateerdeZaken" }
-                gerelateerdeZakenHistoryLine.toHistoryLine() shouldBe
-                    listOf("GEWIJZIGD", "gerelateerdeZaken", gerelateerdeZaakIdentificatie)
-                gerelateerdeZakenHistoryLine.getString("toelichting") shouldBe "Aangemaakt als gerelateerde zaak"
-            }
-
             and("the history of the new zaak shows its creation and its gerelateerde zaak") {
                 val gerelateerdeZaakUuid = zacClient.retrieveZaak(gerelateerdeZaakIdentificatie, BEHANDELAAR_1)
                     .run { JSONObject(bodyAsString).getString("uuid").run(UUID::fromString) }

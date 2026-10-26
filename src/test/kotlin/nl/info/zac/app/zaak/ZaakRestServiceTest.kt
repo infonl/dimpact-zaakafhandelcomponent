@@ -915,7 +915,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     zaakKoppelenService.addLinkToNewZaak(capture(linkedZaakSlot), zaakToLinkTo, RelatieType.GERELATEERD)
                 } just runs
                 every {
-                    zaakKoppelenService.completeLinkOfNewZaak(newZaak, zaakToLinkTo, RelatieType.GERELATEERD)
+                    zaakKoppelenService.completeLinkOfNewZaak(zaakToLinkTo, RelatieType.GERELATEERD)
                 } just runs
 
                 `when`("a zaak is created linked to that zaak as gerelateerde zaak") {
@@ -946,7 +946,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             )
                             zaakKoppelenService.addLinkToNewZaak(any(), zaakToLinkTo, RelatieType.GERELATEERD)
                             zgwApiService.createZaak(any())
-                            zaakKoppelenService.completeLinkOfNewZaak(newZaak, zaakToLinkTo, RelatieType.GERELATEERD)
+                            zaakKoppelenService.completeLinkOfNewZaak(zaakToLinkTo, RelatieType.GERELATEERD)
                         }
                     }
                 }
@@ -988,8 +988,8 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        context("Creating a zaak linked to a zaak whose link cannot be completed") {
-            given("a zaak that the new zaak may be linked to, but which Open Zaak fails to patch") {
+        context("Creating a zaak as deelzaak of a zaak whose hoofdzaak update fails") {
+            given("a zaak that the new zaak may be linked to, but which cannot be reindexed") {
                 val newZaaktypeUuid = UUID.randomUUID()
                 val newZaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$newZaaktypeUuid"))
                 val newZaak = createZaak(zaaktypeUri = newZaakType.url)
@@ -997,28 +997,28 @@ class ZaakRestServiceTest : BehaviorSpec({
                 stubChecksOfNewZaak(newZaaktypeUuid, newZaakType)
                 stubCreationOfNewZaak(newZaak, newZaakType, slot())
                 every {
-                    zaakKoppelenService.readZaakToLinkNewZaakTo(zaakToLinkTo.uuid, RelatieType.GERELATEERD, newZaaktypeUuid)
+                    zaakKoppelenService.readZaakToLinkNewZaakTo(zaakToLinkTo.uuid, RelatieType.DEELZAAK, newZaaktypeUuid)
                 } returns zaakToLinkTo
-                every { zaakKoppelenService.addLinkToNewZaak(any(), zaakToLinkTo, RelatieType.GERELATEERD) } just runs
+                every { zaakKoppelenService.addLinkToNewZaak(any(), zaakToLinkTo, RelatieType.DEELZAAK) } just runs
                 every {
-                    zaakKoppelenService.completeLinkOfNewZaak(newZaak, zaakToLinkTo, RelatieType.GERELATEERD)
-                } throws RuntimeException("fakeZrcError")
+                    zaakKoppelenService.completeLinkOfNewZaak(zaakToLinkTo, RelatieType.DEELZAAK)
+                } throws RuntimeException("fakeIndexError")
 
-                `when`("a zaak is created linked to that zaak as gerelateerde zaak") {
+                `when`("a zaak is created linked to that zaak as deelzaak") {
                     val runtimeException = shouldThrow<RuntimeException> {
                         zaakRestService.createZaak(
                             createLinkedZaakAanmaakGegevens(
                                 newZaaktypeUuid = newZaaktypeUuid,
                                 koppeling = RestZaakAanmaakKoppeling(
                                     zaakUuid = zaakToLinkTo.uuid,
-                                    relatieType = RelatieType.GERELATEERD
+                                    relatieType = RelatieType.DEELZAAK
                                 )
                             )
                         )
                     }
 
-                    then("the new zaak exists, and the error of Open Zaak is returned") {
-                        runtimeException.message shouldBe "fakeZrcError"
+                    then("the new zaak exists, and the error is returned") {
+                        runtimeException.message shouldBe "fakeIndexError"
                         verify(exactly = 1) { zgwApiService.createZaak(any()) }
                     }
                 }
@@ -1048,7 +1048,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         verify(exactly = 0) {
                             zaakKoppelenService.readZaakToLinkNewZaakTo(any(), any(), any())
                             zaakKoppelenService.addLinkToNewZaak(any(), any(), any())
-                            zaakKoppelenService.completeLinkOfNewZaak(any(), any(), any())
+                            zaakKoppelenService.completeLinkOfNewZaak(any(), any())
                         }
                     }
                 }
