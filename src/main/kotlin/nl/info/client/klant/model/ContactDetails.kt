@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.app.klant.model.contactdetails
+package nl.info.client.klant.model
 
 import nl.info.client.klanten.model.generated.DigitaalAdres
 import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum.EMAIL

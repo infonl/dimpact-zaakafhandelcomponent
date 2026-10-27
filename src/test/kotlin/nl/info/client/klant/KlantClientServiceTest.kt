@@ -14,13 +14,13 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import jakarta.ws.rs.NotFoundException
+import nl.info.client.klant.model.ContactDetails
 import nl.info.client.klant.model.KlantcontactContactDetails
 import nl.info.client.klanten.model.generated.CodeObjecttypeEnum
 import nl.info.client.klanten.model.generated.CodeRegisterEnum
 import nl.info.client.klanten.model.generated.CodeSoortObjectIdEnum
 import nl.info.client.klanten.model.generated.Onderwerpobject
 import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum
-import nl.info.zac.app.klant.model.contactdetails.ContactDetails
 import java.util.UUID
 
 @Suppress("LargeClass")

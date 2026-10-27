@@ -22,8 +22,6 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
-import { ObjectType } from "../core/websocket/model/object-type";
-import { Opcode } from "../core/websocket/model/opcode";
 import { WebsocketService } from "../core/websocket/websocket.service";
 import { IdentityService } from "../identity/identity.service";
 import { injectMutation } from "../shared/http/inject-mutation";
@@ -130,8 +128,8 @@ export class NotitiesComponent {
     effect((onCleanup) => {
       const zaakUuid = this.zaakUuid();
       const notitiesListener = this.websocketService.addListener(
-        Opcode.UPDATED,
-        ObjectType.ZAAK_NOTITIES,
+        "UPDATED",
+        "ZAAK_NOTITIES",
         zaakUuid,
         () =>
           void this.queryClient.invalidateQueries({

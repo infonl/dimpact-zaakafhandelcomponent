@@ -15,6 +15,7 @@ import {
 } from "../support/time-constants";
 import { groups } from "../support/worlds/groups";
 import { CustomWorld } from "../support/worlds/world";
+import { chooseMaterialOption } from "../utils/material-select";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
 
 const E2E_PROCESS_DEFINITION_NAME = "E2E Test BPMN Process Definition";
@@ -52,6 +53,19 @@ function submitButton(page: Page) {
     .filter({ hasText: /^\s*(Indienen|Selecteren|Ondertekenen)\s*$/ });
 }
 
+// Waits until the backend has completed the task, so that a rejected form fails here
+// and not in a later step, and the next step cannot navigate away before it is done.
+async function submitTaskForm(page: Page, button = submitButton(page)) {
+  const completeTaskResponse = page.waitForResponse(
+    (response) =>
+      response.request().method() === "PATCH" &&
+      new URL(response.url()).pathname.endsWith("/rest/taken/complete"),
+    { timeout: TWENTY_SECONDS_IN_MS },
+  );
+  await button.click();
+  expect((await completeTaskResponse).ok()).toBe(true);
+}
+
 const SELECT_DOCUMENTS_GRID_KEY = "ZAAK_Documenten_Ondertekenen_Selectie";
 const SIGN_DOCUMENTS_GRID_KEY = "ZAAK_Documenten_Te_Ondertekenen";
 
@@ -78,23 +92,12 @@ async function documentGridRow(page: Page, gridKey: string, title: string) {
   throw new Error(`No row for document "${title}" in datagrid "${gridKey}"`);
 }
 
-// Material drops the click on a select that is still settling, and renders its
-// options in an overlay outside of the form.
+// Material renders the options in an overlay outside of the form.
 async function selectFirstOption(form: Locator, label: string) {
-  const select = form.getByRole("combobox", { name: label });
-  await expect(async () => {
-    await select.click();
-    await expect(select).toHaveAttribute("aria-expanded", "true", {
-      timeout: TEN_SECONDS_IN_MS,
-    });
-  }).toPass({ timeout: FORTY_SECONDS_IN_MS });
-
-  await form
-    .page()
-    .locator(".mat-mdc-select-panel")
-    .getByRole("option")
-    .first()
-    .click();
+  await chooseMaterialOption(
+    form.getByRole("combobox", { name: label }),
+    form.page().locator(".mat-mdc-select-panel").getByRole("option").first(),
+  );
 }
 
 const testUser1Id = "e2etestuser1";
@@ -289,7 +292,7 @@ When(
   { timeout: FORTY_SECONDS_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await this.page.keyboard.press("Escape");
-    await submitButton(this.page).click();
+    await submitTaskForm(this.page);
   },
 );
 
@@ -383,7 +386,7 @@ When(
       name: "Confirm",
     });
     await waitForFormioContent(this.page, confirmButton);
-    await confirmButton.click({ timeout: FORTY_SECONDS_IN_MS });
+    await submitTaskForm(this.page, confirmButton);
   },
 );
 
@@ -553,7 +556,7 @@ When(
     for (let index = 0; index < (await rows.count()); index++) {
       await rows.nth(index).getByRole("checkbox").check();
     }
-    await submitButton(this.page).click();
+    await submitTaskForm(this.page);
   },
 );
 

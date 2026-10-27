@@ -7,7 +7,9 @@ package nl.info.client.klant
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.NotFoundException
+import nl.info.client.klant.model.ContactDetails
 import nl.info.client.klant.model.KlantcontactContactDetails
+import nl.info.client.klant.model.toContactDetails
 import nl.info.client.klanten.model.generated.CodeObjecttypeEnum.NATUURLIJK_PERSOON
 import nl.info.client.klanten.model.generated.CodeObjecttypeEnum.NIET_NATUURLIJK_PERSOON
 import nl.info.client.klanten.model.generated.CodeObjecttypeEnum.VESTIGING
@@ -21,8 +23,6 @@ import nl.info.client.klanten.model.generated.KlantcontactForeignKey
 import nl.info.client.klanten.model.generated.Onderwerpobject
 import nl.info.client.klanten.model.generated.Onderwerpobjectidentificator
 import nl.info.client.klanten.model.generated.RolEnum
-import nl.info.zac.app.klant.model.contactdetails.ContactDetails
-import nl.info.zac.app.klant.model.contactdetails.toContactDetails
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient

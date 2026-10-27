@@ -68,6 +68,9 @@ with its compile classpath. Rules that need that type information, such as
 runs the same tasks, so CI checks the same rules. `detektApply` runs without type information and
 only applies the fixes that detekt can make by itself.
 
+The dependencies between the backend layers are not checked by detekt but by ArchUnit rules, which
+run as a unit test. See [architectureRules.md](architectureRules.md).
+
 ## i18n message keys
 
 `src/main/app/src/app/core/translations.spec.ts` reads `nl.json` and `en.json` and runs with

@@ -15,8 +15,6 @@ import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { Observable, of } from "rxjs";
 import { testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
-import { ObjectType } from "../../core/websocket/model/object-type";
-import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
@@ -55,7 +53,7 @@ describe(BatchProcessService.name, () => {
       .spyOn(websocketService, "addListener")
       .mockReturnValue(
         new WebsocketListener(
-          new ScreenEvent(Opcode.ANY, ObjectType.ANY, new ScreenEventId("1")),
+          new ScreenEvent("ANY", "ANY", new ScreenEventId("1")),
           jest.fn(),
         ),
       );
@@ -75,8 +73,8 @@ describe(BatchProcessService.name, () => {
       service.subscribe({
         ids: ["1", "2"],
         progressSubscription: {
-          opcode: Opcode.ANY,
-          objectType: ObjectType.ANY,
+          opcode: "ANY",
+          objectType: "ANY",
           onNotification: jest.fn(),
         },
         finally: jest.fn(),
@@ -84,14 +82,14 @@ describe(BatchProcessService.name, () => {
 
       expect(websocketService.addListener).toHaveBeenCalledTimes(2);
       expect(websocketService.addListener).toHaveBeenCalledWith(
-        Opcode.ANY,
-        ObjectType.ANY,
+        "ANY",
+        "ANY",
         "1",
         expect.any(Function),
       );
       expect(websocketService.addListener).toHaveBeenCalledWith(
-        Opcode.ANY,
-        ObjectType.ANY,
+        "ANY",
+        "ANY",
         "2",
         expect.any(Function),
       );
@@ -109,8 +107,8 @@ describe(BatchProcessService.name, () => {
       service.subscribe({
         ids: ["1", "2"],
         progressSubscription: {
-          opcode: Opcode.ANY,
-          objectType: ObjectType.ANY,
+          opcode: "ANY",
+          objectType: "ANY",
           onNotification: jest.fn(),
         },
         finally: jest.fn(),

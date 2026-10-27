@@ -8,8 +8,6 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
-import { ObjectType } from "../../core/websocket/model/object-type";
-import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
 import { WebsocketService } from "../../core/websocket/websocket.service";
@@ -34,7 +32,7 @@ class TestDashboardCardComponent extends DashboardCardComponent {
 const signaleringUpdate = (signaleringType: GeneratedType<"Type">) => {
   const objectId = new ScreenEventId("fakeUserId");
   objectId.detail = signaleringType;
-  return new ScreenEvent(Opcode.UPDATED, ObjectType.SIGNALERINGEN, objectId);
+  return new ScreenEvent("UPDATED", "SIGNALERINGEN", objectId);
 };
 
 describe(DashboardCardComponent.name, () => {
@@ -97,8 +95,8 @@ describe(DashboardCardComponent.name, () => {
     await createCard("TAAK_OP_NAAM");
 
     expect(addListener).toHaveBeenCalledWith(
-      Opcode.UPDATED,
-      ObjectType.SIGNALERINGEN,
+      "UPDATED",
+      "SIGNALERINGEN",
       "fakeUserId",
       expect.any(Function),
     );

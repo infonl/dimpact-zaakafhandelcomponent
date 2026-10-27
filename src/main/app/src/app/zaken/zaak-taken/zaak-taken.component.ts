@@ -32,8 +32,6 @@ import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
-import { ObjectType } from "../../core/websocket/model/object-type";
-import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -142,8 +140,8 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
     const zaak = this.zaak();
 
     this.zaakTakenListener = this.websocketService.addListener(
-      Opcode.UPDATED,
-      ObjectType.ZAAK_TAKEN,
+      "UPDATED",
+      "ZAAK_TAKEN",
       zaak.uuid,
       () => void this.takenService.invalidateTakenVoorZaak(zaak.uuid),
     );

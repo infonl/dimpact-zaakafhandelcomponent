@@ -24,7 +24,6 @@ import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
-import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { IdentityService } from "../../identity/identity.service";
 import { BatchProcessService } from "../../shared/batch-progress/batch-process.service";
@@ -424,7 +423,7 @@ describe(TakenWerkvoorraadComponent.name, () => {
       skippedTaken.forEach(({ id }) =>
         batchProcessOptions.progressSubscription.onNotification?.(
           id,
-          fromPartial<ScreenEvent>({ opcode: Opcode.SKIPPED }),
+          fromPartial<ScreenEvent>({ opcode: "SKIPPED" }),
         ),
       );
       batchProcessOptions.finally();

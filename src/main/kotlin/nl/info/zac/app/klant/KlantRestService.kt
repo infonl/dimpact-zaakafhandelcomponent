@@ -23,6 +23,7 @@ import kotlinx.coroutines.withContext
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.exception.BrpPersonNotFoundException
 import nl.info.client.klant.KlantClientService
+import nl.info.client.klant.model.toContactDetails
 import nl.info.client.klanten.model.generated.ExpandBetrokkene
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
@@ -37,7 +38,6 @@ import nl.info.zac.app.klant.model.bedrijven.toKvkZoekenParameters
 import nl.info.zac.app.klant.model.bedrijven.toRestBedrijf
 import nl.info.zac.app.klant.model.bedrijven.toRestBedrijfsprofiel
 import nl.info.zac.app.klant.model.bedrijven.toRestResultaat
-import nl.info.zac.app.klant.model.contactdetails.toContactDetails
 import nl.info.zac.app.klant.model.contactmoment.RestContactmoment
 import nl.info.zac.app.klant.model.contactmoment.RestListContactmomentenParameters
 import nl.info.zac.app.klant.model.contactmoment.toRestContactMoment

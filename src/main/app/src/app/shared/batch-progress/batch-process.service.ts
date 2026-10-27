@@ -5,15 +5,14 @@
 
 import { Injectable, computed, effect, inject, signal } from "@angular/core";
 import { UtilService } from "src/app/core/service/util.service";
-import { ObjectType } from "src/app/core/websocket/model/object-type";
-import { Opcode } from "src/app/core/websocket/model/opcode";
 import { WebsocketListener } from "src/app/core/websocket/model/websocket-listener";
 import { WebsocketService } from "src/app/core/websocket/websocket.service";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
+import { GeneratedType } from "../utils/generated-types";
 
 type SubscriptionType = {
-  opcode: Opcode;
-  objectType: ObjectType;
+  opcode: GeneratedType<"Opcode">;
+  objectType: GeneratedType<"ScreenEventType">;
 };
 
 const DEFAULT_PROCESS_TIMEOUT_IN_MS = 1000 * 60 * 5;

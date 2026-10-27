@@ -19,6 +19,7 @@ import io.mockk.verify
 import io.mockk.verifyOrder
 import jakarta.ws.rs.ProcessingException
 import nl.info.client.klant.KlantClientService
+import nl.info.client.klant.model.ContactDetails
 import nl.info.client.klant.model.KlantcontactContactDetails
 import nl.info.client.or.`object`.model.createORObject
 import nl.info.client.or.`object`.model.createObjectRecord
@@ -30,7 +31,6 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
-import nl.info.zac.app.klant.model.contactdetails.ContactDetails
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.productaanvraag.model.createBetrokkene
