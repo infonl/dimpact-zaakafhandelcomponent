@@ -23,7 +23,8 @@ import nl.info.zac.search.model.DocumentIndicatie
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.DocumentZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
-import nl.info.zac.util.time.convertToDate
+import nl.info.zac.util.time.toDate
+import java.util.Date
 import java.util.UUID
 
 class DocumentZoekObjectConverter @Inject constructor(
@@ -117,10 +118,10 @@ class DocumentZoekObjectConverter @Inject constructor(
             }
             gekoppeldeZaakInformatieobject.aardRelatieWeergave?.let { zaakRelatie = it.toString() }
             isZaakAfgehandeld = !zaak.isOpen()
-            creatiedatum = convertToDate(informatieobject.creatiedatum)
-            registratiedatum = convertToDate(informatieobject.beginRegistratie.toZonedDateTime())
-            ontvangstdatum = informatieobject.ontvangstdatum?.let(::convertToDate)
-            verzenddatum = informatieobject.verzenddatum?.let(::convertToDate)
+            creatiedatum = informatieobject.creatiedatum.toDate()
+            registratiedatum = Date.from(informatieobject.beginRegistratie.toInstant())
+            ontvangstdatum = informatieobject.ontvangstdatum?.toDate()
+            verzenddatum = informatieobject.verzenddatum?.toDate()
             // we use the name of this enum in the search index
             vertrouwelijkheidaanduiding = informatieobject.vertrouwelijkheidaanduiding.name
             auteur = informatieobject.auteur
@@ -134,7 +135,7 @@ class DocumentZoekObjectConverter @Inject constructor(
                 ondertekening.soort?.let {
                     ondertekeningSoort = it.toString()
                 }
-                ondertekeningDatum = convertToDate(ondertekening.datum)
+                ondertekeningDatum = ondertekening.datum.toDate()
                 setIndicatie(DocumentIndicatie.ONDERTEKEND, true)
             }
             setIndicatie(DocumentIndicatie.VERGRENDELD, informatieobject.locked)

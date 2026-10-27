@@ -9,25 +9,19 @@ import nl.info.client.zgw.shared.model.audit.AuditWijziging
 import nl.info.zac.history.converter.addHistorieRegel
 import nl.info.zac.history.model.HistoryLine
 
-object AuditBesluitConverter {
+fun AuditWijziging<Besluit>.toHistoryLines(): List<HistoryLine> {
+    val oud = this.oud
+    val nieuw = this.nieuw
 
-    fun convert(wijziging: AuditWijziging<Besluit>): List<HistoryLine> {
-        val oud = wijziging.oud
-        val nieuw = wijziging.nieuw
-
-        if (oud == null || nieuw == null) {
-            return listOf(HistoryLine("Besluit", toWaarde(oud), toWaarde(nieuw)))
-        }
-
-        return mutableListOf<HistoryLine>().apply {
-            addHistorieRegel("identificatie", oud.identificatie, nieuw.identificatie)
-            addHistorieRegel("verzenddatum", oud.verzenddatum, nieuw.verzenddatum)
-            addHistorieRegel("ingangsdatum", oud.ingangsdatum, nieuw.ingangsdatum)
-            addHistorieRegel("vervaldatum", oud.vervaldatum, nieuw.vervaldatum)
-            addHistorieRegel("toelichting", oud.toelichting, nieuw.toelichting)
-        }
+    if (oud == null || nieuw == null) {
+        return listOf(HistoryLine("Besluit", oud?.identificatie, nieuw?.identificatie))
     }
 
-    private fun toWaarde(besluit: Besluit?): String? =
-        besluit?.identificatie
+    return mutableListOf<HistoryLine>().apply {
+        addHistorieRegel("identificatie", oud.identificatie, nieuw.identificatie)
+        addHistorieRegel("verzenddatum", oud.verzenddatum, nieuw.verzenddatum)
+        addHistorieRegel("ingangsdatum", oud.ingangsdatum, nieuw.ingangsdatum)
+        addHistorieRegel("vervaldatum", oud.vervaldatum, nieuw.vervaldatum)
+        addHistorieRegel("toelichting", oud.toelichting, nieuw.toelichting)
+    }
 }

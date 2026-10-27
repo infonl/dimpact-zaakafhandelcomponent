@@ -19,8 +19,8 @@ class LocalDateConversionsTest : BehaviorSpec({
     given("a LocalDate") {
         val localDate = LocalDate.of(2026, 7, 14)
 
-        `when`("convertToDateTime is called") {
-            val zonedDateTime = localDate.convertToDateTime()
+        `when`("toZonedDateTime is called") {
+            val zonedDateTime = localDate.toZonedDateTime()
 
             then("the result is start-of-day in the system default time zone") {
                 zonedDateTime.toLocalDate() shouldBe localDate

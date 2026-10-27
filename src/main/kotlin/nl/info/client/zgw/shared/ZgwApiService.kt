@@ -13,8 +13,8 @@ import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
 import nl.info.client.zgw.shared.exception.MultipleBehandelaarRolesException
 import nl.info.client.zgw.shared.exception.ResultTypeNotFoundException
 import nl.info.client.zgw.shared.exception.StatusTypeNotFoundException
-import nl.info.client.zgw.util.convertToDateTime
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.util.toZonedDateTime
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.RolListParameters
@@ -274,7 +274,7 @@ class ZgwApiService @Inject constructor(
         // the zaak in question can no longer be aborted or closed (OpenZaak will return a 400 error on aborting or closing in that case).
         val gebruiksrechten = Gebruiksrechten().apply {
             informatieobject = newInformatieObjectData.url
-            startdatum = newInformatieObjectData.creatiedatum.convertToDateTime().toOffsetDateTime()
+            startdatum = newInformatieObjectData.creatiedatum.toZonedDateTime().toOffsetDateTime()
             omschrijvingVoorwaarden = omschrijvingVoorwaardenGebruiksrechten
         }
         drcClientService.createGebruiksrechten(gebruiksrechten)

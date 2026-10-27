@@ -11,7 +11,7 @@ import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.time.PeriodUtil
+import nl.info.zac.util.time.format
 import java.time.Period
 import java.util.UUID
 
@@ -50,7 +50,7 @@ fun ResultaatType.toRestResultaatType() = RestResultaattype(
     toelichting = this.toelichting,
     archiefNominatie = this.archiefnominatie.name,
     archiefTermijn = this.archiefactietermijn?.let {
-        PeriodUtil.format(Period.parse(it))
+        Period.parse(it).format()
     },
     bronArchiefprocedure = this.brondatumArchiefprocedure,
     isBesluitVerplicht = this.isBesluitVerplicht(),

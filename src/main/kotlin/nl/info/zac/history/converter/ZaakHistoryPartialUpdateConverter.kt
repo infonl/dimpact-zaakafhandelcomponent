@@ -18,7 +18,7 @@ import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.util.asMapWithKeyOfString
 import nl.info.zac.util.diff
 import nl.info.zac.util.getTypedValue
-import nl.info.zac.util.time.format
+import nl.info.zac.util.time.toFormattedDate
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.logging.Level
@@ -86,13 +86,13 @@ class ZaakHistoryPartialUpdateConverter @Inject constructor(
                 .takeIf { it.isNotEmpty() }
                 ?.joinToString(", ")
             RESOURCE_COMMUNICATION_CHANNEL if item is String -> item
-            RESOURCE_EINDDATUM -> format(item as? String)
-            RESOURCE_EINDDATUM_GEPLAND -> format(item as? String)
+            RESOURCE_EINDDATUM -> (item as? String)?.toFormattedDate()
+            RESOURCE_EINDDATUM_GEPLAND -> (item as? String)?.toFormattedDate()
             RESOURCE_HOOFDZAAK if item is String ->
                 item.let(URI::create)
                     .let(zrcClientService::readZaak).identificatie
-            RESOURCE_STARTDATUM -> format(item as? String)
-            RESOURCE_UITERLIJKE_EINDDATUM_AFDOENING -> format(item as? String)
+            RESOURCE_STARTDATUM -> (item as? String)?.toFormattedDate()
+            RESOURCE_UITERLIJKE_EINDDATUM_AFDOENING -> (item as? String)?.toFormattedDate()
             RESOURCE_ZAAKGEOMETRIE if item is Map<*, *> ->
                 item.asMapWithKeyOfString().getTypedValue(GeoJSONGeometry::class.java)?.toHistoryLineString()
             RESOURCE_EXTENSION -> null

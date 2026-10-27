@@ -15,10 +15,10 @@ import nl.info.client.zgw.shared.model.ObjectType.GEBRUIKSRECHTEN
 import nl.info.client.zgw.shared.model.audit.AuditTrailRegel
 import nl.info.client.zgw.shared.model.audit.AuditWijziging
 import nl.info.client.zgw.shared.model.audit.besluiten.BesluitInformatieobjectWijziging
-import nl.info.zac.history.converter.besluiten.AuditBesluitConverter
+import nl.info.zac.history.converter.besluiten.toHistoryLines
 import nl.info.zac.history.converter.documenten.AuditBesluitInformatieobjectConverter
 import nl.info.zac.history.converter.documenten.AuditEnkelvoudigInformatieobjectConverter
-import nl.info.zac.history.converter.documenten.AuditGebruiksrechtenWijzigingConverter
+import nl.info.zac.history.converter.documenten.toHistoryLines
 import nl.info.zac.history.model.HistoryAction
 import nl.info.zac.history.model.HistoryLine
 
@@ -41,9 +41,9 @@ class ZaakHistoryLineConverter @Inject constructor(
             with(it) {
                 when (this.objectType) {
                     BESLUIT ->
-                        AuditBesluitConverter.convert(this as AuditWijziging<Besluit>)
+                        (this as AuditWijziging<Besluit>).toHistoryLines()
                     GEBRUIKSRECHTEN ->
-                        AuditGebruiksrechtenWijzigingConverter.convert(this as AuditWijziging<Gebruiksrechten>)
+                        (this as AuditWijziging<Gebruiksrechten>).toHistoryLines()
                     ENKELVOUDIG_INFORMATIEOBJECT ->
                         auditEnkelvoudigInformatieobjectConverter.convert(
                             this as AuditWijziging<EnkelvoudigInformatieObject>

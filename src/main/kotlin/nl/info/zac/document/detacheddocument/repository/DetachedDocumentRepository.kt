@@ -13,7 +13,7 @@ import jakarta.persistence.criteria.Root
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
-import nl.info.client.zgw.util.convertToDateTime
+import nl.info.client.zgw.util.toZonedDateTime
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument.Companion.REDEN_PROPERTY_NAME
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument.Companion.TITEL_PROPERTY_NAME
@@ -168,7 +168,7 @@ class DetachedDocumentRepository @Inject constructor(
             predicates.add(
                 builder.greaterThanOrEqualTo(
                     root.get(veld),
-                    it.convertToDateTime()
+                    it.toZonedDateTime()
                 )
             )
         }
@@ -176,7 +176,7 @@ class DetachedDocumentRepository @Inject constructor(
             predicates.add(
                 builder.lessThanOrEqualTo(
                     root.get(veld),
-                    it.convertToDateTime().plusDays(1)
+                    it.toZonedDateTime().plusDays(1)
                         .minusSeconds(1)
                 )
             )

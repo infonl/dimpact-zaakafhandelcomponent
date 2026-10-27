@@ -8,7 +8,8 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.generated.BesluitType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.time.PeriodUtil
+import nl.info.zac.util.time.format
+import nl.info.zac.util.time.numberOfDaysFromToday
 import java.net.URI
 import java.time.Period
 import java.util.UUID
@@ -34,10 +35,10 @@ fun BesluitType.toRestBesluitType() = RestBesluitType(
     informatieobjecttypen = this.informatieobjecttypen,
     publication = RestBesluitTypePublication(
         isEnabled = this.publicatieIndicatie,
-        publicationTerm = this.publicatietermijn?.let { PeriodUtil.format(Period.parse(it)) },
-        publicationTermDays = this.publicatietermijn?.let { PeriodUtil.numberOfDaysFromToday(Period.parse(it)) },
-        responseTerm = this.reactietermijn?.let { PeriodUtil.format(Period.parse(it)) },
-        responseTermDays = this.reactietermijn?.let { PeriodUtil.numberOfDaysFromToday(Period.parse(it)) }
+        publicationTerm = this.publicatietermijn?.let { Period.parse(it).format() },
+        publicationTermDays = this.publicatietermijn?.let { Period.parse(it).numberOfDaysFromToday() },
+        responseTerm = this.reactietermijn?.let { Period.parse(it).format() },
+        responseTermDays = this.reactietermijn?.let { Period.parse(it).numberOfDaysFromToday() }
     )
 )
 
