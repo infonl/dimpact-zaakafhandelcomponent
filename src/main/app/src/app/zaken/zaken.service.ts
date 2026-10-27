@@ -179,7 +179,7 @@ export class ZakenService {
   }
 
   listZaakWaarschuwingen() {
-    return this.zacHttpClient.GET("/rest/zaken/waarschuwing");
+    return this.zacQueryClient.GET("/rest/zaken/waarschuwing");
   }
 
   listZaaktypesForCreation() {
