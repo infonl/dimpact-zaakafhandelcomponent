@@ -22,6 +22,7 @@ import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import java.net.URI
+import java.time.LocalDate
 import java.util.UUID
 
 class RestGerelateerdeZaakConverterTest : BehaviorSpec({
@@ -49,7 +50,11 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
                 url = URI("https://example.com/zaak/$fakeZaakUuid")
             }
             val fromZaak = createZaak()
-            val zaak = createZaak(uuid = fakeZaakUuid)
+            val zaak = createZaak(
+                uuid = fakeZaakUuid,
+                registratiedatum = LocalDate.of(2026, 3, 10),
+                startDate = LocalDate.of(2026, 2, 1)
+            )
             val zaakType = createZaakType()
             val loggedInUser = createLoggedInUser()
             val fromZaakRechten = createZaakRechten()
@@ -74,6 +79,10 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
 
                 then("the result has the correct identificatie") {
                     result.identificatie shouldBe zaak.identificatie
+                }
+
+                then("the result has the startdatum of the gerelateerde zaak") {
+                    result.startdatum shouldBe zaak.startdatum
                 }
             }
         }
@@ -172,6 +181,10 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
 
                 then("ontkoppelen is false") {
                     result.canOntkoppelen shouldBe false
+                }
+
+                then("the startdatum is not shown, because the user may not read the gerelateerde zaak") {
+                    result.startdatum shouldBe null
                 }
             }
         }
