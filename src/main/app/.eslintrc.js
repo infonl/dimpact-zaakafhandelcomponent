@@ -154,14 +154,12 @@ module.exports = {
       rules: {
         "@angular-eslint/template/prefer-control-flow": "error",
         "@angular-eslint/template/prefer-at-else": "error",
-        // Templates had existing violations of these rules when template linting was switched on.
-        // Make them errors once those are fixed.
-        "@angular-eslint/template/eqeqeq": "warn",
-        "@angular-eslint/template/no-autofocus": "warn",
-        "@angular-eslint/template/label-has-associated-control": "warn",
-        "@angular-eslint/template/click-events-have-key-events": "warn",
-        "@angular-eslint/template/interactive-supports-focus": "warn",
-        "@angular-eslint/template/elements-content": "warn",
+        "@angular-eslint/template/eqeqeq": "error",
+        "@angular-eslint/template/no-autofocus": "error",
+        "@angular-eslint/template/label-has-associated-control": "error",
+        "@angular-eslint/template/click-events-have-key-events": "error",
+        "@angular-eslint/template/interactive-supports-focus": "error",
+        "@angular-eslint/template/elements-content": "error",
       },
     },
   ],

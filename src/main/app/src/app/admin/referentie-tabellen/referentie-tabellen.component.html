@@ -64,6 +64,7 @@
                   <div
                     class="flex-col flex-1 tabel-toggle"
                     (click)="toggle(tabel)"
+                    role="presentation"
                   >
                     <span class="tabel-code">{{ tabel.code }}</span>
                     <span class="tabel-naam">{{ tabel.name }}</span>
@@ -71,6 +72,7 @@
                   <span
                     class="tabel-count tabel-toggle"
                     (click)="toggle(tabel)"
+                    role="presentation"
                   >
                     {{ "rijen" | translate }} ({{ tabel.valuesCount }})
                   </span>

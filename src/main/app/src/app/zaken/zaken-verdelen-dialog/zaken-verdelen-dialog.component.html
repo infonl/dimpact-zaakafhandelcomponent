@@ -93,12 +93,7 @@
     }
     {{ "actie.verdelen" | translate }}
   </button>
-  <button
-    [disabled]="mutation.isPending()"
-    autofocus
-    mat-raised-button
-    (click)="close()"
-  >
+  <button [disabled]="mutation.isPending()" mat-raised-button (click)="close()">
     {{ "actie.annuleren" | translate }}
   </button>
 </mat-dialog-actions>
