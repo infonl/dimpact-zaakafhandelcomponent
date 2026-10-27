@@ -270,50 +270,6 @@
     {
       "customType": "regex",
       "matchStrings": [
-        "- \\*\\*otel/opentelemetry-collector-contrib\\*\\*: (?<currentValue>[^\\n]+)"
-      ],
-      "datasourceTemplate": "docker",
-      "depNameTemplate": "otel/opentelemetry-collector-contrib",
-      "managerFilePatterns": [
-        "/^DEPENDENCIES\\.md$/"
-      ]
-    },
-    {
-      "customType": "regex",
-      "matchStrings": [
-        "- \\*\\*grafana/tempo\\*\\*: (?<currentValue>[^\\n]+)"
-      ],
-      "datasourceTemplate": "docker",
-      "depNameTemplate": "grafana/tempo",
-      "managerFilePatterns": [
-        "/^DEPENDENCIES\\.md$/"
-      ]
-    },
-    {
-      "customType": "regex",
-      "matchStrings": [
-        "- \\*\\*prom/prometheus\\*\\*: (?<currentValue>[^\\n]+)"
-      ],
-      "datasourceTemplate": "docker",
-      "depNameTemplate": "prom/prometheus",
-      "managerFilePatterns": [
-        "/^DEPENDENCIES\\.md$/"
-      ]
-    },
-    {
-      "customType": "regex",
-      "matchStrings": [
-        "- \\*\\*grafana/grafana\\*\\*: (?<currentValue>[^\\n]+)"
-      ],
-      "datasourceTemplate": "docker",
-      "depNameTemplate": "grafana/grafana",
-      "managerFilePatterns": [
-        "/^DEPENDENCIES\\.md$/"
-      ]
-    },
-    {
-      "customType": "regex",
-      "matchStrings": [
         "- \\*\\*greenmail/standalone\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
