@@ -10,7 +10,6 @@ import jakarta.inject.Singleton
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.GET
-import jakarta.ws.rs.NotFoundException
 import jakarta.ws.rs.PATCH
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
@@ -19,6 +18,7 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.note.converter.NoteConverter
+import nl.info.zac.app.note.exception.NoteNotFoundException
 import nl.info.zac.app.note.model.RestNote
 import nl.info.zac.app.note.model.toNote
 import nl.info.zac.authentication.LoggedInUser
@@ -69,7 +69,7 @@ class NoteRestService @Inject constructor(
     fun updateNote(restNote: RestNote): RestNote {
         assertPolicy(policyService.readNotitieRechten().canWijzigen)
         val note = restNote.id?.let(noteService::findNote)
-            ?: throw NotFoundException("Note with id '${restNote.id}' not found")
+            ?: throw NoteNotFoundException("Note with id '${restNote.id}' not found")
         assertIsAuthor(note)
         assertCanReadZaak(note.zaakUUID)
         val updatedNotitie = note.apply {

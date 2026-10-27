@@ -16,10 +16,10 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import jakarta.ws.rs.NotFoundException
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.note.converter.NoteConverter
+import nl.info.zac.app.note.exception.NoteNotFoundException
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.event.EventingService
@@ -191,11 +191,11 @@ class NoteRestServiceTest : BehaviorSpec({
         every { noteService.findNote(456L) } returns null
 
         `when`("updateNote is called") {
-            val exception = shouldThrow<NotFoundException> {
+            val exception = shouldThrow<NoteNotFoundException> {
                 noteRestService.updateNote(restNote)
             }
 
-            then("it should throw a NotFoundException") {
+            then("it should throw a NoteNotFoundException") {
                 exception.message shouldBe "Note with id '456' not found"
             }
         }
