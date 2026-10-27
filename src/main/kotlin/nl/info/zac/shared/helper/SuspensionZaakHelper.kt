@@ -22,8 +22,8 @@ import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.time.convertToDate
-import nl.info.zac.util.time.convertToLocalDate
+import nl.info.zac.util.time.toDate
+import nl.info.zac.util.time.toLocalDate
 import nl.info.zac.zaak.exception.ZaakCannotBeSuspendedAgainException
 import org.flowable.task.api.Task
 import java.time.LocalDate
@@ -133,9 +133,7 @@ class SuspensionZaakHelper @Inject constructor(
         flowableTaskService.listOpenTasksForZaak(zaak.uuid)
             .filter { it.dueDate != null }
             .onEach {
-                it.dueDate = convertToDate(
-                    convertToLocalDate(it.dueDate!!).plusDays(numberOfDays.toLong())
-                )
+                it.dueDate = it.dueDate.toLocalDate().plusDays(numberOfDays.toLong()).toDate()
                 flowableTaskService.updateTask(it)
             }
 
@@ -143,9 +141,9 @@ class SuspensionZaakHelper @Inject constructor(
         flowableTaskService.listOpenTasksForZaak(zaakUUID)
             .filter { if (it.name != null) it.name != AANVULLENDE_INFORMATIE_TASK_NAME else true }
             .filter { it.dueDate != null }
-            .filter { convertToLocalDate(it.dueDate!!).isAfter(zaakFatalDate) }
+            .filter { it.dueDate.toLocalDate().isAfter(zaakFatalDate) }
             .onEach {
-                it.dueDate = convertToDate(zaakFatalDate)
+                it.dueDate = zaakFatalDate.toDate()
                 flowableTaskService.updateTask(it)
             }
 

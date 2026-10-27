@@ -69,7 +69,7 @@ import nl.info.zac.task.BpmnTaskFormRuntimeService
 import nl.info.zac.task.TaskService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.time.convertToDate
+import nl.info.zac.util.time.toDate
 import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.readZaakAutorisatieGegevens
@@ -175,7 +175,7 @@ class TaskRestService @Inject constructor(
     private fun updateDescriptionAndDueDate(restTask: RestTask): Task {
         readOpenTask(restTask).let { task ->
             restTask.toelichting?.let { task.description = it }
-            restTask.fataledatum?.let { task.dueDate = convertToDate(it) }
+            restTask.fataledatum?.let { task.dueDate = it.toDate() }
             return flowableTaskService.updateTask(task)
         }
     }

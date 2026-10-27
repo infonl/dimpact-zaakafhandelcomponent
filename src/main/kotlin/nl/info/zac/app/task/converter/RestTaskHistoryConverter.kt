@@ -14,8 +14,8 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.task.TaskHistoryService
 import nl.info.zac.util.JSONB
-import nl.info.zac.util.time.convertToLocalDate
-import nl.info.zac.util.time.convertToZonedDateTime
+import nl.info.zac.util.time.toLocalDate
+import nl.info.zac.util.time.toZonedDateTime
 import org.flowable.task.api.history.HistoricTaskLogEntry
 import org.flowable.task.api.history.HistoricTaskLogEntryType
 import java.util.Date
@@ -64,7 +64,7 @@ class RestTaskHistoryConverter @Inject constructor(
                 )
             }
         }
-        restTaakHistorieRegel?.datumTijd = historicTaskLogEntry.timeStamp?.let(::convertToZonedDateTime)
+        restTaakHistorieRegel?.datumTijd = historicTaskLogEntry.timeStamp?.toZonedDateTime()
         return restTaakHistorieRegel
     }
 
@@ -134,8 +134,8 @@ class RestTaskHistoryConverter @Inject constructor(
         JSONB.fromJson(data, DuedateChangedData::class.java).let {
             return RestTaskHistoryLine(
                 attribuutLabel = FATALEDATUM_ATTRIBUUT_LABEL,
-                oudeWaarde = it.previousDueDate?.let(::convertToLocalDate),
-                nieuweWaarde = it.newDueDate?.let(::convertToLocalDate),
+                oudeWaarde = it.previousDueDate?.toLocalDate(),
+                nieuweWaarde = it.newDueDate?.toLocalDate(),
                 toelichting = null
             )
         }

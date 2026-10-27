@@ -57,7 +57,7 @@ import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.task.TaskHistoryService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.time.convertToDate
+import nl.info.zac.util.time.toDate
 import nl.info.zac.util.toLocalDate
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import org.flowable.cmmn.api.runtime.PlanItemInstance
@@ -201,7 +201,7 @@ class PlanItemsRestService @Inject constructor(
             planItemInstanceId = humanTaskData.planItemInstanceId,
             groupId = humanTaskData.groep.id,
             assignee = assignee,
-            dueDate = fatalDate?.let(::convertToDate),
+            dueDate = fatalDate?.toDate(),
             description = humanTaskData.toelichting,
             taakdata = taakdata,
             zaakUUID = zaakUUID

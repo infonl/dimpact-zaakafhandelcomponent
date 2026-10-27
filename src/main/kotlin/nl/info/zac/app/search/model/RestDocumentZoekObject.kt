@@ -11,7 +11,7 @@ import nl.info.zac.policy.output.DocumentRechten
 import nl.info.zac.search.model.DocumentIndicatie
 import nl.info.zac.search.model.zoekobject.DocumentZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
-import nl.info.zac.util.time.convertToLocalDate
+import nl.info.zac.util.time.toLocalDate
 import java.time.LocalDate
 import java.util.EnumSet
 
@@ -72,11 +72,11 @@ fun DocumentZoekObject.toRestDocumentZoekObject(documentRechten: DocumentRechten
     zaakUuid = this@toRestDocumentZoekObject.zaakUuid,
     zaakRelatie = this@toRestDocumentZoekObject.zaakRelatie,
     isZaakspecifiekGeautoriseerd = this@toRestDocumentZoekObject.isZaakspecifiekGeautoriseerd,
-    creatiedatum = this@toRestDocumentZoekObject.creatiedatum?.let(::convertToLocalDate),
-    registratiedatum = this@toRestDocumentZoekObject.registratiedatum?.let(::convertToLocalDate),
-    ontvangstdatum = this@toRestDocumentZoekObject.ontvangstdatum?.let(::convertToLocalDate),
-    verzenddatum = this@toRestDocumentZoekObject.verzenddatum?.let(::convertToLocalDate),
-    ondertekeningDatum = this@toRestDocumentZoekObject.ondertekeningDatum?.let(::convertToLocalDate),
+    creatiedatum = this@toRestDocumentZoekObject.creatiedatum?.toLocalDate(),
+    registratiedatum = this@toRestDocumentZoekObject.registratiedatum?.toLocalDate(),
+    ontvangstdatum = this@toRestDocumentZoekObject.ontvangstdatum?.toLocalDate(),
+    verzenddatum = this@toRestDocumentZoekObject.verzenddatum?.toLocalDate(),
+    ondertekeningDatum = this@toRestDocumentZoekObject.ondertekeningDatum?.toLocalDate(),
     vertrouwelijkheidaanduiding = this@toRestDocumentZoekObject.vertrouwelijkheidaanduiding,
     auteur = this@toRestDocumentZoekObject.auteur,
     status = this@toRestDocumentZoekObject.getStatus()?.toString(),

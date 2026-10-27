@@ -60,7 +60,7 @@ import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.task.TaskHistoryService
-import nl.info.zac.util.time.convertToDate
+import nl.info.zac.util.time.toDate
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI
@@ -326,7 +326,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     planItemInstanceId = planItemInstanceId,
                     groupId = restHumanTaskData.groep.id,
                     assignee = null,
-                    dueDate = restHumanTaskData.fataledatum?.let(::convertToDate),
+                    dueDate = restHumanTaskData.fataledatum?.toDate(),
                     description = restHumanTaskData.toelichting,
                     taakdata = any(),
                     zaakUUID = zaak.uuid
@@ -434,7 +434,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     planItemInstanceId = planItemInstanceId,
                     groupId = restHumanTaskData.groep.id,
                     assignee = null,
-                    dueDate = convertToDate(zaak.uiterlijkeEinddatumAfdoening),
+                    dueDate = zaak.uiterlijkeEinddatumAfdoening.toDate(),
                     description = restHumanTaskData.toelichting,
                     taakdata = any(),
                     zaakUUID = zaak.uuid
@@ -506,7 +506,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     planItemInstanceId = additionalInfoPlanItemInstanceId,
                     groupId = restHumanTaskData.groep.id,
                     assignee = null,
-                    dueDate = restHumanTaskData.fataledatum?.let(::convertToDate),
+                    dueDate = restHumanTaskData.fataledatum?.toDate(),
                     description = restHumanTaskData.toelichting,
                     taakdata = any(),
                     zaakUUID = zaak.uuid
