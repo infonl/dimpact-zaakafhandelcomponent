@@ -16,7 +16,11 @@ NON_ADR_FILES = {"README.md", "template.md"}
 ADR_FILE_NAME = re.compile(r"^(\d{4})-[a-z0-9]+(?:-[a-z0-9]+)*\.md$")
 STATUSES = {"proposed", "accepted", "rejected", "deprecated", "superseded"}
 FINAL_STATUSES = STATUSES - {"proposed"}
-ALLOWED_TRANSITIONS = {"accepted": {"accepted", "deprecated", "superseded"}}
+ALLOWED_TRANSITIONS = {
+    "accepted": {"deprecated", "superseded"},
+    "deprecated": {"superseded"},
+    "rejected": {"superseded"},
+}
 FRONT_MATTER_KEYS_CHANGEABLE_WHEN_FINAL = {"status", "superseded-by"}
 REQUIRED_FRONT_MATTER_KEYS = ["status", "date", "decision-makers", "tags"]
 REQUIRED_SECTIONS = [
@@ -68,6 +72,8 @@ def check_adr(path: Path, front_matter: dict[str, str], body: str, adr_numbers: 
         reference = front_matter.get(key)
         if reference and (not ADR_NUMBER.match(reference) or reference not in adr_numbers):
             errors.append(f"{path}: '{key}: {reference}' does not refer to an existing ADR number")
+        elif reference and path.name.startswith(f"{reference}-"):
+            errors.append(f"{path}: '{key}: {reference}' refers to the ADR itself")
     if (status == "superseded") != bool(front_matter.get("superseded-by")):
         errors.append(f"{path}: an ADR has 'superseded-by' if and only if its status is 'superseded'")
     if not title_of(body):
@@ -104,26 +110,23 @@ def check_index(adrs: dict[str, tuple[Path, dict[str, str], str]]) -> list[str]:
     return errors
 
 
-def file_at(base: str, path: Path) -> str | None:
-    result = subprocess.run(["git", "show", f"{base}:{path.as_posix()}"], capture_output=True, text=True)
-    return result.stdout if result.returncode == 0 else None
-
-
-def files_at(base: str) -> list[Path]:
-    result = subprocess.run(
-        ["git", "ls-tree", "--name-only", f"{base}:{ADR_DIRECTORY.as_posix()}"],
-        capture_output=True,
-        text=True,
-    )
+def git(*arguments: str) -> str:
+    result = subprocess.run(["git", *arguments], capture_output=True, text=True)
     if result.returncode != 0:
-        return []
-    return [ADR_DIRECTORY / name for name in result.stdout.split() if ADR_FILE_NAME.match(name)]
+        raise SystemExit(f"'git {' '.join(arguments)}' failed: {result.stderr.strip()}")
+    return result.stdout
 
 
 def check_immutability(base: str) -> list[str]:
+    base_commit = git("rev-parse", "--verify", "--end-of-options", f"{base}^{{commit}}").strip()
+    base_paths = [
+        Path(name)
+        for name in git("ls-tree", "--name-only", base_commit, "--", f"{ADR_DIRECTORY.as_posix()}/").split("\n")
+        if ADR_FILE_NAME.match(Path(name).name)
+    ]
     errors = []
-    for path in files_at(base):
-        base_parts = split_front_matter(file_at(base, path) or "")
+    for path in base_paths:
+        base_parts = split_front_matter(git("show", f"{base_commit}:{path.as_posix()}"))
         if base_parts is None:
             continue
         base_front_matter, base_body = base_parts
