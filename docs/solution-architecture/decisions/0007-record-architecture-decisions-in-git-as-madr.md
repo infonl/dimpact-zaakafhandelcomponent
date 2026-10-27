@@ -33,8 +33,8 @@ with front matter that tools and agents can parse, and its sections (context, dr
 confirmation) match what our Confluence decisions already contained.
 
 * Every ADR is a file `docs/solution-architecture/decisions/NNNN-short-title.md`, based on [the template](template.md).
-* An ADR is added or changed in the same pull request as the change it governs. Merging the pull request accepts the
-  decision.
+* An ADR is added in the same pull request as the change it governs, or in a pull request of its own when the
+  decision is taken before its implementation starts. Merging the pull request accepts the decision.
 * The body of an accepted ADR is never changed. A changed decision is a new ADR that supersedes the old one.
 * [The index](README.md) lists every ADR.
 

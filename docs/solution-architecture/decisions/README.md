@@ -9,7 +9,7 @@ and its consequences. See [ADR-0007](0007-record-architecture-decisions-in-git-a
 | ADR                                                                      | Title                                                                    | Status   | Summary                                                                                                |
 |--------------------------------------------------------------------------|--------------------------------------------------------------------------|----------|--------------------------------------------------------------------------------------------------------|
 | [0001](0001-use-mermaid-for-diagrams-as-code.md)                         | Use Mermaid as diagrams-as-code tool in our technical documentation      | accepted | Diagrams in the technical documentation are Mermaid code in Markdown.                                  |
-| [0002](0002-automate-release-notes-and-versioning.md)                    | Automate release notes and versioning                                    | accepted | Versions, Docker image tags and GitHub release notes are created automatically from commit messages.   |
+| [0002](0002-automate-release-notes-and-versioning.md)                    | Automate release notes and versioning                                    | accepted | Releases are started by hand with a choice of version bump; tags and release notes are automated.      |
 | [0003](0003-validate-fields-in-frontend-and-in-backend-only-when-needed.md) | Always validate fields in the frontend and in the backend only when needed | accepted | The frontend validates all fields; the backend only when it adds value against attacks.                |
 | [0004](0004-use-trivy-for-docker-images-and-snyk-for-dependencies.md) | Use Trivy for Docker image scanning and Snyk for dependency scanning | accepted | Trivy scans the published Docker image every weekday; Snyk scans the dependencies every week.           |
 | [0005](0005-use-renovate-for-dependency-updates.md)                      | Use Renovate for automated dependency updates                            | accepted | Renovate replaces Dependabot for all dependency updates.                                               |
@@ -34,8 +34,9 @@ Do not write an ADR for a decision that only affects one feature. Use an [OpenSp
 2. Fill in the front matter and the sections. Remove the optional sections you do not need: Decision Drivers,
    Confirmation, Pros and Cons of the Options and More Information.
 3. Add a row to the index above.
-4. Add the ADR to the pull request that implements the decision. Set the status to `accepted`, so that merging the
-   pull request accepts the decision. Use `proposed` only to merge a decision that is not yet taken.
+4. Add the ADR to the pull request that implements the decision, or to a pull request of its own when the decision
+   is taken before its implementation starts. Set the status to `accepted`, so that merging the pull request accepts
+   the decision. Use `proposed` only to merge a decision that is not yet taken.
 
 ## Statuses
 
