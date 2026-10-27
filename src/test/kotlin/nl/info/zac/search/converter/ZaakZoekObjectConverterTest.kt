@@ -40,6 +40,7 @@ import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.createZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import java.net.URI
+import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Date
 import java.util.UUID
@@ -79,7 +80,9 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         val zaak = createZaak(
             resultaat = resultaat.url,
             zaaktypeUri = zaakType.url,
-            archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
+            archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN,
+            registratiedatum = LocalDate.of(2026, 3, 10),
+            startDate = LocalDate.of(2026, 2, 1)
         )
         val rolInitiator = createRolNatuurlijkPersoon(
             rolType = createRolType(omschrijving = "fake_role_initiator")
@@ -140,6 +143,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                     omschrijving shouldBe zaak.omschrijving
                     toelichting shouldBe zaak.toelichting
                     registratiedatum shouldBe Date.from(zaak.registratiedatum.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
+                    startdatum shouldBe Date.from(zaak.startdatum.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
                     vertrouwelijkheidaanduiding shouldBe zaak.vertrouwelijkheidaanduiding.name
                     isAfgehandeld shouldBe !zaak.isOpen()
                     initiatorIdentificatie shouldBe rolInitiator.identificatienummer
