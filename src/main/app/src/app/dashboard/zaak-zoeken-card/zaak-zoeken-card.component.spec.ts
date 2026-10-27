@@ -173,4 +173,52 @@ describe(ZaakZoekenCardComponent.name, () => {
       page: 0,
     });
   });
+
+  describe("when the poll searches the zaken again", () => {
+    async function respondWithError() {
+      httpTestingController
+        .expectOne("/rest/zoeken/list")
+        .flush(null, { status: 404, statusText: "Not Found" });
+      await sleep();
+      fixture.detectChanges();
+    }
+
+    it("shows the refetch hint and keeps the zaken when the search fails", async () => {
+      await setup();
+      await respondWith(makeResultaat(1, 1, "ZAAK-OUD"));
+
+      void testQueryClient.refetchQueries({ type: "active" });
+      await respondWithError();
+
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "msg.verversen.mislukt",
+      );
+      expect(screen.getByRole("row", { name: /ZAAK-OUD/ })).toBeVisible();
+    });
+
+    it("hides the refetch hint again after a search that succeeds", async () => {
+      await setup();
+      await respondWith(makeResultaat(1, 1, "ZAAK-OUD"));
+      void testQueryClient.refetchQueries({ type: "active" });
+      await respondWithError();
+
+      void testQueryClient.refetchQueries({ type: "active" });
+      await respondWith(makeResultaat(1, 1, "ZAAK-NIEUW"));
+
+      expect(
+        screen.queryByText("msg.verversen.mislukt"),
+      ).not.toBeInTheDocument();
+      expect(screen.getByRole("row", { name: /ZAAK-NIEUW/ })).toBeVisible();
+    });
+
+    it("does not show the refetch hint when the first search fails, because the error dialog reports that", async () => {
+      await setup();
+
+      await respondWithError();
+
+      expect(
+        screen.queryByText("msg.verversen.mislukt"),
+      ).not.toBeInTheDocument();
+    });
+  });
 });
