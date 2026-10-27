@@ -10,7 +10,8 @@ defaults that affect the UI, such as CDK overlays. `@angular-builders/jest` 21 o
 - No visible change for users.
 
 **Non-Goals:**
-- Angular 22, zoneless change detection, or adopting new Angular 21 APIs beyond what the migrations do.
+- Angular 22, zoneless change detection, or rewriting code to new Angular 21 features. The upgrade adds no new
+  Angular packages.
 
 ## Decisions
 
