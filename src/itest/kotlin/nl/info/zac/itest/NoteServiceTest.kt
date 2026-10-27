@@ -11,12 +11,15 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.createZaakAndRetrieve
 import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.BEHANDELAAR_2
+import nl.info.zac.itest.config.COORDINATOR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 
@@ -26,6 +29,7 @@ class NoteServiceTest : BehaviorSpec({
 
     given("An existing zaak and a logged-in behandelaar") {
         lateinit var zaakUuid: UUID
+        var noteId = 0L
         zacClient.createZaakAndRetrieve(
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
             groupId = GROUP_BEHANDELAARS_TEST_1.name,
@@ -39,24 +43,23 @@ class NoteServiceTest : BehaviorSpec({
             }
         }
 
-        `when`(
-            """
-            a note is created with the provided username equal to the username of the currently logged in user
-            """
-        ) {
+        `when`("a note is created with the username of another user as author") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/notities",
                 requestBodyAsString = """
                     {
                         "zaakUUID": "$zaakUuid",
                         "tekst": "fakeNoteText",
-                        "gebruikersnaamMedewerker": "${BEHANDELAAR_1.username}"
+                        "gebruikersnaamMedewerker": "${COORDINATOR_1.username}"
                     }
                 """.trimIndent(),
                 testUser = BEHANDELAAR_1
             )
             then(
-                "the created note and related metadata should be returned, with the 'editing allowed' flag set to true"
+                """
+                the created note should be returned with the logged-in user as author,
+                and with the 'editing allowed' flag set to true
+                """
             ) {
                 response.code shouldBe HTTP_OK
                 val responseBody = response.bodyAsString
@@ -70,8 +73,8 @@ class NoteServiceTest : BehaviorSpec({
                     }
                 """.trimIndent()
                 with(JSONObject(responseBody)) {
-                    get("id") shouldNotBe null
                     get("tijdstipLaatsteWijziging") shouldNotBe null
+                    noteId = getLong("id")
                 }
             }
         }
@@ -94,6 +97,68 @@ class NoteServiceTest : BehaviorSpec({
                             "gebruikersnaamMedewerker": "${BEHANDELAAR_1.username}",
                             "voornaamAchternaamMedewerker": "${BEHANDELAAR_1.displayName}",
                             "isBewerkenToegestaan": true
+                        }
+                    ]
+                """.trimIndent()
+            }
+        }
+
+        `when`("another user who may read the zaak updates the note") {
+            val response = itestHttpClient.performPatchRequest(
+                url = "$ZAC_API_URI/notities",
+                requestBodyAsString = """
+                    {
+                        "id": $noteId,
+                        "zaakUUID": "$zaakUuid",
+                        "tekst": "fakeChangedNoteText",
+                        "gebruikersnaamMedewerker": "${COORDINATOR_1.username}"
+                    }
+                """.trimIndent(),
+                testUser = COORDINATOR_1
+            )
+
+            then("the response should be forbidden") {
+                response.code shouldBe HTTP_FORBIDDEN
+            }
+        }
+
+        `when`("another user who may read the zaak deletes the note") {
+            val response = itestHttpClient.performDeleteRequest(
+                url = "$ZAC_API_URI/notities/$noteId",
+                testUser = COORDINATOR_1
+            )
+
+            then("the response should be forbidden") {
+                response.code shouldBe HTTP_FORBIDDEN
+            }
+        }
+
+        `when`("a user who may not read the zaak calls the 'get notes' endpoint") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/notities/zaken/$zaakUuid",
+                testUser = BEHANDELAAR_2
+            )
+
+            then("the response should be forbidden") {
+                response.code shouldBe HTTP_FORBIDDEN
+            }
+        }
+
+        `when`("the author calls the 'get notes' endpoint after the forbidden update and delete") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/notities/zaken/$zaakUuid",
+                testUser = BEHANDELAAR_1
+            )
+
+            then("the note should be returned unchanged") {
+                response.code shouldBe HTTP_OK
+                response.bodyAsString shouldEqualJsonIgnoringExtraneousFields """
+                    [
+                        {
+                            "id": $noteId,
+                            "zaakUUID": "$zaakUuid",
+                            "tekst": "fakeNoteText",
+                            "gebruikersnaamMedewerker": "${BEHANDELAAR_1.username}"
                         }
                     ]
                 """.trimIndent()
