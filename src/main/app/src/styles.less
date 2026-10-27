@@ -288,6 +288,79 @@ zac-zaak-betrokkene-filter .zaak-betrokkene-filter .mat-mdc-form-field-flex {
   }
 }
 
+// Backdrop of ProgressDialogComponent (backdropClass in UtilService.openProgressDialog)
+.progress-dialog-backdrop {
+  cursor: not-allowed;
+}
+
+// BAG display field in zac-zaak-create: disabled but clickable, with the hover look of an enabled field
+zac-zaak-create
+  zac-input.bag-display-field
+  .mdc-text-field--filled.mdc-text-field--disabled {
+  pointer-events: auto !important;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: var(
+      --mat-form-field-state-layer-color,
+      var(--mat-sys-on-surface)
+    );
+    opacity: 0;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  &:hover {
+    &::after {
+      opacity: var(
+        --mat-form-field-hover-state-layer-opacity,
+        var(--mat-sys-hover-state-layer-opacity)
+      );
+    }
+
+    .mdc-line-ripple::before {
+      border-bottom-color: var(
+        --mat-form-field-filled-hover-active-indicator-color
+      );
+    }
+  }
+}
+
+// Native date picker icon of zac-date, replaced by the Material datepicker toggle
+zac-date .mat-mdc-text-field-wrapper:has(input[type="date"]) {
+  // Webkit/Blink (Chrome, Edge, Safari): hide native calendar icon directly
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    display: none;
+  }
+
+  // Firefox: no CSS pseudo-element available, so cover the native icon with an overlay
+  @supports not selector(input::-webkit-calendar-picker-indicator) {
+    .mat-mdc-form-field-infix::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: var(--mat-icon-button-icon-size, 24px);
+      height: 100%;
+      background-color: var(--mat-form-field-filled-container-color);
+    }
+
+    &:not(:has(input[disabled])):hover {
+      .mat-mdc-form-field-infix::after {
+        background-color: var(--zac-filled-text-field-container-color-hover);
+      }
+    }
+
+    &.mdc-text-field--focused {
+      .mat-mdc-form-field-infix::after {
+        background-color: var(--zac-filled-text-field-container-color-active);
+      }
+    }
+  }
+}
+
 // Label of zac-toggle stretches, so the toggle sits at the far end
 zac-toggle [mat-internal-form-field] {
   display: flex;

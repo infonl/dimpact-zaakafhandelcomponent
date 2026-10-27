@@ -168,6 +168,7 @@ export class UtilService {
       },
       disableClose: true,
       panelClass: "full-screen-dialog",
+      backdropClass: "progress-dialog-backdrop",
     });
 
     return dialogRef.afterClosed();
