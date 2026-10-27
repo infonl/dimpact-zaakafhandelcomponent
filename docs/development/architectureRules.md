@@ -25,7 +25,7 @@ The backend has three layers. A layer may only depend on the layers below it:
 | Rule                                                                  | Existing violations |
 | --------------------------------------------------------------------- | ------------------- |
 | The domain code does not depend on the REST layer                     | Frozen              |
-| The clients do not depend on the REST layer                           | Frozen              |
+| The clients do not depend on the REST layer                           | None                |
 | No field is annotated with `@Inject`; ZAC uses constructor injection  | None                |
 | No class depends on the `javax` Java EE APIs that Jakarta EE replaced | None                |
 

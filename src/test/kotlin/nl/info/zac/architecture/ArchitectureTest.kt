@@ -38,12 +38,11 @@ class ArchitectureTest : BehaviorSpec({
     context("The dependencies of the clients of external APIs") {
         given("the client classes") {
             `when`("their dependencies are checked") {
-                then("they do not depend on the REST layer, apart from the frozen existing violations") {
-                    freeze(
-                        noClasses()
-                            .that().resideInAPackage(CLIENT_PACKAGE)
-                            .should().dependOnClassesThat().resideInAPackage(REST_LAYER_PACKAGE)
-                    ).check(zacClasses)
+                then("they do not depend on the REST layer") {
+                    noClasses()
+                        .that().resideInAPackage(CLIENT_PACKAGE)
+                        .should().dependOnClassesThat().resideInAPackage(REST_LAYER_PACKAGE)
+                        .check(zacClasses)
                 }
             }
         }

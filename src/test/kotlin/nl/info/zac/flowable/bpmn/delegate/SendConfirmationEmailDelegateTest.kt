@@ -18,6 +18,7 @@ import io.mockk.mockkObject
 import io.mockk.verify
 import nl.info.client.klant.KlantClientService
 import nl.info.client.klant.createDigitalAddresses
+import nl.info.client.klant.model.ContactDetails
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.model.createNietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
@@ -27,7 +28,6 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.admin.model.createMailTemplate
-import nl.info.zac.app.klant.model.contactdetails.ContactDetails
 import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.mail.MailService
