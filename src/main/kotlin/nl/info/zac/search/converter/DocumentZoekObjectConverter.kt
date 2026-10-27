@@ -121,7 +121,6 @@ class DocumentZoekObjectConverter @Inject constructor(
             registratiedatum = convertToDate(informatieobject.beginRegistratie.toZonedDateTime())
             ontvangstdatum = informatieobject.ontvangstdatum?.let(::convertToDate)
             verzenddatum = informatieobject.verzenddatum?.let(::convertToDate)
-            ondertekeningDatum = informatieobject.ontvangstdatum?.let(::convertToDate)
             // we use the name of this enum in the search index
             vertrouwelijkheidaanduiding = informatieobject.vertrouwelijkheidaanduiding.name
             auteur = informatieobject.auteur
