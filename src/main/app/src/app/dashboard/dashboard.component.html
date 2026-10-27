@@ -3,7 +3,7 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div class="flex-row justify-end items-start">
+<div class="flex-row justify-end items-center">
   <mat-slide-toggle
     class="mode-slider"
     color="primary"
@@ -45,7 +45,7 @@
   cdkDropListGroup
 >
   @for (column of grid; track column) {
-    @if (editMode.value || 0 < column.length) {
+    @if ((editMode.value && !showHint) || 0 < column.length) {
       <div
         class="grid-column-{{ editMode.value ? '3' : columnsInDashboard }}"
         cdkDropList
