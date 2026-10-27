@@ -58,7 +58,6 @@ import {
 
 @Component({
   templateUrl: "./parameters-edit.component.html",
-  styleUrl: "./parameters-edit.component.less",
   standalone: true,
   imports: [
     MatProgressSpinnerModule,

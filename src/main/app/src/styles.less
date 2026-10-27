@@ -257,6 +257,47 @@ zac-date-filter .date-filter.mat-expansion-panel .mat-expansion-panel-body {
   padding: 0;
 }
 
+// Date fields in the date filter and the betrokkene filter of zac-zoeken
+zac-date-filter .datepicker-content .mat-mdc-form-field-flex,
+zac-zaak-betrokkene-filter .zaak-betrokkene-filter .mat-mdc-form-field-flex {
+  padding-top: 0;
+}
+
+// Suffix text ("kalenderdagen") in the form fields of ParametersEditComponent
+.parameters-stepper .mat-mdc-form-field-icon-suffix {
+  color: var(--mat-form-field-filled-label-text-color);
+  align-self: inherit;
+  padding: 0 20px 0 10px;
+}
+
+// Filter fields in the table header of the inbox-documenten and zaken-afgehandeld werklijsten
+.inbox-documenten-list,
+.zaken-afgehandeld {
+  .mat-mdc-header-cell .mat-mdc-form-field-infix {
+    width: auto;
+  }
+}
+
+.inbox-documenten-list .mat-mdc-header-cell {
+  .mat-date-range-input-container {
+    min-width: 170px;
+  }
+
+  .mat-date-range-input-end-wrapper {
+    width: 0;
+  }
+}
+
+// Label of zac-toggle stretches, so the toggle sits at the far end
+zac-toggle [mat-internal-form-field] {
+  display: flex;
+  flex-grow: 1;
+
+  label {
+    flex-grow: 1;
+  }
+}
+
 .mat-mdc-select,
 .mat-mdc-option {
   font-size: 12px;
