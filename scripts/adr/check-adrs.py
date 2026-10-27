@@ -98,6 +98,12 @@ def check_supersession_links(adrs: dict[str, tuple[Path, dict[str, str], str]]) 
         successor = adrs.get(front_matter.get("superseded-by", ""))
         if successor and successor[1].get("supersedes") != number:
             errors.append(f"{path}: ADR {front_matter['superseded-by']} must have 'supersedes: {number}'")
+        chain = [number]
+        while (next_number := adrs[chain[-1]][1].get("superseded-by")) in adrs:
+            if next_number in chain:
+                errors.append(f"{path}: the 'superseded-by' chain {' -> '.join(chain + [next_number])} is a cycle")
+                break
+            chain.append(next_number)
     return errors
 
 
