@@ -2,8 +2,8 @@
 # SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-# Pilot: an AI agent tests yesterday's merges on the dev environment and posts a short summary to Slack.
-# See .github/qa/README.md.
+# Pilot: an AI agent (infonl/info-qa-agent) tests yesterday's merges on the dev environment and posts a
+# short summary to Slack. What it knows about ZAC is in .qa-agent/.
 name: QA Agent
 
 on:
@@ -43,6 +43,10 @@ permissions:
   # Copilot CLI requests are billed to the organization through the workflow token.
   copilot-requests: write
 
+env:
+  SCOPE: ${{ inputs.scope || vars.QA_AGENT_SCOPE || 'yesterday' }}
+  MODEL: ${{ inputs.model || vars.QA_AGENT_MODEL || 'claude-haiku-5.5' }}
+
 jobs:
   qa-agent:
     name: "QA Agent"
@@ -50,35 +54,20 @@ jobs:
     timeout-minutes: 60
     environment: azure-dimpact-dta
     outputs:
-      pr_count: ${{ steps.gather.outputs.pr_count }}
-    env:
-      SCOPE: ${{ inputs.scope || vars.QA_AGENT_SCOPE || 'yesterday' }}
-      MODEL: ${{ inputs.model || vars.QA_AGENT_MODEL || 'claude-haiku-5.5' }}
-      LANGUAGE: ${{ vars.QA_AGENT_LANGUAGE || 'English' }}
-      JIRA_BASE_URL: https://dimpact.atlassian.net
+      pr-count: ${{ steps.qa.outputs.pr-count }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # gather.sh reads the diffs from the merge commits.
+          # The agent reads the diffs from the merge commits.
           fetch-depth: 0
 
-      - name: Gather merged PRs and Jira tickets
-        id: gather
-        run: bash .github/qa/gather.sh
-        env:
-          GH_TOKEN: ${{ github.token }}
-          JIRA_EMAIL: ${{ secrets.QA_AGENT_JIRA_EMAIL }}
-          JIRA_API_TOKEN: ${{ secrets.QA_AGENT_JIRA_API_TOKEN }}
-
       - name: Login to Azure
-        if: steps.gather.outputs.pr_count != '0'
         uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3.1.0
         with:
           creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
 
       - name: Allow this runner through the dev environment firewall
         id: firewall
-        if: steps.gather.outputs.pr_count != '0'
         uses: azure/cli@9eb25b8360668fb0ecbafa808d40e2197b2f5f52 # v3.0.0
         with:
           azcliversion: latest
@@ -90,84 +79,28 @@ jobs:
       # Tests written by the agent can run any program, including the Azure CLI, so no Azure session may
       # be left on the runner while they run. The firewall rule is removed with a new login at the end.
       - name: Sign out of Azure
-        if: always() && steps.firewall.outcome != 'skipped'
+        if: always()
         run: az account clear
 
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        if: steps.gather.outputs.pr_count != '0'
-        with:
-          node-version-file: .nvmrc
-
-      - name: Install Playwright and Copilot CLI
-        if: steps.gather.outputs.pr_count != '0'
-        run: |
-          cd src/e2e && npm ci --ignore-scripts && npx playwright install --with-deps chromium
-          npm install -g @github/copilot@1.0.103
-
-      - name: Check that the dev environment is up
-        if: steps.gather.outputs.pr_count != '0'
-        run: curl -sS -o /dev/null --fail --max-time 30 --retry 3 "$ZAC_URL"
-        env:
-          ZAC_URL: ${{ secrets.ZAC_URL }}
-
       - name: Run the QA agent
-        if: steps.gather.outputs.pr_count != '0'
-        continue-on-error: true
-        # Started in src/e2e, so the one allowed command is a plain "npm run qa-agent"; --add-dir gives
-        # the agent the rest of the repository.
-        working-directory: src/e2e
+        id: qa
+        uses: infonl/info-qa-agent@a79647ba00ab6e46d369186484a481211e392823 # TEMPORARY: feature/initial-version
+        with:
+          app-url: ${{ secrets.ZAC_URL }}
+          scope: ${{ env.SCOPE }}
+          model: ${{ env.MODEL }}
+          language: ${{ vars.QA_AGENT_LANGUAGE || 'English' }}
+          locale: nl-NL
+          app-paths: "^src/main/(?!resources/api-specs/)"
+          jira-base-url: https://dimpact.atlassian.net
+          jira-project-keys: PZ
+          jira-email: ${{ secrets.QA_AGENT_JIRA_EMAIL }}
+          jira-api-token: ${{ secrets.QA_AGENT_JIRA_API_TOKEN }}
         env:
-          GITHUB_TOKEN: ${{ github.token }}
-          ZAC_URL: ${{ secrets.ZAC_URL }}
           E2E_TEST_USER_1_USERNAME: ${{ secrets.ZAC_E2E_TEST_USER_1_USERNAME }}
           E2E_TEST_USER_1_PASSWORD: ${{ secrets.ZAC_E2E_TEST_USER_1_PASSWORD }}
           E2E_TEST_USER_2_USERNAME: ${{ secrets.ZAC_E2E_TEST_USER_2_USERNAME }}
           E2E_TEST_USER_2_PASSWORD: ${{ secrets.ZAC_E2E_TEST_USER_2_PASSWORD }}
-          SINCE: ${{ steps.gather.outputs.since }}
-          UNTIL: ${{ steps.gather.outputs.until }}
-        # Copilot CLI can only allow file writes as a whole, not per folder. So the later steps restore what
-        # they run from git, the Slack webhook lives in the separate report job, and the job cannot push.
-        run: |
-          mkdir -p "$GITHUB_WORKSPACE/qa-output"
-          copilot -p "Run a QA pass for the PRs merged into main from $SINCE to $UNTIL.
-          The repository root is $GITHUB_WORKSPACE; all paths in the instructions are relative to it.
-          Read $GITHUB_WORKSPACE/.github/qa/QA_INSTRUCTIONS.md and follow it.
-          The gathered context is in $GITHUB_WORKSPACE/qa-context/manifest.md.
-          Write the Slack message in $LANGUAGE.
-          You are done when qa-output/report.md exists and npm run qa-agent:check passes." \
-            --add-dir "$GITHUB_WORKSPACE" \
-            --model "$MODEL" \
-            --allow-tool='write, shell(npm run:*)' \
-            --no-ask-user \
-            --no-custom-instructions \
-            --disable-builtin-mcps \
-            --no-auto-update \
-            --usage-output-file "$GITHUB_WORKSPACE/qa-output/copilot-usage.json" \
-            --share "$GITHUB_WORKSPACE/qa-output/session.md"
-
-      - name: Abort the zaken the QA agent created
-        if: always() && steps.gather.outputs.pr_count != '0'
-        continue-on-error: true
-        env:
-          ZAC_URL: ${{ secrets.ZAC_URL }}
-          E2E_TEST_USER_1_USERNAME: ${{ secrets.ZAC_E2E_TEST_USER_1_USERNAME }}
-          E2E_TEST_USER_1_PASSWORD: ${{ secrets.ZAC_E2E_TEST_USER_1_PASSWORD }}
-        # The cleanup comes from git, not from the files the agent may have changed.
-        run: |
-          git checkout HEAD -- src/e2e/package.json src/e2e/qa-agent/helpers.ts src/e2e/qa-agent/cleanup.config.ts src/e2e/qa-agent/cleanup
-          cd src/e2e && npm run qa-agent:cleanup
-
-      - name: Upload screenshots, traces and tests
-        if: always() && steps.gather.outputs.pr_count != '0'
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: qa-agent-${{ github.run_id }}
-          retention-days: 14
-          path: |
-            qa-output/
-            qa-context/manifest.md
-            qa-context/skipped.json
-            src/e2e/qa-agent/tests/
 
       - name: Login to Azure again
         if: always() && steps.firewall.outcome != 'skipped'
@@ -183,36 +116,20 @@ jobs:
           inlineScript: |
             az network nsg rule delete -g zac-infra --nsg-name k8s-test-nsg -n allow_qa_agent_runner
 
-  # The agent can write anywhere in its own checkout, so the Slack webhook is only used here, on a fresh
-  # runner whose scripts come from git and which only reads the report data from the artifact.
+  # The agent can write anywhere on its own runner, so the Slack webhook is only used here, on a fresh one.
   report:
     name: "Report"
     needs: qa-agent
-    if: always() && needs.qa-agent.outputs.pr_count != '0'
+    if: always() && needs.qa-agent.outputs.pr-count != '0'
     runs-on: ubuntu-26.04
     timeout-minutes: 10
     environment: azure-dimpact-dta
-    env:
-      SCOPE: ${{ inputs.scope || vars.QA_AGENT_SCOPE || 'yesterday' }}
-      MODEL: ${{ inputs.model || vars.QA_AGENT_MODEL || 'claude-haiku-5.5' }}
-      JIRA_BASE_URL: https://dimpact.atlassian.net
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: infonl/info-qa-agent/report@a79647ba00ab6e46d369186484a481211e392823 # TEMPORARY: feature/initial-version
         with:
-          sparse-checkout: .github/qa
-
-      - name: Download the report data
-        continue-on-error: true
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: qa-agent-${{ github.run_id }}
-
-      - name: Write the job summary
-        run: bash .github/qa/post-summary.sh
-
-      - name: Post to Slack
-        # Dispatch inputs are empty on scheduled runs, and an empty input compares equal to false.
-        if: github.event_name != 'workflow_dispatch' || inputs.post_to_slack
-        run: bash .github/qa/post-slack.sh
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.QA_AGENT_SLACK_WEBHOOK_URL }}
+          # Dispatch inputs are empty on scheduled runs, and an empty input compares equal to false.
+          slack-webhook-url: ${{ (github.event_name != 'workflow_dispatch' || inputs.post_to_slack) && secrets.QA_AGENT_SLACK_WEBHOOK_URL || '' }}
+          jira-base-url: https://dimpact.atlassian.net
+          jira-project-keys: PZ
+          scope: ${{ env.SCOPE }}
+          model: ${{ env.MODEL }}

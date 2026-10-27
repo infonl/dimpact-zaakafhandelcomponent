@@ -4,7 +4,7 @@
  */
 
 import { expect, test } from "@playwright/test";
-import { login } from "../helpers";
+import { login } from "./helpers";
 
 // ZAC cannot delete a zaak, so the zaken of the QA agent are aborted ("afgebroken"). They then leave the
 // werkvoorraden and the dashboard, but stay findable as afgehandelde zaken.

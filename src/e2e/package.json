@@ -11,10 +11,7 @@
     "e2e:generate:report": "node generate-report.mjs",
     "e2e:extract:metrics": "node extract-metrics.mjs",
     "bdd:ci": "npx bddgen && npx playwright test",
-    "bdd": "npx bddgen && npx playwright test --ui",
-    "qa-agent": "playwright test -c qa-agent/playwright.config.ts",
-    "qa-agent:check": "node qa-agent/check-results.mjs",
-    "qa-agent:cleanup": "playwright test -c qa-agent/cleanup.config.ts"
+    "bdd": "npx bddgen && npx playwright test --ui"
   },
   "private": true,
   "dependencies": {
@@ -26,7 +23,7 @@
     "@playwright/test": "1.64.1",
     "@types/node": "24.19.2",
     "multiple-cucumber-html-reporter": "4.5.0",
-    "dotenv": "18.0.8",
+    "dotenv": "18.0.9",
     "playwright-bdd": "9.2.1",
     "ts-node": "10.9.2",
     "typescript": "5.9.3"

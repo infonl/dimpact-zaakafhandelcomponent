@@ -73,5 +73,4 @@ check-for-running-containers.sh
 scripts/bruno/collections/zaakafhandelcomponent_backend_api/rest/
 
 ### QA Agent run ###
-qa-context/
-qa-output/
+.qa-agent-run/

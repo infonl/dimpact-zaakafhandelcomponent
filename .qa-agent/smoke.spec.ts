@@ -4,7 +4,7 @@
  */
 
 import { expect, test } from "@playwright/test";
-import { login } from "../helpers";
+import { login } from "./helpers";
 
 test("smoke: Bob logs in and sees the dashboard", async ({ page }) => {
   await login(page, "bob");

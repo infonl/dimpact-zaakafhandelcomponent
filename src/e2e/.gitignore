@@ -67,6 +67,3 @@ user.json
 
 # playwright-bdd
 .features-gen/
-# Tests written by the QA Agent run; they are kept as run artifacts, not in git
-/qa-agent/tests/*
-!/qa-agent/tests/smoke.spec.ts
