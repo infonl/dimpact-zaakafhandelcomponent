@@ -47,7 +47,7 @@ import nl.info.zac.search.model.ZaakIndicatie.HOOFDZAAK
 import nl.info.zac.search.model.ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD
 import nl.info.zac.search.model.ZaakIndicatie.OPSCHORTING
 import nl.info.zac.search.model.ZaakIndicatie.VERLENGD
-import nl.info.zac.util.time.PeriodUtil
+import nl.info.zac.util.time.format
 import nl.info.zac.zaak.ZaakService
 import java.time.Period
 import java.util.EnumSet.noneOf
@@ -132,7 +132,7 @@ class RestZaakConverter @Inject constructor(
             communicatiekanaal = zaak.communicatiekanaalNaam,
             // 'duur' has the ISO-8601 period format ('P(n)Y(n)M(n)D') in the ZGW ZRC API,
             // so we use [Period.parse] to convert the duration string to a [Period] object
-            duurVerlenging = if (zaak.isVerlengd()) PeriodUtil.format(Period.parse(zaak.verlenging.duur)) else null,
+            duurVerlenging = if (zaak.isVerlengd()) Period.parse(zaak.verlenging.duur).format() else null,
             hasEerdereOpschorting = zaak.opschorting?.eerdereOpschorting ?: false,
             einddatum = zaak.einddatum,
             einddatumGepland = zaak.einddatumGepland,

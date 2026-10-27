@@ -32,7 +32,7 @@ fun Set<RestMappedSmartDocumentsTemplateGroup>.toSmartDocumentsTemplateGroupSet(
     }
 
 fun Set<SmartDocumentsTemplateGroup>.toRestSmartDocumentsTemplateGroup(): Set<RestMappedSmartDocumentsTemplateGroup> =
-    this.mapTo(mutableSetOf()) { convertTemplateGroupToRest(it) }
+    this.mapTo(mutableSetOf(), SmartDocumentsTemplateGroup::toRestMappedSmartDocumentsTemplateGroup)
 
 private fun createModelTemplateGroup(
     smartDocumentsTemplateGroup: RestMappedSmartDocumentsTemplateGroup,
@@ -70,14 +70,12 @@ private fun convertTemplateGroupToStringRepresentation(
 
 private const val PLACEHOLDER_NAME_REPLACED_BY_RESOLVE_CURRENT_NAMES = ""
 
-private fun convertTemplateGroupToRest(
-    group: SmartDocumentsTemplateGroup
-): RestMappedSmartDocumentsTemplateGroup =
+private fun SmartDocumentsTemplateGroup.toRestMappedSmartDocumentsTemplateGroup(): RestMappedSmartDocumentsTemplateGroup =
     RestMappedSmartDocumentsTemplateGroup(
-        id = group.smartDocumentsId,
+        id = smartDocumentsId,
         name = PLACEHOLDER_NAME_REPLACED_BY_RESOLVE_CURRENT_NAMES,
-        groups = group.children?.map { convertTemplateGroupToRest(it) }?.toSet(),
-        templates = group.templates?.map {
+        groups = children?.map { it.toRestMappedSmartDocumentsTemplateGroup() }?.toSet(),
+        templates = templates?.map {
             RestMappedSmartDocumentsTemplate(
                 id = it.smartDocumentsId,
                 name = PLACEHOLDER_NAME_REPLACED_BY_RESOLVE_CURRENT_NAMES,

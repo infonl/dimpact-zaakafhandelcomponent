@@ -35,7 +35,7 @@ import nl.info.zac.mailtemplates.model.MailTemplateVariables
 import nl.info.zac.mailtemplates.model.MailTemplateVariables.Companion.ZAAKDATA_VARIABLE_PREFIX
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.time.convertToLocalDate
+import nl.info.zac.util.time.toLocalDate
 import org.apache.commons.text.StringEscapeUtils
 import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo
@@ -170,7 +170,7 @@ class MailTemplateHelper @Inject constructor(
             resolvedTekst = replaceVariable(
                 resolvedTekst,
                 MailTemplateVariables.TAAK_FATALEDATUM,
-                convertToLocalDate(it).format(DATE_FORMATTER)
+                it.toLocalDate().format(DATE_FORMATTER)
             )
         }
         if (resolvedTekst.contains(MailTemplateVariables.TAAK_BEHANDELAAR_GROEP.getVariable())) {

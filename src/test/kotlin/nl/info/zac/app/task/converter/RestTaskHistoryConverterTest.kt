@@ -17,7 +17,7 @@ import nl.info.zac.history.model.toValue
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.task.TaskHistoryService
-import nl.info.zac.util.time.convertToLocalDate
+import nl.info.zac.util.time.toLocalDate
 import org.flowable.task.api.history.HistoricTaskLogEntryType
 import org.flowable.task.service.impl.persistence.entity.HistoricTaskLogEntryEntityImpl
 import java.util.Date
@@ -172,8 +172,8 @@ class RestTaskHistoryConverterTest : BehaviorSpec({
             then("the line contains the previous and new due dates") {
                 historieRegels.first().let { line ->
                     line.attribuutLabel shouldBe RestTaskHistoryConverter.FATALEDATUM_ATTRIBUUT_LABEL
-                    line.oudeWaarde shouldBe convertToLocalDate(Date(previousDueDateMillis)).toValue()
-                    line.nieuweWaarde shouldBe convertToLocalDate(Date(newDueDateMillis)).toValue()
+                    line.oudeWaarde shouldBe Date(previousDueDateMillis).toLocalDate().toValue()
+                    line.nieuweWaarde shouldBe Date(newDueDateMillis).toLocalDate().toValue()
                     line.toelichting shouldBe null
                 }
             }

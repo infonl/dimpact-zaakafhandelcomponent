@@ -8,4 +8,4 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
-fun LocalDate.convertToDateTime(): ZonedDateTime = atStartOfDay(ZoneId.systemDefault())
+fun LocalDate.toZonedDateTime(): ZonedDateTime = atStartOfDay(ZoneId.systemDefault())

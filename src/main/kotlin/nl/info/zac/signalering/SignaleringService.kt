@@ -372,7 +372,7 @@ class SignaleringService @Inject constructor(
             mailService.sendMail(
                 MailGegevens(
                     from = mailService.getGemeenteMailAdres(),
-                    to = formatTo(mail),
+                    to = mail.toMailAdres(),
                     subject = mailTemplate.onderwerp,
                     body = mailTemplate.body,
                     vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR

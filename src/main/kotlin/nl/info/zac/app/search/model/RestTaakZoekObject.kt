@@ -11,7 +11,7 @@ import nl.info.zac.app.task.model.TaakStatus
 import nl.info.zac.policy.output.TaakRechten
 import nl.info.zac.search.model.zoekobject.TaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
-import nl.info.zac.util.time.convertToLocalDate
+import nl.info.zac.util.time.toLocalDate
 import java.time.LocalDate
 
 data class RestTaakZoekObject(
@@ -50,9 +50,9 @@ fun TaakZoekObject.toRestTaakZoekObject(taakRechten: TaakRechten) = RestTaakZoek
     naam = this@toRestTaakZoekObject.naam,
     status = this@toRestTaakZoekObject.getStatus(),
     toelichting = this@toRestTaakZoekObject.toelichting,
-    creatiedatum = this@toRestTaakZoekObject.creatiedatum?.let(::convertToLocalDate),
-    toekenningsdatum = this@toRestTaakZoekObject.toekenningsdatum?.let(::convertToLocalDate),
-    fataledatum = this@toRestTaakZoekObject.fataledatum?.let(::convertToLocalDate),
+    creatiedatum = this@toRestTaakZoekObject.creatiedatum?.toLocalDate(),
+    toekenningsdatum = this@toRestTaakZoekObject.toekenningsdatum?.toLocalDate(),
+    fataledatum = this@toRestTaakZoekObject.fataledatum?.toLocalDate(),
     groepID = this@toRestTaakZoekObject.groepID,
     groepNaam = this@toRestTaakZoekObject.groepNaam,
     behandelaarNaam = this@toRestTaakZoekObject.behandelaarNaam,

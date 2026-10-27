@@ -24,8 +24,8 @@ import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.task.model.BpmnTaskFormData
-import nl.info.zac.util.time.convertToDate
-import nl.info.zac.util.time.convertToLocalDate
+import nl.info.zac.util.time.toDate
+import nl.info.zac.util.time.toLocalDate
 import org.flowable.task.api.Task
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -73,7 +73,7 @@ class BpmnTaskFormRuntimeService @Inject constructor(
                     description = it
                 }
                 bpmnTaskFormData.taakFataleDatum?.let {
-                    dueDate = convertToDate(it)
+                    dueDate = it.toDate()
                 }
             }
             submittedTask = flowableTaskService.updateTask(submittedTask)
@@ -81,7 +81,7 @@ class BpmnTaskFormRuntimeService @Inject constructor(
         if (bpmnTaskFormData.shouldZaakOpschorten && !zaak.isOpgeschort()) {
             suspensionZaakHelper.suspendZaak(
                 zaak,
-                ChronoUnit.DAYS.between(LocalDate.now(), convertToLocalDate(submittedTask.dueDate!!)),
+                ChronoUnit.DAYS.between(LocalDate.now(), submittedTask.dueDate.toLocalDate()),
                 restTask.formioFormulier?.getString(FORMIO_TITLE, null)
             )
         }
