@@ -1,7 +1,7 @@
 ---
 status: accepted
 date: 2026-10-27
-decision-makers: Team Genève
+decision-makers: Dimpact architecture team, Team Genève, PodiumD Zaak product owner
 tags: [websocket, notifications, frontend, backend, architecture]
 ---
 
@@ -20,8 +20,7 @@ tasks from the task work queue does not have this problem: ZAC sends a screen ev
 itself, without waiting for notifications.
 
 ZAC already knows that a change has succeeded as soon as the external system confirms it with a successful response,
-such as `200 OK` or `201 Created`. How should ZAC update the UI after a change it initiated itself?
-See [PZ-13284](https://dimpact.atlassian.net/browse/PZ-13284).
+such as `200 OK` or `201 Created`.
 
 ## Decision Drivers
 
