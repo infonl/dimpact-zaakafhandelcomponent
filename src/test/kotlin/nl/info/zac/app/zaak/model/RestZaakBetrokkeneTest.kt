@@ -20,7 +20,7 @@ import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createRolVestiging
 import nl.info.client.zgw.zrc.model.RolMedewerker
 import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie
-import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.identification.IdentificatieType
 import nl.info.zac.identification.IdentificationService
 import java.util.UUID
 

@@ -8,7 +8,7 @@ import jakarta.validation.Constraint
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 import jakarta.validation.Payload
-import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.identification.IdentificatieType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.jetbrains.annotations.NotNull
