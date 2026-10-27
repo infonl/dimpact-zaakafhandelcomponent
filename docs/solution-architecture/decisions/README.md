@@ -15,6 +15,7 @@ and its consequences. See [ADR-0007](0007-record-architecture-decisions-in-git-a
 | [0005](0005-use-renovate-for-dependency-updates.md)                      | Use Renovate for automated dependency updates                            | accepted | Renovate replaces Dependabot for all dependency updates.                                               |
 | [0006](0006-accept-outdated-jackson-in-flowable-until-flowable-8-1.md)   | Accept the outdated Jackson component in Flowable until Flowable 8.1     | accepted | The Jackson warnings in Flowable 8.0.0 are an accepted risk until Flowable 8.1.                        |
 | [0007](0007-record-architecture-decisions-in-git-as-madr.md)             | Record architecture decisions in Git as MADR                             | accepted | Architecture decisions are MADR files in `docs/solution-architecture/decisions`, reviewed in pull requests.                        |
+| [0008](0008-update-the-ui-without-waiting-for-notifications-on-zac-initiated-changes.md) | Update the UI without waiting for notifications on changes that ZAC initiates | accepted | ZAC sends screen events as soon as an external system confirms a change that ZAC initiated.            |
 
 ## When to write an ADR
 
