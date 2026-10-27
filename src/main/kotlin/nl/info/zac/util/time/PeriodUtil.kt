@@ -8,24 +8,22 @@ import java.time.LocalDateTime
 import java.time.Period
 import java.time.temporal.ChronoUnit
 
-object PeriodUtil {
-    fun format(period: Period): String = when (period) {
-        Period.ZERO -> "0 dagen"
-        else -> listOfNotNull(
-            formatUnit(amount = period.years, singular = "jaar", plural = "jaren"),
-            formatUnit(amount = period.months, singular = "maand", plural = "maanden"),
-            formatUnit(amount = period.days, singular = "dag", plural = "dagen")
-        ).joinToString(", ")
-    }
+fun Period.format(): String = when (this) {
+    Period.ZERO -> "0 dagen"
+    else -> listOfNotNull(
+        formatUnit(amount = years, singular = "jaar", plural = "jaren"),
+        formatUnit(amount = months, singular = "maand", plural = "maanden"),
+        formatUnit(amount = days, singular = "dag", plural = "dagen")
+    ).joinToString(", ")
+}
 
-    fun numberOfDaysFromToday(period: Period): Int {
-        val start = LocalDateTime.now()
-        return start.until(start.plus(period), ChronoUnit.DAYS).toInt()
-    }
+fun Period.numberOfDaysFromToday(): Int {
+    val start = LocalDateTime.now()
+    return start.until(start.plus(this), ChronoUnit.DAYS).toInt()
+}
 
-    private fun formatUnit(amount: Int, singular: String, plural: String): String? = when (amount) {
-        0 -> null
-        -1, 1 -> "$amount $singular"
-        else -> "$amount $plural"
-    }
+private fun formatUnit(amount: Int, singular: String, plural: String): String? = when (amount) {
+    0 -> null
+    -1, 1 -> "$amount $singular"
+    else -> "$amount $plural"
 }

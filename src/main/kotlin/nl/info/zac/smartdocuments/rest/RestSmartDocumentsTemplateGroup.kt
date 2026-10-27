@@ -40,16 +40,14 @@ private fun convertTemplateGroupToStringRepresentation(
 
 fun SmartDocumentsTemplatesResponse.toRestSmartDocumentsTemplateGroupSet(): Set<RestSmartDocumentsTemplateGroup> =
     this.documentsStructure.templatesStructure.templateGroups
-        .mapTo(mutableSetOf()) { convertTemplateGroupResponseToRest(it) }
+        .mapTo(mutableSetOf(), SmartDocumentsResponseTemplateGroup::toRestSmartDocumentsTemplateGroup)
 
-private fun convertTemplateGroupResponseToRest(
-    group: SmartDocumentsResponseTemplateGroup
-): RestSmartDocumentsTemplateGroup =
+private fun SmartDocumentsResponseTemplateGroup.toRestSmartDocumentsTemplateGroup(): RestSmartDocumentsTemplateGroup =
     RestSmartDocumentsTemplateGroup(
-        id = group.id,
-        name = group.name,
-        groups = group.templateGroups?.map { convertTemplateGroupResponseToRest(it) }?.toSet(),
-        templates = group.templates?.map { RestSmartDocumentsTemplate(it.id, it.name) }?.toSet()
+        id = id,
+        name = name,
+        groups = templateGroups?.map { it.toRestSmartDocumentsTemplateGroup() }?.toSet(),
+        templates = templates?.map { RestSmartDocumentsTemplate(it.id, it.name) }?.toSet()
     )
 
 fun Set<RestSmartDocumentsTemplateGroup>.group(groupName: String) =

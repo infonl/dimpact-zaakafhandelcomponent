@@ -61,4 +61,4 @@ class SignaleringMailHelper @Inject constructor(
         )
 }
 
-fun formatTo(mail: SignaleringTarget.Mail): MailAdres = MailAdres(mail.emailadres, mail.naam)
+fun SignaleringTarget.Mail.toMailAdres() = MailAdres(emailadres, naam)
