@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+@import "../../../variables";
+
 .mat-toolbar {
   display: flex;
   gap: 16px;
@@ -29,4 +31,16 @@ button {
 .username {
   font-size: 12px;
   line-height: 16px;
+}
+
+.search-field {
+  --mat-form-field-filled-container-color: rgba(255, 255, 255, 0.25);
+  --mat-form-field-filled-input-text-color: @body-foreground-color;
+
+  &:has(input:focus),
+  &:has(input:not(:placeholder-shown)) {
+    mat-label {
+      color: @body-foreground-color;
+    }
+  }
 }
