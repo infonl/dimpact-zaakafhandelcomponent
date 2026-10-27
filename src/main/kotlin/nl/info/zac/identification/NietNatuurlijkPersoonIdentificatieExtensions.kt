@@ -7,7 +7,6 @@ package nl.info.zac.identification
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
-import nl.info.zac.app.klant.model.klant.IdentificatieType
 
 /**
  * The 'niet_natuurlijk_persoon' role type is used both for rechtspersonen and for vestigingen.
