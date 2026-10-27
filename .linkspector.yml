@@ -18,3 +18,4 @@ ignorePatterns:
   - pattern: '^https?://localhost'
   - pattern: '^https?://.+\.example\.com'
   - pattern: '^http://release-opa\.default\.svc\.cluster\.local:8181$'
+  - pattern: '^https://dimpact\.atlassian\.net/'
