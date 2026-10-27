@@ -2,7 +2,7 @@
 
 This directory contains the Architecture Decision Records (ADRs) of ZAC, in the [MADR 4](https://adr.github.io/madr/)
 format. An ADR records one architecturally significant decision: its context, the options considered, the outcome
-and its consequences. See [ADR-0010](0010-record-architecture-decisions-in-git-as-madr.md) for why we use them.
+and its consequences. See [ADR-0009](0009-record-architecture-decisions-in-git-as-madr.md) for why we use them.
 
 ## Index
 
@@ -14,10 +14,9 @@ and its consequences. See [ADR-0010](0010-record-architecture-decisions-in-git-a
 | [0004](0004-use-spotless-with-minimal-editorconfig.md)                   | Use Spotless with a minimal .editorconfig file to define code formatting rules | accepted | Spotless formats all languages; `.editorconfig` stays minimal; Detekt stays for analysis.         |
 | [0005](0005-use-trivy-and-snyk-for-docker-image-scanning.md)             | Use Trivy and Snyk for Docker image scanning                             | accepted | Trivy scans the Docker image per pull request; Snyk scans it on a schedule.                            |
 | [0006](0006-keep-current-iam-architecture-for-mvp.md)                    | Keep the current IAM architecture for the ZAC MVP                        | accepted | Keycloak for authentication and roles; group memberships stay in LDAP.                                 |
-| [0007](0007-use-flipt-as-feature-flag-framework.md)                      | Use Flipt as feature flag framework                                      | proposed | Flipt, used through the OpenFeature API, for feature flags.                                            |
-| [0008](0008-use-renovate-for-dependency-updates.md)                      | Use Renovate for automated dependency updates                            | accepted | Renovate replaces Dependabot for all dependency updates.                                               |
-| [0009](0009-accept-outdated-jackson-in-flowable-until-flowable-8-1.md)   | Accept the outdated Jackson component in Flowable until Flowable 8.1     | accepted | The Jackson warnings in Flowable 8.0.0 are an accepted risk until Flowable 8.1.                        |
-| [0010](0010-record-architecture-decisions-in-git-as-madr.md)             | Record architecture decisions in Git as MADR                             | accepted | Architecture decisions are MADR files in `docs/adr`, reviewed in pull requests.                        |
+| [0007](0007-use-renovate-for-dependency-updates.md)                      | Use Renovate for automated dependency updates                            | accepted | Renovate replaces Dependabot for all dependency updates.                                               |
+| [0008](0008-accept-outdated-jackson-in-flowable-until-flowable-8-1.md)   | Accept the outdated Jackson component in Flowable until Flowable 8.1     | accepted | The Jackson warnings in Flowable 8.0.0 are an accepted risk until Flowable 8.1.                        |
+| [0009](0009-record-architecture-decisions-in-git-as-madr.md)             | Record architecture decisions in Git as MADR                             | accepted | Architecture decisions are MADR files in `docs/adr`, reviewed in pull requests.                        |
 
 ## When to write an ADR
 
