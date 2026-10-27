@@ -154,6 +154,12 @@ module.exports = {
       rules: {
         "@angular-eslint/template/prefer-control-flow": "error",
         "@angular-eslint/template/prefer-at-else": "error",
+        "@angular-eslint/template/eqeqeq": "error",
+        "@angular-eslint/template/no-autofocus": "error",
+        "@angular-eslint/template/label-has-associated-control": "error",
+        "@angular-eslint/template/click-events-have-key-events": "error",
+        "@angular-eslint/template/interactive-supports-focus": "error",
+        "@angular-eslint/template/elements-content": "error",
       },
     },
   ],

@@ -41,10 +41,9 @@ describe("buildBedrijfRouteLink", () => {
   });
 
   it("throws for an unknown bedrijf type", () => {
-    const bedrijf = Object.assign(
-      fromPartial<GeneratedType<"RestBedrijf">>({ identificatieType: "BSN" }),
-      { temporaryPersonId: "some-uuid" },
-    );
+    const bedrijf = fromPartial<
+      GeneratedType<"RestBedrijf"> & { temporaryPersonId: string }
+    >({ identificatieType: "BSN", temporaryPersonId: "some-uuid" });
 
     expect(() => buildBedrijfRouteLink(bedrijf)).toThrow(
       "Unknown bedrijf type",
