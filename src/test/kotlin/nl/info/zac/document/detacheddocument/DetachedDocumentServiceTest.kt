@@ -18,8 +18,8 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
-import nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundException
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.document.detacheddocument.DetachedDocumentNotFoundException
 import nl.info.zac.document.detacheddocument.repository.DetachedDocumentRepository
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocumentListParameters

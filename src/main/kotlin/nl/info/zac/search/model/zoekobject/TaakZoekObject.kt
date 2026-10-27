@@ -4,8 +4,8 @@
  */
 package nl.info.zac.search.model.zoekobject
 
-import nl.info.zac.app.task.model.TaakStatus
-import nl.info.zac.app.task.model.TaakStatus.AFGEROND
+import nl.info.zac.task.model.TaakStatus
+import nl.info.zac.task.model.TaakStatus.AFGEROND
 import nl.info.zac.util.NoArgConstructor
 import org.apache.solr.client.solrj.beans.Field
 import java.util.Date

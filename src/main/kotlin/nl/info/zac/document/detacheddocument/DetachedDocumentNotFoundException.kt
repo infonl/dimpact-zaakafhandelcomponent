@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  *
  */
-package nl.info.zac.app.informatieobjecten.exception
+package nl.info.zac.document.detacheddocument
 
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_DETACHED_DOCUMENT_NOT_FOUND
 import nl.info.zac.exception.ServerErrorException

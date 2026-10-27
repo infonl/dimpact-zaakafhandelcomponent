@@ -31,7 +31,6 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.test.org.flowable.task.service.impl.persistence.entity.createHistoricTaskInstanceEntityImpl
-import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import nl.info.zac.app.informatieobjecten.model.RestFileUpload
 import nl.info.zac.app.model.createRESTUser
@@ -46,6 +45,7 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.FileSizeConfiguration
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.event.EventingService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException

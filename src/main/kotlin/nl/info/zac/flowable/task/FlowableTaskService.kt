@@ -7,12 +7,12 @@ package nl.info.zac.flowable.task
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import nl.info.zac.app.task.model.TaakSortering
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
 import nl.info.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.zac.flowable.task.model.ValueChangeData
 import nl.info.zac.flowable.util.isCmmnTask
 import nl.info.zac.shared.model.SorteerRichting
+import nl.info.zac.task.model.TaakSortering
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.FIELD_VISIBILITY_STRATEGY
 import nl.info.zac.util.NoArgConstructor

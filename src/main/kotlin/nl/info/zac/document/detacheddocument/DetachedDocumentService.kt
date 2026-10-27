@@ -13,8 +13,8 @@ import jakarta.transaction.Transactional.TxType.SUPPORTS
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundException
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.document.detacheddocument.DetachedDocumentNotFoundException
 import nl.info.zac.document.detacheddocument.repository.DetachedDocumentRepository
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocumentListParameters

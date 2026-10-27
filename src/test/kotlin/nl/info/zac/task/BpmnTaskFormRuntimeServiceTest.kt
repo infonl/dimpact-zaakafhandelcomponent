@@ -23,9 +23,9 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.test.org.flowable.task.api.createTestTask
-import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.app.task.model.createRestTask
 import nl.info.zac.app.zaak.model.createRestUser
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.task.TaakVariabelenService

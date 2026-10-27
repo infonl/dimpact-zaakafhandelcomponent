@@ -45,7 +45,6 @@ import nl.info.zac.app.exception.RestExceptionMapper
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
-import nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundException
 import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConversionException
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerplaatsGegevens
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerwijderenGegevens
@@ -64,11 +63,13 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.FileSizeConfiguration
 import nl.info.zac.document.content.DocumentContentReader
+import nl.info.zac.document.detacheddocument.DetachedDocumentNotFoundException
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.event.EventingService
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_DOCUMENT_UPLOAD_INVALID
 import nl.info.zac.exception.InputValidationFailedException

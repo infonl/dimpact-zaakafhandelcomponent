@@ -15,6 +15,7 @@ import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConversionException
 import nl.info.zac.configuration.FileSizeConfiguration
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.MediaTypes
 import nl.info.zac.util.NoArgConstructor

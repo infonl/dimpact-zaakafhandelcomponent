@@ -10,7 +10,6 @@ import jakarta.inject.Inject
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.task.model.RestTaskDistributeData
 import nl.info.zac.app.task.model.RestTaskReleaseData
-import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.event.EventingService
 import nl.info.zac.flowable.task.FlowableTaskService
@@ -25,6 +24,7 @@ import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
+import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import org.flowable.task.api.Task
 import org.flowable.task.api.TaskInfo
 import java.util.UUID

@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.app.informatieobjecten
+package nl.info.zac.enkelvoudiginformatieobject
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec

@@ -15,7 +15,6 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.zac.app.task.model.TaakStatus
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_UUID
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_IDENTIFICATIE
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
@@ -27,6 +26,7 @@ import nl.info.zac.search.ReindexSupportService
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.createZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.task.model.TaakStatus
 import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.Task
