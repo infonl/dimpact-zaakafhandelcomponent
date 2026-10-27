@@ -60,7 +60,7 @@ class NoteRestService @Inject constructor(
     fun createNote(restNote: RestNote): RestNote {
         assertPolicy(policyService.readNotitieRechten().canWijzigen)
         assertCanReadZaak(restNote.zaakUUID)
-        val notitie = noteService.createNote(restNote.toNote(employeeUsername = loggedInUserInstance.get().id))
+        val notitie = noteService.createNote(restNote.toNote(employeeUsername = loggedInUserInstance.get().username))
         eventingService.send(ScreenEventType.ZAAK_NOTITIES.updated(notitie.zaakUUID))
         return noteConverter.toRestNote(notitie)
     }
@@ -97,5 +97,5 @@ class NoteRestService @Inject constructor(
             .let { policyService.readZaakRechten(it, loggedInUserInstance.get()).canLezen }
             .let(::assertPolicy)
 
-    private fun assertIsAuthor(note: Note) = assertPolicy(note.employeeUsername == loggedInUserInstance.get().id)
+    private fun assertIsAuthor(note: Note) = assertPolicy(note.employeeUsername == loggedInUserInstance.get().username)
 }

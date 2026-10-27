@@ -40,7 +40,7 @@ class NoteRestServiceTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val zrcClientService = mockk<ZrcClientService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    val loggedInUser = createLoggedInUser(id = "fakeAuthor")
+    val loggedInUser = createLoggedInUser(username = "fakeAuthor")
     val noteRestService = NoteRestService(
         noteService = noteService,
         noteConverter = noteConverter,
@@ -101,7 +101,7 @@ class NoteRestServiceTest : BehaviorSpec({
                 result shouldBe createdRestNote
                 with(noteSlot.captured) {
                     zaakUUID shouldBe zaak.uuid
-                    employeeUsername shouldBe loggedInUser.id
+                    employeeUsername shouldBe loggedInUser.username
                 }
                 verify(exactly = 1) {
                     noteService.createNote(any())
@@ -115,7 +115,7 @@ class NoteRestServiceTest : BehaviorSpec({
         "A note written by the logged-in user on a zaak the user may read, and update data that changes the author and the zaak"
     ) {
         val zaak = createZaak()
-        val existingNote = createNote(id = 123L, zaakUUID = zaak.uuid, employeeUsername = loggedInUser.id)
+        val existingNote = createNote(id = 123L, zaakUUID = zaak.uuid, employeeUsername = loggedInUser.username)
         val originalZaakUUID = existingNote.zaakUUID
         val restNote = createRestNote(
             id = 123L,
@@ -140,7 +140,7 @@ class NoteRestServiceTest : BehaviorSpec({
                 result shouldBe updatedRestNote
                 with(existingNote) {
                     text shouldBe "fakeUpdatedText"
-                    employeeUsername shouldBe loggedInUser.id
+                    employeeUsername shouldBe loggedInUser.username
                     zaakUUID shouldBe originalZaakUUID
                 }
                 verify(exactly = 1) {
@@ -153,7 +153,7 @@ class NoteRestServiceTest : BehaviorSpec({
 
     given("A note written by another user and a user with permissions to update notes") {
         val existingNote = createNote(id = 123L, employeeUsername = "fakeOtherUser")
-        val restNote = createRestNote(id = 123L, employeeUsername = loggedInUser.id)
+        val restNote = createRestNote(id = 123L, employeeUsername = loggedInUser.username)
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readNotitieRechten().canWijzigen } returns true
         every { noteService.findNote(123L) } returns existingNote
@@ -246,7 +246,7 @@ class NoteRestServiceTest : BehaviorSpec({
     given("A note written by the logged-in user on a zaak the user may read, and a user with permissions to update notes") {
         val nodeId = 123L
         val zaak = createZaak()
-        val deletedNote = createNote(zaakUUID = zaak.uuid, employeeUsername = loggedInUser.id)
+        val deletedNote = createNote(zaakUUID = zaak.uuid, employeeUsername = loggedInUser.username)
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readNotitieRechten().canWijzigen } returns true
         every { noteService.findNote(nodeId) } returns deletedNote
@@ -269,8 +269,8 @@ class NoteRestServiceTest : BehaviorSpec({
 
     given("A note written by the logged-in user on a zaak the user may not read") {
         val zaak = createZaak()
-        val existingNote = createNote(id = 123L, zaakUUID = zaak.uuid, employeeUsername = loggedInUser.id)
-        val restNote = createRestNote(id = 123L, zaakUUID = zaak.uuid, employeeUsername = loggedInUser.id)
+        val existingNote = createNote(id = 123L, zaakUUID = zaak.uuid, employeeUsername = loggedInUser.username)
+        val restNote = createRestNote(id = 123L, zaakUUID = zaak.uuid, employeeUsername = loggedInUser.username)
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readNotitieRechten().canWijzigen } returns true
         every { noteService.findNote(123L) } returns existingNote
