@@ -21,6 +21,7 @@ import {
 import { groups } from "../support/worlds/groups";
 import { users } from "../support/worlds/users";
 import { CustomWorld } from "../support/worlds/world";
+import { chooseMaterialOption } from "../utils/material-select";
 import { worldUsers, zaakStatus } from "../utils/schemes";
 import {
   currentDutchTimestamp,
@@ -169,22 +170,16 @@ When(
       .getByRole("tabpanel", { name: "Gegevens" })
       .getByRole("button")
       .click();
-    await this.page.getByRole("combobox", { name: "Groep" }).click();
-    await this.page
-      .getByRole("option", { name: groupName, exact: true })
-      .click();
+    await chooseMaterialOption(
+      this.page.getByRole("combobox", { name: "Groep" }),
+      this.page.getByRole("option", { name: groupName, exact: true }),
+    );
 
     // The users fetched after a group change overwrite any behandelaar picked meanwhile.
-    await this.page.getByRole("combobox", { name: "Behandelaar" }).click();
-    const userOption = this.page.getByRole("option", {
-      name: userName,
-      exact: true,
-    });
-    await userOption.waitFor({
-      state: "visible",
-      timeout: FORTY_SECONDS_IN_MS,
-    });
-    await userOption.click();
+    await chooseMaterialOption(
+      this.page.getByRole("combobox", { name: "Behandelaar" }),
+      this.page.getByRole("option", { name: userName, exact: true }),
+    );
 
     await this.page
       .getByRole("textbox", { name: "Reden" })
@@ -217,17 +212,10 @@ When(
       : "Zaaktype voor e2e testen";
 
     await this.page.getByLabel("Zaak toevoegen").click();
-    // The panel stays closed when it is clicked before the zaaktypes have loaded.
-    const zaaktypeField = this.page.getByRole("combobox", {
-      name: "Zaaktype",
-    });
-    const zaaktypeOption = this.page.getByRole("option", {
-      name: zaakTypeName,
-    });
-    await this.expect(async () => {
-      await zaaktypeField.click();
-      await zaaktypeOption.click({ timeout: FIVE_SECONDS_IN_MS });
-    }).toPass({ timeout: FORTY_SECONDS_IN_MS });
+    await chooseMaterialOption(
+      this.page.getByRole("combobox", { name: "Zaaktype" }),
+      this.page.getByRole("option", { name: zaakTypeName }),
+    );
     await this.page
       .locator("div")
       .filter({ hasText: /^person$/ })
@@ -276,8 +264,10 @@ When(
         .click();
     }
 
-    await this.page.getByLabel("Communicatiekanaal").click();
-    await this.page.getByRole("option", { name: " E-mail " }).click();
+    await chooseMaterialOption(
+      this.page.getByRole("combobox", { name: "Communicatiekanaal" }),
+      this.page.getByRole("option", { name: " E-mail " }),
+    );
     // Openbaar should be automatically selected on openbaar
     await this.expect(this.page.getByText("Openbaar").first()).toBeVisible();
     // A timestamp with millisecond precision tells this zaak apart from every other one on a shared environment.
