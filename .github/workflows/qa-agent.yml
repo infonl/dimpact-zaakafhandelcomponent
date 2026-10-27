@@ -84,9 +84,13 @@ jobs:
 
       - name: Run the QA agent
         id: qa
-        uses: infonl/info-qa-agent@3b04517177eed9ee5eca6359ed5bb356949b8533 # main
+        uses: infonl/info-qa-agent@679bf9f51455b75e6a6f29cce6aff8b103b405e6 # TEMPORARY: feature/simpler-setup
         with:
           app-url: ${{ secrets.ZAC_URL }}
+          username: ${{ secrets.ZAC_E2E_TEST_USER_1_USERNAME }}
+          password: ${{ secrets.ZAC_E2E_TEST_USER_1_PASSWORD }}
+          username-2: ${{ secrets.ZAC_E2E_TEST_USER_2_USERNAME }}
+          password-2: ${{ secrets.ZAC_E2E_TEST_USER_2_PASSWORD }}
           scope: ${{ env.SCOPE }}
           model: ${{ env.MODEL }}
           language: ${{ vars.QA_AGENT_LANGUAGE || 'English' }}
@@ -96,11 +100,6 @@ jobs:
           jira-project-keys: PZ
           jira-email: ${{ secrets.QA_AGENT_JIRA_EMAIL }}
           jira-api-token: ${{ secrets.QA_AGENT_JIRA_API_TOKEN }}
-        env:
-          E2E_TEST_USER_1_USERNAME: ${{ secrets.ZAC_E2E_TEST_USER_1_USERNAME }}
-          E2E_TEST_USER_1_PASSWORD: ${{ secrets.ZAC_E2E_TEST_USER_1_PASSWORD }}
-          E2E_TEST_USER_2_USERNAME: ${{ secrets.ZAC_E2E_TEST_USER_2_USERNAME }}
-          E2E_TEST_USER_2_PASSWORD: ${{ secrets.ZAC_E2E_TEST_USER_2_PASSWORD }}
 
       - name: Login to Azure again
         if: always() && steps.firewall.outcome != 'skipped'
@@ -124,9 +123,14 @@ jobs:
     runs-on: ubuntu-26.04
     timeout-minutes: 10
     environment: azure-dimpact-dta
+    # Write access only for the draft PR with the agent's suggested improvements to .qa-agent/*.md.
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
-      - uses: infonl/info-qa-agent/report@3b04517177eed9ee5eca6359ed5bb356949b8533 # main
+      - uses: infonl/info-qa-agent/report@679bf9f51455b75e6a6f29cce6aff8b103b405e6 # TEMPORARY: feature/simpler-setup
         with:
+          suggest-instructions: true
           # Dispatch inputs are empty on scheduled runs, and an empty input compares equal to false.
           slack-webhook-url: ${{ (github.event_name != 'workflow_dispatch' || inputs.post_to_slack) && secrets.QA_AGENT_SLACK_WEBHOOK_URL || '' }}
           jira-base-url: https://dimpact.atlassian.net
