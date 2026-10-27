@@ -990,6 +990,7 @@
   "msg.vrijgeven.taken": "{{aantal}} taken vrijgeven?",
   "msg.vrijgegeven.taken": "{{aantal}} taken worden vrijgegeven...",
   "msg.vrijgegeven.taak": "De taak wordt vrijgegeven...",
+  "msg.verversen.mislukt": "Verversen mislukt. De getoonde gegevens zijn mogelijk niet actueel.",
   "msg.zaak.afgebroken": "Zaak is afgebroken",
   "msg.zaak.afgesloten": "Zaak is afgesloten",
   "msg.zaak.brondatum.gezet": "Brondatum is gezet",
