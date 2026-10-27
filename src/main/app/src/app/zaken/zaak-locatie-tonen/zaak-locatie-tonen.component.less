@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+@import "../zaak-locatie-map";
+
 .map-container {
   position: relative;
   margin: 0 5px;
@@ -13,31 +15,4 @@
 
 .open-layers-map {
   height: 310px;
-}
-
-.overlay {
-  font-weight: 500;
-  display: block;
-  width: fit-content;
-  height: 0;
-  overflow: visible;
-  position: relative;
-  z-index: 1;
-  left: 9px;
-  pointer-events: none;
-  --static-text-padding: 12px;
-  --static-text-border-radius: 6px;
-  --static-text-backdrop-filter: brightness(112.5%) saturate(75%) blur(2.5px);
-}
-
-.location-coordinates {
-  margin-bottom: 8px;
-
-  .mat-mdc-card-content {
-    display: flex;
-  }
-
-  zac-static-text {
-    text-align: center;
-  }
 }
