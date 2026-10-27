@@ -10,7 +10,8 @@ tags: [documentation, process, ai]
 ## Context and Problem Statement
 
 Our technical decision log lived in Confluence, away from the code it governs. Decisions were not reviewed in the
-pull requests of the code changes they caused, and AI agents working in this repository could not read them. Where and how do we record architecture decisions?
+pull requests of the code changes they caused, and AI agents working in this repository could not read them.
+Where and how do we record architecture decisions?
 See [PZ-13291](https://dimpact.atlassian.net/browse/PZ-13291).
 
 ## Decision Drivers

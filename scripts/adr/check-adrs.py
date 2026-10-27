@@ -3,7 +3,7 @@
 # SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-"""Checks the Architecture Decision Records in docs/solution-architecture/decisions. See docs/solution-architecture/decisions/README.md for the rules."""
+"""Checks the Architecture Decision Records. See docs/solution-architecture/decisions/README.md for the rules."""
 
 import argparse
 import re
@@ -207,7 +207,7 @@ def main() -> int:
     for error in errors:
         print(error, file=sys.stderr)
     if errors:
-        print(f"\n{len(errors)} ADR error(s) found. See docs/solution-architecture/decisions/README.md for the rules.", file=sys.stderr)
+        print(f"\n{len(errors)} ADR error(s) found. See {ADR_DIRECTORY}/README.md for the rules.", file=sys.stderr)
         return 1
     print(f"{len(adrs)} ADRs are valid.")
     return 0
