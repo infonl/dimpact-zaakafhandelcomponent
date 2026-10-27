@@ -40,7 +40,7 @@ openarchiefbeheer:
   image: maykinmedia/open-archiefbeheer:2.0.0@sha256:e5217d748869c62d26393311c3cfdcaacf69d8dde80ca3bc172ff41f3885f0ff
 # no arm64 image: the arm64 build of Open Formulieren lacks static files that the form editor needs
 openforms:
-  image: openformulieren/open-forms:3.5.11@sha256:594ab8d2c4e8de13d86ef9a4e97296da008c02ec63c19d9471d1bc82883c95c8
+  image: openformulieren/open-forms:3.5.14@sha256:0320f7ba471453040ecc8362c96cb4acf3d774ee0647633d8c07e0e08007cf8b
 # the nginx of the upstream charts and the container that publishes the ports on the host
 nginx:
   image: nginxinc/nginx-unprivileged:1.31.7@sha256:94193d5c4c5df716f412bb08eb97956d98fe6b59886f0bc57d6d3a3402a88a02
@@ -70,7 +70,7 @@ postgres:
       owner: openformulieren
 
 redis:
-  image: redis:8.6.7@sha256:a323342084bc0350cc66feb7f6e11282c8d853b5e7e729de3b0e81ed88381196
+  image: redis:8.6.8@sha256:4992e2fd2d992eaa85764b1c9565e15aeadd8f2296cb67f9d04f2fb8da0247ff
 
 keycloak:
   image: quay.io/keycloak/keycloak:26.7.5@sha256:37dbaf6f0722c9ec246335f36e1ef8b2e6cb960f7c27e0d8c615121a3d475a85
@@ -134,11 +134,11 @@ solr:
 
 opa:
   # -- keep in sync with the OPA of charts/zac
-  image: openpolicyagent/opa:1.21.3-static@sha256:bf27411c17e72f3d16063725a74c69f711fb267eb9a4cebdae78028b72adc847
+  image: openpolicyagent/opa:1.21.4-static@sha256:47f93480b09e24c220ae75f1e9133585ba6d698059951668d35e6a4fc32ebc82
 
 officeConverter:
   # -- keep in sync with the office converter of charts/zac
-  image: gotenberg/gotenberg:8.38.1@sha256:aa552cc115db488e0f0bcb07446aac13071ad51505b642c84bb894500907b42b
+  image: gotenberg/gotenberg:8.39.0@sha256:13672f317b443c793e972b1bd2155ec62a3e7b6891b411e8196442cc053ee5f5
   username: zac
 
 brpPersonenMock:
@@ -148,7 +148,7 @@ wiremock:
   image: wiremock/wiremock:3.13.2@sha256:0d4ecb3e4dc8213fd7a4d37d6a78f6e6b553a6d2e15bd51b0999781282ac61b3
 
 greenmail:
-  image: greenmail/standalone:2.1.14@sha256:1ef95a966418cd09b7ea91d504d8c0826bbe7a2f6e679a75c601a831587c1626
+  image: greenmail/standalone:2.1.15@sha256:309ba544ea482e5d4265d09921cdab07c8dad2cc4481d715c9b8ff5d3f0a149f
 
 
 # -- the optional services, which the options of ./start-kind.sh switch on
