@@ -3,7 +3,7 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div class="flex-row justify-end items-start">
+<div class="flex-row justify-end items-center">
   <mat-slide-toggle
     class="mode-slider"
     color="primary"
@@ -15,7 +15,7 @@
   </mat-slide-toggle>
   @if (editMode.value) {
     <button
-      [disabled]="this.available.length == 0"
+      [disabled]="this.available.length === 0"
       id="cardToevoegen_button"
       mat-icon-button
       title="{{ 'actie.card.toevoegen' | translate }}"
@@ -25,16 +25,14 @@
       <mat-icon>dashboard_customize</mat-icon>
     </button>
   } @else {
-    <button [disabled]="true" id="spacer_button" mat-icon-button></button>
+    <span class="spacer-button"></span>
   }
   <mat-menu #cardsMenu="matMenu" class="cards-menu">
-    <h4 class="menu-title hide-xs" translate="actie.card.toevoegen"></h4>
+    <h4 class="menu-title hide-xs">{{ "actie.card.toevoegen" | translate }}</h4>
     <mat-divider class="hide-gt-xs"></mat-divider>
     @for (card of available; track card) {
       <button mat-menu-item (click)="add(card)">
-        <mat-icon>{{
-          card.signaleringType != null ? "notifications" : ""
-        }}</mat-icon>
+        <mat-icon>{{ card.signaleringType ? "notifications" : "" }}</mat-icon>
         <span>{{ "dashboard.card." + card.id | i18nKey | translate }}</span>
       </button>
     }
@@ -47,7 +45,7 @@
   cdkDropListGroup
 >
   @for (column of grid; track column) {
-    @if (editMode.value || 0 < column.length) {
+    @if ((editMode.value && !showHint) || 0 < column.length) {
       <div
         class="grid-column-{{ editMode.value ? '3' : columnsInDashboard }}"
         cdkDropList
@@ -68,12 +66,12 @@
             cdkDrag
           >
             <div class="placeholder" *cdkDragPlaceholder></div>
-            @if (card != null) {
+            @if (card) {
               <mat-card-header>
                 <mat-card-title-group>
                   <mat-card-title>
                     {{ "dashboard.card." + card.id | i18nKey | translate }}
-                    @if (card.signaleringType != null) {
+                    @if (card.signaleringType) {
                       <mat-icon
                         class="cardtype"
                         title="{{

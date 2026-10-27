@@ -69,6 +69,7 @@
                 class="tree-group-row"
                 [bpmnNodeRow]="node.key"
                 (click)="toggleNode(node)"
+                role="presentation"
               >
                 <button mat-icon-button [attr.aria-label]="node.name">
                   <mat-icon class="mat-icon-rtl-mirror">
@@ -96,6 +97,7 @@
 
                 <span
                   [class.cursor-default]="node.definition.details?.isInUse"
+                  role="presentation"
                   [matTooltip]="
                     node.definition.details?.isInUse
                       ? ('bpmn.process-definition.definition-row.button.delete.in-use'

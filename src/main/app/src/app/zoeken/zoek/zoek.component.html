@@ -6,16 +6,16 @@
 <div class="form" [class.loading]="utilService.loading()">
   <div class="button-row flex-row items-center">
     <div class="full-width title">
-      @if (zoekType == ZoekType.ZAC) {
+      @if (zoekType === ZoekType.ZAC) {
         {{ "actie.zoeken.zac" | translate }}
       }
-      @if (zoekType == ZoekType.PERSONEN) {
+      @if (zoekType === ZoekType.PERSONEN) {
         {{ "actie.zoeken.persoon" | translate }}
       }
-      @if (zoekType == ZoekType.BEDRIJVEN) {
+      @if (zoekType === ZoekType.BEDRIJVEN) {
         {{ "actie.zoeken.bedrijf" | translate }}
       }
-      @if (zoekType == ZoekType.BAG_OBJECTEN) {
+      @if (zoekType === ZoekType.BAG_OBJECTEN) {
         {{ "actie.zoeken.bag-object" | translate }}
       }
     </div>
@@ -66,7 +66,7 @@
       <mat-icon>gps_fixed</mat-icon>
     </button>
   </div>
-  @if (zoekType == ZoekType.ZAC) {
+  @if (zoekType === ZoekType.ZAC) {
     <div sticky-top class="flex-row gap-10">
       <mat-form-field class="flex-1 w25" appearance="fill">
         <mat-label>Zoeken in</mat-label>
@@ -222,7 +222,7 @@
 
           <mat-divider></mat-divider>
         }
-        @if (zoekResultaat.totaal == 0 && !isLoadingResults) {
+        @if (zoekResultaat.totaal === 0 && !isLoadingResults) {
           <p class="geen-resultaat">
             {{ "msg.geen.gegevens.gevonden" | translate }}
           </p>

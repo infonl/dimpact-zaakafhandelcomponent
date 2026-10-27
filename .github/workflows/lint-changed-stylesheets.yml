@@ -1,0 +1,54 @@
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+
+name: Lint Changed Stylesheets
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/main/app/**/*.less"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lint-changed-stylesheets-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-changed-stylesheets:
+    runs-on: ubuntu-26.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # Fetch full history to compare with the base branch
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: "npm"
+          cache-dependency-path: src/main/app/package-lock.json
+
+      - name: Install dependencies
+        working-directory: src/main/app
+        run: npm ci --ignore-scripts
+
+      # Runs the same command a developer runs locally; see docs/development/linting-strategy.md.
+      - name: Lint changed stylesheets
+        working-directory: src/main/app
+        run: |
+          STYLESHEETS=$(git diff --name-only --diff-filter=d \
+            origin/${{ github.base_ref }}...HEAD -- '*.less' \
+            | sed 's|^src/main/app/||')
+
+          if [ -z "$STYLESHEETS" ]; then
+            echo "No stylesheets changed"
+            exit 0
+          fi
+
+          echo "$STYLESHEETS"
+          npx stylelint --config .stylelintrc.strict.js $STYLESHEETS

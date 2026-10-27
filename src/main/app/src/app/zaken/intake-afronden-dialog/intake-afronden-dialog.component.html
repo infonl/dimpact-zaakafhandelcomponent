@@ -24,8 +24,12 @@
     @if (data.planItem.toelichting) {
       <p class="readonly" [innerHTML]="data.planItem.toelichting"></p>
     }
-    <label>{{ "zaak-ontvankelijk" | translate }}</label>
-    <mat-radio-group id="ontvankelijk" formControlName="ontvankelijk">
+    <span id="ontvankelijk-label">{{ "zaak-ontvankelijk" | translate }}</span>
+    <mat-radio-group
+      id="ontvankelijk"
+      formControlName="ontvankelijk"
+      aria-labelledby="ontvankelijk-label"
+    >
       <mat-radio-button [value]="true">{{
         "actie.ja" | translate
       }}</mat-radio-button>

@@ -20,7 +20,7 @@
               {{ "signalering." + column | i18nKey | translate }}
             </th>
             <td mat-cell *matCellDef="let row">
-              @if (column == "type" || column == "subjecttype") {
+              @if (column === "type" || column === "subjecttype") {
                 {{
                   "signalering." + column + "." + row[column]
                     | i18nKey
@@ -28,9 +28,9 @@
                 }}
               }
               @if (
-                column != "type" &&
-                column != "subjecttype" &&
-                row[settingPerColumn[column]] != null
+                column !== "type" &&
+                column !== "subjecttype" &&
+                typeof row[settingPerColumn[column]] === "boolean"
               ) {
                 <mat-checkbox
                   (click)="$event.stopPropagation()"

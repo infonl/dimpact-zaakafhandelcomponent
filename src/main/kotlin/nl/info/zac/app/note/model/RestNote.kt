@@ -37,10 +37,9 @@ data class RestNote(
     var isBewerkenToegestaan: Boolean = false
 )
 
-fun RestNote.toNote() = Note().apply {
-    id = this@toNote.id ?: 0
+fun RestNote.toNote(employeeUsername: String) = Note().apply {
     zaakUUID = this@toNote.zaakUUID
     text = this@toNote.text
     dateTimeLastModified = ZonedDateTime.now()
-    employeeUsername = this@toNote.employeeUsername
+    this.employeeUsername = employeeUsername
 }

@@ -56,7 +56,7 @@
         {{ controlName }}
         <mat-icon
           class="copy-icon"
-          [class.copy-icon--sm]="control.value == null || control.value === ''"
+          [class.copy-icon--sm]="(control.value ?? '') === ''"
           outlined
           [cdkCopyToClipboard]="controlName"
           matTooltipClass="tooltip-wide"

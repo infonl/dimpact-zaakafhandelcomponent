@@ -39,7 +39,7 @@ import { MatDivider } from "@angular/material/divider";
 import { MatIcon } from "@angular/material/icon";
 import { MatMenu, MatMenuItem, MatMenuTrigger } from "@angular/material/menu";
 import { MatSlideToggle } from "@angular/material/slide-toggle";
-import { TranslateDirective, TranslatePipe } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import {
   injectIsFetching,
   injectQuery,
@@ -86,7 +86,6 @@ import { ZakenCardComponent } from "./zaken-card/zaken-card.component";
     MatCardTitleGroup,
     MatCardContent,
     MatIcon,
-    TranslateDirective,
     TranslatePipe,
     InformatieobjectenCardComponent,
     TaakZoekenCardComponent,

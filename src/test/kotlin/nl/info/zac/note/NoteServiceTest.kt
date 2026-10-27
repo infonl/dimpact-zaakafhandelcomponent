@@ -106,9 +106,31 @@ class NoteServiceTest : BehaviorSpec({
         }
     }
 
+    given("A note ID for an existing note to find") {
+        val noteId = 123L
+        val note = createNote(id = noteId)
+        every { entityManager.find(Note::class.java, noteId) } returns note
+
+        `when`("the note is searched for") {
+            val foundNote = noteService.findNote(noteId)
+
+            then("it should return the note") {
+                foundNote shouldBe note
+            }
+        }
+    }
+
     given("A note ID for a note that does not exist") {
         val noteId = 456L
         every { entityManager.find(Note::class.java, noteId) } returns null
+
+        `when`("the note is searched for") {
+            val foundNote = noteService.findNote(noteId)
+
+            then("it should return null") {
+                foundNote shouldBe null
+            }
+        }
 
         `when`("the note is deleted") {
             val deletedNote = noteService.deleteNote(noteId)
