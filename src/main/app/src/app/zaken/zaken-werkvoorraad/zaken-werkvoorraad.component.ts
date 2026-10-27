@@ -65,8 +65,6 @@ import { ZakenService } from "../zaken.service";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { ObjectType } from "src/app/core/websocket/model/object-type";
-import { Opcode } from "src/app/core/websocket/model/opcode";
 import { IndexingService } from "src/app/indexing/indexing.service";
 import { BatchProcessService } from "src/app/shared/batch-progress/batch-process.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
@@ -332,10 +330,10 @@ export class ZakenWerkvoorraadComponent
     this.batchProcessService.subscribe({
       ids: zaken.map(({ id }) => id),
       progressSubscription: {
-        opcode: Opcode.ANY,
-        objectType: ObjectType.ZAAK_ROLLEN,
+        opcode: "ANY",
+        objectType: "ZAAK_ROLLEN",
         onNotification: (id, event) => {
-          if (event.opcode !== Opcode.UPDATED) return;
+          if (event.opcode !== "UPDATED") return;
 
           const zaak = this.dataSource.data.find((x) => x.id === id);
           if (!zaak) return;

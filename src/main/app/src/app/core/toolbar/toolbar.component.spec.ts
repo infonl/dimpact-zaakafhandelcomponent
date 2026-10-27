@@ -36,8 +36,6 @@ import { PolicyService } from "../../policy/policy.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
 import { ZoekenService } from "../../zoeken/zoeken.service";
-import { ObjectType } from "../websocket/model/object-type";
-import { Opcode } from "../websocket/model/opcode";
 import { WebsocketListener } from "../websocket/model/websocket-listener";
 import { WebsocketService } from "../websocket/websocket.service";
 import { ToolbarComponent } from "./toolbar.component";
@@ -407,8 +405,8 @@ describe(ToolbarComponent.name, () => {
       await respondWithLatestSignalering(null);
 
       expect(TestBed.inject(WebsocketService).addListener).toHaveBeenCalledWith(
-        Opcode.UPDATED,
-        ObjectType.SIGNALERINGEN,
+        "UPDATED",
+        "SIGNALERINGEN",
         "user-id",
         expect.any(Function),
       );

@@ -4,15 +4,13 @@
  */
 
 import { isCausedByCurrentUser } from "./is-caused-by-current-user";
-import { ObjectType } from "./model/object-type";
-import { Opcode } from "./model/opcode";
 import { ScreenEvent } from "./model/screen-event";
 import { ScreenEventId } from "./model/screen-event-id";
 
 function screenEvent(actorUsername?: string) {
   return new ScreenEvent(
-    Opcode.UPDATED,
-    ObjectType.ZAAK,
+    "UPDATED",
+    "ZAAK",
     new ScreenEventId("zaak-uuid"),
     undefined,
     actorUsername,

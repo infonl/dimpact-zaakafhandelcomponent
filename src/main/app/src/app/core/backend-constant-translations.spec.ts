@@ -7,8 +7,6 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { toI18nKey } from "../shared/utils/i18n-key";
-import { ObjectType } from "./websocket/model/object-type";
-import { Opcode } from "./websocket/model/opcode";
 
 function readDutchKeys() {
   const file = join(__dirname, "../../assets/i18n/nl.json");
@@ -262,14 +260,17 @@ const bedrijfTypes = valuesOf<GeneratedType<"BedrijfType">>({
   RECHTSPERSOON: true,
 });
 
-const snackbarScreenEventObjectTypes = [
-  ObjectType.ZAAK,
-  ObjectType.TAAK,
-  ObjectType.ZAAK_ROLLEN,
-  ObjectType.ZAAK_BESLUITEN,
+const snackbarScreenEventObjectTypes: GeneratedType<"ScreenEventType">[] = [
+  "ZAAK",
+  "TAAK",
+  "ZAAK_ROLLEN",
+  "ZAAK_BESLUITEN",
 ];
 
-const snackbarScreenEventOpcodes = [Opcode.UPDATED, Opcode.DELETED];
+const snackbarScreenEventOpcodes: GeneratedType<"Opcode">[] = [
+  "UPDATED",
+  "DELETED",
+];
 
 const DYNAMIC_KEYS = [
   {

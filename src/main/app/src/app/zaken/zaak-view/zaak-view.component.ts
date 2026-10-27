@@ -31,8 +31,6 @@ import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
 import { BAGService } from "../../bag/bag.service";
 import { UtilService } from "../../core/service/util.service";
 import { isCausedByCurrentUser } from "../../core/websocket/is-caused-by-current-user";
-import { ObjectType } from "../../core/websocket/model/object-type";
-import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
@@ -277,8 +275,8 @@ export class ZaakViewComponent
       this.zaakUuid.set(zaak.uuid);
 
       this.zaakListener = this.websocketService.addListener(
-        Opcode.ANY,
-        ObjectType.ZAAK,
+        "ANY",
+        "ZAAK",
         zaak.uuid,
         (event) => {
           void this.onZaakChanged(event).catch((error: unknown) =>
@@ -288,8 +286,8 @@ export class ZaakViewComponent
       );
 
       this.zaakRollenListener = this.websocketService.addListenerWithSnackbar(
-        Opcode.UPDATED,
-        ObjectType.ZAAK_ROLLEN,
+        "UPDATED",
+        "ZAAK_ROLLEN",
         zaak.uuid,
         () => {
           this.betrokkenenService.invalidateBetrokkenen(this.zaak);
@@ -305,15 +303,15 @@ export class ZaakViewComponent
 
       this.zaakBesluitenListener =
         this.websocketService.addListenerWithSnackbar(
-          Opcode.UPDATED,
-          ObjectType.ZAAK_BESLUITEN,
+          "UPDATED",
+          "ZAAK_BESLUITEN",
           zaak.uuid,
           () => this.loadBesluiten(),
         );
 
       this.zaakTakenListener = this.websocketService.addListener(
-        Opcode.UPDATED,
-        ObjectType.ZAAK_TAKEN,
+        "UPDATED",
+        "ZAAK_TAKEN",
         zaak.uuid,
         () => this.invalidatePlanItems(),
       );

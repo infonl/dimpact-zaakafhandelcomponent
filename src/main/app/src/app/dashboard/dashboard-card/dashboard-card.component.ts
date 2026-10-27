@@ -17,8 +17,6 @@ import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Observable, Subject, Subscription } from "rxjs";
-import { ObjectType } from "../../core/websocket/model/object-type";
-import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -92,8 +90,8 @@ export abstract class DashboardCardComponent<
       .ensureQueryData(this.identityService.readLoggedInUser())
       .then(({ username }) => {
         this.websocketService.addListener(
-          Opcode.UPDATED,
-          ObjectType.SIGNALERINGEN,
+          "UPDATED",
+          "SIGNALERINGEN",
           username,
           (event: ScreenEvent) => {
             if (event.objectId.detail === signaleringType) {
