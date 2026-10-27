@@ -8,12 +8,13 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
-  EventEmitter,
   inject,
   input,
   OnDestroy,
-  viewChild,
+  signal,
+  untracked,
 } from "@angular/core";
 
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -27,21 +28,20 @@ import {
 } from "@angular/material/form-field";
 import { MatIcon } from "@angular/material/icon";
 import { MatInput } from "@angular/material/input";
-import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
+import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
 import { MatProgressBar } from "@angular/material/progress-bar";
 import { MatOption, MatSelect } from "@angular/material/select";
 import { MatSidenav } from "@angular/material/sidenav";
 
 import { TranslatePipe } from "@ngx-translate/core";
-import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
-import { merge, of, Subject, takeUntil } from "rxjs";
-import { catchError, map, switchMap } from "rxjs/operators";
+import { injectQuery } from "@tanstack/angular-query-experimental";
+import { Subject, takeUntil } from "rxjs";
 import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
 import { UtilService } from "../../core/service/util.service";
 import { BedrijfZoekComponent } from "../../klanten/zoek/bedrijven/bedrijf-zoek.component";
 import { PersoonZoekComponent } from "../../klanten/zoek/personen/persoon-zoek.component";
 import { PolicyService } from "../../policy/policy.service";
-import { runQuery } from "../../shared/http/run-query";
+import { injectLastSuccessfulSearch } from "../../shared/http/last-successful-search";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { DocumentZoekObject } from "../model/documenten/document-zoek-object";
 import { TaakZoekObject } from "../model/taken/taak-zoek-object";
@@ -58,11 +58,20 @@ import { DateFilterComponent } from "./filters/date-filter/date-filter.component
 import { MultiFacetFilterComponent } from "./filters/multi-facet-filter/multi-facet-filter.component";
 import { ZaakBetrokkeneFilterComponent } from "./filters/zaak-betrokkene-filter/zaak-betrokkene-filter.component";
 
-/**
- * Tells a search that failed apart from a search that was never run, so that a
- * failure keeps the results and the page the user is looking at.
- */
-const ZOEK_MISLUKT = Symbol("zoek mislukt");
+type Zoekopdracht = {
+  zoekParameters: GeneratedType<"RestZoekParameters">;
+  zoekVeld: ZoekVeld;
+  trefwoorden: string;
+};
+
+const GEEN_RESULTAAT: ZoekResultaat<
+  GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">
+> = {
+  resultaten: [],
+  totaal: 0,
+  filters: {},
+  foutmelding: "",
+};
 
 @Component({
   selector: "zac-zoeken",
@@ -106,7 +115,6 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
     this.policyService.readBrpRechten(),
   );
 
-  private readonly paginator = viewChild.required(MatPaginator);
   protected readonly zoekenSideNav = input<MatSidenav>();
 
   private readonly destroy$ = new Subject<void>();
@@ -114,24 +122,67 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
   protected zoekType: ZoekType = ZoekType.ZAC;
   protected readonly ZoekType = ZoekType;
   protected readonly ZoekVeld = ZoekVeld;
-  protected zoekResultaat = new ZoekResultaat<
-    GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">
-  >();
-  protected zoekParameters: GeneratedType<"RestZoekParameters"> =
-    getDefaultZoekParameters();
-  protected isLoadingResults = true;
-  protected slow = false;
   protected zoekveldControl = new FormControl<ZoekVeld>(ZoekVeld.ALLE);
   protected trefwoordenControl = new FormControl("");
-  protected zoek = new EventEmitter<void>();
   protected hasSearched = false;
-  private lastLoadedPageIndex = 0;
-  protected hasTaken = false;
-  protected hasZaken = false;
-  protected hasDocument = false;
-  private huidigZoekVeld: ZoekVeld = ZoekVeld.ALLE;
 
-  private readonly queryClient = inject(QueryClient);
+  private readonly requestedZoekopdracht = signal<Zoekopdracht>({
+    zoekParameters: { ...getDefaultZoekParameters(), rows: 10 },
+    zoekVeld: ZoekVeld.ALLE,
+    trefwoorden: "",
+  });
+
+  /**
+   * The filters read their value once, when they are created. Creating them
+   * again after a failed search shows the filters of the shown results.
+   */
+  protected readonly filterRevisie = signal(0);
+
+  protected readonly search = injectLastSuccessfulSearch({
+    requested: this.requestedZoekopdracht,
+    query: ({ zoekParameters, zoekVeld, trefwoorden }) => ({
+      ...this.zoekenService.list({
+        ...zoekParameters,
+        zoeken: { ...zoekParameters.zoeken, [zoekVeld]: trefwoorden },
+      }),
+      enabled: !!trefwoorden,
+    }),
+    onRevert: () => this.filterRevisie.update((revisie) => revisie + 1),
+  });
+
+  protected readonly zoekParameters = computed(
+    () => this.search.requested().zoekParameters,
+  );
+
+  /** A search without trefwoorden shows no results, rather than the last ones. */
+  private readonly zonderTrefwoorden = signal(false);
+
+  protected readonly zoekResultaat = computed(() => {
+    if (this.zonderTrefwoorden()) return GEEN_RESULTAAT;
+    return (this.search.data() ?? new ZoekResultaat()) as ZoekResultaat<
+      GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">
+    >;
+  });
+
+  /** A search that has not run yet has no `totaal`. */
+  protected readonly aantalResultaten = computed(
+    () => this.zoekResultaat().totaal ?? 0,
+  );
+
+  protected readonly isLoadingResults = computed(() =>
+    this.search.query.isFetching(),
+  );
+  protected readonly slow = signal(false);
+
+  private readonly context = computed(() =>
+    this.bepaalContext(
+      this.zoekResultaat(),
+      this.search.params()?.zoekParameters,
+    ),
+  );
+  protected readonly hasZaken = computed(() => this.context().hasZaken);
+  protected readonly hasTaken = computed(() => this.context().hasTaken);
+  protected readonly hasDocument = computed(() => this.context().hasDocument);
 
   constructor() {
     effect(() => {
@@ -149,119 +200,90 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
     this.zoekenService.reset$
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.reset());
+
+    effect((onCleanup) => {
+      if (!this.isLoadingResults()) {
+        this.slow.set(false);
+        return;
+      }
+      const timeout = setTimeout(() => this.slow.set(true), 500);
+      onCleanup(() => clearTimeout(timeout));
+    });
+
+    effect(() => {
+      if (!this.search.data()) return;
+      untracked(() => {
+        this.hasSearched = true;
+        this.zoekenService.hasSearched.set(true);
+      });
+    });
   }
 
   ngAfterViewInit() {
-    this.zoek.pipe(takeUntil(this.destroy$)).subscribe(() => {
-      this.paginator().pageIndex = 0;
-    });
     this.zoekenSideNav()
       ?.openedStart.pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.zoek.emit();
-      });
-
-    merge(this.paginator().page, this.zoek)
-      .pipe(
-        takeUntil(this.destroy$),
-        switchMap(() => {
-          if (!this.trefwoordenControl.value) {
-            return of(null);
-          }
-
-          this.slow = false;
-          setTimeout(() => {
-            this.slow = true;
-          }, 500);
-          this.isLoadingResults = true;
-          this.utilService.setLoading(true);
-          return runQuery(
-            this.queryClient,
-            this.zoekenService.list(this.getZoekParameters()),
-          ).pipe(catchError(() => of(ZOEK_MISLUKT)));
-        }),
-        map((data) => {
-          this.isLoadingResults = false;
-          this.utilService.setLoading(false);
-          return data;
-        }),
-      )
-      .subscribe((data) => {
-        if (data === ZOEK_MISLUKT) {
-          this.paginator().pageIndex = this.lastLoadedPageIndex;
-          return;
-        }
-
-        this.paginator().length = data?.totaal ?? 0;
-        if (!data) {
-          this.lastLoadedPageIndex = 0;
-          this.zoekResultaat = {
-            resultaten: [],
-            totaal: 0,
-            filters: {},
-            foutmelding: "",
-          };
-          return;
-        }
-        this.lastLoadedPageIndex = this.paginator().pageIndex;
-        this.hasSearched = true;
-        this.zoekenService.hasSearched.set(true);
-        this.zoekResultaat = data as ZoekResultaat<
-          GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">
-        >;
-        this.bepaalContext();
-      });
+      .subscribe(() => this.zoeken());
 
     queueMicrotask(() => {
-      if (this.zoekenSideNav()?.opened) this.zoek.emit();
+      if (this.zoekenSideNav()?.opened) this.zoeken();
     });
   }
 
-  private bepaalContext() {
-    this.hasZaken = !!this.zoekResultaat.filters.TYPE?.find(
-      ({ naam }) => naam === ("ZAAK" satisfies GeneratedType<"ZoekObjectType">),
-    )?.aantal;
-    this.hasTaken = !!this.zoekResultaat.filters.TYPE?.find(
-      ({ naam }) => naam === ("TAAK" satisfies GeneratedType<"ZoekObjectType">),
-    )?.aantal;
-    this.hasDocument = !!this.zoekResultaat.filters.TYPE?.find(
-      ({ naam }) =>
-        naam === ("DOCUMENT" satisfies GeneratedType<"ZoekObjectType">),
-    )?.aantal;
-
-    if (this.zoekParameters.filters?.TYPE?.values?.length) {
-      if (this.hasZaken) {
-        this.hasZaken = this.zoekParameters.filters.TYPE.values.includes(
-          "ZAAK" satisfies GeneratedType<"ZoekObjectType">,
-        );
-      }
-      if (this.hasTaken) {
-        this.hasTaken = this.zoekParameters.filters.TYPE.values.includes(
-          "TAAK" satisfies GeneratedType<"ZoekObjectType">,
-        );
-      }
-      if (this.hasDocument) {
-        this.hasDocument =
-          this.zoekParameters.filters.TYPE?.values.includes(
-            "DOCUMENT" satisfies GeneratedType<"ZoekObjectType">,
-          ) ?? false;
-      }
-    }
+  /** Searches for the first page of the results. */
+  protected zoeken(zoekParameters = this.zoekParameters()) {
+    this.searchPage({ ...zoekParameters, page: 0 });
   }
 
-  private getZoekParameters() {
-    if (
-      this.zoekveldControl.value &&
-      this.trefwoordenControl.value &&
-      this.zoekParameters.zoeken
-    ) {
-      this.zoekParameters.zoeken[this.zoekveldControl.value] =
-        this.trefwoordenControl.value;
-    }
+  protected pageChanged({ pageIndex, pageSize }: PageEvent) {
+    const shownZoekopdracht = this.search.params() ?? this.search.requested();
+    this.search.request({
+      ...shownZoekopdracht,
+      zoekParameters: {
+        ...shownZoekopdracht.zoekParameters,
+        page: pageIndex,
+        rows: pageSize,
+      },
+    });
+  }
 
-    this.zoekParameters.page = this.paginator().pageIndex;
-    this.zoekParameters.rows = this.paginator().pageSize;
-    return this.zoekParameters;
+  private searchPage(zoekParameters: GeneratedType<"RestZoekParameters">) {
+    const trefwoorden = this.trefwoordenControl.value ?? "";
+    const zoekopdracht: Zoekopdracht = {
+      zoekParameters,
+      zoekVeld: this.zoekveldControl.value ?? ZoekVeld.ALLE,
+      trefwoorden,
+    };
+    this.zonderTrefwoorden.set(!trefwoorden);
+    if (!trefwoorden) {
+      this.search.clear();
+      // A search query without trefwoorden is not enabled, and `request` would
+      // search it again all the same.
+      this.requestedZoekopdracht.set({
+        ...zoekopdracht,
+        zoekParameters: { ...zoekParameters, page: 0 },
+      });
+      return;
+    }
+    this.search.request(zoekopdracht);
+  }
+
+  private bepaalContext(
+    zoekResultaat: ZoekResultaat<
+      GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">
+    >,
+    zoekParameters?: GeneratedType<"RestZoekParameters">,
+  ) {
+    const heeftType = (type: GeneratedType<"ZoekObjectType">) =>
+      !!zoekResultaat.filters?.TYPE?.find(({ naam }) => naam === type)?.aantal;
+    const gekozenTypen = zoekParameters?.filters?.TYPE?.values;
+    const isGekozen = (type: GeneratedType<"ZoekObjectType">) =>
+      !gekozenTypen?.length || gekozenTypen.includes(type);
+
+    return {
+      hasZaken: heeftType("ZAAK") && isGekozen("ZAAK"),
+      hasTaken: heeftType("TAAK") && isGekozen("TAAK"),
+      hasDocument: heeftType("DOCUMENT") && isGekozen("DOCUMENT"),
+    };
   }
 
   protected getZaakZoekObject(
@@ -289,12 +311,13 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
   }
 
   protected keywordsChange() {
+    const { zoekVeld, trefwoorden } = this.search.requested();
     if (
       this.zoekveldControl.value &&
-      this.trefwoordenControl.value !==
-        this.zoekParameters.zoeken?.[this.zoekveldControl.value]
+      (this.trefwoordenControl.value !== trefwoorden ||
+        this.zoekveldControl.value !== zoekVeld)
     ) {
-      this.zoek.emit();
+      this.zoeken();
     }
   }
 
@@ -311,62 +334,59 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
 
   protected reset() {
     this.zoekenService.hasSearched.set(false);
-    this.paginator().length = 0;
-    this.lastLoadedPageIndex = 0;
     this.trefwoordenControl.setValue("");
     this.zoekveldControl.setValue(ZoekVeld.ALLE);
-    this.zoekResultaat = new ZoekResultaat();
-    this.zoekParameters = getDefaultZoekParameters();
+    this.zonderTrefwoorden.set(false);
+    this.requestedZoekopdracht.set({
+      zoekParameters: { ...getDefaultZoekParameters(), rows: 10 },
+      zoekVeld: ZoekVeld.ALLE,
+      trefwoorden: "",
+    });
+    this.search.clear();
     this.hasSearched = false;
-    this.hasTaken = false;
-    this.hasZaken = false;
-    this.hasDocument = false;
   }
 
   protected zoekVeldChanged() {
-    delete this.zoekParameters.zoeken?.[this.huidigZoekVeld];
     if (!this.zoekveldControl.value) return;
-
-    this.huidigZoekVeld = this.zoekveldControl.value;
     if (!this.trefwoordenControl.value) return;
-    this.zoek.emit();
+    this.zoeken();
   }
 
   protected dateFilterChange(
     key: string,
     value: GeneratedType<"RestDatumRange">,
   ) {
-    if (!this.zoekParameters.datums) this.zoekParameters.datums = {};
-    this.zoekParameters.datums[key] = value;
-    this.zoek.emit();
+    const zoekParameters = this.zoekParameters();
+    this.zoeken({
+      ...zoekParameters,
+      datums: { ...zoekParameters.datums, [key]: value },
+    });
   }
 
   protected filterChanged(
     key: string,
     value?: GeneratedType<"FilterParameters">,
   ) {
-    if (!this.zoekParameters.filters) this.zoekParameters.filters = {};
-    if (!this.zoekParameters.filters[key]) {
-      this.zoekParameters.filters[key] = { values: [] };
-    }
-    if (!value) {
-      delete this.zoekParameters.filters[key];
+    const filters = { ...this.zoekParameters().filters };
+    if (value) {
+      filters[key] = value;
     } else {
-      this.zoekParameters.filters[key] = value;
+      delete filters[key];
     }
-    this.zoek.emit();
+    this.zoeken({ ...this.zoekParameters(), filters });
   }
 
   protected betrokkeneActief() {
+    const zoeken = this.zoekParameters().zoeken;
     return !!(
-      this.zoekParameters.zoeken?.ZAAK_BETROKKENEN ||
-      this.zoekParameters.zoeken?.ZAAK_INITIATOR ||
-      this.zoekParameters.zoeken?.ZAAK_BETROKKENE_BELANGHEBBENDE ||
-      this.zoekParameters.zoeken?.ZAAK_BETROKKENE_ADVISEUR ||
-      this.zoekParameters.zoeken?.ZAAK_BETROKKENE_BESLISSER ||
-      this.zoekParameters.zoeken?.ZAAK_BETROKKENE_KLANTCONTACTER ||
-      this.zoekParameters.zoeken?.ZAAK_BETROKKENE_ZAAKCOORDINATOR ||
-      this.zoekParameters.zoeken?.ZAAK_BETROKKENE_MEDE_INITIATOR
+      zoeken?.ZAAK_BETROKKENEN ||
+      zoeken?.ZAAK_INITIATOR ||
+      zoeken?.ZAAK_BETROKKENE_BELANGHEBBENDE ||
+      zoeken?.ZAAK_BETROKKENE_ADVISEUR ||
+      zoeken?.ZAAK_BETROKKENE_BESLISSER ||
+      zoeken?.ZAAK_BETROKKENE_KLANTCONTACTER ||
+      zoeken?.ZAAK_BETROKKENE_ZAAKCOORDINATOR ||
+      zoeken?.ZAAK_BETROKKENE_MEDE_INITIATOR
     );
   }
 
