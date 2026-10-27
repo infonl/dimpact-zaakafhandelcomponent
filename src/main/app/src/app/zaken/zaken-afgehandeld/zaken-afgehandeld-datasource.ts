@@ -3,15 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { UtilService } from "../../core/service/util.service";
 import { ZoekenDataSource } from "../../shared/dynamic-table/datasource/zoeken-data-source";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 
 export class ZakenAfgehandeldDatasource extends ZoekenDataSource<ZaakZoekObject> {
-  constructor(zoekenService: ZoekenService, utilService: UtilService) {
-    super("AFGEHANDELDE_ZAKEN", zoekenService, utilService);
+  constructor(zoekenService: ZoekenService) {
+    super("AFGEHANDELDE_ZAKEN", zoekenService);
   }
 
   protected initZoekparameters(zoekParameters: ZoekParameters) {

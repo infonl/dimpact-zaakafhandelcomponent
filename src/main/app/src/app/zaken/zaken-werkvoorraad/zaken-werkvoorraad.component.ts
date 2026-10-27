@@ -174,10 +174,7 @@ export class ZakenWerkvoorraadComponent
 
   constructor() {
     super();
-    this.dataSource = new ZakenWerkvoorraadDatasource(
-      this.zoekenService,
-      this.utilService,
-    );
+    this.dataSource = new ZakenWerkvoorraadDatasource(this.zoekenService);
   }
 
   override ngOnInit() {

@@ -4,10 +4,8 @@
  */
 
 import { inject, Injectable, signal } from "@angular/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Subject } from "rxjs";
 import { PathParameters, PutBody } from "../shared/http/http-client";
-import { runQuery } from "../shared/http/run-query";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 
 const ZOEK_KOPPELBARE_ZAKEN_PATH =
@@ -30,15 +28,6 @@ export class ZoekenService {
   public reset$ = new Subject<void>();
 
   private readonly zacQueryClient = inject(ZacQueryClient);
-  private readonly queryClient = inject(QueryClient);
-
-  /**
-   * For the table data sources, which are built outside an injection context and
-   * so cannot reach the query client themselves.
-   */
-  list$(body: PutBody<"/rest/zoeken/list">) {
-    return runQuery(this.queryClient, this.list(body));
-  }
 
   list(body: PutBody<"/rest/zoeken/list">) {
     return this.zacQueryClient.PUT_QUERY("/rest/zoeken/list", body);

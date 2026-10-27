@@ -147,11 +147,17 @@ describe(ZakenWerkvoorraadComponent.name, () => {
 
     async function showZaak(zaak: ZaakZoekObject) {
       await sleep();
+      // the search query starts its request when change detection runs its effects
+      fixture.detectChanges();
+      await sleep();
       httpTestingController
         .match("/rest/zoeken/list")
         .forEach((request) =>
           request.flush({ totaal: 1, resultaten: [zaak], filters: {} }),
         );
+      await sleep();
+      // an effect hands the response to the table
+      fixture.detectChanges();
       await sleep();
       // the table creates the row views in one pass and binds their cells in the next
       fixture.detectChanges();

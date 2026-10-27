@@ -68,14 +68,21 @@ describe(TakenMijnComponent.name, () => {
     httpTestingController = TestBed.inject(HttpTestingController);
   }
 
-  async function showTaken(taken: Partial<TaakZoekObject>[]) {
+  /** The search query starts its request, and hands over its response, in effects. */
+  async function runEffects() {
     await sleep();
+    fixture.detectChanges();
+    await sleep();
+  }
+
+  async function showTaken(taken: Partial<TaakZoekObject>[]) {
+    await runEffects();
     httpTestingController
       .match("/rest/zoeken/list")
       .forEach((request) =>
         request.flush({ totaal: taken.length, resultaten: taken, filters: {} }),
       );
-    await sleep();
+    await runEffects();
     // the table creates the row views in one pass and binds their cells in the next
     fixture.detectChanges();
     fixture.detectChanges();
@@ -171,7 +178,7 @@ describe(TakenMijnComponent.name, () => {
       within(filterRow()).getAllByRole("textbox")[0];
     await user.type(zaakIdentificatieFilter, "fakeZaakIdentificatie");
     await user.tab();
-    await sleep();
+    await runEffects();
 
     const requests = httpTestingController.match("/rest/zoeken/list");
     expect(requests).toHaveLength(1);
