@@ -915,4 +915,53 @@ describe(ZaakDocumentenComponent.name, () => {
       );
     });
   });
+
+  describe("when a websocket update reads the documents again", () => {
+    const failRead = async () => {
+      httpTestingController
+        .expectOne(LIST_URL)
+        .flush(null, { status: 404, statusText: "Not Found" });
+      await settle();
+    };
+
+    it("shows the refetch hint and keeps the documents when the read fails", async () => {
+      const { addListener } = await setup();
+
+      notifyListener(addListener, "ZAAK_INFORMATIEOBJECTEN");
+      await settle();
+      await failRead();
+
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "msg.verversen.mislukt",
+      );
+      expect(documentRow("Test document")).toBeVisible();
+    });
+
+    it("hides the refetch hint again after a read that succeeds", async () => {
+      const { addListener } = await setup();
+      notifyListener(addListener, "ZAAK_INFORMATIEOBJECTEN");
+      await settle();
+      await failRead();
+
+      notifyListener(addListener, "ZAAK_INFORMATIEOBJECTEN");
+      await settle();
+      await flushList([{ ...fakeEditableDocument, titel: "Nieuw document" }]);
+
+      expect(
+        screen.queryByText("msg.verversen.mislukt"),
+      ).not.toBeInTheDocument();
+      expect(documentRow("Nieuw document")).toBeVisible();
+    });
+
+    it("does not show the refetch hint when the first read fails, because the error dialog reports that", async () => {
+      const { listRequest } = await setup(fakeZaak, null);
+
+      listRequest.flush(null, { status: 404, statusText: "Not Found" });
+      await settle();
+
+      expect(
+        screen.queryByText("msg.verversen.mislukt"),
+      ).not.toBeInTheDocument();
+    });
+  });
 });

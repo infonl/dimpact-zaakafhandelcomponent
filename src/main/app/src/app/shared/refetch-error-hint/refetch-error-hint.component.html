@@ -4,8 +4,16 @@
   -->
 
 @if (visible()) {
-  <div class="hint flex-row items-center gap-5">
-    <mat-icon outlined aria-hidden="true">sync_problem</mat-icon>
-    <span>{{ "msg.verversen.mislukt" | translate }}</span>
+  @let message = "msg.verversen.mislukt" | translate;
+  <div class="hint flex-row items-center gap-5" [class.compact]="compact()">
+    <mat-icon
+      outlined
+      aria-hidden="true"
+      [matTooltip]="message"
+      [matTooltipDisabled]="!compact()"
+      matTooltipPosition="after"
+      >sync_problem</mat-icon
+    >
+    <span>{{ message }}</span>
   </div>
 }

@@ -16,6 +16,10 @@
     disableClose="true"
     [mode]="sideNaveMode"
   >
+    <zac-refetch-error-hint
+      compact
+      [query]="[userEventListenerPlanItemsQuery, humanTaskPlanItemsQuery]"
+    />
     <zac-side-nav
       (mode)="menuModeChanged($event)"
       [menu]="menu()"

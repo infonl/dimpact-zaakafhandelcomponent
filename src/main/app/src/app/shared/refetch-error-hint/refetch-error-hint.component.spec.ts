@@ -5,14 +5,19 @@
 
 import { HttpErrorResponse } from "@angular/common/http";
 import { signal } from "@angular/core";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
+import { sleep } from "../../../../setupJest";
 import {
   RefetchableQuery,
   RefetchErrorHintComponent,
 } from "./refetch-error-hint.component";
 
 const HINT_TEXT = "msg.verversen.mislukt";
+// the Material tooltip is aria-hidden and describes the icon, which is aria-hidden too
+const TOOLTIP_SELECTOR = ".mat-mdc-tooltip-surface";
 
 function fakeQuery(isRefetchError: boolean, error: unknown = null) {
   return {
@@ -22,9 +27,13 @@ function fakeQuery(isRefetchError: boolean, error: unknown = null) {
 }
 
 describe(RefetchErrorHintComponent.name, () => {
-  async function setup(query: RefetchableQuery | RefetchableQuery[]) {
+  async function setup(
+    query: RefetchableQuery | RefetchableQuery[],
+    compact = false,
+  ) {
     return render(RefetchErrorHintComponent, {
-      inputs: { query },
+      inputs: { query, compact },
+      imports: [NoopAnimationsModule],
       providers: [provideTranslateService()],
     });
   }
@@ -96,5 +105,40 @@ describe(RefetchErrorHintComponent.name, () => {
     fixture.detectChanges();
 
     expect(screen.queryByText(HINT_TEXT)).not.toBeInTheDocument();
+  });
+
+  describe("in its compact form, for a narrow place such as a collapsed side menu", () => {
+    it("still announces the message in the status region, for screen readers", async () => {
+      await setup(
+        fakeQuery(true, new HttpErrorResponse({ status: 404 })),
+        true,
+      );
+
+      expect(screen.getByRole("status")).toHaveTextContent(HINT_TEXT);
+    });
+
+    it("shows the message in a tooltip on the icon", async () => {
+      await setup(
+        fakeQuery(true, new HttpErrorResponse({ status: 404 })),
+        true,
+      );
+
+      await userEvent.setup().hover(screen.getByText("sync_problem"));
+
+      expect(
+        await screen.findByText(HINT_TEXT, { selector: TOOLTIP_SELECTOR }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it("has no tooltip in its full form, because the message is already on screen", async () => {
+    await setup(fakeQuery(true, new HttpErrorResponse({ status: 404 })));
+
+    await userEvent.setup().hover(screen.getByText("sync_problem"));
+    await sleep();
+
+    expect(
+      screen.queryByText(HINT_TEXT, { selector: TOOLTIP_SELECTOR }),
+    ).not.toBeInTheDocument();
   });
 });

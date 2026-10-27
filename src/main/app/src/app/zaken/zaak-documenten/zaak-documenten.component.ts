@@ -55,6 +55,7 @@ import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
+import { RefetchErrorHintComponent } from "../../shared/refetch-error-hint/refetch-error-hint.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { ZakenService } from "../zaken.service";
@@ -123,6 +124,7 @@ const GEKOPPELDE_COLUMNS = [
   animations: [detailExpand],
   standalone: true,
   imports: [
+    RefetchErrorHintComponent,
     ZaakIdentificatieComponent,
     RouterLink,
     MatButton,
@@ -190,7 +192,7 @@ export class ZaakDocumentenComponent implements AfterViewInit {
     this.includeLinkedDocuments() ? GEKOPPELDE_COLUMNS : BASE_COLUMNS,
   );
 
-  private readonly documentenQuery = injectQuery(() =>
+  protected readonly documentenQuery = injectQuery(() =>
     this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
       zaakUUID: this.zaakUuid(),
       shouldIncludeGekoppeldeZaakDocumenten: this.includeLinkedDocuments(),

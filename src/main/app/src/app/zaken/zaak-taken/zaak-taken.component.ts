@@ -41,6 +41,7 @@ import { injectMutation } from "../../shared/http/inject-mutation";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
+import { RefetchErrorHintComponent } from "../../shared/refetch-error-hint/refetch-error-hint.component";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -54,6 +55,7 @@ import { TakenService } from "../../taken/taken.service";
   animations: [detailExpand],
   standalone: true,
   imports: [
+    RefetchErrorHintComponent,
     I18nKeyPipe,
     MatCard,
     MatCardHeader,
