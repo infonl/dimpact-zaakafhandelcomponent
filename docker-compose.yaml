@@ -1172,20 +1172,11 @@ services:
       - IS_HTTPS=no
       # The image's start script loads every JSON fixture in this directory on startup, after the database migrations.
       - FIXTURES_DIR=/app/src/fixtures
-      - CACHE_DEFAULT=redis:6379/0
-      - CACHE_AXES=redis:6379/0
-      # Environment labeling
-      - SHOW_ENVIRONMENT=yes
-      - ENVIRONMENT_LABEL=docker-compose
-      - ENVIRONMENT_BACKGROUND_COLOR=#1d63ed
-      - ENVIRONMENT_FOREGROUND_COLOR=white
     ports:
       - "8011:8000"
     depends_on:
       vng-selectielijst-database:
         condition: service_healthy
-      redis:
-        condition: service_started
     profiles: [ "vngselectielijst" ]
 
 volumes:
