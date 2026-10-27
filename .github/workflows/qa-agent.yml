@@ -84,7 +84,7 @@ jobs:
 
       - name: Run the QA agent
         id: qa
-        uses: infonl/info-qa-agent@dc3b5056722fe61530e4f349f730b2b1654ae482 # TEMPORARY: feature/initial-version
+        uses: infonl/info-qa-agent@99879448ec93980ab26a5fd64f1fbbbfb3bafdf5 # TEMPORARY: feature/initial-version
         with:
           app-url: ${{ secrets.ZAC_URL }}
           scope: ${{ env.SCOPE }}
@@ -125,7 +125,7 @@ jobs:
     timeout-minutes: 10
     environment: azure-dimpact-dta
     steps:
-      - uses: infonl/info-qa-agent/report@dc3b5056722fe61530e4f349f730b2b1654ae482 # TEMPORARY: feature/initial-version
+      - uses: infonl/info-qa-agent/report@99879448ec93980ab26a5fd64f1fbbbfb3bafdf5 # TEMPORARY: feature/initial-version
         with:
           # Dispatch inputs are empty on scheduled runs, and an empty input compares equal to false.
           slack-webhook-url: ${{ (github.event_name != 'workflow_dispatch' || inputs.post_to_slack) && secrets.QA_AGENT_SLACK_WEBHOOK_URL || '' }}
