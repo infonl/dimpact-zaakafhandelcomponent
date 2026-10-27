@@ -34,6 +34,7 @@
           key="behandelaar"
           [options]="users()"
           optionDisplayValue="naam"
+          subscriptSizing="dynamic"
         >
           @if (isBehandelaarRequired()) {
             <mat-hint>{{
