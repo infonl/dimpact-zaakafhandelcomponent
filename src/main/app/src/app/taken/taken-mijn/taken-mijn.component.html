@@ -296,7 +296,7 @@
         *matCellDef="let row"
         [colSpan]="dataSource.visibleColumns.length"
       >
-        <div [@detailExpand]="row == expandedRow ? 'expanded' : 'collapsed'">
+        <div [@detailExpand]="row === expandedRow ? 'expanded' : 'collapsed'">
           <div class="flex-row flex-wrap gap-10 flex-fill">
             @for (column of dataSource.detailExpandColumns; track column) {
               @switch (column) {

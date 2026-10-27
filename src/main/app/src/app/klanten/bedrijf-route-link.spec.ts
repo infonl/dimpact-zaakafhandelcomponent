@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { fromPartial } from "src/test-helpers";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { buildBedrijfRouteLink } from "./bedrijf-route-link";
 
@@ -40,12 +41,10 @@ describe("buildBedrijfRouteLink", () => {
   });
 
   it("throws for an unknown bedrijf type", () => {
-    // A BSN-typed betrokkene is valid for BetrokkeneIdentificatie but not handled
-    // by buildBedrijfRouteLink, triggering the default throw branch.
-    const bedrijf = {
-      identificatieType: "BSN" as GeneratedType<"IdentificatieType">,
-      temporaryPersonId: "some-uuid",
-    } as unknown as GeneratedType<"RestBedrijf">;
+    const bedrijf = Object.assign(
+      fromPartial<GeneratedType<"RestBedrijf">>({ identificatieType: "BSN" }),
+      { temporaryPersonId: "some-uuid" },
+    );
 
     expect(() => buildBedrijfRouteLink(bedrijf)).toThrow(
       "Unknown bedrijf type",
