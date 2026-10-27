@@ -211,7 +211,7 @@ export class FormioSetupService {
   }
 
   private initializeMedewerkerField(component: ExtendedComponentSchema) {
-    component.valueProperty = "id";
+    component.valueProperty = "username";
     component.template = "{{ item.naam }}";
     component.data = {
       custom: () =>

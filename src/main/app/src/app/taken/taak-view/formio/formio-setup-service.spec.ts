@@ -256,6 +256,24 @@ describe(FormioSetupService.name, () => {
       ]);
     });
 
+    it("should use the username as the value of a medewerker select", async () => {
+      const medewerkerComponent: ExtendedComponentSchema = {
+        key: "medewerker",
+        type: "select",
+        attributes: {
+          [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.MEDEWERKER,
+        },
+        input: true,
+      };
+
+      await formioSetupService.createFormioForm(
+        { components: [medewerkerComponent] } as FormioForm,
+        taak,
+      );
+
+      expect(medewerkerComponent.valueProperty).toBe("username");
+    });
+
     it("should invoke behandelaar groups for zaaktype description endpoint", async () => {
       const clientQuerySpy = jest
         .spyOn(testQueryClient, "query")

@@ -53,8 +53,8 @@ function submitButton(page: Page) {
     .filter({ hasText: /^\s*(Indienen|Selecteren|Ondertekenen)\s*$/ });
 }
 
-// A navigation right after the click aborts the request, which leaves the task open
-// and the next task of the process never started.
+// Waits until the backend has completed the task, so that a rejected form fails here
+// and not in a later step, and the next step cannot navigate away before it is done.
 async function submitTaskForm(page: Page, button = submitButton(page)) {
   const completeTaskResponse = page.waitForResponse(
     (response) =>
