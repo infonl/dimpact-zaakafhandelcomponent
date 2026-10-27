@@ -31,7 +31,7 @@ Chosen option: "Architecture Decision Records in Git, using MADR 4", because MAD
 with front matter that tools and agents can parse, and its sections (context, drivers, options, outcome, consequences,
 confirmation) match what our Confluence decisions already contained.
 
-* Every ADR is a file `docs/adr/NNNN-short-title.md`, based on [the template](template.md).
+* Every ADR is a file `docs/solution-architecture/decisions/NNNN-short-title.md`, based on [the template](template.md).
 * An ADR is added or changed in the same pull request as the change it governs. Merging the pull request accepts the
   decision.
 * The body of an accepted ADR is never changed. A changed decision is a new ADR that supersedes the old one.

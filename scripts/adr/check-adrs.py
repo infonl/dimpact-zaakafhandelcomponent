@@ -3,7 +3,7 @@
 # SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-"""Checks the Architecture Decision Records in docs/adr. See docs/adr/README.md for the rules."""
+"""Checks the Architecture Decision Records in docs/solution-architecture/decisions. See docs/solution-architecture/decisions/README.md for the rules."""
 
 import argparse
 import re
@@ -11,7 +11,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-ADR_DIRECTORY = Path("docs/adr")
+ADR_DIRECTORY = Path("docs/solution-architecture/decisions")
 NON_ADR_FILES = {"README.md", "template.md"}
 ADR_FILE_NAME = re.compile(r"^(\d{4})-[a-z0-9]+(?:-[a-z0-9]+)*\.md$")
 STATUSES = {"proposed", "accepted", "rejected", "deprecated", "superseded"}
@@ -207,7 +207,7 @@ def main() -> int:
     for error in errors:
         print(error, file=sys.stderr)
     if errors:
-        print(f"\n{len(errors)} ADR error(s) found. See docs/adr/README.md for the rules.", file=sys.stderr)
+        print(f"\n{len(errors)} ADR error(s) found. See docs/solution-architecture/decisions/README.md for the rules.", file=sys.stderr)
         return 1
     print(f"{len(adrs)} ADRs are valid.")
     return 0

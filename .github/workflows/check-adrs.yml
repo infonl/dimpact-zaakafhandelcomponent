@@ -7,7 +7,7 @@ name: Check ADRs
 on:
   pull_request:
     paths:
-      - "docs/adr/**"
+      - "docs/solution-architecture/decisions/**"
       - "scripts/adr/**"
       - ".github/workflows/check-adrs.yml"
   merge_group:

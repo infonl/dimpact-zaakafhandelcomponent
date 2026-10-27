@@ -16,6 +16,7 @@ The architecture is documented in more detail on the following pages:
 - [Access Control Policies](accessControlPolicies.md) - The [Open Policy Agent (OPA)](https://www.openpolicyagent.org/) access control policies used by ZAC.
 - [Observability Architecture](observabilityArchitecture.md) - The observability setup used for the ZAC environment.
 - [Business Process Automation Architecture](businessProcessAutomationArchitecture.md) - The business process automation architecture of ZAC based on CMMN and BPMN.
+- [Architecture Decision Records](decisions/README.md) - The architecture decisions made for ZAC.
 
 ## Main characteristics
 
