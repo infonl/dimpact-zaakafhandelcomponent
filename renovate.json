@@ -584,18 +584,6 @@
     },
     {
       "matchPackageNames": [
-        "quay.io/keycloak/keycloak"
-      ],
-      "matchDatasources": [
-        "docker"
-      ],
-      "allowedVersions": "< 26.8.0",
-      "description": [
-        "Pinned by the next Dimpact PodiumD release"
-      ]
-    },
-    {
-      "matchPackageNames": [
         "org.keycloak:keycloak-admin-client"
       ],
       "matchDatasources": [
@@ -615,9 +603,8 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 4.2.0",
       "description": [
-        "Pinned by the next Dimpact PodiumD release"
+        "Group upstream and infonl mirror updates into a single PR"
       ]
     },
     {
@@ -629,9 +616,8 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 3.6.0",
       "description": [
-        "Pinned by the next Dimpact PodiumD release"
+        "Group upstream and infonl mirror updates into a single PR"
       ]
     },
     {
@@ -643,9 +629,8 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 2.16.0",
       "description": [
-        "Pinned by the next Dimpact PodiumD release"
+        "Group upstream and infonl mirror updates into a single PR"
       ]
     },
     {
@@ -657,12 +642,11 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 1.32.0",
       "prBodyNotes": [
         "After merging the Docker Compose change, regenerate the pre-migrated Open Zaak database dump by running `scripts/docker-compose/regenerate-openzaak-database-dump.sh` and commit the result, so that Open Zaak keeps starting without pending database migrations."
       ],
       "description": [
-        "Pinned by the next Dimpact PodiumD release"
+        "Group upstream and infonl mirror updates into a single PR"
       ]
     },
     {
@@ -674,21 +658,8 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 1.18.0",
       "description": [
-        "Pinned by the next Dimpact PodiumD release"
-      ]
-    },
-    {
-      "matchPackageNames": [
-        "redis"
-      ],
-      "matchDatasources": [
-        "docker"
-      ],
-      "allowedVersions": "< 8.7.0",
-      "description": [
-        "Pinned by the next Dimpact PodiumD release"
+        "Group upstream and infonl mirror updates into a single PR"
       ]
     },
     {
@@ -700,9 +671,8 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 2.1.0",
       "description": [
-        "Pinned by the next Dimpact PodiumD release"
+        "Group upstream and infonl mirror updates into a single PR"
       ]
     },
     {
