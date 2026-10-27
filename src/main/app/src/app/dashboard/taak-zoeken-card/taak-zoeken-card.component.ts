@@ -11,18 +11,14 @@ import {
   effect,
   inject,
   signal,
+  untracked,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { MatIconAnchor } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatProgressSpinner } from "@angular/material/progress-spinner";
-import {
-  MatSort,
-  MatSortHeader,
-  Sort,
-  SortDirection,
-} from "@angular/material/sort";
+import { MatSort, MatSortHeader, Sort } from "@angular/material/sort";
 import {
   MatCell,
   MatCellDef,
@@ -38,13 +34,16 @@ import {
 } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
-import { injectQuery } from "@tanstack/angular-query-experimental";
+import { injectLastSuccessfulSearch } from "../../shared/http/last-successful-search";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { TakenMijnDatasource } from "../../taken/taken-mijn/taken-mijn-datasource";
-import { getDefaultZoekParameters } from "../../zoeken/model/zoek-parameters";
+import {
+  getDefaultZoekParameters,
+  ZoekParameters,
+} from "../../zoeken/model/zoek-parameters";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
 
@@ -96,31 +95,34 @@ export class TaakZoekenCardComponent extends DashboardCardComponent {
   ] as const;
   protected override serverSidePagination = true;
   pageSize = 5;
-  pageNumber = signal(0);
-  sortField = signal<GeneratedType<"SorteerVeld">>("TAAK_CREATIEDATUM");
-  sortDirection = signal<SortDirection>("desc");
 
-  zoekParameters = computed(() => {
-    const zoekParameters = TakenMijnDatasource.mijnLopendeTaken(
-      getDefaultZoekParameters(),
-    );
-    zoekParameters.sorteerVeld = this.sortField();
-    zoekParameters.sorteerRichting = this.sortDirection();
-    zoekParameters.rows = this.pageSize;
-    zoekParameters.page = this.pageNumber();
-    return zoekParameters;
+  private readonly requestedZoekParameters = signal<ZoekParameters>({
+    ...TakenMijnDatasource.mijnLopendeTaken(getDefaultZoekParameters()),
+    sorteerVeld: "TAAK_CREATIEDATUM",
+    sorteerRichting: "desc",
+    rows: this.pageSize,
+    page: 0,
   });
 
-  protected readonly zoekQuery = injectQuery(() => ({
-    ...this.zoekenService.list(this.zoekParameters()),
-    refetchInterval: 60 * 1000,
-  }));
+  protected readonly search = injectLastSuccessfulSearch({
+    requested: this.requestedZoekParameters,
+    query: (zoekParameters) => ({
+      ...this.zoekenService.list(zoekParameters),
+      refetchInterval: 60 * 1000,
+    }),
+  });
+
+  protected readonly zoekParameters = this.search.requested;
+  protected readonly totaal = computed(() => this.search.data()?.totaal ?? 0);
 
   constructor() {
     super();
 
     effect(() => {
-      this.dataSource.data = this.zoekQuery.data()?.resultaten ?? [];
+      const resultaten = this.search.data()?.resultaten ?? [];
+      untracked(() => {
+        this.dataSource.data = resultaten as typeof this.dataSource.data;
+      });
     });
   }
 
@@ -132,17 +134,20 @@ export class TaakZoekenCardComponent extends DashboardCardComponent {
     sort.sortChange
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(({ active, direction }: Sort) => {
-        this.pageNumber.set(0);
-        this.sortField.set(active as GeneratedType<"SorteerVeld">);
-        this.sortDirection.set(direction);
+        this.search.request({
+          ...this.zoekParameters(),
+          sorteerVeld: active as GeneratedType<"SorteerVeld">,
+          sorteerRichting: direction,
+          page: 0,
+        });
       });
   }
 
   onPageChange({ pageIndex }: { pageIndex: number }) {
-    this.pageNumber.set(pageIndex);
+    this.search.request({ ...this.zoekParameters(), page: pageIndex });
   }
 
   protected onLoad(): void {
-    this.zoekQuery.refetch();
+    this.search.request(this.zoekParameters());
   }
 }

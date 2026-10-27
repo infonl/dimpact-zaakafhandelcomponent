@@ -4,7 +4,13 @@
   -->
 
 <div class="table-wrapper">
-  <table mat-table matSort [dataSource]="dataSource">
+  <table
+    mat-table
+    matSort
+    [matSortActive]="zoekParameters().sorteerVeld ?? ''"
+    [matSortDirection]="zoekParameters().sorteerRichting"
+    [dataSource]="dataSource"
+  >
     <ng-container matColumnDef="identificatie">
       <th
         mat-header-cell
@@ -62,7 +68,7 @@
     <tr mat-row *matRowDef="let row; columns: columns"></tr>
     <tr class="mat-row" *matNoDataRow>
       <td class="mat-cell dashboard-empty-cell" colspan="5">
-        @if (zoekQuery.isLoading()) {
+        @if (search.query.isLoading()) {
           <mat-progress-spinner
             mode="indeterminate"
             diameter="32"
@@ -79,8 +85,8 @@
 
   <mat-paginator
     [pageSize]="pageSize"
-    [pageIndex]="pageNumber()"
-    [length]="zoekQuery.data()?.totaal ?? 0"
+    [pageIndex]="zoekParameters().page"
+    [length]="totaal()"
     [hidePageSize]="true"
     (page)="onPageChange($event)"
   ></mat-paginator>
