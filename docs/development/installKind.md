@@ -52,6 +52,7 @@ Add these options for the optional services:
 | `-n`   | Open Notificaties. Open Zaak and Open Object then send their notifications to it, and it sends them to ZAC.  |
 | `-a`   | Open Archiefbeheer.                                                                                          |
 | `-f`   | Open Formulieren, with Open Object and Open Notificaties.                                                    |
+| `-v`   | A local VNG Selectielijst API, with the Selectielijst 2020 data. Open Zaak and Open Archiefbeheer keep using the public Selectielijst API. |
 | `-t`   | The test doubles of the integration tests: WireMock for SmartDocuments, KVK and BAG, GreenMail and Open Object. |
 | `-d`   | Deletes the cluster and its data first, so that everything starts from the seed data again.                  |
 | `-e`   | Does not use the 1Password CLI; see [Secrets from 1Password](#secrets-from-1password).                       |
@@ -108,7 +109,7 @@ The script generates the passwords of the stack when it creates the cluster, and
 ones. These are:
 
 - the passwords of the databases;
-- the secret keys of Open Zaak and the other Django components;
+- the secret keys of Open Zaak, VNG Selectielijst and the other Django components;
 - the password of the `admin` user of the Keycloak admin console (http://keycloak.localhost:8081/admin) and of the admin pages
   of Open Zaak, Open Klant, Open Object, Open Notificaties, Open Archiefbeheer and Open Formulieren. The script
   prints it when the stack is ready;
@@ -153,13 +154,14 @@ A small proxy container named `zac-ports` publishes the services of the cluster 
 | PABC                                           | 8006      | `KIND_PORT_PABC`                       |
 | Open Formulieren, through nginx and directly (`-f`) | 8007, 8009 | `KIND_PORT_OPENFORMULIEREN`, `KIND_PORT_OPENFORMULIEREN_WEB` |
 | Open Object (`-o`, `-t`, `-f`)                 | 8010      | `KIND_PORT_OPEN_OBJECT`                |
+| VNG Selectielijst API, at `/api/v1/` (`-v`)    | 8011      | `KIND_PORT_VNG_SELECTIELIJST`          |
 | Office converter                               | 8083      | `KIND_PORT_OFFICE_CONVERTER`           |
 | OPA (only when ZAC runs outside the cluster)   | 8181      | `KIND_PORT_OPA`                        |
 | Solr                                           | 8983      | `KIND_PORT_SOLR`                       |
 | BRP personen mock and its WireMock             | 5010, 18084 | `KIND_PORT_BRP_PERSONEN_MOCK`, `KIND_PORT_BRP_PERSONEN_WIREMOCK` |
 | SmartDocuments, KVK and BAG WireMock (`-t`)    | 18080, 18081, 18082 | `KIND_PORT_SMARTDOCUMENTS_WIREMOCK`, `KIND_PORT_KVK_WIREMOCK`, `KIND_PORT_BAG_WIREMOCK` |
 | GreenMail API and SMTP (`-t`)                  | 18083, 25 | `KIND_PORT_GREENMAIL_API`, `KIND_PORT_GREENMAIL_SMTP` |
-| PostgreSQL databases of ZAC, Open Zaak, Open Object, Open Klant, Keycloak, Open Notificaties, Open Archiefbeheer, PABC and Open Formulieren | 54320, 54322, 54323, 54325, 54326, 54327, 54328, 54329, 54330 | `KIND_PORT_ZAC_DATABASE`, `KIND_PORT_OPENZAAK_DATABASE`, `KIND_PORT_OPEN_OBJECT_DATABASE`, `KIND_PORT_OPENKLANT_DATABASE`, `KIND_PORT_KEYCLOAK_DATABASE`, `KIND_PORT_OPENNOTIFICATIES_DATABASE`, `KIND_PORT_OPENARCHIEFBEHEER_DATABASE`, `KIND_PORT_PABC_DATABASE`, `KIND_PORT_OPENFORMULIEREN_DATABASE` |
+| PostgreSQL databases of ZAC, Open Zaak, Open Object, Open Klant, Keycloak, Open Notificaties, Open Archiefbeheer, PABC, Open Formulieren and VNG Selectielijst | 54320, 54322, 54323, 54325, 54326, 54327, 54328, 54329, 54330, 54331 | `KIND_PORT_ZAC_DATABASE`, `KIND_PORT_OPENZAAK_DATABASE`, `KIND_PORT_OPEN_OBJECT_DATABASE`, `KIND_PORT_OPENKLANT_DATABASE`, `KIND_PORT_KEYCLOAK_DATABASE`, `KIND_PORT_OPENNOTIFICATIES_DATABASE`, `KIND_PORT_OPENARCHIEFBEHEER_DATABASE`, `KIND_PORT_PABC_DATABASE`, `KIND_PORT_OPENFORMULIEREN_DATABASE`, `KIND_PORT_VNG_SELECTIELIJST_DATABASE` |
 
 All databases are on one PostgreSQL server. Each database port connects to that server, so the database name, user
 and password select the database. The users and databases are listed in

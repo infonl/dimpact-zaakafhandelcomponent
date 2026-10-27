@@ -65,7 +65,7 @@ Before running the integration tests, make sure that a new ZAC Docker image has 
 ```bash
 ./start-kind.sh                     # Start all services but ZAC in a kind cluster
 ./start-kind.sh -l                  # ... with the locally built ZAC image (-z: registry image, -b: build first)
-./start-kind.sh -l -o -n            # ... plus optional services (-o Open Object, -n Open Notificaties, -a, -f, -t)
+./start-kind.sh -l -o -n            # ... plus optional services (-o Open Object, -n Open Notificaties, -a, -f, -t, -v)
 ./stop-kind.sh                      # Stop the cluster (-d: delete it)
 ```
 

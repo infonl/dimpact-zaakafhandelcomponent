@@ -17,7 +17,7 @@
          right after a stopped node starts again, its pods still report the readiness they had when it stopped.
 
 <profiles> is a comma-separated list of the optional services: objecten, itest, opennotificaties,
-openarchiefbeheer and openformulieren.
+openarchiefbeheer, openformulieren and vngselectielijst.
 """
 import base64
 import hashlib
@@ -278,7 +278,7 @@ def generated_passwords(existing_secret_file, database_owners, environment):
                      for key, value in json.load(open(existing_secret_file)).get("data", {}).items()}
     keys = (["postgres-password", "admin-password", "solr-password", "office-converter-password"]
             + [f"db-password-{owner}" for owner in database_owners]
-            + [f"secret-key-{release}" for release in DJANGO_RELEASES])
+            + [f"secret-key-{release}" for release in [*DJANGO_RELEASES, "vngselectielijst"]])
     for key in keys:
         override = environment.get(GENERATED_FROM_ENVIRONMENT.get(key, ""), "")
         if override:
@@ -348,7 +348,8 @@ def write_values(stack_file, output_dir, mode, profiles, existing_secret_file):
     write_json(os.path.join(output_dir, "zac-dev.json"), {
         "zacOutsideCluster": mode == "ide",
         "profiles": {profile: profile in profiles.split(",") for profile in
-                     ["objecten", "itest", "opennotificaties", "openarchiefbeheer", "openformulieren"]},
+                     ["objecten", "itest", "opennotificaties", "openarchiefbeheer", "openformulieren",
+                      "vngselectielijst"]},
         "keycloak": {"hostname": keycloak_url, "emailAddresses": email_addresses},
         "officeConverter": {"username": environment.get("OFFICE_CONVERTER_USERNAME") or stack["officeConverterUsername"]},
     })

@@ -41,6 +41,8 @@ openarchiefbeheer:
 # no arm64 image: the arm64 build of Open Formulieren lacks static files that the form editor needs
 openforms:
   image: openformulieren/open-forms:3.5.14@sha256:0320f7ba471453040ecc8362c96cb4acf3d774ee0647633d8c07e0e08007cf8b
+vngSelectielijst:
+  image: openzaak/vng-selectielijst:1.0.5@sha256:4a9579df9a5cd0308e295c404975bcde63f27bc4a6c65cbaa8e63cd4ef1458e5
 # the nginx of the upstream charts and the container that publishes the ports on the host
 nginx:
   image: nginxinc/nginx-unprivileged:1.31.7@sha256:94193d5c4c5df716f412bb08eb97956d98fe6b59886f0bc57d6d3a3402a88a02
@@ -68,6 +70,8 @@ postgres:
       owner: openarchiefbeheer
     - name: openformulieren
       owner: openformulieren
+    - name: selectielijst
+      owner: selectielijst
 
 redis:
   image: redis:8.6.8@sha256:4992e2fd2d992eaa85764b1c9565e15aeadd8f2296cb67f9d04f2fb8da0247ff
@@ -163,6 +167,8 @@ profiles:
   openarchiefbeheer: false
   # -- Open Formulieren (-f)
   openformulieren: false
+  # -- VNG Selectielijst (-v)
+  vngselectielijst: false
 
 # -- run OPA and the office converter for a ZAC that runs outside the cluster, for example in an IDE; the ZAC
 # Helm chart brings its own when ZAC runs in the cluster

@@ -26,6 +26,8 @@
       "selector": { "app.kubernetes.io/name": "openforms" } },
     { "name": "open-object", "hostPort": 8010, "nodePort": 30810, "targetPort": 8000, "profile": "objecten",
       "selector": { "app.kubernetes.io/name": "openobject" } },
+    { "name": "vng-selectielijst", "hostPort": 8011, "nodePort": 30811, "targetPort": 8000, "profile": "vngselectielijst",
+      "selector": { "app": "vng-selectielijst" } },
     { "name": "solr", "hostPort": 8983, "nodePort": 30983, "targetPort": 8983,
       "selector": { "app": "solr" } },
     { "name": "opa", "hostPort": 8181, "nodePort": 30181, "targetPort": 8181, "only": "zacOutsideCluster",
@@ -63,6 +65,8 @@
     { "name": "pabc-database", "hostPort": 54329, "nodePort": 30329, "targetPort": 5432,
       "selector": { "app": "postgres" } },
     { "name": "openformulieren-database", "hostPort": 54330, "nodePort": 30330, "targetPort": 5432,
-      "profile": "openformulieren", "selector": { "app": "postgres" } }
+      "profile": "openformulieren", "selector": { "app": "postgres" } },
+    { "name": "vng-selectielijst-database", "hostPort": 54331, "nodePort": 30331, "targetPort": 5432,
+      "profile": "vngselectielijst", "selector": { "app": "postgres" } }
   ]
 }

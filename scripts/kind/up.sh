@@ -14,7 +14,7 @@
 #   ZAC_DOCKER_IMAGE             the ZAC image (default: ghcr.io/infonl/zaakafhandelcomponent:latest for 'registry',
 #                                ghcr.io/infonl/zaakafhandelcomponent:dev for 'local')
 #   KIND_PROFILES                comma-separated optional services: objecten, itest, opennotificaties,
-#                                openarchiefbeheer, openformulieren
+#                                openarchiefbeheer, openformulieren, vngselectielijst
 #   DOCKER_USE_ARM64_CONTAINERS  'true' or 'false' to use the arm64 images of scripts/kind/values/arm64.yaml or not
 #                                (default: 'true' on an arm64 host)
 #   KIND_PORT_OFFSET             added to every host port (default: 0)
@@ -86,7 +86,7 @@ if [ "$use_arm64" != false ] && [ "$use_arm64" != 0 ]; then
   stack_values+=(-f "$KIND_DIR/values/arm64.yaml")
 fi
 profile_values=()
-for profile in objecten itest opennotificaties openarchiefbeheer openformulieren; do
+for profile in objecten itest opennotificaties openarchiefbeheer openformulieren vngselectielijst; do
   profile_values+=(--set "profiles.$profile=$([[ ,$PROFILES, == *,$profile,* ]] && echo true || echo false)")
 done
 helm template zac-dev "$STACK_CHART" "${stack_values[@]}" "${profile_values[@]}" --set keycloak.hostname=- \

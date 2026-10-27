@@ -9,7 +9,7 @@ help() {
   echo "Starts the local ZAC development stack in a kind cluster, using the 1Password CLI tools to retrieve secrets."
   echo "See docs/development/installKind.md."
   echo
-  echo "Syntax: $0 [-d|e|h|z|b|l|m|t|o|n|a|f]"
+  echo "Syntax: $0 [-d|e|h|z|b|l|t|o|n|a|f|v]"
   echo
   echo "Without -z, -b or -l everything but ZAC starts, so that ZAC can run from an IDE against the cluster."
   echo "Every start makes the cluster match the options: services of options that are left out are removed."
@@ -30,6 +30,7 @@ help() {
   echo "   -n     Start Open Notificaties."
   echo "   -a     Start Open Archiefbeheer."
   echo "   -f     Start Open Formulieren (also starts Open Object and Open Notificaties)."
+  echo "   -v     Start VNG Selectielijst."
   echo
   echo "Environment variables:"
   echo "   KIND_CLUSTER_NAME    name of the kind cluster (default: zac)"
@@ -41,7 +42,7 @@ zacInCluster=""
 deleteCluster=false
 disableOnePassword=false
 profiles=()
-while getopts ':dehzbltonaf' option; do
+while getopts ':dehzbltonafv' option; do
   case $option in
     d) deleteCluster=true ;;
     e) disableOnePassword=true ;;
@@ -58,6 +59,7 @@ while getopts ':dehzbltonaf' option; do
     n) profiles+=(opennotificaties) ;;
     a) profiles+=(openarchiefbeheer) ;;
     f) profiles+=(openformulieren) ;;
+    v) profiles+=(vngselectielijst) ;;
     \?) echo "Invalid option: -$OPTARG" >&2; help >&2; exit 1 ;;
   esac
 done

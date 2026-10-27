@@ -154,7 +154,7 @@ spec:
         - name: zac
           configMap:
             name: seed-zac-database
-{{- range $name := list "postgres" "zac-database" "openzaak-database" "open-object-database" "openklant-database" "keycloak-database" "pabc-database" "opennotificaties-database" "openarchiefbeheer-database" "openformulieren-database" }}
+{{- range $name := list "postgres" "zac-database" "openzaak-database" "open-object-database" "openklant-database" "keycloak-database" "pabc-database" "opennotificaties-database" "openarchiefbeheer-database" "openformulieren-database" "vng-selectielijst-database" }}
 ---
 apiVersion: v1
 kind: Service
