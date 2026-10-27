@@ -36,16 +36,6 @@ import nl.info.client.zgw.ztc.model.createEigenschap
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.createZaakspecifiekGeautoriseerdeMedewerkerRolType
 import nl.info.test.org.flowable.task.api.createTestTask
-import nl.info.zac.app.zaak.exception.GroupNotBehandelaarForZaaktypeException
-import nl.info.zac.app.zaak.exception.MedewerkerAlreadyZaakspecifiekGeautoriseerdException
-import nl.info.zac.app.zaak.exception.MedewerkerCannotBeDetachedException
-import nl.info.zac.app.zaak.exception.MedewerkerNotZaakspecifiekGeautoriseerdException
-import nl.info.zac.app.zaak.exception.ZaakNotZaakspecifiekGeautoriseerdException
-import nl.info.zac.app.zaak.exception.ZaakWithoutBehandelaarCannotBeMarkedException
-import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
-import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
-import nl.info.zac.app.zaak.exception.ZaakspecifiekeAutorisatieNotAllowedException
-import nl.info.zac.app.zaak.exception.ZaaktypeNotZaakspecifiekAutoriseerbaarException
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.flowable.task.FlowableTaskService
@@ -56,6 +46,16 @@ import nl.info.zac.identity.model.createUser
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.task.TaskHistoryService
+import nl.info.zac.zaak.exception.GroupNotBehandelaarForZaaktypeException
+import nl.info.zac.zaak.exception.MedewerkerAlreadyZaakspecifiekGeautoriseerdException
+import nl.info.zac.zaak.exception.MedewerkerCannotBeDetachedException
+import nl.info.zac.zaak.exception.MedewerkerNotZaakspecifiekGeautoriseerdException
+import nl.info.zac.zaak.exception.ZaakNotZaakspecifiekGeautoriseerdException
+import nl.info.zac.zaak.exception.ZaakWithoutBehandelaarCannotBeMarkedException
+import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
+import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
+import nl.info.zac.zaak.exception.ZaakspecifiekeAutorisatieNotAllowedException
+import nl.info.zac.zaak.exception.ZaaktypeNotZaakspecifiekAutoriseerbaarException
 import nl.info.zac.zaak.model.createZaakToewijzing
 
 @Suppress("LargeClass")

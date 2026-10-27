@@ -6,11 +6,11 @@
 package nl.info.zac.search.model
 
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
-import nl.info.zac.app.task.model.TaakStatus
 import nl.info.zac.search.model.zoekobject.DocumentZoekObject
 import nl.info.zac.search.model.zoekobject.TaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.task.model.TaakStatus
 import java.util.UUID
 
 @Suppress("LongParameterList")
