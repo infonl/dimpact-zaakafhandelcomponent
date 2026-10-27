@@ -220,11 +220,16 @@ built for amd64, so on an arm64 host `-l` and `-b` start ZAC faster than `-z`.
 
 ## Inspecting the stack
 
-The cluster has the kubectl context `kind-zac` and runs everything in the namespace `zac`:
+The cluster has the kubectl context `kind-zac` and runs everything in the namespace `zac`.
+The script makes `zac` the default namespace of that context:
 
 ```shell
-kubectl --context kind-zac -n zac get pods
-kubectl --context kind-zac -n zac logs deploy/zac --follow
+kubectl --context kind-zac get pods
+kubectl --context kind-zac logs deploy/zac --follow
 ```
 
 The script writes the files that it generates, such as the Helm values, to `build/kind/<cluster name>`.
+
+When a service does not become ready in time, the script stops and shows the pods and the latest warning events.
+A cluster that an earlier version of the script made can keep data that no longer fits, for example in the Postgres
+volume. Start again with `-d` to delete the cluster first.

@@ -425,6 +425,15 @@ def parse_time(value):
     return datetime.fromisoformat(re.sub(r"(\.\d{6})\d*", r"\1", value).replace("Z", "+00:00"))
 
 
+def print_diagnosis(context, namespace):
+    for arguments in (["get", "pods", "--output", "wide"],
+                      ["get", "events", "--field-selector", "type=Warning", "--sort-by", ".lastTimestamp"]):
+        command = ["kubectl", "--context", context, "--namespace", namespace, *arguments]
+        result = subprocess.run(command, capture_output=True, text=True)
+        print(f"\n$ {' '.join(command)}", file=sys.stderr)
+        print("\n".join((result.stdout + result.stderr).strip().splitlines()[-25:]), file=sys.stderr)
+
+
 def wait_until_ready(context, namespace, timeout, node_started_at, *deployments):
     deadline = time.time() + int(timeout)
     started_at = parse_time(node_started_at)
@@ -455,6 +464,7 @@ def wait_until_ready(context, namespace, timeout, node_started_at, *deployments)
         waiting = still_waiting
         if waiting and time.time() > deadline:
             print(f"Timed out waiting for {', '.join(waiting)}", file=sys.stderr)
+            print_diagnosis(context, namespace)
             sys.exit(1)
         if waiting:
             time.sleep(2)

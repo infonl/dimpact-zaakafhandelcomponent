@@ -167,6 +167,7 @@ fi
 
 step "Creating the configuration, the passwords and the seed data"
 kc create namespace "$NAMESPACE" --dry-run=client -o yaml | kc apply -f - > /dev/null
+kubectl config set-context "$CONTEXT" --namespace "$NAMESPACE" > /dev/null
 kc -n "$NAMESPACE" get secret zac-dev-generated -o json > "$WORK_DIR/generated/existing-secret.json" 2> /dev/null ||
   : > "$WORK_DIR/generated/existing-secret.json"
 python3 "$KIND_DIR/kind_stack.py" values "$WORK_DIR/stack.json" "$WORK_DIR" "$MODE" "$PROFILES" \
