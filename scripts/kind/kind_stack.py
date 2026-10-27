@@ -16,7 +16,7 @@
          before the node started:
          right after a stopped node starts again, its pods still report the readiness they had when it stopped.
 
-<profiles> is a comma-separated list of the optional services: objecten, itest, metrics, opennotificaties,
+<profiles> is a comma-separated list of the optional services: objecten, itest, opennotificaties,
 openarchiefbeheer and openformulieren.
 """
 import base64
@@ -348,7 +348,7 @@ def write_values(stack_file, output_dir, mode, profiles, existing_secret_file):
     write_json(os.path.join(output_dir, "zac-dev.json"), {
         "zacOutsideCluster": mode == "ide",
         "profiles": {profile: profile in profiles.split(",") for profile in
-                     ["objecten", "itest", "metrics", "opennotificaties", "openarchiefbeheer", "openformulieren"]},
+                     ["objecten", "itest", "opennotificaties", "openarchiefbeheer", "openformulieren"]},
         "keycloak": {"hostname": keycloak_url, "emailAddresses": email_addresses},
         "officeConverter": {"username": environment.get("OFFICE_CONVERTER_USERNAME") or stack["officeConverterUsername"]},
     })
@@ -398,8 +398,6 @@ def write_values(stack_file, output_dir, mode, profiles, existing_secret_file):
     set_path(zac_values, "office_converter.username",
              environment.get("OFFICE_CONVERTER_USERNAME") or stack["officeConverterUsername"])
     set_path(zac_values, "office_converter.password", passwords["office-converter-password"])
-    if "metrics" in active_profiles:
-        set_path(zac_values, "opentelemetry-collector.enabled", True)
     write_json(os.path.join(output_dir, "zac.json"), zac_values)
 
     realm = json.load(open(REALM_FILE))

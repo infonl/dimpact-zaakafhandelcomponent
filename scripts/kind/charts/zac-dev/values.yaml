@@ -150,14 +150,6 @@ wiremock:
 greenmail:
   image: greenmail/standalone:2.1.14@sha256:1ef95a966418cd09b7ea91d504d8c0826bbe7a2f6e679a75c601a831587c1626
 
-otelCollector:
-  image: otel/opentelemetry-collector-contrib:0.163.2@sha256:7f22d2a6748110ffb6a59bc0df448bccbf501cdb667d610ede4c61d3863d5849
-tempo:
-  image: grafana/tempo:3.1.1@sha256:64e2fbd56d9c2b3412a4b430a58ea59e91a670b1e75f920a0c702213ad145044
-prometheus:
-  image: prom/prometheus:v3.15.1@sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2
-grafana:
-  image: grafana/grafana:13.2.4@sha256:dbbc38ea21103cefb50396340cd88afec779c7e070b0a7bf5a75b4ce46651d3f
 
 # -- the optional services, which the options of ./start-kind.sh switch on
 profiles:
@@ -165,8 +157,6 @@ profiles:
   objecten: false
   # -- the test doubles of the integration tests: WireMock for SmartDocuments, KVK and BAG, and GreenMail (-t)
   itest: false
-  # -- OpenTelemetry collector, Tempo, Prometheus and Grafana (-m)
-  metrics: false
   # -- Open Notificaties (-n, and with -f)
   opennotificaties: false
   # -- Open Archiefbeheer (-a)
@@ -174,8 +164,8 @@ profiles:
   # -- Open Formulieren (-f)
   openformulieren: false
 
-# -- run OPA, the office converter and the OpenTelemetry collector for a ZAC that runs outside the cluster, for
-# example in an IDE; the ZAC Helm chart brings its own when ZAC runs in the cluster
+# -- run OPA and the office converter for a ZAC that runs outside the cluster, for example in an IDE; the ZAC
+# Helm chart brings its own when ZAC runs in the cluster
 zacOutsideCluster: false
 
 # -- the storage class of the kind cluster

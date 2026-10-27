@@ -107,13 +107,6 @@ The URL at which the services in the cluster reach ZAC: in the cluster, or on th
 {{- end }}
 
 {{/*
-The address of the management interface of ZAC, with its metrics.
-*/}}
-{{- define "zac-dev.zacManagementAddress" -}}
-{{- if .Values.zacOutsideCluster }}host.docker.internal:9990{{ else }}zac-management:9990{{ end }}
-{{- end }}
-
-{{/*
 Shell command that creates the Django superuser 'admin' with the generated admin password in $ADMIN_PASSWORD,
 unless it exists. Usage: include "zac-dev.createAdminUser" "<path of manage.py>"
 */}}

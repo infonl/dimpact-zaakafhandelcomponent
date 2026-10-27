@@ -25,7 +25,6 @@ help() {
   echo "   -l     Start the locally built ZAC Docker image (ghcr.io/infonl/zaakafhandelcomponent:dev)."
   echo
   echo "Additional components:"
-  echo "   -m     Start the services that handle metrics and traces."
   echo "   -t     Start the services of the integration tests."
   echo "   -o     Start Open Object (required e.g. for the Dimpact productaanvraag flow)."
   echo "   -n     Start Open Notificaties."
@@ -42,7 +41,7 @@ zacInCluster=""
 deleteCluster=false
 disableOnePassword=false
 profiles=()
-while getopts ':dehzblmtonaf' option; do
+while getopts ':dehzbltonaf' option; do
   case $option in
     d) deleteCluster=true ;;
     e) disableOnePassword=true ;;
@@ -54,7 +53,6 @@ while getopts ':dehzblmtonaf' option; do
       fi
       case $option in z) zacInCluster=registry ;; b) zacInCluster=build ;; l) zacInCluster=local ;; esac
       ;;
-    m) profiles+=(metrics) ;;
     t) profiles+=(itest) ;;
     o) profiles+=(objecten) ;;
     n) profiles+=(opennotificaties) ;;

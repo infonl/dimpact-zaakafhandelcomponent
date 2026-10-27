@@ -125,20 +125,6 @@ office_converter:
       cpu: 50m
       memory: 256Mi
 
-# the OpenTelemetry collector of the chart, which -m switches on; it sends the traces to Tempo of the zac-dev chart
-opentelemetry-collector:
-  config:
-    exporters:
-      otlp:
-        endpoint: tempo:4317
-        tls:
-          insecure: true
-    service:
-      pipelines:
-        traces:
-          exporters:
-            - otlp
-
 resources:
   requests:
     cpu: 100m
