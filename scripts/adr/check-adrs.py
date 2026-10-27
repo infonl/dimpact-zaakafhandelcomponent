@@ -85,6 +85,22 @@ def check_adr(path: Path, front_matter: dict[str, str], body: str, adr_numbers: 
     return errors
 
 
+def check_supersession_links(adrs: dict[str, tuple[Path, dict[str, str], str]]) -> list[str]:
+    errors = []
+    for number, (path, front_matter, _) in adrs.items():
+        predecessor = adrs.get(front_matter.get("supersedes", ""))
+        if predecessor and front_matter.get("status") == "accepted":
+            if predecessor[1].get("status") != "superseded" or predecessor[1].get("superseded-by") != number:
+                errors.append(
+                    f"{path}: an accepted ADR that supersedes {front_matter['supersedes']} requires that ADR to have "
+                    f"'status: superseded' and 'superseded-by: {number}'"
+                )
+        successor = adrs.get(front_matter.get("superseded-by", ""))
+        if successor and successor[1].get("supersedes") != number:
+            errors.append(f"{path}: ADR {front_matter['superseded-by']} must have 'supersedes: {number}'")
+    return errors
+
+
 def check_index(adrs: dict[str, tuple[Path, dict[str, str], str]]) -> list[str]:
     readme = ADR_DIRECTORY / "README.md"
     rows = {}
@@ -177,6 +193,7 @@ def main() -> int:
 
     for path, front_matter, body in adrs.values():
         errors += check_adr(path, front_matter, body, set(adrs))
+    errors += check_supersession_links(adrs)
     errors += check_index(adrs)
     if arguments.base:
         errors += check_immutability(arguments.base)
