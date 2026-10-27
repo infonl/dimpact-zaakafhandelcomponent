@@ -10,7 +10,8 @@ tags: [documentation, process, ai]
 ## Context and Problem Statement
 
 Our technical decision log lived in Confluence, away from the code it governs. Decisions were not reviewed in the
-pull requests of the code changes they caused, and AI agents working in this repository could not read them. Where and how do we record architecture decisions?
+pull requests of the code changes they caused, and AI agents working in this repository could not read them.
+Where and how do we record architecture decisions?
 See [PZ-13291](https://dimpact.atlassian.net/browse/PZ-13291).
 
 ## Decision Drivers
@@ -31,7 +32,7 @@ Chosen option: "Architecture Decision Records in Git, using MADR 4", because MAD
 with front matter that tools and agents can parse, and its sections (context, drivers, options, outcome, consequences,
 confirmation) match what our Confluence decisions already contained.
 
-* Every ADR is a file `docs/adr/NNNN-short-title.md`, based on [the template](template.md).
+* Every ADR is a file `docs/solution-architecture/decisions/NNNN-short-title.md`, based on [the template](template.md).
 * An ADR is added or changed in the same pull request as the change it governs. Merging the pull request accepts the
   decision.
 * The body of an accepted ADR is never changed. A changed decision is a new ADR that supersedes the old one.
