@@ -6,6 +6,7 @@ package nl.info.zac.search.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
@@ -15,6 +16,7 @@ import io.mockk.verify
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import nl.info.client.zgw.drc.model.createOndertekening
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
@@ -32,6 +34,9 @@ import nl.info.zac.search.model.DocumentIndicatie
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.createZaakAutorisatieGegevens
 import java.net.URI
+import java.time.LocalDate
+import java.time.ZoneId
+import java.util.Date
 import java.util.UUID
 
 class DocumentZoekObjectConverterTest : BehaviorSpec({
@@ -286,6 +291,74 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
                     getDocumentIndicaties() shouldContain DocumentIndicatie.VERGRENDELD
                     vergrendeldDoorGebruikersnaam shouldBe "fakeUsername"
                     vergrendeldDoorNaam shouldBe "fakeFullName"
+                }
+            }
+        }
+    }
+
+    given("An unsigned enkelvoudig informatieobject with an ontvangstdatum and a related zaakinformatieobject for a zaak") {
+        val documentUUID = UUID.randomUUID()
+        val ontvangstdatum = LocalDate.of(2026, 3, 10)
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
+            uuid = documentUUID,
+            ontvangstdatum = ontvangstdatum,
+            ondertekening = null
+        )
+        val zaakInformatieobject = createZaakInformatieobjectForReads(informatieobject = URI("https://example.com/$documentUUID"))
+        val zaakType = createZaakType()
+        val zaak = createZaak(zaaktypeUri = zaakType.url)
+
+        every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns enkelvoudigInformatieObject
+        every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns listOf(zaakInformatieobject)
+        every { zrcClientService.readZaak(any<UUID>()) } returns zaak
+        every { ztcClientService.readZaaktype(any<URI>()) } returns zaakType
+        every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns createInformatieObjectType()
+        every { brcClientService.isInformatieObjectGekoppeldAanBesluit(any()) } returns false
+        every { reindexSupportService.zaakAutorisatieGegevens(zaak.uuid) } returns createZaakAutorisatieGegevens()
+
+        `when`("convert is called on the UUID of the enkelvoudig informatieobject") {
+            val documentZoekObject = documentZoekObjectConverter.convert(documentUUID.toString())
+
+            then("the ontvangstdatum is indexed, but no ondertekening datum, because the document is not signed") {
+                with(documentZoekObject!!) {
+                    this.ontvangstdatum shouldBe Date.from(ontvangstdatum.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
+                    ondertekeningDatum.shouldBeNull()
+                    getDocumentIndicaties() shouldNotContain DocumentIndicatie.ONDERTEKEND
+                }
+            }
+        }
+    }
+
+    given("A signed enkelvoudig informatieobject with an ontvangstdatum and a related zaakinformatieobject for a zaak") {
+        val documentUUID = UUID.randomUUID()
+        val ontvangstdatum = LocalDate.of(2026, 3, 10)
+        val ondertekeningDatum = LocalDate.of(2026, 4, 20)
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
+            uuid = documentUUID,
+            ontvangstdatum = ontvangstdatum,
+            ondertekening = createOndertekening(date = ondertekeningDatum)
+        )
+        val zaakInformatieobject = createZaakInformatieobjectForReads(informatieobject = URI("https://example.com/$documentUUID"))
+        val zaakType = createZaakType()
+        val zaak = createZaak(zaaktypeUri = zaakType.url)
+
+        every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns enkelvoudigInformatieObject
+        every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns listOf(zaakInformatieobject)
+        every { zrcClientService.readZaak(any<UUID>()) } returns zaak
+        every { ztcClientService.readZaaktype(any<URI>()) } returns zaakType
+        every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns createInformatieObjectType()
+        every { brcClientService.isInformatieObjectGekoppeldAanBesluit(any()) } returns false
+        every { reindexSupportService.zaakAutorisatieGegevens(zaak.uuid) } returns createZaakAutorisatieGegevens()
+
+        `when`("convert is called on the UUID of the enkelvoudig informatieobject") {
+            val documentZoekObject = documentZoekObjectConverter.convert(documentUUID.toString())
+
+            then("the ondertekening datum is indexed from the ondertekening and not from the ontvangstdatum") {
+                with(documentZoekObject!!) {
+                    this.ondertekeningDatum shouldBe Date.from(
+                        ondertekeningDatum.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()
+                    )
+                    getDocumentIndicaties() shouldContain DocumentIndicatie.ONDERTEKEND
                 }
             }
         }
