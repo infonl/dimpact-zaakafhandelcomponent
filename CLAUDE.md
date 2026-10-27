@@ -221,4 +221,5 @@ Detailed guides live in `docs/development/`:
 - `endToEndTypeSafety.md` — type safety approach
 - `paging.md` — REST paging conventions
 - `linting-strategy.md` — what the linters check, and the stricter check on specs a pull request touches
+- `architectureRules.md` — the ArchUnit rules for the backend layers and how to handle their frozen violations
 - `logging.md` — logging conventions and GDPR/AVG-required follow-up changes

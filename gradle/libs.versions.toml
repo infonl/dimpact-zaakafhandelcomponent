@@ -61,6 +61,7 @@ eclipse-yasson = "3.0.5"
 
 kotest = "6.2.6"
 mockk = "1.14.11"
+archunit = "1.5.1"
 
 testcontainers = "2.0.5"
 testcontainers-mockserver = "2.0.5"
@@ -145,6 +146,7 @@ eclipse-yasson = { group = "org.eclipse.yasson", name = "yasson", version.ref = 
 kotest-runner-junit5 = { group = "io.kotest", name = "kotest-runner-junit5", version.ref = "kotest" }
 kotest-assertions-json = { group = "io.kotest", name = "kotest-assertions-json", version.ref = "kotest" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+archunit = { group = "com.tngtech.archunit", name = "archunit", version.ref = "archunit" }
 json = { group = "org.json", name = "json", version.ref = "json-json" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 
