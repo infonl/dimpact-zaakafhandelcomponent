@@ -797,6 +797,40 @@
       "description": [
         "The BRP API Personen Mock Docker image uses a custom versioning scheme that Renovate does not support by default. Example: '2.7.0-202506301511'"
       ]
+    },
+    {
+      "description": [
+        "Group the updates of the kind stack (scripts/kind) and of DEPENDENCIES.md in one PR, and automerge it when its checks pass: the stack only serves local development and the tests, so the integration and end-to-end tests on kind are the check",
+        "Open Zaak is left out: an Open Zaak update needs a new Open Zaak database dump. OPA, Gotenberg and nginx-unprivileged are left out: the ZAC Helm chart uses them too. Majors get their own PR"
+      ],
+      "groupName": "kind stack",
+      "matchFileNames": [
+        "scripts/kind/**",
+        "DEPENDENCIES.md"
+      ],
+      "matchPackageNames": [
+        "!openzaak/open-zaak",
+        "!ghcr.io/infonl/open-zaak",
+        "!openpolicyagent/opa",
+        "!docker.io/openpolicyagent/opa",
+        "!gotenberg/gotenberg",
+        "!docker.io/gotenberg/gotenberg",
+        "!nginxinc/nginx-unprivileged",
+        "!docker.io/nginxinc/nginx-unprivileged"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest",
+        "pin",
+        "pinDigest"
+      ],
+      "automerge": true,
+      "platformAutomerge": false,
+      "automergeSchedule": [
+        "* 0,4-23 * * 1-5",
+        "* * * * 0,6"
+      ]
     }
   ]
 }
