@@ -1081,7 +1081,7 @@ services:
 
   openformulieren-celery:
     image: openformulieren/open-forms:3.5.14@sha256:0320f7ba471453040ecc8362c96cb4acf3d774ee0647633d8c07e0e08007cf8b
-    # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
+    # For now, we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
     # This seems to have to do with missing static content (such as JS translation bundles) in the ARM image.
@@ -1109,7 +1109,7 @@ services:
 
   openformulieren-celery-beat:
     image: openformulieren/open-forms:3.5.14@sha256:0320f7ba471453040ecc8362c96cb4acf3d774ee0647633d8c07e0e08007cf8b
-    # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
+    # For now, we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
     # This seems to have to do with missing static content (such as JS translation bundles) in the ARM image.
@@ -1140,6 +1140,54 @@ services:
         condition: service_healthy
     profiles: [ "openformulieren" ]
 
+  vng-selectielijst-database:
+    image: postgres:17.11@sha256:d74eeac9a635390a49bc21bd49fccd973de707e2a53a76ac49b552b8712ec46f
+    ports:
+      - "54331:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+    environment:
+      - POSTGRES_USER=selectielijst
+      - POSTGRES_PASSWORD=selectielijst
+      - POSTGRES_DB=selectielijst
+    volumes:
+      - vng-selectielijst-database-data:/var/lib/postgresql/data
+    profiles: [ "vngselectielijst" ]
+
+  vng-selectielijst-web:
+    image: openzaak/vng-selectielijst:1.0.5@sha256:4a9579df9a5cd0308e295c404975bcde63f27bc4a6c65cbaa8e63cd4ef1458e5
+    platform: linux/amd64
+    environment:
+      - DJANGO_SETTINGS_MODULE=selectielijst.conf.docker
+      - SECRET_KEY=vngSelectielijstSecretKey
+      - DB_NAME=selectielijst
+      - DB_USER=selectielijst
+      - DB_PASSWORD=selectielijst
+      - DB_HOST=vng-selectielijst-database
+      # Only allow all hosts for development/testing purposes!
+      - ALLOWED_HOSTS=*
+      - IS_HTTPS=no
+      # The image's start script loads every JSON fixture in this directory on startup, after the database migrations.
+      - FIXTURES_DIR=/app/src/fixtures
+      - CACHE_DEFAULT=redis:6379/0
+      - CACHE_AXES=redis:6379/0
+      # Environment labeling
+      - SHOW_ENVIRONMENT=yes
+      - ENVIRONMENT_LABEL=docker-compose
+      - ENVIRONMENT_BACKGROUND_COLOR=#1d63ed
+      - ENVIRONMENT_FOREGROUND_COLOR=white
+    ports:
+      - "8011:8000"
+    depends_on:
+      vng-selectielijst-database:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    profiles: [ "vngselectielijst" ]
+
 volumes:
   openformulieren-static:
   openformulieren-media:
@@ -1155,3 +1203,4 @@ volumes:
   openformulieren-database-data:
   solr-data:
   grafana-data:
+  vng-selectielijst-database-data:
