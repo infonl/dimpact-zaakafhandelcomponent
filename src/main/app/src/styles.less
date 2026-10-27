@@ -213,10 +213,86 @@ mat-sidenav-container {
   z-index: 10;
 }
 
-.filter-menu {
+// Saved-search menu of zac-zoekopdracht (all werklijsten)
+.mat-mdc-menu-panel.filter-menu {
+  max-width: none;
+  min-width: 200px;
+
   #deleteZoekopdracht:hover {
     color: #ff4081;
   }
+}
+
+// Add-card menu of DashboardComponent
+.mat-mdc-menu-panel.cards-menu {
+  max-width: fit-content;
+}
+
+// Variables menu of variabelen-kies-menu (html-editor)
+.mat-mdc-menu-panel.variabelenMenu {
+  max-width: none;
+}
+
+// Dropdown panel of zac-facet-filter
+.mat-mdc-select-panel.facet-filter-options {
+  min-width: max-content;
+}
+
+// Stepper of ParametersEditComponent
+.parameters-stepper .mat-stepper-horizontal-line {
+  flex: 0 0 auto !important;
+}
+
+// Search field in the dark toolbar: light label, text and background
+zac-toolbar .search-field {
+  .mdc-floating-label.mdc-floating-label--float-above,
+  .mdc-text-field__input {
+    color: #f5f5f5 !important;
+  }
+
+  .mat-mdc-text-field-wrapper {
+    background-color: rgba(255, 255, 255, 0.25);
+  }
+}
+
+zac-zaak-link zac-date-range-filter mat-form-field {
+  inline-size: 100%;
+}
+
+// Coordinates label floating on the map
+zac-locatie-tonen .overlay .static-text,
+zac-case-location-edit .overlay .static-text {
+  padding: 12px;
+  border-radius: 6px;
+  backdrop-filter: brightness(112.5%) saturate(75%) blur(2.5px);
+}
+
+// Facet filter cards in zac-zoeken
+.zoek-filters .mat-mdc-card-content {
+  padding: 0;
+}
+
+zac-zoeken .form .static-text {
+  margin: 0 5px;
+}
+
+// ngx-editor toolbar, joined to the editor below it
+zac-html-editor .NgxEditor__MenuBar {
+  border: 1px solid var(--ngx-editor-border-color);
+  border-radius: var(--ngx-editor-border-radius);
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+  border-bottom: none;
+}
+
+// Empty hint under the "actief" toggle in the task panel headers
+zac-parameters-step-humantasks zac-toggle mat-hint:empty {
+  display: none;
+}
+
+// Content area of the expandable date filter
+zac-date-filter .date-filter.mat-expansion-panel .mat-expansion-panel-body {
+  padding: 0;
 }
 
 .mat-mdc-select,

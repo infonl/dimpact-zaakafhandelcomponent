@@ -14,7 +14,6 @@ import { GeneratedType } from "../../utils/generated-types";
 @Component({
   selector: "zac-facet-filter",
   templateUrl: "./facet-filter.component.html",
-  styleUrls: ["./facet-filter.component.less"],
   standalone: true,
   imports: [
     I18nKeyPipe,
