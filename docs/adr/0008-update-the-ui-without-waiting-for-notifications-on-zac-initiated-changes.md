@@ -1,7 +1,7 @@
 ---
 status: accepted
 date: 2026-10-27
-decision-makers: Dimpact architecture team, Team Genève, PodiumD Zaak product owner
+decision-makers: Dimpact architecture team, Team Genève, Dimpact product owner
 tags: [websocket, notifications, frontend, backend, architecture]
 ---
 
