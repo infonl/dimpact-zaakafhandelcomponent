@@ -1,2 +1,0 @@
--- create superuser to be able to log in to the UI with username admin and password admin
-INSERT INTO accounts_user (id, password, last_login, is_superuser, username, first_name, last_name, email, is_staff, is_active, date_joined) VALUES (1, 'pbkdf2_sha256$600000$BeQX8sAUsB1dxMhoaL5JnR$fMGe90zEseaPRcYEzBLWWDwFzdgXwBbokBp/4B0q7Og=', null, true, 'admin', '', '', 'admin@example.com', true, true, '2023-08-08 15:14:56.735552 +00:00');

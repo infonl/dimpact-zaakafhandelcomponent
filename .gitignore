@@ -44,18 +44,11 @@ scripts/python/.venv/*
 ### JENV ###
 .java-version
 
-### Docker Compose data ###
-scripts/docker-compose/volume-data*
-
 ### just linux things
 *.swp
 
 ### GitHub ACT secrets file
 scripts/github/.secrets
-
-### Docker Compose ###
-docker-compose.override.yml
-check-for-running-containers.sh
 
 ### macOS ###
 .DS_Store

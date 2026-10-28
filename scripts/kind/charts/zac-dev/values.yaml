@@ -80,8 +80,8 @@ keycloak:
   image: quay.io/keycloak/keycloak:26.7.5@sha256:37dbaf6f0722c9ec246335f36e1ef8b2e6cb960f7c27e0d8c615121a3d475a85
   # -- the URL of Keycloak in the browser, which is also the issuer of the tokens; set by scripts/kind/up.sh
   hostname: ""
-  # -- the e-mail addresses of the test users and groups of the realm, which DOCKER_COMPOSE_<NAME>_EMAIL_ADDRESS
-  # in .env overrides
+  # -- the e-mail addresses of the test users and groups of the realm, which KIND_<NAME>_EMAIL_ADDRESS in
+  # .env overrides
   emailAddresses:
     ZAC_RAADPLEGER_TEST_1_EMAIL_ADDRESS: raadpleger-test-1@example.com
     ZAC_RAADPLEGER_TEST_2_EMAIL_ADDRESS: raadpleger-test-2@example.com

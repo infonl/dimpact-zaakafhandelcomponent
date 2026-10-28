@@ -12,10 +12,6 @@ This document lists the Docker images and versions that the corresponding versio
 - **openpolicyagent/opa**: 1.21.4-static
 - **brp-api/personen-mock**: 2.7.0-202610201628
 - **gotenberg**: 8.39.0
-- **otel/opentelemetry-collector-contrib**: 0.164.0
-- **grafana/tempo**: 3.1.1
-- **prom/prometheus**: v3.15.1
-- **grafana/grafana**: 13.3.0
 - **greenmail/standalone**: 2.1.15
 - **nginxinc/nginx-unprivileged**: 1.31.7
 
@@ -32,5 +28,5 @@ This document lists the Docker images and versions that the corresponding versio
 
 ## Update Process
 
-This file is automatically kept in sync with the main [Docker Compose](docker-compose.yaml) file by Renovate.
-When a Docker image version is updated in the main Docker Compose file, Renovate will automatically update this file in the same PR.
+Renovate keeps this file in sync with the images of the local [kind stack](scripts/kind/charts/zac-dev/values.yaml).
+When it updates a Docker image version there, it updates this file in the same PR.

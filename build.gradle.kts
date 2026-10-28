@@ -542,7 +542,7 @@ configure<SpotlessExtension> {
         target(
             "src/**/*.json",
             "scripts/bruno/**/*.json",
-            "scripts/docker-compose/imports/**/*.json",
+            "scripts/kind/seed/**/*.json",
             "scripts/load-test/**/*.json"
         )
         targetExclude(
