@@ -123,14 +123,9 @@ jobs:
     runs-on: ubuntu-26.04
     timeout-minutes: 10
     environment: azure-dimpact-dta
-    # Write access only for the draft PR with the agent's suggested improvements to .qa-agent/*.md.
-    permissions:
-      contents: write
-      pull-requests: write
     steps:
       - uses: infonl/info-qa-agent/report@fff1c6d19516c2de84cb6a801045d3f79c9b239d # main
         with:
-          suggest-instructions: true
           # Dispatch inputs are empty on scheduled runs, and an empty input compares equal to false.
           slack-webhook-url: ${{ (github.event_name != 'workflow_dispatch' || inputs.post_to_slack) && secrets.QA_AGENT_SLACK_WEBHOOK_URL || '' }}
           jira-base-url: https://dimpact.atlassian.net
