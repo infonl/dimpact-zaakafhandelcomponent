@@ -8,19 +8,16 @@ language (Dutch or English); your tests run with a Dutch browser, so look up lab
 Backend changes in `src/main/kotlin` and `src/main/java` (Java to Kotlin conversions, package moves) are
 usually `not-testable`, unless the PR changes what a user sees.
 
-## Logging in
+## Test users
 
-- Open `/`. It redirects to Keycloak, whose login page stays in English.
-- Fill "Username or email" and "Password" (use `{ exact: true }` for the password label), click "Sign In".
-- Logged in when the profile icon `account_circle` shows (`page.getByText("account_circle").first()`);
-  this can take up to 30 seconds.
+`globalSetup.ts` logs both users in before your run, so tests start logged in as user 1. Logged in means
+the profile icon `account_circle` shows (`page.getByText("account_circle").first()`). Their exact rights
+are unknown; user 1 can open the admin pages.
 
-Test users (their exact rights are unknown; user 1 can open the admin pages):
-
-| Credentials | Display name | Group |
-|---|---|---|
-| `QA_USERNAME`, `QA_PASSWORD` (user 1) | E2etest User1 | Test groep A |
-| `QA_USERNAME_2`, `QA_PASSWORD_2` (user 2) | E2etest User2 | Test groep B |
+| User | Display name | Group | Session |
+|---|---|---|---|
+| user 1 | E2etest User1 | Test groep A | `auth/user1.json` (default) |
+| user 2 | E2etest User2 | Test groep B | `auth/user2.json` |
 
 ## Pages
 
@@ -73,7 +70,7 @@ Creating a zaak takes up to a minute, so give `test.beforeAll` a longer timeout:
 
 Create as few zaken as you can: only for tests about zaak behaviour, and one zaak per spec file, created
 in `test.beforeAll` and shared by its tests. Pages and lists need no zaak of your own. Don't abort or close
-your zaken yourself, unless that is what you test: the cleanup does that after the run.
+your zaken yourself, unless that is what you test: `globalTeardown.ts` aborts them after the run.
 
 ## Project rules
 

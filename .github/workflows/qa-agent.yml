@@ -80,7 +80,7 @@ jobs:
 
       - name: Run the QA agent
         id: qa
-        uses: infonl/info-qa-agent@286c0522a5c4ce8dc34491f83359f0187ae7ad81 # main
+        uses: infonl/info-qa-agent@768a4a6e35f10a21ad97e416448844d97bc1d278 # TEMPORARY: feature/lifecycle-hooks
         with:
           app-url: ${{ secrets.ZAC_URL }}
           username: ${{ secrets.ZAC_E2E_TEST_USER_1_USERNAME }}
@@ -124,7 +124,7 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: infonl/info-qa-agent/report@286c0522a5c4ce8dc34491f83359f0187ae7ad81 # main
+      - uses: infonl/info-qa-agent/report@768a4a6e35f10a21ad97e416448844d97bc1d278 # TEMPORARY: feature/lifecycle-hooks
         with:
           suggest-instructions: true
           # Dispatch inputs are empty on scheduled runs, and an empty input compares equal to false.
