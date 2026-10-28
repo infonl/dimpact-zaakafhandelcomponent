@@ -14,7 +14,6 @@ import { I18nKeyPipe } from "../../../pipes/i18n-key.pipe";
 @Component({
   selector: "variabelen-kies-menu",
   templateUrl: "./variabelen-kies-menu.component.html",
-  styleUrls: ["./variabelen-kies-menu.component.less"],
   standalone: true,
   imports: [
     I18nKeyPipe,
