@@ -20,6 +20,7 @@ import nl.info.zac.app.zaak.model.besluit.RestBesluitChangeData
 import nl.info.zac.app.zaak.model.besluit.RestBesluitCreateData
 import nl.info.zac.identification.IdentificatieType
 import nl.info.zac.search.model.ZaakIndicatie
+import nl.info.zac.zaak.model.RelatieType
 import java.net.URI
 import java.time.LocalDate
 import java.util.EnumSet

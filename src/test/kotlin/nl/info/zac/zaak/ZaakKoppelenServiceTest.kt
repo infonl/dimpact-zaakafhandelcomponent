@@ -24,7 +24,6 @@ import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.event.EventingService
@@ -37,6 +36,7 @@ import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.IndexingService
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.websocket.event.ScreenEventType
+import nl.info.zac.zaak.model.RelatieType
 import java.net.URI
 import java.util.UUID
 

@@ -12,7 +12,6 @@ import nl.info.client.zgw.zrc.model.GerelateerdeZakenZaakPatch
 import nl.info.client.zgw.zrc.model.NillableHoofdzaakZaakPatch
 import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.event.EventingService
 import nl.info.zac.exception.ErrorCode
@@ -23,6 +22,7 @@ import nl.info.zac.search.IndexingService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.websocket.event.ScreenEventType
+import nl.info.zac.zaak.model.RelatieType
 import nl.info.zac.zaak.model.ZaakNotLinkableReason
 import nl.info.zac.zaak.model.canLinkNewZaakAs
 import nl.info.zac.zaak.model.getDeelzaaktypenSet

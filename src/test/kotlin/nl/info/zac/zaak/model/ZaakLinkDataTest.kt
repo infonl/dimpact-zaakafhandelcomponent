@@ -10,7 +10,6 @@ import io.kotest.matchers.shouldBe
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.zac.app.zaak.model.RelatieType
 import java.net.URI
 import java.util.UUID
 

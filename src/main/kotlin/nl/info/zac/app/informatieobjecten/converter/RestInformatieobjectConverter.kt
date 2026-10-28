@@ -30,7 +30,6 @@ import nl.info.zac.app.policy.model.toRestDocumentRechten
 import nl.info.zac.app.shared.toDrcVertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.shared.toRestVertrouwelijkheidaanduiding
 import nl.info.zac.app.task.model.RestTaskDocumentData
-import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
@@ -41,6 +40,7 @@ import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.DocumentRechten
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.util.toBase64String
+import nl.info.zac.zaak.model.RelatieType
 import org.eclipse.jetty.http.HttpStatus
 import java.time.LocalDate
 import java.util.UUID

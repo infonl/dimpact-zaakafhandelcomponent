@@ -58,7 +58,6 @@ import nl.info.zac.app.informatieobjecten.model.createRestFileUpload
 import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjectZoekParameters
 import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjecttype
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
-import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.FileSizeConfiguration
@@ -86,6 +85,7 @@ import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.webdav.WebdavHelper
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
+import nl.info.zac.zaak.model.RelatieType
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException

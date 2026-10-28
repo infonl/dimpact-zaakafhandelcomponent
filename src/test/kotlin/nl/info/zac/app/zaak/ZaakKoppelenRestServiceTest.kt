@@ -27,7 +27,6 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.app.search.model.RestDatumRange
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
-import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.createRestFindLinkableZakenRequest
 import nl.info.zac.app.zaak.model.createRestZaakLinkData
 import nl.info.zac.app.zaak.model.createRestZaakUnlinkData
@@ -50,6 +49,7 @@ import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType.ZAAK
 import nl.info.zac.zaak.ZaakKoppelenService
 import nl.info.zac.zaak.ZaakService
+import nl.info.zac.zaak.model.RelatieType
 import nl.info.zac.zaak.model.ZaakNotLinkableReason
 import java.net.URI
 import java.time.LocalDate

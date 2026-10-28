@@ -28,7 +28,6 @@ import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.search.model.RestZaakKoppelenZoekObject
 import nl.info.zac.app.search.model.RestZoekResultaat
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
-import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestFindLinkableZakenRequest
 import nl.info.zac.app.zaak.model.RestZaakLinkData
 import nl.info.zac.app.zaak.model.RestZaakUnlinkData
@@ -54,6 +53,7 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakKoppelenService
 import nl.info.zac.zaak.ZaakService
+import nl.info.zac.zaak.model.RelatieType
 import nl.info.zac.zaak.model.ZaakLinkData
 import nl.info.zac.zaak.model.ZaakNotLinkableReason
 import nl.info.zac.zaak.model.alreadyGerelateerdReason

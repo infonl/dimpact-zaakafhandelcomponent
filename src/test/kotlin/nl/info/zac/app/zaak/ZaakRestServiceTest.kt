@@ -82,7 +82,6 @@ import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
 import nl.info.zac.app.zaak.exception.DueDateNotAllowed
 import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.CreateZaakResponse
-import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestReden
 import nl.info.zac.app.zaak.model.RestZaakAanmaakGegevens
 import nl.info.zac.app.zaak.model.RestZaakAanmaakKoppeling
@@ -146,6 +145,7 @@ import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
 import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import nl.info.zac.zaak.exception.ZaaktypeNotZaakspecifiekAutoriseerbaarException
+import nl.info.zac.zaak.model.RelatieType
 import nl.info.zac.zaak.model.ZaakAssignment
 import nl.info.zac.zaak.model.createZaakAssignment
 import org.apache.http.HttpStatus

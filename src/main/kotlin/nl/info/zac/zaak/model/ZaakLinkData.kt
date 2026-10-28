@@ -13,7 +13,6 @@ import nl.info.client.zgw.zrc.util.isHoofdzaak
 import nl.info.client.zgw.zrc.util.isLinkedTo
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.policy.output.ZaakRechten
 import java.util.UUID
 
