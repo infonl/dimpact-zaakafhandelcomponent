@@ -26,11 +26,24 @@ class ZacCreateUserTaskInterceptor : CreateUserTaskInterceptor {
     override fun afterCreateUserTask(context: CreateUserTaskAfterContext) {
         val zaakUUID = context.execution.parent.getVariable(VAR_ZAAK_UUID) as UUID
         val screenEvent = ScreenEventType.ZAAK_TAKEN.updated(zaakUUID)
+        val task = context.taskEntity
         // The zaak page reloads its taken on this event, and the task only exists for it once Flowable has
         // committed the transaction, which can take longer than any fixed delay.
         Context.getTransactionContext().addTransactionListener(TransactionState.COMMITTED) {
-            FlowableHelper.getInstance().eventingService.send(screenEvent)
+            val flowableHelper = FlowableHelper.getInstance()
+            flowableHelper.eventingService.send(screenEvent)
+
+            task.assignee?.let {
+                val isGranted = flowableHelper.zaakspecifiekeAutorisatieService
+                    .grantZaakspecifiekeAutorisatieToTaakbehandelaar(
+                        zaak = flowableHelper.zrcClientService.readZaak(zaakUUID),
+                        medewerkerId = it
+                    )
+                if (isGranted) {
+                    flowableHelper.taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, it)
+                }
+            }
         }
-        FlowableHelper.getInstance().indexeerService.addOrUpdateTaak(context.taskEntity.id)
+        FlowableHelper.getInstance().indexeerService.addOrUpdateTaak(task.id)
     }
 }
