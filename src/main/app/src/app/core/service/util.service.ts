@@ -168,7 +168,7 @@ export class UtilService {
       },
       disableClose: true,
       panelClass: "full-screen-dialog",
-      backdropClass: "progress-dialog-backdrop",
+      backdropClass: ["cdk-overlay-dark-backdrop", "progress-dialog-backdrop"],
     });
 
     return dialogRef.afterClosed();
