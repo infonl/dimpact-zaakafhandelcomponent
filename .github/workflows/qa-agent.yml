@@ -72,8 +72,8 @@ jobs:
             runner_ip=$(curl -sS https://api.ipify.org)
             az network nsg rule create -g zac-infra --nsg-name k8s-test-nsg -n allow_qa_agent_runner --priority 296 --source-address-prefixes "$runner_ip" --destination-port-ranges '*' --direction Inbound --access allow --protocol '*' --destination-address-prefixes '*'
 
-      # Tests written by the agent can run any program, including the Azure CLI, so no Azure session may
-      # be left on the runner while they run. The firewall rule is removed with a new login at the end.
+      # Tests written by the agent can run any program, so no Azure session may be left on this runner while
+      # they run, and this runner never logs in again: the close-firewall job removes the rule.
       - name: Sign out of Azure
         if: always()
         run: az account clear
@@ -97,14 +97,22 @@ jobs:
           jira-email: ${{ secrets.QA_AGENT_JIRA_EMAIL }}
           jira-api-token: ${{ secrets.QA_AGENT_JIRA_API_TOKEN }}
 
-      - name: Login to Azure again
-        if: always() && steps.firewall.outcome != 'skipped'
+  # On a fresh runner: the agent's tests may have changed anything on their own runner, including the az
+  # program a new login there would use. Deleting the rule only needs its name, not the agent runner's IP.
+  close-firewall:
+    name: "Close firewall"
+    needs: qa-agent
+    if: always()
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    environment: azure-dimpact-dta
+    steps:
+      - name: Login to Azure
         uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3.1.0
         with:
           creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
 
       - name: Remove the firewall rule
-        if: always() && steps.firewall.outcome != 'skipped'
         uses: azure/cli@9eb25b8360668fb0ecbafa808d40e2197b2f5f52 # v3.0.0
         with:
           azcliversion: latest
