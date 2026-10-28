@@ -20,6 +20,7 @@
 openarchiefbeheer, openformulieren and vngselectielijst.
 """
 import base64
+import errno
 import hashlib
 import json
 import os
@@ -76,8 +77,10 @@ def is_port_in_use(host_port):
         listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         try:
             listener.bind(("127.0.0.1", host_port))
-        except OSError:
-            return True
+        except OSError as error:
+            # a normal user may not bind a port below 1024 on 127.0.0.1 (macOS) or at all (Linux), while Docker can
+            # still publish it there: a denied bind does not mean that the port is in use
+            return error.errno != errno.EACCES
     return False
 
 
