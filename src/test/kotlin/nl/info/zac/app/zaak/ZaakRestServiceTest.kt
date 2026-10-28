@@ -1899,6 +1899,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zgwApiService.closeZaak(zaak, nietOntvankelijkResultaattypeUuid, "Zaak is niet ontvankelijk")
             } just runs
             every { zaakProcessService.terminate(any(), zaak.uuid) } returns Unit
+            every { indexingService.addOrUpdateTakenForZaak(zaak.uuid) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
             every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser) } returns createRestZaak()
 
@@ -1916,6 +1917,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                             "Zaak is niet ontvankelijk"
                         )
                         zaakProcessService.terminate(any(), zaak.uuid)
+                    }
+                }
+
+                then("its ended taken are removed from the search index after its process is terminated") {
+                    verifyOrder {
+                        zaakProcessService.terminate(any(), zaak.uuid)
+                        indexingService.addOrUpdateTakenForZaak(zaak.uuid)
                     }
                 }
             }
@@ -1999,6 +2007,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zgwApiService.closeZaak(zaak, nietOntvankelijkResultaattypeUuid, "Zaak is niet ontvankelijk")
             } just runs
             every { zaakProcessService.terminate(any(), zaak.uuid) } returns Unit
+            every { indexingService.addOrUpdateTakenForZaak(zaak.uuid) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
             every {
                 restZaakConverter.toRestZaak(
@@ -2089,6 +2098,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 } returns createResultaatType(url = URI("https://example.com/resultaattypen/$resultTypeUUID"))
                 every { zgwApiService.closeZaak(zaak, resultTypeUUID, "-2 name") } just runs
                 every { zaakProcessService.terminate(any(), zaak.uuid) } returns Unit
+                every { indexingService.addOrUpdateTakenForZaak(zaak.uuid) } just runs
                 every { loggedInUserInstance.get() } returns loggedInUser
                 every {
                     restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
@@ -2198,6 +2208,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zgwApiService.closeZaak(zaak, nietOntvankelijkResultaattypeUuid, "Zaak is niet ontvankelijk")
             } just runs
             every { zaakProcessService.terminate(any(), zaak.uuid) } returns Unit
+            every { indexingService.addOrUpdateTakenForZaak(zaak.uuid) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
             every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser) } returns createRestZaak()
 
@@ -2215,6 +2226,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                             "Zaak is niet ontvankelijk"
                         )
                         zaakProcessService.terminate(any(), zaak.uuid)
+                    }
+                }
+
+                then("its ended taken are removed from the search index after its process is terminated") {
+                    verifyOrder {
+                        zaakProcessService.terminate(any(), zaak.uuid)
+                        indexingService.addOrUpdateTakenForZaak(zaak.uuid)
                     }
                 }
             }
