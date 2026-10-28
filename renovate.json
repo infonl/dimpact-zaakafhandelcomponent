@@ -464,6 +464,15 @@
       ]
     },
     {
+      "matchPackageNames": [
+        "@types/node"
+      ],
+      "allowedVersions": "< 25.0.0",
+      "description": [
+        "Keep @types/node on the Node.js major in .nvmrc; raise this cap together with the runtime-major upgrade"
+      ]
+    },
+    {
       "groupName": "Helm CLI",
       "matchPackageNames": [
         "helm",
