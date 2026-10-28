@@ -1025,7 +1025,10 @@ services:
                 for f in json_files:
                     zf.write(f, os.path.basename(f))
             with open('/tmp/forms.zip', 'rb') as zip_file:
-                import_form(zip_file)
+                imported_form = import_form(zip_file)
+            # import_form does not assign the logic rules to the form steps, which is
+            # needed before the rules are evaluated
+            imported_form.apply_logic_analysis()
             print('Productaanvraag-Dimpact form imported successfully')
         form = Form.objects.get(slug=FORM_SLUG)
         if not form.active:
