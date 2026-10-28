@@ -36,6 +36,7 @@ import { Router, RouterLink, RouterLinkActive } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { PolicyService } from "../../policy/policy.service";
 import {
@@ -88,6 +89,7 @@ export class ToolbarComponent implements OnDestroy {
   private readonly policyService = inject(PolicyService);
   private readonly router = inject(Router);
   private readonly zakenService = inject(ZakenService);
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
   protected readonly queryClient = inject(QueryClient);
   protected readonly createZaakMutationKey =
@@ -183,5 +185,9 @@ export class ToolbarComponent implements OnDestroy {
 
   protected isTaskRouteActive() {
     return this.router.url.startsWith("/taken/");
+  }
+
+  protected logOut() {
+    this.foutAfhandelingService.ignoreLoggedOutErrors();
   }
 }

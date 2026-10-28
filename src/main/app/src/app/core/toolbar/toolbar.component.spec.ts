@@ -31,6 +31,7 @@ import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
 import { mockMutationFn, sleep, testQueryClient } from "../../../../setupJest";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { PolicyService } from "../../policy/policy.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -511,6 +512,27 @@ describe(ToolbarComponent.name, () => {
         .mockReturnValue("/zaken/werkvoorraad");
 
       expect(fixture.componentInstance["isTaskRouteActive"]()).toBe(false);
+    });
+  });
+  describe("Uitloggen", () => {
+    it("tells the error handling to leave the page alone, so that a reload does not cancel the logout", async () => {
+      const ignoreLoggedOutErrors = jest.spyOn(
+        TestBed.inject(FoutAfhandelingService),
+        "ignoreLoggedOutErrors",
+      );
+      createComponent();
+      document.addEventListener("click", (event) => event.preventDefault(), {
+        once: true,
+      });
+
+      await user.click(
+        screen.getByRole("button", { name: "Gebruikers profiel" }),
+      );
+      await user.click(
+        await screen.findByRole("menuitem", { name: /actie.uitloggen/ }),
+      );
+
+      expect(ignoreLoggedOutErrors).toHaveBeenCalledTimes(1);
     });
   });
 });
