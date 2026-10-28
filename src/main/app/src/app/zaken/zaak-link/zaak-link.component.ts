@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgTemplateOutlet } from "@angular/common";
 import {
   Component,
   computed,
@@ -11,6 +12,7 @@ import {
   input,
   output,
   signal,
+  viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import {
@@ -24,7 +26,7 @@ import { MatDivider } from "@angular/material/divider";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatIcon } from "@angular/material/icon";
 import { MatProgressSpinner } from "@angular/material/progress-spinner";
-import { MatDrawer } from "@angular/material/sidenav";
+import { MatDrawer, MatSidenavModule } from "@angular/material/sidenav";
 import { MatTableModule } from "@angular/material/table";
 import { MatTabsModule } from "@angular/material/tabs";
 import { MatToolbar } from "@angular/material/toolbar";
@@ -89,6 +91,8 @@ const newCaseRelationOption = <T extends ZaakCreateKoppeling["relatieType"]>(
     I18nKeyPipe,
     MatTooltip,
     MatTabsModule,
+    MatSidenavModule,
+    NgTemplateOutlet,
     ZaakCreateComponent,
   ],
 })
@@ -96,6 +100,8 @@ export class ZaakLinkComponent {
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
   readonly sideNav = input.required<MatDrawer>();
   readonly zaakLinked = output<void>();
+
+  protected readonly zaakCreate = viewChild(ZaakCreateComponent);
 
   private readonly formBuilder = inject(FormBuilder);
   private readonly zoekenService = inject(ZoekenService);

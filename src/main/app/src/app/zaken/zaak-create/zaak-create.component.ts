@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgTemplateOutlet } from "@angular/common";
 import {
   Component,
   computed,
@@ -11,6 +12,7 @@ import {
   input,
   output,
   signal,
+  TemplateRef,
   untracked,
   viewChild,
 } from "@angular/core";
@@ -20,7 +22,11 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
-import { MatSidenav, MatSidenavModule } from "@angular/material/sidenav";
+import {
+  MatDrawer,
+  MatSidenav,
+  MatSidenavModule,
+} from "@angular/material/sidenav";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { Router } from "@angular/router";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
@@ -59,6 +65,7 @@ import {
   standalone: true,
   imports: [
     BackButtonDirective,
+    NgTemplateOutlet,
     ReactiveFormsModule,
     MatSidenavModule,
     MatButtonModule,
@@ -78,6 +85,11 @@ import {
 })
 export class ZaakCreateComponent {
   readonly koppeling = input<ZaakCreateKoppeling | null>(null);
+  /**
+   * Drawer of the embedding component in which the pickers open, instead of the drawer of this component.
+   * The embedding component renders {@link sideActions} in it.
+   */
+  readonly hostSidenav = input<MatDrawer | null>(null);
   readonly zaakCreated = output<string>();
   readonly cancelled = output<void>();
 
@@ -92,7 +104,12 @@ export class ZaakCreateComponent {
   private readonly queryClient = inject(QueryClient);
   static DEFAULT_CHANNEL = "E-formulier";
 
-  protected readonly actionsSidenav = viewChild.required(MatSidenav);
+  private readonly ownSidenav = viewChild(MatSidenav);
+  protected readonly actionsSidenav = computed(
+    () => this.hostSidenav() ?? this.ownSidenav()!,
+  );
+  readonly sideActions =
+    viewChild.required<TemplateRef<unknown>>("sideActions");
 
   protected activeSideAction: string | null = null;
 

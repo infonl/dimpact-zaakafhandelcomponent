@@ -732,6 +732,35 @@ describe(ZaakLinkComponent.name, () => {
       ).toBeInTheDocument();
     });
 
+    it("opens the BAG picker of the new zaak over the whole panel, so the tabs and the relation cannot be used while it is open", async () => {
+      await setup(openZaakThatMayBeLinked(), [startableZaaktype]);
+      await openNewZaakTab();
+
+      await user.click(
+        screen.getByRole("button", { name: "actie.bag-object.koppelen" }),
+      );
+      await sleep();
+      fixture.detectChanges();
+
+      const pickerTitle = await screen.findByRole("heading", {
+        name: "actie.bag-object.koppelen",
+        level: 3,
+      });
+      // mat-sidenav-container exposes no role, so the drawer the picker opens in is only reachable through the DOM.
+      // eslint-disable-next-line testing-library/no-node-access
+      expect(pickerTitle.closest("zac-zaak-create")).toBeNull();
+      // eslint-disable-next-line testing-library/no-node-access
+      const panel = pickerTitle.closest<HTMLElement>("mat-sidenav-container");
+      expect(panel).not.toBeNull();
+      expect(within(panel!).getByRole("tablist")).toBeInTheDocument();
+      expect(
+        within(panel!).getByRole("heading", {
+          name: "actie.zaak.koppelen",
+          level: 3,
+        }),
+      ).toBeInTheDocument();
+    });
+
     it("chooses a gerelateerde zaak again once the panel is closed", async () => {
       await setup(openZaakThatMayBeLinked(), [startableZaaktype]);
       await openNewZaakTab();
