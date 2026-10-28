@@ -1,0 +1,66 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# Values for the maykinmedia/openforms chart (release 'openforms'). scripts/kind/up.sh adds the image, the generated
+# passwords and the URLs of the browser; the seed-openformulieren Job of the zac-dev chart configures it, creates its
+# 'admin' user and imports the productaanvraag-Dimpact test form.
+replicaCount: 1
+
+tags:
+  redis: false
+
+service:
+  port: 8000
+
+settings:
+  allowedHosts: openforms,openforms-nginx,localhost,127.0.0.1,host.docker.internal
+  # docker_local.py of the zac-dev chart, which switches off the second factor and switches on the demo plugins
+  djangoSettingsModule: openforms.conf.docker_local
+  useXForwardedHost: true
+  isHttps: false
+  cache:
+    default: redis:6379/2
+    axes: redis:6379/2
+  celery:
+    brokerUrl: redis://redis:6379/2
+    resultBackend: redis://redis:6379/2
+  cors:
+    allowAllOrigins: true
+
+extraEnvVars:
+  - name: TZ
+    value: Europe/Amsterdam
+  - name: DISABLE_2FA
+    value: "true"
+extraVolumes:
+  - name: settings
+    configMap:
+      name: openformulieren-settings
+extraVolumeMounts:
+  - name: settings
+    mountPath: /app/src/openforms/conf/docker_local.py
+    subPath: docker_local.py
+
+# a ReadWriteOnce volume of the zac-dev chart, which the web and Celery pods share on the one node of kind
+persistence:
+  enabled: true
+  existingClaim: openforms-media
+
+startupProbe:
+  failureThreshold: 60
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 512Mi
+  limits:
+    memory: 2Gi
+
+worker:
+  replicaCount: 1
+  concurrency: 2
+beat:
+  replicaCount: 1
+flower:
+  enabled: false

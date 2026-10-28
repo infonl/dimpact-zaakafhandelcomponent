@@ -23,10 +23,22 @@
   },
   "helm-values": {
     "managerFilePatterns": [
-      "/(^|/)ci/.+values\\.ya?ml$/"
+      "/(^|/)ci/.+values\\.ya?ml$/",
+      "/^scripts/kind/values/arm64\\.yaml$/"
     ]
   },
   "customManagers": [
+    {
+      "customType": "regex",
+      "description": "The upstream Helm charts of the kind stack",
+      "managerFilePatterns": [
+        "/^scripts/kind/charts/zac-dev/values\\.yaml$/"
+      ],
+      "matchStrings": [
+        "\\n  (?<depName>[a-z-]+):\\n    repository: (?<registryUrl>\\S+)\\n    version: (?<currentValue>\\S+)"
+      ],
+      "datasourceTemplate": "helm"
+    },
     {
       "customType": "regex",
       "managerFilePatterns": [
@@ -707,6 +719,18 @@
     },
     {
       "matchPackageNames": [
+        "openklant"
+      ],
+      "matchDatasources": [
+        "helm"
+      ],
+      "allowedVersions": "< 1.12.0",
+      "description": [
+        "The Open Klant chart of the kind stack must fit the Open Klant version: later charts probe /_healthz/, which Open Klant 2.15 does not have"
+      ]
+    },
+    {
+      "matchPackageNames": [
         "ghcr.io/infonl/zaakafhandelcomponent"
       ],
       "matchDatasources": [
@@ -772,6 +796,40 @@
       "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-(?<build>\\d{12})$",
       "description": [
         "The BRP API Personen Mock Docker image uses a custom versioning scheme that Renovate does not support by default. Example: '2.7.0-202506301511'"
+      ]
+    },
+    {
+      "description": [
+        "Group the updates of the kind stack (scripts/kind) and of DEPENDENCIES.md in one PR, and automerge it when its checks pass: the stack only serves local development and the tests, so the integration and end-to-end tests on kind are the check",
+        "Open Zaak is left out: an Open Zaak update needs a new Open Zaak database dump. OPA, Gotenberg and nginx-unprivileged are left out: the ZAC Helm chart uses them too. Majors get their own PR"
+      ],
+      "groupName": "kind stack",
+      "matchFileNames": [
+        "scripts/kind/**",
+        "DEPENDENCIES.md"
+      ],
+      "matchPackageNames": [
+        "!openzaak/open-zaak",
+        "!ghcr.io/infonl/open-zaak",
+        "!openpolicyagent/opa",
+        "!docker.io/openpolicyagent/opa",
+        "!gotenberg/gotenberg",
+        "!docker.io/gotenberg/gotenberg",
+        "!nginxinc/nginx-unprivileged",
+        "!docker.io/nginxinc/nginx-unprivileged"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest",
+        "pin",
+        "pinDigest"
+      ],
+      "automerge": true,
+      "platformAutomerge": false,
+      "automergeSchedule": [
+        "* 0,4-23 * * 1-5",
+        "* * * * 0,6"
       ]
     }
   ]
