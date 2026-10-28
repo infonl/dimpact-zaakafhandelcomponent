@@ -18,10 +18,21 @@ type RestZaak = {
   identificatie: string;
   omschrijving: string;
   isOpen: boolean;
+  isHeropend: boolean;
   zaaktype: { uuid: string };
 };
 
+// Best effort: when the search fails, the zaken recorded by createZaak are still cleaned up.
 async function searchOpenQaAgentZaken(page: Page) {
+  try {
+    return await search(page);
+  } catch (error) {
+    console.log(`Searching for QA Agent zaken failed: ${error}`);
+    return [];
+  }
+}
+
+async function search(page: Page) {
   const response = await page.request.put("/rest/zoeken/list", {
     data: {
       page: 0,
@@ -74,6 +85,8 @@ async function abort(page: Page, identificatie: string) {
     return true;
   }
   if (!zaak.isOpen) return true;
+  // ZAC refuses to abort a reopened zaak; the UI closes it instead.
+  if (zaak.isHeropend) return close(page, zaak);
 
   const redenen = (await (
     await page.request.get(
@@ -89,6 +102,35 @@ async function abort(page: Page, identificatie: string) {
   );
   console.log(
     `${identificatie}: ${response.ok() ? `aborted (${reden?.naam})` : `not aborted, HTTP ${response.status()}`}`,
+  );
+  return response.ok();
+}
+
+async function close(page: Page, zaak: RestZaak) {
+  const resultaattypes = (await (
+    await page.request.get(`/rest/zaken/resultaattypes/${zaak.zaaktype.uuid}`)
+  ).json()) as {
+    id: string;
+    naam?: string;
+    isBesluitVerplicht: boolean;
+    isDatumKenmerkVerplicht: boolean;
+  }[];
+  // A resultaattype that needs a besluit or a date can't be set from here.
+  const resultaattype =
+    resultaattypes.find(
+      (type) => !type.isBesluitVerplicht && !type.isDatumKenmerkVerplicht,
+    ) ?? resultaattypes[0];
+  const response = await page.request.patch(
+    `/rest/zaken/zaak/${zaak.uuid}/afsluiten`,
+    {
+      data: {
+        resultaattypeUuid: resultaattype?.id,
+        reden: "QA Agent cleanup",
+      },
+    },
+  );
+  console.log(
+    `${zaak.identificatie}: ${response.ok() ? `closed (${resultaattype?.naam})` : `not closed, HTTP ${response.status()}`}`,
   );
   return response.ok();
 }
