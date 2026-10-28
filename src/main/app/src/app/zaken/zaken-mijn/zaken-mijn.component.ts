@@ -87,10 +87,10 @@ export class ZakenMijnComponent
   extends WerklijstComponent
   implements AfterViewInit, OnDestroy
 {
-  gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
-  route = inject(ActivatedRoute);
-  private zoekenService = inject(ZoekenService);
-  utilService = inject(UtilService);
+  readonly gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
+  readonly route = inject(ActivatedRoute);
+  private readonly zoekenService = inject(ZoekenService);
+  readonly utilService = inject(UtilService);
 
   readonly indicatiesLayout = IndicatiesLayout;
   dataSource: ZakenMijnDatasource;

@@ -13,9 +13,9 @@ import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
-import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
-import net.atos.zac.signalering.model.SignaleringTarget
 import nl.info.zac.signalering.model.SignaleringInstellingen
+import nl.info.zac.signalering.model.SignaleringInstellingenZoekParameters
+import nl.info.zac.signalering.model.SignaleringTarget
 
 class SignaleringPredicateHelperTest : BehaviorSpec({
     afterEach {

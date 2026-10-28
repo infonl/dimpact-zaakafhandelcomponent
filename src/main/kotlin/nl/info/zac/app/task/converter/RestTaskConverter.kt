@@ -23,8 +23,8 @@ import nl.info.zac.flowable.util.isCmmnTask
 import nl.info.zac.flowable.util.taakStatus
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
-import nl.info.zac.util.time.convertToLocalDate
-import nl.info.zac.util.time.convertToZonedDateTime
+import nl.info.zac.util.time.toLocalDate
+import nl.info.zac.util.time.toZonedDateTime
 import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo
@@ -68,22 +68,22 @@ class RestTaskConverter @Inject constructor(
             zaaktypeUUID = readZaaktypeUUID(taskInfo),
             toelichting = if (restTaakRechten.canLezen) taskInfo.description else null,
             creatiedatumTijd = if (restTaakRechten.canLezen) {
-                taskInfo.createTime?.let(::convertToZonedDateTime)
+                taskInfo.createTime?.toZonedDateTime()
             } else {
                 null
             },
             toekenningsdatumTijd = if (restTaakRechten.canLezen) {
-                taskInfo.claimTime?.let(::convertToZonedDateTime)
+                taskInfo.claimTime?.toZonedDateTime()
             } else {
                 null
             },
             fataledatum = if (restTaakRechten.canLezen) {
-                taskInfo.dueDate?.let(::convertToLocalDate)
+                taskInfo.dueDate?.toLocalDate()
             } else {
                 null
             },
             behandelaar = if (restTaakRechten.canLezen) {
-                taskInfo.assignee?.let { medewerkerConverter.convertUserId(userId = it, logContext = logContext) }
+                taskInfo.assignee?.let { medewerkerConverter.convertUsername(username = it, logContext = logContext) }
             } else {
                 null
             },

@@ -13,7 +13,7 @@ import nl.info.zac.policy.output.ZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
-import nl.info.zac.util.time.convertToLocalDate
+import nl.info.zac.util.time.toLocalDate
 import java.time.LocalDate
 import java.util.EnumSet
 
@@ -83,13 +83,13 @@ fun ZaakZoekObject.toRestZaakZoekObject(zaakRechten: ZaakRechten) = RestZaakZoek
     omschrijving = this@toRestZaakZoekObject.omschrijving,
     toelichting = this@toRestZaakZoekObject.toelichting,
     archiefNominatie = this@toRestZaakZoekObject.archiefNominatie,
-    archiefActiedatum = this@toRestZaakZoekObject.archiefActiedatum?.let(::convertToLocalDate),
-    registratiedatum = this@toRestZaakZoekObject.registratiedatum?.let(::convertToLocalDate),
-    startdatum = this@toRestZaakZoekObject.startdatum?.let(::convertToLocalDate),
-    einddatum = this@toRestZaakZoekObject.einddatum?.let(::convertToLocalDate),
-    einddatumGepland = this@toRestZaakZoekObject.einddatumGepland?.let(::convertToLocalDate),
-    uiterlijkeEinddatumAfdoening = this@toRestZaakZoekObject.uiterlijkeEinddatumAfdoening?.let(::convertToLocalDate),
-    publicatiedatum = this@toRestZaakZoekObject.publicatiedatum?.let(::convertToLocalDate),
+    archiefActiedatum = this@toRestZaakZoekObject.archiefActiedatum?.toLocalDate(),
+    registratiedatum = this@toRestZaakZoekObject.registratiedatum?.toLocalDate(),
+    startdatum = this@toRestZaakZoekObject.startdatum?.toLocalDate(),
+    einddatum = this@toRestZaakZoekObject.einddatum?.toLocalDate(),
+    einddatumGepland = this@toRestZaakZoekObject.einddatumGepland?.toLocalDate(),
+    uiterlijkeEinddatumAfdoening = this@toRestZaakZoekObject.uiterlijkeEinddatumAfdoening?.toLocalDate(),
+    publicatiedatum = this@toRestZaakZoekObject.publicatiedatum?.toLocalDate(),
     communicatiekanaal = this@toRestZaakZoekObject.communicatiekanaal,
     vertrouwelijkheidaanduiding = this@toRestZaakZoekObject.vertrouwelijkheidaanduiding,
     isAfgehandeld = this@toRestZaakZoekObject.isAfgehandeld,

@@ -7,7 +7,7 @@ package nl.info.zac.app.signalering.converter
 import nl.info.zac.app.signalering.model.RestSignaleringTaskSummary
 import nl.info.zac.flowable.task.readZaakIdentificatie
 import nl.info.zac.flowable.task.readZaaktypeOmschrijving
-import nl.info.zac.util.time.convertToZonedDateTime
+import nl.info.zac.util.time.toZonedDateTime
 import org.flowable.task.api.TaskInfo
 
 fun TaskInfo.toRestSignaleringTaakSummary(isZaakspecifiekGeautoriseerd: Boolean) =
@@ -17,6 +17,6 @@ fun TaskInfo.toRestSignaleringTaakSummary(isZaakspecifiekGeautoriseerd: Boolean)
         zaakIdentificatie = readZaakIdentificatie(this),
         isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd,
         zaaktypeOmschrijving = readZaaktypeOmschrijving(this),
-        creatiedatumTijd = this.createTime?.let(::convertToZonedDateTime)
+        creatiedatumTijd = this.createTime?.toZonedDateTime()
             ?: error("Task '${this.id}' has no createTime")
     )

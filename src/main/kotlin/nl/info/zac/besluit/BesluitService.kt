@@ -18,7 +18,7 @@ import nl.info.zac.app.zaak.model.besluit.RestBesluitChangeData
 import nl.info.zac.app.zaak.model.besluit.RestBesluitCreateData
 import nl.info.zac.app.zaak.model.besluit.RestBesluitWithdrawalData
 import nl.info.zac.app.zaak.model.besluit.toBesluitPatch
-import nl.info.zac.util.time.PeriodUtil
+import nl.info.zac.util.time.numberOfDaysFromToday
 import org.apache.commons.collections4.CollectionUtils
 import java.time.LocalDate
 import java.time.Period
@@ -81,7 +81,7 @@ class BesluitService @Inject constructor(
                 throw BesluitResponseDateMissingException()
             }
             responseDate?.let {
-                PeriodUtil.numberOfDaysFromToday(Period.parse(reactietermijn)).toLong().let { responseDays ->
+                Period.parse(reactietermijn).numberOfDaysFromToday().toLong().let { responseDays ->
                     publicationDate?.plusDays(responseDays).let { calculatedLatestResponseDate ->
                         if (it.isBefore(calculatedLatestResponseDate)) {
                             throw BesluitResponseDateInvalidException(

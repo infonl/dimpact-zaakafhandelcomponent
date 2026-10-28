@@ -31,13 +31,12 @@ import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
 import { mockMutationFn, sleep, testQueryClient } from "../../../../setupJest";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { PolicyService } from "../../policy/policy.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
 import { ZoekenService } from "../../zoeken/zoeken.service";
-import { ObjectType } from "../websocket/model/object-type";
-import { Opcode } from "../websocket/model/opcode";
 import { WebsocketListener } from "../websocket/model/websocket-listener";
 import { WebsocketService } from "../websocket/websocket.service";
 import { ToolbarComponent } from "./toolbar.component";
@@ -74,7 +73,7 @@ describe(ToolbarComponent.name, () => {
     testQueryClient.setQueryData(
       identityService.readLoggedInUser().queryKey,
       fromPartial<GeneratedType<"RestUser">>({
-        id: "user-id",
+        username: "user-id",
         naam: "Jan Jansen",
       }),
     );
@@ -407,8 +406,8 @@ describe(ToolbarComponent.name, () => {
       await respondWithLatestSignalering(null);
 
       expect(TestBed.inject(WebsocketService).addListener).toHaveBeenCalledWith(
-        Opcode.UPDATED,
-        ObjectType.SIGNALERINGEN,
+        "UPDATED",
+        "SIGNALERINGEN",
         "user-id",
         expect.any(Function),
       );
@@ -513,6 +512,27 @@ describe(ToolbarComponent.name, () => {
         .mockReturnValue("/zaken/werkvoorraad");
 
       expect(fixture.componentInstance["isTaskRouteActive"]()).toBe(false);
+    });
+  });
+  describe("Uitloggen", () => {
+    it("tells the error handling to leave the page alone, so that a reload does not cancel the logout", async () => {
+      const ignoreLoggedOutErrors = jest.spyOn(
+        TestBed.inject(FoutAfhandelingService),
+        "ignoreLoggedOutErrors",
+      );
+      createComponent();
+      document.addEventListener("click", (event) => event.preventDefault(), {
+        once: true,
+      });
+
+      await user.click(
+        screen.getByRole("button", { name: "Gebruikers profiel" }),
+      );
+      await user.click(
+        await screen.findByRole("menuitem", { name: /actie.uitloggen/ }),
+      );
+
+      expect(ignoreLoggedOutErrors).toHaveBeenCalledTimes(1);
     });
   });
 });

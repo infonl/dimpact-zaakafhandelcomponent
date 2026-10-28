@@ -7,12 +7,12 @@ package nl.info.zac.flowable.bpmn
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ProcessEngine.BPMN
+import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNotFoundException
 import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionMetadata
 import nl.info.zac.util.AllOpen

@@ -9,8 +9,7 @@ import { Router } from "@angular/router";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
-import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
 import {
   findOrigin,
   navigateToBreadcrumb,
@@ -21,7 +20,6 @@ import { GeneratedType } from "../shared/utils/generated-types";
   providedIn: "root",
 })
 export class TakenService {
-  private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly queryClient = inject(QueryClient);
   private readonly utilService = inject(UtilService);
@@ -29,18 +27,17 @@ export class TakenService {
   private readonly location = inject(Location);
 
   readTaak(taskId: string) {
-    return this.zacHttpClient.GET("/rest/taken/{taskId}", {
-      path: { taskId },
-    });
+    return {
+      ...this.zacQueryClient.GET("/rest/taken/{taskId}", {
+        path: { taskId },
+      }),
+      staleTime: StaleTimes.Instant,
+      gcTime: 0,
+      meta: { reportFailedRefetch: true },
+    };
   }
 
   listTakenVoorZaak(zaakUUID: string) {
-    return this.zacHttpClient.GET("/rest/taken/zaak/{zaakUUID}", {
-      path: { zaakUUID },
-    });
-  }
-
-  listTakenVoorZaakQuery(zaakUUID: string) {
     return this.zacQueryClient.GET("/rest/taken/zaak/{zaakUUID}", {
       path: { zaakUUID },
     });
@@ -48,14 +45,19 @@ export class TakenService {
 
   invalidateTakenVoorZaak(zaakUUID: string) {
     return this.queryClient.invalidateQueries({
-      queryKey: this.listTakenVoorZaakQuery(zaakUUID).queryKey,
+      queryKey: this.listTakenVoorZaak(zaakUUID).queryKey,
     });
   }
 
   listHistorieVoorTaak(taskId: string) {
-    return this.zacHttpClient.GET("/rest/taken/{taskId}/historie", {
-      path: { taskId },
-    });
+    return {
+      ...this.zacQueryClient.GET("/rest/taken/{taskId}/historie", {
+        path: { taskId },
+      }),
+      staleTime: StaleTimes.Instant,
+      gcTime: 0,
+      meta: { reportFailedRefetch: true },
+    };
   }
 
   toekennen() {

@@ -7,7 +7,7 @@ package nl.info.zac.app.zaak.model
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
-import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.identification.IdentificatieType
 import java.util.UUID
 
 class BetrokkeneIdentificatieValidatorTest : BehaviorSpec({

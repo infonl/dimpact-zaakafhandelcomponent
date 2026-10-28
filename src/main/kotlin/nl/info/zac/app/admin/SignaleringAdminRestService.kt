@@ -13,8 +13,6 @@ import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.util.event.JobEvent
-import net.atos.zac.util.event.JobId
 import nl.info.zac.app.admin.model.RestDeletedSignaleringenResponse
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.InternalEndpoint
@@ -23,6 +21,8 @@ import nl.info.zac.event.EventingService
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.event.JobEvent
+import nl.info.zac.util.event.JobId
 import org.eclipse.microprofile.config.inject.ConfigProperty
 
 /**
@@ -49,7 +49,7 @@ class SignaleringAdminRestService @Inject constructor(
     fun sendSignaleringen(): String {
         setFunctioneelGebruiker(httpSession.get())
         eventingService.send(JobEvent(JobId.SIGNALERINGEN_JOB))
-        return "Started sending signaleringen using job: '${JobId.SIGNALERINGEN_JOB.getName()}'"
+        return "Started sending signaleringen using job: '${JobId.SIGNALERINGEN_JOB.jobName}'"
     }
 
     @DELETE

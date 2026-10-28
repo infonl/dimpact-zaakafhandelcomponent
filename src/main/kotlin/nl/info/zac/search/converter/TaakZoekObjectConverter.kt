@@ -5,11 +5,11 @@
 package nl.info.zac.search.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.task.readTaskData
 import nl.info.zac.flowable.task.readTaskInformation
 import nl.info.zac.flowable.task.readZaakIdentificatie
@@ -105,9 +105,9 @@ class TaakZoekObjectConverter @Inject constructor(
             taakData = readTaskData(taskInfo).entries.map { "${it.key}|${it.value}" }
             taakInformatie = readTaskInformation(taskInfo).entries.map { "${it.key}|${it.value}" }
             taskInfo.assignee?.let {
-                identityService.readUser(userId = it, logContext = logContext).let { user ->
+                identityService.readUser(username = it, logContext = logContext).let { user ->
                     behandelaarNaam = user.getFullName()
-                    behandelaarGebruikersnaam = user.id
+                    behandelaarGebruikersnaam = user.username
                 }
                 isToegekend = true
             }

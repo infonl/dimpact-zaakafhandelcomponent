@@ -16,14 +16,14 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.flowable.FlowableHelper
-import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.admin.model.createMailTemplate
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.flowable.FlowableHelper
+import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mailtemplates.MailTemplateService

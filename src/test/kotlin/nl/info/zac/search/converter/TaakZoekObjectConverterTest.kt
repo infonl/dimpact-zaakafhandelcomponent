@@ -11,15 +11,14 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_UUID
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_IDENTIFICATIE
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
-import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.zac.app.task.model.TaakStatus
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_UUID
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_IDENTIFICATIE
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
+import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
@@ -27,10 +26,13 @@ import nl.info.zac.search.ReindexSupportService
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.createZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.task.model.TaakStatus
 import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.Task
 import org.flowable.task.api.TaskInfo
+import java.time.Instant
+import java.util.Date
 import java.util.UUID
 
 class TaakZoekObjectConverterTest : BehaviorSpec({
@@ -77,8 +79,11 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
         val zaakUUID = UUID.randomUUID()
         val zaaktypeUUID = UUID.randomUUID()
 
-        given("a task with an assignee and a group") {
+        given("a task with an assignee, a group, a creation time, a claim time and a due date") {
             val taskInfo = mockk<Task>()
+            val createTime = Date.from(Instant.parse("2026-03-10T09:00:00Z"))
+            val claimTime = Date.from(Instant.parse("2026-03-11T10:00:00Z"))
+            val dueDate = Date.from(Instant.parse("2026-03-20T00:00:00Z"))
             val zaak = createZaak()
             val zaakType = createZaakType(
                 uri = zaak.zaaktype,
@@ -106,9 +111,9 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
 
             every { taskInfo.name } returns "fakeTaskName"
             every { taskInfo.description } returns "fakeToelichting"
-            every { taskInfo.createTime } returns null
-            every { taskInfo.claimTime } returns null
-            every { taskInfo.dueDate } returns null
+            every { taskInfo.createTime } returns createTime
+            every { taskInfo.claimTime } returns claimTime
+            every { taskInfo.dueDate } returns dueDate
             every { taskInfo.assignee } returns "fakeAssigneeId"
 
             every { candidateIdentityLink.type } returns IdentityLinkType.CANDIDATE
@@ -117,11 +122,11 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
 
             every {
                 identityService.readUser(
-                    userId = "fakeAssigneeId",
+                    username = "fakeAssigneeId",
                     logContext = "task '$fakeTaskId' of zaak 'fakeZaakIdentificatie'"
                 )
             } returns createUser(
-                id = "fakeAssigneeId",
+                username = "fakeAssigneeId",
                 firstName = "Fake",
                 lastName = "User",
                 fullName = "Fake User"
@@ -144,6 +149,9 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
                     taakZoekObject.getType() shouldBe ZoekObjectType.TAAK
                     taakZoekObject.naam shouldBe "fakeTaskName"
                     taakZoekObject.toelichting shouldBe "fakeToelichting"
+                    taakZoekObject.creatiedatum shouldBe createTime
+                    taakZoekObject.toekenningsdatum shouldBe claimTime
+                    taakZoekObject.fataledatum shouldBe dueDate
                     taakZoekObject.zaakUUID shouldBe zaakUUID.toString()
                     taakZoekObject.zaakIdentificatie shouldBe "fakeZaakIdentificatie"
                     taakZoekObject.zaaktypeIdentificatie shouldBe "fakeZaaktypeIdentificatie"

@@ -13,7 +13,7 @@ class ScreenEventTest : BehaviorSpec({
     context("Comparing screen events") {
         given("two screen events with the same opcode, type and id, but a different id detail and actor") {
             val screenEvent = createScreenEvent(screenEventId = createScreenEventId(detail = "fakeDetail")).apply {
-                actorUserId = "fakeUserId"
+                actorUsername = "fakeUsername"
             }
             val otherScreenEvent = createScreenEvent(screenEventId = createScreenEventId(detail = "otherFakeDetail"))
 

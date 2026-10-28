@@ -229,6 +229,19 @@ After the stack is up, you will still need to configure the following in the Ope
 - Create a **ZGW API group** at http://localhost:8007/admin/zgw_apis/zgwapigroupconfig/add/ — same catalogue values.
 - Create a form with an **Objects API** or **ZGW** registration backend pointing to the group you just configured.
 
+### VNG Selectielijst
+
+Open Zaak and Open Archiefbeheer continue to use the public Selectielijst API unless reconfigured separately.
+To start a standalone local VNG Selectielijst API, use the `-v` flag:
+
+```
+./start-docker-compose.sh -v
+```
+
+The API is available at http://localhost:8011/api/v1/.
+On every start, the `vng-selectielijst-web` container applies the database migrations and then loads the
+Selectielijst 2020 fixture that is included in the Docker image.
+
 ### PostgreSQL Open Zaak database
 
 The Open Zaak database starts from a pre-migrated dump of the Open Zaak database schema:

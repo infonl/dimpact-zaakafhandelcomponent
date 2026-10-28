@@ -194,7 +194,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         every { loggedInUserInstance.isUnsatisfied } returns false
         every { loggedInUserInstance.get() } returns loggedInUser
         every {
-            smartDocumentsClient.get().listTemplates(any(), loggedInUser.id)
+            smartDocumentsClient.get().listTemplates(any(), loggedInUser.username)
         } returns templatesResponse
 
         val smartDocumentsService = SmartDocumentsService(

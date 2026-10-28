@@ -10,6 +10,7 @@ round.
 | Check                       | Command                              | Configuration        |
 | --------------------------- | ------------------------------------ | -------------------- |
 | ESLint                      | `npm run lint` (in `src/main/app`)   | `.eslintrc.js`       |
+| Stylelint                   | `npm run lint` (in `src/main/app`)   | `.stylelintrc.js`    |
 | Templates in specs          | `npm run lint` (in `src/main/app`)   | `tsconfig.spec.json` |
 | TypeScript + templates      | `npm run build` (in `src/main/app`)  | `tsconfig.app.json`  |
 | TypeScript in specs         | `npm test` (in `src/main/app`)       | `tsconfig.spec.json` |
@@ -60,6 +61,25 @@ is `display: none` — disable the rule on that line with a comment saying which
 
 Migrating the remaining specs so these rules can become errors everywhere is the next phase.
 
+## Stylesheets
+
+Stylelint checks the `.less` files in `src/main/app/src` and runs as part of `npm run lint`
+(`npm run lint:styles` runs it on its own). It reports every `::ng-deep` as a warning. Angular has
+deprecated `::ng-deep`, so do not add new ones: style through a CSS custom property, a global
+stylesheet or the Angular Material theming API instead. Existing stylesheets still use it, so the
+rule is a warning project-wide and does not fail the build.
+
+It is an **error on every stylesheet a pull request adds or changes**, which is what
+`.stylelintrc.strict.js` is for: a stylesheet you edit has to lose its `::ng-deep` before it
+merges. The "Lint Changed Stylesheets" workflow runs it on the changed stylesheets; reproduce that
+locally with the same command:
+
+```bash
+cd src/main/app
+STYLESHEETS=$(git diff --name-only --diff-filter=d origin/main...HEAD -- '*.less' | sed 's|^src/main/app/||')
+npx stylelint --config .stylelintrc.strict.js $STYLESHEETS
+```
+
 ## Kotlin
 
 `./gradlew detekt` runs `detektMain`, `detektTest` and `detektItest`. Each one analyses a source set
@@ -67,6 +87,9 @@ with its compile classpath. Rules that need that type information, such as
 `UnsafeCallOnNullableType` and `InjectDispatcher`, report nothing without it. `./gradlew build`
 runs the same tasks, so CI checks the same rules. `detektApply` runs without type information and
 only applies the fixes that detekt can make by itself.
+
+The dependencies between the backend layers are not checked by detekt but by ArchUnit rules, which
+run as a unit test. See [architectureRules.md](architectureRules.md).
 
 ## i18n message keys
 

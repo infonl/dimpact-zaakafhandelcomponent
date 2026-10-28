@@ -5,11 +5,6 @@
 
 package nl.info.zac.signalering.model
 
-import net.atos.zac.signalering.model.Signalering
-import net.atos.zac.signalering.model.SignaleringSubject
-import net.atos.zac.signalering.model.SignaleringTarget
-import net.atos.zac.signalering.model.SignaleringType
-import net.atos.zac.signalering.model.SignaleringZoekParameters
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak

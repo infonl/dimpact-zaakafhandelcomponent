@@ -25,7 +25,7 @@
             placeholder="{{ 'groep.kies' | translate }}"
             (selectionChange)="laadSignaleringSettings($event.value)"
           >
-            @for (groep of groepen | async; track groep) {
+            @for (groep of groepenQuery.data() ?? []; track groep.id) {
               <mat-option [value]="groep">{{ groep.naam }}</mat-option>
             }
           </mat-select>
@@ -45,22 +45,22 @@
                   {{ "signalering." + column | translate }}
                 </th>
                 <td mat-cell *matCellDef="let row">
-                  @if (column == "subjecttype") {
+                  @if (column === "subjecttype") {
                     {{
                       "signalering.subjecttype." + row[column]
                         | i18nKey
                         | translate
                     }}
                   }
-                  @if (column == "type") {
+                  @if (column === "type") {
                     {{
                       "signalering.type." + row[column] + ".group"
                         | i18nKey
                         | translate
                     }}
                   } @else if (
-                    column != "subjecttype" &&
-                    row[settingPerColumn[column]] != null
+                    column !== "subjecttype" &&
+                    typeof row[settingPerColumn[column]] === "boolean"
                   ) {
                     <mat-checkbox
                       (click)="$event.stopPropagation()"

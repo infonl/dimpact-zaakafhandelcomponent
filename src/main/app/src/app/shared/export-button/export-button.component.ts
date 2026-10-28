@@ -18,8 +18,8 @@ import { GeneratedType } from "../utils/generated-types";
   imports: [MatButtonModule, MatIconModule, TranslatePipe],
 })
 export class ExportButtonComponent {
-  private csvService = inject(CsvService);
-  private utilService = inject(UtilService);
+  private readonly csvService = inject(CsvService);
+  private readonly utilService = inject(UtilService);
 
   readonly zoekParameters =
     input.required<GeneratedType<"RestZoekParameters">>();

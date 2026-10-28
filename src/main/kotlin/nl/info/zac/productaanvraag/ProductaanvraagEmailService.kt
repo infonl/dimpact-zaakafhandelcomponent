@@ -8,13 +8,13 @@ package nl.info.zac.productaanvraag
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import nl.info.client.klant.KlantClientService
+import nl.info.client.klant.model.getPreferredDigitaalAdres
 import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.ZaaktypeEmailParameters
 import nl.info.zac.admin.model.ZaaktypeZaakafzenderParameters
-import nl.info.zac.app.klant.model.contactdetails.getPreferredDigitaalAdres
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.MailAdres

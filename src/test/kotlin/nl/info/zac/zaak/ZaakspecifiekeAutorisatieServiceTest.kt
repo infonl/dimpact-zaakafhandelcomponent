@@ -17,7 +17,6 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import io.mockk.verifyOrder
-import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.pabc.ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD
 import nl.info.client.zgw.model.createMedewerkerIdentificatie
 import nl.info.client.zgw.model.createRolMedewerker
@@ -37,18 +36,9 @@ import nl.info.client.zgw.ztc.model.createEigenschap
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.createZaakspecifiekGeautoriseerdeMedewerkerRolType
 import nl.info.test.org.flowable.task.api.createTestTask
-import nl.info.zac.app.zaak.exception.GroupNotBehandelaarForZaaktypeException
-import nl.info.zac.app.zaak.exception.MedewerkerAlreadyZaakspecifiekGeautoriseerdException
-import nl.info.zac.app.zaak.exception.MedewerkerCannotBeDetachedException
-import nl.info.zac.app.zaak.exception.MedewerkerNotZaakspecifiekGeautoriseerdException
-import nl.info.zac.app.zaak.exception.ZaakNotZaakspecifiekGeautoriseerdException
-import nl.info.zac.app.zaak.exception.ZaakWithoutBehandelaarCannotBeMarkedException
-import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
-import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
-import nl.info.zac.app.zaak.exception.ZaakspecifiekeAutorisatieNotAllowedException
-import nl.info.zac.app.zaak.exception.ZaaktypeNotZaakspecifiekAutoriseerbaarException
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.exception.ErrorCode
+import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.identity.model.createGroup
@@ -56,6 +46,16 @@ import nl.info.zac.identity.model.createUser
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.task.TaskHistoryService
+import nl.info.zac.zaak.exception.GroupNotBehandelaarForZaaktypeException
+import nl.info.zac.zaak.exception.MedewerkerAlreadyZaakspecifiekGeautoriseerdException
+import nl.info.zac.zaak.exception.MedewerkerCannotBeDetachedException
+import nl.info.zac.zaak.exception.MedewerkerNotZaakspecifiekGeautoriseerdException
+import nl.info.zac.zaak.exception.ZaakNotZaakspecifiekGeautoriseerdException
+import nl.info.zac.zaak.exception.ZaakWithoutBehandelaarCannotBeMarkedException
+import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
+import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
+import nl.info.zac.zaak.exception.ZaakspecifiekeAutorisatieNotAllowedException
+import nl.info.zac.zaak.exception.ZaaktypeNotZaakspecifiekAutoriseerbaarException
 import nl.info.zac.zaak.model.createZaakToewijzing
 
 @Suppress("LargeClass")
@@ -148,7 +148,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     requestedMarking = null,
                     isAlreadyZaakspecifiekGeautoriseerd = false,
                     currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
-                    loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+                    loggedInUser = createLoggedInUser(username = "fakeBehandelaarId")
                 )
 
                 then("the zaak is not marked and no zaaktype lookup is needed") {
@@ -173,7 +173,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     requestedMarking = true,
                     isAlreadyZaakspecifiekGeautoriseerd = false,
                     currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
-                    loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+                    loggedInUser = createLoggedInUser(username = "fakeBehandelaarId")
                 )
 
                 then("the zaak is marked") {
@@ -187,7 +187,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     requestedMarking = false,
                     isAlreadyZaakspecifiekGeautoriseerd = false,
                     currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
-                    loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+                    loggedInUser = createLoggedInUser(username = "fakeBehandelaarId")
                 )
 
                 then("the zaak stays unmarked") {
@@ -208,7 +208,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                             requestedMarking = true,
                             isAlreadyZaakspecifiekGeautoriseerd = false,
                             currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
-                            loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+                            loggedInUser = createLoggedInUser(username = "fakeBehandelaarId")
                         )
                     }
 
@@ -234,7 +234,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                             requestedMarking = true,
                             isAlreadyZaakspecifiekGeautoriseerd = false,
                             currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
-                            loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+                            loggedInUser = createLoggedInUser(username = "fakeBehandelaarId")
                         )
                     }
 
@@ -290,7 +290,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                             requestedMarking = true,
                             isAlreadyZaakspecifiekGeautoriseerd = false,
                             currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
-                            loggedInUser = createLoggedInUser(id = "fakeOtherUserId")
+                            loggedInUser = createLoggedInUser(username = "fakeOtherUsername")
                         )
                     }
 
@@ -305,8 +305,8 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     zaakType = zaakType,
                     requestedMarking = true,
                     isAlreadyZaakspecifiekGeautoriseerd = false,
-                    currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId", "fakeOtherUserId"),
-                    loggedInUser = createLoggedInUser(id = "fakeOtherUserId")
+                    currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId", "fakeOtherUsername"),
+                    loggedInUser = createLoggedInUser(username = "fakeOtherUsername")
                 )
 
                 then("the zaak is marked, because the user becomes its behandelaar") {
@@ -321,7 +321,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     isAlreadyZaakspecifiekGeautoriseerd = false,
                     currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
                     loggedInUser = createLoggedInUser(
-                        id = "fakeOtherUserId",
+                        username = "fakeOtherUsername",
                         applicationRolesPerZaaktype = mapOf(
                             "fakeZaaktypeOmschrijving" to setOf(ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD)
                         )
@@ -340,7 +340,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     isAlreadyZaakspecifiekGeautoriseerd = false,
                     currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
                     loggedInUser = createLoggedInUser(
-                        id = "fakeOtherUserId",
+                        username = "fakeOtherUsername",
                         overallRoles = setOf(ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD)
                     )
                 )
@@ -360,7 +360,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     requestedMarking = true,
                     isAlreadyZaakspecifiekGeautoriseerd = true,
                     currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
-                    loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+                    loggedInUser = createLoggedInUser(username = "fakeBehandelaarId")
                 )
 
                 then("no second marking is recorded and no zaaktype lookup is needed") {
@@ -375,7 +375,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                     requestedMarking = false,
                     isAlreadyZaakspecifiekGeautoriseerd = true,
                     currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId"),
-                    loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+                    loggedInUser = createLoggedInUser(username = "fakeBehandelaarId")
                 )
 
                 then("the zaak is not marked") {
@@ -906,7 +906,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             every {
                 zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
             } returns listOf(geautoriseerdeMedewerkerRol)
-            every { identityService.readUser("fakeTaakbehandelaarId", any()) } returns createUser(id = "fakeTaakbehandelaarId")
+            every { identityService.readUser("fakeTaakbehandelaarId", any()) } returns createUser(username = "fakeTaakbehandelaarId")
             every {
                 zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak.zaaktype)
             } returns createZaakspecifiekGeautoriseerdeMedewerkerRolType(zaakTypeUri = zaak.zaaktype)
@@ -941,7 +941,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
             } returns emptyList()
             every { identityService.readUser("fakeTaakbehandelaarId", any()) } returns createUser(
-                id = "fakeTaakbehandelaarId",
+                username = "fakeTaakbehandelaarId",
                 firstName = "fakeFirstName",
                 lastName = "fakeLastName"
             )
@@ -994,7 +994,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             every {
                 zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
             } returns emptyList()
-            every { identityService.readUser("fakeTaakbehandelaarId", any()) } returns createUser(id = "fakeTaakbehandelaarId")
+            every { identityService.readUser("fakeTaakbehandelaarId", any()) } returns createUser(username = "fakeTaakbehandelaarId")
             every { zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak.zaaktype) } returns null
 
             `when`("a taakbehandelaar is granted access") {
@@ -1247,20 +1247,20 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             """.trimMargin()
         ) {
             val zaakType = createZaakType(omschrijving = "fakeZaaktypeOmschrijving")
-            val medewerkerWithoutAccess = createUser(id = "fakeMedewerkerWithoutAccessId")
+            val medewerkerWithoutAccess = createUser(username = "fakeMedewerkerWithoutAccessId")
             every {
                 identityService.listActiveGroupsForBehandelaarRoleAndZaaktype("fakeZaaktypeOmschrijving")
             } returns listOf(createGroup(id = "fakeGroepId"))
             every {
-                identityService.listUserIdsForApplicationRoleAndZaaktype(
+                identityService.listUsernamesForApplicationRoleAndZaaktype(
                     ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD,
                     "fakeZaaktypeOmschrijving"
                 )
             } returns setOf("fakeIamMedewerkerId")
             every { identityService.listUsersInGroup("fakeGroepId") } returns listOf(
-                createUser(id = "fakeZaakbehandelaarId"),
-                createUser(id = "fakeGeautoriseerdeMedewerkerId"),
-                createUser(id = "fakeIamMedewerkerId"),
+                createUser(username = "fakeZaakbehandelaarId"),
+                createUser(username = "fakeGeautoriseerdeMedewerkerId"),
+                createUser(username = "fakeIamMedewerkerId"),
                 medewerkerWithoutAccess
             )
 
@@ -1338,7 +1338,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             } returns listOf(createGroup(id = "fakeGroepId"))
             every { identityService.validateIfUserIsInGroup("fakeIamMedewerkerId", "fakeGroepId") } just runs
             every {
-                identityService.listUserIdsForApplicationRoleAndZaaktype(
+                identityService.listUsernamesForApplicationRoleAndZaaktype(
                     ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD,
                     "fakeZaaktypeOmschrijving"
                 )
@@ -1377,7 +1377,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             } returns listOf(createGroup(id = "fakeGroepId"))
             every { identityService.validateIfUserIsInGroup("fakeZaakbehandelaarId", "fakeGroepId") } just runs
             every {
-                identityService.listUserIdsForApplicationRoleAndZaaktype(
+                identityService.listUsernamesForApplicationRoleAndZaaktype(
                     ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD,
                     "fakeZaaktypeOmschrijving"
                 )
@@ -1423,7 +1423,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             } returns listOf(createGroup(id = "fakeGroepId"))
             every { identityService.validateIfUserIsInGroup("fakeMedewerkerId", "fakeGroepId") } just runs
             every {
-                identityService.listUserIdsForApplicationRoleAndZaaktype(
+                identityService.listUsernamesForApplicationRoleAndZaaktype(
                     ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD,
                     "fakeZaaktypeOmschrijving"
                 )
@@ -1465,7 +1465,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             } returns listOf(createGroup(id = "fakeGroepId"))
             every { identityService.validateIfUserIsInGroup("fakeMedewerkerId", "fakeGroepId") } just runs
             every {
-                identityService.listUserIdsForApplicationRoleAndZaaktype(
+                identityService.listUsernamesForApplicationRoleAndZaaktype(
                     ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD,
                     "fakeZaaktypeOmschrijving"
                 )
@@ -1477,7 +1477,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             every {
                 zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
             } returns emptyList()
-            every { identityService.readUser("fakeMedewerkerId", any()) } returns createUser(id = "fakeMedewerkerId")
+            every { identityService.readUser("fakeMedewerkerId", any()) } returns createUser(username = "fakeMedewerkerId")
             every { zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak.zaaktype) } returns null
 
             `when`("a medewerker is added") {
@@ -1515,7 +1515,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             } returns listOf(createGroup(id = "fakeGroepId"))
             every { identityService.validateIfUserIsInGroup("fakeMedewerkerId", "fakeGroepId") } just runs
             every {
-                identityService.listUserIdsForApplicationRoleAndZaaktype(
+                identityService.listUsernamesForApplicationRoleAndZaaktype(
                     ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD,
                     "fakeZaaktypeOmschrijving"
                 )
@@ -1528,7 +1528,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
             } returns emptyList()
             every { identityService.readUser("fakeMedewerkerId", any()) } returns createUser(
-                id = "fakeMedewerkerId",
+                username = "fakeMedewerkerId",
                 firstName = "fakeFirstName",
                 lastName = "fakeLastName"
             )
@@ -1556,7 +1556,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
                 )
 
                 then("a zaakspecifiek geautoriseerde medewerker rol is added with the medewerker's name from Keycloak") {
-                    addedMedewerker.id shouldBe "fakeMedewerkerId"
+                    addedMedewerker.username shouldBe "fakeMedewerkerId"
                     with(rolSlot.captured) {
                         roltype shouldBe zaakspecifiekGeautoriseerdeMedewerkerRolType.url
                         roltoelichting shouldBe "Zaakspecifiek geautoriseerde medewerker van de zaak"
@@ -1760,7 +1760,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             } returns listOf(createGroup(id = "fakeGroepId"))
             every { identityService.validateIfUserIsInGroup("fakeMedewerkerId", "fakeGroepId") } just runs
             every {
-                identityService.listUserIdsForApplicationRoleAndZaaktype(
+                identityService.listUsernamesForApplicationRoleAndZaaktype(
                     ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD,
                     "fakeZaaktypeOmschrijving"
                 )
@@ -1854,7 +1854,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             every {
                 zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
             } returns emptyList()
-            every { identityService.readUser("fakeTaakbehandelaarId", any()) } returns createUser(id = "fakeTaakbehandelaarId")
+            every { identityService.readUser("fakeTaakbehandelaarId", any()) } returns createUser(username = "fakeTaakbehandelaarId")
             every {
                 zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak.zaaktype)
             } returns createZaakspecifiekGeautoriseerdeMedewerkerRolType(zaakTypeUri = zaak.zaaktype)

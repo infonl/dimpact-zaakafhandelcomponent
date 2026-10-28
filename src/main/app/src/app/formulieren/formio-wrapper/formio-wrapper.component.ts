@@ -86,8 +86,8 @@ export class FormioWrapperComponent implements OnInit, AfterViewInit {
 
   readonly formioComponent = viewChild(FormioComponent);
 
-  private elementRef = inject(ElementRef);
-  private bootstrapLoader = inject(FormioBootstrapLoaderService);
+  private readonly elementRef = inject(ElementRef);
+  private readonly bootstrapLoader = inject(FormioBootstrapLoaderService);
   protected stylesLoaded = false;
 
   private static activeElementPatched = false;

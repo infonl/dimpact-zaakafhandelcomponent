@@ -51,7 +51,7 @@ class RestZoekopdrachtTest : BehaviorSpec({
                 naam = "fakeNaam",
                 json = """{"fakeField":"fakeValue"}"""
             )
-            val loggedInUser = createLoggedInUser(id = "fakeMedewerker")
+            val loggedInUser = createLoggedInUser(username = "fakeMedewerker")
             val timeBeforeConversion = ZonedDateTime.now().minusSeconds(1)
 
             `when`("it is converted to a domain model") {

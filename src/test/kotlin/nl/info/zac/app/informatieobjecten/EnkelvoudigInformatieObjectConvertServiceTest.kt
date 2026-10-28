@@ -19,6 +19,7 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLoc
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConversionException
 import nl.info.zac.configuration.FileSizeConfiguration
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_ENKELVOUDIGINFORMATIEOBJECT_CONVERSION_FAILED
 import nl.info.zac.util.toBase64String
 import java.io.ByteArrayInputStream

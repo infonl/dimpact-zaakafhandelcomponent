@@ -14,5 +14,5 @@ class ZaakAutorisatieGegevens(
 ) {
     val geautoriseerdeMedewerkers: List<String> by lazy(geautoriseerdeMedewerkersSupplier)
 
-    fun isGeautoriseerdeMedewerker(userId: String) = isZaakspecifiekGeautoriseerd && userId in geautoriseerdeMedewerkers
+    fun isGeautoriseerdeMedewerker(username: String) = isZaakspecifiekGeautoriseerd && username in geautoriseerdeMedewerkers
 }

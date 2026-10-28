@@ -1,0 +1,59 @@
+/*
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+package nl.info.zac.flowable
+
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.enterprise.inject.Instance
+import jakarta.enterprise.inject.spi.CDI
+import jakarta.inject.Inject
+import nl.info.client.klant.KlantClientService
+import nl.info.client.zgw.drc.DrcClientService
+import nl.info.client.zgw.shared.ZgwApiService
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.event.EventingService
+import nl.info.zac.flowable.task.TaakVariabelenService
+import nl.info.zac.identity.IdentityService
+import nl.info.zac.mail.MailService
+import nl.info.zac.mailtemplates.MailTemplateService
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.search.IndexingService
+import nl.info.zac.shared.helper.SuspensionZaakHelper
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.zaak.ZaakService
+import org.flowable.engine.HistoryService
+
+/**
+ * A Helper for Flowable CMMN and BPMN LifecycleListener's, Interceptors etc. to get access to CDI resources.
+ */
+@ApplicationScoped
+@NoArgConstructor
+@AllOpen
+@Suppress("LongParameterList")
+class FlowableHelper @Inject constructor(
+    val eventingService: EventingService,
+    val identityService: IdentityService,
+    val indexeerService: IndexingService,
+    val mailService: MailService,
+    val mailTemplateService: MailTemplateService,
+    val suspensionZaakHelper: SuspensionZaakHelper,
+    val taakVariabelenService: TaakVariabelenService,
+    val zaakService: ZaakService,
+    val zaakVariabelenService: ZaakVariabelenService,
+    val zgwApiService: ZgwApiService,
+    val zrcClientService: ZrcClientService,
+    val ztcClientService: ZtcClientService,
+    val flowableHistoryService: HistoryService,
+    val drcClientService: DrcClientService,
+    val klantClientService: KlantClientService,
+    val policyService: PolicyService,
+    val loggedInUserInstance: Instance<LoggedInUser>
+) {
+    companion object FlowableHelperProvider {
+        fun getInstance(): FlowableHelper = CDI.current().select(FlowableHelper::class.java).get()
+    }
+}

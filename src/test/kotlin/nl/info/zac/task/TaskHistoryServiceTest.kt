@@ -34,7 +34,7 @@ class TaskHistoryServiceTest : BehaviorSpec({
             val historicTaskLogEntryBuilder = mockk<HistoricTaskLogEntryBuilder>()
             val dataSlot = slot<String>()
             every { identityService.readUser("fakeMedewerkerId", any()) } returns createUser(
-                id = "fakeMedewerkerId",
+                username = "fakeMedewerkerId",
                 fullName = "fakeFullName"
             )
             every { historyService.createHistoricTaskLogEntryBuilder(task) } returns historicTaskLogEntryBuilder

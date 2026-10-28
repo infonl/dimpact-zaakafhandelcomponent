@@ -324,7 +324,7 @@ class TaskRestServiceTaakbehandelaarZaakspecifiekAutorisatieTest : BehaviorSpec(
                             testUser = BEHANDELAAR_1
                         ).let {
                             it.code shouldBe HTTP_OK
-                            JSONObject(it.bodyAsString).getJSONObject("behandelaar").getString("id") shouldBe
+                            JSONObject(it.bodyAsString).getJSONObject("behandelaar").getString("username") shouldBe
                                 BEHANDELAAR_1_EN_BRP_ZOEKER_2.username
                         }
                     }

@@ -32,8 +32,6 @@ import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
-import { ObjectType } from "../../core/websocket/model/object-type";
-import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -91,7 +89,7 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
 
   protected readonly takenQuery = injectQuery(() =>
-    this.takenService.listTakenVoorZaakQuery(this.zaak().uuid),
+    this.takenService.listTakenVoorZaak(this.zaak().uuid),
   );
 
   protected takenDataSource = new MatTableDataSource<
@@ -142,8 +140,8 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
     const zaak = this.zaak();
 
     this.zaakTakenListener = this.websocketService.addListener(
-      Opcode.UPDATED,
-      ObjectType.ZAAK_TAKEN,
+      "UPDATED",
+      "ZAAK_TAKEN",
       zaak.uuid,
       () => void this.takenService.invalidateTakenVoorZaak(zaak.uuid),
     );
@@ -234,7 +232,7 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!taak.groep?.id) return false;
     const loggedInUser = this.loggedInUser.data();
     if (!loggedInUser) return false;
-    if (loggedInUser.id === taak.behandelaar?.id) return false;
+    if (loggedInUser.username === taak.behandelaar?.username) return false;
     return loggedInUser.groupIds?.includes(taak.groep.id) ?? false;
   }
 

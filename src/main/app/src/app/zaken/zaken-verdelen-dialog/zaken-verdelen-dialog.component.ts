@@ -3,7 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, inject } from "@angular/core";
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -18,6 +25,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { ZacInput } from "../../shared/form/input/input";
@@ -90,16 +98,34 @@ export class ZakenVerdelenDialogComponent {
     return groupsQuery !== undefined && groupsQuery.length === 0;
   });
 
-  protected users: GeneratedType<"RestUser">[] = [];
+  private readonly selectedGroupId = signal<string | undefined>(undefined);
+
+  private readonly usersQuery = injectQuery(() => ({
+    ...this.identityService.listUsersInGroup(this.selectedGroupId() ?? ""),
+    enabled: !!this.selectedGroupId(),
+  }));
+
+  protected readonly users = computed(() => this.usersQuery.data() ?? []);
 
   constructor() {
+    effect(() => {
+      const usersLoaded =
+        !!this.selectedGroupId() && this.usersQuery.isSuccess();
+      untracked(() => {
+        if (usersLoaded) {
+          this.form.controls.medewerker.enable();
+        } else {
+          this.form.controls.medewerker.disable();
+        }
+      });
+    });
+
     this.groupsQuery.mutate({
       zaaktypeDescriptions: this.data.map(
         ({ zaaktypeOmschrijving }) => zaaktypeOmschrijving,
       ),
     });
 
-    this.form.controls.medewerker.disable();
     if (this.isBehandelaarRequired) {
       this.form.controls.medewerker.addValidators(Validators.required);
     }
@@ -108,13 +134,7 @@ export class ZakenVerdelenDialogComponent {
       .pipe(takeUntilDestroyed())
       .subscribe((group) => {
         this.form.controls.medewerker.setValue(null);
-        this.form.controls.medewerker.disable();
-        if (!group) return;
-
-        this.identityService.listUsersInGroup(group.id).subscribe((users) => {
-          this.form.controls.medewerker.enable();
-          this.users = users;
-        });
+        this.selectedGroupId.set(group?.id);
       });
   }
 
@@ -126,7 +146,7 @@ export class ZakenVerdelenDialogComponent {
     return (
       this.form.invalid ||
       (this.isBehandelaarRequired &&
-        !this.form.controls.medewerker.value?.id) ||
+        !this.form.controls.medewerker.value?.username) ||
       this.mutation.isPending() ||
       !this.data.length
     );
@@ -138,7 +158,7 @@ export class ZakenVerdelenDialogComponent {
       uuids: this.data.map(({ id }) => id),
       screenEventResourceId: crypto.randomUUID(),
       groepId: this.form.value.groep!.id,
-      behandelaarGebruikersnaam: this.form.value.medewerker?.id,
+      behandelaarGebruikersnaam: this.form.value.medewerker?.username,
       reden: this.form.value.reden,
     });
   }

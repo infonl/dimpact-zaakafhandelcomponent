@@ -8,9 +8,9 @@ package nl.info.zac.app.model
 import nl.info.zac.app.identity.model.RestUser
 
 fun createRESTUser(
-    id: String = "fakeId",
+    username: String = "fakeUsername",
     name: String = "fakeUserName"
 ) = RestUser(
-    id = id,
+    username = username,
     naam = name
 )

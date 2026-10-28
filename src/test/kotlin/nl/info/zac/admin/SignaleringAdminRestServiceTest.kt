@@ -16,12 +16,12 @@ import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
-import net.atos.zac.util.event.JobEvent
-import net.atos.zac.util.event.JobId
 import nl.info.zac.app.admin.SignaleringAdminRestService
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.event.EventingService
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.util.event.JobEvent
+import nl.info.zac.util.event.JobId
 
 class SignaleringAdminRestServiceTest : BehaviorSpec({
     val signaleringService = mockk<SignaleringService>()
@@ -52,7 +52,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
             then("it should set the functioneel gebruiker in the HTTP session") {
                 verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot)) }
                 with(loggedInUserSlot.captured) {
-                    id shouldBe "FG"
+                    username shouldBe "FG"
                     firstName shouldBe ""
                     lastName shouldBe "Functionele gebruiker"
                     roles shouldBe emptySet()

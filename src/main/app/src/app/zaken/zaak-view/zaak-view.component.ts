@@ -31,8 +31,6 @@ import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
 import { BAGService } from "../../bag/bag.service";
 import { UtilService } from "../../core/service/util.service";
 import { isCausedByCurrentUser } from "../../core/websocket/is-caused-by-current-user";
-import { ObjectType } from "../../core/websocket/model/object-type";
-import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
@@ -127,20 +125,22 @@ export class ZaakViewComponent
   extends ActionsViewComponent
   implements AfterViewInit, OnDestroy
 {
-  private zakenService = inject(ZakenService);
-  private identityService = inject(IdentityService);
-  private planItemsService = inject(PlanItemsService);
-  private zaakafhandelParametersService = inject(ZaakafhandelParametersService);
-  private route = inject(ActivatedRoute);
-  private utilService = inject(UtilService);
-  private websocketService = inject(WebsocketService);
-  private dialog = inject(MatDialog);
-  private translate = inject(TranslateService);
-  private bagService = inject(BAGService);
-  private policyService = inject(PolicyService);
-  private zaakDialogService = inject(ZaakDialogService);
-  protected sideActions = inject(ZaakSideActionService);
-  protected dialogs = inject(ZaakActionDialogsService);
+  private readonly zakenService = inject(ZakenService);
+  private readonly identityService = inject(IdentityService);
+  private readonly planItemsService = inject(PlanItemsService);
+  private readonly zaakafhandelParametersService = inject(
+    ZaakafhandelParametersService,
+  );
+  private readonly route = inject(ActivatedRoute);
+  private readonly utilService = inject(UtilService);
+  private readonly websocketService = inject(WebsocketService);
+  private readonly dialog = inject(MatDialog);
+  private readonly translate = inject(TranslateService);
+  private readonly bagService = inject(BAGService);
+  private readonly policyService = inject(PolicyService);
+  private readonly zaakDialogService = inject(ZaakDialogService);
+  protected readonly sideActions = inject(ZaakSideActionService);
+  protected readonly dialogs = inject(ZaakActionDialogsService);
 
   private readonly queryClient = inject(QueryClient);
   private readonly betrokkenenService = inject(ZaakBetrokkenenService);
@@ -275,8 +275,8 @@ export class ZaakViewComponent
       this.zaakUuid.set(zaak.uuid);
 
       this.zaakListener = this.websocketService.addListener(
-        Opcode.ANY,
-        ObjectType.ZAAK,
+        "ANY",
+        "ZAAK",
         zaak.uuid,
         (event) => {
           void this.onZaakChanged(event).catch((error: unknown) =>
@@ -286,8 +286,8 @@ export class ZaakViewComponent
       );
 
       this.zaakRollenListener = this.websocketService.addListenerWithSnackbar(
-        Opcode.UPDATED,
-        ObjectType.ZAAK_ROLLEN,
+        "UPDATED",
+        "ZAAK_ROLLEN",
         zaak.uuid,
         () => {
           this.betrokkenenService.invalidateBetrokkenen(this.zaak);
@@ -303,15 +303,15 @@ export class ZaakViewComponent
 
       this.zaakBesluitenListener =
         this.websocketService.addListenerWithSnackbar(
-          Opcode.UPDATED,
-          ObjectType.ZAAK_BESLUITEN,
+          "UPDATED",
+          "ZAAK_BESLUITEN",
           zaak.uuid,
           () => this.loadBesluiten(),
         );
 
       this.zaakTakenListener = this.websocketService.addListener(
-        Opcode.UPDATED,
-        ObjectType.ZAAK_TAKEN,
+        "UPDATED",
+        "ZAAK_TAKEN",
         zaak.uuid,
         () => this.invalidatePlanItems(),
       );
@@ -422,7 +422,8 @@ export class ZaakViewComponent
       this.queryClient.getQueryState(queryKey)?.status === "success";
     const zaakAfterRefetch = this.queryClient.getQueryData(queryKey);
     if (refetchSucceeded && zaakAfterRefetch === zaakBeforeRefetch) return;
-    if (isCausedByCurrentUser(event, this.loggedInUser.data()?.id)) return;
+    if (isCausedByCurrentUser(event, this.loggedInUser.data()?.username))
+      return;
 
     forkJoin({
       msgPart1: this.translate.get(

@@ -5,7 +5,6 @@
 package nl.info.zac.search.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -19,6 +18,7 @@ import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
@@ -30,7 +30,8 @@ import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.search.model.zoekobject.toBetrokkeneIdentification
 import nl.info.zac.search.model.zoekobject.toSolrFormatting
-import nl.info.zac.util.time.convertToDate
+import nl.info.zac.util.time.toDate
+import java.util.Date
 import java.util.UUID
 
 class ZaakZoekObjectConverter @Inject constructor(
@@ -81,12 +82,12 @@ class ZaakZoekObjectConverter @Inject constructor(
             }
             omschrijving = zaak.omschrijving
             toelichting = zaak.toelichting
-            registratiedatum = zaak.registratiedatum?.let(::convertToDate)
-            startdatum = zaak.startdatum?.let(::convertToDate)
-            einddatumGepland = zaak.einddatumGepland?.let(::convertToDate)
-            einddatum = zaak.einddatum?.let(::convertToDate)
-            uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening?.let(::convertToDate)
-            publicatiedatum = zaak.publicatiedatum?.let(::convertToDate)
+            registratiedatum = zaak.registratiedatum?.toDate()
+            startdatum = zaak.startdatum?.toDate()
+            einddatumGepland = zaak.einddatumGepland?.toDate()
+            einddatum = zaak.einddatum?.toDate()
+            uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening?.toDate()
+            publicatiedatum = zaak.publicatiedatum?.toDate()
             // we use the name of this enum in the search index
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name
             isAfgehandeld = !zaak.isOpen()
@@ -94,7 +95,7 @@ class ZaakZoekObjectConverter @Inject constructor(
             // locatie is not yet supported
             locatie = null
             communicatiekanaal = zaak.communicatiekanaalNaam
-            archiefActiedatum = zaak.archiefactiedatum?.let(::convertToDate)
+            archiefActiedatum = zaak.archiefactiedatum?.toDate()
             if (zaak.isVerlengd()) {
                 setIndicatie(ZaakIndicatie.VERLENGD, true)
                 duurVerlenging = zaak.verlenging.duur
@@ -116,13 +117,13 @@ class ZaakZoekObjectConverter @Inject constructor(
         }
         findBehandelaar(zaak, roles)?.let {
             zaakZoekObject.behandelaarNaam = it.getFullName()
-            zaakZoekObject.behandelaarGebruikersnaam = it.id
+            zaakZoekObject.behandelaarGebruikersnaam = it.username
             zaakZoekObject.isToegekend = true
         }
         zaak.status?.let {
             val status = zrcClientService.readStatus(it)
             zaakZoekObject.statusToelichting = status.statustoelichting
-            zaakZoekObject.statusDatumGezet = convertToDate(status.datumStatusGezet)
+            zaakZoekObject.statusDatumGezet = Date.from(status.datumStatusGezet.toInstant())
             val statustype = ztcClientService.readStatustype(status.statustype)
             zaakZoekObject.statustypeOmschrijving = statustype.omschrijving
             zaakZoekObject.isStatusEindstatus = statustype.isEindstatus

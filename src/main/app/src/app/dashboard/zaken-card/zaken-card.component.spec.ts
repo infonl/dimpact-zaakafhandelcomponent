@@ -65,7 +65,7 @@ describe(ZakenCardComponent.name, () => {
     testQueryClient.setQueryData(
       LOGGED_IN_USER_QUERY_KEY,
       fromPartial<GeneratedType<"RestUser">>({
-        id: "fakeUserId",
+        username: "fakeUserId",
         naam: "fakeUserName",
       }),
     );

@@ -48,13 +48,13 @@ describe("appConfig", () => {
 
     it("persists cached queries to the session storage", async () => {
       queryClient.setQueryData(["/rest/identity/loggedInUser"], {
-        id: "fakeUserId",
+        username: "fakeUsername",
       });
 
       await waitFor(
         () =>
           expect(window.sessionStorage.getItem("zac:tanstack:query")).toContain(
-            "fakeUserId",
+            "fakeUsername",
           ),
         { timeout: 3000 },
       );

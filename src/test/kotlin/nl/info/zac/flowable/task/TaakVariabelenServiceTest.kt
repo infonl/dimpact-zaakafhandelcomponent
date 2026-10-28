@@ -17,8 +17,8 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.exception.VariableNotFoundException
+import nl.info.zac.flowable.ZaakVariabelenService
+import nl.info.zac.flowable.exception.VariableNotFoundException
 import org.flowable.common.engine.api.scope.ScopeTypes
 import org.flowable.engine.TaskService
 import org.flowable.task.api.Task

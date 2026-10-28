@@ -15,7 +15,6 @@ import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType.APPLICATION_JSON
-import net.atos.zac.util.MediaTypes
 import nl.info.client.bag.BagClientService.Companion.DEFAULT_CRS
 import nl.info.client.bag.exception.BagResponseExceptionMapper
 import nl.info.client.bag.model.generated.PointGeoJSON
@@ -23,6 +22,7 @@ import nl.info.client.bag.model.generated.StandplaatsIOHal
 import nl.info.client.bag.model.generated.StandplaatsIOHalCollection
 import nl.info.client.bag.model.generated.StandplaatsIOLvcHalCollection
 import nl.info.client.bag.util.BagClientHeadersFactory
+import nl.info.zac.util.MediaTypes
 import org.eclipse.microprofile.faulttolerance.Timeout
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider

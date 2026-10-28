@@ -6,6 +6,7 @@
 import {
   AfterViewInit,
   Component,
+  inject,
   OnDestroy,
   OnInit,
   signal,
@@ -64,8 +65,6 @@ import { ZakenService } from "../zaken.service";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { ObjectType } from "src/app/core/websocket/model/object-type";
-import { Opcode } from "src/app/core/websocket/model/opcode";
 import { IndexingService } from "src/app/indexing/indexing.service";
 import { BatchProcessService } from "src/app/shared/batch-progress/batch-process.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
@@ -116,12 +115,25 @@ export class ZakenWerkvoorraadComponent
   extends WerklijstComponent
   implements AfterViewInit, OnInit, OnDestroy
 {
+  private readonly zakenService = inject(ZakenService);
+  override readonly gebruikersvoorkeurenService = inject(
+    GebruikersvoorkeurenService,
+  );
+  override readonly route = inject(ActivatedRoute);
+  private readonly zoekenService = inject(ZoekenService);
+  protected readonly utilService = inject(UtilService);
+  private readonly dialog = inject(MatDialog);
+  private readonly identityService = inject(IdentityService);
+  private readonly translateService = inject(TranslateService);
+  private readonly indexingService = inject(IndexingService);
+  private readonly batchProcessService = inject(BatchProcessService);
+
   protected readonly indicatiesLayout = IndicatiesLayout;
   private readonly assignToMeMutation = injectMutation(() =>
     this.zakenService.toekennenAanIngelogdeMedewerkerVanuitLijst(),
   );
   private readonly commitPendingChangesToSearchIndexMutation = injectMutation(
-    () => this.indexService.commitPendingChangesToSearchIndex(),
+    () => this.indexingService.commitPendingChangesToSearchIndex(),
   );
   protected selection = new SelectionModel<ZaakZoekObject>(true, []);
   protected dataSource: ZakenWerkvoorraadDatasource;
@@ -158,18 +170,7 @@ export class ZakenWerkvoorraadComponent
     this.identityService.readLoggedInUser(),
   );
 
-  constructor(
-    private zakenService: ZakenService,
-    public override gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    public override route: ActivatedRoute,
-    private zoekenService: ZoekenService,
-    protected utilService: UtilService,
-    private dialog: MatDialog,
-    private identityService: IdentityService,
-    private translateService: TranslateService,
-    private indexService: IndexingService,
-    private batchProcessService: BatchProcessService,
-  ) {
+  constructor() {
     super();
     this.dataSource = new ZakenWerkvoorraadDatasource(
       this.zoekenService,
@@ -285,7 +286,7 @@ export class ZakenWerkvoorraadComponent
           // until the response names the behandelaar it assigned
           if (!zaak.behandelaar) return;
           zaakZoekObject.behandelaarNaam = zaak.behandelaar.naam;
-          zaakZoekObject.behandelaarGebruikersnaam = zaak.behandelaar.id;
+          zaakZoekObject.behandelaarGebruikersnaam = zaak.behandelaar.username;
         },
       },
     );
@@ -295,7 +296,7 @@ export class ZakenWerkvoorraadComponent
     if (!zaakZoekObject.rechten.canToekennen) return false;
     const loggedInUser = this.loggedInUserQuery.data();
     if (!loggedInUser) return false;
-    if (loggedInUser.id === zaakZoekObject.behandelaarGebruikersnaam)
+    if (loggedInUser.username === zaakZoekObject.behandelaarGebruikersnaam)
       return false;
     return loggedInUser.groupIds?.includes(zaakZoekObject.groepId) ?? false;
   }
@@ -329,10 +330,10 @@ export class ZakenWerkvoorraadComponent
     this.batchProcessService.subscribe({
       ids: zaken.map(({ id }) => id),
       progressSubscription: {
-        opcode: Opcode.ANY,
-        objectType: ObjectType.ZAAK_ROLLEN,
+        opcode: "ANY",
+        objectType: "ZAAK_ROLLEN",
         onNotification: (id, event) => {
-          if (event.opcode !== Opcode.UPDATED) return;
+          if (event.opcode !== "UPDATED") return;
 
           const zaak = this.dataSource.data.find((x) => x.id === id);
           if (!zaak) return;
@@ -341,7 +342,7 @@ export class ZakenWerkvoorraadComponent
           zaak.groepId = this.toekenning?.groep?.id ?? zaak.groepId;
 
           zaak.behandelaarGebruikersnaam =
-            this.toekenning?.medewerker?.id ?? "";
+            this.toekenning?.medewerker?.username ?? "";
           zaak.behandelaarNaam = this.toekenning?.medewerker?.naam ?? "";
         },
       },
@@ -379,7 +380,7 @@ export class ZakenWerkvoorraadComponent
               (x) =>
                 skippedZaken.includes(x) ||
                 (this.toekenning?.groep?.id === x.groepId &&
-                  this.toekenning.medewerker?.id ===
+                  this.toekenning.medewerker?.username ===
                     x.behandelaarGebruikersnaam),
             )
             .map(({ id }) => id);

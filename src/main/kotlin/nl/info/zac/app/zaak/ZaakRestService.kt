@@ -20,7 +20,6 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.shared.ZgwApiService
@@ -48,7 +47,6 @@ import nl.info.zac.admin.model.ZaaktypeZaakafzenderParameters
 import nl.info.zac.app.admin.model.RestZaakAfzender
 import nl.info.zac.app.admin.model.toRestZaakAfzenders
 import nl.info.zac.app.bag.model.toZaakobjectRequest
-import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.productaanvraag.model.RestInboxProductaanvraag
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
@@ -88,9 +86,11 @@ import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.event.EventingService
 import nl.info.zac.flowable.ProcessStartData
 import nl.info.zac.flowable.ZaakProcessService
+import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.history.model.HistoryLine
+import nl.info.zac.identification.IdentificatieType
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
@@ -230,7 +230,7 @@ class ZaakRestService @Inject constructor(
             zaakType.isServicenormAvailable() || throw DueDateNotAllowed()
         }
         val zaakAssignment = if (restZaak.groep != null || restZaak.behandelaar != null) {
-            zaakService.readZaakAssignment(groupId = restZaak.groep?.id, userName = restZaak.behandelaar?.id)
+            zaakService.readZaakAssignment(groupId = restZaak.groep?.id, userName = restZaak.behandelaar?.username)
         } else {
             null
         }
@@ -434,7 +434,7 @@ class ZaakRestService @Inject constructor(
             }
         }
         val zaakListParameters = ZaakListParameters().apply {
-            rolBetrokkeneIdentificatieMedewerkerIdentificatie = loggedInUser.id
+            rolBetrokkeneIdentificatieMedewerkerIdentificatie = loggedInUser.username
         }
         return zrcClientService.listZaken(zaakListParameters).results()
             .filter { it.isOpen() }
@@ -447,7 +447,7 @@ class ZaakRestService @Inject constructor(
                 )
             }
             .map { restZaakOverzichtConverter.convertToRestZaakOverzicht(zaak = it, loggedInUser = loggedInUser) }
-            .filter { it.rechten?.canLezen == true && it.behandelaar?.id == loggedInUser.id }
+            .filter { it.rechten?.canLezen == true && it.behandelaar?.username == loggedInUser.username }
     }
 
     @GET
@@ -910,7 +910,7 @@ class ZaakRestService @Inject constructor(
         restZaakEditMetRedenGegevens: RestZaakEditMetRedenGegevens,
         currentBehandelaarId: String?
     ) = restZaakEditMetRedenGegevens.zaak.groep?.id?.let { requestedGroupId ->
-        val requestedBehandelaarId = restZaakEditMetRedenGegevens.zaak.behandelaar?.id
+        val requestedBehandelaarId = restZaakEditMetRedenGegevens.zaak.behandelaar?.username
             ?: currentBehandelaarId.takeUnless { restZaakEditMetRedenGegevens.isBehandelaarVrijgegeven }
         val currentGroupId = zgwApiService.findGroepForZaak(zaak)
             ?.betrokkeneIdentificatie
@@ -1086,7 +1086,7 @@ class ZaakRestService @Inject constructor(
             zaaktype = zaakType,
             processStartData = ProcessStartData(
                 groupId = restZaak.groep?.id,
-                behandelaarId = restZaak.behandelaar?.id,
+                behandelaarId = restZaak.behandelaar?.username,
                 communicatiekanaal = restZaak.communicatiekanaal
             )
         )

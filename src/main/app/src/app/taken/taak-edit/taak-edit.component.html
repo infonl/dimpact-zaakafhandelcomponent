@@ -26,13 +26,13 @@
     <zac-select
       [form]="form"
       key="groep"
-      [options]="groups"
+      [options]="groups()"
       [optionDisplayValue]="groupDisplayValue"
     />
     <zac-select
       [form]="form"
       key="behandelaar"
-      [options]="users"
+      [options]="users()"
       optionDisplayValue="naam"
     />
     <zac-textarea [form]="form" key="reden" />

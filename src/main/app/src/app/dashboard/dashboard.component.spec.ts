@@ -365,6 +365,21 @@ describe(DashboardComponent.name, () => {
     expect(observer.observed.size).toBe(0);
   });
 
+  it("places the cards the server returns, not an outdated cached copy, so the next drag does not save that copy", async () => {
+    testQueryClient.setQueryData([DASHBOARD_CARDS_URL], [
+      { cardId: "MIJN_TAKEN", column: 0, row: 0 },
+    ] satisfies GeneratedType<"RestDashboardCardInstelling">[]);
+    testQueryClient.setQueryData(
+      [SIGNALERING_TYPEN_URL],
+      ["ZAAK_OP_NAAM", "ZAAK_DOCUMENT_TOEGEVOEGD"],
+    );
+    await testQueryClient.invalidateQueries();
+
+    await setup();
+
+    expect(cardOf(DashboardCardId.MIJN_ZAKEN)).toBeInTheDocument();
+  });
+
   it("removes the instelling of the card the user deleted", async () => {
     await setup();
     await switchToEditMode();

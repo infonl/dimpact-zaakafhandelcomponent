@@ -100,7 +100,7 @@ class RestZoekParametersConverterTest : BehaviorSpec({
         }
 
         given("a RestZoekParameters with alleenMijnZaken=true") {
-            val loggedInUser = createLoggedInUser(id = "fakeUserId")
+            val loggedInUser = createLoggedInUser(username = "fakeUsername")
             every { loggedInUserInstance.get() } returns loggedInUser
             val params = createRestZoekParameters(
                 sorteerRichting = "asc",
@@ -117,7 +117,7 @@ class RestZoekParametersConverterTest : BehaviorSpec({
                 val result = restZoekParametersConverter.convert(params)
 
                 then("a filter query for behandelaarId is added with logged-in user id") {
-                    result.getFilterQueries()["zaak_behandelaarGebruikersnaam"] shouldBe "fakeUserId"
+                    result.getFilterQueries()["zaak_behandelaarGebruikersnaam"] shouldBe "fakeUsername"
                 }
             }
         }

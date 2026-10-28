@@ -11,7 +11,6 @@ import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.util.JsonbUtil
 import nl.info.zac.app.configuration.model.RestAllowedFileType
 import nl.info.zac.app.configuration.model.RestTaal
 import nl.info.zac.app.configuration.model.toRestAllowedFileType
@@ -21,6 +20,7 @@ import nl.info.zac.configuration.AllowedFileType
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.configuration.FileSizeConfiguration
 import nl.info.zac.util.AllOpen
+import nl.info.zac.util.JSONB
 import nl.info.zac.util.NoArgConstructor
 
 /**
@@ -59,11 +59,11 @@ class ConfigurationRestService @Inject constructor(
 
     @GET
     @Path("gemeente/code")
-    fun readGemeenteCode(): String = JsonbUtil.JSONB.toJson(configurationService.readGemeenteCode())
+    fun readGemeenteCode(): String = JSONB.toJson(configurationService.readGemeenteCode())
 
     @GET
     @Path("gemeente")
-    fun readGemeenteNaam(): String = JsonbUtil.JSONB.toJson(configurationService.readGemeenteNaam())
+    fun readGemeenteNaam(): String = JSONB.toJson(configurationService.readGemeenteNaam())
 
     /**
      * Returns whether doelbinding values must be configured per zaaktype in the admin UI.

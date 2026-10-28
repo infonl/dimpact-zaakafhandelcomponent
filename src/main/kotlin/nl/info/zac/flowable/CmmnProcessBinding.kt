@@ -6,10 +6,10 @@ package nl.info.zac.flowable
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import net.atos.zac.flowable.cmmn.CmmnService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.model.ProcessEngine
+import nl.info.zac.flowable.cmmn.CmmnService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor

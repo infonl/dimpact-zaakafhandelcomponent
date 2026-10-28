@@ -20,7 +20,9 @@ import { AbstractTaskForm } from "./abstract-task-form";
   providedIn: "root",
 })
 export class GoedkeurenTaskForm extends AbstractTaskForm {
-  private informatieObjectenService = inject(InformatieObjectenService);
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
   private readonly queryClient = inject(QueryClient);
 
   async requestForm(zaak: GeneratedType<"RestZaak">): Promise<FormField[]> {

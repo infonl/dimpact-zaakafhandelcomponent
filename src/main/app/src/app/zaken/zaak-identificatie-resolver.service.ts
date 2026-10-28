@@ -11,7 +11,7 @@ import { ZakenService } from "./zaken.service";
   providedIn: "root",
 })
 export class ZaakIdentificatieResolver {
-  private zakenService = inject(ZakenService);
+  private readonly zakenService = inject(ZakenService);
 
   resolve(route: ActivatedRouteSnapshot) {
     const zaakID = route.paramMap.get("zaakIdentificatie");

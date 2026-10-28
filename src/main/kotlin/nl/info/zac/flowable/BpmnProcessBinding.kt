@@ -6,15 +6,14 @@ package nl.info.zac.flowable
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICATIEKANAAL
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
-import net.atos.zac.flowable.exception.CaseOrProcessNotFoundException
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.model.ProcessEngine
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICATIEKANAAL
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
 import nl.info.zac.flowable.bpmn.BpmnService
+import nl.info.zac.flowable.exception.CaseOrProcessNotFoundException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI

@@ -22,17 +22,12 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import kotlinx.coroutines.CoroutineDispatcher
-import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.signalering.model.SignaleringType
-import net.atos.zac.signalering.model.SignaleringZoekParameters
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.SoortEnum
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import nl.info.zac.app.informatieobjecten.model.RestFileUpload
 import nl.info.zac.app.task.converter.RestTaskConverter
@@ -48,9 +43,12 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.launchAsLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.configuration.FileSizeConfiguration
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.event.EventingService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.flowable.ZaakVariabelenService
+import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.flowable.task.TaakVariabelenService.Companion.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
 import nl.info.zac.flowable.task.TaakVariabelenService.Companion.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER
@@ -65,11 +63,13 @@ import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.signalering.model.SignaleringType
+import nl.info.zac.signalering.model.SignaleringZoekParameters
 import nl.info.zac.task.BpmnTaskFormRuntimeService
 import nl.info.zac.task.TaskService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.time.convertToDate
+import nl.info.zac.util.time.toDate
 import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.readZaakAutorisatieGegevens
@@ -161,7 +161,7 @@ class TaskRestService @Inject constructor(
     @PUT
     @Path("taakdata")
     fun updateTaskData(restTask: RestTask): RestTask {
-        flowableTaskService.readOpenTask(restTask.id).let {
+        readOpenTask(restTask).let {
             assertPolicy(it.isOpen() && policyService.readTaakRechten(it).canWijzigen)
             taakVariabelenService.setTaskData(it, restTask.taakdata)
             taakVariabelenService.setTaskInformation(it, restTask.taakinformatie)
@@ -173,9 +173,9 @@ class TaskRestService @Inject constructor(
     }
 
     private fun updateDescriptionAndDueDate(restTask: RestTask): Task {
-        flowableTaskService.readOpenTask(restTask.id).let { task ->
+        readOpenTask(restTask).let { task ->
             restTask.toelichting?.let { task.description = it }
-            restTask.fataledatum?.let { task.dueDate = convertToDate(it) }
+            restTask.fataledatum?.let { task.dueDate = it.toDate() }
             return flowableTaskService.updateTask(task)
         }
     }
@@ -229,7 +229,7 @@ class TaskRestService @Inject constructor(
         taskService.assignTask(
             task = task,
             groupId = restTaskAssignData.groepId,
-            userId = restTaskAssignData.behandelaarId,
+            username = restTaskAssignData.behandelaarId,
             reason = restTaskAssignData.reden,
             loggedInUser = loggedInUserInstance.get()
         )
@@ -243,14 +243,14 @@ class TaskRestService @Inject constructor(
     @PATCH
     @Path("complete")
     fun completeTask(restTask: RestTask): RestTask {
-        val openTask = flowableTaskService.readOpenTask(restTask.id)
+        val openTask = readOpenTask(restTask)
         assertPolicy(openTask.isOpen() && policyService.readTaakRechten(openTask).canWijzigen)
 
-        val loggedInUserId = loggedInUserInstance.get().id
+        val loggedInUsername = loggedInUserInstance.get().username
         // Assigning bumps the task revision, so continue with the task as returned by the assignment.
         // Using the stale instance would fail with an optimistic locking exception further down.
-        val task = if (restTask.behandelaar?.id != loggedInUserId) {
-            flowableTaskService.assignTaskToUser(openTask.id, loggedInUserId, REDEN_TAAK_AFGESLOTEN)
+        val task = if (restTask.behandelaar?.username != loggedInUsername) {
+            flowableTaskService.assignTaskToUser(openTask.id, loggedInUsername, REDEN_TAAK_AFGESLOTEN)
         } else {
             openTask
         }
@@ -337,7 +337,7 @@ class TaskRestService @Inject constructor(
         return taskService.assignTask(
             task = task,
             groupId = restTaskAssignData.groepId,
-            userId = loggedInUser.id,
+            username = loggedInUser.username,
             reason = restTaskAssignData.reden,
             loggedInUser = loggedInUser
         )
@@ -410,6 +410,10 @@ class TaskRestService @Inject constructor(
                 }
         }
     }
+
+    private fun readOpenTask(restTask: RestTask) =
+        restTask.id?.let(flowableTaskService::readOpenTask)
+            ?: throw InputValidationFailedException(message = "A task id is required")
 
     private fun deleteSignaleringen(taskInfo: TaskInfo) {
         loggedInUserInstance.get().let { loggedInUser ->

@@ -13,9 +13,9 @@ import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.unmockkAll
 import io.mockk.verify
-import net.atos.zac.flowable.FlowableHelper
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
 import nl.info.zac.event.EventingService
+import nl.info.zac.flowable.FlowableHelper
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
 import nl.info.zac.flowable.task.ZacCreateUserTaskInterceptor.Companion.VAR_PROCESS_OWNER
 import nl.info.zac.search.IndexingService
 import nl.info.zac.websocket.event.ScreenEvent

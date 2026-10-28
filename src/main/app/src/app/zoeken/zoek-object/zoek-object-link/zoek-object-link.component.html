@@ -5,7 +5,7 @@
 
 <div class="link flex-row flex-wrap space-between items-center">
   <div class="flex-col">
-    <label>{{ zoekObject().type?.toLowerCase() | translate }}</label>
+    <span class="type">{{ zoekObject().type?.toLowerCase() | translate }}</span>
     <a
       (click)="navigate($event)"
       [routerLink]="getLink()"

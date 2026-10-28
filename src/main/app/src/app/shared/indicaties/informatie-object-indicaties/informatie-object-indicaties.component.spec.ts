@@ -26,7 +26,7 @@ const makeDocument = (
   indicaties: GeneratedType<"DocumentIndicatie">[],
 ): GeneratedType<"RestEnkelvoudigInformatieobject"> =>
   fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
-    gelockedDoor: { id: "fakeUserId", naam: "fakeGelockedDoorNaam" },
+    gelockedDoor: { username: "fakeUserId", naam: "fakeGelockedDoorNaam" },
     ondertekening: { soort: "fakeDocumentSoort", datum: "2024-01-15" },
     verzenddatum: "2024-01-20",
     indicaties,

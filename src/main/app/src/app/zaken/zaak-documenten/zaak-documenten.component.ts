@@ -33,8 +33,6 @@ import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { map } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
-import { ObjectType } from "../../core/websocket/model/object-type";
-import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { DocumentDialogService } from "../../informatie-objecten/document-dialog.service";
@@ -247,14 +245,14 @@ export class ZaakDocumentenComponent implements AfterViewInit {
       const zaakUuid = this.zaakUuid();
       const websocketListeners = [
         this.websocketService.addListener(
-          Opcode.UPDATED,
-          ObjectType.ZAAK_INFORMATIEOBJECTEN,
+          "UPDATED",
+          "ZAAK_INFORMATIEOBJECTEN",
           zaakUuid,
           (event) => this.onZaakInformatieobjectenUpdated(event),
         ),
         this.websocketService.addListener(
-          Opcode.UPDATED,
-          ObjectType.ZAAK_BESLUITEN,
+          "UPDATED",
+          "ZAAK_BESLUITEN",
           zaakUuid,
           () => this.reloadDocumenten(),
         ),
@@ -272,8 +270,8 @@ export class ZaakDocumentenComponent implements AfterViewInit {
         .split(",")
         .map((documentUuid) =>
           this.websocketService.addListener(
-            Opcode.UPDATED,
-            ObjectType.ENKELVOUDIG_INFORMATIEOBJECT,
+            "UPDATED",
+            "ENKELVOUDIG_INFORMATIEOBJECT",
             documentUuid,
             () => this.reloadDocumenten(),
           ),

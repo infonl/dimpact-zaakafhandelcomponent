@@ -48,7 +48,6 @@
       {{ "actie.zaak.opschorten" | translate }}
     </button>
     <button
-      autofocus
       mat-raised-button
       [disabled]="loading || suspendZaakMutation.isPending()"
       (click)="close()"

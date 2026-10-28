@@ -6,14 +6,14 @@ kotlin-csv = "2.0.0"
 openapi = "4.3.5"
 openapi-generator = "7.26.0"
 opentelemetry = "1.67.0"
-opentelemetry-instrumentation = "2.32.0"
+opentelemetry-instrumentation = "2.33.1"
 node-gradle = "7.1.0"
 detekt = "2.0.0-alpha.6"
 spotless = "8.10.4"
 spotless-eclipse-formatter = "4.21"
 spotless-prettier-base = "3.4.2"
 spotless-prettier-organize-imports = "4.1.0"
-jacoco = "0.8.15"
+jacoco = "0.8.16"
 owasp-dependencycheck = "13.0.0"
 glassfish-expressly = "6.0.0"
 keycloak = "26.0.12"
@@ -61,6 +61,7 @@ eclipse-yasson = "3.0.5"
 
 kotest = "6.2.6"
 mockk = "1.14.11"
+archunit = "1.5.1"
 
 testcontainers = "2.0.5"
 testcontainers-mockserver = "2.0.5"
@@ -129,6 +130,7 @@ keycloak-admin-client = { group = "org.keycloak", name = "keycloak-admin-client"
 eclipse-microprofile-rest-client-api = { group = "org.eclipse.microprofile.rest.client", name = "microprofile-rest-client-api" }
 eclipse-microprofile-config-api = { group = "org.eclipse.microprofile.config", name = "microprofile-config-api" }
 eclipse-microprofile-health-api = { group = "org.eclipse.microprofile.health", name = "microprofile-health-api" }
+eclipse-microprofile-openapi-api = { group = "org.eclipse.microprofile.openapi", name = "microprofile-openapi-api" }
 smallrye-health = { group = "io.smallrye", name = "smallrye-health", version.ref = "smallrye-health" }
 eclipse-microprofile-fault-tolerance-api = { group = "org.eclipse.microprofile.fault-tolerance", name = "microprofile-fault-tolerance-api" }
 hibernate-validator = { group = "org.hibernate.validator", name = "hibernate-validator" }
@@ -145,6 +147,7 @@ eclipse-yasson = { group = "org.eclipse.yasson", name = "yasson", version.ref = 
 kotest-runner-junit5 = { group = "io.kotest", name = "kotest-runner-junit5", version.ref = "kotest" }
 kotest-assertions-json = { group = "io.kotest", name = "kotest-assertions-json", version.ref = "kotest" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+archunit = { group = "com.tngtech.archunit", name = "archunit", version.ref = "archunit" }
 json = { group = "org.json", name = "json", version.ref = "json-json" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 

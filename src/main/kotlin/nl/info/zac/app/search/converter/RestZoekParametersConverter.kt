@@ -20,7 +20,7 @@ import nl.info.zac.search.model.ZoekParameters
 import nl.info.zac.search.model.ZoekVeld
 import nl.info.zac.search.model.zoekobject.TaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
-import nl.info.zac.shared.model.fromValue
+import nl.info.zac.shared.model.toSorteerRichting
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.lang3.BooleanUtils
@@ -47,10 +47,10 @@ class RestZoekParametersConverter @Inject constructor(
             zoekParameters.addFilterQuery(ZaakZoekObject.EINDSTATUS_FIELD, BooleanUtils.TRUE)
         }
         if (restZoekParameters.isAlleenMijnZaken) {
-            zoekParameters.addFilterQuery(ZaakZoekObject.BEHANDELAAR_ID_FIELD, loggedInUserInstance.get().id)
+            zoekParameters.addFilterQuery(ZaakZoekObject.BEHANDELAAR_ID_FIELD, loggedInUserInstance.get().username)
         }
         if (restZoekParameters.isAlleenMijnTaken) {
-            zoekParameters.addFilterQuery(TaakZoekObject.BEHANDELAAR_ID_FIELD, loggedInUserInstance.get().id)
+            zoekParameters.addFilterQuery(TaakZoekObject.BEHANDELAAR_ID_FIELD, loggedInUserInstance.get().username)
         }
         restZoekParameters.zoeken?.let {
             it.forEach { (key: String, value: String) ->
@@ -62,7 +62,7 @@ class RestZoekParametersConverter @Inject constructor(
             }
         }
         restZoekParameters.sorteerVeld?.let {
-            zoekParameters.setSortering(it, fromValue(restZoekParameters.sorteerRichting))
+            zoekParameters.setSortering(it, restZoekParameters.sorteerRichting.toSorteerRichting())
         }
         zoekParameters.start = restZoekParameters.page * restZoekParameters.rows
         zoekParameters.rows = restZoekParameters.rows

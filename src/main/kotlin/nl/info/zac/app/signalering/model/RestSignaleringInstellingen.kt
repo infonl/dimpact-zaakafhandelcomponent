@@ -5,8 +5,8 @@
 package nl.info.zac.app.signalering.model
 
 import jakarta.json.bind.annotation.JsonbProperty
-import net.atos.zac.signalering.model.SignaleringSubject
-import net.atos.zac.signalering.model.SignaleringType
+import nl.info.zac.signalering.model.SignaleringSubject
+import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 

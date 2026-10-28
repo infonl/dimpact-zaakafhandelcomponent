@@ -137,6 +137,30 @@ describe("QUERY_CLIENT", () => {
     expect(console.error).toHaveBeenCalledWith(error);
   });
 
+  it("reports a failed refetch through the error handling when the read says the user is waiting on every refetch", async () => {
+    const queryClient = TestBed.inject(QUERY_CLIENT);
+    const queryKey = ["fakeEndpoint"];
+    const meta = { reportFailedRefetch: true };
+
+    await queryClient.fetchQuery({
+      queryKey,
+      queryFn: () => Promise.resolve("fakeResponse"),
+      meta,
+    });
+    await expect(
+      queryClient.fetchQuery({
+        queryKey,
+        queryFn: () => Promise.reject(error),
+        retry: false,
+        staleTime: 0,
+        meta,
+      }),
+    ).rejects.toBe(error);
+
+    expect(foutAfhandelen).toHaveBeenCalledWith(error);
+    expect(console.error).not.toHaveBeenCalled();
+  });
+
   it("reports a refetch that fails because the session expired through the error handling, so the user is sent to log in", async () => {
     const queryClient = TestBed.inject(QUERY_CLIENT);
     const queryKey = ["fakeEndpoint"];

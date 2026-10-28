@@ -35,8 +35,6 @@ import { MatTable, MatTableModule } from "@angular/material/table";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { ObjectType } from "src/app/core/websocket/model/object-type";
-import { Opcode } from "src/app/core/websocket/model/opcode";
 import { BatchProcessService } from "src/app/shared/batch-progress/batch-process.service";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
@@ -106,15 +104,17 @@ export class TakenWerkvoorraadComponent
   extends WerklijstComponent
   implements AfterViewInit, OnInit, OnDestroy
 {
-  override route = inject(ActivatedRoute);
-  private takenService = inject(TakenService);
-  protected utilService = inject(UtilService);
-  private identityService = inject(IdentityService);
-  private dialog = inject(MatDialog);
-  private zoekenService = inject(ZoekenService);
-  override gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
-  private translateService = inject(TranslateService);
-  private batchProcessService = inject(BatchProcessService);
+  override readonly route = inject(ActivatedRoute);
+  private readonly takenService = inject(TakenService);
+  protected readonly utilService = inject(UtilService);
+  private readonly identityService = inject(IdentityService);
+  private readonly dialog = inject(MatDialog);
+  private readonly zoekenService = inject(ZoekenService);
+  override readonly gebruikersvoorkeurenService = inject(
+    GebruikersvoorkeurenService,
+  );
+  private readonly translateService = inject(TranslateService);
+  private readonly batchProcessService = inject(BatchProcessService);
 
   protected selection = new SelectionModel<TaakZoekObject>(true, []);
   protected dataSource: TakenWerkvoorraadDatasource;
@@ -153,7 +153,7 @@ export class TakenWerkvoorraadComponent
         if (!taakZoekObject) return;
 
         taakZoekObject.behandelaarNaam = behandelaar.naam;
-        taakZoekObject.behandelaarGebruikersnaam = behandelaar.id;
+        taakZoekObject.behandelaarGebruikersnaam = behandelaar.username;
       },
     },
   );
@@ -180,7 +180,7 @@ export class TakenWerkvoorraadComponent
     if (!taakZoekObject.rechten.canToekennen) return false;
     const loggedInUser = this.loggedInUserQuery.data();
     if (!loggedInUser) return false;
-    if (loggedInUser.id === taakZoekObject.behandelaarGebruikersnaam)
+    if (loggedInUser.username === taakZoekObject.behandelaarGebruikersnaam)
       return false;
     return loggedInUser.groupIds?.includes(taakZoekObject.groepID) ?? false;
   }
@@ -297,11 +297,11 @@ export class TakenWerkvoorraadComponent
     this.batchProcessService.subscribe({
       ids: tasks.map(({ id }) => id),
       progressSubscription: {
-        opcode: Opcode.ANY,
-        objectType: ObjectType.TAAK,
+        opcode: "ANY",
+        objectType: "TAAK",
         onNotification: (id, event) => {
-          if (event.opcode === Opcode.SKIPPED) skippedTakenCount++;
-          if (event.opcode !== Opcode.UPDATED) return;
+          if (event.opcode === "SKIPPED") skippedTakenCount++;
+          if (event.opcode !== "UPDATED") return;
 
           const taak = this.dataSource.data.find((task) => task.id === id);
           if (!taak) return;
@@ -309,13 +309,14 @@ export class TakenWerkvoorraadComponent
           taak.groepNaam = this.toekenning?.groep?.naam ?? taak.groepNaam;
           taak.groepID = this.toekenning?.groep?.id ?? taak.groepID;
 
-          taak.behandelaarGebruikersnaam = this.toekenning?.medewerker?.id;
+          taak.behandelaarGebruikersnaam =
+            this.toekenning?.medewerker?.username;
           taak.behandelaarNaam = this.toekenning?.medewerker?.naam;
         },
       },
       finalSubscription: {
-        objectType: ObjectType.ANY,
-        opcode: Opcode.UPDATED,
+        objectType: "ANY",
+        opcode: "UPDATED",
         screenEventResourceId,
       },
       finally: () => {

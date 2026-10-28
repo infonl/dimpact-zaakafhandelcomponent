@@ -61,9 +61,9 @@ import { BAGService } from "../bag.service";
   ],
 })
 export class BagZoekComponent {
-  private bagService = inject(BAGService);
-  private utilService = inject(UtilService);
-  private router = inject(Router);
+  private readonly bagService = inject(BAGService);
+  private readonly utilService = inject(UtilService);
+  private readonly router = inject(Router);
 
   readonly bagObject = output<GeneratedType<"RestBagObject">>();
   readonly isSelectable = input(false, { transform: booleanAttribute });

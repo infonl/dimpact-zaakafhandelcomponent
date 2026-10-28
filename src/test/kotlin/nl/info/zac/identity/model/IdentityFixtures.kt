@@ -18,13 +18,13 @@ fun createGroup(
 )
 
 fun createUser(
-    id: String = "fakeId",
+    username: String = "fakeUsername",
     firstName: String = "fakeFirstName",
     lastName: String = "fakeLastName",
     fullName: String = "fakeFullName",
     email: String = "fake@example.com"
 ) = User(
-    id = id,
+    username = username,
     firstName = firstName,
     lastName = lastName,
     displayName = fullName,

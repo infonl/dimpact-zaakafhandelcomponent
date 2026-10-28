@@ -75,7 +75,7 @@ class SearchServiceLeesrechtTest : BehaviorSpec({
                     getParams("fq") shouldBe arrayOf(
                         "{!terms f=zaaktypeOmschrijving separator='\n'}$zaaktypeWithReadRole",
                         "-({!terms f=zaaktypeOmschrijving separator='\n' v=\$zaaktypenZonderZaakspecifiekGeautoriseerd} " +
-                            "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeId\")",
+                            "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeUsername\")",
                         "type:ZAAK"
                     )
                     get("zaaktypenZonderZaakspecifiekGeautoriseerd") shouldBe "$zaaktypeWithoutReadRole\n$zaaktypeWithReadRole"
@@ -114,7 +114,7 @@ class SearchServiceLeesrechtTest : BehaviorSpec({
                     getParams("fq") shouldBe arrayOf(
                         "{!terms f=zaaktypeOmschrijving separator='\n'}$zaaktypeWithReadRole",
                         "-({!terms f=zaaktypeOmschrijving separator='\n' v=\$zaaktypenZonderZaakspecifiekGeautoriseerd} " +
-                            "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeId\")",
+                            "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeUsername\")",
                         "type:TAAK"
                     )
                     get("zaaktypenZonderZaakspecifiekGeautoriseerd") shouldBe "$zaaktypeWithReadRole"

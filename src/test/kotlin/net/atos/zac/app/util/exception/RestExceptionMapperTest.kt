@@ -15,7 +15,6 @@ import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.WebApplicationException
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import net.atos.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
 import nl.info.client.bag.BagClientService
 import nl.info.client.brp.exception.BrpTemporaryPersonIdNotCachedException
 import nl.info.client.klant.KlantClientService
@@ -44,12 +43,14 @@ import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OB
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.ServerErrorException
 import nl.info.zac.exception.ZacSetupException
+import nl.info.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
 import nl.info.zac.log.log
 import nl.info.zac.mailtemplates.exception.MailTemplateNotConfiguredException
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.policy.exception.OpaRuleNotConfiguredException
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.smartdocuments.exception.SmartDocumentsDisabledException
+import nl.info.zac.zaak.exception.ZaakCannotBeSuspendedAgainException
 import org.apache.http.HttpHost
 import org.apache.http.HttpStatus
 import org.apache.http.conn.HttpHostConnectException
@@ -196,6 +197,32 @@ class RestExceptionMapperTest : BehaviorSpec({
                         expectedStatus = HttpStatus.SC_BAD_REQUEST
                     )
                     verify(exactly = 1) { log(logger = any(), level = Level.WARNING, message = exception.message!!, throwable = exception) }
+                }
+            }
+        }
+
+        given("A ZaakCannotBeSuspendedAgainException exception") {
+            val zaakCannotBeSuspendedAgainException = ZaakCannotBeSuspendedAgainException(
+                "Zaak 'fakeZaakIdentificatie' was suspended before. A zaak can be suspended only one time."
+            )
+
+            `when`("the exception is mapped to a response") {
+                val response = restExceptionMapper.toResponse(zaakCannotBeSuspendedAgainException)
+
+                then("it returns the zaak cannot be suspended again error code and a conflict status, and logs at FINE") {
+                    checkResponse(
+                        response = response,
+                        errorMessage = "msg.error.zaak.cannot.be.suspended.again",
+                        expectedStatus = HttpStatus.SC_CONFLICT
+                    )
+                    verify(exactly = 1) {
+                        log(
+                            logger = any(),
+                            level = Level.FINE,
+                            message = zaakCannotBeSuspendedAgainException.message!!,
+                            throwable = zaakCannotBeSuspendedAgainException
+                        )
+                    }
                 }
             }
         }

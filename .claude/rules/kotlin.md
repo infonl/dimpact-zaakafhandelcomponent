@@ -123,6 +123,20 @@ listSignaleringen(parameters).let(::deleteSignaleringen)
 ```
 This does not apply to building an object from named arguments, such as a constructor or a test fixture.
 
+## Write a pure function with a single argument as an extension function
+When a top-level function has no side effects and takes a single argument, declare it as an extension function on the
+type of that argument. Name it after the result, e.g. `toXxx()`, without a `convert` prefix.
+```kotlin
+// Before
+fun convertToDate(localDate: LocalDate): Date = ...
+val date = convertToDate(localDate)
+// After
+fun LocalDate.toDate(): Date = ...
+val date = localDate.toDate()
+```
+Do not write such a function when the JDK or Kotlin standard library already offers the conversion, such as
+`Date.from(offsetDateTime.toInstant())`.
+
 ## Use .apply for object configuration in Kotlin
 When you need to configure an object after creating it, use the `.apply` scope function to make the code more concise and readable. For example:
 ```kotlin// Before

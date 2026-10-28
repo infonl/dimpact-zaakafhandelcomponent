@@ -14,13 +14,13 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.flowable.FlowableHelper
-import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.model.createOpschorting
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.flowable.FlowableHelper
+import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
@@ -165,44 +165,4 @@ class SuspendZaakDelegateTest : BehaviorSpec({
         }
     }
 
-    given("Zaak is already suspended with an existing suspension reason") {
-        val zaak = createZaak()
-        zaak.opschorting = createOpschorting(reden = "fakeExistingSuspensionReason")
-
-        mockkObject(FlowableHelper)
-        val flowableHelper = mockk<FlowableHelper>()
-        every { FlowableHelper.getInstance() } returns flowableHelper
-        every { flowableHelper.zrcClientService } returns zrcClientService
-        every { flowableHelper.policyService } returns policyService
-        every { flowableHelper.loggedInUserInstance } returns loggedInUserInstance
-
-        every { delegateExecution.parent } returns parentDelegateExecution
-        every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns zaak.identificatie
-
-        every { zrcClientService.readZaakByID(zaak.identificatie) } returns zaak
-
-        every { loggedInUserInstance.get() } returns loggedInUser
-        every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(opschorten = true)
-
-        val suspendZaakDelegate = SuspendZaakDelegate().apply {
-            aantalDagen = mockk()
-            opschortingReden = mockk()
-        }
-
-        `when`("suspend zaak is called") {
-            val policyException = shouldThrow<PolicyException> {
-                suspendZaakDelegate.execute(delegateExecution)
-            }
-
-            then("a PolicyException is thrown") {
-                policyException shouldNotBe null
-            }
-
-            and("the zaak is not suspended") {
-                verify(exactly = 0) {
-                    suspensionZaakHelper.suspendZaak(any(), any(), any())
-                }
-            }
-        }
-    }
 })

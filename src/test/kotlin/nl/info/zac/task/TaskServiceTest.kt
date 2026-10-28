@@ -17,12 +17,6 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import io.mockk.verifyOrder
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
-import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.flowable.task.exception.TaskNotFoundException
-import net.atos.zac.signalering.event.SignaleringEvent
-import net.atos.zac.signalering.model.SignaleringSubject
-import net.atos.zac.signalering.model.SignaleringType
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.test.org.flowable.task.api.createTestTask
@@ -30,16 +24,22 @@ import nl.info.zac.app.task.model.createRestTaskAssignData
 import nl.info.zac.app.task.model.createRestTaskDistributeData
 import nl.info.zac.app.task.model.createRestTaskDistributeTask
 import nl.info.zac.app.task.model.createRestTaskReleaseData
-import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.event.EventingService
 import nl.info.zac.event.Opcode
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
+import nl.info.zac.flowable.task.FlowableTaskService
+import nl.info.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.signalering.event.SignaleringEvent
+import nl.info.zac.signalering.model.SignaleringSubject
+import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
+import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import org.flowable.common.engine.api.scope.ScopeTypes
 import org.flowable.task.api.Task
 import java.util.UUID
@@ -98,7 +98,7 @@ class TaskServiceTest : BehaviorSpec({
             taskService.assignTask(
                 task = task,
                 groupId = restTaakToekennenGegevens.groepId,
-                userId = restTaakToekennenGegevens.behandelaarId,
+                username = restTaakToekennenGegevens.behandelaarId,
                 reason = restTaakToekennenGegevens.reden,
                 loggedInUser = loggedInUser
             )
@@ -140,7 +140,7 @@ class TaskServiceTest : BehaviorSpec({
         val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
         val screenEventSlot = mutableListOf<ScreenEvent>()
 
-        every { loggedInUser.id } returns "fakeLoggedInUserId"
+        every { loggedInUser.username } returns "fakeLoggedInUsername"
         every { task.assignee } returns "fakeCurrentAssignee"
         every { task.id } returns taskId
         every { task.scopeType } returns ScopeTypes.CMMN
@@ -169,7 +169,7 @@ class TaskServiceTest : BehaviorSpec({
             taskService.assignTask(
                 task = task,
                 groupId = restTaakToekennenGegevens.groepId,
-                userId = restTaakToekennenGegevens.behandelaarId,
+                username = restTaakToekennenGegevens.behandelaarId,
                 reason = restTaakToekennenGegevens.reden,
                 loggedInUser = loggedInUser
             )
@@ -208,7 +208,7 @@ class TaskServiceTest : BehaviorSpec({
         val screenEventSlot = mutableListOf<ScreenEvent>()
         val zaak = createZaak()
 
-        every { loggedInUser.id } returns "fakeLoggedInUserId"
+        every { loggedInUser.username } returns "fakeLoggedInUsername"
         every { task1.id } returns taskId1
         every { task2.id } returns taskId2
         listOf(task1, task2).forEach {
@@ -294,7 +294,7 @@ class TaskServiceTest : BehaviorSpec({
         val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
         val screenEventSlot = mutableListOf<ScreenEvent>()
 
-        every { loggedInUser.id } returns "fakeLoggedInUserId"
+        every { loggedInUser.username } returns "fakeLoggedInUsername"
         every { task1.id } returns taskId1
         every { task2.id } returns taskId2
         every { updatedTaskAfterRelease1.id } returns restTaakVerdelenTaken[0].taakId
@@ -489,7 +489,7 @@ class TaskServiceTest : BehaviorSpec({
         val releasedTask1 = mockk<Task>()
         val releasedTask2 = mockk<Task>()
 
-        every { loggedInUser.id } returns "fakeLoggedInUserId"
+        every { loggedInUser.username } returns "fakeLoggedInUsername"
         every { task1.id } returns taskId1
         every { task2.id } returns taskId2
         every { releasedTask1.id } returns taskId1
@@ -561,7 +561,7 @@ class TaskServiceTest : BehaviorSpec({
         val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
         val releasedTask1 = mockk<Task>()
 
-        every { loggedInUser.id } returns "fakeLoggedInUserId"
+        every { loggedInUser.username } returns "fakeLoggedInUsername"
         every { task1.id } returns taskId1
         every { releasedTask1.id } returns taskId1
         every { task1.assignee } returns "fakeAssignee1"
@@ -636,7 +636,7 @@ class TaskServiceTest : BehaviorSpec({
         val screenEventSlot = mutableListOf<ScreenEvent>()
         val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
 
-        every { loggedInUser.id } returns "fakeLoggedInUserId"
+        every { loggedInUser.username } returns "fakeLoggedInUsername"
         every { task2.id } returns taskId2
         every {
             flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId)
@@ -677,7 +677,7 @@ class TaskServiceTest : BehaviorSpec({
                 )
                 taakOpNaamSignaleringEventSlot.captured.run {
                     opcode shouldBe Opcode.UPDATED
-                    actor shouldBe loggedInUser.id
+                    actor shouldBe loggedInUser.username
                 }
             }
         }
@@ -698,7 +698,7 @@ class TaskServiceTest : BehaviorSpec({
         val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
         val releasedTask1 = mockk<Task>()
 
-        every { loggedInUser.id } returns "fakeLoggedInUserId"
+        every { loggedInUser.username } returns "fakeLoggedInUsername"
         every { task1.id } returns taskId1
         every { releasedTask1.id } returns taskId1
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId) } returns task1
@@ -757,7 +757,7 @@ class TaskServiceTest : BehaviorSpec({
                 assignee = "fakePreviousAssignee",
                 caseVariables = mapOf(VAR_ZAAK_UUID to zaak.uuid)
             )
-            every { loggedInUser.id } returns "fakeLoggedInUserId"
+            every { loggedInUser.username } returns "fakeLoggedInUsername"
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every {
                 zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, "fakeNewAssignee")
@@ -781,7 +781,7 @@ class TaskServiceTest : BehaviorSpec({
                 taskService.assignTask(
                     task = task,
                     groupId = "fakeGroupId",
-                    userId = "fakeNewAssignee",
+                    username = "fakeNewAssignee",
                     reason = "fakeReason",
                     loggedInUser = loggedInUser
                 )
@@ -806,7 +806,7 @@ class TaskServiceTest : BehaviorSpec({
         given("a task whose zaak gives the new assignee no rol") {
             val zaak = createZaak()
             val task = createTestTask(id = "fakeTaskId", caseVariables = mapOf(VAR_ZAAK_UUID to zaak.uuid))
-            every { loggedInUser.id } returns "fakeLoggedInUserId"
+            every { loggedInUser.username } returns "fakeLoggedInUsername"
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every {
                 zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, "fakeNewAssignee")
@@ -822,7 +822,7 @@ class TaskServiceTest : BehaviorSpec({
                 taskService.assignTask(
                     task = task,
                     groupId = "fakeGroupId",
-                    userId = "fakeNewAssignee",
+                    username = "fakeNewAssignee",
                     reason = "fakeReason",
                     loggedInUser = loggedInUser
                 )
@@ -844,7 +844,7 @@ class TaskServiceTest : BehaviorSpec({
                 assignee = "fakeAssignee",
                 caseVariables = mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
             )
-            every { loggedInUser.id } returns "fakeLoggedInUserId"
+            every { loggedInUser.username } returns "fakeLoggedInUsername"
             every { zaakspecifiekeAutorisatieService.lockForZaak(any()) } returns ReentrantLock()
             every { flowableTaskService.assignTaskToUser("fakeTaskId", "fakeAssignee", "fakeReason") } returns task
             every { eventingService.send(any<SignaleringEvent<*>>()) } just runs
@@ -856,7 +856,7 @@ class TaskServiceTest : BehaviorSpec({
                 taskService.assignTask(
                     task = task,
                     groupId = "fakeGroupId",
-                    userId = "fakeAssignee",
+                    username = "fakeAssignee",
                     reason = "fakeReason",
                     loggedInUser = loggedInUser
                 )
@@ -886,7 +886,7 @@ class TaskServiceTest : BehaviorSpec({
                 behandelaarGebruikersnaam = "fakeNewAssignee"
             )
             val screenEvents = mutableListOf<ScreenEvent>()
-            every { loggedInUser.id } returns "fakeLoggedInUserId"
+            every { loggedInUser.username } returns "fakeLoggedInUsername"
             every { flowableTaskService.readOpenTask("fakeTaskId1") } returns taskOfZaakWithoutRoltype
             every { flowableTaskService.readOpenTask("fakeTaskId2") } returns task
             every { zrcClientService.readZaak(zaakWithoutRoltype.uuid) } returns zaakWithoutRoltype
@@ -952,7 +952,7 @@ class TaskServiceTest : BehaviorSpec({
                     taskService.assignTask(
                         task = task,
                         groupId = restTaskAssignData.groepId,
-                        userId = restTaskAssignData.behandelaarId,
+                        username = restTaskAssignData.behandelaarId,
                         reason = restTaskAssignData.reden,
                         loggedInUser = loggedInUser
                     )
@@ -984,7 +984,7 @@ class TaskServiceTest : BehaviorSpec({
                 assignee = "fakePreviousAssignee",
                 caseVariables = mapOf(VAR_ZAAK_UUID to zaak.uuid)
             )
-            every { loggedInUser.id } returns "fakeLoggedInUserId"
+            every { loggedInUser.username } returns "fakeLoggedInUsername"
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every {
                 zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, "fakeNewAssignee")
@@ -998,7 +998,7 @@ class TaskServiceTest : BehaviorSpec({
                     subjecttype = any(),
                     subject = any(),
                     types = any(),
-                    keptUserId = any()
+                    keptUsername = any()
                 )
             } answers {
                 isZaakLockHeldWhileDeleting = zaakLock.isHeldByCurrentThread
@@ -1013,7 +1013,7 @@ class TaskServiceTest : BehaviorSpec({
                 taskService.assignTask(
                     task = task,
                     groupId = "fakeGroupId",
-                    userId = "fakeNewAssignee",
+                    username = "fakeNewAssignee",
                     reason = "fakeReason",
                     loggedInUser = loggedInUser
                 )
@@ -1024,7 +1024,7 @@ class TaskServiceTest : BehaviorSpec({
                             subjecttype = SignaleringSubject.TAAK,
                             subject = "fakeTaskId",
                             types = setOf(SignaleringType.Type.TAAK_OP_NAAM),
-                            keptUserId = "fakeNewAssignee"
+                            keptUsername = "fakeNewAssignee"
                         )
                     }
                 }
@@ -1043,7 +1043,7 @@ class TaskServiceTest : BehaviorSpec({
             val releasedTask = createTestTask(id = "fakeTaskId", caseVariables = task.caseVariables)
             val zaakLock = ReentrantLock()
             var isZaakLockHeldWhileDeleting = false
-            every { loggedInUser.id } returns "fakeLoggedInUserId"
+            every { loggedInUser.username } returns "fakeLoggedInUsername"
             every { zaakspecifiekeAutorisatieService.lockForZaak(any()) } returns zaakLock
             every { flowableTaskService.releaseTask(task, "fakeReason") } returns releasedTask
             every {
@@ -1051,7 +1051,7 @@ class TaskServiceTest : BehaviorSpec({
                     subjecttype = any(),
                     subject = any(),
                     types = any(),
-                    keptUserId = any()
+                    keptUsername = any()
                 )
             } answers {
                 isZaakLockHeldWhileDeleting = zaakLock.isHeldByCurrentThread
@@ -1066,7 +1066,7 @@ class TaskServiceTest : BehaviorSpec({
                 taskService.assignTask(
                     task = task,
                     groupId = "fakeGroupId",
-                    userId = null,
+                    username = null,
                     reason = "fakeReason",
                     loggedInUser = loggedInUser
                 )
@@ -1077,7 +1077,7 @@ class TaskServiceTest : BehaviorSpec({
                             subjecttype = SignaleringSubject.TAAK,
                             subject = "fakeTaskId",
                             types = setOf(SignaleringType.Type.TAAK_OP_NAAM),
-                            keptUserId = null
+                            keptUsername = null
                         )
                     }
                 }
@@ -1093,7 +1093,7 @@ class TaskServiceTest : BehaviorSpec({
                 assignee = "fakeAssignee",
                 caseVariables = mapOf(VAR_ZAAK_UUID to UUID.randomUUID())
             )
-            every { loggedInUser.id } returns "fakeLoggedInUserId"
+            every { loggedInUser.username } returns "fakeLoggedInUsername"
             every { zaakspecifiekeAutorisatieService.lockForZaak(any()) } returns ReentrantLock()
             every { flowableTaskService.assignTaskToUser("fakeTaskId", "fakeAssignee", "fakeReason") } returns task
             every { eventingService.send(any<SignaleringEvent<*>>()) } just runs
@@ -1105,7 +1105,7 @@ class TaskServiceTest : BehaviorSpec({
                 taskService.assignTask(
                     task = task,
                     groupId = "fakeGroupId",
-                    userId = "fakeAssignee",
+                    username = "fakeAssignee",
                     reason = "fakeReason",
                     loggedInUser = loggedInUser
                 )
@@ -1116,7 +1116,7 @@ class TaskServiceTest : BehaviorSpec({
                             subjecttype = SignaleringSubject.TAAK,
                             subject = "fakeTaskId",
                             types = setOf(SignaleringType.Type.TAAK_OP_NAAM),
-                            keptUserId = "fakeAssignee"
+                            keptUsername = "fakeAssignee"
                         )
                     }
                 }

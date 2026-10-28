@@ -54,9 +54,7 @@ export class ParametersStepAlgemeenComponent {
   private readonly groepenQuery = injectQuery(() => {
     const omschrijving = this.zaaktype().omschrijving ?? "";
     return {
-      ...this.identityService.listBehandelaarGroupsForZaaktypeQuery(
-        omschrijving,
-      ),
+      ...this.identityService.listBehandelaarGroupsForZaaktype(omschrijving),
       enabled: Boolean(omschrijving),
     };
   });
@@ -72,7 +70,7 @@ export class ParametersStepAlgemeenComponent {
   private readonly medewerkersQuery = injectQuery(() => {
     const groepId = this.defaultGroepId() ?? "";
     return {
-      ...this.identityService.listUsersInGroupQuery(groepId),
+      ...this.identityService.listUsersInGroup(groepId),
       enabled: Boolean(groepId),
     };
   });
@@ -81,14 +79,15 @@ export class ParametersStepAlgemeenComponent {
     (this.groepenQuery.data() ?? []).map(({ id }) => id),
   );
   protected readonly medewerkerIds = computed(() =>
-    (this.medewerkersQuery.data() ?? []).map(({ id }) => id),
+    (this.medewerkersQuery.data() ?? []).map(({ username }) => username),
   );
 
   protected readonly groepNaam = (id: string | null) =>
     this.groepenQuery.data()?.find((groep) => groep.id === id)?.naam ?? "";
   protected readonly medewerkerNaam = (id: string | null) =>
-    this.medewerkersQuery.data()?.find((medewerker) => medewerker.id === id)
-      ?.naam ?? "";
+    this.medewerkersQuery
+      .data()
+      ?.find((medewerker) => medewerker.username === id)?.naam ?? "";
 
   constructor() {
     effect(() => {
@@ -106,7 +105,7 @@ export class ParametersStepAlgemeenComponent {
 
       const { defaultBehandelaarId } = untracked(this.form).controls;
       const isInGroep = medewerkers.some(
-        ({ id }) => id === defaultBehandelaarId.value,
+        ({ username }) => username === defaultBehandelaarId.value,
       );
       if (!isInGroep) defaultBehandelaarId.setValue(null);
     });

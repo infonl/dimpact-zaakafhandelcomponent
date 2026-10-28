@@ -236,7 +236,7 @@ class KlantRestServiceTest : BehaviorSpec({
             every {
                 klantClientService.findDigitalAddressesForNaturalPerson(bsn)
             } returns digitaalAdresses
-            every { loggedInUserInstance.get().id } returns userName
+            every { loggedInUserInstance.get().username } returns userName
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName) } returns persoon
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
 
@@ -260,7 +260,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val temporaryPersonId = UUID.randomUUID()
             val userName = "fakeUserName"
             val persoon = createPersoon(bsn = bsn)
-            every { loggedInUserInstance.get().id } returns userName
+            every { loggedInUserInstance.get().username } returns userName
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName) } returns persoon
             every { klantClientService.findDigitalAddressesForNaturalPerson(bsn) } returns emptyList()
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
@@ -284,7 +284,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val bsn = "123456789"
             val temporaryPersonId = UUID.randomUUID()
             val userName = "fakeUserName"
-            every { loggedInUserInstance.get().id } returns userName
+            every { loggedInUserInstance.get().username } returns userName
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName) } returns null
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
 
@@ -303,7 +303,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val bsn = "123456789"
             val userName = "fakeUserName"
             val temporaryPersonId = UUID.randomUUID()
-            every { loggedInUserInstance.get().id } returns userName
+            every { loggedInUserInstance.get().username } returns userName
             every { brpClientService.retrievePersoon(bsn, null, userName) } returns null
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
 
@@ -329,7 +329,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 then(
                     "a NullPointerException should be thrown since the logged-in user is required to retrieve a person"
                 ) {
-                    exception.message shouldBe "Cannot invoke \"nl.info.zac.authentication.LoggedInUser.getId()\" because " +
+                    exception.message shouldBe "Cannot invoke \"nl.info.zac.authentication.LoggedInUser.getUsername()\" because " +
                         "the return value of \"jakarta.enterprise.inject.Instance.get()\" is null"
                 }
             }
@@ -376,7 +376,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val temporaryPersonId = UUID.randomUUID()
             val userName = "fakeUserName"
             val persoon = createPersoon(bsn = bsn)
-            every { loggedInUserInstance.get().id } returns userName
+            every { loggedInUserInstance.get().username } returns userName
             every { brpClientService.retrievePersoon(bsn, null, userName) } returns persoon
             every { klantClientService.findDigitalAddressesForNaturalPerson(bsn) } returns emptyList()
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
@@ -400,7 +400,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val bsn = "123456789"
             val temporaryPersonId = UUID.randomUUID()
             val userName = "fakeUserName"
-            every { loggedInUserInstance.get().id } returns userName
+            every { loggedInUserInstance.get().username } returns userName
             every { brpClientService.retrievePersoon(bsn, null, userName) } returns null
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
 
@@ -419,7 +419,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val bsn = "123456789"
             val temporaryPersonId = UUID.randomUUID()
             val userName = "fakeUserName"
-            every { loggedInUserInstance.get().id } returns userName
+            every { loggedInUserInstance.get().username } returns userName
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName) } returns null
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
 
@@ -523,7 +523,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val temporaryPersonId = UUID.randomUUID()
             val userName = "fakeUserName"
             val persoon = createPersoon(bsn = bsn)
-            every { loggedInUserInstance.get().id } returns userName
+            every { loggedInUserInstance.get().username } returns userName
             every { brpClientService.retrievePersoon(bsn, null, userName) } returns persoon
             every { klantClientService.findDigitalAddressesForNaturalPerson(bsn) } returns emptyList()
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
@@ -547,7 +547,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val bsn = "123456789"
             val temporaryPersonId = UUID.randomUUID()
             val userName = "fakeUserName"
-            every { loggedInUserInstance.get().id } returns userName
+            every { loggedInUserInstance.get().username } returns userName
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName) } returns null
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
 
@@ -566,7 +566,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val bsn = "123456789"
             val temporaryPersonId = UUID.randomUUID()
             val userName = "fakeUserName"
-            every { loggedInUserInstance.get().id } returns userName
+            every { loggedInUserInstance.get().username } returns userName
             every { brpClientService.retrievePersoon(bsn, null, userName) } returns null
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
 
@@ -926,7 +926,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val restListPersonenParameters = RestListPersonenParameters(bsn = bsn)
 
             every { policyService.readBrpRechten(gemeenteCode = null) } returns createBrpRechten()
-            every { loggedInUserInstance.get().id } returns userName
+            every { loggedInUserInstance.get().username } returns userName
             every {
                 brpClientService.retrievePersoon(bsn, any(), any())
             } returns person
@@ -948,7 +948,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val restListPersonenParameters = RestListPersonenParameters(bsn = bsn)
 
             every { policyService.readBrpRechten(gemeenteCode = null) } returns createBrpRechten()
-            every { loggedInUserInstance.get().id } returns userName
+            every { loggedInUserInstance.get().username } returns userName
             every {
                 brpClientService.retrievePersoon(bsn, any(), any())
             } returns null
@@ -1009,7 +1009,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val personenResponse = createZoekMetGeslachtsnaamEnGeboortedatumResponse(listOf(person))
 
             every { policyService.readBrpRechten(gemeenteCode = null) } returns createBrpRechten()
-            every { loggedInUserInstance.get().id } returns userName
+            every { loggedInUserInstance.get().username } returns userName
             every {
                 brpClientService.queryPersonen(any(), any(), any())
             } returns personenResponse

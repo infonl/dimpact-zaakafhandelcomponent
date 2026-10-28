@@ -70,7 +70,7 @@ const singleTemplateGroup = fromPartial<
 });
 
 const loggedInUser = fromPartial<GeneratedType<"RestUser">>({
-  id: "fakeUserId1",
+  username: "fakeUserId1",
   naam: "fakeUserName1",
 });
 

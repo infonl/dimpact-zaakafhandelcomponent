@@ -120,7 +120,7 @@ class MailServiceTest : BehaviorSpec({
                 emptyMap()
             )
         } returns "fakeResolvedBody3"
-        every { loggedInUserInstance.get() } returns createLoggedInUser(id = loggedInUserName)
+        every { loggedInUserInstance.get() } returns createLoggedInUser(username = loggedInUserName)
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
         every { ztcClientService.readInformatieobjecttype(URI("fakeInformatieObjectType1")) } returns informatieObjectType
         val createdDocument = slot<EnkelvoudigInformatieObjectCreateLockRequest>()
@@ -235,7 +235,7 @@ class MailServiceTest : BehaviorSpec({
         every {
             mailTemplateHelper.resolveZaakdataVariables("fakeResolvedBody3", emptyMap())
         } returns "fakeResolvedBody3"
-        every { loggedInUserInstance.get() } returns createLoggedInUser(id = loggedInUserName)
+        every { loggedInUserInstance.get() } returns createLoggedInUser(username = loggedInUserName)
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
         every { ztcClientService.readInformatieobjecttype(URI("fakeInformatieObjectType1")) } returns informatieObjectType
         every { drcClientService.readEnkelvoudigInformatieobject(firstAttachmentUuid) } returns
@@ -311,7 +311,7 @@ class MailServiceTest : BehaviorSpec({
             every {
                 mailTemplateHelper.resolveZaakdataVariables("fakeResolvedBody3", emptyMap())
             } returns "fakeResolvedBody3"
-            every { loggedInUserInstance.get() } returns createLoggedInUser(id = loggedInUserName)
+            every { loggedInUserInstance.get() } returns createLoggedInUser(username = loggedInUserName)
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
             every { ztcClientService.readInformatieobjecttype(URI("fakeInformatieObjectType1")) } returns informatieObjectType
             every {
@@ -387,7 +387,7 @@ class MailServiceTest : BehaviorSpec({
                 emptyMap()
             )
         } returns "fakeResolvedBody3"
-        every { loggedInUserInstance.get() } returns createLoggedInUser(id = loggedInUserName)
+        every { loggedInUserInstance.get() } returns createLoggedInUser(username = loggedInUserName)
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
         every { ztcClientService.readInformatieobjecttype(URI("fakeInformatieObjectType1")) } returns informatieObjectType
         every {
@@ -425,7 +425,7 @@ class MailServiceTest : BehaviorSpec({
         val bronnen = Bronnen.Builder().add(zaak).build()
         val resolvedSubject = "resolvedSubject"
 
-        every { loggedInUserInstance.get() } returns createLoggedInUser(id = loggedInUserName)
+        every { loggedInUserInstance.get() } returns createLoggedInUser(username = loggedInUserName)
         every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.subject) } returns "fakeResolvedString1"
         every {
             mailTemplateHelper.resolveZaakVariables(
@@ -472,7 +472,7 @@ class MailServiceTest : BehaviorSpec({
         )
         val bronnen = Bronnen.Builder().add(zaak).build()
 
-        every { loggedInUserInstance.get() } returns createLoggedInUser(id = loggedInUserName)
+        every { loggedInUserInstance.get() } returns createLoggedInUser(username = loggedInUserName)
         every { mailTemplateHelper.readZaakdata(zaak) } returns emptyMap()
         every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.subject) } returns mailGegevens.subject
         every {

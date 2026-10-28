@@ -9,8 +9,8 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.test.org.flowable.task.api.createTestTask
+import nl.info.zac.flowable.task.FlowableTaskService
 import java.util.UUID
 
 class RestOpenstaandeTakenConverterTest : BehaviorSpec({

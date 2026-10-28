@@ -15,8 +15,6 @@ import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.validation.constraints.AssertTrue
 import jakarta.validation.constraints.NotNull
-import net.atos.zac.signalering.model.SignaleringTarget
-import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.database.flyway.FlywayIntegrator.Companion.SCHEMA
 import nl.info.zac.util.AllOpen
 

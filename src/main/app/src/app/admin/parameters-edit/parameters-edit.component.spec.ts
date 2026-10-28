@@ -105,7 +105,6 @@ const caseDefinitionSteps = [
 const bpmnProcessDefinitionSteps = [
   "gegevens.procesmodel",
   "gegevens.algemeen",
-  "gegevens.mail",
   "gegevens.beeindiging",
   "gegevens.koppelingen",
 ];
@@ -154,13 +153,13 @@ describe(ParametersEditComponent.name, () => {
         {
           provide: IdentityService,
           useValue: fromPartial<IdentityService>({
-            listBehandelaarGroupsForZaaktypeQuery: () => ({
+            listBehandelaarGroupsForZaaktype: () => ({
               ...createQueryOptions([
                 { id: "test-group-id", naam: "test-group" },
               ]),
               queryKey: ["behandelaarGroups"],
             }),
-            listUsersInGroupQuery: () => ({
+            listUsersInGroup: () => ({
               ...createQueryOptions([]),
               queryKey: ["usersInGroup"],
             }),
@@ -334,6 +333,30 @@ describe(ParametersEditComponent.name, () => {
             isEnabledGlobally: true,
             isEnabledForZaaktype: false,
           },
+        }),
+        expect.anything(),
+      ),
+    );
+  });
+
+  it("lets the beheerder save a BPMN zaaktype without a default zaakafzender and keeps its zaakafzenders", async () => {
+    const zaakAfzenders = [
+      { mail: "GEMEENTE", isSpeciaal: true, isDefaultMail: false },
+    ];
+    const { updateZaakafhandelparameters } = await setup(
+      fromPartial<ZaaktypeConfiguration>({
+        ...bpmnConfiguration,
+        zaakAfzenders,
+      }),
+    );
+
+    await waitFor(() => expect(opslaan()).toBeEnabled());
+    await user.click(opslaan());
+
+    await waitFor(() =>
+      expect(updateZaakafhandelparameters.mutationFn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          zaakAfzenders: [expect.objectContaining(zaakAfzenders[0])],
         }),
         expect.anything(),
       ),

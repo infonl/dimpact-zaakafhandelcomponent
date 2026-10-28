@@ -4,6 +4,8 @@
  */
 package nl.info.zac.app.klant.model.klant
 
+import nl.info.zac.identification.IdentificatieType
+
 interface RestKlant {
     var emailadres: String?
     var naam: String?

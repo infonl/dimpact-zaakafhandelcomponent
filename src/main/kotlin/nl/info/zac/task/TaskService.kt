@@ -7,24 +7,24 @@ package nl.info.zac.task
 import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.inject.Inject
-import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.flowable.task.exception.TaskNotFoundException
-import net.atos.zac.signalering.event.SignaleringEventUtil
-import net.atos.zac.signalering.model.SignaleringSubject
-import net.atos.zac.signalering.model.SignaleringType
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.task.model.RestTaskDistributeData
 import nl.info.zac.app.task.model.RestTaskReleaseData
-import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.event.EventingService
+import nl.info.zac.flowable.task.FlowableTaskService
+import nl.info.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.zac.flowable.task.readZaakUUID
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.signalering.event.signaleringEvent
+import nl.info.zac.signalering.model.SignaleringSubject
+import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
+import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import org.flowable.task.api.Task
 import org.flowable.task.api.TaskInfo
 import java.util.UUID
@@ -79,15 +79,15 @@ class TaskService @Inject constructor(
     fun assignTask(
         task: Task,
         groupId: String,
-        userId: String?,
+        username: String?,
         reason: String?,
         loggedInUser: LoggedInUser
     ): Task {
         val assignedTask = when {
-            userId != null -> zaakspecifiekeAutorisatieService.lockForZaak(readZaakUUID(task)).withLock {
-                grantZaakspecifiekeAutorisatieToNewAssignee(task, userId)
-                flowableTaskService.assignTaskToUser(task.id, userId, reason)
-                    .also { deleteTaakOpNaamSignaleringenExceptFor(it, userId) }
+            username != null -> zaakspecifiekeAutorisatieService.lockForZaak(readZaakUUID(task)).withLock {
+                grantZaakspecifiekeAutorisatieToNewAssignee(task, username)
+                flowableTaskService.assignTaskToUser(task.id, username, reason)
+                    .also { deleteTaakOpNaamSignaleringenExceptFor(it, username) }
             }.also { sendTaakOpNaamSignalering(it, loggedInUser) }
             task.assignee != null -> releaseTask(task, reason, loggedInUser)
             else -> task
@@ -137,7 +137,7 @@ class TaskService @Inject constructor(
                 assignTask(
                     task = flowableTaskService.readOpenTask(restTask.taakId),
                     groupId = restTaskDistributeData.groepId,
-                    userId = restTaskDistributeData.behandelaarGebruikersnaam,
+                    username = restTaskDistributeData.behandelaarGebruikersnaam,
                     reason = restTaskDistributeData.reden,
                     loggedInUser = loggedInUser
                 )
@@ -195,11 +195,11 @@ class TaskService @Inject constructor(
             subjecttype = SignaleringSubject.TAAK,
             subject = task.id,
             types = setOf(SignaleringType.Type.TAAK_OP_NAAM),
-            keptUserId = assignee
+            keptUsername = assignee
         )
 
     private fun sendTaakOpNaamSignalering(task: Task, loggedInUser: LoggedInUser) {
-        eventingService.send(SignaleringEventUtil.event(SignaleringType.Type.TAAK_OP_NAAM, task, loggedInUser))
+        eventingService.send(signaleringEvent(SignaleringType.Type.TAAK_OP_NAAM, task, loggedInUser))
     }
 
     private fun sendScreenEventsAndIndex(task: Task) {

@@ -4,7 +4,7 @@
  */
 package net.atos.zac.flowable.cmmn
 
-import net.atos.zac.flowable.FlowableHelper
+import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.delegate.DelegatePlanItemInstance
 import org.flowable.cmmn.api.listener.PlanItemInstanceLifecycleListener

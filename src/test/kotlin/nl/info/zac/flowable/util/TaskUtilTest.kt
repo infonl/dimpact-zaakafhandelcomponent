@@ -8,7 +8,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import nl.info.zac.app.task.model.TaakStatus
+import nl.info.zac.task.model.TaakStatus
 import org.flowable.common.engine.api.scope.ScopeTypes
 import org.flowable.task.api.Task
 import org.flowable.task.api.TaskInfo

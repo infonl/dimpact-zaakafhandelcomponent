@@ -17,7 +17,7 @@ class NoteConverter @Inject constructor(
 ) {
     fun toRestNote(note: Note): RestNote {
         val medewerker = identityService.readUser(
-            userId = note.employeeUsername,
+            username = note.employeeUsername,
             logContext = "note '${note.id}' of zaak with UUID '${note.zaakUUID}'"
         )
         return RestNote(
@@ -28,7 +28,7 @@ class NoteConverter @Inject constructor(
             employeeUsername = note.employeeUsername,
             employeeFullname = "${medewerker.firstName} ${medewerker.lastName}",
             // updating a note is only allowed if the logged-in user is the same as the employee who created the note
-            isBewerkenToegestaan = loggedInUserInstance.get().id == note.employeeUsername
+            isBewerkenToegestaan = loggedInUserInstance.get().username == note.employeeUsername
         )
     }
 }

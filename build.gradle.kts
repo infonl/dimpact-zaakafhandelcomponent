@@ -200,6 +200,7 @@ dependencies {
     providedCompile(libs.eclipse.microprofile.config.api)
     providedCompile(libs.eclipse.microprofile.health.api)
     providedCompile(libs.eclipse.microprofile.fault.tolerance.api)
+    providedCompile(libs.eclipse.microprofile.openapi.api)
     providedCompile(libs.jboss.resteasy.multipart.provider)
     providedCompile(libs.wildfly.security.elytron.http.oidc)
     providedCompile(libs.hibernate.validator)
@@ -211,6 +212,7 @@ dependencies {
     testImplementation(libs.eclipse.yasson)
     testImplementation(libs.kotest.runner.junit5)
     testImplementation(libs.mockk)
+    testImplementation(libs.archunit)
     testImplementation(libs.json)
     // SmallRye Health implementation for MicroProfile Health tests
     testImplementation(libs.smallrye.health)
@@ -701,6 +703,14 @@ tasks {
 
     withType<Test> {
         useJUnitPlatform()
+    }
+
+    named<Test>("test") {
+        // ArchUnit freezes the violations of an unknown rule, such as a renamed one, and drops fixed violations by
+        // updating the store. On CI it may not update the store, so the build fails when the committed store is not up to date.
+        if (providers.environmentVariable("CI").orNull == "true") {
+            systemProperty("archunit.freeze.store.default.allowStoreUpdate", "false")
+        }
     }
 
     withType<Javadoc> {

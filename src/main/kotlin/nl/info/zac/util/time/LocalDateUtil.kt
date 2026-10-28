@@ -25,4 +25,4 @@ fun dateNowIsBetween(begin: LocalDate?, end: LocalDate?): Boolean {
 fun dateNowIsBetween(besluitType: BesluitType): Boolean =
     dateNowIsBetween(begin = besluitType.beginGeldigheid, end = besluitType.eindeGeldigheid)
 
-fun format(date: String?): String? = date?.let { LocalDate.parse(it).format(DATE_FORMATTER) }
+fun String.toFormattedDate(): String = LocalDate.parse(this).format(DATE_FORMATTER)

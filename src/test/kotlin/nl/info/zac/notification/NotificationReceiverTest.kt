@@ -19,9 +19,6 @@ import jakarta.ws.rs.NotFoundException
 import jakarta.ws.rs.ServiceUnavailableException
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.Response
-import net.atos.zac.signalering.model.SignaleringSubject
-import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
-import net.atos.zac.signalering.model.SignaleringZoekParameters
 import nl.info.client.zgw.model.createZaakEigenschap
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
@@ -35,6 +32,9 @@ import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.signalering.model.SignaleringSubject
+import nl.info.zac.signalering.model.SignaleringVerzondenZoekParameters
+import nl.info.zac.signalering.model.SignaleringZoekParameters
 import nl.info.zac.task.TaskService
 import nl.info.zac.websocket.event.ScreenEvent
 import java.net.URI

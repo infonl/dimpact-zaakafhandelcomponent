@@ -39,7 +39,7 @@ fun RestZoekopdracht.toZoekopdracht(loggedInUser: LoggedInUser) =
     Zoekopdracht().apply {
         id = this@toZoekopdracht.id
         lijstID = this@toZoekopdracht.lijstID
-        medewerkerID = loggedInUser.id
+        medewerkerID = loggedInUser.username
         naam = this@toZoekopdracht.naam
         isActief = this@toZoekopdracht.isActief
         creatiedatum = ZonedDateTime.now()

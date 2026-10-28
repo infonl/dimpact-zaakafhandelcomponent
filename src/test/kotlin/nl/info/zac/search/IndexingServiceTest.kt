@@ -20,7 +20,6 @@ import jakarta.ws.rs.ProcessingException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
-import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
@@ -39,8 +38,8 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.zac.app.task.model.TaakSortering
 import nl.info.zac.authentication.LoggedInUserProvider
+import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.search.converter.DocumentZoekObjectConverter
 import nl.info.zac.search.converter.TaakZoekObjectConverter
 import nl.info.zac.search.converter.ZaakZoekObjectConverter
@@ -53,6 +52,7 @@ import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.solr.SolrClientFactory
+import nl.info.zac.task.model.TaakSortering
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.model.createZaakToewijzing
 import org.apache.solr.client.solrj.SolrQuery
@@ -980,10 +980,10 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.flowableTaskService.countOpenTasks() } returns takenMaxResults.toLong()
         every {
             ctx.flowableTaskService.listOpenTasks(
-                TaakSortering.CREATIEDATUM,
-                SorteerRichting.DESCENDING,
-                0,
-                takenMaxResults
+                taakSortering = TaakSortering.CREATIEDATUM,
+                sorteerRichting = SorteerRichting.DESCENDING,
+                firstResult = 0,
+                maxResults = takenMaxResults
             )
         } returns tasks
 
@@ -998,7 +998,12 @@ class IndexingServiceTest : BehaviorSpec({
 
             then("only one page is fetched, since the task count exactly fills one page") {
                 verify(exactly = 1) {
-                    ctx.flowableTaskService.listOpenTasks(any(), any(), any(), any())
+                    ctx.flowableTaskService.listOpenTasks(
+                        taakSortering = any(),
+                        sorteerRichting = any(),
+                        firstResult = any(),
+                        maxResults = any()
+                    )
                 }
             }
         }

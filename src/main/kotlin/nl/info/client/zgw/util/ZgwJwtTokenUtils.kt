@@ -26,7 +26,7 @@ fun generateZgwJwtToken(clientId: String, secret: String, loggedInUser: LoggedIn
         .withClaim("client_id", clientId)
         .apply {
             loggedInUser.let {
-                withClaim("user_id", it.id)
+                withClaim("user_id", it.username)
                 withClaim("user_representation", it.getFullName())
             }
         }

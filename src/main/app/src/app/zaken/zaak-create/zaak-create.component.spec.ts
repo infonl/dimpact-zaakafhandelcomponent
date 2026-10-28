@@ -6,6 +6,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
+import { provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatAutocompleteHarness } from "@angular/material/autocomplete/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -24,6 +25,7 @@ import { notifyManager } from "@tanstack/query-core";
 import { screen } from "@testing-library/angular";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
+import { sleep } from "../../../../setupJest";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -62,6 +64,7 @@ describe(ZaakCreateComponent.name, () => {
         UtilService,
         IdentityService,
         provideQueryClient(new QueryClient()),
+        provideZonelessChangeDetection(),
       ],
       imports: [
         ZaakCreateComponent,
@@ -74,17 +77,26 @@ describe(ZaakCreateComponent.name, () => {
     }).compileComponents();
 
     identityService = TestBed.inject(IdentityService);
-    jest
-      .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
-      .mockReturnValue(
-        of([
+    const queryClient = TestBed.inject(QueryClient);
+    for (const zaaktypeDescription of [
+      "test-cmmn-description-1",
+      "test-bpmn-description-1",
+    ]) {
+      queryClient.setQueryData(
+        identityService.listBehandelaarGroupsForZaaktype(zaaktypeDescription)
+          .queryKey,
+        [
           { id: "test-cmmn-group-id", naam: "test group CMMN" },
           { id: "test-bpmn-group-id", naam: "test group BPMN" },
-        ]),
+        ],
       );
-    jest
-      .spyOn(identityService, "listUsersInGroup")
-      .mockReturnValue(of([{ id: "test-user-id", naam: "test user" }]));
+    }
+    for (const groupId of ["test-cmmn-group-id", "test-bpmn-group-id"]) {
+      queryClient.setQueryData(
+        identityService.listUsersInGroup(groupId).queryKey,
+        [{ username: "test-user-id", naam: "test user" }],
+      );
+    }
 
     zakenService = TestBed.inject(ZakenService);
     jest.spyOn(zakenService, "listZaaktypesForCreation").mockReturnValue(
@@ -233,9 +245,6 @@ describe(ZaakCreateComponent.name, () => {
 
         await autocompleteOptions[0].click();
         expect(await input.getValue()).toBe("test-cmmn-description-1");
-        expect(
-          identityService.listBehandelaarGroupsForZaaktype,
-        ).toHaveBeenCalledWith("test-cmmn-description-1");
 
         // --- Groep ---
         ({ autocompleteOptions, input } = await getAutocompleteOptions({
@@ -248,7 +257,6 @@ describe(ZaakCreateComponent.name, () => {
 
         await autocompleteOptions[0].click();
         expect(await input.getValue()).toBe("test group CMMN");
-        expect(identityService.listUsersInGroup).toHaveBeenCalled();
 
         // --- Behandelaar ---
         ({ autocompleteOptions, input } = await getAutocompleteOptions({
@@ -261,6 +269,237 @@ describe(ZaakCreateComponent.name, () => {
 
         await autocompleteOptions[0].click();
         expect(await input.getValue()).toBe("test user");
+      });
+
+      it("should pre-select the default groep and behandelaar of the zaaktype", async () => {
+        const inputs = await loader.getAllHarnesses(MatInputHarness);
+        const { autocompleteOptions } = await getAutocompleteOptions({
+          loader,
+          inputs,
+          inputIndex: 0,
+          query: "cmmn",
+        });
+
+        await autocompleteOptions[0].click();
+
+        expect(await inputs[4].getValue()).toBe("test group CMMN");
+        expect(await inputs[5].getValue()).toBe("test user");
+      });
+
+      describe("when the user switches to a zaaktype with another default behandelaar", () => {
+        const pickCaseType = async (
+          caseType: GeneratedType<"RestZaaktype">,
+        ) => {
+          fixture.componentInstance["form"].controls.zaaktype.setValue(
+            caseType,
+          );
+          await sleep();
+          await fixture.whenStable();
+        };
+
+        const caseTypeWithDefaults = (
+          omschrijving: string,
+          defaultGroepId: string,
+          defaultBehandelaarId: string,
+        ) => {
+          TestBed.inject(QueryClient).setQueryData(
+            identityService.listBehandelaarGroupsForZaaktype(omschrijving)
+              .queryKey,
+            [
+              { id: "test-cmmn-group-id", naam: "test group CMMN" },
+              { id: "test-bpmn-group-id", naam: "test group BPMN" },
+            ],
+          );
+          return fromPartial<GeneratedType<"RestZaaktype">>({
+            omschrijving,
+            vertrouwelijkheidaanduiding: "OPENBAAR",
+            zaakafhandelparameters: { defaultGroepId, defaultBehandelaarId },
+          });
+        };
+
+        beforeEach(() => {
+          const usersByGroupId: Record<string, GeneratedType<"RestUser">[]> = {
+            "test-cmmn-group-id": [
+              { username: "test-user-id", naam: "test user" },
+              { username: "test-cmmn-user-id", naam: "test CMMN user" },
+            ],
+            "test-bpmn-group-id": [
+              { username: "test-bpmn-user-id", naam: "test BPMN user" },
+            ],
+          };
+          for (const groupId of Object.keys(usersByGroupId)) {
+            TestBed.inject(QueryClient).removeQueries({
+              queryKey: identityService.listUsersInGroup(groupId).queryKey,
+            });
+          }
+          const listUsersInGroup =
+            identityService.listUsersInGroup.bind(identityService);
+          jest
+            .spyOn(identityService, "listUsersInGroup")
+            .mockImplementation((groupId) => ({
+              ...listUsersInGroup(groupId),
+              queryFn: () => Promise.resolve(usersByGroupId[groupId]),
+            }));
+        });
+
+        it("pre-selects the default behandelaar of the new zaaktype when both have the same default groep", async () => {
+          TestBed.inject(QueryClient).setQueryData(
+            identityService.listUsersInGroup("test-cmmn-group-id").queryKey,
+            [
+              { username: "test-user-id", naam: "test user" },
+              { username: "test-cmmn-user-id", naam: "test CMMN user" },
+            ],
+          );
+          await pickCaseType(
+            caseTypeWithDefaults(
+              "test-zaaktype-a",
+              "test-cmmn-group-id",
+              "test-user-id",
+            ),
+          );
+
+          await pickCaseType(
+            caseTypeWithDefaults(
+              "test-zaaktype-b",
+              "test-cmmn-group-id",
+              "test-cmmn-user-id",
+            ),
+          );
+
+          expect(
+            fixture.componentInstance["form"].controls.behandelaar.value,
+          ).toEqual({ username: "test-cmmn-user-id", naam: "test CMMN user" });
+        });
+
+        it("pre-selects the default behandelaar of the new zaaktype from the members of its own default groep", async () => {
+          await pickCaseType(
+            caseTypeWithDefaults(
+              "test-zaaktype-a",
+              "test-cmmn-group-id",
+              "test-user-id",
+            ),
+          );
+
+          await pickCaseType(
+            caseTypeWithDefaults(
+              "test-zaaktype-b",
+              "test-bpmn-group-id",
+              "test-bpmn-user-id",
+            ),
+          );
+
+          expect(
+            fixture.componentInstance["form"].controls.behandelaar.value,
+          ).toEqual({ username: "test-bpmn-user-id", naam: "test BPMN user" });
+        });
+
+        it("leaves the behandelaar empty when the default behandelaar of the new zaaktype is only a member of the previous groep", async () => {
+          await pickCaseType(
+            caseTypeWithDefaults(
+              "test-zaaktype-a",
+              "test-cmmn-group-id",
+              "test-user-id",
+            ),
+          );
+
+          await pickCaseType(
+            caseTypeWithDefaults(
+              "test-zaaktype-b",
+              "test-bpmn-group-id",
+              "test-cmmn-user-id",
+            ),
+          );
+
+          expect(
+            fixture.componentInstance["form"].controls.behandelaar.value,
+          ).toBeNull();
+        });
+      });
+
+      it("should keep the groep and behandelaar that the user picked when they are read again", async () => {
+        const inputs = await loader.getAllHarnesses(MatInputHarness);
+        const { autocompleteOptions } = await getAutocompleteOptions({
+          loader,
+          inputs,
+          inputIndex: 0,
+          query: "cmmn",
+        });
+        await autocompleteOptions[0].click();
+        const form = fixture.componentInstance["form"];
+        form.controls.groep.setValue({
+          id: "test-bpmn-group-id",
+          naam: "test group BPMN",
+        });
+        await sleep();
+        await fixture.whenStable();
+        form.controls.behandelaar.setValue(null);
+
+        const queryClient = TestBed.inject(QueryClient);
+        queryClient.setQueryData(
+          identityService.listBehandelaarGroupsForZaaktype(
+            "test-cmmn-description-1",
+          ).queryKey,
+          [
+            { id: "test-cmmn-group-id", naam: "test group CMMN" },
+            { id: "test-bpmn-group-id", naam: "test group BPMN" },
+            { id: "test-new-group-id", naam: "test new group" },
+          ],
+        );
+        queryClient.setQueryData(
+          identityService.listUsersInGroup("test-bpmn-group-id").queryKey,
+          [
+            { username: "test-user-id", naam: "test user" },
+            { username: "test-new-user-id", naam: "test new user" },
+          ],
+        );
+        await sleep();
+        await fixture.whenStable();
+
+        expect(form.controls.groep.value?.id).toBe("test-bpmn-group-id");
+        expect(form.controls.behandelaar.value).toBeNull();
+      });
+
+      it("keeps the vertrouwelijkheidaanduiding of the picked zaaktype while the user types in the zaaktype field", async () => {
+        const inputs = await loader.getAllHarnesses(MatInputHarness);
+        const { autocompleteOptions } = await getAutocompleteOptions({
+          loader,
+          inputs,
+          inputIndex: 0,
+          query: "cmmn",
+        });
+        await autocompleteOptions[0].click();
+        const form = fixture.componentInstance["form"];
+        const vertrouwelijkheidaanduiding =
+          form.controls.vertrouwelijkheidaanduiding.value;
+
+        await inputs[0].setValue("bpmn");
+        await fixture.whenStable();
+
+        expect(vertrouwelijkheidaanduiding).toBeTruthy();
+        expect(form.controls.vertrouwelijkheidaanduiding.value).toEqual(
+          vertrouwelijkheidaanduiding,
+        );
+      });
+
+      it("keeps offering the users of the picked groep while the user types in the groep field", async () => {
+        const inputs = await loader.getAllHarnesses(MatInputHarness);
+        const { autocompleteOptions } = await getAutocompleteOptions({
+          loader,
+          inputs,
+          inputIndex: 0,
+          query: "cmmn",
+        });
+        await autocompleteOptions[0].click();
+
+        fixture.componentInstance["form"].controls.groep.setValue(
+          "test" as unknown as GeneratedType<"RestGroup">,
+        );
+        await sleep();
+        await fixture.whenStable();
+
+        expect(fixture.componentInstance["users"]()).toEqual([
+          { username: "test-user-id", naam: "test user" },
+        ]);
       });
 
       it("should handle BPMN case type selection", async () => {
@@ -278,9 +517,6 @@ describe(ZaakCreateComponent.name, () => {
 
         await autocompleteOptions[0].click();
         expect(await input.getValue()).toBe("test-bpmn-description-1");
-        expect(
-          identityService.listBehandelaarGroupsForZaaktype,
-        ).toHaveBeenCalledWith("test-bpmn-description-1");
 
         // --- Groep ---
         ({ autocompleteOptions, input } = await getAutocompleteOptions({
@@ -293,7 +529,6 @@ describe(ZaakCreateComponent.name, () => {
 
         await autocompleteOptions[0].click();
         expect(await input.getValue()).toBe("test group BPMN");
-        expect(identityService.listUsersInGroup).toHaveBeenCalled();
 
         // --- Behandelaar should be enabled ---
         expect(await inputs[5].isDisabled()).toBe(false);
@@ -357,6 +592,7 @@ describe(ZaakCreateComponent.name, () => {
         // --- Submit ---
         expect(await submitButton.isDisabled()).toBe(false);
         await submitButton.click();
+        await sleep();
 
         expect(zakenService.createZaak).toHaveBeenCalled();
         expect(navigateSpy).toHaveBeenCalledWith([

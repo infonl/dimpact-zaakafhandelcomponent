@@ -3,13 +3,16 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HttpErrorResponse } from "@angular/common/http";
 import {
   Component,
   DestroyRef,
-  OnInit,
+  effect,
   inject,
   input,
+  OnInit,
   output,
+  signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
@@ -20,7 +23,7 @@ import { MatProgressSpinner } from "@angular/material/progress-spinner";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbar } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
-import { EMPTY, lastValueFrom, switchMap } from "rxjs";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import { mapFormGroupToTaskData } from "../../formulieren/taken/taak.utils";
@@ -56,6 +59,7 @@ export class HumanTaskDoComponent implements OnInit {
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
   private readonly taakFormulierenService = inject(TaakFormulierenService);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly queryClient = inject(QueryClient);
 
   readonly planItem = input<GeneratedType<"RestPlanItem"> | null | undefined>(
     null,
@@ -63,6 +67,13 @@ export class HumanTaskDoComponent implements OnInit {
   readonly sideNav = input.required<MatDrawer>();
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
   readonly done = output<void>();
+
+  private readonly selectedGroupId = signal<string | undefined>(undefined);
+
+  private readonly usersQuery = injectQuery(() => ({
+    ...this.identityService.listUsersInGroup(this.selectedGroupId() ?? ""),
+    enabled: !!this.selectedGroupId(),
+  }));
 
   protected readonly doHumanTaskPlanItemMutation = injectMutation(
     () => this.planItemsService.doHumanTaskPlanItem(this.zaak().uuid),
@@ -75,6 +86,14 @@ export class HumanTaskDoComponent implements OnInit {
   protected formConfig: FormConfig = {
     submitLabel: "actie.starten",
   };
+
+  constructor() {
+    effect(() => {
+      const users = this.usersQuery.data();
+      if (!users) return;
+      this.updateUserOptions(users);
+    });
+  }
 
   async ngOnInit() {
     const planItem = this.planItem();
@@ -110,7 +129,7 @@ export class HumanTaskDoComponent implements OnInit {
         ]);
       this.form.addControl("group", groupControl);
 
-      const groups = await lastValueFrom(
+      const groups = await this.queryClient.fetchQuery(
         this.identityService.listBehandelaarGroupsForZaaktype(
           this.zaak().zaaktype.omschrijving!,
         ),
@@ -147,26 +166,24 @@ export class HumanTaskDoComponent implements OnInit {
 
       if (groupControl.value) {
         userControl.enable();
-        this.identityService
-          .listUsersInGroup(groupControl.value.id)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe((users) => this.updateUserOptions(users));
+        this.selectedGroupId.set(groupControl.value.id);
       }
       groupControl.valueChanges
-        .pipe(
-          takeUntilDestroyed(this.destroyRef),
-          switchMap((value) => {
-            userControl.reset();
-            if (!value) {
-              userControl.disable();
-              return EMPTY;
-            }
-            userControl.enable();
-            return this.identityService.listUsersInGroup(value.id);
-          }),
-        )
-        .subscribe((users) => this.updateUserOptions(users));
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((value) => {
+          userControl.reset();
+          if (!value) {
+            userControl.disable();
+            this.selectedGroupId.set(undefined);
+            return;
+          }
+          userControl.enable();
+          if (!value.id) return;
+          this.selectedGroupId.set(value.id);
+        });
     } catch (error) {
+      // The query cache already shows the error dialog for a failed read.
+      if (error instanceof HttpErrorResponse) return;
       this.foutAfhandelingService.openFoutDialog(
         error instanceof Error ? error.message : String(error),
       );

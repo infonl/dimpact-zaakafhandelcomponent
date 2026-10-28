@@ -7,7 +7,6 @@ package nl.info.zac.app.informatieobjecten
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import net.atos.zac.util.MediaTypes
 import nl.info.client.officeconverter.OfficeConverterClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
@@ -16,7 +15,9 @@ import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConversionException
 import nl.info.zac.configuration.FileSizeConfiguration
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.util.AllOpen
+import nl.info.zac.util.MediaTypes
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
 import java.util.UUID

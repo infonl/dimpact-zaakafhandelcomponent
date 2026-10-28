@@ -4,7 +4,6 @@
  */
 package nl.info.zac.signalering.model
 
-import net.atos.zac.signalering.model.Signalering
 
 class InvalidSignalering(
     val signalering: Signalering,

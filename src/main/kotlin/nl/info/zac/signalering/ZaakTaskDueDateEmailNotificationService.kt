@@ -7,13 +7,6 @@ package nl.info.zac.signalering
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.signalering.model.Signalering
-import net.atos.zac.signalering.model.SignaleringDetail
-import net.atos.zac.signalering.model.SignaleringTarget
-import net.atos.zac.signalering.model.SignaleringType
-import net.atos.zac.signalering.model.SignaleringVerzendInfo
-import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -21,6 +14,7 @@ import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.gebruikersvoorkeuren.model.TabelInstellingen
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.DatumRange
@@ -30,6 +24,12 @@ import nl.info.zac.search.model.FilterWaarde
 import nl.info.zac.search.model.ZoekParameters
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.signalering.model.Signalering
+import nl.info.zac.signalering.model.SignaleringDetail
+import nl.info.zac.signalering.model.SignaleringTarget
+import nl.info.zac.signalering.model.SignaleringType
+import nl.info.zac.signalering.model.SignaleringVerzendInfo
+import nl.info.zac.signalering.model.SignaleringVerzondenZoekParameters
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.task.api.Task

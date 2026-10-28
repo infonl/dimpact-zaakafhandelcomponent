@@ -53,7 +53,7 @@ class EnkelvoudigInformatieObjectLockServiceTest : BehaviorSpec({
     context("createLock") {
         given("A valid information object UUID and user ID") {
             val fakeUuid = UUID.randomUUID()
-            val fakeUserId = "fakeUserId"
+            val fakeUsername = "fakeUsername"
             val fakeLockValue = "fakeLockValue"
 
             every { drcClientService.lockEnkelvoudigInformatieobject(fakeUuid) } returns fakeLockValue
@@ -61,14 +61,14 @@ class EnkelvoudigInformatieObjectLockServiceTest : BehaviorSpec({
             every { entityManager.flush() } just runs
 
             `when`("createLock is called") {
-                val result = service.createLock(fakeUuid, fakeUserId)
+                val result = service.createLock(fakeUuid, fakeUsername)
 
                 then("the DRC client is called and the lock entity is persisted and returned") {
                     verify { drcClientService.lockEnkelvoudigInformatieobject(fakeUuid) }
                     verify { entityManager.persist(any()) }
                     verify { entityManager.flush() }
                     result.enkelvoudiginformatieobjectUUID shouldBe fakeUuid
-                    result.userId shouldBe fakeUserId
+                    result.username shouldBe fakeUsername
                     result.lock shouldBe fakeLockValue
                 }
             }

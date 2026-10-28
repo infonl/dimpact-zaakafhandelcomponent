@@ -67,7 +67,7 @@ export class ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent {
   });
 
   protected readonly groupsQuery = injectQuery(() =>
-    this.identityService.listBehandelaarGroupsForZaaktypeQuery(
+    this.identityService.listBehandelaarGroupsForZaaktype(
       this.zaak().zaaktype.omschrijving ?? "",
     ),
   );
@@ -113,6 +113,9 @@ export class ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent {
   protected toevoegen() {
     const { groep, medewerker } = this.form.getRawValue();
     if (!groep || !medewerker) return;
-    this.mutation.mutate({ groepId: groep.id, medewerkerId: medewerker.id });
+    this.mutation.mutate({
+      groepId: groep.id,
+      medewerkerId: medewerker.username,
+    });
   }
 }

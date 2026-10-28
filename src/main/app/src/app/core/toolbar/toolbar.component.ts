@@ -36,6 +36,7 @@ import { Router, RouterLink, RouterLinkActive } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { PolicyService } from "../../policy/policy.service";
 import {
@@ -47,8 +48,6 @@ import { VersionComponent } from "../../shared/version/version.component";
 import { SignaleringenService } from "../../signaleringen.service";
 import { ZakenService } from "../../zaken/zaken.service";
 import { ZoekenService } from "../../zoeken/zoeken.service";
-import { ObjectType } from "../websocket/model/object-type";
-import { Opcode } from "../websocket/model/opcode";
 import { WebsocketListener } from "../websocket/model/websocket-listener";
 import { WebsocketService } from "../websocket/websocket.service";
 
@@ -90,6 +89,7 @@ export class ToolbarComponent implements OnDestroy {
   private readonly policyService = inject(PolicyService);
   private readonly router = inject(Router);
   private readonly zakenService = inject(ZakenService);
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
   protected readonly queryClient = inject(QueryClient);
   protected readonly createZaakMutationKey =
@@ -142,9 +142,9 @@ export class ToolbarComponent implements OnDestroy {
       if (!loggedInUser) return;
 
       this.signaleringListener = this.websocketService.addListener(
-        Opcode.UPDATED,
-        ObjectType.SIGNALERINGEN,
-        loggedInUser.id,
+        "UPDATED",
+        "SIGNALERINGEN",
+        loggedInUser.username,
         () => void this.signaleringenService.invalidateLatestSignalering(),
       );
     });
@@ -185,5 +185,9 @@ export class ToolbarComponent implements OnDestroy {
 
   protected isTaskRouteActive() {
     return this.router.url.startsWith("/taken/");
+  }
+
+  protected logOut() {
+    this.foutAfhandelingService.ignoreLoggedOutErrors();
   }
 }

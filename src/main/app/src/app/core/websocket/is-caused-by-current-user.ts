@@ -13,7 +13,7 @@ import { ScreenEvent } from "./model/screen-event";
  */
 export function isCausedByCurrentUser(
   event: ScreenEvent,
-  currentUserId: string | undefined,
+  currentUsername: string | undefined,
 ) {
-  return Boolean(currentUserId) && event.actorUserId === currentUserId;
+  return Boolean(currentUsername) && event.actorUsername === currentUsername;
 }

@@ -9,10 +9,10 @@ import nl.info.zac.app.shared.RestListParameters
 import nl.info.zac.shared.model.ListParameters
 import nl.info.zac.shared.model.Paging
 import nl.info.zac.shared.model.Sorting
-import nl.info.zac.shared.model.fromValue
+import nl.info.zac.shared.model.toSorteerRichting
 
 fun <LP : ListParameters> RestListParameters.applyCommonParametersTo(listParameters: LP): LP {
-    sort?.takeIf { it.isNotBlank() }?.let { listParameters.sorting = Sorting(it, fromValue(order)) }
+    sort?.takeIf { it.isNotBlank() }?.let { listParameters.sorting = Sorting(it, order.toSorteerRichting()) }
     listParameters.paging = Paging(page, maxResults)
     return listParameters
 }

@@ -29,12 +29,12 @@ class NoteConverterTest : BehaviorSpec({
         given("a Note and the logged-in user is the note's author") {
             val note = createNote(employeeUsername = "fakeAuthor")
             val author = createUser(
-                id = "fakeAuthor",
+                username = "fakeAuthor",
                 firstName = "fakeFirstName",
                 lastName = "fakeLastName",
                 fullName = "fakeFirstName fakeLastName"
             )
-            val loggedInUser = createLoggedInUser(id = "fakeAuthor")
+            val loggedInUser = createLoggedInUser(username = "fakeAuthor")
             every { identityService.readUser("fakeAuthor", any()) } returns author
             every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -61,12 +61,12 @@ class NoteConverterTest : BehaviorSpec({
         given("a Note and the logged-in user is a different user") {
             val note = createNote(employeeUsername = "fakeAuthor")
             val author = createUser(
-                id = "fakeAuthor",
+                username = "fakeAuthor",
                 firstName = "fakeFirstName",
                 lastName = "fakeLastName",
                 fullName = "fakeFirstName fakeLastName"
             )
-            val loggedInUser = createLoggedInUser(id = "fakeOtherUserId")
+            val loggedInUser = createLoggedInUser(username = "fakeOtherUsername")
             every { identityService.readUser("fakeAuthor", any()) } returns author
             every { loggedInUserInstance.get() } returns loggedInUser
 

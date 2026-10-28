@@ -14,10 +14,10 @@ enum class SorteerRichting(val value: String) {
     NONE("")
 }
 
-fun fromValue(waarde: String?): SorteerRichting =
-    when {
-        DESCENDING.value == waarde -> DESCENDING
-        ASCENDING.value == waarde -> ASCENDING
-        NONE.value == waarde -> NONE
-        else -> throw IllegalArgumentException("Onbekende waarde '$waarde'")
+fun String?.toSorteerRichting(): SorteerRichting =
+    when (this) {
+        DESCENDING.value -> DESCENDING
+        ASCENDING.value -> ASCENDING
+        NONE.value -> NONE
+        else -> throw IllegalArgumentException("Onbekende waarde '$this'")
     }

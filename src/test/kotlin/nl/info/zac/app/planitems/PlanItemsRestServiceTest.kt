@@ -17,8 +17,6 @@ import io.mockk.slot
 import io.mockk.verify
 import io.mockk.verifyOrder
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.cmmn.CmmnService
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZgwApiService
@@ -41,13 +39,14 @@ import nl.info.zac.app.planitems.model.UserEventListenerActie
 import nl.info.zac.app.planitems.model.createRestHumanTaskData
 import nl.info.zac.app.planitems.model.createRestUserEventListenerData
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
-import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import nl.info.zac.app.zaak.model.createRestUser
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.flowable.ZaakVariabelenService
+import nl.info.zac.flowable.cmmn.CmmnService
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.createMailAdres
 import nl.info.zac.mailtemplates.MailTemplateService
@@ -60,8 +59,9 @@ import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.task.TaskHistoryService
-import nl.info.zac.util.time.convertToDate
+import nl.info.zac.util.time.toDate
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
+import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI
 import java.time.LocalDate
@@ -190,7 +190,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         given("REST human task data with a selected medewerker who gets a zaakspecifiek geautoriseerde medewerker rol") {
             val restHumanTaskData = createRestHumanTaskData(
                 planItemInstanceId = planItemInstanceId,
-                medewerker = createRestUser(id = "fakeTaakbehandelaarId"),
+                medewerker = createRestUser(username = "fakeTaakbehandelaarId"),
                 taakdata = mapOf("fakeKey" to "fakeValue")
             )
             val zaak = createZaak(
@@ -261,7 +261,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         ) {
             val restHumanTaskData = createRestHumanTaskData(
                 planItemInstanceId = planItemInstanceId,
-                medewerker = createRestUser(id = "fakeTaakbehandelaarId"),
+                medewerker = createRestUser(username = "fakeTaakbehandelaarId"),
                 taakdata = mapOf("fakeKey" to "fakeValue")
             )
             val zaak = createZaak()
@@ -326,7 +326,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     planItemInstanceId = planItemInstanceId,
                     groupId = restHumanTaskData.groep.id,
                     assignee = null,
-                    dueDate = restHumanTaskData.fataledatum?.let(::convertToDate),
+                    dueDate = restHumanTaskData.fataledatum?.toDate(),
                     description = restHumanTaskData.toelichting,
                     taakdata = any(),
                     zaakUUID = zaak.uuid
@@ -434,7 +434,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     planItemInstanceId = planItemInstanceId,
                     groupId = restHumanTaskData.groep.id,
                     assignee = null,
-                    dueDate = convertToDate(zaak.uiterlijkeEinddatumAfdoening),
+                    dueDate = zaak.uiterlijkeEinddatumAfdoening.toDate(),
                     description = restHumanTaskData.toelichting,
                     taakdata = any(),
                     zaakUUID = zaak.uuid
@@ -506,7 +506,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     planItemInstanceId = additionalInfoPlanItemInstanceId,
                     groupId = restHumanTaskData.groep.id,
                     assignee = null,
-                    dueDate = restHumanTaskData.fataledatum?.let(::convertToDate),
+                    dueDate = restHumanTaskData.fataledatum?.toDate(),
                     description = restHumanTaskData.toelichting,
                     taakdata = any(),
                     zaakUUID = zaak.uuid

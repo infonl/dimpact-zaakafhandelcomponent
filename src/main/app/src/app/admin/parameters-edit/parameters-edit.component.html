@@ -111,7 +111,7 @@
             </mat-step>
           }
 
-          @if (processDefinition) {
+          @if (form.controls.mail.enabled) {
             <mat-step
               [stepControl]="form.controls.mail"
               [hasError]="form.controls.mail.invalid"
@@ -127,7 +127,9 @@
                 />
               </ng-template>
             </mat-step>
+          }
 
+          @if (processDefinition) {
             <mat-step
               [stepControl]="form.controls.beeindiging"
               [hasError]="form.controls.beeindiging.invalid"

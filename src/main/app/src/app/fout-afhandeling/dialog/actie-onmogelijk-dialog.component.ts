@@ -32,7 +32,7 @@ import { TranslatePipe } from "@ngx-translate/core";
   ],
 })
 export class ActieOnmogelijkDialogComponent {
-  private dialogRef =
+  private readonly dialogRef =
     inject<MatDialogRef<ActieOnmogelijkDialogComponent>>(MatDialogRef);
 
   protected close(): void {

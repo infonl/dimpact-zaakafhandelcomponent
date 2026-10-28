@@ -11,7 +11,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.model.createAdres
 import nl.info.client.brp.model.createAdressering
@@ -46,6 +45,7 @@ import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.identity.model.getFullName
@@ -126,7 +126,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                         woonplaats shouldBe (persoon.verblijfplaats as Adres).verblijfadres.woonplaats
                     }
                     with(gebruikerData) {
-                        id shouldBe loggedInUser.id
+                        id shouldBe loggedInUser.username
                         naam shouldBe loggedInUser.getFullName()
                     }
                     with(zaakData) {
@@ -181,7 +181,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                         woonplaats shouldBe resultaatItem.adres.binnenlandsAdres.plaats
                     }
                     with(gebruikerData) {
-                        id shouldBe loggedInUser.id
+                        id shouldBe loggedInUser.username
                         naam shouldBe loggedInUser.getFullName()
                     }
                     with(zaakData) {
@@ -242,7 +242,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                         woonplaats shouldBe resultaatItem.adres.binnenlandsAdres.plaats
                     }
                     with(gebruikerData) {
-                        id shouldBe loggedInUser.id
+                        id shouldBe loggedInUser.username
                         naam shouldBe loggedInUser.getFullName()
                     }
                     with(zaakData) {
@@ -637,7 +637,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         val zaak = createZaak(zaaktypeUri = zaakType.url)
         val taskId = "fakeTaskId"
         val assigneeId = "fakeAssigneeId"
-        val user = createUser(id = assigneeId)
+        val user = createUser(username = assigneeId)
         val taskInfo = mockk<TaskInfo>()
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns null

@@ -45,7 +45,6 @@ import nl.info.zac.app.exception.RestExceptionMapper
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
-import nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundException
 import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConversionException
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerplaatsGegevens
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerwijderenGegevens
@@ -64,11 +63,13 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.FileSizeConfiguration
 import nl.info.zac.document.content.DocumentContentReader
+import nl.info.zac.document.detacheddocument.DetachedDocumentNotFoundException
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.event.EventingService
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_DOCUMENT_UPLOAD_INVALID
 import nl.info.zac.exception.InputValidationFailedException
@@ -1569,7 +1570,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
         } returns createDocumentRechten(vergrendelen = true)
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { enkelvoudigInformatieObjectLockService.createLock(uuid, loggedInUser.id) } returns mockk()
+        every { enkelvoudigInformatieObjectLockService.createLock(uuid, loggedInUser.username) } returns mockk()
         every { eventingService.send(any<ScreenEvent>()) } just Runs
 
         `when`("lockDocument is called") {
@@ -1577,7 +1578,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             then("the document is locked and a 200 response is returned") {
                 response.status shouldBe 200
-                verify(exactly = 1) { enkelvoudigInformatieObjectLockService.createLock(uuid, loggedInUser.id) }
+                verify(exactly = 1) { enkelvoudigInformatieObjectLockService.createLock(uuid, loggedInUser.username) }
             }
         }
     }
@@ -2014,7 +2015,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     expectedIndicaties = emptySet()
                 ),
                 TestCase(
-                    gelockedDoor = RestUser(id = "fakeId", naam = "fakeName"),
+                    gelockedDoor = RestUser(username = "fakeId", naam = "fakeName"),
                     expectedIndicaties = setOf(DocumentIndicatie.VERGRENDELD)
                 ),
                 TestCase(
@@ -2034,7 +2035,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     expectedIndicaties = setOf(DocumentIndicatie.VERZONDEN)
                 ),
                 TestCase(
-                    gelockedDoor = RestUser(id = "fakeId", naam = "fakeName"),
+                    gelockedDoor = RestUser(username = "fakeId", naam = "fakeName"),
                     ondertekening = RestOndertekening(soort = "fakeSoort", datum = LocalDate.of(2026, 1, 1)),
                     hasGebruiksrecht = true,
                     isBesluitDocument = true,

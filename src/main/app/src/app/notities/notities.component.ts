@@ -22,8 +22,6 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
-import { ObjectType } from "../core/websocket/model/object-type";
-import { Opcode } from "../core/websocket/model/opcode";
 import { WebsocketService } from "../core/websocket/websocket.service";
 import { IdentityService } from "../identity/identity.service";
 import { injectMutation } from "../shared/http/inject-mutation";
@@ -130,8 +128,8 @@ export class NotitiesComponent {
     effect((onCleanup) => {
       const zaakUuid = this.zaakUuid();
       const notitiesListener = this.websocketService.addListener(
-        Opcode.UPDATED,
-        ObjectType.ZAAK_NOTITIES,
+        "UPDATED",
+        "ZAAK_NOTITIES",
         zaakUuid,
         () =>
           void this.queryClient.invalidateQueries({
@@ -163,20 +161,20 @@ export class NotitiesComponent {
 
   protected maakNotitieAan(tekst: string) {
     const loggedInUser = this.loggedInUserQuery.data();
-    if (!loggedInUser?.id) return;
+    if (!loggedInUser?.username) return;
     if (tekst.length === 0) return;
     if (tekst.length > this.maxLengteTextArea) return;
 
     this.createNotitieMutation.mutate({
       zaakUUID: this.zaakUuid(),
       tekst: tekst,
-      gebruikersnaamMedewerker: loggedInUser.id,
+      gebruikersnaamMedewerker: loggedInUser.username,
     });
   }
 
   protected updateNotitie(notitie: GeneratedType<"RestNote">, tekst: string) {
     const loggedInUser = this.loggedInUserQuery.data();
-    if (!loggedInUser?.id) return;
+    if (!loggedInUser?.username) return;
 
     if (tekst.length === 0) return;
     if (tekst.length > this.maxLengteTextArea) return;
@@ -184,7 +182,7 @@ export class NotitiesComponent {
     this.updateNotitieMutation.mutate({
       ...notitie,
       tekst,
-      gebruikersnaamMedewerker: loggedInUser.id,
+      gebruikersnaamMedewerker: loggedInUser.username,
     });
   }
 
