@@ -39,38 +39,33 @@ Search is the "Zoeken" field in the toolbar; Enter opens the results in a side p
 
 ## Creating a zaak
 
-Only create zaken this way, so the omschrijving starts with "QA Agent:". Put the steps in a helper and use
-exactly these locators; they are known to work, and simpler ones match the wrong element.
+When a ticket is about a zaak, its detail page, its notities, betrokkenen or taken, create one with the
+`createZaak` helper instead of marking the ticket `needs-human`. It returns the zaaknummer; the zaak opens
+on `/zaken/<zaaknummer>`. A BPMN zaak is assigned to user 1 and starts with a taak for that user.
 
-1. `page.goto("/")`, then `page.getByLabel("Zaak toevoegen").click()`.
-2. Zaaktype. The zaaktypes load slowly, so retry both clicks together:
-   `await expect(async () => { await page.getByRole("combobox", { name: "Zaaktype" }).click(); await page.getByRole("option", { name: zaaktypeName }).click({ timeout: 5_000 }); }).toPass({ timeout: 40_000 });`
-   with `zaaktypeName` "Zaaktype voor e2e testen" (CMMN) or "Zaaktype voor BPMN e2e testen" (BPMN).
-3. Initiator (test person Héndrika Janse):
-   - `page.locator("div").filter({ hasText: /^person$/ }).click()`
-   - `page.getByLabel("BSN").fill("999993896")`
-   - `page.getByLabel("emoji_people Persoon").getByRole("button", { name: "Zoeken" }).click()`
-   - `page.getByRole("button", { name: "Select" }).click()`
-4. Address:
-   - `page.locator("div").filter({ hasText: /^gps_fixed$/ }).click()`
-   - `page.getByPlaceholder("Zoeken op adres, postcode of woonplaats")`: fill "1112gv", then press Enter
-   - `page.getByRole("row", { name: /1112GV/ }).first().getByRole("button", { name: "Koppelen" }).click()`
-   - `page.locator("mat-toolbar button mat-icon", { hasText: "close" }).click()`
-5. Group: `page.getByRole("combobox", { name: "Zaak toekennen aan groep" }).fill("Test groep A")`, then
-   `page.getByRole("option", { name: "Test groep A", exact: true }).click()`. For BPMN also
-   `page.getByRole("combobox", { name: "Zaak toekennen aan medewerker" }).fill("E2etest User1")` and
-   `page.getByRole("option", { name: "E2etest User1", exact: true }).click()`.
-6. `page.getByLabel("Communicatiekanaal").click()`, `page.getByRole("option", { name: " E-mail " }).click()`,
-   `page.getByLabel("Omschrijving").fill("QA Agent: <what the test is about>")`.
-7. `page.getByRole("button", { name: "Aanmaken" }).click()`, then
-   `page.waitForURL(/\/zaken\/ZAAK-\d{4}-\d+/, { timeout: 40_000 })`; the zaaknummer is in the URL.
+```ts
+import { test, expect } from "../fixtures";
+import { createZaak } from "../project/createZaak";
 
-Creating a zaak takes up to a minute, so give `test.beforeAll` a longer timeout:
-`test.beforeAll(async ({ browser }) => { test.setTimeout(180_000); ... })`.
+let zaaknummer: string;
 
-Create as few zaken as you can: only for tests about zaak behaviour, and one zaak per spec file, created
-in `test.beforeAll` and shared by its tests. Pages and lists need no zaak of your own. Don't abort or close
-your zaken yourself, unless that is what you test: `globalTeardown.ts` aborts them after the run.
+// One zaak per spec file, shared by its tests. A page from browser.newPage() doesn't get the config's
+// baseURL and session, so pass them.
+test.beforeAll(async ({ browser }, testInfo) => {
+  test.setTimeout(180_000);
+  const page = await browser.newPage({
+    baseURL: testInfo.project.use.baseURL,
+    storageState: "auth/user1.json",
+    locale: "nl-NL",
+  });
+  zaaknummer = await createZaak(page, { type: "CMMN", omschrijving: "<what the test is about>" });
+  await page.close();
+});
+```
+
+Only create zaken this way, so the omschrijving starts with "QA Agent:". Create as few as you can: one per
+spec file, and none for tests of pages and lists. Don't abort or close your zaken yourself, unless that is
+what you test: `globalTeardown.ts` aborts them after the run.
 
 ## Project rules
 
