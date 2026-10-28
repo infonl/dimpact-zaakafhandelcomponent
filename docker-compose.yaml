@@ -1053,6 +1053,8 @@ services:
         condition: service_started
       open-object-import:
         condition: service_completed_successfully
+      openzaak.local:
+        condition: service_healthy
     profiles: [ "openformulieren" ]
 
   openformulieren-web:
