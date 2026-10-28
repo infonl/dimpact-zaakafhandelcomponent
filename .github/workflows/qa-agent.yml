@@ -11,10 +11,6 @@ on:
     # Weekdays 05:30 UTC (07:30 Amsterdam in summer, 06:30 in winter): after the nightly e2e run,
     # and after yesterday's merges have been provisioned on the dev environment.
     - cron: "30 5 * * 1-5"
-  # TEMPORARY: lets the workflow run from this branch before it is on main. Remove before merging.
-  push:
-    branches:
-      - feature/claude-qa-pilot
   workflow_dispatch:
     inputs:
       scope:
