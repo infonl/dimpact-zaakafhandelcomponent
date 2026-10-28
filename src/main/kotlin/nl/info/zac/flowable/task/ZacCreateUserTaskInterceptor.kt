@@ -34,14 +34,11 @@ class ZacCreateUserTaskInterceptor : CreateUserTaskInterceptor {
             flowableHelper.eventingService.send(screenEvent)
 
             task.assignee?.let {
-                val isGranted = flowableHelper.zaakspecifiekeAutorisatieService
-                    .grantZaakspecifiekeAutorisatieToTaakbehandelaar(
-                        zaak = flowableHelper.zrcClientService.readZaak(zaakUUID),
-                        medewerkerId = it
-                    )
-                if (isGranted) {
-                    flowableHelper.taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, it)
-                }
+                flowableHelper.zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(
+                    zaak = flowableHelper.zrcClientService.readZaak(zaakUUID),
+                    medewerkerId = it,
+                    task = task
+                )
             }
         }
         FlowableHelper.getInstance().indexeerService.addOrUpdateTaak(task.id)

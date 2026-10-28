@@ -39,7 +39,6 @@ class TaskService @Inject constructor(
     private val eventingService: EventingService,
     private val zrcClientService: ZrcClientService,
     private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
-    private val taskHistoryService: TaskHistoryService,
     private val signaleringService: SignaleringService
 ) {
     companion object {
@@ -185,9 +184,11 @@ class TaskService @Inject constructor(
     private fun grantZaakspecifiekeAutorisatieToNewAssignee(task: Task, assignee: String) {
         if (task.assignee == assignee) return
         val zaak = zrcClientService.readZaak(readZaakUUID(task))
-        if (zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, assignee)) {
-            taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, assignee)
-        }
+        zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(
+            zaak = zaak,
+            medewerkerId = assignee,
+            task = task
+        )
     }
 
     private fun deleteTaakOpNaamSignaleringenExceptFor(task: Task, assignee: String?) =
