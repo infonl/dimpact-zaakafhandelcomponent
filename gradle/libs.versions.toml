@@ -63,10 +63,6 @@ kotest = "6.2.6"
 mockk = "1.14.11"
 archunit = "1.5.1"
 
-testcontainers = "2.0.5"
-testcontainers-mockserver = "2.0.5"
-testcontainers-postgresql = "1.21.4"
-
 json-json = "20250517"
 slf4j-simple = "2.0.20"
 
@@ -152,14 +148,12 @@ json = { group = "org.json", name = "json", version.ref = "json-json" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 
 # integration test dependencies
-testcontainers-testcontainers = { group = "org.testcontainers", name = "testcontainers", version.ref = "testcontainers" }
-testcontainers-mockserver = { group = "org.testcontainers", name = "testcontainers-mockserver", version.ref = "testcontainers-mockserver" }
-testcontainers-postgresql = { group = "org.testcontainers", name = "postgresql", version.ref = "testcontainers-postgresql" }
 slf4j-simple = { group = "org.slf4j", name = "slf4j-simple", version.ref = "slf4j-simple" }
 github-kotlin-logging = { group = "io.github.oshai", name = "kotlin-logging-jvm", version.ref = "github-kotlin-logging" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 okhttp-urlconnection = { group = "com.squareup.okhttp3", name = "okhttp-urlconnection", version.ref = "okhttp" }
 jacoco-agent = { group = "org.jacoco", name="org.jacoco.agent", version.ref = "jacoco" }
+jacoco-core = { group = "org.jacoco", name = "org.jacoco.core", version.ref = "jacoco" }
 detekt-rules-ktlint-wrapper = { group = "dev.detekt", name = "detekt-rules-ktlint-wrapper", version.ref = "detekt" }
 
 [plugins]

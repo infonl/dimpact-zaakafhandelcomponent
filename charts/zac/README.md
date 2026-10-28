@@ -110,6 +110,9 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | db.password | string | `""` |  |
 | db.user | string | `""` |  |
 | extraDeploy | list | `[]` | Extra objects to deploy (value evaluated as a template) |
+| extraEnv | list | `[]` | Extra environment variables of the ZAC container, for example `APP_ENV` of the integration tests |
+| extraVolumeMounts | list | `[]` | Extra volume mounts of the ZAC container |
+| extraVolumes | list | `[]` | Extra volumes of the ZAC pod |
 | fullnameOverride | string | `""` | fullname to use |
 | gemeente.code | string | `""` |  |
 | gemeente.mail | string | `""` |  |

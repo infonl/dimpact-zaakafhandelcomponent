@@ -16,3 +16,6 @@ nodes:
         serializeImagePulls: false
         registryPullQPS: 50
         registryBurst: 100
+        # 'kubectl logs' only returns the current log file of a container, and the integration tests read the
+        # whole log of ZAC
+        containerLogMaxSize: 500Mi

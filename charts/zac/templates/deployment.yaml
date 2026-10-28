@@ -106,9 +106,14 @@ spec:
           {{- end}}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- if not .Values.solr.url }}
+          {{- if or (not .Values.solr.url) .Values.extraEnv }}
           env:
+            {{- if not .Values.solr.url }}
             {{- include "zaakafhandelcomponent.solr.credentialsEnv" . | nindent 12 }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           {{- end }}
           envFrom:
             - configMapRef:
@@ -118,6 +123,9 @@ spec:
           volumeMounts:
             - name: tmp
               mountPath: /tmp
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           {{- if .Values.remoteDebug }}
           command:
             - java
@@ -159,6 +167,9 @@ spec:
         - name: tmp
           emptyDir:
             sizeLimit: {{ .Values.tmpVolumeSize | default "4Gi" }}
+        {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

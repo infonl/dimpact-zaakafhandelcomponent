@@ -310,9 +310,7 @@ testing {
             useJUnitJupiter()
 
             dependencies {
-                implementation(libs.testcontainers.testcontainers)
-                implementation(libs.testcontainers.mockserver)
-                implementation(libs.testcontainers.postgresql)
+                implementation(libs.jacoco.core)
                 implementation(libs.json)
                 implementation(libs.kotest.runner.junit5)
                 implementation(libs.kotest.assertions.json)

@@ -161,6 +161,7 @@ A small proxy container named `zac-ports` publishes the services of the cluster 
 | BRP personen mock and its WireMock             | 5010, 18084 | `KIND_PORT_BRP_PERSONEN_MOCK`, `KIND_PORT_BRP_PERSONEN_WIREMOCK` |
 | SmartDocuments, KVK and BAG WireMock (`-t`)    | 18080, 18081, 18082 | `KIND_PORT_SMARTDOCUMENTS_WIREMOCK`, `KIND_PORT_KVK_WIREMOCK`, `KIND_PORT_BAG_WIREMOCK` |
 | GreenMail API and SMTP (`-t`)                  | 18083, 2525 | `KIND_PORT_GREENMAIL_API`, `KIND_PORT_GREENMAIL_SMTP` |
+| JaCoCo agent of ZAC in the integration tests (`-t`, only with ZAC in the cluster) | 6300 | `KIND_PORT_ZAC_JACOCO` |
 | PostgreSQL databases of ZAC, Open Zaak, Open Object, Open Klant, Keycloak, Open Notificaties, Open Archiefbeheer, PABC, Open Formulieren and VNG Selectielijst | 54320, 54322, 54323, 54325, 54326, 54327, 54328, 54329, 54330, 54331 | `KIND_PORT_ZAC_DATABASE`, `KIND_PORT_OPENZAAK_DATABASE`, `KIND_PORT_OPEN_OBJECT_DATABASE`, `KIND_PORT_OPENKLANT_DATABASE`, `KIND_PORT_KEYCLOAK_DATABASE`, `KIND_PORT_OPENNOTIFICATIES_DATABASE`, `KIND_PORT_OPENARCHIEFBEHEER_DATABASE`, `KIND_PORT_PABC_DATABASE`, `KIND_PORT_OPENFORMULIEREN_DATABASE`, `KIND_PORT_VNG_SELECTIELIJST_DATABASE` |
 
 All databases are on one PostgreSQL server. Each database port connects to that server, so the database name, user
@@ -235,3 +236,9 @@ The script writes the files that it generates, such as the Helm values, to `buil
 When a service does not become ready in time, the script stops and shows the pods and the latest warning events.
 A cluster that an earlier version of the script made can keep data that no longer fits, for example in the Postgres
 volume. Start again with `-d` to delete the cluster first.
+
+## Integration tests
+
+The integration tests run against a kind cluster of their own, named `zac-itest`, which they start with
+`scripts/kind/up.sh` and delete again afterwards; see [testing.md](testing.md#integration-tests). They follow the
+`KIND_PORT_*` variables above, so that they can run next to the cluster of `./start-kind.sh`.
