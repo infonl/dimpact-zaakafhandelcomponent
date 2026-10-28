@@ -26,4 +26,8 @@ while getopts ':dh' option; do
   esac
 done
 
-DELETE_CLUSTER=$deleteCluster exec "$(dirname "$0")/scripts/kind/down.sh"
+DELETE_CLUSTER=$deleteCluster "$(dirname "$0")/scripts/kind/down.sh"
+if [ "$deleteCluster" = false ]; then
+  echo "Stopped. Docker keeps the container '${KIND_CLUSTER_NAME:-zac}-control-plane' with the data of the cluster:"
+  echo "./start-kind.sh starts it again, ./stop-kind.sh -d deletes it."
+fi
