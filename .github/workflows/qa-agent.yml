@@ -11,10 +11,6 @@ on:
     # Weekdays 05:30 UTC (07:30 Amsterdam in summer, 06:30 in winter): after the nightly e2e run,
     # and after yesterday's merges have been provisioned on the dev environment.
     - cron: "30 5 * * 1-5"
-  # TEMPORARY: lets the workflow run from this branch before it is on main. Remove before merging.
-  push:
-    branches:
-      - feature/claude-qa-pilot
   workflow_dispatch:
     inputs:
       scope:
@@ -84,7 +80,7 @@ jobs:
 
       - name: Run the QA agent
         id: qa
-        uses: infonl/info-qa-agent@679bf9f51455b75e6a6f29cce6aff8b103b405e6 # TEMPORARY: feature/simpler-setup
+        uses: infonl/info-qa-agent@286c0522a5c4ce8dc34491f83359f0187ae7ad81 # main
         with:
           app-url: ${{ secrets.ZAC_URL }}
           username: ${{ secrets.ZAC_E2E_TEST_USER_1_USERNAME }}
@@ -128,7 +124,7 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: infonl/info-qa-agent/report@679bf9f51455b75e6a6f29cce6aff8b103b405e6 # TEMPORARY: feature/simpler-setup
+      - uses: infonl/info-qa-agent/report@286c0522a5c4ce8dc34491f83359f0187ae7ad81 # main
         with:
           suggest-instructions: true
           # Dispatch inputs are empty on scheduled runs, and an empty input compares equal to false.
