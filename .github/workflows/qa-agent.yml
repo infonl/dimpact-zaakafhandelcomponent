@@ -80,7 +80,7 @@ jobs:
 
       - name: Run the QA agent
         id: qa
-        uses: infonl/info-qa-agent@8dba7a6e221d2a061f1ad970d4f60c4027741462 # main
+        uses: infonl/info-qa-agent@b56833bfcd8bc5ae699474116e815858c939f0ac # main
         with:
           app-url: ${{ secrets.ZAC_URL }}
           username: ${{ secrets.ZAC_E2E_TEST_USER_1_USERNAME }}
@@ -120,7 +120,7 @@ jobs:
     timeout-minutes: 10
     environment: azure-dimpact-dta
     steps:
-      - uses: infonl/info-qa-agent/report@8dba7a6e221d2a061f1ad970d4f60c4027741462 # main
+      - uses: infonl/info-qa-agent/report@b56833bfcd8bc5ae699474116e815858c939f0ac # main
         with:
           # Dispatch inputs are empty on scheduled runs, and an empty input compares equal to false.
           slack-webhook-url: ${{ (github.event_name != 'workflow_dispatch' || inputs.post_to_slack) && secrets.QA_AGENT_SLACK_WEBHOOK_URL || '' }}
@@ -128,3 +128,4 @@ jobs:
           jira-project-keys: PZ
           scope: ${{ env.SCOPE }}
           model: ${{ env.MODEL }}
+          language: Dutch
