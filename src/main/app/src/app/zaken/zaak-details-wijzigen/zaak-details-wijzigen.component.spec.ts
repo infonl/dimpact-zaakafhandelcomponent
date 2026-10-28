@@ -23,8 +23,10 @@ import {
   MAT_DATE_LOCALE,
 } from "@angular/material/core";
 import { MatDatepickerInputHarness } from "@angular/material/datepicker/testing";
+import { MatFormField } from "@angular/material/form-field";
 import { MatSelectHarness } from "@angular/material/select/testing";
 import { MatDrawer } from "@angular/material/sidenav";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
@@ -40,6 +42,7 @@ import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
 import { FormHelper } from "../../shared/form/helpers";
+import { ZacSelect } from "../../shared/form/select/select";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZakenService } from "../zaken.service";
@@ -1171,6 +1174,24 @@ describe(CaseDetailsEditComponent.name, () => {
 
       expect(behandelaarSelect()).toBeInvalid();
       expect(screen.getByText(explanation)).toBeInTheDocument();
+    });
+
+    it("lets the explanation grow the behandelaar field, so it does not run under the next field", async () => {
+      await render({ isZaakspecifiekGeautoriseerd: true });
+
+      const subscriptSizingByKey = Object.fromEntries(
+        fixture.debugElement
+          .queryAll(By.directive(ZacSelect))
+          .map((select) => [
+            select.componentInstance.key(),
+            select.query(By.directive(MatFormField)).componentInstance
+              .subscriptSizing,
+          ]),
+      );
+
+      expect(subscriptSizingByKey).toEqual(
+        expect.objectContaining({ behandelaar: "dynamic", groep: "fixed" }),
+      );
     });
 
     it("becomes required when the zaak is marked zaakspecifiek geautoriseerd in the form", async () => {
