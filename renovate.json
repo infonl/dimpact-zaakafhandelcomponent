@@ -454,6 +454,25 @@
       ]
     },
     {
+      "groupName": "Node.js",
+      "matchPackageNames": [
+        "node",
+        "@types/node"
+      ],
+      "description": [
+        "Group the Node.js runtime (.nvmrc, engines) with @types/node, so the types never upgrade to a major the runtime does not have"
+      ]
+    },
+    {
+      "matchPackageNames": [
+        "@types/node"
+      ],
+      "allowedVersions": "< 25.0.0",
+      "description": [
+        "Keep @types/node on the Node.js major in .nvmrc; raise this cap together with the runtime-major upgrade"
+      ]
+    },
+    {
       "groupName": "Helm CLI",
       "matchPackageNames": [
         "helm",
@@ -629,7 +648,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 3.6.0",
+      "allowedVersions": "< 4.1.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]

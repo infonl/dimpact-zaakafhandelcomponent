@@ -51,6 +51,17 @@ export class FoutAfhandelingService {
   foutmelding = "";
   bericht = "";
 
+  /**
+   * Once the user logs out, the browser is on its way to `/sign-out`. ZAC ends its session first, so requests of the
+   * page that are still running fail as logged out. Reloading the page for them would cancel the logout, and the
+   * reloaded page would log the user in again with the Keycloak session that the logout had not ended yet.
+   */
+  private isLoggingOut = false;
+
+  ignoreLoggedOutErrors() {
+    this.isLoggingOut = true;
+  }
+
   foutAfhandelen(
     err: HttpErrorResponse | HttpParamsError | JakartaBeanValidationError,
   ) {
@@ -149,6 +160,9 @@ export class FoutAfhandelingService {
     }
 
     if (isLoggedOut(err)) {
+      if (this.isLoggingOut) {
+        return throwError(() => "User logged out");
+      }
       if (!isDevMode()) {
         window.location.reload();
         return throwError(() => "User logged out");
