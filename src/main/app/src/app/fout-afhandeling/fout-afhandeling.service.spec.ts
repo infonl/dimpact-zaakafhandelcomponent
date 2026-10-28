@@ -1,11 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { HttpErrorResponse } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { MatDialog } from "@angular/material/dialog";
+import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { firstValueFrom } from "rxjs";
 import { ReferentieTabelService } from "../admin/referentie-tabel.service";
@@ -123,5 +124,36 @@ describe("FoutAfhandelingService", () => {
     expect(errorMessage).toEqual(
       `${translatedErrorMessage}: ${translatedErrorMessage}`,
     );
+  });
+  describe("A request that fails because ZAC ended the session", () => {
+    const loggedOutError = new HttpErrorResponse({
+      status: 0,
+      url: "https://zac.example.com/rest/identity/loggedInUser",
+    });
+
+    it("shows the logged-out error page", async () => {
+      const navigate = jest
+        .spyOn(TestBed.inject(Router), "navigate")
+        .mockResolvedValue(true);
+
+      await firstValueFrom(service.foutAfhandelen(loggedOutError), {
+        defaultValue: undefined,
+      });
+
+      expect(navigate).toHaveBeenCalledWith(["/fout"]);
+      expect(service.foutmelding).toBe("dialoog.error.body.loggedout");
+    });
+
+    it("leaves the page alone once the user logs out, so that a reload does not cancel the logout", async () => {
+      const navigate = jest.spyOn(TestBed.inject(Router), "navigate");
+      service.ignoreLoggedOutErrors();
+
+      const errorMessage = await firstValueFrom(
+        service.foutAfhandelen(loggedOutError),
+      ).catch((reason) => reason);
+
+      expect(errorMessage).toBe("User logged out");
+      expect(navigate).not.toHaveBeenCalled();
+    });
   });
 });
