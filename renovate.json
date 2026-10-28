@@ -454,6 +454,16 @@
       ]
     },
     {
+      "groupName": "Node.js",
+      "matchPackageNames": [
+        "node",
+        "@types/node"
+      ],
+      "description": [
+        "Group the Node.js runtime (.nvmrc, engines) with @types/node, so the types never upgrade to a major the runtime does not have"
+      ]
+    },
+    {
       "groupName": "Helm CLI",
       "matchPackageNames": [
         "helm",
