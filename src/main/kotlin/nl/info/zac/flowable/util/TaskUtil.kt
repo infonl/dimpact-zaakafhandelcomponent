@@ -4,9 +4,9 @@
  */
 package nl.info.zac.flowable.util
 
-import nl.info.zac.app.task.model.TaakStatus.AFGEROND
-import nl.info.zac.app.task.model.TaakStatus.NIET_TOEGEKEND
-import nl.info.zac.app.task.model.TaakStatus.TOEGEKEND
+import nl.info.zac.task.model.TaakStatus.AFGEROND
+import nl.info.zac.task.model.TaakStatus.NIET_TOEGEKEND
+import nl.info.zac.task.model.TaakStatus.TOEGEKEND
 import org.flowable.common.engine.api.scope.ScopeTypes
 import org.flowable.task.api.Task
 import org.flowable.task.api.TaskInfo

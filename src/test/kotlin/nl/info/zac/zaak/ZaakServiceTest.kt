@@ -49,8 +49,6 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.createZaakspecifiekGeautoriseerdeMedewerkerRolType
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
-import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
-import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.event.EventingService
 import nl.info.zac.event.Opcode
@@ -67,6 +65,8 @@ import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
+import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
+import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
 import nl.info.zac.zaak.model.ZaakAssignment
 import nl.info.zac.zaak.model.createZaakToewijzing
 import java.net.URI

@@ -20,7 +20,6 @@ import nl.info.zac.admin.model.createReferenceTable
 import nl.info.zac.admin.model.createReferenceTableValue
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
-import nl.info.zac.app.task.model.TaakStatus
 import nl.info.zac.app.zaak.model.createRestUser
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_OMSCHRIJVING
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_UUID
@@ -30,6 +29,7 @@ import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createTaakRechten
 import nl.info.zac.policy.output.createTaakRechtenAllDeny
+import nl.info.zac.task.model.TaakStatus
 import org.flowable.common.engine.api.scope.ScopeTypes
 import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.identitylink.api.IdentityLinkType

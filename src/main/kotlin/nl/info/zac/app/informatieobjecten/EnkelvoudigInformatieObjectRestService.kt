@@ -57,6 +57,7 @@ import nl.info.zac.document.content.DocumentContentReader
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.event.EventingService
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_DOCUMENT_UPLOAD_INVALID
 import nl.info.zac.exception.InputValidationFailedException

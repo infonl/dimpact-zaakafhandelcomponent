@@ -6,7 +6,7 @@
 package net.atos.zac.flowable.delegate
 
 import jakarta.enterprise.inject.spi.CDI
-import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.policy.assertPolicy

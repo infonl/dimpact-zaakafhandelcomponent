@@ -16,8 +16,8 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isOpgeschort
-import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.app.task.model.RestTask
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.task.TaakVariabelenService

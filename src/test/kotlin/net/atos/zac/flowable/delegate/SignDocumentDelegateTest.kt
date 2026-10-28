@@ -22,7 +22,7 @@ import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createOndertekening
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.event.EventingService
 import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.flowable.ZaakVariabelenService

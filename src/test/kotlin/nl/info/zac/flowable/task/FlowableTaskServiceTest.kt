@@ -16,10 +16,10 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import nl.info.zac.app.task.model.TaakSortering
 import nl.info.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.zac.flowable.task.model.ValueChangeData
 import nl.info.zac.shared.model.SorteerRichting
+import nl.info.zac.task.model.TaakSortering
 import nl.info.zac.util.JSONB
 import org.flowable.cmmn.api.CmmnTaskService
 import org.flowable.common.engine.api.scope.ScopeTypes

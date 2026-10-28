@@ -28,7 +28,6 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import nl.info.zac.app.informatieobjecten.model.RestFileUpload
 import nl.info.zac.app.task.converter.RestTaskConverter
@@ -44,6 +43,7 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.launchAsLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.configuration.FileSizeConfiguration
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.event.EventingService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException

@@ -30,8 +30,6 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.zaak.ZaakRestService.Companion.VESTIGING_IDENTIFICATIE_DELIMITER
-import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
-import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
@@ -49,6 +47,8 @@ import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
+import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
+import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import nl.info.zac.zaak.model.ZaakAssignment
 import nl.info.zac.zaak.model.ZaakToewijzing

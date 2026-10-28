@@ -35,7 +35,6 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.flowable.task.api.createTestTask
-import nl.info.zac.app.task.model.TaakStatus
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
@@ -55,6 +54,7 @@ import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.createDocumentZoekObject
 import nl.info.zac.search.model.createTaakZoekObject
 import nl.info.zac.search.model.createZaakZoekObject
+import nl.info.zac.task.model.TaakStatus
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.model.createZaakToewijzing
 import java.net.URI

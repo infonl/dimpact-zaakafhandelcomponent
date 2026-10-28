@@ -19,7 +19,6 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.ZaakListParameters
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.zac.app.task.model.TaakSortering
 import nl.info.zac.authentication.systemUserContext
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.search.converter.ZoekObjectConverter
@@ -28,6 +27,7 @@ import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.solr.SolrClientFactory
+import nl.info.zac.task.model.TaakSortering
 import nl.info.zac.util.AllOpen
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.readZaakAutorisatieGegevens

@@ -39,7 +39,6 @@ import nl.info.zac.app.planitems.model.UserEventListenerActie
 import nl.info.zac.app.planitems.model.createRestHumanTaskData
 import nl.info.zac.app.planitems.model.createRestUserEventListenerData
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
-import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import nl.info.zac.app.zaak.model.createRestUser
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
@@ -62,6 +61,7 @@ import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.task.TaskHistoryService
 import nl.info.zac.util.time.toDate
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
+import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI
 import java.time.LocalDate
