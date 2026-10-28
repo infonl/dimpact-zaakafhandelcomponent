@@ -4,6 +4,11 @@
  */
 
 import { expect, type Page } from "@playwright/test";
+import fs from "fs";
+import path from "path";
+
+// globalTeardown.ts aborts the zaken listed here, also when the search index doesn't show them yet.
+export const CREATED_ZAKEN_FILE = path.join("output", "created-zaken.txt");
 
 /**
  * Creates a zaak for test person Héndrika Janse, assigned to "Test groep A" (for BPMN also to E2etest User1),
@@ -82,5 +87,7 @@ export async function createZaak(
   await page.waitForURL(/\/zaken\/ZAAK-\d{4}-\d+/, { timeout: 40_000 });
   const [zaaknummer] = page.url().match(/ZAAK-\d{4}-\d+/) ?? [];
   if (!zaaknummer) throw new Error(`No zaaknummer in url ${page.url()}`);
+  fs.mkdirSync(path.dirname(CREATED_ZAKEN_FILE), { recursive: true });
+  fs.appendFileSync(CREATED_ZAKEN_FILE, `${zaaknummer}\n`);
   return zaaknummer;
 }
