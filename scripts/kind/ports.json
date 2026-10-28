@@ -46,7 +46,7 @@
       "selector": { "app": "bag-wiremock" } },
     { "name": "greenmail-api", "hostPort": 18083, "nodePort": 31083, "targetPort": 8080, "profile": "itest",
       "selector": { "app": "greenmail" } },
-    { "name": "greenmail-smtp", "hostPort": 25, "nodePort": 30025, "targetPort": 25, "profile": "itest",
+    { "name": "greenmail-smtp", "hostPort": 2525, "nodePort": 30025, "targetPort": 25, "profile": "itest",
       "selector": { "app": "greenmail" } },
     { "name": "zac-database", "hostPort": 54320, "nodePort": 30320, "targetPort": 5432,
       "selector": { "app": "postgres" } },
