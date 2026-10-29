@@ -346,6 +346,45 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
 
+        given(
+            """
+            a productaanvraag with betrokkenen but without an initiator, for whose productaanvraagtype no zaaktype
+            configuration exists
+            """
+        ) {
+            clearAllMocks()
+            val productaanvraagObjectUuid = UUID.randomUUID()
+            val productaanvraagObject = createProductaanvraagObject(
+                productaanvraagObjectUuid = productaanvraagObjectUuid,
+                additionalData = mapOf(
+                    "betrokkenen" to listOf(
+                        mapOf("inpBsn" to "fakeBsn", "rolOmschrijvingGeneriek" to "mede_initiator")
+                    )
+                )
+            )
+            every { productaanvraagClaimRepository.claim(productaanvraagObjectUuid) } returns true
+            every { objectsClientService.readObject(productaanvraagObjectUuid) } returns productaanvraagObject
+            every {
+                zaaktypeConfigurationService.listCurrentConfigurationsByProductaanvraagtype(productaanvraagType)
+            } returns emptyList()
+
+            `when`("the productaanvraag is handled") {
+                productaanvraagService.handleProductaanvraag(productaanvraagObjectUuid)
+
+                then(
+                    """
+                    the failure does not reach the caller, no inbox productaanvraag is created, and the
+                    productaanvraag is not marked as done
+                    """
+                ) {
+                    verify(exactly = 0) {
+                        inboxProductaanvraagService.create(any())
+                        productaanvraagClaimRepository.markDone(any())
+                    }
+                }
+            }
+        }
+
         given("a productaanvraag for whose productaanvraagtype no zaaktype configuration exists") {
             clearAllMocks()
             val productaanvraagObjectUuid = UUID.randomUUID()
