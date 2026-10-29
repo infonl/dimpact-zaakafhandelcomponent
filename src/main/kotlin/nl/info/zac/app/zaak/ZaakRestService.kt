@@ -612,6 +612,9 @@ class ZaakRestService @Inject constructor(
             }
             // Terminate the case after the zaak is ended to prevent the EndCaseLifecycleListener from ending the zaak.
             zaakProcessService.terminate(it, zaakUUID)
+            // Flowable ends the open taken of a terminated process without completing them, so the
+            // completion handlers that remove a taak from the search index do not run for them.
+            indexingService.addOrUpdateTakenForZaak(zaakUUID)
         }
         return zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID).let { (terminatedZaak, terminatedZaakType) ->
             val terminatedZaakRechten = policyService.readZaakRechten(
