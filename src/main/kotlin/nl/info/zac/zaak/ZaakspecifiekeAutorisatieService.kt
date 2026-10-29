@@ -219,7 +219,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         task: TaskInfo? = null
     ): Boolean {
         if (!isZaakspecifiekGeautoriseerd(zaak)) return false
-        val isGranted = lockForZaak(zaak.uuid).withLock {
+        return lockForZaak(zaak.uuid).withLock {
             val zaakToewijzing = readZaakToewijzing(zaak = zaak)
             val isGranted = zaakToewijzing.isZaakspecifiekGeautoriseerd &&
                 zaakToewijzing.behandelaarRollen.none { it.identificatienummer == medewerkerId } &&
@@ -229,13 +229,12 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
                     reason = ROLTOELICHTING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER,
                     zaakspecifiekGeautoriseerdeMedewerkers = zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers
                 )
-            if (isGranted) indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid)
+            if (isGranted) {
+                indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid)
+                task?.let { taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(it, medewerkerId) }
+            }
             isGranted
         }
-        if (isGranted && task != null) {
-            taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, medewerkerId)
-        }
-        return isGranted
     }
 
     /**
