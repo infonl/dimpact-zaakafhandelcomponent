@@ -72,13 +72,11 @@ describe(ZacHtmlEditor.name, () => {
       expect(screen.getByRole("button", { name: "Bold" })).toBeInTheDocument();
     });
 
-    it("should bind to the form control", () => {
+    it("should keep a value set by code as it is, without rewriting it to HTML", () => {
       component.form().controls.content.setValue("Test content");
       fixture.detectChanges();
 
-      expect(component.form().controls.content.value).toBe(
-        "<p>Test content</p>",
-      );
+      expect(component.form().controls.content.value).toBe("Test content");
     });
   });
 
@@ -209,10 +207,22 @@ describe(ZacHtmlEditor.name, () => {
     });
 
     it("should strip html tags", () => {
-      component.form().controls.content.setValue("Test content");
+      component.form().controls.content.setValue("<p>Test content</p>");
       fixture.detectChanges();
 
       expect(component.form().controls.content.value).toBe("Test content");
     });
+
+    it.each([null, ""])(
+      "should output plain text when the user types into a control that starts as %p",
+      (initialValue) => {
+        component.form().controls.content.setValue(initialValue);
+        fixture.detectChanges();
+
+        component["editor"]().commands.insertText("Typed subject").exec();
+
+        expect(component.form().controls.content.value).toBe("Typed subject");
+      },
+    );
   });
 });
