@@ -7,12 +7,16 @@ package nl.info.zac.flowable.task
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
+import io.mockk.runs
 import io.mockk.slot
 import io.mockk.unmockkAll
 import io.mockk.verify
+import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.event.EventingService
 import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
@@ -20,6 +24,7 @@ import nl.info.zac.flowable.task.ZacCreateUserTaskInterceptor.Companion.VAR_PROC
 import nl.info.zac.search.IndexingService
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.websocket.event.ScreenEventType
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import org.flowable.common.engine.impl.cfg.TransactionContext
 import org.flowable.common.engine.impl.cfg.TransactionListener
 import org.flowable.common.engine.impl.cfg.TransactionState
@@ -27,12 +32,15 @@ import org.flowable.common.engine.impl.context.Context
 import org.flowable.common.engine.impl.interceptor.CommandContext
 import org.flowable.engine.interceptor.CreateUserTaskAfterContext
 import org.flowable.engine.interceptor.CreateUserTaskBeforeContext
+import org.flowable.task.service.impl.persistence.entity.TaskEntity
 import java.util.UUID
 
 class ZacCreateUserTaskInterceptorTest : BehaviorSpec({
     val flowableHelper = mockk<FlowableHelper>()
     val eventingService = mockk<EventingService>()
     val indexingService = mockk<IndexingService>()
+    val zrcClientService = mockk<ZrcClientService>()
+    val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
 
     val zacCreateUserTaskInterceptor = ZacCreateUserTaskInterceptor()
 
@@ -103,6 +111,7 @@ class ZacCreateUserTaskInterceptorTest : BehaviorSpec({
             val screenEventSlot = slot<ScreenEvent>()
             every { flowableHelper.eventingService } returns eventingService
             every { eventingService.send(capture(screenEventSlot)) } returns Unit
+            every { createUserTaskAfterContext.taskEntity.assignee } returns null
 
             zacCreateUserTaskInterceptor.afterCreateUserTask(createUserTaskAfterContext)
             transactionListenerSlot.captured.execute(mockk<CommandContext>())
@@ -111,6 +120,69 @@ class ZacCreateUserTaskInterceptorTest : BehaviorSpec({
                 with(screenEventSlot.captured) {
                     objectType shouldBe ScreenEventType.ZAAK_TAKEN
                     objectId.resource shouldBe zaakUuid.toString()
+                }
+            }
+
+            and("no access to the zaak is granted, since the user task has no assignee") {
+                verify(exactly = 0) {
+                    zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(any(), any(), any())
+                }
+            }
+        }
+    }
+
+    given("a user task of a zaak that the process model assigned to a medewerker") {
+        val zaak = createZaak()
+        val createUserTaskAfterContext = mockk<CreateUserTaskAfterContext>()
+        val taskEntity = mockk<TaskEntity>()
+        val transactionContext = mockk<TransactionContext>()
+        val transactionListenerSlot = slot<TransactionListener>()
+        every { FlowableHelper.getInstance() } returns flowableHelper
+        every { flowableHelper.indexeerService } returns indexingService
+        every { Context.getTransactionContext() } returns transactionContext
+        every {
+            transactionContext.addTransactionListener(TransactionState.COMMITTED, capture(transactionListenerSlot))
+        } returns Unit
+        every { createUserTaskAfterContext.execution.parent.getVariable(VAR_ZAAK_UUID) } returns zaak.uuid
+        every { createUserTaskAfterContext.taskEntity } returns taskEntity
+        every { taskEntity.id } returns "fakeTaskId"
+        every { indexingService.addOrUpdateTaak("fakeTaskId") } returns Unit
+
+        `when`("the interceptor is called after the user task is created, but before the Flowable commit") {
+            zacCreateUserTaskInterceptor.afterCreateUserTask(createUserTaskAfterContext)
+
+            then("the medewerker is not granted access yet, since the user task does not exist before the commit") {
+                verify(exactly = 0) {
+                    zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(any(), any(), any())
+                }
+            }
+        }
+
+        `when`("the Flowable transaction is committed") {
+            every { flowableHelper.eventingService } returns eventingService
+            every { flowableHelper.zrcClientService } returns zrcClientService
+            every { flowableHelper.zaakspecifiekeAutorisatieService } returns zaakspecifiekeAutorisatieService
+            every { taskEntity.assignee } returns "fakeAssignee"
+            every { eventingService.send(any<ScreenEvent>()) } just runs
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every {
+                zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(
+                    zaak = zaak,
+                    medewerkerId = "fakeAssignee",
+                    task = taskEntity
+                )
+            } returns true
+
+            zacCreateUserTaskInterceptor.afterCreateUserTask(createUserTaskAfterContext)
+            transactionListenerSlot.captured.execute(mockk<CommandContext>())
+
+            then("the medewerker is granted access to the zaak, with the user task to record the grant on") {
+                verify(exactly = 1) {
+                    zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(
+                        zaak = zaak,
+                        medewerkerId = "fakeAssignee",
+                        task = taskEntity
+                    )
                 }
             }
         }

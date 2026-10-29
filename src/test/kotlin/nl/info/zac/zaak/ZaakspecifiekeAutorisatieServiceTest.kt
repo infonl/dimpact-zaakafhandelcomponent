@@ -984,6 +984,80 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             }
         }
 
+        given("a taak of a zaakspecifiek geautoriseerde zaak on which its taakbehandelaar has no access yet") {
+            val zaak = createZaak()
+            val rollen = emptyList<Rol<*>>()
+            val task = createTestTask(id = "fakeTaskId", assignee = "fakeTaakbehandelaarId")
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
+            every { zrcClientService.listRollen(zaak) } returns rollen
+            every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
+            every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns emptyList()
+            every {
+                zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
+            } returns emptyList()
+            every { identityService.readUser("fakeTaakbehandelaarId", any()) } returns createUser(username = "fakeTaakbehandelaarId")
+            every {
+                zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak.zaaktype)
+            } returns createZaakspecifiekGeautoriseerdeMedewerkerRolType(zaakTypeUri = zaak.zaaktype)
+            every { zrcClientService.createRol(any(), any()) } returns createRolMedewerker()
+            every { indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid) } just runs
+            every {
+                taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, "fakeTaakbehandelaarId")
+            } just runs
+
+            `when`("the taakbehandelaar is granted access for that taak") {
+                val isGranted = zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(
+                    zaak = zaak,
+                    medewerkerId = "fakeTaakbehandelaarId",
+                    task = task
+                )
+
+                then("the added rol is recorded in the taakhistorie of that taak") {
+                    isGranted shouldBe true
+                    verifyOrder {
+                        zrcClientService.createRol(any(), any())
+                        taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, "fakeTaakbehandelaarId")
+                    }
+                }
+            }
+        }
+
+        given("a taak of a zaakspecifiek geautoriseerde zaak on which its taakbehandelaar already holds an individual authorisation") {
+            val zaak = createZaak()
+            val geautoriseerdeMedewerkerRol = createRolMedewerker(
+                zaakURI = zaak.url,
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeTaakbehandelaarId")
+            )
+            val rollen = listOf<Rol<*>>(geautoriseerdeMedewerkerRol)
+            val task = createTestTask(id = "fakeTaskId", assignee = "fakeTaakbehandelaarId")
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(geautoriseerdZaakEigenschap)
+            every { zrcClientService.listRollen(zaak) } returns rollen
+            every { zgwApiService.findGroepForZaak(zaak, rollen) } returns null
+            every { zgwApiService.listBehandelaarMedewerkerRolesForZaak(zaak, rollen) } returns emptyList()
+            every {
+                zgwApiService.listZaakspecifiekGeautoriseerdeMedewerkerRolesForZaak(zaak, rollen)
+            } returns listOf(geautoriseerdeMedewerkerRol)
+            every { identityService.readUser("fakeTaakbehandelaarId", any()) } returns createUser(username = "fakeTaakbehandelaarId")
+            every {
+                zgwApiService.findZaakspecifiekGeautoriseerdeMedewerkerRoltype(zaak.zaaktype)
+            } returns createZaakspecifiekGeautoriseerdeMedewerkerRolType(zaakTypeUri = zaak.zaaktype)
+
+            `when`("the taakbehandelaar is granted access for that taak") {
+                val isGranted = zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(
+                    zaak = zaak,
+                    medewerkerId = "fakeTaakbehandelaarId",
+                    task = task
+                )
+
+                then("nothing is recorded in the taakhistorie, since no rol was added") {
+                    isGranted shouldBe false
+                    verify(exactly = 0) {
+                        taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(any(), any())
+                    }
+                }
+            }
+        }
+
         given("a zaakspecifiek geautoriseerde zaak whose zaaktype does not define the zaakspecifiek geautoriseerde medewerker roltype") {
             val zaak = createZaak()
             val rollen = emptyList<Rol<*>>()
