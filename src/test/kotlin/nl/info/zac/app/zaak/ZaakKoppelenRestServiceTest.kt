@@ -27,7 +27,6 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.app.search.model.RestDatumRange
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
-import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.createRestFindLinkableZakenRequest
 import nl.info.zac.app.zaak.model.createRestZaakLinkData
 import nl.info.zac.app.zaak.model.createRestZaakUnlinkData
@@ -35,12 +34,10 @@ import nl.info.zac.app.zaak.model.createRestZaaktype
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
-import nl.info.zac.event.EventingService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createOverigeRechten
 import nl.info.zac.policy.output.createZaakRechten
-import nl.info.zac.search.IndexingService
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.DatumVeld
 import nl.info.zac.search.model.FilterVeld
@@ -50,8 +47,9 @@ import nl.info.zac.search.model.ZoekResultaat
 import nl.info.zac.search.model.ZoekVeld
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType.ZAAK
-import nl.info.zac.websocket.event.ScreenEvent
+import nl.info.zac.zaak.ZaakKoppelenService
 import nl.info.zac.zaak.ZaakService
+import nl.info.zac.zaak.model.RelatieType
 import nl.info.zac.zaak.model.ZaakNotLinkableReason
 import java.net.URI
 import java.time.LocalDate
@@ -60,8 +58,6 @@ import java.util.UUID
 @Suppress("LargeClass")
 class ZaakKoppelenRestServiceTest : BehaviorSpec({
     isolationMode = IsolationMode.InstancePerTest
-    val eventingService = mockk<EventingService>()
-    val indexingService = mockk<IndexingService>()
     val policyService = mockk<PolicyService>()
     val searchService = mockk<SearchService>()
     val zaakService = mockk<ZaakService>()
@@ -70,9 +66,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
     val configurationService = mockk<ConfigurationService>()
+    val zaakKoppelenService = mockk<ZaakKoppelenService>()
     val zaakKoppelenRestService = ZaakKoppelenRestService(
-        eventingService = eventingService,
-        indexingService = indexingService,
         policyService = policyService,
         searchService = searchService,
         zaakService = zaakService,
@@ -80,7 +75,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         ztcClientService = ztcClientService,
         loggedInUserInstance = loggedInUserInstance,
         restZaaktypeConverter = restZaaktypeConverter,
-        configurationService = configurationService
+        configurationService = configurationService,
+        zaakKoppelenService = zaakKoppelenService
     )
 
     afterEach {
@@ -423,9 +419,9 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     zaakKoppelenRestService.linkZaak(restZaakLinkData)
                 }
 
-                then("the link is refused and the zaak is not patched") {
+                then("the link is refused and the zaken are not linked") {
                     policyException shouldNotBe null
-                    verify(exactly = 0) { zrcClientService.patchZaak(any(), any(), any()) }
+                    verify(exactly = 0) { zaakKoppelenService.addGerelateerdeZaak(any(), any(), any()) }
                 }
             }
         }
@@ -440,8 +436,6 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 teKoppelenZaakUuid = teKoppelenZaak.uuid,
                 relatieType = RelatieType.HOOFDZAAK
             )
-            val patchZaakUUIDSlot = slot<UUID>()
-            val patchZaakSlot = slot<Zaak>()
             val loggedInUser = createLoggedInUser()
             every { zaakService.readZaakAndZaakTypeByZaakUUID(restZaakLinkData.zaakUuid) } returns Pair(zaak, zaakType)
             every {
@@ -457,21 +451,17 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     loggedInUser = loggedInUser
                 )
             } returns createZaakRechten()
-            every { zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot)) } returns zaak
-            every { indexingService.addOrUpdateZaakOrThrow(teKoppelenZaak.uuid, false) } just runs
-            every { eventingService.send(any<ScreenEvent>()) } just runs
+            every {
+                zaakKoppelenService.linkHoofdzaakAndDeelzaak(hoofdzaak = teKoppelenZaak, deelzaak = zaak)
+            } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("the zaken are linked") {
                 zaakKoppelenRestService.linkZaak(restZaakLinkData)
 
-                then("the two zaken are successfully linked, the index is updated and a screen event is sent") {
+                then("the zaak to link is linked as hoofdzaak of the zaak") {
                     verify(exactly = 1) {
-                        zrcClientService.patchZaak(any(), any())
-                    }
-                    patchZaakUUIDSlot.captured shouldBe zaak.uuid
-                    with(patchZaakSlot.captured) {
-                        hoofdzaak shouldBe teKoppelenZaak.url
+                        zaakKoppelenService.linkHoofdzaakAndDeelzaak(hoofdzaak = teKoppelenZaak, deelzaak = zaak)
                     }
                 }
             }
@@ -487,8 +477,6 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 teKoppelenZaakUuid = teKoppelenZaak.uuid,
                 relatieType = RelatieType.DEELZAAK
             )
-            val patchZaakUUIDSlot = slot<UUID>()
-            val patchZaakSlot = slot<Zaak>()
             val loggedInUser = createLoggedInUser()
             every { zaakService.readZaakAndZaakTypeByZaakUUID(restZaakLinkData.zaakUuid) } returns Pair(zaak, zaakType)
             every {
@@ -504,9 +492,9 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     loggedInUser = loggedInUser
                 )
             } returns createZaakRechten()
-            every { zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot)) } returns zaak
-            every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
-            every { eventingService.send(any<ScreenEvent>()) } just runs
+            every {
+                zaakKoppelenService.linkHoofdzaakAndDeelzaak(hoofdzaak = zaak, deelzaak = teKoppelenZaak)
+            } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("the zaken are linked") {
@@ -514,11 +502,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
                 then("the two zaken are successfully linked as hoofd- and deelzaak") {
                     verify(exactly = 1) {
-                        zrcClientService.patchZaak(any(), any())
-                    }
-                    patchZaakUUIDSlot.captured shouldBe teKoppelenZaak.uuid
-                    with(patchZaakSlot.captured) {
-                        hoofdzaak shouldBe zaak.url
+                        zaakKoppelenService.linkHoofdzaakAndDeelzaak(hoofdzaak = zaak, deelzaak = teKoppelenZaak)
                     }
                 }
             }
@@ -564,8 +548,6 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 relatieType = RelatieType.GERELATEERD,
                 reden = "fakeReden"
             )
-            val patchZaakUUIDSlot = slot<UUID>()
-            val patchZaakSlot = slot<Zaak>()
             val loggedInUser = createLoggedInUser()
             every { zaakService.readZaakAndZaakTypeByZaakUUID(restZaakLinkData.zaakUuid) } returns Pair(zaak, zaakType)
             every {
@@ -581,24 +563,16 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     loggedInUser = loggedInUser
                 )
             } returns createZaakRechten()
-            every {
-                zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot), "fakeReden")
-            } returns zaak
+            every { zaakKoppelenService.addGerelateerdeZaak(zaak, teKoppelenZaak, "fakeReden") } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("the zaken are linked with relatie type GERELATEERD") {
                 zaakKoppelenRestService.linkZaak(restZaakLinkData)
 
-                then("patchZaak is called once with the source zaak UUID") {
+                then("the zaak to link is added to the gerelateerde zaken of the zaak, with the reason") {
                     verify(exactly = 1) {
-                        zrcClientService.patchZaak(any(), any(), any())
+                        zaakKoppelenService.addGerelateerdeZaak(zaak, teKoppelenZaak, "fakeReden")
                     }
-                    patchZaakUUIDSlot.captured shouldBe zaak.uuid
-                }
-
-                then("the patched zaak has one gerelateerdeZaken item pointing to the target zaak") {
-                    patchZaakSlot.captured.gerelateerdeZaken shouldHaveSize 1
-                    patchZaakSlot.captured.gerelateerdeZaken[0].url shouldBe teKoppelenZaak.url
                 }
             }
         }
@@ -635,9 +609,9 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     zaakKoppelenRestService.linkZaak(restZaakLinkData)
                 }
 
-                then("the link is refused and the zaak is not patched") {
+                then("the link is refused and the zaken are not linked") {
                     policyException shouldNotBe null
-                    verify(exactly = 0) { zrcClientService.patchZaak(any(), any(), any()) }
+                    verify(exactly = 0) { zaakKoppelenService.addGerelateerdeZaak(any(), any(), any()) }
                 }
             }
         }
@@ -850,8 +824,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             every {
                 zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot), "fakeReden")
             } returns zaak
-            every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
-            every { eventingService.send(any<ScreenEvent>()) } just runs
+            every { zaakKoppelenService.updateHoofdzaak(zaak.uuid) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("unlinkZaak is called with DEELZAAK relatie type") {
@@ -862,6 +835,10 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                         zrcClientService.patchZaak(any(), any(), any())
                     }
                     patchZaakUUIDSlot.captured shouldBe gekoppeldeZaak.uuid
+                }
+
+                and("the hoofdzaak is updated") {
+                    verify(exactly = 1) { zaakKoppelenService.updateHoofdzaak(zaak.uuid) }
                 }
             }
         }

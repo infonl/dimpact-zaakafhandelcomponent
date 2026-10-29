@@ -56,7 +56,6 @@ import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowedException
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
 import nl.info.zac.app.zaak.exception.DueDateNotAllowed
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
-import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.CreateZaakResponse
 import nl.info.zac.app.zaak.model.RestDetachDocumentData
 import nl.info.zac.app.zaak.model.RestReden
@@ -78,6 +77,8 @@ import nl.info.zac.app.zaak.model.RestZaakVerlengGegevens
 import nl.info.zac.app.zaak.model.RestZaaktype
 import nl.info.zac.app.zaak.model.toGeoJSONGeometry
 import nl.info.zac.app.zaak.model.toPatchZaak
+import nl.info.zac.app.zaak.model.toRestResultaatType
+import nl.info.zac.app.zaak.model.toRestStatusTypes
 import nl.info.zac.app.zaak.model.toRestZaakBetrokkenen
 import nl.info.zac.app.zaak.model.toZaak
 import nl.info.zac.authentication.LoggedInUser
@@ -90,6 +91,7 @@ import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.history.model.HistoryLine
+import nl.info.zac.identification.BetrokkeneIdentificatie
 import nl.info.zac.identification.IdentificatieType
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.PolicyService
@@ -105,6 +107,7 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toLocalDate
 import nl.info.zac.websocket.event.ScreenEventType
+import nl.info.zac.zaak.ZaakKoppelenService
 import nl.info.zac.zaak.ZaakService
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
@@ -147,7 +150,8 @@ class ZaakRestService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
     private val identificationService: IdentificationService,
-    private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService
+    private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
+    private val zaakKoppelenService: ZaakKoppelenService
 ) {
     companion object {
         private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"
@@ -229,6 +233,13 @@ class ZaakRestService @Inject constructor(
         restZaak.einddatumGepland?.let {
             zaakType.isServicenormAvailable() || throw DueDateNotAllowed()
         }
+        val zaakToLinkToAndRelatieType = restZaakAanmaakGegevens.koppeling?.let {
+            zaakKoppelenService.readZaakToLinkNewZaakTo(
+                zaakUuid = it.zaakUuid,
+                relatieType = it.relatieType,
+                newZaaktypeUuid = zaaktypeUUID
+            ) to it.relatieType
+        }
         val zaakAssignment = if (restZaak.groep != null || restZaak.behandelaar != null) {
             zaakService.readZaakAssignment(groupId = restZaak.groep?.id, userName = restZaak.behandelaar?.username)
         } else {
@@ -240,7 +251,11 @@ class ZaakRestService @Inject constructor(
             zaaktype = zaakType,
             bronOrganisatie = bronOrganisatie,
             verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie
-        ).let(zgwApiService::createZaak)
+        ).apply {
+            zaakToLinkToAndRelatieType?.let { (zaakToLinkTo, relatieType) ->
+                zaakKoppelenService.addLinkToNewZaak(newZaak = this, zaakToLinkTo = zaakToLinkTo, relatieType = relatieType)
+            }
+        }.let(zgwApiService::createZaak)
 
         addInitiator(restZaak, zaak, zaakType)
         zaakAssignment?.let {
@@ -251,6 +266,9 @@ class ZaakRestService @Inject constructor(
         restZaakAanmaakGegevens.inboxProductaanvraag?.let { koppelInboxProductaanvraag(zaak, it) }
         restZaakAanmaakGegevens.bagObjecten?.forEach {
             zrcClientService.createZaakobject(it.toZaakobjectRequest(zaak))
+        }
+        zaakToLinkToAndRelatieType?.let { (zaakToLinkTo, relatieType) ->
+            zaakKoppelenService.completeLinkOfNewZaak(zaakToLinkTo = zaakToLinkTo, relatieType = relatieType)
         }
         return CreateZaakResponse(zaak.identificatie)
     }
@@ -391,7 +409,7 @@ class ZaakRestService @Inject constructor(
         assertPolicy(
             policyService.readWerklijstRechten().canZakenTaken || policyService.readOverigeRechten().canBeheren
         )
-        return zaakService.listResultTypes(zaaktypeUUID)
+        return zaakService.listResultTypes(zaaktypeUUID).map { it.toRestResultaatType() }
     }
 
     @GET
@@ -402,7 +420,7 @@ class ZaakRestService @Inject constructor(
         assertPolicy(
             policyService.readWerklijstRechten().canZakenTaken || policyService.readOverigeRechten().canBeheren
         )
-        return zaakService.listStatusTypes(zaaktypeUUID)
+        return zaakService.listStatusTypes(zaaktypeUUID).toRestStatusTypes()
     }
 
     @GET
@@ -612,6 +630,9 @@ class ZaakRestService @Inject constructor(
             }
             // Terminate the case after the zaak is ended to prevent the EndCaseLifecycleListener from ending the zaak.
             zaakProcessService.terminate(it, zaakUUID)
+            // Flowable ends the open taken of a terminated process without completing them, so the
+            // completion handlers that remove a taak from the search index do not run for them.
+            indexingService.addOrUpdateTakenForZaak(zaakUUID)
         }
         return zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID).let { (terminatedZaak, terminatedZaakType) ->
             val terminatedZaakRechten = policyService.readZaakRechten(

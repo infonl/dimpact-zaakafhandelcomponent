@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.zaak.model
 
+import nl.info.zac.identification.BetrokkeneIdentificatie
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID

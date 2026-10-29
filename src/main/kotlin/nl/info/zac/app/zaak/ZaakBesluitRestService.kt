@@ -17,6 +17,7 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import nl.info.client.zgw.brc.BrcClientService
+import nl.info.client.zgw.brc.model.generated.VervalredenEnum
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -26,6 +27,7 @@ import nl.info.zac.app.zaak.model.besluit.RestBesluitChangeData
 import nl.info.zac.app.zaak.model.besluit.RestBesluitCreateData
 import nl.info.zac.app.zaak.model.besluit.RestBesluitType
 import nl.info.zac.app.zaak.model.besluit.RestBesluitWithdrawalData
+import nl.info.zac.app.zaak.model.besluit.toBesluitPatch
 import nl.info.zac.app.zaak.model.besluit.toRestBesluitTypes
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.besluit.BesluitService
@@ -72,7 +74,10 @@ class ZaakBesluitRestService @Inject constructor(
         ).canVastleggenBesluit)
         assertPolicy(CollectionUtils.isNotEmpty(zaakType.besluittypen))
 
-        return besluitService.createBesluit(zaak, besluitToevoegenGegevens).let {
+        return besluitService.createBesluit(
+            besluit = restBesluitConverter.convertToBesluit(zaak, besluitToevoegenGegevens),
+            informatieobjectUuids = besluitToevoegenGegevens.informatieobjecten
+        ).let {
             restBesluitConverter.convertToRestBesluit(it).also {
                 // This event should result from a ZAAKBESLUIT CREATED notification on the ZAKEN channel
                 // but open_zaak does not send that one, so emulate it here.
@@ -84,7 +89,11 @@ class ZaakBesluitRestService @Inject constructor(
     @PUT
     @Path("besluit/intrekken")
     fun intrekkenBesluit(@Valid restBesluitWithdrawalData: RestBesluitWithdrawalData) =
-        besluitService.readBesluit(restBesluitWithdrawalData).let { besluit ->
+        besluitService.readBesluit(
+            besluitUuid = restBesluitWithdrawalData.besluitUuid,
+            vervaldatum = restBesluitWithdrawalData.vervaldatum,
+            vervalreden = VervalredenEnum.fromValue(restBesluitWithdrawalData.vervalreden.lowercase())
+        ).let { besluit ->
             zrcClientService.readZaak(besluit.zaak).let { zaak ->
                 assertPolicy(
                     zaak.isOpen() && policyService.readZaakRechten(zaak, loggedInUserInstance.get()).canBehandelen
@@ -145,7 +154,12 @@ class ZaakBesluitRestService @Inject constructor(
             zrcClientService.readZaak(besluit.zaak).let { zaak ->
                 assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).canVastleggenBesluit)
 
-                besluitService.updateBesluit(besluit, restBesluitChangeData).let { updatedBesluit ->
+                besluitService.updateBesluit(
+                    besluit = besluit,
+                    besluitPatch = restBesluitChangeData.toBesluitPatch(),
+                    informatieobjectUuids = restBesluitChangeData.informatieobjecten,
+                    reason = restBesluitChangeData.reden
+                ).let { updatedBesluit ->
                     restBesluitConverter.convertToRestBesluit(updatedBesluit).also {
                         // This event should result from a ZAAKBESLUIT UPDATED notification on the ZAKEN channel,
                         // but Open Zaak unfortunately does not send such a notification, so we emulate it here.

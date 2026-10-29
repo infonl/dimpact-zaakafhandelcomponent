@@ -10,6 +10,8 @@ import {
   FormGroup,
   ReactiveFormsModule,
 } from "@angular/forms";
+import { MatFormField } from "@angular/material/form-field";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateService, provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
@@ -166,6 +168,57 @@ describe(ZacSelect.name, () => {
       expect(
         screen.getByRole("option", { name: /gemeente@example.com/ }),
       ).toHaveTextContent("E-mailadres van de gemeente");
+    });
+  });
+
+  describe("subscript sizing", () => {
+    const renderSelect = (inputs: Record<string, unknown> = {}) => {
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "option");
+      componentRef.setInput("options", []);
+      for (const [name, value] of Object.entries(inputs))
+        componentRef.setInput(name, value);
+      fixture.detectChanges();
+
+      return fixture.debugElement.query(By.directive(MatFormField))
+        .componentInstance.subscriptSizing;
+    };
+
+    it("should keep a fixed hint height by default, so the fields of a form stay aligned", () => {
+      expect(renderSelect()).toBe("fixed");
+    });
+
+    it("should let a long hint grow the field when asked, so the hint does not run under the next field", () => {
+      expect(renderSelect({ subscriptSizing: "dynamic" })).toBe("dynamic");
+    });
+  });
+
+  describe("a disabled option", () => {
+    it("should be shown, but cannot be selected", async () => {
+      const user = userEvent.setup();
+      const form = createTestForm();
+      componentRef.setInput("form", form);
+      componentRef.setInput("key", "option");
+      componentRef.setInput("optionDisplayValue", "name");
+      componentRef.setInput("options", [
+        { id: 1, name: "fakeEnabledOption" },
+        { id: 2, name: "fakeDisabledOption" },
+      ]);
+      componentRef.setInput(
+        "optionDisabled",
+        (option: TestOption) => option.id === 2,
+      );
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      await user.click(screen.getByRole("combobox"));
+
+      expect(
+        screen.getByRole("option", { name: "fakeEnabledOption" }),
+      ).toHaveAttribute("aria-disabled", "false");
+      expect(
+        screen.getByRole("option", { name: "fakeDisabledOption" }),
+      ).toHaveAttribute("aria-disabled", "true");
     });
   });
 });

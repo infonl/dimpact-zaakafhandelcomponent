@@ -26,11 +26,11 @@ import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_VERWERKIN
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.COMMUNICATIEKANAAL
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.SERVER_ERROR_ERROR_PAGINA_TEKST
 import nl.info.zac.admin.model.ReferenceTableValue
-import nl.info.zac.admin.model.toRestReferenceTable
 import nl.info.zac.app.admin.model.RestReferenceTable
 import nl.info.zac.app.admin.model.RestReferenceTableUpdate
 import nl.info.zac.app.admin.model.toReferenceTable
 import nl.info.zac.app.admin.model.toReferenceTableValue
+import nl.info.zac.app.admin.model.toRestReferenceTable
 import nl.info.zac.configuration.ConfigurationService.Companion.COMMUNICATIEKANAAL_EFORMULIER
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_REFERENCE_TABLE_SYSTEM_VALUES_CANNOT_BE_CHANGED
 import nl.info.zac.exception.InputValidationFailedException

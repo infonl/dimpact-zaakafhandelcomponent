@@ -23,6 +23,7 @@ import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.zaak.ZaakService
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import org.flowable.engine.HistoryService
 
 class FlowableHelperTest : BehaviorSpec({
@@ -42,12 +43,13 @@ class FlowableHelperTest : BehaviorSpec({
     val fakeDrcClientService = mockk<DrcClientService>()
     val fakeKlantClientService = mockk<KlantClientService>()
     val fakePolicyService = mockk<PolicyService>()
+    val fakeZaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
 
     @Suppress("UNCHECKED_CAST")
     val fakeLoggedInUserInstance = mockk<Instance<LoggedInUser>>()
 
     context("FlowableHelper constructor injection") {
-        given("All 16 service dependencies are provided") {
+        given("All 17 service dependencies are provided") {
             val flowableHelper = FlowableHelper(
                 eventingService = fakeEventingService,
                 identityService = fakeIdentityService,
@@ -65,7 +67,8 @@ class FlowableHelperTest : BehaviorSpec({
                 drcClientService = fakeDrcClientService,
                 klantClientService = fakeKlantClientService,
                 policyService = fakePolicyService,
-                loggedInUserInstance = fakeLoggedInUserInstance
+                loggedInUserInstance = fakeLoggedInUserInstance,
+                zaakspecifiekeAutorisatieService = fakeZaakspecifiekeAutorisatieService
             )
 
             `when`("all properties are accessed") {
@@ -87,6 +90,7 @@ class FlowableHelperTest : BehaviorSpec({
                     flowableHelper.klantClientService shouldBe fakeKlantClientService
                     flowableHelper.policyService shouldBe fakePolicyService
                     flowableHelper.loggedInUserInstance shouldBe fakeLoggedInUserInstance
+                    flowableHelper.zaakspecifiekeAutorisatieService shouldBe fakeZaakspecifiekeAutorisatieService
                 }
             }
         }

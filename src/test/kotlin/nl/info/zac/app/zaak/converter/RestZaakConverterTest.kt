@@ -39,7 +39,6 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.flowable.engine.repository.createProcessDefinition
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
-import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.createBetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.createRESTGerelateerdeZaak
 import nl.info.zac.app.zaak.model.createRestBesluit
@@ -59,6 +58,7 @@ import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD
 import nl.info.zac.zaak.ZaakService
+import nl.info.zac.zaak.model.RelatieType
 import java.net.URI
 import java.time.LocalDate
 import java.util.EnumSet

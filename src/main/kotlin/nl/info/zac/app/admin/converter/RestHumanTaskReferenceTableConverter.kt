@@ -8,8 +8,8 @@ import jakarta.inject.Inject
 import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.model.FormulierVeldDefinitie
 import nl.info.zac.admin.model.HumanTaskReferentieTabel
-import nl.info.zac.admin.model.toRestReferenceTable
 import nl.info.zac.app.admin.model.RestHumanTaskReferenceTable
+import nl.info.zac.app.admin.model.toRestReferenceTable
 
 class RestHumanTaskReferenceTableConverter @Inject constructor(
     private val referenceTableService: ReferenceTableService

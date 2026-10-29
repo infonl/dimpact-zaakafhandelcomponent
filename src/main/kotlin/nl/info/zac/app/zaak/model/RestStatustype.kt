@@ -32,4 +32,4 @@ fun StatusType.toRestStatusType() = RestStatustype(
     toelichting = this.toelichting
 )
 
-fun List<StatusType>.toRestResultaatTypes(): List<RestStatustype> = this.map { it.toRestStatusType() }
+fun List<StatusType>.toRestStatusTypes(): List<RestStatustype> = this.map { it.toRestStatusType() }

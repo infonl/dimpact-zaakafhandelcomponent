@@ -3,12 +3,16 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgTemplateOutlet } from "@angular/common";
 import {
   Component,
   computed,
   effect,
   inject,
+  input,
+  output,
   signal,
+  TemplateRef,
   untracked,
   viewChild,
 } from "@angular/core";
@@ -18,7 +22,12 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
-import { MatSidenav, MatSidenavModule } from "@angular/material/sidenav";
+import {
+  MatDrawer,
+  MatSidenav,
+  MatSidenavModule,
+} from "@angular/material/sidenav";
+import { MatTooltipModule } from "@angular/material/tooltip";
 import { Router } from "@angular/router";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
@@ -43,6 +52,11 @@ import {
 } from "../../shared/utils/constants";
 import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 import { ZakenService } from "../zaken.service";
+import {
+  initiatorAllowedByZaaktype,
+  ZaakCreateKoppeling,
+  zaaktypenForKoppeling,
+} from "./zaak-create-koppeling";
 
 @Component({
   selector: "zac-zaak-create",
@@ -51,12 +65,14 @@ import { ZakenService } from "../zaken.service";
   standalone: true,
   imports: [
     BackButtonDirective,
+    NgTemplateOutlet,
     ReactiveFormsModule,
     MatSidenavModule,
     MatButtonModule,
     MatExpansionModule,
     MatFormFieldModule,
     MatIconModule,
+    MatTooltipModule,
     TranslatePipe,
     KlantKoppelComponent,
     BagZoekComponent,
@@ -68,6 +84,15 @@ import { ZakenService } from "../zaken.service";
   ],
 })
 export class ZaakCreateComponent {
+  readonly koppeling = input<ZaakCreateKoppeling | null>(null);
+  /**
+   * Drawer of the embedding component in which the pickers open, instead of the drawer of this component.
+   * The embedding component renders {@link sideActions} in it.
+   */
+  readonly hostSidenav = input<MatDrawer | null>(null);
+  readonly zaakCreated = output<string>();
+  readonly cancelled = output<void>();
+
   private readonly zakenService = inject(ZakenService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly identityService = inject(IdentityService);
@@ -79,7 +104,12 @@ export class ZaakCreateComponent {
   private readonly queryClient = inject(QueryClient);
   static DEFAULT_CHANNEL = "E-formulier";
 
-  protected readonly actionsSidenav = viewChild.required(MatSidenav);
+  private readonly ownSidenav = viewChild(MatSidenav);
+  protected readonly actionsSidenav = computed(
+    () => this.hostSidenav() ?? this.ownSidenav()!,
+  );
+  readonly sideActions =
+    viewChild.required<TemplateRef<unknown>>("sideActions");
 
   protected activeSideAction: string | null = null;
 
@@ -108,7 +138,16 @@ export class ZaakCreateComponent {
   protected readonly users = computed(() => this.usersQuery.data() ?? []);
 
   private groupPrefilledForCaseType?: GeneratedType<"RestZaaktype">;
-  protected caseTypes = this.zakenService.listZaaktypesForCreation();
+  private readonly caseTypesQuery = injectQuery(() =>
+    this.zakenService.listZaaktypesForCreationQuery(),
+  );
+  protected readonly caseTypes = computed(() =>
+    zaaktypenForKoppeling(this.caseTypesQuery.data() ?? [], this.koppeling()),
+  );
+  private readonly copiedInitiator = signal<
+    (GeneratedType<"BetrokkeneIdentificatie"> & { naam?: string | null }) | null
+  >(null);
+  protected readonly initiatorNotCopied = signal(false);
   protected communicationChannels: string[] = [];
   protected confidentialityNotices =
     VertrouwelijkaanduidingToTranslationKeyPipe.selectList;
@@ -117,6 +156,10 @@ export class ZaakCreateComponent {
     () => this.zakenService.createZaak(),
     {
       onSuccess: ({ identificatie }) => {
+        if (this.koppeling()) {
+          this.zaakCreated.emit(identificatie);
+          return;
+        }
         void this.router.navigate(["/zaken/", identificatie]);
       },
     },
@@ -173,6 +216,11 @@ export class ZaakCreateComponent {
       .subscribe((caseType) => {
         this.caseTypeSelected(caseType);
 
+        if (this.koppeling()) {
+          this.applyCopiedInitiator();
+          return;
+        }
+
         if (!this.canAddInitiator()) {
           this.form.controls.initiatorIdentificatie.setValue(null);
           this.form.controls.initiatorIdentificatie.disable();
@@ -211,6 +259,25 @@ export class ZaakCreateComponent {
     });
 
     void this.handleProductRequest(this.inboxProductaanvraag);
+
+    effect(() => {
+      const caseTypes = this.caseTypes();
+      if (!this.caseTypesQuery.isSuccess()) return;
+
+      const caseType = untracked(() => this.form.controls.zaaktype.value);
+      if (caseType && !caseTypes.some(({ uuid }) => uuid === caseType.uuid)) {
+        untracked(() => this.form.controls.zaaktype.setValue(null));
+      }
+    });
+
+    effect(() => {
+      const koppeling = this.koppeling();
+      if (!koppeling) return;
+
+      untracked(
+        () => void this.copyInitiator(koppeling.zaak.initiatorIdentificatie),
+      );
+    });
   }
 
   private async prefillBehandelaar(groupId: string) {
@@ -250,7 +317,76 @@ export class ZaakCreateComponent {
       },
       bagObjecten: value.bagObjecten,
       inboxProductaanvraag: this.inboxProductaanvraag,
+      koppeling: this.toRestZaakAanmaakKoppeling(this.koppeling()),
     });
+  }
+
+  protected copiedInitiatorTooltip(koppeling: ZaakCreateKoppeling) {
+    return koppeling.zaak.initiatorIdentificatie
+      ? "zaak.aanmaken.initiator.overgenomen"
+      : "zaak.aanmaken.initiator.geen";
+  }
+
+  private toRestZaakAanmaakKoppeling(
+    koppeling: ZaakCreateKoppeling | null,
+  ): GeneratedType<"RestZaakAanmaakKoppeling"> | null {
+    if (!koppeling) return null;
+
+    return {
+      zaakUuid: koppeling.zaak.uuid,
+      relatieType: koppeling.relatieType,
+    };
+  }
+
+  private async copyInitiator(
+    initiator?: GeneratedType<"BetrokkeneIdentificatie"> | null,
+  ) {
+    this.copiedInitiator.set(
+      initiator
+        ? { ...initiator, naam: await this.readInitiatorNaam(initiator) }
+        : null,
+    );
+    this.applyCopiedInitiator();
+  }
+
+  private async readInitiatorNaam(
+    initiator: GeneratedType<"BetrokkeneIdentificatie">,
+  ) {
+    const identification =
+      initiator.bsn ?? initiator.vestigingsnummer ?? initiator.kvkNummer;
+    try {
+      const betrokkene =
+        initiator.type === "BSN" && initiator.temporaryPersonId
+          ? await this.queryClient.ensureQueryData(
+              this.klantenService.readPersoon(
+                initiator.temporaryPersonId,
+                this.koppeling()?.zaak.zaaktype.uuid,
+              ),
+            )
+          : await this.queryClient.ensureQueryData(
+              this.klantenService.readBedrijf(
+                new BetrokkeneIdentificatie(initiator),
+              ),
+            );
+      return betrokkene.naam ?? identification;
+    } catch {
+      return identification;
+    }
+  }
+
+  private applyCopiedInitiator() {
+    const initiator = this.copiedInitiator();
+    const caseType = this.form.controls.zaaktype.value;
+    const isAllowed =
+      !initiator ||
+      !caseType ||
+      initiatorAllowedByZaaktype(initiator, caseType);
+
+    this.initiatorNotCopied.set(!isAllowed);
+    this.form.controls.initiatorIdentificatie.setValue(
+      isAllowed ? initiator : null,
+    );
+    this.form.controls.initiatorIdentificatie.disable();
   }
 
   async initiatorSelected(user: GeneratedType<"RestPersoon" | "RestBedrijf">) {

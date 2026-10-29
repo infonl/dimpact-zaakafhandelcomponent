@@ -2,12 +2,10 @@
  * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.app.planitems.converter
+package nl.info.zac.admin.model
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import nl.info.zac.admin.model.FormulierDefinitie
-import nl.info.zac.admin.model.FormulierVeldDefinitie
 
 class FormulierKoppelingConverterTest : BehaviorSpec({
     context("toFormulierDefinitie") {

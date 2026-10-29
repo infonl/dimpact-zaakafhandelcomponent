@@ -2,12 +2,10 @@
  * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.app.planitems.converter
+package nl.info.zac.admin.model
 
-import nl.info.zac.admin.model.FormulierDefinitie
-import nl.info.zac.admin.model.FormulierVeldDefinitie
-import nl.info.zac.app.planitems.model.DefaultHumanTaskFormulierKoppeling.DEFAULT
-import nl.info.zac.app.planitems.model.DefaultHumanTaskFormulierKoppeling.entries
+import nl.info.zac.admin.model.DefaultHumanTaskFormulierKoppeling.DEFAULT
+import nl.info.zac.admin.model.DefaultHumanTaskFormulierKoppeling.entries
 
 fun String.toFormulierDefinitie(): FormulierDefinitie =
     entries.toTypedArray()

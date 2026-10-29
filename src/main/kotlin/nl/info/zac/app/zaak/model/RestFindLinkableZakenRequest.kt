@@ -12,6 +12,7 @@ import jakarta.validation.constraints.Size
 import nl.info.zac.app.search.model.RestDatumRange
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.zaak.model.RelatieType
 
 @NoArgConstructor
 @AllOpen

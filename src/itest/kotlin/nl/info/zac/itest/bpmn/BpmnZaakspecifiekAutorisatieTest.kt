@@ -20,6 +20,7 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_OK
@@ -38,6 +39,25 @@ class BpmnZaakspecifiekAutorisatieTest : BehaviorSpec({
             .let { results -> (0 until results.length()).map(results::getJSONObject) }
             .filter { it.getString("omschrijving") == ROLTYPE_NAME_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER }
             .map { it.getJSONObject("betrokkeneIdentificatie").getString("identificatie") }
+
+    fun markZaakspecifiekGeautoriseerd(zaakUuid: UUID) =
+        itestHttpClient.performPatchRequest(
+            url = "$ZAC_API_URI/zaken/zaak/$zaakUuid",
+            requestBodyAsString = """
+                {
+                    "zaak": {
+                        "omschrijving": "itestOmschrijving",
+                        "isZaakspecifiekGeautoriseerd": true
+                    },
+                    "reden": "fakeReason"
+                }
+            """.trimIndent(),
+            testUser = BEHANDELAAR_1
+        ).run {
+            logger.info { "Response: $bodyAsString" }
+            code shouldBe HTTP_OK
+            JSONObject(bodyAsString).getBoolean("isZaakspecifiekGeautoriseerd") shouldBe true
+        }
 
     given(
         """
@@ -64,23 +84,7 @@ class BpmnZaakspecifiekAutorisatieTest : BehaviorSpec({
                 zaakIdentificatie = getString("identificatie")
             }
         }
-        itestHttpClient.performPatchRequest(
-            url = "$ZAC_API_URI/zaken/zaak/$zaakUuid",
-            requestBodyAsString = """
-                {
-                    "zaak": {
-                        "omschrijving": "itestOmschrijving",
-                        "isZaakspecifiekGeautoriseerd": true
-                    },
-                    "reden": "fakeReason"
-                }
-            """.trimIndent(),
-            testUser = BEHANDELAAR_1
-        ).run {
-            logger.info { "Response: $bodyAsString" }
-            code shouldBe HTTP_OK
-            JSONObject(bodyAsString).getBoolean("isZaakspecifiekGeautoriseerd") shouldBe true
-        }
+        markZaakspecifiekGeautoriseerd(zaakUuid)
 
         `when`("the behandelaar completes the form task that hands the zaak to another group for approval") {
             zacClient.submitFormData(
@@ -118,6 +122,42 @@ class BpmnZaakspecifiekAutorisatieTest : BehaviorSpec({
             and("the behandelaar the process replaced keeps access as a zaakspecifiek geautoriseerde medewerker") {
                 zaakspecifiekGeautoriseerdeMedewerkerIds(zaakUuid) shouldBe listOf(BEHANDELAAR_1.username)
                 with(zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1)) {
+                    code shouldBe HTTP_OK
+                    JSONObject(bodyAsString).getJSONObject("rechten").getBoolean("canLezen") shouldBe true
+                }
+            }
+        }
+    }
+
+    given(
+        """
+        a BPMN zaak of a zaaktype that supports zaakspecifieke autorisatie, marked as zaakspecifiek geautoriseerd,
+        whose process model assigns its next user task to a medewerker who is not the zaakbehandelaar
+        """
+    ) {
+        lateinit var zaakUuid: UUID
+        zacClient.createZaakAndRetrieve(
+            zaakTypeUUID = ZAAKTYPE_BPMN_TEST_2_UUID,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
+            behandelaarId = BEHANDELAAR_1.username,
+            behandelaarName = BEHANDELAAR_1.displayName,
+            startDate = DATE_TIME_2000_01_01,
+            testUser = BEHANDELAAR_1
+        ).run {
+            val responseBody = bodyAsString
+            logger.info { "Response: $responseBody" }
+            code shouldBe HTTP_OK
+            zaakUuid = JSONObject(responseBody).getString("uuid").run(UUID::fromString)
+        }
+        markZaakspecifiekGeautoriseerd(zaakUuid)
+
+        `when`("the behandelaar completes the form task after which the process creates that user task") {
+            zacClient.submitFormData(bpmnZaakUuid = zaakUuid, taakData = "{}", testUser = BEHANDELAAR_1)
+
+            then("the medewerker of the user task is granted access as a zaakspecifiek geautoriseerde medewerker") {
+                zaakspecifiekGeautoriseerdeMedewerkerIds(zaakUuid) shouldBe listOf(COORDINATOR_1.username)
+                with(zacClient.retrieveZaak(zaakUuid, COORDINATOR_1)) {
                     code shouldBe HTTP_OK
                     JSONObject(bodyAsString).getJSONObject("rechten").getBoolean("canLezen") shouldBe true
                 }
