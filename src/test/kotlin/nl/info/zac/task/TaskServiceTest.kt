@@ -50,7 +50,6 @@ class TaskServiceTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val zrcClientService = mockk<ZrcClientService>()
     val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
-    val taskHistoryService = mockk<TaskHistoryService>()
     val signaleringService = mockk<SignaleringService>(relaxed = true)
     val loggedInUser = mockk<LoggedInUser>()
     val task1 = mockk<Task>()
@@ -61,7 +60,6 @@ class TaskServiceTest : BehaviorSpec({
         eventingService = eventingService,
         zrcClientService = zrcClientService,
         zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService,
-        taskHistoryService = taskHistoryService,
         signaleringService = signaleringService
     )
     val taskId1 = "fakeTaskId1"
@@ -210,8 +208,9 @@ class TaskServiceTest : BehaviorSpec({
         every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns ReentrantLock()
         every {
             zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(
-                zaak,
-                "fakeBehandelaarGebruikersnaam"
+                zaak = zaak,
+                medewerkerId = "fakeBehandelaarGebruikersnaam",
+                task = any()
             )
         } returns false
         every { updatedTask1AfterAssigningUser.id } returns taskId1
@@ -694,11 +693,12 @@ class TaskServiceTest : BehaviorSpec({
             every { loggedInUser.username } returns "fakeLoggedInUsername"
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every {
-                zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, "fakeNewAssignee")
+                zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(
+                    zaak = zaak,
+                    medewerkerId = "fakeNewAssignee",
+                    task = task
+                )
             } returns true
-            every {
-                taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, "fakeNewAssignee")
-            } just runs
             val zaakLock = ReentrantLock()
             var isZaakLockHeldWhileAssigning = false
             every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns zaakLock
@@ -720,54 +720,19 @@ class TaskServiceTest : BehaviorSpec({
                     loggedInUser = loggedInUser
                 )
 
-                then("the new assignee is granted access and the grant is recorded before the task is assigned") {
+                then("the new assignee is granted access, with the task to record the grant on, before the task is assigned") {
                     verifyOrder {
                         zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(
-                            zaak,
-                            "fakeNewAssignee"
+                            zaak = zaak,
+                            medewerkerId = "fakeNewAssignee",
+                            task = task
                         )
-                        taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(task, "fakeNewAssignee")
                         flowableTaskService.assignTaskToUser("fakeTaskId", "fakeNewAssignee", "fakeReason")
                     }
                 }
 
                 and("the task is assigned under the lock of the zaak, so the new assignee cannot be detached in between") {
                     isZaakLockHeldWhileAssigning shouldBe true
-                }
-            }
-        }
-
-        given("a task whose zaak gives the new assignee no rol") {
-            val zaak = createZaak()
-            val task = createTestTask(id = "fakeTaskId", caseVariables = mapOf(VAR_ZAAK_UUID to zaak.uuid))
-            every { loggedInUser.username } returns "fakeLoggedInUsername"
-            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every {
-                zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, "fakeNewAssignee")
-            } returns false
-            every { zaakspecifiekeAutorisatieService.lockForZaak(zaak.uuid) } returns ReentrantLock()
-            every { flowableTaskService.assignTaskToUser("fakeTaskId", "fakeNewAssignee", "fakeReason") } returns task
-            every { eventingService.send(any<SignaleringEvent<*>>()) } just runs
-            every { flowableTaskService.assignTaskToGroup(task, "fakeGroupId", "fakeReason") } returns task
-            every { eventingService.send(any<ScreenEvent>()) } just runs
-            every { indexingService.indexeerDirect("fakeTaskId", ZoekObjectType.TAAK, false) } just runs
-
-            `when`("the task is assigned to the new assignee") {
-                taskService.assignTask(
-                    task = task,
-                    groupId = "fakeGroupId",
-                    username = "fakeNewAssignee",
-                    reason = "fakeReason",
-                    loggedInUser = loggedInUser
-                )
-
-                then("the task is assigned, but nothing is recorded in its history") {
-                    verify(exactly = 1) {
-                        flowableTaskService.assignTaskToUser("fakeTaskId", "fakeNewAssignee", "fakeReason")
-                    }
-                    verify(exactly = 0) {
-                        taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(any(), any())
-                    }
                 }
             }
         }
@@ -798,7 +763,7 @@ class TaskServiceTest : BehaviorSpec({
                 then("the zaak is not read and no access is granted") {
                     verify(exactly = 0) {
                         zrcClientService.readZaak(any<UUID>())
-                        zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(any(), any())
+                        zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(any(), any(), any())
                     }
                 }
             }
@@ -825,12 +790,17 @@ class TaskServiceTest : BehaviorSpec({
             every { zaakspecifiekeAutorisatieService.lockForZaak(any()) } returns ReentrantLock()
             every {
                 zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(
-                    zaakWithoutRoltype,
-                    "fakeNewAssignee"
+                    zaak = zaakWithoutRoltype,
+                    medewerkerId = "fakeNewAssignee",
+                    task = taskOfZaakWithoutRoltype
                 )
             } throws ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException("fakeMessage")
             every {
-                zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, "fakeNewAssignee")
+                zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(
+                    zaak = zaak,
+                    medewerkerId = "fakeNewAssignee",
+                    task = task
+                )
             } returns false
             every { flowableTaskService.assignTaskToGroup(task, any(), any()) } returns task
             every { flowableTaskService.assignTaskToUser("fakeTaskId2", "fakeNewAssignee", any()) } returns task
@@ -873,8 +843,9 @@ class TaskServiceTest : BehaviorSpec({
             every { zaakspecifiekeAutorisatieService.lockForZaak(zaakWithoutRoltype.uuid) } returns ReentrantLock()
             every {
                 zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(
-                    zaakWithoutRoltype,
-                    "fakeNewAssignee"
+                    zaak = zaakWithoutRoltype,
+                    medewerkerId = "fakeNewAssignee",
+                    task = task
                 )
             } throws ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException("fakeMessage")
 
@@ -918,7 +889,11 @@ class TaskServiceTest : BehaviorSpec({
             every { loggedInUser.username } returns "fakeLoggedInUsername"
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every {
-                zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, "fakeNewAssignee")
+                zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(
+                    zaak = zaak,
+                    medewerkerId = "fakeNewAssignee",
+                    task = task
+                )
             } returns false
             val zaakLock = ReentrantLock()
             var isZaakLockHeldWhileDeleting = false

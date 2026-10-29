@@ -25,6 +25,7 @@ import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakService
+import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import org.flowable.engine.HistoryService
 
 /**
@@ -51,7 +52,8 @@ class FlowableHelper @Inject constructor(
     val drcClientService: DrcClientService,
     val klantClientService: KlantClientService,
     val policyService: PolicyService,
-    val loggedInUserInstance: Instance<LoggedInUser>
+    val loggedInUserInstance: Instance<LoggedInUser>,
+    val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService
 ) {
     companion object FlowableHelperProvider {
         fun getInstance(): FlowableHelper = CDI.current().select(FlowableHelper::class.java).get()
