@@ -38,3 +38,10 @@ fun RestReferenceTableValue.toReferenceTableValue(
     isSystemValue = this@toReferenceTableValue.isSystemValue
     this.referenceTable = referenceTable
 }
+
+fun ReferenceTableValue.toRestReferenceTableValue() =
+    RestReferenceTableValue(
+        id = this.id,
+        name = this.name,
+        isSystemValue = this.isSystemValue
+    )

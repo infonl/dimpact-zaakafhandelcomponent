@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2023 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.util
+package nl.info.zac.app.util
 
 import jakarta.json.bind.serializer.DeserializationContext
 import jakarta.json.bind.serializer.JsonbDeserializer
@@ -15,6 +15,7 @@ import nl.info.zac.app.bag.model.RestNummeraanduiding
 import nl.info.zac.app.bag.model.RestOpenbareRuimte
 import nl.info.zac.app.bag.model.RestPand
 import nl.info.zac.app.bag.model.RestWoonplaats
+import nl.info.zac.util.JSONB
 import java.lang.reflect.Type
 
 class RestBagObjectJsonbDeserializer : JsonbDeserializer<RestBagObject> {

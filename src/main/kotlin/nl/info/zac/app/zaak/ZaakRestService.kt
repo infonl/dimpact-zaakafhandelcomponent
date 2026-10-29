@@ -56,7 +56,6 @@ import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowedException
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
 import nl.info.zac.app.zaak.exception.DueDateNotAllowed
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
-import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.CreateZaakResponse
 import nl.info.zac.app.zaak.model.RestDetachDocumentData
 import nl.info.zac.app.zaak.model.RestReden
@@ -78,6 +77,8 @@ import nl.info.zac.app.zaak.model.RestZaakVerlengGegevens
 import nl.info.zac.app.zaak.model.RestZaaktype
 import nl.info.zac.app.zaak.model.toGeoJSONGeometry
 import nl.info.zac.app.zaak.model.toPatchZaak
+import nl.info.zac.app.zaak.model.toRestResultaatType
+import nl.info.zac.app.zaak.model.toRestStatusTypes
 import nl.info.zac.app.zaak.model.toRestZaakBetrokkenen
 import nl.info.zac.app.zaak.model.toZaak
 import nl.info.zac.authentication.LoggedInUser
@@ -90,6 +91,7 @@ import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.history.model.HistoryLine
+import nl.info.zac.identification.BetrokkeneIdentificatie
 import nl.info.zac.identification.IdentificatieType
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.PolicyService
@@ -407,7 +409,7 @@ class ZaakRestService @Inject constructor(
         assertPolicy(
             policyService.readWerklijstRechten().canZakenTaken || policyService.readOverigeRechten().canBeheren
         )
-        return zaakService.listResultTypes(zaaktypeUUID)
+        return zaakService.listResultTypes(zaaktypeUUID).map { it.toRestResultaatType() }
     }
 
     @GET
@@ -418,7 +420,7 @@ class ZaakRestService @Inject constructor(
         assertPolicy(
             policyService.readWerklijstRechten().canZakenTaken || policyService.readOverigeRechten().canBeheren
         )
-        return zaakService.listStatusTypes(zaaktypeUUID)
+        return zaakService.listStatusTypes(zaaktypeUUID).toRestStatusTypes()
     }
 
     @GET

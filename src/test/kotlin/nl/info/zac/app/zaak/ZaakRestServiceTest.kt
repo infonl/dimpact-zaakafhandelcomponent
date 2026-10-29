@@ -80,7 +80,6 @@ import nl.info.zac.app.zaak.exception.BetrokkeneCannotBeDeletedException
 import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowedException
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
 import nl.info.zac.app.zaak.exception.DueDateNotAllowed
-import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.CreateZaakResponse
 import nl.info.zac.app.zaak.model.RestReden
 import nl.info.zac.app.zaak.model.RestZaakAanmaakGegevens
@@ -119,6 +118,7 @@ import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
 import nl.info.zac.history.ZaakHistoryService
+import nl.info.zac.identification.BetrokkeneIdentificatie
 import nl.info.zac.identification.IdentificatieType
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.identity.exception.UserNotInGroupException

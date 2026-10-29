@@ -30,9 +30,6 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.zaak.ZaakRestService.Companion.VESTIGING_IDENTIFICATIE_DELIMITER
-import nl.info.zac.app.zaak.model.RestResultaattype
-import nl.info.zac.app.zaak.model.toRestResultaatType
-import nl.info.zac.app.zaak.model.toRestResultaatTypes
 import nl.info.zac.event.EventingService
 import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.flowable.ZaakVariabelenService
@@ -52,6 +49,7 @@ import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeRelease
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import nl.info.zac.zaak.model.ZaakAssignment
 import nl.info.zac.zaak.model.ZaakToewijzing
+import nl.info.zac.zaak.model.ZaaktypeResultaattype
 import java.net.URI
 import java.util.Locale
 import java.util.UUID
@@ -481,22 +479,21 @@ class ZaakService @Inject constructor(
     fun listStatusTypes(zaaktypeUUID: UUID) =
         ztcClientService.readStatustypen(
             ztcClientService.readZaaktype(zaaktypeUUID).url
-        ).toRestResultaatTypes()
+        )
 
-    fun listResultTypes(zaaktypeUUID: UUID): List<RestResultaattype> {
+    fun listResultTypes(zaaktypeUUID: UUID): List<ZaaktypeResultaattype> {
         val zaaktype = ztcClientService.readZaaktype(zaaktypeUUID)
         val eigenschappen = ztcClientService.readEigenschappen(zaaktype.url)
-        return ztcClientService.readResultaattypen(zaaktype.url).map { resultaattype ->
-            resultaattype.toRestResultaatType().apply {
-                val brondatumArchiefprocedure = resultaattype.brondatumArchiefprocedure
-                if (brondatumArchiefprocedure?.afleidingswijze == AfleidingswijzeEnum.EIGENSCHAP) {
-                    eigenschappen
-                        .find { it.naam == brondatumArchiefprocedure.datumkenmerk }
-                        ?.definitie
-                        ?.takeIf { it.isNotBlank() }
-                        ?.let { datumKenmerkOmschrijving = it }
-                }
-            }
+        return ztcClientService.readResultaattypen(zaaktype.url).map { resultaatType ->
+            val brondatumArchiefprocedure = resultaatType.brondatumArchiefprocedure
+            ZaaktypeResultaattype(
+                resultaatType = resultaatType,
+                datumKenmerkOmschrijving = brondatumArchiefprocedure
+                    ?.takeIf { it.afleidingswijze == AfleidingswijzeEnum.EIGENSCHAP }
+                    ?.let { procedure -> eigenschappen.find { it.naam == procedure.datumkenmerk } }
+                    ?.definitie
+                    ?.takeIf { it.isNotBlank() }
+            )
         }
     }
 
