@@ -34,9 +34,10 @@ class ZacCreateUserTaskInterceptor : CreateUserTaskInterceptor {
             flowableHelper.eventingService.send(screenEvent)
 
             task.assignee?.let {
+                assignee ->
                 flowableHelper.zaakspecifiekeAutorisatieService.grantZaakspecifiekeAutorisatieToTaakbehandelaar(
                     zaak = flowableHelper.zrcClientService.readZaak(zaakUUID),
-                    medewerkerId = it,
+                    medewerkerId = assignee,
                     task = task
                 )
             }
