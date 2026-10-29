@@ -10,12 +10,12 @@ import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.policy.model.toRestZaakRechten
-import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestGerelateerdeZaak
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.ZaakRechten
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
+import nl.info.zac.zaak.model.RelatieType
 import nl.info.zac.zaak.model.canBeUnlinkedFromDeelzaak
 import nl.info.zac.zaak.model.canBeUnlinkedFromRelatedZaak
 import nl.info.zac.zaak.model.toZaakLinkData

@@ -14,10 +14,10 @@ import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
 import nl.info.zac.app.shared.toRestVertrouwelijkheidaanduiding
-import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestZaaktype
 import nl.info.zac.app.zaak.model.RestZaaktypeRelatie
 import nl.info.zac.app.zaak.model.toRestZaaktypeRelatie
+import nl.info.zac.zaak.model.RelatieType
 
 class RestZaaktypeConverter @Inject constructor(
     private val restZaaktypeConfigurationConverter: RestZaaktypeConfigurationConverter,

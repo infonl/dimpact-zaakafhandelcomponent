@@ -105,6 +105,7 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toLocalDate
 import nl.info.zac.websocket.event.ScreenEventType
+import nl.info.zac.zaak.ZaakKoppelenService
 import nl.info.zac.zaak.ZaakService
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
@@ -147,7 +148,8 @@ class ZaakRestService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
     private val identificationService: IdentificationService,
-    private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService
+    private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
+    private val zaakKoppelenService: ZaakKoppelenService
 ) {
     companion object {
         private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"
@@ -229,6 +231,13 @@ class ZaakRestService @Inject constructor(
         restZaak.einddatumGepland?.let {
             zaakType.isServicenormAvailable() || throw DueDateNotAllowed()
         }
+        val zaakToLinkToAndRelatieType = restZaakAanmaakGegevens.koppeling?.let {
+            zaakKoppelenService.readZaakToLinkNewZaakTo(
+                zaakUuid = it.zaakUuid,
+                relatieType = it.relatieType,
+                newZaaktypeUuid = zaaktypeUUID
+            ) to it.relatieType
+        }
         val zaakAssignment = if (restZaak.groep != null || restZaak.behandelaar != null) {
             zaakService.readZaakAssignment(groupId = restZaak.groep?.id, userName = restZaak.behandelaar?.username)
         } else {
@@ -240,7 +249,11 @@ class ZaakRestService @Inject constructor(
             zaaktype = zaakType,
             bronOrganisatie = bronOrganisatie,
             verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie
-        ).let(zgwApiService::createZaak)
+        ).apply {
+            zaakToLinkToAndRelatieType?.let { (zaakToLinkTo, relatieType) ->
+                zaakKoppelenService.addLinkToNewZaak(newZaak = this, zaakToLinkTo = zaakToLinkTo, relatieType = relatieType)
+            }
+        }.let(zgwApiService::createZaak)
 
         addInitiator(restZaak, zaak, zaakType)
         zaakAssignment?.let {
@@ -251,6 +264,9 @@ class ZaakRestService @Inject constructor(
         restZaakAanmaakGegevens.inboxProductaanvraag?.let { koppelInboxProductaanvraag(zaak, it) }
         restZaakAanmaakGegevens.bagObjecten?.forEach {
             zrcClientService.createZaakobject(it.toZaakobjectRequest(zaak))
+        }
+        zaakToLinkToAndRelatieType?.let { (zaakToLinkTo, relatieType) ->
+            zaakKoppelenService.completeLinkOfNewZaak(zaakToLinkTo = zaakToLinkTo, relatieType = relatieType)
         }
         return CreateZaakResponse(zaak.identificatie)
     }

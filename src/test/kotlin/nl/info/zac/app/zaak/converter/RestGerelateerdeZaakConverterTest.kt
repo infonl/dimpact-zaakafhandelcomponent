@@ -16,11 +16,11 @@ import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
+import nl.info.zac.zaak.model.RelatieType
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID

@@ -6,6 +6,7 @@
 package nl.info.zac.app.zaak.model
 
 import nl.info.zac.app.search.model.RestDatumRange
+import nl.info.zac.zaak.model.RelatieType
 
 @Suppress("LongParameterList")
 fun createRestFindLinkableZakenRequest(
