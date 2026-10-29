@@ -17,6 +17,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { MatIconAnchor } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import { MatPaginator } from "@angular/material/paginator";
+import { MatProgressBar } from "@angular/material/progress-bar";
 import { MatProgressSpinner } from "@angular/material/progress-spinner";
 import { MatSort, MatSortHeader, Sort } from "@angular/material/sort";
 import {
@@ -34,6 +35,7 @@ import {
 } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
+import { hashKey } from "@tanstack/angular-query-experimental";
 import { injectLastSuccessfulSearch } from "../../shared/http/last-successful-search";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
@@ -72,6 +74,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
     MatRow,
     MatNoDataRow,
     MatPaginator,
+    MatProgressBar,
     MatProgressSpinner,
     MatIconAnchor,
     MatIcon,
@@ -114,6 +117,13 @@ export class TaakZoekenCardComponent extends DashboardCardComponent {
 
   protected readonly zoekParameters = this.search.requested;
   protected readonly totaal = computed(() => this.search.data()?.totaal ?? 0);
+
+  protected readonly isLoadingAnotherPage = computed(
+    () =>
+      this.search.query.isFetching() &&
+      this.search.shown() !== undefined &&
+      hashKey([this.search.requested()]) !== hashKey([this.search.params()]),
+  );
 
   constructor() {
     super();

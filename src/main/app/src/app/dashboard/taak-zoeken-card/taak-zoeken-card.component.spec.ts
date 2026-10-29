@@ -170,6 +170,36 @@ describe(TaakZoekenCardComponent.name, () => {
     });
   });
 
+  it("sorts the other way round when the user clicks the column it is sorted by, rather than dropping the sort", async () => {
+    await setup();
+    await respondWith(makeResultaat(25, 5));
+
+    await user.click(sortHeader("creatiedatum-tijd"));
+    await sleep();
+    const request = await respondWith(makeResultaat(25, 5));
+
+    expect(request.request.body).toMatchObject({
+      sorteerVeld: "TAAK_CREATIEDATUM",
+      sorteerRichting: "asc",
+    });
+  });
+
+  it("shows that it is loading while the next page loads, and keeps the rows it shows", async () => {
+    await setup();
+    await respondWith(makeResultaat(25, 5));
+
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    await sleep();
+    fixture.detectChanges();
+
+    expect(screen.getByRole("progressbar")).toBeVisible();
+    expect(screen.getAllByRole("row", { name: /TAAK-FOUND/ })).toHaveLength(5);
+
+    await respondWith(makeResultaat(25, 5));
+
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+  });
+
   describe("when the next page fails", () => {
     beforeEach(async () => {
       await setup();
