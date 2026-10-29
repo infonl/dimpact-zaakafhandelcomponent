@@ -5,6 +5,7 @@
 package nl.info.zac.app.task.model
 
 import jakarta.validation.constraints.NotBlank
+import nl.info.zac.task.model.TaskDistribution
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -26,4 +27,11 @@ data class RestTaskDistributeData(
      * using web sockets.
      */
     var screenEventResourceId: String? = null
+)
+
+fun RestTaskDistributeData.toTaskDistribution() = TaskDistribution(
+    taskIds = taken.map { it.taakId },
+    groupId = groepId,
+    username = behandelaarGebruikersnaam,
+    reason = reden
 )

@@ -51,3 +51,19 @@ fun RestReferenceTable.toReferenceTable() = ReferenceTable().apply {
             .map { it.toReferenceTableValue(this) }
             .toMutableList()
 }
+
+fun ReferenceTable.toRestReferenceTable(inclusiefWaarden: Boolean): RestReferenceTable {
+    val restReferenceTableValues = if (inclusiefWaarden) {
+        this.values.map { it.toRestReferenceTableValue() }
+    } else {
+        emptyList()
+    }
+    return RestReferenceTable(
+        id = this.id,
+        code = this.code,
+        name = this.name,
+        isSystemTable = this.isSystemReferenceTable,
+        valuesCount = this.values.size,
+        values = restReferenceTableValues
+    )
+}

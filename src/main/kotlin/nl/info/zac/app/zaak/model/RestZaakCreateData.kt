@@ -14,6 +14,7 @@ import nl.info.client.zgw.zrc.model.generated.Zaak.TOELICHTING_MAX_LENGTH
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
+import nl.info.zac.identification.BetrokkeneIdentificatie
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate

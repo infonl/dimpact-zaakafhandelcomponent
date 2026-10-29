@@ -15,7 +15,6 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
-import nl.info.zac.app.admin.model.RestReferenceTable
 import nl.info.zac.database.flyway.FlywayIntegrator
 import nl.info.zac.util.AllOpen
 
@@ -82,20 +81,4 @@ class ReferenceTable {
         result = 31 * result + values.hashCode()
         return result
     }
-}
-
-fun ReferenceTable.toRestReferenceTable(inclusiefWaarden: Boolean): RestReferenceTable {
-    val restReferenceTableValues = if (inclusiefWaarden) {
-        this.values.map { it.toRestReferenceTableValue() }
-    } else {
-        emptyList()
-    }
-    return RestReferenceTable(
-        id = this.id,
-        code = this.code,
-        name = this.name,
-        isSystemTable = this.isSystemReferenceTable,
-        valuesCount = this.values.size,
-        values = restReferenceTableValues
-    )
 }

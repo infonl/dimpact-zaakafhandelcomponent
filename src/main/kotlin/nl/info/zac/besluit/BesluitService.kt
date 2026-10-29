@@ -6,18 +6,13 @@ package nl.info.zac.besluit
 
 import jakarta.inject.Inject
 import nl.info.client.zgw.brc.BrcClientService
+import nl.info.client.zgw.brc.model.NillableDatesBesluitPatch
 import nl.info.client.zgw.brc.model.generated.Besluit
 import nl.info.client.zgw.brc.model.generated.BesluitInformatieObject
 import nl.info.client.zgw.brc.model.generated.VervalredenEnum
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.util.extractUuid
-import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.zac.app.zaak.converter.RestBesluitConverter
-import nl.info.zac.app.zaak.model.besluit.RestBesluitChangeData
-import nl.info.zac.app.zaak.model.besluit.RestBesluitCreateData
-import nl.info.zac.app.zaak.model.besluit.RestBesluitWithdrawalData
-import nl.info.zac.app.zaak.model.besluit.toBesluitPatch
 import nl.info.zac.util.time.numberOfDaysFromToday
 import org.apache.commons.collections4.CollectionUtils
 import java.time.LocalDate
@@ -30,7 +25,6 @@ class BesluitService @Inject constructor(
     private val brcClientService: BrcClientService,
     private val drcClientService: DrcClientService,
     private val ztcClientService: ZtcClientService,
-    private val restBesluitConverter: RestBesluitConverter,
 ) {
     companion object {
         private val LOG = Logger.getLogger(BesluitService::class.java.name)
@@ -39,23 +33,21 @@ class BesluitService @Inject constructor(
         private const val CHANGE_BESLUIT_EXPLANATION = "Wijzigen besluit"
     }
 
-    fun readBesluit(restBesluitWithdrawalData: RestBesluitWithdrawalData): Besluit =
-        brcClientService.readBesluit(restBesluitWithdrawalData.besluitUuid).apply {
-            vervaldatum = restBesluitWithdrawalData.vervaldatum
-            vervalreden = VervalredenEnum.fromValue(restBesluitWithdrawalData.vervalreden.lowercase())
+    fun readBesluit(besluitUuid: UUID, vervaldatum: LocalDate?, vervalreden: VervalredenEnum): Besluit =
+        brcClientService.readBesluit(besluitUuid).apply {
+            this.vervaldatum = vervaldatum
+            this.vervalreden = vervalreden
         }
 
-    fun createBesluit(zaak: Zaak, besluitToevoegenGegevens: RestBesluitCreateData): Besluit {
+    fun createBesluit(besluit: Besluit, informatieobjectUuids: List<UUID>?): Besluit {
         validateBesluitPublicationDates(
-            besluitToevoegenGegevens.besluittypeUuid,
-            besluitToevoegenGegevens.publicationDate,
-            besluitToevoegenGegevens.lastResponseDate
+            besluit.besluittype.extractUuid(),
+            besluit.publicatiedatum,
+            besluit.uiterlijkeReactiedatum
         )
 
-        val besluitToCreate = restBesluitConverter.convertToBesluit(zaak, besluitToevoegenGegevens)
-
-        return brcClientService.createBesluit(besluitToCreate).also {
-            createBesluitInformationObjects(besluitToevoegenGegevens, it)
+        return brcClientService.createBesluit(besluit).also {
+            createBesluitInformationObjects(informatieobjectUuids, it)
         }
     }
 
@@ -95,10 +87,10 @@ class BesluitService @Inject constructor(
         }
 
     private fun createBesluitInformationObjects(
-        besluitToevoegenGegevens: RestBesluitCreateData,
+        informatieobjectUuids: List<UUID>?,
         createdBesluit: Besluit
     ) {
-        besluitToevoegenGegevens.informatieobjecten?.forEach { informatieobjectUuid ->
+        informatieobjectUuids?.forEach { informatieobjectUuid ->
             drcClientService.readEnkelvoudigInformatieobject(informatieobjectUuid).let { informatieobject ->
                 BesluitInformatieObject().apply {
                     this.informatieobject = informatieobject.url
@@ -112,22 +104,22 @@ class BesluitService @Inject constructor(
 
     fun updateBesluit(
         besluit: Besluit,
-        restBesluitChangeData: RestBesluitChangeData
+        besluitPatch: NillableDatesBesluitPatch,
+        informatieobjectUuids: List<UUID>?,
+        reason: String
     ): Besluit {
         validateBesluitPublicationDates(
             besluit.besluittype.extractUuid(),
-            restBesluitChangeData.publicationDate,
-            restBesluitChangeData.lastResponseDate
+            besluitPatch.publicatiedatum,
+            besluitPatch.uiterlijkeReactiedatum
         )
 
         return brcClientService.patchBesluit(
-            besluitUuid = restBesluitChangeData.besluitUuid,
-            besluit = restBesluitChangeData.toBesluitPatch(),
-            auditExplanation = restBesluitChangeData.reden
+            besluitUuid = besluit.url.extractUuid(),
+            besluit = besluitPatch,
+            auditExplanation = reason
         ).also {
-            restBesluitChangeData.informatieobjecten?.let { informatieobjectUuids ->
-                updateBesluitInformationObjects(besluit, informatieobjectUuids)
-            }
+            if (informatieobjectUuids != null) updateBesluitInformationObjects(besluit, informatieobjectUuids)
         }
     }
 

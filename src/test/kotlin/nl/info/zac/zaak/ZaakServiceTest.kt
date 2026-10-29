@@ -1953,10 +1953,10 @@ class ZaakServiceTest : BehaviorSpec({
                 then("correct status type data is returned") {
                     statusTypeData shouldHaveSize 2
                     with(statusTypeData.first()) {
-                        naam shouldBe "first"
+                        omschrijving shouldBe "first"
                     }
                     with(statusTypeData.last()) {
-                        naam shouldBe "second"
+                        omschrijving shouldBe "second"
                     }
                 }
             }
@@ -1983,11 +1983,11 @@ class ZaakServiceTest : BehaviorSpec({
                 then("correct result type data is returned without a datumkenmerk omschrijving") {
                     resultTypeData shouldHaveSize 2
                     with(resultTypeData.first()) {
-                        naam shouldBe "first"
+                        resultaatType.omschrijving shouldBe "first"
                         datumKenmerkOmschrijving shouldBe null
                     }
                     with(resultTypeData.last()) {
-                        naam shouldBe "second"
+                        resultaatType.omschrijving shouldBe "second"
                         datumKenmerkOmschrijving shouldBe null
                     }
                 }

@@ -38,6 +38,7 @@ import nl.info.zac.app.task.model.RestTaskDistributeData
 import nl.info.zac.app.task.model.RestTaskDocumentData
 import nl.info.zac.app.task.model.RestTaskHistoryLine
 import nl.info.zac.app.task.model.RestTaskReleaseData
+import nl.info.zac.app.task.model.toTaskDistribution
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.launchAsLoggedInUser
@@ -189,7 +190,7 @@ class TaskRestService @Inject constructor(
         // this can be a long-running operation so run it asynchronously
         dispatcher.launchAsLoggedInUser(loggedInUserInstance) { loggedInUser ->
             taskService.assignTasks(
-                restTaskDistributeData = restTaskDistributeData,
+                taskDistribution = restTaskDistributeData.toTaskDistribution(),
                 loggedInUser = loggedInUser,
                 screenEventResourceId = restTaskDistributeData.screenEventResourceId
             )
@@ -203,7 +204,8 @@ class TaskRestService @Inject constructor(
         // this can be a long-running operation so run it asynchronously
         dispatcher.launchAsLoggedInUser(loggedInUserInstance) { loggedInUser ->
             taskService.releaseTasks(
-                restTaskReleaseData = restTaskReleaseData,
+                taskIds = restTaskReleaseData.taken.map { it.taakId },
+                reason = restTaskReleaseData.reden,
                 loggedInUser = loggedInUser,
                 screenEventResourceId = restTaskReleaseData.screenEventResourceId
             )

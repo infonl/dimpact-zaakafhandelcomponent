@@ -6,11 +6,11 @@ package nl.info.zac.app.admin.converter
 
 import jakarta.inject.Inject
 import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
+import nl.info.zac.admin.model.readFormulierVeldDefinities
+import nl.info.zac.admin.model.toFormulierDefinitie
 import nl.info.zac.app.admin.model.RestHumanTaskParameters
 import nl.info.zac.app.admin.model.RestHumanTaskReferenceTable
 import nl.info.zac.app.admin.model.RestPlanItemDefinition
-import nl.info.zac.app.planitems.converter.readFormulierVeldDefinities
-import nl.info.zac.app.planitems.converter.toFormulierDefinitie
 
 class RestHumanTaskParametersConverter @Inject constructor(
     private val restHumanTaskReferenceTableConverter: RestHumanTaskReferenceTableConverter
