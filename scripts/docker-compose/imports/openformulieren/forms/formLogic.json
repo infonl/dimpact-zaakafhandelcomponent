@@ -1,1 +1,19 @@
-[]
+[
+  {
+    "uuid": "4f6c2b9e-8d1a-4e3b-9c7f-2a5d6e8b1c30",
+    "form": "http://zac-dev-openforms/api/v2/forms/b056224a-bdb5-43c2-804a-5fd3f17214b2",
+    "description": "Vul het BSN van de ingelogde gebruiker in",
+    "json_logic_trigger": {
+      "!!": [{ "var": "auth_bsn" }]
+    },
+    "actions": [
+      {
+        "variable": "initiator_bsn",
+        "action": {
+          "type": "variable",
+          "value": { "var": "auth_bsn" }
+        }
+      }
+    ]
+  }
+]

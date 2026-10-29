@@ -208,8 +208,13 @@ class ProductaanvraagService @Inject constructor(
             // as well as other types of betrokkenen
 
             // we are only interested in the first betrokkene with the role 'INITIATOR'
-            betrokkenen.first { it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR }
-                .let { inboxProductaanvraag.initiatorID = it.inpBsn }
+            val initiator = betrokkenen.firstOrNull {
+                it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR
+            } ?: throw IllegalArgumentException(
+                "Productaanvraag has ${betrokkenen.size} betrokkene(n) but none with role " +
+                    "'${Betrokkene.RolOmschrijvingGeneriek.INITIATOR}'"
+            )
+            inboxProductaanvraag.initiatorID = initiator.inpBsn
         }
         productaanvraag.pdf?.let { inboxProductaanvraag.aanvraagdocumentUUID = it.extractUuid() }
         productaanvraag.bijlagen?.let { inboxProductaanvraag.aantalBijlagen = it.size }

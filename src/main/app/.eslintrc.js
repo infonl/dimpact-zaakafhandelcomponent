@@ -3,6 +3,15 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 // Configured using https://github.com/angular-eslint/angular-eslint/blob/main/docs/CONFIGURING_ESLINTRC.md
+
+// Stylelint only sees .less files, so this catches ::ng-deep in inline component styles.
+const noNgDeep = {
+  selector:
+    ":matches(Literal[value=/::ng-deep/], TemplateElement[value.raw=/::ng-deep/])",
+  message:
+    "Avoid ::ng-deep, Angular deprecated it. Style through a CSS custom property, a global stylesheet or the Angular Material theming API instead.",
+};
+
 module.exports = {
   ignorePatterns: ["dist/**", "coverage/**"],
   parserOptions: {
@@ -92,6 +101,7 @@ module.exports = {
             custom: { regex: "^ngOnChanges$", match: false },
           },
         ],
+        "no-restricted-syntax": ["error", noNgDeep],
         // Jira ticket references belong in commit messages and pull request descriptions, not in code.
         // ESLint has no rule with a custom message for comment contents, so this one reports the matched term.
         "no-warning-comments": [
@@ -125,6 +135,7 @@ module.exports = {
         // instead. These two selectors cover that gap.
         "no-restricted-syntax": [
           "warn",
+          noNgDeep,
           {
             selector:
               "CallExpression[callee.object.name='By'][callee.property.name='css']",

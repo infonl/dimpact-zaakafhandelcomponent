@@ -28,7 +28,6 @@ import { FormHelper } from "../helpers";
 @Component({
   selector: "zac-date",
   templateUrl: "./date.html",
-  styleUrls: ["./date.less"],
   standalone: true,
   imports: [
     ReactiveFormsModule,
