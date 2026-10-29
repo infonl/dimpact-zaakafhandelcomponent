@@ -17,7 +17,6 @@
     "useDefineForClassFields": false,
     "esModuleInterop": true,
     "strict": true,
-    // moment ships its locales without type declarations
     "noUncheckedSideEffectImports": false
   },
   "angularCompilerOptions": {
