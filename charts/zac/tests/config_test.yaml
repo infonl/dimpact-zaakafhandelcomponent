@@ -1,0 +1,32 @@
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+
+suite: ZAC log level
+templates:
+  - templates/config.yaml
+values:
+  - ../ci/zac-chart-test-values.yaml
+tests:
+  - it: sets the WildFly root logger and console handler to INFO by default
+    asserts:
+      - equal:
+          path: data.SUBSYSTEM_LOGGING_ROOT_LOGGER_ROOT__LEVEL
+          value: INFO
+      - equal:
+          path: data.SUBSYSTEM_LOGGING_CONSOLE_HANDLER_CONSOLE__LEVEL
+          value: INFO
+  - it: sets the WildFly root logger and console handler to the configured level
+    set:
+      logLevel: DEBUG
+    asserts:
+      - equal:
+          path: data.SUBSYSTEM_LOGGING_ROOT_LOGGER_ROOT__LEVEL
+          value: DEBUG
+      - equal:
+          path: data.SUBSYSTEM_LOGGING_CONSOLE_HANDLER_CONSOLE__LEVEL
+          value: DEBUG
+  - it: rejects a level that WildFly does not accept
+    set:
+      logLevel: VERBOSE
+    asserts:
+      - failedTemplate: {}
