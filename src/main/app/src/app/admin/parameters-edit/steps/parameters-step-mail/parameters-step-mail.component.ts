@@ -11,6 +11,7 @@ import {
   input,
   signal,
   untracked,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -43,6 +44,7 @@ import {
   templateUrl: "./parameters-step-mail.component.html",
   styleUrl: "./parameters-step-mail.component.less",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatCardModule,

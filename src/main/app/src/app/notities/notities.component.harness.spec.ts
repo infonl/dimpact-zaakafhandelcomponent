@@ -6,12 +6,13 @@
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
@@ -29,6 +30,7 @@ import { NotitiesComponent } from "./notities.component";
     [notitieRechten]="notitieRechten"
   ></zac-notities>`,
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [NotitiesComponent],
 })
 class TestHostComponent {
@@ -49,7 +51,7 @@ describe("NotitiesComponent harness", () => {
       imports: [TestHostComponent, NoopAnimationsModule],
       providers: [
         provideTranslateService(),
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
       ],

@@ -22,7 +22,10 @@
                   }}</mat-label>
                 }
                 <div
-                  [innerHTML]="form().controls[field.key]?.value | translate"
+                  [innerHTML]="
+                    $safeNavigationMigration(form().controls[field.key]?.value)
+                      | translate
+                  "
                 ></div>
               </section>
             </section>

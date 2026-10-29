@@ -4,7 +4,13 @@
  */
 
 import { CommonModule } from "@angular/common";
-import { Component, computed, inject, input } from "@angular/core";
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { MatChipsModule } from "@angular/material/chips";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTooltipModule } from "@angular/material/tooltip";
@@ -21,6 +27,7 @@ import { IndicatiesComponent } from "../indicaties.component";
   templateUrl: "../indicaties.component.html",
   styleUrls: ["../indicaties.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     CommonModule,

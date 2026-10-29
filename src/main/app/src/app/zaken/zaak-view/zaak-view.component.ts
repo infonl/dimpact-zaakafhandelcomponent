@@ -13,6 +13,7 @@ import {
   signal,
   untracked,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { MatDialog } from "@angular/material/dialog";
@@ -115,6 +116,7 @@ import { ZaakInitiatorPanelComponent } from "./zaak-initiator-panel/zaak-initiat
     ZaakTakenComponent,
     ZaakdataComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [
     ZaakSideActionService,
     ZaakActionDialogsService,

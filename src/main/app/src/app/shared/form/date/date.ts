@@ -11,6 +11,7 @@ import {
   input,
   signal,
   WritableSignal,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -29,6 +30,7 @@ import { FormHelper } from "../helpers";
   selector: "zac-date",
   templateUrl: "./date.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule,

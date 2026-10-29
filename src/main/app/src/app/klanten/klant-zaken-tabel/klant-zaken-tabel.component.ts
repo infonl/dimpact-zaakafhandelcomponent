@@ -12,6 +12,7 @@ import {
   inject,
   input,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -54,6 +55,7 @@ import { KlantenService } from "../klanten.service";
   templateUrl: "./klant-zaken-tabel.component.html",
   styleUrls: ["./klant-zaken-tabel.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     NgClass,

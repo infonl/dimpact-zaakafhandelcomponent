@@ -10,6 +10,7 @@ import {
   input,
   output,
   untracked,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MAT_DATE_FORMATS } from "@angular/material/core";
@@ -33,6 +34,7 @@ import { GeneratedType } from "../../utils/generated-types";
     TranslatePipe,
     CapitalizeFirstLetterPipe,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [
     {
       provide: MAT_DATE_FORMATS,

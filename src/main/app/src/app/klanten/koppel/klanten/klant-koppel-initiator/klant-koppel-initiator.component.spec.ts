@@ -3,7 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { booleanAttribute, Component, input, output } from "@angular/core";
+import {
+  booleanAttribute,
+  Component,
+  input,
+  output,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService, TranslatePipe } from "@ngx-translate/core";
@@ -32,6 +38,7 @@ const fakeBedrijf = fromPartial<GeneratedType<"RestBedrijf">>({
       select fake persoon
     </button>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class PersoonZoekStubComponent {
@@ -51,6 +58,7 @@ class PersoonZoekStubComponent {
       select fake bedrijf
     </button>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class BedrijfZoekStubComponent {

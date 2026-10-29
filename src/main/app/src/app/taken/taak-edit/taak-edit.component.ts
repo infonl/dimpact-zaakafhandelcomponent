@@ -11,6 +11,7 @@ import {
   input,
   signal,
   untracked,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -34,6 +35,7 @@ import { TakenService } from "../taken.service";
   selector: "zac-taak-edit",
   templateUrl: "./taak-edit.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatToolbarModule,

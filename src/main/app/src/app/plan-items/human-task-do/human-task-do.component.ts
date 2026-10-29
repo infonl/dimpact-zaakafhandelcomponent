@@ -13,6 +13,7 @@ import {
   OnInit,
   output,
   signal,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
@@ -42,6 +43,7 @@ import { PlanItemsService } from "../plan-items.service";
   templateUrl: "./human-task-do.component.html",
   styleUrls: ["./human-task-do.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatDivider,
     MatIcon,

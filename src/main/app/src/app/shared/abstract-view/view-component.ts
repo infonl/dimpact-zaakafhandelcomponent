@@ -3,7 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AfterViewInit, Component, OnDestroy, Signal } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  OnDestroy,
+  Signal,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import {
   MatDrawerMode,
   MatSidenav,
@@ -14,6 +20,7 @@ import { SideNavUtil } from "../side-nav/side-nav.util";
 
 @Component({
   template: "",
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export abstract class ViewComponent implements OnDestroy, AfterViewInit {

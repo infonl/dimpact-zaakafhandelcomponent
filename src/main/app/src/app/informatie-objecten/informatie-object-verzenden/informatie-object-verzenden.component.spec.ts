@@ -7,6 +7,7 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import {
   HttpTestingController,
@@ -78,7 +79,7 @@ describe(InformatieObjectVerzendenComponent.name, () => {
       providers: [
         provideTranslateService(),
         provideZonelessChangeDetection(),
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideMomentDateAdapter(),
         provideQueryClient(testQueryClient),

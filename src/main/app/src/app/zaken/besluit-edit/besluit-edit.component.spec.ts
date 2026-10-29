@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -96,7 +96,7 @@ describe(BesluitEditComponent.name, () => {
       providers: [
         provideTranslateService(),
         provideZonelessChangeDetection(),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         provideMomentDateAdapter({
           parse: { dateInput: "yyyy-MM-DD" },

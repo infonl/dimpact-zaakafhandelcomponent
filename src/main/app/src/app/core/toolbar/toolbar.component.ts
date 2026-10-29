@@ -11,6 +11,7 @@ import {
   inject,
   input,
   OnDestroy,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
@@ -56,6 +57,7 @@ import { WebsocketService } from "../websocket/websocket.service";
   templateUrl: "./toolbar.component.html",
   styleUrls: ["./toolbar.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     NgClass,
     ReactiveFormsModule,

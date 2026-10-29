@@ -3,7 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject, input } from "@angular/core";
+import {
+  Component,
+  inject,
+  input,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
@@ -16,6 +21,7 @@ import { KoppelingenForm } from "./koppelingen-form";
   selector: "zac-parameters-step-koppelingen",
   templateUrl: "./parameters-step-koppelingen.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatCardModule, TranslatePipe, ZacSelect, ZacToggle],
 })
 export class ParametersStepKoppelingenComponent {

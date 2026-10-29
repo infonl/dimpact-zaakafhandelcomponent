@@ -12,6 +12,7 @@ import {
   input,
   untracked,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import * as style from "ol/style.js";
 import { LocationUtil } from "../../shared/location/location-util";
@@ -28,6 +29,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
   templateUrl: "./zaak-locatie-tonen.component.html",
   styleUrls: ["./zaak-locatie-tonen.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [StaticTextComponent],
 })
 export class LocatieTonenComponent implements AfterViewInit {

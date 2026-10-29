@@ -26,7 +26,11 @@
                 @if (adres.panden?.[0]?.oorspronkelijkBouwjaar) {
                   <zac-static-text
                     label="bouwjaar"
-                    [value]="adres.panden?.[0]?.oorspronkelijkBouwjaar"
+                    [value]="
+                      $safeNavigationMigration(
+                        adres.panden?.[0]?.oorspronkelijkBouwjaar
+                      )
+                    "
                   />
                 }
                 @if (
@@ -36,7 +40,11 @@
                 ) {
                   <zac-static-text
                     label="oppervlakte"
-                    [value]="adres.adresseerbaarObject?.vboOppervlakte"
+                    [value]="
+                      $safeNavigationMigration(
+                        adres.adresseerbaarObject?.vboOppervlakte
+                      )
+                    "
                   />
                 }
                 @if (
@@ -45,14 +53,19 @@
                 ) {
                   <zac-static-text
                     label="gebruiksdoel"
-                    [value]="adres.adresseerbaarObject?.vboDoel"
+                    [value]="
+                      $safeNavigationMigration(
+                        adres.adresseerbaarObject?.vboDoel
+                      )
+                    "
                   />
                 }
                 @if (adres.nummeraanduiding?.status) {
                   <zac-static-text
                     label="status"
                     [value]="
-                      'bag-object.status.' + adres.nummeraanduiding?.status
+                      'bag-object.status.' +
+                        $safeNavigationMigration(adres.nummeraanduiding?.status)
                         | i18nKey
                         | translate
                     "
@@ -436,13 +449,21 @@
                 @if (nummeraanduiding.openbareRuimte?.naam) {
                   <zac-static-text
                     label="straat"
-                    [value]="nummeraanduiding.openbareRuimte?.naam"
+                    [value]="
+                      $safeNavigationMigration(
+                        nummeraanduiding.openbareRuimte?.naam
+                      )
+                    "
                   />
                 }
                 @if (nummeraanduiding.woonplaats?.naam) {
                   <zac-static-text
                     label="woonplaats"
-                    [value]="nummeraanduiding.woonplaats?.naam"
+                    [value]="
+                      $safeNavigationMigration(
+                        nummeraanduiding.woonplaats?.naam
+                      )
+                    "
                   />
                 }
                 @if (nummeraanduiding.status) {

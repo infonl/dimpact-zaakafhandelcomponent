@@ -5,7 +5,7 @@
 
 import { Location } from "@angular/common";
 import { provideLocationMocks } from "@angular/common/testing";
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { provideRouter, Router } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
@@ -22,7 +22,7 @@ import {
   openedFromSearchState,
 } from "./navigation-origin";
 
-@Component({ template: "" })
+@Component({ changeDetection: ChangeDetectionStrategy.Eager, template: "" })
 class EmptyComponent {}
 
 describe(findOrigin.name, () => {

@@ -15,6 +15,7 @@ import {
   TemplateRef,
   untracked,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -63,6 +64,7 @@ import {
   templateUrl: "./zaak-create.component.html",
   styleUrls: ["./zaak-create.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     BackButtonDirective,
     NgTemplateOutlet,

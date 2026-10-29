@@ -5,7 +5,7 @@
  */
 
 import { LowerCasePipe } from "@angular/common";
-import { Component, input } from "@angular/core";
+import { Component, input, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import {
@@ -24,6 +24,7 @@ import { MultiInputFormField } from "../BaseFormField";
   selector: "zac-select",
   templateUrl: "./select.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule,

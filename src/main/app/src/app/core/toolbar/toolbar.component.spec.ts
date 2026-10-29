@@ -9,6 +9,7 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import {
   HttpTestingController,
@@ -58,7 +59,7 @@ describe(ToolbarComponent.name, () => {
       imports: [ToolbarComponent, NoopAnimationsModule],
       providers: [
         provideTranslateService(),
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideRouter([]),
         provideTanStackQuery(testQueryClient),

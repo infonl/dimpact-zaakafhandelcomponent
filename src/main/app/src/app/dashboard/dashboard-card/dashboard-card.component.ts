@@ -11,6 +11,7 @@ import {
   OnDestroy,
   OnInit,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
@@ -26,13 +27,15 @@ import { DashboardCard } from "../model/dashboard-card";
 @Component({
   template: "",
   styleUrls: ["./dashboard-card.component.less"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export abstract class DashboardCardComponent<
-    T extends
-      GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject"> = GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">,
-    C extends readonly string[] = readonly string[],
-  >
+  T extends
+    GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject"> =
+    GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">,
+  C extends readonly string[] = readonly string[],
+>
   implements OnInit, AfterViewInit, OnDestroy
 {
   protected readonly identityService = inject(IdentityService);

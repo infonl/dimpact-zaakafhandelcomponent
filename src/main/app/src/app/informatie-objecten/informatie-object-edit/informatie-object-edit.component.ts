@@ -3,7 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, effect, inject, input, output } from "@angular/core";
+import {
+  Component,
+  effect,
+  inject,
+  input,
+  output,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -37,6 +44,7 @@ import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
   selector: "zac-informatie-object-edit",
   templateUrl: "./informatie-object-edit.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatButtonModule,

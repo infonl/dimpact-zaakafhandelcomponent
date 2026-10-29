@@ -4,7 +4,7 @@
  *
  */
 
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -176,7 +176,7 @@ beforeEach(() => {
   Object.assign(window.navigation, navigationStandIn());
   TestBed.configureTestingModule({
     providers: [
-      provideHttpClient(),
+      provideHttpClient(withXhr()),
       provideHttpClientTesting(),
       provideRouter([]),
       provideZacDateAdapter(),

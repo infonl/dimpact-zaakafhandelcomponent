@@ -3,7 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, inject, input } from "@angular/core";
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { MatChipsModule } from "@angular/material/chips";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTooltipModule } from "@angular/material/tooltip";
@@ -25,6 +31,7 @@ import { IndicatiesComponent } from "../indicaties.component";
     TranslatePipe,
   ],
   templateUrl: "../indicaties.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["../indicaties.component.less"],
 })
 export class InformatieObjectIndicatiesComponent extends IndicatiesComponent {

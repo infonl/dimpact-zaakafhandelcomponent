@@ -12,6 +12,7 @@ import {
   input,
   output,
   untracked,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -44,6 +45,7 @@ type DocumentAction = "actie.document.koppelen" | "actie.document.verplaatsen";
   templateUrl: "./informatie-object-link.component.html",
   styleUrls: ["./informatie-object-link.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     NgClass,

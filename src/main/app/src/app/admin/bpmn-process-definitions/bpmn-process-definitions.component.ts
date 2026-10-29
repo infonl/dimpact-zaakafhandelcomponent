@@ -13,6 +13,7 @@ import {
   inject,
   viewChild,
   viewChildren,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -49,13 +50,13 @@ interface BpmnProcessDefinitionGroupNode {
 }
 
 type Node =
-  | BpmnProcessDefinitionGroupNode
-  | GeneratedType<"RestBpmnProcessDefinition">;
+  BpmnProcessDefinitionGroupNode | GeneratedType<"RestBpmnProcessDefinition">;
 
 @Component({
   standalone: true,
   templateUrl: "./bpmn-process-definitions.component.html",
   styleUrls: ["./bpmn-process-definitions.component.less"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatCardModule,

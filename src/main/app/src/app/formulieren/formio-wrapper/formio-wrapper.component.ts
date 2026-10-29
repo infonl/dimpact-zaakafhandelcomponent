@@ -20,6 +20,7 @@ import {
   untracked,
   viewChild,
   ViewEncapsulation,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -43,6 +44,7 @@ import { FORMIO_NL_TRANSLATIONS } from "./formio-wrapper.i18n-translations.nl";
   encapsulation: ViewEncapsulation.ShadowDom,
   standalone: true,
   imports: [FormioModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [
     {
       provide: FormioAppConfig,

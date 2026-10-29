@@ -11,6 +11,7 @@ import {
   OnDestroy,
   OnInit,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -76,6 +77,7 @@ import { FileFormat, FileFormatUtil } from "../model/file-format";
   templateUrl: "./informatie-object-view.component.html",
   styleUrls: ["./informatie-object-view.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     MatButtonModule,

@@ -3,7 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpErrorResponse, provideHttpClient } from "@angular/common/http";
+import {
+  HttpErrorResponse,
+  provideHttpClient,
+  withXhr,
+} from "@angular/common/http";
 import { provideNativeDateAdapter } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
@@ -65,7 +69,7 @@ describe(BagZakenTabelComponent.name, () => {
       providers: [
         provideTranslateService(),
         provideQueryClient(testQueryClient),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideRouter([]),
         provideNativeDateAdapter(),
         {

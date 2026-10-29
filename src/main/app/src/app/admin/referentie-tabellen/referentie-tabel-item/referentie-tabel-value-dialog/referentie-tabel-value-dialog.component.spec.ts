@@ -6,6 +6,7 @@
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import {
   HttpTestingController,
@@ -46,7 +47,7 @@ async function setup(data: ReferentieTabelValueDialogData) {
     providers: [
       provideTranslateService(),
       provideZonelessChangeDetection(),
-      provideHttpClient(withInterceptorsFromDi()),
+      provideHttpClient(withXhr(), withInterceptorsFromDi()),
       provideHttpClientTesting(),
       provideTanStackQuery(testQueryClient),
       { provide: MAT_DIALOG_DATA, useValue: data },

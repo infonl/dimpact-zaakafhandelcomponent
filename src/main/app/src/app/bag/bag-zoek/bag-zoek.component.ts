@@ -11,6 +11,7 @@ import {
   input,
   output,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -43,6 +44,7 @@ import { BAGService } from "../bag.service";
   templateUrl: "./bag-zoek.component.html",
   styleUrls: ["./bag-zoek.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     CommonModule,

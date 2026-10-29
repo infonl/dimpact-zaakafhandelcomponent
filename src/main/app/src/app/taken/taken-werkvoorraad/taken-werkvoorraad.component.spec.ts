@@ -6,6 +6,7 @@
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import {
   HttpTestingController,
@@ -66,7 +67,7 @@ describe(TakenWerkvoorraadComponent.name, () => {
           provide: ActivatedRoute,
           useValue: mockActivatedRoute,
         },
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideNativeDateAdapter(),
         provideQueryClient(testQueryClient),

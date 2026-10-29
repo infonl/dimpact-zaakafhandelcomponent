@@ -13,6 +13,7 @@ import {
   inject,
   input,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatBadgeModule } from "@angular/material/badge";
 import { MatButtonModule } from "@angular/material/button";
@@ -46,6 +47,7 @@ function nieuwsteWijzigingEerst(
   templateUrl: "./notities.component.html",
   styleUrls: ["./notities.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatIconModule,

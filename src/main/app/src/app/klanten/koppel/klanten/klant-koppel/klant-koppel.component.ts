@@ -3,7 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, input, output } from "@angular/core";
+import {
+  Component,
+  input,
+  output,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatExpansionModule } from "@angular/material/expansion";
@@ -30,6 +35,7 @@ import { KlantKoppelInitiator } from "../klant-koppel-initiator/klant-koppel-ini
     KlantKoppelInitiator,
     TranslatePipe,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="side-nav-container">
       <mat-toolbar role="heading" class="gap-16">

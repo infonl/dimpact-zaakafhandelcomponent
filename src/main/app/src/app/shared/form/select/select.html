@@ -24,7 +24,7 @@
     [formControlName]="key()"
   >
     <mat-select-trigger>
-      {{ displayWith(control()?.value) | translate }}
+      {{ displayWith($safeNavigationMigration(control()?.value)) | translate }}
     </mat-select-trigger>
     @if (isLoading()) {
       <mat-option disabled="true">
@@ -47,9 +47,7 @@
       <mat-option [value]="option" [disabled]="optionDisabled()(option)">
         {{ displayWith(option) | translate }}
         @if (suffixTranslationKey(option)) {
-          <div>
-            {{ suffixTranslationKey(option) | translate }}
-          </div>
+          <div>{{ suffixTranslationKey(option) | translate }}</div>
         }
       </mat-option>
     }

@@ -6,6 +6,7 @@
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { convertToParamMap } from "@angular/router";
@@ -38,7 +39,7 @@ describe(BedrijfResolverService.name, () => {
         FoutAfhandelingService,
         KlantenService,
         QueryClient,
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
       ],
     });
 

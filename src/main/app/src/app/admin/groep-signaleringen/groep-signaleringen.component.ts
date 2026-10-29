@@ -11,6 +11,7 @@ import {
   OnInit,
   signal,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatCheckboxModule } from "@angular/material/checkbox";
@@ -37,6 +38,7 @@ import { SignaleringenSettingsBeheerService } from "../signaleringen-settings-be
   templateUrl: "./groep-signaleringen.component.html",
   styleUrls: ["./groep-signaleringen.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     NgClass,

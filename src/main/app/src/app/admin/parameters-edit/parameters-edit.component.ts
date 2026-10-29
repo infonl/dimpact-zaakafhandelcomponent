@@ -12,6 +12,7 @@ import {
   signal,
   untracked,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
@@ -59,6 +60,7 @@ import {
 @Component({
   templateUrl: "./parameters-edit.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatProgressSpinnerModule,
     MatSidenavModule,

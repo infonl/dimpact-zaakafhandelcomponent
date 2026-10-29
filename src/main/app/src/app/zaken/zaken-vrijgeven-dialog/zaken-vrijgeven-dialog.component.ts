@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import {
@@ -25,6 +25,7 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "zaken-vrijgeven-dialog.component.html",
   styleUrls: ["./zaken-vrijgeven-dialog.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatButtonModule,

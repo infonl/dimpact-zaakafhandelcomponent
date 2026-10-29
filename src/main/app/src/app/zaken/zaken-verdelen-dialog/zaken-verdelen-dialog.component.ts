@@ -10,6 +10,7 @@ import {
   inject,
   signal,
   untracked,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -39,6 +40,7 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "zaken-verdelen-dialog.component.html",
   styleUrls: ["./zaken-verdelen-dialog.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatToolbarModule,

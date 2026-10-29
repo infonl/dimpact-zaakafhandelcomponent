@@ -15,6 +15,7 @@ import {
   OnInit,
   signal,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatBadge } from "@angular/material/badge";
 import {
@@ -71,6 +72,7 @@ import { TakenWerkvoorraadDatasource } from "./taken-werkvoorraad-datasource";
   styleUrls: ["./taken-werkvoorraad.component.less"],
   animations: [detailExpand],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     I18nKeyPipe,

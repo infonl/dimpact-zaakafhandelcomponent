@@ -5,7 +5,13 @@
 
 import { ClipboardModule } from "@angular/cdk/clipboard";
 import { KeyValuePipe, NgTemplateOutlet } from "@angular/common";
-import { Component, effect, inject, input } from "@angular/core";
+import {
+  Component,
+  effect,
+  inject,
+  input,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import {
   AbstractControl,
   FormArray,
@@ -34,6 +40,7 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./zaakdata.component.html",
   styleUrl: "./zaakdata.component.less",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     NgTemplateOutlet,
     KeyValuePipe,

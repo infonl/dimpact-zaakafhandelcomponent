@@ -13,6 +13,7 @@ import {
   input,
   OnDestroy,
   SecurityContext,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import {
   AbstractControl,
@@ -49,6 +50,7 @@ const plainTextSchema = new Schema({
   templateUrl: "./html-editor.html",
   styleUrls: ["./html-editor.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CapitalizeFirstLetterPipe,
     MatError,
@@ -61,10 +63,10 @@ const plainTextSchema = new Schema({
   ],
 })
 export class ZacHtmlEditor<
-    Form extends Record<string, AbstractControl>,
-    Key extends keyof Form,
-    Option extends Form[Key]["value"] = string | null,
-  >
+  Form extends Record<string, AbstractControl>,
+  Key extends keyof Form,
+  Option extends Form[Key]["value"] = string | null,
+>
   extends SingleInputFormField<Form, Key, Option>
   implements OnDestroy
 {

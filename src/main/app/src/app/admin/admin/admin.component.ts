@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { ViewComponent } from "../../shared/abstract-view/view-component";
@@ -13,6 +13,7 @@ import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 
 @Component({
   template: "",
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export abstract class AdminComponent extends ViewComponent {

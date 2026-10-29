@@ -11,6 +11,7 @@ import {
   inject,
   OnDestroy,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
@@ -54,6 +55,7 @@ import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak
   styleUrls: ["./zaken-mijn.component.less"],
   animations: [detailExpand],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     I18nKeyPipe,

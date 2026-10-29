@@ -84,7 +84,7 @@
         {{ "adres" | translate }}
       </th>
       <td *matCellDef="let bedrijf" mat-cell>
-        {{ bedrijf.adres?.volledigAdres | empty }}
+        {{ $safeNavigationMigration(bedrijf.adres?.volledigAdres) | empty }}
       </td>
     </ng-container>
 

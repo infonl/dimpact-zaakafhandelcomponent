@@ -13,6 +13,7 @@ import {
   input,
   OnDestroy,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -68,6 +69,7 @@ const ZOEK_MISLUKT = Symbol("zoek mislukt");
   templateUrl: "./zoek.component.html",
   styleUrls: ["./zoek.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     BagZoekComponent,
     BedrijfZoekComponent,

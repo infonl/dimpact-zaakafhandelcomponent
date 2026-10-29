@@ -4,7 +4,12 @@
  */
 
 import { AsyncPipe } from "@angular/common";
-import { Component, OnDestroy, inject } from "@angular/core";
+import {
+  Component,
+  OnDestroy,
+  inject,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import {
   AbstractControl,
   FormBuilder,
@@ -46,6 +51,7 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "intake-afronden-dialog.component.html",
   styleUrls: ["./intake-afronden-dialog.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     AsyncPipe,

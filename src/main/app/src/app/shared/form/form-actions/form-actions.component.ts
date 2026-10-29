@@ -11,6 +11,7 @@ import {
   inject,
   input,
   Signal,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -23,6 +24,7 @@ import { TranslatePipe } from "@ngx-translate/core";
   templateUrl: "./form-actions.component.html",
   styleUrls: ["./form-actions.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatProgressSpinnerModule,

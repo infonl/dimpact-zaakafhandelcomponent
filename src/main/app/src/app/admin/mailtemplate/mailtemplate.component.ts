@@ -10,6 +10,7 @@ import {
   effect,
   inject,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -38,6 +39,7 @@ import { mailSelectList } from "../model/mail-utils";
   templateUrl: "./mailtemplate.component.html",
   styleUrls: ["./mailtemplate.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatSidenavModule,

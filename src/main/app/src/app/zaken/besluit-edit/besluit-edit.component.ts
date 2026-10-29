@@ -10,6 +10,7 @@ import {
   inject,
   input,
   output,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -44,6 +45,7 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./besluit-edit.component.html",
   styleUrls: ["./besluit-edit.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatDividerModule,

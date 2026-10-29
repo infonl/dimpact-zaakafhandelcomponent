@@ -13,6 +13,7 @@ import {
   input,
   untracked,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -46,6 +47,7 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
   templateUrl: "./bag-zaken-tabel.component.html",
   styleUrls: ["./bag-zaken-tabel.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     ReactiveFormsModule,

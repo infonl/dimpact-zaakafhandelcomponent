@@ -11,6 +11,7 @@ import {
   OnDestroy,
   OnInit,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";
@@ -68,6 +69,7 @@ import { InboxDocumentenService } from "../inbox-documenten.service";
   templateUrl: "./inbox-documenten-list.component.html",
   styleUrls: ["./inbox-documenten-list.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     RouterLink,
     MatDrawerContainer,

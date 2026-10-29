@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, input } from "@angular/core";
+import { Component, input, ChangeDetectionStrategy } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
@@ -19,6 +19,7 @@ import { BAGViewComponent } from "./bag-view.component";
 @Component({
   selector: "zac-bag-zaken-tabel",
   template: `<p>zaken of: {{ BagObjectIdentificatie() }}</p>`,
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class BagZakenTabelStubComponent {

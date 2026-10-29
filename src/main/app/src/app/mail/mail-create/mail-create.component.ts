@@ -3,7 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, OnInit, inject, input, output } from "@angular/core";
+import {
+  Component,
+  OnInit,
+  inject,
+  input,
+  output,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
@@ -35,6 +42,7 @@ import { MailService } from "../mail.service";
   templateUrl: "./mail-create.component.html",
   styleUrls: ["./mail-create.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatToolbarModule,

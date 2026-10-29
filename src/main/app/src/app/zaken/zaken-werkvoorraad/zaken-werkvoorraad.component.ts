@@ -11,6 +11,7 @@ import {
   OnInit,
   signal,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 
 import { detailExpand } from "../../shared/animations/animations";
@@ -80,6 +81,7 @@ import { ZakenWerkvoorraadDatasource } from "./zaken-werkvoorraad-datasource";
   styleUrls: ["./zaken-werkvoorraad.component.less"],
   animations: [detailExpand],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     I18nKeyPipe,

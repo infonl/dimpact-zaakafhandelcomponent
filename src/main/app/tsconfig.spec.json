@@ -2,10 +2,18 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
-    "types": ["jest", "node", "dom-navigation"],
+    "types": ["jest", "node"],
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "target": "ES2016",
     "isolatedModules": true
   },
-  "include": ["src/**/*.spec.ts", "src/**/*.d.ts"]
+  "include": ["src/**/*.spec.ts", "src/**/*.d.ts"],
+  "angularCompilerOptions": {
+    "extendedDiagnostics": {
+      "checks": {
+        "nullishCoalescingNotNullable": "suppress",
+        "optionalChainNotNullable": "suppress"
+      }
+    }
+  }
 }

@@ -14,6 +14,7 @@ import {
   output,
   signal,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import {
   MatButton,
@@ -122,6 +123,7 @@ const GEKOPPELDE_COLUMNS = [
   styleUrls: ["./zaak-documenten.component.less"],
   animations: [detailExpand],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     RouterLink,

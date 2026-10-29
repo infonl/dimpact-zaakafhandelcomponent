@@ -14,7 +14,9 @@
     @for (option of availableOptions(); track option) {
       <mat-radio-button
         [required]="isRequired()"
-        [checked]="compareWith(option, control()?.value)"
+        [checked]="
+          compareWith(option, $safeNavigationMigration(control()?.value))
+        "
         [value]="option"
       >
         {{ displayWith(option) | translate }}

@@ -13,6 +13,7 @@ import {
   OnDestroy,
   OnInit,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
@@ -53,6 +54,7 @@ import { TakenService } from "../../taken/taken.service";
   styleUrls: ["./zaak-taken.component.less"],
   animations: [detailExpand],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     MatCard,

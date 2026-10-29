@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -13,6 +13,7 @@ import {
   provideZonelessChangeDetection,
   signal,
   Signal,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideTranslateService } from "@ngx-translate/core";
@@ -23,7 +24,11 @@ import { GeneratedType } from "../shared/utils/generated-types";
 import { injectContactEmail } from "./inject-contact-email";
 import { KlantenService } from "./klanten.service";
 
-@Component({ template: "{{ contactEmail() }}", standalone: true })
+@Component({
+  template: "{{ contactEmail() }}",
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
+})
 class TestHostComponent {
   readonly zaak = signal<GeneratedType<"RestZaak"> | undefined>(undefined);
   readonly contactEmail: Signal<string | null> = injectContactEmail(this.zaak);
@@ -51,7 +56,7 @@ describe(injectContactEmail.name, () => {
       providers: [
         provideTranslateService(),
         provideZonelessChangeDetection(),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
         KlantenService,

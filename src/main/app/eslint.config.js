@@ -50,6 +50,9 @@ module.exports = defineConfig(
       ],
       "@angular-eslint/use-lifecycle-interface": "error",
       "@angular-eslint/prefer-standalone": "warn",
+      // The Angular 22 migration kept the existing components on Eager change detection;
+      // moving each of them to OnPush is a change of its own.
+      "@angular-eslint/prefer-on-push-component-change-detection": "warn",
       "@angular-eslint/prefer-inject": "error",
       "@angular-eslint/prefer-signals": [
         "error",

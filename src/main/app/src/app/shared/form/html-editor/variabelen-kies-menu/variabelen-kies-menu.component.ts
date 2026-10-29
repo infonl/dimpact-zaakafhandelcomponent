@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, input } from "@angular/core";
+import { Component, input, ChangeDetectionStrategy } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { MatMenuModule } from "@angular/material/menu";
@@ -15,6 +15,7 @@ import { I18nKeyPipe } from "../../../pipes/i18n-key.pipe";
   selector: "variabelen-kies-menu",
   templateUrl: "./variabelen-kies-menu.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     MatButtonModule,

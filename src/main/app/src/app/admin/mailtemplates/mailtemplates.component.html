@@ -125,11 +125,13 @@
                     "msg.mailtemplate.verwijderen.gekoppeld"
                       | translate
                         : {
-                            zaaktype:
+                            zaaktype: $safeNavigationMigration(
                               koppeling.zaakafhandelParameters?.zaaktype
-                                ?.omschrijving,
-                            versie:
-                              koppeling.zaakafhandelParameters?.zaaktype?.uuid,
+                                ?.omschrijving
+                            ),
+                            versie: $safeNavigationMigration(
+                              koppeling.zaakafhandelParameters?.zaaktype?.uuid
+                            ),
                           };
                   <div [title]="koppelingLabel">{{ koppelingLabel }}</div>
                 }
@@ -157,7 +159,9 @@
                         mat-icon-button
                         [routerLink]="[
                           '/admin/parameters/',
-                          koppeling.zaakafhandelParameters?.zaaktype?.uuid,
+                          $safeNavigationMigration(
+                            koppeling.zaakafhandelParameters?.zaaktype?.uuid
+                          ),
                         ]"
                         title="{{ 'actie.zaakafhandelparameters' | translate }}"
                       >
