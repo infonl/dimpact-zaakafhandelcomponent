@@ -4,12 +4,12 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   inject,
   input,
   output,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { injectQuery } from "@tanstack/angular-query-experimental";

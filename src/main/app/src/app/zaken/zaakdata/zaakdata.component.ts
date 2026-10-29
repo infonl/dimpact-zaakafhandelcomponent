@@ -6,11 +6,11 @@
 import { ClipboardModule } from "@angular/cdk/clipboard";
 import { KeyValuePipe, NgTemplateOutlet } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   Component,
   effect,
   inject,
   input,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import {
   AbstractControl,

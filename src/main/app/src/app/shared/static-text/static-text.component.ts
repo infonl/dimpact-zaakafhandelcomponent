@@ -5,12 +5,12 @@
 
 import { NgClass } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   input,
   numberAttribute,
   output,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MatIconModule } from "@angular/material/icon";

@@ -5,6 +5,7 @@
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   effect,
   ElementRef,
@@ -12,7 +13,6 @@ import {
   input,
   untracked,
   viewChild,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import * as style from "ol/style.js";
 import { LocationUtil } from "../../shared/location/location-util";

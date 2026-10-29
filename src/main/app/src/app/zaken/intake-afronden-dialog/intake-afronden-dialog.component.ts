@@ -5,10 +5,10 @@
 
 import { AsyncPipe } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   Component,
   OnDestroy,
   inject,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import {
   AbstractControl,

@@ -7,12 +7,12 @@ import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
 import { SlicePipe } from "@angular/common";
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   inject,
   OnDestroy,
   OnInit,
   viewChild,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 
 import { detailExpand } from "../../shared/animations/animations";

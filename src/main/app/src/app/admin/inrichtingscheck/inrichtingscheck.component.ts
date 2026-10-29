@@ -12,6 +12,7 @@ import {
 } from "@angular/animations";
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -19,7 +20,6 @@ import {
   OnInit,
   untracked,
   viewChild,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatExpansionModule } from "@angular/material/expansion";

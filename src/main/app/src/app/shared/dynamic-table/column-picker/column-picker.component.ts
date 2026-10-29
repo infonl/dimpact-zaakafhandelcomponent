@@ -5,12 +5,12 @@
 
 import { KeyValuePipe } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   inject,
   input,
   output,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";

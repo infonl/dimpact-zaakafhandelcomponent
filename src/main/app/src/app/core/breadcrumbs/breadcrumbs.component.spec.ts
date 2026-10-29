@@ -5,7 +5,7 @@
 
 import { Location } from "@angular/common";
 import { provideLocationMocks } from "@angular/common/testing";
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { Title } from "@angular/platform-browser";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";

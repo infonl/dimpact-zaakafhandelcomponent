@@ -6,12 +6,12 @@
 import { FlatTreeControl } from "@angular/cdk/tree";
 
 import {
+  ChangeDetectionStrategy,
   Component,
   effect,
   inject,
   input,
   untracked,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import {
   FormBuilder,
@@ -166,8 +166,8 @@ export class SmartDocumentsFormComponent {
       level: level,
       expandable: Boolean(
         "templates" in node &&
-        Array.isArray(node.templates) &&
-        node.templates.length,
+          Array.isArray(node.templates) &&
+          node.templates.length,
       ),
     };
   };

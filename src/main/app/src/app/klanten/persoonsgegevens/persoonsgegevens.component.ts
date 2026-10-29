@@ -4,6 +4,7 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -11,7 +12,6 @@ import {
   input,
   output,
   signal,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatExpansionModule } from "@angular/material/expansion";
@@ -86,15 +86,15 @@ export class PersoonsgegevensComponent {
   protected allowedToChangeInitiatorBedrijf() {
     return Boolean(
       this.zaak().rechten.canToevoegenInitiatorBedrijf &&
-      this.koppelingen()?.isKvkKoppelenEnabled,
+        this.koppelingen()?.isKvkKoppelenEnabled,
     );
   }
 
   protected allowedToChangeAndSearchInitiatorPersoon() {
     return Boolean(
       this.zaak().rechten.canToevoegenInitiatorPersoon &&
-      this.koppelingen()?.isBrpKoppelenEnabled &&
-      this.brpRechtenQuery.data()?.canZoeken,
+        this.koppelingen()?.isBrpKoppelenEnabled &&
+        this.brpRechtenQuery.data()?.canZoeken,
     );
   }
 

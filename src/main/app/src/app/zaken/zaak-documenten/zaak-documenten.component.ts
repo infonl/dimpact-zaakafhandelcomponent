@@ -6,6 +6,7 @@
 import { SelectionModel } from "@angular/cdk/collections";
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -14,7 +15,6 @@ import {
   output,
   signal,
   viewChild,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import {
   MatButton,

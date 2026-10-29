@@ -7,11 +7,11 @@ import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { HttpTestingController } from "@angular/common/http/testing";
 import {
+  ChangeDetectionStrategy,
   Component,
   input,
   LOCALE_ID,
   output,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";

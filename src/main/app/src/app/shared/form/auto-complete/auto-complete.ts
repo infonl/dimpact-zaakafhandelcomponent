@@ -6,10 +6,10 @@
 
 import { LowerCasePipe } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   Component,
   effect,
   signal,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatAutocompleteModule } from "@angular/material/autocomplete";

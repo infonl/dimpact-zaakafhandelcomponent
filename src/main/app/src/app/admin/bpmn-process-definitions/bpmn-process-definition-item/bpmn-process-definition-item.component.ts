@@ -6,6 +6,7 @@
 import { animate, style, transition, trigger } from "@angular/animations";
 import { DatePipe } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   computed,
@@ -14,7 +15,6 @@ import {
   output,
   signal,
   viewChild,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";

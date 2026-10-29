@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, input, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { MatSidenav } from "@angular/material/sidenav";
 import { TranslatePipe } from "@ngx-translate/core";
 import { DatumPipe } from "../../../shared/pipes/datum.pipe";

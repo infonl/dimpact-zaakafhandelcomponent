@@ -4,7 +4,7 @@
  *
  */
 
-import { Component, input, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatError, MatHint, MatLabel } from "@angular/material/form-field";
 import {

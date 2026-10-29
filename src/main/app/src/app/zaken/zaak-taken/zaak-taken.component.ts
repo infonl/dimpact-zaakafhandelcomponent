@@ -6,6 +6,7 @@
 import { LowerCasePipe } from "@angular/common";
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   effect,
   inject,
@@ -13,7 +14,6 @@ import {
   OnDestroy,
   OnInit,
   viewChild,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";

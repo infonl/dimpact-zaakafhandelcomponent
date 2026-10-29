@@ -5,11 +5,11 @@
 
 import {
   booleanAttribute,
+  ChangeDetectionStrategy,
   Component,
   effect,
   input,
   output,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { MatButton } from "@angular/material/button";

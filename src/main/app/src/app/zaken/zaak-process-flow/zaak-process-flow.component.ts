@@ -4,13 +4,13 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   HostListener,
   input,
   signal,
   viewChild,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";

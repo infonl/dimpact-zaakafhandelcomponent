@@ -6,11 +6,11 @@
 
 import {
   booleanAttribute,
+  ChangeDetectionStrategy,
   Component,
   effect,
   inject,
   input,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatIconAnchor } from "@angular/material/button";

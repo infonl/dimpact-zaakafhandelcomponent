@@ -4,6 +4,7 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
@@ -13,7 +14,6 @@ import {
   OnInit,
   signal,
   untracked,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import {
@@ -390,7 +390,9 @@ export class CaseDetailsEditComponent implements OnInit {
 
   private validateDates(
     changedField:
-      "startdatum" | "einddatumGepland" | "uiterlijkeEinddatumAfdoening",
+      | "startdatum"
+      | "einddatumGepland"
+      | "uiterlijkeEinddatumAfdoening",
   ) {
     const { startdatum, einddatumGepland, uiterlijkeEinddatumAfdoening } =
       this.form.getRawValue();

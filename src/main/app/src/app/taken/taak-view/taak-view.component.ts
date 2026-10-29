@@ -4,6 +4,7 @@
  */
 import { CommonModule } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   OnDestroy,
@@ -14,7 +15,6 @@ import {
   signal,
   untracked,
   viewChild,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -438,7 +438,8 @@ export class TaakViewComponent
 
   onHardCodedFormSubmit(formGroup: FormGroup, partial = false) {
     const taskBody:
-      PutBody<"/rest/taken/taakdata"> | PatchBody<"/rest/taken/complete"> = {
+      | PutBody<"/rest/taken/taakdata">
+      | PatchBody<"/rest/taken/complete"> = {
       ...this.taak!,
       taakdata: {
         ...this.taak!.taakdata,

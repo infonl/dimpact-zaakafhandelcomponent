@@ -9,13 +9,13 @@ import { ComponentType } from "@angular/cdk/portal";
 import { SlicePipe } from "@angular/common";
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   inject,
   OnDestroy,
   OnInit,
   signal,
   viewChild,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatBadge } from "@angular/material/badge";
 import {

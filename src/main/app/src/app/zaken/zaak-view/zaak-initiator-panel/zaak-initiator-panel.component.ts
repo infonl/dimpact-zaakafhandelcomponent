@@ -4,11 +4,11 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   input,
   output,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { BedrijfsgegevensComponent } from "../../../klanten/bedrijfsgegevens/bedrijfsgegevens.component";
 import { ContactgegevensComponent } from "../../../klanten/contactgegevens/contactgegevens.component";

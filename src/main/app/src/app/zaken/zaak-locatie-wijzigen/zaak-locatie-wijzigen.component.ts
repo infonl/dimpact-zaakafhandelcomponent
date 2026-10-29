@@ -6,6 +6,7 @@
 import { AsyncPipe, NgClass } from "@angular/common";
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   inject,
@@ -14,7 +15,6 @@ import {
   OnInit,
   output,
   viewChild,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import {
