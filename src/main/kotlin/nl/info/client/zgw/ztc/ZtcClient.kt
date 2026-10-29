@@ -19,6 +19,7 @@ import nl.info.client.zgw.ztc.exception.ZtcResponseExceptionMapper
 import nl.info.client.zgw.ztc.model.BesluittypeListParameters
 import nl.info.client.zgw.ztc.model.CatalogusListParameters
 import nl.info.client.zgw.ztc.model.EigenschapListParameters
+import nl.info.client.zgw.ztc.model.InformatieobjecttypeListParameters
 import nl.info.client.zgw.ztc.model.ResultaattypeListParameters
 import nl.info.client.zgw.ztc.model.RoltypeListGeneriekParameters
 import nl.info.client.zgw.ztc.model.RoltypeListParameters
@@ -69,7 +70,9 @@ interface ZtcClient {
 
     @GET
     @Path("informatieobjecttypen")
-    fun informatieobjecttypeList(): Results<InformatieObjectType>
+    fun informatieobjecttypeList(
+        @BeanParam parameters: InformatieobjecttypeListParameters
+    ): Results<InformatieObjectType>
 
     @GET
     @Path("resultaattypen/{uuid}")

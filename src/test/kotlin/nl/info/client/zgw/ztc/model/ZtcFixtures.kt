@@ -20,6 +20,7 @@ import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.client.zgw.ztc.model.generated.ZaakTypeInformatieObjectType
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
@@ -278,4 +279,13 @@ fun createStatusType(
 ).apply {
     this.omschrijving = omschrijving
     this.volgnummer = volgnummer
+}
+
+fun createZaakTypeInformatieObjectType(
+    url: URI = URI("https://example.com/zaaktype-informatieobjecttypen/${UUID.randomUUID()}"),
+    zaaktype: URI = URI("https://example.com/zaaktypes/${UUID.randomUUID()}"),
+    informatieobjecttype: URI = URI("https://example.com/informatieobjecttypen/${UUID.randomUUID()}")
+) = ZaakTypeInformatieObjectType(url, null, null).apply {
+    this.zaaktype = zaaktype
+    this.informatieobjecttype = informatieobjecttype
 }

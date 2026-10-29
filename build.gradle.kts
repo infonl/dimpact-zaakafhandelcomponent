@@ -154,6 +154,7 @@ dependencies {
     implementation(libs.webdav.servlet)
     implementation(libs.htmlcleaner)
     implementation(libs.caffeine)
+    implementation(libs.jol.core)
     implementation(libs.jackson.core)
     implementation(libs.jackson.annotations)
     implementation(libs.jackson.kotlin)

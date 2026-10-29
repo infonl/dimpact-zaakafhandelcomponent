@@ -8,8 +8,9 @@ import jakarta.ws.rs.QueryParam
 import java.net.URI
 
 class ZaaktypeInformatieobjecttypeListParameters(
-    private val zaaktype: URI
-) : AbstractZtcListParameters() {
+    private val zaaktype: URI? = null,
+    page: Int? = null
+) : AbstractZtcListParameters(page) {
     @QueryParam("zaaktype")
     fun getZaaktype() = zaaktype
 }
