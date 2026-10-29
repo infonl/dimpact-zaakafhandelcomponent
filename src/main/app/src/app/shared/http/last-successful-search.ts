@@ -41,9 +41,6 @@ export type SearchQueryOptions<TData> = Omit<
  * `requested` is what the user asks for; it is the query key. A failed search
  * puts `requested` back on the parameters of the shown search, so the filters,
  * the sort and the paginator that are bound to it follow the rows on screen.
- *
- * `placeholderData: keepPreviousData` does not do this: placeholder data only
- * applies while a query is pending, so after an error the data is gone.
  */
 export function injectLastSuccessfulSearch<TParams, TData>({
   requested,
