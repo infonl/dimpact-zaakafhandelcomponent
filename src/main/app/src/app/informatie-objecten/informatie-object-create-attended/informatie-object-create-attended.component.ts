@@ -11,6 +11,7 @@ import {
   OnDestroy,
   OnInit,
   output,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -71,6 +72,7 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
     ZacInput,
     ZacFormActions,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [VertrouwelijkaanduidingToTranslationKeyPipe],
 })
 export class InformatieObjectCreateAttendedComponent

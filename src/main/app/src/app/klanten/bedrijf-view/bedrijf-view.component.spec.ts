@@ -4,7 +4,7 @@
  */
 
 import { HttpTestingController } from "@angular/common/http/testing";
-import { Component, input } from "@angular/core";
+import { Component, input, ChangeDetectionStrategy } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -23,6 +23,7 @@ import { BedrijfViewComponent } from "./bedrijf-view.component";
 
 @Component({
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: "",
 })
 class TestErrorRouteComponent {}
@@ -30,6 +31,7 @@ class TestErrorRouteComponent {}
 @Component({
   selector: "zac-klant-zaken-tabel",
   template: "<p>zaken of klant {{ klant().naam }}</p>",
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class KlantZakenTabelStubComponent {
@@ -39,6 +41,7 @@ class KlantZakenTabelStubComponent {
 @Component({
   selector: "zac-klant-contactmomenten-tabel",
   template: "<p>contactmomenten of vestiging {{ vestigingsnummer() }}</p>",
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class KlantContactmomentenTabelStubComponent {

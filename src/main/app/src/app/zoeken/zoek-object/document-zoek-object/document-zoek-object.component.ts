@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, input } from "@angular/core";
+import { Component, input, ChangeDetectionStrategy } from "@angular/core";
 import { MatSidenav } from "@angular/material/sidenav";
 import { TranslatePipe } from "@ngx-translate/core";
 import { DatumPipe } from "../../../shared/pipes/datum.pipe";
@@ -19,6 +19,7 @@ import { ZoekObjectComponent } from "../zoek-object/zoek-object-component";
   styleUrls: ["../zoek-object/zoek-object.component.less"],
   templateUrl: "./document-zoek-object.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     I18nKeyPipe,

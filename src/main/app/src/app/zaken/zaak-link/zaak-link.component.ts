@@ -13,6 +13,7 @@ import {
   output,
   signal,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import {
@@ -71,6 +72,7 @@ const newCaseRelationOption = <T extends ZaakCreateKoppeling["relatieType"]>(
   templateUrl: "./zaak-link.component.html",
   styleUrls: ["./zaak-link.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     ReactiveFormsModule,

@@ -7,6 +7,6 @@
   <div>{{ data.message }}</div>
   <mat-progress-bar
     [mode]="progressMode()"
-    [value]="data.progressPercentage?.()"
+    [value]="$safeNavigationMigration(data.progressPercentage?.())"
   />
 </div>

@@ -3,7 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, inject, input, output } from "@angular/core";
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ZacInput } from "src/app/shared/form/input/input";
@@ -23,6 +30,7 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
     ZacSelect,
     ZacInput,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div>
       <form [formGroup]="form">

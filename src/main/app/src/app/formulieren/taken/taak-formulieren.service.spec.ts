@@ -8,6 +8,7 @@ import { TestBed } from "@angular/core/testing";
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import { TranslateService } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
@@ -31,7 +32,7 @@ describe("TaakFormulierenService", () => {
       providers: [
         { provide: FoutAfhandelingService, useValue: {} },
         { provide: TranslateService, useValue: {} },
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideTanStackQuery(testQueryClient),
       ],
     });

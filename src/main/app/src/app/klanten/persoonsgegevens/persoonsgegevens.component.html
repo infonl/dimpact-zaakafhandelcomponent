@@ -19,7 +19,9 @@
       }
     </mat-panel-title>
     <mat-panel-description>
-      <span>{{ persoonQuery.data()?.naam | empty }}</span>
+      <span>{{
+        $safeNavigationMigration(persoonQuery.data()?.naam) | empty
+      }}</span>
       <div class="flex-row items-center">
         <zac-persoon-indicaties
           class="zac-persoon-indicaties"
@@ -76,22 +78,24 @@
       <zac-static-text
         class="flex-1"
         label="naam"
-        [value]="persoonQuery.data()?.naam"
+        [value]="$safeNavigationMigration(persoonQuery.data()?.naam)"
       />
       <zac-static-text
         class="flex-1"
         label="burgerservicenummer"
-        [value]="persoonQuery.data()?.bsn"
+        [value]="$safeNavigationMigration(persoonQuery.data()?.bsn)"
       />
       <zac-static-text
         class="flex-1"
         label="geboortedatum"
-        [value]="persoonQuery.data()?.geboortedatum | datum"
+        [value]="
+          $safeNavigationMigration(persoonQuery.data()?.geboortedatum) | datum
+        "
       />
       <zac-static-text
         class="flex-1"
         label="verblijfplaats"
-        [value]="persoonQuery.data()?.verblijfplaats"
+        [value]="$safeNavigationMigration(persoonQuery.data()?.verblijfplaats)"
       />
       <div class="flex-1 flex-column gap-2">
         <zac-static-text

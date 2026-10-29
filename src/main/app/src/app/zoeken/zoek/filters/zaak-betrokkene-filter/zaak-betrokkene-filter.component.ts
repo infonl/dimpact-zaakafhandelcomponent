@@ -4,7 +4,14 @@
  */
 
 import { NgClass } from "@angular/common";
-import { Component, inject, input, OnInit, output } from "@angular/core";
+import {
+  Component,
+  inject,
+  input,
+  OnInit,
+  output,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatCardModule } from "@angular/material/card";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
@@ -22,6 +29,7 @@ import { KlantZoekDialog } from "./klant-zoek-dialog.component";
   templateUrl: "./zaak-betrokkene-filter.component.html",
   styleUrls: ["./zaak-betrokkene-filter.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     NgClass,
     ReactiveFormsModule,

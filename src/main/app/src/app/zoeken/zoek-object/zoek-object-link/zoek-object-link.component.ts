@@ -3,7 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, HostListener, input } from "@angular/core";
+import {
+  Component,
+  HostListener,
+  input,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { MatIconModule } from "@angular/material/icon";
 import { MatSidenav } from "@angular/material/sidenav";
 import { RouterLink } from "@angular/router";
@@ -24,6 +29,7 @@ import { ZaakZoekObject } from "../../model/zaken/zaak-zoek-object";
   styleUrls: ["./zoek-object-link.component.less"],
   templateUrl: "./zoek-object-link.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     RouterLink,

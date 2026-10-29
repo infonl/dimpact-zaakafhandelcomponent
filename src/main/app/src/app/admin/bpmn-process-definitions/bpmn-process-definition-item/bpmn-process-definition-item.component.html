@@ -27,19 +27,23 @@
         <zac-static-text
           label="bpmn.process-definition.date.uploaded"
           [value]="
-            processDefinition().details?.uploadDate | date: 'dd-MM-yyyy HH:mm'
+            $safeNavigationMigration(processDefinition().details?.uploadDate)
+              | date: 'dd-MM-yyyy HH:mm'
           "
         />
         <zac-static-text
           label="bpmn.process-definition.date.changed"
           [value]="
-            processDefinition().details?.modificationDate
-              | date: 'dd-MM-yyyy HH:mm'
+            $safeNavigationMigration(
+              processDefinition().details?.modificationDate
+            ) | date: 'dd-MM-yyyy HH:mm'
           "
         />
         <zac-static-text
           label="bpmn.process-definition.documentation"
-          [value]="processDefinition().details?.documentation"
+          [value]="
+            $safeNavigationMigration(processDefinition().details?.documentation)
+          "
         />
       </div>
       <div class="flex-row items-center gap-10 justify-end">
@@ -173,7 +177,11 @@
                   <button
                     mat-icon-button
                     id="delete"
-                    [disabled]="processDefinition().details?.isInUse"
+                    [disabled]="
+                      $safeNavigationMigration(
+                        processDefinition().details?.isInUse
+                      )
+                    "
                     [attr.aria-label]="'actie.verwijderen' | translate"
                     (click)="deleteBpmnForm(row.formKey)"
                   >

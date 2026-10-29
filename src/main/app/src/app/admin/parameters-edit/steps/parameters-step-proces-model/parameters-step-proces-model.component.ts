@@ -3,7 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, inject, input } from "@angular/core";
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { MatIconModule } from "@angular/material/icon";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
@@ -15,6 +21,7 @@ import { ProcessDefinition, ProcessModelForm } from "./process-model-form";
   selector: "zac-parameters-step-proces-model",
   templateUrl: "./parameters-step-proces-model.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatIconModule, TranslatePipe, ZacSelect],
 })
 export class ParametersStepProcesModelComponent {

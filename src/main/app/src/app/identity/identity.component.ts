@@ -3,7 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, inject } from "@angular/core";
+import {
+  Component,
+  computed,
+  inject,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatListModule } from "@angular/material/list";
 import { injectQuery } from "@tanstack/angular-query-experimental";
@@ -12,6 +17,7 @@ import { IdentityService } from "./identity.service";
 @Component({
   templateUrl: "./identity.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatCardModule, MatListModule],
 })
 export class IdentityComponent {

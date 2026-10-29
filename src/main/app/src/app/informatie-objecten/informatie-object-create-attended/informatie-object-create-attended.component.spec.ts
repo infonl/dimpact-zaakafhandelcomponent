@@ -6,6 +6,7 @@
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import {
   HttpTestingController,
@@ -115,7 +116,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
         providers: [
           provideTranslateService(),
           provideRouter([]),
-          provideHttpClient(withInterceptorsFromDi()),
+          provideHttpClient(withXhr(), withInterceptorsFromDi()),
           provideHttpClientTesting(),
           provideMomentDateAdapter(),
           provideTanStackQuery(testQueryClient),
@@ -190,7 +191,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
         providers: [
           provideTranslateService(),
           provideRouter([]),
-          provideHttpClient(withInterceptorsFromDi()),
+          provideHttpClient(withXhr(), withInterceptorsFromDi()),
           provideHttpClientTesting(),
           provideMomentDateAdapter(),
           provideTanStackQuery(testQueryClient),

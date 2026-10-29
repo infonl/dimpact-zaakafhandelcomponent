@@ -12,6 +12,7 @@ import {
   OnDestroy,
   OnInit,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 
 import { detailExpand } from "../../shared/animations/animations";
@@ -56,6 +57,7 @@ import { ZakenAfgehandeldDatasource } from "./zaken-afgehandeld-datasource";
   styleUrls: ["./zaken-afgehandeld.component.less"],
   animations: [detailExpand],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     I18nKeyPipe,

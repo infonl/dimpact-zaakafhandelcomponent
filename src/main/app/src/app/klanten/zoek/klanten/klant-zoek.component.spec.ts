@@ -9,9 +9,16 @@ import { NgIf } from "@angular/common";
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { booleanAttribute, Component, input, output } from "@angular/core";
+import {
+  booleanAttribute,
+  Component,
+  input,
+  output,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTabsModule } from "@angular/material/tabs";
@@ -29,6 +36,7 @@ import { KlantZoekComponent } from "./klant-zoek.component";
 @Component({
   selector: "zac-persoon-zoek",
   template: "",
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class PersoonZoekStubComponent {
@@ -39,6 +47,7 @@ class PersoonZoekStubComponent {
 @Component({
   selector: "zac-bedrijf-zoek",
   template: "",
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class BedrijfZoekStubComponent {
@@ -70,7 +79,7 @@ describe(KlantZoekComponent.name, () => {
       imports: [KlantZoekComponent, NoopAnimationsModule],
       providers: [
         provideTranslateService(),
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideTanStackQuery(testQueryClient),
       ],

@@ -25,6 +25,7 @@ import {
   untracked,
   viewChild,
   viewChildren,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatButton, MatIconButton } from "@angular/material/button";
@@ -65,6 +66,7 @@ import { ZakenCardComponent } from "./zaken-card/zaken-card.component";
   templateUrl: "./dashboard.component.html",
   styleUrls: ["./dashboard.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     NgClass,

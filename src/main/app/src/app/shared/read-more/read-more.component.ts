@@ -3,7 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, input, numberAttribute } from "@angular/core";
+import {
+  Component,
+  computed,
+  input,
+  numberAttribute,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { MatTooltipModule } from "@angular/material/tooltip";
 
 @Component({
@@ -15,6 +21,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
       <div [innerHTML]="text()"></div>
     }`,
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatTooltipModule],
 })
 export class ReadMoreComponent {

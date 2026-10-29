@@ -16,6 +16,7 @@ import {
   output,
   signal,
   untracked,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";
@@ -39,6 +40,7 @@ import { ZoekFilters } from "./zoekfilters.model";
   templateUrl: "./zoekopdracht.component.html",
   styleUrls: ["./zoekopdracht.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     NgClass,
     MatButtonModule,

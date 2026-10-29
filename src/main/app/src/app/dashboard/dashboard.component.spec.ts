@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { Component, input } from "@angular/core";
+import { Component, input, ChangeDetectionStrategy } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
@@ -49,6 +49,7 @@ const instellingen: GeneratedType<"RestDashboardCardInstelling">[] = [
   selector:
     "zac-informatieobjecten-card, zac-taken-card, zac-taak-zoeken-card, zac-zaken-card, zac-zaak-waarschuwingen-card, zac-zaak-zoeken-card",
   template: "",
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class DashboardCardContentStubComponent {
@@ -157,7 +158,7 @@ describe(DashboardComponent.name, () => {
       imports: [NoopAnimationsModule],
       providers: [
         provideTranslateService(),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         provideRouter([]),
         provideTanStackQuery(testQueryClient),

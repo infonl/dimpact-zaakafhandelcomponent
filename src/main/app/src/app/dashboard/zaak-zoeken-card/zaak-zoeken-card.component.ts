@@ -10,6 +10,7 @@ import {
   effect,
   inject,
   signal,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { MatIconAnchor } from "@angular/material/button";
@@ -55,6 +56,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
     "./zaak-zoeken-card.component.less",
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     MatTable,

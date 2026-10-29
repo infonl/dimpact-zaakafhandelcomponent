@@ -12,6 +12,7 @@ import {
   input,
   OnDestroy,
   signal,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import {
   AbstractControl,
@@ -32,6 +33,7 @@ import { FormHelper } from "./helpers";
  */
 @Component({
   template: "",
+  changeDetection: ChangeDetectionStrategy.Eager,
   host: {
     class: "zac-form-field",
     "[attr.inert]": "isSubmitting() ? '' : null",
@@ -41,8 +43,7 @@ export class SingleInputFormField<
   Form extends Record<string, AbstractControl>,
   Key extends keyof Form,
   Option extends Form[Key]["value"],
-> implements OnDestroy
-{
+> implements OnDestroy {
   private readonly translateService = inject(TranslateService);
 
   private readonly controlErrors = signal<ValidationErrors | null>(null);
@@ -131,6 +132,7 @@ export class SingleInputFormField<
  * It should **never** be used directly in a template.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: "",
 })
 export class MultiInputFormField<

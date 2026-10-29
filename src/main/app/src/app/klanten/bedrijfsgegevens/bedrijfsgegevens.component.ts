@@ -10,6 +10,7 @@ import {
   input,
   linkedSignal,
   output,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatExpansionModule } from "@angular/material/expansion";
@@ -32,6 +33,7 @@ import { KlantenService } from "../klanten.service";
   templateUrl: "./bedrijfsgegevens.component.html",
   styleUrls: ["./bedrijfsgegevens.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     MatExpansionModule,

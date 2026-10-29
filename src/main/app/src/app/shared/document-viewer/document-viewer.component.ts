@@ -4,7 +4,13 @@
  */
 
 import { NgClass } from "@angular/common";
-import { Component, computed, inject, input } from "@angular/core";
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { DomSanitizer } from "@angular/platform-browser";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import {
@@ -18,6 +24,7 @@ import { GeneratedType } from "../utils/generated-types";
   templateUrl: "./document-viewer.component.html",
   styleUrls: ["./document-viewer.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [NgClass],
 })
 export class DocumentViewerComponent {

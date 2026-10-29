@@ -3,7 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, input, output } from "@angular/core";
+import {
+  Component,
+  computed,
+  input,
+  output,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { BedrijfsgegevensComponent } from "../../../klanten/bedrijfsgegevens/bedrijfsgegevens.component";
 import { ContactgegevensComponent } from "../../../klanten/contactgegevens/contactgegevens.component";
 import { PersoonsgegevensComponent } from "../../../klanten/persoonsgegevens/persoonsgegevens.component";
@@ -20,6 +26,7 @@ import {
   templateUrl: "./zaak-initiator-panel.component.html",
   styleUrls: ["./zaak-initiator-panel.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakInitiatorToevoegenComponent,
     ContactgegevensComponent,

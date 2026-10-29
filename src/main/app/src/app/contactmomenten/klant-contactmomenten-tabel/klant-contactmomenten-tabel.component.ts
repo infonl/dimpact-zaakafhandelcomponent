@@ -11,6 +11,7 @@ import {
   input,
   untracked,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
@@ -31,6 +32,7 @@ import { ContactmomentenService } from "../contactmomenten.service";
   templateUrl: "./klant-contactmomenten-tabel.component.html",
   styleUrls: ["./klant-contactmomenten-tabel.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatCardModule,
     MatTableModule,

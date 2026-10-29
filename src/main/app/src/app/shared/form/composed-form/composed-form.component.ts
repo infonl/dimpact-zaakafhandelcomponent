@@ -9,6 +9,7 @@ import {
   effect,
   input,
   output,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { MatButton } from "@angular/material/button";
@@ -32,6 +33,7 @@ import { Form, FormConfig, FormField } from "./form-field.types";
   selector: "zac-composed-form",
   templateUrl: "./composed-form.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButton,
     MatExpansionPanelActionRow,

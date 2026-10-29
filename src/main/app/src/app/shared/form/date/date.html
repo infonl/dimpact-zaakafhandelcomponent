@@ -20,7 +20,9 @@
     [matDatepicker]="date"
   />
   @if (showAmountOfDays()) {
-    <span matSuffix>{{ control()?.value | dagen }}</span>
+    <span matSuffix>{{
+      $safeNavigationMigration(control()?.value) | dagen
+    }}</span>
   }
   @if (!control()?.disabled && control()?.value) {
     <button

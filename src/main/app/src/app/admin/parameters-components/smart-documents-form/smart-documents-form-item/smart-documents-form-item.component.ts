@@ -4,7 +4,14 @@
  *
  */
 
-import { Component, inject, input, OnInit, output } from "@angular/core";
+import {
+  Component,
+  inject,
+  input,
+  OnInit,
+  output,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -19,6 +26,7 @@ import { toI18nKey } from "../../../../shared/utils/i18n-key";
   templateUrl: "./smart-documents-form-item.component.html",
   styleUrls: ["./smart-documents-form-item.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatCheckboxModule,

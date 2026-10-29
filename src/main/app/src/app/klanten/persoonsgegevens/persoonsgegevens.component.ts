@@ -11,6 +11,7 @@ import {
   input,
   output,
   signal,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatExpansionModule } from "@angular/material/expansion";
@@ -34,6 +35,7 @@ import { KlantenService } from "../klanten.service";
   styleUrls: ["./persoonsgegevens.component.less"],
   templateUrl: "./persoonsgegevens.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatExpansionModule,
     MatProgressSpinnerModule,
@@ -84,15 +86,15 @@ export class PersoonsgegevensComponent {
   protected allowedToChangeInitiatorBedrijf() {
     return Boolean(
       this.zaak().rechten.canToevoegenInitiatorBedrijf &&
-        this.koppelingen()?.isKvkKoppelenEnabled,
+      this.koppelingen()?.isKvkKoppelenEnabled,
     );
   }
 
   protected allowedToChangeAndSearchInitiatorPersoon() {
     return Boolean(
       this.zaak().rechten.canToevoegenInitiatorPersoon &&
-        this.koppelingen()?.isBrpKoppelenEnabled &&
-        this.brpRechtenQuery.data()?.canZoeken,
+      this.koppelingen()?.isBrpKoppelenEnabled &&
+      this.brpRechtenQuery.data()?.canZoeken,
     );
   }
 

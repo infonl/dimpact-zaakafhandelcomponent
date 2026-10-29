@@ -11,6 +11,7 @@ import {
   OnDestroy,
   OnInit,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";
@@ -71,6 +72,7 @@ import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service"
   templateUrl: "./ontkoppelde-documenten-list.component.html",
   styleUrls: ["./ontkoppelde-documenten-list.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     RouterLink,

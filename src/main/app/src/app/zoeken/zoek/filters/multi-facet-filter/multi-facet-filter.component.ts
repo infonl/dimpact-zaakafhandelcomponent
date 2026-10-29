@@ -4,7 +4,14 @@
  */
 
 import { LowerCasePipe } from "@angular/common";
-import { Component, inject, input, OnInit, output } from "@angular/core";
+import {
+  Component,
+  inject,
+  input,
+  OnInit,
+  output,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { FormBuilder, FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatCardModule } from "@angular/material/card";
 import { MatCheckboxModule } from "@angular/material/checkbox";
@@ -20,6 +27,7 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   templateUrl: "./multi-facet-filter.component.html",
   styleUrls: ["./multi-facet-filter.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     LowerCasePipe,

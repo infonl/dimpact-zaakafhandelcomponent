@@ -9,6 +9,7 @@ import {
   inject,
   OnInit,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -42,6 +43,7 @@ import { ZaakafhandelParametersListParameters } from "./zaakafhandel-parameters-
   templateUrl: "./parameters.component.html",
   styleUrls: ["./parameters.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     RouterLink,
     TranslatePipe,

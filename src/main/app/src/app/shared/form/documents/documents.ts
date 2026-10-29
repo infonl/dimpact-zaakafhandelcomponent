@@ -10,6 +10,7 @@ import {
   effect,
   inject,
   input,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatIconAnchor } from "@angular/material/button";
@@ -32,6 +33,7 @@ import { MultiInputFormField } from "../BaseFormField";
   templateUrl: "./documents.html",
   styleUrls: ["./documents.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     BestandsomvangPipe,

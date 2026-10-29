@@ -17,7 +17,9 @@
           form.controls.zaaktype.value?.zaakafhandelparameters
             ?.betrokkeneKoppelingen?.isBrpKoppelenEnabled ?? false
         "
-        [zaaktypeUUID]="form.controls.zaaktype.value?.uuid"
+        [zaaktypeUUID]="
+          $safeNavigationMigration(form.controls.zaaktype.value?.uuid)
+        "
         class="side-nav-container"
       ></zac-klant-koppel>
     }

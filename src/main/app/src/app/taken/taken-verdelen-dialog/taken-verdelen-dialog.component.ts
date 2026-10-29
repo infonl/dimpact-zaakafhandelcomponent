@@ -10,6 +10,7 @@ import {
   inject,
   signal,
   untracked,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -41,6 +42,7 @@ import { TakenService } from "../taken.service";
   templateUrl: "./taken-verdelen-dialog.component.html",
   styleUrls: ["./taken-verdelen-dialog.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatToolbarModule,

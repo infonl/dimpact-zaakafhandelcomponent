@@ -10,6 +10,7 @@ import {
   inject,
   input,
   untracked,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { ReactiveFormsModule } from "@angular/forms";
@@ -34,6 +35,7 @@ type Zaaktype = Pick<
   selector: "zac-parameters-step-algemeen",
   templateUrl: "./parameters-step-algemeen.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule,

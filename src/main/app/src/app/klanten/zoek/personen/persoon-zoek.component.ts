@@ -13,6 +13,7 @@ import {
   OnDestroy,
   OnInit,
   output,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -54,6 +55,7 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   templateUrl: "./persoon-zoek.component.html",
   styleUrls: ["./persoon-zoek.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZacSelect,
     ZacInput,

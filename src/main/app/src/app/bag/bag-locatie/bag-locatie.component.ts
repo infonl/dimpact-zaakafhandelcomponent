@@ -12,6 +12,7 @@ import {
   OnInit,
   untracked,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { TranslatePipe } from "@ngx-translate/core";
@@ -38,6 +39,7 @@ type Geometry = GeneratedType<"RestGeometry">;
   templateUrl: "./bag-locatie.component.html",
   styleUrls: ["./bag-locatie.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatCardModule, TranslatePipe],
 })
 export class BagLocatieComponent implements OnInit, AfterViewInit {

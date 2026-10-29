@@ -14,6 +14,7 @@ import {
   OnInit,
   output,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import {
@@ -53,6 +54,7 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./zaak-locatie-wijzigen.component.html",
   styleUrls: ["./zaak-locatie-wijzigen.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     AsyncPipe,
     LocationPipe,

@@ -3,13 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { screen } from "@testing-library/angular";
 import { ZacNarrowMatCheckboxDirective } from "./narrow-checkbox.directive";
 
 @Component({
   template: "<div zacNarrowMatCheckbox>checkbox</div>",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ZacNarrowMatCheckboxDirective],
 })
 class TestHostComponent {}

@@ -3,7 +3,12 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   */
 
-import { Component, computed, inject } from "@angular/core";
+import {
+  Component,
+  computed,
+  inject,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { Router } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
@@ -18,6 +23,7 @@ import { UtilService } from "../service/util.service";
   selector: "zac-loading",
   templateUrl: "./loading.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatProgressBarModule, TranslatePipe],
 })
 export class LoadingComponent {

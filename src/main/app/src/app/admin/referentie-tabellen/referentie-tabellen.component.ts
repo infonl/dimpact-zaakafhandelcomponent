@@ -12,6 +12,7 @@ import {
   signal,
   viewChild,
   viewChildren,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -44,6 +45,7 @@ import { ReferentieTabelRowDirective } from "./referentie-tabel-row.directive";
   templateUrl: "./referentie-tabellen.component.html",
   styleUrls: ["./referentie-tabellen.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatSidenavModule,
     MatCardModule,

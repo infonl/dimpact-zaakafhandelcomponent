@@ -158,13 +158,21 @@
                 @if (row.data.taakinformatie?.bijlagen) {
                   <zac-static-text
                     label="bijlage"
-                    [value]="row.data.taakinformatie?.bijlagen"
+                    [value]="
+                      $safeNavigationMigration(
+                        row.data.taakinformatie?.bijlagen
+                      )
+                    "
                   />
                 }
                 @if (row.data.taakinformatie?.opmerking) {
                   <zac-static-text
                     label="opmerking"
-                    [value]="row.data.taakinformatie?.opmerking"
+                    [value]="
+                      $safeNavigationMigration(
+                        row.data.taakinformatie?.opmerking
+                      )
+                    "
                   />
                 }
               </div>

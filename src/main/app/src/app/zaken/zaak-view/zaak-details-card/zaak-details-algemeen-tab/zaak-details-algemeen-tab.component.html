@@ -21,7 +21,10 @@
 
     <mat-divider class="mat-divider-wrapper full-width"></mat-divider>
 
-    <zac-static-text label="groep" [value]="zaak().groep?.naam | empty">
+    <zac-static-text
+      label="groep"
+      [value]="$safeNavigationMigration(zaak().groep?.naam) | empty"
+    >
       @if (zaak().groep?.isActive === false) {
         <em position="content-after" class="inactive-label"
           >({{ "inactief" | translate | lowercase }})</em
@@ -30,7 +33,7 @@
     </zac-static-text>
     <zac-static-text
       label="behandelaar"
-      [value]="zaak().behandelaar?.naam | empty"
+      [value]="$safeNavigationMigration(zaak().behandelaar?.naam) | empty"
     >
     </zac-static-text>
     <zac-static-text
@@ -80,7 +83,13 @@
                 (zaakOpschorting()?.duurDagen === 1
                   ? "duur-dagen-opschorting.enkelvoud"
                   : "duur-dagen-opschorting"
-                ) | translate: { duur: zaakOpschorting()?.duurDagen }
+                )
+                  | translate
+                    : {
+                        duur: $safeNavigationMigration(
+                          zaakOpschorting()?.duurDagen
+                        ),
+                      }
               }}
             </div>
           }

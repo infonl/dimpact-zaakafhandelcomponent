@@ -11,7 +11,11 @@
         {{
           "health-check.build-informatie.version"
             | translate
-              : { version: buildInformatie?.versienummer?.toUpperCase() }
+              : {
+                  version: $safeNavigationMigration(
+                    buildInformatie?.versienummer?.toUpperCase()
+                  ),
+                }
         }}
       </p>
       @if (buildInformatie?.buildId && buildInformatie?.buildDatumTijd) {
@@ -20,9 +24,10 @@
             "health-check.build-informatie.build"
               | translate
                 : {
-                    build: buildInformatie?.buildId,
+                    build: $safeNavigationMigration(buildInformatie?.buildId),
                     timestamp:
-                      (buildInformatie?.buildDatumTijd | datum: "short"),
+                      ($safeNavigationMigration(buildInformatie?.buildDatumTijd)
+                      | datum: "short"),
                   }
           }}
         </p>
@@ -31,7 +36,8 @@
         <p>
           {{
             "health-check.build-informatie.commit"
-              | translate: { commit: buildInformatie?.commit }
+              | translate
+                : { commit: $safeNavigationMigration(buildInformatie?.commit) }
           }}
         </p>
       }
@@ -46,8 +52,10 @@
           ? ('health-check.build-informatie.build'
             | translate
               : {
-                  build: buildInformatie?.buildId,
-                  timestamp: (buildInformatie?.buildDatumTijd | datum: 'short'),
+                  build: $safeNavigationMigration(buildInformatie?.buildId),
+                  timestamp:
+                    ($safeNavigationMigration(buildInformatie?.buildDatumTijd)
+                    | datum: 'short'),
                 })
           : ''
       "
@@ -57,7 +65,11 @@
         {{
           "health-check.build-informatie.version"
             | translate
-              : { version: buildInformatie?.versienummer?.toUpperCase() }
+              : {
+                  version: $safeNavigationMigration(
+                    buildInformatie?.versienummer?.toUpperCase()
+                  ),
+                }
         }}</span
       >
     </mat-chip>

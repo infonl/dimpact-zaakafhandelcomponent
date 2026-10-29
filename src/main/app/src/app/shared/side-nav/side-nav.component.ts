@@ -3,7 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject, input, output, signal } from "@angular/core";
+import {
+  Component,
+  inject,
+  input,
+  output,
+  signal,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
@@ -28,6 +35,7 @@ import { SideNavUtil } from "./side-nav.util";
   styleUrls: ["./side-nav.component.less"],
   animations: [rotate180, sideNavToggle],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatListModule,
     MatDividerModule,

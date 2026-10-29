@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { BpmnNodeRowDirective } from "./bpmn-process-definitions.directive";
@@ -11,6 +11,7 @@ import { BpmnNodeRowDirective } from "./bpmn-process-definitions.directive";
 @Component({
   standalone: true,
   imports: [BpmnNodeRowDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div [bpmnNodeRow]="key"></div>`,
 })
 class TestHostComponent {

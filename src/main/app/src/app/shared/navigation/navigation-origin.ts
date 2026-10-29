@@ -26,7 +26,9 @@ export function findOrigin(location: Location) {
 export function navigateToBreadcrumb(breadcrumb: Breadcrumb, router: Router) {
   const { key, url } = breadcrumb;
   if (key && window.navigation.entries().some((entry) => entry.key === key))
-    return window.navigation.traverseTo(key).finished.then(() => true);
+    return Promise.resolve(window.navigation.traverseTo(key).finished).then(
+      () => true,
+    );
 
   return router.navigateByUrl(url);
 }

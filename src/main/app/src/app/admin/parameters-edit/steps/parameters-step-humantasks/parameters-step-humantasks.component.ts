@@ -11,6 +11,7 @@ import {
   inject,
   input,
   untracked,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatIconModule } from "@angular/material/icon";
@@ -36,6 +37,7 @@ import {
   templateUrl: "./parameters-step-humantasks.component.html",
   styleUrl: "./parameters-step-humantasks.component.less",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     NgClass,
     MatExpansionModule,

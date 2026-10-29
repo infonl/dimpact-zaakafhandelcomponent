@@ -19,6 +19,7 @@ import {
   effect,
   inject,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -63,6 +64,7 @@ import { MailtemplateKoppelingService } from "../mailtemplate-koppeling.service"
     ]),
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     MatSidenavModule,

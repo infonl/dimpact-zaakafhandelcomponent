@@ -13,6 +13,7 @@ import {
   OnInit,
   signal,
   untracked,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import {
@@ -57,6 +58,7 @@ const behandelaarVerplicht: ValidatorFn = ({ value }) =>
   selector: "zac-case-details-edit",
   templateUrl: "./zaak-details-wijzigen.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatDividerModule,
@@ -388,9 +390,7 @@ export class CaseDetailsEditComponent implements OnInit {
 
   private validateDates(
     changedField:
-      | "startdatum"
-      | "einddatumGepland"
-      | "uiterlijkeEinddatumAfdoening",
+      "startdatum" | "einddatumGepland" | "uiterlijkeEinddatumAfdoening",
   ) {
     const { startdatum, einddatumGepland, uiterlijkeEinddatumAfdoening } =
       this.form.getRawValue();

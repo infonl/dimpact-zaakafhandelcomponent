@@ -14,6 +14,7 @@ import {
   output,
   signal,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -62,6 +63,7 @@ import { extractAttachmentFilename, readFileContent } from "../file.helper";
     FileDragAndDropDirective,
     MatExpansionModule,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   animations: [
     trigger("fadeSlide", [
       transition(":enter", [

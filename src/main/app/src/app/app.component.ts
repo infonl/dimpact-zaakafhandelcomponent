@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { MatProgressBar } from "@angular/material/progress-bar";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { RouterOutlet } from "@angular/router";
@@ -19,6 +19,7 @@ import { ZoekComponent } from "./zoeken/zoek/zoek.component";
   selector: "zac-root",
   templateUrl: "./app.component.html",
   styleUrls: ["./app.component.less"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatProgressBar,
     MatSidenavModule,

@@ -10,6 +10,7 @@ import {
   input,
   numberAttribute,
   output,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MatIconModule } from "@angular/material/icon";
@@ -22,6 +23,7 @@ import { ReadMoreComponent } from "../read-more/read-more.component";
   selector: "zac-static-text",
   templateUrl: "./static-text.component.html",
   styleUrls: ["./static-text.component.less"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     NgClass,
     MatIconModule,
