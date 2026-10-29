@@ -261,6 +261,23 @@ describe(ZoekComponent.name, () => {
         });
       });
 
+      it("pages through a filter change that is still loading, rather than through the results it is showing", async () => {
+        await respondWith(await searchFor("fakeTrefwoord"), zakenResultaat());
+        await user.click(screen.getByRole("checkbox", { name: "type.zaak" }));
+        await settle();
+
+        await user.click(screen.getByRole("button", { name: "Next page" }));
+        await settle();
+
+        const requests = httpTestingController.match(ZOEKEN_URL);
+        expect(requests.at(-1)?.request.body).toEqual(
+          expect.objectContaining({
+            filters: { TYPE: { values: ["ZAAK"], inverse: false } },
+            page: 1,
+          }),
+        );
+      });
+
       it("keeps the trefwoorden the user typed, though it shows the results of the previous ones", async () => {
         await respondWith(await searchFor("fakeTrefwoord"), zakenResultaat());
 
@@ -338,6 +355,29 @@ describe(ZoekComponent.name, () => {
       expect(trefwoordenInput()).toHaveValue("");
       expect(screen.queryByText(/of 25/)).not.toBeInTheDocument();
       expect(TestBed.inject(ZoekenService).hasSearched()).toBe(false);
+    });
+
+    it("keeps the page size the user chose when it is reset", async () => {
+      await respondWith(await searchFor("fakeTrefwoord"), zakenResultaat());
+      await user.click(
+        screen.getByRole("combobox", { name: /Items per page/ }),
+      );
+      await user.click(screen.getByRole("option", { name: "25" }));
+      await respondWith(await nextSearch(), zakenResultaat());
+
+      await user.click(
+        screen.getByRole("button", { name: "actie.zoekopdracht.wissen" }),
+      );
+      await settle();
+      await searchFor("otherTrefwoord");
+
+      expect(searches.at(-1)).toEqual(
+        expect.objectContaining({
+          zoeken: { [ZoekVeld.ALLE]: "otherTrefwoord" },
+          page: 0,
+          rows: 25,
+        }),
+      );
     });
   });
 

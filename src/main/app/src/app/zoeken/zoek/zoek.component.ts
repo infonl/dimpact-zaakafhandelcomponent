@@ -235,11 +235,11 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
   }
 
   protected pageChanged({ pageIndex, pageSize }: PageEvent) {
-    const shownZoekopdracht = this.search.params() ?? this.search.requested();
+    const zoekopdracht = this.search.requested();
     this.search.request({
-      ...shownZoekopdracht,
+      ...zoekopdracht,
       zoekParameters: {
-        ...shownZoekopdracht.zoekParameters,
+        ...zoekopdracht.zoekParameters,
         page: pageIndex,
         rows: pageSize,
       },
@@ -338,7 +338,10 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
     this.zoekveldControl.setValue(ZoekVeld.ALLE);
     this.zonderTrefwoorden.set(false);
     this.requestedZoekopdracht.set({
-      zoekParameters: { ...getDefaultZoekParameters(), rows: 10 },
+      zoekParameters: {
+        ...getDefaultZoekParameters(),
+        rows: this.zoekParameters().rows,
+      },
       zoekVeld: ZoekVeld.ALLE,
       trefwoorden: "",
     });
