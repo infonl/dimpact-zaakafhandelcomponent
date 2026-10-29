@@ -213,9 +213,155 @@ mat-sidenav-container {
   z-index: 10;
 }
 
-.filter-menu {
+// Saved-search menu of zac-zoekopdracht (all werklijsten)
+.mat-mdc-menu-panel.filter-menu {
+  max-width: none;
+  min-width: 200px;
+
   #deleteZoekopdracht:hover {
     color: #ff4081;
+  }
+}
+
+// Add-card menu of DashboardComponent
+.mat-mdc-menu-panel.cards-menu {
+  max-width: fit-content;
+}
+
+// Variables menu of variabelen-kies-menu (html-editor)
+.mat-mdc-menu-panel.variabelenMenu {
+  max-width: none;
+}
+
+// Dropdown panel of zac-facet-filter
+.mat-mdc-select-panel.facet-filter-options {
+  min-width: max-content;
+}
+
+// Stepper of ParametersEditComponent
+.parameters-stepper .mat-stepper-horizontal-line {
+  flex: 0 0 auto;
+}
+
+// ngx-editor toolbar, joined to the editor below it
+zac-html-editor .NgxEditor__MenuBar {
+  border: 1px solid var(--ngx-editor-border-color);
+  border-radius: var(--ngx-editor-border-radius);
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+  border-bottom-style: none;
+}
+
+// Content area of the expandable date filter
+zac-date-filter .date-filter.mat-expansion-panel .mat-expansion-panel-body {
+  padding: 0;
+}
+
+// Suffix text ("kalenderdagen") in the form fields of ParametersEditComponent
+.parameters-stepper .mat-mdc-form-field-icon-suffix {
+  color: var(--mat-form-field-filled-label-text-color);
+  align-self: inherit;
+  padding: 0 20px 0 10px;
+}
+
+// Filter fields in the table header of the inbox-documenten and zaken-afgehandeld werklijsten
+.inbox-documenten-list,
+.zaken-afgehandeld {
+  .mat-mdc-header-cell .mat-mdc-form-field-infix {
+    width: auto;
+  }
+}
+
+.inbox-documenten-list .mat-mdc-header-cell {
+  .mat-date-range-input-container {
+    min-width: 170px;
+  }
+
+  .mat-date-range-input-end-wrapper {
+    width: 0;
+  }
+}
+
+// Backdrop of ProgressDialogComponent (backdropClass in UtilService.openProgressDialog)
+.progress-dialog-backdrop {
+  cursor: not-allowed;
+}
+
+// BAG display field in zac-zaak-create: disabled but clickable, with the hover look of an enabled field
+zac-zaak-create
+  zac-input.bag-display-field
+  .mdc-text-field--filled.mdc-text-field--disabled {
+  pointer-events: auto !important;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: var(
+      --mat-form-field-state-layer-color,
+      var(--mat-sys-on-surface)
+    );
+    opacity: 0;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  &:hover {
+    &::after {
+      opacity: var(
+        --mat-form-field-hover-state-layer-opacity,
+        var(--mat-sys-hover-state-layer-opacity)
+      );
+    }
+
+    .mdc-line-ripple::before {
+      border-bottom-color: var(
+        --mat-form-field-filled-hover-active-indicator-color
+      );
+    }
+  }
+}
+
+// Native date picker icon of zac-date, replaced by the Material datepicker toggle
+zac-date .mat-mdc-text-field-wrapper:has(input[type="date"]) {
+  // Webkit/Blink (Chrome, Edge, Safari): hide native calendar icon directly
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    display: none;
+  }
+
+  // Firefox: no CSS pseudo-element available, so cover the native icon with an overlay
+  @supports not selector(input::-webkit-calendar-picker-indicator) {
+    .mat-mdc-form-field-infix::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: var(--mat-icon-button-icon-size, 24px);
+      height: 100%;
+      background-color: var(--mat-form-field-filled-container-color);
+    }
+
+    &:not(:has(input[disabled])):hover {
+      .mat-mdc-form-field-infix::after {
+        background-color: var(--zac-filled-text-field-container-color-hover);
+      }
+    }
+
+    &.mdc-text-field--focused {
+      .mat-mdc-form-field-infix::after {
+        background-color: var(--zac-filled-text-field-container-color-active);
+      }
+    }
+  }
+}
+
+// Label of zac-toggle stretches, so the toggle sits at the far end
+zac-toggle [mat-internal-form-field] {
+  display: flex;
+  flex-grow: 1;
+
+  label {
+    flex-grow: 1;
   }
 }
 

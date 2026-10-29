@@ -225,6 +225,7 @@ describe(UtilService.name, () => {
       },
       disableClose: true,
       panelClass: "full-screen-dialog",
+      backdropClass: ["cdk-overlay-dark-backdrop", "progress-dialog-backdrop"],
     });
 
     expect(result).toBe(dialogRefMock.afterClosed());

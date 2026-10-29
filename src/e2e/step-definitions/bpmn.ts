@@ -10,11 +10,14 @@ import { z } from "zod";
 import {
   FORTY_SECONDS_IN_MS,
   INFLATED_STEP_TIMEOUT_IN_MS,
+  ONE_MINUTE_IN_MS,
   TEN_SECONDS_IN_MS,
   TWENTY_SECONDS_IN_MS,
+  TWO_SECONDS_IN_MS,
 } from "../support/time-constants";
 import { groups } from "../support/worlds/groups";
 import { CustomWorld } from "../support/worlds/world";
+import { chooseFormioOption } from "../utils/formio-select";
 import { chooseMaterialOption } from "../utils/material-select";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
 
@@ -56,6 +59,10 @@ function submitButton(page: Page) {
 // Waits until the backend has completed the task, so that a rejected form fails here
 // and not in a later step, and the next step cannot navigate away before it is done.
 async function submitTaskForm(page: Page, button = submitButton(page)) {
+  await expect(
+    button,
+    "A form with an invalid field keeps its submit button disabled",
+  ).toBeEnabled({ timeout: TEN_SECONDS_IN_MS });
   const completeTaskResponse = page.waitForResponse(
     (response) =>
       response.request().method() === "PATCH" &&
@@ -160,13 +167,14 @@ Given(
   ) {
     // BPMN form: create a document
     const form = formioForm(this.page);
-    await form
-      .getByLabel("Smart Documents Template Group")
-      .selectOption("OpenZaak", { timeout: TEN_SECONDS_IN_MS });
-    await form
-      .getByLabel("Smart Documents Template")
-      .nth(1)
-      .selectOption("Data Test", { timeout: TEN_SECONDS_IN_MS });
+    await chooseFormioOption(
+      form.getByLabel("Smart Documents Template Group"),
+      "OpenZaak",
+    );
+    await chooseFormioOption(
+      form.getByLabel("Smart Documents Template").nth(1),
+      "Data Test",
+    );
     await form.getByRole("button", { name: "Create" }).click();
 
     // ZAC: Create document sidebar
@@ -254,36 +262,51 @@ Then(
   },
 );
 
+async function chooseDocumentOnce(form: Locator, documentName: string) {
+  const chosenDocument = form
+    .locator(".formio-component-ZAAK_Documents_Select .choices__list--multiple")
+    .locator(".choices__item")
+    .filter({ hasText: documentName });
+  if ((await chosenDocument.count()) > 0) return;
+  await form
+    .getByRole("searchbox", { name: "Select one or more documents" })
+    .click();
+  await form
+    .page()
+    .getByRole("option", { name: documentName, exact: true })
+    .click({ timeout: TEN_SECONDS_IN_MS });
+  await form.page().keyboard.press("Escape");
+}
+
+async function fillMultipleFormItems(form: Locator) {
+  await chooseFormioOption(
+    form.getByLabel("Group").nth(0),
+    groups.TestGroupA.name,
+  );
+  // The user options load from the chosen group, so the group goes first.
+  await chooseFormioOption(form.getByLabel("User"), testUser1Name);
+  await chooseDocumentOnce(form, "file A");
+  await chooseFormioOption(
+    form.getByLabel("Communication channel"),
+    COMMUNICATION_CHANNEL_KEY,
+  );
+  await chooseFormioOption(form.getByLabel("Select result"), RESULT_VALUE);
+  await chooseFormioOption(form.getByLabel("Select status"), STATUS_VALUE);
+}
+
 When(
   "{string} fills all mandatory form fields",
-  { timeout: FORTY_SECONDS_IN_MS },
+  { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     const form = formioForm(this.page);
-    await form.getByLabel("Group").nth(0).selectOption(groups.TestGroupA.name);
-    // User options populate from the Group selection via a backend call;
-    // wait for it to return before assuming the specific option exists.
-    const userSelect = form.getByLabel("User");
-    await expect
-      .poll(() => userSelect.locator("option").count(), {
-        timeout: FORTY_SECONDS_IN_MS,
-      })
-      .toBeGreaterThan(1);
-    await userSelect.selectOption(testUser1Name);
-    const documentsSearchbox = form.getByRole("searchbox", {
-      name: "Select one or more documents",
-    });
-    await documentsSearchbox.click();
-    const fileAOption = this.page.getByRole("option", {
-      name: "file A",
-      exact: true,
-    });
-    await fileAOption.waitFor({ state: "visible" });
-    await fileAOption.click();
-    await form
-      .getByLabel("Communication channel")
-      .selectOption(COMMUNICATION_CHANNEL_KEY);
-    await form.getByLabel("Select result").selectOption(RESULT_VALUE);
-    await form.getByLabel("Select status").selectOption(STATUS_VALUE);
+    // A refresh of one field can empty a field that was filled before it, so fill the whole form
+    // again until form.io accepts it.
+    await expect(async () => {
+      await fillMultipleFormItems(form);
+      await expect(submitButton(this.page)).toBeEnabled({
+        timeout: TWO_SECONDS_IN_MS,
+      });
+    }).toPass({ timeout: FORTY_SECONDS_IN_MS });
   },
 );
 

@@ -1,10 +1,13 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 .static-text {
-  margin: 5px 5px;
+  margin: var(--static-text-margin, 5px 5px);
+  padding: var(--static-text-padding, 0);
+  border-radius: var(--static-text-border-radius, 0);
+  backdrop-filter: var(--static-text-backdrop-filter, none);
   white-space: pre-line;
 
   .static-text-label {

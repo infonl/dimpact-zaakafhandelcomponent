@@ -114,10 +114,14 @@ describe("Koppelingen step", () => {
 
     expect(brpKoppelen()).toBeChecked();
     expect(kvkKoppelen()).toBeChecked();
-    await waitFor(() =>
-      expect(doelbinding("brp-doelbinding.zoek-waarde")).toHaveTextContent(
-        brpSearchValues[1],
-      ),
+    // The stored value only shows once the options query resolves, which takes longer than the
+    // default 1 second on a busy CI runner.
+    await waitFor(
+      () =>
+        expect(doelbinding("brp-doelbinding.zoek-waarde")).toHaveTextContent(
+          brpSearchValues[1],
+        ),
+      { timeout: 3000 },
     );
   });
 
