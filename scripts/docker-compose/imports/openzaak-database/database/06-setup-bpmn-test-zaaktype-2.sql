@@ -400,7 +400,47 @@ VALUES
 
 
 -- PROPERTIES (eigenschappen)
--- no properties are defined for this zaaktype
+
+-- Boolean-like eigenschap specificatie used by the 'ZAAK_GEAUTORISEERD' eigenschap below.
+INSERT INTO catalogi_eigenschapspecificatie (id, groep, formaat, lengte, kardinaliteit, waardenverzameling)
+VALUES(
+  (SELECT COALESCE(MAX(id),0) FROM catalogi_eigenschapspecificatie) + 1,
+  'Zaakspecifiek autoriseerbaar', -- groep
+  'tekst',                        -- formaat
+  '5',                            -- lengte
+  '2',                            -- kardinaliteit
+  '{true,false}'                  -- waardenverzameling
+);
+
+-- Marks this zaaktype as being 'zaakspecifiek autoriseerbaar' in ZAC.
+INSERT INTO catalogi_eigenschap
+(
+  id,
+  uuid,
+  eigenschapnaam,
+  definitie,
+  toelichting,
+  specificatie_van_eigenschap_id,
+  zaaktype_id,
+  _etag,
+  statustype_id,
+  datum_begin_geldigheid,
+  datum_einde_geldigheid
+)
+VALUES
+(
+  (SELECT COALESCE(MAX(id),0) FROM catalogi_eigenschap) + 1,
+  '742ad749-93e1-4868-91f6-3507ce09c750', -- UUID
+  'ZAAK_GEAUTORISEERD', -- eigenschapnaam
+  'Zaakspecifiek geautoriseerd', -- definitie
+  'Bepaalt of een zaak zaakspecifiek geautoriseerd is.', -- toelichting
+  (SELECT MAX(id) FROM catalogi_eigenschapspecificatie), -- specificatie_van_eigenschap_id
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = '7c27a4ae-4a2a-4eb2-9db9-6cda578ce56e'), -- zaaktype_id
+  '_etag', -- _etag
+  NULL,    -- statustype_id
+  NULL,    -- datum_begin_geldigheid
+  NULL     -- datum_einde_geldigheid
+);
 
 -- ROLTYPEN
 -- Note that these rol types must be known to ZAC as defined in the 'AardVanRol' Java enum in the ZAC code base.
@@ -591,6 +631,31 @@ VALUES
   '1704168e-6660-450e-a3c9-298e31a9a41c', -- uuid 
   'Bewindvoerder',                     -- omschrijving
   'belanghebbende',                 -- omschrijving_generiek
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = '7c27a4ae-4a2a-4eb2-9db9-6cda578ce56e'), -- Zaaktype ID
+  '_etag',                          -- _etag (Placeholder)
+  NULL,                             -- datum_begin_geldigheid
+  NULL                              -- datum_einde_geldigheid
+);
+
+-- Adds the 'Zaakspecifiek geautoriseerde medewerker' roltype with which individual employees can be granted access to a specific zaakspecifiek geautoriseerde zaak of this zaaktype.
+-- Together with the 'ZAAK_GEAUTORISEERD' eigenschap this makes the zaaktype 'zaakspecifiek autoriseerbaar' in ZAC.
+INSERT INTO catalogi_roltype
+(
+  id,
+  uuid,
+  omschrijving,
+  omschrijving_generiek,
+  zaaktype_id,
+  _etag,
+  datum_begin_geldigheid,
+  datum_einde_geldigheid
+)
+VALUES
+(
+  (SELECT COALESCE(MAX(id),0) FROM catalogi_roltype) + 1,
+  '569446aa-ce11-4dea-ba4e-9f294de35705', -- uuid
+  'Zaakspecifiek geautoriseerde medewerker', -- omschrijving
+  'behandelaar',                    -- omschrijving_generiek
   (SELECT id FROM catalogi_zaaktype WHERE uuid = '7c27a4ae-4a2a-4eb2-9db9-6cda578ce56e'), -- Zaaktype ID
   '_etag',                          -- _etag (Placeholder)
   NULL,                             -- datum_begin_geldigheid
