@@ -6,6 +6,7 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
 import com.github.gradle.node.npm.task.NpmTask
 import dev.detekt.gradle.Detekt
+import groovy.json.JsonSlurper
 import io.smallrye.openapi.api.OpenApiConfig.DuplicateOperationIdBehavior
 import io.smallrye.openapi.api.OpenApiConfig.OperationIdStrategy
 import org.gradle.api.plugins.JavaBasePlugin.BUILD_TASK_NAME
@@ -1166,9 +1167,9 @@ fun readWildFlyVersion(pomFile: File): String {
 // Reads a dependency version pinned in a package.json file, so that version does not need to be
 // duplicated anywhere in the Gradle build.
 fun readPackageJsonDependencyVersion(packageJsonFile: File, dependencyName: String): String {
-    val packageJson = packageJsonFile.readText()
-    val regex = """"$dependencyName":\s*"([^"]+)"""".toRegex()
-    return regex.find(packageJson)?.groups?.get(1)?.value
+    val packageJson = JsonSlurper().parse(packageJsonFile) as Map<*, *>
+    return listOf("dependencies", "devDependencies")
+        .firstNotNullOfOrNull { (packageJson[it] as? Map<*, *>)?.get(dependencyName) as? String }
         ?: error("Could not find dependency '$dependencyName' in ${packageJsonFile.path}")
 }
 
