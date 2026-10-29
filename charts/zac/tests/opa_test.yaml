@@ -1,0 +1,104 @@
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+
+suite: Open Policy Agent
+templates:
+  - templates/config.yaml
+  - templates/deployment.yaml
+  - templates/secret.yaml
+  - templates/opa-deployment.yaml
+  - templates/opa-service.yaml
+release:
+  name: zac
+values:
+  - ../ci/zac-chart-test-values.yaml
+tests:
+  - it: runs OPA as a sidecar in the ZAC pod by default, reached on localhost
+    asserts:
+      - contains:
+          path: spec.template.spec.containers
+          content:
+            name: opa
+          any: true
+        template: templates/deployment.yaml
+      - notContains:
+          path: spec.template.spec.initContainers
+          content:
+            name: check-opa-ready
+          any: true
+        template: templates/deployment.yaml
+      - hasDocuments:
+          count: 0
+        template: templates/opa-deployment.yaml
+      - hasDocuments:
+          count: 0
+        template: templates/opa-service.yaml
+      - equal:
+          path: data.OPA_API_CLIENT_MP_REST_URL
+          value: http://localhost:8181
+        template: templates/config.yaml
+  - it: runs OPA as a separate deployment with a service when it is not a sidecar, and ZAC waits for it to be ready
+    set:
+      opa.sidecar: false
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers
+          content:
+            name: opa
+          any: true
+        template: templates/deployment.yaml
+      - contains:
+          path: spec.template.spec.initContainers
+          content:
+            name: check-opa-ready
+          any: true
+        template: templates/deployment.yaml
+      - isKind:
+          of: Deployment
+        template: templates/opa-deployment.yaml
+      - isKind:
+          of: Service
+        template: templates/opa-service.yaml
+      - equal:
+          path: data.OPA_API_CLIENT_MP_REST_URL
+          value: http://zac-zaakafhandelcomponent-opa:8181
+        template: templates/config.yaml
+  - it: uses the configured OPA url when OPA is not a sidecar
+    set:
+      opa.sidecar: false
+      opa.url: https://opa.example.com
+    asserts:
+      - equal:
+          path: data.OPA_API_CLIENT_MP_REST_URL
+          value: https://opa.example.com
+        template: templates/config.yaml
+      - contains:
+          path: spec.template.spec.initContainers
+          content:
+            name: check-opa-ready
+            command: ["sh", "-c", "until curl https://opa.example.com;do echo waiting for opa;sleep 5;done;"]
+          any: true
+        template: templates/deployment.yaml
+  - it: deploys no OPA at all when OPA is disabled
+    set:
+      opa.enabled: false
+      opa.sidecar: false
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers
+          content:
+            name: opa
+          any: true
+        template: templates/deployment.yaml
+      - notContains:
+          path: spec.template.spec.initContainers
+          content:
+            name: check-opa-ready
+          any: true
+        template: templates/deployment.yaml
+      - hasDocuments:
+          count: 0
+        template: templates/opa-deployment.yaml
+      - hasDocuments:
+          count: 0
+        template: templates/opa-service.yaml
