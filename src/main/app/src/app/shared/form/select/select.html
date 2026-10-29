@@ -44,7 +44,7 @@
       </mat-option>
     }
     @for (option of availableOptions(); track option) {
-      <mat-option [value]="option">
+      <mat-option [value]="option" [disabled]="optionDisabled()(option)">
         {{ displayWith(option) | translate }}
         @if (suffixTranslationKey(option)) {
           <div>

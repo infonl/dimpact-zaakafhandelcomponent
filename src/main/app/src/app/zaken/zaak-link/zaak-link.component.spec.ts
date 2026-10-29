@@ -11,6 +11,7 @@ import {
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatDrawer } from "@angular/material/sidenav";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
@@ -25,10 +26,12 @@ import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { toI18nKey } from "../../shared/utils/i18n-key";
 import { ZoekenService } from "../../zoeken/zoeken.service";
+import { ZaakCreateComponent } from "../zaak-create/zaak-create.component";
 import { ZaakLinkComponent } from "./zaak-link.component";
 
 const KOPPEL_URL = "/rest/zaken/zaak/koppel";
 const ZAAKTYPES_URL = "/rest/zaken/gekoppelde-zaken/zaaktypen";
+const ZAAKTYPES_FOR_CREATION_URL = "/rest/zaken/zaaktypes-for-creation";
 
 const makeFakeZaak = (
   fields: Partial<GeneratedType<"RestZaak">> = {},
@@ -70,7 +73,10 @@ describe(ZaakLinkComponent.name, () => {
 
   const user = userEvent.setup({ delay: null });
 
-  const setup = async (zaakFields: Partial<GeneratedType<"RestZaak">> = {}) => {
+  const setup = async (
+    zaakFields: Partial<GeneratedType<"RestZaak">> = {},
+    zaaktypesForCreation: GeneratedType<"RestZaaktype">[] = [],
+  ) => {
     const zaak = makeFakeZaak(zaakFields);
     const sideNav = fromPartial<MatDrawer>({
       close: jest.fn().mockResolvedValue("close"),
@@ -101,6 +107,12 @@ describe(ZaakLinkComponent.name, () => {
     jest.spyOn(foutAfhandelingService, "foutAfhandelen").mockReturnValue(EMPTY);
 
     httpTestingController.expectOne(ZAAKTYPES_URL).flush([]);
+    await sleep();
+    httpTestingController
+      .match(ZAAKTYPES_FOR_CREATION_URL)
+      .forEach((request) => request.flush(zaaktypesForCreation));
+    await sleep(10);
+    fixture.detectChanges();
 
     return {
       zaak,
@@ -601,5 +613,252 @@ describe(ZaakLinkComponent.name, () => {
     );
 
     expect(sideNav.close).toHaveBeenCalled();
+  });
+
+  describe("creating a new zaak that is linked to the zaak", () => {
+    const startableZaaktype = fromPartial<GeneratedType<"RestZaaktype">>({
+      uuid: "fake-startable-zaaktype-uuid",
+      omschrijving: "fakeStartableZaaktype",
+    });
+
+    const openZaakThatMayBeLinked = (
+      fields: Partial<GeneratedType<"RestZaak">> = {},
+    ) => ({
+      isOpen: true,
+      rechten: fromPartial<GeneratedType<"RestZaakRechten">>({
+        canKoppelen: true,
+      }),
+      ...fields,
+    });
+
+    const newZaakTab = () =>
+      screen.queryByRole("tab", { name: "zaak.koppelen.tab.nieuwe-zaak" });
+
+    const openNewZaakTab = async () => {
+      await user.click(newZaakTab()!);
+      await sleep();
+      fixture.detectChanges();
+      expect(
+        await screen.findByLabelText("Zaak.koppelen.label"),
+      ).toBeInTheDocument();
+    };
+
+    const chooseNewZaakRelation = async (relation: string) => {
+      await user.click(relationTypeSelect());
+      await user.click(await screen.findByRole("option", { name: relation }));
+      await sleep();
+      fixture.detectChanges();
+    };
+
+    it("offers to link an existing zaak or to create a new zaak, with linking an existing zaak selected", async () => {
+      await setup(openZaakThatMayBeLinked(), [startableZaaktype]);
+
+      expect(
+        screen.getAllByRole("tab").map((tab) => tab.textContent?.trim()),
+      ).toEqual([
+        "zaak.koppelen.tab.bestaande-zaak",
+        "zaak.koppelen.tab.nieuwe-zaak",
+      ]);
+      expect(
+        screen.getByRole("tab", { name: "zaak.koppelen.tab.bestaande-zaak" }),
+      ).toHaveAttribute("aria-selected", "true");
+    });
+
+    it.each([
+      ["a closed zaak", { isOpen: false }],
+      [
+        "a zaak the employee may not link",
+        {
+          rechten: fromPartial<GeneratedType<"RestZaakRechten">>({
+            canKoppelen: false,
+          }),
+        },
+      ],
+    ])("does not offer to create a new zaak on %s", async (_name, fields) => {
+      await setup(openZaakThatMayBeLinked(fields), [startableZaaktype]);
+
+      expect(newZaakTab()).not.toBeInTheDocument();
+      httpTestingController.expectNone(ZAAKTYPES_FOR_CREATION_URL);
+    });
+
+    it("does not offer to create a new zaak when the employee may not start a zaak of any zaaktype", async () => {
+      await setup(openZaakThatMayBeLinked(), []);
+
+      expect(newZaakTab()).not.toBeInTheDocument();
+    });
+
+    it("offers a gerelateerde zaak and a deelzaak as relation of the new zaak", async () => {
+      await setup(openZaakThatMayBeLinked(), [startableZaaktype]);
+      await openNewZaakTab();
+
+      await user.click(relationTypeSelect());
+
+      expect(
+        (await screen.findAllByRole("option")).map((option) =>
+          option.textContent?.trim(),
+        ),
+      ).toEqual([
+        "zaak.koppelen.nieuw.type.gerelateerd",
+        "zaak.koppelen.nieuw.type.deelzaak",
+      ]);
+    });
+
+    it("opens with a gerelateerde zaak chosen, explains it and shows the zaak aanmaken form without a choice being made", async () => {
+      await setup(openZaakThatMayBeLinked(), [startableZaaktype]);
+      await openNewZaakTab();
+
+      expect(relationTypeSelect()).toHaveTextContent(
+        "zaak.koppelen.nieuw.type.gerelateerd",
+      );
+      expect(
+        await screen.findByText("zaak.koppelen.nieuw.uitleg.gerelateerd"),
+      ).toBeInTheDocument();
+      expect(
+        await screen.findByRole("heading", { name: "actie.zaak.aanmaken" }),
+      ).toBeInTheDocument();
+    });
+
+    it("explains the relation and keeps showing the zaak aanmaken form once a deelzaak is chosen", async () => {
+      await setup(openZaakThatMayBeLinked(), [startableZaaktype]);
+      await openNewZaakTab();
+
+      await chooseNewZaakRelation("zaak.koppelen.nieuw.type.deelzaak");
+
+      expect(
+        await screen.findByText("zaak.koppelen.nieuw.uitleg.deelzaak"),
+      ).toBeInTheDocument();
+      expect(
+        await screen.findByRole("heading", { name: "actie.zaak.aanmaken" }),
+      ).toBeInTheDocument();
+    });
+
+    it("opens the BAG picker of the new zaak over the whole panel, so the tabs and the relation cannot be used while it is open", async () => {
+      await setup(openZaakThatMayBeLinked(), [startableZaaktype]);
+      await openNewZaakTab();
+
+      await user.click(
+        screen.getByRole("button", { name: "actie.bag-object.koppelen" }),
+      );
+      await sleep();
+      fixture.detectChanges();
+
+      const pickerTitle = await screen.findByRole("heading", {
+        name: "actie.bag-object.koppelen",
+        level: 3,
+      });
+      // mat-sidenav-container exposes no role, so the drawer the picker opens in is only reachable through the DOM.
+      // eslint-disable-next-line testing-library/no-node-access
+      expect(pickerTitle.closest("zac-zaak-create")).toBeNull();
+      // eslint-disable-next-line testing-library/no-node-access
+      const panel = pickerTitle.closest<HTMLElement>("mat-sidenav-container");
+      expect(panel).not.toBeNull();
+      expect(within(panel!).getByRole("tablist")).toBeInTheDocument();
+      expect(
+        within(panel!).getByRole("heading", {
+          name: "actie.zaak.koppelen",
+          level: 3,
+        }),
+      ).toBeInTheDocument();
+    });
+
+    it("chooses a gerelateerde zaak again once the panel is closed", async () => {
+      await setup(openZaakThatMayBeLinked(), [startableZaaktype]);
+      await openNewZaakTab();
+      await chooseNewZaakRelation("zaak.koppelen.nieuw.type.deelzaak");
+
+      await user.click(screen.getByRole("button", { name: "actie.annuleren" }));
+      await sleep();
+      fixture.detectChanges();
+
+      expect(relationTypeSelect()).toHaveTextContent(
+        "zaak.koppelen.nieuw.type.gerelateerd",
+      );
+    });
+
+    it("does not let a deelzaak be chosen on a zaak that is a deelzaak, and says why", async () => {
+      await setup(openZaakThatMayBeLinked({ isDeelzaak: true }), [
+        startableZaaktype,
+      ]);
+      await openNewZaakTab();
+      expect(relationTypeSelect()).toHaveTextContent(
+        "zaak.koppelen.nieuw.type.gerelateerd",
+      );
+
+      await user.click(relationTypeSelect());
+
+      expect(
+        await screen.findByRole("option", {
+          name: "zaak.koppelen.nieuw.type.deelzaak",
+        }),
+      ).toHaveAttribute("aria-disabled", "true");
+      expect(
+        screen.getByText("zaak.koppelen.nieuw.geblokkeerd.is-zelf-deelzaak"),
+      ).toBeInTheDocument();
+    });
+
+    it("says that no zaaktype is available when no deelzaaktype of the zaaktype can be started", async () => {
+      await setup(
+        openZaakThatMayBeLinked({
+          zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
+            omschrijving: "fakeZaaktypeOmschrijving",
+            zaaktypeRelaties: [
+              {
+                zaaktypeUuid: "fake-not-startable-zaaktype-uuid",
+                relatieType: "DEELZAAK",
+              },
+            ],
+          }),
+        }),
+        [startableZaaktype],
+      );
+      await openNewZaakTab();
+
+      await chooseNewZaakRelation("zaak.koppelen.nieuw.type.deelzaak");
+
+      expect(
+        screen.getByText("zaak.koppelen.nieuw.geen-deelzaaktype"),
+      ).toBeInTheDocument();
+    });
+
+    it("names the new zaak, reports the link and closes the panel once the new zaak is created", async () => {
+      const { sideNav, zaakLinked, utilService } = await setup(
+        openZaakThatMayBeLinked(),
+        [startableZaaktype],
+      );
+      await openNewZaakTab();
+      expect(
+        await screen.findByRole("heading", { name: "actie.zaak.aanmaken" }),
+      ).toBeInTheDocument();
+
+      fixture.debugElement
+        .query(By.directive(ZaakCreateComponent))
+        .componentInstance.zaakCreated.emit("ZAAK-2026-003");
+
+      expect(utilService.openSnackbar).toHaveBeenCalledWith(
+        "msg.zaak.aangemaakt-en-gekoppeld",
+        { case: "ZAAK-2026-003" },
+      );
+      expect(zaakLinked).toHaveBeenCalled();
+      expect(sideNav.close).toHaveBeenCalled();
+    });
+
+    it("closes the panel without creating a zaak when the new zaak is cancelled", async () => {
+      const { sideNav, zaakLinked } = await setup(openZaakThatMayBeLinked(), [
+        startableZaaktype,
+      ]);
+      await openNewZaakTab();
+      expect(
+        await screen.findByRole("heading", { name: "actie.zaak.aanmaken" }),
+      ).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: "actie.annuleren" }));
+
+      expect(sideNav.close).toHaveBeenCalled();
+      expect(zaakLinked).not.toHaveBeenCalled();
+      httpTestingController.expectNone({
+        method: "POST",
+        url: "/rest/zaken/zaak",
+      });
+    });
   });
 });

@@ -2,47 +2,57 @@
   ~ SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
-<mat-sidenav-container class="p-2">
-  <mat-sidenav position="end">
-    @switch (activeSideAction) {
-      @case ("actie.initiator.koppelen") {
-        <zac-klant-koppel
-          (klantGegevens)="initiatorSelected($event.klant)"
-          [sideNav]="actionsSidenav()"
-          [initiator]="true"
-          [allowBedrijf]="
-            form.controls.zaaktype.value?.zaakafhandelparameters
-              ?.betrokkeneKoppelingen?.isKvkKoppelenEnabled ?? false
-          "
-          [allowPersoon]="
-            form.controls.zaaktype.value?.zaakafhandelparameters
-              ?.betrokkeneKoppelingen?.isBrpKoppelenEnabled ?? false
-          "
-          [zaaktypeUUID]="form.controls.zaaktype.value?.uuid"
-          class="side-nav-container"
-        ></zac-klant-koppel>
-      }
-      @case ("actie.bag-object.koppelen") {
-        <zac-bag-zoek
-          [gekoppeldeBagObjecten]="form.controls.bagObjecten"
-          isSelectable
-          (bagObject)="bagObjectSelected()"
-          [sideNav]="actionsSidenav()"
-        ></zac-bag-zoek>
-      }
+<ng-template #sideActions>
+  @switch (activeSideAction) {
+    @case ("actie.initiator.koppelen") {
+      <zac-klant-koppel
+        (klantGegevens)="initiatorSelected($event.klant)"
+        [sideNav]="actionsSidenav()"
+        [initiator]="true"
+        [allowBedrijf]="
+          form.controls.zaaktype.value?.zaakafhandelparameters
+            ?.betrokkeneKoppelingen?.isKvkKoppelenEnabled ?? false
+        "
+        [allowPersoon]="
+          form.controls.zaaktype.value?.zaakafhandelparameters
+            ?.betrokkeneKoppelingen?.isBrpKoppelenEnabled ?? false
+        "
+        [zaaktypeUUID]="form.controls.zaaktype.value?.uuid"
+        class="side-nav-container"
+      ></zac-klant-koppel>
     }
-  </mat-sidenav>
+    @case ("actie.bag-object.koppelen") {
+      <zac-bag-zoek
+        [gekoppeldeBagObjecten]="form.controls.bagObjecten"
+        isSelectable
+        (bagObject)="bagObjectSelected()"
+        [sideNav]="actionsSidenav()"
+      ></zac-bag-zoek>
+    }
+  }
+</ng-template>
+<mat-sidenav-container [class.p-2]="!koppeling()">
+  @if (!hostSidenav()) {
+    <mat-sidenav position="end">
+      <ng-container *ngTemplateOutlet="sideActions"></ng-container>
+    </mat-sidenav>
+  }
   <form [formGroup]="form" (ngSubmit)="formSubmit()">
     <fieldset>
       <legend>
-        <h1>{{ "actie.zaak.aanmaken" | translate }}</h1>
+        @if (koppeling()) {
+          <h2>{{ "actie.zaak.aanmaken" | translate }}</h2>
+        } @else {
+          <h1>{{ "actie.zaak.aanmaken" | translate }}</h1>
+        }
+        <ng-content></ng-content>
       </legend>
       <section class="row">
         <zac-auto-complete
           key="zaaktype"
           class="col-12 col-md-6"
           [form]="form"
-          [options]="caseTypes"
+          [options]="caseTypes()"
           [optionDisplayValue]="'omschrijving'"
         >
           <mat-hint>{{
@@ -56,23 +66,53 @@
           class="col-12 col-md-6"
           [form]="form"
           [displayValue]="'naam'"
-          (click)="canAddInitiator() && openSideNav('actie.initiator.koppelen')"
-        >
-          <button
-            type="button"
-            mat-icon-button
-            matSuffix
-            [disabled]="!canAddInitiator()"
-            (click)="
+          (click)="
+            !koppeling() &&
               canAddInitiator() &&
-                (hasInitiator()
-                  ? clearInitiator()
-                  : openSideNav('actie.initiator.koppelen'));
-              $event.stopPropagation()
-            "
-          >
-            <mat-icon>{{ hasInitiator() ? "close" : "person" }}</mat-icon>
-          </button>
+              openSideNav('actie.initiator.koppelen')
+          "
+        >
+          @if (koppeling(); as koppeling) {
+            <span
+              [matTooltip]="
+                copiedInitiatorTooltip(koppeling)
+                  | translate: { zaakID: koppeling.zaak.identificatie }
+              "
+            >
+              <button
+                type="button"
+                mat-icon-button
+                disabled
+                [attr.aria-label]="
+                  copiedInitiatorTooltip(koppeling)
+                    | translate: { zaakID: koppeling.zaak.identificatie }
+                "
+              >
+                <mat-icon>person</mat-icon>
+              </button>
+            </span>
+          } @else {
+            <button
+              type="button"
+              mat-icon-button
+              matSuffix
+              [disabled]="!canAddInitiator()"
+              (click)="
+                canAddInitiator() &&
+                  (hasInitiator()
+                    ? clearInitiator()
+                    : openSideNav('actie.initiator.koppelen'));
+                $event.stopPropagation()
+              "
+            >
+              <mat-icon>{{ hasInitiator() ? "close" : "person" }}</mat-icon>
+            </button>
+          }
+          @if (initiatorNotCopied()) {
+            <mat-hint>{{
+              "zaak.aanmaken.initiator.niet-overgenomen" | translate
+            }}</mat-hint>
+          }
         </zac-input>
       </section>
       <section class="row">
@@ -90,6 +130,10 @@
             type="button"
             mat-icon-button
             matSuffix
+            [attr.aria-label]="
+              (hasBagObject() ? 'actie.wissen' : 'actie.bag-object.koppelen')
+                | translate
+            "
             (click)="
               hasBagObject()
                 ? clearBagObjecten()
@@ -168,9 +212,15 @@
         >
           {{ "actie.aanmaken" | translate }}
         </button>
-        <button type="button" mat-raised-button zacBackButton>
-          {{ "actie.annuleren" | translate }}
-        </button>
+        @if (koppeling()) {
+          <button type="button" mat-raised-button (click)="cancelled.emit()">
+            {{ "actie.annuleren" | translate }}
+          </button>
+        } @else {
+          <button type="button" mat-raised-button zacBackButton>
+            {{ "actie.annuleren" | translate }}
+          </button>
+        }
       </mat-action-row>
     </fieldset>
   </form>

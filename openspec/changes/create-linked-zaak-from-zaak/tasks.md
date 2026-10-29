@@ -19,20 +19,20 @@
 
 ## 2. Frontend: Nieuwe zaak aanmaken tab in Zaak koppelen
 
-- [ ] 2.1 Regenerate the frontend types from the OpenAPI spec and verify `RestZaakAanmaakGegevens.koppeling` and
+- [x] 2.1 Regenerate the frontend types from the OpenAPI spec and verify `RestZaakAanmaakGegevens.koppeling` and
       `RestZaakRechten.koppelen` exist.
-- [ ] 2.2 Give `zac-zaak-create` the signal input `koppeling` and the outputs `zaakCreated` and `cancelled`: filter the
+- [x] 2.2 Give `zac-zaak-create` the signal input `koppeling` and the outputs `zaakCreated` and `cancelled`: filter the
       zaaktypen for `DEELZAAK`, clear a zaaktype that is no longer offered, show the initiator read-only (or the
       "not copied" hint), send `koppeling`, emit instead of navigating; verify with specs in
       `zaak-create.component.spec.ts`, and verify the existing page specs still pass.
-- [ ] 2.3 Wrap `zac-zaak-link` in a `mat-tab-group` with *Bestaande zaak koppelen* and *Nieuwe zaak aanmaken*; add the
+- [x] 2.3 Wrap `zac-zaak-link` in a `mat-tab-group` with *Bestaande zaak koppelen* and *Nieuwe zaak aanmaken*; add the
       *Soort koppeling* select (disabled *Deelzaak* on a deelzaak), the relation text, the empty zaaktype text, and
       the embedded `zac-zaak-create`; show the tab only for an open zaak with `rechten.koppelen` and at least one
       creatable zaaktype; verify with specs in `zaak-link.component.spec.ts`.
-- [ ] 2.4 On `zaakCreated`, show `msg.zaak.aangemaakt-en-gekoppeld`, emit `zaakLinked` and close; on `cancelled`,
+- [x] 2.4 On `zaakCreated`, show `msg.zaak.aangemaakt-en-gekoppeld`, emit `zaakLinked` and close; on `cancelled`,
       close; verify in the `zaak-link` spec and that `zaak-view` reloads the zaak.
-- [ ] 2.5 Add the i18n keys to `nl.json` and `en.json` (tab labels, relation options *Gerelateerde zaak* and *Deelzaak*,
+- [x] 2.5 Add the i18n keys to `nl.json` and `en.json` (tab labels, relation options *Gerelateerde zaak* and *Deelzaak*,
       relation texts, empty zaaktype text, initiator hint, success message, history labels `hoofdzaak` and
       `gerelateerdeZaken`) and fix the Dutch `en.json` value of `zaak.koppelen.link.type.deelzaak`; verify no missing
       keys in the specs.
-- [ ] 2.6 Run `npm run lint`, `npm test` and `./gradlew spotlessApply` and verify they pass.
+- [x] 2.6 Run `npm run lint`, `npm test` and `./gradlew spotlessApply` and verify they pass.
