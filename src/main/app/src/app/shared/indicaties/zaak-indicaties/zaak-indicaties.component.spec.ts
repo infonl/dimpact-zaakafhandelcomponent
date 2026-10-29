@@ -29,12 +29,12 @@ const makeZaak = (
 const makeZaakZoekObject = (fields: Partial<ZaakZoekObject> = {}) =>
   fromPartial<ZaakZoekObject>({ ...fields });
 
-const setup = (inputs: {
+const setup = async (inputs: {
   layout: IndicatiesLayout;
   zaak?: GeneratedType<"RestZaak">;
   zaakZoekObject?: ZaakZoekObject;
-}) =>
-  render(ZaakIndicatiesComponent, {
+}) => {
+  const result = await render(ZaakIndicatiesComponent, {
     inputs,
     providers: [
       provideTranslateService({
@@ -46,6 +46,9 @@ const setup = (inputs: {
       }),
     ],
   });
+  await result.fixture.whenStable();
+  return result;
+};
 
 const chipWithTooltip = (tooltip: string) =>
   screen.getByRole("presentation", { description: tooltip });

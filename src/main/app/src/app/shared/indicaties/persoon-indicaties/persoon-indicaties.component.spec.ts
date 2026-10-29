@@ -33,14 +33,17 @@ const makePersoon = (
 ): GeneratedType<"RestPersoon"> =>
   fromPartial<GeneratedType<"RestPersoon">>({ indicaties });
 
-const setup = (
+const setup = async (
   persoon: GeneratedType<"RestPersoon"> | undefined,
   layout: IndicatiesLayout,
-) =>
-  render(PersoonIndicatiesComponent, {
+) => {
+  const result = await render(PersoonIndicatiesComponent, {
     inputs: { persoon, layout },
     providers: [provideTranslateService()],
   });
+  await result.fixture.whenStable();
+  return result;
+};
 
 const chipWithTooltip = (tooltip: string) =>
   screen.getByRole("presentation", { description: tooltip });
