@@ -1,0 +1,43 @@
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+
+suite: Autoscaling
+templates:
+  - templates/config.yaml
+  - templates/deployment.yaml
+  - templates/secret.yaml
+  - templates/hpa.yaml
+values:
+  - ../ci/zac-chart-test-values.yaml
+tests:
+  - it: uses a fixed number of replicas and no autoscaler when autoscaling is disabled
+    set:
+      replicaCount: 2
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 2
+        template: templates/deployment.yaml
+      - hasDocuments:
+          count: 0
+        template: templates/hpa.yaml
+  - it: leaves the number of replicas to the autoscaler when autoscaling is enabled
+    set:
+      autoscaling.enabled: true
+      autoscaling.minReplicas: 2
+      autoscaling.maxReplicas: 5
+    asserts:
+      - notExists:
+          path: spec.replicas
+        template: templates/deployment.yaml
+      - isKind:
+          of: HorizontalPodAutoscaler
+        template: templates/hpa.yaml
+      - equal:
+          path: spec.minReplicas
+          value: 2
+        template: templates/hpa.yaml
+      - equal:
+          path: spec.maxReplicas
+          value: 5
+        template: templates/hpa.yaml

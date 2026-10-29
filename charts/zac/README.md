@@ -77,6 +77,13 @@ helm dependency build charts/zac
 helm unittest charts/zac
 ```
 
+On macOS the install script of the plugin needs GNU `sha256sum`. Install it with `brew install coreutils` and
+put it first on the `PATH` during the plugin install:
+
+```bash
+PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" helm plugin install https://github.com/helm-unittest/helm-unittest.git --version v1.2.1 --verify=false
+```
+
 ## Values
 
 | Key | Type | Default | Description |

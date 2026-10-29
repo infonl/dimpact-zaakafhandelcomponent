@@ -1,0 +1,72 @@
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+
+suite: BRP protocollering
+templates:
+  - templates/config.yaml
+values:
+  - ../ci/zac-chart-test-values.yaml
+tests:
+  - it: sets the protocollering headers and values when protocollering is enabled
+    asserts:
+      - equal:
+          path: data.BRP_PROTOCOLLERING_ENABLED
+          value: "true"
+      - equal:
+          path: data.BRP_DOELBINDING_ZOEKMET
+          value: BRPACT-ZoekenAlgemeen
+      - equal:
+          path: data.BRP_DOELBINDING_RAADPLEEGMET
+          value: BRPACT-Totaal
+      - equal:
+          path: data.BRP_VERWERKINGSREGISTER
+          value: Algemeen
+      - equal:
+          path: data.BRP_TOEPASSING
+          value: ZAC
+      - equal:
+          path: data.BRP_SYSTEM_USER
+          value: SystemUser
+  - it: sets no protocollering headers when protocollering is disabled
+    set:
+      brpApi.protocollering.enabled: false
+    asserts:
+      - equal:
+          path: data.BRP_PROTOCOLLERING_ENABLED
+          value: "false"
+      - notExists:
+          path: data.BRP_DOELBINDING_HEADER
+      - notExists:
+          path: data.BRP_VERWERKING_HEADER
+      - notExists:
+          path: data.BRP_TOEPASSING_HEADER
+  - it: requires zoekmet when a doelbinding header is set
+    set:
+      brpApi.protocollering.doelbinding.zoekmet: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: Valid .Values.brpApi.protocollering.doelbinding.zoekmet entry required!
+  - it: requires raadpleegmet when a doelbinding header is set
+    set:
+      brpApi.protocollering.doelbinding.raadpleegmet: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: Valid .Values.brpApi.protocollering.doelbinding.raadpleegmet entry required!
+  - it: requires a verwerkingsregister when a verwerking header is set
+    set:
+      brpApi.protocollering.verwerking.register: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: Valid .Values.brpApi.protocollering.verwerking.register entry required!
+  - it: requires extendWithZaaktype when a verwerking header is set
+    set:
+      brpApi.protocollering.verwerking.extendWithZaaktype: null
+    asserts:
+      - failedTemplate:
+          errorPattern: Valid .Values.brpApi.protocollering.verwerking.extendWithZaaktype entry required!
+  - it: requires a toepassing value when a toepassing header is set
+    set:
+      brpApi.protocollering.toepassing.value: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: Valid .Values.brpApi.protocollering.toepassing.value entry required!

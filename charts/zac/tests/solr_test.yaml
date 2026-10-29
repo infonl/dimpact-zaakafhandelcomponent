@@ -1,0 +1,61 @@
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+
+suite: Solr
+templates:
+  - templates/config.yaml
+  - templates/deployment.yaml
+  - templates/secret.yaml
+release:
+  name: zac
+values:
+  - ../ci/zac-chart-test-values.yaml
+tests:
+  - it: uses the solr-operator managed Solr with its admin account when no external Solr url is set
+    asserts:
+      - equal:
+          path: data.SOLR_URL
+          value: http://zac-zaakafhandelcomponent-solr-solrcloud-common
+        template: templates/config.yaml
+      - notExists:
+          path: stringData.SOLR_USERNAME
+        template: templates/secret.yaml
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SOLR_USERNAME
+            value: admin
+        template: templates/deployment.yaml
+  - it: uses the external Solr with the configured credentials when an external Solr url is set
+    set:
+      solr.url: https://solr.example.com
+    asserts:
+      - equal:
+          path: data.SOLR_URL
+          value: https://solr.example.com
+        template: templates/config.yaml
+      - exists:
+          path: stringData.SOLR_USERNAME
+        template: templates/secret.yaml
+      - exists:
+          path: stringData.SOLR_PASSWORD
+        template: templates/secret.yaml
+      - notExists:
+          path: spec.template.spec.containers[0].env
+        template: templates/deployment.yaml
+  - it: requires a username for an external Solr
+    set:
+      solr.url: https://solr.example.com
+      solr.username: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: Valid .Values.solr.username entry required when using an external Solr!
+        template: templates/secret.yaml
+  - it: requires a password for an external Solr
+    set:
+      solr.url: https://solr.example.com
+      solr.password: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: Valid .Values.solr.password entry required when using an external Solr!
+        template: templates/secret.yaml
