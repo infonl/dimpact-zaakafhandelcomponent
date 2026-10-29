@@ -4,11 +4,11 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   input,
   numberAttribute,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatTooltipModule } from "@angular/material/tooltip";
 

@@ -4,6 +4,7 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   Injector,
@@ -13,7 +14,6 @@ import {
   inject,
   viewChild,
   viewChildren,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -50,7 +50,8 @@ interface BpmnProcessDefinitionGroupNode {
 }
 
 type Node =
-  BpmnProcessDefinitionGroupNode | GeneratedType<"RestBpmnProcessDefinition">;
+  | BpmnProcessDefinitionGroupNode
+  | GeneratedType<"RestBpmnProcessDefinition">;
 
 @Component({
   standalone: true,

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, signal, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import {
   ComponentFixture,
   fakeAsync,

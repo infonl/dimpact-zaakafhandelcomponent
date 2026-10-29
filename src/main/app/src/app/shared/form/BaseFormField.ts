@@ -5,6 +5,7 @@
 
 import {
   booleanAttribute,
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -12,7 +13,6 @@ import {
   input,
   OnDestroy,
   signal,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import {
   AbstractControl,
@@ -43,7 +43,8 @@ export class SingleInputFormField<
   Form extends Record<string, AbstractControl>,
   Key extends keyof Form,
   Option extends Form[Key]["value"],
-> implements OnDestroy {
+> implements OnDestroy
+{
   private readonly translateService = inject(TranslateService);
 
   private readonly controlErrors = signal<ValidationErrors | null>(null);

@@ -4,10 +4,10 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   inject,
   input,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { TranslatePipe } from "@ngx-translate/core";

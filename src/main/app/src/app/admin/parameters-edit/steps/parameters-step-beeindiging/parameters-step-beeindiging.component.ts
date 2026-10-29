@@ -4,11 +4,11 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   inject,
   input,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { MatCardModule } from "@angular/material/card";

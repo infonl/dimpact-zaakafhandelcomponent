@@ -5,6 +5,7 @@
 
 import { NgClass } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -16,7 +17,6 @@ import {
   output,
   signal,
   untracked,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";

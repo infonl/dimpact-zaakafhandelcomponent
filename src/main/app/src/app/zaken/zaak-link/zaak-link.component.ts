@@ -5,6 +5,7 @@
 
 import { NgTemplateOutlet } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -13,7 +14,6 @@ import {
   output,
   signal,
   viewChild,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import {

@@ -5,11 +5,11 @@
 
 import { Location } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   inject,
   signal,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRouteSnapshot, NavigationEnd, Router } from "@angular/router";

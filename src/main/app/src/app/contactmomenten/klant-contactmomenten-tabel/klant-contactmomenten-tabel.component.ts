@@ -5,13 +5,13 @@
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   effect,
   inject,
   input,
   untracked,
   viewChild,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";

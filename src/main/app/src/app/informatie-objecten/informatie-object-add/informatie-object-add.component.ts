@@ -4,12 +4,12 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   effect,
   inject,
   input,
   output,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";

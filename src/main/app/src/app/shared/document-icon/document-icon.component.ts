@@ -4,10 +4,10 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   inject,
   input,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatIcon } from "@angular/material/icon";
 import { TranslateService } from "@ngx-translate/core";

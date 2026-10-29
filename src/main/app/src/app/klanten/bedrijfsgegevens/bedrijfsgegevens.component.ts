@@ -4,13 +4,13 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   inject,
   input,
   linkedSignal,
   output,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatExpansionModule } from "@angular/material/expansion";

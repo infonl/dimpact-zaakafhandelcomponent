@@ -4,11 +4,11 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   inject,
   input,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";

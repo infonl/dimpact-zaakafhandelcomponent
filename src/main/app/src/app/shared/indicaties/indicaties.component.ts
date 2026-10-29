@@ -4,10 +4,10 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   input,
   Signal,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { IndicatieItem } from "../model/indicatie-item";
 

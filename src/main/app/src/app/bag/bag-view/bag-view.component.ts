@@ -4,10 +4,10 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   OnInit,
   inject,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatSidenavModule } from "@angular/material/sidenav";

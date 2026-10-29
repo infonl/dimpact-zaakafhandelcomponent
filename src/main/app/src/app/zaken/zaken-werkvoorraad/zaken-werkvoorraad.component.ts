@@ -5,13 +5,13 @@
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   inject,
   OnDestroy,
   OnInit,
   signal,
   viewChild,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 
 import { detailExpand } from "../../shared/animations/animations";

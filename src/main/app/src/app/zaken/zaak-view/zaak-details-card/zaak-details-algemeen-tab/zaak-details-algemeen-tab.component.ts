@@ -5,12 +5,12 @@
 
 import { LowerCasePipe } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   inject,
   input,
   output,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MatIconButton } from "@angular/material/button";

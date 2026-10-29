@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 import {
+  ChangeDetectionStrategy,
   Component,
   OnInit,
   computed,
@@ -10,7 +11,6 @@ import {
   inject,
   input,
   output,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {

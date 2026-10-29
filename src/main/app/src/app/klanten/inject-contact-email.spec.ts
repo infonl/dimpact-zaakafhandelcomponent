@@ -9,11 +9,11 @@ import {
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import {
+  ChangeDetectionStrategy,
   Component,
   provideZonelessChangeDetection,
   signal,
   Signal,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideTranslateService } from "@ngx-translate/core";

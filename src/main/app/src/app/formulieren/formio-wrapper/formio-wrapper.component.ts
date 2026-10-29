@@ -6,6 +6,7 @@
 import {
   AfterViewInit,
   booleanAttribute,
+  ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
@@ -20,7 +21,6 @@ import {
   untracked,
   viewChild,
   ViewEncapsulation,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {

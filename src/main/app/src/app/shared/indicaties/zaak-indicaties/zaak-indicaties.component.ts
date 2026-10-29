@@ -5,11 +5,11 @@
 
 import { CommonModule } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   inject,
   input,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatChipsModule } from "@angular/material/chips";
 import { MatIconModule } from "@angular/material/icon";

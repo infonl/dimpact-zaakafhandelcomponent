@@ -4,10 +4,10 @@
   */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   inject,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { Router } from "@angular/router";

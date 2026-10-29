@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, input, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { MatIcon } from "@angular/material/icon";
 import { MatTooltip } from "@angular/material/tooltip";
 import { TranslatePipe } from "@ngx-translate/core";

@@ -7,11 +7,11 @@ import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
 import { SlicePipe } from "@angular/common";
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   inject,
   OnDestroy,
   viewChild,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, input, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { ZacTextarea } from "../../../../shared/form/textarea/textarea";
 import { ActiesForm } from "./acties-form";

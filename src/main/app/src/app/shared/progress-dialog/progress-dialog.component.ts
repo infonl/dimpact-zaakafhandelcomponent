@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 

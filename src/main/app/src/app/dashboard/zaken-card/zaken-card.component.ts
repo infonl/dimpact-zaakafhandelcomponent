@@ -4,6 +4,7 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
@@ -11,7 +12,6 @@ import {
   inject,
   OnDestroy,
   signal,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { MatIconAnchor } from "@angular/material/button";

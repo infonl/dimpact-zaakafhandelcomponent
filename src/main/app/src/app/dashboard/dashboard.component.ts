@@ -15,6 +15,7 @@ import {
 import { NgClass } from "@angular/common";
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -25,7 +26,6 @@ import {
   untracked,
   viewChild,
   viewChildren,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatButton, MatIconButton } from "@angular/material/button";

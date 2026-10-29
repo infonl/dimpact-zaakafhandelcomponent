@@ -5,10 +5,10 @@
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   OnDestroy,
   Signal,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import {
   MatDrawerMode,

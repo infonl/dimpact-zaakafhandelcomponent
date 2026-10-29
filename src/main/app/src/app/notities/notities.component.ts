@@ -6,6 +6,7 @@
 import { CdkTextareaAutosize } from "@angular/cdk/text-field";
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -13,7 +14,6 @@ import {
   inject,
   input,
   viewChild,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatBadgeModule } from "@angular/material/badge";
 import { MatButtonModule } from "@angular/material/button";

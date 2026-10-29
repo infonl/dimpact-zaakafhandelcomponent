@@ -5,12 +5,12 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   inject,
   input,
   OnInit,
   output,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatCheckboxModule } from "@angular/material/checkbox";

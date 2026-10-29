@@ -4,10 +4,10 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   input,
   output,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDrawer } from "@angular/material/sidenav";

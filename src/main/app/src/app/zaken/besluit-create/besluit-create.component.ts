@@ -4,12 +4,12 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   inject,
   input,
   OnInit,
   output,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {

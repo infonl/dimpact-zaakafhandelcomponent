@@ -6,6 +6,7 @@
 import { KeyValuePipe, NgClass } from "@angular/common";
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   effect,
   EventEmitter,
@@ -13,7 +14,6 @@ import {
   input,
   OnDestroy,
   viewChild,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";

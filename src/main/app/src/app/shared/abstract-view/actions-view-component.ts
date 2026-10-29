@@ -5,9 +5,9 @@
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   Signal,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatDrawer } from "@angular/material/sidenav";
 import { ViewComponent } from "./view-component";
