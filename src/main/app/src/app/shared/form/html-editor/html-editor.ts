@@ -23,8 +23,9 @@ import {
 import { MatError, MatHint, MatLabel } from "@angular/material/form-field";
 import { DomSanitizer } from "@angular/platform-browser";
 import { TranslatePipe } from "@ngx-translate/core";
-import { Editor, NgxEditorModule, Toolbar } from "ngx-editor";
+import { Editor, NgxEditorModule, toHTML, Toolbar } from "ngx-editor";
 import { Schema } from "prosemirror-model";
+import { Plugin } from "prosemirror-state";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { CustomValidators } from "../../validators/customValidators";
 import { SingleInputFormField } from "../BaseFormField";
@@ -43,6 +44,16 @@ const plainTextSchema = new Schema({
     text: {},
   },
   marks: {},
+});
+
+// ngx-editor starts an empty value as a paragraph without checking the schema, which would put a <p> in the value.
+const unwrapParagraphs = new Plugin({
+  appendTransaction: (_transactions, _oldState, { doc, schema, tr }) => {
+    if (doc.children.every((node) => node.isText)) return null;
+
+    const text = doc.textContent;
+    return tr.replaceWith(0, doc.content.size, text ? schema.text(text) : []);
+  },
 });
 
 @Component({
@@ -98,6 +109,7 @@ export class ZacHtmlEditor<
     return new Editor({
       keyboardShortcuts: false,
       schema: plainTextSchema,
+      plugins: [unwrapParagraphs],
     });
   });
 
@@ -117,6 +129,20 @@ export class ZacHtmlEditor<
       if (!control.hasValidator(CustomValidators.nonEmptyHtmlElement)) {
         control.addValidators(CustomValidators.nonEmptyHtmlElement);
       }
+    });
+
+    // ngx-editor does not report a value set by code back to the form, so HTML in it would stay in the value.
+    effect((onCleanup) => {
+      if (!this.isPlainText()) return;
+
+      const subscription = this.editor().valueChanges.subscribe((jsonDoc) => {
+        const control = this.control();
+        const text = toHTML(jsonDoc, plainTextSchema);
+        if (!control || (control.value ?? "") === text) return;
+
+        control.setValue(text as Option, { emitModelToViewChange: false });
+      });
+      onCleanup(() => subscription.unsubscribe());
     });
   }
 
