@@ -225,4 +225,15 @@ describe(ZacHtmlEditor.name, () => {
       },
     );
   });
+
+  it("should strip html tags from a plain text value that is set before the editor renders", () => {
+    const form = createTestForm();
+    form.controls.content.setValue("<p>Test content</p>");
+    componentRef.setInput("form", form);
+    componentRef.setInput("key", "content");
+    componentRef.setInput("isPlainText", true);
+    fixture.detectChanges();
+
+    expect(form.controls.content.value).toBe("Test content");
+  });
 });
