@@ -5,7 +5,9 @@
 
 ## 2. Angular 21 and Jest 30
 
-- [ ] 2.1 `ng update @angular/core@21 @angular/cli@21 @angular/material@21` and review the migrations
+- [ ] 2.1 `ng update @angular/core@21 @angular/cli@21 @angular/material@21 --force` and review the migrations;
+  `--force` because `ngx-bootstrap`, `@angular-builders/jest` and `jest-preset-angular` still require Angular 20
+  until 2.2 and 2.3
 - [ ] 2.2 Update `@angular-eslint/*` and `ngx-bootstrap` to 21
 - [ ] 2.3 Update `@angular-builders/jest` to 21, `jest` and `@types/jest` to 30, `jest-preset-angular` to 16 and
   `jsdom` to 26 or later
