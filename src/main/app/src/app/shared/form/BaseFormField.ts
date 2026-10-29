@@ -19,7 +19,6 @@ import {
   ValidationErrors,
   Validators,
 } from "@angular/forms";
-import { SubscriptSizing } from "@angular/material/form-field";
 import { TranslateService } from "@ngx-translate/core";
 import { injectIsMutating } from "@tanstack/angular-query-experimental";
 import { lastValueFrom, Observable, Subject, takeUntil } from "rxjs";
@@ -73,7 +72,6 @@ export class SingleInputFormField<
   public readonly key = input.required<Key & string>();
   public readonly label = input<string>();
   public readonly readonly = input(false, { transform: booleanAttribute });
-  public readonly subscriptSizing = input<SubscriptSizing>("fixed");
 
   protected readonly labelKey = computed(
     () => this.label() ?? toI18nKey(this.key()),
