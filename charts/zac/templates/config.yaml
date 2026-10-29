@@ -102,8 +102,8 @@ data:
   SOLR_URL: http://{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}-solrcloud-common
   {{- end }}
   # WildFly applies these to its logging subsystem because the image sets WILDFLY_OVERRIDING_ENV_VARS=1.
-  SUBSYSTEM_LOGGING_CONSOLE_HANDLER_CONSOLE__LEVEL: {{ .Values.logLevel | default "INFO" | upper | quote }}
-  SUBSYSTEM_LOGGING_ROOT_LOGGER_ROOT__LEVEL: {{ .Values.logLevel | default "INFO" | upper | quote }}
+  SUBSYSTEM_LOGGING_CONSOLE_HANDLER_CONSOLE__LEVEL: {{ .Values.logLevel | default "INFO" | quote }}
+  SUBSYSTEM_LOGGING_ROOT_LOGGER_ROOT__LEVEL: {{ .Values.logLevel | default "INFO" | quote }}
   TZ: Europe/Amsterdam
   VERANTWOORDELIJKE_ORGANISATIE_RSIN: {{ required "Valid .Values.organizations.verantwoordelijke.rsin entry required!" .Values.organizations.verantwoordelijke.rsin | quote }}
   ZGW_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.zgwApis.url entry required!" .Values.zgwApis.url }}
