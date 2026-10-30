@@ -24,11 +24,11 @@ import java.time.ZonedDateTime
 import java.util.logging.Level
 import java.util.logging.Logger
 
-private const val RESOURCE_GERELATEERDE_ZAKEN = "gerelateerdeZaken"
+internal const val RESOURCE_GERELATEERDE_ZAKEN = "gerelateerdeZaken"
 private const val RESOURCE_COMMUNICATION_CHANNEL = "communicatiekanaal"
 private const val RESOURCE_EINDDATUM = "einddatum"
 private const val RESOURCE_EINDDATUM_GEPLAND = "einddatumGepland"
-private const val RESOURCE_HOOFDZAAK = "hoofdzaak"
+internal const val RESOURCE_HOOFDZAAK = "hoofdzaak"
 private const val RESOURCE_STARTDATUM = "startdatum"
 private const val RESOURCE_UITERLIJKE_EINDDATUM_AFDOENING = "uiterlijkeEinddatumAfdoening"
 private const val RESOURCE_EXTENSION = "verlenging"

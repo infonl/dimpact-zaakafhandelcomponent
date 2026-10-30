@@ -25,8 +25,8 @@ const makeBesluit = (
     ...fields,
   });
 
-const setup = (besluit: GeneratedType<"RestBesluit">) =>
-  render(BesluitIndicatiesComponent, {
+const setup = async (besluit: GeneratedType<"RestBesluit">) => {
+  const result = await render(BesluitIndicatiesComponent, {
     inputs: { besluit, layout: IndicatiesLayout.EXTENDED },
     providers: [
       provideTranslateService({
@@ -38,6 +38,9 @@ const setup = (besluit: GeneratedType<"RestBesluit">) =>
       }),
     ],
   });
+  await result.fixture.whenStable();
+  return result;
+};
 
 const chipWithTooltip = (tooltip: string) =>
   screen.getByRole("presentation", { description: tooltip });

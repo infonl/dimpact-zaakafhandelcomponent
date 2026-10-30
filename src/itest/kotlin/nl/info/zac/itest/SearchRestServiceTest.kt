@@ -185,6 +185,7 @@ class SearchRestServiceTest : BehaviorSpec({
                               "canBrondatumZetten" : false,
                               "canCreerenDocument" : false,
                               "canHeropenen" : false,
+                              "canKoppelen" : false,
                               "canLezen" : true,
                               "canToekennen" : false,
                               "canToevoegenBagObject" : false,

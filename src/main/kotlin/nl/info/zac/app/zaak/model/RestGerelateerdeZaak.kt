@@ -8,6 +8,7 @@ import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.app.policy.model.RestZaakRechten
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.zaak.model.RelatieType
 import java.time.LocalDate
 
 @AllOpen

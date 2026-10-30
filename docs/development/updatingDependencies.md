@@ -137,3 +137,15 @@ Make sure to commit every update command you run with a format like:
     git commit -m "update @angular/core to [version]"
 ```
 
+### Major versions
+
+- Each major version of `@angular-builders/jest` supports one Angular major and one Jest major. Update it together
+  with `jest`, `@types/jest`, `jest-preset-angular` and `jest-environment-jsdom` in the same change, and check its
+  changelog for renamed or removed builder options in [angular.json](../../src/main/app/angular.json).
+- `ng update @angular/core` stops on the peer dependencies of the Jest packages. Run it with `--force`, then update
+  the Jest packages.
+- Some Angular CLI migrations fail on the `../tsconfig.spec.json` path of the test target in
+  [angular.json](../../src/main/app/angular.json). Change it to `tsconfig.spec.json`, run the migrations again with
+  `ng update @angular/cli --migrate-only --from=[old version] --to=[new version] --allow-dirty`, and change the path
+  back.
+

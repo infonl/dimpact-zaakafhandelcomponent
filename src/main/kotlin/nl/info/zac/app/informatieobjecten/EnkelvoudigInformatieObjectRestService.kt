@@ -49,7 +49,6 @@ import nl.info.zac.app.informatieobjecten.model.RestInformatieobjecttype
 import nl.info.zac.app.informatieobjecten.model.RestZaakInformatieobject
 import nl.info.zac.app.informatieobjecten.model.toRestInformatieobjecttype
 import nl.info.zac.app.policy.model.toRestZaakRechten
-import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.toRestZaakStatus
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.document.content.DocumentContent
@@ -72,6 +71,7 @@ import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.webdav.WebdavHelper
 import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
+import nl.info.zac.zaak.model.RelatieType
 import nl.info.zac.zaak.readZaakAutorisatieGegevens
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
 import java.io.IOException

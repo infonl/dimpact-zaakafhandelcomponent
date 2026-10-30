@@ -19,7 +19,6 @@ import jakarta.persistence.Table
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
-import nl.info.zac.app.planitems.converter.toFormulierDefinitie
 import nl.info.zac.database.flyway.FlywayIntegrator.Companion.SCHEMA
 import nl.info.zac.util.AllOpen
 import java.util.Collections

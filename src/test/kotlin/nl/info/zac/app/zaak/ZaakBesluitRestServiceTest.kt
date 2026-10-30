@@ -17,6 +17,7 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.createBesluit
+import nl.info.client.zgw.brc.model.generated.VervalredenEnum
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
@@ -89,7 +90,8 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
             every {
                 policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
             } returns createZaakRechten()
-            every { besluitService.createBesluit(zaak, createData) } returns besluit
+            every { restBesluitConverter.convertToBesluit(zaak, createData) } returns besluit
+            every { besluitService.createBesluit(besluit, createData.informatieobjecten) } returns besluit
             every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
             every { eventingService.send(any<ScreenEvent>()) } just runs
 
@@ -132,11 +134,11 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
         val withdrawalData = RestBesluitWithdrawalData(
             besluitUuid = besluitUUID,
             reden = "fakeReden",
-            vervalreden = "fakeVervalreden"
+            vervalreden = "INGETROKKEN_OVERHEID"
         )
 
         given("user has zaak behandelen permission and zaak is open") {
-            every { besluitService.readBesluit(withdrawalData) } returns besluit
+            every { besluitService.readBesluit(besluitUUID, null, VervalredenEnum.INGETROKKEN_OVERHEID) } returns besluit
             every { zrcClientService.readZaak(besluit.zaak) } returns zaak
             every { loggedInUserInstance.get() } returns loggedInUser
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechten()
@@ -155,7 +157,7 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
         }
 
         given("user has no zaak behandelen permission") {
-            every { besluitService.readBesluit(withdrawalData) } returns besluit
+            every { besluitService.readBesluit(besluitUUID, null, VervalredenEnum.INGETROKKEN_OVERHEID) } returns besluit
             every { zrcClientService.readZaak(besluit.zaak) } returns zaak
             every { loggedInUserInstance.get() } returns loggedInUser
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny()
@@ -176,7 +178,7 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
                 url = URI("http://localhost/besluit/$besluitUUID")
             )
 
-            every { besluitService.readBesluit(withdrawalData) } returns closedZaakBesluit
+            every { besluitService.readBesluit(besluitUUID, null, VervalredenEnum.INGETROKKEN_OVERHEID) } returns closedZaakBesluit
             every { zrcClientService.readZaak(closedZaakBesluit.zaak) } returns closedZaak
 
             `when`("besluit withdrawal is attempted on a closed zaak") {
@@ -338,7 +340,12 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(besluit.zaak) } returns zaak
             every { loggedInUserInstance.get() } returns loggedInUser
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechten()
-            every { besluitService.updateBesluit(besluit, changeData) } returns besluit
+            every { besluitService.updateBesluit(
+                    besluit = besluit,
+                    besluitPatch = any(),
+                    informatieobjectUuids = changeData.informatieobjecten,
+                    reason = changeData.reden
+                ) } returns besluit
             every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
             every { eventingService.send(any<ScreenEvent>()) } just runs
 

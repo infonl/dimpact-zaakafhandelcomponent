@@ -1,9 +1,20 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 @import "../../../variables";
+
+:host {
+  display: block;
+}
+
+// Keeps the title and the close button in view while the results scroll.
+mat-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
 
 .form {
   min-width: 700px;

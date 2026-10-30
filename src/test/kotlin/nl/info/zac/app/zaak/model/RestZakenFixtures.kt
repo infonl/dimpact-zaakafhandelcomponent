@@ -18,8 +18,10 @@ import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.app.zaak.model.besluit.RestBesluit
 import nl.info.zac.app.zaak.model.besluit.RestBesluitChangeData
 import nl.info.zac.app.zaak.model.besluit.RestBesluitCreateData
+import nl.info.zac.identification.BetrokkeneIdentificatie
 import nl.info.zac.identification.IdentificatieType
 import nl.info.zac.search.model.ZaakIndicatie
+import nl.info.zac.zaak.model.RelatieType
 import java.net.URI
 import java.time.LocalDate
 import java.util.EnumSet
@@ -365,7 +367,8 @@ fun createRestZaakRechten(
     creerenDocument: Boolean = true,
     versturenEmail: Boolean = true,
     wijzigenLocatie: Boolean = true,
-    brondatumZetten: Boolean = true
+    brondatumZetten: Boolean = true,
+    koppelen: Boolean = true
 ) = RestZaakRechten(
     canLezen = lezen,
     canWijzigen = wijzigen,
@@ -386,7 +389,8 @@ fun createRestZaakRechten(
     canCreerenDocument = creerenDocument,
     canVersturenEmail = versturenEmail,
     canWijzigenLocatie = wijzigenLocatie,
-    canBrondatumZetten = brondatumZetten
+    canBrondatumZetten = brondatumZetten,
+    canKoppelen = koppelen
 )
 
 fun createRestZaakResultaat() = RestZaakResultaat()

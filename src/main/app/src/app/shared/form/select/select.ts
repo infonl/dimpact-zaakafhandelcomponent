@@ -8,7 +8,10 @@ import { LowerCasePipe } from "@angular/common";
 import { Component, input } from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
-import { MatFormFieldModule } from "@angular/material/form-field";
+import {
+  MatFormFieldModule,
+  SubscriptSizing,
+} from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatSelectModule } from "@angular/material/select";
@@ -47,6 +50,13 @@ export class ZacSelect<
    * - If the suffix is a string, it will display that string.
    */
   protected readonly suffix = input<string>();
+
+  public readonly subscriptSizing = input<SubscriptSizing>("fixed");
+
+  /**
+   * Shows an option that returns `true` as disabled, so that it can be seen but not selected.
+   */
+  readonly optionDisabled = input<(option: Option) => boolean>(() => false);
 
   protected displaySuffix = (option: Option) => {
     const suffix = this.suffix();

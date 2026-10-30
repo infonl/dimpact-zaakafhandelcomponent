@@ -6,6 +6,7 @@ package nl.info.zac.app.zaak.model
 
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.zaak.model.RelatieType
 import java.util.UUID
 
 @AllOpen

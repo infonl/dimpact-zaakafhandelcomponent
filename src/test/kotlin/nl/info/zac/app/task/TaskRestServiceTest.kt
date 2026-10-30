@@ -41,6 +41,7 @@ import nl.info.zac.app.task.model.createRestTaskAssignData
 import nl.info.zac.app.task.model.createRestTaskDistributeData
 import nl.info.zac.app.task.model.createRestTaskDistributeTask
 import nl.info.zac.app.task.model.createRestTaskReleaseData
+import nl.info.zac.app.task.model.toTaskDistribution
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.authentication.createLoggedInUser
@@ -517,7 +518,7 @@ class TaskRestServiceTest : BehaviorSpec({
                 screenEventResourceId = screenEventResourceId
             )
             every {
-                taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
+                taskService.assignTasks(restTaakVerdelenGegevens.toTaskDistribution(), loggedInUser, screenEventResourceId)
             } just Runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -532,7 +533,7 @@ class TaskRestServiceTest : BehaviorSpec({
 
                 then("the tasks are assigned to the group and user") {
                     verify(exactly = 1) {
-                        taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
+                        taskService.assignTasks(restTaakVerdelenGegevens.toTaskDistribution(), loggedInUser, screenEventResourceId)
                     }
                 }
             }
@@ -562,7 +563,12 @@ class TaskRestServiceTest : BehaviorSpec({
             val werklijstRechten = createWerklijstRechten()
             every { policyService.readWerklijstRechten() } returns werklijstRechten
             every {
-                taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
+                taskService.releaseTasks(
+                    taskIds = restTaakVrijgevenGegevens.taken.map { it.taakId },
+                    reason = restTaakVrijgevenGegevens.reden,
+                    loggedInUser = loggedInUser,
+                    screenEventResourceId = screenEventResourceId
+                )
             } just Runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -573,7 +579,12 @@ class TaskRestServiceTest : BehaviorSpec({
 
                 then("the tasks are assigned to the group and user") {
                     verify(exactly = 1) {
-                        taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
+                        taskService.releaseTasks(
+                    taskIds = restTaakVrijgevenGegevens.taken.map { it.taakId },
+                    reason = restTaakVrijgevenGegevens.reden,
+                    loggedInUser = loggedInUser,
+                    screenEventResourceId = screenEventResourceId
+                )
                     }
                 }
             }
@@ -786,7 +797,7 @@ class TaskRestServiceTest : BehaviorSpec({
 
                 then("the tasks are assigned as the user that started the batch") {
                     verify(exactly = 1) {
-                        taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
+                        taskService.assignTasks(restTaakVerdelenGegevens.toTaskDistribution(), loggedInUser, screenEventResourceId)
                     }
                 }
 
@@ -804,7 +815,12 @@ class TaskRestServiceTest : BehaviorSpec({
             )
             every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
             var userInContextDuringRelease: LoggedInUser? = null
-            every { taskService.releaseTasks(any(), any(), any()) } answers {
+            every { taskService.releaseTasks(
+                    taskIds = any(),
+                    reason = any(),
+                    loggedInUser = any(),
+                    screenEventResourceId = any()
+                ) } answers {
                 userInContextDuringRelease = LoggedInUserProvider.asyncContextUser.get()
             }
 
@@ -822,7 +838,12 @@ class TaskRestServiceTest : BehaviorSpec({
 
                 then("the tasks are released as the user that started the batch") {
                     verify(exactly = 1) {
-                        taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
+                        taskService.releaseTasks(
+                    taskIds = restTaakVrijgevenGegevens.taken.map { it.taakId },
+                    reason = restTaakVrijgevenGegevens.reden,
+                    loggedInUser = loggedInUser,
+                    screenEventResourceId = screenEventResourceId
+                )
                     }
                 }
 

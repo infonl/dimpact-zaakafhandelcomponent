@@ -27,7 +27,6 @@ import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.shared.toRestVertrouwelijkheidaanduiding
-import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestGerelateerdeZaak
 import nl.info.zac.app.zaak.model.RestZaak
 import nl.info.zac.app.zaak.model.RestZaakKenmerk
@@ -49,6 +48,7 @@ import nl.info.zac.search.model.ZaakIndicatie.OPSCHORTING
 import nl.info.zac.search.model.ZaakIndicatie.VERLENGD
 import nl.info.zac.util.time.format
 import nl.info.zac.zaak.ZaakService
+import nl.info.zac.zaak.model.RelatieType
 import java.time.Period
 import java.util.EnumSet.noneOf
 

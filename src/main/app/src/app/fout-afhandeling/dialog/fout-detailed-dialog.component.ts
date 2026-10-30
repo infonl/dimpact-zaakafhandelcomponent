@@ -37,6 +37,8 @@ export class FoutDetailedDialogComponent {
     error: string;
     details: string;
     showServerErrorTexts?: boolean;
+    waarschuwing?: string;
+    titel?: string;
   }>(MAT_DIALOG_DATA);
 
   protected readonly serverErrorTextsQuery = injectQuery(() => ({

@@ -8,6 +8,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.generated.ZaakTypenRelatie
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.zaak.model.RelatieType
 import java.net.URI
 import java.util.UUID
 

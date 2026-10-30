@@ -10,13 +10,6 @@ import {
   createCacheBustingTranslateLoader,
 } from "./translate-loader.service";
 
-Object.defineProperty(window, "location", {
-  value: {
-    hostname: "localhost",
-  },
-  writable: true,
-});
-
 describe("CacheBustingTranslateLoader", () => {
   let loader: CacheBustingTranslateLoader;
   let httpClient: HttpClient;
