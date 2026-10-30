@@ -7,6 +7,7 @@ import {
   booleanAttribute,
   Component,
   computed,
+  DoCheck,
   ElementRef,
   inject,
   input,
@@ -31,7 +32,7 @@ import { trackControl } from "../control-state";
     TranslatePipe,
   ],
 })
-export class ZacFormActions {
+export class ZacFormActions implements DoCheck {
   private readonly host = inject(ElementRef<HTMLElement>);
 
   protected readonly submitLabel = input<string>("actie.verstuur");
@@ -52,6 +53,10 @@ export class ZacFormActions {
   private readonly formDisabled = this.readForm((form) => form.disabled);
   private readonly formValid = this.readForm((form) => form.valid);
   private readonly formDirty = this.readForm((form) => form.dirty);
+
+  ngDoCheck() {
+    this.readForm.check();
+  }
 
   /**
    * Optional TanStack mutation driving the pending state. When omitted, the

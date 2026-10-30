@@ -10,6 +10,7 @@ import {
   effect,
   inject,
   input,
+  DoCheck,
   OnDestroy,
   signal,
 } from "@angular/core";
@@ -37,7 +38,9 @@ export class SingleInputFormField<
   Form extends Record<string, AbstractControl>,
   Key extends keyof Form,
   Option extends Form[Key]["value"],
-> implements OnDestroy {
+>
+  implements DoCheck, OnDestroy
+{
   private readonly translateService = inject(TranslateService);
 
   private readonly mutatingCount = injectIsMutating();
@@ -109,6 +112,10 @@ export class SingleInputFormField<
       this.translateService,
     );
   });
+
+  ngDoCheck() {
+    this.readControl.check();
+  }
 
   ngOnDestroy() {
     this.destroy$.next();
