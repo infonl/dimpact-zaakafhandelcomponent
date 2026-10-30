@@ -14,7 +14,7 @@ import { RouterModule } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
 import { screen, waitFor, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { of } from "rxjs";
+import { catchError, EMPTY, of, Subject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { ButtonMenuItem } from "./menu-item/button-menu-item";
 import { HrefMenuItem } from "./menu-item/href-menu-item";
@@ -411,6 +411,47 @@ describe(SideNavComponent.name, () => {
         expect(asyncButtonItem.disabled).toBe(false);
         expect(utilServiceMock.setLoading).toHaveBeenCalledWith(false);
       });
+    });
+
+    it.each([
+      ["completes", (action: Subject<void>) => action.complete()],
+      ["fails", (action: Subject<void>) => action.error(new Error("fake"))],
+    ])(
+      "shows the button enabled again once a slow async action %s",
+      async (_, settle) => {
+        const action = new Subject<void>();
+        const asyncButtonItem = new AsyncButtonMenuItem(
+          "test.async",
+          () => action.pipe(catchError(() => EMPTY)),
+          "cloud",
+        );
+        fixture.componentRef.setInput("menu", [asyncButtonItem]);
+        fixture.detectChanges();
+        fixture.autoDetectChanges();
+        const button = screen.getByRole("button", { name: "test.async" });
+
+        await user.click(button);
+        await waitFor(() => expect(button).toBeDisabled());
+        settle(action);
+
+        await waitFor(() => expect(button).not.toBeDisabled());
+      },
+    );
+
+    it("shows a button enabled again when code re-enables it later", async () => {
+      const buttonItem = new ButtonMenuItem("test.button", jest.fn(), "home");
+      buttonItem.disabled = true;
+      fixture.componentRef.setInput("menu", [buttonItem]);
+      fixture.detectChanges();
+      fixture.autoDetectChanges();
+
+      buttonItem.disabled = false;
+
+      await waitFor(() =>
+        expect(
+          screen.getByRole("button", { name: "test.button" }),
+        ).not.toBeDisabled(),
+      );
     });
   });
 
