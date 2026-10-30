@@ -1,0 +1,32 @@
+{
+  "nummeraanduiding": {
+    "identificatie": "0363200003761447",
+    "domein": "NL.IMBAG.Nummeraanduiding",
+    "huisnummer": 1,
+    "postcode": "1012JS",
+    "typeAdresseerbaarObject": "Verblijfsobject",
+    "status": "Naamgeving uitgegeven",
+    "geconstateerd": "N",
+    "documentdatum": "2009-03-20",
+    "documentnummer": "SA00002271",
+    "voorkomen": {
+      "tijdstipRegistratie": "2010-11-06T00:22:56",
+      "versie": 1,
+      "beginGeldigheid": "2009-03-20",
+      "tijdstipRegistratieLV": "2010-11-08T11:38:05.555"
+    },
+    "ligtIn": "3594",
+    "ligtAan": "0363300000003186"
+  },
+  "_links": {
+    "self": {
+      "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/nummeraanduidingen/0363200003761447"
+    },
+    "ligtInWoonplaats": {
+      "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
+    },
+    "ligtAanOpenbareRuimte": {
+      "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003186"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+{{- /*
+  The upstream charts and the images that scripts/kind/up.sh reads with 'helm template --show-only', so that this
+  chart's values stay the one place for them.
+*/}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zac-dev-stack
+  namespace: {{ .Release.Namespace }}
+data:
+  stack.json: |
+    {{- dict
+      "charts" .Values.upstreamCharts
+      "images" (dict
+        "openzaak" .Values.openzaak.image
+        "openklant" .Values.openklant.image
+        "openobject" .Values.openobject.image
+        "opennotificaties" .Values.opennotificaties.image
+        "openarchiefbeheer" .Values.openarchiefbeheer.image
+        "openforms" .Values.openforms.image
+        "nginx" .Values.nginx.image)
+      "databases" .Values.postgres.databases
+      "officeConverterUsername" .Values.officeConverter.username
+      "objecten" (eq (include "zac-dev.objecten" .) "true")
+      "opennotificaties" (eq (include "zac-dev.opennotificaties" .) "true")
+      | toJson | nindent 4 }}

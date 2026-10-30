@@ -1,0 +1,78 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# A local VNG Selectielijst API (-v). On every start the image applies its database migrations and loads the
+# Selectielijst 2020 fixture that it ships with.
+{{- if .Values.profiles.vngselectielijst }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vng-selectielijst
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vng-selectielijst
+  template:
+    metadata:
+      labels:
+        app: vng-selectielijst
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+      initContainers:
+        {{- include "zac-dev.waitForPostgres" . | nindent 8 }}
+      containers:
+        - name: vng-selectielijst
+          image: {{ .Values.vngSelectielijst.image }}
+          env:
+            - name: DJANGO_SETTINGS_MODULE
+              value: selectielijst.conf.docker
+            {{- include "zac-dev.generatedSecretEnv" (list . "SECRET_KEY" "secret-key-vngselectielijst") | nindent 12 }}
+            - name: DB_HOST
+              value: vng-selectielijst-database
+            - name: DB_NAME
+              value: selectielijst
+            - name: DB_USER
+              value: selectielijst
+            {{- include "zac-dev.generatedSecretEnv" (list . "DB_PASSWORD" "db-password-selectielijst") | nindent 12 }}
+            - name: ALLOWED_HOSTS
+              value: "*"
+            - name: IS_HTTPS
+              value: "no"
+            - name: FIXTURES_DIR
+              value: /app/src/fixtures
+            - name: UWSGI_PROCESSES
+              value: "1"
+          ports:
+            - containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /api/v1/
+              port: 8000
+            periodSeconds: 2
+          securityContext:
+            {{- include "zac-dev.containerSecurityContext" . | nindent 12 }}
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vng-selectielijst
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: vng-selectielijst
+  ports:
+    - port: 8000
+      targetPort: 8000
+{{- end }}
