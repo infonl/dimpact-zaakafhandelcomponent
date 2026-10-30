@@ -4,14 +4,7 @@
  */
 
 import { KeyValuePipe } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-  output,
-} from "@angular/core";
+import { Component, computed, inject, input, output } from "@angular/core";
 import { MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import {
@@ -31,7 +24,6 @@ import { ColumnPickerValue } from "./column-picker-value";
   templateUrl: "./column-picker.component.html",
   styleUrls: ["./column-picker.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     KeyValuePipe,
     MatIconButton,

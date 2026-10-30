@@ -25,10 +25,10 @@
     id="confirmButton"
     mat-raised-button
     color="primary"
-    [disabled]="loading"
+    [disabled]="loading()"
     (click)="confirm()"
   >
-    @if (loading) {
+    @if (loading()) {
       <mat-icon>
         <mat-spinner diameter="18"></mat-spinner>
       </mat-icon>
@@ -38,7 +38,7 @@
   <button
     id="cancelButton"
     mat-raised-button
-    [disabled]="loading"
+    [disabled]="loading()"
     (click)="cancel()"
   >
     {{ "actie.nee" | translate }}
