@@ -15,6 +15,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import io.mockk.verifyOrder
+import nl.info.client.klant.model.ContactDetails
 import nl.info.client.klant.model.KlantcontactContactDetails
 import nl.info.client.or.`object`.model.createORObject
 import nl.info.client.or.`object`.model.createObjectRecord
@@ -22,7 +23,6 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
-import nl.info.zac.app.klant.model.contactdetails.ContactDetails
 import nl.info.zac.flowable.ProcessStartData
 import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.productaanvraag.model.createBetrokkene

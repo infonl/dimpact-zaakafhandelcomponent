@@ -4,7 +4,13 @@
  */
 
 import { HttpTestingController } from "@angular/common/http/testing";
-import { booleanAttribute, Component, input, output } from "@angular/core";
+import {
+  booleanAttribute,
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
@@ -42,6 +48,7 @@ const fakeRoltype = fromPartial<GeneratedType<"RestRoltype">>({
       select fake persoon
     </button>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class PersoonZoekStubComponent {
@@ -63,6 +70,7 @@ class PersoonZoekStubComponent {
       select fake bedrijf
     </button>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class BedrijfZoekStubComponent {

@@ -6,11 +6,11 @@ package nl.info.zac.task
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import net.atos.zac.util.JsonbUtil.FIELD_VISIBILITY_STRATEGY
 import nl.info.zac.flowable.task.model.ValueChangeData
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.util.AllOpen
+import nl.info.zac.util.FIELD_VISIBILITY_STRATEGY
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import org.flowable.engine.HistoryService
@@ -35,7 +35,7 @@ class TaskHistoryService @Inject constructor(
                 FIELD_VISIBILITY_STRATEGY.toJson(
                     ValueChangeData(
                         "",
-                        identityService.readUser(userId = medewerkerId, logContext = "task '${task.id}'").getFullName(),
+                        identityService.readUser(username = medewerkerId, logContext = "task '${task.id}'").getFullName(),
                         ZaakspecifiekeAutorisatieService.ROLTOELICHTING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER
                     )
                 )

@@ -22,10 +22,10 @@ import { UtilService } from "../../core/service/util.service";
   selector: "[zacOutsideClick]",
 })
 export class OutsideClickDirective implements OnInit, OnDestroy {
-  private element = inject(ElementRef);
-  private document = inject(DOCUMENT);
-  private platformId = inject<Record<string, unknown>>(PLATFORM_ID);
-  private utilService = inject(UtilService);
+  private readonly element = inject(ElementRef);
+  private readonly document = inject(DOCUMENT);
+  private readonly platformId = inject<Record<string, unknown>>(PLATFORM_ID);
+  private readonly utilService = inject(UtilService);
 
   private static inclusions: string[] = [
     "mat-option-text",

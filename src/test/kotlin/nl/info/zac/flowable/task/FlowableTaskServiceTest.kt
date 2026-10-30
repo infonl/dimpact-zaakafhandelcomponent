@@ -16,11 +16,11 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.zac.util.JsonbUtil
-import nl.info.zac.app.task.model.TaakSortering
 import nl.info.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.zac.flowable.task.model.ValueChangeData
 import nl.info.zac.shared.model.SorteerRichting
+import nl.info.zac.task.model.TaakSortering
+import nl.info.zac.util.JSONB
 import org.flowable.cmmn.api.CmmnTaskService
 import org.flowable.common.engine.api.scope.ScopeTypes
 import org.flowable.engine.HistoryService
@@ -292,7 +292,7 @@ class FlowableTaskServiceTest : BehaviorSpec({
                     taskService.deleteGroupIdentityLink(taskId, currentGroupId, IdentityLinkType.CANDIDATE)
                     taskService.addGroupIdentityLink(taskId, newGroupId, IdentityLinkType.CANDIDATE)
                 }
-                JsonbUtil.JSONB.fromJson(logEntryData.captured, ValueChangeData::class.java) shouldBe
+                JSONB.fromJson(logEntryData.captured, ValueChangeData::class.java) shouldBe
                     ValueChangeData(oldValue = currentGroupId, newValue = newGroupId, explanation = explanation)
             }
         }

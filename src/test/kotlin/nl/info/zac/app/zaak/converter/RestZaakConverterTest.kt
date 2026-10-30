@@ -14,9 +14,8 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ONTVANGSTBEVESTIGING_VERSTUURD
 import nl.info.client.klant.KlantClientService
+import nl.info.client.klant.model.ContactDetails
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.createBesluit
 import nl.info.client.zgw.model.createNatuurlijkPersoonIdentificatie
@@ -40,9 +39,6 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.flowable.engine.repository.createProcessDefinition
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
-import nl.info.zac.app.klant.model.contactdetails.ContactDetails
-import nl.info.zac.app.klant.model.klant.IdentificatieType
-import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.createBetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.createRESTGerelateerdeZaak
 import nl.info.zac.app.zaak.model.createRestBesluit
@@ -54,12 +50,17 @@ import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCH
 import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_AFGEROND
 import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_HEROPEND
 import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_INTAKE
+import nl.info.zac.flowable.ZaakVariabelenService
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ONTVANGSTBEVESTIGING_VERSTUURD
 import nl.info.zac.flowable.bpmn.BpmnService
+import nl.info.zac.identification.IdentificatieType
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD
 import nl.info.zac.zaak.ZaakService
+import nl.info.zac.zaak.model.RelatieType
 import java.net.URI
+import java.time.LocalDate
 import java.util.EnumSet
 import java.util.UUID
 
@@ -109,8 +110,20 @@ class RestZaakConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    given("A CMMN zaak with a natuurlijk persoon as initiator, a group, a behandelaar and a besluit") {
-        val zaak = createZaak()
+    given(
+        "A CMMN zaak with a natuurlijk persoon as initiator, a group, a behandelaar, a besluit " +
+            "and a different date in each date field"
+    ) {
+        val zaak = createZaak(
+            registratiedatum = LocalDate.of(2026, 3, 10),
+            startDate = LocalDate.of(2026, 2, 1),
+            einddatumGepland = LocalDate.of(2026, 4, 30),
+            uiterlijkeEinddatumAfdoening = LocalDate.of(2026, 6, 1)
+        ).apply {
+            archiefactiedatum = LocalDate.of(2030, 1, 1)
+            publicatiedatum = LocalDate.of(2026, 3, 20)
+            startdatumBewaartermijn = LocalDate.of(2026, 7, 1)
+        }
         val zaakType = createZaakType()
         val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheid()
         val restGroup = createRestGroup()
@@ -151,8 +164,8 @@ class RestZaakConverterTest : BehaviorSpec({
         every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
         every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
         every {
-            restUserConverter.convertUserId(
-                userId = rolMedewerker.identificatienummer!!,
+            restUserConverter.convertUsername(
+                username = rolMedewerker.identificatienummer!!,
                 logContext = "zaak '${zaak.identificatie}'"
             )
         } returns restUser
@@ -178,6 +191,14 @@ class RestZaakConverterTest : BehaviorSpec({
                     }
                     omschrijving shouldBe zaak.omschrijving
                     toelichting shouldBe zaak.toelichting
+                    registratiedatum shouldBe zaak.registratiedatum
+                    startdatum shouldBe zaak.startdatum
+                    einddatumGepland shouldBe zaak.einddatumGepland
+                    uiterlijkeEinddatumAfdoening shouldBe zaak.uiterlijkeEinddatumAfdoening
+                    archiefActiedatum shouldBe zaak.archiefactiedatum
+                    publicatiedatum shouldBe zaak.publicatiedatum
+                    startdatumBewaartermijn shouldBe zaak.startdatumBewaartermijn
+                    einddatum shouldBe null
                     this.zaaktype shouldBe zaaktype
                     isVerlengd shouldBe zaak.isVerlengd()
                     isOpgeschort shouldBe zaak.isOpgeschort()
@@ -242,8 +263,8 @@ class RestZaakConverterTest : BehaviorSpec({
         every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
         every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
         every {
-            restUserConverter.convertUserId(
-                userId = rolMedewerker.identificatienummer!!,
+            restUserConverter.convertUsername(
+                username = rolMedewerker.identificatienummer!!,
                 logContext = "zaak '${zaak.identificatie}'"
             )
         } returns restUser
@@ -325,8 +346,8 @@ class RestZaakConverterTest : BehaviorSpec({
         every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
         every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
         every {
-            restUserConverter.convertUserId(
-                userId = rolMedewerker.identificatienummer!!,
+            restUserConverter.convertUsername(
+                username = rolMedewerker.identificatienummer!!,
                 logContext = "zaak '${zaak.identificatie}'"
             )
         } returns restUser

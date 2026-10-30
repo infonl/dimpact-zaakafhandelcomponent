@@ -9,7 +9,8 @@ round.
 
 | Check                       | Command                              | Configuration        |
 | --------------------------- | ------------------------------------ | -------------------- |
-| ESLint                      | `npm run lint` (in `src/main/app`)   | `.eslintrc.js`       |
+| ESLint                      | `npm run lint` (in `src/main/app`)   | `eslint.config.js`   |
+| Stylelint                   | `npm run lint` (in `src/main/app`)   | `.stylelintrc.js`    |
 | Templates in specs          | `npm run lint` (in `src/main/app`)   | `tsconfig.spec.json` |
 | TypeScript + templates      | `npm run build` (in `src/main/app`)  | `tsconfig.app.json`  |
 | TypeScript in specs         | `npm test` (in `src/main/app`)       | `tsconfig.spec.json` |
@@ -38,19 +39,19 @@ not use fails the build, in application code and in test host components. Remove
 
 ## Testing Library rules
 
-`.eslintrc.js` prefers Testing Library queries over reaching into the DOM through Angular, and
+`eslint.config.js` prefers Testing Library queries over reaching into the DOM through Angular, and
 `fromPartial` over casting an object literal through `unknown`. Older specs still break these
 rules, so they are warnings project-wide and a whole-project `npm run lint` stays green on them.
 
 They are **errors on every spec file a pull request touches**, which is what
-`.eslintrc.strict-specs.js` is for: a spec you edit has to meet the standard before it merges.
+`eslint.strict-specs.config.js` is for: a spec you edit has to meet the standard before it merges.
 The "Lint Changed Specs" workflow runs it on the changed specs; reproduce that locally with the
 same command:
 
 ```bash
 cd src/main/app
 SPECS=$(git diff --name-only --diff-filter=d origin/main...HEAD -- '*.spec.ts' | sed 's|^src/main/app/||')
-ESLINT_USE_FLAT_CONFIG=false npx eslint -c .eslintrc.strict-specs.js $SPECS
+npx eslint -c eslint.strict-specs.config.js --pass-on-no-patterns $SPECS
 ```
 
 New specs should use `getByRole` with an accessible name, falling back to `getByLabelText` and
@@ -60,6 +61,13 @@ is `display: none` — disable the rule on that line with a comment saying which
 
 Migrating the remaining specs so these rules can become errors everywhere is the next phase.
 
+## Stylesheets
+
+Stylelint checks the `.less` files in `src/main/app/src` and runs as part of `npm run lint`
+(`npm run lint:styles` runs it on its own). Every `::ng-deep` is an error and fails the build.
+Angular has deprecated `::ng-deep`: style through a CSS custom property, a global stylesheet or
+the Angular Material theming API instead.
+
 ## Kotlin
 
 `./gradlew detekt` runs `detektMain`, `detektTest` and `detektItest`. Each one analyses a source set
@@ -67,6 +75,9 @@ with its compile classpath. Rules that need that type information, such as
 `UnsafeCallOnNullableType` and `InjectDispatcher`, report nothing without it. `./gradlew build`
 runs the same tasks, so CI checks the same rules. `detektApply` runs without type information and
 only applies the fixes that detekt can make by itself.
+
+The dependencies between the backend layers are not checked by detekt but by ArchUnit rules, which
+run as a unit test. See [architectureRules.md](architectureRules.md).
 
 ## i18n message keys
 

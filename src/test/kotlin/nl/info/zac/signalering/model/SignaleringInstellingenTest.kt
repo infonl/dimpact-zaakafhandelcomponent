@@ -6,8 +6,6 @@ package nl.info.zac.signalering.model
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import net.atos.zac.signalering.model.SignaleringTarget
-import net.atos.zac.signalering.model.SignaleringType
 
 class SignaleringInstellingenTest : BehaviorSpec({
     val signaleringType = SignaleringType().apply { type = SignaleringType.Type.ZAAK_OP_NAAM }
@@ -30,12 +28,12 @@ class SignaleringInstellingenTest : BehaviorSpec({
 
         given("a user as owner") {
             `when`("the instellingen are constructed") {
-                val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.USER, "fakeUserId")
+                val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.USER, "fakeUsername")
 
                 then("the user is the owner") {
                     with(signaleringInstellingen) {
                         groep shouldBe null
-                        medewerker shouldBe "fakeUserId"
+                        medewerker shouldBe "fakeUsername"
                         ownerType shouldBe SignaleringTarget.USER
                         isValid shouldBe true
                     }
@@ -47,7 +45,7 @@ class SignaleringInstellingenTest : BehaviorSpec({
     context("Validating signalering instellingen") {
         given("instellingen with both a group and a user") {
             val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.GROUP, "fakeGroupId")
-                .apply { medewerker = "fakeUserId" }
+                .apply { medewerker = "fakeUsername" }
 
             `when`("they are validated") {
                 val isValid = signaleringInstellingen.isValid
@@ -85,7 +83,7 @@ class SignaleringInstellingenTest : BehaviorSpec({
         }
 
         given("instellingen with a blank group and a user") {
-            val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.USER, "fakeUserId")
+            val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.USER, "fakeUsername")
                 .apply { groep = " " }
 
             `when`("they are validated") {
@@ -100,7 +98,7 @@ class SignaleringInstellingenTest : BehaviorSpec({
 
     context("Checking whether signalering instellingen are empty") {
         given("instellingen with neither dashboard nor mail") {
-            val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.USER, "fakeUserId")
+            val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.USER, "fakeUsername")
 
             `when`("it is checked whether they are empty") {
                 val isEmpty = signaleringInstellingen.isEmpty
@@ -112,7 +110,7 @@ class SignaleringInstellingenTest : BehaviorSpec({
         }
 
         given("instellingen with only dashboard") {
-            val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.USER, "fakeUserId")
+            val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.USER, "fakeUsername")
                 .apply { isDashboard = true }
 
             `when`("it is checked whether they are empty") {
@@ -125,7 +123,7 @@ class SignaleringInstellingenTest : BehaviorSpec({
         }
 
         given("instellingen with only mail") {
-            val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.USER, "fakeUserId")
+            val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.USER, "fakeUsername")
                 .apply { isMail = true }
 
             `when`("it is checked whether they are empty") {
@@ -152,13 +150,13 @@ class SignaleringInstellingenTest : BehaviorSpec({
         }
 
         given("instellingen of a user") {
-            val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.USER, "fakeUserId")
+            val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.USER, "fakeUsername")
 
             `when`("they are described") {
                 val description = signaleringInstellingen.toString()
 
                 then("the description names the type and the user") {
-                    description shouldBe "$signaleringType-signaleringinstellingen voor fakeUserId"
+                    description shouldBe "$signaleringType-signaleringinstellingen voor fakeUsername"
                 }
             }
         }

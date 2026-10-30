@@ -51,6 +51,7 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_CASE_HAS_NO_COMMUNICATION_CHANNEL("msg.error.case.has.no.communication.channel"),
     ERROR_CODE_CASE_CANNOT_HAVE_DUE_DATE("msg.error.case.cannot.have.due.date"),
     ERROR_CODE_ZAAK_WITH_BESLUIT_CANNOT_BE_TERMINATED("msg.error.zaak.has.besluit.cannot.be.terminated"),
+    ERROR_CODE_ZAAK_CANNOT_BE_SUSPENDED_AGAIN("msg.error.zaak.cannot.be.suspended.again"),
     ERROR_CODE_CASE_BETROKKENE_NOT_ALLOWED("msg.error.case.betrokkene.not.allowed"),
     ERROR_CODE_CASE_BETROKKENE_CANNOT_BE_DELETED("msg.error.case.betrokkene.cannot.be.deleted"),
     ERROR_CODE_CASE_EXPLANATION_REQUIRED("msg.error.case.explanation.required"),

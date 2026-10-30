@@ -13,12 +13,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.zac.signalering.event.SignaleringEvent
-import net.atos.zac.signalering.event.SignaleringEventId
-import net.atos.zac.signalering.model.Signalering
-import net.atos.zac.signalering.model.SignaleringSubject
-import net.atos.zac.signalering.model.SignaleringTarget
-import net.atos.zac.signalering.model.SignaleringType
 import nl.info.client.zgw.model.createMedewerkerIdentificatie
 import nl.info.client.zgw.model.createOrganisatorischeEenheidIdentificatie
 import nl.info.client.zgw.model.createRolMedewerker
@@ -42,6 +36,10 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.signalering.model.Signalering
+import nl.info.zac.signalering.model.SignaleringSubject
+import nl.info.zac.signalering.model.SignaleringTarget
+import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.signalering.model.createSignalering
 import nl.info.zac.signalering.model.createSignaleringInstellingen
 import nl.info.zac.signalering.model.createSignaleringType
@@ -75,11 +73,11 @@ class SignaleringEventObserverTest : BehaviorSpec({
         )
 
         given("a behandelaar rol for a medewerker") {
-            val user = createUser(id = "fakeBehandelaarId")
+            val user = createUser(username = "fakeBehandelaarId")
             val rolMedewerker = createRolMedewerker(
                 zaakURI = zaak.url,
                 rolType = createBehandelaarRolType(zaakTypeUri = zaak.zaaktype),
-                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = user.id)
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = user.username)
             )
             val storedSignalering = slot<Signalering>()
             every { zrcClientService.readRol(rolUri) } returns rolMedewerker
@@ -87,7 +85,7 @@ class SignaleringEventObserverTest : BehaviorSpec({
             every {
                 signaleringService.signaleringInstance(SignaleringType.Type.ZAAK_OP_NAAM)
             } returns createSignalering(zaak = null)
-            every { identityService.readUser(user.id, any()) } returns user
+            every { identityService.readUser(user.username, any()) } returns user
             every { signaleringService.isNecessary(any(), null) } returns true
             every { signaleringService.readInstellingen(any()) } returns createSignaleringInstellingen(
                 isDashboard = true,
@@ -105,7 +103,7 @@ class SignaleringEventObserverTest : BehaviorSpec({
                 then("the medewerker is signalled that the zaak is on their name") {
                     with(storedSignalering.captured) {
                         targettype shouldBe SignaleringTarget.USER
-                        target shouldBe user.id
+                        target shouldBe user.username
                         subject shouldBe zaak.uuid.toString()
                     }
                 }
@@ -226,11 +224,11 @@ class SignaleringEventObserverTest : BehaviorSpec({
         }
 
         given("a behandelaar rol for a medewerker who caused the event themselves") {
-            val user = createUser(id = "fakeBehandelaarId")
+            val user = createUser(username = "fakeBehandelaarId")
             val rolMedewerker = createRolMedewerker(
                 zaakURI = zaak.url,
                 rolType = createBehandelaarRolType(zaakTypeUri = zaak.zaaktype),
-                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = user.id)
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = user.username)
             )
             val signaleringEventByBehandelaar = SignaleringEvent(
                 SignaleringType.Type.ZAAK_OP_NAAM,
@@ -242,8 +240,8 @@ class SignaleringEventObserverTest : BehaviorSpec({
             every {
                 signaleringService.signaleringInstance(SignaleringType.Type.ZAAK_OP_NAAM)
             } returns createSignalering(zaak = null)
-            every { identityService.readUser(user.id, any()) } returns user
-            every { signaleringService.isNecessary(any(), user.id) } returns false
+            every { identityService.readUser(user.username, any()) } returns user
+            every { signaleringService.isNecessary(any(), user.username) } returns false
 
             `when`("the event is handled") {
                 signaleringEventObserver.onFire(signaleringEventByBehandelaar)
@@ -331,11 +329,11 @@ class SignaleringEventObserverTest : BehaviorSpec({
         val behandelaarRolType = createBehandelaarRolType(zaakTypeUri = zaak.zaaktype)
 
         given("a zaak with a behandelaar medewerker") {
-            val user = createUser(id = "fakeBehandelaarId")
+            val user = createUser(username = "fakeBehandelaarId")
             val rolMedewerker = createRolMedewerker(
                 zaakURI = zaak.url,
                 rolType = behandelaarRolType,
-                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = user.id)
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = user.username)
             )
             val storedSignalering = slot<Signalering>()
             every { zrcClientService.readZaak(zaak.url) } returns zaak
@@ -353,7 +351,7 @@ class SignaleringEventObserverTest : BehaviorSpec({
                 ),
                 zaak = null
             )
-            every { identityService.readUser(user.id, any()) } returns user
+            every { identityService.readUser(user.username, any()) } returns user
             every { signaleringService.isNecessary(any(), null) } returns true
             every { signaleringService.readInstellingen(any()) } returns createSignaleringInstellingen(
                 isDashboard = true,
@@ -367,7 +365,7 @@ class SignaleringEventObserverTest : BehaviorSpec({
                 then("the behandelaar is signalled about the added document") {
                     with(storedSignalering.captured) {
                         targettype shouldBe SignaleringTarget.USER
-                        target shouldBe user.id
+                        target shouldBe user.username
                         subject shouldBe zaak.uuid.toString()
                         detail shouldBe informatieobjectUuid.toString()
                     }
@@ -397,9 +395,9 @@ class SignaleringEventObserverTest : BehaviorSpec({
 
     context("Receiving a taak op naam event") {
         given("an event without an actor, for a task with an owner and an assignee") {
-            val owner = createUser(id = "fakeOwnerId")
-            val assignee = createUser(id = "fakeAssigneeId")
-            val task = createTestTask(id = "fakeTaskId", owner = owner.id, assignee = assignee.id)
+            val owner = createUser(username = "fakeOwnerId")
+            val assignee = createUser(username = "fakeAssigneeId")
+            val task = createTestTask(id = "fakeTaskId", owner = owner.username, assignee = assignee.username)
             val signaleringEvent = SignaleringEvent(
                 SignaleringType.Type.TAAK_OP_NAAM,
                 SignaleringEventId(task.id, null),
@@ -407,8 +405,8 @@ class SignaleringEventObserverTest : BehaviorSpec({
             )
             val sentSignalering = slot<Signalering>()
             every { flowableTaskService.readOpenTask(task.id) } returns task
-            every { identityService.readUser(owner.id, any()) } returns owner
-            every { identityService.readUser(assignee.id, any()) } returns assignee
+            every { identityService.readUser(owner.username, any()) } returns owner
+            every { identityService.readUser(assignee.username, any()) } returns assignee
             every {
                 signaleringService.signaleringInstance(SignaleringType.Type.TAAK_OP_NAAM)
             } returns createSignalering(
@@ -431,7 +429,7 @@ class SignaleringEventObserverTest : BehaviorSpec({
                 then("the assignee is mailed") {
                     with(sentSignalering.captured) {
                         targettype shouldBe SignaleringTarget.USER
-                        target shouldBe assignee.id
+                        target shouldBe assignee.username
                         subject shouldBe task.id
                     }
                 }
@@ -439,8 +437,8 @@ class SignaleringEventObserverTest : BehaviorSpec({
         }
 
         given("an event without an actor, for a task without an owner") {
-            val assignee = createUser(id = "fakeAssigneeId")
-            val task = createTestTask(id = "fakeTaskId", owner = null, assignee = assignee.id)
+            val assignee = createUser(username = "fakeAssigneeId")
+            val task = createTestTask(id = "fakeTaskId", owner = null, assignee = assignee.username)
             val signaleringEvent = SignaleringEvent(
                 SignaleringType.Type.TAAK_OP_NAAM,
                 SignaleringEventId(task.id, null),
@@ -448,7 +446,7 @@ class SignaleringEventObserverTest : BehaviorSpec({
             )
             val sentSignalering = slot<Signalering>()
             every { flowableTaskService.readOpenTask(task.id) } returns task
-            every { identityService.readUser(assignee.id, any()) } returns assignee
+            every { identityService.readUser(assignee.username, any()) } returns assignee
             every {
                 signaleringService.signaleringInstance(SignaleringType.Type.TAAK_OP_NAAM)
             } returns createSignalering(
@@ -469,7 +467,7 @@ class SignaleringEventObserverTest : BehaviorSpec({
                 signaleringEventObserver.onFire(signaleringEvent)
 
                 then("the assignee is mailed") {
-                    sentSignalering.captured.target shouldBe assignee.id
+                    sentSignalering.captured.target shouldBe assignee.username
                 }
             }
         }

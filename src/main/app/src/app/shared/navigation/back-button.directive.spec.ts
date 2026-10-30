@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { render, screen } from "@testing-library/angular";
@@ -12,6 +12,7 @@ import { BackButtonDirective, injectCanGoBack } from "./back-button.directive";
 
 @Component({
   template: "<button zacBackButton>back</button>",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [BackButtonDirective],
 })
 class TestHostComponent {}

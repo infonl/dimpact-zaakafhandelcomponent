@@ -3,7 +3,15 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -19,6 +27,7 @@ import { MatError } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
@@ -33,6 +42,7 @@ import { TakenService } from "../taken.service";
   templateUrl: "./taken-verdelen-dialog.component.html",
   styleUrls: ["./taken-verdelen-dialog.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatToolbarModule,
@@ -86,9 +96,28 @@ export class TakenVerdelenDialogComponent {
     return groupsQuery !== undefined && groupsQuery.length === 0;
   });
 
-  protected users: GeneratedType<"RestUser">[] = [];
+  private readonly selectedGroupId = signal<string | undefined>(undefined);
+
+  private readonly usersQuery = injectQuery(() => ({
+    ...this.identityService.listUsersInGroup(this.selectedGroupId() ?? ""),
+    enabled: !!this.selectedGroupId(),
+  }));
+
+  protected readonly users = computed(() => this.usersQuery.data() ?? []);
 
   constructor() {
+    effect(() => {
+      const usersLoaded =
+        !!this.selectedGroupId() && this.usersQuery.isSuccess();
+      untracked(() => {
+        if (usersLoaded) {
+          this.form.controls.medewerker.enable();
+        } else {
+          this.form.controls.medewerker.disable();
+        }
+      });
+    });
+
     if (!this.data.taken.length) {
       this.form.disable();
       return;
@@ -100,19 +129,11 @@ export class TakenVerdelenDialogComponent {
       ),
     });
 
-    this.form.controls.medewerker.disable();
-
     this.form.controls.groep.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((group) => {
         this.form.controls.medewerker.setValue(null);
-        this.form.controls.medewerker.disable();
-        if (!group) return;
-
-        this.identityService.listUsersInGroup(group.id).subscribe((users) => {
-          this.form.controls.medewerker.enable();
-          this.users = users;
-        });
+        this.selectedGroupId.set(group?.id);
       });
   }
 
@@ -126,7 +147,7 @@ export class TakenVerdelenDialogComponent {
         taakId: id,
         zaakUuid,
       })),
-      behandelaarGebruikersnaam: this.form.value.medewerker?.id,
+      behandelaarGebruikersnaam: this.form.value.medewerker?.username,
       reden: this.form.value.reden ?? "",
       groepId: this.form.value.groep!.id,
       screenEventResourceId: this.data.screenEventResourceId,

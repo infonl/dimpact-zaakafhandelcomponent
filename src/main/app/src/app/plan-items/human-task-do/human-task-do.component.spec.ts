@@ -8,6 +8,7 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import {
   HttpTestingController,
@@ -56,6 +57,17 @@ describe("HumanTaskDoComponent", () => {
     type: "HUMAN_TASK",
     formulierDefinitie: "ADVIES",
   });
+  const group = fromPartial<GeneratedType<"RestGroup">>({
+    id: "1",
+    naam: "groep1",
+  });
+
+  function seedUsersOfGroup(users: GeneratedType<"RestUser">[]) {
+    testQueryClient.setQueryData(
+      identityService.listUsersInGroup(group.id).queryKey,
+      users,
+    );
+  }
 
   // `form` is built up dynamically, so its controls are not statically typed
   function getFormControl(key: string) {
@@ -77,7 +89,7 @@ describe("HumanTaskDoComponent", () => {
         TaakFormulierenService,
         InformatieObjectenService,
         IdentityService,
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
       ],
@@ -88,16 +100,12 @@ describe("HumanTaskDoComponent", () => {
     httpTestingController = TestBed.inject(HttpTestingController);
 
     identityService = TestBed.inject(IdentityService);
-    jest
-      .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
-      .mockReturnValue(
-        of([
-          fromPartial<GeneratedType<"RestGroup">>({
-            id: "1",
-            naam: "groep1",
-          }),
-        ]),
-      );
+    testQueryClient.setQueryData(
+      identityService.listBehandelaarGroupsForZaaktype(
+        "fakeZaaktypeOmschrijving",
+      ).queryKey,
+      [group],
+    );
 
     fixture = TestBed.createComponent(HumanTaskDoComponent);
     component = fixture.componentInstance;
@@ -210,18 +218,21 @@ describe("HumanTaskDoComponent", () => {
       ).toHaveBeenCalledWith(zaak, humanTaskPlanItem);
     });
 
-    it("should call listBehandelaarGroupsForZaaktype with the zaaktype omschrijving", async () => {
-      await initialise();
+    it("should read the behandelaar groups of the zaaktype of the zaak", async () => {
+      testQueryClient.clear();
 
-      expect(
-        identityService.listBehandelaarGroupsForZaaktype,
-      ).toHaveBeenCalledWith("fakeZaaktypeOmschrijving");
+      fixture.detectChanges();
+      await sleep();
+
+      httpTestingController
+        .expectOne(
+          "/rest/identity/zaaktype/fakeZaaktypeOmschrijving/behandelaar-groups",
+        )
+        .flush([group]);
+      await initialise();
     });
 
     it("should pre-select the group and load users when planItem.groepId matches a group", async () => {
-      const listUsersInGroupSpy = jest
-        .spyOn(identityService, "listUsersInGroup")
-        .mockReturnValue(of([]));
       fixture.componentRef.setInput(
         "planItem",
         fromPartial<GeneratedType<"RestPlanItem">>({
@@ -231,19 +242,27 @@ describe("HumanTaskDoComponent", () => {
         }),
       );
 
-      await initialise();
+      fixture.detectChanges();
+      await sleep();
+      fixture.detectChanges();
 
-      expect(listUsersInGroupSpy).toHaveBeenCalledWith("1");
+      httpTestingController
+        .expectOne("/rest/identity/groups/1/users")
+        .flush([]);
     });
 
     it("should prefill group control, populate user options, and enable user control when groepId matches", async () => {
       const mockUsers = [
-        fromPartial<GeneratedType<"RestUser">>({ id: "u1", naam: "User One" }),
-        fromPartial<GeneratedType<"RestUser">>({ id: "u2", naam: "User Two" }),
+        fromPartial<GeneratedType<"RestUser">>({
+          username: "u1",
+          naam: "User One",
+        }),
+        fromPartial<GeneratedType<"RestUser">>({
+          username: "u2",
+          naam: "User Two",
+        }),
       ];
-      jest
-        .spyOn(identityService, "listUsersInGroup")
-        .mockReturnValue(of(mockUsers));
+      seedUsersOfGroup(mockUsers);
       fixture.componentRef.setInput(
         "planItem",
         fromPartial<GeneratedType<"RestPlanItem">>({
@@ -266,31 +285,27 @@ describe("HumanTaskDoComponent", () => {
     });
 
     it("should not pre-select a group when planItem.groepId is not set", async () => {
-      const listUsersInGroupSpy = jest.spyOn(
-        identityService,
-        "listUsersInGroup",
-      );
-
       await initialise();
 
-      expect(listUsersInGroupSpy).not.toHaveBeenCalled();
+      expect(component["form"].get("group")?.value).toBeNull();
+      httpTestingController.expectNone("/rest/identity/groups/1/users");
     });
 
     it("should enable the user control and load its options when a group is selected", async () => {
       const mockUsers = [
-        fromPartial<GeneratedType<"RestUser">>({ id: "u1", naam: "User One" }),
+        fromPartial<GeneratedType<"RestUser">>({
+          username: "u1",
+          naam: "User One",
+        }),
       ];
-      jest
-        .spyOn(identityService, "listUsersInGroup")
-        .mockReturnValue(of(mockUsers));
+      seedUsersOfGroup(mockUsers);
 
       await initialise();
 
-      getFormControl("group")?.setValue(
-        fromPartial<GeneratedType<"RestGroup">>({ id: "1", naam: "groep1" }),
-      );
+      getFormControl("group")?.setValue(group);
+      fixture.detectChanges();
+      await sleep();
 
-      expect(identityService.listUsersInGroup).toHaveBeenCalledWith("1");
       expect(component["form"].get("user")?.enabled).toBe(true);
       const userField = component["formFields"].find(
         (formField) =>
@@ -299,8 +314,71 @@ describe("HumanTaskDoComponent", () => {
       expect(userField?.options).toEqual(mockUsers);
     });
 
+    it("should load the users of a group that is picked after the user typed in the group field", async () => {
+      await initialise();
+
+      getFormControl("group")?.setValue("groe");
+      fixture.detectChanges();
+      httpTestingController.expectNone((request) =>
+        request.url.endsWith("/users"),
+      );
+
+      getFormControl("group")?.setValue(group);
+      fixture.detectChanges();
+      await sleep();
+
+      const users = [
+        fromPartial<GeneratedType<"RestUser">>({
+          username: "u1",
+          naam: "User One",
+        }),
+      ];
+      httpTestingController
+        .expectOne("/rest/identity/groups/1/users")
+        .flush(users);
+      await sleep();
+      fixture.detectChanges();
+      await sleep();
+      fixture.detectChanges();
+
+      const userField = component["formFields"].find(
+        (formField) =>
+          formField.type === "auto-complete" && formField.key === "user",
+      ) as { options?: unknown[] } | undefined;
+      expect(userField?.options).toEqual(users);
+    });
+
+    it("should keep the picked user when the users of the group are read again", async () => {
+      const users = [
+        fromPartial<GeneratedType<"RestUser">>({
+          username: "u1",
+          naam: "User One",
+        }),
+      ];
+      seedUsersOfGroup(users);
+      await initialise();
+      getFormControl("group")?.setValue(group);
+      fixture.detectChanges();
+      getFormControl("user")?.setValue(users[0]);
+
+      testQueryClient.setQueryData(
+        identityService.listUsersInGroup(group.id).queryKey,
+        [
+          ...users,
+          fromPartial<GeneratedType<"RestUser">>({
+            username: "u2",
+            naam: "User Two",
+          }),
+        ],
+      );
+      fixture.detectChanges();
+      await sleep();
+
+      expect(getFormControl("user")?.value).toEqual(users[0]);
+    });
+
     it("should reset and disable the user control when the group is cleared", async () => {
-      jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(of([]));
+      seedUsersOfGroup([]);
 
       await initialise();
 
@@ -358,7 +436,7 @@ describe("HumanTaskDoComponent", () => {
       jest
         .spyOn(foutAfhandelingService, "foutAfhandelen")
         .mockReturnValue(undefined as never);
-      jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(of([]));
+      seedUsersOfGroup([]);
       fixture.componentRef.setInput(
         "planItem",
         fromPartial<GeneratedType<"RestPlanItem">>({
@@ -420,7 +498,7 @@ describe("HumanTaskDoComponent", () => {
 
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey:
-          TestBed.inject(TakenService).listTakenVoorZaakQuery("fakeZaakUuid")
+          TestBed.inject(TakenService).listTakenVoorZaak("fakeZaakUuid")
             .queryKey,
       });
     });
@@ -479,6 +557,28 @@ describe("HumanTaskDoComponent", () => {
       expect(openFoutDialogSpy).toHaveBeenCalledWith(
         "Onbekende formulierDefinitie for Angular form: FAKE",
       );
+    });
+
+    it("should leave reporting a failed read of the behandelaar groups to the query cache", async () => {
+      jest
+        .spyOn(taakFormulierenService, "getAngularRequestFormBuilder")
+        .mockResolvedValue([]);
+      const openFoutDialogSpy = jest
+        .spyOn(foutAfhandelingService, "openFoutDialog")
+        .mockReturnValue(of(undefined) as never);
+      testQueryClient.clear();
+      fixture.componentRef.setInput("planItem", humanTaskPlanItem);
+
+      fixture.detectChanges();
+      await sleep();
+      httpTestingController
+        .expectOne(
+          "/rest/identity/zaaktype/fakeZaaktypeOmschrijving/behandelaar-groups",
+        )
+        .flush(null, { status: 403, statusText: "Forbidden" });
+      await initialise();
+
+      expect(openFoutDialogSpy).not.toHaveBeenCalled();
     });
   });
 });

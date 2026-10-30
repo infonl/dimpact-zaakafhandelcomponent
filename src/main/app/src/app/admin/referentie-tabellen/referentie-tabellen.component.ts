@@ -4,6 +4,7 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -26,8 +27,6 @@ import {
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
-import { ConfiguratieService } from "../../configuratie/configuratie.service";
-import { UtilService } from "../../core/service/util.service";
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
@@ -46,6 +45,7 @@ import { ReferentieTabelRowDirective } from "./referentie-tabel-row.directive";
   templateUrl: "./referentie-tabellen.component.html",
   styleUrls: ["./referentie-tabellen.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatSidenavModule,
     MatCardModule,
@@ -102,7 +102,7 @@ export class ReferentieTabellenComponent
   });
 
   constructor() {
-    super(inject(UtilService), inject(ConfiguratieService));
+    super();
 
     // Scroll a freshly created table into view once its row has rendered (the
     // list refetch that adds it is async, so this waits for the row to appear).

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { FormControl } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
@@ -62,7 +62,7 @@ describe(BagZoekComponent.name, () => {
       providers: [
         provideTranslateService(),
         provideQueryClient(testQueryClient),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideRouter([]),
         {
           provide: BAGService,

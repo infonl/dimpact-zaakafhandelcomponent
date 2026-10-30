@@ -7,14 +7,14 @@ package nl.info.zac.flowable.task
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
-import net.atos.zac.util.JsonbUtil.FIELD_VISIBILITY_STRATEGY
-import nl.info.zac.app.task.model.TaakSortering
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
 import nl.info.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.zac.flowable.task.model.ValueChangeData
 import nl.info.zac.flowable.util.isCmmnTask
 import nl.info.zac.shared.model.SorteerRichting
+import nl.info.zac.task.model.TaakSortering
 import nl.info.zac.util.AllOpen
+import nl.info.zac.util.FIELD_VISIBILITY_STRATEGY
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.lang3.time.DateUtils
 import org.flowable.cmmn.api.CmmnTaskService
@@ -149,14 +149,14 @@ class FlowableTaskService @Inject constructor(
         return readClosedTask(task.id)
     }
 
-    fun assignTaskToUser(taskId: String, userId: String, explanation: String?): Task {
+    fun assignTaskToUser(taskId: String, username: String, explanation: String?): Task {
         val task = readOpenTask(taskId)
-        taskService.setAssignee(taskId, userId)
+        taskService.setAssignee(taskId, username)
         createHistoricTaskLogEntry(
             task = task,
             type = USER_TASK_ASSIGNEE_CHANGED_CUSTOM,
             oldValue = task.assignee,
-            newValue = userId,
+            newValue = username,
             explanation = explanation
         )
         return readOpenTask(taskId)

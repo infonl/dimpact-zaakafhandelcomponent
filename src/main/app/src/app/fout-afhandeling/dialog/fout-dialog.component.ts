@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import {
   MAT_DIALOG_DATA,
@@ -21,6 +21,7 @@ import { TranslatePipe } from "@ngx-translate/core";
   templateUrl: "fout-dialog.component.html",
   host: { "data-dialog-id": "fout" },
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatToolbarModule,
     MatDialogTitle,
@@ -33,8 +34,9 @@ import { TranslatePipe } from "@ngx-translate/core";
   ],
 })
 export class FoutDialogComponent {
-  private dialogRef = inject<MatDialogRef<FoutDialogComponent>>(MatDialogRef);
-  data = inject<string>(MAT_DIALOG_DATA);
+  private readonly dialogRef =
+    inject<MatDialogRef<FoutDialogComponent>>(MatDialogRef);
+  readonly data = inject<string>(MAT_DIALOG_DATA);
 
   protected close(): void {
     this.dialogRef.close();

@@ -4,7 +4,7 @@
  */
 
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatExpansionPanelHarness } from "@angular/material/expansion/testing";
@@ -61,7 +61,7 @@ describe(PersoonsgegevensComponent.name, () => {
         provideTranslateService(),
         { provide: KlantenService, useValue: klantenServiceMock },
         provideQueryClient(testQueryClient),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
       ],
     }).compileComponents();

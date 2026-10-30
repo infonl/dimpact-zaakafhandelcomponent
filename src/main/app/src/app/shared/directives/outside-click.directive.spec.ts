@@ -3,20 +3,22 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import {
   ComponentFixture,
   TestBed,
   fakeAsync,
   tick,
 } from "@angular/core/testing";
+import { screen } from "@testing-library/angular";
 import { UtilService } from "../../core/service/util.service";
 import { OutsideClickDirective } from "./outside-click.directive";
 
 @Component({
   template: `<div zacOutsideClick (zacOutsideClick)="onOutsideClick($event)">
-    <span id="inside">inside</span>
+    <span>inside</span>
   </div>`,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [OutsideClickDirective],
 })
 class TestHostComponent {
@@ -53,7 +55,9 @@ describe(OutsideClickDirective.name, () => {
     fixture.detectChanges();
     tick(0);
 
-    fixture.nativeElement.querySelector("#inside").click();
+    screen
+      .getByText("inside")
+      .dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
     expect(component.onOutsideClick).not.toHaveBeenCalled();
   }));

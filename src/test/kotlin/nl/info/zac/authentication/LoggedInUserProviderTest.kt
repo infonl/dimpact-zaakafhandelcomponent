@@ -88,8 +88,8 @@ class LoggedInUserProviderTest : BehaviorSpec({
         }
 
         given("a session user and work explicitly run as another user") {
-            val sessionUser = createLoggedInUser(id = "fakeSessionUserId")
-            val explicitUser = createLoggedInUser(id = "fakeExplicitUserId")
+            val sessionUser = createLoggedInUser(username = "fakeSessionUsername")
+            val explicitUser = createLoggedInUser(username = "fakeExplicitUsername")
             every { httpSessionInstance.get() } returns httpSession
             every { httpSession.getAttribute(LoggedInUserProvider.LOGGED_IN_USER_SESSION_ATTRIBUTE) } returns sessionUser
 

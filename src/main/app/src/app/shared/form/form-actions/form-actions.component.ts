@@ -5,6 +5,7 @@
 
 import {
   booleanAttribute,
+  ChangeDetectionStrategy,
   Component,
   computed,
   ElementRef,
@@ -23,6 +24,7 @@ import { TranslatePipe } from "@ngx-translate/core";
   templateUrl: "./form-actions.component.html",
   styleUrls: ["./form-actions.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatProgressSpinnerModule,

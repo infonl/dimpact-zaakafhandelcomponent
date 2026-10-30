@@ -19,16 +19,6 @@ import nl.info.client.zgw.zrc.util.markZaakspecifiekGeautoriseerd
 import nl.info.client.zgw.zrc.util.unmarkZaakspecifiekGeautoriseerd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.app.zaak.exception.GroupNotBehandelaarForZaaktypeException
-import nl.info.zac.app.zaak.exception.MedewerkerAlreadyZaakspecifiekGeautoriseerdException
-import nl.info.zac.app.zaak.exception.MedewerkerCannotBeDetachedException
-import nl.info.zac.app.zaak.exception.MedewerkerNotZaakspecifiekGeautoriseerdException
-import nl.info.zac.app.zaak.exception.ZaakNotZaakspecifiekGeautoriseerdException
-import nl.info.zac.app.zaak.exception.ZaakWithoutBehandelaarCannotBeMarkedException
-import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
-import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
-import nl.info.zac.app.zaak.exception.ZaakspecifiekeAutorisatieNotAllowedException
-import nl.info.zac.app.zaak.exception.ZaaktypeNotZaakspecifiekAutoriseerbaarException
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.identity.IdentityService
@@ -38,8 +28,19 @@ import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.task.TaskHistoryService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.zaak.exception.GroupNotBehandelaarForZaaktypeException
+import nl.info.zac.zaak.exception.MedewerkerAlreadyZaakspecifiekGeautoriseerdException
+import nl.info.zac.zaak.exception.MedewerkerCannotBeDetachedException
+import nl.info.zac.zaak.exception.MedewerkerNotZaakspecifiekGeautoriseerdException
+import nl.info.zac.zaak.exception.ZaakNotZaakspecifiekGeautoriseerdException
+import nl.info.zac.zaak.exception.ZaakWithoutBehandelaarCannotBeMarkedException
+import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
+import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
+import nl.info.zac.zaak.exception.ZaakspecifiekeAutorisatieNotAllowedException
+import nl.info.zac.zaak.exception.ZaaktypeNotZaakspecifiekAutoriseerbaarException
 import nl.info.zac.zaak.model.ZaakToewijzing
 import nl.info.zac.zaak.model.ZaakspecifiekGeautoriseerdeMedewerkerRol
+import org.flowable.task.api.TaskInfo
 import java.util.UUID
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -119,7 +120,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         else -> {
             if (!isZaakspecifiekAutoriseerbaar(zaakType)) throw ZaaktypeNotZaakspecifiekAutoriseerbaarException()
             if (currentAndRequestedBehandelaarIds.isEmpty()) throw ZaakWithoutBehandelaarCannotBeMarkedException()
-            if (loggedInUser.id !in currentAndRequestedBehandelaarIds &&
+            if (loggedInUser.username !in currentAndRequestedBehandelaarIds &&
                 !loggedInUser.isZaakspecifiekGeautoriseerdFor(zaakType.omschrijving)
             ) {
                 throw ZaakspecifiekeAutorisatieNotAllowedException()
@@ -206,11 +207,17 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
      * zaakbehandelaar and a medewerker who already holds a zaakspecifiek geautoriseerde medewerker rol get
      * nothing, since they already have access.
      *
+     * @param task the taak whose taakhistorie records the added rol. 'null' for a caller that grants the rol
+     * before the taak exists, and records it itself once the taak is created.
      * @return true when a rol was added
      * @throws ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException when the zaaktype does not define
      * the roltype
      */
-    fun grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak: Zaak, medewerkerId: String): Boolean {
+    fun grantZaakspecifiekeAutorisatieToTaakbehandelaar(
+        zaak: Zaak,
+        medewerkerId: String,
+        task: TaskInfo? = null
+    ): Boolean {
         if (!isZaakspecifiekGeautoriseerd(zaak)) return false
         return lockForZaak(zaak.uuid).withLock {
             val zaakToewijzing = readZaakToewijzing(zaak = zaak)
@@ -222,7 +229,10 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
                     reason = ROLTOELICHTING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER,
                     zaakspecifiekGeautoriseerdeMedewerkers = zaakToewijzing.zaakspecifiekGeautoriseerdeMedewerkers
                 )
-            if (isGranted) indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid)
+            if (isGranted) {
+                indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid)
+                task?.let { taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(it, medewerkerId) }
+            }
             isGranted
         }
     }
@@ -290,7 +300,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         assertBehandelaarGroep(zaakType, groepId)
         val medewerkerIdsWithAccess = zaakAutorisatieGegevens.geautoriseerdeMedewerkers.toSet() +
             listZaakspecifiekGeautoriseerdeMedewerkerIdsForZaaktype(zaakType)
-        return identityService.listUsersInGroup(groepId).filter { it.id !in medewerkerIdsWithAccess }
+        return identityService.listUsersInGroup(groepId).filter { it.username !in medewerkerIdsWithAccess }
     }
 
     /**
@@ -321,7 +331,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
             if (zaakToewijzing.isGeautoriseerdeMedewerker(medewerkerId)) {
                 throw MedewerkerAlreadyZaakspecifiekGeautoriseerdException()
             }
-            identityService.readUser(userId = medewerkerId, logContext = "zaak '${zaak.identificatie}'").also {
+            identityService.readUser(username = medewerkerId, logContext = "zaak '${zaak.identificatie}'").also {
                 grantZaakspecifiekeAutorisatie(
                     zaak = zaak,
                     medewerker = it.toMedewerkerIdentificatie(),
@@ -338,11 +348,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         flowableTaskService.listOpenTasksForZaak(zaak.uuid)
             .filter { it.assignee != null }
             .distinctBy { it.assignee }
-            .forEach {
-                if (grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak, it.assignee)) {
-                    taskHistoryService.addZaakspecifiekGeautoriseerdeMedewerkerAddedEntry(it, it.assignee)
-                }
-            }
+            .forEach { grantZaakspecifiekeAutorisatieToTaakbehandelaar(zaak = zaak, medewerkerId = it.assignee, task = it) }
         indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid)
     }
 
@@ -384,7 +390,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
     }
 
     private fun listZaakspecifiekGeautoriseerdeMedewerkerIdsForZaaktype(zaakType: ZaakType) =
-        identityService.listUserIdsForApplicationRoleAndZaaktype(
+        identityService.listUsernamesForApplicationRoleAndZaaktype(
             applicationRole = ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD,
             zaaktypeDescription = zaakType.omschrijving
         )
@@ -394,11 +400,11 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
             flowableTaskService.listOpenTasksForZaak(zaak.uuid).mapNotNull { it.assignee }
 
     private fun readMedewerkerIdentificatie(medewerkerId: String, zaak: Zaak) =
-        identityService.readUser(userId = medewerkerId, logContext = "zaak '${zaak.identificatie}'")
+        identityService.readUser(username = medewerkerId, logContext = "zaak '${zaak.identificatie}'")
             .toMedewerkerIdentificatie()
 
     private fun User.toMedewerkerIdentificatie() = MedewerkerIdentificatie().apply {
-        identificatie = this@toMedewerkerIdentificatie.id
+        identificatie = this@toMedewerkerIdentificatie.username
         voorletters = firstName
         achternaam = lastName
     }

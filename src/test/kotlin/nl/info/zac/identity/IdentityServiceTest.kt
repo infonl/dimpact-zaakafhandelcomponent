@@ -75,21 +75,21 @@ class IdentityServiceTest : BehaviorSpec({
                 then("the users are retrieved from Keycloak, sorted by full name") {
                     users.size shouldBe 3
                     with(users[0]) {
-                        id shouldBe "fakeUsername1"
+                        username shouldBe "fakeUsername1"
                         firstName shouldBe "fakeFirstName1"
                         lastName shouldBe "fakeLastName1"
                         getFullName() shouldBe "fakeFirstName1 fakeLastName1"
                         email shouldBe "test1@example.com"
                     }
                     with(users[1]) {
-                        id shouldBe "fakeUsername2"
+                        username shouldBe "fakeUsername2"
                         firstName shouldBe "fakeFirstName2"
                         lastName shouldBe "fakeLastName2"
                         getFullName() shouldBe "fakeFirstName2 fakeLastName2"
                         email shouldBe "test2@example.com"
                     }
                     with(users[2]) {
-                        id shouldBe "fakeUsername3"
+                        username shouldBe "fakeUsername3"
                         firstName shouldBe "fakeFirstName3"
                         lastName shouldBe "fakeLastName3"
                         getFullName() shouldBe "fakeFirstName3 fakeLastName3"
@@ -151,13 +151,13 @@ class IdentityServiceTest : BehaviorSpec({
                 then("the users in the group are retrieved from Keycloak, sorted by full name") {
                     users.size shouldBe 2
                     with(users[0]) {
-                        id shouldBe "fakeUsername1"
+                        username shouldBe "fakeUsername1"
                         firstName shouldBe "fakeFirstName1"
                         lastName shouldBe "fakeLastName1"
                         getFullName() shouldBe "fakeFirstName1 fakeLastName1"
                     }
                     with(users[1]) {
-                        id shouldBe "fakeUsername2"
+                        username shouldBe "fakeUsername2"
                         firstName shouldBe "fakeFirstName2"
                         lastName shouldBe "fakeLastName2"
                         getFullName() shouldBe "fakeFirstName2 fakeLastName2"
@@ -179,7 +179,7 @@ class IdentityServiceTest : BehaviorSpec({
                 val users = identityService.listUsersInGroup("fakeGroupId")
 
                 then("the members of every page are returned") {
-                    users.map { it.id }.toSet() shouldBe members.map { it.username }.toSet()
+                    users.map { it.username }.toSet() shouldBe members.map { it.username }.toSet()
                 }
             }
         }
@@ -202,7 +202,7 @@ class IdentityServiceTest : BehaviorSpec({
 
                 then("the user is retrieved from Keycloak") {
                     with(user) {
-                        id shouldBe "fakeUsername"
+                        username shouldBe "fakeUsername"
                         firstName shouldBe "fakeFirstName"
                         lastName shouldBe "fakeLastName"
                         getFullName() shouldBe "fakeFirstName fakeLastName"
@@ -214,20 +214,20 @@ class IdentityServiceTest : BehaviorSpec({
     }
 
     context("Reading a user that no longer exists in Keycloak") {
-        given("A userId that used to be assigned to a zaak or task but is no longer found in Keycloak") {
-            val userId = "fakeStaleUserId"
+        given("A username that used to be assigned to a zaak or task but is no longer found in Keycloak") {
+            val username = "fakeStaleUsername"
             every {
-                realmResource.users().searchByUsername(userId, true)
+                realmResource.users().searchByUsername(username, true)
             } returns emptyList()
 
             `when`("the user is retrieved with the task and zaak that refer to it as log context") {
                 val user = identityService.readUser(
-                    userId = userId,
+                    username = username,
                     logContext = "task 'fakeTaskId' of zaak 'fakeZaakIdentificatie'"
                 )
 
-                then("a placeholder user containing only the id is returned") {
-                    user.id shouldBe userId
+                then("a user containing only the username is returned") {
+                    user.username shouldBe username
                 }
 
                 then("the miss is logged at the level WARNING, together with the task and zaak") {
@@ -235,8 +235,9 @@ class IdentityServiceTest : BehaviorSpec({
                         log(
                             any(),
                             Level.WARNING,
-                            "User with id '$userId' could not be found in Keycloak for task 'fakeTaskId' " +
-                                "of zaak 'fakeZaakIdentificatie'. Returning a placeholder."
+                            "User with username '$username' could not be found in Keycloak for task 'fakeTaskId' " +
+                                "of zaak 'fakeZaakIdentificatie'. Returning username only, since no other data " +
+                                "about this user could be retrieved."
                         )
                     }
                 }
@@ -492,13 +493,13 @@ class IdentityServiceTest : BehaviorSpec({
             )
 
             `when`("the members are listed") {
-                val userIds = identityService.listUserIdsForApplicationRoleAndZaaktype(
+                val usernames = identityService.listUsernamesForApplicationRoleAndZaaktype(
                     applicationRole = "fakeApplicationRole",
                     zaaktypeDescription = "fakeZaaktypeDescription"
                 )
 
                 then("every member is returned once") {
-                    userIds shouldBe setOf("fakeUsername1", "fakeUsername2")
+                    usernames shouldBe setOf("fakeUsername1", "fakeUsername2")
                 }
             }
         }
@@ -524,13 +525,13 @@ class IdentityServiceTest : BehaviorSpec({
             )
 
             `when`("the members are listed") {
-                val userIds = identityService.listUserIdsForApplicationRoleAndZaaktype(
+                val usernames = identityService.listUsernamesForApplicationRoleAndZaaktype(
                     applicationRole = "fakeApplicationRole",
                     zaaktypeDescription = "fakeZaaktypeDescription"
                 )
 
                 then("the unknown group is skipped and the members of the other group are returned") {
-                    userIds shouldBe setOf("fakeUsername")
+                    usernames shouldBe setOf("fakeUsername")
                 }
 
                 and("the unknown group is logged at the level WARNING") {

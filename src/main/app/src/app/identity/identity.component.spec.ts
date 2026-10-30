@@ -5,7 +5,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatCardHarness } from "@angular/material/card/testing";
 import { MatListItemHarness } from "@angular/material/list/testing";
@@ -23,7 +23,7 @@ const makeLoggedInUser = (
   fields: Partial<GeneratedType<"RestLoggedInUser">> = {},
 ): GeneratedType<"RestLoggedInUser"> =>
   fromPartial<GeneratedType<"RestLoggedInUser">>({
-    id: "user-1",
+    username: "user-1",
     naam: "Test User",
     groupIds: [],
     functionalRoles: [],
@@ -42,7 +42,7 @@ describe(IdentityComponent.name, () => {
       providers: [
         provideTranslateService(),
         IdentityService,
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideQueryClient(testQueryClient),
       ],
     }).compileComponents();

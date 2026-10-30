@@ -10,7 +10,6 @@ import jakarta.json.bind.JsonbBuilder
 import jakarta.json.bind.JsonbConfig
 import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.WebApplicationException
-import net.atos.zac.util.JsonbUtil
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.or.objects.model.generated.ModelObject
 import nl.info.client.or.shared.exception.ORErrorException
@@ -31,6 +30,7 @@ import nl.info.zac.productaanvraag.util.GeometryTypeEnumJsonAdapter
 import nl.info.zac.productaanvraag.util.IndicatieMachtigingEnumJsonAdapter
 import nl.info.zac.productaanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter
 import nl.info.zac.util.AllOpen
+import nl.info.zac.util.JSONB
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
 import java.util.logging.Level
@@ -89,7 +89,7 @@ class ProductaanvraagService @Inject constructor(
                     GeometryTypeEnumJsonAdapter()
                 )
         ).fromJson(
-            JsonbUtil.JSONB.toJson(productaanvraagObject.record.data),
+            JSONB.toJson(productaanvraagObject.record.data),
             ProductaanvraagDimpact::class.java
         )
 
@@ -208,8 +208,13 @@ class ProductaanvraagService @Inject constructor(
             // as well as other types of betrokkenen
 
             // we are only interested in the first betrokkene with the role 'INITIATOR'
-            betrokkenen.first { it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR }
-                .let { inboxProductaanvraag.initiatorID = it.inpBsn }
+            val initiator = betrokkenen.firstOrNull {
+                it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR
+            } ?: throw IllegalArgumentException(
+                "Productaanvraag has ${betrokkenen.size} betrokkene(n) but none with role " +
+                    "'${Betrokkene.RolOmschrijvingGeneriek.INITIATOR}'"
+            )
+            inboxProductaanvraag.initiatorID = initiator.inpBsn
         }
         productaanvraag.pdf?.let { inboxProductaanvraag.aanvraagdocumentUUID = it.extractUuid() }
         productaanvraag.bijlagen?.let { inboxProductaanvraag.aantalBijlagen = it.size }

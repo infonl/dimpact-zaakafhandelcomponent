@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 
@@ -10,10 +10,12 @@ import { MatProgressBarModule } from "@angular/material/progress-bar";
   selector: "app-progress-dialog",
   templateUrl: "./progress-dialog.component.html",
   styleUrls: ["./progress-dialog.component.less"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatProgressBarModule],
 })
 export class ProgressDialogComponent {
-  dialogRef = inject<MatDialogRef<ProgressDialogComponent>>(MatDialogRef);
+  readonly dialogRef =
+    inject<MatDialogRef<ProgressDialogComponent>>(MatDialogRef);
   data = inject<{
     message: string;
     action?: string;

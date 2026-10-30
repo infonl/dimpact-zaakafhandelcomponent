@@ -35,7 +35,9 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import nl.info.zac.enkelvoudiginformatieobject.model.createEnkelvoudigInformatieObjectLock
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.identity.model.createUser
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createDocumentRechtenAllDeny
@@ -181,6 +183,44 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
                     versie shouldBe 1234
                     bestandsomvang shouldBe 1234
                     vertrouwelijkheidaanduiding shouldBe RestVertrouwelijkheidaanduiding.ZEER_GEHEIM
+                }
+            }
+        }
+    }
+
+    given("A locked enkelvoudig informatieobject that the user may read") {
+        val enkelvoudigInformatieObjectUUID = UUID.randomUUID()
+        val uri = URI("https://example.com/informatieobjecten/$enkelvoudigInformatieObjectUUID")
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(url = uri, locked = true).apply {
+            informatieobjecttype = uri
+        }
+        val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock(username = "fakeUsername")
+
+        every {
+            enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID)
+        } returns enkelvoudigInformatieObjectLock
+        every {
+            policyService.readDocumentRechten(
+                enkelvoudigInformatieobject = enkelvoudigInformatieObject,
+                zaak = null,
+                lock = enkelvoudigInformatieObjectLock
+            )
+        } returns createDocumentRechtenAllDeny(lezen = true)
+        every { brcClientService.isInformatieObjectGekoppeldAanBesluit(enkelvoudigInformatieObject.url) } returns false
+        every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns createInformatieObjectType()
+        every {
+            identityService.readUser(username = "fakeUsername", logContext = any())
+        } returns createUser(username = "fakeUsername", fullName = "fakeFullName")
+
+        `when`("converted to REST Enkelvoudig Informatie Object") {
+            val restEnkelvoudigInformatieObject = restInformatieobjectConverter.convertToRestEnkelvoudigInformatieobject(
+                enkelvoudigInformatieObject
+            )
+
+            then("the user that locked the document is returned with its username and full name") {
+                with(restEnkelvoudigInformatieObject.gelockedDoor!!) {
+                    username shouldBe "fakeUsername"
+                    naam shouldBe "fakeFullName"
                 }
             }
         }

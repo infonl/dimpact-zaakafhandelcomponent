@@ -5,6 +5,7 @@
 
 import {
   booleanAttribute,
+  ChangeDetectionStrategy,
   Component,
   effect,
   input,
@@ -32,6 +33,7 @@ import { Form, FormConfig, FormField } from "./form-field.types";
   selector: "zac-composed-form",
   templateUrl: "./composed-form.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButton,
     MatExpansionPanelActionRow,

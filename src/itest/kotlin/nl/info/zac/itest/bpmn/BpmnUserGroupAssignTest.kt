@@ -112,7 +112,7 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                     "naam" : "${GROUP_BEHANDELAARS_TEST_1.description}"
                   },
                   "behandelaar" : {
-                    "id" : "${BEHANDELAAR_1.username}",
+                    "username" : "${BEHANDELAAR_1.username}",
                     "naam" : "${BEHANDELAAR_1.displayName}"
                   }
                 }
@@ -138,7 +138,7 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                         "naam" : "${GROUP_COORDINATORS_TEST_1.description}"
                       },
                       "behandelaar" : {
-                        "id" : "${COORDINATOR_1.username}",
+                        "username" : "${COORDINATOR_1.username}",
                         "naam" : "${COORDINATOR_1.displayName}"
                       }
                     }                    
@@ -173,7 +173,7 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                         "naam" : "${GROUP_RECORDMANAGERS_TEST_1.description}"
                       },
                       "behandelaar" : {
-                        "id" : "${RECORDMANAGER_1.username}",
+                        "username" : "${RECORDMANAGER_1.username}",
                         "naam" : "${RECORDMANAGER_1.displayName}"
                       }
                     }                    
@@ -197,7 +197,7 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                         "naam" : "${GROUP_COORDINATORS_TEST_1.description}"
                       },
                       "behandelaar" : {
-                        "id": "${BEHANDELAAR_1.username}",
+                        "username": "${BEHANDELAAR_1.username}",
                         "naam": "${BEHANDELAAR_1.displayName}"
                       }
                     }                    

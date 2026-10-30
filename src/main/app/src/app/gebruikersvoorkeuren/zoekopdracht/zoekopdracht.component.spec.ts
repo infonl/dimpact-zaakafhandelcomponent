@@ -6,6 +6,7 @@
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import {
   HttpTestingController,
@@ -17,6 +18,7 @@ import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { defaultScheduler, notifyManager } from "@tanstack/query-core";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
@@ -60,6 +62,14 @@ describe(ZoekopdrachtComponent.name, () => {
 
   const user = userEvent.setup();
 
+  beforeEach(() => {
+    notifyManager.setScheduler((fn) => fn());
+  });
+
+  afterEach(() => {
+    notifyManager.setScheduler(defaultScheduler);
+  });
+
   async function setup(zoekFilters: ZoekFilters = makeZoekFilters()) {
     filtersChanged = new EventEmitter<void>();
     zoekopdrachtEmitted = jest.fn();
@@ -74,7 +84,7 @@ describe(ZoekopdrachtComponent.name, () => {
       imports: [NoopAnimationsModule],
       providers: [
         provideTranslateService(),
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
       ],
@@ -281,6 +291,25 @@ describe(ZoekopdrachtComponent.name, () => {
       );
     });
 
+    it("does not apply the active saved search of a cached list when reading the list again fails", async () => {
+      testQueryClient.setQueryData(
+        [
+          "/rest/gebruikersvoorkeuren/zoekopdracht/{lijstID}",
+          { path: { lijstID: WERKLIJST } },
+        ],
+        [makeZoekopdracht({ id: 3, actief: true })],
+      );
+      await setup();
+
+      httpTestingController
+        .expectOne(ZOEKOPDRACHTEN_URL)
+        .flush(null, { status: 400, statusText: "Bad Request" });
+      await sleep();
+      fixture.detectChanges();
+
+      expect(zoekopdrachtEmitted).not.toHaveBeenCalled();
+    });
+
     it("deletes a saved search without activating it", async () => {
       await setup();
       await loadZoekopdrachten([makeZoekopdracht({ id: 7 })]);
@@ -376,7 +405,7 @@ describe(ZoekopdrachtComponent.name, () => {
   describe("when the werklijst input changes afterwards", () => {
     const OTHER_WERKLIJST = "WERKVOORRAAD_ZAKEN";
 
-    it("does not reload the saved searches", async () => {
+    it("reads the saved searches of the new werklijst", async () => {
       await setup();
       await loadZoekopdrachten();
 
@@ -384,10 +413,18 @@ describe(ZoekopdrachtComponent.name, () => {
       fixture.detectChanges();
       await sleep();
 
-      httpTestingController.expectNone(
-        `/rest/gebruikersvoorkeuren/zoekopdracht/${OTHER_WERKLIJST}`,
-      );
+      httpTestingController
+        .expectOne(`/rest/gebruikersvoorkeuren/zoekopdracht/${OTHER_WERKLIJST}`)
+        .flush([makeZoekopdracht({ naam: "Andere werklijst" })]);
+      await sleep();
+      fixture.detectChanges();
       httpTestingController.expectNone(ZOEKOPDRACHTEN_URL);
+
+      await user.click(selectButton());
+
+      expect(
+        screen.getByRole("menuitem", { name: /Andere werklijst/ }),
+      ).toBeVisible();
     });
 
     it("saves the current filters for the new werklijst", async () => {
@@ -395,6 +432,12 @@ describe(ZoekopdrachtComponent.name, () => {
       await loadZoekopdrachten();
 
       fixture.componentRef.setInput("werklijst", OTHER_WERKLIJST);
+      fixture.detectChanges();
+      await sleep();
+      httpTestingController
+        .expectOne(`/rest/gebruikersvoorkeuren/zoekopdracht/${OTHER_WERKLIJST}`)
+        .flush([]);
+      await sleep();
       fixture.detectChanges();
       await user.click(saveButton());
 

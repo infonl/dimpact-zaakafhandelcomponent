@@ -8,12 +8,12 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.event.Event
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
-import net.atos.zac.signalering.event.SignaleringEvent
-import net.atos.zac.signalering.event.SignaleringEventUtil
-import net.atos.zac.util.event.JobEvent
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.signalering.event.SignaleringEvent
+import nl.info.zac.signalering.event.signaleringEvent
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.event.JobEvent
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.websocket.event.ScreenEventType
 import java.util.logging.Level
@@ -41,14 +41,14 @@ class EventingService @Inject constructor(
      * Prefer using the factory methods on [ScreenEventType] to create these events.
      */
     fun send(event: ScreenEvent) {
-        event.actorUserId = loggedInUserInstance.get().id
+        event.actorUsername = loggedInUserInstance.get().username
         screenUpdateEvent.fireAsync(event)
     }
 
     /**
      * Send [SignaleringEvent]s to Observer(s), which use them to create and/or send signaleringen.
      *
-     * Prefer using the factory methods on [SignaleringEventUtil] to create these events.
+     * Prefer using the [signaleringEvent] factory functions to create these events.
      *
      * CDI does not log a failure of an asynchronous observer, it only completes the returned stage with it.
      */

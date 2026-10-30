@@ -4,6 +4,22 @@
  */
 @import "../../../variables";
 
+// Fills the outer drawer, so a picker of the new zaak opens over the whole panel at the height of the screen.
+:host {
+  display: block;
+  height: 100%;
+}
+
+// The panel keeps the look of the outer drawer: no page background, and the global
+// mat-drawer-container padding, which also matches this nested container, gives way to the panel's own insets.
+mat-sidenav-container {
+  --mat-sidenav-content-background-color: transparent;
+
+  > mat-sidenav-content {
+    padding: 0;
+  }
+}
+
 .form {
   min-width: 800px;
 }
@@ -46,8 +62,4 @@
 
 .disabled {
   color: var(--mat-form-field-filled-disabled-label-text-color);
-}
-
-zac-date-range-filter ::ng-deep mat-form-field {
-  inline-size: 100%;
 }

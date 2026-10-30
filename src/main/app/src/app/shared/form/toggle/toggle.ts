@@ -4,7 +4,7 @@
  *
  */
 
-import { Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatError, MatHint, MatLabel } from "@angular/material/form-field";
 import {
@@ -20,6 +20,7 @@ import { SingleInputFormField } from "../BaseFormField";
   templateUrl: "./toggle.html",
   styleUrls: ["./toggle.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatSlideToggleModule,

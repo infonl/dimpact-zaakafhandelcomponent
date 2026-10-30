@@ -5,6 +5,7 @@
 
 import { NgClass } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   input,
@@ -22,6 +23,7 @@ import { ReadMoreComponent } from "../read-more/read-more.component";
   selector: "zac-static-text",
   templateUrl: "./static-text.component.html",
   styleUrls: ["./static-text.component.less"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     NgClass,
     MatIconModule,

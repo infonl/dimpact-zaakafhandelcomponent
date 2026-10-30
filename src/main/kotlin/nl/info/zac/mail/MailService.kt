@@ -16,7 +16,6 @@ import jakarta.mail.Session
 import jakarta.mail.Transport
 import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.WebApplicationException
-import net.atos.zac.util.MediaTypes
 import nl.info.client.officeconverter.OfficeConverterClientService
 import nl.info.client.officeconverter.exception.MessageEntityDataCouldNotBeBufferedException
 import nl.info.client.zgw.drc.DrcClientService
@@ -38,6 +37,7 @@ import nl.info.zac.mailtemplates.MailTemplateHelper
 import nl.info.zac.mailtemplates.model.MailGegevens
 import nl.info.zac.mailtemplates.model.MailTemplateVariables
 import nl.info.zac.util.AllOpen
+import nl.info.zac.util.MediaTypes
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.abbreviate
 import nl.info.zac.util.toBase64String
@@ -292,7 +292,7 @@ class MailService @Inject constructor(
 
     private fun resolveVariabelen(tekst: String, bronnen: Bronnen, zaakdata: Map<String, Any>): String =
         mailTemplateHelper.resolveGemeenteVariable(tekst).let {
-            mailTemplateHelper.resolveZaakVariables(it, bronnen.zaak ?: return@let it, loggedInUserInstance.get().id)
+            mailTemplateHelper.resolveZaakVariables(it, bronnen.zaak ?: return@let it, loggedInUserInstance.get().username)
         }.let {
             mailTemplateHelper.resolveEnkelvoudigInformatieObjectVariables(it, bronnen.document ?: return@let it)
         }.let {

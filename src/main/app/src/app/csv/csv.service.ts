@@ -14,8 +14,8 @@ import { GeneratedType } from "../shared/utils/generated-types";
   providedIn: "root",
 })
 export class CsvService {
-  private http = inject(HttpClient);
-  private foutAfhandelingService = inject(FoutAfhandelingService);
+  private readonly http = inject(HttpClient);
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
   private basepath = "/rest/csv";
 

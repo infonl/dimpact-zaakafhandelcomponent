@@ -116,7 +116,7 @@ class PolicyService @Inject constructor(
             isHeropend = statusType?.isHeropend(),
             isBrondatumBepaald = zaak.startdatumBewaartermijn != null,
             isZaakspecifiekGeautoriseerd = resolvedZaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd,
-            isLoggedInUserGeautoriseerdeMedewerker = resolvedZaakAutorisatieGegevens.isGeautoriseerdeMedewerker(loggedInUser.id)
+            isLoggedInUserGeautoriseerdeMedewerker = resolvedZaakAutorisatieGegevens.isGeautoriseerdeMedewerker(loggedInUser.username)
         )
         return evaluationClient.readZaakRechten(
             RuleQuery(
@@ -176,13 +176,13 @@ class PolicyService @Inject constructor(
         val documentData = DocumentData(
             isDefinitief = enkelvoudigInformatieobject.getStatus() == StatusEnum.DEFINITIEF,
             isVergrendeld = enkelvoudigInformatieobject.getLocked(),
-            vergrendeldDoor = resolvedLock?.userId,
+            vergrendeldDoor = resolvedLock?.username,
             isOndertekend = enkelvoudigInformatieobject.isSigned(),
             isZaakOpen = zaak?.isOpen() ?: false,
             zaaktype = zaak?.let { ztcClientService.readZaaktype(it.getZaaktype()).getOmschrijving() },
             isZaakspecifiekGeautoriseerd = resolvedZaakAutorisatieGegevens?.isZaakspecifiekGeautoriseerd == true,
             isLoggedInUserGeautoriseerdeMedewerker =
-                resolvedZaakAutorisatieGegevens?.isGeautoriseerdeMedewerker(loggedInUserInstance.get().id) == true
+                resolvedZaakAutorisatieGegevens?.isGeautoriseerdeMedewerker(loggedInUserInstance.get().username) == true
         )
         return evaluationClient.readDocumentRechten(
             RuleQuery(
@@ -238,7 +238,7 @@ class PolicyService @Inject constructor(
             zaaktype = zaaktypeOmschrijving ?: readZaaktypeOmschrijving(taskInfo),
             isZaakspecifiekGeautoriseerd = resolvedZaakAutorisatieGegevens.isZaakspecifiekGeautoriseerd,
             isLoggedInUserGeautoriseerdeMedewerker =
-                resolvedZaakAutorisatieGegevens.isGeautoriseerdeMedewerker(loggedInUserInstance.get().id)
+                resolvedZaakAutorisatieGegevens.isGeautoriseerdeMedewerker(loggedInUserInstance.get().username)
         )
         return evaluationClient.readTaakRechten(
             RuleQuery(
@@ -274,7 +274,7 @@ class PolicyService @Inject constructor(
         isZaakspecifiekGeautoriseerd: Boolean,
         zaakGeautoriseerdeMedewerkers: List<String>?
     ) = ZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd) { zaakGeautoriseerdeMedewerkers.orEmpty() }
-        .isGeautoriseerdeMedewerker(loggedInUserInstance.get().id)
+        .isGeautoriseerdeMedewerker(loggedInUserInstance.get().username)
 
     fun readNotitieRechten(): NotitieRechten =
         evaluationClient.readNotitieRechten(

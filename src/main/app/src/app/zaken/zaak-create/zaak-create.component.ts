@@ -3,19 +3,36 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject, viewChild } from "@angular/core";
+import { NgTemplateOutlet } from "@angular/common";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  TemplateRef,
+  untracked,
+  viewChild,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
-import { MatSidenav, MatSidenavModule } from "@angular/material/sidenav";
+import {
+  MatDrawer,
+  MatSidenav,
+  MatSidenavModule,
+} from "@angular/material/sidenav";
+import { MatTooltipModule } from "@angular/material/tooltip";
 import { Router } from "@angular/router";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { Observable, of } from "rxjs";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
@@ -36,20 +53,28 @@ import {
 } from "../../shared/utils/constants";
 import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 import { ZakenService } from "../zaken.service";
+import {
+  initiatorAllowedByZaaktype,
+  ZaakCreateKoppeling,
+  zaaktypenForKoppeling,
+} from "./zaak-create-koppeling";
 
 @Component({
   selector: "zac-zaak-create",
   templateUrl: "./zaak-create.component.html",
   styleUrls: ["./zaak-create.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     BackButtonDirective,
+    NgTemplateOutlet,
     ReactiveFormsModule,
     MatSidenavModule,
     MatButtonModule,
     MatExpansionModule,
     MatFormFieldModule,
     MatIconModule,
+    MatTooltipModule,
     TranslatePipe,
     KlantKoppelComponent,
     BagZoekComponent,
@@ -61,6 +86,15 @@ import { ZakenService } from "../zaken.service";
   ],
 })
 export class ZaakCreateComponent {
+  readonly koppeling = input<ZaakCreateKoppeling | null>(null);
+  /**
+   * Drawer of the embedding component in which the pickers open, instead of the drawer of this component.
+   * The embedding component renders {@link sideActions} in it.
+   */
+  readonly hostSidenav = input<MatDrawer | null>(null);
+  readonly zaakCreated = output<string>();
+  readonly cancelled = output<void>();
+
   private readonly zakenService = inject(ZakenService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly identityService = inject(IdentityService);
@@ -72,15 +106,50 @@ export class ZaakCreateComponent {
   private readonly queryClient = inject(QueryClient);
   static DEFAULT_CHANNEL = "E-formulier";
 
-  protected readonly actionsSidenav = viewChild.required(MatSidenav);
+  private readonly ownSidenav = viewChild(MatSidenav);
+  protected readonly actionsSidenav = computed(
+    () => this.hostSidenav() ?? this.ownSidenav()!,
+  );
+  readonly sideActions =
+    viewChild.required<TemplateRef<unknown>>("sideActions");
 
   protected activeSideAction: string | null = null;
 
   private readonly inboxProductaanvraag: GeneratedType<"RestInboxProductaanvraag">;
 
-  protected groups: Observable<GeneratedType<"RestGroup">[]> = of([]);
-  protected users: GeneratedType<"RestUser">[] = [];
-  protected caseTypes = this.zakenService.listZaaktypesForCreation();
+  private readonly selectedCaseType = signal<
+    GeneratedType<"RestZaaktype"> | undefined
+  >(undefined);
+
+  private readonly groupsQuery = injectQuery(() => ({
+    ...this.identityService.listBehandelaarGroupsForZaaktype(
+      this.selectedCaseType()?.omschrijving ?? "",
+    ),
+    enabled: !!this.selectedCaseType()?.omschrijving,
+  }));
+
+  protected readonly groups = computed(() => this.groupsQuery.data() ?? []);
+
+  private readonly selectedGroupId = signal<string | undefined>(undefined);
+
+  private readonly usersQuery = injectQuery(() => ({
+    ...this.identityService.listUsersInGroup(this.selectedGroupId() ?? ""),
+    enabled: !!this.selectedGroupId(),
+  }));
+
+  protected readonly users = computed(() => this.usersQuery.data() ?? []);
+
+  private groupPrefilledForCaseType?: GeneratedType<"RestZaaktype">;
+  private readonly caseTypesQuery = injectQuery(() =>
+    this.zakenService.listZaaktypesForCreationQuery(),
+  );
+  protected readonly caseTypes = computed(() =>
+    zaaktypenForKoppeling(this.caseTypesQuery.data() ?? [], this.koppeling()),
+  );
+  private readonly copiedInitiator = signal<
+    (GeneratedType<"BetrokkeneIdentificatie"> & { naam?: string | null }) | null
+  >(null);
+  protected readonly initiatorNotCopied = signal(false);
   protected communicationChannels: string[] = [];
   protected confidentialityNotices =
     VertrouwelijkaanduidingToTranslationKeyPipe.selectList;
@@ -89,6 +158,10 @@ export class ZaakCreateComponent {
     () => this.zakenService.createZaak(),
     {
       onSuccess: ({ identificatie }) => {
+        if (this.koppeling()) {
+          this.zaakCreated.emit(identificatie);
+          return;
+        }
         void this.router.navigate(["/zaken/", identificatie]);
       },
     },
@@ -145,6 +218,11 @@ export class ZaakCreateComponent {
       .subscribe((caseType) => {
         this.caseTypeSelected(caseType);
 
+        if (this.koppeling()) {
+          this.applyCopiedInitiator();
+          return;
+        }
+
         if (!this.canAddInitiator()) {
           this.form.controls.initiatorIdentificatie.setValue(null);
           this.form.controls.initiatorIdentificatie.disable();
@@ -160,24 +238,69 @@ export class ZaakCreateComponent {
         if (!value) {
           this.form.controls.behandelaar.setValue(null);
           this.form.controls.behandelaar.disable();
+          this.selectedGroupId.set(undefined);
           return;
         }
+        if (!value.id) return;
 
-        this.identityService.listUsersInGroup(value.id).subscribe((users) => {
-          this.users = users ?? [];
-          this.form.controls.behandelaar.enable();
-
-          const defaultBehandelaarId =
-            this.form.controls.zaaktype.value?.zaakafhandelparameters
-              ?.defaultBehandelaarId;
-
-          this.form.controls.behandelaar.setValue(
-            this.users.find(({ id }) => id === defaultBehandelaarId) ?? null,
-          );
-        });
+        this.selectedGroupId.set(value.id);
+        void this.prefillBehandelaar(value.id);
       });
 
+    effect(() => {
+      const caseType = this.selectedCaseType();
+      const groups = this.groupsQuery.data();
+      if (!caseType || !groups || this.groupPrefilledForCaseType === caseType)
+        return;
+      this.groupPrefilledForCaseType = caseType;
+
+      const defaultGroup = groups.find(
+        ({ id }) => id === caseType.zaakafhandelparameters?.defaultGroepId,
+      );
+      untracked(() => this.form.controls.groep.setValue(defaultGroup));
+    });
+
     void this.handleProductRequest(this.inboxProductaanvraag);
+
+    effect(() => {
+      const caseTypes = this.caseTypes();
+      if (!this.caseTypesQuery.isSuccess()) return;
+
+      const caseType = untracked(() => this.form.controls.zaaktype.value);
+      if (caseType && !caseTypes.some(({ uuid }) => uuid === caseType.uuid)) {
+        untracked(() => this.form.controls.zaaktype.setValue(null));
+      }
+    });
+
+    effect(() => {
+      const koppeling = this.koppeling();
+      if (!koppeling) return;
+
+      untracked(
+        () => void this.copyInitiator(koppeling.zaak.initiatorIdentificatie),
+      );
+    });
+  }
+
+  private async prefillBehandelaar(groupId: string) {
+    let users: GeneratedType<"RestUser">[];
+    try {
+      users = await this.queryClient.fetchQuery(
+        this.identityService.listUsersInGroup(groupId),
+      );
+    } catch {
+      // The query cache already shows the error dialog for a failed read.
+      return;
+    }
+    if (this.form.controls.groep.value?.id !== groupId) return;
+
+    this.form.controls.behandelaar.enable();
+    const defaultBehandelaarId =
+      this.form.controls.zaaktype.value?.zaakafhandelparameters
+        ?.defaultBehandelaarId;
+    this.form.controls.behandelaar.setValue(
+      users.find(({ username }) => username === defaultBehandelaarId) ?? null,
+    );
   }
 
   formSubmit() {
@@ -196,7 +319,76 @@ export class ZaakCreateComponent {
       },
       bagObjecten: value.bagObjecten,
       inboxProductaanvraag: this.inboxProductaanvraag,
+      koppeling: this.toRestZaakAanmaakKoppeling(this.koppeling()),
     });
+  }
+
+  protected copiedInitiatorTooltip(koppeling: ZaakCreateKoppeling) {
+    return koppeling.zaak.initiatorIdentificatie
+      ? "zaak.aanmaken.initiator.overgenomen"
+      : "zaak.aanmaken.initiator.geen";
+  }
+
+  private toRestZaakAanmaakKoppeling(
+    koppeling: ZaakCreateKoppeling | null,
+  ): GeneratedType<"RestZaakAanmaakKoppeling"> | null {
+    if (!koppeling) return null;
+
+    return {
+      zaakUuid: koppeling.zaak.uuid,
+      relatieType: koppeling.relatieType,
+    };
+  }
+
+  private async copyInitiator(
+    initiator?: GeneratedType<"BetrokkeneIdentificatie"> | null,
+  ) {
+    this.copiedInitiator.set(
+      initiator
+        ? { ...initiator, naam: await this.readInitiatorNaam(initiator) }
+        : null,
+    );
+    this.applyCopiedInitiator();
+  }
+
+  private async readInitiatorNaam(
+    initiator: GeneratedType<"BetrokkeneIdentificatie">,
+  ) {
+    const identification =
+      initiator.bsn ?? initiator.vestigingsnummer ?? initiator.kvkNummer;
+    try {
+      const betrokkene =
+        initiator.type === "BSN" && initiator.temporaryPersonId
+          ? await this.queryClient.ensureQueryData(
+              this.klantenService.readPersoon(
+                initiator.temporaryPersonId,
+                this.koppeling()?.zaak.zaaktype.uuid,
+              ),
+            )
+          : await this.queryClient.ensureQueryData(
+              this.klantenService.readBedrijf(
+                new BetrokkeneIdentificatie(initiator),
+              ),
+            );
+      return betrokkene.naam ?? identification;
+    } catch {
+      return identification;
+    }
+  }
+
+  private applyCopiedInitiator() {
+    const initiator = this.copiedInitiator();
+    const caseType = this.form.controls.zaaktype.value;
+    const isAllowed =
+      !initiator ||
+      !caseType ||
+      initiatorAllowedByZaaktype(initiator, caseType);
+
+    this.initiatorNotCopied.set(!isAllowed);
+    this.form.controls.initiatorIdentificatie.setValue(
+      isAllowed ? initiator : null,
+    );
+    this.form.controls.initiatorIdentificatie.disable();
   }
 
   async initiatorSelected(user: GeneratedType<"RestPersoon" | "RestBedrijf">) {
@@ -210,19 +402,11 @@ export class ZaakCreateComponent {
   caseTypeSelected(caseType?: GeneratedType<"RestZaaktype"> | null) {
     if (!caseType) return;
 
-    const { zaakafhandelparameters, vertrouwelijkheidaanduiding } = caseType;
+    const { vertrouwelijkheidaanduiding } = caseType;
     this.form.controls.groep.enable();
+    if (!caseType.omschrijving) return;
 
-    this.groups = this.identityService.listBehandelaarGroupsForZaaktype(
-      caseType.omschrijving!,
-    );
-
-    this.groups.subscribe((groups) => {
-      const selectedGroup = groups?.find(
-        ({ id }) => id === zaakafhandelparameters?.defaultGroepId,
-      );
-      this.form.controls.groep.setValue(selectedGroup);
-    });
+    this.selectedCaseType.set(caseType);
 
     this.form.controls.vertrouwelijkheidaanduiding.setValue(
       this.confidentialityNotices.find(

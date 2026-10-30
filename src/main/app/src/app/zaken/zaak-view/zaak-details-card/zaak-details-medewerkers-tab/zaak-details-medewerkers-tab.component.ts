@@ -3,7 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, inject, input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+} from "@angular/core";
 import { MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import {
@@ -35,6 +41,7 @@ import { ZakenService } from "../../../zaken.service";
   templateUrl: "./zaak-details-medewerkers-tab.component.html",
   styles: [":host { display: block; }"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatTable,
     MatColumnDef,
@@ -86,7 +93,8 @@ export class ZaakDetailsMedewerkersTabComponent {
     medewerker: GeneratedType<"RestGeautoriseerdeMedewerker">,
   ) {
     const naam = medewerker.naam ?? medewerker.id;
-    const isLoggedInUser = medewerker.id === this.loggedInUserQuery.data()?.id;
+    const isLoggedInUser =
+      medewerker.id === this.loggedInUserQuery.data()?.username;
     this.zaakDialogService
       .openDetachZaakspecifiekGeautoriseerdeMedewerker(naam, (reden) =>
         runMutation(

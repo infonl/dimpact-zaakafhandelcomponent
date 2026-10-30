@@ -4,7 +4,7 @@
  */
 package net.atos.zac.flowable.delegate
 
-import net.atos.zac.flowable.ZaakVariabelenService
+import nl.info.zac.flowable.ZaakVariabelenService
 import org.flowable.engine.delegate.DelegateExecution
 import org.flowable.engine.delegate.JavaDelegate
 

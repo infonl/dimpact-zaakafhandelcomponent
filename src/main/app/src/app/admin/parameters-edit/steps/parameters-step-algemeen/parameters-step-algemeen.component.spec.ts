@@ -22,8 +22,8 @@ const groups = [
 ];
 
 const usersOfDefaultGroup = [
-  { id: "test-user-id", naam: "test-user" },
-  { id: "test-user-id-2", naam: "test-user-2" },
+  { username: "test-user-id", naam: "test-user" },
+  { username: "test-user-id-2", naam: "test-user-2" },
 ];
 
 const stored: AlgemeenSettings = {
@@ -62,7 +62,7 @@ describe(ParametersStepAlgemeenComponent.name, () => {
         {
           provide: IdentityService,
           useValue: fromPartial<IdentityService>({
-            listBehandelaarGroupsForZaaktypeQuery: (
+            listBehandelaarGroupsForZaaktype: (
               zaaktypeDescription: string,
             ) => ({
               ...createQueryOptions(
@@ -72,7 +72,7 @@ describe(ParametersStepAlgemeenComponent.name, () => {
               ),
               queryKey: ["behandelaarGroups", zaaktypeDescription],
             }),
-            listUsersInGroupQuery: (groupId: string) => ({
+            listUsersInGroup: (groupId: string) => ({
               ...createQueryOptions(
                 groupId === "test-group-id" ? usersOfDefaultGroup : [],
               ),

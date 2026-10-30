@@ -12,14 +12,16 @@ import nl.info.zac.app.bag.model.RestOpenbareRuimte
 import nl.info.zac.app.bag.model.RestPand
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
-import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.policy.model.RestZaakRechten
 import nl.info.zac.app.productaanvraag.model.RestInboxProductaanvraag
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.app.zaak.model.besluit.RestBesluit
 import nl.info.zac.app.zaak.model.besluit.RestBesluitChangeData
 import nl.info.zac.app.zaak.model.besluit.RestBesluitCreateData
+import nl.info.zac.identification.BetrokkeneIdentificatie
+import nl.info.zac.identification.IdentificatieType
 import nl.info.zac.search.model.ZaakIndicatie
+import nl.info.zac.zaak.model.RelatieType
 import java.net.URI
 import java.time.LocalDate
 import java.util.EnumSet
@@ -133,10 +135,10 @@ fun createRestOpenbareRuimte() = RestOpenbareRuimte()
 fun createRestPand() = RestPand()
 
 fun createRestUser(
-    id: String = "fakeId",
+    username: String = "fakeUsername",
     name: String = "fakeName",
 ) = RestUser(
-    id = id,
+    username = username,
     naam = name
 )
 
@@ -365,7 +367,8 @@ fun createRestZaakRechten(
     creerenDocument: Boolean = true,
     versturenEmail: Boolean = true,
     wijzigenLocatie: Boolean = true,
-    brondatumZetten: Boolean = true
+    brondatumZetten: Boolean = true,
+    koppelen: Boolean = true
 ) = RestZaakRechten(
     canLezen = lezen,
     canWijzigen = wijzigen,
@@ -386,7 +389,8 @@ fun createRestZaakRechten(
     canCreerenDocument = creerenDocument,
     canVersturenEmail = versturenEmail,
     canWijzigenLocatie = wijzigenLocatie,
-    canBrondatumZetten = brondatumZetten
+    canBrondatumZetten = brondatumZetten,
+    canKoppelen = koppelen
 )
 
 fun createRestZaakResultaat() = RestZaakResultaat()

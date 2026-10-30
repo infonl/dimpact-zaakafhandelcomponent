@@ -3,204 +3,292 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<mat-toolbar role="heading" class="gap-16">
-  <mat-icon>account_tree</mat-icon>
-  <h3 class="flex-grow-1">{{ "actie.zaak.koppelen" | translate }}</h3>
-  <button
-    mat-icon-button
-    [attr.aria-label]="'actie.paneel.sluiten' | translate"
-    (click)="sideNav().close()"
-  >
-    <mat-icon>close</mat-icon>
-  </button>
-</mat-toolbar>
-<mat-divider></mat-divider>
-
-<form [formGroup]="form" (ngSubmit)="searchCases()">
-  <fieldset>
-    <legend>
-      <p>
-        {{
-          "zaak.koppelen.uitleg" | translate: { zaakID: zaak().identificatie }
-        }}
-      </p>
-    </legend>
-    <zac-select
-      [form]="form"
-      key="caseRelationType"
-      label="zaak.koppelen.label"
-      [options]="caseRelationOptionsList"
-      [optionDisplayValue]="'label'"
-    ></zac-select>
-    @if (relationTypeUnavailableReason(); as reason) {
-      <p class="feedback flex-row justify-center">
-        {{ reason | translate }}
-      </p>
-    } @else {
-      <fieldset class="p-0">
-        <legend style="font-weight: bold" class="m-0">
-          {{ "actie.zoeken.zaak" | translate }}
-        </legend>
-        @switch (form.controls.caseRelationType.value?.value) {
-          @case ("HOOFDZAAK") {
-            <p>{{ "zaak.koppelen.hint.hoofdzaak-aan-deelzaak" | translate }}</p>
-          }
-          @case ("DEELZAAK") {
-            <p>{{ "zaak.koppelen.hint.deelzaak-aan-hoofdzaak" | translate }}</p>
-          }
-          @case ("GERELATEERD") {
-            <p>{{ "zaak.koppelen.hint.gerelateerd" | translate }}</p>
-          }
-        }
-        <zac-input
-          [form]="form"
-          label="zaak.identificatie"
-          key="caseNumberToSearchFor"
-        />
-        <zac-auto-complete
-          key="caseTypeToSearchFor"
-          label="zaaktype"
-          class="col-12 col-md-6"
-          [form]="form"
-          [options]="caseTypes()"
-          [optionDisplayValue]="'omschrijving'"
-        />
-        <zac-input
-          [form]="form"
-          label="zoek-veld.zaak-omschrijving"
-          key="caseDescriptionToSearchFor"
-        />
-        <div class="row">
-          <zac-date-range-filter
-            class="col-6"
-            [showLabel]="true"
-            label="startdatum"
-            [range]="startdatum()"
-            (changed)="dateRangeChanged($event, startdatum)"
-          />
-          <zac-date-range-filter
-            class="col-6"
-            [showLabel]="true"
-            label="einddatum"
-            [range]="einddatum()"
-            (changed)="dateRangeChanged($event, einddatum)"
-          />
-        </div>
-      </fieldset>
-      <fieldset class="flex-row gap-5 button-row p-0">
-        <button
-          mat-raised-button
-          color="primary"
-          type="submit"
-          class="flex-row gap-8"
-          [disabled]="
-            !form.valid || !hasSearchCriteria() || casesQuery.isFetching()
-          "
-        >
-          @if (casesQuery.isFetching()) {
-            <mat-icon>
-              <mat-spinner diameter="18"></mat-spinner>
-            </mat-icon>
-          }
-          {{ "actie.zoeken" | translate }}
-        </button>
-        <button mat-raised-button type="button" (click)="reset()">
-          {{ "actie.wissen" | translate }}
-        </button>
-      </fieldset>
+<mat-sidenav-container>
+  <mat-sidenav #newCaseSidenav position="end">
+    @if (zaakCreate(); as zaakCreate) {
+      <ng-container *ngTemplateOutlet="zaakCreate.sideActions()"></ng-container>
     }
-  </fieldset>
-</form>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <mat-toolbar role="heading" class="gap-16">
+      <mat-icon>account_tree</mat-icon>
+      <h3 class="flex-grow-1">{{ "actie.zaak.koppelen" | translate }}</h3>
+      <button
+        mat-icon-button
+        [attr.aria-label]="'actie.paneel.sluiten' | translate"
+        (click)="sideNav().close()"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-toolbar>
+    <mat-divider></mat-divider>
 
-<div class="table-wrapper">
-  @if (
-    !relationTypeUnavailableReason() && hasSearched() && cases().length > 0
-  ) {
-    <table mat-table [dataSource]="cases()">
-      <ng-container matColumnDef="identificatie">
-        <th *matHeaderCellDef mat-header-cell>
-          {{ "zaak.identificatie" | translate }}
-        </th>
-        <td *matCellDef="let row" mat-cell>
-          <zac-zaak-identificatie
-            [identificatie]="row.identificatie"
-            [isZaakspecifiekGeautoriseerd]="row.isZaakspecifiekGeautoriseerd"
-          />
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="zaaktypeOmschrijving">
-        <th *matHeaderCellDef mat-header-cell>
-          {{ "zaaktype-omschrijving" | translate }}
-        </th>
-        <td *matCellDef="let row" mat-cell>
-          {{ row.zaaktypeOmschrijving | empty }}
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="statustypeOmschrijving">
-        <th *matHeaderCellDef mat-header-cell>
-          {{ "status" | translate }}
-        </th>
-        <td *matCellDef="let row" mat-cell>
-          {{ row?.statustypeOmschrijving | empty }}
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="omschrijving">
-        <th *matHeaderCellDef mat-header-cell>
-          {{ "omschrijving" | translate }}
-        </th>
-        <td *matCellDef="let row" mat-cell>
-          {{ row.omschrijving | empty }}
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="acties" stickyEnd>
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let row" class="text-right">
-          <button
-            mat-icon-button
-            color="primary"
-            disabledInteractive
-            [attr.aria-label]="'actie.zaak.koppelen' | translate"
-            [matTooltip]="rowTooltip(row) | translate: rowTooltipParams(row)"
-            [disabled]="linkButtonDisabled(row)"
-            (click)="selectCase(row)"
-          >
-            <mat-icon [class.disabled]="linkButtonDisabled(row)"
-              >account_tree</mat-icon
-            >
-          </button>
-        </td>
-      </ng-container>
+    <mat-tab-group mat-stretch-tabs="false" animationDuration="0ms">
+      <mat-tab [label]="'zaak.koppelen.tab.bestaande-zaak' | translate">
+        <form [formGroup]="form" (ngSubmit)="searchCases()">
+          <fieldset>
+            <legend>
+              <p>
+                {{
+                  "zaak.koppelen.uitleg"
+                    | translate: { zaakID: zaak().identificatie }
+                }}
+              </p>
+            </legend>
+            <zac-select
+              [form]="form"
+              key="caseRelationType"
+              label="zaak.koppelen.label"
+              [options]="caseRelationOptionsList"
+              [optionDisplayValue]="'label'"
+            ></zac-select>
+            @if (relationTypeUnavailableReason(); as reason) {
+              <p class="feedback flex-row justify-center">
+                {{ reason | translate }}
+              </p>
+            } @else {
+              <fieldset class="p-0">
+                <legend style="font-weight: bold" class="m-0">
+                  {{ "actie.zoeken.zaak" | translate }}
+                </legend>
+                @switch (form.controls.caseRelationType.value?.value) {
+                  @case ("HOOFDZAAK") {
+                    <p>
+                      {{
+                        "zaak.koppelen.hint.hoofdzaak-aan-deelzaak" | translate
+                      }}
+                    </p>
+                  }
+                  @case ("DEELZAAK") {
+                    <p>
+                      {{
+                        "zaak.koppelen.hint.deelzaak-aan-hoofdzaak" | translate
+                      }}
+                    </p>
+                  }
+                  @case ("GERELATEERD") {
+                    <p>{{ "zaak.koppelen.hint.gerelateerd" | translate }}</p>
+                  }
+                }
+                <zac-input
+                  [form]="form"
+                  label="zaak.identificatie"
+                  key="caseNumberToSearchFor"
+                />
+                <zac-auto-complete
+                  key="caseTypeToSearchFor"
+                  label="zaaktype"
+                  class="col-12 col-md-6"
+                  [form]="form"
+                  [options]="caseTypes()"
+                  [optionDisplayValue]="'omschrijving'"
+                />
+                <zac-input
+                  [form]="form"
+                  label="zoek-veld.zaak-omschrijving"
+                  key="caseDescriptionToSearchFor"
+                />
+                <div class="row">
+                  <zac-date-range-filter
+                    class="col-6 full-width-fields"
+                    [showLabel]="true"
+                    label="startdatum"
+                    [range]="startdatum()"
+                    (changed)="dateRangeChanged($event, startdatum)"
+                  />
+                  <zac-date-range-filter
+                    class="col-6 full-width-fields"
+                    [showLabel]="true"
+                    label="einddatum"
+                    [range]="einddatum()"
+                    (changed)="dateRangeChanged($event, einddatum)"
+                  />
+                </div>
+              </fieldset>
+              <fieldset class="flex-row gap-5 button-row p-0">
+                <button
+                  mat-raised-button
+                  color="primary"
+                  type="submit"
+                  class="flex-row gap-8"
+                  [disabled]="
+                    !form.valid ||
+                    !hasSearchCriteria() ||
+                    casesQuery.isFetching()
+                  "
+                >
+                  @if (casesQuery.isFetching()) {
+                    <mat-icon>
+                      <mat-spinner diameter="18"></mat-spinner>
+                    </mat-icon>
+                  }
+                  {{ "actie.zoeken" | translate }}
+                </button>
+                <button mat-raised-button type="button" (click)="reset()">
+                  {{ "actie.wissen" | translate }}
+                </button>
+              </fieldset>
+            }
+          </fieldset>
+        </form>
 
-      <tr mat-header-row *matHeaderRowDef="caseColumns; sticky: true"></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: caseColumns"
-        [class.disabled]="!!row.nietKoppelbaarReden"
-      ></tr>
-    </table>
-  }
-  @if (
-    !relationTypeUnavailableReason() &&
-    hasSearched() &&
-    !casesQuery.isFetching() &&
-    cases().length === 0
-  ) {
-    <p class="feedback flex-row justify-center">
-      {{ "msg.geen.gegevens.gevonden" | translate }}
-    </p>
-  }
-  @if (casesQuery.isFetching()) {
-    <p>{{ "msg.loading" | translate }}</p>
-  }
-  @if (!casesQuery.isFetching() && totalCases() > 10) {
-    <p class="feedback">
-      <mat-divider class="mat-divider-wrapper"></mat-divider>
-      {{ "msg.zaak.koppelen.meer-dan-10-gevonden" | translate }}
-    </p>
-  }
-  <mat-action-row class="px-3">
-    <button mat-raised-button (click)="close()">
-      {{ "actie.annuleren" | translate }}
-    </button>
-  </mat-action-row>
-</div>
+        <div class="table-wrapper">
+          @if (
+            !relationTypeUnavailableReason() &&
+            hasSearched() &&
+            cases().length > 0
+          ) {
+            <table mat-table [dataSource]="cases()">
+              <ng-container matColumnDef="identificatie">
+                <th *matHeaderCellDef mat-header-cell>
+                  {{ "zaak.identificatie" | translate }}
+                </th>
+                <td *matCellDef="let row" mat-cell>
+                  <zac-zaak-identificatie
+                    [identificatie]="row.identificatie"
+                    [isZaakspecifiekGeautoriseerd]="
+                      row.isZaakspecifiekGeautoriseerd
+                    "
+                  />
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="zaaktypeOmschrijving">
+                <th *matHeaderCellDef mat-header-cell>
+                  {{ "zaaktype-omschrijving" | translate }}
+                </th>
+                <td *matCellDef="let row" mat-cell>
+                  {{ row.zaaktypeOmschrijving | empty }}
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="statustypeOmschrijving">
+                <th *matHeaderCellDef mat-header-cell>
+                  {{ "status" | translate }}
+                </th>
+                <td *matCellDef="let row" mat-cell>
+                  {{ row?.statustypeOmschrijving | empty }}
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="omschrijving">
+                <th *matHeaderCellDef mat-header-cell>
+                  {{ "omschrijving" | translate }}
+                </th>
+                <td *matCellDef="let row" mat-cell>
+                  {{ row.omschrijving | empty }}
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="acties" stickyEnd>
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let row" class="text-right">
+                  <button
+                    mat-icon-button
+                    color="primary"
+                    disabledInteractive
+                    [attr.aria-label]="'actie.zaak.koppelen' | translate"
+                    [matTooltip]="
+                      rowTooltip(row) | translate: rowTooltipParams(row)
+                    "
+                    [disabled]="linkButtonDisabled(row)"
+                    (click)="selectCase(row)"
+                  >
+                    <mat-icon [class.disabled]="linkButtonDisabled(row)"
+                      >account_tree</mat-icon
+                    >
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr
+                mat-header-row
+                *matHeaderRowDef="caseColumns; sticky: true"
+              ></tr>
+              <tr
+                mat-row
+                *matRowDef="let row; columns: caseColumns"
+                [class.disabled]="!!row.nietKoppelbaarReden"
+              ></tr>
+            </table>
+          }
+          @if (
+            !relationTypeUnavailableReason() &&
+            hasSearched() &&
+            !casesQuery.isFetching() &&
+            cases().length === 0
+          ) {
+            <p class="feedback flex-row justify-center">
+              {{ "msg.geen.gegevens.gevonden" | translate }}
+            </p>
+          }
+          @if (casesQuery.isFetching()) {
+            <p>{{ "msg.loading" | translate }}</p>
+          }
+          @if (!casesQuery.isFetching() && totalCases() > 10) {
+            <p class="feedback">
+              <mat-divider class="mat-divider-wrapper"></mat-divider>
+              {{ "msg.zaak.koppelen.meer-dan-10-gevonden" | translate }}
+            </p>
+          }
+          <mat-action-row class="px-3">
+            <button mat-raised-button (click)="close()">
+              {{ "actie.annuleren" | translate }}
+            </button>
+          </mat-action-row>
+        </div>
+      </mat-tab>
+      @if (canCreateLinkedCase()) {
+        <mat-tab [label]="'zaak.koppelen.tab.nieuwe-zaak' | translate">
+          <ng-template matTabContent>
+            <form [formGroup]="newCaseForm">
+              <fieldset>
+                <legend>
+                  <p>
+                    {{
+                      "zaak.koppelen.uitleg"
+                        | translate: { zaakID: zaak().identificatie }
+                    }}
+                  </p>
+                </legend>
+                <zac-select
+                  [form]="newCaseForm"
+                  key="relationType"
+                  label="zaak.koppelen.label"
+                  [options]="newCaseRelationOptionsList"
+                  [optionDisplayValue]="'label'"
+                  [optionDisabled]="isNewCaseRelationOptionDisabled"
+                ></zac-select>
+                @if (zaak().isDeelzaak) {
+                  <p class="feedback">
+                    {{
+                      "zaak.koppelen.nieuw.geblokkeerd.is-zelf-deelzaak"
+                        | translate
+                    }}
+                  </p>
+                }
+              </fieldset>
+            </form>
+            @if (koppeling(); as koppeling) {
+              @if (hasNoOfferedCaseTypes()) {
+                <p class="feedback px-3">
+                  {{ "zaak.koppelen.nieuw.geen-deelzaaktype" | translate }}
+                </p>
+              }
+              <zac-zaak-create
+                [koppeling]="koppeling"
+                [hostSidenav]="newCaseSidenav"
+                (zaakCreated)="linkedCaseCreated($event)"
+                (cancelled)="close()"
+              >
+                <p>
+                  {{
+                    "zaak.koppelen.nieuw.uitleg." + koppeling.relatieType
+                      | i18nKey
+                      | translate: { zaakID: zaak().identificatie }
+                  }}
+                </p>
+              </zac-zaak-create>
+            }
+          </ng-template>
+        </mat-tab>
+      }
+    </mat-tab-group>
+  </mat-sidenav-content>
+</mat-sidenav-container>

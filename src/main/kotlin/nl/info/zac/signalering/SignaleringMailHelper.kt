@@ -5,16 +5,16 @@
 package nl.info.zac.signalering
 
 import jakarta.inject.Inject
-import net.atos.zac.signalering.model.Signalering
-import net.atos.zac.signalering.model.SignaleringDetail
-import net.atos.zac.signalering.model.SignaleringTarget
-import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mailtemplates.MailTemplateService
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
+import nl.info.zac.signalering.model.Signalering
+import nl.info.zac.signalering.model.SignaleringDetail
+import nl.info.zac.signalering.model.SignaleringTarget
+import nl.info.zac.signalering.model.SignaleringType
 
 class SignaleringMailHelper @Inject constructor(
     private val identityService: IdentityService,
@@ -34,7 +34,7 @@ class SignaleringMailHelper @Inject constructor(
             }
             SignaleringTarget.USER -> {
                 identityService.readUser(
-                    userId = signalering.target,
+                    username = signalering.target,
                     logContext = "signalering '${signalering.id}'"
                 ).let { user ->
                     user.email?.let {
@@ -42,7 +42,6 @@ class SignaleringMailHelper @Inject constructor(
                     }
                 }
             }
-            else -> null
         }
 
     fun getMailTemplate(signalering: Signalering): MailTemplate =
@@ -52,7 +51,9 @@ class SignaleringMailHelper @Inject constructor(
                 SignaleringType.Type.TAAK_VERLOPEN -> Mail.SIGNALERING_TAAK_VERLOPEN
                 SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD -> Mail.SIGNALERING_ZAAK_DOCUMENT_TOEGEVOEGD
                 SignaleringType.Type.ZAAK_OP_NAAM -> Mail.SIGNALERING_ZAAK_OP_NAAM
-                SignaleringType.Type.ZAAK_VERLOPEND -> when (SignaleringDetail.valueOf(signalering.detail)) {
+                SignaleringType.Type.ZAAK_VERLOPEND -> when (
+                    SignaleringDetail.valueOf(checkNotNull(signalering.detail) { "Signalering $signalering has no detail" })
+                ) {
                     SignaleringDetail.STREEFDATUM -> Mail.SIGNALERING_ZAAK_VERLOPEND_STREEFDATUM
                     SignaleringDetail.FATALE_DATUM -> Mail.SIGNALERING_ZAAK_VERLOPEND_FATALE_DATUM
                 }
@@ -60,4 +61,4 @@ class SignaleringMailHelper @Inject constructor(
         )
 }
 
-fun formatTo(mail: SignaleringTarget.Mail): MailAdres = MailAdres(mail.emailadres, mail.naam)
+fun SignaleringTarget.Mail.toMailAdres() = MailAdres(emailadres, naam)

@@ -43,7 +43,7 @@ class WebSocketServerEndPoint @Inject constructor(
         if (loggedInUser == null) {
             denyAccess(session, "no logged in user")
         } else {
-            session.userProperties[LOGGED_IN_USER_SESSION_ATTRIBUTE] = loggedInUser.id
+            session.userProperties[LOGGED_IN_USER_SESSION_ATTRIBUTE] = loggedInUser.username
             sessionRegistry.addSession(session)
             LOG.fine { "WebSocket open for ${user(session)}" }
         }

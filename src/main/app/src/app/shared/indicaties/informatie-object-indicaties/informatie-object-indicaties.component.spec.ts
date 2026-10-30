@@ -26,7 +26,7 @@ const makeDocument = (
   indicaties: GeneratedType<"DocumentIndicatie">[],
 ): GeneratedType<"RestEnkelvoudigInformatieobject"> =>
   fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
-    gelockedDoor: { id: "fakeUserId", naam: "fakeGelockedDoorNaam" },
+    gelockedDoor: { username: "fakeUserId", naam: "fakeGelockedDoorNaam" },
     ondertekening: { soort: "fakeDocumentSoort", datum: "2024-01-15" },
     verzenddatum: "2024-01-20",
     indicaties,
@@ -51,12 +51,12 @@ const tooltipOf = (
     ? `${toI18nKey(`indicatie.${indicatie}`)}: ${toelichting}`
     : toI18nKey(`indicatie.${indicatie}`);
 
-const setup = (inputs: {
+const setup = async (inputs: {
   layout: IndicatiesLayout;
   document?: GeneratedType<"RestEnkelvoudigInformatieobject">;
   documentZoekObject?: DocumentZoekObject;
-}) =>
-  render(InformatieObjectIndicatiesComponent, {
+}) => {
+  const result = await render(InformatieObjectIndicatiesComponent, {
     inputs,
     providers: [
       { provide: LOCALE_ID, useValue: "nl-NL" },
@@ -69,6 +69,9 @@ const setup = (inputs: {
       }),
     ],
   });
+  await result.fixture.whenStable();
+  return result;
+};
 
 const chipWithTooltip = (tooltip: string) =>
   screen.getByRole("presentation", { description: tooltip });

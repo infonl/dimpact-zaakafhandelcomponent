@@ -4,9 +4,8 @@
  */
 package net.atos.zac.flowable.delegate
 
-import net.atos.zac.flowable.FlowableHelper
-import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
-import nl.info.zac.app.shared.toDrcVertrouwelijkheidaanduidingEnum
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.getBronnenFromZaak
 import nl.info.zac.mailtemplates.model.MailGegevens
@@ -53,7 +52,7 @@ class SendEmailDelegate : AbstractDelegate() {
                 loggedInUser
             ).canVersturenEmail,
             LOG,
-            "User '${loggedInUser.id}' not authorised to send email for zaak '${zaak.identificatie}'"
+            "User '${loggedInUser.username}' not authorised to send email for zaak '${zaak.identificatie}'"
         )
 
         val templateName = template.resolveValueAsString(execution)
@@ -64,15 +63,9 @@ class SendEmailDelegate : AbstractDelegate() {
             ?.resolveValueAsString(execution)
             ?.takeUnless { it.isBlank() }
             ?.let { value ->
-                val restVertrouwelijkheidaanduiding = try {
-                    RestVertrouwelijkheidaanduiding.valueOf(value)
-                } catch (illegalArgumentException: IllegalArgumentException) {
-                    throw IllegalArgumentException(
-                        "'$value' is not a valid 'vertrouwelijkheidaanduiding'",
-                        illegalArgumentException
-                    )
-                }
-                restVertrouwelijkheidaanduiding.toDrcVertrouwelijkheidaanduidingEnum()
+                VertrouwelijkheidaanduidingEnum.entries
+                    .find { it != VertrouwelijkheidaanduidingEnum.EMPTY && it.name == value }
+                    ?: throw IllegalArgumentException("'$value' is not a valid 'vertrouwelijkheidaanduiding'")
             }
             ?: throw IllegalArgumentException("Required field 'vertrouwelijkheidaanduiding' is missing")
 

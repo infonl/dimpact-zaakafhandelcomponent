@@ -1,0 +1,139 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# Pilot: an AI agent (infonl/info-qa-agent) tests yesterday's merges on the dev environment and posts a
+# short summary to Slack. What it knows about ZAC is in .qa-agent/.
+name: QA Agent
+
+on:
+  schedule:
+    # Weekdays 05:30 UTC (07:30 Amsterdam in summer, 06:30 in winter): after the nightly e2e run,
+    # and after yesterday's merges have been provisioned on the dev environment.
+    - cron: "30 5 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: "What to test: yesterday | <N>d (e.g. 7d) | since:YYYY-MM-DD"
+        default: yesterday
+        type: string
+      model:
+        description: "Copilot model for the QA agent"
+        default: claude-haiku-5.5
+        type: choice
+        options:
+          - claude-haiku-5.5
+          - claude-sonnet-5.5
+      post_to_slack:
+        description: "Post the summary to Slack"
+        default: true
+        type: boolean
+
+concurrency:
+  group: qa-agent
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pull-requests: read
+  # Copilot CLI requests are billed to the organization through the workflow token.
+  copilot-requests: write
+
+env:
+  SCOPE: ${{ inputs.scope || vars.QA_AGENT_SCOPE || 'yesterday' }}
+  MODEL: ${{ inputs.model || vars.QA_AGENT_MODEL || 'claude-haiku-5.5' }}
+
+jobs:
+  qa-agent:
+    name: "QA Agent"
+    runs-on: ubuntu-26.04
+    timeout-minutes: 60
+    environment: azure-dimpact-dta
+    outputs:
+      pr-count: ${{ steps.qa.outputs.pr-count }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The agent reads the diffs from the merge commits.
+          fetch-depth: 0
+
+      - name: Login to Azure
+        uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3.1.0
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Allow this runner through the dev environment firewall
+        id: firewall
+        uses: azure/cli@9eb25b8360668fb0ecbafa808d40e2197b2f5f52 # v3.0.0
+        with:
+          azcliversion: latest
+          # Its own rule name and priority, so it never collides with the rule of the nightly e2e run.
+          inlineScript: |
+            runner_ip=$(curl -sS https://api.ipify.org)
+            az network nsg rule create -g zac-infra --nsg-name k8s-test-nsg -n allow_qa_agent_runner --priority 296 --source-address-prefixes "$runner_ip" --destination-port-ranges '*' --direction Inbound --access allow --protocol '*' --destination-address-prefixes '*'
+
+      # Tests written by the agent can run any program, so no Azure session may be left on this runner while
+      # they run, and this runner never logs in again: the close-firewall job removes the rule.
+      - name: Sign out of Azure
+        if: always()
+        run: az account clear
+
+      - name: Run the QA agent
+        id: qa
+        uses: infonl/info-qa-agent@46af09687f13bb10250ff6d1ecd2ae35fc0d793c # v1.1.0
+        with:
+          app-url: ${{ secrets.ZAC_URL }}
+          username: ${{ secrets.ZAC_E2E_TEST_USER_1_USERNAME }}
+          password: ${{ secrets.ZAC_E2E_TEST_USER_1_PASSWORD }}
+          username-2: ${{ secrets.ZAC_E2E_TEST_USER_2_USERNAME }}
+          password-2: ${{ secrets.ZAC_E2E_TEST_USER_2_PASSWORD }}
+          scope: ${{ env.SCOPE }}
+          model: ${{ env.MODEL }}
+          language: Dutch
+          locale: nl-NL
+          app-paths: "^src/main/(?!resources/api-specs/)"
+          jira-base-url: https://dimpact.atlassian.net
+          jira-project-keys: PZ
+          jira-email: ${{ secrets.QA_AGENT_JIRA_EMAIL }}
+          jira-api-token: ${{ secrets.QA_AGENT_JIRA_API_TOKEN }}
+
+  # On a fresh runner: the agent's tests may have changed anything on their own runner, including the az
+  # program a new login there would use. Deleting the rule only needs its name, not the agent runner's IP.
+  close-firewall:
+    name: "Close firewall"
+    needs: qa-agent
+    if: always()
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    environment: azure-dimpact-dta
+    steps:
+      - name: Login to Azure
+        uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3.1.0
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Remove the firewall rule
+        uses: azure/cli@9eb25b8360668fb0ecbafa808d40e2197b2f5f52 # v3.0.0
+        with:
+          azcliversion: latest
+          inlineScript: |
+            az network nsg rule delete -g zac-infra --nsg-name k8s-test-nsg -n allow_qa_agent_runner
+
+  # The agent can write anywhere on its own runner, so the Slack webhook is only used here, on a fresh one.
+  report:
+    name: "Report"
+    needs: qa-agent
+    if: always() && needs.qa-agent.outputs.pr-count != '0'
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    environment: azure-dimpact-dta
+    steps:
+      - uses: infonl/info-qa-agent/report@46af09687f13bb10250ff6d1ecd2ae35fc0d793c # v1.1.0
+        with:
+          # Dispatch inputs are empty on scheduled runs, and an empty input compares equal to false.
+          slack-webhook-url: ${{ (github.event_name != 'workflow_dispatch' || inputs.post_to_slack) && secrets.QA_AGENT_SLACK_WEBHOOK_URL || '' }}
+          jira-base-url: https://dimpact.atlassian.net
+          jira-project-keys: PZ
+          scope: ${{ env.SCOPE }}
+          model: ${{ env.MODEL }}
+          language: Dutch

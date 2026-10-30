@@ -419,11 +419,11 @@ class ZacClient(
         logger.info {
             "Creating zaak with group id: $groupId and group name: $groupName"
         }
-        val behandelaarString = behandelaarId?.let { id ->
-            val naam = behandelaarName ?: id
+        val behandelaarString = behandelaarId?.let { username ->
+            val naam = behandelaarName ?: username
             """
                 "behandelaar": {
-                    "id": "$id",
+                    "username": "$username",
                     "naam": "$naam"
                 },
             """
@@ -521,7 +521,7 @@ class ZacClient(
                 "medewerker: ${medewerker?.username}"
         }
         val medewerkerField = medewerker?.let {
-            """"medewerker": { "id": "${it.username}", "naam": "${it.displayName}" },"""
+            """"medewerker": { "username": "${it.username}", "naam": "${it.displayName}" },"""
         }.orEmpty()
         return itestHttpClient.performJSONPostRequest(
             url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",

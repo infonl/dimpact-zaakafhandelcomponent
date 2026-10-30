@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AsyncPipe, NgClass } from "@angular/common";
+import { NgClass } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   Component,
   effect,
   inject,
@@ -24,9 +25,7 @@ import {
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
-import { finalize, Observable } from "rxjs";
-import { ConfiguratieService } from "../../configuratie/configuratie.service";
-import { UtilService } from "../../core/service/util.service";
+import { finalize } from "rxjs";
 import { IdentityService } from "../../identity/identity.service";
 import { runMutation } from "../../shared/http/run-mutation";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
@@ -39,9 +38,9 @@ import { SignaleringenSettingsBeheerService } from "../signaleringen-settings-be
   templateUrl: "./groep-signaleringen.component.html",
   styleUrls: ["./groep-signaleringen.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
-    AsyncPipe,
     NgClass,
     MatSidenavModule,
     MatCardModule,
@@ -57,12 +56,15 @@ export class GroepSignaleringenComponent
   extends AdminComponent
   implements OnInit
 {
+  private readonly signaleringenSettingsBeheerService = inject(
+    SignaleringenSettingsBeheerService,
+  );
+
   protected readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
   protected readonly menuSidenav =
     viewChild.required<MatSidenav>("menuSidenav");
 
-  protected groepen!: Observable<GeneratedType<"RestGroup">[]>;
   protected readonly groepId = signal<string | undefined>(undefined);
   protected columns: string[] = ["subjecttype", "type", "dashboard", "mail"];
   protected readonly settingPerColumn: Record<
@@ -77,19 +79,19 @@ export class GroepSignaleringenComponent
   >();
 
   private readonly queryClient = inject(QueryClient);
+  private readonly identityService = inject(IdentityService);
+
+  protected readonly groepenQuery = injectQuery(() =>
+    this.identityService.listGroups(),
+  );
 
   protected readonly instellingenQuery = injectQuery(() => ({
-    ...this.service.list(this.groepId()!),
+    ...this.signaleringenSettingsBeheerService.list(this.groepId()!),
     enabled: this.groepId() != null,
   }));
 
-  constructor(
-    public utilService: UtilService,
-    public configuratieService: ConfiguratieService,
-    private identityService: IdentityService,
-    private service: SignaleringenSettingsBeheerService,
-  ) {
-    super(utilService, configuratieService);
+  constructor() {
+    super();
 
     effect(() => {
       this.dataSource.data = this.instellingenQuery.data() ?? [];
@@ -98,7 +100,6 @@ export class GroepSignaleringenComponent
 
   ngOnInit(): void {
     this.setupMenu("title.signaleringen.settings.groep");
-    this.groepen = this.identityService.listGroups();
   }
 
   protected laadSignaleringSettings(groep: GeneratedType<"RestGroup">): void {
@@ -114,7 +115,11 @@ export class GroepSignaleringenComponent
     if (!groepId) return;
     this.utilService.setLoading(true);
     row[this.settingPerColumn[column]] = checked;
-    runMutation(this.queryClient, this.service.put(groepId), row)
+    runMutation(
+      this.queryClient,
+      this.signaleringenSettingsBeheerService.put(groepId),
+      row,
+    )
       .pipe(finalize(() => this.utilService.setLoading(false)))
       .subscribe({ error: () => undefined });
   }

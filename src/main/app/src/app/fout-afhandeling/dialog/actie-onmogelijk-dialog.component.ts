@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import {
   MatDialogActions,
@@ -20,6 +20,7 @@ import { TranslatePipe } from "@ngx-translate/core";
   templateUrl: "actie-onmogelijk-dialog.component.html",
   host: { "data-dialog-id": "actie" },
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatToolbarModule,
     MatDialogTitle,
@@ -32,7 +33,7 @@ import { TranslatePipe } from "@ngx-translate/core";
   ],
 })
 export class ActieOnmogelijkDialogComponent {
-  private dialogRef =
+  private readonly dialogRef =
     inject<MatDialogRef<ActieOnmogelijkDialogComponent>>(MatDialogRef);
 
   protected close(): void {

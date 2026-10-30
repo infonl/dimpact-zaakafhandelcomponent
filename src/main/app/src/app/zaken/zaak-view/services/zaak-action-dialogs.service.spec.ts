@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -66,7 +66,7 @@ describe(ZaakActionDialogsService.name, () => {
     TestBed.configureTestingModule({
       providers: [
         provideTranslateService(),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
         ZaakSideActionService,
@@ -113,7 +113,7 @@ describe(ZaakActionDialogsService.name, () => {
         queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
       });
       expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: takenService.listTakenVoorZaakQuery(zaak.uuid).queryKey,
+        queryKey: takenService.listTakenVoorZaak(zaak.uuid).queryKey,
       });
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.zaak.afgesloten",
@@ -172,7 +172,7 @@ describe(ZaakActionDialogsService.name, () => {
       closedWith(zaak);
 
       expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: takenService.listTakenVoorZaakQuery(zaak.uuid).queryKey,
+        queryKey: takenService.listTakenVoorZaak(zaak.uuid).queryKey,
       });
     });
   });
@@ -357,7 +357,7 @@ describe(ZaakActionDialogsService.name, () => {
       closedWith(zaak);
 
       expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: takenService.listTakenVoorZaakQuery(zaak.uuid).queryKey,
+        queryKey: takenService.listTakenVoorZaak(zaak.uuid).queryKey,
       });
     });
   });
@@ -381,7 +381,7 @@ describe(ZaakActionDialogsService.name, () => {
         queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
       });
       expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: takenService.listTakenVoorZaakQuery(zaak.uuid).queryKey,
+        queryKey: takenService.listTakenVoorZaak(zaak.uuid).queryKey,
       });
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.zaak.brondatum.gezet",

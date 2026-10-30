@@ -3,7 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, input, linkedSignal, OnInit, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  linkedSignal,
+  OnInit,
+  output,
+} from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatExpansionModule } from "@angular/material/expansion";
@@ -18,6 +25,7 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   templateUrl: "./date-filter.component.html",
   styleUrls: ["./date-filter.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatExpansionModule,

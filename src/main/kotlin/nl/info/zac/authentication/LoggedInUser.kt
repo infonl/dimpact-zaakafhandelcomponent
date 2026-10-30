@@ -8,7 +8,7 @@ import nl.info.zac.identity.model.User
 
 @Suppress("LongParameterList")
 class LoggedInUser(
-    id: String,
+    username: String,
     firstName: String?,
     lastName: String?,
     displayName: String?,
@@ -35,4 +35,4 @@ class LoggedInUser(
      */
     val hasReadApplicationRole: Boolean = false,
 
-) : User(id, firstName, lastName, displayName, email)
+) : User(username, firstName, lastName, displayName, email)

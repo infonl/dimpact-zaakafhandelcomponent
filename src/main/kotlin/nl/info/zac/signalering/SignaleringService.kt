@@ -18,14 +18,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
-import net.atos.zac.signalering.model.Signalering
-import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
-import net.atos.zac.signalering.model.SignaleringSubject
-import net.atos.zac.signalering.model.SignaleringTarget
-import net.atos.zac.signalering.model.SignaleringType
-import net.atos.zac.signalering.model.SignaleringVerzonden
-import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
-import net.atos.zac.signalering.model.SignaleringZoekParameters
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZgwApiService
@@ -55,7 +47,15 @@ import nl.info.zac.search.model.SorteerVeld
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.signalering.model.CheckedSignaleringen
 import nl.info.zac.signalering.model.InvalidSignalering
+import nl.info.zac.signalering.model.Signalering
 import nl.info.zac.signalering.model.SignaleringInstellingen
+import nl.info.zac.signalering.model.SignaleringInstellingenZoekParameters
+import nl.info.zac.signalering.model.SignaleringSubject
+import nl.info.zac.signalering.model.SignaleringTarget
+import nl.info.zac.signalering.model.SignaleringType
+import nl.info.zac.signalering.model.SignaleringVerzonden
+import nl.info.zac.signalering.model.SignaleringVerzondenZoekParameters
+import nl.info.zac.signalering.model.SignaleringZoekParameters
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.validateObject
@@ -213,8 +213,8 @@ class SignaleringService @Inject constructor(
     fun deleteSignaleringen(parameters: SignaleringZoekParameters) = listSignaleringen(parameters).let(::deleteSignaleringen)
 
     /**
-     * Deletes the user signaleringen of the given types for the given subject, except those of [keptUserId].
-     * When [keptUserId] is `null`, all user signaleringen of these types for the subject are deleted.
+     * Deletes the user signaleringen of the given types for the given subject, except those of [keptUsername].
+     * When [keptUsername] is `null`, all user signaleringen of these types for the subject are deleted.
      */
     @Transactional(REQUIRED)
     @Suppress("SpreadOperator")
@@ -222,10 +222,10 @@ class SignaleringService @Inject constructor(
         subjecttype: SignaleringSubject,
         subject: String,
         types: Set<SignaleringType.Type>,
-        keptUserId: String?
+        keptUsername: String?
     ) = SignaleringZoekParameters(subjecttype, subject).types(*types.toTypedArray())
         .let(::listSignaleringen)
-        .filter { it.targettype == SignaleringTarget.USER && it.target != keptUserId }
+        .filter { it.targettype == SignaleringTarget.USER && it.target != keptUsername }
         .let(::deleteSignaleringen)
 
     /**
@@ -239,7 +239,7 @@ class SignaleringService @Inject constructor(
                 subjecttype = SignaleringSubject.ZAAK,
                 subject = zaakUuid.toString(),
                 types = setOf(SignaleringType.Type.ZAAK_OP_NAAM, SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD),
-                keptUserId = zrcClientService.readZaak(zaakUuid)
+                keptUsername = zrcClientService.readZaak(zaakUuid)
                     .let(zgwApiService::findBehandelaarMedewerkerRoleForZaak)
                     ?.identificatienummer
             )
@@ -352,7 +352,7 @@ class SignaleringService @Inject constructor(
                 SignaleringSubject.ZAAK -> {
                     bronnenBuilder.add(getZaak(signalering.subject))
                     if (signalering.type.type === SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD) {
-                        bronnenBuilder.add(getDocument(signalering.detail))
+                        bronnenBuilder.add(getDocument(checkNotNull(signalering.detail) { "Signalering $signalering has no detail" }))
                     }
                 }
                 SignaleringSubject.TAAK -> {
@@ -372,7 +372,7 @@ class SignaleringService @Inject constructor(
             mailService.sendMail(
                 MailGegevens(
                     from = mailService.getGemeenteMailAdres(),
-                    to = formatTo(mail),
+                    to = mail.toMailAdres(),
                     subject = mailTemplate.onderwerp,
                     body = mailTemplate.body,
                     vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
@@ -526,7 +526,7 @@ class SignaleringService @Inject constructor(
         loggedInUser: LoggedInUser
     ): CheckedSignalering<RestZaakOverzicht> {
         val zaak = UUID.fromString(signalering.subject).let(zrcClientService::readZaak)
-        if (zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.identificatienummer != loggedInUser.id) {
+        if (zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.identificatienummer != loggedInUser.username) {
             return CheckedSignalering(signalering, invalidReason = "the user is not the behandelaar of the zaak")
         }
         return restZaakOverzichtConverter.convertToDashboardZaakOverzichtOrNull(zaak, loggedInUser)
@@ -537,7 +537,7 @@ class SignaleringService @Inject constructor(
     private fun checkTaakSignalering(signalering: Signalering, loggedInUser: LoggedInUser): CheckedSignalering<TaskInfo> {
         val task = flowableTaskService.readTask(signalering.subject)
         return when {
-            task.assignee != loggedInUser.id ->
+            task.assignee != loggedInUser.username ->
                 CheckedSignalering(signalering, invalidReason = "the user is not the assignee of the taak")
             !policyService.readTaakRechten(task).canLezen ->
                 CheckedSignalering(signalering, invalidReason = "the user has no read rights on the taak")

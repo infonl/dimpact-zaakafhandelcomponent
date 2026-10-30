@@ -28,11 +28,12 @@ class RestZaaktypeConverterTest : BehaviorSpec({
         zaaktypeConfigurationService
     )
 
-    given("CMMN zaaktype") {
-        val zaaktype = createZaakType()
+    given("CMMN zaaktype with a versiedatum that differs from its begin geldigheid") {
+        val versiedatum = LocalDate.of(2026, 2, 1)
+        val beginGeldigheid = LocalDate.of(2026, 3, 10)
+        val zaaktype = createZaakType(versieDatum = versiedatum, beginGeldigheid = beginGeldigheid)
         val zaaktypeUuid = zaaktype.url.extractUuid()
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
-        val now = LocalDate.now()
         val restZaakafhandelParameters = createRestZaaktypeConfiguration()
 
         every { zaaktypeConfigurationService.findConfiguration(zaaktypeUuid) } returns zaaktypeCmmnConfiguration
@@ -51,8 +52,8 @@ class RestZaaktypeConverterTest : BehaviorSpec({
                     omschrijving shouldBe "fakeZaakTypeOmschrijving"
                     referentieproces shouldBe null
                     hasServicenorm shouldBe false
-                    versiedatum!! shouldHaveSameDayAs now
-                    beginGeldigheid!! shouldHaveSameDayAs now
+                    this.versiedatum shouldBe versiedatum
+                    this.beginGeldigheid shouldBe beginGeldigheid
                     eindeGeldigheid shouldBe null
                     vertrouwelijkheidaanduiding shouldBe RestVertrouwelijkheidaanduiding.OPENBAAR
                     isNuGeldig shouldBe true

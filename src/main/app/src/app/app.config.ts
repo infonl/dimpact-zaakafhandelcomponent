@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient, provideHttpClient } from "@angular/common/http";
+import { HttpClient, provideHttpClient, withXhr } from "@angular/common/http";
 import {
   ApplicationConfig,
   inject,
@@ -58,7 +58,7 @@ export const appConfig: ApplicationConfig = {
     // Keeps zone.js when v21 defaults zoneless
     provideZoneChangeDetection(),
     provideAnimationsAsync(),
-    provideHttpClient(),
+    provideHttpClient(withXhr()),
     provideRouter(APP_ROUTES),
     { provide: TitleStrategy, useClass: ZacTitleStrategy },
     // When a resolver fails on the first page load, Angular resets the address bar to the

@@ -31,7 +31,7 @@ describe(ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent.name, () => {
     naam: "fakeOtherGroepNaam",
   });
   const kandidaat = fromPartial<GeneratedType<"RestUser">>({
-    id: "fakeMedewerkerId",
+    username: "fakeMedewerkerId",
     naam: "fakeMedewerkerNaam",
   });
 

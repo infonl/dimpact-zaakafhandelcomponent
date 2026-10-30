@@ -11,16 +11,17 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLoc
 import nl.info.webdav.ITransaction
 import nl.info.webdav.IWebdavStore
 import nl.info.webdav.StoredObject
-import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.authentication.setLoggedInUser
 import nl.info.zac.document.content.DocumentContentReader
-import nl.info.zac.util.time.convertToDate
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectUpdateService
+import nl.info.zac.util.time.toDate
 import org.apache.commons.collections4.map.LRUMap
 import org.apache.commons.io.FilenameUtils
 import java.io.File
 import java.io.InputStream
 import java.security.Principal
 import java.util.Collections
+import java.util.Date
 
 /**
  * ZAC WebdavStore implementation.
@@ -131,8 +132,8 @@ class WebdavStore(@Suppress("UNUSED_PARAMETER", "UnusedPrivateProperty") ignored
                 )
                 StoredObject().apply {
                     isFolder = false
-                    creationDate = convertToDate(enkelvoudigInformatieobject.creatiedatum)
-                    lastModified = convertToDate(enkelvoudigInformatieobject.beginRegistratie.toZonedDateTime())
+                    creationDate = enkelvoudigInformatieobject.creatiedatum.toDate()
+                    lastModified = Date.from(enkelvoudigInformatieobject.beginRegistratie.toInstant())
                     resourceLength = enkelvoudigInformatieobject.bestandsomvang?.toLong() ?: 0L
                 }.also { storedObject ->
                     fileStoredObjectMap[token] = storedObject

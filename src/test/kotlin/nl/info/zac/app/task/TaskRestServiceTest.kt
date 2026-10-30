@@ -22,7 +22,6 @@ import jakarta.servlet.http.HttpSession
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createOndertekening
@@ -32,7 +31,6 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.test.org.flowable.task.service.impl.persistence.entity.createHistoricTaskInstanceEntityImpl
-import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import nl.info.zac.app.informatieobjecten.model.RestFileUpload
 import nl.info.zac.app.model.createRESTUser
@@ -43,13 +41,16 @@ import nl.info.zac.app.task.model.createRestTaskAssignData
 import nl.info.zac.app.task.model.createRestTaskDistributeData
 import nl.info.zac.app.task.model.createRestTaskDistributeTask
 import nl.info.zac.app.task.model.createRestTaskReleaseData
+import nl.info.zac.app.task.model.toTaskDistribution
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.FileSizeConfiguration
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.event.EventingService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.flowable.task.TaakVariabelenService.Companion.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
@@ -141,7 +142,7 @@ class TaskRestServiceTest : BehaviorSpec({
                 taskService.assignTask(
                     task = task,
                     groupId = restTaakToekennenGegevens.groepId,
-                    userId = restTaakToekennenGegevens.behandelaarId,
+                    username = restTaakToekennenGegevens.behandelaarId,
                     reason = restTaakToekennenGegevens.reden,
                     loggedInUser = loggedInUser
                 )
@@ -159,7 +160,7 @@ class TaskRestServiceTest : BehaviorSpec({
                         taskService.assignTask(
                             task = task,
                             groupId = restTaakToekennenGegevens.groepId,
-                            userId = restTaakToekennenGegevens.behandelaarId,
+                            username = restTaakToekennenGegevens.behandelaarId,
                             reason = restTaakToekennenGegevens.reden,
                             loggedInUser = loggedInUser
                         )
@@ -188,7 +189,7 @@ class TaskRestServiceTest : BehaviorSpec({
                 taskService.assignTask(
                     task = task,
                     groupId = restTaakToekennenGegevens.groepId,
-                    userId = loggedInUser.id,
+                    username = loggedInUser.username,
                     reason = restTaakToekennenGegevens.reden,
                     loggedInUser = loggedInUser
                 )
@@ -206,7 +207,7 @@ class TaskRestServiceTest : BehaviorSpec({
                         taskService.assignTask(
                             task = task,
                             groupId = restTaakToekennenGegevens.groepId,
-                            userId = loggedInUser.id,
+                            username = loggedInUser.username,
                             reason = restTaakToekennenGegevens.reden,
                             loggedInUser = loggedInUser
                         )
@@ -230,7 +231,7 @@ class TaskRestServiceTest : BehaviorSpec({
         given("a task and task data to assign the task to the current user and sign the document") {
             val task = createTestTask()
             val restUser = createRESTUser(
-                id = loggedInUser.id,
+                username = loggedInUser.username,
                 name = loggedInUser.getFullName()
             )
             val restTaakDataKey = "fakeKey"
@@ -290,7 +291,7 @@ class TaskRestServiceTest : BehaviorSpec({
             val httpSession = mockk<HttpSession>()
             val historicTaskInstance = mockk<HistoricTaskInstance>()
             val restUser = createRESTUser(
-                id = loggedInUser.id,
+                username = loggedInUser.username,
                 name = loggedInUser.getFullName()
             )
             val documentUUID = UUID.randomUUID()
@@ -357,7 +358,7 @@ class TaskRestServiceTest : BehaviorSpec({
         given("a task and task data to assign the task to the current user and sign the document") {
             val task = createTestTask()
             val restUser = createRESTUser(
-                id = loggedInUser.id,
+                username = loggedInUser.username,
                 name = loggedInUser.getFullName()
             )
             val restTaakDataKey = "fakeKey"
@@ -457,7 +458,7 @@ class TaskRestServiceTest : BehaviorSpec({
             val openTask = createTestTask(description = "fakeDescriptionBeforeAssignment")
             val assignedTask = createTestTask(description = "fakeDescriptionAfterAssignment")
             val restTask = createRestTask(
-                behandelaar = createRESTUser(id = "fakeOtherUserId", name = "fakeOtherUserName"),
+                behandelaar = createRESTUser(username = "fakeOtherUsername", name = "fakeOtherUserName"),
                 formioFormulier = Json.createObjectBuilder().build()
             )
             val restTaskConverted = createRestTask()
@@ -468,7 +469,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { flowableTaskService.readOpenTask(restTask.id!!) } returns openTask
             every { policyService.readTaakRechten(openTask) } returns createTaakRechtenAllDeny(wijzigen = true)
             every {
-                flowableTaskService.assignTaskToUser(openTask.id, loggedInUser.id, "Afgesloten")
+                flowableTaskService.assignTaskToUser(openTask.id, loggedInUser.username, "Afgesloten")
             } returns assignedTask
             every { zrcClientService.readZaak(restTask.zaakUuid) } returns zaak
             every { bpmnTaskFormRuntimeService.submit(restTask, assignedTask, zaak) } returns assignedTask
@@ -496,7 +497,7 @@ class TaskRestServiceTest : BehaviorSpec({
                         taskService.assignTask(
                             task = any(),
                             groupId = any(),
-                            userId = any(),
+                            username = any(),
                             reason = any(),
                             loggedInUser = any()
                         )
@@ -517,7 +518,7 @@ class TaskRestServiceTest : BehaviorSpec({
                 screenEventResourceId = screenEventResourceId
             )
             every {
-                taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
+                taskService.assignTasks(restTaakVerdelenGegevens.toTaskDistribution(), loggedInUser, screenEventResourceId)
             } just Runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -532,7 +533,7 @@ class TaskRestServiceTest : BehaviorSpec({
 
                 then("the tasks are assigned to the group and user") {
                     verify(exactly = 1) {
-                        taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
+                        taskService.assignTasks(restTaakVerdelenGegevens.toTaskDistribution(), loggedInUser, screenEventResourceId)
                     }
                 }
             }
@@ -562,7 +563,12 @@ class TaskRestServiceTest : BehaviorSpec({
             val werklijstRechten = createWerklijstRechten()
             every { policyService.readWerklijstRechten() } returns werklijstRechten
             every {
-                taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
+                taskService.releaseTasks(
+                    taskIds = restTaakVrijgevenGegevens.taken.map { it.taakId },
+                    reason = restTaakVrijgevenGegevens.reden,
+                    loggedInUser = loggedInUser,
+                    screenEventResourceId = screenEventResourceId
+                )
             } just Runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -573,7 +579,12 @@ class TaskRestServiceTest : BehaviorSpec({
 
                 then("the tasks are assigned to the group and user") {
                     verify(exactly = 1) {
-                        taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
+                        taskService.releaseTasks(
+                    taskIds = restTaakVrijgevenGegevens.taken.map { it.taakId },
+                    reason = restTaakVrijgevenGegevens.reden,
+                    loggedInUser = loggedInUser,
+                    screenEventResourceId = screenEventResourceId
+                )
                     }
                 }
             }
@@ -786,7 +797,7 @@ class TaskRestServiceTest : BehaviorSpec({
 
                 then("the tasks are assigned as the user that started the batch") {
                     verify(exactly = 1) {
-                        taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
+                        taskService.assignTasks(restTaakVerdelenGegevens.toTaskDistribution(), loggedInUser, screenEventResourceId)
                     }
                 }
 
@@ -804,7 +815,12 @@ class TaskRestServiceTest : BehaviorSpec({
             )
             every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
             var userInContextDuringRelease: LoggedInUser? = null
-            every { taskService.releaseTasks(any(), any(), any()) } answers {
+            every { taskService.releaseTasks(
+                    taskIds = any(),
+                    reason = any(),
+                    loggedInUser = any(),
+                    screenEventResourceId = any()
+                ) } answers {
                 userInContextDuringRelease = LoggedInUserProvider.asyncContextUser.get()
             }
 
@@ -822,7 +838,12 @@ class TaskRestServiceTest : BehaviorSpec({
 
                 then("the tasks are released as the user that started the batch") {
                     verify(exactly = 1) {
-                        taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
+                        taskService.releaseTasks(
+                    taskIds = restTaakVrijgevenGegevens.taken.map { it.taakId },
+                    reason = restTaakVrijgevenGegevens.reden,
+                    loggedInUser = loggedInUser,
+                    screenEventResourceId = screenEventResourceId
+                )
                     }
                 }
 

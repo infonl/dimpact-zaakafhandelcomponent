@@ -6,6 +6,7 @@
 import { SlicePipe } from "@angular/common";
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   inject,
   OnDestroy,
@@ -53,6 +54,7 @@ import { TakenMijnDatasource } from "./taken-mijn-datasource";
   styleUrls: ["./taken-mijn.component.less"],
   animations: [detailExpand],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     I18nKeyPipe,
@@ -82,10 +84,10 @@ export class TakenMijnComponent
   extends WerklijstComponent
   implements AfterViewInit, OnInit, OnDestroy
 {
-  route = inject(ActivatedRoute);
-  utilService = inject(UtilService);
-  private zoekenService = inject(ZoekenService);
-  gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
+  readonly route = inject(ActivatedRoute);
+  readonly utilService = inject(UtilService);
+  private readonly zoekenService = inject(ZoekenService);
+  readonly gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
 
   dataSource: TakenMijnDatasource;
   readonly paginator = viewChild.required(MatPaginator);

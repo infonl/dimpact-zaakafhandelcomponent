@@ -23,7 +23,6 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.StreamingOutput
 import jakarta.ws.rs.core.UriInfo
-import net.atos.zac.util.MediaTypes
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.StatusEnum
@@ -50,7 +49,6 @@ import nl.info.zac.app.informatieobjecten.model.RestInformatieobjecttype
 import nl.info.zac.app.informatieobjecten.model.RestZaakInformatieobject
 import nl.info.zac.app.informatieobjecten.model.toRestInformatieobjecttype
 import nl.info.zac.app.policy.model.toRestZaakRechten
-import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.toRestZaakStatus
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.document.content.DocumentContent
@@ -58,6 +56,7 @@ import nl.info.zac.document.content.DocumentContentReader
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.event.EventingService
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_DOCUMENT_UPLOAD_INVALID
 import nl.info.zac.exception.InputValidationFailedException
@@ -67,10 +66,12 @@ import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.util.AllOpen
+import nl.info.zac.util.MediaTypes
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.webdav.WebdavHelper
 import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
+import nl.info.zac.zaak.model.RelatieType
 import nl.info.zac.zaak.readZaakAutorisatieGegevens
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
 import java.io.IOException
@@ -460,7 +461,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                     policyService.readDocumentRechten(it, zrcClientService.readZaak(zaakUUID)).canVergrendelen
             }
         )
-        enkelvoudigInformatieObjectLockService.createLock(uuid, loggedInUserInstance.get().id)
+        enkelvoudigInformatieObjectLockService.createLock(uuid, loggedInUserInstance.get().username)
         // Hiervoor wordt door open zaak geen notificatie verstuurd. Dus zelf het ScreenEvent versturen!
         eventingService.send(ScreenEventType.ENKELVOUDIG_INFORMATIEOBJECT.updated(uuid))
         return Response.ok().build()

@@ -118,7 +118,7 @@
             <td mat-cell *matCellDef="let row" colspan="3">
               <div
                 class="detail flex-col"
-                [@detailExpand]="row == expandedRow ? 'expanded' : 'collapsed'"
+                [@detailExpand]="row === expandedRow ? 'expanded' : 'collapsed'"
               >
                 @for (koppeling of getKoppelingen(row); track koppeling.id) {
                   @let koppelingLabel =
@@ -127,9 +127,10 @@
                         : {
                             zaaktype:
                               koppeling.zaakafhandelParameters?.zaaktype
-                                ?.omschrijving,
+                                ?.omschrijving ?? "",
                             versie:
-                              koppeling.zaakafhandelParameters?.zaaktype?.uuid,
+                              koppeling.zaakafhandelParameters?.zaaktype
+                                ?.uuid ?? "",
                           };
                   <div [title]="koppelingLabel">{{ koppelingLabel }}</div>
                 }
@@ -148,7 +149,7 @@
             <td mat-cell *matCellDef="let row">
               <div
                 class="detail-suffix flex-col"
-                [@detailExpand]="row == expandedRow ? 'expanded' : 'collapsed'"
+                [@detailExpand]="row === expandedRow ? 'expanded' : 'collapsed'"
               >
                 @for (koppeling of getKoppelingen(row); track koppeling.id) {
                   <div>
@@ -157,7 +158,7 @@
                         mat-icon-button
                         [routerLink]="[
                           '/admin/parameters/',
-                          koppeling.zaakafhandelParameters?.zaaktype?.uuid,
+                          koppeling.zaakafhandelParameters.zaaktype.uuid,
                         ]"
                         title="{{ 'actie.zaakafhandelparameters' | translate }}"
                       >

@@ -6,6 +6,7 @@
 import {
   AfterViewInit,
   booleanAttribute,
+  ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
@@ -43,6 +44,7 @@ import { FORMIO_NL_TRANSLATIONS } from "./formio-wrapper.i18n-translations.nl";
   encapsulation: ViewEncapsulation.ShadowDom,
   standalone: true,
   imports: [FormioModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [
     {
       provide: FormioAppConfig,
@@ -86,8 +88,8 @@ export class FormioWrapperComponent implements OnInit, AfterViewInit {
 
   readonly formioComponent = viewChild(FormioComponent);
 
-  private elementRef = inject(ElementRef);
-  private bootstrapLoader = inject(FormioBootstrapLoaderService);
+  private readonly elementRef = inject(ElementRef);
+  private readonly bootstrapLoader = inject(FormioBootstrapLoaderService);
   protected stylesLoaded = false;
 
   private static activeElementPatched = false;

@@ -16,8 +16,8 @@ import jakarta.persistence.Table
 import jakarta.persistence.Transient
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
-import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.database.flyway.FlywayIntegrator
+import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.util.AllOpen
 
 @Entity

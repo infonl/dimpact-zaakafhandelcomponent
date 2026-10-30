@@ -300,7 +300,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
 
     given("a SmartDocuments callback whose session belongs to a different user than its token") {
         val zaak = createZaak()
-        val documentCreationUser = createLoggedInUser(id = "fakeDocumentCreationUserId")
+        val documentCreationUser = createLoggedInUser(username = "fakeDocumentCreationUsername")
         val documentCreationToken = UUID.randomUUID()
         val informatieobjecttypeUuid = UUID.randomUUID()
         val httpSessionInstance = mockk<Instance<HttpSession>>()

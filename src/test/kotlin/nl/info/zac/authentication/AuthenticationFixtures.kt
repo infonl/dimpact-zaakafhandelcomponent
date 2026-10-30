@@ -7,7 +7,7 @@ package nl.info.zac.authentication
 
 @Suppress("LongParameterList")
 fun createLoggedInUser(
-    id: String = "fakeId",
+    username: String = "fakeUsername",
     firstName: String = "fakeFirstName",
     lastName: String = "fakeLastName",
     displayName: String = "fakeDisplayName",
@@ -19,7 +19,7 @@ fun createLoggedInUser(
     brpGemeenten: Map<String, String> = emptyMap(),
     hasReadApplicationRole: Boolean = false
 ) = LoggedInUser(
-    id = id,
+    username = username,
     firstName = firstName,
     lastName = lastName,
     displayName = displayName,

@@ -10,14 +10,14 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.atos.zac.signalering.model.SignaleringDetail
-import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
 import nl.info.zac.mailtemplates.MailTemplateService
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
+import nl.info.zac.signalering.model.SignaleringDetail
+import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.signalering.model.createSignalering
 import nl.info.zac.signalering.model.createSignaleringType
 
@@ -68,7 +68,7 @@ class SignaleringMailHelperTest : BehaviorSpec({
     context("getTargetMail for USER target") {
         given("A signalering targeting a user that has an email address") {
             val fakeUser = User(
-                id = "fakeUserId",
+                username = "fakeUsername",
                 firstName = "fakeFirstName",
                 lastName = "fakeLastName",
                 email = "fake@user.nl"
@@ -90,7 +90,7 @@ class SignaleringMailHelperTest : BehaviorSpec({
         }
 
         given("A signalering targeting a user that has no email address") {
-            val fakeUser = User(id = "fakeUserId", firstName = "fakeFirstName", lastName = "fakeLastName", email = null)
+            val fakeUser = User(username = "fakeUsername", firstName = "fakeFirstName", lastName = "fakeLastName", email = null)
             val signalering = createSignalering(
                 type = createSignaleringType(type = SignaleringType.Type.ZAAK_OP_NAAM),
                 targetUser = fakeUser

@@ -80,7 +80,11 @@
                 (zaakOpschorting()?.duurDagen === 1
                   ? "duur-dagen-opschorting.enkelvoud"
                   : "duur-dagen-opschorting"
-                ) | translate: { duur: zaakOpschorting()?.duurDagen }
+                )
+                  | translate
+                    : {
+                        duur: zaakOpschorting()?.duurDagen,
+                      }
               }}
             </div>
           }

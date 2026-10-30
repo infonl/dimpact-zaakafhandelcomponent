@@ -3,31 +3,29 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { TestBed } from "@angular/core/testing";
+import { screen } from "@testing-library/angular";
 import { ZacNarrowMatCheckboxDirective } from "./narrow-checkbox.directive";
 
 @Component({
-  template: "<div zacNarrowMatCheckbox></div>",
+  template: "<div zacNarrowMatCheckbox>checkbox</div>",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ZacNarrowMatCheckboxDirective],
 })
 class TestHostComponent {}
 
 describe(ZacNarrowMatCheckboxDirective.name, () => {
-  let fixture: ComponentFixture<TestHostComponent>;
-
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TestHostComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(TestHostComponent);
+    const fixture = TestBed.createComponent(TestHostComponent);
     fixture.detectChanges();
   });
 
   it("should add mat-narrow-checkbox class to the host element", () => {
-    expect(fixture.nativeElement.querySelector("div").classList).toContain(
-      "mat-narrow-checkbox",
-    );
+    expect(screen.getByText("checkbox")).toHaveClass("mat-narrow-checkbox");
   });
 });

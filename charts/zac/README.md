@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.357](https://img.shields.io/badge/Version-1.0.357-informational?style=flat-square) ![AppVersion: 5.10](https://img.shields.io/badge/AppVersion-5.10-informational?style=flat-square)
+![Version: 1.0.364](https://img.shields.io/badge/Version-1.0.364-informational?style=flat-square) ![AppVersion: 5.11](https://img.shields.io/badge/AppVersion-5.11-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.177.0 |
+| @opentelemetry | opentelemetry-collector | 0.178.1 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -142,6 +142,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | kvkApi.url | string | `""` |  |
 | livenessProbe | object | `{"failureThreshold":16,"path":"/health/ready","periodSeconds":30,"timeoutSeconds":1}` | liveness probe configuration for the main ZAC container |
 | livenessProbe.path | string | `"/health/ready"` | Path used for the liveness probe. Defaults to /health/ready so Kubernetes restarts ZAC automatically when the OpenZaak catalogus is unreachable for longer than failureThreshold * periodSeconds. The root cause is that the ZGW-API-Client MicroProfile REST client has no connectTimeout / readTimeout configured, causing stale TCP connections in the pool after extended outages. Revert to /health/live (and lower failureThreshold back to 3) once proper HTTP timeouts are configured on ZGW-API-Client in the ZAC application. |
+| logLevel | string | `"INFO"` | Log level of ZAC: the WildFly root logger and console handler. One of DEBUG, INFO, WARN, ERROR. DEBUG logs a lot, including security-sensitive data such as session details; only use it temporarily. WildFly logs its own boot messages at INFO before this level applies. |
 | mail.smtp.password | string | `""` | SMTP server password if authentication is required. Optional |
 | mail.smtp.port | string | `"587"` | SMTP server port: 587 for TLS, port 25 for relaying. Required |
 | mail.smtp.server | string | `""` | SMTP server host (for example, localhost or in-v3.mailjet.com). Required |
@@ -245,7 +246,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | office_converter.env.CHROMIUM_DISABLE_ROUTES | string | `"true"` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
 | office_converter.image.repository | string | `"docker.io/gotenberg/gotenberg"` |  |
-| office_converter.image.tag | string | `"8.38.1@sha256:aa552cc115db488e0f0bcb07446aac13071ad51505b642c84bb894500907b42b"` |  |
+| office_converter.image.tag | string | `"8.39.0@sha256:13672f317b443c793e972b1bd2155ec62a3e7b6891b411e8196442cc053ee5f5"` |  |
 | office_converter.imagePullSecrets | list | `[]` |  |
 | office_converter.name | string | `"office-converter"` |  |
 | office_converter.nodeSelector | object | `{}` |  |
@@ -273,7 +274,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"docker.io/openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.21.3-static@sha256:bf27411c17e72f3d16063725a74c69f711fb267eb9a4cebdae78028b72adc847"` |  |
+| opa.image.tag | string | `"1.22.0-static@sha256:906bfc9904b2693733e7959d71773dd073e6c135cf06f26d955abe94603e82b3"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
@@ -305,7 +306,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opentelemetry-collector.enabled | bool | `false` |  |
 | opentelemetry-collector.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opentelemetry-collector.image.repository | string | `"otel/opentelemetry-collector-contrib"` |  |
-| opentelemetry-collector.image.tag | string | `"0.163.2@sha256:7f22d2a6748110ffb6a59bc0df448bccbf501cdb667d610ede4c61d3863d5849"` |  |
+| opentelemetry-collector.image.tag | string | `"0.164.0@sha256:340c9ca6a36617084c6661bdc4f0fe92b7cda5a805d61673ec8db375fddc522b"` |  |
 | opentelemetry-collector.mode | string | `"deployment"` |  |
 | opentelemetry-collector.ports.jaeger-compact.enabled | bool | `false` |  |
 | opentelemetry-collector.ports.jaeger-grpc.enabled | bool | `false` |  |

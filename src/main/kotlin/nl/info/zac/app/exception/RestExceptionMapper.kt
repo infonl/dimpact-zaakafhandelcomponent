@@ -12,7 +12,6 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.ext.ExceptionMapper
 import jakarta.ws.rs.ext.Provider
-import net.atos.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
 import nl.info.client.bag.BagClientService
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.exception.BrpTemporaryPersonIdNotCachedException
@@ -48,9 +47,11 @@ import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.NotSupportedException
 import nl.info.zac.exception.ServerErrorException
 import nl.info.zac.exception.ZacSetupException
+import nl.info.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
 import nl.info.zac.log.log
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
+import nl.info.zac.zaak.exception.ZaakCannotBeSuspendedAgainException
 import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
 import java.lang.reflect.InvocationTargetException
 import java.net.ConnectException
@@ -151,6 +152,12 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             is ZaakWithABesluitCannotBeTerminatedException -> generateResponse(
                 responseStatus = Response.Status.BAD_REQUEST,
                 errorCode = ErrorCode.ERROR_CODE_ZAAK_WITH_BESLUIT_CANNOT_BE_TERMINATED,
+                exception = exception,
+                logLevel = Level.FINE
+            )
+            is ZaakCannotBeSuspendedAgainException -> generateResponse(
+                responseStatus = Response.Status.CONFLICT,
+                errorCode = ErrorCode.ERROR_CODE_ZAAK_CANNOT_BE_SUSPENDED_AGAIN,
                 exception = exception,
                 logLevel = Level.FINE
             )

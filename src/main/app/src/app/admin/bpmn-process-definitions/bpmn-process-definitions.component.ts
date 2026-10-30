@@ -4,6 +4,7 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   Injector,
@@ -27,8 +28,6 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatTreeModule } from "@angular/material/tree";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { ConfiguratieService } from "../../configuratie/configuratie.service";
-import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import {
   ConfirmDialogComponent,
@@ -58,6 +57,7 @@ type Node =
   standalone: true,
   templateUrl: "./bpmn-process-definitions.component.html",
   styleUrls: ["./bpmn-process-definitions.component.less"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatCardModule,
@@ -118,10 +118,6 @@ export class BpmnProcessDefinitionsComponent
   private readonly deleteMutation = injectMutation(() =>
     this.bpmnService.deleteProcessDefinition(),
   );
-
-  constructor() {
-    super(inject(UtilService), inject(ConfiguratieService));
-  }
 
   ngOnInit() {
     this.setupMenu("title.bpmn-procesdefinities");

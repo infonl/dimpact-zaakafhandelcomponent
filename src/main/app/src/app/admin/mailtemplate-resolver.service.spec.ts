@@ -6,6 +6,7 @@
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { convertToParamMap } from "@angular/router";
@@ -27,7 +28,7 @@ describe(MailtemplateResolver.name, () => {
         MailtemplateResolver,
         MailtemplateBeheerService,
         QueryClient,
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
       ],
     });
 
@@ -49,7 +50,7 @@ describe(MailtemplateResolver.name, () => {
           },
         }),
       ),
-    ).toThrowError("MailtemplateResolver: no 'id' parameter found in route");
+    ).toThrow("MailtemplateResolver: no 'id' parameter found in route");
   });
 
   it("should fetch the mailtemplate via the query client for the given id", async () => {

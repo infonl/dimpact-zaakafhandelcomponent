@@ -105,9 +105,9 @@ class TaakZoekObjectConverter @Inject constructor(
             taakData = readTaskData(taskInfo).entries.map { "${it.key}|${it.value}" }
             taakInformatie = readTaskInformation(taskInfo).entries.map { "${it.key}|${it.value}" }
             taskInfo.assignee?.let {
-                identityService.readUser(userId = it, logContext = logContext).let { user ->
+                identityService.readUser(username = it, logContext = logContext).let { user ->
                     behandelaarNaam = user.getFullName()
-                    behandelaarGebruikersnaam = user.id
+                    behandelaarGebruikersnaam = user.username
                 }
                 isToegekend = true
             }

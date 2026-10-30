@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -65,7 +65,7 @@ describe(ZakenCardComponent.name, () => {
     testQueryClient.setQueryData(
       LOGGED_IN_USER_QUERY_KEY,
       fromPartial<GeneratedType<"RestUser">>({
-        id: "fakeUserId",
+        username: "fakeUserId",
         naam: "fakeUserName",
       }),
     );
@@ -75,7 +75,7 @@ describe(ZakenCardComponent.name, () => {
       imports: [NoopAnimationsModule],
       providers: [
         provideTranslateService(),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         provideRouter([]),
         provideTanStackQuery(testQueryClient),

@@ -6,7 +6,13 @@
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { HttpTestingController } from "@angular/common/http/testing";
-import { Component, input, LOCALE_ID, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  LOCALE_ID,
+  output,
+} from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import {
@@ -67,6 +73,7 @@ const planItemsQuery = (planItems: GeneratedType<"RestPlanItem">[]) =>
 @Component({
   selector: "zac-informatie-object-create-attended",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: "",
 })
 class InformatieObjectCreateAttendedStubComponent {
@@ -79,6 +86,7 @@ class InformatieObjectCreateAttendedStubComponent {
 @Component({
   selector: "zac-case-location-edit",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: "",
 })
 class CaseLocationEditStubComponent {
@@ -236,7 +244,6 @@ describe(ZaakViewComponent.name, () => {
       .mockReturnValue(planItemsQuery([]));
 
     takenService = TestBed.inject(TakenService);
-    jest.spyOn(takenService, "listTakenVoorZaak").mockReturnValue(of([]));
 
     jest.spyOn(KlantenService.prototype, "readPersoon").mockReturnValue(
       queryOptions({
@@ -700,7 +707,7 @@ describe(ZaakViewComponent.name, () => {
         queryKey: zakenService.readZaakQuery(brondatumZettenZaak.uuid).queryKey,
       });
       expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: takenService.listTakenVoorZaakQuery(brondatumZettenZaak.uuid)
+        queryKey: takenService.listTakenVoorZaak(brondatumZettenZaak.uuid)
           .queryKey,
       });
       expect(snackbarSpy).toHaveBeenCalledWith("msg.zaak.brondatum.gezet");

@@ -123,7 +123,7 @@ describe(InformatieObjectEditComponent.name, () => {
 
     // Mock services
     testQueryClient.setQueryData(identityService.readLoggedInUser().queryKey, {
-      id: "1234",
+      username: "1234",
       naam: "Test User",
     });
 

@@ -5,6 +5,7 @@
 
 import { NgClass } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -36,6 +37,7 @@ import {
   templateUrl: "./parameters-step-humantasks.component.html",
   styleUrl: "./parameters-step-humantasks.component.less",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     NgClass,
     MatExpansionModule,
@@ -67,9 +69,7 @@ export class ParametersStepHumantasksComponent {
   protected readonly groepenQuery = injectQuery(() => {
     const omschrijving = this.zaaktypeOmschrijving();
     return {
-      ...this.identityService.listBehandelaarGroupsForZaaktypeQuery(
-        omschrijving,
-      ),
+      ...this.identityService.listBehandelaarGroupsForZaaktype(omschrijving),
       enabled: Boolean(omschrijving),
     };
   });

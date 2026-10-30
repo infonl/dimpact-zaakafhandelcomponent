@@ -35,7 +35,6 @@ import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { TakenService } from "../../taken/taken.service";
 import { ZaakBetrokkeneListComponent } from "../zaak-betrokkenen-list/zaak-betrokkene-list.component";
 import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
@@ -64,7 +63,6 @@ describe(ZaakViewComponent.name, () => {
   >;
   let planItemsService: PlanItemsService;
   let dialogRef: MatDialogRef<unknown>;
-  let takenService: TakenService;
   let websocketService: WebsocketService;
   let zaakafhandelParametersService: ZaakafhandelParametersService;
 
@@ -176,9 +174,6 @@ describe(ZaakViewComponent.name, () => {
     jest
       .spyOn(planItemsService, "listHumanTaskPlanItemsQuery")
       .mockReturnValue(planItemsQuery([]));
-
-    takenService = TestBed.inject(TakenService);
-    jest.spyOn(takenService, "listTakenVoorZaak").mockReturnValue(of([]));
 
     jest.spyOn(KlantenService.prototype, "readPersoon").mockReturnValue(
       queryOptions({
@@ -294,6 +289,16 @@ describe(ZaakViewComponent.name, () => {
 
       expect(closeSideNav).toHaveBeenCalled();
       expect(invalidateSpy).not.toHaveBeenCalledWith({
+        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
+      });
+    });
+
+    it("refetches the zaak once a zaak has been linked to it or created from it", () => {
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
+
+      fixture.componentInstance["zaakLinked"]();
+
+      expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
       });
     });

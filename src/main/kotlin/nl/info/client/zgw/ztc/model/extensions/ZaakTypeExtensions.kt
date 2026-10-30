@@ -5,7 +5,7 @@
 package nl.info.client.zgw.ztc.model.extensions
 
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.util.time.PeriodUtil
+import nl.info.zac.util.time.numberOfDaysFromToday
 import java.time.LocalDate
 import java.time.Period
 
@@ -19,7 +19,7 @@ fun ZaakType.isNuGeldig(): Boolean =
 
 fun ZaakType.extensionPeriodDays(): Int? =
     if (this.verlengingMogelijk == true) {
-        this.verlengingstermijn?.takeIf(String::isNotBlank)?.let { PeriodUtil.numberOfDaysFromToday(Period.parse(it)) }
+        this.verlengingstermijn?.takeIf(String::isNotBlank)?.let { Period.parse(it).numberOfDaysFromToday() }
     } else {
         null
     }

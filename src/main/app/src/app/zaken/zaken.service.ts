@@ -182,8 +182,8 @@ export class ZakenService {
     return this.zacHttpClient.GET("/rest/zaken/waarschuwing");
   }
 
-  listZaaktypesForCreation() {
-    return this.zacHttpClient.GET("/rest/zaken/zaaktypes-for-creation");
+  listZaaktypesForCreationQuery() {
+    return this.zacQueryClient.GET("/rest/zaken/zaaktypes-for-creation");
   }
 
   listZaaktypesToLinkQuery() {

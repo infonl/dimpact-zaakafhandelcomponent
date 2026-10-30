@@ -6,6 +6,7 @@
 import { TitleCasePipe } from "@angular/common";
 import {
   booleanAttribute,
+  ChangeDetectionStrategy,
   Component,
   inject,
   input,
@@ -48,6 +49,7 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   templateUrl: "./bedrijf-zoek.component.html",
   styleUrls: ["./bedrijf-zoek.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZacSelect,
     EmptyPipe,

@@ -123,7 +123,7 @@
     <tr mat-header-row *matHeaderRowDef="persoonColumns; sticky: true"></tr>
     <tr mat-row *matRowDef="let row; columns: persoonColumns"></tr>
   </table>
-  @if (personen.data.length == 0 && !loading) {
+  @if (personen.data.length === 0 && !loading) {
     <p>
       {{
         foutmelding ? foutmelding : ("msg.geen.gegevens.gevonden" | translate)

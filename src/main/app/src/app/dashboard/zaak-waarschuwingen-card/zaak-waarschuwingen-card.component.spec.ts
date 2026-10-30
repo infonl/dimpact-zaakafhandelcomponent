@@ -5,7 +5,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatSortHeaderHarness } from "@angular/material/sort/testing";
@@ -58,7 +58,7 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
       imports: [ZaakWaarschuwingenCardComponent, NoopAnimationsModule],
       providers: [
         provideTranslateService(),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideRouter([]),
         provideTanStackQuery(testQueryClient),
         // useValue: real WebsocketService opens a websocket connection in its
@@ -73,7 +73,10 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
     const identityService = TestBed.inject(IdentityService);
     testQueryClient.setQueryData(
       identityService.readLoggedInUser().queryKey,
-      fromPartial<GeneratedType<"RestUser">>({ id: "user", naam: "Test" }),
+      fromPartial<GeneratedType<"RestUser">>({
+        username: "user",
+        naam: "Test",
+      }),
     );
 
     fixture = TestBed.createComponent(ZaakWaarschuwingenCardComponent);

@@ -10,11 +10,11 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.zac.flowable.cmmn.CmmnService
 import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.admin.model.ZaaktypeProcessBinding
 import nl.info.zac.app.planitems.model.PlanItemType
 import nl.info.zac.flowable.bpmn.BpmnService
+import nl.info.zac.flowable.cmmn.CmmnService
 import org.flowable.cmmn.api.repository.CaseDefinition
 import org.flowable.cmmn.model.HumanTask
 import org.flowable.cmmn.model.UserEventListener

@@ -11,7 +11,7 @@ help()
 {
    echo "Starts the ZAC Docker Compose environment using the 1Password CLI tools to retrieve secrets."
    echo
-   echo "Syntax: $0 [-d|e|h|z|b|l|m|t|o|n|a|f]"
+   echo "Syntax: $0 [-d|e|h|z|b|l|m|t|o|n|a|f|v]"
    echo
    echo "General:"
    echo "   -d     Delete local Docker named volumes before starting Docker Compose."
@@ -30,6 +30,7 @@ help()
    echo "   -n     Start OpenNotificaties."
    echo "   -a     Start OpenArchiefbeheer."
    echo "   -f     Start Open Formulieren (also starts Objecten and OpenNotificaties automatically)."
+   echo "   -v     Start VNG Selectielijst."
    echo
 }
 
@@ -56,9 +57,10 @@ namedVolumes=(
   "openformulieren-database-data"
   "solr-data"
   "grafana-data"
+  "vng-selectielijst-database-data"
 )
 
-while getopts ':dhzblmtonafe' OPTION; do
+while getopts ':dhzblmtonafev' OPTION; do
   case $OPTION in
     d)
       echo "Deleting named Docker volumes .."
@@ -108,6 +110,9 @@ while getopts ':dhzblmtonafe' OPTION; do
       # Objecten and OpenNotificaties services start automatically via their profile lists.
       # Notifications must be enabled in Open Zaak for the productaanvraag flow to work.
       export OPENZAAK_NOTIFICATIONS_DISABLED=false
+      ;;
+    v)
+      profiles+=("vngselectielijst")
       ;;
     \?)
       echoerr "Error: Invalid option"

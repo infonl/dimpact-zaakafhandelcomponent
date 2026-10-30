@@ -109,20 +109,10 @@ class LocalDateUtilTest : BehaviorSpec({
         val date = "2024-03-11"
 
         `when`("formatting the date") {
-            val formatted = format(date)
+            val formatted = date.toFormattedDate()
 
             then("it should be formatted as dd-MM-yyyy") {
                 formatted shouldBe "11-03-2024"
-            }
-        }
-    }
-
-    given("a null date string") {
-        `when`("formatting the date") {
-            val formatted = format(null)
-
-            then("it should return null") {
-                formatted shouldBe null
             }
         }
     }

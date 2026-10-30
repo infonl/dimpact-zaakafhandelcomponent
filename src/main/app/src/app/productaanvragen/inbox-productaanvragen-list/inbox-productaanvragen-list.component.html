@@ -168,7 +168,7 @@
           *matCellDef="let row"
           [attr.colspan]="displayedColumns.length"
         >
-          <div [@detailExpand]="row == expandedRow ? 'expanded' : 'collapsed'">
+          <div [@detailExpand]="row === expandedRow ? 'expanded' : 'collapsed'">
             @if (row === expandedRow) {
               <object
                 type="application/pdf"

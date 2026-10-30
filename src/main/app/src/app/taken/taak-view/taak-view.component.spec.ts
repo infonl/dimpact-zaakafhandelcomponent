@@ -9,6 +9,7 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import {
   HttpTestingController,
@@ -28,9 +29,7 @@ import { within } from "@testing-library/angular";
 import { randomUUID } from "crypto";
 import { of, ReplaySubject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
-import { ObjectType } from "../../core/websocket/model/object-type";
-import { Opcode } from "../../core/websocket/model/opcode";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { FormioCustomEvent } from "../../formulieren/formio-wrapper/formio-wrapper.component";
@@ -47,7 +46,6 @@ describe(TaakViewComponent.name, () => {
   let loader: HarnessLoader;
 
   let websocketService: WebsocketService;
-  let takenService: TakenService;
   let zakenService: ZakenService;
   let taakFormulierenService: TaakFormulierenService;
 
@@ -124,7 +122,7 @@ describe(TaakViewComponent.name, () => {
           provide: ActivatedRoute,
           useValue: mockActivatedRoute,
         },
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
       ],
@@ -139,58 +137,65 @@ describe(TaakViewComponent.name, () => {
 
     websocketService = TestBed.inject(WebsocketService);
 
-    takenService = TestBed.inject(TakenService);
-    jest.spyOn(takenService, "readTaak").mockReturnValue(of());
-
     taakFormulierenService = TestBed.inject(TaakFormulierenService);
 
     zakenService = TestBed.inject(ZakenService);
     jest.spyOn(zakenService, "readZaak").mockReturnValue(of(zaak));
   });
 
+  afterEach(async () => {
+    await sleep();
+    TestBed.inject(HttpTestingController)
+      .match("/rest/taken/test-id/historie")
+      .forEach((request) => request.flush([]));
+    await sleep();
+  });
+
   describe(TaakViewComponent.prototype.documentCreated.name, () => {
-    it(`should subscribe to ${Opcode.UPDATED} on ${ObjectType.ZAAK_INFORMATIEOBJECTEN}`, async () => {
+    it("should subscribe to UPDATED on ZAAK_INFORMATIEOBJECTEN", async () => {
       const addListener = jest.spyOn(websocketService, "addListener");
 
       component.instance.documentCreated();
 
       expect(addListener).toHaveBeenCalledTimes(1);
       expect(addListener).toHaveBeenCalledWith(
-        Opcode.UPDATED,
-        ObjectType.ZAAK_INFORMATIEOBJECTEN,
+        "UPDATED",
+        "ZAAK_INFORMATIEOBJECTEN",
         taak.zaakUuid,
         expect.any(Function),
       );
     });
 
-    it(`should reload the history when a ${Opcode.UPDATED} on ${ObjectType.ZAAK_INFORMATIEOBJECTEN} is received`, () => {
-      const listHistorieVoorTaak = jest.spyOn(
-        takenService,
-        "listHistorieVoorTaak",
-      );
+    it("should reload the history when an UPDATED on ZAAK_INFORMATIEOBJECTEN is received", async () => {
+      const httpTestingController = TestBed.inject(HttpTestingController);
+      await sleep();
+      httpTestingController.expectOne("/rest/taken/test-id/historie").flush([]);
+      await sleep();
 
       component.instance.documentCreated();
-
       websocketService["onMessage"]({
-        opcode: Opcode.UPDATED,
-        objectType: ObjectType.ZAAK_INFORMATIEOBJECTEN,
+        timestamp: 1,
+        opcode: "UPDATED",
+        objectType: "ZAAK_INFORMATIEOBJECTEN",
         objectId: new ScreenEventId(taak.zaakUuid),
       });
+      await sleep();
 
-      expect(listHistorieVoorTaak).toHaveBeenCalledTimes(1);
-      expect(listHistorieVoorTaak).toHaveBeenCalledWith(taak.id);
+      httpTestingController.expectOne("/rest/taken/test-id/historie").flush([]);
     });
 
-    it("should read the task when a screen event is received", async () => {
-      const readTaak = jest.spyOn(takenService, "readTaak");
+    it("should read the task again when a screen event is received", async () => {
+      const httpTestingController = TestBed.inject(HttpTestingController);
 
       websocketService["onMessage"]({
-        opcode: Opcode.ANY,
-        objectType: ObjectType.TAAK,
+        timestamp: 1,
+        opcode: "ANY",
+        objectType: "TAAK",
         objectId: new ScreenEventId(taak.id!),
       });
+      await sleep();
 
-      expect(readTaak).toHaveBeenCalledWith(taak.id!);
+      httpTestingController.expectOne("/rest/taken/test-id").flush(taak);
     });
   });
 

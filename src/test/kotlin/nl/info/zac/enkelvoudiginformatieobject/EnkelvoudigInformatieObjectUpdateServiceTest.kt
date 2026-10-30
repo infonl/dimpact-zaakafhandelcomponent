@@ -1,0 +1,391 @@
+/*
+ * SPDX-FileCopyrightText: 2024 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+package nl.info.zac.enkelvoudiginformatieobject
+
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.runs
+import io.mockk.slot
+import io.mockk.verify
+import jakarta.enterprise.inject.Instance
+import nl.info.client.zgw.drc.DrcClientService
+import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
+import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockRequest
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
+import nl.info.client.zgw.drc.model.generated.SoortEnum
+import nl.info.client.zgw.drc.model.generated.StatusEnum
+import nl.info.client.zgw.model.createZaakInformatieobjectForReads
+import nl.info.client.zgw.shared.ZgwApiService
+import nl.info.client.zgw.shared.exception.ZgwRuntimeException
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.test.org.flowable.task.api.createTestTask
+import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.document.content.InMemoryDocumentContent
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import nl.info.zac.enkelvoudiginformatieobject.model.createEnkelvoudigInformatieObjectLock
+import nl.info.zac.flowable.task.FlowableTaskService
+import nl.info.zac.flowable.task.TaakVariabelenService
+import nl.info.zac.flowable.task.exception.TaskNotFoundException
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.output.createTaakRechten
+import java.time.LocalDate
+import java.util.UUID
+
+class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
+    val drcClientService = mockk<DrcClientService>()
+    val enkelvoudigInformatieObjectLockService = mockk<EnkelvoudigInformatieObjectLockService>()
+    val flowableTaskService = mockk<FlowableTaskService>()
+    val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
+    val policyService = mockk<PolicyService>()
+    val taakVariabelenService = mockk<TaakVariabelenService>()
+    val zgwApiService = mockk<ZgwApiService>()
+    val enkelvoudigInformatieObjectUpdateService = EnkelvoudigInformatieObjectUpdateService(
+        drcClientService,
+        enkelvoudigInformatieObjectLockService,
+        flowableTaskService,
+        loggedInUserInstance,
+        policyService,
+        taakVariabelenService,
+        zgwApiService
+    )
+    val zaak = Zaak()
+    val enkelvoudigInformatieObjectCreateLockRequest = createEnkelvoudigInformatieObjectCreateLockRequest()
+    val zaakInformatieObject = createZaakInformatieobjectForReads()
+    val taskId = "1234"
+    val task = createTestTask()
+
+    afterEach {
+        checkUnnecessaryStub()
+    }
+
+    context("Creating a zaak informatie object for a zaak") {
+        given("Zaak, lock request and an open task") {
+            every {
+                zgwApiService.createZaakInformatieobjectForZaak(
+                    zaak = zaak,
+                    enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,
+                    titel = enkelvoudigInformatieObjectCreateLockRequest.titel,
+                    beschrijving = enkelvoudigInformatieObjectCreateLockRequest.beschrijving,
+                    omschrijvingVoorwaardenGebruiksrechten = ConfigurationService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+                )
+            } returns zaakInformatieObject
+            every { flowableTaskService.findOpenTask(taskId) } returns task
+            every { taakVariabelenService.setTaskDocuments(task, any<List<UUID>>()) } just runs
+
+            `when`("creating information object for a task is called") {
+                every { policyService.readTaakRechten(task) } returns createTaakRechten()
+
+                val zaakInfo = enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
+                    zaak = zaak,
+                    enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,
+                    taskId = taskId
+                )
+
+                then("correct zaak info object is returned") {
+                    zaakInfo shouldBe zaakInformatieObject
+                }
+
+                and("task document is set") {
+                    verify(exactly = 1) {
+                        taakVariabelenService.setTaskDocuments(task, any<List<UUID>>())
+                    }
+                }
+            }
+        }
+
+        given("Zaak, lock request and non-eligible task") {
+            every {
+                zgwApiService.createZaakInformatieobjectForZaak(
+                    zaak = zaak,
+                    enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,
+                    titel = enkelvoudigInformatieObjectCreateLockRequest.titel,
+                    beschrijving = enkelvoudigInformatieObjectCreateLockRequest.beschrijving,
+                    omschrijvingVoorwaardenGebruiksrechten = ConfigurationService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+                )
+            } returns zaakInformatieObject
+            every { flowableTaskService.findOpenTask(taskId) } returns null
+
+            `when`("creating information object for a non-open task") {
+                val exception = shouldThrow<TaskNotFoundException> {
+                    enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
+                        zaak = zaak,
+                        enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,
+                        taskId = taskId,
+                    )
+                }
+
+                then("thrown exception mentions the task id") {
+                    exception.message shouldBe "No open task found with task id: '$taskId'"
+                }
+            }
+        }
+
+        given("Zaak, lock request and internal (pre-authenticated) call") {
+            every {
+                zgwApiService.createZaakInformatieobjectForZaak(
+                    zaak = zaak,
+                    enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,
+                    titel = enkelvoudigInformatieObjectCreateLockRequest.titel,
+                    beschrijving = enkelvoudigInformatieObjectCreateLockRequest.beschrijving,
+                    omschrijvingVoorwaardenGebruiksrechten = ConfigurationService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+                )
+            } returns zaakInformatieObject
+            every { flowableTaskService.findOpenTask(taskId) } returns task
+            every { taakVariabelenService.setTaskDocuments(task, any<List<UUID>>()) } just runs
+
+            `when`("creating information object for a non-open task") {
+                enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
+                    zaak = zaak,
+                    enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,
+                    taskId = taskId,
+                    skipPolicyCheck = true
+                )
+
+                then("policy check is skipped") {
+                    verify(exactly = 0) {
+                        policyService.readTaakRechten(task)
+                    }
+                }
+            }
+        }
+    }
+
+    context("Updating enkelvoudig informatieobjecten with lock data") {
+        given("An enkelvoudig informatie object and no existing lock") {
+            val enkelvoudigInformatieObjectUUID = UUID.randomUUID()
+            val enkelvoudigInformatieObjectWithLockRequest = createEnkelvoudigInformatieObjectWithLockRequest()
+            val explanation = "fakeExplanation"
+            val username = "fakeUsername"
+            val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()
+            val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+            every { loggedInUserInstance.get().username } returns username
+            every { enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID) } returns null
+            every {
+                enkelvoudigInformatieObjectLockService.createLock(enkelvoudigInformatieObjectUUID, username)
+            } returns enkelvoudigInformatieObjectLock
+            every {
+                drcClientService.updateEnkelvoudigInformatieobject(
+                    enkelvoudigInformatieObjectUUID, enkelvoudigInformatieObjectWithLockRequest, explanation
+                )
+            } returns enkelvoudigInformatieObject
+            every {
+                enkelvoudigInformatieObjectLockService.deleteLock(enkelvoudigInformatieObjectUUID)
+            } returns Unit
+
+            `when`("updating the object with lock data") {
+                val updatedEnkelvoudigInformatieObject =
+                    enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
+                        enkelvoudigInformatieObjectUUID,
+                        enkelvoudigInformatieObjectWithLockRequest,
+                        explanation
+                    )
+
+                then("the object is updated successfully") {
+                    updatedEnkelvoudigInformatieObject shouldBe enkelvoudigInformatieObject
+                    verify(exactly = 1) {
+                        drcClientService.updateEnkelvoudigInformatieobject(
+                            enkelvoudigInformatieObjectUUID,
+                            enkelvoudigInformatieObjectWithLockRequest,
+                            explanation
+                        )
+                    }
+                }
+                and("a temporary lock is created and deleted") {
+                    verify(exactly = 1) {
+                        enkelvoudigInformatieObjectLockService.createLock(enkelvoudigInformatieObjectUUID, username)
+                        enkelvoudigInformatieObjectLockService.deleteLock(enkelvoudigInformatieObjectUUID)
+                    }
+                }
+            }
+        }
+
+        given("An enkelvoudig informatie object and an existing lock") {
+            val enkelvoudigInformatieObjectUUID = UUID.randomUUID()
+            val enkelvoudigInformatieObjectWithLockRequest = createEnkelvoudigInformatieObjectWithLockRequest()
+            val explanation = "fakeExplanation"
+            val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()
+            val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+            every {
+                enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID)
+            } returns enkelvoudigInformatieObjectLock
+            every {
+                drcClientService.updateEnkelvoudigInformatieobject(
+                    enkelvoudigInformatieObjectUUID, enkelvoudigInformatieObjectWithLockRequest, explanation
+                )
+            } returns enkelvoudigInformatieObject
+
+            `when`("updating the object with lock data") {
+                val updatedEnkelvoudigInformatieObject =
+                    enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
+                        enkelvoudigInformatieObjectUUID,
+                        enkelvoudigInformatieObjectWithLockRequest,
+                        explanation
+                    )
+
+                then("the object is updated successfully") {
+                    updatedEnkelvoudigInformatieObject shouldBe enkelvoudigInformatieObject
+                    verify(exactly = 1) {
+                        drcClientService.updateEnkelvoudigInformatieobject(
+                            enkelvoudigInformatieObjectUUID,
+                            enkelvoudigInformatieObjectWithLockRequest,
+                            explanation
+                        )
+                    }
+                }
+                and("no temporary lock is created nor deleted") {
+                    verify(exactly = 0) {
+                        enkelvoudigInformatieObjectLockService.createLock(any(), any())
+                        enkelvoudigInformatieObjectLockService.deleteLock(any())
+                    }
+                }
+            }
+        }
+
+        given("An enkelvoudig informatie object, no existing lock and a content upload that fails") {
+            val enkelvoudigInformatieObjectUUID = UUID.randomUUID()
+            val enkelvoudigInformatieObjectWithLockRequest = createEnkelvoudigInformatieObjectWithLockRequest()
+            val explanation = "fakeExplanation"
+            val username = "fakeUsername"
+            val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()
+            val content = InMemoryDocumentContent("fakeContent".toByteArray())
+            every { loggedInUserInstance.get().username } returns username
+            every { enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID) } returns null
+            every {
+                enkelvoudigInformatieObjectLockService.createLock(enkelvoudigInformatieObjectUUID, username)
+            } returns enkelvoudigInformatieObjectLock
+            every {
+                drcClientService.updateEnkelvoudigInformatieobject(
+                    enkelvoudigInformatieobjectUUID = enkelvoudigInformatieObjectUUID,
+                    enkelvoudigInformatieObjectWithLockRequest = enkelvoudigInformatieObjectWithLockRequest,
+                    auditExplanation = explanation,
+                    content = content
+                )
+            } throws ZgwRuntimeException("fakeUploadFailure")
+
+            `when`("updating the object with lock data") {
+                val zgwRuntimeException = shouldThrow<ZgwRuntimeException> {
+                    enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
+                        enkelvoudigInformatieObjectUUID = enkelvoudigInformatieObjectUUID,
+                        enkelvoudigInformatieObjectWithLockRequest = enkelvoudigInformatieObjectWithLockRequest,
+                        toelichting = explanation,
+                        content = content
+                    )
+                }
+
+                then("the failure is propagated") {
+                    zgwRuntimeException.message shouldBe "fakeUploadFailure"
+                }
+                and("the temporary lock is kept so that the incomplete content is not committed as a new version") {
+                    verify(exactly = 1) {
+                        enkelvoudigInformatieObjectLockService.createLock(enkelvoudigInformatieObjectUUID, username)
+                    }
+                    verify(exactly = 0) {
+                        enkelvoudigInformatieObjectLockService.deleteLock(any())
+                    }
+                }
+            }
+        }
+    }
+
+    context("Sending an enkelvoudig informatie object") {
+        val uuid = UUID.randomUUID()
+        val verzenddatum = LocalDate.now()
+        val username = "fakeUsername"
+
+        given("A UUID, verzenddatum and a toelichting") {
+            val toelichting = "fakeToelichting"
+            val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()
+            val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+            val requestSlot = slot<EnkelvoudigInformatieObjectWithLockRequest>()
+            every { loggedInUserInstance.get().username } returns username
+            every { enkelvoudigInformatieObjectLockService.findLock(uuid) } returns null
+            every { enkelvoudigInformatieObjectLockService.createLock(uuid, username) } returns enkelvoudigInformatieObjectLock
+            every {
+                drcClientService.updateEnkelvoudigInformatieobject(uuid, capture(requestSlot), any())
+            } returns enkelvoudigInformatieObject
+            every { enkelvoudigInformatieObjectLockService.deleteLock(uuid) } returns Unit
+
+            `when`("verzendEnkelvoudigInformatieObject is called") {
+                enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
+                    uuid,
+                    verzenddatum,
+                    toelichting
+                )
+
+                then("the verzenddatum is set in the request") {
+                    requestSlot.captured.verzenddatum shouldBe verzenddatum
+                }
+                and("the toelichting is prefixed with 'Per post'") {
+                    verify(exactly = 1) {
+                        drcClientService.updateEnkelvoudigInformatieobject(uuid, any(), "Per post: $toelichting")
+                    }
+                }
+            }
+        }
+
+        given("A UUID, verzenddatum and no toelichting") {
+            val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()
+            val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+            every { loggedInUserInstance.get().username } returns username
+            every { enkelvoudigInformatieObjectLockService.findLock(uuid) } returns null
+            every { enkelvoudigInformatieObjectLockService.createLock(uuid, username) } returns enkelvoudigInformatieObjectLock
+            every { drcClientService.updateEnkelvoudigInformatieobject(uuid, any(), any()) } returns enkelvoudigInformatieObject
+            every { enkelvoudigInformatieObjectLockService.deleteLock(uuid) } returns Unit
+
+            `when`("verzendEnkelvoudigInformatieObject is called with null toelichting") {
+                enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(uuid, verzenddatum, null)
+
+                then("the toelichting is just the prefix without a colon") {
+                    verify(exactly = 1) {
+                        drcClientService.updateEnkelvoudigInformatieobject(uuid, any(), "Per post")
+                    }
+                }
+            }
+        }
+    }
+
+    context("Signing an enkelvoudig informatie object") {
+        val uuid = UUID.randomUUID()
+        val username = "fakeUsername"
+
+        given("A UUID of an unsigned document") {
+            val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()
+            val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+            val requestSlot = slot<EnkelvoudigInformatieObjectWithLockRequest>()
+            every { loggedInUserInstance.get().username } returns username
+            every { enkelvoudigInformatieObjectLockService.findLock(uuid) } returns null
+            every { enkelvoudigInformatieObjectLockService.createLock(uuid, username) } returns enkelvoudigInformatieObjectLock
+            every {
+                drcClientService.updateEnkelvoudigInformatieobject(uuid, capture(requestSlot), any())
+            } returns enkelvoudigInformatieObject
+            every { enkelvoudigInformatieObjectLockService.deleteLock(uuid) } returns Unit
+
+            `when`("ondertekenEnkelvoudigInformatieObject is called") {
+                val today = LocalDate.now()
+                enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(uuid)
+
+                then("the ondertekening is set to DIGITAAL with today's date") {
+                    requestSlot.captured.ondertekening!!.soort shouldBe SoortEnum.DIGITAAL
+                    requestSlot.captured.ondertekening!!.datum shouldBe today
+                }
+                and("the status is set to DEFINITIEF") {
+                    requestSlot.captured.status shouldBe StatusEnum.DEFINITIEF
+                }
+                and("the toelichting is 'Door ondertekenen'") {
+                    verify(exactly = 1) {
+                        drcClientService.updateEnkelvoudigInformatieobject(uuid, any(), "Door ondertekenen")
+                    }
+                }
+            }
+        }
+    }
+})

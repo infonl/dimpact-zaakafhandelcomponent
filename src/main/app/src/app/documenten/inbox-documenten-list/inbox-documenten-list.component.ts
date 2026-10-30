@@ -5,6 +5,7 @@
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   EventEmitter,
   inject,
@@ -68,6 +69,7 @@ import { InboxDocumentenService } from "../inbox-documenten.service";
   templateUrl: "./inbox-documenten-list.component.html",
   styleUrls: ["./inbox-documenten-list.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     RouterLink,
     MatDrawerContainer,

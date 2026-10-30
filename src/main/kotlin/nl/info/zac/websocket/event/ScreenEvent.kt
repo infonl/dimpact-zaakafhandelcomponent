@@ -6,8 +6,10 @@ package nl.info.zac.websocket.event
 
 import nl.info.zac.event.AbstractEvent
 import nl.info.zac.event.Opcode
+import org.eclipse.microprofile.openapi.annotations.media.Schema
 import java.io.Serial
 
+@Schema(requiredProperties = ["timestamp", "opcode", "objectType", "objectId"])
 class ScreenEvent(
     opcode: Opcode,
     override val objectType: ScreenEventType,
@@ -19,9 +21,9 @@ class ScreenEvent(
     }
 
     /**
-     * Identifies the user whose action caused this event, so that a screen can tell a change it made
+     * The username of the user whose action caused this event, so that a screen can tell a change it made
      * itself from one made by somebody else. Holds the functionele gebruiker for changes that
      * originate outside a user session, such as notifications and cron jobs.
      */
-    var actorUserId: String? = null
+    var actorUsername: String? = null
 }

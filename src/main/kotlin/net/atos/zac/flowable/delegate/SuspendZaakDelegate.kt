@@ -5,7 +5,7 @@
 
 package net.atos.zac.flowable.delegate
 
-import net.atos.zac.flowable.FlowableHelper
+import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.policy.assertPolicy
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
@@ -35,12 +35,7 @@ class SuspendZaakDelegate : AbstractDelegate() {
         assertPolicy(
             flowableHelper.policyService.readZaakRechten(zaak, loggedInUser).canOpschorten,
             LOG,
-            "User '${loggedInUser.id}' not authorised to suspend zaak '${zaak.identificatie}'"
-        )
-        assertPolicy(
-            zaak.opschorting?.reden.isNullOrEmpty(),
-            LOG,
-            "Zaak '${zaak.identificatie}' already has a suspension reason; not allowed to suspend again"
+            "User '${loggedInUser.username}' not authorised to suspend zaak '${zaak.identificatie}'"
         )
 
         LOG.fine(

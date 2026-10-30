@@ -3,7 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject, input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+} from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -28,6 +33,7 @@ import { ZakenService } from "../zaken.service";
   templateUrl:
     "./zaakspecifiek-geautoriseerde-medewerker-toevoegen.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatDividerModule,
@@ -67,7 +73,7 @@ export class ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent {
   });
 
   protected readonly groupsQuery = injectQuery(() =>
-    this.identityService.listBehandelaarGroupsForZaaktypeQuery(
+    this.identityService.listBehandelaarGroupsForZaaktype(
       this.zaak().zaaktype.omschrijving ?? "",
     ),
   );
@@ -113,6 +119,9 @@ export class ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent {
   protected toevoegen() {
     const { groep, medewerker } = this.form.getRawValue();
     if (!groep || !medewerker) return;
-    this.mutation.mutate({ groepId: groep.id, medewerkerId: medewerker.id });
+    this.mutation.mutate({
+      groepId: groep.id,
+      medewerkerId: medewerker.username,
+    });
   }
 }

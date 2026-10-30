@@ -47,7 +47,7 @@ class LoggedInUserProvider @Inject constructor(
          * Requests to these internal API calls are typically initiated from external systems or cron jobs.
          */
         val FUNCTIONEEL_GEBRUIKER = LoggedInUser(
-            id = "FG",
+            username = "FG",
             firstName = "",
             lastName = "Functionele gebruiker",
             displayName = "Functionele gebruiker",
@@ -62,7 +62,7 @@ class LoggedInUserProvider @Inject constructor(
          * not fixed, so it is not named after one: the zaak records it in its toelichting instead.
          */
         val PRODUCTAANVRAAG_GEBRUIKER = LoggedInUser(
-            id = "PA",
+            username = "PA",
             firstName = "",
             lastName = "Productaanvraag",
             displayName = "Productaanvraag",

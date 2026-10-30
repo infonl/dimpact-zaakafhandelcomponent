@@ -4,6 +4,7 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -25,7 +26,6 @@ import { ActivatedRoute } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
-import { UtilService } from "../../core/service/util.service";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -59,8 +59,8 @@ import {
 
 @Component({
   templateUrl: "./parameters-edit.component.html",
-  styleUrl: "./parameters-edit.component.less",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatProgressSpinnerModule,
     MatSidenavModule,
@@ -123,11 +123,8 @@ export class ParametersEditComponent extends AdminComponent implements OnInit {
     ),
   );
 
-  constructor(
-    public readonly utilService: UtilService,
-    public readonly configuratieService: ConfiguratieService,
-  ) {
-    super(utilService, configuratieService);
+  constructor() {
+    super();
 
     effect(() => {
       const isBrpDoelbindingSetupEnabled = this.brpDoelbindingSetupEnabled();

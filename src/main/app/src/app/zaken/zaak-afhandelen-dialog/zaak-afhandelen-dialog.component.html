@@ -25,7 +25,7 @@
 <form [formGroup]="form" (submit)="afhandelen()">
   <mat-dialog-content>
     @if (data.planItem?.toelichting) {
-      <p class="readonly" [innerHTML]="data.planItem?.toelichting"></p>
+      <p class="readonly" [innerHTML]="data.planItem.toelichting"></p>
     }
     @if (
       form.controls.resultaattype.value?.isBesluitVerplicht &&

@@ -4,9 +4,9 @@
  */
 package nl.info.zac.app.gebruikersvoorkeuren.model
 
-import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.gebruikersvoorkeuren.model.DashboardCardId
 import nl.info.zac.gebruikersvoorkeuren.model.DashboardCardInstelling
+import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 

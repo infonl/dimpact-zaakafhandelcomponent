@@ -5,7 +5,14 @@
 
 import { FlatTreeControl } from "@angular/cdk/tree";
 
-import { Component, effect, inject, input, untracked } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  input,
+  untracked,
+} from "@angular/core";
 import {
   FormBuilder,
   FormControl,
@@ -46,6 +53,7 @@ interface FlatNode {
   templateUrl: "./smart-documents-form.component.html",
   styleUrl: "./smart-documents-form.component.less",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatButtonModule,
@@ -60,9 +68,11 @@ interface FlatNode {
   ],
 })
 export class SmartDocumentsFormComponent {
-  private smartDocumentsService = inject(SmartDocumentsService);
-  private informatieObjectenService = inject(InformatieObjectenService);
-  private formBuilder = inject(FormBuilder);
+  private readonly smartDocumentsService = inject(SmartDocumentsService);
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
+  private readonly formBuilder = inject(FormBuilder);
 
   readonly zaakTypeUuid = input.required<string>();
   readonly enabledGlobally = input.required<boolean>();

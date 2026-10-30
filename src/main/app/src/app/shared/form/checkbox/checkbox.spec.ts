@@ -5,7 +5,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import {
   FormControl,
@@ -29,6 +29,7 @@ const makeForm = (
 
 @Component({
   template: `<zac-checkbox [form]="form" key="active" [label]="label" />`,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ZacCheckbox],
 })
 class HostComponent {

@@ -3,7 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, input, linkedSignal, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  linkedSignal,
+  output,
+} from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { ToggleSwitchOptions } from "./toggle-switch-options";
@@ -13,6 +19,7 @@ import { ToggleSwitchOptions } from "./toggle-switch-options";
   templateUrl: "./toggle-filter.component.html",
   styleUrls: ["./toggle-filter.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatButtonModule, MatIconModule],
 })
 export class ToggleFilterComponent {

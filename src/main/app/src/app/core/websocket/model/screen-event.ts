@@ -1,32 +1,29 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ObjectType } from "./object-type";
-import { Opcode } from "./opcode";
-import { ScreenEventId } from "./screen-event-id";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 
-/**
- * @deprecated - use the `GeneratedType`
- */
+type ScreenEventId = GeneratedType<"ScreenEventId">;
+
 export class ScreenEvent {
   private _timestamp?: number;
-  opcode: Opcode;
-  objectType: ObjectType;
+  opcode: GeneratedType<"Opcode">;
+  objectType: GeneratedType<"ScreenEventType">;
   objectId: ScreenEventId;
-  readonly actorUserId?: string;
+  readonly actorUsername?: string | null;
   private _key: string;
 
   constructor(
-    opcode: Opcode,
-    objectType: ObjectType,
+    opcode: GeneratedType<"Opcode">,
+    objectType: GeneratedType<"ScreenEventType">,
     objectId: ScreenEventId,
     timestamp?: number,
-    actorUserId?: string,
+    actorUsername?: string | null,
   ) {
     this._timestamp = timestamp;
-    this.actorUserId = actorUserId;
+    this.actorUsername = actorUsername;
     this.opcode = opcode;
     this.objectType = objectType;
     this.objectId = objectId;
@@ -42,20 +39,20 @@ export class ScreenEvent {
   }
 
   get keyAnyOpcode(): string {
-    return this.makeKey(Opcode.ANY, this.objectType, this.objectId);
+    return this.makeKey("ANY", this.objectType, this.objectId);
   }
 
   get keyAnyObjectType(): string {
-    return this.makeKey(this.opcode, ObjectType.ANY, this.objectId);
+    return this.makeKey(this.opcode, "ANY", this.objectId);
   }
 
   get keyAnyOpcodeAndObjectType(): string {
-    return this.makeKey(Opcode.ANY, ObjectType.ANY, this.objectId);
+    return this.makeKey("ANY", "ANY", this.objectId);
   }
 
   private makeKey(
-    opcode: Opcode,
-    objectType: ObjectType,
+    opcode: GeneratedType<"Opcode">,
+    objectType: GeneratedType<"ScreenEventType">,
     objectId: ScreenEventId,
   ): string {
     return opcode + ";" + objectType + ";" + objectId.resource;

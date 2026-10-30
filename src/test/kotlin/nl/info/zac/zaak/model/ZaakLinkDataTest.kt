@@ -9,6 +9,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
+import nl.info.client.zgw.ztc.model.createZaakType
+import java.net.URI
 import java.util.UUID
 
 class ZaakLinkDataTest : BehaviorSpec({
@@ -482,6 +484,159 @@ class ZaakLinkDataTest : BehaviorSpec({
 
                 then("nothing blocks the link") {
                     reason shouldBe null
+                }
+            }
+        }
+    }
+
+    context("newZaakNotLinkableReason") {
+        val newZaaktypeUuid = UUID.randomUUID()
+
+        given("an open zaak with lezen and koppelen rights") {
+            val zaakLinkData = createZaakLinkData()
+
+            `when`("a new zaak is linked as gerelateerde zaak") {
+                val reason = zaakLinkData.newZaakNotLinkableReason(
+                    relatieType = RelatieType.GERELATEERD,
+                    newZaaktypeUuid = newZaaktypeUuid,
+                    allowedDeelzaaktypes = emptySet()
+                )
+
+                then("nothing blocks the link") {
+                    reason shouldBe null
+                }
+            }
+
+            `when`("a new zaak of a deelzaaktype of its zaaktype is linked as deelzaak") {
+                val reason = zaakLinkData.newZaakNotLinkableReason(
+                    relatieType = RelatieType.DEELZAAK,
+                    newZaaktypeUuid = newZaaktypeUuid,
+                    allowedDeelzaaktypes = setOf(newZaaktypeUuid)
+                )
+
+                then("nothing blocks the link") {
+                    reason shouldBe null
+                }
+            }
+
+            `when`("a new zaak of a zaaktype that is not a deelzaaktype of its zaaktype is linked as deelzaak") {
+                val reason = zaakLinkData.newZaakNotLinkableReason(
+                    relatieType = RelatieType.DEELZAAK,
+                    newZaaktypeUuid = newZaaktypeUuid,
+                    allowedDeelzaaktypes = setOf(UUID.randomUUID())
+                )
+
+                then("the zaaktype does not allow the deelzaak") {
+                    reason shouldBe ZaakNotLinkableReason.ZAAKTYPE_DOES_NOT_ALLOW_DEELZAAK
+                }
+            }
+        }
+
+        given("an open zaak without koppelen rights") {
+            val zaakLinkData = createZaakLinkData(koppelen = false)
+
+            `when`("a new zaak is linked as gerelateerde zaak") {
+                val reason = zaakLinkData.newZaakNotLinkableReason(
+                    relatieType = RelatieType.GERELATEERD,
+                    newZaaktypeUuid = newZaaktypeUuid,
+                    allowedDeelzaaktypes = emptySet()
+                )
+
+                then("the user is not authorised to link") {
+                    reason shouldBe ZaakNotLinkableReason.NOT_AUTHORISED_TO_KOPPELEN
+                }
+            }
+        }
+
+        given("an open zaak without lezen rights") {
+            val zaakLinkData = createZaakLinkData(lezen = false)
+
+            `when`("a new zaak is linked as deelzaak") {
+                val reason = zaakLinkData.newZaakNotLinkableReason(
+                    relatieType = RelatieType.DEELZAAK,
+                    newZaaktypeUuid = newZaaktypeUuid,
+                    allowedDeelzaaktypes = setOf(newZaaktypeUuid)
+                )
+
+                then("the user is not authorised to link") {
+                    reason shouldBe ZaakNotLinkableReason.NOT_AUTHORISED_TO_KOPPELEN
+                }
+            }
+        }
+
+        given("a closed zaak with lezen and koppelen rights") {
+            val zaakLinkData = createZaakLinkData(isOpen = false)
+
+            `when`("a new zaak is linked as gerelateerde zaak") {
+                val reason = zaakLinkData.newZaakNotLinkableReason(
+                    relatieType = RelatieType.GERELATEERD,
+                    newZaaktypeUuid = newZaaktypeUuid,
+                    allowedDeelzaaktypes = emptySet()
+                )
+
+                then("the closed zaak blocks the link") {
+                    reason shouldBe ZaakNotLinkableReason.AFGEHANDELD
+                }
+            }
+        }
+
+        given("an open zaak that is itself a deelzaak") {
+            val zaakLinkData = createZaakLinkData(isDeelzaak = true)
+
+            `when`("a new zaak of a deelzaaktype of its zaaktype is linked as deelzaak") {
+                val reason = zaakLinkData.newZaakNotLinkableReason(
+                    relatieType = RelatieType.DEELZAAK,
+                    newZaaktypeUuid = newZaaktypeUuid,
+                    allowedDeelzaaktypes = setOf(newZaaktypeUuid)
+                )
+
+                then("a deelzaak cannot have deelzaken") {
+                    reason shouldBe ZaakNotLinkableReason.IS_DEELZAAK
+                }
+            }
+
+            `when`("a new zaak is linked as gerelateerde zaak") {
+                val reason = zaakLinkData.newZaakNotLinkableReason(
+                    relatieType = RelatieType.GERELATEERD,
+                    newZaaktypeUuid = newZaaktypeUuid,
+                    allowedDeelzaaktypes = emptySet()
+                )
+
+                then("nothing blocks the link") {
+                    reason shouldBe null
+                }
+            }
+        }
+    }
+
+    context("canLinkNewZaakAs") {
+        given("the relatie types") {
+            `when`("each relatie type is checked") {
+                val linkableRelatieTypes = RelatieType.entries.filter(::canLinkNewZaakAs)
+
+                then("only a gerelateerde zaak and a deelzaak can be linked to a new zaak") {
+                    linkableRelatieTypes shouldBe listOf(RelatieType.DEELZAAK, RelatieType.GERELATEERD)
+                }
+            }
+        }
+    }
+
+    context("getDeelzaaktypenSet") {
+        given("a zaaktype with two deelzaaktypen") {
+            val deelzaaktypeUuid1 = UUID.randomUUID()
+            val deelzaaktypeUuid2 = UUID.randomUUID()
+            val zaakType = createZaakType().apply {
+                deelzaaktypen = listOf(
+                    URI("https://example.com/zaaktypen/$deelzaaktypeUuid1"),
+                    URI("https://example.com/zaaktypen/$deelzaaktypeUuid2")
+                )
+            }
+
+            `when`("the deelzaaktypen are read") {
+                val deelzaaktypen = zaakType.getDeelzaaktypenSet()
+
+                then("the UUIDs of both deelzaaktypen are returned") {
+                    deelzaaktypen shouldBe setOf(deelzaaktypeUuid1, deelzaaktypeUuid2)
                 }
             }
         }

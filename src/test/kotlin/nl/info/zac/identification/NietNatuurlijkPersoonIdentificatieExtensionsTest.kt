@@ -14,7 +14,6 @@ import io.mockk.verify
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.model.createResultaatItem
 import nl.info.client.zgw.model.createNietNatuurlijkPersoonIdentificatie
-import nl.info.zac.app.klant.model.klant.IdentificatieType
 
 class NietNatuurlijkPersoonIdentificatieExtensionsTest : BehaviorSpec({
     val kvkClientService = mockk<KvkClientService>()

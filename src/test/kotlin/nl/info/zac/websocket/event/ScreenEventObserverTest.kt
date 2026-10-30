@@ -32,7 +32,7 @@ class ScreenEventObserverTest : BehaviorSpec({
                 opcode = Opcode.UPDATED,
                 screenEventType = ScreenEventType.ZAAK,
                 screenEventId = createScreenEventId(resource = "fakeResource", detail = "fakeDetail")
-            ).apply { actorUserId = "fakeUserId" }
+            ).apply { actorUsername = "fakeUsername" }
             val session = mockk<Session>()
             val asyncRemoteEndpoint = mockk<RemoteEndpoint.Async>()
             val jsonSlot = slot<String>()
@@ -52,7 +52,7 @@ class ScreenEventObserverTest : BehaviorSpec({
                             "opcode": "UPDATED",
                             "objectType": "ZAAK",
                             "objectId": { "resource": "fakeResource", "detail": "fakeDetail" },
-                            "actorUserId": "fakeUserId"
+                            "actorUsername": "fakeUsername"
                         }
                         """.trimIndent()
                     )

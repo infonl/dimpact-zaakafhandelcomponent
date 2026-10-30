@@ -6,6 +6,7 @@
 import { KeyValuePipe, NgClass } from "@angular/common";
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   effect,
   EventEmitter,
@@ -68,6 +69,7 @@ const ZOEK_MISLUKT = Symbol("zoek mislukt");
   templateUrl: "./zoek.component.html",
   styleUrls: ["./zoek.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     BagZoekComponent,
     BedrijfZoekComponent,

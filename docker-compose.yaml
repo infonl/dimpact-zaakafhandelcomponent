@@ -20,7 +20,7 @@ services:
       - zac-keycloak-database-data:/var/lib/postgresql/data
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.7.5@sha256:37dbaf6f0722c9ec246335f36e1ef8b2e6cb960f7c27e0d8c615121a3d475a85
+    image: quay.io/keycloak/keycloak:26.8.1@sha256:a78d6b79572168cb25886b80a8b5b8d4ed4390743e3eecb810538683e209dd6b
     depends_on:
       keycloak-database:
         condition: service_healthy
@@ -106,7 +106,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   openzaak-app.local:
-    image: openzaak/open-zaak:1.31.0@sha256:d25566131129d5013ea936a2b25ea40e567fd3aa38120335aa552ba54e76300c
+    image: openzaak/open-zaak:1.31.1@sha256:63448221142145b0f56eabadaa9ef9578dd4aacc7f95476bd5368f767883ada0
     platform: linux/amd64
     environment: &openzaak-env
       - ALLOWED_HOSTS="*"
@@ -156,7 +156,7 @@ services:
   # Open Zaak Celery worker
   # Used for sending notifications from Open Zaak to Open Notificaties
   openzaak-celery:
-    image: openzaak/open-zaak:1.31.0@sha256:d25566131129d5013ea936a2b25ea40e567fd3aa38120335aa552ba54e76300c
+    image: openzaak/open-zaak:1.31.1@sha256:63448221142145b0f56eabadaa9ef9578dd4aacc7f95476bd5368f767883ada0
     platform: linux/amd64
     environment: *openzaak-env
     command: /celery_worker.sh
@@ -196,7 +196,7 @@ services:
         condition: service_healthy
 
   redis:
-    image: redis:8.6.7@sha256:a323342084bc0350cc66feb7f6e11282c8d853b5e7e729de3b0e81ed88381196
+    image: redis:8.6.8@sha256:4992e2fd2d992eaa85764b1c9565e15aeadd8f2296cb67f9d04f2fb8da0247ff
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -300,7 +300,7 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.21.3-static@sha256:bf27411c17e72f3d16063725a74c69f711fb267eb9a4cebdae78028b72adc847
+    image: openpolicyagent/opa:1.22.0-static@sha256:906bfc9904b2693733e7959d71773dd073e6c135cf06f26d955abe94603e82b3
     command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
@@ -403,7 +403,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.21.3@sha256:22a9db16423b94d2acbd4a94da3bebeb79583ed6a52ac15cad459d3de2dbbc4d
+    image: openpolicyagent/opa:1.22.0@sha256:895872de1e8dc5b82e04f9410d2d1ada2f72d28fdcdba0e8789d91cfc27ec0d0
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -413,7 +413,7 @@ services:
 
   office-converter:
     # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
-    image: gotenberg/gotenberg:8.38.1@sha256:aa552cc115db488e0f0bcb07446aac13071ad51505b642c84bb894500907b42b
+    image: gotenberg/gotenberg:8.39.0@sha256:13672f317b443c793e972b1bd2155ec62a3e7b6891b411e8196442cc053ee5f5
     # Disable Chromium routes since we only use LibreOffice for document conversion.
     command:
       - "gotenberg"
@@ -427,7 +427,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.163.2@sha256:7f22d2a6748110ffb6a59bc0df448bccbf501cdb667d610ede4c61d3863d5849
+    image: otel/opentelemetry-collector-contrib:0.164.0@sha256:340c9ca6a36617084c6661bdc4f0fe92b7cda5a805d61673ec8db375fddc522b
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -470,7 +470,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: grafana/grafana:13.2.4@sha256:dbbc38ea21103cefb50396340cd88afec779c7e070b0a7bf5a75b4ce46651d3f
+    image: grafana/grafana:13.3.0@sha256:488984b716c0862639f91a698adbe2862677a5a07bad42da5f03f3030883b205
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - grafana-data:/var/lib/grafana
@@ -492,7 +492,7 @@ services:
     profiles: [ "metrics" ]
 
   greenmail:
-    image: greenmail/standalone:2.1.14@sha256:1ef95a966418cd09b7ea91d504d8c0826bbe7a2f6e679a75c601a831587c1626
+    image: greenmail/standalone:2.1.15@sha256:309ba544ea482e5d4265d09921cdab07c8dad2cc4481d715c9b8ff5d3f0a149f
     environment:
       GREENMAIL_OPTS: >-
         -Dgreenmail.smtp.hostname=0.0.0.0
@@ -936,7 +936,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-init:
-    image: openformulieren/open-forms:3.5.12@sha256:cf60230e4da0df2a6dd12e556759d01302143f2d028917f83698634203350ab4
+    image: openformulieren/open-forms:4.0.7@sha256:12c975259f37eb91973a722d1f4e3f0ccf09aa037c08ecbd200350efd4ed493a
     # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
@@ -1025,7 +1025,10 @@ services:
                 for f in json_files:
                     zf.write(f, os.path.basename(f))
             with open('/tmp/forms.zip', 'rb') as zip_file:
-                import_form(zip_file)
+                imported_form = import_form(zip_file)
+            # import_form does not assign the logic rules to the form steps, which is
+            # needed before the rules are evaluated
+            imported_form.apply_logic_analysis()
             print('Productaanvraag-Dimpact form imported successfully')
         form = Form.objects.get(slug=FORM_SLUG)
         if not form.active:
@@ -1050,10 +1053,12 @@ services:
         condition: service_started
       open-object-import:
         condition: service_completed_successfully
+      openzaak.local:
+        condition: service_healthy
     profiles: [ "openformulieren" ]
 
   openformulieren-web:
-    image: openformulieren/open-forms:3.5.12@sha256:cf60230e4da0df2a6dd12e556759d01302143f2d028917f83698634203350ab4
+    image: openformulieren/open-forms:4.0.7@sha256:12c975259f37eb91973a722d1f4e3f0ccf09aa037c08ecbd200350efd4ed493a
     # For now, we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
@@ -1080,8 +1085,8 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-celery:
-    image: openformulieren/open-forms:3.5.12@sha256:cf60230e4da0df2a6dd12e556759d01302143f2d028917f83698634203350ab4
-    # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
+    image: openformulieren/open-forms:4.0.7@sha256:12c975259f37eb91973a722d1f4e3f0ccf09aa037c08ecbd200350efd4ed493a
+    # For now, we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
     # This seems to have to do with missing static content (such as JS translation bundles) in the ARM image.
@@ -1108,8 +1113,8 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-celery-beat:
-    image: openformulieren/open-forms:3.5.12@sha256:cf60230e4da0df2a6dd12e556759d01302143f2d028917f83698634203350ab4
-    # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
+    image: openformulieren/open-forms:4.0.7@sha256:12c975259f37eb91973a722d1f4e3f0ccf09aa037c08ecbd200350efd4ed493a
+    # For now, we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
     # This seems to have to do with missing static content (such as JS translation bundles) in the ARM image.
@@ -1140,6 +1145,45 @@ services:
         condition: service_healthy
     profiles: [ "openformulieren" ]
 
+  vng-selectielijst-database:
+    image: postgres:17.11@sha256:d74eeac9a635390a49bc21bd49fccd973de707e2a53a76ac49b552b8712ec46f
+    ports:
+      - "54331:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+    environment:
+      - POSTGRES_USER=selectielijst
+      - POSTGRES_PASSWORD=selectielijst
+      - POSTGRES_DB=selectielijst
+    volumes:
+      - vng-selectielijst-database-data:/var/lib/postgresql/data
+    profiles: [ "vngselectielijst" ]
+
+  vng-selectielijst-web:
+    image: openzaak/vng-selectielijst:1.0.5@sha256:4a9579df9a5cd0308e295c404975bcde63f27bc4a6c65cbaa8e63cd4ef1458e5
+    platform: linux/amd64
+    environment:
+      - DJANGO_SETTINGS_MODULE=selectielijst.conf.docker
+      - SECRET_KEY=vngSelectielijstSecretKey
+      - DB_NAME=selectielijst
+      - DB_USER=selectielijst
+      - DB_PASSWORD=selectielijst
+      - DB_HOST=vng-selectielijst-database
+      # Only allow all hosts for development/testing purposes!
+      - ALLOWED_HOSTS=*
+      - IS_HTTPS=no
+      # The image's start script loads every JSON fixture in this directory on startup, after the database migrations.
+      - FIXTURES_DIR=/app/src/fixtures
+    ports:
+      - "8011:8000"
+    depends_on:
+      vng-selectielijst-database:
+        condition: service_healthy
+    profiles: [ "vngselectielijst" ]
+
 volumes:
   openformulieren-static:
   openformulieren-media:
@@ -1155,3 +1199,4 @@ volumes:
   openformulieren-database-data:
   solr-data:
   grafana-data:
+  vng-selectielijst-database-data:

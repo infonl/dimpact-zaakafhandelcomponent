@@ -82,3 +82,7 @@ services:
   pabc-api:
     image: ghcr.io/infonl/pabc-api:2.1.0@sha256:34662191126bc2e90838287114de558b4a249485d4a212fae51e06bdff69b288
     platform: linux/arm64
+
+  vng-selectielijst-web:
+    image: ghcr.io/infonl/vng-selectielijst:1.0.5@sha256:43055432655dba39b3852f7ea22aea7298bdb57f4591afbd792e53836a449dfd
+    platform: linux/arm64

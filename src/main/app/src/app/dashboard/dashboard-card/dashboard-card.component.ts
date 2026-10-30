@@ -5,6 +5,7 @@
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   inject,
   input,
@@ -17,8 +18,6 @@ import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Observable, Subject, Subscription } from "rxjs";
-import { ObjectType } from "../../core/websocket/model/object-type";
-import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -28,6 +27,7 @@ import { DashboardCard } from "../model/dashboard-card";
 @Component({
   template: "",
   styleUrls: ["./dashboard-card.component.less"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export abstract class DashboardCardComponent<
@@ -37,8 +37,8 @@ export abstract class DashboardCardComponent<
   >
   implements OnInit, AfterViewInit, OnDestroy
 {
-  protected identityService = inject(IdentityService);
-  protected websocketService = inject(WebsocketService);
+  protected readonly identityService = inject(IdentityService);
+  protected readonly websocketService = inject(WebsocketService);
 
   readonly data = input.required<DashboardCard>();
 
@@ -90,11 +90,11 @@ export abstract class DashboardCardComponent<
     const reload$ = new Subject<void>();
     this.queryClient
       .ensureQueryData(this.identityService.readLoggedInUser())
-      .then(({ id }) => {
+      .then(({ username }) => {
         this.websocketService.addListener(
-          Opcode.UPDATED,
-          ObjectType.SIGNALERINGEN,
-          id,
+          "UPDATED",
+          "SIGNALERINGEN",
+          username,
           (event: ScreenEvent) => {
             if (event.objectId.detail === signaleringType) {
               reload$.next();

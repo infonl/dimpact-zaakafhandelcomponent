@@ -12,7 +12,7 @@ class PeriodUtilTest : BehaviorSpec({
 
     given("a zero period") {
         `when`("formatting it") {
-            val result = PeriodUtil.format(Period.ZERO)
+            val result = Period.ZERO.format()
 
             then("it should return '0 dagen'") {
                 result shouldBe "0 dagen"
@@ -24,7 +24,7 @@ class PeriodUtilTest : BehaviorSpec({
         val period = Period.of(1, 1, 1)
 
         `when`("formatting it") {
-            val result = PeriodUtil.format(period)
+            val result = period.format()
 
             then("it should use the singular forms joined by comma") {
                 result shouldBe "1 jaar, 1 maand, 1 dag"
@@ -36,7 +36,7 @@ class PeriodUtilTest : BehaviorSpec({
         val period = Period.of(2, 2, 2)
 
         `when`("formatting it") {
-            val result = PeriodUtil.format(period)
+            val result = period.format()
 
             then("it should use the plural forms joined by comma") {
                 result shouldBe "2 jaren, 2 maanden, 2 dagen"
@@ -48,7 +48,7 @@ class PeriodUtilTest : BehaviorSpec({
         val period = Period.ofDays(5)
 
         `when`("formatting it") {
-            val result = PeriodUtil.format(period)
+            val result = period.format()
 
             then("it should only contain the days part") {
                 result shouldBe "5 dagen"
@@ -56,7 +56,7 @@ class PeriodUtilTest : BehaviorSpec({
         }
 
         `when`("calculating the number of days from today") {
-            val result = PeriodUtil.numberOfDaysFromToday(period)
+            val result = period.numberOfDaysFromToday()
 
             then("it should return five") {
                 result shouldBe 5

@@ -10,6 +10,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.mockk.CapturingSlot
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearMocks
@@ -21,7 +22,6 @@ import io.mockk.slot
 import io.mockk.verify
 import io.mockk.verifyOrder
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.or.`object`.model.createORObject
 import nl.info.client.zgw.drc.DrcClientService
@@ -60,6 +60,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ResultaattypeReferenceService
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.ZaaktypeConfigurationService.Companion.INADMISSIBLE_TERMINATION_ID
@@ -71,7 +72,6 @@ import nl.info.zac.admin.model.createZaakAfzender
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeConfigurationsUnderTest
-import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
@@ -80,12 +80,10 @@ import nl.info.zac.app.zaak.exception.BetrokkeneCannotBeDeletedException
 import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowedException
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
 import nl.info.zac.app.zaak.exception.DueDateNotAllowed
-import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
-import nl.info.zac.app.zaak.exception.ZaaktypeNotZaakspecifiekAutoriseerbaarException
-import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.CreateZaakResponse
 import nl.info.zac.app.zaak.model.RestReden
 import nl.info.zac.app.zaak.model.RestZaakAanmaakGegevens
+import nl.info.zac.app.zaak.model.RestZaakAanmaakKoppeling
 import nl.info.zac.app.zaak.model.RestZaakAfbrekenGegevens
 import nl.info.zac.app.zaak.model.RestZaakAfsluitenGegevens
 import nl.info.zac.app.zaak.model.RestZaakEditMetRedenGegevens
@@ -116,9 +114,12 @@ import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.ProcessStartData
 import nl.info.zac.flowable.ZaakProcessService
+import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
 import nl.info.zac.history.ZaakHistoryService
+import nl.info.zac.identification.BetrokkeneIdentificatie
+import nl.info.zac.identification.IdentificatieType
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.identity.model.createGroup
@@ -138,9 +139,13 @@ import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.websocket.event.ScreenEvent
+import nl.info.zac.zaak.ZaakKoppelenService
 import nl.info.zac.zaak.ZaakService
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
+import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
+import nl.info.zac.zaak.exception.ZaaktypeNotZaakspecifiekAutoriseerbaarException
+import nl.info.zac.zaak.model.RelatieType
 import nl.info.zac.zaak.model.ZaakAssignment
 import nl.info.zac.zaak.model.createZaakAssignment
 import org.apache.http.HttpStatus
@@ -182,6 +187,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     val zaakHistoryService = mockk<ZaakHistoryService>()
     val identificationService = mockk<IdentificationService>()
     val zaakspecifiekeAutorisatieService = mockk<ZaakspecifiekeAutorisatieService>()
+    val zaakKoppelenService = mockk<ZaakKoppelenService>()
     val zaakRestService = ZaakRestService(
         bpmnService = bpmnService,
         configurationService = configurationService,
@@ -210,7 +216,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService,
         identificationService = identificationService,
-        zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService
+        zaakspecifiekeAutorisatieService = zaakspecifiekeAutorisatieService,
+        zaakKoppelenService = zaakKoppelenService
     )
 
     afterEach {
@@ -490,12 +497,12 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { zgwApiService.createZaak(capture(zaakCreatedSlot)) } returns zaak
                 val zaakAssignment = ZaakAssignment(
                     group = group,
-                    user = createUser(id = restZaakAanmaakGegevens.zaak.behandelaar!!.id)
+                    user = createUser(username = restZaakAanmaakGegevens.zaak.behandelaar!!.username)
                 )
                 every {
                     zaakService.readZaakAssignment(
                         groupId = restZaakAanmaakGegevens.zaak.groep!!.id,
-                        userName = restZaakAanmaakGegevens.zaak.behandelaar!!.id
+                        userName = restZaakAanmaakGegevens.zaak.behandelaar!!.username
                     )
                 } returns zaakAssignment
                 every { zrcClientService.createZaakobject(any<ZaakobjectPandRequest>()) } returns zaakObjectPand
@@ -551,7 +558,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         verifyOrder {
                             zaakService.readZaakAssignment(
                                 groupId = restZaakAanmaakGegevens.zaak.groep!!.id,
-                                userName = restZaakAanmaakGegevens.zaak.behandelaar!!.id
+                                userName = restZaakAanmaakGegevens.zaak.behandelaar!!.username
                             )
                             zgwApiService.createZaak(any())
                             zaakService.assignZaak(zaak = zaak, zaakAssignment = zaakAssignment, reason = "Aanmaken zaak")
@@ -593,7 +600,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
                 val zaakData = ProcessStartData(
                     groupId = restZaak.groep!!.id,
-                    behandelaarId = restZaak.behandelaar!!.id,
+                    behandelaarId = restZaak.behandelaar!!.username,
                     communicatiekanaal = restZaak.communicatiekanaal!!
                 )
                 val zaakObjectPand = createZaakobjectPand()
@@ -640,12 +647,12 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { zgwApiService.createZaak(capture(zaakCreatedSlot)) } returns zaak
                 val zaakAssignment = ZaakAssignment(
                     group = group,
-                    user = createUser(id = restZaakAanmaakGegevens.zaak.behandelaar!!.id)
+                    user = createUser(username = restZaakAanmaakGegevens.zaak.behandelaar!!.username)
                 )
                 every {
                     zaakService.readZaakAssignment(
                         groupId = restZaakAanmaakGegevens.zaak.groep!!.id,
-                        userName = restZaakAanmaakGegevens.zaak.behandelaar!!.id
+                        userName = restZaakAanmaakGegevens.zaak.behandelaar!!.username
                     )
                 } returns zaakAssignment
                 every { zrcClientService.createZaakobject(any<ZaakobjectPandRequest>()) } returns zaakObjectPand
@@ -701,7 +708,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         verifyOrder {
                             zaakService.readZaakAssignment(
                                 groupId = restZaakAanmaakGegevens.zaak.groep!!.id,
-                                userName = restZaakAanmaakGegevens.zaak.behandelaar!!.id
+                                userName = restZaakAanmaakGegevens.zaak.behandelaar!!.username
                             )
                             zgwApiService.createZaak(any())
                             zaakService.assignZaak(zaak = zaak, zaakAssignment = zaakAssignment, reason = "Aanmaken zaak")
@@ -793,7 +800,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 val restZaakCreateData = createRestZaakCreateData(
                     restZaakType = RestZaaktype(uuid = zaakTypeUUID),
                     restGroup = createRestGroup(id = "fakeGroupId"),
-                    behandelaar = createRestUser(id = "fakeBehandelaarId")
+                    behandelaar = createRestUser(username = "fakeBehandelaarId")
                 )
                 val restZaakAanmaakGegevens = RestZaakAanmaakGegevens(zaak = restZaakCreateData)
 
@@ -848,6 +855,201 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                     then("An error should be thrown") {
                         exception.errorCode shouldBe ErrorCode.ERROR_CODE_CASE_BETROKKENE_NOT_ALLOWED
+                    }
+                }
+            }
+        }
+
+        fun createLinkedZaakAanmaakGegevens(newZaaktypeUuid: UUID, koppeling: RestZaakAanmaakKoppeling?) =
+            RestZaakAanmaakGegevens(
+                zaak = createRestZaakCreateData(restZaakType = RestZaaktype(uuid = newZaaktypeUuid)).apply {
+                    behandelaar = null
+                    groep = null
+                    initiatorIdentificatie = null
+                },
+                koppeling = koppeling
+            )
+
+        fun stubChecksOfNewZaak(newZaaktypeUuid: UUID, newZaakType: ZaakType) {
+            every { zaakService.readZaakTypeByUUID(newZaaktypeUuid) } returns newZaakType
+            every {
+                zaaktypeConfigurationService.findConfiguration(newZaaktypeUuid)
+            } returns createZaaktypeCmmnConfiguration()
+            every {
+                policyService.readOverigeRechten(newZaakType.omschrijving)
+            } returns createOverigeRechtenAllDeny(startenZaak = true)
+        }
+
+        fun stubCreationOfNewZaak(newZaak: Zaak, newZaakType: ZaakType, createdZaakSlot: CapturingSlot<Zaak>) {
+            every { configurationService.readBronOrganisatie() } returns "fakeBronOrganisatie"
+            every { configurationService.readVerantwoordelijkeOrganisatie() } returns "fakeVerantwoordelijkeOrganisatie"
+            every { zgwApiService.createZaak(capture(createdZaakSlot)) } returns newZaak
+            every {
+                zaakProcessService.start(
+                    zaaktypeConfiguration = any(),
+                    zaak = newZaak,
+                    zaaktype = newZaakType,
+                    processStartData = any()
+                )
+            } just runs
+        }
+
+        context("Creating a zaak linked to another zaak") {
+            given("a zaak that the new zaak may be linked to") {
+                val newZaaktypeUuid = UUID.randomUUID()
+                val newZaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$newZaaktypeUuid"))
+                val newZaak = createZaak(zaaktypeUri = newZaakType.url)
+                val zaakToLinkTo = createZaak()
+                val createdZaakSlot = slot<Zaak>()
+                val linkedZaakSlot = slot<Zaak>()
+                stubChecksOfNewZaak(newZaaktypeUuid, newZaakType)
+                stubCreationOfNewZaak(newZaak, newZaakType, createdZaakSlot)
+                every {
+                    zaakKoppelenService.readZaakToLinkNewZaakTo(
+                        zaakUuid = zaakToLinkTo.uuid,
+                        relatieType = RelatieType.GERELATEERD,
+                        newZaaktypeUuid = newZaaktypeUuid
+                    )
+                } returns zaakToLinkTo
+                every {
+                    zaakKoppelenService.addLinkToNewZaak(capture(linkedZaakSlot), zaakToLinkTo, RelatieType.GERELATEERD)
+                } just runs
+                every {
+                    zaakKoppelenService.completeLinkOfNewZaak(zaakToLinkTo, RelatieType.GERELATEERD)
+                } just runs
+
+                `when`("a zaak is created linked to that zaak as gerelateerde zaak") {
+                    val createZaakResponse = zaakRestService.createZaak(
+                        createLinkedZaakAanmaakGegevens(
+                            newZaaktypeUuid = newZaaktypeUuid,
+                            koppeling = RestZaakAanmaakKoppeling(
+                                zaakUuid = zaakToLinkTo.uuid,
+                                relatieType = RelatieType.GERELATEERD
+                            )
+                        )
+                    )
+
+                    then("the new zaak is created with the link to that zaak") {
+                        createZaakResponse shouldBe CreateZaakResponse(newZaak.identificatie)
+                        linkedZaakSlot.captured shouldBe createdZaakSlot.captured
+                    }
+
+                    and(
+                        "the zaak to link to is read before the new zaak is created, " +
+                            "and the link is completed after it is created"
+                    ) {
+                        verifyOrder {
+                            zaakKoppelenService.readZaakToLinkNewZaakTo(
+                                zaakUuid = zaakToLinkTo.uuid,
+                                relatieType = RelatieType.GERELATEERD,
+                                newZaaktypeUuid = newZaaktypeUuid
+                            )
+                            zaakKoppelenService.addLinkToNewZaak(any(), zaakToLinkTo, RelatieType.GERELATEERD)
+                            zgwApiService.createZaak(any())
+                            zaakKoppelenService.completeLinkOfNewZaak(zaakToLinkTo, RelatieType.GERELATEERD)
+                        }
+                    }
+                }
+            }
+        }
+
+        context("Creating a zaak linked to a zaak that it may not be linked to") {
+            given("a zaak that the new zaak may not be linked to") {
+                val newZaaktypeUuid = UUID.randomUUID()
+                val newZaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$newZaaktypeUuid"))
+                val zaakToLinkToUuid = UUID.randomUUID()
+                stubChecksOfNewZaak(newZaaktypeUuid, newZaakType)
+                every {
+                    zaakKoppelenService.readZaakToLinkNewZaakTo(
+                        zaakUuid = zaakToLinkToUuid,
+                        relatieType = RelatieType.DEELZAAK,
+                        newZaaktypeUuid = newZaaktypeUuid
+                    )
+                } throws PolicyException()
+
+                `when`("a zaak is created linked to that zaak as deelzaak") {
+                    val policyException = shouldThrow<PolicyException> {
+                        zaakRestService.createZaak(
+                            createLinkedZaakAanmaakGegevens(
+                                newZaaktypeUuid = newZaaktypeUuid,
+                                koppeling = RestZaakAanmaakKoppeling(
+                                    zaakUuid = zaakToLinkToUuid,
+                                    relatieType = RelatieType.DEELZAAK
+                                )
+                            )
+                        )
+                    }
+
+                    then("the request is refused and no zaak is created") {
+                        policyException shouldNotBe null
+                        verify(exactly = 0) { zgwApiService.createZaak(any()) }
+                    }
+                }
+            }
+        }
+
+        context("Creating a zaak as deelzaak of a zaak whose hoofdzaak update fails") {
+            given("a zaak that the new zaak may be linked to, but which cannot be reindexed") {
+                val newZaaktypeUuid = UUID.randomUUID()
+                val newZaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$newZaaktypeUuid"))
+                val newZaak = createZaak(zaaktypeUri = newZaakType.url)
+                val zaakToLinkTo = createZaak()
+                stubChecksOfNewZaak(newZaaktypeUuid, newZaakType)
+                stubCreationOfNewZaak(newZaak, newZaakType, slot())
+                every {
+                    zaakKoppelenService.readZaakToLinkNewZaakTo(zaakToLinkTo.uuid, RelatieType.DEELZAAK, newZaaktypeUuid)
+                } returns zaakToLinkTo
+                every { zaakKoppelenService.addLinkToNewZaak(any(), zaakToLinkTo, RelatieType.DEELZAAK) } just runs
+                every {
+                    zaakKoppelenService.completeLinkOfNewZaak(zaakToLinkTo, RelatieType.DEELZAAK)
+                } throws RuntimeException("fakeIndexError")
+
+                `when`("a zaak is created linked to that zaak as deelzaak") {
+                    val runtimeException = shouldThrow<RuntimeException> {
+                        zaakRestService.createZaak(
+                            createLinkedZaakAanmaakGegevens(
+                                newZaaktypeUuid = newZaaktypeUuid,
+                                koppeling = RestZaakAanmaakKoppeling(
+                                    zaakUuid = zaakToLinkTo.uuid,
+                                    relatieType = RelatieType.DEELZAAK
+                                )
+                            )
+                        )
+                    }
+
+                    then("the new zaak exists, and the error is returned") {
+                        runtimeException.message shouldBe "fakeIndexError"
+                        verify(exactly = 1) { zgwApiService.createZaak(any()) }
+                    }
+                }
+            }
+        }
+
+        context("Creating a zaak without a zaak to link to") {
+            given("a request without koppeling") {
+                val newZaaktypeUuid = UUID.randomUUID()
+                val newZaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$newZaaktypeUuid"))
+                val newZaak = createZaak(zaaktypeUri = newZaakType.url)
+                val createdZaakSlot = slot<Zaak>()
+                stubChecksOfNewZaak(newZaaktypeUuid, newZaakType)
+                stubCreationOfNewZaak(newZaak, newZaakType, createdZaakSlot)
+
+                `when`("the zaak is created") {
+                    zaakRestService.createZaak(
+                        createLinkedZaakAanmaakGegevens(newZaaktypeUuid = newZaaktypeUuid, koppeling = null)
+                    )
+
+                    then("the zaak is created without hoofdzaak and without gerelateerde zaken") {
+                        createdZaakSlot.captured.hoofdzaak shouldBe null
+                        createdZaakSlot.captured.gerelateerdeZaken.isNullOrEmpty() shouldBe true
+                    }
+
+                    and("no other zaak is linked or updated") {
+                        verify(exactly = 0) {
+                            zaakKoppelenService.readZaakToLinkNewZaakTo(any(), any(), any())
+                            zaakKoppelenService.addLinkToNewZaak(any(), any(), any())
+                            zaakKoppelenService.completeLinkOfNewZaak(any(), any())
+                        }
                     }
                 }
             }
@@ -1143,7 +1345,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 val loggedInUser = createLoggedInUser()
                 val restZaakOverzicht = createRESTZaakOverzicht().apply {
                     rechten = createRestZaakRechten()
-                    behandelaar = createRestUser(id = loggedInUser.id)
+                    behandelaar = createRestUser(username = loggedInUser.username)
                 }
                 every { loggedInUserInstance.get() } returns loggedInUser
                 every { zaaktypeConfigurationService.listDeadlineWarningWindows() } returns listOf(
@@ -1188,7 +1390,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val loggedInUser = createLoggedInUser()
             val restZaakOverzicht = createRESTZaakOverzicht().apply {
                 rechten = createRestZaakRechten()
-                behandelaar = createRestUser(id = loggedInUser.id)
+                behandelaar = createRestUser(username = loggedInUser.username)
             }
             every { loggedInUserInstance.get() } returns loggedInUser
             every { zaaktypeConfigurationService.listDeadlineWarningWindows() } returns listOf(
@@ -1230,7 +1432,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val loggedInUser = createLoggedInUser()
             val restZaakOverzicht = createRESTZaakOverzicht().apply {
                 rechten = createRestZaakRechten()
-                behandelaar = createRestUser(id = loggedInUser.id)
+                behandelaar = createRestUser(username = loggedInUser.username)
             }
             every { loggedInUserInstance.get() } returns loggedInUser
             every { zaaktypeConfigurationService.listDeadlineWarningWindows() } returns listOf(
@@ -1252,7 +1454,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 restZaakOverzichtConverter.convertToRestZaakOverzicht(reassignedZaak, loggedInUser)
             } returns createRESTZaakOverzicht().apply {
                 rechten = createRestZaakRechten()
-                behandelaar = createRestUser(id = "fakeOtherBehandelaarId")
+                behandelaar = createRestUser(username = "fakeOtherBehandelaarId")
             }
 
             `when`("the zaak warnings are listed") {
@@ -1899,6 +2101,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zgwApiService.closeZaak(zaak, nietOntvankelijkResultaattypeUuid, "Zaak is niet ontvankelijk")
             } just runs
             every { zaakProcessService.terminate(any(), zaak.uuid) } returns Unit
+            every { indexingService.addOrUpdateTakenForZaak(zaak.uuid) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
             every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser) } returns createRestZaak()
 
@@ -1916,6 +2119,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                             "Zaak is niet ontvankelijk"
                         )
                         zaakProcessService.terminate(any(), zaak.uuid)
+                    }
+                }
+
+                then("its ended taken are removed from the search index after its process is terminated") {
+                    verifyOrder {
+                        zaakProcessService.terminate(any(), zaak.uuid)
+                        indexingService.addOrUpdateTakenForZaak(zaak.uuid)
                     }
                 }
             }
@@ -1999,6 +2209,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zgwApiService.closeZaak(zaak, nietOntvankelijkResultaattypeUuid, "Zaak is niet ontvankelijk")
             } just runs
             every { zaakProcessService.terminate(any(), zaak.uuid) } returns Unit
+            every { indexingService.addOrUpdateTakenForZaak(zaak.uuid) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
             every {
                 restZaakConverter.toRestZaak(
@@ -2089,6 +2300,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 } returns createResultaatType(url = URI("https://example.com/resultaattypen/$resultTypeUUID"))
                 every { zgwApiService.closeZaak(zaak, resultTypeUUID, "-2 name") } just runs
                 every { zaakProcessService.terminate(any(), zaak.uuid) } returns Unit
+                every { indexingService.addOrUpdateTakenForZaak(zaak.uuid) } just runs
                 every { loggedInUserInstance.get() } returns loggedInUser
                 every {
                     restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
@@ -2198,6 +2410,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zgwApiService.closeZaak(zaak, nietOntvankelijkResultaattypeUuid, "Zaak is niet ontvankelijk")
             } just runs
             every { zaakProcessService.terminate(any(), zaak.uuid) } returns Unit
+            every { indexingService.addOrUpdateTakenForZaak(zaak.uuid) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
             every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser) } returns createRestZaak()
 
@@ -2215,6 +2428,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                             "Zaak is niet ontvankelijk"
                         )
                         zaakProcessService.terminate(any(), zaak.uuid)
+                    }
+                }
+
+                then("its ended taken are removed from the search index after its process is terminated") {
+                    verifyOrder {
+                        zaakProcessService.terminate(any(), zaak.uuid)
+                        indexingService.addOrUpdateTakenForZaak(zaak.uuid)
                     }
                 }
             }
@@ -2489,7 +2709,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaakService.readZaakAssignment(
                     groupId = restZaakCreateData.groep!!.id,
-                    userName = restZaakCreateData.behandelaar!!.id
+                    userName = restZaakCreateData.behandelaar!!.username
                 )
             } returns zaakAssignment
             every { zaakService.assignZaak(zaak, zaakAssignment, changeDescription) } just runs
@@ -2548,10 +2768,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
-            val loggedInUser = createLoggedInUser(id = "fakeNewBehandelaarId")
+            val loggedInUser = createLoggedInUser(username = "fakeNewBehandelaarId")
             val restGroup = createRestGroup(id = "fakeNewGroupId")
             val restZaakCreateData = createRestZaakCreateData(
-                behandelaar = createRestUser(id = "fakeNewBehandelaarId"),
+                behandelaar = createRestUser(username = "fakeNewBehandelaarId"),
                 restGroup = restGroup,
                 uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
                 isZaakspecifiekGeautoriseerd = true
@@ -2584,7 +2804,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             } returns true
             val zaakAssignment = createZaakAssignment(
                 group = createGroup(id = restGroup.id),
-                user = createUser(id = "fakeNewBehandelaarId")
+                user = createUser(username = "fakeNewBehandelaarId")
             )
             every {
                 zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
@@ -2631,10 +2851,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
-            val loggedInUser = createLoggedInUser(id = "fakeNewBehandelaarId")
+            val loggedInUser = createLoggedInUser(username = "fakeNewBehandelaarId")
             val restGroup = createRestGroup(id = "fakeNewGroupId")
             val restZaakCreateData = createRestZaakCreateData(
-                behandelaar = createRestUser(id = "fakeNewBehandelaarId"),
+                behandelaar = createRestUser(username = "fakeNewBehandelaarId"),
                 restGroup = restGroup,
                 uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
                 isZaakspecifiekGeautoriseerd = true
@@ -2667,7 +2887,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             } returns true
             val zaakAssignment = createZaakAssignment(
                 group = createGroup(id = restGroup.id),
-                user = createUser(id = "fakeNewBehandelaarId")
+                user = createUser(username = "fakeNewBehandelaarId")
             )
             every {
                 zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
@@ -2736,7 +2956,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
-            val loggedInUser = createLoggedInUser(id = "fakeCurrentBehandelaarId")
+            val loggedInUser = createLoggedInUser(username = "fakeCurrentBehandelaarId")
             val restGroup = createRestGroup(id = "fakeNewGroupId")
             val currentBehandelaarRol = createRolMedewerker(
                 medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeCurrentBehandelaarId")
@@ -2799,10 +3019,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
-            val loggedInUser = createLoggedInUser(id = "fakeCurrentBehandelaarId")
+            val loggedInUser = createLoggedInUser(username = "fakeCurrentBehandelaarId")
             val restGroup = createRestGroup(id = "fakeNewGroupId")
             val restZaakCreateData = createRestZaakCreateData(
-                behandelaar = createRestUser(id = "fakeNewBehandelaarId"),
+                behandelaar = createRestUser(username = "fakeNewBehandelaarId"),
                 restGroup = restGroup,
                 uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
                 isZaakspecifiekGeautoriseerd = true
@@ -2842,7 +3062,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak) } just runs
             val zaakAssignment = createZaakAssignment(
                 group = createGroup(id = restGroup.id),
-                user = createUser(id = "fakeNewBehandelaarId")
+                user = createUser(username = "fakeNewBehandelaarId")
             )
             every {
                 zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
@@ -2900,7 +3120,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
-            val loggedInUser = createLoggedInUser(id = "fakeLoggedInUserId")
+            val loggedInUser = createLoggedInUser(username = "fakeLoggedInUsername")
             val restGroup = createRestGroup(id = "fakeNewGroupId")
             val restZaakCreateData = createRestZaakCreateData(
                 behandelaar = null,
@@ -2932,7 +3152,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             )
             val zaakAssignment = createZaakAssignment(
                 group = createGroup(id = "fakeNewGroupId"),
-                user = createUser(id = "fakeExistingBehandelaarId")
+                user = createUser(username = "fakeExistingBehandelaarId")
             )
             every {
                 zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
@@ -2989,7 +3209,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
-            val loggedInUser = createLoggedInUser(id = "fakeLoggedInUserId")
+            val loggedInUser = createLoggedInUser(username = "fakeLoggedInUsername")
             val restGroup = createRestGroup(id = "fakeCurrentGroupId")
             val restZaakCreateData = createRestZaakCreateData(
                 behandelaar = null,
@@ -3080,10 +3300,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten(toekennen = false)
-            val loggedInUser = createLoggedInUser(id = "fakeOtherUserId")
+            val loggedInUser = createLoggedInUser(username = "fakeOtherUsername")
             val restGroup = createRestGroup(id = "fakeNewGroupId")
             val restZaakCreateData = createRestZaakCreateData(
-                behandelaar = createRestUser(id = "fakeOtherUserId"),
+                behandelaar = createRestUser(username = "fakeOtherUsername"),
                 restGroup = restGroup,
                 uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
                 isZaakspecifiekGeautoriseerd = true
@@ -3134,9 +3354,9 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
-            val loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+            val loggedInUser = createLoggedInUser(username = "fakeBehandelaarId")
             val restZaakCreateData = createRestZaakCreateData(
-                behandelaar = createRestUser(id = "fakeBehandelaarId"),
+                behandelaar = createRestUser(username = "fakeBehandelaarId"),
                 uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
                 isZaakspecifiekGeautoriseerd = true
             )
@@ -3203,10 +3423,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
-            val loggedInUser = createLoggedInUser(id = "fakeNewBehandelaarId")
+            val loggedInUser = createLoggedInUser(username = "fakeNewBehandelaarId")
             val restGroup = createRestGroup(id = "fakeNewGroupId")
             val restZaakCreateData = createRestZaakCreateData(
-                behandelaar = createRestUser(id = "fakeNewBehandelaarId"),
+                behandelaar = createRestUser(username = "fakeNewBehandelaarId"),
                 restGroup = restGroup,
                 uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
                 isZaakspecifiekGeautoriseerd = true
@@ -3215,7 +3435,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 RestZaakEditMetRedenGegevens(zaak = restZaakCreateData, reden = changeDescription)
             val zaakAssignment = createZaakAssignment(
                 group = createGroup(id = restGroup.id),
-                user = createUser(id = "fakeNewBehandelaarId")
+                user = createUser(username = "fakeNewBehandelaarId")
             )
 
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -3281,9 +3501,9 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
-            val loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+            val loggedInUser = createLoggedInUser(username = "fakeBehandelaarId")
             val restZaakCreateData = createRestZaakCreateData(
-                behandelaar = createRestUser(id = "fakeBehandelaarId"),
+                behandelaar = createRestUser(username = "fakeBehandelaarId"),
                 uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
                 isZaakspecifiekGeautoriseerd = true
             )
@@ -3341,10 +3561,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
-            val loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+            val loggedInUser = createLoggedInUser(username = "fakeBehandelaarId")
             val patchedZaak = createZaak()
             val restZaakCreateData = createRestZaakCreateData(
-                behandelaar = createRestUser(id = "fakeBehandelaarId"),
+                behandelaar = createRestUser(username = "fakeBehandelaarId"),
                 uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
                 isZaakspecifiekGeautoriseerd = true
             )
@@ -3407,10 +3627,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
-            val loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+            val loggedInUser = createLoggedInUser(username = "fakeBehandelaarId")
             val patchedZaak = createZaak()
             val restZaakCreateData = createRestZaakCreateData(
-                behandelaar = createRestUser(id = "fakeBehandelaarId"),
+                behandelaar = createRestUser(username = "fakeBehandelaarId"),
                 uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
                 isZaakspecifiekGeautoriseerd = false
             )
@@ -3472,10 +3692,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
-            val loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+            val loggedInUser = createLoggedInUser(username = "fakeBehandelaarId")
             val patchedZaak = createZaak()
             val restZaakCreateData = createRestZaakCreateData(
-                behandelaar = createRestUser(id = "fakeBehandelaarId"),
+                behandelaar = createRestUser(username = "fakeBehandelaarId"),
                 uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
                 isZaakspecifiekGeautoriseerd = false
             )
@@ -3554,10 +3774,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
-            val loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+            val loggedInUser = createLoggedInUser(username = "fakeBehandelaarId")
             val restGroup = createRestGroup(id = "fakeNewGroupId")
             val restZaakCreateData = createRestZaakCreateData(
-                behandelaar = createRestUser(id = "fakeOtherUserId"),
+                behandelaar = createRestUser(username = "fakeOtherUsername"),
                 restGroup = restGroup,
                 uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
                 isZaakspecifiekGeautoriseerd = false
@@ -3567,7 +3787,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val patchedZaak = createZaak()
             val zaakAssignment = createZaakAssignment(
                 group = createGroup(id = restGroup.id),
-                user = createUser(id = "fakeOtherUserId")
+                user = createUser(username = "fakeOtherUsername")
             )
 
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -3594,7 +3814,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     zaakType = zaakType,
                     requestedMarking = false,
                     isAlreadyZaakspecifiekGeautoriseerd = true,
-                    currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId", "fakeOtherUserId"),
+                    currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId", "fakeOtherUsername"),
                     loggedInUser = loggedInUser
                 )
             } returns false
@@ -3603,11 +3823,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                     zaak = zaak,
                     isZaakspecifiekGeautoriseerd = false,
                     currentBehandelaarId = "fakeBehandelaarId",
-                    requestedBehandelaarId = "fakeOtherUserId"
+                    requestedBehandelaarId = "fakeOtherUsername"
                 )
             } just runs
             every {
-                zaakService.readZaakAssignment(groupId = restGroup.id, userName = "fakeOtherUserId")
+                zaakService.readZaakAssignment(groupId = restGroup.id, userName = "fakeOtherUsername")
             } returns zaakAssignment
             every { zaakService.assignZaak(zaak, zaakAssignment, changeDescription) } just runs
             every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
@@ -3641,7 +3861,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             zaak = zaak,
                             isZaakspecifiekGeautoriseerd = false,
                             currentBehandelaarId = "fakeBehandelaarId",
-                            requestedBehandelaarId = "fakeOtherUserId"
+                            requestedBehandelaarId = "fakeOtherUsername"
                         )
                     }
                 }
@@ -3653,10 +3873,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
-            val loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+            val loggedInUser = createLoggedInUser(username = "fakeBehandelaarId")
             val restGroup = createRestGroup(id = "fakeNewGroupId")
             val restZaakCreateData = createRestZaakCreateData(
-                behandelaar = createRestUser(id = "fakeOtherUserId"),
+                behandelaar = createRestUser(username = "fakeOtherUsername"),
                 restGroup = restGroup,
                 uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening
             )
@@ -3692,24 +3912,24 @@ class ZaakRestServiceTest : BehaviorSpec({
                     zaakType = zaakType,
                     requestedMarking = null,
                     isAlreadyZaakspecifiekGeautoriseerd = true,
-                    currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId", "fakeOtherUserId"),
+                    currentAndRequestedBehandelaarIds = setOf("fakeBehandelaarId", "fakeOtherUsername"),
                     loggedInUser = loggedInUser
                 )
             } returns false
             val zaakAssignment = createZaakAssignment(
                 group = createGroup(id = restGroup.id),
-                user = createUser(id = "fakeOtherUserId")
+                user = createUser(username = "fakeOtherUsername")
             )
             every {
                 zaakspecifiekeAutorisatieService.assertBehandelaarCanBeHandedOver(
                     zaak = zaak,
                     isZaakspecifiekGeautoriseerd = true,
                     currentBehandelaarId = "fakeBehandelaarId",
-                    requestedBehandelaarId = "fakeOtherUserId"
+                    requestedBehandelaarId = "fakeOtherUsername"
                 )
             } just runs
             every {
-                zaakService.readZaakAssignment(groupId = restGroup.id, userName = "fakeOtherUserId")
+                zaakService.readZaakAssignment(groupId = restGroup.id, userName = "fakeOtherUsername")
             } returns zaakAssignment
             every { zaakService.assignZaak(zaak, zaakAssignment, changeDescription) } just runs
             every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
@@ -3745,9 +3965,9 @@ class ZaakRestServiceTest : BehaviorSpec({
             val changeDescription = "change description"
             val zaak = createZaak()
             val zaakType = createZaakType()
-            val loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+            val loggedInUser = createLoggedInUser(username = "fakeBehandelaarId")
             val restZaakCreateData = createRestZaakCreateData(
-                behandelaar = createRestUser(id = "fakeOtherUserId"),
+                behandelaar = createRestUser(username = "fakeOtherUsername"),
                 restGroup = createRestGroup(id = "fakeNewGroupId"),
                 uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening
             )
@@ -3781,7 +4001,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     zaak = zaak,
                     isZaakspecifiekGeautoriseerd = true,
                     currentBehandelaarId = "fakeBehandelaarId",
-                    requestedBehandelaarId = "fakeOtherUserId"
+                    requestedBehandelaarId = "fakeOtherUsername"
                 )
             } throws ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException("fakeMessage")
 
@@ -3808,16 +4028,16 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
-            val loggedInUser = createLoggedInUser(id = "fakeRecordmanagerId")
+            val loggedInUser = createLoggedInUser(username = "fakeRecordmanagerId")
             val restZaakCreateData = createRestZaakCreateData(
-                behandelaar = createRestUser(id = "fakeNewBehandelaarId"),
+                behandelaar = createRestUser(username = "fakeNewBehandelaarId"),
                 uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening
             )
             val restZaakEditMetRedenGegevens =
                 RestZaakEditMetRedenGegevens(zaak = restZaakCreateData, reden = changeDescription)
             val patchedZaak = createZaak()
             val restZaak = createRestZaak()
-            val zaakAssignment = createZaakAssignment(user = createUser(id = "fakeNewBehandelaarId"))
+            val zaakAssignment = createZaakAssignment(user = createUser(username = "fakeNewBehandelaarId"))
 
             every { loggedInUserInstance.get() } returns loggedInUser
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)

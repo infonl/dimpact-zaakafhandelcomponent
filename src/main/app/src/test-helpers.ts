@@ -4,10 +4,12 @@
  *
  */
 
+import type { Provider } from "@angular/core";
 import type {
   CreateMutationOptions,
   MutationFunctionContext,
 } from "@tanstack/angular-query-experimental";
+import { ZoekenService } from "./app/zoeken/zoeken.service";
 
 type DeepPartial<T> = T extends null | undefined
   ? T
@@ -61,3 +63,19 @@ export function createQueryOptions<TData>(data: TData) {
 }
 
 export const flushMicrotasks = () => Promise.resolve();
+
+/**
+ * The zoeken service with the retries of its search switched off: a dropped
+ * connection is retried 3 times over 7 seconds, which a spec does not wait for.
+ */
+export function provideZoekenServiceWithoutRetries(): Provider {
+  return {
+    provide: ZoekenService,
+    useFactory: () => {
+      const zoekenService = new ZoekenService();
+      const list = zoekenService.list.bind(zoekenService);
+      zoekenService.list = (body) => ({ ...list(body), retry: false });
+      return zoekenService;
+    },
+  };
+}

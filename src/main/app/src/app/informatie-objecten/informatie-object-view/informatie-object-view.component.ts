@@ -6,6 +6,7 @@
 import { Location } from "@angular/common";
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   inject,
   OnDestroy,
@@ -34,8 +35,6 @@ import { Observable, of } from "rxjs";
 import { map, tap } from "rxjs/operators";
 import { AsyncButtonMenuItem } from "src/app/shared/side-nav/menu-item/subscription-button-menu-item";
 import { UtilService } from "../../core/service/util.service";
-import { ObjectType } from "../../core/websocket/model/object-type";
-import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
@@ -78,6 +77,7 @@ import { FileFormat, FileFormatUtil } from "../model/file-format";
   templateUrl: "./informatie-object-view.component.html",
   styleUrls: ["./informatie-object-view.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     MatButtonModule,
@@ -112,16 +112,18 @@ export class InformatieObjectViewComponent
   extends ActionsViewComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
-  private informatieObjectenService = inject(InformatieObjectenService);
-  private route = inject(ActivatedRoute);
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
+  private readonly route = inject(ActivatedRoute);
   private readonly utilService = inject(UtilService);
-  private websocketService = inject(WebsocketService);
-  private router = inject(Router);
+  private readonly websocketService = inject(WebsocketService);
+  private readonly router = inject(Router);
   private readonly location = inject(Location);
-  private translate = inject(TranslateService);
-  private dialog = inject(MatDialog);
-  private zakenService = inject(ZakenService);
-  private documentDialogService = inject(DocumentDialogService);
+  private readonly translate = inject(TranslateService);
+  private readonly dialog = inject(MatDialog);
+  private readonly zakenService = inject(ZakenService);
+  private readonly documentDialogService = inject(DocumentDialogService);
 
   private readonly queryClient = inject(QueryClient);
 
@@ -171,8 +173,8 @@ export class InformatieObjectViewComponent
         );
 
         this.documentListener = this.websocketService.addListener(
-          Opcode.UPDATED,
-          ObjectType.ENKELVOUDIG_INFORMATIEOBJECT,
+          "UPDATED",
+          "ENKELVOUDIG_INFORMATIEOBJECT",
           this.infoObject.uuid!,
           () => {
             this.loadInformatieObject();

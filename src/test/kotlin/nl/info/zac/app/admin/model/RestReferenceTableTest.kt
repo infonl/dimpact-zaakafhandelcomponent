@@ -6,8 +6,11 @@ package nl.info.zac.app.admin.model
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import jakarta.validation.Validation
+import nl.info.zac.admin.model.createReferenceTable
+import nl.info.zac.admin.model.createReferenceTableValue
 
 class RestReferenceTableTest : BehaviorSpec({
     val validator = Validation.buildDefaultValidatorFactory().validator
@@ -194,6 +197,24 @@ class RestReferenceTableTest : BehaviorSpec({
                 then("there should be one constraint violation on the nested value's naam") {
                     violations shouldHaveSize 1
                     violations.first().propertyPath.toString() shouldBe "values[0].name"
+                }
+            }
+        }
+    }
+
+    context("Conversion to RestReferenceTable") {
+        given("A reference table and a value that have not been persisted yet") {
+            val referenceTable = createReferenceTable(
+                id = null,
+                values = mutableListOf(createReferenceTableValue(id = null))
+            )
+
+            `when`("the reference table is converted to a REST reference table including its values") {
+                val restReferenceTable = referenceTable.toRestReferenceTable(inclusiefWaarden = true)
+
+                then("the REST reference table and its value have no id") {
+                    restReferenceTable.id.shouldBeNull()
+                    restReferenceTable.values.single().id.shouldBeNull()
                 }
             }
         }

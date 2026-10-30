@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { MatDialogModule, MatDialogRef } from "@angular/material/dialog";
 import { KlantZoekComponent } from "../../../../klanten/zoek/klanten/klant-zoek.component";
 
@@ -11,8 +11,9 @@ import { KlantZoekComponent } from "../../../../klanten/zoek/klanten/klant-zoek.
   templateUrl: "klant-zoek-dialog.component.html",
   styleUrls: ["./klant-zoek-dialog.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatDialogModule, KlantZoekComponent],
 })
 export class KlantZoekDialog {
-  dialogRef = inject<MatDialogRef<KlantZoekDialog>>(MatDialogRef);
+  readonly dialogRef = inject<MatDialogRef<KlantZoekDialog>>(MatDialogRef);
 }

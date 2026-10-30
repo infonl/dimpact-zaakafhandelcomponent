@@ -6,7 +6,6 @@ package nl.info.zac.mailtemplates
 
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.UriBuilder
-import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.model.generated.Persoon
 import nl.info.client.brp.util.toAddressString
@@ -23,6 +22,7 @@ import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.task.readZaakIdentificatie
 import nl.info.zac.flowable.task.readZaaktypeOmschrijving
 import nl.info.zac.identification.findRechtspersoonOrVestiging
@@ -35,7 +35,7 @@ import nl.info.zac.mailtemplates.model.MailTemplateVariables
 import nl.info.zac.mailtemplates.model.MailTemplateVariables.Companion.ZAAKDATA_VARIABLE_PREFIX
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.time.convertToLocalDate
+import nl.info.zac.util.time.toLocalDate
 import org.apache.commons.text.StringEscapeUtils
 import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo
@@ -170,7 +170,7 @@ class MailTemplateHelper @Inject constructor(
             resolvedTekst = replaceVariable(
                 resolvedTekst,
                 MailTemplateVariables.TAAK_FATALEDATUM,
-                convertToLocalDate(it).format(DATE_FORMATTER)
+                it.toLocalDate().format(DATE_FORMATTER)
             )
         }
         if (resolvedTekst.contains(MailTemplateVariables.TAAK_BEHANDELAAR_GROEP.getVariable())) {
@@ -189,7 +189,7 @@ class MailTemplateHelper @Inject constructor(
             resolvedTekst = replaceVariable(
                 targetString = resolvedTekst, MailTemplateVariables.TAAK_BEHANDELAAR_MEDEWERKER,
                 value = taskInfo.assignee?.let {
-                    identityService.readUser(userId = it, logContext = taskInfo.toLogContext()).getFullName()
+                    identityService.readUser(username = it, logContext = taskInfo.toLogContext()).getFullName()
                 }
             )
         }

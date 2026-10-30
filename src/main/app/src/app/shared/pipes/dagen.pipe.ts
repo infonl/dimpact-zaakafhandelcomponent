@@ -12,7 +12,7 @@ import moment from "moment";
   standalone: true,
 })
 export class DagenPipe implements PipeTransform {
-  private translate = inject(TranslateService);
+  private readonly translate = inject(TranslateService);
 
   transform(value: unknown) {
     if (!value) return null;

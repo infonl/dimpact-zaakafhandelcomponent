@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
@@ -49,6 +49,7 @@ const instellingen: GeneratedType<"RestDashboardCardInstelling">[] = [
   selector:
     "zac-informatieobjecten-card, zac-taken-card, zac-taak-zoeken-card, zac-zaken-card, zac-zaak-waarschuwingen-card, zac-zaak-zoeken-card",
   template: "",
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class DashboardCardContentStubComponent {
@@ -157,7 +158,7 @@ describe(DashboardComponent.name, () => {
       imports: [NoopAnimationsModule],
       providers: [
         provideTranslateService(),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         provideRouter([]),
         provideTanStackQuery(testQueryClient),
@@ -363,6 +364,21 @@ describe(DashboardComponent.name, () => {
     fixture.destroy();
 
     expect(observer.observed.size).toBe(0);
+  });
+
+  it("places the cards the server returns, not an outdated cached copy, so the next drag does not save that copy", async () => {
+    testQueryClient.setQueryData([DASHBOARD_CARDS_URL], [
+      { cardId: "MIJN_TAKEN", column: 0, row: 0 },
+    ] satisfies GeneratedType<"RestDashboardCardInstelling">[]);
+    testQueryClient.setQueryData(
+      [SIGNALERING_TYPEN_URL],
+      ["ZAAK_OP_NAAM", "ZAAK_DOCUMENT_TOEGEVOEGD"],
+    );
+    await testQueryClient.invalidateQueries();
+
+    await setup();
+
+    expect(cardOf(DashboardCardId.MIJN_ZAKEN)).toBeInTheDocument();
   });
 
   it("removes the instelling of the card the user deleted", async () => {

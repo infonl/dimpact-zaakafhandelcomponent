@@ -4,6 +4,7 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
@@ -55,6 +56,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
     "./taak-zoeken-card.component.less",
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     MatTable,
@@ -81,7 +83,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
   ],
 })
 export class TaakZoekenCardComponent extends DashboardCardComponent {
-  private zoekenService = inject(ZoekenService);
+  private readonly zoekenService = inject(ZoekenService);
 
   private readonly destroyRef = inject(DestroyRef);
 

@@ -4,7 +4,7 @@
  *
  */
 
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatError, MatHint } from "@angular/material/form-field";
@@ -17,6 +17,7 @@ import { SingleInputFormField } from "../BaseFormField";
   templateUrl: "./checkbox.html",
   styleUrls: ["./checkbox.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatCheckboxModule,

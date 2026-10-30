@@ -100,6 +100,18 @@ Generated API clients: `src/generated/` (from OpenAPI specs — do not edit manu
 ### External Integrations
 ZAC connects to: Open Zaak (ZGW APIs), Open Klant, Open Notificaties, HaalCentraal (BAG/BRP), KVK, SmartDocuments, PABC. API client code is generated from OpenAPI specs in `src/main/resources/api-specs/`.
 
+## Architecture Decision Records
+
+Architecture decisions are recorded as ADRs in
+[docs/solution-architecture/decisions](docs/solution-architecture/decisions/README.md).
+- Before a change that adds or replaces a framework, library or external service, or that changes an architectural
+  layer, pattern, integration or cross-cutting convention, read the index in
+  `docs/solution-architecture/decisions/README.md` and the ADRs relevant to the change.
+- ADRs with status `accepted` are binding. When a task conflicts with one, stop and tell the user which ADR it
+  conflicts with. Do not deviate from it silently.
+- When a change makes a decision of that kind, add a new ADR to the same pull request, or a new ADR that supersedes
+  the old one. Follow [the ADR conventions](.claude/rules/adr.md).
+
 ## Code Conventions
 
 Please follow our coding conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -221,4 +233,5 @@ Detailed guides live in `docs/development/`:
 - `endToEndTypeSafety.md` — type safety approach
 - `paging.md` — REST paging conventions
 - `linting-strategy.md` — what the linters check, and the stricter check on specs a pull request touches
+- `architectureRules.md` — the ArchUnit rules for the backend layers and how to handle their frozen violations
 - `logging.md` — logging conventions and GDPR/AVG-required follow-up changes

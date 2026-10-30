@@ -6,6 +6,7 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
 import com.github.gradle.node.npm.task.NpmTask
 import dev.detekt.gradle.Detekt
+import groovy.json.JsonSlurper
 import io.smallrye.openapi.api.OpenApiConfig.DuplicateOperationIdBehavior
 import io.smallrye.openapi.api.OpenApiConfig.OperationIdStrategy
 import org.gradle.api.plugins.JavaBasePlugin.BUILD_TASK_NAME
@@ -200,6 +201,7 @@ dependencies {
     providedCompile(libs.eclipse.microprofile.config.api)
     providedCompile(libs.eclipse.microprofile.health.api)
     providedCompile(libs.eclipse.microprofile.fault.tolerance.api)
+    providedCompile(libs.eclipse.microprofile.openapi.api)
     providedCompile(libs.jboss.resteasy.multipart.provider)
     providedCompile(libs.wildfly.security.elytron.http.oidc)
     providedCompile(libs.hibernate.validator)
@@ -211,6 +213,7 @@ dependencies {
     testImplementation(libs.eclipse.yasson)
     testImplementation(libs.kotest.runner.junit5)
     testImplementation(libs.mockk)
+    testImplementation(libs.archunit)
     testImplementation(libs.json)
     // SmallRye Health implementation for MicroProfile Health tests
     testImplementation(libs.smallrye.health)
@@ -703,6 +706,14 @@ tasks {
         useJUnitPlatform()
     }
 
+    named<Test>("test") {
+        // ArchUnit freezes the violations of an unknown rule, such as a renamed one, and drops fixed violations by
+        // updating the store. On CI it may not update the store, so the build fails when the committed store is not up to date.
+        if (providers.environmentVariable("CI").orNull == "true") {
+            systemProperty("archunit.freeze.store.default.allowStoreUpdate", "false")
+        }
+    }
+
     withType<Javadoc> {
         options.encoding = "UTF-8"
     }
@@ -1156,9 +1167,9 @@ fun readWildFlyVersion(pomFile: File): String {
 // Reads a dependency version pinned in a package.json file, so that version does not need to be
 // duplicated anywhere in the Gradle build.
 fun readPackageJsonDependencyVersion(packageJsonFile: File, dependencyName: String): String {
-    val packageJson = packageJsonFile.readText()
-    val regex = """"$dependencyName":\s*"([^"]+)"""".toRegex()
-    return regex.find(packageJson)?.groups?.get(1)?.value
+    val packageJson = JsonSlurper().parse(packageJsonFile) as Map<*, *>
+    return listOf("dependencies", "devDependencies")
+        .firstNotNullOfOrNull { (packageJson[it] as? Map<*, *>)?.get(dependencyName) as? String }
         ?: error("Could not find dependency '$dependencyName' in ${packageJsonFile.path}")
 }
 

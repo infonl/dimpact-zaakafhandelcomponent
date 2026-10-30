@@ -12,7 +12,6 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
-import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.exception.ZgwErrorException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -31,7 +30,6 @@ import nl.info.zac.app.policy.model.toRestDocumentRechten
 import nl.info.zac.app.shared.toDrcVertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.shared.toRestVertrouwelijkheidaanduiding
 import nl.info.zac.app.task.model.RestTaskDocumentData
-import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
@@ -42,6 +40,7 @@ import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.DocumentRechten
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.util.toBase64String
+import nl.info.zac.zaak.model.RelatieType
 import org.eclipse.jetty.http.HttpStatus
 import java.time.LocalDate
 import java.util.UUID
@@ -173,9 +172,9 @@ class RestInformatieobjectConverter @Inject constructor(
         restEnkelvoudigInformatieobject.beschrijving = enkelvoudigInformatieObject.beschrijving
         restEnkelvoudigInformatieobject.ontvangstdatum = enkelvoudigInformatieObject.ontvangstdatum
         restEnkelvoudigInformatieobject.verzenddatum = enkelvoudigInformatieObject.verzenddatum
-        lock?.userId?.let {
+        lock?.username?.let {
             restEnkelvoudigInformatieobject.gelockedDoor = identityService.readUser(
-                userId = it,
+                username = it,
                 logContext = "the lock on informatieobject '${enkelvoudigInformatieObject.identificatie}'"
             ).toRestUser()
         }

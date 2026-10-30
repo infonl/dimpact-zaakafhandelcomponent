@@ -40,8 +40,7 @@
       </div>
       <zac-date [form]="form" key="publicatiedatum" />
       @if (
-        (form.controls.besluit.value?.publication?.publicationTermDays ?? 0) <=
-        1
+        (form.controls.besluit.value.publication.publicationTermDays ?? 0) <= 1
       ) {
         <div class="mb-2">
           {{
@@ -49,14 +48,14 @@
               | translate
                 : {
                     publicationTermDays:
-                      form.controls.besluit.value?.publication
-                        ?.publicationTermDays,
+                      form.controls.besluit.value.publication
+                        .publicationTermDays,
                   }
           }}
         </div>
       }
       @if (
-        (form.controls.besluit.value?.publication?.publicationTermDays ?? 0) > 1
+        (form.controls.besluit.value.publication.publicationTermDays ?? 0) > 1
       ) {
         <div class="mb-2">
           {{
@@ -64,8 +63,8 @@
               | translate
                 : {
                     publicationTermDays:
-                      form.controls.besluit.value?.publication
-                        ?.publicationTermDays,
+                      form.controls.besluit.value.publication
+                        .publicationTermDays,
                   }
           }}
         </div>

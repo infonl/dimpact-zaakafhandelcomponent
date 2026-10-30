@@ -7,6 +7,7 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import {
   HttpTestingController,
@@ -23,10 +24,8 @@ import { provideTranslateService } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
-import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZakenVerdelenDialogComponent } from "./zaken-verdelen-dialog.component";
@@ -55,7 +54,7 @@ const setup = async (
     providers: [
       provideTranslateService(),
       provideZoneChangeDetection(),
-      provideHttpClient(withInterceptorsFromDi()),
+      provideHttpClient(withXhr(), withInterceptorsFromDi()),
       provideHttpClientTesting(),
       provideTanStackQuery(testQueryClient),
       provideRouter([]),
@@ -63,9 +62,7 @@ const setup = async (
       { provide: MatDialogRef, useValue: dialogRefMock },
     ],
   });
-  const identityService = TestBed.inject(IdentityService);
   const httpTestingController = TestBed.inject(HttpTestingController);
-  jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(of([]));
   const fixture: ComponentFixture<ZakenVerdelenDialogComponent> =
     TestBed.createComponent(ZakenVerdelenDialogComponent);
   fixture.detectChanges();
@@ -182,7 +179,7 @@ describe(ZakenVerdelenDialogComponent.name, () => {
       isZaakspecifiekGeautoriseerd: true,
     });
     const medewerker = fromPartial<GeneratedType<"RestUser">>({
-      id: "user-1",
+      username: "user-1",
       naam: "Gebruiker Een",
     });
 
@@ -277,6 +274,51 @@ describe(ZakenVerdelenDialogComponent.name, () => {
           name: "zaken.zaakspecifiek-geautoriseerd",
         }),
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("picking a groep", () => {
+    const mockUser: GeneratedType<"RestUser"> = {
+      username: "user-1",
+      naam: "Gebruiker Een",
+    };
+
+    it("offers the users of the picked groep as medewerker", async () => {
+      const { fixture, component, httpTestingController } = await setup([
+        makeZaakZoekObject(),
+      ]);
+      expect(component["form"].controls.medewerker.disabled).toBe(true);
+
+      component["form"].controls.groep.setValue(mockGroups[0]);
+      fixture.detectChanges();
+      await sleep();
+      httpTestingController
+        .expectOne("/rest/identity/groups/groep-1/users")
+        .flush([mockUser]);
+      await sleep();
+      fixture.detectChanges();
+      await sleep();
+      fixture.detectChanges();
+
+      expect(component["form"].controls.medewerker.enabled).toBe(true);
+      expect(component["users"]()).toEqual([mockUser]);
+    });
+
+    it("does not read users while the user types in the groep field", async () => {
+      const { fixture, component, httpTestingController } = await setup([
+        makeZaakZoekObject(),
+      ]);
+
+      component["form"].controls.groep.setValue(
+        "Groep" as unknown as GeneratedType<"RestGroup">,
+      );
+      fixture.detectChanges();
+      await sleep();
+
+      httpTestingController.expectNone((request) =>
+        request.url.endsWith("/users"),
+      );
+      expect(component["form"].controls.medewerker.disabled).toBe(true);
     });
   });
 });

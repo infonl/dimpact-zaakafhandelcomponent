@@ -16,7 +16,6 @@ import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolNietNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolVestiging
 import nl.info.client.zgw.model.createVestigingIdentificatie
-import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.sensitive.SensitiveDataService
 import java.util.UUID
 

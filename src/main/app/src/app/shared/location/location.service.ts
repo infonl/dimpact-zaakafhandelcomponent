@@ -14,8 +14,8 @@ import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.
   providedIn: "root",
 })
 export class LocationService {
-  private http = inject(HttpClient);
-  private foutAfhandelingService = inject(FoutAfhandelingService);
+  private readonly http = inject(HttpClient);
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
   private readonly flSuggest: string = "type,weergavenaam,id";
 

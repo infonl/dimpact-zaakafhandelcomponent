@@ -3,12 +3,18 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AfterViewInit, Component, Signal } from "@angular/core";
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  Signal,
+} from "@angular/core";
 import { MatDrawer } from "@angular/material/sidenav";
 import { ViewComponent } from "./view-component";
 
 @Component({
   template: "",
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export abstract class ActionsViewComponent
@@ -21,6 +27,11 @@ export abstract class ActionsViewComponent
     super.ngAfterViewInit();
     this.actionsSidenav().closedStart.subscribe(() => {
       this.sideNavContainer().hasBackdrop = false;
+      // Material checks whether to release the inert content on close, before hasBackdrop is
+      // reset here, and rechecks only on a mode change. Re-set the mode so it checks again.
+      const actionsSidenav = this.actionsSidenav();
+      const { mode } = actionsSidenav;
+      actionsSidenav.mode = mode;
     });
     this.actionsSidenav().openedStart.subscribe(() => {
       this.sideNavContainer().hasBackdrop = true;

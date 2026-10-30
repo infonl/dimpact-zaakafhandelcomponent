@@ -21,11 +21,11 @@ import jakarta.servlet.http.HttpSession
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.webdav.ITransaction
-import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.setLoggedInUser
 import nl.info.zac.configuration.FileSizeConfiguration
 import nl.info.zac.document.content.DocumentContentReader
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectUpdateService
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.util.UUID

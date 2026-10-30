@@ -9,12 +9,12 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.zac.util.JsonbUtil
 import nl.info.zac.app.configuration.model.createTaal
 import nl.info.zac.configuration.BrpConfiguration
 import nl.info.zac.configuration.BrpConfigurationProvider
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.configuration.FileSizeConfiguration
+import nl.info.zac.util.JSONB
 
 class ConfigurationRestServiceTest : BehaviorSpec({
     val configurationService = mockk<ConfigurationService>()
@@ -123,7 +123,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
             val result = configurationRestService.readGemeenteCode()
 
             then("it should return the gemeente code as JSON") {
-                result shouldBe JsonbUtil.JSONB.toJson(gemeenteCode)
+                result shouldBe JSONB.toJson(gemeenteCode)
             }
         }
     }
@@ -136,7 +136,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
             val result = configurationRestService.readGemeenteNaam()
 
             then("it should return the gemeente name as JSON") {
-                result shouldBe JsonbUtil.JSONB.toJson(gemeenteNaam)
+                result shouldBe JSONB.toJson(gemeenteNaam)
             }
         }
     }

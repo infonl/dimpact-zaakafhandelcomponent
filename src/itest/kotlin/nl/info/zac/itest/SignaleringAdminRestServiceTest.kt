@@ -98,7 +98,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                     "planItemInstanceId": "$humanTaskItemId",
                     "fataledatum": "$fataleDatum",
                     "medewerker": {
-                        "id": "${BEHANDELAAR_1.username}",
+                        "username": "${BEHANDELAAR_1.username}",
                         "naam": "${BEHANDELAAR_1.displayName}"
                     },
                     "groep": {

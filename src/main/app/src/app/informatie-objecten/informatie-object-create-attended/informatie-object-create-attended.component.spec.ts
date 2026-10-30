@@ -6,6 +6,7 @@
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import {
   HttpTestingController,
@@ -70,7 +71,7 @@ const singleTemplateGroup = fromPartial<
 });
 
 const loggedInUser = fromPartial<GeneratedType<"RestUser">>({
-  id: "fakeUserId1",
+  username: "fakeUserId1",
   naam: "fakeUserName1",
 });
 
@@ -115,7 +116,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
         providers: [
           provideTranslateService(),
           provideRouter([]),
-          provideHttpClient(withInterceptorsFromDi()),
+          provideHttpClient(withXhr(), withInterceptorsFromDi()),
           provideHttpClientTesting(),
           provideMomentDateAdapter(),
           provideTanStackQuery(testQueryClient),
@@ -190,7 +191,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
         providers: [
           provideTranslateService(),
           provideRouter([]),
-          provideHttpClient(withInterceptorsFromDi()),
+          provideHttpClient(withXhr(), withInterceptorsFromDi()),
           provideHttpClientTesting(),
           provideMomentDateAdapter(),
           provideTanStackQuery(testQueryClient),

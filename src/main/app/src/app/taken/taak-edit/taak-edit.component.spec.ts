@@ -6,22 +6,21 @@
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { TestBed } from "@angular/core/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
-import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../taken.service";
 import { TaakEditComponent } from "./taak-edit.component";
@@ -35,7 +34,7 @@ const makeGroup = (fields: Partial<GeneratedType<"RestGroup">> = {}) =>
 
 const makeUser = (fields: Partial<GeneratedType<"RestUser">> = {}) =>
   fromPartial<GeneratedType<"RestUser">>({
-    id: "fakeUserId",
+    username: "fakeUserId",
     naam: "fakeUserNaam",
     ...fields,
   });
@@ -62,36 +61,57 @@ const makeTask = (fields: Partial<GeneratedType<"RestTask">> = {}) =>
 
 describe(TaakEditComponent.name, () => {
   let httpTestingController: HttpTestingController;
+  let fixture: ComponentFixture<TaakEditComponent>;
   let sideNav: MatSidenav;
-  let identityService: Pick<
-    IdentityService,
-    "listBehandelaarGroupsForZaaktype" | "listUsersInGroup"
-  >;
 
   const user = userEvent.setup();
 
-  async function setup(task: GeneratedType<"RestTask"> = makeTask()) {
+  async function setup(
+    task: GeneratedType<"RestTask"> = makeTask(),
+    {
+      groups = [makeGroup()],
+      users = [makeUser()],
+    }: {
+      groups?: GeneratedType<"RestGroup">[];
+      users?: GeneratedType<"RestUser">[];
+    } = {},
+  ) {
     sideNav = fromPartial<MatSidenav>({
       close: jest.fn().mockResolvedValue(true),
     });
 
-    const { fixture } = await render(TaakEditComponent, {
+    ({ fixture } = await render(TaakEditComponent, {
       inputs: { task, sideNav },
       imports: [NoopAnimationsModule],
       providers: [
         provideTranslateService(),
-        { provide: IdentityService, useValue: identityService },
         TakenService,
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
       ],
-    });
-
-    await sleep();
-    fixture.detectChanges();
+    }));
 
     httpTestingController = TestBed.inject(HttpTestingController);
+
+    await respondWith(
+      `/rest/identity/zaaktype/${task.zaaktypeOmschrijving}/behandelaar-groups`,
+      groups,
+    );
+    if (task.groep) {
+      await respondWith(`/rest/identity/groups/${task.groep.id}/users`, users);
+    }
+  }
+
+  async function respondWith(url: string, body: unknown[]) {
+    await sleep();
+    httpTestingController.expectOne(url).flush(body);
+    await sleep();
+    fixture.detectChanges();
+    await sleep();
+    fixture.detectChanges();
+    await sleep();
+    fixture.detectChanges();
   }
 
   const groepSelect = () => screen.getByRole("combobox", { name: /Groep/ });
@@ -109,15 +129,6 @@ describe(TaakEditComponent.name, () => {
     await user.keyboard("{Escape}");
     return options;
   }
-
-  beforeEach(() => {
-    identityService = {
-      listBehandelaarGroupsForZaaktype: jest
-        .fn()
-        .mockReturnValue(of([makeGroup()])),
-      listUsersInGroup: jest.fn().mockReturnValue(of([makeUser()])),
-    };
-  });
 
   it("shows the edit heading", async () => {
     await setup();
@@ -138,29 +149,22 @@ describe(TaakEditComponent.name, () => {
   it("offers the groups that may handle the zaaktype of the task", async () => {
     await setup(makeTask({ zaaktypeOmschrijving: "fakeZaaktypeOmschrijving" }));
 
-    expect(
-      identityService.listBehandelaarGroupsForZaaktype,
-    ).toHaveBeenCalledWith("fakeZaaktypeOmschrijving");
     expect(await openOptionsOf(groepSelect())).toEqual(["fakeGroupNaam"]);
   });
 
   it("preselects the groep and behandelaar of the task", async () => {
-    identityService.listBehandelaarGroupsForZaaktype = jest
-      .fn()
-      .mockReturnValue(
-        of([makeGroup({ id: "fakeGroupId42", naam: "fakeGroupNaam42" })]),
-      );
-    identityService.listUsersInGroup = jest
-      .fn()
-      .mockReturnValue(
-        of([makeUser({ id: "fakeUserId7", naam: "fakeUserNaam7" })]),
-      );
-
     await setup(
       makeTask({
         groep: makeGroup({ id: "fakeGroupId42", naam: "fakeGroupNaam42" }),
-        behandelaar: makeUser({ id: "fakeUserId7", naam: "fakeUserNaam7" }),
+        behandelaar: makeUser({
+          username: "fakeUserId7",
+          naam: "fakeUserNaam7",
+        }),
       }),
+      {
+        groups: [makeGroup({ id: "fakeGroupId42", naam: "fakeGroupNaam42" })],
+        users: [makeUser({ username: "fakeUserId7", naam: "fakeUserNaam7" })],
+      },
     );
 
     expect(groepSelect()).toHaveTextContent("fakeGroupNaam42");
@@ -168,10 +172,6 @@ describe(TaakEditComponent.name, () => {
   });
 
   it("offers the groep of the task even when it is not among the loaded groups", async () => {
-    identityService.listBehandelaarGroupsForZaaktype = jest
-      .fn()
-      .mockReturnValue(of([makeGroup({ id: "fakeOtherGroupId" })]));
-
     await setup(
       makeTask({
         groep: makeGroup({
@@ -179,6 +179,7 @@ describe(TaakEditComponent.name, () => {
           naam: "fakeAbsentGroupNaam",
         }),
       }),
+      { groups: [makeGroup({ id: "fakeOtherGroupId" })] },
     );
 
     expect(await openOptionsOf(groepSelect())).toEqual([
@@ -189,27 +190,19 @@ describe(TaakEditComponent.name, () => {
 
   it("offers the groep of the task only once when it is among the loaded groups", async () => {
     const group = makeGroup({ id: "fakeGroupId", naam: "fakeGroupNaam" });
-    identityService.listBehandelaarGroupsForZaaktype = jest
-      .fn()
-      .mockReturnValue(of([group]));
-
-    await setup(makeTask({ groep: group }));
+    await setup(makeTask({ groep: group }), { groups: [group] });
 
     expect(await openOptionsOf(groepSelect())).toEqual(["fakeGroupNaam"]);
   });
 
   it("marks an inactive groep as such in the options", async () => {
-    identityService.listBehandelaarGroupsForZaaktype = jest
-      .fn()
-      .mockReturnValue(
-        of([
-          makeGroup({ id: "a", naam: "fakeActiveGroup", isActive: true }),
-          makeGroup({ id: "b", naam: "fakeInactiveGroup", isActive: false }),
-          makeGroup({ id: "c", naam: "fakeUnknownGroup", isActive: undefined }),
-        ]),
-      );
-
-    await setup(makeTask({ groep: makeGroup({ id: "a" }) }));
+    await setup(makeTask({ groep: makeGroup({ id: "a" }) }), {
+      groups: [
+        makeGroup({ id: "a", naam: "fakeActiveGroup", isActive: true }),
+        makeGroup({ id: "b", naam: "fakeInactiveGroup", isActive: false }),
+        makeGroup({ id: "c", naam: "fakeUnknownGroup", isActive: undefined }),
+      ],
+    });
 
     expect(await openOptionsOf(groepSelect())).toEqual([
       "fakeActiveGroup",
@@ -259,24 +252,12 @@ describe(TaakEditComponent.name, () => {
     async function setupWithTwoGroups(
       task: GeneratedType<"RestTask"> = makeTask(),
     ) {
-      identityService.listBehandelaarGroupsForZaaktype = jest
-        .fn()
-        .mockReturnValue(
-          of([
-            makeGroup(),
-            makeGroup({ id: "fakeOtherGroupId", naam: "fakeOtherGroupNaam" }),
-          ]),
-        );
-      identityService.listUsersInGroup = jest
-        .fn()
-        .mockReturnValue(
-          of([
-            makeUser(),
-            makeUser({ id: "fakeUserId99", naam: "fakeUserNaam99" }),
-          ]),
-        );
-
-      await setup(task);
+      await setup(task, {
+        groups: [
+          makeGroup(),
+          makeGroup({ id: "fakeOtherGroupId", naam: "fakeOtherGroupNaam" }),
+        ],
+      });
     }
 
     async function pickOtherGroup() {
@@ -284,7 +265,10 @@ describe(TaakEditComponent.name, () => {
       await user.click(
         screen.getByRole("option", { name: "fakeOtherGroupNaam" }),
       );
-      await sleep();
+      await respondWith("/rest/identity/groups/fakeOtherGroupId/users", [
+        makeUser(),
+        makeUser({ username: "fakeUserId99", naam: "fakeUserNaam99" }),
+      ]);
     }
 
     it("clears the behandelaar", async () => {
@@ -301,15 +285,62 @@ describe(TaakEditComponent.name, () => {
 
       await pickOtherGroup();
 
-      expect(identityService.listUsersInGroup).toHaveBeenCalledWith(
-        "fakeOtherGroupId",
-      );
       expect(behandelaarSelect()).not.toHaveAttribute("aria-disabled", "true");
       expect(await openOptionsOf(behandelaarSelect())).toEqual([
         "geen.generiek",
         "fakeUserNaam",
         "fakeUserNaam99",
       ]);
+    });
+  });
+
+  describe("reading the groups and users again", () => {
+    it("keeps the groep that the user picked", async () => {
+      await setup(makeTask(), {
+        groups: [
+          makeGroup(),
+          makeGroup({ id: "fakeOtherGroupId", naam: "fakeOtherGroupNaam" }),
+        ],
+      });
+      await user.click(groepSelect());
+      await user.click(
+        screen.getByRole("option", { name: "fakeOtherGroupNaam" }),
+      );
+      await respondWith("/rest/identity/groups/fakeOtherGroupId/users", []);
+
+      void testQueryClient.invalidateQueries();
+      await respondWith(
+        "/rest/identity/zaaktype/fakeZaaktypeOmschrijving/behandelaar-groups",
+        [
+          makeGroup(),
+          makeGroup({ id: "fakeOtherGroupId", naam: "fakeOtherGroupNaam" }),
+          makeGroup({ id: "fakeNewGroupId", naam: "fakeNewGroupNaam" }),
+        ],
+      );
+
+      expect(groepSelect()).toHaveTextContent("fakeOtherGroupNaam");
+    });
+
+    it("keeps the behandelaar that the user picked", async () => {
+      await setup(makeTask({ behandelaar: makeUser() }), {
+        users: [
+          makeUser(),
+          makeUser({ username: "fakeUserId99", naam: "fakeUserNaam99" }),
+        ],
+      });
+      await user.click(behandelaarSelect());
+      await user.click(screen.getByRole("option", { name: "fakeUserNaam99" }));
+
+      void testQueryClient.invalidateQueries({
+        queryKey: ["/rest/identity/groups/{groupId}/users"],
+      });
+      await respondWith("/rest/identity/groups/fakeGroupId/users", [
+        makeUser(),
+        makeUser({ username: "fakeUserId99", naam: "fakeUserNaam99" }),
+        makeUser({ username: "fakeNewUserId", naam: "fakeNewUserNaam" }),
+      ]);
+
+      expect(behandelaarSelect()).toHaveTextContent("fakeUserNaam99");
     });
   });
 
@@ -320,7 +351,7 @@ describe(TaakEditComponent.name, () => {
           id: "fakeTaakId1",
           zaakUuid: "fakeZaakUuid1",
           groep: makeGroup({ id: "fakeGroupId1" }),
-          behandelaar: makeUser({ id: "fakeUserId1" }),
+          behandelaar: makeUser({ username: "fakeUserId1" }),
         }),
       );
 

@@ -6,6 +6,7 @@
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import {
   HttpTestingController,
@@ -24,7 +25,6 @@ import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
-import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { IdentityService } from "../../identity/identity.service";
 import { BatchProcessService } from "../../shared/batch-progress/batch-process.service";
@@ -67,7 +67,7 @@ describe(TakenWerkvoorraadComponent.name, () => {
           provide: ActivatedRoute,
           useValue: mockActivatedRoute,
         },
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideNativeDateAdapter(),
         provideQueryClient(testQueryClient),
@@ -81,7 +81,7 @@ describe(TakenWerkvoorraadComponent.name, () => {
     httpTestingController = TestBed.inject(HttpTestingController);
 
     testQueryClient.setQueryData(identityService.readLoggedInUser().queryKey, {
-      id: "user1",
+      username: "user1",
       naam: "testuser-1",
       groupIds: ["groupA", "groupB"],
     });
@@ -212,7 +212,7 @@ describe(TakenWerkvoorraadComponent.name, () => {
       await clickAssignToMe();
       httpTestingController.expectOne("/rest/taken/lijst/toekennen/mij").flush(
         fromPartial<GeneratedType<"RestTask">>({
-          behandelaar: { id: "user1", naam: "testuser-1" },
+          behandelaar: { username: "user1", naam: "testuser-1" },
         }),
       );
       await sleep();
@@ -244,7 +244,7 @@ describe(TakenWerkvoorraadComponent.name, () => {
           request.flush(
             fromPartial<GeneratedType<"RestTask">>({
               behandelaar: {
-                id: "behandelaarIdVan" + request.request.body.taakId,
+                username: "behandelaarIdVan" + request.request.body.taakId,
                 naam: "behandelaarVan" + request.request.body.taakId,
               },
             }),
@@ -424,7 +424,7 @@ describe(TakenWerkvoorraadComponent.name, () => {
       skippedTaken.forEach(({ id }) =>
         batchProcessOptions.progressSubscription.onNotification?.(
           id,
-          fromPartial<ScreenEvent>({ opcode: Opcode.SKIPPED }),
+          fromPartial<ScreenEvent>({ opcode: "SKIPPED" }),
         ),
       );
       batchProcessOptions.finally();

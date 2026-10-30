@@ -6,9 +6,9 @@ package nl.info.zac.app.gebruikersvoorkeuren.model
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import net.atos.zac.signalering.model.SignaleringType
 import nl.info.zac.gebruikersvoorkeuren.model.DashboardCardId
 import nl.info.zac.gebruikersvoorkeuren.model.createDashboardCardInstelling
+import nl.info.zac.signalering.model.SignaleringType
 
 class RestDashboardCardInstellingTest : BehaviorSpec({
     context("toRestDashboardCardInstelling") {

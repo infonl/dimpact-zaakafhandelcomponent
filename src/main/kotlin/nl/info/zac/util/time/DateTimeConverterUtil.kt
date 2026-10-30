@@ -5,29 +5,12 @@
 package nl.info.zac.util.time
 
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.Date
 
-private val DEFAULT_ZONE_ID: ZoneId = ZoneId.systemDefault()
+fun Date.toLocalDate(): LocalDate = LocalDate.ofInstant(toInstant(), ZoneId.systemDefault())
 
-fun convertToLocalDate(date: Date): LocalDate = LocalDate.ofInstant(date.toInstant(), DEFAULT_ZONE_ID)
+fun Date.toZonedDateTime(): ZonedDateTime = toInstant().atZone(ZoneId.systemDefault())
 
-fun convertToZonedDateTime(dateTime: Date): ZonedDateTime = ZonedDateTime.ofInstant(dateTime.toInstant(), DEFAULT_ZONE_ID)
-
-fun convertToDate(localDate: LocalDate): Date =
-    localDate.let { Date.from(it.atStartOfDay().atZone(DEFAULT_ZONE_ID).toInstant()) }
-
-fun convertToDate(offsetDateTime: OffsetDateTime): Date =
-    Date.from(offsetDateTime.toZonedDateTime().withZoneSameInstant(DEFAULT_ZONE_ID).toInstant())
-
-fun convertToDate(zonedDateTime: ZonedDateTime): Date =
-    Date.from(zonedDateTime.withZoneSameInstant(DEFAULT_ZONE_ID).toInstant())
-
-fun convertToDate(isoString: String): Date? =
-    if (isoString.isNotBlank()) convertToDate(ZonedDateTime.parse(isoString)) else null
-
-fun convertToLocalDateTime(zonedDateTime: ZonedDateTime): LocalDateTime =
-    zonedDateTime.withZoneSameInstant(DEFAULT_ZONE_ID).toLocalDateTime()
+fun LocalDate.toDate(): Date = Date.from(atStartOfDay(ZoneId.systemDefault()).toInstant())

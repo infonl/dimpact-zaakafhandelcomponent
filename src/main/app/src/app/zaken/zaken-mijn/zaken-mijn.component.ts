@@ -7,6 +7,7 @@ import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
 import { SlicePipe } from "@angular/common";
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   inject,
   OnDestroy,
@@ -54,6 +55,7 @@ import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak
   styleUrls: ["./zaken-mijn.component.less"],
   animations: [detailExpand],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     I18nKeyPipe,
@@ -87,10 +89,10 @@ export class ZakenMijnComponent
   extends WerklijstComponent
   implements AfterViewInit, OnDestroy
 {
-  gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
-  route = inject(ActivatedRoute);
-  private zoekenService = inject(ZoekenService);
-  utilService = inject(UtilService);
+  readonly gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
+  readonly route = inject(ActivatedRoute);
+  private readonly zoekenService = inject(ZoekenService);
+  readonly utilService = inject(UtilService);
 
   readonly indicatiesLayout = IndicatiesLayout;
   dataSource: ZakenMijnDatasource;

@@ -8,7 +8,7 @@ import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { Location } from "@angular/common";
 import { HttpTestingController } from "@angular/common/http/testing";
-import { Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatNavListItemHarness } from "@angular/material/list/testing";
@@ -35,6 +35,7 @@ import { InformatieObjectViewComponent } from "./informatie-object-view.componen
 @Component({
   selector: "zac-informatie-object-edit",
   template: "",
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class InformatieObjectEditStubComponent {
@@ -332,7 +333,7 @@ describe(InformatieObjectViewComponent.name, () => {
         .mockReturnValue(
           of({
             ...enkelvoudigInformatieobject,
-            gelockedDoor: { id: "user-001", naam: "Test User" },
+            gelockedDoor: { username: "user-001", naam: "Test User" },
             rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
               canOntgrendelen: false,
             }),
@@ -355,7 +356,7 @@ describe(InformatieObjectViewComponent.name, () => {
         .mockReturnValue(
           of({
             ...enkelvoudigInformatieobject,
-            gelockedDoor: { id: "user-001", naam: "Test User" },
+            gelockedDoor: { username: "user-001", naam: "Test User" },
             rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
               canOntgrendelen: true,
             }),
@@ -384,7 +385,7 @@ describe(InformatieObjectViewComponent.name, () => {
         .mockReturnValue(
           of({
             ...enkelvoudigInformatieobject,
-            gelockedDoor: { id: "user-001", naam: "Test User" },
+            gelockedDoor: { username: "user-001", naam: "Test User" },
             rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
               canOntgrendelen: true,
             }),

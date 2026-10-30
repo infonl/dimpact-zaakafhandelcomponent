@@ -48,6 +48,9 @@ header:
     - "src/main/resources/cmmn/**"
     - "src/main/resources/openapi-generator-templates/**"
     - "src/main/resources/policies/policies"
+    # ArchUnit generates the frozen violation store and reads every line of it as a violation,
+    # so an SPDX header would break it
+    - "src/test/resources/archunit-store/**"
     # ignore Flyway DB migration files without SPDX headers
     # adding SPDX headers to these files would break the migration on existing databases
     - "src/main/resources/schemas/V34__*.sql"

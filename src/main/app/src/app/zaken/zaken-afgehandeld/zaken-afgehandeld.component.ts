@@ -7,6 +7,7 @@ import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
 import { SlicePipe } from "@angular/common";
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   inject,
   OnDestroy,
@@ -56,6 +57,7 @@ import { ZakenAfgehandeldDatasource } from "./zaken-afgehandeld-datasource";
   styleUrls: ["./zaken-afgehandeld.component.less"],
   animations: [detailExpand],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     I18nKeyPipe,
@@ -89,10 +91,10 @@ export class ZakenAfgehandeldComponent
   extends WerklijstComponent
   implements AfterViewInit, OnInit, OnDestroy
 {
-  gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
-  route = inject(ActivatedRoute);
-  private zoekenService = inject(ZoekenService);
-  protected utilService = inject(UtilService);
+  readonly gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
+  readonly route = inject(ActivatedRoute);
+  private readonly zoekenService = inject(ZoekenService);
+  protected readonly utilService = inject(UtilService);
 
   protected dataSource: ZakenAfgehandeldDatasource;
   private readonly paginator = viewChild.required(MatPaginator);

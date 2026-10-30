@@ -87,6 +87,91 @@ describe(GebruikersvoorkeurenService.name, () => {
       expect(request.request.method).toBe("PUT");
       request.flush(null);
     });
+
+    it("marks the cached tabel gegevens of the werklijst as stale, so the werklijst opens with the new page size next time", async () => {
+      testQueryClient.setQueryData(
+        service.readTabelGegevens("MIJN_ZAKEN").queryKey,
+        fromPartial<GeneratedType<"RestTabelGegevens">>({
+          aantalPerPagina: 25,
+        }),
+      );
+
+      runMutation(
+        testQueryClient,
+        service.updateAantalPerPagina("MIJN_ZAKEN", 50),
+        undefined as never,
+      ).subscribe();
+      await sleep();
+      httpTestingController
+        .expectOne("/rest/gebruikersvoorkeuren/aantal-per-pagina/MIJN_ZAKEN/50")
+        .flush(null);
+      await sleep();
+
+      expect(
+        testQueryClient.getQueryCache().find({
+          queryKey: service.readTabelGegevens("MIJN_ZAKEN").queryKey,
+        })?.state.isInvalidated,
+      ).toBe(true);
+    });
+  });
+
+  describe("listDashboardCards", () => {
+    const instellingen = [
+      fromPartial<GeneratedType<"RestDashboardCardInstelling">>({
+        cardId: "MIJN_TAKEN",
+        column: 0,
+        row: 0,
+      }),
+    ];
+
+    async function cachedDashboardCards() {
+      await sleep();
+      return testQueryClient.getQueryData(
+        service.listDashboardCards().queryKey,
+      );
+    }
+
+    it("caches the card instellingen that adding a card returns", async () => {
+      runMutation(
+        testQueryClient,
+        service.addDashboardCard(),
+        instellingen[0],
+      ).subscribe();
+      await sleep();
+      httpTestingController
+        .expectOne("/rest/gebruikersvoorkeuren/dasboardcard")
+        .flush(instellingen);
+
+      expect(await cachedDashboardCards()).toEqual(instellingen);
+    });
+
+    it("caches the card instellingen that updating the cards returns", async () => {
+      runMutation(
+        testQueryClient,
+        service.updateDashboardCards(),
+        instellingen,
+      ).subscribe();
+      await sleep();
+      httpTestingController
+        .expectOne("/rest/gebruikersvoorkeuren/dasboardcard/actief")
+        .flush(instellingen);
+
+      expect(await cachedDashboardCards()).toEqual(instellingen);
+    });
+
+    it("caches the card instellingen that deleting a card returns", async () => {
+      runMutation(
+        testQueryClient,
+        service.deleteDashboardCard(),
+        instellingen[0],
+      ).subscribe();
+      await sleep();
+      httpTestingController
+        .expectOne("/rest/gebruikersvoorkeuren/dasboardcard")
+        .flush(instellingen);
+
+      expect(await cachedDashboardCards()).toEqual(instellingen);
+    });
   });
 
   describe("addDashboardCard", () => {

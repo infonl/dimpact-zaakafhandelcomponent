@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { MatIcon } from "@angular/material/icon";
 import { MatTooltip } from "@angular/material/tooltip";
 import { TranslatePipe } from "@ngx-translate/core";
@@ -13,6 +13,7 @@ import { EmptyPipe } from "../pipes/empty.pipe";
   selector: "zac-zaak-identificatie",
   templateUrl: "./zaak-identificatie.component.html",
   styleUrls: ["./zaak-identificatie.component.less"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatIcon, MatTooltip, TranslatePipe, EmptyPipe],
 })
 export class ZaakIdentificatieComponent {

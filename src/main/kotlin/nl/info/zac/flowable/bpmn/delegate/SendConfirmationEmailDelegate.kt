@@ -4,15 +4,15 @@
  */
 package nl.info.zac.flowable.bpmn.delegate
 
-import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.delegate.AbstractDelegate
 import net.atos.zac.flowable.delegate.resolveValueAsString
+import nl.info.client.klant.model.toContactDetails
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
-import nl.info.zac.app.klant.model.contactdetails.toContactDetails
-import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.flowable.FlowableHelper
+import nl.info.zac.identification.IdentificatieType
 import nl.info.zac.identification.toIdentificatieType
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.getBronnenFromZaak

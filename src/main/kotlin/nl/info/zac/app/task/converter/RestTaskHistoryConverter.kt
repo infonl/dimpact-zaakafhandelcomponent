@@ -6,7 +6,6 @@ package nl.info.zac.app.task.converter
 
 import jakarta.inject.Inject
 import jakarta.json.bind.annotation.JsonbDateFormat
-import net.atos.zac.util.JsonbUtil
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.zac.app.task.model.RestTaskHistoryLine
 import nl.info.zac.flowable.task.FlowableTaskService
@@ -14,8 +13,9 @@ import nl.info.zac.flowable.task.model.ValueChangeData
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.task.TaskHistoryService
-import nl.info.zac.util.time.convertToLocalDate
-import nl.info.zac.util.time.convertToZonedDateTime
+import nl.info.zac.util.JSONB
+import nl.info.zac.util.time.toLocalDate
+import nl.info.zac.util.time.toZonedDateTime
 import org.flowable.task.api.history.HistoricTaskLogEntry
 import org.flowable.task.api.history.HistoricTaskLogEntryType
 import java.util.Date
@@ -64,7 +64,7 @@ class RestTaskHistoryConverter @Inject constructor(
                 )
             }
         }
-        restTaakHistorieRegel?.datumTijd = historicTaskLogEntry.timeStamp?.let(::convertToZonedDateTime)
+        restTaakHistorieRegel?.datumTijd = historicTaskLogEntry.timeStamp?.toZonedDateTime()
         return restTaakHistorieRegel
     }
 
@@ -93,7 +93,7 @@ class RestTaskHistoryConverter @Inject constructor(
         }
 
     private fun convertValueChangeData(attribuutLabel: String, data: String): RestTaskHistoryLine {
-        JsonbUtil.JSONB.fromJson(data, ValueChangeData::class.java).let {
+        JSONB.fromJson(data, ValueChangeData::class.java).let {
             return RestTaskHistoryLine(
                 attribuutLabel = attribuutLabel,
                 oudeWaarde = it.oldValue,
@@ -109,7 +109,7 @@ class RestTaskHistoryConverter @Inject constructor(
     }
 
     private fun convertOwnerChanged(data: String, taskId: String?): RestTaskHistoryLine {
-        JsonbUtil.JSONB.fromJson(data, AssigneeChangedData::class.java).let {
+        JSONB.fromJson(data, AssigneeChangedData::class.java).let {
             return RestTaskHistoryLine(
                 attribuutLabel = AANGEMAAKT_DOOR_ATTRIBUUT_LABEL,
                 oudeWaarde = it.previousAssigneeId?.let { medewerkerId -> getMedewerkerFullName(medewerkerId, taskId) },
@@ -120,7 +120,7 @@ class RestTaskHistoryConverter @Inject constructor(
     }
 
     private fun getMedewerkerFullName(medewerkerId: String, taskId: String?): String =
-        identityService.readUser(userId = medewerkerId, logContext = "the history of task '$taskId'").getFullName()
+        identityService.readUser(username = medewerkerId, logContext = "the history of task '$taskId'").getFullName()
 
     class DuedateChangedData {
         @JsonbDateFormat(JsonbDateFormat.TIME_IN_MILLIS)
@@ -131,11 +131,11 @@ class RestTaskHistoryConverter @Inject constructor(
     }
 
     private fun convertDueDateChanged(data: String): RestTaskHistoryLine {
-        JsonbUtil.JSONB.fromJson(data, DuedateChangedData::class.java).let {
+        JSONB.fromJson(data, DuedateChangedData::class.java).let {
             return RestTaskHistoryLine(
                 attribuutLabel = FATALEDATUM_ATTRIBUUT_LABEL,
-                oudeWaarde = it.previousDueDate?.let(::convertToLocalDate),
-                nieuweWaarde = it.newDueDate?.let(::convertToLocalDate),
+                oudeWaarde = it.previousDueDate?.toLocalDate(),
+                nieuweWaarde = it.newDueDate?.toLocalDate(),
                 toelichting = null
             )
         }

@@ -3,7 +3,10 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div class="table-wrapper" [class.loading]="utilService.loading()">
+<div
+  class="table-wrapper zaken-afgehandeld"
+  [class.loading]="utilService.loading()"
+>
   <table
     mat-table
     matSort
@@ -600,7 +603,7 @@
         *matCellDef="let row"
         [colSpan]="dataSource.visibleColumns.length"
       >
-        <div [@detailExpand]="row == expandedRow ? 'expanded' : 'collapsed'">
+        <div [@detailExpand]="row === expandedRow ? 'expanded' : 'collapsed'">
           <div class="flex-row flex-wrap gap-10 flex-fill">
             @for (column of dataSource.detailExpandColumns; track column) {
               @switch (column) {
@@ -754,9 +757,9 @@
                 }
                 @case (zoekenColumn.INDICATIES) {
                   <div class="flex-1 w33" class="static-text">
-                    <label class="static-text-label">{{
+                    <span class="static-text-label">{{
                       "indicaties" | translate
-                    }}</label>
+                    }}</span>
                     <div class="static-text-content">
                       <zac-zaak-indicaties
                         [layout]="indicatiesLayout.COMPACT"

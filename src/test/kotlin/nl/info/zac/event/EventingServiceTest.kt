@@ -14,14 +14,14 @@ import io.mockk.mockk
 import io.mockk.slot
 import jakarta.enterprise.event.Event
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.signalering.event.SignaleringEvent
-import net.atos.zac.signalering.event.SignaleringEventId
-import net.atos.zac.signalering.model.SignaleringType
-import net.atos.zac.util.event.JobEvent
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.LoggedInUserProvider.Companion.FUNCTIONEEL_GEBRUIKER
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.identity.model.createUser
+import nl.info.zac.signalering.event.SignaleringEvent
+import nl.info.zac.signalering.event.SignaleringEventId
+import nl.info.zac.signalering.model.SignaleringType
+import nl.info.zac.util.event.JobEvent
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.websocket.event.ScreenEventType
 import java.net.URI
@@ -48,7 +48,7 @@ class EventingServiceTest : BehaviorSpec({
 
     context("Sending a screen event") {
         given("a logged-in user") {
-            val loggedInUser = createLoggedInUser(id = "fakeUserId")
+            val loggedInUser = createLoggedInUser(username = "fakeUsername")
             val screenEvent = ScreenEventType.ZAAK.updated(UUID.randomUUID())
             val sentScreenEvent = slot<ScreenEvent>()
 
@@ -59,7 +59,7 @@ class EventingServiceTest : BehaviorSpec({
                 eventingService.send(screenEvent)
 
                 then("the event identifies the user that caused it, so that a screen can recognise its own change") {
-                    sentScreenEvent.captured.actorUserId shouldBe "fakeUserId"
+                    sentScreenEvent.captured.actorUsername shouldBe "fakeUsername"
                 }
             }
         }
@@ -75,7 +75,7 @@ class EventingServiceTest : BehaviorSpec({
                 eventingService.send(screenEvent)
 
                 then("the event identifies the functionele gebruiker, which no screen mistakes for its own user") {
-                    sentScreenEvent.captured.actorUserId shouldBe FUNCTIONEEL_GEBRUIKER.id
+                    sentScreenEvent.captured.actorUsername shouldBe FUNCTIONEEL_GEBRUIKER.username
                 }
             }
         }
@@ -83,7 +83,7 @@ class EventingServiceTest : BehaviorSpec({
 
     context("Sending a signalering event") {
         given("an observer that fails with an error") {
-            val actor = createUser(id = "fakeActorId")
+            val actor = createUser(username = "fakeActorId")
             val zaakOpNaamSignaleringEvent = SignaleringEvent(
                 SignaleringType.Type.ZAAK_OP_NAAM,
                 SignaleringEventId(URI("https://example.com/rol/fakeRolUuid"), null),
@@ -106,7 +106,7 @@ class EventingServiceTest : BehaviorSpec({
                 }
 
                 then("the actor is not logged, because a user ID is personal data") {
-                    logRecords.single().message shouldNotContain actor.id
+                    logRecords.single().message shouldNotContain actor.username
                 }
             }
         }

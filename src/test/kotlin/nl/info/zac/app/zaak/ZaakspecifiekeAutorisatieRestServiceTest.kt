@@ -149,7 +149,7 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
                     zaakType,
                     "fakeGroepId"
                 )
-            } returns listOf(createUser(id = "fakeMedewerkerId", fullName = "fakeFullName"))
+            } returns listOf(createUser(username = "fakeMedewerkerId", fullName = "fakeFullName"))
 
             `when`("the kandidaten of a groep are listed") {
                 val restUsers = zaakspecifiekeAutorisatieRestService.listZaakspecifiekGeautoriseerdeMedewerkerKandidaten(
@@ -160,7 +160,7 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
                 then("the kandidaten are returned") {
                     restUsers.size shouldBe 1
                     with(restUsers.single()) {
-                        id shouldBe "fakeMedewerkerId"
+                        username shouldBe "fakeMedewerkerId"
                         naam shouldBe "fakeFullName"
                     }
                 }
@@ -220,7 +220,7 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
                     groepId = "fakeGroepId",
                     medewerkerId = "fakeMedewerkerId"
                 )
-            } returns createUser(id = "fakeMedewerkerId", fullName = "fakeMedewerkerNaam")
+            } returns createUser(username = "fakeMedewerkerId", fullName = "fakeMedewerkerNaam")
 
             `when`("a medewerker of a groep is added") {
                 val restUser = zaakspecifiekeAutorisatieRestService.addZaakspecifiekGeautoriseerdeMedewerker(
@@ -236,7 +236,7 @@ class ZaakspecifiekeAutorisatieRestServiceTest : BehaviorSpec({
                 }
 
                 and("the added medewerker is returned") {
-                    restUser.id shouldBe "fakeMedewerkerId"
+                    restUser.username shouldBe "fakeMedewerkerId"
                     restUser.naam shouldBe "fakeMedewerkerNaam"
                 }
 

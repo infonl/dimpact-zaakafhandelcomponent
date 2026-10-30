@@ -4,13 +4,16 @@
  */
 import { CommonModule } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   OnDestroy,
   OnInit,
   computed,
+  effect,
   inject,
   signal,
+  untracked,
   viewChild,
 } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
@@ -34,8 +37,6 @@ import type { FormioForm } from "@formio/angular";
 import { TranslatePipe } from "@ngx-translate/core";
 import { QueryClient, injectQuery } from "@tanstack/angular-query-experimental";
 import { ZaakDocumentenComponent } from "src/app/zaken/zaak-documenten/zaak-documenten.component";
-import { ObjectType } from "../../core/websocket/model/object-type";
-import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { mapStringToDocumentenStrings } from "../../documenten/document-utils";
@@ -87,6 +88,7 @@ import { FormioSetupService } from "./formio/formio-setup-service";
   templateUrl: "./taak-view.component.html",
   styleUrls: ["./taak-view.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     MatButtonModule,
@@ -122,6 +124,20 @@ export class TaakViewComponent
   extends ActionsViewComponent
   implements OnInit, OnDestroy
 {
+  private readonly route = inject(ActivatedRoute);
+  private readonly takenService = inject(TakenService);
+  private readonly zakenService = inject(ZakenService);
+  private readonly websocketService = inject(WebsocketService);
+  private readonly taakFormulierenService = inject(TaakFormulierenService);
+  private readonly identityService = inject(IdentityService);
+  private readonly formioSetupService = inject(FormioSetupService);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
+
   readonly actionsSidenav = viewChild.required<MatDrawer>("actionsSidenav");
   readonly menuSidenav = viewChild.required<MatSidenav>("menuSidenav");
   readonly sideNavContainer =
@@ -189,23 +205,35 @@ export class TaakViewComponent
   );
 
   private readonly queryClient = inject(QueryClient);
+
+  private readonly taakIdToReread = signal<string | null>(null);
+  private readonly rereadTaakQuery = injectQuery(() => ({
+    ...this.takenService.readTaak(this.taakIdToReread()!),
+    enabled: !!this.taakIdToReread(),
+    structuralSharing: false,
+  }));
+
+  private readonly historieTaakId = signal<string | null>(null);
+  private readonly historieQuery = injectQuery(() => ({
+    ...this.takenService.listHistorieVoorTaak(this.historieTaakId()!),
+    enabled: !!this.historieTaakId(),
+  }));
+
   private readonly lastSubmitFailed = signal(false);
   protected readonly hasFailed = this.lastSubmitFailed.asReadonly();
 
-  constructor(
-    private readonly route: ActivatedRoute,
-    private readonly takenService: TakenService,
-    private readonly zakenService: ZakenService,
-    private readonly websocketService: WebsocketService,
-    private readonly taakFormulierenService: TaakFormulierenService,
-    private readonly identityService: IdentityService,
-    private readonly formioSetupService: FormioSetupService,
-    private readonly changeDetectorRef: ChangeDetectorRef,
-    private readonly formBuilder: FormBuilder,
-    private readonly informatieObjectenService: InformatieObjectenService,
-    private readonly foutAfhandelingService: FoutAfhandelingService,
-  ) {
+  constructor() {
     super();
+
+    effect(() => {
+      const task = this.rereadTaakQuery.data();
+      if (!task) return;
+      untracked(() => this.init(task, false));
+    });
+
+    effect(() => {
+      this.historieSrc.data = this.historieQuery.data() ?? [];
+    });
   }
 
   ngOnInit() {
@@ -214,14 +242,10 @@ export class TaakViewComponent
       this.init(data.taak);
 
       this.taakListener = this.websocketService.addListenerWithSnackbar(
-        Opcode.ANY,
-        ObjectType.TAAK,
+        "ANY",
+        "TAAK",
         data.taak.id,
-        () => {
-          this.takenService.readTaak(data.taak.id).subscribe((task) => {
-            this.init(task, false);
-          });
-        },
+        () => this.rereadTaak(data.taak.id),
       );
 
       this.historieSrc.sortingDataAccessor = (item, property) => {
@@ -389,14 +413,22 @@ export class TaakViewComponent
     }
   }
 
+  private rereadTaak(taakId: string) {
+    if (this.taakIdToReread() === taakId) {
+      void this.rereadTaakQuery.refetch();
+      return;
+    }
+    this.taakIdToReread.set(taakId);
+  }
+
   private loadHistorie() {
     if (!this.taak?.id) return;
 
-    this.takenService
-      .listHistorieVoorTaak(this.taak.id)
-      .subscribe((historie) => {
-        this.historieSrc.data = historie;
-      });
+    if (this.historieTaakId() === this.taak.id) {
+      void this.historieQuery.refetch();
+      return;
+    }
+    this.historieTaakId.set(this.taak.id);
   }
 
   editTaak() {
@@ -521,8 +553,8 @@ export class TaakViewComponent
 
     if (!this.taak) return;
     const listener = this.websocketService.addListener(
-      Opcode.UPDATED,
-      ObjectType.ZAAK_INFORMATIEOBJECTEN,
+      "UPDATED",
+      "ZAAK_INFORMATIEOBJECTEN",
       this.taak.zaakUuid,
       () => {
         this.websocketService.removeListener(listener);

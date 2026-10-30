@@ -248,8 +248,11 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    given("A behandelaar is logged in and a BPMN type zaak has been created for a case that will be aborted") {
+    given(
+        "A behandelaar is logged in and a BPMN type zaak with an open taak has been created for a case that will be aborted"
+    ) {
         var bpmnZaakUuid: UUID
+        var zaakIdentificatie: String
         zacClient.createZaakAndRetrieve(
             zaakTypeUUID = ZAAKTYPE_BPMN_TEST_1_UUID,
             groupId = GROUP_BEHANDELAARS_TEST_1.name,
@@ -263,8 +266,17 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
             JSONObject(responseBody).run {
                 getJSONObject("zaakdata").run {
                     bpmnZaakUuid = getString("zaakUUID").run(UUID::fromString)
+                    zaakIdentificatie = getString("zaakIdentificatie")
                 }
             }
+        }
+        eventually(10.seconds) {
+            val searchResponseBody = zacClient.searchForTasks(
+                zaakIdentificatie = zaakIdentificatie,
+                taskName = ItestConfiguration.BPMN_TEST_TASK_NAME,
+                testUser = BEHANDELAAR_1
+            )
+            JSONObject(searchResponseBody).getInt("totaal") shouldBe 1
         }
 
         `when`("the case is aborted") {
@@ -282,6 +294,17 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HttpURLConnection.HTTP_OK
                 responseBody.shouldContainJsonKeyValue("uuid", bpmnZaakUuid.toString())
+            }
+
+            and("its ended taak is no longer found by the taken search") {
+                eventually(10.seconds) {
+                    val searchResponseBody = zacClient.searchForTasks(
+                        zaakIdentificatie = zaakIdentificatie,
+                        taskName = ItestConfiguration.BPMN_TEST_TASK_NAME,
+                        testUser = BEHANDELAAR_1
+                    )
+                    JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
+                }
             }
         }
     }

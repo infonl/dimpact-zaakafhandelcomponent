@@ -5,8 +5,8 @@
 
 package net.atos.zac.flowable.delegate
 
-import net.atos.zac.flowable.FlowableHelper
 import nl.info.client.zgw.zrc.util.isOpgeschort
+import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.policy.assertPolicy
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
@@ -36,7 +36,7 @@ class ResumeZaakDelegate : AbstractDelegate() {
         assertPolicy(
             flowableHelper.policyService.readZaakRechten(zaak, loggedInUser).canHervatten,
             LOG,
-            "User ${loggedInUser.id} not allowed to resume zaak ${zaak.identificatie}"
+            "User ${loggedInUser.username} not allowed to resume zaak ${zaak.identificatie}"
         )
         assertPolicy(
             zaak.isOpgeschort(),
