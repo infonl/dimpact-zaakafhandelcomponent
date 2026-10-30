@@ -168,9 +168,7 @@
           ) {
             <zac-date-filter
               label="startdatum"
-              [range]="
-                $safeNavigationMigration(zoekParameters().datums?.STARTDATUM)
-              "
+              [range]="zoekParameters().datums?.STARTDATUM"
               (changed)="dateFilterChange('STARTDATUM', $event)"
             >
             </zac-date-filter>
@@ -178,11 +176,7 @@
           @if (hasZaken() || !!zoekParameters().datums?.ZAAK_STREEFDATUM) {
             <zac-date-filter
               label="zaak.streefdatum"
-              [range]="
-                $safeNavigationMigration(
-                  zoekParameters().datums?.ZAAK_STREEFDATUM
-                )
-              "
+              [range]="zoekParameters().datums?.ZAAK_STREEFDATUM"
               (changed)="dateFilterChange('ZAAK_STREEFDATUM', $event)"
             >
             </zac-date-filter>
@@ -190,11 +184,7 @@
           @if (hasZaken() || !!zoekParameters().datums?.ZAAK_FATALE_DATUM) {
             <zac-date-filter
               label="zaak.fataledatum"
-              [range]="
-                $safeNavigationMigration(
-                  zoekParameters().datums?.ZAAK_FATALE_DATUM
-                )
-              "
+              [range]="zoekParameters().datums?.ZAAK_FATALE_DATUM"
               (changed)="dateFilterChange('ZAAK_FATALE_DATUM', $event)"
             >
             </zac-date-filter>
@@ -202,11 +192,7 @@
           @if (hasZaken() || !!zoekParameters().datums?.ZAAK_EINDDATUM) {
             <zac-date-filter
               label="zaak.einddatum"
-              [range]="
-                $safeNavigationMigration(
-                  zoekParameters().datums?.ZAAK_EINDDATUM
-                )
-              "
+              [range]="zoekParameters().datums?.ZAAK_EINDDATUM"
               (changed)="dateFilterChange('ZAAK_EINDDATUM', $event)"
             >
             </zac-date-filter>
