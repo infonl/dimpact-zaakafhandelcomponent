@@ -6,7 +6,7 @@
 <mat-drawer-container
   #sideNavContainer
   class="inner-sidenav-container"
-  [class]="sideNaveMode"
+  [class]="sideNaveMode()"
   xmlns="http://www.w3.org/1999/html"
 >
   <mat-drawer
@@ -14,7 +14,7 @@
     position="start"
     opened="true"
     disableClose="true"
-    [mode]="sideNaveMode"
+    [mode]="sideNaveMode()"
   >
     <zac-side-nav
       (mode)="menuModeChanged($event)"

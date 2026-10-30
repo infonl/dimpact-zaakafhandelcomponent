@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
+import { Component, signal } from "@angular/core";
 import {
   ComponentFixture,
   fakeAsync,
@@ -21,7 +21,6 @@ import { ViewComponent } from "./view-component";
 
 @Component({
   template: "",
-  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class TestViewComponent extends ViewComponent {
@@ -46,7 +45,7 @@ class TestViewComponent extends ViewComponent {
   }
 
   get mode(): MatDrawerMode {
-    return this.sideNaveMode;
+    return this.sideNaveMode();
   }
 
   get containerHasBackdrop(): boolean {
