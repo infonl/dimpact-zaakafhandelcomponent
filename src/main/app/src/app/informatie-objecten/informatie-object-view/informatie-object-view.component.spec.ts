@@ -16,19 +16,21 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
+import { notifyManager } from "@tanstack/query-core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of, ReplaySubject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep } from "../../../../setupJest";
 import { Breadcrumb } from "../../core/breadcrumbs/route-title";
+import { ScreenEvent } from "../../core/websocket/model/screen-event";
+import { WebsocketService } from "../../core/websocket/websocket.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { ConfirmDialogData } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { RedenDialogData } from "../../shared/dialog/reden-dialog-form/reden-dialog-form.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
 import { InformatieObjectEditComponent } from "../informatie-object-edit/informatie-object-edit.component";
-import { InformatieObjectenService } from "../informatie-objecten.service";
 import { FileFormat } from "../model/file-format";
 import { InformatieObjectViewComponent } from "./informatie-object-view.component";
 
@@ -51,9 +53,11 @@ describe(InformatieObjectViewComponent.name, () => {
   let component: InformatieObjectViewComponent;
   let fixture: ComponentFixture<typeof component>;
   let loader: HarnessLoader;
-
-  let informatieObjectenService: InformatieObjectenService;
-  let zakenService: ZakenService;
+  let httpTestingController: HttpTestingController;
+  let addListener: jest.SpyInstance<
+    ReturnType<WebsocketService["addListener"]>,
+    Parameters<WebsocketService["addListener"]>
+  >;
 
   const mockActivatedRoute = {
     data: new ReplaySubject<{
@@ -91,7 +95,62 @@ describe(InformatieObjectViewComponent.name, () => {
     formaat: FileFormat.DOCX,
   });
 
+  const documentUrl = `/rest/informatieobjecten/informatieobject/${enkelvoudigInformatieobject.uuid}`;
+
+  type Reads = {
+    laatsteVersie?: GeneratedType<"RestEnkelvoudigInformatieobject">;
+    zaakInformatieobjecten?: GeneratedType<"RestZaakInformatieobject">[];
+    historie?: GeneratedType<"HistoryLine">[];
+  };
+
+  function withRechten(
+    rechten: Partial<GeneratedType<"RestDocumentRechten">>,
+    document: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">> = {},
+  ) {
+    return fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
+      ...enkelvoudigInformatieobject,
+      ...document,
+      rechten: fromPartial<GeneratedType<"RestDocumentRechten">>(rechten),
+    });
+  }
+
+  async function answerReads({
+    laatsteVersie = enkelvoudigInformatieobject,
+    zaakInformatieobjecten = [zaakInformatieobject],
+    historie = [],
+  }: Reads = {}) {
+    await sleep();
+    httpTestingController.expectOne(documentUrl).flush(laatsteVersie);
+    httpTestingController
+      .expectOne(`${documentUrl}/zaakinformatieobjecten`)
+      .flush(zaakInformatieobjecten);
+    httpTestingController.expectOne(`${documentUrl}/historie`).flush(historie);
+    await sleep();
+    TestBed.tick();
+    fixture.detectChanges();
+  }
+
+  async function openView(
+    reads: Reads = {},
+    routeInformatieObject = enkelvoudigInformatieobject,
+  ) {
+    fixture = TestBed.createComponent(InformatieObjectViewComponent);
+    component = fixture.componentInstance;
+    loader = TestbedHarnessEnvironment.loader(fixture);
+
+    mockActivatedRoute.data.next({ informatieObject: routeInformatieObject });
+    fixture.detectChanges();
+
+    await answerReads(reads);
+  }
+
+  function sendDocumentUpdate() {
+    const [, , , callback] = addListener.mock.lastCall!;
+    callback(fromPartial<ScreenEvent>({}));
+  }
+
   beforeEach(async () => {
+    notifyManager.setScheduler((fn) => fn());
     await TestBed.configureTestingModule({
       imports: [InformatieObjectViewComponent, NoopAnimationsModule],
       providers: [
@@ -108,66 +167,64 @@ describe(InformatieObjectViewComponent.name, () => {
       })
       .compileComponents();
 
-    informatieObjectenService = TestBed.inject(InformatieObjectenService);
+    httpTestingController = TestBed.inject(HttpTestingController);
+    addListener = jest.spyOn(TestBed.inject(WebsocketService), "addListener");
     jest
-      .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
-      .mockReturnValue(of(enkelvoudigInformatieobject));
-
-    jest
-      .spyOn(
-        informatieObjectenService,
-        "readHuidigeVersieEnkelvoudigInformatieObject",
-      )
-      .mockReturnValue(
-        of({
-          uuid: "enkelvoudig-informatieobject-001",
-          informatieobjectTypeUUID: "test-uuid",
-          titel: "test informatieobject",
-          vertrouwelijkheidaanduiding: "OPENBAAR",
-          rechten: {},
-        }),
-      );
-
-    jest
-      .spyOn(informatieObjectenService, "listZaakInformatieobjecten")
-      .mockReturnValue(of([zaakInformatieobject]));
-
-    jest
-      .spyOn(informatieObjectenService, "listHistorie")
-      .mockReturnValue(of([]));
-
-    zakenService = TestBed.inject(ZakenService);
-    jest.spyOn(zakenService, "readZaakByID").mockReturnValue(of(zaak));
-
-    fixture = TestBed.createComponent(InformatieObjectViewComponent);
-    component = fixture.componentInstance;
-    loader = TestbedHarnessEnvironment.loader(fixture);
-
-    mockActivatedRoute.data.next({
-      informatieObject: enkelvoudigInformatieobject,
-    });
-
-    fixture.detectChanges();
+      .spyOn(TestBed.inject(ZakenService), "readZaakByID")
+      .mockReturnValue(of(zaak));
   });
 
-  it("resizes the content along with the menu, so that the document card does not end up behind a menu that renders after the page", () => {
+  afterEach(() => notifyManager.setScheduler((fn) => setTimeout(fn, 0)));
+
+  it("resizes the content along with the menu, so that the document card does not end up behind a menu that renders after the page", async () => {
+    await openView();
+
     expect(component.sideNavContainer().autosize).toBe(true);
+  });
+
+  describe("when the document changes on the server", () => {
+    it("reads the document, its zaak koppelingen and its historie again, and shows the latest version", async () => {
+      await openView();
+
+      sendDocumentUpdate();
+      await answerReads({
+        laatsteVersie: { ...enkelvoudigInformatieobject, titel: "fakeTitel" },
+        historie: [
+          fromPartial<GeneratedType<"HistoryLine">>({ door: "fakeUserName" }),
+        ],
+      });
+
+      expect(screen.getAllByText("fakeTitel").length).toBeGreaterThan(0);
+      await user.click(screen.getByRole("tab", { name: /historie/ }));
+      fixture.detectChanges();
+      expect(await screen.findByText("fakeUserName")).toBeInTheDocument();
+    });
+
+    it("shows the latest version also when an older version was opened", async () => {
+      await openView(
+        { laatsteVersie: { ...enkelvoudigInformatieobject, versie: 2 } },
+        { ...enkelvoudigInformatieobject, versie: 1, titel: "fakeOudeTitel" },
+      );
+      expect(screen.getAllByText("fakeOudeTitel").length).toBeGreaterThan(0);
+
+      sendDocumentUpdate();
+      await answerReads({
+        laatsteVersie: {
+          ...enkelvoudigInformatieobject,
+          versie: 2,
+          titel: "fakeNieuweTitel",
+        },
+      });
+
+      expect(screen.queryByText("fakeOudeTitel")).not.toBeInTheDocument();
+      expect(screen.getAllByText("fakeNieuweTitel").length).toBeGreaterThan(0);
+    });
   });
 
   describe("actie.nieuwe.versie.toevoegen", () => {
     it("should not have a button when the user does not have the right to add a new version", async () => {
-      jest
-        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
-        .mockReturnValue(
-          of({
-            ...enkelvoudigInformatieobject,
-            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
-              canToevoegenNieuweVersie: false,
-            }),
-          }),
-        );
-      mockActivatedRoute.data.next({
-        informatieObject: enkelvoudigInformatieobject,
+      await openView({
+        laatsteVersie: withRechten({ canToevoegenNieuweVersie: false }),
       });
 
       const button = await loader.getHarnessOrNull(
@@ -177,45 +234,33 @@ describe(InformatieObjectViewComponent.name, () => {
       expect(button).toBeNull();
     });
 
-    it("should open the sidebar when clicked", async () => {
-      jest
-        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
-        .mockReturnValue(
-          of({
-            ...enkelvoudigInformatieobject,
-            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
-              canToevoegenNieuweVersie: true,
-            }),
-          }),
-        );
-      mockActivatedRoute.data.next({
-        informatieObject: enkelvoudigInformatieobject,
+    it("should open the sidebar with the current version once it is read", async () => {
+      await openView({
+        laatsteVersie: withRechten({ canToevoegenNieuweVersie: true }),
       });
 
-      const button = await loader.getHarness(
-        MatNavListItemHarness.with({ title: "actie.nieuwe.versie.toevoegen" }),
+      await user.click(
+        screen.getByRole("button", { name: "actie.nieuwe.versie.toevoegen" }),
       );
-      await button.click();
+      await sleep();
+      httpTestingController.expectOne(`${documentUrl}/huidigeversie`).flush(
+        fromPartial<
+          GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">
+        >({
+          uuid: enkelvoudigInformatieobject.uuid,
+          titel: enkelvoudigInformatieobject.titel,
+        }),
+      );
+      await sleep();
 
-      const sidebar = component.actionsSidenav();
-      expect(sidebar.opened).toBe(true);
+      expect(component.actionsSidenav().opened).toBe(true);
     });
   });
 
   describe("actie.converteren", () => {
     it("should have a button when the document is of format DOCX and the user has the right to convert a document", async () => {
-      jest
-        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
-        .mockReturnValue(
-          of({
-            ...enkelvoudigInformatieobject,
-            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
-              canConverteren: true,
-            }),
-          }),
-        );
-      mockActivatedRoute.data.next({
-        informatieObject: enkelvoudigInformatieobject,
+      await openView({
+        laatsteVersie: withRechten({ canConverteren: true }),
       });
 
       const button = await loader.getHarness(
@@ -226,18 +271,8 @@ describe(InformatieObjectViewComponent.name, () => {
     });
 
     it("should not have a button when the document is of format DOCX and the user does not have the right to convert a document", async () => {
-      jest
-        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
-        .mockReturnValue(
-          of({
-            ...enkelvoudigInformatieobject,
-            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
-              canConverteren: false,
-            }),
-          }),
-        );
-      mockActivatedRoute.data.next({
-        informatieObject: enkelvoudigInformatieobject,
+      await openView({
+        laatsteVersie: withRechten({ canConverteren: false }),
       });
 
       const button = await loader.getHarnessOrNull(
@@ -248,22 +283,10 @@ describe(InformatieObjectViewComponent.name, () => {
     });
 
     it("should not have a button when the document is of format TEXT and the user has the right to convert a document", async () => {
-      jest
-        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
-        .mockReturnValue(
-          of({
-            ...enkelvoudigInformatieobject,
-            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
-              canConverteren: true,
-            }),
-          }),
-        );
-      mockActivatedRoute.data.next({
-        informatieObject: {
-          ...enkelvoudigInformatieobject,
-          formaat: FileFormat.TEXT,
-        },
-      });
+      await openView(
+        { laatsteVersie: withRechten({ canConverteren: true }) },
+        { ...enkelvoudigInformatieobject, formaat: FileFormat.TEXT },
+      );
 
       const button = await loader.getHarnessOrNull(
         MatNavListItemHarness.with({ title: "actie.converteren" }),
@@ -273,30 +296,17 @@ describe(InformatieObjectViewComponent.name, () => {
     });
 
     it("converts the document within its zaak to PDF", async () => {
-      jest
-        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
-        .mockReturnValue(
-          of({
-            ...enkelvoudigInformatieobject,
-            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
-              canConverteren: true,
-            }),
-          }),
-        );
-      mockActivatedRoute.data.next({
-        informatieObject: enkelvoudigInformatieobject,
+      await openView({
+        laatsteVersie: withRechten({ canConverteren: true }),
       });
 
-      await loader.getHarness(
-        MatNavListItemHarness.with({ title: "actie.converteren" }),
-      );
       await user.click(
         screen.getByRole("button", { name: "actie.converteren" }),
       );
       await sleep();
 
-      const request = TestBed.inject(HttpTestingController).expectOne(
-        `/rest/informatieobjecten/informatieobject/${enkelvoudigInformatieobject.uuid}/convert?zaak=${zaak.uuid}`,
+      const request = httpTestingController.expectOne(
+        `${documentUrl}/convert?zaak=${zaak.uuid}`,
       );
       expect(request.request.method).toBe("POST");
       request.flush(null);
@@ -305,19 +315,11 @@ describe(InformatieObjectViewComponent.name, () => {
 
   describe("actie.unlock", () => {
     it("should not have a button when the document is not locked", async () => {
-      jest
-        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
-        .mockReturnValue(
-          of({
-            ...enkelvoudigInformatieobject,
-            gelockedDoor: undefined,
-            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
-              canOntgrendelen: true,
-            }),
-          }),
-        );
-      mockActivatedRoute.data.next({
-        informatieObject: enkelvoudigInformatieobject,
+      await openView({
+        laatsteVersie: withRechten(
+          { canOntgrendelen: true },
+          { gelockedDoor: undefined },
+        ),
       });
 
       const button = await loader.getHarnessOrNull(
@@ -328,19 +330,11 @@ describe(InformatieObjectViewComponent.name, () => {
     });
 
     it("should not have a button when the document is locked but the user does not have the right to unlock", async () => {
-      jest
-        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
-        .mockReturnValue(
-          of({
-            ...enkelvoudigInformatieobject,
-            gelockedDoor: { username: "user-001", naam: "Test User" },
-            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
-              canOntgrendelen: false,
-            }),
-          }),
-        );
-      mockActivatedRoute.data.next({
-        informatieObject: enkelvoudigInformatieobject,
+      await openView({
+        laatsteVersie: withRechten(
+          { canOntgrendelen: false },
+          { gelockedDoor: { username: "user-001", naam: "Test User" } },
+        ),
       });
 
       const button = await loader.getHarnessOrNull(
@@ -351,178 +345,167 @@ describe(InformatieObjectViewComponent.name, () => {
     });
 
     it("unlocks the document within its zaak when clicked and a zaak is present", async () => {
-      jest
-        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
-        .mockReturnValue(
-          of({
-            ...enkelvoudigInformatieobject,
-            gelockedDoor: { username: "user-001", naam: "Test User" },
-            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
-              canOntgrendelen: true,
-            }),
-          }),
-        );
-      mockActivatedRoute.data.next({
-        informatieObject: enkelvoudigInformatieobject,
+      await openView({
+        laatsteVersie: withRechten(
+          { canOntgrendelen: true },
+          { gelockedDoor: { username: "user-001", naam: "Test User" } },
+        ),
       });
 
-      await loader.getHarness(
-        MatNavListItemHarness.with({ title: "actie.unlock" }),
-      );
       await user.click(screen.getByRole("button", { name: "actie.unlock" }));
       await sleep();
 
-      const request = TestBed.inject(HttpTestingController).expectOne(
-        `/rest/informatieobjecten/informatieobject/${enkelvoudigInformatieobject.uuid}/unlock?zaak=${zaak.uuid}`,
+      const request = httpTestingController.expectOne(
+        `${documentUrl}/unlock?zaak=${zaak.uuid}`,
       );
       expect(request.request.method).toBe("POST");
       request.flush(null);
+      await answerReads();
     });
 
     it("unlocks the document without a zaak when clicked and no zaak is present", async () => {
-      jest
-        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
-        .mockReturnValue(
-          of({
-            ...enkelvoudigInformatieobject,
-            gelockedDoor: { username: "user-001", naam: "Test User" },
-            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
-              canOntgrendelen: true,
-            }),
-          }),
-        );
-      jest
-        .spyOn(informatieObjectenService, "listZaakInformatieobjecten")
-        .mockReturnValue(of([]));
-      mockActivatedRoute.data.next({
-        informatieObject: enkelvoudigInformatieobject,
+      await openView({
+        laatsteVersie: withRechten(
+          { canOntgrendelen: true },
+          { gelockedDoor: { username: "user-001", naam: "Test User" } },
+        ),
+        zaakInformatieobjecten: [],
       });
 
-      await loader.getHarness(
-        MatNavListItemHarness.with({ title: "actie.unlock" }),
-      );
       await user.click(screen.getByRole("button", { name: "actie.unlock" }));
       await sleep();
 
-      const request = TestBed.inject(HttpTestingController).expectOne(
-        ({ url }) =>
-          url.startsWith(
-            `/rest/informatieobjecten/informatieobject/${enkelvoudigInformatieobject.uuid}/unlock`,
-          ),
+      const request = httpTestingController.expectOne(({ url }) =>
+        url.startsWith(`${documentUrl}/unlock`),
       );
       expect(request.request.url).not.toContain("zaak=");
       request.flush(null);
+      await answerReads({ zaakInformatieobjecten: [] });
+    });
+
+    it("reads the document again once it is unlocked, so that the lock button replaces the unlock button", async () => {
+      await openView({
+        laatsteVersie: withRechten(
+          { canOntgrendelen: true, canVergrendelen: true },
+          { gelockedDoor: { username: "user-001", naam: "Test User" } },
+        ),
+      });
+
+      await user.click(screen.getByRole("button", { name: "actie.unlock" }));
+      await sleep();
+      httpTestingController
+        .expectOne(`${documentUrl}/unlock?zaak=${zaak.uuid}`)
+        .flush(null);
+      await answerReads({
+        laatsteVersie: withRechten(
+          { canOntgrendelen: true, canVergrendelen: true },
+          { gelockedDoor: undefined },
+        ),
+      });
+
+      expect(
+        screen.queryByRole("button", { name: "actie.unlock" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "actie.lock" }),
+      ).toBeInTheDocument();
     });
   });
 
   describe("actie.lock", () => {
-    beforeEach(() => {
-      jest
-        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
-        .mockReturnValue(
-          of({
-            ...enkelvoudigInformatieobject,
-            gelockedDoor: undefined,
-            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
-              canVergrendelen: true,
-            }),
-          }),
-        );
-      mockActivatedRoute.data.next({
-        informatieObject: enkelvoudigInformatieobject,
+    beforeEach(async () => {
+      await openView({
+        laatsteVersie: withRechten(
+          { canVergrendelen: true, canOntgrendelen: true },
+          { gelockedDoor: undefined },
+        ),
       });
     });
 
     it("locks the document within its zaak and keeps the button disabled until the updated document replaces it", async () => {
-      await loader.getHarness(
-        MatNavListItemHarness.with({ title: "actie.lock" }),
-      );
       await user.click(screen.getByRole("button", { name: "actie.lock" }));
       await sleep();
 
-      const request = TestBed.inject(HttpTestingController).expectOne(
-        `/rest/informatieobjecten/informatieobject/${enkelvoudigInformatieobject.uuid}/lock?zaak=${zaak.uuid}`,
+      const request = httpTestingController.expectOne(
+        `${documentUrl}/lock?zaak=${zaak.uuid}`,
       );
       expect(request.request.method).toBe("POST");
       request.flush(null);
-
       fixture.detectChanges();
 
       expect(screen.getByRole("button", { name: "actie.lock" })).toBeDisabled();
+
+      await answerReads({
+        laatsteVersie: withRechten(
+          { canVergrendelen: true, canOntgrendelen: true },
+          { gelockedDoor: { username: "user-001", naam: "Test User" } },
+        ),
+      });
+
+      expect(
+        screen.queryByRole("button", { name: "actie.lock" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "actie.unlock" }),
+      ).toBeInTheDocument();
     });
 
     it("enables the button again when locking fails", async () => {
       jest
         .spyOn(TestBed.inject(FoutAfhandelingService), "foutAfhandelen")
         .mockReturnValue(of());
-      await loader.getHarness(
-        MatNavListItemHarness.with({ title: "actie.lock" }),
-      );
       await user.click(screen.getByRole("button", { name: "actie.lock" }));
       await sleep();
 
-      TestBed.inject(HttpTestingController)
-        .expectOne(
-          `/rest/informatieobjecten/informatieobject/${enkelvoudigInformatieobject.uuid}/lock?zaak=${zaak.uuid}`,
-        )
+      httpTestingController
+        .expectOne(`${documentUrl}/lock?zaak=${zaak.uuid}`)
         .flush(null, { status: 500, statusText: "Server Error" });
 
       await sleep();
       fixture.detectChanges();
 
       expect(screen.getByRole("button", { name: "actie.lock" })).toBeEnabled();
+      httpTestingController.expectNone(documentUrl);
     });
   });
 
   describe("actie.ondertekenen", () => {
     let dialog: MatDialog;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       dialog = TestBed.inject(MatDialog);
       jest
         .spyOn(dialog, "open")
         .mockReturnValue(fromPartial<MatDialogRef<unknown>>({}));
-      jest
-        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
-        .mockReturnValue(
-          of({
-            ...enkelvoudigInformatieobject,
-            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
-              canOndertekenen: true,
-            }),
-          }),
-        );
-      mockActivatedRoute.data.next({
-        informatieObject: enkelvoudigInformatieobject,
+      await openView({
+        laatsteVersie: withRechten({ canOndertekenen: true }),
       });
     });
 
     it("does not sign the document while the confirmation dialog is still open", async () => {
-      const button = await loader.getHarness(
-        MatNavListItemHarness.with({ title: "actie.ondertekenen" }),
+      await user.click(
+        screen.getByRole("button", { name: "actie.ondertekenen" }),
       );
-      await button.click();
       await sleep();
 
       expect(dialog.open).toHaveBeenCalled();
-      TestBed.inject(HttpTestingController).expectNone(
-        `/rest/informatieobjecten/informatieobject/${enkelvoudigInformatieobject.uuid}/onderteken?zaak=${zaak.uuid}`,
+      httpTestingController.expectNone(
+        `${documentUrl}/onderteken?zaak=${zaak.uuid}`,
       );
     });
 
     it("signs the document within its zaak once confirmed, so that the dialog can close", async () => {
-      const button = await loader.getHarness(
-        MatNavListItemHarness.with({ title: "actie.ondertekenen" }),
+      await user.click(
+        screen.getByRole("button", { name: "actie.ondertekenen" }),
       );
-      await button.click();
       const { observable } = jest.mocked(dialog.open).mock.calls.at(-1)![1]!
         .data as ConfirmDialogData;
       const onSigned = jest.fn();
       observable!.subscribe(onSigned);
       await sleep();
 
-      const request = TestBed.inject(HttpTestingController).expectOne(
-        `/rest/informatieobjecten/informatieobject/${enkelvoudigInformatieobject.uuid}/onderteken?zaak=${zaak.uuid}`,
+      const request = httpTestingController.expectOne(
+        `${documentUrl}/onderteken?zaak=${zaak.uuid}`,
       );
       expect(request.request.method).toBe("POST");
       request.flush(null);
@@ -533,19 +516,16 @@ describe(InformatieObjectViewComponent.name, () => {
   });
 
   describe("actie.verwijderen", () => {
-    const deleteUrl = `/rest/informatieobjecten/informatieobject/${enkelvoudigInformatieobject.uuid}`;
-
-    let httpTestingController: HttpTestingController;
     let dialog: MatDialog;
 
-    beforeEach(() => {
-      httpTestingController = TestBed.inject(HttpTestingController);
+    beforeEach(async () => {
       dialog = TestBed.inject(MatDialog);
       jest
         .spyOn(dialog, "open")
         .mockReturnValue(
           fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(false) }),
         );
+      await openView();
     });
 
     describe("a document without a zaak", () => {
@@ -554,7 +534,7 @@ describe(InformatieObjectViewComponent.name, () => {
 
         component["openDocumentVerwijderenDialog"]();
 
-        httpTestingController.expectNone(deleteUrl);
+        httpTestingController.expectNone(documentUrl);
       });
     });
 
@@ -572,7 +552,7 @@ describe(InformatieObjectViewComponent.name, () => {
         callback!("fakeReden").subscribe({ error: () => undefined });
         await new Promise(requestAnimationFrame);
         httpTestingController
-          .expectOne(deleteUrl)
+          .expectOne(documentUrl)
           .flush(null, { status: 500, statusText: "Server Error" });
         await new Promise(requestAnimationFrame);
 
