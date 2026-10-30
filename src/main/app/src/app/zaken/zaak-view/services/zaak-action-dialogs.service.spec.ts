@@ -13,7 +13,7 @@ import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatSidenav } from "@angular/material/sidenav";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { of, Subject } from "rxjs";
+import { firstValueFrom, of, Subject } from "rxjs";
 import { sleep, testQueryClient } from "../../../../../setupJest";
 import { fromPartial } from "../../../../test-helpers";
 import { UtilService } from "../../../core/service/util.service";
@@ -142,6 +142,29 @@ describe(ZaakActionDialogsService.name, () => {
 
       expect(openDialog).toHaveBeenCalledWith(ActieOnmogelijkDialogComponent);
       expect(afbrekenSpy).not.toHaveBeenCalled();
+    });
+
+    it("offers the zaakbeeindigredenen of the zaaktype in the dialog", async () => {
+      const redenen = [
+        fromPartial<GeneratedType<"RestZaakbeeindigReden">>({
+          id: "fakeRedenId",
+        }),
+      ];
+      const afbrekenSpy = jest
+        .spyOn(zaakDialogService, "openAfbreken")
+        .mockReturnValue(dialogRefClosingWith());
+
+      service.openAfbreken(zaak);
+      const [options] = afbrekenSpy.mock.calls[0];
+      const offered = firstValueFrom(options);
+      await sleep();
+      httpTestingController
+        .expectOne(
+          "/rest/zaakafhandelparameters/zaakbeeindigredenen/fakeZaaktypeUuid",
+        )
+        .flush(redenen);
+
+      await expect(offered).resolves.toEqual(redenen);
     });
 
     it("aborts the zaak with the reden picked in the dialog", async () => {
