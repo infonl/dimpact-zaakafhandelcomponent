@@ -3,13 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  input,
-  output,
-} from "@angular/core";
+import { Component, inject, input, output, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   FormBuilder,
@@ -27,6 +21,7 @@ import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
+import { trackControl } from "../../shared/form/control-state";
 import { ZacDate } from "../../shared/form/date/date";
 import { ZacDocuments } from "../../shared/form/documents/documents";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
@@ -42,7 +37,6 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./besluit-create.component.html",
   styleUrls: ["./besluit-create.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatToolbarModule,
@@ -72,7 +66,9 @@ export class BesluitCreateComponent {
   protected readonly besluittypesQuery = injectQuery(() =>
     this.zakenService.listBesluittypes(this.zaak().zaaktype.uuid),
   );
-  protected documents: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
+  protected readonly documents = signal<
+    GeneratedType<"RestEnkelvoudigInformatieobject">[]
+  >([]);
 
   protected form = this.formBuilder.group({
     besluit: this.formBuilder.control<GeneratedType<"RestBesluitType"> | null>(
@@ -94,6 +90,11 @@ export class BesluitCreateComponent {
       GeneratedType<"RestEnkelvoudigInformatieobject">[]
     >([]),
   });
+
+  private readonly readForm = trackControl(signal(this.form));
+  protected readonly publication = this.readForm(
+    (form) => form.controls.besluit.value?.publication,
+  );
 
   // For dynamically add minimum date validators
   private uiterlijkereactiedatumMinDateValidator: ValidatorFn | null = null;
@@ -142,7 +143,7 @@ export class BesluitCreateComponent {
             besluittypeUUID: value.id,
           }),
         ).subscribe((documents) => {
-          this.documents = documents;
+          this.documents.set(documents);
         });
 
         this.form.controls.publicationEnabled.setValue(

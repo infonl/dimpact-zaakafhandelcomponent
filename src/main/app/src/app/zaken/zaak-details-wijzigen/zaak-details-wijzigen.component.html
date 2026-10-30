@@ -101,12 +101,7 @@
           mat-raised-button
           type="submit"
           color="primary"
-          [disabled]="
-            !form.valid ||
-            form.pristine ||
-            isSaveLocked() ||
-            isBehandelaarMissing()
-          "
+          [disabled]="isSubmitDisabled()"
         >
           {{ "actie.opslaan" | translate }}
         </button>

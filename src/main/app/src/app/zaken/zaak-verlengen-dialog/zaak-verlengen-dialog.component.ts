@@ -3,12 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnDestroy,
-  inject,
-} from "@angular/core";
+import { Component, OnDestroy, inject, signal } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import {
@@ -26,6 +21,7 @@ import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
 import { Subject, takeUntil } from "rxjs";
 import { ZacCheckbox } from "../../shared/form/checkbox/checkbox";
+import { trackControl } from "../../shared/form/control-state";
 import { ZacDate } from "../../shared/form/date/date";
 import { ZacInput } from "../../shared/form/input/input";
 import { injectMutation } from "../../shared/http/inject-mutation";
@@ -35,7 +31,6 @@ import { ZakenService } from "../zaken.service";
 @Component({
   templateUrl: "zaak-verlengen-dialog.component.html",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatToolbarModule,
@@ -128,7 +123,9 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
     ]),
     takenVerlengen: this.formBuilder.control(false, []),
   });
-  protected verlengduurHint: string;
+  private readonly readForm = trackControl(signal(this.form));
+  protected readonly formValid = this.readForm((form) => form.valid);
+  protected readonly verlengduurHint: string;
 
   constructor() {
     const data = this.data;

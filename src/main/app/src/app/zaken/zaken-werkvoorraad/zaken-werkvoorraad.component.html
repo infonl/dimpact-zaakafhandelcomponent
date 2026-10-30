@@ -26,8 +26,8 @@
       <th mat-header-cell *matHeaderCellDef>
         <mat-checkbox
           (change)="$event ? masterToggle() : null"
-          [checked]="selection.hasValue() && isAllSelected()"
-          [indeterminate]="selection.hasValue() && !isAllSelected()"
+          [checked]="isSelected() && isAllSelected()"
+          [indeterminate]="isSelected() && !isAllSelected()"
           [aria-label]="checkboxLabel() | translate"
           id="selectAll_checkbox"
         >
@@ -37,7 +37,7 @@
         <mat-checkbox
           (click)="$event.stopPropagation()"
           (change)="$event ? selection.toggle(row) : null"
-          [checked]="selection.isSelected(row)"
+          [checked]="isRowSelected(row)"
           [aria-label]="checkboxLabel(row) | translate"
           [id]="row.identificatie + '_checkbox'"
         >
@@ -525,6 +525,7 @@
               mat-icon-button
               [id]="'kenZaakAanMijToe_' + row.identificatie + '_button'"
               title="{{ 'actie.mij.toekennen' | translate }}"
+              [disabled]="assignToMeMutation.isPending()"
               (click)="assignToMe(row, $event)"
             >
               <mat-icon outlined>person_add</mat-icon>
@@ -540,7 +541,7 @@
         *matCellDef="let row"
         [colSpan]="dataSource.visibleColumns.length"
       >
-        <div [@detailExpand]="row === expandedRow ? 'expanded' : 'collapsed'">
+        <div [@detailExpand]="row === expandedRow() ? 'expanded' : 'collapsed'">
           <div class="flex-row flex-wrap row-detail">
             @for (column of dataSource.detailExpandColumns; track column) {
               @switch (column) {
@@ -697,8 +698,8 @@
       mat-row
       *matRowDef="let row; columns: dataSource.visibleColumns"
       class="row"
-      [class.expanded-row]="expandedRow === row"
-      (click)="expandedRow = expandedRow === row ? null : row"
+      [class.expanded-row]="expandedRow() === row"
+      (click)="expandedRow.set(expandedRow() === row ? null : row)"
     ></tr>
     <tr
       mat-row

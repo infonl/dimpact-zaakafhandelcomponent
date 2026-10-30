@@ -5,7 +5,6 @@
 
 import { NgTemplateOutlet } from "@angular/common";
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -36,6 +35,7 @@ import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { UtilService } from "src/app/core/service/util.service";
 import { ZacAutoComplete } from "src/app/shared/form/auto-complete/auto-complete";
+import { trackControl } from "src/app/shared/form/control-state";
 import { ZacInput } from "src/app/shared/form/input/input";
 import { ZacSelect } from "src/app/shared/form/select/select";
 import { EmptyPipe } from "src/app/shared/pipes/empty.pipe";
@@ -72,7 +72,6 @@ const newCaseRelationOption = <T extends ZaakCreateKoppeling["relatieType"]>(
   templateUrl: "./zaak-link.component.html",
   styleUrls: ["./zaak-link.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     ReactiveFormsModule,
@@ -163,6 +162,9 @@ export class ZaakLinkComponent {
       null,
     ),
   });
+
+  private readonly readForm = trackControl(signal(this.form));
+  protected readonly isFormValid = this.readForm((form) => form.valid);
 
   private readonly caseTypesQuery = injectQuery(() =>
     this.zakenService.listZaaktypesToLinkQuery(),
@@ -285,7 +287,7 @@ export class ZaakLinkComponent {
     );
   }
 
-  private readonly caseRelationType = toSignal(
+  protected readonly caseRelationType = toSignal(
     this.form.controls.caseRelationType.valueChanges,
     { initialValue: this.form.controls.caseRelationType.value },
   );
@@ -351,7 +353,7 @@ export class ZaakLinkComponent {
 
   protected rowTooltipParams(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
     const isCurrentZaakHoofdzaak =
-      this.form.controls.caseRelationType.value?.value === "DEELZAAK";
+      this.caseRelationType()?.value === "DEELZAAK";
     const currentZaaktype = this.zaak().zaaktype.omschrijving;
     return {
       hoofdzaakZaaktype: isCurrentZaakHoofdzaak

@@ -7,10 +7,10 @@ import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
 import { SlicePipe } from "@angular/common";
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
   Component,
   inject,
   OnDestroy,
+  signal,
   viewChild,
 } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
@@ -55,7 +55,6 @@ import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak
   styleUrls: ["./zaken-mijn.component.less"],
   animations: [detailExpand],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     I18nKeyPipe,
@@ -99,7 +98,7 @@ export class ZakenMijnComponent
   readonly paginator = viewChild.required(MatPaginator);
   readonly sort = viewChild.required(MatSort);
   readonly table = viewChild.required(MatTable);
-  expandedRow: ZaakZoekObject | null = null;
+  readonly expandedRow = signal<ZaakZoekObject | null>(null);
   readonly zoekenColumn = ZoekenColumn;
 
   einddatumGeplandIcon = new TextIcon(

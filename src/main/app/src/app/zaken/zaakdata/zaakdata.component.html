@@ -27,7 +27,7 @@
 <form [formGroup]="form" class="mt-2">
   <fieldset>
     <section class="row mt-2">
-      @for (control of form.controls | keyvalue; track control.key) {
+      @for (control of formControls() | keyvalue; track control.key) {
         <ng-container
           *ngTemplateOutlet="
             renderControl;

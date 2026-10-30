@@ -38,9 +38,9 @@
       }}</mat-radio-button>
     </mat-radio-group>
   </div>
-  @if (formGroup.get("ontvankelijk")?.dirty) {
+  @if (ontvankelijkDirty()) {
     <div>
-      @if (!formGroup.get("ontvankelijk")?.value) {
+      @if (!ontvankelijk()) {
         <div>
           @if (this.data.zaak.isOpgeschort) {
             <p
@@ -62,26 +62,21 @@
                 maxlength="100"
                 matInput
               ></textarea>
-              <mat-hint align="end"
-                >{{ formGroup.get("reden")?.value.length }}/100</mat-hint
-              >
-              <mat-error>{{
-                getError(formGroup.get("reden"), "reden-niet-ontvankelijk")
-              }}</mat-error>
+              <mat-hint align="end">{{ redenLength() }}/100</mat-hint>
+              <mat-error>{{ redenError() }}</mat-error>
             </mat-form-field>
           }
         </div>
       }
       @if (
-        formGroup.get("ontvankelijk")?.value ||
-        (!formGroup.get("ontvankelijk")?.value && !this.data.zaak.isOpgeschort)
+        ontvankelijk() || (!ontvankelijk() && !this.data.zaak.isOpgeschort)
       ) {
         @if (mailBeschikbaar) {
           <mat-checkbox id="sendMail" formControlName="sendMail">{{
             "send-mail" | translate
           }}</mat-checkbox>
         }
-        @if (formGroup.get("sendMail")?.value) {
+        @if (sendMail()) {
           <mat-form-field appearance="fill" class="full-width">
             <mat-label>{{ "verzender" | translate }}</mat-label>
             <mat-select
@@ -90,7 +85,7 @@
               [compareWith]="compareObject"
             >
               <mat-select-trigger>
-                {{ formGroup.get("verzender")?.value?.mail }}
+                {{ verzender()?.mail }}
               </mat-select-trigger>
               @for (afzender of afzenders | async; track afzender) {
                 <mat-option [value]="afzender">
@@ -105,7 +100,7 @@
             </mat-select>
           </mat-form-field>
         }
-        @if (formGroup.get("sendMail")?.value) {
+        @if (sendMail()) {
           <mat-form-field appearance="fill" class="full-width">
             @if (contactEmailAddress()) {
               <button
@@ -127,20 +122,16 @@
               maxlength="200"
               formControlName="ontvanger"
             />
-            <mat-hint align="end"
-              >{{ formGroup.get("ontvanger")?.value.length }}/200</mat-hint
-            >
-            <mat-error>{{
-              getError(formGroup.get("ontvanger"), "ontvanger")
-            }}</mat-error>
+            <mat-hint align="end">{{ ontvangerLength() }}/200</mat-hint>
+            <mat-error>{{ ontvangerError() }}</mat-error>
           </mat-form-field>
         }
-        @if (formGroup.get("sendMail")?.value) {
+        @if (sendMail()) {
           <mat-expansion-panel class="mat-elevation-z0">
             <mat-expansion-panel-header>
               {{ "body" | translate }}
             </mat-expansion-panel-header>
-            @if (formGroup.get("ontvankelijk")?.value) {
+            @if (ontvankelijk()) {
               <div
                 class="readonly"
                 [innerHTML]="zaakOntvankelijkMailQuery.data()?.body"
@@ -163,7 +154,7 @@
     mat-raised-button
     color="primary"
     id="intakeAfronden_button"
-    [disabled]="afrondenMutation.isPending() || formGroup.invalid"
+    [disabled]="afrondenMutation.isPending() || formInvalid()"
     (click)="afronden()"
   >
     @if (afrondenMutation.isPending()) {

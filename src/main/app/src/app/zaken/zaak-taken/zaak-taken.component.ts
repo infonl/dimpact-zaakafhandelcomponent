@@ -6,13 +6,13 @@
 import { LowerCasePipe } from "@angular/common";
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
   Component,
   effect,
   inject,
   input,
   OnDestroy,
   OnInit,
+  signal,
   viewChild,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
@@ -54,7 +54,6 @@ import { TakenService } from "../../taken/taken.service";
   styleUrls: ["./zaak-taken.component.less"],
   animations: [detailExpand],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     MatCard,
@@ -97,7 +96,7 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
   protected takenDataSource = new MatTableDataSource<
     ExpandableTableData<GeneratedType<"RestTask">>
   >();
-  protected allTakenExpanded = false;
+  protected readonly allTakenExpanded = signal(false);
   protected toonAfgerondeTaken = new FormControl(false);
   protected takenStatusFilter: GeneratedType<"TaakStatus"> | "" = "";
   protected readonly takenColumnsToDisplay = [
@@ -200,7 +199,7 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
       : this.takenDataSource.data.filter(
           (value) => value.data.status !== "AFGEROND" && !value.expanded,
         );
-    this.allTakenExpanded = filter.length === 0;
+    this.allTakenExpanded.set(filter.length === 0);
   }
 
   protected readonly assignToMeMutation = injectMutation(
@@ -210,13 +209,16 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
         this.websocketService.suspendListener(this.zaakTakenListener);
       },
       onSuccess: ({ behandelaar, status }, { taakId }) => {
-        const taak = this.takenDataSource.data.find(
-          ({ data }) => data.id === taakId,
-        )?.data;
-        if (!taak) return;
-
-        taak.behandelaar = behandelaar;
-        taak.status = status;
+        this.takenDataSource.data = this.takenDataSource.data.map((row) => {
+          if (row.data.id !== taakId) return row;
+          const updatedRow = new ExpandableTableData({
+            ...row.data,
+            behandelaar,
+            status,
+          });
+          updatedRow.expanded = row.expanded;
+          return updatedRow;
+        });
       },
     },
   );

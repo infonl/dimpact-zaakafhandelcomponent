@@ -6,7 +6,6 @@
 import { SelectionModel } from "@angular/cdk/collections";
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -16,6 +15,7 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import {
   MatButton,
   MatIconAnchor,
@@ -123,7 +123,6 @@ const GEKOPPELDE_COLUMNS = [
   styleUrls: ["./zaak-documenten.component.less"],
   animations: [detailExpand],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     RouterLink,
@@ -211,17 +210,24 @@ export class ZaakDocumentenComponent implements AfterViewInit {
     this.documentenQuery.isFetching(),
   );
 
-  protected selectAll = false;
+  protected readonly selectAll = signal(false);
 
   readonly docSort = viewChild.required("documentenTable", { read: MatSort });
 
   enkelvoudigInformatieObjecten = new MatTableDataSource<
     GeneratedType<"RestEnkelvoudigInformatieobject">
   >();
-  documentPreviewRow?: GeneratedType<"RestEnkelvoudigInformatieobject"> | null;
+  protected readonly documentPreviewRow =
+    signal<GeneratedType<"RestEnkelvoudigInformatieobject"> | null>(null);
   downloadAlsZipSelection = new SelectionModel<
     GeneratedType<"RestEnkelvoudigInformatieobject">
   >(true, []);
+  protected readonly selectedDocuments = toSignal(
+    this.downloadAlsZipSelection.changed.pipe(
+      map(() => this.downloadAlsZipSelection.selected),
+    ),
+    { initialValue: [] },
+  );
 
   constructor() {
     // Feed query results into the MatTableDataSource so Material sorting keeps working.
@@ -389,14 +395,15 @@ export class ZaakDocumentenComponent implements AfterViewInit {
   protected togglePreview(
     document: GeneratedType<"RestEnkelvoudigInformatieobject">,
   ) {
-    this.documentPreviewRow =
-      this.documentPreviewRow === document ? null : document;
+    this.documentPreviewRow.update((previewRow) =>
+      previewRow === document ? null : document,
+    );
   }
 
   protected onLinkedDocumentsToggle(enabled: boolean) {
     this.linkedDocumentsEnabled.set(enabled);
     this.downloadAlsZipSelection.clear();
-    this.selectAll = false;
+    this.selectAll.set(false);
   }
 
   updateSelected(document: GeneratedType<"RestEnkelvoudigInformatieobject">) {
@@ -409,13 +416,13 @@ export class ZaakDocumentenComponent implements AfterViewInit {
     );
 
     this.downloadAlsZipSelection.clear();
-    this.selectAll = false;
+    this.selectAll.set(false);
 
     this.zipDownloadMutation.mutate(uuids);
   }
 
   updateAll($event?: MatCheckboxChange) {
-    this.selectAll = !this.selectAll;
+    this.selectAll.update((selectAll) => !selectAll);
     if (!$event) return;
 
     this.enkelvoudigInformatieObjecten.data.forEach((document) => {

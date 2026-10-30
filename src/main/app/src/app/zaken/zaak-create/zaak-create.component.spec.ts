@@ -762,7 +762,7 @@ describe(ZaakCreateComponent.name, () => {
         "actie.initiator.koppelen",
       );
       fixture.detectChanges();
-      expect(fixture.componentInstance["activeSideAction"]).toBe(
+      expect(fixture.componentInstance["activeSideAction"]()).toBe(
         "actie.initiator.koppelen",
       );
       expect(fixture.componentInstance["actionsSidenav"]().opened).toBe(true);
@@ -773,7 +773,7 @@ describe(ZaakCreateComponent.name, () => {
         "actie.bag-object.koppelen",
       );
       fixture.detectChanges();
-      expect(fixture.componentInstance["activeSideAction"]).toBe(
+      expect(fixture.componentInstance["activeSideAction"]()).toBe(
         "actie.bag-object.koppelen",
       );
       expect(fixture.componentInstance["actionsSidenav"]().opened).toBe(true);
