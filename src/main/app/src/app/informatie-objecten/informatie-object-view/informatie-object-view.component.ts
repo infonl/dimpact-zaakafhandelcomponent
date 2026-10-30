@@ -12,6 +12,7 @@ import {
   OnDestroy,
   OnInit,
   signal,
+  untracked,
   viewChild,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
@@ -31,7 +32,7 @@ import { MatTabsModule } from "@angular/material/tabs";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { from, Observable, of } from "rxjs";
 import { map, tap } from "rxjs/operators";
 import { AsyncButtonMenuItem } from "src/app/shared/side-nav/menu-item/subscription-button-menu-item";
@@ -127,6 +128,30 @@ export class InformatieObjectViewComponent
 
   private readonly queryClient = inject(QueryClient);
 
+  private readonly informatieObjectUuid = signal<string | null>(null);
+  private readonly laatsteVersieQuery = injectQuery(() => ({
+    ...this.informatieObjectenService.readEnkelvoudigInformatieobject(
+      this.informatieObjectUuid()!,
+    ),
+    enabled: !!this.informatieObjectUuid(),
+    structuralSharing: false,
+  }));
+  private readonly zaakInformatieobjectenQuery = injectQuery(() => ({
+    ...this.informatieObjectenService.listZaakInformatieobjecten(
+      this.informatieObjectUuid()!,
+    ),
+    enabled: !!this.informatieObjectUuid(),
+    structuralSharing: false,
+  }));
+  private readonly historieQuery = injectQuery(() => ({
+    ...this.informatieObjectenService.listHistorie(
+      this.informatieObjectUuid()!,
+    ),
+    enabled: !!this.informatieObjectUuid(),
+  }));
+  private volgtLaatsteVersie = false;
+  private zaakGeladen = false;
+
   readonly indicatiesLayout = IndicatiesLayout;
   readonly infoObject = signal<
     GeneratedType<"RestEnkelvoudigInformatieobject">
@@ -146,7 +171,6 @@ export class InformatieObjectViewComponent
   readonly activeSideAction = signal<string | null>(null);
   readonly versieInformatie = signal<string | null>(null);
   historie = new MatTableDataSource<GeneratedType<"HistoryLine">>();
-  readonly historieRegels = signal<GeneratedType<"HistoryLine">[]>([]);
 
   historieColumns: string[] = [
     "datum",
@@ -167,8 +191,24 @@ export class InformatieObjectViewComponent
 
   constructor() {
     super();
+
     effect(() => {
-      this.historie.data = this.historieRegels();
+      const laatsteVersie = this.laatsteVersieQuery.data();
+      if (!laatsteVersie) return;
+      untracked(() => this.verwerkLaatsteVersie(laatsteVersie));
+    });
+
+    effect(() => {
+      const zaakInformatieObjecten = this.zaakInformatieobjectenQuery.data();
+      if (!zaakInformatieObjecten) return;
+      untracked(() => {
+        this.zaakInformatieObjecten.set(zaakInformatieObjecten);
+        this.loadZaak();
+      });
+    });
+
+    effect(() => {
+      this.historie.data = this.historieQuery.data() ?? [];
     });
   }
 
@@ -178,13 +218,12 @@ export class InformatieObjectViewComponent
         this.infoObject.set(
           data.informatieObject as GeneratedType<"RestEnkelvoudigInformatieobject">,
         );
-        this.informatieObjectenService
-          .readEnkelvoudigInformatieobject(this.infoObject().uuid!)
-          .subscribe((infoObject) => {
-            this.laatsteVersieInfoObject.set(infoObject);
-            this.updateVersieInformatie();
-            this.loadZaakInformatieobjecten();
-          });
+        this.volgtLaatsteVersie = false;
+        if (this.informatieObjectUuid() !== this.infoObject().uuid) {
+          this.laatsteVersieInfoObject.set(undefined);
+          this.zaakGeladen = false;
+          this.informatieObjectUuid.set(this.infoObject().uuid!);
+        }
         this.documentPreviewBeschikbaar.set(
           FileFormatUtil.isPreviewAvailable(
             this.infoObject().formaat as FileFormat,
@@ -195,14 +234,8 @@ export class InformatieObjectViewComponent
           "UPDATED",
           "ENKELVOUDIG_INFORMATIEOBJECT",
           this.infoObject().uuid!,
-          () => {
-            this.loadInformatieObject();
-            this.loadZaakInformatieobjecten();
-            this.loadHistorie();
-          },
+          () => this.herlaadInformatieObject(),
         );
-
-        this.loadHistorie();
       }),
     );
   }
@@ -250,12 +283,17 @@ export class InformatieObjectViewComponent
         new ButtonMenuItem(
           "actie.nieuwe.versie.toevoegen",
           () => {
-            this.informatieObjectenService
-              .readHuidigeVersieEnkelvoudigInformatieObject(infoObject.uuid!)
-              .subscribe((infoObject) => {
+            this.queryClient
+              .fetchQuery(
+                this.informatieObjectenService.readHuidigeVersieEnkelvoudigInformatieObject(
+                  infoObject.uuid!,
+                ),
+              )
+              .then((infoObject) => {
                 this.documentNieuweVersieGegevens.set(infoObject);
                 void this.actionsSidenav().open();
-              });
+              })
+              .catch(() => undefined);
           },
           "difference",
         ),
@@ -303,6 +341,7 @@ export class InformatieObjectViewComponent
             ),
             undefined as never,
           ).subscribe({
+            next: () => this.herlaadInformatieObject(),
             // we only need to do this on error, because on success we get a new button
             error: () => {
               button.disabled = false;
@@ -330,6 +369,7 @@ export class InformatieObjectViewComponent
             ),
             undefined as never,
           ).subscribe({
+            next: () => this.herlaadInformatieObject(),
             // we only need to do this on error, because on success we get a new button
             error: () => {
               button.disabled = false;
@@ -391,35 +431,27 @@ export class InformatieObjectViewComponent
     this.menu.set(menu);
   }
 
-  private loadZaakInformatieobjecten() {
-    this.informatieObjectenService
-      .listZaakInformatieobjecten(this.infoObject().uuid!)
-      .subscribe((zaakInformatieObjecten) => {
-        this.zaakInformatieObjecten.set(zaakInformatieObjecten);
-        this.loadZaak();
-      });
+  private herlaadInformatieObject() {
+    this.volgtLaatsteVersie = true;
+    void this.informatieObjectenService.invalidateInformatieobject(
+      this.infoObject().uuid!,
+    );
   }
 
-  private loadHistorie() {
-    this.informatieObjectenService
-      .listHistorie(this.infoObject().uuid!)
-      .subscribe((historie) => {
-        this.historieRegels.set(historie);
-      });
-  }
-
-  private loadInformatieObject() {
-    this.informatieObjectenService
-      .readEnkelvoudigInformatieobject(this.infoObject().uuid!)
-      .subscribe((infoObject) => {
-        this.infoObject.set(infoObject);
-        this.laatsteVersieInfoObject.set(infoObject);
-        this.toevoegenActies();
-        this.updateVersieInformatie();
-        this.documentPreviewBeschikbaar.set(
-          FileFormatUtil.isPreviewAvailable(infoObject.formaat as FileFormat),
-        );
-      });
+  private verwerkLaatsteVersie(
+    laatsteVersie: GeneratedType<"RestEnkelvoudigInformatieobject">,
+  ) {
+    this.laatsteVersieInfoObject.set(laatsteVersie);
+    if (this.volgtLaatsteVersie) {
+      this.infoObject.set(laatsteVersie);
+      this.documentPreviewBeschikbaar.set(
+        FileFormatUtil.isPreviewAvailable(
+          laatsteVersie.formaat as FileFormat,
+        ),
+      );
+    }
+    this.updateVersieInformatie();
+    if (this.zaakGeladen) this.toevoegenActies();
   }
 
   protected haalVersieOp(versie: number) {
@@ -519,11 +551,13 @@ export class InformatieObjectViewComponent
         .readZaakByID(zaakobject.zaakIdentificatie)
         .subscribe((zaak) => {
           this.zaak.set(zaak);
-          this.toevoegenActies();
+          this.zaakGeladen = true;
+          if (this.laatsteVersieInfoObject()) this.toevoegenActies();
         });
     } else {
       this.zaak.set(undefined);
-      this.toevoegenActies();
+      this.zaakGeladen = true;
+      if (this.laatsteVersieInfoObject()) this.toevoegenActies();
     }
   }
 }

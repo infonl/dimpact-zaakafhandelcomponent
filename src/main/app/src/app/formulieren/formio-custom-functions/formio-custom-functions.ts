@@ -5,7 +5,7 @@
 
 import { inject, Injectable } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { lastValueFrom } from "rxjs";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 
@@ -110,6 +110,7 @@ export class FormioCustomFunctions {
     InformatieObjectenService,
   );
   private readonly translateService = inject(TranslateService);
+  private readonly queryClient = inject(QueryClient);
 
   private readonly datumPipe = new DatumPipe();
 
@@ -247,7 +248,7 @@ export class FormioCustomFunctions {
     const entries = await Promise.all(
       [...new Set(uuids)].map(async (uuid) => {
         try {
-          const document = await lastValueFrom(
+          const document = await this.queryClient.fetchQuery(
             this.informatieObjectenService.readEnkelvoudigInformatieobject(
               uuid,
             ),
