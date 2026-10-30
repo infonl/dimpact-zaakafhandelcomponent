@@ -7,6 +7,8 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  computed,
+  effect,
   inject,
   OnInit,
   viewChild,
@@ -25,6 +27,7 @@ import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ClientMatcher } from "../../shared/dynamic-table/filter/clientMatcher";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
@@ -82,16 +85,40 @@ export class ParametersComponent
   protected parameters = new MatTableDataSource<
     GeneratedType<"RestZaaktypeConfiguration">
   >();
-  protected loading = false;
+
+  private readonly parametersQuery = injectQuery(() =>
+    this.zaakafhandelParametersService.listZaakafhandelParameters(),
+  );
+  protected readonly loading = computed(() => this.parametersQuery.isPending());
 
   private storedParameterFilters = "parameterFilters";
 
-  protected zaaktypes: GeneratedType<"RestZaaktypeOverzicht">[] = [];
-  protected processDefinitions: GeneratedType<"RestProcessDefinition">[] = [];
+  protected readonly zaaktypes = computed(() =>
+    this.utilService.getUniqueItemsList(
+      this.parametersQuery.data() ?? [],
+      "zaaktype",
+      "identificatie",
+      "omschrijving",
+    ),
+  );
+  protected readonly processDefinitions = computed(() =>
+    this.utilService.getUniqueItemsList(
+      this.parametersQuery.data() ?? [],
+      "processDefinition",
+      "key",
+      "naam",
+    ),
+  );
+
+  constructor() {
+    super();
+    effect(() => {
+      this.parameters.data = this.parametersQuery.data() ?? [];
+    });
+  }
 
   ngOnInit() {
     this.setupMenu("title.parameters");
-    this.getZaakafhandelParameters();
     this.filterParameters = SessionStorageUtil.getItem(
       this.storedParameterFilters,
       new ZaakafhandelParametersListParameters("valide", "asc"),
@@ -213,28 +240,6 @@ export class ParametersComponent
       this.storedParameterFilters,
       this.filterParameters,
     );
-  }
-
-  private getZaakafhandelParameters() {
-    this.loading = true;
-    this.zaakafhandelParametersService
-      .listZaakafhandelParameters()
-      .subscribe((parameters) => {
-        this.loading = false;
-        this.parameters.data = parameters;
-        this.zaaktypes = this.utilService.getUniqueItemsList(
-          parameters,
-          "zaaktype",
-          "identificatie",
-          "omschrijving",
-        );
-        this.processDefinitions = this.utilService.getUniqueItemsList(
-          parameters,
-          "processDefinition",
-          "key",
-          "naam",
-        );
-      });
   }
 
   protected compareZaaktype = (

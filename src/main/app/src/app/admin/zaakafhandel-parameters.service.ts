@@ -9,7 +9,6 @@ import { UtilService } from "../core/service/util.service";
 import { MailtemplateService } from "../mailtemplate/mailtemplate.service";
 import { PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { MailtemplateKoppelingService } from "./mailtemplate-koppeling.service";
 
@@ -17,7 +16,6 @@ import { MailtemplateKoppelingService } from "./mailtemplate-koppeling.service";
   providedIn: "root",
 })
 export class ZaakafhandelParametersService {
-  private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly utilService = inject(UtilService);
   private readonly mailtemplateKoppelingService = inject(
@@ -27,7 +25,7 @@ export class ZaakafhandelParametersService {
   private readonly queryClient = inject(QueryClient, { optional: true });
 
   listZaakafhandelParameters() {
-    return this.zacHttpClient.GET("/rest/zaakafhandelparameters");
+    return this.zacQueryClient.GET("/rest/zaakafhandelparameters");
   }
 
   readZaakafhandelparameters(zaaktypeUUID: string) {
@@ -46,7 +44,7 @@ export class ZaakafhandelParametersService {
   }
 
   listZaakbeeindigRedenenForZaaktype(zaaktypeUUID: string) {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/zaakafhandelparameters/zaakbeeindigredenen/{zaaktypeUUID}",
       {
         path: { zaaktypeUUID },
@@ -78,6 +76,13 @@ export class ZaakafhandelParametersService {
         onSuccess: () => {
           void this.queryClient?.invalidateQueries({
             queryKey: this.readZaakafhandelparameters(zaaktypeUUID).queryKey,
+          });
+          void this.queryClient?.invalidateQueries({
+            queryKey: this.listZaakafhandelParameters().queryKey,
+          });
+          void this.queryClient?.invalidateQueries({
+            queryKey:
+              this.listZaakbeeindigRedenenForZaaktype(zaaktypeUUID).queryKey,
           });
           void this.queryClient?.invalidateQueries({
             queryKey:
