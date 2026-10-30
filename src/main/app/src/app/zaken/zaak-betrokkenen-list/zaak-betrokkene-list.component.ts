@@ -15,6 +15,7 @@ import { KlantenService } from "../../klanten/klanten.service";
 import { runMutation } from "../../shared/http/run-mutation";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
+import { RefetchErrorHintComponent } from "../../shared/refetch-error-hint/refetch-error-hint.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 import { BetrokkeneLinkComponent } from "../zaak-betrokkenen/betrokkene-link.component";
@@ -27,6 +28,7 @@ import { ZakenService } from "../zaken.service";
   styleUrls: ["./zaak-betrokkene-list.component.less"],
   standalone: true,
   imports: [
+    RefetchErrorHintComponent,
     MatButtonModule,
     MatIconModule,
     MatTableModule,

@@ -4,8 +4,9 @@
  */
 
 import { HttpErrorResponse } from "@angular/common/http";
-import { Component, computed, input } from "@angular/core";
+import { booleanAttribute, Component, computed, input } from "@angular/core";
 import { MatIcon } from "@angular/material/icon";
+import { MatTooltip } from "@angular/material/tooltip";
 import { TranslatePipe } from "@ngx-translate/core";
 import { isLoggedOut } from "../../fout-afhandeling/fout-afhandeling.service";
 
@@ -28,12 +29,13 @@ function hasFailedToRefresh(query: RefetchableQuery) {
   templateUrl: "./refetch-error-hint.component.html",
   styleUrl: "./refetch-error-hint.component.less",
   host: { role: "status" },
-  imports: [MatIcon, TranslatePipe],
+  imports: [MatIcon, MatTooltip, TranslatePipe],
 })
 export class RefetchErrorHintComponent {
   readonly query = input.required<
     RefetchableQuery | readonly RefetchableQuery[]
   >();
+  readonly compact = input(false, { transform: booleanAttribute });
 
   protected readonly visible = computed(() =>
     [this.query()].flat().some(hasFailedToRefresh),

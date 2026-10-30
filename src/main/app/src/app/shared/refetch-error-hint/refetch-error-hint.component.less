@@ -23,4 +23,18 @@
     line-height: 16px;
     color: @warning-color;
   }
+
+  &.compact {
+    // centred under the 24px icons of a side menu
+    margin: 8px 20px;
+
+    span {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
 }

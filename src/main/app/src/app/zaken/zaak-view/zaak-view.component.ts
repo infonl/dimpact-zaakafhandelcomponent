@@ -53,6 +53,7 @@ import { injectMutation } from "../../shared/http/inject-mutation";
 import { runMutation } from "../../shared/http/run-mutation";
 import { runQuery } from "../../shared/http/run-query";
 import { StaleTimes } from "../../shared/http/zac-query-client";
+import { RefetchErrorHintComponent } from "../../shared/refetch-error-hint/refetch-error-hint.component";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { toI18nKey } from "../../shared/utils/i18n-key";
@@ -89,6 +90,7 @@ import { ZaakInitiatorPanelComponent } from "./zaak-initiator-panel/zaak-initiat
   animations: [detailExpand],
   standalone: true,
   imports: [
+    RefetchErrorHintComponent,
     MatSidenavModule,
     BagZoekComponent,
     BesluitCreateComponent,
@@ -169,7 +171,7 @@ export class ZaakViewComponent
       : `${zaak.uuid}:${zaak.isOpgeschort}`;
   });
 
-  private readonly userEventListenerPlanItemsQuery = injectQuery(() => {
+  protected readonly userEventListenerPlanItemsQuery = injectQuery(() => {
     const uuid = this.zaakUuid();
     return {
       ...this.planItemsService.listUserEventListenerPlanItemsQuery(uuid ?? ""),
@@ -177,7 +179,7 @@ export class ZaakViewComponent
     };
   });
 
-  private readonly humanTaskPlanItemsQuery = injectQuery(() => {
+  protected readonly humanTaskPlanItemsQuery = injectQuery(() => {
     const uuid = this.zaakUuid();
     return {
       ...this.planItemsService.listHumanTaskPlanItemsQuery(uuid ?? ""),

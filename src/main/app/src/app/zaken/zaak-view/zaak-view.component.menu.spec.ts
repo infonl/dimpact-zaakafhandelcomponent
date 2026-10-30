@@ -22,11 +22,12 @@ import {
   queryOptions,
 } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
+import { screen } from "@testing-library/angular";
 import { of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
@@ -1094,5 +1095,100 @@ describe(ZaakViewComponent.name, () => {
         expect(await loader.getChildLoader(panel)).toBeTruthy();
       },
     );
+  });
+
+  describe("when the plan items are read again in the background", () => {
+    const humanTaskPlanItemsUrl = `/rest/planitems/zaak/${zaak.uuid}/humanTaskPlanItems`;
+    const userEventListenerPlanItemsUrl = `/rest/planitems/zaak/${zaak.uuid}/userEventListenerPlanItems`;
+    const notFound = { status: 404, statusText: "Not Found" };
+
+    let httpTestingController: HttpTestingController;
+
+    const respondToPlanItemReads = async (
+      humanTasks: GeneratedType<"RestPlanItem">[] | typeof notFound,
+    ) => {
+      await sleep();
+      httpTestingController
+        .match((request) => request.url === humanTaskPlanItemsUrl)
+        .forEach((request) =>
+          Array.isArray(humanTasks)
+            ? request.flush(humanTasks)
+            : request.flush(null, humanTasks),
+        );
+      httpTestingController
+        .match((request) => request.url === userEventListenerPlanItemsUrl)
+        .forEach((request) => request.flush([]));
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    const readHumanTaskPlanItemsAgain = () =>
+      void testQueryClient.refetchQueries({
+        queryKey: planItemsService.listHumanTaskPlanItemsQuery(zaak.uuid)
+          .queryKey,
+      });
+
+    const showsRefetchHint = () =>
+      screen
+        .getAllByRole("status")
+        .some((status) =>
+          status.textContent?.includes("msg.verversen.mislukt"),
+        );
+
+    const humanTaskMenuItem = (naam: string) =>
+      loader.getHarnessOrNull(MatNavListItemHarness.with({ title: naam }));
+
+    beforeEach(() => {
+      humanTaskPlanItemsQuerySpy.mockRestore();
+      userEventListenerPlanItemsQuerySpy.mockRestore();
+      httpTestingController = TestBed.inject(HttpTestingController);
+
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+    });
+
+    afterEach(() => {
+      httpTestingController
+        .match(() => true)
+        .forEach((request) => request.flush([]));
+    });
+
+    it("shows the refetch hint in the side menu and keeps the plan items when the read fails", async () => {
+      await respondToPlanItemReads([
+        fromPartial<GeneratedType<"RestPlanItem">>({
+          id: "fakePlanItemId",
+          naam: "bestaandeTaakNaam",
+        }),
+      ]);
+
+      readHumanTaskPlanItemsAgain();
+      await respondToPlanItemReads(notFound);
+
+      expect(showsRefetchHint()).toBe(true);
+      expect(await humanTaskMenuItem("bestaandeTaakNaam")).toBeTruthy();
+    });
+
+    it("hides the refetch hint again after a read that succeeds", async () => {
+      await respondToPlanItemReads([]);
+      readHumanTaskPlanItemsAgain();
+      await respondToPlanItemReads(notFound);
+
+      readHumanTaskPlanItemsAgain();
+      await respondToPlanItemReads([
+        fromPartial<GeneratedType<"RestPlanItem">>({
+          id: "fakePlanItemId",
+          naam: "nieuweTaakNaam",
+        }),
+      ]);
+
+      expect(showsRefetchHint()).toBe(false);
+      expect(await humanTaskMenuItem("nieuweTaakNaam")).toBeTruthy();
+    });
+
+    it("does not show the refetch hint when the first read fails, because the error dialog reports that", async () => {
+      await respondToPlanItemReads(notFound);
+
+      expect(showsRefetchHint()).toBe(false);
+    });
   });
 });

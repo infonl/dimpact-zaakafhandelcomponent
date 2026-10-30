@@ -9,7 +9,10 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialogRef } from "@angular/material/dialog";
 import { MatTableHarness } from "@angular/material/table/testing";
@@ -17,9 +20,10 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
+import { screen } from "@testing-library/angular";
 import { Observable, of } from "rxjs";
 import { createMutationOptions, fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -308,6 +312,60 @@ describe(ZaakBetrokkeneListComponent.name, () => {
       await new Promise(requestAnimationFrame);
 
       expect(onError).toHaveBeenCalled();
+    });
+  });
+
+  describe("when the betrokkenen are read again in the background", () => {
+    const betrokkenenUrl = `/rest/zaken/zaak/${fakeZaak.uuid}/betrokkene`;
+
+    async function settle() {
+      await sleep();
+      fixture.detectChanges();
+    }
+
+    it("shows the refetch hint and keeps the betrokkenen when the read fails", async () => {
+      void testQueryClient.refetchQueries({ type: "active" });
+      TestBed.inject(HttpTestingController)
+        .expectOne(betrokkenenUrl)
+        .flush(null, { status: 404, statusText: "Not Found" });
+      await settle();
+
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "msg.verversen.mislukt",
+      );
+      expect(screen.getByRole("row", { name: /fakeRoltype/ })).toBeVisible();
+    });
+
+    it("hides the refetch hint again after a read that succeeds", async () => {
+      const httpTestingController = TestBed.inject(HttpTestingController);
+      void testQueryClient.refetchQueries({ type: "active" });
+      httpTestingController
+        .expectOne(betrokkenenUrl)
+        .flush(null, { status: 404, statusText: "Not Found" });
+      await settle();
+
+      void testQueryClient.refetchQueries({ type: "active" });
+      httpTestingController
+        .expectOne(betrokkenenUrl)
+        .flush([makeBetrokkene({ roltype: "nieuwRoltype" })]);
+      await settle();
+
+      expect(
+        screen.queryByText("msg.verversen.mislukt"),
+      ).not.toBeInTheDocument();
+      expect(screen.getByRole("row", { name: /nieuwRoltype/ })).toBeVisible();
+    });
+
+    it("does not show the refetch hint when the first read fails, because the error dialog reports that", async () => {
+      void testQueryClient.resetQueries();
+      TestBed.inject(HttpTestingController)
+        .expectOne(betrokkenenUrl)
+        .flush(null, { status: 404, statusText: "Not Found" });
+      await settle();
+
+      expect(
+        screen.queryByText("msg.verversen.mislukt"),
+      ).not.toBeInTheDocument();
     });
   });
 });

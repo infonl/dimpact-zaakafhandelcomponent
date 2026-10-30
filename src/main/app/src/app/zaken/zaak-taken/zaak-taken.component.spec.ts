@@ -585,4 +585,61 @@ describe(ZaakTakenComponent.name, () => {
       expect(assignToMeButtonIn("fakeTaakNaam")).toBeEnabled();
     });
   });
+
+  describe("when the websocket reports an update and the taken are read again", () => {
+    async function readAgain() {
+      const [[, , , onZaakTakenUpdated]] = jest.mocked(
+        websocketService.addListener,
+      ).mock.calls;
+      onZaakTakenUpdated(fromPartial<ScreenEvent>({}));
+      await sleep();
+    }
+
+    async function respondWithError() {
+      httpTestingController
+        .expectOne(`/rest/taken/zaak/${zaak.uuid}`)
+        .flush(null, { status: 404, statusText: "Not Found" });
+      await sleep();
+      fixture.detectChanges();
+    }
+
+    it("shows the refetch hint and keeps the taken when the read fails", async () => {
+      await setup([taak({ naam: "oudeTaakNaam" })]);
+
+      await readAgain();
+      await respondWithError();
+
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "msg.verversen.mislukt",
+      );
+      expect(rowOf("oudeTaakNaam")).toBeVisible();
+    });
+
+    it("hides the refetch hint again after a read that succeeds", async () => {
+      await setup([taak({ naam: "oudeTaakNaam" })]);
+      await readAgain();
+      await respondWithError();
+
+      await readAgain();
+      await respondWithTaken([taak({ naam: "nieuweTaakNaam" })]);
+
+      expect(
+        screen.queryByText("msg.verversen.mislukt"),
+      ).not.toBeInTheDocument();
+      expect(rowOf("nieuweTaakNaam")).toBeVisible();
+    });
+
+    it("does not show the refetch hint when the first read fails, because the error dialog reports that", async () => {
+      await setup();
+      void testQueryClient.resetQueries({
+        queryKey: ["/rest/taken/zaak/{zaakUUID}"],
+      });
+
+      await respondWithError();
+
+      expect(
+        screen.queryByText("msg.verversen.mislukt"),
+      ).not.toBeInTheDocument();
+    });
+  });
 });
