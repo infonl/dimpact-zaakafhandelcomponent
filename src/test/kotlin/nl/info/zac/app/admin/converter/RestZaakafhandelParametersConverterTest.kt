@@ -201,10 +201,82 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     uiterlijkeEinddatumAfdoeningWaarschuwing shouldBe null
                     nietOntvankelijkResultaattypeOmschrijving shouldBe "fakeNietOntvankelijk"
                     creatiedatum shouldNotBe null
-                    cmmnExtension?.intakeMail shouldBe null
-                    cmmnExtension?.afrondenMail shouldBe null
+                    cmmnExtension?.intakeMail shouldBe ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_UIT.name
+                    cmmnExtension?.afrondenMail shouldBe ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_UIT.name
                     productaanvraagtype shouldBe null
                     isSmartDocumentsEnabled shouldBe false
+                }
+            }
+        }
+    }
+
+    given(
+        """
+        a zaaktype without a stored configuration,
+        and a request that binds it to a CMMN case definition and leaves out the intake and afronden mail
+        """
+    ) {
+        val restZaaktypeConfiguration = createRestZaaktypeConfiguration(
+            id = null,
+            restProcessDefinition = createRestProcessDefinition(key = "fakeCaseDefinitionKey")
+        )
+        every {
+            zaaktypeConfigurationBeheerService.findConfiguration(restZaaktypeConfiguration.zaaktype.uuid)
+        } returns null
+        every {
+            with(restHumanTaskParametersConverter) { any<List<RestHumanTaskParameters>>().toZaaktypeCmmnHumantaskParameters() }
+        } returns emptyList()
+        every { zaakbeeindigParameterConverter.toZaaktypeCompletionParameters(emptyList()) } returns emptyList()
+
+        `when`("converted to DB model representation") {
+            val zaaktypeConfiguration = restZaaktypeConfigurationConverter.toZaaktypeConfiguration(
+                restZaaktypeConfiguration
+            )
+
+            then(
+                """
+                the new CMMN extension has the intake and afronden mail 'beschikbaar uit',
+                so that the configuration satisfies the non-null database columns of these settings
+                """
+            ) {
+                with(zaaktypeConfiguration.cmmnExtension!!) {
+                    intakeMail shouldBe ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_UIT.name
+                    afrondenMail shouldBe ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_UIT.name
+                }
+            }
+        }
+    }
+
+    given(
+        """
+        a stored CMMN configuration with the intake and afronden mail 'beschikbaar aan',
+        and a request that leaves out the intake and afronden mail
+        """
+    ) {
+        val storedConfiguration = createZaaktypeCmmnConfiguration().apply {
+            cmmnExtension!!.intakeMail = ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_AAN.name
+            cmmnExtension!!.afrondenMail = ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_AAN.name
+        }
+        val restZaaktypeConfiguration = createRestZaaktypeConfiguration(
+            restZaaktypeOverzicht = createRestZaaktypeOverzicht(uuid = storedConfiguration.zaaktypeUuid),
+            restProcessDefinition = createRestProcessDefinition(key = "fakeCaseDefinitionKey")
+        )
+        every { zaaktypeConfigurationBeheerService.findConfiguration(storedConfiguration.zaaktypeUuid) } returns
+            storedConfiguration
+        every {
+            with(restHumanTaskParametersConverter) { any<List<RestHumanTaskParameters>>().toZaaktypeCmmnHumantaskParameters() }
+        } returns emptyList()
+        every { zaakbeeindigParameterConverter.toZaaktypeCompletionParameters(emptyList()) } returns emptyList()
+
+        `when`("converted to DB model representation") {
+            val zaaktypeConfiguration = restZaaktypeConfigurationConverter.toZaaktypeConfiguration(
+                restZaaktypeConfiguration
+            )
+
+            then("the intake and afronden mail keep their stored values") {
+                with(zaaktypeConfiguration.cmmnExtension!!) {
+                    intakeMail shouldBe ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_AAN.name
+                    afrondenMail shouldBe ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_AAN.name
                 }
             }
         }
