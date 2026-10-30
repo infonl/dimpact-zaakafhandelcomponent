@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2025, 2026 INFO.nl
+ * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -159,6 +159,12 @@ describe(ZoekComponent.name, () => {
       return screen.getByRole("textbox", { name: "actie.zoeken" });
     }
 
+    function betrokkeneRoltype() {
+      return screen.getByRole("combobox", {
+        name: "zoeken.filter.zaak-betrokkene",
+      });
+    }
+
     async function searchFor(trefwoorden: string) {
       await user.clear(trefwoordenInput());
       await user.type(trefwoordenInput(), `${trefwoorden}{Enter}`);
@@ -259,6 +265,32 @@ describe(ZoekComponent.name, () => {
             },
           );
         });
+      });
+
+      it("puts the betrokkene filter back on the roltype and id of the results it is showing", async () => {
+        await respondWith(await searchFor("fakeTrefwoord"), zakenResultaat());
+        await user.click(betrokkeneRoltype());
+        await user.click(
+          screen.getByRole("option", {
+            name: "betrokkene-roltype.klantcontacter",
+          }),
+        );
+        await user.type(
+          screen.getByPlaceholderText("bsn.vestigingsnummer.rsin"),
+          "999993896{Enter}",
+        );
+        await respondWith(await nextSearch(), zakenResultaat());
+
+        await fail(await searchFor("otherTrefwoord"));
+        // mat-select renders its selected option a tick after the recreated filter renders
+        await settle();
+
+        expect(betrokkeneRoltype()).toHaveTextContent(
+          "betrokkene-roltype.klantcontacter",
+        );
+        expect(
+          screen.getByPlaceholderText("bsn.vestigingsnummer.rsin"),
+        ).toHaveValue("999993896");
       });
 
       it("pages through a filter change that is still loading, rather than through the results it is showing", async () => {
