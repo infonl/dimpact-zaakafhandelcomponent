@@ -63,7 +63,8 @@ test.beforeAll(async ({ browser }, testInfo) => {
 });
 ```
 
-Only create zaken this way, so the omschrijving starts with "QA Agent:". Create as few as you can: one per
+Only create zaken this way, so the omschrijving starts with "QA Agent:". A test that edits the omschrijving
+keeps that prefix, or the zaak isn't cleaned up. Create as few as you can: one per
 spec file, and none for tests of pages and lists. Don't abort or close your zaken yourself, unless that is
 what you test: `globalTeardown.ts` aborts them after the run.
 

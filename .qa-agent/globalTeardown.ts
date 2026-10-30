@@ -80,11 +80,11 @@ async function abort(page: Page, identificatie: string) {
     return false;
   }
   const zaak = (await zaakResponse.json()) as RestZaak;
-  if (!zaak.omschrijving.startsWith(OMSCHRIJVING_PREFIX)) {
-    console.log(`${identificatie}: not a QA Agent zaak, left alone`);
-    return true;
-  }
   if (!zaak.isOpen) return true;
+  if (!zaak.omschrijving.startsWith(OMSCHRIJVING_PREFIX)) {
+    console.log(`${identificatie}: no QA Agent prefix, left open`);
+    return false;
+  }
   // ZAC refuses to abort a reopened zaak; the UI closes it instead.
   if (zaak.isHeropend) return close(page, zaak);
 
@@ -159,7 +159,11 @@ export default async function globalTeardown(config: FullConfig) {
       ].filter((zaak) => !closed.has(zaak) && !failed.has(zaak));
       if (toAbort.length === 0 && attempt > 0) break;
       for (const zaak of toAbort) {
-        if (await abort(page, zaak)) closed.add(zaak);
+        const isClosed = await abort(page, zaak).catch((error) => {
+          console.log(`${zaak}: cleanup failed: ${error}`);
+          return false;
+        });
+        if (isClosed) closed.add(zaak);
         else failed.add(zaak);
       }
       await page.waitForTimeout(5_000);
