@@ -72,6 +72,43 @@ describe(trackControl.name, () => {
     expect(value()).toBe("ander gewijzigd");
   });
 
+  it("follows a value or disabled state that code changed without events, once it is checked", () => {
+    const control = new FormControl<string | null>("eerste");
+    const read = runInInjectionContext(TestBed.inject(Injector), () =>
+      trackControl(signal(control)),
+    );
+    const value = read((tracked) => tracked.value);
+    const disabled = read((tracked) => tracked.disabled);
+    TestBed.tick();
+    read.check();
+    expect(value()).toBe("eerste");
+
+    control.setValue("stil", { emitEvent: false });
+    control.disable({ emitEvent: false });
+    read.check();
+
+    expect(value()).toBe("stil");
+    expect(disabled()).toBe(true);
+  });
+
+  it("does not recompute when a check finds nothing changed", () => {
+    const control = new FormControl<string | null>("eerste");
+    const read = runInInjectionContext(TestBed.inject(Injector), () =>
+      trackControl(signal(control)),
+    );
+    const reads = jest.fn(
+      (tracked: FormControl<string | null>) => tracked.value,
+    );
+    const value = read(reads);
+    TestBed.tick();
+    value();
+
+    read.check();
+    value();
+
+    expect(reads).toHaveBeenCalledTimes(1);
+  });
+
   it("reads nothing while there is no control", () => {
     const { controlSignal, value } = setup();
 

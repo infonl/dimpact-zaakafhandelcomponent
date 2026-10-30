@@ -7,6 +7,7 @@ import {
   booleanAttribute,
   Component,
   computed,
+  DoCheck,
   effect,
   input,
   output,
@@ -53,7 +54,7 @@ import { Form, FormConfig, FormField } from "./form-field.types";
     ZacTextarea,
   ],
 })
-export class ZacComposedForm<F extends Form> {
+export class ZacComposedForm<F extends Form> implements DoCheck {
   protected readonly form = input.required<FormGroup<F>>();
   protected readonly fields = input.required<FormField[]>();
   protected readonly config = input<FormConfig>({ hideCancelButton: false });
@@ -71,6 +72,10 @@ export class ZacComposedForm<F extends Form> {
   private readonly readForm = trackControl(this.form);
   private readonly formInvalid = this.readForm((form) => form.invalid);
   protected readonly formValue = this.readForm((form) => form.getRawValue());
+
+  ngDoCheck() {
+    this.readForm.check();
+  }
 
   constructor() {
     effect(() => {
