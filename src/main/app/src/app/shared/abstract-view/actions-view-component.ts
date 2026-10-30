@@ -3,18 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  Component,
-  Signal,
-} from "@angular/core";
+import { AfterViewInit, Component, Signal } from "@angular/core";
 import { MatDrawer } from "@angular/material/sidenav";
 import { ViewComponent } from "./view-component";
 
 @Component({
   template: "",
-  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export abstract class ActionsViewComponent

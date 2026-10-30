@@ -713,7 +713,7 @@
 </div>
 
 <div class="pagination-wrapper">
-  @if (this.werklijstRechten.canZakenTakenExporteren) {
+  @if (this.werklijstRechten()?.canZakenTakenExporteren) {
     <zac-export-button
       [zoekParameters]="this.dataSource.zoekParameters"
       [filename]="'title.zaken.werkvoorraad' | translate"
@@ -723,9 +723,9 @@
     #paginator
     [length]="dataSource.totalItems"
     [pageIndex]="dataSource.zoekParameters.page"
-    [pageSize]="aantalPerPagina"
+    [pageSize]="aantalPerPagina()"
     (page)="paginatorChanged($event)"
-    [pageSizeOptions]="pageSizeOptions"
+    [pageSizeOptions]="pageSizeOptions()"
     sticky
   >
   </mat-paginator>

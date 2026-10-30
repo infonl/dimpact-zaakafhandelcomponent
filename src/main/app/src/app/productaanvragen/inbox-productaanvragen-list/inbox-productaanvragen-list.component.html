@@ -129,7 +129,7 @@
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let row">
           <div class="flex-row">
-            @if (werklijstRechten.canInboxProductaanvragenVerwijderen) {
+            @if (werklijstRechten()?.canInboxProductaanvragenVerwijderen) {
               <button
                 mat-icon-button
                 (click)="inboxProductaanvragenVerwijderen(row)"
@@ -203,8 +203,8 @@
     #paginator
     (page)="paginatorChanged($event)"
     [pageIndex]="0"
-    [pageSize]="aantalPerPagina"
-    [pageSizeOptions]="pageSizeOptions"
+    [pageSize]="aantalPerPagina()"
+    [pageSizeOptions]="pageSizeOptions()"
     sticky
   >
   </mat-paginator>
