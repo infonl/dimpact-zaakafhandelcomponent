@@ -9,7 +9,7 @@ round.
 
 | Check                       | Command                              | Configuration        |
 | --------------------------- | ------------------------------------ | -------------------- |
-| ESLint                      | `npm run lint` (in `src/main/app`)   | `.eslintrc.js`       |
+| ESLint                      | `npm run lint` (in `src/main/app`)   | `eslint.config.js`   |
 | Stylelint                   | `npm run lint` (in `src/main/app`)   | `.stylelintrc.js`    |
 | Templates in specs          | `npm run lint` (in `src/main/app`)   | `tsconfig.spec.json` |
 | TypeScript + templates      | `npm run build` (in `src/main/app`)  | `tsconfig.app.json`  |
@@ -39,19 +39,19 @@ not use fails the build, in application code and in test host components. Remove
 
 ## Testing Library rules
 
-`.eslintrc.js` prefers Testing Library queries over reaching into the DOM through Angular, and
+`eslint.config.js` prefers Testing Library queries over reaching into the DOM through Angular, and
 `fromPartial` over casting an object literal through `unknown`. Older specs still break these
 rules, so they are warnings project-wide and a whole-project `npm run lint` stays green on them.
 
 They are **errors on every spec file a pull request touches**, which is what
-`.eslintrc.strict-specs.js` is for: a spec you edit has to meet the standard before it merges.
+`eslint.strict-specs.config.js` is for: a spec you edit has to meet the standard before it merges.
 The "Lint Changed Specs" workflow runs it on the changed specs; reproduce that locally with the
 same command:
 
 ```bash
 cd src/main/app
 SPECS=$(git diff --name-only --diff-filter=d origin/main...HEAD -- '*.spec.ts' | sed 's|^src/main/app/||')
-ESLINT_USE_FLAT_CONFIG=false npx eslint -c .eslintrc.strict-specs.js $SPECS
+npx eslint -c eslint.strict-specs.config.js --pass-on-no-patterns $SPECS
 ```
 
 New specs should use `getByRole` with an accessible name, falling back to `getByLabelText` and

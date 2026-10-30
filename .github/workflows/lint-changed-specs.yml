@@ -51,4 +51,4 @@ jobs:
           fi
 
           echo "$SPECS"
-          ESLINT_USE_FLAT_CONFIG=false npx eslint -c .eslintrc.strict-specs.js $SPECS
+          npx eslint -c eslint.strict-specs.config.js $SPECS

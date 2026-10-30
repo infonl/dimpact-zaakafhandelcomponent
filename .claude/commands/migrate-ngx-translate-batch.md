@@ -52,7 +52,7 @@ Hard rules:
 - Stay inside the batch's folders. Anything beyond the mechanical swap is reported, not done.
 - No `any`, `as any`, or `eslint-disable` of `no-explicit-any`. No narrating comments.
 - SPDX: in a modified file, add `, <current year> INFO.nl` only if `INFO.nl` is completely absent from the header.
-- Do not touch specs unless one breaks. A touched spec is checked by CI with `.eslintrc.strict-specs.js`, where every Testing Library warning is an error, so the whole spec must then pass it: `getByRole` > `getByLabelText` > `getByText`, `userEvent.setup()`, `fromPartial` from `src/test-helpers`. Never swap one banned query for another (`By.css`, `querySelector`, `getByTestId`). See `.claude/rules/angular-specs.md` and `.claude/commands/audit-ng-spec-skill.md`.
+- Do not touch specs unless one breaks. A touched spec is checked by CI with `eslint.strict-specs.config.js`, where every Testing Library warning is an error, so the whole spec must then pass it: `getByRole` > `getByLabelText` > `getByText`, `userEvent.setup()`, `fromPartial` from `src/test-helpers`. Never swap one banned query for another (`By.css`, `querySelector`, `getByTestId`). See `.claude/rules/angular-specs.md` and `.claude/commands/audit-ng-spec-skill.md`.
 
 ## Step 3 — Verify (in `src/main/app`)
 
@@ -62,7 +62,7 @@ Hard rules:
 4. `npx ng lint` → 0 errors.
 5. `npx ng build --output-path "$TMPDIR/ng-build-check"` outside the sandbox → 0 errors and no NG8113 warning in a batch file. Never build to the default `dist/`: that is the local WildFly deployment.
 6. `npx ng test` (full suite, outside the sandbox — watchman is blocked inside it). Use `ng test`, not raw jest. A jest worker that dies with SIGSEGV is the environment; rerun that suite alone.
-7. Only if a spec was edited: `ESLINT_USE_FLAT_CONFIG=false npx eslint -c .eslintrc.strict-specs.js <spec>` → 0 errors.
+7. Only if a spec was edited: `npx eslint -c eslint.strict-specs.config.js <spec>` → 0 errors.
 
 Then deliver:
 - A table: file → `TranslatePipe` / `TranslateDirective` / both / removed.
