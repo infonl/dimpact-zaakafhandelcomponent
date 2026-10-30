@@ -4,7 +4,7 @@
   "properties": {
     "logLevel": {
       "type": "string",
-      "enum": ["ALL", "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF"]
+      "enum": ["DEBUG", "INFO", "WARN", "ERROR"]
     }
   }
 }
