@@ -5,6 +5,7 @@
 
 import { Injectable, inject } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { InformatieObjectenService } from "./informatie-objecten.service";
 
 @Injectable({
@@ -14,6 +15,7 @@ export class InformatieObjectResolver {
   private readonly informatieObjectenService = inject(
     InformatieObjectenService,
   );
+  private readonly queryClient = inject(QueryClient);
 
   resolve(route: ActivatedRouteSnapshot) {
     const informatieObjectUUID = route.paramMap.get("uuid");
@@ -25,14 +27,23 @@ export class InformatieObjectResolver {
       );
     }
 
+    // The view only hears of changes to the document while it is open.
+    void this.informatieObjectenService.invalidateInformatieobject(
+      informatieObjectUUID,
+    );
+
     if (informatieObjectVersie) {
-      return this.informatieObjectenService.readEnkelvoudigInformatieobjectVersie(
-        informatieObjectUUID,
-        Number(informatieObjectVersie),
+      return this.queryClient.fetchQuery(
+        this.informatieObjectenService.readEnkelvoudigInformatieobjectVersie(
+          informatieObjectUUID,
+          Number(informatieObjectVersie),
+        ),
       );
     }
-    return this.informatieObjectenService.readEnkelvoudigInformatieobject(
-      informatieObjectUUID,
+    return this.queryClient.fetchQuery(
+      this.informatieObjectenService.readEnkelvoudigInformatieobject(
+        informatieObjectUUID,
+      ),
     );
   }
 }

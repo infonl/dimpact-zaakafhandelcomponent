@@ -4,7 +4,10 @@
  */
 import { HttpErrorResponse } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
-import type { CreateMutationOptions } from "@tanstack/angular-query-experimental";
+import {
+  type CreateMutationOptions,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
 import { DeleteBody, PostBody, PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
@@ -18,24 +21,31 @@ export class InformatieObjectenService {
   private basepath = "/rest/informatieobjecten";
   private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly queryClient = inject(QueryClient);
   private readonly utilService = inject(UtilService);
 
   readEnkelvoudigInformatieobject(uuid: string) {
-    return this.zacHttpClient.GET(
-      "/rest/informatieobjecten/informatieobject/{uuid}",
-      {
-        path: { uuid },
-      },
-    );
+    return {
+      ...this.zacQueryClient.GET(
+        "/rest/informatieobjecten/informatieobject/{uuid}",
+        {
+          path: { uuid },
+        },
+      ),
+      meta: { reportFailedRefetch: true },
+    };
   }
 
   readEnkelvoudigInformatieobjectVersie(uuid: string, version: number) {
-    return this.zacHttpClient.GET(
-      "/rest/informatieobjecten/informatieobject/versie/{uuid}/{version}",
-      {
-        path: { uuid, version },
-      },
-    );
+    return {
+      ...this.zacQueryClient.GET(
+        "/rest/informatieobjecten/informatieobject/versie/{uuid}/{version}",
+        {
+          path: { uuid, version },
+        },
+      ),
+      meta: { reportFailedRefetch: true },
+    };
   }
 
   listInformatieobjecttypes(zaakTypeUuid: string) {
@@ -85,12 +95,15 @@ export class InformatieObjectenService {
   }
 
   readHuidigeVersieEnkelvoudigInformatieObject(uuid: string) {
-    return this.zacHttpClient.GET(
-      "/rest/informatieobjecten/informatieobject/{uuid}/huidigeversie",
-      {
-        path: { uuid },
-      },
-    );
+    return {
+      ...this.zacQueryClient.GET(
+        "/rest/informatieobjecten/informatieobject/{uuid}/huidigeversie",
+        {
+          path: { uuid },
+        },
+      ),
+      meta: { reportFailedRefetch: true },
+    };
   }
 
   updateEnkelvoudigInformatieobject(uuid: string, zaakUuid: string) {
@@ -130,12 +143,15 @@ export class InformatieObjectenService {
   }
 
   listZaakInformatieobjecten(uuid: string) {
-    return this.zacHttpClient.GET(
-      "/rest/informatieobjecten/informatieobject/{uuid}/zaakinformatieobjecten",
-      {
-        path: { uuid },
-      },
-    );
+    return {
+      ...this.zacQueryClient.GET(
+        "/rest/informatieobjecten/informatieobject/{uuid}/zaakinformatieobjecten",
+        {
+          path: { uuid },
+        },
+      ),
+      meta: { reportFailedRefetch: true },
+    };
   }
 
   listInformatieobjectenVoorVerzenden(zaakUuid: string) {
@@ -173,12 +189,29 @@ export class InformatieObjectenService {
   }
 
   listHistorie(uuid: string) {
-    return this.zacHttpClient.GET(
-      "/rest/informatieobjecten/informatieobject/{uuid}/historie",
-      {
-        path: { uuid },
-      },
-    );
+    return {
+      ...this.zacQueryClient.GET(
+        "/rest/informatieobjecten/informatieobject/{uuid}/historie",
+        {
+          path: { uuid },
+        },
+      ),
+      meta: { reportFailedRefetch: true },
+    };
+  }
+
+  /**
+   * Marks every read of one document as stale: the document itself, each of its
+   * versions, its current version, its zaak koppelingen and its historie.
+   */
+  invalidateInformatieobject(uuid: string) {
+    return this.queryClient.invalidateQueries({
+      predicate: ({ queryKey: [url, parameters] }) =>
+        typeof url === "string" &&
+        url.startsWith("/rest/informatieobjecten/informatieobject/") &&
+        (parameters as { path?: { uuid?: string } } | undefined)?.path?.uuid ===
+          uuid,
+    });
   }
 
   lockInformatieObject(uuid: string, zaakUuid: string) {
