@@ -209,6 +209,13 @@ describe(OntvangstbevestigingComponent.name, () => {
     expect(screen.getByText("Wij hebben uw verzoek ontvangen.")).toBeVisible();
   });
 
+  it("offers formatting for the body only, keeping the subject plain text", async () => {
+    await setup();
+    await respondToInitialRequests();
+
+    expect(screen.getAllByRole("button", { name: "Bold" })).toHaveLength(1);
+  });
+
   it("offers the variables of the mailtemplate", async () => {
     await setup();
     await respondToInitialRequests();
@@ -321,7 +328,7 @@ describe(OntvangstbevestigingComponent.name, () => {
     expect(request.request.body).toMatchObject({
       verzender: afzenders[0].mail,
       ontvanger: "recipient@example.com",
-      onderwerp: mailtemplate.onderwerp,
+      onderwerp: "Ontvangstbevestiging van uw verzoek",
       body: mailtemplate.body,
       bijlagen: "doc-1",
       shouldCreateDocumentFromMail: true,
