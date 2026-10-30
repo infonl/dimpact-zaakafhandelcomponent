@@ -27,7 +27,7 @@ export function trackControl<Control extends AbstractControl>(
     onCleanup(() => subscription?.unsubscribe());
   });
 
-  const read = <Result>(read: (control: Control) => Result) =>
+  const read = <Result,>(read: (control: Control) => Result) =>
     computed(() => {
       changes();
       const current = control();

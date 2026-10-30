@@ -72,10 +72,10 @@ const unwrapParagraphs = new Plugin({
   ],
 })
 export class ZacHtmlEditor<
-  Form extends Record<string, AbstractControl>,
-  Key extends keyof Form,
-  Option extends Form[Key]["value"] = string | null,
->
+    Form extends Record<string, AbstractControl>,
+    Key extends keyof Form,
+    Option extends Form[Key]["value"] = string | null,
+  >
   extends SingleInputFormField<Form, Key, Option>
   implements OnDestroy
 {
