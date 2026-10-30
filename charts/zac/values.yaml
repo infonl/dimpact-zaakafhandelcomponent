@@ -916,3 +916,12 @@ organizations:
 
 # -- ZAC OpenZaak Catalogus Domein
 catalogusDomein: ALG
+
+# -- Maximum number of entries in each ZTC cache, such as the cache of zaaktypes or of statustypes. ZAC fills
+# these caches with all types of the catalogus at startup, so raise this when a cache holds more types. The admin
+# page `/rest/admin/util/cache/ztc` shows how many entries each cache holds and how much memory it uses.
+ztcCacheMaxSize: 10000
+
+# -- Number of seconds after which an entry of a ZTC cache is removed when it has been neither read nor written.
+# This removes types that no longer exist in the ZTC from the cache. Default: one day.
+ztcCacheExpirationSeconds: 86400

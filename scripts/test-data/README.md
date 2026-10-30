@@ -98,7 +98,7 @@ in PABC and configured in ZAC):
 * [`create-load.py`](create-load.py) — end-to-end local load/performance test: uploads a BPMN process definition,
   configures zaakafhandelparameters for the 7 built-in test zaaktypes, then creates many zaken concurrently.
 * [`configure-zaakafhandelparameters.py`](configure-zaakafhandelparameters.py) — configures a single zaaktype's
-  zaakafhandelparameters in ZAC (default group, CMMN case type, zaakNietOntvankelijkResultaattype, zaakAfzenders
-  and humanTaskParameters). Used by `create-zaaktypes.py` above, and can also be run standalone.
+  zaakafhandelparameters in ZAC (default group, CMMN case type, zaakNietOntvankelijkResultaattype, zaakAfzenders,
+  intakeMail and afrondenMail, and humanTaskParameters). Used by `create-zaaktypes.py` above, and can also be run standalone.
 
 Run any script with `--help` for its full set of options.

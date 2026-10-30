@@ -6,9 +6,9 @@
 # Configures the zaakafhandelparameters of a single zaaktype in ZAC: sets the default group,
 # switches the zaaktype to the CMMN case type "generiek-zaakafhandelmodel", sets the
 # "Geweigerd" resultaattype as the zaakNietOntvankelijkResultaattype, sets the standard
-# GEMEENTE/MEDEWERKER zaakAfzenders, and sets humanTaskParameters and
-# userEventListenerParameters for every human task and user event listener of that case
-# definition.
+# GEMEENTE/MEDEWERKER zaakAfzenders, sets intakeMail and afrondenMail when they are not set
+# yet, and sets humanTaskParameters and userEventListenerParameters for every human task and
+# user event listener of that case definition.
 #
 # The zaaktype's current zaakafhandelparameters are read first and only those fields are
 # changed; every other field (including numeric DB ids of already configured nested
@@ -45,6 +45,10 @@ CASE_DEFINITION_KEY = "generiek-zaakafhandelmodel"
 
 # naam of the resultaattype used as zaakNietOntvankelijkResultaattype
 NIET_ONTVANKELIJK_RESULTAATTYPE_NAAM = "Geweigerd"
+
+# intakeMail and afrondenMail of a zaaktype that has none yet. A never-configured zaaktype
+# reads back without them, and ZAC stores an omitted value as null, which the database rejects.
+DEFAULT_STATUS_MAIL = "BESCHIKBAAR_UIT"
 
 # zaakAfzenders every configured zaaktype is given; "index" is a frontend-only display
 # field, not part of RestZaakAfzender, so it is not sent here.
@@ -193,8 +197,8 @@ def configure_zaakafhandelparameters(
     zaaktype_uuid: uuid.UUID, token_manager: zac_client.TokenManager, zac_url: str
 ) -> dict:
     """Set the default group, CMMN case type, zaakNietOntvankelijkResultaattype,
-    zaakAfzenders, humanTaskParameters and userEventListenerParameters on a zaaktype's
-    zaakafhandelparameters.
+    zaakAfzenders, intakeMail, afrondenMail, humanTaskParameters and
+    userEventListenerParameters on a zaaktype's zaakafhandelparameters.
 
     Returns a result dict with the outcome; raises nothing, so the caller decides how to
     report a failure.
@@ -282,6 +286,8 @@ def configure_zaakafhandelparameters(
     configuration["defaultGroepId"] = zac_testdata.ZAAK_GROUP_ID
     configuration["processDefinition"] = case_definition
     configuration["zaakNietOntvankelijkResultaattype"] = niet_ontvankelijk_resultaattype
+    configuration["intakeMail"] = configuration.get("intakeMail") or DEFAULT_STATUS_MAIL
+    configuration["afrondenMail"] = configuration.get("afrondenMail") or DEFAULT_STATUS_MAIL
     configuration["zaakAfzenders"] = _merge_zaak_afzender_ids(
         ZAAK_AFZENDERS, configuration.get("zaakAfzenders", [])
     )

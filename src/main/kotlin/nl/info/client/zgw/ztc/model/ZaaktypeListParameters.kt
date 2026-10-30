@@ -9,17 +9,14 @@ import java.net.URI
 
 class ZaaktypeListParameters(
     private val catalogus: URI,
-    private val page: Int? = null,
+    page: Int? = null,
     private val pageSize: Int? = null
-) : AbstractZtcListParameters() {
+) : AbstractZtcListParameters(page) {
     /**
      * URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
      */
     @QueryParam("catalogus")
     fun getCatalogus() = catalogus
-
-    @QueryParam("page")
-    fun getPage() = page
 
     @QueryParam("pageSize")
     fun getPageSize() = pageSize

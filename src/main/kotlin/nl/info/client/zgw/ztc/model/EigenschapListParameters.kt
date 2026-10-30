@@ -64,4 +64,7 @@ class EigenschapListParameters {
 
     @field:QueryParam("status")
     var status: EigenschapListParametersStatus? = null
+
+    @field:QueryParam("page")
+    var page: Int? = null
 }

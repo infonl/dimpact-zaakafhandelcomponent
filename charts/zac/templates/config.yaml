@@ -105,3 +105,5 @@ data:
   VERANTWOORDELIJKE_ORGANISATIE_RSIN: {{ required "Valid .Values.organizations.verantwoordelijke.rsin entry required!" .Values.organizations.verantwoordelijke.rsin | quote }}
   ZGW_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.zgwApis.url entry required!" .Values.zgwApis.url }}
   ZGW_API_CLIENTID: {{ required "Valid .Values.zgwApis.clientId entry required!" .Values.zgwApis.clientId }}
+  ZTC_CACHE_EXPIRATION_SECONDS: {{ .Values.ztcCacheExpirationSeconds | default 86400 | quote }}
+  ZTC_CACHE_MAX_SIZE: {{ .Values.ztcCacheMaxSize | default 10000 | quote }}

@@ -8,8 +8,9 @@ import jakarta.ws.rs.QueryParam
 import java.net.URI
 
 class ResultaattypeListParameters(
-    private val zaaktype: URI
-) : AbstractZtcListParameters() {
+    private val zaaktype: URI? = null,
+    page: Int? = null
+) : AbstractZtcListParameters(page) {
     /**
      * URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten van dit RESULTAATTYPE bereikt kunnen worden.
      */

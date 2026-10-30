@@ -85,11 +85,14 @@ class UtilRestService @Inject constructor(
         )
     }
 
+    /**
+     * Only this page measures the memory usage of the caches, because measuring walks through every cached object.
+     */
     @GET
     @Path("cache/ztc")
     fun ztcCaches(): String {
         checkBeherenPolicy()
-        return body(ztcClientCaches())
+        return body(ztcClientCaches(memoryUsages = ztcClientService.estimatedMemoryUsage()))
     }
 
     @GET
@@ -148,6 +151,8 @@ class UtilRestService @Inject constructor(
         )
     }
 
+    private fun memorySize(bytes: Long) = "${fileSize(bytes, decimals = 2)} ($bytes bytes)"
+
     private fun checkBeherenPolicy() = assertPolicy(policyService.readOverigeRechten().canBeheren)
 
     private fun clearZtcClientCaches() =
@@ -173,26 +178,38 @@ class UtilRestService @Inject constructor(
             )
         )
 
-    private fun ztcClientCaches() = getSeriviceCacheDetails(ZTC, ztcClientService)
+    private fun ztcClientCaches(memoryUsages: Map<String, Long>? = null) =
+        getSeriviceCacheDetails(ZTC, ztcClientService, memoryUsages)
 
     private fun zaakafhandelParameterServiceCaches() = getSeriviceCacheDetails(ZHPS, zaaktypeConfigurationService)
 
-    private fun getSeriviceCacheDetails(prefix: String, caching: Caching): String {
+    private fun getSeriviceCacheDetails(
+        prefix: String,
+        caching: Caching,
+        memoryUsages: Map<String, Long>? = null
+    ): String {
         val cacheStatistics = caching.cacheStatistics()
         val estimatedCacheSizes = caching.estimatedCacheSizes()
         val totalLoadTimeRegExp = Regex("totalLoadTime=\\d+")
-        return prefix + ul(
+        val totalMemoryUsage = memoryUsages?.let {
+            ul("Estimated memory usage of all caches: ${memorySize(it.values.sum())}")
+        }.orEmpty()
+        return prefix + totalMemoryUsage + ul(
             cacheStatistics.entries.map { (key, value) ->
                 // replace totalLoadTime substring with human-readable value
                 val totalLoadTimeHumanReadable = value
                     .totalLoadTime()
                     .toDuration(DurationUnit.NANOSECONDS)
                     .toString()
+                val sizes = listOfNotNull(
+                    "Estimated cache size: ${estimatedCacheSizes[key]} item(s)",
+                    memoryUsages?.let { "Estimated memory usage: ${memorySize(it[key] ?: 0)}" }
+                )
                 """
                     <p>
                     ${b(key)}
                     ${ul(value.toString().replace(totalLoadTimeRegExp, "totalLoadTime=$totalLoadTimeHumanReadable"))}
-                    ${ul("Estimated cache size: ${estimatedCacheSizes[key]}")}
+                    ${ul(sizes)}
                     </p>
                 """.trimIndent()
             }

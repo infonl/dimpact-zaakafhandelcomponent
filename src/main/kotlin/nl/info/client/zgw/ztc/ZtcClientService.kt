@@ -19,6 +19,8 @@ import nl.info.client.zgw.ztc.model.BesluittypeListParameters
 import nl.info.client.zgw.ztc.model.CatalogusListParameters
 import nl.info.client.zgw.ztc.model.EigenschapListParameters
 import nl.info.client.zgw.ztc.model.EigenschapListParametersStatus
+import nl.info.client.zgw.ztc.model.InformatieobjecttypeListParameters
+import nl.info.client.zgw.ztc.model.ObjectStatusFilter
 import nl.info.client.zgw.ztc.model.ResultaattypeListParameters
 import nl.info.client.zgw.ztc.model.RoltypeListGeneriekParameters
 import nl.info.client.zgw.ztc.model.RoltypeListParameters
@@ -37,11 +39,14 @@ import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.client.zgw.ztc.model.generated.ZaakTypeInformatieObjectType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.inject.RestClient
+import org.openjdk.jol.info.GraphLayout
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.concurrent.TimeUnit
+import java.util.logging.Level
 import java.util.logging.Logger
 
 /**
@@ -53,61 +58,70 @@ import java.util.logging.Logger
 @Suppress("TooManyFunctions")
 class ZtcClientService @Inject constructor(
     @RestClient
-    private val ztcClient: ZtcClient
+    private val ztcClient: ZtcClient,
+
+    @ConfigProperty(name = ENV_VAR_ZTC_CACHE_MAX_SIZE, defaultValue = DEFAULT_CACHE_MAX_SIZE)
+    private val cacheMaxSize: Long,
+
+    @ConfigProperty(name = ENV_VAR_ZTC_CACHE_EXPIRATION_SECONDS, defaultValue = DEFAULT_CACHE_EXPIRATION_SECONDS)
+    private val cacheExpirationSeconds: Long
 ) : Caching {
     companion object {
-        const val MAX_CACHE_SIZE: Long = 1_000
-        const val EXPIRATION_TIME_HOURS: Long = 1
+        const val ENV_VAR_ZTC_CACHE_MAX_SIZE = "ZTC_CACHE_MAX_SIZE"
+        const val DEFAULT_CACHE_MAX_SIZE = "10000"
+        const val ENV_VAR_ZTC_CACHE_EXPIRATION_SECONDS = "ZTC_CACHE_EXPIRATION_SECONDS"
+        const val DEFAULT_CACHE_EXPIRATION_SECONDS = "86400"
         const val ZAAKTYPE_PAGE_SIZE: Int = 100
 
-        /**
-         * Marks a zaaktype as being 'zaakspecifiek autoriseerbaar'.
-         * The name is abbreviated because Open Zaak caps the length of eigenschap names.
-         */
-        const val ZAAK_GEAUTORISEERD_EIGENSCHAP_NAAM = "ZAAK_GEAUTORISEERD"
-
         private const val ZTC_EIGENSCHAP = "ztc-eigenschap"
+        private const val FIRST_PAGE = 1
 
-        private val CACHES = mutableMapOf<String, Cache<*, *>>()
         private val LOG = Logger.getLogger(ZtcClientService::class.java.name)
-        private fun <K, V> createCache(name: String, size: Long = MAX_CACHE_SIZE): Cache<K & Any, V> {
-            val cache: Cache<K & Any, V> = Caffeine.newBuilder()
-                .maximumSize(size)
-                .expireAfterAccess(EXPIRATION_TIME_HOURS, TimeUnit.HOURS)
-                .recordStats()
-                .removalListener { key: K?, _: V?, cause ->
-                    LOG.fine("Removing key: $key in cache $name because of: $cause")
-                }.build()
+    }
 
-            CACHES["ZTC $name"] = cache
-            return cache
-        }
+    private val caches = mutableMapOf<String, Cache<*, *>>()
 
-        private val ztcTimeCache: Cache<String, ZonedDateTime> = createCache("Time", 1)
+    private val ztcTimeCache: Cache<String, ZonedDateTime> = createCache("Time", 1)
 
-        private val uuidToZaakTypeCache: Cache<UUID, ZaakType> = createCache("UUID -> ZaakType")
-        private val uriToZaakTypeListCache: Cache<URI, List<ZaakType>> = createCache("URI -> List<ZaakType>")
-        private val uuidToStatusTypeCache: Cache<UUID, StatusType> = createCache("UUID -> StatusType")
-        private val uriToStatusTypeListCache: Cache<URI, List<StatusType>> = createCache("URI -> List<StatusType>")
-        private val uriToZaakTypeInformatieObjectTypeListCache: Cache<URI, List<ZaakTypeInformatieObjectType>> =
-            createCache("URI -> List<ZaakTypeInformatieObjectType>")
-        private val uuidToInformatieObjectTypeCache: Cache<UUID, InformatieObjectType> =
-            createCache("UUID -> InformatieObjectType")
-        private val uriToInformatieObjectTypeListCache: Cache<URI, List<InformatieObjectType>> =
-            createCache("URI -> List<InformatieObjectType>")
-        private val uuidToResultaatTypeCache: Cache<UUID, ResultaatType> = createCache("UUID -> ResultaatType")
-        private val uriToResultaatTypeListCache: Cache<URI, List<ResultaatType>> =
-            createCache("URI -> List<ResultaatType>")
-        private val uuidToBesluitTypeCache: Cache<UUID, BesluitType> = createCache("UUID -> BesluitType")
-        private val uriToBesluitTypeListCache: Cache<URI, List<BesluitType>> = createCache("URI -> List<BesluitType>")
-        private val uriOmschrijvingEnumToRolTypeCache: Cache<String, List<RolType>> =
-            createCache("URI & OmschrijvingEnumT -> RolType")
-        private val uriOmschrijvingGeneriekEnumToRolTypeCache: Cache<String, List<RolType>> =
-            createCache("URI & OmschrijvingGeneriekEnumT -> RolType")
-        private val uriToRolTypeListCache: Cache<URI, List<RolType>> = createCache("URI -> List<RolType>")
-        private val rolTypeListCache: Cache<String, List<RolType>> = createCache("List<RolType>", 1)
-        private val uuidToRolTypeCache: Cache<UUID, RolType> = createCache("UUID -> RolType")
-        private val uriToEigenschappenCache: Cache<URI, List<Eigenschap>> = createCache("URI -> List<Eigenschap>")
+    private val uuidToZaakTypeCache: Cache<UUID, ZaakType> = createCache("UUID -> ZaakType")
+    private val uriToZaakTypeListCache: Cache<URI, List<ZaakType>> = createCache("URI -> List<ZaakType>")
+    private val uuidToStatusTypeCache: Cache<UUID, StatusType> = createCache("UUID -> StatusType")
+    private val uriToStatusTypeListCache: Cache<URI, List<StatusType>> = createCache("URI -> List<StatusType>")
+    private val uriToZaakTypeInformatieObjectTypeListCache: Cache<URI, List<ZaakTypeInformatieObjectType>> =
+        createCache("URI -> List<ZaakTypeInformatieObjectType>")
+    private val uuidToInformatieObjectTypeCache: Cache<UUID, InformatieObjectType> =
+        createCache("UUID -> InformatieObjectType")
+    private val uriToInformatieObjectTypeListCache: Cache<URI, List<InformatieObjectType>> =
+        createCache("URI -> List<InformatieObjectType>")
+    private val uuidToResultaatTypeCache: Cache<UUID, ResultaatType> = createCache("UUID -> ResultaatType")
+    private val uriToResultaatTypeListCache: Cache<URI, List<ResultaatType>> =
+        createCache("URI -> List<ResultaatType>")
+    private val uuidToBesluitTypeCache: Cache<UUID, BesluitType> = createCache("UUID -> BesluitType")
+    private val uriToBesluitTypeListCache: Cache<URI, List<BesluitType>> = createCache("URI -> List<BesluitType>")
+    private val uriOmschrijvingEnumToRolTypeCache: Cache<String, List<RolType>> =
+        createCache("URI & OmschrijvingEnumT -> RolType")
+    private val uriOmschrijvingGeneriekEnumToRolTypeCache: Cache<String, List<RolType>> =
+        createCache("URI & OmschrijvingGeneriekEnumT -> RolType")
+    private val uriToRolTypeListCache: Cache<URI, List<RolType>> = createCache("URI -> List<RolType>")
+    private val rolTypeListCache: Cache<String, List<RolType>> = createCache("List<RolType>", 1)
+    private val uuidToRolTypeCache: Cache<UUID, RolType> = createCache("UUID -> RolType")
+    private val uriToEigenschappenCache: Cache<URI, List<Eigenschap>> = createCache("URI -> List<Eigenschap>")
+
+    /**
+     * Entries expire only when they have been neither read nor written for [cacheExpirationSeconds], so that types
+     * that were removed from the ZTC eventually disappear from the cache.
+     */
+    private fun <K, V> createCache(name: String, size: Long = cacheMaxSize): Cache<K & Any, V> {
+        val cache: Cache<K & Any, V> = Caffeine.newBuilder()
+            .maximumSize(size)
+            .expireAfterAccess(cacheExpirationSeconds, TimeUnit.SECONDS)
+            .recordStats()
+            .removalListener { key: K?, _: V?, cause ->
+                LOG.fine("Removing key: $key in cache $name because of: $cause")
+            }.build()
+
+        caches["ZTC $name"] = cache
+        return cache
     }
 
     fun listCatalogus(catalogusListParameters: CatalogusListParameters): Results<Catalogus> =
@@ -157,21 +171,13 @@ class ZtcClientService @Inject constructor(
      */
     fun listZaaktypen(catalogusURI: URI): List<ZaakType> = uriToZaakTypeListCache.get(catalogusURI) {
         LOG.fine { "OpenZaak: listZaaktypen(catalogusURI $catalogusURI)" }
-        buildList {
-            var page = 1
-            var result: Results<ZaakType>
-            do {
-                result = ztcClient.zaaktypeList(
-                    ZaaktypeListParameters(catalogusURI, page = page, pageSize = ZAAKTYPE_PAGE_SIZE)
-                )
-                result.results().forEach { zaakType ->
-                    add(zaakType)
-                    uuidToZaakTypeCache.put(zaakType.url.extractUuid(), zaakType)
-                }
-                page++
-            } while (result.next() != null)
-        }
+        fetchZaaktypen(catalogusURI)
     }
+
+    private fun fetchZaaktypen(catalogusURI: URI) =
+        listAllPages { page ->
+            ztcClient.zaaktypeList(ZaaktypeListParameters(catalogusURI, page = page, pageSize = ZAAKTYPE_PAGE_SIZE))
+        }.onEach { uuidToZaakTypeCache.put(it.url.extractUuid(), it) }
 
     /**
      * Reads a [StatusType] via URI.
@@ -451,6 +457,122 @@ class ZtcClientService @Inject constructor(
                 """.trimIndent()
             )
 
+    /**
+     * Fills the caches with the zaaktypes of the given catalogus and their related types, with one paged list
+     * request per type instead of one request per zaaktype. A type that fails to refresh is logged and skipped,
+     * so that its cache is still filled on demand.
+     */
+    fun refreshCaches(catalogusURI: URI) {
+        val zaaktypeURIs = refreshCache("zaaktypen") {
+            fetchZaaktypen(catalogusURI).also { uriToZaakTypeListCache.put(catalogusURI, it) }
+        }?.map { it.url }?.toSet() ?: return
+        refreshCache("statustypen") { refreshStatustypen(zaaktypeURIs) }
+        refreshCache("resultaattypen") { refreshResultaattypen(zaaktypeURIs) }
+        refreshCache("besluittypen") { refreshBesluittypen(catalogusURI, zaaktypeURIs) }
+        refreshCache("informatieobjecttypen") { refreshInformatieobjecttypen(catalogusURI, zaaktypeURIs) }
+        refreshCache("eigenschappen") { refreshEigenschappen(zaaktypeURIs) }
+        refreshCache("roltypen") { refreshRoltypen(zaaktypeURIs) }
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun <T> refreshCache(typeName: String, refresh: () -> List<T>): List<T>? =
+        try {
+            refresh().also { LOG.info { "Refreshed the ZTC cache with ${it.size} $typeName" } }
+        } catch (runtimeException: RuntimeException) {
+            LOG.log(Level.WARNING, "Failed to refresh the ZTC cache with $typeName", runtimeException)
+            null
+        }
+
+    private fun refreshStatustypen(zaaktypeURIs: Set<URI>) =
+        listAllPages { page -> ztcClient.statustypeList(StatustypeListParameters(page = page)) }
+            .groupByZaaktype(zaaktypeURIs) { listOfNotNull(it.zaaktype) }
+            .also(uriToStatusTypeListCache::putAll)
+            .values.flatten()
+            .onEach { uuidToStatusTypeCache.put(it.url.extractUuid(), it) }
+
+    private fun refreshResultaattypen(zaaktypeURIs: Set<URI>) =
+        listAllPages { page -> ztcClient.resultaattypeList(ResultaattypeListParameters(page = page)) }
+            .groupByZaaktype(zaaktypeURIs) { listOfNotNull(it.zaaktype) }
+            .also(uriToResultaatTypeListCache::putAll)
+            .values.flatten()
+            .onEach { uuidToResultaatTypeCache.put(it.url.extractUuid(), it) }
+
+    private fun refreshBesluittypen(catalogusURI: URI, zaaktypeURIs: Set<URI>) =
+        listAllPages { page ->
+            ztcClient.besluittypeList(BesluittypeListParameters(catalogus = catalogusURI).apply { this.page = page })
+        }.also { besluittypen ->
+            uriToBesluitTypeListCache.putAll(besluittypen.groupByZaaktype(zaaktypeURIs) { it.zaaktypen.orEmpty() })
+        }.onEach { uuidToBesluitTypeCache.put(it.url.extractUuid(), it) }
+
+    /**
+     * Informatieobjecttypen are linked to zaaktypen through zaaktype-informatieobjecttypen, so both are refreshed
+     * together. All statuses are cached, because [readInformatieobjecttype] does not filter on status either.
+     */
+    private fun refreshInformatieobjecttypen(catalogusURI: URI, zaaktypeURIs: Set<URI>): List<InformatieObjectType> {
+        val informatieobjecttypen = listAllPages { page ->
+            ztcClient.informatieobjecttypeList(
+                InformatieobjecttypeListParameters(catalogusURI, page).apply { setStatus(ObjectStatusFilter.ALLES) }
+            )
+        }.onEach { uuidToInformatieObjectTypeCache.put(it.url.extractUuid(), it) }
+        val zaaktypeInformatieobjecttypen = listAllPages { page ->
+            ztcClient.zaaktypeinformatieobjecttypeList(ZaaktypeInformatieobjecttypeListParameters(page = page))
+        }.groupByZaaktype(zaaktypeURIs) { listOfNotNull(it.zaaktype) }
+        uriToZaakTypeInformatieObjectTypeListCache.putAll(zaaktypeInformatieobjecttypen)
+        uriToInformatieObjectTypeListCache.putAll(
+            zaaktypeInformatieobjecttypen.mapValues { (_, zaaktypeInformatieobjecttypenOfZaaktype) ->
+                zaaktypeInformatieobjecttypenOfZaaktype.map { readInformatieobjecttype(it.informatieobjecttype) }
+            }
+        )
+        return informatieobjecttypen
+    }
+
+    private fun refreshEigenschappen(zaaktypeURIs: Set<URI>) =
+        listAllPages { page ->
+            ztcClient.eigenschapList(
+                EigenschapListParameters().apply {
+                    this.status = EigenschapListParametersStatus.DEFINITIEF
+                    this.page = page
+                }
+            )
+        }.groupByZaaktype(zaaktypeURIs) { listOfNotNull(it.zaaktype) }
+            .also(uriToEigenschappenCache::putAll)
+            .values.flatten()
+
+    private fun refreshRoltypen(zaaktypeURIs: Set<URI>) =
+        listAllPages { page -> ztcClient.roltypeList(RoltypeListParameters(page = page)) }
+            .groupByZaaktype(zaaktypeURIs) { listOfNotNull(it.zaaktype) }
+            .also(uriToRolTypeListCache::putAll)
+            .values.flatten()
+            .onEach { uuidToRolTypeCache.put(it.url.extractUuid(), it) }
+
+    private fun <T> listAllPages(listPage: (page: Int) -> Results<T>): List<T> = buildList {
+        var page = FIRST_PAGE
+        do {
+            val results = listPage(page++)
+            addAll(results.results())
+        } while (results.next() != null)
+    }
+
+    /**
+     * Groups the items by zaaktype, with an empty list for each zaaktype without items, so that looking up
+     * such a zaaktype is also a cache hit. Items of zaaktypen that are not given are left out.
+     */
+    private fun <T> List<T>.groupByZaaktype(zaaktypeURIs: Set<URI>, zaaktypenOf: (T) -> List<URI>) =
+        flatMap { item -> zaaktypenOf(item).map { it to item } }
+            .groupBy({ it.first }, { it.second })
+            .let { itemsByZaaktype -> zaaktypeURIs.associateWith { itemsByZaaktype[it].orEmpty() } }
+
+    /**
+     * Measures the memory that the keys and values of each cache take, including all objects they refer to.
+     * This walks through every cached object, so only call it on request.
+     */
+    fun estimatedMemoryUsage(): Map<String, Long> =
+        caches.mapValues { (_, cache) ->
+            cache.asMap()
+                .flatMap { listOf(it.key, it.value) }
+                .let { if (it.isEmpty()) 0 else GraphLayout.parseInstance(it).totalSize() }
+        }
+
     fun clearZaaktypeCache(): String {
         uuidToZaakTypeCache.invalidateAll()
         uriToZaakTypeListCache.invalidateAll()
@@ -506,8 +628,8 @@ class ZtcClientService @Inject constructor(
     }
 
     override fun cacheStatistics(): Map<String, CacheStats> =
-        CACHES.mapValuesTo(mutableMapOf<String, CacheStats>()) { it.value.stats() }
+        caches.mapValuesTo(mutableMapOf<String, CacheStats>()) { it.value.stats() }
 
     override fun estimatedCacheSizes(): Map<String, Long> =
-        CACHES.mapValuesTo(mutableMapOf()) { it.value.estimatedSize() }
+        caches.mapValuesTo(mutableMapOf()) { it.value.estimatedSize() }
 }
