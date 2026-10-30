@@ -121,10 +121,7 @@ export class ZakenAfgehandeldComponent
 
   constructor() {
     super();
-    this.dataSource = new ZakenAfgehandeldDatasource(
-      this.zoekenService,
-      this.utilService,
-    );
+    this.dataSource = new ZakenAfgehandeldDatasource(this.zoekenService);
   }
 
   ngOnInit(): void {

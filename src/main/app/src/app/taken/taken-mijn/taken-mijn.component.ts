@@ -106,10 +106,7 @@ export class TakenMijnComponent
 
   constructor() {
     super();
-    this.dataSource = new TakenMijnDatasource(
-      this.zoekenService,
-      this.utilService,
-    );
+    this.dataSource = new TakenMijnDatasource(this.zoekenService);
   }
 
   ngOnInit(): void {

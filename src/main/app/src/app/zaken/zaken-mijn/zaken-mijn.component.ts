@@ -119,10 +119,7 @@ export class ZakenMijnComponent
 
   constructor() {
     super();
-    this.dataSource = new ZakenMijnDatasource(
-      this.zoekenService,
-      this.utilService,
-    );
+    this.dataSource = new ZakenMijnDatasource(this.zoekenService);
     this.dataSource.initColumns(this.defaultColumns());
   }
 

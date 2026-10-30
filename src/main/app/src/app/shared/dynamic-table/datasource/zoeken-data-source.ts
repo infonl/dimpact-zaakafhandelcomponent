@@ -5,12 +5,11 @@
 
 import { DataSource } from "@angular/cdk/collections";
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
-import { EventEmitter } from "@angular/core";
+import { EventEmitter, effect, signal, untracked } from "@angular/core";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
-import { BehaviorSubject, EMPTY, Observable, Subscription, merge } from "rxjs";
-import { catchError, finalize, tap } from "rxjs/operators";
-import { UtilService } from "../../../core/service/util.service";
+import { BehaviorSubject, Observable, Subscription, merge } from "rxjs";
+import { tap } from "rxjs/operators";
 import { FilterVeld } from "../../../zoeken/model/filter-veld";
 import {
   ZoekParameters,
@@ -18,6 +17,7 @@ import {
 } from "../../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../../zoeken/model/zoek-resultaat";
 import { ZoekenService } from "../../../zoeken/zoeken.service";
+import { injectLastSuccessfulSearch } from "../../http/last-successful-search";
 import {
   SessionStorageUtil,
   WerklijstZoekParameter,
@@ -49,12 +49,30 @@ export abstract class ZoekenDataSource<
   private _detailExpandColumns: Array<ZoekenColumn> = [];
   private _drop = false;
   private subscriptions$: Subscription[] = [];
-  private lastLoadedPageIndex = 0;
 
+  /** `null` until the table asks for its first search. */
+  private readonly requestedZoekParameters = signal<ZoekParameters | null>(
+    null,
+  );
+
+  private readonly search = injectLastSuccessfulSearch({
+    requested: this.requestedZoekParameters,
+    query: (zoekParameters) => ({
+      ...this.zoekenService.list(zoekParameters ?? getDefaultZoekParameters()),
+      enabled: zoekParameters !== null,
+    }),
+    onRevert: (zoekParameters) => {
+      if (zoekParameters) this.revert(zoekParameters);
+    },
+  });
+
+  /**
+   * Built with `new` from the constructor of a werklijst component, so that it
+   * runs in the injection context of that component.
+   */
   protected constructor(
     public readonly werklijst: GeneratedType<"Werklijst">,
     private readonly zoekenService: ZoekenService,
-    private readonly utilService: UtilService,
   ) {
     super();
     this.zoekParameters = {
@@ -64,6 +82,12 @@ export abstract class ZoekenDataSource<
         getDefaultZoekParameters(),
       ),
     };
+
+    effect(() => {
+      const zoekResultaat = this.search.data();
+      if (!zoekResultaat) return;
+      untracked(() => this.setData(zoekResultaat as ZoekResultaat<OBJECT>));
+    });
   }
 
   protected abstract initZoekparameters(
@@ -108,30 +132,24 @@ export abstract class ZoekenDataSource<
     this.tableSubject.complete();
   }
 
+  /**
+   * Searches with the current `zoekParameters`. When they have not changed, it
+   * searches again, for example to show what a bulk action changed after
+   * `delay` milliseconds.
+   */
   load(delay = 0) {
     setTimeout(() => {
-      this.utilService.setLoading(true);
       const zoekParameters = this.updateZoekParameters();
-      const requestedPageIndex = zoekParameters.page ?? 0;
-      this.zoekenService
-        .list$(zoekParameters)
-        .pipe(
-          finalize(() => this.utilService.setLoading(false)),
-          catchError(() => {
-            this.paginator.pageIndex = this.lastLoadedPageIndex;
-            this.zoekParameters.page = this.lastLoadedPageIndex;
-            SessionStorageUtil.setItem(
-              `${this.werklijst}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
-              this.zoekParameters,
-            );
-            return EMPTY;
-          }),
-        )
-        .subscribe((zaakResponse) => {
-          this.lastLoadedPageIndex = requestedPageIndex;
-          this.setData(zaakResponse as ZoekResultaat<OBJECT>);
-        });
+      this.search.request(JSON.parse(JSON.stringify(zoekParameters)));
     }, delay);
+  }
+
+  private revert(zoekParameters: ZoekParameters) {
+    this.zoekParameters = SessionStorageUtil.setItem(
+      `${this.werklijst}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
+      zoekParameters,
+    );
+    this.paginator.pageIndex = zoekParameters.page;
   }
 
   clear() {

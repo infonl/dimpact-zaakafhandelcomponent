@@ -162,10 +162,7 @@ export class TakenWerkvoorraadComponent
 
   constructor() {
     super();
-    this.dataSource = new TakenWerkvoorraadDatasource(
-      this.zoekenService,
-      this.utilService,
-    );
+    this.dataSource = new TakenWerkvoorraadDatasource(this.zoekenService);
   }
 
   override ngOnInit() {

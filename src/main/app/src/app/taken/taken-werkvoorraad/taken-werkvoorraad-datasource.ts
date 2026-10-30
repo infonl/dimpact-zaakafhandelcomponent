@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { UtilService } from "../../core/service/util.service";
 import { ZoekenDataSource } from "../../shared/dynamic-table/datasource/zoeken-data-source";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
@@ -13,8 +12,8 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
  * Datasource voor de werkvoorraad taken. Via deze class wordt de data voor de tabel opgehaald
  */
 export class TakenWerkvoorraadDatasource extends ZoekenDataSource<TaakZoekObject> {
-  constructor(zoekenService: ZoekenService, utilService: UtilService) {
-    super("WERKVOORRAAD_TAKEN", zoekenService, utilService);
+  constructor(zoekenService: ZoekenService) {
+    super("WERKVOORRAAD_TAKEN", zoekenService);
   }
 
   protected initZoekparameters(zoekParameters: ZoekParameters) {
