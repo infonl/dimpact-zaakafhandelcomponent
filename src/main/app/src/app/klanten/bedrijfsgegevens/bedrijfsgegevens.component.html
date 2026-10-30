@@ -76,7 +76,7 @@
     <div id="bedrijfsgegevens" class="content flex-row flex-wrap">
       <zac-static-text
         label="bedrijfsnaam"
-        [value]="$safeNavigationMigration(bedrijfQuery.data()?.naam)"
+        [value]="bedrijfQuery.data()?.naam"
       />
       @if (initiatorIdentificatie().kvkNummer) {
         <zac-static-text
@@ -98,23 +98,14 @@
       }
       <zac-static-text
         label="type"
-        [value]="
-          $safeNavigationMigration(bedrijfQuery.data()?.type)
-            | i18nKey
-            | translate
-        "
+        [value]="bedrijfQuery.data()?.type | i18nKey | translate"
       />
       @if (profiel()) {
-        <zac-static-text
-          label="rsin"
-          [value]="$safeNavigationMigration(profiel()?.rsin)"
-        />
+        <zac-static-text label="rsin" [value]="profiel()?.rsin" />
       } @else {
         <zac-static-text
           [label]="bedrijfQuery.data()?.adres?.type ?? 'adres'"
-          [value]="
-            $safeNavigationMigration(bedrijfQuery.data()?.adres?.volledigAdres)
-          "
+          [value]="bedrijfQuery.data()?.adres?.volledigAdres"
         />
       }
       @for (adres of profiel()?.adressen; track adres) {
@@ -157,45 +148,37 @@
       @if (profiel()) {
         <zac-static-text
           label="totaal-werkzame-personen"
-          [value]="$safeNavigationMigration(profiel()?.totaalWerkzamePersonen)"
+          [value]="profiel()?.totaalWerkzamePersonen"
         />
       }
       @if (profiel()) {
         <zac-static-text
           label="hoofdactiviteit"
-          [value]="$safeNavigationMigration(profiel()?.sbiHoofdActiviteit)"
+          [value]="profiel()?.sbiHoofdActiviteit"
         />
       }
       @if (profiel()) {
         <zac-static-text
           label="activiteiten"
-          [value]="
-            $safeNavigationMigration(profiel()?.sbiActiviteiten?.join(',\r\n'))
-          "
+          [value]="profiel()?.sbiActiviteiten?.join(',\r\n')"
         />
       }
       @if (profiel()) {
-        <zac-static-text
-          label="website"
-          [value]="$safeNavigationMigration(profiel()?.website)"
-        />
+        <zac-static-text label="website" [value]="profiel()?.website" />
       }
       @if (profiel()?.rechtsvorm) {
-        <zac-static-text
-          label="rechtsvorm"
-          [value]="$safeNavigationMigration(profiel()?.rechtsvorm)"
-        />
+        <zac-static-text label="rechtsvorm" [value]="profiel()?.rechtsvorm" />
       }
       @if (profiel()?.uitgebreideRechtsvorm) {
         <zac-static-text
           label="uitgebreide-rechtsvorm"
-          [value]="$safeNavigationMigration(profiel()?.uitgebreideRechtsvorm)"
+          [value]="profiel()?.uitgebreideRechtsvorm"
         />
       }
       @if (profiel()?.statutaireNaam) {
         <zac-static-text
           label="statutaire-naam"
-          [value]="$safeNavigationMigration(profiel()?.statutaireNaam)"
+          [value]="profiel()?.statutaireNaam"
         />
       }
     </div>

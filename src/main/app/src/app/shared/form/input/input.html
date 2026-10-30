@@ -12,7 +12,7 @@
   </mat-label>
   @if (displayValue()) {
     <div class="position-absolute overflow-hidden">
-      {{ getDisplayValue($safeNavigationMigration(control()?.value)) }}
+      {{ getDisplayValue(control()?.value) }}
     </div>
   }
   <input

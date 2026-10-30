@@ -26,46 +26,33 @@
                 @if (adres.panden?.[0]?.oorspronkelijkBouwjaar) {
                   <zac-static-text
                     label="bouwjaar"
-                    [value]="
-                      $safeNavigationMigration(
-                        adres.panden?.[0]?.oorspronkelijkBouwjaar
-                      )
-                    "
+                    [value]="adres.panden[0].oorspronkelijkBouwjaar"
                   />
                 }
                 @if (
                   adres.adresseerbaarObject?.typeAdresseerbaarObject ===
                     "VERBLIJFSOBJECT" &&
-                  adres.adresseerbaarObject?.vboOppervlakte
+                  adres.adresseerbaarObject.vboOppervlakte
                 ) {
                   <zac-static-text
                     label="oppervlakte"
-                    [value]="
-                      $safeNavigationMigration(
-                        adres.adresseerbaarObject?.vboOppervlakte
-                      )
-                    "
+                    [value]="adres.adresseerbaarObject.vboOppervlakte"
                   />
                 }
                 @if (
                   adres.adresseerbaarObject?.typeAdresseerbaarObject ===
-                    "VERBLIJFSOBJECT" && adres.adresseerbaarObject?.vboDoel
+                    "VERBLIJFSOBJECT" && adres.adresseerbaarObject.vboDoel
                 ) {
                   <zac-static-text
                     label="gebruiksdoel"
-                    [value]="
-                      $safeNavigationMigration(
-                        adres.adresseerbaarObject?.vboDoel
-                      )
-                    "
+                    [value]="adres.adresseerbaarObject.vboDoel"
                   />
                 }
                 @if (adres.nummeraanduiding?.status) {
                   <zac-static-text
                     label="status"
                     [value]="
-                      'bag-object.status.' +
-                        $safeNavigationMigration(adres.nummeraanduiding?.status)
+                      'bag-object.status.' + adres.nummeraanduiding.status
                         | i18nKey
                         | translate
                     "
@@ -449,21 +436,13 @@
                 @if (nummeraanduiding.openbareRuimte?.naam) {
                   <zac-static-text
                     label="straat"
-                    [value]="
-                      $safeNavigationMigration(
-                        nummeraanduiding.openbareRuimte?.naam
-                      )
-                    "
+                    [value]="nummeraanduiding.openbareRuimte.naam"
                   />
                 }
                 @if (nummeraanduiding.woonplaats?.naam) {
                   <zac-static-text
                     label="woonplaats"
-                    [value]="
-                      $safeNavigationMigration(
-                        nummeraanduiding.woonplaats?.naam
-                      )
-                    "
+                    [value]="nummeraanduiding.woonplaats.naam"
                   />
                 }
                 @if (nummeraanduiding.status) {

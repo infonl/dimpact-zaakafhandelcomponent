@@ -5,17 +5,13 @@
 
 <div class="link flex-row flex-wrap space-between items-center">
   <div class="flex-col">
-    <span class="type">{{
-      $safeNavigationMigration(zoekObject().type?.toLowerCase()) | translate
-    }}</span>
+    <span class="type">{{ zoekObject().type?.toLowerCase() | translate }}</span>
     <a
       (click)="navigate($event)"
       [routerLink]="getLink()"
       [state]="openedFromSearchState"
       title="{{
-        'actie.' +
-          $safeNavigationMigration(zoekObject().type?.toLowerCase()) +
-          '.bekijken' | translate
+        'actie.' + zoekObject().type?.toLowerCase() + '.bekijken' | translate
       }}"
     >
       @if (zoekObject().type === "ZAAK") {

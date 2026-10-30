@@ -165,10 +165,7 @@
                   {{ "status" | translate }}
                 </th>
                 <td *matCellDef="let row" mat-cell>
-                  {{
-                    $safeNavigationMigration(row?.statustypeOmschrijving)
-                      | empty
-                  }}
+                  {{ row?.statustypeOmschrijving | empty }}
                 </td>
               </ng-container>
               <ng-container matColumnDef="omschrijving">

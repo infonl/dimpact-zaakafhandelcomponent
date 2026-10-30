@@ -61,9 +61,7 @@
             class="dashboard-card"
             role="region"
             [attr.aria-label]="
-              'dashboard.card.' + $safeNavigationMigration(card?.id)
-                | i18nKey
-                | translate
+              'dashboard.card.' + card?.id | i18nKey | translate
             "
             cdkDrag
           >

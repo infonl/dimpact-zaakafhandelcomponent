@@ -12,9 +12,7 @@
           "health-check.build-informatie.version"
             | translate
               : {
-                  version: $safeNavigationMigration(
-                    buildInformatie?.versienummer?.toUpperCase()
-                  ),
+                  version: buildInformatie?.versienummer?.toUpperCase() ?? "",
                 }
         }}
       </p>
@@ -24,10 +22,9 @@
             "health-check.build-informatie.build"
               | translate
                 : {
-                    build: $safeNavigationMigration(buildInformatie?.buildId),
+                    build: buildInformatie?.buildId,
                     timestamp:
-                      ($safeNavigationMigration(buildInformatie?.buildDatumTijd)
-                      | datum: "short"),
+                      (buildInformatie?.buildDatumTijd | datum: "short"),
                   }
           }}
         </p>
@@ -36,8 +33,7 @@
         <p>
           {{
             "health-check.build-informatie.commit"
-              | translate
-                : { commit: $safeNavigationMigration(buildInformatie?.commit) }
+              | translate: { commit: buildInformatie?.commit }
           }}
         </p>
       }
@@ -52,10 +48,8 @@
           ? ('health-check.build-informatie.build'
             | translate
               : {
-                  build: $safeNavigationMigration(buildInformatie?.buildId),
-                  timestamp:
-                    ($safeNavigationMigration(buildInformatie?.buildDatumTijd)
-                    | datum: 'short'),
+                  build: buildInformatie?.buildId,
+                  timestamp: (buildInformatie?.buildDatumTijd | datum: 'short'),
                 })
           : ''
       "
@@ -66,9 +60,7 @@
           "health-check.build-informatie.version"
             | translate
               : {
-                  version: $safeNavigationMigration(
-                    buildInformatie?.versienummer?.toUpperCase()
-                  ),
+                  version: buildInformatie?.versienummer?.toUpperCase() ?? "",
                 }
         }}</span
       >
