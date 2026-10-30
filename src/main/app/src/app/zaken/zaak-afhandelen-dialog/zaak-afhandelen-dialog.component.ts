@@ -3,12 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  effect,
-  inject,
-} from "@angular/core";
+import { Component, computed, effect, inject, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
@@ -38,6 +33,7 @@ import { firstValueFrom } from "rxjs";
 import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
+import { trackControl } from "../../shared/form/control-state";
 import { ZacDate } from "../../shared/form/date/date";
 import { FormHelper } from "../../shared/form/helpers";
 import { ZacInput } from "../../shared/form/input/input";
@@ -54,7 +50,6 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "zaak-afhandelen-dialog.component.html",
   styleUrls: ["./zaak-afhandelen-dialog.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     ReactiveFormsModule,
@@ -94,7 +89,9 @@ export class ZaakAfhandelenDialogComponent {
     () => this.data.zaak,
   );
 
-  protected brondatumLabel?: string | null;
+  protected readonly brondatumLabel = signal<string | null | undefined>(
+    undefined,
+  );
 
   form = this.formBuilder.group({
     resultaattype:
@@ -109,6 +106,20 @@ export class ZaakAfhandelenDialogComponent {
       Validators.min(moment().startOf("day").valueOf()),
     ]),
   });
+
+  private readonly readForm = trackControl(signal(this.form));
+  protected readonly formValid = this.readForm((form) => form.valid);
+  protected readonly sendMail = this.readForm(
+    (form) => form.controls.sendMail.value,
+  );
+  protected readonly resultaattype = this.readForm(
+    (form) => form.controls.resultaattype.value,
+  );
+  protected readonly besluitVerplicht = computed(
+    () =>
+      !!this.resultaattype()?.isBesluitVerplicht &&
+      !this.data.zaak.besluiten?.length,
+  );
 
   protected readonly resultaattypesQuery = injectQuery(() => ({
     queryKey: ["resultaattypes", this.data.zaak.zaaktype.uuid],
@@ -207,7 +218,7 @@ export class ZaakAfhandelenDialogComponent {
         }
 
         if (value?.isDatumKenmerkVerplicht) {
-          this.brondatumLabel = value?.datumKenmerkOmschrijving;
+          this.brondatumLabel.set(value?.datumKenmerkOmschrijving);
         }
         this.form.controls.brondatum.updateValueAndValidity();
       });
@@ -223,7 +234,7 @@ export class ZaakAfhandelenDialogComponent {
         "msg.error.date.invalid.datum.brondatum-voor-vandaag",
         {
           label:
-            this.brondatumLabel ||
+            this.brondatumLabel() ||
             this.translateService.instant("zaak.brondatum"),
         },
       );

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { Component, inject, signal } from "@angular/core";
 import {
   AbstractControl,
   FormBuilder,
@@ -28,6 +28,7 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
+import { trackControl } from "../../shared/form/control-state";
 import { ZacDate } from "../../shared/form/date/date";
 import { FormHelper } from "../../shared/form/helpers";
 import { injectMutation } from "../../shared/http/inject-mutation";
@@ -39,7 +40,6 @@ import { GeneratedType } from "../../shared/utils/generated-types";
   templateUrl: "zaak-brondatum-zetten-dialog.component.html",
   styleUrls: ["./zaak-brondatum-zetten-dialog.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     ReactiveFormsModule,
@@ -69,7 +69,10 @@ export class ZaakBrondatumZettenDialogComponent {
   private readonly planItemsService = inject(PlanItemsService);
   private readonly translateService = inject(TranslateService);
 
-  protected brondatumLabel?: string | null;
+  protected readonly brondatumLabel = this.data.zaak.resultaat?.resultaattype
+    ?.isDatumKenmerkVerplicht
+    ? this.data.zaak.resultaat.resultaattype.datumKenmerkOmschrijving
+    : undefined;
 
   private readonly zaakEinddatum = this.data.zaak.einddatum
     ? moment(this.data.zaak.einddatum).startOf("day")
@@ -82,6 +85,9 @@ export class ZaakBrondatumZettenDialogComponent {
       Validators.min((this.zaakEinddatum ?? moment().startOf("day")).valueOf()),
     ]),
   });
+
+  private readonly readForm = trackControl(signal(this.form));
+  protected readonly formValid = this.readForm((form) => form.valid);
 
   protected readonly brondatumZettenMutation = injectMutation(
     () =>
@@ -101,13 +107,6 @@ export class ZaakBrondatumZettenDialogComponent {
       onError: () => this.dialogRef.close(false),
     },
   );
-
-  constructor() {
-    if (this.data.zaak.resultaat?.resultaattype?.isDatumKenmerkVerplicht) {
-      this.brondatumLabel =
-        this.data.zaak.resultaat?.resultaattype.datumKenmerkOmschrijving;
-    }
-  }
 
   private brondatumNietVoorMinimum(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {

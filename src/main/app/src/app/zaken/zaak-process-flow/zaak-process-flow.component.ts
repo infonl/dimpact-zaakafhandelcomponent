@@ -4,7 +4,6 @@
  */
 
 import {
-  ChangeDetectionStrategy,
   Component,
   ElementRef,
   HostListener,
@@ -32,7 +31,6 @@ const SCROLL_STEP = 100;
   templateUrl: "./zaak-process-flow.component.html",
   standalone: true,
   styleUrls: ["./zaak-process-flow.component.less"],
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatDividerModule,

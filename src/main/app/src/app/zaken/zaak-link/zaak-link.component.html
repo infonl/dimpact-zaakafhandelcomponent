@@ -51,7 +51,7 @@
                 <legend style="font-weight: bold" class="m-0">
                   {{ "actie.zoeken.zaak" | translate }}
                 </legend>
-                @switch (form.controls.caseRelationType.value?.value) {
+                @switch (caseRelationType()?.value) {
                   @case ("HOOFDZAAK") {
                     <p>
                       {{
@@ -112,7 +112,7 @@
                   type="submit"
                   class="flex-row gap-8"
                   [disabled]="
-                    !form.valid ||
+                    !isFormValid() ||
                     !hasSearchCriteria() ||
                     casesQuery.isFetching()
                   "

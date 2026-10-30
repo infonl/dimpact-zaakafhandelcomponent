@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { Component, inject, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -20,6 +20,7 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
+import { trackControl } from "../../shared/form/control-state";
 import { ZacDate } from "../../shared/form/date/date";
 import { ZacInput } from "../../shared/form/input/input";
 import { ZacTextarea } from "../../shared/form/textarea/textarea";
@@ -31,7 +32,6 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "zaak-opschorten-dialog.component.html",
   styleUrls: ["./zaak-opschorten-dialog.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatToolbarModule,
@@ -57,7 +57,7 @@ export class ZaakOpschortenDialogComponent {
   private readonly zakenService = inject(ZakenService);
   private readonly formBuilder = inject(FormBuilder);
 
-  protected loading = true;
+  protected readonly loading = signal(true);
 
   protected readonly form = this.formBuilder.group({
     numberOfDays: this.formBuilder.control<number | null>(null, [
@@ -74,6 +74,9 @@ export class ZaakOpschortenDialogComponent {
       Validators.maxLength(200),
     ]),
   });
+
+  private readonly readForm = trackControl(signal(this.form));
+  protected readonly formValid = this.readForm((form) => form.valid);
 
   constructor() {
     if (this.data.zaak.einddatumGepland) {
@@ -131,7 +134,7 @@ export class ZaakOpschortenDialogComponent {
       .afterOpened()
       .pipe(takeUntilDestroyed())
       .subscribe(() => {
-        this.loading = false;
+        this.loading.set(false);
       });
   }
 

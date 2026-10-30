@@ -5,7 +5,6 @@
 
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -116,7 +115,6 @@ import { ZaakInitiatorPanelComponent } from "./zaak-initiator-panel/zaak-initiat
     ZaakTakenComponent,
     ZaakdataComponent,
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [
     ZaakSideActionService,
     ZaakActionDialogsService,
@@ -225,8 +223,12 @@ export class ZaakViewComponent
       zaakobject ? [zaakobject] : [],
     ),
   );
-  teWijzigenBesluit!: GeneratedType<"RestBesluit">;
-  documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
+  readonly teWijzigenBesluit = signal<GeneratedType<"RestBesluit"> | null>(
+    null,
+  );
+  readonly documentToMove = signal<Partial<
+    GeneratedType<"RestEnkelvoudigInformatieobject">
+  > | null>(null);
 
   viewInitialized = signal(false);
 
@@ -554,14 +556,14 @@ export class ZaakViewComponent
   }
 
   protected besluitWijzigen($event: GeneratedType<"RestBesluit">) {
-    this.teWijzigenBesluit = $event;
+    this.teWijzigenBesluit.set($event);
     this.sideActions.open("actie.besluit.wijzigen");
   }
 
   protected documentMoveToCase(
     $event: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>,
   ) {
-    this.documentToMove = $event;
+    this.documentToMove.set($event);
     this.sideActions.open("actie.document.verplaatsen");
   }
 

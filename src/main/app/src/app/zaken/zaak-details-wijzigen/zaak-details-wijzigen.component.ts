@@ -4,7 +4,6 @@
  */
 
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
@@ -35,6 +34,7 @@ import moment, { Moment } from "moment";
 import { map } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { ZacCheckbox } from "src/app/shared/form/checkbox/checkbox";
+import { trackControl } from "src/app/shared/form/control-state";
 import { ZacDate } from "src/app/shared/form/date/date";
 import { ZacInput } from "src/app/shared/form/input/input";
 import { ZacSelect } from "src/app/shared/form/select/select";
@@ -58,7 +58,6 @@ const behandelaarVerplicht: ValidatorFn = ({ value }) =>
   selector: "zac-case-details-edit",
   templateUrl: "./zaak-details-wijzigen.component.html",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatDividerModule,
@@ -218,6 +217,21 @@ export class CaseDetailsEditComponent implements OnInit {
       this.updateZaakMutation.isSuccess(),
   );
 
+  private readonly readForm = trackControl(signal(this.form));
+  private readonly isFormValid = this.readForm((form) => form.valid);
+  private readonly isFormPristine = this.readForm((form) => form.pristine);
+  private readonly selectedBehandelaar = this.readForm(
+    (form) => form.controls.behandelaar.value,
+  );
+
+  protected readonly isSubmitDisabled = computed(
+    () =>
+      !this.isFormValid() ||
+      !!this.isFormPristine() ||
+      this.isSaveLocked() ||
+      (this.isBehandelaarRequired() && !this.selectedBehandelaar()),
+  );
+
   constructor() {
     effect(() => {
       const groups = this.groups();
@@ -298,8 +312,8 @@ export class CaseDetailsEditComponent implements OnInit {
     this.form.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
-        if (!this.form.dirty) return;
-        this.form.controls.reden.enable({ emitEvent: false });
+        if (!this.form.dirty || this.form.controls.reden.enabled) return;
+        this.form.controls.reden.enable();
       });
 
     this.form.controls.isZaakspecifiekGeautoriseerd.valueChanges
@@ -382,17 +396,9 @@ export class CaseDetailsEditComponent implements OnInit {
     behandelaar.updateValueAndValidity();
   }
 
-  protected isBehandelaarMissing() {
-    return (
-      this.isBehandelaarRequired() && !this.form.controls.behandelaar.value
-    );
-  }
-
   private validateDates(
     changedField:
-      | "startdatum"
-      | "einddatumGepland"
-      | "uiterlijkeEinddatumAfdoening",
+      "startdatum" | "einddatumGepland" | "uiterlijkeEinddatumAfdoening",
   ) {
     const { startdatum, einddatumGepland, uiterlijkeEinddatumAfdoening } =
       this.form.getRawValue();

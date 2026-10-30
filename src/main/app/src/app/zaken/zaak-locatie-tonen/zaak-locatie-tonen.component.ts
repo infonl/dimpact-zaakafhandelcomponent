@@ -5,12 +5,12 @@
 
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
   Component,
   effect,
   ElementRef,
   inject,
   input,
+  signal,
   untracked,
   viewChild,
 } from "@angular/core";
@@ -29,7 +29,6 @@ import { GeneratedType } from "../../shared/utils/generated-types";
   templateUrl: "./zaak-locatie-tonen.component.html",
   styleUrls: ["./zaak-locatie-tonen.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [StaticTextComponent],
 })
 export class LocatieTonenComponent implements AfterViewInit {
@@ -39,7 +38,9 @@ export class LocatieTonenComponent implements AfterViewInit {
 
   private readonly locationService = inject(LocationService);
 
-  protected nearestAddress?: AddressResult;
+  protected readonly nearestAddress = signal<AddressResult | undefined>(
+    undefined,
+  );
 
   private readonly pointStyle = new style.Style({
     text: new style.Text({
@@ -91,7 +92,7 @@ export class LocatieTonenComponent implements AfterViewInit {
         this.locationService
           .coordinateToAddress(coordinate)
           .subscribe((objectData) => {
-            this.nearestAddress = objectData.response.docs[0];
+            this.nearestAddress.set(objectData.response.docs[0]);
           });
       }
     }

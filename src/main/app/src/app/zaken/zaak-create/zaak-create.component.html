@@ -3,21 +3,21 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 <ng-template #sideActions>
-  @switch (activeSideAction) {
+  @switch (activeSideAction()) {
     @case ("actie.initiator.koppelen") {
       <zac-klant-koppel
         (klantGegevens)="initiatorSelected($event.klant)"
         [sideNav]="actionsSidenav()"
         [initiator]="true"
         [allowBedrijf]="
-          form.controls.zaaktype.value?.zaakafhandelparameters
-            ?.betrokkeneKoppelingen?.isKvkKoppelenEnabled ?? false
+          zaaktype()?.zaakafhandelparameters?.betrokkeneKoppelingen
+            ?.isKvkKoppelenEnabled ?? false
         "
         [allowPersoon]="
-          form.controls.zaaktype.value?.zaakafhandelparameters
-            ?.betrokkeneKoppelingen?.isBrpKoppelenEnabled ?? false
+          zaaktype()?.zaakafhandelparameters?.betrokkeneKoppelingen
+            ?.isBrpKoppelenEnabled ?? false
         "
-        [zaaktypeUUID]="form.controls.zaaktype.value?.uuid"
+        [zaaktypeUUID]="zaaktype()?.uuid"
         class="side-nav-container"
       ></zac-klant-koppel>
     }
@@ -183,7 +183,7 @@
           label="communicatiekanaal"
           key="communicatiekanaal"
           [form]="form"
-          [options]="communicationChannels"
+          [options]="communicationChannels()"
         >
         </zac-select>
         <zac-select
@@ -205,7 +205,7 @@
           type="submit"
           color="primary"
           [disabled]="
-            !form.valid ||
+            !isFormValid() ||
             createZaakMutation.isPending() ||
             createZaakMutation.isSuccess()
           "

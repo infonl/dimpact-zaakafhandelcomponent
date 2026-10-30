@@ -146,9 +146,7 @@ describe(ZaakBetrokkeneListComponent.name, () => {
 
   describe("betrokkeneGegevensOphalen", () => {
     it("fetches and formats the naam and geboortedatum for a natuurlijk persoon", async () => {
-      const betrokkene: GeneratedType<"RestZaakBetrokkene"> & {
-        gegevens?: string | null;
-      } = makeBetrokkene({
+      const betrokkene = makeBetrokkene({
         type: "NATUURLIJK_PERSOON",
         temporaryPersonId: "fake-temporary-person-id",
       });
@@ -165,25 +163,23 @@ describe(ZaakBetrokkeneListComponent.name, () => {
 
       await component["betrokkeneGegevensOphalen"](betrokkene);
 
-      expect(betrokkene.gegevens).toContain("fakeNaam");
+      expect(component["betrokkeneGegevens"]().get(betrokkene)).toContain(
+        "fakeNaam",
+      );
     });
 
     it("sets a placeholder for organisatorische eenheid and medewerker betrokkenen", async () => {
-      const betrokkene: GeneratedType<"RestZaakBetrokkene"> & {
-        gegevens?: string | null;
-      } = makeBetrokkene({ type: "MEDEWERKER" });
+      const betrokkene = makeBetrokkene({ type: "MEDEWERKER" });
 
       await component["betrokkeneGegevensOphalen"](betrokkene);
 
-      expect(betrokkene.gegevens).toBe("-");
+      expect(component["betrokkeneGegevens"]().get(betrokkene)).toBe("-");
     });
 
     it.each(["NIET_NATUURLIJK_PERSOON", "VESTIGING"] as const)(
       "fetches and formats the naam and adres for a %s",
       async (type) => {
-        const betrokkene: GeneratedType<"RestZaakBetrokkene"> & {
-          gegevens?: string | null;
-        } = makeBetrokkene({
+        const betrokkene = makeBetrokkene({
           type,
           identificatieType: "VN",
           vestigingsnummer: "11112222",
@@ -202,17 +198,17 @@ describe(ZaakBetrokkeneListComponent.name, () => {
 
         await component["betrokkeneGegevensOphalen"](betrokkene);
 
-        expect(betrokkene.gegevens).toContain("fakeBedrijfNaam");
-        expect(betrokkene.gegevens).toContain(
+        expect(component["betrokkeneGegevens"]().get(betrokkene)).toContain(
+          "fakeBedrijfNaam",
+        );
+        expect(component["betrokkeneGegevens"]().get(betrokkene)).toContain(
           "fakeStraat 1, 1234AB fakePlaats",
         );
       },
     );
 
     it("does not append an adres when the bedrijf has none", async () => {
-      const betrokkene: GeneratedType<"RestZaakBetrokkene"> & {
-        gegevens?: string | null;
-      } = makeBetrokkene({
+      const betrokkene = makeBetrokkene({
         type: "NIET_NATUURLIJK_PERSOON",
         identificatieType: "VN",
         vestigingsnummer: "11112222",
@@ -229,7 +225,9 @@ describe(ZaakBetrokkeneListComponent.name, () => {
 
       await component["betrokkeneGegevensOphalen"](betrokkene);
 
-      expect(betrokkene.gegevens).toBe("fakeBedrijfNaam");
+      expect(component["betrokkeneGegevens"]().get(betrokkene)).toBe(
+        "fakeBedrijfNaam",
+      );
     });
   });
 

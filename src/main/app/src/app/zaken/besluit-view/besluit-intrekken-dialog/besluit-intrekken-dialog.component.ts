@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import {
@@ -35,7 +35,6 @@ type VervalRedenOption = {
   templateUrl: "./besluit-intrekken-dialog.component.html",
   styleUrls: ["./besluit-intrekken-dialog.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatButtonModule,

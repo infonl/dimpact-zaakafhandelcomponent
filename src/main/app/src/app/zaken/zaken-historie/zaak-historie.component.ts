@@ -3,14 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  effect,
-  inject,
-  input,
-  viewChild,
-} from "@angular/core";
+import { Component, effect, inject, input, viewChild } from "@angular/core";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
@@ -31,7 +24,6 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./zaak-historie.component.html",
   styleUrls: ["./zaak-historie.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatSortModule,
     MatTableModule,

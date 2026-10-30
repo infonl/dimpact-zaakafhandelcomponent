@@ -25,7 +25,7 @@
   <mat-dialog-actions>
     <button
       [disabled]="
-        form.invalid ||
+        formInvalid() ||
         ontkoppelZaakMutation.isPending() ||
         ontkoppelZaakMutation.isSuccess()
       "

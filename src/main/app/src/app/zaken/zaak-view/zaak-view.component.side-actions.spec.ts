@@ -341,7 +341,7 @@ describe(ZaakViewComponent.name, () => {
 
       expect(openSideNav).toHaveBeenCalled();
       expect(sideActions.activeAction()).toBe("actie.besluit.wijzigen");
-      expect(fixture.componentInstance.teWijzigenBesluit).toBe(besluit);
+      expect(fixture.componentInstance.teWijzigenBesluit()).toBe(besluit);
     });
 
     it("opens the verplaatsen panel with the document it was handed", () => {
@@ -353,7 +353,7 @@ describe(ZaakViewComponent.name, () => {
 
       expect(openSideNav).toHaveBeenCalled();
       expect(sideActions.activeAction()).toBe("actie.document.verplaatsen");
-      expect(fixture.componentInstance.documentToMove).toBe(document);
+      expect(fixture.componentInstance.documentToMove()).toBe(document);
     });
 
     it("follows the panel the side nav reports without opening the sidenav itself", async () => {

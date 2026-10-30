@@ -3,12 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  input,
-} from "@angular/core";
+import { Component, computed, input } from "@angular/core";
 import { MatIconAnchor } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";
@@ -27,7 +22,6 @@ import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak
   templateUrl: "./zaak-verkort.component.html",
   styleUrls: ["./zaak-verkort.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     MatCardModule,

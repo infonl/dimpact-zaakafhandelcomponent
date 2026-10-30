@@ -21,20 +21,20 @@
         >
       }
       <span
-        [attr.tabindex]="downloadAlsZipSelection.isEmpty() ? 0 : null"
+        [attr.tabindex]="selectedDocuments().length === 0 ? 0 : null"
         [matTooltip]="'actie.downloaden.zip-bestand.geen-selectie' | translate"
-        [matTooltipDisabled]="!downloadAlsZipSelection.isEmpty()"
+        [matTooltipDisabled]="selectedDocuments().length > 0"
       >
         <button
           mat-raised-button
           id="downloadZip_button"
           (click)="downloadAlsZip()"
-          [disabled]="downloadAlsZipSelection.isEmpty()"
+          [disabled]="selectedDocuments().length === 0"
         >
           <mat-icon>folder_zip</mat-icon>
           {{ "actie.downloaden.zip-bestand" | translate }}
-          @if (!downloadAlsZipSelection.isEmpty()) {
-            ({{ downloadAlsZipSelection.selected.length }})
+          @if (selectedDocuments().length > 0) {
+            ({{ selectedDocuments().length }})
           }
         </button>
       </span>
@@ -59,7 +59,7 @@
               [aria-label]="'actie.alles.selecteren' | translate"
               (click)="$event.stopPropagation()"
               (change)="updateAll($event)"
-              [checked]="selectAll"
+              [checked]="selectAll()"
             >
             </mat-checkbox>
           </th>
@@ -69,7 +69,7 @@
               [aria-label]="'actie.selecteren' | translate"
               (click)="$event.stopPropagation()"
               (change)="updateSelected(document)"
-              [checked]="downloadAlsZipSelection.isSelected(document)"
+              [checked]="selectedDocuments().includes(document)"
             >
             </mat-checkbox>
           </td>
@@ -81,7 +81,7 @@
             @if (isPreviewBeschikbaar(row.formaat)) {
               <mat-icon
                 class="preview-chevron"
-                [class.open]="documentPreviewRow === row"
+                [class.open]="documentPreviewRow() === row"
                 [matTooltip]="'document.preview' | translate"
                 >expand_more</mat-icon
               >
@@ -248,10 +248,10 @@
           >
             <div
               [@detailExpand]="
-                row === documentPreviewRow ? 'expanded' : 'collapsed'
+                row === documentPreviewRow() ? 'expanded' : 'collapsed'
               "
             >
-              @if (row === documentPreviewRow) {
+              @if (row === documentPreviewRow()) {
                 <zac-document-viewer [document]="row"></zac-document-viewer>
               }
             </div>
@@ -261,7 +261,7 @@
         <tr
           mat-row
           *matRowDef="let row; columns: documentColumns()"
-          [class.expanded-row]="documentPreviewRow === row"
+          [class.expanded-row]="documentPreviewRow() === row"
           [class.pointer]="isPreviewBeschikbaar(row.formaat)"
           (click)="togglePreview(row)"
         ></tr>

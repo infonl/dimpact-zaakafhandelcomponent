@@ -5,7 +5,6 @@
 
 import { NgTemplateOutlet } from "@angular/common";
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -41,6 +40,7 @@ import { IdentityService } from "../../identity/identity.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { KlantKoppelComponent } from "../../klanten/koppel/klanten/klant-koppel/klant-koppel.component";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
+import { trackControl } from "../../shared/form/control-state";
 import { ZacDate } from "../../shared/form/date/date";
 import { ZacInput } from "../../shared/form/input/input";
 import { ZacSelect } from "../../shared/form/select/select";
@@ -64,7 +64,6 @@ import {
   templateUrl: "./zaak-create.component.html",
   styleUrls: ["./zaak-create.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     BackButtonDirective,
     NgTemplateOutlet,
@@ -113,7 +112,7 @@ export class ZaakCreateComponent {
   readonly sideActions =
     viewChild.required<TemplateRef<unknown>>("sideActions");
 
-  protected activeSideAction: string | null = null;
+  protected readonly activeSideAction = signal<string | null>(null);
 
   private readonly inboxProductaanvraag: GeneratedType<"RestInboxProductaanvraag">;
 
@@ -150,7 +149,7 @@ export class ZaakCreateComponent {
     (GeneratedType<"BetrokkeneIdentificatie"> & { naam?: string | null }) | null
   >(null);
   protected readonly initiatorNotCopied = signal(false);
-  protected communicationChannels: string[] = [];
+  protected readonly communicationChannels = signal<string[]>([]);
   protected confidentialityNotices =
     VertrouwelijkaanduidingToTranslationKeyPipe.selectList;
 
@@ -194,6 +193,37 @@ export class ZaakCreateComponent {
     toelichting: this.formBuilder.control("", [Validators.maxLength(1000)]),
   });
 
+  private readonly readForm = trackControl(signal(this.form));
+  protected readonly isFormValid = this.readForm((form) => form.valid);
+
+  private readonly readZaaktype = trackControl(
+    signal(this.form.controls.zaaktype),
+  );
+  protected readonly zaaktype = this.readZaaktype((control) => control.value);
+
+  private readonly readInitiator = trackControl(
+    signal(this.form.controls.initiatorIdentificatie),
+  );
+  readonly hasInitiator = this.readInitiator((control) => !!control.value);
+
+  private readonly readBagObjecten = trackControl(
+    signal(this.form.controls.bagObjecten),
+  );
+  readonly hasBagObject = this.readBagObjecten(
+    (control) => Array.isArray(control.value) && control.value.length > 0,
+  );
+
+  protected readonly canAddInitiator = computed(() => {
+    const betrokkeneKoppelingen =
+      this.zaaktype()?.zaakafhandelparameters?.betrokkeneKoppelingen;
+    if (!betrokkeneKoppelingen) return false;
+
+    const { isBrpKoppelenEnabled, isKvkKoppelenEnabled } =
+      betrokkeneKoppelingen;
+
+    return Boolean(isBrpKoppelenEnabled || isKvkKoppelenEnabled);
+  });
+
   constructor() {
     this.inboxProductaanvraag =
       this.router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
@@ -204,7 +234,7 @@ export class ZaakCreateComponent {
     this.referentieTabelService
       .listCommunicatiekanalen(Boolean(this.inboxProductaanvraag))
       .subscribe((channels) => {
-        this.communicationChannels = channels;
+        this.communicationChannels.set(channels);
 
         if (channels.includes(ZaakCreateComponent.DEFAULT_CHANNEL)) {
           this.form.controls.communicatiekanaal.setValue(
@@ -425,7 +455,7 @@ export class ZaakCreateComponent {
   }
 
   protected async openSideNav(action: string) {
-    this.activeSideAction = action;
+    this.activeSideAction.set(action);
     await this.actionsSidenav().open();
   }
 
@@ -486,31 +516,8 @@ export class ZaakCreateComponent {
   // This is required for the `zac-bag-zoek` to work as expected
   protected bagObjectSelected() {}
 
-  protected canAddInitiator() {
-    const betrokkeneKoppelingen =
-      this.form.controls.zaaktype.value?.zaakafhandelparameters
-        ?.betrokkeneKoppelingen;
-    if (!betrokkeneKoppelingen) return false;
-
-    const { isBrpKoppelenEnabled, isKvkKoppelenEnabled } =
-      betrokkeneKoppelingen;
-
-    return Boolean(isBrpKoppelenEnabled || isKvkKoppelenEnabled);
-  }
-
-  hasInitiator(): boolean {
-    return !!this.form.controls.initiatorIdentificatie.value;
-  }
-
   clearInitiator() {
     this.form.controls.initiatorIdentificatie.setValue(null);
-  }
-
-  hasBagObject(): boolean {
-    return (
-      Array.isArray(this.form.controls.bagObjecten.value) &&
-      this.form.controls.bagObjecten.value.length > 0
-    );
   }
 
   clearBagObjecten() {

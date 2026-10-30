@@ -5,14 +5,16 @@
 
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   OnDestroy,
   OnInit,
   signal,
   viewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { map } from "rxjs";
 
 import { detailExpand } from "../../shared/animations/animations";
 
@@ -81,7 +83,6 @@ import { ZakenWerkvoorraadDatasource } from "./zaken-werkvoorraad-datasource";
   styleUrls: ["./zaken-werkvoorraad.component.less"],
   animations: [detailExpand],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     I18nKeyPipe,
@@ -131,18 +132,25 @@ export class ZakenWerkvoorraadComponent
   private readonly batchProcessService = inject(BatchProcessService);
 
   protected readonly indicatiesLayout = IndicatiesLayout;
-  private readonly assignToMeMutation = injectMutation(() =>
+  protected readonly assignToMeMutation = injectMutation(() =>
     this.zakenService.toekennenAanIngelogdeMedewerkerVanuitLijst(),
   );
   private readonly commitPendingChangesToSearchIndexMutation = injectMutation(
     () => this.indexingService.commitPendingChangesToSearchIndex(),
   );
-  protected selection = new SelectionModel<ZaakZoekObject>(true, []);
+  protected readonly selection = new SelectionModel<ZaakZoekObject>(true, []);
+  private readonly selectedZaken = toSignal(
+    this.selection.changed.pipe(map(({ source }) => source.selected)),
+    { initialValue: [] },
+  );
+  protected readonly isSelected = computed(
+    () => this.selectedZaken().length > 0,
+  );
   protected dataSource: ZakenWerkvoorraadDatasource;
   private readonly paginator = viewChild.required(MatPaginator);
   private readonly sort = viewChild.required(MatSort);
   private readonly table = viewChild.required(MatTable);
-  protected expandedRow: ZaakZoekObject | null = null;
+  protected readonly expandedRow = signal<ZaakZoekObject | null>(null);
   protected readonly zoekenColumn = ZoekenColumn;
 
   protected einddatumGeplandIcon = new TextIcon(
@@ -223,17 +231,17 @@ export class ZakenWerkvoorraadComponent
   }
 
   protected isAllSelected() {
-    const numSelected = this.selection.selected.length;
+    const numSelected = this.selectedZaken().length;
     const numRows = this.dataSource.data.length;
     return numSelected === numRows;
   }
 
-  protected isSelected() {
-    return this.selection.selected.length > 0;
+  protected isRowSelected(row: ZaakZoekObject) {
+    return this.selectedZaken().includes(row);
   }
 
   protected countSelected(checkIfZaakHasHandler = false): number {
-    return this.selection.selected.filter(
+    return this.selectedZaken().filter(
       ({ behandelaarGebruikersnaam }) =>
         !checkIfZaakHasHandler || !!behandelaarGebruikersnaam,
     ).length;
@@ -255,9 +263,7 @@ export class ZakenWerkvoorraadComponent
       }`;
     }
 
-    return `actie.${
-      this.selection.isSelected(row) ? "deselecteren" : "selecteren"
-    }`;
+    return `actie.${this.isRowSelected(row) ? "deselecteren" : "selecteren"}`;
   }
 
   protected override paginatorChanged($event: PageEvent) {

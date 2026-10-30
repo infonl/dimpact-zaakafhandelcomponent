@@ -3,12 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  input,
-} from "@angular/core";
+import { Component, inject, input } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -33,7 +28,6 @@ import { ZakenService } from "../zaken.service";
   templateUrl:
     "./zaakspecifiek-geautoriseerde-medewerker-toevoegen.component.html",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatDividerModule,

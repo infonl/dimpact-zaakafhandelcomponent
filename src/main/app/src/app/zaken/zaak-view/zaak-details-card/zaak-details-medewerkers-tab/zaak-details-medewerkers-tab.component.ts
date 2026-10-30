@@ -3,13 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-} from "@angular/core";
+import { Component, computed, inject, input } from "@angular/core";
 import { MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import {
@@ -41,7 +35,6 @@ import { ZakenService } from "../../../zaken.service";
   templateUrl: "./zaak-details-medewerkers-tab.component.html",
   styles: [":host { display: block; }"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatTable,
     MatColumnDef,

@@ -36,7 +36,7 @@
       color="primary"
       type="submit"
       [disabled]="
-        !form.valid ||
+        !formValid() ||
         brondatumZettenMutation.isPending() ||
         brondatumZettenMutation.isSuccess() ||
         planItemAfhandelenMutation.isPending() ||

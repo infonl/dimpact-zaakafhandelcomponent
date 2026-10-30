@@ -3,19 +3,21 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AsyncPipe, NgClass } from "@angular/common";
+import { NgClass } from "@angular/common";
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
   Component,
+  computed,
   ElementRef,
   inject,
   input,
   OnDestroy,
   OnInit,
   output,
+  signal,
   viewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import {
   MatAutocompleteModule,
@@ -35,6 +37,7 @@ import * as proj from "ol/proj.js";
 import * as style from "ol/style.js";
 import { BehaviorSubject, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
+import { trackControl } from "../../shared/form/control-state";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { LocationUtil } from "../../shared/location/location-util";
@@ -54,9 +57,7 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./zaak-locatie-wijzigen.component.html",
   styleUrls: ["./zaak-locatie-wijzigen.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
-    AsyncPipe,
     LocationPipe,
     MatAutocompleteModule,
     MatButtonModule,
@@ -86,14 +87,21 @@ export class CaseLocationEditComponent
   private readonly zakenService = inject(ZakenService);
   private readonly locationService = inject(LocationService);
 
-  // markerLocatie?: GeneratedType<"RestGeometry">;
   markerLocatie$ = new BehaviorSubject<GeneratedType<"RestGeometry"> | null>(
     null,
   );
-  nearestAddress?: AddressResult;
+  protected readonly markerLocatie = toSignal(this.markerLocatie$, {
+    requireSync: true,
+  });
+  protected readonly nearestAddress = signal<AddressResult | undefined>(
+    undefined,
+  );
   searchControl = new FormControl();
   reasonControl = new FormControl();
-  searchResults: SuggestResult[] = [];
+  protected readonly reasonLength = trackControl(signal(this.reasonControl))(
+    (control) => control.value?.length,
+  );
+  protected readonly searchResults = signal<SuggestResult[]>([]);
 
   protected readonly form = new FormGroup({ reason: this.reasonControl });
 
@@ -108,7 +116,9 @@ export class CaseLocationEditComponent
   );
 
   private unsubscribe$: Subject<void> = new Subject<void>();
-  protected readonly: boolean = false;
+  protected readonly readonly = computed(
+    () => !this.zaak().rechten.canWijzigenLocatie,
+  );
 
   private readonly pointStyle = new style.Style({
     text: new style.Text({
@@ -124,7 +134,6 @@ export class CaseLocationEditComponent
   private readonly locationMap = new OpenLayersLocationMap(this.pointStyle);
 
   ngOnInit(): void {
-    this.readonly = !this.zaak().rechten.canWijzigenLocatie;
     this.reasonControl.disable();
 
     this.searchControl.valueChanges
@@ -149,7 +158,7 @@ export class CaseLocationEditComponent
       this.locationMap.setTarget(this.openLayersMapRef().nativeElement);
     }, 0);
 
-    if (!this.readonly) {
+    if (!this.readonly()) {
       this.locationMap.map.on("click", (event) => {
         const coordinate = proj.transform(
           event.coordinate,
@@ -177,7 +186,7 @@ export class CaseLocationEditComponent
   private searchAddresses(query: string): void {
     if (query) {
       this.locationService.addressSuggest(query).subscribe((data) => {
-        this.searchResults = data.response.docs;
+        this.searchResults.set(data.response.docs);
       });
     }
   }
@@ -190,9 +199,10 @@ export class CaseLocationEditComponent
     this.locationService
       .addressLookup($event.option.value.id)
       .subscribe((objectData) => {
-        this.nearestAddress = objectData.response.docs[0];
+        const nearestAddress = objectData.response.docs[0];
+        this.nearestAddress.set(nearestAddress);
         this.setLocation(
-          LocationUtil.wktToPoint(this.nearestAddress.centroide_ll),
+          LocationUtil.wktToPoint(nearestAddress.centroide_ll),
           true,
         );
       });
@@ -201,7 +211,7 @@ export class CaseLocationEditComponent
   resetLocation() {
     this.setLocation();
     this.locationMap.resetView();
-    this.nearestAddress = {} as AddressResult;
+    this.nearestAddress.set({} as AddressResult);
   }
 
   private disableReasonControl() {
@@ -235,7 +245,7 @@ export class CaseLocationEditComponent
           this.locationService
             .coordinateToAddress(coordinate)
             .subscribe((objectData) => {
-              this.nearestAddress = objectData.response.docs[0];
+              this.nearestAddress.set(objectData.response.docs[0]);
             });
         }
       }

@@ -33,7 +33,7 @@
           <mat-card-content class="flex-row items-center">
             <div>{{ "coordinates" | translate }}</div>
             <zac-static-text
-              [value]="markerLocatie$ | async | location"
+              [value]="markerLocatie() | location"
               class="flex-item flex-1"
             />
             <button
@@ -42,13 +42,13 @@
               matSuffix
               [attr.aria-label]="'actie.ontkoppelen' | translate"
               (click)="resetLocation()"
-              [disabled]="(markerLocatie$ | async) === null"
+              [disabled]="markerLocatie() === null"
             >
               <mat-icon>link_off</mat-icon>
             </button>
           </mat-card-content>
         </mat-card>
-        @if (!readonly) {
+        @if (!readonly()) {
           <mat-form-field appearance="fill" class="full-width">
             <mat-icon matSuffix>search</mat-icon>
             <mat-label>{{ "adres" | translate }}</mat-label>
@@ -65,7 +65,7 @@
               [displayWith]="displayAddress"
               (optionSelected)="selectAddress($event)"
             >
-              @for (result of searchResults; track result) {
+              @for (result of searchResults(); track result) {
                 <mat-option [value]="result">
                   <mat-icon mat-list-icon>home</mat-icon>
                   <span>{{ result.weergavenaam }}</span>
@@ -74,7 +74,7 @@
             </mat-autocomplete>
           </mat-form-field>
         }
-        @if (nearestAddress?.weergavenaam; as weergavenaam) {
+        @if (nearestAddress()?.weergavenaam; as weergavenaam) {
           <zac-static-text
             class="overlay"
             label="zaak.locatie.adres"
@@ -86,10 +86,10 @@
             #openLayersMap
             [id]="'open-layers-map'"
             class="open-layers-map"
-            [ngClass]="{ readonly: readonly }"
+            [ngClass]="{ readonly: readonly() }"
           ></div>
         </div>
-        @if (!readonly) {
+        @if (!readonly()) {
           <mat-form-field class="full-width">
             <mat-label>{{ "reden" | translate }}</mat-label>
             <input
@@ -99,16 +99,14 @@
               [formControl]="reasonControl"
               required="true"
             />
-            <mat-hint align="end">
-              {{ reasonControl.value?.length ?? 0 }}/80
-            </mat-hint>
+            <mat-hint align="end"> {{ reasonLength() ?? 0 }}/80 </mat-hint>
           </mat-form-field>
         }
       </div>
     </div>
   </div>
 
-  @if (!readonly) {
+  @if (!readonly()) {
     <fieldset>
       <mat-action-row>
         <zac-form-actions

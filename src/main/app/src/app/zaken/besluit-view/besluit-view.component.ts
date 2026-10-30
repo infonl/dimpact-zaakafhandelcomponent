@@ -4,12 +4,12 @@
  */
 
 import {
-  ChangeDetectionStrategy,
   Component,
   inject,
   input,
   OnInit,
   output,
+  signal,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 
@@ -45,7 +45,6 @@ import { BesluitIntrekkenDialogComponent } from "./besluit-intrekken-dialog/besl
   templateUrl: "./besluit-view.component.html",
   styleUrls: ["./besluit-view.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatExpansionModule,
@@ -76,19 +75,20 @@ export class BesluitViewComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
 
   readonly indicatiesLayout = IndicatiesLayout;
-  histories: Record<
-    string,
-    MatTableDataSource<GeneratedType<"RestTaskHistoryLine">>
-  > = {};
+  readonly histories = signal<
+    Record<string, MatTableDataSource<GeneratedType<"RestTaskHistoryLine">>>
+  >({});
 
-  protected documentenForms: Record<
-    string,
-    FormGroup<{
-      documenten: FormControl<
-        GeneratedType<"RestEnkelvoudigInformatieobject">[] | null
-      >;
-    }>
-  > = {};
+  protected readonly documentenForms = signal<
+    Record<
+      string,
+      FormGroup<{
+        documenten: FormControl<
+          GeneratedType<"RestEnkelvoudigInformatieobject">[] | null
+        >;
+      }>
+    >
+  >({});
 
   toolTipIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.always),
@@ -103,7 +103,7 @@ export class BesluitViewComponent implements OnInit {
     toObservable(this.besluiten)
       .pipe(skip(1), takeUntilDestroyed())
       .subscribe(() => {
-        for (const historieKey in this.histories) {
+        for (const historieKey of Object.keys(this.histories())) {
           this.loadHistorie(historieKey);
         }
       });
@@ -116,23 +116,29 @@ export class BesluitViewComponent implements OnInit {
   }
 
   loadBesluitData(uuid: string) {
-    if (!this.histories[uuid]) {
+    if (!this.histories()[uuid]) {
       this.loadHistorie(uuid);
     }
 
-    this.documentenForms[uuid] ??= this.formBuilder.group({
-      documenten: this.formBuilder.control<
-        GeneratedType<"RestEnkelvoudigInformatieobject">[] | null
-      >([]),
-    });
+    if (this.documentenForms()[uuid]) return;
+    this.documentenForms.update((documentenForms) => ({
+      ...documentenForms,
+      [uuid]: this.formBuilder.group({
+        documenten: this.formBuilder.control<
+          GeneratedType<"RestEnkelvoudigInformatieobject">[] | null
+        >([]),
+      }),
+    }));
   }
 
   private loadHistorie(uuid: string) {
     this.zakenService.listBesluitHistorie(uuid).subscribe((historie) => {
-      this.histories[uuid] = new MatTableDataSource<
-        GeneratedType<"RestTaskHistoryLine">
-      >();
-      this.histories[uuid].data = historie;
+      this.histories.update((histories) => ({
+        ...histories,
+        [uuid]: new MatTableDataSource<GeneratedType<"RestTaskHistoryLine">>(
+          historie,
+        ),
+      }));
     });
   }
 

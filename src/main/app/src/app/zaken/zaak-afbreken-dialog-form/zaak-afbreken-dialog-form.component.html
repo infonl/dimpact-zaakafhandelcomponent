@@ -7,7 +7,7 @@
   <zac-generic-dialog
     titleKey="actie.zaak.afbreken"
     icon="thumb_down_alt"
-    [loading]="loading"
+    [loading]="loading()"
     (cancelled)="close()"
   >
     <zac-select
@@ -22,7 +22,7 @@
   <mat-dialog-actions>
     <zac-form-actions
       [form]="form"
-      [loading]="loading"
+      [loading]="loading()"
       submitLabel="actie.zaak.afbreken"
     />
   </mat-dialog-actions>

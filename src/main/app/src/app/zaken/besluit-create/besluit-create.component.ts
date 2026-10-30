@@ -4,12 +4,12 @@
  */
 
 import {
-  ChangeDetectionStrategy,
   Component,
   inject,
   input,
   OnInit,
   output,
+  signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -28,6 +28,7 @@ import { TranslatePipe } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
+import { trackControl } from "../../shared/form/control-state";
 import { ZacDate } from "../../shared/form/date/date";
 import { ZacDocuments } from "../../shared/form/documents/documents";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
@@ -43,7 +44,6 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./besluit-create.component.html",
   styleUrls: ["./besluit-create.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatToolbarModule,
@@ -70,9 +70,15 @@ export class BesluitCreateComponent implements OnInit {
   );
   private readonly formBuilder = inject(FormBuilder);
 
-  protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
-  protected besluittypes: GeneratedType<"RestBesluitType">[] = [];
-  protected documents: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
+  protected readonly resultaattypes = signal<
+    GeneratedType<"RestResultaattype">[]
+  >([]);
+  protected readonly besluittypes = signal<GeneratedType<"RestBesluitType">[]>(
+    [],
+  );
+  protected readonly documents = signal<
+    GeneratedType<"RestEnkelvoudigInformatieobject">[]
+  >([]);
 
   protected form = this.formBuilder.group({
     besluit: this.formBuilder.control<GeneratedType<"RestBesluitType"> | null>(
@@ -94,6 +100,11 @@ export class BesluitCreateComponent implements OnInit {
       GeneratedType<"RestEnkelvoudigInformatieobject">[]
     >([]),
   });
+
+  private readonly readForm = trackControl(signal(this.form));
+  protected readonly publication = this.readForm(
+    (form) => form.controls.besluit.value?.publication,
+  );
 
   // For dynamically add minimum date validators
   private uiterlijkereactiedatumMinDateValidator: ValidatorFn | null = null;
@@ -142,7 +153,7 @@ export class BesluitCreateComponent implements OnInit {
             besluittypeUUID: value.id,
           }),
         ).subscribe((documents) => {
-          this.documents = documents;
+          this.documents.set(documents);
         });
 
         this.form.controls.publicationEnabled.setValue(
@@ -197,13 +208,13 @@ export class BesluitCreateComponent implements OnInit {
     this.zakenService
       .listResultaattypes(this.zaak().zaaktype.uuid)
       .subscribe((resultaattypes) => {
-        this.resultaattypes = resultaattypes;
+        this.resultaattypes.set(resultaattypes);
       });
 
     this.zakenService
       .listBesluittypes(this.zaak().zaaktype.uuid)
       .subscribe((besluittypes) => {
-        this.besluittypes = besluittypes;
+        this.besluittypes.set(besluittypes);
       });
   }
 

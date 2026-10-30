@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { Component, inject, signal } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import {
@@ -16,6 +16,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
+import { trackControl } from "../../shared/form/control-state";
 import { ZacTextarea } from "../../shared/form/textarea/textarea";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -24,7 +25,6 @@ import { ZakenService } from "../zaken.service";
 @Component({
   templateUrl: "zaak-ontkoppelen-dialog.component.html",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatToolbarModule,
@@ -51,6 +51,9 @@ export class ZaakOntkoppelenDialogComponent {
       Validators.maxLength(100),
     ]),
   });
+
+  private readonly readForm = trackControl(signal(this.form));
+  protected readonly formInvalid = this.readForm((form) => form.invalid);
 
   protected readonly ontkoppelZaakMutation = injectMutation(
     () => this.zakenService.ontkoppelZaak(),

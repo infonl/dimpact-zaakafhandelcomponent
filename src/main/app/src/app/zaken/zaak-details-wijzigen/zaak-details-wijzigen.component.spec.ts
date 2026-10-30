@@ -713,6 +713,31 @@ describe(CaseDetailsEditComponent.name, () => {
       );
       expect(await submitButton.isDisabled()).toBe(false);
     });
+
+    it("becomes enabled while the user types a new omschrijving and a reden", async () => {
+      const user = userEvent.setup();
+      const group = fromPartial<GeneratedType<"RestGroup">>({
+        id: "g1",
+        naam: "G1",
+      });
+      seedBehandelaarGroups([group]);
+      renderComponent({ groep: group });
+      await fixture.whenStable();
+
+      await user.type(
+        screen.getByRole("textbox", { name: /^omschrijving/i }),
+        " gewijzigd",
+      );
+      await user.type(
+        screen.getByRole("textbox", { name: /^reden/i }),
+        "een reden",
+      );
+      await fixture.whenStable();
+
+      expect(
+        screen.getByRole("button", { name: /actie.opslaan/ }),
+      ).toBeEnabled();
+    });
   });
 
   describe("onSubmit()", () => {

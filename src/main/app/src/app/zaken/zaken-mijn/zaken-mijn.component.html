@@ -497,7 +497,7 @@
         *matCellDef="let row"
         [colSpan]="dataSource.visibleColumns.length"
       >
-        <div [@detailExpand]="row === expandedRow ? 'expanded' : 'collapsed'">
+        <div [@detailExpand]="row === expandedRow() ? 'expanded' : 'collapsed'">
           <div class="flex-row flex-wrap">
             @for (column of dataSource.detailExpandColumns; track column) {
               @switch (column) {
@@ -647,8 +647,8 @@
       mat-row
       *matRowDef="let row; columns: dataSource.visibleColumns"
       class="row"
-      [class.expanded-row]="expandedRow === row"
-      (click)="expandedRow = expandedRow === row ? null : row"
+      [class.expanded-row]="expandedRow() === row"
+      (click)="expandedRow.set(expandedRow() === row ? null : row)"
     ></tr>
     <tr
       mat-row

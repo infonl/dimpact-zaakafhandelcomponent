@@ -3,13 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-} from "@angular/core";
+import { Component, computed, inject, input, signal } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTableModule } from "@angular/material/table";
@@ -32,7 +26,6 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./zaak-betrokkene-list.component.html",
   styleUrls: ["./zaak-betrokkene-list.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatIconModule,
@@ -69,12 +62,14 @@ export class ZaakBetrokkeneListComponent {
     "actions",
   ] as const;
 
+  protected readonly betrokkeneGegevens = signal<
+    ReadonlyMap<GeneratedType<"RestZaakBetrokkene">, string>
+  >(new Map());
+
   protected async betrokkeneGegevensOphalen(
-    betrokkene: GeneratedType<"RestZaakBetrokkene"> & {
-      gegevens?: string | null;
-    },
+    betrokkene: GeneratedType<"RestZaakBetrokkene">,
   ) {
-    betrokkene["gegevens"] = "LOADING";
+    this.setBetrokkeneGegevens(betrokkene, "LOADING");
     switch (betrokkene.type) {
       case "NATUURLIJK_PERSOON": {
         const persoon = await this.queryClient.ensureQueryData(
@@ -83,14 +78,12 @@ export class ZaakBetrokkeneListComponent {
             this.zaak().zaaktype.uuid,
           ),
         );
-        betrokkene["gegevens"] = persoon.naam;
+        let gegevens = persoon.naam ?? "";
         if (persoon.geboortedatum) {
-          betrokkene["gegevens"] += `, ${this.datumPipe.transform(
-            persoon.geboortedatum,
-          )}`;
+          gegevens += `, ${this.datumPipe.transform(persoon.geboortedatum)}`;
         }
-        if (persoon.verblijfplaats)
-          betrokkene["gegevens"] += `,\n${persoon.verblijfplaats}`;
+        if (persoon.verblijfplaats) gegevens += `,\n${persoon.verblijfplaats}`;
+        this.setBetrokkeneGegevens(betrokkene, gegevens);
         break;
       }
       case "NIET_NATUURLIJK_PERSOON":
@@ -103,17 +96,27 @@ export class ZaakBetrokkeneListComponent {
 
         if (!bedrijf) return;
 
-        betrokkene["gegevens"] = bedrijf.naam;
+        let gegevens = bedrijf.naam ?? "";
         if (bedrijf.adres?.volledigAdres)
-          betrokkene["gegevens"] += `,\n${bedrijf.adres.volledigAdres}`;
+          gegevens += `,\n${bedrijf.adres.volledigAdres}`;
+        this.setBetrokkeneGegevens(betrokkene, gegevens);
         break;
       }
       case "ORGANISATORISCHE_EENHEID":
       case "MEDEWERKER": {
-        betrokkene["gegevens"] = "-";
+        this.setBetrokkeneGegevens(betrokkene, "-");
         break;
       }
     }
+  }
+
+  private setBetrokkeneGegevens(
+    betrokkene: GeneratedType<"RestZaakBetrokkene">,
+    gegevens: string,
+  ) {
+    this.betrokkeneGegevens.update((betrokkeneGegevens) =>
+      new Map(betrokkeneGegevens).set(betrokkene, gegevens),
+    );
   }
 
   protected deleteBetrokkene(betrokkene: GeneratedType<"RestZaakBetrokkene">) {
