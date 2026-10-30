@@ -51,7 +51,7 @@ same command:
 ```bash
 cd src/main/app
 SPECS=$(git diff --name-only --diff-filter=d origin/main...HEAD -- '*.spec.ts' | sed 's|^src/main/app/||')
-npx eslint -c eslint.strict-specs.config.js $SPECS
+npx eslint -c eslint.strict-specs.config.js --pass-on-no-patterns $SPECS
 ```
 
 New specs should use `getByRole` with an accessible name, falling back to `getByLabelText` and
