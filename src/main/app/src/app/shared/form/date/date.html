@@ -20,9 +20,9 @@
     [matDatepicker]="date"
   />
   @if (showAmountOfDays()) {
-    <span matSuffix>{{ control()?.value | dagen }}</span>
+    <span matSuffix>{{ value() | dagen }}</span>
   }
-  @if (!control()?.disabled && control()?.value) {
+  @if (!disabled() && value()) {
     <button
       matSuffix
       mat-icon-button
@@ -32,7 +32,7 @@
       <mat-icon>clear</mat-icon>
     </button>
   }
-  @if (!control()?.value) {
+  @if (!value()) {
     <mat-datepicker-toggle matSuffix [for]="date"></mat-datepicker-toggle>
   }
   <mat-datepicker #date></mat-datepicker>

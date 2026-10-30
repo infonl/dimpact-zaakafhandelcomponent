@@ -5,8 +5,9 @@
 
 import {
   booleanAttribute,
-  ChangeDetectionStrategy,
   Component,
+  computed,
+  DoCheck,
   effect,
   input,
   output,
@@ -20,6 +21,7 @@ import { MatProgressSpinner } from "@angular/material/progress-spinner";
 import { TranslatePipe } from "@ngx-translate/core";
 import { ZacAutoComplete } from "../auto-complete/auto-complete";
 import { ZacCheckbox } from "../checkbox/checkbox";
+import { trackControl } from "../control-state";
 import { ZacDate } from "../date/date";
 import { ZacDocuments } from "../documents/documents";
 import { ZacHtmlEditor } from "../html-editor/html-editor";
@@ -33,7 +35,6 @@ import { Form, FormConfig, FormField } from "./form-field.types";
   selector: "zac-composed-form",
   templateUrl: "./composed-form.component.html",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButton,
     MatExpansionPanelActionRow,
@@ -53,7 +54,7 @@ import { Form, FormConfig, FormField } from "./form-field.types";
     ZacTextarea,
   ],
 })
-export class ZacComposedForm<F extends Form> {
+export class ZacComposedForm<F extends Form> implements DoCheck {
   protected readonly form = input.required<FormGroup<F>>();
   protected readonly fields = input.required<FormField[]>();
   protected readonly config = input<FormConfig>({ hideCancelButton: false });
@@ -67,6 +68,14 @@ export class ZacComposedForm<F extends Form> {
   protected readonly formSubmitted = output<FormGroup<F>>();
   protected readonly formPartiallySubmitted = output<FormGroup<F>>();
   protected readonly formCancelled = output<void>();
+
+  private readonly readForm = trackControl(this.form);
+  private readonly formInvalid = this.readForm((form) => form.invalid);
+  protected readonly formValue = this.readForm((form) => form.getRawValue());
+
+  ngDoCheck() {
+    this.readForm.check();
+  }
 
   constructor() {
     effect(() => {
@@ -88,13 +97,12 @@ export class ZacComposedForm<F extends Form> {
     });
   }
 
-  protected isSubmitDisabled() {
-    return (
-      this.form().invalid ||
+  protected readonly isSubmitDisabled = computed(
+    () =>
+      !!this.formInvalid() ||
       this.loading() ||
-      (this.disableAfterSuccess() && this.success())
-    );
-  }
+      (this.disableAfterSuccess() && this.success()),
+  );
 
   protected submitForm() {
     this.formSubmitted.emit(this.form());

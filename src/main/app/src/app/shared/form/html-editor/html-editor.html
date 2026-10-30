@@ -51,7 +51,7 @@
         }
         @if (maxlength() && !formError()) {
           <mat-hint align="end">
-            {{ control()?.value?.length ?? 0 }} / {{ maxlength() }}
+            {{ value()?.length ?? 0 }} / {{ maxlength() }}
           </mat-hint>
         }
       </div>

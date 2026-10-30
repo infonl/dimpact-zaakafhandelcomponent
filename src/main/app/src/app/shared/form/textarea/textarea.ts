@@ -6,13 +6,7 @@
 
 import { CdkTextareaAutosize } from "@angular/cdk/text-field";
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  input,
-  numberAttribute,
-} from "@angular/core";
+import { Component, computed, input, numberAttribute } from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import {
@@ -33,7 +27,6 @@ import { FormHelper } from "../helpers";
   selector: "zac-textarea",
   templateUrl: "./textarea.html",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule,

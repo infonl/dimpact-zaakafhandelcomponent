@@ -3,12 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Type } from "@angular/core";
+import { Component, Type } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { MutationObserver } from "@tanstack/angular-query-experimental";
-import { render, waitFor } from "@testing-library/angular";
+import { render, screen, waitFor } from "@testing-library/angular";
+import { userEvent } from "@testing-library/user-event";
 import { testQueryClient } from "../../../../setupJest";
 import { ZacInput } from "./input/input";
 import { ZacRadio } from "./radio/radio";
@@ -76,5 +77,39 @@ describe.each(formFields)("%s", (_, component, extraInputs) => {
     });
     expect(form.controls.naam.enabled).toBe(true);
     expect(form.controls.readonly.disabled).toBe(true);
+  });
+});
+
+@Component({
+  template: `
+    <zac-input [form]="form" key="naam" />
+    <button type="button" (click)="clearSilently()">wis stil</button>
+  `,
+  imports: [ZacInput],
+})
+class SilentChangeHostComponent {
+  readonly form = new FormGroup({
+    naam: new FormControl<string | null>("fakeNaam"),
+  });
+
+  clearSilently() {
+    this.form.controls.naam.setValue(null, { emitEvent: false });
+  }
+}
+
+describe("a form field whose value code changes without events", () => {
+  it("shows the new value once its parent is checked again", async () => {
+    await render(SilentChangeHostComponent, {
+      imports: [NoopAnimationsModule],
+      providers: [provideTranslateService()],
+    });
+    const user = userEvent.setup();
+    expect(await screen.findByText("clear")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "wis stil" }));
+
+    await waitFor(() =>
+      expect(screen.queryByText("clear")).not.toBeInTheDocument(),
+    );
   });
 });

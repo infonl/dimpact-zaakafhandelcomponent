@@ -21,9 +21,7 @@
                     field.label | translate
                   }}</mat-label>
                 }
-                <div
-                  [innerHTML]="form().controls[field.key]?.value | translate"
-                ></div>
+                <div [innerHTML]="formValue()?.[field.key] | translate"></div>
               </section>
             </section>
           }
