@@ -193,7 +193,7 @@ describe(ParametersEditComponent.name, () => {
         {
           provide: InformatieObjectenService,
           useValue: fromPartial<InformatieObjectenService>({
-            listInformatieobjecttypes: () => of([]),
+            listInformatieobjecttypes: () => createQueryOptions([]) as never,
           }),
         },
       ],

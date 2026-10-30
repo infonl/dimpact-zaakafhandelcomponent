@@ -6,6 +6,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   inject,
   input,
@@ -21,7 +22,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
@@ -104,8 +105,14 @@ export class InformatieObjectEditComponent {
   protected readonly vertrouwelijkheidsAanduidingen =
     VertrouwelijkaanduidingToTranslationKeyPipe.selectList;
 
-  protected informatieObjectTypes: GeneratedType<"RestInformatieobjecttype">[] =
-    [];
+  private readonly informatieObjectTypesQuery = injectQuery(() =>
+    this.informatieObjectenService.listInformatieobjecttypesForZaak(
+      this.zaakUuid(),
+    ),
+  );
+  protected readonly informatieObjectTypes = computed(
+    () => this.informatieObjectTypesQuery.data() ?? [],
+  );
 
   protected readonly talen = this.configuratieService.listTalen();
 
@@ -229,18 +236,6 @@ export class InformatieObjectEditComponent {
       auteur: auteur,
     });
 
-    this.informatieObjectenService
-      .listInformatieobjecttypesForZaak(this.zaakUuid())
-      .subscribe((informatieObjectTypes) => {
-        this.informatieObjectTypes = informatieObjectTypes;
-        this.form.controls.informatieobjectType.patchValue(
-          informatieObjectTypes.find(
-            (informatieObjectType) =>
-              informatieObjectType.uuid === infoObject.informatieobjectTypeUUID,
-          ) ?? null,
-        );
-      });
-
     if (infoObject.ontvangstdatum) {
       this.form.controls.verzenddatum.disable();
       this.form.controls.status.disable();
@@ -249,6 +244,18 @@ export class InformatieObjectEditComponent {
     if (infoObject.verzenddatum) {
       this.form.controls.ontvangstdatum.disable();
     }
+
+    const informatieObjectTypes = await this.queryClient.ensureQueryData(
+      this.informatieObjectenService.listInformatieobjecttypesForZaak(
+        this.zaakUuid(),
+      ),
+    );
+    this.form.controls.informatieobjectType.patchValue(
+      informatieObjectTypes.find(
+        (informatieObjectType) =>
+          informatieObjectType.uuid === infoObject.informatieobjectTypeUUID,
+      ) ?? null,
+    );
   }
 
   protected submit() {
