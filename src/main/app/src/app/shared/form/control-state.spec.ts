@@ -29,6 +29,7 @@ describe(trackControl.name, () => {
 
   it("follows a value that is set from code", () => {
     const { control, value } = setup();
+    expect(value()).toBe("eerste");
 
     control.setValue("tweede");
 
@@ -37,6 +38,7 @@ describe(trackControl.name, () => {
 
   it("follows the control being disabled from code", () => {
     const { control, disabled } = setup();
+    expect(disabled()).toBe(false);
 
     control.disable();
 
@@ -53,6 +55,8 @@ describe(trackControl.name, () => {
     const valid = read((tracked) => tracked.valid);
     const dirty = read((tracked) => tracked.dirty);
     TestBed.tick();
+    expect(valid()).toBe(false);
+    expect(dirty()).toBe(false);
 
     form.controls.naam.setValue("Jan");
     form.markAsDirty();
@@ -67,6 +71,7 @@ describe(trackControl.name, () => {
 
     controlSignal.set(replacement);
     TestBed.tick();
+    expect(value()).toBe("ander");
     replacement.setValue("ander gewijzigd");
 
     expect(value()).toBe("ander gewijzigd");
