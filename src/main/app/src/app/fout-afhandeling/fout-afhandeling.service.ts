@@ -34,6 +34,16 @@ const ValidationErrorPattern = {
 
 type JakartaBeanValidationError = P.infer<typeof ValidationErrorPattern>;
 
+export type FoutAfhandelingOptions = {
+  /**
+   * An i18n key for a line that the dialog shows above the error, for a caller
+   * that recovered from the failure and tells the user what is shown instead.
+   */
+  waarschuwing?: string;
+  /** An i18n key for the title of the dialog, instead of the general one. */
+  titel?: string;
+};
+
 /** A `/rest/` request that fails with status 0 means the session has expired. */
 export function isLoggedOut(error: HttpErrorResponse) {
   return error.status === 0 && !!error.url?.includes("/rest/");
@@ -64,15 +74,19 @@ export class FoutAfhandelingService {
 
   foutAfhandelen(
     err: HttpErrorResponse | HttpParamsError | JakartaBeanValidationError,
+    options: FoutAfhandelingOptions = {},
   ) {
     return match(err)
       .with(ValidationErrorPattern, (e: JakartaBeanValidationError) =>
-        this.validatieErrorAfhandelen(e),
+        this.validatieErrorAfhandelen(e, options),
       )
-      .otherwise((err) => this.httpErrorAfhandelen(err));
+      .otherwise((err) => this.httpErrorAfhandelen(err, options));
   }
 
-  public validatieErrorAfhandelen(error: JakartaBeanValidationError) {
+  public validatieErrorAfhandelen(
+    error: JakartaBeanValidationError,
+    options: FoutAfhandelingOptions = {},
+  ) {
     const flattenedErrorList = Object.values(error.error).flat();
     console.warn("Received a `JakartaBeanValidationError`", error);
 
@@ -84,6 +98,8 @@ export class FoutAfhandelingService {
       ? this.openFoutDetailedDialog(
           this.translateService.instant("msg.error.validation.generic"),
           details,
+          undefined,
+          options,
         )
       : throwError(() => new Error("No violations found"));
   }
@@ -100,6 +116,7 @@ export class FoutAfhandelingService {
     error: string,
     details: string,
     showServerErrorTexts?: boolean,
+    { waarschuwing, titel }: FoutAfhandelingOptions = {},
   ) {
     this.dialog.closeAll(); // Make sure that only one error dialog is open at a time
     this.dialog.open(FoutDetailedDialogComponent, {
@@ -107,6 +124,8 @@ export class FoutAfhandelingService {
         error,
         details,
         showServerErrorTexts,
+        waarschuwing,
+        titel,
       },
     });
 
@@ -133,7 +152,10 @@ export class FoutAfhandelingService {
     }
   }
 
-  public httpErrorAfhandelen(err: HttpErrorResponse | HttpParamsError) {
+  public httpErrorAfhandelen(
+    err: HttpErrorResponse | HttpParamsError,
+    options: FoutAfhandelingOptions = {},
+  ) {
     if (err instanceof HttpParamsError) {
       return throwError(() => err.message);
     }
@@ -142,7 +164,8 @@ export class FoutAfhandelingService {
 
     const errorDetail = err?.error?.exception;
 
-    if (err.status === 400 && !errorDetail) {
+    // The plain dialog has no room for the waarschuwing, so it goes to the detailed one.
+    if (err.status === 400 && !errorDetail && !options.waarschuwing) {
       return this.openFoutDialog(
         this.translateService.instant(
           errorMessage || "dialoog.error.body.technisch",
@@ -184,6 +207,7 @@ export class FoutAfhandelingService {
       ),
       errorDetail ?? this.translateService.instant("dialoog.error.body.fout"),
       showServerErrorTexts,
+      options,
     );
   }
 }
