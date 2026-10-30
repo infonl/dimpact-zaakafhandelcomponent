@@ -115,7 +115,8 @@ export class ZaakCreateComponent {
 
   protected activeSideAction: string | null = null;
 
-  private readonly inboxProductaanvraag: GeneratedType<"RestInboxProductaanvraag">;
+  private readonly inboxProductaanvraag: GeneratedType<"RestInboxProductaanvraag"> =
+    this.router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
 
   private readonly selectedCaseType = signal<
     GeneratedType<"RestZaaktype"> | undefined
@@ -150,7 +151,15 @@ export class ZaakCreateComponent {
     (GeneratedType<"BetrokkeneIdentificatie"> & { naam?: string | null }) | null
   >(null);
   protected readonly initiatorNotCopied = signal(false);
-  protected communicationChannels: string[] = [];
+  private readonly communicationChannelsQuery = injectQuery(() =>
+    this.referentieTabelService.listCommunicatiekanalen(
+      Boolean(this.inboxProductaanvraag),
+    ),
+  );
+  protected readonly communicationChannels = computed(
+    () => this.communicationChannelsQuery.data() ?? [],
+  );
+  private isCommunicationChannelPrefilled = false;
   protected confidentialityNotices =
     VertrouwelijkaanduidingToTranslationKeyPipe.selectList;
 
@@ -195,23 +204,26 @@ export class ZaakCreateComponent {
   });
 
   constructor() {
-    this.inboxProductaanvraag =
-      this.router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
     this.form.controls.groep.disable();
     this.form.controls.behandelaar.disable();
     this.form.controls.initiatorIdentificatie.disable();
 
-    this.referentieTabelService
-      .listCommunicatiekanalen(Boolean(this.inboxProductaanvraag))
-      .subscribe((channels) => {
-        this.communicationChannels = channels;
+    effect(() => {
+      const channels = this.communicationChannels();
+      if (
+        !this.communicationChannelsQuery.isSuccess() ||
+        this.isCommunicationChannelPrefilled
+      )
+        return;
+      this.isCommunicationChannelPrefilled = true;
 
-        if (channels.includes(ZaakCreateComponent.DEFAULT_CHANNEL)) {
-          this.form.controls.communicatiekanaal.setValue(
-            ZaakCreateComponent.DEFAULT_CHANNEL,
-          );
-        }
-      });
+      if (!channels.includes(ZaakCreateComponent.DEFAULT_CHANNEL)) return;
+      untracked(() =>
+        this.form.controls.communicatiekanaal.setValue(
+          ZaakCreateComponent.DEFAULT_CHANNEL,
+        ),
+      );
+    });
 
     this.form.controls.zaaktype.valueChanges
       .pipe(takeUntilDestroyed())

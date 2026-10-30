@@ -160,6 +160,70 @@ describe(ReferentieTabelService.name, () => {
     });
   });
 
+  describe("listCommunicatiekanalen", () => {
+    it("reads the communicatiekanalen without the e-formulier by default", async () => {
+      const read = testQueryClient.fetchQuery(
+        service.listCommunicatiekanalen(),
+      );
+      httpTestingController
+        .expectOne("/rest/referentietabellen/communicatiekanaal/false")
+        .flush(["fakeChannel"]);
+
+      expect(await read).toEqual(["fakeChannel"]);
+    });
+
+    it("reads the communicatiekanalen with the e-formulier when asked", async () => {
+      const read = testQueryClient.fetchQuery(
+        service.listCommunicatiekanalen(true),
+      );
+      httpTestingController
+        .expectOne("/rest/referentietabellen/communicatiekanaal/true")
+        .flush(["fakeChannel", "E-formulier"]);
+
+      expect(await read).toEqual(["fakeChannel", "E-formulier"]);
+    });
+
+    const seedCommunicatiekanalen = () => {
+      for (const inclusiefEFormulier of [false, true]) {
+        testQueryClient.setQueryData(
+          service.listCommunicatiekanalen(inclusiefEFormulier).queryKey,
+          ["fakeChannel"],
+        );
+      }
+    };
+
+    const isInvalidated = (inclusiefEFormulier: boolean) =>
+      testQueryClient.getQueryState(
+        service.listCommunicatiekanalen(inclusiefEFormulier).queryKey,
+      )?.isInvalidated;
+
+    it("invalidates both communicatiekanalen reads when the COMMUNICATIEKANAAL table changes", async () => {
+      seedCommunicatiekanalen();
+      const { mutationOptions, body } = service.renameReferentieTabel(
+        fromPartial<GeneratedType<"RestReferenceTable">>({
+          ...referenceTable,
+          code: "COMMUNICATIEKANAAL",
+        }),
+      );
+
+      await runMutationOnSuccess(mutationOptions, body("fakeNewTableName"));
+
+      expect(isInvalidated(false)).toBe(true);
+      expect(isInvalidated(true)).toBe(true);
+    });
+
+    it("keeps the communicatiekanalen when another table changes", async () => {
+      seedCommunicatiekanalen();
+      const { mutationOptions, body } =
+        service.renameReferentieTabel(referenceTable);
+
+      await runMutationOnSuccess(mutationOptions, body("fakeNewTableName"));
+
+      expect(isInvalidated(false)).toBe(false);
+      expect(isInvalidated(true)).toBe(false);
+    });
+  });
+
   describe("deleteReferentieTabel", () => {
     it("addresses the table by its id", async () => {
       const referenceTable = fromPartial<GeneratedType<"RestReferenceTable">>({
