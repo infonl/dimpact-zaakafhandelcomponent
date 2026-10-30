@@ -24,6 +24,11 @@ global:
 # limit over pinning the heap here with `-Xmx`.
 javaOptions: ""
 
+# -- Log level of ZAC: the WildFly root logger and console handler. One of DEBUG, INFO, WARN, ERROR.
+# DEBUG logs a lot, including security-sensitive data such as session details; only use it temporarily.
+# WildFly logs its own boot messages at INFO before this level applies.
+logLevel: INFO
+
 # -- External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com)
 contextUrl: ""
 

@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.363](https://img.shields.io/badge/Version-1.0.363-informational?style=flat-square) ![AppVersion: 5.11](https://img.shields.io/badge/AppVersion-5.11-informational?style=flat-square)
+![Version: 1.0.364](https://img.shields.io/badge/Version-1.0.364-informational?style=flat-square) ![AppVersion: 5.11](https://img.shields.io/badge/AppVersion-5.11-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -142,6 +142,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | kvkApi.url | string | `""` |  |
 | livenessProbe | object | `{"failureThreshold":16,"path":"/health/ready","periodSeconds":30,"timeoutSeconds":1}` | liveness probe configuration for the main ZAC container |
 | livenessProbe.path | string | `"/health/ready"` | Path used for the liveness probe. Defaults to /health/ready so Kubernetes restarts ZAC automatically when the OpenZaak catalogus is unreachable for longer than failureThreshold * periodSeconds. The root cause is that the ZGW-API-Client MicroProfile REST client has no connectTimeout / readTimeout configured, causing stale TCP connections in the pool after extended outages. Revert to /health/live (and lower failureThreshold back to 3) once proper HTTP timeouts are configured on ZGW-API-Client in the ZAC application. |
+| logLevel | string | `"INFO"` | Log level of ZAC: the WildFly root logger and console handler. One of DEBUG, INFO, WARN, ERROR. DEBUG logs a lot, including security-sensitive data such as session details; only use it temporarily. WildFly logs its own boot messages at INFO before this level applies. |
 | mail.smtp.password | string | `""` | SMTP server password if authentication is required. Optional |
 | mail.smtp.port | string | `"587"` | SMTP server port: 587 for TLS, port 25 for relaying. Required |
 | mail.smtp.server | string | `""` | SMTP server host (for example, localhost or in-v3.mailjet.com). Required |
