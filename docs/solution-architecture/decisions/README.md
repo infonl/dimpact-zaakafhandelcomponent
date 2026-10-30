@@ -18,6 +18,7 @@ and its consequences. See [ADR-0007](0007-record-architecture-decisions-in-git-a
 | [0008](0008-update-the-ui-without-waiting-for-notifications-on-zac-initiated-changes.md) | Update the UI without waiting for notifications on changes that ZAC initiates | accepted | ZAC sends screen events as soon as an external system confirms a change that ZAC initiated.            |
 | [0009](0009-use-jol-to-measure-the-memory-usage-of-the-ztc-caches.md)    | Use JOL to measure the memory usage of the ZTC caches                    | accepted | JOL measures the ZTC caches on the admin page; its use of `sun.misc.Unsafe` is an accepted risk.       |
 | [0010](0010-cache-read-only-data-in-a-request-scoped-bean.md)            | Cache data that a request only reads in a request-scoped bean            | accepted | A `@RequestScoped` bean may cache data that a request reads but does not change, inside HTTP requests. |
+| [0011](0011-use-helm-unittest-for-unit-tests-of-the-helm-chart.md) | Use helm-unittest for unit tests of the Helm chart | accepted | CI tests the rendered templates of the Helm chart with helm-unittest, without a cluster. |
 
 ## When to write an ADR
 
