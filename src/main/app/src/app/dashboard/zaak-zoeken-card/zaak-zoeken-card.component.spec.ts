@@ -9,6 +9,7 @@ import {
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatDialog } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
@@ -20,6 +21,7 @@ import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { WebsocketService } from "../../core/websocket/websocket.service";
+import { FoutDetailedDialogComponent } from "../../fout-afhandeling/dialog/fout-detailed-dialog.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { DashboardCard } from "../model/dashboard-card";
 import { DashboardCardId } from "../model/dashboard-card-id";
@@ -49,6 +51,7 @@ describe(ZaakZoekenCardComponent.name, () => {
   let httpTestingController: HttpTestingController;
 
   const user = userEvent.setup();
+  const dialog = { open: jest.fn(), closeAll: jest.fn() };
 
   beforeEach(() => {
     notifyManager.setScheduler((fn) => fn());
@@ -69,6 +72,7 @@ describe(ZaakZoekenCardComponent.name, () => {
         provideRouter([]),
         provideTanStackQuery(testQueryClient),
         { provide: WebsocketService, useValue: { addListener: jest.fn() } },
+        { provide: MatDialog, useValue: dialog },
       ],
     });
 
@@ -171,6 +175,90 @@ describe(ZaakZoekenCardComponent.name, () => {
       sorteerVeld: "ZAAK_IDENTIFICATIE",
       sorteerRichting: "asc",
       page: 0,
+    });
+  });
+
+  it("sorts the other way round when the user clicks the column it is sorted by, rather than dropping the sort", async () => {
+    await setup();
+    await respondWith(makeResultaat(25, 5));
+
+    await user.click(sortHeader("startdatum"));
+    await sleep();
+    const request = await respondWith(makeResultaat(25, 5));
+
+    expect(request.request.body).toMatchObject({
+      sorteerVeld: "ZAAK_STARTDATUM",
+      sorteerRichting: "asc",
+    });
+  });
+
+  it("shows that it is loading while the next page loads, and keeps the rows it shows", async () => {
+    await setup();
+    await respondWith(makeResultaat(25, 5));
+
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    await sleep();
+    fixture.detectChanges();
+
+    expect(screen.getByRole("progressbar")).toBeVisible();
+    expect(screen.getAllByRole("row", { name: /ZAAK-FOUND/ })).toHaveLength(5);
+
+    await respondWith(makeResultaat(25, 5));
+
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+  });
+
+  describe("when the next page fails", () => {
+    beforeEach(async () => {
+      await setup();
+      await respondWith(makeResultaat(25, 5));
+
+      await user.click(screen.getByRole("button", { name: "Next page" }));
+      await sleep();
+      httpTestingController
+        .expectOne("/rest/zoeken/list")
+        .flush(
+          { message: "fakeMessage", exception: "fakeException" },
+          { status: 400, statusText: "Bad Request" },
+        );
+      await sleep();
+      fixture.detectChanges();
+      fixture.detectChanges();
+    });
+
+    it("keeps the page it shows and its rows", () => {
+      expect(screen.getAllByRole("row", { name: /ZAAK-FOUND/ })).toHaveLength(
+        5,
+      );
+      expect(screen.getByText("1 – 5 of 25")).toBeVisible();
+    });
+
+    it("keeps polling the page it shows, not the page that failed", () => {
+      const polledPages = testQueryClient
+        .getQueryCache()
+        .findAll({ queryKey: ["/rest/zoeken/list"], type: "active" })
+        .map(({ queryKey }) => (queryKey[1] as { page: number }).page);
+
+      expect(polledPages).toEqual([0]);
+    });
+
+    it("opens one dialog that says the previous results are shown again", () => {
+      expect(dialog.open).toHaveBeenCalledTimes(1);
+      expect(dialog.open).toHaveBeenCalledWith(FoutDetailedDialogComponent, {
+        data: expect.objectContaining({
+          waarschuwing: "msg.zoeken.mislukt.vorige.zoekopdracht",
+          details: "fakeException",
+        }),
+      });
+    });
+
+    it("loads that page when the user pages forward again", async () => {
+      await user.click(screen.getByRole("button", { name: "Next page" }));
+      await sleep();
+      const request = await respondWith(makeResultaat(25, 5));
+
+      expect(request.request.body).toMatchObject({ page: 1 });
+      expect(screen.getByText(/10 of 25/)).toBeVisible();
     });
   });
 });
