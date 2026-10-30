@@ -61,8 +61,10 @@ const afzenders = [
   }),
 ];
 
+const plainTextOnderwerp = "Ontvangstbevestiging van uw verzoek";
+
 const mailtemplate = fromPartial<GeneratedType<"RestMailtemplate">>({
-  onderwerp: "<p>Ontvangstbevestiging van uw verzoek</p>",
+  onderwerp: `<p>${plainTextOnderwerp}</p>`,
   body: "<p>Wij hebben uw verzoek ontvangen.</p>",
   defaultMailtemplate: true,
   variabelen: ["ZAAK_NUMMER", "ZAAK_INITIATOR"],
@@ -328,7 +330,7 @@ describe(OntvangstbevestigingComponent.name, () => {
     expect(request.request.body).toMatchObject({
       verzender: afzenders[0].mail,
       ontvanger: "recipient@example.com",
-      onderwerp: "Ontvangstbevestiging van uw verzoek",
+      onderwerp: plainTextOnderwerp,
       body: mailtemplate.body,
       bijlagen: "doc-1",
       shouldCreateDocumentFromMail: true,
