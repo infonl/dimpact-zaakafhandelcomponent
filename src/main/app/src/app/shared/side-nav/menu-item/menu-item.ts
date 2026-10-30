@@ -3,12 +3,24 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { signal } from "@angular/core";
+
 export abstract class MenuItem {
   abstract readonly type: MenuItemType;
   abstract readonly title: string;
   abstract readonly icon?: string;
   activated = false;
-  disabled = false;
+
+  // Backed by a signal, so the OnPush side nav shows a change that code makes after a click.
+  private readonly isDisabled = signal(false);
+
+  get disabled() {
+    return this.isDisabled();
+  }
+
+  set disabled(disabled: boolean) {
+    this.isDisabled.set(disabled);
+  }
 }
 
 export enum MenuItemType {
