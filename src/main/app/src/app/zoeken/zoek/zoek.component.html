@@ -117,7 +117,7 @@
         }
         @if (!hasSearched && zoekType === ZoekType.ZAC) {
           <button
-            (click)="zoek.emit()"
+            (click)="zoeken()"
             mat-icon-button
             matSuffix
             id="zoeken-button"
@@ -126,7 +126,7 @@
             <mat-icon>search</mat-icon>
           </button>
         }
-        @if (isLoadingResults && slow) {
+        @if (isLoadingResults() && slow()) {
           <mat-progress-bar mode="indeterminate"></mat-progress-bar>
         }
       </mat-form-field>
@@ -135,70 +135,72 @@
   @if (zoekType === ZoekType.ZAC) {
     <div class="flex-row gap-10">
       <div class="zoek-filters flex-col w25 flex-1 gap-10">
-        @for (
-          filter of zoekResultaat.filters | keyvalue: originalOrder;
-          track filter
-        ) {
-          <div>
-            @if (hasOption(filter.value ?? [])) {
-              <zac-multi-facet-filter
-                [label]="filter.key"
-                [filter]="
-                  zoekParameters.filters?.[filter.key] ?? { values: [] }
-                "
-                [opties]="filter.value ?? []"
-                (changed)="filterChanged(filter.key, $event)"
-              >
-              </zac-multi-facet-filter>
-            }
-          </div>
-        }
-        @if (hasZaken || betrokkeneActief()) {
-          <zac-zaak-betrokkene-filter
-            [zoekparameters]="zoekParameters"
-            (changed)="zoek.emit()"
-          ></zac-zaak-betrokkene-filter>
-        }
-        @if (
-          hasZaken ||
-          hasTaken ||
-          hasDocument ||
-          !!zoekParameters.datums?.STARTDATUM
-        ) {
-          <zac-date-filter
-            label="startdatum"
-            [range]="zoekParameters.datums?.STARTDATUM"
-            (changed)="dateFilterChange('STARTDATUM', $event)"
-          >
-          </zac-date-filter>
-        }
-        @if (hasZaken || !!zoekParameters.datums?.ZAAK_STREEFDATUM) {
-          <zac-date-filter
-            label="zaak.streefdatum"
-            [range]="zoekParameters.datums?.ZAAK_STREEFDATUM"
-            (changed)="dateFilterChange('ZAAK_STREEFDATUM', $event)"
-          >
-          </zac-date-filter>
-        }
-        @if (hasZaken || !!zoekParameters.datums?.ZAAK_FATALE_DATUM) {
-          <zac-date-filter
-            label="zaak.fataledatum"
-            [range]="zoekParameters.datums?.ZAAK_FATALE_DATUM"
-            (changed)="dateFilterChange('ZAAK_FATALE_DATUM', $event)"
-          >
-          </zac-date-filter>
-        }
-        @if (hasZaken || !!zoekParameters.datums?.ZAAK_EINDDATUM) {
-          <zac-date-filter
-            label="zaak.einddatum"
-            [range]="zoekParameters.datums?.ZAAK_EINDDATUM"
-            (changed)="dateFilterChange('ZAAK_EINDDATUM', $event)"
-          >
-          </zac-date-filter>
+        @for (revisie of [filterRevisie()]; track revisie) {
+          @for (
+            filter of zoekResultaat().filters | keyvalue: originalOrder;
+            track filter
+          ) {
+            <div>
+              @if (hasOption(filter.value ?? [])) {
+                <zac-multi-facet-filter
+                  [label]="filter.key"
+                  [filter]="
+                    zoekParameters().filters?.[filter.key] ?? { values: [] }
+                  "
+                  [opties]="filter.value ?? []"
+                  (changed)="filterChanged(filter.key, $event)"
+                >
+                </zac-multi-facet-filter>
+              }
+            </div>
+          }
+          @if (hasZaken() || betrokkeneActief()) {
+            <zac-zaak-betrokkene-filter
+              [zoekparameters]="zoekParameters()"
+              (changed)="zoeken()"
+            ></zac-zaak-betrokkene-filter>
+          }
+          @if (
+            hasZaken() ||
+            hasTaken() ||
+            hasDocument() ||
+            !!zoekParameters().datums?.STARTDATUM
+          ) {
+            <zac-date-filter
+              label="startdatum"
+              [range]="zoekParameters().datums?.STARTDATUM"
+              (changed)="dateFilterChange('STARTDATUM', $event)"
+            >
+            </zac-date-filter>
+          }
+          @if (hasZaken() || !!zoekParameters().datums?.ZAAK_STREEFDATUM) {
+            <zac-date-filter
+              label="zaak.streefdatum"
+              [range]="zoekParameters().datums?.ZAAK_STREEFDATUM"
+              (changed)="dateFilterChange('ZAAK_STREEFDATUM', $event)"
+            >
+            </zac-date-filter>
+          }
+          @if (hasZaken() || !!zoekParameters().datums?.ZAAK_FATALE_DATUM) {
+            <zac-date-filter
+              label="zaak.fataledatum"
+              [range]="zoekParameters().datums?.ZAAK_FATALE_DATUM"
+              (changed)="dateFilterChange('ZAAK_FATALE_DATUM', $event)"
+            >
+            </zac-date-filter>
+          }
+          @if (hasZaken() || !!zoekParameters().datums?.ZAAK_EINDDATUM) {
+            <zac-date-filter
+              label="zaak.einddatum"
+              [range]="zoekParameters().datums?.ZAAK_EINDDATUM"
+              (changed)="dateFilterChange('ZAAK_EINDDATUM', $event)"
+            >
+            </zac-date-filter>
+          }
         }
       </div>
       <div class="flex-col w75 flex-1">
-        @for (zoekObject of zoekResultaat.resultaten; track zoekObject) {
+        @for (zoekObject of zoekResultaat().resultaten; track zoekObject) {
           @switch (zoekObject.type) {
             @case ("ZAAK") {
               <zac-zaak-zoek-object
@@ -222,7 +224,7 @@
 
           <mat-divider></mat-divider>
         }
-        @if (zoekResultaat.totaal === 0 && !isLoadingResults) {
+        @if (zoekResultaat().totaal === 0 && !isLoadingResults()) {
           <p class="geen-resultaat">
             {{ "msg.geen.gegevens.gevonden" | translate }}
           </p>
@@ -241,10 +243,11 @@
   }
   <mat-paginator
     [ngClass]="{ hide: zoekType !== ZoekType.ZAC }"
-    #paginator
-    [pageIndex]="0"
-    [pageSize]="10"
+    [length]="aantalResultaten()"
+    [pageIndex]="zoekParameters().page"
+    [pageSize]="zoekParameters().rows"
     [pageSizeOptions]="[10, 25, 50, 100]"
+    (page)="pageChanged($event)"
     sticky
   >
   </mat-paginator>
