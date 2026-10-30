@@ -110,13 +110,9 @@ export class ZaakAfhandelenDialogComponent {
     ]),
   });
 
-  protected readonly resultaattypesQuery = injectQuery(() => ({
-    queryKey: ["resultaattypes", this.data.zaak.zaaktype.uuid],
-    queryFn: () =>
-      firstValueFrom(
-        this.zakenService.listResultaattypes(this.data.zaak.zaaktype.uuid),
-      ),
-  }));
+  protected readonly resultaattypesQuery = injectQuery(() =>
+    this.zakenService.listResultaattypes(this.data.zaak.zaaktype.uuid),
+  );
 
   protected readonly afzendersQuery = injectQuery(() => ({
     queryKey: ["afzenders", this.data.zaak.uuid],

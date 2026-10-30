@@ -118,7 +118,11 @@
             {{ "historie" | translate }}
           </ng-template>
           <div class="table-wrapper historie-table">
-            <table mat-table [dataSource]="histories[besluit.uuid]" matSort>
+            <table
+              mat-table
+              [dataSource]="historie(besluit.uuid) ?? []"
+              matSort
+            >
               <ng-container matColumnDef="datum">
                 <th *matHeaderCellDef mat-header-cell mat-sort-header>
                   {{ "datum" | translate }}
@@ -212,7 +216,7 @@
                 "
               ></tr>
             </table>
-            @if (histories[besluit.uuid]?.data?.length === 0) {
+            @if (historie(besluit.uuid)?.length === 0) {
               <p>
                 {{ "msg.geen.gegevens.gevonden" | translate }}
               </p>
