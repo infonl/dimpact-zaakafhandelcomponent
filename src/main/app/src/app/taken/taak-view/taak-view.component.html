@@ -6,11 +6,11 @@
 <mat-drawer-container
   class="inner-sidenav-container tablet-bottom-toolbar"
   #sideNavContainer
-  [class]="sideNaveMode"
+  [class]="sideNaveMode()"
 >
   <mat-drawer
     #menuSidenav
-    [mode]="sideNaveMode"
+    [mode]="sideNaveMode()"
     position="start"
     opened="true"
     disableClose="true"

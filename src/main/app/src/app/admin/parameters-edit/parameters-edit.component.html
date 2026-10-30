@@ -6,11 +6,11 @@
 <mat-sidenav-container
   class="inner-sidenav-container"
   #sideNavContainer
-  [class]="sideNaveMode"
+  [class]="sideNaveMode()"
 >
   <mat-sidenav
     #menuSidenav
-    [mode]="sideNaveMode"
+    [mode]="sideNaveMode()"
     position="start"
     opened="true"
     disableClose="true"
