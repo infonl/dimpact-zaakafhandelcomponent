@@ -8,7 +8,6 @@ import {
   Component,
   inject,
   input,
-  OnInit,
   output,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -25,7 +24,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { ZacDate } from "../../shared/form/date/date";
@@ -59,7 +58,7 @@ import { ZakenService } from "../zaken.service";
     ZacDocuments,
   ],
 })
-export class BesluitCreateComponent implements OnInit {
+export class BesluitCreateComponent {
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
   readonly sideNav = input.required<MatDrawer>();
   readonly besluitVastgelegd = output<boolean>();
@@ -70,8 +69,9 @@ export class BesluitCreateComponent implements OnInit {
   );
   private readonly formBuilder = inject(FormBuilder);
 
-  protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
-  protected besluittypes: GeneratedType<"RestBesluitType">[] = [];
+  protected readonly besluittypesQuery = injectQuery(() =>
+    this.zakenService.listBesluittypes(this.zaak().zaaktype.uuid),
+  );
   protected documents: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
 
   protected form = this.formBuilder.group({
@@ -191,20 +191,6 @@ export class BesluitCreateComponent implements OnInit {
     this.form.controls.uiterlijkereactiedatum.addValidators([
       this.uiterlijkereactiedatumMinDateValidator,
     ]);
-  }
-
-  ngOnInit() {
-    this.zakenService
-      .listResultaattypes(this.zaak().zaaktype.uuid)
-      .subscribe((resultaattypes) => {
-        this.resultaattypes = resultaattypes;
-      });
-
-    this.zakenService
-      .listBesluittypes(this.zaak().zaaktype.uuid)
-      .subscribe((besluittypes) => {
-        this.besluittypes = besluittypes;
-      });
   }
 
   submit() {

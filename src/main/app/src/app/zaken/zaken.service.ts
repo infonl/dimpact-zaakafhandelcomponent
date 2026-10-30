@@ -428,7 +428,10 @@ export class ZakenService {
     return mergeMutationOptions(
       this.zacQueryClient.PUT("/rest/zaken/besluit"),
       {
-        onSuccess: () => this.utilService.openSnackbar("msg.besluit.gewijzigd"),
+        onSuccess: (_besluit, { besluitUuid }) => {
+          this.invalidateBesluitHistorie(besluitUuid);
+          this.utilService.openSnackbar("msg.besluit.gewijzigd");
+        },
       },
     );
   }
@@ -437,22 +440,27 @@ export class ZakenService {
     return mergeMutationOptions(
       this.zacQueryClient.PUT("/rest/zaken/besluit/intrekken"),
       {
-        onSuccess: () =>
-          this.utilService.openSnackbar("msg.besluit.ingetrokken"),
+        onSuccess: (_besluit, { besluitUuid }) => {
+          this.invalidateBesluitHistorie(besluitUuid);
+          this.utilService.openSnackbar("msg.besluit.ingetrokken");
+        },
       },
     );
   }
 
   listBesluittypes(zaaktypeUUID: string) {
-    return this.zacHttpClient.GET("/rest/zaken/besluittypes/{zaaktypeUUID}", {
+    return this.zacQueryClient.GET("/rest/zaken/besluittypes/{zaaktypeUUID}", {
       path: { zaaktypeUUID },
     });
   }
 
   listResultaattypes(zaaktypeUUID: string) {
-    return this.zacHttpClient.GET("/rest/zaken/resultaattypes/{zaaktypeUUID}", {
-      path: { zaaktypeUUID },
-    });
+    return this.zacQueryClient.GET(
+      "/rest/zaken/resultaattypes/{zaaktypeUUID}",
+      {
+        path: { zaaktypeUUID },
+      },
+    );
   }
 
   listStatustypes(zaaktypeUUID: string) {
@@ -484,9 +492,19 @@ export class ZakenService {
   }
 
   listBesluitHistorie(uuid: string) {
-    return this.zacHttpClient.GET("/rest/zaken/besluit/{uuid}/historie", {
-      path: { uuid },
-    });
+    return {
+      ...this.zacQueryClient.GET("/rest/zaken/besluit/{uuid}/historie", {
+        path: { uuid },
+      }),
+      meta: { reportFailedRefetch: true },
+    };
+  }
+
+  invalidateBesluitHistorie(uuid: string) {
+    return this.queryClient.invalidateQueries(
+      { queryKey: this.listBesluitHistorie(uuid).queryKey },
+      { cancelRefetch: false },
+    );
   }
 
   listProcesVariabelen() {

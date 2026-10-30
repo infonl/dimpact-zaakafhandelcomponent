@@ -144,9 +144,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     httpTestingController = TestBed.inject(HttpTestingController);
 
     jest
-      .spyOn(TestBed.inject(ZakenService), "listResultaattypes")
-      .mockReturnValue(of(resultaattypes));
-    jest
       .spyOn(TestBed.inject(ZakenService), "listAfzendersVoorZaak")
       .mockReturnValue(of(afzenders));
 
@@ -155,7 +152,10 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
 
   function seedQueries(zaakToHandle: GeneratedType<"RestZaak">) {
     testQueryClient.setQueryData(
-      ["resultaattypes", zaakToHandle.zaaktype.uuid],
+      [
+        "/rest/zaken/resultaattypes/{zaaktypeUUID}",
+        { path: { zaaktypeUUID: zaakToHandle.zaaktype.uuid } },
+      ],
       resultaattypes,
     );
     testQueryClient.setQueryData(["afzenders", zaakToHandle.uuid], afzenders);
