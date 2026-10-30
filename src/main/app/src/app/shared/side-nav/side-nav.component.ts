@@ -3,14 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  input,
-  output,
-  signal,
-} from "@angular/core";
+import { Component, inject, input, output, signal } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
@@ -35,7 +28,6 @@ import { SideNavUtil } from "./side-nav.util";
   styleUrls: ["./side-nav.component.less"],
   animations: [rotate180, sideNavToggle],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatListModule,
     MatDividerModule,
@@ -57,41 +49,41 @@ export class SideNavComponent {
 
   protected readonly menuItemType = MenuItemType;
 
-  protected menuMode = SideNavUtil.load();
+  protected readonly menuMode = signal(SideNavUtil.load());
   protected readonly menuState = signal(
-    this.menuMode === MenuMode.AUTO ? MenuState.CLOSED : this.menuMode,
+    this.menuMode() === MenuMode.AUTO ? MenuState.CLOSED : this.menuMode(),
   );
 
   toggleMenu() {
-    switch (this.menuMode) {
+    switch (this.menuMode()) {
       case MenuMode.CLOSED:
-        this.menuMode = MenuMode.AUTO;
+        this.menuMode.set(MenuMode.AUTO);
         this.mode.emit("over");
         break;
       case MenuMode.AUTO:
-        this.menuMode = MenuMode.OPEN;
+        this.menuMode.set(MenuMode.OPEN);
         this.menuState.set(MenuState.OPEN);
         this.mode.emit("side");
         break;
       case MenuMode.OPEN:
       default:
-        this.menuMode = MenuMode.CLOSED;
+        this.menuMode.set(MenuMode.CLOSED);
         this.menuState.set(MenuState.CLOSED);
         this.mode.emit("side");
     }
 
-    SideNavUtil.store(this.menuMode);
+    SideNavUtil.store(this.menuMode());
   }
 
   mouseEnter() {
     this.menuState.set(
-      this.menuMode === MenuMode.AUTO ? MenuState.OPEN : this.menuMode,
+      this.menuMode() === MenuMode.AUTO ? MenuState.OPEN : this.menuMode(),
     );
   }
 
   mouseLeave() {
     this.menuState.set(
-      this.menuMode === MenuMode.AUTO ? MenuState.CLOSED : this.menuMode,
+      this.menuMode() === MenuMode.AUTO ? MenuState.CLOSED : this.menuMode(),
     );
   }
 
