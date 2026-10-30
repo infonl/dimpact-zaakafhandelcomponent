@@ -25,10 +25,10 @@ import {
 import { RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { firstValueFrom } from "rxjs";
 import { DagenPipe } from "../../shared/pipes/dagen.pipe";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { RefetchErrorHintComponent } from "../../shared/refetch-error-hint/refetch-error-hint.component";
 import { DateConditionals } from "../../shared/utils/date-conditionals";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
@@ -44,6 +44,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
   ],
   standalone: true,
   imports: [
+    RefetchErrorHintComponent,
     ZaakIdentificatieComponent,
     MatTable,
     MatSort,
@@ -83,10 +84,7 @@ export class ZaakWaarschuwingenCardComponent extends DashboardCardComponent<
     "url",
   ] as const;
 
-  zakenQuery = injectQuery(() => ({
-    queryKey: ["zaak waarschuwingen dashboard"],
-    queryFn: () => firstValueFrom(this.zakenService.listZaakWaarschuwingen()),
-  }));
+  zakenQuery = injectQuery(() => this.zakenService.listZaakWaarschuwingen());
 
   constructor() {
     super();
