@@ -26,7 +26,6 @@ import { ZacDocuments } from "../../shared/form/documents/documents";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacTextarea } from "../../shared/form/textarea/textarea";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { StaleTimes } from "../../shared/http/zac-query-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 
@@ -61,12 +60,11 @@ export class InformatieObjectVerzendenComponent {
   protected readonly sideNav = input.required<MatDrawer>();
   protected readonly documentSent = output<void>();
 
-  protected readonly documentenQuery = injectQuery(() => ({
-    ...this.informatieObjectenService.listInformatieobjectenVoorVerzendenQuery(
+  protected readonly documentenQuery = injectQuery(() =>
+    this.informatieObjectenService.listInformatieobjectenVoorVerzenden(
       this.zaak().uuid,
     ),
-    staleTime: StaleTimes.Instant,
-  }));
+  );
 
   protected readonly form = this.formBuilder.group({
     documenten: this.formBuilder.control<

@@ -3,13 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient, withXhr } from "@angular/common/http";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { TranslateService, provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { of } from "rxjs";
-import { testQueryClient } from "../../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../../setupJest";
 import { createQueryOptions, fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { FormField } from "../../../shared/form/composed-form/form-field.types";
@@ -19,7 +18,7 @@ import { DocumentVerzendenPostTaskForm } from "./document-verzenden-post-task-fo
 describe(DocumentVerzendenPostTaskForm.name, () => {
   let formulier: DocumentVerzendenPostTaskForm;
   let informatieObjectenService: InformatieObjectenService;
-  let listVoorVerzendenSpy: jest.SpyInstance;
+  let httpTestingController: HttpTestingController;
   let listEnkelvoudigSpy: jest.SpyInstance;
   let translateService: TranslateService;
 
@@ -40,14 +39,11 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
       providers: [
         provideTranslateService(),
         provideQueryClient(testQueryClient),
-        provideHttpClient(withXhr()),
       ],
     });
 
     informatieObjectenService = TestBed.inject(InformatieObjectenService);
-    listVoorVerzendenSpy = jest
-      .spyOn(informatieObjectenService, "listInformatieobjectenVoorVerzenden")
-      .mockReturnValue(of([]));
+    httpTestingController = TestBed.inject(HttpTestingController);
     listEnkelvoudigSpy = jest
       .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
       .mockReturnValue(createQueryOptions([]) as never);
@@ -58,12 +54,25 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
     formulier = TestBed.inject(DocumentVerzendenPostTaskForm);
   });
 
+  async function requestForm(
+    documenten: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [],
+  ) {
+    const fields = formulier.requestForm(mockZaak);
+    await sleep();
+    httpTestingController
+      .expectOne(
+        "/rest/informatieobjecten/informatieobjecten/zaak/zaak-uuid/teVerzenden",
+      )
+      .flush(documenten);
+    return fields;
+  }
+
   describe("requestForm (_initStartForm)", () => {
     describe("field structure", () => {
       let fields: FormField[];
 
       beforeEach(async () => {
-        fields = await formulier.requestForm(mockZaak);
+        fields = await requestForm();
       });
 
       it("should expose exactly 2 fields in order", () => {
@@ -98,20 +107,22 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
     });
 
     describe("documentenVerzendenPost field", () => {
-      it("should fetch documents via listInformatieobjectenVoorVerzenden with zaak uuid", async () => {
-        await formulier.requestForm(mockZaak);
+      it("reads the documenten to send again each time the form opens, so a document added since the last time is offered", async () => {
+        await requestForm([mockDocument1]);
 
-        expect(
-          informatieObjectenService.listInformatieobjectenVoorVerzenden,
-        ).toHaveBeenCalledWith("zaak-uuid");
+        const fields = await requestForm([mockDocument1, mockDocument2]);
+
+        const field = fields.find(
+          (field) => field.key === "documentenVerzendenPost",
+        );
+        expect("options" in field! ? field.options : []).toEqual([
+          mockDocument1,
+          mockDocument2,
+        ]);
       });
 
       it("should expose the fetched documents as selectable options", async () => {
-        listVoorVerzendenSpy.mockReturnValue(
-          of([mockDocument1, mockDocument2]),
-        );
-
-        const fields = await formulier.requestForm(mockZaak);
+        const fields = await requestForm([mockDocument1, mockDocument2]);
 
         const field = fields.find(
           (field) => field.key === "documentenVerzendenPost",
@@ -123,7 +134,7 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
       });
 
       it("should initialize the control as an empty array", async () => {
-        const fields = await formulier.requestForm(mockZaak);
+        const fields = await requestForm();
 
         expect(
           fields.find((field) => field.key === "documentenVerzendenPost")
@@ -132,7 +143,7 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
       });
 
       it("should require at least one selected document", async () => {
-        const fields = await formulier.requestForm(mockZaak);
+        const fields = await requestForm();
 
         const control = fields.find(
           (field) => field.key === "documentenVerzendenPost",
@@ -144,7 +155,7 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
       });
 
       it("should be valid when at least one document is selected", async () => {
-        const fields = await formulier.requestForm(mockZaak);
+        const fields = await requestForm();
 
         const control = fields.find(
           (field) => field.key === "documentenVerzendenPost",
@@ -157,7 +168,7 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
 
     describe("toelichting field", () => {
       it("should initialize toelichting as null", async () => {
-        const fields = await formulier.requestForm(mockZaak);
+        const fields = await requestForm();
 
         expect(
           fields.find((field) => field.key === "toelichting")?.control?.value,
@@ -165,7 +176,7 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
       });
 
       it("should enforce maxLength of 1000 on toelichting", async () => {
-        const fields = await formulier.requestForm(mockZaak);
+        const fields = await requestForm();
 
         const control = fields.find(
           (field) => field.key === "toelichting",
@@ -176,7 +187,7 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
       });
 
       it("should accept toelichting within 1000 characters", async () => {
-        const fields = await formulier.requestForm(mockZaak);
+        const fields = await requestForm();
 
         const control = fields.find(
           (field) => field.key === "toelichting",
@@ -187,7 +198,7 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
       });
 
       it("should accept an empty toelichting (not required)", async () => {
-        const fields = await formulier.requestForm(mockZaak);
+        const fields = await requestForm();
 
         const control = fields.find(
           (field) => field.key === "toelichting",
