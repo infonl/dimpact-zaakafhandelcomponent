@@ -36,6 +36,7 @@ import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { RefetchErrorHintComponent } from "../../shared/refetch-error-hint/refetch-error-hint.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { SignaleringenService } from "../../signaleringen.service";
@@ -53,6 +54,7 @@ const DEFAULT_SORT_ORDER: GeneratedType<"SorteerRichting"> = "DESC";
   ],
   standalone: true,
   imports: [
+    RefetchErrorHintComponent,
     ZaakIdentificatieComponent,
     MatTable,
     MatSort,

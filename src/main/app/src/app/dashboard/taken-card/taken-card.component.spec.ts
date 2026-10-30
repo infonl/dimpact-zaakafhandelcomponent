@@ -178,4 +178,53 @@ describe(TakenCardComponent.name, () => {
 
     expect(takenNamen()).toEqual(["Charlie", "Bravo", "Alpha"]);
   });
+
+  describe("when a signalering change reads the taken again", () => {
+    async function respondWithError() {
+      httpTestingController
+        .expectOne("/rest/signaleringen/taken/TAAK_OP_NAAM")
+        .flush(null, { status: 404, statusText: "Not Found" });
+      await sleep();
+      await sleep();
+      fixture.detectChanges();
+    }
+
+    it("shows the refetch hint and keeps the taken when the read fails", async () => {
+      await setup();
+      await respondWithTaken([taak({ naam: "Taak A" })]);
+
+      signaleringenChanged(signaleringChangedEvent("TAAK_OP_NAAM"));
+      await respondWithError();
+
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "msg.verversen.mislukt",
+      );
+      expect(takenNamen()).toEqual(["Taak A"]);
+    });
+
+    it("hides the refetch hint again after a read that succeeds", async () => {
+      await setup();
+      await respondWithTaken([taak({ naam: "Taak A" })]);
+      signaleringenChanged(signaleringChangedEvent("TAAK_OP_NAAM"));
+      await respondWithError();
+
+      signaleringenChanged(signaleringChangedEvent("TAAK_OP_NAAM"));
+      await respondWithTaken([taak({ naam: "Taak B" })]);
+
+      expect(
+        screen.queryByText("msg.verversen.mislukt"),
+      ).not.toBeInTheDocument();
+      expect(takenNamen()).toEqual(["Taak B"]);
+    });
+
+    it("does not show the refetch hint when the first read fails, because the error dialog reports that", async () => {
+      await setup();
+
+      await respondWithError();
+
+      expect(
+        screen.queryByText("msg.verversen.mislukt"),
+      ).not.toBeInTheDocument();
+    });
+  });
 });

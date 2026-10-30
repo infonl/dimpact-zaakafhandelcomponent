@@ -165,4 +165,54 @@ describe(TaakZoekenCardComponent.name, () => {
       page: 0,
     });
   });
+
+  describe("when the poll searches the taken again", () => {
+    async function respondWithError() {
+      httpTestingController
+        .expectOne("/rest/zoeken/list")
+        .flush(null, { status: 404, statusText: "Not Found" });
+      await sleep();
+      fixture.detectChanges();
+    }
+
+    it("shows the refetch hint and keeps the taken when the search fails", async () => {
+      await setup();
+      await respondWith(makeResultaat(1));
+
+      void testQueryClient.refetchQueries({ type: "active" });
+      await respondWithError();
+
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "msg.verversen.mislukt",
+      );
+      expect(screen.getByRole("row", { name: /TAAK-FOUND-0/ })).toBeVisible();
+    });
+
+    it("hides the refetch hint again after a search that succeeds", async () => {
+      await setup();
+      await respondWith(makeResultaat(1));
+      void testQueryClient.refetchQueries({ type: "active" });
+      await respondWithError();
+
+      void testQueryClient.refetchQueries({ type: "active" });
+      await respondWith(makeResultaat(2));
+
+      expect(
+        screen.queryByText("msg.verversen.mislukt"),
+      ).not.toBeInTheDocument();
+      expect(screen.getAllByRole("row", { name: /TAAK-FOUND/ })).toHaveLength(
+        2,
+      );
+    });
+
+    it("does not show the refetch hint when the first search fails, because the error dialog reports that", async () => {
+      await setup();
+
+      await respondWithError();
+
+      expect(
+        screen.queryByText("msg.verversen.mislukt"),
+      ).not.toBeInTheDocument();
+    });
+  });
 });

@@ -192,4 +192,61 @@ describe(InformatieobjectenCardComponent.name, () => {
 
     expect(informatieobjectTitels()).toEqual(["Charlie", "Bravo", "Alpha"]);
   });
+
+  describe("when a signalering change reads the informatieobjecten again", () => {
+    async function respondWithError() {
+      httpTestingController
+        .expectOne(
+          "/rest/signaleringen/informatieobjecten/ZAAK_DOCUMENT_TOEGEVOEGD",
+        )
+        .flush(null, { status: 404, statusText: "Not Found" });
+      await sleep();
+      await sleep();
+      fixture.detectChanges();
+    }
+
+    it("shows the refetch hint and keeps the informatieobjecten when the read fails", async () => {
+      await setup();
+      await respondWithInformatieobjecten([
+        informatieobject({ titel: "Document A" }),
+      ]);
+
+      signaleringenChanged(signaleringChangedEvent("ZAAK_DOCUMENT_TOEGEVOEGD"));
+      await respondWithError();
+
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "msg.verversen.mislukt",
+      );
+      expect(informatieobjectTitels()).toEqual(["Document A"]);
+    });
+
+    it("hides the refetch hint again after a read that succeeds", async () => {
+      await setup();
+      await respondWithInformatieobjecten([
+        informatieobject({ titel: "Document A" }),
+      ]);
+      signaleringenChanged(signaleringChangedEvent("ZAAK_DOCUMENT_TOEGEVOEGD"));
+      await respondWithError();
+
+      signaleringenChanged(signaleringChangedEvent("ZAAK_DOCUMENT_TOEGEVOEGD"));
+      await respondWithInformatieobjecten([
+        informatieobject({ titel: "Document B" }),
+      ]);
+
+      expect(
+        screen.queryByText("msg.verversen.mislukt"),
+      ).not.toBeInTheDocument();
+      expect(informatieobjectTitels()).toEqual(["Document B"]);
+    });
+
+    it("does not show the refetch hint when the first read fails, because the error dialog reports that", async () => {
+      await setup();
+
+      await respondWithError();
+
+      expect(
+        screen.queryByText("msg.verversen.mislukt"),
+      ).not.toBeInTheDocument();
+    });
+  });
 });
