@@ -7,10 +7,10 @@ import {
   booleanAttribute,
   Component,
   computed,
+  DoCheck,
   effect,
   inject,
   input,
-  DoCheck,
   OnDestroy,
   signal,
 } from "@angular/core";
@@ -35,10 +35,10 @@ import { FormHelper } from "./helpers";
   },
 })
 export class SingleInputFormField<
-  Form extends Record<string, AbstractControl>,
-  Key extends keyof Form,
-  Option extends Form[Key]["value"],
->
+    Form extends Record<string, AbstractControl>,
+    Key extends keyof Form,
+    Option extends Form[Key]["value"],
+  >
   implements DoCheck, OnDestroy
 {
   private readonly translateService = inject(TranslateService);
