@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { Component, inject, signal } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import {
   MAT_DIALOG_DATA,
@@ -23,7 +23,6 @@ import { Observable } from "rxjs";
   templateUrl: "confirm-dialog.component.html",
   styleUrls: ["./confirm-dialog.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatToolbarModule,
     MatDialogTitle,
@@ -41,11 +40,11 @@ export class ConfirmDialogComponent {
     inject<MatDialogRef<ConfirmDialogComponent>>(MatDialogRef);
   protected readonly data = inject<ConfirmDialogData>(MAT_DIALOG_DATA);
 
-  protected loading = false;
+  protected readonly loading = signal(false);
 
   protected confirm(): void {
     if (this.data.observable) {
-      this.loading = true;
+      this.loading.set(true);
       this.dialogRef.disableClose = true;
       this.data.observable.subscribe({
         next: () => this.dialogRef.close(true),

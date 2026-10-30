@@ -239,7 +239,7 @@ describe(SideNavComponent.name, () => {
         icon: "folder",
       } as MenuItem;
 
-      component["menuMode"] = MenuMode.CLOSED;
+      component["menuMode"].set(MenuMode.CLOSED);
       component["menuState"].set(MenuState.CLOSED);
       fixture.componentRef.setInput("menu", [headerItem]);
       fixture.detectChanges();
@@ -256,7 +256,7 @@ describe(SideNavComponent.name, () => {
         title: "test.header",
       } as MenuItem;
 
-      component["menuMode"] = MenuMode.CLOSED;
+      component["menuMode"].set(MenuMode.CLOSED);
       component["menuState"].set(MenuState.CLOSED);
       fixture.componentRef.setInput("menu", [headerItem]);
       fixture.detectChanges();
@@ -428,10 +428,10 @@ describe(SideNavComponent.name, () => {
       const modeSpy = jest.fn();
       component["mode"].subscribe(modeSpy);
 
-      component["menuMode"] = MenuMode.CLOSED;
+      component["menuMode"].set(MenuMode.CLOSED);
       component.toggleMenu();
 
-      expect(component["menuMode"]).toBe(MenuMode.AUTO);
+      expect(component["menuMode"]()).toBe(MenuMode.AUTO);
       expect(modeSpy).toHaveBeenCalledWith("over");
     });
 
@@ -439,10 +439,10 @@ describe(SideNavComponent.name, () => {
       const modeSpy = jest.fn();
       component["mode"].subscribe(modeSpy);
 
-      component["menuMode"] = MenuMode.AUTO;
+      component["menuMode"].set(MenuMode.AUTO);
       component.toggleMenu();
 
-      expect(component["menuMode"]).toBe(MenuMode.OPEN);
+      expect(component["menuMode"]()).toBe(MenuMode.OPEN);
       expect(modeSpy).toHaveBeenCalledWith("side");
     });
 
@@ -450,38 +450,38 @@ describe(SideNavComponent.name, () => {
       const modeSpy = jest.fn();
       component["mode"].subscribe(modeSpy);
 
-      component["menuMode"] = MenuMode.OPEN;
+      component["menuMode"].set(MenuMode.OPEN);
       component.toggleMenu();
 
-      expect(component["menuMode"]).toBe(MenuMode.CLOSED);
+      expect(component["menuMode"]()).toBe(MenuMode.CLOSED);
       expect(modeSpy).toHaveBeenCalledWith("side");
     });
   });
 
   describe("menu hover behavior", () => {
     it("should open menu on mouse enter when in AUTO mode", () => {
-      component["menuMode"] = MenuMode.AUTO;
+      component["menuMode"].set(MenuMode.AUTO);
       component.mouseEnter();
 
       expect(component["menuState"]()).toBe(MenuState.OPEN);
     });
 
     it("should close menu on mouse leave when in AUTO mode", () => {
-      component["menuMode"] = MenuMode.AUTO;
+      component["menuMode"].set(MenuMode.AUTO);
       component.mouseLeave();
 
       expect(component["menuState"]()).toBe(MenuState.CLOSED);
     });
 
     it("should keep menu open on mouse leave when in OPEN mode", () => {
-      component["menuMode"] = MenuMode.OPEN;
+      component["menuMode"].set(MenuMode.OPEN);
       component.mouseLeave();
 
       expect(component["menuState"]()).toBe(MenuState.OPEN);
     });
 
     it("should keep menu closed on mouse enter when in CLOSED mode", () => {
-      component["menuMode"] = MenuMode.CLOSED;
+      component["menuMode"].set(MenuMode.CLOSED);
       component.mouseEnter();
 
       expect(component["menuState"]()).toBe(MenuState.CLOSED);
