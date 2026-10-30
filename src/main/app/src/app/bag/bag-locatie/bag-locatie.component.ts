@@ -5,6 +5,7 @@
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   effect,
   ElementRef,
@@ -38,6 +39,7 @@ type Geometry = GeneratedType<"RestGeometry">;
   templateUrl: "./bag-locatie.component.html",
   styleUrls: ["./bag-locatie.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatCardModule, TranslatePipe],
 })
 export class BagLocatieComponent implements OnInit, AfterViewInit {

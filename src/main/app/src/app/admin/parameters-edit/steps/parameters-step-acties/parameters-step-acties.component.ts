@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { ZacTextarea } from "../../../../shared/form/textarea/textarea";
 import { ActiesForm } from "./acties-form";
@@ -12,6 +12,7 @@ import { ActiesForm } from "./acties-form";
   selector: "zac-parameters-step-acties",
   templateUrl: "./parameters-step-acties.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatExpansionModule, ZacTextarea],
 })
 export class ParametersStepActiesComponent {

@@ -4,6 +4,7 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -34,6 +35,7 @@ import { TakenService } from "../taken.service";
   selector: "zac-taak-edit",
   templateUrl: "./taak-edit.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatToolbarModule,

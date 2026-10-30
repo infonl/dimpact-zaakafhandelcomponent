@@ -5,6 +5,7 @@
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -115,6 +116,7 @@ import { ZaakInitiatorPanelComponent } from "./zaak-initiator-panel/zaak-initiat
     ZaakTakenComponent,
     ZaakdataComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [
     ZaakSideActionService,
     ZaakActionDialogsService,

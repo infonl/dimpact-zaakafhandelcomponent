@@ -6,6 +6,7 @@
 
 import {
   booleanAttribute,
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -49,6 +50,7 @@ const plainTextSchema = new Schema({
   templateUrl: "./html-editor.html",
   styleUrls: ["./html-editor.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CapitalizeFirstLetterPipe,
     MatError,

@@ -6,6 +6,7 @@
 import { Location } from "@angular/common";
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   inject,
   OnDestroy,
@@ -76,6 +77,7 @@ import { FileFormat, FileFormatUtil } from "../model/file-format";
   templateUrl: "./informatie-object-view.component.html",
   styleUrls: ["./informatie-object-view.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     MatButtonModule,

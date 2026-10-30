@@ -6,6 +6,7 @@
 import { SelectionModel } from "@angular/cdk/collections";
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -122,6 +123,7 @@ const GEKOPPELDE_COLUMNS = [
   styleUrls: ["./zaak-documenten.component.less"],
   animations: [detailExpand],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     RouterLink,

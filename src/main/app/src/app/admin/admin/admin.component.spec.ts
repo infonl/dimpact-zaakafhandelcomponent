@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { Subject } from "rxjs";
@@ -15,7 +15,11 @@ import { LinkMenuItem } from "../../shared/side-nav/menu-item/link-menu-item";
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 import { AdminComponent } from "./admin.component";
 
-@Component({ template: "", standalone: true })
+@Component({
+  template: "",
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
+})
 class TestAdminComponent extends AdminComponent {
   private readonly openedStart = new Subject<void>();
 

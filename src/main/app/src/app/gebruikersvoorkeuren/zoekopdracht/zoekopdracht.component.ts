@@ -5,6 +5,7 @@
 
 import { NgClass } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -39,6 +40,7 @@ import { ZoekFilters } from "./zoekfilters.model";
   templateUrl: "./zoekopdracht.component.html",
   styleUrls: ["./zoekopdracht.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     NgClass,
     MatButtonModule,

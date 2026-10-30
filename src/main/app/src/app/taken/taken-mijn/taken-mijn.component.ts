@@ -6,6 +6,7 @@
 import { SlicePipe } from "@angular/common";
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   inject,
   OnDestroy,
@@ -53,6 +54,7 @@ import { TakenMijnDatasource } from "./taken-mijn-datasource";
   styleUrls: ["./taken-mijn.component.less"],
   animations: [detailExpand],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     I18nKeyPipe,

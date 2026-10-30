@@ -5,6 +5,7 @@
 
 import { HttpErrorResponse } from "@angular/common/http";
 import {
+  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   effect,
@@ -42,6 +43,7 @@ import { PlanItemsService } from "../plan-items.service";
   templateUrl: "./human-task-do.component.html",
   styleUrls: ["./human-task-do.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatDivider,
     MatIcon,

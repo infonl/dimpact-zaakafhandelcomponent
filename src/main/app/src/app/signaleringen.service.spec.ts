@@ -8,6 +8,7 @@ import { TestBed } from "@angular/core/testing";
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import { provideTranslateService } from "@ngx-translate/core";
 import { WebsocketService } from "./core/websocket/websocket.service";
@@ -23,7 +24,7 @@ describe("SignaleringenService", () => {
         provideTranslateService(),
         { provide: FoutAfhandelingService, useValue: {} },
         { provide: WebsocketService, useValue: {} },
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
       ],
     });
     service = TestBed.inject(SignaleringenService);

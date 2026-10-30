@@ -20,7 +20,7 @@
     <button
       mat-icon-button
       matSuffix
-      [disabled]="control()?.disabled"
+      [disabled]="$safeNavigationMigration(control()?.disabled)"
       type="button"
     >
       <mat-icon>search</mat-icon>

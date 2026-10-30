@@ -7,6 +7,7 @@ import {
   HttpErrorResponse,
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { EventEmitter } from "@angular/core";
@@ -43,7 +44,7 @@ describe(ZoekComponent.name, () => {
       imports: [ZoekComponent, NoopAnimationsModule],
       providers: [
         provideTranslateService(),
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideTanStackQuery(testQueryClient),
       ],

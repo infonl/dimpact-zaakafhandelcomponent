@@ -1,7 +1,9 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
+    "paths": {
+      "src/*": ["./src/*"]
+    },
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
@@ -14,7 +16,8 @@
     "skipLibCheck": true,
     "useDefineForClassFields": false,
     "esModuleInterop": true,
-    "strict": true
+    "strict": true,
+    "noUncheckedSideEffectImports": false
   },
   "angularCompilerOptions": {
     "strictInjectionParameters": true,

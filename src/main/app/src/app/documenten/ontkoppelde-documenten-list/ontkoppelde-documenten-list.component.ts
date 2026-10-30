@@ -5,6 +5,7 @@
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   EventEmitter,
   inject,
@@ -71,6 +72,7 @@ import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service"
   templateUrl: "./ontkoppelde-documenten-list.component.html",
   styleUrls: ["./ontkoppelde-documenten-list.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     RouterLink,

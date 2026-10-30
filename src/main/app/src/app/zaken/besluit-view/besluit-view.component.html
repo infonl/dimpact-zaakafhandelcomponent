@@ -48,7 +48,7 @@
             <zac-static-text
               class="w25 w50-md"
               label="besluit"
-              [value]="besluit.besluittype?.naam"
+              [value]="$safeNavigationMigration(besluit.besluittype?.naam)"
             />
             <zac-static-text
               class="w25 w50-md"

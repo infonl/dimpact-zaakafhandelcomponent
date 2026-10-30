@@ -23,7 +23,7 @@
       }
       @if (actieveZoekopdracht() || actieveFilters()) {
         <button
-          [matTooltip]="actieveZoekopdracht()?.naam"
+          [matTooltip]="$safeNavigationMigration(actieveZoekopdracht()?.naam)"
           mat-icon-button
           (click)="clearActief(true)"
           id="clearZoekopdrachtButton2"

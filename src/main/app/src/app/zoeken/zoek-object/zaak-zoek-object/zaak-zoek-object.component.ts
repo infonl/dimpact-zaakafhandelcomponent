@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { MatSidenav } from "@angular/material/sidenav";
 import { DatumPipe } from "../../../shared/pipes/datum.pipe";
 import { StaticTextComponent } from "../../../shared/static-text/static-text.component";
@@ -16,6 +16,7 @@ import { ZoekObjectComponent } from "../zoek-object/zoek-object-component";
   styleUrls: ["../zoek-object/zoek-object.component.less"],
   templateUrl: "./zaak-zoek-object.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ZoekObjectLinkComponent, StaticTextComponent, DatumPipe],
 })
 export class ZaakZoekObjectComponent extends ZoekObjectComponent {

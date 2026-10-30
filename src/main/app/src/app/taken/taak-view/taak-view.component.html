@@ -122,13 +122,15 @@
                 >
                   <zac-static-text
                     label="naam"
-                    [value]="taak?.naam"
+                    [value]="$safeNavigationMigration(taak?.naam)"
                     class="flex-item"
                   />
                   <zac-static-text
                     label="taak.status"
                     [value]="
-                      'taak.status.' + taak?.status | i18nKey | translate
+                      'taak.status.' + $safeNavigationMigration(taak?.status)
+                        | i18nKey
+                        | translate
                     "
                     class="flex-item"
                   />
@@ -138,12 +140,16 @@
                 >
                   <zac-static-text
                     label="creatiedatum"
-                    [value]="taak?.creatiedatumTijd | datum"
+                    [value]="
+                      $safeNavigationMigration(taak?.creatiedatumTijd) | datum
+                    "
                     class="flex-item"
                   />
                   <zac-static-text
                     label="fataledatum"
-                    [value]="taak?.fataledatum | datum"
+                    [value]="
+                      $safeNavigationMigration(taak?.fataledatum) | datum
+                    "
                     [icon]="fataledatumIcon"
                     class="flex-item"
                   />
@@ -156,7 +162,7 @@
                 >
                   <zac-static-text
                     label="groep"
-                    [value]="taak?.groep?.naam"
+                    [value]="$safeNavigationMigration(taak?.groep?.naam)"
                     class="flex-item"
                   >
                     @if (taak?.groep?.isActive === false) {
@@ -168,7 +174,7 @@
 
                   <zac-static-text
                     label="behandelaar"
-                    [value]="taak?.behandelaar?.naam"
+                    [value]="$safeNavigationMigration(taak?.behandelaar?.naam)"
                     class="flex-item"
                   />
                   @if (

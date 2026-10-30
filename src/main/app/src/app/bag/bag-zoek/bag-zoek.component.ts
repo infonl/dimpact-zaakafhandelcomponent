@@ -6,6 +6,7 @@
 import { CommonModule } from "@angular/common";
 import {
   booleanAttribute,
+  ChangeDetectionStrategy,
   Component,
   inject,
   input,
@@ -43,6 +44,7 @@ import { BAGService } from "../bag.service";
   templateUrl: "./bag-zoek.component.html",
   styleUrls: ["./bag-zoek.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     CommonModule,

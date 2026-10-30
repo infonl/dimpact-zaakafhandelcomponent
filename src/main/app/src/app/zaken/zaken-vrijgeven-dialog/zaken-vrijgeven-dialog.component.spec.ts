@@ -4,7 +4,7 @@
  */
 
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
@@ -35,7 +35,7 @@ const setup = (data: ZaakZoekObject[]) => {
     imports: [ZakenVrijgevenDialogComponent, NoopAnimationsModule],
     providers: [
       provideTranslateService(),
-      provideHttpClient(),
+      provideHttpClient(withXhr()),
       provideRouter([]),
       provideQueryClient(testQueryClient),
       { provide: MAT_DIALOG_DATA, useValue: data },

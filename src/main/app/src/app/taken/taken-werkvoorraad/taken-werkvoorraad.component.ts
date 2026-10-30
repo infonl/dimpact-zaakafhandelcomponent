@@ -9,6 +9,7 @@ import { ComponentType } from "@angular/cdk/portal";
 import { SlicePipe } from "@angular/common";
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   inject,
   OnDestroy,
@@ -71,6 +72,7 @@ import { TakenWerkvoorraadDatasource } from "./taken-werkvoorraad-datasource";
   styleUrls: ["./taken-werkvoorraad.component.less"],
   animations: [detailExpand],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     I18nKeyPipe,

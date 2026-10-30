@@ -3,7 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject, input, linkedSignal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+  linkedSignal,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { MatCard, MatCardContent } from "@angular/material/card";
 import { MatIcon } from "@angular/material/icon";
@@ -15,6 +21,7 @@ import { TranslatePipe } from "@ngx-translate/core";
   templateUrl: "./error-card.component.html",
   styleUrl: "./error-card.component.less",
   host: { class: "error-card-host" },
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatCard, MatCardContent, MatIcon, TranslatePipe],
 })
 export class ErrorCardComponent {

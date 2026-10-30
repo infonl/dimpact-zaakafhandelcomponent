@@ -6,6 +6,7 @@
 import { LowerCasePipe } from "@angular/common";
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   effect,
   inject,
@@ -53,6 +54,7 @@ import { TakenService } from "../../taken/taken.service";
   styleUrls: ["./zaak-taken.component.less"],
   animations: [detailExpand],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     MatCard,

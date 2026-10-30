@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import {
   ComponentFixture,
   TestBed,
@@ -18,6 +18,7 @@ import { OutsideClickDirective } from "./outside-click.directive";
   template: `<div zacOutsideClick (zacOutsideClick)="onOutsideClick($event)">
     <span>inside</span>
   </div>`,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [OutsideClickDirective],
 })
 class TestHostComponent {
