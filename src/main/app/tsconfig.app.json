@@ -8,13 +8,5 @@
   },
   "files": ["src/main.ts", "src/polyfills.ts"],
   "include": ["src/**/*.d.ts"],
-  "exclude": ["src/test-helpers.ts", "src/**/*.spec.ts"],
-  "angularCompilerOptions": {
-    "extendedDiagnostics": {
-      "checks": {
-        "nullishCoalescingNotNullable": "suppress",
-        "optionalChainNotNullable": "suppress"
-      }
-    }
-  }
+  "exclude": ["src/test-helpers.ts", "src/**/*.spec.ts"]
 }

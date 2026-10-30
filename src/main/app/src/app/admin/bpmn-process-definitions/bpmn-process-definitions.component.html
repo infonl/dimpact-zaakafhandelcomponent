@@ -108,9 +108,7 @@
                 >
                   <button
                     mat-icon-button
-                    [disabled]="
-                      $safeNavigationMigration(node.definition.details?.isInUse)
-                    "
+                    [disabled]="node.definition.details?.isInUse"
                     attr.aria-label="{{ 'actie.verwijderen' | translate }} {{
                       node.name
                     }}"

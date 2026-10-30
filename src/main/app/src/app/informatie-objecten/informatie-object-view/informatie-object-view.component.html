@@ -320,10 +320,7 @@
                   zaak.zaaktypeOmschrijving
                 }}</mat-card-subtitle>
                 <a
-                  [routerLink]="[
-                    '/zaken',
-                    $safeNavigationMigration(zaak?.zaakIdentificatie),
-                  ]"
+                  [routerLink]="['/zaken', zaak?.zaakIdentificatie]"
                   [title]="zaak.zaakIdentificatie + ' openen'"
                   id="zaakDetail_button"
                   mat-icon-button

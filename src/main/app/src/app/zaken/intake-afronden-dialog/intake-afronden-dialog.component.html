@@ -143,20 +143,12 @@
             @if (formGroup.get("ontvankelijk")?.value) {
               <div
                 class="readonly"
-                [innerHTML]="
-                  $safeNavigationMigration(
-                    zaakOntvankelijkMailQuery.data()?.body
-                  )
-                "
+                [innerHTML]="zaakOntvankelijkMailQuery.data()?.body"
               ></div>
             } @else {
               <div
                 class="readonly"
-                [innerHTML]="
-                  $safeNavigationMigration(
-                    zaakNietOntvankelijkMailQuery.data()?.body
-                  )
-                "
+                [innerHTML]="zaakNietOntvankelijkMailQuery.data()?.body"
               ></div>
             }
           </mat-expansion-panel>

@@ -15,32 +15,32 @@
             <zac-static-text
               class="flex-1"
               label="naam"
-              [value]="$safeNavigationMigration(persoon?.naam)"
+              [value]="persoon?.naam"
             />
             <zac-static-text
               class="flex-1"
               label="burgerservicenummer"
-              [value]="$safeNavigationMigration(persoon?.bsn)"
+              [value]="persoon?.bsn"
             />
             <zac-static-text
               class="flex-1"
               label="geboortedatum"
-              [value]="$safeNavigationMigration(persoon?.geboortedatum) | datum"
+              [value]="persoon?.geboortedatum | datum"
             />
             <zac-static-text
               class="flex-1"
               label="verblijfplaats"
-              [value]="$safeNavigationMigration(persoon?.verblijfplaats)"
+              [value]="persoon?.verblijfplaats"
             />
             <zac-static-text
               class="flex-1"
               label="telefoonnummer"
-              [value]="$safeNavigationMigration(persoon?.telefoonnummer)"
+              [value]="persoon?.telefoonnummer"
             />
             <zac-static-text
               class="flex-1"
               label="emailadres"
-              [value]="$safeNavigationMigration(persoon?.emailadres)"
+              [value]="persoon?.emailadres"
             />
           </div>
         </mat-card-content>

@@ -25,10 +25,7 @@
 <form [formGroup]="form" (submit)="afhandelen()">
   <mat-dialog-content>
     @if (data.planItem?.toelichting) {
-      <p
-        class="readonly"
-        [innerHTML]="$safeNavigationMigration(data.planItem?.toelichting)"
-      ></p>
+      <p class="readonly" [innerHTML]="data.planItem.toelichting"></p>
     }
     @if (
       form.controls.resultaattype.value?.isBesluitVerplicht &&
@@ -42,15 +39,13 @@
     @if (data.zaak.resultaat) {
       <zac-static-text
         label="resultaat"
-        [value]="
-          $safeNavigationMigration(data.zaak.resultaat.resultaattype?.naam)
-        "
+        [value]="data.zaak.resultaat.resultaattype?.naam"
       />
     }
     @for (besluit of data.zaak.besluiten; track besluit) {
       <zac-static-text
         [label]="besluit.identificatie | empty"
-        [value]="$safeNavigationMigration(besluit.besluittype?.naam)"
+        [value]="besluit.besluittype?.naam"
       />
     }
     @if (!data.zaak.resultaat) {
@@ -109,10 +104,7 @@
         <mat-expansion-panel-header>
           {{ "body" | translate }}
         </mat-expansion-panel-header>
-        <p
-          class="readonly"
-          [innerHTML]="$safeNavigationMigration(mailtemplateQuery.data()?.body)"
-        ></p>
+        <p class="readonly" [innerHTML]="mailtemplateQuery.data()?.body"></p>
       </mat-expansion-panel>
     }
   </mat-dialog-content>
