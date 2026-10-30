@@ -9,7 +9,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **postgis**: 17-3.4
 - **redis**: 8.6.8
 - **solr**: 9.11.0-slim
-- **openpolicyagent/opa**: 1.21.4-static
+- **openpolicyagent/opa**: 1.22.0-static
 - **brp-api/personen-mock**: 2.7.0-202610201628
 - **gotenberg**: 8.39.0
 - **otel/opentelemetry-collector-contrib**: 0.164.0
