@@ -5,7 +5,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { Component, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import {
   FormControl,
@@ -34,18 +34,17 @@ const makeForm = (
 
 @Component({
   template: `<zac-textarea
-    [form]="form"
+    [form]="form()"
     key="notes"
-    [label]="label"
-    [readonly]="readonly"
+    [label]="label()"
+    [readonly]="readonly()"
   />`,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ZacTextarea],
 })
 class HostComponent {
-  form = makeForm();
-  label: string | undefined = undefined;
-  readonly = false;
+  readonly form = signal(makeForm());
+  readonly label = signal<string | undefined>(undefined);
+  readonly readonly = signal(false);
 }
 
 describe(ZacTextarea.name, () => {
@@ -73,7 +72,7 @@ describe(ZacTextarea.name, () => {
   });
 
   it("reflects form control value in the textarea", async () => {
-    host.form.controls.notes.setValue("hello world");
+    host.form().controls.notes.setValue("hello world");
     fixture.detectChanges();
     const input = await loader.getHarness(MatInputHarness);
     expect(await input.getValue()).toBe("hello world");
@@ -82,18 +81,18 @@ describe(ZacTextarea.name, () => {
   it("updates the form control when the user types", async () => {
     const input = await loader.getHarness(MatInputHarness);
     await input.setValue("new text");
-    expect(host.form.controls.notes.value).toBe("new text");
+    expect(host.form().controls.notes.value).toBe("new text");
   });
 
   it("is readonly when the readonly input is set", async () => {
-    host.readonly = true;
+    host.readonly.set(true);
     fixture.detectChanges();
     const input = await loader.getHarness(MatInputHarness);
     expect(await input.isReadonly()).toBe(true);
   });
 
   it("is disabled when the form control is disabled", async () => {
-    host.form.controls.notes.disable();
+    host.form().controls.notes.disable();
     fixture.detectChanges();
     const input = await loader.getHarness(MatInputHarness);
     expect(await input.isDisabled()).toBe(true);
@@ -101,7 +100,7 @@ describe(ZacTextarea.name, () => {
 
   it("shows mat-error when the control has a validation error", async () => {
     const control = new FormControl<string | null>("", Validators.required);
-    host.form = new FormGroup<SimpleForm>({ notes: control });
+    host.form.set(new FormGroup<SimpleForm>({ notes: control }));
     fixture.detectChanges();
     control.markAsTouched();
     control.setErrors({ required: true });
@@ -121,7 +120,7 @@ describe(ZacTextarea.name, () => {
       "abc",
       Validators.maxLength(100),
     );
-    host.form = new FormGroup<SimpleForm>({ notes: control });
+    host.form.set(new FormGroup<SimpleForm>({ notes: control }));
     fixture.detectChanges();
     const formField = await loader.getHarness(MatFormFieldHarness);
     const hints = await formField.getTextHints();
@@ -138,14 +137,14 @@ describe(ZacTextarea.name, () => {
   });
 
   it("shows clear button when the control has a non-empty value", async () => {
-    host.form.controls.notes.setValue("some text");
+    host.form().controls.notes.setValue("some text");
     fixture.detectChanges();
     const buttons = await loader.getAllHarnesses(MatButtonHarness);
     expect(buttons.length).toBeGreaterThan(0);
   });
 
   it("hides clear button when the control is empty", async () => {
-    host.form.controls.notes.setValue("");
+    host.form().controls.notes.setValue("");
     fixture.detectChanges();
     const buttons = await loader.getAllHarnesses(MatButtonHarness);
     expect(buttons.length).toBe(0);

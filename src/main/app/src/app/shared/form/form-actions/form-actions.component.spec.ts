@@ -110,7 +110,7 @@ describe(ZacFormActions.name, () => {
 
   describe("when mutation is pending", () => {
     beforeEach(() => {
-      isPendingSignal = signal(true);
+      isPendingSignal.set(true);
       form.markAsDirty();
     });
 

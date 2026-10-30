@@ -24,7 +24,7 @@
     [formControlName]="key()"
   >
     <mat-select-trigger>
-      {{ displayWith(control()?.value) | translate }}
+      {{ displayWith(value()) | translate }}
     </mat-select-trigger>
     @if (isLoading()) {
       <mat-option disabled="true">
