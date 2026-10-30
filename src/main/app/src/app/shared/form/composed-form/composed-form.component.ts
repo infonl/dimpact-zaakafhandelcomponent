@@ -5,8 +5,8 @@
 
 import {
   booleanAttribute,
-  ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   input,
   output,
@@ -26,6 +26,7 @@ import { ZacHtmlEditor } from "../html-editor/html-editor";
 import { ZacInput } from "../input/input";
 import { ZacRadio } from "../radio/radio";
 import { ZacSelect } from "../select/select";
+import { trackControl } from "../control-state";
 import { ZacTextarea } from "../textarea/textarea";
 import { Form, FormConfig, FormField } from "./form-field.types";
 
@@ -33,7 +34,6 @@ import { Form, FormConfig, FormField } from "./form-field.types";
   selector: "zac-composed-form",
   templateUrl: "./composed-form.component.html",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButton,
     MatExpansionPanelActionRow,
@@ -68,6 +68,10 @@ export class ZacComposedForm<F extends Form> {
   protected readonly formPartiallySubmitted = output<FormGroup<F>>();
   protected readonly formCancelled = output<void>();
 
+  private readonly readForm = trackControl(this.form);
+  private readonly formInvalid = this.readForm((form) => form.invalid);
+  protected readonly formValue = this.readForm((form) => form.getRawValue());
+
   constructor() {
     effect(() => {
       const isReadonly = this.readonly();
@@ -88,13 +92,12 @@ export class ZacComposedForm<F extends Form> {
     });
   }
 
-  protected isSubmitDisabled() {
-    return (
-      this.form().invalid ||
+  protected readonly isSubmitDisabled = computed(
+    () =>
+      !!this.formInvalid() ||
       this.loading() ||
-      (this.disableAfterSuccess() && this.success())
-    );
-  }
+      (this.disableAfterSuccess() && this.success()),
+  );
 
   protected submitForm() {
     this.formSubmitted.emit(this.form());

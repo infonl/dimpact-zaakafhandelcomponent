@@ -6,7 +6,6 @@
 
 import {
   booleanAttribute,
-  ChangeDetectionStrategy,
   Component,
   effect,
   input,
@@ -30,7 +29,6 @@ import { FormHelper } from "../helpers";
   selector: "zac-date",
   templateUrl: "./date.html",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule,

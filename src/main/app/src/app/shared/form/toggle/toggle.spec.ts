@@ -5,7 +5,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { Component, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import {
   FormControl,
@@ -28,13 +28,12 @@ const makeForm = (
 ): FormGroup<SimpleForm> => new FormGroup<SimpleForm>({ enabled: control });
 
 @Component({
-  template: `<zac-toggle [form]="form" key="enabled" [label]="label" />`,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  template: `<zac-toggle [form]="form()" key="enabled" [label]="label()" />`,
   imports: [ZacToggle],
 })
 class HostComponent {
-  form = makeForm();
-  label: string | undefined = undefined;
+  readonly form = signal(makeForm());
+  readonly label = signal<string | undefined>(undefined);
 }
 
 describe(ZacToggle.name, () => {
@@ -61,14 +60,14 @@ describe(ZacToggle.name, () => {
   });
 
   it("reflects form control value — off when false", async () => {
-    host.form.controls.enabled.setValue(false);
+    host.form().controls.enabled.setValue(false);
     fixture.detectChanges();
     const toggle = await loader.getHarness(MatSlideToggleHarness);
     expect(await toggle.isChecked()).toBe(false);
   });
 
   it("reflects form control value — on when true", async () => {
-    host.form.controls.enabled.setValue(true);
+    host.form().controls.enabled.setValue(true);
     fixture.detectChanges();
     const toggle = await loader.getHarness(MatSlideToggleHarness);
     expect(await toggle.isChecked()).toBe(true);
@@ -77,11 +76,11 @@ describe(ZacToggle.name, () => {
   it("updates the form control when the user toggles", async () => {
     const toggle = await loader.getHarness(MatSlideToggleHarness);
     await toggle.check();
-    expect(host.form.controls.enabled.value).toBe(true);
+    expect(host.form().controls.enabled.value).toBe(true);
   });
 
   it("is disabled when the form control is disabled", async () => {
-    host.form.controls.enabled.disable();
+    host.form().controls.enabled.disable();
     fixture.detectChanges();
     const toggle = await loader.getHarness(MatSlideToggleHarness);
     expect(await toggle.isDisabled()).toBe(true);
@@ -89,7 +88,7 @@ describe(ZacToggle.name, () => {
 
   it("shows mat-error when the control has a validation error", async () => {
     const control = new FormControl<boolean | null>(null, Validators.required);
-    host.form = new FormGroup<SimpleForm>({ enabled: control });
+    host.form.set(new FormGroup<SimpleForm>({ enabled: control }));
     fixture.detectChanges();
     control.setErrors({ required: true });
     fixture.detectChanges();
@@ -105,7 +104,7 @@ describe(ZacToggle.name, () => {
 
   it("is required when the control has the required validator", async () => {
     const control = new FormControl<boolean | null>(null, Validators.required);
-    host.form = new FormGroup<SimpleForm>({ enabled: control });
+    host.form.set(new FormGroup<SimpleForm>({ enabled: control }));
     fixture.detectChanges();
     const toggle = await loader.getHarness(MatSlideToggleHarness);
     expect(await toggle.isRequired()).toBe(true);

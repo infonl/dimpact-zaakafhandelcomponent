@@ -6,7 +6,6 @@
 
 import {
   booleanAttribute,
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -61,7 +60,6 @@ const unwrapParagraphs = new Plugin({
   templateUrl: "./html-editor.html",
   styleUrls: ["./html-editor.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CapitalizeFirstLetterPipe,
     MatError,
@@ -74,10 +72,10 @@ const unwrapParagraphs = new Plugin({
   ],
 })
 export class ZacHtmlEditor<
-    Form extends Record<string, AbstractControl>,
-    Key extends keyof Form,
-    Option extends Form[Key]["value"] = string | null,
-  >
+  Form extends Record<string, AbstractControl>,
+  Key extends keyof Form,
+  Option extends Form[Key]["value"] = string | null,
+>
   extends SingleInputFormField<Form, Key, Option>
   implements OnDestroy
 {
@@ -104,8 +102,6 @@ export class ZacHtmlEditor<
   protected editor = computed(() => {
     if (!this.isPlainText()) return new Editor();
 
-    this.control()?.setValue(this.sanitizeInput(this.control()?.value ?? null));
-
     return new Editor({
       keyboardShortcuts: false,
       schema: plainTextSchema,
@@ -119,6 +115,12 @@ export class ZacHtmlEditor<
 
   constructor() {
     super();
+
+    effect(() => {
+      if (!this.isPlainText()) return;
+      const control = this.control();
+      control?.setValue(this.sanitizeInput(control.value ?? null));
+    });
 
     effect(() => {
       const control = this.control();

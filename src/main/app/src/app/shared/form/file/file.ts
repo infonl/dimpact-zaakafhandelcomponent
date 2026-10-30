@@ -6,7 +6,6 @@
 
 import { AsyncPipe } from "@angular/common";
 import {
-  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   computed,
@@ -41,7 +40,6 @@ import { SingleInputFormField } from "../BaseFormField";
   templateUrl: "./file.html",
   styleUrls: ["./file.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     AsyncPipe,
     CapitalizeFirstLetterPipe,
@@ -55,9 +53,9 @@ import { SingleInputFormField } from "../BaseFormField";
   ],
 })
 export class ZacFile<
-    Form extends Record<string, AbstractControl>,
-    Key extends keyof Form,
-  >
+  Form extends Record<string, AbstractControl>,
+  Key extends keyof Form,
+>
   extends SingleInputFormField<Form, Key, File>
   implements OnInit, OnDestroy
 {
