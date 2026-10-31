@@ -3,12 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-  output,
-} from "@angular/core";
+import { Component, input, output } from "@angular/core";
 import { MatIconButton } from "@angular/material/button";
 import { MatDialogContent } from "@angular/material/dialog";
 import { MatDivider } from "@angular/material/divider";
@@ -26,7 +21,6 @@ import { TranslatePipe } from "@ngx-translate/core";
   selector: "zac-generic-dialog",
   templateUrl: "./generic-dialog.component.html",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatToolbar,
     MatIcon,

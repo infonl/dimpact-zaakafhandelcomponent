@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { Component, inject, signal } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
   MAT_DIALOG_DATA,
@@ -32,7 +32,6 @@ export type RedenDialogData = {
 @Component({
   templateUrl: "./reden-dialog-form.component.html",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     GenericDialogComponent,
@@ -48,7 +47,7 @@ export class RedenDialogFormComponent {
   protected readonly data = inject<RedenDialogData>(MAT_DIALOG_DATA);
   private readonly formBuilder = inject(FormBuilder);
 
-  protected loading = false;
+  protected readonly loading = signal(false);
   protected readonly label = this.data.label ?? "reden";
   protected readonly submitLabel =
     this.data.confirmButtonActionKey ?? "actie.ja";
@@ -65,7 +64,7 @@ export class RedenDialogFormComponent {
   });
 
   protected submit() {
-    if (!this.form.valid || !this.form.dirty || this.loading) return;
+    if (!this.form.valid || !this.form.dirty || this.loading()) return;
 
     const reden = this.form.controls.reden.value ?? "";
     if (!this.data.callback) {
@@ -74,7 +73,7 @@ export class RedenDialogFormComponent {
     }
 
     this.dialogRef.disableClose = true;
-    this.loading = true;
+    this.loading.set(true);
     this.data.callback(reden).subscribe({
       next: (result) => this.dialogRef.close(result ?? true),
       error: () => this.dialogRef.close(false),
@@ -82,7 +81,7 @@ export class RedenDialogFormComponent {
   }
 
   protected close() {
-    if (this.loading) return;
+    if (this.loading()) return;
     this.dialogRef.close(false);
   }
 }

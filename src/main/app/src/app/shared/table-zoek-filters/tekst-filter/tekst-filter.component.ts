@@ -3,14 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-  linkedSignal,
-  OnInit,
-  output,
-} from "@angular/core";
+import { Component, input, linkedSignal, OnInit, output } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
@@ -21,7 +14,6 @@ import { MatInputModule } from "@angular/material/input";
   templateUrl: "./tekst-filter.component.html",
   styleUrls: ["./tekst-filter.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule,

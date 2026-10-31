@@ -3,12 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-  Signal,
-} from "@angular/core";
+import { Component, input, Signal } from "@angular/core";
 import { IndicatieItem } from "../model/indicatie-item";
 
 export enum IndicatiesLayout {
@@ -19,7 +14,6 @@ export enum IndicatiesLayout {
 
 @Component({
   template: "",
-  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export abstract class IndicatiesComponent {

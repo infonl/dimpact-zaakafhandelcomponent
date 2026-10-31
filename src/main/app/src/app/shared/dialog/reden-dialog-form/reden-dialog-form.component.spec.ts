@@ -136,7 +136,7 @@ describe(RedenDialogFormComponent.name, () => {
 
   it("close() does nothing while loading", () => {
     const { component, dialogRefMock } = setup();
-    component["loading"] = true;
+    component["loading"].set(true);
 
     component["close"]();
 
