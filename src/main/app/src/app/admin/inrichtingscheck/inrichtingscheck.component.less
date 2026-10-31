@@ -1,0 +1,68 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+@import "../../../variables";
+
+.detail {
+  overflow: hidden;
+}
+
+.main-row td {
+  border-bottom-width: 0;
+}
+
+tr.detail-row {
+  height: 0;
+  background-color: @table-hover-background-color;
+
+  .detail div {
+    width: 100%;
+    border-bottom: 1px solid @border-color;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+}
+
+td.mat-mdc-cell {
+  border-color: @border-color;
+}
+
+p {
+  padding-left: 24px;
+}
+
+.mat-expansion-panel-header {
+  margin-top: 5px;
+  margin-bottom: 5px;
+
+  mat-icon {
+    margin-right: 10px;
+  }
+
+  .mat-expansion-panel-header-title {
+    margin-left: 0;
+  }
+}
+
+.cdk-column-valide,
+.cdk-column-valideFilter {
+  width: 5%;
+}
+
+cdk-column-expand {
+  width: 5%;
+}
+
+.cdk-column-zaaktypeOmschrijving {
+  width: 30%;
+}
+
+.cdk-column-zaaktypeDoel {
+  width: 40%;
+}
+
+.cdk-column-beginGeldigheid {
+  width: 20%;
+}

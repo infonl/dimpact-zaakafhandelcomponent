@@ -1,0 +1,72 @@
+{{- if .Values.opa.enabled }}
+{{- if not .Values.opa.sidecar }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "zaakafhandelcomponent.opa.fullname" . }}
+  labels:
+    {{- include "zaakafhandelcomponent.opa.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.opa.autoscaling.enabled }}
+  replicas: {{ .Values.opa.replicas }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "zaakafhandelcomponent.opa.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+      {{- with .Values.opa.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "zaakafhandelcomponent.opa.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.opa.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "zaakafhandelcomponent.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.opa.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Values.opa.name }}
+          image: "{{ .Values.opa.image.repository }}:{{ .Values.opa.image.tag }}"
+          imagePullPolicy: {{ .Values.opa.image.pullPolicy }}
+          resources: 
+            {{- toYaml .Values.opa.resources | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: 8181
+          args:
+            - run
+            - --server
+            - --addr=0.0.0.0:8181
+            - --ignore=.*  # exclude hidden dirs created by Kubernetes
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              port: 8181
+            initialDelaySeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health?bundle=true  # Include bundle activation in readiness
+              scheme: HTTP
+              port: 8181
+            initialDelaySeconds: 5
+      {{- with .Values.opa.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.opa.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.opa.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,24 @@
+{{- if .Values.opa.enabled }}
+{{- if not .Values.opa.sidecar }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "zaakafhandelcomponent.opa.fullname" . }}
+  labels:
+    {{- include "zaakafhandelcomponent.opa.labels" . | nindent 4 }}
+  {{- with .Values.opa.service.annotations }}
+  annotations:
+    {{- range $key, $value := . }}
+    {{ $key }} : {{ tpl ($value | toString) $ }}
+    {{- end }}
+  {{- end }}
+spec:
+  type: {{ .Values.opa.service.type }}
+  ports:
+    - port: {{ .Values.opa.service.port }}
+      name: http
+      targetPort: http
+  selector:
+    {{- include "zaakafhandelcomponent.opa.selectorLabels" . | nindent 4 }}
+{{- end }}
+{{- end }}
