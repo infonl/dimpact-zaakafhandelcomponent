@@ -1,0 +1,39 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  <span class="flex-grow-1">
+    {{
+      "ontkoppelde-documenten.bulk.fouten." + data.actie + ".titel"
+        | i18nKey
+        | translate
+    }}
+  </span>
+</mat-toolbar>
+<mat-divider></mat-divider>
+
+<div mat-dialog-content>
+  <ul>
+    @for (failure of data.mislukt; track failure.id) {
+      <li>
+        <strong>{{ failure.titel }}</strong
+        >:
+        {{
+          "ontkoppelde-documenten.bulk.foutcode." +
+            (failure.foutcode === "OPEN_ZAAK_FOUT" ? data.actie + "." : "") +
+            failure.foutcode
+            | i18nKey
+            | translate
+        }}
+      </li>
+    }
+  </ul>
+</div>
+
+<div mat-dialog-actions>
+  <button mat-raised-button color="primary" mat-dialog-close>
+    {{ "actie.sluiten" | translate }}
+  </button>
+</div>

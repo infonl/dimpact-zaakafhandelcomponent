@@ -31,6 +31,7 @@ import {
   LINKABLE_ZAKEN_PAGINATION_SIZE,
   ZoekenService,
 } from "src/app/zoeken/zoeken.service";
+import { OntkoppeldeDocumentenService } from "../../documenten/ontkoppelde-documenten.service";
 import { ZacInput } from "../../shared/form/input/input";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { runQuery } from "../../shared/http/run-query";
@@ -66,6 +67,9 @@ export class InformatieObjectLinkComponent {
   private readonly zoekenService = inject(ZoekenService);
   private readonly informatieObjectService = inject(InformatieObjectenService);
   private readonly utilService = inject(UtilService);
+  private readonly ontkoppeldeDocumentenService = inject(
+    OntkoppeldeDocumentenService,
+  );
   private readonly translate = inject(TranslateService);
   private readonly formBuilder = inject(FormBuilder);
 
@@ -74,6 +78,7 @@ export class InformatieObjectLinkComponent {
     | "RestInboxDocument"
     | "RestEnkelvoudigInformatieobject"
   > | null>(null);
+  readonly bulkDocuments = input<GeneratedType<"RestDetachedDocument">[]>([]);
   readonly sideNav = input.required<MatDrawer>();
   readonly source = input.required<string>();
   readonly actionLabel = input.required<DocumentAction>();
@@ -82,6 +87,16 @@ export class InformatieObjectLinkComponent {
   protected loading = false;
 
   protected readonly intro = computed(() => {
+    const bulkDocuments = this.bulkDocuments();
+    if (bulkDocuments.length > 0) {
+      return this.translate.instant(
+        `informatieobject.koppelen.bulk.uitleg${bulkDocuments.length === 1 ? ".enkelvoud" : ""}`,
+        {
+          aantal: bulkDocuments.length,
+        },
+      );
+    }
+
     const infoObject: Partial<
       Record<
         "identificatie" | "documentID" | "enkelvoudiginformatieobjectID",
@@ -125,6 +140,10 @@ export class InformatieObjectLinkComponent {
     this.informatieObjectService.linkDocumentToCaseMutation(),
   );
 
+  protected readonly linkListMutation = injectMutation(() =>
+    this.ontkoppeldeDocumentenService.linkList(),
+  );
+
   private readonly queryClient = inject(QueryClient);
 
   constructor() {
@@ -166,7 +185,16 @@ export class InformatieObjectLinkComponent {
   }
 
   protected selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
-    if (this.linkDocumentMutation.isPending()) return;
+    if (
+      this.linkDocumentMutation.isPending() ||
+      this.linkListMutation.isPending()
+    )
+      return;
+
+    if (this.bulkDocuments().length > 0) {
+      this.linkBulkDocuments(row);
+      return;
+    }
 
     this.linkDocumentMutation.mutate(
       {
@@ -194,8 +222,36 @@ export class InformatieObjectLinkComponent {
 
   protected isLinking(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
     return (
-      this.linkDocumentMutation.isPending() &&
-      this.linkDocumentMutation.variables()?.nieuweZaakID === row.identificatie
+      (this.linkListMutation.isPending() &&
+        this.linkListMutation.variables()?.nieuweZaakID ===
+          row.identificatie) ||
+      (this.linkDocumentMutation.isPending() &&
+        this.linkDocumentMutation.variables()?.nieuweZaakID ===
+          row.identificatie)
+    );
+  }
+
+  private linkBulkDocuments(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
+    const selectedDocuments = this.bulkDocuments();
+    this.linkListMutation.mutate(
+      {
+        ids: selectedDocuments.map(({ id }) => id!),
+        nieuweZaakID: row.identificatie ?? "",
+      },
+      {
+        onSuccess: (result) => {
+          this.ontkoppeldeDocumentenService.reportBulkResult(
+            result,
+            "koppelen",
+            selectedDocuments,
+            {
+              case: row.identificatie,
+            },
+          );
+          this.close();
+          this.informationObjectLinked.emit();
+        },
+      },
     );
   }
 

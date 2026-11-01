@@ -9,14 +9,14 @@
 
 ## 2. Frontend
 
-- [ ] 2.1 `OntkoppeldeDocumentenService`: mutations for both bulk endpoints that invalidate the list query.
-- [ ] 2.2 List component: `select` column, master toggle, selection cleared on page, sort and filter change.
-- [ ] 2.3 *Verwijderen* and *Koppelen* buttons with badges; confirm dialog; bulk mode in `InformatieObjectLinkComponent`.
-- [ ] 2.4 Snackbar for the result and a dialog listing failed documents.
-- [ ] 2.5 Translations in `nl.json` and `en.json`.
-- [ ] 2.6 Specs for the component, service and link component; an e2e step if the list is covered today.
+- [x] 2.1 `OntkoppeldeDocumentenService`: mutations for both bulk endpoints that invalidate the list query.
+- [x] 2.2 List component: `select` column, master toggle, selection cleared on page, sort and filter change.
+- [x] 2.3 *Verwijderen* and *Koppelen* buttons with badges; confirm dialog; bulk mode in `InformatieObjectLinkComponent`.
+- [x] 2.4 Snackbar for the result and a dialog listing failed documents.
+- [x] 2.5 Translations in `nl.json` and `en.json`.
+- [x] 2.6 Specs for the component, service and link component; an e2e step if the list is covered today.
 
 ## 3. Wrap-up
 
-- [ ] 3.1 Update the gebruikershandleiding.
-- [ ] 3.2 Run the linters and tests.
+- [x] 3.1 Update the gebruikershandleiding.
+- [x] 3.2 Run the linters and tests.

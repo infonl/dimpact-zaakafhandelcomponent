@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { SelectionModel } from "@angular/cdk/collections";
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -13,7 +14,13 @@ import {
   OnInit,
   viewChild,
 } from "@angular/core";
-import { MatIconAnchor, MatIconButton } from "@angular/material/button";
+import {
+  MatButton,
+  MatIconAnchor,
+  MatIconButton,
+} from "@angular/material/button";
+import { MatCheckbox } from "@angular/material/checkbox";
+import { MatBadge } from "@angular/material/badge";
 import { MatDialog } from "@angular/material/dialog";
 import { MatFormField } from "@angular/material/form-field";
 import { MatIcon } from "@angular/material/icon";
@@ -92,8 +99,11 @@ import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service"
     MatSort,
     MatSortHeader,
     MatPaginator,
+    MatButton,
     MatIconButton,
     MatIconAnchor,
+    MatCheckbox,
+    MatBadge,
     MatIcon,
     MatFormField,
     MatSelect,
@@ -128,7 +138,7 @@ export class OntkoppeldeDocumentenListComponent
   readonly sort = viewChild.required(MatSort);
   readonly actionsSidenav = viewChild.required<MatDrawer>("actionsSidenav");
 
-  protected readonly displayedColumns = [
+  private readonly dataColumns = [
     "titel",
     "creatiedatum",
     "zaakID",
@@ -137,7 +147,7 @@ export class OntkoppeldeDocumentenListComponent
     "reden",
     "actions",
   ] as const;
-  protected readonly filterColumns = [
+  private readonly dataFilterColumns = [
     "titel_filter",
     "creatiedatum_filter",
     "zaakID_filter",
@@ -146,6 +156,14 @@ export class OntkoppeldeDocumentenListComponent
     "reden_filter",
     "actions_filter",
   ] as const;
+  protected get displayedColumns() {
+    return this.canSelect ? ["select", ...this.dataColumns] : this.dataColumns;
+  }
+  protected get filterColumns() {
+    return this.canSelect
+      ? ["select_filter", ...this.dataFilterColumns]
+      : this.dataFilterColumns;
+  }
   protected listParameters: PutBody<"/rest/ontkoppeldedocumenten"> = {};
   protected readonly listParametersSort: {
     sort: keyof PutBody<"/rest/ontkoppeldedocumenten">;
@@ -161,12 +179,24 @@ export class OntkoppeldeDocumentenListComponent
   protected clearZoekopdracht = new EventEmitter<void>();
   protected selectedInformationObject: GeneratedType<"RestDetachedDocument"> | null =
     null;
+  protected readonly selection = new SelectionModel<
+    GeneratedType<"RestDetachedDocument">
+  >(true, []);
+  protected selectedDocumentsToLink: GeneratedType<"RestDetachedDocument">[] =
+    [];
   private readonly deleteMutation = injectMutation(
     () => this.ontkoppeldeDocumentenService.delete(),
     {
       onSuccess: () => this.filterChange.emit(),
     },
   );
+  protected readonly deleteListMutation = injectMutation(() =>
+    this.ontkoppeldeDocumentenService.deleteList(),
+  );
+
+  protected get canSelect() {
+    return !!this.werklijstRechten?.canOntkoppeldeDocumentenVerwijderen;
+  }
 
   ngOnInit() {
     super.ngOnInit();
@@ -186,6 +216,7 @@ export class OntkoppeldeDocumentenListComponent
       .pipe(
         startWith({}),
         switchMap(() => {
+          this.selection.clear();
           this.isLoadingResults = true;
           this.utilService.setLoading(true);
           this.updateListParameters();
@@ -213,6 +244,7 @@ export class OntkoppeldeDocumentenListComponent
   protected openDrawer(
     selectedInformationObject: GeneratedType<"RestDetachedDocument">,
   ) {
+    this.selectedDocumentsToLink = [];
     this.selectedInformationObject = selectedInformationObject;
     void this.actionsSidenav().open();
   }
@@ -251,6 +283,72 @@ export class OntkoppeldeDocumentenListComponent
           this.deleteMutation.mutate(detachedDocument);
         }
       });
+  }
+
+  protected isAllSelected() {
+    return (
+      this.dataSource.data.length > 0 &&
+      this.selection.selected.length === this.dataSource.data.length
+    );
+  }
+
+  protected masterToggle() {
+    if (this.isAllSelected()) {
+      this.selection.clear();
+      return;
+    }
+
+    this.selection.select(...this.dataSource.data);
+  }
+
+  protected checkboxLabel(
+    detachedDocument?: GeneratedType<"RestDetachedDocument">,
+  ) {
+    if (!detachedDocument) {
+      return `actie.alles.${this.isAllSelected() ? "deselecteren" : "selecteren"}`;
+    }
+
+    return `actie.${
+      this.selection.isSelected(detachedDocument)
+        ? "deselecteren"
+        : "selecteren"
+    }`;
+  }
+
+  protected documentenVerwijderen() {
+    const selectedDocuments = [...this.selection.selected];
+    const ids = selectedDocuments.map(({ id }) => id!);
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: new ConfirmDialogData({
+          key: `msg.ontkoppelde-documenten.bulk.verwijderen.bevestigen${ids.length === 1 ? ".enkelvoud" : ""}`,
+          args: { aantal: ids.length },
+        }),
+      })
+      .afterClosed()
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+
+        this.deleteListMutation.mutate(
+          { ids },
+          {
+            onSuccess: (result) => {
+              this.ontkoppeldeDocumentenService.reportBulkResult(
+                result,
+                "verwijderen",
+                selectedDocuments,
+              );
+              this.filterChange.emit();
+            },
+          },
+        );
+      });
+  }
+
+  protected documentenKoppelen() {
+    this.selectedDocumentsToLink = [...this.selection.selected];
+    this.selectedInformationObject = this.selectedDocumentsToLink[0];
+    void this.actionsSidenav().open();
   }
 
   protected filtersChanged() {

@@ -14,6 +14,7 @@ import {
 } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
+import { MatDialog } from "@angular/material/dialog";
 import { MatPaginatorIntl } from "@angular/material/paginator";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
@@ -376,5 +377,270 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
     fixture.detectChanges();
 
     expect(screen.getByText("informatieobject.koppelen.uitleg")).toBeVisible();
+  });
+
+  describe("selecting documents", () => {
+    const secondDetachedDocument = fromPartial<
+      GeneratedType<"RestDetachedDocument">
+    >({
+      ...detachedDocument,
+      id: 43,
+      titel: "Tweede formulier",
+      documentUUID: "fakeDocumentUuid2",
+    });
+
+    function queryBulkButton(name: string) {
+      const rowButtons = screen
+        .queryAllByRole("row")
+        .flatMap((row) => within(row).queryAllByRole("button", { name }));
+      return (
+        screen
+          .queryAllByRole("button", { name })
+          .find((button) => !rowButtons.includes(button)) ?? null
+      );
+    }
+
+    function bulkButton(name: string) {
+      const button = queryBulkButton(name);
+      if (!button) throw new Error(`No bulk button "${name}"`);
+      return button;
+    }
+
+    function selectAllCheckbox() {
+      return screen.getByRole("checkbox", { name: /actie.alles/ });
+    }
+
+    async function showTwoDocuments(totaal = 2) {
+      await setup();
+      await showDocuments([detachedDocument, secondDetachedDocument], totaal);
+    }
+
+    it("offers no selection without the right to delete ontkoppelde documenten", async () => {
+      await setup(fromPartial({ canOntkoppeldeDocumentenVerwijderen: false }));
+      await showDocuments([detachedDocument]);
+
+      expect(screen.queryByRole("checkbox")).toBeNull();
+    });
+
+    it("selects every document on the page with the select all checkbox", async () => {
+      await showTwoDocuments();
+
+      await user.click(selectAllCheckbox());
+
+      expect(selectAllCheckbox()).toBeChecked();
+      expect(
+        within(documentRow()).getByRole("checkbox", {
+          name: "actie.deselecteren",
+        }),
+      ).toBeChecked();
+    });
+
+    it("shows the select all checkbox as indeterminate when only some rows are selected", async () => {
+      await showTwoDocuments();
+
+      await user.click(
+        within(documentRow()).getByRole("checkbox", {
+          name: "actie.selecteren",
+        }),
+      );
+
+      expect(selectAllCheckbox()).toBePartiallyChecked();
+    });
+
+    it("offers no bulk actions while nothing is selected", async () => {
+      await showTwoDocuments();
+
+      expect(queryBulkButton("actie.verwijderen")).toBeNull();
+      expect(queryBulkButton("actie.koppelen")).toBeNull();
+    });
+
+    it("shows the number of selected documents on the bulk actions", async () => {
+      await showTwoDocuments();
+
+      await user.click(selectAllCheckbox());
+
+      const verwijderen = bulkButton("actie.verwijderen");
+      expect(within(verwijderen).getByText("2")).toBeVisible();
+      expect(within(bulkButton("actie.koppelen")).getByText("2")).toBeVisible();
+    });
+
+    it("clears the selection when the page changes", async () => {
+      await showTwoDocuments(30);
+      await user.click(selectAllCheckbox());
+
+      await user.click(
+        screen.getByRole("button", { name: "actie.pagina.volgende" }),
+      );
+      await showDocuments([detachedDocument, secondDetachedDocument], 30);
+
+      expect(selectAllCheckbox()).not.toBeChecked();
+      expect(queryBulkButton("actie.verwijderen")).toBeNull();
+    });
+
+    it("clears the selection when the sorting changes", async () => {
+      await showTwoDocuments();
+      await user.click(selectAllCheckbox());
+
+      await user.click(screen.getByRole("columnheader", { name: "titel" }));
+      await showDocuments([detachedDocument, secondDetachedDocument]);
+
+      expect(selectAllCheckbox()).not.toBeChecked();
+    });
+
+    it("clears the selection when a filter changes", async () => {
+      await showTwoDocuments();
+      await user.click(selectAllCheckbox());
+
+      const [titelFilter] = screen.getAllByPlaceholderText("...");
+      await user.type(titelFilter, "Aanvraag{Enter}");
+      await showDocuments([detachedDocument, secondDetachedDocument]);
+
+      expect(selectAllCheckbox()).not.toBeChecked();
+    });
+
+    describe("deleting the selection", () => {
+      const BULK_DELETE_URL = "/rest/ontkoppeldedocumenten/lijst/verwijderen";
+      let openDialog: jest.SpyInstance;
+
+      async function selectBothAndPressVerwijderen() {
+        await showTwoDocuments();
+        await user.click(selectAllCheckbox());
+        openDialog = jest.spyOn(TestBed.inject(MatDialog), "open");
+        await user.click(bulkButton("actie.verwijderen"));
+      }
+
+      it("asks for confirmation with the number of documents before deleting", async () => {
+        await selectBothAndPressVerwijderen();
+
+        expect(
+          screen.getByText(
+            "msg.ontkoppelde-documenten.bulk.verwijderen.bevestigen",
+          ),
+        ).toBeVisible();
+        expect(openDialog.mock.calls[0][1].data._melding.args).toEqual({
+          aantal: 2,
+        });
+        httpTestingController.expectNone(BULK_DELETE_URL);
+      });
+
+      it("uses the singular text when one document is selected", async () => {
+        await showTwoDocuments();
+        await user.click(
+          within(documentRow()).getByRole("checkbox", {
+            name: "actie.selecteren",
+          }),
+        );
+
+        await user.click(bulkButton("actie.verwijderen"));
+
+        expect(
+          screen.getByText(
+            "msg.ontkoppelde-documenten.bulk.verwijderen.bevestigen.enkelvoud",
+          ),
+        ).toBeVisible();
+      });
+
+      it("deletes nothing and keeps the selection when the confirmation is cancelled", async () => {
+        await selectBothAndPressVerwijderen();
+
+        await user.click(screen.getByRole("button", { name: "actie.nee" }));
+        await sleep();
+
+        httpTestingController.expectNone(BULK_DELETE_URL);
+        expect(selectAllCheckbox()).toBeChecked();
+      });
+
+      it("deletes the selected documents in one request once confirmed", async () => {
+        await selectBothAndPressVerwijderen();
+
+        await user.click(screen.getByRole("button", { name: "actie.ja" }));
+        await sleep();
+
+        const request = httpTestingController.expectOne(BULK_DELETE_URL);
+        expect(request.request.method).toBe("PUT");
+        expect(request.request.body).toEqual({ ids: [42, 43] });
+        request.flush({ verwerkt: [42, 43], mislukt: [] });
+      });
+
+      it("reports the number of deleted documents and reloads the list", async () => {
+        await selectBothAndPressVerwijderen();
+        await user.click(screen.getByRole("button", { name: "actie.ja" }));
+        await sleep();
+
+        httpTestingController
+          .expectOne(BULK_DELETE_URL)
+          .flush({ verwerkt: [42, 43], mislukt: [] });
+        await sleep();
+
+        expect(TestBed.inject(UtilService).openSnackbar).toHaveBeenCalledWith(
+          "msg.ontkoppelde-documenten.bulk.verwijderen.uitgevoerd",
+          { aantal: 2 },
+        );
+        const reloads = listRequests();
+        expect(reloads.length).toBeGreaterThan(0);
+        reloads.forEach((request) =>
+          request.flush({ totaal: 0, resultaten: [] }),
+        );
+      });
+
+      it("tells which document failed and why, while the others are deleted", async () => {
+        await selectBothAndPressVerwijderen();
+        await user.click(screen.getByRole("button", { name: "actie.ja" }));
+        await sleep();
+
+        httpTestingController.expectOne(BULK_DELETE_URL).flush({
+          verwerkt: [42],
+          mislukt: [
+            { id: 43, titel: "Tweede formulier", foutcode: "VERGRENDELD" },
+          ],
+        });
+        await sleep();
+        fixture.detectChanges();
+
+        const dialog = screen.getByRole("dialog");
+        expect(within(dialog).getByText("Tweede formulier")).toBeVisible();
+        expect(
+          within(dialog).getByText(
+            /ontkoppelde-documenten.bulk.foutcode.vergrendeld/,
+          ),
+        ).toBeVisible();
+      });
+
+      it("shows the delete specific text when Open Zaak refuses a deletion", async () => {
+        await selectBothAndPressVerwijderen();
+        await user.click(screen.getByRole("button", { name: "actie.ja" }));
+        await sleep();
+
+        httpTestingController.expectOne(BULK_DELETE_URL).flush({
+          verwerkt: [42],
+          mislukt: [
+            { id: 43, titel: "Tweede formulier", foutcode: "OPEN_ZAAK_FOUT" },
+          ],
+        });
+        await sleep();
+        fixture.detectChanges();
+
+        expect(
+          within(screen.getByRole("dialog")).getByText(
+            /ontkoppelde-documenten.bulk.foutcode.verwijderen.open-zaak-fout/,
+          ),
+        ).toBeVisible();
+      });
+    });
+
+    describe("linking the selection", () => {
+      it("opens the koppelen drawer for all selected documents", async () => {
+        await showTwoDocuments();
+        await user.click(selectAllCheckbox());
+
+        await user.click(bulkButton("actie.koppelen"));
+        await sleep();
+        fixture.detectChanges();
+
+        expect(
+          screen.getByText("informatieobject.koppelen.bulk.uitleg"),
+        ).toBeVisible();
+      });
+    });
   });
 });
