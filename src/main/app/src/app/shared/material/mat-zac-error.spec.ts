@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { Component } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { EnhanceMatErrorDirective } from "./mat-zac-error";
@@ -11,7 +11,6 @@ import { EnhanceMatErrorDirective } from "./mat-zac-error";
 @Component({
   standalone: true,
   template: `<span appEnhanceMatError>Some error message</span>`,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [EnhanceMatErrorDirective],
 })
 class TestHostComponent {}

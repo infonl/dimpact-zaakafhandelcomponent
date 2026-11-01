@@ -14,7 +14,7 @@ import { RouterModule } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
 import { screen, waitFor, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { of } from "rxjs";
+import { catchError, EMPTY, of, Subject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { ButtonMenuItem } from "./menu-item/button-menu-item";
 import { HrefMenuItem } from "./menu-item/href-menu-item";
@@ -239,7 +239,7 @@ describe(SideNavComponent.name, () => {
         icon: "folder",
       } as MenuItem;
 
-      component["menuMode"] = MenuMode.CLOSED;
+      component["menuMode"].set(MenuMode.CLOSED);
       component["menuState"].set(MenuState.CLOSED);
       fixture.componentRef.setInput("menu", [headerItem]);
       fixture.detectChanges();
@@ -256,7 +256,7 @@ describe(SideNavComponent.name, () => {
         title: "test.header",
       } as MenuItem;
 
-      component["menuMode"] = MenuMode.CLOSED;
+      component["menuMode"].set(MenuMode.CLOSED);
       component["menuState"].set(MenuState.CLOSED);
       fixture.componentRef.setInput("menu", [headerItem]);
       fixture.detectChanges();
@@ -412,6 +412,47 @@ describe(SideNavComponent.name, () => {
         expect(utilServiceMock.setLoading).toHaveBeenCalledWith(false);
       });
     });
+
+    it.each([
+      ["completes", (action: Subject<void>) => action.complete()],
+      ["fails", (action: Subject<void>) => action.error(new Error("fake"))],
+    ])(
+      "shows the button enabled again once a slow async action %s",
+      async (_, settle) => {
+        const action = new Subject<void>();
+        const asyncButtonItem = new AsyncButtonMenuItem(
+          "test.async",
+          () => action.pipe(catchError(() => EMPTY)),
+          "cloud",
+        );
+        fixture.componentRef.setInput("menu", [asyncButtonItem]);
+        fixture.detectChanges();
+        fixture.autoDetectChanges();
+        const button = screen.getByRole("button", { name: "test.async" });
+
+        await user.click(button);
+        await waitFor(() => expect(button).toBeDisabled());
+        settle(action);
+
+        await waitFor(() => expect(button).not.toBeDisabled());
+      },
+    );
+
+    it("shows a button enabled again when code re-enables it later", async () => {
+      const buttonItem = new ButtonMenuItem("test.button", jest.fn(), "home");
+      buttonItem.disabled = true;
+      fixture.componentRef.setInput("menu", [buttonItem]);
+      fixture.detectChanges();
+      fixture.autoDetectChanges();
+
+      buttonItem.disabled = false;
+
+      await waitFor(() =>
+        expect(
+          screen.getByRole("button", { name: "test.button" }),
+        ).not.toBeDisabled(),
+      );
+    });
   });
 
   describe("menu toggle functionality", () => {
@@ -428,10 +469,10 @@ describe(SideNavComponent.name, () => {
       const modeSpy = jest.fn();
       component["mode"].subscribe(modeSpy);
 
-      component["menuMode"] = MenuMode.CLOSED;
+      component["menuMode"].set(MenuMode.CLOSED);
       component.toggleMenu();
 
-      expect(component["menuMode"]).toBe(MenuMode.AUTO);
+      expect(component["menuMode"]()).toBe(MenuMode.AUTO);
       expect(modeSpy).toHaveBeenCalledWith("over");
     });
 
@@ -439,10 +480,10 @@ describe(SideNavComponent.name, () => {
       const modeSpy = jest.fn();
       component["mode"].subscribe(modeSpy);
 
-      component["menuMode"] = MenuMode.AUTO;
+      component["menuMode"].set(MenuMode.AUTO);
       component.toggleMenu();
 
-      expect(component["menuMode"]).toBe(MenuMode.OPEN);
+      expect(component["menuMode"]()).toBe(MenuMode.OPEN);
       expect(modeSpy).toHaveBeenCalledWith("side");
     });
 
@@ -450,38 +491,38 @@ describe(SideNavComponent.name, () => {
       const modeSpy = jest.fn();
       component["mode"].subscribe(modeSpy);
 
-      component["menuMode"] = MenuMode.OPEN;
+      component["menuMode"].set(MenuMode.OPEN);
       component.toggleMenu();
 
-      expect(component["menuMode"]).toBe(MenuMode.CLOSED);
+      expect(component["menuMode"]()).toBe(MenuMode.CLOSED);
       expect(modeSpy).toHaveBeenCalledWith("side");
     });
   });
 
   describe("menu hover behavior", () => {
     it("should open menu on mouse enter when in AUTO mode", () => {
-      component["menuMode"] = MenuMode.AUTO;
+      component["menuMode"].set(MenuMode.AUTO);
       component.mouseEnter();
 
       expect(component["menuState"]()).toBe(MenuState.OPEN);
     });
 
     it("should close menu on mouse leave when in AUTO mode", () => {
-      component["menuMode"] = MenuMode.AUTO;
+      component["menuMode"].set(MenuMode.AUTO);
       component.mouseLeave();
 
       expect(component["menuState"]()).toBe(MenuState.CLOSED);
     });
 
     it("should keep menu open on mouse leave when in OPEN mode", () => {
-      component["menuMode"] = MenuMode.OPEN;
+      component["menuMode"].set(MenuMode.OPEN);
       component.mouseLeave();
 
       expect(component["menuState"]()).toBe(MenuState.OPEN);
     });
 
     it("should keep menu closed on mouse enter when in CLOSED mode", () => {
-      component["menuMode"] = MenuMode.CLOSED;
+      component["menuMode"].set(MenuMode.CLOSED);
       component.mouseEnter();
 
       expect(component["menuState"]()).toBe(MenuState.CLOSED);
