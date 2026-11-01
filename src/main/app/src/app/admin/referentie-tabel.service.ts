@@ -8,7 +8,6 @@ import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
 import { PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
@@ -16,14 +15,9 @@ import { GeneratedType } from "../shared/utils/generated-types";
   providedIn: "root",
 })
 export class ReferentieTabelService {
-  private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly queryClient = inject(QueryClient, { optional: true });
   private readonly utilService = inject(UtilService);
-
-  listReferentieTabellen() {
-    return this.zacHttpClient.GET("/rest/referentietabellen");
-  }
 
   listReferentieTabellenQuery() {
     return this.zacQueryClient.GET("/rest/referentietabellen");
@@ -48,6 +42,11 @@ export class ReferentieTabelService {
         queryKey: this.readReferentieTabelQuery(id).queryKey,
       }),
     ]);
+  }
+
+  private invalidateCommunicatiekanalen() {
+    const [url] = this.listCommunicatiekanalen().queryKey;
+    return this.queryClient?.invalidateQueries({ queryKey: [url] });
   }
 
   createReferentieTabelMutation() {
@@ -86,6 +85,9 @@ export class ReferentieTabelService {
       {
         onSuccess: (_data, body) => {
           void this.invalidateReferentieTabel(id);
+          if (referenceTable.code === "COMMUNICATIEKANAAL") {
+            void this.invalidateCommunicatiekanalen();
+          }
           const { key, args } = message(body);
           this.utilService.openSnackbar(key, args);
         },
@@ -184,12 +186,10 @@ export class ReferentieTabelService {
     return this.zacQueryClient.GET("/rest/referentietabellen/afzender");
   }
 
-  listCommunicatiekanalen(inclusiefEFormulier?: boolean) {
-    return this.zacHttpClient.GET(
+  listCommunicatiekanalen(inclusiefEFormulier = false) {
+    return this.zacQueryClient.GET(
       "/rest/referentietabellen/communicatiekanaal/{inclusiefEFormulier}",
-      {
-        path: { inclusiefEFormulier: inclusiefEFormulier ?? false },
-      },
+      { path: { inclusiefEFormulier } },
     );
   }
 
