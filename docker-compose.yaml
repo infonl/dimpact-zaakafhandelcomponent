@@ -4,7 +4,7 @@
 #
 services:
   keycloak-database:
-    image: postgres:17.11@sha256:d74eeac9a635390a49bc21bd49fccd973de707e2a53a76ac49b552b8712ec46f
+    image: postgres:17.11@sha256:31ba9c94a03ada9988f2bb493a22a75eef3a185884533e5cdbcd498ea835b08f
     ports:
       - "54326:5432"
     healthcheck:
@@ -325,7 +325,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: postgres:17.11@sha256:d74eeac9a635390a49bc21bd49fccd973de707e2a53a76ac49b552b8712ec46f
+    image: postgres:17.11@sha256:31ba9c94a03ada9988f2bb493a22a75eef3a185884533e5cdbcd498ea835b08f
     ports:
       - "54325:5432"
     healthcheck:
@@ -727,7 +727,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   pabc-database:
-    image: postgres:17.11@sha256:d74eeac9a635390a49bc21bd49fccd973de707e2a53a76ac49b552b8712ec46f
+    image: postgres:17.11@sha256:31ba9c94a03ada9988f2bb493a22a75eef3a185884533e5cdbcd498ea835b08f
     ports:
       - "54329:5432"
     environment:
@@ -793,7 +793,7 @@ services:
         condition: "service_completed_successfully"
 
   zac-database:
-    image: postgres:17.11@sha256:d74eeac9a635390a49bc21bd49fccd973de707e2a53a76ac49b552b8712ec46f
+    image: postgres:17.11@sha256:31ba9c94a03ada9988f2bb493a22a75eef3a185884533e5cdbcd498ea835b08f
     ports:
       - "54320:5432"
     healthcheck:
@@ -919,7 +919,7 @@ services:
     profiles: ["zac"]
 
   openformulieren-database:
-    image: postgres:17.11@sha256:d74eeac9a635390a49bc21bd49fccd973de707e2a53a76ac49b552b8712ec46f
+    image: postgres:17.11@sha256:31ba9c94a03ada9988f2bb493a22a75eef3a185884533e5cdbcd498ea835b08f
     ports:
       - "54330:5432"
     healthcheck:
@@ -1146,7 +1146,7 @@ services:
     profiles: [ "openformulieren" ]
 
   vng-selectielijst-database:
-    image: postgres:17.11@sha256:d74eeac9a635390a49bc21bd49fccd973de707e2a53a76ac49b552b8712ec46f
+    image: postgres:17.11@sha256:31ba9c94a03ada9988f2bb493a22a75eef3a185884533e5cdbcd498ea835b08f
     ports:
       - "54331:5432"
     healthcheck:
