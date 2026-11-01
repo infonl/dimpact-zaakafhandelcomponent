@@ -8,7 +8,7 @@ import { inject, Injectable, signal } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { Observable } from "rxjs";
+import { defer, Observable } from "rxjs";
 import { ActieOnmogelijkDialogComponent } from "src/app/fout-afhandeling/dialog/actie-onmogelijk-dialog.component";
 import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../../core/service/util.service";
@@ -139,8 +139,12 @@ export class ZaakActionDialogsService {
     this.onClosed(
       this.zaakDialogService
         .openAfbreken(
-          this.zaakafhandelParametersService.listZaakbeeindigRedenenForZaaktype(
-            zaak.zaaktype.uuid,
+          defer(() =>
+            this.queryClient.fetchQuery(
+              this.zaakafhandelParametersService.listZaakbeeindigRedenenForZaaktype(
+                zaak.zaaktype.uuid,
+              ),
+            ),
           ),
           (reden) =>
             runMutation(
