@@ -23,7 +23,6 @@ import {
   provideTanStackQuery,
 } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
@@ -126,9 +125,11 @@ describe(InformatieObjectAddComponent.name, () => {
     identityService = TestBed.inject(IdentityService);
 
     informatieObjectenService = TestBed.inject(InformatieObjectenService);
-    jest
-      .spyOn(informatieObjectenService, "listInformatieobjecttypesForZaak")
-      .mockReturnValue(of(mockInformatieObjectTypes));
+    testQueryClient.setQueryData(
+      informatieObjectenService.listInformatieobjecttypesForZaak(mockZaak.uuid)
+        .queryKey,
+      mockInformatieObjectTypes,
+    );
 
     httpTestingController = TestBed.inject(HttpTestingController);
 

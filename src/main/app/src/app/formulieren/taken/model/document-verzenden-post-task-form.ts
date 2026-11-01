@@ -7,7 +7,6 @@ import { inject, Injectable } from "@angular/core";
 import { Validators } from "@angular/forms";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { lastValueFrom } from "rxjs";
 import { mapStringToDocumentenStrings } from "../../../documenten/document-utils";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { FormField } from "../../../shared/form/composed-form/form-field.types";
@@ -24,7 +23,7 @@ export class DocumentVerzendenPostTaskForm extends AbstractTaskForm {
   private readonly queryClient = inject(QueryClient);
 
   async requestForm(zaak: GeneratedType<"RestZaak">): Promise<FormField[]> {
-    const documenten = await lastValueFrom(
+    const documenten = await this.queryClient.fetchQuery(
       this.informatieObjectenService.listInformatieobjectenVoorVerzenden(
         zaak.uuid,
       ),
