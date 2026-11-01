@@ -1002,6 +1002,7 @@
   "msg.vrijgeven.taken": "Release {{aantal}} tasks?",
   "msg.vrijgegeven.taken": "{{aantal}} tasks are being released...",
   "msg.vrijgegeven.taak": "The task is being released...",
+  "msg.verversen.mislukt": "Refresh failed. The data shown may be out of date.",
   "msg.zaak.afgebroken": "Case is aborted",
   "msg.zaak.afgesloten": "Case has been closed",
   "msg.zaak.brondatum.gezet": "Brondatum has been set",

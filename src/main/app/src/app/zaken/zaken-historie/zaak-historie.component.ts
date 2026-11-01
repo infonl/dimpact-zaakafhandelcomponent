@@ -23,6 +23,7 @@ import { I18nLabelPipe } from "../../shared/pipes/i18n-label.pipe";
 import { LocationPipe } from "../../shared/pipes/location.pipe";
 import { MimetypeToExtensionPipe } from "../../shared/pipes/mimetypeToExtension.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
+import { RefetchErrorHintComponent } from "../../shared/refetch-error-hint/refetch-error-hint.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
@@ -44,6 +45,7 @@ import { ZakenService } from "../zaken.service";
     LocationPipe,
     MimetypeToExtensionPipe,
     ReadMoreComponent,
+    RefetchErrorHintComponent,
   ],
 })
 export class ZaakHistorieComponent {
