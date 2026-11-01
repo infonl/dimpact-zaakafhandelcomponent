@@ -10,13 +10,14 @@
       [sideNav]="actionsSidenav"
       actionLabel="actie.document.koppelen"
       source="ontkoppelde-documenten"
+      [bulkDocuments]="selectedDocumentsToLink"
       (informationObjectLinked)="retriggerSearch()"
     />
   </mat-drawer>
 
   <mat-drawer-content>
     <div class="table-container">
-      @if (isLoadingResults) {
+      @if (isLoadingResults || deleteListMutation.isPending()) {
         <div class="table-loading-shade"></div>
       }
       <div class="table-wrapper">
@@ -28,6 +29,31 @@
           matSortDisableClear
           [matSortDirection]="listParametersSort.order"
         >
+          <ng-container matColumnDef="select_filter">
+            <th mat-header-cell *matHeaderCellDef></th>
+          </ng-container>
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef>
+              <mat-checkbox
+                (change)="$event ? masterToggle() : null"
+                [checked]="selection.hasValue() && isAllSelected()"
+                [indeterminate]="selection.hasValue() && !isAllSelected()"
+                [aria-label]="checkboxLabel() | translate"
+                id="selectAll_checkbox"
+              >
+              </mat-checkbox>
+            </th>
+            <td mat-cell *matCellDef="let row">
+              <mat-checkbox
+                (click)="$event.stopPropagation()"
+                (change)="$event ? selection.toggle(row) : null"
+                [checked]="selection.isSelected(row)"
+                [aria-label]="checkboxLabel(row) | translate"
+                [id]="row.id + '_checkbox'"
+              >
+              </mat-checkbox>
+            </td>
+          </ng-container>
           <ng-container matColumnDef="titel_filter">
             <th mat-header-cell *matHeaderCellDef>
               <zac-tekst-filter
@@ -236,6 +262,42 @@
         sticky
       >
       </mat-paginator>
+      @if (selection.hasValue()) {
+        <div class="buttons">
+          <button
+            [disabled]="deleteListMutation.isPending()"
+            (click)="documentenVerwijderen()"
+            color="accent"
+            id="verwijderen_button"
+            mat-raised-button
+            title="{{ 'actie.verwijderen' | translate }}"
+          >
+            {{ "actie.verwijderen" | translate }}
+            <mat-icon
+              [matBadge]="selection.selected.length"
+              matBadgeColor="primary"
+              matBadgeSize="small"
+              >delete</mat-icon
+            >
+          </button>
+          <button
+            [disabled]="deleteListMutation.isPending()"
+            (click)="documentenKoppelen()"
+            color="accent"
+            id="koppelen_button"
+            mat-raised-button
+            title="{{ 'actie.koppelen' | translate }}"
+          >
+            {{ "actie.koppelen" | translate }}
+            <mat-icon
+              [matBadge]="selection.selected.length"
+              matBadgeColor="primary"
+              matBadgeSize="small"
+              >link</mat-icon
+            >
+          </button>
+        </div>
+      }
     </div>
   </mat-drawer-content>
 </mat-drawer-container>
