@@ -6,7 +6,6 @@
 
 import {
   booleanAttribute,
-  ChangeDetectionStrategy,
   Component,
   effect,
   inject,
@@ -33,7 +32,6 @@ import { MultiInputFormField } from "../BaseFormField";
   templateUrl: "./documents.html",
   styleUrls: ["./documents.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     BestandsomvangPipe,
@@ -113,7 +111,7 @@ export class ZacDocuments<
   }
 
   private selectedOptions() {
-    return (this.control()?.value as unknown as Option[] | null) ?? [];
+    return (this.value() as unknown as Option[] | null) ?? [];
   }
 
   protected viewLink(option: Option) {

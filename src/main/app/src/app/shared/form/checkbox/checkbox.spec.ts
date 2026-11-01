@@ -5,7 +5,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { Component, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import {
   FormControl,
@@ -28,13 +28,12 @@ const makeForm = (
 ): FormGroup<SimpleForm> => new FormGroup<SimpleForm>({ active: control });
 
 @Component({
-  template: `<zac-checkbox [form]="form" key="active" [label]="label" />`,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  template: `<zac-checkbox [form]="form()" key="active" [label]="label()" />`,
   imports: [ZacCheckbox],
 })
 class HostComponent {
-  form = makeForm();
-  label: string | undefined = undefined;
+  readonly form = signal(makeForm());
+  readonly label = signal<string | undefined>(undefined);
 }
 
 describe(ZacCheckbox.name, () => {
@@ -61,14 +60,14 @@ describe(ZacCheckbox.name, () => {
   });
 
   it("reflects form control value — unchecked when false", async () => {
-    host.form.controls.active.setValue(false);
+    host.form().controls.active.setValue(false);
     fixture.detectChanges();
     const checkbox = await loader.getHarness(MatCheckboxHarness);
     expect(await checkbox.isChecked()).toBe(false);
   });
 
   it("reflects form control value — checked when true", async () => {
-    host.form.controls.active.setValue(true);
+    host.form().controls.active.setValue(true);
     fixture.detectChanges();
     const checkbox = await loader.getHarness(MatCheckboxHarness);
     expect(await checkbox.isChecked()).toBe(true);
@@ -77,11 +76,11 @@ describe(ZacCheckbox.name, () => {
   it("updates the form control when the user toggles the checkbox", async () => {
     const checkbox = await loader.getHarness(MatCheckboxHarness);
     await checkbox.check();
-    expect(host.form.controls.active.value).toBe(true);
+    expect(host.form().controls.active.value).toBe(true);
   });
 
   it("is disabled when the form control is disabled", async () => {
-    host.form.controls.active.disable();
+    host.form().controls.active.disable();
     fixture.detectChanges();
     const checkbox = await loader.getHarness(MatCheckboxHarness);
     expect(await checkbox.isDisabled()).toBe(true);
@@ -89,7 +88,7 @@ describe(ZacCheckbox.name, () => {
 
   it("shows mat-error when the control has a validation error", async () => {
     const control = new FormControl<boolean | null>(null, Validators.required);
-    host.form = new FormGroup<SimpleForm>({ active: control });
+    host.form.set(new FormGroup<SimpleForm>({ active: control }));
     fixture.detectChanges();
     control.markAsTouched();
     control.setErrors({ required: true });
@@ -106,7 +105,7 @@ describe(ZacCheckbox.name, () => {
 
   it("marks the checkbox as required when the control has the required validator", async () => {
     const control = new FormControl<boolean | null>(null, Validators.required);
-    host.form = new FormGroup<SimpleForm>({ active: control });
+    host.form.set(new FormGroup<SimpleForm>({ active: control }));
     fixture.detectChanges();
     const checkbox = await loader.getHarness(MatCheckboxHarness);
     expect(await checkbox.isRequired()).toBe(true);
