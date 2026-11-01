@@ -127,4 +127,46 @@ describe(InformatieObjectenService.name, () => {
       expect(onDownloaded).toHaveBeenCalledWith(zip);
     });
   });
+
+  describe(
+    InformatieObjectenService.prototype.invalidateInformatieobject.name,
+    () => {
+      const otherDocumentUuid = "document-uuid-2";
+
+      function seed(queryKey: readonly unknown[]) {
+        testQueryClient.setQueryData(queryKey, {});
+      }
+
+      function isInvalidated(queryKey: readonly unknown[]) {
+        return testQueryClient.getQueryState(queryKey)?.isInvalidated;
+      }
+
+      it("marks every read of the document as stale, so that the next read goes to the server", async () => {
+        const reads = [
+          service.readEnkelvoudigInformatieobject(documentUuid).queryKey,
+          service.readEnkelvoudigInformatieobjectVersie(documentUuid, 1)
+            .queryKey,
+          service.readHuidigeVersieEnkelvoudigInformatieObject(documentUuid)
+            .queryKey,
+          service.listZaakInformatieobjecten(documentUuid).queryKey,
+          service.listHistorie(documentUuid).queryKey,
+        ];
+        reads.forEach(seed);
+
+        await service.invalidateInformatieobject(documentUuid);
+
+        expect(reads.map(isInvalidated)).toEqual(reads.map(() => true));
+      });
+
+      it("leaves the reads of another document alone", async () => {
+        const otherRead =
+          service.readEnkelvoudigInformatieobject(otherDocumentUuid).queryKey;
+        seed(otherRead);
+
+        await service.invalidateInformatieobject(documentUuid);
+
+        expect(isInvalidated(otherRead)).toBe(false);
+      });
+    },
+  );
 });

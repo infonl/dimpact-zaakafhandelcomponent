@@ -8,9 +8,12 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  effect,
   inject,
   OnDestroy,
   OnInit,
+  signal,
+  untracked,
   viewChild,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
@@ -30,7 +33,7 @@ import { MatTabsModule } from "@angular/material/tabs";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { Observable, of } from "rxjs";
 import { map, tap } from "rxjs/operators";
 import { AsyncButtonMenuItem } from "src/app/shared/side-nav/menu-item/subscription-button-menu-item";
@@ -127,6 +130,30 @@ export class InformatieObjectViewComponent
 
   private readonly queryClient = inject(QueryClient);
 
+  private readonly informatieObjectUuid = signal<string | null>(null);
+  private readonly laatsteVersieQuery = injectQuery(() => ({
+    ...this.informatieObjectenService.readEnkelvoudigInformatieobject(
+      this.informatieObjectUuid()!,
+    ),
+    enabled: !!this.informatieObjectUuid(),
+    structuralSharing: false,
+  }));
+  private readonly zaakInformatieobjectenQuery = injectQuery(() => ({
+    ...this.informatieObjectenService.listZaakInformatieobjecten(
+      this.informatieObjectUuid()!,
+    ),
+    enabled: !!this.informatieObjectUuid(),
+    structuralSharing: false,
+  }));
+  private readonly historieQuery = injectQuery(() => ({
+    ...this.informatieObjectenService.listHistorie(
+      this.informatieObjectUuid()!,
+    ),
+    enabled: !!this.informatieObjectUuid(),
+  }));
+  private volgtLaatsteVersie = false;
+  private zaakGeladen = false;
+
   readonly indicatiesLayout = IndicatiesLayout;
   infoObject!: GeneratedType<"RestEnkelvoudigInformatieobject">;
   laatsteVersieInfoObject?: GeneratedType<"RestEnkelvoudigInformatieobject">;
@@ -156,18 +183,40 @@ export class InformatieObjectViewComponent
   readonly sort = viewChild(MatSort);
   private documentListener?: WebsocketListener;
 
+  constructor() {
+    super();
+
+    effect(() => {
+      const laatsteVersie = this.laatsteVersieQuery.data();
+      if (!laatsteVersie) return;
+      untracked(() => this.verwerkLaatsteVersie(laatsteVersie));
+    });
+
+    effect(() => {
+      const zaakInformatieObjecten = this.zaakInformatieobjectenQuery.data();
+      if (!zaakInformatieObjecten) return;
+      untracked(() => {
+        this.zaakInformatieObjecten = zaakInformatieObjecten;
+        this.loadZaak();
+      });
+    });
+
+    effect(() => {
+      this.historie.data = this.historieQuery.data() ?? [];
+    });
+  }
+
   ngOnInit() {
     this.subscriptions$.push(
       this.route.data.subscribe((data) => {
         this.infoObject =
           data.informatieObject as GeneratedType<"RestEnkelvoudigInformatieobject">;
-        this.informatieObjectenService
-          .readEnkelvoudigInformatieobject(this.infoObject.uuid!)
-          .subscribe((infoObject) => {
-            this.laatsteVersieInfoObject = infoObject;
-            this.updateVersieInformatie();
-            this.loadZaakInformatieobjecten();
-          });
+        this.volgtLaatsteVersie = false;
+        if (this.informatieObjectUuid() !== this.infoObject.uuid) {
+          this.laatsteVersieInfoObject = undefined;
+          this.zaakGeladen = false;
+          this.informatieObjectUuid.set(this.infoObject.uuid!);
+        }
         this.documentPreviewBeschikbaar = FileFormatUtil.isPreviewAvailable(
           this.infoObject.formaat as FileFormat,
         );
@@ -176,14 +225,8 @@ export class InformatieObjectViewComponent
           "UPDATED",
           "ENKELVOUDIG_INFORMATIEOBJECT",
           this.infoObject.uuid!,
-          () => {
-            this.loadInformatieObject();
-            this.loadZaakInformatieobjecten();
-            this.loadHistorie();
-          },
+          () => this.herlaadInformatieObject(),
         );
-
-        this.loadHistorie();
       }),
     );
   }
@@ -231,14 +274,17 @@ export class InformatieObjectViewComponent
         new ButtonMenuItem(
           "actie.nieuwe.versie.toevoegen",
           () => {
-            this.informatieObjectenService
-              .readHuidigeVersieEnkelvoudigInformatieObject(
-                this.infoObject.uuid!,
+            this.queryClient
+              .fetchQuery(
+                this.informatieObjectenService.readHuidigeVersieEnkelvoudigInformatieObject(
+                  this.infoObject.uuid!,
+                ),
               )
-              .subscribe((infoObject) => {
+              .then((infoObject) => {
                 this.documentNieuweVersieGegevens = infoObject;
                 void this.actionsSidenav().open();
-              });
+              })
+              .catch(() => undefined);
           },
           "difference",
         ),
@@ -284,6 +330,7 @@ export class InformatieObjectViewComponent
             ),
             undefined as never,
           ).subscribe({
+            next: () => this.herlaadInformatieObject(),
             // we only need to do this on error, because on success we get a new button
             error: () => {
               button.disabled = false;
@@ -311,6 +358,7 @@ export class InformatieObjectViewComponent
             ),
             undefined as never,
           ).subscribe({
+            next: () => this.herlaadInformatieObject(),
             // we only need to do this on error, because on success we get a new button
             error: () => {
               button.disabled = false;
@@ -371,35 +419,25 @@ export class InformatieObjectViewComponent
     }
   }
 
-  private loadZaakInformatieobjecten() {
-    this.informatieObjectenService
-      .listZaakInformatieobjecten(this.infoObject.uuid!)
-      .subscribe((zaakInformatieObjecten) => {
-        this.zaakInformatieObjecten = zaakInformatieObjecten;
-        this.loadZaak();
-      });
+  private herlaadInformatieObject() {
+    this.volgtLaatsteVersie = true;
+    void this.informatieObjectenService.invalidateInformatieobject(
+      this.infoObject.uuid!,
+    );
   }
 
-  private loadHistorie() {
-    this.informatieObjectenService
-      .listHistorie(this.infoObject.uuid!)
-      .subscribe((historie) => {
-        this.historie.data = historie;
-      });
-  }
-
-  private loadInformatieObject() {
-    this.informatieObjectenService
-      .readEnkelvoudigInformatieobject(this.infoObject.uuid!)
-      .subscribe((infoObject) => {
-        this.infoObject = infoObject;
-        this.laatsteVersieInfoObject = infoObject;
-        this.toevoegenActies();
-        this.updateVersieInformatie();
-        this.documentPreviewBeschikbaar = FileFormatUtil.isPreviewAvailable(
-          this.infoObject.formaat as FileFormat,
-        );
-      });
+  private verwerkLaatsteVersie(
+    laatsteVersie: GeneratedType<"RestEnkelvoudigInformatieobject">,
+  ) {
+    this.laatsteVersieInfoObject = laatsteVersie;
+    if (this.volgtLaatsteVersie) {
+      this.infoObject = laatsteVersie;
+      this.documentPreviewBeschikbaar = FileFormatUtil.isPreviewAvailable(
+        this.infoObject.formaat as FileFormat,
+      );
+    }
+    this.updateVersieInformatie();
+    if (this.zaakGeladen) this.toevoegenActies();
   }
 
   protected haalVersieOp(versie: number) {
@@ -495,11 +533,13 @@ export class InformatieObjectViewComponent
         .readZaakByID(zaakobject.zaakIdentificatie)
         .subscribe((zaak) => {
           this.zaak = zaak;
-          this.toevoegenActies();
+          this.zaakGeladen = true;
+          if (this.laatsteVersieInfoObject) this.toevoegenActies();
         });
     } else {
       this.zaak = undefined;
-      this.toevoegenActies();
+      this.zaakGeladen = true;
+      if (this.laatsteVersieInfoObject) this.toevoegenActies();
     }
   }
 }

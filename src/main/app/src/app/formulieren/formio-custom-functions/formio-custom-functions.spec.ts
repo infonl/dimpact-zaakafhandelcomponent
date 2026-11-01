@@ -3,21 +3,25 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HttpTestingController } from "@angular/common/http/testing";
 import { LOCALE_ID } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { Evaluator } from "@formio/core";
 import { provideTranslateService } from "@ngx-translate/core";
-import { of, throwError } from "rxjs";
-import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { GeneratedType } from "../../shared/utils/generated-types";
+import { sleep } from "../../../../setupJest";
 import { FormioCustomFunctions } from "./formio-custom-functions";
 
-const mockDocument = (titel: string | null) =>
-  of({ titel } as GeneratedType<"RestEnkelvoudigInformatieobject">);
+const DOCUMENT_URL = "/rest/informatieobjecten/informatieobject/";
 
 const UUID_A = "aaaaaaaa-0000-0000-0000-000000000001";
 const UUID_B = "bbbbbbbb-0000-0000-0000-000000000002";
 const UUID_C = "cccccccc-0000-0000-0000-000000000003";
+
+const TITLES: Record<string, string> = {
+  [UUID_A]: "Document A",
+  [UUID_B]: "Document B",
+  [UUID_C]: "Document C",
+};
 
 const formWithFunction = (field: string) => ({
   components: [
@@ -30,61 +34,69 @@ const formWithFunction = (field: string) => ({
 
 describe(FormioCustomFunctions.name, () => {
   let service: FormioCustomFunctions;
-  let informatieObjectenService: jest.Mocked<
-    Pick<InformatieObjectenService, "readEnkelvoudigInformatieobject">
-  >;
+  let httpTestingController: HttpTestingController;
 
   beforeEach(() => {
-    informatieObjectenService = {
-      readEnkelvoudigInformatieobject: jest.fn(),
-    };
-
     TestBed.configureTestingModule({
       providers: [
         provideTranslateService(),
         { provide: LOCALE_ID, useValue: "nl-NL" },
-        {
-          provide: InformatieObjectenService,
-          useValue: informatieObjectenService,
-        },
       ],
     });
 
     service = TestBed.inject(FormioCustomFunctions);
+    httpTestingController = TestBed.inject(HttpTestingController);
   });
 
   afterEach(() => jest.restoreAllMocks());
 
-  describe(FormioCustomFunctions.prototype.prepareFormContext.name, () => {
-    beforeEach(() => {
-      informatieObjectenService.readEnkelvoudigInformatieobject.mockReturnValue(
-        mockDocument("Document A"),
-      );
-    });
+  function documentRequests() {
+    return httpTestingController.match(({ url }) =>
+      url.startsWith(DOCUMENT_URL),
+    );
+  }
 
+  async function prepareFormContext(
+    form: unknown,
+    taakdata: Record<string, unknown>,
+    answer: (uuid: string) => { titel: string | null } | "error" = (uuid) => ({
+      titel: TITLES[uuid],
+    }),
+  ) {
+    const context = service.prepareFormContext(form, taakdata);
+    await sleep();
+    for (const request of documentRequests()) {
+      const response = answer(request.request.url.slice(DOCUMENT_URL.length));
+      if (response === "error") {
+        request.flush(null, { status: 404, statusText: "Not Found" });
+      } else {
+        request.flush(response);
+      }
+    }
+    return context;
+  }
+
+  describe(FormioCustomFunctions.prototype.prepareFormContext.name, () => {
     it("should spread taakdata as top-level keys in the context", async () => {
-      const context = await service.prepareFormContext(
-        formWithFunction("ZAAK_Docs"),
-        { ZAAK_Docs: [UUID_A] },
-      );
+      const context = await prepareFormContext(formWithFunction("ZAAK_Docs"), {
+        ZAAK_Docs: [UUID_A],
+      });
 
       expect(context["ZAAK_Docs"]).toEqual([UUID_A]);
     });
 
     it("should register ZAC_getDocumentTitles as a function in the context", async () => {
-      const context = await service.prepareFormContext(
-        formWithFunction("ZAAK_Docs"),
-        { ZAAK_Docs: [UUID_A] },
-      );
+      const context = await prepareFormContext(formWithFunction("ZAAK_Docs"), {
+        ZAAK_Docs: [UUID_A],
+      });
 
       expect(typeof context["ZAC_getDocumentTitles"]).toBe("function");
     });
 
     it("should return the title string when ZAC_getDocumentTitles is called with UUIDs", async () => {
-      const context = await service.prepareFormContext(
-        formWithFunction("ZAAK_Docs"),
-        { ZAAK_Docs: [UUID_A] },
-      );
+      const context = await prepareFormContext(formWithFunction("ZAAK_Docs"), {
+        ZAAK_Docs: [UUID_A],
+      });
       const fn = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
@@ -93,10 +105,9 @@ describe(FormioCustomFunctions.name, () => {
     });
 
     it("should return empty string when called with an empty array", async () => {
-      const context = await service.prepareFormContext(
-        formWithFunction("ZAAK_Docs"),
-        { ZAAK_Docs: [] },
-      );
+      const context = await prepareFormContext(formWithFunction("ZAAK_Docs"), {
+        ZAAK_Docs: [],
+      });
       const fn = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
@@ -105,7 +116,7 @@ describe(FormioCustomFunctions.name, () => {
     });
 
     it("should return empty string when the taakdata field is missing", async () => {
-      const context = await service.prepareFormContext(
+      const context = await prepareFormContext(
         formWithFunction("ZAAK_Missing"),
         {},
       );
@@ -115,14 +126,9 @@ describe(FormioCustomFunctions.name, () => {
     });
 
     it("should format two documents with 'en'", async () => {
-      informatieObjectenService.readEnkelvoudigInformatieobject.mockImplementation(
-        (uuid) => mockDocument(uuid === UUID_A ? "Document A" : "Document B"),
-      );
-
-      const context = await service.prepareFormContext(
-        formWithFunction("ZAAK_Docs"),
-        { ZAAK_Docs: [UUID_A, UUID_B] },
-      );
+      const context = await prepareFormContext(formWithFunction("ZAAK_Docs"), {
+        ZAAK_Docs: [UUID_A, UUID_B],
+      });
       const fn = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
@@ -131,21 +137,9 @@ describe(FormioCustomFunctions.name, () => {
     });
 
     it("should format three documents with commas and 'en'", async () => {
-      informatieObjectenService.readEnkelvoudigInformatieobject.mockImplementation(
-        (uuid) =>
-          mockDocument(
-            uuid === UUID_A
-              ? "Document A"
-              : uuid === UUID_B
-                ? "Document B"
-                : "Document C",
-          ),
-      );
-
-      const context = await service.prepareFormContext(
-        formWithFunction("ZAAK_Docs"),
-        { ZAAK_Docs: [UUID_A, UUID_B, UUID_C] },
-      );
+      const context = await prepareFormContext(formWithFunction("ZAAK_Docs"), {
+        ZAAK_Docs: [UUID_A, UUID_B, UUID_C],
+      });
       const fn = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
@@ -156,13 +150,10 @@ describe(FormioCustomFunctions.name, () => {
     });
 
     it("should fall back to UUID when document fetch fails", async () => {
-      informatieObjectenService.readEnkelvoudigInformatieobject.mockReturnValue(
-        throwError(() => new Error("Not found")),
-      );
-
-      const context = await service.prepareFormContext(
+      const context = await prepareFormContext(
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A] },
+        () => "error",
       );
       const fn = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
@@ -172,13 +163,10 @@ describe(FormioCustomFunctions.name, () => {
     });
 
     it("should fall back to UUID when document has no titel", async () => {
-      informatieObjectenService.readEnkelvoudigInformatieobject.mockReturnValue(
-        mockDocument(null),
-      );
-
-      const context = await service.prepareFormContext(
+      const context = await prepareFormContext(
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A] },
+        () => ({ titel: null }),
       );
       const fn = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
@@ -188,9 +176,6 @@ describe(FormioCustomFunctions.name, () => {
     });
 
     it("should pre-fetch titles for all fields when the same function appears multiple times", async () => {
-      informatieObjectenService.readEnkelvoudigInformatieobject.mockImplementation(
-        (uuid) => mockDocument(uuid === UUID_A ? "Document A" : "Document B"),
-      );
       const formWithTwoCalls = {
         components: [
           {
@@ -204,7 +189,7 @@ describe(FormioCustomFunctions.name, () => {
         ],
       };
 
-      const context = await service.prepareFormContext(formWithTwoCalls, {
+      const context = await prepareFormContext(formWithTwoCalls, {
         ZAAK_Docs_A: [UUID_A],
         ZAAK_Docs_B: [UUID_B],
       });
@@ -217,67 +202,66 @@ describe(FormioCustomFunctions.name, () => {
     });
 
     it("should render titles for datagrid rows as well as plain UUIDs", async () => {
-      informatieObjectenService.readEnkelvoudigInformatieobject.mockImplementation(
-        (uuid) => mockDocument(uuid === UUID_A ? "Document A" : "Document B"),
-      );
       const rows = [
         { selected: true, titel: "stale", uuid: UUID_A },
         { selected: true, titel: "stale", uuid: UUID_B },
       ];
 
-      const context = await service.prepareFormContext(
-        formWithFunction("ZAAK_Docs"),
-        { ZAAK_Docs: rows },
-      );
+      const context = await prepareFormContext(formWithFunction("ZAAK_Docs"), {
+        ZAAK_Docs: rows,
+      });
       const fn = context["ZAC_getDocumentTitles"] as (rows: unknown) => string;
 
       expect(fn(rows)).toBe("Document A en Document B");
     });
 
     it("should leave out datagrid rows that were unticked", async () => {
-      informatieObjectenService.readEnkelvoudigInformatieobject.mockImplementation(
-        (uuid) => mockDocument(uuid === UUID_A ? "Document A" : "Document B"),
-      );
       const rows = [
         { selected: true, uuid: UUID_A },
         { selected: false, uuid: UUID_B },
       ];
+      const requestedUuids: string[] = [];
 
-      const context = await service.prepareFormContext(
+      const context = await prepareFormContext(
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: rows },
+        (uuid) => {
+          requestedUuids.push(uuid);
+          return { titel: TITLES[uuid] };
+        },
       );
       const fn = context["ZAC_getDocumentTitles"] as (rows: unknown) => string;
 
       expect(fn(rows)).toBe("Document A");
-      expect(
-        informatieObjectenService.readEnkelvoudigInformatieobject,
-      ).not.toHaveBeenCalledWith(UUID_B);
+      expect(requestedUuids).toEqual([UUID_A]);
     });
 
     it("should accept a single UUID that is not wrapped in an array", async () => {
-      const context = await service.prepareFormContext(
-        formWithFunction("ZAAK_Docs"),
-        { ZAAK_Docs: UUID_A },
-      );
+      const context = await prepareFormContext(formWithFunction("ZAAK_Docs"), {
+        ZAAK_Docs: UUID_A,
+      });
       const fn = context["ZAC_getDocumentTitles"] as (uuid: unknown) => string;
 
       expect(fn(UUID_A)).toBe("Document A");
     });
 
     it("should ignore entries that carry no uuid", async () => {
-      const context = await service.prepareFormContext(
+      const requestedUuids: string[] = [];
+
+      const context = await prepareFormContext(
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [{ selected: true, titel: "no uuid here" }, null, 42] },
+        (uuid) => {
+          requestedUuids.push(uuid);
+          return { titel: TITLES[uuid] };
+        },
       );
       const fn = context["ZAC_getDocumentTitles"] as (rows: unknown) => string;
 
       expect(fn([{ selected: true, titel: "no uuid here" }, null, 42])).toBe(
         "",
       );
-      expect(
-        informatieObjectenService.readEnkelvoudigInformatieobject,
-      ).not.toHaveBeenCalled();
+      expect(requestedUuids).toEqual([]);
     });
 
     it("should fetch a document only once when the same UUID occurs in several fields", async () => {
@@ -287,25 +271,40 @@ describe(FormioCustomFunctions.name, () => {
           { html: "{{ ZAC_getDocumentTitles(ZAAK_Docs_B) }}", type: "content" },
         ],
       };
+      const requestedUuids: string[] = [];
 
-      await service.prepareFormContext(formWithTwoCalls, {
-        ZAAK_Docs_A: [UUID_A, UUID_A],
-        ZAAK_Docs_B: [{ selected: true, uuid: UUID_A }],
-      });
+      await prepareFormContext(
+        formWithTwoCalls,
+        {
+          ZAAK_Docs_A: [UUID_A, UUID_A],
+          ZAAK_Docs_B: [{ selected: true, uuid: UUID_A }],
+        },
+        (uuid) => {
+          requestedUuids.push(uuid);
+          return { titel: TITLES[uuid] };
+        },
+      );
 
-      expect(
-        informatieObjectenService.readEnkelvoudigInformatieobject,
-      ).toHaveBeenCalledTimes(1);
+      expect(requestedUuids).toEqual([UUID_A]);
     });
 
-    it("should fetch each document by UUID", async () => {
-      await service.prepareFormContext(formWithFunction("ZAAK_Docs"), {
+    it("should reuse a title it read before, rather than read the document again", async () => {
+      await prepareFormContext(formWithFunction("ZAAK_Docs"), {
         ZAAK_Docs: [UUID_A],
       });
 
-      expect(
-        informatieObjectenService.readEnkelvoudigInformatieobject,
-      ).toHaveBeenCalledWith(UUID_A);
+      const context = await prepareFormContext(
+        formWithFunction("ZAAK_Docs"),
+        { ZAAK_Docs: [UUID_A] },
+        () => {
+          throw new Error("the document was read again");
+        },
+      );
+      const fn = context["ZAC_getDocumentTitles"] as (
+        uuids: string[],
+      ) => string;
+
+      expect(fn([UUID_A])).toBe("Document A");
     });
   });
   describe("the zaak and the taak in the eval context", () => {
