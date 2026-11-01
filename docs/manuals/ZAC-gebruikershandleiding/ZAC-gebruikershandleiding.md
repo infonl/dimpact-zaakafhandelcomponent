@@ -1589,6 +1589,20 @@ Een document kan verwijderd worden door het document vanuit een zaak of de werkl
 3 Klik op ‘Document verwijderen’ om de actie uit te voeren
 ![Document verwijderen](./images/document-verwijderen.png)
 
+### Meerdere ontkoppelde documenten tegelijk verwijderen of koppelen
+
+In de werklijst ‘Ontkoppelde documenten’ kun je meerdere documenten tegelijk verwijderen of aan een zaak koppelen.
+
+**Stappen:**
+
+1 Vink de documenten aan die je wilt verwerken. Het selectievakje in de kop selecteert alle documenten op de huidige pagina. Wijzig je de pagina, de sortering of een filter, dan wordt de selectie gewist
+
+2 Onder de lijst verschijnen de knoppen *Verwijderen* en *Koppelen*, met het aantal geselecteerde documenten
+
+3 Bij *Verwijderen* bevestig je de vraag ‘Weet u dit zeker?’. Bij *Koppelen* zoek je in het paneel de zaak waaraan je de documenten wilt koppelen
+
+4 Na afloop zie je hoeveel documenten zijn verwerkt. Lukt het bij een document niet, bijvoorbeeld omdat het is vergrendeld, dan blijft dat document in de lijst staan en zie je per document de reden. De overige documenten worden wel verwerkt
+
 <div style="page-break-after: always"></div>
 
 # Notities
