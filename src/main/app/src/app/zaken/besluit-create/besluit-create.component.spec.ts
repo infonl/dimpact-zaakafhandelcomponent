@@ -4,6 +4,11 @@
  */
 
 import { provideHttpClient, withXhr } from "@angular/common/http";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
+import { TestBed } from "@angular/core/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
@@ -11,9 +16,8 @@ import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { of } from "rxjs";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
@@ -27,6 +31,11 @@ const fakeZaak = fromPartial<GeneratedType<"RestZaak">>({
 const otherZaak = fromPartial<GeneratedType<"RestZaak">>({
   uuid: "zaak-uuid-2",
   zaaktype: { uuid: "zaaktype-uuid-1" },
+});
+
+const zaakOfOtherZaaktype = fromPartial<GeneratedType<"RestZaak">>({
+  uuid: "zaak-uuid-3",
+  zaaktype: { uuid: "zaaktype-uuid-2" },
 });
 
 const fakeBesluittype = fromPartial<GeneratedType<"RestBesluitType">>({
@@ -53,12 +62,6 @@ describe(BesluitCreateComponent.name, () => {
   const setup = async (
     besluittypes: GeneratedType<"RestBesluitType">[] = [fakeBesluittype],
   ) => {
-    const listResultaattypes = jest
-      .spyOn(ZakenService.prototype, "listResultaattypes")
-      .mockReturnValue(of([]) as never);
-    jest
-      .spyOn(ZakenService.prototype, "listBesluittypes")
-      .mockReturnValue(of(besluittypes) as never);
     const listEnkelvoudigInformatieobjecten = jest
       .spyOn(
         InformatieObjectenService.prototype,
@@ -79,27 +82,52 @@ describe(BesluitCreateComponent.name, () => {
 
     const sideNav = fromPartial<MatDrawer>({ close: jest.fn() });
 
-    const { rerender } = await render(BesluitCreateComponent, {
+    const { rerender, fixture } = await render(BesluitCreateComponent, {
       inputs: { zaak: fakeZaak, sideNav },
       imports: [NoopAnimationsModule],
       providers: [
         provideTranslateService(),
         provideHttpClient(withXhr()),
+        provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
         provideRouter([]),
       ],
     });
 
-    const showZaak = (zaak: GeneratedType<"RestZaak">) =>
-      rerender({ inputs: { zaak, sideNav }, partialUpdate: true });
+    const httpTestingController = TestBed.inject(HttpTestingController);
+    await respondWithBesluittypes(
+      httpTestingController,
+      "zaaktype-uuid-1",
+      besluittypes,
+    );
+
+    const showZaak = async (zaak: GeneratedType<"RestZaak">) => {
+      await rerender({ inputs: { zaak, sideNav }, partialUpdate: true });
+      fixture.detectChanges();
+    };
 
     return {
       sideNav,
       createBesluit,
-      listResultaattypes,
       listEnkelvoudigInformatieobjecten,
       showZaak,
+      httpTestingController,
     };
+  };
+
+  const respondWithBesluittypes = async (
+    httpTestingController: HttpTestingController,
+    zaaktypeUuid: string,
+    besluittypes: GeneratedType<"RestBesluitType">[],
+  ) => {
+    await sleep();
+    httpTestingController
+      .expectOne({
+        method: "GET",
+        url: `/rest/zaken/besluittypes/${zaaktypeUuid}`,
+      })
+      .flush(besluittypes);
+    await sleep();
   };
 
   const selectBesluittype = async (naam: string) => {
@@ -117,10 +145,18 @@ describe(BesluitCreateComponent.name, () => {
     ).toEqual(["Besluittype 1", "Besluittype 2"]);
   });
 
-  it("loads the resultaattypes of the zaak's zaaktype", async () => {
-    const { listResultaattypes } = await setup();
+  it("offers the besluittypes of the zaaktype of the zaak it currently shows", async () => {
+    const { httpTestingController, showZaak } = await setup();
 
-    expect(listResultaattypes).toHaveBeenCalledWith("zaaktype-uuid-1");
+    await showZaak(zaakOfOtherZaaktype);
+    await respondWithBesluittypes(httpTestingController, "zaaktype-uuid-2", [
+      fakeBesluittypeWithPublication,
+    ]);
+    await user.click(screen.getByLabelText("Besluit"));
+
+    expect(
+      screen.getAllByRole("option").map((option) => option.textContent?.trim()),
+    ).toEqual(["Besluittype 2"]);
   });
 
   it("closes the side panel when the close button is used", async () => {

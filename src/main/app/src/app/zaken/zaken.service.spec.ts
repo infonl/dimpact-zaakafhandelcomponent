@@ -149,6 +149,53 @@ describe(ZakenService.name, () => {
     });
   });
 
+  describe.each([
+    [
+      "updateBesluit",
+      () =>
+        runMutationOnSuccess(
+          service.updateBesluit(),
+          fromPartial<GeneratedType<"RestBesluitChangeData">>({
+            besluitUuid: "fakeBesluitUuid",
+          }),
+        ),
+    ],
+    [
+      "intrekkenBesluit",
+      () =>
+        runMutationOnSuccess(
+          service.intrekkenBesluit(),
+          fromPartial<GeneratedType<"RestBesluitWithdrawalData">>({
+            besluitUuid: "fakeBesluitUuid",
+          }),
+        ),
+    ],
+  ])("%s", (_name, runOnSuccess) => {
+    it("refreshes the historie of the besluit it changed, because the change adds a line to it", async () => {
+      const invalidateQueries = jest.spyOn(
+        testQueryClient,
+        "invalidateQueries",
+      );
+
+      await runOnSuccess();
+
+      expect(invalidateQueries).toHaveBeenCalledWith(
+        {
+          queryKey: service.listBesluitHistorie("fakeBesluitUuid").queryKey,
+        },
+        { cancelRefetch: false },
+      );
+    });
+  });
+
+  describe("listBesluitHistorie", () => {
+    it("opens the error dialog when a refetch fails, because the user waits on it after changing the besluit", () => {
+      expect(service.listBesluitHistorie("fakeBesluitUuid").meta).toEqual({
+        reportFailedRefetch: true,
+      });
+    });
+  });
+
   describe("deleteInitiator", () => {
     it("addresses the zaak by its uuid and sends the reden as the body", async () => {
       const request = service.deleteInitiator().mutationFn!(
