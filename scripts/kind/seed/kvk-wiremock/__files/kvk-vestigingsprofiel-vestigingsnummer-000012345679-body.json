@@ -1,0 +1,66 @@
+{
+  "vestigingsnummer": "000012345679",
+  "kvkNummer": "12345679",
+  "indNonMailing": "Nee",
+  "eersteHandelsnaam": "testMeerdereAdressen",
+  "indHoofdvestiging": "Ja",
+  "indCommercieleVestiging": "Ja",
+  "voltijdWerkzamePersonen": 5,
+  "totaalWerkzamePersonen": 8,
+  "deeltijdWerkzamePersonen": 3,
+  "handelsnamen": [
+    {
+      "naam": "testMeerdereAdressen",
+      "volgorde": 0
+    }
+  ],
+  "adressen": [
+    {
+      "type": "bezoekadres",
+      "indAfgeschermd": "Nee",
+      "straatnaam": "fakeStraatnaam2a",
+      "huisnummer": 100,
+      "postcode": "1234AB",
+      "plaats": "fakePlaats2",
+      "land": "Nederland"
+    },
+    {
+      "type": "bezoekadres",
+      "indAfgeschermd": "Nee",
+      "straatnaam": "fakeStraatnaam2b",
+      "huisnummer": 200,
+      "postcode": "5678CD",
+      "plaats": "fakePlaats2",
+      "land": "Nederland"
+    },
+    {
+      "type": "correspondentieadres",
+      "indAfgeschermd": "Nee",
+      "postbusnummer": 1000,
+      "postcode": "1234AB",
+      "plaats": "fakePlaats2"
+    },
+    {
+      "type": "correspondentieadres",
+      "indAfgeschermd": "Nee",
+      "postbusnummer": 2000,
+      "postcode": "5678CD",
+      "plaats": "fakePlaats2"
+    }
+  ],
+  "sbiActiviteiten": [
+    {
+      "sbiCode": "6201",
+      "sbiOmschrijving": "Ontwikkelen en produceren van software",
+      "indHoofdactiviteit": "Ja"
+    }
+  ],
+  "_links": {
+    "self": {
+      "href": "http://kvk-wiremock:8080/api/v1/vestigingsprofielen/000012345679"
+    },
+    "basisprofiel": {
+      "href": "http://kvk-wiremock:8080/api/v1/basisprofielen/12345679"
+    }
+  }
+}

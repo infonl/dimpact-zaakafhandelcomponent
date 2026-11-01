@@ -1,0 +1,12 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+apiVersion: v2
+name: zac-dev
+description: >-
+  The services of the local ZAC development stack on kind that have no upstream Helm chart, the seed Jobs and the
+  configuration of the stack, and the images of every service. Installed by scripts/kind/up.sh; not released.
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

@@ -1,0 +1,55 @@
+{
+  "kvkNummer": "12345678",
+  "indNonMailing": "Nee",
+  "naam": "fakeNaam1",
+  "formeleRegistratiedatum": "20150828",
+  "totaalWerkzamePersonen": 42,
+  "statutaireNaam": "fakeStatutaireNaam1",
+  "handelsnamen": [
+    {
+      "naam": "fakeEersteHandelsnaam1",
+      "volgorde": 0
+    },
+    {
+      "naam": "fakeHandelsnaam2",
+      "volgorde": 1
+    }
+  ],
+  "sbiActiviteiten": [
+    {
+      "sbiCode": "sbiCode1",
+      "sbiOmschrijving": "fakeBasisprofielHoofdactiviteit1",
+      "indHoofdactiviteit": "Ja"
+    },
+    {
+      "sbiCode": "sbiCode2",
+      "sbiOmschrijving": "fakeBasisprofielNevenactiviteit1",
+      "indHoofdactiviteit": "Nee"
+    }
+  ],
+  "_embedded": {
+    "eigenaar": {
+      "rsin": "123456789",
+      "rechtsvorm": "BeslotenVennootschap",
+      "uitgebreideRechtsvorm": "Besloten Vennootschap met beperkte aansprakelijkheid",
+      "adressen": [
+        {
+          "type": "bezoekadres",
+          "indAfgeschermd": "Nee",
+          "volledigAdres": "fakeStraatnaam1, fakePlaats1",
+          "straatnaam": "fakeStraatnaam1",
+          "huisnummer": 17,
+          "postcode": "1034WL",
+          "plaats": "fakePlaats1",
+          "land": "Nederland"
+        }
+      ],
+      "websites": ["https://fakebedrijf.nl"]
+    }
+  },
+  "_links": {
+    "self": {
+      "href": "http://kvk-wiremock:8080/api/v1/basisprofielen/12345678"
+    }
+  }
+}
