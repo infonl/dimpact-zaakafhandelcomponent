@@ -21,9 +21,11 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
+import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.setFunctioneelGebruiker
+import nl.info.zac.cache.ZtcCacheRefresher
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.event.EventingService
@@ -66,6 +68,8 @@ class NotificationReceiver @Inject constructor(
     private val signaleringService: SignaleringService,
     private val taskService: TaskService,
     private val zrcClientService: ZrcClientService,
+    private val ztcClientService: ZtcClientService,
+    private val ztcCacheRefresher: ZtcCacheRefresher,
 
     @ConfigProperty(name = "OPEN_NOTIFICATIONS_API_SECRET_KEY")
     private val secret: String,
@@ -92,6 +96,7 @@ class NotificationReceiver @Inject constructor(
         handleDetachedDocuments(notification)
         handleFlowableProcessData(notification)
         handleZaaktype(notification)
+        handleBesluittypeAndInformatieobjecttype(notification)
         handleWebsockets(notification)
         return Response.noContent().build()
     }
@@ -391,6 +396,20 @@ class NotificationReceiver @Inject constructor(
             }
         } catch (exception: RuntimeException) {
             warning("zaaktype", notification, exception)
+        }
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun handleBesluittypeAndInformatieobjecttype(notification: Notification) {
+        try {
+            when (notification.resource) {
+                Resource.BESLUITTYPE -> ztcClientService.clearBesluittypeCache()
+                Resource.INFORMATIEOBJECTTYPE -> ztcClientService.clearInformatieobjecttypeCache()
+                else -> return
+            }
+            ztcCacheRefresher.refreshInBackground()
+        } catch (exception: RuntimeException) {
+            warning("besluittype and informatieobjecttype", notification, exception)
         }
     }
 

@@ -117,6 +117,7 @@ notifications_abonnementen_config:
         - naam: zaken
         - naam: documenten
         - naam: besluittypen
+        - naam: informatieobjecttypen
         - naam: besluiten
         - naam: objecten
 

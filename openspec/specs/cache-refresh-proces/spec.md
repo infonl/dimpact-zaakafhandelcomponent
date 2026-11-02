@@ -51,8 +51,9 @@ NOT refresh the ZTC caches periodically.
 ### Requirement: Cache refresh after the caches have been cleared
 After the system has cleared ZTC caches, it SHALL refresh the ZTC caches of the default catalogus in the
 background, in the same way as after startup, so that the types are again available without one request per
-zaaktype. This applies when a notification about a created or updated zaaktype has cleared the caches, and when a
-beheerder has cleared the caches with `/rest/admin/util/cache/clear` or `/rest/admin/util/cache/ztc/clear`. When
+zaaktype. This applies when a notification about a created or updated zaaktype has cleared the caches, when a
+notification about a created, updated or deleted besluittype or informatieobjecttype has cleared the cache of that
+type, and when a beheerder has cleared the caches with `/rest/admin/util/cache/clear` or `/rest/admin/util/cache/ztc/clear`. When
 refreshes are requested while a refresh runs, the system SHALL run one more refresh after the running one, because
 the running refresh may have read the ZTC before the change, and SHALL NOT run a refresh per request. When a refresh
 fails, the system SHALL log a warning and still run later refreshes.
@@ -60,6 +61,13 @@ fails, the system SHALL log a warning and still run later refreshes.
 #### Scenario: A notification about an updated zaaktype
 - **WHEN** the system receives a notification that a zaaktype has been created or updated
 - **THEN** the system clears the ZTC caches of zaaktypen, statustypen, resultaattypen, roltypen and eigenschappen
+- **AND** refreshes the ZTC caches in the background
+
+#### Scenario: A notification about a changed besluittype or informatieobjecttype
+- **WHEN** the system receives a notification that a besluittype or an informatieobjecttype has been created,
+  updated or deleted, for example because its einde geldigheid has changed
+- **THEN** the system clears the ZTC cache of that type, so that ZAC does not keep checking the validity of a type
+  against a cached einde geldigheid
 - **AND** refreshes the ZTC caches in the background
 
 #### Scenario: A beheerder clears the caches
