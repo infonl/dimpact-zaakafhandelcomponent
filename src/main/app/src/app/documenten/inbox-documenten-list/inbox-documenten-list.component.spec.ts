@@ -175,6 +175,19 @@ describe(InboxDocumentenListComponent.name, () => {
     expect(await lastListRequestBody()).toMatchObject({ titel: "Aanvraag" });
   });
 
+  it("searches on the identificatie that was typed in the identificatie filter", async () => {
+    await setup();
+    await showDocuments([inboxDocument]);
+
+    const [identificatieFilter] = screen.getAllByPlaceholderText("...");
+    await user.type(identificatieFilter, "DOCUMENT-001{Enter}");
+
+    expect(await lastListRequestBody()).toEqual({
+      ...UNFILTERED_REQUEST_BODY,
+      identificatie: "DOCUMENT-001",
+    });
+  });
+
   it("searches on the title that was typed in the title filter", async () => {
     await setup();
     await showDocuments([inboxDocument]);

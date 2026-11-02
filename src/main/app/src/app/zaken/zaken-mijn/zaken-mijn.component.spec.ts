@@ -18,13 +18,13 @@ import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
+import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
+import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import {
   expectedSearchFor,
   searchThroughColumnFilter,
   WerklijstColumnFilter,
 } from "../../shared/dynamic-table/werklijst-column-filters.testing";
-import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
-import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenMijnComponent } from "./zaken-mijn.component";
 
