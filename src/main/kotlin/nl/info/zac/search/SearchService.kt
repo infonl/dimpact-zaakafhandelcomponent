@@ -193,9 +193,9 @@ class SearchService @Inject constructor(
                 ISO_INSTANT.format(it.atStartOfDay(ZoneId.systemDefault()))
             } ?: "*"
             val to = date.tot?.let {
-                ISO_INSTANT.format(it.atStartOfDay(ZoneId.systemDefault()))
+                ISO_INSTANT.format(it.plusDays(1).atStartOfDay(ZoneId.systemDefault()))
             } ?: "*"
-            "${dateField.veld}:[$from TO $to]"
+            "${dateField.veld}:[$from TO $to}"
         }
 
     private fun getFilterQueriesForZoekenParameters(zoekParameters: ZoekParameters): List<String> =

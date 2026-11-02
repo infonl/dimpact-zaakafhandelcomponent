@@ -132,7 +132,7 @@ class SearchServiceTest : BehaviorSpec({
                     zaakSearchStartDate.atStartOfDay(ZoneId.systemDefault())
                 )
                 val zaakSearchEndDateString = DateTimeFormatter.ISO_INSTANT.format(
-                    zaakSearchEndDate.atStartOfDay(ZoneId.systemDefault())
+                    zaakSearchEndDate.plusDays(1).atStartOfDay(ZoneId.systemDefault())
                 )
                 with(solrParamsSlot.captured) {
                     get("q") shouldBe "*:*"
@@ -142,7 +142,7 @@ class SearchServiceTest : BehaviorSpec({
                             "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeUsername\")",
                         "type:ZAAK",
                         "zaak_omschrijving:($zaakDescriptionSearchField)",
-                        "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString]",
+                        "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString}",
                         """{!tag=ZAAKTYPE}zaaktypeOmschrijving:("$zaakType1" OR "$zaakType2")""",
                         """{!tag=BEHANDELAAR}behandelaarNaam:("$behandelaarFilterValue1" OR "$behandelaarFilterValue2")"""
                     )
@@ -226,7 +226,7 @@ class SearchServiceTest : BehaviorSpec({
                     zaakSearchStartDate.atStartOfDay(ZoneId.systemDefault())
                 )
                 val zaakSearchEndDateString = DateTimeFormatter.ISO_INSTANT.format(
-                    zaakSearchEndDate.atStartOfDay(ZoneId.systemDefault())
+                    zaakSearchEndDate.plusDays(1).atStartOfDay(ZoneId.systemDefault())
                 )
                 with(solrParamsSlot.captured) {
                     get("q") shouldBe "*:*"
@@ -235,7 +235,7 @@ class SearchServiceTest : BehaviorSpec({
                         "-({!terms f=zaaktypeOmschrijving separator='\n' v=\$zaaktypenZonderZaakspecifiekGeautoriseerd} " +
                             "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeUsername\")",
                         "type:TAAK",
-                        "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString]",
+                        "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString}",
                         """{!tag=ZAAKTYPE}zaaktypeOmschrijving:("$zaakType1")"""
                     )
                     get("zaaktypenZonderZaakspecifiekGeautoriseerd") shouldBe "$zaakType1"
@@ -387,7 +387,7 @@ class SearchServiceTest : BehaviorSpec({
                     zaakSearchStartDate.atStartOfDay(ZoneId.systemDefault())
                 )
                 val zaakSearchEndDateString = DateTimeFormatter.ISO_INSTANT.format(
-                    zaakSearchEndDate.atStartOfDay(ZoneId.systemDefault())
+                    zaakSearchEndDate.plusDays(1).atStartOfDay(ZoneId.systemDefault())
                 )
 
                 with(solrParamsSlot.captured) {
@@ -397,7 +397,7 @@ class SearchServiceTest : BehaviorSpec({
                         "-({!terms f=zaaktypeOmschrijving separator='\n' v=\$zaaktypenZonderZaakspecifiekGeautoriseerd} " +
                             "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeUsername\")",
                         "type:TAAK",
-                        "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString]",
+                        "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString}",
                         """{!tag=ZAAKTYPE}zaaktypeOmschrijving:("$zaakType1")"""
                     )
                     get("zaaktypenZonderZaakspecifiekGeautoriseerd") shouldBe "$zaakType1"
