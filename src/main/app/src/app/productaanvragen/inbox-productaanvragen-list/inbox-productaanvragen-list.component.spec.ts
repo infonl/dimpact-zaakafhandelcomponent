@@ -13,7 +13,7 @@ import {
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { provideNativeDateAdapter } from "@angular/material/core";
+import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
@@ -28,6 +28,14 @@ import { sleep, testQueryClient } from "../../../../setupJest";
 import { InboxProductaanvragenListComponent } from "./inbox-productaanvragen-list.component";
 
 const SEARCH_PARAMETERS_KEY = "INBOX_PRODUCTAANVRAGEN_ZOEKPARAMETERS";
+
+const UNFILTERED_REQUEST_BODY = {
+  sort: "id",
+  order: "desc",
+  filtersType: "InboxProductaanvraagListParameters",
+  page: 0,
+  maxResults: 10,
+};
 
 const inboxProductaanvraag = fromPartial<
   GeneratedType<"RestInboxProductaanvraag">
@@ -74,7 +82,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
           },
           provideHttpClient(withXhr(), withInterceptorsFromDi()),
           provideHttpClientTesting(),
-          provideNativeDateAdapter(),
+          provideMomentDateAdapter(),
           provideQueryClient(testQueryClient),
         ],
       },
@@ -158,15 +166,8 @@ describe(InboxProductaanvragenListComponent.name, () => {
   it("asks for the first page sorted by id and remembers that", async () => {
     await setup();
 
-    const defaultParameters = {
-      sort: "id",
-      order: "desc",
-      filtersType: "InboxProductaanvraagListParameters",
-      page: 0,
-      maxResults: 10,
-    };
-    expect(await lastListRequestBody()).toEqual(defaultParameters);
-    expect(rememberedParameters()).toEqual(defaultParameters);
+    expect(await lastListRequestBody()).toEqual(UNFILTERED_REQUEST_BODY);
+    expect(rememberedParameters()).toEqual(UNFILTERED_REQUEST_BODY);
   });
 
   it("reuses the filters remembered from a previous visit", async () => {
@@ -228,20 +229,10 @@ describe(InboxProductaanvragenListComponent.name, () => {
 
     fixture.componentInstance["resetSearch"]();
 
-    expect(rememberedParameters()).toEqual({
-      sort: "id",
-      order: "desc",
-      filtersType: "InboxProductaanvraagListParameters",
-      page: 0,
-      maxResults: 10,
-    });
+    expect(rememberedParameters()).toEqual(UNFILTERED_REQUEST_BODY);
     expect(fixture.componentInstance["sort"]().active).toBe("id");
     expect(fixture.componentInstance["sort"]().direction).toBe("desc");
-    expect(await lastListRequestBody()).toMatchObject({
-      sort: "id",
-      order: "desc",
-      page: 0,
-    });
+    expect(await lastListRequestBody()).toEqual(UNFILTERED_REQUEST_BODY);
   });
 
   it("filters on the type that was chosen in the type filter", async () => {
@@ -251,9 +242,44 @@ describe(InboxProductaanvragenListComponent.name, () => {
     await user.click(screen.getByRole("combobox", { name: "filter.alle" }));
     await user.click(screen.getByRole("option", { name: "type-B" }));
 
-    expect(await lastListRequestBody()).toMatchObject({
+    expect(await lastListRequestBody()).toEqual({
+      ...UNFILTERED_REQUEST_BODY,
       type: "type-B",
-      page: 0,
+    });
+  });
+
+  it("filters on the initiator that was typed in the initiator filter", async () => {
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    await user.type(screen.getByPlaceholderText("..."), "999993653{Enter}");
+
+    expect(await lastListRequestBody()).toEqual({
+      ...UNFILTERED_REQUEST_BODY,
+      initiatorID: "999993653",
+    });
+  });
+
+  it("filters on the dates that were typed in the ontvangstdatum filter", async () => {
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    await user.type(
+      screen.getByPlaceholderText("zoeken.filter.van"),
+      "01-01-2024",
+    );
+    await user.type(
+      screen.getByPlaceholderText("zoeken.filter.tot-en-met"),
+      "31-01-2024",
+    );
+    await user.tab();
+
+    expect(await lastListRequestBody()).toEqual({
+      ...UNFILTERED_REQUEST_BODY,
+      ontvangstdatum: {
+        van: new Date(2024, 0, 1).toISOString(),
+        tot: new Date(2024, 0, 31).toISOString(),
+      },
     });
   });
 
