@@ -53,8 +53,8 @@ DEFAULT_STATUS_MAIL = "BESCHIKBAAR_UIT"
 # zaakAfzenders every configured zaaktype is given; "index" is a frontend-only display
 # field, not part of RestZaakAfzender, so it is not sent here.
 ZAAK_AFZENDERS = [
-    {"defaultMail": True, "mail": "GEMEENTE", "speciaal": True, "replyTo": "GEMEENTE"},
-    {"defaultMail": False, "mail": "MEDEWERKER", "speciaal": True, "replyTo": None},
+    {"isDefaultMail": True, "mail": "GEMEENTE", "isSpeciaal": True, "replyTo": "GEMEENTE"},
+    {"isDefaultMail": False, "mail": "MEDEWERKER", "isSpeciaal": True, "replyTo": None},
 ]
 
 # Referentietabellen linked to specific human tasks of the "generiek-zaakafhandelmodel" case
