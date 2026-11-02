@@ -83,6 +83,11 @@
                     <excludedLayers>
                         <layer>deployment-scanner</layer>
                     </excludedLayers>
+                    <!-- adds the WildFly module with the ZAC logging filter, which the Gradle build assembles in this directory, -->
+                    <!-- to the server before the packaging scripts below run, so that they can configure the filter -->
+                    <extraServerContentDirs>
+                        <extraServerContentDir>build/wildfly/extra-server-content</extraServerContentDir>
+                    </extraServerContentDirs>
                     <packagingScripts>
                         <packagingScript>
                             <scripts>

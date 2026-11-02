@@ -408,6 +408,34 @@ log-level configuration.
   is what should prevent findings like these from recurring, instead of relying on a manual/log audit
   each time.
 
+## Masking personal data in the WildFly logging
+
+As a safety net for log statements that write personal data, WildFly masks personal data in every log record before
+it writes the record, whatever its log level or logger
+([ADR-0009](../solution-architecture/decisions/0009-mask-personal-data-in-a-wildfly-logging-filter.md)):
+
+| Personal data | Example              | Logged as   |
+|---------------|----------------------|-------------|
+| BSN           | `999993896`          | `******896` |
+| IBAN          | `NL91ABNA0417164300` | `*****`     |
+
+The masking applies to the log message and to the messages of a logged exception and its causes. It recognises a BSN
+as any number of exactly nine digits, so a RSIN is masked as well. It cannot recognise a surname or a date of birth in
+plain text, so log statements must still not log those.
+
+How it works:
+
+* The filter is the class [`PersonalDataMaskingLogFilter`](../../src/logFilter/kotlin/nl/info/zac/logfilter/PersonalDataMaskingLogFilter.kt)
+  in the `logFilter` source set. WildFly only loads logging filters from a module of the server, not from a
+  deployment, so it is not part of the ZAC WAR.
+* The Gradle task `assembleLogFilterWildFlyModule` packages the filter as the WildFly module `nl.info.zac.logfilter`
+  in `build/wildfly/extra-server-content`. The WildFly server build in [pom.xml](../../pom.xml) adds that directory to
+  the server (`extraServerContentDirs`).
+* [configure-wildfly.cli](../../src/main/resources/wildfly/configure-wildfly.cli) registers the filter and attaches it
+  to the console log handler.
+* The [WildFly install script](../../scripts/wildfly/install-wildfly.sh) adds the module to a locally installed
+  WildFly, and also attaches the filter to its file log handler (`server.log`).
+
 ## Known inconsistencies
 
 - No adoption yet of the `logger.debug { }` (KotlinLogging-style) convention documented in `CLAUDE.md`;

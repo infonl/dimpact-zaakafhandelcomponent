@@ -7,14 +7,23 @@ package nl.info.zac.itest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldNotContain
+import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
+import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.config.dockerComposeContainer
+import okhttp3.Headers
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_OK
 
 const val NUMBER_OF_LOG_LINES = 10
 
 class LoggingTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
+    val itestHttpClient = ItestHttpClient()
 
     given("ZAC Docker container is running") {
         `when`("the ZAC container log output is retrieved") {
@@ -37,6 +46,26 @@ class LoggingTest : BehaviorSpec({
                     logEntry.has("loggerName") shouldBe true
                     logEntry.getString("service") shouldBe "zac"
                 }
+            }
+        }
+    }
+
+    given("ZAC Docker container is running") {
+        `when`("a person is looked up in the BRP by BSN and the ZAC container log output is retrieved") {
+            val response = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/klanten/personen",
+                headers = Headers.Builder().add("X-ZAAKTYPE-UUID", "$ZAAKTYPE_CMMN_TEST_3_UUID").build(),
+                requestBodyAsString = """{ "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN" }""",
+                testUser = RAADPLEGER_1
+            )
+            val zacContainerLogs = dockerComposeContainer
+                .getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME)
+                .get()
+                .logs
+
+            then("the full BSN is not logged, because the logging filter of WildFly masks it") {
+                response.code shouldBe HTTP_OK
+                zacContainerLogs shouldNotContain TEST_PERSON_HENDRIKA_JANSE_BSN
             }
         }
     }

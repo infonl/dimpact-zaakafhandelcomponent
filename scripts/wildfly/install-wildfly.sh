@@ -29,6 +29,10 @@ rm -fr "$WILDFLY_SERVER_DIR"
 galleon.sh install wildfly#"$WILDFLY_VERSION" --dir="$WILDFLY_SERVER_DIR" --layers="$WILDFLY_LAYERS"
 galleon.sh install org.wildfly:wildfly-datasources-galleon-pack:"$WILDFLY_DATASOURCES_GALLEON_PACK_VERSION" --dir="$WILDFLY_SERVER_DIR" --layers=postgresql-driver
 
+echo ">>> Adding the ZAC logging filter module to WildFly ..."
+(cd ../.. && ./gradlew assembleLogFilterWildFlyModule)
+cp -R ../../build/wildfly/extra-server-content/. "$WILDFLY_SERVER_DIR"/
+
 "$WILDFLY_SERVER_DIR"/bin/jboss-cli.sh --file=install-wildfly.cli
 
 # The WildFly Web Console can be enabled by:

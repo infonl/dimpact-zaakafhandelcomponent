@@ -1,4 +1,4 @@
 embed-server
 run-batch --file=../../src/main/resources/wildfly/configure-wildfly.cli
-
-
+# unlike the ZAC Docker image, a locally installed WildFly also logs to a file, which needs the same logging filter
+/subsystem=logging/periodic-rotating-file-handler=FILE:write-attribute(name=filter-spec, value=personalDataMaskingFilter)

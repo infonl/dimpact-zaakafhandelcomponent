@@ -16,6 +16,7 @@ and its consequences. See [ADR-0007](0007-record-architecture-decisions-in-git-a
 | [0006](0006-accept-outdated-jackson-in-flowable-until-flowable-8-1.md)   | Accept the outdated Jackson component in Flowable until Flowable 8.1     | accepted | The Jackson warnings in Flowable 8.0.0 are an accepted risk until Flowable 8.1.                        |
 | [0007](0007-record-architecture-decisions-in-git-as-madr.md)             | Record architecture decisions in Git as MADR                             | accepted | Architecture decisions are MADR files in `docs/solution-architecture/decisions`, reviewed in pull requests.                        |
 | [0008](0008-update-the-ui-without-waiting-for-notifications-on-zac-initiated-changes.md) | Update the UI without waiting for notifications on changes that ZAC initiates | accepted | ZAC sends screen events as soon as an external system confirms a change that ZAC initiated.            |
+| [0009](0009-mask-personal-data-in-a-wildfly-logging-filter.md) | Mask personal data in all backend logging with a WildFly logging filter | proposed | A WildFly logging filter masks BSNs and IBANs in every log record, whatever its log level or logger. |
 
 ## When to write an ADR
 

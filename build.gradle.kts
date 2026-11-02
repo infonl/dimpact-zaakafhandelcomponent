@@ -126,6 +126,11 @@ val appPath = srcApp.toProjectRelativePath()
 val srcE2e = layout.projectDirectory.dir("src/e2e")
 val e2ePath = srcE2e.toProjectRelativePath()
 
+// WildFly loads its logging filters from a module of the server, not from a deployment, so the ZAC logging filter
+// has a source set of its own that the build packages as such a module; see ADR-0009
+val logFilter: SourceSet = sourceSets.create("logFilter")
+val wildflyExtraServerContent = layout.buildDirectory.dir("wildfly/extra-server-content")
+
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(libs.kotlinx.coroutines.core)
@@ -207,6 +212,11 @@ dependencies {
     providedCompile(libs.hibernate.validator)
     // ~dependencies provided by WildFly
 
+    "logFilterImplementation"(kotlin("stdlib"))
+    "logFilterCompileOnly"(libs.jboss.logmanager)
+
+    testImplementation(logFilter.output)
+    testImplementation(libs.jboss.logmanager)
     testImplementation(libs.kotlinx.coroutines.test)
     // yasson is required for using a JSONB context in our unit tests
     // where we do not have the WildFly runtime environment available
@@ -665,11 +675,11 @@ tasks {
     // build script and runs the type resolution tasks for everything else.
     named<Detekt>("detekt") {
         setSource(files("build.gradle.kts"))
-        dependsOn("detektMain", "detektTest", "detektItest")
+        dependsOn("detektMain", "detektTest", "detektItest", "detektLogFilter")
     }
 
     named<Detekt>("detektApply") {
-        setSource(files("src/main/kotlin", "src/test/kotlin", "src/itest/kotlin", "build.gradle.kts"))
+        setSource(files("src/main/kotlin", "src/test/kotlin", "src/itest/kotlin", "src/logFilter/kotlin", "build.gradle.kts"))
     }
 
     getByName("spotlessApply").finalizedBy(listOf("detektApply"))
@@ -1004,10 +1014,30 @@ tasks {
         outputs.dir(layout.buildDirectory.dir("reports/jacoco/jacocoIntegrationTestReport"))
     }
 
+    register<Jar>("logFilterJar") {
+        description = "Assembles the JAR with the ZAC logging filter"
+        group = "build"
+        archiveFileName = "zac-log-filter.jar"
+        destinationDirectory = layout.buildDirectory.dir("libs")
+        from(logFilter.output)
+    }
+
+    register<Sync>("assembleLogFilterWildFlyModule") {
+        description = "Assembles the WildFly module with the ZAC logging filter, which the WildFly server build adds to the server"
+        group = "build"
+        into(wildflyExtraServerContent.map { it.dir("modules/nl/info/zac/logfilter/main") })
+        from(named<Jar>("logFilterJar"))
+        from(configurations.named("logFilterRuntimeClasspath")) {
+            include("kotlin-stdlib-*.jar")
+            rename("kotlin-stdlib-.*\\.jar", "kotlin-stdlib.jar")
+        }
+        from(layout.projectDirectory.file("src/logFilter/module/module.xml"))
+    }
+
     register<Maven>("generateWildFlyBootableJar") {
         description = "Generates a WildFly bootable JAR"
         group = "build"
-        dependsOn("war")
+        dependsOn("war", "assembleLogFilterWildFlyModule")
         // Gradle already tracks the relevant inputs (WAR, pom.xml, wildfly/*.cli) and only re-runs
         // this task when one of them changes. Without this flag, the wildfly-maven-plugin would still
         // silently skip provisioning a new server whenever 'target/server' already exists from a
@@ -1017,6 +1047,7 @@ tasks {
         val wildflyResources = srcResources.dir("wildfly")
         inputs.files(wildflyResources.asFileTree)
         inputs.file(layout.buildDirectory.file("libs/zaakafhandelcomponent.war"))
+        inputs.dir(wildflyExtraServerContent)
         inputs.file(layout.projectDirectory.file("pom.xml"))
         inputs.file(wildflyResources.file("configure-wildfly.cli"))
         inputs.file(wildflyResources.file("deploy-zaakafhandelcomponent.cli"))
