@@ -23,7 +23,8 @@ No Figma design is linked in the item. The UX is copied from the zaken werkvoorr
 
 - **Table**: a first column with a header checkbox (`selectAll_checkbox`, aria-label from `actie.alles.selecteren`
   / `actie.alles.deselecteren`, indeterminate for a partial selection) and a checkbox per row. The filter row has
-  an empty cell above it (`select_filter`). The column is not shown without the right to delete or link.
+  an empty cell above it (`select_filter`). The column is not shown without the right to delete ontkoppelde
+  documenten (`canOntkoppeldeDocumentenVerwijderen`).
 - **Actions**: a bar below the list shows, only while at least one document is selected, the buttons
   *Verwijderen* (`delete` icon, id `verwijderen_button`) and *Koppelen* (`link` icon, id `koppelen_button`), each
   with a badge of the selected count. Both are disabled while an action runs.
@@ -39,10 +40,20 @@ No Figma design is linked in the item. The UX is copied from the zaken werkvoorr
 ### Synchronous bulk endpoints with a per-document result
 
 Both endpoints loop over the ids on the request thread and return `RestDetachedDocumentBulkResult` with
-`verwerkt` (ids) and `mislukt` (id, titel, `foutcode`). They do not run asynchronously and do not send screen
-events, because a selection is at most one page (the page size options of the list) and the ZGW calls per
-document are few. The frontend invalidates the list query on the response. This is simpler than the zaken flow
-and satisfies ADR 0008 without websocket events.
+`verwerkt` (ids) and `mislukt` (id, titel, `foutcode`). They do not run asynchronously, because a selection is at
+most one page (the page size options of the list) and the ZGW calls per document are few.
+
+ADR 0008 asks that the UI is updated as soon as the external system confirms a ZAC-initiated change, and not when
+the notification arrives. Here the synchronous response is that confirmation: it reaches the employee who started
+the action only after Open Zaak confirmed every document, and the frontend updates the list from it. Screen events
+are the ADR's means to reach screens that observe a change; no screen observes the ontkoppelde-documenten list
+through screen events (see below), so the endpoints send none, and the employee gets the failed documents when the
+batch ends, as the ADR requires.
+
+On the response the frontend invalidates the list query and reloads the current page explicitly with
+`filterChange.emit()`, as the single delete does, because the list reads through the one-shot `runQuery` pipeline
+and does not observe the query. When the reload returns an empty page beyond the last page, the list moves to the
+last page that still has documents.
 
 ### Reuse the single-document logic per document
 
@@ -72,7 +83,9 @@ notification handlers are unchanged.
 - "Selecteren van-tot" from the story is covered by the existing filter on *ontkoppeld op* plus select-all.
 - *Koppelen* searches zaken by the informatieobjecttype of the first selected document (the search API needs
   one type); documents whose type is not allowed on the chosen zaak fail and are reported.
-- The same right (`ontkoppelde_documenten_verwijderen`) gates the whole selection column for deleting; linking
-  uses the existing per-document policies, so no new OPA rule is added.
+- The selection column, and with it both bulk actions, is only for employees with the right
+  `ontkoppelde_documenten_verwijderen` (recordmanager and beheerder): the story asks for recordmanagers. A
+  coordinator keeps linking one document at a time. The bulk link endpoint itself checks the inbox right and the
+  per-document policies, so no new OPA rule is added.
 - Maximum 100 ids per request.
 - New texts are added in `nl.json` and `en.json`; Dutch wording is chosen to match existing messages.
