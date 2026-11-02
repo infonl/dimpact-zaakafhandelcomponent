@@ -6,7 +6,11 @@ package nl.info.zac.logfilter
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import org.jboss.logmanager.ExtLogRecord
+import org.jboss.logmanager.formatters.PatternFormatter
+import org.jboss.logmanager.formatters.XmlFormatter
 import java.util.logging.Level
 import java.util.logging.LogRecord
 
@@ -61,6 +65,54 @@ class PersonalDataMaskingLogFilterTest : BehaviorSpec({
                 then("the exception is logged with the BSN masked") {
                     extLogRecord.thrown.toString() shouldBe
                         "java.lang.IllegalStateException: Geen persoon gevonden voor BSN '******896'"
+                }
+            }
+        }
+
+        given("a WildFly log record with an exception without personal data, which a structured formatter writes") {
+            val extLogRecord = ExtLogRecord(Level.SEVERE, "fakeMessage", "fakeLoggerClassName").apply {
+                thrown = IllegalStateException("fakeExceptionMessage")
+            }
+
+            `when`("the log record is filtered and formatted like the JSON logging of WildFly does") {
+                personalDataMaskingLogFilter.isLoggable(extLogRecord)
+                val formattedLogRecord = XmlFormatter().format(extLogRecord)
+
+                then("the type of the exception is still the class of the original exception") {
+                    formattedLogRecord shouldContain "<exceptionType>java.lang.IllegalStateException</exceptionType>"
+                }
+            }
+        }
+
+        given("a WildFly log record with an exception with a BSN, which a structured formatter writes") {
+            val extLogRecord = ExtLogRecord(Level.SEVERE, "fakeMessage", "fakeLoggerClassName").apply {
+                thrown = IllegalStateException("Geen persoon gevonden voor BSN '999993896'")
+            }
+
+            `when`("the log record is filtered and formatted like the JSON logging of WildFly does") {
+                personalDataMaskingLogFilter.isLoggable(extLogRecord)
+                val formattedLogRecord = XmlFormatter().format(extLogRecord)
+
+                then("the BSN is masked, and the class of the original exception is still visible in the message") {
+                    formattedLogRecord shouldContain "java.lang.IllegalStateException: Geen persoon gevonden voor BSN '******896'"
+                    formattedLogRecord shouldNotContain "999993896"
+                }
+            }
+        }
+
+        given("a WildFly log record with an exception with a BSN, which passes two log handlers with this filter") {
+            val extLogRecord = ExtLogRecord(Level.SEVERE, "fakeMessage", "fakeLoggerClassName").apply {
+                thrown = IllegalStateException("Geen persoon gevonden voor BSN '999993896'")
+            }
+
+            `when`("the log record is filtered twice and its exception is formatted as text") {
+                personalDataMaskingLogFilter.isLoggable(extLogRecord)
+                personalDataMaskingLogFilter.isLoggable(extLogRecord)
+                val formattedException = PatternFormatter("%e").format(extLogRecord)
+
+                then("the stack trace shows the class of the original exception and the masked BSN, not a masked copy of a masked copy") {
+                    formattedException shouldContain "java.lang.IllegalStateException: Geen persoon gevonden voor BSN '******896'"
+                    formattedException shouldNotContain MaskedThrowable::class.java.name
                 }
             }
         }

@@ -4,22 +4,35 @@
  */
 package nl.info.zac.logfilter
 
+import java.util.Collections
 import java.util.IdentityHashMap
 
 /**
- * A copy of a throwable with a masked message. It keeps the class name and the stack trace of the original, so that
- * a logged stack trace only differs from the original in the masked personal data.
+ * A copy of a throwable with a masked message, which keeps the stack trace of the original.
+ *
+ * The structured log formatters of WildFly log the class of a throwable as its type, so the name of the original
+ * class is part of the message of the copy, where it stays visible in the JSON logging.
  */
 class MaskedThrowable(
-    private val originalClassName: String,
+    originalClassName: String,
     maskedMessage: String?
-) : Throwable(maskedMessage) {
-    override fun toString() = message?.let { "$originalClassName: $it" } ?: originalClassName
+) : Throwable(maskedMessage?.let { "$originalClassName: $it" } ?: originalClassName) {
+    override fun toString() = message.orEmpty()
 
     override fun fillInStackTrace() = this
 }
 
-fun Throwable.toMaskedThrowable(): MaskedThrowable = toMaskedThrowable(IdentityHashMap())
+fun Throwable.maskPersonalData(): Throwable =
+    if (this is MaskedThrowable || !containsPersonalData()) this else toMaskedThrowable(IdentityHashMap())
+
+private fun Throwable.containsPersonalData(
+    checkedThrowables: MutableSet<Throwable> = Collections.newSetFromMap(IdentityHashMap())
+): Boolean =
+    checkedThrowables.add(this) && (
+        message?.let { it.maskPersonalData() != it } == true ||
+            cause?.containsPersonalData(checkedThrowables) == true ||
+            suppressed.any { it.containsPersonalData(checkedThrowables) }
+        )
 
 private fun Throwable.toMaskedThrowable(maskedThrowables: IdentityHashMap<Throwable, MaskedThrowable>): MaskedThrowable =
     maskedThrowables[this] ?: MaskedThrowable(javaClass.name, message?.maskPersonalData()).also { maskedThrowable ->

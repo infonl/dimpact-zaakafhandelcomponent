@@ -73,7 +73,9 @@ configuration attaches the filter to the log handlers is not checked automatical
 
 * Good, because it masks the records that are logged with a message supplier. WildFly wraps such a record, and the
   filter writes the masked message to the wrapped record as well.
-* Good, because it masks the messages of logged exceptions, including their causes.
+* Good, because it masks the messages of logged exceptions, including their causes. An exception with personal data
+  in its messages is replaced by a copy whose message starts with the name of the original class, because the JSON
+  formatter logs the class of the copy as the exception type. An exception without personal data is logged as is.
 * Good, because it is Kotlin code with unit tests.
 * Bad, because the build needs a source set, a module descriptor and an extra step in the WildFly server build.
 

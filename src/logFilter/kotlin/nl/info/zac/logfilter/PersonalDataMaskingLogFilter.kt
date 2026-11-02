@@ -27,7 +27,7 @@ class PersonalDataMaskingLogFilter : Filter {
         } else {
             record.message = record.message?.maskPersonalData()
         }
-        record.thrown = record.thrown?.toMaskedThrowable()
+        record.thrown = record.thrown?.maskPersonalData()
         return true
     }
 }
