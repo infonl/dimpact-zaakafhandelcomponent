@@ -39,6 +39,14 @@ The filter `nl.info.zac.logfilter.PersonalDataMaskingLogFilter` masks all digits
 masks every IBAN completely. It is attached to the console log handler, so it applies to every log record that the
 server writes, whatever its log level or logger. It never rejects a log record.
 
+A surname together with a date of birth cannot be recognised in plain text, so the two log statements that write
+dates of birth handle them at the source instead:
+
+* `BrpClientService` logs only the query type of a BRP query, not the query and the response, because a query by
+  surname and date of birth and a BRP person contain both.
+* `JsonLoggingFilter` masks every JSON field whose name contains `geboorte`, such as `geboorte` and `geboortedatum`,
+  in the payloads of the REST calls that it logs.
+
 WildFly only loads logging filters from a module of the server, not from a deployment. The build therefore compiles
 the filter in a source set of its own, packages it as the `nl.info.zac.logfilter` module, and adds that module to the
 server before `configure-wildfly.cli` configures the filter.
@@ -47,15 +55,16 @@ server before `configure-wildfly.cli` configures the filter.
 
 * Good, because personal data is masked in all backend logging, also in log statements that are added later.
 * Good, because the log statements in the ZAC code do not need to change for the masking.
-* Bad, because a surname together with a date of birth cannot be recognised in plain text; log statements must still
-  not log a date of birth.
+* Bad, because a surname together with a date of birth cannot be recognised in plain text; a new log statement that
+  logs a date of birth is not protected, and log statements must still not log one.
 * Bad, because every number of nine digits is masked, also a number that is not a BSN, such as a RSIN.
 * Bad, because the version of `jboss-logmanager` that the filter is compiled against is not part of a WildFly BOM
   and must be checked by hand when WildFly is upgraded.
 
 ### Confirmation
 
-The unit tests in `src/test/kotlin/nl/info/zac/logfilter` confirm what the filter masks. Whether the server
+The unit tests in `src/test/kotlin/nl/info/zac/logfilter` confirm what the filter masks. The unit tests of
+`BrpClientService` and `JsonLoggingFilter` confirm that they do not log dates of birth. Whether the server
 configuration attaches the filter to the log handlers is not checked automatically.
 
 ## Pros and Cons of the Options

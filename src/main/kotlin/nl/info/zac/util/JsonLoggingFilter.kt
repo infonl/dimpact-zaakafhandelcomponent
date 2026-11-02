@@ -5,8 +5,10 @@
 package nl.info.zac.util
 
 import jakarta.json.Json
+import jakarta.json.JsonArray
+import jakarta.json.JsonObject
+import jakarta.json.JsonValue
 import jakarta.json.bind.JsonbBuilder
-import jakarta.json.bind.JsonbConfig
 import jakarta.json.stream.JsonGenerator
 import jakarta.json.stream.JsonParsingException
 import jakarta.ws.rs.client.ClientRequestContext
@@ -28,6 +30,11 @@ class JsonLoggingFilter : ClientRequestFilter, ClientResponseFilter {
     companion object {
         private val LOG_LEVEL = Level.FINE
         private val LOG = Logger.getLogger(JsonLoggingFilter::class.java.name)
+
+        // BSNs and IBANs are masked by the WildFly logging filter, but a date of birth cannot be recognised in
+        // plain text, so it is masked here by the name of its JSON field; see ADR-0009
+        private const val DATE_OF_BIRTH_FIELD_NAME_PART = "geboorte"
+        const val DATE_OF_BIRTH_MASK = "*****"
     }
 
     override fun filter(requestContext: ClientRequestContext) {
@@ -69,7 +76,7 @@ class JsonLoggingFilter : ClientRequestFilter, ClientResponseFilter {
     @Suppress("TooGenericExceptionCaught", "TooGenericExceptionThrown")
     private fun getPayload(requestContext: ClientRequestContext): String =
         try {
-            JsonbBuilder.create(JsonbConfig().withFormatting(true)).use { it.toJson(requestContext.entity) }
+            JsonbBuilder.create().use { it.toJson(requestContext.entity) }.toPrettyJsonWithMaskedDatesOfBirth()
         } catch (exception: Exception) {
             throw RuntimeException("Failed to create or close JSON builder", exception)
         }
@@ -79,19 +86,42 @@ class JsonLoggingFilter : ClientRequestFilter, ClientResponseFilter {
         try {
             val payload = IOUtils.toString(responseContext.entityStream, StandardCharsets.UTF_8)
             responseContext.entityStream = IOUtils.toInputStream(payload, StandardCharsets.UTF_8)
-            val payloadWriter = StringWriter()
-            return try {
-                Json.createWriterFactory(mapOf(JsonGenerator.PRETTY_PRINTING to true)).createWriter(payloadWriter).use { jsonWriter ->
-                    Json.createReader(StringReader(payload)).use { jsonReader ->
-                        jsonWriter.write(jsonReader.read())
-                    }
-                }
-                payloadWriter.toString()
-            } catch (_: JsonParsingException) {
-                payload
-            }
+            return payload.toPrettyJsonWithMaskedDatesOfBirth()
         } catch (ioException: IOException) {
             throw RuntimeException("Error logging REST response", ioException)
         }
     }
+
+    private fun String.toPrettyJsonWithMaskedDatesOfBirth(): String =
+        try {
+            StringWriter().also { payloadWriter ->
+                Json.createWriterFactory(mapOf(JsonGenerator.PRETTY_PRINTING to true)).createWriter(payloadWriter).use { jsonWriter ->
+                    Json.createReader(StringReader(this)).use { jsonReader ->
+                        jsonWriter.write(jsonReader.readValue().maskDatesOfBirth())
+                    }
+                }
+            }.toString()
+        } catch (_: JsonParsingException) {
+            this
+        }
+
+    private fun JsonValue.maskDatesOfBirth(): JsonValue =
+        when (this) {
+            is JsonObject -> Json.createObjectBuilder().apply {
+                this@maskDatesOfBirth.forEach { (name, value) ->
+                    add(
+                        name,
+                        if (name.contains(DATE_OF_BIRTH_FIELD_NAME_PART, ignoreCase = true)) {
+                            Json.createValue(DATE_OF_BIRTH_MASK)
+                        } else {
+                            value.maskDatesOfBirth()
+                        }
+                    )
+                }
+            }.build()
+            is JsonArray -> Json.createArrayBuilder().apply {
+                this@maskDatesOfBirth.forEach { add(it.maskDatesOfBirth()) }
+            }.build()
+            else -> this
+        }
 }

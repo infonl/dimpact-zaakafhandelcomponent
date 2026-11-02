@@ -99,6 +99,38 @@ class JsonLoggingFilterTest : BehaviorSpec({
                 }
             }
         }
+
+        given("the log level of the filter is FINE and the request has a JSON entity with a surname and a date of birth") {
+            val clientRequestContext = mockk<ClientRequestContext>()
+            every { clientRequestContext.uri } returns URI("https://example.com/rollen")
+            every { clientRequestContext.method } returns "POST"
+            every { clientRequestContext.mediaType } returns MediaType.APPLICATION_JSON_TYPE
+            every { clientRequestContext.headers } returns MultivaluedHashMap()
+            every { clientRequestContext.hasEntity() } returns true
+            every { clientRequestContext.entity } returns mapOf(
+                "betrokkeneIdentificatie" to mapOf(
+                    "inpBsn" to "999993896",
+                    "geslachtsnaam" to "fakeGeslachtsnaam",
+                    "geboortedatum" to "1980-05-17"
+                )
+            )
+
+            `when`("the request is filtered") {
+                val logRecords = captureLogRecords(Level.FINE) { jsonLoggingFilter.filter(clientRequestContext) }
+
+                then(
+                    "the date of birth is masked, so that it is not logged together with the surname, " +
+                        "and the other fields are logged as they are"
+                ) {
+                    with(logRecords.single().message) {
+                        this shouldContain "\"geboortedatum\": \"${JsonLoggingFilter.DATE_OF_BIRTH_MASK}\""
+                        this shouldContain "\"geslachtsnaam\": \"fakeGeslachtsnaam\""
+                        this shouldContain "\"inpBsn\": \"999993896\""
+                        this shouldNotContain "1980-05-17"
+                    }
+                }
+            }
+        }
     }
 
     context("Filtering a REST response") {
@@ -149,6 +181,52 @@ class JsonLoggingFilterTest : BehaviorSpec({
                 }
 
                 and("the entity stream is replaced, so that the payload can still be read by the client") {
+                    String(resetEntityStream.captured.readAllBytes(), StandardCharsets.UTF_8) shouldBe payload
+                }
+            }
+        }
+
+        given("the log level of the filter is FINE and the response has a BRP person with a surname and a date of birth") {
+            val clientRequestContext = mockk<ClientRequestContext>()
+            val clientResponseContext = mockk<ClientResponseContext>()
+            val payload = """
+                {
+                  "fields": ["naam", "geboorte"],
+                  "personen": [
+                    {
+                      "naam": { "geslachtsnaam": "fakeGeslachtsnaam" },
+                      "geboorte": { "datum": { "datum": "1980-05-17", "langFormaat": "17 mei 1980" } }
+                    }
+                  ]
+                }
+            """.trimIndent()
+            val resetEntityStream = slot<InputStream>()
+            every { clientResponseContext.statusInfo } returns Response.Status.OK
+            every { clientResponseContext.mediaType } returns MediaType.APPLICATION_JSON_TYPE
+            every { clientResponseContext.headers } returns MultivaluedHashMap()
+            every { clientResponseContext.hasEntity() } returns true
+            every { clientResponseContext.entityStream } returns payload.toInputStream()
+            every { clientResponseContext.entityStream = capture(resetEntityStream) } returns Unit
+
+            `when`("the response is filtered") {
+                val logRecords = captureLogRecords(Level.FINE) {
+                    jsonLoggingFilter.filter(clientRequestContext, clientResponseContext)
+                }
+
+                then(
+                    "the whole date of birth is masked, so that it is not logged together with the surname, " +
+                        "while a field name in a list of values is kept"
+                ) {
+                    with(logRecords.single().message) {
+                        this shouldContain "\"geboorte\": \"${JsonLoggingFilter.DATE_OF_BIRTH_MASK}\""
+                        this shouldContain "\"geslachtsnaam\": \"fakeGeslachtsnaam\""
+                        this shouldContain "\"geboorte\"\n"
+                        this shouldNotContain "1980-05-17"
+                        this shouldNotContain "17 mei 1980"
+                    }
+                }
+
+                and("the client still receives the unmasked payload") {
                     String(resetEntityStream.captured.readAllBytes(), StandardCharsets.UTF_8) shouldBe payload
                 }
             }

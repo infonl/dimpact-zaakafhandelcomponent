@@ -119,7 +119,7 @@ class BrpClientService @Inject constructor(
         val start = System.currentTimeMillis()
         LOG.log(logLevel) {
             """PersonenApi.personen() >>>
-            |request = $personenQuery
+            |query type = ${personenQuery.type}
             |context = [${
                 brpProtocolleringContext.headers.entries.joinToString { e -> "${e.key}=${e.value}" }
             }]
@@ -129,7 +129,6 @@ class BrpClientService @Inject constructor(
             .also {
                 LOG.log(logLevel) {
                     """PersonenApi.personen() <<<
-                    |response = $it
                     |duration = ${System.currentTimeMillis() - start}
                     """.trimMargin()
                 }

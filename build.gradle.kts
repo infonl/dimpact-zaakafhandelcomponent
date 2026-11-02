@@ -312,6 +312,9 @@ testing {
                     // run the unit tests in multiple JVM forks so they use the available CPU cores
                     // instead of a single fork. Process-level isolation keeps tests independent.
                     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
+                    // jboss-logmanager is on the test classpath for the tests of the WildFly logging filter, but
+                    // would otherwise replace the JDK log manager, so that tests can no longer capture log records
+                    systemProperty("java.util.logging.manager", "java.util.logging.LogManager")
                 }
             }
         }

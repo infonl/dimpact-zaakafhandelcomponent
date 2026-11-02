@@ -9,6 +9,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldNotContain
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -63,9 +64,10 @@ class LoggingTest : BehaviorSpec({
                 .get()
                 .logs
 
-            then("the full BSN is not logged, because the logging filter of WildFly masks it") {
+            then("neither the full BSN nor the date of birth of the person is logged") {
                 response.code shouldBe HTTP_OK
                 zacContainerLogs shouldNotContain TEST_PERSON_HENDRIKA_JANSE_BSN
+                zacContainerLogs shouldNotContain TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE
             }
         }
     }

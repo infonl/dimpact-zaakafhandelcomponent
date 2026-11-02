@@ -211,6 +211,9 @@ treated as personal data on its own.
   This is the single highest-risk log statement in the codebase: it is gated only by log level, not by
   content, so enabling `FINE` logging on this class effectively logs personal data for every integration
   at once.
+  **Resolved for PZ-13151:** BSNs and IBANs are masked by the
+  [WildFly logging filter](#masking-personal-data-in-the-wildfly-logging), and the filter masks every JSON field
+  whose name contains `geboorte`.
 - [`nl/info/client/brp/BrpClientService.kt`](../../src/main/kotlin/nl/info/client/brp/BrpClientService.kt)
   (`queryPersonen`) — logs the full `PersonenQuery` request and `PersonenQueryResponse` via `toString()`,
   gated by a configurable log level. `queryPersonen` backs every BRP query variant: only the BSN-lookup
@@ -222,6 +225,7 @@ treated as personal data on its own.
   regardless of which query variant was used. This is an intentional, first-class logging path, not an
   accident — but it means BSNs and partial BRP person records can appear in logs whenever that level is
   enabled.
+  **Resolved for PZ-13151:** it logs only the query type of a BRP query.
 - [`nl/info/zac/mail/MailService.kt`](../../src/main/kotlin/nl/info/zac/mail/MailService.kt) (`sendMail`) —
   `LOG.fine("Sent mail to ${mailGegevens.to} with subject '$subject'.")`. `MailAdres.toString()` returns
   `"$email ($name)"`, so this logs the recipient's email address and name on every successfully sent
@@ -421,7 +425,11 @@ it writes the record, whatever its log level or logger
 
 The masking applies to the log message and to the messages of a logged exception and its causes. It recognises a BSN
 as any number of exactly nine digits, so a RSIN is masked as well. It cannot recognise a surname or a date of birth in
-plain text, so log statements must still not log those.
+plain text, so log statements must still not log those. The two log statements that wrote dates of birth handle them
+at the source:
+
+* `BrpClientService.queryPersonen` logs only the query type of a BRP query, not the query and the response.
+* `JsonLoggingFilter` masks every JSON field whose name contains `geboorte` in the REST payloads that it logs.
 
 How it works:
 
