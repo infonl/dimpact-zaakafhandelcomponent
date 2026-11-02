@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
-FROM eclipse-temurin:25.0.5_8-jre-ubi10-minimal@sha256:199dd7a8edeed7cf04723a289ba8aff8005e7cd6ff27411479d497f872797a46 AS runtime
+FROM eclipse-temurin:26.0.2.1_1-jre-ubi10-minimal@sha256:f206ec432aec9ea60c91e0f174410e35d501c39a84933605fcd2c07648d03e54 AS runtime
 ARG branchName
 ARG commitHash
 ARG versionNumber
