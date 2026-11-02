@@ -5,7 +5,7 @@
 /rest/informatieobjecten/informatieobject/verplaats` with `bron = ontkoppelde-documenten`). The zaken werkvoorraad
 has the pattern to copy: a `select` column with `SelectionModel`, `masterToggle`, `checkboxLabel`, and bottom
 buttons (`verdelen_button`, `vrijgeven_button`) with `matBadge` counts. ADR
-[0008](../../../docs/solution-architecture/decisions/0008-update-the-ui-without-waiting-for-notifications-on-zac-initiated-changes.md)
+[0008](../../../../docs/solution-architecture/decisions/0008-update-the-ui-without-waiting-for-notifications-on-zac-initiated-changes.md)
 (accepted) says ZAC-initiated changes update the UI on the external system's success response and report failed
 items when the batch ends. This change follows it and does not conflict with any accepted ADR.
 
