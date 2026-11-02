@@ -5,7 +5,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -90,7 +90,7 @@ describe(CaseDetailsEditComponent.name, () => {
       imports: [CaseDetailsEditComponent, NoopAnimationsModule],
       providers: [
         provideTranslateService(),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         provideRouter([]),
         provideQueryClient(testQueryClient),

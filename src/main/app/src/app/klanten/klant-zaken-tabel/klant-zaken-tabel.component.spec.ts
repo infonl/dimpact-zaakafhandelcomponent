@@ -3,21 +3,30 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpErrorResponse, provideHttpClient } from "@angular/common/http";
+import {
+  HttpTestingController,
+  TestRequest,
+} from "@angular/common/http/testing";
 import { inputBinding } from "@angular/core";
+import { TestBed } from "@angular/core/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
+import { MatDialog } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
+import { Router } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { createQueryOptions, fromPartial } from "src/test-helpers";
-import { sleep, testQueryClient } from "../../../../setupJest";
+import {
+  createQueryOptions,
+  fromPartial,
+  provideZoekenServiceWithoutRetries,
+} from "src/test-helpers";
+import { sleep } from "../../../../setupJest";
+import { FoutDetailedDialogComponent } from "../../fout-afhandeling/dialog/fout-detailed-dialog.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
+import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
-import { ZoekenService } from "../../zoeken/zoeken.service";
 import { KlantenService } from "../klanten.service";
 import { KlantZakenTabelComponent } from "./klant-zaken-tabel.component";
 
@@ -40,12 +49,14 @@ const zaak = (
 
 describe(KlantZakenTabelComponent.name, () => {
   const user = userEvent.setup();
-  const list = jest.fn();
   const listRoltypen = jest.fn();
+  const dialog = { open: jest.fn(), closeAll: jest.fn() };
   let detectChanges: () => void;
+  let httpTestingController: HttpTestingController;
+  let searches: ZoekParameters[];
 
   function lastSearch() {
-    return list.mock.lastCall![0] as Parameters<ZoekenService["list"]>[0];
+    return searches.at(-1)!;
   }
 
   function betrokkenhedenOf(identificatie: string) {
@@ -54,6 +65,45 @@ describe(KlantZakenTabelComponent.name, () => {
     return within(betrokkeneCell)
       .queryAllByText(/./)
       .map((element) => element.textContent?.trim());
+  }
+
+  async function settle() {
+    await sleep();
+    detectChanges();
+    await sleep();
+    // the table creates the row views in one pass and binds their cells in the next
+    detectChanges();
+    detectChanges();
+  }
+
+  async function nextSearch() {
+    await settle();
+    const request = httpTestingController.expectOne("/rest/zoeken/list");
+    searches.push(request.request.body as ZoekParameters);
+    return request;
+  }
+
+  async function respondWith(
+    request: TestRequest,
+    zaken: ZaakZoekObject[] = [],
+    totaal = zaken.length,
+  ) {
+    request.flush(
+      fromPartial<ZoekResultaat<ZaakZoekObject>>({
+        resultaten: zaken,
+        totaal,
+        filters: {},
+      }),
+    );
+    await settle();
+  }
+
+  async function fail(request: TestRequest) {
+    request.flush(
+      { message: "fakeMessage", exception: "fakeException" },
+      { status: 400, statusText: "Bad Request" },
+    );
+    await settle();
   }
 
   async function setup({
@@ -67,15 +117,7 @@ describe(KlantZakenTabelComponent.name, () => {
     totaal?: number;
     roltypen?: string[];
   } = {}) {
-    list.mockReturnValue(
-      createQueryOptions(
-        fromPartial<ZoekResultaat<ZaakZoekObject>>({
-          resultaten: zaken,
-          totaal,
-          filters: {},
-        }),
-      ),
-    );
+    searches = [];
     listRoltypen.mockReturnValue({
       ...createQueryOptions(
         roltypen.map((naam) =>
@@ -90,14 +132,9 @@ describe(KlantZakenTabelComponent.name, () => {
       imports: [NoopAnimationsModule],
       providers: [
         provideTranslateService(),
-        provideQueryClient(testQueryClient),
-        provideHttpClient(),
-        provideRouter([]),
         provideNativeDateAdapter(),
-        {
-          provide: ZoekenService,
-          useValue: fromPartial<ZoekenService>({ list }),
-        },
+        provideZoekenServiceWithoutRetries(),
+        { provide: MatDialog, useValue: dialog },
         {
           provide: KlantenService,
           useValue: fromPartial<KlantenService>({ listRoltypen }),
@@ -106,10 +143,8 @@ describe(KlantZakenTabelComponent.name, () => {
     });
 
     detectChanges = rendered.detectChanges;
-    await sleep();
-    // the table creates the row views in one pass and binds their cells in the next
-    detectChanges();
-    detectChanges();
+    httpTestingController = TestBed.inject(HttpTestingController);
+    await respondWith(await nextSearch(), zaken, totaal);
   }
 
   async function chooseRoltype(roltype: string) {
@@ -117,8 +152,6 @@ describe(KlantZakenTabelComponent.name, () => {
       screen.getByRole("combobox", { name: "betrokkene-roltype.kies" }),
     );
     await user.click(screen.getByRole("option", { name: roltype }));
-    await sleep();
-    detectChanges();
   }
 
   it("lists the zaken of the klant", async () => {
@@ -133,17 +166,78 @@ describe(KlantZakenTabelComponent.name, () => {
 
   it("stays on the page it is showing when the search for the next one fails", async () => {
     await setup({ zaken: [zaak("ZAAK-001")], totaal: 25 });
-    list.mockReturnValue({
-      queryKey: ["failing-query"],
-      queryFn: jest
-        .fn()
-        .mockRejectedValue(new HttpErrorResponse({ status: 500 })),
-    });
 
     await user.click(screen.getByRole("button", { name: "Next page" }));
-    await sleep();
-    detectChanges();
+    await fail(await nextSearch());
 
+    expect(screen.getByRole("row", { name: /ZAAK-001/ })).toBeVisible();
+    expect(screen.getByText("1 – 10 of 25")).toBeVisible();
+  });
+
+  describe("when a search on a roltype fails", () => {
+    beforeEach(async () => {
+      await setup({ zaken: [zaak("ZAAK-001")], roltypen: ["Behandelaar"] });
+      await chooseRoltype("Behandelaar");
+      await fail(await nextSearch());
+    });
+
+    it("keeps the zaken it is showing", () => {
+      expect(screen.getByRole("row", { name: /ZAAK-001/ })).toBeVisible();
+    });
+
+    it("puts the roltype filter back on that of the zaken it is showing", () => {
+      expect(
+        screen.getByRole("combobox", { name: "betrokkene-roltype.kies" }),
+      ).not.toHaveTextContent("Behandelaar");
+    });
+
+    it("searches on any betrokkenheid again when another filter changes next", async () => {
+      await user.click(
+        screen.getByRole("switch", { name: "toon-afgeronde-zaken" }),
+      );
+      await respondWith(await nextSearch());
+
+      expect(lastSearch().zoeken).toEqual(
+        expect.objectContaining({ ZAAK_BETROKKENEN: "P-999993896" }),
+      );
+    });
+
+    it("opens one dialog that says the previous zaken and filters are shown again", () => {
+      expect(dialog.open).toHaveBeenCalledTimes(1);
+      expect(dialog.open).toHaveBeenCalledWith(FoutDetailedDialogComponent, {
+        data: expect.objectContaining({
+          waarschuwing: "msg.zoeken.mislukt.vorige.zoekopdracht",
+          details: "fakeException",
+        }),
+      });
+    });
+  });
+
+  it("sends the user to the error page when a search fails because the session has expired", async () => {
+    await setup({ zaken: [zaak("ZAAK-001")], totaal: 25 });
+    const navigate = jest
+      .spyOn(TestBed.inject(Router), "navigate")
+      .mockResolvedValue(true);
+
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    (await nextSearch()).error(new ProgressEvent("error"), { status: 0 });
+    await settle();
+
+    expect(navigate).toHaveBeenCalledWith(["/fout"]);
+    expect(dialog.open).not.toHaveBeenCalled();
+  });
+
+  it("shows the first page from the cache at once when the filters are cleared, as that search succeeded before", async () => {
+    await setup({ zaken: [zaak("ZAAK-001")], totaal: 25 });
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    await respondWith(await nextSearch(), [zaak("ZAAK-011")], 25);
+
+    await user.click(
+      screen.getByRole("button", { name: "actie.zoekopdracht.wissen" }),
+    );
+    await settle();
+
+    httpTestingController.expectNone("/rest/zoeken/list");
     expect(screen.getByRole("row", { name: /ZAAK-001/ })).toBeVisible();
     expect(screen.getByText("1 – 10 of 25")).toBeVisible();
   });
@@ -319,6 +413,7 @@ describe(KlantZakenTabelComponent.name, () => {
       await setup({ roltypen: ["Behandelaar"] });
 
       await chooseRoltype("Behandelaar");
+      await respondWith(await nextSearch());
 
       expect(lastSearch().zoeken).toEqual(
         expect.objectContaining({
@@ -331,6 +426,7 @@ describe(KlantZakenTabelComponent.name, () => {
       await setup({ roltypen: ["Belanghebbende Met Spaties"] });
 
       await chooseRoltype("Belanghebbende Met Spaties");
+      await respondWith(await nextSearch());
 
       expect(lastSearch().zoeken).toEqual(
         expect.objectContaining({

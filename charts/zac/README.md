@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.363](https://img.shields.io/badge/Version-1.0.363-informational?style=flat-square) ![AppVersion: 5.11](https://img.shields.io/badge/AppVersion-5.11-informational?style=flat-square)
+![Version: 1.0.366](https://img.shields.io/badge/Version-1.0.366-informational?style=flat-square) ![AppVersion: 5.11](https://img.shields.io/badge/AppVersion-5.11-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.178.0 |
+| @opentelemetry | opentelemetry-collector | 0.178.1 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -116,7 +116,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | gemeente.naam | string | `""` |  |
 | global.curlImage.pullPolicy | string | `"IfNotPresent"` |  |
 | global.curlImage.repository | string | `"docker.io/curlimages/curl"` | curl docker repository used throughout the chart |
-| global.curlImage.tag | string | `"8.23.0@sha256:a134550be58ab783810e613ae96fd253c38f7bdd16d9bf9be350700c7a29ac06"` | curl docker tag to pull |
+| global.curlImage.tag | string | `"8.23.0@sha256:3fb7e13e5d179a845c97d78204f3f1064d1907037f26a3ebf91710571151fd93"` | curl docker tag to pull |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/infonl/zaakafhandelcomponent"` |  |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
@@ -142,6 +142,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | kvkApi.url | string | `""` |  |
 | livenessProbe | object | `{"failureThreshold":16,"path":"/health/ready","periodSeconds":30,"timeoutSeconds":1}` | liveness probe configuration for the main ZAC container |
 | livenessProbe.path | string | `"/health/ready"` | Path used for the liveness probe. Defaults to /health/ready so Kubernetes restarts ZAC automatically when the OpenZaak catalogus is unreachable for longer than failureThreshold * periodSeconds. The root cause is that the ZGW-API-Client MicroProfile REST client has no connectTimeout / readTimeout configured, causing stale TCP connections in the pool after extended outages. Revert to /health/live (and lower failureThreshold back to 3) once proper HTTP timeouts are configured on ZGW-API-Client in the ZAC application. |
+| logLevel | string | `"INFO"` | Log level of ZAC: the WildFly root logger and console handler. One of DEBUG, INFO, WARN, ERROR. DEBUG logs a lot, including security-sensitive data such as session details; only use it temporarily. WildFly logs its own boot messages at INFO before this level applies. |
 | mail.smtp.password | string | `""` | SMTP server password if authentication is required. Optional |
 | mail.smtp.port | string | `"587"` | SMTP server port: 587 for TLS, port 25 for relaying. Required |
 | mail.smtp.server | string | `""` | SMTP server host (for example, localhost or in-v3.mailjet.com). Required |
@@ -273,7 +274,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"docker.io/openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.21.4-static@sha256:47f93480b09e24c220ae75f1e9133585ba6d698059951668d35e6a4fc32ebc82"` |  |
+| opa.image.tag | string | `"1.22.0-static@sha256:906bfc9904b2693733e7959d71773dd073e6c135cf06f26d955abe94603e82b3"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
@@ -373,7 +374,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.enabled | bool | `true` |  |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
-| solr-operator.solr.image.tag | string | `"9.11.0-slim@sha256:c8a5ad7d951c00f15d5847ba0a94c1ab212de42de10668b80848831b72d75b9f"` | solr image tag |
+| solr-operator.solr.image.tag | string | `"9.11.0-slim@sha256:5bc07412dffc1198ff6ace3587e09f8eea2126f821109a849506f4541b228aca"` | solr image tag |
 | solr-operator.solr.javaMem | string | `"-Xms512m -Xmx768m"` |  |
 | solr-operator.solr.jobs.affinity | object | `{}` | affinity for jobs |
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |

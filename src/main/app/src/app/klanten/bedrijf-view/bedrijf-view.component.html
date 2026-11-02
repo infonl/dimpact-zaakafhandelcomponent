@@ -25,7 +25,7 @@
           >
             <zac-static-text label="bedrijfsnaam" [value]="bedrijf?.naam" />
             @if (bedrijf?.kvkNummer) {
-              <zac-static-text label="kvknummer" [value]="bedrijf?.kvkNummer" />
+              <zac-static-text label="kvknummer" [value]="bedrijf.kvkNummer" />
             } @else {
               <zac-static-text
                 label="kvknummer"
@@ -36,7 +36,7 @@
             @if (bedrijf?.vestigingsnummer) {
               <zac-static-text
                 label="vestigingsnummer"
-                [value]="bedrijf?.vestigingsnummer"
+                [value]="bedrijf.vestigingsnummer"
               />
             }
             <zac-static-text

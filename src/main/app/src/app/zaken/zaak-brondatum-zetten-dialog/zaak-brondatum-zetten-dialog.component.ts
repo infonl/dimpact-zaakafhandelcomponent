@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import {
   AbstractControl,
   FormBuilder,
@@ -39,6 +39,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
   templateUrl: "zaak-brondatum-zetten-dialog.component.html",
   styleUrls: ["./zaak-brondatum-zetten-dialog.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     ReactiveFormsModule,

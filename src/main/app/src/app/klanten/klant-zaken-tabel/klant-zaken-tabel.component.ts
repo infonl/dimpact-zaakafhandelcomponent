@@ -5,31 +5,26 @@
 
 import { NgClass } from "@angular/common";
 import {
-  AfterViewInit,
-  ChangeDetectorRef,
+  ChangeDetectionStrategy,
   Component,
-  EventEmitter,
+  computed,
   inject,
   input,
-  viewChild,
+  linkedSignal,
 } from "@angular/core";
-import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
-import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
+import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
 import { MatSelectModule } from "@angular/material/select";
 import { MatSlideToggleModule } from "@angular/material/slide-toggle";
-import { MatSort, MatSortModule } from "@angular/material/sort";
-import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { MatSortModule, Sort } from "@angular/material/sort";
+import { MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
-import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
-import { merge, Observable, of } from "rxjs";
-import { catchError, map, startWith, switchMap } from "rxjs/operators";
-import { UtilService } from "../../core/service/util.service";
-import { runQuery } from "../../shared/http/run-query";
+import { injectQuery } from "@tanstack/angular-query-experimental";
+import { injectLastSuccessfulSearch } from "../../shared/http/last-successful-search";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
@@ -49,15 +44,22 @@ import { ZoekVeld } from "../../zoeken/model/zoek-veld";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { KlantenService } from "../klanten.service";
 
+type KlantZakenZoekopdracht = {
+  zoekParameters: ZoekParameters;
+  /** The roltype the klant must have in the zaak; `null` for any. */
+  betrokkenheid: string | null;
+  betrokkeneIdentificatie: string;
+};
+
 @Component({
   selector: "zac-klant-zaken-tabel",
   templateUrl: "./klant-zaken-tabel.component.html",
   styleUrls: ["./klant-zaken-tabel.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     NgClass,
-    ReactiveFormsModule,
     MatCardModule,
     MatTableModule,
     MatSortModule,
@@ -76,20 +78,14 @@ import { KlantenService } from "../klanten.service";
     DateRangeFilterComponent,
   ],
 })
-export class KlantZakenTabelComponent implements AfterViewInit {
-  private readonly utilService = inject(UtilService);
+export class KlantZakenTabelComponent {
   private readonly zoekenService = inject(ZoekenService);
   private readonly klantenService = inject(KlantenService);
-  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   protected readonly klant =
     input.required<GeneratedType<"RestBedrijf" | "RestPersoon">>();
 
-  readonly paginator = viewChild.required(MatPaginator);
-  readonly sort = viewChild.required(MatSort);
-
-  protected dataSource = new MatTableDataSource<ZaakZoekObject>();
-  protected columns = [
+  protected readonly columns = [
     "identificatie",
     "betrokkene",
     "status",
@@ -100,66 +96,80 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     "omschrijving",
     "url",
   ] as const;
-  protected filterColumns = this.columns.map((n) => n + "_filter");
-  protected isLoadingResults = true;
-  protected filterChange = new EventEmitter<void>();
-  protected zoekParameters: ZoekParameters = {
-    ...getDefaultZoekParameters(),
-    type: "ZAAK",
-  };
-  protected actieveFilters = true;
-  protected zoekResultaat = new ZoekResultaat<ZaakZoekObject>();
-  protected init: boolean = false;
-  protected inclusiefAfgerondeZaken = new FormControl(false);
-  protected betrokkeneSelectControl = new FormControl<string | null>(null);
-  private laatsteBetrokkenheid?: string | null = null;
+  protected readonly filterColumns = this.columns.map((n) => n + "_filter");
 
-  protected distinctRoltypenQuery = injectQuery(() => ({
+  protected readonly distinctRoltypenQuery = injectQuery(() => ({
     ...this.klantenService.listRoltypen(),
     select: (roltypen) => [...new Set(roltypen.map(({ naam }) => naam))],
   }));
 
-  private readonly queryClient = inject(QueryClient);
+  private readonly requestedZoekopdracht = linkedSignal<
+    string,
+    KlantZakenZoekopdracht
+  >({
+    source: () =>
+      this.getBetrokkeneIdentificatie(
+        new BetrokkeneIdentificatie(this.klant()),
+      ),
+    computation: (betrokkeneIdentificatie, previous) => {
+      if (!previous) {
+        return {
+          zoekParameters: {
+            ...getDefaultZoekParameters(),
+            type: "ZAAK",
+            rows: 10,
+            alleenOpenstaandeZaken: true,
+          },
+          betrokkenheid: null,
+          betrokkeneIdentificatie,
+        };
+      }
+      return {
+        ...previous.value,
+        zoekParameters: { ...previous.value.zoekParameters, page: 0 },
+        betrokkeneIdentificatie,
+      };
+    },
+  });
 
-  private loadZaken(): Observable<ZoekResultaat<ZaakZoekObject>> {
-    if (this.laatsteBetrokkenheid) {
-      delete this.zoekParameters.zoeken[this.laatsteBetrokkenheid];
-    }
+  protected readonly search = injectLastSuccessfulSearch({
+    requested: this.requestedZoekopdracht,
+    query: (zoekopdracht) =>
+      this.zoekenService.list(this.toZoekParameters(zoekopdracht)),
+  });
 
-    this.setZoekParameterBetrokkenheid(this.betrokkeneSelectControl.value!);
+  protected readonly zoekParameters = computed(
+    () => this.search.requested().zoekParameters,
+  );
+  protected readonly betrokkenheid = computed(
+    () => this.search.requested().betrokkenheid,
+  );
+  protected readonly actieveFilters = computed(() =>
+    hasActiveSearchFilters(this.toZoekParameters(this.search.requested())),
+  );
+  protected readonly zoekResultaat = computed(
+    (): ZoekResultaat<ZaakZoekObject> =>
+      (this.search.data() as ZoekResultaat<ZaakZoekObject> | undefined) ?? {
+        resultaten: [],
+        totaal: 0,
+        filters: {},
+        foutmelding: "",
+      },
+  );
 
-    this.updateActieveFilters();
-
-    this.zoekParameters.page = this.paginator().pageIndex;
-    this.zoekParameters.sorteerRichting = this.sort().direction;
-    this.zoekParameters.sorteerVeld = this.sort()
-      .active as GeneratedType<"SorteerVeld">;
-    this.zoekParameters.rows = this.paginator().pageSize;
-    this.zoekParameters.alleenOpenstaandeZaken =
-      !this.inclusiefAfgerondeZaken.value;
-    return runQuery(
-      this.queryClient,
-      this.zoekenService.list(this.zoekParameters),
-    ) as Observable<ZoekResultaat<ZaakZoekObject>>;
-  }
-
-  private updateActieveFilters() {
-    this.actieveFilters =
-      this.zoekParameters &&
-      hasActiveSearchFilters({
-        ...this.zoekParameters,
-        filtersType: "ZoekParameters",
-      });
-
-    this.changeDetectorRef.detectChanges();
-  }
-
-  private setZoekParameterBetrokkenheid(betrokkenheid: string) {
-    const betrokkene = new BetrokkeneIdentificatie(this.klant());
-    this.zoekParameters.zoeken[
-      (this.laatsteBetrokkenheid =
-        this.setBetrokkeneFieldToSolrKeyName(betrokkenheid))
-    ] = this.getBetrokkeneIdentificatie(betrokkene);
+  private toZoekParameters({
+    zoekParameters,
+    betrokkenheid,
+    betrokkeneIdentificatie,
+  }: KlantZakenZoekopdracht): ZoekParameters {
+    return {
+      ...zoekParameters,
+      zoeken: {
+        ...zoekParameters.zoeken,
+        [this.setBetrokkeneFieldToSolrKeyName(betrokkenheid)]:
+          betrokkeneIdentificatie,
+      },
+    };
   }
 
   private getBetrokkeneIdentificatie(betrokkene: BetrokkeneIdentificatie) {
@@ -168,39 +178,6 @@ export class KlantZakenTabelComponent implements AfterViewInit {
       return `V-${betrokkene.kvkNummer}-${betrokkene.vestigingsnummer}`;
     if (betrokkene.kvkNummer) return `K-${betrokkene.kvkNummer}`;
     return "";
-  }
-
-  private lastLoadedPageIndex = 0;
-
-  ngAfterViewInit() {
-    this.init = true;
-    this.filtersChanged();
-    this.sort().sortChange.subscribe(() => (this.paginator().pageIndex = 0));
-    merge(this.sort().sortChange, this.paginator().page, this.filterChange)
-      .pipe(
-        startWith({}),
-        switchMap(() => {
-          this.isLoadingResults = true;
-          this.utilService.setLoading(true);
-          return this.loadZaken().pipe(catchError(() => of(null)));
-        }),
-        map((zoekResultaat) => {
-          this.isLoadingResults = false;
-          this.utilService.setLoading(false);
-          return zoekResultaat;
-        }),
-      )
-      .subscribe((zoekResultaat) => {
-        if (!zoekResultaat) {
-          this.paginator().pageIndex = this.lastLoadedPageIndex;
-          return;
-        }
-
-        this.lastLoadedPageIndex = this.paginator().pageIndex;
-        this.zoekResultaat = zoekResultaat;
-        this.paginator().length = zoekResultaat.totaal;
-        this.dataSource.data = zoekResultaat.resultaten;
-      });
   }
 
   protected getBetrokkenheid(zaak: ZaakZoekObject) {
@@ -233,7 +210,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     );
   }
 
-  protected setBetrokkeneFieldToSolrKeyName(betrokkene: string): string {
+  private setBetrokkeneFieldToSolrKeyName(betrokkene: string | null): string {
     return betrokkene
       ? "zaak_betrokkene_" + betrokkene.replace(/ /g, "_")
       : ZoekVeld.ZAAK_BETROKKENEN;
@@ -243,17 +220,73 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     return fieldName.replace(/_/g, " ");
   }
 
-  protected filtersChanged() {
-    this.paginator().pageIndex = 0;
-    this.filterChange.emit();
+  protected filterChanged(
+    veld: string,
+    filter: GeneratedType<"FilterParameters">,
+  ) {
+    const { filters } = this.zoekParameters();
+    this.searchFirstPage({ filters: { ...filters, [veld]: filter } });
   }
 
-  public clearFilters() {
-    this.sort().sort({ id: "", start: "asc", disableClear: false });
-    this.zoekParameters.zoeken = {};
-    this.zoekParameters.filters = {};
-    this.zoekParameters.datums = {};
-    this.betrokkeneSelectControl.setValue(null);
-    this.filtersChanged();
+  protected zoekenChanged(veld: string, waarde: string) {
+    const { zoeken } = this.zoekParameters();
+    this.searchFirstPage({ zoeken: { ...zoeken, [veld]: waarde } });
+  }
+
+  protected datumChanged(veld: string, range: GeneratedType<"RestDatumRange">) {
+    const { datums } = this.zoekParameters();
+    this.searchFirstPage({ datums: { ...datums, [veld]: range } });
+  }
+
+  protected afgerondeZakenChanged(inclusiefAfgerondeZaken: boolean) {
+    this.searchFirstPage({ alleenOpenstaandeZaken: !inclusiefAfgerondeZaken });
+  }
+
+  protected betrokkenheidChanged(betrokkenheid?: string | null) {
+    this.searchFirstPage({}, betrokkenheid ?? null);
+  }
+
+  protected sortChanged({ active, direction }: Sort) {
+    this.searchFirstPage({
+      sorteerVeld: active as GeneratedType<"SorteerVeld">,
+      sorteerRichting: direction,
+    });
+  }
+
+  protected pageChanged({ pageIndex, pageSize }: PageEvent) {
+    const zoekopdracht = this.search.requested();
+    this.search.request({
+      ...zoekopdracht,
+      zoekParameters: {
+        ...zoekopdracht.zoekParameters,
+        page: pageIndex,
+        rows: pageSize,
+      },
+    });
+  }
+
+  protected clearFilters() {
+    this.searchFirstPage(
+      {
+        zoeken: {},
+        filters: {},
+        datums: {},
+        sorteerVeld: undefined,
+        sorteerRichting: "",
+      },
+      null,
+    );
+  }
+
+  private searchFirstPage(
+    changes: Partial<ZoekParameters>,
+    betrokkenheid = this.betrokkenheid(),
+  ) {
+    const zoekopdracht = this.search.requested();
+    this.search.request({
+      ...zoekopdracht,
+      zoekParameters: { ...zoekopdracht.zoekParameters, ...changes, page: 0 },
+      betrokkenheid,
+    });
   }
 }

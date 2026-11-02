@@ -226,7 +226,7 @@
       <div class="w50 flex-1 flex-col gap-12">
         @if (zaak.besluiten?.length) {
           <zac-besluit-view
-            [besluiten]="zaak.besluiten ?? []"
+            [besluiten]="zaak.besluiten"
             [readonly]="!zaak.isOpen || !zaak.rechten.canBehandelen"
             (besluitWijzigen)="besluitWijzigen($event)"
           ></zac-besluit-view>

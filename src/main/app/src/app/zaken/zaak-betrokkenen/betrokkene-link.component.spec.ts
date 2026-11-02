@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import { inputBinding } from "@angular/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
@@ -64,7 +64,7 @@ const setup = (
     imports: [NoopAnimationsModule],
     providers: [
       provideTranslateService(),
-      provideHttpClient(),
+      provideHttpClient(withXhr()),
       provideRouter([]),
       provideQueryClient(testQueryClient),
     ],

@@ -18,7 +18,12 @@ import { FoutDetailedDialogComponent } from "./fout-detailed-dialog.component";
 
 const SERVER_ERROR_TEXTS_URL = "/rest/referentietabellen/server-error-text";
 
-function setup(showServerErrorTexts: boolean, providers: Provider[] = []) {
+function setup(
+  showServerErrorTexts: boolean,
+  providers: Provider[] = [],
+  waarschuwing?: string,
+  titel?: string,
+) {
   TestBed.configureTestingModule({
     imports: [FoutDetailedDialogComponent, NoopAnimationsModule],
     providers: [
@@ -30,6 +35,8 @@ function setup(showServerErrorTexts: boolean, providers: Provider[] = []) {
           error: "Er is een fout opgetreden",
           details: "",
           showServerErrorTexts,
+          waarschuwing,
+          titel,
         },
       },
       ...providers,
@@ -45,6 +52,30 @@ function setup(showServerErrorTexts: boolean, providers: Provider[] = []) {
 }
 
 describe(FoutDetailedDialogComponent.name, () => {
+  it("shows the waarschuwing it is given above the error", async () => {
+    setup(false, [], "fakeWaarschuwing");
+
+    expect(screen.getByText("fakeWaarschuwing")).toBeInTheDocument();
+    expect(screen.getByText("warning")).toBeInTheDocument();
+  });
+
+  it("shows the general title when it is given no title of its own", async () => {
+    setup(false);
+
+    expect(
+      screen.getByText("dialoog.error.titel.algemeen"),
+    ).toBeInTheDocument();
+  });
+
+  it("shows the title it is given instead of the general one", async () => {
+    setup(false, [], "fakeWaarschuwing", "fakeTitel");
+
+    expect(screen.getByText("fakeTitel")).toBeInTheDocument();
+    expect(
+      screen.queryByText("dialoog.error.titel.algemeen"),
+    ).not.toBeInTheDocument();
+  });
+
   it("does not load the server error texts when it does not show them", async () => {
     const { httpTestingController } = setup(false);
     await sleep();

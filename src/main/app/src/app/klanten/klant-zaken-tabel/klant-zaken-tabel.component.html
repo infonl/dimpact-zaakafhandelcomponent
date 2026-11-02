@@ -7,23 +7,27 @@
   <mat-card-header>
     <mat-card-title>{{ "zaken" | translate }}</mat-card-title>
     <mat-slide-toggle
-      [formControl]="inclusiefAfgerondeZaken"
+      [checked]="!zoekParameters().alleenOpenstaandeZaken"
       id="zakenAfgerondeToon_toggle"
-      (change)="filtersChanged()"
+      (change)="afgerondeZakenChanged($event.checked)"
       >{{ "toon-afgeronde-zaken" | translate }}</mat-slide-toggle
     >
   </mat-card-header>
   <mat-card-content>
     <div class="table-wrapper">
-      <table mat-table [dataSource]="dataSource" matSort>
+      <table
+        mat-table
+        [dataSource]="zoekResultaat().resultaten"
+        matSort
+        [matSortActive]="zoekParameters().sorteerVeld ?? ''"
+        [matSortDirection]="zoekParameters().sorteerRichting"
+        (matSortChange)="sortChanged($event)"
+      >
         <ng-container matColumnDef="identificatie_filter">
           <th mat-header-cell *matHeaderCellDef>
             <zac-tekst-filter
-              [value]="zoekParameters.zoeken.ZAAK_IDENTIFICATIE"
-              (changed)="
-                zoekParameters.zoeken.ZAAK_IDENTIFICATIE = $event;
-                filtersChanged()
-              "
+              [value]="zoekParameters().zoeken.ZAAK_IDENTIFICATIE"
+              (changed)="zoekenChanged('ZAAK_IDENTIFICATIE', $event)"
             ></zac-tekst-filter>
           </th>
         </ng-container>
@@ -50,8 +54,8 @@
               <mat-select
                 id="betrokkeneRoltype_filter"
                 [placeholder]="'betrokkene-roltype.kies' | translate"
-                [formControl]="betrokkeneSelectControl"
-                (selectionChange)="filtersChanged()"
+                [value]="betrokkenheid()"
+                (selectionChange)="betrokkenheidChanged($event.value)"
               >
                 <mat-option>{{
                   "betrokkene-roltype.kies" | translate
@@ -83,11 +87,9 @@
           <th mat-header-cell *matHeaderCellDef>
             <zac-facet-filter
               label="status"
-              [filter]="zoekParameters.filters.ZAAK_STATUS"
-              [opties]="this.zoekResultaat.filters.ZAAK_STATUS"
-              (changed)="
-                zoekParameters.filters.ZAAK_STATUS = $event; filtersChanged()
-              "
+              [filter]="zoekParameters().filters.ZAAK_STATUS"
+              [opties]="zoekResultaat().filters.ZAAK_STATUS"
+              (changed)="filterChanged('ZAAK_STATUS', $event)"
             >
             </zac-facet-filter>
           </th>
@@ -105,11 +107,9 @@
           <th mat-header-cell *matHeaderCellDef>
             <zac-facet-filter
               label="groep"
-              [filter]="zoekParameters.filters.GROEP"
-              [opties]="this.zoekResultaat.filters.GROEP"
-              (changed)="
-                zoekParameters.filters.GROEP = $event; filtersChanged()
-              "
+              [filter]="zoekParameters().filters.GROEP"
+              [opties]="zoekResultaat().filters.GROEP"
+              (changed)="filterChanged('GROEP', $event)"
             >
             </zac-facet-filter>
           </th>
@@ -127,11 +127,9 @@
           <th mat-header-cell *matHeaderCellDef>
             <zac-facet-filter
               label="behandelaar"
-              [filter]="zoekParameters.filters.BEHANDELAAR"
-              [opties]="this.zoekResultaat.filters.BEHANDELAAR"
-              (changed)="
-                zoekParameters.filters.BEHANDELAAR = $event; filtersChanged()
-              "
+              [filter]="zoekParameters().filters.BEHANDELAAR"
+              [opties]="zoekResultaat().filters.BEHANDELAAR"
+              (changed)="filterChanged('BEHANDELAAR', $event)"
             >
             </zac-facet-filter>
           </th>
@@ -153,10 +151,8 @@
           <th mat-header-cell *matHeaderCellDef>
             <zac-date-range-filter
               label="startdatum"
-              [range]="zoekParameters.datums.ZAAK_STARTDATUM"
-              (changed)="
-                zoekParameters.datums.ZAAK_STARTDATUM = $event; filtersChanged()
-              "
+              [range]="zoekParameters().datums.ZAAK_STARTDATUM"
+              (changed)="datumChanged('ZAAK_STARTDATUM', $event)"
             >
             </zac-date-range-filter>
           </th>
@@ -178,11 +174,9 @@
           <th mat-header-cell *matHeaderCellDef>
             <zac-facet-filter
               label="zaaktype"
-              [filter]="zoekParameters.filters.ZAAKTYPE"
-              [opties]="zoekResultaat.filters.ZAAKTYPE"
-              (changed)="
-                zoekParameters.filters.ZAAKTYPE = $event; filtersChanged()
-              "
+              [filter]="zoekParameters().filters.ZAAKTYPE"
+              [opties]="zoekResultaat().filters.ZAAKTYPE"
+              (changed)="filterChanged('ZAAKTYPE', $event)"
             >
             </zac-facet-filter>
           </th>
@@ -199,11 +193,8 @@
         <ng-container matColumnDef="omschrijving_filter">
           <th mat-header-cell *matHeaderCellDef id="omschrijving_filter">
             <zac-tekst-filter
-              [value]="zoekParameters.zoeken.ZAAK_OMSCHRIJVING"
-              (changed)="
-                zoekParameters.zoeken.ZAAK_OMSCHRIJVING = $event;
-                filtersChanged()
-              "
+              [value]="zoekParameters().zoeken.ZAAK_OMSCHRIJVING"
+              (changed)="zoekenChanged('ZAAK_OMSCHRIJVING', $event)"
             ></zac-tekst-filter>
           </th>
         </ng-container>
@@ -228,19 +219,20 @@
             class="filter-control"
           >
             <button
-              [disabled]="!actieveFilters"
+              [disabled]="!actieveFilters()"
               mat-icon-button
               (click)="clearFilters()"
               id="clearZoekopdrachtButton"
+              [attr.aria-label]="'actie.zoekopdracht.wissen' | translate"
             >
               <mat-icon
                 [ngClass]="
-                  actieveFilters ? 'filter-icon' : 'material-icons-outlined'
+                  actieveFilters() ? 'filter-icon' : 'material-icons-outlined'
                 "
               >
                 filter_alt
               </mat-icon>
-              @if (actieveFilters) {
+              @if (actieveFilters()) {
                 <mat-icon
                   class="filter-button"
                   title="{{ 'actie.zoekopdracht.wissen' | translate }}"
@@ -270,7 +262,7 @@
         <tr mat-row *matRowDef="let row; columns: columns"></tr>
         <tr class="mat-row" *matNoDataRow>
           <td class="mat-cell" [colSpan]="columns.length">
-            @if (isLoadingResults) {
+            @if (search.query.isFetching()) {
               <p>{{ "msg.loading" | translate }}</p>
             } @else {
               <p>
@@ -282,9 +274,11 @@
       </table>
     </div>
     <mat-paginator
-      [pageIndex]="0"
-      [pageSize]="10"
+      [length]="zoekResultaat().totaal"
+      [pageIndex]="zoekParameters().page"
+      [pageSize]="zoekParameters().rows"
       [pageSizeOptions]="[10, 25, 50, 100]"
+      (page)="pageChanged($event)"
     >
     </mat-paginator>
   </mat-card-content>

@@ -15,6 +15,7 @@ import {
 import { NgClass } from "@angular/common";
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -65,6 +66,7 @@ import { ZakenCardComponent } from "./zaken-card/zaken-card.component";
   templateUrl: "./dashboard.component.html",
   styleUrls: ["./dashboard.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     NgClass,

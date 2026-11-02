@@ -13,6 +13,7 @@ import {
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   OnInit,
   computed,
@@ -63,6 +64,7 @@ import { MailtemplateKoppelingService } from "../mailtemplate-koppeling.service"
     ]),
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     MatSidenavModule,

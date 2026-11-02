@@ -5,6 +5,7 @@
 
 import { NgClass } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   Component,
   effect,
   inject,
@@ -37,6 +38,7 @@ import { SignaleringenSettingsBeheerService } from "../signaleringen-settings-be
   templateUrl: "./groep-signaleringen.component.html",
   styleUrls: ["./groep-signaleringen.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     NgClass,

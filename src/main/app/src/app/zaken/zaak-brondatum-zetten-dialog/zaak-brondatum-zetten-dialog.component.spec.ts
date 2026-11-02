@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -59,7 +59,7 @@ describe(ZaakBrondatumZettenDialogComponent.name, () => {
       providers: [
         provideTranslateService(),
         provideZonelessChangeDetection(),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
         { provide: MatDialogRef, useValue: dialogRef },

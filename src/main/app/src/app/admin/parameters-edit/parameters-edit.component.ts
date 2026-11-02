@@ -4,6 +4,7 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -59,6 +60,7 @@ import {
 @Component({
   templateUrl: "./parameters-edit.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatProgressSpinnerModule,
     MatSidenavModule,

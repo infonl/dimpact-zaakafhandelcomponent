@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { TranslateService, provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
@@ -40,7 +40,7 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
       providers: [
         provideTranslateService(),
         provideQueryClient(testQueryClient),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
       ],
     });
 

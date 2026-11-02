@@ -5,6 +5,7 @@
 
 import { NgTemplateOutlet } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -63,6 +64,7 @@ import {
   templateUrl: "./zaak-create.component.html",
   styleUrls: ["./zaak-create.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     BackButtonDirective,
     NgTemplateOutlet,

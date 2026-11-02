@@ -4,6 +4,7 @@
  */
 import { CommonModule } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   OnDestroy,
@@ -87,6 +88,7 @@ import { FormioSetupService } from "./formio/formio-setup-service";
   templateUrl: "./taak-view.component.html",
   styleUrls: ["./taak-view.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     MatButtonModule,

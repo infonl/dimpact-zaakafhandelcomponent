@@ -5,6 +5,7 @@
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   inject,
   input,
@@ -26,6 +27,7 @@ import { DashboardCard } from "../model/dashboard-card";
 @Component({
   template: "",
   styleUrls: ["./dashboard-card.component.less"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export abstract class DashboardCardComponent<

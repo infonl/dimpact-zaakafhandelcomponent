@@ -3,7 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, OnInit, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  inject,
+} from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { ActivatedRoute } from "@angular/router";
@@ -18,6 +23,7 @@ import { BagZakenTabelComponent } from "../bag-zaken-tabel/bag-zaken-tabel.compo
   templateUrl: "./bag-view.component.html",
   styleUrls: ["./bag-view.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     MatCardModule,

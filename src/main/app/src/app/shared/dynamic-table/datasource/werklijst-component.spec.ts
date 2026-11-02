@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
-import { Component, inject } from "@angular/core";
+import { provideHttpClient, withXhr } from "@angular/common/http";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { PageEvent } from "@angular/material/paginator";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -19,7 +19,11 @@ import { GeneratedType } from "../../utils/generated-types";
 import { TabelGegevens } from "../model/tabel-gegevens";
 import { WerklijstComponent } from "./werklijst-component";
 
-@Component({ template: "", standalone: true })
+@Component({
+  template: "",
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
+})
 class ConcreteWerklijstComponent extends WerklijstComponent {
   readonly gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
   readonly route = inject(ActivatedRoute);
@@ -52,7 +56,7 @@ describe(WerklijstComponent.name, () => {
       imports: [ConcreteWerklijstComponent, NoopAnimationsModule],
       providers: [
         provideTranslateService(),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideQueryClient(testQueryClient),
         provideRouter([]),
         {

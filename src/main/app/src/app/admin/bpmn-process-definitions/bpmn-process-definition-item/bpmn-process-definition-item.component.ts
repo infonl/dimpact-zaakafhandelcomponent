@@ -6,6 +6,7 @@
 import { animate, style, transition, trigger } from "@angular/animations";
 import { DatePipe } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   computed,
@@ -62,6 +63,7 @@ import { extractAttachmentFilename, readFileContent } from "../file.helper";
     FileDragAndDropDirective,
     MatExpansionModule,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   animations: [
     trigger("fadeSlide", [
       transition(":enter", [

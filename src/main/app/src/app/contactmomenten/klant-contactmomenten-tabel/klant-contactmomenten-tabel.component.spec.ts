@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
@@ -56,7 +56,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
       providers: [
         provideTranslateService(),
         provideQueryClient(testQueryClient),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         {
           provide: ContactmomentenService,
           useValue: fromPartial<ContactmomentenService>({

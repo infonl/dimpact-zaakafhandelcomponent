@@ -5,12 +5,12 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatCardModule } from "@angular/material/card";
 import { MatExpansionModule } from "@angular/material/expansion";
@@ -129,6 +129,7 @@ const zaaktypeZonderEigenschap = fromPartial<
 @Component({
   templateUrl: "./inrichtingscheck.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatSidenavModule,
     MatCardModule,
@@ -176,7 +177,7 @@ describe(InrichtingscheckComponent.name, () => {
       imports: [TestInrichtingscheckComponent, NoopAnimationsModule],
       providers: [
         provideTranslateService(),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
         provideRouter([]),

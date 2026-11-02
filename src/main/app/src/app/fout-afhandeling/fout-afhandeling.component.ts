@@ -3,7 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+} from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";
 import { TranslatePipe } from "@ngx-translate/core";
@@ -16,6 +21,7 @@ import { FoutAfhandelingService } from "./fout-afhandeling.service";
   templateUrl: "./fout-afhandeling.component.html",
   styleUrls: ["./fout-afhandeling.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatCardModule, MatIconModule, TranslatePipe],
 })
 export class FoutAfhandelingComponent implements OnInit {

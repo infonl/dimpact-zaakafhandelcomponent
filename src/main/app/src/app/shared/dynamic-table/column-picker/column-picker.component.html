@@ -18,7 +18,6 @@
       <mat-list-option
         (click)="$event.stopPropagation()"
         [selected]="isSelected(column.key)"
-        checkboxPosition="before"
         [value]="column.key"
       >
         {{ column.value }}

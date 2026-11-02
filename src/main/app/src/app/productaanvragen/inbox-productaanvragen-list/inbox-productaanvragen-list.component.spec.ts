@@ -6,6 +6,7 @@
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import {
   HttpTestingController,
@@ -71,7 +72,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
               }),
             }),
           },
-          provideHttpClient(withInterceptorsFromDi()),
+          provideHttpClient(withXhr(), withInterceptorsFromDi()),
           provideHttpClientTesting(),
           provideNativeDateAdapter(),
           provideQueryClient(testQueryClient),

@@ -5,7 +5,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -49,7 +49,7 @@ describe("ZaakVerlengenDialogComponent", () => {
       imports: [ZaakVerlengenDialogComponent, NoopAnimationsModule],
       providers: [
         provideTranslateService(),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         provideNativeDateAdapter(),
         provideZonelessChangeDetection(),

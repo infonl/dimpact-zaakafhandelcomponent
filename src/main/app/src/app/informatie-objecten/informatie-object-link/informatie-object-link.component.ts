@@ -5,6 +5,7 @@
 
 import { NgClass } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -44,6 +45,7 @@ type DocumentAction = "actie.document.koppelen" | "actie.document.verplaatsen";
   templateUrl: "./informatie-object-link.component.html",
   styleUrls: ["./informatie-object-link.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     NgClass,

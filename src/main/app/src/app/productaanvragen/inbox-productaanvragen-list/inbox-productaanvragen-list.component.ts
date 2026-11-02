@@ -5,6 +5,7 @@
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   EventEmitter,
   inject,
@@ -75,6 +76,7 @@ type InboxProductaanvraagListParameters =
   styleUrls: ["./inbox-productaanvragen-list.component.less"],
   animations: [detailExpand],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     RouterLink,
     MatTable,

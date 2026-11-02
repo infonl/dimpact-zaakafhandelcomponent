@@ -6,6 +6,7 @@
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { provideTranslateService } from "@ngx-translate/core";
@@ -24,7 +25,7 @@ describe(IdentityService.name, () => {
       providers: [
         provideTranslateService(),
         { provide: FoutAfhandelingService, useValue: {} },
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideQueryClient(testQueryClient),
       ],
     });

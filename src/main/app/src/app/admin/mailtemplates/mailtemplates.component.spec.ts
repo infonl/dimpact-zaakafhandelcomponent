@@ -7,7 +7,7 @@ import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { provideTranslateService } from "@ngx-translate/core";
+import { provideTranslateService, TranslateService } from "@ngx-translate/core";
 import { render, screen, waitFor, within } from "@testing-library/angular";
 import { userEvent } from "@testing-library/user-event";
 import { sleep } from "../../../../setupJest";
@@ -215,6 +215,23 @@ describe(MailtemplatesComponent.name, () => {
       expect(
         screen.getByRole("link", { name: "actie.zaakafhandelparameters" }),
       ).toHaveAttribute("href", "/admin/parameters/fakeZaaktypeUuid");
+    });
+
+    it("are listed without placeholders when the zaaktype of a koppeling is unknown", async () => {
+      const { detectChanges } = await setup({
+        koppelingen: [{ ...koppeling, zaakafhandelParameters: null }],
+      });
+      const translateService = TestBed.inject(TranslateService);
+      translateService.setTranslation("nl", {
+        "msg.mailtemplate.verwijderen.gekoppeld":
+          "Gekoppeld aan '{{zaaktype}}' met uuid: {{versie}}",
+      });
+      translateService.use("nl");
+      detectChanges();
+
+      expect(
+        screen.getAllByText("Gekoppeld aan '' met uuid:"),
+      ).not.toHaveLength(0);
     });
 
     it("are not listed with a mailtemplate that no zaaktype uses", async () => {

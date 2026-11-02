@@ -8,6 +8,7 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import {
   HttpTestingController,
@@ -70,7 +71,7 @@ async function setup(
     providers: [
       provideTranslateService(),
       provideZoneChangeDetection(),
-      provideHttpClient(withInterceptorsFromDi()),
+      provideHttpClient(withXhr(), withInterceptorsFromDi()),
       provideHttpClientTesting(),
       provideTanStackQuery(testQueryClient),
       { provide: MAT_DIALOG_DATA, useValue: data },

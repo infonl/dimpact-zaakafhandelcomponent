@@ -6,6 +6,7 @@
 import { AsyncPipe, NgClass } from "@angular/common";
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   inject,
@@ -53,6 +54,7 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./zaak-locatie-wijzigen.component.html",
   styleUrls: ["./zaak-locatie-wijzigen.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     AsyncPipe,
     LocationPipe,

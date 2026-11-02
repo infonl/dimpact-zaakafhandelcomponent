@@ -4,6 +4,7 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -39,6 +40,7 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "zaken-verdelen-dialog.component.html",
   styleUrls: ["./zaken-verdelen-dialog.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatToolbarModule,

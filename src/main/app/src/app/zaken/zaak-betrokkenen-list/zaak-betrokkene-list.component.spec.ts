@@ -8,6 +8,7 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
@@ -93,7 +94,7 @@ describe(ZaakBetrokkeneListComponent.name, () => {
       imports: [ZaakBetrokkeneListComponent, NoopAnimationsModule],
       providers: [
         provideTranslateService(),
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
         {

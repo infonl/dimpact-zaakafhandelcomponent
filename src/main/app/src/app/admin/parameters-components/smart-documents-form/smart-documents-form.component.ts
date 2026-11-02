@@ -5,7 +5,14 @@
 
 import { FlatTreeControl } from "@angular/cdk/tree";
 
-import { Component, effect, inject, input, untracked } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  input,
+  untracked,
+} from "@angular/core";
 import {
   FormBuilder,
   FormControl,
@@ -46,6 +53,7 @@ interface FlatNode {
   templateUrl: "./smart-documents-form.component.html",
   styleUrl: "./smart-documents-form.component.less",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatButtonModule,

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import {
   ComponentFixture,
   fakeAsync,
@@ -19,7 +19,11 @@ import { Subject, Subscription } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { ViewComponent } from "./view-component";
 
-@Component({ template: "", standalone: true })
+@Component({
+  template: "",
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
+})
 class TestViewComponent extends ViewComponent {
   private readonly openedStart = new Subject<void>();
   readonly updateContentMarginsMock = jest.fn();

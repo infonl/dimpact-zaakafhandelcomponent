@@ -4,6 +4,7 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
@@ -57,6 +58,7 @@ const behandelaarVerplicht: ValidatorFn = ({ value }) =>
   selector: "zac-case-details-edit",
   templateUrl: "./zaak-details-wijzigen.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatDividerModule,

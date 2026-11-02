@@ -4,6 +4,7 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
@@ -52,6 +53,7 @@ const DEFAULT_SORT_ORDER: GeneratedType<"SorteerRichting"> = "DESC";
     "./zaken-card.component.less",
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     MatTable,

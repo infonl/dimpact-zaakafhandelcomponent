@@ -5,6 +5,7 @@
 
 import { NgClass } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -36,6 +37,7 @@ import {
   templateUrl: "./parameters-step-humantasks.component.html",
   styleUrl: "./parameters-step-humantasks.component.less",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     NgClass,
     MatExpansionModule,

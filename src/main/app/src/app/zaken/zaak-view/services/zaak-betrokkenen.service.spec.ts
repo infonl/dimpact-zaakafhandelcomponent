@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -109,7 +109,7 @@ describe(ZaakBetrokkenenService.name, () => {
     TestBed.configureTestingModule({
       providers: [
         provideTranslateService(),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
         { provide: FoutAfhandelingService, useValue: { foutAfhandelen } },

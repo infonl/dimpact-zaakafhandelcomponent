@@ -5,6 +5,7 @@
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -38,6 +39,7 @@ import { mailSelectList } from "../model/mail-utils";
   templateUrl: "./mailtemplate.component.html",
   styleUrls: ["./mailtemplate.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatSidenavModule,

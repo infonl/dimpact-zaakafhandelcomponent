@@ -58,7 +58,9 @@ describe(ZaakBetrokkeneFilterComponent.name, () => {
   }
 
   function roltypeSelect() {
-    return screen.getByRole("combobox");
+    return screen.getByRole("combobox", {
+      name: "zoeken.filter.zaak-betrokkene",
+    });
   }
 
   async function selectRoltype(name: string) {
@@ -101,36 +103,49 @@ describe(ZaakBetrokkeneFilterComponent.name, () => {
       ]);
     });
 
-    it("starts with the initiator roltype selected, even when the zoekparameters hold another roltype", async () => {
+    it.each([
+      [ZoekVeld.ZAAK_BETROKKENEN, "betrokkene-roltype.alle"],
+      [ZoekVeld.ZAAK_INITIATOR, "betrokkene-roltype.initiator"],
+      [
+        ZoekVeld.ZAAK_BETROKKENE_MEDE_INITIATOR,
+        "betrokkene-roltype.mede-initiator",
+      ],
+      [
+        ZoekVeld.ZAAK_BETROKKENE_BELANGHEBBENDE,
+        "betrokkene-roltype.belanghebbende",
+      ],
+      [ZoekVeld.ZAAK_BETROKKENE_BESLISSER, "betrokkene-roltype.beslisser"],
+      [ZoekVeld.ZAAK_BETROKKENE_ADVISEUR, "betrokkene-roltype.adviseur"],
+      [
+        ZoekVeld.ZAAK_BETROKKENE_KLANTCONTACTER,
+        "betrokkene-roltype.klantcontacter",
+      ],
+      [
+        ZoekVeld.ZAAK_BETROKKENE_ZAAKCOORDINATOR,
+        "betrokkene-roltype.zaakcoordinator",
+      ],
+    ])(
+      "selects the roltype %s and shows its id, so a recreated filter shows the search it belongs to",
+      async (zoekVeld, label) => {
+        await setup(makeZoekParameters({ [zoekVeld]: "fakeId" }));
+
+        expect(roltypeSelect()).toHaveTextContent(label);
+        expect(idField()).toHaveValue("fakeId");
+      },
+    );
+
+    it("selects the roltype that holds an empty id", async () => {
       await setup(
-        makeZoekParameters({ [ZoekVeld.ZAAK_BETROKKENE_ADVISEUR]: "fakeId" }),
+        makeZoekParameters({ [ZoekVeld.ZAAK_BETROKKENE_BESLISSER]: "" }),
       );
+
+      expect(roltypeSelect()).toHaveTextContent("betrokkene-roltype.beslisser");
+    });
+
+    it("selects the initiator roltype when nothing is searched for", async () => {
+      await setup(makeZoekParameters());
 
       expect(roltypeSelect()).toHaveTextContent("betrokkene-roltype.initiator");
-    });
-
-    it.each([
-      ZoekVeld.ZAAK_BETROKKENEN,
-      ZoekVeld.ZAAK_INITIATOR,
-      ZoekVeld.ZAAK_BETROKKENE_BELANGHEBBENDE,
-      ZoekVeld.ZAAK_BETROKKENE_ADVISEUR,
-      ZoekVeld.ZAAK_BETROKKENE_BESLISSER,
-      ZoekVeld.ZAAK_BETROKKENE_ZAAKCOORDINATOR,
-      ZoekVeld.ZAAK_BETROKKENE_MEDE_INITIATOR,
-    ])("shows the id searched for as %s", async (zoekVeld) => {
-      await setup(makeZoekParameters({ [zoekVeld]: "fakeId" }));
-
-      expect(idField()).toHaveValue("fakeId");
-    });
-
-    it("does not show an id searched for as klantcontacter", async () => {
-      await setup(
-        makeZoekParameters({
-          [ZoekVeld.ZAAK_BETROKKENE_KLANTCONTACTER]: "fakeId",
-        }),
-      );
-
-      expect(idField()).toHaveValue("");
     });
 
     it("shows the id of all betrokkenen before that of the initiator", async () => {

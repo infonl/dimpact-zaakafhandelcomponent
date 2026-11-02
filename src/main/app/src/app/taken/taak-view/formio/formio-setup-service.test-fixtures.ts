@@ -6,6 +6,7 @@
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
@@ -179,7 +180,7 @@ export function configureFormioSetupServiceTestBed() {
         provide: ActivatedRoute,
         useValue: { data: of({ taak }) },
       },
-      provideHttpClient(withInterceptorsFromDi()),
+      provideHttpClient(withXhr(), withInterceptorsFromDi()),
       provideHttpClientTesting(),
       provideQueryClient(testQueryClient),
       provideTranslateService(),

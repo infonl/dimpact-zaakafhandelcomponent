@@ -5,6 +5,7 @@
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   effect,
   inject,
@@ -31,6 +32,7 @@ import { ContactmomentenService } from "../contactmomenten.service";
   templateUrl: "./klant-contactmomenten-tabel.component.html",
   styleUrls: ["./klant-contactmomenten-tabel.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatCardModule,
     MatTableModule,

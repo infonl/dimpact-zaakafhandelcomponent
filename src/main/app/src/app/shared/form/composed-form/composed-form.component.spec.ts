@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import {
@@ -60,7 +60,7 @@ describe(ZacComposedForm.name, () => {
       imports: [ZacComposedForm, NoopAnimationsModule],
       providers: [
         provideTranslateService(),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideRouter([]),
         provideNativeDateAdapter(),
       ],

@@ -4,6 +4,7 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   Injector,
@@ -56,6 +57,7 @@ type Node =
   standalone: true,
   templateUrl: "./bpmn-process-definitions.component.html",
   styleUrls: ["./bpmn-process-definitions.component.less"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatCardModule,

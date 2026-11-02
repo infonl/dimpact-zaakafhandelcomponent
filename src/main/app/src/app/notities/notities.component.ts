@@ -6,6 +6,7 @@
 import { CdkTextareaAutosize } from "@angular/cdk/text-field";
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -46,6 +47,7 @@ function nieuwsteWijzigingEerst(
   templateUrl: "./notities.component.html",
   styleUrls: ["./notities.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatIconModule,

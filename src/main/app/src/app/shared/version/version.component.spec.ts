@@ -10,7 +10,8 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatCardHarness } from "@angular/material/card/testing";
 import { MatChipHarness } from "@angular/material/chips/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideTranslateService } from "@ngx-translate/core";
+import { provideTranslateService, TranslateService } from "@ngx-translate/core";
+import { screen } from "@testing-library/angular";
 import { sleep } from "../../../../setupJest";
 import { GeneratedType } from "../utils/generated-types";
 import { VersionComponent, VersionLayout } from "./version.component";
@@ -109,6 +110,35 @@ describe(VersionComponent.name, () => {
     expect(text).toContain("health-check.build-informatie.version");
     expect(text).not.toContain("health-check.build-informatie.build");
     expect(text).toContain("health-check.build-informatie.commit");
+  });
+
+  describe("the version label", () => {
+    beforeEach(() => {
+      const translateService = TestBed.inject(TranslateService);
+      translateService.setTranslation("nl", {
+        "health-check.build-informatie.version": "Versie: {{version}}",
+      });
+      translateService.use("nl");
+    });
+
+    it("shows the version number in upper case", async () => {
+      await setup(undefined, { ...buildInformatie, versienummer: "v1.2.3" });
+
+      expect(screen.getByText("Versie: V1.2.3")).toBeInTheDocument();
+    });
+
+    it("shows no placeholder when the build information has no version number", async () => {
+      await setup(undefined, { ...buildInformatie, versienummer: null });
+
+      expect(screen.getByText("Versie:")).toBeInTheDocument();
+    });
+
+    it("shows no placeholder while the build information is loading", async () => {
+      fixture = TestBed.createComponent(VersionComponent);
+      fixture.detectChanges();
+
+      expect(screen.getByText("Versie:")).toBeInTheDocument();
+    });
   });
 
   it("should hide commit info in verbose layout when commit is absent", async () => {

@@ -11,45 +11,29 @@
     <mat-form-field class="full-width" appearance="fill">
       <mat-select
         id="betrokkeneRoltype_filter"
-        [formControl]="betrokkeneSelectControl"
-        (selectionChange)="roltypeChanged()"
+        [aria-label]="'zoeken.filter.zaak-betrokkene' | translate"
+        [value]="roltype()"
+        (selectionChange)="roltypeChanged($event.value)"
       >
-        <mat-option [value]="ZoekVeld.ZAAK_BETROKKENEN">{{
-          "betrokkene-roltype.alle" | translate
-        }}</mat-option>
-        <mat-option [value]="ZoekVeld.ZAAK_INITIATOR">{{
-          "betrokkene-roltype.initiator" | translate
-        }}</mat-option>
-        <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_MEDE_INITIATOR">{{
-          "betrokkene-roltype.mede-initiator" | translate
-        }}</mat-option>
-        <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_BELANGHEBBENDE">{{
-          "betrokkene-roltype.belanghebbende" | translate
-        }}</mat-option>
-        <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_BESLISSER">{{
-          "betrokkene-roltype.beslisser" | translate
-        }}</mat-option>
-        <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_ADVISEUR">{{
-          "betrokkene-roltype.adviseur" | translate
-        }}</mat-option>
-        <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_KLANTCONTACTER">{{
-          "betrokkene-roltype.klantcontacter" | translate
-        }}</mat-option>
-        <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_ZAAKCOORDINATOR">{{
-          "betrokkene-roltype.zaakcoordinator" | translate
-        }}</mat-option>
+        @for (roltype of roltypen; track roltype.zoekVeld) {
+          <mat-option [value]="roltype.zoekVeld">{{
+            roltype.label | translate
+          }}</mat-option>
+        }
       </mat-select>
     </mat-form-field>
     <mat-form-field class="full-width" appearance="fill">
       <input
         matInput
         placeholder="{{ 'bsn.vestigingsnummer.rsin' | translate }}"
+        #idInput
+        [value]="klantId()"
+        (input)="klantId.set(idInput.value)"
         (blur)="idChanged()"
         (keyup.enter)="idChanged()"
-        [formControl]="klantIdControl"
       />
       <mat-icon
-        [ngClass]="{ active: dialogOpen }"
+        [ngClass]="{ active: dialogOpen() }"
         matSuffix
         (click)="openDialog()"
         >person</mat-icon

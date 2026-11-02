@@ -3,7 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+} from "@angular/core";
 import { PageEvent } from "@angular/material/paginator";
 import { ActivatedRoute } from "@angular/router";
 import { QueryClient } from "@tanstack/angular-query-experimental";
@@ -15,6 +20,7 @@ import { TabelGegevens } from "../model/tabel-gegevens";
 
 @Component({
   template: "",
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export abstract class WerklijstComponent implements OnInit {

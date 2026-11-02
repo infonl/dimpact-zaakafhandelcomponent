@@ -7,6 +7,7 @@ import { Location } from "@angular/common";
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import { provideLocationMocks } from "@angular/common/testing";
 import { TestBed } from "@angular/core/testing";
@@ -28,7 +29,7 @@ describe(TakenService.name, () => {
     TestBed.configureTestingModule({
       providers: [
         provideTranslateService(),
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideQueryClient(testQueryClient),
         provideLocationMocks(),
       ],

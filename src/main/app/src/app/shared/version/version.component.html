@@ -11,7 +11,9 @@
         {{
           "health-check.build-informatie.version"
             | translate
-              : { version: buildInformatie?.versienummer?.toUpperCase() }
+              : {
+                  version: buildInformatie?.versienummer?.toUpperCase() ?? "",
+                }
         }}
       </p>
       @if (buildInformatie?.buildId && buildInformatie?.buildDatumTijd) {
@@ -57,7 +59,9 @@
         {{
           "health-check.build-informatie.version"
             | translate
-              : { version: buildInformatie?.versienummer?.toUpperCase() }
+              : {
+                  version: buildInformatie?.versienummer?.toUpperCase() ?? "",
+                }
         }}</span
       >
     </mat-chip>

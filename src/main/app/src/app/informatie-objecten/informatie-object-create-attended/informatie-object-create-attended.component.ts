@@ -4,6 +4,7 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   effect,
   inject,
@@ -71,6 +72,7 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
     ZacInput,
     ZacFormActions,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [VertrouwelijkaanduidingToTranslationKeyPipe],
 })
 export class InformatieObjectCreateAttendedComponent

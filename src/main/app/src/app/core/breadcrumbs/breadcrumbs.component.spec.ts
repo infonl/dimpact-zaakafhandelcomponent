@@ -5,7 +5,7 @@
 
 import { Location } from "@angular/common";
 import { provideLocationMocks } from "@angular/common/testing";
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { Title } from "@angular/platform-browser";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
@@ -31,7 +31,7 @@ import {
 } from "./route-title";
 import { ZacTitleStrategy } from "./zac-title-strategy";
 
-@Component({ template: "" })
+@Component({ changeDetection: ChangeDetectionStrategy.Eager, template: "" })
 class PageStubComponent {}
 
 describe(BreadcrumbsComponent.name, () => {

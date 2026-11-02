@@ -3,7 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, effect, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
@@ -49,6 +54,7 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "zaak-afhandelen-dialog.component.html",
   styleUrls: ["./zaak-afhandelen-dialog.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     ReactiveFormsModule,

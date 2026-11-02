@@ -3,11 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, InputSignal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, InputSignal } from "@angular/core";
 import { MatSidenav } from "@angular/material/sidenav";
 
 @Component({
   template: "",
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export abstract class ZoekObjectComponent {

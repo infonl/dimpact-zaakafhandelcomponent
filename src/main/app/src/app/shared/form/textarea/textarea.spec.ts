@@ -5,7 +5,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import {
   FormControl,
@@ -39,6 +39,7 @@ const makeForm = (
     [label]="label"
     [readonly]="readonly"
   />`,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ZacTextarea],
 })
 class HostComponent {

@@ -5,6 +5,7 @@
 
 import { NgClass } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -56,6 +57,7 @@ import { WebsocketService } from "../websocket/websocket.service";
   templateUrl: "./toolbar.component.html",
   styleUrls: ["./toolbar.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     NgClass,
     ReactiveFormsModule,

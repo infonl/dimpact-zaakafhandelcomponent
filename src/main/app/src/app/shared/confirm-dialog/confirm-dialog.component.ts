@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import {
   MAT_DIALOG_DATA,
@@ -23,6 +23,7 @@ import { Observable } from "rxjs";
   templateUrl: "confirm-dialog.component.html",
   styleUrls: ["./confirm-dialog.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatToolbarModule,
     MatDialogTitle,

@@ -4,6 +4,7 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -34,6 +35,7 @@ type Zaaktype = Pick<
   selector: "zac-parameters-step-algemeen",
   templateUrl: "./parameters-step-algemeen.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule,

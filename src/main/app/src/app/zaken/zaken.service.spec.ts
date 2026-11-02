@@ -6,6 +6,7 @@
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import {
   HttpTestingController,
@@ -32,7 +33,7 @@ describe(ZakenService.name, () => {
     TestBed.configureTestingModule({
       providers: [
         provideTranslateService(),
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
       ],

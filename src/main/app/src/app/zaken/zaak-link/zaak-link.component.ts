@@ -5,6 +5,7 @@
 
 import { NgTemplateOutlet } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -71,6 +72,7 @@ const newCaseRelationOption = <T extends ZaakCreateKoppeling["relatieType"]>(
   templateUrl: "./zaak-link.component.html",
   styleUrls: ["./zaak-link.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     ReactiveFormsModule,

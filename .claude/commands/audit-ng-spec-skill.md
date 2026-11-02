@@ -18,7 +18,7 @@ You did NOT write this spec. Treat it with completely fresh eyes.
 3. Derive the component path from the spec path (same directory, `.component.ts` instead of `.component.spec.ts`), read it.
 4. Derive the template path (`.component.html`), read it if it exists.
 5. From `src/main/app/`, run the check that CI applies to a touched spec, and treat every problem it reports as a FAIL:
-   `ESLINT_USE_FLAT_CONFIG=false npx eslint -c .eslintrc.strict-specs.js <spec path relative to src/main/app>`.
+   `npx eslint -c eslint.strict-specs.config.js <spec path relative to src/main/app>`.
    It already covers `any`, `NO_ERRORS_SCHEMA`, DOM queries outside Testing Library (`By.css`, `querySelector`, node access such as `.children` or `.closest()`), `fireEvent` instead of `userEvent.setup()`, rendering in `beforeEach`, and object literals cast through `unknown`.
    Fix those as `.claude/rules/angular-specs.md` describes; never replace one banned query with another.
    It does not catch `debugElement.query(By.directive(…))` or `within(fixture.nativeElement)`; mark those FAIL yourself.

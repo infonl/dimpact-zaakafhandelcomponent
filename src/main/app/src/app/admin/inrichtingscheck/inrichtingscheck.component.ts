@@ -12,6 +12,7 @@ import {
 } from "@angular/animations";
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -62,6 +63,7 @@ import { HealthCheckService } from "../health-check.service";
     ]),
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatSidenavModule,
     MatCardModule,

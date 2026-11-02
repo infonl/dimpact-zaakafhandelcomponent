@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { provideTranslateService } from "@ngx-translate/core";
 import { fromPartial } from "../../../../test-helpers";
@@ -16,7 +16,7 @@ describe(DefaultTaskForm.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideTranslateService(), provideHttpClient()],
+      providers: [provideTranslateService(), provideHttpClient(withXhr())],
     });
 
     formulier = TestBed.inject(DefaultTaskForm);

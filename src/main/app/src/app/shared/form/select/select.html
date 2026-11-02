@@ -47,9 +47,7 @@
       <mat-option [value]="option" [disabled]="optionDisabled()(option)">
         {{ displayWith(option) | translate }}
         @if (suffixTranslationKey(option)) {
-          <div>
-            {{ suffixTranslationKey(option) | translate }}
-          </div>
+          <div>{{ suffixTranslationKey(option) | translate }}</div>
         }
       </mat-option>
     }

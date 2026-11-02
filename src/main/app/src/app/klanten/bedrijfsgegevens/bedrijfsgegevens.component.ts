@@ -4,6 +4,7 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   inject,
@@ -32,6 +33,7 @@ import { KlantenService } from "../klanten.service";
   templateUrl: "./bedrijfsgegevens.component.html",
   styleUrls: ["./bedrijfsgegevens.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     MatExpansionModule,

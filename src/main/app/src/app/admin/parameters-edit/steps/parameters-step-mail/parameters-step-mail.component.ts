@@ -4,6 +4,7 @@
  */
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -43,6 +44,7 @@ import {
   templateUrl: "./parameters-step-mail.component.html",
   styleUrl: "./parameters-step-mail.component.less",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatCardModule,

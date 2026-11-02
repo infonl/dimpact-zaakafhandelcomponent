@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 import {
+  ChangeDetectionStrategy,
   Component,
   OnInit,
   computed,
@@ -44,6 +45,7 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./besluit-edit.component.html",
   styleUrls: ["./besluit-edit.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatDividerModule,

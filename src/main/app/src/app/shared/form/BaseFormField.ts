@@ -5,6 +5,7 @@
 
 import {
   booleanAttribute,
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -32,6 +33,7 @@ import { FormHelper } from "./helpers";
  */
 @Component({
   template: "",
+  changeDetection: ChangeDetectionStrategy.Eager,
   host: {
     class: "zac-form-field",
     "[attr.inert]": "isSubmitting() ? '' : null",
@@ -131,6 +133,7 @@ export class SingleInputFormField<
  * It should **never** be used directly in a template.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: "",
 })
 export class MultiInputFormField<

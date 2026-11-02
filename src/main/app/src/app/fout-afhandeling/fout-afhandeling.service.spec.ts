@@ -11,16 +11,18 @@ import { TranslateService } from "@ngx-translate/core";
 import { firstValueFrom } from "rxjs";
 import { ReferentieTabelService } from "../admin/referentie-tabel.service";
 import { UtilService } from "../core/service/util.service";
+import { FoutDetailedDialogComponent } from "./dialog/fout-detailed-dialog.component";
 import { FoutAfhandelingService } from "./fout-afhandeling.service";
 
 describe("FoutAfhandelingService", () => {
   let service: FoutAfhandelingService;
   const translatedErrorMessage = "fakeTranslatedErrorMessage";
+  const dialog = { open: jest.fn(), closeAll: jest.fn() };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        { provide: MatDialog, useValue: { open() {}, closeAll() {} } },
+        { provide: MatDialog, useValue: dialog },
         { provide: UtilService, useValue: { openSnackbarError() {} } },
         {
           provide: TranslateService,
@@ -154,6 +156,56 @@ describe("FoutAfhandelingService", () => {
 
       expect(errorMessage).toBe("User logged out");
       expect(navigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("given a waarschuwing", () => {
+    const waarschuwing = "fakeWaarschuwing";
+
+    it("shows it in the detailed dialog, above the error of the server", () => {
+      service.foutAfhandelen(
+        new HttpErrorResponse({
+          error: { message: "fakeMessage", exception: "fakeException" },
+          status: 500,
+        }),
+        { waarschuwing },
+      );
+
+      expect(dialog.open).toHaveBeenCalledWith(FoutDetailedDialogComponent, {
+        data: expect.objectContaining({
+          waarschuwing,
+          details: "fakeException",
+        }),
+      });
+    });
+
+    it("shows a bad request without details in the detailed dialog as well, since the plain dialog has no room for it", () => {
+      service.foutAfhandelen(
+        new HttpErrorResponse({
+          error: { message: "fakeMessage" },
+          status: 400,
+        }),
+        { waarschuwing },
+      );
+
+      expect(dialog.open).toHaveBeenCalledTimes(1);
+      expect(dialog.open).toHaveBeenCalledWith(FoutDetailedDialogComponent, {
+        data: expect.objectContaining({ waarschuwing }),
+      });
+    });
+
+    it("shows the title it is given instead of the general one", () => {
+      service.foutAfhandelen(
+        new HttpErrorResponse({
+          error: { message: "fakeMessage", exception: "fakeException" },
+          status: 500,
+        }),
+        { waarschuwing, titel: "fakeTitel" },
+      );
+
+      expect(dialog.open).toHaveBeenCalledWith(FoutDetailedDialogComponent, {
+        data: expect.objectContaining({ waarschuwing, titel: "fakeTitel" }),
+      });
     });
   });
 });

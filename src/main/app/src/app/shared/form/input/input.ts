@@ -5,7 +5,13 @@
  */
 
 import { NgClass } from "@angular/common";
-import { booleanAttribute, Component, computed, input } from "@angular/core";
+import {
+  booleanAttribute,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -20,6 +26,7 @@ import { FormHelper } from "../helpers";
   selector: "zac-input",
   templateUrl: "./input.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     NgClass,
     ReactiveFormsModule,

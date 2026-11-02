@@ -5,6 +5,7 @@
 
 import {
   booleanAttribute,
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -54,6 +55,7 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   templateUrl: "./persoon-zoek.component.html",
   styleUrls: ["./persoon-zoek.component.less"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZacSelect,
     ZacInput,

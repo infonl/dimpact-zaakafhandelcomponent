@@ -5,7 +5,12 @@
  */
 
 import { LowerCasePipe } from "@angular/common";
-import { Component, effect, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  signal,
+} from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import { MatButtonModule } from "@angular/material/button";
@@ -22,6 +27,7 @@ import { MultiInputFormField } from "../BaseFormField";
   selector: "zac-auto-complete",
   templateUrl: "./auto-complete.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     LowerCasePipe,
     ReactiveFormsModule,

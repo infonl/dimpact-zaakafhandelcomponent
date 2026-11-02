@@ -4,7 +4,14 @@
  */
 
 import { LowerCasePipe } from "@angular/common";
-import { Component, computed, inject, input, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+} from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MatIconButton } from "@angular/material/button";
 import { MatDivider } from "@angular/material/divider";
@@ -33,6 +40,7 @@ type ZaakDetailField = {
   styleUrls: ["./zaak-details-algemeen-tab.component.less"],
   styles: [":host { display: block; }"],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     LowerCasePipe,
     MatDivider,
