@@ -83,7 +83,8 @@ export class OntkoppeldeDocumentenService {
             ...failure,
             titel:
               failure.titel ??
-              selectedDocuments.find(({ id }) => id === failure.id)?.titel,
+              selectedDocuments.find(({ id }) => id === failure.id)?.titel ??
+              null,
           })),
         } satisfies OntkoppeldeDocumentenBulkFoutenDialogData,
       });

@@ -71,6 +71,7 @@ export class ConfirmDialogData {
     private translation: { key: string; args?: object } | string,
     public observable?: Observable<unknown>,
     public uitleg?: string,
+    public opties: ConfirmDialogOpties = {},
   ) {
     if (typeof translation === "string") {
       this._melding = { key: translation, args: {} };
@@ -79,3 +80,10 @@ export class ConfirmDialogData {
     }
   }
 }
+
+export type ConfirmDialogOpties = {
+  titel?: { key: string; args?: object };
+  icon?: string;
+  bevestigLabel?: string;
+  annuleerLabel?: string;
+};

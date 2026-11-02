@@ -541,6 +541,18 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
       expect(within(bulkButton("actie.koppelen")).getByText("2")).toBeVisible();
     });
 
+    it("offers koppelen before verwijderen", async () => {
+      await showTwoDocuments();
+
+      await user.click(selectAllCheckbox());
+
+      expect(
+        bulkButton("actie.koppelen").compareDocumentPosition(
+          bulkButton("actie.verwijderen"),
+        ),
+      ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    });
+
     it("clears the selection when the page changes", async () => {
       await showTwoDocuments(30);
       await user.click(selectAllCheckbox());
@@ -600,6 +612,19 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
         httpTestingController.expectNone(BULK_DELETE_URL);
       });
 
+      it("titles the confirmation with the number of documents to delete", async () => {
+        await selectBothAndPressVerwijderen();
+
+        expect(
+          within(screen.getByRole("dialog")).getByRole("heading"),
+        ).toHaveTextContent(
+          "msg.ontkoppelde-documenten.bulk.verwijderen.titel",
+        );
+        expect(openDialog.mock.calls[0][1].data.opties.titel.args).toEqual({
+          aantal: 2,
+        });
+      });
+
       it("uses the singular text when one document is selected", async () => {
         await showTwoDocuments();
         await user.click(
@@ -620,7 +645,11 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
       it("deletes nothing and keeps the selection when the confirmation is cancelled", async () => {
         await selectBothAndPressVerwijderen();
 
-        await user.click(screen.getByRole("button", { name: "actie.nee" }));
+        await user.click(
+          within(screen.getByRole("dialog")).getByRole("button", {
+            name: "actie.annuleren",
+          }),
+        );
         await sleep();
 
         httpTestingController.expectNone(BULK_DELETE_URL);
@@ -630,7 +659,11 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
       it("deletes the selected documents in one request once confirmed", async () => {
         await selectBothAndPressVerwijderen();
 
-        await user.click(screen.getByRole("button", { name: "actie.ja" }));
+        await user.click(
+          within(screen.getByRole("dialog")).getByRole("button", {
+            name: "actie.verwijderen",
+          }),
+        );
         await sleep();
 
         const request = httpTestingController.expectOne(BULK_DELETE_URL);
@@ -641,7 +674,11 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
 
       it("reports the number of deleted documents and reloads the list", async () => {
         await selectBothAndPressVerwijderen();
-        await user.click(screen.getByRole("button", { name: "actie.ja" }));
+        await user.click(
+          within(screen.getByRole("dialog")).getByRole("button", {
+            name: "actie.verwijderen",
+          }),
+        );
         await sleep();
 
         httpTestingController
@@ -662,7 +699,11 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
 
       it("tells which document failed and why, while the others are deleted", async () => {
         await selectBothAndPressVerwijderen();
-        await user.click(screen.getByRole("button", { name: "actie.ja" }));
+        await user.click(
+          within(screen.getByRole("dialog")).getByRole("button", {
+            name: "actie.verwijderen",
+          }),
+        );
         await sleep();
 
         httpTestingController.expectOne(BULK_DELETE_URL).flush({
@@ -685,7 +726,11 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
 
       it("shows the delete specific text when Open Zaak refuses a deletion", async () => {
         await selectBothAndPressVerwijderen();
-        await user.click(screen.getByRole("button", { name: "actie.ja" }));
+        await user.click(
+          within(screen.getByRole("dialog")).getByRole("button", {
+            name: "actie.verwijderen",
+          }),
+        );
         await sleep();
 
         httpTestingController.expectOne(BULK_DELETE_URL).flush({

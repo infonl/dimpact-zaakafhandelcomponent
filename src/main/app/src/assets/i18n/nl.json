@@ -502,6 +502,8 @@
   "informatieobject.koppelen.bulk.uitleg.enkelvoud": "Koppel 1 document aan een zaak",
   "msg.ontkoppelde-documenten.bulk.verwijderen.bevestigen": "Weet u dit zeker? {{aantal}} geselecteerde documenten worden verwijderd.",
   "msg.ontkoppelde-documenten.bulk.verwijderen.bevestigen.enkelvoud": "Weet u dit zeker? Het geselecteerde document wordt verwijderd.",
+  "msg.ontkoppelde-documenten.bulk.verwijderen.titel": "{{aantal}} documenten verwijderen",
+  "msg.ontkoppelde-documenten.bulk.verwijderen.titel.enkelvoud": "1 document verwijderen",
   "msg.ontkoppelde-documenten.bulk.verwijderen.uitgevoerd": "{{aantal}} documenten verwijderd",
   "msg.ontkoppelde-documenten.bulk.verwijderen.uitgevoerd.enkelvoud": "1 document verwijderd",
   "msg.ontkoppelde-documenten.bulk.koppelen.uitgevoerd": "{{aantal}} documenten gekoppeld aan zaak \"{{case}}\"",

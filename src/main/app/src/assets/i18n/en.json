@@ -502,6 +502,8 @@
   "informatieobject.koppelen.bulk.uitleg.enkelvoud": "Link 1 document to a case",
   "msg.ontkoppelde-documenten.bulk.verwijderen.bevestigen": "Are you sure? {{aantal}} selected documents will be deleted.",
   "msg.ontkoppelde-documenten.bulk.verwijderen.bevestigen.enkelvoud": "Are you sure? The selected document will be deleted.",
+  "msg.ontkoppelde-documenten.bulk.verwijderen.titel": "Delete {{aantal}} documents",
+  "msg.ontkoppelde-documenten.bulk.verwijderen.titel.enkelvoud": "Delete 1 document",
   "msg.ontkoppelde-documenten.bulk.verwijderen.uitgevoerd": "{{aantal}} documents deleted",
   "msg.ontkoppelde-documenten.bulk.verwijderen.uitgevoerd.enkelvoud": "1 document deleted",
   "msg.ontkoppelde-documenten.bulk.koppelen.uitgevoerd": "{{aantal}} documents linked to case \"{{case}}\"",

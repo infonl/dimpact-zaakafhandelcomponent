@@ -14,13 +14,13 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
+import { MatBadge } from "@angular/material/badge";
 import {
   MatButton,
   MatIconAnchor,
   MatIconButton,
 } from "@angular/material/button";
 import { MatCheckbox } from "@angular/material/checkbox";
-import { MatBadge } from "@angular/material/badge";
 import { MatDialog } from "@angular/material/dialog";
 import { MatFormField } from "@angular/material/form-field";
 import { MatIcon } from "@angular/material/icon";
@@ -322,12 +322,26 @@ export class OntkoppeldeDocumentenListComponent
   protected documentenVerwijderen() {
     const selectedDocuments = [...this.selection.selected];
     const ids = selectedDocuments.map(({ id }) => id!);
+    const enkelvoud = ids.length === 1 ? ".enkelvoud" : "";
     this.dialog
       .open(ConfirmDialogComponent, {
-        data: new ConfirmDialogData({
-          key: `msg.ontkoppelde-documenten.bulk.verwijderen.bevestigen${ids.length === 1 ? ".enkelvoud" : ""}`,
-          args: { aantal: ids.length },
-        }),
+        data: new ConfirmDialogData(
+          {
+            key: `msg.ontkoppelde-documenten.bulk.verwijderen.bevestigen${enkelvoud}`,
+            args: { aantal: ids.length },
+          },
+          undefined,
+          undefined,
+          {
+            titel: {
+              key: `msg.ontkoppelde-documenten.bulk.verwijderen.titel${enkelvoud}`,
+              args: { aantal: ids.length },
+            },
+            icon: "delete",
+            bevestigLabel: "actie.verwijderen",
+            annuleerLabel: "actie.annuleren",
+          },
+        ),
       })
       .afterClosed()
       .subscribe((confirmed) => {

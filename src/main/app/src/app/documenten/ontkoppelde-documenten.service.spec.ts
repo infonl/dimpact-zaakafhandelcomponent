@@ -179,7 +179,7 @@ describe(OntkoppeldeDocumentenService.name, () => {
       service.reportBulkResult(
         {
           verwerkt: [],
-          mislukt: [{ id: 5, foutcode: "NIET_GEVONDEN" }],
+          mislukt: [{ id: 5, titel: null, foutcode: "NIET_GEVONDEN" }],
         },
         "verwijderen",
         [

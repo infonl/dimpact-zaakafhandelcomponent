@@ -266,22 +266,6 @@
         <div class="buttons">
           <button
             [disabled]="deleteListMutation.isPending()"
-            (click)="documentenVerwijderen()"
-            color="accent"
-            id="verwijderen_button"
-            mat-raised-button
-            title="{{ 'actie.verwijderen' | translate }}"
-          >
-            {{ "actie.verwijderen" | translate }}
-            <mat-icon
-              [matBadge]="selection.selected.length"
-              matBadgeColor="primary"
-              matBadgeSize="small"
-              >delete</mat-icon
-            >
-          </button>
-          <button
-            [disabled]="deleteListMutation.isPending()"
             (click)="documentenKoppelen()"
             color="accent"
             id="koppelen_button"
@@ -294,6 +278,22 @@
               matBadgeColor="primary"
               matBadgeSize="small"
               >link</mat-icon
+            >
+          </button>
+          <button
+            [disabled]="deleteListMutation.isPending()"
+            (click)="documentenVerwijderen()"
+            color="accent"
+            id="verwijderen_button"
+            mat-raised-button
+            title="{{ 'actie.verwijderen' | translate }}"
+          >
+            {{ "actie.verwijderen" | translate }}
+            <mat-icon
+              [matBadge]="selection.selected.length"
+              matBadgeColor="primary"
+              matBadgeSize="small"
+              >delete</mat-icon
             >
           </button>
         </div>
