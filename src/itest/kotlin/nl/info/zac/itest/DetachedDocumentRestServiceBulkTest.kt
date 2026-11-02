@@ -31,7 +31,7 @@ class DetachedDocumentRestServiceBulkTest : BehaviorSpec({
     val documentHelper = DocumentHelper(zacClient)
     val unknownDetachedDocumentId = 987_654_321L
 
-    fun detachNewDocument(zaakUuid: UUID, titlePrefix: String): UUID {
+    suspend fun detachNewDocument(zaakUuid: UUID, titlePrefix: String): UUID {
         val (documentUuid, _) = documentHelper.uploadDocumentToZaak(
             zaakUuid = zaakUuid,
             fileName = TEST_PDF_FILE_NAME,
@@ -54,7 +54,7 @@ class DetachedDocumentRestServiceBulkTest : BehaviorSpec({
         return documentUuid
     }
 
-    fun findDetachedDocumentId(documentUuid: UUID): Long? {
+    fun findDetachedDocumentId(documentUuid: UUID): Long {
         val listResponse = itestHttpClient.performPutRequest(
             url = "$ZAC_API_URI/ontkoppeldedocumenten",
             requestBodyAsString = """{"page": 0, "maxResults": 100, "sort": "", "order": ""}""",
@@ -63,8 +63,8 @@ class DetachedDocumentRestServiceBulkTest : BehaviorSpec({
         val resultaten = JSONObject(listResponse.bodyAsString).getJSONArray("resultaten")
         return (0 until resultaten.length())
             .map(resultaten::getJSONObject)
-            .firstOrNull { it.getString("documentUUID") == documentUuid.toString() }
-            ?.getLong("id")
+            .first { it.getString("documentUUID") == documentUuid.toString() }
+            .getLong("id")
     }
 
     fun JSONArray.toLongList() = (0 until length()).map(::getLong)
@@ -74,8 +74,8 @@ class DetachedDocumentRestServiceBulkTest : BehaviorSpec({
             zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
             testUser = BEHANDELAAR_1
         )
-        val firstId = findDetachedDocumentId(detachNewDocument(zaakUuid, "bulkDeleteItest1"))!!
-        val secondId = findDetachedDocumentId(detachNewDocument(zaakUuid, "bulkDeleteItest2"))!!
+        val firstId = findDetachedDocumentId(detachNewDocument(zaakUuid, "bulkDeleteItest1"))
+        val secondId = findDetachedDocumentId(detachNewDocument(zaakUuid, "bulkDeleteItest2"))
 
         `when`("the bulk delete endpoint is called by a recordmanager with the three ids") {
             val response = itestHttpClient.performPutRequest(
@@ -114,8 +114,8 @@ class DetachedDocumentRestServiceBulkTest : BehaviorSpec({
             zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
             testUser = BEHANDELAAR_1
         )
-        val firstId = findDetachedDocumentId(detachNewDocument(zaakUuid, "bulkLinkItest1"))!!
-        val secondId = findDetachedDocumentId(detachNewDocument(zaakUuid, "bulkLinkItest2"))!!
+        val firstId = findDetachedDocumentId(detachNewDocument(zaakUuid, "bulkLinkItest1"))
+        val secondId = findDetachedDocumentId(detachNewDocument(zaakUuid, "bulkLinkItest2"))
 
         `when`("the bulk link endpoint is called with the three ids") {
             val response = itestHttpClient.performPutRequest(
@@ -126,7 +126,7 @@ class DetachedDocumentRestServiceBulkTest : BehaviorSpec({
                         "nieuweZaakID" to zaakIdentificatie
                     )
                 ).toString(),
-                testUser = BEHANDELAAR_1
+                testUser = RECORDMANAGER_1
             )
 
             then("the two documents are linked and the unknown id is reported as failed") {

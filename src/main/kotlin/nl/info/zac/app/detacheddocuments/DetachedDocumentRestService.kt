@@ -14,10 +14,12 @@ import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
+import jakarta.ws.rs.WebApplicationException
 import jakarta.ws.rs.core.MediaType
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.shared.exception.ZgwErrorException
+import nl.info.client.zgw.shared.exception.ZgwRuntimeException
 import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -46,6 +48,7 @@ import nl.info.zac.search.SearchService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.jetty.http.HttpStatus
+import java.util.UUID
 import java.util.logging.Logger
 
 @Singleton
@@ -160,6 +163,17 @@ class DetachedDocumentRestService @Inject constructor(
                     "Ontkoppeld document '$id' kon niet worden verwerkt: ${zgwValidationErrorException.message}"
                 )
                 failed.add(failure(id, detachedDocument, RestDetachedDocumentBulkFoutcode.OPEN_ZAAK_FOUT))
+            } catch (zgwRuntimeException: ZgwRuntimeException) {
+                LOG.warning("Ontkoppeld document '$id' kon niet worden verwerkt: ${zgwRuntimeException.message}")
+                failed.add(failure(id, detachedDocument, RestDetachedDocumentBulkFoutcode.OPEN_ZAAK_FOUT))
+            } catch (webApplicationException: WebApplicationException) {
+                LOG.warning("Ontkoppeld document '$id' kon niet worden verwerkt: ${webApplicationException.message}")
+                val foutcode = if (webApplicationException.isNotFound()) {
+                    RestDetachedDocumentBulkFoutcode.NIET_GEVONDEN
+                } else {
+                    RestDetachedDocumentBulkFoutcode.OPEN_ZAAK_FOUT
+                }
+                failed.add(failure(id, detachedDocument, foutcode))
             }
         }
         return RestDetachedDocumentBulkResult(verwerkt = processed, mislukt = failed)
@@ -169,17 +183,8 @@ class DetachedDocumentRestService @Inject constructor(
         RestDetachedDocumentBulkFailure(id, detachedDocument.titel, foutcode)
 
     private fun removeDetachedDocument(detachedDocument: DetachedDocument, rejectLocked: Boolean) {
-        var enkelvoudigInformatieobject: EnkelvoudigInformatieObject? = null
         val documentUUID = detachedDocument.documentUUID
-        try {
-            enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(documentUUID)
-        } catch (zgwErrorException: ZgwErrorException) {
-            if (zgwErrorException.zgwError.status != HttpStatus.NOT_FOUND_404) {
-                throw zgwErrorException
-            }
-            LOG.info("Document met UUID '$documentUUID' wel gevonden in de database, maar niet in OpenZaak")
-        }
-        enkelvoudigInformatieobject?.let { informatieobject ->
+        readEnkelvoudigInformatieobjectIfExists(documentUUID)?.let { informatieobject ->
             if (rejectLocked && informatieobject.getLocked()) {
                 throw DetachedDocumentLockedException("Informatieobject '$documentUUID' is vergrendeld")
             }
@@ -192,6 +197,19 @@ class DetachedDocumentRestService @Inject constructor(
         }
         detachedDocument.id?.let(detachedDocumentService::deleteIfExists)
     }
+
+    private fun readEnkelvoudigInformatieobjectIfExists(documentUUID: UUID): EnkelvoudigInformatieObject? =
+        try {
+            drcClientService.readEnkelvoudigInformatieobject(documentUUID)
+        } catch (webApplicationException: WebApplicationException) {
+            if (!webApplicationException.isNotFound()) {
+                throw webApplicationException
+            }
+            LOG.info("Document met UUID '$documentUUID' wel gevonden in de database, maar niet in OpenZaak")
+            null
+        }
+
+    private fun WebApplicationException.isNotFound() = response?.status == HttpStatus.NOT_FOUND_404
 
     private fun linkDetachedDocument(detachedDocument: DetachedDocument, targetZaak: Zaak) {
         val informatieobject = drcClientService.readEnkelvoudigInformatieobject(detachedDocument.documentUUID)
