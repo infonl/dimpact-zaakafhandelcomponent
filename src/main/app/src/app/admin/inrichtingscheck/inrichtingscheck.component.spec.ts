@@ -380,6 +380,17 @@ describe(InrichtingscheckComponent.name, () => {
       ).toBe("Zaaktype A");
     });
 
+    it("keeps applying the valide filter once the typed filter text is cleared again", async () => {
+      const filterInput = screen.getByRole("textbox", { name: "filter" });
+      await user.type(filterInput, "Z{Backspace}");
+      fixture.detectChanges();
+
+      expect(
+        screen.queryByRole("row", { name: /Zaaktype A/ }),
+      ).not.toBeInTheDocument();
+      expect(zaaktypeRow("Zaaktype B")).toBeVisible();
+    });
+
     it("should sort by doel ascending then descending via column header click", async () => {
       setValideFilter(ToggleSwitchOptions.INDETERMINATE);
 

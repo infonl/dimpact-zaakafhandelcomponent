@@ -11,6 +11,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
@@ -228,5 +229,34 @@ describe(ParametersComponent.name, () => {
     fixture.detectChanges();
 
     expect(screen.getByText("msg.loading")).toBeVisible();
+  });
+
+  it("shows only the zaaktypen whose begin geldigheid lies in the typed range", async () => {
+    sessionStorage.clear();
+    const parameters = (omschrijving: string, beginGeldigheid: string) =>
+      fromPartial<GeneratedType<"RestZaaktypeConfiguration">>({
+        isValide: true,
+        zaaktype: { omschrijving, beginGeldigheid, isNuGeldig: true },
+      });
+    jest
+      .mocked(zaakafhandelParametersServiceMock.listZaakafhandelParameters)
+      .mockReturnValue(
+        of([
+          parameters("Oud zaaktype", "2024-01-10"),
+          parameters("Nieuw zaaktype", "2025-06-01"),
+        ]),
+      );
+    fixture = TestBed.createComponent(ParametersComponent);
+    fixture.detectChanges();
+
+    const [beginGeldigheidVan] =
+      screen.getAllByPlaceholderText("zoeken.filter.van");
+    const user = userEvent.setup();
+    await user.type(beginGeldigheidVan, "01-01-2025");
+    await user.tab();
+    fixture.detectChanges();
+
+    expect(screen.queryByText("Oud zaaktype")).not.toBeInTheDocument();
+    expect(screen.getByText("Nieuw zaaktype")).toBeVisible();
   });
 });
