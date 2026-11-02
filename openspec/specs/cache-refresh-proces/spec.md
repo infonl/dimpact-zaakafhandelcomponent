@@ -32,7 +32,8 @@ sends no notification for appear in ZAC, such as a zaaktype that was published w
 with the bulk publish action of the Open Zaak admin, which would otherwise stay missing from a zaaktype list that is
 read often and therefore never expires. A periodic refresh that is requested while a refresh runs SHALL be combined
 with it as described in "Cache refresh after the caches have been cleared". When the interval is 0, the system SHALL
-NOT refresh the ZTC caches periodically.
+NOT refresh the ZTC caches periodically. When the Helm value is missing or empty, the Helm chart SHALL use the default
+of 3600, while a value of 0 SHALL be kept.
 
 #### Scenario: The refresh interval has passed
 - **WHEN** ZAC has been running for the configured refresh interval since startup or since the previous periodic
@@ -49,29 +50,13 @@ NOT refresh the ZTC caches periodically.
 - **THEN** the system refreshes the ZTC caches only after startup and after the caches have been cleared
 
 ### Requirement: Cache refresh after the caches have been cleared
-After the system has cleared ZTC caches, it SHALL refresh the ZTC caches of the default catalogus in the
+After a beheerder has cleared the ZTC caches with `/rest/admin/util/cache/clear` or
+`/rest/admin/util/cache/ztc/clear`, the system SHALL refresh the ZTC caches of the default catalogus in the
 background, in the same way as after startup, so that the types are again available without one request per
-zaaktype. This applies when a notification about a created or updated zaaktype has cleared the caches, when a
-notification about a created, updated or deleted besluittype or informatieobjecttype has cleared the cache of that
-type, and when a beheerder has cleared the caches with `/rest/admin/util/cache/clear` or `/rest/admin/util/cache/ztc/clear`. When
-refreshes are requested while a refresh runs, the system SHALL run one more refresh after the running one, because
-the running refresh may have read the ZTC before the change, and SHALL NOT run a refresh per request. A refresh SHALL
-write the types it fetched to the caches only after it has fetched all types, and SHALL NOT write them at all when ZTC
-caches were cleared during the refresh, because the fetched types may predate the change that caused the clear and
-would put back entries that the clear removed, such as a deleted type. When a refresh fails, the system SHALL log a
-warning and still run later refreshes.
-
-#### Scenario: A notification about an updated zaaktype
-- **WHEN** the system receives a notification that a zaaktype has been created or updated
-- **THEN** the system clears the ZTC caches of zaaktypen, statustypen, resultaattypen, roltypen and eigenschappen
-- **AND** refreshes the ZTC caches in the background
-
-#### Scenario: A notification about a changed besluittype or informatieobjecttype
-- **WHEN** the system receives a notification that a besluittype or an informatieobjecttype has been created,
-  updated or deleted, for example because its einde geldigheid has changed
-- **THEN** the system clears the ZTC cache of that type, so that ZAC does not keep checking the validity of a type
-  against a cached einde geldigheid
-- **AND** refreshes the ZTC caches in the background
+zaaktype. When refreshes are requested while a refresh runs, the system SHALL run one more refresh after the running
+one, because the running refresh may have read the ZTC before the change, and SHALL NOT run a refresh per request.
+When a refresh fails, also with an error instead of an exception, the system SHALL log a warning and still run later
+refreshes.
 
 #### Scenario: A beheerder clears the caches
 - **WHEN** a user with the 'beheren' permission opens `/rest/admin/util/cache/clear` or
@@ -83,16 +68,67 @@ warning and still run later refreshes.
 - **WHEN** several refreshes are requested while a refresh runs
 - **THEN** the system runs one more refresh after the running one
 
-#### Scenario: The caches are cleared while a refresh runs
-- **WHEN** a notification that a type has been deleted clears ZTC caches while a refresh runs that has already
-  fetched that type
-- **THEN** the running refresh writes none of the types it fetched to the caches
-- **AND** the refresh that follows the clear fills the caches, without the deleted type
-
 #### Scenario: A refresh fails
-- **WHEN** a refresh fails
+- **WHEN** a refresh fails with an exception or an error
 - **THEN** the system logs a warning
 - **AND** still runs the refresh that is requested next
+
+### Requirement: Notifications invalidate only the changed types
+When the system receives a notification about a changed type in the ZTC, it SHALL remove only that type and the
+cached entries that depend on it from the ZTC caches, and SHALL NOT clear whole caches or refresh the ZTC caches,
+so that one change does not make the next reads of all other types go to the ZTC. The removed entries are filled on
+demand when they are read again.
+
+| Notification                                          | Entries that the system removes                                                                                                                                                       |
+|-------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Zaaktype created or updated                           | The zaaktype, the zaaktype lists of the catalogi, and the statustypen, resultaattypen, besluittype lists, zaaktype-informatieobjecttypen, informatieobjecttype lists, eigenschappen and roltypen of that zaaktype |
+| Besluittype created or updated                        | The besluittype, and the besluittype lists of the zaaktypen that it is or was linked to                                                                                              |
+| Besluittype deleted                                   | The besluittype, and the besluittype lists that contain it                                                                                                                           |
+| Informatieobjecttype created, updated or deleted      | The informatieobjecttype, and the informatieobjecttype lists that contain it                                                                                                         |
+
+To find the zaaktypen that a created or updated besluittype is linked to now, the system SHALL read the besluittype
+from the ZTC. When that read fails, the system SHALL log a warning and remove all besluittype lists.
+
+#### Scenario: A notification about an updated zaaktype
+- **WHEN** the system receives a notification that a zaaktype has been created or updated
+- **THEN** the system removes that zaaktype, its related types and the zaaktype lists from the ZTC caches
+- **AND** the related types of the other zaaktypen stay in the caches
+
+#### Scenario: A notification about a besluittype that is linked to another zaaktype
+- **WHEN** the system receives a notification that a besluittype has been updated, and the besluittype is now also
+  linked to a zaaktype whose besluittype list is in the cache
+- **THEN** the system removes the besluittype and the besluittype lists of all zaaktypen that it is linked to
+- **AND** the besluittype lists of the other zaaktypen stay in the cache
+
+#### Scenario: A notification about a changed besluittype or informatieobjecttype
+- **WHEN** the system receives a notification that a besluittype or an informatieobjecttype has been created,
+  updated or deleted, for example because its einde geldigheid has changed
+- **THEN** the system removes that type from the ZTC caches, so that ZAC does not keep checking the validity of a type
+  against a cached einde geldigheid
+- **AND** the other types of that kind stay in the caches
+
+#### Scenario: A besluittype that cannot be read
+- **WHEN** the system receives a notification that a besluittype has been updated, and the besluittype cannot be read
+  from the ZTC
+- **THEN** the system logs a warning and removes all besluittype lists from the cache
+
+### Requirement: A refresh does not put back entries that were removed while it ran
+A refresh SHALL write the types it fetched to the caches only after it has fetched all types. It SHALL NOT write the
+entries that were invalidated or cleared while it ran, because the fetched types may predate the change that caused the
+removal and would put back entries that the removal removed, such as a deleted type. It SHALL write all other entries,
+so that frequent notifications or clears do not stop a refresh from filling the caches.
+
+#### Scenario: A type is deleted while a refresh runs
+- **WHEN** a notification that a besluittype has been deleted arrives while a refresh runs that has already fetched
+  that besluittype
+- **THEN** the running refresh writes neither that besluittype nor the besluittype lists that contain it to the
+  caches
+- **AND** writes the other types it fetched
+
+#### Scenario: A cache is cleared while a refresh runs
+- **WHEN** the besluittype caches are cleared while a refresh runs
+- **THEN** the running refresh writes no besluittypen to the caches
+- **AND** writes the other types it fetched
 
 ### Requirement: Zaaktypes are fetched with paging
 The refresh SHALL fetch all zaaktypes of the default catalogus from the ZTC API, following every page of the
@@ -121,8 +157,9 @@ instead of one request per zaaktype, SHALL group them by zaaktype, and SHALL fil
 The cached lists SHALL equal what the per-zaaktype requests return: the same status filter (definitieve
 eigenschappen; the API default for the other types) and the same order. A besluittype that belongs to several
 zaaktypes SHALL be in the list of each of them. Informatieobjecttypen SHALL be cached regardless of their status,
-because reading an informatieobjecttype by UUID does not filter on status either. The system SHALL log how many
-items of each type it cached.
+because reading an informatieobjecttype by UUID does not filter on status either. Besluittypen SHALL be fetched from
+all catalogi, because a zaaktype can be linked to a besluittype of another catalogus and reading the besluittypen of
+a zaaktype does not filter on catalogus either. The system SHALL log how many items of each type it cached.
 
 #### Scenario: A zaaktype with related types
 - **WHEN** the caches have been refreshed for a catalogus with a zaaktype that has statustypen, resultaattypen,
@@ -140,6 +177,10 @@ items of each type it cached.
 #### Scenario: Types of a zaaktype in another catalogus
 - **WHEN** a list request returns a type that belongs to a zaaktype outside the default catalogus
 - **THEN** the system does not cache that type
+
+#### Scenario: A besluittype of another catalogus
+- **WHEN** a zaaktype of the default catalogus is linked to a besluittype of another catalogus
+- **THEN** the cached besluittypen of that zaaktype contain that besluittype
 
 #### Scenario: Related types spread over several pages
 - **WHEN** the statustypen are spread over two pages of the ZTC API
@@ -161,8 +202,8 @@ system SHALL log a warning and skip the related types, because they are cached p
 ### Requirement: Cached entries expire only when unused
 The ZTC caches SHALL NOT expire as a whole after a fixed time. An entry SHALL be removed when it has been neither
 read nor written for the number of seconds configured in `ZTC_CACHE_EXPIRATION_SECONDS` (Helm value
-`ztcCacheExpirationSeconds`), which defaults to 86400 (one day). Because the system ignores delete notifications,
-a type that no longer exists in the ZTC, such as a zaaktype that was deleted from Open Zaak, is eventually removed
+`ztcCacheExpirationSeconds`), which defaults to 86400 (one day). Because the system ignores notifications about deleted
+zaaktypen, a type that no longer exists in the ZTC, such as a zaaktype that was deleted from Open Zaak, is eventually removed
 from the cache, once it has been neither read nor written for that time. A periodic refresh replaces the cached lists
 of the zaaktypes that still exist, so a deleted type disappears from these lists after the next periodic refresh.
 

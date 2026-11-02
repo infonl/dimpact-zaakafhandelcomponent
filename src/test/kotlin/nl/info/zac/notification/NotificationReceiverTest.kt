@@ -26,7 +26,6 @@ import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
-import nl.info.zac.cache.ZtcCacheRefresher
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
@@ -55,7 +54,6 @@ class NotificationReceiverTest : BehaviorSpec({
     val signaleringService = mockk<SignaleringService>()
     val zaaktypeConfigurationBeheerService = mockk<ZaaktypeConfigurationBeheerService>()
     val ztcClientService = mockk<ZtcClientService>()
-    val ztcCacheRefresher = mockk<ZtcCacheRefresher>()
     val zaakProcessService = mockk<ZaakProcessService>()
     val taskService = mockk<TaskService>()
     val zrcClientService = mockk<ZrcClientService>()
@@ -74,7 +72,6 @@ class NotificationReceiverTest : BehaviorSpec({
         taskService = taskService,
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService,
-        ztcCacheRefresher = ztcCacheRefresher,
         secret = SECRET,
         httpSession = httpSessionInstance
     )
@@ -150,20 +147,18 @@ class NotificationReceiverTest : BehaviorSpec({
         )
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
-        every { ztcClientService.clearBesluittypeCache() } returns "fakeCleared"
-        every { ztcCacheRefresher.refreshInBackground() } just runs
+        every { ztcClientService.invalidateBesluittype(notificatie.resourceUrl, isDeleted = false) } just runs
 
         `when`("notificatieReceive is called with the besluittype update notificatie") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
 
             then(
-                """the besluittype cache is cleared and the ZTC caches are refreshed in the background, so that a
-                changed einde geldigheid is not kept in the cache, and a 'no content' response is returned"""
+                """only that besluittype is removed from the ZTC caches, so that a changed einde geldigheid is not
+                kept in the cache, and a 'no content' response is returned"""
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
-                verifyOrder {
-                    ztcClientService.clearBesluittypeCache()
-                    ztcCacheRefresher.refreshInBackground()
+                verify(exactly = 1) {
+                    ztcClientService.invalidateBesluittype(notificatie.resourceUrl, isDeleted = false)
                 }
             }
         }
@@ -178,21 +173,17 @@ class NotificationReceiverTest : BehaviorSpec({
         )
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
-        every { ztcClientService.clearInformatieobjecttypeCache() } returns "fakeCleared"
-        every { ztcCacheRefresher.refreshInBackground() } just runs
+        every { ztcClientService.invalidateInformatieobjecttype(notificatie.resourceUrl) } just runs
 
         `when`("notificatieReceive is called with the informatieobjecttype delete notificatie") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
 
             then(
-                """the informatieobjecttype cache is cleared and the ZTC caches are refreshed in the background, so
-                that the deleted informatieobjecttype is not kept in the cache, and a 'no content' response is returned"""
+                """only that informatieobjecttype is removed from the ZTC caches, so that the deleted
+                informatieobjecttype is not kept in the cache, and a 'no content' response is returned"""
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
-                verifyOrder {
-                    ztcClientService.clearInformatieobjecttypeCache()
-                    ztcCacheRefresher.refreshInBackground()
-                }
+                verify(exactly = 1) { ztcClientService.invalidateInformatieobjecttype(notificatie.resourceUrl) }
             }
         }
     }

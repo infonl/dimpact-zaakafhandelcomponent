@@ -25,7 +25,6 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.setFunctioneelGebruiker
-import nl.info.zac.cache.ZtcCacheRefresher
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.event.EventingService
@@ -69,7 +68,6 @@ class NotificationReceiver @Inject constructor(
     private val taskService: TaskService,
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
-    private val ztcCacheRefresher: ZtcCacheRefresher,
 
     @ConfigProperty(name = "OPEN_NOTIFICATIONS_API_SECRET_KEY")
     private val secret: String,
@@ -403,11 +401,15 @@ class NotificationReceiver @Inject constructor(
     private fun handleBesluittypeAndInformatieobjecttype(notification: Notification) {
         try {
             when (notification.resource) {
-                Resource.BESLUITTYPE -> ztcClientService.clearBesluittypeCache()
-                Resource.INFORMATIEOBJECTTYPE -> ztcClientService.clearInformatieobjecttypeCache()
-                else -> return
+                Resource.BESLUITTYPE -> ztcClientService.invalidateBesluittype(
+                    besluittypeURI = notification.resourceUrl,
+                    isDeleted = notification.action == Action.DELETE
+                )
+                Resource.INFORMATIEOBJECTTYPE -> ztcClientService.invalidateInformatieobjecttype(
+                    notification.resourceUrl
+                )
+                else -> {}
             }
-            ztcCacheRefresher.refreshInBackground()
         } catch (exception: RuntimeException) {
             warning("besluittype and informatieobjecttype", notification, exception)
         }

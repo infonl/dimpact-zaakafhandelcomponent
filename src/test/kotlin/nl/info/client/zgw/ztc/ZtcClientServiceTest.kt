@@ -361,6 +361,33 @@ class ZtcClientServiceTest : BehaviorSpec({
             }
         }
 
+        given("a zaaktype that is linked to a besluittype of another catalogus") {
+            val refreshedZtcClient = mockk<ZtcClient>()
+            val refreshedZtcClientService = createZtcClientService(refreshedZtcClient)
+            val catalogusUri = URI("https://example.com/catalogussen/${UUID.randomUUID()}")
+            val zaakType = createZaakType()
+            val besluitTypeOfOtherCatalogus = createBesluitType(zaaktypen = listOf(zaakType.url))
+            every { refreshedZtcClient.zaaktypeList(any()) } returns Results(listOf(zaakType), 1)
+            every { refreshedZtcClient.statustypeList(any()) } returns Results(emptyList(), 0)
+            refreshedZtcClient.stubEmptyTypeListsExceptZaaktypenAndStatustypen()
+            every { refreshedZtcClient.besluittypeList(any()) } returns Results(listOf(besluitTypeOfOtherCatalogus), 1)
+
+            `when`("the caches are refreshed") {
+                refreshedZtcClientService.refreshCaches(catalogusUri)
+
+                then(
+                    """the besluittype of the other catalogus is cached for the zaaktype, so that the refresh does
+                    not leave out a besluittype that reading the besluittypen of the zaaktype returns"""
+                ) {
+                    refreshedZtcClientService.readBesluittypen(zaakType.url) shouldBe
+                        listOf(besluitTypeOfOtherCatalogus)
+                    refreshedZtcClientService.readBesluittype(besluitTypeOfOtherCatalogus.url) shouldBe
+                        besluitTypeOfOtherCatalogus
+                    verify(exactly = 1) { refreshedZtcClient.besluittypeList(match { it.catalogus == null }) }
+                }
+            }
+        }
+
         given("a besluittype that is deleted from the ZTC after the refresh has fetched it") {
             val refreshedZtcClient = mockk<ZtcClient>()
             val refreshedZtcClientService = createZtcClientService(refreshedZtcClient)
@@ -376,19 +403,53 @@ class ZtcClientServiceTest : BehaviorSpec({
                 Results(emptyList(), 0)
             }
 
-            `when`("the delete notification clears the besluittype cache while the refresh runs") {
+            `when`("the besluittype cache is cleared while the refresh runs") {
                 refreshedZtcClientService.refreshCaches(catalogusUri)
 
                 then(
-                    """the refresh writes none of the types it fetched, so that it does not put the deleted besluittype
-                    back after the clear, and the refresh that follows the clear fills the caches instead"""
+                    """the refresh writes the types it fetched except the besluittypen, so that it does not put the
+                    deleted besluittype back after the clear, and the clear does not throw away the other types"""
                 ) {
                     with(refreshedZtcClientService.estimatedCacheSizes()) {
                         get("ZTC UUID -> BesluitType") shouldBe 0
                         get("ZTC URI -> List<BesluitType>") shouldBe 0
-                        get("ZTC UUID -> ZaakType") shouldBe 0
-                        get("ZTC URI -> List<ZaakType>") shouldBe 0
+                        get("ZTC UUID -> ZaakType") shouldBe 1
+                        get("ZTC URI -> List<ZaakType>") shouldBe 1
                     }
+                }
+            }
+        }
+
+        given("a besluittype that is deleted while the refresh runs, and another besluittype") {
+            val refreshedZtcClient = mockk<ZtcClient>()
+            val refreshedZtcClientService = createZtcClientService(refreshedZtcClient)
+            val catalogusUri = URI("https://example.com/catalogussen/${UUID.randomUUID()}")
+            val zaakType = createZaakType()
+            val deletedBesluitType = createBesluitType(zaaktypen = listOf(zaakType.url))
+            val otherBesluitType = createBesluitType(zaaktypen = emptyList())
+            every { refreshedZtcClient.zaaktypeList(any()) } returns Results(listOf(zaakType), 1)
+            every { refreshedZtcClient.statustypeList(any()) } returns Results(emptyList(), 0)
+            refreshedZtcClient.stubEmptyTypeListsExceptZaaktypenAndStatustypen()
+            every {
+                refreshedZtcClient.besluittypeList(any())
+            } returns Results(listOf(deletedBesluitType, otherBesluitType), 2)
+            every { refreshedZtcClient.roltypeList(any()) } answers {
+                refreshedZtcClientService.invalidateBesluittype(deletedBesluitType.url, isDeleted = true)
+                Results(emptyList(), 0)
+            }
+
+            `when`("the delete notification invalidates that besluittype while the refresh runs") {
+                refreshedZtcClientService.refreshCaches(catalogusUri)
+
+                then(
+                    """the refresh writes neither the deleted besluittype nor the besluittype list that contains it,
+                    but it does write the other besluittype"""
+                ) {
+                    with(refreshedZtcClientService.estimatedCacheSizes()) {
+                        get("ZTC UUID -> BesluitType") shouldBe 1
+                        get("ZTC URI -> List<BesluitType>") shouldBe 0
+                    }
+                    refreshedZtcClientService.readBesluittype(otherBesluitType.url) shouldBe otherBesluitType
                 }
             }
         }

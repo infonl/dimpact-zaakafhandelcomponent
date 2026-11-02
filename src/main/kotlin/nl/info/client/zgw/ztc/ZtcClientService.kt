@@ -47,7 +47,6 @@ import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicLong
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -83,7 +82,8 @@ class ZtcClientService @Inject constructor(
 
     private val caches = mutableMapOf<String, Cache<*, *>>()
     private val cacheLock = Any()
-    private val cacheGeneration = AtomicLong()
+    private var runningRefreshes = 0
+    private val invalidationsDuringRefresh = mutableMapOf<Cache<*, *>, MutableList<(Any, Any?) -> Boolean>>()
 
     private val ztcTimeCache: Cache<String, ZonedDateTime> = createCache("Time", 1)
 
@@ -113,8 +113,8 @@ class ZtcClientService @Inject constructor(
 
     /**
      * Entries expire only when they have been neither read nor written for [cacheExpirationSeconds]. ZAC ignores
-     * delete notifications, so a type that was removed from the ZTC disappears from the cache only once it has not
-     * been used for that time.
+     * notifications about deleted zaaktypen, so a zaaktype that was removed from the ZTC disappears from the cache
+     * only once it has not been used for that time.
      */
     private fun <K, V> createCache(name: String, size: Long = cacheMaxSize): Cache<K & Any, V> {
         val cache: Cache<K & Any, V> = Caffeine.newBuilder()
@@ -122,7 +122,7 @@ class ZtcClientService @Inject constructor(
             .expireAfterAccess(cacheExpirationSeconds, TimeUnit.SECONDS)
             .recordStats()
             .removalListener { key: K?, _: V?, cause ->
-                LOG.fine("Removing key: $key in cache $name because of: $cause")
+                LOG.fine { "Removing key: $key in cache $name because of: $cause" }
             }.build()
 
         caches["ZTC $name"] = cache
@@ -467,77 +467,94 @@ class ZtcClientService @Inject constructor(
      * request per type instead of one request per zaaktype. A type that fails to refresh is logged and skipped,
      * so that its cache is still filled on demand.
      *
-     * The caches are written only after all types have been fetched, and not at all when a cache was cleared in the
-     * meantime: the fetched types may predate the change that caused the clear, and writing them would put back
-     * entries that the clear removed, such as a deleted type. Every clear is followed by a refresh of its own.
+     * The caches are written only after all types have been fetched, without the entries that were invalidated in
+     * the meantime: the fetched types may predate the change that caused the invalidation, and writing them would
+     * put back entries that the invalidation removed, such as a deleted type. Those entries are filled on demand.
      */
     fun refreshCaches(catalogusURI: URI) {
-        val cacheGenerationAtStart = cacheGeneration.get()
+        synchronized(cacheLock) { runningRefreshes++ }
+        try {
+            fetchTypes(catalogusURI)?.let(::writeCaches)
+        } finally {
+            synchronized(cacheLock) {
+                if (--runningRefreshes == 0) invalidationsDuringRefresh.clear()
+            }
+        }
+    }
+
+    private fun fetchTypes(catalogusURI: URI): List<() -> Unit>? {
         val cacheWrites = mutableListOf<() -> Unit>()
         val zaaktypeURIs = refreshCache("zaaktypen") {
             fetchZaaktypen(catalogusURI).also { zaaktypen ->
-                cacheWrites += { uriToZaakTypeListCache.put(catalogusURI, zaaktypen) }
-                cacheWrites += { zaaktypen.forEach { uuidToZaakTypeCache.put(it.url.extractUuid(), it) } }
+                cacheWrites += { uriToZaakTypeListCache.putUnlessInvalidated(catalogusURI, zaaktypen) }
+                cacheWrites += {
+                    zaaktypen.forEach { uuidToZaakTypeCache.putUnlessInvalidated(it.url.extractUuid(), it) }
+                }
             }
-        }?.map { it.url }?.toSet() ?: return
+        }?.map { it.url }?.toSet() ?: return null
         refreshCache("statustypen") { refreshStatustypen(zaaktypeURIs, cacheWrites) }
         refreshCache("resultaattypen") { refreshResultaattypen(zaaktypeURIs, cacheWrites) }
-        refreshCache("besluittypen") { refreshBesluittypen(catalogusURI, zaaktypeURIs, cacheWrites) }
+        refreshCache("besluittypen") { refreshBesluittypen(zaaktypeURIs, cacheWrites) }
         refreshCache("informatieobjecttypen") {
             refreshInformatieobjecttypen(catalogusURI, zaaktypeURIs, cacheWrites)
         }
         refreshCache("eigenschappen") { refreshEigenschappen(zaaktypeURIs, cacheWrites) }
         refreshCache("roltypen") { refreshRoltypen(zaaktypeURIs, cacheWrites) }
-        writeCaches(cacheGenerationAtStart, cacheWrites)
+        return cacheWrites
     }
 
-    private fun writeCaches(cacheGenerationAtStart: Long, cacheWrites: List<() -> Unit>) =
+    private fun writeCaches(cacheWrites: List<() -> Unit>) =
         synchronized(cacheLock) {
-            if (cacheGeneration.get() == cacheGenerationAtStart) {
-                cacheWrites.forEach { it() }
-                LOG.info("Wrote the refreshed types to the ZTC caches")
-            } else {
-                LOG.info("Discarded the refreshed types, because ZTC caches were cleared during the refresh")
-            }
+            cacheWrites.forEach { it() }
+            LOG.info("Wrote the refreshed types to the ZTC caches, except the ones invalidated during the refresh")
         }
+
+    private fun <K : Any, V : Any> Cache<K, V>.putUnlessInvalidated(key: K, value: V) {
+        if (invalidationsDuringRefresh[this].orEmpty().none { isInvalidated -> isInvalidated(key, value) }) {
+            put(key, value)
+        }
+    }
+
+    private fun <K : Any, V : Any> Cache<K, V>.putAllUnlessInvalidated(entries: Map<K, V>) =
+        entries.forEach { (key, value) -> putUnlessInvalidated(key, value) }
 
     @Suppress("TooGenericExceptionCaught")
     private fun <T> refreshCache(typeName: String, refresh: () -> List<T>): List<T>? =
         try {
             refresh().also { LOG.info { "Fetched ${it.size} $typeName for the ZTC caches" } }
         } catch (runtimeException: RuntimeException) {
-            LOG.log(Level.WARNING, "Failed to refresh the ZTC cache with $typeName", runtimeException)
+            LOG.log(Level.WARNING, runtimeException) { "Failed to refresh the ZTC cache with $typeName" }
             null
         }
 
     private fun refreshStatustypen(zaaktypeURIs: Set<URI>, cacheWrites: MutableList<() -> Unit>) =
         listAllPages { page -> ztcClient.statustypeList(StatustypeListParameters(page = page)) }
             .groupByZaaktype(zaaktypeURIs) { listOfNotNull(it.zaaktype) }
-            .also { cacheWrites += { uriToStatusTypeListCache.putAll(it) } }
+            .also { cacheWrites += { uriToStatusTypeListCache.putAllUnlessInvalidated(it) } }
             .values.flatten()
             .also { statustypen ->
-                cacheWrites += { statustypen.forEach { uuidToStatusTypeCache.put(it.url.extractUuid(), it) } }
+                cacheWrites += { statustypen.forEach { uuidToStatusTypeCache.putUnlessInvalidated(it.url.extractUuid(), it) } }
             }
 
     private fun refreshResultaattypen(zaaktypeURIs: Set<URI>, cacheWrites: MutableList<() -> Unit>) =
         listAllPages { page -> ztcClient.resultaattypeList(ResultaattypeListParameters(page = page)) }
             .groupByZaaktype(zaaktypeURIs) { listOfNotNull(it.zaaktype) }
-            .also { cacheWrites += { uriToResultaatTypeListCache.putAll(it) } }
+            .also { cacheWrites += { uriToResultaatTypeListCache.putAllUnlessInvalidated(it) } }
             .values.flatten()
             .also { resultaattypen ->
-                cacheWrites += { resultaattypen.forEach { uuidToResultaatTypeCache.put(it.url.extractUuid(), it) } }
+                cacheWrites += { resultaattypen.forEach { uuidToResultaatTypeCache.putUnlessInvalidated(it.url.extractUuid(), it) } }
             }
 
-    private fun refreshBesluittypen(
-        catalogusURI: URI,
-        zaaktypeURIs: Set<URI>,
-        cacheWrites: MutableList<() -> Unit>
-    ) = listAllPages { page ->
-        ztcClient.besluittypeList(BesluittypeListParameters(catalogus = catalogusURI).apply { this.page = page })
+    /**
+     * Lists the besluittypen of all catalogi, because a zaaktype can be linked to a besluittype of another catalogus
+     * and [readBesluittypen] does not filter on catalogus either.
+     */
+    private fun refreshBesluittypen(zaaktypeURIs: Set<URI>, cacheWrites: MutableList<() -> Unit>) = listAllPages { page ->
+        ztcClient.besluittypeList(BesluittypeListParameters().apply { this.page = page })
     }.also { besluittypen ->
         val besluittypenByZaaktype = besluittypen.groupByZaaktype(zaaktypeURIs) { it.zaaktypen.orEmpty() }
-        cacheWrites += { uriToBesluitTypeListCache.putAll(besluittypenByZaaktype) }
-        cacheWrites += { besluittypen.forEach { uuidToBesluitTypeCache.put(it.url.extractUuid(), it) } }
+        cacheWrites += { uriToBesluitTypeListCache.putAllUnlessInvalidated(besluittypenByZaaktype) }
+        cacheWrites += { besluittypen.forEach { uuidToBesluitTypeCache.putUnlessInvalidated(it.url.extractUuid(), it) } }
     }
 
     /**
@@ -569,10 +586,10 @@ class ZtcClientService @Inject constructor(
             zaaktypeEntry.value.map { informatieobjecttypenByUUID.getValue(it.informatieobjecttype.extractUuid()) }
         }
         cacheWrites += {
-            allInformatieobjecttypen.forEach { uuidToInformatieObjectTypeCache.put(it.url.extractUuid(), it) }
+            allInformatieobjecttypen.forEach { uuidToInformatieObjectTypeCache.putUnlessInvalidated(it.url.extractUuid(), it) }
         }
-        cacheWrites += { uriToZaakTypeInformatieObjectTypeListCache.putAll(zaaktypeInformatieobjecttypen) }
-        cacheWrites += { uriToInformatieObjectTypeListCache.putAll(informatieobjecttypenByZaaktype) }
+        cacheWrites += { uriToZaakTypeInformatieObjectTypeListCache.putAllUnlessInvalidated(zaaktypeInformatieobjecttypen) }
+        cacheWrites += { uriToInformatieObjectTypeListCache.putAllUnlessInvalidated(informatieobjecttypenByZaaktype) }
         return allInformatieobjecttypen
     }
 
@@ -585,15 +602,15 @@ class ZtcClientService @Inject constructor(
                 }
             )
         }.groupByZaaktype(zaaktypeURIs) { listOfNotNull(it.zaaktype) }
-            .also { cacheWrites += { uriToEigenschappenCache.putAll(it) } }
+            .also { cacheWrites += { uriToEigenschappenCache.putAllUnlessInvalidated(it) } }
             .values.flatten()
 
     private fun refreshRoltypen(zaaktypeURIs: Set<URI>, cacheWrites: MutableList<() -> Unit>) =
         listAllPages { page -> ztcClient.roltypeList(RoltypeListParameters(page = page)) }
             .groupByZaaktype(zaaktypeURIs) { listOfNotNull(it.zaaktype) }
-            .also { cacheWrites += { uriToRolTypeListCache.putAll(it) } }
+            .also { cacheWrites += { uriToRolTypeListCache.putAllUnlessInvalidated(it) } }
             .values.flatten()
-            .also { roltypen -> cacheWrites += { roltypen.forEach { uuidToRolTypeCache.put(it.url.extractUuid(), it) } } }
+            .also { roltypen -> cacheWrites += { roltypen.forEach { uuidToRolTypeCache.putUnlessInvalidated(it.url.extractUuid(), it) } } }
 
     private fun <T> listAllPages(listPage: (page: Int) -> Results<T>): List<T> = buildList {
         var page = FIRST_PAGE
@@ -654,12 +671,96 @@ class ZtcClientService @Inject constructor(
         )
 
     private fun clear(cacheName: String, vararg cachesToClear: Cache<*, *>): String {
-        synchronized(cacheLock) {
-            cacheGeneration.incrementAndGet()
-            cachesToClear.forEach { it.invalidateAll() }
-        }
+        cachesToClear.forEach { cache -> invalidateEntries(cache) { _, _ -> true } }
         return cleared(cacheName)
     }
+
+    /**
+     * Removes the zaaktype and the types that are cached for it, so that a change to one zaaktype does not empty
+     * the caches of all other zaaktypen. The cached zaaktype lists are all removed, because a new zaaktype is not
+     * in any list yet, and there is only one list per catalogus.
+     */
+    fun invalidateZaaktype(zaaktypeURI: URI) {
+        val zaaktypeUUID = zaaktypeURI.extractUuid()
+        val isZaaktype = { uri: URI? -> uri.refersTo(zaaktypeUUID) }
+        invalidate(uuidToZaakTypeCache) { uuid, _ -> uuid == zaaktypeUUID }
+        invalidate(uriToZaakTypeListCache) { _, _ -> true }
+        invalidate(uriToStatusTypeListCache) { zaaktype, _ -> isZaaktype(zaaktype) }
+        invalidate(uuidToStatusTypeCache) { _, statustype -> isZaaktype(statustype.zaaktype) }
+        invalidate(uriToResultaatTypeListCache) { zaaktype, _ -> isZaaktype(zaaktype) }
+        invalidate(uuidToResultaatTypeCache) { _, resultaattype -> isZaaktype(resultaattype.zaaktype) }
+        invalidate(uriToBesluitTypeListCache) { zaaktype, _ -> isZaaktype(zaaktype) }
+        invalidate(uriToZaakTypeInformatieObjectTypeListCache) { zaaktype, _ -> isZaaktype(zaaktype) }
+        invalidate(uriToInformatieObjectTypeListCache) { zaaktype, _ -> isZaaktype(zaaktype) }
+        invalidate(uriToEigenschappenCache) { zaaktype, _ -> isZaaktype(zaaktype) }
+        invalidate(uriToRolTypeListCache) { zaaktype, _ -> isZaaktype(zaaktype) }
+        invalidate(uuidToRolTypeCache) { _, roltype -> isZaaktype(roltype.zaaktype) }
+        invalidate(uriOmschrijvingEnumToRolTypeCache) { key, _ -> key.contains("$zaaktypeUUID") }
+        invalidate(uriOmschrijvingGeneriekEnumToRolTypeCache) { key, _ -> key.contains("$zaaktypeUUID") }
+        invalidate(rolTypeListCache) { _, _ -> true }
+    }
+
+    /**
+     * Removes the besluittype and the besluittype lists of the zaaktypen that it is or was linked to.
+     * The besluittype is read from the ZTC to find the zaaktypen it is linked to now, unless it was deleted.
+     * When it cannot be read, all besluittype lists are removed.
+     */
+    fun invalidateBesluittype(besluittypeURI: URI, isDeleted: Boolean = false) {
+        val besluittypeUUID = besluittypeURI.extractUuid()
+        val linkedZaaktypeUUIDs = if (isDeleted) emptySet() else readLinkedZaaktypeUUIDs(besluittypeUUID)
+        invalidate(uuidToBesluitTypeCache) { uuid, _ -> uuid == besluittypeUUID }
+        invalidate(uriToBesluitTypeListCache) { zaaktype, besluittypen ->
+            linkedZaaktypeUUIDs == null ||
+                linkedZaaktypeUUIDs.any { zaaktype.refersTo(it) } ||
+                besluittypen.any { it.url.refersTo(besluittypeUUID) }
+        }
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun readLinkedZaaktypeUUIDs(besluittypeUUID: UUID): Set<UUID>? =
+        try {
+            ztcClient.besluittypeRead(besluittypeUUID).zaaktypen.orEmpty().map { it.extractUuid() }.toSet()
+        } catch (runtimeException: RuntimeException) {
+            LOG.log(Level.WARNING, runtimeException) {
+                "Failed to read besluittype $besluittypeUUID, so all besluittype lists are removed from the cache"
+            }
+            null
+        }
+
+    /**
+     * Removes the informatieobjecttype and the informatieobjecttype lists that contain it. A zaaktype is linked to
+     * an informatieobjecttype through a zaaktype-informatieobjecttype, which does not change with it.
+     */
+    fun invalidateInformatieobjecttype(informatieobjecttypeURI: URI) {
+        val informatieobjecttypeUUID = informatieobjecttypeURI.extractUuid()
+        invalidate(uuidToInformatieObjectTypeCache) { uuid, _ -> uuid == informatieobjecttypeUUID }
+        invalidate(uriToInformatieObjectTypeListCache) { _, informatieobjecttypen ->
+            informatieobjecttypen.any { it.url.refersTo(informatieobjecttypeUUID) }
+        }
+    }
+
+    /**
+     * Compares the text of the URI, because [extractUuid] throws on a URI that does not end with a UUID, and one
+     * such cache key would then stop the invalidation of all others.
+     */
+    private fun URI?.refersTo(uuid: UUID) = this?.toString()?.contains("$uuid") == true
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <K : Any, V> invalidate(cache: Cache<K, V>, isInvalidated: (K, V) -> Boolean) =
+        invalidateEntries(cache) { key, value -> isInvalidated(key as K, value as V) }
+
+    /**
+     * Also remembers the invalidation while a refresh runs, so that the refresh does not write the entries that
+     * match it.
+     */
+    @Suppress("UNCHECKED_CAST")
+    private fun invalidateEntries(cache: Cache<*, *>, isInvalidated: (Any, Any?) -> Boolean) =
+        synchronized(cacheLock) {
+            if (runningRefreshes > 0) invalidationsDuringRefresh.getOrPut(cache, ::mutableListOf) += isInvalidated
+            (cache as Cache<Any, Any?>).run {
+                invalidateAll(asMap().filter { isInvalidated(it.key, it.value) }.keys)
+            }
+        }
 
     fun clearCacheTime(): String {
         ztcTimeCache.invalidateAll()
