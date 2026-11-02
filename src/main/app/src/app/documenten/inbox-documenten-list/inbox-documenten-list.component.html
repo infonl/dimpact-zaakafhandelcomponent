@@ -43,7 +43,9 @@
               <zac-date-range-filter
                 label="creatiedatum"
                 [range]="listParameters.creatiedatum"
-                (changed)="filtersChanged()"
+                (changed)="
+                  listParameters.creatiedatum = $event; filtersChanged()
+                "
               ></zac-date-range-filter>
             </th>
           </ng-container>

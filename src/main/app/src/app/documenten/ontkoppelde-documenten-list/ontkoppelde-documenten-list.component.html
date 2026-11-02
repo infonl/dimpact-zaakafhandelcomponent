@@ -32,7 +32,7 @@
             <th mat-header-cell *matHeaderCellDef>
               <zac-tekst-filter
                 [value]="listParameters.titel"
-                (changed)="filtersChanged()"
+                (changed)="listParameters.titel = $event; filtersChanged()"
               ></zac-tekst-filter>
             </th>
           </ng-container>
@@ -41,7 +41,9 @@
               <zac-date-range-filter
                 label="creatiedatum"
                 [range]="listParameters.creatiedatum"
-                (changed)="filtersChanged()"
+                (changed)="
+                  listParameters.creatiedatum = $event; filtersChanged()
+                "
               ></zac-date-range-filter>
             </th>
           </ng-container>
@@ -49,7 +51,7 @@
             <th mat-header-cell *matHeaderCellDef>
               <zac-tekst-filter
                 [value]="listParameters.zaakID"
-                (changed)="filtersChanged()"
+                (changed)="listParameters.zaakID = $event; filtersChanged()"
               ></zac-tekst-filter>
             </th>
           </ng-container>
@@ -58,7 +60,10 @@
               <mat-form-field subscriptSizing="dynamic">
                 <mat-select
                   [compareWith]="compareUser"
-                  (selectionChange)="filtersChanged()"
+                  (selectionChange)="
+                    listParameters.ontkoppeldDoor = $event.value;
+                    filtersChanged()
+                  "
                   id="ontkoppeldDoor_filter"
                   placeholder="{{ 'filter.alle' | translate }}"
                   [value]="listParameters.ontkoppeldDoor"
@@ -76,7 +81,9 @@
               <zac-date-range-filter
                 label="ontkoppeld-op"
                 [range]="listParameters.ontkoppeldOp"
-                (changed)="filtersChanged()"
+                (changed)="
+                  listParameters.ontkoppeldOp = $event; filtersChanged()
+                "
               ></zac-date-range-filter>
             </th>
           </ng-container>
@@ -84,7 +91,7 @@
             <th mat-header-cell *matHeaderCellDef>
               <zac-tekst-filter
                 [value]="listParameters.reden"
-                (changed)="filtersChanged()"
+                (changed)="listParameters.reden = $event; filtersChanged()"
               ></zac-tekst-filter>
             </th>
           </ng-container>

@@ -24,6 +24,11 @@ import { userEvent } from "@testing-library/user-event";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
+import {
+  expectedSearchFor,
+  searchThroughColumnFilter,
+  WerklijstColumnFilter,
+} from "../../shared/dynamic-table/werklijst-column-filters.testing";
 import { UtilService } from "../../core/service/util.service";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { IdentityService } from "../../identity/identity.service";
@@ -461,5 +466,28 @@ describe(TakenWerkvoorraadComponent.name, () => {
 
       expect(openSnackbar).not.toHaveBeenCalled();
     });
+  });
+});
+
+describe(`${TakenWerkvoorraadComponent.name} column filters`, () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+  });
+
+  it.each<WerklijstColumnFilter>([
+    { column: "naam", kind: "facet", veld: "TAAK_NAAM" },
+    { column: "zaak-identificatie", kind: "tekst", veld: "TAAK_ZAAK_ID" },
+    { column: "zaaktype", kind: "facet", veld: "ZAAKTYPE" },
+    { column: "creatiedatum", kind: "datum", veld: "TAAK_CREATIEDATUM" },
+    { column: "fataledatum", kind: "datum", veld: "TAAK_FATALEDATUM" },
+    { column: "groep", kind: "facet", veld: "GROEP" },
+    { column: "behandelaar", kind: "facet", veld: "BEHANDELAAR" },
+    { column: "zaak-omschrijving", kind: "tekst", veld: "ZAAK_OMSCHRIJVING" },
+    { column: "zaak-toelichting", kind: "tekst", veld: "ZAAK_TOELICHTING" },
+    { column: "toelichting", kind: "tekst", veld: "TAAK_TOELICHTING" },
+  ])("searches on what was put in the $column filter", async (filter) => {
+    expect(
+      await searchThroughColumnFilter(TakenWerkvoorraadComponent, filter),
+    ).toMatchObject(expectedSearchFor(filter));
   });
 });
