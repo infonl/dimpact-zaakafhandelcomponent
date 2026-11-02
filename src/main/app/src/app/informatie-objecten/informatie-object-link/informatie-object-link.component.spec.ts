@@ -280,7 +280,7 @@ describe(InformatieObjectLinkComponent.name, () => {
 
       const request = httpTestingController.expectOne("/rest/zoeken/zaken");
       expect(request.request.body).toMatchObject({
-        informationObjectTypeUuid: "fakeOtherInformatieobjectTypeUuid",
+        informationObjectTypeUuids: ["fakeOtherInformatieobjectTypeUuid"],
       });
       request.flush({ totaal: 0, resultaten: [], filters: {} });
     });
@@ -328,7 +328,7 @@ describe(InformatieObjectLinkComponent.name, () => {
     const request = httpTestingController.expectOne("/rest/zoeken/zaken");
     expect(request.request.body).toEqual({
       zaakIdentificator: "ZAAK-001",
-      informationObjectTypeUuid: "fakeInformatieobjectTypeUuid",
+      informationObjectTypeUuids: ["fakeInformatieobjectTypeUuid"],
       page: 0,
       rows: LINKABLE_ZAKEN_PAGINATION_SIZE,
     });

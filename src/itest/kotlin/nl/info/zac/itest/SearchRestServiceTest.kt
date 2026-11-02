@@ -516,7 +516,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "rows": 5,
                             "page": 0,
                             "zaakIdentificator": "$zaak1Identification",
-                            "informationObjectTypeUuid": "$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID"
+                            "informationObjectTypeUuids": ["$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID"]
                         }
                     """.trimIndent(),
                     testUser = RAADPLEGER_1
@@ -564,7 +564,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "rows": 5,
                             "page": 0,
                             "zaakIdentificator": "$zaak2Identification",
-                            "informationObjectTypeUuid": "$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID"
+                            "informationObjectTypeUuids": ["$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID"]
                         }
                     """.trimIndent(),
                     testUser = RAADPLEGER_1
@@ -613,7 +613,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "rows": 5,
                             "page": 0,
                             "zaakIdentificator": "$zaak1Identification",
-                            "informationObjectTypeUuid": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
+                            "informationObjectTypeUuids": ["a47b0c7e-1d0d-4c33-918d-160677516f1c"]
                         }
                     """.trimIndent(),
                     testUser = RAADPLEGER_1
@@ -661,7 +661,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "rows": 5,
                             "page": 0,
                             "zaakIdentificator": null,
-                            "informationObjectTypeUuid": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
+                            "informationObjectTypeUuids": ["a47b0c7e-1d0d-4c33-918d-160677516f1c"]
                         }
                     """.trimIndent(),
                     testUser = RAADPLEGER_1
@@ -702,7 +702,7 @@ class SearchRestServiceTest : BehaviorSpec({
                         {
                             "rows": 5,
                             "page": 0,
-                            "informationObjectTypeUuid": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
+                            "informationObjectTypeUuids": ["a47b0c7e-1d0d-4c33-918d-160677516f1c"]
                         }
                     """.trimIndent(),
                     testUser = RAADPLEGER_1
@@ -745,7 +745,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "rows": 5,
                             "page": 0,
                             "zaakIdentificator": "$zaakIdentificatorValue",
-                            "informationObjectTypeUuid": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
+                            "informationObjectTypeUuids": ["a47b0c7e-1d0d-4c33-918d-160677516f1c"]
                         }
                     """.trimIndent(),
                     testUser = RAADPLEGER_1

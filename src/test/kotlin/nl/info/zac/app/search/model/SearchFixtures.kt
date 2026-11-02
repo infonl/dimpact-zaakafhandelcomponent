@@ -96,12 +96,12 @@ fun createRestZoekKoppelenParameters(
     page: Int = 0,
     rows: Int = 10,
     zaakIdentificator: String = "fakeZaakIdentificator",
-    informationObjectTypeUuid: UUID = UUID.randomUUID()
+    informationObjectTypeUuids: List<UUID> = listOf(UUID.randomUUID())
 ) = RestZoekKoppelenParameters(
     page = page,
     rows = rows,
     zaakIdentificator = zaakIdentificator,
-    informationObjectTypeUuid = informationObjectTypeUuid
+    informationObjectTypeUuids = informationObjectTypeUuids
 )
 
 fun createRestZoekResultaatForDocumentZoekObjects(

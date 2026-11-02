@@ -177,7 +177,7 @@ class SearchRestServiceTest : BehaviorSpec({
             page = 2,
             rows = 10,
             zaakIdentificator = zaakIdentification,
-            informationObjectTypeUuid = informationObjectTypeUuid
+            informationObjectTypeUuids = listOf(informationObjectTypeUuid)
         )
         val zaakZoekObject = createZaakZoekObject(identificatie = zaakIdentification)
         val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
@@ -229,7 +229,7 @@ class SearchRestServiceTest : BehaviorSpec({
             page = 0,
             rows = 10,
             zaakIdentificator = zaakIdentification,
-            informationObjectTypeUuid = informationObjectTypeUuid
+            informationObjectTypeUuids = listOf(informationObjectTypeUuid)
         )
         val zaakZoekObject = createZaakZoekObject(identificatie = zaakIdentification)
         val zoekResultaat = createZoekResultaatForZaakZoekObjecten(listOf(zaakZoekObject), 1)
@@ -265,6 +265,44 @@ class SearchRestServiceTest : BehaviorSpec({
         }
     }
 
+    given("A request to list zaken for two information object types of which the zaaktype allows only the second") {
+        val zaakIdentification = "ZAAK-2024-00003"
+        val disallowedInformationObjectTypeUuid = UUID.randomUUID()
+        val allowedInformationObjectTypeUuid = UUID.randomUUID()
+        val zaaktypeUuid = UUID.randomUUID()
+        val restZoekKoppelenParameters = createRestZoekKoppelenParameters(
+            zaakIdentificator = zaakIdentification,
+            informationObjectTypeUuids = listOf(disallowedInformationObjectTypeUuid, allowedInformationObjectTypeUuid)
+        )
+        val zaakZoekObject = createZaakZoekObject(identificatie = zaakIdentification)
+        val zoekResultaat = createZoekResultaatForZaakZoekObjecten(listOf(zaakZoekObject), 1)
+        val zaak = createZaak(
+            identificatie = zaakIdentification,
+            zaaktypeUri = URI("https://example.com/zaaktype/$zaaktypeUuid")
+        )
+        val zaakType = createZaakType(
+            informatieObjectTypen = listOf(
+                URI("https://example.com/informatieobjecttype/$allowedInformationObjectTypeUuid")
+            )
+        )
+        val restZoekResultaat = createRestZoekResultaatForZaakKoppelenZoekObjects()
+
+        every { policyService.readWerklijstRechten() } returns createWerklijstRechten(zakenTaken = true)
+        every { searchService.search(any<ZoekParameters>()) } returns zoekResultaat
+        every { zrcClientService.readZaakByID(zaakIdentification) } returns zaak
+        every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaakType
+        every { restZoekResultaatConverter.convert(zoekResultaat, listOf(true)) } returns restZoekResultaat
+
+        `when`("listZakenForInformationObjectType is called") {
+            val result = searchRestService.listZakenForInformationObjectType(restZoekKoppelenParameters)
+
+            then("the zaak is linkable because it allows one of the types") {
+                result shouldBe restZoekResultaat
+                verify(exactly = 1) { restZoekResultaatConverter.convert(zoekResultaat, listOf(true)) }
+            }
+        }
+    }
+
     given("A request to list zaken for information object type without permission") {
         val restZoekKoppelenParameters = createRestZoekKoppelenParameters()
 
@@ -287,7 +325,7 @@ class SearchRestServiceTest : BehaviorSpec({
             page = 0,
             rows = 10,
             zaakIdentificator = zaakIdentification,
-            informationObjectTypeUuid = informationObjectTypeUuid
+            informationObjectTypeUuids = listOf(informationObjectTypeUuid)
         )
         val zoekResultaat = createZoekResultaatForZaakZoekObjecten(items = emptyList(), count = 0)
         val restZoekResultaat = createRestZoekResultaatForZaakKoppelenZoekObjects()

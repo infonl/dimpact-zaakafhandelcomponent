@@ -156,7 +156,7 @@ export class InformatieObjectLinkComponent {
       this.queryClient,
       this.zoekenService.listDocumentKoppelbareZaken({
         zaakIdentificator: caseSearch!,
-        informationObjectTypeUuid: infoObject.informatieobjectTypeUUID,
+        informationObjectTypeUuids: [infoObject.informatieobjectTypeUUID],
         page: 0,
         rows: LINKABLE_ZAKEN_PAGINATION_SIZE,
       }),
