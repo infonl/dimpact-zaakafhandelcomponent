@@ -9,7 +9,7 @@
 
 ## 2. Frontend
 
-- [x] 2.1 `OntkoppeldeDocumentenService`: mutations for both bulk endpoints that invalidate the list query.
+- [x] 2.1 `OntkoppeldeDocumentenService`: mutations for both bulk endpoints that invalidate the list query; the list reloads the current page explicitly after each bulk action.
 - [x] 2.2 List component: `select` column, master toggle, selection cleared on page, sort and filter change.
 - [x] 2.3 *Verwijderen* and *Koppelen* buttons with badges; confirm dialog; bulk mode in `InformatieObjectLinkComponent`.
 - [x] 2.4 Snackbar for the result and a dialog listing failed documents.

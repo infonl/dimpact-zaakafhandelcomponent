@@ -7,6 +7,7 @@ import { SelectionModel } from "@angular/cdk/collections";
 import {
   AfterViewInit,
   Component,
+  computed,
   EventEmitter,
   inject,
   OnDestroy,
@@ -47,6 +48,7 @@ import {
 } from "@angular/material/table";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
+import { injectIsMutating } from "@tanstack/angular-query-experimental";
 import { merge } from "rxjs";
 import { startWith, switchMap, tap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
@@ -74,6 +76,11 @@ import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filt
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service";
+
+const BULK_ACTION_URLS: unknown[] = [
+  "/rest/ontkoppeldedocumenten/lijst/verwijderen",
+  "/rest/ontkoppeldedocumenten/lijst/koppelen",
+];
 
 @Component({
   templateUrl: "./ontkoppelde-documenten-list.component.html",
@@ -192,8 +199,15 @@ export class OntkoppeldeDocumentenListComponent
       onSuccess: () => this.filterChange.emit(),
     },
   );
-  protected readonly deleteListMutation = injectMutation(() =>
+  private readonly deleteListMutation = injectMutation(() =>
     this.ontkoppeldeDocumentenService.deleteList(),
+  );
+  private readonly runningBulkActions = injectIsMutating({
+    predicate: (mutation) =>
+      BULK_ACTION_URLS.includes(mutation.options.mutationKey?.[0]),
+  });
+  protected readonly isBulkActionRunning = computed(
+    () => this.runningBulkActions() > 0,
   );
 
   protected get canSelect() {
@@ -233,8 +247,17 @@ export class OntkoppeldeDocumentenListComponent
         tap({ next: stopLoading, error: stopLoading }),
       )
       .subscribe((data) => {
-        this.paginator().length = data.totaal ?? 0;
-        this.totaal.set(data.totaal ?? 0);
+        const totaal = data.totaal ?? 0;
+        const { pageIndex, pageSize } = this.paginator();
+        const lastPageIndex = Math.max(Math.ceil(totaal / pageSize) - 1, 0);
+        if (pageSize > 0 && pageIndex > lastPageIndex) {
+          this.paginator().pageIndex = lastPageIndex;
+          this.filterChange.emit();
+          return;
+        }
+        this.selection.clear();
+        this.paginator().length = totaal;
+        this.totaal.set(totaal);
         this.filterOntkoppeldDoor.set(
           data.resultaten?.map(
             (result: GeneratedType<"RestDetachedDocument">) =>

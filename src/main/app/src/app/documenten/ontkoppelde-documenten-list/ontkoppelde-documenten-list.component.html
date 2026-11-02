@@ -17,7 +17,7 @@
 
   <mat-drawer-content>
     <div class="table-container">
-      @if (isLoadingResults() || deleteListMutation.isPending()) {
+      @if (isLoadingResults() || isBulkActionRunning()) {
         <div class="table-loading-shade"></div>
       }
       <div class="table-wrapper">
@@ -265,7 +265,7 @@
       @if (selection.hasValue()) {
         <div class="buttons">
           <button
-            [disabled]="deleteListMutation.isPending()"
+            [disabled]="isBulkActionRunning()"
             (click)="documentenKoppelen()"
             color="accent"
             id="koppelen_button"
@@ -281,7 +281,7 @@
             >
           </button>
           <button
-            [disabled]="deleteListMutation.isPending()"
+            [disabled]="isBulkActionRunning()"
             (click)="documentenVerwijderen()"
             color="accent"
             id="verwijderen_button"

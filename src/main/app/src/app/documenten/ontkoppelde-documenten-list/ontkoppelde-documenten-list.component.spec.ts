@@ -28,6 +28,7 @@ import { PaginatorTranslator } from "src/app/shared/paginator/paginator-translat
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
+import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service";
 import { OntkoppeldeDocumentenListComponent } from "./ontkoppelde-documenten-list.component";
 
 const SEARCH_PARAMETERS_KEY = "ONTKOPPELDE_DOCUMENTEN_ZOEKPARAMETERS";
@@ -301,6 +302,18 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
       sort: "titel",
       order: "asc",
     });
+  });
+
+  it("moves to the last page that still has documents when the current page has become empty", async () => {
+    await setup();
+    await showDocuments([detachedDocument], 30);
+    await user.click(
+      screen.getByRole("button", { name: "actie.pagina.volgende" }),
+    );
+
+    await showDocuments([], 1);
+
+    expect(rememberedParameters().page).toBe(0);
   });
 
   it("remembers the sorting column that was clicked, back on the first page", async () => {
@@ -585,6 +598,37 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
       await showDocuments([detachedDocument, secondDetachedDocument]);
 
       expect(selectAllCheckbox()).not.toBeChecked();
+    });
+
+    it("clears a selection made while the list was reloading", async () => {
+      await showTwoDocuments(30);
+      await user.click(
+        screen.getByRole("button", { name: "actie.pagina.volgende" }),
+      );
+      await user.click(selectAllCheckbox());
+
+      await showDocuments([detachedDocument, secondDetachedDocument], 30);
+
+      expect(selectAllCheckbox()).not.toBeChecked();
+      expect(queryBulkButton("actie.verwijderen")).toBeNull();
+    });
+
+    it("disables both bulk actions while a bulk link is still running", async () => {
+      await showTwoDocuments();
+      await user.click(selectAllCheckbox());
+
+      void testQueryClient
+        .getMutationCache()
+        .build(
+          testQueryClient,
+          TestBed.inject(OntkoppeldeDocumentenService).linkList(),
+        )
+        .execute({ ids: [42, 43], nieuweZaakID: "fakeZaakId" });
+      await sleep();
+      fixture.detectChanges();
+
+      expect(bulkButton("actie.koppelen")).toBeDisabled();
+      expect(bulkButton("actie.verwijderen")).toBeDisabled();
     });
 
     describe("deleting the selection", () => {
