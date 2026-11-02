@@ -31,8 +31,8 @@
           <ng-container matColumnDef="titel_filter">
             <th mat-header-cell *matHeaderCellDef>
               <zac-tekst-filter
-                [value]="listParameters.titel"
-                (changed)="listParameters.titel = $event; filtersChanged()"
+                [(value)]="listParameters.titel"
+                (changed)="filtersChanged()"
               ></zac-tekst-filter>
             </th>
           </ng-container>
@@ -50,8 +50,8 @@
           <ng-container matColumnDef="zaakID_filter">
             <th mat-header-cell *matHeaderCellDef>
               <zac-tekst-filter
-                [value]="listParameters.zaakID"
-                (changed)="listParameters.zaakID = $event; filtersChanged()"
+                [(value)]="listParameters.zaakID"
+                (changed)="filtersChanged()"
               ></zac-tekst-filter>
             </th>
           </ng-container>
@@ -60,13 +60,10 @@
               <mat-form-field subscriptSizing="dynamic">
                 <mat-select
                   [compareWith]="compareUser"
-                  (selectionChange)="
-                    listParameters.ontkoppeldDoor = $event.value;
-                    filtersChanged()
-                  "
+                  (selectionChange)="filtersChanged()"
                   id="ontkoppeldDoor_filter"
                   placeholder="{{ 'filter.alle' | translate }}"
-                  [value]="listParameters.ontkoppeldDoor"
+                  [(value)]="listParameters.ontkoppeldDoor"
                 >
                   <mat-option>{{ "filter.alle" | translate }}</mat-option>
                   @for (value of filterOntkoppeldDoor; track value) {
@@ -90,8 +87,8 @@
           <ng-container matColumnDef="reden_filter">
             <th mat-header-cell *matHeaderCellDef>
               <zac-tekst-filter
-                [value]="listParameters.reden"
-                (changed)="listParameters.reden = $event; filtersChanged()"
+                [(value)]="listParameters.reden"
+                (changed)="filtersChanged()"
               ></zac-tekst-filter>
             </th>
           </ng-container>
