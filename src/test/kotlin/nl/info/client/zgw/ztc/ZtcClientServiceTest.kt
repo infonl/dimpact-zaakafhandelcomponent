@@ -10,6 +10,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.date.shouldBeAfter
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.longs.shouldBeGreaterThan
+import io.kotest.matchers.longs.shouldBeLessThan
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
@@ -409,11 +410,33 @@ class ZtcClientServiceTest : BehaviorSpec({
         measuredZtcClientService.readZaaktype(zaakType.url)
 
         `when`("the memory usage of the caches is measured") {
-            val memoryUsages = measuredZtcClientService.estimatedMemoryUsage()
+            val memoryUsage = measuredZtcClientService.estimatedMemoryUsage()
 
             then("the zaaktype cache uses memory and the statustype cache uses none") {
-                memoryUsages["ZTC UUID -> ZaakType"].shouldNotBeNull() shouldBeGreaterThan 0
-                memoryUsages["ZTC UUID -> StatusType"] shouldBe 0
+                memoryUsage.perCache["ZTC UUID -> ZaakType"].shouldNotBeNull() shouldBeGreaterThan 0
+                memoryUsage.perCache["ZTC UUID -> StatusType"] shouldBe 0
+            }
+        }
+    }
+
+    given("zaaktypen that are both in the zaaktype cache by UUID and in the zaaktype list cache by catalogus") {
+        val measuredZtcClient = mockk<ZtcClient>()
+        val measuredZtcClientService = createZtcClientService(measuredZtcClient)
+        val catalogusUri = URI("https://example.com/catalogussen/${UUID.randomUUID()}")
+        every { measuredZtcClient.zaaktypeList(any()) } returns Results(
+            countValue = 2,
+            resultsValue = listOf(createZaakType(), createZaakType()),
+            nextValue = null,
+            previousValue = null
+        )
+        measuredZtcClientService.listZaaktypen(catalogusUri)
+
+        `when`("the memory usage of the caches is measured") {
+            val memoryUsage = measuredZtcClientService.estimatedMemoryUsage()
+
+            then("the total counts the zaaktypen once, so it is less than the sum of the usages per cache") {
+                memoryUsage.total shouldBeGreaterThan 0
+                memoryUsage.total shouldBeLessThan memoryUsage.perCache.values.sum()
             }
         }
     }

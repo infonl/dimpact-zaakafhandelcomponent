@@ -10,9 +10,11 @@ import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
+import nl.info.client.zgw.shared.cache.CacheMemoryUsage
 import nl.info.client.zgw.shared.cache.Caching
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.cache.ZtcCacheRefresher
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.sensitive.SensitiveDataService
@@ -34,7 +36,8 @@ class UtilRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val sensitiveDataService: SensitiveDataService,
-    private val policyService: PolicyService
+    private val policyService: PolicyService,
+    private val ztcCacheRefresher: ZtcCacheRefresher
 ) {
     companion object {
         private val ZTC: String = h(2, "ztcClientService")
@@ -92,7 +95,7 @@ class UtilRestService @Inject constructor(
     @Path("cache/ztc")
     fun ztcCaches(): String {
         checkBeherenPolicy()
-        return body(ztcClientCaches(memoryUsages = ztcClientService.estimatedMemoryUsage()))
+        return body(ztcClientCaches(memoryUsage = ztcClientService.estimatedMemoryUsage()))
     }
 
     @GET
@@ -166,9 +169,15 @@ class UtilRestService @Inject constructor(
                 ztcClientService.clearBesluittypeCache(),
                 ztcClientService.clearRoltypeCache(),
                 ztcClientService.clearEigenschapCache(),
-                ztcClientService.clearCacheTime()
+                ztcClientService.clearCacheTime(),
+                refreshZtcClientCachesInBackground()
             )
         )
+
+    private fun refreshZtcClientCachesInBackground(): String {
+        ztcCacheRefresher.refreshInBackground()
+        return "ZTC caches are being refreshed in the background"
+    }
 
     private fun clearAllZhpsCaches() =
         ZHPS + ul(
@@ -178,21 +187,21 @@ class UtilRestService @Inject constructor(
             )
         )
 
-    private fun ztcClientCaches(memoryUsages: Map<String, Long>? = null) =
-        getSeriviceCacheDetails(ZTC, ztcClientService, memoryUsages)
+    private fun ztcClientCaches(memoryUsage: CacheMemoryUsage? = null) =
+        getSeriviceCacheDetails(ZTC, ztcClientService, memoryUsage)
 
     private fun zaakafhandelParameterServiceCaches() = getSeriviceCacheDetails(ZHPS, zaaktypeConfigurationService)
 
     private fun getSeriviceCacheDetails(
         prefix: String,
         caching: Caching,
-        memoryUsages: Map<String, Long>? = null
+        memoryUsage: CacheMemoryUsage? = null
     ): String {
         val cacheStatistics = caching.cacheStatistics()
         val estimatedCacheSizes = caching.estimatedCacheSizes()
         val totalLoadTimeRegExp = Regex("totalLoadTime=\\d+")
-        val totalMemoryUsage = memoryUsages?.let {
-            ul("Estimated memory usage of all caches: ${memorySize(it.values.sum())}")
+        val totalMemoryUsage = memoryUsage?.let {
+            ul("Estimated memory usage of all caches: ${memorySize(it.total)}")
         }.orEmpty()
         return prefix + totalMemoryUsage + ul(
             cacheStatistics.entries.map { (key, value) ->
@@ -203,7 +212,7 @@ class UtilRestService @Inject constructor(
                     .toString()
                 val sizes = listOfNotNull(
                     "Estimated cache size: ${estimatedCacheSizes[key]} item(s)",
-                    memoryUsages?.let { "Estimated memory usage: ${memorySize(it[key] ?: 0)}" }
+                    memoryUsage?.let { "Estimated memory usage: ${memorySize(it.perCache[key] ?: 0)}" }
                 )
                 """
                     <p>

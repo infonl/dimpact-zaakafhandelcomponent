@@ -12,6 +12,8 @@
 # the whole batch (see the module docstring of zac_client.py for why that matters: without
 # it, every call would make ZAC's session filter create a brand new, never-cleaned-up
 # HttpSession, which is what used to make this script run ZAC out of heap on large batches).
+# After the batch it clears ZAC's ZTC cache, because Open Zaak sends no notification for
+# zaaktypes that are inserted into its database directly.
 #
 # Every [[XXX_UUID]] placeholder in a template is substituted with a freshly generated
 # UUID (unique per zaaktype), and [[ZAAKTYPE_NUMBER]] with a 1-based sequence number, so
@@ -179,6 +181,22 @@ def create_zaaktype_in_open_zaak(
         print(f"ERROR: failed to create zaaktype {zaaktype_number} in Open Zaak: {called_process_error}")
         sys.exit(1)
     return placeholder_uuids
+
+
+def clear_ztc_cache_in_zac(token_manager: zac_client.TokenManager, zac_url: str) -> None:
+    """Clear ZAC's ZTC cache, so that ZAC lists the new zaaktypes.
+
+    Open Zaak sends no notification for zaaktypes that are inserted into its database directly,
+    so ZAC would otherwise keep listing the zaaktypes that it cached before.
+    """
+    status, response_body = zac_client.http_request(
+        "GET",
+        f"{zac_url}/rest/admin/util/cache/ztc/clear",
+        headers=zac_client.auth_headers(token_manager.get_token()),
+    )
+    if status != 200:
+        print(f"ERROR: failed to clear the ZTC cache in ZAC: HTTP {status}: {response_body}")
+        sys.exit(1)
 
 
 def positive_int(value: str) -> int:
@@ -353,6 +371,10 @@ def main() -> None:
                 f" ({zaaktype_uuid}) at step '{result['step']}': {status}{result['error']}"
             )
             sys.exit(1)
+
+    if not args.skip_config:
+        print("Clearing the ZTC cache in ZAC...")
+        clear_ztc_cache_in_zac(token_manager, args.zac_url)
 
     print(f"\nCreated {args.count} zaaktype(s), numbered {args.start_number}-{args.start_number + args.count - 1}.")
 

@@ -80,10 +80,15 @@ Create 500 zaaktypes, for load testing:
 Note that each of the 500 zaaktypes is created, registered in PABC and configured in ZAC one at a time, so a run
 like this takes a while — expect it to run for several minutes.
 
+After the batch, the script clears the ZTC cache of ZAC. Open Zaak sends no notification for zaaktypes that are
+inserted into its database directly, so without this ZAC keeps listing the zaaktypes that it cached before.
+
 Create zaaktypes in Open Zaak and PABC only, without touching ZAC (e.g. because ZAC isn't running yet):
 ```shell
 ./create-zaaktypes.py --count 500 --skip-config
 ```
+ZAC then does not list the new zaaktypes until it restarts, or until you clear its ZTC cache with
+`GET /rest/admin/util/cache/ztc/clear` as a user with the 'beheren' right.
 
 Create zaaktypes that each have 3 extra superseded versions in Open Zaak (only the current version is registered
 in PABC and configured in ZAC):

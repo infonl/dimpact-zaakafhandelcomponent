@@ -14,6 +14,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.model.ZaaktypeConfiguration
+import nl.info.zac.cache.ZtcCacheRefresher
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
@@ -35,7 +36,8 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val ztcClientService: ZtcClientService,
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
-    private val zaaktypeConfigurationVersioning: ZaaktypeConfigurationVersioning
+    private val zaaktypeConfigurationVersioning: ZaaktypeConfigurationVersioning,
+    private val ztcCacheRefresher: ZtcCacheRefresher
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZaaktypeConfigurationBeheerService::class.java.name)
@@ -75,8 +77,9 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
     }
 
     /**
-     * Clears the ZTC caches for zaaktypen, roltypen, resultaattypen, statustypen and eigenschappen, and then
-     * creates or updates the configuration of the given zaaktype version, unless it is still a concept.
+     * Clears the ZTC caches for zaaktypen, roltypen, resultaattypen, statustypen and eigenschappen, starts
+     * refreshing the ZTC caches in the background, and then creates or updates the configuration of the given
+     * zaaktype version, unless it is still a concept.
      */
     @Transactional(REQUIRED)
     fun updateZaaktypeConfiguration(zaaktypeUri: URI) {
@@ -85,6 +88,7 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
         ztcClientService.clearResultaattypeCache()
         ztcClientService.clearStatustypeCache()
         ztcClientService.clearEigenschapCache()
+        ztcCacheRefresher.refreshInBackground()
         val zaaktype = ztcClientService.readZaaktype(zaaktypeUri)
         if (zaaktype.concept) {
             LOG.info { "Zaaktype '${zaaktype.omschrijving}' with UUID ${zaaktypeUri.extractUuid()} is still a concept. Ignoring" }

@@ -20,6 +20,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.createZaaktypeConfigurationsUnderTest
+import nl.info.zac.cache.ZtcCacheRefresher
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
@@ -33,12 +34,14 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val zaaktypeConfigurationVersioning = mockk<ZaaktypeConfigurationVersioning>()
+    val ztcCacheRefresher = mockk<ZtcCacheRefresher>()
     val zaaktypeConfigurationBeheerService = ZaaktypeConfigurationBeheerService(
         zaaktypeConfigurationRepository = zaaktypeConfigurationRepository,
         zaaktypeConfigurationService = zaaktypeConfigurationService,
         ztcClientService = ztcClientService,
         smartDocumentsTemplatesService = smartDocumentsTemplatesService,
-        zaaktypeConfigurationVersioning = zaaktypeConfigurationVersioning
+        zaaktypeConfigurationVersioning = zaaktypeConfigurationVersioning,
+        ztcCacheRefresher = ztcCacheRefresher
     )
 
     afterEach {
@@ -51,6 +54,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
         every { ztcClientService.clearResultaattypeCache() } returns "fakeCleared"
         every { ztcClientService.clearStatustypeCache() } returns "fakeCleared"
         every { ztcClientService.clearEigenschapCache() } returns "fakeCleared"
+        every { ztcCacheRefresher.refreshInBackground() } just runs
     }
 
     createZaaktypeConfigurationsUnderTest().forEach { (configurationType, createZaaktypeConfiguration) ->
@@ -163,6 +167,13 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                                 any(),
                                 existingZaaktypeConfiguration.zaaktypeUuid
                             )
+                        }
+                    }
+
+                    and("the ZTC caches are refreshed in the background after they have been cleared") {
+                        verifyOrder {
+                            ztcClientService.clearEigenschapCache()
+                            ztcCacheRefresher.refreshInBackground()
                         }
                     }
                 }

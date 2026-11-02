@@ -16,6 +16,8 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.authentication.runAsSystemUser
@@ -53,23 +55,38 @@ class ZtcCacheRefresher @Inject constructor(
         LOG.log(Level.SEVERE, "Unexpected failure while refreshing the ZTC caches", throwable)
     }
     private val coroutineScope = CoroutineScope(SupervisorJob() + dispatcher + exceptionHandler)
+    private val refreshRequests = Channel<Unit>(Channel.CONFLATED)
 
     fun onStartup(
         @Observes @Initialized(ApplicationScoped::class) @Priority(STARTUP_OBSERVER_PRIORITY)
         @Suppress("UNUSED_PARAMETER")
         event: Any
     ) {
-        coroutineScope.launch { refreshCaches() }
+        coroutineScope.launch { refreshRequests.consumeEach { refreshCaches() } }
+        refreshInBackground()
+    }
+
+    /**
+     * Requests that arrive while a refresh runs are combined into one refresh after it, because the running
+     * refresh may have read the ZTC before the change that caused the request.
+     */
+    fun refreshInBackground() {
+        refreshRequests.trySend(Unit)
     }
 
     @PreDestroy
     fun shutdown() = coroutineScope.cancel()
 
+    @Suppress("TooGenericExceptionCaught")
     private fun refreshCaches() {
         LOG.info("Started refreshing the ZTC caches")
-        val duration = measureTime {
-            runAsSystemUser { ztcClientService.refreshCaches(configurationService.readDefaultCatalogusURI()) }
+        try {
+            val duration = measureTime {
+                runAsSystemUser { ztcClientService.refreshCaches(configurationService.readDefaultCatalogusURI()) }
+            }
+            LOG.info { "Finished refreshing the ZTC caches in $duration" }
+        } catch (runtimeException: RuntimeException) {
+            LOG.log(Level.WARNING, "Failed to refresh the ZTC caches", runtimeException)
         }
-        LOG.info { "Finished refreshing the ZTC caches in $duration" }
     }
 }

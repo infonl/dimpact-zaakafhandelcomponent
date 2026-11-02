@@ -2,8 +2,8 @@
 
 ## Purpose
 Makes zaaktypes and their related ZTC types quickly available in ZAC by filling the ZTC caches right after
-startup, with one paged list request per type instead of one request per zaaktype, and by keeping the cached
-types as long as they are used (PZ-13072). Before this, the caches were empty after every start, expired after
+startup and again after the caches have been cleared, with one paged list request per type instead of one request
+per zaaktype, and by keeping the cached types as long as they are used (PZ-13072). Before this, the caches were empty after every start, expired after
 an hour, and held at most 1,000 entries each, so that for example listing the zaaktypes for which a user may
 create a zaak needed about 1 + 6 × (number of zaaktypes) requests to Open Zaak. Beheerders can see how many
 entries and how much memory each ZTC cache holds, so that they can check that the caches fit in the memory of
@@ -25,9 +25,38 @@ the start of the refresh, and its end together with its duration.
 - **AND** logs that the refresh has finished, with its duration
 
 #### Scenario: The refresh does not run periodically
-- **WHEN** ZAC has been running for some time after startup
+- **WHEN** ZAC has been running for some time after startup, without the ZTC caches being cleared
 - **THEN** the system does not refresh the ZTC caches again by itself; types that are not cached yet are still
   read from the ZTC on demand
+
+### Requirement: Cache refresh after the caches have been cleared
+After the system has cleared ZTC caches, it SHALL refresh the ZTC caches of the default catalogus in the
+background, in the same way as after startup, so that the types are again available without one request per
+zaaktype. This applies when a notification about a created or updated zaaktype has cleared the caches, and when a
+beheerder has cleared the caches with `/rest/admin/util/cache/clear` or `/rest/admin/util/cache/ztc/clear`. When
+refreshes are requested while a refresh runs, the system SHALL run one more refresh after the running one, because
+the running refresh may have read the ZTC before the change, and SHALL NOT run a refresh per request. When a refresh
+fails, the system SHALL log a warning and still run later refreshes.
+
+#### Scenario: A notification about an updated zaaktype
+- **WHEN** the system receives a notification that a zaaktype has been created or updated
+- **THEN** the system clears the ZTC caches of zaaktypen, statustypen, resultaattypen, roltypen and eigenschappen
+- **AND** refreshes the ZTC caches in the background
+
+#### Scenario: A beheerder clears the caches
+- **WHEN** a user with the 'beheren' permission opens `/rest/admin/util/cache/clear` or
+  `/rest/admin/util/cache/ztc/clear`
+- **THEN** the system clears the ZTC caches
+- **AND** refreshes the ZTC caches in the background, and shows that it does so
+
+#### Scenario: Several refreshes are requested while a refresh runs
+- **WHEN** several refreshes are requested while a refresh runs
+- **THEN** the system runs one more refresh after the running one
+
+#### Scenario: A refresh fails
+- **WHEN** a refresh fails
+- **THEN** the system logs a warning
+- **AND** still runs the refresh that is requested next
 
 ### Requirement: Zaaktypes are fetched with paging
 The refresh SHALL fetch all zaaktypes of the default catalogus from the ZTC API, following every page of the
@@ -120,7 +149,9 @@ catalogus, this limit has to be larger than the number of types of the largest c
 The admin page `/rest/admin/util/cache/ztc` SHALL show, for each ZTC cache, its statistics, its estimated number
 of entries as "Estimated cache size: <number> item(s)", and its estimated memory usage, and SHALL show the total
 memory usage of all ZTC caches. The memory usage SHALL include the keys and values of a cache and every object
-they refer to, and SHALL be shown in readable units together with the exact number of bytes. Because measuring
+they refer to, and SHALL be shown in readable units together with the exact number of bytes. The total SHALL count
+an object that several caches hold only once, such as a zaaktype that is both in the cache of zaaktypes per UUID
+and in the zaaktype list of its catalogus, so that the total is not larger than the memory the caches really use. Because measuring
 walks through every cached object, only this page SHALL measure the memory usage: the pages
 `/rest/admin/util/cache` and `/rest/admin/util/cache/zhps` show the number of entries but no memory usage. Like the
 other admin util pages, the page SHALL require the 'beheren' permission.
@@ -129,6 +160,12 @@ other admin util pages, the page SHALL require the 'beheren' permission.
 - **WHEN** a user with the 'beheren' permission opens `/rest/admin/util/cache/ztc`
 - **THEN** the page shows the total estimated memory usage of all ZTC caches
 - **AND** for each ZTC cache its estimated number of entries and its estimated memory usage
+
+#### Scenario: Caches that hold the same objects
+- **WHEN** the same zaaktypes are both in the cache of zaaktypes per UUID and in the zaaktype list of their
+  catalogus
+- **THEN** the total estimated memory usage counts these zaaktypes once, so it is less than the sum of the
+  estimated memory usage per cache
 
 #### Scenario: A beheerder opens the page with all caches
 - **WHEN** a user with the 'beheren' permission opens `/rest/admin/util/cache`

@@ -9,6 +9,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.stats.CacheStats
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import nl.info.client.zgw.shared.cache.CacheMemoryUsage
 import nl.info.client.zgw.shared.cache.Caching
 import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.util.extractUuid
@@ -566,12 +567,15 @@ class ZtcClientService @Inject constructor(
      * Measures the memory that the keys and values of each cache take, including all objects they refer to.
      * This walks through every cached object, so only call it on request.
      */
-    fun estimatedMemoryUsage(): Map<String, Long> =
-        caches.mapValues { (_, cache) ->
-            cache.asMap()
-                .flatMap { listOf(it.key, it.value) }
-                .let { if (it.isEmpty()) 0 else GraphLayout.parseInstance(it).totalSize() }
-        }
+    fun estimatedMemoryUsage(): CacheMemoryUsage {
+        val rootsPerCache = caches.mapValues { (_, cache) -> cache.asMap().flatMap { listOf(it.key, it.value) } }
+        return CacheMemoryUsage(
+            perCache = rootsPerCache.mapValues { (_, roots) -> roots.totalSize() },
+            total = rootsPerCache.values.flatten().totalSize()
+        )
+    }
+
+    private fun List<Any?>.totalSize() = if (isEmpty()) 0 else GraphLayout.parseInstance(this).totalSize()
 
     fun clearZaaktypeCache(): String {
         uuidToZaakTypeCache.invalidateAll()
