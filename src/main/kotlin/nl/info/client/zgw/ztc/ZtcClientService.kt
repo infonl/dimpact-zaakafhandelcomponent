@@ -554,21 +554,26 @@ class ZtcClientService @Inject constructor(
                 InformatieobjecttypeListParameters(catalogusURI, page).apply { setStatus(ObjectStatusFilter.ALLES) }
             )
         }
-        val informatieobjecttypenByURI = informatieobjecttypen.associateBy { it.url }
         val zaaktypeInformatieobjecttypen = listAllPages { page ->
             ztcClient.zaaktypeinformatieobjecttypeList(ZaaktypeInformatieobjecttypeListParameters(page = page))
         }.groupByZaaktype(zaaktypeURIs) { listOfNotNull(it.zaaktype) }
-        val informatieobjecttypenByZaaktype = zaaktypeInformatieobjecttypen.mapValues { (_, zaaktypeInformatieobjecttypenOfZaaktype) ->
-            zaaktypeInformatieobjecttypenOfZaaktype.map {
-                informatieobjecttypenByURI[it.informatieobjecttype] ?: readInformatieobjecttype(it.informatieobjecttype)
-            }
+        val informatieobjecttypenOfCatalogusUUIDs = informatieobjecttypen.map { it.url.extractUuid() }.toSet()
+        val informatieobjecttypenOfOtherCatalogi = zaaktypeInformatieobjecttypen.values.flatten()
+            .map { it.informatieobjecttype.extractUuid() }
+            .filterNot(informatieobjecttypenOfCatalogusUUIDs::contains)
+            .distinct()
+            .map(ztcClient::informatieObjectTypeRead)
+        val allInformatieobjecttypen = informatieobjecttypen + informatieobjecttypenOfOtherCatalogi
+        val informatieobjecttypenByUUID = allInformatieobjecttypen.associateBy { it.url.extractUuid() }
+        val informatieobjecttypenByZaaktype = zaaktypeInformatieobjecttypen.mapValues { zaaktypeEntry ->
+            zaaktypeEntry.value.map { informatieobjecttypenByUUID.getValue(it.informatieobjecttype.extractUuid()) }
         }
         cacheWrites += {
-            informatieobjecttypen.forEach { uuidToInformatieObjectTypeCache.put(it.url.extractUuid(), it) }
+            allInformatieobjecttypen.forEach { uuidToInformatieObjectTypeCache.put(it.url.extractUuid(), it) }
         }
         cacheWrites += { uriToZaakTypeInformatieObjectTypeListCache.putAll(zaaktypeInformatieobjecttypen) }
         cacheWrites += { uriToInformatieObjectTypeListCache.putAll(informatieobjecttypenByZaaktype) }
-        return informatieobjecttypen
+        return allInformatieobjecttypen
     }
 
     private fun refreshEigenschappen(zaaktypeURIs: Set<URI>, cacheWrites: MutableList<() -> Unit>) =

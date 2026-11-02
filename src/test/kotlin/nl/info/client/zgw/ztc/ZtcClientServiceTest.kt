@@ -393,6 +393,58 @@ class ZtcClientServiceTest : BehaviorSpec({
             }
         }
 
+        given("a zaaktype-informatieobjecttype that refers to an informatieobjecttype of another catalogus") {
+            val refreshedZtcClient = mockk<ZtcClient>()
+            val refreshedZtcClientService = createZtcClientService(refreshedZtcClient)
+            val catalogusUri = URI("https://example.com/catalogussen/${UUID.randomUUID()}")
+            val zaakType = createZaakType()
+            val otherCatalogusInformatieObjectType = createInformatieObjectType(
+                uri = URI("https://example.com/informatieobjecttypen/${UUID.randomUUID()}")
+            )
+            val zaakTypeInformatieObjectTypes = List(2) {
+                createZaakTypeInformatieObjectType(
+                    zaaktype = zaakType.url,
+                    informatieobjecttype = otherCatalogusInformatieObjectType.url
+                )
+            }
+            every { refreshedZtcClient.zaaktypeList(any()) } returns Results(listOf(zaakType), 1)
+            every { refreshedZtcClient.statustypeList(any()) } returns Results(emptyList(), 0)
+            refreshedZtcClient.stubEmptyTypeListsExceptZaaktypenAndStatustypen()
+            every {
+                refreshedZtcClient.zaaktypeinformatieobjecttypeList(any())
+            } returns Results(zaakTypeInformatieObjectTypes, 2)
+            every {
+                refreshedZtcClient.informatieObjectTypeRead(otherCatalogusInformatieObjectType.url.extractUuid())
+            } returns otherCatalogusInformatieObjectType
+
+            `when`("the caches are refreshed") {
+                refreshedZtcClientService.refreshCaches(catalogusUri)
+
+                then("that informatieobjecttype is read once and cached for the zaaktype") {
+                    refreshedZtcClientService.readInformatieobjecttypen(zaakType.url) shouldBe
+                        listOf(otherCatalogusInformatieObjectType, otherCatalogusInformatieObjectType)
+                    verify(exactly = 1) {
+                        refreshedZtcClient.informatieObjectTypeRead(otherCatalogusInformatieObjectType.url.extractUuid())
+                    }
+                }
+            }
+
+            `when`("the informatieobjecttype cache is cleared while the refresh reads that informatieobjecttype") {
+                val clearedZtcClientService = createZtcClientService(refreshedZtcClient)
+                every {
+                    refreshedZtcClient.informatieObjectTypeRead(otherCatalogusInformatieObjectType.url.extractUuid())
+                } answers {
+                    clearedZtcClientService.clearInformatieobjecttypeCache()
+                    otherCatalogusInformatieObjectType
+                }
+                clearedZtcClientService.refreshCaches(catalogusUri)
+
+                then("the refresh does not put that informatieobjecttype in the cache after the clear") {
+                    clearedZtcClientService.estimatedCacheSizes()["ZTC UUID -> InformatieObjectType"] shouldBe 0
+                }
+            }
+        }
+
         given("statustypen that fail to load") {
             val refreshedZtcClient = mockk<ZtcClient>()
             val refreshedZtcClientService = createZtcClientService(refreshedZtcClient)
