@@ -563,6 +563,36 @@ describe(InformatieObjectLinkComponent.name, () => {
       ).toBeVisible();
     });
 
+    it("searches the zaken that fit the type of any selected document", async () => {
+      await setupBulk();
+      fixture.componentRef.setInput("bulkDocuments", [
+        fromPartial<GeneratedType<"RestDetachedDocument">>({
+          id: 7,
+          informatieobjectTypeUUID: "fakeInformatieobjectTypeUuid",
+        }),
+        fromPartial<GeneratedType<"RestDetachedDocument">>({
+          id: 8,
+          informatieobjectTypeUUID: "fakeOtherInformatieobjectTypeUuid",
+        }),
+        fromPartial<GeneratedType<"RestDetachedDocument">>({
+          id: 9,
+          informatieobjectTypeUUID: "fakeInformatieobjectTypeUuid",
+        }),
+      ]);
+      fixture.detectChanges();
+
+      await search("ZAAK-001");
+
+      const request = httpTestingController.expectOne("/rest/zoeken/zaken");
+      expect(request.request.body).toMatchObject({
+        informationObjectTypeUuids: [
+          "fakeInformatieobjectTypeUuid",
+          "fakeOtherInformatieobjectTypeUuid",
+        ],
+      });
+      request.flush({ totaal: 0, resultaten: [], filters: {} });
+    });
+
     it("links all selected documents to the chosen zaak in one request", async () => {
       await setupBulk();
       await showKoppelbareZaken();

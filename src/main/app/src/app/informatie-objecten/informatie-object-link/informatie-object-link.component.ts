@@ -86,6 +86,19 @@ export class InformatieObjectLinkComponent {
 
   protected readonly loading = signal(false);
 
+  private readonly informatieobjectTypeUuids = computed(() => {
+    const bulkDocuments = this.bulkDocuments();
+    const documents =
+      bulkDocuments.length > 0 ? bulkDocuments : [this.infoObject()];
+    return [
+      ...new Set(
+        documents
+          .map((document) => document?.informatieobjectTypeUUID)
+          .filter((uuid): uuid is string => !!uuid),
+      ),
+    ];
+  });
+
   protected readonly intro = computed(() => {
     const bulkDocuments = this.bulkDocuments();
     if (bulkDocuments.length > 0) {
@@ -165,8 +178,8 @@ export class InformatieObjectLinkComponent {
   }
 
   protected searchCases() {
-    const infoObject = this.infoObject();
-    if (!infoObject?.informatieobjectTypeUUID) return;
+    const informationObjectTypeUuids = this.informatieobjectTypeUuids();
+    if (informationObjectTypeUuids.length === 0) return;
 
     this.loading.set(true);
     this.utilService.setLoading(true);
@@ -175,7 +188,7 @@ export class InformatieObjectLinkComponent {
       this.queryClient,
       this.zoekenService.listDocumentKoppelbareZaken({
         zaakIdentificator: caseSearch!,
-        informationObjectTypeUuids: [infoObject.informatieobjectTypeUUID],
+        informationObjectTypeUuids,
         page: 0,
         rows: LINKABLE_ZAKEN_PAGINATION_SIZE,
       }),
