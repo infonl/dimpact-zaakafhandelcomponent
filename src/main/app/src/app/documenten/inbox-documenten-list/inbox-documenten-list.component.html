@@ -31,10 +31,8 @@
           <ng-container matColumnDef="identificatie_filter">
             <th mat-header-cell *matHeaderCellDef>
               <zac-tekst-filter
-                [value]="listParameters.identificatie"
-                (changed)="
-                  listParameters.identificatie = $event; filtersChanged()
-                "
+                [(value)]="listParameters.identificatie"
+                (changed)="filtersChanged()"
               ></zac-tekst-filter>
             </th>
           </ng-container>
@@ -43,15 +41,17 @@
               <zac-date-range-filter
                 label="creatiedatum"
                 [range]="listParameters.creatiedatum"
-                (changed)="filtersChanged()"
+                (changed)="
+                  listParameters.creatiedatum = $event; filtersChanged()
+                "
               ></zac-date-range-filter>
             </th>
           </ng-container>
           <ng-container matColumnDef="titel_filter">
             <th mat-header-cell *matHeaderCellDef>
               <zac-tekst-filter
-                [value]="listParameters.titel"
-                (changed)="listParameters.titel = $event; filtersChanged()"
+                [(value)]="listParameters.titel"
+                (changed)="filtersChanged()"
               ></zac-tekst-filter>
             </th>
           </ng-container>

@@ -175,13 +175,12 @@ export class InrichtingscheckComponent
 
   protected applyFilter(event?: Event) {
     if (event) {
-      const filterValue = (event.target as HTMLInputElement).value;
-      this.filterValue = filterValue.trim().toLowerCase();
-      this.dataSource.filter = filterValue;
-    } else {
-      // toggleSwitch
-      this.dataSource.filter = " " + this.filterValue;
+      this.filterValue = (event.target as HTMLInputElement).value
+        .trim()
+        .toLowerCase();
     }
+    // MatTableDataSource skips the filterPredicate, and so the valide filter, for an empty filter
+    this.dataSource.filter = " " + this.filterValue;
   }
 
   private showZaaktypes(

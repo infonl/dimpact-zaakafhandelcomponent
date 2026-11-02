@@ -217,10 +217,11 @@ export class InboxProductaanvragenListComponent
     event: MatSelectChange | string | GeneratedType<"RestDatumRange">;
     filter: keyof GeneratedType<"RestInboxProductaanvraagListParameters">;
   }) {
-    this.listParameters[options.filter] =
+    this.listParameters[options.filter] = (
       typeof options.event === "object" && "value" in options.event
-        ? (options.event.value as never)
-        : (undefined as never);
+        ? options.event.value
+        : options.event
+    ) as never;
     this.paginator().pageIndex = 0;
     this.clearZoekopdracht.emit();
     this.filterChange.emit();
