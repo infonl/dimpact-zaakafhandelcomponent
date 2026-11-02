@@ -16,15 +16,15 @@ import { ActivatedRoute } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import {
+  expectedSearchFor,
+  fromPartial,
+  searchThroughColumnFilter,
+  WerklijstColumnFilter,
+} from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
-import {
-  expectedSearchFor,
-  searchThroughColumnFilter,
-  WerklijstColumnFilter,
-} from "../../shared/dynamic-table/werklijst-column-filters.testing";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenAfgehandeldComponent } from "./zaken-afgehandeld.component";
 

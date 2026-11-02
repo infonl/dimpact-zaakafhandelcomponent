@@ -21,13 +21,13 @@ import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
-import { sleep, testQueryClient } from "../../../../setupJest";
 import {
   expectedSearchFor,
+  fromPartial,
   searchThroughColumnFilter,
   WerklijstColumnFilter,
-} from "../../shared/dynamic-table/werklijst-column-filters.testing";
+} from "src/test-helpers";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { TakenMijnComponent } from "./taken-mijn.component";
