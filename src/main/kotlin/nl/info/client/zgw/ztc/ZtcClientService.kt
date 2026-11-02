@@ -47,6 +47,7 @@ import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicLong
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -81,6 +82,8 @@ class ZtcClientService @Inject constructor(
     }
 
     private val caches = mutableMapOf<String, Cache<*, *>>()
+    private val cacheLock = Any()
+    private val cacheGeneration = AtomicLong()
 
     private val ztcTimeCache: Cache<String, ZonedDateTime> = createCache("Time", 1)
 
@@ -173,13 +176,13 @@ class ZtcClientService @Inject constructor(
      */
     fun listZaaktypen(catalogusURI: URI): List<ZaakType> = uriToZaakTypeListCache.get(catalogusURI) {
         LOG.fine { "OpenZaak: listZaaktypen(catalogusURI $catalogusURI)" }
-        fetchZaaktypen(catalogusURI)
+        fetchZaaktypen(catalogusURI).onEach { zaaktype -> uuidToZaakTypeCache.put(zaaktype.url.extractUuid(), zaaktype) }
     }
 
     private fun fetchZaaktypen(catalogusURI: URI) =
         listAllPages { page ->
             ztcClient.zaaktypeList(ZaaktypeListParameters(catalogusURI, page = page, pageSize = ZAAKTYPE_PAGE_SIZE))
-        }.onEach { uuidToZaakTypeCache.put(it.url.extractUuid(), it) }
+        }
 
     /**
      * Reads a [StatusType] via URI.
@@ -463,72 +466,112 @@ class ZtcClientService @Inject constructor(
      * Fills the caches with the zaaktypes of the given catalogus and their related types, with one paged list
      * request per type instead of one request per zaaktype. A type that fails to refresh is logged and skipped,
      * so that its cache is still filled on demand.
+     *
+     * The caches are written only after all types have been fetched, and not at all when a cache was cleared in the
+     * meantime: the fetched types may predate the change that caused the clear, and writing them would put back
+     * entries that the clear removed, such as a deleted type. Every clear is followed by a refresh of its own.
      */
     fun refreshCaches(catalogusURI: URI) {
+        val cacheGenerationAtStart = cacheGeneration.get()
+        val cacheWrites = mutableListOf<() -> Unit>()
         val zaaktypeURIs = refreshCache("zaaktypen") {
-            fetchZaaktypen(catalogusURI).also { uriToZaakTypeListCache.put(catalogusURI, it) }
+            fetchZaaktypen(catalogusURI).also { zaaktypen ->
+                cacheWrites += { uriToZaakTypeListCache.put(catalogusURI, zaaktypen) }
+                cacheWrites += { zaaktypen.forEach { uuidToZaakTypeCache.put(it.url.extractUuid(), it) } }
+            }
         }?.map { it.url }?.toSet() ?: return
-        refreshCache("statustypen") { refreshStatustypen(zaaktypeURIs) }
-        refreshCache("resultaattypen") { refreshResultaattypen(zaaktypeURIs) }
-        refreshCache("besluittypen") { refreshBesluittypen(catalogusURI, zaaktypeURIs) }
-        refreshCache("informatieobjecttypen") { refreshInformatieobjecttypen(catalogusURI, zaaktypeURIs) }
-        refreshCache("eigenschappen") { refreshEigenschappen(zaaktypeURIs) }
-        refreshCache("roltypen") { refreshRoltypen(zaaktypeURIs) }
+        refreshCache("statustypen") { refreshStatustypen(zaaktypeURIs, cacheWrites) }
+        refreshCache("resultaattypen") { refreshResultaattypen(zaaktypeURIs, cacheWrites) }
+        refreshCache("besluittypen") { refreshBesluittypen(catalogusURI, zaaktypeURIs, cacheWrites) }
+        refreshCache("informatieobjecttypen") {
+            refreshInformatieobjecttypen(catalogusURI, zaaktypeURIs, cacheWrites)
+        }
+        refreshCache("eigenschappen") { refreshEigenschappen(zaaktypeURIs, cacheWrites) }
+        refreshCache("roltypen") { refreshRoltypen(zaaktypeURIs, cacheWrites) }
+        writeCaches(cacheGenerationAtStart, cacheWrites)
     }
+
+    private fun writeCaches(cacheGenerationAtStart: Long, cacheWrites: List<() -> Unit>) =
+        synchronized(cacheLock) {
+            if (cacheGeneration.get() == cacheGenerationAtStart) {
+                cacheWrites.forEach { it() }
+                LOG.info("Wrote the refreshed types to the ZTC caches")
+            } else {
+                LOG.info("Discarded the refreshed types, because ZTC caches were cleared during the refresh")
+            }
+        }
 
     @Suppress("TooGenericExceptionCaught")
     private fun <T> refreshCache(typeName: String, refresh: () -> List<T>): List<T>? =
         try {
-            refresh().also { LOG.info { "Refreshed the ZTC cache with ${it.size} $typeName" } }
+            refresh().also { LOG.info { "Fetched ${it.size} $typeName for the ZTC caches" } }
         } catch (runtimeException: RuntimeException) {
             LOG.log(Level.WARNING, "Failed to refresh the ZTC cache with $typeName", runtimeException)
             null
         }
 
-    private fun refreshStatustypen(zaaktypeURIs: Set<URI>) =
+    private fun refreshStatustypen(zaaktypeURIs: Set<URI>, cacheWrites: MutableList<() -> Unit>) =
         listAllPages { page -> ztcClient.statustypeList(StatustypeListParameters(page = page)) }
             .groupByZaaktype(zaaktypeURIs) { listOfNotNull(it.zaaktype) }
-            .also(uriToStatusTypeListCache::putAll)
+            .also { cacheWrites += { uriToStatusTypeListCache.putAll(it) } }
             .values.flatten()
-            .onEach { uuidToStatusTypeCache.put(it.url.extractUuid(), it) }
+            .also { statustypen ->
+                cacheWrites += { statustypen.forEach { uuidToStatusTypeCache.put(it.url.extractUuid(), it) } }
+            }
 
-    private fun refreshResultaattypen(zaaktypeURIs: Set<URI>) =
+    private fun refreshResultaattypen(zaaktypeURIs: Set<URI>, cacheWrites: MutableList<() -> Unit>) =
         listAllPages { page -> ztcClient.resultaattypeList(ResultaattypeListParameters(page = page)) }
             .groupByZaaktype(zaaktypeURIs) { listOfNotNull(it.zaaktype) }
-            .also(uriToResultaatTypeListCache::putAll)
+            .also { cacheWrites += { uriToResultaatTypeListCache.putAll(it) } }
             .values.flatten()
-            .onEach { uuidToResultaatTypeCache.put(it.url.extractUuid(), it) }
+            .also { resultaattypen ->
+                cacheWrites += { resultaattypen.forEach { uuidToResultaatTypeCache.put(it.url.extractUuid(), it) } }
+            }
 
-    private fun refreshBesluittypen(catalogusURI: URI, zaaktypeURIs: Set<URI>) =
-        listAllPages { page ->
-            ztcClient.besluittypeList(BesluittypeListParameters(catalogus = catalogusURI).apply { this.page = page })
-        }.also { besluittypen ->
-            uriToBesluitTypeListCache.putAll(besluittypen.groupByZaaktype(zaaktypeURIs) { it.zaaktypen.orEmpty() })
-        }.onEach { uuidToBesluitTypeCache.put(it.url.extractUuid(), it) }
+    private fun refreshBesluittypen(
+        catalogusURI: URI,
+        zaaktypeURIs: Set<URI>,
+        cacheWrites: MutableList<() -> Unit>
+    ) = listAllPages { page ->
+        ztcClient.besluittypeList(BesluittypeListParameters(catalogus = catalogusURI).apply { this.page = page })
+    }.also { besluittypen ->
+        val besluittypenByZaaktype = besluittypen.groupByZaaktype(zaaktypeURIs) { it.zaaktypen.orEmpty() }
+        cacheWrites += { uriToBesluitTypeListCache.putAll(besluittypenByZaaktype) }
+        cacheWrites += { besluittypen.forEach { uuidToBesluitTypeCache.put(it.url.extractUuid(), it) } }
+    }
 
     /**
      * Informatieobjecttypen are linked to zaaktypen through zaaktype-informatieobjecttypen, so both are refreshed
      * together. All statuses are cached, because [readInformatieobjecttype] does not filter on status either.
      */
-    private fun refreshInformatieobjecttypen(catalogusURI: URI, zaaktypeURIs: Set<URI>): List<InformatieObjectType> {
+    private fun refreshInformatieobjecttypen(
+        catalogusURI: URI,
+        zaaktypeURIs: Set<URI>,
+        cacheWrites: MutableList<() -> Unit>
+    ): List<InformatieObjectType> {
         val informatieobjecttypen = listAllPages { page ->
             ztcClient.informatieobjecttypeList(
                 InformatieobjecttypeListParameters(catalogusURI, page).apply { setStatus(ObjectStatusFilter.ALLES) }
             )
-        }.onEach { uuidToInformatieObjectTypeCache.put(it.url.extractUuid(), it) }
+        }
+        val informatieobjecttypenByURI = informatieobjecttypen.associateBy { it.url }
         val zaaktypeInformatieobjecttypen = listAllPages { page ->
             ztcClient.zaaktypeinformatieobjecttypeList(ZaaktypeInformatieobjecttypeListParameters(page = page))
         }.groupByZaaktype(zaaktypeURIs) { listOfNotNull(it.zaaktype) }
-        uriToZaakTypeInformatieObjectTypeListCache.putAll(zaaktypeInformatieobjecttypen)
-        uriToInformatieObjectTypeListCache.putAll(
-            zaaktypeInformatieobjecttypen.mapValues { (_, zaaktypeInformatieobjecttypenOfZaaktype) ->
-                zaaktypeInformatieobjecttypenOfZaaktype.map { readInformatieobjecttype(it.informatieobjecttype) }
+        val informatieobjecttypenByZaaktype = zaaktypeInformatieobjecttypen.mapValues { (_, zaaktypeInformatieobjecttypenOfZaaktype) ->
+            zaaktypeInformatieobjecttypenOfZaaktype.map {
+                informatieobjecttypenByURI[it.informatieobjecttype] ?: readInformatieobjecttype(it.informatieobjecttype)
             }
-        )
+        }
+        cacheWrites += {
+            informatieobjecttypen.forEach { uuidToInformatieObjectTypeCache.put(it.url.extractUuid(), it) }
+        }
+        cacheWrites += { uriToZaakTypeInformatieObjectTypeListCache.putAll(zaaktypeInformatieobjecttypen) }
+        cacheWrites += { uriToInformatieObjectTypeListCache.putAll(informatieobjecttypenByZaaktype) }
         return informatieobjecttypen
     }
 
-    private fun refreshEigenschappen(zaaktypeURIs: Set<URI>) =
+    private fun refreshEigenschappen(zaaktypeURIs: Set<URI>, cacheWrites: MutableList<() -> Unit>) =
         listAllPages { page ->
             ztcClient.eigenschapList(
                 EigenschapListParameters().apply {
@@ -537,15 +580,15 @@ class ZtcClientService @Inject constructor(
                 }
             )
         }.groupByZaaktype(zaaktypeURIs) { listOfNotNull(it.zaaktype) }
-            .also(uriToEigenschappenCache::putAll)
+            .also { cacheWrites += { uriToEigenschappenCache.putAll(it) } }
             .values.flatten()
 
-    private fun refreshRoltypen(zaaktypeURIs: Set<URI>) =
+    private fun refreshRoltypen(zaaktypeURIs: Set<URI>, cacheWrites: MutableList<() -> Unit>) =
         listAllPages { page -> ztcClient.roltypeList(RoltypeListParameters(page = page)) }
             .groupByZaaktype(zaaktypeURIs) { listOfNotNull(it.zaaktype) }
-            .also(uriToRolTypeListCache::putAll)
+            .also { cacheWrites += { uriToRolTypeListCache.putAll(it) } }
             .values.flatten()
-            .onEach { uuidToRolTypeCache.put(it.url.extractUuid(), it) }
+            .also { roltypen -> cacheWrites += { roltypen.forEach { uuidToRolTypeCache.put(it.url.extractUuid(), it) } } }
 
     private fun <T> listAllPages(listPage: (page: Int) -> Results<T>): List<T> = buildList {
         var page = FIRST_PAGE
@@ -578,53 +621,39 @@ class ZtcClientService @Inject constructor(
 
     private fun List<Any?>.totalSize() = if (isEmpty()) 0 else GraphLayout.parseInstance(this).totalSize()
 
-    fun clearZaaktypeCache(): String {
-        uuidToZaakTypeCache.invalidateAll()
-        uriToZaakTypeListCache.invalidateAll()
-        return cleared(Caching.ZTC_ZAAKTYPE)
-    }
+    fun clearZaaktypeCache() = clear(Caching.ZTC_ZAAKTYPE, uuidToZaakTypeCache, uriToZaakTypeListCache)
 
-    fun clearStatustypeCache(): String {
-        uuidToStatusTypeCache.invalidateAll()
-        uriToStatusTypeListCache.invalidateAll()
-        return cleared(Caching.ZTC_STATUSTYPE)
-    }
+    fun clearStatustypeCache() = clear(Caching.ZTC_STATUSTYPE, uuidToStatusTypeCache, uriToStatusTypeListCache)
 
-    fun clearResultaattypeCache(): String {
-        uuidToResultaatTypeCache.invalidateAll()
-        uriToResultaatTypeListCache.invalidateAll()
-        return cleared(Caching.ZTC_RESULTAATTYPE)
-    }
+    fun clearResultaattypeCache() =
+        clear(Caching.ZTC_RESULTAATTYPE, uuidToResultaatTypeCache, uriToResultaatTypeListCache)
 
-    fun clearInformatieobjecttypeCache(): String {
-        uuidToInformatieObjectTypeCache.invalidateAll()
-        uriToInformatieObjectTypeListCache.invalidateAll()
-        return cleared(Caching.ZTC_INFORMATIEOBJECTTYPE)
-    }
+    fun clearInformatieobjecttypeCache() =
+        clear(Caching.ZTC_INFORMATIEOBJECTTYPE, uuidToInformatieObjectTypeCache, uriToInformatieObjectTypeListCache)
 
-    fun clearZaaktypeInformatieobjecttypeCache(): String {
-        uriToZaakTypeInformatieObjectTypeListCache.invalidateAll()
-        return cleared(Caching.ZTC_ZAAKTYPE_INFORMATIEOBJECTTYPE)
-    }
+    fun clearZaaktypeInformatieobjecttypeCache() =
+        clear(Caching.ZTC_ZAAKTYPE_INFORMATIEOBJECTTYPE, uriToZaakTypeInformatieObjectTypeListCache)
 
-    fun clearBesluittypeCache(): String {
-        uuidToBesluitTypeCache.invalidateAll()
-        uriToBesluitTypeListCache.invalidateAll()
-        return cleared(Caching.ZTC_BESLUITTYPE)
-    }
+    fun clearBesluittypeCache() = clear(Caching.ZTC_BESLUITTYPE, uuidToBesluitTypeCache, uriToBesluitTypeListCache)
 
-    fun clearEigenschapCache(): String {
-        uriToEigenschappenCache.invalidateAll()
-        return cleared(ZTC_EIGENSCHAP)
-    }
+    fun clearEigenschapCache() = clear(ZTC_EIGENSCHAP, uriToEigenschappenCache)
 
-    fun clearRoltypeCache(): String {
-        uriOmschrijvingEnumToRolTypeCache.invalidateAll()
-        uriOmschrijvingGeneriekEnumToRolTypeCache.invalidateAll()
-        uriToRolTypeListCache.invalidateAll()
-        rolTypeListCache.invalidateAll()
-        uuidToRolTypeCache.invalidateAll()
-        return cleared(Caching.ZTC_ROLTYPE)
+    fun clearRoltypeCache() =
+        clear(
+            Caching.ZTC_ROLTYPE,
+            uriOmschrijvingEnumToRolTypeCache,
+            uriOmschrijvingGeneriekEnumToRolTypeCache,
+            uriToRolTypeListCache,
+            rolTypeListCache,
+            uuidToRolTypeCache
+        )
+
+    private fun clear(cacheName: String, vararg cachesToClear: Cache<*, *>): String {
+        synchronized(cacheLock) {
+            cacheGeneration.incrementAndGet()
+            cachesToClear.forEach { it.invalidateAll() }
+        }
+        return cleared(cacheName)
     }
 
     fun clearCacheTime(): String {

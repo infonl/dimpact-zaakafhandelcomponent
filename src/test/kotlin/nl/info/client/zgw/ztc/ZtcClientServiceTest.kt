@@ -361,6 +361,38 @@ class ZtcClientServiceTest : BehaviorSpec({
             }
         }
 
+        given("a besluittype that is deleted from the ZTC after the refresh has fetched it") {
+            val refreshedZtcClient = mockk<ZtcClient>()
+            val refreshedZtcClientService = createZtcClientService(refreshedZtcClient)
+            val catalogusUri = URI("https://example.com/catalogussen/${UUID.randomUUID()}")
+            val zaakType = createZaakType()
+            val deletedBesluitType = createBesluitType(zaaktypen = listOf(zaakType.url))
+            every { refreshedZtcClient.zaaktypeList(any()) } returns Results(listOf(zaakType), 1)
+            every { refreshedZtcClient.statustypeList(any()) } returns Results(emptyList(), 0)
+            refreshedZtcClient.stubEmptyTypeListsExceptZaaktypenAndStatustypen()
+            every { refreshedZtcClient.besluittypeList(any()) } returns Results(listOf(deletedBesluitType), 1)
+            every { refreshedZtcClient.roltypeList(any()) } answers {
+                refreshedZtcClientService.clearBesluittypeCache()
+                Results(emptyList(), 0)
+            }
+
+            `when`("the delete notification clears the besluittype cache while the refresh runs") {
+                refreshedZtcClientService.refreshCaches(catalogusUri)
+
+                then(
+                    """the refresh writes none of the types it fetched, so that it does not put the deleted besluittype
+                    back after the clear, and the refresh that follows the clear fills the caches instead"""
+                ) {
+                    with(refreshedZtcClientService.estimatedCacheSizes()) {
+                        get("ZTC UUID -> BesluitType") shouldBe 0
+                        get("ZTC URI -> List<BesluitType>") shouldBe 0
+                        get("ZTC UUID -> ZaakType") shouldBe 0
+                        get("ZTC URI -> List<ZaakType>") shouldBe 0
+                    }
+                }
+            }
+        }
+
         given("statustypen that fail to load") {
             val refreshedZtcClient = mockk<ZtcClient>()
             val refreshedZtcClientService = createZtcClientService(refreshedZtcClient)

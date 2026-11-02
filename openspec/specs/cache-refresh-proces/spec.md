@@ -55,8 +55,11 @@ zaaktype. This applies when a notification about a created or updated zaaktype h
 notification about a created, updated or deleted besluittype or informatieobjecttype has cleared the cache of that
 type, and when a beheerder has cleared the caches with `/rest/admin/util/cache/clear` or `/rest/admin/util/cache/ztc/clear`. When
 refreshes are requested while a refresh runs, the system SHALL run one more refresh after the running one, because
-the running refresh may have read the ZTC before the change, and SHALL NOT run a refresh per request. When a refresh
-fails, the system SHALL log a warning and still run later refreshes.
+the running refresh may have read the ZTC before the change, and SHALL NOT run a refresh per request. A refresh SHALL
+write the types it fetched to the caches only after it has fetched all types, and SHALL NOT write them at all when ZTC
+caches were cleared during the refresh, because the fetched types may predate the change that caused the clear and
+would put back entries that the clear removed, such as a deleted type. When a refresh fails, the system SHALL log a
+warning and still run later refreshes.
 
 #### Scenario: A notification about an updated zaaktype
 - **WHEN** the system receives a notification that a zaaktype has been created or updated
@@ -79,6 +82,12 @@ fails, the system SHALL log a warning and still run later refreshes.
 #### Scenario: Several refreshes are requested while a refresh runs
 - **WHEN** several refreshes are requested while a refresh runs
 - **THEN** the system runs one more refresh after the running one
+
+#### Scenario: The caches are cleared while a refresh runs
+- **WHEN** a notification that a type has been deleted clears ZTC caches while a refresh runs that has already
+  fetched that type
+- **THEN** the running refresh writes none of the types it fetched to the caches
+- **AND** the refresh that follows the clear fills the caches, without the deleted type
 
 #### Scenario: A refresh fails
 - **WHEN** a refresh fails
