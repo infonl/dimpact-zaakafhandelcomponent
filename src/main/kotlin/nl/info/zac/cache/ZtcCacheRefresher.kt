@@ -18,14 +18,18 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.util.logging.Level
 import java.util.logging.Logger
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.measureTime
 
 @ApplicationScoped
@@ -35,6 +39,9 @@ class ZtcCacheRefresher @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val configurationService: ConfigurationService,
 
+    @ConfigProperty(name = ENV_VAR_ZTC_CACHE_REFRESH_INTERVAL_SECONDS, defaultValue = DEFAULT_REFRESH_INTERVAL_SECONDS)
+    private val refreshIntervalSeconds: Long,
+
     /**
      * Declare a Kotlin coroutine dispatcher here so that it can be overridden in unit tests with a test dispatcher
      * while in normal operation it will be injected using [nl.info.zac.util.CoroutineDispatcherProducer].
@@ -42,6 +49,9 @@ class ZtcCacheRefresher @Inject constructor(
     dispatcher: CoroutineDispatcher
 ) {
     companion object {
+        const val ENV_VAR_ZTC_CACHE_REFRESH_INTERVAL_SECONDS = "ZTC_CACHE_REFRESH_INTERVAL_SECONDS"
+        const val DEFAULT_REFRESH_INTERVAL_SECONDS = "3600"
+
         /**
          * Later than the default observer priority of [ConfigurationService.onStartup], which reads the default
          * catalogus that the refresh needs.
@@ -64,6 +74,14 @@ class ZtcCacheRefresher @Inject constructor(
     ) {
         coroutineScope.launch { refreshRequests.consumeEach { refreshCaches() } }
         refreshInBackground()
+        if (refreshIntervalSeconds > 0) {
+            coroutineScope.launch {
+                while (isActive) {
+                    delay(refreshIntervalSeconds.seconds)
+                    refreshInBackground()
+                }
+            }
+        }
     }
 
     /**

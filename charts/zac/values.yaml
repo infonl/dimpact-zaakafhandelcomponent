@@ -928,5 +928,11 @@ catalogusDomein: ALG
 ztcCacheMaxSize: 10000
 
 # -- Number of seconds after which an entry of a ZTC cache is removed when it has been neither read nor written.
-# This removes types that no longer exist in the ZTC from the cache. Default: one day.
+# A type that no longer exists in the ZTC is removed from the cache only once it has not been used for this time.
+# Default: one day.
 ztcCacheExpirationSeconds: 86400
+
+# -- Number of seconds between two refreshes of all ZTC caches in the background, so that changes that Open Zaak sends
+# no notification for, such as a zaaktype published with the publish action, appear in ZAC. Default: one hour.
+# 0 turns the periodic refresh off.
+ztcCacheRefreshIntervalSeconds: 3600

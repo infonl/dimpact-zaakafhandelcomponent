@@ -2,9 +2,9 @@
 
 ## Purpose
 Makes zaaktypes and their related ZTC types quickly available in ZAC by filling the ZTC caches right after
-startup and again after the caches have been cleared, with one paged list request per type instead of one request
-per zaaktype, and by keeping the cached types as long as they are used (PZ-13072). Before this, the caches were empty after every start, expired after
-an hour, and held at most 1,000 entries each, so that for example listing the zaaktypes for which a user may
+startup, again after the caches have been cleared and periodically, with one paged list request per type instead
+of one request per zaaktype, and by keeping the cached types as long as they are used (PZ-13072). Before this, the
+caches were empty after every start, expired after an hour, and held at most 1,000 entries each, so that for example listing the zaaktypes for which a user may
 create a zaak needed about 1 + 6 × (number of zaaktypes) requests to Open Zaak. Beheerders can see how many
 entries and how much memory each ZTC cache holds, so that they can check that the caches fit in the memory of
 the pod. See the spike "Zaaktype en zaakafhandelparameters data efficient beschikbaar maken in ZAC" (2026-10-14)
@@ -24,10 +24,29 @@ the start of the refresh, and its end together with its duration.
 - **AND** refreshes the caches of the default catalogus as the system user, without blocking the startup
 - **AND** logs that the refresh has finished, with its duration
 
-#### Scenario: The refresh does not run periodically
-- **WHEN** ZAC has been running for some time after startup, without the ZTC caches being cleared
-- **THEN** the system does not refresh the ZTC caches again by itself; types that are not cached yet are still
-  read from the ZTC on demand
+### Requirement: Periodic cache refresh
+After ZAC has started, the system SHALL refresh the ZTC caches of the default catalogus in the background every
+number of seconds configured in `ZTC_CACHE_REFRESH_INTERVAL_SECONDS` (Helm value `ztcCacheRefreshIntervalSeconds`),
+which defaults to 3600 (one hour), in the same way as after startup. This makes changes in the ZTC that Open Zaak
+sends no notification for appear in ZAC, such as a zaaktype that was published with the publish action of the API or
+with the bulk publish action of the Open Zaak admin, which would otherwise stay missing from a zaaktype list that is
+read often and therefore never expires. A periodic refresh that is requested while a refresh runs SHALL be combined
+with it as described in "Cache refresh after the caches have been cleared". When the interval is 0, the system SHALL
+NOT refresh the ZTC caches periodically.
+
+#### Scenario: The refresh interval has passed
+- **WHEN** ZAC has been running for the configured refresh interval since startup or since the previous periodic
+  refresh
+- **THEN** the system refreshes the ZTC caches of the default catalogus in the background
+
+#### Scenario: A zaaktype is published without a notification
+- **WHEN** a zaaktype is published with the publish action of the Open Zaak API
+- **THEN** the zaaktype appears in the cached zaaktype list of its catalogus at the latest after the next periodic
+  refresh
+
+#### Scenario: The periodic refresh is turned off
+- **WHEN** the refresh interval is configured as 0
+- **THEN** the system refreshes the ZTC caches only after startup and after the caches have been cleared
 
 ### Requirement: Cache refresh after the caches have been cleared
 After the system has cleared ZTC caches, it SHALL refresh the ZTC caches of the default catalogus in the
@@ -125,8 +144,10 @@ system SHALL log a warning and skip the related types, because they are cached p
 ### Requirement: Cached entries expire only when unused
 The ZTC caches SHALL NOT expire as a whole after a fixed time. An entry SHALL be removed when it has been neither
 read nor written for the number of seconds configured in `ZTC_CACHE_EXPIRATION_SECONDS` (Helm value
-`ztcCacheExpirationSeconds`), which defaults to 86400 (one day). This removes types that no longer exist in the
-ZTC, such as a zaaktype that was deleted from Open Zaak, from the cache.
+`ztcCacheExpirationSeconds`), which defaults to 86400 (one day). Because the system ignores delete notifications,
+a type that no longer exists in the ZTC, such as a zaaktype that was deleted from Open Zaak, is eventually removed
+from the cache, once it has been neither read nor written for that time. A periodic refresh replaces the cached lists
+of the zaaktypes that still exist, so a deleted type disappears from these lists after the next periodic refresh.
 
 #### Scenario: An entry that is used
 - **WHEN** a cached type is read at least once within the configured expiration time
@@ -135,6 +156,10 @@ ZTC, such as a zaaktype that was deleted from Open Zaak, from the cache.
 #### Scenario: An entry that is no longer used
 - **WHEN** a cached type has been neither read nor written for the configured expiration time
 - **THEN** the system removes it from the cache
+
+#### Scenario: A deleted type that is still read
+- **WHEN** a type that was deleted from the ZTC is still read at least once within the configured expiration time
+- **THEN** it stays in the cache of types per UUID
 
 ### Requirement: Configurable maximum size of the caches
 Each ZTC cache SHALL hold at most the number of entries configured in `ZTC_CACHE_MAX_SIZE` (Helm value

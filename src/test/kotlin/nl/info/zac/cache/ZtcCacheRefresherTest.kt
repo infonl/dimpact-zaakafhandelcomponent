@@ -15,9 +15,11 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.configuration.ConfigurationService
 import java.net.URI
+import kotlin.time.Duration.Companion.seconds
 
 class ZtcCacheRefresherTest : BehaviorSpec({
     val catalogusUri = URI("https://example.com/catalogussen/fakeCatalogusUuid")
+    val refreshIntervalSeconds = 3600L
 
     afterEach {
         checkUnnecessaryStub()
@@ -27,7 +29,12 @@ class ZtcCacheRefresherTest : BehaviorSpec({
         val ztcClientService = mockk<ZtcClientService>()
         val configurationService = mockk<ConfigurationService>()
         val testDispatcher = StandardTestDispatcher()
-        val ztcCacheRefresher = ZtcCacheRefresher(ztcClientService, configurationService, testDispatcher)
+        val ztcCacheRefresher = ZtcCacheRefresher(
+            ztcClientService = ztcClientService,
+            configurationService = configurationService,
+            refreshIntervalSeconds = refreshIntervalSeconds,
+            dispatcher = testDispatcher
+        )
         var isRefreshedAsSystemUser = false
         every { configurationService.readDefaultCatalogusURI() } returns catalogusUri
         every { ztcClientService.refreshCaches(catalogusUri) } answers {
@@ -43,7 +50,7 @@ class ZtcCacheRefresherTest : BehaviorSpec({
             ) {
                 verify(exactly = 0) { ztcClientService.refreshCaches(any()) }
 
-                testDispatcher.scheduler.advanceUntilIdle()
+                testDispatcher.scheduler.runCurrent()
 
                 verify(exactly = 1) { ztcClientService.refreshCaches(catalogusUri) }
                 isRefreshedAsSystemUser shouldBe true
@@ -55,11 +62,16 @@ class ZtcCacheRefresherTest : BehaviorSpec({
         val ztcClientService = mockk<ZtcClientService>()
         val configurationService = mockk<ConfigurationService>()
         val testDispatcher = StandardTestDispatcher()
-        val ztcCacheRefresher = ZtcCacheRefresher(ztcClientService, configurationService, testDispatcher)
+        val ztcCacheRefresher = ZtcCacheRefresher(
+            ztcClientService = ztcClientService,
+            configurationService = configurationService,
+            refreshIntervalSeconds = refreshIntervalSeconds,
+            dispatcher = testDispatcher
+        )
         every { configurationService.readDefaultCatalogusURI() } returns catalogusUri
         every { ztcClientService.refreshCaches(catalogusUri) } returns Unit
         ztcCacheRefresher.onStartup(Any())
-        testDispatcher.scheduler.advanceUntilIdle()
+        testDispatcher.scheduler.runCurrent()
 
         `when`("a refresh in the background is requested") {
             ztcCacheRefresher.refreshInBackground()
@@ -67,9 +79,64 @@ class ZtcCacheRefresherTest : BehaviorSpec({
             then("the caches are refreshed again in the background") {
                 verify(exactly = 1) { ztcClientService.refreshCaches(catalogusUri) }
 
-                testDispatcher.scheduler.advanceUntilIdle()
+                testDispatcher.scheduler.runCurrent()
 
                 verify(exactly = 2) { ztcClientService.refreshCaches(catalogusUri) }
+            }
+        }
+    }
+
+    given("ZAC has started with a refresh interval") {
+        val ztcClientService = mockk<ZtcClientService>()
+        val configurationService = mockk<ConfigurationService>()
+        val testDispatcher = StandardTestDispatcher()
+        val ztcCacheRefresher = ZtcCacheRefresher(
+            ztcClientService = ztcClientService,
+            configurationService = configurationService,
+            refreshIntervalSeconds = refreshIntervalSeconds,
+            dispatcher = testDispatcher
+        )
+        every { configurationService.readDefaultCatalogusURI() } returns catalogusUri
+        every { ztcClientService.refreshCaches(catalogusUri) } returns Unit
+        ztcCacheRefresher.onStartup(Any())
+        testDispatcher.scheduler.runCurrent()
+
+        `when`("the refresh interval has passed twice") {
+            then("the caches are refreshed in the background after each interval, and not before") {
+                testDispatcher.scheduler.advanceTimeBy((refreshIntervalSeconds - 1).seconds)
+                testDispatcher.scheduler.runCurrent()
+                verify(exactly = 1) { ztcClientService.refreshCaches(catalogusUri) }
+
+                testDispatcher.scheduler.advanceTimeBy(1.seconds)
+                testDispatcher.scheduler.runCurrent()
+                verify(exactly = 2) { ztcClientService.refreshCaches(catalogusUri) }
+
+                testDispatcher.scheduler.advanceTimeBy(refreshIntervalSeconds.seconds)
+                testDispatcher.scheduler.runCurrent()
+                verify(exactly = 3) { ztcClientService.refreshCaches(catalogusUri) }
+            }
+        }
+    }
+
+    given("ZAC has started with a refresh interval of 0") {
+        val ztcClientService = mockk<ZtcClientService>()
+        val configurationService = mockk<ConfigurationService>()
+        val testDispatcher = StandardTestDispatcher()
+        val ztcCacheRefresher = ZtcCacheRefresher(
+            ztcClientService = ztcClientService,
+            configurationService = configurationService,
+            refreshIntervalSeconds = 0,
+            dispatcher = testDispatcher
+        )
+        every { configurationService.readDefaultCatalogusURI() } returns catalogusUri
+        every { ztcClientService.refreshCaches(catalogusUri) } returns Unit
+        ztcCacheRefresher.onStartup(Any())
+
+        `when`("a long time has passed") {
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            then("the caches are only refreshed after startup, because the periodic refresh is turned off") {
+                verify(exactly = 1) { ztcClientService.refreshCaches(catalogusUri) }
             }
         }
     }
@@ -78,7 +145,12 @@ class ZtcCacheRefresherTest : BehaviorSpec({
         val ztcClientService = mockk<ZtcClientService>()
         val configurationService = mockk<ConfigurationService>()
         val testDispatcher = StandardTestDispatcher()
-        val ztcCacheRefresher = ZtcCacheRefresher(ztcClientService, configurationService, testDispatcher)
+        val ztcCacheRefresher = ZtcCacheRefresher(
+            ztcClientService = ztcClientService,
+            configurationService = configurationService,
+            refreshIntervalSeconds = refreshIntervalSeconds,
+            dispatcher = testDispatcher
+        )
         var refreshCount = 0
         every { configurationService.readDefaultCatalogusURI() } returns catalogusUri
         every { ztcClientService.refreshCaches(catalogusUri) } answers {
@@ -91,7 +163,7 @@ class ZtcCacheRefresherTest : BehaviorSpec({
 
         `when`("several refreshes are requested while it runs") {
             ztcCacheRefresher.onStartup(Any())
-            testDispatcher.scheduler.advanceUntilIdle()
+            testDispatcher.scheduler.runCurrent()
 
             then(
                 """the requests are combined into one more refresh after the running one, so that changes the
@@ -106,16 +178,21 @@ class ZtcCacheRefresherTest : BehaviorSpec({
         val ztcClientService = mockk<ZtcClientService>()
         val configurationService = mockk<ConfigurationService>()
         val testDispatcher = StandardTestDispatcher()
-        val ztcCacheRefresher = ZtcCacheRefresher(ztcClientService, configurationService, testDispatcher)
+        val ztcCacheRefresher = ZtcCacheRefresher(
+            ztcClientService = ztcClientService,
+            configurationService = configurationService,
+            refreshIntervalSeconds = refreshIntervalSeconds,
+            dispatcher = testDispatcher
+        )
         every { configurationService.readDefaultCatalogusURI() } throws RuntimeException("fakeFailure") andThen
             catalogusUri
         every { ztcClientService.refreshCaches(catalogusUri) } returns Unit
         ztcCacheRefresher.onStartup(Any())
-        testDispatcher.scheduler.advanceUntilIdle()
+        testDispatcher.scheduler.runCurrent()
 
         `when`("a refresh in the background is requested afterwards") {
             ztcCacheRefresher.refreshInBackground()
-            testDispatcher.scheduler.advanceUntilIdle()
+            testDispatcher.scheduler.runCurrent()
 
             then("the caches are still refreshed") {
                 verify(exactly = 1) { ztcClientService.refreshCaches(catalogusUri) }

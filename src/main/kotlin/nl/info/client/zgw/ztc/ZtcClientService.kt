@@ -109,8 +109,9 @@ class ZtcClientService @Inject constructor(
     private val uriToEigenschappenCache: Cache<URI, List<Eigenschap>> = createCache("URI -> List<Eigenschap>")
 
     /**
-     * Entries expire only when they have been neither read nor written for [cacheExpirationSeconds], so that types
-     * that were removed from the ZTC eventually disappear from the cache.
+     * Entries expire only when they have been neither read nor written for [cacheExpirationSeconds]. ZAC ignores
+     * delete notifications, so a type that was removed from the ZTC disappears from the cache only once it has not
+     * been used for that time.
      */
     private fun <K, V> createCache(name: String, size: Long = cacheMaxSize): Cache<K & Any, V> {
         val cache: Cache<K & Any, V> = Caffeine.newBuilder()

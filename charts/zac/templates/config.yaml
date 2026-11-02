@@ -110,3 +110,4 @@ data:
   ZGW_API_CLIENTID: {{ required "Valid .Values.zgwApis.clientId entry required!" .Values.zgwApis.clientId }}
   ZTC_CACHE_EXPIRATION_SECONDS: {{ .Values.ztcCacheExpirationSeconds | default 86400 | quote }}
   ZTC_CACHE_MAX_SIZE: {{ .Values.ztcCacheMaxSize | default 10000 | quote }}
+  ZTC_CACHE_REFRESH_INTERVAL_SECONDS: {{ .Values.ztcCacheRefreshIntervalSeconds | quote }}
