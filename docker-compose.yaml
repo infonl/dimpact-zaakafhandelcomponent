@@ -159,7 +159,8 @@ services:
     image: openzaak/open-zaak:1.31.1@sha256:63448221142145b0f56eabadaa9ef9578dd4aacc7f95476bd5368f767883ada0
     platform: linux/amd64
     environment: *openzaak-env
-    command: /celery_worker.sh
+    # Without a set concurrency Celery starts one worker process per CPU, which costs ~150 MiB each
+    command: sh -c "CELERY_WORKER_CONCURRENCY=2 exec /celery_worker.sh"
     healthcheck:
       test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
       interval: 5s
@@ -236,7 +237,7 @@ services:
     image: maykinmedia/open-object:4.1.1@sha256:593571842b4af655383964fb3fa869b62313e7cd1e56a02f173afa8e4713c4b6
     platform: linux/amd64
     environment: *open-object-env
-    command: sh -c "cd /app/src && celery -A objects worker -l info"
+    command: sh -c "cd /app/src && celery -A objects worker -l info --concurrency=2"
     healthcheck:
       test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
       interval: 30s
@@ -588,7 +589,9 @@ services:
   opennotificaties-celery:
     image: openzaak/open-notificaties:1.17.0@sha256:5200540e78eb67993760bd9ad98d6c7f174ce61f5122b3e20627a690cbf3dfe0
     platform: linux/amd64
-    environment: *opennotificaties-env
+    environment:
+      <<: *opennotificaties-env
+      CELERY_WORKER_CONCURRENCY: 4
     command: /celery_worker.sh
     healthcheck:
       test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
