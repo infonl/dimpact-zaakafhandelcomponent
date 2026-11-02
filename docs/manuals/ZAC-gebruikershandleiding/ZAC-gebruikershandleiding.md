@@ -138,6 +138,7 @@ Versiegeschiedenis:
   - [Document ondertekenen](#document-ondertekenen)
   - [Document converteren naar PDF](#document-converteren-naar-pdf)
   - [Document verwijderen](#document-verwijderen)
+    - [Meerdere ontkoppelde documenten tegelijk verwijderen of koppelen](#meerdere-ontkoppelde-documenten-tegelijk-verwijderen-of-koppelen)
 - [Notities](#notities)
   - [Notitie aanmaken](#notitie-aanmaken)
   - [Notitie bewerken](#notitie-bewerken)
