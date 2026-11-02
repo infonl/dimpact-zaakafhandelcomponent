@@ -13,18 +13,18 @@ import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { EMPTY, of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import {
+  expectedSearchFor,
+  fromPartial,
+  searchThroughColumnFilter,
+  WerklijstColumnFilter,
+} from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { TabelGegevens } from "../../shared/dynamic-table/model/tabel-gegevens";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
-import {
-  expectedSearchFor,
-  searchThroughColumnFilter,
-  WerklijstColumnFilter,
-} from "../../shared/dynamic-table/werklijst-column-filters.testing";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad.component";
