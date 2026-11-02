@@ -51,7 +51,7 @@ class LoggingTest : BehaviorSpec({
         }
     }
 
-    given("ZAC Docker container is running") {
+    given("ZAC Docker container is running and a person with a BSN and a date of birth exists in the BRP") {
         `when`("a person is looked up in the BRP by BSN and the ZAC container log output is retrieved") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/klanten/personen",

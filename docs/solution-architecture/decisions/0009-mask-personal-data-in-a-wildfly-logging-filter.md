@@ -40,7 +40,7 @@ masks every IBAN completely. It is attached to the console log handler, so it ap
 server writes, whatever its log level or logger. It never rejects a log record.
 
 A surname together with a date of birth cannot be recognised in plain text, so the two log statements that write
-dates of birth handle them at the source instead:
+that combination handle it at the source instead:
 
 * `BrpClientService` logs only the query type of a BRP query, not the query and the response, because a query by
   surname and date of birth and a BRP person contain both.

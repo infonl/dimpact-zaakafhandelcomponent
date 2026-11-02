@@ -426,10 +426,12 @@ it writes the record, whatever its log level or logger
 The masking applies to the log message and to the messages of a logged exception and its causes. An exception with
 personal data in its messages is logged as a `MaskedThrowable` whose message starts with the name of the original
 class, for example `java.lang.IllegalStateException: Geen persoon gevonden voor BSN '******896'`; an exception without
-personal data is logged as is. It recognises a BSN
-as any number of exactly nine digits, so a RSIN is masked as well. It cannot recognise a surname or a date of birth in
-plain text, so log statements must still not log those. The two log statements that wrote dates of birth handle them
-at the source:
+personal data is logged as is.
+
+The filter recognises a BSN as any number of exactly nine digits, so every other number of nine digits is masked as
+well, such as a RSIN, a size in bytes from 100 MB (for example the maximum file size or a `Content-Length` header), or a
+numeric ID. It cannot recognise a surname or a date of birth in plain text, so log statements must still not log
+those. The two log statements that wrote a surname together with a date of birth handle that combination at the source:
 
 * `BrpClientService.queryPersonen` logs only the query type of a BRP query, not the query and the response.
 * `JsonLoggingFilter` masks every JSON field whose name contains `geboorte` in the REST payloads that it logs.

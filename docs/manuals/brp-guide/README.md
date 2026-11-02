@@ -42,7 +42,7 @@ Setting a header name environment variable to an empty string disables that head
 | `BRP_SYSTEM_USER` | No | Fallback user identifier when no logged-in user is available. Default: `SystemUser` |
 | `BRP_API_KEY_HEADER` | No | Header name for the API key. Defaults to `X-API-KEY`. Empty string disables the header |
 | `BRP_API_KEY` | When API key header is enabled | API key value for BRP authentication. Only injected as a secret when set |
-| `BRP_LOG_LEVEL` | No | Java log level for BRP request/response logging (`OFF`, `INFO`, `FINE`, etc.). Default: `OFF` |
+| `BRP_LOG_LEVEL` | No | Java log level for logging the query type and duration of BRP queries (`OFF`, `INFO`, `FINE`, etc.). Default: `OFF` |
 
 ---
 
@@ -279,9 +279,9 @@ All header injection is bypassed. BRP API calls are still made but without any p
 
 ---
 
-## Enabling request/response logging
+## Enabling BRP query logging
 
-Set `BRP_LOG_LEVEL` to a Java log level to log BRP request and response payloads. This is useful for debugging but is not recommended for production environments.
+Set `BRP_LOG_LEVEL` to a Java log level to log the query type and the duration of every BRP query. The query and the response themselves are not logged, because they contain personal data such as a BSN, a name and a date of birth.
 
 ```bash
 BRP_LOG_LEVEL=INFO   # logs to the INFO level

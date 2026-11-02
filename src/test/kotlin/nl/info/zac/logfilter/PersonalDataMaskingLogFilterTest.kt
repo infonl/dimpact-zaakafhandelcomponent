@@ -117,6 +117,23 @@ class PersonalDataMaskingLogFilterTest : BehaviorSpec({
             }
         }
 
+        given("a WildFly log record with an exception, whose message cannot be formatted") {
+            val extLogRecord = object : ExtLogRecord(Level.SEVERE, "fakeMessage 999993896", "fakeLoggerClassName") {
+                override fun getFormattedMessage(): String = throw IllegalArgumentException("fakeFormattingError")
+            }.apply { thrown = IllegalStateException("BSN 999993896") }
+
+            `when`("the log record is filtered") {
+                val isLoggable = personalDataMaskingLogFilter.isLoggable(extLogRecord)
+
+                then("the log record is still logged, but without its message and exception, which could not be masked") {
+                    isLoggable shouldBe true
+                    extLogRecord.message shouldBe "The content of this log record is not logged, because masking its personal data " +
+                        "failed with java.lang.IllegalArgumentException"
+                    extLogRecord.thrown shouldBe null
+                }
+            }
+        }
+
         given("a plain log record with a BSN, which WildFly does not create itself") {
             val logRecord = LogRecord(Level.INFO, "BSN 999993896")
 
