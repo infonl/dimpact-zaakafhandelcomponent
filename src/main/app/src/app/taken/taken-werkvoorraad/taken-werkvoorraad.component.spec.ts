@@ -24,17 +24,17 @@ import { userEvent } from "@testing-library/user-event";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
-import {
-  expectedSearchFor,
-  searchThroughColumnFilter,
-  WerklijstColumnFilter,
-} from "../../shared/dynamic-table/werklijst-column-filters.testing";
 import { UtilService } from "../../core/service/util.service";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { IdentityService } from "../../identity/identity.service";
 import { BatchProcessService } from "../../shared/batch-progress/batch-process.service";
 import { TabelGegevens } from "../../shared/dynamic-table/model/tabel-gegevens";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
+import {
+  expectedSearchFor,
+  searchThroughColumnFilter,
+  WerklijstColumnFilter,
+} from "../../shared/dynamic-table/werklijst-column-filters.testing";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { TakenWerkvoorraadComponent } from "./taken-werkvoorraad.component";
