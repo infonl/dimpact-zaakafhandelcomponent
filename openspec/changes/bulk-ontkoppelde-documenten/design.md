@@ -81,8 +81,9 @@ notification handlers are unchanged.
 - No design was linked; the UX, labels and positions follow the zaken werkvoorraad, as asked by the team.
 - Selection is per page only (matches the "alle documenten op de pagina" criterion).
 - "Selecteren van-tot" from the story is covered by the existing filter on *ontkoppeld op* plus select-all.
-- *Koppelen* searches zaken by the informatieobjecttype of the first selected document (the search API needs
-  one type); documents whose type is not allowed on the chosen zaak fail and are reported.
+- *Koppelen* searches zaken with the informatieobjecttypen of all selected documents: `PUT /rest/zoeken/zaken`
+  takes a list of types (`informationObjectTypeUuids`) and marks a zaak linkable when its zaaktype allows any of
+  them. Documents whose type is not allowed on the chosen zaak fail and are reported.
 - The selection column, and with it both bulk actions, is only for employees with the right
   `ontkoppelde_documenten_verwijderen` (recordmanager and beheerder): the story asks for recordmanagers. A
   coordinator keeps linking one document at a time. The bulk link endpoint itself checks the inbox right and the
