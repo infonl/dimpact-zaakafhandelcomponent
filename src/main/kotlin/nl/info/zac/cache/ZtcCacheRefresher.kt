@@ -95,6 +95,10 @@ class ZtcCacheRefresher @Inject constructor(
     @PreDestroy
     fun shutdown() = coroutineScope.cancel()
 
+    /**
+     * Catches every [Throwable], also an [Error] or a checked exception, because a throwable that escapes would stop
+     * the consumer of [refreshRequests] for good, and no refresh would run anymore until ZAC restarts.
+     */
     @Suppress("TooGenericExceptionCaught")
     private fun refreshCaches() {
         LOG.info("Started refreshing the ZTC caches")
@@ -103,8 +107,8 @@ class ZtcCacheRefresher @Inject constructor(
                 runAsSystemUser { ztcClientService.refreshCaches(configurationService.readDefaultCatalogusURI()) }
             }
             LOG.info { "Finished refreshing the ZTC caches in $duration" }
-        } catch (runtimeException: RuntimeException) {
-            LOG.log(Level.WARNING, "Failed to refresh the ZTC caches", runtimeException)
+        } catch (throwable: Throwable) {
+            LOG.log(Level.WARNING, "Failed to refresh the ZTC caches", throwable)
         }
     }
 }

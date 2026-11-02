@@ -199,4 +199,29 @@ class ZtcCacheRefresherTest : BehaviorSpec({
             }
         }
     }
+
+    given("a refresh that fails with an error instead of an exception") {
+        val ztcClientService = mockk<ZtcClientService>()
+        val configurationService = mockk<ConfigurationService>()
+        val testDispatcher = StandardTestDispatcher()
+        val ztcCacheRefresher = ZtcCacheRefresher(
+            ztcClientService = ztcClientService,
+            configurationService = configurationService,
+            refreshIntervalSeconds = refreshIntervalSeconds,
+            dispatcher = testDispatcher
+        )
+        every { configurationService.readDefaultCatalogusURI() } returns catalogusUri
+        every { ztcClientService.refreshCaches(catalogusUri) } throws StackOverflowError("fakeError") andThen Unit
+        ztcCacheRefresher.onStartup(Any())
+        testDispatcher.scheduler.runCurrent()
+
+        `when`("a refresh in the background is requested afterwards") {
+            ztcCacheRefresher.refreshInBackground()
+            testDispatcher.scheduler.runCurrent()
+
+            then("the caches are still refreshed, because the error does not stop the handling of refresh requests") {
+                verify(exactly = 2) { ztcClientService.refreshCaches(catalogusUri) }
+            }
+        }
+    }
 })
