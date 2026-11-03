@@ -5,12 +5,12 @@
 
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
   Component,
   EventEmitter,
   inject,
   OnDestroy,
   OnInit,
+  signal,
   viewChild,
 } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
@@ -76,7 +76,6 @@ type InboxProductaanvraagListParameters =
   styleUrls: ["./inbox-productaanvragen-list.component.less"],
   animations: [detailExpand],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     RouterLink,
     MatTable,
@@ -120,7 +119,8 @@ export class InboxProductaanvragenListComponent
   private readonly router = inject(Router);
   private readonly sanitizer = inject(DomSanitizer);
 
-  protected isLoadingResults = true;
+  protected readonly isLoadingResults = signal(true);
+  protected readonly totaal = signal(0);
   protected dataSource = new MatTableDataSource<
     GeneratedType<"RestInboxProductaanvraag">
   >();
@@ -154,12 +154,12 @@ export class InboxProductaanvragenListComponent
       this.createDefaultParameters(),
     ),
   );
-  protected expandedRow: GeneratedType<"RestInboxProductaanvraag"> | null =
-    null;
-  protected filterType: string[] = [];
+  protected readonly expandedRow =
+    signal<GeneratedType<"RestInboxProductaanvraag"> | null>(null);
+  protected readonly filterType = signal<string[]>([]);
   protected filterChange = new EventEmitter<void>();
   protected clearZoekopdracht = new EventEmitter<void>();
-  protected previewSrc: SafeUrl | null = null;
+  protected readonly previewSrc = signal<SafeUrl | null>(null);
   private readonly deleteMutation = injectMutation(
     () => this.inboxProductaanvragenService.delete(),
     {
@@ -174,14 +174,14 @@ export class InboxProductaanvragenListComponent
   ngAfterViewInit() {
     this.sort().sortChange.subscribe(() => (this.paginator().pageIndex = 0));
     const stopLoading = () => {
-      this.isLoadingResults = false;
+      this.isLoadingResults.set(false);
       this.utilService.setLoading(false);
     };
     merge(this.sort().sortChange, this.paginator().page, this.filterChange)
       .pipe(
         startWith({}),
         switchMap(() => {
-          this.isLoadingResults = true;
+          this.isLoadingResults.set(true);
           this.utilService.setLoading(true);
           this.updateListParameters();
           return runQuery(
@@ -193,7 +193,8 @@ export class InboxProductaanvragenListComponent
       )
       .subscribe((data) => {
         this.paginator().length = Number(data.totaal);
-        this.filterType = (data as { filterType: string[] }).filterType;
+        this.totaal.set(Number(data.totaal));
+        this.filterType.set((data as { filterType: string[] }).filterType);
         this.dataSource.data = data.resultaten ?? [];
       });
   }
@@ -282,14 +283,16 @@ export class InboxProductaanvragenListComponent
   protected updateActive(
     selectedRow: GeneratedType<"RestInboxProductaanvraag">,
   ) {
-    if (this.expandedRow === selectedRow) {
-      this.expandedRow = null;
-      this.previewSrc = null;
+    if (this.expandedRow() === selectedRow) {
+      this.expandedRow.set(null);
+      this.previewSrc.set(null);
     } else {
-      this.expandedRow = selectedRow;
-      this.previewSrc = this.sanitizer.bypassSecurityTrustResourceUrl(
-        this.inboxProductaanvragenService.pdfPreview(
-          selectedRow.aanvraagdocumentUUID!,
+      this.expandedRow.set(selectedRow);
+      this.previewSrc.set(
+        this.sanitizer.bypassSecurityTrustResourceUrl(
+          this.inboxProductaanvragenService.pdfPreview(
+            selectedRow.aanvraagdocumentUUID!,
+          ),
         ),
       );
     }

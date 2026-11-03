@@ -5,7 +5,6 @@
 
 import { HttpErrorResponse } from "@angular/common/http";
 import {
-  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   effect,
@@ -43,7 +42,6 @@ import { PlanItemsService } from "../plan-items.service";
   templateUrl: "./human-task-do.component.html",
   styleUrls: ["./human-task-do.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatDivider,
     MatIcon,
@@ -83,7 +81,7 @@ export class HumanTaskDoComponent implements OnInit {
   );
 
   protected form = this.formBuilder.group({});
-  protected formFields: FormField[] = [];
+  protected readonly formFields = signal<FormField[]>([]);
 
   protected formConfig: FormConfig = {
     submitLabel: "actie.starten",
@@ -115,15 +113,17 @@ export class HumanTaskDoComponent implements OnInit {
           formField.key,
           formField.control ?? this.formBuilder.control(null),
         );
-
-        this.formFields.push(formField);
       });
 
-      this.formFields.push({
-        type: "plain-text",
-        key: "actie.taak.toewijzing",
-        label: "actie.taak.toewijzing",
-      });
+      this.formFields.update((fields) => [
+        ...fields,
+        ...formFields,
+        {
+          type: "plain-text",
+          key: "actie.taak.toewijzing",
+          label: "actie.taak.toewijzing",
+        },
+      ]);
 
       const groupControl =
         this.formBuilder.control<GeneratedType<"RestGroup"> | null>(null, [
@@ -146,25 +146,27 @@ export class HumanTaskDoComponent implements OnInit {
         }
       }
 
-      this.formFields.push({
-        type: "auto-complete",
-        key: "group",
-        label: "actie.taak.toekennen.groep",
-        options: groups,
-        optionDisplayValue: "naam",
-      });
-
       const userControl =
         this.formBuilder.control<GeneratedType<"RestUser"> | null>(null, []);
       this.form.addControl("user", userControl);
       userControl.disable();
-      this.formFields.push({
-        type: "auto-complete",
-        key: "user",
-        label: "actie.taak.toekennen.medewerker",
-        options: [],
-        optionDisplayValue: "naam",
-      });
+      this.formFields.update((fields) => [
+        ...fields,
+        {
+          type: "auto-complete",
+          key: "group",
+          label: "actie.taak.toekennen.groep",
+          options: groups,
+          optionDisplayValue: "naam",
+        },
+        {
+          type: "auto-complete",
+          key: "user",
+          label: "actie.taak.toekennen.medewerker",
+          options: [],
+          optionDisplayValue: "naam",
+        },
+      ]);
 
       if (groupControl.value) {
         userControl.enable();
@@ -193,11 +195,13 @@ export class HumanTaskDoComponent implements OnInit {
   }
 
   private updateUserOptions(users: GeneratedType<"RestUser">[]) {
-    this.formFields = this.formFields.map((field) => {
-      if (field.type === "auto-complete" && field.key === "user")
-        field.options = users;
-      return field;
-    });
+    this.formFields.update((fields) =>
+      fields.map((field) => {
+        if (field.type === "auto-complete" && field.key === "user")
+          field.options = users;
+        return field;
+      }),
+    );
   }
 
   protected onFormCancel() {

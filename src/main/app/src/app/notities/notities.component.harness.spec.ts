@@ -12,7 +12,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { Component, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
@@ -27,14 +27,15 @@ import { NotitiesComponent } from "./notities.component";
 @Component({
   template: `<zac-notities
     zaakUuid="fakeZaakUuid"
-    [notitieRechten]="notitieRechten"
+    [notitieRechten]="notitieRechten()"
   ></zac-notities>`,
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [NotitiesComponent],
 })
 class TestHostComponent {
-  notitieRechten?: GeneratedType<"RestNotitieRechten">;
+  readonly notitieRechten = signal<
+    GeneratedType<"RestNotitieRechten"> | undefined
+  >(undefined);
 }
 
 const currentUser: GeneratedType<"RestLoggedInUser"> = {
@@ -92,10 +93,10 @@ describe("NotitiesComponent harness", () => {
     "should $str show textarea when wijzigen is $wijzigen",
     async ({ wijzigen, expected }) => {
       const user = userEvent.setup();
-      fixture.componentInstance.notitieRechten = {
+      fixture.componentInstance.notitieRechten.set({
         canLezen: false,
         canWijzigen: wijzigen,
-      };
+      });
       fixture.detectChanges();
       await fixture.whenStable();
 

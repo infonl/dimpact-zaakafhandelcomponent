@@ -5,12 +5,12 @@
 
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
   Component,
   EventEmitter,
   inject,
   OnDestroy,
   OnInit,
+  signal,
   viewChild,
 } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
@@ -72,7 +72,6 @@ import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service"
   templateUrl: "./ontkoppelde-documenten-list.component.html",
   styleUrls: ["./ontkoppelde-documenten-list.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     RouterLink,
@@ -120,7 +119,8 @@ export class OntkoppeldeDocumentenListComponent
   readonly gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
   readonly route = inject(ActivatedRoute);
 
-  protected isLoadingResults = true;
+  protected readonly isLoadingResults = signal(true);
+  protected readonly totaal = signal(0);
   protected dataSource = new MatTableDataSource<
     GeneratedType<"RestDetachedDocument">
   >();
@@ -156,11 +156,13 @@ export class OntkoppeldeDocumentenListComponent
     order: "desc",
     filtersType: "DetachedDocumentListParameters",
   };
-  protected filterOntkoppeldDoor: GeneratedType<"RestUser">[] = [];
+  protected readonly filterOntkoppeldDoor = signal<GeneratedType<"RestUser">[]>(
+    [],
+  );
   protected filterChange = new EventEmitter<void>();
   protected clearZoekopdracht = new EventEmitter<void>();
-  protected selectedInformationObject: GeneratedType<"RestDetachedDocument"> | null =
-    null;
+  protected readonly selectedInformationObject =
+    signal<GeneratedType<"RestDetachedDocument"> | null>(null);
   private readonly deleteMutation = injectMutation(
     () => this.ontkoppeldeDocumentenService.delete(),
     {
@@ -179,14 +181,14 @@ export class OntkoppeldeDocumentenListComponent
   ngAfterViewInit() {
     this.sort().sortChange.subscribe(() => (this.paginator().pageIndex = 0));
     const stopLoading = () => {
-      this.isLoadingResults = false;
+      this.isLoadingResults.set(false);
       this.utilService.setLoading(false);
     };
     merge(this.sort().sortChange, this.paginator().page, this.filterChange)
       .pipe(
         startWith({}),
         switchMap(() => {
-          this.isLoadingResults = true;
+          this.isLoadingResults.set(true);
           this.utilService.setLoading(true);
           this.updateListParameters();
           return runQuery(
@@ -201,11 +203,13 @@ export class OntkoppeldeDocumentenListComponent
       )
       .subscribe((data) => {
         this.paginator().length = data.totaal ?? 0;
-        this.filterOntkoppeldDoor =
+        this.totaal.set(data.totaal ?? 0);
+        this.filterOntkoppeldDoor.set(
           data.resultaten?.map(
             (result: GeneratedType<"RestDetachedDocument">) =>
               result.ontkoppeldDoor!,
-          ) ?? [];
+          ) ?? [],
+        );
         this.dataSource.data = data.resultaten ?? [];
       });
   }
@@ -213,7 +217,7 @@ export class OntkoppeldeDocumentenListComponent
   protected openDrawer(
     selectedInformationObject: GeneratedType<"RestDetachedDocument">,
   ) {
-    this.selectedInformationObject = selectedInformationObject;
+    this.selectedInformationObject.set(selectedInformationObject);
     void this.actionsSidenav().open();
   }
 

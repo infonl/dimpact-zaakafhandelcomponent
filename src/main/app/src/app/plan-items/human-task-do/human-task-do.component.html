@@ -14,11 +14,11 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-@if (formFields.length) {
+@if (formFields().length) {
   <section class="mt-2">
     <zac-composed-form
       [form]="form"
-      [fields]="formFields"
+      [fields]="formFields()"
       [config]="formConfig"
       [loading]="doHumanTaskPlanItemMutation.isPending()"
       [success]="doHumanTaskPlanItemMutation.isSuccess()"

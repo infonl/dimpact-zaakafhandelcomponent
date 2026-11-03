@@ -278,7 +278,7 @@ describe("HumanTaskDoComponent", () => {
         fromPartial<GeneratedType<"RestGroup">>({ id: "1", naam: "groep1" }),
       );
       expect(component["form"].get("user")?.enabled).toBe(true);
-      const userField = component["formFields"].find(
+      const userField = component["formFields"]().find(
         (f) => f.type === "auto-complete" && f.key === "user",
       ) as { options?: unknown[] } | undefined;
       expect(userField?.options).toEqual(mockUsers);
@@ -307,7 +307,7 @@ describe("HumanTaskDoComponent", () => {
       await sleep();
 
       expect(component["form"].get("user")?.enabled).toBe(true);
-      const userField = component["formFields"].find(
+      const userField = component["formFields"]().find(
         (formField) =>
           formField.type === "auto-complete" && formField.key === "user",
       ) as { options?: unknown[] } | undefined;
@@ -341,7 +341,7 @@ describe("HumanTaskDoComponent", () => {
       await sleep();
       fixture.detectChanges();
 
-      const userField = component["formFields"].find(
+      const userField = component["formFields"]().find(
         (formField) =>
           formField.type === "auto-complete" && formField.key === "user",
       ) as { options?: unknown[] } | undefined;
@@ -424,7 +424,7 @@ describe("HumanTaskDoComponent", () => {
       await initialise();
 
       expect(getAngularRequestFormBuilderSpy).not.toHaveBeenCalled();
-      expect(component["formFields"]).toHaveLength(0);
+      expect(component["formFields"]()).toHaveLength(0);
     });
   });
 

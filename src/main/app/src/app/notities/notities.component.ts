@@ -6,13 +6,13 @@
 import { CdkTextareaAutosize } from "@angular/cdk/text-field";
 
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
   ElementRef,
   inject,
   input,
+  signal,
   viewChild,
 } from "@angular/core";
 import { MatBadgeModule } from "@angular/material/badge";
@@ -47,7 +47,6 @@ function nieuwsteWijzigingEerst(
   templateUrl: "./notities.component.html",
   styleUrls: ["./notities.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatIconModule,
@@ -107,7 +106,7 @@ export class NotitiesComponent {
             notitie.id === id ? { ...notitie, ...updatedNotitie } : notitie,
           ),
         );
-        this.geselecteerdeNotitieId = null;
+        this.geselecteerdeNotitieId.set(null);
       },
     },
   );
@@ -122,9 +121,9 @@ export class NotitiesComponent {
     },
   );
 
-  protected showNotes = false;
-  protected geselecteerdeNotitieId: number | null = null;
-  protected maxLengteTextArea = 1000;
+  protected readonly showNotes = signal(false);
+  protected readonly geselecteerdeNotitieId = signal<number | null>(null);
+  protected readonly maxLengteTextArea = 1000;
 
   constructor() {
     effect((onCleanup) => {
@@ -143,11 +142,11 @@ export class NotitiesComponent {
   }
 
   protected toggleNotitieContainer() {
-    this.showNotes = !this.showNotes;
+    this.showNotes.update((showNotes) => !showNotes);
   }
 
   protected pasNotitieAan(id: GeneratedType<"RestNote">["id"]) {
-    this.geselecteerdeNotitieId = id ?? null;
+    this.geselecteerdeNotitieId.set(id ?? null);
   }
 
   private updateCachedNotities(
@@ -191,7 +190,7 @@ export class NotitiesComponent {
   protected annuleerUpdateNotitie() {
     const notitieTekst = this.notitieTekst();
     if (notitieTekst) notitieTekst.nativeElement.value = "";
-    this.geselecteerdeNotitieId = null;
+    this.geselecteerdeNotitieId.set(null);
   }
 
   protected verwijderNotitie(id: GeneratedType<"RestNote">["id"]) {

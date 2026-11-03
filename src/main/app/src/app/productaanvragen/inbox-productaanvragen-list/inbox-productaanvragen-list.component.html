@@ -4,7 +4,7 @@
   -->
 
 <div class="table-container">
-  @if (isLoadingResults) {
+  @if (isLoadingResults()) {
     <div class="table-loading-shade"></div>
   }
   <div class="table-wrapper">
@@ -48,7 +48,7 @@
               [value]="listParameters.type"
             >
               <mat-option>{{ "filter.alle" | translate }}</mat-option>
-              @for (value of filterType; track value) {
+              @for (value of filterType(); track value) {
                 <mat-option [value]="value">{{ value }}</mat-option>
               }
             </mat-select>
@@ -83,7 +83,7 @@
             aria-label="expand row"
             (click)="updateActive(row); $event.stopPropagation()"
           >
-            @if (expandedRow === row) {
+            @if (expandedRow() === row) {
               <mat-icon>keyboard_arrow_up</mat-icon>
             } @else {
               <mat-icon>keyboard_arrow_down</mat-icon>
@@ -168,11 +168,13 @@
           *matCellDef="let row"
           [attr.colspan]="displayedColumns.length"
         >
-          <div [@detailExpand]="row === expandedRow ? 'expanded' : 'collapsed'">
-            @if (row === expandedRow) {
+          <div
+            [@detailExpand]="row === expandedRow() ? 'expanded' : 'collapsed'"
+          >
+            @if (row === expandedRow()) {
               <object
                 type="application/pdf"
-                [data]="previewSrc"
+                [data]="previewSrc()"
                 title="aanvraagdocument.pdf"
                 height="600px"
                 width="100%"
@@ -191,11 +193,11 @@
       ></tr>
     </table>
 
-    @if (paginator.length === 0 && !isLoadingResults) {
+    @if (totaal() === 0 && !isLoadingResults()) {
       <p>{{ "msg.geen.gegevens.gevonden" | translate }}</p>
     }
 
-    @if (paginator.length === 0 && isLoadingResults) {
+    @if (totaal() === 0 && isLoadingResults()) {
       <p>{{ "msg.loading" | translate }}</p>
     }
   </div>

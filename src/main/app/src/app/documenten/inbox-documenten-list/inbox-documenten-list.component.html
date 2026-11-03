@@ -6,7 +6,7 @@
 <mat-drawer-container>
   <mat-drawer #actionsSidenav mode="over" position="end">
     <zac-informatie-object-link
-      [infoObject]="selectedInformationObject"
+      [infoObject]="selectedInformationObject()"
       [sideNav]="actionsSidenav"
       actionLabel="actie.document.koppelen"
       source="inbox-documenten"
@@ -16,7 +16,7 @@
 
   <mat-drawer-content>
     <div class="table-container inbox-documenten-list">
-      @if (isLoadingResults) {
+      @if (isLoadingResults()) {
         <div class="table-loading-shade"></div>
       }
       <div class="table-wrapper">
@@ -145,11 +145,11 @@
           <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
         </table>
 
-        @if (paginator.length === 0 && !isLoadingResults) {
+        @if (totaal() === 0 && !isLoadingResults()) {
           <p>{{ "msg.geen.gegevens.gevonden" | translate }}</p>
         }
 
-        @if (paginator.length === 0 && isLoadingResults) {
+        @if (totaal() === 0 && isLoadingResults()) {
           <p>{{ "msg.loading" | translate }}</p>
         }
       </div>
