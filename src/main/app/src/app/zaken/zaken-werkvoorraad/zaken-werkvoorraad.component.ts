@@ -135,6 +135,7 @@ export class ZakenWerkvoorraadComponent
   protected readonly assignToMeMutation = injectMutation(() =>
     this.zakenService.toekennenAanIngelogdeMedewerkerVanuitLijst(),
   );
+  protected readonly pendingZaakIds = signal<ReadonlySet<string>>(new Set());
   private readonly commitPendingChangesToSearchIndexMutation = injectMutation(
     () => this.indexingService.commitPendingChangesToSearchIndex(),
   );
@@ -283,9 +284,17 @@ export class ZakenWerkvoorraadComponent
 
   protected assignToMe(zaakZoekObject: ZaakZoekObject, $event: Event) {
     $event.stopPropagation();
+    const zaakId = zaakZoekObject.id;
+    this.pendingZaakIds.update((ids) => new Set(ids).add(zaakId));
     this.assignToMeMutation.mutate(
-      { zaakUUID: zaakZoekObject.id, groepId: zaakZoekObject.groepId },
+      { zaakUUID: zaakId, groepId: zaakZoekObject.groepId },
       {
+        onSettled: () =>
+          this.pendingZaakIds.update((ids) => {
+            const remaining = new Set(ids);
+            remaining.delete(zaakId);
+            return remaining;
+          }),
         onSuccess: (zaak) => {
           // the row's columns are not nullable, so there is nothing to show
           // until the response names the behandelaar it assigned
