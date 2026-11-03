@@ -171,7 +171,7 @@ describe(ParametersEditComponent.name, () => {
             listBrpSearchValues: () => createQueryOptions([]),
             listBrpViewValues: () => createQueryOptions([]),
             listBrpProcessingValues: () => createQueryOptions([]),
-            listReferentieTabellenQuery: () => ({
+            listReferentieTabellen: () => ({
               ...createQueryOptions([adviesReferentieTabel]),
               queryKey: ["referentieTabellen"],
             }),

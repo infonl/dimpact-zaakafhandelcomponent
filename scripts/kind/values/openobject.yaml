@@ -1,0 +1,47 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# Values for the maykinmedia/openobject chart (release 'openobject'). scripts/kind/up.sh adds the image, the
+# generated passwords and, with Open Notificaties, the Celery worker that sends the notifications.
+replicaCount: 1
+
+tags:
+  redis: false
+
+settings:
+  allowedHosts: open-object.local,localhost,127.0.0.1,host.docker.internal
+  siteDomain: open-object.local:8000
+  cache:
+    default: redis:6379/0
+    axes: redis:6379/0
+    oidc: redis:6379/0
+  celery:
+    brokerUrl: redis://redis:6379/4
+    resultBackend: redis://redis:6379/4
+  isHttps: false
+  disable2fa: true
+
+persistence:
+  enabled: false
+
+startupProbe:
+  initialDelaySeconds: 5
+  periodSeconds: 2
+  timeoutSeconds: 5
+  failureThreshold: 300
+readinessProbe:
+  initialDelaySeconds: 0
+  periodSeconds: 5
+  timeoutSeconds: 5
+  failureThreshold: 6
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 1Gi
+
+flower:
+  enabled: false

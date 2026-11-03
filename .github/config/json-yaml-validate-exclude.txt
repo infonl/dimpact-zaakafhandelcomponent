@@ -7,6 +7,7 @@
 
 # Exclude validation on our Helm Charts since it will break. Also, we already have linting in place.
 charts/
+scripts/kind/charts/
 
 # Exclude validation on external OpenAPI specification files since it breaks on some of these files,
 # and it makes little sense for us to validate external files,

@@ -1,0 +1,45 @@
+{
+  "vestigingsnummer": "000012345681",
+  "kvkNummer": "12345681",
+  "indNonMailing": "Nee",
+  "eersteHandelsnaam": "testVolledigBinnenlands",
+  "indHoofdvestiging": "Ja",
+  "indCommercieleVestiging": "Ja",
+  "voltijdWerkzamePersonen": 10,
+  "totaalWerkzamePersonen": 15,
+  "deeltijdWerkzamePersonen": 5,
+  "handelsnamen": [
+    {
+      "naam": "testVolledigBinnenlands",
+      "volgorde": 0
+    }
+  ],
+  "adressen": [
+    {
+      "type": "bezoekadres",
+      "indAfgeschermd": "Nee",
+      "straatnaam": "fakeStraatnaam4",
+      "huisnummer": 42,
+      "huisletter": "B",
+      "huisnummerToevoeging": "achter",
+      "postcode": "4321DC",
+      "plaats": "fakePlaats4",
+      "land": "Nederland"
+    }
+  ],
+  "sbiActiviteiten": [
+    {
+      "sbiCode": "4711",
+      "sbiOmschrijving": "Supermarkten en dergelijke winkels met een algemeen assortiment",
+      "indHoofdactiviteit": "Ja"
+    }
+  ],
+  "_links": {
+    "self": {
+      "href": "http://kvk-wiremock:8080/api/v1/vestigingsprofielen/000012345681"
+    },
+    "basisprofiel": {
+      "href": "http://kvk-wiremock:8080/api/v1/basisprofielen/12345681"
+    }
+  }
+}

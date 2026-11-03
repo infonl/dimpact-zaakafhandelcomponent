@@ -160,6 +160,118 @@ describe(ReferentieTabelService.name, () => {
     });
   });
 
+  describe("listCommunicatiekanalen", () => {
+    it("reads the communicatiekanalen without the e-formulier by default", async () => {
+      const read = testQueryClient.fetchQuery(
+        service.listCommunicatiekanalen(),
+      );
+      httpTestingController
+        .expectOne("/rest/referentietabellen/communicatiekanaal/false")
+        .flush(["fakeChannel"]);
+
+      expect(await read).toEqual(["fakeChannel"]);
+    });
+
+    it("reads the communicatiekanalen with the e-formulier when asked", async () => {
+      const read = testQueryClient.fetchQuery(
+        service.listCommunicatiekanalen(true),
+      );
+      httpTestingController
+        .expectOne("/rest/referentietabellen/communicatiekanaal/true")
+        .flush(["fakeChannel", "E-formulier"]);
+
+      expect(await read).toEqual(["fakeChannel", "E-formulier"]);
+    });
+  });
+
+  describe("system reference tables", () => {
+    const systemReferentieTabelQueryKeys = (): Record<
+      string,
+      readonly (readonly unknown[])[]
+    > => ({
+      AFZENDER: [service.listAfzenders().queryKey],
+      COMMUNICATIEKANAAL: [
+        service.listCommunicatiekanalen(false).queryKey,
+        service.listCommunicatiekanalen(true).queryKey,
+      ],
+      SERVER_ERROR_ERROR_PAGINA_TEKST: [
+        service.listServerErrorTexts().queryKey,
+      ],
+      BRP_DOELBINDING_ZOEK_WAARDE: [service.listBrpSearchValues().queryKey],
+      BRP_DOELBINDING_RAADPLEEG_WAARDE: [service.listBrpViewValues().queryKey],
+      BRP_VERWERKINGSREGISTER_WAARDE: [
+        service.listBrpProcessingValues().queryKey,
+      ],
+    });
+
+    const seedAllSystemReferentieTabelQueries = () => {
+      for (const queryKey of Object.values(
+        systemReferentieTabelQueryKeys(),
+      ).flat()) {
+        testQueryClient.setQueryData(queryKey, ["fakeValueName"]);
+      }
+    };
+
+    const invalidatedCodes = () =>
+      Object.entries(systemReferentieTabelQueryKeys())
+        .filter(([, queryKeys]) =>
+          queryKeys.some(
+            (queryKey) =>
+              testQueryClient.getQueryState(queryKey)?.isInvalidated,
+          ),
+        )
+        .map(([code]) => code);
+
+    const renameTable = async (code: string) => {
+      const { mutationOptions, body } = service.renameReferentieTabel(
+        fromPartial<GeneratedType<"RestReferenceTable">>({
+          ...referenceTable,
+          code,
+        }),
+      );
+      await runMutationOnSuccess(mutationOptions, body("fakeNewTableName"));
+    };
+
+    it.each([
+      "AFZENDER",
+      "COMMUNICATIEKANAAL",
+      "SERVER_ERROR_ERROR_PAGINA_TEKST",
+      "BRP_DOELBINDING_ZOEK_WAARDE",
+      "BRP_DOELBINDING_RAADPLEEG_WAARDE",
+      "BRP_VERWERKINGSREGISTER_WAARDE",
+    ])(
+      "invalidates only the values of the %s table when that table changes",
+      async (code) => {
+        seedAllSystemReferentieTabelQueries();
+
+        await renameTable(code);
+
+        expect(invalidatedCodes()).toEqual([code]);
+      },
+    );
+
+    it("invalidates both communicatiekanalen reads when the COMMUNICATIEKANAAL table changes", async () => {
+      seedAllSystemReferentieTabelQueries();
+
+      await renameTable("COMMUNICATIEKANAAL");
+
+      for (const queryKey of systemReferentieTabelQueryKeys()
+        .COMMUNICATIEKANAAL) {
+        expect(testQueryClient.getQueryState(queryKey)?.isInvalidated).toBe(
+          true,
+        );
+      }
+    });
+
+    it("keeps the system reference table values when another table changes", async () => {
+      seedAllSystemReferentieTabelQueries();
+
+      await renameTable("fakeTableCode");
+
+      expect(invalidatedCodes()).toEqual([]);
+    });
+  });
+
   describe("deleteReferentieTabel", () => {
     it("addresses the table by its id", async () => {
       const referenceTable = fromPartial<GeneratedType<"RestReferenceTable">>({

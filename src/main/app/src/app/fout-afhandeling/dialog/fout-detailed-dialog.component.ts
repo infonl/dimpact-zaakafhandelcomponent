@@ -43,7 +43,7 @@ export class FoutDetailedDialogComponent {
   }>(MAT_DIALOG_DATA);
 
   protected readonly serverErrorTextsQuery = injectQuery(() => ({
-    ...this.referentieTabelService.listServerErrorTextsQuery(),
+    ...this.referentieTabelService.listServerErrorTexts(),
     enabled: Boolean(this.data.showServerErrorTexts),
     // Shown inside the error dialog, so a failure must not open another one.
     meta: { reportErrors: false },

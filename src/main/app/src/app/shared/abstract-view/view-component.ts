@@ -5,10 +5,10 @@
 
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
   Component,
   OnDestroy,
   Signal,
+  signal,
 } from "@angular/core";
 import {
   MatDrawerMode,
@@ -20,14 +20,13 @@ import { SideNavUtil } from "../side-nav/side-nav.util";
 
 @Component({
   template: "",
-  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export abstract class ViewComponent implements OnDestroy, AfterViewInit {
   protected abstract readonly sideNavContainer: Signal<MatSidenavContainer>;
   protected abstract readonly menuSidenav: Signal<MatSidenav>;
   protected subscriptions$: Subscription[] = [];
-  protected sideNaveMode: MatDrawerMode = SideNavUtil.getMode();
+  protected readonly sideNavMode = signal<MatDrawerMode>(SideNavUtil.getMode());
 
   ngAfterViewInit(): void {
     this.menuSidenav().openedStart.subscribe(() => {
@@ -36,7 +35,7 @@ export abstract class ViewComponent implements OnDestroy, AfterViewInit {
   }
 
   protected menuModeChanged(mode: string): void {
-    this.sideNaveMode = mode as MatDrawerMode;
+    this.sideNavMode.set(mode as MatDrawerMode);
     this.updateMargins();
   }
 

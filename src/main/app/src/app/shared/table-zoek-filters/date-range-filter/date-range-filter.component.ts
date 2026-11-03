@@ -4,7 +4,6 @@
  */
 
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -35,7 +34,6 @@ import { GeneratedType } from "../../utils/generated-types";
     TranslatePipe,
     CapitalizeFirstLetterPipe,
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [
     {
       provide: MAT_DATE_FORMATS,

@@ -258,7 +258,7 @@ export class TakenWerkvoorraadComponent
       [ZoekenColumn.TOELICHTING, ColumnPickerValue.HIDDEN],
       [ZoekenColumn.URL, ColumnPickerValue.STICKY],
     ]);
-    if (!this.werklijstRechten.canZakenTakenVerdelen) {
+    if (!this.werklijstRechten()?.canZakenTakenVerdelen) {
       columns.delete(ZoekenColumn.SELECT);
     }
     return columns;
