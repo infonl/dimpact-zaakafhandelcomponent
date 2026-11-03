@@ -31,7 +31,7 @@ export class FoutAfhandelingComponent implements OnInit {
   protected bericht: string | null = null;
   protected foutmelding: string | null = null;
   protected readonly serverErrorTextsQuery = injectQuery(() => ({
-    ...this.referentieTabelService.listServerErrorTextsQuery(),
+    ...this.referentieTabelService.listServerErrorTexts(),
     // A failure would open the error dialog, which loads these texts again.
     meta: { reportErrors: false },
     retry: false,

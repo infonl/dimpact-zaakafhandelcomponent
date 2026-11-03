@@ -88,7 +88,7 @@ export class ReferentieTabellenComponent
   );
 
   protected readonly tabellenQuery = injectQuery(() =>
-    this.service.listReferentieTabellenQuery(),
+    this.service.listReferentieTabellen(),
   );
 
   protected readonly tabellen = computed(() => this.tabellenQuery.data() ?? []);
@@ -96,7 +96,7 @@ export class ReferentieTabellenComponent
   protected readonly tabelDetailQuery = injectQuery(() => {
     const expandedId = this.expandedId();
     return {
-      ...this.service.readReferentieTabelQuery(expandedId ?? -1),
+      ...this.service.readReferentieTabel(expandedId ?? -1),
       enabled: expandedId != null,
     };
   });
@@ -165,7 +165,7 @@ export class ReferentieTabellenComponent
     }
     // Load the full table first: the update PUT replaces the entire value list.
     void this.queryClient
-      .fetchQuery(this.service.readReferentieTabelQuery(tabel.id))
+      .fetchQuery(this.service.readReferentieTabel(tabel.id))
       .then((loaded) => {
         this.dialog.open(ReferentieTabelEditDialogComponent, {
           data: loaded,

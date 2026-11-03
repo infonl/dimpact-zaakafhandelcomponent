@@ -91,7 +91,7 @@ describe(ParametersStepHumantasksComponent.name, () => {
         {
           provide: ReferentieTabelService,
           useValue: fromPartial<ReferentieTabelService>({
-            listReferentieTabellenQuery: () => ({
+            listReferentieTabellen: () => ({
               ...createQueryOptions([adviesTabel]),
               queryKey: ["referentieTabellen"],
             }),
