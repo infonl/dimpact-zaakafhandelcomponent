@@ -1,0 +1,53 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# Values for the maykinmedia/opennotificaties chart (release 'opennotificaties'). scripts/kind/up.sh adds the
+# image, the generated passwords and the superuser; the seed-opennotificaties Job of the zac-dev chart configures it.
+replicaCount: 1
+
+tags:
+  redis: false
+
+# Open Zaak, Open Object and ZAC reach it at http://opennotificaties:8000
+service:
+  port: 8000
+
+settings:
+  allowedHosts: "*"
+  cache:
+    default: redis:6379/0
+    axes: redis:6379/0
+  celery:
+    brokerUrl: redis://redis:6379/3
+    resultBackend: redis://redis:6379/3
+    publishBrokerUrl: redis://redis:6379/3
+  messageBroker:
+    celeryResultBackend: redis://redis:6379/3
+  isHttps: false
+  disable2fa: true
+  notificationSecInterval: 5
+
+persistence:
+  enabled: false
+
+livenessProbe:
+  initialDelaySeconds: 300
+readinessProbe:
+  initialDelaySeconds: 0
+  periodSeconds: 3
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 1Gi
+
+worker:
+  replicaCount: 1
+  concurrency: 4
+beat:
+  replicaCount: 1
+flower:
+  enabled: false

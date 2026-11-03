@@ -1,0 +1,80 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# Volumes and configuration for the releases of the upstream charts. Their own volumes are ReadWriteMany, which needs
+# a storage class that kind does not have; on the one node of kind, ReadWriteOnce volumes can be shared by pods.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: openzaak-media
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: {{ .Values.storageClassName }}
+  resources:
+    requests:
+      storage: 2Gi
+{{- if include "zac-dev.opennotificaties" . }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opennotificaties-setup-configuration
+  namespace: {{ .Release.Namespace }}
+data:
+  data.yaml: |
+    {{- tpl (.Files.Get "files/opennotificaties/data.yaml") . | nindent 4 }}
+{{- end }}
+{{- if .Values.profiles.openarchiefbeheer }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openarchiefbeheer-setup-configuration
+  namespace: {{ .Release.Namespace }}
+data:
+  data.yaml: |
+    {{- .Files.Get "files/openarchiefbeheer/data.yaml" | nindent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openarchiefbeheer-settings
+  namespace: {{ .Release.Namespace }}
+data:
+  docker_no2fa.py: |
+    {{- .Files.Get "files/openarchiefbeheer/docker_no2fa.py" | nindent 4 }}
+{{- end }}
+{{- if .Values.profiles.openformulieren }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: openforms-media
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: {{ .Values.storageClassName }}
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openformulieren-setup-configuration
+  namespace: {{ .Release.Namespace }}
+data:
+  data.yaml: |
+    {{- .Files.Get "files/openformulieren/data.yaml" | nindent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openformulieren-settings
+  namespace: {{ .Release.Namespace }}
+data:
+  docker_local.py: |
+    {{- .Files.Get "files/openformulieren/docker_local.py" | nindent 4 }}
+{{- end }}

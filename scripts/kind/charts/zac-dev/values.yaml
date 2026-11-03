@@ -1,0 +1,184 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# The source of truth of the kind stack: the images of every service, also those of the upstream charts, and the
+# versions of those charts. scripts/kind/values/arm64.yaml replaces the images on an arm64 host. scripts/kind/up.sh
+# passes the images of the upstream charts on to their releases.
+
+# -- the upstream Helm charts that scripts/kind/up.sh installs next to this chart
+upstreamCharts:
+  openzaak:
+    repository: https://maykinmedia.github.io/charts/
+    version: 1.15.0
+  # 1.11.0 is the chart of Open Klant 2.15.0: later charts probe /_healthz/, which 2.15.0 does not have
+  openklant:
+    repository: https://maykinmedia.github.io/charts/
+    version: 1.11.0
+  openobject:
+    repository: https://maykinmedia.github.io/charts/
+    version: 1.2.0
+  opennotificaties:
+    repository: https://maykinmedia.github.io/charts/
+    version: 2.1.0
+  openarchiefbeheer:
+    repository: https://maykinmedia.github.io/charts/
+    version: 2.1.0
+  openforms:
+    repository: https://maykinmedia.github.io/charts/
+    version: 1.13.0
+
+openzaak:
+  image: openzaak/open-zaak:1.31.0@sha256:d25566131129d5013ea936a2b25ea40e567fd3aa38120335aa552ba54e76300c
+openklant:
+  image: maykinmedia/open-klant:2.15.0@sha256:ce59a2c60dab1c14e62fe34a99511839390dd2d482983c27334241e0d60c693d
+openobject:
+  image: maykinmedia/open-object:4.1.1@sha256:593571842b4af655383964fb3fa869b62313e7cd1e56a02f173afa8e4713c4b6
+opennotificaties:
+  image: openzaak/open-notificaties:1.17.0@sha256:5200540e78eb67993760bd9ad98d6c7f174ce61f5122b3e20627a690cbf3dfe0
+openarchiefbeheer:
+  image: maykinmedia/open-archiefbeheer:2.0.0@sha256:e5217d748869c62d26393311c3cfdcaacf69d8dde80ca3bc172ff41f3885f0ff
+# no arm64 image: the arm64 build of Open Formulieren lacks static files that the form editor needs
+openforms:
+  image: openformulieren/open-forms:3.5.14@sha256:0320f7ba471453040ecc8362c96cb4acf3d774ee0647633d8c07e0e08007cf8b
+vngSelectielijst:
+  image: openzaak/vng-selectielijst:1.0.5@sha256:4a9579df9a5cd0308e295c404975bcde63f27bc4a6c65cbaa8e63cd4ef1458e5
+# the nginx of the upstream charts and the container that publishes the ports on the host
+nginx:
+  image: nginxinc/nginx-unprivileged:1.31.7@sha256:94193d5c4c5df716f412bb08eb97956d98fe6b59886f0bc57d6d3a3402a88a02
+
+# -- one PostGIS server for the databases of every component
+postgres:
+  image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
+  # -- the databases and their owners; scripts/kind/up.sh generates their passwords
+  databases:
+    - name: zac
+      owner: zac
+    - name: openzaak
+      owner: openzaak
+    - name: openklant
+      owner: openklant
+    - name: objects
+      owner: objects
+    - name: keycloak
+      owner: keycloak
+    - name: Pabc
+      owner: pabc
+    - name: opennotificaties
+      owner: opennotificaties
+    - name: openarchiefbeheer
+      owner: openarchiefbeheer
+    - name: openformulieren
+      owner: openformulieren
+    - name: selectielijst
+      owner: selectielijst
+
+redis:
+  image: redis:8.6.8@sha256:4992e2fd2d992eaa85764b1c9565e15aeadd8f2296cb67f9d04f2fb8da0247ff
+
+keycloak:
+  image: quay.io/keycloak/keycloak:26.7.5@sha256:37dbaf6f0722c9ec246335f36e1ef8b2e6cb960f7c27e0d8c615121a3d475a85
+  # -- the URL of Keycloak in the browser, which is also the issuer of the tokens; set by scripts/kind/up.sh
+  hostname: ""
+  # -- the e-mail addresses of the test users and groups of the realm, which DOCKER_COMPOSE_<NAME>_EMAIL_ADDRESS
+  # in .env overrides
+  emailAddresses:
+    ZAC_RAADPLEGER_TEST_1_EMAIL_ADDRESS: raadpleger-test-1@example.com
+    ZAC_RAADPLEGER_TEST_2_EMAIL_ADDRESS: raadpleger-test-2@example.com
+    ZAC_BEHANDELAAR_TEST_1_EMAIL_ADDRESS: behandelaar-test-1@example.com
+    ZAC_BEHANDELAAR_TEST_2_EMAIL_ADDRESS: behandelaar-test-2@example.com
+    ZAC_COORDINATOR_TEST_1_EMAIL_ADDRESS: coordinator-test-1@example.com
+    ZAC_COORDINATOR_TEST_2_EMAIL_ADDRESS: coordinator-test-2@example.com
+    ZAC_RECORDMANAGER_TEST_1_EMAIL_ADDRESS: recordmanager-test-1@example.com
+    ZAC_RECORDMANAGER_TEST_2_EMAIL_ADDRESS: recordmanager-test-2@example.com
+    ZAC_BEHEERDER_TEST_1_EMAIL_ADDRESS: beheerder-test-1@example.com
+    ZAC_RAADPLEGER_EN_BEHANDELAAR_TEST_1_EMAIL_ADDRESS: raadpleger-en-behandelaar-test-1@example.com
+    ZAC_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_TEST_1_EMAIL_ADDRESS: zaakspecifiek-autorisatie-behandelaar-test-1@example.com
+    ZAC_BEHANDELAAR_EN_BRP_ZOEKER_TEST_1_EMAIL_ADDRESS: behandelaar-en-brp-zoeker-test-1@example.com
+    ZAC_GROUP_RAADPLEGERS_TEST_1_EMAIL_ADDRESS: test-group-raadplegers-test-1@example.com
+    ZAC_GROUP_RAADPLEGERS_TEST_2_EMAIL_ADDRESS: test-group-raadplegers-test-2@example.com
+    ZAC_GROUP_BEHANDELAARS_TEST_1_EMAIL_ADDRESS: test-group-behandelaars-test-1@example.com
+    ZAC_GROUP_BEHANDELAARS_TEST_2_EMAIL_ADDRESS: test-group-behandelaars-test-2@example.com
+    ZAC_GROUP_COORDINATORS_TEST_1_EMAIL_ADDRESS: test-group-coordinators-test-1@example.com
+    ZAC_GROUP_COORDINATORS_TEST_2_EMAIL_ADDRESS: test-group-coordinators-test-2@example.com
+    ZAC_GROUP_RECORDMANAGERS_TEST_1_EMAIL_ADDRESS: test-group-recordmanagers-test-1@example.com
+    ZAC_GROUP_RECORDMANAGERS_TEST_2_EMAIL_ADDRESS: test-group-recordmanagers-test-2@example.com
+    ZAC_GROUP_BEHEERDERS_ELK_DOMEIN_EMAIL_ADDRESS: test-group-beheerders-elk-domein@example.com
+    ZAC_GROUP_BEHANDELAARS_LONG_NAME_TEST_EMAIL_ADDRESS: test-group-behandelaars-long-name-test@example.com
+    ZAC_GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1_EMAIL_ADDRESS: test-group-zaakspecifiek-autorisatie-behandelaars-test-1@example.com
+    ZAC_GROUP_BRP_ZOEKERS_TEST_2_EMAIL_ADDRESS: test-group-brp-zoekers-test-2@example.com
+
+pabc:
+  apiImage: ghcr.io/platform-autorisatie-beheer-component/pabc-api:2.1.0@sha256:7e4f906ea46ba4eace1997a074099a5a54038e38901890d486d117583861a61d
+  migrationsImage: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:2.1.0@sha256:75640f1ee9dc6a155800a31457574b9c36eb0cd41827c45333b9f39d05c94abb
+  # -- the settings of PABC, next to its database connection; the client secrets are those of the Keycloak realm
+  env:
+    ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+    HTTP_PORTS: "8000"
+    API_KEY__0: zac-test-api-key
+    Oidc__Authority: http://keycloak:8080/realms/zaakafhandelcomponent/
+    Oidc__ClientId: pabc
+    Oidc__ClientSecret: pabcClientSecret
+    Oidc__FunctioneelBeheerderRole: administrator
+    Oidc__RequireHttps: "false"
+    KeycloakAdmin__ClientId: pabc-admin-client
+    KeycloakAdmin__ClientSecret: pabcAdminClientSecret
+    KeycloakAdmin__ExcludedRoles__0: offline_access
+    KeycloakAdmin__ExcludedRoles__1: uma_authorization
+    KeycloakAdmin__ExcludedRoles__2: default-roles-zac
+    # PABC would need the Open Zaak URLs of the browser and of the cluster to match
+    ZgwZaakregister__Enabled: "false"
+    ZgwZaakregister__CatalogiBaseUrl: http://localhost:8001/catalogi/api/v1/
+    ZgwZaakregister__ClientId: pabc
+    ZgwZaakregister__ClientSecret: pabcClientSecretWithExtraPadding
+    ZgwZaakregister__CatalogusDomein: ALG
+
+solr:
+  image: solr:9.11.0-slim@sha256:c8a5ad7d951c00f15d5847ba0a94c1ab212de42de10668b80848831b72d75b9f
+
+opa:
+  # -- keep in sync with the OPA of charts/zac
+  image: openpolicyagent/opa:1.21.4-static@sha256:47f93480b09e24c220ae75f1e9133585ba6d698059951668d35e6a4fc32ebc82
+
+officeConverter:
+  # -- keep in sync with the office converter of charts/zac
+  image: gotenberg/gotenberg:8.39.0@sha256:13672f317b443c793e972b1bd2155ec62a3e7b6891b411e8196442cc053ee5f5
+  username: zac
+
+brpPersonenMock:
+  image: ghcr.io/brp-api/personen-mock:2.7.0-202610201628@sha256:613605a8e613e0610d5209b67e8371ea5355085834951bfe105d9e4229d4571a
+
+wiremock:
+  image: wiremock/wiremock:3.13.2@sha256:0d4ecb3e4dc8213fd7a4d37d6a78f6e6b553a6d2e15bd51b0999781282ac61b3
+
+greenmail:
+  image: greenmail/standalone:2.1.15@sha256:309ba544ea482e5d4265d09921cdab07c8dad2cc4481d715c9b8ff5d3f0a149f
+
+
+# -- the optional services, which the options of ./start-kind.sh switch on
+profiles:
+  # -- Open Object (-o, and with -t and -f)
+  objecten: false
+  # -- the test doubles of the integration tests: WireMock for SmartDocuments, KVK and BAG, and GreenMail (-t)
+  itest: false
+  # -- Open Notificaties (-n, and with -f)
+  opennotificaties: false
+  # -- Open Archiefbeheer (-a)
+  openarchiefbeheer: false
+  # -- Open Formulieren (-f)
+  openformulieren: false
+  # -- VNG Selectielijst (-v)
+  vngselectielijst: false
+
+# -- run OPA and the office converter for a ZAC that runs outside the cluster, for example in an IDE; the ZAC
+# Helm chart brings its own when ZAC runs in the cluster
+zacOutsideCluster: false
+
+# -- the storage class of the kind cluster
+storageClassName: standard
+
+# -- the Secret with the generated passwords, created by scripts/kind/up.sh
+generatedSecret: zac-dev-generated
+
+# -- NodePorts that the port proxy container of scripts/kind/up.sh publishes on the host, from scripts/kind/ports.json
+ports: []
