@@ -6,11 +6,12 @@
 import { Location } from "@angular/common";
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
   Component,
+  effect,
   inject,
   OnDestroy,
   OnInit,
+  signal,
   viewChild,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
@@ -77,7 +78,6 @@ import { FileFormat, FileFormatUtil } from "../model/file-format";
   templateUrl: "./informatie-object-view.component.html",
   styleUrls: ["./informatie-object-view.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     MatButtonModule,
@@ -128,16 +128,25 @@ export class InformatieObjectViewComponent
   private readonly queryClient = inject(QueryClient);
 
   readonly indicatiesLayout = IndicatiesLayout;
-  infoObject!: GeneratedType<"RestEnkelvoudigInformatieobject">;
-  laatsteVersieInfoObject?: GeneratedType<"RestEnkelvoudigInformatieobject">;
-  zaakInformatieObjecten: GeneratedType<"RestZaakInformatieobject">[] = [];
-  zaak?: GeneratedType<"RestZaak">;
-  documentNieuweVersieGegevens?: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">;
-  documentPreviewBeschikbaar = false;
-  menu: MenuItem[] = [];
-  activeSideAction: string | null = null;
-  versieInformatie: string | null = null;
+  readonly infoObject = signal<
+    GeneratedType<"RestEnkelvoudigInformatieobject">
+  >(undefined!);
+  readonly laatsteVersieInfoObject = signal<
+    GeneratedType<"RestEnkelvoudigInformatieobject"> | undefined
+  >(undefined);
+  readonly zaakInformatieObjecten = signal<
+    GeneratedType<"RestZaakInformatieobject">[]
+  >([]);
+  readonly zaak = signal<GeneratedType<"RestZaak"> | undefined>(undefined);
+  readonly documentNieuweVersieGegevens = signal<
+    GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens"> | undefined
+  >(undefined);
+  readonly documentPreviewBeschikbaar = signal(false);
+  readonly menu = signal<MenuItem[]>([]);
+  readonly activeSideAction = signal<string | null>(null);
+  readonly versieInformatie = signal<string | null>(null);
   historie = new MatTableDataSource<GeneratedType<"HistoryLine">>();
+  readonly historieRegels = signal<GeneratedType<"HistoryLine">[]>([]);
 
   historieColumns: string[] = [
     "datum",
@@ -156,26 +165,36 @@ export class InformatieObjectViewComponent
   readonly sort = viewChild(MatSort);
   private documentListener?: WebsocketListener;
 
+  constructor() {
+    super();
+    effect(() => {
+      this.historie.data = this.historieRegels();
+    });
+  }
+
   ngOnInit() {
     this.subscriptions$.push(
       this.route.data.subscribe((data) => {
-        this.infoObject =
-          data.informatieObject as GeneratedType<"RestEnkelvoudigInformatieobject">;
+        this.infoObject.set(
+          data.informatieObject as GeneratedType<"RestEnkelvoudigInformatieobject">,
+        );
         this.informatieObjectenService
-          .readEnkelvoudigInformatieobject(this.infoObject.uuid!)
+          .readEnkelvoudigInformatieobject(this.infoObject().uuid!)
           .subscribe((infoObject) => {
-            this.laatsteVersieInfoObject = infoObject;
+            this.laatsteVersieInfoObject.set(infoObject);
             this.updateVersieInformatie();
             this.loadZaakInformatieobjecten();
           });
-        this.documentPreviewBeschikbaar = FileFormatUtil.isPreviewAvailable(
-          this.infoObject.formaat as FileFormat,
+        this.documentPreviewBeschikbaar.set(
+          FileFormatUtil.isPreviewAvailable(
+            this.infoObject().formaat as FileFormat,
+          ),
         );
 
         this.documentListener = this.websocketService.addListener(
           "UPDATED",
           "ENKELVOUDIG_INFORMATIEOBJECT",
-          this.infoObject.uuid!,
+          this.infoObject().uuid!,
           () => {
             this.loadInformatieObject();
             this.loadZaakInformatieobjecten();
@@ -208,35 +227,33 @@ export class InformatieObjectViewComponent
   }
 
   private toevoegenActies() {
-    this.menu = [new HeaderMenuItem("informatieobject")];
+    const menu: MenuItem[] = [new HeaderMenuItem("informatieobject")];
+    const infoObject = this.infoObject();
+    const laatsteVersieInfoObject = this.laatsteVersieInfoObject();
+    const zaak = this.zaak();
 
-    if (this.laatsteVersieInfoObject?.rechten?.canLezen) {
-      this.menu.push(
+    if (laatsteVersieInfoObject?.rechten?.canLezen) {
+      menu.push(
         new HrefMenuItem(
           "actie.downloaden",
           this.informatieObjectenService.getDownloadURL(
-            this.infoObject.uuid!,
-            this.infoObject.versie,
+            infoObject.uuid!,
+            infoObject.versie,
           ),
           "save_alt",
         ),
       );
     }
 
-    if (
-      this.laatsteVersieInfoObject?.rechten?.canToevoegenNieuweVersie &&
-      this.zaak
-    ) {
-      this.menu.push(
+    if (laatsteVersieInfoObject?.rechten?.canToevoegenNieuweVersie && zaak) {
+      menu.push(
         new ButtonMenuItem(
           "actie.nieuwe.versie.toevoegen",
           () => {
             this.informatieObjectenService
-              .readHuidigeVersieEnkelvoudigInformatieObject(
-                this.infoObject.uuid!,
-              )
+              .readHuidigeVersieEnkelvoudigInformatieObject(infoObject.uuid!)
               .subscribe((infoObject) => {
-                this.documentNieuweVersieGegevens = infoObject;
+                this.documentNieuweVersieGegevens.set(infoObject);
                 void this.actionsSidenav().open();
               });
           },
@@ -246,18 +263,18 @@ export class InformatieObjectViewComponent
     }
 
     if (
-      this.zaak &&
-      this.laatsteVersieInfoObject?.rechten?.canWijzigen &&
-      FileFormatUtil.isOffice(this.infoObject.formaat as FileFormat)
+      zaak &&
+      laatsteVersieInfoObject?.rechten?.canWijzigen &&
+      FileFormatUtil.isOffice(infoObject.formaat as FileFormat)
     ) {
-      this.menu.push(
+      menu.push(
         new ButtonMenuItem(
           "actie.bewerken",
           () => {
             this.informatieObjectenService
               .editEnkelvoudigInformatieObjectInhoud(
-                this.infoObject.uuid!,
-                this.zaak!.uuid!,
+                infoObject.uuid!,
+                zaak!.uuid!,
               )
               .subscribe((url) => {
                 window.open(url);
@@ -269,8 +286,8 @@ export class InformatieObjectViewComponent
     }
 
     if (
-      !this.laatsteVersieInfoObject?.gelockedDoor &&
-      this.laatsteVersieInfoObject?.rechten?.canVergrendelen
+      !laatsteVersieInfoObject?.gelockedDoor &&
+      laatsteVersieInfoObject?.rechten?.canVergrendelen
     ) {
       const button = new ButtonMenuItem(
         "actie.lock",
@@ -279,8 +296,8 @@ export class InformatieObjectViewComponent
           runMutation(
             this.queryClient,
             this.informatieObjectenService.lockInformatieObject(
-              this.infoObject.uuid!,
-              this.zaak!.uuid!,
+              infoObject.uuid!,
+              zaak!.uuid!,
             ),
             undefined as never,
           ).subscribe({
@@ -292,12 +309,12 @@ export class InformatieObjectViewComponent
         },
         "lock",
       );
-      this.menu.push(button);
+      menu.push(button);
     }
 
     if (
-      this.laatsteVersieInfoObject?.gelockedDoor &&
-      this.laatsteVersieInfoObject?.rechten?.canOntgrendelen
+      laatsteVersieInfoObject?.gelockedDoor &&
+      laatsteVersieInfoObject?.rechten?.canOntgrendelen
     ) {
       const button = new ButtonMenuItem(
         "actie.unlock",
@@ -306,8 +323,8 @@ export class InformatieObjectViewComponent
           runMutation(
             this.queryClient,
             this.informatieObjectenService.unlockInformatieObject(
-              this.infoObject.uuid!,
-              this.zaak?.uuid,
+              infoObject.uuid!,
+              zaak?.uuid,
             ),
             undefined as never,
           ).subscribe({
@@ -319,14 +336,14 @@ export class InformatieObjectViewComponent
         },
         "lock_open",
       );
-      this.menu.push(button);
+      menu.push(button);
     }
 
     if (
-      this.laatsteVersieInfoObject?.rechten?.canVerwijderen &&
-      !this.laatsteVersieInfoObject?.isBesluitDocument
+      laatsteVersieInfoObject?.rechten?.canVerwijderen &&
+      !laatsteVersieInfoObject?.isBesluitDocument
     ) {
-      this.menu.push(
+      menu.push(
         new ButtonMenuItem(
           "actie.verwijderen",
           () => this.openDocumentVerwijderenDialog(),
@@ -336,10 +353,10 @@ export class InformatieObjectViewComponent
     }
 
     if (
-      !this.laatsteVersieInfoObject?.ondertekening &&
-      this.laatsteVersieInfoObject?.rechten?.canOndertekenen
+      !laatsteVersieInfoObject?.ondertekening &&
+      laatsteVersieInfoObject?.rechten?.canOndertekenen
     ) {
-      this.menu.push(
+      menu.push(
         new ButtonMenuItem(
           "actie.ondertekenen",
           () => this.openDocumentOndertekenenDialog(),
@@ -349,19 +366,19 @@ export class InformatieObjectViewComponent
     }
 
     if (
-      this.zaak &&
-      this.laatsteVersieInfoObject?.rechten?.canConverteren &&
-      FileFormatUtil.isOffice(this.infoObject.formaat as FileFormat)
+      zaak &&
+      laatsteVersieInfoObject?.rechten?.canConverteren &&
+      FileFormatUtil.isOffice(infoObject.formaat as FileFormat)
     ) {
-      this.menu.push(
+      menu.push(
         new AsyncButtonMenuItem(
           "actie.converteren",
           () =>
             runMutation(
               this.queryClient,
               this.informatieObjectenService.convertInformatieObjectToPDF(
-                this.infoObject.uuid!,
-                this.zaak!.uuid!,
+                infoObject.uuid!,
+                zaak!.uuid!,
               ),
               undefined as never,
             ).pipe(map(() => undefined)),
@@ -369,35 +386,36 @@ export class InformatieObjectViewComponent
         ),
       );
     }
+    this.menu.set(menu);
   }
 
   private loadZaakInformatieobjecten() {
     this.informatieObjectenService
-      .listZaakInformatieobjecten(this.infoObject.uuid!)
+      .listZaakInformatieobjecten(this.infoObject().uuid!)
       .subscribe((zaakInformatieObjecten) => {
-        this.zaakInformatieObjecten = zaakInformatieObjecten;
+        this.zaakInformatieObjecten.set(zaakInformatieObjecten);
         this.loadZaak();
       });
   }
 
   private loadHistorie() {
     this.informatieObjectenService
-      .listHistorie(this.infoObject.uuid!)
+      .listHistorie(this.infoObject().uuid!)
       .subscribe((historie) => {
-        this.historie.data = historie;
+        this.historieRegels.set(historie);
       });
   }
 
   private loadInformatieObject() {
     this.informatieObjectenService
-      .readEnkelvoudigInformatieobject(this.infoObject.uuid!)
+      .readEnkelvoudigInformatieobject(this.infoObject().uuid!)
       .subscribe((infoObject) => {
-        this.infoObject = infoObject;
-        this.laatsteVersieInfoObject = infoObject;
+        this.infoObject.set(infoObject);
+        this.laatsteVersieInfoObject.set(infoObject);
         this.toevoegenActies();
         this.updateVersieInformatie();
-        this.documentPreviewBeschikbaar = FileFormatUtil.isPreviewAvailable(
-          this.infoObject.formaat as FileFormat,
+        this.documentPreviewBeschikbaar.set(
+          FileFormatUtil.isPreviewAvailable(infoObject.formaat as FileFormat),
         );
       });
   }
@@ -406,7 +424,7 @@ export class InformatieObjectViewComponent
     this.websocketService.removeListener(this.documentListener);
     this.router.navigate([
       "/informatie-objecten",
-      this.infoObject.uuid,
+      this.infoObject().uuid,
       versie,
     ]);
   }
@@ -419,33 +437,36 @@ export class InformatieObjectViewComponent
   }
 
   private updateVersieInformatie() {
-    this.versieInformatie = this.translate.instant("versie.x.van", {
-      versie: this.infoObject?.versie,
-      laatsteVersie: this.laatsteVersieInfoObject?.versie,
-    });
+    this.versieInformatie.set(
+      this.translate.instant("versie.x.van", {
+        versie: this.infoObject()?.versie,
+        laatsteVersie: this.laatsteVersieInfoObject()?.versie,
+      }),
+    );
   }
 
   private openDocumentVerwijderenDialog() {
     this.documentDialogService
       .openVerwijderDocument({
-        hasZaak: Boolean(this.zaak),
-        documentTitel: this.infoObject?.titel,
+        hasZaak: Boolean(this.zaak()),
+        documentTitel: this.infoObject()?.titel,
         delete: (reden) => this.deleteEnkelvoudigInformatieObject$(reden),
       })
       .afterClosed()
       .subscribe((result) => {
-        this.activeSideAction = null;
+        this.activeSideAction.set(null);
 
         if (result) {
+          const zaak = this.zaak();
           this.utilService.openSnackbar("msg.document.verwijderen.uitgevoerd", {
-            document: this.infoObject.titel,
+            document: this.infoObject().titel,
           });
           const origin = findOrigin(this.location);
           void (origin?.key
             ? navigateToBreadcrumb(origin, this.router)
             : this.router.navigateByUrl(
-                this.zaak
-                  ? `/zaken/${this.zaak.identificatie}`
+                zaak
+                  ? `/zaken/${zaak.identificatie}`
                   : "/documenten/ontkoppelde",
               ));
         }
@@ -456,13 +477,13 @@ export class InformatieObjectViewComponent
     const dialogData = new ConfirmDialogData(
       {
         key: "msg.document.ondertekenen.bevestigen",
-        args: { document: this.infoObject.titel },
+        args: { document: this.infoObject().titel },
       },
       runMutation(
         this.queryClient,
         this.informatieObjectenService.ondertekenInformatieObject(
-          this.infoObject.uuid!,
-          this.zaak!.uuid!,
+          this.infoObject().uuid!,
+          this.zaak()!.uuid!,
         ),
         undefined as never,
       ),
@@ -472,11 +493,12 @@ export class InformatieObjectViewComponent
   }
 
   private deleteEnkelvoudigInformatieObject$(reden?: string): Observable<void> {
-    if (!this.infoObject?.uuid) return of();
+    const uuid = this.infoObject()?.uuid;
+    if (!uuid) return of();
     return runMutation(
       this.queryClient,
       this.informatieObjectenService.deleteEnkelvoudigInformatieObject(),
-      { uuid: this.infoObject.uuid, zaakUuid: this.zaak?.uuid, reden },
+      { uuid, zaakUuid: this.zaak()?.uuid, reden },
     ).pipe(
       tap(() => this.websocketService.suspendListener(this.documentListener)),
     );
@@ -489,16 +511,16 @@ export class InformatieObjectViewComponent
    * Als er geen gekoppelde zaak is, is dit een document zonder zaak.
    */
   private loadZaak() {
-    const zaakobject = this.zaakInformatieObjecten.at(0);
+    const zaakobject = this.zaakInformatieObjecten().at(0);
     if (zaakobject?.zaakIdentificatie) {
       this.zakenService
         .readZaakByID(zaakobject.zaakIdentificatie)
         .subscribe((zaak) => {
-          this.zaak = zaak;
+          this.zaak.set(zaak);
           this.toevoegenActies();
         });
     } else {
-      this.zaak = undefined;
+      this.zaak.set(undefined);
       this.toevoegenActies();
     }
   }

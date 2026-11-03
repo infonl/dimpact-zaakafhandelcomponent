@@ -8,7 +8,7 @@ import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { Location } from "@angular/common";
 import { HttpTestingController } from "@angular/common/http/testing";
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatNavListItemHarness } from "@angular/material/list/testing";
@@ -35,7 +35,6 @@ import { InformatieObjectViewComponent } from "./informatie-object-view.componen
 @Component({
   selector: "zac-informatie-object-edit",
   template: "",
-  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class InformatieObjectEditStubComponent {
@@ -550,7 +549,7 @@ describe(InformatieObjectViewComponent.name, () => {
 
     describe("a document without a zaak", () => {
       it("does not delete it while the confirmation dialog is still open", () => {
-        component.zaak = undefined;
+        component.zaak.set(undefined);
 
         component["openDocumentVerwijderenDialog"]();
 
@@ -564,7 +563,7 @@ describe(InformatieObjectViewComponent.name, () => {
         const foutAfhandelen = jest
           .spyOn(foutAfhandelingService, "foutAfhandelen")
           .mockReturnValue(of());
-        component.zaak = zaak;
+        component.zaak.set(zaak);
 
         component["openDocumentVerwijderenDialog"]();
         const { callback } = jest.mocked(dialog.open).mock.calls.at(-1)![1]!
@@ -606,7 +605,7 @@ describe(InformatieObjectViewComponent.name, () => {
           { title: "fakeZaak", url: "/zaken/fakeZaak", key: "fakeKey" },
           { title: "fakeDocument", url: "/informatie-objecten/fakeUuid" },
         ]);
-        component.zaak = zaak;
+        component.zaak.set(zaak);
 
         component["openDocumentVerwijderenDialog"]();
 
@@ -618,7 +617,7 @@ describe(InformatieObjectViewComponent.name, () => {
           { title: "fakeDocumenten", url: "/informatie-objecten" },
           { title: "fakeDocument", url: "/informatie-objecten/fakeUuid" },
         ]);
-        component.zaak = zaak;
+        component.zaak.set(zaak);
 
         component["openDocumentVerwijderenDialog"]();
 
@@ -629,7 +628,7 @@ describe(InformatieObjectViewComponent.name, () => {
 
       it("goes to the ontkoppelde documenten when it was not opened from another page and has no zaak", () => {
         givenNavigationTrail([]);
-        component.zaak = undefined;
+        component.zaak.set(undefined);
 
         component["openDocumentVerwijderenDialog"]();
 

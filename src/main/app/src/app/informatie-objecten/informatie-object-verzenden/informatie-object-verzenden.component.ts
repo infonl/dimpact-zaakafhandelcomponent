@@ -3,13 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  input,
-  output,
-} from "@angular/core";
+import { Component, inject, input, output } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
@@ -34,7 +28,6 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
   templateUrl: "./informatie-object-verzenden.component.html",
   styleUrls: ["./informatie-object-verzenden.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatDividerModule,

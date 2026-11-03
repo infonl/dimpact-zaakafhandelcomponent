@@ -4,7 +4,6 @@
  */
 
 import {
-  ChangeDetectionStrategy,
   Component,
   effect,
   inject,
@@ -12,6 +11,7 @@ import {
   OnDestroy,
   OnInit,
   output,
+  signal,
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -71,7 +71,6 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
     ZacInput,
     ZacFormActions,
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [VertrouwelijkaanduidingToTranslationKeyPipe],
 })
 export class InformatieObjectCreateAttendedComponent
@@ -131,10 +130,12 @@ export class InformatieObjectCreateAttendedComponent
     taskId: this.formBuilder.control<string | null>(null),
   });
 
-  protected templateGroups: Observable<
-    GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[]
-  > = of([]);
-  protected templates: GeneratedType<"RestMappedSmartDocumentsTemplate">[] = [];
+  protected readonly templateGroups = signal<
+    Observable<GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[]>
+  >(of([]));
+  protected readonly templates = signal<
+    GeneratedType<"RestMappedSmartDocumentsTemplate">[]
+  >([]);
 
   private readonly loggedInUserQuery = injectQuery(() =>
     this.identityService.readLoggedInUser(),
@@ -168,15 +169,15 @@ export class InformatieObjectCreateAttendedComponent
         ),
       ),
     ).pipe(startWith([]));
-    this.templateGroups = templateGroupsFetcher;
+    this.templateGroups.set(templateGroupsFetcher);
 
     this.form.controls.templateGroup.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
-        this.templates = value?.templates ?? [];
+        this.templates.set(value?.templates ?? []);
 
         if (this.smartDocumentsTemplateId() !== undefined) {
-          const smartDocumentsTemplate = this.templates.find(
+          const smartDocumentsTemplate = this.templates().find(
             ({ id }) => id === this.smartDocumentsTemplateId(),
           );
           if (smartDocumentsTemplate) {

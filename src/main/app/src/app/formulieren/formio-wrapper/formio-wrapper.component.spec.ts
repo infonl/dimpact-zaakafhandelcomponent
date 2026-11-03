@@ -114,11 +114,11 @@ describe(FormioWrapperComponent.name, () => {
       });
 
       it("should set stylesLoaded to true after initialization", async () => {
-        expect(component["stylesLoaded"]).toBe(false);
+        expect(component["stylesLoaded"]()).toBe(false);
 
         await component.ngOnInit();
 
-        expect(component["stylesLoaded"]).toBe(true);
+        expect(component["stylesLoaded"]()).toBe(true);
       });
 
       it("should handle errors gracefully", async () => {
