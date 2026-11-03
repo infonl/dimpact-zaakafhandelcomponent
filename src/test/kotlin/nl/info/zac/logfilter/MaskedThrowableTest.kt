@@ -77,6 +77,21 @@ class MaskedThrowableTest : BehaviorSpec({
             }
         }
 
+        given("an exception whose localized message has a BSN, while its message has not") {
+            val illegalStateException = object : IllegalStateException("fakeMessage") {
+                override fun getLocalizedMessage() = "Geen persoon gevonden voor BSN '999993896'"
+            }
+
+            `when`("the personal data is masked") {
+                val maskedThrowable = illegalStateException.maskPersonalData()
+
+                then("the exception is masked, because a text formatter logs the localized message") {
+                    maskedThrowable.toString() shouldContain "Geen persoon gevonden voor BSN '******896'"
+                    maskedThrowable.toString() shouldNotContain "999993896"
+                }
+            }
+        }
+
         given("an exception whose personal data is masked already") {
             val maskedThrowable = IllegalStateException("BSN 999993896").maskPersonalData()
 

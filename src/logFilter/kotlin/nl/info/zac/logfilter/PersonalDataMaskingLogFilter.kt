@@ -7,6 +7,7 @@ package nl.info.zac.logfilter
 import org.jboss.logmanager.ExtLogRecord
 import java.util.logging.Filter
 import java.util.logging.LogRecord
+import java.util.logging.SimpleFormatter
 
 /**
  * WildFly logging filter that masks personal data in every log record that reaches the log handler that it is
@@ -15,6 +16,8 @@ import java.util.logging.LogRecord
  * WildFly loads this class from the `nl.info.zac.logfilter` module, not from the ZAC deployment.
  */
 class PersonalDataMaskingLogFilter : Filter {
+    private val simpleFormatter = SimpleFormatter()
+
     @Suppress("TooGenericExceptionCaught")
     override fun isLoggable(record: LogRecord): Boolean {
         try {
@@ -36,7 +39,8 @@ class PersonalDataMaskingLogFilter : Filter {
                 setMessage(maskedMessage, ExtLogRecord.FormatStyle.NO_FORMAT)
             }
         } else {
-            message = message?.maskPersonalData()
+            message = simpleFormatter.formatMessage(this)?.maskPersonalData()
+            parameters = null
         }
         thrown = thrown?.maskPersonalData()
     }

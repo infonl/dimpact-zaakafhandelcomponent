@@ -29,13 +29,13 @@ private fun Throwable.containsPersonalData(
     checkedThrowables: MutableSet<Throwable> = Collections.newSetFromMap(IdentityHashMap())
 ): Boolean =
     checkedThrowables.add(this) && (
-        message?.let { it.maskPersonalData() != it } == true ||
+        listOfNotNull(message, localizedMessage).any { it.maskPersonalData() != it } ||
             cause?.containsPersonalData(checkedThrowables) == true ||
             suppressed.any { it.containsPersonalData(checkedThrowables) }
         )
 
 private fun Throwable.toMaskedThrowable(maskedThrowables: IdentityHashMap<Throwable, MaskedThrowable>): MaskedThrowable =
-    maskedThrowables[this] ?: MaskedThrowable(javaClass.name, message?.maskPersonalData()).also { maskedThrowable ->
+    maskedThrowables[this] ?: MaskedThrowable(javaClass.name, localizedMessage?.maskPersonalData()).also { maskedThrowable ->
         maskedThrowables[this] = maskedThrowable
         maskedThrowable.stackTrace = stackTrace
         cause?.let { maskedThrowable.initCause(it.toMaskedThrowable(maskedThrowables)) }

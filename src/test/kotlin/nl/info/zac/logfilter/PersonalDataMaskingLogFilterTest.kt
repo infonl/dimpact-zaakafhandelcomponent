@@ -147,6 +147,19 @@ class PersonalDataMaskingLogFilterTest : BehaviorSpec({
             }
         }
 
+        given("a plain log record with a BSN as message parameter, which WildFly does not create itself") {
+            val logRecord = LogRecord(Level.INFO, "BSN {0}").apply { parameters = arrayOf("999993896") }
+
+            `when`("the log record is filtered") {
+                personalDataMaskingLogFilter.isLoggable(logRecord)
+
+                then("the parameter is filled in before the BSN is masked, so that a formatter cannot fill in the full BSN later") {
+                    logRecord.message shouldBe "BSN ******896"
+                    logRecord.parameters shouldBe null
+                }
+            }
+        }
+
         given("a WildFly log record without a message") {
             val extLogRecord = ExtLogRecord(Level.INFO, null, "fakeLoggerClassName")
 
