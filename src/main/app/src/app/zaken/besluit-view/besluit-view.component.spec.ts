@@ -4,7 +4,11 @@
  */
 
 import { provideHttpClient, withXhr } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
+import { TestBed } from "@angular/core/testing";
 import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -14,9 +18,8 @@ import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { ZakenService } from "../zaken.service";
 import { BesluitIntrekkenDialogComponent } from "./besluit-intrekken-dialog/besluit-intrekken-dialog.component";
 import { BesluitViewComponent } from "./besluit-view.component";
 
@@ -36,18 +39,24 @@ const makeBesluit = (fields: Partial<GeneratedType<"RestBesluit">> = {}) =>
     ...fields,
   });
 
+const historieUrl = (besluitUuid: string) =>
+  `/rest/zaken/besluit/${besluitUuid}/historie`;
+
+const historieRegel = fromPartial<GeneratedType<"HistoryLine">>({
+  attribuutLabel: "fakeAttribuutLabel",
+  door: "fakeGebruiker",
+});
+
 describe(BesluitViewComponent.name, () => {
   const user = userEvent.setup();
 
   let dialogOpen: jest.SpyInstance;
+  let httpTestingController: HttpTestingController;
 
   const setup = async (
     besluiten: GeneratedType<"RestBesluit">[] = [makeBesluit()],
     readonly = false,
   ) => {
-    const listBesluitHistorie = jest
-      .spyOn(ZakenService.prototype, "listBesluitHistorie")
-      .mockReturnValue(of([]));
     dialogOpen = jest.spyOn(MatDialog.prototype, "open").mockReturnValue(
       fromPartial<MatDialogRef<unknown>>({
         afterClosed: () => of(undefined),
@@ -68,10 +77,33 @@ describe(BesluitViewComponent.name, () => {
       ],
     });
 
+    httpTestingController = TestBed.inject(HttpTestingController);
+    await respondWithHistorie(besluiten[0].uuid, []);
+
     // the documents table creates its row views in one pass and binds the cells in the next
     fixture.detectChanges();
 
-    return { fixture, listBesluitHistorie, besluitWijzigen };
+    return { fixture, besluitWijzigen };
+  };
+
+  const respondWithHistorie = async (
+    besluitUuid: string,
+    historie: GeneratedType<"HistoryLine">[],
+  ) => {
+    await sleep();
+    httpTestingController
+      .expectOne({ method: "GET", url: historieUrl(besluitUuid) })
+      .flush(historie);
+    await sleep();
+  };
+
+  const showHistorieTab = async (
+    fixture: Awaited<ReturnType<typeof setup>>["fixture"],
+  ) => {
+    await user.click(screen.getByRole("tab", { name: /historie/ }));
+    // the historie table creates its row views in one pass and binds the cells in the next
+    fixture.detectChanges();
+    fixture.detectChanges();
   };
 
   const panelHeader = (identificatie: string) =>
@@ -174,45 +206,48 @@ describe(BesluitViewComponent.name, () => {
     expect(panelHeader("BESLUIT-002")).toBeVisible();
   });
 
-  it("loads the history of the first besluit", async () => {
-    const { listBesluitHistorie } = await setup([
+  it("reads the history of the first besluit once and of no other besluit, because only its panel is open", async () => {
+    await setup([
       makeBesluit({ uuid: "besluit-uuid-1" }),
       makeBesluit({ uuid: "besluit-uuid-2", identificatie: "BESLUIT-002" }),
     ]);
 
-    expect(listBesluitHistorie).toHaveBeenCalledWith("besluit-uuid-1");
-    expect(listBesluitHistorie).not.toHaveBeenCalledWith("besluit-uuid-2");
+    httpTestingController.expectNone(historieUrl("besluit-uuid-1"));
+    httpTestingController.expectNone(historieUrl("besluit-uuid-2"));
   });
 
-  it("loads the history of the first besluit only once when it is first rendered", async () => {
-    const { listBesluitHistorie } = await setup();
+  it("reads the history of a besluit once its panel is opened", async () => {
+    await setup([
+      makeBesluit({ uuid: "besluit-uuid-1" }),
+      makeBesluit({ uuid: "besluit-uuid-2", identificatie: "BESLUIT-002" }),
+    ]);
 
-    expect(listBesluitHistorie).toHaveBeenCalledTimes(1);
+    await user.click(panelHeader("BESLUIT-002"));
+
+    await respondWithHistorie("besluit-uuid-2", []);
   });
 
-  it("reloads the history of an opened besluit when the besluiten change", async () => {
-    const { fixture, listBesluitHistorie } = await setup();
-    listBesluitHistorie.mockReturnValue(
-      of([
-        fromPartial<GeneratedType<"HistoryLine">>({
-          attribuutLabel: "fakeAttribuutLabel",
-          door: "fakeGebruiker",
-        }),
-      ]),
-    );
+  it("reads the history of an opened besluit again when the besluiten change", async () => {
+    const { fixture } = await setup();
 
     fixture.componentRef.setInput("besluiten", [
       makeBesluit({ toelichting: "Een gewijzigde toelichting" }),
     ]);
     fixture.detectChanges();
-    await user.click(screen.getByRole("tab", { name: /historie/ }));
-    fixture.detectChanges();
-    fixture.detectChanges();
+    await respondWithHistorie("besluit-uuid-1", [historieRegel]);
+    await showHistorieTab(fixture);
 
-    expect(listBesluitHistorie).toHaveBeenCalledTimes(2);
     expect(
       screen.getByRole("row", { name: /fakeAttribuutLabel/ }),
     ).toBeVisible();
+  });
+
+  it("says there is no history for a besluit without history lines", async () => {
+    const { fixture } = await setup();
+
+    await showHistorieTab(fixture);
+
+    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
   });
 
   it("hides the edit and withdraw actions once the view becomes read-only", async () => {
