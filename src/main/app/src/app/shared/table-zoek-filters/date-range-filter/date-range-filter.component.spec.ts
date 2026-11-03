@@ -37,9 +37,11 @@ describe(DateRangeFilterComponent.name, () => {
     );
     const changed = jest.fn<void, [DatumRange]>();
     fixture.componentInstance.changed.subscribe(changed);
+    const rangeChange = jest.fn<void, [DatumRange | null | undefined]>();
+    fixture.componentInstance.range.subscribe(rangeChange);
     fixture.autoDetectChanges();
     await fixture.whenStable();
-    return { fixture, changed };
+    return { fixture, changed, rangeChange };
   };
 
   const startInput = () => screen.getByPlaceholderText("zoeken.filter.van");
@@ -174,17 +176,38 @@ describe(DateRangeFilterComponent.name, () => {
       expect(calendarToggle()).toBeInTheDocument();
     });
 
-    it("clears the bound range object itself and emits that same object", async () => {
+    it("sets a new empty range on the model and leaves the bound range object untouched", async () => {
       const range: DatumRange = {
         van: new Date(2024, 0, 1).toISOString(),
         tot: new Date(2024, 0, 31).toISOString(),
       };
-      const { changed } = await setup({ range });
+      const { changed, rangeChange } = await setup({ range });
 
       await user.click(screen.getByText("clear"));
 
-      expect(range).toEqual({ van: null, tot: null });
-      expect(changed.mock.calls[0][0]).toBe(range);
+      expect(rangeChange).toHaveBeenCalledTimes(1);
+      expect(rangeChange).toHaveBeenCalledWith({
+        van: null,
+        tot: null,
+      });
+      expect(changed.mock.calls[0][0]).toBe(rangeChange.mock.calls[0][0]);
+      expect(range).toEqual({
+        van: new Date(2024, 0, 1).toISOString(),
+        tot: new Date(2024, 0, 31).toISOString(),
+      });
+    });
+  });
+
+  describe("closing the calendar without picking a date", () => {
+    it("neither sets the model nor emits", async () => {
+      const { changed, rangeChange } = await setup({ range: null });
+
+      await user.click(calendarToggle()!);
+      await user.click(screen.getByRole("button", { name: "Close calendar" }));
+
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+      expect(rangeChange).not.toHaveBeenCalled();
+      expect(changed).not.toHaveBeenCalled();
     });
   });
 
@@ -207,17 +230,19 @@ describe(DateRangeFilterComponent.name, () => {
       });
     });
 
-    it("writes the typed dates into the bound range object and emits that same object", async () => {
+    it("sets the typed dates on the model and leaves the bound range object untouched", async () => {
       const range: DatumRange = { van: null, tot: null };
-      const { changed } = await setup({ range });
+      const { changed, rangeChange } = await setup({ range });
 
       await typeDate(startInput(), "01-01-2024");
 
-      expect(range).toEqual({
+      expect(rangeChange).toHaveBeenCalledTimes(1);
+      expect(rangeChange).toHaveBeenCalledWith({
         van: new Date(2024, 0, 1).toISOString(),
         tot: null,
       });
-      expect(changed.mock.calls[0][0]).toBe(range);
+      expect(changed.mock.calls[0][0]).toBe(rangeChange.mock.calls[0][0]);
+      expect(range).toEqual({ van: null, tot: null });
     });
 
     it("shows the clear icon once a date is typed", async () => {
@@ -229,18 +254,20 @@ describe(DateRangeFilterComponent.name, () => {
       expect(calendarToggle()).not.toBeInTheDocument();
     });
 
-    it("does not emit when the only date is erased, but does clear it in the bound range", async () => {
-      const range: DatumRange = {
-        van: new Date(2024, 0, 1).toISOString(),
-        tot: null,
-      };
-      const { changed } = await setup({ range });
+    it("does not emit changed when the only date is erased, but does set an empty range on the model", async () => {
+      const { changed, rangeChange } = await setup({
+        range: { van: new Date(2024, 0, 1).toISOString(), tot: null },
+      });
 
       await user.clear(startInput());
       await user.tab();
 
       expect(changed).not.toHaveBeenCalled();
-      expect(range).toEqual({ van: null, tot: null });
+      expect(rangeChange).toHaveBeenCalledTimes(1);
+      expect(rangeChange).toHaveBeenCalledWith({
+        van: null,
+        tot: null,
+      });
     });
   });
 });

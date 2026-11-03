@@ -9,6 +9,7 @@ import {
   computed,
   effect,
   input,
+  model,
   output,
   untracked,
 } from "@angular/core";
@@ -53,7 +54,7 @@ import { GeneratedType } from "../../utils/generated-types";
   ],
 })
 export class DateRangeFilterComponent {
-  readonly range = input.required<
+  readonly range = model.required<
     GeneratedType<"RestDatumRange"> | null | undefined
   >();
   readonly label = input.required<string>();
@@ -81,24 +82,33 @@ export class DateRangeFilterComponent {
     $event.stopPropagation();
     this.dateVan.setValue(null);
     this.dateTM.setValue(null);
-    const currentRange = this.currentRange();
-    currentRange.van = null;
-    currentRange.tot = null;
-    this.changed.emit(currentRange);
+    const range = { van: null, tot: null };
+    this.setRange(range);
+    this.changed.emit(range);
   }
 
   protected change(): void {
-    const currentRange = this.currentRange();
-    currentRange.van = this.dateVan.value?.toISOString() ?? null;
-    currentRange.tot = this.dateTM.value?.toISOString() ?? null;
+    const range = {
+      van: this.dateVan.value?.toISOString() ?? null,
+      tot: this.dateTM.value?.toISOString() ?? null,
+    };
+    this.setRange(range);
     if (this.hasRange()) {
-      this.changed.emit(currentRange);
+      this.changed.emit(range);
     }
   }
 
   protected hasRange(): boolean {
     const currentRange = this.currentRange();
     return currentRange.van != null || currentRange.tot != null;
+  }
+
+  private setRange(range: GeneratedType<"RestDatumRange">) {
+    const currentRange = this.currentRange();
+    if (currentRange.van === range.van && currentRange.tot === range.tot) {
+      return;
+    }
+    this.range.set(range);
   }
 
   private toDate(value?: string | null) {

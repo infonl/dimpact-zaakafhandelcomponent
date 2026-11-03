@@ -311,13 +311,6 @@ export class ZaakLinkComponent {
     );
   });
 
-  protected dateRangeChanged(
-    range: ReturnType<typeof this.startdatum>,
-    target: typeof this.startdatum,
-  ) {
-    target.set({ ...range });
-  }
-
   protected readonly relationTypeUnavailableReason = computed(() => {
     switch (this.caseRelationType()?.value) {
       case "HOOFDZAAK":

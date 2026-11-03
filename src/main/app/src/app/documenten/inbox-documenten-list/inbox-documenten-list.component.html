@@ -40,10 +40,8 @@
             <th mat-header-cell *matHeaderCellDef>
               <zac-date-range-filter
                 label="creatiedatum"
-                [range]="listParameters.creatiedatum"
-                (changed)="
-                  listParameters.creatiedatum = $event; filtersChanged()
-                "
+                [(range)]="listParameters.creatiedatum"
+                (changed)="filtersChanged()"
               ></zac-date-range-filter>
             </th>
           </ng-container>

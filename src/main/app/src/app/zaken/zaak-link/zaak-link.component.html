@@ -93,15 +93,13 @@
                     class="col-6 full-width-fields"
                     [showLabel]="true"
                     label="startdatum"
-                    [range]="startdatum()"
-                    (changed)="dateRangeChanged($event, startdatum)"
+                    [(range)]="startdatum"
                   />
                   <zac-date-range-filter
                     class="col-6 full-width-fields"
                     [showLabel]="true"
                     label="einddatum"
-                    [range]="einddatum()"
-                    (changed)="dateRangeChanged($event, einddatum)"
+                    [(range)]="einddatum"
                   />
                 </div>
               </fieldset>
