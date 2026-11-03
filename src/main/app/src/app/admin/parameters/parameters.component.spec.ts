@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HttpTestingController } from "@angular/common/http/testing";
 import { signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatNativeDateModule } from "@angular/material/core";
@@ -12,28 +13,24 @@ import { provideRouter } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
+import { sleep } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ParametersComponent } from "./parameters.component";
 import { ZaakafhandelParametersListParameters } from "./zaakafhandel-parameters-list-parameters";
 
 const createParametersComponent = () => {
   TestBed.configureTestingModule({
     providers: [
+      provideTranslateService(),
       { provide: UtilService, useValue: fromPartial<UtilService>({}) },
       {
         provide: ConfiguratieService,
         useValue: fromPartial<ConfiguratieService>({}),
-      },
-      {
-        provide: ZaakafhandelParametersService,
-        useValue: fromPartial<ZaakafhandelParametersService>({}),
       },
     ],
   });
@@ -175,60 +172,77 @@ describe(`${ParametersComponent.name} compare functions`, () => {
 
 describe(ParametersComponent.name, () => {
   let fixture: ComponentFixture<ParametersComponent>;
-  let component: ParametersComponent;
-  let utilServiceMock: Pick<UtilService, "getUniqueItemsList" | "loading">;
-  let zaakafhandelParametersServiceMock: Pick<
-    ZaakafhandelParametersService,
-    "listZaakafhandelParameters"
-  >;
+  let httpTestingController: HttpTestingController;
 
   beforeEach(async () => {
-    utilServiceMock = {
-      getUniqueItemsList: jest.fn().mockReturnValue([]),
-      loading: signal(false),
-    } satisfies Pick<UtilService, "getUniqueItemsList" | "loading">;
-
-    zaakafhandelParametersServiceMock = {
-      listZaakafhandelParameters: jest.fn().mockReturnValue(of([])),
-    } satisfies Pick<
-      ZaakafhandelParametersService,
-      "listZaakafhandelParameters"
-    >;
-
     await TestBed.configureTestingModule({
       imports: [ParametersComponent, NoopAnimationsModule, MatNativeDateModule],
       providers: [
         provideTranslateService(),
-        { provide: UtilService, useValue: utilServiceMock },
-        { provide: ConfiguratieService, useValue: {} },
         {
-          provide: ZaakafhandelParametersService,
-          useValue: zaakafhandelParametersServiceMock,
+          provide: UtilService,
+          useValue: fromPartial<UtilService>({
+            getUniqueItemsList: jest.fn().mockReturnValue([]),
+            loading: signal(false),
+          }),
         },
+        { provide: ConfiguratieService, useValue: {} },
         provideRouter([]),
       ],
     }).compileComponents();
-  });
 
-  beforeEach(() => {
+    httpTestingController = TestBed.inject(HttpTestingController);
+    sessionStorage.clear();
     fixture = TestBed.createComponent(ParametersComponent);
-    component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it("should create and call setupMenu on init", () => {
-    expect(component).toBeTruthy();
-  });
+  async function answerParametersWith(
+    parameters: GeneratedType<"RestZaaktypeConfiguration">[],
+  ) {
+    await sleep();
+    httpTestingController
+      .expectOne("/rest/zaakafhandelparameters")
+      .flush(parameters);
+    await sleep();
+    fixture.detectChanges();
+    await sleep();
+    fixture.detectChanges();
+  }
 
-  it("should show no-data message when data is empty and not loading", () => {
-    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
-  });
-
-  it("should show loading message when loading is true", () => {
-    component["loading"] = true;
+  it("shows the loading message while the parameters are being read", async () => {
+    await sleep();
     fixture.detectChanges();
 
     expect(screen.getByText("msg.loading")).toBeVisible();
+  });
+
+  it("shows the no-data message when no zaaktype has parameters", async () => {
+    await answerParametersWith([]);
+
+    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
+    expect(screen.queryByText("msg.loading")).not.toBeInTheDocument();
+  });
+
+  it("shows a row for every zaaktype it read the parameters of", async () => {
+    await answerParametersWith([
+      fromPartial<GeneratedType<"RestZaaktypeConfiguration">>({
+        zaaktype: {
+          uuid: "fakeZaaktypeUuid",
+          identificatie: "fakeIdentificatie",
+          omschrijving: "Fake zaaktype",
+          isNuGeldig: true,
+        },
+        isValide: true,
+      }),
+    ]);
+
+    expect(
+      screen.getByRole("row", { name: /Fake zaaktype/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("msg.geen.gegevens.gevonden"),
+    ).not.toBeInTheDocument();
   });
 
   it.each([
@@ -237,22 +251,15 @@ describe(ParametersComponent.name, () => {
   ] as const)(
     "shows only the zaaktypen whose $geldigheid lies in the typed range",
     async ({ geldigheid, position }) => {
-      sessionStorage.clear();
       const parameters = (omschrijving: string, datum: string) =>
         fromPartial<GeneratedType<"RestZaaktypeConfiguration">>({
           isValide: true,
           zaaktype: { omschrijving, [geldigheid]: datum, isNuGeldig: true },
         });
-      jest
-        .mocked(zaakafhandelParametersServiceMock.listZaakafhandelParameters)
-        .mockReturnValue(
-          of([
-            parameters("Oud zaaktype", "2024-01-10"),
-            parameters("Nieuw zaaktype", "2025-06-01"),
-          ]),
-        );
-      fixture = TestBed.createComponent(ParametersComponent);
-      fixture.detectChanges();
+      await answerParametersWith([
+        parameters("Oud zaaktype", "2024-01-10"),
+        parameters("Nieuw zaaktype", "2025-06-01"),
+      ]);
 
       const user = userEvent.setup();
       await user.type(
