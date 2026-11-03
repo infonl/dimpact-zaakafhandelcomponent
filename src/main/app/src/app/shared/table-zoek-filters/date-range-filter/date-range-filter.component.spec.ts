@@ -9,6 +9,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
+import { alterMoment } from "../../../../functions";
 import { GeneratedType } from "../../utils/generated-types";
 import { DateRangeFilterComponent } from "./date-range-filter.component";
 
@@ -22,6 +23,10 @@ type DateRangeFilterInputs = {
 
 describe(DateRangeFilterComponent.name, () => {
   const user = userEvent.setup({ delay: null });
+
+  beforeAll(() => {
+    alterMoment();
+  });
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -212,21 +217,24 @@ describe(DateRangeFilterComponent.name, () => {
   });
 
   describe("typing a date", () => {
-    it("emits the range with the typed dates as ISO strings", async () => {
+    const firstOfJanuary = "2024-01-01T00:00:00.000+01:00";
+    const thirtyFirstOfJanuary = "2024-01-31T00:00:00.000+01:00";
+
+    it("emits the range with the typed dates as ISO strings with their offset", async () => {
       const { changed } = await setup({ range: { van: null, tot: null } });
 
       await typeDate(startInput(), "01-01-2024");
 
       expect(changed).toHaveBeenLastCalledWith({
-        van: new Date(2024, 0, 1).toISOString(),
+        van: firstOfJanuary,
         tot: null,
       });
 
       await typeDate(endInput(), "31-01-2024");
 
       expect(changed).toHaveBeenLastCalledWith({
-        van: new Date(2024, 0, 1).toISOString(),
-        tot: new Date(2024, 0, 31).toISOString(),
+        van: firstOfJanuary,
+        tot: thirtyFirstOfJanuary,
       });
     });
 
@@ -238,7 +246,7 @@ describe(DateRangeFilterComponent.name, () => {
 
       expect(rangeChange).toHaveBeenCalledTimes(1);
       expect(rangeChange).toHaveBeenCalledWith({
-        van: new Date(2024, 0, 1).toISOString(),
+        van: firstOfJanuary,
         tot: null,
       });
       expect(changed.mock.calls[0][0]).toBe(rangeChange.mock.calls[0][0]);

@@ -64,6 +64,8 @@ export class DateRangeFilterComponent {
   protected dateVan = new FormControl<Date | null>(null);
   protected dateTM = new FormControl<Date | null>(null);
 
+  private ownRange?: GeneratedType<"RestDatumRange">;
+
   private readonly currentRange = computed<GeneratedType<"RestDatumRange">>(
     () => this.range() ?? { van: null, tot: null },
   );
@@ -71,6 +73,7 @@ export class DateRangeFilterComponent {
   constructor() {
     effect(() => {
       const currentRange = this.currentRange();
+      if (currentRange === this.ownRange) return;
       untracked(() => {
         this.dateVan.setValue(this.toDate(currentRange.van));
         this.dateTM.setValue(this.toDate(currentRange.tot));
@@ -108,6 +111,7 @@ export class DateRangeFilterComponent {
     if (currentRange.van === range.van && currentRange.tot === range.tot) {
       return;
     }
+    this.ownRange = range;
     this.range.set(range);
   }
 
