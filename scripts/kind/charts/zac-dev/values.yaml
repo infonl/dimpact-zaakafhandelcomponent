@@ -40,7 +40,7 @@ openarchiefbeheer:
   image: maykinmedia/open-archiefbeheer:2.0.0@sha256:e5217d748869c62d26393311c3cfdcaacf69d8dde80ca3bc172ff41f3885f0ff
 # no arm64 image: the arm64 build of Open Formulieren lacks static files that the form editor needs
 openforms:
-  image: openformulieren/open-forms:3.5.14@sha256:0320f7ba471453040ecc8362c96cb4acf3d774ee0647633d8c07e0e08007cf8b
+  image: openformulieren/open-forms:3.5.15@sha256:9d6b55953d10510583e1cf5554ae725e5b317c17c6f5200d25995b2997a72441
 vngSelectielijst:
   image: openzaak/vng-selectielijst:1.0.5@sha256:4a9579df9a5cd0308e295c404975bcde63f27bc4a6c65cbaa8e63cd4ef1458e5
 # the nginx of the upstream charts and the container that publishes the ports on the host
