@@ -8,7 +8,6 @@ import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
 import { PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
@@ -16,20 +15,15 @@ import { GeneratedType } from "../shared/utils/generated-types";
   providedIn: "root",
 })
 export class ReferentieTabelService {
-  private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly queryClient = inject(QueryClient, { optional: true });
   private readonly utilService = inject(UtilService);
 
   listReferentieTabellen() {
-    return this.zacHttpClient.GET("/rest/referentietabellen");
-  }
-
-  listReferentieTabellenQuery() {
     return this.zacQueryClient.GET("/rest/referentietabellen");
   }
 
-  readReferentieTabelQuery(id: number) {
+  readReferentieTabel(id: number) {
     return this.zacQueryClient.GET("/rest/referentietabellen/{id}", {
       path: { id },
     });
@@ -37,7 +31,7 @@ export class ReferentieTabelService {
 
   private invalidateReferentieTabellen() {
     return this.queryClient?.invalidateQueries({
-      queryKey: this.listReferentieTabellenQuery().queryKey,
+      queryKey: this.listReferentieTabellen().queryKey,
     });
   }
 
@@ -45,9 +39,27 @@ export class ReferentieTabelService {
     return Promise.all([
       this.invalidateReferentieTabellen(),
       this.queryClient?.invalidateQueries({
-        queryKey: this.readReferentieTabelQuery(id).queryKey,
+        queryKey: this.readReferentieTabel(id).queryKey,
       }),
     ]);
+  }
+
+  private readonly systemReferentieTabelQueries: Partial<
+    Record<string, () => { queryKey: readonly unknown[] }>
+  > = {
+    AFZENDER: () => this.listAfzenders(),
+    COMMUNICATIEKANAAL: () => this.listCommunicatiekanalen(),
+    SERVER_ERROR_ERROR_PAGINA_TEKST: () => this.listServerErrorTexts(),
+    BRP_DOELBINDING_ZOEK_WAARDE: () => this.listBrpSearchValues(),
+    BRP_DOELBINDING_RAADPLEEG_WAARDE: () => this.listBrpViewValues(),
+    BRP_VERWERKINGSREGISTER_WAARDE: () => this.listBrpProcessingValues(),
+  };
+
+  private invalidateSystemReferentieTabel(code?: string) {
+    const query = code ? this.systemReferentieTabelQueries[code] : undefined;
+    if (!query) return;
+    const [url] = query().queryKey;
+    return this.queryClient?.invalidateQueries({ queryKey: [url] });
   }
 
   createReferentieTabelMutation() {
@@ -86,6 +98,7 @@ export class ReferentieTabelService {
       {
         onSuccess: (_data, body) => {
           void this.invalidateReferentieTabel(id);
+          void this.invalidateSystemReferentieTabel(referenceTable.code);
           const { key, args } = message(body);
           this.utilService.openSnackbar(key, args);
         },
@@ -184,16 +197,14 @@ export class ReferentieTabelService {
     return this.zacQueryClient.GET("/rest/referentietabellen/afzender");
   }
 
-  listCommunicatiekanalen(inclusiefEFormulier?: boolean) {
-    return this.zacHttpClient.GET(
+  listCommunicatiekanalen(inclusiefEFormulier = false) {
+    return this.zacQueryClient.GET(
       "/rest/referentietabellen/communicatiekanaal/{inclusiefEFormulier}",
-      {
-        path: { inclusiefEFormulier: inclusiefEFormulier ?? false },
-      },
+      { path: { inclusiefEFormulier } },
     );
   }
 
-  listServerErrorTextsQuery() {
+  listServerErrorTexts() {
     return this.zacQueryClient.GET(
       "/rest/referentietabellen/server-error-text",
     );

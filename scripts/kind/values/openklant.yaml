@@ -1,0 +1,50 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# Values for the maykinmedia/openklant chart (release 'openklant'). scripts/kind/up.sh adds the image and the
+# generated passwords.
+replicaCount: 1
+
+tags:
+  redis: false
+
+settings:
+  allowedHosts: openklant.local,localhost,127.0.0.1,host.docker.internal
+  cache:
+    default: redis:6379/0
+    axes: redis:6379/0
+  celery:
+    brokerUrl: redis://redis:6379/0
+    resultBackend: redis://redis:6379/0
+  isHttps: false
+  disable2fa: true
+  notificationsDisabled: true
+
+persistence:
+  enabled: false
+
+# Open Klant migrates its empty database when it starts, which takes minutes
+livenessProbe:
+  initialDelaySeconds: 300
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+readinessProbe:
+  initialDelaySeconds: 0
+  periodSeconds: 3
+  timeoutSeconds: 5
+  failureThreshold: 6
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 1Gi
+
+# Open Klant sends no notifications here and needs no nginx in front of it
+worker:
+  replicaCount: 0
+nginx:
+  replicaCount: 0

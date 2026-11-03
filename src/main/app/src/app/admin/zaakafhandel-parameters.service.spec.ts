@@ -113,5 +113,77 @@ describe(ZaakafhandelParametersService.name, () => {
           service.readZaakafhandelparameters("fakeZaaktypeUuid").queryKey,
       });
     });
+
+    it("makes the overview of all zaaktypes read the parameters again", async () => {
+      const invalidateQueries = jest
+        .spyOn(testQueryClient, "invalidateQueries")
+        .mockResolvedValue(undefined);
+
+      await runMutationOnSuccess(
+        service.updateZaakafhandelparameters("fakeZaaktypeUuid"),
+      );
+
+      expect(invalidateQueries).toHaveBeenCalledWith({
+        queryKey: service.listZaakafhandelParameters().queryKey,
+      });
+    });
+
+    it("makes the afbreken dialog read the zaakbeeindigredenen of the zaaktype again, as the parameters hold them", async () => {
+      const invalidateQueries = jest
+        .spyOn(testQueryClient, "invalidateQueries")
+        .mockResolvedValue(undefined);
+
+      await runMutationOnSuccess(
+        service.updateZaakafhandelparameters("fakeZaaktypeUuid"),
+      );
+
+      expect(invalidateQueries).toHaveBeenCalledWith({
+        queryKey:
+          service.listZaakbeeindigRedenenForZaaktype("fakeZaaktypeUuid")
+            .queryKey,
+      });
+    });
+  });
+
+  describe("listZaakafhandelParameters", () => {
+    it("reads the parameters of all zaaktypes", async () => {
+      const parameters = [
+        fromPartial<GeneratedType<"RestZaaktypeConfiguration">>({
+          zaaktype: { uuid: "fakeZaaktypeUuid" },
+        }),
+      ];
+
+      const result = testQueryClient.fetchQuery(
+        service.listZaakafhandelParameters(),
+      );
+      await sleep();
+      httpTestingController
+        .expectOne("/rest/zaakafhandelparameters")
+        .flush(parameters);
+
+      await expect(result).resolves.toEqual(parameters);
+    });
+  });
+
+  describe("listZaakbeeindigRedenenForZaaktype", () => {
+    it("reads the zaakbeeindigredenen of the zaaktype", async () => {
+      const redenen = [
+        fromPartial<GeneratedType<"RestZaakbeeindigReden">>({
+          id: "fakeRedenId",
+        }),
+      ];
+
+      const result = testQueryClient.fetchQuery(
+        service.listZaakbeeindigRedenenForZaaktype("fakeZaaktypeUuid"),
+      );
+      await sleep();
+      httpTestingController
+        .expectOne(
+          "/rest/zaakafhandelparameters/zaakbeeindigredenen/fakeZaaktypeUuid",
+        )
+        .flush(redenen);
+
+      await expect(result).resolves.toEqual(redenen);
+    });
   });
 });

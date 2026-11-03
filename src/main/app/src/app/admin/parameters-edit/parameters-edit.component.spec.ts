@@ -171,7 +171,7 @@ describe(ParametersEditComponent.name, () => {
             listBrpSearchValues: () => createQueryOptions([]),
             listBrpViewValues: () => createQueryOptions([]),
             listBrpProcessingValues: () => createQueryOptions([]),
-            listReferentieTabellenQuery: () => ({
+            listReferentieTabellen: () => ({
               ...createQueryOptions([adviesReferentieTabel]),
               queryKey: ["referentieTabellen"],
             }),
@@ -193,7 +193,7 @@ describe(ParametersEditComponent.name, () => {
         {
           provide: InformatieObjectenService,
           useValue: fromPartial<InformatieObjectenService>({
-            listInformatieobjecttypes: () => of([]),
+            listInformatieobjecttypes: () => createQueryOptions([]) as never,
           }),
         },
       ],

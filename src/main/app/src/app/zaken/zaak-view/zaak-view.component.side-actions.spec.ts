@@ -20,7 +20,6 @@ import { of, ReplaySubject } from "rxjs";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
-import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
 import { BAGService } from "../../bag/bag.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
@@ -64,7 +63,6 @@ describe(ZaakViewComponent.name, () => {
   let planItemsService: PlanItemsService;
   let dialogRef: MatDialogRef<unknown>;
   let websocketService: WebsocketService;
-  let zaakafhandelParametersService: ZaakafhandelParametersService;
 
   const mockActivatedRoute = {
     data: new ReplaySubject<{ zaak: GeneratedType<"RestZaak"> }>(1),
@@ -207,16 +205,6 @@ describe(ZaakViewComponent.name, () => {
     jest.spyOn(websocketService, "doubleSuspendListener").mockImplementation();
     jest.spyOn(websocketService, "removeListener").mockImplementation();
     jest.spyOn(websocketService, "suspendListener").mockImplementation();
-
-    zaakafhandelParametersService = TestBed.inject(
-      ZaakafhandelParametersService,
-    );
-    jest
-      .spyOn(
-        zaakafhandelParametersService,
-        "listZaakbeeindigRedenenForZaaktype",
-      )
-      .mockReturnValue(of([]));
 
     TestBed.inject(PolicyService);
     TestBed.inject(MatDialog);

@@ -127,7 +127,7 @@ val srcE2e = layout.projectDirectory.dir("src/e2e")
 val e2ePath = srcE2e.toProjectRelativePath()
 
 // WildFly loads its logging filters from a module of the server, not from a deployment, so the ZAC logging filter
-// has a source set of its own that the build packages as such a module; see ADR-0010
+// has a source set of its own that the build packages as such a module; see ADR-0011
 val logFilter: SourceSet = sourceSets.create("logFilter")
 val wildflyExtraServerContent = layout.buildDirectory.dir("wildfly/extra-server-content")
 

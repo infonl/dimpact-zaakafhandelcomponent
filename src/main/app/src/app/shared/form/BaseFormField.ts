@@ -5,25 +5,21 @@
 
 import {
   booleanAttribute,
-  ChangeDetectionStrategy,
   Component,
   computed,
+  DoCheck,
   effect,
   inject,
   input,
   OnDestroy,
   signal,
 } from "@angular/core";
-import {
-  AbstractControl,
-  FormGroup,
-  ValidationErrors,
-  Validators,
-} from "@angular/forms";
+import { AbstractControl, FormGroup, Validators } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { injectIsMutating } from "@tanstack/angular-query-experimental";
 import { lastValueFrom, Observable, Subject, takeUntil } from "rxjs";
 import { toI18nKey } from "../utils/i18n-key";
+import { trackControl } from "./control-state";
 import { FormHelper } from "./helpers";
 
 /**
@@ -33,22 +29,19 @@ import { FormHelper } from "./helpers";
  */
 @Component({
   template: "",
-  changeDetection: ChangeDetectionStrategy.Eager,
   host: {
     class: "zac-form-field",
     "[attr.inert]": "isSubmitting() ? '' : null",
   },
 })
 export class SingleInputFormField<
-  Form extends Record<string, AbstractControl>,
-  Key extends keyof Form,
-  Option extends Form[Key]["value"],
-> implements OnDestroy
+    Form extends Record<string, AbstractControl>,
+    Key extends keyof Form,
+    Option extends Form[Key]["value"],
+  >
+  implements DoCheck, OnDestroy
 {
   private readonly translateService = inject(TranslateService);
-
-  private readonly controlErrors = signal<ValidationErrors | null>(null);
-  protected readonly isRequired = signal(false);
 
   private readonly mutatingCount = injectIsMutating();
 
@@ -61,13 +54,7 @@ export class SingleInputFormField<
   protected readonly destroy$ = new Subject<void>();
 
   protected readonly control = computed<AbstractControl<Option | null> | null>(
-    () => {
-      const control = this.form().controls[this.key()];
-
-      if (this.readonly()) control.disable({ emitEvent: false });
-
-      return control;
-    },
+    () => this.form().controls[this.key()],
   );
 
   public readonly form = input.required<FormGroup<Form>>();
@@ -79,21 +66,29 @@ export class SingleInputFormField<
     () => this.label() ?? toI18nKey(this.key()),
   );
 
+  private readonly readControl = trackControl(this.control);
+  protected readonly value = this.readControl((control) => control.value);
+  protected readonly disabled = this.readControl((control) => control.disabled);
+  private readonly controlErrors = this.readControl(
+    (control) => control.errors,
+  );
+  private readonly hasRequiredValidator = this.readControl((control) =>
+    control.hasValidator(Validators.required),
+  );
+  protected readonly isRequired = computed(
+    () => this.hasRequiredValidator() ?? false,
+  );
+
   constructor() {
     effect(() => {
+      if (this.readonly()) this.control()?.disable({ emitEvent: false });
+    });
+
+    effect((onCleanup) => {
       const control = this.control();
-      if (!control) {
-        this.controlErrors.set(null);
-        this.isRequired.set(false);
-        return;
-      }
+      if (!control) return;
 
-      control.statusChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
-        this.controlErrors.set(control.errors);
-        this.isRequired.set(control.hasValidator(Validators.required));
-      });
-
-      control.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
+      const subscription = control.valueChanges.subscribe((value) => {
         switch (typeof value) {
           case "string":
             if (value) break;
@@ -107,19 +102,20 @@ export class SingleInputFormField<
           // No action needed
         }
       });
-
-      // Set initial errors
-      this.controlErrors.set(control.errors);
-      this.isRequired.set(control.hasValidator(Validators.required));
+      onCleanup(() => subscription.unsubscribe());
     });
   }
 
   protected readonly formError = computed(() => {
     return FormHelper.getErrorMessage(
-      this.controlErrors(),
+      this.controlErrors() ?? null,
       this.translateService,
     );
   });
+
+  ngDoCheck() {
+    this.readControl.check();
+  }
 
   ngOnDestroy() {
     this.destroy$.next();
@@ -133,7 +129,6 @@ export class SingleInputFormField<
  * It should **never** be used directly in a template.
  */
 @Component({
-  changeDetection: ChangeDetectionStrategy.Eager,
   template: "",
 })
 export class MultiInputFormField<

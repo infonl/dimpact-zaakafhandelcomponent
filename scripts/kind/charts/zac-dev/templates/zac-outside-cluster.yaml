@@ -1,0 +1,125 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+{{- if .Values.zacOutsideCluster }}
+# OPA and the office converter for a ZAC that runs outside the cluster. The ZAC Helm chart brings both when ZAC
+# runs in the cluster; these carry the same labels, so that the same NodePort Services reach either of them.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opa
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: opa
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: opa
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+      containers:
+        - name: opa
+          image: {{ .Values.opa.image }}
+          args: ["run", "--server", "--addr=0.0.0.0:8181", "--log-level=debug"]
+          ports:
+            - containerPort: 8181
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8181
+            periodSeconds: 2
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
+            runAsUser: 10001
+            runAsGroup: 10001
+            readOnlyRootFilesystem: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: "1"
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opa
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app.kubernetes.io/name: opa
+  ports:
+    - port: 8181
+      targetPort: 8181
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: office-converter
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: office-converter
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: office-converter
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+      containers:
+        - name: office-converter
+          image: {{ .Values.officeConverter.image }}
+          args: ["gotenberg", "--chromium-disable-routes=true", "--api-enable-basic-auth=true"]
+          env:
+            - name: GOTENBERG_API_BASIC_AUTH_USERNAME
+              value: {{ .Values.officeConverter.username | quote }}
+            {{- include "zac-dev.generatedSecretEnv" (list . "GOTENBERG_API_BASIC_AUTH_PASSWORD" "office-converter-password") | nindent 12 }}
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            periodSeconds: 5
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
+            runAsUser: 10001
+            runAsGroup: 10001
+            readOnlyRootFilesystem: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 1Gi
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: office-converter
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app.kubernetes.io/name: office-converter
+  ports:
+    - port: 3000
+      targetPort: 3000
+{{- end }}

@@ -64,7 +64,7 @@ export class ParametersStepHumantasksComponent {
     this.zaakafhandelParametersService.listFormulierDefinities(),
   );
   protected readonly referentieTabellenQuery = injectQuery(() =>
-    this.referentieTabelService.listReferentieTabellenQuery(),
+    this.referentieTabelService.listReferentieTabellen(),
   );
   protected readonly groepenQuery = injectQuery(() => {
     const omschrijving = this.zaaktypeOmschrijving();

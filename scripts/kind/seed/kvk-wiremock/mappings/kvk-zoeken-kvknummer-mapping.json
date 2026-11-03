@@ -1,0 +1,18 @@
+{
+  "request": {
+    "url": "/api/v2/zoeken?kvkNummer=12345678&type=rechtspersoon",
+    "method": "GET",
+    "headers": {
+      "Accept": {
+        "equalTo": "application/hal+json"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "kvk-zoekresultaat-rechtspersoon-123456789-body.json",
+    "headers": {
+      "Content-Type": "application/hal+json"
+    }
+  }
+}

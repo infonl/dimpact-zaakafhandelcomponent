@@ -9,7 +9,7 @@
     [icon]="data.icon"
     [melding]="data.melding"
     [uitleg]="data.uitleg"
-    [loading]="loading"
+    [loading]="loading()"
     (cancelled)="close()"
   >
     @if (data.multiline) {
@@ -22,7 +22,7 @@
   <mat-dialog-actions>
     <zac-form-actions
       [form]="form"
-      [loading]="loading"
+      [loading]="loading()"
       [submitLabel]="submitLabel"
       [cancelLabel]="cancelLabel"
     />

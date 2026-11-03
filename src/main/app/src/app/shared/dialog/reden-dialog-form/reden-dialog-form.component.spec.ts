@@ -8,8 +8,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
-import { screen } from "@testing-library/angular";
-import { of, throwError } from "rxjs";
+import { screen, waitFor } from "@testing-library/angular";
+import { NEVER, of, throwError } from "rxjs";
 import { ZacInput } from "../../form/input/input";
 import { ZacTextarea } from "../../form/textarea/textarea";
 import {
@@ -86,7 +86,7 @@ describe(RedenDialogFormComponent.name, () => {
     expect(callback).not.toHaveBeenCalled();
   });
 
-  it("invokes the callback with the entered reden and closes with its result", () => {
+  it("invokes the callback with the entered reden and closes with its result", async () => {
     const callback = jest.fn().mockReturnValue(of("service-result"));
     const { component, dialogRefMock } = setup({ callback });
 
@@ -94,20 +94,22 @@ describe(RedenDialogFormComponent.name, () => {
     component["submit"]();
 
     expect(callback).toHaveBeenCalledWith("mijn reden");
-    expect(dialogRefMock.close).toHaveBeenCalledWith("service-result");
+    await waitFor(() =>
+      expect(dialogRefMock.close).toHaveBeenCalledWith("service-result"),
+    );
   });
 
-  it("closes with true when the callback returns a nullish result", () => {
+  it("closes with true when the callback returns a nullish result", async () => {
     const callback = jest.fn().mockReturnValue(of(null));
     const { component, dialogRefMock } = setup({ callback });
 
     enterReden(component);
     component["submit"]();
 
-    expect(dialogRefMock.close).toHaveBeenCalledWith(true);
+    await waitFor(() => expect(dialogRefMock.close).toHaveBeenCalledWith(true));
   });
 
-  it("closes with false when the callback errors", () => {
+  it("closes with false when the callback errors", async () => {
     const callback = jest
       .fn()
       .mockReturnValue(throwError(() => new Error("x")));
@@ -116,7 +118,9 @@ describe(RedenDialogFormComponent.name, () => {
     enterReden(component);
     component["submit"]();
 
-    expect(dialogRefMock.close).toHaveBeenCalledWith(false);
+    await waitFor(() =>
+      expect(dialogRefMock.close).toHaveBeenCalledWith(false),
+    );
   });
 
   it("closes with true when confirming without a callback", () => {
@@ -134,9 +138,11 @@ describe(RedenDialogFormComponent.name, () => {
     expect(dialogRefMock.close).toHaveBeenCalledWith(false);
   });
 
-  it("close() does nothing while loading", () => {
-    const { component, dialogRefMock } = setup();
-    component["loading"] = true;
+  it("close() does nothing while the callback is still running", async () => {
+    const { component, dialogRefMock } = setup({ callback: () => NEVER });
+    enterReden(component);
+    component["submit"]();
+    await waitFor(() => expect(component["loading"]()).toBe(true));
 
     component["close"]();
 

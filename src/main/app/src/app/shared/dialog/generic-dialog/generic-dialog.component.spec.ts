@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { Component, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
@@ -14,13 +14,12 @@ import { GenericDialogComponent } from "./generic-dialog.component";
 @Component({
   standalone: true,
   imports: [GenericDialogComponent],
-  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <zac-generic-dialog
       [titleKey]="titleKey"
       [icon]="icon"
-      [melding]="melding"
-      [loading]="loading"
+      [melding]="melding()"
+      [loading]="loading()"
       (cancelled)="cancelled = cancelled + 1"
     >
       <span>projected body</span>
@@ -30,8 +29,8 @@ import { GenericDialogComponent } from "./generic-dialog.component";
 class HostComponent {
   titleKey = "actie.zaak.opschorten";
   icon = "pause";
-  melding?: string;
-  loading = false;
+  readonly melding = signal<string | undefined>(undefined);
+  readonly loading = signal(false);
   cancelled = 0;
 }
 
@@ -57,7 +56,7 @@ describe(GenericDialogComponent.name, () => {
 
   it("renders the melding when provided", () => {
     const { fixture, host } = setup();
-    host.melding = "een melding";
+    host.melding.set("een melding");
     fixture.detectChanges();
     expect(screen.getByText("een melding")).toBeInTheDocument();
   });
@@ -71,7 +70,7 @@ describe(GenericDialogComponent.name, () => {
 
   it("disables the close (X) button while loading", () => {
     const { fixture, host } = setup();
-    host.loading = true;
+    host.loading.set(true);
     fixture.detectChanges();
 
     expect(

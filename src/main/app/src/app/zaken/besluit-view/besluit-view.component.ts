@@ -10,6 +10,7 @@ import {
   input,
   OnInit,
   output,
+  signal,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 
@@ -19,10 +20,11 @@ import { MatDialog } from "@angular/material/dialog";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatIconModule } from "@angular/material/icon";
 import { MatSortModule } from "@angular/material/sort";
-import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { MatTableModule } from "@angular/material/table";
 import { MatTabsModule } from "@angular/material/tabs";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslatePipe } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { skip } from "rxjs";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { TextIcon } from "../../shared/edit/text-icon";
@@ -76,10 +78,12 @@ export class BesluitViewComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
 
   readonly indicatiesLayout = IndicatiesLayout;
-  histories: Record<
-    string,
-    MatTableDataSource<GeneratedType<"RestTaskHistoryLine">>
-  > = {};
+
+  private readonly geopendBesluitUuid = signal<string | null>(null);
+  private readonly historieQuery = injectQuery(() => ({
+    ...this.zakenService.listBesluitHistorie(this.geopendBesluitUuid()!),
+    enabled: !!this.geopendBesluitUuid(),
+  }));
 
   protected documentenForms: Record<
     string,
@@ -103,9 +107,9 @@ export class BesluitViewComponent implements OnInit {
     toObservable(this.besluiten)
       .pipe(skip(1), takeUntilDestroyed())
       .subscribe(() => {
-        for (const historieKey in this.histories) {
-          this.loadHistorie(historieKey);
-        }
+        const besluitUuid = this.geopendBesluitUuid();
+        if (besluitUuid)
+          this.zakenService.invalidateBesluitHistorie(besluitUuid);
       });
   }
 
@@ -116,9 +120,7 @@ export class BesluitViewComponent implements OnInit {
   }
 
   loadBesluitData(uuid: string) {
-    if (!this.histories[uuid]) {
-      this.loadHistorie(uuid);
-    }
+    this.geopendBesluitUuid.set(uuid);
 
     this.documentenForms[uuid] ??= this.formBuilder.group({
       documenten: this.formBuilder.control<
@@ -127,13 +129,9 @@ export class BesluitViewComponent implements OnInit {
     });
   }
 
-  private loadHistorie(uuid: string) {
-    this.zakenService.listBesluitHistorie(uuid).subscribe((historie) => {
-      this.histories[uuid] = new MatTableDataSource<
-        GeneratedType<"RestTaskHistoryLine">
-      >();
-      this.histories[uuid].data = historie;
-    });
+  protected historie(besluitUuid: string) {
+    if (besluitUuid !== this.geopendBesluitUuid()) return undefined;
+    return this.historieQuery.data();
   }
 
   protected isReadonly(besluit: GeneratedType<"RestBesluit">) {

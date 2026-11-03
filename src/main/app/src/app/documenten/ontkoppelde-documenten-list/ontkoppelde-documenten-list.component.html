@@ -180,7 +180,7 @@
                   <mat-icon>download</mat-icon>
                 </a>
                 @if (
-                  werklijstRechten.canOntkoppeldeDocumentenVerwijderen &&
+                  werklijstRechten()?.canOntkoppeldeDocumentenVerwijderen &&
                   !row.isVergrendeld
                 ) {
                   <button
@@ -235,8 +235,8 @@
         #paginator
         (page)="paginatorChanged($event)"
         [pageIndex]="0"
-        [pageSize]="aantalPerPagina"
-        [pageSizeOptions]="pageSizeOptions"
+        [pageSize]="aantalPerPagina()"
+        [pageSizeOptions]="pageSizeOptions()"
         sticky
       >
       </mat-paginator>

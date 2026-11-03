@@ -3,7 +3,8 @@
 The most recent version of the ZAC setup manual is in [inrichting-zaakafhandelcomponent.md](./inrichting-zaakafhandelcomponent.md) (Dutch only.
 
 The pipeline generates a PDF version of this manual for every ZAC release and attaches it to the [GitHub release](https://github.com/infonl/dimpact-zaakafhandelcomponent/releases).
-PDF versions for older releases of ZAC can be found in this folder.
+The PDFs of older releases are attached to their GitHub releases as well.
+The [Handleidingen](https://github.com/infonl/dimpact-zaakafhandelcomponent/wiki/Handleidingen) wiki page links the PDFs of all releases.
 See [pdf-generator](../pdf-generator/README.md) to generate the PDF locally.
 
 ## Updating the table of contents

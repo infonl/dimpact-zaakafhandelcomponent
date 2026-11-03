@@ -6,11 +6,11 @@
 <mat-sidenav-container
   class="inner-sidenav-container"
   #sideNavContainer
-  [class]="sideNaveMode"
+  [class]="sideNavMode()"
 >
   <mat-sidenav
     #menuSidenav
-    [mode]="sideNaveMode"
+    [mode]="sideNavMode()"
     position="start"
     opened="true"
     disableClose="true"
@@ -51,7 +51,7 @@
                     placeholder="{{ 'filter.alle' | translate }}"
                   >
                     <mat-option>{{ "filter.alle" | translate }}</mat-option>
-                    @for (value of zaaktypes; track value) {
+                    @for (value of zaaktypes(); track value) {
                       <mat-option [value]="value">{{
                         value.omschrijving
                       }}</mat-option>
@@ -79,7 +79,7 @@
                     placeholder="{{ 'filter.alle' | translate }}"
                   >
                     <mat-option>{{ "filter.alle" | translate }}</mat-option>
-                    @for (value of processDefinitions; track value) {
+                    @for (value of processDefinitions(); track value) {
                       <mat-option [value]="value">{{ value.naam }}</mat-option>
                     }
                   </mat-select>
@@ -268,12 +268,12 @@
               "
             ></tr>
           </table>
-          @if (parameters.data.length === 0 && !loading) {
+          @if (parameters.data.length === 0 && !loading()) {
             <p>
               {{ "msg.geen.gegevens.gevonden" | translate }}
             </p>
           }
-          @if (parameters.data.length === 0 && loading) {
+          @if (parameters.data.length === 0 && loading()) {
             <p>
               {{ "msg.loading" | translate }}
             </p>

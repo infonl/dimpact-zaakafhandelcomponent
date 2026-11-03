@@ -248,7 +248,8 @@ There are several useful flags that can be used to develop and debug [tests with
 
 ### Local test users
 
-Several local test users are provisioned in Keycloak when you run ZAC locally using our Docker Compose set-up.
+Several local test users are provisioned in Keycloak when you run ZAC locally using our Docker Compose set-up or
+our [kind set-up](installKind.md).
 You can use these users to log in to ZAC when running it locally. 
 
 For all of these local test users the password is equal to the username.

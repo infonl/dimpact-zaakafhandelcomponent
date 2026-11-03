@@ -39,6 +39,7 @@ interface OpaEvaluationClient {
         const val WERKLIJST_RECHTEN_PATH = "werklijst/werklijst_rechten"
         const val BRP_RECHTEN_PATH = "brp/brp_rechten"
         const val LEESROLLEN_PATH = "rol/leesrollen"
+        const val STARTROLLEN_PATH = "rol/startrollen"
     }
 
     @POST
@@ -72,4 +73,8 @@ interface OpaEvaluationClient {
     @GET
     @Path(LEESROLLEN_PATH)
     fun readLeesrollen(): RoleNamesResponse
+
+    @GET
+    @Path(STARTROLLEN_PATH)
+    fun readStartrollen(): RoleNamesResponse
 }

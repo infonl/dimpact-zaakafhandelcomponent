@@ -790,6 +790,38 @@ class PolicyServiceTest : BehaviorSpec({
         }
     }
 
+    context("Reading startrollen") {
+        given("An OPA policy bundle that defines the startrollen") {
+            every {
+                opaEvaluationClient.readStartrollen()
+            } returns RoleNamesResponse(setOf("fakeStartrol1", "fakeStartrol2"))
+
+            `when`("the startrollen are requested") {
+                val startrollen = policyService.readStartrollen()
+
+                then("the role names defined in OPA are returned") {
+                    startrollen shouldContainExactlyInAnyOrder listOf("fakeStartrol1", "fakeStartrol2")
+                }
+            }
+        }
+
+        given("An OPA policy bundle without the startrollen") {
+            every { opaEvaluationClient.readStartrollen() } returns RoleNamesResponse(null)
+
+            `when`("the startrollen are requested") {
+                val opaRuleNotConfiguredException = shouldThrow<OpaRuleNotConfiguredException> {
+                    policyService.readStartrollen()
+                }
+
+                then("it should throw OpaRuleNotConfiguredException naming the rule path") {
+                    opaRuleNotConfiguredException.message shouldBe
+                        "OPA returned no result for rule path 'rol/startrollen'. " +
+                        "The rule may be missing from the policy bundle."
+                }
+            }
+        }
+    }
+
     context("Reading documentrechten") {
         given("An unsigned information object") {
             val zaak = createZaak()

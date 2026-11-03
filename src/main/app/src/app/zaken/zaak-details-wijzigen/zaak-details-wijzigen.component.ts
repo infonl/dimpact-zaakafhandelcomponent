@@ -139,7 +139,16 @@ export class CaseDetailsEditComponent implements OnInit {
     group.isActive === false
       ? `${group.naam ?? ""} (${this.translateService.instant("inactief").toLowerCase()})`
       : (group.naam ?? "");
-  protected readonly communicationChannels = signal<string[]>([]);
+  private readonly communicationChannelsQuery = injectQuery(() =>
+    this.referentieTabelService.listCommunicatiekanalen(),
+  );
+  protected readonly communicationChannels = computed(() => {
+    const channels = this.communicationChannelsQuery.data() ?? [];
+    const zaakChannel = this.zaak().communicatiekanaal;
+    return Array.from(
+      new Set(zaakChannel ? [...channels, zaakChannel] : channels),
+    );
+  });
   protected confidentialityDesignations =
     VertrouwelijkaanduidingToTranslationKeyPipe.selectList;
 
@@ -320,15 +329,6 @@ export class CaseDetailsEditComponent implements OnInit {
           ({ value }) => value === zaak.vertrouwelijkheidaanduiding,
         ) ?? null,
     });
-
-    this.referentieTabelService
-      .listCommunicatiekanalen()
-      .subscribe((channels) => {
-        if (zaak.communicatiekanaal) {
-          channels.push(zaak.communicatiekanaal);
-        }
-        this.communicationChannels.set(Array.from(new Set(channels)));
-      });
 
     this.form.controls.groep.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))

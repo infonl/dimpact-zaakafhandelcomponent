@@ -1,0 +1,392 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# The seed data and the configuration of the components that the upstream charts install. Every 'helm upgrade' runs
+# these Jobs again under a new name, so each of them is idempotent. Each Job waits until its component has migrated
+# its database, which it does before it starts to listen.
+
+# The documents that the Open Zaak test data refers to, in the media volume of the openzaak release
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seed-openzaak-media-{{ .Release.Revision }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "zac-dev.seedJobLabels" . | nindent 4 }}
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      enableServiceLinks: false
+      restartPolicy: OnFailure
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+        # the user of the Open Zaak image, which adds uploads next to these documents
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: copy
+          image: {{ .Values.postgres.image }}
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              for month in 10 11 12; do
+                mkdir -p /app/private-media/uploads/2023/$month
+                cp /seed/fake-test-document.pdf /app/private-media/uploads/2023/$month/
+              done
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
+            readOnlyRootFilesystem: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+          volumeMounts:
+            # the subPath of the openzaak chart for private media
+            - name: media
+              mountPath: /app/private-media
+              subPath: openzaak/private_media
+            - name: seed
+              mountPath: /seed
+      volumes:
+        - name: media
+          persistentVolumeClaim:
+            claimName: openzaak-media
+        - name: seed
+          configMap:
+            name: seed-openzaak-uploads
+---
+# The Open Klant test data, only into an empty database
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seed-openklant-{{ .Release.Revision }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "zac-dev.seedJobLabels" . | nindent 4 }}
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      enableServiceLinks: false
+      restartPolicy: OnFailure
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+      containers:
+        - name: psql
+          image: {{ .Values.postgres.image }}
+          env:
+            - name: PGHOST
+              value: openklant-database
+            - name: PGUSER
+              value: openklant
+            - name: PGDATABASE
+              value: openklant
+            {{- include "zac-dev.generatedSecretEnv" (list . "PGPASSWORD" "db-password-openklant") | nindent 12 }}
+            {{- include "zac-dev.generatedSecretEnv" (list . "ADMIN_PASSWORD_HASH" "admin-password-hash") | nindent 12 }}
+          command:
+            - bash
+            - -c
+            - |
+              set -euo pipefail
+              {{ include "zac-dev.waitForPort" (list "openklant-local" 8000) }}
+              if [ "$(psql -At -c "SELECT count(*) FROM token_tokenauth")" = 0 ]; then
+                psql --set ON_ERROR_STOP=1 --set admin_password_hash="$ADMIN_PASSWORD_HASH" \
+                  --file /seed/1-setup-applicatie.sql
+              fi
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
+            runAsUser: 999
+            readOnlyRootFilesystem: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 500m
+              memory: 128Mi
+          volumeMounts:
+            - name: seed
+              mountPath: /seed
+      volumes:
+        - name: seed
+          configMap:
+            name: seed-openklant
+{{- if include "zac-dev.objecten" . }}
+---
+# The Open Object test data
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seed-openobject-{{ .Release.Revision }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "zac-dev.seedJobLabels" . | nindent 4 }}
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      enableServiceLinks: false
+      restartPolicy: OnFailure
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+      containers:
+        - name: loaddata
+          image: {{ .Values.openobject.image }}
+          envFrom:
+            # the settings of the openobject release
+            - configMapRef:
+                name: openobject
+            - secretRef:
+                name: openobject
+          env:
+            {{- include "zac-dev.generatedSecretEnv" (list . "ADMIN_PASSWORD" "admin-password") | nindent 12 }}
+          workingDir: /app
+          command:
+            - bash
+            - -c
+            - |
+              set -e
+              {{ include "zac-dev.waitForPort" (list "open-object-local" 8000) }}
+              python /app/src/manage.py loaddata demodata
+              {{- include "zac-dev.createAdminUser" "/app/src/manage.py" | nindent 14 }}
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
+            # the 'maykin' user of the image
+            runAsUser: 1000
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          volumeMounts:
+            - name: fixtures
+              mountPath: /app/src/objects/fixtures
+      volumes:
+        - name: fixtures
+          configMap:
+            name: seed-objecten-fixtures
+{{- end }}
+{{- if include "zac-dev.opennotificaties" . }}
+---
+# The channels, the subscriptions and the credentials of Open Notificaties, with a subscription for ZAC
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seed-opennotificaties-{{ .Release.Revision }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "zac-dev.seedJobLabels" . | nindent 4 }}
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      enableServiceLinks: false
+      restartPolicy: OnFailure
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+      containers:
+        - name: setup-configuration
+          image: {{ .Values.opennotificaties.image }}
+          envFrom:
+            - configMapRef:
+                name: opennotificaties
+            - secretRef:
+                name: opennotificaties
+          command:
+            - bash
+            - -c
+            - |
+              set -e
+              {{ include "zac-dev.waitForPort" (list "opennotificaties" 8000) }}
+              python /app/src/manage.py setup_configuration --yaml-file /seed/data.yaml
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
+            runAsUser: 1000
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          volumeMounts:
+            - name: configuration
+              mountPath: /seed
+      volumes:
+        - name: configuration
+          configMap:
+            name: opennotificaties-setup-configuration
+{{- end }}
+{{- if .Values.profiles.openarchiefbeheer }}
+---
+# The Open Zaak services of Open Archiefbeheer and its 'admin' user
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seed-openarchiefbeheer-{{ .Release.Revision }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "zac-dev.seedJobLabels" . | nindent 4 }}
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      enableServiceLinks: false
+      restartPolicy: OnFailure
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+      containers:
+        - name: setup-configuration
+          image: {{ .Values.openarchiefbeheer.image }}
+          envFrom:
+            - configMapRef:
+                name: openarchiefbeheer
+            - secretRef:
+                name: openarchiefbeheer
+          env:
+            {{- include "zac-dev.generatedSecretEnv" (list . "ADMIN_PASSWORD" "admin-password") | nindent 12 }}
+          command:
+            - bash
+            - -c
+            - |
+              set -e
+              {{ include "zac-dev.waitForPort" (list "openarchiefbeheer" 8000) }}
+              python /app/src/manage.py setup_configuration --yaml-file /seed/data.yaml
+              {{- include "zac-dev.createAdminUser" "/app/src/manage.py" | nindent 14 }}
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
+            runAsUser: 1000
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          volumeMounts:
+            - name: configuration
+              mountPath: /seed
+            - name: settings
+              mountPath: /app/src/openarchiefbeheer/conf/docker_no2fa.py
+              subPath: docker_no2fa.py
+      volumes:
+        - name: configuration
+          configMap:
+            name: openarchiefbeheer-setup-configuration
+        - name: settings
+          configMap:
+            name: openarchiefbeheer-settings
+{{- end }}
+{{- if .Values.profiles.openformulieren }}
+---
+# The services of Open Formulieren, its 'admin' user and the productaanvraag-Dimpact test form
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seed-openformulieren-{{ .Release.Revision }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "zac-dev.seedJobLabels" . | nindent 4 }}
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      enableServiceLinks: false
+      restartPolicy: OnFailure
+      securityContext:
+        {{- include "zac-dev.podSecurityContext" . | nindent 8 }}
+      containers:
+        - name: setup-configuration
+          image: {{ .Values.openforms.image }}
+          envFrom:
+            - configMapRef:
+                name: openforms
+            - secretRef:
+                name: openforms
+          env:
+            {{- include "zac-dev.generatedSecretEnv" (list . "ADMIN_PASSWORD" "admin-password") | nindent 12 }}
+            - name: OTEL_SDK_DISABLED
+              value: "true"
+          command:
+            - bash
+            - -c
+            - |
+              set -e
+              {{ include "zac-dev.waitForPort" (list "openforms" 8000) }}
+              python src/manage.py setup_configuration --yaml-file /seed/configuration/data.yaml
+              {{- include "zac-dev.createAdminUser" "src/manage.py" | nindent 14 }}
+              python src/manage.py shell -c "
+              from openforms.contrib.haal_centraal.models import HaalCentraalConfig
+              from zgw_consumers.models import Service
+              config = HaalCentraalConfig.get_solo()
+              if not config.brp_personen_service_id:
+                  config.brp_personen_service = Service.objects.get(slug='brp-personen')
+                  config.save()
+              "
+              python src/manage.py shell -c "
+              from openforms.contrib.customer_interactions.models import CustomerInteractionsAPIGroupConfig
+              from zgw_consumers.models import Service
+              IDENTIFIER = 'klantinteracties-api-group'
+              if not CustomerInteractionsAPIGroupConfig.objects.filter(identifier=IDENTIFIER).exists():
+                  CustomerInteractionsAPIGroupConfig.objects.create(
+                      name='Local Klantinteracties API',
+                      identifier=IDENTIFIER,
+                      customer_interactions_service=Service.objects.get(slug='openklant-klantinteracties'),
+                  )
+              "
+              python src/manage.py shell -c "
+              import glob, os, zipfile
+              from openforms.forms.models import Form
+              from openforms.forms.utils import import_form
+              FORM_SLUG = 'productaanvraag-dimpact-test-formulier-compleet'
+              if not Form.objects.filter(slug=FORM_SLUG).exists():
+                  with zipfile.ZipFile('/tmp/forms.zip', 'w', zipfile.ZIP_DEFLATED) as forms_zip:
+                      for form_file in glob.glob('/seed/forms/*.json'):
+                          forms_zip.write(form_file, os.path.basename(form_file))
+                  with open('/tmp/forms.zip', 'rb') as forms_zip:
+                      import_form(forms_zip)
+              Form.objects.filter(slug=FORM_SLUG).update(active=True)
+              "
+          securityContext:
+            {{- include "zac-dev.nonRootContainerSecurityContext" . | nindent 12 }}
+            runAsUser: 1000
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          volumeMounts:
+            - name: configuration
+              mountPath: /seed/configuration
+            - name: forms
+              mountPath: /seed/forms
+            - name: settings
+              mountPath: /app/src/openforms/conf/docker_local.py
+              subPath: docker_local.py
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: configuration
+          configMap:
+            name: openformulieren-setup-configuration
+        - name: forms
+          configMap:
+            name: seed-openformulieren-forms
+        - name: settings
+          configMap:
+            name: openformulieren-settings
+        - name: tmp
+          emptyDir: {}
+{{- end }}

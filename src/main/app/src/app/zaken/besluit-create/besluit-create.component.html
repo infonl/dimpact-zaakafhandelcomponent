@@ -25,7 +25,7 @@
     <zac-select
       [form]="form"
       key="besluit"
-      [options]="besluittypes"
+      [options]="besluittypesQuery.data() ?? []"
       optionDisplayValue="naam"
     />
     <zac-date [form]="form" key="ingangsdatum" />

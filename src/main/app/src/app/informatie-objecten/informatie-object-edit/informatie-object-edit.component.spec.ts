@@ -127,9 +127,12 @@ describe(InformatieObjectEditComponent.name, () => {
       naam: "Test User",
     });
 
-    jest
-      .spyOn(informatieObjectenService, "listInformatieobjecttypesForZaak")
-      .mockReturnValue(of(mockInformatieObjectTypes));
+    testQueryClient.setQueryData(
+      informatieObjectenService.listInformatieobjecttypesForZaak(
+        "test-zaak-uuid",
+      ).queryKey,
+      mockInformatieObjectTypes,
+    );
 
     jest.spyOn(configuratieService, "listTalen").mockReturnValue(of(mockTalen));
 
@@ -212,13 +215,12 @@ describe(InformatieObjectEditComponent.name, () => {
       );
     });
 
-    it("should load informatieobject types", () => {
-      const listInformatieObjectTypes = jest.spyOn(
-        informatieObjectenService,
-        "listInformatieobjecttypesForZaak",
-      );
+    it("selects the informatieobjecttype of the document", async () => {
+      await fixture.whenStable();
 
-      expect(listInformatieObjectTypes).toHaveBeenCalledWith("test-zaak-uuid");
+      expect(component["form"].controls.informatieobjectType.value).toEqual(
+        mockInformatieObjectTypes[0],
+      );
     });
   });
 

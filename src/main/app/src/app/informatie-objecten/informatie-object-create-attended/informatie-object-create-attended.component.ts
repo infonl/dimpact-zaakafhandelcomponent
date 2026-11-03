@@ -26,16 +26,15 @@ import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import {
+  catchError,
   EMPTY,
   from,
   map,
   Observable,
   of,
-  ReplaySubject,
   startWith,
   Subject,
   switchMap,
-  take,
   takeUntil,
 } from "rxjs";
 import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
@@ -101,10 +100,6 @@ export class InformatieObjectCreateAttendedComponent
 
   private readonly destroy$ = new Subject<void>();
 
-  private readonly informatieObjectTypes$ = new ReplaySubject<
-    GeneratedType<"RestInformatieobjecttype">[]
-  >(1);
-
   protected readonly form = this.formBuilder.group({
     templateGroup:
       this.formBuilder.control<GeneratedType<"RestMappedSmartDocumentsTemplateGroup"> | null>(
@@ -158,7 +153,7 @@ export class InformatieObjectCreateAttendedComponent
   }
 
   async ngOnInit() {
-    this.fetchInformatieobjecttypes();
+    void this.queryClient.prefetchQuery(this.informatieobjecttypesQuery());
 
     this.form.controls.template.disable();
     this.form.controls.informationObjectType.disable();
@@ -214,9 +209,11 @@ export class InformatieObjectCreateAttendedComponent
             this.form.controls.confidentiality.setValue(null);
             return EMPTY;
           }
-          return this.informatieObjectTypes$.pipe(
-            take(1),
+          return from(
+            this.queryClient.ensureQueryData(this.informatieobjecttypesQuery()),
+          ).pipe(
             map((types) => ({ value, types })),
+            catchError(() => EMPTY),
           );
         }),
       )
@@ -257,13 +254,10 @@ export class InformatieObjectCreateAttendedComponent
       });
   }
 
-  private fetchInformatieobjecttypes() {
-    this.informatieObjectenService
-      .listInformatieobjecttypes(this.zaak().zaaktype.uuid)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((types) => {
-        this.informatieObjectTypes$.next(types);
-      });
+  private informatieobjecttypesQuery() {
+    return this.informatieObjectenService.listInformatieobjecttypes(
+      this.zaak().zaaktype.uuid,
+    );
   }
 
   protected onFormSubmit(formData?: typeof this.form) {

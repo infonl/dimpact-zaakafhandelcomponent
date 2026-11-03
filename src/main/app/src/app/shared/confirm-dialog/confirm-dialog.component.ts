@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import {
   MAT_DIALOG_DATA,
@@ -17,13 +17,13 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
-import { Observable } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
+import { injectMutation } from "../http/inject-mutation";
 
 @Component({
   templateUrl: "confirm-dialog.component.html",
   styleUrls: ["./confirm-dialog.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatToolbarModule,
     MatDialogTitle,
@@ -41,16 +41,19 @@ export class ConfirmDialogComponent {
     inject<MatDialogRef<ConfirmDialogComponent>>(MatDialogRef);
   protected readonly data = inject<ConfirmDialogData>(MAT_DIALOG_DATA);
 
-  protected loading = false;
+  private readonly confirmMutation = injectMutation(() => ({
+    mutationFn: (observable: Observable<unknown>) =>
+      firstValueFrom(observable, { defaultValue: undefined }),
+    onSuccess: () => this.dialogRef.close(true),
+    onError: () => this.dialogRef.close(false),
+  }));
+
+  protected readonly loading = this.confirmMutation.isPending;
 
   protected confirm(): void {
     if (this.data.observable) {
-      this.loading = true;
       this.dialogRef.disableClose = true;
-      this.data.observable.subscribe({
-        next: () => this.dialogRef.close(true),
-        error: () => this.dialogRef.close(false),
-      });
+      this.confirmMutation.mutate(this.data.observable);
     } else {
       this.dialogRef.close(true);
     }
