@@ -13,7 +13,7 @@ zgw_consumers:
     # Open Zaak - Zaken API
     - identifier: openzaak-zaken
       label: Open Zaak - Zaken API
-      api_root: http://openzaak-nginx:8000/zaken/api/v1/
+      api_root: http://openzaak.local:8000/zaken/api/v1/
       api_type: zrc
       auth_type: zgw
       client_id: open-formulieren
@@ -22,7 +22,7 @@ zgw_consumers:
     # Open Zaak - Documenten API
     - identifier: openzaak-documenten
       label: Open Zaak - Documenten API
-      api_root: http://openzaak-nginx:8000/documenten/api/v1/
+      api_root: http://openzaak.local:8000/documenten/api/v1/
       api_type: drc
       auth_type: zgw
       client_id: open-formulieren
@@ -31,7 +31,7 @@ zgw_consumers:
     # Open Zaak - Catalogi API
     - identifier: openzaak-catalogi
       label: Open Zaak - Catalogi API
-      api_root: http://openzaak-nginx:8000/catalogi/api/v1/
+      api_root: http://openzaak.local:8000/catalogi/api/v1/
       api_type: ztc
       auth_type: zgw
       client_id: open-formulieren
@@ -67,8 +67,9 @@ zgw_consumers:
 # Uses the local open-object service registered above for both the objects and
 # objecttypes endpoints, since Open Object (4.0+) merged the Objects API and
 # Objecttypes API into a single service.
-# catalogue_domain / catalogue_rsin and document-type fields are omitted because
-# the v1 (verouderd/sjabloon) registration backend does not upload PDFs/CSVs.
+# The catalogue and the document type of the submission PDF are set in the registration
+# backend options of the imported form, because Open Formulieren 4.0 no longer supports
+# them on the API group.
 # ZGW API groups still require manual setup (they need catalogue_domain / catalogue_rsin
 # values from your local Open Zaak instance which vary per environment):
 #   http://localhost:8007/admin/zgw_apis/zgwapigroupconfig/add/

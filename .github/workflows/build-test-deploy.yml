@@ -195,7 +195,6 @@ jobs:
               - '!**/*.md'
               - '!**/*.pdf'
               - '!**/*.png'
-              - '!charts/**'
               - '!docs/**'
               - '!src/e2e/**'
               - '!openspec/**'
@@ -475,8 +474,8 @@ jobs:
           echo "The frontend unit tests finished with result '${{ needs.frontend-unit-tests.result }}'"
           exit 1
 
-  # Every shard builds the ZAC Docker image, starts its own Docker Compose stack and runs the specs
-  # that 'src/itest/itest-shards.txt' assigns to it. The 'build-docker-image-and-run-itests' job below
+  # Every shard builds the ZAC Docker image, starts its own kind cluster with the stack of 'scripts/kind' and runs
+  # the specs that 'src/itest/itest-shards.txt' assigns to it. The 'build-docker-image-and-run-itests' job below
   # combines the results of all shards.
   itest-shard:
     needs: [build, paths-filter, determine-version]
@@ -495,19 +494,21 @@ jobs:
       BRANCH_NAME: ${{ needs.build.outputs.branch_name }}
       ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
       GIT_COMMIT_HASH: ${{ github.sha }}
-      BAG_API_CLIENT_MP_REST_URL: ${{ vars.BAG_API_CLIENT_MP_REST_URL }}
-      BAG_API_KEY: ${{ secrets.BAG_API_KEY }}
       NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
+      KIND_VERSION: v0.33.0 # kind version updated by renovate
+      KUBECTL_VERSION: v1.37.0 # kubectl version updated by renovate
+      ZAC_ITEST_KIND_CLUSTER_NAME: zac-itest
+      # the runner is thrown away after the job, and the steps below that run on a failure need the cluster
+      ZAC_ITEST_KEEP_STACK: "true"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      # The Docker Compose stack maps several Postgres containers to fixed host ports in the 54320-54330
-      # range, which falls inside the kernel's ephemeral port range. Without this, the runner can
-      # occasionally pick one of those ports as an ephemeral source port for an unrelated outbound
-      # connection at the exact moment Docker Compose tries to bind it, failing the stack start with
-      # "address already in use". Reserve the range before any step below can open a connection that
-      # could claim one of those ports as an ephemeral source port.
-      - name: Reserve the Docker Compose Postgres ports so the kernel never uses them as ephemeral ports
+      # The kind stack publishes several Postgres ports on fixed host ports in the 54320-54330 range, which
+      # falls inside the kernel's ephemeral port range. Without this, the runner can occasionally pick one of
+      # those ports as an ephemeral source port for an unrelated outbound connection at the exact moment the
+      # stack publishes it, failing the stack start with "address already in use". Reserve the range before
+      # any step below can open a connection that could claim one of those ports as an ephemeral source port.
+      - name: Reserve the Postgres ports of the kind stack so the kernel never uses them as ephemeral ports
         run: sudo sysctl -w net.ipv4.ip_local_reserved_ports=54320-54330
 
       - name: Authenticate with Docker Hub to avoid rate limiting issues
@@ -518,15 +519,37 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # Pull the Docker Compose images in the background while the JDK, Gradle and the ZAC Docker image
-      # are being prepared, so that the integration tests do not have to wait for the pulls.
-      # The ZAC image is excluded because it is built below.
-      - name: Start pulling the Docker Compose images in the background
+      - name: Set up Helm
+        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+        with:
+          version: v4.3.1 # helm version updated by renovate
+
+      - name: Install kind and kubectl
         run: |
-          nohup docker compose --profile zac --profile itest pull --quiet --ignore-pull-failures \
-            $(docker compose --profile zac --profile itest config --services | grep --invert-match --line-regexp zac) \
-            < /dev/null > "$RUNNER_TEMP/compose-pull.log" 2>&1 &
-          echo $! > "$RUNNER_TEMP/compose-pull.pid"
+          mkdir -p "$RUNNER_TEMP/bin"
+          cd "$RUNNER_TEMP/bin"
+          curl --fail --silent --show-error --location --remote-name-all \
+            "https://kind.sigs.k8s.io/dl/${KIND_VERSION}/kind-linux-amd64" \
+            "https://kind.sigs.k8s.io/dl/${KIND_VERSION}/kind-linux-amd64.sha256sum" \
+            "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" \
+            "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256"
+          sha256sum --check --strict kind-linux-amd64.sha256sum
+          echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check --strict
+          mv kind-linux-amd64 kind
+          chmod +x kind kubectl
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      # Bring up the kind cluster and every service but ZAC in the background while the JDK, Gradle and the ZAC
+      # Docker image are being prepared. The integration tests then install ZAC in this cluster.
+      - name: Start the kind stack in the background
+        env:
+          KIND_CLUSTER_NAME: ${{ env.ZAC_ITEST_KIND_CLUSTER_NAME }}
+          KIND_PROFILES: itest
+          KIND_ENV_FILE: ""
+          ZAC_IN_CLUSTER: ""
+        run: |
+          nohup bash -c 'scripts/kind/up.sh > "$RUNNER_TEMP/kind-up.log" 2>&1; echo $? > "$RUNNER_TEMP/kind-up.exit"' \
+            < /dev/null > /dev/null 2>&1 &
 
       - name: Setup JDK
         uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
@@ -553,15 +576,17 @@ jobs:
             --build-arg commitHash="${GIT_COMMIT_HASH}" \
             .
 
-      - name: Wait for the Docker Compose images to be pulled
+      - name: Wait for the kind stack
         run: |
-          while kill -0 "$(cat "$RUNNER_TEMP/compose-pull.pid")" 2> /dev/null; do
+          while [ ! -f "$RUNNER_TEMP/kind-up.exit" ]; do
             sleep 2
           done
-          cat "$RUNNER_TEMP/compose-pull.log"
+          cat "$RUNNER_TEMP/kind-up.log"
+          exit "$(cat "$RUNNER_TEMP/kind-up.exit")"
 
-      # The full integration test log (including the container logs) is written to a file that is uploaded
-      # as an artifact when the tests fail. The console only shows failed tests.
+      # The full integration test log (including the output of scripts/kind/up.sh) is written to a file that is
+      # uploaded as an artifact when the tests fail, together with the logs of the pods. The console only shows
+      # failed tests.
       - name: Run integration tests
         run: |
           ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} -PitestShard=${{ matrix.shard }} \
@@ -578,12 +603,28 @@ jobs:
             echo "No integration test timing report was generated" | tee --append "$GITHUB_STEP_SUMMARY"
           fi
 
+      - name: Collect the state and the logs of the kind stack
+        if: ${{ failure() }}
+        run: |
+          mkdir -p build/reports/itest/kind
+          cd build/reports/itest/kind
+          cp "$RUNNER_TEMP/kind-up.log" . || true
+          kubectl --context "kind-${ZAC_ITEST_KIND_CLUSTER_NAME}" get pods --all-namespaces --output wide > pods.txt 2>&1 || true
+          kubectl --context "kind-${ZAC_ITEST_KIND_CLUSTER_NAME}" get events --all-namespaces --sort-by=.lastTimestamp \
+            > events.txt 2>&1 || true
+          for pod in $(kubectl --context "kind-${ZAC_ITEST_KIND_CLUSTER_NAME}" --namespace zac get pods --output name); do
+            kubectl --context "kind-${ZAC_ITEST_KIND_CLUSTER_NAME}" --namespace zac logs "$pod" --all-containers --prefix \
+              > "${pod#pod/}.log" 2>&1 || true
+          done
+
       - name: Upload integration test log
         if: ${{ failure() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: integration-test-log-shard-${{ matrix.shard }}
-          path: build/reports/itest/itest.log
+          path: |
+            build/reports/itest/itest.log
+            build/reports/itest/kind
           if-no-files-found: ignore
           retention-days: 7
 

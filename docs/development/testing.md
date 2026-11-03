@@ -19,16 +19,31 @@ cd src/main/app && npm run test:report -- --shard=1/2
 
 ## Integration tests
 
-Our integration are written as [Kotest](https://kotest.io/) tests, and use the [TestContainers framework](https://testcontainers.com/) together
-with our [Docker Compose set-up](installDockerCompose.md) to run all required services (Keycloak, Open Zaak, etc)
-as well as ZAC itself as a Docker container.
+Our integration tests are written as [Kotest](https://kotest.io/) tests. They run against our
+[kind set-up](installKind.md): a local Kubernetes cluster with all required services (Keycloak, Open Zaak, etc),
+the test doubles of the integration tests (WireMock, GreenMail) and ZAC itself, installed with our ZAC Helm chart
+from the ZAC Docker image under test.
 This set-up makes it relatively slow to run the integration tests and for this reason they are not run as part of
 the standard Gradle `test` phase and normal Gradle build.
 
-If you wish to run the integration tests you can use the following command:
+You need Docker, [kind](https://kind.sigs.k8s.io/), `kubectl`, [Helm](https://helm.sh/) and Python 3 on your `PATH`
+(see [installKind.md](installKind.md)). If you wish to run the integration tests you can use the following command:
 
 ```shell
 ./gradlew itest --info
+```
+
+This builds the ZAC Docker image, starts the kind cluster `zac-itest` with `scripts/kind/up.sh`, creates the test
+setup data in ZAC, runs the integration tests, collects the code coverage of ZAC and deletes the cluster again.
+A `zac-itest` cluster that ZAC already ran in holds the data of an earlier run, so the integration tests delete it
+before they start a new one. The integration tests never touch the cluster of `./start-kind.sh`.
+
+The cluster publishes its services on the same host ports as `./start-kind.sh`. When those ports are taken, for
+example by your own kind or Docker Compose stack, move them with the environment variables of
+[installKind.md](installKind.md), which the integration tests follow too. For example:
+
+```shell
+KIND_PORT_OFFSET=2000 ./gradlew itest
 ```
 
 It is also possible to run the integration tests from inside your IDE (we use IntelliJ IDEA).
@@ -39,27 +54,32 @@ To do this you will first need to do the following:
     ```shell
     ./gradlew buildDockerImage
     ```
-3. If BAG integration is part of the test suite: create a 'Run Configuration' in IntelliJ where the following two environment variables are set: `BAG_API_CLIENT_MP_REST_URL` and `BAG_API_KEY`.
-4. Run the integration tests from your IDE using this run configuration.
+3. Run the integration tests from your IDE. Make sure that the `PATH` of the run configuration contains kind,
+   `kubectl` and Helm.
 
-Running the integration tests will first start up all required services (Keycloak, Open Zaak, etc) as Docker containers using our [Docker Compose file](installDockerCompose.md),
-then start up ZAC as Docker container and finally run the integration tests.
+### Code coverage of the integration tests
+
+ZAC runs with the [JaCoCo](https://www.jacoco.org/jacoco/) agent in the integration tests (see
+`scripts/kind/values/zac-itest.yaml`). After the last spec, the integration tests fetch the coverage from the agent
+through the `zac-jacoco` port of the cluster and write it to `build/jacoco/itest/jacoco-report/jacoco-it.exec`.
+`./gradlew jacocoIntegrationTestReport` turns it into a report, which CI uploads to Codecov with the flag
+`integrationtests`.
 
 ### Integration test timings
 
 Every integration test run writes a timing report to `build/reports/itest/timings.md`: how long starting the
-Docker Compose stack, ZAC becoming healthy, the specs and the teardown took, when each container started and
-became ready, and the slowest specs. Use it to find out where the time goes before trying to speed things up.
+kind stack, ZAC becoming healthy, the specs and the teardown took, when each pod started and became ready, and the
+slowest specs. Use it to find out where the time goes before trying to speed things up.
 In CI the report is published in the job summary of every `itest-shard` job.
 
-CI runs the integration tests without `--info` and writes the full log, including the container logs, to
-`build/reports/itest/itest.log` (Gradle property `itestLogFile`). That file is uploaded as the
-`integration-test-log-shard-<N>` artifact when the tests fail.
+CI runs the integration tests without `--info` and writes the full log, including the output of
+`scripts/kind/up.sh`, to `build/reports/itest/itest.log` (Gradle property `itestLogFile`). When the tests fail, that
+file and the logs of the pods are uploaded as the `integration-test-log-shard-<N>` artifact.
 
 ### Integration test shards
 
 CI runs the integration tests in shards: `src/itest/itest-shards.txt` assigns every spec to a shard and the
-`itest-shard` matrix job of the build workflow starts one Docker Compose stack per shard and runs only the specs
+`itest-shard` matrix job of the build workflow starts one kind cluster per shard and runs only the specs
 of that shard, using the Gradle property `itestShard`:
 
 ```shell
@@ -71,10 +91,13 @@ lists the specs that are missing from the file or no longer exist. Use the "Slow
 report to keep the shards balanced when adding or moving specs. The `build-docker-image-and-run-itests` job
 combines the test results of all shards into the single `integration-test-results` check.
 
+Each CI shard starts the kind cluster and every service but ZAC in the background while it builds the ZAC Docker
+image. The integration tests then reuse that cluster, because ZAC has not run in it yet, and only install ZAC.
+
 ### Concurrent specs and `@Isolate`
 
 Within one run the specs run concurrently (three at a time by default, each spec on its own thread), in random
-order, against the same ZAC and Docker Compose stack. A spec must therefore only create, change and assert on
+order, against the same ZAC and kind stack. A spec must therefore only create, change and assert on
 its own data. A spec that touches global state has to carry Kotest's `@Isolate` annotation so that it runs on its
 own, before the concurrent specs. This applies to specs that:
 
@@ -90,31 +113,34 @@ own, before the concurrent specs. This applies to specs that:
 The Gradle property `itestSpecConcurrency` overrides the number of concurrent specs, for example
 `-PitestSpecConcurrency=1` runs the specs one by one when debugging a failure.
 
-### Configuring Docker Compose containers start/stop behaviour
+### Configuring the start and stop behaviour of the kind cluster
 
 Using `Run Configuration` in IntelliJ you can set the following environment variables to configure the integration tests behaviour:
-* `TESTCONTAINERS_RYUK_DISABLED` - do not stop Docker containers after the tests finish executing
-* `DO_NOT_START_DOCKER_COMPOSE` - do not start Docker Compose when running the integration tests
+* `ZAC_ITEST_KEEP_STACK` - do not delete the kind cluster after the tests finish executing
+* `ZAC_ITEST_USE_RUNNING_STACK` - do not start the kind cluster, and do not create the test setup data: run against
+  the cluster that an earlier run with `ZAC_ITEST_KEEP_STACK` kept
+* `ZAC_ITEST_KIND_CLUSTER_NAME` - the name of the kind cluster of the integration tests (default: `zac-itest`)
 
 ![Run Configuration](./attachments/images/run-configuration.gif)
 
-In such way you can run the integration tests in a more controlled environment and start up Docker Compose only once.
+In such way you can run the integration tests in a more controlled environment and start up the kind cluster only
+once. `./start-it-with-local-env.sh` sets these variables with its options `-c` and `-s`.
 
 ### Debugging integration tests
 
-Debugging integration tests can be challenging because of the Docker environment used but also in large part because of the ordering dependency between many of these tests.
+Debugging integration tests can be challenging because of the Kubernetes environment used but also in large part because of the ordering dependency between many of these tests.
 The following steps can help you debug failing integration tests:
 
 1. Build the ZAC Docker Image. See instructions above.
-2. Make sure there are no running Docker containers on your computer.
+2. Set `ZAC_ITEST_KEEP_STACK=true`, so that you can inspect the cluster after the run.
 3. In IntelliJ run the integration tests in debug mode. On the `src\itest` folder right-click and select `Debug Tests in Zaakafhandelcomponent `
    1. Click on the `Instantiating tests` line in the IntelliJ Console so you can see the output of the tests.
    2. Check for failures. Focus on the first test that fails since one failing test typically cascades into other failing tests down the line since we have lots of ordering dependencies between our integration tests.
-   3. If all tests fail this usually indicates that the ZAC Docker container itself does not even start up. In that case forget about the integration tests and first try to get ZAC starting up locally using Docker Compose. 
+   3. If all tests fail this usually indicates that ZAC itself does not even start up. In that case forget about the integration tests and first try to get ZAC starting up locally with `./start-kind.sh -l`. 
    Come back here once this is fixed.
    4. If there are tests failing add a debug breakpoint in IntelliJ just before and just after this test is run.
-      1.  When the first breakpoint is reached, tail the ZAC Docker container logs (and possibly other container logs depending on the test) so you can clearly see the output of the ZAC container. 
-      Do a `docker ps` to find the container in question since they have dynamic names in our integration tests.
+      1.  When the first breakpoint is reached, follow the ZAC logs (and possibly the logs of other pods depending on the test) so you can clearly see the output of ZAC:
+          `kubectl --context kind-zac-itest --namespace zac logs deployment/zac --container zaakafhandelcomponent --follow`.
       2.  Continue running until the second breakpoint is reached. In most cases you can find out from the logs what the issue is.
       3.  When the integration tests are on a breakpoint you can also do manual testing in the ZAC user interface from a browser to troubleshoot.
 

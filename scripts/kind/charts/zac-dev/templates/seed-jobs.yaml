@@ -323,6 +323,21 @@ spec:
             - |
               set -e
               {{ include "zac-dev.waitForPort" (list "openforms" 8000) }}
+              # the form import validates the catalogue and the document type of the test form against Open Zaak
+              python -c "
+              import time, urllib.error, urllib.request
+              while True:
+                  try:
+                      urllib.request.urlopen('http://openzaak.local:8000/catalogi/api/v1/', timeout=5)
+                      break
+                  except urllib.error.HTTPError as error:
+                      if error.code < 500:
+                          break
+                  except OSError:
+                      pass
+                  print('waiting for Open Zaak', flush=True)
+                  time.sleep(3)
+              "
               python src/manage.py setup_configuration --yaml-file /seed/configuration/data.yaml
               {{- include "zac-dev.createAdminUser" "src/manage.py" | nindent 14 }}
               python src/manage.py shell -c "
@@ -354,7 +369,10 @@ spec:
                       for form_file in glob.glob('/seed/forms/*.json'):
                           forms_zip.write(form_file, os.path.basename(form_file))
                   with open('/tmp/forms.zip', 'rb') as forms_zip:
-                      import_form(forms_zip)
+                      imported_form = import_form(forms_zip)
+                  # import_form does not assign the logic rules to the form steps, which is needed before the rules
+                  # are evaluated
+                  imported_form.apply_logic_analysis()
               Form.objects.filter(slug=FORM_SLUG).update(active=True)
               "
           securityContext:

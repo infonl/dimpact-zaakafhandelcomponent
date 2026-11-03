@@ -15,6 +15,10 @@
           "version": 1,
           "objecttype": "021f685e-9482-4620-b157-34cd4003da6b",
           "content_json": "{\n  \"bron\": {\n    \"naam\": \"open-forms\",\n    \"kenmerk\": \"{{ submission.public_reference}}\"\n  },\n  \"type\": \"{{ productaanvraag_type }}\",\n  \"aanvraaggegevens\": {% json_summary %},\n  \"taal\": \"nld\",\n{% if variables.kaart%}\n  \"zaakgegevens\" : {\n     \"geometry\" : {\n        \"type\": \"Point\",\n        \"coordinates\": {{ variables.kaart }}\n     }\n  },\n{% endif %}\n  \"betrokkenen\": [\n{% if variables.initiator_bsn %}\n  {\n    \"inpBsn\": \"{{ variables.initiator_bsn }}\",\n    \"rolOmschrijvingGeneriek\": \"initiator\"\n  }\n{% elif variables.initiator_kvk_vestigingsnummer %}\n  {\n    \"vestigingsNummer\": \"{{ variables.initiator_kvk_vestigingsnummer }}\",\n    \"rolOmschrijvingGeneriek\": \"initiator\"\n  }\n{% endif %}\n],\n  \"pdf\": \"{{ submission.pdf_url }}\",\n  \"bijlagen\": {% uploaded_attachment_urls %}\n}",
+          "catalogue": {
+            "domain": "ALG",
+            "rsin": "002564440"
+          },
           "iot_attachment": "",
           "organisatie_rsin": "002564440",
           "objects_api_group": "local-objects-api",
@@ -23,7 +27,7 @@
           "objecttype_version": 1,
           "auth_attribute_path": [],
           "productaanvraag_type": "productaanvraag-test-compleet",
-          "iot_submission_report": "",
+          "iot_submission_report": "aangeboden bescheiden",
           "upload_submission_csv": false,
           "update_existing_object": false,
           "informatieobjecttype_attachment": "",

@@ -11,8 +11,7 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.ZAC_DATABASE_CONTAINER_SERVICE_NAME
-import nl.info.zac.itest.config.dockerComposeContainer
+import nl.info.zac.itest.util.queryZacDatabase
 import java.net.HttpURLConnection.HTTP_OK
 
 /**
@@ -33,20 +32,10 @@ class DataSourceConnectionValidationTest : BehaviorSpec({
         ).code shouldBe HTTP_OK
 
         and("all connections to the zac database are lost") {
-            val databaseContainer = dockerComposeContainer
-                .getContainerByServiceName(ZAC_DATABASE_CONTAINER_SERVICE_NAME)
-                .get()
-            val execResult = databaseContainer.execInContainer(
-                "psql",
-                "-U",
-                "zac",
-                "-d",
-                "zac",
-                "-c",
+            val terminatedBackends = queryZacDatabase(
                 "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'zac' AND pid <> pg_backend_pid();"
             )
-            logger.info { "pg_terminate_backend stdout: ${execResult.stdout}, stderr: ${execResult.stderr}" }
-            execResult.exitCode shouldBe 0
+            logger.info { "pg_terminate_backend output: $terminatedBackends" }
         }
 
         `when`(

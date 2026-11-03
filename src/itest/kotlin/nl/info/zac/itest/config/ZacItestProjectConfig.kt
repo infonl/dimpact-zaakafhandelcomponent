@@ -4,10 +4,6 @@
  */
 package nl.info.zac.itest.config
 
-import com.github.dockerjava.api.DockerClient
-import com.github.dockerjava.api.exception.ConflictException
-import com.github.dockerjava.api.exception.NotFoundException
-import io.github.oshai.kotlinlogging.DelegatingKLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.nondeterministic.eventuallyConfig
@@ -23,7 +19,6 @@ import io.kotest.engine.coroutines.ThreadPerSpecCoroutineContextFactory
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_PROCESS_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_SELECT_FORM_RESOURCE_PATH
@@ -49,15 +44,10 @@ import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_PRO
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_USER_GROUP_SELECTION_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
-import nl.info.zac.itest.config.ItestConfiguration.KVK_MOCK_BASE_URI
-import nl.info.zac.itest.config.ItestConfiguration.OFFICE_CONVERTER_BASE_URI
-import nl.info.zac.itest.config.ItestConfiguration.PABC_API_KEY
-import nl.info.zac.itest.config.ItestConfiguration.PABC_CLIENT_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_3
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_4
-import nl.info.zac.itest.config.ItestConfiguration.SMTP_SERVER_PORT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_PRODUCTAANVRAAG_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_RESULTAATTYPE_AFGEBROKEN_UUID
@@ -91,84 +81,36 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_4_DESCRIPT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_4_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_4_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_DEFAULT_DOCKER_IMAGE
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_HEALTH_READY_URL
-import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
 import okhttp3.Headers
 import org.json.JSONObject
-import org.slf4j.Logger
-import org.testcontainers.DockerClientFactory
-import org.testcontainers.containers.ComposeContainer
-import org.testcontainers.containers.ContainerLaunchException
-import org.testcontainers.containers.output.Slf4jLogConsumer
-import org.testcontainers.containers.wait.strategy.Wait
 import java.io.File
 import java.net.HttpURLConnection.HTTP_CREATED
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.net.SocketException
-import java.nio.file.Files
 import java.util.UUID
-import kotlin.jvm.optionals.getOrNull
 import kotlin.random.Random
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.toJavaDuration
-
-// global variable so that it can be referenced elsewhere
-lateinit var dockerComposeContainer: ComposeContainer
 
 @Suppress("TooManyFunctions")
 class ZacItestProjectConfig : AbstractProjectConfig() {
     companion object {
-        private const val DO_NOT_START_DOCKER_COMPOSE_ENV_VAR = "DO_NOT_START_DOCKER_COMPOSE"
-        private const val TESTCONTAINERS_RYUK_DISABLED_ENV_VAR = "TESTCONTAINERS_RYUK_DISABLED"
-        private const val DOCKER_USE_ARM64_CONTAINERS_ENV_VAR = "DOCKER_USE_ARM64_CONTAINERS"
-        private const val COMPOSE_PROJECT_LABEL = "com.docker.compose.project"
+        private const val USE_RUNNING_STACK_ENV_VAR = "ZAC_ITEST_USE_RUNNING_STACK"
+        private const val KEEP_STACK_ENV_VAR = "ZAC_ITEST_KEEP_STACK"
         private const val SPEC_CONCURRENCY_SYSTEM_PROPERTY = "zac.itest.specConcurrency"
         private const val DEFAULT_SPEC_CONCURRENCY = 3
 
         private val logger = KotlinLogging.logger {}
-        private val dockerClient: DockerClient by lazy { DockerClientFactory.instance().client() }
         private val itestHttpClient = ItestHttpClient()
         private val zacClient = ZacClient()
         private val zacDockerImage = System.getProperty("zacDockerImage") ?: ZAC_DEFAULT_DOCKER_IMAGE
-        private val shouldSkipDockerComposeStart = System.getenv(DO_NOT_START_DOCKER_COMPOSE_ENV_VAR)?.toBoolean() ?: false
-        private val shouldSkipContainerCleanup = System.getenv(TESTCONTAINERS_RYUK_DISABLED_ENV_VAR)?.toBoolean() ?: false
+        private val shouldUseRunningStack = System.getenv(USE_RUNNING_STACK_ENV_VAR)?.toBoolean() ?: false
+        private val shouldKeepStack = System.getenv(KEEP_STACK_ENV_VAR)?.toBoolean() ?: false
         private val specConcurrency = System.getProperty(SPEC_CONCURRENCY_SYSTEM_PROPERTY)?.toInt() ?: DEFAULT_SPEC_CONCURRENCY
-
-        // All variables below have to be overridable in the docker-compose.yaml file
-        private val dockerComposeOverrideEnvironment = mapOf(
-            "APP_ENV" to "itest",
-            "AUTH_SSL_REQUIRED" to "none",
-            "BAG_API_CLIENT_MP_REST_URL" to "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/",
-            "KVK_API_CLIENT_MP_REST_URL" to KVK_MOCK_BASE_URI,
-            "OFFICE_CONVERTER_CLIENT_MP_REST_URL" to OFFICE_CONVERTER_BASE_URI,
-            "PABC_API_CLIENT_MP_REST_URL" to PABC_CLIENT_BASE_URI,
-            "PABC_API_KEY" to PABC_API_KEY,
-            "BRP_PROTOCOLLERING_ENABLED" to "true",
-            "BRP_DOELBINDING_PER_ZAAKTYPE" to "true",
-            "SMARTDOCUMENTS_ENABLED" to "true",
-            "SMARTDOCUMENTS_CLIENT_MP_REST_URL" to SMART_DOCUMENTS_MOCK_BASE_URI,
-            "SMTP_SERVER" to "greenmail",
-            "SMTP_PORT" to SMTP_SERVER_PORT.toString(),
-            "SIGNALERINGEN_DELETE_OLDER_THAN_DAYS" to "0",
-            // override default entrypoint for ZAC Docker container to add JaCoCo agent for recording integration test coverage
-            "ZAC_DOCKER_ENTRYPOINT" to
-                "java" +
-                " -javaagent:/jacoco-agent/org.jacoco.agent-runtime.jar=destfile=/jacoco-report/jacoco-it.exec" +
-                // make sure that the WildFly management port is accessible from outside the container
-                " -Djboss.bind.address.management=0.0.0.0" +
-                " -Xms1024m" +
-                " -Xmx1024m" +
-                " -jar zaakafhandelcomponent.jar",
-            "ZAC_DOCKER_IMAGE" to zacDockerImage,
-            "ZAC_INTERNAL_ENDPOINTS_API_KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
-        )
+        private val jacocoExecFile = File("build/jacoco/itest/jacoco-report/jacoco-it.exec")
     }
-
-    private var emptyEnvFile: File? = null
 
     /**
      * Set a random order seed so that the tests run is reproducible.
@@ -182,7 +124,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
     override val specExecutionOrder = SpecExecutionOrder.Random
 
     /**
-     * Run the specs concurrently against the shared Docker Compose stack, each spec on its own thread.
+     * Run the specs concurrently against the shared kind stack, each spec on its own thread.
      * Specs that touch global state (mail, reindexing, container logs, admin jobs, shared configuration)
      * carry Kotest's `@Isolate` annotation and run one by one before the concurrent specs.
      * The number of concurrent specs can be overridden with the `zac.itest.specConcurrency` system property.
@@ -216,21 +158,15 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         logger.info {
             "Starting integration tests with random seed: '$randomOrderSeed' and up to $specConcurrency concurrent specs"
         }
-        if (!shouldSkipDockerComposeStart) {
-            dockerComposeContainer = createDockerComposeContainer()
-            try {
-                dockerComposeContainer.start()
-            } catch (exception: ContainerLaunchException) {
-                logger.error(exception) { "Failed to start Docker Compose containers" }
-                dockerComposeContainer.stop()
-                throw exception
-            }
-            ItestTimingReport.markPhase(ItestTimingReport.PHASE_COMPOSE_STARTED)
-            logger.info { "Started ZAC Docker Compose containers" }
-        } else {
+        if (shouldUseRunningStack) {
             logger.warn {
-                "$DO_NOT_START_DOCKER_COMPOSE_ENV_VAR environment variable is set to true, not starting Docker Compose containers"
+                "$USE_RUNNING_STACK_ENV_VAR environment variable is set to true, using the running kind cluster " +
+                    "'${ItestKindStack.clusterName}'"
             }
+        } else {
+            ItestKindStack.start(zacDockerImage)
+            ItestTimingReport.markPhase(ItestTimingReport.PHASE_KIND_STACK_STARTED)
+            logger.info { "Started the kind cluster '${ItestKindStack.clusterName}'" }
         }
 
         logger.info { "Waiting until Keycloak is healthy by calling the health endpoint and checking the response" }
@@ -259,147 +195,36 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         }
         ItestTimingReport.markPhase(ItestTimingReport.PHASE_ZAC_HEALTHY)
         logger.info { "ZAC is healthy" }
-        if (!shouldSkipDockerComposeStart) {
+        if (!shouldUseRunningStack) {
             createTestSetupData()
             ItestTimingReport.markPhase(ItestTimingReport.PHASE_TEST_SETUP_DATA_CREATED)
         }
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
     override suspend fun afterProject() {
         try {
-            if (shouldSkipDockerComposeStart) {
+            if (shouldUseRunningStack) {
                 logger.warn {
-                    "$DO_NOT_START_DOCKER_COMPOSE_ENV_VAR environment variable is set to true, not stopping Docker Compose containers"
+                    "$USE_RUNNING_STACK_ENV_VAR environment variable is set to true, leaving the kind cluster as it is"
                 }
                 return
             }
-            val composeProjectName = findComposeProjectName()
-            composeProjectName?.let { ItestTimingReport.collectContainerTimings(dockerClient, it) }
-            if (shouldSkipContainerCleanup) {
+            ItestTimingReport.collectPodTimings()
+            ItestKindStack.dumpCoverage(jacocoExecFile)
+            ItestTimingReport.markPhase(ItestTimingReport.PHASE_COVERAGE_COLLECTED)
+            logger.info { "Wrote the coverage of ZAC to '${jacocoExecFile.path}'" }
+            if (shouldKeepStack) {
                 logger.warn {
-                    "$TESTCONTAINERS_RYUK_DISABLED_ENV_VAR environment variable is set to true, not stopping Docker Compose containers"
+                    "$KEEP_STACK_ENV_VAR environment variable is set to true, not deleting the kind cluster " +
+                        "'${ItestKindStack.clusterName}'"
                 }
-                ItestTimingReport.writeReport()
-                Runtime.getRuntime().halt(0)
+            } else {
+                ItestKindStack.delete()
+                ItestTimingReport.markPhase(ItestTimingReport.PHASE_KIND_STACK_DELETED)
             }
-
-            // stop ZAC Docker Container gracefully to give JaCoCo a change to generate the code coverage report
-            dockerComposeContainer.getContainerByServiceName(
-                ZAC_CONTAINER_SERVICE_NAME
-            ).getOrNull()?.let { zacContainer ->
-                logger.info { "Stopping ZAC Docker container" }
-                zacContainer.dockerClient
-                    .stopContainerCmd(zacContainer.containerId)
-                    .withTimeout(30.seconds.inWholeSeconds.toInt())
-                    .exec()
-                logger.info { "Stopped ZAC Docker container" }
-            }
-            ItestTimingReport.markPhase(ItestTimingReport.PHASE_ZAC_STOPPED)
-            // the other containers hold no state worth preserving, so kill them instead of waiting
-            // for each of them to handle a stop signal, and then let Docker Compose remove them
-            composeProjectName?.let(::killRunningContainers)
-            dockerComposeContainer.withOptions("--profile itest").stop()
-            ItestTimingReport.markPhase(ItestTimingReport.PHASE_COMPOSE_REMOVED)
         } finally {
-            emptyEnvFile?.delete()
             ItestTimingReport.writeReport()
         }
-    }
-
-    private fun findComposeProjectName() =
-        listOf(ZAC_CONTAINER_SERVICE_NAME, "keycloak", "solr").firstNotNullOfOrNull { serviceName ->
-            dockerComposeContainer.getContainerByServiceName(serviceName).getOrNull()
-                ?.containerInfo?.config?.labels?.get(COMPOSE_PROJECT_LABEL)
-        }
-
-    private fun killRunningContainers(composeProjectName: String) {
-        dockerClient.listContainersCmd()
-            .withLabelFilter(mapOf(COMPOSE_PROJECT_LABEL to composeProjectName))
-            .exec()
-            .forEach { container ->
-                try {
-                    dockerClient.killContainerCmd(container.id).exec()
-                } catch (conflictException: ConflictException) {
-                    logger.debug { "Container '${container.id}' was no longer running: ${conflictException.message}" }
-                } catch (notFoundException: NotFoundException) {
-                    logger.debug { "Container '${container.id}' was already removed: ${notFoundException.message}" }
-                }
-            }
-        logger.info { "Killed the remaining Docker Compose containers of project '$composeProjectName'" }
-    }
-
-    @Suppress("UNCHECKED_CAST", "LongMethod")
-    private fun createDockerComposeContainer(): ComposeContainer {
-        logger.info { "Using Docker Compose environment variables: $dockerComposeOverrideEnvironment" }
-
-        // Create a temporary empty env file so Docker Compose does not load any local .env file,
-        // which could override variables required by the integration tests.
-        val envFile = Files.createTempFile("zac-itest", ".env").toFile()
-        emptyEnvFile = envFile
-
-        val composeFiles: MutableList<File> = mutableListOf(File("docker-compose.yaml"))
-        System.getenv(DOCKER_USE_ARM64_CONTAINERS_ENV_VAR)
-            ?.takeIf { it.isNotBlank() }
-            ?.let {
-                composeFiles.add(File("docker-compose.arm64-override.yaml"))
-                logger.info { "Using arm64 containers" }
-            }
-
-        return ComposeContainer("zac-itest-", composeFiles)
-            .withEnv(dockerComposeOverrideEnvironment)
-            // do not pull images first because this will cause _all_ Docker images to be pulled,
-            // and not just the ones we need for our profiles
-            .withPull(false)
-            .withOptions(
-                "--profile zac",
-                "--profile itest",
-                "--env-file ${envFile.absolutePath}"
-            )
-            .withLogConsumer(
-                "solr",
-                Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
-                    "SOLR"
-                )
-            )
-            .withLogConsumer(
-                "keycloak",
-                Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
-                    "KEYCLOAK"
-                )
-            )
-            .withLogConsumer(
-                "openzaak-app.local",
-                Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
-                    "OPENZAAK"
-                )
-            )
-            .withLogConsumer(
-                ZAC_CONTAINER_SERVICE_NAME,
-                Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
-                    "ZAC"
-                )
-            )
-            .waitingFor(
-                "openzaak-app.local",
-                Wait.forLogMessage(".*spawned uWSGI worker 2.*", 1)
-                    .withStartupTimeout(3.minutes.toJavaDuration())
-            )
-            .waitingFor(
-                "pabc-api",
-                Wait.forLogMessage(".* Application started.*", 1)
-                    .withStartupTimeout(3.minutes.toJavaDuration())
-            )
-            .waitingFor(
-                "zac",
-                Wait.forLogMessage(".* WildFly .* started .*", 1)
-                    .withStartupTimeout(3.minutes.toJavaDuration())
-            )
-            .waitingFor(
-                "greenmail",
-                Wait.forLogMessage(".*Starting GreenMail API server.*", 1)
-                    .withStartupTimeout(2.minutes.toJavaDuration())
-            )
     }
 
     /**
