@@ -471,16 +471,13 @@ class ZaakRestService @Inject constructor(
     @GET
     @Path("zaaktypes-for-creation")
     fun listZaaktypesForZaakCreation(): List<RestZaaktype> {
-        val isStartenZaakAllowedByOmschrijving = mutableMapOf<String, Boolean>()
+        val loggedInUser = loggedInUserInstance.get()
+        val startrollen by lazy { policyService.readStartrollen() }
         return ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
             .asSequence()
             .filter { !it.concept }
             .filter { it.isNuGeldig() }
-            .filter {
-                isStartenZaakAllowedByOmschrijving.getOrPut(it.omschrijving) {
-                    policyService.readOverigeRechten(it.omschrijving).canStartenZaak
-                }
-            }
+            .filter { loggedInUser.mayStartZaakOfZaaktype(it.omschrijving, startrollen) }
             .filter { it.isValidForZaakCreation() }
             .map(restZaaktypeConverter::convert)
             .toList()
@@ -977,6 +974,11 @@ class ZaakRestService @Inject constructor(
      * The engine check of the zaaktype can call Open Zaak several times, so it only runs when the ZAC configuration
      * of the zaaktype is valid.
      */
+    // Mirrors OPA's `starten_zaak` rule, which evaluates the roles for the zaaktype together with the overall roles,
+    // so that listing the zaaktypen takes one OPA call instead of one per zaaktype.
+    private fun LoggedInUser.mayStartZaakOfZaaktype(zaaktypeOmschrijving: String, startrollen: Set<String>) =
+        (applicationRolesPerZaaktype[zaaktypeOmschrijving].orEmpty() + overallRoles).any(startrollen::contains)
+
     private fun ZaakType.isValidForZaakCreation() =
         zaaktypeConfigurationService.findConfiguration(url.extractUuid())?.let {
             it.isValidForZaakCreation() && zaakProcessService.isZaaktypeReady(it, url)

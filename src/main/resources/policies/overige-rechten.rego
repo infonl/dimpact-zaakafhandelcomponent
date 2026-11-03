@@ -12,6 +12,7 @@ import data.net.atos.zac.rol.behandelaar
 import data.net.atos.zac.rol.coordinator
 import data.net.atos.zac.rol.raadpleger
 import data.net.atos.zac.rol.recordmanager
+import data.net.atos.zac.rol.startrollen
 import input.user
 
 overige_rechten := {
@@ -22,8 +23,8 @@ overige_rechten := {
 
 default starten_zaak := false
 starten_zaak if {
-    some role in {behandelaar, coordinator, recordmanager, beheerder}
-    role.rol in user.rollen
+    some rol in startrollen
+    rol in user.rollen
 }
 
 default beheren := false
