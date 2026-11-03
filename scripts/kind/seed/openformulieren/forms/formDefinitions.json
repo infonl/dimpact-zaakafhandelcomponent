@@ -346,7 +346,7 @@
           "inputFormat": "plain",
           "placeholder": "",
           "showInEmail": false,
-          "defaultValue": "{{ auth_bsn }}",
+          "defaultValue": "",
           "registration": { "attribute": "" },
           "dataGridLabel": false,
           "labelPosition": "top",
