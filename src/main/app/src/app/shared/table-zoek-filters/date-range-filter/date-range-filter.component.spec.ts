@@ -253,6 +253,23 @@ describe(DateRangeFilterComponent.name, () => {
       expect(range).toEqual({ van: null, tot: null });
     });
 
+    it("shows the typed dates again when the parent binds null and then the same range back", async () => {
+      const { fixture, rangeChange } = await setup({
+        range: { van: null, tot: null },
+      });
+      await typeDate(startInput(), "01-01-2024");
+      const typedRange = rangeChange.mock.calls[0][0];
+
+      fixture.componentRef.setInput("range", null);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.componentRef.setInput("range", typedRange);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(startInput()).toHaveValue("01-01-2024");
+    });
+
     it("shows the clear icon once a date is typed", async () => {
       await setup({ range: { van: null, tot: null } });
 

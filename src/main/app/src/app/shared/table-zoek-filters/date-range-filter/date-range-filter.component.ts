@@ -74,6 +74,7 @@ export class DateRangeFilterComponent {
     effect(() => {
       const currentRange = this.currentRange();
       if (currentRange === this.ownRange) return;
+      this.ownRange = undefined;
       untracked(() => {
         this.dateVan.setValue(this.toDate(currentRange.van));
         this.dateTM.setValue(this.toDate(currentRange.tot));
