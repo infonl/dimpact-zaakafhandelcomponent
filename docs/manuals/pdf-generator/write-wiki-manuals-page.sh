@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: EUPL-1.2+
 #
 # Writes the 'Handleidingen' wiki page: for every GitHub release with manual PDFs attached, newest first,
-# a link to the release and to each of its PDFs.
+# a link to the release with its release date, and a link to each of its PDFs.
 # The page is rebuilt from all releases, so a rerun or a missed run leaves no gaps.
 # Usage: write-wiki-manuals-page.sh <repository, e.g. infonl/dimpact-zaakafhandelcomponent> <output file>
 
@@ -28,7 +28,7 @@ outputFile="$2"
     .[]
     | select((.draft | not) and (.prerelease | not))
     | select(any(.assets[]; .name | endswith(".pdf")))
-    | "## [\(.tag_name)](\(.html_url))\n",
+    | "## [\(.tag_name)](\(.html_url)) (\(.published_at[0:10]))\n",
       (.assets
         | map(select(.name | endswith(".pdf")))
         | sort_by(.name)[]
