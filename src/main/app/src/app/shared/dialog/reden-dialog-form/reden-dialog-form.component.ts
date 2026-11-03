@@ -3,17 +3,18 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject, signal } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
   MAT_DIALOG_DATA,
   MatDialogActions,
   MatDialogRef,
 } from "@angular/material/dialog";
-import { Observable } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 import { ZacFormActions } from "../../form/form-actions/form-actions.component";
 import { ZacInput } from "../../form/input/input";
 import { ZacTextarea } from "../../form/textarea/textarea";
+import { injectMutation } from "../../http/inject-mutation";
 import { GenericDialogComponent } from "../generic-dialog/generic-dialog.component";
 
 export type RedenDialogData = {
@@ -47,7 +48,14 @@ export class RedenDialogFormComponent {
   protected readonly data = inject<RedenDialogData>(MAT_DIALOG_DATA);
   private readonly formBuilder = inject(FormBuilder);
 
-  protected readonly loading = signal(false);
+  private readonly redenMutation = injectMutation(() => ({
+    mutationFn: (callback: Observable<unknown>) =>
+      firstValueFrom(callback, { defaultValue: undefined }),
+    onSuccess: (result: unknown) => this.dialogRef.close(result ?? true),
+    onError: () => this.dialogRef.close(false),
+  }));
+
+  protected readonly loading = this.redenMutation.isPending;
   protected readonly label = this.data.label ?? "reden";
   protected readonly submitLabel =
     this.data.confirmButtonActionKey ?? "actie.ja";
@@ -73,11 +81,7 @@ export class RedenDialogFormComponent {
     }
 
     this.dialogRef.disableClose = true;
-    this.loading.set(true);
-    this.data.callback(reden).subscribe({
-      next: (result) => this.dialogRef.close(result ?? true),
-      error: () => this.dialogRef.close(false),
-    });
+    this.redenMutation.mutate(this.data.callback(reden));
   }
 
   protected close() {
