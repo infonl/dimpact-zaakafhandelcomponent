@@ -10,6 +10,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import jakarta.enterprise.context.RequestScoped
 import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDING_RAADPLEEG_WAARDE
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDING_ZOEK_WAARDE
@@ -21,6 +22,19 @@ class BrpInstellingenCheckTest : BehaviorSpec({
 
     afterEach {
         checkUnnecessaryStub()
+    }
+
+    given("The BrpInstellingenCheck class, which remembers its result and is injected in the singleton HealthCheckService") {
+        `when`("its CDI scope is read") {
+            val isRequestScoped = BrpInstellingenCheck::class.java.isAnnotationPresent(RequestScoped::class.java)
+
+            then(
+                "it is request-scoped, so that a change to the BRP settings that a beheerder saves is seen by the " +
+                    "next request instead of only after a restart"
+            ) {
+                isRequestScoped shouldBe true
+            }
+        }
     }
 
     given("BRP reference tables that each have only ASCII values") {
