@@ -132,10 +132,29 @@ export class ZakenWerkvoorraadComponent
   private readonly batchProcessService = inject(BatchProcessService);
 
   protected readonly indicatiesLayout = IndicatiesLayout;
-  protected readonly assignToMeMutation = injectMutation(() =>
-    this.zakenService.toekennenAanIngelogdeMedewerkerVanuitLijst(),
-  );
   protected readonly pendingZaakIds = signal<ReadonlySet<string>>(new Set());
+  private readonly assignToMeMutation = injectMutation(
+    () => this.zakenService.toekennenAanIngelogdeMedewerkerVanuitLijst(),
+    {
+      onSuccess: ({ behandelaar }, { zaakUUID }) => {
+        // the row's columns are not nullable, so there is nothing to show
+        // until the response names the behandelaar it assigned
+        if (!behandelaar) return;
+        const zaakZoekObject = this.dataSource.data.find(
+          ({ id }) => id === zaakUUID,
+        );
+        if (!zaakZoekObject) return;
+        zaakZoekObject.behandelaarNaam = behandelaar.naam;
+        zaakZoekObject.behandelaarGebruikersnaam = behandelaar.username;
+      },
+      onSettled: (_zaak, _error, { zaakUUID }) =>
+        this.pendingZaakIds.update((ids) => {
+          const remaining = new Set(ids);
+          remaining.delete(zaakUUID);
+          return remaining;
+        }),
+    },
+  );
   private readonly commitPendingChangesToSearchIndexMutation = injectMutation(
     () => this.indexingService.commitPendingChangesToSearchIndex(),
   );
@@ -284,26 +303,12 @@ export class ZakenWerkvoorraadComponent
 
   protected assignToMe(zaakZoekObject: ZaakZoekObject, $event: Event) {
     $event.stopPropagation();
-    const zaakId = zaakZoekObject.id;
-    this.pendingZaakIds.update((ids) => new Set(ids).add(zaakId));
-    this.assignToMeMutation.mutate(
-      { zaakUUID: zaakId, groepId: zaakZoekObject.groepId },
-      {
-        onSettled: () =>
-          this.pendingZaakIds.update((ids) => {
-            const remaining = new Set(ids);
-            remaining.delete(zaakId);
-            return remaining;
-          }),
-        onSuccess: (zaak) => {
-          // the row's columns are not nullable, so there is nothing to show
-          // until the response names the behandelaar it assigned
-          if (!zaak.behandelaar) return;
-          zaakZoekObject.behandelaarNaam = zaak.behandelaar.naam;
-          zaakZoekObject.behandelaarGebruikersnaam = zaak.behandelaar.username;
-        },
-      },
-    );
+    const zaakUUID = zaakZoekObject.id;
+    this.pendingZaakIds.update((ids) => new Set(ids).add(zaakUUID));
+    this.assignToMeMutation.mutate({
+      zaakUUID,
+      groepId: zaakZoekObject.groepId,
+    });
   }
 
   protected showAssignToMe(zaakZoekObject: ZaakZoekObject) {

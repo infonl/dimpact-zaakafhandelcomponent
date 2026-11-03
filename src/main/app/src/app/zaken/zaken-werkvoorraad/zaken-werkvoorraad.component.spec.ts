@@ -253,6 +253,46 @@ describe(ZakenWerkvoorraadComponent.name, () => {
       expect(buttonA).toBeDisabled();
       expect(buttonB).toBeEnabled();
     });
+
+    it("settles each of two overlapping assignments on its own row, also when the earlier one fails", async () => {
+      await setup();
+      await showZaken(
+        zaakZoekObject(),
+        fromPartial<ZaakZoekObject>({
+          ...zaakZoekObject(),
+          id: "otherZaakUuid",
+          identificatie: "ZAAK-2",
+        }),
+      );
+      const [buttonA, buttonB] = screen.getAllByRole("button", {
+        name: "actie.mij.toekennen",
+      });
+      const user = userEvent.setup();
+      await user.click(buttonA);
+      await user.click(buttonB);
+      await sleep();
+
+      const [requestA, requestB] = httpTestingController.match(
+        "/rest/zaken/lijst/toekennen/mij",
+      );
+      requestA.flush(null, { status: 500, statusText: "Server Error" });
+      requestB.flush(
+        fromPartial<GeneratedType<"RestZaakOverzicht">>({
+          behandelaar: { username: "user1", naam: "testuser-1" },
+        }),
+      );
+      await sleep();
+      fixture.detectChanges();
+
+      expect(screen.getByText("testuser-1")).toBeInTheDocument();
+      // the error dialog of the failed request hides the page behind it
+      expect(
+        screen.getByRole("button", {
+          name: "actie.mij.toekennen",
+          hidden: true,
+        }),
+      ).toBeEnabled();
+    });
   });
 
   describe("selection", () => {
