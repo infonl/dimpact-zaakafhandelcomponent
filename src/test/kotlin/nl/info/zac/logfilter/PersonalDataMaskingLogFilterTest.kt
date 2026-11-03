@@ -31,7 +31,7 @@ class PersonalDataMaskingLogFilterTest : BehaviorSpec({
 
                 then("the log record is logged with the BSN and the IBAN masked") {
                     isLoggable shouldBe true
-                    extLogRecord.formattedMessage shouldBe "Persoon ******896 met IBAN $IBAN_MASK"
+                    extLogRecord.formattedMessage shouldBe "Persoon ******896 met IBAN $MASKED_VALUE"
                 }
             }
         }

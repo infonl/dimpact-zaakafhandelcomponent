@@ -52,7 +52,7 @@ class PersonalDataMaskingTest : BehaviorSpec({
                 val maskedText = text.maskPersonalData()
 
                 then("both IBANs are masked completely") {
-                    maskedText shouldBe "rekeningen: $IBAN_MASK en $IBAN_MASK"
+                    maskedText shouldBe "rekeningen: $MASKED_VALUE en $MASKED_VALUE"
                 }
             }
         }
@@ -70,7 +70,7 @@ class PersonalDataMaskingTest : BehaviorSpec({
         }
 
         given("a text in which the personal data is already masked") {
-            val text = "BSN ******896 en IBAN $IBAN_MASK"
+            val text = "BSN ******896 en IBAN $MASKED_VALUE"
 
             `when`("the personal data is masked again") {
                 val maskedText = text.maskPersonalData()

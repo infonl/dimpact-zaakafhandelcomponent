@@ -123,7 +123,7 @@ class JsonLoggingFilterTest : BehaviorSpec({
                         "and the other fields are logged as they are"
                 ) {
                     with(logRecords.single().message) {
-                        this shouldContain "\"geboortedatum\": \"${JsonLoggingFilter.DATE_OF_BIRTH_MASK}\""
+                        this shouldContain "\"geboortedatum\": \"${JsonLoggingFilter.MASKED_VALUE}\""
                         this shouldContain "\"geslachtsnaam\": \"fakeGeslachtsnaam\""
                         this shouldContain "\"inpBsn\": \"999993896\""
                         this shouldNotContain "1980-05-17"
@@ -218,7 +218,7 @@ class JsonLoggingFilterTest : BehaviorSpec({
                         "while a field name in a list of values is kept"
                 ) {
                     with(logRecords.single().message) {
-                        this shouldContain "\"geboorte\": \"${JsonLoggingFilter.DATE_OF_BIRTH_MASK}\""
+                        this shouldContain "\"geboorte\": \"${JsonLoggingFilter.MASKED_VALUE}\""
                         this shouldContain "\"geslachtsnaam\": \"fakeGeslachtsnaam\""
                         this shouldContain "\"geboorte\"\n"
                         this shouldNotContain "1980-05-17"

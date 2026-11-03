@@ -34,7 +34,7 @@ class JsonLoggingFilter : ClientRequestFilter, ClientResponseFilter {
         // BSNs and IBANs are masked by the WildFly logging filter, but a date of birth cannot be recognised in
         // plain text, so it is masked here by the name of its JSON field; see ADR-0009
         private const val DATE_OF_BIRTH_FIELD_NAME_PART = "geboorte"
-        const val DATE_OF_BIRTH_MASK = "*****"
+        const val MASKED_VALUE = "*****"
     }
 
     override fun filter(requestContext: ClientRequestContext) {
@@ -112,7 +112,7 @@ class JsonLoggingFilter : ClientRequestFilter, ClientResponseFilter {
                     add(
                         name,
                         if (name.contains(DATE_OF_BIRTH_FIELD_NAME_PART, ignoreCase = true)) {
-                            Json.createValue(DATE_OF_BIRTH_MASK)
+                            Json.createValue(MASKED_VALUE)
                         } else {
                             value.maskDatesOfBirth()
                         }
