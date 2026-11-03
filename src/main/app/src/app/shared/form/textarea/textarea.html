@@ -20,7 +20,7 @@
     [maxLength]="maxlength() ?? 999999"
     [readonly]="readonly()"
   ></textarea>
-  @if (!readonly() && !control()?.disabled && control()?.value?.length) {
+  @if (!readonly() && !disabled() && value()?.length) {
     <button
       matSuffix
       mat-icon-button
@@ -42,7 +42,7 @@
   </mat-hint>
   @if (maxlength()) {
     <mat-hint align="end">
-      {{ control()?.value?.length ?? 0 }} / {{ maxlength() }}
+      {{ value()?.length ?? 0 }} / {{ maxlength() }}
     </mat-hint>
   }
 </mat-form-field>

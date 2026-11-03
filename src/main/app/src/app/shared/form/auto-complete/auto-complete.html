@@ -16,17 +16,12 @@
     [matAutocomplete]="auto"
     [formControlName]="key()"
   />
-  @if (!control()?.value) {
-    <button
-      mat-icon-button
-      matSuffix
-      [disabled]="control()?.disabled"
-      type="button"
-    >
+  @if (!value()) {
+    <button mat-icon-button matSuffix [disabled]="disabled()" type="button">
       <mat-icon>search</mat-icon>
     </button>
   }
-  @if (!control()?.disabled && control()?.value) {
+  @if (!disabled() && value()) {
     <button mat-icon-button matSuffix (click)="reset()" type="button">
       <mat-icon>clear</mat-icon>
     </button>
