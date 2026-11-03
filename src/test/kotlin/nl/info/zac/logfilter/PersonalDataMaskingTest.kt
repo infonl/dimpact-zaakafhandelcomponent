@@ -57,6 +57,42 @@ class PersonalDataMaskingTest : BehaviorSpec({
             }
         }
 
+        given("a text with a Norwegian IBAN, the shortest IBAN with 15 characters, without and with spaces") {
+            val text = "rekeningen: NO9386011117947 en NO93 8601 1117 947"
+
+            `when`("the personal data is masked") {
+                val maskedText = text.maskPersonalData()
+
+                then("both IBANs are masked completely") {
+                    maskedText shouldBe "rekeningen: $MASKED_VALUE en $MASKED_VALUE"
+                }
+            }
+        }
+
+        given("a text with the longest IBAN, of 34 characters") {
+            val text = "rekening: MT84MALT011000012345MTLCAST001S"
+
+            `when`("the personal data is masked") {
+                val maskedText = text.maskPersonalData()
+
+                then("the IBAN is masked completely") {
+                    maskedText shouldBe "rekening: $MASKED_VALUE"
+                }
+            }
+        }
+
+        given("a text with codes that start like an IBAN but are shorter than 15 characters") {
+            val text = "codes: AB12CDEFGHIJ en AB12CDEFGHIJKL"
+
+            `when`("the personal data is masked") {
+                val maskedText = text.maskPersonalData()
+
+                then("nothing is masked") {
+                    maskedText shouldBe text
+                }
+            }
+        }
+
         given("a text with a UUID, a zaak identificatie, a date and numbers that are shorter or longer than a BSN") {
             val text = "zaak 4f8c1a2e-1d3b-4c5a-9e7f-123456789abc ZAAK-2026-0000000001 1980-05-17 12345678 1234567890"
 
