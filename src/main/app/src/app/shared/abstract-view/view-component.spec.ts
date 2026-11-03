@@ -45,7 +45,7 @@ class TestViewComponent extends ViewComponent {
   }
 
   get mode(): MatDrawerMode {
-    return this.sideNaveMode();
+    return this.sideNavMode();
   }
 
   get containerHasBackdrop(): boolean {
@@ -79,7 +79,7 @@ describe(ViewComponent.name, () => {
     fixture.detectChanges();
   });
 
-  it("should update sideNaveMode when mode changes", () => {
+  it("should update sideNavMode when mode changes", () => {
     component.triggerModeChange("over");
     expect(component.mode).toBe("over");
   });

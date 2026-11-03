@@ -26,9 +26,7 @@ export abstract class ViewComponent implements OnDestroy, AfterViewInit {
   protected abstract readonly sideNavContainer: Signal<MatSidenavContainer>;
   protected abstract readonly menuSidenav: Signal<MatSidenav>;
   protected subscriptions$: Subscription[] = [];
-  protected readonly sideNaveMode = signal<MatDrawerMode>(
-    SideNavUtil.getMode(),
-  );
+  protected readonly sideNavMode = signal<MatDrawerMode>(SideNavUtil.getMode());
 
   ngAfterViewInit(): void {
     this.menuSidenav().openedStart.subscribe(() => {
@@ -37,7 +35,7 @@ export abstract class ViewComponent implements OnDestroy, AfterViewInit {
   }
 
   protected menuModeChanged(mode: string): void {
-    this.sideNaveMode.set(mode as MatDrawerMode);
+    this.sideNavMode.set(mode as MatDrawerMode);
     this.updateMargins();
   }
 
