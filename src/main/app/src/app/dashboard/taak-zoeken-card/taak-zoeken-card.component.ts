@@ -4,7 +4,6 @@
  */
 
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
@@ -57,7 +56,6 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
     "./taak-zoeken-card.component.less",
   ],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     MatTable,

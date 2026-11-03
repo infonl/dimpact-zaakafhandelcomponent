@@ -8,7 +8,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
@@ -49,7 +49,6 @@ const instellingen: GeneratedType<"RestDashboardCardInstelling">[] = [
   selector:
     "zac-informatieobjecten-card, zac-taken-card, zac-taak-zoeken-card, zac-zaken-card, zac-zaak-waarschuwingen-card, zac-zaak-zoeken-card",
   template: "",
-  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class DashboardCardContentStubComponent {

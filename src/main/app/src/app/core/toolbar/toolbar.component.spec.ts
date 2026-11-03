@@ -121,12 +121,12 @@ describe(ToolbarComponent.name, () => {
     it("is disabled when createZaak mutation is in progress", async () => {
       createComponent();
       createZaakMutation.mutate({});
+      await sleep();
       fixture.detectChanges();
 
-      const button = await loader.getHarness(
-        MatButtonHarness.with({ text: "create_new_folder" }),
-      );
-      expect(await button.isDisabled()).toBe(true);
+      expect(
+        screen.getByRole("button", { name: "Zaak toevoegen" }),
+      ).toBeDisabled();
     });
 
     it("is not rendered when overigeRechten.startenZaak is false", async () => {
@@ -480,37 +480,37 @@ describe(ToolbarComponent.name, () => {
 
   describe("Route active detection", () => {
     it("isCaseRouteActive returns true when on a case detail page", () => {
-      createComponent();
       jest
         .spyOn(TestBed.inject(Router), "url", "get")
         .mockReturnValue("/zaken/ZAAK-2024-001");
+      createComponent();
 
       expect(fixture.componentInstance["isCaseRouteActive"]()).toBe(true);
     });
 
     it("isCaseRouteActive returns false for the create-zaak route", () => {
-      createComponent();
       jest
         .spyOn(TestBed.inject(Router), "url", "get")
         .mockReturnValue("/zaken/create");
+      createComponent();
 
       expect(fixture.componentInstance["isCaseRouteActive"]()).toBe(false);
     });
 
     it("isTaskRouteActive returns true when on a task detail page", () => {
-      createComponent();
       jest
         .spyOn(TestBed.inject(Router), "url", "get")
         .mockReturnValue("/taken/task-id-123");
+      createComponent();
 
       expect(fixture.componentInstance["isTaskRouteActive"]()).toBe(true);
     });
 
     it("isTaskRouteActive returns false for non-task routes", () => {
-      createComponent();
       jest
         .spyOn(TestBed.inject(Router), "url", "get")
         .mockReturnValue("/zaken/werkvoorraad");
+      createComponent();
 
       expect(fixture.componentInstance["isTaskRouteActive"]()).toBe(false);
     });
