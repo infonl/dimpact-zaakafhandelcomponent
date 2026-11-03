@@ -253,16 +253,15 @@ class JsonLoggingFilterTest : BehaviorSpec({
             }
         }
 
-        given("the log level of the filter is FINE and the response has malformed JSON with a surname and dates of birth") {
+        given("the log level of the filter is FINE and the response has malformed JSON with a surname and a date of birth") {
             val clientRequestContext = mockk<ClientRequestContext>()
             val clientResponseContext = mockk<ClientResponseContext>()
-            val payload = """{"geslachtsnaam":"fakeGeslachtsnaam","geboortedatum":"1980-05-17",""" +
-                """"geboorte":{"datum":{"datum":"1965-01-01","langFormaat":"1 januari 1965"}},}"""
             every { clientResponseContext.statusInfo } returns Response.Status.OK
             every { clientResponseContext.mediaType } returns MediaType.APPLICATION_JSON_TYPE
             every { clientResponseContext.headers } returns MultivaluedHashMap()
             every { clientResponseContext.hasEntity() } returns true
-            every { clientResponseContext.entityStream } returns payload.toInputStream()
+            every { clientResponseContext.entityStream } returns
+                """{"geslachtsnaam":"fakeGeslachtsnaam","geboortedatum":"1980-05-17",}""".toInputStream()
             every { clientResponseContext.entityStream = any() } returns Unit
 
             `when`("the response is filtered") {
@@ -270,14 +269,39 @@ class JsonLoggingFilterTest : BehaviorSpec({
                     jsonLoggingFilter.filter(clientRequestContext, clientResponseContext)
                 }
 
-                then("the payload is logged as text with the dates of birth masked, so they are not logged with the surname") {
+                then("the payload is not logged, because the date of birth cannot be masked reliably in invalid JSON") {
                     with(logRecords.single().message) {
-                        this shouldContain "\"geslachtsnaam\":\"fakeGeslachtsnaam\""
-                        this shouldContain "\"geboortedatum\":\"${JsonLoggingFilter.MASKED_VALUE}\""
-                        this shouldContain "\"geboorte\":\"${JsonLoggingFilter.MASKED_VALUE}\""
+                        this shouldContain "Payload:${JsonLoggingFilter.WITHHELD_PAYLOAD}"
+                        this shouldNotContain "fakeGeslachtsnaam"
                         this shouldNotContain "1980-05-17"
-                        this shouldNotContain "1965-01-01"
-                        this shouldNotContain "1 januari 1965"
+                    }
+                }
+            }
+        }
+
+        given("the log level of the filter is FINE and the response is a truncated BRP person with a surname and a date of birth") {
+            val clientRequestContext = mockk<ClientRequestContext>()
+            val clientResponseContext = mockk<ClientResponseContext>()
+            every { clientResponseContext.statusInfo } returns Response.Status.OK
+            every { clientResponseContext.mediaType } returns MediaType.APPLICATION_JSON_TYPE
+            every { clientResponseContext.headers } returns MultivaluedHashMap()
+            every { clientResponseContext.hasEntity() } returns true
+            every { clientResponseContext.entityStream } returns (
+                """{"naam":{"geslachtsnaam":"fakeGeslachtsnaam"},""" +
+                    """"geboorte":{"datum":{"type":"Datum","datum":"1980-05-17","langFormaat":"17 mei 1980"""
+                ).toInputStream()
+            every { clientResponseContext.entityStream = any() } returns Unit
+
+            `when`("the response is filtered") {
+                val logRecords = captureLogRecords(Level.FINE) {
+                    jsonLoggingFilter.filter(clientRequestContext, clientResponseContext)
+                }
+
+                then("the payload is not logged") {
+                    with(logRecords.single().message) {
+                        this shouldContain "Payload:${JsonLoggingFilter.WITHHELD_PAYLOAD}"
+                        this shouldNotContain "1980-05-17"
+                        this shouldNotContain "17 mei 1980"
                     }
                 }
             }

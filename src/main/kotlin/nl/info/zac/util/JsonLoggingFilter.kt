@@ -34,11 +34,8 @@ class JsonLoggingFilter : ClientRequestFilter, ClientResponseFilter {
         // BSNs and IBANs are masked by the WildFly logging filter, but a date of birth cannot be recognised in
         // plain text, so it is masked here by the name of its JSON field; see ADR-0010
         private const val DATE_OF_BIRTH_FIELD_NAME_PART = "geboorte"
-        private val DATE_OF_BIRTH_FIELD_IN_TEXT_REGEX = Regex(
-            """("?[A-Za-z_]*geboorte[A-Za-z_]*"?\s*[:=]\s*)(\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\}|"[^"]*"|[^,}\s&]+)""",
-            RegexOption.IGNORE_CASE
-        )
         const val MASKED_VALUE = "*****"
+        const val WITHHELD_PAYLOAD = "[not logged, because the payload is not valid JSON and may contain a date of birth]"
     }
 
     override fun filter(requestContext: ClientRequestContext) {
@@ -106,13 +103,7 @@ class JsonLoggingFilter : ClientRequestFilter, ClientResponseFilter {
                 }
             }.toString()
         } catch (_: JsonParsingException) {
-            maskDatesOfBirthInText()
-        }
-
-    private fun String.maskDatesOfBirthInText() =
-        replace(DATE_OF_BIRTH_FIELD_IN_TEXT_REGEX) { matchResult ->
-            val (fieldName, value) = matchResult.destructured
-            fieldName + if (value.first() == '"' || value.first() == '{') "\"$MASKED_VALUE\"" else MASKED_VALUE
+            if (contains(DATE_OF_BIRTH_FIELD_NAME_PART, ignoreCase = true)) WITHHELD_PAYLOAD else this
         }
 
     private fun JsonValue.maskDatesOfBirth(): JsonValue =

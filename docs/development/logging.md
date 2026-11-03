@@ -434,7 +434,9 @@ numeric ID. It cannot recognise a surname or a date of birth in plain text, so l
 those. The two log statements that wrote a surname together with a date of birth handle that combination at the source:
 
 * `BrpClientService.queryPersonen` logs only the query type of a BRP query, not the query and the response.
-* `JsonLoggingFilter` masks every JSON field whose name contains `geboorte` in the REST payloads that it logs.
+* `JsonLoggingFilter` masks every JSON field whose name contains `geboorte` in the REST payloads that it logs. It
+  does not log a payload that is not valid JSON and contains `geboorte`, because a date of birth cannot be masked
+  reliably in it; it logs any other payload that is not valid JSON, such as an error page, as is.
 
 How it works:
 

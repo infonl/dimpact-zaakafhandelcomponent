@@ -45,7 +45,8 @@ that combination handle it at the source instead:
 * `BrpClientService` logs only the query type of a BRP query, not the query and the response, because a query by
   surname and date of birth and a BRP person contain both.
 * `JsonLoggingFilter` masks every JSON field whose name contains `geboorte`, such as `geboorte` and `geboortedatum`,
-  in the payloads of the REST calls that it logs.
+  in the payloads of the REST calls that it logs. It does not log a payload that is not valid JSON and contains
+  `geboorte`, because a date of birth cannot be masked reliably in it.
 
 WildFly only loads logging filters from a module of the server, not from a deployment. The build therefore compiles
 the filter in a source set of its own, packages it as the `nl.info.zac.logfilter` module, and adds that module to the
