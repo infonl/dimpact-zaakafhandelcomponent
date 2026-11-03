@@ -4,7 +4,7 @@
  */
 
 import { HttpTestingController } from "@angular/common/http/testing";
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -23,7 +23,6 @@ import { BedrijfViewComponent } from "./bedrijf-view.component";
 
 @Component({
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   template: "",
 })
 class TestErrorRouteComponent {}
@@ -31,7 +30,6 @@ class TestErrorRouteComponent {}
 @Component({
   selector: "zac-klant-zaken-tabel",
   template: "<p>zaken of klant {{ klant().naam }}</p>",
-  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class KlantZakenTabelStubComponent {
@@ -41,7 +39,6 @@ class KlantZakenTabelStubComponent {
 @Component({
   selector: "zac-klant-contactmomenten-tabel",
   template: "<p>contactmomenten of vestiging {{ vestigingsnummer() }}</p>",
-  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class KlantContactmomentenTabelStubComponent {
@@ -179,7 +176,7 @@ describe(BedrijfViewComponent.name, () => {
       const bedrijf = makeBedrijf();
       routeDataSubject.next({ bedrijf });
       fixture.detectChanges();
-      expect(component["bedrijf"]).toEqual(bedrijf);
+      expect(component["bedrijf"]()).toEqual(bedrijf);
     });
 
     it("sets profielOphalenMogelijk to true when bedrijf has vestigingsnummer", () => {
@@ -187,7 +184,7 @@ describe(BedrijfViewComponent.name, () => {
         bedrijf: makeBedrijf({ vestigingsnummer: "000011112222" }),
       });
       fixture.detectChanges();
-      expect(component["profielOphalenMogelijk"]).toBe(true);
+      expect(component["profielOphalenMogelijk"]()).toBe(true);
     });
 
     it("sets profielOphalenMogelijk to true when bedrijf is RECHTSPERSOON with kvkNummer", () => {
@@ -199,7 +196,7 @@ describe(BedrijfViewComponent.name, () => {
         }),
       });
       fixture.detectChanges();
-      expect(component["profielOphalenMogelijk"]).toBe(true);
+      expect(component["profielOphalenMogelijk"]()).toBe(true);
     });
 
     it("sets profielOphalenMogelijk to false when bedrijf has no vestigingsnummer and no kvkNummer", () => {
@@ -210,13 +207,13 @@ describe(BedrijfViewComponent.name, () => {
         }),
       });
       fixture.detectChanges();
-      expect(component["profielOphalenMogelijk"]).toBe(false);
+      expect(component["profielOphalenMogelijk"]()).toBe(false);
     });
 
     it("sets profielOphalenMogelijk to false when bedrijf is null", () => {
       routeDataSubject.next({ bedrijf: null });
       fixture.detectChanges();
-      expect(component["profielOphalenMogelijk"]).toBe(false);
+      expect(component["profielOphalenMogelijk"]()).toBe(false);
     });
   });
 

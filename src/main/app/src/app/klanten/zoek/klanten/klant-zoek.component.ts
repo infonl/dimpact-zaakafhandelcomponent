@@ -3,12 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  output,
-} from "@angular/core";
+import { Component, inject, output } from "@angular/core";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTabsModule } from "@angular/material/tabs";
 import { TranslatePipe } from "@ngx-translate/core";
@@ -23,7 +18,6 @@ import { PersoonZoekComponent } from "../personen/persoon-zoek.component";
   templateUrl: "./klant-zoek.component.html",
   styleUrls: ["./klant-zoek.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatTabsModule,
     MatIconModule,

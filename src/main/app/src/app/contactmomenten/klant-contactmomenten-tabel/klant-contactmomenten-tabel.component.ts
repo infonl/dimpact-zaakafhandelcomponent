@@ -5,17 +5,17 @@
 
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
   Component,
   effect,
   inject,
   input,
+  signal,
   untracked,
   viewChild,
 } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
-import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { MatTableModule } from "@angular/material/table";
 import { TranslatePipe } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { startWith, switchMap, tap } from "rxjs/operators";
@@ -32,7 +32,6 @@ import { ContactmomentenService } from "../contactmomenten.service";
   templateUrl: "./klant-contactmomenten-tabel.component.html",
   styleUrls: ["./klant-contactmomenten-tabel.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatCardModule,
     MatTableModule,
@@ -49,9 +48,10 @@ export class KlantContactmomentenTabelComponent implements AfterViewInit {
   readonly bsn = input<string>();
   readonly vestigingsnummer = input<string>();
   readonly paginator = viewChild.required(MatPaginator);
-  protected dataSource = new MatTableDataSource<
-    GeneratedType<"RestContactmoment">
-  >();
+  protected readonly contactmomenten = signal<
+    GeneratedType<"RestContactmoment">[]
+  >([]);
+  protected readonly totaal = signal(0);
   protected columns: string[] = [
     "registratiedatum",
     "kanaal",
@@ -63,7 +63,7 @@ export class KlantContactmomentenTabelComponent implements AfterViewInit {
     page: 0,
   };
   private init = false;
-  protected isLoadingResults = true;
+  protected readonly isLoadingResults = signal(true);
 
   private readonly queryClient = inject(QueryClient);
 
@@ -83,22 +83,22 @@ export class KlantContactmomentenTabelComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.init = true;
     const stopLoading = () => {
-      this.isLoadingResults = false;
+      this.isLoadingResults.set(false);
       this.utilService.setLoading(false);
     };
     this.paginator()
       .page.pipe(
         startWith({}),
         switchMap(() => {
-          this.isLoadingResults = true;
+          this.isLoadingResults.set(true);
           this.utilService.setLoading(true);
           return runQuery(this.queryClient, this.loadContactmomenten());
         }),
         tap({ next: stopLoading, error: stopLoading }),
       )
       .subscribe((resultaat) => {
-        this.paginator().length = resultaat.totaal ?? 0;
-        this.dataSource.data = resultaat.resultaten ?? [];
+        this.totaal.set(resultaat.totaal ?? 0);
+        this.contactmomenten.set(resultaat.resultaten ?? []);
       });
   }
 

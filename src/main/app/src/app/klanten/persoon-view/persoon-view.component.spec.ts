@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
@@ -21,7 +21,6 @@ import { PersoonViewComponent } from "./persoon-view.component";
 @Component({
   selector: "zac-klant-zaken-tabel",
   template: "<p>zaken of klant {{ klant().naam }} ({{ klant().bsn }})</p>",
-  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class KlantZakenTabelStubComponent {
@@ -31,7 +30,6 @@ class KlantZakenTabelStubComponent {
 @Component({
   selector: "zac-klant-contactmomenten-tabel",
   template: "<p>contactmomenten of bsn {{ bsn() }}</p>",
-  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class KlantContactmomentenTabelStubComponent {
@@ -100,7 +98,7 @@ describe(PersoonViewComponent.name, () => {
 
     describe("initialisation", () => {
       it("loads persoon from route resolver data", () => {
-        expect(component["persoon"]).toEqual(makePersoon());
+        expect(component["persoon"]()).toEqual(makePersoon());
       });
     });
 

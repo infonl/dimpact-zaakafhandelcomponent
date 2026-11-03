@@ -11,7 +11,7 @@
           <mat-card-title>{{ "bedrijfsgegevens" | translate }}</mat-card-title>
           <button
             mat-icon-button
-            [disabled]="!profielOphalenMogelijk"
+            [disabled]="!profielOphalenMogelijk()"
             title="{{ 'bedrijf.profiel.ophalen' | translate }}"
             (click)="ophalenProfiel()"
           >
@@ -23,9 +23,9 @@
             id="bedrijfsgegevens"
             class="content flex-row flex-wrap space-between"
           >
-            <zac-static-text label="bedrijfsnaam" [value]="bedrijf?.naam" />
-            @if (bedrijf?.kvkNummer) {
-              <zac-static-text label="kvknummer" [value]="bedrijf.kvkNummer" />
+            <zac-static-text label="bedrijfsnaam" [value]="bedrijf()?.naam" />
+            @if (bedrijf()?.kvkNummer; as kvkNummer) {
+              <zac-static-text label="kvknummer" [value]="kvkNummer" />
             } @else {
               <zac-static-text
                 label="kvknummer"
@@ -33,22 +33,22 @@
                 [value]="'msg.error.kvk.unknown' | translate"
               />
             }
-            @if (bedrijf?.vestigingsnummer) {
+            @if (bedrijf()?.vestigingsnummer; as vestigingsnummer) {
               <zac-static-text
                 label="vestigingsnummer"
-                [value]="bedrijf.vestigingsnummer"
+                [value]="vestigingsnummer"
               />
             }
             <zac-static-text
               label="type"
-              [value]="bedrijf?.type | i18nKey | translate"
+              [value]="bedrijf()?.type | i18nKey | translate"
             />
             @if (profiel()) {
               <zac-static-text label="rsin" [value]="profiel()?.rsin" />
             } @else {
               <zac-static-text
-                [label]="bedrijf?.adres?.type ?? 'adres'"
-                [value]="bedrijf?.adres?.volledigAdres"
+                [label]="bedrijf()?.adres?.type ?? 'adres'"
+                [value]="bedrijf()?.adres?.volledigAdres"
               />
             }
             @for (adres of profiel()?.adressen; track adres) {
@@ -59,9 +59,12 @@
             }
             <zac-static-text
               label="telefoonnummer"
-              [value]="bedrijf?.telefoonnummer"
+              [value]="bedrijf()?.telefoonnummer"
             />
-            <zac-static-text label="emailadres" [value]="bedrijf?.emailadres" />
+            <zac-static-text
+              label="emailadres"
+              [value]="bedrijf()?.emailadres"
+            />
             @if (profiel()) {
               <zac-static-text
                 label="totaal-werkzame-personen"
@@ -106,12 +109,12 @@
       </mat-card>
 
       <div class="flex-1 w75">
-        @if (bedrijf) {
+        @if (bedrijf(); as bedrijf) {
           <zac-klant-zaken-tabel [klant]="bedrijf"></zac-klant-zaken-tabel>
         }
-        @if (bedrijf && bedrijf.vestigingsnummer) {
+        @if (bedrijf()?.vestigingsnummer; as vestigingsnummer) {
           <zac-klant-contactmomenten-tabel
-            [vestigingsnummer]="bedrijf.vestigingsnummer"
+            [vestigingsnummer]="vestigingsnummer"
           ></zac-klant-contactmomenten-tabel>
         }
       </div>

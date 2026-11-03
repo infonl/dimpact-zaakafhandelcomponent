@@ -9,7 +9,6 @@ import {
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import {
-  ChangeDetectionStrategy,
   Component,
   provideZonelessChangeDetection,
   signal,
@@ -26,7 +25,6 @@ import { KlantenService } from "./klanten.service";
 
 @Component({
   template: "{{ contactEmail() }}",
-  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class TestHostComponent {
