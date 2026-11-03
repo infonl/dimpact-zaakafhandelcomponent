@@ -4,7 +4,6 @@
  */
 import { CommonModule } from "@angular/common";
 import {
-  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   OnDestroy,
@@ -88,7 +87,6 @@ import { FormioSetupService } from "./formio/formio-setup-service";
   templateUrl: "./taak-view.component.html",
   styleUrls: ["./taak-view.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     MatButtonModule,
@@ -147,18 +145,28 @@ export class TaakViewComponent
     "zaakDocumentenComponent",
   );
 
-  protected taak?: GeneratedType<"RestTask">;
-  protected zaak?: GeneratedType<"RestZaak">;
-  protected formioFormulier?: FormioForm;
+  protected readonly taak = signal<GeneratedType<"RestTask"> | undefined>(
+    undefined,
+  );
+  protected readonly zaak = signal<GeneratedType<"RestZaak"> | undefined>(
+    undefined,
+  );
+  protected readonly formioFormulier = signal<FormioForm | undefined>(
+    undefined,
+  );
 
-  protected smartDocumentsGroupId?: string;
-  protected smartDocumentsTemplateId?: string;
+  protected readonly smartDocumentsGroupId = signal<string | undefined>(
+    undefined,
+  );
+  protected readonly smartDocumentsTemplateId = signal<string | undefined>(
+    undefined,
+  );
 
-  protected menu: MenuItem[] = [];
-  protected activeSideAction: string | null = null;
-  protected documentToMove!: Partial<
-    GeneratedType<"RestEnkelvoudigInformatieobject">
-  >;
+  protected readonly menu = signal<MenuItem[]>([]);
+  protected readonly activeSideAction = signal<string | null>(null);
+  protected readonly documentToMove = signal<
+    Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>
+  >({});
 
   protected historieSrc = new MatTableDataSource<
     GeneratedType<"RestTaskHistoryLine">
@@ -171,15 +179,15 @@ export class TaakViewComponent
     "toelichting",
   ] as const;
 
-  protected fataledatumIcon: TextIcon | null = null;
-  protected initialized = false;
+  protected readonly fataledatumIcon = signal<TextIcon | null>(null);
+  protected readonly initialized = signal(false);
 
   private taakListener?: WebsocketListener;
   readonly TaakStatusAfgerond =
     "AFGEROND" satisfies GeneratedType<"TaakStatus">;
 
   protected form = this.formBuilder.group({});
-  protected formFields: FormField[] = [];
+  protected readonly formFields = signal<FormField[]>([]);
   protected _formConfig: NewFormConfig = {
     submitLabel: "actie.opslaan.afronden",
     partialSubmitLabel: "actie.opslaan",
@@ -218,6 +226,7 @@ export class TaakViewComponent
     ...this.takenService.listHistorieVoorTaak(this.historieTaakId()!),
     enabled: !!this.historieTaakId(),
   }));
+  protected readonly historie = computed(() => this.historieQuery.data() ?? []);
 
   private readonly lastSubmitFailed = signal(false);
   protected readonly hasFailed = this.lastSubmitFailed.asReadonly();
@@ -232,7 +241,7 @@ export class TaakViewComponent
     });
 
     effect(() => {
-      this.historieSrc.data = this.historieQuery.data() ?? [];
+      this.historieSrc.data = this.historie();
     });
   }
 
@@ -262,12 +271,14 @@ export class TaakViewComponent
 
       if (data.taak.status === "AFGEROND") return;
 
-      this.fataledatumIcon = new TextIcon(
-        DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
-        "report_problem",
-        "errorTaakVerlopen_icon",
-        "msg.datum.overschreden",
-        "error",
+      this.fataledatumIcon.set(
+        new TextIcon(
+          DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
+          "report_problem",
+          "errorTaakVerlopen_icon",
+          "msg.datum.overschreden",
+          "error",
+        ),
       );
     });
   }
@@ -278,25 +289,25 @@ export class TaakViewComponent
   }
 
   private initTaakGegevens(taak: GeneratedType<"RestTask">) {
-    this.taak = taak;
+    this.taak.set(taak);
     this.loadHistorie();
     this.setupMenu();
   }
 
   private init(taak: GeneratedType<"RestTask">, readZaak = true) {
-    this.initialized = false;
+    this.initialized.set(false);
 
     this.initTaakGegevens(taak);
 
     if (!readZaak) {
-      this.initialized = true;
+      this.initialized.set(true);
       return;
     }
 
     this.zakenService.readZaak(taak.zaakUuid).subscribe((zaak) => {
-      this.zaak = zaak;
+      this.zaak.set(zaak);
       void this.createTaakForm(taak, zaak);
-      this.initialized = true;
+      this.initialized.set(true);
       this.setupMenu();
     });
   }
@@ -305,7 +316,7 @@ export class TaakViewComponent
     taak: GeneratedType<"RestTask">,
     zaak: GeneratedType<"RestZaak">,
   ) {
-    this.formioFormulier = undefined;
+    this.formioFormulier.set(undefined);
 
     this.changeDetectorRef.detectChanges();
 
@@ -316,7 +327,7 @@ export class TaakViewComponent
         taak.formioFormulier,
         taak,
       );
-      this.formioFormulier = taak.formioFormulier;
+      this.formioFormulier.set(taak.formioFormulier);
     }
   }
 
@@ -337,15 +348,17 @@ export class TaakViewComponent
           formField.control ??
             this.formBuilder.control(taak.taakdata?.[formField.key] ?? null),
         );
-
-        this.formFields.push(formField);
       });
 
       const explanationControl = this.formBuilder.control(taak.toelichting, [
         Validators.maxLength(1000),
       ]);
       this.form.addControl("toelichting", explanationControl);
-      this.formFields.push({ type: "textarea", key: "toelichting" });
+      this.formFields.update((fields) => [
+        ...fields,
+        ...formFields,
+        { type: "textarea", key: "toelichting" },
+      ]);
 
       const allAttachments = [
         ...(taak.taakdocumenten ?? []),
@@ -364,27 +377,31 @@ export class TaakViewComponent
         >(attachments); // Make sure the control initially has all the attachments checked
 
       this.form.addControl("bijlagen", attachmentsControl);
-      this.formFields.push({
-        type: "documents",
-        key: "bijlagen",
-        readonly: true,
-        options: attachments,
-      });
+      this.formFields.update((fields) => [
+        ...fields,
+        {
+          type: "documents",
+          key: "bijlagen",
+          readonly: true,
+          options: attachments,
+        },
+      ]);
     } catch (e) {
       console.warn(e);
     }
   }
 
   protected isReadonly() {
-    return this.taak?.status === "AFGEROND" || !this.taak?.rechten.canWijzigen;
+    const taak = this.taak();
+    return taak?.status === "AFGEROND" || !taak?.rechten.canWijzigen;
   }
 
   private setupMenu() {
-    this.menu = [];
-    this.menu.push(new HeaderMenuItem("taak"));
+    const menu: MenuItem[] = [new HeaderMenuItem("taak")];
+    const zaak = this.zaak();
 
-    if (this.taak?.rechten.canToevoegenDocument) {
-      this.menu.push(
+    if (this.taak()?.rechten.canToevoegenDocument) {
+      menu.push(
         new ButtonMenuItem(
           "actie.document.toevoegen",
           () => this.actionsSidenav().open(),
@@ -393,17 +410,17 @@ export class TaakViewComponent
       );
 
       if (
-        this.zaak?.zaaktype.zaakafhandelparameters?.smartDocuments
+        zaak?.zaaktype.zaakafhandelparameters?.smartDocuments
           .isEnabledGlobally &&
-        this.zaak?.zaaktype?.zaakafhandelparameters.smartDocuments
+        zaak?.zaaktype?.zaakafhandelparameters.smartDocuments
           .isEnabledForZaaktype
       ) {
-        this.menu.push(
+        menu.push(
           new ButtonMenuItem(
             "actie.document.maken",
             () => {
-              this.smartDocumentsGroupId = undefined;
-              this.smartDocumentsTemplateId = undefined;
+              this.smartDocumentsGroupId.set(undefined);
+              this.smartDocumentsTemplateId.set(undefined);
               this.actionsSidenav().open();
             },
             "note_add",
@@ -411,6 +428,7 @@ export class TaakViewComponent
         );
       }
     }
+    this.menu.set(menu);
   }
 
   private rereadTaak(taakId: string) {
@@ -422,34 +440,36 @@ export class TaakViewComponent
   }
 
   private loadHistorie() {
-    if (!this.taak?.id) return;
+    const taakId = this.taak()?.id;
+    if (!taakId) return;
 
-    if (this.historieTaakId() === this.taak.id) {
+    if (this.historieTaakId() === taakId) {
       void this.historieQuery.refetch();
       return;
     }
-    this.historieTaakId.set(this.taak.id);
+    this.historieTaakId.set(taakId);
   }
 
   editTaak() {
-    this.activeSideAction = "actie.taak.wijzigen";
+    this.activeSideAction.set("actie.taak.wijzigen");
     this.actionsSidenav().open();
   }
 
   onHardCodedFormSubmit(formGroup: FormGroup, partial = false) {
+    const taak = this.taak()!;
     const taskBody:
       | PutBody<"/rest/taken/taakdata">
       | PatchBody<"/rest/taken/complete"> = {
-      ...this.taak!,
+      ...taak,
       taakdata: {
-        ...this.taak!.taakdata,
+        ...taak.taakdata,
         ...mapFormGroupToTaskData(formGroup, {
           ignoreKeys: ["bijlagen"],
         }),
       },
       toelichting: formGroup.get("toelichting")?.value,
       taakinformatie: {
-        ...this.taak!.taakinformatie,
+        ...taak.taakinformatie,
         ...mapTaskdataToTaskInformation(
           mapFormGroupToTaskData(formGroup, {
             mapControlOptions: {
@@ -457,7 +477,7 @@ export class TaakViewComponent
               documentSeparator: ", ",
             },
           }),
-          this.taak!,
+          taak,
         ),
       },
     };
@@ -476,7 +496,7 @@ export class TaakViewComponent
         this.init(task, false);
         void this.taakFormulierenService
           .getAngularTaskForm(task.formulierDefinitieId)
-          .onTaskCompleted(task, this.form, this.formFields);
+          .onTaskCompleted(task, this.form, this.formFields());
       },
     });
   }
@@ -485,12 +505,13 @@ export class TaakViewComponent
     data: Record<string, string>;
     state: string;
   }) {
+    const taak = this.taak();
     for (const key in submission.data) {
-      if (key !== "submit" && key !== "save" && this.taak?.taakdata) {
-        this.taak.taakdata[key] = submission.data[key];
+      if (key !== "submit" && key !== "save" && taak?.taakdata) {
+        taak.taakdata[key] = submission.data[key];
       }
     }
-    if (!this.taak) return;
+    if (!taak) return;
 
     // Re-initialise from the response so the view reflects whatever the flow decided, without waiting
     // for the websocket event to arrive.
@@ -501,11 +522,11 @@ export class TaakViewComponent
     this.lastSubmitFailed.set(false);
 
     if (submission.state === "submitted") {
-      this.completeTaakMutation.mutate(this.taak, { onSuccess, onError });
+      this.completeTaakMutation.mutate(taak, { onSuccess, onError });
       return;
     }
 
-    this.updateTaakdataMutation.mutate(this.taak, { onSuccess, onError });
+    this.updateTaakdataMutation.mutate(taak, { onSuccess, onError });
   }
 
   onFormioFormChange(event: FormioChangeEvent) {
@@ -513,34 +534,37 @@ export class TaakViewComponent
   }
 
   onDocumentCreate(event: FormioCustomEvent) {
-    this.smartDocumentsGroupId =
-      this.formioSetupService.extractSmartDocumentsGroupId(event);
-    this.smartDocumentsTemplateId =
-      this.formioSetupService.extractSmartDocumentsTemplateId(event);
-    if (!this.smartDocumentsGroupId || !this.smartDocumentsTemplateId) {
+    this.smartDocumentsGroupId.set(
+      this.formioSetupService.extractSmartDocumentsGroupId(event),
+    );
+    this.smartDocumentsTemplateId.set(
+      this.formioSetupService.extractSmartDocumentsTemplateId(event),
+    );
+    if (!this.smartDocumentsGroupId() || !this.smartDocumentsTemplateId()) {
       console.debug("No SmartDocuments template selected!");
       return;
     }
 
-    this.activeSideAction = "actie.document.maken";
+    this.activeSideAction.set("actie.document.maken");
     void this.actionsSidenav().open();
   }
 
   updateTaakdocumenten(
     informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
   ) {
-    if (!this.taak) return;
+    const taak = this.taak();
+    if (!taak) return;
 
-    if (!this.taak.taakdocumenten) {
-      this.taak.taakdocumenten = [];
+    if (!taak.taakdocumenten) {
+      taak.taakdocumenten = [];
     }
 
-    this.taak.taakdocumenten.push(informatieobject.uuid!);
+    taak.taakdocumenten.push(informatieobject.uuid!);
 
     const control = this.form.get("bijlagen");
     if (!control) return;
     const newAttachments = [...(control.value ?? []), informatieobject];
-    this.formFields.forEach((field) => {
+    this.formFields().forEach((field) => {
       if (field.type === "documents" && field.key === "bijlagen") {
         field.options = newAttachments;
       }
@@ -551,11 +575,12 @@ export class TaakViewComponent
   documentCreated() {
     void this.actionsSidenav().close();
 
-    if (!this.taak) return;
+    const taak = this.taak();
+    if (!taak) return;
     const listener = this.websocketService.addListener(
       "UPDATED",
       "ZAAK_INFORMATIEOBJECTEN",
-      this.taak.zaakUuid,
+      taak.zaakUuid,
       () => {
         this.websocketService.removeListener(listener);
         this.loadHistorie();
@@ -566,8 +591,8 @@ export class TaakViewComponent
   documentMoveToCase(
     $event: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>,
   ) {
-    this.activeSideAction = "actie.document.verplaatsen";
-    this.documentToMove = $event;
+    this.activeSideAction.set("actie.document.verplaatsen");
+    this.documentToMove.set($event);
     void this.actionsSidenav().open();
   }
 
@@ -576,10 +601,10 @@ export class TaakViewComponent
   }
 
   protected updateZaak() {
-    const zaakUuid = this.zaak?.uuid ?? this.taak?.zaakUuid;
+    const zaakUuid = this.zaak()?.uuid ?? this.taak()?.zaakUuid;
     if (!zaakUuid) return;
     this.zakenService.readZaak(zaakUuid).subscribe((zaak) => {
-      this.zaak = zaak;
+      this.zaak.set(zaak);
     });
   }
 
@@ -593,10 +618,12 @@ export class TaakViewComponent
       GeneratedType<"RestZaaktype">
     > as GeneratedType<"RestZaaktype">;
 
-    this.zaak = {
+    this.zaak.set({
       identificatie: taak.zaakIdentificatie,
       uuid: taak.zaakUuid,
       zaaktype,
-    } satisfies Partial<GeneratedType<"RestZaak">> as GeneratedType<"RestZaak">;
+    } satisfies Partial<
+      GeneratedType<"RestZaak">
+    > as GeneratedType<"RestZaak">);
   }
 }

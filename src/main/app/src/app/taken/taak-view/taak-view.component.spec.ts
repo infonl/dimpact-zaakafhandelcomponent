@@ -304,9 +304,9 @@ describe(TaakViewComponent.name, () => {
       component.instance.onDocumentCreate(event);
 
       expect(
-        (component.instance as unknown as Record<string, string>)[
+        (component.instance as unknown as Record<string, () => string>)[
           "smartDocumentsGroupId"
-        ],
+        ](),
       ).toBe("group-id");
     });
 
@@ -321,9 +321,9 @@ describe(TaakViewComponent.name, () => {
       component.instance.onDocumentCreate(event);
 
       expect(
-        (component.instance as unknown as Record<string, string>)[
+        (component.instance as unknown as Record<string, () => string>)[
           "smartDocumentsTemplateId"
-        ],
+        ](),
       ).toBe("template-id");
     });
 
@@ -353,9 +353,9 @@ describe(TaakViewComponent.name, () => {
       component.instance.onDocumentCreate(event);
 
       expect(
-        (component.instance as unknown as Record<string, string>)[
+        (component.instance as unknown as Record<string, () => string>)[
           "activeSideAction"
-        ],
+        ](),
       ).toBe("actie.document.maken");
       expect(openSpy).toHaveBeenCalled();
     });
@@ -368,9 +368,9 @@ describe(TaakViewComponent.name, () => {
       component.instance.editTaak();
 
       expect(
-        (component.instance as unknown as Record<string, string>)[
+        (component.instance as unknown as Record<string, () => string>)[
           "activeSideAction"
-        ],
+        ](),
       ).toBe("actie.taak.wijzigen");
       expect(openSpy).toHaveBeenCalled();
     });

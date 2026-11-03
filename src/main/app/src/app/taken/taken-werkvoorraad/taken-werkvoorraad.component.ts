@@ -9,14 +9,15 @@ import { ComponentType } from "@angular/cdk/portal";
 import { SlicePipe } from "@angular/common";
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   OnDestroy,
   OnInit,
   signal,
   viewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { MatBadge } from "@angular/material/badge";
 import {
   MatButton,
@@ -36,6 +37,7 @@ import { MatTable, MatTableModule } from "@angular/material/table";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
+import { map } from "rxjs";
 import { BatchProcessService } from "src/app/shared/batch-progress/batch-process.service";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
@@ -72,7 +74,6 @@ import { TakenWerkvoorraadDatasource } from "./taken-werkvoorraad-datasource";
   styleUrls: ["./taken-werkvoorraad.component.less"],
   animations: [detailExpand],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     I18nKeyPipe,
@@ -118,12 +119,19 @@ export class TakenWerkvoorraadComponent
   private readonly translateService = inject(TranslateService);
   private readonly batchProcessService = inject(BatchProcessService);
 
-  protected selection = new SelectionModel<TaakZoekObject>(true, []);
+  protected readonly selection = new SelectionModel<TaakZoekObject>(true, []);
+  private readonly selectedTaken = toSignal(
+    this.selection.changed.pipe(map(({ source }) => source.selected)),
+    { initialValue: [] },
+  );
+  protected readonly isSelected = computed(
+    () => this.selectedTaken().length > 0,
+  );
   protected dataSource: TakenWerkvoorraadDatasource;
   private readonly paginator = viewChild.required(MatPaginator);
   private readonly sort = viewChild.required(MatSort);
   private readonly table = viewChild.required(MatTable);
-  protected expandedRow: TaakZoekObject | null = null;
+  protected readonly expandedRow = signal<TaakZoekObject | null>(null);
   protected readonly zoekenColumn = ZoekenColumn;
 
   protected fataledatumIcon = new TextIcon(
@@ -143,7 +151,7 @@ export class TakenWerkvoorraadComponent
   private readonly loggedInUserQuery = injectQuery(() =>
     this.identityService.readLoggedInUser(),
   );
-  private readonly assignToMeMutation = injectMutation(
+  protected readonly assignToMeMutation = injectMutation(
     () => this.takenService.toekennenAanIngelogdeMedewerkerVanuitLijst(),
     {
       onSuccess: ({ behandelaar }, { taakId }) => {
@@ -194,7 +202,7 @@ export class TakenWerkvoorraadComponent
   }
 
   protected isAllSelected(): boolean {
-    const numSelected = this.selection.selected.length;
+    const numSelected = this.selectedTaken().length;
     const numRows = this.dataSource.data.length;
     return numSelected === numRows;
   }
@@ -214,17 +222,15 @@ export class TakenWerkvoorraadComponent
       }`;
     }
 
-    return `actie.${
-      this.selection.isSelected(row) ? "deselecteren" : "selecteren"
-    }`;
+    return `actie.${this.isRowSelected(row) ? "deselecteren" : "selecteren"}`;
   }
 
-  protected isSelected(): boolean {
-    return this.selection.selected.length > 0;
+  protected isRowSelected(row: TaakZoekObject) {
+    return this.selectedTaken().includes(row);
   }
 
   protected countSelected(checkIfTaskHasHandler = false): number {
-    return this.selection.selected.filter(
+    return this.selectedTaken().filter(
       ({ behandelaarGebruikersnaam }) =>
         !checkIfTaskHasHandler || !!behandelaarGebruikersnaam,
     ).length;
