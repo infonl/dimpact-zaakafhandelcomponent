@@ -80,10 +80,15 @@ Create 500 zaaktypes, for load testing:
 Note that each of the 500 zaaktypes is created, registered in PABC and configured in ZAC one at a time, so a run
 like this takes a while — expect it to run for several minutes.
 
+After the batch, the script clears the ZTC cache of ZAC. Open Zaak sends no notification for zaaktypes that are
+inserted into its database directly, so without this ZAC keeps listing the zaaktypes that it cached before.
+
 Create zaaktypes in Open Zaak and PABC only, without touching ZAC (e.g. because ZAC isn't running yet):
 ```shell
 ./create-zaaktypes.py --count 500 --skip-config
 ```
+ZAC then does not list the new zaaktypes until it restarts, or until you clear its ZTC cache with
+`GET /rest/admin/util/cache/ztc/clear` as a user with the 'beheren' right.
 
 Create zaaktypes that each have 3 extra superseded versions in Open Zaak (only the current version is registered
 in PABC and configured in ZAC):
@@ -98,7 +103,7 @@ in PABC and configured in ZAC):
 * [`create-load.py`](create-load.py) — end-to-end local load/performance test: uploads a BPMN process definition,
   configures zaakafhandelparameters for the 7 built-in test zaaktypes, then creates many zaken concurrently.
 * [`configure-zaakafhandelparameters.py`](configure-zaakafhandelparameters.py) — configures a single zaaktype's
-  zaakafhandelparameters in ZAC (default group, CMMN case type, zaakNietOntvankelijkResultaattype, zaakAfzenders
-  and humanTaskParameters). Used by `create-zaaktypes.py` above, and can also be run standalone.
+  zaakafhandelparameters in ZAC (default group, CMMN case type, zaakNietOntvankelijkResultaattype, zaakAfzenders,
+  intakeMail and afrondenMail, and humanTaskParameters). Used by `create-zaaktypes.py` above, and can also be run standalone.
 
 Run any script with `--help` for its full set of options.

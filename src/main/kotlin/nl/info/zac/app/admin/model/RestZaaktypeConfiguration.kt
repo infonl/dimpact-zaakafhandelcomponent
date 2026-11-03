@@ -9,6 +9,7 @@ import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
+import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.util.AllOpen
@@ -52,7 +53,7 @@ data class RestZaaktypeConfiguration(
     var isValide: Boolean = false,
     /**
      * Indicates that zaken of this zaaktype can be authorised on an individual basis,
-     * which is the case when the zaaktype defines the [ZAAK_GEAUTORISEERD_EIGENSCHAP_NAAM] eigenschap.
+     * which is the case when the zaaktype defines the [ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD] eigenschap.
      */
     @get:JsonbProperty("isZaakspecifiekAutoriseerbaar")
     @set:JsonbProperty("isZaakspecifiekAutoriseerbaar")

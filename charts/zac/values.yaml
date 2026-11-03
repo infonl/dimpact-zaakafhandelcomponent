@@ -807,7 +807,7 @@ nginx:
   image:
     repository: docker.io/nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.31.7@sha256:94193d5c4c5df716f412bb08eb97956d98fe6b59886f0bc57d6d3a3402a88a02
+    tag: 1.31.7@sha256:09b0d3eda2aa592d2487f284519419015cab010d7df16cd0fe224b585fc60eb6
   service:
     type: ClusterIP
     port: 80
@@ -921,3 +921,18 @@ organizations:
 
 # -- ZAC OpenZaak Catalogus Domein
 catalogusDomein: ALG
+
+# -- Maximum number of entries in each ZTC cache, such as the cache of zaaktypes or of statustypes. ZAC fills
+# these caches with all types of the catalogus at startup, so raise this when a cache holds more types. The admin
+# page `/rest/admin/util/cache/ztc` shows how many entries each cache holds and how much memory it uses.
+ztcCacheMaxSize: 10000
+
+# -- Number of seconds after which an entry of a ZTC cache is removed when it has been neither read nor written.
+# A type that no longer exists in the ZTC is removed from the cache only once it has not been used for this time.
+# Default: one day.
+ztcCacheExpirationSeconds: 86400
+
+# -- Number of seconds between two refreshes of all ZTC caches in the background, so that changes that Open Zaak sends
+# no notification for, such as a zaaktype published with the publish action, appear in ZAC. Default: one hour.
+# 0 turns the periodic refresh off.
+ztcCacheRefreshIntervalSeconds: 3600

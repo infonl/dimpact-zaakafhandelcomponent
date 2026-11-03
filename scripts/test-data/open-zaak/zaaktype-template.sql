@@ -51,7 +51,7 @@ INSERT INTO catalogi_zaaktype
 )
 VALUES
     (
-        (SELECT COALESCE(MAX(id),0) FROM catalogi_zaaktype) + 1, -- Assuming auto-increment is not set for id
+        nextval('catalogi_zaaktype_id_seq'), -- id
         '2026-08-01', -- datum_begin_geldigheid
         NULL, -- datum_einde_geldigheid
         false, -- concept
@@ -124,8 +124,7 @@ INSERT INTO catalogi_resultaattype
 )
 VALUES
     (
-        -- Adjust ID as needed
-        (SELECT COALESCE(MAX(id),0) FROM catalogi_resultaattype) + 1,
+        nextval('catalogi_resultaattype_id_seq'), -- id
         '[[RESULTAATTYPE_1_UUID]]', -- UUID
         'Geweigerd', -- Omschrijving
         'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/1f750958-431c-4916-bc01-af5d3a753b41', -- Resultaattypeomschrijving
@@ -178,7 +177,7 @@ INSERT INTO catalogi_resultaattype
 )
 VALUES
     (
-        (SELECT COALESCE(MAX(id),0) FROM catalogi_resultaattype) + 1, -- Adjust ID as needed
+        nextval('catalogi_resultaattype_id_seq'), -- id
         '[[RESULTAATTYPE_2_UUID]]', -- UUID
         'Verleend',
         'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/f7d2dc14-1b71-4179-aed3-4e7abcfbeb0d',
@@ -223,7 +222,7 @@ INSERT INTO catalogi_statustype
 )
 VALUES
     (
-        (SELECT COALESCE(MAX(id),0) FROM catalogi_statustype) + 1, -- Adjust ID as needed
+        nextval('catalogi_statustype_id_seq'), -- id
         '[[STATUSTYPE_1_UUID]]', -- UUID
         'Intake', -- Statustype Omschrijving
         '', -- Statustype Omschrijving Generiek
@@ -257,7 +256,7 @@ INSERT INTO catalogi_statustype
 )
 VALUES
     (
-        (SELECT COALESCE(MAX(id),0) FROM catalogi_statustype) + 1, -- Adjust ID as needed
+        nextval('catalogi_statustype_id_seq'), -- id
         '[[STATUSTYPE_2_UUID]]', -- UUID
         'In behandeling', -- Statustype Omschrijving
         '', -- Statustype Omschrijving Generiek
@@ -291,7 +290,7 @@ INSERT INTO catalogi_statustype
 )
 VALUES
     (
-        (SELECT COALESCE(MAX(id),0) FROM catalogi_statustype) + 1, -- Adjust ID as needed
+        nextval('catalogi_statustype_id_seq'), -- id
         '[[STATUSTYPE_3_UUID]]', -- UUID
         'Wacht op aanvullende informatie', -- Statustype Omschrijving
         '', -- Statustype Omschrijving Generiek
@@ -330,7 +329,7 @@ INSERT INTO catalogi_statustype
 )
 VALUES
     (
-        (SELECT COALESCE(MAX(id),0) FROM catalogi_statustype) + 1, -- Adjust ID as needed
+        nextval('catalogi_statustype_id_seq'), -- id
         '[[STATUSTYPE_4_UUID]]', -- UUID
         'Heropend', -- Statustype Omschrijving
         '', -- Statustype Omschrijving Generiek
@@ -364,7 +363,7 @@ INSERT INTO catalogi_statustype
 )
 VALUES
     (
-        (SELECT COALESCE(MAX(id),0) FROM catalogi_statustype) + 1, -- Adjust ID as needed
+        nextval('catalogi_statustype_id_seq'), -- id
         '[[STATUSTYPE_5_UUID]]', -- UUID
         'Afgerond', -- Statustype Omschrijving
         '', -- Statustype Omschrijving Generiek
@@ -397,7 +396,7 @@ INSERT INTO catalogi_roltype
 )
 VALUES
     (
-        (SELECT COALESCE(MAX(id),0) FROM catalogi_roltype) + 1,
+        nextval('catalogi_roltype_id_seq'),
         '[[ROLTYPE_1_UUID]]', -- UUID
         'Initiator', -- Omschrijving
         'initiator', -- Omschrijving Generiek
@@ -421,7 +420,7 @@ INSERT INTO catalogi_roltype
 )
 VALUES
     (
-        (SELECT COALESCE(MAX(id),0) FROM catalogi_roltype) + 1,
+        nextval('catalogi_roltype_id_seq'),
         '[[ROLTYPE_2_UUID]]', -- UUID
         'Behandelaar', -- Omschrijving
         'behandelaar', -- Omschrijving Generiek
@@ -445,7 +444,7 @@ INSERT INTO catalogi_roltype
 )
 VALUES
     (
-        (SELECT COALESCE(MAX(id),0) FROM catalogi_roltype) + 1,
+        nextval('catalogi_roltype_id_seq'),
         '[[ROLTYPE_3_UUID]]', -- UUID
         'Belanghebbende', -- Omschrijving
         'belanghebbende', -- Omschrijving Generiek
@@ -466,7 +465,7 @@ VALUES
 INSERT INTO catalogi_zaaktypeinformatieobjecttype
 (id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag)
 VALUES
-    ((SELECT COALESCE(MAX(id),0) FROM catalogi_zaaktypeinformatieobjecttype) + 1, '[[ZAAKTYPEINFORMATIEOBJECTTYPE_1_UUID]]', (SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY volgnummer DESC LIMIT 1) + 1, 'inkomend',
+    (nextval('catalogi_zaaktypeinformatieobjecttype_id_seq'), '[[ZAAKTYPEINFORMATIEOBJECTTYPE_1_UUID]]', (SELECT id FROM catalogi_zaaktypeinformatieobjecttype ORDER BY volgnummer DESC LIMIT 1) + 1, 'inkomend',
      (SELECT id FROM catalogi_informatieobjecttype WHERE uuid = 'efc332f2-be3b-4bad-9e3c-49a6219c92ad'),
      NULL,
      (SELECT id FROM catalogi_zaaktype WHERE uuid = '[[ZAAKTYPE_UUID]]'), '_etag');

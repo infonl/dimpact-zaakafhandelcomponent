@@ -9,6 +9,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.date.shouldBeAfter
 import io.kotest.matchers.equals.shouldBeEqual
+import io.kotest.matchers.longs.shouldBeGreaterThan
+import io.kotest.matchers.longs.shouldBeLessThan
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -17,15 +20,21 @@ import io.mockk.verify
 import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
 import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.util.extractUuid
-import nl.info.client.zgw.ztc.ZtcClientService.Companion.MAX_CACHE_SIZE
 import nl.info.client.zgw.ztc.exception.CatalogusNotFoundException
 import nl.info.client.zgw.ztc.exception.RoltypeNotFoundException
 import nl.info.client.zgw.ztc.model.RoltypeListGeneriekParameters
+import nl.info.client.zgw.ztc.model.StatustypeListParameters
 import nl.info.client.zgw.ztc.model.ZaaktypeListParameters
+import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.client.zgw.ztc.model.createCatalogus
 import nl.info.client.zgw.ztc.model.createCatalogusListParameters
+import nl.info.client.zgw.ztc.model.createEigenschap
+import nl.info.client.zgw.ztc.model.createInformatieObjectType
+import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
+import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.client.zgw.ztc.model.createZaakTypeInformatieObjectType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import java.net.URI
 import java.time.ZonedDateTime
@@ -33,10 +42,15 @@ import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
 class ZtcClientServiceTest : BehaviorSpec({
-    val ztcClient = mockk<ZtcClient>()
-    val ztcClientService = ZtcClientService(
-        ztcClient = ztcClient
+    val cacheMaxSize = 100L
+    val cacheExpirationSeconds = 86_400L
+    fun createZtcClientService(ztcClient: ZtcClient) = ZtcClientService(
+        ztcClient = ztcClient,
+        cacheMaxSize = cacheMaxSize,
+        cacheExpirationSeconds = cacheExpirationSeconds
     )
+    val ztcClient = mockk<ZtcClient>()
+    val ztcClientService = createZtcClientService(ztcClient)
     val initialUUID = UUID.randomUUID()
     val expectedZaakType = createZaakType()
     val testStartDateTime = ZonedDateTime.now()
@@ -126,7 +140,7 @@ class ZtcClientServiceTest : BehaviorSpec({
         }
 
         `when`("reading more zaak types than the cache can hold") {
-            (1..MAX_CACHE_SIZE + 1).forEach { _ ->
+            (1..cacheMaxSize + 1).forEach { _ ->
                 val generatedUUID = UUID.randomUUID()
                 every {
                     ztcClient.zaaktypeRead(generatedUUID)
@@ -138,7 +152,7 @@ class ZtcClientServiceTest : BehaviorSpec({
                 eventually(5.seconds) {
                     with(ztcClientService.cacheStatistics()["ZTC UUID -> ZaakType"]) {
                         this?.hitCount() shouldBe 0
-                        this?.missCount() shouldBe MAX_CACHE_SIZE + 2
+                        this?.missCount() shouldBe cacheMaxSize + 2
                         this?.evictionCount() shouldBe 2
                     }
                 }
@@ -209,6 +223,365 @@ class ZtcClientServiceTest : BehaviorSpec({
                 firstReadZaakType shouldBe firstZaakType
                 secondReadZaakType shouldBe secondZaakType
                 verify(exactly = 0) { ztcClient.zaaktypeRead(any()) }
+            }
+        }
+    }
+
+    context("Refreshing the caches") {
+        fun ZtcClient.stubEmptyTypeListsExceptZaaktypenAndStatustypen() {
+            every { resultaattypeList(any()) } returns Results(emptyList(), 0)
+            every { besluittypeList(any()) } returns Results(emptyList(), 0)
+            every { informatieobjecttypeList(any()) } returns Results(emptyList(), 0)
+            every { zaaktypeinformatieobjecttypeList(any()) } returns Results(emptyList(), 0)
+            every { eigenschapList(any()) } returns Results(emptyList(), 0)
+            every { roltypeList(any()) } returns Results(emptyList(), 0)
+        }
+
+        given(
+            """a catalogus with a zaaktype with related types, a zaaktype without related types,
+            and a statustype of a zaaktype in another catalogus"""
+        ) {
+            val refreshedZtcClient = mockk<ZtcClient>()
+            val refreshedZtcClientService = createZtcClientService(refreshedZtcClient)
+            val catalogusUri = URI("https://example.com/catalogussen/${UUID.randomUUID()}")
+            val zaakType = createZaakType()
+            val zaakTypeWithoutRelatedTypes = createZaakType()
+            val statusType = createStatusType().apply { zaaktype = zaakType.url }
+            val statusTypeOfOtherCatalogus = createStatusType().apply {
+                zaaktype = URI("https://example.com/zaaktypes/${UUID.randomUUID()}")
+            }
+            val resultaatType = createResultaatType().apply { zaaktype = zaakType.url }
+            val besluitType = createBesluitType(zaaktypen = listOf(zaakType.url))
+            val informatieObjectType = createInformatieObjectType()
+            val zaakTypeInformatieObjectType = createZaakTypeInformatieObjectType(
+                zaaktype = zaakType.url,
+                informatieobjecttype = informatieObjectType.url
+            )
+            val eigenschap = createEigenschap(zaaktype = zaakType.url)
+            val rolType = createRolType(zaakTypeUri = zaakType.url)
+            every {
+                refreshedZtcClient.zaaktypeList(any())
+            } returns Results(listOf(zaakType, zaakTypeWithoutRelatedTypes), 2)
+            every {
+                refreshedZtcClient.statustypeList(any())
+            } returns Results(listOf(statusType, statusTypeOfOtherCatalogus), 2)
+            every { refreshedZtcClient.resultaattypeList(any()) } returns Results(listOf(resultaatType), 1)
+            every { refreshedZtcClient.besluittypeList(any()) } returns Results(listOf(besluitType), 1)
+            every {
+                refreshedZtcClient.informatieobjecttypeList(any())
+            } returns Results(listOf(informatieObjectType), 1)
+            every {
+                refreshedZtcClient.zaaktypeinformatieobjecttypeList(any())
+            } returns Results(listOf(zaakTypeInformatieObjectType), 1)
+            every { refreshedZtcClient.eigenschapList(any()) } returns Results(listOf(eigenschap), 1)
+            every { refreshedZtcClient.roltypeList(any()) } returns Results(listOf(rolType), 1)
+
+            `when`("the caches are refreshed") {
+                refreshedZtcClientService.refreshCaches(catalogusUri)
+
+                then("the zaaktypes and their related types are read from the caches") {
+                    with(refreshedZtcClientService) {
+                        listZaaktypen(catalogusUri) shouldBe listOf(zaakType, zaakTypeWithoutRelatedTypes)
+                        readZaaktype(zaakType.url) shouldBe zaakType
+                        readStatustypen(zaakType.url) shouldBe listOf(statusType)
+                        readStatustype(statusType.url) shouldBe statusType
+                        readResultaattypen(zaakType.url) shouldBe listOf(resultaatType)
+                        readResultaattype(resultaatType.url) shouldBe resultaatType
+                        readBesluittypen(zaakType.url) shouldBe listOf(besluitType)
+                        readBesluittype(besluitType.url) shouldBe besluitType
+                        readZaaktypeInformatieobjecttypen(zaakType.url) shouldBe listOf(zaakTypeInformatieObjectType)
+                        readInformatieobjecttypen(zaakType.url) shouldBe listOf(informatieObjectType)
+                        readInformatieobjecttype(informatieObjectType.url) shouldBe informatieObjectType
+                        readEigenschappen(zaakType.url) shouldBe listOf(eigenschap)
+                        listRoltypen(zaakType.url) shouldBe listOf(rolType)
+                        readRoltype(rolType.url.extractUuid()) shouldBe rolType
+                    }
+                    verify(exactly = 1) {
+                        refreshedZtcClient.zaaktypeList(any())
+                        refreshedZtcClient.statustypeList(any())
+                        refreshedZtcClient.resultaattypeList(any())
+                        refreshedZtcClient.besluittypeList(any())
+                        refreshedZtcClient.informatieobjecttypeList(any())
+                        refreshedZtcClient.zaaktypeinformatieobjecttypeList(any())
+                        refreshedZtcClient.eigenschapList(any())
+                        refreshedZtcClient.roltypeList(any())
+                    }
+                }
+
+                and("the zaaktype without related types has empty lists in the caches") {
+                    with(refreshedZtcClientService) {
+                        readStatustypen(zaakTypeWithoutRelatedTypes.url) shouldBe emptyList()
+                        readResultaattypen(zaakTypeWithoutRelatedTypes.url) shouldBe emptyList()
+                        readBesluittypen(zaakTypeWithoutRelatedTypes.url) shouldBe emptyList()
+                        readZaaktypeInformatieobjecttypen(zaakTypeWithoutRelatedTypes.url) shouldBe emptyList()
+                        readInformatieobjecttypen(zaakTypeWithoutRelatedTypes.url) shouldBe emptyList()
+                        readEigenschappen(zaakTypeWithoutRelatedTypes.url) shouldBe emptyList()
+                        listRoltypen(zaakTypeWithoutRelatedTypes.url) shouldBe emptyList()
+                    }
+                }
+
+                and("the statustype of the zaaktype in another catalogus is not cached") {
+                    refreshedZtcClientService.estimatedCacheSizes()["ZTC UUID -> StatusType"] shouldBe 1
+                }
+            }
+        }
+
+        given("statustypen that are spread over two pages") {
+            val refreshedZtcClient = mockk<ZtcClient>()
+            val refreshedZtcClientService = createZtcClientService(refreshedZtcClient)
+            val catalogusUri = URI("https://example.com/catalogussen/${UUID.randomUUID()}")
+            val zaakType = createZaakType()
+            val firstPageStatusType = createStatusType().apply { zaaktype = zaakType.url }
+            val secondPageStatusType = createStatusType().apply { zaaktype = zaakType.url }
+            every { refreshedZtcClient.zaaktypeList(any()) } returns Results(listOf(zaakType), 1)
+            every {
+                refreshedZtcClient.statustypeList(any())
+            } answers {
+                if (firstArg<StatustypeListParameters>().getPage() == 1) {
+                    Results(
+                        countValue = 2,
+                        resultsValue = listOf(firstPageStatusType),
+                        nextValue = URI("https://example.com/statustypen?page=2"),
+                        previousValue = null
+                    )
+                } else {
+                    Results(listOf(secondPageStatusType), 2)
+                }
+            }
+            refreshedZtcClient.stubEmptyTypeListsExceptZaaktypenAndStatustypen()
+
+            `when`("the caches are refreshed") {
+                refreshedZtcClientService.refreshCaches(catalogusUri)
+
+                then("the statustypen of both pages are cached for the zaaktype") {
+                    refreshedZtcClientService.readStatustypen(zaakType.url) shouldBe
+                        listOf(firstPageStatusType, secondPageStatusType)
+                    verify(exactly = 2) { refreshedZtcClient.statustypeList(any()) }
+                }
+            }
+        }
+
+        given("a zaaktype that is linked to a besluittype of another catalogus") {
+            val refreshedZtcClient = mockk<ZtcClient>()
+            val refreshedZtcClientService = createZtcClientService(refreshedZtcClient)
+            val catalogusUri = URI("https://example.com/catalogussen/${UUID.randomUUID()}")
+            val zaakType = createZaakType()
+            val besluitTypeOfOtherCatalogus = createBesluitType(zaaktypen = listOf(zaakType.url))
+            every { refreshedZtcClient.zaaktypeList(any()) } returns Results(listOf(zaakType), 1)
+            every { refreshedZtcClient.statustypeList(any()) } returns Results(emptyList(), 0)
+            refreshedZtcClient.stubEmptyTypeListsExceptZaaktypenAndStatustypen()
+            every { refreshedZtcClient.besluittypeList(any()) } returns Results(listOf(besluitTypeOfOtherCatalogus), 1)
+
+            `when`("the caches are refreshed") {
+                refreshedZtcClientService.refreshCaches(catalogusUri)
+
+                then(
+                    """the besluittype of the other catalogus is cached for the zaaktype, so that the refresh does
+                    not leave out a besluittype that reading the besluittypen of the zaaktype returns"""
+                ) {
+                    refreshedZtcClientService.readBesluittypen(zaakType.url) shouldBe
+                        listOf(besluitTypeOfOtherCatalogus)
+                    refreshedZtcClientService.readBesluittype(besluitTypeOfOtherCatalogus.url) shouldBe
+                        besluitTypeOfOtherCatalogus
+                    verify(exactly = 1) { refreshedZtcClient.besluittypeList(match { it.catalogus == null }) }
+                }
+            }
+        }
+
+        given("a besluittype that is deleted from the ZTC after the refresh has fetched it") {
+            val refreshedZtcClient = mockk<ZtcClient>()
+            val refreshedZtcClientService = createZtcClientService(refreshedZtcClient)
+            val catalogusUri = URI("https://example.com/catalogussen/${UUID.randomUUID()}")
+            val zaakType = createZaakType()
+            val deletedBesluitType = createBesluitType(zaaktypen = listOf(zaakType.url))
+            every { refreshedZtcClient.zaaktypeList(any()) } returns Results(listOf(zaakType), 1)
+            every { refreshedZtcClient.statustypeList(any()) } returns Results(emptyList(), 0)
+            refreshedZtcClient.stubEmptyTypeListsExceptZaaktypenAndStatustypen()
+            every { refreshedZtcClient.besluittypeList(any()) } returns Results(listOf(deletedBesluitType), 1)
+            every { refreshedZtcClient.roltypeList(any()) } answers {
+                refreshedZtcClientService.clearBesluittypeCache()
+                Results(emptyList(), 0)
+            }
+
+            `when`("the besluittype cache is cleared while the refresh runs") {
+                refreshedZtcClientService.refreshCaches(catalogusUri)
+
+                then(
+                    """the refresh writes the types it fetched except the besluittypen, so that it does not put the
+                    deleted besluittype back after the clear, and the clear does not throw away the other types"""
+                ) {
+                    with(refreshedZtcClientService.estimatedCacheSizes()) {
+                        get("ZTC UUID -> BesluitType") shouldBe 0
+                        get("ZTC URI -> List<BesluitType>") shouldBe 0
+                        get("ZTC UUID -> ZaakType") shouldBe 1
+                        get("ZTC URI -> List<ZaakType>") shouldBe 1
+                    }
+                }
+            }
+        }
+
+        given("a besluittype that is deleted while the refresh runs, and another besluittype") {
+            val refreshedZtcClient = mockk<ZtcClient>()
+            val refreshedZtcClientService = createZtcClientService(refreshedZtcClient)
+            val catalogusUri = URI("https://example.com/catalogussen/${UUID.randomUUID()}")
+            val zaakType = createZaakType()
+            val deletedBesluitType = createBesluitType(zaaktypen = listOf(zaakType.url))
+            val otherBesluitType = createBesluitType(zaaktypen = emptyList())
+            every { refreshedZtcClient.zaaktypeList(any()) } returns Results(listOf(zaakType), 1)
+            every { refreshedZtcClient.statustypeList(any()) } returns Results(emptyList(), 0)
+            refreshedZtcClient.stubEmptyTypeListsExceptZaaktypenAndStatustypen()
+            every {
+                refreshedZtcClient.besluittypeList(any())
+            } returns Results(listOf(deletedBesluitType, otherBesluitType), 2)
+            every { refreshedZtcClient.roltypeList(any()) } answers {
+                refreshedZtcClientService.invalidateBesluittype(deletedBesluitType.url, isDeleted = true)
+                Results(emptyList(), 0)
+            }
+
+            `when`("the delete notification invalidates that besluittype while the refresh runs") {
+                refreshedZtcClientService.refreshCaches(catalogusUri)
+
+                then(
+                    """the refresh writes neither the deleted besluittype nor the besluittype list that contains it,
+                    but it does write the other besluittype"""
+                ) {
+                    with(refreshedZtcClientService.estimatedCacheSizes()) {
+                        get("ZTC UUID -> BesluitType") shouldBe 1
+                        get("ZTC URI -> List<BesluitType>") shouldBe 0
+                    }
+                    refreshedZtcClientService.readBesluittype(otherBesluitType.url) shouldBe otherBesluitType
+                }
+            }
+        }
+
+        given("a zaaktype-informatieobjecttype that refers to an informatieobjecttype of another catalogus") {
+            val refreshedZtcClient = mockk<ZtcClient>()
+            val refreshedZtcClientService = createZtcClientService(refreshedZtcClient)
+            val catalogusUri = URI("https://example.com/catalogussen/${UUID.randomUUID()}")
+            val zaakType = createZaakType()
+            val otherCatalogusInformatieObjectType = createInformatieObjectType(
+                uri = URI("https://example.com/informatieobjecttypen/${UUID.randomUUID()}")
+            )
+            val zaakTypeInformatieObjectTypes = List(2) {
+                createZaakTypeInformatieObjectType(
+                    zaaktype = zaakType.url,
+                    informatieobjecttype = otherCatalogusInformatieObjectType.url
+                )
+            }
+            every { refreshedZtcClient.zaaktypeList(any()) } returns Results(listOf(zaakType), 1)
+            every { refreshedZtcClient.statustypeList(any()) } returns Results(emptyList(), 0)
+            refreshedZtcClient.stubEmptyTypeListsExceptZaaktypenAndStatustypen()
+            every {
+                refreshedZtcClient.zaaktypeinformatieobjecttypeList(any())
+            } returns Results(zaakTypeInformatieObjectTypes, 2)
+            every {
+                refreshedZtcClient.informatieObjectTypeRead(otherCatalogusInformatieObjectType.url.extractUuid())
+            } returns otherCatalogusInformatieObjectType
+
+            `when`("the caches are refreshed") {
+                refreshedZtcClientService.refreshCaches(catalogusUri)
+
+                then("that informatieobjecttype is read once and cached for the zaaktype") {
+                    refreshedZtcClientService.readInformatieobjecttypen(zaakType.url) shouldBe
+                        listOf(otherCatalogusInformatieObjectType, otherCatalogusInformatieObjectType)
+                    verify(exactly = 1) {
+                        refreshedZtcClient.informatieObjectTypeRead(otherCatalogusInformatieObjectType.url.extractUuid())
+                    }
+                }
+            }
+
+            `when`("the informatieobjecttype cache is cleared while the refresh reads that informatieobjecttype") {
+                val clearedZtcClientService = createZtcClientService(refreshedZtcClient)
+                every {
+                    refreshedZtcClient.informatieObjectTypeRead(otherCatalogusInformatieObjectType.url.extractUuid())
+                } answers {
+                    clearedZtcClientService.clearInformatieobjecttypeCache()
+                    otherCatalogusInformatieObjectType
+                }
+                clearedZtcClientService.refreshCaches(catalogusUri)
+
+                then("the refresh does not put that informatieobjecttype in the cache after the clear") {
+                    clearedZtcClientService.estimatedCacheSizes()["ZTC UUID -> InformatieObjectType"] shouldBe 0
+                }
+            }
+        }
+
+        given("statustypen that fail to load") {
+            val refreshedZtcClient = mockk<ZtcClient>()
+            val refreshedZtcClientService = createZtcClientService(refreshedZtcClient)
+            val catalogusUri = URI("https://example.com/catalogussen/${UUID.randomUUID()}")
+            val zaakType = createZaakType()
+            every { refreshedZtcClient.zaaktypeList(any()) } returns Results(listOf(zaakType), 1)
+            every { refreshedZtcClient.statustypeList(any()) } throws RuntimeException("fakeExceptionMessage")
+            refreshedZtcClient.stubEmptyTypeListsExceptZaaktypenAndStatustypen()
+
+            `when`("the caches are refreshed") {
+                refreshedZtcClientService.refreshCaches(catalogusUri)
+
+                then("no statustypen are cached, but the other types are") {
+                    with(refreshedZtcClientService.estimatedCacheSizes()) {
+                        this["ZTC URI -> List<StatusType>"] shouldBe 0
+                        this["ZTC URI -> List<ResultaatType>"] shouldBe 1
+                        this["ZTC URI -> List<RolType>"] shouldBe 1
+                    }
+                }
+            }
+        }
+
+        given("zaaktypen that fail to load") {
+            val refreshedZtcClient = mockk<ZtcClient>()
+            val refreshedZtcClientService = createZtcClientService(refreshedZtcClient)
+            val catalogusUri = URI("https://example.com/catalogussen/${UUID.randomUUID()}")
+            every { refreshedZtcClient.zaaktypeList(any()) } throws RuntimeException("fakeExceptionMessage")
+
+            `when`("the caches are refreshed") {
+                refreshedZtcClientService.refreshCaches(catalogusUri)
+
+                then("the related types are not refreshed, because they are cached per zaaktype") {
+                    verify(exactly = 0) {
+                        refreshedZtcClient.statustypeList(any())
+                        refreshedZtcClient.roltypeList(any())
+                    }
+                }
+            }
+        }
+    }
+
+    given("a zaaktype in the cache and no statustypen in the cache") {
+        val measuredZtcClient = mockk<ZtcClient>()
+        val measuredZtcClientService = createZtcClientService(measuredZtcClient)
+        val zaakType = createZaakType()
+        every { measuredZtcClient.zaaktypeRead(zaakType.url.extractUuid()) } returns zaakType
+        measuredZtcClientService.readZaaktype(zaakType.url)
+
+        `when`("the memory usage of the caches is measured") {
+            val memoryUsage = measuredZtcClientService.estimatedMemoryUsage()
+
+            then("the zaaktype cache uses memory and the statustype cache uses none") {
+                memoryUsage.perCache["ZTC UUID -> ZaakType"].shouldNotBeNull() shouldBeGreaterThan 0
+                memoryUsage.perCache["ZTC UUID -> StatusType"] shouldBe 0
+            }
+        }
+    }
+
+    given("zaaktypen that are both in the zaaktype cache by UUID and in the zaaktype list cache by catalogus") {
+        val measuredZtcClient = mockk<ZtcClient>()
+        val measuredZtcClientService = createZtcClientService(measuredZtcClient)
+        val catalogusUri = URI("https://example.com/catalogussen/${UUID.randomUUID()}")
+        every { measuredZtcClient.zaaktypeList(any()) } returns Results(
+            countValue = 2,
+            resultsValue = listOf(createZaakType(), createZaakType()),
+            nextValue = null,
+            previousValue = null
+        )
+        measuredZtcClientService.listZaaktypen(catalogusUri)
+
+        `when`("the memory usage of the caches is measured") {
+            val memoryUsage = measuredZtcClientService.estimatedMemoryUsage()
+
+            then("the total counts the zaaktypen once, so it is less than the sum of the usages per cache") {
+                memoryUsage.total shouldBeGreaterThan 0
+                memoryUsage.total shouldBeLessThan memoryUsage.perCache.values.sum()
             }
         }
     }

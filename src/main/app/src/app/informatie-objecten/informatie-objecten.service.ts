@@ -9,7 +9,7 @@ import { UtilService } from "../core/service/util.service";
 import { DeleteBody, PostBody, PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
-import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
 
 @Injectable({
   providedIn: "root",
@@ -39,7 +39,7 @@ export class InformatieObjectenService {
   }
 
   listInformatieobjecttypes(zaakTypeUuid: string) {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/informatieobjecten/informatieobjecttypes/{zaakTypeUuid}",
       {
         path: { zaakTypeUuid },
@@ -48,7 +48,7 @@ export class InformatieObjectenService {
   }
 
   listInformatieobjecttypesForZaak(zaakUuid: string) {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/informatieobjecten/informatieobjecttypes/zaak/{zaakUuid}",
       {
         path: { zaakUuid },
@@ -139,21 +139,16 @@ export class InformatieObjectenService {
   }
 
   listInformatieobjectenVoorVerzenden(zaakUuid: string) {
-    return this.zacHttpClient.GET(
-      "/rest/informatieobjecten/informatieobjecten/zaak/{zaakUuid}/teVerzenden",
-      {
-        path: { zaakUuid },
-      },
-    );
-  }
-
-  listInformatieobjectenVoorVerzendenQuery(zaakUuid: string) {
-    return this.zacQueryClient.GET(
-      "/rest/informatieobjecten/informatieobjecten/zaak/{zaakUuid}/teVerzenden",
-      {
-        path: { zaakUuid },
-      },
-    );
+    return {
+      ...this.zacQueryClient.GET(
+        "/rest/informatieobjecten/informatieobjecten/zaak/{zaakUuid}/teVerzenden",
+        {
+          path: { zaakUuid },
+        },
+      ),
+      staleTime: StaleTimes.Instant,
+      meta: { reportFailedRefetch: true },
+    };
   }
 
   verzenden() {

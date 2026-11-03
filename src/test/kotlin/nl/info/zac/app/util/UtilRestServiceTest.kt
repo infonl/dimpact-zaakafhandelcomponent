@@ -14,10 +14,15 @@ import io.kotest.matchers.string.shouldInclude
 import io.kotest.matchers.string.shouldMatch
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 import io.mockk.verify
+import io.mockk.verifyOrder
+import nl.info.client.zgw.shared.cache.CacheMemoryUsage
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.cache.ZtcCacheRefresher
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.sensitive.SensitiveDataService
@@ -27,11 +32,13 @@ class UtilRestServiceTest : BehaviorSpec({
     val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val policyService = mockk<PolicyService>()
     val sensitiveDataService = mockk<SensitiveDataService>()
+    val ztcCacheRefresher = mockk<ZtcCacheRefresher>()
     val utilRESTService = UtilRestService(
         ztcClientService = ztcClientService,
         zaaktypeConfigurationService = zaaktypeConfigurationService,
         sensitiveDataService = sensitiveDataService,
-        policyService = policyService
+        policyService = policyService,
+        ztcCacheRefresher = ztcCacheRefresher
     )
 
     afterEach {
@@ -56,11 +63,12 @@ class UtilRestServiceTest : BehaviorSpec({
         `when`("cache statistics are requested") {
             val response = utilRESTService.caches()
 
-            then("stats are returned correctly") {
+            then("stats are returned correctly, without measuring the memory usage") {
+                verify(exactly = 0) { ztcClientService.estimatedMemoryUsage() }
                 response shouldContain "ztc-cache1"
                 response shouldContain "zafhPS-cache1"
                 response shouldContain "hitCount=0"
-                response shouldContain "Estimated cache size: 0"
+                response shouldContain "Estimated cache size: 0 item(s)"
             }
         }
     }
@@ -92,6 +100,7 @@ class UtilRestServiceTest : BehaviorSpec({
             every { ztcClientService.clearCacheTime() } returns "cachetime cleared"
             every { zaaktypeConfigurationService.clearListCache() } returns "zaaktype-cmmn-cache cleared"
             every { zaaktypeConfigurationService.clearManagedCache() } returns "zaaktype-cmmn-managed-cache cleared"
+            every { ztcCacheRefresher.refreshInBackground() } just runs
 
             val clearResponse = utilRESTService.clearCaches()
 
@@ -109,6 +118,13 @@ class UtilRestServiceTest : BehaviorSpec({
                     zaaktypeConfigurationService.clearListCache()
                     zaaktypeConfigurationService.clearManagedCache()
                 }
+            }
+            and("the ZTC caches are refreshed in the background after they have been cleared") {
+                verifyOrder {
+                    ztcClientService.clearCacheTime()
+                    ztcCacheRefresher.refreshInBackground()
+                }
+                clearResponse shouldContain "ZTC caches are being refreshed in the background"
             }
             and("sensitive data should not be cleared") {
                 verify(exactly = 0) { sensitiveDataService.clearStorage() }
@@ -131,9 +147,37 @@ class UtilRestServiceTest : BehaviorSpec({
             val memoryResponse = utilRESTService.memory()
 
             then("free, used, total and max memory are shown") {
-                memoryResponse shouldMatch """ 
+                memoryResponse shouldMatch """
                     <html></head><body><h1>Memory</h1><ul><li>free: \d+.\d+ .* \(.*\)</li><li>used : \d+.\d+ .* \(.*\)</li><li>total: \d+.\d+ .* \(.*\)</li><li>max  : \d+.\d+ .* \(.*\)</li></ul></body></html>
                 """.trimIndent()
+            }
+        }
+
+        `when`("the ZTC caches are requested") {
+            every { ztcClientService.cacheStatistics() } returns mapOf(
+                "fakeCacheName1" to CacheStats.empty(),
+                "fakeCacheName2" to CacheStats.empty()
+            )
+            every { ztcClientService.estimatedCacheSizes() } returns mapOf(
+                "fakeCacheName1" to 1L,
+                "fakeCacheName2" to 2L
+            )
+            every { ztcClientService.estimatedMemoryUsage() } returns CacheMemoryUsage(
+                perCache = mapOf(
+                    "fakeCacheName1" to 1_000L,
+                    "fakeCacheName2" to 2_000L
+                ),
+                total = 2_500L
+            )
+            val ztcCachesResponse = utilRESTService.ztcCaches()
+
+            then(
+                "the total memory usage, which counts objects that caches share once, and the size and memory usage " +
+                    "per cache are shown"
+            ) {
+                ztcCachesResponse shouldContain "Estimated memory usage of all caches: 2.44 kB (2500 bytes)"
+                ztcCachesResponse shouldContain "Estimated cache size: 1 item(s)</li><li>Estimated memory usage: 1000 B (1000 bytes)"
+                ztcCachesResponse shouldContain "Estimated cache size: 2 item(s)</li><li>Estimated memory usage: 1.95 kB (2000 bytes)"
             }
         }
     }
@@ -158,6 +202,17 @@ class UtilRestServiceTest : BehaviorSpec({
 
             then("it should throw an exception") {
                 exception shouldNotBe null
+            }
+        }
+
+        `when`("the ZTC caches are requested") {
+            val exception = shouldThrow<PolicyException> {
+                utilRESTService.ztcCaches()
+            }
+
+            then("it should throw an exception without measuring the caches") {
+                exception shouldNotBe null
+                verify(exactly = 0) { ztcClientService.estimatedMemoryUsage() }
             }
         }
     }

@@ -6,6 +6,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   inject,
   input,
@@ -117,8 +118,14 @@ export class InformatieObjectAddComponent {
   protected readonly vertrouwelijkheidsAanduidingen =
     VertrouwelijkaanduidingToTranslationKeyPipe.selectList;
 
-  protected informatieObjectTypes: GeneratedType<"RestInformatieobjecttype">[] =
-    [];
+  private readonly informatieObjectTypesQuery = injectQuery(() =>
+    this.informatieObjectenService.listInformatieobjecttypesForZaak(
+      this.zaakUuid(),
+    ),
+  );
+  protected readonly informatieObjectTypes = computed(
+    () => this.informatieObjectTypesQuery.data() ?? [],
+  );
 
   protected readonly talen = this.configuratieService.listTalen();
 
@@ -170,14 +177,6 @@ export class InformatieObjectAddComponent {
 
     effect(() => {
       this.form.controls.taal.setValue(this.defaultTaalQuery.data() ?? null);
-    });
-
-    effect(() => {
-      this.informatieObjectenService
-        .listInformatieobjecttypesForZaak(this.zaakUuid())
-        .subscribe((informatieObjectTypes) => {
-          this.informatieObjectTypes = informatieObjectTypes;
-        });
     });
 
     this.form.controls.ontvangstdatum.valueChanges

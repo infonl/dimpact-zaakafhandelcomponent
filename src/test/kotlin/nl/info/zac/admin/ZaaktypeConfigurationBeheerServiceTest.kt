@@ -46,11 +46,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
     }
 
     fun clearZtcCachesJustRuns() {
-        every { ztcClientService.clearZaaktypeCache() } returns "fakeCleared"
-        every { ztcClientService.clearRoltypeCache() } returns "fakeCleared"
-        every { ztcClientService.clearResultaattypeCache() } returns "fakeCleared"
-        every { ztcClientService.clearStatustypeCache() } returns "fakeCleared"
-        every { ztcClientService.clearEigenschapCache() } returns "fakeCleared"
+        every { ztcClientService.invalidateZaaktype(any()) } just runs
     }
 
     createZaaktypeConfigurationsUnderTest().forEach { (configurationType, createZaaktypeConfiguration) ->
@@ -163,6 +159,13 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                                 any(),
                                 existingZaaktypeConfiguration.zaaktypeUuid
                             )
+                        }
+                    }
+
+                    and("that zaaktype is removed from the ZTC caches before it is read") {
+                        verifyOrder {
+                            ztcClientService.invalidateZaaktype(zaaktype.url)
+                            ztcClientService.readZaaktype(zaaktype.url)
                         }
                     }
                 }

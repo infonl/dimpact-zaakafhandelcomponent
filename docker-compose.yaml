@@ -159,7 +159,8 @@ services:
     image: openzaak/open-zaak:1.31.1@sha256:63448221142145b0f56eabadaa9ef9578dd4aacc7f95476bd5368f767883ada0
     platform: linux/amd64
     environment: *openzaak-env
-    command: /celery_worker.sh
+    # Without a set concurrency Celery starts one worker process per CPU, which costs ~150 MiB each
+    command: sh -c "CELERY_WORKER_CONCURRENCY=2 exec /celery_worker.sh"
     healthcheck:
       test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
       interval: 5s
@@ -180,7 +181,7 @@ services:
   # It passes the `openzaak.local` Host on unchanged, so Open Zaak keeps generating the URLs that
   # ZAC validates its responses against.
   openzaak.local:
-    image: nginxinc/nginx-unprivileged:1.31.7@sha256:94193d5c4c5df716f412bb08eb97956d98fe6b59886f0bc57d6d3a3402a88a02
+    image: nginxinc/nginx-unprivileged:1.31.7@sha256:09b0d3eda2aa592d2487f284519419015cab010d7df16cd0fe224b585fc60eb6
     ports:
       - "8001:8000"
     volumes:
@@ -236,7 +237,7 @@ services:
     image: maykinmedia/open-object:4.1.1@sha256:593571842b4af655383964fb3fa869b62313e7cd1e56a02f173afa8e4713c4b6
     platform: linux/amd64
     environment: *open-object-env
-    command: sh -c "cd /app/src && celery -A objects worker -l info"
+    command: sh -c "cd /app/src && celery -A objects worker -l info --concurrency=2"
     healthcheck:
       test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
       interval: 30s
@@ -588,7 +589,9 @@ services:
   opennotificaties-celery:
     image: openzaak/open-notificaties:1.17.0@sha256:5200540e78eb67993760bd9ad98d6c7f174ce61f5122b3e20627a690cbf3dfe0
     platform: linux/amd64
-    environment: *opennotificaties-env
+    environment:
+      <<: *opennotificaties-env
+      CELERY_WORKER_CONCURRENCY: 4
     command: /celery_worker.sh
     healthcheck:
       test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
@@ -716,7 +719,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginxinc/nginx-unprivileged:1.31.7@sha256:94193d5c4c5df716f412bb08eb97956d98fe6b59886f0bc57d6d3a3402a88a02
+    image: nginxinc/nginx-unprivileged:1.31.7@sha256:09b0d3eda2aa592d2487f284519419015cab010d7df16cd0fe224b585fc60eb6
     ports:
       - "8005:8080"
     volumes:
@@ -889,6 +892,9 @@ services:
       - ZGW_API_CLIENT_MP_REST_URL=http://openzaak.local:8000/
       - ZGW_API_CLIENTID=zac-client
       - ZGW_API_SECRET=openzaakZaakafhandelcomponentClientSecret
+      - ZTC_CACHE_MAX_SIZE=${ZTC_CACHE_MAX_SIZE:-10000}
+      - ZTC_CACHE_EXPIRATION_SECONDS=${ZTC_CACHE_EXPIRATION_SECONDS:-86400}
+      - ZTC_CACHE_REFRESH_INTERVAL_SECONDS=${ZTC_CACHE_REFRESH_INTERVAL_SECONDS:-3600}
     ports:
       - "8080:8080"
       - "9990:9990"
@@ -1135,7 +1141,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-nginx:
-    image: nginxinc/nginx-unprivileged:1.31.7@sha256:94193d5c4c5df716f412bb08eb97956d98fe6b59886f0bc57d6d3a3402a88a02
+    image: nginxinc/nginx-unprivileged:1.31.7@sha256:09b0d3eda2aa592d2487f284519419015cab010d7df16cd0fe224b585fc60eb6
     ports:
       - "8007:8080"
     volumes:
