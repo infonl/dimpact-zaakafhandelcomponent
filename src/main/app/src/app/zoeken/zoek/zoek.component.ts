@@ -6,7 +6,6 @@
 import { KeyValuePipe, NgClass } from "@angular/common";
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -78,7 +77,6 @@ const GEEN_RESULTAAT: ZoekResultaat<
   templateUrl: "./zoek.component.html",
   styleUrls: ["./zoek.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     BagZoekComponent,
     BedrijfZoekComponent,
@@ -119,12 +117,12 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
 
   private readonly destroy$ = new Subject<void>();
 
-  protected zoekType: ZoekType = ZoekType.ZAC;
+  protected readonly zoekType = signal(ZoekType.ZAC);
   protected readonly ZoekType = ZoekType;
   protected readonly ZoekVeld = ZoekVeld;
   protected zoekveldControl = new FormControl<ZoekVeld>(ZoekVeld.ALLE);
   protected trefwoordenControl = new FormControl("");
-  protected hasSearched = false;
+  protected readonly hasSearched = signal(false);
 
   private readonly requestedZoekopdracht = signal<Zoekopdracht>({
     zoekParameters: { ...getDefaultZoekParameters(), rows: 10 },
@@ -213,7 +211,7 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
     effect(() => {
       if (!this.search.data()) return;
       untracked(() => {
-        this.hasSearched = true;
+        this.hasSearched.set(true);
         this.zoekenService.hasSearched.set(true);
       });
     });
@@ -324,7 +322,7 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
   protected originalOrder = () => 0;
 
   protected setZoektype(zoekType: ZoekType) {
-    this.zoekType = zoekType;
+    this.zoekType.set(zoekType);
     if (zoekType === ZoekType.ZAC) {
       this.trefwoordenControl.enable();
     } else {
@@ -346,7 +344,7 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
       trefwoorden: "",
     });
     this.search.clear();
-    this.hasSearched = false;
+    this.hasSearched.set(false);
   }
 
   protected zoekVeldChanged() {

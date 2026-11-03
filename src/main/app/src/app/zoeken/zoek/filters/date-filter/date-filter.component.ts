@@ -4,12 +4,12 @@
  */
 
 import {
-  ChangeDetectionStrategy,
   Component,
   input,
   linkedSignal,
   OnInit,
   output,
+  signal,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatDatepickerModule } from "@angular/material/datepicker";
@@ -18,6 +18,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { TranslatePipe } from "@ngx-translate/core";
+import { trackControl } from "../../../../shared/form/control-state";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 
 @Component({
@@ -25,7 +26,6 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   templateUrl: "./date-filter.component.html",
   styleUrls: ["./date-filter.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatExpansionModule,
@@ -43,6 +43,12 @@ export class DateFilterComponent implements OnInit {
 
   protected dateVan = new FormControl<Date | null>(null);
   protected dateTM = new FormControl<Date | null>(null);
+  protected readonly hasDateVan = trackControl(signal(this.dateVan))(
+    (control) => !!control.value,
+  );
+  protected readonly hasDateTM = trackControl(signal(this.dateTM))(
+    (control) => !!control.value,
+  );
 
   private readonly currentRange = linkedSignal(() => this.range() ?? {});
 
