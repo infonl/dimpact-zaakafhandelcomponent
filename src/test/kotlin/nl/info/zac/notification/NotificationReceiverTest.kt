@@ -13,6 +13,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
+import io.mockk.verifyOrder
 import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
 import jakarta.ws.rs.NotFoundException
@@ -22,6 +23,7 @@ import jakarta.ws.rs.core.Response
 import nl.info.client.zgw.model.createZaakEigenschap
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
+import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
@@ -51,6 +53,7 @@ class NotificationReceiverTest : BehaviorSpec({
     val detachedDocumentService = mockk<DetachedDocumentService>()
     val signaleringService = mockk<SignaleringService>()
     val zaaktypeConfigurationBeheerService = mockk<ZaaktypeConfigurationBeheerService>()
+    val ztcClientService = mockk<ZtcClientService>()
     val zaakProcessService = mockk<ZaakProcessService>()
     val taskService = mockk<TaskService>()
     val zrcClientService = mockk<ZrcClientService>()
@@ -68,6 +71,7 @@ class NotificationReceiverTest : BehaviorSpec({
         signaleringService = signaleringService,
         taskService = taskService,
         zrcClientService = zrcClientService,
+        ztcClientService = ztcClientService,
         secret = SECRET,
         httpSession = httpSessionInstance
     )
@@ -130,6 +134,56 @@ class NotificationReceiverTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zaaktypeConfigurationBeheerService.updateZaaktypeConfiguration(zaaktypeUri)
                 }
+            }
+        }
+    }
+
+    given("a request containing a authorization header and a besluittype update notificatie") {
+        val notificatie = createNotificatie(
+            channel = Channel.BESLUITTYPEN,
+            resource = Resource.BESLUITTYPE,
+            resourceUrl = URI("https://example.com/fakebesluittype/${UUID.randomUUID()}"),
+            action = Action.UPDATE
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+        every { ztcClientService.invalidateBesluittype(notificatie.resourceUrl, isDeleted = false) } just runs
+
+        `when`("notificatieReceive is called with the besluittype update notificatie") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            then(
+                """only that besluittype is removed from the ZTC caches, so that a changed einde geldigheid is not
+                kept in the cache, and a 'no content' response is returned"""
+            ) {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 1) {
+                    ztcClientService.invalidateBesluittype(notificatie.resourceUrl, isDeleted = false)
+                }
+            }
+        }
+    }
+
+    given("a request containing a authorization header and an informatieobjecttype delete notificatie") {
+        val notificatie = createNotificatie(
+            channel = Channel.INFORMATIEOBJECTTYPEN,
+            resource = Resource.INFORMATIEOBJECTTYPE,
+            resourceUrl = URI("https://example.com/fakeinformatieobjecttype/${UUID.randomUUID()}"),
+            action = Action.DELETE
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+        every { ztcClientService.invalidateInformatieobjecttype(notificatie.resourceUrl) } just runs
+
+        `when`("notificatieReceive is called with the informatieobjecttype delete notificatie") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            then(
+                """only that informatieobjecttype is removed from the ZTC caches, so that the deleted
+                informatieobjecttype is not kept in the cache, and a 'no content' response is returned"""
+            ) {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 1) { ztcClientService.invalidateInformatieobjecttype(notificatie.resourceUrl) }
             }
         }
     }

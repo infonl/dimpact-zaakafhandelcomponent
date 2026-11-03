@@ -6,7 +6,9 @@ package nl.info.client.zgw.ztc.model
 
 import jakarta.ws.rs.QueryParam
 
-abstract class AbstractZtcListParameters {
+abstract class AbstractZtcListParameters(
+    private val page: Int? = null
+) {
     /**
      * Filter objects depending on their concept status
      */
@@ -18,4 +20,10 @@ abstract class AbstractZtcListParameters {
     fun setStatus(status: ObjectStatusFilter) {
         this.status = status
     }
+
+    /**
+     * Een pagina binnen de gepagineerde set resultaten.
+     */
+    @QueryParam("page")
+    fun getPage() = page
 }
