@@ -9,6 +9,7 @@ TBD - created by archiving change bulk-ontkoppelde-documenten. Update Purpose af
 
 The *Ontkoppelde documenten* list SHALL show a checkbox per row and a select-all checkbox in the header that selects
 exactly the documents on the current page. The selection SHALL be cleared when the page, sort order or filters change.
+After a bulk action, only the documents that failed SHALL stay selected.
 
 #### Scenario: Selecting all documents on the page
 - **WHEN** the employee ticks the select-all checkbox
@@ -39,8 +40,8 @@ The system SHALL let an employee with the right to delete ontkoppelde documenten
 #### Scenario: One document fails
 - **GIVEN** three selected documents of which Open Zaak refuses the second
 - **WHEN** the employee confirms the deletion
-- **THEN** the first and third are deleted, the second stays in the list, and the employee is told which document
-  failed and why
+- **THEN** the first and third are deleted, the second stays in the list and stays selected, and the employee is
+  told which document failed and why
 
 #### Scenario: No right to delete
 - **WHEN** the employee has no right to delete ontkoppelde documenten
@@ -59,8 +60,8 @@ The system SHALL let an employee link the selected documents to a chosen zaak vi
 #### Scenario: A document cannot be linked to the zaak
 - **GIVEN** a selected document whose informatieobjecttype is not allowed on the zaak
 - **WHEN** the employee picks the zaak
-- **THEN** that document stays in the list, the other documents are linked, and the employee is told which
-  document failed and why
+- **THEN** that document stays in the list and stays selected, the other documents are linked, and the employee is
+  told which document failed and why
 
 ### Requirement: The list updates from the bulk response
 
