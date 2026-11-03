@@ -98,3 +98,31 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ inputs.release-tag }}
         run: gh release upload "$RELEASE_TAG" "$OUTPUT_DIRECTORY"/*.pdf --clobber
+
+      - name: Publish the manual PDFs in the wiki
+        if: ${{ inputs.release-tag != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          RELEASE_TAG: ${{ inputs.release-tag }}
+          WIKI_DIRECTORY: build/wiki
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # a concurrent release can push to the wiki between our clone and push, so retry on a fresh clone
+          for attempt in 1 2 3; do
+            rm -rf "$WIKI_DIRECTORY"
+            git clone --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/${REPOSITORY}.wiki.git" "$WIKI_DIRECTORY"
+            "$GENERATOR_DIRECTORY"/write-wiki-manuals-page.sh "$REPOSITORY" "$WIKI_DIRECTORY/Handleidingen.md"
+            if git -C "$WIKI_DIRECTORY" diff --quiet; then
+              echo "The Handleidingen wiki page is up to date."
+              exit 0
+            fi
+            git -C "$WIKI_DIRECTORY" commit --all --message "Update the manual PDFs for ${RELEASE_TAG}"
+            if git -C "$WIKI_DIRECTORY" push; then
+              exit 0
+            fi
+            echo "Push to the wiki failed (attempt $attempt), retrying."
+            sleep 10
+          done
+          exit 1
