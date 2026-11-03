@@ -30,11 +30,44 @@ export abstract class ZoekenDataSource<
   OBJECT extends
     GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">,
 > extends DataSource<OBJECT> {
-  zoekParameters: ZoekParameters;
-  beschikbareFilters: Partial<
-    Record<FilterVeld, GeneratedType<"FilterResultaat">[]>
-  > = {};
-  totalItems = 0;
+  // Signals behind the fields the werklijst templates read, so an OnPush view shows each search result.
+  private readonly zoekParametersState = signal<ZoekParameters>(
+    getDefaultZoekParameters(),
+  );
+  private readonly beschikbareFiltersState = signal<
+    Partial<Record<FilterVeld, GeneratedType<"FilterResultaat">[]>>
+  >({});
+  private readonly totalItemsState = signal(0);
+  private readonly rows = signal<OBJECT[]>([]);
+
+  get zoekParameters() {
+    return this.zoekParametersState();
+  }
+
+  set zoekParameters(zoekParameters: ZoekParameters) {
+    this.zoekParametersState.set(zoekParameters);
+  }
+
+  get beschikbareFilters() {
+    return this.beschikbareFiltersState();
+  }
+
+  set beschikbareFilters(
+    beschikbareFilters: Partial<
+      Record<FilterVeld, GeneratedType<"FilterResultaat">[]>
+    >,
+  ) {
+    this.beschikbareFiltersState.set(beschikbareFilters);
+  }
+
+  get totalItems() {
+    return this.totalItemsState();
+  }
+
+  set totalItems(totalItems: number) {
+    this.totalItemsState.set(totalItems);
+  }
+
   paginator!: MatPaginator;
   sort!: MatSort;
 
@@ -154,7 +187,12 @@ export abstract class ZoekenDataSource<
 
   clear() {
     this.totalItems = 0;
-    this.tableSubject.next([]);
+    this.showRows([]);
+  }
+
+  private showRows(rows: OBJECT[]) {
+    this.rows.set(rows);
+    this.tableSubject.next(rows);
   }
 
   drop(event: CdkDragDrop<string[]>) {
@@ -177,7 +215,7 @@ export abstract class ZoekenDataSource<
 
   private setData(response: ZoekResultaat<OBJECT>) {
     this.totalItems = response.totaal;
-    this.tableSubject.next(response.resultaten);
+    this.showRows(response.resultaten);
     this.beschikbareFilters = response.filters;
   }
 
@@ -276,7 +314,7 @@ export abstract class ZoekenDataSource<
   }
 
   get data(): OBJECT[] {
-    return this.tableSubject.value as OBJECT[];
+    return this.rows();
   }
 
   zoekopdrachtChanged(actieveZoekopdracht: GeneratedType<"RestZoekopdracht">) {
