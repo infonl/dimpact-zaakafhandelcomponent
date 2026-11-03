@@ -268,6 +268,23 @@ describe(TakenWerkvoorraadComponent.name, () => {
       expect(screen.getByText("behandelaarVantaakIdB")).toBeVisible();
     });
 
+    it("disables the assign button only on the row whose assignment is still running", async () => {
+      await showTaken(
+        { ...taakZoekObject(), id: "taakIdA", identificatie: "TAAK-A" },
+        { ...taakZoekObject(), id: "taakIdB", identificatie: "TAAK-B" },
+      );
+      fixture.autoDetectChanges();
+      const [buttonA, buttonB] = screen.getAllByRole("button", {
+        name: "actie.mij.toekennen",
+      });
+
+      await userEvent.setup().click(buttonA);
+      await sleep();
+
+      expect(buttonA).toBeDisabled();
+      expect(buttonB).toBeEnabled();
+    });
+
     it("leaves the row alone when the response names no behandelaar", async () => {
       await showTaken(taakZoekObject());
 

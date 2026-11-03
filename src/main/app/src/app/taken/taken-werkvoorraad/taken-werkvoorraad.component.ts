@@ -192,13 +192,27 @@ export class TakenWerkvoorraadComponent
     return loggedInUser.groupIds?.includes(taakZoekObject.groepID) ?? false;
   }
 
+  protected readonly pendingTaakIds = signal<ReadonlySet<string>>(new Set());
+
   protected assignToMe(taakZoekObject: TaakZoekObject, event: MouseEvent) {
     event.stopPropagation();
-    this.assignToMeMutation.mutate({
-      taakId: taakZoekObject.id,
-      zaakUuid: taakZoekObject.zaakUuid,
-      groepId: taakZoekObject.groepID,
-    });
+    const taakId = taakZoekObject.id;
+    this.pendingTaakIds.update((ids) => new Set(ids).add(taakId));
+    this.assignToMeMutation.mutate(
+      {
+        taakId,
+        zaakUuid: taakZoekObject.zaakUuid,
+        groepId: taakZoekObject.groepID,
+      },
+      {
+        onSettled: () =>
+          this.pendingTaakIds.update((ids) => {
+            const remaining = new Set(ids);
+            remaining.delete(taakId);
+            return remaining;
+          }),
+      },
+    );
   }
 
   protected isAllSelected(): boolean {

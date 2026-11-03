@@ -348,7 +348,7 @@
               mat-icon-button
               [id]="'kenTaakAanMijToe_' + row.identificatie + '_button'"
               title="{{ 'actie.mij.toekennen' | translate }}"
-              [disabled]="assignToMeMutation.isPending()"
+              [disabled]="pendingTaakIds().has(row.id)"
               (click)="assignToMe(row, $event)"
             >
               <mat-icon outlined>person_add</mat-icon>
