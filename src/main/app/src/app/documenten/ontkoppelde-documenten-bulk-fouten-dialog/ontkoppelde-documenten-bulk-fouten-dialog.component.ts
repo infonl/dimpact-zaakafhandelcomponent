@@ -13,6 +13,7 @@ import {
   MatDialogTitle,
 } from "@angular/material/dialog";
 import { MatDividerModule } from "@angular/material/divider";
+import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
@@ -35,6 +36,7 @@ export type OntkoppeldeDocumentenBulkFoutenDialogData = {
     MatDialogClose,
     MatDividerModule,
     MatButtonModule,
+    MatIconModule,
     TranslatePipe,
     I18nKeyPipe,
   ],

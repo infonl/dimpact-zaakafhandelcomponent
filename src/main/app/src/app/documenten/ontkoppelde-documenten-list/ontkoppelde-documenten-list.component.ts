@@ -193,6 +193,7 @@ export class OntkoppeldeDocumentenListComponent
   >(true, []);
   protected selectedDocumentsToLink: GeneratedType<"RestDetachedDocument">[] =
     [];
+  private idsToKeepSelected = new Set<number>();
   private readonly deleteMutation = injectMutation(
     () => this.ontkoppeldeDocumentenService.delete(),
     {
@@ -255,7 +256,6 @@ export class OntkoppeldeDocumentenListComponent
           this.filterChange.emit();
           return;
         }
-        this.selection.clear();
         this.paginator().length = totaal;
         this.totaal.set(totaal);
         this.filterOntkoppeldDoor.set(
@@ -265,6 +265,12 @@ export class OntkoppeldeDocumentenListComponent
           ) ?? [],
         );
         this.dataSource.data = data.resultaten ?? [];
+        this.selection.setSelection(
+          ...this.dataSource.data.filter(({ id }) =>
+            this.idsToKeepSelected.has(id!),
+          ),
+        );
+        this.idsToKeepSelected.clear();
       });
   }
 
@@ -379,8 +385,11 @@ export class OntkoppeldeDocumentenListComponent
                 "verwijderen",
                 selectedDocuments,
               );
-              this.filterChange.emit();
+              this.reloadKeepingSelected(
+                result.mislukt?.map(({ id }) => id!) ?? [],
+              );
             },
+            onError: () => this.reloadKeepingSelected(ids),
           },
         );
       });
@@ -423,6 +432,11 @@ export class OntkoppeldeDocumentenListComponent
     } else {
       this.filterChange.emit();
     }
+  }
+
+  protected reloadKeepingSelected(ids: number[]) {
+    this.idsToKeepSelected = new Set(ids);
+    this.filterChange.emit();
   }
 
   protected retriggerSearch() {

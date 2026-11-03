@@ -83,6 +83,7 @@ export class InformatieObjectLinkComponent {
   readonly source = input.required<string>();
   readonly actionLabel = input.required<DocumentAction>();
   readonly informationObjectLinked = output<void>();
+  readonly bulkLinkFinished = output<{ notLinkedIds: number[] }>();
 
   protected readonly loading = signal(false);
 
@@ -257,9 +258,10 @@ export class InformatieObjectLinkComponent {
 
   private linkBulkDocuments(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
     const selectedDocuments = this.bulkDocuments();
+    const ids = selectedDocuments.map(({ id }) => id!);
     this.linkListMutation.mutate(
       {
-        ids: selectedDocuments.map(({ id }) => id!),
+        ids,
         nieuweZaakID: row.identificatie ?? "",
       },
       {
@@ -273,8 +275,11 @@ export class InformatieObjectLinkComponent {
             },
           );
           this.close();
-          this.informationObjectLinked.emit();
+          this.bulkLinkFinished.emit({
+            notLinkedIds: result.mislukt?.map(({ id }) => id!) ?? [],
+          });
         },
+        onError: () => this.bulkLinkFinished.emit({ notLinkedIds: ids }),
       },
     );
   }

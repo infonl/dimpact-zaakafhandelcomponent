@@ -12,6 +12,7 @@
       source="ontkoppelde-documenten"
       [bulkDocuments]="selectedDocumentsToLink"
       (informationObjectLinked)="retriggerSearch()"
+      (bulkLinkFinished)="reloadKeepingSelected($event.notLinkedIds)"
     />
   </mat-drawer>
 

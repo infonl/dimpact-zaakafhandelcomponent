@@ -81,6 +81,7 @@ describe(InformatieObjectLinkComponent.name, () => {
   let httpTestingController: HttpTestingController;
   let sideNav: MatDrawer;
   let informationObjectLinked: jest.Mock;
+  let bulkLinkFinished: jest.Mock;
   let openSnackbar: jest.SpyInstance;
   let foutAfhandelen: jest.SpyInstance;
 
@@ -102,6 +103,7 @@ describe(InformatieObjectLinkComponent.name, () => {
       close: jest.fn().mockResolvedValue(undefined),
     });
     informationObjectLinked = jest.fn();
+    bulkLinkFinished = jest.fn();
 
     const inputs = {
       sideNav,
@@ -128,6 +130,7 @@ describe(InformatieObjectLinkComponent.name, () => {
     fixture.componentInstance.informationObjectLinked.subscribe(
       informationObjectLinked,
     );
+    fixture.componentInstance.bulkLinkFinished.subscribe(bulkLinkFinished);
     httpTestingController = TestBed.inject(HttpTestingController);
     openSnackbar = jest
       .spyOn(TestBed.inject(UtilService), "openSnackbar")
@@ -609,7 +612,7 @@ describe(InformatieObjectLinkComponent.name, () => {
       request.flush({ verwerkt: [7, 8], mislukt: [] });
     });
 
-    it("reports the outcome, closes the side nav and signals the link when done", async () => {
+    it("reports the outcome, closes the side nav and signals that no document was left unlinked", async () => {
       await setupBulk();
       await showKoppelbareZaken();
 
@@ -625,7 +628,37 @@ describe(InformatieObjectLinkComponent.name, () => {
         { aantal: 2, case: "ZAAK-001" },
       );
       expect(sideNav.close).toHaveBeenCalled();
-      expect(informationObjectLinked).toHaveBeenCalledTimes(1);
+      expect(bulkLinkFinished).toHaveBeenCalledWith({ notLinkedIds: [] });
+      expect(informationObjectLinked).not.toHaveBeenCalled();
+    });
+
+    it("signals which documents were not linked", async () => {
+      await setupBulk();
+      await showKoppelbareZaken();
+
+      await user.click(koppelButtonInRowOf("ZAAK-001"));
+      await sleep();
+      httpTestingController.expectOne(BULK_LINK_URL).flush({
+        verwerkt: [7],
+        mislukt: [{ id: 8, titel: null, foutcode: "VERGRENDELD" }],
+      });
+      await sleep();
+
+      expect(bulkLinkFinished).toHaveBeenCalledWith({ notLinkedIds: [8] });
+    });
+
+    it("signals every document as not linked when the bulk request fails", async () => {
+      await setupBulk();
+      await showKoppelbareZaken();
+
+      await user.click(koppelButtonInRowOf("ZAAK-001"));
+      await sleep();
+      httpTestingController
+        .expectOne(BULK_LINK_URL)
+        .flush(null, { status: 500, statusText: "Internal Server Error" });
+      await sleep();
+
+      expect(bulkLinkFinished).toHaveBeenCalledWith({ notLinkedIds: [7, 8] });
     });
 
     it("does not use the single document endpoint", async () => {

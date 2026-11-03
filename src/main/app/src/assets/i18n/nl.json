@@ -510,7 +510,7 @@
   "msg.ontkoppelde-documenten.bulk.koppelen.uitgevoerd.enkelvoud": "1 document gekoppeld aan zaak \"{{case}}\"",
   "ontkoppelde-documenten.bulk.fouten.verwijderen.titel": "Niet alle documenten zijn verwijderd",
   "ontkoppelde-documenten.bulk.fouten.koppelen.titel": "Niet alle documenten zijn gekoppeld",
-  "ontkoppelde-documenten.bulk.foutcode.niet-gevonden": "Het document bestaat niet meer. Mogelijk heeft een andere medewerker het al verwijderd of gekoppeld.",
+  "ontkoppelde-documenten.bulk.foutcode.niet-gevonden": "Het document staat niet meer in deze lijst. Mogelijk heeft een andere medewerker het al verwijderd of gekoppeld.",
   "ontkoppelde-documenten.bulk.foutcode.vergrendeld": "Het document is vergrendeld. Laat het document ontgrendelen en probeer het opnieuw.",
   "ontkoppelde-documenten.bulk.foutcode.reeds-gekoppeld": "Het document is inmiddels aan een zaak gekoppeld.",
   "ontkoppelde-documenten.bulk.foutcode.geen-recht": "U mag dit document niet verwerken. Neem contact op met de beheerder.",

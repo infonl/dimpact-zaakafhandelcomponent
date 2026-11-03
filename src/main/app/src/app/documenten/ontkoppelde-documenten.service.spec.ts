@@ -3,7 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient, withXhr } from "@angular/common/http";
+import {
+  HttpErrorResponse,
+  provideHttpClient,
+  withXhr,
+} from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -16,7 +20,11 @@ import {
   provideQueryClient,
 } from "@tanstack/angular-query-experimental";
 import { testQueryClient } from "../../../setupJest";
-import { fromPartial, runMutationOnSuccess } from "../../test-helpers";
+import {
+  fromPartial,
+  runMutationOnSettled,
+  runMutationOnSuccess,
+} from "../../test-helpers";
 import { UtilService } from "../core/service/util.service";
 import { PutBody } from "../shared/http/http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
@@ -116,7 +124,23 @@ describe(OntkoppeldeDocumentenService.name, () => {
       ).queryKey;
       testQueryClient.setQueryData(listQueryKey, {});
 
-      await runMutationOnSuccess(service.deleteList());
+      await runMutationOnSettled(service.deleteList());
+
+      expect(testQueryClient.getQueryState(listQueryKey)?.isInvalidated).toBe(
+        true,
+      );
+    });
+
+    it("marks the cached reads stale also when the bulk request fails, because some documents may already have been processed", async () => {
+      const listQueryKey = service.list(
+        fromPartial<PutBody<"/rest/ontkoppeldedocumenten">>({ page: 0 }),
+      ).queryKey;
+      testQueryClient.setQueryData(listQueryKey, {});
+
+      await runMutationOnSettled(
+        service.deleteList(),
+        new HttpErrorResponse({ status: 500 }),
+      );
 
       expect(testQueryClient.getQueryState(listQueryKey)?.isInvalidated).toBe(
         true,
@@ -149,7 +173,23 @@ describe(OntkoppeldeDocumentenService.name, () => {
       ).queryKey;
       testQueryClient.setQueryData(listQueryKey, {});
 
-      await runMutationOnSuccess(service.linkList());
+      await runMutationOnSettled(service.linkList());
+
+      expect(testQueryClient.getQueryState(listQueryKey)?.isInvalidated).toBe(
+        true,
+      );
+    });
+
+    it("marks the cached reads stale also when the bulk request fails, because some documents may already have been processed", async () => {
+      const listQueryKey = service.list(
+        fromPartial<PutBody<"/rest/ontkoppeldedocumenten">>({ page: 0 }),
+      ).queryKey;
+      testQueryClient.setQueryData(listQueryKey, {});
+
+      await runMutationOnSettled(
+        service.linkList(),
+        new HttpErrorResponse({ status: 500 }),
+      );
 
       expect(testQueryClient.getQueryState(listQueryKey)?.isInvalidated).toBe(
         true,

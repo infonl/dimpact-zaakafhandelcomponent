@@ -3,14 +3,22 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
-  <span class="flex-grow-1">
+<mat-toolbar class="gap-16" mat-dialog-title>
+  <mat-icon aria-hidden="true">error</mat-icon>
+  <span role="heading" aria-level="2" class="flex-grow-1">
     {{
       "ontkoppelde-documenten.bulk.fouten." + data.actie + ".titel"
         | i18nKey
         | translate
     }}
   </span>
+  <button
+    mat-icon-button
+    mat-dialog-close
+    [attr.aria-label]="'actie.sluiten' | translate"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
 </mat-toolbar>
 <mat-divider></mat-divider>
 

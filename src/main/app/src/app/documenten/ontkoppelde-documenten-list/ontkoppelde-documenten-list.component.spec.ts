@@ -792,6 +792,72 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
           ),
         ).toBeVisible();
       });
+
+      async function confirmDeletion() {
+        await user.click(
+          within(screen.getByRole("dialog")).getByRole("button", {
+            name: "actie.verwijderen",
+          }),
+        );
+        await sleep();
+      }
+
+      async function closeDialogs() {
+        TestBed.inject(MatDialog).closeAll();
+        await sleep();
+        fixture.detectChanges();
+      }
+
+      it("keeps only the documents that failed selected once the list has reloaded", async () => {
+        await selectBothAndPressVerwijderen();
+        await confirmDeletion();
+
+        httpTestingController.expectOne(BULK_DELETE_URL).flush({
+          verwerkt: [42],
+          mislukt: [
+            { id: 43, titel: "Tweede formulier", foutcode: "VERGRENDELD" },
+          ],
+        });
+        await showDocuments([{ ...secondDetachedDocument }]);
+        await closeDialogs();
+
+        expect(
+          within(
+            screen.getByRole("row", { name: /Tweede formulier/ }),
+          ).getByRole("checkbox", { name: "actie.deselecteren" }),
+        ).toBeChecked();
+        expect(
+          within(bulkButton("actie.verwijderen")).getByText("1"),
+        ).toBeVisible();
+      });
+
+      it("reloads the list and keeps the selection when the bulk request fails", async () => {
+        await selectBothAndPressVerwijderen();
+        await confirmDeletion();
+
+        httpTestingController
+          .expectOne(BULK_DELETE_URL)
+          .flush(null, { status: 500, statusText: "Internal Server Error" });
+        await showDocuments([
+          { ...detachedDocument },
+          { ...secondDetachedDocument },
+        ]);
+        await closeDialogs();
+
+        expect(selectAllCheckbox()).toBeChecked();
+      });
+
+      it("clears the selection when every document was deleted", async () => {
+        await selectBothAndPressVerwijderen();
+        await confirmDeletion();
+
+        httpTestingController
+          .expectOne(BULK_DELETE_URL)
+          .flush({ verwerkt: [42, 43], mislukt: [] });
+        await showDocuments([{ ...detachedDocument }]);
+
+        expect(queryBulkButton("actie.verwijderen")).toBeNull();
+      });
     });
 
     describe("linking the selection", () => {
