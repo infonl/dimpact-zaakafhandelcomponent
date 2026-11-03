@@ -30,6 +30,7 @@ class ZaaktypeInrichtingscheck(val zaaktype: ZaakType) {
     var isInformatieobjecttypeEmailAanwezig: Boolean = false
     var isBesluittypeAanwezig: Boolean = false
     val resultaattypesMetVerplichtBesluit: MutableList<String?> = ArrayList<String?>()
+    val resultaattypesMetNietOndersteundeBrondatum: MutableList<String?> = ArrayList<String?>()
     var isZaakafhandelParametersValide: Boolean = false
     var isBrpInstellingenCorrect: Boolean = false
     var isZaakspecifiekeAutorisatieEigenschapAanwezig: Boolean = false
@@ -37,6 +38,10 @@ class ZaaktypeInrichtingscheck(val zaaktype: ZaakType) {
 
     fun addResultaattypesMetVerplichtBesluit(resultaattypeMetVerplichtBesluit: String?) {
         this.resultaattypesMetVerplichtBesluit.add(resultaattypeMetVerplichtBesluit)
+    }
+
+    fun addResultaattypesMetNietOndersteundeBrondatum(resultaattypeMetNietOndersteundeBrondatum: String?) {
+        this.resultaattypesMetNietOndersteundeBrondatum.add(resultaattypeMetNietOndersteundeBrondatum)
     }
 
     /**
@@ -67,5 +72,6 @@ class ZaaktypeInrichtingscheck(val zaaktype: ZaakType) {
             this.isResultaattypeAanwezig &&
             this.isZaakafhandelParametersValide &&
             this.isBrpInstellingenCorrect &&
-            (resultaattypesMetVerplichtBesluit.isEmpty() || this.isBesluittypeAanwezig)
+            (resultaattypesMetVerplichtBesluit.isEmpty() || this.isBesluittypeAanwezig) &&
+            resultaattypesMetNietOndersteundeBrondatum.isEmpty()
 }

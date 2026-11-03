@@ -237,6 +237,7 @@ Voor nu worden de volgende onderdelen gecheckt:
 - Rollen | er wordt gecheckt of de voor de werking van de ZAC vereiste rollen zijn toegevoegd aan het zaaktype. Dit zijn momenteel 'Initiator' en 'Behandelaar' die nodig zijn om de functionaliteit voor het toevoegen van een initiator aan een zaak en het op naam van een behandelaar zetten van een zaak mogelijk te maken. ZAC vereist precies één roltype 'Initiator' en één roltype 'Behandelaar'. Het roltype 'Behandelaar' moet de volgende eigenschappen hebben: Omschrijving generiek 'Behandelaar' én Omschrijving 'Behandelaar'. Daarnaast wordt gecheckt of er minimaal één andere rol is toegevoegd die gebruikt wordt bij de functionaliteit voor het toevoegen van betrokkenen aan een zaak.
 - Informatieobjecttype | er wordt voor de werking van de ZAC gecheckt of het zaaktype aan de vereiste informatieobjecttypen is gekoppeld. Dit is momenteel ‘e-mail’ dat gebruikt wordt voor het als document toevoegen van vanuit de ZAC verzonden e-mails.
 - Besluittype | er wordt gecheckt of aan het zaaktype een besluittype is gekoppeld. Dit gebeurt alleen als aan het zaaktype een resultaattype is toegevoegd dat als afleidingswijze de begin- of vervaldatum van een besluit heeft.
+- Afhandelwijze brondatum | er wordt gecheckt of de resultaattypen van het zaaktype geen afhandelwijze brondatum 'Ander datumkenmerk' of 'Zaakobject' hebben. ZAC ondersteunt deze afhandelwijzen niet. Heeft een resultaattype er een van de twee, dan toont de check een foutmelding met de naam van het resultaattype en kan het zaaktype niet worden gebruikt om een zaak aan te maken. Zie sectie [Afhandelwijze brondatum](#afhandelwijze-brondatum---niet-ondersteund).
 - Zaakspecifieke autorisatie | ZAC controleert of het zaaktype de eigenschap `ZAAK_GEAUTORISEERD` en het roltype 'Zaakspecifiek geautoriseerde medewerker' heeft. Heeft het zaaktype maar één van de twee, dan toont de check een waarschuwing. Het zaaktype blijft dan bruikbaar. Zie sectie [Zaakspecifieke autorisatie](#zaakspecifieke-autorisatie).
 - BRP | ZAC controleert de referentietabellen BRP_DOELBINDING_ZOEK_WAARDE, BRP_DOELBINDING_RAADPLEEG_WAARDE en BRP_VERWERKINGSREGISTER_WAARDE. Elke tabel moet minimaal één waarde hebben. Elke waarde mag alleen ASCII-tekens bevatten. Anders toont de check 'Onjuiste BRP-headerwaarde' bij elk zaaktype. Zie sectie [Doelbinding en protocollering](#doelbinding-en-protocollering).
 
@@ -1077,3 +1078,7 @@ In Open Zaak kan bij een resultaattype onderstaande afhandelwijze worden gekozen
 Bij het afhandelen van de zaak wordt de brondatum gezet op de einddatum van de zaak plus de ingestelde procestermijn. In het onderste veld moet de procestermijn worden ingevuld.
 
 ![image](images/open_zaak_bepaling_brondatum_archiefprocedure_termijn.png)
+
+#### Afhandelwijze brondatum - Niet ondersteund
+
+ZAC ondersteunt de afhandelwijzen *Ander datumkenmerk* en *Zaakobject* niet. Kies deze niet bij een resultaattype van een CMMN-zaaktype. De [inrichtingscheck](#zaaktype-inrichtingscheck) toont een foutmelding voor een zaaktype met zo'n resultaattype en dat zaaktype kan niet worden gebruikt om een zaak aan te maken.

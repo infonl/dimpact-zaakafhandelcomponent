@@ -76,6 +76,7 @@ const volledigIngerichtZaaktype = fromPartial<
   isRolOverigeAanwezig: true,
   isInformatieobjecttypeEmailAanwezig: true,
   resultaattypesMetVerplichtBesluit: [],
+  resultaattypesMetNietOndersteundeBrondatum: [],
   isBesluittypeAanwezig: true,
   isBrpInstellingenCorrect: true,
   isZaakspecifiekeAutorisatieEigenschapAanwezig: true,
@@ -124,6 +125,20 @@ const zaaktypeZonderEigenschap = fromPartial<
   hasWaarschuwingen: true,
   isZaakspecifiekeAutorisatieEigenschapAanwezig: false,
   isZaakspecifiekeAutorisatieRoltypeAanwezig: true,
+});
+
+const zaaktypeMetNietOndersteundeBrondatum = fromPartial<
+  GeneratedType<"RestZaaktypeInrichtingscheck">
+>({
+  ...volledigIngerichtZaaktype,
+  zaaktype: {
+    uuid: "fakeZaaktypeUuid5",
+    omschrijving: "Zaaktype E",
+    doel: "Doel E",
+    beginGeldigheid: "2024-09-01",
+  },
+  isValide: false,
+  resultaattypesMetNietOndersteundeBrondatum: ["Toegekend", "Afgewezen"],
 });
 
 @Component({
@@ -215,6 +230,29 @@ describe(InrichtingscheckComponent.name, () => {
     await sleep();
     fixture.detectChanges();
   }
+
+  describe("a zaaktype with resultaattypen whose brondatum afhandelwijze is not supported", () => {
+    beforeEach(async () => {
+      await loadHealthChecks({
+        zaaktypes: [zaaktypeMetNietOndersteundeBrondatum],
+      });
+    });
+
+    it("should reveal the error with the category and the resultaattypen", async () => {
+      await user.click(zaaktypeRow("Zaaktype E"));
+      fixture.detectChanges();
+
+      const detailRow = screen.getByRole("row", {
+        name: /health-check.zaaktype.niet-ondersteunde-brondatum/,
+      });
+      expect(within(detailRow).getByText("resultaattype")).toBeInTheDocument();
+      expect(
+        within(detailRow).getByText(
+          "health-check.zaaktype.niet-ondersteunde-brondatum",
+        ),
+      ).toBeInTheDocument();
+    });
+  });
 
   describe("once the health checks are loaded", () => {
     beforeEach(async () => {
@@ -308,6 +346,15 @@ describe(InrichtingscheckComponent.name, () => {
       expect(
         within(detailRow).getByText(EIGENSCHAP_ONTBREEKT_MESSAGE),
       ).toBeInTheDocument();
+    });
+
+    it("should not show the brondatum error for a zaaktype without unsupported resultaattypen", async () => {
+      await user.click(zaaktypeRow("Zaaktype B"));
+      fixture.detectChanges();
+
+      expect(
+        screen.queryByText("health-check.zaaktype.niet-ondersteunde-brondatum"),
+      ).not.toBeInTheDocument();
     });
 
     it("should show every zaaktype that needs attention when the filter is set to not valide", () => {

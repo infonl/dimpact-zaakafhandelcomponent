@@ -1098,6 +1098,7 @@
   "health-check.zaaktype.te-veel-rol-behandelaar-aanwezig": "Er kan slechts één roltype \"Behandelaar\" bestaan",
   "health-check.zaaktype.geen-rol-overige-aanwezig": "Naast de rollen \"Behandelaar\" en \"Initiator\" moet er minimaal één andere rol aanwezig zijn",
   "health-check.zaaktype.geen-informatieobjecttype-email-aanwezig": "Het vereiste Informatieobjecttype \"E-mail\" bestaat niet",
+  "health-check.zaaktype.niet-ondersteunde-brondatum": "Resultaattype(s) \"<b>{{resultaattypes}}</b>\" hebben een afhandelwijze brondatum die ZAC niet ondersteunt ('Ander datumkenmerk' of 'Zaakobject')",
   "health-check.zaaktype.geen-besluittype-aanwezig": "Resultaattype(s) \"<b>{{resultaattypes}}</b>\" vereisen een besluittype, maar er is geen besluittype gevonden",
   "health-check.zaaktype.onjuiste-brp-headerwaarde": "Onjuiste BRP-headerwaarde",
   "health-check.zaaktype.status.valide": "De inrichting van dit zaaktype is correct",

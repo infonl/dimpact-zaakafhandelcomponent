@@ -54,6 +54,8 @@ data class RestZaaktypeInrichtingscheck(
 
     var resultaattypesMetVerplichtBesluit: MutableList<String?>? = null,
 
+    var resultaattypesMetNietOndersteundeBrondatum: MutableList<String?>? = null,
+
     @get:JsonbProperty("isZaakafhandelParametersValide")
     @set:JsonbProperty("isZaakafhandelParametersValide")
     var isZaakafhandelParametersValide: Boolean = false,

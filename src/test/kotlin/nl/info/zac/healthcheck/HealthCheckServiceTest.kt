@@ -21,6 +21,7 @@ import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.ZaaktypeConfigurationService
@@ -403,6 +404,130 @@ class HealthCheckServiceTest : BehaviorSpec({
             }
             and("the zaaktypeInrichtingscheck is still valid") {
                 zaaktypeInrichtingscheck.isValide shouldBe true
+            }
+        }
+    }
+
+    data class BrondatumCase(
+        val description: String,
+        val afleidingswijzen: List<AfleidingswijzeEnum>,
+        val expectedOmschrijvingen: List<String>
+    )
+
+    listOf(
+        BrondatumCase(
+            "a resultaattype with afleidingswijze ander_datumkenmerk",
+            listOf(AfleidingswijzeEnum.ANDER_DATUMKENMERK),
+            listOf("fakeOmschrijving0")
+        ),
+        BrondatumCase(
+            "a resultaattype with afleidingswijze zaakobject",
+            listOf(AfleidingswijzeEnum.ZAAKOBJECT),
+            listOf("fakeOmschrijving0")
+        ),
+        BrondatumCase(
+            "two resultaattypes with an unsupported afleidingswijze and one with a supported one",
+            listOf(
+                AfleidingswijzeEnum.ANDER_DATUMKENMERK,
+                AfleidingswijzeEnum.EIGENSCHAP,
+                AfleidingswijzeEnum.ZAAKOBJECT
+            ),
+            listOf("fakeOmschrijving0", "fakeOmschrijving2")
+        ),
+        BrondatumCase(
+            "resultaattypes that only have supported afleidingswijzen",
+            listOf(
+                AfleidingswijzeEnum.EIGENSCHAP,
+                AfleidingswijzeEnum.INGANGSDATUM_BESLUIT,
+                AfleidingswijzeEnum.VERVALDATUM_BESLUIT,
+                AfleidingswijzeEnum.HOOFDZAAK,
+                AfleidingswijzeEnum.AFGEHANDELD
+            ),
+            emptyList()
+        )
+    ).forEach { brondatumCase ->
+        @Suppress("UNCHECKED_CAST")
+        given("A CMMN zaaktype that is otherwise valid with ${brondatumCase.description}") {
+            val zaaktypeUuid = UUID.randomUUID()
+            val zaaktypeUri = URI("https://example.com/zaaktype/$zaaktypeUuid")
+            val referenceTableService = mockk<ReferenceTableService>()
+            val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
+            val ztcClientService = mockk<ZtcClientService>()
+            val healthCheckService = HealthCheckService(
+                branchName = Optional.of("dev") as Optional<String?>,
+                commitHash = Optional.of("hash") as Optional<String?>,
+                versionNumber = Optional.of("0.0.0") as Optional<String?>,
+                referenceTableService = referenceTableService,
+                zaaktypeConfigurationService = zaaktypeConfigurationService,
+                ztcClientService = ztcClientService
+            )
+
+            every { ztcClientService.readZaaktype(zaaktypeUri) } returns createZaakType(zaaktypeUri)
+            every {
+                zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
+            } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
+            every {
+                ztcClientService.readStatustypen(zaaktypeUri)
+            } returns listOf(
+                createStatusType(volgnummer = 1, omschrijving = ConfigurationService.STATUSTYPE_OMSCHRIJVING_INTAKE),
+                createStatusType(
+                    volgnummer = 2,
+                    omschrijving = ConfigurationService.STATUSTYPE_OMSCHRIJVING_IN_BEHANDELING
+                ),
+                createStatusType(volgnummer = 3, omschrijving = ConfigurationService.STATUSTYPE_OMSCHRIJVING_HEROPEND),
+                createStatusType(
+                    volgnummer = 4,
+                    omschrijving = ConfigurationService.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
+                ),
+                createStatusType(volgnummer = 5, omschrijving = ConfigurationService.STATUSTYPE_OMSCHRIJVING_AFGEROND),
+            )
+            every {
+                ztcClientService.readResultaattypen(zaaktypeUri)
+            } returns brondatumCase.afleidingswijzen.mapIndexed { index, afleidingswijze ->
+                createResultaatType(
+                    omschrijving = "fakeOmschrijving$index",
+                    brondatumArchiefprocedure = createBrondatumArchiefprocedure(afleidingswijze = afleidingswijze)
+                )
+            }
+            every { ztcClientService.readBesluittypen(zaaktypeUri) } returns listOf(createBesluitType())
+            every {
+                ztcClientService.listRoltypen(zaaktypeUri)
+            } returns listOf(
+                createRolType(
+                    omschrijving = ROLTYPE_OMSCHRIJVING_BEHANDELAAR,
+                    omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
+                ),
+                createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.ZAAKCOORDINATOR),
+                createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR)
+            )
+            every {
+                ztcClientService.readInformatieobjecttypen(zaaktypeUri)
+            } returns listOf(
+                createInformatieObjectType(omschrijving = ConfigurationService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL)
+            )
+            every {
+                ztcClientService.findEigenschap(zaaktypeUri, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD)
+            } returns null
+            every {
+                referenceTableService.readSystemReferenceTable(SystemReferenceTable.BRP_DOELBINDING_ZOEK_WAARDE)
+            } returns createReferenceTable()
+            every {
+                referenceTableService.readSystemReferenceTable(SystemReferenceTable.BRP_DOELBINDING_RAADPLEEG_WAARDE)
+            } returns createReferenceTable()
+            every {
+                referenceTableService.readSystemReferenceTable(SystemReferenceTable.BRP_VERWERKINGSREGISTER_WAARDE)
+            } returns createReferenceTable()
+
+            `when`("controleerZaaktype is called") {
+                val zaaktypeInrichtingscheck = healthCheckService.controleerZaaktype(zaaktypeUri)
+
+                then("the omschrijving of each resultaattype with an unsupported afleidingswijze is reported") {
+                    zaaktypeInrichtingscheck.resultaattypesMetNietOndersteundeBrondatum shouldBe
+                        brondatumCase.expectedOmschrijvingen
+                }
+                and("the zaaktypeInrichtingscheck is valid only when nothing is reported") {
+                    zaaktypeInrichtingscheck.isValide shouldBe brondatumCase.expectedOmschrijvingen.isEmpty()
+                }
             }
         }
     }
