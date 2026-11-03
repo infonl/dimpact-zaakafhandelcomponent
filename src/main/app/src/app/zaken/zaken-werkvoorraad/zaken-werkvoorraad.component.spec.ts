@@ -13,7 +13,12 @@ import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { EMPTY, of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import {
+  expectedSearchFor,
+  fromPartial,
+  searchThroughColumnFilter,
+  WerklijstColumnFilter,
+} from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
@@ -533,5 +538,48 @@ describe(ZakenWerkvoorraadComponent.name, () => {
         expect(component["selection"].isEmpty()).toBe(false);
       });
     });
+  });
+});
+
+describe(`${ZakenWerkvoorraadComponent.name} column filters`, () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+  });
+
+  it.each<WerklijstColumnFilter>([
+    { column: "zaak.identificatie", kind: "tekst", veld: "ZAAK_IDENTIFICATIE" },
+    { column: "status", kind: "facet", veld: "ZAAK_STATUS" },
+    { column: "zaaktype", kind: "facet", veld: "ZAAKTYPE" },
+    { column: "omschrijving", kind: "tekst", veld: "ZAAK_OMSCHRIJVING" },
+    { column: "groep", kind: "facet", veld: "GROEP" },
+    {
+      column: "vertrouwelijkheidaanduiding",
+      kind: "facet",
+      veld: "ZAAK_VERTROUWELIJKHEIDAANDUIDING",
+    },
+    {
+      column: "communicatiekanaal",
+      kind: "facet",
+      veld: "ZAAK_COMMUNICATIEKANAAL",
+    },
+    {
+      column: "registratiedatum",
+      kind: "datum",
+      veld: "ZAAK_REGISTRATIEDATUM",
+    },
+    { column: "startdatum", kind: "datum", veld: "ZAAK_STARTDATUM" },
+    { column: "einddatum-gepland", kind: "datum", veld: "ZAAK_STREEFDATUM" },
+    { column: "behandelaar", kind: "facet", veld: "BEHANDELAAR" },
+    {
+      column: "uiterlijke-einddatum-afdoening",
+      kind: "datum",
+      veld: "ZAAK_FATALE_DATUM",
+    },
+    { column: "toelichting", kind: "tekst", veld: "ZAAK_TOELICHTING" },
+    { column: "indicaties", kind: "facet", veld: "ZAAK_INDICATIES" },
+  ])("searches on what was put in the $column filter", async (filter) => {
+    expect(
+      await searchThroughColumnFilter(ZakenWerkvoorraadComponent, filter),
+    ).toMatchObject(expectedSearchFor(filter));
   });
 });

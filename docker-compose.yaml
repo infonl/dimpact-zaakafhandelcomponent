@@ -180,7 +180,7 @@ services:
   # It passes the `openzaak.local` Host on unchanged, so Open Zaak keeps generating the URLs that
   # ZAC validates its responses against.
   openzaak.local:
-    image: nginxinc/nginx-unprivileged:1.31.7@sha256:94193d5c4c5df716f412bb08eb97956d98fe6b59886f0bc57d6d3a3402a88a02
+    image: nginxinc/nginx-unprivileged:1.31.7@sha256:09b0d3eda2aa592d2487f284519419015cab010d7df16cd0fe224b585fc60eb6
     ports:
       - "8001:8000"
     volumes:
@@ -716,7 +716,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginxinc/nginx-unprivileged:1.31.7@sha256:94193d5c4c5df716f412bb08eb97956d98fe6b59886f0bc57d6d3a3402a88a02
+    image: nginxinc/nginx-unprivileged:1.31.7@sha256:09b0d3eda2aa592d2487f284519419015cab010d7df16cd0fe224b585fc60eb6
     ports:
       - "8005:8080"
     volumes:
@@ -889,6 +889,9 @@ services:
       - ZGW_API_CLIENT_MP_REST_URL=http://openzaak.local:8000/
       - ZGW_API_CLIENTID=zac-client
       - ZGW_API_SECRET=openzaakZaakafhandelcomponentClientSecret
+      - ZTC_CACHE_MAX_SIZE=${ZTC_CACHE_MAX_SIZE:-10000}
+      - ZTC_CACHE_EXPIRATION_SECONDS=${ZTC_CACHE_EXPIRATION_SECONDS:-86400}
+      - ZTC_CACHE_REFRESH_INTERVAL_SECONDS=${ZTC_CACHE_REFRESH_INTERVAL_SECONDS:-3600}
     ports:
       - "8080:8080"
       - "9990:9990"
@@ -1135,7 +1138,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-nginx:
-    image: nginxinc/nginx-unprivileged:1.31.7@sha256:94193d5c4c5df716f412bb08eb97956d98fe6b59886f0bc57d6d3a3402a88a02
+    image: nginxinc/nginx-unprivileged:1.31.7@sha256:09b0d3eda2aa592d2487f284519419015cab010d7df16cd0fe224b585fc60eb6
     ports:
       - "8007:8080"
     volumes:

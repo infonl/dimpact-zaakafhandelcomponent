@@ -10,6 +10,10 @@ import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
 import nl.info.client.zgw.ztc.ZtcClientService
 import java.util.UUID
 
+/**
+ * Marks a zaak as being 'zaakspecifiek geautoriseerd'.
+ * The name is abbreviated because Open Zaak caps the length of eigenschap names.
+ */
 const val ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD = "ZAAK_GEAUTORISEERD"
 private const val ZAAKEIGENSCHAP_WAARDE_GEAUTORISEERD = "true"
 

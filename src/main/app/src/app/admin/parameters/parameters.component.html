@@ -102,7 +102,9 @@
                 <zac-date-range-filter
                   label="begin.geldigheid"
                   [range]="filterParameters.beginGeldigheid"
-                  (changed)="applyFilter()"
+                  (changed)="
+                    filterParameters.beginGeldigheid = $event; applyFilter()
+                  "
                 ></zac-date-range-filter>
               </th>
             </ng-container>
@@ -111,7 +113,9 @@
                 <zac-date-range-filter
                   label="einde.geldigheid"
                   [range]="filterParameters.eindeGeldigheid"
-                  (changed)="applyFilter()"
+                  (changed)="
+                    filterParameters.eindeGeldigheid = $event; applyFilter()
+                  "
                 ></zac-date-range-filter>
               </th>
             </ng-container>

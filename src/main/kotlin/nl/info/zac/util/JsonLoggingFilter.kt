@@ -32,7 +32,7 @@ class JsonLoggingFilter : ClientRequestFilter, ClientResponseFilter {
         private val LOG = Logger.getLogger(JsonLoggingFilter::class.java.name)
 
         // BSNs and IBANs are masked by the WildFly logging filter, but a date of birth cannot be recognised in
-        // plain text, so it is masked here by the name of its JSON field; see ADR-0009
+        // plain text, so it is masked here by the name of its JSON field; see ADR-0010
         private const val DATE_OF_BIRTH_FIELD_NAME_PART = "geboorte"
         const val MASKED_VALUE = "*****"
     }

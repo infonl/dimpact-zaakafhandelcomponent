@@ -10,9 +10,11 @@ import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
+import nl.info.client.zgw.shared.cache.CacheMemoryUsage
 import nl.info.client.zgw.shared.cache.Caching
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.cache.ZtcCacheRefresher
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.sensitive.SensitiveDataService
@@ -34,7 +36,8 @@ class UtilRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val sensitiveDataService: SensitiveDataService,
-    private val policyService: PolicyService
+    private val policyService: PolicyService,
+    private val ztcCacheRefresher: ZtcCacheRefresher
 ) {
     companion object {
         private val ZTC: String = h(2, "ztcClientService")
@@ -85,11 +88,14 @@ class UtilRestService @Inject constructor(
         )
     }
 
+    /**
+     * Only this page measures the memory usage of the caches, because measuring walks through every cached object.
+     */
     @GET
     @Path("cache/ztc")
     fun ztcCaches(): String {
         checkBeherenPolicy()
-        return body(ztcClientCaches())
+        return body(ztcClientCaches(memoryUsage = ztcClientService.estimatedMemoryUsage()))
     }
 
     @GET
@@ -148,6 +154,8 @@ class UtilRestService @Inject constructor(
         )
     }
 
+    private fun memorySize(bytes: Long) = "${fileSize(bytes, decimals = 2)} ($bytes bytes)"
+
     private fun checkBeherenPolicy() = assertPolicy(policyService.readOverigeRechten().canBeheren)
 
     private fun clearZtcClientCaches() =
@@ -161,9 +169,15 @@ class UtilRestService @Inject constructor(
                 ztcClientService.clearBesluittypeCache(),
                 ztcClientService.clearRoltypeCache(),
                 ztcClientService.clearEigenschapCache(),
-                ztcClientService.clearCacheTime()
+                ztcClientService.clearCacheTime(),
+                refreshZtcClientCachesInBackground()
             )
         )
+
+    private fun refreshZtcClientCachesInBackground(): String {
+        ztcCacheRefresher.refreshInBackground()
+        return "ZTC caches are being refreshed in the background"
+    }
 
     private fun clearAllZhpsCaches() =
         ZHPS + ul(
@@ -173,26 +187,38 @@ class UtilRestService @Inject constructor(
             )
         )
 
-    private fun ztcClientCaches() = getSeriviceCacheDetails(ZTC, ztcClientService)
+    private fun ztcClientCaches(memoryUsage: CacheMemoryUsage? = null) =
+        getSeriviceCacheDetails(ZTC, ztcClientService, memoryUsage)
 
     private fun zaakafhandelParameterServiceCaches() = getSeriviceCacheDetails(ZHPS, zaaktypeConfigurationService)
 
-    private fun getSeriviceCacheDetails(prefix: String, caching: Caching): String {
+    private fun getSeriviceCacheDetails(
+        prefix: String,
+        caching: Caching,
+        memoryUsage: CacheMemoryUsage? = null
+    ): String {
         val cacheStatistics = caching.cacheStatistics()
         val estimatedCacheSizes = caching.estimatedCacheSizes()
         val totalLoadTimeRegExp = Regex("totalLoadTime=\\d+")
-        return prefix + ul(
+        val totalMemoryUsage = memoryUsage?.let {
+            ul("Estimated memory usage of all caches: ${memorySize(it.total)}")
+        }.orEmpty()
+        return prefix + totalMemoryUsage + ul(
             cacheStatistics.entries.map { (key, value) ->
                 // replace totalLoadTime substring with human-readable value
                 val totalLoadTimeHumanReadable = value
                     .totalLoadTime()
                     .toDuration(DurationUnit.NANOSECONDS)
                     .toString()
+                val sizes = listOfNotNull(
+                    "Estimated cache size: ${estimatedCacheSizes[key]} item(s)",
+                    memoryUsage?.let { "Estimated memory usage: ${memorySize(it.perCache[key] ?: 0)}" }
+                )
                 """
                     <p>
                     ${b(key)}
                     ${ul(value.toString().replace(totalLoadTimeRegExp, "totalLoadTime=$totalLoadTimeHumanReadable"))}
-                    ${ul("Estimated cache size: ${estimatedCacheSizes[key]}")}
+                    ${ul(sizes)}
                     </p>
                 """.trimIndent()
             }

@@ -3,13 +3,13 @@ kotlin = "2.4.21"
 kotlinx-coroutines = "1.11.0"
 jsonschema2pojo = "1.3.3"
 kotlin-csv = "2.0.0"
-openapi = "4.3.5"
+openapi = "4.4.0"
 openapi-generator = "7.27.0"
 opentelemetry = "1.67.0"
 opentelemetry-instrumentation = "2.33.1"
 node-gradle = "7.1.0"
 detekt = "2.0.0-alpha.6"
-spotless = "8.10.4"
+spotless = "8.11.0"
 spotless-eclipse-formatter = "4.21"
 spotless-prettier-base = "3.4.2"
 spotless-prettier-organize-imports = "4.1.0"
@@ -37,6 +37,7 @@ apache-httpclient = "4.5.14"
 reactive-streams = "1.0.4"
 jakarta-mail = "2.1.5"
 caffeine = "3.3.1"
+jol = "0.17"
 jackson = "2.22.4"
 jackson-annotations = "2.22"
 jacobras-human-readable = "2.0.0"
@@ -110,6 +111,7 @@ reactive-streams = { group = "org.reactivestreams", name = "reactive-streams", v
 jakarta-mail = { group = "jakarta.mail", name = "jakarta.mail-api", version.ref = "jakarta-mail" }
 
 caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine", version.ref = "caffeine" }
+jol-core = { group = "org.openjdk.jol", name = "jol-core", version.ref = "jol" }
 
 jackson-core = { group = "com.fasterxml.jackson.core", name = "jackson-core", version.ref = "jackson" }
 jackson-annotations = { group = "com.fasterxml.jackson.core", name = "jackson-annotations", version.ref = "jackson-annotations" }

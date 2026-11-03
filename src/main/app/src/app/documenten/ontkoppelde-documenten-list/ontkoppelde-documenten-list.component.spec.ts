@@ -13,7 +13,7 @@ import {
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { provideNativeDateAdapter } from "@angular/material/core";
+import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatPaginatorIntl } from "@angular/material/paginator";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
@@ -30,6 +30,14 @@ import { sleep, testQueryClient } from "../../../../setupJest";
 import { OntkoppeldeDocumentenListComponent } from "./ontkoppelde-documenten-list.component";
 
 const SEARCH_PARAMETERS_KEY = "ONTKOPPELDE_DOCUMENTEN_ZOEKPARAMETERS";
+
+const UNFILTERED_REQUEST_BODY = {
+  sort: "ontkoppeldOp",
+  order: "desc",
+  filtersType: "DetachedDocumentListParameters",
+  page: 0,
+  maxResults: 10,
+};
 
 const detachedDocument = fromPartial<GeneratedType<"RestDetachedDocument">>({
   id: 42,
@@ -85,7 +93,7 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
           },
           provideHttpClient(withXhr(), withInterceptorsFromDi()),
           provideHttpClientTesting(),
-          provideNativeDateAdapter(),
+          provideMomentDateAdapter(),
           provideQueryClient(testQueryClient),
         ],
       },
@@ -163,15 +171,8 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
   it("asks for the first page sorted by ontkoppeldOp and remembers that", async () => {
     await setup();
 
-    const defaultParameters = {
-      sort: "ontkoppeldOp",
-      order: "desc",
-      filtersType: "DetachedDocumentListParameters",
-      page: 0,
-      maxResults: 10,
-    };
-    expect(await lastListRequestBody()).toEqual(defaultParameters);
-    expect(rememberedParameters()).toEqual(defaultParameters);
+    expect(await lastListRequestBody()).toEqual(UNFILTERED_REQUEST_BODY);
+    expect(rememberedParameters()).toEqual(UNFILTERED_REQUEST_BODY);
   });
 
   it("reuses the filters remembered from a previous visit", async () => {
@@ -223,6 +224,82 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
     fixture.detectChanges();
 
     expect(screen.getByText(/1 - 10/)).toBeVisible();
+  });
+
+  it.each([
+    { filter: "titel", position: 0 },
+    { filter: "zaakID", position: 1 },
+    { filter: "reden", position: 2 },
+  ])(
+    "searches on the text that was typed in the $filter filter",
+    async ({ filter, position }) => {
+      await setup();
+      await showDocuments([detachedDocument]);
+
+      await user.type(
+        screen.getAllByPlaceholderText("...")[position],
+        "Aanvraag{Enter}",
+      );
+
+      expect(await lastListRequestBody()).toEqual({
+        ...UNFILTERED_REQUEST_BODY,
+        [filter]: "Aanvraag",
+      });
+    },
+  );
+
+  it.each([
+    { filter: "creatiedatum", position: 0 },
+    { filter: "ontkoppeldOp", position: 1 },
+  ])(
+    "searches on the dates that were typed in the $filter filter",
+    async ({ filter, position }) => {
+      await setup();
+      await showDocuments([detachedDocument]);
+
+      await user.type(
+        screen.getAllByPlaceholderText("zoeken.filter.van")[position],
+        "01-01-2024",
+      );
+      await user.type(
+        screen.getAllByPlaceholderText("zoeken.filter.tot-en-met")[position],
+        "31-01-2024",
+      );
+      await user.tab();
+
+      expect(await lastListRequestBody()).toEqual({
+        ...UNFILTERED_REQUEST_BODY,
+        [filter]: {
+          van: new Date(2024, 0, 1).toISOString(),
+          tot: new Date(2024, 0, 31).toISOString(),
+        },
+      });
+    },
+  );
+
+  it("searches on the person that was chosen in the ontkoppeld door filter", async () => {
+    await setup();
+    await showDocuments([detachedDocument]);
+
+    await user.click(screen.getByRole("combobox", { name: "filter.alle" }));
+    await user.click(screen.getByRole("option", { name: "fakeUserName1" }));
+
+    expect(await lastListRequestBody()).toEqual({
+      ...UNFILTERED_REQUEST_BODY,
+      ontkoppeldDoor: { username: "fakeUserId1", naam: "fakeUserName1" },
+    });
+  });
+
+  it("asks for the list sorted on the column header that was clicked", async () => {
+    await setup();
+    await showDocuments([detachedDocument]);
+
+    await user.click(screen.getByRole("columnheader", { name: "titel" }));
+
+    expect(await lastListRequestBody()).toMatchObject({
+      sort: "titel",
+      order: "asc",
+    });
   });
 
   it("remembers the sorting column that was clicked, back on the first page", async () => {

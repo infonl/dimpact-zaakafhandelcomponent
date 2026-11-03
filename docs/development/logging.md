@@ -416,7 +416,7 @@ log-level configuration.
 
 As a safety net for log statements that write personal data, WildFly masks personal data in every log record before
 it writes the record, whatever its log level or logger
-([ADR-0009](../solution-architecture/decisions/0009-mask-personal-data-in-a-wildfly-logging-filter.md)):
+([ADR-0010](../solution-architecture/decisions/0010-mask-personal-data-in-a-wildfly-logging-filter.md)):
 
 | Personal data | Example              | Logged as   |
 |---------------|----------------------|-------------|
