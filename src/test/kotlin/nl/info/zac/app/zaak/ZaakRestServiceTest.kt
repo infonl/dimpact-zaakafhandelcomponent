@@ -1889,6 +1889,40 @@ class ZaakRestServiceTest : BehaviorSpec({
                     }
                 }
             }
+            and("the user has a start role and a role that is not a start role for every zaaktype") {
+                clearMocks(ztcClientService, zaaktypeConfigurationService, answers = false)
+                every { loggedInUserInstance.get() } returns createLoggedInUser(
+                    applicationRolesPerZaaktype = zaaktypes.associate {
+                        it.omschrijving to setOf("fakeStartrol", "fakeOtherRole")
+                    }
+                )
+
+                `when`("the zaaktypes are listed") {
+                    val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
+
+                    then("all zaaktypes are returned, because one start role is enough to start a zaak") {
+                        returnedRestZaaktypes shouldBe restZaaktypes
+                    }
+                }
+            }
+            and("the user has no roles at all") {
+                clearMocks(ztcClientService, zaaktypeConfigurationService, answers = false)
+                every { loggedInUserInstance.get() } returns createLoggedInUser(
+                    applicationRolesPerZaaktype = emptyMap(),
+                    overallRoles = emptySet()
+                )
+
+                `when`("the zaaktypes are listed") {
+                    val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
+
+                    then("no zaaktypes are returned and the ZAC configuration of the zaaktypes is not read") {
+                        returnedRestZaaktypes shouldBe emptyList()
+                        verify(exactly = 0) {
+                            zaaktypeConfigurationService.findConfiguration(any<UUID>())
+                        }
+                    }
+                }
+            }
         }
 
         given("A concept zaaktype, a zaaktype not yet valid and an expired zaaktype") {
@@ -1926,6 +1960,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 createZaakType(omschrijving = "fakeVersionedZaaktype", beginGeldigheid = now.minusDays(1))
             )
             val restZaaktypes = listOf(createRestZaaktype(), createRestZaaktype())
+            clearMocks(policyService)
             every { loggedInUserInstance.get() } returns createLoggedInUser(
                 applicationRolesPerZaaktype = mapOf("fakeVersionedZaaktype" to setOf("fakeStartrol"))
             )
@@ -1943,8 +1978,9 @@ class ZaakRestServiceTest : BehaviorSpec({
             `when`("the zaaktypes are listed") {
                 val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
 
-                then("both versions are returned") {
+                then("both versions are returned and the start roles are read from OPA once") {
                     returnedRestZaaktypes shouldBe restZaaktypes
+                    verify(exactly = 1) { policyService.readStartrollen() }
                 }
             }
         }
