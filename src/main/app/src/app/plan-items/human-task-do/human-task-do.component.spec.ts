@@ -22,7 +22,7 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateService, provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { screen, within } from "@testing-library/angular";
+import { screen, waitFor, within } from "@testing-library/angular";
 import { userEvent } from "@testing-library/user-event";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
@@ -216,6 +216,23 @@ describe("HumanTaskDoComponent", () => {
       expect(
         taakFormulierenService.getAngularRequestFormBuilder,
       ).toHaveBeenCalledWith(zaak, humanTaskPlanItem);
+    });
+
+    it("shows the group and user fields once the behandelaar groups arrive after the form is shown", async () => {
+      testQueryClient.clear();
+      fixture.autoDetectChanges();
+      await sleep();
+      const groupsRequest = httpTestingController.expectOne(
+        "/rest/identity/zaaktype/fakeZaaktypeOmschrijving/behandelaar-groups",
+      );
+      await sleep();
+      expect(screen.queryAllByRole("combobox")).toHaveLength(0);
+
+      groupsRequest.flush([group]);
+
+      await waitFor(() =>
+        expect(screen.queryAllByRole("combobox")).toHaveLength(2),
+      );
     });
 
     it("should read the behandelaar groups of the zaaktype of the zaak", async () => {
