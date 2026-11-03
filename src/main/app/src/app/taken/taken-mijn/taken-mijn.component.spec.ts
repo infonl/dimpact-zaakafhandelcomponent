@@ -21,7 +21,12 @@ import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import {
+  expectedSearchFor,
+  fromPartial,
+  searchThroughColumnFilter,
+  WerklijstColumnFilter,
+} from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
@@ -86,10 +91,6 @@ describe(TakenMijnComponent.name, () => {
     // the table creates the row views in one pass and binds their cells in the next
     fixture.detectChanges();
     fixture.detectChanges();
-  }
-
-  function filterRow() {
-    return screen.getAllByRole("row")[1];
   }
 
   function columnHeaderNames() {
@@ -169,31 +170,6 @@ describe(TakenMijnComponent.name, () => {
     expect(screen.queryByTitle("msg.datum.overschreden")).toBeNull();
   });
 
-  it("searches again when a column filter is changed", async () => {
-    await renderTakenMijn();
-
-    await showTaken([]);
-
-    const zaakIdentificatieFilter =
-      within(filterRow()).getAllByRole("textbox")[0];
-    await user.type(zaakIdentificatieFilter, "fakeZaakIdentificatie");
-    await user.tab();
-    await runEffects();
-
-    const requests = httpTestingController.match("/rest/zoeken/list");
-    expect(requests).toHaveLength(1);
-    expect(requests[0].request.body).toEqual(
-      expect.objectContaining({
-        type: "TAAK",
-        alleenMijnTaken: true,
-        zoeken: expect.objectContaining({
-          TAAK_ZAAK_ID: "fakeZaakIdentificatie",
-        }),
-      }),
-    );
-    requests[0].flush({ totaal: 0, resultaten: [], filters: {} });
-  });
-
   it("brings a column hidden through the column picker back", async () => {
     await renderTakenMijn();
 
@@ -238,5 +214,27 @@ describe(TakenMijnComponent.name, () => {
       .forEach((request) =>
         request.flush({ totaal: 0, resultaten: [], filters: {} }),
       );
+  });
+});
+
+describe(`${TakenMijnComponent.name} column filters`, () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+  });
+
+  it.each<WerklijstColumnFilter>([
+    { column: "naam", kind: "facet", veld: "TAAK_NAAM" },
+    { column: "zaak-identificatie", kind: "tekst", veld: "TAAK_ZAAK_ID" },
+    { column: "zaak-omschrijving", kind: "tekst", veld: "ZAAK_OMSCHRIJVING" },
+    { column: "zaak-toelichting", kind: "tekst", veld: "ZAAK_TOELICHTING" },
+    { column: "zaaktype", kind: "facet", veld: "ZAAKTYPE" },
+    { column: "creatiedatum", kind: "datum", veld: "TAAK_CREATIEDATUM" },
+    { column: "fataledatum", kind: "datum", veld: "TAAK_FATALEDATUM" },
+    { column: "groep", kind: "facet", veld: "GROEP" },
+    { column: "toelichting", kind: "tekst", veld: "TAAK_TOELICHTING" },
+  ])("searches on what was put in the $column filter", async (filter) => {
+    expect(
+      await searchThroughColumnFilter(TakenMijnComponent, filter),
+    ).toMatchObject(expectedSearchFor(filter));
   });
 });

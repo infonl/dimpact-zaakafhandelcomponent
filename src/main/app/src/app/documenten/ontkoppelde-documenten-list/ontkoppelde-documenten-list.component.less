@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+@import "../../../variables";
+
 .mat-column-zaakID {
   width: 200px;
 }
@@ -19,8 +21,18 @@
   width: 150px;
 }
 
+table {
+  table-layout: fixed;
+  min-width: 1400px;
+}
+
+.mat-column-titel,
+.mat-column-reden {
+  overflow-wrap: anywhere;
+}
+
 .mat-column-actions {
-  width: 170px;
+  width: @inbox-list-actions-column-width;
 }
 
 .lock-icon {

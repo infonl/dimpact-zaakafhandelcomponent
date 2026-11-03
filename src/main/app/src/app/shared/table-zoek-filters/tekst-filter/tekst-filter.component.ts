@@ -6,8 +6,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  input,
-  linkedSignal,
+  model,
   OnInit,
   output,
 } from "@angular/core";
@@ -31,8 +30,7 @@ import { MatInputModule } from "@angular/material/input";
 })
 export class TekstFilterComponent implements OnInit {
   protected formControl = new FormControl<string | undefined>(undefined);
-  readonly value = input<string | null>();
-  private readonly currentValue = linkedSignal(() => this.value());
+  readonly value = model<string | null>();
   readonly changed = output<string>();
 
   ngOnInit(): void {
@@ -40,9 +38,9 @@ export class TekstFilterComponent implements OnInit {
   }
 
   protected change(): void {
-    if (this.currentValue() !== this.formControl.value) {
+    if (this.value() !== this.formControl.value) {
       const value = this.formControl.value ?? "";
-      this.currentValue.set(value);
+      this.value.set(value);
       this.changed.emit(value);
     }
   }

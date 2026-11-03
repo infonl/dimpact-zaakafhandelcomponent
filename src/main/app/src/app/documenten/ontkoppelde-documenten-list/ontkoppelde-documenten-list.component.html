@@ -31,7 +31,7 @@
           <ng-container matColumnDef="titel_filter">
             <th mat-header-cell *matHeaderCellDef>
               <zac-tekst-filter
-                [value]="listParameters.titel"
+                [(value)]="listParameters.titel"
                 (changed)="filtersChanged()"
               ></zac-tekst-filter>
             </th>
@@ -41,14 +41,16 @@
               <zac-date-range-filter
                 label="creatiedatum"
                 [range]="listParameters.creatiedatum"
-                (changed)="filtersChanged()"
+                (changed)="
+                  listParameters.creatiedatum = $event; filtersChanged()
+                "
               ></zac-date-range-filter>
             </th>
           </ng-container>
           <ng-container matColumnDef="zaakID_filter">
             <th mat-header-cell *matHeaderCellDef>
               <zac-tekst-filter
-                [value]="listParameters.zaakID"
+                [(value)]="listParameters.zaakID"
                 (changed)="filtersChanged()"
               ></zac-tekst-filter>
             </th>
@@ -61,7 +63,7 @@
                   (selectionChange)="filtersChanged()"
                   id="ontkoppeldDoor_filter"
                   placeholder="{{ 'filter.alle' | translate }}"
-                  [value]="listParameters.ontkoppeldDoor"
+                  [(value)]="listParameters.ontkoppeldDoor"
                 >
                   <mat-option>{{ "filter.alle" | translate }}</mat-option>
                   @for (value of filterOntkoppeldDoor; track value) {
@@ -76,14 +78,16 @@
               <zac-date-range-filter
                 label="ontkoppeld-op"
                 [range]="listParameters.ontkoppeldOp"
-                (changed)="filtersChanged()"
+                (changed)="
+                  listParameters.ontkoppeldOp = $event; filtersChanged()
+                "
               ></zac-date-range-filter>
             </th>
           </ng-container>
           <ng-container matColumnDef="reden_filter">
             <th mat-header-cell *matHeaderCellDef>
               <zac-tekst-filter
-                [value]="listParameters.reden"
+                [(value)]="listParameters.reden"
                 (changed)="filtersChanged()"
               ></zac-tekst-filter>
             </th>

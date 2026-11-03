@@ -192,8 +192,8 @@ export class OntkoppeldeDocumentenListComponent
           return runQuery(
             this.queryClient,
             this.ontkoppeldeDocumentenService.list({
-              ...this.listParameters,
               ...this.listParametersSort,
+              ...this.listParameters,
             }),
           );
         }),

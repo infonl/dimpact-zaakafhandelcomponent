@@ -13,7 +13,7 @@ import {
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { provideNativeDateAdapter } from "@angular/material/core";
+import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatPaginatorIntl } from "@angular/material/paginator";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
@@ -30,6 +30,14 @@ import { PaginatorTranslator } from "../../shared/paginator/paginator-translator
 import { InboxDocumentenListComponent } from "./inbox-documenten-list.component";
 
 const SEARCH_PARAMETERS_KEY = "INBOX_DOCUMENTEN_ZOEKPARAMETERS";
+
+const UNFILTERED_REQUEST_BODY = {
+  sort: "creatiedatum",
+  order: "desc",
+  filtersType: "InboxDocumentListParameters",
+  page: 0,
+  maxResults: 10,
+};
 
 const inboxDocument = fromPartial<GeneratedType<"RestInboxDocument">>({
   id: 42,
@@ -76,7 +84,7 @@ describe(InboxDocumentenListComponent.name, () => {
           },
           provideHttpClient(withXhr(), withInterceptorsFromDi()),
           provideHttpClientTesting(),
-          provideNativeDateAdapter(),
+          provideMomentDateAdapter(),
           provideQueryClient(testQueryClient),
         ],
       },
@@ -147,16 +155,9 @@ describe(InboxDocumentenListComponent.name, () => {
   it("asks for the first page sorted by creation date and remembers that", async () => {
     await setup();
 
-    const defaultParameters = {
-      sort: "creatiedatum",
-      order: "desc",
-      filtersType: "InboxDocumentListParameters",
-      page: 0,
-      maxResults: 10,
-    };
-    expect(await lastListRequestBody()).toEqual(defaultParameters);
+    expect(await lastListRequestBody()).toEqual(UNFILTERED_REQUEST_BODY);
     expect(JSON.parse(sessionStorage.getItem(SEARCH_PARAMETERS_KEY)!)).toEqual(
-      defaultParameters,
+      UNFILTERED_REQUEST_BODY,
     );
   });
 
@@ -174,6 +175,19 @@ describe(InboxDocumentenListComponent.name, () => {
     expect(await lastListRequestBody()).toMatchObject({ titel: "Aanvraag" });
   });
 
+  it("searches on the identificatie that was typed in the identificatie filter", async () => {
+    await setup();
+    await showDocuments([inboxDocument]);
+
+    const [identificatieFilter] = screen.getAllByPlaceholderText("...");
+    await user.type(identificatieFilter, "DOCUMENT-001{Enter}");
+
+    expect(await lastListRequestBody()).toEqual({
+      ...UNFILTERED_REQUEST_BODY,
+      identificatie: "DOCUMENT-001",
+    });
+  });
+
   it("searches on the title that was typed in the title filter", async () => {
     await setup();
     await showDocuments([inboxDocument]);
@@ -181,9 +195,32 @@ describe(InboxDocumentenListComponent.name, () => {
     const [, titelFilter] = screen.getAllByPlaceholderText("...");
     await user.type(titelFilter, "Aanvraag{Enter}");
 
-    expect(await lastListRequestBody()).toMatchObject({
+    expect(await lastListRequestBody()).toEqual({
+      ...UNFILTERED_REQUEST_BODY,
       titel: "Aanvraag",
-      page: 0,
+    });
+  });
+
+  it("searches on the creation dates that were typed in the creatiedatum filter", async () => {
+    await setup();
+    await showDocuments([inboxDocument]);
+
+    await user.type(
+      screen.getByPlaceholderText("zoeken.filter.van"),
+      "01-01-2024",
+    );
+    await user.type(
+      screen.getByPlaceholderText("zoeken.filter.tot-en-met"),
+      "31-01-2024",
+    );
+    await user.tab();
+
+    expect(await lastListRequestBody()).toEqual({
+      ...UNFILTERED_REQUEST_BODY,
+      creatiedatum: {
+        van: new Date(2024, 0, 1).toISOString(),
+        tot: new Date(2024, 0, 31).toISOString(),
+      },
     });
   });
 
