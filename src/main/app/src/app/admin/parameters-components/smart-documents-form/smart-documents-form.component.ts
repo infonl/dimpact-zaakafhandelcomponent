@@ -32,7 +32,6 @@ import {
 } from "@angular/material/tree";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { firstValueFrom } from "rxjs";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
 import { injectMutation } from "src/app/shared/http/inject-mutation";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
@@ -148,16 +147,11 @@ export class SmartDocumentsFormComponent {
     refetchOnWindowFocus: false,
   }));
 
-  private readonly informationObjectTypesQuery = injectQuery(() => ({
-    queryKey: ["informationObjectTypesQuery", this.zaakTypeUuid()],
-    refetchOnWindowFocus: false,
-    queryFn: () =>
-      firstValueFrom(
-        this.informatieObjectenService.listInformatieobjecttypes(
-          this.zaakTypeUuid(),
-        ),
-      ),
-  }));
+  private readonly informationObjectTypesQuery = injectQuery(() =>
+    this.informatieObjectenService.listInformatieobjecttypes(
+      this.zaakTypeUuid(),
+    ),
+  );
 
   private _transformer = (node: Record<string, unknown>, level: number) => {
     return {
