@@ -19,7 +19,8 @@ van-tot" selection beyond the existing filters, progress through websocket scree
 
 ## Design
 
-No Figma design is linked in the item. The UX is copied from the zaken werkvoorraad:
+Figma: [Ontkoppelde documenten - bulk acties](https://www.figma.com/design/hwqjMzbwU1gqPIWeOqg8hb/Dimpact---Confidential?node-id=3851-85464).
+The UX follows that design and is copied from the zaken werkvoorraad:
 
 - **Table**: a first column with a header checkbox (`selectAll_checkbox`, aria-label from `actie.alles.selecteren`
   / `actie.alles.deselecteren`, indeterminate for a partial selection) and a checkbox per row. The filter row has
@@ -32,7 +33,7 @@ No Figma design is linked in the item. The UX is copied from the zaken werkvoorr
 - **Koppelen**: the existing right-hand panel *selecteer zaak*, with an intro naming the number of documents.
 - **Loading**: the table shows the existing loading shade while the action runs. **Empty**: unchanged.
 - **Result**: a snackbar with the number processed. When some failed, a dialog lists each failed document with
-  its reason; the failed documents remain in the list.
+  its reason; the failed documents remain in the list and stay selected, as with *Verdelen*.
 - Per-row delete and link icons stay as they are.
 
 ## Decisions
