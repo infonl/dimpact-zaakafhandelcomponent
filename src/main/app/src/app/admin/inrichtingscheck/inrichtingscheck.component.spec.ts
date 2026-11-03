@@ -10,7 +10,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatCardModule } from "@angular/material/card";
 import { MatExpansionModule } from "@angular/material/expansion";
@@ -129,7 +129,6 @@ const zaaktypeZonderEigenschap = fromPartial<
 @Component({
   templateUrl: "./inrichtingscheck.component.html",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatSidenavModule,
     MatCardModule,
@@ -159,7 +158,7 @@ describe(InrichtingscheckComponent.name, () => {
   const user = userEvent.setup();
 
   function setValideFilter(option: ToggleSwitchOptions) {
-    component["valideFilter"] = option;
+    component["valideFilter"].set(option);
     component["applyFilter"]();
     fixture.detectChanges();
   }
@@ -244,7 +243,7 @@ describe(InrichtingscheckComponent.name, () => {
 
       await user.click(zaaktypeRow("Zaaktype A"));
 
-      expect(component["expandedRow"]).toBeNull();
+      expect(component["expandedRow"]()).toBeNull();
     });
 
     it("should show the error icon for a zaaktype that is not valide", () => {
@@ -259,13 +258,13 @@ describe(InrichtingscheckComponent.name, () => {
     it("should expand a zaaktype that is not valide on click and collapse it on second click", async () => {
       const row = zaaktypeRow("Zaaktype B");
 
-      expect(component["expandedRow"]).toBeNull();
+      expect(component["expandedRow"]()).toBeNull();
 
       await user.click(row);
-      expect(component["expandedRow"]).toBe(nietValideZaaktype);
+      expect(component["expandedRow"]()).toBe(nietValideZaaktype);
 
       await user.click(row);
-      expect(component["expandedRow"]).toBeNull();
+      expect(component["expandedRow"]()).toBeNull();
     });
 
     it("should show the waarschuwing icon and an expand affordance for a valide zaaktype without the roltype", () => {
@@ -285,7 +284,7 @@ describe(InrichtingscheckComponent.name, () => {
       await user.click(zaaktypeRow("Zaaktype C"));
       fixture.detectChanges();
 
-      expect(component["expandedRow"]).toBe(zaaktypeZonderRoltype);
+      expect(component["expandedRow"]()).toBe(zaaktypeZonderRoltype);
 
       const detailRow = screen.getByRole("row", {
         name: new RegExp(ROLTYPE_ONTBREEKT_MESSAGE),
@@ -300,7 +299,7 @@ describe(InrichtingscheckComponent.name, () => {
       await user.click(zaaktypeRow("Zaaktype D"));
       fixture.detectChanges();
 
-      expect(component["expandedRow"]).toBe(zaaktypeZonderEigenschap);
+      expect(component["expandedRow"]()).toBe(zaaktypeZonderEigenschap);
 
       const detailRow = screen.getByRole("row", {
         name: new RegExp(EIGENSCHAP_ONTBREEKT_MESSAGE),

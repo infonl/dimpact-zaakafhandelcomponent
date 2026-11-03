@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import {
   FormControl,
   FormGroup,
@@ -27,7 +27,6 @@ import { ReferentieTabelService } from "../../referentie-tabel.service";
   selector: "zac-referentie-tabel-create-dialog",
   templateUrl: "./referentie-tabel-create-dialog.component.html",
   styleUrl: "./referentie-tabel-create-dialog.component.less",
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatButtonModule,

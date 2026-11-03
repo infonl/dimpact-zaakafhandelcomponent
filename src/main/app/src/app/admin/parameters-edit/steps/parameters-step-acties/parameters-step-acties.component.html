@@ -4,16 +4,16 @@
   -->
 
 <mat-accordion class="flex-col">
-  @for (actieForm of form().controls; track actieForm) {
+  @for (actie of acties(); track actie.form) {
     <mat-expansion-panel class="flex-col">
       <mat-expansion-panel-header>
         <mat-panel-title>
-          {{ actieForm.controls.naam.value }}
+          {{ actie.naam }}
         </mat-panel-title>
       </mat-expansion-panel-header>
       <zac-textarea
         class="w33 w100-md"
-        [form]="actieForm"
+        [form]="actie.form"
         key="toelichting"
         label="toelichting"
       ></zac-textarea>

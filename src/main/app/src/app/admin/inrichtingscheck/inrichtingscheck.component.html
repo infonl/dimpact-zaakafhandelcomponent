@@ -15,7 +15,10 @@
     opened="true"
     disableClose="true"
   >
-    <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
+    <zac-side-nav
+      (mode)="menuModeChanged($event)"
+      [menu]="menu()"
+    ></zac-side-nav>
   </mat-sidenav>
   <mat-sidenav-content class="flex-col gap-20">
     <mat-card>
@@ -46,10 +49,10 @@
                       &nbsp;
                     </th>
                     <td mat-cell *matCellDef="let row">
-                      @if (needsAttention(row) && expandedRow !== row) {
+                      @if (needsAttention(row) && expandedRow() !== row) {
                         <mat-icon>keyboard_arrow_down</mat-icon>
                       }
-                      @if (needsAttention(row) && expandedRow === row) {
+                      @if (needsAttention(row) && expandedRow() === row) {
                         <mat-icon>keyboard_arrow_up</mat-icon>
                       }
                     </td>
@@ -146,7 +149,7 @@
                       <div
                         class="detail flex-col"
                         [@detailExpand]="
-                          row === expandedRow ? 'expanded' : 'collapsed'
+                          row === expandedRow() ? 'expanded' : 'collapsed'
                         "
                       >
                         @if (!row.isZaakafhandelParametersValide) {
@@ -249,7 +252,7 @@
                       <div
                         class="detail flex-col"
                         [@detailExpand]="
-                          row === expandedRow ? 'expanded' : 'collapsed'
+                          row === expandedRow() ? 'expanded' : 'collapsed'
                         "
                       >
                         @if (!row.isZaakafhandelParametersValide) {
@@ -427,8 +430,8 @@
                     <th mat-header-cell *matHeaderCellDef colspan="2">
                       <zac-toggle-filter
                         unCheckedIcon="error"
-                        [selected]="valideFilter"
-                        (changed)="valideFilter = $event; applyFilter()"
+                        [selected]="valideFilter()"
+                        (changed)="valideFilter.set($event); applyFilter()"
                       ></zac-toggle-filter>
                     </th>
                   </ng-container>
@@ -443,7 +446,7 @@
                   <tr
                     (click)="
                       needsAttention(row)
-                        ? (expandedRow = expandedRow === row ? null : row)
+                        ? expandedRow.set(expandedRow() === row ? null : row)
                         : null
                     "
                     [class]="rowStateClass(row)"
@@ -466,12 +469,16 @@
                 </table>
               }
             </div>
-            @if (dataSource.data.length === 0 && !loadingZaaktypes()) {
+            @if (
+              zaaktypeInrichtingschecks().length === 0 && !loadingZaaktypes()
+            ) {
               <p>
                 {{ "msg.geen.gegevens.gevonden" | translate }}
               </p>
             }
-            @if (dataSource.data.length === 0 && loadingZaaktypes()) {
+            @if (
+              zaaktypeInrichtingschecks().length === 0 && loadingZaaktypes()
+            ) {
               <p>
                 {{ "msg.loading" | translate }}
               </p>

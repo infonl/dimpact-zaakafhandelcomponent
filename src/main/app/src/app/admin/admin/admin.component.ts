@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { Component, inject, signal } from "@angular/core";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { ViewComponent } from "../../shared/abstract-view/view-component";
@@ -13,54 +13,54 @@ import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 
 @Component({
   template: "",
-  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export abstract class AdminComponent extends ViewComponent {
   readonly utilService = inject(UtilService);
   readonly configuratieService = inject(ConfiguratieService);
 
-  protected menu: MenuItem[] = [];
+  protected readonly menu = signal<MenuItem[]>([]);
   protected activeMenu = "";
 
   protected setupMenu(title: string) {
     this.activeMenu = title;
-    this.menu = [];
-    this.menu.push(new HeaderMenuItem("actie.admin"));
-    this.menu.push(
+    const menu: MenuItem[] = [];
+    menu.push(new HeaderMenuItem("actie.admin"));
+    menu.push(
       this.getMenuLink(
         "title.signaleringen.settings.groep",
         "/admin/groepen",
         "notifications_active",
       ),
     );
-    this.menu.push(
+    menu.push(
       this.getMenuLink(
         "title.referentietabellen",
         "/admin/referentietabellen",
         "schema",
       ),
     );
-    this.menu.push(
+    menu.push(
       this.getMenuLink("title.mailtemplates", "/admin/mailtemplates", "mail"),
     );
-    this.menu.push(
+    menu.push(
       this.getMenuLink("title.parameters", "/admin/parameters", "tune"),
     );
-    this.menu.push(
+    menu.push(
       this.getMenuLink(
         "title.bpmn-procesdefinities",
         "/admin/bpmn-procesdefinities",
         "design_services",
       ),
     );
-    this.menu.push(
+    menu.push(
       this.getMenuLink(
         "title.inrichtingscheck",
         "/admin/check",
         "health_and_safety",
       ),
     );
+    this.menu.set(menu);
   }
 
   private getMenuLink(title: string, url: string, icon: string) {

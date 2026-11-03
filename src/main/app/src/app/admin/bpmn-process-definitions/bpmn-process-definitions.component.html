@@ -15,7 +15,10 @@
     opened="true"
     disableClose="true"
   >
-    <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
+    <zac-side-nav
+      (mode)="menuModeChanged($event)"
+      [menu]="menu()"
+    ></zac-side-nav>
   </mat-sidenav>
 
   <mat-sidenav-content class="flex-col gap-20">
@@ -74,7 +77,9 @@
                 <button mat-icon-button [attr.aria-label]="node.name">
                   <mat-icon class="mat-icon-rtl-mirror">
                     {{
-                      expandedKey === node.key ? "expand_more" : "chevron_right"
+                      expandedKey() === node.key
+                        ? "expand_more"
+                        : "chevron_right"
                     }}
                   </mat-icon>
                 </button>
@@ -118,7 +123,7 @@
                   </button>
                 </span>
               </div>
-              <div [hidden]="expandedKey !== node.key">
+              <div [hidden]="expandedKey() !== node.key">
                 <ng-container matTreeNodeOutlet></ng-container>
               </div>
             </mat-nested-tree-node>

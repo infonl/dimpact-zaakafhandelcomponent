@@ -4,13 +4,11 @@
   -->
 
 <div class="flex-col">
-  @if (
-    form().controls.intakeMail.enabled || form().controls.afrondenMail.enabled
-  ) {
+  @if (enabled()?.intakeMail || enabled()?.afrondenMail) {
     <mat-card>
       <mat-card-content class="flex-col">
         <div class="flex-row flex-wrap gap-20">
-          @if (form().controls.intakeMail.enabled) {
+          @if (enabled()?.intakeMail) {
             <zac-select
               class="flex-1 w33 w100-md"
               [form]="form()"
@@ -20,7 +18,7 @@
               [optionDisplayValue]="mailOptieLabel"
             ></zac-select>
           }
-          @if (form().controls.afrondenMail.enabled) {
+          @if (enabled()?.afrondenMail) {
             <zac-select
               class="flex-1 w33 w100-md"
               [form]="form()"
@@ -42,15 +40,19 @@
     </mat-card-header>
     <mat-card-content>
       <div class="table-wrapper form-table">
-        <table mat-table [dataSource]="zaakAfzenderForms()">
+        <table
+          mat-table
+          [dataSource]="zaakAfzenders() ?? []"
+          [trackBy]="trackZaakAfzender"
+        >
           <ng-container matColumnDef="default">
             <th mat-header-cell *matHeaderCellDef>
               {{ "default" | translate }}
             </th>
-            <td mat-cell *matCellDef="let zaakAfzenderForm">
+            <td mat-cell *matCellDef="let zaakAfzender">
               <mat-radio-button
-                (click)="chooseDefaultAfzender(zaakAfzenderForm)"
-                [checked]="zaakAfzenderForm.controls.isDefaultMail.value"
+                (click)="chooseDefaultAfzender(zaakAfzender.form)"
+                [checked]="zaakAfzender.isDefaultMail"
               >
               </mat-radio-button>
             </td>
@@ -61,14 +63,13 @@
               *matHeaderCellDef
               translate="mail.afzender"
             ></th>
-            <td mat-cell *matCellDef="let zaakAfzenderForm">
+            <td mat-cell *matCellDef="let zaakAfzender">
               {{
-                zaakAfzenderForm.controls.isSpeciaal.value
-                  ? ("gegevens.mail.afzender." +
-                      zaakAfzenderForm.controls.mail.value
+                zaakAfzender.isSpeciaal
+                  ? ("gegevens.mail.afzender." + zaakAfzender.mail
                     | i18nKey
                     | translate)
-                  : zaakAfzenderForm.controls.mail.value
+                  : zaakAfzender.mail
               }}
             </td>
           </ng-container>
@@ -78,9 +79,9 @@
               *matHeaderCellDef
               translate="mail.antwoord"
             ></th>
-            <td mat-cell *matCellDef="let zaakAfzenderForm">
+            <td mat-cell *matCellDef="let zaakAfzender">
               <zac-select
-                [form]="zaakAfzenderForm"
+                [form]="zaakAfzender.form"
                 key="replyTo"
                 label="mail.antwoord"
                 [options]="replyToMails()"
@@ -115,14 +116,14 @@
                 }
               </mat-menu>
             </th>
-            <td mat-cell *matCellDef="let zaakAfzenderForm">
-              @if (!zaakAfzenderForm.controls.isSpeciaal.value) {
+            <td mat-cell *matCellDef="let zaakAfzender">
+              @if (!zaakAfzender.isSpeciaal) {
                 <button
                   mat-icon-button
                   type="button"
                   id="afzender-verwijderen"
                   title="{{ 'actie.verwijderen' | translate }}"
-                  (click)="removeZaakAfzender(zaakAfzenderForm)"
+                  (click)="removeZaakAfzender(zaakAfzender.form)"
                 >
                   <mat-icon>delete</mat-icon>
                 </button>
@@ -139,7 +140,7 @@
           ></tr>
         </table>
       </div>
-      @if (form().controls.zaakAfzenders.hasError("noDefaultAfzender")) {
+      @if (hasNoDefaultAfzender()) {
         <mat-error>
           {{ "validators.required" | translate }}
         </mat-error>
@@ -175,7 +176,7 @@
       </mat-accordion>
     </mat-card-content>
   </mat-card>
-  @if (form().controls.automaticEmailConfirmation.enabled) {
+  @if (enabled()?.automaticEmailConfirmation) {
     <mat-card>
       <mat-card-header class="mb-2">
         <mat-card-title>
@@ -190,9 +191,7 @@
           {{ "gegevens.mail.ontvangstbevestiging.hint" | translate }}
         </mat-card-subtitle>
       </mat-card-header>
-      @if (
-        form().controls.automaticEmailConfirmation.controls.isEnabled.value
-      ) {
+      @if (isOntvangstbevestigingEnabled()) {
         <mat-card-content>
           <fieldset
             [attr.aria-label]="'gegevens.mail.ontvangstbevestiging' | translate"

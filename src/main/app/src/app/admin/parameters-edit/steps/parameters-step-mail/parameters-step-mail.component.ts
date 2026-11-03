@@ -3,16 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  signal,
-  untracked,
-} from "@angular/core";
+import { Component, computed, inject, input } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatDividerModule } from "@angular/material/divider";
@@ -24,6 +15,7 @@ import { MatRadioModule } from "@angular/material/radio";
 import { MatTableModule } from "@angular/material/table";
 import { TranslateDirective, TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
+import { trackControl } from "../../../../shared/form/control-state";
 import { ZacSelect } from "../../../../shared/form/select/select";
 import { ZacToggle } from "../../../../shared/form/toggle/toggle";
 import { I18nKeyPipe } from "../../../../shared/pipes/i18n-key.pipe";
@@ -44,7 +36,6 @@ import {
   templateUrl: "./parameters-step-mail.component.html",
   styleUrl: "./parameters-step-mail.component.less",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatCardModule,
@@ -116,12 +107,40 @@ export class ParametersStepMailComponent {
     (this.replyTosQuery.data() ?? []).map(({ mail }) => mail ?? ""),
   );
 
-  protected readonly zaakAfzenderForms = signal<ZaakAfzenderForm[]>([]);
+  private readonly readForm = trackControl(this.form);
+  protected readonly enabled = this.readForm(({ controls }) => ({
+    intakeMail: controls.intakeMail.enabled,
+    afrondenMail: controls.afrondenMail.enabled,
+    automaticEmailConfirmation: controls.automaticEmailConfirmation.enabled,
+  }));
+  protected readonly isOntvangstbevestigingEnabled = this.readForm(
+    ({ controls }) =>
+      controls.automaticEmailConfirmation.controls.isEnabled.value,
+  );
+  protected readonly hasNoDefaultAfzender = this.readForm(({ controls }) =>
+    controls.zaakAfzenders.hasError("noDefaultAfzender"),
+  );
+  protected readonly zaakAfzenders = this.readForm(({ controls }) =>
+    controls.zaakAfzenders.controls
+      .map((zaakAfzenderForm) => ({
+        ...zaakAfzenderForm.getRawValue(),
+        form: zaakAfzenderForm,
+      }))
+      .sort((a, b) =>
+        a.isSpeciaal !== b.isSpeciaal
+          ? a.isSpeciaal
+            ? -1
+            : 1
+          : a.mail.localeCompare(b.mail),
+      ),
+  );
+  protected readonly trackZaakAfzender = (
+    _: number,
+    { form }: { form: ZaakAfzenderForm },
+  ) => form;
 
   protected readonly addableAfzenders = computed(() => {
-    const mails = this.zaakAfzenderForms().map(
-      ({ controls }) => controls.mail.value,
-    );
+    const mails = (this.zaakAfzenders() ?? []).map(({ mail }) => mail);
     return (this.afzendersQuery.data() ?? [])
       .filter((afzender) => !mails.includes(afzender))
       .sort((a, b) => a.localeCompare(b));
@@ -153,13 +172,6 @@ export class ParametersStepMailComponent {
       : (mail ?? "");
   };
 
-  constructor() {
-    effect(() => {
-      this.form();
-      untracked(() => this.refreshZaakAfzenders());
-    });
-  }
-
   protected mailtemplates(mail: GeneratedType<"Mail">) {
     return (this.mailtemplatesQuery.data() ?? []).filter(
       (mailtemplate) => mailtemplate.mail === mail,
@@ -178,26 +190,11 @@ export class ParametersStepMailComponent {
       createZaakAfzenderForm({ mail, isSpeciaal: false, isDefaultMail: false }),
     );
     zaakAfzenders.markAsTouched();
-    this.refreshZaakAfzenders();
   }
 
   protected removeZaakAfzender(zaakAfzenderForm: ZaakAfzenderForm) {
     const { zaakAfzenders } = this.form().controls;
     zaakAfzenders.removeAt(zaakAfzenders.controls.indexOf(zaakAfzenderForm));
     zaakAfzenders.markAsTouched();
-    this.refreshZaakAfzenders();
-  }
-
-  private refreshZaakAfzenders() {
-    this.zaakAfzenderForms.set(
-      [...this.form().controls.zaakAfzenders.controls].sort(
-        ({ controls: a }, { controls: b }) =>
-          a.isSpeciaal.value !== b.isSpeciaal.value
-            ? a.isSpeciaal.value
-              ? -1
-              : 1
-            : a.mail.value.localeCompare(b.mail.value),
-      ),
-    );
   }
 }
