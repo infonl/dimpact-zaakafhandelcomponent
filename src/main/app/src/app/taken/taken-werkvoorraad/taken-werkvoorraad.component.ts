@@ -165,6 +165,12 @@ export class TakenWerkvoorraadComponent
         taakZoekObject.behandelaarNaam = behandelaar.naam;
         taakZoekObject.behandelaarGebruikersnaam = behandelaar.username;
       },
+      onSettled: (_taak, _error, { taakId }) =>
+        this.pendingTaakIds.update((ids) => {
+          const remaining = new Set(ids);
+          remaining.delete(taakId);
+          return remaining;
+        }),
     },
   );
 
@@ -198,21 +204,11 @@ export class TakenWerkvoorraadComponent
     event.stopPropagation();
     const taakId = taakZoekObject.id;
     this.pendingTaakIds.update((ids) => new Set(ids).add(taakId));
-    this.assignToMeMutation.mutate(
-      {
-        taakId,
-        zaakUuid: taakZoekObject.zaakUuid,
-        groepId: taakZoekObject.groepID,
-      },
-      {
-        onSettled: () =>
-          this.pendingTaakIds.update((ids) => {
-            const remaining = new Set(ids);
-            remaining.delete(taakId);
-            return remaining;
-          }),
-      },
-    );
+    this.assignToMeMutation.mutate({
+      taakId,
+      zaakUuid: taakZoekObject.zaakUuid,
+      groepId: taakZoekObject.groepID,
+    });
   }
 
   protected isAllSelected(): boolean {

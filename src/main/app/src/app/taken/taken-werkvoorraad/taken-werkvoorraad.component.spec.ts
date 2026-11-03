@@ -285,6 +285,31 @@ describe(TakenWerkvoorraadComponent.name, () => {
       expect(buttonB).toBeEnabled();
     });
 
+    it("enables the assign button again after an earlier, overlapping assignment fails", async () => {
+      await showTaken(
+        { ...taakZoekObject(), id: "taakIdA", identificatie: "TAAK-A" },
+        { ...taakZoekObject(), id: "taakIdB", identificatie: "TAAK-B" },
+      );
+      fixture.autoDetectChanges();
+      const [buttonA, buttonB] = screen.getAllByRole("button", {
+        name: "actie.mij.toekennen",
+      });
+      const user = userEvent.setup();
+      await user.click(buttonA);
+      await user.click(buttonB);
+      await sleep();
+
+      const [requestA, requestB] = httpTestingController.match(
+        "/rest/taken/lijst/toekennen/mij",
+      );
+      requestA.flush(null, { status: 500, statusText: "Server Error" });
+      requestB.flush(fromPartial<GeneratedType<"RestTask">>({}));
+      await sleep();
+
+      expect(buttonA).toBeEnabled();
+      expect(buttonB).toBeEnabled();
+    });
+
     it("leaves the row alone when the response names no behandelaar", async () => {
       await showTaken(taakZoekObject());
 
