@@ -18,6 +18,7 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.validation.Validation
 import jakarta.ws.rs.NotFoundException
+import jakarta.ws.rs.ProcessingException
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.exception.DrcRuntimeException
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
@@ -335,6 +336,37 @@ class DetachedDocumentRestServiceBulkTest : BehaviorSpec({
                     result.mislukt.single().id shouldBe 82L
                     result.mislukt.single().foutcode shouldBe RestDetachedDocumentBulkFoutcode.GEEN_RECHT
                 }
+
+                and("the rights on the zaak are read once for the whole batch") {
+                    verify(exactly = 1) { policyService.readZaakRechten(targetZaak, any<LoggedInUser>()) }
+                }
+            }
+        }
+
+        given("two detached documents and a zaak that the user may not change") {
+            stubInboxAccessAndTargetZaak()
+            every {
+                policyService.readZaakRechten(targetZaak, any<LoggedInUser>())
+            } returns createZaakRechten(wijzigen = false)
+            val detachedDocuments = (151L..152L).map { createDetachedDocument().apply { id = it } }
+            detachedDocuments.forEach { detachedDocument ->
+                every { detachedDocumentService.find(detachedDocument.id!!) } returns detachedDocument
+                every {
+                    drcClientService.readEnkelvoudigInformatieobject(detachedDocument.documentUUID)
+                } returns createEnkelvoudigInformatieObject()
+            }
+
+            `when`("the bulk link endpoint is called with their ids") {
+                val result = detachedDocumentRestService.linkDetachedDocuments(
+                    RestDetachedDocumentBulkLinkRequest(ids = listOf(151L, 152L), nieuweZaakID = nieuweZaakID)
+                )
+
+                then("both are reported as failed for lack of rights and nothing is linked") {
+                    result.verwerkt shouldBe emptyList()
+                    result.mislukt.map { it.foutcode } shouldBe
+                        listOf(RestDetachedDocumentBulkFoutcode.GEEN_RECHT, RestDetachedDocumentBulkFoutcode.GEEN_RECHT)
+                    verify(exactly = 0) { zrcClientService.koppelInformatieobject(any(), any(), any()) }
+                }
             }
         }
 
@@ -493,6 +525,43 @@ class DetachedDocumentRestServiceBulkTest : BehaviorSpec({
                 then("the second is linked and the first is reported as an Open Zaak failure") {
                     result.verwerkt shouldBe listOf(142L)
                     result.mislukt.single().id shouldBe 141L
+                    result.mislukt.single().foutcode shouldBe RestDetachedDocumentBulkFoutcode.OPEN_ZAAK_FOUT
+                }
+            }
+        }
+
+        given("two detached documents of which the connection to Open Zaak fails on linking the first") {
+            stubInboxAccessAndTargetZaak()
+            val detachedDocuments = (161L..162L).map { createDetachedDocument().apply { id = it } }
+            detachedDocuments.forEach { detachedDocument ->
+                val informatieObject = createEnkelvoudigInformatieObject()
+                every { detachedDocumentService.find(detachedDocument.id!!) } returns detachedDocument
+                every {
+                    drcClientService.readEnkelvoudigInformatieobject(detachedDocument.documentUUID)
+                } returns informatieObject
+                every {
+                    policyService.readDocumentRechten(informatieObject, targetZaak)
+                } returns createDocumentRechten()
+                if (detachedDocument.id == 161L) {
+                    every {
+                        zrcClientService.koppelInformatieobject(informatieObject, targetZaak, any())
+                    } throws ProcessingException("fakeConnectionRefused")
+                } else {
+                    every {
+                        zrcClientService.koppelInformatieobject(informatieObject, targetZaak, any())
+                    } just runs
+                    every { detachedDocumentService.deleteIfExists(detachedDocument.documentUUID) } just runs
+                }
+            }
+
+            `when`("the bulk link endpoint is called with their ids") {
+                val result = detachedDocumentRestService.linkDetachedDocuments(
+                    RestDetachedDocumentBulkLinkRequest(ids = listOf(161L, 162L), nieuweZaakID = nieuweZaakID)
+                )
+
+                then("the second is linked and the first is reported as an Open Zaak failure") {
+                    result.verwerkt shouldBe listOf(162L)
+                    result.mislukt.single().id shouldBe 161L
                     result.mislukt.single().foutcode shouldBe RestDetachedDocumentBulkFoutcode.OPEN_ZAAK_FOUT
                 }
             }

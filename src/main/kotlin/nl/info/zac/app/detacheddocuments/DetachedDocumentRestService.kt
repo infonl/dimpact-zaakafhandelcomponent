@@ -13,6 +13,7 @@ import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
+import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.WebApplicationException
 import jakarta.ws.rs.core.MediaType
@@ -128,7 +129,8 @@ class DetachedDocumentRestService @Inject constructor(
     fun linkDetachedDocuments(@Valid request: RestDetachedDocumentBulkLinkRequest): RestDetachedDocumentBulkResult {
         assertPolicy(policyService.readWerklijstRechten().canInbox)
         val targetZaak = zrcClientService.readZaakByID(request.nieuweZaakID)
-        return processInBulk(request.ids) { linkDetachedDocument(it, targetZaak) }
+        val canWijzigenTargetZaak = policyService.readZaakRechten(targetZaak, loggedInUserInstance.get()).canWijzigen
+        return processInBulk(request.ids) { linkDetachedDocument(it, targetZaak, canWijzigenTargetZaak) }
     }
 
     private fun processInBulk(
@@ -174,6 +176,9 @@ class DetachedDocumentRestService @Inject constructor(
                     RestDetachedDocumentBulkFoutcode.OPEN_ZAAK_FOUT
                 }
                 failed.add(failure(id, detachedDocument, foutcode))
+            } catch (processingException: ProcessingException) {
+                LOG.warning("Ontkoppeld document '$id' kon niet worden verwerkt: ${processingException.message}")
+                failed.add(failure(id, detachedDocument, RestDetachedDocumentBulkFoutcode.OPEN_ZAAK_FOUT))
             }
         }
         return RestDetachedDocumentBulkResult(verwerkt = processed, mislukt = failed)
@@ -211,11 +216,14 @@ class DetachedDocumentRestService @Inject constructor(
 
     private fun WebApplicationException.isNotFound() = response?.status == HttpStatus.NOT_FOUND_404
 
-    private fun linkDetachedDocument(detachedDocument: DetachedDocument, targetZaak: Zaak) {
+    private fun linkDetachedDocument(
+        detachedDocument: DetachedDocument,
+        targetZaak: Zaak,
+        canWijzigenTargetZaak: Boolean
+    ) {
         val informatieobject = drcClientService.readEnkelvoudigInformatieobject(detachedDocument.documentUUID)
         assertPolicy(
-            policyService.readDocumentRechten(informatieobject, targetZaak).canVerplaatsen &&
-                policyService.readZaakRechten(targetZaak, loggedInUserInstance.get()).canWijzigen
+            canWijzigenTargetZaak && policyService.readDocumentRechten(informatieobject, targetZaak).canVerplaatsen
         )
         zrcClientService.koppelInformatieobject(
             informatieobject,
