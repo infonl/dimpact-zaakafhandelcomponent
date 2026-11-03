@@ -12,6 +12,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import jakarta.enterprise.context.RequestScoped
 import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.admin.model.ZaaktypeProcessBinding
 import nl.info.zac.app.planitems.model.PlanItemType
@@ -25,7 +26,6 @@ import org.flowable.engine.repository.ProcessDefinition
 class RestProcessDefinitionConverterTest : BehaviorSpec({
     val cmmnService = mockk<CmmnService>()
     val bpmnService = mockk<BpmnService>()
-    val converter = RestProcessDefinitionConverter(cmmnService, bpmnService)
 
     fun createCaseDefinition() = mockk<CaseDefinition> {
         every { name } returns "fakeCaseName"
@@ -40,7 +40,21 @@ class RestProcessDefinitionConverterTest : BehaviorSpec({
 
     afterEach { checkUnnecessaryStub() }
 
+    given("the RestProcessDefinitionConverter class, which remembers process definitions and is injected in singletons") {
+        `when`("its CDI scope is read") {
+            val isRequestScoped = RestProcessDefinitionConverter::class.java.isAnnotationPresent(RequestScoped::class.java)
+
+            then(
+                "it is request-scoped, so that a process definition deployed after the previous request is seen " +
+                    "by the next request instead of only after a restart"
+            ) {
+                isRequestScoped shouldBe true
+            }
+        }
+    }
+
     given("a CMMN case definition with a human task and a user event listener, and a BPMN process definition") {
+        val processDefinitionConverter = RestProcessDefinitionConverter(cmmnService, bpmnService)
         val caseDefinition = createCaseDefinition().apply { every { id } returns "fakeCaseDefinitionId" }
         val humanTask = mockk<HumanTask> {
             every { id } returns "fakeHumanTaskId"
@@ -56,7 +70,7 @@ class RestProcessDefinitionConverterTest : BehaviorSpec({
         every { cmmnService.listUserEventListeners("fakeCaseDefinitionId") } returns listOf(userEventListener)
 
         `when`("the process definitions are listed") {
-            val processDefinitions = converter.listProcessDefinitions()
+            val processDefinitions = processDefinitionConverter.listProcessDefinitions()
 
             then("both are listed with the engine that runs them") {
                 processDefinitions.map { Triple(it.processEngine, it.key, it.naam) } shouldBe listOf(
@@ -82,13 +96,14 @@ class RestProcessDefinitionConverterTest : BehaviorSpec({
     }
 
     given("a suspended BPMN process definition") {
+        val processDefinitionConverter = RestProcessDefinitionConverter(cmmnService, bpmnService)
         every { cmmnService.listCaseDefinitions() } returns emptyList()
         every { bpmnService.listProcessDefinitions() } returns listOf(
             mockk<ProcessDefinition> { every { isSuspended } returns true }
         )
 
         `when`("the process definitions are listed") {
-            val processDefinitions = converter.listProcessDefinitions()
+            val processDefinitions = processDefinitionConverter.listProcessDefinitions()
 
             then("it is not listed, because a zaak cannot start a suspended process") {
                 processDefinitions.shouldBeEmpty()
@@ -97,6 +112,7 @@ class RestProcessDefinitionConverterTest : BehaviorSpec({
     }
 
     given("a configuration that is bound to a CMMN case definition") {
+        val processDefinitionConverter = RestProcessDefinitionConverter(cmmnService, bpmnService)
         val processBinding = ZaaktypeProcessBinding().apply {
             processEngine = ProcessEngine.CMMN
             definitionKey = "fakeCaseKey"
@@ -104,7 +120,7 @@ class RestProcessDefinitionConverterTest : BehaviorSpec({
         every { cmmnService.readCaseDefinition("fakeCaseKey") } returns createCaseDefinition()
 
         `when`("its process definition is converted without relations") {
-            val restProcessDefinition = converter.toRestProcessDefinition(processBinding, false)
+            val restProcessDefinition = processDefinitionConverter.toRestProcessDefinition(processBinding, false)
 
             then("it names the case definition, without its plan items") {
                 restProcessDefinition.processEngine shouldBe ProcessEngine.CMMN
@@ -116,6 +132,7 @@ class RestProcessDefinitionConverterTest : BehaviorSpec({
     }
 
     given("a configuration that is bound to a BPMN process definition") {
+        val processDefinitionConverter = RestProcessDefinitionConverter(cmmnService, bpmnService)
         val processBinding = ZaaktypeProcessBinding().apply {
             processEngine = ProcessEngine.BPMN
             definitionKey = "fakeProcessKey"
@@ -125,7 +142,7 @@ class RestProcessDefinitionConverterTest : BehaviorSpec({
         } returns mockk<ProcessDefinition> { every { name } returns "fakeProcessName" }
 
         `when`("its process definition is converted") {
-            val restProcessDefinition = converter.toRestProcessDefinition(processBinding, true)
+            val restProcessDefinition = processDefinitionConverter.toRestProcessDefinition(processBinding, true)
 
             then("it names the process definition") {
                 restProcessDefinition.processEngine shouldBe ProcessEngine.BPMN
