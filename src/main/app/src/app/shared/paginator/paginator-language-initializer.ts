@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -18,11 +18,14 @@ export function paginatorLanguageInitializerFactory(
         Promise.resolve(null),
       );
       locationInitialized.then(() => {
-        const langToSet = "nl";
-        translateService.setFallbackLang("en");
-        translateService.use(langToSet).subscribe(() => {
-          resolve(null);
-        });
+        translateService.addLangs(["nl", "en"]);
+        translateService.setFallbackLang("nl");
+        const browserLanguage = translateService.getBrowserLang();
+        translateService
+          .use(browserLanguage?.match(/nl|en/) ? browserLanguage : "nl")
+          .subscribe(() => {
+            resolve(null);
+          });
       });
     });
 }
