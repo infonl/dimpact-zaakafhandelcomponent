@@ -93,7 +93,7 @@ export class ParametersEditComponent extends AdminComponent implements OnInit {
     this.zaakafhandelParametersService.listFormulierDefinities(),
   );
   private readonly referentieTabellenQuery = injectQuery(() =>
-    this.referentieTabelService.listReferentieTabellenQuery(),
+    this.referentieTabelService.listReferentieTabellen(),
   );
 
   protected readonly configuration = signal<

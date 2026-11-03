@@ -19,11 +19,11 @@ export class ReferentieTabelService {
   private readonly queryClient = inject(QueryClient, { optional: true });
   private readonly utilService = inject(UtilService);
 
-  listReferentieTabellenQuery() {
+  listReferentieTabellen() {
     return this.zacQueryClient.GET("/rest/referentietabellen");
   }
 
-  readReferentieTabelQuery(id: number) {
+  readReferentieTabel(id: number) {
     return this.zacQueryClient.GET("/rest/referentietabellen/{id}", {
       path: { id },
     });
@@ -31,7 +31,7 @@ export class ReferentieTabelService {
 
   private invalidateReferentieTabellen() {
     return this.queryClient?.invalidateQueries({
-      queryKey: this.listReferentieTabellenQuery().queryKey,
+      queryKey: this.listReferentieTabellen().queryKey,
     });
   }
 
@@ -39,13 +39,26 @@ export class ReferentieTabelService {
     return Promise.all([
       this.invalidateReferentieTabellen(),
       this.queryClient?.invalidateQueries({
-        queryKey: this.readReferentieTabelQuery(id).queryKey,
+        queryKey: this.readReferentieTabel(id).queryKey,
       }),
     ]);
   }
 
-  private invalidateCommunicatiekanalen() {
-    const [url] = this.listCommunicatiekanalen().queryKey;
+  private readonly systemReferentieTabelQueries: Partial<
+    Record<string, () => { queryKey: readonly unknown[] }>
+  > = {
+    AFZENDER: () => this.listAfzenders(),
+    COMMUNICATIEKANAAL: () => this.listCommunicatiekanalen(),
+    SERVER_ERROR_ERROR_PAGINA_TEKST: () => this.listServerErrorTexts(),
+    BRP_DOELBINDING_ZOEK_WAARDE: () => this.listBrpSearchValues(),
+    BRP_DOELBINDING_RAADPLEEG_WAARDE: () => this.listBrpViewValues(),
+    BRP_VERWERKINGSREGISTER_WAARDE: () => this.listBrpProcessingValues(),
+  };
+
+  private invalidateSystemReferentieTabel(code?: string) {
+    const query = code ? this.systemReferentieTabelQueries[code] : undefined;
+    if (!query) return;
+    const [url] = query().queryKey;
     return this.queryClient?.invalidateQueries({ queryKey: [url] });
   }
 
@@ -85,9 +98,7 @@ export class ReferentieTabelService {
       {
         onSuccess: (_data, body) => {
           void this.invalidateReferentieTabel(id);
-          if (referenceTable.code === "COMMUNICATIEKANAAL") {
-            void this.invalidateCommunicatiekanalen();
-          }
+          void this.invalidateSystemReferentieTabel(referenceTable.code);
           const { key, args } = message(body);
           this.utilService.openSnackbar(key, args);
         },
@@ -193,7 +204,7 @@ export class ReferentieTabelService {
     );
   }
 
-  listServerErrorTextsQuery() {
+  listServerErrorTexts() {
     return this.zacQueryClient.GET(
       "/rest/referentietabellen/server-error-text",
     );

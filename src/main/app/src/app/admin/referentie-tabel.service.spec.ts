@@ -182,45 +182,93 @@ describe(ReferentieTabelService.name, () => {
 
       expect(await read).toEqual(["fakeChannel", "E-formulier"]);
     });
+  });
 
-    const seedCommunicatiekanalen = () => {
-      for (const inclusiefEFormulier of [false, true]) {
-        testQueryClient.setQueryData(
-          service.listCommunicatiekanalen(inclusiefEFormulier).queryKey,
-          ["fakeChannel"],
-        );
+  describe("system reference tables", () => {
+    const systemReferentieTabelQueryKeys = (): Record<
+      string,
+      readonly (readonly unknown[])[]
+    > => ({
+      AFZENDER: [service.listAfzenders().queryKey],
+      COMMUNICATIEKANAAL: [
+        service.listCommunicatiekanalen(false).queryKey,
+        service.listCommunicatiekanalen(true).queryKey,
+      ],
+      SERVER_ERROR_ERROR_PAGINA_TEKST: [
+        service.listServerErrorTexts().queryKey,
+      ],
+      BRP_DOELBINDING_ZOEK_WAARDE: [service.listBrpSearchValues().queryKey],
+      BRP_DOELBINDING_RAADPLEEG_WAARDE: [service.listBrpViewValues().queryKey],
+      BRP_VERWERKINGSREGISTER_WAARDE: [
+        service.listBrpProcessingValues().queryKey,
+      ],
+    });
+
+    const seedAllSystemReferentieTabelQueries = () => {
+      for (const queryKey of Object.values(
+        systemReferentieTabelQueryKeys(),
+      ).flat()) {
+        testQueryClient.setQueryData(queryKey, ["fakeValueName"]);
       }
     };
 
-    const isInvalidated = (inclusiefEFormulier: boolean) =>
-      testQueryClient.getQueryState(
-        service.listCommunicatiekanalen(inclusiefEFormulier).queryKey,
-      )?.isInvalidated;
+    const invalidatedCodes = () =>
+      Object.entries(systemReferentieTabelQueryKeys())
+        .filter(([, queryKeys]) =>
+          queryKeys.some(
+            (queryKey) =>
+              testQueryClient.getQueryState(queryKey)?.isInvalidated,
+          ),
+        )
+        .map(([code]) => code);
 
-    it("invalidates both communicatiekanalen reads when the COMMUNICATIEKANAAL table changes", async () => {
-      seedCommunicatiekanalen();
+    const renameTable = async (code: string) => {
       const { mutationOptions, body } = service.renameReferentieTabel(
         fromPartial<GeneratedType<"RestReferenceTable">>({
           ...referenceTable,
-          code: "COMMUNICATIEKANAAL",
+          code,
         }),
       );
-
       await runMutationOnSuccess(mutationOptions, body("fakeNewTableName"));
+    };
 
-      expect(isInvalidated(false)).toBe(true);
-      expect(isInvalidated(true)).toBe(true);
+    it.each([
+      "AFZENDER",
+      "COMMUNICATIEKANAAL",
+      "SERVER_ERROR_ERROR_PAGINA_TEKST",
+      "BRP_DOELBINDING_ZOEK_WAARDE",
+      "BRP_DOELBINDING_RAADPLEEG_WAARDE",
+      "BRP_VERWERKINGSREGISTER_WAARDE",
+    ])(
+      "invalidates only the values of the %s table when that table changes",
+      async (code) => {
+        seedAllSystemReferentieTabelQueries();
+
+        await renameTable(code);
+
+        expect(invalidatedCodes()).toEqual([code]);
+      },
+    );
+
+    it("invalidates both communicatiekanalen reads when the COMMUNICATIEKANAAL table changes", async () => {
+      seedAllSystemReferentieTabelQueries();
+
+      await renameTable("COMMUNICATIEKANAAL");
+
+      for (const queryKey of systemReferentieTabelQueryKeys()
+        .COMMUNICATIEKANAAL) {
+        expect(testQueryClient.getQueryState(queryKey)?.isInvalidated).toBe(
+          true,
+        );
+      }
     });
 
-    it("keeps the communicatiekanalen when another table changes", async () => {
-      seedCommunicatiekanalen();
-      const { mutationOptions, body } =
-        service.renameReferentieTabel(referenceTable);
+    it("keeps the system reference table values when another table changes", async () => {
+      seedAllSystemReferentieTabelQueries();
 
-      await runMutationOnSuccess(mutationOptions, body("fakeNewTableName"));
+      await renameTable("fakeTableCode");
 
-      expect(isInvalidated(false)).toBe(false);
-      expect(isInvalidated(true)).toBe(false);
+      expect(invalidatedCodes()).toEqual([]);
     });
   });
 

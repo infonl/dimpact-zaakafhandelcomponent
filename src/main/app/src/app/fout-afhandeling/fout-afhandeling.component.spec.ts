@@ -50,7 +50,7 @@ describe(FoutAfhandelingComponent.name, () => {
     foutAfhandelingService.foutmelding = foutmelding;
     foutAfhandelingService.bericht = bericht;
     testQueryClient.setQueryData(
-      referentieTabelService.listServerErrorTextsQuery().queryKey,
+      referentieTabelService.listServerErrorTexts().queryKey,
       serverErrorTexts,
     );
 

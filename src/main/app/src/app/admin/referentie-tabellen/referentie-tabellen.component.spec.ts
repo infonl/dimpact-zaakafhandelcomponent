@@ -110,12 +110,12 @@ describe(ReferentieTabellenComponent.name, () => {
       );
 
     testQueryClient.setQueryData(
-      service.listReferentieTabellenQuery().queryKey,
+      service.listReferentieTabellen().queryKey,
       tabellen,
     );
     if (seedDetail) {
       testQueryClient.setQueryData(
-        service.readReferentieTabelQuery(1).queryKey,
+        service.readReferentieTabel(1).queryKey,
         geladenTabelA,
       );
     }
