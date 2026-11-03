@@ -10,7 +10,7 @@
 upstreamCharts:
   openzaak:
     repository: https://maykinmedia.github.io/charts/
-    version: 1.15.0
+    version: 1.16.0
   # 1.11.0 is the chart of Open Klant 2.15.0: later charts probe /_healthz/, which 2.15.0 does not have
   openklant:
     repository: https://maykinmedia.github.io/charts/
