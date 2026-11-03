@@ -1,0 +1,123 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+name: Playwright Tests on kind
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/run-e2e-on-kind.yml"
+      - "charts/zac/**"
+      - "scripts/kind/**"
+      - "src/e2e/**"
+      - "start-e2e.sh"
+      - "start-e2e-with-local-env.sh"
+      - "start-kind.sh"
+  workflow_dispatch:
+    inputs:
+      zac-docker-image:
+        description: "The ZAC Docker image to test"
+        required: true
+        default: "ghcr.io/infonl/zaakafhandelcomponent:latest"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  playwright-kind:
+    name: "Playwright Tests on kind"
+    runs-on: ubuntu-26.04
+    timeout-minutes: 60
+    env:
+      ZAC_DOCKER_IMAGE: ${{ inputs.zac-docker-image || 'ghcr.io/infonl/zaakafhandelcomponent:latest' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Authenticate with Docker Hub to avoid rate limiting issues
+        # Skip for pull requests from forks because a forked repository is not allowed to access our secrets
+        if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Helm
+        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+        with:
+          version: v4.3.1 # helm version updated by renovate
+
+      - name: Install kind
+        uses: helm/kind-action@1544676c07bb3570fcb70166beaa07c4528fd4aa # v1.15.1
+        with:
+          install_only: true
+
+      # The stack pulls its images while the e2e dependencies and the browser are installed
+      - name: Start the kind stack in the background
+        run: |
+          nohup sh -c './start-kind.sh -z -e; echo $? > "$RUNNER_TEMP/kind-exit-code"' \
+            < /dev/null > "$RUNNER_TEMP/kind.log" 2>&1 &
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install the e2e dependencies and the browser
+        timeout-minutes: 20
+        run: |
+          cd src/e2e
+          npm ci --ignore-scripts
+          npx playwright install --with-deps msedge
+
+      - name: Wait for the kind stack
+        timeout-minutes: 30
+        run: |
+          until [ -f "$RUNNER_TEMP/kind-exit-code" ]; do sleep 5; done
+          cat "$RUNNER_TEMP/kind.log"
+          exit "$(cat "$RUNNER_TEMP/kind-exit-code")"
+
+      - name: Run the e2e tests
+        env:
+          HEADLESS: true
+          SKIP_INSTALL: true
+        run: ./start-e2e-with-local-env.sh
+
+      - name: Make a playwright report
+        if: ${{ !cancelled() }}
+        run: cd src/e2e && npm run e2e:generate:report
+
+      - name: Extract metrics from Cucumber report
+        if: ${{ !cancelled() }}
+        run: cd src/e2e && npm run e2e:extract:metrics
+
+      - name: Upload the e2e reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: e2e-kind-reports
+          path: src/e2e/reports
+          retention-days: 7
+
+      - name: Collect the state and the logs of the kind stack
+        if: ${{ failure() }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/kind-diagnostics"
+          cd "$RUNNER_TEMP/kind-diagnostics"
+          cp "$RUNNER_TEMP/kind.log" . || true
+          kubectl --context kind-zac get all,events --all-namespaces > resources.txt 2>&1 || true
+          kubectl --context kind-zac -n zac describe pods > pods.txt 2>&1 || true
+          for deployment in $(kubectl --context kind-zac -n zac get deployments -o name 2> /dev/null); do
+            kubectl --context kind-zac -n zac logs "$deployment" --all-containers --tail=2000 \
+              > "logs-${deployment#deployment.apps/}.txt" 2>&1 || true
+          done
+
+      - name: Upload the state and the logs of the kind stack
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: e2e-kind-diagnostics
+          path: ${{ runner.temp }}/kind-diagnostics
+          retention-days: 7

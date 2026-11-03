@@ -55,7 +55,7 @@ KIND_PORT_OFFSET=2000 ./gradlew itest  # Move the host ports when another stack 
 ### End-to-End Tests (Playwright + Cucumber)
 ```bash
 ./start-e2e.sh                      # Full stack e2e
-./start-e2e-with-local-env.sh       # E2E against local environment
+./start-e2e-with-local-env.sh       # E2E against ZAC in the local kind stack (./start-kind.sh -b)
 ```
 
 ### Docker Compose Stack

@@ -8,7 +8,8 @@ We are currently migrating from [**Cucumber**](https://cucumber.io/) to [**Playw
 
 - Node.js 22.22.0
 - npm 10.9.4
-- A running ZAC instance (either locally or deployed)
+- A running ZAC instance: a deployed one, or ZAC in the local kind stack (`./start-kind.sh -b`, see
+  [installKind.md](../../docs/development/installKind.md))
 
 ## Quick Start
 
@@ -37,6 +38,11 @@ npm run bdd:ci     # Run in CI mode (headless)
 npm run e2e:start    # Install packages and run tests
 npm run e2e:run      # Run tests (requires dependencies installed)
 ```
+
+To run the Cucumber tests against the local kind stack, use `./start-e2e-with-local-env.sh` in the root of the
+repository; see [Running e2e tests locally](../../docs/development/testing.md#running-e2e-tests-locally). It leaves
+out the features with the tag `@live-env-only`, which need the users, groups and zaaktypes of the TEST environment.
+The [Playwright Tests on kind](../../.github/workflows/run-e2e-on-kind.yml) workflow runs them the same way.
 
 ## Playwright BDD
 
@@ -92,6 +98,9 @@ Create a `.env` file in the `src/e2e` directory with the following variables:
 ```bash
 cp .env.example .env
 ```
+
+`ZAC_URL=http://localhost:8080` in `.env.example` is ZAC in the local kind stack. There, the local test users log in
+with their username as password, for example `BEHEERDER_USERNAME=beheerder1` and `BEHEERDER_PASSWORD=beheerder1`.
 
 ### Environment Schema
 
