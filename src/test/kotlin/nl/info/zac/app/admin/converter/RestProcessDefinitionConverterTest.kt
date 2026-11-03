@@ -7,9 +7,11 @@ package nl.info.zac.app.admin.converter
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldNotBeSameInstanceAs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.admin.model.ZaaktypeProcessBinding
 import nl.info.zac.app.planitems.model.PlanItemType
@@ -129,6 +131,63 @@ class RestProcessDefinitionConverterTest : BehaviorSpec({
                 restProcessDefinition.processEngine shouldBe ProcessEngine.BPMN
                 restProcessDefinition.key shouldBe "fakeProcessKey"
                 restProcessDefinition.naam shouldBe "fakeProcessName"
+            }
+        }
+    }
+
+    given("two configurations that are bound to the same CMMN case definition") {
+        val processDefinitionConverter = RestProcessDefinitionConverter(cmmnService, bpmnService)
+        val processBinding = ZaaktypeProcessBinding().apply {
+            processEngine = ProcessEngine.CMMN
+            definitionKey = "fakeSharedCaseKey"
+        }
+        val caseDefinition = createCaseDefinition().apply { every { id } returns "fakeSharedCaseDefinitionId" }
+        val humanTask = mockk<HumanTask> {
+            every { id } returns "fakeSharedHumanTaskId"
+            every { name } returns "fakeSharedHumanTaskName"
+        }
+        every { cmmnService.readCaseDefinition("fakeSharedCaseKey") } returns caseDefinition
+        every { cmmnService.listHumanTasks("fakeSharedCaseDefinitionId") } returns listOf(humanTask)
+        every { cmmnService.listUserEventListeners("fakeSharedCaseDefinitionId") } returns emptyList()
+
+        `when`("both process definitions are converted with relations in the same request") {
+            val restProcessDefinitions = List(2) { processDefinitionConverter.toRestProcessDefinition(processBinding, true) }
+
+            then("both list the plan items of the case definition") {
+                restProcessDefinitions.forEach {
+                    it.humanTaskDefinitions.single().id shouldBe "fakeSharedHumanTaskId"
+                }
+            }
+
+            and("the case definition and its plan items are read from Flowable only once") {
+                verify(exactly = 1) {
+                    cmmnService.readCaseDefinition("fakeSharedCaseKey")
+                    cmmnService.listHumanTasks("fakeSharedCaseDefinitionId")
+                    cmmnService.listUserEventListeners("fakeSharedCaseDefinitionId")
+                }
+            }
+
+            and("each configuration gets its own plan item definitions, so that changing one does not change the other") {
+                restProcessDefinitions[0].humanTaskDefinitions.single() shouldNotBeSameInstanceAs
+                    restProcessDefinitions[1].humanTaskDefinitions.single()
+            }
+        }
+    }
+
+    given("two configurations that are bound to a BPMN process definition that is not deployed") {
+        val processDefinitionConverter = RestProcessDefinitionConverter(cmmnService, bpmnService)
+        val processBinding = ZaaktypeProcessBinding().apply {
+            processEngine = ProcessEngine.BPMN
+            definitionKey = "fakeMissingProcessKey"
+        }
+        every { bpmnService.findProcessDefinitionByProcessDefinitionKey("fakeMissingProcessKey") } returns null
+
+        `when`("both process definitions are converted in the same request") {
+            val restProcessDefinitions = List(2) { processDefinitionConverter.toRestProcessDefinition(processBinding, true) }
+
+            then("neither has a name and Flowable is asked only once, also when it has no process definition") {
+                restProcessDefinitions.map { it.naam } shouldBe listOf(null, null)
+                verify(exactly = 1) { bpmnService.findProcessDefinitionByProcessDefinitionKey("fakeMissingProcessKey") }
             }
         }
     }

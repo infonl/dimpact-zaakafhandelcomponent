@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.admin.converter
 
+import jakarta.enterprise.context.RequestScoped
 import jakarta.inject.Inject
 import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.admin.model.ZaaktypeProcessBinding
@@ -20,32 +21,54 @@ import org.flowable.cmmn.model.HumanTask
 import org.flowable.cmmn.model.UserEventListener
 import org.flowable.engine.repository.ProcessDefinition
 
+/**
+ * Many zaaktype configurations share a few process definitions, while a request can convert hundreds of them.
+ * Request scope reads each definition from Flowable once per request, and still lets a request see a definition
+ * that was deployed after the previous request.
+ */
+@RequestScoped
 @AllOpen
 @NoArgConstructor
 class RestProcessDefinitionConverter @Inject constructor(
     private val cmmnService: CmmnService,
     private val bpmnService: BpmnService
 ) {
+    private val caseDefinitionsByKey = mutableMapOf<String, CaseDefinition>()
+    private val humanTasksByCaseDefinitionId = mutableMapOf<String, List<HumanTask>>()
+    private val userEventListenersByCaseDefinitionId = mutableMapOf<String, List<UserEventListener>>()
+    private val bpmnProcessDefinitionNamesByKey = mutableMapOf<String, String?>()
+
     fun listProcessDefinitions(): List<RestProcessDefinition> =
         cmmnService.listCaseDefinitions().map { it.toRestProcessDefinition(inclusiefRelaties = true) } +
             bpmnService.listProcessDefinitions().filterNot { it.isSuspended }.map { it.toRestProcessDefinition() }
 
     fun toRestProcessDefinition(processBinding: ZaaktypeProcessBinding, inclusiefRelaties: Boolean) =
         when (processBinding.processEngine) {
-            ProcessEngine.CMMN -> cmmnService.readCaseDefinition(processBinding.definitionKey)
-                .toRestProcessDefinition(inclusiefRelaties)
+            ProcessEngine.CMMN -> caseDefinitionsByKey.getOrPut(processBinding.definitionKey) {
+                cmmnService.readCaseDefinition(processBinding.definitionKey)
+            }.toRestProcessDefinition(inclusiefRelaties)
             ProcessEngine.BPMN -> RestProcessDefinition(
                 processEngine = ProcessEngine.BPMN,
                 key = processBinding.definitionKey,
-                naam = bpmnService.findProcessDefinitionByProcessDefinitionKey(processBinding.definitionKey)?.name
+                naam = readBpmnProcessDefinitionName(processBinding.definitionKey)
             )
+        }
+
+    private fun readBpmnProcessDefinitionName(processDefinitionKey: String) =
+        if (processDefinitionKey in bpmnProcessDefinitionNamesByKey) {
+            bpmnProcessDefinitionNamesByKey[processDefinitionKey]
+        } else {
+            bpmnService.findProcessDefinitionByProcessDefinitionKey(processDefinitionKey)?.name
+                .also { bpmnProcessDefinitionNamesByKey[processDefinitionKey] = it }
         }
 
     private fun CaseDefinition.toRestProcessDefinition(inclusiefRelaties: Boolean) =
         RestProcessDefinition(processEngine = ProcessEngine.CMMN, key = key, naam = name).apply {
             if (inclusiefRelaties) {
-                humanTaskDefinitions = cmmnService.listHumanTasks(id).map { it.toRestPlanItemDefinition() }
-                userEventListenerDefinitions = cmmnService.listUserEventListeners(id)
+                humanTaskDefinitions = humanTasksByCaseDefinitionId.getOrPut(id) { cmmnService.listHumanTasks(id) }
+                    .map { it.toRestPlanItemDefinition() }
+                userEventListenerDefinitions = userEventListenersByCaseDefinitionId
+                    .getOrPut(id) { cmmnService.listUserEventListeners(id) }
                     .map { it.toRestPlanItemDefinition() }
             }
         }
