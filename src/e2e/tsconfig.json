@@ -2,9 +2,9 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "lib": ["es2019"],
-    "baseUrl": "./",
     "module": "commonjs",
     "noImplicitAny": true,
+    "strict": false,
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "resolveJsonModule": true,
@@ -12,6 +12,7 @@
     "inlineSources": true,
     "target": "es2018",
     "typeRoots": ["./node_modules/@types", "./src/types"],
+    "types": ["node"],
     "paths": {
       "@sinonjs/fake-timers": ["./node_modules/@types/sinonjs__fake-timers"]
     }

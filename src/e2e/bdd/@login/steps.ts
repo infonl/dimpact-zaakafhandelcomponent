@@ -4,7 +4,7 @@
  */
 
 import { expect } from "@playwright/test";
-import { ENV } from "bdd/types";
+import { ENV } from "../types";
 import { Given, Then, When } from "./fixture";
 
 Given("I am on the ZAC login page", async ({ page }) => {
