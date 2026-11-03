@@ -157,8 +157,8 @@
         #paginator
         [pageIndex]="0"
         (page)="paginatorChanged($event)"
-        [pageSize]="aantalPerPagina"
-        [pageSizeOptions]="pageSizeOptions"
+        [pageSize]="aantalPerPagina()"
+        [pageSizeOptions]="pageSizeOptions()"
         sticky
       >
       </mat-paginator>
