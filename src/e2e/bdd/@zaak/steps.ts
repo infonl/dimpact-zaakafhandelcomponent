@@ -4,12 +4,12 @@
  */
 
 import { expect } from "@playwright/test";
-import { ENV } from "bdd/types";
 import {
   currentDutchTimestamp,
   describeCaseDescription,
   describeTestOrigin,
 } from "../../utils/test-origin";
+import { ENV } from "../types";
 import { Given, Then, When } from "./fixture";
 
 Given("the case type {string} exists", async ({ caseType }, type: string) => {
