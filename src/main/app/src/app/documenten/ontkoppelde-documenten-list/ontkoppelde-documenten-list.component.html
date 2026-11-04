@@ -10,7 +10,7 @@
       [sideNav]="actionsSidenav"
       actionLabel="actie.document.koppelen"
       source="ontkoppelde-documenten"
-      [bulkDocuments]="selectedDocumentsToLink"
+      [bulkDocuments]="selectedDocumentsToLink()"
       (informationObjectLinked)="retriggerSearch()"
       (bulkLinkFinished)="reloadKeepingSelected($event.notLinkedIds)"
     />
@@ -37,8 +37,8 @@
             <th mat-header-cell *matHeaderCellDef>
               <mat-checkbox
                 (change)="$event ? masterToggle() : null"
-                [checked]="selection.hasValue() && isAllSelected()"
-                [indeterminate]="selection.hasValue() && !isAllSelected()"
+                [checked]="isSelected() && isAllSelected()"
+                [indeterminate]="isSelected() && !isAllSelected()"
                 [aria-label]="checkboxLabel() | translate"
                 id="selectAll_checkbox"
               >
@@ -48,7 +48,7 @@
               <mat-checkbox
                 (click)="$event.stopPropagation()"
                 (change)="$event ? selection.toggle(row) : null"
-                [checked]="selection.isSelected(row)"
+                [checked]="isRowSelected(row)"
                 [aria-label]="checkboxLabel(row) | translate"
                 [id]="row.id + '_checkbox'"
               >
@@ -263,7 +263,7 @@
         sticky
       >
       </mat-paginator>
-      @if (selection.hasValue()) {
+      @if (isSelected()) {
         <div class="buttons">
           <button
             [disabled]="isBulkActionRunning()"
@@ -275,7 +275,7 @@
           >
             {{ "actie.koppelen" | translate }}
             <mat-icon
-              [matBadge]="selection.selected.length"
+              [matBadge]="selectedCount()"
               matBadgeColor="primary"
               matBadgeSize="small"
               >link</mat-icon
@@ -291,7 +291,7 @@
           >
             {{ "actie.verwijderen" | translate }}
             <mat-icon
-              [matBadge]="selection.selected.length"
+              [matBadge]="selectedCount()"
               matBadgeColor="primary"
               matBadgeSize="small"
               >delete</mat-icon

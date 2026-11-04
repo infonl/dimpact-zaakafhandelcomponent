@@ -15,6 +15,7 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { MatBadge } from "@angular/material/badge";
 import {
   MatButton,
@@ -50,7 +51,7 @@ import { ActivatedRoute, RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectIsMutating } from "@tanstack/angular-query-experimental";
 import { merge } from "rxjs";
-import { startWith, switchMap, tap } from "rxjs/operators";
+import { map, startWith, switchMap, tap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
@@ -186,8 +187,19 @@ export class OntkoppeldeDocumentenListComponent
   protected readonly selection = new SelectionModel<
     GeneratedType<"RestDetachedDocument">
   >(true, []);
-  protected selectedDocumentsToLink: GeneratedType<"RestDetachedDocument">[] =
-    [];
+  private readonly selectedDetachedDocuments = toSignal(
+    this.selection.changed.pipe(map(({ source }) => source.selected)),
+    { initialValue: [] },
+  );
+  protected readonly isSelected = computed(
+    () => this.selectedDetachedDocuments().length > 0,
+  );
+  protected readonly selectedCount = computed(
+    () => this.selectedDetachedDocuments().length,
+  );
+  protected readonly selectedDocumentsToLink = signal<
+    GeneratedType<"RestDetachedDocument">[]
+  >([]);
   private idsToKeepSelected = new Set<number>();
   private readonly deleteMutation = injectMutation(
     () => this.ontkoppeldeDocumentenService.delete(),
@@ -274,7 +286,7 @@ export class OntkoppeldeDocumentenListComponent
   protected openDrawer(
     selectedInformationObject: GeneratedType<"RestDetachedDocument">,
   ) {
-    this.selectedDocumentsToLink = [];
+    this.selectedDocumentsToLink.set([]);
     this.selectedInformationObject.set(selectedInformationObject);
     void this.actionsSidenav().open();
   }
@@ -315,10 +327,14 @@ export class OntkoppeldeDocumentenListComponent
       });
   }
 
+  protected isRowSelected(row: GeneratedType<"RestDetachedDocument">) {
+    return this.selectedDetachedDocuments().includes(row);
+  }
+
   protected isAllSelected() {
     return (
       this.dataSource.data.length > 0 &&
-      this.selection.selected.length === this.dataSource.data.length
+      this.selectedCount() === this.dataSource.data.length
     );
   }
 
@@ -338,11 +354,7 @@ export class OntkoppeldeDocumentenListComponent
       return `actie.alles.${this.isAllSelected() ? "deselecteren" : "selecteren"}`;
     }
 
-    return `actie.${
-      this.selection.isSelected(detachedDocument)
-        ? "deselecteren"
-        : "selecteren"
-    }`;
+    return `actie.${this.isRowSelected(detachedDocument) ? "deselecteren" : "selecteren"}`;
   }
 
   protected documentenVerwijderen() {
@@ -393,8 +405,9 @@ export class OntkoppeldeDocumentenListComponent
   }
 
   protected documentenKoppelen() {
-    this.selectedDocumentsToLink = [...this.selection.selected];
-    this.selectedInformationObject = this.selectedDocumentsToLink[0];
+    const selectedDocuments = [...this.selection.selected];
+    this.selectedDocumentsToLink.set(selectedDocuments);
+    this.selectedInformationObject.set(selectedDocuments[0]);
     void this.actionsSidenav().open();
   }
 
