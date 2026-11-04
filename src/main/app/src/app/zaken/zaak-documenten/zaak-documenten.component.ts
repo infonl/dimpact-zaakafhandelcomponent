@@ -32,6 +32,7 @@ import { MatTooltip } from "@angular/material/tooltip";
 import { Router, RouterLink } from "@angular/router";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
+import { from } from "rxjs";
 import { map } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
@@ -306,25 +307,27 @@ export class ZaakDocumentenComponent implements AfterViewInit {
 
   private onZaakInformatieobjectenUpdated(event?: ScreenEvent) {
     if (event?.objectId.detail) {
-      this.informatieObjectenService
-        .readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(
-          event.objectId.detail,
-        )
-        .subscribe((enkelvoudigInformatieobject) => {
-          this.utilService
-            .openSnackbarAction(
-              "msg.document.toegevoegd.aan.zaak",
-              "actie.document.bekijken",
-              { document: enkelvoudigInformatieobject.titel },
-              7,
-            )
-            .subscribe(() => {
-              this.router.navigate([
-                "/informatie-objecten",
-                enkelvoudigInformatieobject.uuid,
-              ]);
-            });
-        });
+      from(
+        this.queryClient.query(
+          this.informatieObjectenService.readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(
+            event.objectId.detail,
+          ),
+        ),
+      ).subscribe((enkelvoudigInformatieobject) => {
+        this.utilService
+          .openSnackbarAction(
+            "msg.document.toegevoegd.aan.zaak",
+            "actie.document.bekijken",
+            { document: enkelvoudigInformatieobject.titel },
+            7,
+          )
+          .subscribe(() => {
+            this.router.navigate([
+              "/informatie-objecten",
+              enkelvoudigInformatieobject.uuid,
+            ]);
+          });
+      });
     }
 
     this.reloadDocumenten();
@@ -343,8 +346,13 @@ export class ZaakDocumentenComponent implements AfterViewInit {
 
     informatieobject["loading"] = true;
     this.utilService.setLoading(true);
-    this.informatieObjectenService
-      .listZaakIdentificatiesForInformatieobject(informatieobject.uuid)
+    from(
+      this.queryClient.query(
+        this.informatieObjectenService.listZaakIdentificatiesForInformatieobject(
+          informatieobject.uuid,
+        ),
+      ),
+    )
       .pipe(
         map((zaakIDs) => {
           delete informatieobject["loading"];
@@ -464,13 +472,15 @@ export class ZaakDocumentenComponent implements AfterViewInit {
   bewerken(
     enkelvoudigInformatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
   ) {
-    this.informatieObjectenService
-      .editEnkelvoudigInformatieObjectInhoud(
-        enkelvoudigInformatieobject.uuid!,
-        this.zaak().uuid,
-      )
-      .subscribe((url) => {
-        window.open(url);
-      });
+    from(
+      this.queryClient.query(
+        this.informatieObjectenService.editEnkelvoudigInformatieObjectInhoud(
+          enkelvoudigInformatieobject.uuid!,
+          this.zaak().uuid,
+        ),
+      ),
+    ).subscribe((url) => {
+      window.open(url);
+    });
   }
 }

@@ -11,6 +11,8 @@ import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
 
+const NOT_CACHED = { staleTime: StaleTimes.Instant, gcTime: 0 };
+
 @Injectable({
   providedIn: "root",
 })
@@ -121,12 +123,15 @@ export class InformatieObjectenService {
   }
 
   readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(uuid: string) {
-    return this.zacHttpClient.GET(
-      "/rest/informatieobjecten/zaakinformatieobject/{uuid}/informatieobject",
-      {
-        path: { uuid },
-      },
-    );
+    return {
+      ...this.zacQueryClient.GET(
+        "/rest/informatieobjecten/zaakinformatieobject/{uuid}/informatieobject",
+        {
+          path: { uuid },
+        },
+      ),
+      ...NOT_CACHED,
+    };
   }
 
   listZaakInformatieobjecten(uuid: string) {
@@ -237,13 +242,18 @@ export class InformatieObjectenService {
   }
 
   editEnkelvoudigInformatieObjectInhoud(uuid: string, zaakUuid: string) {
-    return this.zacHttpClient.GET(
-      "/rest/informatieobjecten/informatieobject/{uuid}/edit",
-      {
-        path: { uuid },
-        query: { zaak: zaakUuid },
-      },
-    );
+    return {
+      ...this.zacQueryClient.GET(
+        "/rest/informatieobjecten/informatieobject/{uuid}/edit",
+        {
+          path: { uuid },
+          query: { zaak: zaakUuid },
+        },
+      ),
+      ...NOT_CACHED,
+      // A browser only allows window.open shortly after the click, so a retry could block the editor.
+      retry: false,
+    };
   }
 
   linkDocumentToCaseMutation() {
@@ -268,12 +278,15 @@ export class InformatieObjectenService {
   }
 
   listZaakIdentificatiesForInformatieobject(informatieObjectUuid: string) {
-    return this.zacHttpClient.GET(
-      "/rest/informatieobjecten/informatieobject/{informatieObjectUuid}/zaakidentificaties",
-      {
-        path: { informatieObjectUuid },
-      },
-    );
+    return {
+      ...this.zacQueryClient.GET(
+        "/rest/informatieobjecten/informatieobject/{informatieObjectUuid}/zaakidentificaties",
+        {
+          path: { informatieObjectUuid },
+        },
+      ),
+      ...NOT_CACHED,
+    };
   }
 
   convertInformatieObjectToPDF(uuid: string, zaakUuid: string) {
