@@ -4,7 +4,6 @@
  */
 
 import {
-  ChangeDetectionStrategy,
   Component,
   inject,
   input,
@@ -47,7 +46,6 @@ import { BesluitIntrekkenDialogComponent } from "./besluit-intrekken-dialog/besl
   templateUrl: "./besluit-view.component.html",
   styleUrls: ["./besluit-view.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatExpansionModule,
@@ -85,14 +83,16 @@ export class BesluitViewComponent implements OnInit {
     enabled: !!this.geopendBesluitUuid(),
   }));
 
-  protected documentenForms: Record<
-    string,
-    FormGroup<{
-      documenten: FormControl<
-        GeneratedType<"RestEnkelvoudigInformatieobject">[] | null
-      >;
-    }>
-  > = {};
+  protected readonly documentenForms = signal<
+    Record<
+      string,
+      FormGroup<{
+        documenten: FormControl<
+          GeneratedType<"RestEnkelvoudigInformatieobject">[] | null
+        >;
+      }>
+    >
+  >({});
 
   toolTipIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.always),
@@ -122,11 +122,15 @@ export class BesluitViewComponent implements OnInit {
   loadBesluitData(uuid: string) {
     this.geopendBesluitUuid.set(uuid);
 
-    this.documentenForms[uuid] ??= this.formBuilder.group({
-      documenten: this.formBuilder.control<
-        GeneratedType<"RestEnkelvoudigInformatieobject">[] | null
-      >([]),
-    });
+    if (this.documentenForms()[uuid]) return;
+    this.documentenForms.update((documentenForms) => ({
+      ...documentenForms,
+      [uuid]: this.formBuilder.group({
+        documenten: this.formBuilder.control<
+          GeneratedType<"RestEnkelvoudigInformatieobject">[] | null
+        >([]),
+      }),
+    }));
   }
 
   protected historie(besluitUuid: string) {

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { Component, inject, signal } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
   MAT_DIALOG_DATA,
@@ -26,7 +26,6 @@ export type ZaakAfbrekenDialogData = {
 @Component({
   templateUrl: "./zaak-afbreken-dialog-form.component.html",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     GenericDialogComponent,
@@ -41,7 +40,7 @@ export class ZaakAfbrekenDialogFormComponent {
   protected readonly data = inject<ZaakAfbrekenDialogData>(MAT_DIALOG_DATA);
   private readonly formBuilder = inject(FormBuilder);
 
-  protected loading = false;
+  protected readonly loading = signal(false);
 
   protected readonly form = this.formBuilder.group({
     reden:
@@ -53,10 +52,11 @@ export class ZaakAfbrekenDialogFormComponent {
 
   protected submit() {
     const reden = this.form.controls.reden.value;
-    if (!this.form.valid || !this.form.dirty || this.loading || !reden) return;
+    if (!this.form.valid || !this.form.dirty || this.loading() || !reden)
+      return;
 
     this.dialogRef.disableClose = true;
-    this.loading = true;
+    this.loading.set(true);
     this.data.callback(reden).subscribe({
       next: (result) => this.dialogRef.close(result ?? true),
       error: () => this.dialogRef.close(false),
@@ -64,7 +64,7 @@ export class ZaakAfbrekenDialogFormComponent {
   }
 
   protected close() {
-    if (this.loading) return;
+    if (this.loading()) return;
     this.dialogRef.close(false);
   }
 }

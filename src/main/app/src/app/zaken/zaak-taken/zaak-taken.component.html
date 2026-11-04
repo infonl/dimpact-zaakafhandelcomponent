@@ -24,7 +24,7 @@
       >
         <ng-container matColumnDef="collapse">
           <th mat-header-cell *matHeaderCellDef>
-            @if (allTakenExpanded) {
+            @if (allTakenExpanded()) {
               <mat-icon
                 [attr.aria-label]="'actie.alles.inklappen' | translate"
                 (click)="expandTaken(false)"

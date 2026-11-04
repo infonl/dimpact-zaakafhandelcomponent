@@ -3,12 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-  output,
-} from "@angular/core";
+import { Component, input, output } from "@angular/core";
 import { MatIconButton } from "@angular/material/button";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatIconModule } from "@angular/material/icon";
@@ -19,7 +14,6 @@ import { TranslatePipe } from "@ngx-translate/core";
   templateUrl: "./zaak-initiator-toevoegen.component.html",
   styleUrls: ["./zaak-initiator-toevoegen.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatExpansionModule, MatIconModule, MatIconButton, TranslatePipe],
 })
 export class ZaakInitiatorToevoegenComponent {

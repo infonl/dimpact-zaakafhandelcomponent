@@ -33,8 +33,8 @@
       color="primary"
       id="zaakOpschorten_button"
       [disabled]="
-        loading ||
-        !form.valid ||
+        loading() ||
+        !formValid() ||
         suspendZaakMutation.isPending() ||
         suspendZaakMutation.isSuccess()
       "
@@ -49,7 +49,7 @@
     </button>
     <button
       mat-raised-button
-      [disabled]="loading || suspendZaakMutation.isPending()"
+      [disabled]="loading() || suspendZaakMutation.isPending()"
       (click)="close()"
       type="button"
     >

@@ -161,7 +161,7 @@
         <zac-besluit-edit
           (besluitGewijzigd)="besluitVastgelegd()"
           [sideNav]="actionsSidenav"
-          [besluit]="teWijzigenBesluit"
+          [besluit]="teWijzigenBesluit()!"
           [zaak]="zaak"
         ></zac-besluit-edit>
       }
@@ -170,7 +170,7 @@
       @defer (on immediate) {
         <zac-informatie-object-link
           actionLabel="actie.document.verplaatsen"
-          [infoObject]="documentToMove"
+          [infoObject]="documentToMove()"
           [sideNav]="actionsSidenav"
           [source]="zaak.identificatie"
           (informationObjectLinked)="updateDocumentList()"

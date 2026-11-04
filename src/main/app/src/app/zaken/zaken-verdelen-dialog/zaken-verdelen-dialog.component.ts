@@ -4,7 +4,6 @@
  */
 
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -29,6 +28,7 @@ import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
+import { trackControl } from "../../shared/form/control-state";
 import { ZacInput } from "../../shared/form/input/input";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -40,7 +40,6 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "zaken-verdelen-dialog.component.html",
   styleUrls: ["./zaken-verdelen-dialog.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatToolbarModule,
@@ -90,6 +89,20 @@ export class ZakenVerdelenDialogComponent {
       Validators.maxLength(100),
     ]),
   });
+
+  private readonly readForm = trackControl(signal(this.form));
+  private readonly formInvalid = this.readForm((form) => form.invalid);
+  private readonly medewerkerUsername = this.readForm(
+    (form) => form.controls.medewerker.value?.username,
+  );
+
+  protected readonly isDisabled = computed(
+    () =>
+      !!this.formInvalid() ||
+      (this.isBehandelaarRequired && !this.medewerkerUsername()) ||
+      this.mutation.isPending() ||
+      !this.data.length,
+  );
 
   protected readonly groupsQuery = injectMutation(() =>
     this.identityService.listBehandelaarGroupsForZaaktypesQuery(),
@@ -142,16 +155,6 @@ export class ZakenVerdelenDialogComponent {
 
   protected close() {
     this.dialogRef.close(false);
-  }
-
-  protected isDisabled() {
-    return (
-      this.form.invalid ||
-      (this.isBehandelaarRequired &&
-        !this.form.controls.medewerker.value?.username) ||
-      this.mutation.isPending() ||
-      !this.data.length
-    );
   }
 
   protected verdeel() {

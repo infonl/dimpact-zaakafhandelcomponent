@@ -3,13 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-} from "@angular/core";
+import { Component, computed, inject, input } from "@angular/core";
 import { MatIconAnchor } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
@@ -27,7 +21,6 @@ import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
   templateUrl: "./betrokkene-link.component.html",
   styleUrls: [],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatIconAnchor,
     MatIcon,
