@@ -57,6 +57,8 @@ jobs:
 
       # The stack pulls its images while the e2e dependencies and the browser are installed
       - name: Start the kind stack in the background
+        env:
+          KIND_ENV_FILE: ""
         run: |
           nohup sh -c './start-kind.sh -z -e; echo $? > "$RUNNER_TEMP/kind-exit-code"' \
             < /dev/null > "$RUNNER_TEMP/kind.log" 2>&1 &

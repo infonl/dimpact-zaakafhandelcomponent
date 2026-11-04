@@ -20,11 +20,10 @@ ZAC fails to start when these are not set.
 ### Local kind setup
 
 The local kind stack runs a standalone Solr with a `security.json` that `./start-kind.sh` generates for one user:
-`SOLR_USERNAME` (default `zac`) with a [generated password](installKind.md#generated-passwords), or with
-`SOLR_PASSWORD` when you set it in your `.env` file or in the environment. ZAC in the cluster gets the same
-credentials. Use them to log in to the Solr admin UI on http://localhost:8983.
+`SOLR_USERNAME` (default `zac`) with the [password](installKind.md#passwords) `SOLR_PASSWORD`, from 1Password or your
+`.env` file. ZAC in the cluster gets the same credentials. Use them to log in to the Solr admin UI on http://localhost:8983.
 
-To read the generated password:
+To read the password:
 
 ```shell
 kubectl --context kind-zac -n zac get secret zac-dev-generated -o jsonpath='{.data.solr-password}' | base64 -d

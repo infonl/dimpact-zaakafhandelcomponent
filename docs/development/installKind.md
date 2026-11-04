@@ -99,32 +99,38 @@ variables override them, from your `.env` file or from the environment, with the
 `SMTP_USERNAME`, `VERANTWOORDELIJKE_ORGANISATIE_RSIN` and `ZAC_INTERNAL_ENDPOINTS_API_KEY`.
 
 The other settings of ZAC, such as the URLs of Open Zaak and Keycloak, point at the services in the cluster and
-stay as they are. The `KIND_<NAME>_EMAIL_ADDRESS` variables set the e-mail addresses of the test users and
+stay as they are. The `<NAME>_EMAIL_ADDRESS` variables set the e-mail addresses of the test users and
 groups in Keycloak. The settings of the other services are in [scripts/kind](../../scripts/kind) only.
 
-### Generated passwords
+### Passwords
 
-The script generates the passwords of the stack when it creates the cluster, and keeps them in the Secret
-`zac-dev-generated` of the cluster. They stay the same when you stop and start the cluster, and `-d` generates new
-ones. These are:
+These passwords of the stack are fixed, so that you can set up your tools once. They come from 1Password when you
+start with access to the vault `Dimpact`, and otherwise from your `.env` file or the environment.
 
-- the passwords of the databases;
-- the secret keys of Open Zaak, VNG Selectielijst and the other Django components;
-- the password of the `admin` user of the Keycloak admin console (http://keycloak.localhost:8081/admin) and of the admin pages
-  of Open Zaak, Open Klant, Open Object, Open Notificaties, Open Archiefbeheer and Open Formulieren. The script
-  prints it when the stack is ready;
-- the passwords of Solr and the office converter.
+| Variable                                                                                   | Password                                                                                              |
+|--------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|
+| `DB_PASSWORD`                                                                              | database user `zac`                                                                                   |
+| `DB_PASSWORD_<USER>`, for example `DB_PASSWORD_OPENZAAK`                         | the other [database users](../../scripts/kind/charts/zac-dev/values.yaml)                             |
+| `POSTGRES_PASSWORD`                                                                   | database superuser `postgres`                                                                         |
+| `ADMIN_PASSWORD`                                                                      | user `admin` of the Keycloak admin console (http://keycloak.localhost:8081/admin) and the admin pages of Open Zaak, Open Klant, Open Object, Open Notificaties, Open Archiefbeheer and Open Formulieren |
+| `SOLR_PASSWORD`, `OFFICE_CONVERTER_PASSWORD`                                               | Solr and the office converter                                                                         |
 
-`DB_PASSWORD`, `SOLR_PASSWORD` and `OFFICE_CONVERTER_PASSWORD` in your `.env` file or in the environment replace the
-generated password of the ZAC database, Solr and the office converter, so that a ZAC in your IDE with the settings of
-`.env` can connect. When you run ZAC from your IDE and one of them is not set, the script prints the generated
-password to use instead.
+`start-kind.sh` stops before it creates anything when one of them is not set, and lists the variables. Without
+1Password, copy them from [.env.example](../../.env.example) to your `.env` file. Use letters and digits only.
 
-To read a generated password, for example that of the ZAC database:
+The script keeps the passwords in the Secret `zac-dev-generated` of the cluster. To read a password, for example that
+of the ZAC database:
 
 ```shell
 kubectl --context kind-zac -n zac get secret zac-dev-generated -o jsonpath='{.data.db-password-zac}' | base64 -d
 ```
+
+When a password changes, the next start updates the database roles and restarts the services. Keycloak and the admin
+pages keep the admin password of their first start, so use `-d` after you change `ADMIN_PASSWORD`.
+
+The script generates the secret keys of Open Zaak, VNG Selectielijst and the other Django components. No tool needs
+them. Runs with an empty `KIND_ENV_FILE`, such as the integration tests and the CI workflows, also generate the
+passwords that are not set.
 
 The client secrets, tokens and API keys in the seed data, such as those of the Keycloak realm and of the Open Zaak
 applications, are fixed test values.
@@ -133,8 +139,8 @@ applications, are fixed test values.
 
 `start-kind.sh` uses the 1Password CLI when it is installed and you have access to the
 vault `Dimpact`: it runs with the environment variables of [.env.tpl](../../.env.tpl), with the secrets from
-1Password, for example those of SmartDocuments and the SMTP server. Use `-e` to skip this and only use your `.env`
-file and environment.
+1Password, for example the passwords above and those of SmartDocuments and the SMTP server. These variables take
+precedence over your `.env` file. Use `-e` to skip 1Password and only use your `.env` file and environment.
 
 ## Host ports
 
@@ -167,7 +173,7 @@ A small proxy container named `zac-ports` publishes the services of the cluster 
 All databases are on one PostgreSQL server. Each database port connects to that server, so the database name, user
 and password select the database. The users and databases are listed in
 [charts/zac-dev/values.yaml](../../scripts/kind/charts/zac-dev/values.yaml); the passwords are
-[generated](#generated-passwords).
+in [1Password or your `.env` file](#passwords).
 
 The script stops before it creates anything when one of these ports is already in use, and lists the ports. You can
 then choose other ports:

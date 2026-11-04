@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: EUPL-1.2+
 #
 # Values for the maykinmedia/openarchiefbeheer chart (release 'openarchiefbeheer'). scripts/kind/up.sh adds the
-# image, the generated passwords and the URLs of the browser; the seed-openarchiefbeheer Job of the zac-dev chart
+# image, the passwords and the URLs of the browser; the seed-openarchiefbeheer Job of the zac-dev chart
 # configures it and creates its 'admin' user.
 replicaCount: 1
 

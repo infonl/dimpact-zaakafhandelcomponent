@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: EUPL-1.2+
 #
 # Values for the maykinmedia/opennotificaties chart (release 'opennotificaties'). scripts/kind/up.sh adds the
-# image, the generated passwords and the superuser; the seed-opennotificaties Job of the zac-dev chart configures it.
+# image, the passwords and the superuser; the seed-opennotificaties Job of the zac-dev chart configures it.
 replicaCount: 1
 
 tags:

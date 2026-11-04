@@ -4,8 +4,8 @@
 #
 # One Postgres server with a database per component. A Service per component with the host name of its database in
 # the settings and the seed data points to it.
-# The passwords of the roles come from the Secret with the generated passwords; scripts/kind/up.sh sets them again
-# on every start, so that a role of an older cluster or a changed DB_PASSWORD gets the password of the Secret.
+# The passwords of the roles come from the Secret with the passwords; scripts/kind/up.sh sets them again on every
+# start, so that a role of an older cluster or a changed password in 1Password gets the password of the Secret.
 apiVersion: v1
 kind: ConfigMap
 metadata:

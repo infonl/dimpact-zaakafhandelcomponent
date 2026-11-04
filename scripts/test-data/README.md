@@ -65,7 +65,7 @@ are not registered in PABC and are not configured in ZAC.
 
 The database and PABC connection options only need to be overridden when the local stack deviates from the
 defaults of the [kind stack](../../docs/development/installKind.md#host-ports). Without `--password` and
-`--pabc-password`, the script reads the generated database passwords from the Secret `zac-dev-generated` of the kind
+`--pabc-password`, the script reads the database passwords from the Secret `zac-dev-generated` of the kind
 cluster `$KIND_CLUSTER_NAME` (default `zac`).
 
 ### Examples

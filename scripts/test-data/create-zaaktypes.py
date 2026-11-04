@@ -35,7 +35,7 @@
 #
 # Prerequisites: Python 3.10+, `psql` on PATH, the local kind stack of ./start-kind.sh running
 # with ZAC, unless --skip-config is used. Without --password and --pabc-password, `kubectl` on PATH
-# to read the generated database passwords of the kind cluster.
+# to read the database passwords of the kind cluster.
 #
 # Usage:
 #   ./scripts/test-data/create-zaaktypes.py [--count N] [--start-number N]
@@ -239,7 +239,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dbname", default="openzaak", help="database name (default: openzaak)")
     parser.add_argument("--user", default="openzaak", help="database user (default: openzaak)")
     parser.add_argument(
-        "--password", help="database password (default: the generated password of the kind cluster)"
+        "--password", help="database password (default: the password of the kind cluster)"
     )
     parser.add_argument(
         "--template",
@@ -265,7 +265,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--pabc-dbname", default="Pabc", help="PABC database name (default: Pabc)")
     parser.add_argument("--pabc-user", default="pabc", help="PABC database user (default: pabc)")
     parser.add_argument(
-        "--pabc-password", help="PABC database password (default: the generated password of the kind cluster)"
+        "--pabc-password", help="PABC database password (default: the password of the kind cluster)"
     )
     parser.add_argument(
         "--pabc-template",
@@ -290,7 +290,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def kind_database_password(owner: str) -> str:
-    """The generated password of a database owner in the kind cluster $KIND_CLUSTER_NAME (default: zac)."""
+    """The password of a database owner in the kind cluster $KIND_CLUSTER_NAME (default: zac)."""
     context = f"kind-{os.environ.get('KIND_CLUSTER_NAME', 'zac')}"
     command = ["kubectl", "--context", context, "--namespace", "zac", "get", "secret", "zac-dev-generated",
                "--output", f"jsonpath={{.data.db-password-{owner}}}"]

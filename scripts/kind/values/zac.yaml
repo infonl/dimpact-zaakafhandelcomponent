@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: EUPL-1.2+
 #
 # Values for charts/zac (release 'zac'): the settings of ZAC in the kind stack. scripts/kind/up.sh adds the image,
-# the generated passwords and the settings of .env and of the environment; OPA runs as a sidecar and the office
+# the passwords and the settings of .env and of the environment; OPA runs as a sidecar and the office
 # converter comes from the chart, as in production. The client secrets, tokens and keys are those of the seed data.
 fullnameOverride: zac
 

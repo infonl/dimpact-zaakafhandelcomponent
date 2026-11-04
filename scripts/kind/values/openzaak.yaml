@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-# Values for the maykinmedia/openzaak chart (release 'openzaak'). scripts/kind/up.sh adds the image, the generated
+# Values for the maykinmedia/openzaak chart (release 'openzaak'). scripts/kind/up.sh adds the image, the 
 # passwords and, with Open Notificaties, the Celery worker that sends the notifications.
 replicaCount: 1
 

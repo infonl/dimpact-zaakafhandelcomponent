@@ -29,5 +29,5 @@ how Open Formulieren and PABC run in the Docker Compose stack no longer describe
 ## Impact
 
 - Developers start the local stack with `./start-kind.sh` (see `docs/development/installKind.md`).
-- The `DOCKER_COMPOSE_<NAME>_EMAIL_ADDRESS` variables of `.env` are renamed to `KIND_<NAME>_EMAIL_ADDRESS`.
+- The `DOCKER_COMPOSE_<NAME>_EMAIL_ADDRESS` variables of `.env` are renamed to `<NAME>_EMAIL_ADDRESS`.
 - No change to ZAC itself.
