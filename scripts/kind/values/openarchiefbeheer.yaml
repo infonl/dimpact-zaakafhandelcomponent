@@ -23,7 +23,10 @@ settings:
     choices: redis:6379/0
   celery:
     brokerUrl: redis://redis:6379/0
+    # the pinned chart (openarchiefbeheer 2.0.0) reads the misspelled 'resultBackendl' in its external-redis
+    # branch (tags.redis=false); 2.1.0 fixed it. Set both so CELERY_RESULT_BACKEND stays valid on either chart.
     resultBackend: redis://redis:6379/0
+    resultBackendl: redis://redis:6379/0
   cookie:
     sessionCookieSecure: false
     csrfCookieSecure: false
