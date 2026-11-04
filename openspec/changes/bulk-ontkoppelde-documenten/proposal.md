@@ -32,7 +32,7 @@ None.
 
 ## Impact
 
-- Backend: `DetachedDocumentRestService`, `DetachedDocumentService`, new REST models for the bulk request and
+- Backend: `DetachedDocumentRestService`, `DetachedDocumentBulkService`, `DetachedDocumentService`, new REST models for the bulk request and
   result; OpenAPI spec regenerated.
 - Frontend: `OntkoppeldeDocumentenListComponent` and its service, `InformatieObjectLinkComponent` (bulk mode),
   translations.

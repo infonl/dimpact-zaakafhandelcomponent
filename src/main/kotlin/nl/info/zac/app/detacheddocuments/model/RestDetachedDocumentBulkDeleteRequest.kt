@@ -11,7 +11,7 @@ import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
 @AllOpen
-data class RestDetachedDocumentBulkRequest(
+data class RestDetachedDocumentBulkDeleteRequest(
     @field:NotEmpty
     @field:Size(max = MAX_IDS)
     var ids: List<Long>

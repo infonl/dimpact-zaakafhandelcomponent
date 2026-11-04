@@ -7,7 +7,7 @@ package nl.info.zac.app.detacheddocuments.model
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.Size
-import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentBulkRequest.Companion.MAX_IDS
+import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentBulkDeleteRequest.Companion.MAX_IDS
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 

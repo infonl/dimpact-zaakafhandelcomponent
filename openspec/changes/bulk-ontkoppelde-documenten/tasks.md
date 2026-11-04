@@ -1,7 +1,7 @@
 ## 1. Backend
 
 - [x] 1.1 Extract the single-document delete and link logic into functions reused by the single and the bulk path, without changing the existing endpoints' behaviour.
-- [x] 1.2 Add `RestDetachedDocumentBulkRequest`/`RestDetachedDocumentBulkLinkRequest` and `RestDetachedDocumentBulkResult` (own files, validated, max 100 ids).
+- [x] 1.2 Add `RestDetachedDocumentBulkDeleteRequest`/`RestDetachedDocumentBulkLinkRequest` and `RestDetachedDocumentBulkResult` (own files, validated, max 100 ids).
 - [x] 1.3 Add `PUT /rest/ontkoppeldedocumenten/lijst/verwijderen` and `PUT /rest/ontkoppeldedocumenten/lijst/koppelen`: continue on failure, return per-document result with `foutcode`, enforce lock rule and policies.
 - [x] 1.4 Regenerate the OpenAPI spec and frontend types.
 - [x] 1.5 Unit tests (all succeed, one fails and others proceed, locked, already linked, missing in Open Zaak, no right, too many ids).
