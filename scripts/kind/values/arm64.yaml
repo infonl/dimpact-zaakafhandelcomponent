@@ -15,7 +15,7 @@ opennotificaties:
 openarchiefbeheer:
   image: ghcr.io/infonl/open-archiefbeheer:2.0.0@sha256:ebe0bb373d22170e2299bb187a6848508e38cb55fe35217ecb53f54f38cc2002
 vngSelectielijst:
-  image: ghcr.io/infonl/vng-selectielijst:1.0.5@sha256:43055432655dba39b3852f7ea22aea7298bdb57f4591afbd792e53836a449dfd
+  image: ghcr.io/infonl/vng-selectielijst:1.0.6@sha256:10b57630bfed965b7b691faa4e64595ebe85000f81af91e6b0c0536ca5038734
 postgres:
   image: ghcr.io/infonl/postgis:17-3.5@sha256:62657ab3cdacebf7d99184ac2a6777ce34815447dfd819f5d11e1bf074dd6876
 pabc:
