@@ -17,40 +17,33 @@ import io.mockk.runs
 import io.mockk.verify
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
-import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
-import nl.info.client.zgw.model.createZaakInformatieobjectForReads
-import nl.info.client.zgw.shared.exception.ZgwErrorException
-import nl.info.client.zgw.shared.model.ZgwError
-import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.detacheddocuments.converter.RestDetachedDocumentConverter
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocument
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentResult
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.zaak.model.createRestUser
+import nl.info.zac.document.detacheddocument.DetachedDocumentBulkService
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
-import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocumentResult
 import nl.info.zac.document.detacheddocument.repository.model.createDetachedDocument
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createWerklijstRechten
 import nl.info.zac.search.SearchService
-import java.net.URI
-import java.util.UUID
 
 class DetachedDocumentRestServiceTest : BehaviorSpec({
     val detachedDocumentService = mockk<DetachedDocumentService>()
+    val detachedDocumentBulkService = mockk<DetachedDocumentBulkService>()
     val drcClientService = mockk<DrcClientService>()
-    val zrcClientService = mockk<ZrcClientService>()
     val restDetachedDocumentConverter = mockk<RestDetachedDocumentConverter>()
     val userConverter = mockk<RestUserConverter>()
     val policyService = mockk<PolicyService>()
     val searchService = mockk<SearchService>()
     val detachedDocumentRestService = DetachedDocumentRestService(
         detachedDocumentService,
+        detachedDocumentBulkService,
         drcClientService,
-        zrcClientService,
         restDetachedDocumentConverter,
         userConverter,
         policyService,
@@ -61,146 +54,33 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    context("Deleting detached documents") {
-        given("an id that doesn't belong to a document in the database") {
-            val id: Long = 1
-            val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
-            every {
-                policyService.readWerklijstRechten()
-            } returns werklijstRechten
-            every {
-                detachedDocumentService.find(id)
-            } returns null
+    context("Deleting a detached document") {
+        given("a user with the right to delete detached documents") {
+            every { policyService.readWerklijstRechten() } returns
+                createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
+            every { detachedDocumentBulkService.delete(1L) } just runs
 
-            `when`("the delete endpoint is called with that id") {
-                detachedDocumentRestService.deleteDetachedDocument(id)
-
-                then("there are no exceptions") {
-                }
-            }
-        }
-
-        given("a document that exists in the database but results in a 404 from OpenZaak") {
-            val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
-            val document = DetachedDocument()
-            document.documentUUID = UUID.randomUUID()
-            document.id = 1
-            every {
-                policyService.readWerklijstRechten()
-            } returns werklijstRechten
-            every {
-                detachedDocumentService.find(document.id!!)
-            } returns document
-            every {
-                drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
-            } throws ZgwErrorException(ZgwError(type = null, code = null, title = null, status = 404, detail = null, instance = null))
-            every {
-                detachedDocumentService.deleteIfExists(document.id!!)
-            } just runs
-
-            `when`("the delete endpoint is called with the id of that document") {
-                detachedDocumentRestService.deleteDetachedDocument(document.id!!)
+            `when`("the delete endpoint is called") {
+                detachedDocumentRestService.deleteDetachedDocument(1L)
 
                 then("the document is deleted") {
-                    verify(exactly = 1) {
-                        detachedDocumentService.deleteIfExists(document.id!!)
-                    }
+                    verify(exactly = 1) { detachedDocumentBulkService.delete(1L) }
                 }
             }
         }
 
-        given("a document that exists in the database but results in a non-404 error from OpenZaak") {
-            val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
-            val document = createDetachedDocument()
-            every {
-                policyService.readWerklijstRechten()
-            } returns werklijstRechten
-            every {
-                detachedDocumentService.find(document.id!!)
-            } returns document
-            every {
-                drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
-            } throws ZgwErrorException(ZgwError(type = null, code = null, title = null, status = 400, detail = null, instance = null))
+        given("a user without the right to delete detached documents") {
+            every { policyService.readWerklijstRechten() } returns
+                createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = false)
 
-            `when`("the delete endpoint is called with the id of that document") {
-                val exception =
-                    shouldThrow<ZgwErrorException> { detachedDocumentRestService.deleteDetachedDocument(document.id!!) }
-
-                then("the exception from OpenZaak is rethrown") {
-                    exception.zgwError.status shouldBe 400
+            `when`("the delete endpoint is called") {
+                val policyException = shouldThrow<PolicyException> {
+                    detachedDocumentRestService.deleteDetachedDocument(2L)
                 }
-            }
-        }
 
-        given("a document that exists in the database but results in a informatieobject with a zaak id from OpenZaak") {
-            val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
-            val document = createDetachedDocument()
-            val informatieObject = EnkelvoudigInformatieObject()
-            val zaakInformatieObject = createZaakInformatieobjectForReads(
-                informatieobject = URI.create("https://example.com/${UUID.randomUUID()}"),
-                zaak = URI.create("https://example.com/${UUID.randomUUID()}")
-            )
-            every {
-                policyService.readWerklijstRechten()
-            } returns werklijstRechten
-            every {
-                detachedDocumentService.find(document.id!!)
-            } returns document
-            every {
-                drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
-            } returns informatieObject
-            every {
-                zrcClientService.listZaakinformatieobjecten(informatieObject)
-            } returns mutableListOf(zaakInformatieObject)
-
-            `when`("the delete endpoint is called with the id of that document") {
-                val exception =
-                    shouldThrow<IllegalStateException> {
-                        detachedDocumentRestService.deleteDetachedDocument(
-                            document.id!!
-                        )
-                    }
-
-                then("the an IllegalStateException should be thrown") {
-                    exception shouldNotBe null
-                }
-            }
-        }
-
-        given(
-            "a document that exists in the database and results in a informatieobject without a zaak id from OpenZaak"
-        ) {
-            val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
-            val document = DetachedDocument()
-            document.documentUUID = UUID.randomUUID()
-            document.id = 1
-            val informatieObject = EnkelvoudigInformatieObject()
-            every {
-                policyService.readWerklijstRechten()
-            } returns werklijstRechten
-            every {
-                detachedDocumentService.find(document.id!!)
-            } returns document
-            every {
-                drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
-            } returns informatieObject
-            every {
-                drcClientService.deleteEnkelvoudigInformatieobject(document.documentUUID)
-            } just runs
-            every {
-                zrcClientService.listZaakinformatieobjecten(informatieObject)
-            } returns mutableListOf()
-            every {
-                detachedDocumentService.deleteIfExists(document.id!!)
-            } just runs
-
-            `when`("the delete endpoint is called with the id of that document") {
-                detachedDocumentRestService.deleteDetachedDocument(document.id!!)
-
-                then("the document is deleted") {
-                    verify(exactly = 1) {
-                        detachedDocumentService.deleteIfExists(document.id!!)
-                    }
+                then("the request is refused and nothing is deleted") {
+                    policyException.message shouldBe null
+                    verify(exactly = 0) { detachedDocumentBulkService.delete(2L) }
                 }
             }
         }

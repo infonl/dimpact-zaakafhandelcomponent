@@ -5,6 +5,7 @@
 
 package nl.info.zac.app.informatieobjecten.model
 
+import nl.info.zac.document.detacheddocument.DetachedDocumentBulkService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
@@ -18,7 +19,7 @@ data class RestDocumentVerplaatsGegevens(
 ) {
     companion object {
         const val INBOX_DOCUMENTEN = "inbox-documenten"
-        const val ONTKOPPELDE_DOCUMENTEN = "ontkoppelde-documenten"
+        const val ONTKOPPELDE_DOCUMENTEN = DetachedDocumentBulkService.DETACHED_DOCUMENTS_SOURCE
     }
 
     fun vanuitInboxDocumenten() = INBOX_DOCUMENTEN == bron

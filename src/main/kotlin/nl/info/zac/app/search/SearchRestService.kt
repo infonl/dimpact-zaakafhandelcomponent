@@ -79,14 +79,14 @@ class SearchRestService @Inject constructor(
     ) = resultaat.items.map {
         isDocumentLinkable(
             (it as ZaakZoekObject).identificatie,
-            restZoekKoppelenParameters.informationObjectTypeUuid
+            restZoekKoppelenParameters.informationObjectTypeUuids
         )
     }
 
-    private fun isDocumentLinkable(zaakIdentification: String, informationObjectTypeUuid: UUID) =
+    private fun isDocumentLinkable(zaakIdentification: String, informationObjectTypeUuids: List<UUID>) =
         zrcClientService.readZaakByID(zaakIdentification).zaaktype.extractUuid().let { zaaktypeUUID ->
             ztcClientService.readZaaktype(zaaktypeUUID).informatieobjecttypen.any {
-                it.extractUuid() == informationObjectTypeUuid
+                it.extractUuid() in informationObjectTypeUuids
             }
         }
 }
