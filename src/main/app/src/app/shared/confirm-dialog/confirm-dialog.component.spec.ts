@@ -62,6 +62,37 @@ describe(ConfirmDialogComponent.name, () => {
     });
   });
 
+  describe("title, icon and button labels", () => {
+    it("shows the default title and ja/nee buttons without options", () => {
+      setup(new ConfirmDialogData("msg.key"));
+
+      expect(screen.getByRole("heading")).toHaveTextContent("actie.bevestig");
+      expect(screen.getByRole("button", { name: "actie.ja" })).toBeVisible();
+      expect(screen.getByRole("button", { name: "actie.nee" })).toBeVisible();
+    });
+
+    it("shows the given title, icon and button labels", () => {
+      setup(
+        new ConfirmDialogData("msg.key", undefined, undefined, {
+          titel: { key: "my.title.key" },
+          icon: "delete",
+          bevestigLabel: "actie.verwijderen",
+          annuleerLabel: "actie.annuleren",
+        }),
+      );
+
+      const heading = screen.getByRole("heading");
+      expect(heading).toHaveTextContent("my.title.key");
+      expect(heading).toHaveTextContent("delete");
+      expect(
+        screen.getByRole("button", { name: "actie.verwijderen" }),
+      ).toBeVisible();
+      expect(
+        screen.getByRole("button", { name: "actie.annuleren" }),
+      ).toBeVisible();
+    });
+  });
+
   describe("without observable", () => {
     let mockDialogRef: Pick<
       MatDialogRef<ConfirmDialogComponent>,

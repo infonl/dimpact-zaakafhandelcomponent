@@ -81,6 +81,7 @@ describe(InformatieObjectLinkComponent.name, () => {
   let httpTestingController: HttpTestingController;
   let sideNav: MatDrawer;
   let informationObjectLinked: jest.Mock;
+  let bulkLinkFinished: jest.Mock;
   let openSnackbar: jest.SpyInstance;
   let foutAfhandelen: jest.SpyInstance;
 
@@ -102,6 +103,7 @@ describe(InformatieObjectLinkComponent.name, () => {
       close: jest.fn().mockResolvedValue(undefined),
     });
     informationObjectLinked = jest.fn();
+    bulkLinkFinished = jest.fn();
 
     const inputs = {
       sideNav,
@@ -128,6 +130,7 @@ describe(InformatieObjectLinkComponent.name, () => {
     fixture.componentInstance.informationObjectLinked.subscribe(
       informationObjectLinked,
     );
+    fixture.componentInstance.bulkLinkFinished.subscribe(bulkLinkFinished);
     httpTestingController = TestBed.inject(HttpTestingController);
     openSnackbar = jest
       .spyOn(TestBed.inject(UtilService), "openSnackbar")
@@ -520,5 +523,186 @@ describe(InformatieObjectLinkComponent.name, () => {
     await user.click(screen.getByRole("button", { name: "actie.annuleren" }));
 
     expect(sideNav.close).toHaveBeenCalled();
+  });
+
+  describe("when several detached documents are selected", () => {
+    const secondDetachedDocument = fromPartial<
+      GeneratedType<"RestDetachedDocument">
+    >({ id: 8, titel: "Tweede document" });
+    const BULK_LINK_URL = "/rest/ontkoppeldedocumenten/lijst/koppelen";
+
+    async function setupBulk() {
+      await setup(
+        fromPartial<GeneratedType<"RestDetachedDocument">>({
+          ...detachedDocument,
+          id: 7,
+        }),
+      );
+      fixture.componentRef.setInput("bulkDocuments", [
+        fromPartial<GeneratedType<"RestDetachedDocument">>({
+          ...detachedDocument,
+          id: 7,
+        }),
+        secondDetachedDocument,
+      ]);
+      fixture.detectChanges();
+    }
+
+    it("introduces the link of all selected documents instead of one", async () => {
+      await setupBulk();
+
+      expect(
+        screen.getByText("informatieobject.koppelen.bulk.uitleg"),
+      ).toBeVisible();
+    });
+
+    it("clears the search and its results when reopened with a different selection of the same first document", async () => {
+      await setupBulk();
+      await showKoppelbareZaken();
+
+      fixture.componentRef.setInput("bulkDocuments", [
+        fromPartial<GeneratedType<"RestDetachedDocument">>({
+          ...detachedDocument,
+          id: 7,
+        }),
+        fromPartial<GeneratedType<"RestDetachedDocument">>({ id: 9 }),
+      ]);
+      fixture.detectChanges();
+
+      expect(searchField()).toHaveValue("");
+      expect(screen.queryByRole("row", { name: /ZAAK-001/ })).toBeNull();
+    });
+
+    it("clears the search and its results when a per-row search on the first document becomes a bulk link", async () => {
+      await setup();
+      await showKoppelbareZaken();
+
+      fixture.componentRef.setInput("bulkDocuments", [
+        detachedDocument,
+        secondDetachedDocument,
+      ]);
+      fixture.detectChanges();
+
+      expect(searchField()).toHaveValue("");
+      expect(screen.queryByRole("row", { name: /ZAAK-001/ })).toBeNull();
+    });
+
+    it("uses the singular introduction when one document is selected", async () => {
+      await setupBulk();
+      fixture.componentRef.setInput("bulkDocuments", [secondDetachedDocument]);
+      fixture.detectChanges();
+
+      expect(
+        screen.getByText("informatieobject.koppelen.bulk.uitleg.enkelvoud"),
+      ).toBeVisible();
+    });
+
+    it("searches the zaken that fit the type of any selected document", async () => {
+      await setupBulk();
+      fixture.componentRef.setInput("bulkDocuments", [
+        fromPartial<GeneratedType<"RestDetachedDocument">>({
+          id: 7,
+          informatieobjectTypeUUID: "fakeInformatieobjectTypeUuid",
+        }),
+        fromPartial<GeneratedType<"RestDetachedDocument">>({
+          id: 8,
+          informatieobjectTypeUUID: "fakeOtherInformatieobjectTypeUuid",
+        }),
+        fromPartial<GeneratedType<"RestDetachedDocument">>({
+          id: 9,
+          informatieobjectTypeUUID: "fakeInformatieobjectTypeUuid",
+        }),
+      ]);
+      fixture.detectChanges();
+
+      await search("ZAAK-001");
+
+      const request = httpTestingController.expectOne("/rest/zoeken/zaken");
+      expect(request.request.body).toMatchObject({
+        informationObjectTypeUuids: [
+          "fakeInformatieobjectTypeUuid",
+          "fakeOtherInformatieobjectTypeUuid",
+        ],
+      });
+      request.flush({ totaal: 0, resultaten: [], filters: {} });
+    });
+
+    it("links all selected documents to the chosen zaak in one request", async () => {
+      await setupBulk();
+      await showKoppelbareZaken();
+
+      await user.click(koppelButtonInRowOf("ZAAK-001"));
+      await sleep();
+
+      const request = httpTestingController.expectOne(BULK_LINK_URL);
+      expect(request.request.method).toBe("PUT");
+      expect(request.request.body).toEqual({
+        ids: [7, 8],
+        nieuweZaakID: "ZAAK-001",
+      });
+      request.flush({ verwerkt: [7, 8], mislukt: [] });
+    });
+
+    it("reports the outcome, closes the side nav and signals that no document was left unlinked", async () => {
+      await setupBulk();
+      await showKoppelbareZaken();
+
+      await user.click(koppelButtonInRowOf("ZAAK-001"));
+      await sleep();
+      httpTestingController
+        .expectOne(BULK_LINK_URL)
+        .flush({ verwerkt: [7, 8], mislukt: [] });
+      await sleep();
+
+      expect(openSnackbar).toHaveBeenCalledWith(
+        "msg.ontkoppelde-documenten.bulk.koppelen.uitgevoerd",
+        { aantal: 2, case: "ZAAK-001" },
+      );
+      expect(sideNav.close).toHaveBeenCalled();
+      expect(bulkLinkFinished).toHaveBeenCalledWith({ notLinkedIds: [] });
+      expect(informationObjectLinked).not.toHaveBeenCalled();
+    });
+
+    it("signals which documents were not linked", async () => {
+      await setupBulk();
+      await showKoppelbareZaken();
+
+      await user.click(koppelButtonInRowOf("ZAAK-001"));
+      await sleep();
+      httpTestingController.expectOne(BULK_LINK_URL).flush({
+        verwerkt: [7],
+        mislukt: [{ id: 8, titel: null, foutcode: "VERGRENDELD" }],
+      });
+      await sleep();
+
+      expect(bulkLinkFinished).toHaveBeenCalledWith({ notLinkedIds: [8] });
+    });
+
+    it("signals every document as not linked when the bulk request fails", async () => {
+      await setupBulk();
+      await showKoppelbareZaken();
+
+      await user.click(koppelButtonInRowOf("ZAAK-001"));
+      await sleep();
+      httpTestingController
+        .expectOne(BULK_LINK_URL)
+        .flush(null, { status: 500, statusText: "Internal Server Error" });
+      await sleep();
+
+      expect(bulkLinkFinished).toHaveBeenCalledWith({ notLinkedIds: [7, 8] });
+    });
+
+    it("does not use the single document endpoint", async () => {
+      await setupBulk();
+      await showKoppelbareZaken();
+
+      await user.click(koppelButtonInRowOf("ZAAK-001"));
+      await sleep();
+
+      httpTestingController.expectNone(LINK_URL);
+      httpTestingController
+        .expectOne(BULK_LINK_URL)
+        .flush({ verwerkt: [7, 8], mislukt: [] });
+    });
   });
 });

@@ -62,6 +62,30 @@ export function runMutationOnSuccess<
   );
 }
 
+/**
+ * Invokes the `onSettled` a service attached to its mutation options, without
+ * going through TanStack Query. Pass an `error` to settle it as failed.
+ */
+export function runMutationOnSettled<
+  TData,
+  TError,
+  TVariables,
+  TOnMutateResult,
+>(
+  options: CreateMutationOptions<TData, TError, TVariables, TOnMutateResult>,
+  error: TError | null = null,
+  variables?: TVariables,
+  data?: TData,
+) {
+  return options.onSettled?.(
+    data,
+    error,
+    variables as TVariables,
+    undefined as TOnMutateResult,
+    fromPartial<MutationFunctionContext>({}),
+  );
+}
+
 export function createMutationOptions<TData, TVariables = void>(data: TData) {
   const mutationFn = jest
     .fn<Promise<TData>, [TVariables]>()
