@@ -5,10 +5,10 @@
  */
 
 import {
-  ChangeDetectionStrategy,
   Component,
   inject,
   input,
+  linkedSignal,
   OnInit,
   output,
 } from "@angular/core";
@@ -26,7 +26,6 @@ import { toI18nKey } from "../../../../shared/utils/i18n-key";
   templateUrl: "./smart-documents-form-item.component.html",
   styleUrls: ["./smart-documents-form-item.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatCheckboxModule,
@@ -46,6 +45,10 @@ export class SmartDocumentsFormItemComponent implements OnInit {
   readonly selectionChange =
     output<GeneratedType<"RestMappedSmartDocumentsTemplate">>();
 
+  protected readonly informatieObjectTypeUUID = linkedSignal(
+    () => this.node().informatieObjectTypeUUID,
+  );
+
   protected confidentiality = new FormControl({ value: "", disabled: true });
   protected checkbox = new FormControl({ value: false, disabled: false });
 
@@ -63,6 +66,7 @@ export class SmartDocumentsFormItemComponent implements OnInit {
 
   protected selectDocumentType(informatieObjectTypeUUID: string) {
     this.node().informatieObjectTypeUUID = informatieObjectTypeUUID;
+    this.informatieObjectTypeUUID.set(informatieObjectTypeUUID);
     this.updateFormControls();
   }
 

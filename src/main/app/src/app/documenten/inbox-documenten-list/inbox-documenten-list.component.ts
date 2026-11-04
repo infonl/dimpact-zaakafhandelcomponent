@@ -5,12 +5,12 @@
 
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
   Component,
   EventEmitter,
   inject,
   OnDestroy,
   OnInit,
+  signal,
   viewChild,
 } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
@@ -69,7 +69,6 @@ import { InboxDocumentenService } from "../inbox-documenten.service";
   templateUrl: "./inbox-documenten-list.component.html",
   styleUrls: ["./inbox-documenten-list.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     RouterLink,
     MatDrawerContainer,
@@ -111,7 +110,8 @@ export class InboxDocumentenListComponent
   readonly gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
   readonly route = inject(ActivatedRoute);
 
-  protected isLoadingResults = true;
+  protected readonly isLoadingResults = signal(true);
+  protected readonly totaal = signal(0);
   protected dataSource = new MatTableDataSource<
     GeneratedType<"RestInboxDocument">
   >();
@@ -143,8 +143,8 @@ export class InboxDocumentenListComponent
   };
   protected filterChange = new EventEmitter<void>();
   protected clearZoekopdracht = new EventEmitter<void>();
-  protected selectedInformationObject: GeneratedType<"RestInboxDocument"> | null =
-    null;
+  protected readonly selectedInformationObject =
+    signal<GeneratedType<"RestInboxDocument"> | null>(null);
   private readonly deleteMutation = injectMutation(
     () => this.inboxDocumentenService.delete(),
     {
@@ -163,14 +163,14 @@ export class InboxDocumentenListComponent
   ngAfterViewInit() {
     this.sort().sortChange.subscribe(() => (this.paginator().pageIndex = 0));
     const stopLoading = () => {
-      this.isLoadingResults = false;
+      this.isLoadingResults.set(false);
       this.utilService.setLoading(false);
     };
     merge(this.sort().sortChange, this.paginator().page, this.filterChange)
       .pipe(
         startWith({}),
         switchMap(() => {
-          this.isLoadingResults = true;
+          this.isLoadingResults.set(true);
           this.utilService.setLoading(true);
           this.updateListParameters();
           return runQuery(
@@ -185,6 +185,7 @@ export class InboxDocumentenListComponent
       )
       .subscribe((data) => {
         this.paginator().length = data.totaal ?? 0;
+        this.totaal.set(data.totaal ?? 0);
         this.dataSource.data = data.resultaten ?? [];
       });
   }
@@ -271,7 +272,7 @@ export class InboxDocumentenListComponent
   }
 
   openDrawer(selectedInformationObject: GeneratedType<"RestInboxDocument">) {
-    this.selectedInformationObject = selectedInformationObject;
+    this.selectedInformationObject.set(selectedInformationObject);
     void this.actionsSidenav().open();
   }
 

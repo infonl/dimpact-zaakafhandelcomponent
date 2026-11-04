@@ -6,11 +6,11 @@
 import { SlicePipe } from "@angular/common";
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
   Component,
   inject,
   OnDestroy,
   OnInit,
+  signal,
   viewChild,
 } from "@angular/core";
 
@@ -54,7 +54,6 @@ import { TakenMijnDatasource } from "./taken-mijn-datasource";
   styleUrls: ["./taken-mijn.component.less"],
   animations: [detailExpand],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     I18nKeyPipe,
@@ -93,7 +92,7 @@ export class TakenMijnComponent
   readonly paginator = viewChild.required(MatPaginator);
   readonly sort = viewChild.required(MatSort);
   readonly table = viewChild.required(MatTable);
-  expandedRow: TaakZoekObject | null = null;
+  readonly expandedRow = signal<TaakZoekObject | null>(null);
   readonly zoekenColumn = ZoekenColumn;
 
   fataledatumIcon: TextIcon = new TextIcon(

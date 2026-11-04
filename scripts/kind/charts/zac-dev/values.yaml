@@ -50,7 +50,7 @@ nginx:
 # -- one PostGIS server for the databases of every component
 postgres:
   image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
-  # -- the databases and their owners; scripts/kind/up.sh generates their passwords
+  # -- the databases and their owners; their passwords are in 1Password or .env
   databases:
     - name: zac
       owner: zac
@@ -80,8 +80,8 @@ keycloak:
   image: quay.io/keycloak/keycloak:26.8.1@sha256:3f3c5f8e03c614774b4bd9173b88391fefa4153bfc010d8012d59ad825377332
   # -- the URL of Keycloak in the browser, which is also the issuer of the tokens; set by scripts/kind/up.sh
   hostname: ""
-  # -- the e-mail addresses of the test users and groups of the realm, which DOCKER_COMPOSE_<NAME>_EMAIL_ADDRESS
-  # in .env overrides
+  # -- the e-mail addresses of the test users and groups of the realm, which <NAME>_EMAIL_ADDRESS in
+  # .env overrides
   emailAddresses:
     ZAC_RAADPLEGER_TEST_1_EMAIL_ADDRESS: raadpleger-test-1@example.com
     ZAC_RAADPLEGER_TEST_2_EMAIL_ADDRESS: raadpleger-test-2@example.com
@@ -177,7 +177,7 @@ zacOutsideCluster: false
 # -- the storage class of the kind cluster
 storageClassName: standard
 
-# -- the Secret with the generated passwords, created by scripts/kind/up.sh
+# -- the Secret with the passwords of the stack, created by scripts/kind/up.sh
 generatedSecret: zac-dev-generated
 
 # -- NodePorts that the port proxy container of scripts/kind/up.sh publishes on the host, from scripts/kind/ports.json

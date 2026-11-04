@@ -6,7 +6,7 @@
 <mat-drawer-container>
   <mat-drawer #actionsSidenav mode="over" position="end">
     <zac-informatie-object-link
-      [infoObject]="selectedInformationObject"
+      [infoObject]="selectedInformationObject()"
       [sideNav]="actionsSidenav"
       actionLabel="actie.document.koppelen"
       source="ontkoppelde-documenten"
@@ -16,7 +16,7 @@
 
   <mat-drawer-content>
     <div class="table-container">
-      @if (isLoadingResults) {
+      @if (isLoadingResults()) {
         <div class="table-loading-shade"></div>
       }
       <div class="table-wrapper">
@@ -40,10 +40,8 @@
             <th mat-header-cell *matHeaderCellDef>
               <zac-date-range-filter
                 label="creatiedatum"
-                [range]="listParameters.creatiedatum"
-                (changed)="
-                  listParameters.creatiedatum = $event; filtersChanged()
-                "
+                [(range)]="listParameters.creatiedatum"
+                (changed)="filtersChanged()"
               ></zac-date-range-filter>
             </th>
           </ng-container>
@@ -66,7 +64,7 @@
                   [(value)]="listParameters.ontkoppeldDoor"
                 >
                   <mat-option>{{ "filter.alle" | translate }}</mat-option>
-                  @for (value of filterOntkoppeldDoor; track value) {
+                  @for (value of filterOntkoppeldDoor(); track value) {
                     <mat-option [value]="value">{{ value.naam }}</mat-option>
                   }
                 </mat-select>
@@ -77,10 +75,8 @@
             <th mat-header-cell *matHeaderCellDef>
               <zac-date-range-filter
                 label="ontkoppeld-op"
-                [range]="listParameters.ontkoppeldOp"
-                (changed)="
-                  listParameters.ontkoppeldOp = $event; filtersChanged()
-                "
+                [(range)]="listParameters.ontkoppeldOp"
+                (changed)="filtersChanged()"
               ></zac-date-range-filter>
             </th>
           </ng-container>
@@ -223,11 +219,11 @@
           <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
         </table>
 
-        @if (paginator.length === 0 && !isLoadingResults) {
+        @if (totaal() === 0 && !isLoadingResults()) {
           <p>{{ "msg.geen.gegevens.gevonden" | translate }}</p>
         }
 
-        @if (paginator.length === 0 && isLoadingResults) {
+        @if (totaal() === 0 && isLoadingResults()) {
           <p>{{ "msg.loading" | translate }}</p>
         }
       </div>

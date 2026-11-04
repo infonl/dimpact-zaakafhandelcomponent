@@ -23,7 +23,7 @@ from typing import Any
 # Constants — sourced from src/itest/kotlin/nl/info/zac/itest/config/
 # ---------------------------------------------------------------------------
 
-# Local Docker Compose Keycloak fixtures — the same values as in .env.example and the committed
+# Keycloak fixtures of the local kind stack — the same values as in .env.example and the committed
 # realm import. Overridable so the scripts can target a differently-configured local realm.
 KEYCLOAK_REALM = os.environ.get("ZAC_TESTDATA_KEYCLOAK_REALM", "zaakafhandelcomponent")
 KEYCLOAK_CLIENT_ID = os.environ.get("ZAC_TESTDATA_KEYCLOAK_CLIENT_ID", "zaakafhandelcomponent")

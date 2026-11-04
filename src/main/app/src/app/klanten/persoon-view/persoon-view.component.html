@@ -15,43 +15,43 @@
             <zac-static-text
               class="flex-1"
               label="naam"
-              [value]="persoon?.naam"
+              [value]="persoon()?.naam"
             />
             <zac-static-text
               class="flex-1"
               label="burgerservicenummer"
-              [value]="persoon?.bsn"
+              [value]="persoon()?.bsn"
             />
             <zac-static-text
               class="flex-1"
               label="geboortedatum"
-              [value]="persoon?.geboortedatum | datum"
+              [value]="persoon()?.geboortedatum | datum"
             />
             <zac-static-text
               class="flex-1"
               label="verblijfplaats"
-              [value]="persoon?.verblijfplaats"
+              [value]="persoon()?.verblijfplaats"
             />
             <zac-static-text
               class="flex-1"
               label="telefoonnummer"
-              [value]="persoon?.telefoonnummer"
+              [value]="persoon()?.telefoonnummer"
             />
             <zac-static-text
               class="flex-1"
               label="emailadres"
-              [value]="persoon?.emailadres"
+              [value]="persoon()?.emailadres"
             />
           </div>
         </mat-card-content>
       </mat-card>
       <div class="flex-1 w75">
-        @if (persoon) {
+        @if (persoon(); as persoon) {
           <zac-klant-zaken-tabel [klant]="persoon"></zac-klant-zaken-tabel>
         }
-        @if (persoon && persoon.bsn) {
+        @if (persoon()?.bsn; as bsn) {
           <zac-klant-contactmomenten-tabel
-            [bsn]="persoon.bsn"
+            [bsn]="bsn"
           ></zac-klant-contactmomenten-tabel>
         }
       </div>

@@ -12,12 +12,12 @@ import {
 } from "@angular/animations";
 
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
   inject,
   OnInit,
+  signal,
   untracked,
   viewChild,
 } from "@angular/core";
@@ -63,7 +63,6 @@ import { HealthCheckService } from "../health-check.service";
     ]),
   ],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatSidenavModule,
     MatCardModule,
@@ -103,15 +102,22 @@ export class InrichtingscheckComponent
     "zaaktypeDoel",
     "beginGeldigheid",
   ];
-  protected expandedRow: GeneratedType<"RestZaaktypeInrichtingscheck"> | null =
-    null;
-  protected valideFilter: ToggleSwitchOptions = ToggleSwitchOptions.UNCHECKED;
+  protected readonly expandedRow =
+    signal<GeneratedType<"RestZaaktypeInrichtingscheck"> | null>(null);
+  protected readonly valideFilter = signal<ToggleSwitchOptions>(
+    ToggleSwitchOptions.UNCHECKED,
+  );
   private filterValue = "";
   private readonly zaaktypeInrichtingschecksQuery = injectQuery(() =>
     this.healthCheckService.listZaaktypeInrichtingschecks(),
   );
   protected readonly loadingZaaktypes = computed(() =>
     this.zaaktypeInrichtingschecksQuery.isFetching(),
+  );
+  protected readonly zaaktypeInrichtingschecks = computed(() =>
+    this.loadingZaaktypes()
+      ? []
+      : (this.zaaktypeInrichtingschecksQuery.data() ?? []),
   );
   private readonly bestaatCommunicatiekanaalEformulierQuery = injectQuery(() =>
     this.healthCheckService.readBestaatCommunicatiekanaalEformulier(),
@@ -128,13 +134,13 @@ export class InrichtingscheckComponent
 
     this.dataSource.filterPredicate = (data, filter: string) => {
       if (
-        this.valideFilter === ToggleSwitchOptions.CHECKED &&
+        this.valideFilter() === ToggleSwitchOptions.CHECKED &&
         this.needsAttention(data)
       ) {
         return false;
       }
       if (
-        this.valideFilter === ToggleSwitchOptions.UNCHECKED &&
+        this.valideFilter() === ToggleSwitchOptions.UNCHECKED &&
         !this.needsAttention(data)
       ) {
         return false;
@@ -146,9 +152,7 @@ export class InrichtingscheckComponent
     };
 
     effect(() => {
-      const zaaktypeInrichtingschecks = this.loadingZaaktypes()
-        ? []
-        : (this.zaaktypeInrichtingschecksQuery.data() ?? []);
+      const zaaktypeInrichtingschecks = this.zaaktypeInrichtingschecks();
       untracked(() => this.showZaaktypes(zaaktypeInrichtingschecks));
     });
   }

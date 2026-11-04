@@ -68,7 +68,8 @@
         {{ "gegevens" | translate }}
       </th>
       <td mat-cell *matCellDef="let betrokkene">
-        @if (!betrokkene.gegevens) {
+        @let gegevens = betrokkeneGegevens().get(betrokkene);
+        @if (!gegevens) {
           <button
             mat-icon-button
             [attr.aria-label]="'actie.betrokkene.gegevens.ophalen' | translate"
@@ -84,13 +85,13 @@
             <mat-icon>more_horiz</mat-icon>
           </button>
         }
-        @if (betrokkene.gegevens === "LOADING") {
+        @if (gegevens === "LOADING") {
           <button mat-icon-button>
             <mat-icon>hourglass_empty</mat-icon>
           </button>
         }
-        @if (betrokkene.gegevens && betrokkene.gegevens !== "LOADING") {
-          <span>{{ betrokkene.gegevens }}</span>
+        @if (gegevens && gegevens !== "LOADING") {
+          <span>{{ gegevens }}</span>
         }
       </td>
     </ng-container>

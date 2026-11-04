@@ -15,7 +15,10 @@
     opened="true"
     disableClose="true"
   >
-    <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
+    <zac-side-nav
+      (mode)="menuModeChanged($event)"
+      [menu]="menu()"
+    ></zac-side-nav>
   </mat-sidenav>
   <mat-sidenav-content class="flex-col gap-20">
     @if (form(); as form) {
@@ -26,14 +29,12 @@
         <mat-stepper
           class="parameters-stepper"
           orientation="horizontal"
-          [linear]="
-            form.controls.procesModel.invalid || form.controls.algemeen.invalid
-          "
+          [linear]="invalid()?.procesModel || invalid()?.algemeen"
           [(selectedIndex)]="selectedIndex"
         >
           <mat-step
             [stepControl]="form.controls.procesModel"
-            [hasError]="form.controls.procesModel.invalid"
+            [hasError]="invalid()?.procesModel"
           >
             <ng-template matStepLabel>{{
               "gegevens.procesmodel" | translate
@@ -45,7 +46,7 @@
             <zac-parameters-step-buttons
               [isFirst]="true"
               [isLast]="!processDefinition"
-              [canSave]="canSave(form)"
+              [canSave]="canSave()"
               (save)="opslaan(form)"
             />
           </mat-step>
@@ -53,7 +54,7 @@
           @if (processDefinition) {
             <mat-step
               [stepControl]="form.controls.algemeen"
-              [hasError]="form.controls.algemeen.invalid"
+              [hasError]="invalid()?.algemeen"
             >
               <ng-template matStepLabel>{{
                 "gegevens.algemeen" | translate
@@ -67,14 +68,14 @@
                   "
                 />
                 <zac-parameters-step-buttons
-                  [canSave]="canSave(form)"
+                  [canSave]="canSave()"
                   (save)="opslaan(form)"
                 />
               </ng-template>
             </mat-step>
           }
 
-          @if (form.controls.humanTasks.enabled) {
+          @if (enabled()?.humanTasks) {
             <mat-step [stepControl]="form.controls.humanTasks">
               <ng-template matStepLabel>{{
                 "gegevens.humantasks" | translate
@@ -87,17 +88,17 @@
                   "
                 />
                 <zac-parameters-step-buttons
-                  [canSave]="canSave(form)"
+                  [canSave]="canSave()"
                   (save)="opslaan(form)"
                 />
               </ng-template>
             </mat-step>
           }
 
-          @if (form.controls.acties.enabled) {
+          @if (enabled()?.acties) {
             <mat-step
               [stepControl]="form.controls.acties"
-              [hasError]="form.controls.acties.invalid"
+              [hasError]="invalid()?.acties"
             >
               <ng-template matStepLabel>{{
                 "gegevens.acties" | translate
@@ -105,17 +106,17 @@
               <ng-template matStepContent>
                 <zac-parameters-step-acties [form]="form.controls.acties" />
                 <zac-parameters-step-buttons
-                  [canSave]="canSave(form)"
+                  [canSave]="canSave()"
                   (save)="opslaan(form)"
                 />
               </ng-template>
             </mat-step>
           }
 
-          @if (form.controls.mail.enabled) {
+          @if (enabled()?.mail) {
             <mat-step
               [stepControl]="form.controls.mail"
-              [hasError]="form.controls.mail.invalid"
+              [hasError]="invalid()?.mail"
             >
               <ng-template matStepLabel>{{
                 "gegevens.mail" | translate
@@ -123,7 +124,7 @@
               <ng-template matStepContent>
                 <zac-parameters-step-mail [form]="form.controls.mail" />
                 <zac-parameters-step-buttons
-                  [canSave]="canSave(form)"
+                  [canSave]="canSave()"
                   (save)="opslaan(form)"
                 />
               </ng-template>
@@ -133,7 +134,7 @@
           @if (processDefinition) {
             <mat-step
               [stepControl]="form.controls.beeindiging"
-              [hasError]="form.controls.beeindiging.invalid"
+              [hasError]="invalid()?.beeindiging"
             >
               <ng-template matStepLabel>{{
                 "gegevens.beeindiging" | translate
@@ -144,7 +145,7 @@
                   [zaaktypeUuid]="configuration().zaaktype.uuid"
                 />
                 <zac-parameters-step-buttons
-                  [canSave]="canSave(form)"
+                  [canSave]="canSave()"
                   (save)="opslaan(form)"
                 />
               </ng-template>
@@ -152,7 +153,7 @@
 
             <mat-step
               [stepControl]="form.controls.koppelingen"
-              [hasError]="form.controls.koppelingen.invalid"
+              [hasError]="invalid()?.koppelingen"
             >
               <ng-template matStepLabel>{{
                 "gegevens.koppelingen" | translate
@@ -175,7 +176,7 @@
                 ></smart-documents-form>
                 <zac-parameters-step-buttons
                   [isLast]="true"
-                  [canSave]="canSave(form)"
+                  [canSave]="canSave()"
                   (save)="opslaan(form)"
                 />
               </ng-template>

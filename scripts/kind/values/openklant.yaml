@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: EUPL-1.2+
 #
 # Values for the maykinmedia/openklant chart (release 'openklant'). scripts/kind/up.sh adds the image and the
-# generated passwords.
+# passwords.
 replicaCount: 1
 
 tags:

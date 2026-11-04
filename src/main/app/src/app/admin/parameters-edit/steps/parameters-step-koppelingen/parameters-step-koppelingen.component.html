@@ -17,7 +17,7 @@
         key="brpKoppelen"
         label="gegevens.koppelen.brp"
       ></zac-toggle>
-      @if (brpDoelbindingSetupEnabled() && form().controls.brpKoppelen.value) {
+      @if (brpDoelbindingSetupEnabled() && isBrpKoppelen()) {
         <section class="flex-col">
           <p>
             {{ "title.admin.parameters.step.brp-doelbinding" | translate }}

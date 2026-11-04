@@ -16,7 +16,7 @@
         [formControl]="dateVan"
         (dateChange)="change()"
       />
-      @if (dateVan.value) {
+      @if (hasDateVan()) {
         <mat-icon matSuffix (click)="dateVan.setValue(null); change()"
           >clear</mat-icon
         >
@@ -36,7 +36,7 @@
         [formControl]="dateTM"
         (dateChange)="change()"
       />
-      @if (dateTM.value) {
+      @if (hasDateTM()) {
         <mat-icon matSuffix (click)="dateTM.setValue(null); change()"
           >clear</mat-icon
         >

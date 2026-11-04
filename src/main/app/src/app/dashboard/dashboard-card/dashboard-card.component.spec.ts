@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
@@ -22,7 +22,6 @@ const onLoad = jest.fn();
 
 @Component({
   selector: "zac-test-dashboard-card",
-  changeDetection: ChangeDetectionStrategy.Eager,
   template: "",
 })
 class TestDashboardCardComponent extends DashboardCardComponent {

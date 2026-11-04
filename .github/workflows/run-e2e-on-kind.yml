@@ -51,12 +51,14 @@ jobs:
           version: v4.3.1 # helm version updated by renovate
 
       - name: Install kind
-        uses: helm/kind-action@1544676c07bb3570fcb70166beaa07c4528fd4aa # v1.15.1
+        uses: helm/kind-action@ea822c7bf1874f08e5a491df991c228edffc3376 # v1.15.2
         with:
           install_only: true
 
       # The stack pulls its images while the e2e dependencies and the browser are installed
       - name: Start the kind stack in the background
+        env:
+          KIND_ENV_FILE: ""
         run: |
           nohup sh -c './start-kind.sh -z -e; echo $? > "$RUNNER_TEMP/kind-exit-code"' \
             < /dev/null > "$RUNNER_TEMP/kind.log" 2>&1 &

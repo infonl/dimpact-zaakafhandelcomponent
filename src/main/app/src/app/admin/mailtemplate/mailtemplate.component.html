@@ -15,7 +15,10 @@
     opened="true"
     disableClose="true"
   >
-    <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
+    <zac-side-nav
+      (mode)="menuModeChanged($event)"
+      [menu]="menu()"
+    ></zac-side-nav>
   </mat-sidenav>
   <mat-sidenav-content class="p-4">
     <form [formGroup]="form" (submit)="saveMailtemplate()" (cancel)="cancel()">
@@ -26,7 +29,7 @@
             <zac-select
               [form]="form"
               key="mail"
-              [options]="mailTemplates"
+              [options]="mailTemplates()"
               optionDisplayValue="label"
             />
             <zac-html-editor

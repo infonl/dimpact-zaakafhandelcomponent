@@ -5,7 +5,6 @@
 
 import { NgClass } from "@angular/common";
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -13,7 +12,7 @@ import {
   input,
   OnDestroy,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatBadge } from "@angular/material/badge";
 import {
@@ -33,10 +32,19 @@ import { MatMenu, MatMenuItem, MatMenuTrigger } from "@angular/material/menu";
 import { MatSidenav } from "@angular/material/sidenav";
 import { MatToolbar } from "@angular/material/toolbar";
 import { MatTooltip } from "@angular/material/tooltip";
-import { Router, RouterLink, RouterLinkActive } from "@angular/router";
+import {
+  NavigationEnd,
+  Router,
+  RouterLink,
+  RouterLinkActive,
+} from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
-import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
+import {
+  injectIsMutating,
+  injectQuery,
+} from "@tanstack/angular-query-experimental";
 import moment from "moment";
+import { filter, map } from "rxjs";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { PolicyService } from "../../policy/policy.service";
@@ -57,7 +65,6 @@ import { WebsocketService } from "../websocket/websocket.service";
   templateUrl: "./toolbar.component.html",
   styleUrls: ["./toolbar.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     NgClass,
     ReactiveFormsModule,
@@ -93,9 +100,9 @@ export class ToolbarComponent implements OnDestroy {
   private readonly zakenService = inject(ZakenService);
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
-  protected readonly queryClient = inject(QueryClient);
-  protected readonly createZaakMutationKey =
-    this.zakenService.createZaak().mutationKey;
+  protected readonly creatingZaakCount = injectIsMutating({
+    mutationKey: this.zakenService.createZaak().mutationKey,
+  });
 
   readonly zoekenSideNav = input.required<MatSidenav>();
   protected zoekenFormControl = new FormControl<string>("");
@@ -138,6 +145,22 @@ export class ToolbarComponent implements OnDestroy {
       .join(""),
   );
 
+  private readonly url = toSignal(
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      map(() => this.router.url),
+    ),
+    { initialValue: this.router.url },
+  );
+  protected readonly isCaseRouteActive = computed(
+    () =>
+      this.url().startsWith("/zaken/") &&
+      !this.url().startsWith("/zaken/create"),
+  );
+  protected readonly isTaskRouteActive = computed(() =>
+    this.url().startsWith("/taken/"),
+  );
+
   constructor() {
     effect(() => {
       const loggedInUser = this.loggedInUserQuery.data();
@@ -176,17 +199,6 @@ export class ToolbarComponent implements OnDestroy {
 
   protected resetSearch() {
     this.zoekenService.reset$.next();
-  }
-
-  protected isCaseRouteActive() {
-    return (
-      this.router.url.startsWith("/zaken/") &&
-      !this.router.url.startsWith("/zaken/create")
-    );
-  }
-
-  protected isTaskRouteActive() {
-    return this.router.url.startsWith("/taken/");
   }
 
   protected logOut() {

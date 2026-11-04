@@ -3,7 +3,7 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div [hidden]="showNotes">
+<div [hidden]="showNotes()">
   <button
     mat-mini-fab
     aria-label="Notities"
@@ -22,7 +22,7 @@
   </button>
 </div>
 
-@if (showNotes) {
+@if (showNotes()) {
   <mat-card class="notitie-container">
     <div class="flex-row justify-content-between notitie-header">
       <div class="flex-row items-center gap-10">
@@ -58,7 +58,7 @@
           </mat-card-header>
 
           <mat-card-content>
-            @if (geselecteerdeNotitieId !== notitie.id) {
+            @if (geselecteerdeNotitieId() !== notitie.id) {
               <p>
                 {{ notitie.tekst }}
               </p>
@@ -66,7 +66,7 @@
 
             @if (
               notitieRechten()?.canWijzigen &&
-              geselecteerdeNotitieId === notitie.id
+              geselecteerdeNotitieId() === notitie.id
             ) {
               <div>
                 <mat-form-field appearance="fill" class="full-width">
@@ -113,7 +113,7 @@
           @if (
             notitieRechten()?.canWijzigen &&
             notitie.isBewerkenToegestaan &&
-            geselecteerdeNotitieId !== notitie.id
+            geselecteerdeNotitieId() !== notitie.id
           ) {
             <mat-card-actions class="flex-row justify-content-end">
               <button
@@ -149,7 +149,7 @@
             cdkTextareaAutosize
             matInput
             [maxLength]="maxLengteTextArea"
-            [disabled]="geselecteerdeNotitieId !== null"
+            [disabled]="geselecteerdeNotitieId() !== null"
           ></textarea>
           <mat-hint align="end">
             {{ notitieTekst.value.length }}/{{ maxLengteTextArea }}
@@ -161,7 +161,8 @@
             color="primary"
             title="{{ 'actie.opslaan' | translate }}"
             [disabled]="
-              notitieTekst.value.length === 0 || geselecteerdeNotitieId !== null
+              notitieTekst.value.length === 0 ||
+              geselecteerdeNotitieId() !== null
             "
             (click)="maakNotitieAan(notitieTekst.value)"
           >

@@ -6,16 +6,16 @@
 <div class="form" [class.loading]="utilService.loading()">
   <div class="button-row flex-row items-center">
     <div class="full-width title">
-      @if (zoekType === ZoekType.ZAC) {
+      @if (zoekType() === ZoekType.ZAC) {
         {{ "actie.zoeken.zac" | translate }}
       }
-      @if (zoekType === ZoekType.PERSONEN) {
+      @if (zoekType() === ZoekType.PERSONEN) {
         {{ "actie.zoeken.persoon" | translate }}
       }
-      @if (zoekType === ZoekType.BEDRIJVEN) {
+      @if (zoekType() === ZoekType.BEDRIJVEN) {
         {{ "actie.zoeken.bedrijf" | translate }}
       }
-      @if (zoekType === ZoekType.BAG_OBJECTEN) {
+      @if (zoekType() === ZoekType.BAG_OBJECTEN) {
         {{ "actie.zoeken.bag-object" | translate }}
       }
     </div>
@@ -25,7 +25,7 @@
       matSuffix
       id="zac-button"
       title="{{ 'actie.zoeken.zac' | translate }}"
-      [color]="zoekType === ZoekType.ZAC ? 'primary' : null"
+      [color]="zoekType() === ZoekType.ZAC ? 'primary' : null"
       (click)="setZoektype(ZoekType.ZAC)"
     >
       <mat-icon>cases</mat-icon>
@@ -37,7 +37,7 @@
         matSuffix
         id="personen-button"
         title="{{ 'actie.zoeken.persoon' | translate }}"
-        [color]="zoekType === ZoekType.PERSONEN ? 'primary' : null"
+        [color]="zoekType() === ZoekType.PERSONEN ? 'primary' : null"
         (click)="setZoektype(ZoekType.PERSONEN)"
       >
         <mat-icon>person</mat-icon>
@@ -49,7 +49,7 @@
       matSuffix
       id="bedrijven-button"
       title="{{ 'actie.zoeken.bedrijf' | translate }}"
-      [color]="zoekType === ZoekType.BEDRIJVEN ? 'primary' : null"
+      [color]="zoekType() === ZoekType.BEDRIJVEN ? 'primary' : null"
       (click)="setZoektype(ZoekType.BEDRIJVEN)"
     >
       <mat-icon>domain</mat-icon>
@@ -60,13 +60,13 @@
       matSuffix
       id="bagObjecten-button"
       title="{{ 'actie.zoeken.bag-object' | translate }}"
-      [color]="zoekType === ZoekType.BAG_OBJECTEN ? 'primary' : null"
+      [color]="zoekType() === ZoekType.BAG_OBJECTEN ? 'primary' : null"
       (click)="setZoektype(ZoekType.BAG_OBJECTEN)"
     >
       <mat-icon>gps_fixed</mat-icon>
     </button>
   </div>
-  @if (zoekType === ZoekType.ZAC) {
+  @if (zoekType() === ZoekType.ZAC) {
     <div sticky-top class="flex-row gap-10">
       <mat-form-field class="flex-1 w25" appearance="fill">
         <mat-label>Zoeken in</mat-label>
@@ -104,7 +104,7 @@
           placeholder="{{ 'msg.zoeken.trefwoorden.placeholder' | translate }}"
           maxlength="100"
         />
-        @if (hasSearched && zoekType === ZoekType.ZAC) {
+        @if (hasSearched() && zoekType() === ZoekType.ZAC) {
           <button
             [title]="'actie.zoekopdracht.wissen' | translate"
             (click)="reset()"
@@ -115,7 +115,7 @@
             <mat-icon>close</mat-icon>
           </button>
         }
-        @if (!hasSearched && zoekType === ZoekType.ZAC) {
+        @if (!hasSearched() && zoekType() === ZoekType.ZAC) {
           <button
             (click)="zoeken()"
             mat-icon-button
@@ -132,7 +132,7 @@
       </mat-form-field>
     </div>
   }
-  @if (zoekType === ZoekType.ZAC) {
+  @if (zoekType() === ZoekType.ZAC) {
     <div class="flex-row gap-10">
       <div class="zoek-filters flex-col w25 flex-1 gap-10">
         @for (revisie of [filterRevisie()]; track revisie) {
@@ -232,17 +232,17 @@
       </div>
     </div>
   }
-  @if (zoekType === ZoekType.PERSONEN) {
+  @if (zoekType() === ZoekType.PERSONEN) {
     <zac-persoon-zoek [sideNav]="zoekenSideNav()!"> </zac-persoon-zoek>
   }
-  @if (zoekType === ZoekType.BEDRIJVEN) {
+  @if (zoekType() === ZoekType.BEDRIJVEN) {
     <zac-bedrijf-zoek [sideNav]="zoekenSideNav()!"></zac-bedrijf-zoek>
   }
-  @if (zoekType === ZoekType.BAG_OBJECTEN) {
+  @if (zoekType() === ZoekType.BAG_OBJECTEN) {
     <zac-bag-zoek [sideNav]="zoekenSideNav()!"></zac-bag-zoek>
   }
   <mat-paginator
-    [ngClass]="{ hide: zoekType !== ZoekType.ZAC }"
+    [ngClass]="{ hide: zoekType() !== ZoekType.ZAC }"
     [length]="aantalResultaten()"
     [pageIndex]="zoekParameters().page"
     [pageSize]="zoekParameters().rows"

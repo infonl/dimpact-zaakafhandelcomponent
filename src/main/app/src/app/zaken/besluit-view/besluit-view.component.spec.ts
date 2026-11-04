@@ -242,6 +242,27 @@ describe(BesluitViewComponent.name, () => {
     ).toBeVisible();
   });
 
+  it("shows the history of the panel that is open after the list of besluiten is refreshed", async () => {
+    const besluitA = () =>
+      makeBesluit({ uuid: "besluit-uuid-a", identificatie: "BESLUIT-A" });
+    const besluitB = () =>
+      makeBesluit({ uuid: "besluit-uuid-b", identificatie: "BESLUIT-B" });
+    const { fixture } = await setup([besluitA(), besluitB()]);
+    await user.click(panelHeader("BESLUIT-B"));
+    await respondWithHistorie("besluit-uuid-b", []);
+
+    fixture.componentRef.setInput("besluiten", [besluitA(), besluitB()]);
+    fixture.detectChanges();
+    await respondWithHistorie("besluit-uuid-b", []);
+    fixture.detectChanges();
+    await respondWithHistorie("besluit-uuid-a", [historieRegel]);
+    await showHistorieTab(fixture);
+
+    expect(
+      screen.getByRole("row", { name: /fakeAttribuutLabel/ }),
+    ).toBeVisible();
+  });
+
   it("says there is no history for a besluit without history lines", async () => {
     const { fixture } = await setup();
 

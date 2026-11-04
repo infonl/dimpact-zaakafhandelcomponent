@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { Component, inject, signal } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { ActivatedRoute } from "@angular/router";
@@ -18,7 +18,6 @@ import { KlantZakenTabelComponent } from "../klant-zaken-tabel/klant-zaken-tabel
   templateUrl: "./persoon-view.component.html",
   styleUrls: ["./persoon-view.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatSidenavModule,
     MatCardModule,
@@ -32,11 +31,13 @@ import { KlantZakenTabelComponent } from "../klant-zaken-tabel/klant-zaken-tabel
 export class PersoonViewComponent {
   private readonly route = inject(ActivatedRoute);
 
-  protected persoon: GeneratedType<"RestPersoon"> | null = null;
+  protected readonly persoon = signal<GeneratedType<"RestPersoon"> | null>(
+    null,
+  );
 
   constructor() {
     this.route.data.subscribe((data) => {
-      this.persoon = data.persoon;
+      this.persoon.set(data.persoon);
     });
   }
 }

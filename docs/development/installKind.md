@@ -99,32 +99,38 @@ variables override them, from your `.env` file or from the environment, with the
 `SMTP_USERNAME`, `VERANTWOORDELIJKE_ORGANISATIE_RSIN` and `ZAC_INTERNAL_ENDPOINTS_API_KEY`.
 
 The other settings of ZAC, such as the URLs of Open Zaak and Keycloak, point at the services in the cluster and
-stay as they are. The `DOCKER_COMPOSE_<NAME>_EMAIL_ADDRESS` variables set the e-mail addresses of the test users and
+stay as they are. The `<NAME>_EMAIL_ADDRESS` variables set the e-mail addresses of the test users and
 groups in Keycloak. The settings of the other services are in [scripts/kind](../../scripts/kind) only.
 
-### Generated passwords
+### Passwords
 
-The script generates the passwords of the stack when it creates the cluster, and keeps them in the Secret
-`zac-dev-generated` of the cluster. They stay the same when you stop and start the cluster, and `-d` generates new
-ones. These are:
+These passwords of the stack are fixed, so that you can set up your tools once. They come from 1Password when you
+start with access to the vault `Dimpact`, and otherwise from your `.env` file or the environment.
 
-- the passwords of the databases;
-- the secret keys of Open Zaak, VNG Selectielijst and the other Django components;
-- the password of the `admin` user of the Keycloak admin console (http://keycloak.localhost:8081/admin) and of the admin pages
-  of Open Zaak, Open Klant, Open Object, Open Notificaties, Open Archiefbeheer and Open Formulieren. The script
-  prints it when the stack is ready;
-- the passwords of Solr and the office converter.
+| Variable                                                                                   | Password                                                                                              |
+|--------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|
+| `DB_PASSWORD`                                                                              | database user `zac`                                                                                   |
+| `DB_PASSWORD_<USER>`, for example `DB_PASSWORD_OPENZAAK`                         | the other [database users](../../scripts/kind/charts/zac-dev/values.yaml)                             |
+| `POSTGRES_PASSWORD`                                                                   | database superuser `postgres`                                                                         |
+| `ADMIN_PASSWORD`                                                                      | user `admin` of the Keycloak admin console (http://keycloak.localhost:8081/admin) and the admin pages of Open Zaak, Open Klant, Open Object, Open Notificaties, Open Archiefbeheer and Open Formulieren |
+| `SOLR_PASSWORD`, `OFFICE_CONVERTER_PASSWORD`                                               | Solr and the office converter                                                                         |
 
-`DB_PASSWORD`, `SOLR_PASSWORD` and `OFFICE_CONVERTER_PASSWORD` in your `.env` file or in the environment replace the
-generated password of the ZAC database, Solr and the office converter, so that a ZAC in your IDE with the settings of
-`.env` can connect. When you run ZAC from your IDE and one of them is not set, the script prints the generated
-password to use instead.
+`start-kind.sh` stops before it creates anything when one of them is not set, and lists the variables. Without
+1Password, copy them from [.env.example](../../.env.example) to your `.env` file. Use letters and digits only.
 
-To read a generated password, for example that of the ZAC database:
+The script keeps the passwords in the Secret `zac-dev-generated` of the cluster. To read a password, for example that
+of the ZAC database:
 
 ```shell
 kubectl --context kind-zac -n zac get secret zac-dev-generated -o jsonpath='{.data.db-password-zac}' | base64 -d
 ```
+
+When a password changes, the next start updates the database roles and restarts the services. Keycloak and the admin
+pages keep the admin password of their first start, so use `-d` after you change `ADMIN_PASSWORD`.
+
+The script generates the secret keys of Open Zaak, VNG Selectielijst and the other Django components. No tool needs
+them. Runs with an empty `KIND_ENV_FILE`, such as the integration tests and the CI workflows, also generate the
+passwords that are not set.
 
 The client secrets, tokens and API keys in the seed data, such as those of the Keycloak realm and of the Open Zaak
 applications, are fixed test values.
@@ -133,8 +139,8 @@ applications, are fixed test values.
 
 `start-kind.sh` uses the 1Password CLI when it is installed and you have access to the
 vault `Dimpact`: it runs with the environment variables of [.env.tpl](../../.env.tpl), with the secrets from
-1Password, for example those of SmartDocuments and the SMTP server. Use `-e` to skip this and only use your `.env`
-file and environment.
+1Password, for example the passwords above and those of SmartDocuments and the SMTP server. These variables take
+precedence over your `.env` file. Use `-e` to skip 1Password and only use your `.env` file and environment.
 
 ## Host ports
 
@@ -167,7 +173,7 @@ A small proxy container named `zac-ports` publishes the services of the cluster 
 All databases are on one PostgreSQL server. Each database port connects to that server, so the database name, user
 and password select the database. The users and databases are listed in
 [charts/zac-dev/values.yaml](../../scripts/kind/charts/zac-dev/values.yaml); the passwords are
-[generated](#generated-passwords).
+in [1Password or your `.env` file](#passwords).
 
 The script stops before it creates anything when one of these ports is already in use, and lists the ports. You can
 then choose other ports:
@@ -236,6 +242,53 @@ The script writes the files that it generates, such as the Helm values, to `buil
 When a service does not become ready in time, the script stops and shows the pods and the latest warning events.
 A cluster that an earlier version of the script made can keep data that no longer fits, for example in the Postgres
 volume. Start again with `-d` to delete the cluster first.
+
+## Seed data
+
+The stack loads the seed data of [seed](../../scripts/kind/seed) when it creates the cluster. Use `-d` to start
+from the seed data again after you change it.
+
+### Keycloak realm
+
+Keycloak imports the `zaakafhandelcomponent` realm, with its clients, roles and [test users](testing.md#local-test-users),
+from [zaakafhandelcomponent-realm.json](../../scripts/kind/seed/keycloak/zaakafhandelcomponent-realm.json). To change
+the realm, change it in the Keycloak admin console and export it, including the users, over the seed file:
+
+```shell
+kubectl --context kind-zac -n zac exec deploy/keycloak -- /opt/keycloak/bin/kc.sh export \
+  --dir /tmp/realm-export --users realm_file --realm zaakafhandelcomponent --http-management-port 9002
+kubectl --context kind-zac -n zac exec deploy/keycloak -- cat /tmp/realm-export/zaakafhandelcomponent-realm.json \
+  > scripts/kind/seed/keycloak/zaakafhandelcomponent-realm.json
+./gradlew spotlessApply
+```
+
+The export has the values of the running realm, so review the changes with `git diff` and keep these parts of the
+seed file before you commit it:
+
+- the `${ZAC_<NAME>_EMAIL_ADDRESS}` placeholders of the e-mail addresses of the test users and groups;
+- the fixed client secrets, such as `keycloakZaakafhandelcomponentClientSecret` of the `zaakafhandelcomponent` client;
+- the redirect URIs and web origins without the `localhost` ports that `./start-kind.sh` adds.
+
+### Open Zaak database
+
+The Open Zaak database starts from a pre-migrated dump of the Open Zaak database,
+[00-restore-migrated-database.sql](../../scripts/kind/seed/openzaak/00-restore-migrated-database.sql). Postgres
+restores it when it creates the cluster, and then runs the SQL scripts in
+[seed/openzaak/database](../../scripts/kind/seed/openzaak/database) with the ZAC test data: zaaktypes, applications,
+services and so on. Because the schema is already there, Open Zaak has no database migrations left to apply when it
+starts, which saves more than a minute on every new cluster and on every integration test run.
+
+The dump belongs to the Open Zaak image in [charts/zac-dev/values.yaml](../../scripts/kind/charts/zac-dev/values.yaml).
+After a change of that image, regenerate the dump and commit the result:
+
+```shell
+./scripts/kind/regenerate-openzaak-database-dump.sh
+```
+
+The script starts Open Zaak on an empty database in temporary Docker containers, with the images of the stack, waits
+until Open Zaak has applied its migrations, dumps the database and removes the containers again. Like
+`./start-kind.sh`, it uses the arm64 images on an arm64 host; set `DOCKER_USE_ARM64_CONTAINERS=false` to use the
+default images.
 
 ## Integration tests
 

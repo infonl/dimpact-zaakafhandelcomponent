@@ -4,17 +4,18 @@
  */
 
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   inject,
   input,
   output,
+  signal,
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ZacInput } from "src/app/shared/form/input/input";
 import { ZacSelect } from "src/app/shared/form/select/select";
+import { trackControl } from "../../../../shared/form/control-state";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { KlantenService } from "../../../klanten.service";
 import { KlantGegevens } from "../../../model/klanten/klant-gegevens";
@@ -30,7 +31,6 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
     ZacSelect,
     ZacInput,
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div>
       <form [formGroup]="form">
@@ -49,7 +49,7 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
       </form>
       @if (type() === "persoon") {
         <zac-persoon-zoek
-          [blockSearch]="form.invalid"
+          [blockSearch]="!!formInvalid()"
           [syncEnabled]="true"
           isSelectable
           (persoon)="klantGeselecteerd($event)"
@@ -58,7 +58,7 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
       }
       @if (type() === "bedrijf") {
         <zac-bedrijf-zoek
-          [blockSearch]="form.invalid"
+          [blockSearch]="!!formInvalid()"
           [syncEnabled]="true"
           isSelectable
           (bedrijf)="klantGeselecteerd($event)"
@@ -85,6 +85,8 @@ export class KlantKoppelBetrokkeneComponent {
       Validators.maxLength(75),
     ]),
   });
+  private readonly readForm = trackControl(signal(this.form));
+  protected readonly formInvalid = this.readForm((form) => form.invalid);
   private readonly betrokkeneRoltypenQuery = injectQuery(() => ({
     ...this.klantenService.listBetrokkeneRoltypen(this.zaaktypeUUID() ?? ""),
     enabled: !!this.zaaktypeUUID(),

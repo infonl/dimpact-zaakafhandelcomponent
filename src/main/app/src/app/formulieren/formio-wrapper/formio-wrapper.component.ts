@@ -6,7 +6,6 @@
 import {
   AfterViewInit,
   booleanAttribute,
-  ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
@@ -18,6 +17,7 @@ import {
   input,
   OnInit,
   output,
+  signal,
   untracked,
   viewChild,
   ViewEncapsulation,
@@ -44,7 +44,6 @@ import { FORMIO_NL_TRANSLATIONS } from "./formio-wrapper.i18n-translations.nl";
   encapsulation: ViewEncapsulation.ShadowDom,
   standalone: true,
   imports: [FormioModule],
-  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [
     {
       provide: FormioAppConfig,
@@ -90,14 +89,14 @@ export class FormioWrapperComponent implements OnInit, AfterViewInit {
 
   private readonly elementRef = inject(ElementRef);
   private readonly bootstrapLoader = inject(FormioBootstrapLoaderService);
-  protected stylesLoaded = false;
+  protected readonly stylesLoaded = signal(false);
 
   private static activeElementPatched = false;
   private readonly customFunctions = inject(FormioCustomFunctions);
   private readonly destroyRef = inject(DestroyRef);
   private readonly rebuild$ = new ReplaySubject<void>(1);
-  protected evalContext: Record<string, unknown> = {};
-  protected evalContextReady = false;
+  protected readonly evalContext = signal<Record<string, unknown>>({});
+  protected readonly evalContextReady = signal(false);
   protected readonly submission = computed(() => ({
     data: this.taak()?.taakdata ?? {},
   }));
@@ -143,7 +142,7 @@ export class FormioWrapperComponent implements OnInit, AfterViewInit {
     this.rebuild$
       .pipe(
         switchMap(() => {
-          this.evalContextReady = false;
+          this.evalContextReady.set(false);
           const source = from(
             this.customFunctions.prepareFormContext(
               this.form(),
@@ -162,12 +161,12 @@ export class FormioWrapperComponent implements OnInit, AfterViewInit {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((evalContext: Record<string, unknown>) => {
-        this.evalContext = evalContext;
-        this.evalContextReady = true;
+        this.evalContext.set(evalContext);
+        this.evalContextReady.set(true);
       });
 
     await this.loadBootstrapStyles();
-    this.stylesLoaded = true;
+    this.stylesLoaded.set(true);
   }
 
   ngAfterViewInit() {
@@ -203,15 +202,15 @@ export class FormioWrapperComponent implements OnInit, AfterViewInit {
   }
 
   private refreshTaakInContext() {
-    this.evalContext = {
-      ...this.evalContext,
+    this.evalContext.update((evalContext) => ({
+      ...evalContext,
       taak: this.customFunctions.asContextValue(this.taak(), "taak"),
-    };
+    }));
 
     const webform = this.formioComponent()?.formio as FormioWebform | undefined;
     if (!webform) return;
     // Form.io captured the context when it built the form, hence the webform's own copy.
-    webform.options.evalContext = this.evalContext;
+    webform.options.evalContext = this.evalContext();
 
     // A redraw rebuilds the submit button, which would discard the spinner of a submit in flight.
     if (this.submitPending()) {

@@ -4,12 +4,12 @@
  */
 
 import {
-  ChangeDetectionStrategy,
   Component,
-  OnInit,
   inject,
   input,
+  OnInit,
   output,
+  signal,
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -42,7 +42,6 @@ import { MailService } from "../mail.service";
   templateUrl: "./mail-create.component.html",
   styleUrls: ["./mail-create.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatToolbarModule,
@@ -110,10 +109,14 @@ export class MailCreateComponent implements OnInit {
     >([], []),
   });
 
-  protected verzenderOptions: GeneratedType<"RestZaakAfzender">[] = [];
+  protected readonly verzenderOptions = signal<
+    GeneratedType<"RestZaakAfzender">[]
+  >([]);
   protected readonly contactEmailAddress = injectContactEmail(this.zaak);
-  protected variabelen: string[] = [];
-  protected documents: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
+  protected readonly variabelen = signal<string[]>([]);
+  protected readonly documents = signal<
+    GeneratedType<"RestEnkelvoudigInformatieobject">[]
+  >([]);
 
   private readonly queryClient = inject(QueryClient);
 
@@ -121,7 +124,7 @@ export class MailCreateComponent implements OnInit {
     this.zakenService
       .listAfzendersVoorZaak(this.zaak().uuid)
       .subscribe((afzenders) => {
-        this.verzenderOptions = afzenders;
+        this.verzenderOptions.set(afzenders);
       });
 
     runQuery(
@@ -135,7 +138,7 @@ export class MailCreateComponent implements OnInit {
         onderwerp: mailTemplate.onderwerp,
         body: mailTemplate.body,
       });
-      this.variabelen = mailTemplate.variabelen ?? [];
+      this.variabelen.set(mailTemplate.variabelen ?? []);
     });
 
     this.zakenService
@@ -150,7 +153,7 @@ export class MailCreateComponent implements OnInit {
         zaakUUID: this.zaak().uuid,
       }),
     ).subscribe((documents) => {
-      this.documents = documents;
+      this.documents.set(documents);
     });
   }
 

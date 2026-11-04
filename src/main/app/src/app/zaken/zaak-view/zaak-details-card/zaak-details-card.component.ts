@@ -3,12 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-  output,
-} from "@angular/core";
+import { Component, input, output } from "@angular/core";
 import { MatIconButton } from "@angular/material/button";
 import {
   MatCard,
@@ -44,7 +39,6 @@ import { ZaakDetailsMedewerkersTabComponent } from "./zaak-details-medewerkers-t
   templateUrl: "./zaak-details-card.component.html",
   styleUrls: ["./zaak-details-card.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     MatCard,

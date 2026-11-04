@@ -4,7 +4,6 @@
  */
 
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -45,7 +44,6 @@ import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
   selector: "zac-informatie-object-add",
   templateUrl: "./informatie-object-add.component.html",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatButtonModule,

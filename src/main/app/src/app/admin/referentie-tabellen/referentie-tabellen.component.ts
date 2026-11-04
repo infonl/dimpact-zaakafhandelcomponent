@@ -4,7 +4,6 @@
  */
 
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -45,7 +44,6 @@ import { ReferentieTabelRowDirective } from "./referentie-tabel-row.directive";
   templateUrl: "./referentie-tabellen.component.html",
   styleUrls: ["./referentie-tabellen.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatSidenavModule,
     MatCardModule,

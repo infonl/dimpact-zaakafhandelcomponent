@@ -3,14 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  effect,
-  input,
-  output,
-  viewChild,
-} from "@angular/core";
+import { Component, effect, input, output, viewChild } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import { MatSort, MatSortHeader } from "@angular/material/sort";
@@ -39,7 +32,6 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   styleUrls: ["./zaak-details-bag-objecten-tab.component.less"],
   styles: [":host { display: block; }"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     RouterLink,

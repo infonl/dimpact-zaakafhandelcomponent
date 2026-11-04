@@ -7,6 +7,7 @@ import {
   HttpTestingController,
   TestRequest,
 } from "@angular/common/http/testing";
+import { computed } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { MatDialog } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
@@ -172,6 +173,31 @@ describe(ZoekenDataSource.name, () => {
 
     expect(dataSource.data).toEqual([zaak]);
     expect(dataSource.totalItems).toBe(1);
+  });
+
+  it("lets an OnPush view follow the total, rows and filters of each search, also one without results", async () => {
+    const zaak = fromPartial<ZaakZoekObject>({ identificatie: "ZAAK-001" });
+    const paginator = fromPartial<MatPaginator>({ pageIndex: 0, pageSize: 25 });
+    const firstSearch = await showTable(paginator);
+    const shown = computed(() => ({
+      totalItems: dataSource.totalItems,
+      rows: dataSource.data.length,
+      filters: Object.keys(dataSource.beschikbareFilters).length,
+    }));
+    expect(shown()).toEqual({ totalItems: 0, rows: 0, filters: 0 });
+
+    firstSearch.flush({
+      totaal: 1,
+      resultaten: [zaak],
+      filters: { ZAAKTYPE: [] },
+    });
+    await settle();
+    expect(shown()).toEqual({ totalItems: 1, rows: 1, filters: 1 });
+
+    dataSource.filtersChanged();
+    (await nextSearch()).flush({ totaal: 0, resultaten: [], filters: {} });
+    await settle();
+    expect(shown()).toEqual({ totalItems: 0, rows: 0, filters: 0 });
   });
 
   it("searches again after a delay, also when the search parameters did not change, so a bulk action shows", async () => {

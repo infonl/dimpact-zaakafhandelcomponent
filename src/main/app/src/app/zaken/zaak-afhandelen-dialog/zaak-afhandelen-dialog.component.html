@@ -27,10 +27,7 @@
     @if (data.planItem?.toelichting) {
       <p class="readonly" [innerHTML]="data.planItem.toelichting"></p>
     }
-    @if (
-      form.controls.resultaattype.value?.isBesluitVerplicht &&
-      !data.zaak.besluiten?.length
-    ) {
+    @if (besluitVerplicht()) {
       <p
         class="readonly error"
         [innerHTML]="'msg.besluit.verplicht' | translate"
@@ -58,10 +55,10 @@
       />
     }
     <zac-input [form]="form" key="toelichting" />
-    @if (form.controls.resultaattype.value?.isDatumKenmerkVerplicht) {
+    @if (resultaattype()?.isDatumKenmerkVerplicht) {
       <zac-date [form]="form" key="brondatum">
         <mat-label>{{
-          brondatumLabel || ("zaak.brondatum" | translate)
+          brondatumLabel() || ("zaak.brondatum" | translate)
         }}</mat-label>
       </zac-date>
     }
@@ -75,7 +72,7 @@
         </mat-checkbox>
       </div>
     }
-    @if (form.controls.sendMail.value) {
+    @if (sendMail()) {
       <zac-select
         [form]="form"
         key="verzender"
@@ -84,7 +81,7 @@
         suffix="suffix"
       />
     }
-    @if (form.controls.sendMail.value) {
+    @if (sendMail()) {
       <zac-input [form]="form" key="ontvanger">
         @if (contactEmailAddress()) {
           <button
@@ -99,7 +96,7 @@
         }
       </zac-input>
     }
-    @if (form.controls.sendMail.value) {
+    @if (sendMail()) {
       <mat-expansion-panel class="mat-elevation-z0">
         <mat-expansion-panel-header>
           {{ "body" | translate }}
@@ -109,10 +106,7 @@
     }
   </mat-dialog-content>
   <mat-dialog-actions>
-    @if (
-      form.controls.resultaattype.value?.isBesluitVerplicht &&
-      !data.zaak.besluiten?.length
-    ) {
+    @if (besluitVerplicht()) {
       <button
         mat-raised-button
         color="primary"
@@ -127,7 +121,7 @@
         color="primary"
         type="submit"
         [disabled]="
-          !form.valid ||
+          !formValid() ||
           afsluitenMutation.isPending() ||
           afsluitenMutation.isSuccess() ||
           planItemAfhandelenMutation.isPending() ||

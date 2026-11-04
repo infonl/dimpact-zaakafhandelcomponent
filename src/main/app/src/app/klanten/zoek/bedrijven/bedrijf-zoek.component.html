@@ -36,7 +36,7 @@
         mat-raised-button
         color="primary"
         type="submit"
-        [disabled]="!isValid() || loading"
+        [disabled]="!isValid() || loading()"
       >
         {{ "actie.zoeken" | translate }}
       </button>
@@ -48,7 +48,7 @@
 </form>
 
 <div class="table-wrapper">
-  <table mat-table [dataSource]="bedrijven" matSort>
+  <table mat-table [dataSource]="bedrijven()" matSort>
     <ng-container matColumnDef="naam">
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
         {{ "naam" | translate }}
@@ -119,14 +119,12 @@
     <tr mat-header-row *matHeaderRowDef="bedrijfColumns; sticky: true"></tr>
     <tr mat-row *matRowDef="let row; columns: bedrijfColumns"></tr>
   </table>
-  @if (bedrijven.data.length === 0 && !loading) {
+  @if (bedrijven().length === 0 && !loading()) {
     <p>
-      {{
-        foutmelding ? foutmelding : ("msg.geen.gegevens.gevonden" | translate)
-      }}
+      {{ foutmelding() || ("msg.geen.gegevens.gevonden" | translate) }}
     </p>
   }
-  @if (loading) {
+  @if (loading()) {
     <p>{{ "msg.loading" | translate }}</p>
   }
 </div>

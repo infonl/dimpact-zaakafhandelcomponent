@@ -4,12 +4,7 @@
  */
 
 import { AsyncPipe } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnDestroy,
-  inject,
-} from "@angular/core";
+import { Component, OnDestroy, inject, signal } from "@angular/core";
 import {
   AbstractControl,
   FormBuilder,
@@ -41,6 +36,7 @@ import { UtilService } from "../../core/service/util.service";
 import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
+import { trackControl } from "../../shared/form/control-state";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -51,7 +47,6 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "intake-afronden-dialog.component.html",
   styleUrls: ["./intake-afronden-dialog.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     AsyncPipe,
@@ -97,13 +92,55 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
       this.data.zaak.uuid,
     ),
   );
-  mailBeschikbaar = false;
-  sendMailDefault = false;
+  private readonly zaakafhandelparameters =
+    this.data.zaak.zaaktype.zaakafhandelparameters;
+  readonly mailBeschikbaar =
+    this.zaakafhandelparameters?.intakeMail !== "NIET_BESCHIKBAAR";
+  readonly sendMailDefault =
+    this.zaakafhandelparameters?.intakeMail === "BESCHIKBAAR_AAN";
   protected readonly contactEmailAddress = injectContactEmail(
     () => this.data.zaak,
   );
-  formGroup: FormGroup;
-  afzenders: Observable<GeneratedType<"RestZaakAfzender">[]>;
+  readonly formGroup: FormGroup = this.formBuilder.group({
+    ontvankelijk: [null, [Validators.required]],
+    reden: "",
+    sendMail: this.sendMailDefault,
+    verzender: [null, this.sendMailDefault ? [Validators.required] : null],
+    ontvanger: [
+      "",
+      this.sendMailDefault
+        ? [Validators.required, CustomValidators.email]
+        : null,
+    ],
+  });
+  private readonly readForm = trackControl(signal(this.formGroup));
+  protected readonly formInvalid = this.readForm((form) => form.invalid);
+  protected readonly ontvankelijkDirty = this.readForm(
+    (form) => form.get("ontvankelijk")?.dirty,
+  );
+  protected readonly ontvankelijk = this.readForm(
+    (form) => form.get("ontvankelijk")?.value,
+  );
+  protected readonly sendMail = this.readForm(
+    (form) => form.get("sendMail")?.value,
+  );
+  protected readonly verzender = this.readForm(
+    (form) => form.get("verzender")?.value,
+  );
+  protected readonly redenLength = this.readForm(
+    (form) => form.get("reden")?.value.length,
+  );
+  protected readonly redenError = this.readForm((form) =>
+    this.getError(form.get("reden"), "reden-niet-ontvankelijk"),
+  );
+  protected readonly ontvangerLength = this.readForm(
+    (form) => form.get("ontvanger")?.value.length,
+  );
+  protected readonly ontvangerError = this.readForm((form) =>
+    this.getError(form.get("ontvanger"), "ontvanger"),
+  );
+  readonly afzenders: Observable<GeneratedType<"RestZaakAfzender">[]> =
+    this.zakenService.listAfzendersVoorZaak(this.data.zaak.uuid);
   private ngDestroy = new Subject<void>();
 
   protected readonly afrondenMutation = injectMutation(
@@ -115,26 +152,6 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
   );
 
   constructor() {
-    this.afzenders = this.zakenService.listAfzendersVoorZaak(
-      this.data.zaak.uuid,
-    );
-
-    const zap = this.data.zaak.zaaktype.zaakafhandelparameters;
-    this.mailBeschikbaar = zap?.intakeMail !== "NIET_BESCHIKBAAR";
-    this.sendMailDefault = zap?.intakeMail === "BESCHIKBAAR_AAN";
-
-    this.formGroup = this.formBuilder.group({
-      ontvankelijk: [null, [Validators.required]],
-      reden: "",
-      sendMail: this.sendMailDefault,
-      verzender: [null, this.sendMailDefault ? [Validators.required] : null],
-      ontvanger: [
-        "",
-        this.sendMailDefault
-          ? [Validators.required, CustomValidators.email]
-          : null,
-      ],
-    });
     this.zakenService
       .readDefaultAfzenderVoorZaak(this.data.zaak.uuid)
       .subscribe((afzender) => {

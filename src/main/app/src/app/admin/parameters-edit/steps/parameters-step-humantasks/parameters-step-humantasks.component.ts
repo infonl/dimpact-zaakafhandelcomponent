@@ -5,7 +5,6 @@
 
 import { NgClass } from "@angular/common";
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -19,6 +18,7 @@ import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../../../core/service/util.service";
 import { IdentityService } from "../../../../identity/identity.service";
+import { trackControl } from "../../../../shared/form/control-state";
 import { ZacInput } from "../../../../shared/form/input/input";
 import { ZacSelect } from "../../../../shared/form/select/select";
 import { ZacToggle } from "../../../../shared/form/toggle/toggle";
@@ -37,7 +37,6 @@ import {
   templateUrl: "./parameters-step-humantasks.component.html",
   styleUrl: "./parameters-step-humantasks.component.less",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     NgClass,
     MatExpansionModule,
@@ -90,6 +89,18 @@ export class ParametersStepHumantasksComponent {
   protected readonly compareObject = (a: unknown, b: unknown) =>
     this.utilService.compare(a, b);
 
+  private readonly readForm = trackControl(this.form);
+  protected readonly humanTasks = this.readForm(({ controls }) =>
+    controls.map((humanTaskForm) => ({
+      form: humanTaskForm,
+      isValid: humanTaskForm.valid,
+      isActief: humanTaskForm.controls.actief.value,
+      naam: humanTaskForm.controls.planItemDefinition.value.naam,
+      veldDefinities: this.veldDefinities(humanTaskForm),
+      referentieTabelForms: humanTaskForm.controls.referentieTabellen.controls,
+    })),
+  );
+
   constructor() {
     effect(() => {
       if (!this.formulierDefinitiesQuery.data()) return;
@@ -112,7 +123,7 @@ export class ParametersStepHumantasksComponent {
     });
   }
 
-  protected veldDefinities(humanTaskForm: HumanTaskForm) {
+  private veldDefinities(humanTaskForm: HumanTaskForm) {
     return (
       this.formulierDefinitiesQuery
         .data()

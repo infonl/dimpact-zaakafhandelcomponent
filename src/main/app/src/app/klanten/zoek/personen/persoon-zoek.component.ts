@@ -5,15 +5,16 @@
 
 import {
   booleanAttribute,
-  ChangeDetectionStrategy,
   Component,
   computed,
+  DoCheck,
   effect,
   inject,
   input,
   OnDestroy,
   OnInit,
   output,
+  signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -27,7 +28,7 @@ import { MatExpansionPanelActionRow } from "@angular/material/expansion";
 import { MatIconModule } from "@angular/material/icon";
 import { MatSidenav } from "@angular/material/sidenav";
 import { MatSortModule } from "@angular/material/sort";
-import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { MatTableModule } from "@angular/material/table";
 import { Router } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
@@ -35,6 +36,7 @@ import moment from "moment";
 import { Subject, takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { UtilService } from "../../../core/service/util.service";
+import { trackControl } from "../../../shared/form/control-state";
 import { ZacDate } from "../../../shared/form/date/date";
 import { ZacInput } from "../../../shared/form/input/input";
 import { ZacSelect } from "../../../shared/form/select/select";
@@ -55,7 +57,6 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   templateUrl: "./persoon-zoek.component.html",
   styleUrls: ["./persoon-zoek.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZacSelect,
     ZacInput,
@@ -71,7 +72,7 @@ import { FormCommunicatieService } from "../form-communicatie-service";
     DatumPipe,
   ],
 })
-export class PersoonZoekComponent implements OnInit, OnDestroy {
+export class PersoonZoekComponent implements OnInit, DoCheck, OnDestroy {
   private readonly klantenService = inject(KlantenService);
   private readonly utilService = inject(UtilService);
   private readonly formBuilder = inject(FormBuilder);
@@ -102,9 +103,9 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
     "verblijfplaats",
     "acties",
   ] as const;
-  personen = new MatTableDataSource<GeneratedType<"RestPersoon">>();
-  foutmelding?: string | null = null;
-  loading = false;
+  readonly personen = signal<GeneratedType<"RestPersoon">[]>([]);
+  readonly foutmelding = signal<string | null | undefined>(null);
+  readonly loading = signal(false);
   uuid = crypto.randomUUID();
 
   public formGroup = this.formBuilder.group({
@@ -138,6 +139,24 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
       Validators.maxLength(5),
     ]),
   });
+  private readonly readForm = trackControl(signal(this.formGroup));
+  private readonly formValidForSearch = this.readForm(
+    (form) =>
+      form.valid &&
+      this.getValidQueries(
+        {
+          ...form.value,
+          geboortedatum: form.value.geboortedatum?.toISOString(),
+        },
+        true,
+      ).length > 0,
+  );
+  readonly isValid = computed(
+    () => !!this.formValidForSearch() && !this.blockSearch(),
+  );
+  protected readonly gemeenteVanInschrijvingDisabled = this.readForm(
+    (form) => form.controls.gemeenteVanInschrijving.disabled,
+  );
 
   private readonly brpGemeentenQuery = injectQuery(() =>
     this.klantenService.listAuthorisedBrpGemeenten(),
@@ -181,17 +200,8 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
       });
   }
 
-  isValid() {
-    const parameters = {
-      ...this.formGroup.value,
-      geboortedatum: this.formGroup.value.geboortedatum?.toISOString(),
-    };
-
-    return (
-      this.formGroup.valid &&
-      this.getValidQueries(parameters, true).length &&
-      !this.blockSearch()
-    );
+  ngDoCheck() {
+    this.readForm.check();
   }
 
   private getValidQueries(
@@ -300,9 +310,9 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
   }
 
   zoekPersonen() {
-    this.loading = true;
+    this.loading.set(true);
     this.utilService.setLoading(true);
-    this.personen.data = [];
+    this.personen.set([]);
     const { value } = this.formGroup;
     runQuery(
       this.queryClient,
@@ -319,13 +329,13 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
       ),
     ).subscribe({
       next: (personen) => {
-        this.personen.data = personen.resultaten ?? [];
-        this.foutmelding = personen.foutmelding;
-        this.loading = false;
+        this.personen.set(personen.resultaten ?? []);
+        this.foutmelding.set(personen.foutmelding);
+        this.loading.set(false);
         this.utilService.setLoading(false);
       },
       error: () => {
-        this.loading = false;
+        this.loading.set(false);
         this.utilService.setLoading(false);
       },
     });
@@ -347,7 +357,7 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
 
   protected clearFormAndData() {
     this.formGroup.reset();
-    this.personen.data = [];
+    this.personen.set([]);
   }
 
   ngOnDestroy() {

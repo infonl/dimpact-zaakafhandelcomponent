@@ -150,16 +150,18 @@ describe(ZakenWerkvoorraadComponent.name, () => {
         rechten: { canToekennen: true },
       });
 
-    async function showZaak(zaak: ZaakZoekObject) {
+    async function showZaken(...zaken: ZaakZoekObject[]) {
       await sleep();
       // the search query starts its request when change detection runs its effects
       fixture.detectChanges();
       await sleep();
-      httpTestingController
-        .match("/rest/zoeken/list")
-        .forEach((request) =>
-          request.flush({ totaal: 1, resultaten: [zaak], filters: {} }),
-        );
+      httpTestingController.match("/rest/zoeken/list").forEach((request) =>
+        request.flush({
+          totaal: zaken.length,
+          resultaten: zaken,
+          filters: {},
+        }),
+      );
       await sleep();
       // an effect hands the response to the table
       fixture.detectChanges();
@@ -183,7 +185,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
 
     it("assigns the zaak of the row it was clicked on", async () => {
       await setup();
-      await showZaak(zaakZoekObject());
+      await showZaken(zaakZoekObject());
 
       await clickAssignToMe();
 
@@ -199,7 +201,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
 
     it("shows the assigned behandelaar on the row it was clicked on", async () => {
       await setup();
-      await showZaak(zaakZoekObject());
+      await showZaken(zaakZoekObject());
 
       await clickAssignToMe();
       httpTestingController.expectOne("/rest/zaken/lijst/toekennen/mij").flush(
@@ -216,7 +218,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
 
     it("leaves the row alone when the response names no behandelaar", async () => {
       await setup();
-      await showZaak(zaakZoekObject());
+      await showZaken(zaakZoekObject());
 
       await clickAssignToMe();
       httpTestingController
@@ -227,6 +229,69 @@ describe(ZakenWerkvoorraadComponent.name, () => {
 
       expect(screen.queryByText("testuser-1")).toBeNull();
       expect(assignToMeButton()).toBeVisible();
+    });
+
+    it("disables the assign button only on the row whose assignment is still running", async () => {
+      await setup();
+      await showZaken(
+        zaakZoekObject(),
+        fromPartial<ZaakZoekObject>({
+          ...zaakZoekObject(),
+          id: "otherZaakUuid",
+          identificatie: "ZAAK-2",
+        }),
+      );
+      const [buttonA, buttonB] = screen.getAllByRole("button", {
+        name: "actie.mij.toekennen",
+      });
+
+      const user = userEvent.setup();
+      await user.click(buttonA);
+      await sleep();
+      fixture.detectChanges();
+
+      expect(buttonA).toBeDisabled();
+      expect(buttonB).toBeEnabled();
+    });
+
+    it("settles each of two overlapping assignments on its own row, also when the earlier one fails", async () => {
+      await setup();
+      await showZaken(
+        zaakZoekObject(),
+        fromPartial<ZaakZoekObject>({
+          ...zaakZoekObject(),
+          id: "otherZaakUuid",
+          identificatie: "ZAAK-2",
+        }),
+      );
+      const [buttonA, buttonB] = screen.getAllByRole("button", {
+        name: "actie.mij.toekennen",
+      });
+      const user = userEvent.setup();
+      await user.click(buttonA);
+      await user.click(buttonB);
+      await sleep();
+
+      const [requestA, requestB] = httpTestingController.match(
+        "/rest/zaken/lijst/toekennen/mij",
+      );
+      requestA.flush(null, { status: 500, statusText: "Server Error" });
+      requestB.flush(
+        fromPartial<GeneratedType<"RestZaakOverzicht">>({
+          behandelaar: { username: "user1", naam: "testuser-1" },
+        }),
+      );
+      await sleep();
+      fixture.detectChanges();
+
+      expect(screen.getByText("testuser-1")).toBeInTheDocument();
+      // the error dialog of the failed request hides the page behind it
+      expect(
+        screen.getByRole("button", {
+          name: "actie.mij.toekennen",
+          hidden: true,
+        }),
+      ).toBeEnabled();
     });
   });
 

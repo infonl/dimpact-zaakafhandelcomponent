@@ -5,13 +5,7 @@
 
 import { ClipboardModule } from "@angular/cdk/clipboard";
 import { KeyValuePipe, NgTemplateOutlet } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  effect,
-  inject,
-  input,
-} from "@angular/core";
+import { Component, effect, inject, input, signal } from "@angular/core";
 import {
   AbstractControl,
   FormArray,
@@ -31,6 +25,7 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
+import { trackControl } from "../../shared/form/control-state";
 import { ZacInput } from "../../shared/form/input/input";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
@@ -40,7 +35,6 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./zaakdata.component.html",
   styleUrl: "./zaakdata.component.less",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     NgTemplateOutlet,
     KeyValuePipe,
@@ -66,6 +60,10 @@ export class ZaakdataComponent {
   protected readonly sideNav = input.required<MatDrawer>();
 
   protected readonly form = this.formBuilder.group({});
+  private readonly readForm = trackControl(signal(this.form));
+  protected readonly formControls = this.readForm((form) => ({
+    ...form.controls,
+  }));
 
   protected readonly procesVariabeleQuery = injectQuery(() =>
     this.zakenService.listProcesVariabelen(),

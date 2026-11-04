@@ -3,15 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  input,
-  OnInit,
-  output,
-  signal,
-} from "@angular/core";
+import { Component, inject, input, output, signal } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
@@ -47,7 +39,6 @@ import { BesluitIntrekkenDialogComponent } from "./besluit-intrekken-dialog/besl
   templateUrl: "./besluit-view.component.html",
   styleUrls: ["./besluit-view.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatExpansionModule,
@@ -68,7 +59,7 @@ import { BesluitIntrekkenDialogComponent } from "./besluit-intrekken-dialog/besl
     ZacDocuments,
   ],
 })
-export class BesluitViewComponent implements OnInit {
+export class BesluitViewComponent {
   readonly besluiten = input.required<GeneratedType<"RestBesluit">[]>();
   readonly readonly = input.required<boolean>();
   readonly besluitWijzigen = output<GeneratedType<"RestBesluit">>();
@@ -85,14 +76,16 @@ export class BesluitViewComponent implements OnInit {
     enabled: !!this.geopendBesluitUuid(),
   }));
 
-  protected documentenForms: Record<
-    string,
-    FormGroup<{
-      documenten: FormControl<
-        GeneratedType<"RestEnkelvoudigInformatieobject">[] | null
-      >;
-    }>
-  > = {};
+  protected readonly documentenForms = signal<
+    Record<
+      string,
+      FormGroup<{
+        documenten: FormControl<
+          GeneratedType<"RestEnkelvoudigInformatieobject">[] | null
+        >;
+      }>
+    >
+  >({});
 
   toolTipIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.always),
@@ -106,27 +99,25 @@ export class BesluitViewComponent implements OnInit {
   constructor() {
     toObservable(this.besluiten)
       .pipe(skip(1), takeUntilDestroyed())
-      .subscribe(() => {
-        const besluitUuid = this.geopendBesluitUuid();
-        if (besluitUuid)
-          this.zakenService.invalidateBesluitHistorie(besluitUuid);
+      .subscribe((besluiten) => {
+        besluiten.forEach(({ uuid }) =>
+          this.zakenService.invalidateBesluitHistorie(uuid),
+        );
       });
-  }
-
-  ngOnInit(): void {
-    if (this.besluiten().length > 0) {
-      this.loadBesluitData(this.besluiten()[0].uuid);
-    }
   }
 
   loadBesluitData(uuid: string) {
     this.geopendBesluitUuid.set(uuid);
 
-    this.documentenForms[uuid] ??= this.formBuilder.group({
-      documenten: this.formBuilder.control<
-        GeneratedType<"RestEnkelvoudigInformatieobject">[] | null
-      >([]),
-    });
+    if (this.documentenForms()[uuid]) return;
+    this.documentenForms.update((documentenForms) => ({
+      ...documentenForms,
+      [uuid]: this.formBuilder.group({
+        documenten: this.formBuilder.control<
+          GeneratedType<"RestEnkelvoudigInformatieobject">[] | null
+        >([]),
+      }),
+    }));
   }
 
   protected historie(besluitUuid: string) {

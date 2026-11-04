@@ -25,7 +25,7 @@
             mat-raised-button
             color="primary"
             type="submit"
-            [disabled]="form.invalid || loading"
+            [disabled]="formInvalid() || loading()"
           >
             {{ "actie.zoeken" | translate }}
           </button>
@@ -98,15 +98,15 @@
           [ngClass]="{ disabled: isUnlinkable(row) }"
         ></tr>
       </table>
-      @if (loading) {
+      @if (loading()) {
         <p>{{ "msg.loading" | translate }}</p>
       }
-      @if (!loading && cases.data.length === 0) {
+      @if (!loading() && foundCases().length === 0) {
         <p>
           {{ "msg.geen.gegevens.gevonden" | translate }}
         </p>
       }
-      @if (!loading && cases.data.length > 0 && totalCases > 10) {
+      @if (!loading() && foundCases().length > 0 && totalCases() > 10) {
         <p class="feedback">
           <mat-divider class="mat-divider-wrapper"></mat-divider>
           {{

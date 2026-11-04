@@ -2,6 +2,6 @@ variables:
   - name: baseUrl
     value: http://localhost:8080
   - name: keycloakBaseUrl
-    value: http://host.docker.internal:8081
+    value: http://localhost:8081
   - name: keycloakClientSecret
     value: keycloakZaakhandelcomponentClientSecret

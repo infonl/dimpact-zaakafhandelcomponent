@@ -5,7 +5,7 @@
 <mat-accordion>
   @for (besluit of besluiten(); track besluit; let isFirst = $first) {
     <mat-expansion-panel
-      (afterExpand)="loadBesluitData(besluit.uuid)"
+      (opened)="loadBesluitData(besluit.uuid)"
       [expanded]="isFirst"
     >
       <mat-expansion-panel-header>
@@ -100,10 +100,10 @@
               label="besluit-toelichting"
               [value]="besluit.toelichting"
             />
-            @if (documentenForms[besluit.uuid]) {
+            @if (documentenForms()[besluit.uuid]) {
               <zac-documents
                 class="flex-fill-row mt-2 px-1"
-                [form]="documentenForms[besluit.uuid]"
+                [form]="documentenForms()[besluit.uuid]"
                 key="documenten"
                 [options]="besluit.informatieobjecten ?? []"
                 [readonly]="true"

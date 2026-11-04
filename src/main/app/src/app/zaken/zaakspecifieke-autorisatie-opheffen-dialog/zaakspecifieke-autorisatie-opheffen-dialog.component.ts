@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDialogActions, MatDialogRef } from "@angular/material/dialog";
 import { TranslatePipe } from "@ngx-translate/core";
@@ -12,7 +12,6 @@ import { GenericDialogComponent } from "../../shared/dialog/generic-dialog/gener
 @Component({
   templateUrl: "./zaakspecifieke-autorisatie-opheffen-dialog.component.html",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     GenericDialogComponent,
     MatButtonModule,

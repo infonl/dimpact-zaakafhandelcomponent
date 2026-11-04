@@ -3,12 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  effect,
-  inject,
-} from "@angular/core";
+import { Component, effect, inject } from "@angular/core";
 import { MatIconAnchor } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import { MatPaginator } from "@angular/material/paginator";
@@ -48,7 +43,6 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
     "./zaak-waarschuwingen-card.component.less",
   ],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     MatTable,

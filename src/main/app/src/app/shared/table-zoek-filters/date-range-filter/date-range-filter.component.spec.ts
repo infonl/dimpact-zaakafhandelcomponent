@@ -9,6 +9,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
+import { alterMoment } from "../../../../functions";
 import { GeneratedType } from "../../utils/generated-types";
 import { DateRangeFilterComponent } from "./date-range-filter.component";
 
@@ -22,6 +23,10 @@ type DateRangeFilterInputs = {
 
 describe(DateRangeFilterComponent.name, () => {
   const user = userEvent.setup({ delay: null });
+
+  beforeAll(() => {
+    alterMoment();
+  });
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -37,9 +42,11 @@ describe(DateRangeFilterComponent.name, () => {
     );
     const changed = jest.fn<void, [DatumRange]>();
     fixture.componentInstance.changed.subscribe(changed);
+    const rangeChange = jest.fn<void, [DatumRange | null | undefined]>();
+    fixture.componentInstance.range.subscribe(rangeChange);
     fixture.autoDetectChanges();
     await fixture.whenStable();
-    return { fixture, changed };
+    return { fixture, changed, rangeChange };
   };
 
   const startInput = () => screen.getByPlaceholderText("zoeken.filter.van");
@@ -174,50 +181,106 @@ describe(DateRangeFilterComponent.name, () => {
       expect(calendarToggle()).toBeInTheDocument();
     });
 
-    it("clears the bound range object itself and emits that same object", async () => {
+    it("sets a new empty range on the model and leaves the bound range object untouched", async () => {
       const range: DatumRange = {
         van: new Date(2024, 0, 1).toISOString(),
         tot: new Date(2024, 0, 31).toISOString(),
       };
-      const { changed } = await setup({ range });
+      const { changed, rangeChange } = await setup({ range });
 
       await user.click(screen.getByText("clear"));
 
-      expect(range).toEqual({ van: null, tot: null });
-      expect(changed.mock.calls[0][0]).toBe(range);
+      expect(rangeChange).toHaveBeenCalledTimes(1);
+      expect(rangeChange).toHaveBeenCalledWith({
+        van: null,
+        tot: null,
+      });
+      expect(changed.mock.calls[0][0]).toBe(rangeChange.mock.calls[0][0]);
+      expect(range).toEqual({
+        van: new Date(2024, 0, 1).toISOString(),
+        tot: new Date(2024, 0, 31).toISOString(),
+      });
+    });
+  });
+
+  describe("closing the calendar without picking a date", () => {
+    it("neither sets the model nor emits", async () => {
+      const { changed, rangeChange } = await setup({ range: null });
+
+      await user.click(calendarToggle()!);
+      await user.click(screen.getByRole("button", { name: "Close calendar" }));
+
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+      expect(rangeChange).not.toHaveBeenCalled();
+      expect(changed).not.toHaveBeenCalled();
     });
   });
 
   describe("typing a date", () => {
-    it("emits the range with the typed dates as ISO strings", async () => {
+    const firstOfJanuary = "2024-01-01T00:00:00.000+01:00";
+    const thirtyFirstOfJanuary = "2024-01-31T00:00:00.000+01:00";
+
+    it("emits the range with the typed dates as ISO strings with their offset", async () => {
       const { changed } = await setup({ range: { van: null, tot: null } });
 
       await typeDate(startInput(), "01-01-2024");
 
       expect(changed).toHaveBeenLastCalledWith({
-        van: new Date(2024, 0, 1).toISOString(),
+        van: firstOfJanuary,
         tot: null,
       });
 
       await typeDate(endInput(), "31-01-2024");
 
       expect(changed).toHaveBeenLastCalledWith({
-        van: new Date(2024, 0, 1).toISOString(),
-        tot: new Date(2024, 0, 31).toISOString(),
+        van: firstOfJanuary,
+        tot: thirtyFirstOfJanuary,
       });
     });
 
-    it("writes the typed dates into the bound range object and emits that same object", async () => {
+    it("keeps the offset of the bound date when only the other date is typed", async () => {
+      const { changed } = await setup({
+        range: { van: firstOfJanuary, tot: null },
+      });
+
+      await typeDate(endInput(), "31-01-2024");
+
+      expect(changed).toHaveBeenLastCalledWith({
+        van: firstOfJanuary,
+        tot: thirtyFirstOfJanuary,
+      });
+    });
+
+    it("sets the typed dates on the model and leaves the bound range object untouched", async () => {
       const range: DatumRange = { van: null, tot: null };
-      const { changed } = await setup({ range });
+      const { changed, rangeChange } = await setup({ range });
 
       await typeDate(startInput(), "01-01-2024");
 
-      expect(range).toEqual({
-        van: new Date(2024, 0, 1).toISOString(),
+      expect(rangeChange).toHaveBeenCalledTimes(1);
+      expect(rangeChange).toHaveBeenCalledWith({
+        van: firstOfJanuary,
         tot: null,
       });
-      expect(changed.mock.calls[0][0]).toBe(range);
+      expect(changed.mock.calls[0][0]).toBe(rangeChange.mock.calls[0][0]);
+      expect(range).toEqual({ van: null, tot: null });
+    });
+
+    it("shows the typed dates again when the parent binds null and then the same range back", async () => {
+      const { fixture, rangeChange } = await setup({
+        range: { van: null, tot: null },
+      });
+      await typeDate(startInput(), "01-01-2024");
+      const typedRange = rangeChange.mock.calls[0][0];
+
+      fixture.componentRef.setInput("range", null);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.componentRef.setInput("range", typedRange);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(startInput()).toHaveValue("01-01-2024");
     });
 
     it("shows the clear icon once a date is typed", async () => {
@@ -229,18 +292,20 @@ describe(DateRangeFilterComponent.name, () => {
       expect(calendarToggle()).not.toBeInTheDocument();
     });
 
-    it("does not emit when the only date is erased, but does clear it in the bound range", async () => {
-      const range: DatumRange = {
-        van: new Date(2024, 0, 1).toISOString(),
-        tot: null,
-      };
-      const { changed } = await setup({ range });
+    it("does not emit changed when the only date is erased, but does set an empty range on the model", async () => {
+      const { changed, rangeChange } = await setup({
+        range: { van: new Date(2024, 0, 1).toISOString(), tot: null },
+      });
 
       await user.clear(startInput());
       await user.tab();
 
       expect(changed).not.toHaveBeenCalled();
-      expect(range).toEqual({ van: null, tot: null });
+      expect(rangeChange).toHaveBeenCalledTimes(1);
+      expect(rangeChange).toHaveBeenCalledWith({
+        van: null,
+        tot: null,
+      });
     });
   });
 });

@@ -15,7 +15,10 @@
     opened="true"
     disableClose="true"
   >
-    <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
+    <zac-side-nav
+      (mode)="menuModeChanged($event)"
+      [menu]="menu()"
+    ></zac-side-nav>
   </mat-sidenav>
   <mat-sidenav-content class="flex-col gap-20">
     <mat-card>
@@ -33,7 +36,7 @@
               <th mat-header-cell *matHeaderCellDef>
                 <zac-toggle-filter
                   unCheckedIcon="error"
-                  [selected]="filterParameters.valide"
+                  [selected]="filterParameters().valide"
                   (changed)="applyFilter({ event: $event, filter: 'valide' })"
                 ></zac-toggle-filter>
               </th>
@@ -43,7 +46,7 @@
                 <mat-form-field subscriptSizing="dynamic">
                   <mat-select
                     [compareWith]="compareZaaktype"
-                    [value]="filterParameters.zaaktype"
+                    [value]="filterParameters().zaaktype"
                     (selectionChange)="
                       applyFilter({ event: $event, filter: 'zaaktype' })
                     "
@@ -68,7 +71,7 @@
                 <mat-form-field subscriptSizing="dynamic">
                   <mat-select
                     [compareWith]="compareProcessDefinition"
-                    [value]="filterParameters.processDefinition"
+                    [value]="filterParameters().processDefinition"
                     (selectionChange)="
                       applyFilter({
                         event: $event,
@@ -92,7 +95,7 @@
             <ng-container matColumnDef="geldig_filter">
               <th mat-header-cell *matHeaderCellDef>
                 <zac-toggle-filter
-                  [selected]="filterParameters.geldig"
+                  [selected]="filterParameters().geldig"
                   (changed)="applyFilter({ event: $event, filter: 'geldig' })"
                 ></zac-toggle-filter>
               </th>
@@ -101,10 +104,8 @@
               <th mat-header-cell *matHeaderCellDef="let row">
                 <zac-date-range-filter
                   label="begin.geldigheid"
-                  [range]="filterParameters.beginGeldigheid"
-                  (changed)="
-                    filterParameters.beginGeldigheid = $event; applyFilter()
-                  "
+                  [range]="filterParameters().beginGeldigheid"
+                  (changed)="applyDateRangeFilter('beginGeldigheid', $event)"
                 ></zac-date-range-filter>
               </th>
             </ng-container>
@@ -112,10 +113,8 @@
               <th mat-header-cell *matHeaderCellDef="let row">
                 <zac-date-range-filter
                   label="einde.geldigheid"
-                  [range]="filterParameters.eindeGeldigheid"
-                  (changed)="
-                    filterParameters.eindeGeldigheid = $event; applyFilter()
-                  "
+                  [range]="filterParameters().eindeGeldigheid"
+                  (changed)="applyDateRangeFilter('eindeGeldigheid', $event)"
                 ></zac-date-range-filter>
               </th>
             </ng-container>
@@ -268,12 +267,12 @@
               "
             ></tr>
           </table>
-          @if (parameters.data.length === 0 && !loading()) {
+          @if (hasNoParameters() && !loading()) {
             <p>
               {{ "msg.geen.gegevens.gevonden" | translate }}
             </p>
           }
-          @if (parameters.data.length === 0 && loading()) {
+          @if (hasNoParameters() && loading()) {
             <p>
               {{ "msg.loading" | translate }}
             </p>

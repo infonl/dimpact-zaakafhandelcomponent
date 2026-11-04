@@ -12,7 +12,7 @@
 # HTTP/auth lives in zac_client.py, the zaaktype/document catalogue and the single-item
 # create/upload operations in zac_testdata.py, the summary tables in zac_reporting.py.
 #
-# Prerequisites: Python 3.10+, all Docker Compose services (including ZAC) must be running.
+# Prerequisites: Python 3.10+, the local kind stack of ./start-kind.sh must be running with ZAC.
 #
 # Usage:
 #   ./scripts/test-data/create-load.py <zaken_count> [--skip-config]

@@ -7,7 +7,7 @@
   <zac-static-text
     class="overlay"
     label="zaak.locatie.adres"
-    [value]="nearestAddress ? nearestAddress.weergavenaam : null"
+    [value]="nearestAddress()?.weergavenaam ?? null"
   />
   <div #openLayersMap [id]="'open-layers-map'" class="open-layers-map"></div>
 </div>

@@ -4,13 +4,7 @@
  */
 
 import { Location } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  inject,
-  signal,
-} from "@angular/core";
+import { Component, DestroyRef, inject, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRouteSnapshot, NavigationEnd, Router } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
@@ -31,7 +25,6 @@ import { Breadcrumb, breadcrumbKind, breadcrumbs } from "./route-title";
   templateUrl: "./breadcrumbs.component.html",
   styleUrls: ["./breadcrumbs.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [TranslatePipe, ZaakIdentificatieComponent],
 })
 export class BreadcrumbsComponent {

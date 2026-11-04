@@ -7,11 +7,11 @@ import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
 import { SlicePipe } from "@angular/common";
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
   Component,
   inject,
   OnDestroy,
   OnInit,
+  signal,
   viewChild,
 } from "@angular/core";
 
@@ -57,7 +57,6 @@ import { ZakenAfgehandeldDatasource } from "./zaken-afgehandeld-datasource";
   styleUrls: ["./zaken-afgehandeld.component.less"],
   animations: [detailExpand],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     I18nKeyPipe,
@@ -100,7 +99,7 @@ export class ZakenAfgehandeldComponent
   private readonly paginator = viewChild.required(MatPaginator);
   private readonly sort = viewChild.required(MatSort);
   private readonly table = viewChild.required(MatTable);
-  protected expandedRow: ZaakZoekObject | null = null;
+  protected readonly expandedRow = signal<ZaakZoekObject | null>(null);
   protected readonly zoekenColumn = ZoekenColumn;
   protected readonly indicatiesLayout = IndicatiesLayout;
 

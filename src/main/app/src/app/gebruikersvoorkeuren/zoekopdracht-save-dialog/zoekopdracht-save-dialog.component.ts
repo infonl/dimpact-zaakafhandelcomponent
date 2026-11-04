@@ -3,12 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-} from "@angular/core";
+import { Component, computed, inject, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -25,6 +20,7 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
 import { UtilService } from "../../core/service/util.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
+import { trackControl } from "../../shared/form/control-state";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
@@ -33,7 +29,6 @@ import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
   templateUrl: "./zoekopdracht-save-dialog.component.html",
   styleUrls: ["./zoekopdracht-save-dialog.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatButtonModule,
@@ -65,6 +60,10 @@ export class ZoekopdrachtSaveDialogComponent {
   protected readonly form = this.formBuilder.group({
     naam: this.formBuilder.control<string | null>(null, [Validators.required]),
   });
+
+  private readonly readForm = trackControl(signal(this.form));
+  protected readonly formValid = this.readForm((form) => form.valid);
+  protected readonly formPristine = this.readForm((form) => form.pristine);
 
   protected readonly options = this.data.zoekopdrachten
     .map((z) => z.naam)
