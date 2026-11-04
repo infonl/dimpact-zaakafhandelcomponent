@@ -337,7 +337,7 @@ jobs:
       - name: Run OPA policy tests
         if: ${{ !cancelled() }}
         # keep this OPA version in sync with the OPA of charts/zac
-        uses: docker://openpolicyagent/opa:1.21.4-static@sha256:47f93480b09e24c220ae75f1e9133585ba6d698059951668d35e6a4fc32ebc82
+        uses: docker://openpolicyagent/opa:1.22.0-static@sha256:906bfc9904b2693733e7959d71773dd073e6c135cf06f26d955abe94603e82b3
         with:
           args: test src/main/resources/policies src/test/resources/policies
 
