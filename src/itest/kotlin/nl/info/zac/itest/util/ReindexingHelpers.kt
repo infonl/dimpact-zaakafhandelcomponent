@@ -8,12 +8,10 @@ import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
-import nl.info.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
-import nl.info.zac.itest.config.dockerComposeContainer
+import nl.info.zac.itest.config.ItestKindStack
 import kotlin.time.Duration.Companion.seconds
 
-fun zacContainerLogs(): String =
-    dockerComposeContainer.getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME).get().logs
+fun zacContainerLogs() = ItestKindStack.zacLogs()
 
 /**
  * ZAC's own startup already triggers a full `reindexAll()` when the Solr schema is not yet at
@@ -35,7 +33,7 @@ fun String.shouldContainLogLineMatching(regex: Regex) {
 /**
  * Unlike [String.removePrefix], which silently returns the receiver unchanged when [previousLogs] is
  * not actually a prefix, this fails loudly - so a future change that breaks the prefix guarantee (e.g.
- * a Testcontainers upgrade reordering log frames) surfaces as a test failure instead of the assertions
+ * a rotation of the container log) surfaces as a test failure instead of the assertions
  * below silently matching against the full accumulated container log again.
  */
 fun String.newLogsSince(previousLogs: String): String {

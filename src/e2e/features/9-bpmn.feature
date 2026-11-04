@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2025 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 # 
-@bpmn
+@bpmn @live-env-only
 Feature: BPMN
 
   Scenario: Bob wants to set up the BPMN processdefinition

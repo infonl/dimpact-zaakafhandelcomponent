@@ -1169,7 +1169,7 @@ services:
     profiles: [ "vngselectielijst" ]
 
   vng-selectielijst-web:
-    image: openzaak/vng-selectielijst:1.0.5@sha256:4a9579df9a5cd0308e295c404975bcde63f27bc4a6c65cbaa8e63cd4ef1458e5
+    image: openzaak/vng-selectielijst:1.0.6@sha256:80c4c4f7b73889f1d8a816b8633cc4584961b6f8e4f21b7078df26ec4010f76d
     platform: linux/amd64
     environment:
       - DJANGO_SETTINGS_MODULE=selectielijst.conf.docker

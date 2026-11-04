@@ -40,12 +40,12 @@ openarchiefbeheer:
   image: maykinmedia/open-archiefbeheer:2.0.0@sha256:e5217d748869c62d26393311c3cfdcaacf69d8dde80ca3bc172ff41f3885f0ff
 # no arm64 image: the arm64 build of Open Formulieren lacks static files that the form editor needs
 openforms:
-  image: openformulieren/open-forms:3.5.15@sha256:9d6b55953d10510583e1cf5554ae725e5b317c17c6f5200d25995b2997a72441
+  image: openformulieren/open-forms:4.0.7@sha256:12c975259f37eb91973a722d1f4e3f0ccf09aa037c08ecbd200350efd4ed493a
 vngSelectielijst:
-  image: openzaak/vng-selectielijst:1.0.5@sha256:4a9579df9a5cd0308e295c404975bcde63f27bc4a6c65cbaa8e63cd4ef1458e5
+  image: openzaak/vng-selectielijst:1.0.6@sha256:80c4c4f7b73889f1d8a816b8633cc4584961b6f8e4f21b7078df26ec4010f76d
 # the nginx of the upstream charts and the container that publishes the ports on the host
 nginx:
-  image: nginxinc/nginx-unprivileged:1.31.7@sha256:94193d5c4c5df716f412bb08eb97956d98fe6b59886f0bc57d6d3a3402a88a02
+  image: nginxinc/nginx-unprivileged:1.31.7@sha256:09b0d3eda2aa592d2487f284519419015cab010d7df16cd0fe224b585fc60eb6
 
 # -- one PostGIS server for the databases of every component
 postgres:
@@ -74,10 +74,10 @@ postgres:
       owner: selectielijst
 
 redis:
-  image: redis:8.6.8@sha256:4992e2fd2d992eaa85764b1c9565e15aeadd8f2296cb67f9d04f2fb8da0247ff
+  image: redis:8.6.8@sha256:3d89f7d15768840f509ecc050347868c8b9f5768625eae14ed7633e039ded7fb
 
 keycloak:
-  image: quay.io/keycloak/keycloak:26.7.5@sha256:37dbaf6f0722c9ec246335f36e1ef8b2e6cb960f7c27e0d8c615121a3d475a85
+  image: quay.io/keycloak/keycloak:26.8.1@sha256:3f3c5f8e03c614774b4bd9173b88391fefa4153bfc010d8012d59ad825377332
   # -- the URL of Keycloak in the browser, which is also the issuer of the tokens; set by scripts/kind/up.sh
   hostname: ""
   # -- the e-mail addresses of the test users and groups of the realm, which DOCKER_COMPOSE_<NAME>_EMAIL_ADDRESS
@@ -134,11 +134,11 @@ pabc:
     ZgwZaakregister__CatalogusDomein: ALG
 
 solr:
-  image: solr:9.11.0-slim@sha256:c8a5ad7d951c00f15d5847ba0a94c1ab212de42de10668b80848831b72d75b9f
+  image: solr:9.11.0-slim@sha256:5bc07412dffc1198ff6ace3587e09f8eea2126f821109a849506f4541b228aca
 
 opa:
   # -- keep in sync with the OPA of charts/zac
-  image: openpolicyagent/opa:1.21.4-static@sha256:47f93480b09e24c220ae75f1e9133585ba6d698059951668d35e6a4fc32ebc82
+  image: openpolicyagent/opa:1.22.0-static@sha256:906bfc9904b2693733e7959d71773dd073e6c135cf06f26d955abe94603e82b3
 
 officeConverter:
   # -- keep in sync with the office converter of charts/zac

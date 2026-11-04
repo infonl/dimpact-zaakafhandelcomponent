@@ -22,7 +22,10 @@
 #                                see scripts/kind/ports.json for the names
 #   KEYCLOAK_HOSTNAME            the URL of Keycloak in the browser and in the cluster
 #                                (default: http://keycloak.localhost:<Keycloak host port>)
-#   the settings of ZAC that docs/development/installKind.md lists, also from .env
+#   KIND_ENV_FILE                the file with settings of ZAC and the stack (default: .env); empty for none
+#   KIND_ZAC_VALUES              space-separated Helm values files for ZAC that override all other settings of ZAC
+#   KIND_EXTRA_MANIFESTS         space-separated Kubernetes manifests to apply in the namespace before ZAC starts
+#   the settings of ZAC that docs/development/installKind.md lists, also from KIND_ENV_FILE
 set -euo pipefail
 
 CLUSTER=${KIND_CLUSTER_NAME:-zac}
@@ -191,8 +194,11 @@ for wiremock in smartdocuments-wiremock kvk-wiremock bag-wiremock brp-personen-w
     add configmap "$wiremock-files" --from-file="$SEED_DIR/$wiremock/__files"
   fi
 done
+extra_manifests=()
+for manifest in ${KIND_EXTRA_MANIFESTS:-}; do extra_manifests+=(-f "$manifest"); done
 kc -n "$NAMESPACE" apply --server-side --force-conflicts -f "$SEED" \
-  -f "$WORK_DIR/generated/secret.json" -f "$WORK_DIR/generated/openzaak-seed-env.json" > /dev/null
+  -f "$WORK_DIR/generated/secret.json" -f "$WORK_DIR/generated/openzaak-seed-env.json" \
+  ${extra_manifests[@]+"${extra_manifests[@]}"} > /dev/null
 
 # the host names with a dot in the ZAC settings and the seed data resolve to Services in the cluster, and so does the
 # host name of Keycloak in the browser (keycloak.localhost), which is in the endpoints of its OpenID configuration
@@ -249,6 +255,7 @@ kc -n "$NAMESPACE" exec -i deploy/postgres -- psql --username postgres --quiet -
 if [ "$MODE" = zac ]; then
   zac_values=(-f "$KIND_DIR/values/zac.yaml" -f "$WORK_DIR/zac.json"
     --set "image.repository=${ZAC_DOCKER_IMAGE%:*}" --set "image.tag=${ZAC_DOCKER_IMAGE##*:}")
+  for values_file in ${KIND_ZAC_VALUES:-}; do zac_values+=(-f "$values_file"); done
   if [ "$ZAC_IN_CLUSTER" = local ]; then
     zac_values+=(--set image.pullPolicy=Never
       --set-string "podAnnotations.zac-image-id=$(docker image inspect --format '{{.Id}}' "$ZAC_DOCKER_IMAGE")")

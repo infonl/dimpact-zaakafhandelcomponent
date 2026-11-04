@@ -44,6 +44,9 @@ resources:
   limits:
     memory: 1Gi
 
+# without a set concurrency the chart starts 4 Celery worker processes, which cost ~150 MiB each
+worker:
+  concurrency: 2
 beat:
   replicaCount: 0
 flower:
