@@ -24,7 +24,7 @@
         [form]="form"
         key="templateGroup"
         class="col-12 col-md-6"
-        [options]="templateGroups"
+        [options]="templateGroups()"
         optionDisplayValue="name"
       >
         <mat-label>{{ "sjabloon-groep" | translate }}</mat-label>
@@ -33,7 +33,7 @@
         [form]="form"
         key="template"
         class="col-12 col-md-6"
-        [options]="templates"
+        [options]="templates()"
         optionDisplayValue="name"
       >
         <mat-label>{{ "sjabloon" | translate }}</mat-label>

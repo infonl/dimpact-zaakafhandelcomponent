@@ -26,7 +26,7 @@
     <zac-select
       [form]="form"
       key="verzender"
-      [options]="verzenderOptions"
+      [options]="verzenderOptions()"
       optionDisplayValue="mail"
       suffix="suffix"
     />
@@ -54,12 +54,12 @@
       [form]="form"
       key="onderwerp"
       isPlainText
-      [variables]="variabelen"
+      [variables]="variabelen()"
     />
-    <zac-html-editor [form]="form" key="body" [variables]="variabelen" />
+    <zac-html-editor [form]="form" key="body" [variables]="variabelen()" />
   </fieldset>
   <fieldset class="px-3">
-    <zac-documents [form]="form" key="bijlagen" [options]="documents" />
+    <zac-documents [form]="form" key="bijlagen" [options]="documents()" />
   </fieldset>
   <fieldset>
     <mat-action-row>

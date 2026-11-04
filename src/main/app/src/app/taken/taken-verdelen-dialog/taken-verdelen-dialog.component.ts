@@ -4,7 +4,6 @@
  */
 
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -42,7 +41,6 @@ import { TakenService } from "../taken.service";
   templateUrl: "./taken-verdelen-dialog.component.html",
   styleUrls: ["./taken-verdelen-dialog.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatToolbarModule,

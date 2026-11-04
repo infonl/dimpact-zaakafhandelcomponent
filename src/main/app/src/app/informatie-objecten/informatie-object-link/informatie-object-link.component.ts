@@ -5,13 +5,13 @@
 
 import { NgClass } from "@angular/common";
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
   inject,
   input,
   output,
+  signal,
   untracked,
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -31,6 +31,7 @@ import {
   LINKABLE_ZAKEN_PAGINATION_SIZE,
   ZoekenService,
 } from "src/app/zoeken/zoeken.service";
+import { trackControl } from "../../shared/form/control-state";
 import { ZacInput } from "../../shared/form/input/input";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { runQuery } from "../../shared/http/run-query";
@@ -45,7 +46,6 @@ type DocumentAction = "actie.document.koppelen" | "actie.document.verplaatsen";
   templateUrl: "./informatie-object-link.component.html",
   styleUrls: ["./informatie-object-link.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     NgClass,
@@ -79,7 +79,7 @@ export class InformatieObjectLinkComponent {
   readonly actionLabel = input.required<DocumentAction>();
   readonly informationObjectLinked = output<void>();
 
-  protected loading = false;
+  protected readonly loading = signal(false);
 
   protected readonly intro = computed(() => {
     const infoObject: Partial<
@@ -105,7 +105,10 @@ export class InformatieObjectLinkComponent {
   protected cases = new MatTableDataSource<
     GeneratedType<"RestZaakKoppelenZoekObject">
   >();
-  protected totalCases = 0;
+  protected readonly foundCases = signal<
+    GeneratedType<"RestZaakKoppelenZoekObject">[]
+  >([]);
+  protected readonly totalCases = signal(0);
   protected caseColumns = [
     "identificatie",
     "zaaktypeOmschrijving",
@@ -121,6 +124,9 @@ export class InformatieObjectLinkComponent {
     ]),
   });
 
+  private readonly readForm = trackControl(signal(this.form));
+  protected readonly formInvalid = this.readForm((form) => form.invalid);
+
   protected readonly linkDocumentMutation = injectMutation(() =>
     this.informatieObjectService.linkDocumentToCaseMutation(),
   );
@@ -133,13 +139,17 @@ export class InformatieObjectLinkComponent {
         untracked(() => this.reset());
       }
     });
+
+    effect(() => {
+      this.cases.data = this.foundCases();
+    });
   }
 
   protected searchCases() {
     const infoObject = this.infoObject();
     if (!infoObject?.informatieobjectTypeUUID) return;
 
-    this.loading = true;
+    this.loading.set(true);
     this.utilService.setLoading(true);
     const { caseSearch } = this.form.value;
     runQuery(
@@ -152,14 +162,15 @@ export class InformatieObjectLinkComponent {
       }),
     ).subscribe({
       next: (result) => {
-        this.cases.data =
-          result.resultaten as GeneratedType<"RestZaakKoppelenZoekObject">[];
-        this.totalCases = result.totaal ?? 0;
-        this.loading = false;
+        this.foundCases.set(
+          result.resultaten as GeneratedType<"RestZaakKoppelenZoekObject">[],
+        );
+        this.totalCases.set(result.totaal ?? 0);
+        this.loading.set(false);
         this.utilService.setLoading(false);
       },
       error: () => {
-        this.loading = false;
+        this.loading.set(false);
         this.utilService.setLoading(false);
       },
     });
@@ -220,8 +231,8 @@ export class InformatieObjectLinkComponent {
 
   protected reset() {
     this.form.reset();
-    this.cases.data = [];
-    this.totalCases = 0;
-    this.loading = false;
+    this.foundCases.set([]);
+    this.totalCases.set(0);
+    this.loading.set(false);
   }
 }

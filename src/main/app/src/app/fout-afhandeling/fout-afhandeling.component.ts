@@ -3,12 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnInit,
-} from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";
 import { TranslatePipe } from "@ngx-translate/core";
@@ -21,24 +16,18 @@ import { FoutAfhandelingService } from "./fout-afhandeling.service";
   templateUrl: "./fout-afhandeling.component.html",
   styleUrls: ["./fout-afhandeling.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatCardModule, MatIconModule, TranslatePipe],
 })
-export class FoutAfhandelingComponent implements OnInit {
+export class FoutAfhandelingComponent {
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
   private readonly referentieTabelService = inject(ReferentieTabelService);
 
-  protected bericht: string | null = null;
-  protected foutmelding: string | null = null;
+  protected readonly bericht = this.foutAfhandelingService.bericht;
+  protected readonly foutmelding = this.foutAfhandelingService.foutmelding;
   protected readonly serverErrorTextsQuery = injectQuery(() => ({
     ...this.referentieTabelService.listServerErrorTexts(),
     // A failure would open the error dialog, which loads these texts again.
     meta: { reportErrors: false },
     retry: false,
   }));
-
-  ngOnInit() {
-    this.foutmelding = this.foutAfhandelingService.foutmelding;
-    this.bericht = this.foutAfhandelingService.bericht;
-  }
 }

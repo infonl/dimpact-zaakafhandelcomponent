@@ -4,12 +4,7 @@
  */
 
 import { NgClass } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  effect,
-  inject,
-} from "@angular/core";
+import { Component, effect, inject } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
@@ -30,7 +25,6 @@ const SETTING_PER_COLUMN = {
   templateUrl: "./signaleringen-settings.component.html",
   styleUrls: ["./signaleringen-settings.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     NgClass,

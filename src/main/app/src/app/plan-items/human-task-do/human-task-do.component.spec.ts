@@ -22,7 +22,7 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateService, provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { screen, within } from "@testing-library/angular";
+import { screen, waitFor, within } from "@testing-library/angular";
 import { userEvent } from "@testing-library/user-event";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
@@ -218,6 +218,23 @@ describe("HumanTaskDoComponent", () => {
       ).toHaveBeenCalledWith(zaak, humanTaskPlanItem);
     });
 
+    it("shows the group and user fields once the behandelaar groups arrive after the form is shown", async () => {
+      testQueryClient.clear();
+      fixture.autoDetectChanges();
+      await sleep();
+      const groupsRequest = httpTestingController.expectOne(
+        "/rest/identity/zaaktype/fakeZaaktypeOmschrijving/behandelaar-groups",
+      );
+      await sleep();
+      expect(screen.queryAllByRole("combobox")).toHaveLength(0);
+
+      groupsRequest.flush([group]);
+
+      await waitFor(() =>
+        expect(screen.queryAllByRole("combobox")).toHaveLength(2),
+      );
+    });
+
     it("should read the behandelaar groups of the zaaktype of the zaak", async () => {
       testQueryClient.clear();
 
@@ -278,7 +295,7 @@ describe("HumanTaskDoComponent", () => {
         fromPartial<GeneratedType<"RestGroup">>({ id: "1", naam: "groep1" }),
       );
       expect(component["form"].get("user")?.enabled).toBe(true);
-      const userField = component["formFields"].find(
+      const userField = component["formFields"]().find(
         (f) => f.type === "auto-complete" && f.key === "user",
       ) as { options?: unknown[] } | undefined;
       expect(userField?.options).toEqual(mockUsers);
@@ -307,7 +324,7 @@ describe("HumanTaskDoComponent", () => {
       await sleep();
 
       expect(component["form"].get("user")?.enabled).toBe(true);
-      const userField = component["formFields"].find(
+      const userField = component["formFields"]().find(
         (formField) =>
           formField.type === "auto-complete" && formField.key === "user",
       ) as { options?: unknown[] } | undefined;
@@ -341,7 +358,7 @@ describe("HumanTaskDoComponent", () => {
       await sleep();
       fixture.detectChanges();
 
-      const userField = component["formFields"].find(
+      const userField = component["formFields"]().find(
         (formField) =>
           formField.type === "auto-complete" && formField.key === "user",
       ) as { options?: unknown[] } | undefined;
@@ -424,7 +441,7 @@ describe("HumanTaskDoComponent", () => {
       await initialise();
 
       expect(getAngularRequestFormBuilderSpy).not.toHaveBeenCalled();
-      expect(component["formFields"]).toHaveLength(0);
+      expect(component["formFields"]()).toHaveLength(0);
     });
   });
 

@@ -473,19 +473,19 @@ describe(ZoekComponent.name, () => {
         component["setZoektype"](ZoekType.PERSONEN);
         component["setZoektype"](ZoekType.ZAC);
         expect(component["trefwoordenControl"].enabled).toBe(true);
-        expect(component["zoekType"]).toBe(ZoekType.ZAC);
+        expect(component["zoekType"]()).toBe(ZoekType.ZAC);
       });
 
       it("disables trefwoordenControl when set to PERSONEN", () => {
         component["setZoektype"](ZoekType.PERSONEN);
         expect(component["trefwoordenControl"].disabled).toBe(true);
-        expect(component["zoekType"]).toBe(ZoekType.PERSONEN);
+        expect(component["zoekType"]()).toBe(ZoekType.PERSONEN);
       });
 
       it("disables trefwoordenControl when set to BEDRIJVEN", () => {
         component["setZoektype"](ZoekType.BEDRIJVEN);
         expect(component["trefwoordenControl"].disabled).toBe(true);
-        expect(component["zoekType"]).toBe(ZoekType.BEDRIJVEN);
+        expect(component["zoekType"]()).toBe(ZoekType.BEDRIJVEN);
       });
     });
 
@@ -525,9 +525,9 @@ describe(ZoekComponent.name, () => {
 
     describe("reset", () => {
       it("resets search state", () => {
-        component["hasSearched"] = true;
+        component["hasSearched"].set(true);
         component["reset"]();
-        expect(component["hasSearched"]).toBe(false);
+        expect(component["hasSearched"]()).toBe(false);
         expect(component["hasZaken"]()).toBe(false);
         expect(component["hasTaken"]()).toBe(false);
         expect(component["hasDocument"]()).toBe(false);

@@ -12,7 +12,7 @@
     <mat-card-title>{{
       "zoeken.filter." + (label() | lowercase) | i18nKey | translate
     }}</mat-card-title>
-    @if (inverse) {
+    @if (inverse()) {
       <mat-icon (click)="invert()" class="off">toggle_on</mat-icon>
     } @else {
       <mat-icon (click)="invert()" class="on">toggle_off</mat-icon>

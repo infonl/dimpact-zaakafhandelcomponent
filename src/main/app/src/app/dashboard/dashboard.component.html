@@ -13,9 +13,9 @@
   >
     {{ "actie.dashboard.wijzigen" | translate }}
   </mat-slide-toggle>
-  @if (editMode.value) {
+  @if (isEditMode()) {
     <button
-      [disabled]="this.available.length === 0"
+      [disabled]="available().length === 0"
       id="cardToevoegen_button"
       mat-icon-button
       title="{{ 'actie.card.toevoegen' | translate }}"
@@ -30,7 +30,7 @@
   <mat-menu #cardsMenu="matMenu" class="cards-menu">
     <h4 class="menu-title hide-xs">{{ "actie.card.toevoegen" | translate }}</h4>
     <mat-divider class="hide-gt-xs"></mat-divider>
-    @for (card of available; track card) {
+    @for (card of available(); track card) {
       <button mat-menu-item (click)="add(card)">
         <mat-icon>{{ card.signaleringType ? "notifications" : "" }}</mat-icon>
         <span>{{ "dashboard.card." + card.id | i18nKey | translate }}</span>
@@ -41,16 +41,16 @@
 
 <div
   class="cards"
-  [ngClass]="editMode.value ? 'edit-mode' : 'view-mode'"
+  [ngClass]="isEditMode() ? 'edit-mode' : 'view-mode'"
   cdkDropListGroup
 >
-  @for (column of grid; track column) {
-    @if ((editMode.value && !showHint) || 0 < column.length) {
+  @for (column of grid(); track column) {
+    @if ((isEditMode() && !showHint()) || 0 < column.length) {
       <div
-        class="grid-column-{{ editMode.value ? '3' : columnsInDashboard }}"
+        class="grid-column-{{ isEditMode() ? '3' : columnsInDashboard() }}"
         cdkDropList
         cdkDropListOrientation="vertical"
-        cdkDropListDisabled="{{ !editMode.value }}"
+        cdkDropListDisabled="{{ !isEditMode() }}"
         (cdkDropListDropped)="move($event)"
         [cdkDropListData]="column"
       >
@@ -85,7 +85,7 @@
                     }
                   </mat-card-title>
 
-                  @if (editMode.value) {
+                  @if (isEditMode()) {
                     <button
                       class="delete"
                       [id]="'cardVerwijderen_' + card.id + '_button'"
@@ -129,7 +129,7 @@
     }
   }
 </div>
-@if (showHint) {
+@if (showHint()) {
   <div class="table-wrapper">
     <p class="hint">
       <button type="button" id="hint_button" mat-button (click)="hint()">

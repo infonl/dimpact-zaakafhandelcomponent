@@ -15,7 +15,6 @@ import {
 import { NgClass } from "@angular/common";
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -23,6 +22,7 @@ import {
   inject,
   OnDestroy,
   OnInit,
+  signal,
   untracked,
   viewChild,
   viewChildren,
@@ -47,6 +47,7 @@ import {
 } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
+import { trackControl } from "../shared/form/control-state";
 import { injectMutation } from "../shared/http/inject-mutation";
 import { I18nKeyPipe } from "../shared/pipes/i18n-key.pipe";
 import { SessionStorageUtil } from "../shared/storage/session-storage.util";
@@ -66,7 +67,6 @@ import { ZakenCardComponent } from "./zaken-card/zaken-card.component";
   templateUrl: "./dashboard.component.html",
   styleUrls: ["./dashboard.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     NgClass,
@@ -172,12 +172,25 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   ];
 
   dashboardCardType = DashboardCardType;
-  columnsInDashboard = 0;
   editMode = new FormControl(false);
-  showHint = false;
+  private readonly readEditMode = trackControl(signal(this.editMode));
+  protected readonly isEditMode = this.readEditMode(
+    (editMode) => editMode.value,
+  );
 
-  available: DashboardCard[] = []; // cards that are not on the dashboard
-  grid: Array<DashboardCard[]> = []; // cards that are on the dashboard
+  readonly grid = signal<Array<DashboardCard[]>>([]); // cards that are on the dashboard
+  readonly columnsInDashboard = computed(() =>
+    this.grid().reduce(
+      (count, column) => count + (column.length > 0 ? 1 : 0),
+      0,
+    ),
+  );
+  readonly available = computed(() =>
+    this.cards.filter((card) => this.isAvailable(card)),
+  ); // cards that are not on the dashboard
+  readonly showHint = computed(
+    () => this.available().length === this.cards.length,
+  );
 
   constructor() {
     this.addColumns(SessionStorageUtil.getItem("dashboardWidth", 3));
@@ -293,7 +306,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const rendered: { row: number; element: HTMLElement }[] = [];
     let idx = 0;
-    for (const column of this.grid) {
+    for (const column of this.grid()) {
       if (!this.editMode.value && column.length === 0) continue;
       for (let r = 0; r < column.length && idx < elements.length; r++) {
         rendered.push({ row: r, element: elements[idx++] });
@@ -324,9 +337,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private addColumns(width: number) {
-    while (this.grid.length < width) {
-      this.grid.push([]);
-    }
+    this.grid.update((grid) => [
+      ...grid,
+      ...Array.from({ length: Math.max(0, width - grid.length) }, () => []),
+    ]);
   }
 
   private placeCards(
@@ -336,7 +350,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.addExistingCards(dashboardInstellingen, signaleringInstellingen);
     this.addNewCards(signaleringInstellingen);
     this.updateWidth();
-    this.updateAvailable();
   }
 
   // add configured cards (except when disabled by corresponding signaleringen settings)
@@ -371,9 +384,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // find a good position for a new card
   private addCard(card: DashboardCard) {
+    const grid = this.grid();
     let shortest = 0;
-    this.grid.forEach((_column, idx) => {
-      if (this.grid[idx].length < this.grid[shortest].length) {
+    grid.forEach((_column, idx) => {
+      if (grid[idx].length < grid[shortest].length) {
         shortest = idx;
       }
     });
@@ -381,24 +395,16 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private putCard(card: DashboardCard, column = 0) {
-    return new Position(column, this.grid[column].push(card) - 1);
+    return new Position(column, this.grid()[column].push(card) - 1);
   }
 
   private updateWidth() {
-    this.columnsInDashboard = this.grid.reduce(
-      (count, column) => count + (column.length > 0 ? 1 : 0),
-      0,
-    );
+    this.grid.update((grid) => [...grid]);
     this.scheduleRowSync();
   }
 
-  private updateAvailable() {
-    this.available = this.cards.filter((card) => this.isAvailable(card));
-    this.showHint = this.available.length === this.cards.length;
-  }
-
   private isAvailable(card: DashboardCard) {
-    return !this.grid.some((column) =>
+    return !this.grid().some((column) =>
       column.some((row) => row.id === card.id),
     );
   }
@@ -436,20 +442,19 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const position = this.addCard(card);
     this.saveCard(card, position.column, position.row);
     this.updateWidth();
-    this.updateAvailable();
   }
 
   delete(card: DashboardCard) {
-    const columnIndex = this.grid.findIndex((column) =>
+    const grid = this.grid();
+    const columnIndex = grid.findIndex((column) =>
       column.some((c) => c.id === card.id),
     );
     if (columnIndex === -1) return;
-    const rowIndex = this.grid[columnIndex].findIndex((c) => c.id === card.id);
+    const rowIndex = grid[columnIndex].findIndex((c) => c.id === card.id);
     if (rowIndex === -1) return;
-    this.grid[columnIndex].splice(rowIndex, 1);
+    grid[columnIndex].splice(rowIndex, 1);
     this.deleteCard(card);
     this.updateWidth();
-    this.updateAvailable();
   }
 
   private saveCards() {
@@ -467,7 +472,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private getInstellingen() {
-    return this.grid.flatMap((rows, column) =>
+    return this.grid().flatMap((rows, column) =>
       rows.map((row, rowIndex) => this.getInstellingAt(row, column, rowIndex)),
     );
   }

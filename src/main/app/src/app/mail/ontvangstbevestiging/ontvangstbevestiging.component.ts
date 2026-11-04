@@ -4,12 +4,12 @@
  */
 
 import {
-  ChangeDetectionStrategy,
   Component,
   inject,
   input,
   OnInit,
   output,
+  signal,
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -39,7 +39,6 @@ import { MailService } from "../mail.service";
   selector: "zac-ontvangstbevestiging",
   templateUrl: "./ontvangstbevestiging.component.html",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatToolbarModule,
@@ -71,10 +70,16 @@ export class OntvangstbevestigingComponent implements OnInit {
 
   protected readonly ontvangstBevestigd = output<boolean>();
 
-  protected afzenders: GeneratedType<"RestZaakAfzender">[] = [];
-  protected variables: GeneratedType<"MailTemplateVariables">[] = [];
+  protected readonly afzenders = signal<GeneratedType<"RestZaakAfzender">[]>(
+    [],
+  );
+  protected readonly variables = signal<
+    GeneratedType<"MailTemplateVariables">[]
+  >([]);
   protected readonly contactEmailAddress = injectContactEmail(this.zaak);
-  protected documents: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
+  protected readonly documents = signal<
+    GeneratedType<"RestEnkelvoudigInformatieobject">[]
+  >([]);
 
   protected readonly sendAcknowledgeReceiptMutation = injectMutation(
     () => this.mailService.sendAcknowledgeReceipt(this.zaak().uuid),
@@ -110,13 +115,13 @@ export class OntvangstbevestigingComponent implements OnInit {
         zaakUUID: this.zaak().uuid,
       }),
     ).subscribe((documents) => {
-      this.documents = documents;
+      this.documents.set(documents);
     });
 
     this.zakenService
       .listAfzendersVoorZaak(this.zaak().uuid)
       .subscribe((afzenders) => {
-        this.afzenders = afzenders;
+        this.afzenders.set(afzenders);
       });
 
     this.zakenService
@@ -134,7 +139,7 @@ export class OntvangstbevestigingComponent implements OnInit {
     ).subscribe((mailtemplate) => {
       this.form.controls.onderwerp.setValue(mailtemplate?.onderwerp);
       this.form.controls.body.setValue(mailtemplate?.body);
-      this.variables = mailtemplate?.variabelen ?? [];
+      this.variables.set(mailtemplate?.variabelen ?? []);
     });
   }
 

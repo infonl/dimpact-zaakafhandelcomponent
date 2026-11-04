@@ -5,12 +5,12 @@
 
 import { LowerCasePipe } from "@angular/common";
 import {
-  ChangeDetectionStrategy,
   Component,
   inject,
   input,
   OnInit,
   output,
+  signal,
 } from "@angular/core";
 import { FormBuilder, FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatCardModule } from "@angular/material/card";
@@ -27,7 +27,6 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   templateUrl: "./multi-facet-filter.component.html",
   styleUrls: ["./multi-facet-filter.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     LowerCasePipe,
@@ -52,7 +51,7 @@ export class MultiFacetFilterComponent implements OnInit {
     [key: string]: FormControl<boolean | null>;
   }>({});
 
-  protected inverse = false;
+  protected readonly inverse = signal(false);
   private selected: string[] = [];
 
   /* veld: prefix */
@@ -69,8 +68,9 @@ export class MultiFacetFilterComponent implements OnInit {
 
   ngOnInit(): void {
     const filter = this.filter();
-    this.inverse =
-      filter?.inverse === true || String(filter?.inverse) === "true";
+    this.inverse.set(
+      filter?.inverse === true || String(filter?.inverse) === "true",
+    );
     this.selected = filter?.values ?? [];
     this.opties().forEach((value) => {
       this.formGroup.addControl(
@@ -90,7 +90,7 @@ export class MultiFacetFilterComponent implements OnInit {
     );
     this.changed.emit({
       values: checked,
-      inverse: this.inverse,
+      inverse: this.inverse(),
     });
   }
 
@@ -103,7 +103,7 @@ export class MultiFacetFilterComponent implements OnInit {
   }
 
   protected invert() {
-    this.inverse = !this.inverse;
+    this.inverse.update((inverse) => !inverse);
     if (Object.values(this.formGroup.value).includes(true)) {
       this.checkboxChange();
     }

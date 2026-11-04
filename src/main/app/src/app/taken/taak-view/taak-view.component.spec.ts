@@ -17,6 +17,7 @@ import {
 } from "@angular/common/http/testing";
 import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { FormControl, FormGroup } from "@angular/forms";
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { MatNavListItemHarness } from "@angular/material/list/testing";
@@ -304,9 +305,9 @@ describe(TaakViewComponent.name, () => {
       component.instance.onDocumentCreate(event);
 
       expect(
-        (component.instance as unknown as Record<string, string>)[
+        (component.instance as unknown as Record<string, () => string>)[
           "smartDocumentsGroupId"
-        ],
+        ](),
       ).toBe("group-id");
     });
 
@@ -321,9 +322,9 @@ describe(TaakViewComponent.name, () => {
       component.instance.onDocumentCreate(event);
 
       expect(
-        (component.instance as unknown as Record<string, string>)[
+        (component.instance as unknown as Record<string, () => string>)[
           "smartDocumentsTemplateId"
-        ],
+        ](),
       ).toBe("template-id");
     });
 
@@ -353,9 +354,9 @@ describe(TaakViewComponent.name, () => {
       component.instance.onDocumentCreate(event);
 
       expect(
-        (component.instance as unknown as Record<string, string>)[
+        (component.instance as unknown as Record<string, () => string>)[
           "activeSideAction"
-        ],
+        ](),
       ).toBe("actie.document.maken");
       expect(openSpy).toHaveBeenCalled();
     });
@@ -368,9 +369,9 @@ describe(TaakViewComponent.name, () => {
       component.instance.editTaak();
 
       expect(
-        (component.instance as unknown as Record<string, string>)[
+        (component.instance as unknown as Record<string, () => string>)[
           "activeSideAction"
-        ],
+        ](),
       ).toBe("actie.taak.wijzigen");
       expect(openSpy).toHaveBeenCalled();
     });
@@ -462,6 +463,116 @@ describe(TaakViewComponent.name, () => {
       await flushMutationQueue();
 
       expect(component.instance["hasFailed"]()).toBe(false);
+    });
+
+    it("saves the Form.io values as taakdata, without the submit and save buttons", async () => {
+      component.instance.onFormioFormSubmit({
+        data: { vraag: "antwoord", submit: "true", save: "true" },
+        state: "draft",
+      });
+      await flushMutationQueue();
+
+      const request = httpTestingController.expectOne("/rest/taken/taakdata");
+      expect(request.request.body.taakdata).toEqual({ vraag: "antwoord" });
+      request.flush(taak);
+    });
+  });
+
+  describe(TaakViewComponent.prototype.onHardCodedFormSubmit.name, () => {
+    let httpTestingController: HttpTestingController;
+    let onTaskCompleted: jest.Mock;
+
+    const formGroup = () =>
+      new FormGroup({
+        vraag: new FormControl("antwoord"),
+        toelichting: new FormControl("uitleg"),
+      });
+
+    beforeEach(() => {
+      httpTestingController = TestBed.inject(HttpTestingController);
+      onTaskCompleted = jest.fn();
+      jest
+        .spyOn(taakFormulierenService, "getAngularTaskForm")
+        .mockReturnValue(fromPartial({ onTaskCompleted }));
+    });
+
+    it("saves the form values without completing the taak when the form is saved part-way", async () => {
+      component.instance.onHardCodedFormSubmit(formGroup(), true);
+      await sleep();
+
+      const request = httpTestingController.expectOne("/rest/taken/taakdata");
+      expect(request.request.method).toBe("PUT");
+      expect(request.request.body).toEqual(
+        expect.objectContaining({
+          taakdata: expect.objectContaining({ vraag: "antwoord" }),
+          toelichting: "uitleg",
+        }),
+      );
+      request.flush(taak);
+      await sleep();
+
+      httpTestingController.expectNone("/rest/taken/complete");
+      expect(onTaskCompleted).not.toHaveBeenCalled();
+    });
+
+    it("completes the taak with the form values and hands the completed taak to its form", async () => {
+      component.instance.onHardCodedFormSubmit(formGroup());
+      await sleep();
+
+      const request = httpTestingController.expectOne("/rest/taken/complete");
+      expect(request.request.method).toBe("PATCH");
+      expect(request.request.body.taakdata).toEqual(
+        expect.objectContaining({ vraag: "antwoord" }),
+      );
+      request.flush({ ...taak, status: "AFGEROND" });
+      await sleep();
+
+      expect(onTaskCompleted).toHaveBeenCalledWith(
+        expect.objectContaining({ status: "AFGEROND" }),
+        expect.anything(),
+        expect.anything(),
+      );
+    });
+  });
+
+  describe(TaakViewComponent.prototype.updateTaakdocumenten.name, () => {
+    const document = fromPartial<
+      GeneratedType<"RestEnkelvoudigInformatieobject">
+    >({ uuid: "fakeDocumentUuid", titel: "fakeDocument" });
+
+    it("links a new document to the taak and checks it as an attachment", () => {
+      const existingAttachment = fromPartial<
+        GeneratedType<"RestEnkelvoudigInformatieobject">
+      >({ uuid: "fakeExistingUuid" });
+      component.instance["form"].addControl(
+        "bijlagen",
+        new FormControl([existingAttachment]),
+      );
+      component.instance["formFields"].set([
+        fromPartial({ type: "documents", key: "bijlagen", options: [] }),
+      ]);
+
+      component.instance.updateTaakdocumenten(document);
+
+      expect(component.instance["taak"]()?.taakdocumenten).toContain(
+        "fakeDocumentUuid",
+      );
+      expect(component.instance["form"].get("bijlagen")?.value).toEqual([
+        existingAttachment,
+        document,
+      ]);
+      expect(component.instance["formFields"]()[0]).toEqual(
+        expect.objectContaining({ options: [existingAttachment, document] }),
+      );
+    });
+
+    it("only links the document to the taak when its form has no attachments", () => {
+      component.instance.updateTaakdocumenten(document);
+
+      expect(component.instance["taak"]()?.taakdocumenten).toContain(
+        "fakeDocumentUuid",
+      );
+      expect(component.instance["form"].get("bijlagen")).toBeNull();
     });
   });
 });
