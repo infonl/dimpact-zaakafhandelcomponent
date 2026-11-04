@@ -106,10 +106,10 @@ export class BesluitViewComponent implements OnInit {
   constructor() {
     toObservable(this.besluiten)
       .pipe(skip(1), takeUntilDestroyed())
-      .subscribe(() => {
-        const besluitUuid = this.geopendBesluitUuid();
-        if (besluitUuid)
-          this.zakenService.invalidateBesluitHistorie(besluitUuid);
+      .subscribe((besluiten) => {
+        besluiten.forEach(({ uuid }) =>
+          this.zakenService.invalidateBesluitHistorie(uuid),
+        );
       });
   }
 
