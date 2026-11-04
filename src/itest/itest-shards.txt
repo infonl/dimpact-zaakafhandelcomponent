@@ -30,6 +30,7 @@ nl.info.zac.itest.SearchRestServiceLeesrechtTest
 nl.info.zac.itest.StaticCacheFilterTest
 nl.info.zac.itest.TaskRestServiceTest
 nl.info.zac.itest.WebDavServletTest
+nl.info.zac.itest.ZaakArchiefRestServiceTest
 nl.info.zac.itest.ZaakBesluitRestServiceTest
 nl.info.zac.itest.ZaakRestServiceBrondatumAfleidingswijzeHoofdzaakArchiveTest
 nl.info.zac.itest.ZaakRestServiceCompleteTest
