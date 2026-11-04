@@ -215,12 +215,11 @@ export class InboxProductaanvragenListComponent
 
   protected filtersChanged(options?: {
     event: MatSelectChange | string;
-    filter: keyof GeneratedType<"RestInboxProductaanvraagListParameters">;
+    filter: "type" | "initiatorID";
   }) {
     if (options) {
-      this.listParameters[options.filter] = (
-        typeof options.event === "object" ? options.event.value : options.event
-      ) as never;
+      this.listParameters[options.filter] =
+        typeof options.event === "object" ? options.event.value : options.event;
     }
     this.paginator().pageIndex = 0;
     this.clearZoekopdracht.emit();

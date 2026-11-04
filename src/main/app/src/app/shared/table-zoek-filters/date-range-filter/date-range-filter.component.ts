@@ -19,6 +19,7 @@ import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { TranslatePipe } from "@ngx-translate/core";
+import moment, { Moment } from "moment";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { GeneratedType } from "../../utils/generated-types";
 
@@ -61,10 +62,8 @@ export class DateRangeFilterComponent {
   readonly showLabel = input<boolean>();
   readonly changed = output<GeneratedType<"RestDatumRange">>();
 
-  protected dateVan = new FormControl<Date | null>(null);
-  protected dateTM = new FormControl<Date | null>(null);
-
-  private ownRange?: GeneratedType<"RestDatumRange">;
+  protected dateVan = new FormControl<Moment | null>(null);
+  protected dateTM = new FormControl<Moment | null>(null);
 
   private readonly currentRange = computed<GeneratedType<"RestDatumRange">>(
     () => this.range() ?? { van: null, tot: null },
@@ -73,11 +72,9 @@ export class DateRangeFilterComponent {
   constructor() {
     effect(() => {
       const currentRange = this.currentRange();
-      if (currentRange === this.ownRange) return;
-      this.ownRange = undefined;
       untracked(() => {
-        this.dateVan.setValue(this.toDate(currentRange.van));
-        this.dateTM.setValue(this.toDate(currentRange.tot));
+        this.dateVan.setValue(this.toMoment(currentRange.van));
+        this.dateTM.setValue(this.toMoment(currentRange.tot));
       });
     });
   }
@@ -112,11 +109,10 @@ export class DateRangeFilterComponent {
     if (currentRange.van === range.van && currentRange.tot === range.tot) {
       return;
     }
-    this.ownRange = range;
     this.range.set(range);
   }
 
-  private toDate(value?: string | null) {
-    return value ? new Date(value) : null;
+  private toMoment(value?: string | null) {
+    return value ? moment(value) : null;
   }
 }

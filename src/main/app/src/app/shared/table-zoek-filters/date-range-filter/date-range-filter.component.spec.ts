@@ -238,6 +238,19 @@ describe(DateRangeFilterComponent.name, () => {
       });
     });
 
+    it("keeps the offset of the bound date when only the other date is typed", async () => {
+      const { changed } = await setup({
+        range: { van: firstOfJanuary, tot: null },
+      });
+
+      await typeDate(endInput(), "31-01-2024");
+
+      expect(changed).toHaveBeenLastCalledWith({
+        van: firstOfJanuary,
+        tot: thirtyFirstOfJanuary,
+      });
+    });
+
     it("sets the typed dates on the model and leaves the bound range object untouched", async () => {
       const range: DatumRange = { van: null, tot: null };
       const { changed, rangeChange } = await setup({ range });
