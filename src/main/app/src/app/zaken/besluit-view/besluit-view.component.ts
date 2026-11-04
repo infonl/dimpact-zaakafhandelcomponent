@@ -3,14 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  Component,
-  inject,
-  input,
-  OnInit,
-  output,
-  signal,
-} from "@angular/core";
+import { Component, inject, input, output, signal } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
@@ -66,7 +59,7 @@ import { BesluitIntrekkenDialogComponent } from "./besluit-intrekken-dialog/besl
     ZacDocuments,
   ],
 })
-export class BesluitViewComponent implements OnInit {
+export class BesluitViewComponent {
   readonly besluiten = input.required<GeneratedType<"RestBesluit">[]>();
   readonly readonly = input.required<boolean>();
   readonly besluitWijzigen = output<GeneratedType<"RestBesluit">>();
@@ -111,12 +104,6 @@ export class BesluitViewComponent implements OnInit {
           this.zakenService.invalidateBesluitHistorie(uuid),
         );
       });
-  }
-
-  ngOnInit(): void {
-    if (this.besluiten().length > 0) {
-      this.loadBesluitData(this.besluiten()[0].uuid);
-    }
   }
 
   loadBesluitData(uuid: string) {
