@@ -17,16 +17,16 @@ upstreamCharts:
     version: 1.11.0
   openobject:
     repository: https://maykinmedia.github.io/charts/
-    version: 1.2.0
+    version: 1.1.1
   opennotificaties:
     repository: https://maykinmedia.github.io/charts/
     version: 2.1.0
   openarchiefbeheer:
     repository: https://maykinmedia.github.io/charts/
-    version: 2.1.0
+    version: 2.0.0
   openforms:
     repository: https://maykinmedia.github.io/charts/
-    version: 1.13.0
+    version: 1.12.0
 
 openzaak:
   image: openzaak/open-zaak:1.31.1@sha256:63448221142145b0f56eabadaa9ef9578dd4aacc7f95476bd5368f767883ada0

@@ -125,6 +125,17 @@
     },
     {
       "customType": "regex",
+      "description": "The Kubernetes node image of the kind cluster",
+      "managerFilePatterns": [
+        "/^scripts/kind/kind-config\\.yaml$/"
+      ],
+      "matchStrings": [
+        "image: (?<depName>kindest/node):(?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+)@(?<currentDigest>sha256:[a-f0-9]+)"
+      ],
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
       "matchStrings": [
         "- \\*\\*postgres\\*\\*: (?<currentValue>[^\\n]+)"
       ],
@@ -762,6 +773,66 @@
     },
     {
       "matchPackageNames": [
+        "openzaak"
+      ],
+      "matchDatasources": [
+        "helm"
+      ],
+      "allowedVersions": "< 1.17.0",
+      "description": [
+        "The upstream Open Zaak Helm chart of the kind stack, pinned by the next Dimpact PodiumD release"
+      ]
+    },
+    {
+      "matchPackageNames": [
+        "openobject"
+      ],
+      "matchDatasources": [
+        "helm"
+      ],
+      "allowedVersions": "< 1.2.0",
+      "description": [
+        "The upstream Open Object Helm chart of the kind stack, pinned by the next Dimpact PodiumD release"
+      ]
+    },
+    {
+      "matchPackageNames": [
+        "opennotificaties"
+      ],
+      "matchDatasources": [
+        "helm"
+      ],
+      "allowedVersions": "< 2.2.0",
+      "description": [
+        "The upstream Open Notificaties Helm chart of the kind stack, pinned by the next Dimpact PodiumD release"
+      ]
+    },
+    {
+      "matchPackageNames": [
+        "openarchiefbeheer"
+      ],
+      "matchDatasources": [
+        "helm"
+      ],
+      "allowedVersions": "< 2.1.0",
+      "description": [
+        "The upstream Open Archiefbeheer Helm chart of the kind stack, pinned by the next Dimpact PodiumD release"
+      ]
+    },
+    {
+      "matchPackageNames": [
+        "openforms"
+      ],
+      "matchDatasources": [
+        "helm"
+      ],
+      "allowedVersions": "< 1.13.0",
+      "description": [
+        "The upstream Open Formulieren Helm chart of the kind stack, pinned by the next Dimpact PodiumD release"
+      ]
+    },
+    {
+      "matchPackageNames": [
         "openklant"
       ],
       "matchDatasources": [
@@ -770,6 +841,30 @@
       "allowedVersions": "< 1.12.0",
       "description": [
         "The Open Klant chart of the kind stack must fit the Open Klant version: later charts probe /_healthz/, which Open Klant 2.15 does not have"
+      ]
+    },
+    {
+      "matchPackageNames": [
+        "kubernetes/kubernetes"
+      ],
+      "matchDatasources": [
+        "github-releases"
+      ],
+      "allowedVersions": "< 1.36.0",
+      "description": [
+        "kubectl of the kind stack, kept on the Kubernetes 1.35.x line of the next Dimpact PodiumD release"
+      ]
+    },
+    {
+      "matchPackageNames": [
+        "kindest/node"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "allowedVersions": "< 1.36.0",
+      "description": [
+        "The Kubernetes node image of the kind cluster, kept on the 1.35.x line of the next Dimpact PodiumD release"
       ]
     },
     {

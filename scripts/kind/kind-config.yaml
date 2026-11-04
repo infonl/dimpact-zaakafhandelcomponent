@@ -8,6 +8,9 @@ kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
   - role: control-plane
+    # the Kubernetes version of the cluster is pinned to the 1.35.x line of the next Dimpact PodiumD release
+    # instead of the kind default; renovate keeps it on that line (see renovate.json)
+    image: kindest/node:v1.35.8@sha256:07b2536e30b803ed61d1677a79df6115f798ce64c80f9e22f6ed45afd09323c0
     kubeadmConfigPatches:
       - |
         kind: KubeletConfiguration
