@@ -24,10 +24,6 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.ZAAKCOORD
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.ZaaktypeConfigurationService
-import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable
-import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDING_RAADPLEEG_WAARDE
-import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDING_ZOEK_WAARDE
-import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_VERWERKINGSREGISTER_WAARDE
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.COMMUNICATIEKANAAL
 import nl.info.zac.configuration.ConfigurationService.Companion.COMMUNICATIEKANAAL_EFORMULIER
 import nl.info.zac.configuration.ConfigurationService.Companion.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL
@@ -40,7 +36,6 @@ import nl.info.zac.healthcheck.exception.BuildInformationException
 import nl.info.zac.healthcheck.model.BuildInformation
 import nl.info.zac.healthcheck.model.ZaaktypeInrichtingscheck
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.isPureAscii
 import nl.info.zac.util.time.dateNowIsBetween
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.io.File
@@ -63,6 +58,7 @@ class HealthCheckService @Inject constructor(
     private val versionNumber: Optional<String?>,
 
     private val referenceTableService: ReferenceTableService,
+    private val brpInstellingenCheck: BrpInstellingenCheck,
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val ztcClientService: ZtcClientService
 ) {
@@ -211,16 +207,6 @@ class HealthCheckService @Inject constructor(
         }
 
     private fun controleerBrpInstellingenCorrect(zaaktypeInrichtingscheck: ZaaktypeInrichtingscheck) {
-        if (isReferenceTableValidForAuditLogHeaders(BRP_DOELBINDING_ZOEK_WAARDE) &&
-            isReferenceTableValidForAuditLogHeaders(BRP_DOELBINDING_RAADPLEEG_WAARDE) &&
-            isReferenceTableValidForAuditLogHeaders(BRP_VERWERKINGSREGISTER_WAARDE)
-        ) {
-            zaaktypeInrichtingscheck.isBrpInstellingenCorrect = true
-        }
+        zaaktypeInrichtingscheck.isBrpInstellingenCorrect = brpInstellingenCheck.isBrpInstellingenCorrect()
     }
-
-    private fun isReferenceTableValidForAuditLogHeaders(systemReferenceTable: SystemReferenceTable): Boolean =
-        referenceTableService.readSystemReferenceTable(systemReferenceTable).values.let { values ->
-            values.isNotEmpty() && values.all { it.name.isPureAscii() }
-        }
 }

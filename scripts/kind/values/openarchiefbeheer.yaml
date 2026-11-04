@@ -1,0 +1,55 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# Values for the maykinmedia/openarchiefbeheer chart (release 'openarchiefbeheer'). scripts/kind/up.sh adds the
+# image, the generated passwords and the URLs of the browser; the seed-openarchiefbeheer Job of the zac-dev chart
+# configures it and creates its 'admin' user.
+replicaCount: 1
+
+tags:
+  redis: false
+
+service:
+  port: 8000
+
+settings:
+  allowedHosts: openarchiefbeheer,openarchiefbeheer-nginx,localhost,127.0.0.1,host.docker.internal
+  # docker_no2fa.py of the zac-dev chart, which lets the 'admin' user log in without a second factor
+  djangoSettingsModule: openarchiefbeheer.conf.docker_no2fa
+  cache:
+    default: redis:6379/0
+    axes: redis:6379/0
+    choices: redis:6379/0
+  celery:
+    brokerUrl: redis://redis:6379/0
+    resultBackend: redis://redis:6379/0
+  cookie:
+    sessionCookieSecure: false
+    csrfCookieSecure: false
+  requestsReadTimeout: "5000"
+
+extraVolumes:
+  - name: settings
+    configMap:
+      name: openarchiefbeheer-settings
+extraVolumeMounts:
+  - name: settings
+    mountPath: /app/src/openarchiefbeheer/conf/docker_no2fa.py
+    subPath: docker_no2fa.py
+
+persistence:
+  enabled: false
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 1Gi
+
+worker:
+  replicaCount: 1
+  concurrency: 2
+flower:
+  enabled: false

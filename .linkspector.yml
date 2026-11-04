@@ -16,6 +16,7 @@ excludedDirs:
   - wildfly*
 ignorePatterns:
   - pattern: '^https?://localhost'
+  - pattern: '^https?://[^/:]+\.localhost(:[0-9]+)?(/|$)'
   - pattern: '^https?://.+\.example\.com'
   - pattern: '^http://release-opa\.default\.svc\.cluster\.local:8181$'
   - pattern: '^https://dimpact\.atlassian\.net/'

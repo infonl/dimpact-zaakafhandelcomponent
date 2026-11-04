@@ -7,7 +7,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
-import { screen, within } from "@testing-library/angular";
+import { screen, waitFor, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { Subject } from "rxjs";
 import {
@@ -128,13 +128,17 @@ describe(ConfirmDialogComponent.name, () => {
     it("closes with true when the observable succeeds", async () => {
       await clickConfirm();
       subject.next();
-      expect(mockDialogRef.close).toHaveBeenCalledWith(true);
+      await waitFor(() =>
+        expect(mockDialogRef.close).toHaveBeenCalledWith(true),
+      );
     });
 
     it("closes with false when the observable errors", async () => {
       await clickConfirm();
       subject.error(new Error("fail"));
-      expect(mockDialogRef.close).toHaveBeenCalledWith(false);
+      await waitFor(() =>
+        expect(mockDialogRef.close).toHaveBeenCalledWith(false),
+      );
     });
 
     it("disables confirm and cancel buttons while loading", async () => {

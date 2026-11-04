@@ -6,6 +6,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
+import { HttpTestingController } from "@angular/common/http/testing";
 import { provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatAutocompleteHarness } from "@angular/material/autocomplete/testing";
@@ -26,7 +27,6 @@ import {
 import { notifyManager } from "@tanstack/query-core";
 import { screen, waitFor } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { of } from "rxjs";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { sleep } from "../../../../setupJest";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
@@ -177,19 +177,18 @@ describe(ZaakCreateComponent.name, () => {
     });
 
     referentieTabelService = TestBed.inject(ReferentieTabelService);
-    jest
-      .spyOn(referentieTabelService, "listCommunicatiekanalen")
-      .mockReturnValue(
-        of([
-          "Boeman",
-          "Koebel",
-          "Telegram",
-          "Tamtam",
-          "PostDuif",
-          "Rooksignalen",
-          "Telefoon",
-        ]),
-      );
+    queryClient.setQueryData(
+      referentieTabelService.listCommunicatiekanalen().queryKey,
+      [
+        "Boeman",
+        "Koebel",
+        "Telegram",
+        "Tamtam",
+        "PostDuif",
+        "Rooksignalen",
+        "Telefoon",
+      ],
+    );
 
     router = TestBed.inject(Router);
     jest.spyOn(router, "navigate").mockImplementation(async () => true);
@@ -620,15 +619,37 @@ describe(ZaakCreateComponent.name, () => {
   });
 
   describe("communication channel", () => {
-    it("pre-selects the default channel when it is present in the list", () => {
-      jest
-        .spyOn(referentieTabelService, "listCommunicatiekanalen")
-        .mockReturnValue(of([ZaakCreateComponent.DEFAULT_CHANNEL]));
+    const renderWithCommunicationChannels = async (channels: string[]) => {
+      TestBed.inject(QueryClient).removeQueries({
+        queryKey: referentieTabelService.listCommunicatiekanalen().queryKey,
+      });
       fixture = TestBed.createComponent(ZaakCreateComponent);
       fixture.detectChanges();
+      await sleep();
+      TestBed.inject(HttpTestingController)
+        .expectOne("/rest/referentietabellen/communicatiekanaal/false")
+        .flush(channels);
+      await sleep(10);
+      fixture.detectChanges();
+    };
+
+    it("pre-selects the default channel when it is present in the list", async () => {
+      await renderWithCommunicationChannels([
+        "Telefoon",
+        ZaakCreateComponent.DEFAULT_CHANNEL,
+      ]);
+
       expect(
         fixture.componentInstance["form"].controls.communicatiekanaal.value,
       ).toBe(ZaakCreateComponent.DEFAULT_CHANNEL);
+    });
+
+    it("leaves the channel empty when the default channel is not in the list", async () => {
+      await renderWithCommunicationChannels(["Telefoon"]);
+
+      expect(
+        fixture.componentInstance["form"].controls.communicatiekanaal.value,
+      ).toBe("");
     });
   });
 

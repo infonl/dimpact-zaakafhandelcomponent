@@ -132,9 +132,10 @@ describe(CaseDetailsEditComponent.name, () => {
     seedBehandelaarGroups([]);
     for (const groupId of ["g1", "g2", "g-inactive"])
       seedUsersInGroup(groupId, []);
-    jest
-      .spyOn(referentieTabelService, "listCommunicatiekanalen")
-      .mockReturnValue(of(["email", "telefoon", "post"]));
+    testQueryClient.setQueryData(
+      referentieTabelService.listCommunicatiekanalen().queryKey,
+      ["email", "telefoon", "post"],
+    );
     jest.spyOn(utilService, "getEnumAsSelectList").mockReturnValue([
       { label: "Openbaar", value: "openbaar" },
       { label: "Beperkt openbaar", value: "beperkt_openbaar" },
@@ -212,6 +213,56 @@ describe(CaseDetailsEditComponent.name, () => {
         expect(await einddatumGeplandInput.isDisabled()).toBe(expectedDisabled);
       },
     );
+  });
+
+  describe("communicatiekanaal options", () => {
+    const communicationChannelOptions = async () => {
+      const selects = await loader.getAllHarnesses(MatSelectHarness);
+      await selects[2].open();
+      const options = await selects[2].getOptions();
+      return Promise.all(options.map((option) => option.getText()));
+    };
+
+    it("offers the communicatiekanalen without the e-formulier", async () => {
+      testQueryClient.removeQueries({
+        queryKey: referentieTabelService.listCommunicatiekanalen().queryKey,
+      });
+      renderComponent({ communicatiekanaal: undefined });
+
+      httpTestingController
+        .expectOne("/rest/referentietabellen/communicatiekanaal/false")
+        .flush(["email", "telefoon"]);
+      await sleep(10);
+      await fixture.whenStable();
+
+      expect(await communicationChannelOptions()).toEqual([
+        "email",
+        "telefoon",
+      ]);
+    });
+
+    it("adds the communicatiekanaal of the zaak when the reference table no longer has it", async () => {
+      renderComponent({ communicatiekanaal: "duif" });
+      await fixture.whenStable();
+
+      expect(await communicationChannelOptions()).toEqual([
+        "email",
+        "telefoon",
+        "post",
+        "duif",
+      ]);
+    });
+
+    it("lists the communicatiekanaal of the zaak once when the reference table has it", async () => {
+      renderComponent({ communicatiekanaal: "telefoon" });
+      await fixture.whenStable();
+
+      expect(await communicationChannelOptions()).toEqual([
+        "email",
+        "telefoon",
+        "post",
+      ]);
+    });
   });
 
   describe("form control disabling based on permissions", () => {
