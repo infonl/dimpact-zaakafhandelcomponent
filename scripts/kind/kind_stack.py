@@ -8,9 +8,13 @@
   ports  <ports.json> <zac|ide> <profiles> <output dir> <node host name> <proxy container name>
          Resolves the host ports, fails when one of them is taken, and writes the nginx configuration and the
          'docker run' port arguments of the container that publishes the NodePorts on the host.
-  values <stack.json> <output dir> <zac|ide> <profiles> <Secret with the generated passwords, as JSON, or empty>
-         Writes the Helm values of the releases, the Secret with the generated passwords and the SQL that gives the
-         database roles their passwords. Settings of ZAC in .env or in the environment override the defaults.
+  check-passwords <stack.json>
+         Fails when a password of the stack is not set in .env or in the environment. Without an env file
+         (KIND_ENV_FILE is empty) the missing passwords are generated instead.
+  values <stack.json> <output dir> <zac|ide> <profiles> <Secret with the passwords of the cluster, as JSON, or empty>
+         Writes the Helm values of the releases, the Secret with the passwords, the SQL that gives the database roles
+         their passwords and the list of the passwords that changed. Settings of ZAC in .env or in the environment
+         override the defaults.
   wait   <kube context> <namespace> <timeout seconds> <node start time> [<deployment>...]
          Waits until the pods of the deployments, or of all deployments, are ready, ignoring a readiness from
          before the node started:
@@ -156,8 +160,9 @@ def read_dotenv(path):
 
 
 def load_environment():
-    """The variables of .env with those of the environment on top."""
-    return {**read_dotenv(os.path.join(ROOT, ".env")), **os.environ}
+    """The variables of KIND_ENV_FILE (default: .env) with those of the environment on top."""
+    env_file = os.environ.get("KIND_ENV_FILE", os.path.join(ROOT, ".env"))
+    return {**(read_dotenv(env_file) if env_file else {}), **os.environ}
 
 
 def as_boolean(value):
@@ -207,9 +212,8 @@ ZAC_SETTINGS_FROM_ENVIRONMENT = [
     ("ZAC_INTERNAL_ENDPOINTS_API_KEY", "zacInternalEndpointsApiKey", str),
 ]
 
-# The generated passwords that a variable of .env or of the environment overrides, so that a ZAC in an IDE with the
-# settings of .env can connect to the stack
-GENERATED_FROM_ENVIRONMENT = {
+# The passwords that a ZAC in an IDE with the settings of .env also needs to connect to the stack
+ZAC_PASSWORD_VARIABLES = {
     "db-password-zac": "DB_PASSWORD",
     "solr-password": "SOLR_PASSWORD",
     "office-converter-password": "OFFICE_CONVERTER_PASSWORD",
@@ -273,19 +277,45 @@ def solr_security(username, password):
     }, indent=2)
 
 
-def generated_passwords(existing_secret_file, database_owners, environment):
-    """The generated passwords of the cluster: those of the Secret of an earlier start, new ones for the rest."""
-    passwords = {}
-    if existing_secret_file and os.path.getsize(existing_secret_file) > 0:
-        passwords = {key: base64.b64decode(value).decode()
-                     for key, value in json.load(open(existing_secret_file)).get("data", {}).items()}
-    keys = (["postgres-password", "admin-password", "solr-password", "office-converter-password"]
-            + [f"db-password-{owner}" for owner in database_owners]
-            + [f"secret-key-{release}" for release in [*DJANGO_RELEASES, "vngselectielijst"]])
-    for key in keys:
-        override = environment.get(GENERATED_FROM_ENVIRONMENT.get(key, ""), "")
-        if override:
-            passwords[key] = override
+def password_variables(database_owners):
+    """The passwords of the stack with the variable of .env or of the environment that sets them. .env.tpl takes
+    these variables from 1Password."""
+    return {
+        "postgres-password": "POSTGRES_PASSWORD",
+        "admin-password": "ADMIN_PASSWORD",
+        **{f"db-password-{owner}": f"DB_PASSWORD_{owner.upper()}" for owner in database_owners},
+        **ZAC_PASSWORD_VARIABLES,
+    }
+
+
+def check_passwords(stack_file):
+    if os.environ.get("KIND_ENV_FILE") == "":
+        return
+    environment = load_environment()
+    owners = [database["owner"] for database in json.load(open(stack_file))["databases"]]
+    missing = [variable for variable in password_variables(owners).values() if not environment.get(variable)]
+    if missing:
+        sys.exit("These passwords of the stack are not set: " + ", ".join(missing) + ".\n"
+                 "Start the stack with access to the 1Password vault 'Dimpact', or set them in .env; "
+                 "see .env.example and docs/development/installKind.md.")
+
+
+def read_secret(secret_file):
+    if not secret_file or os.path.getsize(secret_file) == 0:
+        return {}
+    return {key: base64.b64decode(value).decode()
+            for key, value in json.load(open(secret_file)).get("data", {}).items()}
+
+
+def stack_passwords(existing, database_owners, environment):
+    """The passwords of the cluster: those of the variables, else those of the Secret of an earlier start. The secret
+    keys, and without an env file also the passwords, are generated when the Secret does not have them."""
+    passwords = dict(existing)
+    variables = password_variables(database_owners)
+    for key in [*variables, *[f"secret-key-{release}" for release in [*DJANGO_RELEASES, "vngselectielijst"]]]:
+        value = environment.get(variables.get(key, ""), "")
+        if value:
+            passwords[key] = value
         elif not passwords.get(key):
             passwords[key] = secrets.token_hex(20)
     if not passwords.get("admin-password-hash") or passwords.get("admin-password-of-hash") != passwords["admin-password"]:
@@ -306,9 +336,14 @@ def sql_identifier(value):
     return '"' + value.replace('"', '""') + '"'
 
 
+def changed_passwords(existing, passwords, database_owners):
+    keys = [*password_variables(database_owners), "solr-credentials"]
+    return [key for key in keys if existing.get(key) and existing[key] != passwords[key]]
+
+
 def roles_sql(databases, passwords):
     """Creates the missing roles and databases and gives each role the password of the Secret."""
-    statements = []
+    statements = [f"ALTER ROLE postgres PASSWORD {sql_literal(passwords['postgres-password'])};\n"]
     for database in databases:
         owner, name = database["owner"], database["name"]
         password = sql_literal(passwords[f"db-password-{owner}"])
@@ -331,7 +366,11 @@ def write_values(stack_file, output_dir, mode, profiles, existing_secret_file):
         return f"http://localhost:{host_ports.get('HOST_PORT_' + port_name, default)}"
 
     databases = stack["databases"]
-    passwords = generated_passwords(existing_secret_file, [database["owner"] for database in databases], environment)
+    database_owners = [database["owner"] for database in databases]
+    existing_secret = read_secret(existing_secret_file)
+    passwords = stack_passwords(existing_secret, database_owners, environment)
+    with open(os.path.join(output_dir, "generated", "changed-passwords"), "w") as changed:
+        changed.writelines(f"{key}\n" for key in changed_passwords(existing_secret, passwords, database_owners))
     write_json(os.path.join(output_dir, "generated", "secret.json"), {
         "apiVersion": "v1", "kind": "Secret", "metadata": {"name": GENERATED_SECRET}, "type": "Opaque",
         "stringData": passwords})
@@ -346,8 +385,8 @@ def write_values(stack_file, output_dir, mode, profiles, existing_secret_file):
     keycloak_url = (environment.get("KEYCLOAK_HOSTNAME")
                     or f"http://{KEYCLOAK_HOST}:{host_ports.get('HOST_PORT_KEYCLOAK', 8081)}")
     email_addresses = {
-        name.replace("DOCKER_COMPOSE_", "ZAC_", 1): value for name, value in environment.items()
-        if re.fullmatch(r"DOCKER_COMPOSE_[A-Z0-9_]+_EMAIL_ADDRESS", name) and value}
+        f"ZAC_{name}": value for name, value in environment.items()
+        if re.fullmatch(r"[A-Z0-9_]+_EMAIL_ADDRESS", name) and value}
     write_json(os.path.join(output_dir, "zac-dev.json"), {
         "zacOutsideCluster": mode == "ide",
         "profiles": {profile: profile in profiles.split(",") for profile in
@@ -420,7 +459,7 @@ def write_values(stack_file, output_dir, mode, profiles, existing_secret_file):
     with open(os.path.join(output_dir, "generated", "summary.env"), "w") as summary:
         summary.write(f"ADMIN_PASSWORD={passwords['admin-password']}\n")
         if mode == "ide":
-            for key, variable in GENERATED_FROM_ENVIRONMENT.items():
+            for key, variable in ZAC_PASSWORD_VARIABLES.items():
                 if environment.get(variable, "") != passwords[key]:
                     summary.write(f"{variable}={passwords[key]}\n")
 
@@ -477,6 +516,8 @@ def wait_until_ready(context, namespace, timeout, node_started_at, *deployments)
 if __name__ == "__main__":
     if len(sys.argv) == 8 and sys.argv[1] == "ports":
         resolve_ports(*sys.argv[2:])
+    elif len(sys.argv) == 3 and sys.argv[1] == "check-passwords":
+        check_passwords(sys.argv[2])
     elif len(sys.argv) == 7 and sys.argv[1] == "values":
         write_values(*sys.argv[2:])
     elif len(sys.argv) >= 6 and sys.argv[1] == "wait":

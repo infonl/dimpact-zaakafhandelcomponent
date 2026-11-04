@@ -119,7 +119,7 @@
             <zac-date-range-filter
               label="startdatum"
               [range]="zoekParameters().datums.ZAAK_STARTDATUM"
-              (changed)="datumChanged('ZAAK_STARTDATUM', $event)"
+              (rangeChange)="datumChanged('ZAAK_STARTDATUM', $event)"
             >
             </zac-date-range-filter>
           </th>

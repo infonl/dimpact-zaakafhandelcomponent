@@ -103,7 +103,7 @@ class MailRestServiceTest : BehaviorSpec({
 
                 val receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
                 with(receivedMails) {
-                    // if this same test is run multiple times while Docker Compose is kept running,
+                    // if this same test is run multiple times while the kind cluster is kept running,
                     // there may be multiple emails, so we check that at least one email was received
                     val receivedMailsCount = length()
                     receivedMailsCount shouldBeGreaterThan 0

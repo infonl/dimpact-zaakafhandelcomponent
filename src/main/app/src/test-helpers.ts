@@ -129,6 +129,31 @@ export async function searchThroughColumnFilter(
   component: Type<unknown>,
   filter: WerklijstColumnFilter,
 ): Promise<ZoekParameters> {
+  const werklijst = await renderWerklijst(component, [filter]);
+  return werklijst.useFilter(filter);
+}
+
+/**
+ * Sets a date in one column filter and erases it again, then searches through
+ * another column filter, returning the search request of that last filter.
+ */
+export async function searchAfterErasingTheOnlyDate(
+  component: Type<unknown>,
+  datumFilter: WerklijstColumnFilter & { kind: "datum" },
+  otherFilter: WerklijstColumnFilter,
+): Promise<ZoekParameters> {
+  const werklijst = await renderWerklijst(component, [
+    datumFilter,
+    otherFilter,
+  ]);
+  await werklijst.eraseTheOnlyDate(datumFilter);
+  return werklijst.useFilter(otherFilter);
+}
+
+async function renderWerklijst(
+  component: Type<unknown>,
+  usedFilters: WerklijstColumnFilter[],
+) {
   const user = userEvent.setup();
   const { fixture } = await render(component, {
     imports: [NoopAnimationsModule],
@@ -165,10 +190,11 @@ export async function searchThroughColumnFilter(
 
   function answerSearches() {
     const requests = httpTestingController.match("/rest/zoeken/list");
-    const filters =
-      filter.kind === "facet"
-        ? { [filter.veld]: [{ naam: FACET_OPTION, aantal: 1 }] }
-        : {};
+    const filters = Object.fromEntries(
+      usedFilters
+        .filter((filter) => filter.kind === "facet")
+        .map(({ veld }) => [veld, [{ naam: FACET_OPTION, aantal: 1 }]]),
+    );
     requests.forEach((request) =>
       request.flush({ totaal: 0, resultaten: [], filters }),
     );
@@ -202,38 +228,62 @@ export async function searchThroughColumnFilter(
     ];
   }
 
+  async function lastSearchBody() {
+    await runEffects();
+    const requests = answerSearches();
+    return requests[requests.length - 1]?.request.body;
+  }
+
+  async function eraseTheOnlyDate(filter: WerklijstColumnFilter) {
+    await showColumn(filter.column);
+    const startInput = within(filterCell(filter.column)).getByPlaceholderText(
+      "zoeken.filter.van",
+    );
+    await user.type(startInput, "01-01-2024");
+    await user.tab();
+    await lastSearchBody();
+    await user.clear(startInput);
+    await user.tab();
+    await lastSearchBody();
+  }
+
+  async function useFilter(filter: WerklijstColumnFilter) {
+    await showColumn(filter.column);
+    await driveFilter(filter);
+    return lastSearchBody();
+  }
+
+  async function driveFilter(filter: WerklijstColumnFilter) {
+    const cell = filterCell(filter.column);
+    switch (filter.kind) {
+      case "tekst":
+        await user.type(within(cell).getByRole("textbox"), "fakeTekst");
+        await user.tab();
+        break;
+      case "facet":
+        await user.click(within(cell).getByRole("combobox"));
+        await user.click(screen.getAllByRole("option").at(-1)!);
+        break;
+      case "datum":
+        await user.type(
+          within(cell).getByPlaceholderText("zoeken.filter.van"),
+          "01-01-2024",
+        );
+        await user.type(
+          within(cell).getByPlaceholderText("zoeken.filter.tot-en-met"),
+          "31-01-2024",
+        );
+        await user.tab();
+        break;
+    }
+  }
+
   await runEffects();
   answerSearches();
   await runEffects();
   fixture.detectChanges();
-  await showColumn(filter.column);
 
-  const cell = filterCell(filter.column);
-  switch (filter.kind) {
-    case "tekst":
-      await user.type(within(cell).getByRole("textbox"), "fakeTekst");
-      await user.tab();
-      break;
-    case "facet":
-      await user.click(within(cell).getByRole("combobox"));
-      await user.click(screen.getAllByRole("option").at(-1)!);
-      break;
-    case "datum":
-      await user.type(
-        within(cell).getByPlaceholderText("zoeken.filter.van"),
-        "01-01-2024",
-      );
-      await user.type(
-        within(cell).getByPlaceholderText("zoeken.filter.tot-en-met"),
-        "31-01-2024",
-      );
-      await user.tab();
-      break;
-  }
-  await runEffects();
-
-  const requests = answerSearches();
-  return requests[requests.length - 1]?.request.body;
+  return { useFilter, eraseTheOnlyDate };
 }
 
 /** The part of the search request that a column filter is expected to set. */

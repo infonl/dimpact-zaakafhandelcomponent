@@ -68,10 +68,6 @@ kotest = "6.2.6"
 mockk = "1.14.11"
 archunit = "1.5.1"
 
-testcontainers = "2.0.5"
-testcontainers-mockserver = "2.0.5"
-testcontainers-postgresql = "1.21.4"
-
 json-json = "20250517"
 slf4j-simple = "2.0.20"
 
@@ -123,7 +119,7 @@ opentelemetry-instrumentation-annotations = { group = "io.opentelemetry.instrume
 opentelemetry-extension-kotlin = { group = "io.opentelemetry", name = "opentelemetry-extension-kotlin", version.ref = "opentelemetry" }
 
 glassfish-expressly = { group = "org.glassfish.expressly", name = "expressly", version.ref = "glassfish-expressly" }
-# please keep the Keycloak admin client version in sync with the Keycloak version in our Docker Compose file
+# please keep the Keycloak admin client version in sync with the Keycloak version of the kind stack (scripts/kind/charts/zac-dev/values.yaml)
 keycloak-admin-client = { group = "org.keycloak", name = "keycloak-admin-client", version.ref = "keycloak" }
 
 # dependencies provided by WildFly
@@ -159,14 +155,12 @@ json = { group = "org.json", name = "json", version.ref = "json-json" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 
 # integration test dependencies
-testcontainers-testcontainers = { group = "org.testcontainers", name = "testcontainers", version.ref = "testcontainers" }
-testcontainers-mockserver = { group = "org.testcontainers", name = "testcontainers-mockserver", version.ref = "testcontainers-mockserver" }
-testcontainers-postgresql = { group = "org.testcontainers", name = "postgresql", version.ref = "testcontainers-postgresql" }
 slf4j-simple = { group = "org.slf4j", name = "slf4j-simple", version.ref = "slf4j-simple" }
 github-kotlin-logging = { group = "io.github.oshai", name = "kotlin-logging-jvm", version.ref = "github-kotlin-logging" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 okhttp-urlconnection = { group = "com.squareup.okhttp3", name = "okhttp-urlconnection", version.ref = "okhttp" }
 jacoco-agent = { group = "org.jacoco", name="org.jacoco.agent", version.ref = "jacoco" }
+jacoco-core = { group = "org.jacoco", name = "org.jacoco.core", version.ref = "jacoco" }
 detekt-rules-ktlint-wrapper = { group = "dev.detekt", name = "detekt-rules-ktlint-wrapper", version.ref = "detekt" }
 
 [plugins]

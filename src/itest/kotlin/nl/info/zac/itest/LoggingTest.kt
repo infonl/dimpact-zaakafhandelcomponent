@@ -13,9 +13,8 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
 import nl.info.zac.itest.config.RAADPLEGER_1
-import nl.info.zac.itest.config.dockerComposeContainer
+import nl.info.zac.itest.util.zacContainerLogs
 import okhttp3.Headers
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_OK
@@ -28,10 +27,7 @@ class LoggingTest : BehaviorSpec({
 
     given("ZAC Docker container is running") {
         `when`("the ZAC container log output is retrieved") {
-            val zacContainer = dockerComposeContainer
-                .getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME)
-                .get()
-            val jsonLogLines = zacContainer.logs
+            val jsonLogLines = zacContainerLogs()
                 .lines()
                 .filter { it.trimStart().startsWith("{") }
             logger.info { "Found ${jsonLogLines.size} JSON log lines in ZAC container output" }
@@ -59,10 +55,7 @@ class LoggingTest : BehaviorSpec({
                 requestBodyAsString = """{ "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN" }""",
                 testUser = RAADPLEGER_1
             )
-            val zacContainerLogs = dockerComposeContainer
-                .getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME)
-                .get()
-                .logs
+            val zacContainerLogs = zacContainerLogs()
 
             then("neither the full BSN nor the date of birth of the person is logged") {
                 response.code shouldBe HTTP_OK

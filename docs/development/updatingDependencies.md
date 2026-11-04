@@ -7,9 +7,12 @@ This document describes how to update dependencies in ZAC and (OpenAPI) API spec
 This is normally done by Renovate in our GitHub repository.
 This includes updating of backend, frontend as well as GitHub Action and Docker dependencies.
 
-## Updating Docker Compose images
+## Updating the images of the kind stack
 
 This is done by Renovate. In the [Renovate configuration file](../../renovate.json) version restrictions for the used Docker images are defined. 
+
+When Renovate updates the Open Zaak image, regenerate the pre-migrated Open Zaak database dump in the same pull
+request; see [Open Zaak database](installKind.md#open-zaak-database).
 
 ### Renovate configuration
 
@@ -91,7 +94,7 @@ are `jakarta-jakartaee` and `jboss-logmanager` in the [Gradle Versions Catalog f
 (see the comments next to them). `jboss-logmanager` must match the version in the `org.jboss.logmanager` module of the
 new WildFly, because the [ZAC logging filter](logging.md#masking-personal-data-in-the-wildfly-logging) runs in that module.
 `smallrye-health` is only used as a test dependency and can be updated independently if needed.
-8. Test ZAC thoroughly to make sure everything still works both by running ZAC locally (in IntelliJ and in Docker Compose)
+8. Test ZAC thoroughly to make sure everything still works both by running ZAC locally (in IntelliJ and in the [kind](installKind.md) cluster)
 and performing manual testing as well as by running our automated tests. 
 9. Once everything works tell all your co-developers to upgrade their local WildFly installations and IntelliJ WildFly configurations as well.
 

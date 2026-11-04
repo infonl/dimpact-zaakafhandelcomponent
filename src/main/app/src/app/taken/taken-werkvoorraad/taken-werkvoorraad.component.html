@@ -125,11 +125,8 @@
       <th mat-header-cell *matHeaderCellDef>
         <zac-date-range-filter
           label="creatiedatum"
-          [range]="dataSource.zoekParameters.datums.TAAK_CREATIEDATUM"
-          (changed)="
-            dataSource.zoekParameters.datums.TAAK_CREATIEDATUM = $event;
-            filtersChange()
-          "
+          [(range)]="dataSource.zoekParameters.datums.TAAK_CREATIEDATUM"
+          (changed)="filtersChange()"
         >
         </zac-date-range-filter>
       </th>
@@ -152,11 +149,8 @@
       <th mat-header-cell *matHeaderCellDef>
         <zac-date-range-filter
           label="fataledatum"
-          [range]="dataSource.zoekParameters.datums.TAAK_FATALEDATUM"
-          (changed)="
-            dataSource.zoekParameters.datums.TAAK_FATALEDATUM = $event;
-            filtersChange()
-          "
+          [(range)]="dataSource.zoekParameters.datums.TAAK_FATALEDATUM"
+          (changed)="filtersChange()"
         >
         </zac-date-range-filter>
       </th>

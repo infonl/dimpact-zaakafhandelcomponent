@@ -101,6 +101,30 @@
     },
     {
       "customType": "regex",
+      "managerFilePatterns": [
+        "/workflows/.+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "KIND_VERSION: (?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+) # kind version updated by renovate"
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "kubernetes-sigs/kind",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/workflows/.+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "KUBECTL_VERSION: (?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+) # kubectl version updated by renovate"
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "kubernetes/kubernetes",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
       "matchStrings": [
         "- \\*\\*postgres\\*\\*: (?<currentValue>[^\\n]+)"
       ],
@@ -239,50 +263,6 @@
       ],
       "datasourceTemplate": "docker",
       "depNameTemplate": "gotenberg/gotenberg",
-      "managerFilePatterns": [
-        "/^DEPENDENCIES\\.md$/"
-      ]
-    },
-    {
-      "customType": "regex",
-      "matchStrings": [
-        "- \\*\\*otel/opentelemetry-collector-contrib\\*\\*: (?<currentValue>[^\\n]+)"
-      ],
-      "datasourceTemplate": "docker",
-      "depNameTemplate": "otel/opentelemetry-collector-contrib",
-      "managerFilePatterns": [
-        "/^DEPENDENCIES\\.md$/"
-      ]
-    },
-    {
-      "customType": "regex",
-      "matchStrings": [
-        "- \\*\\*grafana/tempo\\*\\*: (?<currentValue>[^\\n]+)"
-      ],
-      "datasourceTemplate": "docker",
-      "depNameTemplate": "grafana/tempo",
-      "managerFilePatterns": [
-        "/^DEPENDENCIES\\.md$/"
-      ]
-    },
-    {
-      "customType": "regex",
-      "matchStrings": [
-        "- \\*\\*prom/prometheus\\*\\*: (?<currentValue>[^\\n]+)"
-      ],
-      "datasourceTemplate": "docker",
-      "depNameTemplate": "prom/prometheus",
-      "managerFilePatterns": [
-        "/^DEPENDENCIES\\.md$/"
-      ]
-    },
-    {
-      "customType": "regex",
-      "matchStrings": [
-        "- \\*\\*grafana/grafana\\*\\*: (?<currentValue>[^\\n]+)"
-      ],
-      "datasourceTemplate": "docker",
-      "depNameTemplate": "grafana/grafana",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
@@ -543,7 +523,7 @@
         "docker"
       ],
       "description": [
-        "The Helm chart names the image with its registry, Docker Compose and DEPENDENCIES.md without; update them in a single PR"
+        "The Helm chart names the image with its registry, the kind stack and DEPENDENCIES.md without; update them in a single PR"
       ]
     },
     {
@@ -556,7 +536,7 @@
         "docker"
       ],
       "description": [
-        "The Helm chart names the image with its registry, Docker Compose and DEPENDENCIES.md without; update them in a single PR"
+        "The Helm chart names the image with its registry, the kind stack and DEPENDENCIES.md without; update them in a single PR"
       ]
     },
     {
@@ -569,7 +549,7 @@
         "docker"
       ],
       "description": [
-        "The Helm chart names the image with its registry, Docker Compose and DEPENDENCIES.md without; update them in a single PR"
+        "The Helm chart names the image with its registry, the kind stack and DEPENDENCIES.md without; update them in a single PR"
       ]
     },
     {
@@ -691,7 +671,7 @@
       ],
       "allowedVersions": "< 1.32.0",
       "prBodyNotes": [
-        "After merging the Docker Compose change, regenerate the pre-migrated Open Zaak database dump by running `scripts/docker-compose/regenerate-openzaak-database-dump.sh` and commit the result, so that Open Zaak keeps starting without pending database migrations."
+        "Before merging, regenerate the pre-migrated Open Zaak database dump of the kind stack by running `scripts/kind/regenerate-openzaak-database-dump.sh` and commit the result to this PR, so that Open Zaak keeps starting without pending database migrations."
       ],
       "description": [
         "Pinned by the next Dimpact PodiumD release"
@@ -763,7 +743,7 @@
       ],
       "enabled": false,
       "description": [
-        "The version of the ZAC Docker image in our Docker Compose file is set to 'latest' and is only used for local development"
+        "The ZAC Docker image is only referenced with the 'latest' or 'dev' tag for local development and tests, so it gets no digests"
       ]
     },
     {

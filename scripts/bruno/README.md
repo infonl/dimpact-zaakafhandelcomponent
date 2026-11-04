@@ -35,7 +35,7 @@ The collection contains its environments in `collections/zaakafhandelcomponent_b
 
 | Environment | Use it for | Setup needed |
 |---|---|---|
-| `ZAC Localhost` | ZAC running locally, with Keycloak from the Docker Compose stack | None |
+| `ZAC Localhost` | ZAC running locally, with Keycloak from the [kind stack](../../docs/development/installKind.md) | None |
 | `ZAC INFO TEST` | The INFO TEST environment | Set `keycloakClientSecret` |
 
 Each environment defines these variables, which the OAuth2 configuration in `opencollection.yml` uses:

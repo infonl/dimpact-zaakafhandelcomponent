@@ -101,10 +101,8 @@
               <th mat-header-cell *matHeaderCellDef="let row">
                 <zac-date-range-filter
                   label="begin.geldigheid"
-                  [range]="filterParameters.beginGeldigheid"
-                  (changed)="
-                    filterParameters.beginGeldigheid = $event; applyFilter()
-                  "
+                  [(range)]="filterParameters.beginGeldigheid"
+                  (changed)="applyFilter()"
                 ></zac-date-range-filter>
               </th>
             </ng-container>
@@ -112,10 +110,8 @@
               <th mat-header-cell *matHeaderCellDef="let row">
                 <zac-date-range-filter
                   label="einde.geldigheid"
-                  [range]="filterParameters.eindeGeldigheid"
-                  (changed)="
-                    filterParameters.eindeGeldigheid = $event; applyFilter()
-                  "
+                  [(range)]="filterParameters.eindeGeldigheid"
+                  (changed)="applyFilter()"
                 ></zac-date-range-filter>
               </th>
             </ng-container>

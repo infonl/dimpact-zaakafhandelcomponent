@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: EUPL-1.2+
 #
 # Values for the maykinmedia/openobject chart (release 'openobject'). scripts/kind/up.sh adds the image, the
-# generated passwords and, with Open Notificaties, the Celery worker that sends the notifications.
+# passwords and, with Open Notificaties, the Celery worker that sends the notifications.
 replicaCount: 1
 
 tags:
@@ -43,5 +43,8 @@ resources:
   limits:
     memory: 1Gi
 
+# without a set concurrency the chart starts 4 Celery worker processes, which cost ~150 MiB each
+worker:
+  concurrency: 2
 flower:
   enabled: false
