@@ -10,13 +10,12 @@ import java.util.IdentityHashMap
 /**
  * A copy of a throwable with a masked message, which keeps the stack trace of the original.
  *
- * The structured log formatters of WildFly log the class of a throwable as its type, so the name of the original
- * class is part of the message of the copy, where it stays visible in the JSON logging.
+ * The message of the copy is the masked `toString()` of the original, because a text formatter logs the
+ * `toString()` of a throwable, which some throwables override to show data that is not in their message.
+ * The structured log formatters of WildFly log the class of a throwable as its type, and the default `toString()`
+ * starts with the name of the class, so that name stays visible in the JSON logging.
  */
-class MaskedThrowable(
-    originalClassName: String,
-    maskedMessage: String?
-) : Throwable(maskedMessage?.let { "$originalClassName: $it" } ?: originalClassName) {
+class MaskedThrowable(maskedDescription: String) : Throwable(maskedDescription) {
     override fun toString() = message.orEmpty()
 
     override fun fillInStackTrace() = this
@@ -29,13 +28,13 @@ private fun Throwable.containsPersonalData(
     checkedThrowables: MutableSet<Throwable> = Collections.newSetFromMap(IdentityHashMap())
 ): Boolean =
     checkedThrowables.add(this) && (
-        listOfNotNull(message, localizedMessage).any { it.maskPersonalData() != it } ||
+        listOfNotNull(message, localizedMessage, toString()).any { it.maskPersonalData() != it } ||
             cause?.containsPersonalData(checkedThrowables) == true ||
             suppressed.any { it.containsPersonalData(checkedThrowables) }
         )
 
 private fun Throwable.toMaskedThrowable(maskedThrowables: IdentityHashMap<Throwable, MaskedThrowable>): MaskedThrowable =
-    maskedThrowables[this] ?: MaskedThrowable(javaClass.name, localizedMessage?.maskPersonalData()).also { maskedThrowable ->
+    maskedThrowables[this] ?: MaskedThrowable(toString().maskPersonalData()).also { maskedThrowable ->
         maskedThrowables[this] = maskedThrowable
         maskedThrowable.stackTrace = stackTrace
         cause?.let { maskedThrowable.initCause(it.toMaskedThrowable(maskedThrowables)) }

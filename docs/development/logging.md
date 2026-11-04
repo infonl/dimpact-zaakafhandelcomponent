@@ -423,10 +423,11 @@ it writes the record, whatever its log level or logger
 | BSN           | `999993896`          | `******896` |
 | IBAN          | `NL91ABNA0417164300` | `*****`     |
 
-The masking applies to the log message and to the messages of a logged exception and its causes. An exception with
-personal data in its messages is logged as a `MaskedThrowable` whose message starts with the name of the original
-class, for example `java.lang.IllegalStateException: Geen persoon gevonden voor BSN '******896'`; an exception without
-personal data is logged as is.
+The masking applies to the log message and to the messages and `toString()` of a logged exception and its causes.
+An exception with personal data in them is logged as a `MaskedThrowable` whose message is the masked `toString()` of
+the original, which normally starts with the name of its class, for example
+`java.lang.IllegalStateException: Geen persoon gevonden voor BSN '******896'`; an exception without personal data is
+logged as is.
 
 The filter recognises a BSN as any number of exactly nine digits, so every other number of nine digits is masked as
 well, such as a RSIN, a size in bytes from 100 MB (for example the maximum file size or a `Content-Length` header), or a

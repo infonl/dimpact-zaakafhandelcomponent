@@ -11,6 +11,7 @@ import io.kotest.matchers.string.shouldNotContain
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import java.io.PrintWriter
 import java.io.StringWriter
+import javax.management.BadAttributeValueExpException
 
 class MaskedThrowableTest : BehaviorSpec({
     context("Masking the personal data in a throwable") {
@@ -88,6 +89,20 @@ class MaskedThrowableTest : BehaviorSpec({
                 then("the exception is masked, because a text formatter logs the localized message") {
                     maskedThrowable.toString() shouldContain "Geen persoon gevonden voor BSN '******896'"
                     maskedThrowable.toString() shouldNotContain "999993896"
+                }
+            }
+        }
+
+        given("an exception that has a BSN only in its toString, while its message is null") {
+            val badAttributeValueExpException = BadAttributeValueExpException("BSN 999993896")
+
+            `when`("the personal data is masked") {
+                val maskedThrowable = badAttributeValueExpException.maskPersonalData()
+
+                then("the exception is masked, because a text formatter logs the toString of an exception") {
+                    badAttributeValueExpException.message shouldBe null
+                    maskedThrowable.toString() shouldBe "BadAttributeValueException: BSN ******896"
+                    maskedThrowable.message shouldBe "BadAttributeValueException: BSN ******896"
                 }
             }
         }
