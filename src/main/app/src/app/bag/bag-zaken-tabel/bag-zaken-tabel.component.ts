@@ -128,9 +128,14 @@ export class BagZakenTabelComponent {
     this.searchFirstPage({ zoeken: { ...zoeken, [veld]: waarde } });
   }
 
-  protected datumChanged(veld: string, range: GeneratedType<"RestDatumRange">) {
+  protected datumChanged(
+    veld: string,
+    range: GeneratedType<"RestDatumRange"> | null | undefined,
+  ) {
     const { datums } = this.zoekParameters();
-    this.searchFirstPage({ datums: { ...datums, [veld]: range } });
+    this.searchFirstPage({
+      datums: { ...datums, [veld]: range ?? { van: null, tot: null } },
+    });
   }
 
   protected afgerondeZakenChanged(inclusiefAfgerondeZaken: boolean) {

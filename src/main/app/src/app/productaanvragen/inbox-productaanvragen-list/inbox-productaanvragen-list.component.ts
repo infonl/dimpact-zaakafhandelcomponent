@@ -213,15 +213,14 @@ export class InboxProductaanvragenListComponent
     return this.infoService.getDownloadURL(ip.aanvraagdocumentUUID!);
   }
 
-  protected filtersChanged(options: {
-    event: MatSelectChange | string | GeneratedType<"RestDatumRange">;
-    filter: keyof GeneratedType<"RestInboxProductaanvraagListParameters">;
+  protected filtersChanged(options?: {
+    event: MatSelectChange | string;
+    filter: "type" | "initiatorID";
   }) {
-    this.listParameters[options.filter] = (
-      typeof options.event === "object" && "value" in options.event
-        ? options.event.value
-        : options.event
-    ) as never;
+    if (options) {
+      this.listParameters[options.filter] =
+        typeof options.event === "object" ? options.event.value : options.event;
+    }
     this.paginator().pageIndex = 0;
     this.clearZoekopdracht.emit();
     this.filterChange.emit();

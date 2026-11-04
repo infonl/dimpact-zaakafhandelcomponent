@@ -244,11 +244,8 @@
       <th mat-header-cell *matHeaderCellDef>
         <zac-date-range-filter
           label="registratiedatum"
-          [range]="dataSource.zoekParameters.datums.ZAAK_REGISTRATIEDATUM"
-          (changed)="
-            dataSource.zoekParameters.datums.ZAAK_REGISTRATIEDATUM = $event;
-            filtersChange()
-          "
+          [(range)]="dataSource.zoekParameters.datums.ZAAK_REGISTRATIEDATUM"
+          (changed)="filtersChange()"
         >
         </zac-date-range-filter>
       </th>
@@ -271,11 +268,8 @@
       <th mat-header-cell *matHeaderCellDef>
         <zac-date-range-filter
           label="startdatum"
-          [range]="dataSource.zoekParameters.datums.ZAAK_STARTDATUM"
-          (changed)="
-            dataSource.zoekParameters.datums.ZAAK_STARTDATUM = $event;
-            filtersChange()
-          "
+          [(range)]="dataSource.zoekParameters.datums.ZAAK_STARTDATUM"
+          (changed)="filtersChange()"
         >
         </zac-date-range-filter>
       </th>
@@ -298,11 +292,8 @@
       <th mat-header-cell *matHeaderCellDef>
         <zac-date-range-filter
           label="streefdatum"
-          [range]="dataSource.zoekParameters.datums.ZAAK_STREEFDATUM"
-          (changed)="
-            dataSource.zoekParameters.datums.ZAAK_STREEFDATUM = $event;
-            filtersChange()
-          "
+          [(range)]="dataSource.zoekParameters.datums.ZAAK_STREEFDATUM"
+          (changed)="filtersChange()"
         >
         </zac-date-range-filter>
       </th>
@@ -372,11 +363,8 @@
       <th mat-header-cell *matHeaderCellDef>
         <zac-date-range-filter
           label="uiterlijkedatumafdoening"
-          [range]="dataSource.zoekParameters.datums.ZAAK_FATALE_DATUM"
-          (changed)="
-            dataSource.zoekParameters.datums.ZAAK_FATALE_DATUM = $event;
-            filtersChange()
-          "
+          [(range)]="dataSource.zoekParameters.datums.ZAAK_FATALE_DATUM"
+          (changed)="filtersChange()"
         >
         </zac-date-range-filter>
       </th>

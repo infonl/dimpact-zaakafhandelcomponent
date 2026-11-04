@@ -24,6 +24,7 @@ import { of } from "rxjs";
 import {
   expectedSearchFor,
   fromPartial,
+  searchAfterErasingTheOnlyDate,
   searchThroughColumnFilter,
   WerklijstColumnFilter,
 } from "src/test-helpers";
@@ -236,5 +237,22 @@ describe(`${TakenMijnComponent.name} column filters`, () => {
     expect(
       await searchThroughColumnFilter(TakenMijnComponent, filter),
     ).toMatchObject(expectedSearchFor(filter));
+  });
+
+  it("leaves an erased date out of a search started from another filter", async () => {
+    const toelichtingFilter: WerklijstColumnFilter = {
+      column: "toelichting",
+      kind: "tekst",
+      veld: "TAAK_TOELICHTING",
+    };
+
+    const search = await searchAfterErasingTheOnlyDate(
+      TakenMijnComponent,
+      { column: "creatiedatum", kind: "datum", veld: "TAAK_CREATIEDATUM" },
+      toelichtingFilter,
+    );
+
+    expect(search).toMatchObject(expectedSearchFor(toelichtingFilter));
+    expect(search.datums?.TAAK_CREATIEDATUM?.van ?? null).toBeNull();
   });
 });

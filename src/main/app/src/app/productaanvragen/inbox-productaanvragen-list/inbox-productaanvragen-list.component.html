@@ -21,10 +21,8 @@
         <th mat-header-cell *matHeaderCellDef>
           <zac-date-range-filter
             label="ontvangstdatum"
-            [range]="listParameters.ontvangstdatum"
-            (changed)="
-              filtersChanged({ event: $event, filter: 'ontvangstdatum' })
-            "
+            [(range)]="listParameters.ontvangstdatum"
+            (changed)="filtersChanged()"
           ></zac-date-range-filter>
         </th>
       </ng-container>
