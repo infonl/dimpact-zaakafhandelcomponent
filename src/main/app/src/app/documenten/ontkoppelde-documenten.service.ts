@@ -50,14 +50,14 @@ export class OntkoppeldeDocumentenService {
     );
   }
 
-  deleteList() {
+  deleteOntkoppeldeDocumenten() {
     return mergeMutationOptions(
       this.zacQueryClient.PUT("/rest/ontkoppeldedocumenten/lijst/verwijderen"),
       { onSettled: () => this.invalidateList() },
     );
   }
 
-  linkList() {
+  linkOntkoppeldeDocumenten() {
     return mergeMutationOptions(
       this.zacQueryClient.PUT("/rest/ontkoppeldedocumenten/lijst/koppelen"),
       { onSettled: () => this.invalidateList() },

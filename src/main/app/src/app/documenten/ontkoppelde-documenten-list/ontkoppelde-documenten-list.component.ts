@@ -77,11 +77,6 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service";
 
-const BULK_ACTION_URLS: unknown[] = [
-  "/rest/ontkoppeldedocumenten/lijst/verwijderen",
-  "/rest/ontkoppeldedocumenten/lijst/koppelen",
-];
-
 @Component({
   templateUrl: "./ontkoppelde-documenten-list.component.html",
   styleUrls: ["./ontkoppelde-documenten-list.component.less"],
@@ -200,12 +195,14 @@ export class OntkoppeldeDocumentenListComponent
       onSuccess: () => this.filterChange.emit(),
     },
   );
-  private readonly deleteListMutation = injectMutation(() =>
-    this.ontkoppeldeDocumentenService.deleteList(),
+  private readonly deleteOntkoppeldeDocumentenMutation = injectMutation(() =>
+    this.ontkoppeldeDocumentenService.deleteOntkoppeldeDocumenten(),
   );
   private readonly runningBulkActions = injectIsMutating({
-    predicate: (mutation) =>
-      BULK_ACTION_URLS.includes(mutation.options.mutationKey?.[0]),
+    predicate: ({ options }) =>
+      String(options.mutationKey?.[0]).startsWith(
+        "/rest/ontkoppeldedocumenten/lijst/",
+      ),
   });
   protected readonly isBulkActionRunning = computed(
     () => this.runningBulkActions() > 0,
@@ -376,7 +373,7 @@ export class OntkoppeldeDocumentenListComponent
       .subscribe((confirmed) => {
         if (!confirmed) return;
 
-        this.deleteListMutation.mutate(
+        this.deleteOntkoppeldeDocumentenMutation.mutate(
           { ids },
           {
             onSuccess: (result) => {

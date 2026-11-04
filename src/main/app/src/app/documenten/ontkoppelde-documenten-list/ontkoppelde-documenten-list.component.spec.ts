@@ -621,7 +621,9 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
         .getMutationCache()
         .build(
           testQueryClient,
-          TestBed.inject(OntkoppeldeDocumentenService).linkList(),
+          TestBed.inject(
+            OntkoppeldeDocumentenService,
+          ).linkOntkoppeldeDocumenten(),
         )
         .execute({ ids: [42, 43], nieuweZaakID: "fakeZaakId" });
       await sleep();

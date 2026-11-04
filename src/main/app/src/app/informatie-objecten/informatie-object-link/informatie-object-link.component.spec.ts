@@ -556,6 +556,37 @@ describe(InformatieObjectLinkComponent.name, () => {
       ).toBeVisible();
     });
 
+    it("clears the search and its results when reopened with a different selection of the same first document", async () => {
+      await setupBulk();
+      await showKoppelbareZaken();
+
+      fixture.componentRef.setInput("bulkDocuments", [
+        fromPartial<GeneratedType<"RestDetachedDocument">>({
+          ...detachedDocument,
+          id: 7,
+        }),
+        fromPartial<GeneratedType<"RestDetachedDocument">>({ id: 9 }),
+      ]);
+      fixture.detectChanges();
+
+      expect(searchField()).toHaveValue("");
+      expect(screen.queryByRole("row", { name: /ZAAK-001/ })).toBeNull();
+    });
+
+    it("clears the search and its results when a per-row search on the first document becomes a bulk link", async () => {
+      await setup();
+      await showKoppelbareZaken();
+
+      fixture.componentRef.setInput("bulkDocuments", [
+        detachedDocument,
+        secondDetachedDocument,
+      ]);
+      fixture.detectChanges();
+
+      expect(searchField()).toHaveValue("");
+      expect(screen.queryByRole("row", { name: /ZAAK-001/ })).toBeNull();
+    });
+
     it("uses the singular introduction when one document is selected", async () => {
       await setupBulk();
       fixture.componentRef.setInput("bulkDocuments", [secondDetachedDocument]);

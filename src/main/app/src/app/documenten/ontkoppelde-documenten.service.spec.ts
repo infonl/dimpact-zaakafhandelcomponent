@@ -102,9 +102,9 @@ describe(OntkoppeldeDocumentenService.name, () => {
     });
   });
 
-  describe("deleteList", () => {
+  describe("deleteOntkoppeldeDocumenten", () => {
     it("sends the ids to the bulk delete endpoint", async () => {
-      const request = service.deleteList().mutationFn!(
+      const request = service.deleteOntkoppeldeDocumenten().mutationFn!(
         { ids: [1, 2] },
         fromPartial<MutationFunctionContext>({}),
       );
@@ -124,7 +124,7 @@ describe(OntkoppeldeDocumentenService.name, () => {
       ).queryKey;
       testQueryClient.setQueryData(listQueryKey, {});
 
-      await runMutationOnSettled(service.deleteList());
+      await runMutationOnSettled(service.deleteOntkoppeldeDocumenten());
 
       expect(testQueryClient.getQueryState(listQueryKey)?.isInvalidated).toBe(
         true,
@@ -138,7 +138,7 @@ describe(OntkoppeldeDocumentenService.name, () => {
       testQueryClient.setQueryData(listQueryKey, {});
 
       await runMutationOnSettled(
-        service.deleteList(),
+        service.deleteOntkoppeldeDocumenten(),
         new HttpErrorResponse({ status: 500 }),
       );
 
@@ -148,9 +148,9 @@ describe(OntkoppeldeDocumentenService.name, () => {
     });
   });
 
-  describe("linkList", () => {
+  describe("linkOntkoppeldeDocumenten", () => {
     it("sends the ids and the zaak to the bulk link endpoint", async () => {
-      const request = service.linkList().mutationFn!(
+      const request = service.linkOntkoppeldeDocumenten().mutationFn!(
         { ids: [1, 2], nieuweZaakID: "ZAAK-001" },
         fromPartial<MutationFunctionContext>({}),
       );
@@ -173,7 +173,7 @@ describe(OntkoppeldeDocumentenService.name, () => {
       ).queryKey;
       testQueryClient.setQueryData(listQueryKey, {});
 
-      await runMutationOnSettled(service.linkList());
+      await runMutationOnSettled(service.linkOntkoppeldeDocumenten());
 
       expect(testQueryClient.getQueryState(listQueryKey)?.isInvalidated).toBe(
         true,
@@ -187,7 +187,7 @@ describe(OntkoppeldeDocumentenService.name, () => {
       testQueryClient.setQueryData(listQueryKey, {});
 
       await runMutationOnSettled(
-        service.linkList(),
+        service.linkOntkoppeldeDocumenten(),
         new HttpErrorResponse({ status: 500 }),
       );
 

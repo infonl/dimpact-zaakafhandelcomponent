@@ -160,14 +160,15 @@ export class InformatieObjectLinkComponent {
     this.informatieObjectService.linkDocumentToCaseMutation(),
   );
 
-  protected readonly linkListMutation = injectMutation(() =>
-    this.ontkoppeldeDocumentenService.linkList(),
+  protected readonly linkOntkoppeldeDocumentenMutation = injectMutation(() =>
+    this.ontkoppeldeDocumentenService.linkOntkoppeldeDocumenten(),
   );
 
   private readonly queryClient = inject(QueryClient);
 
   constructor() {
     effect(() => {
+      this.bulkDocuments();
       if (this.infoObject()) {
         untracked(() => this.reset());
       }
@@ -212,7 +213,7 @@ export class InformatieObjectLinkComponent {
   protected selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
     if (
       this.linkDocumentMutation.isPending() ||
-      this.linkListMutation.isPending()
+      this.linkOntkoppeldeDocumentenMutation.isPending()
     )
       return;
 
@@ -247,8 +248,8 @@ export class InformatieObjectLinkComponent {
 
   protected isLinking(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
     return (
-      (this.linkListMutation.isPending() &&
-        this.linkListMutation.variables()?.nieuweZaakID ===
+      (this.linkOntkoppeldeDocumentenMutation.isPending() &&
+        this.linkOntkoppeldeDocumentenMutation.variables()?.nieuweZaakID ===
           row.identificatie) ||
       (this.linkDocumentMutation.isPending() &&
         this.linkDocumentMutation.variables()?.nieuweZaakID ===
@@ -259,7 +260,7 @@ export class InformatieObjectLinkComponent {
   private linkBulkDocuments(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
     const selectedDocuments = this.bulkDocuments();
     const ids = selectedDocuments.map(({ id }) => id!);
-    this.linkListMutation.mutate(
+    this.linkOntkoppeldeDocumentenMutation.mutate(
       {
         ids,
         nieuweZaakID: row.identificatie ?? "",
