@@ -12,6 +12,7 @@ import { UtilService } from "../core/service/util.service";
 import { MailtemplateService } from "../mailtemplate/mailtemplate.service";
 import { runMutation } from "../shared/http/run-mutation";
 import { GeneratedType } from "../shared/utils/generated-types";
+import { ZakenService } from "../zaken/zaken.service";
 import { MailtemplateKoppelingService } from "./mailtemplate-koppeling.service";
 import { ZaakafhandelParametersService } from "./zaakafhandel-parameters.service";
 
@@ -71,6 +72,18 @@ describe(ZaakafhandelParametersService.name, () => {
       );
 
       expect(invalidateFoundMailtemplates).toHaveBeenCalled();
+    });
+
+    it("makes the mail forms read their afzenders again, as the parameters hold them", async () => {
+      const invalidateAfzenders = jest
+        .spyOn(TestBed.inject(ZakenService), "invalidateAfzenders")
+        .mockResolvedValue([]);
+
+      await runMutationOnSuccess(
+        service.updateZaakafhandelparameters("fakeZaaktypeUuid"),
+      );
+
+      expect(invalidateAfzenders).toHaveBeenCalled();
     });
 
     it("puts the configuration of the zaaktype to its own resource", async () => {

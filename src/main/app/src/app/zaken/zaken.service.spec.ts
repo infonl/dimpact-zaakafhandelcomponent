@@ -413,4 +413,107 @@ describe(ZakenService.name, () => {
       expect(invalidateHistorie).toHaveBeenCalledWith("fakeZaakUuid1");
     });
   });
+
+  describe("the afzenders of a zaak", () => {
+    const afzendersUrl = "/rest/zaken/zaak/fakeZaakUuid/afzender";
+    const defaultAfzenderUrl = "/rest/zaken/zaak/fakeZaakUuid/afzender/default";
+    const afzender = fromPartial<GeneratedType<"RestZaakAfzender">>({
+      mail: "fakeAfzender@example.com",
+      suffix: "gegevens.mail.afzender.MEDEWERKER",
+    });
+
+    async function flushAfterRequest(url: string, body: unknown) {
+      await Promise.resolve();
+      httpTestingController.expectOne(url).flush(body as never);
+    }
+
+    it("gives the suffix as a translation key to a one-shot read as well, so that a task form shows the same label as a component", async () => {
+      const read = testQueryClient.query(
+        service.listAfzendersVoorZaak("fakeZaakUuid"),
+      );
+      await flushAfterRequest(afzendersUrl, [afzender]);
+
+      expect((await read)[0].suffix).toBe("gegevens.mail.afzender.medewerker");
+    });
+
+    it("gives the suffix of the default afzender as a translation key", async () => {
+      const read = testQueryClient.query(
+        service.readDefaultAfzenderVoorZaak("fakeZaakUuid"),
+      );
+      await flushAfterRequest(defaultAfzenderUrl, afzender);
+
+      expect((await read).suffix).toBe("gegevens.mail.afzender.medewerker");
+    });
+
+    it("resolves the default afzender to null, not to a failure, when the zaak has none", async () => {
+      const read = testQueryClient.query(
+        service.readDefaultAfzenderVoorZaak("fakeZaakUuid"),
+      );
+      await flushAfterRequest(defaultAfzenderUrl, null);
+
+      await expect(read).resolves.toBeNull();
+    });
+
+    it("does not change a cached afzender in place, so that the suffix conversion cannot corrupt the cache", async () => {
+      const options = service.listAfzendersVoorZaak("fakeZaakUuid");
+      const cached = Object.freeze([Object.freeze({ ...afzender })]);
+      testQueryClient.setQueryData(options.queryKey, cached as never);
+
+      await expect(testQueryClient.query(options)).resolves.toEqual([
+        { ...afzender, suffix: "gegevens.mail.afzender.medewerker" },
+      ]);
+    });
+
+    it("reads from the cache the second time, without a request", async () => {
+      const options = service.listAfzendersVoorZaak("fakeZaakUuid");
+      const first = testQueryClient.query(options);
+      await flushAfterRequest(afzendersUrl, [afzender]);
+      await first;
+
+      await testQueryClient.query(options);
+
+      httpTestingController.expectNone(afzendersUrl);
+    });
+
+    it("reads the afzenders and the default of every zaak again after invalidateAfzenders, so that a changed zaaktype configuration reaches the forms", async () => {
+      const afzenderOptions = service.listAfzendersVoorZaak("fakeZaakUuid");
+      const defaultOptions =
+        service.readDefaultAfzenderVoorZaak("fakeOtherZaakUuid");
+      testQueryClient.setQueryData(afzenderOptions.queryKey, [afzender]);
+      testQueryClient.setQueryData(defaultOptions.queryKey, afzender);
+
+      await service.invalidateAfzenders();
+
+      expect(
+        testQueryClient.getQueryState(afzenderOptions.queryKey)?.isInvalidated,
+      ).toBe(true);
+      expect(
+        testQueryClient.getQueryState(defaultOptions.queryKey)?.isInvalidated,
+      ).toBe(true);
+    });
+
+    it("leaves the other reads of a zaak alone on invalidateAfzenders", async () => {
+      const zaakOptions = service.readZaakQuery("fakeZaakUuid");
+      testQueryClient.setQueryData(
+        zaakOptions.queryKey,
+        fromPartial<GeneratedType<"RestZaak">>({ uuid: "fakeZaakUuid" }),
+      );
+
+      await service.invalidateAfzenders();
+
+      expect(
+        testQueryClient.getQueryState(zaakOptions.queryKey)?.isInvalidated,
+      ).toBe(false);
+    });
+
+    it("opens the error dialog on a failed re-read, as opening a form is an action the user waits on", () => {
+      expect(
+        service.listAfzendersVoorZaak("fakeZaakUuid").meta?.reportFailedRefetch,
+      ).toBe(true);
+      expect(
+        service.readDefaultAfzenderVoorZaak("fakeZaakUuid").meta
+          ?.reportFailedRefetch,
+      ).toBe(true);
+    });
+  });
 });
