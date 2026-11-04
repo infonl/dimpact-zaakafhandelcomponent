@@ -105,6 +105,7 @@ export class InformatieObjectenService {
         },
       ),
       meta: { reportFailedRefetch: true },
+      staleTime: StaleTimes.Instant,
     };
   }
 
@@ -200,10 +201,6 @@ export class InformatieObjectenService {
     };
   }
 
-  /**
-   * Marks every read of one document as stale: the document itself, each of its
-   * versions, its current version, its zaak koppelingen and its historie.
-   */
   invalidateInformatieobject(uuid: string) {
     return this.queryClient.invalidateQueries({
       predicate: ({ queryKey: [url, parameters] }) =>

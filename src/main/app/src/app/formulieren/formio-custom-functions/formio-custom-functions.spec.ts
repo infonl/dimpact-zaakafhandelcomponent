@@ -97,22 +97,22 @@ describe(FormioCustomFunctions.name, () => {
       const context = await prepareFormContext(formWithFunction("ZAAK_Docs"), {
         ZAAK_Docs: [UUID_A],
       });
-      const fn = context["ZAC_getDocumentTitles"] as (
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
 
-      expect(fn([UUID_A])).toBe("Document A");
+      expect(getDocumentTitles([UUID_A])).toBe("Document A");
     });
 
     it("should return empty string when called with an empty array", async () => {
       const context = await prepareFormContext(formWithFunction("ZAAK_Docs"), {
         ZAAK_Docs: [],
       });
-      const fn = context["ZAC_getDocumentTitles"] as (
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
 
-      expect(fn([])).toBe("");
+      expect(getDocumentTitles([])).toBe("");
     });
 
     it("should return empty string when the taakdata field is missing", async () => {
@@ -120,31 +120,35 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Missing"),
         {},
       );
-      const fn = context["ZAC_getDocumentTitles"] as (uuids: unknown) => string;
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
+        uuids: unknown,
+      ) => string;
 
-      expect(fn(undefined)).toBe("");
+      expect(getDocumentTitles(undefined)).toBe("");
     });
 
     it("should format two documents with 'en'", async () => {
       const context = await prepareFormContext(formWithFunction("ZAAK_Docs"), {
         ZAAK_Docs: [UUID_A, UUID_B],
       });
-      const fn = context["ZAC_getDocumentTitles"] as (
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
 
-      expect(fn([UUID_A, UUID_B])).toBe("Document A en Document B");
+      expect(getDocumentTitles([UUID_A, UUID_B])).toBe(
+        "Document A en Document B",
+      );
     });
 
     it("should format three documents with commas and 'en'", async () => {
       const context = await prepareFormContext(formWithFunction("ZAAK_Docs"), {
         ZAAK_Docs: [UUID_A, UUID_B, UUID_C],
       });
-      const fn = context["ZAC_getDocumentTitles"] as (
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
 
-      expect(fn([UUID_A, UUID_B, UUID_C])).toBe(
+      expect(getDocumentTitles([UUID_A, UUID_B, UUID_C])).toBe(
         "Document A, Document B en Document C",
       );
     });
@@ -155,11 +159,11 @@ describe(FormioCustomFunctions.name, () => {
         { ZAAK_Docs: [UUID_A] },
         () => "error",
       );
-      const fn = context["ZAC_getDocumentTitles"] as (
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
 
-      expect(fn([UUID_A])).toBe(UUID_A);
+      expect(getDocumentTitles([UUID_A])).toBe(UUID_A);
     });
 
     it("should fall back to UUID when document has no titel", async () => {
@@ -168,11 +172,11 @@ describe(FormioCustomFunctions.name, () => {
         { ZAAK_Docs: [UUID_A] },
         () => ({ titel: null }),
       );
-      const fn = context["ZAC_getDocumentTitles"] as (
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
 
-      expect(fn([UUID_A])).toBe(UUID_A);
+      expect(getDocumentTitles([UUID_A])).toBe(UUID_A);
     });
 
     it("should pre-fetch titles for all fields when the same function appears multiple times", async () => {
@@ -193,12 +197,12 @@ describe(FormioCustomFunctions.name, () => {
         ZAAK_Docs_A: [UUID_A],
         ZAAK_Docs_B: [UUID_B],
       });
-      const fn = context["ZAC_getDocumentTitles"] as (
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
 
-      expect(fn([UUID_A])).toBe("Document A");
-      expect(fn([UUID_B])).toBe("Document B");
+      expect(getDocumentTitles([UUID_A])).toBe("Document A");
+      expect(getDocumentTitles([UUID_B])).toBe("Document B");
     });
 
     it("should render titles for datagrid rows as well as plain UUIDs", async () => {
@@ -210,9 +214,11 @@ describe(FormioCustomFunctions.name, () => {
       const context = await prepareFormContext(formWithFunction("ZAAK_Docs"), {
         ZAAK_Docs: rows,
       });
-      const fn = context["ZAC_getDocumentTitles"] as (rows: unknown) => string;
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
+        rows: unknown,
+      ) => string;
 
-      expect(fn(rows)).toBe("Document A en Document B");
+      expect(getDocumentTitles(rows)).toBe("Document A en Document B");
     });
 
     it("should leave out datagrid rows that were unticked", async () => {
@@ -230,9 +236,11 @@ describe(FormioCustomFunctions.name, () => {
           return { titel: TITLES[uuid] };
         },
       );
-      const fn = context["ZAC_getDocumentTitles"] as (rows: unknown) => string;
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
+        rows: unknown,
+      ) => string;
 
-      expect(fn(rows)).toBe("Document A");
+      expect(getDocumentTitles(rows)).toBe("Document A");
       expect(requestedUuids).toEqual([UUID_A]);
     });
 
@@ -240,9 +248,11 @@ describe(FormioCustomFunctions.name, () => {
       const context = await prepareFormContext(formWithFunction("ZAAK_Docs"), {
         ZAAK_Docs: UUID_A,
       });
-      const fn = context["ZAC_getDocumentTitles"] as (uuid: unknown) => string;
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
+        uuid: unknown,
+      ) => string;
 
-      expect(fn(UUID_A)).toBe("Document A");
+      expect(getDocumentTitles(UUID_A)).toBe("Document A");
     });
 
     it("should ignore entries that carry no uuid", async () => {
@@ -256,11 +266,17 @@ describe(FormioCustomFunctions.name, () => {
           return { titel: TITLES[uuid] };
         },
       );
-      const fn = context["ZAC_getDocumentTitles"] as (rows: unknown) => string;
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
+        rows: unknown,
+      ) => string;
 
-      expect(fn([{ selected: true, titel: "no uuid here" }, null, 42])).toBe(
-        "",
-      );
+      expect(
+        getDocumentTitles([
+          { selected: true, titel: "no uuid here" },
+          null,
+          42,
+        ]),
+      ).toBe("");
       expect(requestedUuids).toEqual([]);
     });
 
@@ -288,7 +304,7 @@ describe(FormioCustomFunctions.name, () => {
       expect(requestedUuids).toEqual([UUID_A]);
     });
 
-    it("should reuse a title it read before, rather than read the document again", async () => {
+    it("reads the document again on every form, so that a form shows a title that was changed since the last form", async () => {
       await prepareFormContext(formWithFunction("ZAAK_Docs"), {
         ZAAK_Docs: [UUID_A],
       });
@@ -296,15 +312,13 @@ describe(FormioCustomFunctions.name, () => {
       const context = await prepareFormContext(
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A] },
-        () => {
-          throw new Error("the document was read again");
-        },
+        () => ({ titel: "Nieuwe titel" }),
       );
-      const fn = context["ZAC_getDocumentTitles"] as (
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
 
-      expect(fn([UUID_A])).toBe("Document A");
+      expect(getDocumentTitles([UUID_A])).toBe("Nieuwe titel");
     });
   });
   describe("the zaak and the taak in the eval context", () => {

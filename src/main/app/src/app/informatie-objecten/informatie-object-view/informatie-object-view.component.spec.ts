@@ -15,7 +15,7 @@ import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router } from "@angular/router";
-import { provideTranslateService } from "@ngx-translate/core";
+import { provideTranslateService, TranslateService } from "@ngx-translate/core";
 import { notifyManager } from "@tanstack/query-core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
@@ -31,6 +31,7 @@ import { RedenDialogData } from "../../shared/dialog/reden-dialog-form/reden-dia
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
 import { InformatieObjectEditComponent } from "../informatie-object-edit/informatie-object-edit.component";
+import { InformatieObjectenService } from "../informatie-objecten.service";
 import { FileFormat } from "../model/file-format";
 import { InformatieObjectViewComponent } from "./informatie-object-view.component";
 
@@ -149,7 +150,7 @@ describe(InformatieObjectViewComponent.name, () => {
   }
 
   beforeEach(async () => {
-    notifyManager.setScheduler((fn) => fn());
+    notifyManager.setScheduler((callback) => callback());
     await TestBed.configureTestingModule({
       imports: [InformatieObjectViewComponent, NoopAnimationsModule],
       providers: [
@@ -173,7 +174,9 @@ describe(InformatieObjectViewComponent.name, () => {
       .mockReturnValue(of(zaak));
   });
 
-  afterEach(() => notifyManager.setScheduler((fn) => setTimeout(fn, 0)));
+  afterEach(() =>
+    notifyManager.setScheduler((callback) => setTimeout(callback, 0)),
+  );
 
   it("resizes the content along with the menu, so that the document card does not end up behind a menu that renders after the page", async () => {
     await openView();
@@ -220,7 +223,76 @@ describe(InformatieObjectViewComponent.name, () => {
     });
   });
 
+  describe("when the user goes to an older version of the document", () => {
+    const laatsteVersie = withRechten({ canLezen: true }, { versie: 2 });
+    const oudereVersie = withRechten({ canLezen: true }, { versie: 1 });
+
+    async function arriveRoute(
+      informatieObject: GeneratedType<"RestEnkelvoudigInformatieobject">,
+    ) {
+      mockActivatedRoute.data.next({ informatieObject });
+      await sleep();
+      TestBed.tick();
+      fixture.detectChanges();
+    }
+
+    async function goToOlderVersionWithLatestArrivingFirst() {
+      TestBed.inject(TranslateService).setTranslation("nl", {
+        "versie.x.van": "versie {{versie}} van {{laatsteVersie}}",
+      });
+      TestBed.inject(TranslateService).use("nl");
+      await openView({ laatsteVersie }, laatsteVersie);
+
+      void TestBed.inject(InformatieObjectenService).invalidateInformatieobject(
+        enkelvoudigInformatieobject.uuid!,
+      );
+      await answerReads({ laatsteVersie });
+
+      await arriveRoute(oudereVersie);
+    }
+
+    it("names that version in the label, also when the re-read of the latest version arrives before the route", async () => {
+      await goToOlderVersionWithLatestArrivingFirst();
+
+      expect(screen.getByText("versie 1 van 2")).toBeInTheDocument();
+    });
+
+    it("downloads that version, also when the re-read of the latest version arrives before the route", async () => {
+      await goToOlderVersionWithLatestArrivingFirst();
+
+      expect(
+        screen.getByRole("link", { name: /actie\.downloaden/ }),
+      ).toHaveAttribute(
+        "href",
+        TestBed.inject(InformatieObjectenService).getDownloadURL(
+          enkelvoudigInformatieobject.uuid!,
+          1,
+        ),
+      );
+    });
+  });
+
   describe("actie.nieuwe.versie.toevoegen", () => {
+    it("reads the current version again on every click, as it fills in a form that overwrites the document", async () => {
+      await openView({
+        laatsteVersie: withRechten({ canToevoegenNieuweVersie: true }),
+      });
+      const gegevens = fromPartial<
+        GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">
+      >({ uuid: enkelvoudigInformatieobject.uuid });
+
+      for (let click = 0; click < 2; click++) {
+        await user.click(
+          screen.getByRole("button", { name: "actie.nieuwe.versie.toevoegen" }),
+        );
+        await sleep();
+        httpTestingController
+          .expectOne(`${documentUrl}/huidigeversie`)
+          .flush(gegevens);
+        await sleep();
+      }
+    });
+
     it("should not have a button when the user does not have the right to add a new version", async () => {
       await openView({
         laatsteVersie: withRechten({ canToevoegenNieuweVersie: false }),

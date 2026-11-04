@@ -33,14 +33,14 @@ export class InformatieObjectResolver {
     );
 
     if (informatieObjectVersie) {
-      return this.queryClient.fetchQuery(
+      return this.queryClient.query(
         this.informatieObjectenService.readEnkelvoudigInformatieobjectVersie(
           informatieObjectUUID,
           Number(informatieObjectVersie),
         ),
       );
     }
-    return this.queryClient.fetchQuery(
+    return this.queryClient.query(
       this.informatieObjectenService.readEnkelvoudigInformatieobject(
         informatieObjectUUID,
       ),

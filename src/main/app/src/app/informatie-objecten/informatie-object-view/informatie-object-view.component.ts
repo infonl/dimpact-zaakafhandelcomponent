@@ -7,6 +7,7 @@ import { Location } from "@angular/common";
 import {
   AfterViewInit,
   Component,
+  computed,
   effect,
   inject,
   OnDestroy,
@@ -169,8 +170,19 @@ export class InformatieObjectViewComponent
   readonly documentPreviewBeschikbaar = signal(false);
   readonly menu = signal<MenuItem[]>([]);
   readonly activeSideAction = signal<string | null>(null);
-  readonly versieInformatie = signal<string | null>(null);
+  readonly versieInformatie = computed<string | null>(() => {
+    const laatsteVersie = this.laatsteVersieInfoObject();
+    if (!laatsteVersie) return null;
+
+    return this.translate.instant("versie.x.van", {
+      versie: this.infoObject()?.versie,
+      laatsteVersie: laatsteVersie.versie,
+    });
+  });
   historie = new MatTableDataSource<GeneratedType<"HistoryLine">>();
+  protected readonly historieRegels = computed(
+    () => this.historieQuery.data() ?? [],
+  );
 
   historieColumns: string[] = [
     "datum",
@@ -208,7 +220,7 @@ export class InformatieObjectViewComponent
     });
 
     effect(() => {
-      this.historie.data = this.historieQuery.data() ?? [];
+      this.historie.data = this.historieRegels();
     });
   }
 
@@ -223,6 +235,9 @@ export class InformatieObjectViewComponent
           this.laatsteVersieInfoObject.set(undefined);
           this.zaakGeladen = false;
           this.informatieObjectUuid.set(this.infoObject().uuid!);
+        }
+        if (this.zaakGeladen && this.laatsteVersieInfoObject()) {
+          this.toevoegenActies();
         }
         this.documentPreviewBeschikbaar.set(
           FileFormatUtil.isPreviewAvailable(
@@ -284,7 +299,7 @@ export class InformatieObjectViewComponent
           "actie.nieuwe.versie.toevoegen",
           () => {
             this.queryClient
-              .fetchQuery(
+              .query(
                 this.informatieObjectenService.readHuidigeVersieEnkelvoudigInformatieObject(
                   infoObject.uuid!,
                 ),
@@ -445,12 +460,9 @@ export class InformatieObjectViewComponent
     if (this.volgtLaatsteVersie) {
       this.infoObject.set(laatsteVersie);
       this.documentPreviewBeschikbaar.set(
-        FileFormatUtil.isPreviewAvailable(
-          laatsteVersie.formaat as FileFormat,
-        ),
+        FileFormatUtil.isPreviewAvailable(laatsteVersie.formaat as FileFormat),
       );
     }
-    this.updateVersieInformatie();
     if (this.zaakGeladen) this.toevoegenActies();
   }
 
@@ -468,15 +480,6 @@ export class InformatieObjectViewComponent
   ) {
     if (!informatieobject.versie) return;
     this.haalVersieOp(informatieobject.versie);
-  }
-
-  private updateVersieInformatie() {
-    this.versieInformatie.set(
-      this.translate.instant("versie.x.van", {
-        versie: this.infoObject()?.versie,
-        laatsteVersie: this.laatsteVersieInfoObject()?.versie,
-      }),
-    );
   }
 
   private openDocumentVerwijderenDialog() {
