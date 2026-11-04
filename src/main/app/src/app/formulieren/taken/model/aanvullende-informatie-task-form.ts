@@ -8,7 +8,6 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Validators } from "@angular/forms";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
-import { lastValueFrom } from "rxjs";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { injectContactEmailPrefill } from "../../../klanten/inject-contact-email-prefill";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
@@ -39,7 +38,7 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
     const replyToControl = this.formBuilder.control<string | null>(null);
     replyToControl.disable();
 
-    const afzendersVoorZaak = await lastValueFrom(
+    const afzendersVoorZaak = await this.queryClient.query(
       this.zakenService.listAfzendersVoorZaak(zaak.uuid),
     );
     const afzendersVoorZaakOptions = afzendersVoorZaak.map(

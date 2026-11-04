@@ -4,20 +4,18 @@
  */
 
 import { HttpTestingController } from "@angular/common/http/testing";
-import { TestBed } from "@angular/core/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { ZakenService } from "../zaken.service";
 import { IntakeAfrondenDialogComponent } from "./intake-afronden-dialog.component";
 
 const planItem = fromPartial<GeneratedType<"RestPlanItem">>({
@@ -26,14 +24,39 @@ const planItem = fromPartial<GeneratedType<"RestPlanItem">>({
 });
 
 const afzender = fromPartial<GeneratedType<"RestZaakAfzender">>({
+  id: 1,
   isDefaultMail: true,
   mail: "fakeAfzender@example.com",
   replyTo: "fakeReplyTo@example.com",
 });
 
+const andereAfzender = fromPartial<GeneratedType<"RestZaakAfzender">>({
+  id: 2,
+  isDefaultMail: false,
+  mail: "fakeAndereAfzender@example.com",
+  suffix: "gegevens.mail.afzender.GEMEENTE",
+});
+
 const contactDetails = fromPartial<GeneratedType<"RestContactDetails">>({
   emailadres: "fakeInitiator@example.com",
 });
+
+const afzendersKey = (uuid: string) => [
+  "/rest/zaken/zaak/{uuid}/afzender",
+  { path: { uuid } },
+];
+
+const defaultAfzenderKey = (uuid: string) => [
+  "/rest/zaken/zaak/{uuid}/afzender/default",
+  { path: { uuid } },
+];
+
+function deepFreeze<T>(value: T): T {
+  Object.values(value as object).forEach((child) => {
+    if (typeof child === "object" && child !== null) deepFreeze(child);
+  });
+  return Object.freeze(value);
+}
 
 const mailtemplateOntvankelijk = fromPartial<GeneratedType<"RestMailtemplate">>(
   {
@@ -76,11 +99,34 @@ describe(IntakeAfrondenDialogComponent.name, () => {
 
   const user = userEvent.setup();
 
-  async function setup(zaak: GeneratedType<"RestZaak"> = createZaak()) {
+  function cacheAfzenders(
+    uuid: string,
+    afzenders: GeneratedType<"RestZaakAfzender">[],
+    defaultAfzender: GeneratedType<"RestZaakAfzender"> | null,
+  ) {
+    testQueryClient.setQueryData(afzendersKey(uuid), deepFreeze(afzenders));
+    testQueryClient.setQueryData(
+      defaultAfzenderKey(uuid),
+      defaultAfzender && deepFreeze(defaultAfzender),
+    );
+  }
+
+  async function setup(
+    zaak: GeneratedType<"RestZaak"> = createZaak(),
+    {
+      afzenders = [afzender, andereAfzender],
+      defaultAfzender = afzender,
+    }: {
+      afzenders?: GeneratedType<"RestZaakAfzender">[];
+      defaultAfzender?: GeneratedType<"RestZaakAfzender"> | null;
+    } = {},
+  ) {
     dialogRef = fromPartial<MatDialogRef<IntakeAfrondenDialogComponent>>({
       close: jest.fn(),
       disableClose: false,
     });
+
+    cacheAfzenders(zaak.uuid, afzenders, defaultAfzender);
 
     const temporaryPersonId = zaak.initiatorIdentificatie?.temporaryPersonId;
     if (temporaryPersonId) {
@@ -99,13 +145,6 @@ describe(IntakeAfrondenDialogComponent.name, () => {
         provideTranslateService(),
         { provide: MAT_DIALOG_DATA, useValue: { zaak, planItem } },
         { provide: MatDialogRef, useValue: dialogRef },
-        {
-          provide: ZakenService,
-          useValue: fromPartial<ZakenService>({
-            listAfzendersVoorZaak: () => of([afzender]),
-            readDefaultAfzenderVoorZaak: () => of(afzender),
-          }),
-        },
         PlanItemsService,
         KlantenService,
         UtilService,
@@ -421,6 +460,109 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       await sleep();
 
       expect(dialogRef.close).toHaveBeenCalledWith(false);
+    });
+  });
+
+  describe("the verzender", () => {
+    function verzenderSelect() {
+      return screen.getByRole("combobox", { name: /verzender/i });
+    }
+
+    async function setupWithVerzender(
+      ...setupArguments: Parameters<typeof setup>
+    ) {
+      const rendered = await setup(...setupArguments);
+      await answerOntvankelijk("actie.ja");
+      await settle(rendered.fixture);
+      return rendered;
+    }
+
+    async function settle(
+      fixture: ComponentFixture<IntakeAfrondenDialogComponent>,
+    ) {
+      for (let cycle = 0; cycle < 3; cycle++) {
+        await sleep();
+        fixture.detectChanges();
+      }
+    }
+
+    async function arriveReRead(
+      fixture: ComponentFixture<IntakeAfrondenDialogComponent>,
+    ) {
+      const nieuweDefault = fromPartial<GeneratedType<"RestZaakAfzender">>({
+        id: 3,
+        isDefaultMail: true,
+        mail: "fakeNieuweDefault@example.com",
+      });
+      testQueryClient.setQueryData(afzendersKey("fakeZaakUuid"), [
+        afzender,
+        andereAfzender,
+        nieuweDefault,
+      ]);
+      testQueryClient.setQueryData(
+        defaultAfzenderKey("fakeZaakUuid"),
+        nieuweDefault,
+      );
+      await settle(fixture);
+    }
+
+    it("offers the cached afzenders and preselects the default without reading them again, so that opening the dialog again is immediate", async () => {
+      await setupWithVerzender();
+
+      httpTestingController.expectNone(
+        "/rest/zaken/zaak/fakeZaakUuid/afzender",
+      );
+      httpTestingController.expectNone(
+        "/rest/zaken/zaak/fakeZaakUuid/afzender/default",
+      );
+      expect(verzenderSelect()).toHaveTextContent(afzender.mail!);
+
+      await user.click(verzenderSelect());
+      expect(
+        screen.getByRole("option", { name: /fakeAndereAfzender@example.com/ }),
+      ).toBeVisible();
+    });
+
+    it("shows the suffix of a cached afzender as a translation key", async () => {
+      await setupWithVerzender();
+
+      await user.click(verzenderSelect());
+
+      expect(
+        screen.getByRole("option", {
+          name: /gegevens\.mail\.afzender\.gemeente/,
+        }),
+      ).toBeVisible();
+    });
+
+    it("selects nothing when the zaak has no default afzender", async () => {
+      await setupWithVerzender(createZaak(), { defaultAfzender: null });
+
+      expect(verzenderSelect()).not.toHaveTextContent(afzender.mail!);
+    });
+
+    it("keeps the verzender the user chose when a re-read of the afzenders arrives", async () => {
+      const { fixture } = await setupWithVerzender();
+
+      await user.click(verzenderSelect());
+      await user.click(
+        screen.getByRole("option", { name: /fakeAndereAfzender@example.com/ }),
+      );
+      await arriveReRead(fixture);
+
+      expect(verzenderSelect()).toHaveTextContent(
+        "fakeAndereAfzender@example.com",
+      );
+    });
+
+    it("follows a re-read of the afzenders while the user has not chosen a verzender", async () => {
+      const { fixture } = await setupWithVerzender();
+
+      await arriveReRead(fixture);
+
+      expect(verzenderSelect()).toHaveTextContent(
+        "fakeNieuweDefault@example.com",
+      );
     });
   });
 });
