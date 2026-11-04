@@ -3,12 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-  inject,
-} from "@angular/core";
+import { Component, OnInit, inject, signal } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { ActivatedRoute } from "@angular/router";
@@ -23,7 +18,6 @@ import { BagZakenTabelComponent } from "../bag-zaken-tabel/bag-zaken-tabel.compo
   templateUrl: "./bag-view.component.html",
   styleUrls: ["./bag-view.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     MatCardModule,
@@ -37,47 +31,65 @@ import { BagZakenTabelComponent } from "../bag-zaken-tabel/bag-zaken-tabel.compo
 export class BAGViewComponent implements OnInit {
   private readonly activatedRoute = inject(ActivatedRoute);
 
-  protected bagIdentificatie!: string;
-  protected adres?: GeneratedType<"RestBagAdres">;
-  protected adresRegels?: string;
-  protected openbareRuimte?: GeneratedType<"RestOpenbareRuimte">;
-  protected woonplaats?: GeneratedType<"RestWoonplaats">;
-  protected pand?: GeneratedType<"RestPand">;
-  protected nummeraanduiding?: GeneratedType<"RestNummeraanduiding">;
-  protected geometrie?: GeneratedType<"RestGeometry">;
+  protected readonly bagIdentificatie = signal("");
+  protected readonly adres = signal<GeneratedType<"RestBagAdres"> | undefined>(
+    undefined,
+  );
+  protected readonly adresRegels = signal<string | undefined>(undefined);
+  protected readonly openbareRuimte = signal<
+    GeneratedType<"RestOpenbareRuimte"> | undefined
+  >(undefined);
+  protected readonly woonplaats = signal<
+    GeneratedType<"RestWoonplaats"> | undefined
+  >(undefined);
+  protected readonly pand = signal<GeneratedType<"RestPand"> | undefined>(
+    undefined,
+  );
+  protected readonly nummeraanduiding = signal<
+    GeneratedType<"RestNummeraanduiding"> | undefined
+  >(undefined);
+  protected readonly geometrie = signal<
+    GeneratedType<"RestGeometry"> | undefined
+  >(undefined);
 
   ngOnInit() {
     this.activatedRoute.data.subscribe((data) => {
       const bagObject: GeneratedType<"RestBagObject"> = data.bagObject;
-      this.bagIdentificatie = bagObject.identificatie!;
+      this.bagIdentificatie.set(bagObject.identificatie!);
       switch (bagObject.bagObjectType) {
-        case "ADRES":
-          this.adres = bagObject;
-          this.adresRegels = joinNonEmpty(
-            "\n",
+        case "ADRES": {
+          const adres: GeneratedType<"RestBagAdres"> = bagObject;
+          this.adres.set(adres);
+          this.adresRegels.set(
             joinNonEmpty(
-              " ",
-              this.adres.openbareRuimteNaam,
-              this.adres.huisnummerWeergave,
+              "\n",
+              joinNonEmpty(
+                " ",
+                adres.openbareRuimteNaam,
+                adres.huisnummerWeergave,
+              ),
+              joinNonEmpty(" ", adres.postcode, adres.woonplaatsNaam),
             ),
-            joinNonEmpty(" ", this.adres.postcode, this.adres.woonplaatsNaam),
           );
-          this.geometrie = this.adres.geometry ?? undefined;
+          this.geometrie.set(adres.geometry ?? undefined);
           break;
+        }
         case "ADRESSEERBAAR_OBJECT":
           break; // (Nog) geen zelfstandige entiteit
         case "WOONPLAATS":
-          this.woonplaats = bagObject;
+          this.woonplaats.set(bagObject);
           break;
-        case "PAND":
-          this.pand = bagObject;
-          this.geometrie = this.pand.geometry ?? undefined;
+        case "PAND": {
+          const pand: GeneratedType<"RestPand"> = bagObject;
+          this.pand.set(pand);
+          this.geometrie.set(pand.geometry ?? undefined);
           break;
+        }
         case "OPENBARE_RUIMTE":
-          this.openbareRuimte = bagObject;
+          this.openbareRuimte.set(bagObject);
           break;
         case "NUMMERAANDUIDING":
-          this.nummeraanduiding = bagObject;
+          this.nummeraanduiding.set(bagObject);
           break;
       }
     });

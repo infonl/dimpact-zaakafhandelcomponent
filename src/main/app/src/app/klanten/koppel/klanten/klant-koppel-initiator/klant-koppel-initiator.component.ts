@@ -3,12 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-  output,
-} from "@angular/core";
+import { Component, input, output } from "@angular/core";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTabsModule } from "@angular/material/tabs";
 import { TranslatePipe } from "@ngx-translate/core";
@@ -26,7 +21,6 @@ import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.compon
     PersoonZoekComponent,
     BedrijfZoekComponent,
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <ng-template mat-tab-label>
       @if (type() === "bedrijf") {

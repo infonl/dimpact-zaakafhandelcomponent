@@ -3,13 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  signal,
-} from "@angular/core";
+import { Component, computed, inject, signal } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";
@@ -29,7 +23,6 @@ import { KlantenService } from "../klanten.service";
   templateUrl: "./bedrijf-view.component.html",
   styleUrls: ["./bedrijf-view.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     MatSidenavModule,
@@ -46,8 +39,10 @@ export class BedrijfViewComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly klantenService = inject(KlantenService);
 
-  protected bedrijf: GeneratedType<"RestBedrijf"> | null = null;
-  protected profielOphalenMogelijk = true;
+  protected readonly bedrijf = signal<GeneratedType<"RestBedrijf"> | null>(
+    null,
+  );
+  protected readonly profielOphalenMogelijk = signal(true);
   warningIcon = new TextIcon(
     () => true,
     "warning",
@@ -87,18 +82,20 @@ export class BedrijfViewComponent {
 
   constructor() {
     this.route.data.subscribe((data) => {
-      this.bedrijf = data.bedrijf;
-      this.profielOphalenMogelijk =
-        !!this.bedrijf?.vestigingsnummer ||
-        (this.bedrijf?.type === "RECHTSPERSOON" && !!this.bedrijf?.kvkNummer);
+      const bedrijf: GeneratedType<"RestBedrijf"> | null = data.bedrijf;
+      this.bedrijf.set(bedrijf);
+      this.profielOphalenMogelijk.set(
+        !!bedrijf?.vestigingsnummer ||
+          (bedrijf?.type === "RECHTSPERSOON" && !!bedrijf?.kvkNummer),
+      );
     });
   }
 
   protected ophalenProfiel() {
-    this.profielOphalenMogelijk = false;
+    this.profielOphalenMogelijk.set(false);
     this.profielAanvraag.set({
-      vestigingsnummer: this.bedrijf?.vestigingsnummer,
-      kvkNummer: this.bedrijf?.kvkNummer,
+      vestigingsnummer: this.bedrijf()?.vestigingsnummer,
+      kvkNummer: this.bedrijf()?.kvkNummer,
     });
   }
 }

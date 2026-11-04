@@ -7,7 +7,7 @@
   <mat-drawer-content>
     <div class="flex-row gap-10 flex-wrap">
       <div class="bag-gegevens flex-col">
-        @if (adres) {
+        @if (adres(); as adres) {
           <mat-card>
             <mat-card-header>
               <mat-card-title>{{
@@ -20,7 +20,7 @@
             <mat-card-content>
               <div class="rule"></div>
               <div class="content flex-row flex-wrap">
-                @if (adresRegels) {
+                @if (adresRegels(); as adresRegels) {
                   <zac-static-text label="adres" [value]="adresRegels" />
                 }
                 @if (adres.panden?.[0]?.oorspronkelijkBouwjaar) {
@@ -229,7 +229,7 @@
           </mat-card>
         }
 
-        @if (openbareRuimte) {
+        @if (openbareRuimte(); as openbareRuimte) {
           <mat-card>
             <mat-card-header>
               <mat-card-title>{{
@@ -327,7 +327,7 @@
           </mat-card>
         }
 
-        @if (woonplaats) {
+        @if (woonplaats(); as woonplaats) {
           <mat-card>
             <mat-card-header>
               <mat-card-title>{{
@@ -366,7 +366,7 @@
           </mat-card>
         }
 
-        @if (pand) {
+        @if (pand(); as pand) {
           <mat-card>
             <mat-card-header>
               <mat-card-title>{{
@@ -402,7 +402,7 @@
           </mat-card>
         }
 
-        @if (nummeraanduiding) {
+        @if (nummeraanduiding(); as nummeraanduiding) {
           <mat-card>
             <mat-card-header>
               <mat-card-title>{{
@@ -524,10 +524,10 @@
       </div>
       <div class="main-content flex-col gap-16">
         <zac-bag-zaken-tabel
-          [BagObjectIdentificatie]="bagIdentificatie"
+          [BagObjectIdentificatie]="bagIdentificatie()"
         ></zac-bag-zaken-tabel>
-        @if (geometrie) {
-          <zac-bag-locatie [bagGeometrie]="geometrie!"></zac-bag-locatie>
+        @if (geometrie(); as geometrie) {
+          <zac-bag-locatie [bagGeometrie]="geometrie"></zac-bag-locatie>
         }
       </div>
     </div>

@@ -3,12 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-  output,
-} from "@angular/core";
+import { Component, input, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -34,7 +29,6 @@ const fakeKlantGegevens = new KlantGegevens(
       select fake initiator
     </button>
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class KlantKoppelInitiatorStubComponent {
@@ -52,7 +46,6 @@ class KlantKoppelInitiatorStubComponent {
       select fake betrokkene
     </button>
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class KlantKoppelBetrokkeneStubComponent {

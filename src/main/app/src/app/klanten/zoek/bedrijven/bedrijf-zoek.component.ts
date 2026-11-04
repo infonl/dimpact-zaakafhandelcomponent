@@ -6,13 +6,14 @@
 import { TitleCasePipe } from "@angular/common";
 import {
   booleanAttribute,
-  ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   input,
   OnDestroy,
   OnInit,
   output,
+  signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -21,12 +22,13 @@ import { MatExpansionPanelActionRow } from "@angular/material/expansion";
 import { MatIconModule } from "@angular/material/icon";
 import { MatSidenav } from "@angular/material/sidenav";
 import { MatSortModule } from "@angular/material/sort";
-import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { MatTableModule } from "@angular/material/table";
 import { Router } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
+import { trackControl } from "../../../shared/form/control-state";
 import { ZacInput } from "../../../shared/form/input/input";
 import { ZacSelect } from "../../../shared/form/select/select";
 import { runQuery } from "../../../shared/http/run-query";
@@ -49,7 +51,6 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   templateUrl: "./bedrijf-zoek.component.html",
   styleUrls: ["./bedrijf-zoek.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZacSelect,
     EmptyPipe,
@@ -78,8 +79,8 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
 
   protected blockSearch = input<boolean>(false);
 
-  bedrijven = new MatTableDataSource<GeneratedType<"RestBedrijf">>();
-  foutmelding?: string;
+  readonly bedrijven = signal<GeneratedType<"RestBedrijf">[]>([]);
+  readonly foutmelding = signal<string | undefined>(undefined);
   bedrijfColumns = [
     "naam",
     "kvk",
@@ -88,7 +89,7 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
     "adres",
     "acties",
   ] as const;
-  loading = false;
+  readonly loading = signal(false);
   types = [
     "HOOFDVESTIGING",
     "NEVENVESTIGING",
@@ -129,6 +130,14 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
     ]),
     type: this.formBuilder.control<GeneratedType<"BedrijfType"> | null>(null),
   });
+  private readonly readForm = trackControl(signal(this.formGroup));
+  private readonly formHasValues = this.readForm((form) =>
+    Object.values(form.value).some(Boolean),
+  );
+  private readonly formValid = this.readForm((form) => form.valid);
+  readonly isValid = computed(
+    () => !!this.formHasValues() && !!this.formValid() && !this.blockSearch(),
+  );
 
   private readonly queryClient = inject(QueryClient);
 
@@ -182,9 +191,9 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
   }
 
   zoekBedrijven() {
-    this.loading = true;
+    this.loading.set(true);
     this.utilService.setLoading(true);
-    this.bedrijven.data = [];
+    this.bedrijven.set([]);
     const data = this.formGroup.value;
     runQuery(
       this.queryClient,
@@ -193,9 +202,9 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
         kvkNummer: data.kvkNummer ? String(data.kvkNummer) : null,
       }),
     ).subscribe((bedrijven) => {
-      this.bedrijven.data = bedrijven.resultaten ?? [];
-      this.foutmelding = bedrijven.foutmelding ?? undefined;
-      this.loading = false;
+      this.bedrijven.set(bedrijven.resultaten ?? []);
+      this.foutmelding.set(bedrijven.foutmelding ?? undefined);
+      this.loading.set(false);
       this.utilService.setLoading(false);
     });
   }
@@ -218,13 +227,7 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
 
   wissen() {
     this.formGroup.reset();
-    this.bedrijven.data = [];
-  }
-
-  isValid() {
-    const value = this.formGroup.value;
-    const hasValues = Object.values(value).some(Boolean);
-    return hasValues && this.formGroup.valid && !this.blockSearch();
+    this.bedrijven.set([]);
   }
 
   ngOnDestroy() {

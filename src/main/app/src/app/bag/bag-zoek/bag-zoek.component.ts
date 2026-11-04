@@ -6,12 +6,12 @@
 import { CommonModule } from "@angular/common";
 import {
   booleanAttribute,
-  ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   input,
   output,
-  viewChild,
+  signal,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -22,29 +22,30 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatDrawer, MatSidenav } from "@angular/material/sidenav";
 import { MatSortModule } from "@angular/material/sort";
-import {
-  MatTable,
-  MatTableDataSource,
-  MatTableModule,
-} from "@angular/material/table";
+import { MatTableModule } from "@angular/material/table";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { Router } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { catchError, EMPTY, finalize } from "rxjs";
 import { UtilService } from "../../core/service/util.service";
+import { trackControl } from "../../shared/form/control-state";
 import { runQuery } from "../../shared/http/run-query";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BAGService } from "../bag.service";
 
+type BagZoekRij = GeneratedType<"RestBagObject" | "RestBagAdres"> & {
+  expanded?: boolean;
+  child?: boolean;
+};
+
 @Component({
   selector: "zac-bag-zoek",
   templateUrl: "./bag-zoek.component.html",
   styleUrls: ["./bag-zoek.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     CommonModule,
@@ -74,12 +75,25 @@ export class BagZoekComponent {
     | FormControl<GeneratedType<"RestBagObject">[] | null>
   >([]);
   readonly sideNav = input.required<MatSidenav | MatDrawer>();
-  private readonly table = viewChild.required(MatTable);
   protected trefwoorden = new FormControl("", [Validators.maxLength(255)]);
-  protected bagObjecten = new MatTableDataSource<
-    GeneratedType<"RestBagObject"> | GeneratedType<"RestBagAdres">
-  >();
-  protected loading = false;
+  private readonly readTrefwoorden = trackControl(signal(this.trefwoorden));
+  protected readonly trefwoordenInvalid = this.readTrefwoorden(
+    (control) => control.invalid,
+  );
+  protected readonly trefwoordenLength = this.readTrefwoorden(
+    (control) => control.value?.length ?? 0,
+  );
+  private readonly gekoppeldeBagObjectenControl = computed(() => {
+    const gekoppeldeBagObjecten = this.gekoppeldeBagObjecten();
+    return gekoppeldeBagObjecten instanceof FormControl
+      ? gekoppeldeBagObjecten
+      : null;
+  });
+  private readonly gekoppeldeBagObjectenControlValue = trackControl(
+    this.gekoppeldeBagObjectenControl,
+  )((control) => control.value);
+  protected readonly bagObjecten = signal<BagZoekRij[]>([]);
+  protected readonly loading = signal(false);
   protected columns: string[] = [
     "expand",
     "id",
@@ -91,9 +105,9 @@ export class BagZoekComponent {
   private readonly queryClient = inject(QueryClient);
 
   protected zoek() {
-    this.bagObjecten.data = [];
+    this.bagObjecten.set([]);
     if (this.trefwoorden.value) {
-      this.loading = true;
+      this.loading.set(true);
       this.utilService.setLoading(true);
       runQuery(
         this.queryClient,
@@ -104,12 +118,12 @@ export class BagZoekComponent {
         .pipe(
           catchError(() => EMPTY),
           finalize(() => {
-            this.loading = false;
+            this.loading.set(false);
             this.utilService.setLoading(false);
           }),
         )
         .subscribe((adressen) => {
-          this.bagObjecten.data = adressen.resultaten ?? [];
+          this.bagObjecten.set(adressen.resultaten ?? []);
         });
     }
   }
@@ -141,28 +155,16 @@ export class BagZoekComponent {
     );
   }
 
-  protected expand(
-    bagObject: GeneratedType<"RestBagObject" | "RestBagAdres"> & {
-      expanded: boolean;
-    },
-  ) {
-    this.bagObjecten.data = this.bagObjecten.data.filter(
-      (b) => (b as { child?: boolean })["child"] !== true,
-    );
+  protected expand(bagObject: BagZoekRij) {
+    const rows = this.bagObjecten()
+      .filter((row) => !row.child)
+      .map((row) => (row.expanded ? { ...row, expanded: false } : row));
     if (bagObject.expanded) {
-      bagObject.expanded = false;
+      this.bagObjecten.set(rows);
       return;
     }
 
-    this.bagObjecten.data.forEach(
-      (b) => ((b as { expanded?: boolean })["expanded"] = false),
-    );
-    bagObject.expanded = true;
-
-    const children: (GeneratedType<"RestBagObject" | "RestBagAdres"> & {
-      expanded?: boolean;
-      child?: boolean;
-    })[] = [];
+    const children: BagZoekRij[] = [];
     if (bagObject.bagObjectType === "ADRES") {
       const adres: GeneratedType<"RestBagAdres"> = bagObject;
       if (adres.nummeraanduiding) {
@@ -178,20 +180,21 @@ export class BagZoekComponent {
         adres.panden.forEach((p) => children.push(p));
       }
     }
-    children.forEach((d) => (d["child"] = true));
-    this.bagObjecten.data.splice(
-      this.bagObjecten.data.indexOf(bagObject) + 1,
-      0,
-      ...children,
+    const index = rows.indexOf(bagObject);
+    rows.splice(
+      index,
+      1,
+      { ...bagObject, expanded: true },
+      ...children.map((child) => ({ ...child, child: true })),
     );
-    this.table().renderRows();
+    this.bagObjecten.set(rows);
   }
 
   protected reedsGekoppeld(row: GeneratedType<"RestBagObject">): boolean {
     const gekoppeldeBagObjecten = this.gekoppeldeBagObjecten();
     const objects =
       gekoppeldeBagObjecten instanceof FormControl
-        ? (gekoppeldeBagObjecten.value ?? [])
+        ? (this.gekoppeldeBagObjectenControlValue() ?? [])
         : gekoppeldeBagObjecten;
     return objects.some(
       (b) =>
@@ -211,6 +214,6 @@ export class BagZoekComponent {
 
   protected wissen() {
     this.trefwoorden.reset();
-    this.bagObjecten.data = [];
+    this.bagObjecten.set([]);
   }
 }

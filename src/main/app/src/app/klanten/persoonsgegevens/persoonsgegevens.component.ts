@@ -4,7 +4,6 @@
  */
 
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -35,7 +34,6 @@ import { KlantenService } from "../klanten.service";
   styleUrls: ["./persoonsgegevens.component.less"],
   templateUrl: "./persoonsgegevens.component.html",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatExpansionModule,
     MatProgressSpinnerModule,

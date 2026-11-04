@@ -23,7 +23,7 @@
           type="button"
           matSuffix
           title="{{ 'zoeken' | translate }}"
-          [disabled]="trefwoorden.invalid || loading"
+          [disabled]="trefwoordenInvalid() || loading()"
           (click)="zoek()"
         >
           <mat-icon>search</mat-icon>
@@ -38,15 +38,13 @@
           (keyup.enter)="!trefwoorden.valid || zoek()"
           [formControl]="trefwoorden"
         />
-        <mat-hint align="end"
-          >{{ trefwoorden.value?.length ?? 0 }}/255</mat-hint
-        >
+        <mat-hint align="end">{{ trefwoordenLength() }}/255</mat-hint>
       </mat-form-field>
     </div>
     <button
       mat-raised-button
       color="primary"
-      [disabled]="trefwoorden.invalid || loading"
+      [disabled]="trefwoordenInvalid() || loading()"
       (click)="zoek()"
     >
       {{ "actie.zoeken" | translate }}
@@ -58,7 +56,7 @@
 </div>
 
 <div class="table-wrapper">
-  <table mat-table [dataSource]="bagObjecten" matSort>
+  <table mat-table [dataSource]="bagObjecten()" matSort>
     <ng-container matColumnDef="expand">
       <th *matHeaderCellDef mat-header-cell mat-sort-header></th>
       <td *matCellDef="let bagObject" mat-cell>
@@ -167,12 +165,12 @@
       *matRowDef="let bagObject; columns: columns"
     ></tr>
   </table>
-  @if (bagObjecten.data.length === 0 && !loading) {
+  @if (bagObjecten().length === 0 && !loading()) {
     <p>
       {{ "msg.geen.gegevens.gevonden" | translate }}
     </p>
   }
-  @if (loading) {
+  @if (loading()) {
     <p>{{ "msg.loading" | translate }}</p>
   }
   <mat-action-row class="px-3">

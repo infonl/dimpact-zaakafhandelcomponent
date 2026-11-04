@@ -4,7 +4,6 @@
  */
 
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   inject,
@@ -41,7 +40,6 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
   templateUrl: "./bag-zaken-tabel.component.html",
   styleUrls: ["./bag-zaken-tabel.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ZaakIdentificatieComponent,
     MatCardModule,
