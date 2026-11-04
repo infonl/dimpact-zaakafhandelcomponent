@@ -28,7 +28,7 @@ runAsNonRoot: true
 {{- end }}
 
 {{/*
-An environment variable with a value from the Secret with the generated passwords.
+An environment variable with a value from the Secret with the passwords of the stack.
 Usage: include "zac-dev.generatedSecretEnv" (list . "POSTGRES_PASSWORD" "postgres-password")
 */}}
 {{- define "zac-dev.generatedSecretEnv" -}}

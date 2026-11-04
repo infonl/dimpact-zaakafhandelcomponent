@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-# Values for the maykinmedia/openforms chart (release 'openforms'). scripts/kind/up.sh adds the image, the generated
+# Values for the maykinmedia/openforms chart (release 'openforms'). scripts/kind/up.sh adds the image, the 
 # passwords and the URLs of the browser; the seed-openformulieren Job of the zac-dev chart configures it, creates its
 # 'admin' user and imports the productaanvraag-Dimpact test form.
 replicaCount: 1

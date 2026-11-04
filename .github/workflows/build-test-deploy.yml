@@ -336,7 +336,10 @@ jobs:
       # The OPA policy tests are unit tests of the authorisation policies, so they run here and not in the integration test stack.
       - name: Run OPA policy tests
         if: ${{ !cancelled() }}
-        run: docker compose --profile opa-tests run --rm --no-deps opa-tests
+        # keep this OPA version in sync with the OPA of charts/zac
+        uses: docker://openpolicyagent/opa:1.21.3-static@sha256:bf27411c17e72f3d16063725a74c69f711fb267eb9a4cebdae78028b72adc847
+        with:
+          args: test src/main/resources/policies src/test/resources/policies
 
       # The test results of both unit test jobs are published together by the 'run-unit-tests' job
       - name: Upload backend unit test results

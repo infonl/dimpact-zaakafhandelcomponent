@@ -22,7 +22,8 @@
 #                                see scripts/kind/ports.json for the names
 #   KEYCLOAK_HOSTNAME            the URL of Keycloak in the browser and in the cluster
 #                                (default: http://keycloak.localhost:<Keycloak host port>)
-#   KIND_ENV_FILE                the file with settings of ZAC and the stack (default: .env); empty for none
+#   KIND_ENV_FILE                the file with settings of ZAC and the stack (default: .env); empty for none, which
+#                                also generates the passwords that are not set, for runs without a developer
 #   KIND_ZAC_VALUES              space-separated Helm values files for ZAC that override all other settings of ZAC
 #   KIND_EXTRA_MANIFESTS         space-separated Kubernetes manifests to apply in the namespace before ZAC starts
 #   the settings of ZAC that docs/development/installKind.md lists, also from KIND_ENV_FILE
@@ -107,6 +108,7 @@ active_releases=(openzaak openklant)
 [[ ,$PROFILES, == *,openarchiefbeheer,* ]] && active_releases+=(openarchiefbeheer)
 [[ ,$PROFILES, == *,openformulieren,* ]] && active_releases+=(openforms)
 echo "Services: ${active_releases[*]}${PROFILES:+ (options: $PROFILES)}"
+python3 "$KIND_DIR/kind_stack.py" check-passwords "$WORK_DIR/stack.json"
 
 step "Checking the host ports"
 python3 "$KIND_DIR/kind_stack.py" ports "$KIND_DIR/ports.json" "$MODE" "$PROFILES" "$WORK_DIR" "$NODE" "$PROXY"
@@ -251,6 +253,11 @@ python3 "$KIND_DIR/kind_stack.py" wait "$CONTEXT" "$NAMESPACE" 600 "$(docker ins
   postgres > /dev/null
 kc -n "$NAMESPACE" exec -i deploy/postgres -- psql --username postgres --quiet --set ON_ERROR_STOP=1 \
   < "$WORK_DIR/generated/roles.sql" > /dev/null
+if [ -s "$WORK_DIR/generated/changed-passwords" ]; then
+  # the pods only read the passwords when they start
+  echo "Restarting the services, because these passwords changed: $(tr '\n' ' ' < "$WORK_DIR/generated/changed-passwords")"
+  kc -n "$NAMESPACE" rollout restart deployment > /dev/null
+fi
 
 if [ "$MODE" = zac ]; then
   zac_values=(-f "$KIND_DIR/values/zac.yaml" -f "$WORK_DIR/zac.json"
@@ -306,6 +313,10 @@ echo
 echo "Keycloak is at $keycloak_url, also for the pods in the cluster; its admin console is at $keycloak_url/admin."
 echo "The admin user of Keycloak and of the admin pages of Open Zaak and the other components is 'admin', with the"
 echo "password $(sed -n 's/^ADMIN_PASSWORD=//p' "$WORK_DIR/generated/summary.env")."
+if grep -qx admin-password "$WORK_DIR/generated/changed-passwords"; then
+  echo "Warning: Keycloak and the admin pages keep the admin password of their first start. Run ./start-kind.sh -d to" >&2
+  echo "start from the seed data with the new one." >&2
+fi
 if [ "$MODE" = ide ]; then
   echo
   echo "ZAC is not running in the cluster. Run it from your IDE with the environment of .env.example."
