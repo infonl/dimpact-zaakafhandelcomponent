@@ -368,7 +368,8 @@ fun createRestZaakRechten(
     versturenEmail: Boolean = true,
     wijzigenLocatie: Boolean = true,
     brondatumZetten: Boolean = true,
-    koppelen: Boolean = true
+    koppelen: Boolean = true,
+    wijzigenArchief: Boolean = true
 ) = RestZaakRechten(
     canLezen = lezen,
     canWijzigen = wijzigen,
@@ -390,7 +391,16 @@ fun createRestZaakRechten(
     canVersturenEmail = versturenEmail,
     canWijzigenLocatie = wijzigenLocatie,
     canBrondatumZetten = brondatumZetten,
-    canKoppelen = koppelen
+    canKoppelen = koppelen,
+    canWijzigenArchief = wijzigenArchief
+)
+
+fun createRestZaakArchiefnominatieGegevens(
+    archiefnominatie: RestArchiefnominatie = RestArchiefnominatie.BLIJVEND_BEWAREN,
+    reden: String = "fakeReden"
+) = RestZaakArchiefnominatieGegevens(
+    archiefnominatie = archiefnominatie,
+    reden = reden
 )
 
 fun createRestZaakResultaat() = RestZaakResultaat()

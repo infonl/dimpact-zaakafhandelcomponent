@@ -46,7 +46,8 @@ zaak_rechten := {
     "vastleggen_besluit": vastleggen_besluit,
     "verlengen_doorlooptijd": verlengen_doorlooptijd,
     "wijzigen_locatie": wijzigen_locatie,
-    "brondatum_zetten": brondatum_zetten
+    "brondatum_zetten": brondatum_zetten,
+    "wijzigen_archief": wijzigen_archief
 }
 
 default zaaktype_allowed := false
@@ -463,4 +464,13 @@ brondatum_zetten if {
     not zaak.brondatumBepaald
     zaak_allowed
     recordmanager.rol in user.rollen
+}
+
+default wijzigen_archief := false
+wijzigen_archief if {
+    not zaak.open
+    zaaktype_allowed
+    zaak_allowed
+    some role in {recordmanager, beheerder}
+    role.rol in user.rollen
 }

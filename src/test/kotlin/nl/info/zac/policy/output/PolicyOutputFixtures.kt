@@ -101,7 +101,8 @@ fun createZaakRechten(
     vastleggenBesluit: Boolean = true,
     verlengenDoorlooptijd: Boolean = true,
     wijzigenLocatie: Boolean = true,
-    brondatumZetten: Boolean = true
+    brondatumZetten: Boolean = true,
+    wijzigenArchief: Boolean = true
 ) = ZaakRechten(
     canLezen = lezen,
     canWijzigen = wijzigen,
@@ -130,7 +131,8 @@ fun createZaakRechten(
     canVastleggenBesluit = vastleggenBesluit,
     canVerlengenDoorlooptijd = verlengenDoorlooptijd,
     canWijzigenLocatie = wijzigenLocatie,
-    canBrondatumZetten = brondatumZetten
+    canBrondatumZetten = brondatumZetten,
+    canWijzigenArchief = wijzigenArchief
 )
 
 @Suppress("LongParameterList")
@@ -162,7 +164,8 @@ fun createZaakRechtenAllDeny(
     vastleggenBesluit: Boolean = false,
     verlengenDoorlooptijd: Boolean = false,
     wijzigenLocatie: Boolean = false,
-    brondatumZetten: Boolean = false
+    brondatumZetten: Boolean = false,
+    wijzigenArchief: Boolean = false
 ) = createZaakRechten(
     lezen,
     wijzigen,
@@ -191,7 +194,8 @@ fun createZaakRechtenAllDeny(
     vastleggenBesluit,
     verlengenDoorlooptijd,
     wijzigenLocatie,
-    brondatumZetten
+    brondatumZetten,
+    wijzigenArchief
 )
 
 @Suppress("LongParameterList")

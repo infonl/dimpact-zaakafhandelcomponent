@@ -7,6 +7,7 @@ package nl.info.zac.app.policy.model
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.policy.output.createZaakRechten
+import nl.info.zac.policy.output.createZaakRechtenAllDeny
 
 class RestZaakRechtenTest : BehaviorSpec({
     context("Converting zaak rechten to REST zaak rechten") {
@@ -30,6 +31,18 @@ class RestZaakRechtenTest : BehaviorSpec({
 
                 then("the REST zaak rechten do not allow linking zaken") {
                     restZaakRechten.canKoppelen shouldBe false
+                }
+            }
+        }
+
+        given("zaak rechten that allow changing the archief") {
+            val zaakRechten = createZaakRechtenAllDeny(wijzigenArchief = true)
+
+            `when`("they are converted") {
+                val restZaakRechten = zaakRechten.toRestZaakRechten()
+
+                then("the REST zaak rechten allow changing the archief") {
+                    restZaakRechten.canWijzigenArchief shouldBe true
                 }
             }
         }

@@ -198,6 +198,7 @@ class SearchRestServiceTest : BehaviorSpec({
                               "canVerwijderenBetrokkene" : false,
                               "canVerwijderenInitiator" : false,
                               "canWijzigen" : false,
+                              "canWijzigenArchief" : false,
                               "canWijzigenDoorlooptijd" : false,
                               "canWijzigenLocatie" : false
                             },

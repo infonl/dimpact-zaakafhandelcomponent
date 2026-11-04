@@ -37,6 +37,7 @@ import data.net.atos.zac.zaak.vastleggen_besluit
 import data.net.atos.zac.zaak.verlengen_doorlooptijd
 import data.net.atos.zac.zaak.wijzigen_locatie
 import data.net.atos.zac.zaak.brondatum_zetten
+import data.net.atos.zac.zaak.wijzigen_archief
 
 
 ##################
@@ -1430,6 +1431,58 @@ test_brondatum_zetten_systeemrol_behandelaar_alle_zaaktypen_fails if {
         with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
         with input.zaak.open as false
         with input.zaak.brondatumBepaald as false
+}
+
+########################
+# wijzigen_archief
+########################
+test_wijzigen_archief_recordmanager if {
+    wijzigen_archief
+        with input.user.rollen as [ "recordmanager" ]
+        with input.zaak.open as false
+}
+
+test_wijzigen_archief_beheerder if {
+    wijzigen_archief
+        with input.user.rollen as [ "beheerder" ]
+        with input.zaak.open as false
+}
+
+test_wijzigen_archief_zaak_open_fails if {
+    not wijzigen_archief
+        with input.user.rollen as [ "recordmanager", "beheerder" ]
+        with input.zaak.open as true
+}
+
+test_wijzigen_archief_wrong_role_fails if {
+    not wijzigen_archief
+        with input.user.rollen as [ "raadpleger", "behandelaar", "coordinator" ]
+        with input.zaak.open as false
+}
+
+test_wijzigen_archief_zaaktype_not_allowed_fails if {
+    not wijzigen_archief
+        with input.user.rollen as [ "recordmanager" ]
+        with input.user.zaaktypen as [ "otherZaaktype" ]
+        with input.zaak.zaaktype as "zaaktype"
+        with input.zaak.open as false
+}
+
+test_wijzigen_archief_zaakspecifiek_geautoriseerd_without_access_fails if {
+    not wijzigen_archief
+        with input.user.rollen as [ "recordmanager" ]
+        with input.zaak.open as false
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+}
+
+test_wijzigen_archief_missing_role_fails if {
+    not wijzigen_archief with input.user.key as "value"
+}
+
+test_wijzigen_archief_systeemrol_behandelaar_alle_zaaktypen_fails if {
+    not wijzigen_archief
+        with input.user.rollen as [ "systeemrol_behandelaar_alle_zaaktypen" ]
+        with input.zaak.open as false
 }
 
 ##################################

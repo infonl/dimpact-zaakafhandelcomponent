@@ -27,7 +27,8 @@ data class RestZaakRechten(
     val canVersturenEmail: Boolean,
     val canWijzigenLocatie: Boolean,
     val canBrondatumZetten: Boolean,
-    val canKoppelen: Boolean
+    val canKoppelen: Boolean,
+    val canWijzigenArchief: Boolean
 )
 
 fun ZaakRechten.toRestZaakRechten() = RestZaakRechten(
@@ -51,5 +52,6 @@ fun ZaakRechten.toRestZaakRechten() = RestZaakRechten(
     canVersturenEmail = this.canVersturenEmail,
     canWijzigenLocatie = this.canWijzigenLocatie,
     canBrondatumZetten = this.canBrondatumZetten,
-    canKoppelen = this.canKoppelen
+    canKoppelen = this.canKoppelen,
+    canWijzigenArchief = this.canWijzigenArchief
 )
