@@ -5,7 +5,7 @@
 <mat-accordion>
   @for (besluit of besluiten(); track besluit; let isFirst = $first) {
     <mat-expansion-panel
-      (afterExpand)="loadBesluitData(besluit.uuid)"
+      (opened)="loadBesluitData(besluit.uuid)"
       [expanded]="isFirst"
     >
       <mat-expansion-panel-header>

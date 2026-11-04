@@ -116,44 +116,6 @@ export class ParametersComponent
 
   constructor() {
     super();
-    effect(() => {
-      this.parameters.data = this.parametersQuery.data() ?? [];
-    });
-  }
-
-  ngOnInit() {
-    this.setupMenu("title.parameters");
-    this.filterParameters.set(
-      SessionStorageUtil.getItem(
-        this.storedParameterFilters,
-        new ZaakafhandelParametersListParameters("valide", "asc"),
-      ),
-    );
-    this.applyFilter();
-  }
-
-  ngAfterViewInit() {
-    super.ngAfterViewInit();
-    this.parameters.sortingDataAccessor = (item, property) => {
-      switch (property) {
-        case "omschrijving":
-          return String(item.zaaktype.omschrijving);
-        case "model":
-          return String(item.processDefinition?.naam);
-        case "valide":
-          return Number(item.isValide);
-        case "geldig":
-          return Number(item.zaaktype.isNuGeldig);
-        case "beginGeldigheid":
-          return String(item.zaaktype.beginGeldigheid);
-        case "eindeGeldigheid":
-          return String(item.zaaktype.eindeGeldigheid);
-        default:
-          return String(item[property as keyof typeof item]);
-      }
-    };
-
-    this.parameters.sort = this.parametersSort();
     this.parameters.filterPredicate = (data, filter) => {
       let match = true;
 
@@ -224,6 +186,44 @@ export class ParametersComponent
 
       return match;
     };
+    effect(() => {
+      this.parameters.data = this.parametersQuery.data() ?? [];
+    });
+  }
+
+  ngOnInit() {
+    this.setupMenu("title.parameters");
+    this.filterParameters.set(
+      SessionStorageUtil.getItem(
+        this.storedParameterFilters,
+        new ZaakafhandelParametersListParameters("valide", "asc"),
+      ),
+    );
+    this.applyFilter();
+  }
+
+  ngAfterViewInit() {
+    super.ngAfterViewInit();
+    this.parameters.sortingDataAccessor = (item, property) => {
+      switch (property) {
+        case "omschrijving":
+          return String(item.zaaktype.omschrijving);
+        case "model":
+          return String(item.processDefinition?.naam);
+        case "valide":
+          return Number(item.isValide);
+        case "geldig":
+          return Number(item.zaaktype.isNuGeldig);
+        case "beginGeldigheid":
+          return String(item.zaaktype.beginGeldigheid);
+        case "eindeGeldigheid":
+          return String(item.zaaktype.eindeGeldigheid);
+        default:
+          return String(item[property as keyof typeof item]);
+      }
+    };
+
+    this.parameters.sort = this.parametersSort();
   }
 
   protected applyFilter(options?: {
