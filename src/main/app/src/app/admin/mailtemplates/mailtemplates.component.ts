@@ -13,12 +13,12 @@ import {
 
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
   Component,
   OnInit,
   computed,
   effect,
   inject,
+  signal,
   viewChild,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
@@ -64,7 +64,6 @@ import { MailtemplateKoppelingService } from "../mailtemplate-koppeling.service"
     ]),
   ],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     I18nKeyPipe,
     MatSidenavModule,
@@ -134,7 +133,8 @@ export class MailtemplatesComponent
     () => this.mailtemplateKoppelingenQuery.data() ?? [],
   );
   private filterValue = "";
-  protected expandedRow: GeneratedType<"RestMailtemplate"> | null = null;
+  protected readonly expandedRow =
+    signal<GeneratedType<"RestMailtemplate"> | null>(null);
 
   constructor() {
     super();

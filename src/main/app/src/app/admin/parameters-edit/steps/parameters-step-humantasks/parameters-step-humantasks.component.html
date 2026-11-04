@@ -4,22 +4,22 @@
   -->
 
 <mat-accordion class="flex-col">
-  @for (humanTaskForm of form().controls; track humanTaskForm) {
+  @for (humanTask of humanTasks() ?? []; track humanTask.form) {
     <mat-expansion-panel class="flex-col" hideToggle>
       <mat-expansion-panel-header>
         <mat-panel-title>
-          @if (humanTaskForm.valid) {
+          @if (humanTask.isValid) {
             <mat-icon outlined color="primary">check_circle</mat-icon>
           } @else {
             <mat-icon outlined color="warn">error</mat-icon>
           }
-          <span [ngClass]="{ disabled: !humanTaskForm.controls.actief.value }">
-            {{ humanTaskForm.controls.planItemDefinition.value.naam }}
+          <span [ngClass]="{ disabled: !humanTask.isActief }">
+            {{ humanTask.naam }}
           </span>
         </mat-panel-title>
         <zac-toggle
           class="hide-empty-hint"
-          [form]="humanTaskForm"
+          [form]="humanTask.form"
           key="actief"
           label="actief"
           labelPosition="before"
@@ -28,7 +28,7 @@
       </mat-expansion-panel-header>
       <zac-select
         class="w33 w100-md"
-        [form]="humanTaskForm"
+        [form]="humanTask.form"
         key="formulierDefinitieId"
         label="formulier-definitie"
         [options]="formulierDefinitieIds()"
@@ -36,7 +36,7 @@
       ></zac-select>
       <zac-select
         class="w33 w100-md"
-        [form]="humanTaskForm"
+        [form]="humanTask.form"
         key="defaultGroepId"
         label="groep.standaard"
         [options]="groepIds()"
@@ -44,16 +44,16 @@
       ></zac-select>
       <zac-input
         class="w33 w100-md"
-        [form]="humanTaskForm"
+        [form]="humanTask.form"
         key="doorlooptijd"
         label="doorlooptijd"
         type="number"
       >
         <span>{{ "kalenderdagen" | translate }}</span>
       </zac-input>
-      @for (veld of veldDefinities(humanTaskForm); track veld) {
+      @for (veld of humanTask.veldDefinities; track veld) {
         @if (
-          humanTaskForm.controls.referentieTabellen.controls[veld.naam];
+          humanTask.referentieTabelForms[veld.naam];
           as referentieTabelForm
         ) {
           <zac-select

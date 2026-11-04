@@ -5,11 +5,11 @@
 
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
   inject,
+  signal,
   viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
@@ -39,7 +39,6 @@ import { mailSelectList } from "../model/mail-utils";
   templateUrl: "./mailtemplate.component.html",
   styleUrls: ["./mailtemplate.component.less"],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatSidenavModule,
@@ -103,10 +102,8 @@ export class MailtemplateComponent
       this.data()?.template as GeneratedType<"RestMailtemplate"> | undefined,
   );
 
-  protected readonly mailTemplates: {
-    label: string;
-    value: GeneratedType<"Mail">;
-  }[] = mailSelectList();
+  protected readonly mailTemplates =
+    signal<{ label: string; value: GeneratedType<"Mail"> }[]>(mailSelectList());
 
   protected readonly saveMailtemplateMutation = injectMutation(
     () =>
@@ -136,10 +133,13 @@ export class MailtemplateComponent
       if (!mailTemplate?.mail || this.mailControlLocked) return;
       this.mailControlLocked = true;
 
-      this.mailTemplates.push({
-        label: toI18nKey("mail." + mailTemplate.mail),
-        value: mailTemplate.mail,
-      });
+      this.mailTemplates.update((mailTemplates) => [
+        ...mailTemplates,
+        {
+          label: toI18nKey("mail." + mailTemplate.mail),
+          value: mailTemplate.mail,
+        },
+      ]);
       this.form.controls.mail.disable();
     });
   }

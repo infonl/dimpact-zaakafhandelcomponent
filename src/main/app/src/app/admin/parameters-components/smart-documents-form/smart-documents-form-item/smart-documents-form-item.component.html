@@ -7,7 +7,7 @@
 <fieldset>
   <mat-checkbox
     [formControl]="checkbox"
-    [checked]="node().informatieObjectTypeUUID !== ''"
+    [checked]="informatieObjectTypeUUID() !== ''"
     (change)="clearSelectedDocumentType()"
   ></mat-checkbox>
   <div class="flex-1">{{ node().name }}</div>
@@ -16,7 +16,7 @@
       "informatieobject-type-omschrijving" | translate
     }}</mat-label>
     <mat-select
-      [value]="node().informatieObjectTypeUUID"
+      [value]="informatieObjectTypeUUID()"
       (valueChange)="selectDocumentType($event)"
       placeholder="{{ 'informatieobject-type.kies' | translate }}"
     >

@@ -93,7 +93,7 @@ describe(`${ParametersComponent.name} applyFilter`, () => {
       const component = createParametersComponent();
 
       component["storedParameterFilters"] = "test-key";
-      component["filterParameters"] = {
+      component["filterParameters"].set({
         valide: ToggleSwitchOptions.INDETERMINATE,
         geldig: ToggleSwitchOptions.INDETERMINATE,
         zaaktype: null,
@@ -104,17 +104,17 @@ describe(`${ParametersComponent.name} applyFilter`, () => {
         order: "",
         page: 0,
         maxResults: 25,
-      } satisfies ZaakafhandelParametersListParameters;
+      } satisfies ZaakafhandelParametersListParameters);
 
       component["applyFilter"]({
         event,
         filter,
       });
 
-      expect(component["filterParameters"][filter]).toEqual(expectedValue);
+      expect(component["filterParameters"]()[filter]).toEqual(expectedValue);
       expect(setItemSpy).toHaveBeenCalledWith(
         "test-key",
-        component["filterParameters"],
+        component["filterParameters"](),
       );
     },
   );

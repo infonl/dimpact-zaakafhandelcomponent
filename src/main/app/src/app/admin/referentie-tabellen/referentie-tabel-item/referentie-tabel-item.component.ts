@@ -3,12 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  input,
-} from "@angular/core";
+import { Component, inject, input } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";
 import { MatIconModule } from "@angular/material/icon";
@@ -31,7 +26,6 @@ import { ReferentieTabelValueDialogComponent } from "./referentie-tabel-value-di
   selector: "zac-referentie-tabel-item",
   templateUrl: "./referentie-tabel-item.component.html",
   styleUrls: ["./referentie-tabel-item.component.less"],
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatTableModule,
     MatButtonModule,

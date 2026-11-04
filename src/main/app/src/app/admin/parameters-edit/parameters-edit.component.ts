@@ -4,9 +4,9 @@
  */
 
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
+  DoCheck,
   effect,
   inject,
   OnInit,
@@ -26,6 +26,7 @@ import { ActivatedRoute } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
+import { trackControl } from "../../shared/form/control-state";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -60,7 +61,6 @@ import {
 @Component({
   templateUrl: "./parameters-edit.component.html",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatProgressSpinnerModule,
     MatSidenavModule,
@@ -78,7 +78,10 @@ import {
     ParametersStepProcesModelComponent,
   ],
 })
-export class ParametersEditComponent extends AdminComponent implements OnInit {
+export class ParametersEditComponent
+  extends AdminComponent
+  implements OnInit, DoCheck
+{
   readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
   readonly menuSidenav = viewChild.required<MatSidenav>("menuSidenav");
@@ -115,12 +118,35 @@ export class ParametersEditComponent extends AdminComponent implements OnInit {
   protected readonly stepperProcessDefinitions = computed(() => [
     this.processDefinition(),
   ]);
-  protected selectedIndex = this.processDefinition() ? 1 : 0;
+  protected readonly selectedIndex = signal(this.processDefinition() ? 1 : 0);
+
+  private readonly readForm = trackControl(this.form);
+  protected readonly invalid = this.readForm(({ controls }) => ({
+    procesModel: controls.procesModel.invalid,
+    algemeen: controls.algemeen.invalid,
+    acties: controls.acties.invalid,
+    mail: controls.mail.invalid,
+    beeindiging: controls.beeindiging.invalid,
+    koppelingen: controls.koppelingen.invalid,
+  }));
+  protected readonly enabled = this.readForm(({ controls }) => ({
+    humanTasks: controls.humanTasks.enabled,
+    acties: controls.acties.enabled,
+    mail: controls.mail.enabled,
+  }));
+  private readonly formValid = this.readForm((form) => form.valid);
 
   protected readonly updateZaakafhandelparametersMutation = injectMutation(() =>
     this.zaakafhandelParametersService.updateZaakafhandelparameters(
       this.configuration().zaaktype.uuid,
     ),
+  );
+
+  protected readonly canSave = computed(
+    () =>
+      this.formValid() === true &&
+      this.processDefinition() !== null &&
+      !this.updateZaakafhandelparametersMutation.isPending(),
   );
 
   constructor() {
@@ -151,12 +177,8 @@ export class ParametersEditComponent extends AdminComponent implements OnInit {
     this.setupMenu("title.parameters.wijzigen");
   }
 
-  protected canSave(form: ZaaktypeConfigurationForm) {
-    return (
-      form.valid &&
-      this.processDefinition() !== null &&
-      !this.updateZaakafhandelparametersMutation.isPending()
-    );
+  ngDoCheck() {
+    this.readForm.check();
   }
 
   protected opslaan(form: ZaaktypeConfigurationForm) {

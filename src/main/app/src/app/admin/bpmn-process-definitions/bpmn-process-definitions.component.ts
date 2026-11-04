@@ -4,7 +4,6 @@
  */
 
 import {
-  ChangeDetectionStrategy,
   Component,
   ElementRef,
   Injector,
@@ -12,6 +11,7 @@ import {
   afterNextRender,
   computed,
   inject,
+  signal,
   viewChild,
   viewChildren,
 } from "@angular/core";
@@ -57,7 +57,6 @@ type Node =
   standalone: true,
   templateUrl: "./bpmn-process-definitions.component.html",
   styleUrls: ["./bpmn-process-definitions.component.less"],
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatButtonModule,
     MatCardModule,
@@ -92,10 +91,10 @@ export class BpmnProcessDefinitionsComponent
     this.buildTreeData(this.processDefinitionsQuery.data() ?? []),
   );
 
-  protected expandedKey: string | null = null;
+  protected readonly expandedKey = signal<string | null>(null);
 
   protected toggleNode(node: BpmnProcessDefinitionGroupNode) {
-    this.expandedKey = this.expandedKey === node.key ? null : node.key;
+    this.expandedKey.set(this.expandedKey() === node.key ? null : node.key);
   }
 
   childrenAccessor = (node: Node) =>
@@ -155,7 +154,7 @@ export class BpmnProcessDefinitionsComponent
                 { naam: file.name },
               );
               // the mutation-level onSuccess already refetches the list
-              this.expandedKey = processKey;
+              this.expandedKey.set(processKey);
               afterNextRender(
                 () =>
                   this.nodeRows()

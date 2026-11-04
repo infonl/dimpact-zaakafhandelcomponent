@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
+import { Component, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { Subject } from "rxjs";
@@ -17,7 +17,6 @@ import { AdminComponent } from "./admin.component";
 
 @Component({
   template: "",
-  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class TestAdminComponent extends AdminComponent {
@@ -41,7 +40,7 @@ class TestAdminComponent extends AdminComponent {
   }
 
   get testMenu(): MenuItem[] {
-    return this.menu;
+    return this.menu();
   }
 
   get testActiveMenu(): string {

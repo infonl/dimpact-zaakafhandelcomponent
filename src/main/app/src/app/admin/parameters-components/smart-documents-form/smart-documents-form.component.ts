@@ -6,11 +6,11 @@
 import { FlatTreeControl } from "@angular/cdk/tree";
 
 import {
-  ChangeDetectionStrategy,
   Component,
   effect,
   inject,
   input,
+  signal,
   untracked,
 } from "@angular/core";
 import {
@@ -33,6 +33,7 @@ import {
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
+import { trackControl } from "src/app/shared/form/control-state";
 import { injectMutation } from "src/app/shared/http/inject-mutation";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import {
@@ -52,7 +53,6 @@ interface FlatNode {
   templateUrl: "./smart-documents-form.component.html",
   styleUrl: "./smart-documents-form.component.less",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatButtonModule,
@@ -81,6 +81,13 @@ export class SmartDocumentsFormComponent {
     enabledForZaaktype: new FormControl<boolean>(false),
   });
 
+  private readonly readEnabledForZaaktypeForm = trackControl(
+    signal(this.enabledForZaaktypeForm),
+  );
+  protected readonly isEnabledForZaaktype = this.readEnabledForZaaktypeForm(
+    (form) => form.value.enabledForZaaktype,
+  );
+
   get enabledForZaaktypeValue(): boolean {
     return (
       this.enabledGlobally() &&
@@ -92,7 +99,9 @@ export class SmartDocumentsFormComponent {
 
   currentTemplateMappings: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] =
     [];
-  informationObjectTypes: GeneratedType<"RestInformatieobjecttype">[] = [];
+  readonly informationObjectTypes = signal<
+    GeneratedType<"RestInformatieobjecttype">[]
+  >([]);
 
   newTemplateMappings: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] =
     [];
@@ -123,7 +132,7 @@ export class SmartDocumentsFormComponent {
     const informationObjectTypesQueryData =
       this.informationObjectTypesQuery.data();
     if (informationObjectTypesQueryData) {
-      this.informationObjectTypes = informationObjectTypesQueryData;
+      this.informationObjectTypes.set(informationObjectTypesQueryData);
     }
 
     this.newTemplateMappings = this.smartDocumentsService.addTemplateMappings(

@@ -25,7 +25,7 @@
         </div>
       </form>
       <mat-divider class="my-3"></mat-divider>
-      @if (enabledForZaaktypeForm.get("enabledForZaaktype")?.value) {
+      @if (isEnabledForZaaktype()) {
         <form class="flex-col">
           <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
             <mat-tree-node
@@ -36,7 +36,7 @@
               <smart-documents-form-item
                 class="flex-1"
                 [formGroup]="formGroup"
-                [informationObjectTypes]="informationObjectTypes"
+                [informationObjectTypes]="informationObjectTypes()"
                 [node]="node"
                 (selectionChange)="handleMatTreeNodeChange($event)"
               ></smart-documents-form-item>
