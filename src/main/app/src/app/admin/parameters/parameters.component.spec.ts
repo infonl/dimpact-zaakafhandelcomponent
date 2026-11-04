@@ -14,12 +14,13 @@ import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
-import { sleep } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ParametersComponent } from "./parameters.component";
 import { ZaakafhandelParametersListParameters } from "./zaakafhandel-parameters-list-parameters";
 
@@ -273,4 +274,51 @@ describe(ParametersComponent.name, () => {
       expect(screen.getByText("Nieuw zaaktype")).toBeVisible();
     },
   );
+});
+
+describe(`${ParametersComponent.name} on a second visit`, () => {
+  it("shows a row for every cached zaaktype, because the filter is ready before the cached rows arrive", async () => {
+    await TestBed.configureTestingModule({
+      imports: [ParametersComponent, NoopAnimationsModule, MatNativeDateModule],
+      providers: [
+        provideTranslateService(),
+        {
+          provide: UtilService,
+          useValue: fromPartial<UtilService>({
+            getUniqueItemsList: jest.fn().mockReturnValue([]),
+            loading: signal(false),
+          }),
+        },
+        { provide: ConfiguratieService, useValue: {} },
+        provideRouter([]),
+      ],
+    }).compileComponents();
+    sessionStorage.clear();
+    testQueryClient.setQueryData(
+      TestBed.inject(ZaakafhandelParametersService).listZaakafhandelParameters()
+        .queryKey,
+      [
+        fromPartial<GeneratedType<"RestZaaktypeConfiguration">>({
+          zaaktype: {
+            uuid: "fakeZaaktypeUuid",
+            identificatie: "fakeIdentificatie",
+            omschrijving: "Fake zaaktype",
+            isNuGeldig: true,
+          },
+          isValide: true,
+        }),
+      ],
+    );
+
+    const fixture = TestBed.createComponent(ParametersComponent);
+    fixture.detectChanges();
+    await sleep();
+    fixture.detectChanges();
+    await sleep();
+    fixture.detectChanges();
+
+    expect(
+      screen.getByRole("row", { name: /Fake zaaktype/ }),
+    ).toBeInTheDocument();
+  });
 });
