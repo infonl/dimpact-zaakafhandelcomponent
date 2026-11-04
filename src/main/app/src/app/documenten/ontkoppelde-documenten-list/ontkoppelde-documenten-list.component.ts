@@ -212,7 +212,7 @@ export class OntkoppeldeDocumentenListComponent
   );
 
   protected get canSelect() {
-    return !!this.werklijstRechten?.canOntkoppeldeDocumentenVerwijderen;
+    return !!this.werklijstRechten()?.canOntkoppeldeDocumentenVerwijderen;
   }
 
   ngOnInit() {
