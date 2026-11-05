@@ -20,7 +20,6 @@ import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { DocumentDialogService } from "../../informatie-objecten/document-dialog.service";
-import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { GekoppeldeZaakEnkelvoudigInformatieobject } from "../../informatie-objecten/model/gekoppelde.zaak.enkelvoudig.informatieobject";
 import { RedenDialogFormComponent } from "../../shared/dialog/reden-dialog-form/reden-dialog-form.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -247,18 +246,6 @@ describe(ZaakDocumentenComponent.name, () => {
       .spyOn(utilService, "openSnackbarAction")
       // an empty observable models the snackbar closing without its action being used
       .mockReturnValue(EMPTY);
-    jest
-      .spyOn(
-        TestBed.inject(InformatieObjectenService),
-        "readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID",
-      )
-      .mockReturnValue(
-        of(
-          fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
-            titel: "Aangekoppeld document",
-          }),
-        ),
-      );
 
     notifyListener(
       addListener,
@@ -270,6 +257,15 @@ describe(ZaakDocumentenComponent.name, () => {
       }),
     );
     await settle();
+    httpTestingController
+      .expectOne(
+        "/rest/informatieobjecten/zaakinformatieobject/fakeZaakInformatieobjectUuid/informatieobject",
+      )
+      .flush(
+        fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
+          titel: "Aangekoppeld document",
+        }),
+      );
     await flushList([fakeDocument]);
 
     expect(openSnackbarAction).toHaveBeenCalledWith(
@@ -756,24 +752,44 @@ describe(ZaakDocumentenComponent.name, () => {
       ).toBeNull();
     });
 
-    it("opens the office editor for the document", async () => {
-      await setup(fakeZaak, [fakeEditableDocument]);
-      const editInhoud = jest
-        .spyOn(
-          InformatieObjectenService.prototype,
-          "editEnkelvoudigInformatieObjectInhoud",
-        )
-        .mockReturnValue(of("https://edit-url") as never);
-      const windowOpen = jest.spyOn(window, "open").mockImplementation();
-
+    async function clickBewerken() {
       await user.click(
         within(documentRow("Bewerkbaar document")).getByRole("button", {
           name: "actie.document.bewerken",
         }),
       );
+      await settle();
+    }
 
-      expect(editInhoud).toHaveBeenCalledWith("doc-uuid-2", "zaak-uuid-1");
+    async function answerEditRequest(url: string) {
+      httpTestingController
+        .expectOne(
+          "/rest/informatieobjecten/informatieobject/doc-uuid-2/edit?zaak=zaak-uuid-1",
+        )
+        .flush(url);
+      await settle();
+    }
+
+    it("opens the office editor for the document", async () => {
+      await setup(fakeZaak, [fakeEditableDocument]);
+      const windowOpen = jest.spyOn(window, "open").mockImplementation();
+
+      await clickBewerken();
+      await answerEditRequest("https://edit-url");
+
       expect(windowOpen).toHaveBeenCalledWith("https://edit-url");
+    });
+
+    it("asks for a new edit link on every click, as each link holds its own WebDAV token", async () => {
+      await setup(fakeZaak, [fakeEditableDocument]);
+      const windowOpen = jest.spyOn(window, "open").mockImplementation();
+
+      await clickBewerken();
+      await answerEditRequest("https://edit-url-1");
+      await clickBewerken();
+      await answerEditRequest("https://edit-url-2");
+
+      expect(windowOpen).toHaveBeenLastCalledWith("https://edit-url-2");
     });
 
     it("offers a download link for the document", async () => {
@@ -802,28 +818,55 @@ describe(ZaakDocumentenComponent.name, () => {
       expect(documentMoveToCase).toHaveBeenCalledWith(fakeEditableDocument);
     });
 
-    it("asks for confirmation before unlinking the document", async () => {
-      await setup(fakeZaak, [fakeEditableDocument]);
-      jest
-        .spyOn(
-          InformatieObjectenService.prototype,
-          "listZaakIdentificatiesForInformatieobject",
-        )
-        .mockReturnValue(of([]));
-      const openOntkoppelDocument = jest
-        .spyOn(TestBed.inject(DocumentDialogService), "openOntkoppelDocument")
-        .mockReturnValue(
-          fromPartial<MatDialogRef<RedenDialogFormComponent>>({
-            afterClosed: () => of(false),
-          }),
+    describe("unlinking the document", () => {
+      function spyOnOntkoppelDialog() {
+        return jest
+          .spyOn(TestBed.inject(DocumentDialogService), "openOntkoppelDocument")
+          .mockReturnValue(
+            fromPartial<MatDialogRef<RedenDialogFormComponent>>({
+              afterClosed: () => of(false),
+            }),
+          );
+      }
+
+      async function clickOntkoppelen(zaakIdentificaties: string[]) {
+        await openRowMenu("Bewerkbaar document");
+        await user.click(
+          screen.getByRole("menuitem", { name: "actie.document.ontkoppelen" }),
         );
+        await settle();
+        httpTestingController
+          .expectOne(
+            "/rest/informatieobjecten/informatieobject/doc-uuid-2/zaakidentificaties",
+          )
+          .flush(zaakIdentificaties);
+        await settle();
+      }
 
-      await openRowMenu("Bewerkbaar document");
-      await user.click(
-        screen.getByRole("menuitem", { name: "actie.document.ontkoppelen" }),
-      );
+      it("asks for confirmation", async () => {
+        await setup(fakeZaak, [fakeEditableDocument]);
+        const openOntkoppelDocument = spyOnOntkoppelDialog();
 
-      expect(openOntkoppelDocument).toHaveBeenCalled();
+        await clickOntkoppelen([]);
+
+        expect(openOntkoppelDocument).toHaveBeenCalledWith(
+          "msg.document.ontkoppelen.bevestigen",
+          expect.any(Function),
+        );
+      });
+
+      it("reads the linked zaken again each time, so that the confirmation names a zaak that was linked since the last time", async () => {
+        await setup(fakeZaak, [fakeEditableDocument]);
+        const openOntkoppelDocument = spyOnOntkoppelDialog();
+
+        await clickOntkoppelen([]);
+        await clickOntkoppelen(["fakeOtherZaakIdentificatie"]);
+
+        expect(openOntkoppelDocument).toHaveBeenLastCalledWith(
+          "msg.document.ontkoppelen.meerdere.zaken.bevestigen",
+          expect.any(Function),
+        );
+      });
     });
   });
 

@@ -32,7 +32,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { Observable, of } from "rxjs";
+import { from, Observable, of } from "rxjs";
 import { map, tap } from "rxjs/operators";
 import { AsyncButtonMenuItem } from "src/app/shared/side-nav/menu-item/subscription-button-menu-item";
 import { UtilService } from "../../core/service/util.service";
@@ -271,14 +271,16 @@ export class InformatieObjectViewComponent
         new ButtonMenuItem(
           "actie.bewerken",
           () => {
-            this.informatieObjectenService
-              .editEnkelvoudigInformatieObjectInhoud(
-                infoObject.uuid!,
-                zaak!.uuid!,
-              )
-              .subscribe((url) => {
-                window.open(url);
-              });
+            from(
+              this.queryClient.query(
+                this.informatieObjectenService.editEnkelvoudigInformatieObjectInhoud(
+                  infoObject.uuid!,
+                  zaak!.uuid!,
+                ),
+              ),
+            ).subscribe((url) => {
+              window.open(url);
+            });
           },
           "edit",
         ),

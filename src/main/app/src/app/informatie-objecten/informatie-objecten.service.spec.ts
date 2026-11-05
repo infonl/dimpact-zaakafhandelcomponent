@@ -127,4 +127,74 @@ describe(InformatieObjectenService.name, () => {
       expect(onDownloaded).toHaveBeenCalledWith(zip);
     });
   });
+
+  describe("the reads that a click or an event needs fresh", () => {
+    const answers = [
+      {
+        read: "the zaken of a document",
+        options: () =>
+          service.listZaakIdentificatiesForInformatieobject(documentUuid),
+        url: `/rest/informatieobjecten/informatieobject/${documentUuid}/zaakidentificaties`,
+        answer: ["fakeZaakIdentificatie"],
+      },
+      {
+        read: "the document of a zaakinformatieobject",
+        options: () =>
+          service.readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(
+            "fakeZaakInformatieobjectUuid",
+          ),
+        url: "/rest/informatieobjecten/zaakinformatieobject/fakeZaakInformatieobjectUuid/informatieobject",
+        answer: { titel: "fakeTitel" },
+      },
+      {
+        read: "the edit link of a document",
+        options: () =>
+          service.editEnkelvoudigInformatieObjectInhoud(documentUuid, zaakUuid),
+        url: `/rest/informatieobjecten/informatieobject/${documentUuid}/edit?zaak=${zaakUuid}`,
+        answer: "https://example.com/edit",
+      },
+    ];
+
+    async function readOnce({
+      options,
+      url,
+      answer,
+    }: (typeof answers)[number]) {
+      const read = testQueryClient.query(options() as never);
+      await sleep();
+      httpTestingController.expectOne(url).flush(answer as never);
+      await read;
+    }
+
+    it.each(answers)("asks the server every time for $read", async (entry) => {
+      await readOnce(entry);
+      await sleep();
+
+      await readOnce(entry);
+    });
+
+    it.each(answers)("keeps no copy of $read after the read", async (entry) => {
+      await readOnce(entry);
+      await sleep();
+
+      expect(
+        testQueryClient.getQueryState(entry.options().queryKey),
+      ).toBeUndefined();
+    });
+
+    it("does not retry the edit link, as a browser only allows window.open shortly after the click", async () => {
+      const read = testQueryClient.query(
+        service.editEnkelvoudigInformatieObjectInhoud(documentUuid, zaakUuid),
+      );
+      await sleep();
+
+      httpTestingController
+        .expectOne(
+          `/rest/informatieobjecten/informatieobject/${documentUuid}/edit?zaak=${zaakUuid}`,
+        )
+        .flush(null, { status: 500, statusText: "Internal Server Error" });
+
+      await expect(read).rejects.toBeDefined();
+    });
+  });
 });
