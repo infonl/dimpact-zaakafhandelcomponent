@@ -9,7 +9,6 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { alterMoment } from "../../../../functions";
 import { GeneratedType } from "../../utils/generated-types";
 import { DateRangeFilterComponent } from "./date-range-filter.component";
 
@@ -23,10 +22,6 @@ type DateRangeFilterInputs = {
 
 describe(DateRangeFilterComponent.name, () => {
   const user = userEvent.setup({ delay: null });
-
-  beforeAll(() => {
-    alterMoment();
-  });
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
