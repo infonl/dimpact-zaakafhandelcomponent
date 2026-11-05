@@ -5,6 +5,7 @@
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -27,6 +28,7 @@ private const val PERSONAL_DATA_MASKING_FILTER = "personalDataMaskingFilter"
 private const val MASKED_TEST_PERSON_HENDRIKA_JANSE_BSN = "******896"
 private const val JSON_LOGGING_FILTER_LOGGER = "nl.info.zac.util.JsonLoggingFilter"
 
+@Isolate
 class LoggingTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
