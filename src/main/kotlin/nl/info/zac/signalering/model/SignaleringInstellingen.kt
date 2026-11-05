@@ -52,6 +52,7 @@ class SignaleringInstellingen() {
 
     constructor(type: SignaleringType, ownerType: SignaleringTarget, ownerId: String) : this() {
         this.type = type
+        isMail = type.type.isMailDefault
         when (ownerType) {
             SignaleringTarget.GROUP -> groep = ownerId
             SignaleringTarget.USER -> medewerker = ownerId
@@ -65,8 +66,8 @@ class SignaleringInstellingen() {
             else -> null
         }
 
-    val isEmpty: Boolean
-        get() = !isDashboard && !isMail
+    val isDefault: Boolean
+        get() = !isDashboard && isMail == type.type.isMailDefault
 
     @get:AssertTrue(message = "Of medewerker of groep moet ingevuld zijn (niet beide).")
     val isValid: Boolean

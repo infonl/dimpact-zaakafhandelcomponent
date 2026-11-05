@@ -31,6 +31,7 @@ import nl.info.client.zgw.ztc.model.createZaakspecifiekGeautoriseerdeMedewerkerR
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.authentication.LoggedInUserProvider
+import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
@@ -480,6 +481,81 @@ class SignaleringEventObserverTest : BehaviorSpec({
                 createUser()
             )
             every { flowableTaskService.readOpenTask(task.id) } returns task
+
+            `when`("the event is handled") {
+                signaleringEventObserver.onFire(signaleringEvent)
+
+                then("no signalering is created") {
+                    verify(exactly = 0) {
+                        signaleringService.signaleringInstance(any())
+                        signaleringService.storeSignalering(any())
+                        signaleringService.sendSignalering(any())
+                    }
+                }
+            }
+        }
+    }
+
+    context("Receiving a taak afgerond event") {
+        val zaak = createZaak()
+        val completer = createUser(username = "fakeCompleterId")
+        val task = createTestTask(id = "fakeTaskId", caseVariables = mapOf(VAR_ZAAK_UUID to zaak.uuid))
+        val signaleringEvent = SignaleringEvent(
+            SignaleringType.Type.TAAK_AFGEROND,
+            SignaleringEventId(task.id, null),
+            completer
+        )
+        val behandelaarRolType = createBehandelaarRolType(zaakTypeUri = zaak.zaaktype)
+
+        given("a completed task on a zaak with a behandelaar medewerker who wants to be mailed") {
+            every { flowableTaskService.readTask(task.id) } returns task
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { zgwApiService.readBehandelaarRoltype(zaak.zaaktype) } returns behandelaarRolType
+            val behandelaar = createUser(username = "fakeBehandelaarId")
+            val rolMedewerker = createRolMedewerker(
+                zaakURI = zaak.url,
+                rolType = behandelaarRolType,
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = behandelaar.username)
+            )
+            val sentSignalering = slot<Signalering>()
+            every {
+                zrcClientService.listRollen(any<RolListParameters>())
+            } returns Results(listOf<Rol<*>>(rolMedewerker), 1)
+            every {
+                signaleringService.signaleringInstance(SignaleringType.Type.TAAK_AFGEROND)
+            } returns createSignalering(
+                type = createSignaleringType(
+                    type = SignaleringType.Type.TAAK_AFGEROND,
+                    subjecttype = SignaleringSubject.TAAK
+                ),
+                zaak = null
+            )
+            every { identityService.readUser(behandelaar.username, any()) } returns behandelaar
+            every { signaleringService.isNecessary(any(), completer.username) } returns true
+            every { signaleringService.readInstellingen(any()) } returns createSignaleringInstellingen(
+                isDashboard = false,
+                isMail = true
+            )
+            every { signaleringService.sendSignalering(capture(sentSignalering)) } returns Unit
+
+            `when`("the event is handled") {
+                signaleringEventObserver.onFire(signaleringEvent)
+
+                then("the behandelaar of the zaak is mailed about the task, not the one who completed it") {
+                    with(sentSignalering.captured) {
+                        targettype shouldBe SignaleringTarget.USER
+                        target shouldBe behandelaar.username
+                        subject shouldBe task.id
+                    }
+                }
+            }
+        }
+
+        given("a completed task on a zaak without a behandelaar medewerker") {
+            every { flowableTaskService.readTask(task.id) } returns task
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { zgwApiService.readBehandelaarRoltype(zaak.zaaktype) } returns behandelaarRolType
+            every { zrcClientService.listRollen(any<RolListParameters>()) } returns Results(emptyList<Rol<*>>(), 0)
 
             `when`("the event is handled") {
                 signaleringEventObserver.onFire(signaleringEvent)

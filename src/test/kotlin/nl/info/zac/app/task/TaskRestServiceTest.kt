@@ -68,6 +68,8 @@ import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.signalering.event.SignaleringEvent
+import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.task.BpmnTaskFormRuntimeService
 import nl.info.zac.task.TaskService
 import nl.info.zac.websocket.event.ScreenEvent
@@ -290,6 +292,7 @@ class TaskRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val httpSession = mockk<HttpSession>()
             val historicTaskInstance = mockk<HistoricTaskInstance>()
+            val signaleringEvent = slot<SignaleringEvent<*>>()
             val restUser = createRESTUser(
                 username = loggedInUser.username,
                 name = loggedInUser.getFullName()
@@ -328,6 +331,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { historicTaskInstance.id } returns restTaak.id
             every { restTaskConverter.toRestTask(historicTaskInstance) } returns restTaakConverted
             every { eventingService.send(any<ScreenEvent>()) } just runs
+            every { eventingService.send(capture(signaleringEvent)) } just runs
 
             `when`("task is completed by a user with permissions to change tasks") {
                 every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
@@ -341,6 +345,13 @@ class TaskRestServiceTest : BehaviorSpec({
                 }
                 and("the completed task is returned") {
                     restTaakReturned shouldBe restTaakConverted
+                }
+                and("the behandelaar of the zaak is signalled that the user completed the task") {
+                    with(signaleringEvent.captured) {
+                        objectType shouldBe SignaleringType.Type.TAAK_AFGEROND
+                        objectId.resource shouldBe restTaak.id
+                        actor shouldBe loggedInUser.username
+                    }
                 }
             }
 
@@ -385,6 +396,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
             every { taakVariabelenService.setTaskInformation(task, null) } just runs
             every { eventingService.send(any<ScreenEvent>()) } just runs
+            every { eventingService.send(any<SignaleringEvent<*>>()) } just runs
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
             every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
             every { flowableTaskService.completeTask(task) } returns historicTaskInstance
@@ -478,6 +490,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { indexingService.addOrUpdateZaakOrThrow(restTask.zaakUuid, false) } just runs
             every { restTaskConverter.toRestTask(historicTaskInstance) } returns restTaskConverted
             every { eventingService.send(any<ScreenEvent>()) } just runs
+            every { eventingService.send(any<SignaleringEvent<*>>()) } just runs
 
             `when`("the task is completed") {
                 val restTaskReturned = taskRestService.completeTask(restTask)

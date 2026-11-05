@@ -401,4 +401,54 @@ class SignaleringRestServiceTest : BehaviorSpec({
             }
         }
     }
+
+    given("A logged-in behandelaar who has not changed the taak afgerond signalering") {
+        fun readTaakAfgerondInstellingen() =
+            itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/signaleringen/instellingen",
+                testUser = BEHANDELAAR_1
+            ).run {
+                code shouldBe HTTP_OK
+                JSONArray(bodyAsString).let { instellingen ->
+                    (0 until instellingen.length())
+                        .map(instellingen::getJSONObject)
+                        .single { it.getString("type") == "TAAK_AFGEROND" }
+                }
+            }
+
+        fun updateTaakAfgerondMail(isMailEnabled: Boolean) =
+            itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/signaleringen/instellingen",
+                headers = Headers.headersOf("Content-Type", "application/json"),
+                requestBodyAsString = """{"isMailEnabled":$isMailEnabled,"subjecttype":"TAAK","type":"TAAK_AFGEROND"}""",
+                testUser = BEHANDELAAR_1
+            )
+
+        `when`("the signalering instellingen are requested") {
+            val taakAfgerondInstellingen = readTaakAfgerondInstellingen()
+
+            then("the taak afgerond signalering is mailed by default and has no dashboard option") {
+                taakAfgerondInstellingen.getBoolean("isMailEnabled") shouldBe true
+                taakAfgerondInstellingen.isNull("isDashboardEnabled") shouldBe true
+            }
+        }
+
+        `when`("the mail of the taak afgerond signalering is turned off") {
+            val response = updateTaakAfgerondMail(isMailEnabled = false)
+
+            then("it stays off") {
+                response.code shouldBe HTTP_OK
+                readTaakAfgerondInstellingen().getBoolean("isMailEnabled") shouldBe false
+            }
+        }
+
+        `when`("the mail of the taak afgerond signalering is turned on again") {
+            val response = updateTaakAfgerondMail(isMailEnabled = true)
+
+            then("it is on again, as the default") {
+                response.code shouldBe HTTP_NO_CONTENT
+                readTaakAfgerondInstellingen().getBoolean("isMailEnabled") shouldBe true
+            }
+        }
+    }
 })

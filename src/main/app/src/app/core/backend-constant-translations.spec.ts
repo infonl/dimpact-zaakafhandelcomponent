@@ -23,6 +23,7 @@ const signaleringTypes = valuesOf<GeneratedType<"Type">>({
   ZAAK_VERLOPEND: true,
   TAAK_OP_NAAM: true,
   TAAK_VERLOPEN: true,
+  TAAK_AFGEROND: true,
 });
 
 // Only ZAAK_OP_NAAM targets groups (SignaleringType.java), so only it appears in the group signaleringen table.

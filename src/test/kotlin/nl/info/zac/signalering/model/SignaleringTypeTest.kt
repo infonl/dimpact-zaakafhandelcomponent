@@ -78,6 +78,30 @@ class SignaleringTypeTest : BehaviorSpec({
             }
         }
 
+        given("the taak afgerond type") {
+            `when`("its properties are read") {
+                then("it has no dashboard card and is mailed to users only, by default") {
+                    with(SignaleringType.Type.TAAK_AFGEROND) {
+                        isDashboard shouldBe false
+                        isMail shouldBe true
+                        isMailDefault shouldBe true
+                        isTarget(SignaleringTarget.USER) shouldBe true
+                        isTarget(SignaleringTarget.GROUP) shouldBe false
+                    }
+                }
+            }
+        }
+
+        given("the other types") {
+            `when`("their mail default is read") {
+                then("none of them is mailed by default") {
+                    SignaleringType.Type.entries
+                        .filter { it != SignaleringType.Type.TAAK_AFGEROND }
+                        .forEach { it.isMailDefault shouldBe false }
+                }
+            }
+        }
+
         given("the zaak op naam type") {
             `when`("its properties are read") {
                 then("it has a dashboard card and targets both users and groups") {

@@ -385,7 +385,7 @@ class SignaleringService @Inject constructor(
     @Transactional(REQUIRED)
     fun createUpdateOrDeleteInstellingen(instellingen: SignaleringInstellingen): SignaleringInstellingen? {
         validateObject(instellingen)
-        if (instellingen.isEmpty) {
+        if (instellingen.isDefault) {
             instellingen.id?.let {
                 entityManager.remove(entityManager.find(SignaleringInstellingen::class.java, instellingen.id))
             }

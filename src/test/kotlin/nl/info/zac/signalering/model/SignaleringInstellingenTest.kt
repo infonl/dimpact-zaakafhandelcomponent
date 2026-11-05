@@ -9,6 +9,7 @@ import io.kotest.matchers.shouldBe
 
 class SignaleringInstellingenTest : BehaviorSpec({
     val signaleringType = SignaleringType().apply { type = SignaleringType.Type.ZAAK_OP_NAAM }
+    val taakAfgerondSignaleringType = SignaleringType().apply { type = SignaleringType.Type.TAAK_AFGEROND }
 
     context("Constructing signalering instellingen for an owner") {
         given("a group as owner") {
@@ -96,41 +97,75 @@ class SignaleringInstellingenTest : BehaviorSpec({
         }
     }
 
-    context("Checking whether signalering instellingen are empty") {
-        given("instellingen with neither dashboard nor mail") {
+    context("Checking whether signalering instellingen equal the defaults of their type") {
+        given("instellingen of a type that is off by default, with neither dashboard nor mail") {
             val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.USER, "fakeUsername")
 
-            `when`("it is checked whether they are empty") {
-                val isEmpty = signaleringInstellingen.isEmpty
+            `when`("it is checked whether they equal the defaults") {
+                val isDefault = signaleringInstellingen.isDefault
 
-                then("they are empty") {
-                    isEmpty shouldBe true
+                then("they do") {
+                    isDefault shouldBe true
                 }
             }
         }
 
-        given("instellingen with only dashboard") {
+        given("instellingen of a type that is off by default, with only dashboard") {
             val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.USER, "fakeUsername")
                 .apply { isDashboard = true }
 
-            `when`("it is checked whether they are empty") {
-                val isEmpty = signaleringInstellingen.isEmpty
+            `when`("it is checked whether they equal the defaults") {
+                val isDefault = signaleringInstellingen.isDefault
 
-                then("they are not empty") {
-                    isEmpty shouldBe false
+                then("they do not") {
+                    isDefault shouldBe false
                 }
             }
         }
 
-        given("instellingen with only mail") {
+        given("instellingen of a type that is off by default, with only mail") {
             val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.USER, "fakeUsername")
                 .apply { isMail = true }
 
-            `when`("it is checked whether they are empty") {
-                val isEmpty = signaleringInstellingen.isEmpty
+            `when`("it is checked whether they equal the defaults") {
+                val isDefault = signaleringInstellingen.isDefault
 
-                then("they are not empty") {
-                    isEmpty shouldBe false
+                then("they do not") {
+                    isDefault shouldBe false
+                }
+            }
+        }
+
+        given("instellingen of a type that is mailed by default, as constructed") {
+            val signaleringInstellingen = SignaleringInstellingen(
+                taakAfgerondSignaleringType,
+                SignaleringTarget.USER,
+                "fakeUsername"
+            )
+
+            `when`("it is checked whether they equal the defaults") {
+                val isDefault = signaleringInstellingen.isDefault
+
+                then("they do, and mail is on") {
+                    isDefault shouldBe true
+                    signaleringInstellingen.isMail shouldBe true
+                    signaleringInstellingen.isDashboard shouldBe false
+                }
+            }
+        }
+
+        given("instellingen of a type that is mailed by default, with mail turned off") {
+            val signaleringInstellingen = SignaleringInstellingen(
+                taakAfgerondSignaleringType,
+                SignaleringTarget.USER,
+                "fakeUsername"
+            ).apply { isMail = false }
+
+            `when`("it is checked whether they equal the defaults") {
+                val isDefault = signaleringInstellingen.isDefault
+
+                then("they do not, so that turning it off is stored") {
+                    isDefault shouldBe false
                 }
             }
         }
