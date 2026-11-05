@@ -27,7 +27,6 @@ export class InformatieObjectResolver {
       );
     }
 
-    // The view only hears of changes to the document while it is open.
     void this.informatieObjectenService.invalidateInformatieobject(
       informatieObjectUUID,
     );

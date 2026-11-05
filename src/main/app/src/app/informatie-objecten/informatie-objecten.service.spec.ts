@@ -3,12 +3,15 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HttpErrorResponse } from "@angular/common/http";
 import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { provideTranslateService } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { sleep, testQueryClient } from "../../../setupJest";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { QUERY_CLIENT } from "../shared/http/query-client";
 import { runMutation } from "../shared/http/run-mutation";
 import { InformatieObjectenService } from "./informatie-objecten.service";
 
@@ -239,4 +242,91 @@ describe(InformatieObjectenService.name, () => {
       });
     },
   );
+});
+
+describe(`${InformatieObjectenService.name} when a read of the document fails`, () => {
+  const documentUuid = "document-uuid-1";
+  const documentUrl = `/rest/informatieobjecten/informatieobject/${documentUuid}`;
+  const retryDelays = [1000, 2000, 4000];
+
+  let service: InformatieObjectenService;
+  let httpTestingController: HttpTestingController;
+  let queryClient: QueryClient;
+  let foutAfhandelen: jest.SpyInstance;
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+    TestBed.configureTestingModule({
+      providers: [
+        provideTranslateService(),
+        { provide: QueryClient, useExisting: QUERY_CLIENT },
+      ],
+    });
+
+    service = TestBed.inject(InformatieObjectenService);
+    httpTestingController = TestBed.inject(HttpTestingController);
+    queryClient = TestBed.inject(QueryClient);
+    foutAfhandelen = jest
+      .spyOn(TestBed.inject(FoutAfhandelingService), "foutAfhandelen")
+      .mockReturnValue(of());
+  });
+
+  afterEach(() => {
+    queryClient.clear();
+    jest.useRealTimers();
+  });
+
+  function readDocument() {
+    const read = queryClient.query(
+      service.readEnkelvoudigInformatieobject(documentUuid),
+    );
+    read.catch(() => undefined);
+    return read;
+  }
+
+  function answerWith(status: number, statusText: string) {
+    httpTestingController
+      .expectOne(documentUrl)
+      .flush(null, { status, statusText });
+  }
+
+  it("retries a server fault three times before it opens the error dialog once", async () => {
+    const read = readDocument();
+    await jest.advanceTimersByTimeAsync(0);
+    answerWith(500, "Internal Server Error");
+
+    for (const delay of retryDelays) {
+      await jest.advanceTimersByTimeAsync(delay);
+      answerWith(500, "Internal Server Error");
+    }
+
+    await expect(read).rejects.toBeInstanceOf(HttpErrorResponse);
+    expect(foutAfhandelen).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not retry a read the server refuses, because a retry would not change its answer", async () => {
+    const read = readDocument();
+    await jest.advanceTimersByTimeAsync(0);
+    answerWith(404, "Not Found");
+
+    await expect(read).rejects.toBeInstanceOf(HttpErrorResponse);
+    await jest.advanceTimersByTimeAsync(10_000);
+    httpTestingController.expectNone(documentUrl);
+    expect(foutAfhandelen).toHaveBeenCalledTimes(1);
+  });
+
+  it("opens the error dialog when the re-read after an invalidation fails, because the user waits on that read while the old copy is still on screen", async () => {
+    const firstRead = readDocument();
+    await jest.advanceTimersByTimeAsync(0);
+    httpTestingController.expectOne(documentUrl).flush({ uuid: documentUuid });
+    await firstRead;
+    await service.invalidateInformatieobject(documentUuid);
+
+    const reRead = readDocument();
+    await jest.advanceTimersByTimeAsync(0);
+    answerWith(404, "Not Found");
+
+    await expect(reRead).rejects.toBeInstanceOf(HttpErrorResponse);
+    expect(foutAfhandelen).toHaveBeenCalledTimes(1);
+  });
 });
