@@ -666,7 +666,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 2.16.0",
+      "allowedVersions": "< 2.20.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
@@ -795,7 +795,7 @@
       "matchDatasources": [
         "helm"
       ],
-      "allowedVersions": "< 1.12.0",
+      "allowedVersions": "< 1.15.0",
       "description": [
         "The Open Klant chart of the kind stack must fit the Open Klant version: later charts probe /_healthz/, which Open Klant 2.15 does not have"
       ]
