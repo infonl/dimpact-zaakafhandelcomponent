@@ -17,8 +17,8 @@ import {
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import "@testing-library/jest-dom";
-import { alterMoment } from "./src/functions";
 import { provideZacDateAdapter } from "./src/app/shared/form/date/provide-zac-date-adapter";
+import { alterMoment } from "./src/functions";
 
 const cryptoPolyfill = {
   randomUUID: () => {
