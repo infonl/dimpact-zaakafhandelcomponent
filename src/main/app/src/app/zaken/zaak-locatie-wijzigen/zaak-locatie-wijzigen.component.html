@@ -87,6 +87,8 @@
             [id]="'open-layers-map'"
             class="open-layers-map"
             [ngClass]="{ readonly: readonly() }"
+            role="region"
+            [attr.aria-label]="'kaart' | translate"
           ></div>
         </div>
         @if (!readonly()) {

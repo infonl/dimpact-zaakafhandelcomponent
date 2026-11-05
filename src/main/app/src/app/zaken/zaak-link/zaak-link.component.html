@@ -3,7 +3,7 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<mat-sidenav-container>
+<mat-sidenav-container role="region" aria-labelledby="zaak-link-title">
   <mat-sidenav #newCaseSidenav position="end">
     @if (zaakCreate(); as zaakCreate) {
       <ng-container *ngTemplateOutlet="zaakCreate.sideActions()"></ng-container>
@@ -12,7 +12,9 @@
   <mat-sidenav-content>
     <mat-toolbar role="heading" class="gap-16">
       <mat-icon>account_tree</mat-icon>
-      <h3 class="flex-grow-1">{{ "actie.zaak.koppelen" | translate }}</h3>
+      <h3 id="zaak-link-title" class="flex-grow-1">
+        {{ "actie.zaak.koppelen" | translate }}
+      </h3>
       <button
         mat-icon-button
         [attr.aria-label]="'actie.paneel.sluiten' | translate"
