@@ -28,7 +28,6 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KE
 import okhttp3.Headers
 import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONArray
-import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.ZonedDateTime
 import kotlin.time.Duration.Companion.seconds
@@ -64,7 +63,7 @@ class ZaakRestServiceBpmnWarningTest : BehaviorSpec({
 
     afterSpec {
         storeBpmnTest1Configuration(fatalDateWarningWindow = null).code shouldBe HTTP_OK
-        storeZaakVerlopendMailSetting(isMailEnabled = false).code shouldBe HTTP_NO_CONTENT
+        storeZaakVerlopendMailSetting(isMailEnabled = false).code shouldBe HTTP_OK
     }
 
     given(
