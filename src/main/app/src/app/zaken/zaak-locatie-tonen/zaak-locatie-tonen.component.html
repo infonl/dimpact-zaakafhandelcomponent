@@ -9,5 +9,11 @@
     label="zaak.locatie.adres"
     [value]="nearestAddress()?.weergavenaam ?? null"
   />
-  <div #openLayersMap [id]="'open-layers-map'" class="open-layers-map"></div>
+  <div
+    #openLayersMap
+    [id]="'open-layers-map'"
+    class="open-layers-map"
+    role="region"
+    [attr.aria-label]="'kaart' | translate"
+  ></div>
 </div>

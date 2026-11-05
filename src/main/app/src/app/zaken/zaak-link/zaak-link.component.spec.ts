@@ -746,15 +746,14 @@ describe(ZaakLinkComponent.name, () => {
         name: "actie.bag-object.koppelen",
         level: 3,
       });
-      // mat-sidenav-container exposes no role, so the drawer the picker opens in is only reachable through the DOM.
-      // eslint-disable-next-line testing-library/no-node-access
-      expect(pickerTitle.closest("zac-zaak-create")).toBeNull();
-      // eslint-disable-next-line testing-library/no-node-access
-      const panel = pickerTitle.closest<HTMLElement>("mat-sidenav-container");
-      expect(panel).not.toBeNull();
-      expect(within(panel!).getByRole("tablist")).toBeInTheDocument();
       expect(
-        within(panel!).getByRole("heading", {
+        screen.getByRole("form", { name: "actie.zaak.aanmaken" }),
+      ).not.toContainElement(pickerTitle);
+      const panel = screen.getByRole("region", { name: "actie.zaak.koppelen" });
+      expect(panel).toContainElement(pickerTitle);
+      expect(within(panel).getByRole("tablist")).toBeInTheDocument();
+      expect(
+        within(panel).getByRole("heading", {
           name: "actie.zaak.koppelen",
           level: 3,
         }),

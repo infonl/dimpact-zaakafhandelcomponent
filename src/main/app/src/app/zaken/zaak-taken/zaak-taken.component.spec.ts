@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import {
   provideHttpClient,
   withInterceptorsFromDi,
@@ -13,6 +14,7 @@ import {
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatChipHarness } from "@angular/material/chips/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
@@ -383,10 +385,11 @@ describe(ZaakTakenComponent.name, () => {
   });
 
   describe("the status chip", () => {
-    function chipOf(status: string) {
-      const label = screen.getByText(toI18nKey(`taak.status.${status}`));
-      // eslint-disable-next-line testing-library/no-node-access -- the mat-chip display chip exposes no role; the test asserts its style class
-      return label.closest("mat-chip");
+    async function chipHasClass(status: string, styleClass: string) {
+      const chip = await TestbedHarnessEnvironment.loader(fixture).getHarness(
+        MatChipHarness.with({ text: toI18nKey(`taak.status.${status}`) }),
+      );
+      return (await chip.host()).hasClass(styleClass);
     }
 
     it("marks an afgeronde taak as a success", async () => {
@@ -394,19 +397,19 @@ describe(ZaakTakenComponent.name, () => {
 
       await showAfgerondeTaken();
 
-      expect(chipOf("AFGEROND")).toHaveClass("mat-success");
+      expect(await chipHasClass("AFGEROND", "mat-success")).toBe(true);
     });
 
     it("highlights a toegekende taak", async () => {
       await setup([taak({ status: "TOEGEKEND" })]);
 
-      expect(chipOf("TOEGEKEND")).toHaveClass("mat-primary");
+      expect(await chipHasClass("TOEGEKEND", "mat-primary")).toBe(true);
     });
 
     it("leaves any other status with the default styling", async () => {
       await setup([taak({ status: "NIET_TOEGEKEND" })]);
 
-      expect(chipOf("NIET_TOEGEKEND")).toHaveClass("mat-primary");
+      expect(await chipHasClass("NIET_TOEGEKEND", "mat-primary")).toBe(true);
     });
   });
 
