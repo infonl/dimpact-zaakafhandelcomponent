@@ -40,8 +40,17 @@ tests:
       - exists:
           path: stringData.SOLR_PASSWORD
         template: templates/secret.yaml
-      - notExists:
+      - notContains:
           path: spec.template.spec.containers[0].env
+          content:
+            name: SOLR_USERNAME
+          any: true
+        template: templates/deployment.yaml
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SOLR_PASSWORD
+          any: true
         template: templates/deployment.yaml
   - it: requires a username for an external Solr
     set:

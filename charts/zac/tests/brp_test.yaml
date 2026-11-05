@@ -27,7 +27,28 @@ tests:
       - equal:
           path: data.BRP_SYSTEM_USER
           value: SystemUser
-  - it: sets no protocollering headers when protocollering is disabled
+      - equal:
+          path: data.BRP_ORIGIN_OIN
+          value: "123443210"
+      - equal:
+          path: data.BRP_ORIGIN_OIN_HEADER
+          value: x-origin-oin
+      - equal:
+          path: data.BRP_DOELBINDING_HEADER
+          value: x-doelbinding
+      - equal:
+          path: data.BRP_VERWERKING_HEADER
+          value: x-verwerking
+      - equal:
+          path: data.BRP_VERWERKINGSREGISTER_EXT_WITH_ZAAKTYPE
+          value: "true"
+      - equal:
+          path: data.BRP_GEBRUIKER_HEADER
+          value: x-gebruiker
+      - equal:
+          path: data.BRP_TOEPASSING_HEADER
+          value: x-toepassing
+  - it: sets no protocollering headers and values when protocollering is disabled
     set:
       brpApi.protocollering.enabled: false
     asserts:
@@ -35,11 +56,29 @@ tests:
           path: data.BRP_PROTOCOLLERING_ENABLED
           value: "false"
       - notExists:
+          path: data.BRP_ORIGIN_OIN
+      - notExists:
+          path: data.BRP_ORIGIN_OIN_HEADER
+      - notExists:
           path: data.BRP_DOELBINDING_HEADER
+      - notExists:
+          path: data.BRP_DOELBINDING_ZOEKMET
+      - notExists:
+          path: data.BRP_DOELBINDING_RAADPLEEGMET
       - notExists:
           path: data.BRP_VERWERKING_HEADER
       - notExists:
+          path: data.BRP_VERWERKINGSREGISTER
+      - notExists:
+          path: data.BRP_VERWERKINGSREGISTER_EXT_WITH_ZAAKTYPE
+      - notExists:
+          path: data.BRP_GEBRUIKER_HEADER
+      - notExists:
           path: data.BRP_TOEPASSING_HEADER
+      - notExists:
+          path: data.BRP_TOEPASSING
+      - notExists:
+          path: data.BRP_SYSTEM_USER
   - it: requires zoekmet when a doelbinding header is set
     set:
       brpApi.protocollering.doelbinding.zoekmet: ""

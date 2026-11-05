@@ -29,10 +29,11 @@ tests:
     set:
       logLevel: VERBOSE
     asserts:
-      - failedTemplate: {}
+      - failedTemplate:
+          errorPattern: "at '/logLevel': value must be one of 'DEBUG', 'INFO', 'WARN', 'ERROR'"
   - it: rejects TRACE, which WildFly accepts but logs even more security-sensitive data than DEBUG
     set:
       logLevel: TRACE
     asserts:
       - failedTemplate:
-          errorPattern: "value must be one of 'DEBUG', 'INFO', 'WARN', 'ERROR'"
+          errorPattern: "at '/logLevel': value must be one of 'DEBUG', 'INFO', 'WARN', 'ERROR'"
