@@ -17,7 +17,7 @@ The services of the local ZAC development stack on kind that have no upstream He
 | nginx.image | string | `"nginxinc/nginx-unprivileged:1.31.7@sha256:09b0d3eda2aa592d2487f284519419015cab010d7df16cd0fe224b585fc60eb6"` |  |
 | officeConverter.image | string | `"gotenberg/gotenberg:8.39.0@sha256:13672f317b443c793e972b1bd2155ec62a3e7b6891b411e8196442cc053ee5f5"` | keep in sync with the office converter of charts/zac |
 | officeConverter.username | string | `"zac"` |  |
-| opa.image | string | `"openpolicyagent/opa:1.22.0-static@sha256:906bfc9904b2693733e7959d71773dd073e6c135cf06f26d955abe94603e82b3"` | keep in sync with the OPA of charts/zac |
+| opa.image | string | `"openpolicyagent/opa:1.22.1-static@sha256:e9e6cf5d569ff419cfa5785ab28d46709a5e69cb5856d53e1b6cb8d343a39730"` | keep in sync with the OPA of charts/zac |
 | openarchiefbeheer.image | string | `"maykinmedia/open-archiefbeheer:2.0.0@sha256:e5217d748869c62d26393311c3cfdcaacf69d8dde80ca3bc172ff41f3885f0ff"` |  |
 | openforms.image | string | `"openformulieren/open-forms:4.0.7@sha256:12c975259f37eb91973a722d1f4e3f0ccf09aa037c08ecbd200350efd4ed493a"` |  |
 | openklant.image | string | `"maykinmedia/open-klant:2.15.0@sha256:ce59a2c60dab1c14e62fe34a99511839390dd2d482983c27334241e0d60c693d"` |  |
@@ -38,7 +38,7 @@ The services of the local ZAC development stack on kind that have no upstream He
 | profiles.opennotificaties | bool | `false` | Open Notificaties (-n, and with -f) |
 | profiles.vngselectielijst | bool | `false` | VNG Selectielijst (-v) |
 | redis.image | string | `"redis:8.6.8@sha256:3d89f7d15768840f509ecc050347868c8b9f5768625eae14ed7633e039ded7fb"` |  |
-| solr.image | string | `"solr:9.11.0-slim@sha256:5bc07412dffc1198ff6ace3587e09f8eea2126f821109a849506f4541b228aca"` |  |
+| solr.image | string | `"solr:9.11.0-slim@sha256:54cec2ced0f2c26436605a7dd5dde5ae78f26d5c0d19a7358349d5cb71fdfc1a"` |  |
 | storageClassName | string | `"standard"` | the storage class of the kind cluster |
 | upstreamCharts | object | `{"openarchiefbeheer":{"repository":"https://maykinmedia.github.io/charts/","version":"2.0.0"},"openforms":{"repository":"https://maykinmedia.github.io/charts/","version":"1.12.0"},"openklant":{"repository":"https://maykinmedia.github.io/charts/","version":"1.11.0"},"opennotificaties":{"repository":"https://maykinmedia.github.io/charts/","version":"2.1.0"},"openobject":{"repository":"https://maykinmedia.github.io/charts/","version":"1.1.1"},"openzaak":{"repository":"https://maykinmedia.github.io/charts/","version":"1.16.0"}}` | the upstream Helm charts that scripts/kind/up.sh installs next to this chart |
 | vngSelectielijst.image | string | `"openzaak/vng-selectielijst:1.0.6@sha256:80c4c4f7b73889f1d8a816b8633cc4584961b6f8e4f21b7078df26ec4010f76d"` |  |
