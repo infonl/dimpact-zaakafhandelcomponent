@@ -330,18 +330,8 @@ describe(InformatieObjectViewComponent.name, () => {
 
   describe("actie.bewerken", () => {
     it("opens the office editor with the link that the server gives for this click", async () => {
-      jest
-        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
-        .mockReturnValue(
-          of({
-            ...enkelvoudigInformatieobject,
-            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
-              canWijzigen: true,
-            }),
-          }),
-        );
-      mockActivatedRoute.data.next({
-        informatieObject: enkelvoudigInformatieobject,
+      await openView({
+        laatsteVersie: withRechten({ canWijzigen: true }),
       });
       const windowOpen = jest.spyOn(window, "open").mockImplementation();
 
@@ -350,10 +340,8 @@ describe(InformatieObjectViewComponent.name, () => {
       );
       await button.click();
       await sleep();
-      TestBed.inject(HttpTestingController)
-        .expectOne(
-          `/rest/informatieobjecten/informatieobject/${enkelvoudigInformatieobject.uuid}/edit?zaak=${zaak.uuid}`,
-        )
+      httpTestingController
+        .expectOne(`${documentUrl}/edit?zaak=${zaak.uuid}`)
         .flush("https://edit-url");
       await sleep();
 
