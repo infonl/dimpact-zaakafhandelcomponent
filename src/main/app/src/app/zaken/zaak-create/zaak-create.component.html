@@ -37,13 +37,21 @@
       <ng-container *ngTemplateOutlet="sideActions"></ng-container>
     </mat-sidenav>
   }
-  <form [formGroup]="form" (ngSubmit)="formSubmit()">
+  <form
+    [formGroup]="form"
+    (ngSubmit)="formSubmit()"
+    aria-labelledby="zaak-create-title"
+  >
     <fieldset>
       <legend>
         @if (koppeling()) {
-          <h2>{{ "actie.zaak.aanmaken" | translate }}</h2>
+          <h2 id="zaak-create-title">
+            {{ "actie.zaak.aanmaken" | translate }}
+          </h2>
         } @else {
-          <h1>{{ "actie.zaak.aanmaken" | translate }}</h1>
+          <h1 id="zaak-create-title">
+            {{ "actie.zaak.aanmaken" | translate }}
+          </h1>
         }
         <ng-content></ng-content>
       </legend>

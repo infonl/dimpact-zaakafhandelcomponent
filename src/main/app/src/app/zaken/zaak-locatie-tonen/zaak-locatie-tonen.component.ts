@@ -14,6 +14,7 @@ import {
   untracked,
   viewChild,
 } from "@angular/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import * as style from "ol/style.js";
 import { LocationUtil } from "../../shared/location/location-util";
 import {
@@ -29,7 +30,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
   templateUrl: "./zaak-locatie-tonen.component.html",
   styleUrls: ["./zaak-locatie-tonen.component.less"],
   standalone: true,
-  imports: [StaticTextComponent],
+  imports: [StaticTextComponent, TranslatePipe],
 })
 export class LocatieTonenComponent implements AfterViewInit {
   readonly currentLocation = input.required<GeneratedType<"RestGeometry">>();
