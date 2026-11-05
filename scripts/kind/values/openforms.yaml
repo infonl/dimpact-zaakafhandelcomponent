@@ -24,7 +24,10 @@ settings:
     axes: redis:6379/2
   celery:
     brokerUrl: redis://redis:6379/2
+    # the pinned chart (openforms 1.12.0) reads the misspelled 'resultBackendl' in its external-redis
+    # branch (tags.redis=false); 1.13.0 fixed it. Set both so CELERY_RESULT_BACKEND stays valid on either chart.
     resultBackend: redis://redis:6379/2
+    resultBackendl: redis://redis:6379/2
   cors:
     allowAllOrigins: true
 
