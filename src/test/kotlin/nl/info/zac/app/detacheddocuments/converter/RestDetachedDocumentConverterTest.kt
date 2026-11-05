@@ -30,6 +30,26 @@ class RestDetachedDocumentConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
+    given("a detached document without an informatieobjecttype, because it no longer exists in Open Zaak") {
+        val uuid = UUID.randomUUID()
+        val detachedDocument = createDetachedDocument(uuid = uuid, username = "user-123")
+        every { userConverter.convertUsername("user-123", any()) } returns createRESTUser(username = "user-123")
+        every { lockService.findLock(uuid) } returns null
+
+        `when`("convert is invoked") {
+            val result = converter.convertToRestDetachedDocument(
+                detachedDocument = detachedDocument,
+                informatieobjectTypeUUID = null,
+                isZaakspecifiekGeautoriseerd = false
+            )
+
+            then("the result is marked as missing in Open Zaak") {
+                result.isOntbreektInOpenZaak shouldBe true
+                result.informatieobjectTypeUUID shouldBe null
+            }
+        }
+    }
+
     given("a valid detached document and informatieobjectTypeUUID") {
         val uuid = UUID.randomUUID()
         val informatieobjectTypeUUID = UUID.randomUUID()

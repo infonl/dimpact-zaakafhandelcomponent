@@ -28,4 +28,5 @@ private fun DetachedDocumentBulkFailureReason.toRestDetachedDocumentBulkFoutcode
     DetachedDocumentBulkFailureReason.ALREADY_LINKED -> RestDetachedDocumentBulkFoutcode.REEDS_GEKOPPELD
     DetachedDocumentBulkFailureReason.NO_RIGHTS -> RestDetachedDocumentBulkFoutcode.GEEN_RECHT
     DetachedDocumentBulkFailureReason.OPEN_ZAAK_ERROR -> RestDetachedDocumentBulkFoutcode.OPEN_ZAAK_FOUT
+    DetachedDocumentBulkFailureReason.OPEN_ZAAK_UNAVAILABLE -> RestDetachedDocumentBulkFoutcode.OPEN_ZAAK_NIET_BESCHIKBAAR
 }

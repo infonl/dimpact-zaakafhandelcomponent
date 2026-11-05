@@ -22,7 +22,8 @@ class RestDetachedDocumentBulkResultConverterTest : BehaviorSpec({
                 DetachedDocumentBulkFailure(3L, "fakeTitel3", DetachedDocumentBulkFailureReason.LOCKED),
                 DetachedDocumentBulkFailure(4L, "fakeTitel4", DetachedDocumentBulkFailureReason.ALREADY_LINKED),
                 DetachedDocumentBulkFailure(5L, "fakeTitel5", DetachedDocumentBulkFailureReason.NO_RIGHTS),
-                DetachedDocumentBulkFailure(6L, "fakeTitel6", DetachedDocumentBulkFailureReason.OPEN_ZAAK_ERROR)
+                DetachedDocumentBulkFailure(6L, "fakeTitel6", DetachedDocumentBulkFailureReason.OPEN_ZAAK_ERROR),
+                DetachedDocumentBulkFailure(7L, "fakeTitel7", DetachedDocumentBulkFailureReason.OPEN_ZAAK_UNAVAILABLE)
             )
         )
 
@@ -36,7 +37,12 @@ class RestDetachedDocumentBulkResultConverterTest : BehaviorSpec({
                     RestDetachedDocumentBulkFailure(3L, "fakeTitel3", RestDetachedDocumentBulkFoutcode.VERGRENDELD),
                     RestDetachedDocumentBulkFailure(4L, "fakeTitel4", RestDetachedDocumentBulkFoutcode.REEDS_GEKOPPELD),
                     RestDetachedDocumentBulkFailure(5L, "fakeTitel5", RestDetachedDocumentBulkFoutcode.GEEN_RECHT),
-                    RestDetachedDocumentBulkFailure(6L, "fakeTitel6", RestDetachedDocumentBulkFoutcode.OPEN_ZAAK_FOUT)
+                    RestDetachedDocumentBulkFailure(6L, "fakeTitel6", RestDetachedDocumentBulkFoutcode.OPEN_ZAAK_FOUT),
+                    RestDetachedDocumentBulkFailure(
+                        7L,
+                        "fakeTitel7",
+                        RestDetachedDocumentBulkFoutcode.OPEN_ZAAK_NIET_BESCHIKBAAR
+                    )
                 )
             }
         }

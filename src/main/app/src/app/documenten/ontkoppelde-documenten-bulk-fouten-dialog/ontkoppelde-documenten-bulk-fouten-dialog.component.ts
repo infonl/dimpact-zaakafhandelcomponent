@@ -21,6 +21,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 
 export type OntkoppeldeDocumentenBulkFoutenDialogData = {
   actie: "verwijderen" | "koppelen";
+  nietsVerwerkt: boolean;
   mislukt: GeneratedType<"RestDetachedDocumentBulkFailure">[];
 };
 

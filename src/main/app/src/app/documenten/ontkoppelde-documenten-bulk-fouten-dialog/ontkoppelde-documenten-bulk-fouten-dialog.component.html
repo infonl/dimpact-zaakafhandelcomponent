@@ -7,7 +7,9 @@
   <mat-icon aria-hidden="true">error</mat-icon>
   <span role="heading" aria-level="2" class="flex-grow-1">
     {{
-      "ontkoppelde-documenten.bulk.fouten." + data.actie + ".titel"
+      "ontkoppelde-documenten.bulk.fouten." +
+        data.actie +
+        (data.nietsVerwerkt ? ".titel.niets-verwerkt" : ".titel")
         | i18nKey
         | translate
     }}

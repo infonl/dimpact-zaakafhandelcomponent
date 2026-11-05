@@ -30,5 +30,12 @@ data class RestDetachedDocument(
     var ontkoppeldDoor: RestUser? = null,
     var ontkoppeldOp: ZonedDateTime? = null,
     var reden: String? = null,
-    var isVergrendeld: Boolean = false
+
+    @get:JsonbProperty("isVergrendeld")
+    @set:JsonbProperty("isVergrendeld")
+    var isVergrendeld: Boolean = false,
+
+    @get:JsonbProperty("isOntbreektInOpenZaak")
+    @set:JsonbProperty("isOntbreektInOpenZaak")
+    var isOntbreektInOpenZaak: Boolean = false
 )

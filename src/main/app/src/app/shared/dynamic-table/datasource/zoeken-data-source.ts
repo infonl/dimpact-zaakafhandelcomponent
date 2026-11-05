@@ -317,7 +317,9 @@ export abstract class ZoekenDataSource<
     return this.rows();
   }
 
-  zoekopdrachtChanged(actieveZoekopdracht: GeneratedType<"RestZoekopdracht">) {
+  zoekopdrachtChanged(
+    actieveZoekopdracht: GeneratedType<"RestZoekopdracht"> | null,
+  ) {
     if (!this._drop) {
       // view is reinitialized after a drop event, but the data doesn't change, so don't reload the data after a drop event.
       if (actieveZoekopdracht?.json) {

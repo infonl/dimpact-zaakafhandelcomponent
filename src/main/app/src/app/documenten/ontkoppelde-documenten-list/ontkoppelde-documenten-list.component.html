@@ -12,7 +12,7 @@
       source="ontkoppelde-documenten"
       [bulkDocuments]="selectedDocumentsToLink()"
       (informationObjectLinked)="retriggerSearch()"
-      (bulkLinkFinished)="reloadKeepingSelected($event.notLinkedIds)"
+      (bulkLinkFinished)="linkFinished($event.notLinkedIds)"
     />
   </mat-drawer>
 
@@ -91,7 +91,7 @@
                   [(value)]="listParameters.ontkoppeldDoor"
                 >
                   <mat-option>{{ "filter.alle" | translate }}</mat-option>
-                  @for (value of filterOntkoppeldDoor(); track value) {
+                  @for (value of filterOntkoppeldDoor(); track value.username) {
                     <mat-option [value]="value">{{ value.naam }}</mat-option>
                   }
                 </mat-select>
@@ -119,7 +119,7 @@
             <th mat-header-cell *matHeaderCellDef>
               <zac-zoekopdracht
                 [werklijst]="getWerklijst()"
-                [zoekFilters]="listParametersSort"
+                [zoekFilters]="listParameters"
                 [filtersChanged]="clearZoekopdracht"
                 (zoekopdracht)="zoekopdrachtChanged($event)"
               ></zac-zoekopdracht>
@@ -188,20 +188,33 @@
             <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let row">
               <div class="flex-row space-between">
-                <a
-                  mat-icon-button
-                  [routerLink]="['/informatie-objecten', row.documentUUID]"
-                  title="{{ 'actie.document.bekijken' | translate }}"
-                >
-                  <mat-icon>visibility</mat-icon>
-                </a>
-                <a
-                  mat-icon-button
-                  [href]="getDownloadURL(row)"
-                  title="{{ 'actie.downloaden' | translate }}"
-                >
-                  <mat-icon>download</mat-icon>
-                </a>
+                @if (row.isOntbreektInOpenZaak) {
+                  <div class="indication">
+                    <mat-icon
+                      title="{{
+                        'indicatie.ontbreekt-in-open-zaak' | translate
+                      }}"
+                      class="mat-mdc-standard-chip mat-mdc-chip-highlighted mat-accent"
+                    >
+                      report_problem
+                    </mat-icon>
+                  </div>
+                } @else {
+                  <a
+                    mat-icon-button
+                    [routerLink]="['/informatie-objecten', row.documentUUID]"
+                    title="{{ 'actie.document.bekijken' | translate }}"
+                  >
+                    <mat-icon>visibility</mat-icon>
+                  </a>
+                  <a
+                    mat-icon-button
+                    [href]="getDownloadURL(row)"
+                    title="{{ 'actie.downloaden' | translate }}"
+                  >
+                    <mat-icon>download</mat-icon>
+                  </a>
+                }
                 @if (
                   werklijstRechten()?.canOntkoppeldeDocumentenVerwijderen &&
                   !row.isVergrendeld
@@ -224,13 +237,15 @@
                     </mat-icon>
                   </div>
                 }
-                <button
-                  mat-icon-button
-                  (click)="openDrawer(row)"
-                  title="{{ 'actie.document.koppelen' | translate }}"
-                >
-                  <mat-icon>link</mat-icon>
-                </button>
+                @if (!row.isOntbreektInOpenZaak) {
+                  <button
+                    mat-icon-button
+                    (click)="openDrawer(row)"
+                    title="{{ 'actie.document.koppelen' | translate }}"
+                  >
+                    <mat-icon>link</mat-icon>
+                  </button>
+                }
               </div>
             </td>
           </ng-container>

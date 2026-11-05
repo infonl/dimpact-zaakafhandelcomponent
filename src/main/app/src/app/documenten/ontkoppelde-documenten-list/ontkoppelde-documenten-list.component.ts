@@ -8,11 +8,13 @@ import {
   AfterViewInit,
   Component,
   computed,
+  effect,
   EventEmitter,
   inject,
   OnDestroy,
   OnInit,
   signal,
+  untracked,
   viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
@@ -51,7 +53,7 @@ import { ActivatedRoute, RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectIsMutating } from "@tanstack/angular-query-experimental";
 import { merge } from "rxjs";
-import { map, startWith, switchMap, tap } from "rxjs/operators";
+import { map, startWith } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
@@ -65,7 +67,7 @@ import {
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { PutBody } from "../../shared/http/http-client";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { runQuery } from "../../shared/http/run-query";
+import { injectLastSuccessfulSearch } from "../../shared/http/last-successful-search";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import {
@@ -77,6 +79,10 @@ import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filt
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service";
+
+type DetachedDocumentSearch = PutBody<"/rest/ontkoppeldedocumenten"> & {
+  filtersType: ZoekFilters["filtersType"];
+};
 
 @Component({
   templateUrl: "./ontkoppelde-documenten-list.component.html",
@@ -132,7 +138,23 @@ export class OntkoppeldeDocumentenListComponent
   readonly gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
   readonly route = inject(ActivatedRoute);
 
-  protected readonly isLoadingResults = signal(true);
+  /** `null` until the view exists, because the paginator decides the first page. */
+  private readonly requestedSearch = signal<DetachedDocumentSearch | null>(
+    null,
+  );
+  private readonly search = injectLastSuccessfulSearch({
+    requested: this.requestedSearch,
+    query: (search) => ({
+      ...this.ontkoppeldeDocumentenService.list(search ?? {}),
+      enabled: search !== null,
+    }),
+    onRevert: (search) => {
+      if (search) this.revert(search);
+    },
+  });
+  protected readonly isLoadingResults = computed(
+    () => this.requestedSearch() === null || this.search.query.isFetching(),
+  );
   protected readonly totaal = signal(0);
   protected dataSource = new MatTableDataSource<
     GeneratedType<"RestDetachedDocument">
@@ -167,7 +189,8 @@ export class OntkoppeldeDocumentenListComponent
       ? ["select_filter", ...this.dataFilterColumns]
       : this.dataFilterColumns;
   }
-  protected listParameters: PutBody<"/rest/ontkoppeldedocumenten"> = {};
+  protected listParameters: DetachedDocumentSearch =
+    this.createDefaultParameters();
   protected readonly listParametersSort: {
     sort: keyof PutBody<"/rest/ontkoppeldedocumenten">;
     order: "desc" | "asc";
@@ -201,14 +224,26 @@ export class OntkoppeldeDocumentenListComponent
     GeneratedType<"RestDetachedDocument">[]
   >([]);
   private idsToKeepSelected = new Set<number>();
+  private readonly processedIds = new Set<number>();
+  private isLoadPending = false;
+  private documentsBeingDeleted: GeneratedType<"RestDetachedDocument">[] = [];
   private readonly deleteMutation = injectMutation(
     () => this.ontkoppeldeDocumentenService.delete(),
     {
       onSuccess: () => this.filterChange.emit(),
     },
   );
-  private readonly deleteOntkoppeldeDocumentenMutation = injectMutation(() =>
-    this.ontkoppeldeDocumentenService.deleteOntkoppeldeDocumenten(),
+  // Reports from the options of the mutation, because those also run after the employee left the page.
+  private readonly deleteOntkoppeldeDocumentenMutation = injectMutation(
+    () => this.ontkoppeldeDocumentenService.deleteOntkoppeldeDocumenten(),
+    {
+      onSuccess: (result) =>
+        this.ontkoppeldeDocumentenService.reportBulkResult(
+          result,
+          "verwijderen",
+          this.documentsBeingDeleted,
+        ),
+    },
   );
   private readonly runningBulkActions = injectIsMutating({
     predicate: ({ options }) =>
@@ -224,6 +259,23 @@ export class OntkoppeldeDocumentenListComponent
     return !!this.werklijstRechten()?.canOntkoppeldeDocumentenVerwijderen;
   }
 
+  constructor() {
+    super();
+    effect(() => {
+      const shownSearch = this.search.data();
+      if (!shownSearch) return;
+      untracked(() => this.showResult(shownSearch));
+    });
+    effect(() => {
+      const isLoading = this.isLoadingResults();
+      this.search.data();
+      untracked(() => {
+        this.utilService.setLoading(isLoading);
+        if (!isLoading) this.finishLoad();
+      });
+    });
+  }
+
   ngOnInit() {
     super.ngOnInit();
     this.listParameters = SessionStorageUtil.getItem(
@@ -234,53 +286,71 @@ export class OntkoppeldeDocumentenListComponent
 
   ngAfterViewInit() {
     this.sort().sortChange.subscribe(() => (this.paginator().pageIndex = 0));
-    const stopLoading = () => {
-      this.isLoadingResults.set(false);
-      this.utilService.setLoading(false);
-    };
     merge(this.sort().sortChange, this.paginator().page, this.filterChange)
-      .pipe(
-        startWith({}),
-        switchMap(() => {
-          this.selection.clear();
-          this.isLoadingResults.set(true);
-          this.utilService.setLoading(true);
-          this.updateListParameters();
-          return runQuery(
-            this.queryClient,
-            this.ontkoppeldeDocumentenService.list({
-              ...this.listParametersSort,
-              ...this.listParameters,
-            }),
-          );
-        }),
-        tap({ next: stopLoading, error: stopLoading }),
-      )
-      .subscribe((data) => {
-        const totaal = data.totaal ?? 0;
-        const { pageIndex, pageSize } = this.paginator();
-        const lastPageIndex = Math.max(Math.ceil(totaal / pageSize) - 1, 0);
-        if (pageSize > 0 && pageIndex > lastPageIndex) {
-          this.paginator().pageIndex = lastPageIndex;
-          this.filterChange.emit();
-          return;
-        }
-        this.paginator().length = totaal;
-        this.totaal.set(totaal);
-        this.filterOntkoppeldDoor.set(
-          data.resultaten?.map(
-            (result: GeneratedType<"RestDetachedDocument">) =>
-              result.ontkoppeldDoor!,
-          ) ?? [],
-        );
-        this.dataSource.data = data.resultaten ?? [];
-        this.selection.setSelection(
-          ...this.dataSource.data.filter(({ id }) =>
-            this.idsToKeepSelected.has(id!),
-          ),
-        );
-        this.idsToKeepSelected.clear();
-      });
+      .pipe(startWith({}))
+      .subscribe(() => this.load());
+  }
+
+  private load() {
+    this.selection.clear();
+    this.isLoadPending = true;
+    this.updateListParameters();
+    this.search.request({
+      ...this.listParametersSort,
+      ...this.listParameters,
+    });
+  }
+
+  private showResult(result: GeneratedType<"RestDetachedDocumentResult">) {
+    const resultaten = (result.resultaten ??
+      []) as GeneratedType<"RestDetachedDocument">[];
+    const documents = resultaten.filter(
+      ({ id }) => !this.processedIds.has(id!),
+    );
+    const totaal =
+      (result.totaal ?? 0) - (resultaten.length - documents.length);
+    this.paginator().length = totaal;
+    this.totaal.set(totaal);
+    this.filterOntkoppeldDoor.set(result.filterOntkoppeldDoor ?? []);
+    this.dataSource.data = documents;
+    if (this.isLoadPending) return;
+
+    const selectedIds = new Set(this.selection.selected.map(({ id }) => id));
+    this.selection.setSelection(
+      ...documents.filter(({ id }) => selectedIds.has(id)),
+    );
+  }
+
+  private finishLoad() {
+    if (!this.isLoadPending) return;
+    this.isLoadPending = false;
+
+    const { pageIndex, pageSize } = this.paginator();
+    const lastPageIndex = Math.max(Math.ceil(this.totaal() / pageSize) - 1, 0);
+    if (pageSize > 0 && pageIndex > lastPageIndex) {
+      this.paginator().pageIndex = lastPageIndex;
+      this.load();
+      return;
+    }
+    this.selection.setSelection(
+      ...this.dataSource.data.filter(({ id }) =>
+        this.idsToKeepSelected.has(id!),
+      ),
+    );
+    this.idsToKeepSelected.clear();
+  }
+
+  private revert(search: DetachedDocumentSearch) {
+    this.listParameters = SessionStorageUtil.setItem(
+      "ONTKOPPELDE_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
+      search,
+    );
+    this.sort().active = search.sort ?? this.listParametersSort.sort;
+    this.sort().direction = (search.order ?? this.listParametersSort.order) as
+      | "asc"
+      | "desc";
+    this.paginator().pageIndex = search.page ?? 0;
+    this.paginator().pageSize = search.maxResults ?? this.paginator().pageSize;
   }
 
   protected openDrawer(
@@ -360,6 +430,7 @@ export class OntkoppeldeDocumentenListComponent
   protected documentenVerwijderen() {
     const selectedDocuments = [...this.selection.selected];
     const ids = selectedDocuments.map(({ id }) => id!);
+    this.documentsBeingDeleted = selectedDocuments;
     const enkelvoud = ids.length === 1 ? ".enkelvoud" : "";
     this.dialog
       .open(ConfirmDialogComponent, {
@@ -388,17 +459,12 @@ export class OntkoppeldeDocumentenListComponent
         this.deleteOntkoppeldeDocumentenMutation.mutate(
           { ids },
           {
-            onSuccess: (result) => {
-              this.ontkoppeldeDocumentenService.reportBulkResult(
-                result,
-                "verwijderen",
-                selectedDocuments,
-              );
+            onSuccess: (result) =>
               this.reloadKeepingSelected(
                 result.mislukt?.map(({ id }) => id!) ?? [],
-              );
-            },
-            onError: () => this.reloadKeepingSelected(ids),
+                result.verwerkt ?? [],
+              ),
+            onError: () => this.reloadKeepingSelected(ids, []),
           },
         );
       });
@@ -429,10 +495,13 @@ export class OntkoppeldeDocumentenListComponent
   }
 
   protected zoekopdrachtChanged(
-    actieveZoekopdracht: GeneratedType<"RestZoekopdracht">,
+    actieveZoekopdracht: GeneratedType<"RestZoekopdracht"> | null,
   ) {
     if (actieveZoekopdracht) {
-      this.listParameters = JSON.parse(actieveZoekopdracht.json || "{}");
+      this.listParameters = {
+        ...this.createDefaultParameters(),
+        ...JSON.parse(actieveZoekopdracht.json || "{}"),
+      };
       this.sort().active = this.listParametersSort.sort;
       this.sort().direction = this.listParametersSort.order;
       this.paginator().pageIndex = 0;
@@ -444,8 +513,24 @@ export class OntkoppeldeDocumentenListComponent
     }
   }
 
-  protected reloadKeepingSelected(ids: number[]) {
-    this.idsToKeepSelected = new Set(ids);
+  protected linkFinished(notLinkedIds: number[]) {
+    this.reloadKeepingSelected(
+      notLinkedIds,
+      this.selectedDocumentsToLink()
+        .map(({ id }) => id!)
+        .filter((id) => !notLinkedIds.includes(id)),
+    );
+  }
+
+  /**
+   * Leaves out what was processed before it reloads, so that the table is right
+   * when the reload fails too because Open Zaak is down.
+   */
+  private reloadKeepingSelected(idsToKeep: number[], idsProcessed: number[]) {
+    idsProcessed.forEach((id) => this.processedIds.add(id));
+    const shownSearch = this.search.data();
+    if (shownSearch) this.showResult(shownSearch);
+    this.idsToKeepSelected = new Set(idsToKeep);
     this.filterChange.emit();
   }
 
@@ -458,7 +543,7 @@ export class OntkoppeldeDocumentenListComponent
       sort: "ontkoppeldOp",
       order: "desc",
       filtersType: "DetachedDocumentListParameters",
-    } satisfies typeof this.listParametersSort;
+    } satisfies DetachedDocumentSearch;
   }
 
   protected readonly compareUser = (
@@ -473,6 +558,7 @@ export class OntkoppeldeDocumentenListComponent
   }
 
   ngOnDestroy() {
+    this.utilService.setLoading(false);
     // Make sure when returning to this component, the very first page is loaded
     this.listParameters.page = 0;
     SessionStorageUtil.setItem(

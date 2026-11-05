@@ -53,14 +53,14 @@ describe(TekstFilterComponent.name, () => {
       expect(input()).toHaveValue("");
     });
 
-    it("keeps its text when the parent binds a different value after initialisation", async () => {
+    it("shows the value that the parent binds after initialisation, so that the text matches the filter in use", async () => {
       const { fixture } = await setup({ value: "fakeInitialValue" });
 
       fixture.componentRef.setInput("value", "fakeParentValue");
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(input()).toHaveValue("fakeInitialValue");
+      expect(input()).toHaveValue("fakeParentValue");
     });
   });
 

@@ -7,6 +7,7 @@ package nl.info.zac.document.detacheddocument
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
+import jakarta.ws.rs.NotFoundException
 import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.WebApplicationException
 import nl.info.client.zgw.drc.DrcClientService
@@ -107,18 +108,18 @@ class DetachedDocumentBulkService @Inject constructor(
             DetachedDocumentBulkFailureReason.OPEN_ZAAK_ERROR
         } catch (zgwRuntimeException: ZgwRuntimeException) {
             LOG.severe { failureMessage(id, zgwRuntimeException) }
-            DetachedDocumentBulkFailureReason.OPEN_ZAAK_ERROR
+            DetachedDocumentBulkFailureReason.OPEN_ZAAK_UNAVAILABLE
         } catch (webApplicationException: WebApplicationException) {
             val level = if (webApplicationException.isClientError()) Level.FINE else Level.SEVERE
             LOG.log(level) { failureMessage(id, webApplicationException) }
-            if (webApplicationException.isNotFound()) {
-                DetachedDocumentBulkFailureReason.NOT_FOUND
-            } else {
-                DetachedDocumentBulkFailureReason.OPEN_ZAAK_ERROR
+            when {
+                webApplicationException.isNotFound() -> DetachedDocumentBulkFailureReason.NOT_FOUND
+                webApplicationException.isClientError() -> DetachedDocumentBulkFailureReason.OPEN_ZAAK_ERROR
+                else -> DetachedDocumentBulkFailureReason.OPEN_ZAAK_UNAVAILABLE
             }
         } catch (processingException: ProcessingException) {
             LOG.severe { failureMessage(id, processingException) }
-            DetachedDocumentBulkFailureReason.OPEN_ZAAK_ERROR
+            DetachedDocumentBulkFailureReason.OPEN_ZAAK_UNAVAILABLE
         }
 
     private fun failureMessage(id: Long, exception: Exception) =
@@ -126,7 +127,7 @@ class DetachedDocumentBulkService @Inject constructor(
 
     private fun removeDetachedDocument(detachedDocument: DetachedDocument, rejectLocked: Boolean) {
         val documentUUID = detachedDocument.documentUUID
-        readEnkelvoudigInformatieobjectIfExists(documentUUID)?.let { informatieobject ->
+        findEnkelvoudigInformatieobject(documentUUID)?.let { informatieobject ->
             if (rejectLocked && informatieobject.getLocked()) {
                 throw DetachedDocumentLockedException("Informatieobject '$documentUUID' is vergrendeld")
             }
@@ -140,7 +141,7 @@ class DetachedDocumentBulkService @Inject constructor(
         detachedDocument.id?.let(detachedDocumentService::deleteIfExists)
     }
 
-    private fun readEnkelvoudigInformatieobjectIfExists(documentUUID: UUID): EnkelvoudigInformatieObject? =
+    fun findEnkelvoudigInformatieobject(documentUUID: UUID): EnkelvoudigInformatieObject? =
         try {
             drcClientService.readEnkelvoudigInformatieobject(documentUUID)
         } catch (webApplicationException: WebApplicationException) {
@@ -165,11 +166,18 @@ class DetachedDocumentBulkService @Inject constructor(
         assertPolicy(
             canWijzigenTargetZaak && policyService.readDocumentRechten(informatieobject, targetZaak).canVerplaatsen
         )
-        zrcClientService.koppelInformatieobject(
-            informatieobject,
-            targetZaak,
-            "Verplaatst: $DETACHED_DOCUMENTS_SOURCE -> ${targetZaak.identificatie}"
-        )
+        try {
+            zrcClientService.koppelInformatieobject(
+                informatieobject,
+                targetZaak,
+                "Verplaatst: $DETACHED_DOCUMENTS_SOURCE -> ${targetZaak.identificatie}"
+            )
+        } catch (zgwValidationErrorException: ZgwValidationErrorException) {
+            // Open Zaak also refuses the link of a document that another employee deleted after it was read above.
+            findEnkelvoudigInformatieobject(detachedDocument.documentUUID)
+                ?: throw NotFoundException("Informatieobject '${detachedDocument.documentUUID}' is verwijderd")
+            throw zgwValidationErrorException
+        }
         detachedDocumentService.deleteIfExists(detachedDocument.documentUUID)
     }
 }

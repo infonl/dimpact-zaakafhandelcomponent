@@ -9,5 +9,6 @@ enum class RestDetachedDocumentBulkFoutcode {
     VERGRENDELD,
     REEDS_GEKOPPELD,
     GEEN_RECHT,
-    OPEN_ZAAK_FOUT
+    OPEN_ZAAK_FOUT,
+    OPEN_ZAAK_NIET_BESCHIKBAAR
 }

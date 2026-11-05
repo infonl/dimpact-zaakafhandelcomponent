@@ -9,5 +9,6 @@ enum class DetachedDocumentBulkFailureReason {
     LOCKED,
     ALREADY_LINKED,
     NO_RIGHTS,
-    OPEN_ZAAK_ERROR
+    OPEN_ZAAK_ERROR,
+    OPEN_ZAAK_UNAVAILABLE
 }
