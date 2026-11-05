@@ -28,6 +28,7 @@ import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { within } from "@testing-library/angular";
 import { randomUUID } from "crypto";
+import moment from "moment";
 import { of, ReplaySubject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
@@ -60,8 +61,8 @@ describe(TaakViewComponent.name, () => {
     behandelaar: undefined,
     groep: undefined,
     naam: "test-taak",
-    fataledatum: new Date().toISOString(),
-    creatiedatumTijd: new Date().toISOString(),
+    fataledatum: moment().toISOString(),
+    creatiedatumTijd: moment().toISOString(),
     formioFormulier: {},
     rechten: {
       canLezen: true,
@@ -76,7 +77,7 @@ describe(TaakViewComponent.name, () => {
     taakdocumenten: [],
     taakinformatie: {},
     toelichting: undefined,
-    toekenningsdatumTijd: new Date().toISOString(),
+    toekenningsdatumTijd: moment().toISOString(),
     zaaktypeOmschrijving: "test-zaaktypeOmschrijving",
     zaakIdentificatie: "test-zaakIdentificatie",
   };

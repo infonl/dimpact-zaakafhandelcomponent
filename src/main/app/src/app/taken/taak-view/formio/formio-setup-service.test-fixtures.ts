@@ -19,6 +19,7 @@ import {
   provideQueryClient,
   QueryClient,
 } from "@tanstack/angular-query-experimental";
+import moment from "moment";
 import { of } from "rxjs";
 import { testQueryClient } from "../../../../../setupJest";
 import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-parameters.service";
@@ -146,8 +147,8 @@ export const taak: GeneratedType<"RestTask"> = {
   behandelaar: undefined,
   groep: undefined,
   naam: "test-taak",
-  fataledatum: new Date().toISOString(),
-  creatiedatumTijd: new Date().toISOString(),
+  fataledatum: moment().toISOString(),
+  creatiedatumTijd: moment().toISOString(),
   formioFormulier: {},
   rechten: {
     canLezen: true,
@@ -162,7 +163,7 @@ export const taak: GeneratedType<"RestTask"> = {
   taakdocumenten: [],
   taakinformatie: {},
   toelichting: undefined,
-  toekenningsdatumTijd: new Date().toISOString(),
+  toekenningsdatumTijd: moment().toISOString(),
   zaaktypeOmschrijving: "test-zaaktypeOmschrijving",
   zaakIdentificatie: "test-zaakIdentificatie",
 };

@@ -17,6 +17,14 @@ const noNgDeep = {
     "Avoid ::ng-deep, Angular deprecated it. Style through a CSS custom property, a global stylesheet or the Angular Material theming API instead.",
 };
 
+// alterMoment() makes the app send dates with the local offset, so a UTC string from Date never shows what is sent.
+const noNativeDateIsoString = {
+  selector:
+    "CallExpression[callee.property.name='toISOString'][callee.object.type='NewExpression'][callee.object.callee.name='Date']",
+  message:
+    'Write the date as a literal with its offset, e.g. "2024-01-01T00:00:00.000+01:00", or use moment().toISOString(): the app sends dates with the local offset, new Date().toISOString() gives UTC.',
+};
+
 const typeScriptLanguageOptions = {
   parserOptions: {
     project: "tsconfig.json",
@@ -108,7 +116,7 @@ module.exports = defineConfig(
           custom: { regex: "^ngOnChanges$", match: false },
         },
       ],
-      "no-restricted-syntax": ["error", noNgDeep],
+      "no-restricted-syntax": ["error", noNgDeep, noNativeDateIsoString],
       // Jira ticket references belong in commit messages and pull request descriptions, not in code.
       // ESLint has no rule with a custom message for comment contents, so this one reports the matched term.
       "no-warning-comments": [
@@ -139,6 +147,7 @@ module.exports = defineConfig(
       "no-restricted-syntax": [
         "warn",
         noNgDeep,
+        noNativeDateIsoString,
         {
           selector:
             "CallExpression[callee.object.name='By'][callee.property.name='css']",

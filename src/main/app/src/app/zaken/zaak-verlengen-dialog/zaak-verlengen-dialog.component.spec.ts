@@ -21,6 +21,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
+import moment from "moment";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -41,7 +42,7 @@ describe("ZaakVerlengenDialogComponent", () => {
     uuid: "b7e8f9a2-4c3d-11ee-bb2f-0242ac130003",
     zaaktype: { verlengingstermijn: 10 },
     einddatumGepland: null,
-    uiterlijkeEinddatumAfdoening: new Date().toISOString(),
+    uiterlijkeEinddatumAfdoening: moment().toISOString(),
   });
 
   beforeEach(async () => {
@@ -156,7 +157,7 @@ describe("ZaakVerlengenDialogComponent", () => {
 
       const updatedZaak = fromPartial<GeneratedType<"RestZaak">>({
         uuid: mockZaak.uuid,
-        uiterlijkeEinddatumAfdoening: new Date().toISOString(),
+        uiterlijkeEinddatumAfdoening: moment().toISOString(),
       });
       httpTestingController
         .expectOne(
