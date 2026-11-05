@@ -62,7 +62,6 @@
       "@angular/elements": "$@angular/elements",
       "ngx-bootstrap": "$ngx-bootstrap"
     },
-    "@hono/node-server": "2.1.6",
     "openapi-typescript": {
       "typescript": "$typescript"
     },
