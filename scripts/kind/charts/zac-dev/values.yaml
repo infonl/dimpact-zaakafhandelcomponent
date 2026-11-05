@@ -138,7 +138,7 @@ solr:
 
 opa:
   # -- keep in sync with the OPA of charts/zac
-  image: openpolicyagent/opa:1.22.0-static@sha256:906bfc9904b2693733e7959d71773dd073e6c135cf06f26d955abe94603e82b3
+  image: openpolicyagent/opa:1.22.1-static@sha256:e9e6cf5d569ff419cfa5785ab28d46709a5e69cb5856d53e1b6cb8d343a39730
 
 officeConverter:
   # -- keep in sync with the office converter of charts/zac
