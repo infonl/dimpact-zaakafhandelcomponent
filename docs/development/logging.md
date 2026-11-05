@@ -418,10 +418,10 @@ As a safety net for log statements that write personal data, WildFly masks perso
 it writes the record, whatever its log level or logger
 ([ADR-0011](../solution-architecture/decisions/0011-mask-personal-data-in-a-wildfly-logging-filter.md)):
 
-| Personal data | Example              | Logged as   |
-|---------------|----------------------|-------------|
-| BSN           | `999993896`          | `******896` |
-| IBAN          | `NL91ABNA0417164300` | `*****`     |
+| Personal data | Example              | Logged as            |
+|---------------|----------------------|----------------------|
+| BSN           | `999993896`          | `******896`          |
+| IBAN          | `NL91ABNA0417164300` | `******************` |
 
 The masking applies to the log message and to the messages and `toString()` of a logged exception and its causes.
 An exception with personal data in them is logged as a `MaskedThrowable` whose message is the masked `toString()` of

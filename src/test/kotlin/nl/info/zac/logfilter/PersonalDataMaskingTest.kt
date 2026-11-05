@@ -51,8 +51,8 @@ class PersonalDataMaskingTest : BehaviorSpec({
             `when`("the personal data is masked") {
                 val maskedText = text.maskPersonalData()
 
-                then("both IBANs are masked completely") {
-                    maskedText shouldBe "rekeningen: $MASKED_VALUE en $MASKED_VALUE"
+                then("every character of both IBANs is masked, including the spaces") {
+                    maskedText shouldBe "rekeningen: ${MASKED_VALUE.repeat(18)} en ${MASKED_VALUE.repeat(22)}"
                 }
             }
         }
@@ -63,8 +63,8 @@ class PersonalDataMaskingTest : BehaviorSpec({
             `when`("the personal data is masked") {
                 val maskedText = text.maskPersonalData()
 
-                then("both IBANs are masked completely") {
-                    maskedText shouldBe "rekeningen: $MASKED_VALUE en $MASKED_VALUE"
+                then("every character of both IBANs is masked") {
+                    maskedText shouldBe "rekeningen: ${MASKED_VALUE.repeat(15)} en ${MASKED_VALUE.repeat(18)}"
                 }
             }
         }
@@ -75,8 +75,20 @@ class PersonalDataMaskingTest : BehaviorSpec({
             `when`("the personal data is masked") {
                 val maskedText = text.maskPersonalData()
 
-                then("the IBAN is masked completely") {
-                    maskedText shouldBe "rekening: $MASKED_VALUE"
+                then("every character of the IBAN is masked") {
+                    maskedText shouldBe "rekening: ${MASKED_VALUE.repeat(31)}"
+                }
+            }
+        }
+
+        given("a text with two IBANs with spaces that are separated by a single space only") {
+            val text = "rekeningen: CZ65 0800 0000 1920 0014 5399 GB82 WEST 1234 5698 7654 32"
+
+            `when`("the personal data is masked") {
+                val maskedText = text.maskPersonalData()
+
+                then("each IBAN is masked as a whole, so that the first IBAN does not take in the start of the second") {
+                    maskedText shouldBe "rekeningen: ${MASKED_VALUE.repeat(29)} ${MASKED_VALUE.repeat(27)}"
                 }
             }
         }
@@ -106,7 +118,7 @@ class PersonalDataMaskingTest : BehaviorSpec({
         }
 
         given("a text in which the personal data is already masked") {
-            val text = "BSN ******896 en IBAN $MASKED_VALUE"
+            val text = "BSN ******896 en IBAN ${MASKED_VALUE.repeat(18)}"
 
             `when`("the personal data is masked again") {
                 val maskedText = text.maskPersonalData()
