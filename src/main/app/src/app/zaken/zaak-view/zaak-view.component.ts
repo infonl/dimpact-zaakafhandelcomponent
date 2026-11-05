@@ -52,7 +52,7 @@ import { detailExpand } from "../../shared/animations/animations";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { runMutation } from "../../shared/http/run-mutation";
 import { runQuery } from "../../shared/http/run-query";
-import { StaleTimes } from "../../shared/http/zac-query-client";
+import { LOAD_PER_VISIT } from "../../shared/http/zac-query-client";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { toI18nKey } from "../../shared/utils/i18n-key";
@@ -208,8 +208,7 @@ export class ZaakViewComponent
     const uuid = this.zaakUuid();
     return {
       ...this.bagService.list(uuid ?? ""),
-      staleTime: StaleTimes.Instant,
-      gcTime: 0,
+      ...LOAD_PER_VISIT,
       enabled: Boolean(uuid),
     };
   });
@@ -386,8 +385,7 @@ export class ZaakViewComponent
       this.sideActions.clear();
       runQuery(this.queryClient, {
         ...this.planItemsService.readHumanTaskPlanItem(planItem.id),
-        staleTime: StaleTimes.Instant,
-        gcTime: 0,
+        ...LOAD_PER_VISIT,
       }).subscribe((planItem) => {
         this.sideActions.actiefPlanItem.set(planItem);
         this.sideActions.open(planItem.naam);

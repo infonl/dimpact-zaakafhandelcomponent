@@ -9,7 +9,10 @@ import { Router } from "@angular/router";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
-import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
+import {
+  LOAD_PER_VISIT,
+  ZacQueryClient,
+} from "../shared/http/zac-query-client";
 import {
   findOrigin,
   navigateToBreadcrumb,
@@ -31,8 +34,7 @@ export class TakenService {
       ...this.zacQueryClient.GET("/rest/taken/{taskId}", {
         path: { taskId },
       }),
-      staleTime: StaleTimes.Instant,
-      gcTime: 0,
+      ...LOAD_PER_VISIT,
       meta: { reportFailedRefetch: true },
     };
   }
@@ -54,8 +56,7 @@ export class TakenService {
       ...this.zacQueryClient.GET("/rest/taken/{taskId}/historie", {
         path: { taskId },
       }),
-      staleTime: StaleTimes.Instant,
-      gcTime: 0,
+      ...LOAD_PER_VISIT,
       meta: { reportFailedRefetch: true },
     };
   }
