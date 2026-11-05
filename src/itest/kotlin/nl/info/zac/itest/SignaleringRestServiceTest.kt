@@ -445,8 +445,8 @@ class SignaleringRestServiceTest : BehaviorSpec({
         `when`("the mail of the taak afgerond signalering is turned on again") {
             val response = updateTaakAfgerondMail(isMailEnabled = true)
 
-            then("it is on again, as the default") {
-                response.code shouldBe HTTP_NO_CONTENT
+            then("it is on again") {
+                response.code shouldBe HTTP_OK
                 readTaakAfgerondInstellingen().getBoolean("isMailEnabled") shouldBe true
             }
         }

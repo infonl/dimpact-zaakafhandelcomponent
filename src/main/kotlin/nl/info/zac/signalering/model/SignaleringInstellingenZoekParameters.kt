@@ -32,4 +32,7 @@ class SignaleringInstellingenZoekParameters(val ownertype: SignaleringTarget, va
     fun dashboard() = apply { isDashboard = true }
 
     fun mail() = apply { isMail = true }
+
+    fun matches(instellingen: SignaleringInstellingen) =
+        (!isDashboard || instellingen.isDashboard) && (!isMail || instellingen.isMail)
 }

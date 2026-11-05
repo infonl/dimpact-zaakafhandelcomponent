@@ -7,11 +7,13 @@ package nl.info.zac.signalering
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.date.shouldBeAfter
 import io.kotest.matchers.date.shouldBeBefore
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -62,11 +64,14 @@ import nl.info.zac.search.model.SorteerVeld
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.signalering.model.InvalidSignalering
 import nl.info.zac.signalering.model.Signalering
+import nl.info.zac.signalering.model.SignaleringInstellingen
+import nl.info.zac.signalering.model.SignaleringInstellingenZoekParameters
 import nl.info.zac.signalering.model.SignaleringSubject
 import nl.info.zac.signalering.model.SignaleringTarget
 import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.signalering.model.SignaleringZoekParameters
 import nl.info.zac.signalering.model.createSignalering
+import nl.info.zac.signalering.model.createSignaleringInstellingen
 import nl.info.zac.signalering.model.createSignaleringType
 import nl.info.zac.signalering.model.createSignaleringZoekParameters
 import nl.info.zac.websocket.event.ScreenEvent
@@ -1086,6 +1091,121 @@ class SignaleringServiceTest : BehaviorSpec({
             }
             and("no screen event is sent, because nothing was deleted") {
                 verify(exactly = 0) { eventingService.send(any<ScreenEvent>()) }
+            }
+        }
+    }
+
+    context("Listing the signalering instellingen that apply to an owner") {
+        val instellingenCriteriaQuery = mockk<CriteriaQuery<SignaleringInstellingen>>()
+        val instellingenRoot = mockk<Root<SignaleringInstellingen>>()
+        val ownerPath = mockk<Path<Any>>()
+        val ownerPredicate = mockk<Predicate>()
+        val instellingenTypedQuery = mockk<TypedQuery<SignaleringInstellingen>>()
+
+        fun stubStoredInstellingen(
+            ownerColumn: String,
+            owner: String,
+            storedInstellingen: List<SignaleringInstellingen>,
+            wherePredicate: Predicate = ownerPredicate
+        ) {
+            every { entityManager.criteriaBuilder } returns criteriaBuilder
+            every { criteriaBuilder.createQuery(SignaleringInstellingen::class.java) } returns instellingenCriteriaQuery
+            every { instellingenCriteriaQuery.from(SignaleringInstellingen::class.java) } returns instellingenRoot
+            every { instellingenRoot.get<Any>(ownerColumn) } returns ownerPath
+            every { criteriaBuilder.equal(ownerPath, owner) } returns ownerPredicate
+            every { instellingenCriteriaQuery.select(instellingenRoot) } returns instellingenCriteriaQuery
+            every { instellingenCriteriaQuery.where(wherePredicate) } returns instellingenCriteriaQuery
+            every { entityManager.createQuery(instellingenCriteriaQuery) } returns instellingenTypedQuery
+            every { instellingenTypedQuery.resultList } returns storedInstellingen
+        }
+
+        fun stubSignaleringTypes(vararg types: SignaleringType.Type) =
+            types.forEach { type ->
+                every { entityManager.find(SignaleringType::class.java, type.toString()) } returns createSignaleringType(
+                    type = type,
+                    subjecttype = SignaleringSubject.valueOf(type.name.substringBefore("_"))
+                )
+            }
+
+        given("a user without stored instellingen") {
+            stubStoredInstellingen(ownerColumn = "medewerker", owner = "fakeUsername", storedInstellingen = emptyList())
+            stubSignaleringTypes(*SignaleringType.Type.entries.toTypedArray())
+
+            `when`("the instellingen of the user are listed") {
+                val instellingen = signaleringService.listInstellingen(
+                    SignaleringInstellingenZoekParameters(SignaleringTarget.USER, "fakeUsername")
+                )
+
+                then("the defaults of every type are returned, with only the taak afgerond signalering mailed") {
+                    instellingen.map { it.type.type } shouldContainExactlyInAnyOrder SignaleringType.Type.entries
+                    instellingen.forEach {
+                        it.medewerker shouldBe "fakeUsername"
+                        it.isDashboard shouldBe false
+                        it.isMail shouldBe (it.type.type == SignaleringType.Type.TAAK_AFGEROND)
+                    }
+                }
+            }
+
+            `when`("the instellingen of the user that are mailed are listed") {
+                val instellingen = signaleringService.listInstellingen(
+                    SignaleringInstellingenZoekParameters(SignaleringTarget.USER, "fakeUsername").mail()
+                )
+
+                then("the default of the taak afgerond signalering is found") {
+                    instellingen.map { it.type.type } shouldBe listOf(SignaleringType.Type.TAAK_AFGEROND)
+                }
+            }
+        }
+
+        given("a user who turned the mail of the taak afgerond signalering off") {
+            val storedInstellingen = createSignaleringInstellingen(
+                type = createSignaleringType(type = SignaleringType.Type.TAAK_AFGEROND, subjecttype = SignaleringSubject.TAAK),
+                ownerId = "fakeUsername",
+                isDashboard = false,
+                isMail = false
+            )
+            val typePath = mockk<Path<Any>>()
+            val typeIdPath = mockk<Path<Any>>()
+            val typePredicate = mockk<Predicate>()
+            val ownerAndTypePredicate = mockk<Predicate>()
+            every { instellingenRoot.get<Any>("type") } returns typePath
+            every { typePath.get<Any>("id") } returns typeIdPath
+            every { criteriaBuilder.equal(typeIdPath, "TAAK_AFGEROND") } returns typePredicate
+            every { criteriaBuilder.and(ownerPredicate, typePredicate) } returns ownerAndTypePredicate
+            stubStoredInstellingen(
+                ownerColumn = "medewerker",
+                owner = "fakeUsername",
+                storedInstellingen = listOf(storedInstellingen),
+                wherePredicate = ownerAndTypePredicate
+            )
+            stubSignaleringTypes(SignaleringType.Type.TAAK_AFGEROND)
+
+            `when`("the taak afgerond instellingen of the user are read") {
+                val instellingen = signaleringService.readInstellingenUser(SignaleringType.Type.TAAK_AFGEROND, "fakeUsername")
+
+                then("the stored instellingen are returned instead of the default") {
+                    instellingen shouldBeSameInstanceAs storedInstellingen
+                    instellingen.isMail shouldBe false
+                }
+            }
+        }
+
+        given("a group without stored instellingen") {
+            stubStoredInstellingen(ownerColumn = "groep", owner = "fakeGroupId", storedInstellingen = emptyList())
+            stubSignaleringTypes(SignaleringType.Type.ZAAK_OP_NAAM)
+
+            `when`("the instellingen of the group are listed") {
+                val instellingen = signaleringService.listInstellingen(
+                    SignaleringInstellingenZoekParameters(SignaleringTarget.GROUP, "fakeGroupId")
+                )
+
+                then("only the default of the type that targets groups is returned, without mail") {
+                    instellingen.single().run {
+                        type.type shouldBe SignaleringType.Type.ZAAK_OP_NAAM
+                        groep shouldBe "fakeGroupId"
+                        isMail shouldBe false
+                    }
+                }
             }
         }
     }
