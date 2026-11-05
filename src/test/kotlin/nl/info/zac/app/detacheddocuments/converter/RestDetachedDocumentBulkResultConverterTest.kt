@@ -23,7 +23,8 @@ class RestDetachedDocumentBulkResultConverterTest : BehaviorSpec({
                 DetachedDocumentBulkFailure(4L, "fakeTitel4", DetachedDocumentBulkFailureReason.ALREADY_LINKED),
                 DetachedDocumentBulkFailure(5L, "fakeTitel5", DetachedDocumentBulkFailureReason.NO_RIGHTS),
                 DetachedDocumentBulkFailure(6L, "fakeTitel6", DetachedDocumentBulkFailureReason.OPEN_ZAAK_ERROR),
-                DetachedDocumentBulkFailure(7L, "fakeTitel7", DetachedDocumentBulkFailureReason.OPEN_ZAAK_UNAVAILABLE)
+                DetachedDocumentBulkFailure(7L, "fakeTitel7", DetachedDocumentBulkFailureReason.OPEN_ZAAK_UNAVAILABLE),
+                DetachedDocumentBulkFailure(8L, "fakeTitel8", DetachedDocumentBulkFailureReason.MISSING_IN_OPEN_ZAAK)
             )
         )
 
@@ -42,6 +43,11 @@ class RestDetachedDocumentBulkResultConverterTest : BehaviorSpec({
                         7L,
                         "fakeTitel7",
                         RestDetachedDocumentBulkFoutcode.OPEN_ZAAK_NIET_BESCHIKBAAR
+                    ),
+                    RestDetachedDocumentBulkFailure(
+                        8L,
+                        "fakeTitel8",
+                        RestDetachedDocumentBulkFoutcode.ONTBREEKT_IN_OPEN_ZAAK
                     )
                 )
             }

@@ -515,6 +515,7 @@
   "ontkoppelde-documenten.bulk.fouten.verwijderen.titel.niets-verwerkt": "No documents were deleted",
   "ontkoppelde-documenten.bulk.fouten.koppelen.titel.niets-verwerkt": "No documents were linked",
   "ontkoppelde-documenten.bulk.foutcode.niet-gevonden": "The document is no longer in this list. Another employee may already have deleted or linked it.",
+  "ontkoppelde-documenten.bulk.foutcode.ontbreekt-in-open-zaak": "The document no longer exists in Open Zaak. Delete it to remove it from this list.",
   "ontkoppelde-documenten.bulk.foutcode.vergrendeld": "The document is locked. Have the document unlocked and try again.",
   "ontkoppelde-documenten.bulk.foutcode.reeds-gekoppeld": "The document has meanwhile been linked to a case.",
   "ontkoppelde-documenten.bulk.foutcode.geen-recht": "You are not allowed to process this document. Contact the administrator.",

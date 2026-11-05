@@ -70,6 +70,18 @@ describe(OntkoppeldeDocumentenBulkFoutenDialogComponent.name, () => {
     );
   });
 
+  it("tells that a document no longer exists in Open Zaak instead of saying that it left the list", async () => {
+    await setup({
+      mislukt: [
+        { id: 1, titel: "fakeTitel1", foutcode: "ONTBREEKT_IN_OPEN_ZAAK" },
+      ],
+    });
+
+    expect(screen.getByRole("listitem")).toHaveTextContent(
+      "fakeTitel1: ontkoppelde-documenten.bulk.foutcode.ontbreekt-in-open-zaak",
+    );
+  });
+
   it("lists each failed document with its reason", async () => {
     await setup();
 

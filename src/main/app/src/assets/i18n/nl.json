@@ -515,6 +515,7 @@
   "ontkoppelde-documenten.bulk.fouten.verwijderen.titel.niets-verwerkt": "Er zijn geen documenten verwijderd",
   "ontkoppelde-documenten.bulk.fouten.koppelen.titel.niets-verwerkt": "Er zijn geen documenten gekoppeld",
   "ontkoppelde-documenten.bulk.foutcode.niet-gevonden": "Het document staat niet meer in deze lijst. Mogelijk heeft een andere medewerker het al verwijderd of gekoppeld.",
+  "ontkoppelde-documenten.bulk.foutcode.ontbreekt-in-open-zaak": "Het document bestaat niet meer in Open Zaak. Verwijder het om het uit deze lijst te halen.",
   "ontkoppelde-documenten.bulk.foutcode.vergrendeld": "Het document is vergrendeld. Laat het document ontgrendelen en probeer het opnieuw.",
   "ontkoppelde-documenten.bulk.foutcode.reeds-gekoppeld": "Het document is inmiddels aan een zaak gekoppeld.",
   "ontkoppelde-documenten.bulk.foutcode.geen-recht": "U mag dit document niet verwerken. Neem contact op met de beheerder.",

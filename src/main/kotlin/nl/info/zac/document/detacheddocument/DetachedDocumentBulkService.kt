@@ -94,6 +94,9 @@ class DetachedDocumentBulkService @Inject constructor(
         } catch (detachedDocumentLockedException: DetachedDocumentLockedException) {
             LOG.fine { failureMessage(id, detachedDocumentLockedException) }
             DetachedDocumentBulkFailureReason.LOCKED
+        } catch (detachedDocumentMissingInOpenZaakException: DetachedDocumentMissingInOpenZaakException) {
+            LOG.fine { failureMessage(id, detachedDocumentMissingInOpenZaakException) }
+            DetachedDocumentBulkFailureReason.MISSING_IN_OPEN_ZAAK
         } catch (illegalStateException: IllegalStateException) {
             LOG.fine { failureMessage(id, illegalStateException) }
             DetachedDocumentBulkFailureReason.ALREADY_LINKED
@@ -152,17 +155,18 @@ class DetachedDocumentBulkService @Inject constructor(
             null
         }
 
-    private fun WebApplicationException.isNotFound() = response?.status == HttpStatus.NOT_FOUND_404
-
-    private fun WebApplicationException.isClientError() =
-        response?.status in HttpStatus.BAD_REQUEST_400 until HttpStatus.INTERNAL_SERVER_ERROR_500
+    private fun readExistingInformatieobject(documentUUID: UUID): EnkelvoudigInformatieObject =
+        findEnkelvoudigInformatieobject(documentUUID)
+            ?: throw DetachedDocumentMissingInOpenZaakException(
+                "Informatieobject '$documentUUID' bestaat niet in Open Zaak"
+            )
 
     private fun linkDetachedDocument(
         detachedDocument: DetachedDocument,
         targetZaak: Zaak,
         canWijzigenTargetZaak: Boolean
     ) {
-        val informatieobject = drcClientService.readEnkelvoudigInformatieobject(detachedDocument.documentUUID)
+        val informatieobject = readExistingInformatieobject(detachedDocument.documentUUID)
         assertPolicy(
             canWijzigenTargetZaak && policyService.readDocumentRechten(informatieobject, targetZaak).canVerplaatsen
         )
@@ -181,3 +185,8 @@ class DetachedDocumentBulkService @Inject constructor(
         detachedDocumentService.deleteIfExists(detachedDocument.documentUUID)
     }
 }
+
+private fun WebApplicationException.isNotFound() = response?.status == HttpStatus.NOT_FOUND_404
+
+private fun WebApplicationException.isClientError() =
+    response?.status in HttpStatus.BAD_REQUEST_400 until HttpStatus.INTERNAL_SERVER_ERROR_500

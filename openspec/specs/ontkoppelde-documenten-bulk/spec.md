@@ -98,6 +98,12 @@ The list SHALL load when a document on the page no longer exists in Open Zaak. R
 - **THEN** the list loads, the row is marked as missing, it cannot be opened or linked, and an employee with the right to
   delete can remove it from the list
 
+#### Scenario: A missing document is part of a bulk link
+- **GIVEN** a selection, made with select all, that holds a document that no longer exists in Open Zaak
+- **WHEN** the employee picks a zaak in the panel
+- **THEN** that document stays in the list and stays selected, the other documents are linked, and the employee is told
+  that the document no longer exists in Open Zaak and should be deleted
+
 ### Requirement: The list updates from the bulk response
 
 The system SHALL treat a document as deleted or linked as soon as Open Zaak confirmed the action, and SHALL refresh

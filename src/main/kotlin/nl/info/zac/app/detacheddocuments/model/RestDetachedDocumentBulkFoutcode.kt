@@ -6,6 +6,7 @@ package nl.info.zac.app.detacheddocuments.model
 
 enum class RestDetachedDocumentBulkFoutcode {
     NIET_GEVONDEN,
+    ONTBREEKT_IN_OPEN_ZAAK,
     VERGRENDELD,
     REEDS_GEKOPPELD,
     GEEN_RECHT,

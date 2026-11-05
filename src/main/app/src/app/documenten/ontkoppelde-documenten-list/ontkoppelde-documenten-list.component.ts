@@ -155,7 +155,22 @@ export class OntkoppeldeDocumentenListComponent
   protected readonly isLoadingResults = computed(
     () => this.requestedSearch() === null || this.search.query.isFetching(),
   );
-  protected readonly totaal = signal(0);
+  private readonly processedIds = signal<ReadonlySet<number>>(new Set());
+  private readonly shownList = computed(() => {
+    const result = this.search.data();
+    if (!result) return null;
+    const resultaten = (result.resultaten ??
+      []) as GeneratedType<"RestDetachedDocument">[];
+    const documents = resultaten.filter(
+      ({ id }) => !this.processedIds().has(id!),
+    );
+    return {
+      documents,
+      totaal: (result.totaal ?? 0) - (resultaten.length - documents.length),
+      filterOntkoppeldDoor: result.filterOntkoppeldDoor ?? [],
+    };
+  });
+  protected readonly totaal = computed(() => this.shownList()?.totaal ?? 0);
   protected dataSource = new MatTableDataSource<
     GeneratedType<"RestDetachedDocument">
   >();
@@ -200,8 +215,8 @@ export class OntkoppeldeDocumentenListComponent
     order: "desc",
     filtersType: "DetachedDocumentListParameters",
   };
-  protected readonly filterOntkoppeldDoor = signal<GeneratedType<"RestUser">[]>(
-    [],
+  protected readonly filterOntkoppeldDoor = computed(
+    () => this.shownList()?.filterOntkoppeldDoor ?? [],
   );
   protected filterChange = new EventEmitter<void>();
   protected clearZoekopdracht = new EventEmitter<void>();
@@ -223,10 +238,11 @@ export class OntkoppeldeDocumentenListComponent
   protected readonly selectedDocumentsToLink = signal<
     GeneratedType<"RestDetachedDocument">[]
   >([]);
-  private idsToKeepSelected = new Set<number>();
-  private readonly processedIds = new Set<number>();
-  private isLoadPending = false;
-  private documentsBeingDeleted: GeneratedType<"RestDetachedDocument">[] = [];
+  private readonly idsToKeepSelected = signal<ReadonlySet<number>>(new Set());
+  private readonly isLoadPending = signal(false);
+  private readonly documentsBeingDeleted = signal<
+    GeneratedType<"RestDetachedDocument">[]
+  >([]);
   private readonly deleteMutation = injectMutation(
     () => this.ontkoppeldeDocumentenService.delete(),
     {
@@ -241,7 +257,7 @@ export class OntkoppeldeDocumentenListComponent
         this.ontkoppeldeDocumentenService.reportBulkResult(
           result,
           "verwijderen",
-          this.documentsBeingDeleted,
+          this.documentsBeingDeleted(),
         ),
     },
   );
@@ -262,13 +278,13 @@ export class OntkoppeldeDocumentenListComponent
   constructor() {
     super();
     effect(() => {
-      const shownSearch = this.search.data();
-      if (!shownSearch) return;
-      untracked(() => this.showResult(shownSearch));
+      const shownList = this.shownList();
+      if (!shownList) return;
+      untracked(() => this.showDocuments(shownList));
     });
     effect(() => {
       const isLoading = this.isLoadingResults();
-      this.search.data();
+      this.shownList();
       untracked(() => {
         this.utilService.setLoading(isLoading);
         if (!isLoading) this.finishLoad();
@@ -293,7 +309,7 @@ export class OntkoppeldeDocumentenListComponent
 
   private load() {
     this.selection.clear();
-    this.isLoadPending = true;
+    this.isLoadPending.set(true);
     this.updateListParameters();
     this.search.request({
       ...this.listParametersSort,
@@ -301,19 +317,16 @@ export class OntkoppeldeDocumentenListComponent
     });
   }
 
-  private showResult(result: GeneratedType<"RestDetachedDocumentResult">) {
-    const resultaten = (result.resultaten ??
-      []) as GeneratedType<"RestDetachedDocument">[];
-    const documents = resultaten.filter(
-      ({ id }) => !this.processedIds.has(id!),
-    );
-    const totaal =
-      (result.totaal ?? 0) - (resultaten.length - documents.length);
+  private showDocuments({
+    documents,
+    totaal,
+  }: {
+    documents: GeneratedType<"RestDetachedDocument">[];
+    totaal: number;
+  }) {
     this.paginator().length = totaal;
-    this.totaal.set(totaal);
-    this.filterOntkoppeldDoor.set(result.filterOntkoppeldDoor ?? []);
     this.dataSource.data = documents;
-    if (this.isLoadPending) return;
+    if (this.isLoadPending()) return;
 
     const selectedIds = new Set(this.selection.selected.map(({ id }) => id));
     this.selection.setSelection(
@@ -322,8 +335,8 @@ export class OntkoppeldeDocumentenListComponent
   }
 
   private finishLoad() {
-    if (!this.isLoadPending) return;
-    this.isLoadPending = false;
+    if (!this.isLoadPending()) return;
+    this.isLoadPending.set(false);
 
     const { pageIndex, pageSize } = this.paginator();
     const lastPageIndex = Math.max(Math.ceil(this.totaal() / pageSize) - 1, 0);
@@ -332,12 +345,11 @@ export class OntkoppeldeDocumentenListComponent
       this.load();
       return;
     }
+    const idsToKeepSelected = this.idsToKeepSelected();
     this.selection.setSelection(
-      ...this.dataSource.data.filter(({ id }) =>
-        this.idsToKeepSelected.has(id!),
-      ),
+      ...this.dataSource.data.filter(({ id }) => idsToKeepSelected.has(id!)),
     );
-    this.idsToKeepSelected.clear();
+    this.idsToKeepSelected.set(new Set());
   }
 
   private revert(search: DetachedDocumentSearch) {
@@ -430,7 +442,7 @@ export class OntkoppeldeDocumentenListComponent
   protected documentenVerwijderen() {
     const selectedDocuments = [...this.selection.selected];
     const ids = selectedDocuments.map(({ id }) => id!);
-    this.documentsBeingDeleted = selectedDocuments;
+    this.documentsBeingDeleted.set(selectedDocuments);
     const enkelvoud = ids.length === 1 ? ".enkelvoud" : "";
     this.dialog
       .open(ConfirmDialogComponent, {
@@ -527,10 +539,8 @@ export class OntkoppeldeDocumentenListComponent
    * when the reload fails too because Open Zaak is down.
    */
   private reloadKeepingSelected(idsToKeep: number[], idsProcessed: number[]) {
-    idsProcessed.forEach((id) => this.processedIds.add(id));
-    const shownSearch = this.search.data();
-    if (shownSearch) this.showResult(shownSearch);
-    this.idsToKeepSelected = new Set(idsToKeep);
+    this.processedIds.update((ids) => new Set([...ids, ...idsProcessed]));
+    this.idsToKeepSelected.set(new Set(idsToKeep));
     this.filterChange.emit();
   }
 

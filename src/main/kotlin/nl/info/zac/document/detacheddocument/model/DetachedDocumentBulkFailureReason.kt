@@ -6,6 +6,7 @@ package nl.info.zac.document.detacheddocument.model
 
 enum class DetachedDocumentBulkFailureReason {
     NOT_FOUND,
+    MISSING_IN_OPEN_ZAAK,
     LOCKED,
     ALREADY_LINKED,
     NO_RIGHTS,

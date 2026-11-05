@@ -24,6 +24,7 @@ private fun DetachedDocumentBulkFailure.toRestDetachedDocumentBulkFailure() = Re
 
 private fun DetachedDocumentBulkFailureReason.toRestDetachedDocumentBulkFoutcode() = when (this) {
     DetachedDocumentBulkFailureReason.NOT_FOUND -> RestDetachedDocumentBulkFoutcode.NIET_GEVONDEN
+    DetachedDocumentBulkFailureReason.MISSING_IN_OPEN_ZAAK -> RestDetachedDocumentBulkFoutcode.ONTBREEKT_IN_OPEN_ZAAK
     DetachedDocumentBulkFailureReason.LOCKED -> RestDetachedDocumentBulkFoutcode.VERGRENDELD
     DetachedDocumentBulkFailureReason.ALREADY_LINKED -> RestDetachedDocumentBulkFoutcode.REEDS_GEKOPPELD
     DetachedDocumentBulkFailureReason.NO_RIGHTS -> RestDetachedDocumentBulkFoutcode.GEEN_RECHT

@@ -573,10 +573,10 @@ class DetachedDocumentBulkServiceTest : BehaviorSpec({
             `when`("the documents are linked in bulk") {
                 val result = detachedDocumentBulkService.linkInBulk(listOf(131L, 132L), nieuweZaakID)
 
-                then("the second is linked and the first is reported as not found") {
+                then("the second is linked and the first is reported as missing in Open Zaak, not as gone from the list") {
                     result.processedIds shouldBe listOf(132L)
                     result.failures.single().id shouldBe 131L
-                    result.failures.single().reason shouldBe DetachedDocumentBulkFailureReason.NOT_FOUND
+                    result.failures.single().reason shouldBe DetachedDocumentBulkFailureReason.MISSING_IN_OPEN_ZAAK
                 }
             }
         }

@@ -274,14 +274,11 @@ export abstract class ZoekenDataSource<
   reset() {
     this.zoekParameters = SessionStorageUtil.setItem(
       `${this.werklijst}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
-      getDefaultZoekParameters(),
+      { ...getDefaultZoekParameters(), rows: this.paginator.pageSize },
     );
-    if (this.zoekParameters.sorteerVeld)
-      this.sort.active = this.zoekParameters.sorteerVeld;
-    if (this.zoekParameters.sorteerRichting)
-      this.sort.direction = this.zoekParameters.sorteerRichting;
+    this.sort.active = this.zoekParameters.sorteerVeld ?? "";
+    this.sort.direction = this.zoekParameters.sorteerRichting ?? "";
     this.paginator.pageIndex = 0;
-    this.paginator.pageSize = this.zoekParameters.rows ?? 0;
     this.load();
   }
 
