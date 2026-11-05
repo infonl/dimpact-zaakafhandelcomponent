@@ -11,8 +11,9 @@ tags: [helm, testing, ci, tooling]
 
 The templates of the ZAC Helm chart contain logic: values switch between deployment variants, such as OPA as a
 sidecar or as a separate deployment, and `required` and `fail` checks reject incomplete values. CI runs `ct lint`
-and `ct install`, but `ct install` only shows that the chart installs with one set of values. No test checks what
-the templates render for other values. How do we test the template logic?
+and `ct install`. `ct install` is meant to show that the chart installs with one set of values, but in CI it fails
+on a missing Solr bootstrap secret, and `continue-on-error: true` hides that failure. No test checks what the
+templates render for other values. How do we test the template logic?
 See [PZ-13343](https://dimpact.atlassian.net/browse/PZ-13343).
 
 ## Decision Drivers
@@ -34,7 +35,8 @@ Chosen option: "helm-unittest", because it is the only option that tests the ren
 values without a cluster, in test suites written in YAML.
 
 * The test suites live in `charts/zac/tests/`, one suite per topic, and `.helmignore` keeps them out of the packaged
-  chart.
+  chart. `ct` runs with `--use-helmignore`, so a change to only the tests is no change to the chart and needs no new
+  chart version.
 * The suites load `charts/zac/ci/zac-chart-test-values.yaml` and set only the values that a test is about.
 * The tests assert on specific fields. We do not use snapshot tests, because they change with every chart change.
 
@@ -44,13 +46,15 @@ values without a cluster, in test suites written in YAML.
 * Good, because the tests run in milliseconds and need no cluster.
 * Bad, because the tests depend on a Helm plugin that has to be installed. Helm 4 cannot verify plugins installed
   from git, so the install uses `--verify=false`. On macOS the install script of the plugin needs GNU `sha256sum`.
-* Bad, because the tests do not show that ZAC works with the rendered manifests. `ct install` still checks that the
-  chart installs.
+* Bad, because the tests do not show that the chart installs or that ZAC works with the rendered manifests. That is
+  the job of `ct install`, but in CI it fails on a missing Solr bootstrap secret and the step has
+  `continue-on-error: true`, so it does not block a pull request. Fixing `ct install` is outside this decision.
 
 ### Confirmation
 
 The step "Run helm-unittest" in the `helm-lint` job of `.github/workflows/helm-chart-testing.yml` runs
-`helm unittest charts/zac` in every pull request that changes the chart.
+`helm unittest --strict charts/zac` in every pull request, also when the chart did not change, so that an update of
+Helm or of the plugin is tested too.
 
 ## Pros and Cons of the Options
 
@@ -74,7 +78,8 @@ The step "Run helm-unittest" in the `helm-lint` job of `.github/workflows/helm-c
 ### `ct install` only
 
 * Good, because CI already runs it.
-* Bad, because it only shows that the chart installs with one set of values.
+* Bad, because it can at most show that the chart installs with one set of values, and in CI it currently fails
+  without blocking the pull request.
 
 ## More Information
 

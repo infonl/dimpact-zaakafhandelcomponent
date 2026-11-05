@@ -79,7 +79,29 @@ tests:
             command: ["sh", "-c", "until curl https://opa.example.com;do echo waiting for opa;sleep 5;done;"]
           any: true
         template: templates/deployment.yaml
-  - it: deploys no OPA at all when OPA is disabled
+  - it: deploys no OPA at all when OPA is disabled, also not as the default sidecar
+    set:
+      opa.enabled: false
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers
+          content:
+            name: opa
+          any: true
+        template: templates/deployment.yaml
+      - notContains:
+          path: spec.template.spec.initContainers
+          content:
+            name: check-opa-ready
+          any: true
+        template: templates/deployment.yaml
+      - hasDocuments:
+          count: 0
+        template: templates/opa-deployment.yaml
+      - hasDocuments:
+          count: 0
+        template: templates/opa-service.yaml
+  - it: deploys no OPA at all when OPA is disabled and is not a sidecar
     set:
       opa.enabled: false
       opa.sidecar: false

@@ -69,12 +69,12 @@ for the Solr details, including how to read the admin password for the Solr admi
 The Github workflow will perform helm-linting and will bump the version if needed. This `README.md` file is generated automatically as well.
 
 Unit tests for the templates live in `tests/` and use [helm-unittest](https://github.com/helm-unittest/helm-unittest).
-The Github workflow runs them. To run them locally:
+The Github workflow runs them in every pull request. To run them locally:
 
 ```bash
 helm plugin install https://github.com/helm-unittest/helm-unittest.git --version v1.2.1 --verify=false
 helm dependency build charts/zac
-helm unittest charts/zac
+helm unittest --strict charts/zac
 ```
 
 On macOS the install script of the plugin needs GNU `sha256sum`. Install it with `brew install coreutils` and
