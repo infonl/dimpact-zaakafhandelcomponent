@@ -117,21 +117,24 @@ class BrpClientService @Inject constructor(
     private fun queryPersonen(personenQuery: PersonenQuery): PersonenQueryResponse {
         val logLevel = brpConfiguration.getLogLevel()
         val start = System.currentTimeMillis()
-        LOG.log(logLevel) {
-            """PersonenApi.personen() >>>
-            |request = $personenQuery
-            |context = [${
-                brpProtocolleringContext.headers.entries.joinToString { e -> "${e.key}=${e.value}" }
-            }]
-            """.trimMargin()
+        if (logLevel != Level.OFF) {
+            LOG.log(logLevel) {
+                """PersonenApi.personen() >>>
+                |query type = ${personenQuery.type}
+                |context = [${
+                    brpProtocolleringContext.headers.entries.joinToString { e -> "${e.key}=${e.value}" }
+                }]
+                """.trimMargin()
+            }
         }
         return personenApi.personen(personenQuery)
             .also {
-                LOG.log(logLevel) {
-                    """PersonenApi.personen() <<<
-                    |response = $it
-                    |duration = ${System.currentTimeMillis() - start}
-                    """.trimMargin()
+                if (logLevel != Level.OFF) {
+                    LOG.log(logLevel) {
+                        """PersonenApi.personen() <<<
+                        |duration = ${System.currentTimeMillis() - start}
+                        """.trimMargin()
+                    }
                 }
             }
     }

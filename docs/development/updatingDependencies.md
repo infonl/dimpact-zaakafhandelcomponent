@@ -89,8 +89,10 @@ installed WildFly. To upgrade override the Galleon files in [the Galleon install
 7. Most of the 'dependencies provided by WildFly' in the [Gradle build file](../../build.gradle.kts) get their version
 automatically from WildFly's own published BOMs (`org.wildfly.bom:wildfly-ee` and `org.wildfly.bom:wildfly-expansion`,
 imported as platforms on the `providedCompile` configuration), so they do not need any manual action.
-The only exception that must still be checked against [WildFly's GitHub repository](https://github.com/wildfly/wildfly)
-is `jakarta-jakartaee` in the [Gradle Versions Catalog file](../../gradle/libs.versions.toml) (see the comment next to it).
+The only exceptions that must still be checked against [WildFly's GitHub repository](https://github.com/wildfly/wildfly)
+are `jakarta-jakartaee` and `jboss-logmanager` in the [Gradle Versions Catalog file](../../gradle/libs.versions.toml)
+(see the comments next to them). `jboss-logmanager` must match the version in the `org.jboss.logmanager` module of the
+new WildFly, because the [ZAC logging filter](logging.md#masking-personal-data-in-the-wildfly-logging) runs in that module.
 `smallrye-health` is only used as a test dependency and can be updated independently if needed.
 8. Test ZAC thoroughly to make sure everything still works both by running ZAC locally (in IntelliJ and in the [kind](installKind.md) cluster)
 and performing manual testing as well as by running our automated tests. 

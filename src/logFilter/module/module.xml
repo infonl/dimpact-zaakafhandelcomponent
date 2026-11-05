@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<!-- WildFly module with the ZAC logging filter; the build copies it to 'modules/nl/info/zac/logfilter/main' -->
+<module name="nl.info.zac.logfilter" xmlns="urn:jboss:module:1.9">
+    <resources>
+        <resource-root path="zac-log-filter.jar"/>
+        <resource-root path="kotlin-stdlib.jar"/>
+    </resources>
+    <dependencies>
+        <module name="java.logging"/>
+        <module name="org.jboss.logmanager"/>
+    </dependencies>
+</module>

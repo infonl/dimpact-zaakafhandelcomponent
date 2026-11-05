@@ -81,6 +81,11 @@ data-source add \
 )
 /subsystem=logging/console-handler=CONSOLE:write-attribute(name=named-formatter, value=JSON)
 
+# Mask personal data, such as BSNs, in every log record that the console handler writes, whatever its log level or logger.
+# The filter is in the 'nl.info.zac.logfilter' module, which the build adds to the server; see ADR-0011.
+/subsystem=logging/filter=personalDataMaskingFilter:add(module=nl.info.zac.logfilter, class=nl.info.zac.logfilter.PersonalDataMaskingLogFilter)
+/subsystem=logging/console-handler=CONSOLE:write-attribute(name=filter-spec, value=personalDataMaskingFilter)
+
 # Suppress 'SRCFG01008: The value jakarta.ejb.EJBException has been converted by a Boolean Converter to "false"' WARN log messages
 # These warnings are a known quirk from SmallRye Config when running in WildFly with MicroProfile REST Client and do not indicate a problem in our code.
 /subsystem=logging/logger=io.smallrye.config:add(level=ERROR)

@@ -211,6 +211,9 @@ treated as personal data on its own.
   This is the single highest-risk log statement in the codebase: it is gated only by log level, not by
   content, so enabling `FINE` logging on this class effectively logs personal data for every integration
   at once.
+  **Resolved for PZ-13151:** BSNs and IBANs are masked by the
+  [WildFly logging filter](#masking-personal-data-in-the-wildfly-logging), and the filter masks every JSON field
+  whose name contains `geboorte`.
 - [`nl/info/client/brp/BrpClientService.kt`](../../src/main/kotlin/nl/info/client/brp/BrpClientService.kt)
   (`queryPersonen`) — logs the full `PersonenQuery` request and `PersonenQueryResponse` via `toString()`,
   gated by a configurable log level. `queryPersonen` backs every BRP query variant: only the BSN-lookup
@@ -222,6 +225,7 @@ treated as personal data on its own.
   regardless of which query variant was used. This is an intentional, first-class logging path, not an
   accident — but it means BSNs and partial BRP person records can appear in logs whenever that level is
   enabled.
+  **Resolved for PZ-13151:** it logs only the query type of a BRP query.
 - [`nl/info/zac/mail/MailService.kt`](../../src/main/kotlin/nl/info/zac/mail/MailService.kt) (`sendMail`) —
   `LOG.fine("Sent mail to ${mailGegevens.to} with subject '$subject'.")`. `MailAdres.toString()` returns
   `"$email ($name)"`, so this logs the recipient's email address and name on every successfully sent
@@ -407,6 +411,46 @@ log-level configuration.
   the renderer masks or hashes them centrally, or the type system rejects logging them altogether. This
   is what should prevent findings like these from recurring, instead of relying on a manual/log audit
   each time.
+
+## Masking personal data in the WildFly logging
+
+As a safety net for log statements that write personal data, WildFly masks personal data in every log record before
+it writes the record, whatever its log level or logger
+([ADR-0011](../solution-architecture/decisions/0011-mask-personal-data-in-a-wildfly-logging-filter.md)):
+
+| Personal data | Example              | Logged as            |
+|---------------|----------------------|----------------------|
+| BSN           | `999993896`          | `******896`          |
+| IBAN          | `NL91ABNA0417164300` | `******************` |
+
+The masking applies to the log message and to the messages and `toString()` of a logged exception and its causes.
+An exception with personal data in them is logged as a `MaskedThrowable` whose message is the masked `toString()` of
+the original, which normally starts with the name of its class, for example
+`java.lang.IllegalStateException: Geen persoon gevonden voor BSN '******896'`; an exception without personal data is
+logged as is.
+
+The filter recognises a BSN as any number of exactly nine digits, so every other number of nine digits is masked as
+well, such as a RSIN, a size in bytes from 100 MB (for example the maximum file size or a `Content-Length` header), or a
+numeric ID. It cannot recognise a surname or a date of birth in plain text, so log statements must still not log
+those. The two log statements that wrote a surname together with a date of birth handle that combination at the source:
+
+* `BrpClientService.queryPersonen` logs only the query type of a BRP query, not the query and the response.
+* `JsonLoggingFilter` masks every JSON field whose name contains `geboorte` in the REST payloads that it logs. It
+  does not log a payload that is not valid JSON and contains `geboorte`, because a date of birth cannot be masked
+  reliably in it; it logs any other payload that is not valid JSON, such as an error page, as is.
+
+How it works:
+
+* The filter is the class [`PersonalDataMaskingLogFilter`](../../src/logFilter/kotlin/nl/info/zac/logfilter/PersonalDataMaskingLogFilter.kt)
+  in the `logFilter` source set. WildFly only loads logging filters from a module of the server, not from a
+  deployment, so it is not part of the ZAC WAR.
+* The Gradle task `assembleLogFilterWildFlyModule` packages the filter as the WildFly module `nl.info.zac.logfilter`
+  in `build/wildfly/extra-server-content`. The WildFly server build in [pom.xml](../../pom.xml) adds that directory to
+  the server (`extraServerContentDirs`).
+* [configure-wildfly.cli](../../src/main/resources/wildfly/configure-wildfly.cli) registers the filter and attaches it
+  to the console log handler.
+* The [WildFly install script](../../scripts/wildfly/install-wildfly.sh) adds the module to a locally installed
+  WildFly, and also attaches the filter to its file log handler (`server.log`).
 
 ## Known inconsistencies
 

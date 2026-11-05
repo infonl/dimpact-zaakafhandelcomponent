@@ -11,3 +11,7 @@ To install WildFly:
 1. Run the `install-wildfly.sh` script.
 2. This should install a local and configured version of WildFly in the root of this project.
 
+The script also adds the WildFly module with the ZAC logging filter, which masks personal data in the logging
+(see [Logging in ZAC](../../docs/development/logging.md#masking-personal-data-in-the-wildfly-logging)).
+Run the script again after a change to that filter.
+
