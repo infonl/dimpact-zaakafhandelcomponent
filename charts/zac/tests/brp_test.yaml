@@ -97,8 +97,9 @@ tests:
     asserts:
       - failedTemplate:
           errorPattern: Valid .Values.brpApi.protocollering.verwerking.register entry required!
-  - it: requires extendWithZaaktype when a verwerking header is set
+  - it: requires the extendWithZaaktype key to be present when a verwerking header is set
     set:
+      # null removes the key from the values; the template checks with hasKey, so false would pass.
       brpApi.protocollering.verwerking.extendWithZaaktype: null
     asserts:
       - failedTemplate:
