@@ -257,9 +257,12 @@ export class InboxDocumentenListComponent
     actieveZoekopdracht: GeneratedType<"RestZoekopdracht"> | null,
   ) {
     if (actieveZoekopdracht?.json) {
-      this.listParameters = JSON.parse(actieveZoekopdracht.json);
-      this.sort().active = this.listParametersSort.sort;
-      this.sort().direction = this.listParametersSort.order;
+      this.listParameters = {
+        ...this.createDefaultParameters(),
+        ...JSON.parse(actieveZoekopdracht.json),
+      };
+      this.sort().active = this.listParameters.sort!;
+      this.sort().direction = this.listParameters.order!;
       this.paginator().pageIndex = 0;
       this.filterChange.emit();
     } else if (actieveZoekopdracht === null) {
