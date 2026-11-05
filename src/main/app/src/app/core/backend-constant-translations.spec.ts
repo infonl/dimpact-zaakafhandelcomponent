@@ -49,6 +49,7 @@ const mails = valuesOf<GeneratedType<"Mail">>({
   SIGNALERING_ZAAK_VERLOPEND_FATALE_DATUM: true,
   SIGNALERING_TAAK_OP_NAAM: true,
   SIGNALERING_TAAK_VERLOPEN: true,
+  SIGNALERING_TAAK_AFGEROND: true,
 });
 
 const mailTemplateVariables = valuesOf<GeneratedType<"MailTemplateVariables">>({

@@ -530,6 +530,7 @@
   "mail.signalering-zaak-verlopend-fatale-datum": "Alert case expired (deadline)",
   "mail.signalering-taak-op-naam": "Alert task by name",
   "mail.signalering-taak-verlopen": "Alert task expired",
+  "mail.signalering-taak-afgerond": "Alert task completed",
   "mailtemplate.variabele.document-titel": "The document's title.",
   "mailtemplate.variabele.document-link": "A clickable link to the document in the zaakafhandelcomponent.",
   "mailtemplate.variabele.document-url": "The zaakafhandelcomponent-URL of the document.",

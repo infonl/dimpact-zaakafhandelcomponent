@@ -530,6 +530,7 @@
   "mail.signalering-zaak-verlopend-fatale-datum": "Signalering zaak verlopend (fatale datum)",
   "mail.signalering-taak-op-naam": "Signalering taak op naam",
   "mail.signalering-taak-verlopen": "Signalering taak verlopen",
+  "mail.signalering-taak-afgerond": "Signalering taak afgerond",
   "mailtemplate.variabele.document-titel": "De titel van het document.",
   "mailtemplate.variabele.document-link": "Een klikbare link naar het document in de zaakafhandelcomponent.",
   "mailtemplate.variabele.document-url": "De zaakafhandelcomponent-URL van het document.",

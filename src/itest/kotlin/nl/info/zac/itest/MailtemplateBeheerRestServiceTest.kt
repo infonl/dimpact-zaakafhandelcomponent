@@ -15,6 +15,8 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_10_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2025_07_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2026_07_23
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_TAAK_AFGEROND_MAIL
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_TAAK_AFGEROND_NAME
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_TAAK_OP_NAAM_MAIL
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_TAAK_OP_NAAM_NAME
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_TAAK_VERLOPEN_MAIL
@@ -101,6 +103,11 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                       "defaultMailtemplate": true,
                       "mail": "$MAIL_TEMPLATE_TAAK_ONTVANGSTBEVESTIGING_MAIL",
                       "mailTemplateNaam": "$MAIL_TEMPLATE_TAAK_ONTVANGSTBEVESTIGING_NAME"
+                    },
+                    {
+                      "defaultMailtemplate": true,
+                      "mail": "$MAIL_TEMPLATE_SIGNALERING_TAAK_AFGEROND_MAIL",
+                      "mailTemplateNaam": "$MAIL_TEMPLATE_SIGNALERING_TAAK_AFGEROND_NAME"
                     },
                     {
                       "defaultMailtemplate": true,
