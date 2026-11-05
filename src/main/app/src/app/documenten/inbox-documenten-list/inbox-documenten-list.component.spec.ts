@@ -218,8 +218,8 @@ describe(InboxDocumentenListComponent.name, () => {
     expect(await lastListRequestBody()).toEqual({
       ...UNFILTERED_REQUEST_BODY,
       creatiedatum: {
-        van: new Date(2024, 0, 1).toISOString(),
-        tot: new Date(2024, 0, 31).toISOString(),
+        van: "2024-01-01T00:00:00.000+01:00",
+        tot: "2024-01-31T00:00:00.000+01:00",
       },
     });
   });

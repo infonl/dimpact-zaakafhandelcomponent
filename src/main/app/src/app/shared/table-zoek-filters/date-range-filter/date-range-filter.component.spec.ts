@@ -9,7 +9,6 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { alterMoment } from "../../../../functions";
 import { GeneratedType } from "../../utils/generated-types";
 import { DateRangeFilterComponent } from "./date-range-filter.component";
 
@@ -23,10 +22,6 @@ type DateRangeFilterInputs = {
 
 describe(DateRangeFilterComponent.name, () => {
   const user = userEvent.setup({ delay: null });
-
-  beforeAll(() => {
-    alterMoment();
-  });
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -66,8 +61,8 @@ describe(DateRangeFilterComponent.name, () => {
     it("shows the dates of the bound range in DD-MM-YYYY format", async () => {
       await setup({
         range: {
-          van: new Date(2026, 2, 25).toISOString(),
-          tot: new Date(2026, 2, 31).toISOString(),
+          van: "2026-03-25T00:00:00.000+01:00",
+          tot: "2026-03-31T00:00:00.000+02:00",
         },
       });
 
@@ -87,12 +82,12 @@ describe(DateRangeFilterComponent.name, () => {
 
     it("shows the dates of a different range bound by the parent", async () => {
       const { fixture } = await setup({
-        range: { van: new Date(2024, 0, 1).toISOString(), tot: null },
+        range: { van: "2024-01-01T00:00:00.000+01:00", tot: null },
       });
 
       fixture.componentRef.setInput("range", {
-        van: new Date(2025, 5, 10).toISOString(),
-        tot: new Date(2025, 5, 20).toISOString(),
+        van: "2025-06-10T00:00:00.000+02:00",
+        tot: "2025-06-20T00:00:00.000+02:00",
       });
       fixture.detectChanges();
       await fixture.whenStable();
@@ -104,8 +99,8 @@ describe(DateRangeFilterComponent.name, () => {
     it("empties the date inputs when the parent binds null after a range", async () => {
       const { fixture } = await setup({
         range: {
-          van: new Date(2024, 0, 1).toISOString(),
-          tot: new Date(2024, 0, 31).toISOString(),
+          van: "2024-01-01T00:00:00.000+01:00",
+          tot: "2024-01-31T00:00:00.000+01:00",
         },
       });
 
@@ -146,11 +141,11 @@ describe(DateRangeFilterComponent.name, () => {
     it.each([
       {
         dateThatIsSet: "van",
-        range: { van: new Date(2024, 0, 1).toISOString(), tot: null },
+        range: { van: "2024-01-01T00:00:00.000+01:00", tot: null },
       },
       {
         dateThatIsSet: "tot",
-        range: { van: null, tot: new Date(2024, 0, 31).toISOString() },
+        range: { van: null, tot: "2024-01-31T00:00:00.000+01:00" },
       },
     ])(
       "shows the clear icon instead of the calendar toggle when only $dateThatIsSet is set",
@@ -167,8 +162,8 @@ describe(DateRangeFilterComponent.name, () => {
     it("empties the date inputs and emits a range without dates", async () => {
       const { changed } = await setup({
         range: {
-          van: new Date(2024, 0, 1).toISOString(),
-          tot: new Date(2024, 0, 31).toISOString(),
+          van: "2024-01-01T00:00:00.000+01:00",
+          tot: "2024-01-31T00:00:00.000+01:00",
         },
       });
 
@@ -183,8 +178,8 @@ describe(DateRangeFilterComponent.name, () => {
 
     it("sets a new empty range on the model and leaves the bound range object untouched", async () => {
       const range: DatumRange = {
-        van: new Date(2024, 0, 1).toISOString(),
-        tot: new Date(2024, 0, 31).toISOString(),
+        van: "2024-01-01T00:00:00.000+01:00",
+        tot: "2024-01-31T00:00:00.000+01:00",
       };
       const { changed, rangeChange } = await setup({ range });
 
@@ -197,8 +192,8 @@ describe(DateRangeFilterComponent.name, () => {
       });
       expect(changed.mock.calls[0][0]).toBe(rangeChange.mock.calls[0][0]);
       expect(range).toEqual({
-        van: new Date(2024, 0, 1).toISOString(),
-        tot: new Date(2024, 0, 31).toISOString(),
+        van: "2024-01-01T00:00:00.000+01:00",
+        tot: "2024-01-31T00:00:00.000+01:00",
       });
     });
   });
@@ -294,7 +289,7 @@ describe(DateRangeFilterComponent.name, () => {
 
     it("does not emit changed when the only date is erased, but does set an empty range on the model", async () => {
       const { changed, rangeChange } = await setup({
-        range: { van: new Date(2024, 0, 1).toISOString(), tot: null },
+        range: { van: "2024-01-01T00:00:00.000+01:00", tot: null },
       });
 
       await user.clear(startInput());

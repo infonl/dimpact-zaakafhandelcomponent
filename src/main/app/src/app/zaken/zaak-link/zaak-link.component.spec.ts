@@ -304,12 +304,12 @@ describe(ZaakLinkComponent.name, () => {
       zoekZaakTypeOmschrijving: undefined,
       relationType: "DEELZAAK",
       startdatum: {
-        van: new Date(2026, 1, 1).toISOString(),
-        tot: new Date(2026, 2, 1).toISOString(),
+        van: "2026-02-01T00:00:00.000+01:00",
+        tot: "2026-03-01T00:00:00.000+01:00",
       },
       einddatum: {
-        van: new Date(2026, 3, 1).toISOString(),
-        tot: new Date(2026, 4, 1).toISOString(),
+        van: "2026-04-01T00:00:00.000+02:00",
+        tot: "2026-05-01T00:00:00.000+02:00",
       },
     });
   });

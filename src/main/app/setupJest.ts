@@ -18,6 +18,7 @@ import {
 } from "@tanstack/angular-query-experimental";
 import "@testing-library/jest-dom";
 import { provideZacDateAdapter } from "./src/app/shared/form/date/provide-zac-date-adapter";
+import { alterMoment } from "./src/functions";
 
 const cryptoPolyfill = {
   randomUUID: () => {
@@ -43,6 +44,8 @@ const cryptoPolyfill = {
   } as SubtleCrypto,
   getRandomValues: jest.fn(),
 } as Crypto;
+
+alterMoment();
 
 // jsdom does not implement matchMedia
 Object.defineProperty(window, "matchMedia", {

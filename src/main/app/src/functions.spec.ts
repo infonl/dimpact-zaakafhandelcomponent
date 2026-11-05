@@ -7,20 +7,6 @@ import moment from "moment";
 import { alterMoment } from "./functions";
 
 describe(moment.name, () => {
-  describe("default behavior", () => {
-    it("should format date to JSON without the timezone", () => {
-      const date = moment("2021-06-17T13:43:56.111Z");
-      const formattedDate = date.toJSON();
-      expect(formattedDate).toBe("2021-06-17T13:43:56.111Z");
-    });
-
-    it("should format date to ISO without the timezone", () => {
-      const date = moment("2021-06-17T13:43:56.111Z");
-      const formattedDate = date.toISOString();
-      expect(formattedDate).toBe("2021-06-17T13:43:56.111Z");
-    });
-  });
-
   describe(alterMoment.name, () => {
     beforeAll(() => {
       alterMoment();

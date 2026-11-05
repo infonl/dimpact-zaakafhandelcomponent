@@ -48,6 +48,12 @@ export enum StaleTimes {
   Instant = 0,
 }
 
+/** Refetches on every use and drops the data as soon as nothing observes it. */
+export const LOAD_PER_VISIT = {
+  staleTime: StaleTimes.Instant,
+  gcTime: 0,
+} as const;
+
 @Injectable({
   providedIn: "root",
 })

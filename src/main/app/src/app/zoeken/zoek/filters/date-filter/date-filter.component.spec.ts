@@ -18,12 +18,12 @@ import { DateFilterComponent } from "./date-filter.component";
 type DatumRange = GeneratedType<"RestDatumRange">;
 
 const LABEL = "fakeDatumLabel";
-const JANUARY_15 = new Date(2026, 0, 15).toISOString();
-const MARCH_31 = new Date(2026, 2, 31).toISOString();
+const JANUARY_15 = "2026-01-15T00:00:00.000Z";
+const MARCH_31 = "2026-03-31T00:00:00.000Z";
 const TYPED_JUNE_1 = "2026-06-01";
-const JUNE_1 = new Date(TYPED_JUNE_1).toISOString();
+const JUNE_1 = "2026-06-01T00:00:00.000Z";
 const TYPED_DECEMBER_31 = "2026-12-31";
-const DECEMBER_31 = new Date(TYPED_DECEMBER_31).toISOString();
+const DECEMBER_31 = "2026-12-31T00:00:00.000Z";
 
 describe(DateFilterComponent.name, () => {
   let fixture: ComponentFixture<DateFilterComponent>;
