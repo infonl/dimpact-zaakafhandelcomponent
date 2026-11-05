@@ -19,6 +19,7 @@ import nl.info.zac.itest.client.OpenZaakClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.createZaakAndRetrieve
 import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_31
@@ -448,6 +449,56 @@ class SignaleringRestServiceTest : BehaviorSpec({
             then("it is on again") {
                 response.code shouldBe HTTP_OK
                 readTaakAfgerondInstellingen().getBoolean("isMailEnabled") shouldBe true
+            }
+        }
+    }
+
+    given("A logged-in beheerder and a group that has not changed its signalering instellingen") {
+        val groupInstellingenUrl = "$ZAC_API_URI/signaleringen/group/${GROUP_BEHANDELAARS_TEST_1.name}/instellingen"
+
+        fun readGroupInstellingen() =
+            itestHttpClient.performGetRequest(url = groupInstellingenUrl, testUser = BEHEERDER_1).run {
+                code shouldBe HTTP_OK
+                JSONArray(bodyAsString).let { instellingen ->
+                    (0 until instellingen.length()).map(instellingen::getJSONObject)
+                }
+            }
+
+        fun updateGroupZaakOpNaamMail(isMailEnabled: Boolean) =
+            itestHttpClient.performPutRequest(
+                url = groupInstellingenUrl,
+                headers = Headers.headersOf("Content-Type", "application/json"),
+                requestBodyAsString = """{"isMailEnabled":$isMailEnabled,"subjecttype":"ZAAK","type":"ZAAK_OP_NAAM"}""",
+                testUser = BEHEERDER_1
+            )
+
+        `when`("the signalering instellingen of the group are requested") {
+            val groupInstellingen = readGroupInstellingen()
+
+            then("only the zaak op naam signalering is returned, not mailed and without a dashboard option") {
+                with(groupInstellingen.single()) {
+                    getString("type") shouldBe "ZAAK_OP_NAAM"
+                    getBoolean("isMailEnabled") shouldBe false
+                    isNull("isDashboardEnabled") shouldBe true
+                }
+            }
+        }
+
+        `when`("the mail of the zaak op naam signalering of the group is turned on") {
+            val response = updateGroupZaakOpNaamMail(isMailEnabled = true)
+
+            then("it stays on") {
+                response.code shouldBe HTTP_OK
+                readGroupInstellingen().single().getBoolean("isMailEnabled") shouldBe true
+            }
+        }
+
+        `when`("the mail of the zaak op naam signalering of the group is turned off again") {
+            val response = updateGroupZaakOpNaamMail(isMailEnabled = false)
+
+            then("it is off again") {
+                response.code shouldBe HTTP_OK
+                readGroupInstellingen().single().getBoolean("isMailEnabled") shouldBe false
             }
         }
     }
