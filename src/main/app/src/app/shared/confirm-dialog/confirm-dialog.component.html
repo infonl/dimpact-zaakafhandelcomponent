@@ -4,8 +4,15 @@
   -->
 
 <mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  @if (data.opties.icon) {
+    <mat-icon>{{ data.opties.icon }}</mat-icon>
+  }
   <span class="flex-grow-1">
-    {{ "actie.bevestig" | translate }}
+    @if (data.opties.titel; as titel) {
+      {{ titel.key | translate: titel.args }}
+    } @else {
+      {{ "actie.bevestig" | translate }}
+    }
   </span>
   <button mat-icon-button (click)="cancel()">
     <mat-icon>close</mat-icon>
@@ -33,7 +40,7 @@
         <mat-spinner diameter="18"></mat-spinner>
       </mat-icon>
     }
-    {{ "actie.ja" | translate }}
+    {{ data.opties.bevestigLabel ?? "actie.ja" | translate }}
   </button>
   <button
     id="cancelButton"
@@ -41,6 +48,6 @@
     [disabled]="loading()"
     (click)="cancel()"
   >
-    {{ "actie.nee" | translate }}
+    {{ data.opties.annuleerLabel ?? "actie.nee" | translate }}
   </button>
 </div>

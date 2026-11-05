@@ -3,9 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { SelectionModel } from "@angular/cdk/collections";
 import {
   AfterViewInit,
   Component,
+  computed,
   EventEmitter,
   inject,
   OnDestroy,
@@ -13,7 +15,14 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { MatIconAnchor, MatIconButton } from "@angular/material/button";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { MatBadge } from "@angular/material/badge";
+import {
+  MatButton,
+  MatIconAnchor,
+  MatIconButton,
+} from "@angular/material/button";
+import { MatCheckbox } from "@angular/material/checkbox";
 import { MatDialog } from "@angular/material/dialog";
 import { MatFormField } from "@angular/material/form-field";
 import { MatIcon } from "@angular/material/icon";
@@ -40,8 +49,9 @@ import {
 } from "@angular/material/table";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
+import { injectIsMutating } from "@tanstack/angular-query-experimental";
 import { merge } from "rxjs";
-import { startWith, switchMap, tap } from "rxjs/operators";
+import { map, startWith, switchMap, tap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
@@ -91,8 +101,11 @@ import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service"
     MatSort,
     MatSortHeader,
     MatPaginator,
+    MatButton,
     MatIconButton,
     MatIconAnchor,
+    MatCheckbox,
+    MatBadge,
     MatIcon,
     MatFormField,
     MatSelect,
@@ -128,7 +141,7 @@ export class OntkoppeldeDocumentenListComponent
   readonly sort = viewChild.required(MatSort);
   readonly actionsSidenav = viewChild.required<MatDrawer>("actionsSidenav");
 
-  protected readonly displayedColumns = [
+  private readonly dataColumns = [
     "titel",
     "creatiedatum",
     "zaakID",
@@ -137,7 +150,7 @@ export class OntkoppeldeDocumentenListComponent
     "reden",
     "actions",
   ] as const;
-  protected readonly filterColumns = [
+  private readonly dataFilterColumns = [
     "titel_filter",
     "creatiedatum_filter",
     "zaakID_filter",
@@ -146,6 +159,14 @@ export class OntkoppeldeDocumentenListComponent
     "reden_filter",
     "actions_filter",
   ] as const;
+  protected get displayedColumns() {
+    return this.canSelect ? ["select", ...this.dataColumns] : this.dataColumns;
+  }
+  protected get filterColumns() {
+    return this.canSelect
+      ? ["select_filter", ...this.dataFilterColumns]
+      : this.dataFilterColumns;
+  }
   protected listParameters: PutBody<"/rest/ontkoppeldedocumenten"> = {};
   protected readonly listParametersSort: {
     sort: keyof PutBody<"/rest/ontkoppeldedocumenten">;
@@ -163,12 +184,45 @@ export class OntkoppeldeDocumentenListComponent
   protected clearZoekopdracht = new EventEmitter<void>();
   protected readonly selectedInformationObject =
     signal<GeneratedType<"RestDetachedDocument"> | null>(null);
+  protected readonly selection = new SelectionModel<
+    GeneratedType<"RestDetachedDocument">
+  >(true, []);
+  private readonly selectedDetachedDocuments = toSignal(
+    this.selection.changed.pipe(map(({ source }) => source.selected)),
+    { initialValue: [] },
+  );
+  protected readonly isSelected = computed(
+    () => this.selectedDetachedDocuments().length > 0,
+  );
+  protected readonly selectedCount = computed(
+    () => this.selectedDetachedDocuments().length,
+  );
+  protected readonly selectedDocumentsToLink = signal<
+    GeneratedType<"RestDetachedDocument">[]
+  >([]);
+  private idsToKeepSelected = new Set<number>();
   private readonly deleteMutation = injectMutation(
     () => this.ontkoppeldeDocumentenService.delete(),
     {
       onSuccess: () => this.filterChange.emit(),
     },
   );
+  private readonly deleteOntkoppeldeDocumentenMutation = injectMutation(() =>
+    this.ontkoppeldeDocumentenService.deleteOntkoppeldeDocumenten(),
+  );
+  private readonly runningBulkActions = injectIsMutating({
+    predicate: ({ options }) =>
+      String(options.mutationKey?.[0]).startsWith(
+        "/rest/ontkoppeldedocumenten/lijst/",
+      ),
+  });
+  protected readonly isBulkActionRunning = computed(
+    () => this.runningBulkActions() > 0,
+  );
+
+  protected get canSelect() {
+    return !!this.werklijstRechten()?.canOntkoppeldeDocumentenVerwijderen;
+  }
 
   ngOnInit() {
     super.ngOnInit();
@@ -188,6 +242,7 @@ export class OntkoppeldeDocumentenListComponent
       .pipe(
         startWith({}),
         switchMap(() => {
+          this.selection.clear();
           this.isLoadingResults.set(true);
           this.utilService.setLoading(true);
           this.updateListParameters();
@@ -202,8 +257,16 @@ export class OntkoppeldeDocumentenListComponent
         tap({ next: stopLoading, error: stopLoading }),
       )
       .subscribe((data) => {
-        this.paginator().length = data.totaal ?? 0;
-        this.totaal.set(data.totaal ?? 0);
+        const totaal = data.totaal ?? 0;
+        const { pageIndex, pageSize } = this.paginator();
+        const lastPageIndex = Math.max(Math.ceil(totaal / pageSize) - 1, 0);
+        if (pageSize > 0 && pageIndex > lastPageIndex) {
+          this.paginator().pageIndex = lastPageIndex;
+          this.filterChange.emit();
+          return;
+        }
+        this.paginator().length = totaal;
+        this.totaal.set(totaal);
         this.filterOntkoppeldDoor.set(
           data.resultaten?.map(
             (result: GeneratedType<"RestDetachedDocument">) =>
@@ -211,12 +274,19 @@ export class OntkoppeldeDocumentenListComponent
           ) ?? [],
         );
         this.dataSource.data = data.resultaten ?? [];
+        this.selection.setSelection(
+          ...this.dataSource.data.filter(({ id }) =>
+            this.idsToKeepSelected.has(id!),
+          ),
+        );
+        this.idsToKeepSelected.clear();
       });
   }
 
   protected openDrawer(
     selectedInformationObject: GeneratedType<"RestDetachedDocument">,
   ) {
+    this.selectedDocumentsToLink.set([]);
     this.selectedInformationObject.set(selectedInformationObject);
     void this.actionsSidenav().open();
   }
@@ -257,6 +327,90 @@ export class OntkoppeldeDocumentenListComponent
       });
   }
 
+  protected isRowSelected(row: GeneratedType<"RestDetachedDocument">) {
+    return this.selectedDetachedDocuments().includes(row);
+  }
+
+  protected isAllSelected() {
+    return (
+      this.dataSource.data.length > 0 &&
+      this.selectedCount() === this.dataSource.data.length
+    );
+  }
+
+  protected masterToggle() {
+    if (this.isAllSelected()) {
+      this.selection.clear();
+      return;
+    }
+
+    this.selection.select(...this.dataSource.data);
+  }
+
+  protected checkboxLabel(
+    detachedDocument?: GeneratedType<"RestDetachedDocument">,
+  ) {
+    if (!detachedDocument) {
+      return `actie.alles.${this.isAllSelected() ? "deselecteren" : "selecteren"}`;
+    }
+
+    return `actie.${this.isRowSelected(detachedDocument) ? "deselecteren" : "selecteren"}`;
+  }
+
+  protected documentenVerwijderen() {
+    const selectedDocuments = [...this.selection.selected];
+    const ids = selectedDocuments.map(({ id }) => id!);
+    const enkelvoud = ids.length === 1 ? ".enkelvoud" : "";
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: new ConfirmDialogData(
+          {
+            key: `msg.ontkoppelde-documenten.bulk.verwijderen.bevestigen${enkelvoud}`,
+            args: { aantal: ids.length },
+          },
+          undefined,
+          undefined,
+          {
+            titel: {
+              key: `msg.ontkoppelde-documenten.bulk.verwijderen.titel${enkelvoud}`,
+              args: { aantal: ids.length },
+            },
+            icon: "delete",
+            bevestigLabel: "actie.verwijderen",
+            annuleerLabel: "actie.annuleren",
+          },
+        ),
+      })
+      .afterClosed()
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+
+        this.deleteOntkoppeldeDocumentenMutation.mutate(
+          { ids },
+          {
+            onSuccess: (result) => {
+              this.ontkoppeldeDocumentenService.reportBulkResult(
+                result,
+                "verwijderen",
+                selectedDocuments,
+              );
+              this.reloadKeepingSelected(
+                result.mislukt?.map(({ id }) => id!) ?? [],
+              );
+            },
+            onError: () => this.reloadKeepingSelected(ids),
+          },
+        );
+      });
+  }
+
+  protected documentenKoppelen() {
+    const selectedDocuments = [...this.selection.selected];
+    this.selectedDocumentsToLink.set(selectedDocuments);
+    this.selectedInformationObject.set(selectedDocuments[0]);
+    void this.actionsSidenav().open();
+  }
+
   protected filtersChanged() {
     this.paginator().pageIndex = 0;
     this.clearZoekopdracht.emit();
@@ -288,6 +442,11 @@ export class OntkoppeldeDocumentenListComponent
     } else {
       this.filterChange.emit();
     }
+  }
+
+  protected reloadKeepingSelected(ids: number[]) {
+    this.idsToKeepSelected = new Set(ids);
+    this.filterChange.emit();
   }
 
   protected retriggerSearch() {

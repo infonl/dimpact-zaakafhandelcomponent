@@ -17,16 +17,16 @@ upstreamCharts:
     version: 1.11.0
   openobject:
     repository: https://maykinmedia.github.io/charts/
-    version: 1.2.0
+    version: 1.1.1
   opennotificaties:
     repository: https://maykinmedia.github.io/charts/
     version: 2.1.0
   openarchiefbeheer:
     repository: https://maykinmedia.github.io/charts/
-    version: 2.1.0
+    version: 2.0.0
   openforms:
     repository: https://maykinmedia.github.io/charts/
-    version: 1.13.0
+    version: 1.12.0
 
 openzaak:
   image: openzaak/open-zaak:1.31.1@sha256:63448221142145b0f56eabadaa9ef9578dd4aacc7f95476bd5368f767883ada0
@@ -134,7 +134,7 @@ pabc:
     ZgwZaakregister__CatalogusDomein: ALG
 
 solr:
-  image: solr:9.11.0-slim@sha256:5bc07412dffc1198ff6ace3587e09f8eea2126f821109a849506f4541b228aca
+  image: solr:9.11.0-slim@sha256:54cec2ced0f2c26436605a7dd5dde5ae78f26d5c0d19a7358349d5cb71fdfc1a
 
 opa:
   # -- keep in sync with the OPA of charts/zac

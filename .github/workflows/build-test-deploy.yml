@@ -225,7 +225,7 @@ jobs:
         run: echo "ZAC_DOCKER_IMAGE=${{ env.CONTAINER_REGISTRY_URL }}/${{ env.APPLICATION_NAME }}:${{ steps.gen_build_number.outputs.BUILD_NUMBER }}" >> $GITHUB_OUTPUT
 
       - name: Setup JDK
-        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
@@ -302,7 +302,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Setup JDK
-        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
@@ -499,7 +499,7 @@ jobs:
       GIT_COMMIT_HASH: ${{ github.sha }}
       NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
       KIND_VERSION: v0.33.0 # kind version updated by renovate
-      KUBECTL_VERSION: v1.37.2 # kubectl version updated by renovate
+      KUBECTL_VERSION: v1.35.10 # kubectl version updated by renovate
       ZAC_ITEST_KIND_CLUSTER_NAME: zac-itest
       # the runner is thrown away after the job, and the steps below that run on a failure need the cluster
       ZAC_ITEST_KEEP_STACK: "true"
@@ -555,7 +555,7 @@ jobs:
             < /dev/null > /dev/null 2>&1 &
 
       - name: Setup JDK
-        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'

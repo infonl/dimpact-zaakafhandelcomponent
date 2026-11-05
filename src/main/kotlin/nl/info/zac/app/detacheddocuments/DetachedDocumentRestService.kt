@@ -6,6 +6,7 @@ package nl.info.zac.app.detacheddocuments
 
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import jakarta.validation.Valid
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.PUT
@@ -14,25 +15,25 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import nl.info.client.zgw.drc.DrcClientService
-import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
-import nl.info.client.zgw.shared.exception.ZgwErrorException
 import nl.info.client.zgw.util.extractUuid
-import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.detacheddocuments.converter.RestDetachedDocumentConverter
 import nl.info.zac.app.detacheddocuments.converter.toDetachedDocumentListParameters
+import nl.info.zac.app.detacheddocuments.converter.toRestDetachedDocumentBulkResult
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocument
+import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentBulkDeleteRequest
+import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentBulkLinkRequest
+import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentBulkResult
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentResult
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.shared.RestResultaat
+import nl.info.zac.document.detacheddocument.DetachedDocumentBulkService
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.SearchService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import org.eclipse.jetty.http.HttpStatus
-import java.util.logging.Logger
 
 @Singleton
 @Path("ontkoppeldedocumenten")
@@ -42,17 +43,13 @@ import java.util.logging.Logger
 @NoArgConstructor
 class DetachedDocumentRestService @Inject constructor(
     private val detachedDocumentService: DetachedDocumentService,
+    private val detachedDocumentBulkService: DetachedDocumentBulkService,
     private val drcClientService: DrcClientService,
-    private val zrcClientService: ZrcClientService,
     private val restDetachedDocumentConverter: RestDetachedDocumentConverter,
     private val userConverter: RestUserConverter,
     private val policyService: PolicyService,
     private val searchService: SearchService
 ) {
-    companion object {
-        private val LOG = Logger.getLogger(DetachedDocumentRestService::class.java.name)
-    }
-
     @PUT
     @Path("")
     fun listDetachedDocuments(
@@ -95,25 +92,23 @@ class DetachedDocumentRestService @Inject constructor(
     @Path("{id}")
     fun deleteDetachedDocument(@PathParam("id") id: Long) {
         assertPolicy(policyService.readWerklijstRechten().canOntkoppeldeDocumentenVerwijderen)
-        val detachedDocument = detachedDocumentService.find(id) ?: return
-        var enkelvoudigInformatieobject: EnkelvoudigInformatieObject? = null
-        val documentUUID = detachedDocument.documentUUID
-        try {
-            enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(documentUUID)
-        } catch (zgwErrorException: ZgwErrorException) {
-            if (zgwErrorException.zgwError.status != HttpStatus.NOT_FOUND_404) {
-                throw zgwErrorException
-            }
-            LOG.info("Document met UUID '$documentUUID' wel gevonden in de database, maar niet in OpenZaak")
-        }
-        enkelvoudigInformatieobject?.let { informatieobject ->
-            val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(informatieobject)
-            if (zaakInformatieobjecten.isNotEmpty()) {
-                val zaakUuid = zaakInformatieobjecten.first().zaak.extractUuid()
-                error("Informatieobject is gekoppeld aan zaak '$zaakUuid'")
-            }
-            drcClientService.deleteEnkelvoudigInformatieobject(documentUUID)
-        }
-        detachedDocumentService.deleteIfExists(id)
+        detachedDocumentBulkService.delete(id)
+    }
+
+    @PUT
+    @Path("lijst/verwijderen")
+    fun deleteDetachedDocuments(
+        @Valid request: RestDetachedDocumentBulkDeleteRequest
+    ): RestDetachedDocumentBulkResult {
+        assertPolicy(policyService.readWerklijstRechten().canOntkoppeldeDocumentenVerwijderen)
+        return detachedDocumentBulkService.deleteInBulk(request.ids).toRestDetachedDocumentBulkResult()
+    }
+
+    @PUT
+    @Path("lijst/koppelen")
+    fun linkDetachedDocuments(@Valid request: RestDetachedDocumentBulkLinkRequest): RestDetachedDocumentBulkResult {
+        assertPolicy(policyService.readWerklijstRechten().canInbox)
+        return detachedDocumentBulkService.linkInBulk(request.ids, request.nieuweZaakID)
+            .toRestDetachedDocumentBulkResult()
     }
 }
