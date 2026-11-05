@@ -602,6 +602,29 @@ class BrpClientServiceTest : BehaviorSpec({
             }
         }
     }
+
+    given("A person for a given BSN and BRP logging switched off with level OFF") {
+        val brpClientServiceWithLoggingOff = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = createBrpConfiguration(logLevel = Optional.of("OFF")),
+            zaaktypeConfigurationService = zaaktypeConfigurationService,
+            brpProtocolleringContext = BrpProtocolleringContext()
+        )
+        every { zaaktypeConfigurationService.findConfiguration(zaaktypeUuid) } returns createZaaktypeCmmnConfiguration()
+        every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
+            persons = listOf(createPersoon(bsn = "999990019"))
+        )
+
+        `when`("the person is retrieved") {
+            val logRecords = captureLogRecords {
+                brpClientServiceWithLoggingOff.retrievePersoon("999990019", zaaktypeUuid, "fakeTestUser")
+            }
+
+            then("the BRP query is not logged, because a record logged at level OFF would always pass") {
+                logRecords.map { it.message }.filter { it.startsWith("PersonenApi.personen()") } shouldBe emptyList()
+            }
+        }
+    }
 })
 
 private fun captureLogRecords(block: () -> Unit): List<LogRecord> {
