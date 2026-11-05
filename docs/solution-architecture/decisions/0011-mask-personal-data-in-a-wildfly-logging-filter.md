@@ -65,8 +65,9 @@ server before `configure-wildfly.cli` configures the filter.
 ### Confirmation
 
 The unit tests in `src/test/kotlin/nl/info/zac/logfilter` confirm what the filter masks. The unit tests of
-`BrpClientService` and `JsonLoggingFilter` confirm that they do not log dates of birth. Whether the server
-configuration attaches the filter to the log handlers is not checked automatically.
+`BrpClientService` and `JsonLoggingFilter` confirm that they do not log dates of birth. The integration test
+`LoggingTest` confirms, against the ZAC Docker image, that the console log handler uses the filter of the module, and
+that a BSN in the logged BRP traffic reaches the log masked to its last three digits, without the date of birth.
 
 ## Pros and Cons of the Options
 

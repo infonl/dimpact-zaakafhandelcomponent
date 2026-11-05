@@ -24,6 +24,7 @@ import kotlin.time.Duration.Companion.minutes
  * `scripts/kind/ports.json`, moved by the `KIND_PORT_OFFSET` and `KIND_PORT_<NAME>` environment variables as
  * `scripts/kind/up.sh` does.
  */
+@Suppress("TooManyFunctions")
 object ItestKindStack {
     private const val CLUSTER_NAME_ENV_VAR = "ZAC_ITEST_KIND_CLUSTER_NAME"
     private const val DEFAULT_CLUSTER_NAME = "zac-itest"
@@ -140,6 +141,27 @@ object ItestKindStack {
         "--tuples-only",
         "--command=$sql"
     )
+
+    /**
+     * Runs the WildFly CLI [command] in the ZAC container and returns its JSON result. The CLI logs in as the local user
+     * of the container, which needs no password. It runs without `_JAVA_OPTIONS`, the JVM options of ZAC, because those
+     * can start the JaCoCo agent on the port that the agent of ZAC already uses.
+     */
+    fun runZacCliCommand(command: String) = kubectl(
+        "exec",
+        "--namespace",
+        NAMESPACE,
+        "deployment/$ZAC_DEPLOYMENT",
+        "--container",
+        ZAC_CONTAINER,
+        "--",
+        "sh",
+        "-c",
+        // the bootable JAR unpacks the server in a directory with a random name
+        "env -u _JAVA_OPTIONS /tmp/wildfly-bootable-server*/bin/jboss-cli.sh --connect --output-json --command=\"\$1\"",
+        "sh",
+        command
+    ).let { JSONObject(it.substring(it.indexOf('{'))) }
 
     fun pods(): JSONArray =
         JSONObject(kubectl("get", "pods", "--namespace", NAMESPACE, "--output=json")).getJSONArray("items")
