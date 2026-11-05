@@ -18,6 +18,8 @@ and its consequences. See [ADR-0007](0007-record-architecture-decisions-in-git-a
 | [0008](0008-update-the-ui-without-waiting-for-notifications-on-zac-initiated-changes.md) | Update the UI without waiting for notifications on changes that ZAC initiates | accepted | ZAC sends screen events as soon as an external system confirms a change that ZAC initiated.            |
 | [0009](0009-use-jol-to-measure-the-memory-usage-of-the-ztc-caches.md)    | Use JOL to measure the memory usage of the ZTC caches                    | accepted | JOL measures the ZTC caches on the admin page; its use of `sun.misc.Unsafe` is an accepted risk.       |
 | [0010](0010-cache-read-only-data-in-a-request-scoped-bean.md)            | Cache data that a request only reads in a request-scoped bean            | accepted | A `@RequestScoped` bean may cache data that a request reads but does not change, inside HTTP requests. |
+| [0011](0011-publish-the-helm-chart-on-gh-pages-without-github-releases.md) | Publish the Helm chart on gh-pages without GitHub releases | proposed | The chart packages are on the `gh-pages` branch; publishing the chart creates no tag or release. |
+| [0012](0012-keep-only-release-tags-and-releases.md) | Keep only release tags and releases | proposed | Only sprint, hotfix and deployed releases are kept; a weekly check enforces it. |
 
 ## When to write an ADR
 
