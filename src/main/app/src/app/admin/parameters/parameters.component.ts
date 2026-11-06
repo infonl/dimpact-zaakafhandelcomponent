@@ -19,7 +19,6 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatSelectChange, MatSelectModule } from "@angular/material/select";
 import {
-  MatSidenav,
   MatSidenavContainer,
   MatSidenavModule,
 } from "@angular/material/sidenav";
@@ -75,8 +74,6 @@ export class ParametersComponent
 
   protected readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
-  protected readonly menuSidenav =
-    viewChild.required<MatSidenav>("menuSidenav");
   private readonly parametersSort =
     viewChild.required<MatSort>("parametersSort");
 
@@ -203,7 +200,6 @@ export class ParametersComponent
   }
 
   ngAfterViewInit() {
-    super.ngAfterViewInit();
     this.parameters.sortingDataAccessor = (item, property) => {
       switch (property) {
         case "omschrijving":

@@ -12,7 +12,6 @@ import {
 } from "@angular/animations";
 
 import {
-  AfterViewInit,
   Component,
   OnInit,
   computed,
@@ -28,7 +27,6 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import {
-  MatSidenav,
   MatSidenavContainer,
   MatSidenavModule,
 } from "@angular/material/sidenav";
@@ -81,10 +79,7 @@ import { MailtemplateKoppelingService } from "../mailtemplate-koppeling.service"
     ReadMoreComponent,
   ],
 })
-export class MailtemplatesComponent
-  extends AdminComponent
-  implements OnInit, AfterViewInit
-{
+export class MailtemplatesComponent extends AdminComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly mailtemplateBeheerService = inject(
     MailtemplateBeheerService,
@@ -95,8 +90,6 @@ export class MailtemplatesComponent
 
   protected readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
-  protected readonly menuSidenav =
-    viewChild.required<MatSidenav>("menuSidenav");
 
   private readonly mailtemplatesQuery = injectQuery(() =>
     this.mailtemplateBeheerService.listMailtemplates(),

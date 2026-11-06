@@ -4,7 +4,6 @@
  */
 
 import {
-  AfterViewInit,
   Component,
   computed,
   effect,
@@ -17,7 +16,6 @@ import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatCardModule } from "@angular/material/card";
 import { MatExpansionModule } from "@angular/material/expansion";
 import {
-  MatSidenav,
   MatSidenavContainer,
   MatSidenavModule,
 } from "@angular/material/sidenav";
@@ -52,10 +50,7 @@ import { mailSelectList } from "../model/mail-utils";
     ZacFormActions,
   ],
 })
-export class MailtemplateComponent
-  extends AdminComponent
-  implements AfterViewInit
-{
+export class MailtemplateComponent extends AdminComponent {
   private readonly mailTemplateBeheerService = inject(
     MailtemplateBeheerService,
   );
@@ -65,8 +60,6 @@ export class MailtemplateComponent
 
   protected readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
-  protected readonly menuSidenav =
-    viewChild.required<MatSidenav>("menuSidenav");
 
   protected form = this.formBuilder.group({
     mailTemplateNaam: this.formBuilder.control("", [Validators.required]),

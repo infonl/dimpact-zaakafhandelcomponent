@@ -27,7 +27,6 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import {
-  MatSidenav,
   MatSidenavContainer,
   MatSidenavModule,
 } from "@angular/material/sidenav";
@@ -88,8 +87,6 @@ export class InrichtingscheckComponent
 
   protected readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
-  protected readonly menuSidenav =
-    viewChild.required<MatSidenav>("menuSidenav");
   protected readonly versionLayout = VersionLayout;
   protected readonly rowOf = rowOf;
   protected dataSource: MatTableDataSource<

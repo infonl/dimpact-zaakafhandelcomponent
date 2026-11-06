@@ -3,18 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  AfterViewInit,
-  Component,
-  OnDestroy,
-  Signal,
-  signal,
-} from "@angular/core";
-import {
-  MatDrawerMode,
-  MatSidenav,
-  MatSidenavContainer,
-} from "@angular/material/sidenav";
+import { Component, OnDestroy, Signal, signal } from "@angular/core";
+import { MatDrawerMode, MatSidenavContainer } from "@angular/material/sidenav";
 import { Subscription } from "rxjs";
 import { SideNavUtil } from "../side-nav/side-nav.util";
 
@@ -22,17 +12,10 @@ import { SideNavUtil } from "../side-nav/side-nav.util";
   template: "",
   standalone: true,
 })
-export abstract class ViewComponent implements OnDestroy, AfterViewInit {
+export abstract class ViewComponent implements OnDestroy {
   protected abstract readonly sideNavContainer: Signal<MatSidenavContainer>;
-  protected abstract readonly menuSidenav: Signal<MatSidenav>;
   protected subscriptions$: Subscription[] = [];
   protected readonly sideNavMode = signal<MatDrawerMode>(SideNavUtil.getMode());
-
-  ngAfterViewInit(): void {
-    this.menuSidenav().openedStart.subscribe(() => {
-      this.sideNavContainer().hasBackdrop = false;
-    });
-  }
 
   protected menuModeChanged(mode: string): void {
     this.sideNavMode.set(mode as MatDrawerMode);

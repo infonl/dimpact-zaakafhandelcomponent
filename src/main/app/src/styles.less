@@ -80,8 +80,18 @@ mat-drawer-container {
   }
 }
 
-mat-drawer-container.over mat-drawer-content {
+mat-drawer-container.over > mat-drawer-content {
   margin-left: 67px;
+}
+
+// The actions panel has its own container inside the content of the menu container, so that the menu
+// never makes the page inert. The inner container takes over the page padding and the height.
+mat-drawer-container .mat-drawer-content:has(> .actions-sidenav-container) {
+  padding: 0;
+}
+
+mat-drawer-container.actions-sidenav-container {
+  height: 100%;
 }
 
 mat-sidenav-container {

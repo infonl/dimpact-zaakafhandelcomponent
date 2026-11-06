@@ -17,7 +17,6 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatSelectModule } from "@angular/material/select";
 import {
-  MatSidenav,
   MatSidenavContainer,
   MatSidenavModule,
 } from "@angular/material/sidenav";
@@ -60,8 +59,6 @@ export class GroepSignaleringenComponent
 
   protected readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
-  protected readonly menuSidenav =
-    viewChild.required<MatSidenav>("menuSidenav");
 
   protected readonly groepId = signal<string | undefined>(undefined);
   protected columns: string[] = ["subjecttype", "type", "dashboard", "mail"];

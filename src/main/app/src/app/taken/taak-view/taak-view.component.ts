@@ -23,7 +23,6 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import {
   MatDrawer,
-  MatSidenav,
   MatSidenavContainer,
   MatSidenavModule,
 } from "@angular/material/sidenav";
@@ -137,7 +136,6 @@ export class TaakViewComponent
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
   readonly actionsSidenav = viewChild.required<MatDrawer>("actionsSidenav");
-  readonly menuSidenav = viewChild.required<MatSidenav>("menuSidenav");
   readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
   readonly historieSort = viewChild<MatSort>("historieSort");

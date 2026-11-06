@@ -7,9 +7,9 @@
   class="inner-sidenav-container tablet-bottom-toolbar"
   #sideNavContainer
   [class]="sideNavMode()"
+  [hasBackdrop]="false"
 >
   <mat-drawer
-    #menuSidenav
     [mode]="sideNavMode()"
     position="start"
     opened="true"
@@ -22,286 +22,295 @@
       (activeItemChange)="activeSideAction.set($event)"
     ></zac-side-nav>
   </mat-drawer>
-  <mat-drawer
-    #actionsSidenav
-    mode="over"
-    position="end"
-    (closedStart)="activeSideAction.set(null)"
-  >
-    @switch (activeSideAction()) {
-      @case ("actie.taak.wijzigen") {
-        @if (taak(); as taak) {
-          <zac-taak-edit [sideNav]="actionsSidenav" [task]="taak" />
-        }
-      }
-      @case ("actie.document.maken") {
-        @if (zaak(); as zaak) {
-          <zac-informatie-object-create-attended
-            [sideNav]="actionsSidenav"
-            [zaak]="zaak"
-            [taak]="taak()"
-            [smartDocumentsGroupId]="smartDocumentsGroupId()"
-            [smartDocumentsTemplateId]="smartDocumentsTemplateId()"
-            (document)="documentCreated()"
-          ></zac-informatie-object-create-attended>
-        }
-      }
-      @case ("actie.document.verplaatsen") {
-        @if (zaak(); as zaak) {
-          <zac-informatie-object-link
-            actionLabel="actie.document.verplaatsen"
-            [infoObject]="documentToMove()"
-            [sideNav]="actionsSidenav"
-            [source]="zaak.identificatie"
-            (informationObjectLinked)="updateZaakDocumentList()"
-          />
-        }
-      }
-      @case ("actie.document.toevoegen") {
-        @if (taak(); as taak) {
-          <zac-informatie-object-add
-            [sideNav]="actionsSidenav"
-            [zaakUuid]="taak.zaakUuid"
-            [taakId]="taak.id"
-            (document)="updateTaakdocumenten($event)"
-          ></zac-informatie-object-add>
-        }
-      }
-    }
-  </mat-drawer>
   <mat-drawer-content>
-    <div class="flex-row flex-wrap gap-10">
-      <mat-card class="taak-formulier w50 flex">
-        <mat-card-content>
-          @if (formFields().length) {
-            <zac-composed-form
-              [form]="form"
-              [fields]="formFields()"
-              [readonly]="isReadonly()"
-              [loading]="isPending()"
-              [config]="_formConfig"
-              (formSubmitted)="onHardCodedFormSubmit($event, false)"
-              (formPartiallySubmitted)="onHardCodedFormSubmit($event, true)"
-            />
-          }
-          <div class="form">
-            <!-- @defer (when) fires only once; @if removes the old form when route.data emits a new taak -->
-            @defer (when formioFormulier()) {
-              @if (formioFormulier(); as formioFormulier) {
-                <zac-formio-wrapper
-                  [form]="formioFormulier"
-                  [zaak]="zaak()"
-                  [taak]="taak()"
-                  [readOnly]="isReadonly()"
-                  [submitPending]="isPending()"
-                  [submitFailed]="hasFailed()"
-                  (formSubmit)="onFormioFormSubmit($event)"
-                  (formChange)="onFormioFormChange($event)"
-                  (createDocument)="onDocumentCreate($event)"
-                ></zac-formio-wrapper>
-              }
-            } @loading {
-              <mat-progress-bar mode="query"></mat-progress-bar>
+    <mat-drawer-container class="actions-sidenav-container">
+      <mat-drawer
+        #actionsSidenav
+        mode="over"
+        position="end"
+        (closedStart)="activeSideAction.set(null)"
+      >
+        @switch (activeSideAction()) {
+          @case ("actie.taak.wijzigen") {
+            @if (taak(); as taak) {
+              <zac-taak-edit [sideNav]="actionsSidenav" [task]="taak" />
             }
-            @if (!formioFormulier() && !formFields().length) {
-              <mat-progress-bar mode="query"></mat-progress-bar>
+          }
+          @case ("actie.document.maken") {
+            @if (zaak(); as zaak) {
+              <zac-informatie-object-create-attended
+                [sideNav]="actionsSidenav"
+                [zaak]="zaak"
+                [taak]="taak()"
+                [smartDocumentsGroupId]="smartDocumentsGroupId()"
+                [smartDocumentsTemplateId]="smartDocumentsTemplateId()"
+                (document)="documentCreated()"
+              ></zac-informatie-object-create-attended>
+            }
+          }
+          @case ("actie.document.verplaatsen") {
+            @if (zaak(); as zaak) {
+              <zac-informatie-object-link
+                actionLabel="actie.document.verplaatsen"
+                [infoObject]="documentToMove()"
+                [sideNav]="actionsSidenav"
+                [source]="zaak.identificatie"
+                (informationObjectLinked)="updateZaakDocumentList()"
+              />
+            }
+          }
+          @case ("actie.document.toevoegen") {
+            @if (taak(); as taak) {
+              <zac-informatie-object-add
+                [sideNav]="actionsSidenav"
+                [zaakUuid]="taak.zaakUuid"
+                [taakId]="taak.id"
+                (document)="updateTaakdocumenten($event)"
+              ></zac-informatie-object-add>
+            }
+          }
+        }
+      </mat-drawer>
+      <mat-drawer-content>
+        <div class="flex-row flex-wrap gap-10">
+          <mat-card class="taak-formulier w50 flex">
+            <mat-card-content>
+              @if (formFields().length) {
+                <zac-composed-form
+                  [form]="form"
+                  [fields]="formFields()"
+                  [readonly]="isReadonly()"
+                  [loading]="isPending()"
+                  [config]="_formConfig"
+                  (formSubmitted)="onHardCodedFormSubmit($event, false)"
+                  (formPartiallySubmitted)="onHardCodedFormSubmit($event, true)"
+                />
+              }
+              <div class="form">
+                <!-- @defer (when) fires only once; @if removes the old form when route.data emits a new taak -->
+                @defer (when formioFormulier()) {
+                  @if (formioFormulier(); as formioFormulier) {
+                    <zac-formio-wrapper
+                      [form]="formioFormulier"
+                      [zaak]="zaak()"
+                      [taak]="taak()"
+                      [readOnly]="isReadonly()"
+                      [submitPending]="isPending()"
+                      [submitFailed]="hasFailed()"
+                      (formSubmit)="onFormioFormSubmit($event)"
+                      (formChange)="onFormioFormChange($event)"
+                      (createDocument)="onDocumentCreate($event)"
+                    ></zac-formio-wrapper>
+                  }
+                } @loading {
+                  <mat-progress-bar mode="query"></mat-progress-bar>
+                }
+                @if (!formioFormulier() && !formFields().length) {
+                  <mat-progress-bar mode="query"></mat-progress-bar>
+                }
+              </div>
+            </mat-card-content>
+          </mat-card>
+          <div class="flex-col flex w50">
+            <mat-card class="taak-card">
+              <mat-card-header>
+                <mat-card-title>{{ "taak" | translate }}</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <mat-tab-group mat-stretch-tabs="false">
+                  <mat-tab label="{{ 'gegevens.algemeen' | translate }}">
+                    <div
+                      class="content flex flex-row flex-wrap justify-start gap-10"
+                    >
+                      <zac-static-text
+                        label="naam"
+                        [value]="taak()?.naam"
+                        class="flex-item"
+                      />
+                      <zac-static-text
+                        label="taak.status"
+                        [value]="
+                          'taak.status.' + taak()?.status | i18nKey | translate
+                        "
+                        class="flex-item"
+                      />
+                    </div>
+                    <div
+                      class="content flex flex-row flex-wrap justify-start gap-10"
+                    >
+                      <zac-static-text
+                        label="creatiedatum"
+                        [value]="taak()?.creatiedatumTijd | datum"
+                        class="flex-item"
+                      />
+                      <zac-static-text
+                        label="fataledatum"
+                        [value]="taak()?.fataledatum | datum"
+                        [icon]="fataledatumIcon()"
+                        class="flex-item"
+                      />
+                    </div>
+                    <mat-divider
+                      class="mat-divider-wrapper full-width"
+                    ></mat-divider>
+                    <div
+                      class="content flex flex-row flex-wrap justify-start gap-10"
+                    >
+                      <zac-static-text
+                        label="groep"
+                        [value]="taak()?.groep?.naam"
+                        class="flex-item"
+                      >
+                        @if (taak()?.groep?.isActive === false) {
+                          <em position="content-after" class="inactive-label"
+                            >({{ "inactief" | translate | lowercase }})</em
+                          >
+                        }
+                      </zac-static-text>
+
+                      <zac-static-text
+                        label="behandelaar"
+                        [value]="taak()?.behandelaar?.naam"
+                        class="flex-item"
+                      />
+                      @if (
+                        taak()?.zaaktypeUUID &&
+                        taak()?.status !== "AFGEROND" &&
+                        taak()?.rechten?.canToekennen
+                      ) {
+                        <button
+                          mat-icon-button
+                          (click)="editTaak()"
+                          [disabled]="!taak()"
+                        >
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                      }
+                    </div>
+                  </mat-tab>
+                  <mat-tab label="{{ 'historie' | translate }}">
+                    <div
+                      id="historie_tab"
+                      class="table-wrapper historie-table taak-formulier"
+                    >
+                      <table
+                        mat-table
+                        [dataSource]="historieSrc"
+                        matSort
+                        #historieSort="matSort"
+                        matSortActive="datum"
+                        matSortDirection="desc"
+                      >
+                        <ng-container matColumnDef="datum">
+                          <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                            {{ "datum" | translate }}
+                          </th>
+                          <td *matCellDef="let regel" mat-cell>
+                            <div
+                              matTooltip="{{
+                                regel.datumTijd | datum: 'short'
+                              }}"
+                            >
+                              {{ regel.datumTijd | datum | empty }}
+                            </div>
+                          </td>
+                        </ng-container>
+                        <ng-container matColumnDef="wijziging">
+                          <th mat-header-cell *matHeaderCellDef>
+                            {{ "wijziging" | translate }}
+                          </th>
+                          <td mat-cell *matCellDef="let regel">
+                            <read-more
+                              [text]="regel.attribuutLabel | i18nLabel"
+                              [maxLength]="20"
+                            ></read-more>
+                          </td>
+                        </ng-container>
+                        <ng-container matColumnDef="oudeWaarde">
+                          <th mat-header-cell *matHeaderCellDef>
+                            {{ "waarde.oud" | translate }}
+                          </th>
+                          <td mat-cell *matCellDef="let regel">
+                            <read-more
+                              [text]="
+                                regel.oudeWaarde | empty | mimetypeToExtension
+                              "
+                              [maxLength]="20"
+                            ></read-more>
+                          </td>
+                        </ng-container>
+                        <ng-container matColumnDef="nieuweWaarde">
+                          <th mat-header-cell *matHeaderCellDef>
+                            {{ "waarde.nieuw" | translate }}
+                          </th>
+                          <td mat-cell *matCellDef="let regel">
+                            <read-more
+                              [text]="
+                                regel.nieuweWaarde | empty | mimetypeToExtension
+                              "
+                              [maxLength]="20"
+                            ></read-more>
+                          </td>
+                        </ng-container>
+                        <ng-container matColumnDef="toelichting">
+                          <th mat-header-cell *matHeaderCellDef>
+                            {{ "waarde.toelichting" | translate }}
+                          </th>
+                          <td mat-cell *matCellDef="let regel">
+                            <read-more
+                              [text]="regel.toelichting | empty"
+                              [maxLength]="20"
+                            ></read-more>
+                          </td>
+                        </ng-container>
+                        <tr
+                          mat-header-row
+                          *matHeaderRowDef="historieColumns; sticky: true"
+                        ></tr>
+                        <tr
+                          mat-row
+                          *matRowDef="let row; columns: historieColumns"
+                        ></tr>
+                      </table>
+                      @if (historie().length === 0) {
+                        <p>
+                          {{ "msg.geen.gegevens.gevonden" | translate }}
+                        </p>
+                      }
+                    </div>
+                  </mat-tab>
+                </mat-tab-group>
+              </mat-card-content>
+            </mat-card>
+
+            @if (zaak(); as zaak) {
+              <zac-zaak-verkort
+                class="zaak-card"
+                [zaak]="zaak"
+              ></zac-zaak-verkort>
             }
           </div>
-        </mat-card-content>
-      </mat-card>
-      <div class="flex-col flex w50">
-        <mat-card class="taak-card">
-          <mat-card-header>
-            <mat-card-title>{{ "taak" | translate }}</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <mat-tab-group mat-stretch-tabs="false">
-              <mat-tab label="{{ 'gegevens.algemeen' | translate }}">
-                <div
-                  class="content flex flex-row flex-wrap justify-start gap-10"
-                >
-                  <zac-static-text
-                    label="naam"
-                    [value]="taak()?.naam"
-                    class="flex-item"
-                  />
-                  <zac-static-text
-                    label="taak.status"
-                    [value]="
-                      'taak.status.' + taak()?.status | i18nKey | translate
-                    "
-                    class="flex-item"
-                  />
-                </div>
-                <div
-                  class="content flex flex-row flex-wrap justify-start gap-10"
-                >
-                  <zac-static-text
-                    label="creatiedatum"
-                    [value]="taak()?.creatiedatumTijd | datum"
-                    class="flex-item"
-                  />
-                  <zac-static-text
-                    label="fataledatum"
-                    [value]="taak()?.fataledatum | datum"
-                    [icon]="fataledatumIcon()"
-                    class="flex-item"
-                  />
-                </div>
-                <mat-divider
-                  class="mat-divider-wrapper full-width"
-                ></mat-divider>
-                <div
-                  class="content flex flex-row flex-wrap justify-start gap-10"
-                >
-                  <zac-static-text
-                    label="groep"
-                    [value]="taak()?.groep?.naam"
-                    class="flex-item"
-                  >
-                    @if (taak()?.groep?.isActive === false) {
-                      <em position="content-after" class="inactive-label"
-                        >({{ "inactief" | translate | lowercase }})</em
-                      >
-                    }
-                  </zac-static-text>
-
-                  <zac-static-text
-                    label="behandelaar"
-                    [value]="taak()?.behandelaar?.naam"
-                    class="flex-item"
-                  />
-                  @if (
-                    taak()?.zaaktypeUUID &&
-                    taak()?.status !== "AFGEROND" &&
-                    taak()?.rechten?.canToekennen
-                  ) {
-                    <button
-                      mat-icon-button
-                      (click)="editTaak()"
-                      [disabled]="!taak()"
-                    >
-                      <mat-icon>edit</mat-icon>
-                    </button>
-                  }
-                </div>
-              </mat-tab>
-              <mat-tab label="{{ 'historie' | translate }}">
-                <div
-                  id="historie_tab"
-                  class="table-wrapper historie-table taak-formulier"
-                >
-                  <table
-                    mat-table
-                    [dataSource]="historieSrc"
-                    matSort
-                    #historieSort="matSort"
-                    matSortActive="datum"
-                    matSortDirection="desc"
-                  >
-                    <ng-container matColumnDef="datum">
-                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                        {{ "datum" | translate }}
-                      </th>
-                      <td *matCellDef="let regel" mat-cell>
-                        <div
-                          matTooltip="{{ regel.datumTijd | datum: 'short' }}"
-                        >
-                          {{ regel.datumTijd | datum | empty }}
-                        </div>
-                      </td>
-                    </ng-container>
-                    <ng-container matColumnDef="wijziging">
-                      <th mat-header-cell *matHeaderCellDef>
-                        {{ "wijziging" | translate }}
-                      </th>
-                      <td mat-cell *matCellDef="let regel">
-                        <read-more
-                          [text]="regel.attribuutLabel | i18nLabel"
-                          [maxLength]="20"
-                        ></read-more>
-                      </td>
-                    </ng-container>
-                    <ng-container matColumnDef="oudeWaarde">
-                      <th mat-header-cell *matHeaderCellDef>
-                        {{ "waarde.oud" | translate }}
-                      </th>
-                      <td mat-cell *matCellDef="let regel">
-                        <read-more
-                          [text]="
-                            regel.oudeWaarde | empty | mimetypeToExtension
-                          "
-                          [maxLength]="20"
-                        ></read-more>
-                      </td>
-                    </ng-container>
-                    <ng-container matColumnDef="nieuweWaarde">
-                      <th mat-header-cell *matHeaderCellDef>
-                        {{ "waarde.nieuw" | translate }}
-                      </th>
-                      <td mat-cell *matCellDef="let regel">
-                        <read-more
-                          [text]="
-                            regel.nieuweWaarde | empty | mimetypeToExtension
-                          "
-                          [maxLength]="20"
-                        ></read-more>
-                      </td>
-                    </ng-container>
-                    <ng-container matColumnDef="toelichting">
-                      <th mat-header-cell *matHeaderCellDef>
-                        {{ "waarde.toelichting" | translate }}
-                      </th>
-                      <td mat-cell *matCellDef="let regel">
-                        <read-more
-                          [text]="regel.toelichting | empty"
-                          [maxLength]="20"
-                        ></read-more>
-                      </td>
-                    </ng-container>
-                    <tr
-                      mat-header-row
-                      *matHeaderRowDef="historieColumns; sticky: true"
-                    ></tr>
-                    <tr
-                      mat-row
-                      *matRowDef="let row; columns: historieColumns"
-                    ></tr>
-                  </table>
-                  @if (historie().length === 0) {
-                    <p>
-                      {{ "msg.geen.gegevens.gevonden" | translate }}
-                    </p>
-                  }
-                </div>
-              </mat-tab>
-            </mat-tab-group>
-          </mat-card-content>
-        </mat-card>
-
-        @if (zaak(); as zaak) {
-          <zac-zaak-verkort class="zaak-card" [zaak]="zaak"></zac-zaak-verkort>
+        </div>
+        @if (initialized() && zaak()) {
+          <zac-zaak-documenten
+            #zaakDocumentenComponent
+            [zaak]="zaak()!"
+            (documentMoveToCase)="documentMoveToCase($event)"
+          ></zac-zaak-documenten>
         }
-      </div>
-    </div>
-    @if (initialized() && zaak()) {
-      <zac-zaak-documenten
-        #zaakDocumentenComponent
-        [zaak]="zaak()!"
-        (documentMoveToCase)="documentMoveToCase($event)"
-      ></zac-zaak-documenten>
-    }
-    @if (!initialized()) {
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{
-            "enkelvoudig-informatie-objecten" | translate
-          }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <mat-progress-bar mode="query"></mat-progress-bar>
-        </mat-card-content>
-      </mat-card>
-    }
+        @if (!initialized()) {
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>{{
+                "enkelvoudig-informatie-objecten" | translate
+              }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-progress-bar mode="query"></mat-progress-bar>
+            </mat-card-content>
+          </mat-card>
+        }
+      </mat-drawer-content>
+    </mat-drawer-container>
   </mat-drawer-content>
 </mat-drawer-container>

@@ -20,7 +20,6 @@ import { MatCardModule } from "@angular/material/card";
 import { MatDialog } from "@angular/material/dialog";
 import { MatIconModule } from "@angular/material/icon";
 import {
-  MatSidenav,
   MatSidenavContainer,
   MatSidenavModule,
 } from "@angular/material/sidenav";
@@ -77,7 +76,6 @@ export class BpmnProcessDefinitionsComponent
 {
   readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
-  readonly menuSidenav = viewChild.required<MatSidenav>("menuSidenav");
   readonly nodeRows = viewChildren(BpmnNodeRowDirective);
   readonly bpmnProcessDefinitionFileInput = viewChild.required<ElementRef>(
     "bpmnProcessDefinitionFileInput",
