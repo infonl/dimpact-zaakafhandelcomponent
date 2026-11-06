@@ -85,6 +85,7 @@ class HealthCheckRestService @Inject constructor(
             zaaktype = check.zaaktype.toRestZaaktypeOverzicht(),
             isBesluittypeAanwezig = check.isBesluittypeAanwezig,
             resultaattypesMetVerplichtBesluit = check.resultaattypesMetVerplichtBesluit,
+            resultaattypesMetNietOndersteundeBrondatum = check.resultaattypesMetNietOndersteundeBrondatum,
             isResultaattypeAanwezig = check.isResultaattypeAanwezig,
             isInformatieobjecttypeEmailAanwezig = check.isInformatieobjecttypeEmailAanwezig,
             aantalBehandelaarroltypen = check.aantalBehandelaarroltypen,

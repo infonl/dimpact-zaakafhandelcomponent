@@ -218,6 +218,13 @@
                             {{ "besluittype" | translate }}
                           </div>
                         }
+                        @if (
+                          row.resultaattypesMetNietOndersteundeBrondatum?.length
+                        ) {
+                          <div>
+                            {{ "resultaattype" | translate }}
+                          </div>
+                        }
                         @if (!row.isBrpInstellingenCorrect) {
                           <div>
                             {{ "brp-protocollering" | translate }}
@@ -379,6 +386,22 @@
                                   : {
                                       resultaattypes:
                                         row.resultaattypesMetVerplichtBesluit!.join(
+                                          ', '
+                                        ),
+                                    }
+                            "
+                          ></div>
+                        }
+                        @if (
+                          row.resultaattypesMetNietOndersteundeBrondatum?.length
+                        ) {
+                          <div
+                            [innerHTML]="
+                              'health-check.zaaktype.niet-ondersteunde-brondatum'
+                                | translate
+                                  : {
+                                      resultaattypes:
+                                        row.resultaattypesMetNietOndersteundeBrondatum!.join(
                                           ', '
                                         ),
                                     }

@@ -1104,6 +1104,7 @@
   "health-check.zaaktype.te-veel-rol-behandelaar-aanwezig": "Only one \"Behandelaar\" role type can exist",
   "health-check.zaaktype.geen-rol-overige-aanwezig": "In addition to the roles \"Behandelaar\" and \"Initiator\", at least one other role must be present",
   "health-check.zaaktype.geen-informatieobjecttype-email-aanwezig": "The required informationobject type \"E-mail\" does not exist",
+  "health-check.zaaktype.niet-ondersteunde-brondatum": "Result type(s) \"<b>{{resultaattypes}}</b>\" have a source date derivation method that ZAC does not support ('Other date attribute' or 'Case object')",
   "health-check.zaaktype.geen-besluittype-aanwezig": "Result type(s) \"<b>{{resultaattypes}}</b>\" require a decision type, but no decision type is found",
   "health-check.zaaktype.onjuiste-brp-headerwaarde": "Incorrect BRP header value",
   "health-check.zaaktype.status.valide": "The configuration of this case type is valid",

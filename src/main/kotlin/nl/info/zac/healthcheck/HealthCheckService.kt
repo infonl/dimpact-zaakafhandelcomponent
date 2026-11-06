@@ -11,8 +11,10 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
+import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum.ANDER_DATUMKENMERK
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum.INGANGSDATUM_BESLUIT
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum.VERVALDATUM_BESLUIT
+import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum.ZAAKOBJECT
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.ADVISEUR
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.BEHANDELAAR
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.BELANGHEBBENDE
@@ -155,6 +157,9 @@ class HealthCheckService @Inject constructor(
                 if (VERVALDATUM_BESLUIT == afleidingswijze || INGANGSDATUM_BESLUIT == afleidingswijze
                 ) {
                     zaaktypeInrichtingscheck.addResultaattypesMetVerplichtBesluit(it.omschrijving)
+                }
+                if (ANDER_DATUMKENMERK == afleidingswijze || ZAAKOBJECT == afleidingswijze) {
+                    zaaktypeInrichtingscheck.addResultaattypesMetNietOndersteundeBrondatum(it.omschrijving)
                 }
             }
         }
