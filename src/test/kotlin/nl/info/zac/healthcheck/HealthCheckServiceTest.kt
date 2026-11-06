@@ -451,6 +451,7 @@ class HealthCheckServiceTest : BehaviorSpec({
             val zaaktypeUuid = UUID.randomUUID()
             val zaaktypeUri = URI("https://example.com/zaaktype/$zaaktypeUuid")
             val referenceTableService = mockk<ReferenceTableService>()
+            val brpInstellingenCheck = mockk<BrpInstellingenCheck>()
             val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
             val ztcClientService = mockk<ZtcClientService>()
             val healthCheckService = HealthCheckService(
@@ -458,6 +459,7 @@ class HealthCheckServiceTest : BehaviorSpec({
                 commitHash = Optional.of("hash") as Optional<String?>,
                 versionNumber = Optional.of("0.0.0") as Optional<String?>,
                 referenceTableService = referenceTableService,
+                brpInstellingenCheck = brpInstellingenCheck,
                 zaaktypeConfigurationService = zaaktypeConfigurationService,
                 ztcClientService = ztcClientService
             )
@@ -508,15 +510,7 @@ class HealthCheckServiceTest : BehaviorSpec({
             every {
                 ztcClientService.findEigenschap(zaaktypeUri, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD)
             } returns null
-            every {
-                referenceTableService.readSystemReferenceTable(SystemReferenceTable.BRP_DOELBINDING_ZOEK_WAARDE)
-            } returns createReferenceTable()
-            every {
-                referenceTableService.readSystemReferenceTable(SystemReferenceTable.BRP_DOELBINDING_RAADPLEEG_WAARDE)
-            } returns createReferenceTable()
-            every {
-                referenceTableService.readSystemReferenceTable(SystemReferenceTable.BRP_VERWERKINGSREGISTER_WAARDE)
-            } returns createReferenceTable()
+            every { brpInstellingenCheck.isBrpInstellingenCorrect() } returns true
 
             `when`("controleerZaaktype is called") {
                 val zaaktypeInrichtingscheck = healthCheckService.controleerZaaktype(zaaktypeUri)

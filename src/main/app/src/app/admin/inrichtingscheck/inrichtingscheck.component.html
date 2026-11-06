@@ -218,7 +218,9 @@
                             {{ "besluittype" | translate }}
                           </div>
                         }
-                        @if (row.resultaattypesMetNietOndersteundeBrondatum?.length) {
+                        @if (
+                          row.resultaattypesMetNietOndersteundeBrondatum?.length
+                        ) {
                           <div>
                             {{ "resultaattype" | translate }}
                           </div>
@@ -390,7 +392,9 @@
                             "
                           ></div>
                         }
-                        @if (row.resultaattypesMetNietOndersteundeBrondatum?.length) {
+                        @if (
+                          row.resultaattypesMetNietOndersteundeBrondatum?.length
+                        ) {
                           <div
                             [innerHTML]="
                               'health-check.zaaktype.niet-ondersteunde-brondatum'
