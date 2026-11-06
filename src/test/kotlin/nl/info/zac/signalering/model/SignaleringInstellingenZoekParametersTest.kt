@@ -14,12 +14,12 @@ class SignaleringInstellingenZoekParametersTest : BehaviorSpec({
         isMail = true
     )
 
-    context("Matching signalering instellingen against search parameters") {
+    context("Matching signalering instellingen against the dashboard and mail filter of search parameters") {
         given("search parameters for an owner only") {
             val parameters = SignaleringInstellingenZoekParameters(SignaleringTarget.USER, "fakeMedewerker")
 
             `when`("instellingen are matched") {
-                val isMatch = parameters.matches(mailOnlyInstellingen)
+                val isMatch = parameters.matchesDashboardAndMail(mailOnlyInstellingen)
 
                 then("they match") {
                     isMatch shouldBe true
@@ -31,7 +31,7 @@ class SignaleringInstellingenZoekParametersTest : BehaviorSpec({
             val parameters = SignaleringInstellingenZoekParameters(SignaleringTarget.USER, "fakeMedewerker").mail()
 
             `when`("instellingen with mail on are matched") {
-                val isMatch = parameters.matches(mailOnlyInstellingen)
+                val isMatch = parameters.matchesDashboardAndMail(mailOnlyInstellingen)
 
                 then("they match") {
                     isMatch shouldBe true
@@ -43,7 +43,7 @@ class SignaleringInstellingenZoekParametersTest : BehaviorSpec({
             val parameters = SignaleringInstellingenZoekParameters(SignaleringTarget.USER, "fakeMedewerker").dashboard()
 
             `when`("instellingen with the dashboard off are matched") {
-                val isMatch = parameters.matches(mailOnlyInstellingen)
+                val isMatch = parameters.matchesDashboardAndMail(mailOnlyInstellingen)
 
                 then("they do not match") {
                     isMatch shouldBe false

@@ -415,7 +415,7 @@ class SignaleringService @Inject constructor(
                 }
             }
         return (storedInstellingen + defaultInstellingen)
-            .filter(parameters::matches)
+            .filter(parameters::matchesDashboardAndMail)
             .sortedBy { it.type }
     }
 
