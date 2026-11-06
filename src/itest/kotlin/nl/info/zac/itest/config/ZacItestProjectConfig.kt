@@ -81,11 +81,13 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_4_DESCRIPT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_4_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_4_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.ItestConfiguration.ZAC_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_DEFAULT_DOCKER_IMAGE
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_HEALTH_READY_URL
 import okhttp3.Headers
 import org.json.JSONObject
 import java.io.File
+import java.io.IOException
 import java.net.HttpURLConnection.HTTP_CREATED
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
@@ -192,6 +194,16 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                 response.code shouldBe HTTP_OK
                 JSONObject(response.bodyAsString).getString("status") shouldBe "UP"
             }
+        }
+        // The health check uses another port with its own Service, which can get the ready ZAC pod as its endpoint first
+        logger.info { "Waiting until the ZAC API port accepts requests" }
+        eventually(
+            eventuallyConfig {
+                duration = 30.seconds
+                expectedExceptions = setOf(IOException::class)
+            }
+        ) {
+            itestHttpClient.performGetRequest(url = ZAC_BASE_URI)
         }
         ItestTimingReport.markPhase(ItestTimingReport.PHASE_ZAC_HEALTHY)
         logger.info { "ZAC is healthy" }

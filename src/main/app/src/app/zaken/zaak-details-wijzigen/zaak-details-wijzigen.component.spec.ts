@@ -39,7 +39,7 @@ import { of } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { UtilService } from "src/app/core/service/util.service";
 import { fromPartial } from "src/test-helpers";
-import { sleep, testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient, waitUntil } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
 import { FormHelper } from "../../shared/form/helpers";
 import { ZacSelect } from "../../shared/form/select/select";
@@ -232,8 +232,9 @@ describe(CaseDetailsEditComponent.name, () => {
       httpTestingController
         .expectOne("/rest/referentietabellen/communicatiekanaal/false")
         .flush(["email", "telefoon"]);
-      await sleep(10);
-      await fixture.whenStable();
+      await waitUntil(
+        async () => (await communicationChannelOptions()).length > 0,
+      );
 
       expect(await communicationChannelOptions()).toEqual([
         "email",

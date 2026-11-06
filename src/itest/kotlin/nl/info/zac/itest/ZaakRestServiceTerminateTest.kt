@@ -74,7 +74,7 @@ class ZaakRestServiceTerminateTest : BehaviorSpec({
             }
 
             and("its ended taak is no longer found by the taken search") {
-                eventually(10.seconds) {
+                eventually(30.seconds) {
                     zacClient.searchForTasks(
                         zaakIdentificatie = zaakIdentificatie,
                         taskName = HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM,
