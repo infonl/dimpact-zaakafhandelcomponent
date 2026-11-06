@@ -16,6 +16,7 @@ import jakarta.persistence.criteria.Root
 import nl.info.zac.signalering.model.SignaleringInstellingen
 import nl.info.zac.signalering.model.SignaleringInstellingenZoekParameters
 import nl.info.zac.signalering.model.SignaleringTarget
+import nl.info.zac.signalering.model.SignaleringType
 
 class SignaleringPredicateHelperTest : BehaviorSpec({
     afterEach {
@@ -30,26 +31,41 @@ class SignaleringPredicateHelperTest : BehaviorSpec({
             val criteriaBuilder = mockk<CriteriaBuilder>()
             val root = mockk<Root<SignaleringInstellingen>>()
             val groepPath = mockk<Path<Any>>()
-            val dashboardPath = mockk<Path<Boolean>>()
-            val mailPath = mockk<Path<Boolean>>()
             val groepPredicate = mockk<Predicate>()
-            val dashboardPredicate = mockk<Predicate>()
-            val mailPredicate = mockk<Predicate>()
-            val wherePredicate = mockk<Predicate>()
             every { root.get<Any>("groep") } returns groepPath
-            every { root.get<Boolean>("isDashboard") } returns dashboardPath
-            every { root.get<Boolean>("isMail") } returns mailPath
             every { criteriaBuilder.equal(groepPath, "fakeGroupId") } returns groepPredicate
-            every { criteriaBuilder.isTrue(dashboardPath) } returns dashboardPredicate
-            every { criteriaBuilder.isTrue(mailPath) } returns mailPredicate
-            every {
-                criteriaBuilder.and(groepPredicate, dashboardPredicate, mailPredicate)
-            } returns wherePredicate
 
             `when`("the where predicate is created") {
                 val predicate = getSignaleringInstellingenWhere(parameters, criteriaBuilder, root)
 
-                then("it combines the group, dashboard and mail predicates") {
+                then("it only selects on the group, because dashboard and mail are applied after the defaults") {
+                    predicate shouldBe groepPredicate
+                }
+            }
+        }
+
+        given("search parameters for one type of the instellingen of a user") {
+            val parameters = SignaleringInstellingenZoekParameters(SignaleringTarget.USER, "fakeUsername")
+                .type(SignaleringType.Type.TAAK_AFGEROND)
+            val criteriaBuilder = mockk<CriteriaBuilder>()
+            val root = mockk<Root<SignaleringInstellingen>>()
+            val medewerkerPath = mockk<Path<Any>>()
+            val typePath = mockk<Path<Any>>()
+            val typeIdPath = mockk<Path<Any>>()
+            val medewerkerPredicate = mockk<Predicate>()
+            val typePredicate = mockk<Predicate>()
+            val wherePredicate = mockk<Predicate>()
+            every { root.get<Any>("medewerker") } returns medewerkerPath
+            every { root.get<Any>("type") } returns typePath
+            every { typePath.get<Any>("id") } returns typeIdPath
+            every { criteriaBuilder.equal(medewerkerPath, "fakeUsername") } returns medewerkerPredicate
+            every { criteriaBuilder.equal(typeIdPath, "TAAK_AFGEROND") } returns typePredicate
+            every { criteriaBuilder.and(medewerkerPredicate, typePredicate) } returns wherePredicate
+
+            `when`("the where predicate is created") {
+                val predicate = getSignaleringInstellingenWhere(parameters, criteriaBuilder, root)
+
+                then("it selects on the user and the type") {
                     predicate shouldBe wherePredicate
                 }
             }

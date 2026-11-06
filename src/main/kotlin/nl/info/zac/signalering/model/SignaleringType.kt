@@ -60,6 +60,10 @@ class SignaleringType : Comparable<SignaleringType> {
         TAAK_VERLOPEN("Taak verloopt", "Uw taak heeft de fatale datum bereikt.", USER) {
             // This one has no dashboard card
             override val isDashboard = false
+        },
+        TAAK_AFGEROND("Taak afgerond", "Een taak van uw zaak is afgerond.", USER) {
+            override val isDashboard = false
+            override val isMailDefault = true
         };
 
         private val targets: Set<SignaleringTarget> = targets.toSet()
@@ -69,6 +73,8 @@ class SignaleringType : Comparable<SignaleringType> {
         open val isDashboard = true
 
         val isMail = true
+
+        open val isMailDefault = false
     }
 
     override fun compareTo(other: SignaleringType): Int =

@@ -211,6 +211,23 @@ describe(OntkoppeldeDocumentenService.name, () => {
       );
     });
 
+    it("shows no success message when no document was processed", () => {
+      jest
+        .spyOn(TestBed.inject(MatDialog), "open")
+        .mockReturnValue(fromPartial<MatDialogRef<unknown>>({}));
+
+      service.reportBulkResult(
+        {
+          verwerkt: [],
+          mislukt: [{ id: 5, titel: "Vijfde", foutcode: "VERGRENDELD" }],
+        },
+        "verwijderen",
+        [],
+      );
+
+      expect(utilService.openSnackbar).not.toHaveBeenCalled();
+    });
+
     it("names a failed document without title after the selected document with the same id", () => {
       const open = jest
         .spyOn(TestBed.inject(MatDialog), "open")
@@ -235,6 +252,7 @@ describe(OntkoppeldeDocumentenService.name, () => {
         {
           data: {
             actie: "verwijderen",
+            nietsVerwerkt: true,
             mislukt: [{ id: 5, titel: "Vijfde", foutcode: "NIET_GEVONDEN" }],
           },
         },
@@ -281,7 +299,7 @@ describe(OntkoppeldeDocumentenService.name, () => {
 
       expect(open).toHaveBeenCalledWith(
         OntkoppeldeDocumentenBulkFoutenDialogComponent,
-        { data: { actie: "verwijderen", mislukt } },
+        { data: { actie: "verwijderen", nietsVerwerkt: false, mislukt } },
       );
     });
   });

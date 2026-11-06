@@ -147,7 +147,7 @@ class GebruikersvoorkeurenService @Inject constructor(
         card.signaleringType?.let { signaleringType ->
             signaleringService.readInstellingenUser(signaleringType, medewerkerId).let {
                 it.isDashboard = true
-                signaleringService.createUpdateOrDeleteInstellingen(it)
+                signaleringService.createOrUpdateInstellingen(it)
             }
         }
         if (card.id == null) {
@@ -160,7 +160,7 @@ class GebruikersvoorkeurenService @Inject constructor(
         card.signaleringType?.let { signaleringType ->
             signaleringService.readInstellingenUser(signaleringType, medewerkerId).let {
                 it.isDashboard = false
-                signaleringService.createUpdateOrDeleteInstellingen(it)
+                signaleringService.createOrUpdateInstellingen(it)
             }
         }
         card.id?.let {

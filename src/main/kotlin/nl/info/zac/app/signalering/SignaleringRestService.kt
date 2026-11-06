@@ -108,7 +108,7 @@ class SignaleringRestService @Inject constructor(
     @Path("/instellingen")
     fun listUserSignaleringInstellingen(): List<RestSignaleringInstellingen> =
         loggedInUserInstance.getSignaleringInstellingenZoekParameters()
-            .let(signaleringService::listInstellingenInclusiefMogelijke)
+            .let(signaleringService::listInstellingen)
             .let(restSignaleringInstellingenConverter::convert)
 
     @PUT
@@ -116,7 +116,7 @@ class SignaleringRestService @Inject constructor(
     fun updateUserSignaleringInstellingen(restInstellingen: RestSignaleringInstellingen) =
         loggedInUserInstance.get()
             .let { restSignaleringInstellingenConverter.convert(restInstellingen, it) }
-            .let(signaleringService::createUpdateOrDeleteInstellingen)
+            .let(signaleringService::createOrUpdateInstellingen)
 
     @GET
     @Path("group/{groupId}/instellingen")
@@ -127,7 +127,7 @@ class SignaleringRestService @Inject constructor(
         return SignaleringInstellingenZoekParameters(
             identityService.readGroup(groupId = groupId, logContext = "listing the signaleringinstellingen of the group")
         )
-            .let(signaleringService::listInstellingenInclusiefMogelijke)
+            .let(signaleringService::listInstellingen)
             .let(restSignaleringInstellingenConverter::convert)
     }
 
@@ -136,11 +136,11 @@ class SignaleringRestService @Inject constructor(
     fun updateGroupSignaleringInstellingen(
         @PathParam("groupId") groupId: String,
         restInstellingen: RestSignaleringInstellingen
-    ): SignaleringInstellingen? {
+    ): SignaleringInstellingen {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
         return identityService.readGroup(groupId = groupId, logContext = "updating the signaleringinstellingen of the group")
             .let { restSignaleringInstellingenConverter.convert(restInstellingen, it) }
-            .let(signaleringService::createUpdateOrDeleteInstellingen)
+            .let(signaleringService::createOrUpdateInstellingen)
     }
 
     @GET

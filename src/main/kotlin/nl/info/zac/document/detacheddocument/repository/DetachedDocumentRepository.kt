@@ -174,10 +174,9 @@ class DetachedDocumentRepository @Inject constructor(
         }
         dateRange.tot?.let {
             predicates.add(
-                builder.lessThanOrEqualTo(
+                builder.lessThan(
                     root.get(veld),
                     it.toZonedDateTime().plusDays(1)
-                        .minusSeconds(1)
                 )
             )
         }

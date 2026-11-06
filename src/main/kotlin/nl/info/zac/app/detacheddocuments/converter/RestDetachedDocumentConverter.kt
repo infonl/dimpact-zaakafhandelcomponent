@@ -21,7 +21,7 @@ class RestDetachedDocumentConverter @Inject constructor(
 ) {
     fun convertToRestDetachedDocument(
         detachedDocument: DetachedDocument,
-        informatieobjectTypeUUID: UUID,
+        informatieobjectTypeUUID: UUID?,
         isZaakspecifiekGeautoriseerd: Boolean
     ): RestDetachedDocument {
         val lock = lockService.findLock(detachedDocument.documentUUID)
@@ -43,13 +43,14 @@ class RestDetachedDocumentConverter @Inject constructor(
             ),
             ontkoppeldOp = detachedDocument.ontkoppeldOp,
             reden = detachedDocument.reden,
-            isVergrendeld = lock != null && lock.lock != null
+            isVergrendeld = lock != null && lock.lock != null,
+            isOntbreektInOpenZaak = informatieobjectTypeUUID == null
         )
     }
 
     fun convertToRestDetachedDocuments(
         documenten: List<DetachedDocument>,
-        informatieobjectTypeUUIDs: List<UUID>,
+        informatieobjectTypeUUIDs: List<UUID?>,
         zaakspecifiekGeautoriseerdeZaakIDs: Set<String>
     ): List<RestDetachedDocument> =
         documenten.indices.map { index ->

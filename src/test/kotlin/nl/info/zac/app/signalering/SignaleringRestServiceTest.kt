@@ -195,7 +195,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
         every { policyService.readOverigeRechten().canBeheren } returns true
         every { identityService.readGroup(groupId, any()) } returns group
-        every { signaleringService.listInstellingenInclusiefMogelijke(any()) } returns signaleringInstellingen
+        every { signaleringService.listInstellingen(any()) } returns signaleringInstellingen
         every { restSignaleringInstellingenConverter.convert(signaleringInstellingen) } returns restSignaleringInstellingen
 
         `when`("listGroupSignaleringInstellingen is called") {
@@ -218,7 +218,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
         every {
             restSignaleringInstellingenConverter.convert(restSignaleringInstellingen, group)
         } returns signaleringInstellingen
-        every { signaleringService.createUpdateOrDeleteInstellingen(signaleringInstellingen) } returns signaleringInstellingen
+        every { signaleringService.createOrUpdateInstellingen(signaleringInstellingen) } returns signaleringInstellingen
 
         `when`("updateGroupSignaleringInstellingen is called") {
             val result = signaleringRestService.updateGroupSignaleringInstellingen(groupId, restSignaleringInstellingen)

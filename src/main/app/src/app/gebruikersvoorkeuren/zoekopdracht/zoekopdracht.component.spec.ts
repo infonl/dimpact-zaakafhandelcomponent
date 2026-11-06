@@ -147,6 +147,16 @@ describe(ZoekopdrachtComponent.name, () => {
       ).toBeInTheDocument();
     });
 
+    it("tells the parent to reset its filters when only filters are active", async () => {
+      await setup(makeZoekFilters({ zoeken: { zaakIdentificatie: "ZAAK-1" } }));
+      await loadZoekopdrachten();
+
+      await user.click(clearButton());
+      await flushRemoveActief();
+
+      expect(zoekopdrachtEmitted).toHaveBeenCalledWith(null);
+    });
+
     it("clears the stored active search when the filters are cleared", async () => {
       await setup(makeZoekFilters({ zoeken: { zaakIdentificatie: "ZAAK-1" } }));
       await loadZoekopdrachten();
@@ -346,14 +356,14 @@ describe(ZoekopdrachtComponent.name, () => {
       expect(selectButton()).toBeVisible();
     });
 
-    it("keeps offering to clear when the current filters are still set", async () => {
+    it("offers the saved searches again once the filters are cleared", async () => {
       await setup(makeZoekFilters({ zoeken: { zaakIdentificatie: "ZAAK-1" } }));
       await loadZoekopdrachten([makeZoekopdracht({ actief: true })]);
 
       await user.click(clearButton());
       await flushRemoveActief();
 
-      expect(clearButton()).toBeVisible();
+      expect(selectButton()).toBeVisible();
     });
 
     it("clears the active saved search when the filters change", async () => {
@@ -366,14 +376,14 @@ describe(ZoekopdrachtComponent.name, () => {
       expect(selectButton()).toBeVisible();
     });
 
-    it("does not report a saved search when the active one is cleared", async () => {
+    it("tells the parent to reset its filters when the active one is cleared", async () => {
       await setup();
       await loadZoekopdrachten([makeZoekopdracht({ actief: true })]);
 
       await user.click(clearButton());
       await flushRemoveActief();
 
-      expect(zoekopdrachtEmitted).toHaveBeenCalledTimes(1);
+      expect(zoekopdrachtEmitted).toHaveBeenLastCalledWith(null);
     });
   });
 
