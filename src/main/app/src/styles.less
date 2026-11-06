@@ -95,6 +95,10 @@ mat-drawer-container.actions-sidenav-container {
 }
 
 // With the menu open, the actions panel container can be narrower than the panel; the panel then scrolls.
+.actions-sidenav-container > mat-drawer {
+  max-width: min(@xl, 100%);
+}
+
 .actions-sidenav-container > .side-nav-container {
   min-width: min(900px, 100%);
 }
