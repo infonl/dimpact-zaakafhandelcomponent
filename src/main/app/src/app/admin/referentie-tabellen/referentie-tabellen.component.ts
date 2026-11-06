@@ -19,7 +19,6 @@ import { MatDialog } from "@angular/material/dialog";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import {
-  MatSidenav,
   MatSidenavContainer,
   MatSidenavModule,
 } from "@angular/material/sidenav";
@@ -63,8 +62,6 @@ export class ReferentieTabellenComponent
 {
   protected readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
-  protected readonly menuSidenav =
-    viewChild.required<MatSidenav>("menuSidenav");
 
   protected readonly expandedId = signal<number | null>(null);
 

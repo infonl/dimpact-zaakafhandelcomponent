@@ -10,12 +10,8 @@ import {
   TestBed,
   tick,
 } from "@angular/core/testing";
-import {
-  MatDrawerMode,
-  MatSidenav,
-  MatSidenavContainer,
-} from "@angular/material/sidenav";
-import { Subject, Subscription } from "rxjs";
+import { MatDrawerMode, MatSidenavContainer } from "@angular/material/sidenav";
+import { Subscription } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { ViewComponent } from "./view-component";
 
@@ -24,19 +20,11 @@ import { ViewComponent } from "./view-component";
   standalone: true,
 })
 class TestViewComponent extends ViewComponent {
-  private readonly openedStart = new Subject<void>();
   readonly updateContentMarginsMock = jest.fn();
 
   readonly sideNavContainer = signal(
     fromPartial<MatSidenavContainer>({
-      hasBackdrop: true,
       updateContentMargins: this.updateContentMarginsMock,
-    }),
-  );
-
-  readonly menuSidenav = signal(
-    fromPartial<MatSidenav>({
-      openedStart: this.openedStart.asObservable(),
     }),
   );
 
@@ -48,16 +36,8 @@ class TestViewComponent extends ViewComponent {
     return this.sideNavMode();
   }
 
-  get containerHasBackdrop(): boolean {
-    return this.sideNavContainer().hasBackdrop;
-  }
-
   triggerModeChange(mode: string): void {
     this.menuModeChanged(mode);
-  }
-
-  triggerMenuOpen(): void {
-    this.openedStart.next();
   }
 
   addSubscription(sub: Subscription): void {
@@ -82,11 +62,6 @@ describe(ViewComponent.name, () => {
   it("should update sideNavMode when mode changes", () => {
     component.triggerModeChange("over");
     expect(component.mode).toBe("over");
-  });
-
-  it("should set hasBackdrop to false when menu sidenav opens", () => {
-    component.triggerMenuOpen();
-    expect(component.containerHasBackdrop).toBe(false);
   });
 
   it("should call updateContentMargins after mode change", fakeAsync(() => {

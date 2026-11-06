@@ -195,7 +195,6 @@ export class InformatieObjectViewComponent
   ];
 
   readonly actionsSidenav = viewChild.required<MatSidenav>("actionsSidenav");
-  readonly menuSidenav = viewChild.required<MatSidenav>("menuSidenav");
   readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
   readonly sort = viewChild(MatSort);
@@ -256,7 +255,6 @@ export class InformatieObjectViewComponent
   }
 
   ngAfterViewInit() {
-    super.ngAfterViewInit();
     this.historie.sortingDataAccessor = (item, property) => {
       switch (property) {
         case "datum":

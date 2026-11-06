@@ -17,7 +17,6 @@ import {
 import { toSignal } from "@angular/core/rxjs-interop";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import {
-  MatSidenav,
   MatSidenavContainer,
   MatSidenavModule,
 } from "@angular/material/sidenav";
@@ -84,7 +83,6 @@ export class ParametersEditComponent
 {
   readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
-  readonly menuSidenav = viewChild.required<MatSidenav>("menuSidenav");
   private readonly smartDocumentsForm = viewChild(SmartDocumentsFormComponent);
 
   private readonly zaakafhandelParametersService = inject(

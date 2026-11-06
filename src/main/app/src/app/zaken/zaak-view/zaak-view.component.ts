@@ -237,7 +237,6 @@ export class ZaakViewComponent
   private zaakTakenListener!: WebsocketListener;
 
   readonly actionsSidenav = viewChild.required<MatSidenav>("actionsSidenav");
-  readonly menuSidenav = viewChild.required<MatSidenav>("menuSidenav");
   readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
 
@@ -343,7 +342,6 @@ export class ZaakViewComponent
   ngAfterViewInit() {
     this.sideActions.register(this.actionsSidenav());
     this.viewInitialized.set(true);
-    super.ngAfterViewInit();
   }
 
   ngOnDestroy() {

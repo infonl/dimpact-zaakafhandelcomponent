@@ -80,8 +80,27 @@ mat-drawer-container {
   }
 }
 
-mat-drawer-container.over mat-drawer-content {
+mat-drawer-container.over > mat-drawer-content {
   margin-left: 67px;
+}
+
+// The actions panel has its own container inside the content of the menu container, so that the menu
+// never makes the page inert. The inner container takes over the page padding and the height.
+mat-drawer-container .mat-drawer-content:has(> .actions-sidenav-container) {
+  padding: 0;
+}
+
+mat-drawer-container.actions-sidenav-container {
+  height: 100%;
+}
+
+// With the menu open, the actions panel container can be narrower than the panel; the panel then scrolls.
+.actions-sidenav-container > mat-drawer {
+  max-width: min(@xl, 100%);
+}
+
+.actions-sidenav-container > .side-nav-container {
+  min-width: min(900px, 100%);
 }
 
 mat-sidenav-container {

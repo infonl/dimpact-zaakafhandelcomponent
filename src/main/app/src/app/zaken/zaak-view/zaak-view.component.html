@@ -8,9 +8,9 @@
   class="inner-sidenav-container"
   [class]="sideNavMode()"
   xmlns="http://www.w3.org/1999/html"
+  [hasBackdrop]="false"
 >
   <mat-drawer
-    #menuSidenav
     position="start"
     opened="true"
     disableClose="true"
@@ -23,234 +23,245 @@
       (activeItemChange)="menuItemChanged($event)"
     ></zac-side-nav>
   </mat-drawer>
-  <mat-drawer
-    #actionsSidenav
-    mode="over"
-    position="end"
-    class="side-nav-container"
-    (closedStart)="sideActions.clear()"
-  >
-    @let activeAction = sideActions.activeAction();
-    @if (activeAction === "actie.initiator.koppelen") {
-      @defer (on immediate) {
-        <zac-klant-koppel
-          [sideNav]="actionsSidenav"
-          (klantGegevens)="initiatorGeselecteerd($event.klant)"
-          [initiator]="true"
-          [allowBedrijf]="allowBedrijf()"
-          [allowPersoon]="allowPersoon()"
-          [zaaktypeUUID]="zaak.zaaktype.uuid"
-        ></zac-klant-koppel>
-      }
-    }
-    @if (activeAction === "actie.betrokkene.koppelen") {
-      @defer (on immediate) {
-        <zac-klant-koppel
-          (klantGegevens)="betrokkeneGeselecteerd($event)"
-          [sideNav]="actionsSidenav"
-          [zaaktypeUUID]="zaak.zaaktype.uuid"
-          [allowBedrijf]="allowBedrijf()"
-          [allowPersoon]="allowPersoon()"
-        ></zac-klant-koppel>
-      }
-    }
-    @if (activeAction === "actie.bag-object.koppelen") {
-      @defer (on immediate) {
-        <zac-bag-zoek
-          [gekoppeldeBagObjecten]="gekoppeldeBagObjecten()"
-          [sideNav]="actionsSidenav"
-          isSelectable
-          (bagObject)="adresGeselecteerd($event)"
-        ></zac-bag-zoek>
-      }
-    }
-    @if (activeAction === "actie.zaak.wijzigen") {
-      @defer (on immediate) {
-        <zac-case-details-edit
-          [zaak]="zaak"
-          [loggedInUser]="loggedInUser.data()!"
-          [sideNav]="actionsSidenav"
-        ></zac-case-details-edit>
-      }
-    }
-    @if (
-      activeAction === "actie.zaakspecifiek-geautoriseerde-medewerker.koppelen"
-    ) {
-      @defer (on immediate) {
-        <zac-zaakspecifiek-geautoriseerde-medewerker-toevoegen
-          [zaak]="zaak"
-          [sideNav]="actionsSidenav"
-        ></zac-zaakspecifiek-geautoriseerde-medewerker-toevoegen>
-      }
-    }
-    @if (activeAction === "actie.zaak.locatie.koppelen") {
-      @defer (on immediate) {
-        <zac-case-location-edit
-          [zaak]="zaak"
-          [sideNav]="actionsSidenav"
-          (locatie)="locationSelected()"
-        ></zac-case-location-edit>
-      }
-    }
-    @if (activeAction === "actie.document.maken") {
-      @defer (on immediate) {
-        <zac-informatie-object-create-attended
-          [sideNav]="actionsSidenav"
-          [zaak]="zaak"
-          (document)="documentCreated()"
-        ></zac-informatie-object-create-attended>
-      }
-    }
-    @if (activeAction === "actie.document.toevoegen") {
-      @defer (on immediate) {
-        <zac-informatie-object-add
-          [sideNav]="actionsSidenav"
-          [zaakUuid]="zaak!.uuid"
-          (document)="documentToegevoegd()"
-        ></zac-informatie-object-add>
-      }
-    }
-    @if (activeAction === "actie.document.verzenden") {
-      @defer (on immediate) {
-        <zac-informatie-verzenden
-          [sideNav]="actionsSidenav"
-          [zaak]="zaak"
-          (documentSent)="documentSent()"
-        ></zac-informatie-verzenden>
-      }
-    }
-    @if (activeAction === (sideActions.actiefPlanItem()?.naam ?? "none")) {
-      @defer (on immediate) {
-        <zac-human-task-do
-          (done)="taakGestart()"
-          [sideNav]="actionsSidenav"
-          [zaak]="zaak"
-          [planItem]="sideActions.actiefPlanItem()"
-        ></zac-human-task-do>
-      }
-    }
-    @if (activeAction === "actie.mail.versturen") {
-      @defer (on immediate) {
-        <zac-mail-create
-          (mailVerstuurd)="mailVerstuurd($event)"
-          [sideNav]="actionsSidenav"
-          [zaak]="zaak"
-        ></zac-mail-create>
-      }
-    }
-    @if (activeAction === "actie.ontvangstbevestiging.versturen") {
-      @defer (on immediate) {
-        <zac-ontvangstbevestiging
-          (ontvangstBevestigd)="ontvangstBevestigd($event)"
-          [sideNav]="actionsSidenav"
-          [zaak]="zaak"
-        ></zac-ontvangstbevestiging>
-      }
-    }
-    @if (activeAction === "actie.besluit.vastleggen") {
-      @defer (on immediate) {
-        <zac-besluit-create
-          (besluitVastgelegd)="besluitVastgelegd()"
-          [sideNav]="actionsSidenav"
-          [zaak]="zaak"
-        ></zac-besluit-create>
-      }
-    }
-    @if (activeAction === "actie.besluit.wijzigen") {
-      @defer (on immediate) {
-        <zac-besluit-edit
-          (besluitGewijzigd)="besluitVastgelegd()"
-          [sideNav]="actionsSidenav"
-          [besluit]="teWijzigenBesluit()!"
-          [zaak]="zaak"
-        ></zac-besluit-edit>
-      }
-    }
-    @if (activeAction === "actie.document.verplaatsen") {
-      @defer (on immediate) {
-        <zac-informatie-object-link
-          actionLabel="actie.document.verplaatsen"
-          [infoObject]="documentToMove()"
-          [sideNav]="actionsSidenav"
-          [source]="zaak.identificatie"
-          (informationObjectLinked)="updateDocumentList()"
-        />
-      }
-    }
-    @if (activeAction === "actie.zaak.koppelen") {
-      @defer (on immediate) {
-        <zac-zaak-link
-          [zaak]="zaak"
-          [sideNav]="actionsSidenav"
-          (zaakLinked)="zaakLinked()"
-        ></zac-zaak-link>
-      }
-    }
-    @if (
-      activeAction === "actie.zaakdata.bekijken" ||
-      activeAction === "actie.zaakdata.archief"
-    ) {
-      @defer (on immediate) {
-        <zac-zaakdata [sideNav]="actionsSidenav" [zaak]="zaak"></zac-zaakdata>
-      }
-    }
-    @if (activeAction === "actie.procesverloop.bekijken") {
-      @defer (on immediate) {
-        <zac-zaak-process-flow
-          class="flex-col flex-fill-col"
-          [sideNav]="actionsSidenav"
-          [zaak]="zaak"
-        ></zac-zaak-process-flow>
-      }
-    }
-  </mat-drawer>
   <mat-drawer-content>
-    <div class="flex-row flex-wrap gap-12">
-      <zac-zaak-initiator-panel
-        [zaak]="zaak"
-        [hasBrpSearchRight]="hasBrpSearchRight()"
-        (addOrEdit)="addOrEditZaakInitiator()"
-        (delete)="deleteInitiator()"
-      ></zac-zaak-initiator-panel>
-      <zac-zaak-details-card
-        class="w50 flex-1"
-        [zaak]="zaak"
-        [zaakOpschorting]="dialogs.opschorting()"
-        [bagObjecten]="bagObjecten()"
-        [showBetrokkeneKoppelingen]="showBetrokkeneKoppelingen()"
-        (editCaseDetails)="editCaseDetails()"
-        (editLocationDetails)="editLocationDetails()"
-        (zaakOntkoppelen)="startZaakOntkoppelenDialog($event)"
-        (bagObjectVerwijderen)="bagObjectVerwijderen($event)"
-      ></zac-zaak-details-card>
-      <div class="w50 flex-1 flex-col gap-12">
-        @if (zaak.besluiten?.length) {
-          <zac-besluit-view
-            [besluiten]="zaak.besluiten"
-            [readonly]="!zaak.isOpen || !zaak.rechten.canBehandelen"
-            (besluitWijzigen)="besluitWijzigen($event)"
-          ></zac-besluit-view>
+    <mat-drawer-container class="actions-sidenav-container">
+      <mat-drawer
+        #actionsSidenav
+        mode="over"
+        position="end"
+        class="side-nav-container"
+        (closedStart)="sideActions.clear()"
+      >
+        @let activeAction = sideActions.activeAction();
+        @if (activeAction === "actie.initiator.koppelen") {
+          @defer (on immediate) {
+            <zac-klant-koppel
+              [sideNav]="actionsSidenav"
+              (klantGegevens)="initiatorGeselecteerd($event.klant)"
+              [initiator]="true"
+              [allowBedrijf]="allowBedrijf()"
+              [allowPersoon]="allowPersoon()"
+              [zaaktypeUUID]="zaak.zaaktype.uuid"
+            ></zac-klant-koppel>
+          }
         }
+        @if (activeAction === "actie.betrokkene.koppelen") {
+          @defer (on immediate) {
+            <zac-klant-koppel
+              (klantGegevens)="betrokkeneGeselecteerd($event)"
+              [sideNav]="actionsSidenav"
+              [zaaktypeUUID]="zaak.zaaktype.uuid"
+              [allowBedrijf]="allowBedrijf()"
+              [allowPersoon]="allowPersoon()"
+            ></zac-klant-koppel>
+          }
+        }
+        @if (activeAction === "actie.bag-object.koppelen") {
+          @defer (on immediate) {
+            <zac-bag-zoek
+              [gekoppeldeBagObjecten]="gekoppeldeBagObjecten()"
+              [sideNav]="actionsSidenav"
+              isSelectable
+              (bagObject)="adresGeselecteerd($event)"
+            ></zac-bag-zoek>
+          }
+        }
+        @if (activeAction === "actie.zaak.wijzigen") {
+          @defer (on immediate) {
+            <zac-case-details-edit
+              [zaak]="zaak"
+              [loggedInUser]="loggedInUser.data()!"
+              [sideNav]="actionsSidenav"
+            ></zac-case-details-edit>
+          }
+        }
+        @if (
+          activeAction ===
+          "actie.zaakspecifiek-geautoriseerde-medewerker.koppelen"
+        ) {
+          @defer (on immediate) {
+            <zac-zaakspecifiek-geautoriseerde-medewerker-toevoegen
+              [zaak]="zaak"
+              [sideNav]="actionsSidenav"
+            ></zac-zaakspecifiek-geautoriseerde-medewerker-toevoegen>
+          }
+        }
+        @if (activeAction === "actie.zaak.locatie.koppelen") {
+          @defer (on immediate) {
+            <zac-case-location-edit
+              [zaak]="zaak"
+              [sideNav]="actionsSidenav"
+              (locatie)="locationSelected()"
+            ></zac-case-location-edit>
+          }
+        }
+        @if (activeAction === "actie.document.maken") {
+          @defer (on immediate) {
+            <zac-informatie-object-create-attended
+              [sideNav]="actionsSidenav"
+              [zaak]="zaak"
+              (document)="documentCreated()"
+            ></zac-informatie-object-create-attended>
+          }
+        }
+        @if (activeAction === "actie.document.toevoegen") {
+          @defer (on immediate) {
+            <zac-informatie-object-add
+              [sideNav]="actionsSidenav"
+              [zaakUuid]="zaak!.uuid"
+              (document)="documentToegevoegd()"
+            ></zac-informatie-object-add>
+          }
+        }
+        @if (activeAction === "actie.document.verzenden") {
+          @defer (on immediate) {
+            <zac-informatie-verzenden
+              [sideNav]="actionsSidenav"
+              [zaak]="zaak"
+              (documentSent)="documentSent()"
+            ></zac-informatie-verzenden>
+          }
+        }
+        @if (activeAction === (sideActions.actiefPlanItem()?.naam ?? "none")) {
+          @defer (on immediate) {
+            <zac-human-task-do
+              (done)="taakGestart()"
+              [sideNav]="actionsSidenav"
+              [zaak]="zaak"
+              [planItem]="sideActions.actiefPlanItem()"
+            ></zac-human-task-do>
+          }
+        }
+        @if (activeAction === "actie.mail.versturen") {
+          @defer (on immediate) {
+            <zac-mail-create
+              (mailVerstuurd)="mailVerstuurd($event)"
+              [sideNav]="actionsSidenav"
+              [zaak]="zaak"
+            ></zac-mail-create>
+          }
+        }
+        @if (activeAction === "actie.ontvangstbevestiging.versturen") {
+          @defer (on immediate) {
+            <zac-ontvangstbevestiging
+              (ontvangstBevestigd)="ontvangstBevestigd($event)"
+              [sideNav]="actionsSidenav"
+              [zaak]="zaak"
+            ></zac-ontvangstbevestiging>
+          }
+        }
+        @if (activeAction === "actie.besluit.vastleggen") {
+          @defer (on immediate) {
+            <zac-besluit-create
+              (besluitVastgelegd)="besluitVastgelegd()"
+              [sideNav]="actionsSidenav"
+              [zaak]="zaak"
+            ></zac-besluit-create>
+          }
+        }
+        @if (activeAction === "actie.besluit.wijzigen") {
+          @defer (on immediate) {
+            <zac-besluit-edit
+              (besluitGewijzigd)="besluitVastgelegd()"
+              [sideNav]="actionsSidenav"
+              [besluit]="teWijzigenBesluit()!"
+              [zaak]="zaak"
+            ></zac-besluit-edit>
+          }
+        }
+        @if (activeAction === "actie.document.verplaatsen") {
+          @defer (on immediate) {
+            <zac-informatie-object-link
+              actionLabel="actie.document.verplaatsen"
+              [infoObject]="documentToMove()"
+              [sideNav]="actionsSidenav"
+              [source]="zaak.identificatie"
+              (informationObjectLinked)="updateDocumentList()"
+            />
+          }
+        }
+        @if (activeAction === "actie.zaak.koppelen") {
+          @defer (on immediate) {
+            <zac-zaak-link
+              [zaak]="zaak"
+              [sideNav]="actionsSidenav"
+              (zaakLinked)="zaakLinked()"
+            ></zac-zaak-link>
+          }
+        }
+        @if (
+          activeAction === "actie.zaakdata.bekijken" ||
+          activeAction === "actie.zaakdata.archief"
+        ) {
+          @defer (on immediate) {
+            <zac-zaakdata
+              [sideNav]="actionsSidenav"
+              [zaak]="zaak"
+            ></zac-zaakdata>
+          }
+        }
+        @if (activeAction === "actie.procesverloop.bekijken") {
+          @defer (on immediate) {
+            <zac-zaak-process-flow
+              class="flex-col flex-fill-col"
+              [sideNav]="actionsSidenav"
+              [zaak]="zaak"
+            ></zac-zaak-process-flow>
+          }
+        }
+      </mat-drawer>
+      <mat-drawer-content>
+        <div class="flex-row flex-wrap gap-12">
+          <zac-zaak-initiator-panel
+            [zaak]="zaak"
+            [hasBrpSearchRight]="hasBrpSearchRight()"
+            (addOrEdit)="addOrEditZaakInitiator()"
+            (delete)="deleteInitiator()"
+          ></zac-zaak-initiator-panel>
+          <zac-zaak-details-card
+            class="w50 flex-1"
+            [zaak]="zaak"
+            [zaakOpschorting]="dialogs.opschorting()"
+            [bagObjecten]="bagObjecten()"
+            [showBetrokkeneKoppelingen]="showBetrokkeneKoppelingen()"
+            (editCaseDetails)="editCaseDetails()"
+            (editLocationDetails)="editLocationDetails()"
+            (zaakOntkoppelen)="startZaakOntkoppelenDialog($event)"
+            (bagObjectVerwijderen)="bagObjectVerwijderen($event)"
+          ></zac-zaak-details-card>
+          <div class="w50 flex-1 flex-col gap-12">
+            @if (zaak.besluiten?.length) {
+              <zac-besluit-view
+                [besluiten]="zaak.besluiten"
+                [readonly]="!zaak.isOpen || !zaak.rechten.canBehandelen"
+                (besluitWijzigen)="besluitWijzigen($event)"
+              ></zac-besluit-view>
+            }
 
-        <zac-zaak-taken [zaak]="zaak" class="flex-col flex-1"></zac-zaak-taken>
-      </div>
-      <zac-zaak-documenten
-        #zaakDocumentenComponent
-        class="w100"
-        [zaak]="zaak"
-        (documentMoveToCase)="documentMoveToCase($event)"
-      ></zac-zaak-documenten>
-    </div>
-    @if (
-      notitieRechtenQuery.data()?.canLezen ||
-      notitieRechtenQuery.data()?.canWijzigen
-    ) {
-      @defer (on immediate) {
-        <zac-notities
-          [zaakUuid]="zaak.uuid"
-          [notitieRechten]="notitieRechtenQuery.data()"
-        ></zac-notities>
-      }
-    }
+            <zac-zaak-taken
+              [zaak]="zaak"
+              class="flex-col flex-1"
+            ></zac-zaak-taken>
+          </div>
+          <zac-zaak-documenten
+            #zaakDocumentenComponent
+            class="w100"
+            [zaak]="zaak"
+            (documentMoveToCase)="documentMoveToCase($event)"
+          ></zac-zaak-documenten>
+        </div>
+        @if (
+          notitieRechtenQuery.data()?.canLezen ||
+          notitieRechtenQuery.data()?.canWijzigen
+        ) {
+          @defer (on immediate) {
+            <zac-notities
+              [zaakUuid]="zaak.uuid"
+              [notitieRechten]="notitieRechtenQuery.data()"
+            ></zac-notities>
+          }
+        }
+      </mat-drawer-content>
+    </mat-drawer-container>
   </mat-drawer-content>
 </mat-drawer-container>

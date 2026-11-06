@@ -17,7 +17,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router } from "@angular/router";
 import { provideTranslateService, TranslateService } from "@ngx-translate/core";
 import { notifyManager } from "@tanstack/query-core";
-import { screen } from "@testing-library/angular";
+import { screen, waitFor } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of, ReplaySubject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
@@ -28,6 +28,8 @@ import { WebsocketService } from "../../core/websocket/websocket.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { ConfirmDialogData } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { RedenDialogData } from "../../shared/dialog/reden-dialog-form/reden-dialog-form.component";
+import { MenuMode } from "../../shared/side-nav/side-nav.component";
+import { SideNavUtil } from "../../shared/side-nav/side-nav.util";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
 import { InformatieObjectEditComponent } from "../informatie-object-edit/informatie-object-edit.component";
@@ -182,6 +184,52 @@ describe(InformatieObjectViewComponent.name, () => {
     await openView();
 
     expect(component.sideNavContainer().autosize).toBe(true);
+  });
+
+  describe("side panels", () => {
+    function closestInertElement() {
+      // Material sets inert on mat-drawer-content, an ancestor that Testing Library cannot query.
+      // eslint-disable-next-line testing-library/no-node-access
+      return screen.getByRole("tab", { name: /historie/ }).closest("[inert]");
+    }
+
+    afterEach(() => SideNavUtil.store(MenuMode.OPEN));
+
+    it("keeps the document usable when the menu switches to auto mode, so that the menu never blocks the page", async () => {
+      SideNavUtil.store(MenuMode.CLOSED);
+      await openView();
+
+      await user.click(
+        screen.getByRole("button", { name: "actie.menu.aanpassen" }),
+      );
+      fixture.detectChanges();
+      await sleep(100);
+
+      expect(closestInertElement()).toBeNull();
+    });
+
+    it("blocks the document while the actions panel is open", async () => {
+      await openView();
+
+      await component.actionsSidenav().open();
+
+      await waitFor(() => expect(closestInertElement()).not.toBeNull());
+    });
+
+    it("makes the document usable again once the actions panel closes, also with the menu in auto mode", async () => {
+      SideNavUtil.store(MenuMode.CLOSED);
+      await openView();
+      await user.click(
+        screen.getByRole("button", { name: "actie.menu.aanpassen" }),
+      );
+      fixture.detectChanges();
+      await component.actionsSidenav().open();
+      await waitFor(() => expect(closestInertElement()).not.toBeNull());
+
+      await component.actionsSidenav().close();
+
+      await waitFor(() => expect(closestInertElement()).toBeNull());
+    });
   });
 
   describe("when the document changes on the server", () => {
