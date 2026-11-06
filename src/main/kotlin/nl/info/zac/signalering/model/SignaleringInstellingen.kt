@@ -65,9 +65,6 @@ class SignaleringInstellingen() {
             else -> null
         }
 
-    val isEmpty: Boolean
-        get() = !isDashboard && !isMail
-
     @get:AssertTrue(message = "Of medewerker of groep moet ingevuld zijn (niet beide).")
     val isValid: Boolean
         get() = !medewerker.isNullOrBlank() != !groep.isNullOrBlank()

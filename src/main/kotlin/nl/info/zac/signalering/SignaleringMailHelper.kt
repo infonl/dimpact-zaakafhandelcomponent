@@ -49,6 +49,7 @@ class SignaleringMailHelper @Inject constructor(
             when (signalering.type.type) {
                 SignaleringType.Type.TAAK_OP_NAAM -> Mail.SIGNALERING_TAAK_OP_NAAM
                 SignaleringType.Type.TAAK_VERLOPEN -> Mail.SIGNALERING_TAAK_VERLOPEN
+                SignaleringType.Type.TAAK_AFGEROND -> Mail.SIGNALERING_TAAK_AFGEROND
                 SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD -> Mail.SIGNALERING_ZAAK_DOCUMENT_TOEGEVOEGD
                 SignaleringType.Type.ZAAK_OP_NAAM -> Mail.SIGNALERING_ZAAK_OP_NAAM
                 SignaleringType.Type.ZAAK_VERLOPEND -> when (

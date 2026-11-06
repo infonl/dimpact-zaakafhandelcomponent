@@ -570,6 +570,7 @@
   "signalering.subjecttype.taak": "Task alert",
   "signalering.subjecttype.zaak": "Case alert",
   "signalering.type": "Alert",
+  "signalering.type.taak-afgerond": "A task on my case has been completed by someone else",
   "signalering.type.taak-op-naam": "A task has been assigned to me",
   "signalering.type.taak-verlopen": "My task has reached the fatal date",
   "signalering.type.zaak-document-toegevoegd": "A document has been added to my case",

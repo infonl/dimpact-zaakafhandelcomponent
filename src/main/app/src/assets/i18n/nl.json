@@ -570,6 +570,7 @@
   "signalering.subjecttype.taak": "Taak signalering",
   "signalering.subjecttype.zaak": "Zaak signalering",
   "signalering.type": "Signalering",
+  "signalering.type.taak-afgerond": "Een taak van mijn zaak is door iemand anders afgerond",
   "signalering.type.taak-op-naam": "Er is een taak op mijn naam gezet",
   "signalering.type.taak-verlopen": "Mijn taak heeft de fatale datum bereikt",
   "signalering.type.zaak-document-toegevoegd": "Er is een document aan mijn zaak toegevoegd",

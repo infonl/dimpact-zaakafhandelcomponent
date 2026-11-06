@@ -383,14 +383,8 @@ class SignaleringService @Inject constructor(
     }
 
     @Transactional(REQUIRED)
-    fun createUpdateOrDeleteInstellingen(instellingen: SignaleringInstellingen): SignaleringInstellingen? {
+    fun createOrUpdateInstellingen(instellingen: SignaleringInstellingen): SignaleringInstellingen {
         validateObject(instellingen)
-        if (instellingen.isEmpty) {
-            instellingen.id?.let {
-                entityManager.remove(entityManager.find(SignaleringInstellingen::class.java, instellingen.id))
-            }
-            return null
-        }
         return entityManager.merge(instellingen)
     }
 
@@ -400,40 +394,38 @@ class SignaleringService @Inject constructor(
     fun readInstellingenUser(type: SignaleringType.Type, target: String) =
         readInstellingen(signaleringInstance(type).apply { setTargetUser(target) })
 
-    fun readInstellingen(signalering: Signalering): SignaleringInstellingen {
-        val instellingen = listInstellingen(
-            SignaleringInstellingenZoekParameters(signalering)
-        )
-        if (instellingen.size == 1) {
-            return instellingen[0]
-        }
-        return SignaleringInstellingen(signalering.type, signalering.targettype, signalering.target)
+    fun readInstellingen(signalering: Signalering) =
+        listInstellingen(SignaleringInstellingenZoekParameters(signalering)).single()
+
+    /**
+     * Lists the instellingen that apply to the owner: the stored ones, and the defaults of the types without them.
+     * This is the only place where the defaults of a type are applied.
+     */
+    fun listInstellingen(parameters: SignaleringInstellingenZoekParameters): List<SignaleringInstellingen> {
+        val storedInstellingen = listStoredInstellingen(parameters)
+        val storedTypes = storedInstellingen.map { it.type.type }.toSet()
+        val defaultInstellingen = (
+            parameters.type?.let(::listOf)
+                ?: SignaleringType.Type.entries.filter { it.isTarget(parameters.ownertype) }
+            )
+            .filter { it !in storedTypes }
+            .map { type ->
+                signaleringInstellingenInstance(type, parameters.ownertype, parameters.owner).apply {
+                    isMail = type.isMailDefault
+                }
+            }
+        return (storedInstellingen + defaultInstellingen)
+            .filter(parameters::matchesDashboardAndMail)
+            .sortedBy { it.type }
     }
 
-    fun listInstellingen(parameters: SignaleringInstellingenZoekParameters): List<SignaleringInstellingen> {
+    private fun listStoredInstellingen(parameters: SignaleringInstellingenZoekParameters): List<SignaleringInstellingen> {
         val builder = entityManager.criteriaBuilder
-        val query = builder.createQuery(
-            SignaleringInstellingen::class.java
-        )
-        val root = query.from(
-            SignaleringInstellingen::class.java
-        )
+        val query = builder.createQuery(SignaleringInstellingen::class.java)
+        val root = query.from(SignaleringInstellingen::class.java)
         return entityManager.createQuery(
             query.select(root).where(getSignaleringInstellingenWhere(parameters, builder, root))
-        )
-            .resultList
-    }
-
-    fun listInstellingenInclusiefMogelijke(
-        parameters: SignaleringInstellingenZoekParameters
-    ): List<SignaleringInstellingen> {
-        val map = listInstellingen(parameters).associateBy { it.type.type }.toMutableMap()
-        SignaleringType.Type.entries
-            .filter { it.isTarget(parameters.ownertype) && !map.containsKey(it) }
-            .forEach {
-                map[it] = signaleringInstellingenInstance(it, parameters.ownertype, parameters.owner)
-            }
-        return map.values.sortedBy { it.type }
+        ).resultList
     }
 
     fun count(): Int = SignaleringType.Type.entries.size

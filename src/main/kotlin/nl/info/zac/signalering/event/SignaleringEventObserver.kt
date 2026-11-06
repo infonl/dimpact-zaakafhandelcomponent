@@ -23,6 +23,7 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.event.AbstractEventObserver
 import nl.info.zac.flowable.task.FlowableTaskService
+import nl.info.zac.flowable.task.readZaakUUID
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.signalering.model.Signalering
@@ -90,6 +91,15 @@ class SignaleringEventObserver @Inject constructor(
                 val task = flowableTaskService.readOpenTask(event.objectId.resource as String)
                 getSignaleringVoorBehandelaar(event = fixActor(event = event, task = task), task = task)
             }
+            SignaleringType.Type.TAAK_AFGEROND -> {
+                val task = flowableTaskService.readTask(event.objectId.resource as String)
+                val zaak = zrcClientService.readZaak(readZaakUUID(task))
+                getSignaleringVoorBehandelaar(
+                    event = event,
+                    task = task,
+                    username = getRolBehandelaarMedewerker(zaak)?.toUsername()
+                )
+            }
             SignaleringType.Type.ZAAK_VERLOPEND, SignaleringType.Type.TAAK_VERLOPEN -> {
                 // these are not event-driven and should not show up here
                 LOG.warning { "Ignored SignaleringType ${event.objectType}" }
@@ -113,12 +123,9 @@ class SignaleringEventObserver @Inject constructor(
     private fun getSignaleringVoorMedewerker(event: SignaleringEvent<*>, zaak: Zaak, rolMedewerker: RolMedewerker) =
         signaleringService.signaleringInstance(event.objectType).apply {
             setSubject(zaak)
-            val medewerkerIdentificatie = checkNotNull(rolMedewerker.betrokkeneIdentificatie) {
-                "Rol '${rolMedewerker.uuid}' has no medewerker"
-            }
             setTarget(
                 identityService.readUser(
-                    username = medewerkerIdentificatie.identificatie,
+                    username = rolMedewerker.toUsername(),
                     logContext = "a signalering about zaak '${zaak.identificatie}'"
                 )
             )
@@ -154,13 +161,16 @@ class SignaleringEventObserver @Inject constructor(
             .apply { setDetailFromZaakInformatieobject(zaakInformatieObject) }
     }
 
-    private fun getSignaleringVoorBehandelaar(event: SignaleringEvent<*>, task: TaskInfo) =
-        task.assignee?.let { assignee ->
-            signaleringService.signaleringInstance(event.objectType).apply {
-                setSubject(task)
-                setTarget(identityService.readUser(username = assignee, logContext = "a signalering about task '${task.id}'"))
-            }
+    private fun getSignaleringVoorBehandelaar(
+        event: SignaleringEvent<*>,
+        task: TaskInfo,
+        username: String? = task.assignee
+    ) = username?.let {
+        signaleringService.signaleringInstance(event.objectType).apply {
+            setSubject(task)
+            setTarget(identityService.readUser(username = it, logContext = "a signalering about task '${task.id}'"))
         }
+    }
 
     /**
      * The owner of a newly created human task is assumed to be the actor who created it.
@@ -188,3 +198,6 @@ class SignaleringEventObserver @Inject constructor(
             )
         ).singleResult as RolMedewerker?
 }
+
+private fun RolMedewerker.toUsername() =
+    checkNotNull(betrokkeneIdentificatie) { "Rol '$uuid' has no medewerker" }.identificatie

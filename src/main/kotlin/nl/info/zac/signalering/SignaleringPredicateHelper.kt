@@ -48,22 +48,13 @@ fun getSignaleringInstellingenWhere(
     builder: CriteriaBuilder,
     root: Root<SignaleringInstellingen>
 ): Predicate {
-    val where: MutableList<Predicate> = ArrayList()
-    when (parameters.ownertype) {
-        SignaleringTarget.GROUP -> where.add(builder.equal(root.get<Any>("groep"), parameters.owner))
-        SignaleringTarget.USER -> where.add(builder.equal(root.get<Any>("medewerker"), parameters.owner))
+    val ownerPredicate = when (parameters.ownertype) {
+        SignaleringTarget.GROUP -> builder.equal(root.get<Any>("groep"), parameters.owner)
+        SignaleringTarget.USER -> builder.equal(root.get<Any>("medewerker"), parameters.owner)
     }
-    parameters.type?.let {
-        where.add(builder.equal(root.get<Any>("type").get<Any>("id"), it.toString()))
-    }
-    if (parameters.isDashboard) {
-        where.add(builder.isTrue(root.get("isDashboard")))
-    }
-    if (parameters.isMail) {
-        where.add(builder.isTrue(root.get("isMail")))
-    }
-    @Suppress("SpreadOperator")
-    return builder.and(*where.toTypedArray<Predicate>())
+    return parameters.type?.let {
+        builder.and(ownerPredicate, builder.equal(root.get<Any>("type").get<Any>("id"), it.toString()))
+    } ?: ownerPredicate
 }
 
 fun getSignaleringVerzondenWhere(
