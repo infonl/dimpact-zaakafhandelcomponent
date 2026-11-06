@@ -32,5 +32,8 @@ is, so nested containers do not affect each other.
 
 - **Layout of 11 pages.** Padding, margins and heights could shift. → Check the zaak, taak and document view and the
   8 admin pages by hand in the modes open, closed and auto, on desktop, tablet and phone widths.
+- **Less room for the actions panel next to an open menu.** The panel no longer covers the menu, so on a narrow
+  screen it can get less than its 900px. → The panel shrinks to its container and its content scrolls, instead of
+  being cut off.
 - **Spec coverage.** The specs cannot check the layout. → A spec on the document view checks that the page stays
   usable when the menu switches to auto mode and after the actions panel closes.
