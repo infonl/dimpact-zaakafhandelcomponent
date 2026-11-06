@@ -116,18 +116,31 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
     documents: GeneratedType<"RestDetachedDocument">[],
     totaal = documents.length,
   ) {
-    await sleep();
+    await settle();
     listRequests().forEach((request) =>
-      request.flush({ totaal, resultaten: documents }),
+      request.flush({
+        totaal,
+        resultaten: documents,
+        filterOntkoppeldDoor: [
+          { username: "fakeUserId1", naam: "fakeUserName1" },
+        ],
+      }),
     );
-    await sleep();
+    await settle();
     // the table creates the row views in one pass and binds their cells in the next
     fixture.detectChanges();
     fixture.detectChanges();
   }
 
-  async function lastListRequestBody() {
+  async function settle() {
     await sleep();
+    fixture.detectChanges();
+    await sleep();
+    fixture.detectChanges();
+  }
+
+  async function lastListRequestBody() {
+    await settle();
     const requests = listRequests();
     const body = requests[requests.length - 1].request.body;
     requests.forEach((request) => request.flush({ totaal: 0, resultaten: [] }));
@@ -393,6 +406,143 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
         name: "actie.verwijderen",
       }),
     ).toBeNull();
+  });
+
+  it("offers each person once in the ontkoppeld door filter, also one without a row on this page", async () => {
+    await setup();
+    await showDocuments([
+      detachedDocument,
+      { ...detachedDocument, id: 43, titel: "Tweede formulier" },
+    ]);
+    listRequests();
+
+    await user.click(screen.getByRole("combobox", { name: /filter.alle/ }));
+    await settle();
+
+    expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual([
+      expect.stringContaining("filter.alle"),
+      expect.stringContaining("fakeUserName1"),
+    ]);
+  });
+
+  describe("when a document no longer exists in Open Zaak", () => {
+    const missingDocument = fromPartial<GeneratedType<"RestDetachedDocument">>({
+      ...detachedDocument,
+      isOntbreektInOpenZaak: true,
+    });
+
+    it("marks the row and only offers to delete it, so that an employee can clean it up", async () => {
+      await setup();
+      await showDocuments([missingDocument]);
+
+      const row = within(documentRow());
+      expect(row.getByTitle("indicatie.ontbreekt-in-open-zaak")).toBeVisible();
+      expect(
+        row.getByRole("button", { name: "actie.verwijderen" }),
+      ).toBeVisible();
+      expect(row.queryByRole("link")).toBeNull();
+      expect(
+        row.queryByRole("button", { name: "actie.document.koppelen" }),
+      ).toBeNull();
+    });
+  });
+
+  describe("when loading the list fails", () => {
+    async function failListRequests() {
+      await settle();
+      listRequests().forEach((request) =>
+        request.flush(null, { status: 404, statusText: "Not Found" }),
+      );
+      await settle();
+    }
+
+    function titelFilter() {
+      return screen.getAllByPlaceholderText("...")[0];
+    }
+
+    it("goes back to the page of the rows that are shown", async () => {
+      await setup();
+      await showDocuments([detachedDocument], 30);
+
+      await user.click(
+        screen.getByRole("button", { name: "actie.pagina.volgende" }),
+      );
+      await failListRequests();
+      TestBed.inject(MatDialog).closeAll();
+      await settle();
+
+      expect(screen.getByText(/1 - 10/)).toBeVisible();
+      expect(documentRow()).toBeVisible();
+    });
+
+    it("puts the filter back, so that select all never acts on rows outside the filter", async () => {
+      await setup();
+      await showDocuments([detachedDocument]);
+
+      await user.type(titelFilter(), "Andere titel{Enter}");
+      await failListRequests();
+
+      expect(titelFilter()).toHaveValue("");
+      expect(rememberedParameters().titel).toBeFalsy();
+    });
+
+    it("still loads the list on the next filter change", async () => {
+      await setup();
+      await showDocuments([detachedDocument]);
+      await user.type(titelFilter(), "Andere titel{Enter}");
+      await failListRequests();
+
+      await user.type(titelFilter(), "Weer een titel{Enter}");
+
+      expect(await lastListRequestBody()).toMatchObject({
+        titel: "Weer een titel",
+      });
+    });
+  });
+
+  describe("the saved searches", () => {
+    function clearFilterButton() {
+      return screen.getByRole("button", { name: "actie.zoekopdracht.wissen" });
+    }
+
+    async function flushSearches() {
+      await settle();
+      httpTestingController
+        .match((request) =>
+          request.url.includes("/rest/gebruikersvoorkeuren/zoekopdracht"),
+        )
+        .forEach((request) => request.flush([]));
+      await settle();
+    }
+
+    beforeEach(() => {
+      sessionStorage.setItem(
+        SEARCH_PARAMETERS_KEY,
+        JSON.stringify({
+          titel: "Aanvraag",
+          filtersType: "DetachedDocumentListParameters",
+        }),
+      );
+    });
+
+    it("offers to clear an active filter", async () => {
+      await setup();
+      await showDocuments([detachedDocument]);
+      await flushSearches();
+
+      expect(clearFilterButton()).toBeEnabled();
+    });
+
+    it("clears the filter text and loads the list without the filter", async () => {
+      await setup();
+      await showDocuments([detachedDocument]);
+      await flushSearches();
+
+      await user.click(clearFilterButton());
+
+      expect(screen.getAllByPlaceholderText("...")[0]).toHaveValue("");
+      expect(await lastListRequestBody()).toEqual(UNFILTERED_REQUEST_BODY);
+    });
   });
 
   it("marks a locked document as such instead of offering to delete it", async () => {
@@ -847,6 +997,53 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
         await closeDialogs();
 
         expect(selectAllCheckbox()).toBeChecked();
+      });
+
+      it("leaves out the deleted documents and keeps the failed one selected when the reload fails too", async () => {
+        await selectBothAndPressVerwijderen();
+        await confirmDeletion();
+
+        httpTestingController.expectOne(BULK_DELETE_URL).flush({
+          verwerkt: [42],
+          mislukt: [
+            {
+              id: 43,
+              titel: "Tweede formulier",
+              foutcode: "OPEN_ZAAK_NIET_BESCHIKBAAR",
+            },
+          ],
+        });
+        await settle();
+        listRequests().forEach((request) =>
+          request.flush(null, { status: 404, statusText: "Not Found" }),
+        );
+        await settle();
+        await closeDialogs();
+        fixture.detectChanges();
+
+        expect(
+          screen.queryByRole("row", { name: /Aanvraag formulier/ }),
+        ).toBeNull();
+        expect(
+          within(
+            screen.getByRole("row", { name: /Tweede formulier/ }),
+          ).getByRole("checkbox", { name: "actie.deselecteren" }),
+        ).toBeChecked();
+      });
+
+      it("still reports the result when the employee left the page before the response", async () => {
+        await selectBothAndPressVerwijderen();
+        await confirmDeletion();
+        const request = httpTestingController.expectOne(BULK_DELETE_URL);
+
+        fixture.destroy();
+        request.flush({ verwerkt: [42, 43], mislukt: [] });
+        await sleep();
+
+        expect(TestBed.inject(UtilService).openSnackbar).toHaveBeenCalledWith(
+          "msg.ontkoppelde-documenten.bulk.verwijderen.uitgevoerd",
+          { aantal: 2 },
+        );
       });
 
       it("clears the selection when every document was deleted", async () => {

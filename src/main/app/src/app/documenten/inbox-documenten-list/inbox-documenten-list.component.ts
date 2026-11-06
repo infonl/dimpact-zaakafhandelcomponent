@@ -253,7 +253,9 @@ export class InboxDocumentenListComponent
     } satisfies typeof this.listParametersSort;
   }
 
-  zoekopdrachtChanged(actieveZoekopdracht: GeneratedType<"RestZoekopdracht">) {
+  zoekopdrachtChanged(
+    actieveZoekopdracht: GeneratedType<"RestZoekopdracht"> | null,
+  ) {
     if (actieveZoekopdracht?.json) {
       this.listParameters = JSON.parse(actieveZoekopdracht.json);
       this.sort().active = this.listParametersSort.sort;

@@ -48,6 +48,7 @@ nl.info.zac.itest.IndexingAdminRestServiceTest
 nl.info.zac.itest.KlantRestServiceTest
 nl.info.zac.itest.SignaleringRestServiceRolDestroyTest
 nl.info.zac.itest.SignaleringRestServiceZaakspecifiekAutorisatieTest
+nl.info.zac.itest.TaskRestServiceTaakAfgerondSignaleringTest
 
 # other specs
 nl.info.zac.itest.AanvullendeInformatieTaskCompleteTest

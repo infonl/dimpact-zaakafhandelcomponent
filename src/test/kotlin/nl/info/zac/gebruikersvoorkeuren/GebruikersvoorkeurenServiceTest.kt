@@ -436,7 +436,7 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             every {
                 signaleringService.readInstellingenUser(SignaleringType.Type.ZAAK_OP_NAAM, "testMedewerker")
             } returns instellingen
-            every { signaleringService.createUpdateOrDeleteInstellingen(instellingen) } returns null
+            every { signaleringService.createOrUpdateInstellingen(instellingen) } returns instellingen
             every { entityManager.persist(card) } just Runs
 
             `when`("addDashboardCard is called") {
@@ -444,7 +444,7 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
 
                 then("it should update the signalering to show on dashboard and persist the card") {
                     verify { instellingen.isDashboard = true }
-                    verify { signaleringService.createUpdateOrDeleteInstellingen(instellingen) }
+                    verify { signaleringService.createOrUpdateInstellingen(instellingen) }
                     verify(exactly = 1) { entityManager.persist(card) }
                 }
             }
@@ -490,7 +490,7 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             every {
                 signaleringService.readInstellingenUser(SignaleringType.Type.TAAK_OP_NAAM, "testMedewerker")
             } returns instellingen
-            every { signaleringService.createUpdateOrDeleteInstellingen(instellingen) } returns null
+            every { signaleringService.createOrUpdateInstellingen(instellingen) } returns instellingen
             every {
                 entityManager.find(DashboardCardInstelling::class.java, card.id)
             } returns card
@@ -501,7 +501,7 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
 
                 then("it should disable dashboard on signalering and remove the card") {
                     verify { instellingen.isDashboard = false }
-                    verify { signaleringService.createUpdateOrDeleteInstellingen(instellingen) }
+                    verify { signaleringService.createOrUpdateInstellingen(instellingen) }
                     verify(exactly = 1) { entityManager.remove(card) }
                 }
             }

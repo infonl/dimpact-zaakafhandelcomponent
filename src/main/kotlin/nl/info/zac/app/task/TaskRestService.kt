@@ -64,6 +64,7 @@ import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.signalering.event.signaleringEvent
 import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.signalering.model.SignaleringZoekParameters
 import nl.info.zac.task.BpmnTaskFormRuntimeService
@@ -266,6 +267,7 @@ class TaskRestService @Inject constructor(
             indexingService.addOrUpdateZaakOrThrow(restTask.zaakUuid, false)
             eventingService.send(ScreenEventType.TAAK.updated(it))
             eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
+            eventingService.send(signaleringEvent(SignaleringType.Type.TAAK_AFGEROND, it, loggedInUserInstance.get()))
         }.let { restTaskConverter.toRestTask(it) }
     }
 

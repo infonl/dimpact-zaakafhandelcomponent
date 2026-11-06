@@ -109,6 +109,51 @@ class DetachedDocumentRestServiceBulkTest : BehaviorSpec({
         }
     }
 
+    given("A detached document") {
+        val (_, zaakUuid) = zaakHelper.createZaak(
+            zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+            testUser = BEHANDELAAR_1
+        )
+        val documentUuid = detachNewDocument(zaakUuid, "bulkInvalidItest")
+        val id = findDetachedDocumentId(documentUuid)
+
+        listOf(
+            "an id that is not a whole number" to """{"ids":[$id.5]}""",
+            "an id beyond the range of a Long" to """{"ids":[18446744073709551619]}""",
+            "a body that is not JSON" to "fakeNotJson",
+            "an empty body" to ""
+        ).forEach { (description, requestBody) ->
+            `when`("the bulk delete endpoint is called with $description") {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/ontkoppeldedocumenten/lijst/verwijderen",
+                    requestBodyAsString = requestBody,
+                    testUser = RECORDMANAGER_1
+                )
+
+                then("the request is refused and the document still exists") {
+                    response.code shouldBe HTTP_BAD_REQUEST
+                    findDetachedDocumentId(documentUuid) shouldBe id
+                }
+            }
+        }
+
+        `when`("the list is read") {
+            val response = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/ontkoppeldedocumenten",
+                requestBodyAsString = """{"page": 0, "maxResults": 100, "sort": "", "order": ""}""",
+                testUser = COORDINATOR_1
+            )
+
+            then("the document has the lock field that the frontend reads") {
+                val resultaten = JSONObject(response.bodyAsString).getJSONArray("resultaten")
+                (0 until resultaten.length())
+                    .map(resultaten::getJSONObject)
+                    .first { it.getLong("id") == id }
+                    .getBoolean("isVergrendeld") shouldBe false
+            }
+        }
+    }
+
     given("Two detached documents, an id that does not exist and a zaak to link them to") {
         val (zaakIdentificatie, zaakUuid) = zaakHelper.createZaak(
             zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,

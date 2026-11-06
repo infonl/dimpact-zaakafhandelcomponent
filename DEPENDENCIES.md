@@ -5,11 +5,11 @@ This document lists the Docker images and versions that the corresponding versio
 ## Core Dependencies
 
 - **postgres**: 17.11
-- **keycloak**: 26.8.1
+- **keycloak**: 26.8.2
 - **postgis**: 17-3.4
 - **redis**: 8.6.8
 - **solr**: 9.11.0-slim
-- **openpolicyagent/opa**: 1.22.0-static
+- **openpolicyagent/opa**: 1.22.1-static
 - **brp-api/personen-mock**: 2.7.0-202610201628
 - **gotenberg**: 8.40.0
 - **greenmail/standalone**: 2.1.15

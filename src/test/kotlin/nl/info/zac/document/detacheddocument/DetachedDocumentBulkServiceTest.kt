@@ -333,10 +333,10 @@ class DetachedDocumentBulkServiceTest : BehaviorSpec({
             `when`("the documents are deleted in bulk") {
                 val result = detachedDocumentBulkService.deleteInBulk(listOf(55L, 56L, 57L))
 
-                then("the other documents are processed and the second is reported as an Open Zaak failure") {
+                then("the other documents are processed and the second is reported as Open Zaak being unavailable") {
                     result.processedIds shouldBe listOf(55L, 57L)
                     result.failures.single().id shouldBe 56L
-                    result.failures.single().reason shouldBe DetachedDocumentBulkFailureReason.OPEN_ZAAK_ERROR
+                    result.failures.single().reason shouldBe DetachedDocumentBulkFailureReason.OPEN_ZAAK_UNAVAILABLE
                     verify(exactly = 0) { detachedDocumentService.deleteIfExists(56L) }
                 }
             }
@@ -352,8 +352,8 @@ class DetachedDocumentBulkServiceTest : BehaviorSpec({
             `when`("the document is deleted in bulk") {
                 val result = detachedDocumentBulkService.deleteInBulk(listOf(58L))
 
-                then("it is reported as an Open Zaak failure and stays in the table") {
-                    result.failures.single().reason shouldBe DetachedDocumentBulkFailureReason.OPEN_ZAAK_ERROR
+                then("it is reported as Open Zaak being unavailable and stays in the table") {
+                    result.failures.single().reason shouldBe DetachedDocumentBulkFailureReason.OPEN_ZAAK_UNAVAILABLE
                     verify(exactly = 0) { detachedDocumentService.deleteIfExists(58L) }
                 }
             }
@@ -505,6 +505,54 @@ class DetachedDocumentBulkServiceTest : BehaviorSpec({
             }
         }
 
+        given("a detached document that another employee deletes while it is being linked") {
+            stubInboxAccessAndTargetZaak()
+            val detachedDocument = createDetachedDocument().apply { id = 131L }
+            val informatieObject = createEnkelvoudigInformatieObject()
+            every { detachedDocumentService.find(131L) } returns detachedDocument
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(detachedDocument.documentUUID)
+            } returns informatieObject andThenThrows NotFoundException("fakeNotFound")
+            every {
+                policyService.readDocumentRechten(informatieObject, targetZaak)
+            } returns createDocumentRechten()
+            every {
+                zrcClientService.koppelInformatieobject(informatieObject, targetZaak, any())
+            } throws ZgwValidationErrorException(createValidationZgwError())
+
+            `when`("the document is linked in bulk") {
+                val result = detachedDocumentBulkService.linkInBulk(listOf(131L), nieuweZaakID)
+
+                then("it is reported as not found instead of as a refusal by the zaak") {
+                    result.failures.single().reason shouldBe DetachedDocumentBulkFailureReason.NOT_FOUND
+                }
+            }
+        }
+
+        given("a link that Open Zaak refuses, and a recheck of the document that fails with a server error") {
+            stubInboxAccessAndTargetZaak()
+            val detachedDocument = createDetachedDocument().apply { id = 133L }
+            val informatieObject = createEnkelvoudigInformatieObject()
+            every { detachedDocumentService.find(133L) } returns detachedDocument
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(detachedDocument.documentUUID)
+            } returns informatieObject andThenThrows InternalServerErrorException("fakeServerError")
+            every {
+                policyService.readDocumentRechten(informatieObject, targetZaak)
+            } returns createDocumentRechten()
+            every {
+                zrcClientService.koppelInformatieobject(informatieObject, targetZaak, any())
+            } throws ZgwValidationErrorException(createValidationZgwError())
+
+            `when`("the document is linked in bulk") {
+                val result = detachedDocumentBulkService.linkInBulk(listOf(133L), nieuweZaakID)
+
+                then("it is reported as the refusal by Open Zaak instead of as an outage") {
+                    result.failures.single().reason shouldBe DetachedDocumentBulkFailureReason.OPEN_ZAAK_ERROR
+                }
+            }
+        }
+
         given("a detached document that is already linked to a zaak") {
             stubInboxAccessAndTargetZaak()
             val detachedDocument = createDetachedDocument().apply { id = 101L }
@@ -549,10 +597,10 @@ class DetachedDocumentBulkServiceTest : BehaviorSpec({
             `when`("the documents are linked in bulk") {
                 val result = detachedDocumentBulkService.linkInBulk(listOf(131L, 132L), nieuweZaakID)
 
-                then("the second is linked and the first is reported as not found") {
+                then("the second is linked and the first is reported as missing in Open Zaak, not as gone from the list") {
                     result.processedIds shouldBe listOf(132L)
                     result.failures.single().id shouldBe 131L
-                    result.failures.single().reason shouldBe DetachedDocumentBulkFailureReason.NOT_FOUND
+                    result.failures.single().reason shouldBe DetachedDocumentBulkFailureReason.MISSING_IN_OPEN_ZAAK
                 }
             }
         }
@@ -584,10 +632,10 @@ class DetachedDocumentBulkServiceTest : BehaviorSpec({
             `when`("the documents are linked in bulk") {
                 val result = detachedDocumentBulkService.linkInBulk(listOf(141L, 142L), nieuweZaakID)
 
-                then("the second is linked and the first is reported as an Open Zaak failure") {
+                then("the second is linked and the first is reported as Open Zaak being unavailable") {
                     result.processedIds shouldBe listOf(142L)
                     result.failures.single().id shouldBe 141L
-                    result.failures.single().reason shouldBe DetachedDocumentBulkFailureReason.OPEN_ZAAK_ERROR
+                    result.failures.single().reason shouldBe DetachedDocumentBulkFailureReason.OPEN_ZAAK_UNAVAILABLE
                 }
             }
         }
@@ -619,10 +667,10 @@ class DetachedDocumentBulkServiceTest : BehaviorSpec({
             `when`("the documents are linked in bulk") {
                 val result = detachedDocumentBulkService.linkInBulk(listOf(161L, 162L), nieuweZaakID)
 
-                then("the second is linked and the first is reported as an Open Zaak failure") {
+                then("the second is linked and the first is reported as Open Zaak being unavailable") {
                     result.processedIds shouldBe listOf(162L)
                     result.failures.single().id shouldBe 161L
-                    result.failures.single().reason shouldBe DetachedDocumentBulkFailureReason.OPEN_ZAAK_ERROR
+                    result.failures.single().reason shouldBe DetachedDocumentBulkFailureReason.OPEN_ZAAK_UNAVAILABLE
                 }
             }
         }

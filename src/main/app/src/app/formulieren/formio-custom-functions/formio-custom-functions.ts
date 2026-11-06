@@ -5,8 +5,9 @@
 
 import { inject, Injectable } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { lastValueFrom } from "rxjs";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
+import { StaleTimes } from "../../shared/http/zac-query-client";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 
 type EvalContext = Record<string, unknown>;
@@ -110,6 +111,7 @@ export class FormioCustomFunctions {
     InformatieObjectenService,
   );
   private readonly translateService = inject(TranslateService);
+  private readonly queryClient = inject(QueryClient);
 
   private readonly datumPipe = new DatumPipe();
 
@@ -247,11 +249,12 @@ export class FormioCustomFunctions {
     const entries = await Promise.all(
       [...new Set(uuids)].map(async (uuid) => {
         try {
-          const document = await lastValueFrom(
-            this.informatieObjectenService.readEnkelvoudigInformatieobject(
+          const document = await this.queryClient.query({
+            ...this.informatieObjectenService.readEnkelvoudigInformatieobject(
               uuid,
             ),
-          );
+            staleTime: StaleTimes.Instant,
+          });
           return document?.titel ? ([uuid, document.titel] as const) : null;
         } catch {
           console.error(

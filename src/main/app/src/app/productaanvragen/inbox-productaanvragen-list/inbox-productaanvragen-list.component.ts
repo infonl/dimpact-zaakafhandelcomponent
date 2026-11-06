@@ -239,7 +239,7 @@ export class InboxProductaanvragenListComponent
   }
 
   protected zoekopdrachtChanged(
-    actieveZoekopdracht: GeneratedType<"RestZoekopdracht">,
+    actieveZoekopdracht: GeneratedType<"RestZoekopdracht"> | null,
   ) {
     if (actieveZoekopdracht?.json) {
       this.listParameters = this.withSupportedSort({

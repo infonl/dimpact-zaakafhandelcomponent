@@ -52,7 +52,7 @@ import { ZoekFilters } from "./zoekfilters.model";
 export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   readonly werklijst = input.required<GeneratedType<"Werklijst">>();
   readonly zoekFilters = input.required<ZoekFilters>();
-  readonly zoekopdracht = output<GeneratedType<"RestZoekopdracht">>();
+  readonly zoekopdracht = output<GeneratedType<"RestZoekopdracht"> | null>();
   readonly filtersChanged = input.required<EventEmitter<void>>();
 
   protected readonly actieveZoekopdracht =
@@ -140,10 +140,9 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   protected clearActief(emit?: boolean) {
     this.actieveZoekopdracht.set(null);
     this.removeZoekopdrachtActiefMutation.mutate(this.werklijst());
-    const actieveZoekopdracht = this.actieveZoekopdracht();
-    if (emit && actieveZoekopdracht) {
+    if (emit) {
       this.actieveFilters.set(false);
-      this.zoekopdracht.emit(actieveZoekopdracht);
+      this.zoekopdracht.emit(null);
     } else {
       this.actieveFilters.set(this.heeftActieveFilters());
     }

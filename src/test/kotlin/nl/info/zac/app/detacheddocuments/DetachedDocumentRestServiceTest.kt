@@ -15,7 +15,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.zac.app.detacheddocuments.converter.RestDetachedDocumentConverter
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocument
@@ -35,7 +34,6 @@ import nl.info.zac.search.SearchService
 class DetachedDocumentRestServiceTest : BehaviorSpec({
     val detachedDocumentService = mockk<DetachedDocumentService>()
     val detachedDocumentBulkService = mockk<DetachedDocumentBulkService>()
-    val drcClientService = mockk<DrcClientService>()
     val restDetachedDocumentConverter = mockk<RestDetachedDocumentConverter>()
     val userConverter = mockk<RestUserConverter>()
     val policyService = mockk<PolicyService>()
@@ -43,7 +41,6 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
     val detachedDocumentRestService = DetachedDocumentRestService(
         detachedDocumentService,
         detachedDocumentBulkService,
-        drcClientService,
         restDetachedDocumentConverter,
         userConverter,
         policyService,
@@ -116,7 +113,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             every { policyService.readWerklijstRechten() } returns werklijstRechten
             every { detachedDocumentService.getDetachedDocumentResult(any()) } returns resultaat
             every {
-                drcClientService.readEnkelvoudigInformatieobject(detachedDocument.documentUUID)
+                detachedDocumentBulkService.findEnkelvoudigInformatieobject(detachedDocument.documentUUID)
             } returns informatieObject
             every {
                 searchService.listZaakspecifiekGeautoriseerdeWaarden(listOf(detachedDocument.zaakID))
@@ -130,7 +127,38 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
 
                 then("the result is returned with an empty filterOntkoppeldDoor") {
                     result shouldNotBe null
-                    (result as RestDetachedDocumentResult).filterOntkoppeldDoor shouldBe emptyList()
+                    result.filterOntkoppeldDoor shouldBe emptyList()
+                }
+            }
+        }
+
+        given("a detached document that no longer exists in Open Zaak") {
+            val werklijstRechten = createWerklijstRechten(inbox = true)
+            val detachedDocument = createDetachedDocument()
+            val restDocument = RestDetachedDocument()
+            val resultaat = DetachedDocumentResult(listOf(detachedDocument), 1L, emptyList())
+            every { policyService.readWerklijstRechten() } returns werklijstRechten
+            every { detachedDocumentService.getDetachedDocumentResult(any()) } returns resultaat
+            every {
+                detachedDocumentBulkService.findEnkelvoudigInformatieobject(detachedDocument.documentUUID)
+            } returns null
+            every {
+                searchService.listZaakspecifiekGeautoriseerdeWaarden(listOf(detachedDocument.zaakID))
+            } returns emptySet()
+            every {
+                restDetachedDocumentConverter.convertToRestDetachedDocuments(
+                    listOf(detachedDocument),
+                    listOf(null),
+                    emptySet()
+                )
+            } returns listOf(restDocument)
+
+            `when`("the list endpoint is called") {
+                val result = detachedDocumentRestService.listDetachedDocuments(RestDetachedDocumentListParameters())
+
+                then("the list still loads, with the row kept so that an employee can remove it") {
+                    result.results shouldBe listOf(restDocument)
+                    result.resultCount shouldBe 1L
                 }
             }
         }
@@ -148,7 +176,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             every { policyService.readWerklijstRechten() } returns werklijstRechten
             every { detachedDocumentService.getDetachedDocumentResult(any()) } returns resultaat
             every {
-                drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
+                detachedDocumentBulkService.findEnkelvoudigInformatieobject(document.documentUUID)
             } returns informatieObject
             every {
                 searchService.listZaakspecifiekGeautoriseerdeWaarden(listOf(document.zaakID))
@@ -161,7 +189,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 val result = detachedDocumentRestService.listDetachedDocuments(restListParameters)
 
                 then("filterOntkoppeldDoor contains the user from the request") {
-                    (result as RestDetachedDocumentResult).filterOntkoppeldDoor shouldBe listOf(requestUser)
+                    result.filterOntkoppeldDoor shouldBe listOf(requestUser)
                 }
             }
         }
@@ -181,7 +209,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             every { policyService.readWerklijstRechten() } returns werklijstRechten
             every { detachedDocumentService.getDetachedDocumentResult(any()) } returns resultaat
             every {
-                drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
+                detachedDocumentBulkService.findEnkelvoudigInformatieobject(document.documentUUID)
             } returns informatieObject
             every {
                 searchService.listZaakspecifiekGeautoriseerdeWaarden(listOf(document.zaakID))
@@ -195,7 +223,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 val result = detachedDocumentRestService.listDetachedDocuments(restListParameters)
 
                 then("filterOntkoppeldDoor is populated from the database filter via userConverter") {
-                    (result as RestDetachedDocumentResult).filterOntkoppeldDoor shouldBe convertedUsers
+                    result.filterOntkoppeldDoor shouldBe convertedUsers
                 }
             }
         }

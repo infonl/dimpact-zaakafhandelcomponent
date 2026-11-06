@@ -145,6 +145,47 @@ describe(ZoekenDataSource.name, () => {
     });
   });
 
+  describe("given a sorted table on a later page with filters and a larger page size", () => {
+    let paginator: MatPaginator;
+
+    beforeEach(async () => {
+      SessionStorageUtil.setItem(SESSION_KEY, {
+        filters: { ZAAK_STATUS: { values: ["Open"], inverse: false } },
+      });
+      paginator = fromPartial<MatPaginator>({ pageIndex: 2, pageSize: 50 });
+      await respondWith(await showTable(paginator, "ZAAK_IDENTIFICATIE"));
+    });
+
+    describe("when the active search is cleared", () => {
+      let request: TestRequest;
+
+      beforeEach(async () => {
+        dataSource.zoekopdrachtChanged(null);
+        request = await nextSearch();
+      });
+
+      afterEach(() => respondWith(request));
+
+      it("keeps the page size of the employee", () => {
+        expect(paginator.pageSize).toBe(50);
+        expect(searchedFor(request).rows).toBe(50);
+      });
+
+      it("removes the filters", () => {
+        expect(searchedFor(request).filters).toEqual({});
+      });
+
+      it("puts the sort back on the default", () => {
+        expect(searchedFor(request).sorteerVeld).toBeUndefined();
+        expect(searchedFor(request).sorteerRichting).toBe("");
+      });
+
+      it("goes back to the first page", () => {
+        expect(searchedFor(request).page).toBe(0);
+      });
+    });
+  });
+
   it("starts from the search parameters of the previous visit", async () => {
     SessionStorageUtil.setItem(SESSION_KEY, {
       filters: { ZAAK_STATUS: { values: ["Open"], inverse: false } },

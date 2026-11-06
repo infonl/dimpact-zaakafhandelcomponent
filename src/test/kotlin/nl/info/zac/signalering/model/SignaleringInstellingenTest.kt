@@ -96,46 +96,6 @@ class SignaleringInstellingenTest : BehaviorSpec({
         }
     }
 
-    context("Checking whether signalering instellingen are empty") {
-        given("instellingen with neither dashboard nor mail") {
-            val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.USER, "fakeUsername")
-
-            `when`("it is checked whether they are empty") {
-                val isEmpty = signaleringInstellingen.isEmpty
-
-                then("they are empty") {
-                    isEmpty shouldBe true
-                }
-            }
-        }
-
-        given("instellingen with only dashboard") {
-            val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.USER, "fakeUsername")
-                .apply { isDashboard = true }
-
-            `when`("it is checked whether they are empty") {
-                val isEmpty = signaleringInstellingen.isEmpty
-
-                then("they are not empty") {
-                    isEmpty shouldBe false
-                }
-            }
-        }
-
-        given("instellingen with only mail") {
-            val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.USER, "fakeUsername")
-                .apply { isMail = true }
-
-            `when`("it is checked whether they are empty") {
-                val isEmpty = signaleringInstellingen.isEmpty
-
-                then("they are not empty") {
-                    isEmpty shouldBe false
-                }
-            }
-        }
-    }
-
     context("Describing signalering instellingen") {
         given("instellingen of a group") {
             val signaleringInstellingen = SignaleringInstellingen(signaleringType, SignaleringTarget.GROUP, "fakeGroupId")

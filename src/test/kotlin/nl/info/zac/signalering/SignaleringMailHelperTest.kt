@@ -113,6 +113,7 @@ class SignaleringMailHelperTest : BehaviorSpec({
         listOf(
             SignaleringType.Type.TAAK_OP_NAAM to Mail.SIGNALERING_TAAK_OP_NAAM,
             SignaleringType.Type.TAAK_VERLOPEN to Mail.SIGNALERING_TAAK_VERLOPEN,
+            SignaleringType.Type.TAAK_AFGEROND to Mail.SIGNALERING_TAAK_AFGEROND,
             SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD to Mail.SIGNALERING_ZAAK_DOCUMENT_TOEGEVOEGD,
             SignaleringType.Type.ZAAK_OP_NAAM to Mail.SIGNALERING_ZAAK_OP_NAAM,
         ).forEach { (signaleringType, expectedMail) ->

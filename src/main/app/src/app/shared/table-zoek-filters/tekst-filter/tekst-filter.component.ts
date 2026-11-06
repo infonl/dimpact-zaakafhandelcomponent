@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, model, OnInit, output } from "@angular/core";
+import { Component, effect, model, output, untracked } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
@@ -21,13 +21,16 @@ import { MatInputModule } from "@angular/material/input";
     MatIconModule,
   ],
 })
-export class TekstFilterComponent implements OnInit {
+export class TekstFilterComponent {
   protected formControl = new FormControl<string | undefined>(undefined);
   readonly value = model<string | null>();
   readonly changed = output<string>();
 
-  ngOnInit(): void {
-    this.formControl.setValue(this.value() ?? "");
+  constructor() {
+    effect(() => {
+      const value = this.value() ?? "";
+      untracked(() => this.formControl.setValue(value));
+    });
   }
 
   protected change(): void {

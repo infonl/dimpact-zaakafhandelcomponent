@@ -77,7 +77,7 @@ redis:
   image: redis:8.6.8@sha256:3d89f7d15768840f509ecc050347868c8b9f5768625eae14ed7633e039ded7fb
 
 keycloak:
-  image: quay.io/keycloak/keycloak:26.8.1@sha256:3f3c5f8e03c614774b4bd9173b88391fefa4153bfc010d8012d59ad825377332
+  image: quay.io/keycloak/keycloak:26.8.2@sha256:3879c623248408de29a5303178b5816c77e8dfef3890c361f8c0bbeaa979ba3b
   # -- the URL of Keycloak in the browser, which is also the issuer of the tokens; set by scripts/kind/up.sh
   hostname: ""
   # -- the e-mail addresses of the test users and groups of the realm, which <NAME>_EMAIL_ADDRESS in
@@ -138,7 +138,7 @@ solr:
 
 opa:
   # -- keep in sync with the OPA of charts/zac
-  image: openpolicyagent/opa:1.22.0-static@sha256:906bfc9904b2693733e7959d71773dd073e6c135cf06f26d955abe94603e82b3
+  image: openpolicyagent/opa:1.22.1-static@sha256:e9e6cf5d569ff419cfa5785ab28d46709a5e69cb5856d53e1b6cb8d343a39730
 
 officeConverter:
   # -- keep in sync with the office converter of charts/zac
