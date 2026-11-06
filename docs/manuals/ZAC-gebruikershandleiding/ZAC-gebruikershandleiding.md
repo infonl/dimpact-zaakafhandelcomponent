@@ -1602,7 +1602,9 @@ In de werklijst ‘Ontkoppelde documenten’ kun je meerdere documenten tegelijk
 
 3 Bij *Verwijderen* bevestig je de vraag ‘Weet u dit zeker?’. Bij *Koppelen* zoek je in het paneel de zaak waaraan je de documenten wilt koppelen
 
-4 Na afloop zie je hoeveel documenten zijn verwerkt. Lukt het bij een document niet, bijvoorbeeld omdat het is vergrendeld, dan blijft dat document in de lijst staan en zie je per document de reden. De overige documenten worden wel verwerkt
+4 Na afloop zie je hoeveel documenten zijn verwerkt. Lukt het bij een document niet, bijvoorbeeld omdat het is vergrendeld, dan blijft dat document in de lijst staan en zie je per document de reden. De overige documenten worden wel verwerkt. Is Open Zaak niet beschikbaar, dan blijven de niet-verwerkte documenten geselecteerd en kun je het later opnieuw proberen
+
+Staat er bij een document een waarschuwing dat het niet meer bestaat in Open Zaak, dan kun je het document niet openen of koppelen. Verwijder het document om het uit de lijst te halen.
 
 <div style="page-break-after: always"></div>
 

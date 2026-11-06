@@ -13,7 +13,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.validation.Validation
-import nl.info.client.zgw.drc.DrcClientService
 import nl.info.zac.app.detacheddocuments.converter.RestDetachedDocumentConverter
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentBulkDeleteRequest
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentBulkFailure
@@ -33,7 +32,6 @@ import nl.info.zac.search.SearchService
 class DetachedDocumentRestServiceBulkTest : BehaviorSpec({
     val detachedDocumentService = mockk<DetachedDocumentService>()
     val detachedDocumentBulkService = mockk<DetachedDocumentBulkService>()
-    val drcClientService = mockk<DrcClientService>()
     val restDetachedDocumentConverter = mockk<RestDetachedDocumentConverter>()
     val userConverter = mockk<RestUserConverter>()
     val policyService = mockk<PolicyService>()
@@ -41,7 +39,6 @@ class DetachedDocumentRestServiceBulkTest : BehaviorSpec({
     val detachedDocumentRestService = DetachedDocumentRestService(
         detachedDocumentService,
         detachedDocumentBulkService,
-        drcClientService,
         restDetachedDocumentConverter,
         userConverter,
         policyService,

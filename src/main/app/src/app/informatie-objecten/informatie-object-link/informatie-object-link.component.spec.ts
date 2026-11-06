@@ -643,6 +643,37 @@ describe(InformatieObjectLinkComponent.name, () => {
       request.flush({ verwerkt: [7, 8], mislukt: [] });
     });
 
+    it("sends one request for two clicks in the same tick", async () => {
+      await setupBulk();
+      await showKoppelbareZaken();
+      const button = koppelButtonInRowOf("ZAAK-001");
+
+      button.click();
+      button.click();
+      await sleep();
+
+      httpTestingController
+        .expectOne(BULK_LINK_URL)
+        .flush({ verwerkt: [7, 8], mislukt: [] });
+    });
+
+    it("still reports the outcome when the employee left the page before the response", async () => {
+      await setupBulk();
+      await showKoppelbareZaken();
+
+      await user.click(koppelButtonInRowOf("ZAAK-001"));
+      await sleep();
+      const request = httpTestingController.expectOne(BULK_LINK_URL);
+      fixture.destroy();
+      request.flush({ verwerkt: [7, 8], mislukt: [] });
+      await sleep();
+
+      expect(openSnackbar).toHaveBeenCalledWith(
+        "msg.ontkoppelde-documenten.bulk.koppelen.uitgevoerd",
+        { aantal: 2, case: "ZAAK-001" },
+      );
+    });
+
     it("reports the outcome, closes the side nav and signals that no document was left unlinked", async () => {
       await setupBulk();
       await showKoppelbareZaken();

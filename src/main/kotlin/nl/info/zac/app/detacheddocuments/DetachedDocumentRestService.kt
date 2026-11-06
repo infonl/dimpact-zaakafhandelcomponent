@@ -14,19 +14,16 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.app.detacheddocuments.converter.RestDetachedDocumentConverter
 import nl.info.zac.app.detacheddocuments.converter.toDetachedDocumentListParameters
 import nl.info.zac.app.detacheddocuments.converter.toRestDetachedDocumentBulkResult
-import nl.info.zac.app.detacheddocuments.model.RestDetachedDocument
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentBulkDeleteRequest
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentBulkLinkRequest
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentBulkResult
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentResult
 import nl.info.zac.app.identity.converter.RestUserConverter
-import nl.info.zac.app.shared.RestResultaat
 import nl.info.zac.document.detacheddocument.DetachedDocumentBulkService
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.policy.PolicyService
@@ -44,7 +41,6 @@ import nl.info.zac.util.NoArgConstructor
 class DetachedDocumentRestService @Inject constructor(
     private val detachedDocumentService: DetachedDocumentService,
     private val detachedDocumentBulkService: DetachedDocumentBulkService,
-    private val drcClientService: DrcClientService,
     private val restDetachedDocumentConverter: RestDetachedDocumentConverter,
     private val userConverter: RestUserConverter,
     private val policyService: PolicyService,
@@ -54,16 +50,16 @@ class DetachedDocumentRestService @Inject constructor(
     @Path("")
     fun listDetachedDocuments(
         restListParameters: RestDetachedDocumentListParameters
-    ): RestResultaat<RestDetachedDocument> {
+    ): RestDetachedDocumentResult {
         assertPolicy(policyService.readWerklijstRechten().canInbox)
         val listParameters = restListParameters.toDetachedDocumentListParameters()
         val resultaat = detachedDocumentService.getDetachedDocumentResult(listParameters)
         val ontkoppeldeDocumenten = resultaat.items
         val informationObjectTypeUUIDs = ontkoppeldeDocumenten.map { ontkoppeldeDocument ->
-            drcClientService
-                .readEnkelvoudigInformatieobject(ontkoppeldeDocument.documentUUID)
-                .informatieobjecttype
-                .extractUuid()
+            detachedDocumentBulkService
+                .findEnkelvoudigInformatieobject(ontkoppeldeDocument.documentUUID)
+                ?.informatieobjecttype
+                ?.extractUuid()
         }
         val restDetachedDocumentResult = RestDetachedDocumentResult(
             results = restDetachedDocumentConverter.convertToRestDetachedDocuments(

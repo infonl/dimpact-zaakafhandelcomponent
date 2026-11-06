@@ -160,8 +160,20 @@ export class InformatieObjectLinkComponent {
     this.informatieObjectService.linkDocumentToCaseMutation(),
   );
 
-  protected readonly linkOntkoppeldeDocumentenMutation = injectMutation(() =>
-    this.ontkoppeldeDocumentenService.linkOntkoppeldeDocumenten(),
+  private documentsBeingLinked: GeneratedType<"RestDetachedDocument">[] = [];
+
+  // Reports from the options of the mutation, because those also run after the employee left the page.
+  protected readonly linkOntkoppeldeDocumentenMutation = injectMutation(
+    () => this.ontkoppeldeDocumentenService.linkOntkoppeldeDocumenten(),
+    {
+      onSuccess: (result, { nieuweZaakID }) =>
+        this.ontkoppeldeDocumentenService.reportBulkResult(
+          result,
+          "koppelen",
+          this.documentsBeingLinked,
+          { case: nieuweZaakID },
+        ),
+    },
   );
 
   private readonly queryClient = inject(QueryClient);
@@ -211,11 +223,7 @@ export class InformatieObjectLinkComponent {
   }
 
   protected selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
-    if (
-      this.linkDocumentMutation.isPending() ||
-      this.linkOntkoppeldeDocumentenMutation.isPending()
-    )
-      return;
+    if (this.isLinkRunning()) return;
 
     if (this.bulkDocuments().length > 0) {
       this.linkBulkDocuments(row);
@@ -257,9 +265,23 @@ export class InformatieObjectLinkComponent {
     );
   }
 
+  /**
+   * Asks the cache because the `isPending` signals of a mutation only follow a
+   * tick after `mutate`, which lets a second click in the same tick through.
+   */
+  private isLinkRunning() {
+    return [
+      this.informatieObjectService.linkDocumentToCaseMutation(),
+      this.ontkoppeldeDocumentenService.linkOntkoppeldeDocumenten(),
+    ].some(
+      ({ mutationKey }) => this.queryClient.isMutating({ mutationKey }) > 0,
+    );
+  }
+
   private linkBulkDocuments(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
     const selectedDocuments = this.bulkDocuments();
     const ids = selectedDocuments.map(({ id }) => id!);
+    this.documentsBeingLinked = selectedDocuments;
     this.linkOntkoppeldeDocumentenMutation.mutate(
       {
         ids,
@@ -267,14 +289,6 @@ export class InformatieObjectLinkComponent {
       },
       {
         onSuccess: (result) => {
-          this.ontkoppeldeDocumentenService.reportBulkResult(
-            result,
-            "koppelen",
-            selectedDocuments,
-            {
-              case: row.identificatie,
-            },
-          );
           this.close();
           this.bulkLinkFinished.emit({
             notLinkedIds: result.mislukt?.map(({ id }) => id!) ?? [],

@@ -71,14 +71,17 @@ export class OntkoppeldeDocumentenService {
     args: object = {},
   ) {
     const aantal = result.verwerkt?.length ?? 0;
-    this.utilService.openSnackbar(
-      `msg.ontkoppelde-documenten.bulk.${actie}.uitgevoerd${aantal === 1 ? ".enkelvoud" : ""}`,
-      { aantal, ...args },
-    );
+    if (aantal > 0) {
+      this.utilService.openSnackbar(
+        `msg.ontkoppelde-documenten.bulk.${actie}.uitgevoerd${aantal === 1 ? ".enkelvoud" : ""}`,
+        { aantal, ...args },
+      );
+    }
     if (result.mislukt?.length) {
       this.dialog.open(OntkoppeldeDocumentenBulkFoutenDialogComponent, {
         data: {
           actie,
+          nietsVerwerkt: aantal === 0,
           mislukt: result.mislukt.map((failure) => ({
             ...failure,
             titel:
