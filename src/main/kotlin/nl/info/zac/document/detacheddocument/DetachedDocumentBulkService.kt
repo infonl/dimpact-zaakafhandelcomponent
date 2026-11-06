@@ -178,12 +178,24 @@ class DetachedDocumentBulkService @Inject constructor(
             )
         } catch (zgwValidationErrorException: ZgwValidationErrorException) {
             // Open Zaak also refuses the link of a document that another employee deleted after it was read above.
-            findEnkelvoudigInformatieobject(detachedDocument.documentUUID)
-                ?: throw NotFoundException("Informatieobject '${detachedDocument.documentUUID}' is verwijderd")
+            if (isConfirmedDeleted(detachedDocument.documentUUID)) {
+                throw NotFoundException("Informatieobject '${detachedDocument.documentUUID}' is verwijderd")
+            }
             throw zgwValidationErrorException
         }
         detachedDocumentService.deleteIfExists(detachedDocument.documentUUID)
     }
+
+    private fun isConfirmedDeleted(documentUUID: UUID): Boolean =
+        try {
+            findEnkelvoudigInformatieobject(documentUUID) == null
+        } catch (_: WebApplicationException) {
+            false
+        } catch (_: ZgwRuntimeException) {
+            false
+        } catch (_: ProcessingException) {
+            false
+        }
 }
 
 private fun WebApplicationException.isNotFound() = response?.status == HttpStatus.NOT_FOUND_404

@@ -3,7 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpTestingController } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  TestRequest,
+} from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
 import { MatDialogRef } from "@angular/material/dialog";
@@ -602,6 +605,47 @@ describe(ZakenWerkvoorraadComponent.name, () => {
         expect(stop).not.toHaveBeenCalled();
         expect(component["selection"].isEmpty()).toBe(false);
       });
+    });
+  });
+
+  describe("a text filter when a search fails", () => {
+    async function answerSearches(answer: (request: TestRequest) => void) {
+      await sleep();
+      fixture.detectChanges();
+      await sleep();
+      httpTestingController.match("/rest/zoeken/list").forEach(answer);
+      await sleep();
+      fixture.detectChanges();
+      await sleep();
+      fixture.detectChanges();
+    }
+
+    const succeed = (request: TestRequest) =>
+      request.flush({ totaal: 0, resultaten: [], filters: {} });
+
+    const fail = (request: TestRequest) =>
+      request.flush(
+        { message: "fakeMessage", exception: "fakeException" },
+        { status: 400, statusText: "Bad Request" },
+      );
+
+    it("puts back the text of the last successful search, so that the text matches the rows shown", async () => {
+      sessionStorage.clear();
+      await setup();
+      const user = userEvent.setup();
+      await answerSearches(succeed);
+      const [textFilter] = screen.getAllByPlaceholderText("...");
+
+      await user.type(textFilter, "fakeFoundText");
+      await user.tab();
+      await answerSearches(succeed);
+
+      await user.clear(textFilter);
+      await user.type(textFilter, "fakeFailingText");
+      await user.tab();
+      await answerSearches(fail);
+
+      expect(textFilter).toHaveValue("fakeFoundText");
     });
   });
 });

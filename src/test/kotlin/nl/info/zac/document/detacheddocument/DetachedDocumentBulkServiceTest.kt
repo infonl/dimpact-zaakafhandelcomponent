@@ -529,6 +529,30 @@ class DetachedDocumentBulkServiceTest : BehaviorSpec({
             }
         }
 
+        given("a link that Open Zaak refuses, and a recheck of the document that fails with a server error") {
+            stubInboxAccessAndTargetZaak()
+            val detachedDocument = createDetachedDocument().apply { id = 133L }
+            val informatieObject = createEnkelvoudigInformatieObject()
+            every { detachedDocumentService.find(133L) } returns detachedDocument
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(detachedDocument.documentUUID)
+            } returns informatieObject andThenThrows InternalServerErrorException("fakeServerError")
+            every {
+                policyService.readDocumentRechten(informatieObject, targetZaak)
+            } returns createDocumentRechten()
+            every {
+                zrcClientService.koppelInformatieobject(informatieObject, targetZaak, any())
+            } throws ZgwValidationErrorException(createValidationZgwError())
+
+            `when`("the document is linked in bulk") {
+                val result = detachedDocumentBulkService.linkInBulk(listOf(133L), nieuweZaakID)
+
+                then("it is reported as the refusal by Open Zaak instead of as an outage") {
+                    result.failures.single().reason shouldBe DetachedDocumentBulkFailureReason.OPEN_ZAAK_ERROR
+                }
+            }
+        }
+
         given("a detached document that is already linked to a zaak") {
             stubInboxAccessAndTargetZaak()
             val detachedDocument = createDetachedDocument().apply { id = 101L }
