@@ -74,7 +74,7 @@ postgres:
       owner: selectielijst
 
 redis:
-  image: redis:8.6.8@sha256:7e2de3b74f334048ac1de3db8e088c940043a10c47bcf48c6367992ac7007189
+  image: redis:8.6.8@sha256:8b30009c0de4fdb3fb67deb8afab050fe454e9b233c6a2c142ec34fcc51fa7f5
 
 keycloak:
   image: quay.io/keycloak/keycloak:26.8.2@sha256:3879c623248408de29a5303178b5816c77e8dfef3890c361f8c0bbeaa979ba3b
