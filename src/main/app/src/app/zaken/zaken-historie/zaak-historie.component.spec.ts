@@ -81,6 +81,18 @@ describe(ZaakHistorieComponent.name, () => {
     fixture.detectChanges();
   }
 
+  async function respondWithError(uuid = zaak.uuid) {
+    httpTestingController
+      .expectOne(`/rest/zaken/zaak/${uuid}/historie`)
+      .flush(null, { status: 404, statusText: "Not Found" });
+    await sleep();
+    fixture.detectChanges();
+  }
+
+  async function refetch() {
+    await testQueryClient.invalidateQueries();
+  }
+
   function gebruikersInRowOrder() {
     return screen
       .getAllByRole("row")
@@ -133,6 +145,48 @@ describe(ZaakHistorieComponent.name, () => {
     expect(
       screen.getByRole("row", { name: /andereToelichting/ }),
     ).toBeVisible();
+  });
+
+  describe("when the historie is read again in the background", () => {
+    it("shows the refetch hint and keeps the historie when the read fails", async () => {
+      await setup();
+      await respondWith([historieRegel({ toelichting: "oudeToelichting" })]);
+
+      void refetch();
+      await respondWithError();
+
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "msg.verversen.mislukt",
+      );
+      expect(
+        screen.getByRole("row", { name: /oudeToelichting/ }),
+      ).toBeVisible();
+    });
+
+    it("hides the refetch hint again after a read that succeeds", async () => {
+      await setup();
+      await respondWith([historieRegel({ toelichting: "oudeToelichting" })]);
+      void refetch();
+      await respondWithError();
+
+      void refetch();
+      await respondWith([historieRegel({ toelichting: "nieuweToelichting" })]);
+
+      expect(
+        screen.queryByText("msg.verversen.mislukt"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("row", { name: /nieuweToelichting/ }),
+      ).toBeVisible();
+    });
+  });
+
+  it("does not show the refetch hint when the first read fails, because the error dialog reports that", async () => {
+    await setup();
+
+    await respondWithError();
+
+    expect(screen.queryByText("msg.verversen.mislukt")).not.toBeInTheDocument();
   });
 
   it("sorts the rows on the moment of the change", async () => {
