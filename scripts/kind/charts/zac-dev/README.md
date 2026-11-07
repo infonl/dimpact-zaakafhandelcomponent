@@ -37,7 +37,7 @@ The services of the local ZAC development stack on kind that have no upstream He
 | profiles.openformulieren | bool | `false` | Open Formulieren (-f) |
 | profiles.opennotificaties | bool | `false` | Open Notificaties (-n, and with -f) |
 | profiles.vngselectielijst | bool | `false` | VNG Selectielijst (-v) |
-| redis.image | string | `"redis:8.6.8@sha256:3d89f7d15768840f509ecc050347868c8b9f5768625eae14ed7633e039ded7fb"` |  |
+| redis.image | string | `"redis:8.6.8@sha256:7e2de3b74f334048ac1de3db8e088c940043a10c47bcf48c6367992ac7007189"` |  |
 | solr.image | string | `"solr:9.11.0-slim@sha256:54cec2ced0f2c26436605a7dd5dde5ae78f26d5c0d19a7358349d5cb71fdfc1a"` |  |
 | storageClassName | string | `"standard"` | the storage class of the kind cluster |
 | upstreamCharts | object | `{"openarchiefbeheer":{"repository":"https://maykinmedia.github.io/charts/","version":"2.0.0"},"openforms":{"repository":"https://maykinmedia.github.io/charts/","version":"1.12.0"},"openklant":{"repository":"https://maykinmedia.github.io/charts/","version":"1.11.0"},"opennotificaties":{"repository":"https://maykinmedia.github.io/charts/","version":"2.1.0"},"openobject":{"repository":"https://maykinmedia.github.io/charts/","version":"1.1.1"},"openzaak":{"repository":"https://maykinmedia.github.io/charts/","version":"1.16.0"}}` | the upstream Helm charts that scripts/kind/up.sh installs next to this chart |
