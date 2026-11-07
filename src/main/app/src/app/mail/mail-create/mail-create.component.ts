@@ -5,6 +5,8 @@
 
 import {
   Component,
+  computed,
+  effect,
   inject,
   input,
   OnInit,
@@ -20,7 +22,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { injectContactEmail } from "../../klanten/inject-contact-email";
@@ -109,9 +111,16 @@ export class MailCreateComponent implements OnInit {
     >([], []),
   });
 
-  protected readonly verzenderOptions = signal<
-    GeneratedType<"RestZaakAfzender">[]
-  >([]);
+  private readonly afzendersQuery = injectQuery(() =>
+    this.zakenService.listAfzendersVoorZaak(this.zaak().uuid),
+  );
+  private readonly defaultAfzenderQuery = injectQuery(() =>
+    this.zakenService.readDefaultAfzenderVoorZaak(this.zaak().uuid),
+  );
+
+  protected readonly verzenderOptions = computed(
+    () => this.afzendersQuery.data() ?? [],
+  );
   protected readonly contactEmailAddress = injectContactEmail(this.zaak);
   protected readonly variabelen = signal<string[]>([]);
   protected readonly documents = signal<
@@ -120,13 +129,17 @@ export class MailCreateComponent implements OnInit {
 
   private readonly queryClient = inject(QueryClient);
 
-  ngOnInit() {
-    this.zakenService
-      .listAfzendersVoorZaak(this.zaak().uuid)
-      .subscribe((afzenders) => {
-        this.verzenderOptions.set(afzenders);
-      });
+  constructor() {
+    effect(() => {
+      const defaultAfzender = this.defaultAfzenderQuery.data();
+      const { verzender } = this.form.controls;
+      if (defaultAfzender === undefined || verzender.dirty) return;
 
+      verzender.setValue(defaultAfzender);
+    });
+  }
+
+  ngOnInit() {
     runQuery(
       this.queryClient,
       this.mailtemplateService.findMailtemplate(
@@ -140,12 +153,6 @@ export class MailCreateComponent implements OnInit {
       });
       this.variabelen.set(mailTemplate.variabelen ?? []);
     });
-
-    this.zakenService
-      .readDefaultAfzenderVoorZaak(this.zaak().uuid)
-      .subscribe((defaultVerzenderVoorZaak) => {
-        this.form.controls.verzender.setValue(defaultVerzenderVoorZaak);
-      });
 
     runQuery(
       this.queryClient,

@@ -143,10 +143,14 @@ describe(OntvangstbevestigingComponent.name, () => {
       );
     }
 
-    await sleep();
-    fixture.detectChanges();
-    await sleep();
-    fixture.detectChanges();
+    await settle();
+  }
+
+  async function settle() {
+    for (let cycle = 0; cycle < 3; cycle++) {
+      await sleep();
+      fixture.detectChanges();
+    }
   }
 
   function ontvangerField() {
@@ -371,5 +375,96 @@ describe(OntvangstbevestigingComponent.name, () => {
 
     expect(openSnackbar).toHaveBeenCalledWith("msg.email.verstuurd");
     expect(ontvangstBevestigd).toHaveBeenCalledWith(true);
+  });
+
+  describe("the verzender on a filled cache", () => {
+    const afzendersKey = [
+      "/rest/zaken/zaak/{uuid}/afzender",
+      { path: { uuid: ZAAK_UUID } },
+    ];
+    const defaultAfzenderKey = [
+      "/rest/zaken/zaak/{uuid}/afzender/default",
+      { path: { uuid: ZAAK_UUID } },
+    ];
+
+    function verzenderSelect() {
+      return screen.getByRole("combobox", { name: "Verzender" });
+    }
+
+    function deepFreeze<T>(value: T): T {
+      Object.values(value as object).forEach((child) => {
+        if (typeof child === "object" && child !== null) deepFreeze(child);
+      });
+      return Object.freeze(value);
+    }
+
+    async function respondToRemainingRequests() {
+      await sleep();
+      httpTestingController.expectOne(mailtemplateUrl).flush(mailtemplate);
+      httpTestingController.expectOne(documentsUrl).flush(documents);
+      httpTestingController.expectOne(contactDetailsUrl).flush(contactDetails);
+      await settle();
+    }
+
+    async function setupOnFilledCache(
+      defaultAfzender: GeneratedType<"RestZaakAfzender"> | null = afzenders[0],
+    ) {
+      testQueryClient.setQueryData(afzendersKey, deepFreeze(afzenders));
+      testQueryClient.setQueryData(
+        defaultAfzenderKey,
+        defaultAfzender && deepFreeze(defaultAfzender),
+      );
+      await setup();
+      await respondToRemainingRequests();
+    }
+
+    async function arriveReRead(mail: string) {
+      const nieuweDefault = fromPartial<GeneratedType<"RestZaakAfzender">>({
+        isDefaultMail: true,
+        mail,
+      });
+      testQueryClient.setQueryData(afzendersKey, [...afzenders, nieuweDefault]);
+      testQueryClient.setQueryData(defaultAfzenderKey, nieuweDefault);
+      await settle();
+    }
+
+    it("offers the cached afzenders and preselects the default without reading them again, so that opening the form again is immediate", async () => {
+      await setupOnFilledCache();
+
+      httpTestingController.expectNone(afzendersUrl);
+      httpTestingController.expectNone(defaultAfzenderUrl);
+      expect(verzenderSelect()).toHaveTextContent("beheerder@example.com");
+
+      await user.click(verzenderSelect());
+      expect(
+        screen.getByRole("option", { name: /gemeente@example.com/ }),
+      ).toBeVisible();
+    });
+
+    it("selects nothing when the zaak has no default afzender", async () => {
+      await setupOnFilledCache(null);
+
+      expect(verzenderSelect()).not.toHaveTextContent("beheerder@example.com");
+    });
+
+    it("keeps the verzender the user chose when a re-read of the afzenders arrives", async () => {
+      await setupOnFilledCache();
+
+      await user.click(verzenderSelect());
+      await user.click(
+        screen.getByRole("option", { name: /gemeente@example.com/ }),
+      );
+      await arriveReRead("nieuwe-default@example.com");
+
+      expect(verzenderSelect()).toHaveTextContent("gemeente@example.com");
+    });
+
+    it("follows a re-read of the afzenders while the user has not chosen a verzender", async () => {
+      await setupOnFilledCache();
+
+      await arriveReRead("nieuwe-default@example.com");
+
+      expect(verzenderSelect()).toHaveTextContent("nieuwe-default@example.com");
+    });
   });
 });

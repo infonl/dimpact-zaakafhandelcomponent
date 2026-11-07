@@ -29,7 +29,6 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
-import { firstValueFrom } from "rxjs";
 import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
@@ -125,13 +124,9 @@ export class ZaakAfhandelenDialogComponent {
     this.zakenService.listResultaattypes(this.data.zaak.zaaktype.uuid),
   );
 
-  protected readonly afzendersQuery = injectQuery(() => ({
-    queryKey: ["afzenders", this.data.zaak.uuid],
-    queryFn: () =>
-      firstValueFrom(
-        this.zakenService.listAfzendersVoorZaak(this.data.zaak.uuid),
-      ),
-  }));
+  protected readonly afzendersQuery = injectQuery(() =>
+    this.zakenService.listAfzendersVoorZaak(this.data.zaak.uuid),
+  );
 
   protected readonly mailtemplateQuery = injectQuery(() =>
     this.mailtemplateService.findMailtemplate(
@@ -159,7 +154,10 @@ export class ZaakAfhandelenDialogComponent {
   constructor() {
     effect(() => {
       const afzenders = this.afzendersQuery.data();
-      this.form.controls.verzender.setValue(
+      const { verzender } = this.form.controls;
+      if (verzender.dirty) return;
+
+      verzender.setValue(
         afzenders?.find((afzender) => afzender.isDefaultMail) ?? null,
       );
     });

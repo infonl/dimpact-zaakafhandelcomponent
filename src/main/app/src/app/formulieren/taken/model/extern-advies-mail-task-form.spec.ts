@@ -6,7 +6,6 @@
 import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { provideTranslateService } from "@ngx-translate/core";
-import { of } from "rxjs";
 import { sleep } from "../../../../../setupJest";
 import { createQueryOptions, fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
@@ -14,6 +13,13 @@ import { FormField } from "../../../shared/form/composed-form/form-field.types";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZakenService } from "../../../zaken/zaken.service";
 import { ExternAdviesMailTaskForm } from "./extern-advies-mail-task-form";
+
+function afzendersQuery(afzenders: GeneratedType<"RestZaakAfzender">[]) {
+  return {
+    ...createQueryOptions(afzenders),
+    queryKey: ["fakeAfzenders"],
+  } as never;
+}
 
 describe(ExternAdviesMailTaskForm.name, () => {
   let formulier: ExternAdviesMailTaskForm;
@@ -47,7 +53,9 @@ describe(ExternAdviesMailTaskForm.name, () => {
     zakenService = TestBed.inject(ZakenService);
     informatieObjectenService = TestBed.inject(InformatieObjectenService);
 
-    jest.spyOn(zakenService, "listAfzendersVoorZaak").mockReturnValue(of([]));
+    jest
+      .spyOn(zakenService, "listAfzendersVoorZaak")
+      .mockReturnValue(afzendersQuery([]));
     jest
       .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
       .mockReturnValue(createQueryOptions([]) as never);
@@ -134,7 +142,7 @@ describe(ExternAdviesMailTaskForm.name, () => {
       it("should pre-fill with the default afzender mail string", async () => {
         jest
           .spyOn(zakenService, "listAfzendersVoorZaak")
-          .mockReturnValue(of([mockAfzender, mockDefaultAfzender]));
+          .mockReturnValue(afzendersQuery([mockAfzender, mockDefaultAfzender]));
         fields = await requestForm(mockZaak);
         const control = fields.find((f) => f.key === "verzender")?.control;
         expect((control?.value as { mail?: string } | null)?.mail).toBe(
@@ -150,7 +158,7 @@ describe(ExternAdviesMailTaskForm.name, () => {
       it("should have options from listAfzendersVoorZaak", async () => {
         jest
           .spyOn(zakenService, "listAfzendersVoorZaak")
-          .mockReturnValue(of([mockAfzender, mockDefaultAfzender]));
+          .mockReturnValue(afzendersQuery([mockAfzender, mockDefaultAfzender]));
         fields = await requestForm(mockZaak);
         const field = fields.find((f) => f.key === "verzender");
         expect(
@@ -271,7 +279,7 @@ describe(ExternAdviesMailTaskForm.name, () => {
       it("should update replyTo when verzender changes to a known afzender", async () => {
         jest
           .spyOn(zakenService, "listAfzendersVoorZaak")
-          .mockReturnValue(of([mockAfzender, mockDefaultAfzender]));
+          .mockReturnValue(afzendersQuery([mockAfzender, mockDefaultAfzender]));
         fields = await requestForm(mockZaak);
 
         const verzenderControl = fields.find(
