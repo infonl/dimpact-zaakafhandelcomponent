@@ -344,6 +344,10 @@ testing {
                         // mirror previous behavior
                         useJUnitPlatform()
                         systemProperty("zacDockerImage", zacDockerImage)
+                        // Open Zaak always runs in UTC. The expected dates of the tests have to come from the same
+                        // clock, also on a developer's machine and in the hour that the UTC date differs from the
+                        // local date. See 'scripts/kind/values/zac-itest.yaml' for the same setting of ZAC.
+                        systemProperty("user.timezone", "UTC")
                         // write the (very verbose) integration test log to a file instead of the console
                         // when the 'itestLogFile' Gradle property is set, as is done in CI
                         providers.gradleProperty("itestLogFile").orNull?.let { itestLogFile ->
