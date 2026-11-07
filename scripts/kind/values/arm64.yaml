@@ -7,7 +7,7 @@
 openzaak:
   image: ghcr.io/infonl/open-zaak:1.31.1@sha256:865c5e918ad869f76561ed65d80043e1307cd26047575e3cad6a69de37ce6ab0
 openklant:
-  image: ghcr.io/infonl/open-klant:2.15.0@sha256:090741b0c2211588e882dad93741e1bb6c13ce9d95ae13d1cd2ab591339b6a36
+  image: ghcr.io/infonl/open-klant:2.19.2@sha256:5af171e054de8e6c08776729476be544a3df8b4ec871e146450d7f9629a799d8
 openobject:
   image: ghcr.io/infonl/open-object:4.1.1@sha256:8bda80d7de276ddd381ff45ac2c5e0b52b43787bf4c02f42d1b069b5e823ebdf
 opennotificaties:

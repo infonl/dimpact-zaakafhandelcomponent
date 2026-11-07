@@ -797,7 +797,7 @@
       ],
       "allowedVersions": "< 1.15.0",
       "description": [
-        "The Open Klant chart of the kind stack must fit the Open Klant version: later charts probe /_healthz/, which Open Klant 2.15 does not have"
+        "The upstream Open Klant Helm chart of the kind stack, pinned by the next Dimpact PodiumD release"
       ]
     },
     {
