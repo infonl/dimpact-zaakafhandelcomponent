@@ -1,0 +1,54 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely, 2025 Dimpact
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-form-field appearance="fill" class="full-width">
+  <mat-label>{{ data.label | translate }}</mat-label>
+  <input
+    [formControl]="data.formControl"
+    [id]="data.id + '_autocompletefield'"
+    [matAutocomplete]="auto"
+    matInput
+    type="text"
+    [maxlength]="data.maxlength"
+  />
+  <mat-icon
+    *ngIf="!isEditing()"
+    [ngClass]="{
+      error: data.formControl.invalid && data.formControl.dirty,
+    }"
+    matSuffix
+    >search</mat-icon
+  >
+  <button
+    *ngIf="isEditing()"
+    type="button"
+    mat-icon-button
+    matSuffix
+    [attr.aria-label]="'actie.wissen.aria-label' | translate"
+    (click)="clear()"
+  >
+    <mat-icon
+      [ngClass]="{
+        error: data.formControl.invalid && data.formControl.dirty,
+      }"
+      >clear</mat-icon
+    >
+  </button>
+  <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+    <mat-option
+      *ngFor="let option of filteredOptions | async"
+      [value]="data.optionValue ? option[data.optionValue] : option"
+    >
+      {{ (data.optionLabel ? option[data.optionLabel] : option) | translate }}
+      <div class="suffix" *ngIf="data.optionSuffix">
+        {{ option[data.optionSuffix] | translate }}
+      </div>
+    </mat-option>
+  </mat-autocomplete>
+  <mat-hint *ngIf="data.hint">{{ data.hint.label | translate }}</mat-hint>
+  <mat-error appEnhanceMatError *ngIf="data.formControl.invalid">{{
+    getErrorMessage()
+  }}</mat-error>
+</mat-form-field>

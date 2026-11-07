@@ -1,0 +1,80 @@
+/*
+ * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+@import "/variables";
+
+.edit-icon {
+  display: none;
+  background-color: @box-shadow-color-light;
+}
+
+.static-text-label {
+  .mat-icon {
+    font-size: 14px;
+    height: 14px;
+    width: 14px;
+    vertical-align: text-bottom;
+  }
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.static-text {
+  margin: 5px 5px;
+  cursor: text;
+
+  .static-text-content {
+    min-height: 20px;
+    flex: 1 1 100%;
+    display: flex;
+    justify-content: space-between;
+    white-space: pre-line;
+  }
+
+  &:hover {
+    cursor: pointer;
+
+    .edit-icon {
+      display: flex;
+      align-items: center;
+
+      .mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    .static-text-content {
+      box-shadow: 0 0 0 1px @box-shadow-color-light;
+    }
+
+    .static-text-label .edit-icon {
+      color: @box-shadow-color;
+    }
+  }
+}
+
+.static-text.readonly {
+  .static-text-label {
+    .mat-icon {
+      display: none;
+    }
+  }
+
+  &:hover {
+    cursor: default;
+
+    .edit-icon {
+      display: none;
+    }
+
+    .static-text-content {
+      box-shadow: none;
+    }
+  }
+}

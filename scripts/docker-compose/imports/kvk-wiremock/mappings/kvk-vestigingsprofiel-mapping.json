@@ -1,0 +1,18 @@
+{
+  "request": {
+    "url": "/api/v1/vestigingsprofielen/000012345678?geoData=false",
+    "method": "GET",
+    "headers": {
+      "Accept": {
+        "equalTo": "application/hal+json"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "kvk-vestigingsprofiel-vestigingsnummer-000012345678-body.json",
+    "headers": {
+      "Content-Type": "application/hal+json"
+    }
+  }
+}

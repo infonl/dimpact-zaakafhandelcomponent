@@ -1,0 +1,30 @@
+/*
+ * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+button {
+  &.mat-mdc-button-base + button.mat-mdc-button-base {
+    margin: 0;
+  }
+
+  mat-icon {
+    color: #0000008a;
+
+    &:hover {
+      color: inherit;
+    }
+  }
+}
+
+button {
+  &:hover mat-icon {
+    color: var(--mat-form-field-trailing-icon-color);
+  }
+
+  &.mat-mdc-button-disabled {
+    mat-icon {
+      color: var(--mat-form-field-disabled-select-arrow-color);
+    }
+  }
+}

@@ -1,0 +1,114 @@
+/*
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+@import "/variables";
+
+mat-slide-toggle {
+  right: 30px;
+  position: absolute;
+}
+
+.zaak-actions-drawer {
+  min-width: 900px;
+}
+
+.taken-card {
+  height: 100%;
+  margin-bottom: 10px;
+}
+
+.zaken-card {
+  min-width: 620px;
+  margin-bottom: 10px;
+}
+
+.besluiten {
+  margin-bottom: 10px;
+}
+
+.historie-table {
+  height: 400px;
+  overflow: auto;
+}
+
+.betrokkenen-table {
+  height: 400px;
+  overflow: auto;
+}
+
+.bagobjecten-table {
+  height: 400px;
+  overflow: auto;
+}
+
+.mat-mdc-column-betrokkenegegevens span {
+  white-space: pre-line;
+}
+
+.mat-mdc-column-actions {
+  width: 90px;
+}
+
+.mat-mdc-column-betrokkeneidentificatie span {
+  font-weight: 500;
+}
+
+.cdk-column-expandedTaakDetail zac-static-text {
+  min-width: 150px;
+}
+
+.proces-button {
+  position: relative;
+  top: -4px;
+  left: 12px;
+}
+
+.flex-item {
+  flex: 0 1 calc(33% - 5px);
+  box-sizing: border-box;
+  max-width: 300px;
+}
+
+.flex-double-item {
+  flex: 0 1 calc(66%);
+  display: flex;
+  box-sizing: border-box;
+  min-width: 400px;
+  max-width: 600px;
+}
+
+.mat-divider-wrapper {
+  margin: 10px 0;
+}
+
+.replace_me_margin {
+  margin-top: 10px;
+}
+
+.editable {
+  position: relative;
+  padding-top: 5px;
+
+  & button {
+    position: absolute;
+    right: 0;
+    top: -8px;
+    margin-right: 0;
+  }
+}
+
+.remark {
+  background-color: @table-hover-background-color;
+  padding: 4px 8px;
+  margin: 0 48px 8px 4px;
+
+  & mat-icon {
+    font-size: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+  }
+}
