@@ -102,6 +102,19 @@
     {
       "customType": "regex",
       "managerFilePatterns": [
+        "/workflows/.+\\.ya?ml$/",
+        "/charts/zac/README\\.md(\\.gotmpl)?$/"
+      ],
+      "matchStrings": [
+        "helm-unittest\\.git --version (?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+)"
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "helm-unittest/helm-unittest",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
         "/workflows/.+\\.ya?ml$/"
       ],
       "matchStrings": [

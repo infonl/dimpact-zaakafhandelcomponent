@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.374](https://img.shields.io/badge/Version-1.0.374-informational?style=flat-square) ![AppVersion: 5.11](https://img.shields.io/badge/AppVersion-5.11-informational?style=flat-square)
+![Version: 1.0.375](https://img.shields.io/badge/Version-1.0.375-informational?style=flat-square) ![AppVersion: 5.11](https://img.shields.io/badge/AppVersion-5.11-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -67,6 +67,27 @@ for the Solr details, including how to read the admin password for the Solr admi
 ## Changes to the helm chart
 
 The Github workflow will perform helm-linting and will bump the version if needed. This `README.md` file is generated automatically as well.
+
+Unit tests for the templates live in `tests/` and use [helm-unittest](https://github.com/helm-unittest/helm-unittest).
+The Github workflow runs them in every pull request. To run them locally with Helm 4:
+
+```bash
+helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+helm repo add solr https://solr.apache.org/charts
+helm plugin install https://github.com/helm-unittest/helm-unittest.git --version v1.2.1 --verify=false
+helm dependency build charts/zac
+helm unittest --strict charts/zac
+```
+
+Helm 4 cannot verify plugins installed from git, hence `--verify=false`. Helm 3 does not know this flag; leave it out
+there.
+
+On macOS the install script of the plugin needs GNU `sha256sum`. Install it with `brew install coreutils` and
+put it first on the `PATH` during the plugin install:
+
+```bash
+PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" helm plugin install https://github.com/helm-unittest/helm-unittest.git --version v1.2.1 --verify=false
+```
 
 ## Values
 

@@ -1,0 +1,112 @@
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+
+suite: BRP protocollering
+templates:
+  - templates/config.yaml
+values:
+  - ../ci/zac-chart-test-values.yaml
+tests:
+  - it: sets the protocollering headers and values when protocollering is enabled
+    asserts:
+      - equal:
+          path: data.BRP_PROTOCOLLERING_ENABLED
+          value: "true"
+      - equal:
+          path: data.BRP_DOELBINDING_ZOEKMET
+          value: BRPACT-ZoekenAlgemeen
+      - equal:
+          path: data.BRP_DOELBINDING_RAADPLEEGMET
+          value: BRPACT-Totaal
+      - equal:
+          path: data.BRP_VERWERKINGSREGISTER
+          value: Algemeen
+      - equal:
+          path: data.BRP_TOEPASSING
+          value: ZAC
+      - equal:
+          path: data.BRP_SYSTEM_USER
+          value: SystemUser
+      - equal:
+          path: data.BRP_ORIGIN_OIN
+          value: "123443210"
+      - equal:
+          path: data.BRP_ORIGIN_OIN_HEADER
+          value: x-origin-oin
+      - equal:
+          path: data.BRP_DOELBINDING_HEADER
+          value: x-doelbinding
+      - equal:
+          path: data.BRP_VERWERKING_HEADER
+          value: x-verwerking
+      - equal:
+          path: data.BRP_VERWERKINGSREGISTER_EXT_WITH_ZAAKTYPE
+          value: "true"
+      - equal:
+          path: data.BRP_GEBRUIKER_HEADER
+          value: x-gebruiker
+      - equal:
+          path: data.BRP_TOEPASSING_HEADER
+          value: x-toepassing
+  - it: sets no protocollering headers and values when protocollering is disabled
+    set:
+      brpApi.protocollering.enabled: false
+    asserts:
+      - equal:
+          path: data.BRP_PROTOCOLLERING_ENABLED
+          value: "false"
+      - notExists:
+          path: data.BRP_ORIGIN_OIN
+      - notExists:
+          path: data.BRP_ORIGIN_OIN_HEADER
+      - notExists:
+          path: data.BRP_DOELBINDING_HEADER
+      - notExists:
+          path: data.BRP_DOELBINDING_ZOEKMET
+      - notExists:
+          path: data.BRP_DOELBINDING_RAADPLEEGMET
+      - notExists:
+          path: data.BRP_VERWERKING_HEADER
+      - notExists:
+          path: data.BRP_VERWERKINGSREGISTER
+      - notExists:
+          path: data.BRP_VERWERKINGSREGISTER_EXT_WITH_ZAAKTYPE
+      - notExists:
+          path: data.BRP_GEBRUIKER_HEADER
+      - notExists:
+          path: data.BRP_TOEPASSING_HEADER
+      - notExists:
+          path: data.BRP_TOEPASSING
+      - notExists:
+          path: data.BRP_SYSTEM_USER
+  - it: requires zoekmet when a doelbinding header is set
+    set:
+      brpApi.protocollering.doelbinding.zoekmet: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: Valid .Values.brpApi.protocollering.doelbinding.zoekmet entry required!
+  - it: requires raadpleegmet when a doelbinding header is set
+    set:
+      brpApi.protocollering.doelbinding.raadpleegmet: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: Valid .Values.brpApi.protocollering.doelbinding.raadpleegmet entry required!
+  - it: requires a verwerkingsregister when a verwerking header is set
+    set:
+      brpApi.protocollering.verwerking.register: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: Valid .Values.brpApi.protocollering.verwerking.register entry required!
+  - it: requires the extendWithZaaktype key to be present when a verwerking header is set
+    set:
+      # null removes the key from the values; the template checks with hasKey, so false would pass.
+      brpApi.protocollering.verwerking.extendWithZaaktype: null
+    asserts:
+      - failedTemplate:
+          errorPattern: Valid .Values.brpApi.protocollering.verwerking.extendWithZaaktype entry required!
+  - it: requires a toepassing value when a toepassing header is set
+    set:
+      brpApi.protocollering.toepassing.value: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: Valid .Values.brpApi.protocollering.toepassing.value entry required!
