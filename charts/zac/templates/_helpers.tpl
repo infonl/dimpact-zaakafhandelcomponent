@@ -249,3 +249,28 @@ install with an actionable message.
 {{- fail (printf "maxInMemoryFileSizeMB (%d) requires at least %d MB of heap but only %d MB of the %d MB heap is available for it. Either lower maxInMemoryFileSizeMB to at most %d or raise resources.limits.memory, which is what the heap is sized from." $maxInMemoryFileSizeMB $requiredHeapMB $availableHeapMB $maxHeapSizeMB (div $availableHeapMB 3)) -}}
 {{- end -}}
 {{- end }}
+
+{{/*
+Whether ZAC sends its traces. Until the deprecated fallback is removed, an enabled bundled
+collector or the deprecated opentelemetry_zaakafhandelcomponent.endpoint also turn tracing on,
+so that existing installations keep their traces. NOTES.txt warns when the fallback is used.
+*/}}
+{{- define "zaakafhandelcomponent.tracingEnabled" -}}
+{{- if or (.Values.tracing).enabled (index .Values "opentelemetry-collector" "enabled") (.Values.opentelemetry_zaakafhandelcomponent).endpoint -}}
+true
+{{- end -}}
+{{- end }}
+
+{{/*
+The OTLP endpoint that ZAC sends its traces to.
+*/}}
+{{- define "zaakafhandelcomponent.tracingEndpoint" -}}
+{{- $endpoint := (.Values.tracing).endpoint | default (.Values.opentelemetry_zaakafhandelcomponent).endpoint -}}
+{{- if and (not $endpoint) (index .Values "opentelemetry-collector" "enabled") -}}
+{{- $endpoint = printf "http://%s-opentelemetry-collector:4317" .Release.Name -}}
+{{- end -}}
+{{- if not $endpoint -}}
+{{- fail "tracing.enabled is true, but ZAC has no endpoint to send its traces to. Set tracing.endpoint, or enable the bundled opentelemetry-collector." -}}
+{{- end -}}
+{{- $endpoint -}}
+{{- end }}
