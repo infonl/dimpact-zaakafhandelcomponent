@@ -90,7 +90,10 @@ class SignaleringRestServiceTest : BehaviorSpec({
         itestHttpClient.performPutRequest(
             url = "$ZAC_API_URI/signaleringen/instellingen",
             headers = Headers.headersOf("Content-Type", "application/json"),
-            requestBodyAsString = readRecipientInstellingen(type).put("isMailEnabled", isMailEnabled).toString(),
+            requestBodyAsString = readRecipientInstellingen(type)
+                .put("isMailEnabled", isMailEnabled)
+                .put("isDashboardEnabled", false)
+                .toString(),
             testUser = recipient
         )
 
