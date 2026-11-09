@@ -381,23 +381,9 @@ export class ZakenService {
     });
   }
 
-  readDefaultAfzenderVoorZaak(uuid: string) {
-    return queryOptions({
-      ...this.zacQueryClient.GET("/rest/zaken/zaak/{uuid}/afzender/default", {
-        path: { uuid },
-      }),
-      select: withI18nKeySuffix,
-      meta: { reportFailedRefetch: true },
-    });
-  }
-
   invalidateAfzenders() {
-    return Promise.all(
-      [
-        "/rest/zaken/zaak/{uuid}/afzender",
-        "/rest/zaken/zaak/{uuid}/afzender/default",
-      ].map((path) => this.queryClient.invalidateQueries({ queryKey: [path] })),
-    );
+    const [path] = this.listAfzendersVoorZaak("").queryKey;
+    return this.queryClient.invalidateQueries({ queryKey: [path] });
   }
 
   afbreken(uuid: string) {

@@ -46,11 +46,6 @@ const afzendersKey = (uuid: string) => [
   { path: { uuid } },
 ];
 
-const defaultAfzenderKey = (uuid: string) => [
-  "/rest/zaken/zaak/{uuid}/afzender/default",
-  { path: { uuid } },
-];
-
 function deepFreeze<T>(value: T): T {
   Object.values(value as object).forEach((child) => {
     if (typeof child === "object" && child !== null) deepFreeze(child);
@@ -102,23 +97,16 @@ describe(IntakeAfrondenDialogComponent.name, () => {
   function cacheAfzenders(
     uuid: string,
     afzenders: GeneratedType<"RestZaakAfzender">[],
-    defaultAfzender: GeneratedType<"RestZaakAfzender"> | null,
   ) {
     testQueryClient.setQueryData(afzendersKey(uuid), deepFreeze(afzenders));
-    testQueryClient.setQueryData(
-      defaultAfzenderKey(uuid),
-      defaultAfzender && deepFreeze(defaultAfzender),
-    );
   }
 
   async function setup(
     zaak: GeneratedType<"RestZaak"> = createZaak(),
     {
       afzenders = [afzender, andereAfzender],
-      defaultAfzender = afzender,
     }: {
       afzenders?: GeneratedType<"RestZaakAfzender">[];
-      defaultAfzender?: GeneratedType<"RestZaakAfzender"> | null;
     } = {},
   ) {
     dialogRef = fromPartial<MatDialogRef<IntakeAfrondenDialogComponent>>({
@@ -126,7 +114,7 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       disableClose: false,
     });
 
-    cacheAfzenders(zaak.uuid, afzenders, defaultAfzender);
+    cacheAfzenders(zaak.uuid, afzenders);
 
     const temporaryPersonId = zaak.initiatorIdentificatie?.temporaryPersonId;
     if (temporaryPersonId) {
@@ -495,14 +483,10 @@ describe(IntakeAfrondenDialogComponent.name, () => {
         mail: "fakeNieuweDefault@example.com",
       });
       testQueryClient.setQueryData(afzendersKey("fakeZaakUuid"), [
-        afzender,
+        { ...afzender, isDefaultMail: false },
         andereAfzender,
         nieuweDefault,
       ]);
-      testQueryClient.setQueryData(
-        defaultAfzenderKey("fakeZaakUuid"),
-        nieuweDefault,
-      );
       await settle(fixture);
     }
 
@@ -511,9 +495,6 @@ describe(IntakeAfrondenDialogComponent.name, () => {
 
       httpTestingController.expectNone(
         "/rest/zaken/zaak/fakeZaakUuid/afzender",
-      );
-      httpTestingController.expectNone(
-        "/rest/zaken/zaak/fakeZaakUuid/afzender/default",
       );
       expect(verzenderSelect()).toHaveTextContent(afzender.mail!);
 
@@ -536,7 +517,9 @@ describe(IntakeAfrondenDialogComponent.name, () => {
     });
 
     it("selects nothing when the zaak has no default afzender", async () => {
-      await setupWithVerzender(createZaak(), { defaultAfzender: null });
+      await setupWithVerzender(createZaak(), {
+        afzenders: [{ ...afzender, isDefaultMail: false }, andereAfzender],
+      });
 
       expect(verzenderSelect()).not.toHaveTextContent(afzender.mail!);
     });

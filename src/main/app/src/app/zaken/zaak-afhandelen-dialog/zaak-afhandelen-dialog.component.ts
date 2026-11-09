@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, effect, inject, signal } from "@angular/core";
+import { Component, computed, inject, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
@@ -43,6 +43,7 @@ import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
+import { injectAfzenders } from "../inject-afzenders";
 import { ZakenService } from "../zaken.service";
 
 @Component({
@@ -124,8 +125,9 @@ export class ZaakAfhandelenDialogComponent {
     this.zakenService.listResultaattypes(this.data.zaak.zaaktype.uuid),
   );
 
-  protected readonly afzendersQuery = injectQuery(() =>
-    this.zakenService.listAfzendersVoorZaak(this.data.zaak.uuid),
+  protected readonly afzendersQuery = injectAfzenders(
+    () => this.data.zaak.uuid,
+    () => this.form.controls.verzender,
   );
 
   protected readonly mailtemplateQuery = injectQuery(() =>
@@ -152,16 +154,6 @@ export class ZaakAfhandelenDialogComponent {
   );
 
   constructor() {
-    effect(() => {
-      const afzenders = this.afzendersQuery.data();
-      const { verzender } = this.form.controls;
-      if (verzender.dirty) return;
-
-      verzender.setValue(
-        afzenders?.find((afzender) => afzender.isDefaultMail) ?? null,
-      );
-    });
-
     const zaakafhandelparameters =
       this.data.zaak.zaaktype.zaakafhandelparameters;
     this.sendMailDefault =

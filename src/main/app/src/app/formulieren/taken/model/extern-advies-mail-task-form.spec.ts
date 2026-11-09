@@ -6,7 +6,7 @@
 import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { provideTranslateService } from "@ngx-translate/core";
-import { sleep } from "../../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../../setupJest";
 import { createQueryOptions, fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { FormField } from "../../../shared/form/composed-form/form-field.types";
@@ -164,6 +164,28 @@ describe(ExternAdviesMailTaskForm.name, () => {
         expect(
           "options" in field! ? (field.options as unknown[]).length : 0,
         ).toBe(2);
+      });
+
+      it("offers the suffix of a cached afzender as a translation key, so that the task form shows the same label as a component", async () => {
+        jest.mocked(zakenService.listAfzendersVoorZaak).mockRestore();
+        testQueryClient.setQueryData(
+          ["/rest/zaken/zaak/{uuid}/afzender", { path: { uuid: "zaak-uuid" } }],
+          [
+            fromPartial<GeneratedType<"RestZaakAfzender">>({
+              mail: "afzender@example.com",
+              suffix: "gegevens.mail.afzender.MEDEWERKER",
+            }),
+          ],
+        );
+
+        fields = await requestForm(mockZaak);
+
+        const field = fields.find((f) => f.key === "verzender");
+        expect("options" in field! && field.options).toEqual([
+          expect.objectContaining({
+            suffix: "gegevens.mail.afzender.medewerker",
+          }),
+        ]);
       });
     });
 

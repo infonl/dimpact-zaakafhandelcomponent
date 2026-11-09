@@ -6,7 +6,6 @@
 import {
   Component,
   computed,
-  effect,
   inject,
   input,
   OnInit,
@@ -22,7 +21,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
-import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { injectContactEmail } from "../../klanten/inject-contact-email";
@@ -36,7 +35,7 @@ import { injectMutation } from "../../shared/http/inject-mutation";
 import { runQuery } from "../../shared/http/run-query";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { ZakenService } from "../../zaken/zaken.service";
+import { injectAfzenders } from "../../zaken/inject-afzenders";
 import { MailService } from "../mail.service";
 
 @Component({
@@ -61,7 +60,6 @@ import { MailService } from "../mail.service";
   ],
 })
 export class MailCreateComponent implements OnInit {
-  private readonly zakenService = inject(ZakenService);
   private readonly informatieObjectenService = inject(
     InformatieObjectenService,
   );
@@ -111,11 +109,9 @@ export class MailCreateComponent implements OnInit {
     >([], []),
   });
 
-  private readonly afzendersQuery = injectQuery(() =>
-    this.zakenService.listAfzendersVoorZaak(this.zaak().uuid),
-  );
-  private readonly defaultAfzenderQuery = injectQuery(() =>
-    this.zakenService.readDefaultAfzenderVoorZaak(this.zaak().uuid),
+  private readonly afzendersQuery = injectAfzenders(
+    () => this.zaak().uuid,
+    () => this.form.controls.verzender,
   );
 
   protected readonly verzenderOptions = computed(
@@ -128,16 +124,6 @@ export class MailCreateComponent implements OnInit {
   >([]);
 
   private readonly queryClient = inject(QueryClient);
-
-  constructor() {
-    effect(() => {
-      const defaultAfzender = this.defaultAfzenderQuery.data();
-      const { verzender } = this.form.controls;
-      if (defaultAfzender === undefined || verzender.dirty) return;
-
-      verzender.setValue(defaultAfzender);
-    });
-  }
 
   ngOnInit() {
     runQuery(

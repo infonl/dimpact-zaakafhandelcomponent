@@ -4,6 +4,7 @@
  */
 
 import {
+  HttpErrorResponse,
   provideHttpClient,
   withInterceptorsFromDi,
   withXhr,
@@ -18,9 +19,12 @@ import {
   type MutationFunctionContext,
   provideQueryClient,
 } from "@tanstack/angular-query-experimental";
+import { EMPTY } from "rxjs";
 import { fromPartial, runMutationOnSuccess } from "src/test-helpers";
 import { testQueryClient } from "../../../setupJest";
 import { UtilService } from "../core/service/util.service";
+import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { QUERY_CLIENT } from "../shared/http/query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { ZakenService } from "./zaken.service";
 
@@ -416,7 +420,6 @@ describe(ZakenService.name, () => {
 
   describe("the afzenders of a zaak", () => {
     const afzendersUrl = "/rest/zaken/zaak/fakeZaakUuid/afzender";
-    const defaultAfzenderUrl = "/rest/zaken/zaak/fakeZaakUuid/afzender/default";
     const afzender = fromPartial<GeneratedType<"RestZaakAfzender">>({
       mail: "fakeAfzender@example.com",
       suffix: "gegevens.mail.afzender.MEDEWERKER",
@@ -434,24 +437,6 @@ describe(ZakenService.name, () => {
       await flushAfterRequest(afzendersUrl, [afzender]);
 
       expect((await read)[0].suffix).toBe("gegevens.mail.afzender.medewerker");
-    });
-
-    it("gives the suffix of the default afzender as a translation key", async () => {
-      const read = testQueryClient.query(
-        service.readDefaultAfzenderVoorZaak("fakeZaakUuid"),
-      );
-      await flushAfterRequest(defaultAfzenderUrl, afzender);
-
-      expect((await read).suffix).toBe("gegevens.mail.afzender.medewerker");
-    });
-
-    it("resolves the default afzender to null, not to a failure, when the zaak has none", async () => {
-      const read = testQueryClient.query(
-        service.readDefaultAfzenderVoorZaak("fakeZaakUuid"),
-      );
-      await flushAfterRequest(defaultAfzenderUrl, null);
-
-      await expect(read).resolves.toBeNull();
     });
 
     it("does not change a cached afzender in place, so that the suffix conversion cannot corrupt the cache", async () => {
@@ -475,12 +460,12 @@ describe(ZakenService.name, () => {
       httpTestingController.expectNone(afzendersUrl);
     });
 
-    it("reads the afzenders and the default of every zaak again after invalidateAfzenders, so that a changed zaaktype configuration reaches the forms", async () => {
+    it("reads the afzenders of every zaak again after invalidateAfzenders, so that a changed zaaktype configuration reaches the forms", async () => {
       const afzenderOptions = service.listAfzendersVoorZaak("fakeZaakUuid");
-      const defaultOptions =
-        service.readDefaultAfzenderVoorZaak("fakeOtherZaakUuid");
+      const otherAfzenderOptions =
+        service.listAfzendersVoorZaak("fakeOtherZaakUuid");
       testQueryClient.setQueryData(afzenderOptions.queryKey, [afzender]);
-      testQueryClient.setQueryData(defaultOptions.queryKey, afzender);
+      testQueryClient.setQueryData(otherAfzenderOptions.queryKey, [afzender]);
 
       await service.invalidateAfzenders();
 
@@ -488,7 +473,8 @@ describe(ZakenService.name, () => {
         testQueryClient.getQueryState(afzenderOptions.queryKey)?.isInvalidated,
       ).toBe(true);
       expect(
-        testQueryClient.getQueryState(defaultOptions.queryKey)?.isInvalidated,
+        testQueryClient.getQueryState(otherAfzenderOptions.queryKey)
+          ?.isInvalidated,
       ).toBe(true);
     });
 
@@ -506,14 +492,28 @@ describe(ZakenService.name, () => {
       ).toBe(false);
     });
 
-    it("opens the error dialog on a failed re-read, as opening a form is an action the user waits on", () => {
-      expect(
-        service.listAfzendersVoorZaak("fakeZaakUuid").meta?.reportFailedRefetch,
-      ).toBe(true);
-      expect(
-        service.readDefaultAfzenderVoorZaak("fakeZaakUuid").meta
-          ?.reportFailedRefetch,
-      ).toBe(true);
+    it("opens the error dialog on a failed re-read, as opening a form is an action the user waits on", async () => {
+      const foutAfhandelen = jest
+        .spyOn(TestBed.inject(FoutAfhandelingService), "foutAfhandelen")
+        .mockReturnValue(EMPTY);
+      const queryClient = TestBed.inject(QUERY_CLIENT);
+      const options = service.listAfzendersVoorZaak("fakeZaakUuid");
+      queryClient.setQueryData(options.queryKey, [afzender]);
+
+      const reRead = queryClient.fetchQuery({
+        ...options,
+        retry: false,
+        staleTime: 0,
+      });
+      await Promise.resolve();
+      httpTestingController
+        .expectOne(afzendersUrl)
+        .flush(null, { status: 500, statusText: "Internal Server Error" });
+      await expect(reRead).rejects.toBeInstanceOf(HttpErrorResponse);
+
+      expect(foutAfhandelen).toHaveBeenCalledWith(
+        expect.objectContaining({ status: 500 }),
+      );
     });
   });
 });

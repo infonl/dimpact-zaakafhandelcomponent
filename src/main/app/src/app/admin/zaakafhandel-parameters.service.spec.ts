@@ -77,7 +77,7 @@ describe(ZaakafhandelParametersService.name, () => {
     it("makes the mail forms read their afzenders again, as the parameters hold them", async () => {
       const invalidateAfzenders = jest
         .spyOn(TestBed.inject(ZakenService), "invalidateAfzenders")
-        .mockResolvedValue([]);
+        .mockResolvedValue();
 
       await runMutationOnSuccess(
         service.updateZaakafhandelparameters("fakeZaaktypeUuid"),

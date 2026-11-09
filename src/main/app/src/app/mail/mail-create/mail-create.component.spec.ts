@@ -32,7 +32,6 @@ const ZAAK_UUID = "test-zaak-uuid";
 const TEMPORARY_PERSON_ID = "person-123";
 
 const afzendersUrl = `/rest/zaken/zaak/${ZAAK_UUID}/afzender`;
-const defaultAfzenderUrl = `/rest/zaken/zaak/${ZAAK_UUID}/afzender/default`;
 const mailtemplateUrl = `/rest/mailtemplates/ZAAK_ALGEMEEN/${ZAAK_UUID}`;
 const documentsUrl = "/rest/informatieobjecten/informatieobjectenList";
 const contactDetailsUrl = `/rest/klanten/contactdetails/person/${TEMPORARY_PERSON_ID}`;
@@ -131,7 +130,6 @@ describe(MailCreateComponent.name, () => {
     await sleep();
 
     httpTestingController.expectOne(afzendersUrl).flush(afzenders);
-    httpTestingController.expectOne(defaultAfzenderUrl).flush(afzenders[0]);
     httpTestingController.expectOne(mailtemplateUrl).flush(mailtemplate);
     httpTestingController.expectOne(documentsUrl).flush(documents);
 
@@ -381,10 +379,6 @@ describe(MailCreateComponent.name, () => {
       "/rest/zaken/zaak/{uuid}/afzender",
       { path: { uuid: ZAAK_UUID } },
     ];
-    const defaultAfzenderKey = [
-      "/rest/zaken/zaak/{uuid}/afzender/default",
-      { path: { uuid: ZAAK_UUID } },
-    ];
 
     function verzenderSelect() {
       return screen.getByRole("combobox", { name: "Verzender" });
@@ -405,14 +399,12 @@ describe(MailCreateComponent.name, () => {
       await settle();
     }
 
-    async function setupOnFilledCache(
-      defaultAfzender: GeneratedType<"RestZaakAfzender"> | null = afzenders[0],
-    ) {
-      testQueryClient.setQueryData(afzendersKey, deepFreeze(afzenders));
-      testQueryClient.setQueryData(
-        defaultAfzenderKey,
-        defaultAfzender && deepFreeze(defaultAfzender),
-      );
+    function withoutDefault(afzender: GeneratedType<"RestZaakAfzender">) {
+      return { ...afzender, isDefaultMail: false };
+    }
+
+    async function setupOnFilledCache(cachedAfzenders = afzenders) {
+      testQueryClient.setQueryData(afzendersKey, deepFreeze(cachedAfzenders));
       await setup();
       await respondToRemainingRequests();
     }
@@ -422,8 +414,10 @@ describe(MailCreateComponent.name, () => {
         isDefaultMail: true,
         mail,
       });
-      testQueryClient.setQueryData(afzendersKey, [...afzenders, nieuweDefault]);
-      testQueryClient.setQueryData(defaultAfzenderKey, nieuweDefault);
+      testQueryClient.setQueryData(afzendersKey, [
+        ...afzenders.map(withoutDefault),
+        nieuweDefault,
+      ]);
       await settle();
     }
 
@@ -431,7 +425,6 @@ describe(MailCreateComponent.name, () => {
       await setupOnFilledCache();
 
       httpTestingController.expectNone(afzendersUrl);
-      httpTestingController.expectNone(defaultAfzenderUrl);
       expect(verzenderSelect()).toHaveTextContent("beheerder@example.com");
 
       await user.click(verzenderSelect());
@@ -441,7 +434,7 @@ describe(MailCreateComponent.name, () => {
     });
 
     it("selects nothing when the zaak has no default afzender", async () => {
-      await setupOnFilledCache(null);
+      await setupOnFilledCache(afzenders.map(withoutDefault));
 
       expect(verzenderSelect()).not.toHaveTextContent("beheerder@example.com");
     });

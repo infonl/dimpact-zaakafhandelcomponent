@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, OnDestroy, effect, inject, signal } from "@angular/core";
+import { Component, OnDestroy, inject, signal } from "@angular/core";
 import {
   AbstractControl,
   FormBuilder,
@@ -40,7 +40,7 @@ import { injectMutation } from "../../shared/http/inject-mutation";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
-import { ZakenService } from "../zaken.service";
+import { injectAfzenders } from "../inject-afzenders";
 
 @Component({
   templateUrl: "intake-afronden-dialog.component.html",
@@ -75,7 +75,6 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
   private readonly translateService = inject(TranslateService);
   private readonly planItemsService = inject(PlanItemsService);
   private readonly mailtemplateService = inject(MailtemplateService);
-  private readonly zakenService = inject(ZakenService);
   private readonly utilService = inject(UtilService);
 
   protected readonly zaakOntvankelijkMailQuery = injectQuery(() =>
@@ -137,11 +136,9 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
   protected readonly ontvangerError = this.readForm((form) =>
     this.getError(form.get("ontvanger"), "ontvanger"),
   );
-  protected readonly afzendersQuery = injectQuery(() =>
-    this.zakenService.listAfzendersVoorZaak(this.data.zaak.uuid),
-  );
-  private readonly defaultAfzenderQuery = injectQuery(() =>
-    this.zakenService.readDefaultAfzenderVoorZaak(this.data.zaak.uuid),
+  protected readonly afzendersQuery = injectAfzenders(
+    () => this.data.zaak.uuid,
+    () => this.formGroup.get("verzender"),
   );
   private ngDestroy = new Subject<void>();
 
@@ -154,13 +151,6 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
   );
 
   constructor() {
-    effect(() => {
-      const defaultAfzender = this.defaultAfzenderQuery.data();
-      const verzender = this.formGroup.get("verzender");
-      if (defaultAfzender === undefined || verzender?.dirty) return;
-
-      verzender?.setValue(defaultAfzender);
-    });
     this.formGroup
       .get("ontvankelijk")
       ?.valueChanges.pipe(takeUntil(this.ngDestroy))
