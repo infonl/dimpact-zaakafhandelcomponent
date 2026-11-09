@@ -98,7 +98,7 @@ spec:
               set -euo pipefail
               {{ include "zac-dev.waitForPort" (list "openklant-local" 8000) }}
               if [ "$(psql -At -c "SELECT count(*) FROM token_tokenauth")" = 0 ]; then
-                psql --set ON_ERROR_STOP=1 --set admin_password_hash="$ADMIN_PASSWORD_HASH" \
+                psql --set ON_ERROR_STOP=1 --single-transaction --set admin_password_hash="$ADMIN_PASSWORD_HASH" \
                   --file /seed/1-setup-applicatie.sql
               fi
           securityContext:
