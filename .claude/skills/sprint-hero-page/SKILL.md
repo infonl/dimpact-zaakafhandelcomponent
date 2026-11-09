@@ -40,7 +40,7 @@ Check the prerequisites yourself; when one is missing, ask the user to fix it an
 The Samenvatting has its own output rules on its page.
 
 - ONE rendered markdown table, NOT in a code block, so it can be copied straight into Confluence.
-- ONLY the version columns of that table, rows in the fixed order of the task page, no component-name column. Fill ALL of them with current values, including Our Version on TEST.
+- A first column with the component name (the row names of the task page), then the version columns of that table, rows in the fixed order of the task page. Fill ALL version columns with current values, including Our Version on TEST.
 - Below the table, max 4 short lines (the source line and the logout reminder do not count): what changed compared to the table the user pasted (if any), remarks in the pasted table that are now outdated, and values that could not be verified.
 
 ## Tooling notes

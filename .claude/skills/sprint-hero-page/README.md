@@ -23,7 +23,7 @@ Tip for the table tasks: paste the current table from Confluence. The skill then
 
 ## Put the result in Confluence
 
-- Copy the table Claude returns and paste it over the version columns. It contains only the version columns, in the order of the page.
+- Copy the table Claude returns into the page. Its first column names the component, followed by the version columns, in the order of the page.
 - Then let Rovo update the cell colours and "Last checked" (see the instruction with each table).
 - Log out when you are done: `gh auth logout -h github.com`. The skill reminds you.
 
