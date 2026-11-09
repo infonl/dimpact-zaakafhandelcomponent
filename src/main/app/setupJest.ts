@@ -203,16 +203,3 @@ afterEach(() => {
 export function sleep(ms: number = 0) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-
-export async function waitUntil(
-  condition: () => boolean | Promise<boolean>,
-  timeoutMs: number = 4000,
-) {
-  const deadline = Date.now() + timeoutMs;
-  while (!(await condition())) {
-    if (Date.now() > deadline) {
-      throw new Error(`The condition was not met within ${timeoutMs} ms`);
-    }
-    await sleep(10);
-  }
-}
