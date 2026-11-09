@@ -15,7 +15,6 @@ import {
 import { UtilService } from "../core/service/util.service";
 import { PatchBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
 import {
   LOAD_PER_VISIT,
   StaleTimes,
@@ -57,7 +56,6 @@ type ZaakDetailsUpdateVariables = Pick<
   providedIn: "root",
 })
 export class ZakenService {
-  private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly utilService = inject(UtilService);
   private readonly queryClient = inject(QueryClient);
@@ -157,8 +155,17 @@ export class ZakenService {
   }
 
   readOpschortingZaak(uuid: string) {
-    return this.zacHttpClient.GET("/rest/zaken/zaak/{uuid}/opschorting", {
-      path: { uuid },
+    return {
+      ...this.zacQueryClient.GET("/rest/zaken/zaak/{uuid}/opschorting", {
+        path: { uuid },
+      }),
+      meta: { reportFailedRefetch: true },
+    };
+  }
+
+  invalidateOpschorting(uuid: string) {
+    this.queryClient.invalidateQueries({
+      queryKey: this.readOpschortingZaak(uuid).queryKey,
     });
   }
 
@@ -169,7 +176,12 @@ export class ZakenService {
           path: { uuid },
         }),
       ),
-      { onSuccess: () => this.utilService.openSnackbar("msg.zaak.opgeschort") },
+      {
+        onSuccess: () => {
+          this.invalidateOpschorting(uuid);
+          this.utilService.openSnackbar("msg.zaak.opgeschort");
+        },
+      },
     );
   }
 
@@ -503,9 +515,12 @@ export class ZakenService {
   }
 
   listBesluitenForZaak(zaakUuid: string) {
-    return this.zacHttpClient.GET("/rest/zaken/besluit/zaakUuid/{zaakUuid}", {
-      path: { zaakUuid },
-    });
+    return {
+      ...this.zacQueryClient.GET("/rest/zaken/besluit/zaakUuid/{zaakUuid}", {
+        path: { zaakUuid },
+      }),
+      ...LOAD_PER_VISIT,
+    };
   }
 
   listBesluitHistorie(uuid: string) {

@@ -146,12 +146,6 @@ describe(ZaakViewComponent.name, () => {
       .compileComponents();
 
     zakenService = TestBed.inject(ZakenService);
-    jest
-      .spyOn(zakenService, "readOpschortingZaak")
-      .mockReturnValue(
-        of(fromPartial<GeneratedType<"RestZaakOpschorting">>({})),
-      );
-
     bagService = TestBed.inject(BAGService);
     bagObjectenQuery = {
       ...createQueryOptions<GeneratedType<"RestBagObjectGegevens">[]>([]),
