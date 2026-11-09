@@ -54,6 +54,9 @@ const behandelaarVerplicht: ValidatorFn = ({ value }) =>
         "zaak.zaakspecifiek-geautoriseerd.behandelaar-verplicht",
       );
 
+const notBlank: ValidatorFn = ({ value }) =>
+  typeof value === "string" && !value.trim() ? { required: true } : null;
+
 @Component({
   selector: "zac-case-details-edit",
   templateUrl: "./zaak-details-wijzigen.component.html",
@@ -179,6 +182,7 @@ export class CaseDetailsEditComponent implements OnInit {
     ]),
     reden: this.formBuilder.control("", [
       Validators.required,
+      notBlank,
       Validators.maxLength(80),
     ]),
     isZaakspecifiekGeautoriseerd: this.formBuilder.control(false),
