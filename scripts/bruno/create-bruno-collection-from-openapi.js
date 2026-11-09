@@ -379,19 +379,28 @@ function openInBruno(collectionPath) {
 
     log('Opening collection in Bruno...', 'cyan');
 
-    // Try to open with Bruno CLI or via open command
     const { spawn } = require('child_process');
 
-    // On macOS, try to open with the default application
+    const [command, args] = brunoLaunchCommand(collectionPath);
+    const brunoProcess = spawn(command, args, { detached: true, stdio: 'ignore', shell: false });
+    brunoProcess.on('error', (spawnError) => {
+        error(`Could not start Bruno (${spawnError.message}). Open the collection manually: ${collectionPath}`);
+    });
+    brunoProcess.unref();
+}
+
+function brunoLaunchCommand(collectionPath) {
     if (process.platform === 'darwin') {
-        spawn('open', ['-a', 'Bruno', collectionPath], { detached: true, stdio: 'ignore' });
-    } else if (process.platform === 'win32') {
-        // On Windows, launch Bruno directly without using cmd.exe
-        spawn('bruno', [collectionPath], { detached: true, stdio: 'ignore', shell: false });
-    } else {
-        // Linux and other Unix-like systems
-        spawn('bruno', [collectionPath], { detached: true, stdio: 'ignore', shell: false });
+        return ['open', ['-a', 'Bruno', collectionPath]];
     }
+    if (process.platform === 'win32' && process.env.LOCALAPPDATA) {
+        // The Bruno installer for Windows does not add Bruno to the PATH
+        const installedBruno = path.join(process.env.LOCALAPPDATA, 'Programs', 'bruno', 'Bruno.exe');
+        if (fs.existsSync(installedBruno)) {
+            return [installedBruno, [collectionPath]];
+        }
+    }
+    return ['bruno', [collectionPath]];
 }
 
 /**
