@@ -144,6 +144,29 @@ describe(ZaakBetrokkeneListComponent.name, () => {
     });
   });
 
+  describe("gegevens ophalen button", () => {
+    it("is enabled for a company betrokkene with a kvk nummer", () => {
+      testQueryClient.setQueryData(
+        zakenService.listBetrokkenenVoorZaakQuery(fakeZaak.uuid).queryKey,
+        [
+          makeBetrokkene({
+            type: "NIET_NATUURLIJK_PERSOON",
+            identificatieType: "VN",
+            vestigingsnummer: "11112222",
+            kvkNummer: "87654321",
+          }),
+        ],
+      );
+      fixture.detectChanges();
+
+      const button = fixture.nativeElement.querySelector(
+        "button[aria-label='actie.betrokkene.gegevens.ophalen']",
+      ) as HTMLButtonElement;
+
+      expect(button.disabled).toBe(false);
+    });
+  });
+
   describe("betrokkeneGegevensOphalen", () => {
     it("fetches and formats the naam and geboortedatum for a natuurlijk persoon", async () => {
       const betrokkene = makeBetrokkene({

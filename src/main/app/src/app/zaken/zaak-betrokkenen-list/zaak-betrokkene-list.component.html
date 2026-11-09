@@ -74,11 +74,9 @@
             mat-icon-button
             [attr.aria-label]="'actie.betrokkene.gegevens.ophalen' | translate"
             [disabled]="
-              (betrokkene.type === 'NIET_NATUURLIJK_PERSOON' &&
-                betrokkene.identificatieType === 'VN' &&
-                !betrokkene.kvkNummer) ||
-              (betrokkene.identificatieType !== 'BSN' &&
-                !betrokkene.doesExistInKvK)
+              betrokkene.type === 'NIET_NATUURLIJK_PERSOON' &&
+              betrokkene.identificatieType === 'VN' &&
+              !betrokkene.kvkNummer
             "
             (click)="betrokkeneGegevensOphalen(betrokkene)"
           >
