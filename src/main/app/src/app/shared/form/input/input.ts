@@ -65,6 +65,11 @@ export class ZacInput<
     return baseType;
   });
 
+  constructor() {
+    super();
+    this.rejectBlankWhenRequired();
+  }
+
   protected getDisplayValue = (option?: Option | null) => {
     if (!option) return null;
 

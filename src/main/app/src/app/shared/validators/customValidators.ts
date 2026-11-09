@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AbstractControl, ValidatorFn } from "@angular/forms";
+import { AbstractControl, ValidatorFn, Validators } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import {
   BSN_LENGTH,
@@ -22,6 +22,12 @@ export class CustomValidators {
   static bedrijfsnaam = CustomValidators.bedrijfsnaamVFn();
   static huisnummer = CustomValidators.huisnummerVFn();
   static nonEmptyHtmlElement = CustomValidators.nonEmptyHtmlElementVFn();
+  static notBlank: ValidatorFn = (control) =>
+    control.hasValidator(Validators.required) &&
+    typeof control.value === "string" &&
+    !control.value.trim()
+      ? { required: true }
+      : null;
 
   private static postcodeRegex = /^[1-9][0-9]{3}(?!sa|sd|ss)[a-z]{2}$/i;
 

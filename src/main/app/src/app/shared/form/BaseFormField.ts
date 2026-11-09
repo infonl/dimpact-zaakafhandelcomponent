@@ -19,6 +19,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { injectIsMutating } from "@tanstack/angular-query-experimental";
 import { lastValueFrom, Observable, Subject, takeUntil } from "rxjs";
 import { toI18nKey } from "../utils/i18n-key";
+import { CustomValidators } from "../validators/customValidators";
 import { trackControl } from "./control-state";
 import { FormHelper } from "./helpers";
 
@@ -103,6 +104,23 @@ export class SingleInputFormField<
         }
       });
       onCleanup(() => subscription.unsubscribe());
+    });
+  }
+
+  /**
+   * `setValidators` and `clearValidators` drop the validator, so it is added back
+   * whenever the control reports a change.
+   */
+  protected rejectBlankWhenRequired() {
+    const hasNotBlankValidator = this.readControl((control) =>
+      control.hasValidator(CustomValidators.notBlank),
+    );
+    effect(() => {
+      const control = this.control();
+      if (!control || hasNotBlankValidator()) return;
+      control.addValidators(CustomValidators.notBlank);
+      if (CustomValidators.notBlank(control))
+        control.updateValueAndValidity({ emitEvent: false });
     });
   }
 

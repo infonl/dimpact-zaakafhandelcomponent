@@ -109,6 +109,66 @@ describe(ZacTextarea.name, () => {
     expect(errors.length).toBeGreaterThan(0);
   });
 
+  it("rejects a value of only spaces when the field is required", async () => {
+    const control = new FormControl("", Validators.required);
+    host.form.set(makeForm(control));
+    fixture.detectChanges();
+
+    const input = await loader.getHarness(MatInputHarness);
+    await input.setValue("   ");
+
+    expect(control.errors).toEqual({ required: true });
+  });
+
+  it("accepts a value of only spaces when the field is optional", async () => {
+    const control = new FormControl("");
+    host.form.set(makeForm(control));
+    fixture.detectChanges();
+
+    const input = await loader.getHarness(MatInputHarness);
+    await input.setValue("   ");
+
+    expect(control.errors).toBeNull();
+  });
+
+  it("rejects a value of only spaces once the field becomes required", async () => {
+    const control = new FormControl("");
+    host.form.set(makeForm(control));
+    fixture.detectChanges();
+
+    control.addValidators(Validators.required);
+    const input = await loader.getHarness(MatInputHarness);
+    await input.setValue("   ");
+
+    expect(control.errors).toEqual({ required: true });
+  });
+
+  it("accepts a value of only spaces once the field is no longer required", async () => {
+    const control = new FormControl("", Validators.required);
+    host.form.set(makeForm(control));
+    fixture.detectChanges();
+
+    control.removeValidators(Validators.required);
+    const input = await loader.getHarness(MatInputHarness);
+    await input.setValue("   ");
+
+    expect(control.errors).toBeNull();
+  });
+
+  it("rejects a value of only spaces after its validators are replaced by required", async () => {
+    const control = new FormControl("");
+    host.form.set(makeForm(control));
+    fixture.detectChanges();
+    const input = await loader.getHarness(MatInputHarness);
+    await input.setValue("   ");
+
+    control.setValidators([Validators.required]);
+    control.updateValueAndValidity();
+    fixture.detectChanges();
+
+    expect(control.errors).toEqual({ required: true });
+  });
+
   it("hides mat-error when the control has no errors", async () => {
     fixture.detectChanges();
     const errors = await loader.getAllHarnesses(MatErrorHarness);

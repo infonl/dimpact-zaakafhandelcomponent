@@ -789,6 +789,30 @@ describe(CaseDetailsEditComponent.name, () => {
         screen.getByRole("button", { name: /actie.opslaan/ }),
       ).toBeEnabled();
     });
+
+    it("stays disabled and shows that the reden is required when the reden consists of spaces only", async () => {
+      const user = userEvent.setup();
+      const group = fromPartial<GeneratedType<"RestGroup">>({
+        id: "g1",
+        naam: "G1",
+      });
+      seedBehandelaarGroups([group]);
+      renderComponent({ groep: group });
+      await fixture.whenStable();
+
+      await user.type(
+        screen.getByRole("textbox", { name: /^omschrijving/i }),
+        " gewijzigd",
+      );
+      await user.type(screen.getByRole("textbox", { name: /^reden/i }), "   ");
+      await user.tab();
+      await fixture.whenStable();
+
+      expect(
+        screen.getByRole("button", { name: /actie.opslaan/ }),
+      ).toBeDisabled();
+      expect(screen.getByText(/validators.required/)).toBeInTheDocument();
+    });
   });
 
   describe("onSubmit()", () => {
