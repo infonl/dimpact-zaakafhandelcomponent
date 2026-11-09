@@ -223,7 +223,7 @@ De informatie over de software versie van de ZAC is te zien onder het profiel.
 
 Met signaleringen houdt de ZAC je op de hoogte van gebeurtenissen bij jouw zaken en taken. Een signalering verschijnt als kaart op het dashboard, als e-mail aan je ingestelde e-mailadres, of allebei. De werking van het dashboard wordt later in een apart hoofdstuk beschreven.
 
-Je bepaalt zelf welke signaleringen je ontvangt. Klik op ‘Signalering instellingen’ om het overzicht te openen en vink per signalering aan of je een dashboardkaart en/of een e-mail wilt. Ontbreekt een vinkje in een kolom, dan is dat kanaal voor die signalering niet beschikbaar.
+Je bepaalt zelf welke signaleringen je ontvangt. Klik op ‘Signalering instellingen’ om het overzicht te openen en vink per signalering aan of je een dashboardkaart en/of een e-mail wilt. Ontbreekt een selectievakje in een kolom, dan is dat kanaal voor die signalering niet beschikbaar. Een leeg selectievakje betekent dat je het kanaal kunt inschakelen.
 
 ![Signaleringen](./images/signaleringen.png)
 
