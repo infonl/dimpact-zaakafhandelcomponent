@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2024, 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 
-# Publishes the chart to the Helm repository https://infonl.github.io/dimpact-zaakafhandelcomponent without a GitHub
-# release, see ADR 0013. The packages are in 'helm-charts/' on the gh-pages branch; 'cleanup-e2e-reports.yml' only
+# Publishes the chart to the Helm repository https://infonl.github.io/dimpact-zaakafhandelcomponent and tags the commit
+# with zaakafhandelcomponent-<version>, without a GitHub release, see ADR 0013. The packages are in 'helm-charts/' on the gh-pages branch; 'cleanup-e2e-reports.yml' only
 # prunes folders whose name starts with a date, so it keeps them.
 name: Helm chart release
 
@@ -72,6 +72,7 @@ jobs:
             mkdir -p gh-pages/helm-charts
             helm dependency build source/charts/zac
             helm package source/charts/zac --destination gh-pages/helm-charts
+            echo "packaged=true" >> "$GITHUB_OUTPUT"
           fi
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
@@ -106,3 +107,17 @@ jobs:
             sleep $((attempt * 10))
           done
           exit 1
+
+      # The release of a sprint compares the images of two chart versions with these tags.
+      - name: Tag the chart version
+        if: ${{ steps.package.outputs.packaged == 'true' }}
+        working-directory: source
+        env:
+          TAG: zaakafhandelcomponent-${{ steps.package.outputs.version }}
+        run: |
+          if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" > /dev/null; then
+            echo "Tag ${TAG} already exists"
+            exit 0
+          fi
+          git tag "${TAG}" "${GITHUB_SHA}"
+          git push origin "refs/tags/${TAG}"

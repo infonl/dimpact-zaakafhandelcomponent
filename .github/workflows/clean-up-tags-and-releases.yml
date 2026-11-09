@@ -17,7 +17,7 @@ on:
         options: [dry-run, apply]
         default: dry-run
       include-charts:
-        description: "Also delete the zaakafhandelcomponent-* chart releases. Only after 'Helm chart release' ran with migrate-chart-packages."
+        description: "Also delete the zaakafhandelcomponent-* chart releases; their tags are kept. Only after 'Helm chart release' ran with migrate-chart-packages."
         type: boolean
         default: false
 

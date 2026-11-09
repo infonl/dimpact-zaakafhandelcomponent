@@ -20,6 +20,9 @@ releases down the releases page. PodiumD pulls the chart from the Helm repositor
 * The releases page shows only ZAC releases.
 * PodiumD keeps using the Helm repository URL without a change.
 * The chart versions that PodiumD depends on stay available.
+* Every chart version keeps a Git tag. For each sprint, the team picks the chart version for the sprint release and
+  lists the images that changed since the previous chart version with `git diff` between two chart tags. They need
+  that list to copy the images to the internal Docker registry of the SSC.
 
 ## Considered Options
 
@@ -33,21 +36,22 @@ Chosen option: "Store the chart packages on the `gh-pages` branch", because it i
 chart releases and needs no change in PodiumD.
 
 * `helm-chart-release.yml` packages the chart into `helm-charts/` on `gh-pages` and updates `index.yaml`. It creates
-  no tag and no release.
+  no release. It tags the commit with `zaakafhandelcomponent-<version>`, as `chart-releaser-action` did.
 * `gh-pages` keeps the chart versions that a PodiumD branch or tag depends on, and every chart version from `1.0.340`
-  onwards. The `zaakafhandelcomponent-*` tags and releases are deleted after their packages are copied.
+  onwards. The `zaakafhandelcomponent-*` releases are deleted after their packages are copied. Their tags are kept.
 
 ### Consequences
 
 * Good, because the releases page only shows ZAC releases.
 * Good, because the Helm repository URL does not change.
+* Good, because the chart tags stay, so the images that changed between two chart versions are still easy to find.
 * Bad, because every chart version adds about 0.4 MB to the `gh-pages` branch.
 * Bad, because chart versions below `1.0.340` that no PodiumD branch or tag depends on can no longer be installed.
 
 ### Confirmation
 
 The weekly `--check` of `scripts/github/cleanup-tags-and-releases.py` in
-`.github/workflows/clean-up-tags-and-releases.yml` fails when a `zaakafhandelcomponent-*` tag or release exists,
+`.github/workflows/clean-up-tags-and-releases.yml` fails when a `zaakafhandelcomponent-*` release exists,
 see [ADR-0014](0014-keep-only-release-tags-and-releases.md).
 
 ## Pros and Cons of the Options

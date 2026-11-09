@@ -36,13 +36,16 @@ The repository keeps:
 * every `vX.Y.0` tag and release (the sprint releases),
 * every tag and release from `v4.7.0` onwards (the release process of ADR-0002),
 * every ZAC version that a PodiumD release has deployed (`zac.image.tag` in `Dimpact-Samenwerking/helm-charts`),
-* the `vX.Y.Z-dev` pre-release and the hotfix tags `vX.Y.Z-N`.
+* the `vX.Y.Z-dev` pre-release and the hotfix tags `vX.Y.Z-N`,
+* every chart tag `zaakafhandelcomponent-*`, but not its release, see
+  [ADR-0013](0013-publish-the-helm-chart-on-gh-pages-without-github-releases.md).
 
 All other tags and releases are deleted. `scripts/github/cleanup-tags-and-releases.py` contains the policy.
 
 ### Consequences
 
-* Good, because the number of tags and releases drops from about 4,000 to about 75.
+* Good, because the number of releases drops from about 3,900 to about 75, and the number of tags from about 4,000 to
+  about 470.
 * Good, because the version calculation uses the highest `vX.Y.Z` tag, which is kept.
 * Bad, because the patch builds of the old process, apart from the deployed ones, can no longer be checked out by tag.
   Their commits stay on the main branch.

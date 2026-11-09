@@ -20,8 +20,8 @@ and its consequences. See [ADR-0007](0007-record-architecture-decisions-in-git-a
 | [0010](0010-cache-read-only-data-in-a-request-scoped-bean.md)            | Cache data that a request only reads in a request-scoped bean            | accepted | A `@RequestScoped` bean may cache data that a request reads but does not change, inside HTTP requests. |
 | [0011](0011-mask-personal-data-in-a-wildfly-logging-filter.md) | Mask personal data in all backend logging with a WildFly logging filter | accepted | A WildFly logging filter masks BSNs and IBANs in every log record, whatever its log level or logger. |
 | [0012](0012-use-helm-unittest-for-unit-tests-of-the-helm-chart.md) | Use helm-unittest for unit tests of the Helm chart | accepted | CI tests the rendered templates of the Helm chart with helm-unittest, without a cluster. |
-| [0013](0013-publish-the-helm-chart-on-gh-pages-without-github-releases.md) | Publish the Helm chart on gh-pages without GitHub releases | proposed | The chart packages are on the `gh-pages` branch; publishing the chart creates no tag or release. |
-| [0014](0014-keep-only-release-tags-and-releases.md) | Keep only release tags and releases | proposed | Only sprint, hotfix and deployed releases are kept; a weekly check enforces it. |
+| [0013](0013-publish-the-helm-chart-on-gh-pages-without-github-releases.md) | Publish the Helm chart on gh-pages without GitHub releases | proposed | The chart packages are on the `gh-pages` branch; publishing the chart creates a tag but no release. |
+| [0014](0014-keep-only-release-tags-and-releases.md) | Keep only release tags and releases | proposed | Only sprint, hotfix and deployed releases, plus the chart tags, are kept; a weekly check enforces it. |
 
 ## When to write an ADR
 

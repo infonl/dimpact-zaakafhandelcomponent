@@ -10,8 +10,9 @@
   --apply                      delete the releases and tags that do not match the policy
   --download-chart-packages D  download the chart packages that are kept from their GitHub releases into D
 
-Chart releases (zaakafhandelcomponent-*) are only deleted with --include-charts, because the Helm repository index
-points to them until their packages are on the gh-pages branch.
+Chart tags (zaakafhandelcomponent-*) are always kept: the release of a sprint compares the images of two chart
+versions with them. Chart releases are only deleted with --include-charts, because the Helm repository index points to
+them until their packages are on the gh-pages branch.
 
 Needs the GitHub CLI (gh). --apply needs a token with 'contents: write'.
 """
@@ -41,6 +42,7 @@ FIRST_RECENT_CHART_PATCH_VERSION = 340
 
 RELEASE_TAG = re.compile(r"^v(\d+)\.(\d+)\.(\d+)(-dev|-\d+)?$")
 CHART_TAG = re.compile(rf"^{CHART_NAME}-1\.0\.(\d+)$")
+ANY_CHART_TAG = re.compile(rf"^{CHART_NAME}-\d+\.\d+\.\d+$")
 
 
 def is_kept_release(tag: str) -> bool:
@@ -116,23 +118,29 @@ def main() -> int:
         download_chart_packages(arguments.download_chart_packages, releases)
         return 0
 
-    all_tags = tags | set(releases)
-    to_keep = sorted(tag for tag in all_tags if is_kept_release(tag))
-    to_delete = sorted(tag for tag in all_tags if not is_kept_release(tag))
+    tags_to_delete = {tag for tag in tags if not is_kept_release(tag) and not ANY_CHART_TAG.match(tag)}
+    releases_to_delete = {tag for tag in releases if not is_kept_release(tag)}
+    to_keep = sorted(tags - tags_to_delete)
 
     if arguments.check:
-        for tag in to_delete:
-            print(f"::error::Tag or release outside the retention policy of ADR 0014: {tag}")
-        return 1 if to_delete else 0
+        for tag in sorted(tags_to_delete):
+            print(f"::error::Tag outside the retention policy of ADR 0014: {tag}")
+        for tag in sorted(releases_to_delete):
+            print(f"::error::Release outside the retention policy of ADR 0014: {tag}")
+        return 1 if tags_to_delete or releases_to_delete else 0
 
     if not arguments.include_charts:
-        to_delete = [tag for tag in to_delete if not CHART_TAG.match(tag)]
+        releases_to_delete = {tag for tag in releases_to_delete if not ANY_CHART_TAG.match(tag)}
+    to_delete = sorted(tags_to_delete | releases_to_delete)
+
+    def describe(tag: str) -> str:
+        return tag if tag in tags_to_delete else f"{tag} (release only, the tag is kept)"
 
     if not arguments.apply:
         with open("keep.txt", "w") as keep_file:
             keep_file.write("".join(f"{tag}\n" for tag in to_keep))
         with open("delete.txt", "w") as delete_file:
-            delete_file.write("".join(f"{tag}\n" for tag in to_delete))
+            delete_file.write("".join(f"{describe(tag)}\n" for tag in to_delete))
         print(f"Dry run: keep {len(to_keep)}, delete {len(to_delete)}. See keep.txt and delete.txt.")
         return 0
 
@@ -141,11 +149,11 @@ def main() -> int:
         if deadline and time.monotonic() > deadline:
             print(f"Stopped after {arguments.max_minutes} minutes; {len(to_delete) - count + 1} left. Run again.")
             return 0
-        if tag in releases:
+        if tag in releases_to_delete:
             delete_with_retry(f"repos/{REPOSITORY}/releases/{releases[tag]}")
-        if tag in tags:
+        if tag in tags_to_delete:
             delete_with_retry(f"repos/{REPOSITORY}/git/refs/tags/{tag}")
-        print(f"[{count}/{len(to_delete)}] Deleted {tag}")
+        print(f"[{count}/{len(to_delete)}] Deleted {describe(tag)}")
     return 0
 
 

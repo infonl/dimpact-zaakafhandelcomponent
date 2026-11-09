@@ -49,5 +49,6 @@ python3 scripts/github/cleanup-tags-and-releases.py --check            # exit 1 
 
 Delete with the workflow `Clean up tags and releases` (mode `apply`) rather than locally. The GitHub rate limit makes
 the first cleanup take several hours; the workflow stops before the job time limit, and a new run continues.
-Only select `include-charts` after the workflow `Helm chart release` ran with `migrate-chart-packages`, see
+The chart tags `zaakafhandelcomponent-*` are always kept; `include-charts` only deletes their releases. Only select
+`include-charts` after the workflow `Helm chart release` ran with `migrate-chart-packages`, see
 [ADR-0013](../../docs/solution-architecture/decisions/0013-publish-the-helm-chart-on-gh-pages-without-github-releases.md).
