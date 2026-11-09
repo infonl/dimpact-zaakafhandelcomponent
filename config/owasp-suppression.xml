@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <suppress>
+        <notes><![CDATA[
+        CVE-2026-54285 is in the npm package @opentelemetry/core (the JavaScript W3C baggage propagator).
+        Dependency Check matches it to the Java io.opentelemetry artifacts by CPE, which are not affected.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/io\.opentelemetry/.*$</packageUrl>
+        <cve>CVE-2026-54285</cve>
+    </suppress>
+</suppressions>
