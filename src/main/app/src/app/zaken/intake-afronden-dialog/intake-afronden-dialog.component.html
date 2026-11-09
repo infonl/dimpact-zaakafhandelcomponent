@@ -87,7 +87,7 @@
               <mat-select-trigger>
                 {{ verzender()?.mail }}
               </mat-select-trigger>
-              @for (afzender of afzenders | async; track afzender) {
+              @for (afzender of afzendersQuery.data() ?? []; track afzender) {
                 <mat-option [value]="afzender">
                   {{ afzender.mail }}
                   @if (afzender.suffix) {

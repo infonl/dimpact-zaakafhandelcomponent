@@ -201,8 +201,8 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     uiterlijkeEinddatumAfdoeningWaarschuwing shouldBe null
                     nietOntvankelijkResultaattypeOmschrijving shouldBe "fakeNietOntvankelijk"
                     creatiedatum shouldNotBe null
-                    cmmnExtension?.intakeMail shouldBe null
-                    cmmnExtension?.afrondenMail shouldBe null
+                    cmmnExtension?.intakeMail shouldBe "BESCHIKBAAR_UIT"
+                    cmmnExtension?.afrondenMail shouldBe "BESCHIKBAAR_UIT"
                     productaanvraagtype shouldBe null
                     isSmartDocumentsEnabled shouldBe false
                 }
@@ -509,6 +509,68 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                 and("the resultaattypen are referenced by the omschrijving that ZTC has for their UUID") {
                     entity.nietOntvankelijkResultaattypeOmschrijving shouldBe "fakeNietOntvankelijk"
                     entity.getZaakbeeindigParameters().single().resultaattypeOmschrijving shouldBe "fakeToegekend"
+                }
+            }
+        }
+
+        given("a configuration without CMMN extension, and a CMMN REST configuration without intake or afronden mail") {
+            val storedConfiguration = ZaaktypeConfiguration().apply { zaaktypeUuid = UUID.randomUUID() }
+            val restZaaktypeConfiguration = createRestZaaktypeConfiguration(
+                restZaaktypeOverzicht = createRestZaaktypeOverzicht(uuid = storedConfiguration.zaaktypeUuid),
+                restProcessDefinition = createRestProcessDefinition(processEngine = ProcessEngine.CMMN)
+            )
+            every {
+                zaaktypeConfigurationBeheerService.findConfiguration(storedConfiguration.zaaktypeUuid)
+            } returns storedConfiguration
+            every {
+                with(restHumanTaskParametersConverter) {
+                    any<List<RestHumanTaskParameters>>().toZaaktypeCmmnHumantaskParameters()
+                }
+            } returns emptyList()
+            every { zaakbeeindigParameterConverter.toZaaktypeCompletionParameters(emptyList()) } returns emptyList()
+
+            `when`("converting REST configuration to ZaaktypeConfiguration entity") {
+                val zaaktypeConfiguration = restZaaktypeConfigurationConverter.toZaaktypeConfiguration(
+                    restZaaktypeConfiguration
+                )
+
+                then("the new CMMN extension has the default intake and afronden mail option BESCHIKBAAR_UIT") {
+                    zaaktypeConfiguration.cmmnExtension?.intakeMail shouldBe "BESCHIKBAAR_UIT"
+                    zaaktypeConfiguration.cmmnExtension?.afrondenMail shouldBe "BESCHIKBAAR_UIT"
+                }
+            }
+        }
+
+        given("a stored CMMN configuration with intake and afronden mail, and a REST configuration without them") {
+            val storedConfiguration = createZaaktypeCmmnConfiguration().apply {
+                cmmnExtension?.intakeMail = ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_AAN.name
+                cmmnExtension?.afrondenMail = ZaakafhandelparametersStatusMailOption.NIET_BESCHIKBAAR.name
+            }
+            val restZaaktypeConfiguration = createRestZaaktypeConfiguration(
+                restZaaktypeOverzicht = createRestZaaktypeOverzicht(uuid = storedConfiguration.zaaktypeUuid),
+                restProcessDefinition = createRestProcessDefinition(
+                    processEngine = ProcessEngine.CMMN,
+                    key = "fakeCaseDefinitionId"
+                )
+            )
+            every {
+                zaaktypeConfigurationBeheerService.findConfiguration(storedConfiguration.zaaktypeUuid)
+            } returns storedConfiguration
+            every {
+                with(restHumanTaskParametersConverter) {
+                    any<List<RestHumanTaskParameters>>().toZaaktypeCmmnHumantaskParameters()
+                }
+            } returns emptyList()
+            every { zaakbeeindigParameterConverter.toZaaktypeCompletionParameters(emptyList()) } returns emptyList()
+
+            `when`("converting REST configuration to ZaaktypeConfiguration entity") {
+                val zaaktypeConfiguration = restZaaktypeConfigurationConverter.toZaaktypeConfiguration(
+                    restZaaktypeConfiguration
+                )
+
+                then("the stored intake and afronden mail options are kept") {
+                    zaaktypeConfiguration.cmmnExtension?.intakeMail shouldBe "BESCHIKBAAR_AAN"
+                    zaaktypeConfiguration.cmmnExtension?.afrondenMail shouldBe "NIET_BESCHIKBAAR"
                 }
             }
         }

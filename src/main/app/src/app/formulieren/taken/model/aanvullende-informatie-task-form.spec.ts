@@ -8,13 +8,19 @@ import { TestBed } from "@angular/core/testing";
 import { provideTranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { of } from "rxjs";
 import { sleep } from "../../../../../setupJest";
 import { createQueryOptions, fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZakenService } from "../../../zaken/zaken.service";
 import { AanvullendeInformatieTaskForm } from "./aanvullende-informatie-task-form";
+
+function afzendersQuery(afzenders: GeneratedType<"RestZaakAfzender">[]) {
+  return {
+    ...createQueryOptions(afzenders),
+    queryKey: ["fakeAfzenders"],
+  } as never;
+}
 
 describe(AanvullendeInformatieTaskForm.name, () => {
   let formulier: AanvullendeInformatieTaskForm;
@@ -57,7 +63,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
 
     listAfzendersVoorZaakSpy = jest
       .spyOn(TestBed.inject(ZakenService), "listAfzendersVoorZaak")
-      .mockReturnValue(of([]));
+      .mockReturnValue(afzendersQuery([]));
     listEnkelvoudigInformatieobjectenSpy = jest
       .spyOn(
         TestBed.inject(InformatieObjectenService),
@@ -181,7 +187,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
     describe("verzender", () => {
       it("should set verzender options from listAfzendersVoorZaak", async () => {
         listAfzendersVoorZaakSpy.mockReturnValue(
-          of([mockAfzender, mockDefaultAfzender]),
+          afzendersQuery([mockAfzender, mockDefaultAfzender]),
         );
 
         const fields = await requestForm(mockZaak);
@@ -194,7 +200,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
 
       it("should pre-select the default afzender", async () => {
         listAfzendersVoorZaakSpy.mockReturnValue(
-          of([mockAfzender, mockDefaultAfzender]),
+          afzendersQuery([mockAfzender, mockDefaultAfzender]),
         );
 
         const fields = await requestForm(mockZaak);
@@ -206,7 +212,9 @@ describe(AanvullendeInformatieTaskForm.name, () => {
       });
 
       it("should set verzender to null when no default afzender exists", async () => {
-        listAfzendersVoorZaakSpy.mockReturnValue(of([mockAfzender]));
+        listAfzendersVoorZaakSpy.mockReturnValue(
+          afzendersQuery([mockAfzender]),
+        );
 
         const fields = await requestForm(mockZaak);
 
@@ -216,7 +224,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
 
       it("should update replyTo when verzender changes", async () => {
         listAfzendersVoorZaakSpy.mockReturnValue(
-          of([mockAfzender, mockDefaultAfzender]),
+          afzendersQuery([mockAfzender, mockDefaultAfzender]),
         );
 
         const fields = await requestForm(mockZaak);
@@ -234,7 +242,9 @@ describe(AanvullendeInformatieTaskForm.name, () => {
       });
 
       it("should set replyTo to null when verzender is cleared", async () => {
-        listAfzendersVoorZaakSpy.mockReturnValue(of([mockDefaultAfzender]));
+        listAfzendersVoorZaakSpy.mockReturnValue(
+          afzendersQuery([mockDefaultAfzender]),
+        );
 
         const fields = await requestForm(mockZaak);
 

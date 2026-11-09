@@ -50,6 +50,11 @@ export class ZacTextarea<
   protected minRows = input(5, { transform: numberAttribute });
   protected maxRows = input(15, { transform: numberAttribute });
 
+  constructor() {
+    super();
+    this.rejectBlankWhenRequired();
+  }
+
   protected maxlength = computed(() =>
     FormHelper.getValidatorValue("maxLength", this.control() ?? null),
   );

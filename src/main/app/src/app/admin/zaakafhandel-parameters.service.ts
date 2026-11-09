@@ -10,6 +10,7 @@ import { MailtemplateService } from "../mailtemplate/mailtemplate.service";
 import { PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { ZakenService } from "../zaken/zaken.service";
 import { MailtemplateKoppelingService } from "./mailtemplate-koppeling.service";
 
 @Injectable({
@@ -22,6 +23,7 @@ export class ZaakafhandelParametersService {
     MailtemplateKoppelingService,
   );
   private readonly mailtemplateService = inject(MailtemplateService);
+  private readonly zakenService = inject(ZakenService);
   private readonly queryClient = inject(QueryClient, { optional: true });
 
   listZaakafhandelParameters() {
@@ -90,6 +92,7 @@ export class ZaakafhandelParametersService {
                 .queryKey,
           });
           void this.mailtemplateService.invalidateFoundMailtemplates();
+          void this.zakenService.invalidateAfzenders();
           this.utilService.openSnackbar(
             "msg.zaakafhandelparameters.opgeslagen",
           );

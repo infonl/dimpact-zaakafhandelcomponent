@@ -5,6 +5,7 @@
 
 import {
   Component,
+  computed,
   inject,
   input,
   OnInit,
@@ -32,7 +33,7 @@ import { ZacSelect } from "../../shared/form/select/select";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { runQuery } from "../../shared/http/run-query";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { ZakenService } from "../../zaken/zaken.service";
+import { injectAfzenders } from "../../zaken/inject-afzenders";
 import { MailService } from "../mail.service";
 
 @Component({
@@ -55,7 +56,6 @@ import { MailService } from "../mail.service";
   ],
 })
 export class OntvangstbevestigingComponent implements OnInit {
-  private readonly zakenService = inject(ZakenService);
   private readonly queryClient = inject(QueryClient);
   private readonly informatieObjectenService = inject(
     InformatieObjectenService,
@@ -70,8 +70,13 @@ export class OntvangstbevestigingComponent implements OnInit {
 
   protected readonly ontvangstBevestigd = output<boolean>();
 
-  protected readonly afzenders = signal<GeneratedType<"RestZaakAfzender">[]>(
-    [],
+  private readonly afzendersQuery = injectAfzenders(
+    () => this.zaak().uuid,
+    () => this.form.controls.verzender,
+  );
+
+  protected readonly afzenders = computed(
+    () => this.afzendersQuery.data() ?? [],
   );
   protected readonly variables = signal<
     GeneratedType<"MailTemplateVariables">[]
@@ -117,18 +122,6 @@ export class OntvangstbevestigingComponent implements OnInit {
     ).subscribe((documents) => {
       this.documents.set(documents);
     });
-
-    this.zakenService
-      .listAfzendersVoorZaak(this.zaak().uuid)
-      .subscribe((afzenders) => {
-        this.afzenders.set(afzenders);
-      });
-
-    this.zakenService
-      .readDefaultAfzenderVoorZaak(this.zaak().uuid)
-      .subscribe((defaultVerzenderVoorZaak) => {
-        this.form.controls.verzender.setValue(defaultVerzenderVoorZaak);
-      });
 
     runQuery(
       this.queryClient,

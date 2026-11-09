@@ -4,6 +4,7 @@
  */
 
 import {
+  HttpErrorResponse,
   provideHttpClient,
   withInterceptorsFromDi,
   withXhr,
@@ -18,9 +19,12 @@ import {
   type MutationFunctionContext,
   provideQueryClient,
 } from "@tanstack/angular-query-experimental";
+import { EMPTY } from "rxjs";
 import { fromPartial, runMutationOnSuccess } from "src/test-helpers";
 import { testQueryClient } from "../../../setupJest";
 import { UtilService } from "../core/service/util.service";
+import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { QUERY_CLIENT } from "../shared/http/query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { ZakenService } from "./zaken.service";
 
@@ -411,6 +415,105 @@ describe(ZakenService.name, () => {
       );
 
       expect(invalidateHistorie).toHaveBeenCalledWith("fakeZaakUuid1");
+    });
+  });
+
+  describe("the afzenders of a zaak", () => {
+    const afzendersUrl = "/rest/zaken/zaak/fakeZaakUuid/afzender";
+    const afzender = fromPartial<GeneratedType<"RestZaakAfzender">>({
+      mail: "fakeAfzender@example.com",
+      suffix: "gegevens.mail.afzender.MEDEWERKER",
+    });
+
+    async function flushAfterRequest(url: string, body: unknown) {
+      await Promise.resolve();
+      httpTestingController.expectOne(url).flush(body as never);
+    }
+
+    it("gives the suffix as a translation key to a one-shot read as well, so that a task form shows the same label as a component", async () => {
+      const read = testQueryClient.query(
+        service.listAfzendersVoorZaak("fakeZaakUuid"),
+      );
+      await flushAfterRequest(afzendersUrl, [afzender]);
+
+      expect((await read)[0].suffix).toBe("gegevens.mail.afzender.medewerker");
+    });
+
+    it("does not change a cached afzender in place, so that the suffix conversion cannot corrupt the cache", async () => {
+      const options = service.listAfzendersVoorZaak("fakeZaakUuid");
+      const cached = Object.freeze([Object.freeze({ ...afzender })]);
+      testQueryClient.setQueryData(options.queryKey, cached as never);
+
+      await expect(testQueryClient.query(options)).resolves.toEqual([
+        { ...afzender, suffix: "gegevens.mail.afzender.medewerker" },
+      ]);
+    });
+
+    it("reads from the cache the second time, without a request", async () => {
+      const options = service.listAfzendersVoorZaak("fakeZaakUuid");
+      const first = testQueryClient.query(options);
+      await flushAfterRequest(afzendersUrl, [afzender]);
+      await first;
+
+      await testQueryClient.query(options);
+
+      httpTestingController.expectNone(afzendersUrl);
+    });
+
+    it("reads the afzenders of every zaak again after invalidateAfzenders, so that a changed zaaktype configuration reaches the forms", async () => {
+      const afzenderOptions = service.listAfzendersVoorZaak("fakeZaakUuid");
+      const otherAfzenderOptions =
+        service.listAfzendersVoorZaak("fakeOtherZaakUuid");
+      testQueryClient.setQueryData(afzenderOptions.queryKey, [afzender]);
+      testQueryClient.setQueryData(otherAfzenderOptions.queryKey, [afzender]);
+
+      await service.invalidateAfzenders();
+
+      expect(
+        testQueryClient.getQueryState(afzenderOptions.queryKey)?.isInvalidated,
+      ).toBe(true);
+      expect(
+        testQueryClient.getQueryState(otherAfzenderOptions.queryKey)
+          ?.isInvalidated,
+      ).toBe(true);
+    });
+
+    it("leaves the other reads of a zaak alone on invalidateAfzenders", async () => {
+      const zaakOptions = service.readZaakQuery("fakeZaakUuid");
+      testQueryClient.setQueryData(
+        zaakOptions.queryKey,
+        fromPartial<GeneratedType<"RestZaak">>({ uuid: "fakeZaakUuid" }),
+      );
+
+      await service.invalidateAfzenders();
+
+      expect(
+        testQueryClient.getQueryState(zaakOptions.queryKey)?.isInvalidated,
+      ).toBe(false);
+    });
+
+    it("opens the error dialog on a failed re-read, as opening a form is an action the user waits on", async () => {
+      const foutAfhandelen = jest
+        .spyOn(TestBed.inject(FoutAfhandelingService), "foutAfhandelen")
+        .mockReturnValue(EMPTY);
+      const queryClient = TestBed.inject(QUERY_CLIENT);
+      const options = service.listAfzendersVoorZaak("fakeZaakUuid");
+      queryClient.setQueryData(options.queryKey, [afzender]);
+
+      const reRead = queryClient.fetchQuery({
+        ...options,
+        retry: false,
+        staleTime: 0,
+      });
+      await Promise.resolve();
+      httpTestingController
+        .expectOne(afzendersUrl)
+        .flush(null, { status: 500, statusText: "Internal Server Error" });
+      await expect(reRead).rejects.toBeInstanceOf(HttpErrorResponse);
+
+      expect(foutAfhandelen).toHaveBeenCalledWith(
+        expect.objectContaining({ status: 500 }),
+      );
     });
   });
 });
