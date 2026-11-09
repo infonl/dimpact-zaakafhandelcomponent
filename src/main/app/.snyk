@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+version: v1.25.0
+ignore:
+  SNYK-JS-NGXBOOTSTRAP-174319:
+    - "ngx-bootstrap":
+        reason: >-
+          The XSS is in the typeahead component, which ZAC does not use. ngx-bootstrap is only a
+          required peer dependency of @formio/angular, which imports only ngx-bootstrap/modal and
+          ngx-bootstrap/pagination. No fixed version exists.
+        expires: 2027-05-09T00:00:00.000Z
+        created: 2026-11-09T00:00:00.000Z
+patch: {}
