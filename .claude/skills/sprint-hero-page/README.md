@@ -7,6 +7,7 @@ The `sprint-hero-page` skill fills the version sections and the summary of the s
 - Claude Code in the VS Code extension or the desktop app, started in your ZAC checkout. In a plain terminal the table shows as raw text and does not paste well.
 - `gh`, logged in with `gh auth login -h github.com -w` (choose SSH, then Skip). Externe API's needs no login. The other tasks need:
   - PodiumD componenten and Supporting componenten: read access to `infonl/dimpact-provisioning`.
+  - Security issues: write access to the ZAC repo and `infonl/webdav-servlet`, which GitHub requires to read code-scanning alerts.
   - Samenvatting: read access to `infonl/dimpact-provisioning` and `infonl/webdav-servlet`, plus write access to the ZAC repo, which GitHub requires to read its code-scanning alerts.
 - If access is missing, the skill stops and tells you what to do.
 
@@ -17,6 +18,7 @@ Type `/sprint-hero-page <task>`, or just `/sprint-hero-page` and it asks which o
 - `PodiumD componenten`: Latest, the PodiumD releases and our TEST version
 - `Supporting componenten`: Latest and our TEST version
 - `Externe API's`: KVK and BRP, Latest and our TEST version
+- `Security issues in component repositories`: Open, New and Closed code-scanning alerts per severity for ZAC and WebDAV
 - `Samenvatting`: at most 3 bullets on components and security in this sprint; the WebDAV bullet only appears when there is a WebDAV fix (asks for the sprint start date)
 
 Tip for the table tasks: paste the current table from Confluence. The skill then reports what changed and which remarks on the page are outdated. For PodiumD componenten the pasted table also sets which PodiumD releases become columns; without it, the skill asks which releases to show.

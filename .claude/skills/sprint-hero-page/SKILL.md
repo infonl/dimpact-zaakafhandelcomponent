@@ -12,11 +12,12 @@ Each task fills one section of the sprint hero page in Confluence. Pick the task
 | PodiumD componenten | [podiumd-componenten.md](podiumd-componenten.md) |
 | Supporting componenten | [supporting-componenten.md](supporting-componenten.md) |
 | Externe API's | [externe-apis.md](externe-apis.md) |
+| Security issues in component repositories | [security-issues.md](security-issues.md) |
 | Samenvatting | [samenvatting.md](samenvatting.md) |
 
 ## Before you start
 
-If the user did not name a task, ask which one: PodiumD componenten, Supporting componenten, Externe API's or Samenvatting.
+If the user did not name a task, ask which one: PodiumD componenten, Supporting componenten, Externe API's, Security issues in component repositories or Samenvatting.
 
 Check the prerequisites yourself; when one is missing, ask the user to fix it and give the exact command. Continue once they confirm.
 
@@ -24,6 +25,7 @@ Check the prerequisites yourself; when one is missing, ask the user to fix it an
   - Not logged in: ask the user to run `gh auth login -h github.com -w` (choose SSH, then Skip for the key upload).
   - 404/403: the token has no access to that repo, or awaits infonl org approval. Ask the user to fix the token. Never guess those values.
 - Externe API's needs no login.
+- Security issues reads the code-scanning alerts of `infonl/dimpact-zaakafhandelcomponent` and `infonl/webdav-servlet`, which needs write access to both. Check with `gh api "repos/infonl/<repo>/code-scanning/alerts?per_page=1" --jq length`; a 403/404 means the token lacks access.
 - Supporting componenten, Externe API's and Samenvatting read the ZAC repo via `git show origin/main:<file>`.
   - Check the session runs in the ZAC repo: `git remote get-url origin` must point to `infonl/dimpact-zaakafhandelcomponent`. If not, ask the user to start Claude Code in their ZAC checkout.
   - Run `git fetch origin main` first, so `origin/main` is current. It only updates the remote ref; it never touches the user's branch or working tree.
@@ -37,7 +39,7 @@ Check the prerequisites yourself; when one is missing, ask the user to fix it an
 
 ## Output for the table tasks
 
-The Samenvatting has its own output rules on its page.
+The Samenvatting and Security issues have their own output rules on their page.
 
 - ONE rendered markdown table, NOT in a code block, so it can be copied straight into Confluence.
 - A first column with the component name (the row names of the task page), then the version columns of that table, rows in the fixed order of the task page. Fill ALL version columns with current values, including Our Version on TEST.
