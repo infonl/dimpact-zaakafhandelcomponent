@@ -290,6 +290,28 @@ describe(InboxDocumentenListComponent.name, () => {
     ).toBeEnabled();
   });
 
+  it("searches on the titel filter and sort of a selected saved search", async () => {
+    await setup();
+    await showDocuments([inboxDocument]);
+
+    fixture.componentInstance.zoekopdrachtChanged(
+      fromPartial<GeneratedType<"RestZoekopdracht">>({
+        json: JSON.stringify({
+          titel: "Aanvraag",
+          sort: "titel",
+          order: "asc",
+          filtersType: "InboxDocumentListParameters",
+        }),
+      }),
+    );
+
+    expect(await lastListRequestBody()).toMatchObject({
+      titel: "Aanvraag",
+      sort: "titel",
+      order: "asc",
+    });
+  });
+
   it("links to the download of the document on the row", async () => {
     await setup();
     await showDocuments([inboxDocument]);
