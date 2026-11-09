@@ -148,8 +148,8 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
             ?: throw NullPointerException("restZaakafhandelParameters.processDefinition is null")
         bindTo(processDefinition.processEngine, processDefinition.key)
         cmmnExtension?.apply {
-            intakeMail = restZaaktypeConfiguration.intakeMail?.name
-            afrondenMail = restZaaktypeConfiguration.afrondenMail?.name
+            restZaaktypeConfiguration.intakeMail?.let { intakeMail = it.name }
+            restZaaktypeConfiguration.afrondenMail?.let { afrondenMail = it.name }
             restZaaktypeConfiguration.humanTaskParameters.ifSupplied {
                 setHumanTaskParametersCollection(with(humanTaskParametersConverter) { it.toZaaktypeCmmnHumantaskParameters() })
             }
