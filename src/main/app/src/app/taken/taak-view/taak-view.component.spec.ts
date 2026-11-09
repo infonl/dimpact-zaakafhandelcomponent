@@ -4,8 +4,6 @@
  *
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import {
   provideHttpClient,
   withInterceptorsFromDi,
@@ -18,18 +16,15 @@ import {
 import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormControl, FormGroup } from "@angular/forms";
-import { MatFormFieldHarness } from "@angular/material/form-field/testing";
-import { MatInputHarness } from "@angular/material/input/testing";
-import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { within } from "@testing-library/angular";
+import { screen, within } from "@testing-library/angular";
 import { randomUUID } from "crypto";
 import moment from "moment";
-import { of, ReplaySubject } from "rxjs";
+import { ReplaySubject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
@@ -45,10 +40,8 @@ import { TaakViewComponent } from "./taak-view.component";
 describe(TaakViewComponent.name, () => {
   let fixture: ComponentFixture<TaakViewComponent>;
   let component: ComponentRef<TaakViewComponent>;
-  let loader: HarnessLoader;
 
   let websocketService: WebsocketService;
-  let zakenService: ZakenService;
   let taakFormulierenService: TaakFormulierenService;
 
   let mockActivatedRoute: {
@@ -102,6 +95,47 @@ describe(TaakViewComponent.name, () => {
     besluiten: [],
   });
 
+  const zaakWithSmartDocuments = (
+    smartDocuments: GeneratedType<"RestZaaktypeConfiguration">["smartDocuments"] = {},
+  ) =>
+    fromPartial<GeneratedType<"RestZaak">>({
+      ...zaak,
+      zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
+        ...zaak.zaaktype,
+        zaakafhandelparameters: fromPartial<
+          GeneratedType<"RestZaaktypeConfiguration">
+        >({ afrondenMail: "BESCHIKBAAR_AAN", smartDocuments }),
+      }),
+    });
+
+  /**
+   * The view reads the zaak of the taak first, and only then the reads that
+   * depend on it. A read left open keeps the app from becoming stable.
+   */
+  async function answerReads(answer: GeneratedType<"RestZaak"> = zaak) {
+    const httpTestingController = TestBed.inject(HttpTestingController);
+    await sleep();
+    httpTestingController
+      .match(`/rest/zaken/zaak/${taak.zaakUuid}`)
+      .forEach((request) => request.flush(answer));
+    await sleep();
+    httpTestingController
+      .match("/rest/taken/test-id/historie")
+      .forEach((request) => request.flush([]));
+    httpTestingController
+      .match("/rest/identity/loggedInUser")
+      .forEach((request) =>
+        request.flush(
+          fromPartial<GeneratedType<"RestUser">>({ username: "user" }),
+        ),
+      );
+    httpTestingController
+      .match("/rest/informatieobjecten/informatieobjectenList")
+      .forEach((request) => request.flush([]));
+    await sleep();
+    fixture.detectChanges();
+  }
+
   beforeEach(() => {
     mockActivatedRoute = {
       data: new ReplaySubject<{ taak: GeneratedType<"RestTask"> }>(1),
@@ -135,23 +169,12 @@ describe(TaakViewComponent.name, () => {
     mockActivatedRoute.data.next({ taak });
     fixture.detectChanges();
 
-    loader = TestbedHarnessEnvironment.loader(fixture);
-
     websocketService = TestBed.inject(WebsocketService);
 
     taakFormulierenService = TestBed.inject(TaakFormulierenService);
-
-    zakenService = TestBed.inject(ZakenService);
-    jest.spyOn(zakenService, "readZaak").mockReturnValue(of(zaak));
   });
 
-  afterEach(async () => {
-    await sleep();
-    TestBed.inject(HttpTestingController)
-      .match("/rest/taken/test-id/historie")
-      .forEach((request) => request.flush([]));
-    await sleep();
-  });
+  afterEach(() => answerReads());
 
   describe(TaakViewComponent.prototype.documentCreated.name, () => {
     it("should subscribe to UPDATED on ZAAK_INFORMATIEOBJECTEN", async () => {
@@ -208,13 +231,10 @@ describe(TaakViewComponent.name, () => {
         .mockResolvedValue([]);
     });
 
-    it("should create the form when the task is loaded", async () => {
-      component.instance.ngOnInit();
-      await fixture.whenStable();
+    it("shows only the explanation field once the zaak of the taak is read", async () => {
+      await answerReads();
 
-      const fields = await loader.getAllHarnesses(MatFormFieldHarness);
-
-      expect(fields.length).toBe(1); // `explanation`
+      expect(await screen.findAllByRole("textbox")).toHaveLength(1);
     });
   });
 
@@ -225,56 +245,52 @@ describe(TaakViewComponent.name, () => {
         .mockResolvedValue([{ type: "input", key: "question" }]);
     });
 
-    it("should create the form when the task is loaded", async () => {
-      component.instance.ngOnInit();
-      await fixture.whenStable();
+    it("shows the field of the form next to the explanation once the zaak of the taak is read", async () => {
+      await answerReads();
 
-      const input = await loader.getHarness(MatInputHarness);
-
-      expect(input).not.toBeNull();
+      expect(await screen.findAllByRole("textbox")).toHaveLength(2);
     });
   });
 
   describe("document action buttons visibility for smartDocuments settings", () => {
     const smartDocumentVariants = [
-      {
-        enabledGlobally: true,
-        enabledForZaaktype: true,
-        expectButtons: 2,
-      },
-      { enabledGlobally: true, enabledForZaaktype: false, expectButtons: 1 },
-      { enabledGlobally: true, enabledForZaaktype: null, expectButtons: 1 },
-      { enabledGlobally: true, expectButtons: 1 },
-      { enabledGlobally: false, enabledForZaaktype: true, expectButtons: 1 },
-      { enabledGlobally: false, enabledForZaaktype: false, expectButtons: 1 },
-      { enabledGlobally: false, enabledForZaaktype: null, expectButtons: 1 },
-      { enabledGlobally: false, expectButtons: 1 },
-      { enabledGlobally: null, enabledForZaaktype: true, expectButtons: 1 },
-      { enabledGlobally: null, enabledForZaaktype: false, expectButtons: 1 },
-      { enabledGlobally: null, enabledForZaaktype: null, expectButtons: 1 },
-      { enabledGlobally: null, expectButtons: 1 },
-      { enabledForZaaktype: true, expectButtons: 1 },
-      { enabledForZaaktype: false, expectButtons: 1 },
-      { enabledForZaaktype: null, expectButtons: 1 },
-      { expectButtons: 1 },
+      { enabledGlobally: true, enabledForZaaktype: true, canMaken: true },
+      { enabledGlobally: true, enabledForZaaktype: false, canMaken: false },
+      { enabledGlobally: true, enabledForZaaktype: null, canMaken: false },
+      { enabledGlobally: true, canMaken: false },
+      { enabledGlobally: false, enabledForZaaktype: true, canMaken: false },
+      { enabledGlobally: false, enabledForZaaktype: false, canMaken: false },
+      { enabledGlobally: false, enabledForZaaktype: null, canMaken: false },
+      { enabledGlobally: false, canMaken: false },
+      { enabledGlobally: null, enabledForZaaktype: true, canMaken: false },
+      { enabledGlobally: null, enabledForZaaktype: false, canMaken: false },
+      { enabledGlobally: null, enabledForZaaktype: null, canMaken: false },
+      { enabledGlobally: null, canMaken: false },
+      { enabledForZaaktype: true, canMaken: false },
+      { enabledForZaaktype: false, canMaken: false },
+      { enabledForZaaktype: null, canMaken: false },
+      { canMaken: false },
     ];
 
     test.each(smartDocumentVariants)(
       "smartDocuments = %o",
-      async ({ enabledGlobally, enabledForZaaktype, expectButtons }) => {
-        zaak.zaaktype.zaakafhandelparameters!.smartDocuments.isEnabledGlobally =
-          enabledGlobally as boolean;
-        zaak.zaaktype.zaakafhandelparameters!.smartDocuments.isEnabledForZaaktype =
-          enabledForZaaktype as boolean;
+      async ({ enabledGlobally, enabledForZaaktype, canMaken }) => {
+        await answerReads(
+          zaakWithSmartDocuments({
+            isEnabledGlobally: enabledGlobally as boolean,
+            isEnabledForZaaktype: enabledForZaaktype as boolean,
+          }),
+        );
 
-        jest.spyOn(zakenService, "readZaak").mockReturnValue(of(zaak));
-
-        component.instance.ngOnInit();
-        fixture.detectChanges();
-
-        const buttons = await loader.getAllHarnesses(MatNavListItemHarness);
-
-        expect(buttons.length).toBe(expectButtons);
+        expect(
+          await screen.findByRole("button", {
+            name: /actie\.document\.toevoegen/,
+          }),
+        ).toBeInTheDocument();
+        expect(
+          screen.queryByRole("button", { name: /actie\.document\.maken/ }) !==
+            null,
+        ).toBe(canMaken);
       },
     );
   });

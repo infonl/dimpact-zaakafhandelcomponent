@@ -550,13 +550,15 @@ export class InformatieObjectViewComponent
   private loadZaak() {
     const zaakobject = this.zaakInformatieObjecten().at(0);
     if (zaakobject?.zaakIdentificatie) {
-      this.zakenService
-        .readZaakByID(zaakobject.zaakIdentificatie)
-        .subscribe((zaak) => {
-          this.zaak.set(zaak);
-          this.zaakGeladen = true;
-          if (this.laatsteVersieInfoObject()) this.toevoegenActies();
-        });
+      from(
+        this.queryClient.query(
+          this.zakenService.readZaakByID(zaakobject.zaakIdentificatie),
+        ),
+      ).subscribe((zaak) => {
+        this.zaak.set(zaak);
+        this.zaakGeladen = true;
+        if (this.laatsteVersieInfoObject()) this.toevoegenActies();
+      });
     } else {
       this.zaak.set(undefined);
       this.zaakGeladen = true;
