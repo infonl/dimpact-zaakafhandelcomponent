@@ -268,6 +268,50 @@ describe(InboxDocumentenListComponent.name, () => {
     ).toBe("GET");
   });
 
+  it("keeps 'Filter wissen' disabled while no filter is set", async () => {
+    await setup();
+    await showDocuments([inboxDocument]);
+
+    expect(
+      screen.getByRole("button", { name: "actie.zoekopdracht.wissen" }),
+    ).toBeDisabled();
+  });
+
+  it("enables 'Filter wissen' once a filter is typed", async () => {
+    await setup();
+    await showDocuments([inboxDocument]);
+
+    const [, titelFilter] = screen.getAllByPlaceholderText("...");
+    await user.type(titelFilter, "Aanvraag{Enter}");
+    await lastListRequestBody();
+
+    expect(
+      screen.getByRole("button", { name: "actie.zoekopdracht.wissen" }),
+    ).toBeEnabled();
+  });
+
+  it("searches on the titel filter and sort of a selected saved search", async () => {
+    await setup();
+    await showDocuments([inboxDocument]);
+
+    fixture.componentInstance.zoekopdrachtChanged(
+      fromPartial<GeneratedType<"RestZoekopdracht">>({
+        json: JSON.stringify({
+          titel: "Aanvraag",
+          sort: "titel",
+          order: "asc",
+          filtersType: "InboxDocumentListParameters",
+        }),
+      }),
+    );
+
+    expect(await lastListRequestBody()).toMatchObject({
+      titel: "Aanvraag",
+      sort: "titel",
+      order: "asc",
+    });
+  });
+
   it("links to the download of the document on the row", async () => {
     await setup();
     await showDocuments([inboxDocument]);

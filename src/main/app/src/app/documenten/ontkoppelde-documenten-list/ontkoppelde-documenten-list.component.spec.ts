@@ -525,6 +525,29 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
       );
     });
 
+    it("searches on the sort of a selected saved search", async () => {
+      await setup();
+      await showDocuments([detachedDocument]);
+      await flushSearches();
+
+      fixture.componentInstance["zoekopdrachtChanged"](
+        fromPartial<GeneratedType<"RestZoekopdracht">>({
+          json: JSON.stringify({
+            titel: "Aanvraag",
+            sort: "titel",
+            order: "asc",
+            filtersType: "DetachedDocumentListParameters",
+          }),
+        }),
+      );
+
+      expect(await lastListRequestBody()).toMatchObject({
+        titel: "Aanvraag",
+        sort: "titel",
+        order: "asc",
+      });
+    });
+
     it("offers to clear an active filter", async () => {
       await setup();
       await showDocuments([detachedDocument]);

@@ -22,7 +22,7 @@ import {
   MatDrawerContainer,
   MatDrawerContent,
 } from "@angular/material/sidenav";
-import { MatSort, MatSortHeader } from "@angular/material/sort";
+import { MatSort, MatSortHeader, SortDirection } from "@angular/material/sort";
 import {
   MatCell,
   MatCellDef,
@@ -64,6 +64,10 @@ import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-r
 import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InboxDocumentenService } from "../inbox-documenten.service";
+
+type InboxDocumentSearch = PutBody<"/rest/inboxdocumenten"> & {
+  filtersType: ZoekFilters["filtersType"];
+};
 
 @Component({
   templateUrl: "./inbox-documenten-list.component.html",
@@ -131,7 +135,8 @@ export class InboxDocumentenListComponent
     "titel_filter",
     "actions_filter",
   ] as const;
-  protected listParameters: PutBody<"/rest/inboxdocumenten"> = {};
+  protected listParameters: InboxDocumentSearch =
+    this.createDefaultParameters();
   protected listParametersSort: {
     sort: keyof PutBody<"/rest/inboxdocumenten">;
     order: "desc" | "asc";
@@ -257,9 +262,12 @@ export class InboxDocumentenListComponent
     actieveZoekopdracht: GeneratedType<"RestZoekopdracht"> | null,
   ) {
     if (actieveZoekopdracht?.json) {
-      this.listParameters = JSON.parse(actieveZoekopdracht.json);
-      this.sort().active = this.listParametersSort.sort;
-      this.sort().direction = this.listParametersSort.order;
+      this.listParameters = {
+        ...this.createDefaultParameters(),
+        ...JSON.parse(actieveZoekopdracht.json),
+      };
+      this.sort().active = this.listParameters.sort!;
+      this.sort().direction = this.listParameters.order as SortDirection;
       this.paginator().pageIndex = 0;
       this.filterChange.emit();
     } else if (actieveZoekopdracht === null) {

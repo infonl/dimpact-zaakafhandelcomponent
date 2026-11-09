@@ -35,7 +35,7 @@ import {
   MatDrawerContainer,
   MatDrawerContent,
 } from "@angular/material/sidenav";
-import { MatSort, MatSortHeader } from "@angular/material/sort";
+import { MatSort, MatSortHeader, SortDirection } from "@angular/material/sort";
 import {
   MatCell,
   MatCellDef,
@@ -514,8 +514,8 @@ export class OntkoppeldeDocumentenListComponent
         ...this.createDefaultParameters(),
         ...JSON.parse(actieveZoekopdracht.json || "{}"),
       };
-      this.sort().active = this.listParametersSort.sort;
-      this.sort().direction = this.listParametersSort.order;
+      this.sort().active = this.listParameters.sort!;
+      this.sort().direction = this.listParameters.order as SortDirection;
       this.paginator().pageIndex = 0;
       this.filterChange.emit();
     } else if (actieveZoekopdracht === null) {
