@@ -175,6 +175,7 @@ Er zijn drie categoriën mails die verstuurd kunnen worden tijdens de zaakbehand
 - Signalering zaak verlopend (fatale datum) | deze mail wordt verstuurd aan de gebruiker op wiens naam de zaak staat
 - Signalering taak op naam | deze mail wordt verstuurd aan de gebruiker op wiens naam de taak wordt gezet
 - Signalering taak verlopen | deze mail wordt verstuurd aan de gebruiker op wiens naam de taak staat
+- Signalering taak afgerond | deze mail wordt verstuurd aan de gebruiker op wiens naam de zaak staat, wanneer een andere gebruiker een taak van die zaak afrondt
 
 #### Werking van de mailtemplates
 De mailtemplates kunnen vanuit menukeuze ‘Mailtemplates’ benaderd worden. Vanuit het overzicht kan een template ingezien en bewerkt worden. Iedere mail heeft een default template dat in het overzicht te herkennen is aan de vink in de 'default' kolom. Het is ook mogelijk om zelf een template voor een  mail aan te maken. Deze templates zijn daarna in het overzicht te herkennen door de X in de 'default' kolom.

@@ -211,6 +211,7 @@ Daarnaast zijn er twee aanvullende rollen. Deze rollen geven geen toegang tot ZA
 ## Uitloggen
 
 Een gebruiker kan uit de applicatie loggen via het profiel icoon. Deze bevindt zich recht bovenin de werkbalk en toont de initialen en naam van de ingelogde gebruiker.
+
 ![Ingelogde gebruiker](./images/ingelogde-gebruiker.png)
 
 ## Versie software
@@ -220,17 +221,20 @@ De informatie over de software versie van de ZAC is te zien onder het profiel.
 
 ## Signaleringen
 
-Iedere gebruiker kan ervoor kiezen om gesignaleerd te worden bij gebeurtenissen over zaken en taken die van belang zijn. Signaleringen worden verstuurd naar het dashboard en per e-mail aan het ingestelde e-mailadres van de gebruiker. De werking van het dashboard wordt later in een apart hoofdstuk beschreven.
+Met signaleringen houdt de ZAC je op de hoogte van gebeurtenissen bij jouw zaken en taken. Een signalering verschijnt als kaart op het dashboard, als e-mail aan je ingestelde e-mailadres, of allebei. De werking van het dashboard wordt later in een apart hoofdstuk beschreven.
 
-Voor de signaleringen die per e-mail beschikbaar zijn kan iedere gebruiker zelf aangeven of deze verstuurd moeten worden. Door op Signalering instellingen te klikken opent het overzicht van beschikbare signaleringen en kunnen de gewenste aangevinkt worden.
+Je bepaalt zelf welke signaleringen je ontvangt. Klik op ‘Signalering instellingen’ om het overzicht te openen en vink per signalering aan of je een dashboardkaart en/of een e-mail wilt. Ontbreekt een vinkje in een kolom, dan is dat kanaal voor die signalering niet beschikbaar.
+
 ![Signaleringen](./images/signaleringen.png)
 
 De signaleringen worden in de volgende situaties verstuurd:
-- Er is een document aan mijn zaak toegevoegd: er is door een andere gebruiker een nieuw document aan een zaak die op jouw naam staat toegevoegd
-- Er is een zaak op mijn naam gezet: er is een zaak nieuw op jouw naam gezet
-- Mijn zaak nadert de streef- of fatale datum: een zaak op jouw naam heeft de voor dat zaaktype geldende aantal kalenderdagen tot de streef- of fatale datum bereikt
-- Er is een taak op mijn naam gezet: er is door een andere gebruiker een taak nieuw op jouw naam gezet
-- Mijn taak heeft de streefdatum bereikt: een taak op jouw naam heeft de streefdatum bereikt
+
+- Er is een document aan mijn zaak toegevoegd: een andere gebruiker heeft een document toegevoegd aan een zaak die op jouw naam staat
+- Er is een zaak op mijn naam gezet: er is een zaak op jouw naam gezet
+- Mijn zaak nadert de streef- of fatale datum: een zaak op jouw naam nadert de streef- of fatale datum; hoeveel kalenderdagen van tevoren is per zaaktype ingesteld
+- Er is een taak op mijn naam gezet: een andere gebruiker heeft een taak op jouw naam gezet
+- Mijn taak heeft de fatale datum bereikt: een taak op jouw naam heeft de fatale datum bereikt; deze signalering wordt alleen per e-mail verstuurd
+- Een taak van mijn zaak is door iemand anders afgerond: een andere gebruiker heeft een taak afgerond van een zaak die op jouw naam staat. Deze signalering wordt alleen per e-mail verstuurd en staat standaard aan
 
 <div style="page-break-after: always"></div>
 
