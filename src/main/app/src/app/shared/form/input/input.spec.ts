@@ -188,6 +188,31 @@ describe(ZacInput.name, () => {
       expect(control?.errors?.["maxlength"]).toBeTruthy();
     });
 
+    it("rejects a value of only spaces when the field is required", async () => {
+      const form = createTestForm();
+      form.controls.name.addValidators(Validators.required);
+      componentRef.setInput("form", form);
+      componentRef.setInput("key", "name");
+      fixture.detectChanges();
+
+      const input = await loader.getHarness(MatInputHarness);
+      await input.setValue("   ");
+
+      expect(form.controls.name.errors).toEqual({ required: true });
+    });
+
+    it("accepts a value of only spaces when the field is optional", async () => {
+      const form = createTestForm();
+      componentRef.setInput("form", form);
+      componentRef.setInput("key", "name");
+      fixture.detectChanges();
+
+      const input = await loader.getHarness(MatInputHarness);
+      await input.setValue("   ");
+
+      expect(form.controls.name.errors).toBeNull();
+    });
+
     it("should apply min/max constraints for number inputs", async () => {
       const form = createTestForm();
       form.controls.age.addValidators([Validators.min(0), Validators.max(120)]);

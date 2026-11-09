@@ -22,6 +22,8 @@ export class CustomValidators {
   static bedrijfsnaam = CustomValidators.bedrijfsnaamVFn();
   static huisnummer = CustomValidators.huisnummerVFn();
   static nonEmptyHtmlElement = CustomValidators.nonEmptyHtmlElementVFn();
+  static notBlank: ValidatorFn = ({ value }) =>
+    typeof value === "string" && !value.trim() ? { required: true } : null;
 
   private static postcodeRegex = /^[1-9][0-9]{3}(?!sa|sd|ss)[a-z]{2}$/i;
 

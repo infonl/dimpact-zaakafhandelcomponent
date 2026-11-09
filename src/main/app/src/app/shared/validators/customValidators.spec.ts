@@ -122,6 +122,17 @@ describe(CustomValidators.name, () => {
     },
   );
 
+  it.each([
+    ["   ", { required: true }],
+    ["\n\t ", { required: true }],
+    ["", { required: true }],
+    [" text ", null],
+    [null, null],
+    [42, null],
+  ])("Not-blank validation: for %p it should return %p", (value, expected) => {
+    expect(CustomValidators.notBlank(createControl(value))).toEqual(expected);
+  });
+
   describe("error messages", () => {
     const createControl = (value: unknown): AbstractControl =>
       new FormControl(value);
