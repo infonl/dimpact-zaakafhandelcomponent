@@ -12,7 +12,6 @@ import {
   QueryClient,
   queryOptions,
 } from "@tanstack/angular-query-experimental";
-import { map } from "rxjs";
 import { UtilService } from "../core/service/util.service";
 import { PatchBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
@@ -373,15 +372,18 @@ export class ZakenService {
   }
 
   listAfzendersVoorZaak(uuid: string) {
-    return this.zacHttpClient
-      .GET("/rest/zaken/zaak/{uuid}/afzender", { path: { uuid } })
-      .pipe(map((afzenders) => afzenders.map(withI18nKeySuffix)));
+    return queryOptions({
+      ...this.zacQueryClient.GET("/rest/zaken/zaak/{uuid}/afzender", {
+        path: { uuid },
+      }),
+      select: (afzenders) => afzenders.map(withI18nKeySuffix),
+      meta: { reportFailedRefetch: true },
+    });
   }
 
-  readDefaultAfzenderVoorZaak(uuid: string) {
-    return this.zacHttpClient
-      .GET("/rest/zaken/zaak/{uuid}/afzender/default", { path: { uuid } })
-      .pipe(map(withI18nKeySuffix));
+  invalidateAfzenders() {
+    const [path] = this.listAfzendersVoorZaak("").queryKey;
+    return this.queryClient.invalidateQueries({ queryKey: [path] });
   }
 
   afbreken(uuid: string) {

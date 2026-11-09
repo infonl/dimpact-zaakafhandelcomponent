@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, effect, inject, signal } from "@angular/core";
+import { Component, computed, inject, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
@@ -29,7 +29,6 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
-import { firstValueFrom } from "rxjs";
 import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
@@ -44,6 +43,7 @@ import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
+import { injectAfzenders } from "../inject-afzenders";
 import { ZakenService } from "../zaken.service";
 
 @Component({
@@ -125,13 +125,10 @@ export class ZaakAfhandelenDialogComponent {
     this.zakenService.listResultaattypes(this.data.zaak.zaaktype.uuid),
   );
 
-  protected readonly afzendersQuery = injectQuery(() => ({
-    queryKey: ["afzenders", this.data.zaak.uuid],
-    queryFn: () =>
-      firstValueFrom(
-        this.zakenService.listAfzendersVoorZaak(this.data.zaak.uuid),
-      ),
-  }));
+  protected readonly afzendersQuery = injectAfzenders(
+    () => this.data.zaak.uuid,
+    () => this.form.controls.verzender,
+  );
 
   protected readonly mailtemplateQuery = injectQuery(() =>
     this.mailtemplateService.findMailtemplate(
@@ -157,13 +154,6 @@ export class ZaakAfhandelenDialogComponent {
   );
 
   constructor() {
-    effect(() => {
-      const afzenders = this.afzendersQuery.data();
-      this.form.controls.verzender.setValue(
-        afzenders?.find((afzender) => afzender.isDefaultMail) ?? null,
-      );
-    });
-
     const zaakafhandelparameters =
       this.data.zaak.zaaktype.zaakafhandelparameters;
     this.sendMailDefault =

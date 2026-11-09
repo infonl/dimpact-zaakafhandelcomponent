@@ -17,7 +17,6 @@ import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import moment from "moment";
-import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { KlantenService } from "../../klanten/klanten.service";
@@ -91,6 +90,11 @@ const afzenders = [
   }),
 ];
 
+const afzendersKey = (uuid: string) => [
+  "/rest/zaken/zaak/{uuid}/afzender",
+  { path: { uuid } },
+];
+
 const mailtemplate = fromPartial<GeneratedType<"RestMailtemplate">>({
   onderwerp: "fakeOnderwerp",
   body: "fakeMailBody",
@@ -143,10 +147,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     fixture = rendered.fixture;
     httpTestingController = TestBed.inject(HttpTestingController);
 
-    jest
-      .spyOn(TestBed.inject(ZakenService), "listAfzendersVoorZaak")
-      .mockReturnValue(of(afzenders));
-
     return rendered;
   }
 
@@ -158,7 +158,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       ],
       resultaattypes,
     );
-    testQueryClient.setQueryData(["afzenders", zaakToHandle.uuid], afzenders);
+    testQueryClient.setQueryData(afzendersKey(zaakToHandle.uuid), afzenders);
     testQueryClient.setQueryData(
       [
         "/rest/mailtemplates/{mailtemplateEnum}/{zaakUUID}",
@@ -638,6 +638,54 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
 
       expect(cacheZaak).toHaveBeenCalledWith(fakeClosedZaak);
       expect(dialogRef.close).toHaveBeenCalledWith(true);
+    });
+  });
+
+  describe("the verzender", () => {
+    const defaultAfzender = fromPartial<GeneratedType<"RestZaakAfzender">>({
+      mail: "fakeDefaultAfzender@example.com",
+      isDefaultMail: true,
+    });
+    const andereAfzender = fromPartial<GeneratedType<"RestZaakAfzender">>({
+      mail: "fakeAndereAfzender@example.com",
+      isDefaultMail: false,
+    });
+
+    async function setupWithAfzenders() {
+      seedQueries(zaak);
+      testQueryClient.setQueryData(afzendersKey(zaak.uuid), [
+        defaultAfzender,
+        andereAfzender,
+      ]);
+      await setup();
+      await chooseResultaattype("fakeResultaatZonderVerplichtingen");
+      await toggleSendMail();
+    }
+
+    it("preselects the default afzender from the cached afzenders, without reading them again", async () => {
+      await setupWithAfzenders();
+
+      httpTestingController.expectNone(
+        `/rest/zaken/zaak/${zaak.uuid}/afzender`,
+      );
+      expect(verzenderSelect()).toHaveTextContent(defaultAfzender.mail!);
+    });
+
+    it("keeps the verzender the user chose when a re-read of the afzenders arrives", async () => {
+      await setupWithAfzenders();
+      await openVerzenderOptions();
+      await user.click(
+        screen.getByRole("option", { name: /fakeAndereAfzender@example.com/ }),
+      );
+
+      testQueryClient.setQueryData(afzendersKey(zaak.uuid), [
+        { ...defaultAfzender, mail: "fakeNieuweDefault@example.com" },
+        andereAfzender,
+      ]);
+      await sleep();
+      fixture.detectChanges();
+
+      expect(verzenderSelect()).toHaveTextContent(andereAfzender.mail!);
     });
   });
 });
