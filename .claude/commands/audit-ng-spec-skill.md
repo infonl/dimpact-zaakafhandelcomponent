@@ -48,9 +48,9 @@ For each item, mark **PASS** or **FAIL** with a one-line reason and the exact li
   - `useValue` is acceptable when genuinely difficult to avoid (e.g. a service with a deeply complex DI tree that cannot be satisfied without significant setup). Flag it with a comment explaining why.
   - **Always acceptable exceptions**: Angular built-in injection tokens (`MAT_DIALOG_DATA`, `LOCALE_ID`, `APP_BASE_HREF`, etc.) where no real class exists to inject.
   - `TranslateService` → use `provideTranslateService()` in `providers`, then `TestBed.inject(TranslateService)` + `jest.spyOn`.
-  - Services using `ZacHttpClient` → add `provideHttpClient()` to providers.
+  - Services using `ZacQueryClient` or `HttpClient` → add `provideHttpClient()` and `provideHttpClientTesting()` to providers.
   - Services using `Router` → add `provideRouter([])` to providers.
-- [ ] `provideHttpClient()` present if any service in the tree uses `ZacHttpClient`
+- [ ] `provideHttpClient()` present if any service in the tree uses `ZacQueryClient` or `HttpClient`
 - [ ] `provideRouter([])` present if any service in the tree uses `Router`
 
 **Coverage**

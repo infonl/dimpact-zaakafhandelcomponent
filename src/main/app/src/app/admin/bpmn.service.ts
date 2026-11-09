@@ -44,7 +44,7 @@ export class BpmnService {
   }
 
   /**
-   * Bypasses the {@link ZacHttpClient} so that a failure is reported by whoever
+   * Reads outside the query cache so that a failure is reported by whoever
    * calls this, instead of by the generic error dialog as well.
    */
   downloadProcessDefinition(key: string): Observable<HttpResponse<Blob>> {

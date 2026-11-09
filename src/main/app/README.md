@@ -4,7 +4,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 ## Type safety
 
-Please read about our [end-to-end type safety](../../../docs/development/endToEndTypeSafety.md) in this Angular app with openapi-typescript, aligning frontend and backend. The ZacHttpClient ensures type-safe requests and responses for better debugging.
+Please read about our [end-to-end type safety](../../../docs/development/endToEndTypeSafety.md) in this Angular app with openapi-typescript, aligning frontend and backend. The typed `HttpClient` and `ZacQueryClient` ensure type-safe requests and responses for better debugging.
 
 ## Development server
 

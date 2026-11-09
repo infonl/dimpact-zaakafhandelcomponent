@@ -43,10 +43,8 @@ export function reportsErrors(meta: ZacMeta | undefined) {
  * option, so every read is reported from the cache instead. The cache reports
  * once a query has given up, not once per retry.
  *
- * A read that still goes through `ZacHttpClient` reports its own failure and
- * then rethrows the message it built, so what reaches the cache is a string
- * rather than a response. Reporting that too would close the dialog it just
- * opened and replace it with a generic one, so only a response is reported.
+ * Only a response is reported: anything else that fails a read, such as a
+ * read that is cancelled, is not a failure the server gave.
  */
 export const QUERY_CLIENT = new InjectionToken<QueryClient>("QUERY_CLIENT", {
   providedIn: "root",
