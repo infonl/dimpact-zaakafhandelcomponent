@@ -110,12 +110,25 @@ export class ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent {
       });
   }
 
+  // `mutation.isPending()` only turns true a macrotask after `mutate()`, so a fast
+  // double click would otherwise submit twice before the button is disabled
+  private isSubmitting = false;
+
   protected toevoegen() {
+    if (this.isSubmitting) return;
     const { groep, medewerker } = this.form.getRawValue();
     if (!groep || !medewerker) return;
-    this.mutation.mutate({
-      groepId: groep.id,
-      medewerkerId: medewerker.username,
-    });
+    this.isSubmitting = true;
+    this.mutation.mutate(
+      {
+        groepId: groep.id,
+        medewerkerId: medewerker.username,
+      },
+      {
+        onSettled: () => {
+          this.isSubmitting = false;
+        },
+      },
+    );
   }
 }

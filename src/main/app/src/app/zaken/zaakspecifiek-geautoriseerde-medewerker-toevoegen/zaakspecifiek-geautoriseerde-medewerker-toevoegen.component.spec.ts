@@ -137,6 +137,30 @@ describe(ZaakspecifiekGeautoriseerdeMedewerkerToevoegenComponent.name, () => {
     expect(sideNav.close).toHaveBeenCalled();
   });
 
+  it("sends one request when the user double-clicks koppelen", async () => {
+    await setup();
+    await chooseGroep();
+    await user.click(screen.getByRole("combobox", { name: /medewerker/i }));
+    await user.click(
+      await screen.findByRole("option", { name: "fakeMedewerkerNaam" }),
+    );
+
+    await user.dblClick(screen.getByRole("button", { name: "actie.koppelen" }));
+
+    httpTestingController
+      .expectOne(
+        "/rest/zaken/zaak/fakeZaakUuid/zaakspecifiek-geautoriseerde-medewerkers",
+      )
+      .flush(kandidaat);
+    await settle();
+    httpTestingController
+      .expectOne(
+        "/rest/zaken/zaak/fakeZaakUuid/zaakspecifiek-geautoriseerde-medewerkers/kandidaten?groepId=fakeGroepId",
+      )
+      .flush([]);
+    httpTestingController.verify();
+  });
+
   it("keeps the panel open with an empty form but the checkbox still ticked when the user wants to link another medewerker", async () => {
     await setup();
     await chooseGroep();
