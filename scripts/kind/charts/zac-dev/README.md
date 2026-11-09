@@ -20,7 +20,7 @@ The services of the local ZAC development stack on kind that have no upstream He
 | opa.image | string | `"openpolicyagent/opa:1.22.2-static@sha256:805656c845fb626b856fb4b4799d6c91e053a41eecc48537f4f1c2fd6974fbdd"` | keep in sync with the OPA of charts/zac |
 | openarchiefbeheer.image | string | `"maykinmedia/open-archiefbeheer:2.0.0@sha256:e5217d748869c62d26393311c3cfdcaacf69d8dde80ca3bc172ff41f3885f0ff"` |  |
 | openforms.image | string | `"openformulieren/open-forms:4.0.7@sha256:12c975259f37eb91973a722d1f4e3f0ccf09aa037c08ecbd200350efd4ed493a"` |  |
-| openklant.image | string | `"maykinmedia/open-klant:2.15.0@sha256:ce59a2c60dab1c14e62fe34a99511839390dd2d482983c27334241e0d60c693d"` |  |
+| openklant.image | string | `"maykinmedia/open-klant:2.19.2@sha256:f85ef0b31610cbf3ef6c09cbe217f113145e11623aa9ba140abd2e4ffb7bddff"` |  |
 | opennotificaties.image | string | `"openzaak/open-notificaties:1.17.0@sha256:5200540e78eb67993760bd9ad98d6c7f174ce61f5122b3e20627a690cbf3dfe0"` |  |
 | openobject.image | string | `"maykinmedia/open-object:4.1.1@sha256:593571842b4af655383964fb3fa869b62313e7cd1e56a02f173afa8e4713c4b6"` |  |
 | openzaak.image | string | `"openzaak/open-zaak:1.31.1@sha256:63448221142145b0f56eabadaa9ef9578dd4aacc7f95476bd5368f767883ada0"` |  |
@@ -40,7 +40,7 @@ The services of the local ZAC development stack on kind that have no upstream He
 | redis.image | string | `"redis:8.6.8@sha256:8b30009c0de4fdb3fb67deb8afab050fe454e9b233c6a2c142ec34fcc51fa7f5"` |  |
 | solr.image | string | `"solr:9.11.0-slim@sha256:54cec2ced0f2c26436605a7dd5dde5ae78f26d5c0d19a7358349d5cb71fdfc1a"` |  |
 | storageClassName | string | `"standard"` | the storage class of the kind cluster |
-| upstreamCharts | object | `{"openarchiefbeheer":{"repository":"https://maykinmedia.github.io/charts/","version":"2.0.0"},"openforms":{"repository":"https://maykinmedia.github.io/charts/","version":"1.12.0"},"openklant":{"repository":"https://maykinmedia.github.io/charts/","version":"1.11.0"},"opennotificaties":{"repository":"https://maykinmedia.github.io/charts/","version":"2.1.0"},"openobject":{"repository":"https://maykinmedia.github.io/charts/","version":"1.1.1"},"openzaak":{"repository":"https://maykinmedia.github.io/charts/","version":"1.16.0"}}` | the upstream Helm charts that scripts/kind/up.sh installs next to this chart |
+| upstreamCharts | object | `{"openarchiefbeheer":{"repository":"https://maykinmedia.github.io/charts/","version":"2.0.0"},"openforms":{"repository":"https://maykinmedia.github.io/charts/","version":"1.12.0"},"openklant":{"repository":"https://maykinmedia.github.io/charts/","version":"1.14.2"},"opennotificaties":{"repository":"https://maykinmedia.github.io/charts/","version":"2.1.0"},"openobject":{"repository":"https://maykinmedia.github.io/charts/","version":"1.1.1"},"openzaak":{"repository":"https://maykinmedia.github.io/charts/","version":"1.16.0"}}` | the upstream Helm charts that scripts/kind/up.sh installs next to this chart |
 | vngSelectielijst.image | string | `"openzaak/vng-selectielijst:1.0.6@sha256:80c4c4f7b73889f1d8a816b8633cc4584961b6f8e4f21b7078df26ec4010f76d"` |  |
 | wiremock.image | string | `"wiremock/wiremock:3.13.2@sha256:0d4ecb3e4dc8213fd7a4d37d6a78f6e6b553a6d2e15bd51b0999781282ac61b3"` |  |
 | zacOutsideCluster | bool | `false` | run OPA and the office converter for a ZAC that runs outside the cluster, for example in an IDE; the ZAC Helm chart brings its own when ZAC runs in the cluster |
