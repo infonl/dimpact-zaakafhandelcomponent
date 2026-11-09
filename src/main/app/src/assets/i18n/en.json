@@ -1089,6 +1089,7 @@
   "hint.zaak.dialoog.verlengen.verlengduur": "The maximum extension duration for this case is {{ verlengDuur }} day",
   "hint.zaak.dialoog.verlengen.verlengduur.meervoud": "The maximum extension duration for this case is {{ verlengDuur }} days",
   " 8 ": ">>--> HEALTH-CHECK <--<<",
+  "health-check.zaaktype.bevindingen": "Findings",
   "health-check.zaaktype.inrichtingscheck": "Casetype configuration check",
   "health-check.zaaktype.zaakafhandel-parameters-ongeldig": "The case handling parameters are not (fully) configured",
   "health-check.zaaktype.geen-statustype-intake-aanwezig": "The required status type \"Intake\" does not exist",
