@@ -15,6 +15,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialogRef } from "@angular/material/dialog";
 import { MatTableHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { screen } from "@testing-library/angular";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
@@ -159,11 +160,11 @@ describe(ZaakBetrokkeneListComponent.name, () => {
       );
       fixture.detectChanges();
 
-      const button = fixture.nativeElement.querySelector(
-        "button[aria-label='actie.betrokkene.gegevens.ophalen']",
-      ) as HTMLButtonElement;
-
-      expect(button.disabled).toBe(false);
+      expect(
+        screen.getByRole("button", {
+          name: "actie.betrokkene.gegevens.ophalen",
+        }),
+      ).toBeEnabled();
     });
   });
 
