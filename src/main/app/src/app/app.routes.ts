@@ -6,6 +6,7 @@
 import { Routes } from "@angular/router";
 import {
   BREADCRUMB_ORIGIN,
+  BREADCRUMB_SECTION,
   translatedTitle,
 } from "./core/breadcrumbs/route-title";
 
@@ -44,13 +45,15 @@ export const APP_ROUTES: Routes = [
   },
   {
     path: "zaken",
-    title: translatedTitle("zaken"),
+    title: translatedTitle("title.zaken.werkvoorraad"),
+    data: BREADCRUMB_SECTION,
     loadChildren: () =>
       import("./zaken/zaken.routes").then((module) => module.ZAKEN_ROUTES),
   },
   {
     path: "taken",
-    title: translatedTitle("taken"),
+    title: translatedTitle("title.taken.werkvoorraad"),
+    data: BREADCRUMB_SECTION,
     loadChildren: () =>
       import("./taken/taken.routes").then((module) => module.TAKEN_ROUTES),
   },
@@ -75,7 +78,6 @@ export const APP_ROUTES: Routes = [
   },
   {
     path: "documenten",
-    title: translatedTitle("documenten"),
     loadChildren: () =>
       import("./documenten/documenten.routes").then(
         (module) => module.DOCUMENTEN_ROUTES,
@@ -83,7 +85,8 @@ export const APP_ROUTES: Routes = [
   },
   {
     path: "informatie-objecten",
-    title: translatedTitle("documenten"),
+    title: translatedTitle("title.documenten.inbox-documenten"),
+    data: BREADCRUMB_SECTION,
     loadChildren: () =>
       import("./informatie-objecten/informatie-objecten.routes").then(
         (module) => module.INFORMATIE_OBJECTEN_ROUTES,

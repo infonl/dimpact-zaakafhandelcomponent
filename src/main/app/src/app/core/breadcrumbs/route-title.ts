@@ -23,6 +23,8 @@ export type Breadcrumb = {
   title: string;
   url: string;
   key?: string;
+  /** Set on a detail page: a detail page of the same type takes the place of this one in the trail */
+  type?: string;
   details?: Partial<BreadcrumbDetails>;
 };
 
@@ -32,6 +34,9 @@ type BreadcrumbDetailsFn = (
 
 export const BREADCRUMB_ORIGIN = { breadcrumbs: "origin" } as const;
 export const BREADCRUMB_DETAIL = { breadcrumbs: "detail" } as const;
+// A section such as `/zaken` is no page of its own. It names the page it redirects to,
+// and it shows as the parent of a detail page that was opened without an origin page.
+export const BREADCRUMB_SECTION = { breadcrumbSection: true } as const;
 
 // The details end up in the browser history with the trail, so they must be plain data.
 export function breadcrumbDetails(details: BreadcrumbDetailsFn) {
@@ -46,6 +51,7 @@ export function breadcrumbKind(root: ActivatedRouteSnapshot) {
 }
 
 export function breadcrumbs(root: ActivatedRouteSnapshot) {
+  const showsSections = breadcrumbKind(root) === "detail";
   const crumbs: Breadcrumb[] = [];
   for (
     let route: ActivatedRouteSnapshot | null = root;
@@ -53,7 +59,12 @@ export function breadcrumbs(root: ActivatedRouteSnapshot) {
     route = route.firstChild
   ) {
     // A route without a title of its own inherits the title of its parent.
-    if (route.routeConfig?.title !== undefined && route.title) {
+    const isSection = route.routeConfig?.data?.["breadcrumbSection"] === true;
+    if (
+      route.routeConfig?.title !== undefined &&
+      route.title &&
+      (showsSections || !isSection)
+    ) {
       const details = route.data["breadcrumbDetails"] as
         | BreadcrumbDetailsFn
         | undefined;

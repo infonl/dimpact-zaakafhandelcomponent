@@ -12,6 +12,7 @@ import { QueryClient } from "@tanstack/angular-query-experimental";
 import { filter } from "rxjs";
 import {
   continueTrail,
+  detailPageType,
   navigateToBreadcrumb,
   NavigationState,
   openedFromSearchState,
@@ -90,6 +91,7 @@ export class BreadcrumbsComponent {
       ...routePage,
       url: this.router.url,
       key: window.navigation.currentEntry?.key,
+      ...(kind === "detail" && { type: detailPageType(this.router.url) }),
     };
     return kind === "detail" &&
       this.originTrail &&
