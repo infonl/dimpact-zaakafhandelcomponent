@@ -12,20 +12,20 @@ INSERT INTO klantinteracties_actor (id, actoridentificator_object_id, uuid, naam
     VALUES (1, '', 'f7340d48-a76e-472b-8866-f8d8512afe5a', 'Actor Name', 'medewerker', true, '', '', '');
 
 -- email klantcontact from first person with BSN '999993896'
-INSERT INTO klantinteracties_klantcontact (id, uuid, nummer, kanaal, onderwerp, inhoud, indicatie_contact_gelukt, taal, vertrouwelijk, plaatsgevonden_op)
-    VALUES (1, '21e55404-226d-42b6-aeb0-f28b7c7d09dc', '0000000001', 'email', 'email contact', 'email', true, 'dut', false, '2000-01-01 12:00:00.000000 +00:00');
+INSERT INTO klantinteracties_klantcontact (id, uuid, nummer, kanaal, onderwerp, inhoud, indicatie_contact_gelukt, taal, vertrouwelijk, plaatsgevonden_op, reactie, hoofd_onderwerp_type, verdere_actie_ondernomen, metadata)
+    VALUES (1, '21e55404-226d-42b6-aeb0-f28b7c7d09dc', '0000000001', 'email', 'email contact', 'email', true, 'dut', false, '2000-01-01 12:00:00.000000 +00:00', '', '', false, '{}');
 -- telephone klantcontact from first person with BSN '999993896'
-INSERT INTO klantinteracties_klantcontact (id, uuid, nummer, kanaal, onderwerp, inhoud, indicatie_contact_gelukt, taal, vertrouwelijk, plaatsgevonden_op)
-    VALUES (2, '21e54405-246c-44b6-aec2-f25b7c7d02db', '0000000002', 'telefoon', 'phone contact', 'telefoonnummer', true, 'dut', false, '2010-01-01 12:00:00.000000 +00:00');
+INSERT INTO klantinteracties_klantcontact (id, uuid, nummer, kanaal, onderwerp, inhoud, indicatie_contact_gelukt, taal, vertrouwelijk, plaatsgevonden_op, reactie, hoofd_onderwerp_type, verdere_actie_ondernomen, metadata)
+    VALUES (2, '21e54405-246c-44b6-aec2-f25b7c7d02db', '0000000002', 'telefoon', 'phone contact', 'telefoonnummer', true, 'dut', false, '2010-01-01 12:00:00.000000 +00:00', '', '', false, '{}');
 -- anonymous product request klantcontact with request-specific email address
-INSERT INTO klantinteracties_klantcontact (id, "uuid", nummer, kanaal, onderwerp, inhoud, indicatie_contact_gelukt, taal, vertrouwelijk, plaatsgevonden_op)
-    VALUES(3, 'b74a2540-edb3-45ec-a7e5-9d09e2b79718', '0000000003', 'Webformulier', 'Productaanvraag-Dimpact test formulier - met DigiD en communicatievoorkeuren', '', NULL, 'nld', true, '2026-03-24 09:49:02.000');
+INSERT INTO klantinteracties_klantcontact (id, "uuid", nummer, kanaal, onderwerp, inhoud, indicatie_contact_gelukt, taal, vertrouwelijk, plaatsgevonden_op, reactie, hoofd_onderwerp_type, verdere_actie_ondernomen, metadata)
+    VALUES(3, 'b74a2540-edb3-45ec-a7e5-9d09e2b79718', '0000000003', 'Webformulier', 'Productaanvraag-Dimpact test formulier - met DigiD en communicatievoorkeuren', '', NULL, 'nld', true, '2026-03-24 09:49:02.000', '', '', false, '{}');
 -- product request klantcontact from person with BSN '999993896' with product request-specific non-preferred contact details
-INSERT INTO klantinteracties_klantcontact (id, "uuid", nummer, kanaal, onderwerp, inhoud, indicatie_contact_gelukt, taal, vertrouwelijk, plaatsgevonden_op)
-    VALUES(4, 'f98c11a6-a5b0-4247-baf9-db0a61386d53', '0000000004', 'Webformulier', 'Productaanvraag-Dimpact test formulier - met DigiD en communicatievoorkeuren', '', NULL, 'nld', true, '2026-05-18 09:49:02.000');
+INSERT INTO klantinteracties_klantcontact (id, "uuid", nummer, kanaal, onderwerp, inhoud, indicatie_contact_gelukt, taal, vertrouwelijk, plaatsgevonden_op, reactie, hoofd_onderwerp_type, verdere_actie_ondernomen, metadata)
+    VALUES(4, 'f98c11a6-a5b0-4247-baf9-db0a61386d53', '0000000004', 'Webformulier', 'Productaanvraag-Dimpact test formulier - met DigiD en communicatievoorkeuren', '', NULL, 'nld', true, '2026-05-18 09:49:02.000', '', '', false, '{}');
 -- email klantcontact from second person with BSN '999992958'
-INSERT INTO klantinteracties_klantcontact (id, uuid, nummer, kanaal, onderwerp, inhoud, indicatie_contact_gelukt, taal, vertrouwelijk, plaatsgevonden_op)
-    VALUES (5, 'cbfeddf8-8f22-4c1c-9194-e5b5f8be434f', '0000000005', 'email', 'email contact', 'email', true, 'dut', false, '2026-01-01 12:00:00.000000 +00:00');
+INSERT INTO klantinteracties_klantcontact (id, uuid, nummer, kanaal, onderwerp, inhoud, indicatie_contact_gelukt, taal, vertrouwelijk, plaatsgevonden_op, reactie, hoofd_onderwerp_type, verdere_actie_ondernomen, metadata)
+    VALUES (5, 'cbfeddf8-8f22-4c1c-9194-e5b5f8be434f', '0000000005', 'email', 'email contact', 'email', true, 'dut', false, '2026-01-01 12:00:00.000000 +00:00', '', '', false, '{}');
 
 INSERT INTO klantinteracties_actorklantcontact (id, uuid, actor_id, klantcontact_id)
     VALUES (1, '63567628-b257-46d3-95c6-1ed76427c526', 1, 1);

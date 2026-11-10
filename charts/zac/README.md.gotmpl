@@ -60,9 +60,67 @@ update the bootstrap secret by hand. See
 [Managing the Solr search engine](https://github.com/infonl/dimpact-zaakafhandelcomponent/blob/main/docs/development/managingSolr.md)
 for the Solr details, including how to read the admin password for the Solr admin UI.
 
+## Tracing
+
+ZAC sends its traces with OpenTelemetry (OTLP over gRPC) when `tracing.enabled` is true. Two settings decide
+where the traces go, one for each hop:
+
+```
+ZAC ──OTLP──▶ OpenTelemetry collector ──▶ tracing backend, such as Tempo
+    ↑                                 ↑
+    tracing.endpoint                  opentelemetry-collector.config.exporters
+                                      (bundled collector only)
+```
+
+To send the traces to a collector or tracing backend that already runs in the cluster, set its endpoint and leave
+the bundled collector disabled:
+
+```
+--set tracing.enabled=true
+--set tracing.endpoint=https://my-collector.monitoring.svc.cluster.local:4317
+```
+
+To deploy the bundled collector, leave `tracing.endpoint` empty and configure where the collector forwards the
+traces to:
+
+```
+--set tracing.enabled=true
+--set opentelemetry-collector.enabled=true
+--set opentelemetry-collector.config.exporters.otlp.endpoint=https://tempo.monitoring.svc.cluster.local:4317
+--set opentelemetry-collector.config.service.pipelines.traces.exporters={otlp}
+```
+
+For an endpoint without TLS, which is common inside a cluster, use `http://` instead of `https://`. The bundled
+collector then also needs `--set opentelemetry-collector.config.exporters.otlp.tls.insecure=true`.
+
+`opentelemetry_zaakafhandelcomponent.endpoint` is deprecated and replaced by `tracing.endpoint`. Until it is
+removed, it and an enabled bundled collector still turn on tracing, and `helm install` and `helm upgrade` print a
+deprecation notice.
+
 ## Changes to the helm chart
 
 The Github workflow will perform helm-linting and will bump the version if needed. This `README.md` file is generated automatically as well.
+
+Unit tests for the templates live in `tests/` and use [helm-unittest](https://github.com/helm-unittest/helm-unittest).
+The Github workflow runs them in every pull request. To run them locally with Helm 4:
+
+```bash
+helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+helm repo add solr https://solr.apache.org/charts
+helm plugin install https://github.com/helm-unittest/helm-unittest.git --version v1.2.1 --verify=false
+helm dependency build charts/zac
+helm unittest --strict charts/zac
+```
+
+Helm 4 cannot verify plugins installed from git, hence `--verify=false`. Helm 3 does not know this flag; leave it out
+there.
+
+On macOS the install script of the plugin needs GNU `sha256sum`. Install it with `brew install coreutils` and
+put it first on the `PATH` during the plugin install:
+
+```bash
+PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" helm plugin install https://github.com/helm-unittest/helm-unittest.git --version v1.2.1 --verify=false
+```
 
 {{ template "chart.valuesSection" . }}
 

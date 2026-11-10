@@ -3,7 +3,7 @@
   "version": "0.0.3",
   "engines": {
     "node": "26.13.0",
-    "npm": "12.2.1"
+    "npm": "12.2.2"
   },
   "scripts": {
     "ng": "ng",
@@ -41,9 +41,9 @@
     "@formio/angular": "11.0.6",
     "@ngx-translate/core": "18.1.0",
     "@ngx-translate/http-loader": "18.0.0",
-    "@tanstack/angular-query-experimental": "5.105.3",
-    "@tanstack/query-async-storage-persister": "5.105.3",
-    "@tanstack/query-persist-client-core": "5.105.3",
+    "@tanstack/angular-query-experimental": "5.107.1",
+    "@tanstack/query-async-storage-persister": "5.107.1",
+    "@tanstack/query-persist-client-core": "5.107.1",
     "bootstrap": "5.3.8",
     "moment": "2.31.0",
     "ngx-bootstrap": "22.0.0",
@@ -71,7 +71,7 @@
   },
   "devDependencies": {
     "@angular-builders/jest": "22.0.1",
-    "@angular-devkit/build-angular": "22.2.5",
+    "@angular-devkit/build-angular": "22.2.6",
     "@angular/build": "22.2.5",
     "@angular/cli": "22.2.5",
     "@angular/compiler-cli": "22.2.3",
@@ -99,7 +99,7 @@
     "less": "4.9.1",
     "openapi-typescript": "7.13.0",
     "postcss-less": "7.0.1",
-    "stylelint": "17.16.0",
+    "stylelint": "18.0.0",
     "ts-node": "10.9.2",
     "typescript": "6.0.3",
     "typescript-eslint": "8.72.1",

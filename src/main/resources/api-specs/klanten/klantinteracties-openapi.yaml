@@ -2,7 +2,7 @@
 openapi: 3.0.3
 info:
   title: klantinteracties
-  version: 0.6.0
+  version: 0.9.2 (1)
   description: |2
 
     **Warning: Difference between `PUT` and `PATCH`**
@@ -517,6 +517,11 @@ paths:
           type: string
         description: Zoek betrokkene object op basis van het klantcontact nummer
       - in: query
+        name: hadKlantcontact__referentienummer
+        schema:
+          type: string
+        description: Zoek betrokkene object op basis van het klantcontact referentienummer
+      - in: query
         name: hadKlantcontact__url
         schema:
           type: string
@@ -800,26 +805,31 @@ paths:
         name: bijlageidentificatorCodeObjecttype
         schema:
           type: string
-        description: 'Type van het object, bijvoorbeeld: ''INGESCHREVEN NATUURLIJK
-          PERSOON''.'
+        description: 'Type van het object, bijvoorbeeld: ''DOCUMENT''.'
       - in: query
         name: bijlageidentificatorCodeRegister
         schema:
           type: string
         description: 'Binnen het landschap van registers unieke omschrijving van het
-          register waarin het object is geregistreerd, bijvoorbeeld: ''BRP''.'
+          register waarin het object is geregistreerd, bijvoorbeeld: ''open-zaak''.'
       - in: query
         name: bijlageidentificatorCodeSoortObjectId
         schema:
           type: string
         description: 'Naam van de eigenschap die het object identificeert, bijvoorbeeld:
-          ''Burgerservicenummer''.'
+          ''uuid''.'
       - in: query
         name: bijlageidentificatorObjectId
         schema:
           type: string
         description: 'Waarde van de eigenschap die het object identificeert, bijvoorbeeld:
-          ''123456788''.'
+          ''9193b03f-93c2-4bfc-badf-b61494bd31d6''.'
+      - in: query
+        name: klantcontact__uuid
+        schema:
+          type: string
+          format: uuid
+        description: Unieke (technische) identificatiecode van de betrokkene bij klantcontact.
       - name: page
         required: false
         in: query
@@ -1815,8 +1825,19 @@ paths:
         name: klantcontact__nummer
         schema:
           type: string
-        description: Uniek identificerend nummer dat tijdens communicatie tussen mensen
-          kan worden gebruikt om het specifieke klantcontact aan te duiden.
+        description: 'Uniek identificerend nummer dat tijdens communicatie tussen
+          mensen kan worden gebruikt om het specifieke klantcontact aan te duiden.
+          Wordt automatisch gegenereerd als het niet wordt opgegeven. Let op: vanaf
+          de volgende major release kan dit nummer niet meer door clients worden opgegeven
+          en wordt het altijd automatisch gegenereerd. Gebruik ``referentienummer``
+          om een eigen nummer vast te leggen.'
+      - in: query
+        name: klantcontact__referentienummer
+        schema:
+          type: string
+        description: Uniek identificerend referentienummer dat tijdens communicatie
+          tussen mensen kan worden gebruikt om het specifieke klantcontact aan te
+          duiden.
       - in: query
         name: klantcontact__uuid
         schema:
@@ -1827,8 +1848,12 @@ paths:
         name: nummer
         schema:
           type: string
-        description: Uniek identificerend nummer dat tijdens communicatie tussen mensen
-          kan worden gebruikt om de specifieke interne taak aan te duiden.
+        description: 'Uniek identificerend nummer dat tijdens communicatie tussen
+          mensen kan worden gebruikt om de specifieke interne taak aan te duiden.
+          Wordt automatisch gegenereerd als het niet wordt opgegeven. Let op: vanaf
+          de volgende major release kan dit nummer niet meer door clients worden opgegeven
+          en wordt het altijd automatisch gegenereerd. Gebruik ``referentienummer``
+          om een eigen nummer vast te leggen.'
       - name: page
         required: false
         in: query
@@ -1842,6 +1867,12 @@ paths:
           maximum: 500).'
         schema:
           type: integer
+      - in: query
+        name: referentienummer
+        schema:
+          type: string
+        description: Uniek identificerend referentienummer dat tijdens communicatie
+          tussen mensen kan worden gebruikt om de specifieke interne taak aan te duiden.
       - in: query
         name: status
         schema:
@@ -2063,6 +2094,12 @@ paths:
         explode: false
         style: form
       - in: query
+        name: hadBetrokkene__digitaaladres__adres__icontains
+        schema:
+          type: string
+        description: Zoek klantcontact object op basis van (een deel van) het digitale
+          adres van de betrokkene (niet hoofdlettergevoelig).
+      - in: query
         name: hadBetrokkene__url
         schema:
           type: string
@@ -2074,6 +2111,11 @@ paths:
           type: string
           format: uuid
         description: Zoek klantcontact object op basis van het betrokkene uuid.
+      - in: query
+        name: hadBetrokkene__wasPartij
+        schema:
+          type: boolean
+        description: Filter op betrokkenen die wel/niet een partij zijn.
       - in: query
         name: hadBetrokkene__wasPartij__partijIdentificator__codeObjecttype
         schema:
@@ -2127,11 +2169,21 @@ paths:
           type: string
         description: Communicatiekanaal dat bij het klantcontact werd gebruikt.
       - in: query
+        name: leiddeTotInterneTaken
+        schema:
+          type: boolean
+        description: Filter op klantcontacten die wel/niet hebben geleid tot interne
+          taken.
+      - in: query
         name: nummer
         schema:
           type: string
-        description: Uniek identificerend nummer dat tijdens communicatie tussen mensen
-          kan worden gebruikt om het specifieke klantcontact aan te duiden.
+        description: 'Uniek identificerend nummer dat tijdens communicatie tussen
+          mensen kan worden gebruikt om het specifieke klantcontact aan te duiden.
+          Wordt automatisch gegenereerd als het niet wordt opgegeven. Let op: vanaf
+          de volgende major release kan dit nummer niet meer door clients worden opgegeven
+          en wordt het altijd automatisch gegenereerd. Gebruik ``referentienummer``
+          om een eigen nummer vast te leggen.'
       - in: query
         name: onderwerp
         schema:
@@ -2195,6 +2247,18 @@ paths:
           Als het klantcontact verzending of ontvangst van informatie betrof, is dit
           bij benadering het moment waarop informatie door gemeente verzonden of ontvangen
           werd.
+      - in: query
+        name: reactie
+        schema:
+          type: string
+        description: Zoek klantcontacten met specifieke tekst in reactie.
+      - in: query
+        name: referentienummer
+        schema:
+          type: string
+        description: Uniek identificerend referentienummer dat tijdens communicatie
+          tussen mensen kan worden gebruikt om het specifieke klantcontact aan te
+          duiden.
       - in: query
         name: vertrouwelijk
         schema:
@@ -2802,6 +2866,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PartijIdentificator'
+        required: true
       security:
       - tokenAuth: []
       responses:
@@ -2866,6 +2931,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PartijIdentificator'
+        required: true
       security:
       - tokenAuth: []
       responses:
@@ -3045,8 +3111,12 @@ paths:
         name: nummer
         schema:
           type: string
-        description: Uniek identificerend nummer dat tijdens communicatie tussen mensen
-          kan worden gebruikt om de specifieke partij aan te duiden.
+        description: 'Uniek identificerend nummer dat tijdens communicatie tussen
+          mensen kan worden gebruikt om de specifieke partij aan te duiden. Wordt
+          automatisch gegenereerd als het niet wordt opgegeven. Let op: vanaf de volgende
+          major release kan dit nummer niet meer door clients worden opgegeven en
+          wordt het altijd automatisch gegenereerd. Gebruik ``referentienummer`` om
+          een eigen nummer vast te leggen.'
       - name: page
         required: false
         in: query
@@ -3093,6 +3163,42 @@ paths:
         description: |+
           Geeft aan van welke specifieke soort partij sprake is.
 
+      - in: query
+        name: subIdentificatorVan__codeObjecttype
+        schema:
+          type: string
+        description: Zoek partij object op basis van het ``subIdentificatorVan`` objecttype.
+          Deze parameter kan gecombineerd worden met de ``partijIdentificator__``
+          parameters om een specifieke vestiging te vinden, door bij ``partijIdentificator__``
+          de vestigingspecifieke informatie mee te geven en bij ``subIdentificatorVan__``
+          de informatie van de rechtspersoon waaraan deze vestiging gekoppeld is.
+      - in: query
+        name: subIdentificatorVan__codeRegister
+        schema:
+          type: string
+        description: Zoek partij object op basis van het ``subIdentificatorVan`` register.
+          Deze parameter kan gecombineerd worden met de ``partijIdentificator__``
+          parameters om een specifieke vestiging te vinden, door bij ``partijIdentificator__``
+          de vestigingspecifieke informatie mee te geven en bij ``subIdentificatorVan__``
+          de informatie van de rechtspersoon waaraan deze vestiging gekoppeld is.
+      - in: query
+        name: subIdentificatorVan__codeSoortObjectId
+        schema:
+          type: string
+        description: Zoek partij object op basis van het ``subIdentificatorVan`` soort
+          object ID. Deze parameter kan gecombineerd worden met de ``partijIdentificator__``
+          parameters om een specifieke vestiging te vinden, door bij ``partijIdentificator__``
+          de vestigingspecifieke informatie mee te geven en bij ``subIdentificatorVan__``
+          de informatie van de rechtspersoon waaraan deze vestiging gekoppeld is.
+      - in: query
+        name: subIdentificatorVan__objectId
+        schema:
+          type: string
+        description: Zoek partij object op basis van het ``subIdentificatorVan`` object
+          ID. Deze parameter kan gecombineerd worden met de ``partijIdentificator__``
+          parameters om een specifieke vestiging te vinden, door bij ``partijIdentificator__``
+          de vestigingspecifieke informatie mee te geven en bij ``subIdentificatorVan__``
+          de informatie van de rechtspersoon waaraan deze vestiging gekoppeld is.
       - in: query
         name: vertegenwoordigdePartij__url
         schema:
@@ -4012,9 +4118,14 @@ components:
           maxLength: 1000
         nummer:
           type: string
-          description: Uniek identificerend nummer dat tijdens communicatie tussen
-            mensen kan worden gebruikt om de specifieke partij aan te duiden.
-          maxLength: 10
+          description: 'Uniek identificerend nummer dat tijdens communicatie tussen
+            mensen kan worden gebruikt om de specifieke partij aan te duiden. Wordt
+            automatisch gegenereerd als het niet wordt opgegeven. Let op: vanaf de
+            volgende major release kan dit nummer niet meer door clients worden opgegeven
+            en wordt het altijd automatisch gegenereerd. Gebruik ``referentienummer``
+            om een eigen nummer vast te leggen.'
+          pattern: ^[0-9]{1,12}$
+          maxLength: 12
         interneNotitie:
           type: string
           description: Mededelingen, aantekeningen of bijzonderheden over de partij,
@@ -4431,7 +4542,7 @@ components:
           allOf:
           - $ref: '#/components/schemas/KlantcontactForeignKey'
           nullable: true
-          description: '''Klantcontact'' ging over ''Onderwerpobject'''
+          description: '''Klantcontact'' omvatte ''Bijlage'''
         bijlageidentificator:
           allOf:
           - $ref: '#/components/schemas/BijlageIdentificator'
@@ -4464,22 +4575,21 @@ components:
         objectId:
           type: string
           description: 'Waarde van de eigenschap die het object identificeert, bijvoorbeeld:
-            ''123456788''.'
+            ''9193b03f-93c2-4bfc-badf-b61494bd31d6''.'
           maxLength: 200
         codeObjecttype:
           type: string
-          description: 'Type van het object, bijvoorbeeld: ''INGESCHREVEN NATUURLIJK
-            PERSOON''.'
+          description: 'Type van het object, bijvoorbeeld: ''DOCUMENT''.'
           maxLength: 200
         codeRegister:
           type: string
           description: 'Binnen het landschap van registers unieke omschrijving van
-            het register waarin het object is geregistreerd, bijvoorbeeld: ''BRP''.'
+            het register waarin het object is geregistreerd, bijvoorbeeld: ''open-zaak''.'
           maxLength: 200
         codeSoortObjectId:
           type: string
           description: 'Naam van de eigenschap die het object identificeert, bijvoorbeeld:
-            ''Burgerservicenummer''.'
+            ''uuid''.'
           maxLength: 200
     BlankEnum:
       enum:
@@ -4749,7 +4859,15 @@ components:
             \ ter validatie: `^(0[1-9][0-9]{8}|\\+[0-9]{9,15}|00[0-9]{7,13})$`. \n\
             \ * Toegestaan:\n   * Lokaal: 0612345678 of 0201234567\n   * Internationaal\
             \ met '+': +31612345678\n   * Internationaal met '00': 0031612345678\n\
-            \ * Niet toegestaan:\n   * 0800, 0900, 088, 1400, 140xx."
+            \ * Niet toegestaan:\n   * 0800, 0900, 1400, 140xx.\n\nHet is toegestaan\
+            \ om meerdere DigitaleAdressen aan te maken met dezelfde waarde voor `adres`,\
+            \ omdat het mogelijk moet zijn om hetzelfde adres meerdere keren te registreren\
+            \ met verschillende waardes voor `referentie`. Dit maakt het mogelijk\
+            \ om een van die adressen te wijzigen, zonder de andere DigitaleAdressen\
+            \ te wijzigen. Bijv.: een partij gebruikt hetzelfde `adres` in meerdere\
+            \ DigitaleAdressen, maar wil alleen `adres` van het DigitaalAdres met\
+            \ als `referentie` `portaalvoorkeur` wijzigen en de overige hetzelfde\
+            \ laten."
           maxLength: 80
         soortDigitaalAdres:
           allOf:
@@ -4758,8 +4876,12 @@ components:
             of kanalen met dit adres contact kan worden opgenomen.
         isStandaardAdres:
           type: boolean
+          default: false
           description: Geeft aan of dit digitaal adres het standaard adres is voor
-            het `soortDigitaalAdres`
+            het `soortDigitaalAdres` voor de deze `partij`. Per `partij` en `soortDigitaalAdres`
+            kan er maar één standaard adres zijn, zodra een ander adres gemarkeerd
+            wordt met `isStandaardAdres=true` wordt `isStandaardAdres=false` gezet
+            voor alle andere adressen met dezelfde `partij` en `soortDigitaalAdres`.
         omschrijving:
           type: string
           description: Omschrijving van het digitaal adres.
@@ -4834,7 +4956,7 @@ components:
             description: Display details of the linked resources requested in the
               `expand` parameter
             properties:
-              verstrekt_door_betrokkene:
+              verstrektDoorBetrokkene:
                 allOf:
                 - $ref: '#/components/schemas/Betrokkene'
                 nullable: true
@@ -4850,26 +4972,26 @@ components:
             description: Display details of the linked resources requested in the
               `expand` parameter
             properties:
-              had_betrokkenen:
+              hadBetrokkenen:
                 type: array
                 items:
                   $ref: '#/components/schemas/Betrokkene'
                 readOnly: true
                 description: Persoon of organisatie die betrokken was bij een klantcontact.
-              leidde_tot_interne_taken:
+              leiddeTotInterneTaken:
                 type: array
                 items:
                   $ref: '#/components/schemas/InterneTaak'
                 readOnly: true
                 description: Klantcontact dat leidde tot een interne taak.
-              ging_over_onderwerpobjecten:
+              gingOverOnderwerpobjecten:
                 type: array
                 items:
                   $ref: '#/components/schemas/Onderwerpobject'
                 readOnly: true
                 description: Onderwerpobject dat tijdens een klantcontact aan de orde
                   was.
-              omvatte_bijlagen:
+              omvatteBijlagen:
                 type: array
                 items:
                   $ref: '#/components/schemas/Bijlage'
@@ -4904,7 +5026,7 @@ components:
                   $ref: '#/components/schemas/ExpandBetrokkene'
                 readOnly: true
                 description: Betrokkene bij klantcontact die een partij was.
-              categorie_relaties:
+              categorieRelaties:
                 type: array
                 items:
                   $ref: '#/components/schemas/CategorieRelatie'
@@ -4942,8 +5064,20 @@ components:
           maxLength: 1000
         nummer:
           type: string
-          description: Uniek identificerend nummer dat tijdens communicatie tussen
+          description: 'Uniek identificerend nummer dat tijdens communicatie tussen
             mensen kan worden gebruikt om de specifieke interne taak aan te duiden.
+            Wordt automatisch gegenereerd als het niet wordt opgegeven. Let op: vanaf
+            de volgende major release kan dit nummer niet meer door clients worden
+            opgegeven en wordt het altijd automatisch gegenereerd. Gebruik ``referentienummer``
+            om een eigen nummer vast te leggen.'
+          pattern: ^[0-9]{1,12}$
+          maxLength: 12
+        referentienummer:
+          type: string
+          nullable: true
+          description: Uniek identificerend referentienummer dat tijdens communicatie
+            tussen mensen kan worden gebruikt om de specifieke interne taak aan te
+            duiden.
           maxLength: 10
         gevraagdeHandeling:
           type: string
@@ -5058,8 +5192,20 @@ components:
           description: Klantcontact dat leidde tot een interne taak.
         nummer:
           type: string
-          description: Uniek identificerend nummer dat tijdens communicatie tussen
+          description: 'Uniek identificerend nummer dat tijdens communicatie tussen
             mensen kan worden gebruikt om het specifieke klantcontact aan te duiden.
+            Wordt automatisch gegenereerd als het niet wordt opgegeven. Let op: vanaf
+            de volgende major release kan dit nummer niet meer door clients worden
+            opgegeven en wordt het altijd automatisch gegenereerd. Gebruik ``referentienummer``
+            om een eigen nummer vast te leggen.'
+          pattern: ^[0-9]{1,12}$
+          maxLength: 12
+        referentienummer:
+          type: string
+          nullable: true
+          description: Uniek identificerend referentienummer dat tijdens communicatie
+            tussen mensen kan worden gebruikt om het specifieke klantcontact aan te
+            duiden.
           maxLength: 10
         kanaal:
           type: string
@@ -5073,12 +5219,28 @@ components:
           type: string
           description: Informatie die tijdens het klantcontact werd overgebracht of
             uitgewisseld, voor zover die voor betrokkenen of actoren relevant is.
+            Via reactie kan optioneel het antwoord op de vraag worden opgeslagen.
           maxLength: 1000
+        reactie:
+          type: string
+          description: De reactie die die tijdens het contact werdt gegeven
+          maxLength: 4000
         indicatieContactGelukt:
           type: boolean
           nullable: true
           description: Geeft, indien bekend, aan of de poging contact tussen de gemeente
             en inwoner(s) of organisatie(s) tot stand te brengen succesvol was.
+        hoofdOnderwerpType:
+          type: string
+          format: uri
+          description: Het type van het onderwerp van het contact (bijvoorbeeld een
+            zaaktype)
+          maxLength: 200
+        verdereActieOndernomen:
+          type: boolean
+          default: false
+          description: Geeft aan of het systeem waar het contact heeft plaats gevonden
+            zelf actie onderneemt als het niet lukt om de klant te bereiken.
         taal:
           type: string
           description: 'Taal, in ISO 639-2/B formaat, waarin de partij bij voorkeur
@@ -5096,6 +5258,13 @@ components:
             begon. Als het klantcontact verzending of ontvangst van informatie betrof,
             is dit bij benadering het moment waarop informatie door gemeente verzonden
             of ontvangen werd.
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+            maxLength: 255
+          description: Generieke key/value metadata. Key = string, value = string
+            (max 255 tekens).
       required:
       - gingOverOnderwerpobjecten
       - hadBetrokkenActoren
@@ -5941,6 +6110,7 @@ components:
             the child identificator could specify a vestigingsnummer that is unique
             for the KVK number).
       required:
+      - partijIdentificator
       - url
     PartijIdentificatorForeignkey:
       type: object
@@ -6145,7 +6315,7 @@ components:
           allOf:
           - $ref: '#/components/schemas/KlantcontactForeignKey'
           nullable: true
-          description: '''Klantcontact'' ging over ''Onderwerpobject'''
+          description: '''Klantcontact'' omvatte ''Bijlage'''
         bijlageidentificator:
           allOf:
           - $ref: '#/components/schemas/BijlageIdentificator'
@@ -6249,7 +6419,15 @@ components:
             \ ter validatie: `^(0[1-9][0-9]{8}|\\+[0-9]{9,15}|00[0-9]{7,13})$`. \n\
             \ * Toegestaan:\n   * Lokaal: 0612345678 of 0201234567\n   * Internationaal\
             \ met '+': +31612345678\n   * Internationaal met '00': 0031612345678\n\
-            \ * Niet toegestaan:\n   * 0800, 0900, 088, 1400, 140xx."
+            \ * Niet toegestaan:\n   * 0800, 0900, 1400, 140xx.\n\nHet is toegestaan\
+            \ om meerdere DigitaleAdressen aan te maken met dezelfde waarde voor `adres`,\
+            \ omdat het mogelijk moet zijn om hetzelfde adres meerdere keren te registreren\
+            \ met verschillende waardes voor `referentie`. Dit maakt het mogelijk\
+            \ om een van die adressen te wijzigen, zonder de andere DigitaleAdressen\
+            \ te wijzigen. Bijv.: een partij gebruikt hetzelfde `adres` in meerdere\
+            \ DigitaleAdressen, maar wil alleen `adres` van het DigitaalAdres met\
+            \ als `referentie` `portaalvoorkeur` wijzigen en de overige hetzelfde\
+            \ laten."
           maxLength: 80
         soortDigitaalAdres:
           allOf:
@@ -6258,8 +6436,12 @@ components:
             of kanalen met dit adres contact kan worden opgenomen.
         isStandaardAdres:
           type: boolean
+          default: false
           description: Geeft aan of dit digitaal adres het standaard adres is voor
-            het `soortDigitaalAdres`
+            het `soortDigitaalAdres` voor de deze `partij`. Per `partij` en `soortDigitaalAdres`
+            kan er maar één standaard adres zijn, zodra een ander adres gemarkeerd
+            wordt met `isStandaardAdres=true` wordt `isStandaardAdres=false` gezet
+            voor alle andere adressen met dezelfde `partij` en `soortDigitaalAdres`.
         omschrijving:
           type: string
           description: Omschrijving van het digitaal adres.
@@ -6293,8 +6475,20 @@ components:
           maxLength: 1000
         nummer:
           type: string
-          description: Uniek identificerend nummer dat tijdens communicatie tussen
+          description: 'Uniek identificerend nummer dat tijdens communicatie tussen
             mensen kan worden gebruikt om de specifieke interne taak aan te duiden.
+            Wordt automatisch gegenereerd als het niet wordt opgegeven. Let op: vanaf
+            de volgende major release kan dit nummer niet meer door clients worden
+            opgegeven en wordt het altijd automatisch gegenereerd. Gebruik ``referentienummer``
+            om een eigen nummer vast te leggen.'
+          pattern: ^[0-9]{1,12}$
+          maxLength: 12
+        referentienummer:
+          type: string
+          nullable: true
+          description: Uniek identificerend referentienummer dat tijdens communicatie
+            tussen mensen kan worden gebruikt om de specifieke interne taak aan te
+            duiden.
           maxLength: 10
         gevraagdeHandeling:
           type: string
@@ -6385,8 +6579,20 @@ components:
           description: Klantcontact dat leidde tot een interne taak.
         nummer:
           type: string
-          description: Uniek identificerend nummer dat tijdens communicatie tussen
+          description: 'Uniek identificerend nummer dat tijdens communicatie tussen
             mensen kan worden gebruikt om het specifieke klantcontact aan te duiden.
+            Wordt automatisch gegenereerd als het niet wordt opgegeven. Let op: vanaf
+            de volgende major release kan dit nummer niet meer door clients worden
+            opgegeven en wordt het altijd automatisch gegenereerd. Gebruik ``referentienummer``
+            om een eigen nummer vast te leggen.'
+          pattern: ^[0-9]{1,12}$
+          maxLength: 12
+        referentienummer:
+          type: string
+          nullable: true
+          description: Uniek identificerend referentienummer dat tijdens communicatie
+            tussen mensen kan worden gebruikt om het specifieke klantcontact aan te
+            duiden.
           maxLength: 10
         kanaal:
           type: string
@@ -6400,12 +6606,28 @@ components:
           type: string
           description: Informatie die tijdens het klantcontact werd overgebracht of
             uitgewisseld, voor zover die voor betrokkenen of actoren relevant is.
+            Via reactie kan optioneel het antwoord op de vraag worden opgeslagen.
           maxLength: 1000
+        reactie:
+          type: string
+          description: De reactie die die tijdens het contact werdt gegeven
+          maxLength: 4000
         indicatieContactGelukt:
           type: boolean
           nullable: true
           description: Geeft, indien bekend, aan of de poging contact tussen de gemeente
             en inwoner(s) of organisatie(s) tot stand te brengen succesvol was.
+        hoofdOnderwerpType:
+          type: string
+          format: uri
+          description: Het type van het onderwerp van het contact (bijvoorbeeld een
+            zaaktype)
+          maxLength: 200
+        verdereActieOndernomen:
+          type: boolean
+          default: false
+          description: Geeft aan of het systeem waar het contact heeft plaats gevonden
+            zelf actie onderneemt als het niet lukt om de klant te bereiken.
         taal:
           type: string
           description: 'Taal, in ISO 639-2/B formaat, waarin de partij bij voorkeur
@@ -6423,6 +6645,13 @@ components:
             begon. Als het klantcontact verzending of ontvangst van informatie betrof,
             is dit bij benadering het moment waarop informatie door gemeente verzonden
             of ontvangen werd.
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+            maxLength: 255
+          description: Generieke key/value metadata. Key = string, value = string
+            (max 255 tekens).
     PatchedOnderwerpobject:
       type: object
       description: |-
@@ -6808,14 +7037,31 @@ tags:
 
     **Kenmerken**
 
-    * `nummer`: Uniek identificerend nummer dat tijdens communicatie tussen mensen kan worden gebruikt om de specifieke interne taak aan te duiden.
-    * `gevraagde_handeling`: Handeling die moet worden uitgevoerd om de taak af te ronden.
+    * `nummer`: Uniek identificerend nummer dat tijdens communicatie tussen mensen kan worden gebruikt om de specifieke interne taak aan te duiden. Wordt automatisch gegenereerd als het niet wordt opgegeven. Let op: vanaf de volgende major release kan dit nummer niet meer door clients worden opgegeven en wordt het altijd automatisch gegenereerd. Gebruik ``referentienummer`` om een eigen nummer vast te leggen.
+    * `gevraagdeHandeling`: Handeling die moet worden uitgevoerd om de taak af te ronden.
     * `toelichting`: Toelichting die, aanvullend bij de inhoud van het klantcontact dat aanleiding gaf tot de taak en de gevraagde handeling, bijdraagt aan het kunnen afhandelen van de taak.
     * `status`: Aanduiding van de vordering bij afhandeling van de interne taak.
 
     **Resources en acties**
     - `internetaak`: create, update, destroy
 - name: klanten contacten
+  description: |
+    Deze API publiceert notificaties op het kanaal `klantcontacten`.
+
+    **Main resource**
+
+    `klantcontact`
+
+
+
+    **Kenmerken**
+
+    * `hoofdOnderwerpType`: Het type van het onderwerp van het contact (bijvoorbeeld een zaaktype)
+    * `indicatieContactGelukt`: Geeft, indien bekend, aan of de poging contact tussen de gemeente en inwoner(s) of organisatie(s) tot stand te brengen succesvol was.
+    * `verdereActieOndernomen`: Geeft aan of het systeem waar het contact heeft plaats gevonden zelf actie onderneemt als het niet lukt om de klant te bereiken.
+
+    **Resources en acties**
+    - `klantcontact`: create, update, destroy
 - name: onderwerpobjecten
 - name: partij-identificatoren
   description: |2+
@@ -6926,9 +7172,9 @@ tags:
 
     **Kenmerken**
 
-    * `nummer`: Uniek identificerend nummer dat tijdens communicatie tussen mensen kan worden gebruikt om de specifieke partij aan te duiden.
-    * `interne_notitie`: Mededelingen, aantekeningen of bijzonderheden over de partij, bedoeld voor intern gebruik.
-    * `soort_partij`: Geeft aan van welke specifieke soort partij sprake is.
+    * `nummer`: Uniek identificerend nummer dat tijdens communicatie tussen mensen kan worden gebruikt om de specifieke partij aan te duiden. Wordt automatisch gegenereerd als het niet wordt opgegeven. Let op: vanaf de volgende major release kan dit nummer niet meer door clients worden opgegeven en wordt het altijd automatisch gegenereerd. Gebruik ``referentienummer`` om een eigen nummer vast te leggen.
+    * `interneNotitie`: Mededelingen, aantekeningen of bijzonderheden over de partij, bedoeld voor intern gebruik.
+    * `soortPartij`: Geeft aan van welke specifieke soort partij sprake is.
 
     **Resources en acties**
 - name: rekeningnummers

@@ -225,11 +225,12 @@ signaleringen:
         - ALL
   tolerations: []
 
-# OpenTelemetry configuration. Only read when opentelemetry-collector is enabled
-opentelemetry_zaakafhandelcomponent:
-   # -- Enables or disables the ZAC OpenTelemetry integration. Disabled by default.
-  disabled: "-true"
-   # -- OpenTelemetry collector endpoint URL
+# Tracing of ZAC itself: whether and where ZAC sends its traces.
+# Replaces the deprecated `opentelemetry_zaakafhandelcomponent` values. See the Tracing section.
+tracing:
+  # -- Whether ZAC sends its traces with OpenTelemetry (OTLP over gRPC).
+  enabled: false
+  # -- OTLP endpoint that ZAC sends its traces to: an external OpenTelemetry collector or a tracing backend such as Tempo. When empty, ZAC sends its traces to the bundled `opentelemetry-collector`, which then has to be enabled. Not to be confused with `opentelemetry-collector.config.exporters.otlp.endpoint`, which is where the bundled collector forwards traces to.
   endpoint: ""
 
 # -- Maximum size (in Mega Bytes) of documents that can be uploaded and downloaded.
@@ -777,7 +778,9 @@ extraVolumes: []
 # -- Extra volume mounts of the ZAC container
 extraVolumeMounts: []
 
-# opentelemetry-collector enable to use the included helm chart and settings to work with zac
+# Optional bundled OpenTelemetry collector (the upstream opentelemetry-collector chart).
+# It receives the traces of ZAC and forwards them through its own `config.exporters`, for example to Tempo.
+# Not needed when `tracing.endpoint` points to an external collector or tracing backend. See the Tracing section.
 opentelemetry-collector:
   enabled: false
   mode: deployment

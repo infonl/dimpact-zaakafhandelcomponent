@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AbstractControl, FormControl } from "@angular/forms";
+import { AbstractControl, FormControl, Validators } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { fromPartial } from "src/test-helpers";
 import { CustomValidators } from "./customValidators";
@@ -121,6 +121,25 @@ describe(CustomValidators.name, () => {
       expect(CustomValidators.nonEmptyHtmlElement(control)).toEqual(expected);
     },
   );
+
+  it.each([
+    ["   ", { required: true }],
+    ["\n\t ", { required: true }],
+    ["", { required: true }],
+    [" text ", null],
+    [null, null],
+    [42, null],
+  ])(
+    "Not-blank validation on a required control: for %p it should return %p",
+    (value, expected) => {
+      const control = new FormControl(value, Validators.required);
+      expect(CustomValidators.notBlank(control)).toEqual(expected);
+    },
+  );
+
+  it("Not-blank validation on an optional control: accepts a value of only spaces", () => {
+    expect(CustomValidators.notBlank(new FormControl("   "))).toBeNull();
+  });
 
   describe("error messages", () => {
     const createControl = (value: unknown): AbstractControl =>

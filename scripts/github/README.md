@@ -34,3 +34,21 @@ There's a script that kicks off act in the correct location:
 
 This script can be used to test the whole flow, or you can adjust it so that it
 only runs a single job.
+
+# Clean up tags and releases
+
+[`cleanup-tags-and-releases.py`](cleanup-tags-and-releases.py) applies the retention policy of
+[ADR-0014](../../docs/solution-architecture/decisions/0014-keep-only-release-tags-and-releases.md) to the Git tags and
+GitHub releases. Without arguments it changes nothing and writes `keep.txt` and `delete.txt`:
+
+```shell
+python3 scripts/github/cleanup-tags-and-releases.py                    # dry run, without the chart releases
+python3 scripts/github/cleanup-tags-and-releases.py --include-charts   # dry run, with the chart releases
+python3 scripts/github/cleanup-tags-and-releases.py --check            # exit 1 when something is outside the policy
+```
+
+Delete with the workflow `Clean up tags and releases` (mode `apply`) rather than locally. The GitHub rate limit makes
+the first cleanup take several hours; the workflow stops before the job time limit, and a new run continues.
+The chart tags `zaakafhandelcomponent-*` are always kept; `include-charts` only deletes their releases. Only select
+`include-charts` after the workflow `Helm chart release` ran with `migrate-chart-packages`, see
+[ADR-0013](../../docs/solution-architecture/decisions/0013-publish-the-helm-chart-on-gh-pages-without-github-releases.md).

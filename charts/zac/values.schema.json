@@ -5,6 +5,17 @@
     "logLevel": {
       "type": "string",
       "enum": ["DEBUG", "INFO", "WARN", "ERROR"]
+    },
+    "tracing": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "endpoint": {
+          "type": "string"
+        }
+      }
     }
   }
 }

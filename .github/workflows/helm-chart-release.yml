@@ -1,19 +1,30 @@
-# SPDX-FileCopyrightText: 2024 INFO.nl
+# SPDX-FileCopyrightText: 2024, 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 
+# Publishes the chart to the Helm repository https://infonl.github.io/dimpact-zaakafhandelcomponent and tags the commit
+# with zaakafhandelcomponent-<version>, without a GitHub release, see ADR 0013. The packages are in 'helm-charts/' on the gh-pages branch; 'cleanup-e2e-reports.yml' only
+# prunes folders whose name starts with a date, so it keeps them.
 name: Helm chart release
 
 on:
-  workflow_dispatch:  
+  workflow_dispatch:
+    inputs:
+      migrate-chart-packages:
+        description: "Copy the kept chart packages from their GitHub releases to gh-pages and rebuild the index"
+        type: boolean
+        default: false
   push:
     branches: [main]
     paths:
       - 'charts/**'
 
-# Only allow a single concurrent run per branch. Cancel in-progress runs on multiple pushes when not on main branch.  
+# gh-pages is a shared branch, so runs never cancel each other.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ !contains(github.ref, 'main')}}
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+env:
+  HELM_REPOSITORY_URL: https://infonl.github.io/dimpact-zaakafhandelcomponent
 
 jobs:
   helm-release:
@@ -24,12 +35,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0
+          path: source
 
-      - name: Configure Git
-        run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+      - name: Checkout gh-pages
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: gh-pages
+          path: gh-pages
 
       - name: Set up Helm
         uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
@@ -41,10 +53,71 @@ jobs:
           helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
           helm repo add solr https://solr.apache.org/charts
 
-      - name: Run chart-releaser
-        uses: helm/chart-releaser-action@92c6b97fa9f664492a2592e0d1d80bc6bf378957 # v1.9.0
-        with:
-          skip_existing: true
-          mark_as_latest: false
+      - name: Copy the kept chart packages from their GitHub releases
+        if: ${{ inputs.migrate-chart-packages }}
         env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p gh-pages/helm-charts
+          python3 source/scripts/github/cleanup-tags-and-releases.py --download-chart-packages gh-pages/helm-charts
+
+      - name: Package the chart unless this version is already published
+        id: package
+        run: |
+          VERSION=$(yq '.version' source/charts/zac/Chart.yaml)
+          PACKAGE="gh-pages/helm-charts/zaakafhandelcomponent-${VERSION}.tgz"
+          if [ -f "${PACKAGE}" ] || grep -q "zaakafhandelcomponent-${VERSION}.tgz" gh-pages/index.yaml; then
+            echo "Chart version ${VERSION} is already published"
+          else
+            mkdir -p gh-pages/helm-charts
+            helm dependency build source/charts/zac
+            helm package source/charts/zac --destination gh-pages/helm-charts
+            echo "packaged=true" >> "$GITHUB_OUTPUT"
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      # Indexing only 'helm-charts/' keeps the e2e reports out of the scan. Without --merge the index is rebuilt
+      # from the packages on gh-pages only, which drops the entries that point to GitHub releases.
+      - name: Update the repository index
+        working-directory: gh-pages
+        env:
+          MIGRATE: ${{ inputs.migrate-chart-packages }}
+        run: |
+          if [ "${MIGRATE}" = "true" ]; then
+            helm repo index helm-charts --url "${HELM_REPOSITORY_URL}/helm-charts"
+          else
+            helm repo index helm-charts --url "${HELM_REPOSITORY_URL}/helm-charts" --merge index.yaml
+          fi
+          mv helm-charts/index.yaml index.yaml
+
+      - name: Push to gh-pages
+        working-directory: gh-pages
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --force helm-charts index.yaml
+          if git diff --cached --quiet; then
+            echo "Nothing to publish"
+            exit 0
+          fi
+          git commit -m "chore(helm): publish zaakafhandelcomponent chart ${{ steps.package.outputs.version }}"
+          # The e2e workflow also pushes to gh-pages, so retry on a rejected push.
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase origin gh-pages && git push origin HEAD:gh-pages && exit 0
+            sleep $((attempt * 10))
+          done
+          exit 1
+
+      # The release of a sprint compares the images of two chart versions with these tags.
+      - name: Tag the chart version
+        if: ${{ steps.package.outputs.packaged == 'true' }}
+        working-directory: source
+        env:
+          TAG: zaakafhandelcomponent-${{ steps.package.outputs.version }}
+        run: |
+          if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" > /dev/null; then
+            echo "Tag ${TAG} already exists"
+            exit 0
+          fi
+          git tag "${TAG}" "${GITHUB_SHA}"
+          git push origin "refs/tags/${TAG}"

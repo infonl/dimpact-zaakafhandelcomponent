@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.375](https://img.shields.io/badge/Version-1.0.375-informational?style=flat-square) ![AppVersion: 5.11](https://img.shields.io/badge/AppVersion-5.11-informational?style=flat-square)
+![Version: 1.0.378](https://img.shields.io/badge/Version-1.0.378-informational?style=flat-square) ![AppVersion: 5.11](https://img.shields.io/badge/AppVersion-5.11-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -64,9 +64,67 @@ update the bootstrap secret by hand. See
 [Managing the Solr search engine](https://github.com/infonl/dimpact-zaakafhandelcomponent/blob/main/docs/development/managingSolr.md)
 for the Solr details, including how to read the admin password for the Solr admin UI.
 
+## Tracing
+
+ZAC sends its traces with OpenTelemetry (OTLP over gRPC) when `tracing.enabled` is true. Two settings decide
+where the traces go, one for each hop:
+
+```
+ZAC ──OTLP──▶ OpenTelemetry collector ──▶ tracing backend, such as Tempo
+    ↑                                 ↑
+    tracing.endpoint                  opentelemetry-collector.config.exporters
+                                      (bundled collector only)
+```
+
+To send the traces to a collector or tracing backend that already runs in the cluster, set its endpoint and leave
+the bundled collector disabled:
+
+```
+--set tracing.enabled=true
+--set tracing.endpoint=https://my-collector.monitoring.svc.cluster.local:4317
+```
+
+To deploy the bundled collector, leave `tracing.endpoint` empty and configure where the collector forwards the
+traces to:
+
+```
+--set tracing.enabled=true
+--set opentelemetry-collector.enabled=true
+--set opentelemetry-collector.config.exporters.otlp.endpoint=https://tempo.monitoring.svc.cluster.local:4317
+--set opentelemetry-collector.config.service.pipelines.traces.exporters={otlp}
+```
+
+For an endpoint without TLS, which is common inside a cluster, use `http://` instead of `https://`. The bundled
+collector then also needs `--set opentelemetry-collector.config.exporters.otlp.tls.insecure=true`.
+
+`opentelemetry_zaakafhandelcomponent.endpoint` is deprecated and replaced by `tracing.endpoint`. Until it is
+removed, it and an enabled bundled collector still turn on tracing, and `helm install` and `helm upgrade` print a
+deprecation notice.
+
 ## Changes to the helm chart
 
 The Github workflow will perform helm-linting and will bump the version if needed. This `README.md` file is generated automatically as well.
+
+Unit tests for the templates live in `tests/` and use [helm-unittest](https://github.com/helm-unittest/helm-unittest).
+The Github workflow runs them in every pull request. To run them locally with Helm 4:
+
+```bash
+helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+helm repo add solr https://solr.apache.org/charts
+helm plugin install https://github.com/helm-unittest/helm-unittest.git --version v1.2.1 --verify=false
+helm dependency build charts/zac
+helm unittest --strict charts/zac
+```
+
+Helm 4 cannot verify plugins installed from git, hence `--verify=false`. Helm 3 does not know this flag; leave it out
+there.
+
+On macOS the install script of the plugin needs GNU `sha256sum`. Install it with `brew install coreutils` and
+put it first on the `PATH` during the plugin install:
+
+```bash
+PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" helm plugin install https://github.com/helm-unittest/helm-unittest.git --version v1.2.1 --verify=false
+```
 
 ## Values
 
@@ -317,8 +375,6 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opentelemetry-collector.ports.zipkin.enabled | bool | `false` |  |
 | opentelemetry-collector.presets.clusterMetrics.enabled | bool | `false` |  |
 | opentelemetry-collector.replicaCount | int | `1` |  |
-| opentelemetry_zaakafhandelcomponent.disabled | string | `"-true"` | Enables or disables the ZAC OpenTelemetry integration. Disabled by default. |
-| opentelemetry_zaakafhandelcomponent.endpoint | string | `""` | OpenTelemetry collector endpoint URL |
 | organizations.bron.rsin | string | `""` | The RSIN of the Non-natural person - the organization that created the zaak. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef |
 | organizations.verantwoordelijke.rsin | string | `""` | The RSIN of the Non-natural person - the organization that is ultimately responsible for handling a zaak or establishing a decision. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef |
 | pabcApi.apiKey | string | `""` |  |
@@ -430,6 +486,8 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | tmpVolumeSize | string | `"4Gi"` | Size of the emptyDir mounted at /tmp. WildFly buffers every request body to a temporary file there and ZAC streams the uploaded document from it, so this has to hold `maxFileSizeMB` for every concurrent upload. Keep `resources.requests.ephemeral-storage` and `resources.limits.ephemeral-storage` in step with it. Note that the matching 4Gi ephemeral-storage request is a scheduling requirement: a node without that much free ephemeral storage, or a namespace whose quota does not allow it, will not schedule the pod. Lower all three together when the environment cannot spare it; the cost is fewer concurrent transfers of `maxFileSizeMB`, not a lower maximum document size. |
 | tolerations | list | `[]` | set toleration parameters |
 | topologySpreadConstraints | list | `[{"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"ScheduleAnyway"}]` | set topologySpreadConstraints parameters. Note: labelSelector is automatically set by the template to match the deployment's labels |
+| tracing.enabled | bool | `false` | Whether ZAC sends its traces with OpenTelemetry (OTLP over gRPC). |
+| tracing.endpoint | string | `""` | OTLP endpoint that ZAC sends its traces to: an external OpenTelemetry collector or a tracing backend such as Tempo. When empty, ZAC sends its traces to the bundled `opentelemetry-collector`, which then has to be enabled. Not to be confused with `opentelemetry-collector.config.exporters.otlp.endpoint`, which is where the bundled collector forwards traces to. |
 | zacInternalEndpointsApiKey | string | `""` | API key for authentication of internal ZAC endpoints |
 | zgwApis.clientId | string | `""` |  |
 | zgwApis.secret | string | `""` |  |

@@ -238,11 +238,23 @@ describe(InrichtingscheckComponent.name, () => {
       });
     });
 
+    it("should hide the findings from assistive technology while the zaaktype is collapsed", () => {
+      expect(
+        screen.queryByRole("table", {
+          name: "health-check.zaaktype.bevindingen",
+        }),
+      ).not.toBeInTheDocument();
+    });
+
     it("should reveal the error with the category and the resultaattypen", async () => {
       await user.click(zaaktypeRow("Zaaktype E"));
       fixture.detectChanges();
 
-      const detailRow = screen.getByRole("row", {
+      const detailRow = within(
+        screen.getByRole("table", {
+          name: "health-check.zaaktype.bevindingen",
+        }),
+      ).getByRole("row", {
         name: /health-check.zaaktype.niet-ondersteunde-brondatum/,
       });
       expect(within(detailRow).getByText("resultaattype")).toBeInTheDocument();
@@ -324,7 +336,11 @@ describe(InrichtingscheckComponent.name, () => {
 
       expect(component["expandedRow"]()).toBe(zaaktypeZonderRoltype);
 
-      const detailRow = screen.getByRole("row", {
+      const detailRow = within(
+        screen.getByRole("table", {
+          name: "health-check.zaaktype.bevindingen",
+        }),
+      ).getByRole("row", {
         name: new RegExp(ROLTYPE_ONTBREEKT_MESSAGE),
       });
       expect(within(detailRow).getByText("rol")).toBeInTheDocument();
@@ -339,7 +355,11 @@ describe(InrichtingscheckComponent.name, () => {
 
       expect(component["expandedRow"]()).toBe(zaaktypeZonderEigenschap);
 
-      const detailRow = screen.getByRole("row", {
+      const detailRow = within(
+        screen.getByRole("table", {
+          name: "health-check.zaaktype.bevindingen",
+        }),
+      ).getByRole("row", {
         name: new RegExp(EIGENSCHAP_ONTBREEKT_MESSAGE),
       });
       expect(within(detailRow).getByText("eigenschap")).toBeInTheDocument();

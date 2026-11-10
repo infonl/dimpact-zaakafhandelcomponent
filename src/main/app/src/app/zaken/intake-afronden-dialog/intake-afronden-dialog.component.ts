@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AsyncPipe } from "@angular/common";
 import { Component, OnDestroy, inject, signal } from "@angular/core";
 import {
   AbstractControl,
@@ -30,7 +29,7 @@ import { MatSelectModule } from "@angular/material/select";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { Observable, Subject } from "rxjs";
+import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { injectContactEmail } from "../../klanten/inject-contact-email";
@@ -41,7 +40,7 @@ import { injectMutation } from "../../shared/http/inject-mutation";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
-import { ZakenService } from "../zaken.service";
+import { injectAfzenders } from "../inject-afzenders";
 
 @Component({
   templateUrl: "intake-afronden-dialog.component.html",
@@ -49,7 +48,6 @@ import { ZakenService } from "../zaken.service";
   standalone: true,
   imports: [
     I18nKeyPipe,
-    AsyncPipe,
     ReactiveFormsModule,
     MatToolbarModule,
     MatIconModule,
@@ -77,7 +75,6 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
   private readonly translateService = inject(TranslateService);
   private readonly planItemsService = inject(PlanItemsService);
   private readonly mailtemplateService = inject(MailtemplateService);
-  private readonly zakenService = inject(ZakenService);
   private readonly utilService = inject(UtilService);
 
   protected readonly zaakOntvankelijkMailQuery = injectQuery(() =>
@@ -139,8 +136,10 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
   protected readonly ontvangerError = this.readForm((form) =>
     this.getError(form.get("ontvanger"), "ontvanger"),
   );
-  readonly afzenders: Observable<GeneratedType<"RestZaakAfzender">[]> =
-    this.zakenService.listAfzendersVoorZaak(this.data.zaak.uuid);
+  protected readonly afzendersQuery = injectAfzenders(
+    () => this.data.zaak.uuid,
+    () => this.formGroup.get("verzender"),
+  );
   private ngDestroy = new Subject<void>();
 
   protected readonly afrondenMutation = injectMutation(
@@ -152,11 +151,6 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
   );
 
   constructor() {
-    this.zakenService
-      .readDefaultAfzenderVoorZaak(this.data.zaak.uuid)
-      .subscribe((afzender) => {
-        this.formGroup.get("verzender")?.setValue(afzender);
-      });
     this.formGroup
       .get("ontvankelijk")
       ?.valueChanges.pipe(takeUntil(this.ngDestroy))
