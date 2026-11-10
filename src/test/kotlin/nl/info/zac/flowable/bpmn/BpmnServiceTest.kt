@@ -53,6 +53,7 @@ import java.time.ZonedDateTime
 import java.util.Date
 import java.util.UUID
 
+@Suppress("LargeClass")
 class BpmnServiceTest : BehaviorSpec({
     val repositoryService = mockk<RepositoryService>()
     val runtimeService = mockk<RuntimeService>()
