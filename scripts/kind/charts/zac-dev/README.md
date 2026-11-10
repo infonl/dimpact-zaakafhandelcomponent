@@ -17,7 +17,7 @@ The services of the local ZAC development stack on kind that have no upstream He
 | nginx.image | string | `"nginxinc/nginx-unprivileged:1.31.7@sha256:09b0d3eda2aa592d2487f284519419015cab010d7df16cd0fe224b585fc60eb6"` |  |
 | officeConverter.image | string | `"gotenberg/gotenberg:9.2.0@sha256:e1840b4c1ee113078cc153b8359433c9511ab544c1a15cd45b09f81c9329118a"` | keep in sync with the office converter of charts/zac |
 | officeConverter.username | string | `"zac"` |  |
-| opa.image | string | `"openpolicyagent/opa:1.22.2-static@sha256:805656c845fb626b856fb4b4799d6c91e053a41eecc48537f4f1c2fd6974fbdd"` | keep in sync with the OPA of charts/zac |
+| opa.image | string | `"openpolicyagent/opa:1.22.3-static@sha256:a6ccb6e0cc91b2d1807b1b65a844b189249b9ab33d126e0bca30c0cf43b0ae07"` | keep in sync with the OPA of charts/zac |
 | openarchiefbeheer.image | string | `"maykinmedia/open-archiefbeheer:2.0.0@sha256:e5217d748869c62d26393311c3cfdcaacf69d8dde80ca3bc172ff41f3885f0ff"` |  |
 | openforms.image | string | `"openformulieren/open-forms:4.0.7@sha256:12c975259f37eb91973a722d1f4e3f0ccf09aa037c08ecbd200350efd4ed493a"` |  |
 | openklant.image | string | `"maykinmedia/open-klant:2.19.2@sha256:f85ef0b31610cbf3ef6c09cbe217f113145e11623aa9ba140abd2e4ffb7bddff"` |  |
