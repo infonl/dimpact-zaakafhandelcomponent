@@ -926,6 +926,8 @@
   "msg.error.bpmn.task.form.not.found": "BPMN taakformulier kan niet gevonden worden.",
   "msg.error.bpmn.process.definition.not.found": "BPMN procesdefinitie kan niet gevonden worden.",
   "msg.error.bpmn.process.definition.download.failed": "Er is een fout opgetreden bij het downloaden van deze BPMN procesdefinitie.",
+  "msg.error.bpmn.process.definition.id.missing": "Uploaden mislukt. Proces definitie heeft geen \"id\"",
+  "msg.error.bpmn.process.definition.name.missing": "Uploaden mislukt. Proces definitie heeft geen \"name\"",
   "msg.error.case.has.open.subcases": "Deze hoofdzaak heeft open deelzaken en kan niet afgesloten worden.",
   "msg.error.case.has.locked.information.objects": "Deze zaak heeft vergrendelde documenten en kan niet afgesloten worden.",
   "msg.error.case.has.no.communication.channel": "De zaak heeft geen communicatiekanaal.",

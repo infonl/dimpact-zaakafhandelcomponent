@@ -47,6 +47,8 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_BPMN_TASK_FORM_NOT_FOUND("msg.error.bpmn.task.form.not.found"),
     ERROR_CODE_BPMN_PROCESS_DEFINITION_NOT_FOUND("msg.error.bpmn.process.definition.not.found"),
     ERROR_CODE_BPMN_PROCESS_DEFINITION_DOWNLOAD_FAILED("msg.error.bpmn.process.definition.download.failed"),
+    ERROR_CODE_BPMN_PROCESS_DEFINITION_ID_MISSING("msg.error.bpmn.process.definition.id.missing"),
+    ERROR_CODE_BPMN_PROCESS_DEFINITION_NAME_MISSING("msg.error.bpmn.process.definition.name.missing"),
     ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS("msg.error.case.has.locked.information.objects"),
     ERROR_CODE_CASE_HAS_NO_COMMUNICATION_CHANNEL("msg.error.case.has.no.communication.channel"),
     ERROR_CODE_CASE_CANNOT_HAVE_DUE_DATE("msg.error.case.cannot.have.due.date"),

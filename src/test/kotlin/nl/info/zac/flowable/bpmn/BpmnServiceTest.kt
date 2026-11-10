@@ -29,6 +29,10 @@ import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_OMSCHRI
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_UUID
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_IDENTIFICATIE
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_BPMN_PROCESS_DEFINITION_ID_MISSING
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_BPMN_PROCESS_DEFINITION_NAME_MISSING
+import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionIdMissingException
+import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNameMissingException
 import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNotFoundException
 import org.flowable.bpmn.model.BpmnModel
 import org.flowable.bpmn.model.ExtensionElement
@@ -40,6 +44,7 @@ import org.flowable.engine.RepositoryService
 import org.flowable.engine.RuntimeService
 import org.flowable.engine.history.HistoricProcessInstance
 import org.flowable.engine.repository.Deployment
+import org.flowable.engine.repository.DeploymentBuilder
 import org.flowable.engine.repository.DeploymentQuery
 import org.flowable.engine.runtime.ProcessInstance
 import org.flowable.engine.runtime.ProcessInstanceBuilder
@@ -651,6 +656,184 @@ class BpmnServiceTest : BehaviorSpec({
                 then("only user tasks with form keys are included in the form keys list") {
                     result.formKeys shouldHaveSize 1
                     result.formKeys[0] shouldBe "someForm"
+                }
+            }
+        }
+    }
+
+    context("Adding a process definition") {
+        fun bpmnContent(vararg processAttributes: String) =
+            """<?xml version="1.0" encoding="UTF-8"?>""" +
+                """<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" targetNamespace="https://example.com/bpmn">""" +
+                processAttributes.joinToString("") { """<process $it><startEvent id="start"/></process>""" } +
+                "</definitions>"
+
+        fun stubDeployment(processDefinitionContent: String): Deployment {
+            val deploymentBuilder = mockk<DeploymentBuilder>()
+            val deployment = mockk<Deployment>()
+            every { repositoryService.createDeployment() } returns deploymentBuilder
+            every { deploymentBuilder.addString("fakeFilename.bpmn", processDefinitionContent) } returns deploymentBuilder
+            every { deploymentBuilder.name("fakeFilename.bpmn") } returns deploymentBuilder
+            every { deploymentBuilder.enableDuplicateFiltering() } returns deploymentBuilder
+            every { deploymentBuilder.deploy() } returns deployment
+            return deployment
+        }
+
+        given("a BPMN file whose executable process has a name but no id") {
+            val processDefinitionContent = bpmnContent("""name="fakeProcessDefinitionName" isExecutable="true"""")
+
+            `when`("the process definition is added") {
+                val bpmnProcessDefinitionIdMissingException = shouldThrow<BpmnProcessDefinitionIdMissingException> {
+                    bpmnService.addProcessDefinition("fakeFilename.bpmn", processDefinitionContent)
+                }
+
+                then("an exception is thrown with the id missing error code and nothing is deployed") {
+                    bpmnProcessDefinitionIdMissingException.errorCode shouldBe ERROR_CODE_BPMN_PROCESS_DEFINITION_ID_MISSING
+                    bpmnProcessDefinitionIdMissingException.message shouldBe "BPMN process definition has no id"
+                    verify(exactly = 0) { repositoryService.createDeployment() }
+                }
+            }
+        }
+
+        given("a BPMN file whose executable process has a name and an empty id") {
+            val processDefinitionContent = bpmnContent("""id="" name="fakeProcessDefinitionName" isExecutable="true"""")
+
+            `when`("the process definition is added") {
+                val bpmnProcessDefinitionIdMissingException = shouldThrow<BpmnProcessDefinitionIdMissingException> {
+                    bpmnService.addProcessDefinition("fakeFilename.bpmn", processDefinitionContent)
+                }
+
+                then("an exception is thrown with the id missing error code and nothing is deployed") {
+                    bpmnProcessDefinitionIdMissingException.errorCode shouldBe ERROR_CODE_BPMN_PROCESS_DEFINITION_ID_MISSING
+                    bpmnProcessDefinitionIdMissingException.message shouldBe "BPMN process definition has no id"
+                    verify(exactly = 0) { repositoryService.createDeployment() }
+                }
+            }
+        }
+
+        given("a BPMN file whose executable process has neither an id nor a name") {
+            val processDefinitionContent = bpmnContent("""isExecutable="true"""")
+
+            `when`("the process definition is added") {
+                val bpmnProcessDefinitionIdMissingException = shouldThrow<BpmnProcessDefinitionIdMissingException> {
+                    bpmnService.addProcessDefinition("fakeFilename.bpmn", processDefinitionContent)
+                }
+
+                then("the missing id is reported and nothing is deployed") {
+                    bpmnProcessDefinitionIdMissingException.errorCode shouldBe ERROR_CODE_BPMN_PROCESS_DEFINITION_ID_MISSING
+                    verify(exactly = 0) { repositoryService.createDeployment() }
+                }
+            }
+        }
+
+        given("a BPMN file whose executable process has an id but no name") {
+            val processDefinitionContent = bpmnContent("""id="fakeProcessDefinitionKey" isExecutable="true"""")
+
+            `when`("the process definition is added") {
+                val bpmnProcessDefinitionNameMissingException = shouldThrow<BpmnProcessDefinitionNameMissingException> {
+                    bpmnService.addProcessDefinition("fakeFilename.bpmn", processDefinitionContent)
+                }
+
+                then("an exception is thrown with the name missing error code and nothing is deployed") {
+                    bpmnProcessDefinitionNameMissingException.errorCode shouldBe ERROR_CODE_BPMN_PROCESS_DEFINITION_NAME_MISSING
+                    bpmnProcessDefinitionNameMissingException.message shouldBe "BPMN process definition has no name"
+                    verify(exactly = 0) { repositoryService.createDeployment() }
+                }
+            }
+        }
+
+        given("a BPMN file whose executable process has an id and a blank name") {
+            val processDefinitionContent = bpmnContent("""id="fakeProcessDefinitionKey" name=" " isExecutable="true"""")
+
+            `when`("the process definition is added") {
+                val bpmnProcessDefinitionNameMissingException = shouldThrow<BpmnProcessDefinitionNameMissingException> {
+                    bpmnService.addProcessDefinition("fakeFilename.bpmn", processDefinitionContent)
+                }
+
+                then("an exception is thrown with the name missing error code and nothing is deployed") {
+                    bpmnProcessDefinitionNameMissingException.errorCode shouldBe ERROR_CODE_BPMN_PROCESS_DEFINITION_NAME_MISSING
+                    bpmnProcessDefinitionNameMissingException.message shouldBe "BPMN process definition has no name"
+                    verify(exactly = 0) { repositoryService.createDeployment() }
+                }
+            }
+        }
+
+        given("a BPMN file whose process has an id, no name and no isExecutable attribute") {
+            val processDefinitionContent = bpmnContent("""id="fakeProcessDefinitionKey"""")
+
+            `when`("the process definition is added") {
+                val bpmnProcessDefinitionNameMissingException = shouldThrow<BpmnProcessDefinitionNameMissingException> {
+                    bpmnService.addProcessDefinition("fakeFilename.bpmn", processDefinitionContent)
+                }
+
+                then("the process is treated as executable, the missing name is reported and nothing is deployed") {
+                    bpmnProcessDefinitionNameMissingException.errorCode shouldBe ERROR_CODE_BPMN_PROCESS_DEFINITION_NAME_MISSING
+                    verify(exactly = 0) { repositoryService.createDeployment() }
+                }
+            }
+        }
+
+        given("a BPMN file with a named executable process and a second executable process without a name") {
+            val processDefinitionContent = bpmnContent(
+                """id="fakeProcessDefinitionKey1" name="fakeProcessDefinitionName1" isExecutable="true"""",
+                """id="fakeProcessDefinitionKey2" isExecutable="true""""
+            )
+
+            `when`("the process definition is added") {
+                val bpmnProcessDefinitionNameMissingException = shouldThrow<BpmnProcessDefinitionNameMissingException> {
+                    bpmnService.addProcessDefinition("fakeFilename.bpmn", processDefinitionContent)
+                }
+
+                then("the missing name is reported and nothing is deployed") {
+                    bpmnProcessDefinitionNameMissingException.errorCode shouldBe ERROR_CODE_BPMN_PROCESS_DEFINITION_NAME_MISSING
+                    verify(exactly = 0) { repositoryService.createDeployment() }
+                }
+            }
+        }
+
+        given("a BPMN file whose executable process has an id and a name") {
+            val processDefinitionContent = bpmnContent(
+                """id="fakeProcessDefinitionKey" name="fakeProcessDefinitionName" isExecutable="true""""
+            )
+            val deployment = stubDeployment(processDefinitionContent)
+
+            `when`("the process definition is added") {
+                val result = bpmnService.addProcessDefinition("fakeFilename.bpmn", processDefinitionContent)
+
+                then("the process definition is deployed") {
+                    result shouldBe deployment
+                }
+            }
+        }
+
+        given("a BPMN file with a named executable process and a non-executable process without a name") {
+            val processDefinitionContent = bpmnContent(
+                """id="fakeProcessDefinitionKey1" name="fakeProcessDefinitionName1" isExecutable="true"""",
+                """id="fakeProcessDefinitionKey2" isExecutable="false""""
+            )
+            val deployment = stubDeployment(processDefinitionContent)
+
+            `when`("the process definition is added") {
+                val result = bpmnService.addProcessDefinition("fakeFilename.bpmn", processDefinitionContent)
+
+                then("the process definition is deployed, because only executable processes need a name") {
+                    result shouldBe deployment
+                }
+            }
+        }
+
+        given("a BPMN file with a named executable process and a second process without an id") {
+            val processDefinitionContent = bpmnContent(
+                """id="fakeProcessDefinitionKey" name="fakeProcessDefinitionName" isExecutable="true"""",
+                """name="fakeProcessDefinitionName2" isExecutable="true""""
+            )
+            val deployment = stubDeployment(processDefinitionContent)
+
+            `when`("the process definition is added") {
+                val result = bpmnService.addProcessDefinition("fakeFilename.bpmn", processDefinitionContent)
+
+                then("the process definition is deployed, because Flowable leaves out the process without an id") {
+                    result shouldBe deployment
                 }
             }
         }

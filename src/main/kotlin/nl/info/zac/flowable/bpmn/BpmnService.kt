@@ -13,12 +13,16 @@ import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ProcessEngine.BPMN
 import nl.info.zac.flowable.ZaakVariabelenService
+import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionIdMissingException
+import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNameMissingException
 import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNotFoundException
 import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionMetadata
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import org.flowable.bpmn.converter.BpmnXMLConverter
 import org.flowable.bpmn.model.ExtensionElement
 import org.flowable.bpmn.model.UserTask
+import org.flowable.common.engine.impl.util.io.StringStreamSource
 import org.flowable.engine.HistoryService
 import org.flowable.engine.ProcessEngine
 import org.flowable.engine.RepositoryService
@@ -31,6 +35,7 @@ import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
+import java.nio.charset.StandardCharsets.UTF_8
 import java.time.ZonedDateTime
 import java.time.format.DateTimeParseException
 import java.util.UUID
@@ -206,12 +211,30 @@ class BpmnService @Inject constructor(
     fun readProcessDefinitionModel(processDefinitionId: String): InputStream =
         repositoryService.getProcessModel(processDefinitionId)
 
-    fun addProcessDefinition(filename: String, processDefinitionContent: String): Deployment =
-        repositoryService.createDeployment()
+    fun addProcessDefinition(filename: String, processDefinitionContent: String): Deployment {
+        assertExecutableProcessesHaveIdAndName(processDefinitionContent)
+        return repositoryService.createDeployment()
             .addString(filename, processDefinitionContent)
             .name(filename)
             .enableDuplicateFiltering()
             .deploy()
+    }
+
+    /**
+     * Flowable's BpmnXMLConverter leaves out every process without an id, so a BPMN file whose
+     * processes all lack an id results in a model without processes.
+     */
+    private fun assertExecutableProcessesHaveIdAndName(processDefinitionContent: String) {
+        val processes = BpmnXMLConverter()
+            .convertToBpmnModel(StringStreamSource(processDefinitionContent, UTF_8), false, true)
+            .processes
+        if (processes.isEmpty()) {
+            throw BpmnProcessDefinitionIdMissingException("BPMN process definition has no id")
+        }
+        processes.firstOrNull { it.isExecutable && it.name.isNullOrBlank() }?.let {
+            throw BpmnProcessDefinitionNameMissingException("BPMN process definition with key '${it.id}' has no name")
+        }
+    }
 
     fun deleteProcessDefinition(processDefinitionKey: String) {
         repositoryService.createDeploymentQuery()
