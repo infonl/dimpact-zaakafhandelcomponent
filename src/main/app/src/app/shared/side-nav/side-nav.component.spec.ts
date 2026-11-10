@@ -349,6 +349,26 @@ describe(SideNavComponent.name, () => {
       expect(mockFn).toHaveBeenCalled();
     });
 
+    it("keeps the button and runs the new action when the menu is rebuilt with an item of the same title, so a click during a reload is not lost", async () => {
+      const staleAction = jest.fn();
+      const freshAction = jest.fn();
+      fixture.componentRef.setInput("menu", [
+        new ButtonMenuItem("test.button", staleAction, "settings"),
+      ]);
+      fixture.detectChanges();
+      const button = screen.getByRole("button", { name: "test.button" });
+
+      fixture.componentRef.setInput("menu", [
+        new ButtonMenuItem("test.button", freshAction, "settings"),
+      ]);
+      fixture.detectChanges();
+
+      expect(screen.getByRole("button", { name: "test.button" })).toBe(button);
+      await user.click(button);
+      expect(freshAction).toHaveBeenCalled();
+      expect(staleAction).not.toHaveBeenCalled();
+    });
+
     it("should not call button function when disabled", async () => {
       const mockFn = jest.fn();
       const buttonItem = new ButtonMenuItem("test.button", mockFn, "settings");
