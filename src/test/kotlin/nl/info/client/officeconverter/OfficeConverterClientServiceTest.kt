@@ -48,14 +48,18 @@ class OfficeConverterClientServiceTest : BehaviorSpec({
                     formDataMap shouldNotContainKey "file"
                 }
 
-                then("the multipart form data requests PDF/A-2b output format") {
-                    val formDataMap = multipartSlot.captured.formDataMap
-                    formDataMap shouldContainKey "pdfa"
+                then("the multipart form data requests the PDF/A-2b profile through the Gotenberg 9 'nativePdfa' field") {
+                    multipartSlot.captured.formDataMap["nativePdfa"]!!.single().entity shouldBe "PDF/A-2b"
                 }
 
-                then("the multipart form data requests a tagged PDF/UA document") {
+                then("the multipart form data requests the PDF/UA-1 profile through the Gotenberg 9 'nativePdfua' field") {
+                    multipartSlot.captured.formDataMap["nativePdfua"]!!.single().entity shouldBe "PDF/UA-1"
+                }
+
+                then("the multipart form data omits the Gotenberg 8 fields, which Gotenberg 9 rejects") {
                     val formDataMap = multipartSlot.captured.formDataMap
-                    formDataMap shouldContainKey "pdfua"
+                    formDataMap shouldNotContainKey "pdfa"
+                    formDataMap shouldNotContainKey "pdfua"
                 }
             }
         }
