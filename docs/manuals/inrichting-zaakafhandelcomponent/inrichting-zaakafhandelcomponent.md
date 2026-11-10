@@ -22,6 +22,8 @@ Versiegeschiedenis:
 | 1.16 | ZAC versie 5.9.0   |
 | 1.17 | Zaakspecifieke autorisatie |
 
+<div style="page-break-after: always"></div>
+
 # Inhoud
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
@@ -64,11 +66,15 @@ Versiegeschiedenis:
 
 
 
+<div style="page-break-after: always"></div>
+
 # Inrichting Zaakafhandelcomponent 
 
 ## Zaakafhandelcomponent
 De Zaakafhandelcomponent (ZAC) is een applicatie bedoeld voor het behandelen van zaken en managen van de werkvoorraad van zaken. De applicatie is daarmee ook gepositioneerd in de interactielaag van het 5 lagen model van Common Ground. 
 Om zaken te registreren en te behandelen maakt de applicatie gebruik van registratiecomponenten die zich in de datalaag bevinden. Een groot deel van de inrichting zal dan ook in deze componenten gebeuren, een belangrijke daarvan is de zaaktypecatalogus. Om de ZAC in gebruik te nemen en te werken met de ingerichte zaaktypecatalogus is configuratie in de ZAC noodzakelijk. Daarnaast is er een aantal instellingen in de ZAC beschikbaar om het werken met het component naar eigen wens in te richten. Alle benodigde inrichting is in deze handleiding beschreven.
+
+<div style="page-break-after: always"></div>
 
 # Inrichting Algemeen
 
@@ -117,6 +123,7 @@ Stappen:
 1. In het Beheer-instellingen menu kies je ‘Referentietabellen’
 
 ![image](images/referentietabellen1.png)
+
 2. Om een tabel toe te voegen klik je op ‘Referentietabel toevoegen’
 3. Open de tabel door op het potlood icoon te klikken
 4. Om een waarde te bewerken open je de tabel en klik je op het potlood naast de waarde. Pas de waarde in het veld aan en klik op het vink icoon om deze op te slaan. Als je wilt annuleren klik je op het kruis en blijft de oude waarde bewaard.
@@ -196,6 +203,7 @@ Stappen:
 3. Wijzig het onderwerp of het bericht. Gebruik eventueel variabelen door op het plus-icoon te klikken en ze te selecteren uit de lijst
 
 ![image](images/208075315-0b74d514-1baa-409a-883d-2891a81b2d55.png)
+
 4. Klik op ‘Opslaan’ om de wijziging door te voeren
 
 #### Mailtemplate aanmaken
@@ -875,6 +883,8 @@ Zolang het onderliggende proces of de zaakbehandeling nog actief is, heet deze a
 
 2 Bekijk de zaakdata in het geopende paneel
 
+<div style="page-break-after: always"></div>
+
 # Inrichting zaakafhandel parameters (zaaktype)
 
 ## Inrichten van een zaaktype
@@ -893,6 +903,7 @@ Afhankelijk van het soort zaaktype BPMN of CMMN krijg je een aantal stappen die 
 Bij een volledig nieuw zaaktype kies je hier of het een BPMN- of CMMN-zaaktype afhandelconfiguratie moet krijgen.
 
 ![Zaakafhandelparameters CMMN](images/zaps_cmmn.png)
+
 Nadat je een keuze hebt gemaakt worden de bijbehorende tabbladen zichtbaar.
 ###### CMMN
 
@@ -962,6 +973,7 @@ Het volgende tabblad is ‘Mailgegevens’. Tijdens de zaakbehandeling gebruikt 
 **Mailtemplates** Iedere e-mail heeft een eigen template dat de standaard inhoud van het bericht en het onderwerp bepaalt. In dit overzicht stel je in welke e-mail welke mailtemplate gebruikt. Iedere e-mail heeft een standaard mailtemplate. Om deze te bekijken of te bewerken kun je later naar de menukeuze ‘Mailtemplates’ gaan. Het is ook mogelijk om zelf een mailtemplate aan te maken en deze in een van de e-mails te gebruiken. Na het aanmaken van de template kan deze in de lijst bij de instelling ‘mailtemplate’ gekozen worden. Open een e-mail door er op te klikken en stel bij iedere e-mail het gewenste template in.
 
 ![image](images/zaps_mailgegevens-2.png)
+
 **Automatische ontvangsbevestiging** Als een zaak wordt aangemaakt via SmartDocuments waar een mailadres van de aanvrager bij is ingevuld kan hiervoor een automatische ontvangstbevestiging worden verstuurd vanuit ZAC. Op deze plek kan dit aan of uit worden gezet en gekozen worden voor:
 
 - De mailtemplate
@@ -1020,6 +1032,8 @@ Klik op ‘Opslaan’ om de zaps voor het zaaktype te bewaren. Het zaaktype is h
 
 **LET OP: het kan tot 5 minuten duren voordat gewijzigde sjabloongroepnamen of sjabloonnamen in ZAC zichtbaar zijn.**
 
+<div style="page-break-after: always"></div>
+
 # Inrichting in OpenZaak - voor functionaliteiten in ZAC
 
 ## Procestermijnen
@@ -1062,6 +1076,7 @@ In Open Zaak kunnen bij een resultaattype onderstaande afhandelwijzes worden gek
 Bij deze afhandelwijze wordt bij het afhandelen van de zaak aan de behandelaar gevraagd om een brondatum in te vullen. Het veld `Datumkenmerk` wordt gevuld met de eigenschapsnaam van de hieronder toe te voegen eigenschap.
 
 ![image](images/open_zaak_bepaling_brondatum_archiefprocedure_eigenschap.png)
+
 Om dit in Open Zaak in te richten, moet er aan het zaaktype een eigenschap worden toegevoegd:
 
 ![image](images/open_zaak_eigenschap_toevoegen.png)

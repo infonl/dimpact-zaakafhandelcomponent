@@ -46,6 +46,9 @@ ${githubMarkdownCss}
 .markdown-body table { display: table; width: 100%; }
 .markdown-body tr, .markdown-body blockquote { page-break-inside: avoid; }
 .markdown-body h1, .markdown-body h2, .markdown-body h3 { page-break-after: avoid; }
+.markdown-body #inhoud + ul > li { margin-top: 8px; font-size: 15px; font-weight: 600; }
+.markdown-body #inhoud + ul > li > ul { font-size: 13px; font-weight: normal; }
+.markdown-body #inhoud + ul > li > ul > li > ul, .markdown-body h3 { font-style: italic; }
 </style>
 </head>
 <body class="markdown-body">${body}</body>
