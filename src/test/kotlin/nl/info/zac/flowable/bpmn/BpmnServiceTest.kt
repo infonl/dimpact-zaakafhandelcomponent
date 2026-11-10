@@ -25,12 +25,12 @@ import nl.info.test.org.flowable.engine.repository.createProcessDefinition
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ProcessEngine.BPMN
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_BPMN_PROCESS_DEFINITION_ID_MISSING
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_BPMN_PROCESS_DEFINITION_NAME_MISSING
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_OMSCHRIJVING
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_UUID
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_IDENTIFICATIE
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_BPMN_PROCESS_DEFINITION_ID_MISSING
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_BPMN_PROCESS_DEFINITION_NAME_MISSING
 import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionIdMissingException
 import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNameMissingException
 import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNotFoundException
