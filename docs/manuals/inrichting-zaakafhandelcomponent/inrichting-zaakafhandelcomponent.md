@@ -91,6 +91,7 @@ Stappen:
 1. In het Beheer-instellingen menu kies je ‘Groepsignalering-instellingen’
 2. Kies de groep uit de keuzelijst die je wilt instellen
 3. Schakel een signalering per e-mail in door deze aan te vinken
+
 ![image](images/208075964-091b65fc-96f5-4351-be74-2aa0eb28b13b.png)
 
 ### Referentietabellen
@@ -114,13 +115,16 @@ ZAC kent de volgende systeemreferentietabellen:
 Een systeem- of zelf toegevoegde referentietabel kan als volgt bewerkt worden.
 Stappen:
 1. In het Beheer-instellingen menu kies je ‘Referentietabellen’
+
 ![image](images/referentietabellen1.png)
 2. Om een tabel toe te voegen klik je op ‘Referentietabel toevoegen’
 3. Open de tabel door op het potlood icoon te klikken
 4. Om een waarde te bewerken open je de tabel en klik je op het potlood naast de waarde. Pas de waarde in het veld aan en klik op het vink icoon om deze op te slaan. Als je wilt annuleren klik je op het kruis en blijft de oude waarde bewaard.
+
 ![image](images/referentietabellen2.png)
 
 5. Om een waarde aan de tabel toe te voegen open je de tabel en klik op ‘Waarde toevoegen’. Een dialoog verschijnt. Voer hier de nieuwe waarde in en klik op de knop 'Opslaan'. De dialoog kan gesloten worden door met knop 'Annuleer' of het kruis-icoon rechts bovenin de dialoog.
+
 ![image](images/referentietabellen3.png)
 
 6. Om een tabel of waarde te verwijderen klik je in aan het eind van respectievelijke regel op het prullenbakicoon. Dan verschijnt er een 'Bevestig' dialoog. Als een prullenbakicoon grijs van kleur is betreft het een systeemtabel of systeemwaarde die niet verwijderd kan worden.
@@ -190,6 +194,7 @@ Stappen:
 1. In het Beheer-instellingen menu kies je ‘Mailtemplates’
 2. Open de template door op het oog icoon te klikken
 3. Wijzig het onderwerp of het bericht. Gebruik eventueel variabelen door op het plus-icoon te klikken en ze te selecteren uit de lijst
+
 ![image](images/208075315-0b74d514-1baa-409a-883d-2891a81b2d55.png)
 4. Klik op ‘Opslaan’ om de wijziging door te voeren
 
@@ -214,6 +219,7 @@ Bij het openen van de zaps worden alle zaaktypen uit de zaaktypecatalogus getoon
 ### BPMN-procesdefinities
 
 Voor het inrichten van BPMN-zaaktypes zijn verschillende definities nodig. Deze zijn toe te voegen via het beheerinstellingen menu.
+
 ![image](images/zaps_BPMN_definities.png)
 
 - BPMN-procesdefinities - hier kunnen de met bijvoorbeeld Flowable aangemaakte proces definities toegevoegd worden. Deze zijn dan in de gegevens tab van de zaakafhandeldefinitie te kiezen.
@@ -222,10 +228,12 @@ Voor het inrichten van BPMN-zaaktypes zijn verschillende definities nodig. Deze 
 Als een procesdefinitie eenmaal gebruikt is kan deze niet meer worden verwijderd.
 
 Als een procesdefinitie niet goed is geconfigureerd is dit zichtbaar door middel van een rode cirkel met uitroepteken en is bij het openklappen zichtbaar wat het probleem is.
+
 ![image](images/zaps_BPMN_definities_2.png)
 
 ### Inrichtingscheck
 Dit onderdeel is bedoeld als hulpmiddel om de inrichting van een zaaktype in zowel de ZAC als de zaaktypecatalogus te controleren op minimaal benodigde inrichting.
+
 ![Inrichtingscheck](images/beheer_instellingen_inrchtingscheck.png)
 
 #### Zaaktype inrichtingscheck
@@ -246,6 +254,7 @@ Voor nu worden de volgende onderdelen gecheckt:
 ZAC zoekt naar een roltype met behulp van één van deze velden:
 - Omschrijving generiek | een set vooraf gedefinieerde waarden
 - Omschrijving | beschrijving van de roltype
+
 ![OpenZaak roltype velden](images/90beb6d0-8b0e-4462-9f86-5cae079e602f.png)
 
 ZAC zoekt eerst in `Omschrijving` en daarna in `Omschrijving generiek`. Als voor een roltype zowel het `Omschrijving` als het `Omschrijving generiek` veld gevuld is dan wordt het `Omschrijving` veld gebruikt.
@@ -678,14 +687,17 @@ Een zaaktype is zaakspecifiek autoriseerbaar als het zaaktype in de zaaktypecata
   - Omschrijving generiek: `Behandelaar`
 
 Om in Open Zaak het `ZAAK_GEAUTORISEERD` eigenschap te kunnen zetten op een zaak, moet er eerst een 'eigenschap specificatie' worden aangemaakt in de zaaktypecatalogus:
+
 ![Open Zaak - 'ZAAK_GEAUTORISEERD' eigenschap specificatie](images/open-zaak-boolean-eigenschap-specificatie.png)
 
 Vervolgens moet er in Open Zaak voor zaaktypes die zaakspecifiek geautoriseerd moeten kunnen worden, een zaaktype eigenschap met eigenschapsnaam `ZAAK_GEAUTORISEERD` worden toegevoegd. 
 Deze moet gelinkt worden aan de eerder aangemaakte eigenschap specificatie. 
 Gebruik als definitie: `Zaakspecifiek geautoriseerd` en als toelichting: `Bepaalt of een zaak zaakspecifiek geautoriseerd is.`
+
 ![Open Zaak - 'ZAAK_GEAUTORISEERD' zaaktype eigenschap](images/open-zaak-zaak-geautoriseerd-zaaktype-eigenschap.png)
 
 In Open Zaak ziet het `Zaakspecifiek geautoriseerde medewerker` roltype er als volgt uit:
+
 ![Open Zaak - 'Zaakspecifiek geautoriseerde medewerker' roltype](images/open-zaak-zaakspecifiek-roltype.png)
 
 ZAC gebruikt het roltype voor de medewerkers die toegang houden tot de zaak, zoals de vorige behandelaar.
@@ -867,6 +879,7 @@ Zolang het onderliggende proces of de zaakbehandeling nog actief is, heet deze a
 
 ## Inrichten van een zaaktype
 Om de zaps te benaderen ga je door op het radar icoon te klikken naar de Beheer-instellingen. Open in het menu de ‘Zaakafhandelparameters’. Alle zaaktypen worden opgehaald en het overzicht wordt geopend. Het is mogelijk om in dit overzicht te filteren en sorteren.
+
 ![image](images/207916618-434d6cbc-d8f1-4522-aeec-7556d11b8e27.png)
 
 !Klik op het bolletje links van het zaaktype kolom om snel te filteren op ongeldig, alle en niet geldig. Standaard staat dit op geldig!
@@ -878,11 +891,14 @@ Afhankelijk van het soort zaaktype BPMN of CMMN krijg je een aantal stappen die 
 
 ### CMMN/BPMN
 Bij een volledig nieuw zaaktype kies je hier of het een BPMN- of CMMN-zaaktype afhandelconfiguratie moet krijgen.
+
 ![Zaakafhandelparameters CMMN](images/zaps_cmmn.png)
 Nadat je een keuze hebt gemaakt worden de bijbehorende tabbladen zichtbaar.
 ###### CMMN
+
 ![Zaakafhandelparameters CMMN](images/zaps_cmmn_cmmn.png)
 ###### BPMN
+
 ![Zaakafhandelparameters BPMN](images/zaps_cmmn_bpmn.png)
 
 
@@ -893,6 +909,7 @@ Na de keuze van een BPMN-zaaktype krijg je het "Gegevens" veld met de volgende i
 - Groep (v) |  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
 - Behandelaar |  de behandelaar die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de behandelaar waar een nieuwe zaak initieel op gezet wordt
 - Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden.
+
 ![Zaakafhandelparameters gegevens BPMN](images/zaps_gegevens_bpmn.png)
 
 Na de keuze van een CMMN-zaaktype krijg je het volgende "Gegevens" veld met de volgende invulvelden:
@@ -909,10 +926,12 @@ Na de keuze van een CMMN-zaaktype krijg je het volgende "Gegevens" veld met de v
   - wanneer de signalering ‘Mijn zaak nadert de fatale datum’ wordt verstuurd
   - wanneer een zaak in de dashboardkaart ‘Mijn binnenkort verlopende zaken’ verschijnt
 - Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden.
+
 ![image](images/zaps_gegevens.png)
 
 ### Taakgegevens
 Hier worden alle beschikbare taken van het CMMN-model getoond. Standaard staan alle taken aan, maar het is mogelijk om een taak via het schuifje uit te zetten waardoor deze tijdens de zaakbehandeling niet beschikbaar is.
+
 ![image](images/zaps_taakgegevens.png)
  
 Klik op een taak om de instellingen te openen. Iedere taak heeft standaard 3 instellingen:
@@ -920,10 +939,12 @@ Klik op een taak om de instellingen te openen. Iedere taak heeft standaard 3 ins
 - Groep | de groep die standaard bij taaktoewijzing wordt ingevuld als een gebruiker de taak start
 - Doorlooptijd | bepaalt de fatale datum van de taak
 In sommige taakbehandelformulieren komen keuzelijsten voor waarvan de opties via een referentietabel aangepast kunnen worden. Welke referentietabel in dat taakbehandelformulier gebruikt wordt is dan te zien bij de instelling ‘Referentietabel voor ...’. Om de opties aan te passen kun je later naar de menukeuze ‘Referentietabellen’ gaan en daar de juiste tabel te kiezen, dit wordt elders in deze handleiding omschreven. Het is ook mogelijk om zelf een referentietabel aan te maken en deze in het taakbehandelformulier te gebruiken. Na het aanmaken van de tabel kan deze in de lijst bij de instelling ‘Referentietabel voor ...’ gekozen worden.
+
 ![image](images/zaps_advies_intern.png)
 
 ### Actiegegevens
 Bij de acties waarmee een gebruiker een fase afrondt is het mogelijk om een toelichting te tonen, denk aan een herinnering aan een belangrijke handeling die in die fase moet zijn uitgevoerd. Klik op een fase om de toelichting in het veld in te vullen.
+
 ![image](images/zaps_actiegegevens.png)
 
 ### Mailgegevens
@@ -939,6 +960,7 @@ Het volgende tabblad is ‘Mailgegevens’. Tijdens de zaakbehandeling gebruikt 
 - Stel de lijst van mogelijke mailafzenders op en kies de 'Antwoord aan' bij iedere mailafzender. Selecteer daarna welke mailafzender als default wordt getoond aan de behandelaar.
 
 **Mailtemplates** Iedere e-mail heeft een eigen template dat de standaard inhoud van het bericht en het onderwerp bepaalt. In dit overzicht stel je in welke e-mail welke mailtemplate gebruikt. Iedere e-mail heeft een standaard mailtemplate. Om deze te bekijken of te bewerken kun je later naar de menukeuze ‘Mailtemplates’ gaan. Het is ook mogelijk om zelf een mailtemplate aan te maken en deze in een van de e-mails te gebruiken. Na het aanmaken van de template kan deze in de lijst bij de instelling ‘mailtemplate’ gekozen worden. Open een e-mail door er op te klikken en stel bij iedere e-mail het gewenste template in.
+
 ![image](images/zaps_mailgegevens-2.png)
 **Automatische ontvangsbevestiging** Als een zaak wordt aangemaakt via SmartDocuments waar een mailadres van de aanvrager bij is ingevuld kan hiervoor een automatische ontvangstbevestiging worden verstuurd vanuit ZAC. Op deze plek kan dit aan of uit worden gezet en gekozen worden voor:
 
@@ -952,6 +974,7 @@ In dit tabblad kan voor een aantal situaties waarin de zaak wordt beëindigd het
 - Verzoek is bij verkeerde organisatie ingediend | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt. 
 - Verzoek is door initiator ingetrokken | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
 - Zaak is een duplicaat | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
+
     ![image](images/zaps_zaakgegevens_gegevens.png)
 
 ### Koppelingen
@@ -1050,6 +1073,7 @@ Bij het veld `Specificatie van de eigenschap` kies je de waarde `datum`. Als dez
 ![image](images/open_zaak_eigenschap_specificatie_toevoegen.png)
 
 Voorbeeldscherm voor de behandelaar:
+
 ![image](images/zac_afhandelen_zaak_brondatum_eigenschap.png)
 
 #### Afhandelwijze brondatum - Ingangsdatum besluit
