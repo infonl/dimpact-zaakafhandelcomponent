@@ -446,7 +446,7 @@ Then(
 
 Then(
   "{string} sees group {string} and user {string} in the zaak data",
-  { timeout: INFLATED_STEP_TIMEOUT_IN_MS },
+  { timeout: FORTY_SECONDS_IN_MS },
   async function (
     this: CustomWorld,
     user: z.infer<typeof worldUsers>,
@@ -455,26 +455,17 @@ Then(
   ) {
     const group = Object.values(groups).find(({ name }) => name === groupName);
     expect(group, `Unknown group "${groupName}"`).toBeDefined();
-    const closeButton = this.page.locator("mat-toolbar button mat-icon", {
-      hasText: "close",
-    });
+    await this.page.getByRole("button", { name: "Zaakdata" }).click();
+    await expect(
+      this.page.getByRole("textbox", { name: "zaakGroep" }),
+    ).toHaveValue(group!.id, { timeout: TEN_SECONDS_IN_MS });
+    await expect(
+      this.page.getByRole("textbox", { name: "zaakBehandelaar" }),
+    ).toHaveValue(userName, { timeout: TEN_SECONDS_IN_MS });
 
-    // ZAC redraws the zaak page on a websocket event after the assignment, which can
-    // swallow the click on Zaakdata, and zaakBehandelaar is written slightly after
-    // zaakGroep. Opening the panel only reads data, so every attempt starts from a
-    // freshly loaded page.
-    await expect(async () => {
-      await this.page.reload();
-      await this.page.getByRole("button", { name: "Zaakdata" }).click();
-      await expect(
-        this.page.getByRole("textbox", { name: "zaakGroep" }),
-      ).toHaveValue(group!.id, { timeout: TEN_SECONDS_IN_MS });
-      await expect(
-        this.page.getByRole("textbox", { name: "zaakBehandelaar" }),
-      ).toHaveValue(userName, { timeout: TEN_SECONDS_IN_MS });
-    }).toPass({ timeout: ONE_MINUTE_IN_MS });
-
-    await closeButton.click();
+    await this.page
+      .locator("mat-toolbar button mat-icon", { hasText: "close" })
+      .click();
   },
 );
 
