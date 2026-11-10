@@ -169,15 +169,19 @@ De behandeling van zaken wordt voor een deel bepaald door parameters die in de Z
 ## Indeling van ZAC
 
 Na het inloggen wordt standaard het persoonlijke dashboard van de gebruiker geopend. Vanuit het dashboard kan een zaak of een taak geopend worden.
+
 ![Indeling van ZAC](./images/Indeling-van-de-ZAC.png)
 
 Een andere manier om een zaak, taak of document te openen is vanuit een werklijst. Alle werklijsten zijn vanuit de blauwe werkbalk bovenin te openen.
+
 ![Openen vanuit de werklijst](./images/openen-vanuit-werklijst.png)
 
 Het is ook mogelijk om vanuit de zoekfunctie een zaak, taak of document te openen. Deze functie bevindt zich rechts in de werkbalk.
+
 ![Openen vanuit de zoekfunctie](./images/openen-vanuit-zoekfunctie.png)
 
 Om naar het dashboard te gaan kan de thuis knop links in de werkbalk gebruikt worden.
+
 ![Dashboard openen](./images/dashboard-openen.png)
 
 Zodra een werklijst, zaak, taak of document geopend is, dan verschijnt deze in het hoofdscherm. Later in deze handleiding wordt de hoofdindeling van een zaak en de werking van de werklijsten, een zaak, een taak en een document verder beschreven.
@@ -251,11 +255,13 @@ Het aantal items dat per pagina getoond wordt is ook door de gebruiker in te ste
 Alle werklijsten worden gegenereerd op basis van indexering.
 
 De werklijsten zijn vanuit de werkbalk te openen.
+
 ![Werking van werklijst](./images/werking-van-werklijst.png)
 
 ## Gegevenskolommen aanpassen
 
 Een gebruiker kan per werklijst instellen welke kolommen worden weergegeven door in een werklijst rechtsboven op het kolommen icoon te klikken. De kolommen kunnen van plek gewisseld worden door de kolomkop te slepen met de muisaanwijzer. Om de werklijst weer terug naar de standaardindeling te zetten kan het ronde pijl icoon gebruikt worden. De aangepaste kolommen blijven tijdens de browsersessie onthouden, bij het sluiten van de browser worden ze terug naar de standaardindeling gezet.
+
 ![Gegevenskolommen aanpassen](./images/gegevenskolommen-aanpassen.png)
 
 
@@ -264,14 +270,17 @@ Een gebruiker kan per werklijst instellen welke kolommen worden weergegeven door
 In alle werklijsten zijn er sorteer- en filteropties beschikbaar op de verschillende gegevenskolommen. De verschillende opties kunnen in combinatie met elkaar gebruikt worden om zo een gewenst overzicht te maken.
 
 Een gebruiker kan door op de kolomnaam te klikken in het geopende overzicht sorteren op basis van de gegevens in een kolom. Door nog een keer op de kolomnaam te klikken wordt de andere kant op gesorteerd, bij de derde keer kom je weer terug bij de standaard sortering.
+
 ![Sorteren](./images/filteren-en-sorteren-1.png)
 
 Een gebruiker kan filters op meerdere gegevenskolommen toepassen. Door te klikken op het vergrootglas in de kolomkop kan gefilterd worden op trefwoorden, met de keuzelijst kan gefilterd worden op één keuze en door te klikken op de kalender kan een datumbereik worden ingevuld.
 
 Zodra er een filter is toegepast dan wordt het trechter icoon naast de filters gevuld. Door op dit icoon te klikken kunnen alle toegepaste filters gewist worden.
+
 ![Filter wissen](./images/filteren-en-sorteren-2.png)
 
 Een gebruiker heeft ook de mogelijkheid om een zoekopdracht te bewaren door met het ster-icoon de toegepaste sortering en filters als zoekopdracht op te slaan. Door in een ongefilterd overzicht op het trechter icoon te klikken kan een bewaarde zoekopdracht worden geopend. Een zoekopdracht kan met een klik op de prullenbak worden gewist.
+
 ![Zoekopdracht bewaren](./images/filteren-en-sorteren-3.png)
 
 Door te klikken op het oog icoon kan een item geopend worden, Ctrl + oog icoon opent het item in een nieuw tabblad.
@@ -346,11 +355,13 @@ Als de Zaken-werkvoorraad of Taken-werkvoorraad geopend is dan kan de verdeelfun
 1 Open de Zaken-werkvoorraad of Taken-werkvoorraad
 
 2 Selecteer minimaal één item om te verdelen door deze links aan te vinken
+
 ![Selecteer minimaal een item](./images/selecteer-minimaal-een-item.png)
 
 3 Klik op 'Verdelen' onderaan het scherm
 
 4 Kies de groep en/of de behandelaar aan wie de items toegekend moeten worden. Er kan alleen een behandelaar gekozen worden die bij de gekozen groep hoort.
+
 ![Kies groep en / of behandelaar](./images/kies-groep-en-of-behandelaar.png)
 > De telling in de verdelen of vrijgeven keuzekoppen geven een realistisch getal van de te verdelen of vrij te geven zaken of taken.
 
@@ -387,6 +398,7 @@ Met de 'Vrijgeven' knop kan een item van de behandelaar afgehaald worden. Deze f
 Iedere gebruiker van ZAC heeft een persoonlijk dashboard tot beschikking. In dit dashboard kan een gebruiker de gegevens over de zaken in de ZAC naar eigen wens en belang in één overzicht organiseren. Dit gebeurt aan de hand van kaarten. In iedere kaart worden gegevens van een bepaalde soort die voor de gebruiker belangrijk zijn in een compact overzicht getoond.
 
 Het dashboard wordt geopend via de thuis knop in de werkbalk. Het dashboard is ook het standaard beginscherm na het inloggen in de ZAC.
+
 ![Dashboard](./images/dashboard.png)
 
 >Een rood bolletje op de thuis knop geeft aan dat er een nieuw item in een van de signaleringskaarten is!
@@ -398,9 +410,11 @@ Er zijn twee soorten kaarten: compacte weergaven van werklijsten en overzichten 
 ### Werklijstkaarten
 
 Aan mij toegewezen zaken: een compacte weergave van de werklijst ‘Mijn zaken’.
+
 ![Mijn zaken](./images/mijn-zaken.png)
 
 Aan mij toegewezen taken: een compacte weergave van de werklijst ‘Mijn taken’
+
 ![Mijn taken](./images/mijn-taken.png)
 
 ### Signaleringskaarten
@@ -408,14 +422,17 @@ Aan mij toegewezen taken: een compacte weergave van de werklijst ‘Mijn taken�
 **Recent aan mij toegewezen zaken**
 
 Een zaak verschijnt in deze kaart als die nieuw op jouw naam wordt gezet. De zaak blijft in de kaart staan totdat deze geopend is, de zaak verdwijnt dus ook als je deze vanuit een werklijst of de zoekfunctie opent.
+
 ![Recent aan mij toegewezen zaken](./images/recent-aan-mij-toegewezen-zaken.png)
 
 **Mijn zaken met recent toegevoegde documenten**  
 Een zaak verschijnt in deze kaart als er door een andere gebruiker een nieuw document aan wordt toegevoegd. De zaak blijft staan totdat de zaak of het document zelf geopend is, de zaak verdwijnt dus ook als je deze vanuit een werklijst of de zoekfunctie opent.
+
 ![Recent aan mij toegewezen documenten](./images/recent-aan-mij-toegewezen-documenten.png)
 
 **Mijn binnenkort verlopende zaken**  
 Een zaak verschijnt in deze kaart als de streef- of fatale datum binnen het voor dat zaaktype geldende aantal kalenderdagen wordt bereikt.
+
 ![Binnenkort verlopende zaken](./images/binnenkort-verlopende-zaken.png)
 
 >De gele driehoek geeft aan dat de streefdatum is bereikt!
@@ -424,19 +441,23 @@ Een zaak verschijnt in deze kaart als de streef- of fatale datum binnen het voor
 **Recent aan mij toegewezen taken**
 
 Een taak verschijnt in deze kaart als deze door een andere gebruiker op jouw naam wordt gezet. De taak blijft in de kaart staan totdat deze geopend is, de taak verdwijnt dus ook als je deze vanuit een werklijst of de zoekfunctie opent.
+
 ![Recent aan mij toegewezen taken](./images/recent-aan-mij-toegewezen-taken.png)
 
 ## Dashboard instellen
 
 Om je dashboard in te stellen klik je in het dashboard op het schuifje ‘Pas uw dashboard aan’ om de bewerkingsmodus te activeren. 
+
 ![Pas uw dashboard aan](./images/pas-uw-dashboard-aan.png)
 
 Het is in het dashboard mogelijk om met drie kolommen te werken waarin kaarten geplaatst kunnen worden. In de bewerkingsmodus kunnen de kaarten tussen de kolommen verschoven worden. Waarna bij het terugschakelen naar de gebruiksmodus de kaarten automatisch over de beschikbare ruimte van de gehele pagina verdeeld worden.
 
 Klik op het Dashboardcard toevoegen icoon om de beschikbare kaarten te zien. Door op een kaart te klikken wordt deze aan het dashboard toegevoegd. Kaarten die op het dashboard staan kunnen verwijderd worden door op het kruis in de kaart te klikken.
+
 ![Verwijder dashboardkaart](./images/verwijder-dashboardkaart.png)
 
 Om een kaart van plek te verwisselen kan je deze verschuiven door deze met het cursor-handje op te pakken en te verplaatsen naar de gewenste plek. De kaart kan op een plek geplaatst worden als het aanwijsvlak verschijnt.
+
 ![Verwisselen dashboardkaart](./images/verwisselen-dashboardkaart.png)
 
 Als je klaar bent met aanpassen dan sluit je het schuifje weer om de aanpassingen vast te zetten
@@ -454,6 +475,7 @@ Een nieuwe zaak starten kan door op de ‘Zaak aanmaken’ map icoon boven in de
 
 
 1 Klik op de ‘Zaak aanmaken’ knop in de werkbalk
+
 ![Zaak aanmaken](./images/zaak-aanmaken.png)
 
 2 Voeg eventueel direct de initiator toe. Een initiator zoeken kan door in het initiatorveld op het poppetje icoon te klikken. Vervolgens kan bovenin gekozen worden voor een persoon of bedrijf.
@@ -495,6 +517,7 @@ Nadat een zaaktype voor de nieuwe zaak gekozen is wordt de standaard groep die d
 ## Overzicht
 
 Een zaak bevat vaak verschillende gegevens zoals documenten, taken, notities en betrokkenen. Als een zaak in de ZAC geopend is dan zijn de diverse gegevens als volgt ingedeeld.
+
 ![Zaak overzicht](./images/zaak-overzicht.png)
 
 >**A** Zaakgegevens | Dit blok bestaat uit meerdere tabbladen. De tab ‘Gegevens’ bevat de belangrijkste kenmerken van de zaak. In het tabblad ‘Historie’ zijn alle wijzigingen die bij de zaak zijn aangebracht te vinden. De tabbladen ‘Betrokkenen’, ‘Gerelateerde zaken’ en ‘BAG-objecten’ zijn alleen aanwezig als aan een zaak een betrokkene, gerelateerde zaak of een BAG-object is toegevoegd.
@@ -510,6 +533,7 @@ Een zaak bevat vaak verschillende gegevens zoals documenten, taken, notities en 
 De zaakgegevens hebben in sommige gevallen een aanpassing nodig, bijvoorbeeld als de omschrijving moet worden aangepast.
 
 De datums, de groep, de behandelaar, het communicatiekanaal, de vertwouwelijkheidsaanduiding,de omschrijving en de toelichting van een zaak zijn als geheel aan te passen door op het potlood te drukken. Als het streefdatum-veld leeg is, dan betekent dit dat voor een zaak van dit zaaktype niet met een streefdatum wordt gewerkt. Een zaak heeft wel altijd een fatale datum.
+
 ![Zaakgegevens bewerken](./images/zaakgegevens-bewerken.png)
 
 **Stappen**
@@ -683,6 +707,7 @@ Met het menu item 'Locatie koppelen' is het mogelijk om een locatie bij een zaak
 2 Vul de verplichte reden voor het vastleggen van de locatie in
 
 3 Klik op ‘Opslaan’ om de locatie te koppelen
+
 ![Locatie koppelen](./images/locatie-vastleggen-wijzigen-1.png)
 
 ## Locatie wijzigen
@@ -690,6 +715,7 @@ Met het menu item 'Locatie koppelen' is het mogelijk om een locatie bij een zaak
 **Stappen**
 
 1 In de tab 'Locatie' kan je de locatie bekijken en aanpassen door op het potloodje te klikken. Hiermee opent weer hetzelfde formulier als bij 'Locatie koppelen'
+
 ![Locatie wijzigen ](./images/locatie-vastleggen-wijzigen-2.png)
 
 2 Kies de nieuwe locatie en vul het verplichte reden-veld in
@@ -707,6 +733,7 @@ Het is ook mogelijk een locatie te ontkoppelen.
 2 Vul de verplichte reden voor het ontkoppelen van de locatie in
 
 3 Klik op ‘Opslaan’ om de locatie te ontkoppelen
+
 ![Locatie verwijderen](./images/locatie-verwijderen.png)
 
 ## Zaak opschorten
@@ -716,6 +743,7 @@ Als de streef- en fatale datum van een zaak aanwezig zijn, kunnen deze eenmalig 
 Merk op: een zaak kan ook opgeschort worden via het starten van de ‘Aanvullende informatie opvragen’ taak, als niet eerder een opschortingsactie is uitgevoerd.
 
 De zaak opschorten-knop bevindt zich in het linker menu onder Actie en is herkenbaar aan het pauze knop icooen.
+
 ![Zaak opschorten](./images/zaak-opschorten.png)
 
 **Stappen:**
@@ -723,6 +751,7 @@ De zaak opschorten-knop bevindt zich in het linker menu onder Actie en is herken
 1 In een zaak in het linker menu onder Actie ga naar Zaak opschorten en klik hier op.
 
 2 Vul de opschortduur in kalenderdagen in óf kies de nieuwe streef- en/of fatale datum die de zaak moet krijgen. Als een van de velden wordt ingevuld dan berekent het systeem automatisch de waarde van de andere.
+
 ![Opschortduur](./images/opschortduur.png)
 
 3 Vul het verplichte reden veld in en Klik op ‘Zaak opschorten’ om de opschorting door te voeren
@@ -730,6 +759,7 @@ De zaak opschorten-knop bevindt zich in het linker menu onder Actie en is herken
 Een opgeschorte zaak kan door een behandelaar hervat worden vanaf dezelfde plek in het linker menu onder Actie als Zaak opschorten, met Zaak hervatten. Een opgeschorte zaak is te herkennen aan een indicatie en aan het pauze icoon dat bij het datumblok zichtbaar is en aangeeft dat de zaak ‘gepauzeerd’ is. De verwachte duur van de opschorting wordt ook aangegeven onder de startdatum.
 
 Merk op: een zaak kan ook hervat worden bij het afronden van de ‘Aanvullende informatie opvragen’ taak. Nadat de hervatting is uitgevoerd dan wordt de daadwerkelijke duur van de opschorting berekend en opgeteld bij de oorspronkelijke fatale datum.
+
 ![Zaak hervatten](./images/zaak-hervatten.png)
 
 **Stappen:**
@@ -747,6 +777,7 @@ Merk op: een zaak kan ook hervat worden bij het afronden van de ‘Aanvullende i
 Als de streef- en fatale datum van een zaak aanwezig zijn, kunnen deze eenmalig vanuit de zaakgegevenspagina verlengd worden. De behandelaar kan zelf de duur (in kalenderdagen) van de verlenging invullen waarmee het systeem de nieuwe streef- en fatale datum berekent. De maximaal toegestane duur van de verlenging is afhankelijk van het zaaktype.
 
 De Zaak verlengen knop bevindt zichin het linker menu onder Actie en is herkenbaar aan het klok icoon met de pijl eromheen.
+
 ![Zaak verlengen](./images/zaak-verlengen.png)
 
 **Stappen:**
@@ -756,6 +787,7 @@ De Zaak verlengen knop bevindt zichin het linker menu onder Actie en is herkenba
 2 Vul de verlengingsduur in kalenderdagen in óf kies de nieuwe streef- en/of fatale datum die de zaak moet krijgen. Als een van de velden wordt ingevuld dan berekent het systeem automatisch de waarde van de andere. De maximale verlengduur is per zaaktype ingesteld en kan niet overschreden worden, deze is aangegeven onder het Verlengduur veld.
 
 3 Geef aan of de streefdatum van de openstaande taken ook verlengd moeten worden
+
 ![Streefdatum ook verlengen](./images/streefdatum-ook-verlengen.png)
 
 4 Klik op ‘Zaak verlengen’ om de verlenging door te voeren
@@ -774,6 +806,7 @@ De 'Brondatum zetten' knop bevindt zich in dat geval in het linker menu onder Ac
 1 Kies in een zaak in het linker menu onder Actie voor 'Brondatum zetten'.
 
 2 Vul de brondatum in:
+
 ![Brondatum zetten](./images/brondatum-zetten.png)
 
 Het getoonde label voor de datum komt overeen met de waarde van het veld 'Definitie' van de gekoppelde eigenschap bij het zaaktype.
@@ -785,6 +818,7 @@ Het getoonde label voor de datum komt overeen met de waarde van het veld 'Defini
 Een zaak is te behandelen met behulp van de verdere acties die onder Zaak in het linker menu beschikbaar zijn. Een groot deel van de acties zijn standaard en altijd beschikbaar. Per fase van het afhandelproces is een aantal extra acties beschikbaar, dit zijn met name de taken, te vinden onder Taak starten in het linker menu.
 
 Het afhandelproces bestaat uit twee fases, in het volgende schema zijn de taken en acties die in de fases te gebruiken zijn te zien. Een actie die niet in een fase zit is altijd beschikbaar.
+
 ![Generiek afhandelproces](./images/generiek-afhandelproces.png)
 
 ### Ontvangstbevestiging sturen
@@ -894,6 +928,7 @@ In de lijst van te verzenden documenten staan alleen documenten die:
 5 Klik op ‘Verzenden’
 
 Nadat de actie is afgerond is het document voorzien van een ‘is verzonden’ indicatie.
+
 ![Document verzenden](./images/document-verzenden.png)
 
 >Zweef met de muis over de indicatie om de verzenddatum te zien!
@@ -937,9 +972,11 @@ Als ‘Ja’ wordt gekozen ga dan verder met stap 3 en 4. Bij ‘Nee’ ga je na
 De initiator van een zaak is de persoon of het bedrijf die het verzoek heeft geïnitieerd. Een zaak kan bij het aanmaken deze initiator al toegekend hebben. Als dit niet het geval is dan kan handmatig een initiator worden toegevoegd.
 
 Als geconfigureerd bij het betreffende zaaktype, dan is de initiator bij een zaak bovenaan het zaakgegevensscherm te vinden. Als er geen initiator is toegekend dan staat in dit blok ‘geen initiator’ vermeld. Met het ‘Initiator toevoegen’ icoon kan een persoon of bedrijf worden gezocht en worden toegekend.
+
 ![Initiator koppelen](./images/initiator-toekennen.png)
 
 Als een zaak wel een initiator heeft toegekend gekregen dan kan deze gewijzigd worden met het potlood icoon, of ontkoppeld worden met het 'ontkoppel' icoon, deze zijn dan beschikbaar in plaats van het ‘initiator koppelen’ icoon.
+
 ![Initiator wijzigen](./images/initiator-wijzigen.png)
 
 Als relevant voor de toegekende initiator zal er een indicatie zichtbaar worden in de vorm van een icoon. De volgende indicatoren zijn er mogelijk:
@@ -983,6 +1020,7 @@ Na het invullen van een zoekveld geeft het zoekscherm aan welke andere velden in
 De initiator verschijnt nadat deze is toegevoegd boven in het zaakgegevensscherm. Via het oog icoon is het mogelijk om naar de persoons- of bedrijfsgegevenspagina te gaan. Het is mogelijk om de initiator te verwijderen door op het prullenbak icoon te klikken.
 
 Als de initiator een bedrijf is dan kunnen extra gegevens over het bedrijf worden opgehaald via het ‘Volledig profiel ophalen’ icoon.
+
 ![Extra gegevens initiator](./images/extra-gegevens-initiator.png)
 
 >Klik op het pijltje rechtsboven om de gegevens in- en uit te klappen!
@@ -1028,6 +1066,7 @@ Na het invullen van een zoekveld geeft het zoekscherm aan welke andere velden in
 Betrokkenen zijn nadat ze zijn toegevoegd te vinden onder de tab ‘Betrokkenen’ in het zaakgegevensscherm. Deze tab is niet bij de zaak aanwezig als er geen betrokkene is toegevoegd.
 
 Vanuit het overzicht is het via het oog icoon mogelijk om naar de persoons- of bedrijfsgegevenspagina te gaan. Daarnaast kan een betrokkene ontkoppeld worden door op het ontkoppel icoon te klikken (een reden is verplicht).
+
 ![Betrokkene gegevens en ontkoppelen](./images/betrokkene-gegevens-en-ontkoppelen.png)
 
 >De letter achter de identificatie geeft aan of het een persoon, vestiging of rechtspersoon betreft.
@@ -1050,6 +1089,7 @@ De lijst van zoekresultaten bevat gevonden adressen. Om de bijbehorende BAG-obje
 BAG-objecten zijn nadat ze zijn toegevoegd te vinden onder de tab ‘BAG objecten’ in het zaakgegevensscherm. Deze tab is niet bij de zaak aanwezig als er geen BAG-object is toegevoegd.
 
 Vanuit het overzicht is het via het oog icoon mogelijk om naar de BAG-objecten gegevenspagina te gaan. Daarnaast kan een BAG-object ontkoppeld worden door op het ontkoppel icoon te klikken (een reden is verplicht).
+
 ![BAG gegevens en ontkoppelen](./images/bag-gegevens-en-ontkoppelen.png)
 
 ## Taken
@@ -1093,6 +1133,7 @@ Deze taak is bedoeld om een document door een interne groep of medewerker te lat
 ### Inzien en behandelen van taken
 
 Nadat een taak is aangemaakt verschijnt deze in het overzicht van taken. Vanuit het overzicht kan een taak geopend worden om deze te bekijken of te behandelen.
+
 ![Taken bekijken](./images/taken-bekijken.png)
 
 >Klik op het schuifje om ook de eerder afgeronde taken in het overzicht te zien.
@@ -1308,6 +1349,7 @@ Een gerelateerde zaak koppeling heeft verder geen consequenties en is alleen een
 4 In het zoekresultaat komen als er meerdere resultaten zijn er alleen de eerste 10 resultaten te staan. Bij deze zullen zaken die niet de koppelmogelijkheid bieden niet te kiezen zijn. Alleen de zaken met een blauw koppelteken zijn te kiezen.
 
 5 Klik op het Koppelteken om de koppeling te leggen
+
 ![koppeling](./images/koppelformulier.png)
 
 ### Inzien gekoppelde zaken
@@ -1316,6 +1358,7 @@ Als een zaak een gekoppelde zaak heeft, is deze bij een geopende zaak te benader
 Om naar de gekoppelde zaak te gaan kan op het oog icoon geklikt worden.
 
 Het is ook mogelijk om vanuit een zaak de documenten van de gekoppelde zaak te bekijken. Deze kunnen in het zaakdocumentenoverzichten worden weergegeven door het ‘Toon documenten van gerelateerde zaken’ schuifje aan te zetten.
+
 ![koppeling](./images/koppeling-inzien.png)
 
 ### Ontkoppelen zaken
@@ -1354,6 +1397,7 @@ Of een besluit kan worden vastgelegd is afhankelijk van of dit is ingesteld bij 
 >De uiterlijke reactiedatum van het besluit kan niet eerder worden ingesteld dan de gedefinieerde reactietermijn 
 
 6 Selecteer het document waarin het besluit is opgenomen. Alleen documenttypen waarvan bij het besluittype is ingesteld dat deze gekozen mogen worden verschijnen in het overzicht.
+
 ![Besluit vastleggen](./images/besluit-vastleggen.png)
 
 >Dit document is te koppelen omdat het documenttype ‘Besluit’ aan het besluittype ‘BesluitType1’ is gekoppeld.
@@ -1449,6 +1493,7 @@ De gegevens van een persoon of bedrijf kunnen bekeken worden vanuit de persoons-
 Daarnaast bevat de pagina een overzicht van alle zaken waar de persoon of bedrijf bij betrokken is die in de ZAC worden behandeld. Het overzicht bevat, net als de werklijsten, sorteer- en filtermogelijkheden en toont standaard de openstaande zaken. Het is ook mogelijk om afgeronde zaken aan het overzicht toe te voegen.
 
 Deze pagina is te benaderen door vanuit een zaak op het oog icoon van een initiator of betrokkene te klikken of door een persoon of bedrijf via de zoekfunctie te openen.
+
 ![Persoons bedrijfspagina](./images/persoons-bedrijfspagina.png)
 
 >Klik op het schuifje om ook afgehandelde zaken in het overzicht te zien.
@@ -1465,6 +1510,7 @@ De gegevens van een BAG-object kunnen bekeken worden vanuit de BAG-objectgegeven
 Daarnaast bevat de pagina een overzicht van alle zaken waar het BAG-object aan toegevoegd is en die in de ZAC worden behandeld. Het overzicht bevat, net als de werklijsten, sorteer- en filtermogelijkheden en toont standaard de openstaande zaken. Het is ook mogelijk om afgeronde zaken aan het overzicht toe te voegen.
 
 Deze pagina is te benaderen door vanuit een zaak op het oog icoon van een BAG-object te klikken of door een BAG-object via de zoekfunctie te openen.
+
 ![BAG-object pagina](./images/bag-object-pagina.png)
 
 >Klik op het schuifje om ook afgehandelde zaken in het overzicht te zien.
@@ -1478,6 +1524,7 @@ Deze pagina is te benaderen door vanuit een zaak op het oog icoon van een BAG-ob
 Een zaak kan één of meerdere documenten toegevoegd hebben. Toegevoegde documenten zijn in een overzicht onder de zaakgegevens te zien. Het overzicht kan gesorteerd worden door in de kolomkop op het pijl icoon te klikken. Bij een geopende taak is het overzicht eveneens beschikbaar.
 
 Bij ieder document kan het oog icoon gebuikt worden om de documentgegevenspagina te openen. Als een document bewerkt mag worden dan is hiervoor het potlood icoon direct beschikbaar. Door op het kebabmenu te klikken kunnen andere functies voor documenten benaderd worden zonder de documentgegevenspagina te hoeven openen.
+
 ![Documenten overzicht](./images/documenten-overzicht.png)
 
 >Klik op het icoon naast de titel om een documentvoorbeeld te zien!
@@ -1494,7 +1541,9 @@ Het kan gebeuren dat een document bij een verkeerde zaak wordt toegevoegd. Een d
 
 1 In het documentenoverzicht klik je bij het document dat je wilt verplaatsen op de drie puntjes en vervolgens op het verplaats icoon. Een formulier opent met de mogelijkheid om op zaaknummer te zoeken. 
 2 Na het zoeken kan het koppelen aan een andere zaak kan gedaan worden door op de verplaatsknop aan de rechterzijde van een gevonden zaak te klikken. De zaken waar niet aan gekoppeld kan worden zullen in grijs getoond worden en kunnen niet gekozen worden. Om te annuleren kan je op het kruis rechtsboven klikken.
+
 ![Document verplaatsen](./images/document-verplaatsen.png)
+
 ![Document verplaatsen](./images/document-verplaatsen-2.png)
 
 ## Document ontkoppelen
@@ -1504,6 +1553,7 @@ Als een document bij een zaak is toegevoegd waar deze niet thuishoort dan kan de
 **Stappen**
 
 1 In het documentenoverzicht klik je bij het document dat je wilt ontkoppelen op het kebab menu en vervolgens op het ontkoppelen icoon.
+
 ![Document ontkoppelen](./images/document-ontkoppelen.png)
 
 2 Vul de reden voor het ontkoppelen in en klik op ‘Ja’
@@ -1569,6 +1619,7 @@ Een document vanuit een ‘Goedkeuren’ taak ondertekenen werkt zoals hierna om
 3 Vink het document aan in de check box om de ondertekening te zetten
 
 4 Klik op ‘Opslaan’ of ‘Opslaan en afronden’
+
 ![Taak afronden](./images/taak-afronden.png)
 
 ## Document converteren naar PDF
@@ -1592,6 +1643,7 @@ Een document kan verwijderd worden door het document vanuit een zaak of de werkl
 2 Vul de reden voor het verwijderen in
 
 3 Klik op ‘Document verwijderen’ om de actie uit te voeren
+
 ![Document verwijderen](./images/document-verwijderen.png)
 
 ### Meerdere ontkoppelde documenten tegelijk verwijderen of koppelen
@@ -1629,6 +1681,7 @@ Een nieuwe notitie kan vanuit de Notities functie gestart worden.
 1 In een zaak klik je op de Notities icoon
 
 2 Voeg de tekst in de tekst box in
+
 ![Notitie aanmaken](./images/notitie-aanmaken.png)
 
 3 Klik op Opslaan om de notitie toe te voegen
@@ -1644,6 +1697,7 @@ Een bestaande notitie kan aangepast worden.
 1 In een zaak klik je op de Notities icoon
 
 2 Klik op het potlood icoon om de tekst box te activeren
+
 ![Notitie bewerken](./images/notitie-bewerken.png)
 
 3 Pas de notitie aan

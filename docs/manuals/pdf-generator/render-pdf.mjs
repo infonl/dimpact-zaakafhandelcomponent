@@ -40,10 +40,15 @@ const html = `<!doctype html>
 ${githubMarkdownCss}
 .markdown-body { font-family: Helvetica, Arial, sans-serif; font-size: 13px; }
 .markdown-body > p:first-child img { display: block; max-height: 24cm; margin: 0 auto; }
+.markdown-body p > img:only-child { display: block; margin-left: auto; margin-right: auto; }
+.markdown-body img:not([src$=".svg"]) { box-sizing: border-box; border: 1px solid #d0d0d0; padding: 8px; margin: 16px; max-width: calc(100% - 32px); box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.06), 2px 2px 0 rgba(0, 0, 0, 0.04), 3px 3px 0 rgba(0, 0, 0, 0.025); }
 .markdown-body img { max-width: 100%; page-break-inside: avoid; }
 .markdown-body table { display: table; width: 100%; }
 .markdown-body tr, .markdown-body blockquote { page-break-inside: avoid; }
 .markdown-body h1, .markdown-body h2, .markdown-body h3 { page-break-after: avoid; }
+.markdown-body #inhoud + ul > li { margin-top: 8px; font-size: 15px; font-weight: 600; }
+.markdown-body #inhoud + ul > li > ul { font-size: 13px; font-weight: normal; }
+.markdown-body #inhoud + ul > li > ul > li > ul, .markdown-body h3 { font-style: italic; }
 </style>
 </head>
 <body class="markdown-body">${body}</body>
