@@ -404,6 +404,36 @@ describe(ZakenService.name, () => {
       expect(cacheZaak).toHaveBeenCalledWith(zaak);
     });
 
+    it("keeps the zaak the server answers with when a refetch that started before the save resolves after it", async () => {
+      const queryKey = service.readZaakQuery("fakeZaakUuid1").queryKey;
+      let resolveRefetch!: (zaak: GeneratedType<"RestZaak">) => void;
+      const refetch = testQueryClient
+        .fetchQuery({
+          queryKey,
+          queryFn: () =>
+            new Promise<GeneratedType<"RestZaak">>((resolve) => {
+              resolveRefetch = resolve;
+            }),
+        })
+        .catch(() => undefined);
+
+      createMutation().onSuccess?.(
+        zaak,
+        fromPartial({}),
+        undefined,
+        fromPartial<MutationFunctionContext>({}),
+      );
+      resolveRefetch(
+        fromPartial<GeneratedType<"RestZaak">>({
+          uuid: "fakeZaakUuid1",
+          omschrijving: "fakeZaakBeforeTheSave",
+        }),
+      );
+      await refetch;
+
+      expect(testQueryClient.getQueryData(queryKey)).toBe(zaak);
+    });
+
     it("refreshes the historie of that zaak, because the server accepted the change", () => {
       const invalidateHistorie = jest.spyOn(service, "invalidateHistorie");
 
