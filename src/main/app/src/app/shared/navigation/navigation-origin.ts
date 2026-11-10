@@ -33,7 +33,7 @@ export function navigateToBreadcrumb(breadcrumb: Breadcrumb, router: Router) {
   return router.navigateByUrl(url);
 }
 
-const MAXIMUM_TRAIL_LENGTH = 3;
+const MAXIMUM_TRAIL_LENGTH = 4;
 
 export function detailPageKind(url: string) {
   return segments(url)[0];

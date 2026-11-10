@@ -3,36 +3,50 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-@if (breadcrumbs().length) {
-  <nav [attr.aria-label]="'breadcrumbs' | translate">
-    <ol>
-      @for (breadcrumb of breadcrumbs(); track $index) {
-        @if ($last) {
-          <li aria-current="page">
-            @if (breadcrumb.details?.zaak?.isZaakspecifiekGeautoriseerd) {
-              <zac-zaak-identificatie
-                [identificatie]="breadcrumb.title"
-                [isZaakspecifiekGeautoriseerd]="true"
-              />
-            } @else {
-              {{ breadcrumb.title }}
-            }
-          </li>
-        } @else {
-          <li>
-            <a [href]="breadcrumb.url" (click)="navigate($event, breadcrumb)">
-              @if (breadcrumb.details?.zaak?.isZaakspecifiekGeautoriseerd) {
-                <zac-zaak-identificatie
-                  [identificatie]="breadcrumb.title"
-                  [isZaakspecifiekGeautoriseerd]="true"
+@if (breadcrumbs().at(-1); as page) {
+  <header>
+    <h1>
+      <ng-container *ngTemplateOutlet="title; context: { $implicit: page }" />
+    </h1>
+    @if (breadcrumbs().length > 1) {
+      <nav [attr.aria-label]="'breadcrumbs' | translate">
+        <ol>
+          @for (breadcrumb of breadcrumbs(); track $index) {
+            @if ($last) {
+              <li aria-current="page">
+                <ng-container
+                  *ngTemplateOutlet="title; context: { $implicit: breadcrumb }"
                 />
-              } @else {
-                {{ breadcrumb.title }}
-              }
-            </a>
-          </li>
-        }
-      }
-    </ol>
-  </nav>
+              </li>
+            } @else {
+              <li>
+                <a
+                  [href]="breadcrumb.url"
+                  (click)="navigate($event, breadcrumb)"
+                >
+                  <ng-container
+                    *ngTemplateOutlet="
+                      title;
+                      context: { $implicit: breadcrumb }
+                    "
+                  />
+                </a>
+              </li>
+            }
+          }
+        </ol>
+      </nav>
+    }
+  </header>
 }
+
+<ng-template #title let-breadcrumb>
+  @if (breadcrumb.details?.zaak?.isZaakspecifiekGeautoriseerd) {
+    <zac-zaak-identificatie
+      [identificatie]="breadcrumb.title"
+      [isZaakspecifiekGeautoriseerd]="true"
+    />
+  } @else {
+    {{ breadcrumb.title }}
+  }
+</ng-template>

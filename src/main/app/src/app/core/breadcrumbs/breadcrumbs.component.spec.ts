@@ -129,6 +129,12 @@ describe(BreadcrumbsComponent.name, () => {
             ],
           },
           {
+            path: "bedrijf/:id",
+            title: "Bedrijfsgegevens",
+            data: BREADCRUMB_DETAIL,
+            component: PageStubComponent,
+          },
+          {
             path: "admin",
             title: translatedTitle("actie.admin"),
             children: [
@@ -217,10 +223,17 @@ describe(BreadcrumbsComponent.name, () => {
   it("marks the last crumb as the current page", async () => {
     await navigateTo("/admin/parameters/some-uuid");
 
-    expect(screen.getByText("Intern zaaktype")).toHaveAttribute(
-      "aria-current",
-      "page",
+    expect(screen.getByRole("listitem", { current: "page" })).toHaveTextContent(
+      "Intern zaaktype",
     );
+  });
+
+  it("shows the title of the page as its heading, above the breadcrumbs", async () => {
+    await navigateTo("/admin/parameters/some-uuid");
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Intern zaaktype" }),
+    ).toBeInTheDocument();
   });
 
   it("shows a parent title once, although the empty-path child inherits it", async () => {
@@ -237,10 +250,11 @@ describe(BreadcrumbsComponent.name, () => {
     );
   });
 
-  it("shows no breadcrumbs on a route without a title", async () => {
+  it("shows no title and no breadcrumbs on a route without a title", async () => {
     await navigateTo("/untitled");
 
     expect(screen.queryByRole("navigation")).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading")).not.toBeInTheDocument();
     expect(TestBed.inject(Title).getTitle()).toBe("Zaakafhandelcomponent");
   });
 
@@ -253,7 +267,10 @@ describe(BreadcrumbsComponent.name, () => {
   it("shows no section above a page of that section, because a section is no page", async () => {
     await navigateTo("/zaken/mijn");
 
-    expect(crumbs()).toEqual(["Mijn zaken"]);
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Mijn zaken" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("navigation")).not.toBeInTheDocument();
   });
 
   it("shows the section as the parent of a detail page that was opened without an origin page", async () => {
@@ -276,15 +293,21 @@ describe(BreadcrumbsComponent.name, () => {
     expect(crumbs()).toEqual(["Taken-werkvoorraad", "Taak 2"]);
   });
 
-  it("shows at most three levels: the origin page and the last two pages opened from it", async () => {
+  it("shows at most four levels: the origin page and the last three pages opened from it", async () => {
     await navigateTo(
       "/zaken/mijn",
       "/zaken/ZAAK-1",
       "/taken/1",
       "/persoon/persoon-1",
+      "/bedrijf/bedrijf-1",
     );
 
-    expect(crumbs()).toEqual(["Mijn zaken", "Taak 1", "Persoonsgegevens"]);
+    expect(crumbs()).toEqual([
+      "Mijn zaken",
+      "Taak 1",
+      "Persoonsgegevens",
+      "Bedrijfsgegevens",
+    ]);
   });
 
   it("links the inherited breadcrumbs to the pages they came from", async () => {
@@ -331,7 +354,9 @@ describe(BreadcrumbsComponent.name, () => {
   it("shows no lock beside the zaaknummer of a zaak that is not zaakspecifiek geautoriseerd", async () => {
     await navigateTo("/zaken/mijn", "/zaken/ZAAK-1");
 
-    expect(screen.getByText("ZAAK-1")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 1, name: "ZAAK-1" }),
+    ).toBeInTheDocument();
     expect(
       screen.queryByRole("img", { name: "Zaakspecifiek geautoriseerd" }),
     ).not.toBeInTheDocument();
@@ -344,7 +369,9 @@ describe(BreadcrumbsComponent.name, () => {
     fixture.detectChanges();
 
     expect(
-      screen.getByRole("img", { name: "Zaakspecifiek geautoriseerd" }),
+      within(screen.getByRole("heading", { level: 1 })).getByRole("img", {
+        name: "Zaakspecifiek geautoriseerd",
+      }),
     ).toBeInTheDocument();
   });
 
