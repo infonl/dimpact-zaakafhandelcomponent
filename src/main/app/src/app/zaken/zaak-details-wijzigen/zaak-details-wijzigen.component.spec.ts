@@ -32,7 +32,7 @@ import { provideRouter } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
-import { screen } from "@testing-library/angular";
+import { screen, waitFor } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import moment from "moment";
 import { of } from "rxjs";
@@ -216,36 +216,39 @@ describe(CaseDetailsEditComponent.name, () => {
   });
 
   describe("communicatiekanaal options", () => {
-    const communicationChannelOptions = async () => {
-      const selects = await loader.getAllHarnesses(MatSelectHarness);
-      await selects[2].open();
-      const options = await selects[2].getOptions();
-      return Promise.all(options.map((option) => option.getText()));
+    const communicationChannelOptions = () =>
+      screen.getAllByRole("option").map((option) => option.textContent?.trim());
+
+    const openCommunicationChannelSelect = async () => {
+      await userEvent
+        .setup()
+        .click(screen.getByRole("combobox", { name: /communicatiekanaal/i }));
+      fixture.detectChanges();
     };
 
     it("offers the communicatiekanalen without the e-formulier", async () => {
-      testQueryClient.removeQueries({
-        queryKey: referentieTabelService.listCommunicatiekanalen().queryKey,
-      });
+      const { queryKey } = referentieTabelService.listCommunicatiekanalen();
+      testQueryClient.removeQueries({ queryKey });
       renderComponent({ communicatiekanaal: undefined });
 
       httpTestingController
         .expectOne("/rest/referentietabellen/communicatiekanaal/false")
         .flush(["email", "telefoon"]);
-      await sleep(10);
+      await waitFor(() =>
+        expect(testQueryClient.getQueryData(queryKey)).toBeDefined(),
+      );
       await fixture.whenStable();
+      await openCommunicationChannelSelect();
 
-      expect(await communicationChannelOptions()).toEqual([
-        "email",
-        "telefoon",
-      ]);
+      expect(communicationChannelOptions()).toEqual(["email", "telefoon"]);
     });
 
     it("adds the communicatiekanaal of the zaak when the reference table no longer has it", async () => {
       renderComponent({ communicatiekanaal: "duif" });
       await fixture.whenStable();
+      await openCommunicationChannelSelect();
 
-      expect(await communicationChannelOptions()).toEqual([
+      expect(communicationChannelOptions()).toEqual([
         "email",
         "telefoon",
         "post",
@@ -256,8 +259,9 @@ describe(CaseDetailsEditComponent.name, () => {
     it("lists the communicatiekanaal of the zaak once when the reference table has it", async () => {
       renderComponent({ communicatiekanaal: "telefoon" });
       await fixture.whenStable();
+      await openCommunicationChannelSelect();
 
-      expect(await communicationChannelOptions()).toEqual([
+      expect(communicationChannelOptions()).toEqual([
         "email",
         "telefoon",
         "post",

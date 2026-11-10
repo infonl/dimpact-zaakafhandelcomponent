@@ -46,6 +46,17 @@ UPSTREAM_RELEASES=(openzaak openklant openobject opennotificaties openarchiefbeh
 
 step() { printf '\n\033[1;34m==> %s\033[0m (%ss)\n' "$1" "$(($(date +%s) - START))"; }
 fail() { printf '\n\033[1;31m%s\033[0m\n' "$*" >&2; exit 1; }
+retry() {
+  local attempt
+  for attempt in 1 2 3; do
+    "$@" && return 0
+    if [ "$attempt" -lt 3 ]; then
+      echo "Attempt $attempt of '$1 $2' failed; trying again in $((attempt * 10))s" >&2
+      sleep $((attempt * 10))
+    fi
+  done
+  return 1
+}
 kc() { kubectl --context "$CONTEXT" "$@"; }
 helm_release() { helm --kube-context "$CONTEXT" upgrade --install "$@" --namespace "$NAMESPACE" > "$WORK_DIR/helm-$1.log" 2>&1 ||
   fail "Installing the Helm release '$1' failed: $(cat "$WORK_DIR/helm-$1.log")"; }
@@ -127,7 +138,7 @@ fi
 for release in "${active_releases[@]}"; do
   version=$(stack charts "$release" version)
   if [ ! -f "$CHARTS_DIR/$release-$version.tgz" ]; then
-    helm pull "$release" --repo "$(stack charts "$release" repository)" --version "$version" --destination "$CHARTS_DIR"
+    retry helm pull "$release" --repo "$(stack charts "$release" repository)" --version "$version" --destination "$CHARTS_DIR"
   fi
 done
 if ! ls "$ROOT"/charts/zac/charts/*.tgz > /dev/null 2>&1; then
