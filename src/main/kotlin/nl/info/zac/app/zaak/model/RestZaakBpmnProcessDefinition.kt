@@ -18,6 +18,6 @@ data class RestZaakBpmnProcessDefinition(
 
 fun ProcessDefinition.toRestZaakBpmnProcessDefinition() = RestZaakBpmnProcessDefinition(
     processDefinitionKey = this.key,
-    processDefinitionName = this.name,
+    processDefinitionName = this.name ?: this.key,
     processDefinitionVersion = this.version
 )

@@ -53,7 +53,7 @@ class BpmnProcessDefinitionRestService @Inject constructor(
         }
         return bpmnService.listProcessDefinitions()
             .map {
-                RestBpmnProcessDefinition(id = it.id, name = it.name, version = it.version, key = it.key)
+                RestBpmnProcessDefinition(id = it.id, name = it.name ?: it.key, version = it.version, key = it.key)
             }
     }
 
@@ -73,7 +73,7 @@ class BpmnProcessDefinitionRestService @Inject constructor(
                 val metadata = bpmnService.getProcessDefinitionMetadata(it)
                 RestBpmnProcessDefinition(
                     id = it.id,
-                    name = it.name,
+                    name = it.name ?: it.key,
                     version = it.version,
                     key = it.key,
                     details = RestBpmnProcessDefinitionDetails(
