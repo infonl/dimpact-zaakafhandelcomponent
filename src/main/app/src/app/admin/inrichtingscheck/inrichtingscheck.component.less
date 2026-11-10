@@ -17,12 +17,35 @@ tr.detail-row {
   height: 0;
   background-color: @table-hover-background-color;
 
-  .detail div {
-    width: 100%;
-    border-bottom: 1px solid @border-color;
-    padding-top: 10px;
-    padding-bottom: 10px;
+  > td.mat-mdc-cell {
+    padding: 0;
   }
+
+  table.bevindingen {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+
+    col.bevinding-categorie {
+      // the share of the zaaktype column in the three columns the details span
+      width: calc(100% / 3);
+    }
+
+    td {
+      padding: 10px;
+      vertical-align: top;
+      border-bottom: 1px solid @border-color;
+    }
+
+    tr:last-child td {
+      border-bottom-width: 0;
+    }
+  }
+}
+
+// fixed, so the findings table can line its columns up with the zaaktype and doel columns
+table.mat-mdc-table {
+  table-layout: fixed;
 }
 
 td.mat-mdc-cell {
@@ -57,7 +80,7 @@ p {
   width: 5%;
 }
 
-cdk-column-expand {
+.cdk-column-expand {
   width: 5%;
 }
 

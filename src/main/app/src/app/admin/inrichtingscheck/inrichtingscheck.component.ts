@@ -48,6 +48,137 @@ import {
 import { AdminComponent } from "../admin/admin.component";
 import { HealthCheckService } from "../health-check.service";
 
+type ZaaktypeInrichtingscheck = GeneratedType<"RestZaaktypeInrichtingscheck">;
+
+type InrichtingscheckBevinding = {
+  categorie: string;
+  melding: string;
+  parameters?: Record<string, string>;
+};
+
+export function inrichtingscheckBevindingen(
+  check: ZaaktypeInrichtingscheck,
+): InrichtingscheckBevinding[] {
+  const bevindingen: InrichtingscheckBevinding[] = [];
+  const add = (
+    isOfToepassing: boolean,
+    categorie: string,
+    melding: string,
+    parameters?: Record<string, string>,
+  ) => {
+    if (isOfToepassing) bevindingen.push({ categorie, melding, parameters });
+  };
+  const prefix = "health-check.zaaktype.";
+
+  add(
+    !check.isZaakafhandelParametersValide,
+    "zaakafhandelparameters",
+    `${prefix}zaakafhandel-parameters-ongeldig`,
+  );
+  add(
+    !check.isStatustypeIntakeAanwezig,
+    "statustype",
+    `${prefix}geen-statustype-intake-aanwezig`,
+  );
+  add(
+    !check.isStatustypeInBehandelingAanwezig,
+    "statustype",
+    `${prefix}geen-statustype-in-behandeling-aanwezig`,
+  );
+  add(
+    !check.isStatustypeHeropendAanwezig,
+    "statustype",
+    `${prefix}geen-statustype-heropend-aanwezig`,
+  );
+  add(
+    !check.isStatustypeAanvullendeInformatieVereist,
+    "statustype",
+    `${prefix}geen-statustype-aanvullende-informatie-vereist`,
+  );
+  add(
+    !check.isStatustypeAfgerondAanwezig,
+    "statustype",
+    `${prefix}geen-statustype-afgerond-aanwezig`,
+  );
+  add(
+    Boolean(check.isStatustypeAfgerondAanwezig) &&
+      !check.isStatustypeAfgerondLaatsteVolgnummer,
+    "statustype",
+    `${prefix}statustype-afgerond-laatste-volgnummer`,
+  );
+  add(
+    !check.isResultaattypeAanwezig,
+    "resultaattype",
+    `${prefix}geen-resultaattype-aanwezig`,
+  );
+  add(
+    !check.aantalInitiatorroltypen,
+    "rol",
+    `${prefix}geen-rol-initiator-aanwezig`,
+  );
+  add(
+    !check.aantalBehandelaarroltypen,
+    "rol",
+    `${prefix}geen-rol-behandelaar-aanwezig`,
+  );
+  add(
+    (check.aantalInitiatorroltypen ?? 0) > 1,
+    "rol",
+    `${prefix}te-veel-rol-initiator-aanwezig`,
+  );
+  add(
+    (check.aantalBehandelaarroltypen ?? 0) > 1,
+    "rol",
+    `${prefix}te-veel-rol-behandelaar-aanwezig`,
+  );
+  add(!check.isRolOverigeAanwezig, "rol", `${prefix}geen-rol-overige-aanwezig`);
+  add(
+    !check.isInformatieobjecttypeEmailAanwezig,
+    "informatieobjecttype",
+    `${prefix}geen-informatieobjecttype-email-aanwezig`,
+  );
+  add(
+    Boolean(check.resultaattypesMetVerplichtBesluit?.length) &&
+      !check.isBesluittypeAanwezig,
+    "besluittype",
+    `${prefix}geen-besluittype-aanwezig`,
+    {
+      resultaattypes: (check.resultaattypesMetVerplichtBesluit ?? []).join(
+        ", ",
+      ),
+    },
+  );
+  add(
+    Boolean(check.resultaattypesMetNietOndersteundeBrondatum?.length),
+    "resultaattype",
+    `${prefix}niet-ondersteunde-brondatum`,
+    {
+      resultaattypes: (
+        check.resultaattypesMetNietOndersteundeBrondatum ?? []
+      ).join(", "),
+    },
+  );
+  add(
+    !check.isBrpInstellingenCorrect,
+    "brp-protocollering",
+    `${prefix}onjuiste-brp-headerwaarde`,
+  );
+  add(
+    Boolean(check.isZaakspecifiekeAutorisatieEigenschapAanwezig) &&
+      !check.isZaakspecifiekeAutorisatieRoltypeAanwezig,
+    "rol",
+    `${prefix}zaakspecifieke-autorisatie.roltype-ontbreekt`,
+  );
+  add(
+    Boolean(check.isZaakspecifiekeAutorisatieRoltypeAanwezig) &&
+      !check.isZaakspecifiekeAutorisatieEigenschapAanwezig,
+    "eigenschap",
+    `${prefix}zaakspecifieke-autorisatie.eigenschap-ontbreekt`,
+  );
+
+  return bevindingen;
+}
+
 @Component({
   templateUrl: "./inrichtingscheck.component.html",
   styleUrls: ["./inrichtingscheck.component.less"],
@@ -89,6 +220,7 @@ export class InrichtingscheckComponent
     viewChild.required<MatSidenavContainer>("sideNavContainer");
   protected readonly versionLayout = VersionLayout;
   protected readonly rowOf = rowOf;
+  protected readonly bevindingen = inrichtingscheckBevindingen;
   protected dataSource: MatTableDataSource<
     GeneratedType<"RestZaaktypeInrichtingscheck">
   > = new MatTableDataSource<GeneratedType<"RestZaaktypeInrichtingscheck">>();

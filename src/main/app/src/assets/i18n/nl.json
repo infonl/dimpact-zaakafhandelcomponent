@@ -1089,6 +1089,7 @@
   "hint.zaak.dialoog.verlengen.verlengduur": "De maximale verlengduur voor deze zaak is {{ verlengDuur }} dag",
   "hint.zaak.dialoog.verlengen.verlengduur.meervoud": "De maximale verlengduur voor deze zaak is {{ verlengDuur }} dagen",
   " 8 ": ">>--> HEALTH-CHECK <--<<",
+  "health-check.zaaktype.bevindingen": "Bevindingen",
   "health-check.zaaktype.inrichtingscheck": "Zaaktype inrichtingscheck",
   "health-check.zaaktype.zaakafhandel-parameters-ongeldig": "De zaakafhandelparameters zijn niet (volledig) geconfigureerd",
   "health-check.zaaktype.geen-statustype-intake-aanwezig": "Het vereiste statustype \"Intake\" bestaat niet",
