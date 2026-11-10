@@ -24,7 +24,14 @@ if [ "$(docker inspect --format '{{.State.Running}}' "$NODE")" != true ]; then
   echo "Starting the stopped cluster '$CLUSTER' to clear its data ..."
   docker start "$NODE" > /dev/null
 fi
-until kubectl --context "$CONTEXT" get --raw /readyz > /dev/null 2>&1; do sleep 2; done
+deadline=$(($(date +%s) + 120))
+until kubectl --context "$CONTEXT" --request-timeout=5s get --raw /readyz > /dev/null 2>&1; do
+  if [ "$(date +%s)" -ge "$deadline" ]; then
+    echo "The API server of the kind cluster '$CLUSTER' did not become ready; its data is not cleared." >&2
+    exit 1
+  fi
+  sleep 2
+done
 
 echo "Clearing the data of the kind cluster '$CLUSTER' ..."
 # a persistent volume claim is only deleted when no pod uses it any more
