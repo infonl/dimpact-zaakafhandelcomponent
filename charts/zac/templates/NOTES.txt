@@ -1,0 +1,12 @@
+{{- /*
+SPDX-FileCopyrightText: 2026 INFO.nl
+SPDX-License-Identifier: EUPL-1.2+
+*/ -}}
+{{- if (.Values.opentelemetry_zaakafhandelcomponent).endpoint }}
+DEPRECATED: opentelemetry_zaakafhandelcomponent.endpoint will be removed in a future version of this chart.
+Set tracing.enabled to true and tracing.endpoint to the OTLP endpoint instead.
+{{- end }}
+{{- if and (index .Values "opentelemetry-collector" "enabled") (not (.Values.tracing).enabled) }}
+DEPRECATED: ZAC sends its traces because the bundled opentelemetry-collector is enabled.
+In a future version of this chart only tracing.enabled turns on tracing. Set tracing.enabled to true to keep the traces of ZAC.
+{{- end }}

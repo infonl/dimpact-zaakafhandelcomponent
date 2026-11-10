@@ -1,0 +1,31 @@
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+
+suite: Deprecation notices for tracing
+templates:
+  - templates/NOTES.txt
+release:
+  name: zac
+values:
+  - ../ci/zac-chart-test-values.yaml
+tests:
+  - it: prints no deprecation notice when tracing is configured with the tracing values
+    set:
+      tracing.enabled: true
+      tracing.endpoint: https://collector.example.com:4317
+      opentelemetry-collector.enabled: true
+    asserts:
+      - notMatchRegexRaw:
+          pattern: DEPRECATED
+  - it: tells an installation that uses the deprecated endpoint to switch to the tracing values
+    set:
+      opentelemetry_zaakafhandelcomponent.endpoint: https://collector.example.com:4317
+    asserts:
+      - matchRegexRaw:
+          pattern: "DEPRECATED: opentelemetry_zaakafhandelcomponent.endpoint will be removed"
+  - it: tells an installation that relies on the bundled collector to turn on tracing to set tracing.enabled
+    set:
+      opentelemetry-collector.enabled: true
+    asserts:
+      - matchRegexRaw:
+          pattern: "Set tracing.enabled to true to keep the traces of ZAC"
