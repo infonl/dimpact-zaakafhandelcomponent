@@ -29,6 +29,7 @@ import { TranslatePipe } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { catchError, EMPTY, finalize } from "rxjs";
 import { UtilService } from "../../core/service/util.service";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { trackControl } from "../../shared/form/control-state";
 import { runQuery } from "../../shared/http/run-query";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
@@ -39,6 +40,14 @@ import { BAGService } from "../bag.service";
 type BagZoekRij = GeneratedType<"RestBagObject" | "RestBagAdres"> & {
   expanded?: boolean;
   child?: boolean;
+};
+
+type BagObjectTypeSchemas = {
+  ADRES: "RestBagAdres";
+  NUMMERAANDUIDING: "RestNummeraanduiding";
+  PAND: "RestPand";
+  OPENBARE_RUIMTE: "RestOpenbareRuimte";
+  WOONPLAATS: "RestWoonplaats";
 };
 
 @Component({
@@ -58,6 +67,7 @@ type BagZoekRij = GeneratedType<"RestBagObject" | "RestBagAdres"> & {
     MatInputModule,
     MatSortModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     MatToolbarModule,
     ReactiveFormsModule,
     TranslatePipe,
@@ -153,6 +163,13 @@ export class BagZoekComponent {
       adres.woonplaats ||
       adres.panden?.length
     );
+  }
+
+  protected isBagObjectType<T extends keyof BagObjectTypeSchemas>(
+    row: BagZoekRij,
+    bagObjectType: T,
+  ): row is BagZoekRij & GeneratedType<BagObjectTypeSchemas[T]> {
+    return row.bagObjectType === bagObjectType;
   }
 
   protected expand(bagObject: BagZoekRij) {

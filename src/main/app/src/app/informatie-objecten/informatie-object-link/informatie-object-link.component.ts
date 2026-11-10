@@ -32,6 +32,7 @@ import {
   ZoekenService,
 } from "src/app/zoeken/zoeken.service";
 import { OntkoppeldeDocumentenService } from "../../documenten/ontkoppelde-documenten.service";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { trackControl } from "../../shared/form/control-state";
 import { ZacInput } from "../../shared/form/input/input";
 import { injectMutation } from "../../shared/http/inject-mutation";
@@ -57,6 +58,7 @@ type DocumentAction = "actie.document.koppelen" | "actie.document.verplaatsen";
     MatIconModule,
     MatSortModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     MatToolbarModule,
     TranslatePipe,
     ZacInput,

@@ -22,6 +22,7 @@ import {
 } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
+import { TypedMatCellDefDirective } from "../../../../shared/directives/typed-mat-cell-def.directive";
 import { I18nKeyPipe } from "../../../../shared/pipes/i18n-key.pipe";
 import { ReadMoreComponent } from "../../../../shared/read-more/read-more.component";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
@@ -46,6 +47,7 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
     MatHeaderCellDef,
     MatCell,
     MatCellDef,
+    TypedMatCellDefDirective,
     MatHeaderRow,
     MatHeaderRowDef,
     MatRow,

@@ -64,6 +64,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { PutBody } from "../../shared/http/http-client";
 import { injectMutation } from "../../shared/http/inject-mutation";
@@ -99,6 +100,7 @@ type DetachedDocumentSearch = PutBody<"/rest/ontkoppeldedocumenten"> & {
     MatHeaderCellDef,
     MatHeaderCell,
     MatCellDef,
+    TypedMatCellDefDirective,
     MatCell,
     MatHeaderRowDef,
     MatHeaderRow,

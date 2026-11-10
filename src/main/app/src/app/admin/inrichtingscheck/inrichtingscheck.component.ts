@@ -34,13 +34,13 @@ import { MatSortModule, Sort } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { ToggleFilterComponent } from "../../shared/table-zoek-filters/toggle-filter/toggle-filter.component";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { rowOf } from "../../shared/utils/table-row";
 import {
   VersionComponent,
   VersionLayout,
@@ -199,6 +199,7 @@ export function inrichtingscheckBevindingen(
     MatExpansionModule,
     MatIconModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     MatSortModule,
     MatFormFieldModule,
     MatInputModule,
@@ -219,7 +220,6 @@ export class InrichtingscheckComponent
   protected readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
   protected readonly versionLayout = VersionLayout;
-  protected readonly rowOf = rowOf;
   protected readonly bevindingen = inrichtingscheckBevindingen;
   protected dataSource: MatTableDataSource<
     GeneratedType<"RestZaaktypeInrichtingscheck">

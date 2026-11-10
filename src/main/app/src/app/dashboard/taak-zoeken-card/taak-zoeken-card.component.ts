@@ -35,12 +35,14 @@ import {
 import { RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { hashKey } from "@tanstack/angular-query-experimental";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { injectLastSuccessfulSearch } from "../../shared/http/last-successful-search";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { TakenMijnDatasource } from "../../taken/taken-mijn/taken-mijn-datasource";
+import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import {
   getDefaultZoekParameters,
   ZoekParameters,
@@ -65,6 +67,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
     MatHeaderCell,
     MatSortHeader,
     MatCellDef,
+    TypedMatCellDefDirective,
     MatCell,
     MatHeaderRowDef,
     MatHeaderRow,
@@ -82,7 +85,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
     EmptyPipe,
   ],
 })
-export class TaakZoekenCardComponent extends DashboardCardComponent {
+export class TaakZoekenCardComponent extends DashboardCardComponent<TaakZoekObject> {
   private readonly zoekenService = inject(ZoekenService);
 
   private readonly destroyRef = inject(DestroyRef);

@@ -51,6 +51,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { runQuery } from "../../shared/http/run-query";
@@ -83,6 +84,7 @@ type InboxProductaanvraagListParameters =
     MatHeaderCellDef,
     MatHeaderCell,
     MatCellDef,
+    TypedMatCellDefDirective,
     MatCell,
     MatHeaderRowDef,
     MatHeaderRow,

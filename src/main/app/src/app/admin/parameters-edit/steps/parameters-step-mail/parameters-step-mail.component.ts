@@ -15,6 +15,7 @@ import { MatRadioModule } from "@angular/material/radio";
 import { MatTableModule } from "@angular/material/table";
 import { TranslateDirective, TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
+import { TypedMatCellDefDirective } from "../../../../shared/directives/typed-mat-cell-def.directive";
 import { trackControl } from "../../../../shared/form/control-state";
 import { ZacSelect } from "../../../../shared/form/select/select";
 import { ZacToggle } from "../../../../shared/form/toggle/toggle";
@@ -46,6 +47,7 @@ import {
     MatMenuModule,
     MatRadioModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     TranslateDirective,
     TranslatePipe,
     I18nKeyPipe,

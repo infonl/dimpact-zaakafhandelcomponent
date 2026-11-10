@@ -183,6 +183,15 @@ module.exports = defineConfig(
       "@angular-eslint/template/click-events-have-key-events": "error",
       "@angular-eslint/template/interactive-supports-focus": "error",
       "@angular-eslint/template/elements-content": "error",
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "Template:has(> TextAttribute[name='matCellDef']):not(:has(> BoundAttribute[name='matCellDefDataSource']))",
+          message:
+            'Pass the table data source to the cell, e.g. *matCellDef="let row; dataSource: rows()", and import TypedMatCellDefDirective. Without it the row is typed any and the compiler cannot check the fields the cell reads.',
+        },
+      ],
     },
   },
 );

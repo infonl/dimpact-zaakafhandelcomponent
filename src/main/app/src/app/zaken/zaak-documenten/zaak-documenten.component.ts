@@ -46,6 +46,7 @@ import {
 import { FileIcon } from "../../informatie-objecten/model/file-icon";
 import { GekoppeldeZaakEnkelvoudigInformatieobject } from "../../informatie-objecten/model/gekoppelde.zaak.enkelvoudig.informatieobject";
 import { detailExpand } from "../../shared/animations/animations";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
 import { DocumentViewerComponent } from "../../shared/document-viewer/document-viewer.component";
 import { injectMutation } from "../../shared/http/inject-mutation";
@@ -131,6 +132,7 @@ const GEKOPPELDE_COLUMNS = [
     MatCardModule,
     MatSlideToggleModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     MatSortModule,
     MatCheckbox,
     MatIconModule,
@@ -215,9 +217,8 @@ export class ZaakDocumentenComponent implements AfterViewInit {
 
   readonly docSort = viewChild.required("documentenTable", { read: MatSort });
 
-  enkelvoudigInformatieObjecten = new MatTableDataSource<
-    GeneratedType<"RestEnkelvoudigInformatieobject">
-  >();
+  enkelvoudigInformatieObjecten =
+    new MatTableDataSource<GekoppeldeZaakEnkelvoudigInformatieobject>();
   protected readonly documentPreviewRow =
     signal<GeneratedType<"RestEnkelvoudigInformatieobject"> | null>(null);
   downloadAlsZipSelection = new SelectionModel<
@@ -396,8 +397,8 @@ export class ZaakDocumentenComponent implements AfterViewInit {
       });
   }
 
-  isPreviewBeschikbaar(formaat: FileFormat) {
-    return FileFormatUtil.isPreviewAvailable(formaat);
+  isPreviewBeschikbaar(formaat?: string | null) {
+    return FileFormatUtil.isPreviewAvailable(formaat as FileFormat);
   }
 
   protected togglePreview(

@@ -44,6 +44,7 @@ import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruike
 import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
 import { IdentityService } from "../../identity/identity.service";
 import { detailExpand } from "../../shared/animations/animations";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
 import { ColumnPickerComponent } from "../../shared/dynamic-table/column-picker/column-picker.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
@@ -94,6 +95,7 @@ import { TakenWerkvoorraadDatasource } from "./taken-werkvoorraad-datasource";
     MatPaginatorModule,
     MatSortModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     RouterLink,
     SlicePipe,
     StaticTextComponent,
@@ -254,7 +256,7 @@ export class TakenWerkvoorraadComponent
     this.handleAssignOrReleaseWorkflow(TakenVrijgevenDialogComponent, true);
   }
 
-  protected isAfterDate(datum: Date) {
+  protected isAfterDate(datum: Date | string) {
     return DateConditionals.isExceeded(datum);
   }
 

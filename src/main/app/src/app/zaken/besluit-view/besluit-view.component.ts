@@ -19,6 +19,7 @@ import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { skip } from "rxjs";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { ZacDocuments } from "../../shared/form/documents/documents";
 import { BesluitIndicatiesComponent } from "../../shared/indicaties/besluit-indicaties/besluit-indicaties.component";
@@ -45,6 +46,7 @@ import { BesluitIntrekkenDialogComponent } from "./besluit-intrekken-dialog/besl
     MatIconModule,
     MatSortModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     MatTabsModule,
     MatTooltipModule,
     TranslatePipe,

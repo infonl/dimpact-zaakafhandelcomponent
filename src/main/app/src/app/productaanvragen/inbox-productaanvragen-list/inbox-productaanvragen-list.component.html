@@ -75,7 +75,7 @@
         <th mat-header-cell *matHeaderCellDef aria-label="row actions">
           &nbsp;
         </th>
-        <td mat-cell *matCellDef="let row">
+        <td mat-cell *matCellDef="let row; dataSource: dataSource">
           <button
             mat-icon-button
             aria-label="expand row"
@@ -94,7 +94,9 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header disableClear>
           {{ "ontvangstdatum" | translate }}
         </th>
-        <td mat-cell *matCellDef="let row">{{ row.ontvangstdatum | datum }}</td>
+        <td mat-cell *matCellDef="let row; dataSource: dataSource">
+          {{ row.ontvangstdatum | datum }}
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="initiator">
@@ -106,26 +108,32 @@
         >
           {{ "initiator" | translate }}
         </th>
-        <td mat-cell *matCellDef="let row">{{ row.initiatorID }}</td>
+        <td mat-cell *matCellDef="let row; dataSource: dataSource">
+          {{ row.initiatorID }}
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="aantal_bijlagen">
         <th mat-header-cell *matHeaderCellDef>
           {{ "aantal-bijlagen" | translate }}
         </th>
-        <td mat-cell *matCellDef="let row">{{ row.aantalBijlagen }}</td>
+        <td mat-cell *matCellDef="let row; dataSource: dataSource">
+          {{ row.aantalBijlagen }}
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="type">
         <th mat-header-cell *matHeaderCellDef mat-sort-header disableClear>
           {{ "type" | translate }}
         </th>
-        <td mat-cell *matCellDef="let row">{{ row.type }}</td>
+        <td mat-cell *matCellDef="let row; dataSource: dataSource">
+          {{ row.type }}
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="actions" stickyEnd>
         <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let row">
+        <td mat-cell *matCellDef="let row; dataSource: dataSource">
           <div class="flex-row">
             @if (werklijstRechten()?.canInboxProductaanvragenVerwijderen) {
               <button
@@ -163,7 +171,7 @@
       <ng-container matColumnDef="expandedDetail">
         <td
           mat-cell
-          *matCellDef="let row"
+          *matCellDef="let row; dataSource: dataSource"
           [attr.colspan]="displayedColumns.length"
         >
           <div
