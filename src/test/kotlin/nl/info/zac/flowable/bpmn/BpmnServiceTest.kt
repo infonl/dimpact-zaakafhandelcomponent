@@ -736,7 +736,8 @@ class BpmnServiceTest : BehaviorSpec({
 
                 then("an exception is thrown with the name missing error code and nothing is deployed") {
                     bpmnProcessDefinitionNameMissingException.errorCode shouldBe ERROR_CODE_BPMN_PROCESS_DEFINITION_NAME_MISSING
-                    bpmnProcessDefinitionNameMissingException.message shouldBe "BPMN process definition has no name"
+                    bpmnProcessDefinitionNameMissingException.message shouldBe
+                        "BPMN process definition with key 'fakeProcessDefinitionKey' has no name"
                     verify(exactly = 0) { repositoryService.createDeployment() }
                 }
             }
@@ -752,7 +753,8 @@ class BpmnServiceTest : BehaviorSpec({
 
                 then("an exception is thrown with the name missing error code and nothing is deployed") {
                     bpmnProcessDefinitionNameMissingException.errorCode shouldBe ERROR_CODE_BPMN_PROCESS_DEFINITION_NAME_MISSING
-                    bpmnProcessDefinitionNameMissingException.message shouldBe "BPMN process definition has no name"
+                    bpmnProcessDefinitionNameMissingException.message shouldBe
+                        "BPMN process definition with key 'fakeProcessDefinitionKey' has no name"
                     verify(exactly = 0) { repositoryService.createDeployment() }
                 }
             }
@@ -784,8 +786,10 @@ class BpmnServiceTest : BehaviorSpec({
                     bpmnService.addProcessDefinition("fakeFilename.bpmn", processDefinitionContent)
                 }
 
-                then("the missing name is reported and nothing is deployed") {
+                then("the missing name of the second process is reported and nothing is deployed") {
                     bpmnProcessDefinitionNameMissingException.errorCode shouldBe ERROR_CODE_BPMN_PROCESS_DEFINITION_NAME_MISSING
+                    bpmnProcessDefinitionNameMissingException.message shouldBe
+                        "BPMN process definition with key 'fakeProcessDefinitionKey2' has no name"
                     verify(exactly = 0) { repositoryService.createDeployment() }
                 }
             }
