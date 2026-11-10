@@ -447,7 +447,7 @@ describe(ZaakDocumentenComponent.name, () => {
     const titlesInOrder = () =>
       screen
         .getAllByText(/ document$/)
-        .map((title) => title.textContent?.split(" document")[0]);
+        .map((title) => title.textContent?.trim().split(" document")[0]);
 
     const sortBy = async (column: string) => {
       await user.click(screen.getByRole("columnheader", { name: column }));
