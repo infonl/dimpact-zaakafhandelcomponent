@@ -9,13 +9,14 @@ help() {
   echo "Starts the local ZAC development stack in a kind cluster, using the 1Password CLI tools to retrieve secrets."
   echo "See docs/development/installKind.md."
   echo
-  echo "Syntax: $0 [-d|e|h|z|b|l|t|o|n|a|f|v]"
+  echo "Syntax: $0 [-d|D|e|h|z|b|l|t|o|n|a|f|v]"
   echo
   echo "Without -z, -b or -l everything but ZAC starts, so that ZAC can run from an IDE against the cluster."
   echo "Every start makes the cluster match the options: services of options that are left out are removed."
   echo
   echo "General:"
-  echo "   -d     Delete the kind cluster and its data before starting, to start from the seed data again."
+  echo "   -d     Clear the data of the cluster (Postgres, Solr, Open Zaak documents) first, to start from the seed data again."
+  echo "   -D     Delete the kind cluster and its data before starting, to start with a new cluster."
   echo "   -e     Do not use the 1Password CLI tools to retrieve secrets (set the environment variables yourself)."
   echo "   -h     Print this help."
   echo
@@ -39,12 +40,14 @@ help() {
 }
 
 zacInCluster=""
+clearData=false
 deleteCluster=false
 disableOnePassword=false
 profiles=()
-while getopts ':dehzbltonafv' option; do
+while getopts ':dDehzbltonafv' option; do
   case $option in
-    d) deleteCluster=true ;;
+    d) clearData=true ;;
+    D) deleteCluster=true ;;
     e) disableOnePassword=true ;;
     h) help; exit ;;
     z | b | l)
@@ -67,6 +70,8 @@ done
 cd "$(dirname "$0")"
 if [ "$deleteCluster" = true ]; then
   DELETE_CLUSTER=true ./scripts/kind/down.sh
+elif [ "$clearData" = true ]; then
+  ./scripts/kind/clear-data.sh
 fi
 if [ "$zacInCluster" = build ]; then
   echo "Building the ZAC Docker image ..."

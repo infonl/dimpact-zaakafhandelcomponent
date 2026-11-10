@@ -54,7 +54,8 @@ Add these options for the optional services:
 | `-f`   | Open Formulieren, with Open Object and Open Notificaties.                                                    |
 | `-v`   | A local VNG Selectielijst API, with the Selectielijst 2020 data. Open Zaak and Open Archiefbeheer keep using the public Selectielijst API. |
 | `-t`   | The test doubles of the integration tests: WireMock for SmartDocuments, KVK and BAG, GreenMail and Open Object. |
-| `-d`   | Deletes the cluster and its data first, so that everything starts from the seed data again.                  |
+| `-d`   | Clears the data of the cluster first, so that everything starts from the seed data again; see [Clearing the data](#clearing-the-data). |
+| `-D`   | Deletes the cluster and its data first, so that everything starts in a new cluster.                          |
 | `-e`   | Does not use the 1Password CLI; see [Secrets from 1Password](#secrets-from-1password).                       |
 
 The first start creates a kind cluster named `zac` and takes about 5 minutes, most of it to pull the images.
@@ -79,7 +80,16 @@ Open Notificaties sends its notifications to a ZAC in your IDE at `http://host.d
 | Command            | What it does                                                                    |
 |--------------------|---------------------------------------------------------------------------------|
 | `./stop-kind.sh`   | Stops the cluster and keeps its data. `./start-kind.sh` starts it again.        |
-| `./stop-kind.sh -d`| Deletes the cluster and its data.                                               |
+| `./stop-kind.sh -d`| Clears the data of the cluster and stops it.                                    |
+| `./stop-kind.sh -D`| Deletes the cluster and its data.                                               |
+
+### Clearing the data
+
+`-d` keeps the cluster, with the images that it pulled, and removes the workloads and the persistent volumes of
+the namespace `zac`: `postgres-data` with the databases of ZAC, Keycloak, Open Zaak and the other components,
+`solr-data` with the search index and `openzaak-media` with the documents of Open Zaak. The next start creates them
+again and loads the seed data, which is faster than with a new cluster. Use `-D` when the cluster itself is in a bad
+state.
 
 ## Settings and secrets
 
@@ -241,7 +251,7 @@ The script writes the files that it generates, such as the Helm values, to `buil
 
 When a service does not become ready in time, the script stops and shows the pods and the latest warning events.
 A cluster that an earlier version of the script made can keep data that no longer fits, for example in the Postgres
-volume. Start again with `-d` to delete the cluster first.
+volume. Start again with `-d` to clear its data first, or with `-D` to delete the cluster first.
 
 ## Seed data
 
