@@ -1543,6 +1543,7 @@ Het kan gebeuren dat een document bij een verkeerde zaak wordt toegevoegd. Een d
 2 Na het zoeken kan het koppelen aan een andere zaak kan gedaan worden door op de verplaatsknop aan de rechterzijde van een gevonden zaak te klikken. De zaken waar niet aan gekoppeld kan worden zullen in grijs getoond worden en kunnen niet gekozen worden. Om te annuleren kan je op het kruis rechtsboven klikken.
 
 ![Document verplaatsen](./images/document-verplaatsen.png)
+
 ![Document verplaatsen](./images/document-verplaatsen-2.png)
 
 ## Document ontkoppelen
