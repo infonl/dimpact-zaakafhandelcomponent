@@ -14,11 +14,14 @@ import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ProcessEngine.BPMN
 import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionIdMissingException
+import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionMultipleProcessesException
 import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNameMissingException
 import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNotFoundException
 import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionMetadata
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import org.flowable.bpmn.constants.BpmnXMLConstants.BPMN2_NAMESPACE
+import org.flowable.bpmn.constants.BpmnXMLConstants.ELEMENT_PROCESS
 import org.flowable.bpmn.converter.BpmnXMLConverter
 import org.flowable.bpmn.model.ExtensionElement
 import org.flowable.bpmn.model.UserTask
@@ -35,6 +38,7 @@ import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
+import java.io.StringReader
 import java.nio.charset.StandardCharsets.UTF_8
 import java.time.ZonedDateTime
 import java.time.format.DateTimeParseException
@@ -42,6 +46,8 @@ import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
 import javax.imageio.ImageIO
+import javax.xml.stream.XMLInputFactory
+import javax.xml.stream.XMLStreamConstants
 
 @ApplicationScoped
 @Transactional
@@ -212,7 +218,7 @@ class BpmnService @Inject constructor(
         repositoryService.getProcessModel(processDefinitionId)
 
     fun addProcessDefinition(filename: String, processDefinitionContent: String): Deployment {
-        assertExecutableProcessesHaveIdAndName(processDefinitionContent)
+        assertSingleProcessWithIdAndName(processDefinitionContent)
         return repositoryService.createDeployment()
             .addString(filename, processDefinitionContent)
             .name(filename)
@@ -220,19 +226,44 @@ class BpmnService @Inject constructor(
             .deploy()
     }
 
-    /**
-     * Flowable's BpmnXMLConverter leaves out every process without an id, so a BPMN file whose
-     * processes all lack an id results in a model without processes.
-     */
-    private fun assertExecutableProcessesHaveIdAndName(processDefinitionContent: String) {
+    private fun assertSingleProcessWithIdAndName(processDefinitionContent: String) {
         val processes = BpmnXMLConverter()
             .convertToBpmnModel(StringStreamSource(processDefinitionContent, UTF_8), false, true)
             .processes
-        if (processes.isEmpty()) {
-            throw BpmnProcessDefinitionIdMissingException("BPMN process definition has no id")
+        if (countProcessElements(processDefinitionContent) > 1) {
+            throw BpmnProcessDefinitionMultipleProcessesException(
+                "BPMN process definition contains more than one process"
+            )
         }
-        processes.firstOrNull { it.isExecutable && it.name.isNullOrBlank() }?.let {
-            throw BpmnProcessDefinitionNameMissingException("BPMN process definition with key '${it.id}' has no name")
+        val process = processes.firstOrNull()
+            ?: throw BpmnProcessDefinitionIdMissingException("BPMN process definition has no id")
+        if (process.isExecutable && process.name.isNullOrBlank()) {
+            throw BpmnProcessDefinitionNameMissingException("BPMN process definition with key '${process.id}' has no name")
+        }
+    }
+
+    /**
+     * Counts the `<process>` elements in the XML itself, because Flowable's BpmnXMLConverter does not create a
+     * process for a `<process>` without an id: it adds the elements of that process to the process before it.
+     */
+    private fun countProcessElements(processDefinitionContent: String): Int {
+        val xmlStreamReader = XMLInputFactory.newInstance().apply {
+            setProperty(XMLInputFactory.SUPPORT_DTD, false)
+            setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false)
+        }.createXMLStreamReader(StringReader(processDefinitionContent))
+        try {
+            var processElementCount = 0
+            while (xmlStreamReader.hasNext()) {
+                if (xmlStreamReader.next() == XMLStreamConstants.START_ELEMENT &&
+                    xmlStreamReader.localName == ELEMENT_PROCESS &&
+                    xmlStreamReader.namespaceURI == BPMN2_NAMESPACE
+                ) {
+                    processElementCount++
+                }
+            }
+            return processElementCount
+        } finally {
+            xmlStreamReader.close()
         }
     }
 

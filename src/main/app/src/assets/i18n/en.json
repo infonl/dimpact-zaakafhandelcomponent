@@ -927,6 +927,7 @@
   "msg.error.bpmn.process.definition.not.found": "BPMN process definition could not be found.",
   "msg.error.bpmn.process.definition.download.failed": "An error occurred while downloading this BPMN process definition.",
   "msg.error.bpmn.processdefinition.id-missing": "Upload failed. Process definition has no \"id\"",
+  "msg.error.bpmn.processdefinition.multiple-processes": "Upload failed. Process definition contains more than one process",
   "msg.error.bpmn.processdefinition.name-missing": "Upload failed. Process definition has no \"name\"",
   "msg.error.case.has.open.subcases": "This case has open subcases and cannot be closed.",
   "msg.error.case.has.locked.information.objects": "This case has locked documents and cannot be closed.",
