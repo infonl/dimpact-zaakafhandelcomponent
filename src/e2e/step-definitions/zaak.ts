@@ -22,6 +22,7 @@ import { groups } from "../support/worlds/groups";
 import { users } from "../support/worlds/users";
 import { CustomWorld } from "../support/worlds/world";
 import { chooseMaterialOption } from "../utils/material-select";
+import { gotoWithRetry } from "../utils/navigation";
 import { worldUsers, zaakStatus } from "../utils/schemes";
 import {
   currentDutchTimestamp,
@@ -73,7 +74,10 @@ async function openZaak(this: CustomWorld, user: z.infer<typeof worldUsers>) {
   worldUsers.parse(user);
   const caseNumber = this.testStorage.get("caseNumber");
 
-  await this.page.goto(`${this.worldParameters.urls.zac}/zaken/${caseNumber}`);
+  await gotoWithRetry(
+    this.page,
+    `${this.worldParameters.urls.zac}/zaken/${caseNumber}`,
+  );
 }
 
 Given(
@@ -314,7 +318,10 @@ Then(
 
     const caseNumber = this.testStorage.get("caseNumber");
 
-    await this.page.goto(`${this.worldParameters.urls.zac}/taken/mijn`);
+    await gotoWithRetry(
+      this.page,
+      `${this.worldParameters.urls.zac}/taken/mijn`,
+    );
 
     await this.expect(
       this.page.getByRole("cell", { name: caseNumber, exact: true }).first(),

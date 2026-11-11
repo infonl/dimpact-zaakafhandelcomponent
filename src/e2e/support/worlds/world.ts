@@ -9,6 +9,7 @@ import fs from "fs";
 import playwright from "playwright";
 import { z } from "zod";
 import { TestStorageService } from "../../utils/TestStorage.service";
+import { gotoWithRetry } from "../../utils/navigation";
 import { worldParametersScheme } from "../../utils/schemes";
 
 export const authFile = "user.json";
@@ -61,7 +62,7 @@ export class CustomWorld extends World {
   }
 
   async openUrl(url: string) {
-    await this.page.goto(url);
+    await gotoWithRetry(this.page, url);
   }
 }
 setWorldConstructor(CustomWorld);
