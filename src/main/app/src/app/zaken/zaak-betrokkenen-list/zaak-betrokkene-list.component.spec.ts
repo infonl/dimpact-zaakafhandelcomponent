@@ -18,6 +18,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
+import { screen } from "@testing-library/angular";
 import { Observable, of } from "rxjs";
 import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
@@ -141,6 +142,29 @@ describe(ZaakBetrokkeneListComponent.name, () => {
       const rows = await table.getRows();
       const cellText = await rows[0].getCellTextByColumnName();
       expect(cellText["roltype"]).toBe("fakeRoltype");
+    });
+  });
+
+  describe("gegevens ophalen button", () => {
+    it("is enabled for a company betrokkene with a kvk nummer", () => {
+      testQueryClient.setQueryData(
+        zakenService.listBetrokkenenVoorZaakQuery(fakeZaak.uuid).queryKey,
+        [
+          makeBetrokkene({
+            type: "NIET_NATUURLIJK_PERSOON",
+            identificatieType: "VN",
+            vestigingsnummer: "11112222",
+            kvkNummer: "87654321",
+          }),
+        ],
+      );
+      fixture.detectChanges();
+
+      expect(
+        screen.getByRole("button", {
+          name: "actie.betrokkene.gegevens.ophalen",
+        }),
+      ).toBeEnabled();
     });
   });
 
