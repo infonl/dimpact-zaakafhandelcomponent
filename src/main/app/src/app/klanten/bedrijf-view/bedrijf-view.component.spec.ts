@@ -369,7 +369,7 @@ describe(BedrijfViewComponent.name, () => {
       expect(profielOphalenButton()).toBeDisabled();
     });
 
-    it("does not need to be clicked to fetch the vestigingsprofiel when vestigingsnummer is present", () => {
+    it("fetches the vestigingsprofiel and not the basisprofiel without clicking the button when vestigingsnummer is present", () => {
       routeDataSubject.next({
         bedrijf: makeBedrijf({
           type: "RECHTSPERSOON",
@@ -382,7 +382,7 @@ describe(BedrijfViewComponent.name, () => {
       httpController.expectNone(basisprofielUrl);
     });
 
-    it("does not need to be clicked to fetch the basisprofiel when type is RECHTSPERSOON without vestigingsnummer", () => {
+    it("fetches the basisprofiel and not the vestigingsprofiel without clicking the button when type is RECHTSPERSOON without vestigingsnummer", () => {
       routeDataSubject.next({
         bedrijf: makeBedrijf({
           type: "RECHTSPERSOON",
