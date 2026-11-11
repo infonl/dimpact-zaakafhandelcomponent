@@ -10,6 +10,7 @@ import nl.info.client.brp.model.generated.Adres
 import nl.info.client.brp.model.generated.Persoon
 import nl.info.client.brp.model.generated.VerblijfadresBinnenland
 import nl.info.client.kvk.KvkClientService
+import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.smartdocuments.model.document.AanvragerData
 import nl.info.client.smartdocuments.model.document.Data
@@ -17,7 +18,8 @@ import nl.info.client.smartdocuments.model.document.GebruikerData
 import nl.info.client.smartdocuments.model.document.StartformulierData
 import nl.info.client.smartdocuments.model.document.TaskData
 import nl.info.client.smartdocuments.model.document.ZaakData
-import nl.info.client.smartdocuments.model.document.toAanvragerDataBedrijf
+import nl.info.client.smartdocuments.model.document.findCorrespondentieadresOrBezoekadres
+import nl.info.client.smartdocuments.model.document.toAanvragerData
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -143,7 +145,7 @@ class DocumentCreationDataService @Inject constructor(
         ).joinNonBlank()
 
     private fun createAanvragerDataVestiging(vestigingsnummer: String): AanvragerData? =
-        kvkClientService.findVestiging(vestigingsnummer)?.toAanvragerDataBedrijf()
+        kvkClientService.findVestiging(vestigingsnummer)?.let(::createAanvragerDataBedrijf)
 
     private fun createAanvragerDataNietNatuurlijkPersoon(initiator: Rol<*>): AanvragerData? {
         val nietNatuurlijkPersoonIdentificatie = initiator.betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie
@@ -153,7 +155,24 @@ class DocumentCreationDataService @Inject constructor(
                     "KVK number nor vestigingsnummer is not supported"
             )
         }
-        return kvkClientService.findRechtspersoonOrVestiging(nietNatuurlijkPersoonIdentificatie)?.toAanvragerDataBedrijf()
+        return kvkClientService.findRechtspersoonOrVestiging(nietNatuurlijkPersoonIdentificatie)
+            ?.let(::createAanvragerDataBedrijf)
+    }
+
+    private fun createAanvragerDataBedrijf(resultaatItem: ResultaatItem): AanvragerData {
+        val vestigingsnummer = resultaatItem.vestigingsnummer
+        val kvkNummer = resultaatItem.kvkNummer
+        return when {
+            vestigingsnummer != null -> kvkClientService.findVestigingsprofiel(vestigingsnummer)
+                ?.adressen
+                ?.findCorrespondentieadresOrBezoekadres { it.type }
+                ?.toAanvragerData(resultaatItem.naam)
+            kvkNummer != null -> kvkClientService.findBasisprofiel(kvkNummer)
+                ?.embedded?.eigenaar?.adressen
+                ?.findCorrespondentieadresOrBezoekadres { it.type }
+                ?.toAanvragerData(resultaatItem.naam)
+            else -> null
+        } ?: AanvragerData(naam = resultaatItem.naam)
     }
 
     private fun createStartformulierData(zaakUri: URI): StartformulierData? =
