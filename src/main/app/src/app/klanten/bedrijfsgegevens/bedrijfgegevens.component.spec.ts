@@ -483,10 +483,21 @@ describe(BedrijfsgegevensComponent.name, () => {
         expect(screen.queryByText("123456789")).not.toBeInTheDocument();
       });
 
-      it("shows a KvK warning instead of the adressen when fetching the vestigingsprofiel fails", async () => {
+      it("shows that the bedrijf is no longer known at the KvK instead of the adressen when the vestigingsprofiel is not found", async () => {
         httpController
           .expectOne(vestigingsprofielUrl)
           .flush(null, { status: 404, statusText: "fakeNotFound" });
+        await sleep();
+        fixture.detectChanges();
+
+        expect(screen.getByText("adres")).toBeInTheDocument();
+        expect(screen.getByText("msg.hint.kvk.outdated")).toBeInTheDocument();
+      });
+
+      it("shows a KvK error instead of the adressen when fetching the vestigingsprofiel fails otherwise", async () => {
+        httpController
+          .expectOne(vestigingsprofielUrl)
+          .flush(null, { status: 403, statusText: "fakeForbidden" });
         await sleep();
         fixture.detectChanges();
 
@@ -576,10 +587,20 @@ describe(BedrijfsgegevensComponent.name, () => {
         httpController.expectNone(vestigingsprofielUrl);
       });
 
-      it("shows a KvK warning instead of the adressen when fetching the basisprofiel fails", async () => {
+      it("shows that the bedrijf is no longer known at the KvK instead of the adressen when the basisprofiel is not found", async () => {
         httpController
           .expectOne(basisprofielUrl)
           .flush(null, { status: 404, statusText: "fakeNotFound" });
+        await sleep();
+        fixture.detectChanges();
+
+        expect(screen.getByText("msg.hint.kvk.outdated")).toBeInTheDocument();
+      });
+
+      it("shows a KvK error instead of the adressen when fetching the basisprofiel fails otherwise", async () => {
+        httpController
+          .expectOne(basisprofielUrl)
+          .flush(null, { status: 403, statusText: "fakeForbidden" });
         await sleep();
         fixture.detectChanges();
 

@@ -11,6 +11,7 @@ import { MatSidenavModule } from "@angular/material/sidenav";
 import { ActivatedRoute } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
+import { toKvkFoutmelding } from "../kvk-foutmelding";
 import { KlantContactmomentenTabelComponent } from "../../contactmomenten/klant-contactmomenten-tabel/klant-contactmomenten-tabel.component";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
@@ -88,12 +89,13 @@ export class BedrijfViewComponent {
     return null;
   });
 
-  protected readonly profielOphalenMislukt = computed(() => {
+  protected readonly profielFoutmelding = computed(() => {
     const profielAanvraag = this.profielAanvraag();
     if (profielAanvraag?.vestigingsnummer)
-      return this.vestigingsprofielQuery.isError();
-    if (profielAanvraag?.kvkNummer) return this.basisprofielQuery.isError();
-    return false;
+      return toKvkFoutmelding(this.vestigingsprofielQuery.error());
+    if (profielAanvraag?.kvkNummer)
+      return toKvkFoutmelding(this.basisprofielQuery.error());
+    return null;
   });
 
   protected readonly adressen = computed(

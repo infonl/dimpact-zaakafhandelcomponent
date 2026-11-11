@@ -46,11 +46,11 @@
             @if (profiel()) {
               <zac-static-text label="rsin" [value]="profiel()?.rsin" />
             }
-            @if (profielOphalenMislukt()) {
+            @if (profielFoutmelding(); as profielFoutmelding) {
               <zac-static-text
                 label="adres"
                 [icon]="warningIcon"
-                [value]="'msg.hint.kvk.other-error' | translate"
+                [value]="profielFoutmelding | translate"
               />
             }
             @for (adres of adressen(); track adres) {

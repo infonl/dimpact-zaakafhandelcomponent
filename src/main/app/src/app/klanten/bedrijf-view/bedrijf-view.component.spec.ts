@@ -260,10 +260,22 @@ describe(BedrijfViewComponent.name, () => {
       expectStaticText("bezoekadres", "Teststraat 1A, 1234AB Amsterdam");
     });
 
-    it("shows a KvK warning instead of the adressen when fetching the profiel fails", async () => {
+    it("shows that the bedrijf is no longer known at the KvK instead of the adressen when the profiel is not found", async () => {
       httpController
         .expectOne(vestigingsprofielUrl)
         .flush(null, { status: 404, statusText: "fakeNotFound" });
+      await sleep();
+      fixture.detectChanges();
+      await sleep();
+      fixture.detectChanges();
+
+      expectStaticText("adres", "msg.hint.kvk.outdated");
+    });
+
+    it("shows a KvK error instead of the adressen when fetching the profiel fails otherwise", async () => {
+      httpController
+        .expectOne(vestigingsprofielUrl)
+        .flush(null, { status: 403, statusText: "fakeForbidden" });
       await sleep();
       fixture.detectChanges();
       await sleep();
