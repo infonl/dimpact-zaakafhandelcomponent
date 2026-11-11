@@ -230,15 +230,19 @@ class BpmnService @Inject constructor(
         val processes = BpmnXMLConverter()
             .convertToBpmnModel(StringStreamSource(processDefinitionContent, UTF_8), false, true)
             .processes
-        if (countProcessElements(processDefinitionContent) > 1) {
-            throw BpmnProcessDefinitionMultipleProcessesException(
-                "BPMN process definition contains more than one process"
-            )
-        }
+        assertAtMostOneProcess(processDefinitionContent)
         val process = processes.firstOrNull()
             ?: throw BpmnProcessDefinitionIdMissingException("BPMN process definition has no id")
         if (process.isExecutable && process.name.isNullOrBlank()) {
             throw BpmnProcessDefinitionNameMissingException("BPMN process definition with key '${process.id}' has no name")
+        }
+    }
+
+    private fun assertAtMostOneProcess(processDefinitionContent: String) {
+        if (countProcessElements(processDefinitionContent) > 1) {
+            throw BpmnProcessDefinitionMultipleProcessesException(
+                "BPMN process definition contains more than one process"
+            )
         }
     }
 
