@@ -171,25 +171,18 @@ fun VestigingsprofielAdres.toAanvragerData(naam: String?) =
         )
     }
 
-fun BasisprofielAdres.toAanvragerData(naam: String?) =
-    when {
-        postbusnummer != null -> AanvragerData(
-            naam = naam,
-            straat = POSTBUS,
-            huisnummer = postbusnummer.toString(),
-            postcode = postcode,
-            woonplaats = plaats
-        )
-        straatHuisnummer != null -> AanvragerData(
-            naam = naam,
-            straat = listOf(straatHuisnummer, toevoegingAdres).joinNonBlank(" "),
-            woonplaats = listOf(postcodeWoonplaats, land).joinNonBlank(", ")
-        )
-        else -> AanvragerData(
-            naam = naam,
-            straat = straatnaam,
-            huisnummer = listOf(huisnummer?.toString(), huisletter, huisnummerToevoeging).joinNonBlank(),
-            postcode = postcode,
-            woonplaats = plaats
-        )
-    }
+fun BasisprofielAdres.toAanvragerData(naam: String?) = toVestigingsprofielAdres().toAanvragerData(naam)
+
+private fun BasisprofielAdres.toVestigingsprofielAdres() =
+    VestigingsprofielAdres()
+        .postbusnummer(postbusnummer)
+        .straatHuisnummer(straatHuisnummer)
+        .toevoegingAdres(toevoegingAdres)
+        .postcodeWoonplaats(postcodeWoonplaats)
+        .land(land)
+        .straatnaam(straatnaam)
+        .huisnummer(huisnummer)
+        .huisletter(huisletter)
+        .huisnummerToevoeging(huisnummerToevoeging)
+        .postcode(postcode)
+        .plaats(plaats)

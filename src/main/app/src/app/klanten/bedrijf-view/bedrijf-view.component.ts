@@ -10,15 +10,13 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { ActivatedRoute } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
-import { injectQuery } from "@tanstack/angular-query-experimental";
 import { KlantContactmomentenTabelComponent } from "../../contactmomenten/klant-contactmomenten-tabel/klant-contactmomenten-tabel.component";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { injectKvkProfiel, KvkProfielAanvraag } from "../inject-kvk-profiel";
 import { KlantZakenTabelComponent } from "../klant-zaken-tabel/klant-zaken-tabel.component";
-import { KlantenService } from "../klanten.service";
-import { toKvkFoutmelding } from "../kvk-foutmelding";
 
 @Component({
   templateUrl: "./bedrijf-view.component.html",
@@ -38,7 +36,6 @@ import { toKvkFoutmelding } from "../kvk-foutmelding";
 })
 export class BedrijfViewComponent {
   private readonly route = inject(ActivatedRoute);
-  private readonly klantenService = inject(KlantenService);
 
   protected readonly bedrijf = signal<GeneratedType<"RestBedrijf"> | null>(
     null,
@@ -53,7 +50,7 @@ export class BedrijfViewComponent {
   );
   private readonly profielOpgevraagd = signal(false);
 
-  private readonly profielAanvraag = computed(() => {
+  private readonly profielAanvraag = computed((): KvkProfielAanvraag => {
     const bedrijf = this.bedrijf();
     if (bedrijf?.vestigingsnummer)
       return { vestigingsnummer: bedrijf.vestigingsnummer };
@@ -62,48 +59,14 @@ export class BedrijfViewComponent {
     return null;
   });
 
-  private readonly vestigingsprofielQuery = injectQuery(() => {
-    const vestigingsnummer = this.profielAanvraag()?.vestigingsnummer;
-    return {
-      ...this.klantenService.readVestigingsprofiel(vestigingsnummer ?? ""),
-      meta: { reportErrors: false },
-      enabled: !!vestigingsnummer,
-    };
-  });
+  private readonly kvkProfiel = injectKvkProfiel(() => this.profielAanvraag());
 
-  private readonly basisprofielQuery = injectQuery(() => {
-    const kvkNummer = this.profielAanvraag()?.kvkNummer;
-    return {
-      ...this.klantenService.readBasisprofiel(kvkNummer ?? ""),
-      meta: { reportErrors: false },
-      enabled: !!kvkNummer,
-    };
-  });
+  protected readonly profielFoutmelding = this.kvkProfiel.foutmelding;
 
-  private readonly opgehaaldProfiel = computed(() => {
-    const profielAanvraag = this.profielAanvraag();
-    if (profielAanvraag?.vestigingsnummer)
-      return this.vestigingsprofielQuery.data() ?? null;
-    if (profielAanvraag?.kvkNummer)
-      return this.basisprofielQuery.data() ?? null;
-    return null;
-  });
-
-  protected readonly profielFoutmelding = computed(() => {
-    const profielAanvraag = this.profielAanvraag();
-    if (profielAanvraag?.vestigingsnummer)
-      return toKvkFoutmelding(this.vestigingsprofielQuery.error());
-    if (profielAanvraag?.kvkNummer)
-      return toKvkFoutmelding(this.basisprofielQuery.error());
-    return null;
-  });
-
-  protected readonly adressen = computed(
-    () => this.opgehaaldProfiel()?.adressen ?? [],
-  );
+  protected readonly adressen = this.kvkProfiel.adressen;
 
   protected readonly profiel = computed(() =>
-    this.profielOpgevraagd() ? this.opgehaaldProfiel() : null,
+    this.profielOpgevraagd() ? this.kvkProfiel.profiel() : null,
   );
 
   constructor() {

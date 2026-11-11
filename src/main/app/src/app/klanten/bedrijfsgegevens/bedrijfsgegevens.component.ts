@@ -25,8 +25,8 @@ import { StaticTextComponent } from "../../shared/static-text/static-text.compon
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
 import { buildBedrijfRouteLink } from "../bedrijf-route-link";
+import { injectKvkProfiel, KvkProfielAanvraag } from "../inject-kvk-profiel";
 import { KlantenService } from "../klanten.service";
-import { toKvkFoutmelding } from "../kvk-foutmelding";
 
 @Component({
   selector: "zac-bedrijfsgegevens",
@@ -73,46 +73,20 @@ export class BedrijfsgegevensComponent {
     computation: () => false,
   });
 
-  private readonly vestigingsnummer = computed(
-    () => this.bedrijfQuery.data()?.vestigingsnummer,
-  );
-
-  private readonly kvkNummer = computed(
-    () => this.bedrijfQuery.data()?.kvkNummer,
-  );
-
-  private readonly vestigingsprofielQuery = injectQuery(() => ({
-    ...this.klantenService.readVestigingsprofiel(this.vestigingsnummer() ?? ""),
-    meta: { reportErrors: false },
-    enabled: !!this.vestigingsnummer(),
-  }));
-
-  private readonly basisprofielQuery = injectQuery(() => ({
-    ...this.klantenService.readBasisprofiel(this.kvkNummer() ?? ""),
-    meta: { reportErrors: false },
-    enabled: !this.vestigingsnummer() && !!this.kvkNummer(),
-  }));
-
-  private readonly opgehaaldProfiel = computed(() => {
-    if (this.vestigingsnummer())
-      return this.vestigingsprofielQuery.data() ?? null;
-    return this.basisprofielQuery.data() ?? null;
+  private readonly kvkProfiel = injectKvkProfiel((): KvkProfielAanvraag => {
+    const bedrijf = this.bedrijfQuery.data();
+    if (bedrijf?.vestigingsnummer)
+      return { vestigingsnummer: bedrijf.vestigingsnummer };
+    if (bedrijf?.kvkNummer) return { kvkNummer: bedrijf.kvkNummer };
+    return null;
   });
 
-  protected readonly profielFoutmelding = computed(() =>
-    toKvkFoutmelding(
-      this.vestigingsnummer()
-        ? this.vestigingsprofielQuery.error()
-        : this.basisprofielQuery.error(),
-    ),
-  );
+  protected readonly profielFoutmelding = this.kvkProfiel.foutmelding;
 
-  protected readonly adressen = computed(
-    () => this.opgehaaldProfiel()?.adressen ?? [],
-  );
+  protected readonly adressen = this.kvkProfiel.adressen;
 
   protected readonly profiel = computed(() =>
-    this.profielOpgevraagd() ? this.opgehaaldProfiel() : null,
+    this.profielOpgevraagd() ? this.kvkProfiel.profiel() : null,
   );
 
   protected warningIcon = new TextIcon(

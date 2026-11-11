@@ -45,12 +45,14 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.identity.IdentityService
@@ -87,6 +89,13 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
 
     afterEach {
         checkUnnecessaryStub()
+    }
+
+    fun stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak: Zaak, zaakType: ZaakType) {
+        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
+        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
+        every { zgwApiService.findGroepForZaak(zaak) } returns null
+        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
     }
 
     given("A logged-in user and a zaak with a behandelaar and an initiator of type natuurlijk persoon") {
@@ -188,10 +197,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
             kvkClientService.findVestiging(rolVestiging.identificatienummer!!)
         } returns resultaatItem
         every { kvkClientService.findVestigingsprofiel("fakeVestigingsnummer") } returns vestigingsprofiel
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(
@@ -262,10 +268,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
             kvkClientService.findVestiging(vestigingsNummer)
         } returns resultaatItem
         every { kvkClientService.findVestigingsprofiel(vestigingsNummer) } returns vestigingsprofiel
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(
@@ -307,10 +310,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         val zaak = createZaak(zaaktypeUri = zaakType.url)
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns null
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(
@@ -337,10 +337,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         every {
             brpClientService.retrievePersoon(rolNatuurlijkPersoon.identificatienummer!!, any(), any())
         } returns null
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(
@@ -365,10 +362,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolVestiging
         every { kvkClientService.findVestiging(rolVestiging.identificatienummer!!) } returns null
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(
@@ -405,10 +399,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolVestiging
         every { kvkClientService.findVestiging(rolVestiging.identificatienummer!!) } returns resultaatItem
         every { kvkClientService.findVestigingsprofiel("fakeVestigingsnummer") } returns vestigingsprofiel
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(
@@ -441,10 +432,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         every {
             kvkClientService.findVestigingsprofiel("fakeVestigingsnummer")
         } throws WebApplicationException("fakeNotFound", Response.Status.NOT_FOUND)
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(
@@ -473,10 +461,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
         every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns resultaatItem
         every { kvkClientService.findBasisprofiel(kvkNummer) } throws RuntimeException("fakeServerError")
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(
@@ -505,10 +490,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         every {
             kvkClientService.findVestigingsprofiel("fakeVestigingsnummer")
         } returns createVestiging(adressen = emptyList())
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(
@@ -552,10 +534,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
         every { kvkClientService.findRechtspersoonByRsin(rsin) } returns resultaatItem
         every { kvkClientService.findBasisprofiel("fakeKvkNummer") } returns basisprofiel
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(
@@ -605,10 +584,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
         every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns resultaatItem
         every { kvkClientService.findBasisprofiel(kvkNummer) } returns basisprofiel
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(
@@ -650,10 +626,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         every { kvkClientService.findBasisprofiel(kvkNummer) } returns createBasisprofiel(
             eigenaar = createEigenaar(adressen = emptyList())
         )
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(
@@ -742,10 +715,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
         every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns null
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(
@@ -805,10 +775,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         val statusType = createStatusType(omschrijving = "fakeStatusOmschrijving")
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns null
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
         every { zrcClientService.readResultaat(resultaatUri) } returns resultaat
         every { ztcClientService.readResultaattype(resultaat.resultaattype) } returns resultaatType
         every { zrcClientService.readStatus(statusUri) } returns status
@@ -874,10 +841,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         val taskInfo = mockk<TaskInfo>()
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns null
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
         every { flowableTaskService.readTask(taskId) } returns taskInfo
         every { taskInfo.name } returns "fakeTaskName"
         every { taskInfo.assignee } returns assigneeId
@@ -907,10 +871,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         val taskInfo = mockk<TaskInfo>()
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns null
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
         every { flowableTaskService.readTask(taskId) } returns taskInfo
         every { taskInfo.name } returns "fakeTaskName"
         every { taskInfo.assignee } returns null
