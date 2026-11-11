@@ -13,10 +13,12 @@ import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { Subject } from "rxjs";
+import { EMPTY, Subject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { sleep, testQueryClient } from "../../../../setupJest";
+import { sleep } from "../../../../setupJest";
 import { KlantContactmomentenTabelComponent } from "../../contactmomenten/klant-contactmomenten-tabel/klant-contactmomenten-tabel.component";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
+import { QUERY_CLIENT } from "../../shared/http/query-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantZakenTabelComponent } from "../klant-zaken-tabel/klant-zaken-tabel.component";
 import { BedrijfViewComponent } from "./bedrijf-view.component";
@@ -107,6 +109,7 @@ describe(BedrijfViewComponent.name, () => {
   let component: BedrijfViewComponent;
   let fixture: ComponentFixture<BedrijfViewComponent>;
   let httpController: HttpTestingController;
+  let foutAfhandelen: jest.SpyInstance;
 
   const routeDataSubject = new Subject<{
     bedrijf: GeneratedType<"RestBedrijf"> | null;
@@ -142,7 +145,7 @@ describe(BedrijfViewComponent.name, () => {
         provideTranslateService(),
         provideNativeDateAdapter(),
         provideRouter(testRoutes),
-        provideQueryClient(testQueryClient),
+        provideQueryClient(QUERY_CLIENT),
         {
           provide: ActivatedRoute,
           useValue: { data: routeDataSubject.asObservable() },
@@ -166,6 +169,9 @@ describe(BedrijfViewComponent.name, () => {
       .compileComponents();
 
     httpController = TestBed.inject(HttpTestingController);
+    foutAfhandelen = jest
+      .spyOn(TestBed.inject(FoutAfhandelingService), "foutAfhandelen")
+      .mockReturnValue(EMPTY);
 
     fixture = TestBed.createComponent(BedrijfViewComponent);
     component = fixture.componentInstance;
@@ -284,15 +290,13 @@ describe(BedrijfViewComponent.name, () => {
       expectStaticText("adres", "msg.hint.kvk.other-error");
     });
 
-    it("leaves a failed profiel fetch out of the global error handling, so that it does not close open dialogs", () => {
-      const vestigingsprofielQuery = testQueryClient
-        .getQueryCache()
-        .getAll()
-        .find((query) =>
-          JSON.stringify(query.queryKey).includes("vestigingsprofiel"),
-        );
+    it("does not open the error dialog when fetching the profiel fails, so that it does not close open dialogs", async () => {
+      httpController
+        .expectOne(vestigingsprofielUrl)
+        .flush(null, { status: 404, statusText: "fakeNotFound" });
+      await sleep();
 
-      expect(vestigingsprofielQuery?.meta).toEqual({ reportErrors: false });
+      expect(foutAfhandelen).not.toHaveBeenCalled();
     });
 
     it("does not render the adres of the bedrijf, because the profiel has the complete adressen", () => {
@@ -413,6 +417,40 @@ describe(BedrijfViewComponent.name, () => {
 
       httpController.expectNone(vestigingsprofielUrl);
       httpController.expectNone(basisprofielUrl);
+    });
+
+    describe("after navigating to another bedrijf", () => {
+      beforeEach(async () => {
+        routeDataSubject.next({ bedrijf: makeBedrijf() });
+        fixture.detectChanges();
+        await clickProfielOphalen();
+        await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
+
+        routeDataSubject.next({
+          bedrijf: makeBedrijf({ vestigingsnummer: "999988887777" }),
+        });
+        fixture.detectChanges();
+        await flushProfiel(
+          "/rest/klanten/vestigingsprofiel/999988887777",
+          makeBedrijfsprofiel({
+            vestigingsnummer: "999988887777",
+            website: "https://anderbedrijf.nl",
+          }),
+        );
+      });
+
+      it("hides the other profiel details of the new bedrijf until it is clicked again", () => {
+        expect(
+          screen.queryByText("https://anderbedrijf.nl"),
+        ).not.toBeInTheDocument();
+        expect(
+          screen.queryByText("https://testbedrijf.nl"),
+        ).not.toBeInTheDocument();
+      });
+
+      it("is enabled again", () => {
+        expect(profielOphalenButton()).toBeEnabled();
+      });
     });
 
     it("hides the other profiel details until it is clicked", async () => {

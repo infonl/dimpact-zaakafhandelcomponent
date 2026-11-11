@@ -13,15 +13,15 @@ import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatProgressSpinnerHarness } from "@angular/material/progress-spinner/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
-import {
-  provideTanStackQuery,
-  QueryClient,
-} from "@tanstack/angular-query-experimental";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
+import { EMPTY } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep } from "../../../../setupJest";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
+import { QUERY_CLIENT } from "../../shared/http/query-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
 import { KlantenService } from "../klanten.service";
@@ -50,9 +50,7 @@ describe(BedrijfsgegevensComponent.name, () => {
   let httpController: HttpTestingController;
 
   let klantenService: KlantenService;
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
+  let foutAfhandelen: jest.SpyInstance;
 
   const betrokkeneIdentificatie = fromPartial<BetrokkeneIdentificatie>({
     type: "VN",
@@ -82,9 +80,13 @@ describe(BedrijfsgegevensComponent.name, () => {
       providers: [
         provideTranslateService(),
         KlantenService,
-        provideTanStackQuery(queryClient),
+        provideQueryClient(QUERY_CLIENT),
       ],
     });
+
+    foutAfhandelen = jest
+      .spyOn(TestBed.inject(FoutAfhandelingService), "foutAfhandelen")
+      .mockReturnValue(EMPTY);
 
     klantenService = TestBed.inject(KlantenService);
     jest.spyOn(klantenService, "readBedrijf").mockReturnValue({
@@ -101,10 +103,6 @@ describe(BedrijfsgegevensComponent.name, () => {
     httpController = TestBed.inject(HttpTestingController);
 
     fixture.detectChanges();
-  });
-
-  afterEach(() => {
-    queryClient.clear();
   });
 
   describe("while loading", () => {
@@ -507,15 +505,13 @@ describe(BedrijfsgegevensComponent.name, () => {
         ).toBeInTheDocument();
       });
 
-      it("leaves a failed vestigingsprofiel fetch out of the global error handling, so that it does not close open dialogs", () => {
-        const vestigingsprofielQuery = queryClient
-          .getQueryCache()
-          .getAll()
-          .find((query) =>
-            JSON.stringify(query.queryKey).includes("vestigingsprofiel"),
-          );
+      it("does not open the error dialog when fetching the vestigingsprofiel fails, so that it does not close open dialogs", async () => {
+        httpController
+          .expectOne(vestigingsprofielUrl)
+          .flush(null, { status: 404, statusText: "fakeNotFound" });
+        await sleep();
 
-        expect(vestigingsprofielQuery?.meta).toEqual({ reportErrors: false });
+        expect(foutAfhandelen).not.toHaveBeenCalled();
       });
 
       it("renders the adressen once after the button is clicked", async () => {
@@ -609,15 +605,13 @@ describe(BedrijfsgegevensComponent.name, () => {
         ).toBeInTheDocument();
       });
 
-      it("leaves a failed basisprofiel fetch out of the global error handling, so that it does not close open dialogs", () => {
-        const basisprofielQuery = queryClient
-          .getQueryCache()
-          .getAll()
-          .find((query) =>
-            JSON.stringify(query.queryKey).includes("basisprofiel"),
-          );
+      it("does not open the error dialog when fetching the basisprofiel fails, so that it does not close open dialogs", async () => {
+        httpController
+          .expectOne(basisprofielUrl)
+          .flush(null, { status: 404, statusText: "fakeNotFound" });
+        await sleep();
 
-        expect(basisprofielQuery?.meta).toEqual({ reportErrors: false });
+        expect(foutAfhandelen).not.toHaveBeenCalled();
       });
 
       it("renders the adressen from the basisprofiel without clicking the button", async () => {

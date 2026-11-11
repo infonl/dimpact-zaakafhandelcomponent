@@ -490,7 +490,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         }
     }
 
-    given("A zaak with an initiator of type vestiging without a vestigingsprofiel in KVK") {
+    given("A zaak with an initiator of type vestiging whose vestigingsprofiel has no address") {
         val loggedInUser = createLoggedInUser()
         val rolVestiging =
             createRolVestiging(
@@ -502,7 +502,9 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolVestiging
         every { kvkClientService.findVestiging(rolVestiging.identificatienummer!!) } returns resultaatItem
-        every { kvkClientService.findVestigingsprofiel("fakeVestigingsnummer") } returns null
+        every {
+            kvkClientService.findVestigingsprofiel("fakeVestigingsnummer")
+        } returns createVestiging(adressen = emptyList())
         every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
         every { zgwApiService.findGroepForZaak(zaak) } returns null
