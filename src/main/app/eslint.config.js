@@ -25,6 +25,15 @@ const noNativeDateIsoString = {
     'Write the date as a literal with its offset, e.g. "2024-01-01T00:00:00.000+01:00", or use moment().toISOString(): the app sends dates with the local offset, new Date().toISOString() gives UTC.',
 };
 
+// The template rule requires `dataSource:` on every matCellDef, but only the component's imports make it typed:
+// without TypedMatCellDefDirective the binding matches no directive, ngc stays silent and the row is any again.
+const typedMatCellDefImport = {
+  selector:
+    "Program:has(ImportDeclaration[source.value='@angular/material/table'] ImportSpecifier[imported.name=/^(MatTableModule|MatCellDef)$/]):not(:has(ImportSpecifier[imported.name='TypedMatCellDefDirective']))",
+  message:
+    "Import TypedMatCellDefDirective next to MatTableModule or MatCellDef and add it to the component's imports. Without it the dataSource of *matCellDef binds to nothing and the row is typed any.",
+};
+
 const typeScriptLanguageOptions = {
   parserOptions: {
     project: "tsconfig.json",
@@ -116,7 +125,12 @@ module.exports = defineConfig(
           custom: { regex: "^ngOnChanges$", match: false },
         },
       ],
-      "no-restricted-syntax": ["error", noNgDeep, noNativeDateIsoString],
+      "no-restricted-syntax": [
+        "error",
+        noNgDeep,
+        noNativeDateIsoString,
+        typedMatCellDefImport,
+      ],
       // Jira ticket references belong in commit messages and pull request descriptions, not in code.
       // ESLint has no rule with a custom message for comment contents, so this one reports the matched term.
       "no-warning-comments": [
