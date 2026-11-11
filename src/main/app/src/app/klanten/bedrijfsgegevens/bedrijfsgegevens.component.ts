@@ -82,11 +82,13 @@ export class BedrijfsgegevensComponent {
 
   private readonly vestigingsprofielQuery = injectQuery(() => ({
     ...this.klantenService.readVestigingsprofiel(this.vestigingsnummer() ?? ""),
+    meta: { reportErrors: false },
     enabled: !!this.vestigingsnummer(),
   }));
 
   private readonly basisprofielQuery = injectQuery(() => ({
     ...this.klantenService.readBasisprofiel(this.kvkNummer() ?? ""),
+    meta: { reportErrors: false },
     enabled: !this.vestigingsnummer() && !!this.kvkNummer(),
   }));
 
@@ -95,6 +97,12 @@ export class BedrijfsgegevensComponent {
       return this.vestigingsprofielQuery.data() ?? null;
     return this.basisprofielQuery.data() ?? null;
   });
+
+  protected readonly profielOphalenMislukt = computed(() =>
+    this.vestigingsnummer()
+      ? this.vestigingsprofielQuery.isError()
+      : this.basisprofielQuery.isError(),
+  );
 
   protected readonly adressen = computed(
     () => this.opgehaaldProfiel()?.adressen ?? [],

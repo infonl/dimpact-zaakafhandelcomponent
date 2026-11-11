@@ -260,6 +260,29 @@ describe(BedrijfViewComponent.name, () => {
       expectStaticText("bezoekadres", "Teststraat 1A, 1234AB Amsterdam");
     });
 
+    it("shows a KvK warning instead of the adressen when fetching the profiel fails", async () => {
+      httpController
+        .expectOne(vestigingsprofielUrl)
+        .flush(null, { status: 404, statusText: "fakeNotFound" });
+      await sleep();
+      fixture.detectChanges();
+      await sleep();
+      fixture.detectChanges();
+
+      expectStaticText("adres", "msg.hint.kvk.other-error");
+    });
+
+    it("leaves a failed profiel fetch out of the global error handling, so that it does not close open dialogs", () => {
+      const vestigingsprofielQuery = testQueryClient
+        .getQueryCache()
+        .getAll()
+        .find((query) =>
+          JSON.stringify(query.queryKey).includes("vestigingsprofiel"),
+        );
+
+      expect(vestigingsprofielQuery?.meta).toEqual({ reportErrors: false });
+    });
+
     it("does not render the adres of the bedrijf, because the profiel has the complete adressen", () => {
       expect(
         screen.queryByText("Teststraat 1, 1234AB Amsterdam"),

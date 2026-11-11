@@ -65,6 +65,7 @@ export class BedrijfViewComponent {
     const vestigingsnummer = this.profielAanvraag()?.vestigingsnummer;
     return {
       ...this.klantenService.readVestigingsprofiel(vestigingsnummer ?? ""),
+      meta: { reportErrors: false },
       enabled: !!vestigingsnummer,
     };
   });
@@ -73,6 +74,7 @@ export class BedrijfViewComponent {
     const kvkNummer = this.profielAanvraag()?.kvkNummer;
     return {
       ...this.klantenService.readBasisprofiel(kvkNummer ?? ""),
+      meta: { reportErrors: false },
       enabled: !!kvkNummer,
     };
   });
@@ -84,6 +86,14 @@ export class BedrijfViewComponent {
     if (profielAanvraag?.kvkNummer)
       return this.basisprofielQuery.data() ?? null;
     return null;
+  });
+
+  protected readonly profielOphalenMislukt = computed(() => {
+    const profielAanvraag = this.profielAanvraag();
+    if (profielAanvraag?.vestigingsnummer)
+      return this.vestigingsprofielQuery.isError();
+    if (profielAanvraag?.kvkNummer) return this.basisprofielQuery.isError();
+    return false;
   });
 
   protected readonly adressen = computed(

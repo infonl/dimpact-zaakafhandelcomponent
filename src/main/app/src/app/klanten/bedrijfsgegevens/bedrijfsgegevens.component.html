@@ -103,6 +103,13 @@
       @if (profiel()) {
         <zac-static-text label="rsin" [value]="profiel()?.rsin" />
       }
+      @if (profielOphalenMislukt()) {
+        <zac-static-text
+          label="adres"
+          [icon]="warningIcon"
+          [value]="'msg.hint.kvk.other-error' | translate"
+        />
+      }
       @for (adres of adressen(); track adres) {
         <zac-static-text [label]="adres.type" [value]="adres.volledigAdres" />
       }

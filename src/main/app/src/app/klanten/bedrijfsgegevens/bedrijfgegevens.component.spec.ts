@@ -483,6 +483,30 @@ describe(BedrijfsgegevensComponent.name, () => {
         expect(screen.queryByText("123456789")).not.toBeInTheDocument();
       });
 
+      it("shows a KvK warning instead of the adressen when fetching the vestigingsprofiel fails", async () => {
+        httpController
+          .expectOne(vestigingsprofielUrl)
+          .flush(null, { status: 404, statusText: "fakeNotFound" });
+        await sleep();
+        fixture.detectChanges();
+
+        expect(screen.getByText("adres")).toBeInTheDocument();
+        expect(
+          screen.getByText("msg.hint.kvk.other-error"),
+        ).toBeInTheDocument();
+      });
+
+      it("leaves a failed vestigingsprofiel fetch out of the global error handling, so that it does not close open dialogs", () => {
+        const vestigingsprofielQuery = queryClient
+          .getQueryCache()
+          .getAll()
+          .find((query) =>
+            JSON.stringify(query.queryKey).includes("vestigingsprofiel"),
+          );
+
+        expect(vestigingsprofielQuery?.meta).toEqual({ reportErrors: false });
+      });
+
       it("renders the adressen once after the button is clicked", async () => {
         await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
         await clickProfielOphalen();
@@ -550,6 +574,29 @@ describe(BedrijfsgegevensComponent.name, () => {
       it("fetches the basisprofiel and not the vestigingsprofiel without clicking the button", () => {
         httpController.expectOne(basisprofielUrl);
         httpController.expectNone(vestigingsprofielUrl);
+      });
+
+      it("shows a KvK warning instead of the adressen when fetching the basisprofiel fails", async () => {
+        httpController
+          .expectOne(basisprofielUrl)
+          .flush(null, { status: 404, statusText: "fakeNotFound" });
+        await sleep();
+        fixture.detectChanges();
+
+        expect(
+          screen.getByText("msg.hint.kvk.other-error"),
+        ).toBeInTheDocument();
+      });
+
+      it("leaves a failed basisprofiel fetch out of the global error handling, so that it does not close open dialogs", () => {
+        const basisprofielQuery = queryClient
+          .getQueryCache()
+          .getAll()
+          .find((query) =>
+            JSON.stringify(query.queryKey).includes("basisprofiel"),
+          );
+
+        expect(basisprofielQuery?.meta).toEqual({ reportErrors: false });
       });
 
       it("renders the adressen from the basisprofiel without clicking the button", async () => {
