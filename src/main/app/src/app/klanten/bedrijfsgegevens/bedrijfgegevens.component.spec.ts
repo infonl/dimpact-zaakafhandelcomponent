@@ -438,16 +438,58 @@ describe(BedrijfsgegevensComponent.name, () => {
         notifyManager.setScheduler(queueMicrotask);
       });
 
-      it("does not fetch a profiel before the button is clicked", () => {
-        httpController.expectNone(vestigingsprofielUrl);
+      it("fetches the vestigingsprofiel and not the basisprofiel without clicking the button", () => {
+        httpController.expectOne(vestigingsprofielUrl);
         httpController.expectNone(basisprofielUrl);
       });
 
-      it("fetches the vestigingsprofiel and not the basisprofiel", async () => {
+      it("renders the bezoekadres and correspondentieadres from the vestigingsprofiel without clicking the button", async () => {
+        await flushProfiel(
+          vestigingsprofielUrl,
+          makeBedrijfsprofiel({
+            adressen: [
+              {
+                type: "correspondentieadres",
+                volledigAdres: "Piersonstraat 7, 7103HA Winterswijk",
+              },
+              {
+                type: "bezoekadres",
+                volledigAdres: "Jaspersweg 11, 7103AV Winterswijk",
+              },
+            ],
+          }),
+        );
+
+        expect(screen.getByText("correspondentieadres")).toBeInTheDocument();
+        expect(
+          screen.getByText("Piersonstraat 7, 7103HA Winterswijk"),
+        ).toBeInTheDocument();
+        expect(screen.getByText("bezoekadres")).toBeInTheDocument();
+        expect(
+          screen.getByText("Jaspersweg 11, 7103AV Winterswijk"),
+        ).toBeInTheDocument();
+      });
+
+      it("does not render the other profiel details before the button is clicked", async () => {
+        await flushProfiel(
+          vestigingsprofielUrl,
+          makeBedrijfsprofiel({
+            website: "https://test.nl",
+            rsin: "123456789",
+          }),
+        );
+
+        expect(screen.queryByText("https://test.nl")).not.toBeInTheDocument();
+        expect(screen.queryByText("123456789")).not.toBeInTheDocument();
+      });
+
+      it("renders the adressen once after the button is clicked", async () => {
+        await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
         await clickProfielOphalen();
 
-        httpController.expectOne(vestigingsprofielUrl);
-        httpController.expectNone(basisprofielUrl);
+        expect(
+          screen.getAllByText("Teststraat 1, 1234AB Amsterdam"),
+        ).toHaveLength(1);
       });
 
       it("renders totaalWerkzamePersonen after profiel is loaded", async () => {
@@ -505,11 +547,28 @@ describe(BedrijfsgegevensComponent.name, () => {
         notifyManager.setScheduler(queueMicrotask);
       });
 
-      it("fetches the basisprofiel and not the vestigingsprofiel", async () => {
-        await clickProfielOphalen();
-
+      it("fetches the basisprofiel and not the vestigingsprofiel without clicking the button", () => {
         httpController.expectOne(basisprofielUrl);
         httpController.expectNone(vestigingsprofielUrl);
+      });
+
+      it("renders the adressen from the basisprofiel without clicking the button", async () => {
+        await flushProfiel(
+          basisprofielUrl,
+          makeBedrijfsprofiel({
+            adressen: [
+              {
+                type: "bezoekadres",
+                volledigAdres: "Jaspersweg 11, 7103AV Winterswijk",
+              },
+            ],
+          }),
+        );
+
+        expect(screen.getByText("bezoekadres")).toBeInTheDocument();
+        expect(
+          screen.getByText("Jaspersweg 11, 7103AV Winterswijk"),
+        ).toBeInTheDocument();
       });
 
       it("renders rechtsvorm after profiel is loaded", async () => {

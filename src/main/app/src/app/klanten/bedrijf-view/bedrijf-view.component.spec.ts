@@ -239,8 +239,31 @@ describe(BedrijfViewComponent.name, () => {
       expectStaticText("type", "rechtspersoon");
     });
 
-    it("renders adres when no profiel is loaded", () => {
-      expectStaticText("bezoekadres", "Teststraat 1, 1234AB Amsterdam");
+    it("renders the bezoekadres and correspondentieadres from the profiel without clicking the profiel ophalen button", async () => {
+      await flushProfiel(
+        vestigingsprofielUrl,
+        makeBedrijfsprofiel({
+          adressen: [
+            {
+              type: "correspondentieadres",
+              volledigAdres: "Postbus 12, 1000AA Amsterdam",
+            },
+            {
+              type: "bezoekadres",
+              volledigAdres: "Teststraat 1A, 1234AB Amsterdam",
+            },
+          ],
+        }),
+      );
+
+      expectStaticText("correspondentieadres", "Postbus 12, 1000AA Amsterdam");
+      expectStaticText("bezoekadres", "Teststraat 1A, 1234AB Amsterdam");
+    });
+
+    it("does not render the adres of the bedrijf, because the profiel has the complete adressen", () => {
+      expect(
+        screen.queryByText("Teststraat 1, 1234AB Amsterdam"),
+      ).not.toBeInTheDocument();
     });
 
     it("renders telefoonnummer field", () => {
@@ -307,7 +330,7 @@ describe(BedrijfViewComponent.name, () => {
       expect(profielOphalenButton()).toBeDisabled();
     });
 
-    it("fetches the vestigingsprofiel when vestigingsnummer is present", async () => {
+    it("does not need to be clicked to fetch the vestigingsprofiel when vestigingsnummer is present", () => {
       routeDataSubject.next({
         bedrijf: makeBedrijf({
           type: "RECHTSPERSOON",
@@ -316,13 +339,11 @@ describe(BedrijfViewComponent.name, () => {
       });
       fixture.detectChanges();
 
-      await clickProfielOphalen();
-
       httpController.expectOne(vestigingsprofielUrl);
       httpController.expectNone(basisprofielUrl);
     });
 
-    it("fetches the basisprofiel when type is RECHTSPERSOON without vestigingsnummer", async () => {
+    it("does not need to be clicked to fetch the basisprofiel when type is RECHTSPERSOON without vestigingsnummer", () => {
       routeDataSubject.next({
         bedrijf: makeBedrijf({
           type: "RECHTSPERSOON",
@@ -332,9 +353,8 @@ describe(BedrijfViewComponent.name, () => {
       });
       fixture.detectChanges();
 
-      await clickProfielOphalen();
-
       httpController.expectOne(basisprofielUrl);
+      httpController.expectNone(vestigingsprofielUrl);
     });
 
     it("is disabled after it is clicked", async () => {
@@ -346,12 +366,29 @@ describe(BedrijfViewComponent.name, () => {
       expect(profielOphalenButton()).toBeDisabled();
     });
 
-    it("does not fetch a profiel before it is clicked", () => {
-      routeDataSubject.next({ bedrijf: makeBedrijf() });
+    it("does not fetch a profiel when the bedrijf is no vestiging and no rechtspersoon", () => {
+      routeDataSubject.next({
+        bedrijf: makeBedrijf({
+          type: "NEVENVESTIGING",
+          vestigingsnummer: undefined,
+          kvkNummer: "12345678",
+        }),
+      });
       fixture.detectChanges();
 
       httpController.expectNone(vestigingsprofielUrl);
       httpController.expectNone(basisprofielUrl);
+    });
+
+    it("hides the other profiel details until it is clicked", async () => {
+      routeDataSubject.next({ bedrijf: makeBedrijf() });
+      fixture.detectChanges();
+      await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
+
+      expect(
+        screen.queryByText("https://testbedrijf.nl"),
+      ).not.toBeInTheDocument();
+      expect(screen.queryByText("rsin")).not.toBeInTheDocument();
     });
   });
 
@@ -363,7 +400,7 @@ describe(BedrijfViewComponent.name, () => {
       await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
     });
 
-    it("hides adres field when profiel is loaded", () => {
+    it("renders each adres once after the profiel ophalen button is clicked", () => {
       expect(screen.getAllByText("bezoekadres")).toHaveLength(1);
       expect(
         screen.getAllByText("Teststraat 1, 1234AB Amsterdam"),

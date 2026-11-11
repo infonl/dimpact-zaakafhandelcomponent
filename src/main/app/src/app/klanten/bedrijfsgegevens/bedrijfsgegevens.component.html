@@ -102,13 +102,8 @@
       />
       @if (profiel()) {
         <zac-static-text label="rsin" [value]="profiel()?.rsin" />
-      } @else {
-        <zac-static-text
-          [label]="bedrijfQuery.data()?.adres?.type ?? 'adres'"
-          [value]="bedrijfQuery.data()?.adres?.volledigAdres"
-        />
       }
-      @for (adres of profiel()?.adressen; track adres) {
+      @for (adres of adressen(); track adres) {
         <zac-static-text [label]="adres.type" [value]="adres.volledigAdres" />
       }
       <div class="flex-column gap-2">

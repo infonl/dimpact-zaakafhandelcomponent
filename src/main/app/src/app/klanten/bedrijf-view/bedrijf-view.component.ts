@@ -50,10 +50,16 @@ export class BedrijfViewComponent {
     "",
     "error",
   );
-  private readonly profielAanvraag = signal<Pick<
-    GeneratedType<"RestBedrijf">,
-    "vestigingsnummer" | "kvkNummer"
-  > | null>(null);
+  private readonly profielOpgevraagd = signal(false);
+
+  private readonly profielAanvraag = computed(() => {
+    const bedrijf = this.bedrijf();
+    if (bedrijf?.vestigingsnummer)
+      return { vestigingsnummer: bedrijf.vestigingsnummer };
+    if (bedrijf?.type === "RECHTSPERSOON" && bedrijf.kvkNummer)
+      return { kvkNummer: bedrijf.kvkNummer };
+    return null;
+  });
 
   private readonly vestigingsprofielQuery = injectQuery(() => {
     const vestigingsnummer = this.profielAanvraag()?.vestigingsnummer;
@@ -64,38 +70,41 @@ export class BedrijfViewComponent {
   });
 
   private readonly basisprofielQuery = injectQuery(() => {
-    const profielAanvraag = this.profielAanvraag();
+    const kvkNummer = this.profielAanvraag()?.kvkNummer;
     return {
-      ...this.klantenService.readBasisprofiel(profielAanvraag?.kvkNummer ?? ""),
-      enabled:
-        !profielAanvraag?.vestigingsnummer && !!profielAanvraag?.kvkNummer,
+      ...this.klantenService.readBasisprofiel(kvkNummer ?? ""),
+      enabled: !!kvkNummer,
     };
   });
 
-  protected readonly profiel = computed(() => {
+  private readonly opgehaaldProfiel = computed(() => {
     const profielAanvraag = this.profielAanvraag();
-    if (!profielAanvraag) return null;
-    if (profielAanvraag.vestigingsnummer)
+    if (profielAanvraag?.vestigingsnummer)
       return this.vestigingsprofielQuery.data() ?? null;
-    return this.basisprofielQuery.data() ?? null;
+    if (profielAanvraag?.kvkNummer)
+      return this.basisprofielQuery.data() ?? null;
+    return null;
   });
+
+  protected readonly adressen = computed(
+    () => this.opgehaaldProfiel()?.adressen ?? [],
+  );
+
+  protected readonly profiel = computed(() =>
+    this.profielOpgevraagd() ? this.opgehaaldProfiel() : null,
+  );
 
   constructor() {
     this.route.data.subscribe((data) => {
       const bedrijf: GeneratedType<"RestBedrijf"> | null = data.bedrijf;
       this.bedrijf.set(bedrijf);
-      this.profielOphalenMogelijk.set(
-        !!bedrijf?.vestigingsnummer ||
-          (bedrijf?.type === "RECHTSPERSOON" && !!bedrijf?.kvkNummer),
-      );
+      this.profielOpgevraagd.set(false);
+      this.profielOphalenMogelijk.set(!!this.profielAanvraag());
     });
   }
 
   protected ophalenProfiel() {
     this.profielOphalenMogelijk.set(false);
-    this.profielAanvraag.set({
-      vestigingsnummer: this.bedrijf()?.vestigingsnummer,
-      kvkNummer: this.bedrijf()?.kvkNummer,
-    });
+    this.profielOpgevraagd.set(true);
   }
 }

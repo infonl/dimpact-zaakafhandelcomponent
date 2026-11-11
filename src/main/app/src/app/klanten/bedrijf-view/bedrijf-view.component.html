@@ -45,13 +45,8 @@
             />
             @if (profiel()) {
               <zac-static-text label="rsin" [value]="profiel()?.rsin" />
-            } @else {
-              <zac-static-text
-                [label]="bedrijf()?.adres?.type ?? 'adres'"
-                [value]="bedrijf()?.adres?.volledigAdres"
-              />
             }
-            @for (adres of profiel()?.adressen; track adres) {
+            @for (adres of adressen(); track adres) {
               <zac-static-text
                 [label]="adres.type"
                 [value]="adres.volledigAdres"

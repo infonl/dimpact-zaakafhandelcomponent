@@ -82,23 +82,27 @@ export class BedrijfsgegevensComponent {
 
   private readonly vestigingsprofielQuery = injectQuery(() => ({
     ...this.klantenService.readVestigingsprofiel(this.vestigingsnummer() ?? ""),
-    enabled: this.profielOpgevraagd() && !!this.vestigingsnummer(),
+    enabled: !!this.vestigingsnummer(),
   }));
 
   private readonly basisprofielQuery = injectQuery(() => ({
     ...this.klantenService.readBasisprofiel(this.kvkNummer() ?? ""),
-    enabled:
-      this.profielOpgevraagd() &&
-      !this.vestigingsnummer() &&
-      !!this.kvkNummer(),
+    enabled: !this.vestigingsnummer() && !!this.kvkNummer(),
   }));
 
-  protected readonly profiel = computed(() => {
-    if (!this.profielOpgevraagd()) return null;
+  private readonly opgehaaldProfiel = computed(() => {
     if (this.vestigingsnummer())
       return this.vestigingsprofielQuery.data() ?? null;
     return this.basisprofielQuery.data() ?? null;
   });
+
+  protected readonly adressen = computed(
+    () => this.opgehaaldProfiel()?.adressen ?? [],
+  );
+
+  protected readonly profiel = computed(() =>
+    this.profielOpgevraagd() ? this.opgehaaldProfiel() : null,
+  );
 
   protected warningIcon = new TextIcon(
     () => true,
