@@ -43,6 +43,7 @@ import { I18nKeyPipe } from "src/app/shared/pipes/i18n-key.pipe";
 import { DateRangeFilterComponent } from "src/app/shared/table-zoek-filters/date-range-filter/date-range-filter.component";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { toI18nKey } from "../../shared/utils/i18n-key";
 import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
@@ -83,6 +84,7 @@ const newCaseRelationOption = <T extends ZaakCreateKoppeling["relatieType"]>(
     MatDivider,
     MatButton,
     MatTableModule,
+    TypedMatCellDefDirective,
     MatExpansionModule,
     ZacSelect,
     ZacInput,

@@ -19,6 +19,7 @@ import { MatSortModule, Sort } from "@angular/material/sort";
 import { MatTableModule } from "@angular/material/table";
 import { RouterModule } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { injectLastSuccessfulSearch } from "../../shared/http/last-successful-search";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
@@ -44,6 +45,7 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
     ZaakIdentificatieComponent,
     MatCardModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     MatSortModule,
     MatPaginatorModule,
     MatSlideToggleModule,

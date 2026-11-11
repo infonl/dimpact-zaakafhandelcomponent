@@ -47,6 +47,7 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
 import { ZakenMijnDatasource } from "./zaken-mijn-datasource";
 
 import { detailExpand } from "../../shared/animations/animations";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 
@@ -68,6 +69,7 @@ import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak
     MatSort,
     MatSortHeader,
     MatTableModule,
+    TypedMatCellDefDirective,
     RouterLink,
     TranslatePipe,
     ZoekopdrachtComponent,

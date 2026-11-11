@@ -20,6 +20,7 @@ import { TranslatePipe } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { startWith, switchMap, tap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { PutBody } from "../../shared/http/http-client";
 import { runQuery } from "../../shared/http/run-query";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
@@ -35,6 +36,7 @@ import { ContactmomentenService } from "../contactmomenten.service";
   imports: [
     MatCardModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     MatPaginatorModule,
     TranslatePipe,
     DatumPipe,

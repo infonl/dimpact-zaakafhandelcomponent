@@ -28,6 +28,7 @@ import { TranslatePipe } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
+import { TypedMatCellDefDirective } from "../../../shared/directives/typed-mat-cell-def.directive";
 import { trackControl } from "../../../shared/form/control-state";
 import { ZacInput } from "../../../shared/form/input/input";
 import { ZacSelect } from "../../../shared/form/select/select";
@@ -57,6 +58,7 @@ import { FormCommunicatieService } from "../form-communicatie-service";
     ZacInput,
     ReactiveFormsModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     MatSortModule,
     MatButtonModule,
     MatIconModule,

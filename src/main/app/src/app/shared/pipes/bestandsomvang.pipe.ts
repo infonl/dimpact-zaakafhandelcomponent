@@ -13,7 +13,7 @@ import { KB_IN_BYTES, MB_IN_BYTES } from "../utils/constants";
 export class BestandsomvangPipe implements PipeTransform {
   readonly locale = inject(LOCALE_ID);
 
-  transform(value: number) {
+  transform(value?: number | null) {
     if (value) {
       const stringValue =
         value / MB_IN_BYTES < 1

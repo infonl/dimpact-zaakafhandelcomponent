@@ -27,6 +27,7 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { ClientMatcher } from "../../shared/dynamic-table/filter/clientMatcher";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
@@ -51,6 +52,7 @@ import { ZaakafhandelParametersListParameters } from "./zaakafhandel-parameters-
     MatSidenavModule,
     MatCardModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     MatSortModule,
     MatFormFieldModule,
     MatSelectModule,

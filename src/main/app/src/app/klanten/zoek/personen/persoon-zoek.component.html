@@ -73,19 +73,23 @@
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
         {{ "bsn" | translate }}
       </th>
-      <td *matCellDef="let persoon" mat-cell>{{ persoon.bsn | empty }}</td>
+      <td *matCellDef="let persoon; dataSource: personen()" mat-cell>
+        {{ persoon.bsn | empty }}
+      </td>
     </ng-container>
     <ng-container matColumnDef="naam">
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
         {{ "naam" | translate }}
       </th>
-      <td *matCellDef="let persoon" mat-cell>{{ persoon.naam | empty }}</td>
+      <td *matCellDef="let persoon; dataSource: personen()" mat-cell>
+        {{ persoon.naam | empty }}
+      </td>
     </ng-container>
     <ng-container matColumnDef="geboortedatum">
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
         {{ "geboortedatum" | translate }}
       </th>
-      <td *matCellDef="let persoon" mat-cell>
+      <td *matCellDef="let persoon; dataSource: personen()" mat-cell>
         {{ persoon.geboortedatum | datum | empty }}
       </td>
     </ng-container>
@@ -93,13 +97,13 @@
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
         {{ "verblijfplaats" | translate }}
       </th>
-      <td *matCellDef="let persoon" mat-cell>
+      <td *matCellDef="let persoon; dataSource: personen()" mat-cell>
         {{ persoon.verblijfplaats | empty }}
       </td>
     </ng-container>
     <ng-container matColumnDef="acties" stickyEnd>
       <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: personen()">
         @if (isSelectable()) {
           <button
             mat-icon-button

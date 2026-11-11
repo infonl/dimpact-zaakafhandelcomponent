@@ -43,7 +43,11 @@
           <th mat-header-cell *matHeaderCellDef mat-sort-header>
             {{ "naam" | translate }}
           </th>
-          <td mat-cell *matCellDef="let taak" colspan="2">
+          <td
+            mat-cell
+            *matCellDef="let taak; dataSource: takenDataSource"
+            colspan="2"
+          >
             {{ taak.data.naam | empty }}
           </td>
         </ng-container>
@@ -51,7 +55,7 @@
           <th mat-header-cell *matHeaderCellDef mat-sort-header>
             {{ "status" | translate }}
           </th>
-          <td mat-cell *matCellDef="let taak">
+          <td mat-cell *matCellDef="let taak; dataSource: takenDataSource">
             <mat-chip
               [color]="taskStatusChipColor(taak.data.status)"
               [highlighted]="true"
@@ -64,7 +68,7 @@
           <th mat-header-cell *matHeaderCellDef mat-sort-header>
             {{ "creatiedatum" | translate }}
           </th>
-          <td mat-cell *matCellDef="let taak">
+          <td mat-cell *matCellDef="let taak; dataSource: takenDataSource">
             {{ taak.data.creatiedatumTijd | datum | empty }}
           </td>
         </ng-container>
@@ -72,7 +76,7 @@
           <th mat-header-cell *matHeaderCellDef mat-sort-header>
             {{ "toekenningsdatum" | translate }}
           </th>
-          <td mat-cell *matCellDef="let taak">
+          <td mat-cell *matCellDef="let taak; dataSource: takenDataSource">
             {{ taak.data.toekenningsdatumTijd | datum | empty }}
           </td>
         </ng-container>
@@ -80,7 +84,7 @@
           <th mat-header-cell *matHeaderCellDef mat-sort-header>
             {{ "fataledatum" | translate }}
           </th>
-          <td mat-cell *matCellDef="let taak">
+          <td mat-cell *matCellDef="let taak; dataSource: takenDataSource">
             <div class="flex-row items-center gap-5">
               {{ taak.data.fataledatum | datum | empty }}
               @if (
@@ -100,7 +104,7 @@
           <th mat-header-cell *matHeaderCellDef mat-sort-header>
             {{ "groep" | translate }}
           </th>
-          <td mat-cell *matCellDef="let taak">
+          <td mat-cell *matCellDef="let taak; dataSource: takenDataSource">
             {{ taak.data.groep | empty: "naam" }}
             @if (taak.data.groep?.isActive === false) {
               <em class="inactive-label"
@@ -113,13 +117,13 @@
           <th mat-header-cell *matHeaderCellDef mat-sort-header>
             {{ "behandelaar" | translate }}
           </th>
-          <td mat-cell *matCellDef="let taak">
+          <td mat-cell *matCellDef="let taak; dataSource: takenDataSource">
             {{ taak.data.behandelaar | empty: "naam" }}
           </td>
         </ng-container>
         <ng-container matColumnDef="id" stickyEnd>
           <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let row">
+          <td mat-cell *matCellDef="let row; dataSource: takenDataSource">
             <div class="flex-row">
               @if (row.data.rechten.canLezen) {
                 <a
@@ -148,7 +152,11 @@
         </ng-container>
 
         <ng-container matColumnDef="expandedTaakDetail">
-          <td mat-cell *matCellDef="let row" colspan="9">
+          <td
+            mat-cell
+            *matCellDef="let row; dataSource: takenDataSource"
+            colspan="9"
+          >
             <div [@detailExpand]="row.expanded ? 'expanded' : 'collapsed'">
               <div class="flex-row flex-wrap gap-10">
                 <zac-static-text
@@ -158,13 +166,13 @@
                 @if (row.data.taakinformatie?.bijlagen) {
                   <zac-static-text
                     label="bijlage"
-                    [value]="row.data.taakinformatie?.bijlagen"
+                    [value]="row.data.taakinformatie.bijlagen"
                   />
                 }
                 @if (row.data.taakinformatie?.opmerking) {
                   <zac-static-text
                     label="opmerking"
-                    [value]="row.data.taakinformatie?.opmerking"
+                    [value]="row.data.taakinformatie.opmerking"
                   />
                 }
               </div>

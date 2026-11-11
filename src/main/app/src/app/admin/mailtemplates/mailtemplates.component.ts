@@ -39,6 +39,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
@@ -66,6 +67,7 @@ import { MailtemplateKoppelingService } from "../mailtemplate-koppeling.service"
     I18nKeyPipe,
     MatSidenavModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     MatSortModule,
     MatCardModule,
     MatIconModule,

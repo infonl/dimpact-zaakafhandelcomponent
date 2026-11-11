@@ -63,7 +63,13 @@
             >
             </mat-checkbox>
           </th>
-          <td mat-cell *matCellDef="let document">
+          <td
+            mat-cell
+            *matCellDef="
+              let document;
+              dataSource: enkelvoudigInformatieObjecten
+            "
+          >
             <mat-checkbox
               class="mat-narrow-checkbox"
               [aria-label]="'actie.selecteren' | translate"
@@ -77,7 +83,10 @@
 
         <ng-container matColumnDef="preview">
           <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let row">
+          <td
+            mat-cell
+            *matCellDef="let row; dataSource: enkelvoudigInformatieObjecten"
+          >
             @if (isPreviewBeschikbaar(row.formaat)) {
               <mat-icon
                 class="preview-chevron"
@@ -91,7 +100,10 @@
 
         <ng-container matColumnDef="bestandstype">
           <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let row">
+          <td
+            mat-cell
+            *matCellDef="let row; dataSource: enkelvoudigInformatieObjecten"
+          >
             <zac-document-icon
               [bestandsnaam]="row.bestandsnaam"
             ></zac-document-icon>
@@ -102,7 +114,12 @@
           <th mat-sort-header mat-header-cell *matHeaderCellDef>
             {{ "titel" | translate }}
           </th>
-          <td mat-cell *matCellDef="let row">{{ row.titel }}</td>
+          <td
+            mat-cell
+            *matCellDef="let row; dataSource: enkelvoudigInformatieObjecten"
+          >
+            {{ row.titel }}
+          </td>
         </ng-container>
 
         @for (definition of dataColumnDefinitions; track definition.column) {
@@ -118,7 +135,10 @@
             >
               {{ definition.header ?? column | i18nKey | translate }}
             </th>
-            <td mat-cell *matCellDef="let row">
+            <td
+              mat-cell
+              *matCellDef="let row; dataSource: enkelvoudigInformatieObjecten"
+            >
               @if (column === "identificatie") {
                 {{ row[column] | empty }}
               }
@@ -149,7 +169,7 @@
               }
               @if (column === "vertrouwelijkheidaanduiding") {
                 {{
-                  (row[column] ? row[column] : "")
+                  row.vertrouwelijkheidaanduiding
                     | vertrouwelijkaanduidingToTranslationKey
                     | translate
                     | empty
@@ -169,7 +189,10 @@
           <th mat-header-cell *matHeaderCellDef>
             {{ "indicaties" | translate }}
           </th>
-          <td mat-cell *matCellDef="let row">
+          <td
+            mat-cell
+            *matCellDef="let row; dataSource: enkelvoudigInformatieObjecten"
+          >
             <zac-informatie-object-indicaties
               [document]="row"
               [layout]="indicatiesLayout.COMPACT"
@@ -179,9 +202,13 @@
 
         <ng-container matColumnDef="url" stickyEnd>
           <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let row" (click)="$event.stopPropagation()">
+          <td
+            mat-cell
+            *matCellDef="let row; dataSource: enkelvoudigInformatieObjecten"
+            (click)="$event.stopPropagation()"
+          >
             <div class="acties grid">
-              @if (row.rechten.canLezen) {
+              @if (row.rechten?.canLezen) {
                 <a
                   mat-icon-button
                   [routerLink]="['/informatie-objecten', row.uuid]"
@@ -213,7 +240,7 @@
             </div>
             <mat-menu #menu="matMenu">
               @if (
-                row.rechten.canWijzigen &&
+                row.rechten?.canWijzigen &&
                 !row.isBesluitDocument &&
                 !row.relatieType
               ) {
@@ -223,7 +250,7 @@
                 </button>
               }
               @if (
-                row.rechten.canWijzigen &&
+                row.rechten?.canWijzigen &&
                 !row.isBesluitDocument &&
                 !row.relatieType
               ) {
@@ -243,7 +270,7 @@
         <ng-container matColumnDef="expandedDetail">
           <td
             mat-cell
-            *matCellDef="let row"
+            *matCellDef="let row; dataSource: enkelvoudigInformatieObjecten"
             [attr.colspan]="documentColumns().length"
           >
             <div

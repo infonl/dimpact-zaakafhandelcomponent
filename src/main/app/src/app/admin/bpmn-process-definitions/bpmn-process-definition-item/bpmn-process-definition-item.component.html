@@ -102,12 +102,27 @@
         >
           <ng-container matColumnDef="index">
             <th mat-header-cell *matHeaderCellDef>#</th>
-            <td mat-cell *matCellDef="let row; index as i">{{ i + 1 }}</td>
+            <td
+              mat-cell
+              *matCellDef="
+                let row;
+                index as i;
+                dataSource: processDefinition().details?.forms ?? []
+              "
+            >
+              {{ i + 1 }}
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="uploaded">
             <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let row">
+            <td
+              mat-cell
+              *matCellDef="
+                let row;
+                dataSource: processDefinition().details?.forms ?? []
+              "
+            >
               @if (row.isUploaded) {
                 <mat-icon
                   outlined
@@ -138,7 +153,10 @@
             </th>
             <td
               mat-cell
-              *matCellDef="let row"
+              *matCellDef="
+                let row;
+                dataSource: processDefinition().details?.forms ?? []
+              "
               [class.not-uploaded]="!row.isUploaded"
             >
               {{ row.formKey }}
@@ -151,7 +169,10 @@
             </th>
             <td
               mat-cell
-              *matCellDef="let row"
+              *matCellDef="
+                let row;
+                dataSource: processDefinition().details?.forms ?? []
+              "
               [class.not-uploaded]="!row.isUploaded"
             >
               {{ row.title | empty }}
@@ -160,7 +181,13 @@
 
           <ng-container matColumnDef="actions" stickyEnd>
             <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let row">
+            <td
+              mat-cell
+              *matCellDef="
+                let row;
+                dataSource: processDefinition().details?.forms ?? []
+              "
+            >
               @if (row.isUploaded) {
                 <span
                   [matTooltip]="

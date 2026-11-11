@@ -23,6 +23,7 @@ import { MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { injectLastSuccessfulSearch } from "../../shared/http/last-successful-search";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
@@ -60,6 +61,7 @@ type KlantZakenZoekopdracht = {
     NgClass,
     MatCardModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     MatSortModule,
     MatPaginatorModule,
     MatSlideToggleModule,

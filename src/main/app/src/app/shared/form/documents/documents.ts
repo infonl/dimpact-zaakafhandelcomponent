@@ -19,6 +19,7 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslatePipe } from "@ngx-translate/core";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
+import { TypedMatCellDefDirective } from "../../directives/typed-mat-cell-def.directive";
 import { DocumentIconComponent } from "../../document-icon/document-icon.component";
 import { IndicatiesLayout } from "../../indicaties/indicaties.component";
 import { InformatieObjectIndicatiesComponent } from "../../indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
@@ -42,6 +43,7 @@ import { MultiInputFormField } from "../BaseFormField";
     MatIconModule,
     MatProgressSpinnerModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     ReactiveFormsModule,
     TranslatePipe,
   ],

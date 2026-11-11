@@ -9,7 +9,7 @@
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
         {{ "datum" | translate }}
       </th>
-      <td *matCellDef="let regel" mat-cell>
+      <td *matCellDef="let regel; dataSource: historie" mat-cell>
         <div matTooltip="{{ regel.datumTijd | datum: 'short' }}">
           {{ regel.datumTijd | datum | empty }}
         </div>
@@ -19,7 +19,7 @@
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
         {{ "door" | translate }}
       </th>
-      <td *matCellDef="let regel" mat-cell>
+      <td *matCellDef="let regel; dataSource: historie" mat-cell>
         <div>{{ regel.door | empty }}</div>
       </td>
     </ng-container>
@@ -27,7 +27,7 @@
       <th mat-header-cell *matHeaderCellDef>
         {{ "gegeven" | translate }}
       </th>
-      <td mat-cell *matCellDef="let regel">
+      <td mat-cell *matCellDef="let regel; dataSource: historie">
         <read-more
           [text]="regel.attribuutLabel | i18nLabel"
           [maxLength]="20"
@@ -38,7 +38,7 @@
       <th mat-header-cell *matHeaderCellDef>
         {{ "actie" | translate }}
       </th>
-      <td mat-cell *matCellDef="let regel">
+      <td mat-cell *matCellDef="let regel; dataSource: historie">
         <read-more
           [text]="
             regel.actie && ('action.case.' + regel.actie | i18nKey | translate)
@@ -51,7 +51,7 @@
       <th mat-header-cell *matHeaderCellDef>
         {{ "waarde.oud" | translate }}
       </th>
-      <td mat-cell *matCellDef="let regel">
+      <td mat-cell *matCellDef="let regel; dataSource: historie">
         @if (regel.attribuutLabel === "zaakgeometrie") {
           <read-more
             [text]="regel.oudeWaarde | location | empty"
@@ -69,7 +69,7 @@
       <th mat-header-cell *matHeaderCellDef>
         {{ "waarde.nieuw" | translate }}
       </th>
-      <td mat-cell *matCellDef="let regel">
+      <td mat-cell *matCellDef="let regel; dataSource: historie">
         @if (regel.attribuutLabel === "zaakgeometrie") {
           <read-more
             [text]="regel.nieuweWaarde | location | empty | mimetypeToExtension"
@@ -87,7 +87,7 @@
       <th mat-header-cell *matHeaderCellDef>
         {{ "reden" | translate }}
       </th>
-      <td mat-cell *matCellDef="let regel">
+      <td mat-cell *matCellDef="let regel; dataSource: historie">
         <read-more [text]="regel.toelichting" [maxLength]="20"></read-more>
       </td>
     </ng-container>

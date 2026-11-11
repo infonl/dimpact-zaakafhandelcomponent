@@ -20,6 +20,7 @@ import {
 } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
+import { TypedMatCellDefDirective } from "../../../../shared/directives/typed-mat-cell-def.directive";
 import { DatumPipe } from "../../../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../../../shared/pipes/empty.pipe";
 import { I18nKeyPipe } from "../../../../shared/pipes/i18n-key.pipe";
@@ -44,6 +45,7 @@ import { ZaakIdentificatieComponent } from "../../../../shared/zaak-identificati
     MatHeaderCellDef,
     MatCell,
     MatCellDef,
+    TypedMatCellDefDirective,
     MatHeaderRow,
     MatHeaderRowDef,
     MatRow,

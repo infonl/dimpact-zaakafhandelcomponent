@@ -12,6 +12,7 @@ import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
 import { KlantenService } from "../../klanten/klanten.service";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { runMutation } from "../../shared/http/run-mutation";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
@@ -30,6 +31,7 @@ import { ZakenService } from "../zaken.service";
     MatButtonModule,
     MatIconModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     MatTooltipModule,
     TranslatePipe,
     ReadMoreComponent,

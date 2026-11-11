@@ -15,6 +15,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../../shared/confirm-dialog/confirm-dialog.component";
+import { TypedMatCellDefDirective } from "../../../shared/directives/typed-mat-cell-def.directive";
 import { runMutation } from "../../../shared/http/run-mutation";
 import { EmptyPipe } from "../../../shared/pipes/empty.pipe";
 import { GeneratedType } from "../../../shared/utils/generated-types";
@@ -28,6 +29,7 @@ import { ReferentieTabelValueDialogComponent } from "./referentie-tabel-value-di
   styleUrls: ["./referentie-tabel-item.component.less"],
   imports: [
     MatTableModule,
+    TypedMatCellDefDirective,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,

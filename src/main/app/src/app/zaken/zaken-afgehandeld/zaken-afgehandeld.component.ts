@@ -29,6 +29,7 @@ import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
 import { ColumnPickerComponent } from "../../shared/dynamic-table/column-picker/column-picker.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
@@ -70,6 +71,7 @@ import { ZakenAfgehandeldDatasource } from "./zaken-afgehandeld-datasource";
     MatSort,
     MatSortHeader,
     MatTableModule,
+    TypedMatCellDefDirective,
     RouterLink,
     TranslatePipe,
     ZoekopdrachtComponent,

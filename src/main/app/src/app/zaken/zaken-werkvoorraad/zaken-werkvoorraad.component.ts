@@ -72,6 +72,7 @@ import { IndexingService } from "src/app/indexing/indexing.service";
 import { BatchProcessService } from "src/app/shared/batch-progress/batch-process.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { ZakenVerdelenDialogComponent } from "../zaken-verdelen-dialog/zaken-verdelen-dialog.component";
@@ -104,6 +105,7 @@ import { ZakenWerkvoorraadDatasource } from "./zaken-werkvoorraad-datasource";
     MatPaginatorModule,
     MatSortModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     RouterLink,
     SlicePipe,
     StaticTextComponent,
