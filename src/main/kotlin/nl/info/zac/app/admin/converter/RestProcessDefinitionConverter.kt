@@ -58,8 +58,9 @@ class RestProcessDefinitionConverter @Inject constructor(
         if (processDefinitionKey in bpmnProcessDefinitionNamesByKey) {
             bpmnProcessDefinitionNamesByKey[processDefinitionKey]
         } else {
-            bpmnService.findProcessDefinitionByProcessDefinitionKey(processDefinitionKey)?.name
-                .also { bpmnProcessDefinitionNamesByKey[processDefinitionKey] = it }
+            bpmnService.findProcessDefinitionByProcessDefinitionKey(processDefinitionKey)?.let {
+                it.name ?: it.key
+            }.also { bpmnProcessDefinitionNamesByKey[processDefinitionKey] = it }
         }
 
     private fun CaseDefinition.toRestProcessDefinition(inclusiefRelaties: Boolean) =
@@ -74,7 +75,7 @@ class RestProcessDefinitionConverter @Inject constructor(
         }
 
     private fun ProcessDefinition.toRestProcessDefinition() =
-        RestProcessDefinition(processEngine = ProcessEngine.BPMN, key = key, naam = name)
+        RestProcessDefinition(processEngine = ProcessEngine.BPMN, key = key, naam = name ?: key)
 
     private fun HumanTask.toRestPlanItemDefinition() = RestPlanItemDefinition(id, name, HUMAN_TASK)
 

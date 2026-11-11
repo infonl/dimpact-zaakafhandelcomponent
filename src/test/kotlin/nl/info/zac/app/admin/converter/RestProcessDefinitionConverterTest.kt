@@ -111,6 +111,27 @@ class RestProcessDefinitionConverterTest : BehaviorSpec({
         }
     }
 
+    given("a BPMN process definition without a name, deployed before the upload check existed") {
+        val processDefinitionConverter = RestProcessDefinitionConverter(cmmnService, bpmnService)
+        every { cmmnService.listCaseDefinitions() } returns emptyList()
+        every { bpmnService.listProcessDefinitions() } returns listOf(
+            mockk<ProcessDefinition> {
+                every { name } returns null
+                every { key } returns "fakeNamelessProcessKey"
+                every { isSuspended } returns false
+            }
+        )
+
+        `when`("the process definitions are listed") {
+            val processDefinitions = processDefinitionConverter.listProcessDefinitions()
+
+            then("it is listed with its key as its name") {
+                processDefinitions.single().key shouldBe "fakeNamelessProcessKey"
+                processDefinitions.single().naam shouldBe "fakeNamelessProcessKey"
+            }
+        }
+    }
+
     given("a configuration that is bound to a CMMN case definition") {
         val processDefinitionConverter = RestProcessDefinitionConverter(cmmnService, bpmnService)
         val processBinding = ZaaktypeProcessBinding().apply {
@@ -148,6 +169,35 @@ class RestProcessDefinitionConverterTest : BehaviorSpec({
                 restProcessDefinition.processEngine shouldBe ProcessEngine.BPMN
                 restProcessDefinition.key shouldBe "fakeProcessKey"
                 restProcessDefinition.naam shouldBe "fakeProcessName"
+            }
+        }
+    }
+
+    given("two configurations that are bound to a BPMN process definition without a name") {
+        val processDefinitionConverter = RestProcessDefinitionConverter(cmmnService, bpmnService)
+        val processBinding = ZaaktypeProcessBinding().apply {
+            processEngine = ProcessEngine.BPMN
+            definitionKey = "fakeBoundNamelessProcessKey"
+        }
+        every {
+            bpmnService.findProcessDefinitionByProcessDefinitionKey("fakeBoundNamelessProcessKey")
+        } returns mockk<ProcessDefinition> {
+            every { name } returns null
+            every { key } returns "fakeBoundNamelessProcessKey"
+        }
+
+        `when`("both process definitions are converted in the same request") {
+            val restProcessDefinitions = List(2) { processDefinitionConverter.toRestProcessDefinition(processBinding, true) }
+
+            then("both are named after the key of the process definition") {
+                restProcessDefinitions.map { it.naam } shouldBe
+                    listOf("fakeBoundNamelessProcessKey", "fakeBoundNamelessProcessKey")
+            }
+
+            and("the process definition is read from Flowable only once") {
+                verify(exactly = 1) {
+                    bpmnService.findProcessDefinitionByProcessDefinitionKey("fakeBoundNamelessProcessKey")
+                }
             }
         }
     }
