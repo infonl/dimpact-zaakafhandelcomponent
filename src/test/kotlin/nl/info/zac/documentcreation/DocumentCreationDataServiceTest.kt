@@ -206,7 +206,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                     aanvragerData shouldBe AanvragerData(
                         naam = resultaatItem.naam,
                         straat = "fakeCorrespondentieStraatnaam",
-                        huisnummer = "7A 2",
+                        huisnummer = "7A2",
                         postcode = "fakeCorrespondentiePostcode",
                         woonplaats = "fakeCorrespondentiePlaats"
                     )

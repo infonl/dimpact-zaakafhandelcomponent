@@ -165,8 +165,7 @@ fun VestigingsprofielAdres.toAanvragerData(naam: String?) =
         else -> AanvragerData(
             naam = naam,
             straat = straatnaam,
-            huisnummer = listOf(listOf(huisnummer?.toString(), huisletter).joinNonBlank(), huisnummerToevoeging)
-                .joinNonBlank(" "),
+            huisnummer = listOf(huisnummer?.toString(), huisletter, huisnummerToevoeging).joinNonBlank(),
             postcode = postcode,
             woonplaats = plaats
         )
@@ -189,8 +188,7 @@ fun BasisprofielAdres.toAanvragerData(naam: String?) =
         else -> AanvragerData(
             naam = naam,
             straat = straatnaam,
-            huisnummer = listOf(listOf(huisnummer?.toString(), huisletter).joinNonBlank(), huisnummerToevoeging)
-                .joinNonBlank(" "),
+            huisnummer = listOf(huisnummer?.toString(), huisletter, huisnummerToevoeging).joinNonBlank(),
             postcode = postcode,
             woonplaats = plaats
         )
