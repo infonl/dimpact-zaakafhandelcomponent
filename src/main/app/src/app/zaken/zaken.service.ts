@@ -97,6 +97,7 @@ export class ZakenService {
           queryKey: this.readZaakQuery(zaak.uuid).queryKey,
         });
         this.cacheZaak(zaak);
+        this.invalidateZaak(zaak.uuid);
         this.invalidateHistorie(zaak.uuid);
       },
     });
