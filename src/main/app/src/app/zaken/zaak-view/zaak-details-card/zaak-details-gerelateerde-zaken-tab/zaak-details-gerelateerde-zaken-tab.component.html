@@ -13,7 +13,7 @@
         <th mat-header-cell *matHeaderCellDef>
           {{ "gerelateerde.zaak." + column | i18nKey | translate }}
         </th>
-        <td mat-cell *matCellDef="let row">
+        <td mat-cell *matCellDef="let row; dataSource: gerelateerdeZaken()">
           @if (column === "identificatie") {
             <zac-zaak-identificatie
               [identificatie]="row.identificatie"
@@ -27,8 +27,8 @@
     }
     <ng-container matColumnDef="actions" stickyEnd>
       <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let row">
-        @if (row.rechten.canLezen) {
+      <td mat-cell *matCellDef="let row; dataSource: gerelateerdeZaken()">
+        @if (row.rechten?.canLezen) {
           <a
             mat-icon-button
             [routerLink]="['/zaken', row.identificatie]"

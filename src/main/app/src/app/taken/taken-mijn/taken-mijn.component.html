@@ -33,7 +33,9 @@
       <th mat-header-cell cdkDrag *matHeaderCellDef mat-sort-header="TAAK_NAAM">
         {{ "naam" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">{{ row.naam | empty }}</td>
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
+        {{ row.naam | empty }}
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="zaakIdentificatie_filter">
@@ -56,7 +58,7 @@
       >
         {{ "zaak-identificatie" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         <zac-zaak-identificatie
           [identificatie]="row.zaakIdentificatie"
           [isZaakspecifiekGeautoriseerd]="row.isZaakspecifiekGeautoriseerd"
@@ -79,7 +81,7 @@
       <th mat-header-cell cdkDrag *matHeaderCellDef>
         {{ "zaak-omschrijving" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         <span>{{ row.zaakOmschrijving }}</span>
       </td>
     </ng-container>
@@ -99,7 +101,7 @@
       <th mat-header-cell cdkDrag *matHeaderCellDef>
         {{ "zaak-toelichting" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         <span>{{ row.zaakToelichting | slice: 0 : 350 | empty }}</span>
       </td>
     </ng-container>
@@ -126,7 +128,7 @@
       >
         {{ "zaaktype" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         <span>{{ row.zaaktypeOmschrijving | empty }}</span>
       </td>
     </ng-container>
@@ -150,7 +152,7 @@
       >
         {{ "creatiedatum" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         {{ row.creatiedatum | datum | empty }}
       </td>
     </ng-container>
@@ -174,7 +176,7 @@
       >
         {{ "fataledatum" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         <div class="flex-row items-center gap-10">
           {{ row.fataledatum | datum | empty }}
           @if (isAfterDate(row.fataledatum)) {
@@ -195,7 +197,7 @@
       <th mat-header-cell cdkDrag *matHeaderCellDef>
         {{ "dagen-tot-fataledatum" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         {{ row.fataledatum | dagen | empty }}
       </td>
     </ng-container>
@@ -222,7 +224,9 @@
       >
         {{ "groep" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">{{ row.groepNaam | empty }}</td>
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
+        {{ row.groepNaam | empty }}
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="toelichting_filter">
@@ -240,7 +244,7 @@
       <th mat-header-cell cdkDrag *matHeaderCellDef>
         {{ "toelichting" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         <span>{{ row.toelichting | slice: 0 : 350 | empty }}</span>
       </td>
     </ng-container>
@@ -271,7 +275,7 @@
           (columnsChanged)="dataSource.updateColumns($event)"
         ></zac-column-picker>
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         <a
           mat-icon-button
           [routerLink]="['/taken', row.id]"
@@ -287,7 +291,7 @@
     <ng-container matColumnDef="expandedDetail">
       <td
         mat-cell
-        *matCellDef="let row"
+        *matCellDef="let row; dataSource: dataSource"
         [colSpan]="dataSource.visibleColumns.length"
       >
         <div [@detailExpand]="row === expandedRow() ? 'expanded' : 'collapsed'">
@@ -324,17 +328,10 @@
                     [label]="column | i18nKey"
                   />
                 }
-                @case (zoekenColumn.STATUS) {
-                  <zac-static-text
-                    [value]="row.statustypeOmschrijving"
-                    class="w33 flex-1"
-                    [label]="column | i18nKey"
-                  />
-                }
                 @default {
                   <zac-static-text
                     [label]="column | i18nKey"
-                    [value]="row[column] | translate"
+                    [value]="$any(row)[column] | translate"
                     class="w33 flex-1"
                   />
                 }

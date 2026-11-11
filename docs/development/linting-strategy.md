@@ -37,6 +37,18 @@ the next reader something untrue about the value.
 A directive, component or pipe in the `imports` of a standalone component that its template does
 not use fails the build, in application code and in test host components. Remove the import.
 
+### Table cells
+
+`strictTemplates` cannot check a `mat-table` cell on its own: `matCellDef` gives its row the type
+`any`, so a cell that reads a field the row type no longer has still compiles. Pass the table's
+data source to every cell and import `TypedMatCellDefDirective`, which infers the row type from it:
+
+```html
+<td mat-cell *matCellDef="let betrokkene; dataSource: betrokkenen()">
+```
+
+`eslint.config.js` rejects a `*matCellDef` without `dataSource:`.
+
 ## Testing Library rules
 
 `eslint.config.js` prefers Testing Library queries over reaching into the DOM through Angular, and

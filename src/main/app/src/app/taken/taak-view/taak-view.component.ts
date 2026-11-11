@@ -55,6 +55,7 @@ import { InformatieObjectCreateAttendedComponent } from "../../informatie-object
 import { InformatieObjectLinkComponent } from "../../informatie-objecten/informatie-object-link/informatie-object-link.component";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { ZacComposedForm } from "../../shared/form/composed-form/composed-form.component";
 import {
@@ -96,6 +97,7 @@ import { FormioSetupService } from "./formio/formio-setup-service";
     MatSidenavModule,
     MatSortModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     MatTabsModule,
     MatTooltipModule,
     TranslatePipe,

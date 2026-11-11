@@ -18,7 +18,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
   imports: [MatTooltipModule],
 })
 export class ReadMoreComponent {
-  readonly text = input<string>();
+  readonly text = input<string | null>();
   readonly maxLength = input(100, { transform: numberAttribute });
 
   protected readonly showTooltip = computed(() => {

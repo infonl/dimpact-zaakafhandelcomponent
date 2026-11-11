@@ -9,6 +9,7 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
@@ -27,6 +28,7 @@ import { ZakenService } from "../zaken.service";
   imports: [
     MatSortModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     MatTooltipModule,
     TranslatePipe,
     DatumPipe,

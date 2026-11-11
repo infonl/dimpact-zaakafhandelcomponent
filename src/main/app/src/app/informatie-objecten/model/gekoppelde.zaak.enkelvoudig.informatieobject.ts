@@ -10,7 +10,8 @@ import { GeneratedType } from "../../shared/utils/generated-types";
  */
 export type GekoppeldeZaakEnkelvoudigInformatieobject =
   GeneratedType<"RestEnkelvoudigInformatieobject"> & {
-    relatedType?: string;
-    zaakIdentificatie?: string;
-    zaakUUID?: string;
+    relatieType?: GeneratedType<"RelatieType"> | null;
+    zaakIdentificatie?: string | null;
+    isZaakspecifiekGeautoriseerd?: boolean;
+    zaakUUID?: string | null;
   };

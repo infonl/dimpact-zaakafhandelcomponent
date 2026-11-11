@@ -12,7 +12,7 @@
       <th mat-header-cell *matHeaderCellDef>
         {{ selectLabel() | translate }}
       </th>
-      <td mat-cell *matCellDef="let document">
+      <td mat-cell *matCellDef="let document; dataSource: dataSource">
         @if (!readonly()) {
           <mat-checkbox
             (change)="onToggleOption(document)"
@@ -25,7 +25,7 @@
     </ng-container>
     <ng-container matColumnDef="titel">
       <th mat-header-cell *matHeaderCellDef>{{ "titel" | translate }}</th>
-      <td mat-cell *matCellDef="let document">
+      <td mat-cell *matCellDef="let document; dataSource: dataSource">
         <zac-document-icon
           [bestandsnaam]="document.bestandsnaam"
         ></zac-document-icon>
@@ -36,29 +36,33 @@
       <th mat-header-cell *matHeaderCellDef>
         {{ "document-type" | translate }}
       </th>
-      <td mat-cell *matCellDef="let document">
+      <td mat-cell *matCellDef="let document; dataSource: dataSource">
         {{ document.informatieobjectTypeOmschrijving }}
       </td>
     </ng-container>
     <ng-container matColumnDef="status">
       <th mat-header-cell *matHeaderCellDef>{{ "status" | translate }}</th>
-      <td mat-cell *matCellDef="let document">
+      <td mat-cell *matCellDef="let document; dataSource: dataSource">
         {{ "informatieobject.status." + document.status | i18nKey | translate }}
       </td>
     </ng-container>
     <ng-container matColumnDef="versie">
       <th mat-header-cell *matHeaderCellDef>{{ "versie" | translate }}</th>
-      <td mat-cell *matCellDef="let document">{{ document.versie }}</td>
+      <td mat-cell *matCellDef="let document; dataSource: dataSource">
+        {{ document.versie }}
+      </td>
     </ng-container>
     <ng-container matColumnDef="auteur">
       <th mat-header-cell *matHeaderCellDef>{{ "auteur" | translate }}</th>
-      <td mat-cell *matCellDef="let document">{{ document.auteur }}</td>
+      <td mat-cell *matCellDef="let document; dataSource: dataSource">
+        {{ document.auteur }}
+      </td>
     </ng-container>
     <ng-container matColumnDef="creatiedatum">
       <th mat-header-cell *matHeaderCellDef>
         {{ "creatiedatum" | translate }}
       </th>
-      <td mat-cell *matCellDef="let document">
+      <td mat-cell *matCellDef="let document; dataSource: dataSource">
         {{ document.creatiedatum }}
       </td>
     </ng-container>
@@ -66,7 +70,7 @@
       <th mat-header-cell *matHeaderCellDef>
         {{ "bestandsomvang" | translate }}
       </th>
-      <td mat-cell *matCellDef="let document">
+      <td mat-cell *matCellDef="let document; dataSource: dataSource">
         {{ document.bestandsomvang | bestandsomvang }}
       </td>
     </ng-container>
@@ -74,7 +78,7 @@
       <th mat-header-cell *matHeaderCellDef>
         {{ "indicaties" | translate }}
       </th>
-      <td mat-cell *matCellDef="let document">
+      <td mat-cell *matCellDef="let document; dataSource: dataSource">
         <zac-informatie-object-indicaties
           [document]="document"
           [layout]="indicatiesLayout.COMPACT"
@@ -83,7 +87,7 @@
     </ng-container>
     <ng-container matColumnDef="url" stickyEnd>
       <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let document">
+      <td mat-cell *matCellDef="let document; dataSource: dataSource">
         <div class="flex-row">
           <a
             mat-icon-button

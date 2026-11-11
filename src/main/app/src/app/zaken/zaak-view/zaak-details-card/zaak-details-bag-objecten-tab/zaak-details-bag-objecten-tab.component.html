@@ -12,9 +12,9 @@
       <th mat-header-cell *matHeaderCellDef>
         {{ "identificatie" | translate }}
       </th>
-      <td mat-cell *matCellDef="let bagObjectGegevens">
+      <td mat-cell *matCellDef="let bagObjectGegevens; dataSource: dataSource">
         <read-more
-          [text]="bagObjectGegevens.bagObject.identificatie"
+          [text]="bagObjectGegevens.bagObject?.identificatie"
           [maxLength]="20"
         ></read-more>
       </td>
@@ -23,9 +23,9 @@
       <th mat-header-cell *matHeaderCellDef>
         {{ "type" | translate }}
       </th>
-      <td mat-cell *matCellDef="let bagObjectGegevens">
+      <td mat-cell *matCellDef="let bagObjectGegevens; dataSource: dataSource">
         {{
-          "objecttype." + bagObjectGegevens.bagObject.bagObjectType
+          "objecttype." + bagObjectGegevens.bagObject?.bagObjectType
             | i18nKey
             | translate
         }}
@@ -35,23 +35,25 @@
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
         {{ "omschrijving" | translate }}
       </th>
-      <td *matCellDef="let bagObjectGegevens" mat-cell>
-        {{ bagObjectGegevens.bagObject.omschrijving }}
+      <td *matCellDef="let bagObjectGegevens; dataSource: dataSource" mat-cell>
+        {{ bagObjectGegevens.bagObject?.omschrijving }}
       </td>
     </ng-container>
     <ng-container matColumnDef="actions">
       <th *matHeaderCellDef mat-header-cell></th>
-      <td *matCellDef="let bagObjectGegevens" mat-cell>
+      <td *matCellDef="let bagObjectGegevens; dataSource: dataSource" mat-cell>
         <a
           mat-icon-button
           [routerLink]="[
             '/bag-objecten',
-            bagObjectGegevens.bagObject.bagObjectType.toLowerCase(),
-            bagObjectGegevens.bagObject.identificatie,
+            bagObjectGegevens.bagObject?.bagObjectType?.toLowerCase(),
+            bagObjectGegevens.bagObject?.identificatie,
           ]"
           (click)="$event.stopPropagation()"
           [id]="
-            'bagObject_' + bagObjectGegevens.bagObject.identificatie + '_button'
+            'bagObject_' +
+            bagObjectGegevens.bagObject?.identificatie +
+            '_button'
           "
           [title]="bekijkenLabel"
           [attr.aria-label]="bekijkenLabel"

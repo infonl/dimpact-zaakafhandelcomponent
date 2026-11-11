@@ -35,7 +35,7 @@
       >
         {{ "zaak.identificatie" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         <zac-zaak-identificatie
           [identificatie]="row.identificatie"
           [isZaakspecifiekGeautoriseerd]="row.isZaakspecifiekGeautoriseerd"
@@ -66,7 +66,7 @@
       >
         {{ "status" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         {{ row.statustypeOmschrijving | empty }}
       </td>
     </ng-container>
@@ -93,7 +93,7 @@
       >
         {{ "zaaktype" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         {{ row.zaaktypeOmschrijving | empty }}
       </td>
     </ng-container>
@@ -113,7 +113,7 @@
       <th mat-header-cell cdkDrag *matHeaderCellDef>
         {{ "omschrijving" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         <span>{{ row.omschrijving | empty }}</span>
       </td>
     </ng-container>
@@ -140,7 +140,9 @@
       >
         {{ "groep" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">{{ row.groepNaam | empty }}</td>
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
+        {{ row.groepNaam | empty }}
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="vertrouwelijkheidaanduiding">
@@ -152,7 +154,7 @@
       >
         {{ "vertrouwelijkheidaanduiding" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         {{
           row.vertrouwelijkheidaanduiding
             ? (row.vertrouwelijkheidaanduiding
@@ -191,7 +193,7 @@
       >
         {{ "communicatiekanaal" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         {{ row.communicatiekanaal | empty }}
       </td>
     </ng-container>
@@ -229,7 +231,7 @@
       >
         {{ "registratiedatum" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         {{ row.registratiedatum | datum | empty }}
       </td>
     </ng-container>
@@ -253,7 +255,7 @@
       >
         {{ "startdatum" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         {{ row.startdatum | datum | empty }}
       </td>
     </ng-container>
@@ -277,7 +279,7 @@
       >
         {{ "einddatum" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         {{ row.einddatum | datum | empty }}
       </td>
     </ng-container>
@@ -301,7 +303,7 @@
       >
         {{ "einddatum-gepland" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         <div class="flex-row items-center gap-10">
           {{ row.einddatumGepland | datum | empty }}
           @if (isAfterDate(row.einddatumGepland)) {
@@ -322,7 +324,7 @@
       <th mat-header-cell cdkDrag *matHeaderCellDef>
         {{ "dagen-tot-streefdatum" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         {{ row.einddatumGepland | dagen | empty }}
       </td>
     </ng-container>
@@ -346,7 +348,7 @@
       >
         {{ "uiterlijke-einddatum-afdoening" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         <div class="flex-row items-center gap-10">
           {{ row.uiterlijkeEinddatumAfdoening | datum | empty }}
           @if (isAfterDate(row.uiterlijkeEinddatumAfdoening)) {
@@ -367,7 +369,7 @@
       <th mat-header-cell cdkDrag *matHeaderCellDef>
         {{ "dagen-tot-fataledatum" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         {{ row.uiterlijkeEinddatumAfdoening | dagen | empty }}
       </td>
     </ng-container>
@@ -387,7 +389,7 @@
       <th mat-header-cell cdkDrag *matHeaderCellDef>
         {{ "toelichting" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         <span>{{ row.toelichting | slice: 0 : 350 | empty }}</span>
       </td>
     </ng-container>
@@ -404,7 +406,9 @@
       >
         {{ "openstaande-taken" | translate | empty }}
       </th>
-      <td mat-cell *matCellDef="let row">{{ row.aantalOpenstaandeTaken }}</td>
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
+        {{ row.aantalOpenstaandeTaken }}
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="indicaties_filter">
@@ -430,7 +434,7 @@
       >
         {{ "indicaties" | translate | empty }}
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         <zac-zaak-indicaties
           [layout]="indicatiesLayout.COMPACT"
           [zaakZoekObject]="row"
@@ -463,7 +467,7 @@
           (columnsChanged)="dataSource.updateColumns($event)"
         ></zac-column-picker>
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row; dataSource: dataSource">
         <a
           mat-icon-button
           [routerLink]="['/zaken', row.identificatie]"
@@ -479,7 +483,7 @@
     <ng-container matColumnDef="expandedDetail">
       <td
         mat-cell
-        *matCellDef="let row"
+        *matCellDef="let row; dataSource: dataSource"
         [colSpan]="dataSource.visibleColumns.length"
       >
         <div [@detailExpand]="row === expandedRow() ? 'expanded' : 'collapsed'">
@@ -596,7 +600,7 @@
                 @default {
                   <zac-static-text
                     [label]="column | i18nKey"
-                    [value]="row[column] | translate"
+                    [value]="$any(row)[column] | translate"
                     class="flex-1 w33"
                   />
                 }

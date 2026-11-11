@@ -10,6 +10,7 @@ import { MatTableModule } from "@angular/material/table";
 import { TranslateDirective, TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../../../core/service/util.service";
+import { TypedMatCellDefDirective } from "../../../../shared/directives/typed-mat-cell-def.directive";
 import { ZacCheckbox } from "../../../../shared/form/checkbox/checkbox";
 import { ZacSelect } from "../../../../shared/form/select/select";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
@@ -35,6 +36,7 @@ type ZaakbeeindigingRow = {
     ReactiveFormsModule,
     MatCardModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     TranslateDirective,
     TranslatePipe,
     ZacCheckbox,

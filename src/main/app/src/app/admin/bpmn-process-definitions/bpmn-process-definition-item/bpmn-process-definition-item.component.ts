@@ -32,6 +32,7 @@ import {
   ConfirmDialogData,
 } from "../../../shared/confirm-dialog/confirm-dialog.component";
 import { FileDragAndDropDirective } from "../../../shared/directives/file-drag-and-drop.directive";
+import { TypedMatCellDefDirective } from "../../../shared/directives/typed-mat-cell-def.directive";
 import { injectMutation } from "../../../shared/http/inject-mutation";
 import { EmptyPipe } from "../../../shared/pipes/empty.pipe";
 import { StaticTextComponent } from "../../../shared/static-text/static-text.component";
@@ -54,6 +55,7 @@ import { extractAttachmentFilename, readFileContent } from "../file.helper";
     MatIconModule,
     MatProgressSpinnerModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     MatTooltipModule,
     DatePipe,
     EmptyPipe,
