@@ -11,6 +11,8 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import jakarta.ws.rs.WebApplicationException
+import jakarta.ws.rs.core.Response
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.model.createAdres
 import nl.info.client.brp.model.createAdressering
@@ -420,6 +422,70 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                     straat = "fakeStraatHuisnummer fakeToevoegingAdres",
                     woonplaats = "fakePostcodeWoonplaats, fakeLand"
                 )
+            }
+        }
+    }
+
+    given("A zaak with an initiator of type vestiging and a KVK vestigingsprofiel call that fails") {
+        val loggedInUser = createLoggedInUser()
+        val rolVestiging =
+            createRolVestiging(
+                rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR)
+            )
+        val zaakType = createZaakType()
+        val zaak = createZaak(zaaktypeUri = zaakType.url)
+        val resultaatItem = createResultaatItem(vestingsnummer = "fakeVestigingsnummer")
+
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolVestiging
+        every { kvkClientService.findVestiging(rolVestiging.identificatienummer!!) } returns resultaatItem
+        every {
+            kvkClientService.findVestigingsprofiel("fakeVestigingsnummer")
+        } throws WebApplicationException("fakeNotFound", Response.Status.NOT_FOUND)
+        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
+        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
+        every { zgwApiService.findGroepForZaak(zaak) } returns null
+        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+
+        `when`("SmartDocuments data is created") {
+            val data = documentCreationDataService.createData(
+                loggedInUser = loggedInUser,
+                zaak = zaak
+            )
+
+            then("the aanvrager data has the name of the vestiging and no address, so that a document can still be created") {
+                data.aanvragerData shouldBe AanvragerData(naam = resultaatItem.naam)
+            }
+        }
+    }
+
+    given("A zaak with an initiator of type rechtspersoon and a KVK basisprofiel call that fails") {
+        val loggedInUser = createLoggedInUser()
+        val kvkNummer = "fakeKvkNummer"
+        val rolNietNatuurlijkPersoon =
+            createRolNietNatuurlijkPersoon(
+                rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR),
+                nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(kvkNummer = kvkNummer)
+            )
+        val zaakType = createZaakType()
+        val zaak = createZaak(zaaktypeUri = zaakType.url)
+        val resultaatItem = createResultaatItem(kvkNummer = kvkNummer, vestingsnummer = null)
+
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
+        every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns resultaatItem
+        every { kvkClientService.findBasisprofiel(kvkNummer) } throws RuntimeException("fakeServerError")
+        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
+        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
+        every { zgwApiService.findGroepForZaak(zaak) } returns null
+        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+
+        `when`("SmartDocuments data is created") {
+            val data = documentCreationDataService.createData(
+                loggedInUser = loggedInUser,
+                zaak = zaak
+            )
+
+            then("the aanvrager data has the name of the rechtspersoon and no address, so that a document can still be created") {
+                data.aanvragerData shouldBe AanvragerData(naam = resultaatItem.naam)
             }
         }
     }

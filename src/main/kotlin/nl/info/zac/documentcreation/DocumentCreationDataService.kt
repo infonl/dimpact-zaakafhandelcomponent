@@ -46,6 +46,8 @@ import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.joinNonBlank
 import java.net.URI
 import java.util.UUID
+import java.util.logging.Level
+import java.util.logging.Logger
 
 @NoArgConstructor
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -60,6 +62,10 @@ class DocumentCreationDataService @Inject constructor(
     private val identityService: IdentityService,
     private val productaanvraagService: ProductaanvraagService
 ) {
+    companion object {
+        private val LOG = Logger.getLogger(DocumentCreationDataService::class.java.name)
+    }
+
     fun createData(loggedInUser: LoggedInUser, zaak: Zaak, taskId: String? = null) =
         Data(
             aanvragerData = createAanvragerData(zaak, loggedInUser),
@@ -159,7 +165,20 @@ class DocumentCreationDataService @Inject constructor(
             ?.let(::createAanvragerDataBedrijf)
     }
 
-    private fun createAanvragerDataBedrijf(resultaatItem: ResultaatItem): AanvragerData {
+    @Suppress("TooGenericExceptionCaught")
+    private fun createAanvragerDataBedrijf(resultaatItem: ResultaatItem) =
+        try {
+            findAanvragerDataBedrijfWithAdres(resultaatItem)
+        } catch (runtimeException: RuntimeException) {
+            LOG.log(
+                Level.WARNING,
+                "Could not read the KVK profiel of the aanvrager, so the aanvrager is sent without an address",
+                runtimeException
+            )
+            null
+        } ?: AanvragerData(naam = resultaatItem.naam)
+
+    private fun findAanvragerDataBedrijfWithAdres(resultaatItem: ResultaatItem): AanvragerData? {
         val vestigingsnummer = resultaatItem.vestigingsnummer
         val kvkNummer = resultaatItem.kvkNummer
         return when {
@@ -172,7 +191,7 @@ class DocumentCreationDataService @Inject constructor(
                 ?.findCorrespondentieadresOrBezoekadres { it.type }
                 ?.toAanvragerData(resultaatItem.naam)
             else -> null
-        } ?: AanvragerData(naam = resultaatItem.naam)
+        }
     }
 
     private fun createStartformulierData(zaakUri: URI): StartformulierData? =
