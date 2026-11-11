@@ -404,6 +404,53 @@ describe(ZakenService.name, () => {
       expect(cacheZaak).toHaveBeenCalledWith(zaak);
     });
 
+    it("keeps the zaak the server answers with when a refetch that started before the save resolves after it", async () => {
+      const queryKey = service.readZaakQuery("fakeZaakUuid1").queryKey;
+      let resolveRefetch!: (zaak: GeneratedType<"RestZaak">) => void;
+      const refetch = testQueryClient
+        .fetchQuery({
+          queryKey,
+          queryFn: () =>
+            new Promise<GeneratedType<"RestZaak">>((resolve) => {
+              resolveRefetch = resolve;
+            }),
+        })
+        .catch(() => undefined);
+
+      createMutation().onSuccess?.(
+        zaak,
+        fromPartial({}),
+        undefined,
+        fromPartial<MutationFunctionContext>({}),
+      );
+      resolveRefetch(
+        fromPartial<GeneratedType<"RestZaak">>({
+          uuid: "fakeZaakUuid1",
+          omschrijving: "fakeZaakBeforeTheSave",
+        }),
+      );
+      await refetch;
+
+      expect(testQueryClient.getQueryData(queryKey)).toBe(zaak);
+    });
+
+    it("refetches the zaak after caching it, so a concurrent change that a cancelled refetch carried still shows", () => {
+      const cacheZaak = jest.spyOn(service, "cacheZaak");
+      const invalidateZaak = jest.spyOn(service, "invalidateZaak");
+
+      createMutation().onSuccess?.(
+        zaak,
+        fromPartial({}),
+        undefined,
+        fromPartial<MutationFunctionContext>({}),
+      );
+
+      expect(invalidateZaak).toHaveBeenCalledWith("fakeZaakUuid1");
+      expect(cacheZaak.mock.invocationCallOrder[0]).toBeLessThan(
+        invalidateZaak.mock.invocationCallOrder[0],
+      );
+    });
+
     it("refreshes the historie of that zaak, because the server accepted the change", () => {
       const invalidateHistorie = jest.spyOn(service, "invalidateHistorie");
 

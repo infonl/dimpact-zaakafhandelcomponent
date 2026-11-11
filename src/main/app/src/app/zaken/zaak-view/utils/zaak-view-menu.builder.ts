@@ -90,6 +90,7 @@ export function buildZaakMenu(
             toI18nKey("planitem." + planItem.userEventListenerActie),
             () => dialogs.openPlanItemStarten(zaak, planItem),
             userEventListenerIcon(planItem.userEventListenerActie),
+            planItem.id,
           ),
       ),
     );
@@ -112,6 +113,7 @@ export function buildZaakMenu(
               planItem.naam,
               () => handlers.startHumanTask(planItem),
               "assignment",
+              planItem.id,
             ),
         ),
     );

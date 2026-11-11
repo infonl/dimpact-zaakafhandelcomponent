@@ -349,6 +349,53 @@ describe(SideNavComponent.name, () => {
       expect(mockFn).toHaveBeenCalled();
     });
 
+    it("keeps the button and runs the new action when the menu is rebuilt with an item of the same title, so a click during a reload is not lost", async () => {
+      const staleAction = jest.fn();
+      const freshAction = jest.fn();
+      fixture.componentRef.setInput("menu", [
+        new ButtonMenuItem("test.button", staleAction, "settings"),
+      ]);
+      fixture.detectChanges();
+      const button = screen.getByRole("button", { name: "test.button" });
+
+      fixture.componentRef.setInput("menu", [
+        new ButtonMenuItem("test.button", freshAction, "settings"),
+      ]);
+      fixture.detectChanges();
+
+      expect(screen.getByRole("button", { name: "test.button" })).toBe(button);
+      await user.click(button);
+      expect(freshAction).toHaveBeenCalled();
+      expect(staleAction).not.toHaveBeenCalled();
+    });
+
+    it("keeps the button of the remaining item when one of two items with the same title but a different id leaves the menu", async () => {
+      const consoleWarn = jest.spyOn(console, "warn");
+      const remainingAction = jest.fn();
+      fixture.componentRef.setInput("menu", [
+        new ButtonMenuItem("test.button", jest.fn(), "settings", "1"),
+        new ButtonMenuItem("test.button", jest.fn(), "settings", "2"),
+      ]);
+      fixture.detectChanges();
+      const secondButton = screen.getAllByRole("button", {
+        name: "test.button",
+      })[1];
+
+      fixture.componentRef.setInput("menu", [
+        new ButtonMenuItem("test.button", remainingAction, "settings", "2"),
+      ]);
+      fixture.detectChanges();
+
+      expect(screen.getByRole("button", { name: "test.button" })).toBe(
+        secondButton,
+      );
+      await user.click(secondButton);
+      expect(remainingAction).toHaveBeenCalled();
+      expect(consoleWarn).not.toHaveBeenCalledWith(
+        expect.stringContaining("NG0955"),
+      );
+    });
+
     it("should not call button function when disabled", async () => {
       const mockFn = jest.fn();
       const buttonItem = new ButtonMenuItem("test.button", mockFn, "settings");

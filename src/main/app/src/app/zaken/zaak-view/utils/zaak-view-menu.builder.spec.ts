@@ -461,6 +461,32 @@ describe(buildZaakMenu.name, () => {
       );
     });
 
+    it("gives each plan item button the id of its plan item, so two plan items with the same name keep their own button", () => {
+      const menu = buildZaakMenu(
+        createZaak({}, { canBehandelen: true }),
+        {
+          userEventListener: [
+            fromPartial<GeneratedType<"RestPlanItem">>({
+              userEventListenerActie: "INTAKE_AFRONDEN",
+              id: "4",
+            }),
+          ],
+          humanTask: [humanTask("Advies", "1"), humanTask("Advies", "2")],
+        },
+        handlers,
+        dialogs,
+        false,
+        false,
+      );
+
+      expect(buttonNamed(menu, "planitem.intake-afronden")?.id).toBe("4");
+      expect(
+        menu
+          .filter((menuItem) => menuItem.title === "Advies")
+          .map((menuItem) => menuItem.id),
+      ).toEqual(["1", "2"]);
+    });
+
     it("hides both plan item sections from a user without the behandelen recht", () => {
       const menu = buildZaakMenu(
         createZaak({}, { canBehandelen: false }),

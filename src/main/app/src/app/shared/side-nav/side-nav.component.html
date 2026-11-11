@@ -8,7 +8,10 @@
   (mouseenter)="mouseEnter()"
   (mouseleave)="mouseLeave()"
 >
-  @for (menuItem of menu(); track menuItem) {
+  @for (
+    menuItem of menu();
+    track menuItem.id ?? menuItem.type + menuItem.title
+  ) {
     @switch (menuItem.type) {
       @case (menuItemType.HEADER) {
         <h3 mat-subheader>
