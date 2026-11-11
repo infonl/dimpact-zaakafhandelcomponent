@@ -11,7 +11,6 @@ import { MatSidenavModule } from "@angular/material/sidenav";
 import { ActivatedRoute } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { toKvkFoutmelding } from "../kvk-foutmelding";
 import { KlantContactmomentenTabelComponent } from "../../contactmomenten/klant-contactmomenten-tabel/klant-contactmomenten-tabel.component";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
@@ -19,6 +18,7 @@ import { StaticTextComponent } from "../../shared/static-text/static-text.compon
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantZakenTabelComponent } from "../klant-zaken-tabel/klant-zaken-tabel.component";
 import { KlantenService } from "../klanten.service";
+import { toKvkFoutmelding } from "../kvk-foutmelding";
 
 @Component({
   templateUrl: "./bedrijf-view.component.html",

@@ -19,7 +19,6 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { toKvkFoutmelding } from "../kvk-foutmelding";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
@@ -27,6 +26,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
 import { buildBedrijfRouteLink } from "../bedrijf-route-link";
 import { KlantenService } from "../klanten.service";
+import { toKvkFoutmelding } from "../kvk-foutmelding";
 
 @Component({
   selector: "zac-bedrijfsgegevens",
