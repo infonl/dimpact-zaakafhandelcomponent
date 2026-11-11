@@ -369,6 +369,33 @@ describe(SideNavComponent.name, () => {
       expect(staleAction).not.toHaveBeenCalled();
     });
 
+    it("keeps the button of the remaining item when one of two items with the same title but a different id leaves the menu", async () => {
+      const consoleWarn = jest.spyOn(console, "warn");
+      const remainingAction = jest.fn();
+      fixture.componentRef.setInput("menu", [
+        new ButtonMenuItem("test.button", jest.fn(), "settings", "1"),
+        new ButtonMenuItem("test.button", jest.fn(), "settings", "2"),
+      ]);
+      fixture.detectChanges();
+      const secondButton = screen.getAllByRole("button", {
+        name: "test.button",
+      })[1];
+
+      fixture.componentRef.setInput("menu", [
+        new ButtonMenuItem("test.button", remainingAction, "settings", "2"),
+      ]);
+      fixture.detectChanges();
+
+      expect(screen.getByRole("button", { name: "test.button" })).toBe(
+        secondButton,
+      );
+      await user.click(secondButton);
+      expect(remainingAction).toHaveBeenCalled();
+      expect(consoleWarn).not.toHaveBeenCalledWith(
+        expect.stringContaining("NG0955"),
+      );
+    });
+
     it("should not call button function when disabled", async () => {
       const mockFn = jest.fn();
       const buttonItem = new ButtonMenuItem("test.button", mockFn, "settings");
