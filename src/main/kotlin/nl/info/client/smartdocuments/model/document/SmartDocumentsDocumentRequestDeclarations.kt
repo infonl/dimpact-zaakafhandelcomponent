@@ -144,7 +144,7 @@ data class ZaakData(
     val zaaktype: String? = null
 )
 
-fun <T> List<T>.findCorrespondentieadresOrBezoekadres(adresType: (T) -> String?) =
+internal fun <T> List<T>.findCorrespondentieadresOrBezoekadres(adresType: (T) -> String?) =
     firstOrNull { adresType(it) == KVK_ADRES_TYPE_CORRESPONDENTIEADRES }
         ?: firstOrNull { adresType(it) == KVK_ADRES_TYPE_BEZOEKADRES }
 
