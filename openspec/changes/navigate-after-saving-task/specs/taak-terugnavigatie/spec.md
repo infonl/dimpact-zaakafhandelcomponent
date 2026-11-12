@@ -12,17 +12,17 @@ After a taak is saved or completed successfully, ZAC SHALL apply the first of th
 #### Scenario: Saving a taak opened from a zaak
 - **GIVEN** a taak opened from its zaak
 - **WHEN** the user saves the taak
-- **THEN** ZAC shows the zaak
+- **THEN** ZAC navigates back to the zaak
 
 #### Scenario: Saving a taak opened from the takenwerkvoorraad
 - **GIVEN** a taak opened from the takenwerkvoorraad
 - **WHEN** the user saves the taak
-- **THEN** ZAC shows the takenwerkvoorraad
+- **THEN** ZAC navigates back to the takenwerkvoorraad
 
 #### Scenario: Saving a taak opened from a direct link or the search panel
 - **GIVEN** a taak opened from a direct link or from the search panel
 - **WHEN** the user saves the taak
-- **THEN** ZAC shows the dashboard
+- **THEN** ZAC navigates to the dashboard
 
 #### Scenario: Saving a taak opened from an e-mail
 - **GIVEN** a taak opened from a link in an e-mail
@@ -50,14 +50,14 @@ from before the taak was saved or completed.
 #### Scenario: Completing a taak opened from the takenwerkvoorraad
 - **GIVEN** the user opened a taak from the takenwerkvoorraad
 - **WHEN** the user completes the taak
-- **THEN** ZAC shows the takenwerkvoorraad without the completed taak
+- **THEN** ZAC navigates back to the takenwerkvoorraad, which no longer lists the completed taak
 
 #### Scenario: Completing a taak opened from a zaak
 - **GIVEN** the user opened a taak from its zaak
 - **WHEN** the user completes the taak
-- **THEN** ZAC shows the zaak with the taak as completed in its list of taken
+- **THEN** ZAC navigates back to the zaak, which lists the taak as completed
 
 #### Scenario: Saving a taak opened from the dashboard
 - **GIVEN** the user opened a taak from a taken card on the dashboard
 - **WHEN** the user saves the taak
-- **THEN** ZAC shows the dashboard with the taak as it was saved
+- **THEN** ZAC navigates back to the dashboard, which shows the taak as it was saved

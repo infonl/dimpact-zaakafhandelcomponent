@@ -46,8 +46,9 @@ None.
 - **Docs**: gebruikershandleiding, *Inzien en behandelen van taken*.
 - **Backend**: `TaskRestService.updateTaskData` reindexes the taak in Solr, as assigning a taak already does.
   Saving did not update the index, so a werklijst kept showing the old toelichting and fatale datum. Saving and
-  completing then commit the index: Solr's auto soft commit makes a change searchable only after 3 seconds, and
-  the frontend reloads the werklijst right away.
+  completing then soft commit the index: Solr's auto soft commit makes a change searchable only after 3 seconds, and
+  the frontend reloads the werklijst right away. A soft commit makes the change searchable as fast as a hard commit
+  but does not flush it to disk, so it is cheap enough for every save; Solr's automatic hard commit makes it durable.
 - **REST API, OPA**: no change.
 - **Accepted risk**: when converting the taak for the index fails (for example an Open Zaak lookup), ZAC logs a
   warning and the save still succeeds, as when assigning a taak. A failed Solr write does fail the request. Failing
