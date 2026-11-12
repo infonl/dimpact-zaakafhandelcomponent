@@ -3,6 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+// Material's chip set wraps when a table column squeezes it; max-content keeps the chips on one row
+mat-chip-listbox.compact,
+mat-chip-listbox.search {
+  width: max-content;
+}
+
 mat-chip-option {
   font-size: 12px;
   font-weight: 500;
@@ -12,13 +18,7 @@ mat-chip-option {
     display: inline-flex;
     align-items: center;
     cursor: default;
-    margin: -4px -12px;
-    padding: 4px 16px;
-
-    mat-icon {
-      position: relative;
-      left: -5px;
-    }
+    gap: 4px;
   }
 
   .compact {
@@ -26,6 +26,5 @@ mat-chip-option {
     display: inline-flex;
     align-items: center;
     cursor: default;
-    margin: 0 -4px;
   }
 }

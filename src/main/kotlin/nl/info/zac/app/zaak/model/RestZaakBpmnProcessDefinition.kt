@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.zaak.model
 
+import nl.info.zac.flowable.bpmn.nameOrKey
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.engine.repository.ProcessDefinition
@@ -18,6 +19,6 @@ data class RestZaakBpmnProcessDefinition(
 
 fun ProcessDefinition.toRestZaakBpmnProcessDefinition() = RestZaakBpmnProcessDefinition(
     processDefinitionKey = this.key,
-    processDefinitionName = this.name,
+    processDefinitionName = this.nameOrKey(),
     processDefinitionVersion = this.version
 )

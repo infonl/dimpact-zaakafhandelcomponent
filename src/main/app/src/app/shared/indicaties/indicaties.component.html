@@ -17,7 +17,7 @@
         [matTooltip]="indicatie.toelichting"
       >
         <div class="extended">
-          <mat-icon [attr.outlined]="indicatie.outlined">
+          <mat-icon [attr.outlined]="indicatie.outlined || null">
             {{ indicatie.icon }}
           </mat-icon>
           <span>
@@ -46,7 +46,7 @@
         "
       >
         <div class="compact">
-          <mat-icon [attr.outlined]="indicatie.outlined">
+          <mat-icon [attr.outlined]="indicatie.outlined || null">
             {{ indicatie.icon }}
           </mat-icon>
         </div>
