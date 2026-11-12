@@ -112,9 +112,8 @@ describe(ZaakIndicatiesComponent.name, () => {
       const chip = chipWithTooltip(
         "indicatie.hoofdzaak: Gekoppeld aan fakeDeelzaak1",
       );
-      expect(within(chip).getByText("account_tree")).toHaveAttribute(
+      expect(within(chip).getByText("account_tree")).not.toHaveAttribute(
         "outlined",
-        "false",
       );
       expect(chip).not.toHaveClass("mat-mdc-chip-highlighted");
     });
