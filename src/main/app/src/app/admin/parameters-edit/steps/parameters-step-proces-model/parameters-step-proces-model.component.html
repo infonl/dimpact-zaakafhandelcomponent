@@ -20,6 +20,10 @@
     [compare]="isSameProcessDefinition"
   ></zac-select>
 
+  @if (lockedExplanation(); as explanation) {
+    <p>{{ explanation | translate }}</p>
+  }
+
   <div class="flex-row items-center gap-10 ml-1 my-3">
     <mat-icon color="warn" class="pr-3">warning</mat-icon>
     <small>{{ "msg.zaakafhandelparameters.waarschuwing" | translate }}</small>

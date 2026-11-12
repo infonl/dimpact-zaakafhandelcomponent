@@ -15,6 +15,7 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_BRC_CLIENT("msg.error.brc.client.exception"),
     ERROR_CODE_BRP_CLIENT("msg.error.brp.client.exception"),
     ERROR_CODE_BRP_TEMPORARY_PERSON_ID_EXPIRED("msg.error.brp.temporary.person.id.expired"),
+    ERROR_CODE_CMMN_PROCESS_DEFINITION_CANNOT_CHANGE("msg.error.process.definition.cannot.change.cmmn"),
     ERROR_CODE_DRC_CLIENT("msg.error.drc.client.exception"),
     ERROR_CODE_DOCUMENT_UPLOAD_INVALID("msg.error.document.upload.invalid"),
     ERROR_CODE_FILE_SIZE_EXCEEDED("msg.error.file.size-exceeded"),
@@ -23,6 +24,8 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_SERVER_GENERIC("msg.error.server.generic"),
     ERROR_CODE_KLANTINTERACTIES_CLIENT("msg.error.klanten.client.exception"),
     ERROR_CODE_OBJECTS_CLIENT("msg.error.objects.client.exception"),
+    ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE("msg.error.process.definition.cannot.change"),
+    ERROR_CODE_PROCESS_ENGINE_CANNOT_CHANGE("msg.error.process.engine.cannot.change"),
     ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE("msg.error.productaanvraagtype.already.in.use"),
     ERROR_CODE_REFERENCE_TABLE_SYSTEM_VALUES_CANNOT_BE_CHANGED(
         "msg.error.system.reference.table.system.values.cannot.be.changed"

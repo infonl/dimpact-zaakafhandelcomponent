@@ -94,10 +94,7 @@ class ZaaktypeConfigurationRestService @Inject constructor(
     @Path("{zaaktypeUUID}")
     fun readZaaktypeConfiguration(@PathParam("zaaktypeUUID") zaakTypeUUID: UUID): RestZaaktypeConfiguration {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
-        return restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(
-            zaaktypeConfiguration = findOrCreateConfiguration(zaakTypeUUID),
-            inclusiefRelaties = true
-        )
+        return findOrCreateConfiguration(zaakTypeUUID).toRestZaaktypeConfigurationForBeheer()
     }
 
     /**
@@ -108,7 +105,8 @@ class ZaaktypeConfigurationRestService @Inject constructor(
      * configuration, that configuration is updated
      * @throws InputValidationFailedException if the configuration belongs to another zaaktype version than
      * [zaaktypeUUID], if it names no process definition, if the productaanvraagtype is already in use by another active
-     * zaaktype, or if it binds a configuration to another engine than the one it is bound to
+     * zaaktype, if it binds a configuration to another engine than the one it is bound to, or if it binds a
+     * configuration to another process definition while that is not allowed
      */
     @PUT
     @Path("{zaaktypeUUID}")
@@ -124,12 +122,11 @@ class ZaaktypeConfigurationRestService @Inject constructor(
                     "and not to zaaktype '$zaaktypeUUID'"
             )
         }
-        if (restZaaktypeConfiguration.processDefinition == null) {
-            throw InputValidationFailedException(
+        val processDefinition = restZaaktypeConfiguration.processDefinition
+            ?: throw InputValidationFailedException(
                 errorCode = ERROR_CODE_VALIDATION_GENERIC,
                 message = "The configuration of zaaktype '$zaaktypeUUID' names no process definition"
             )
-        }
         restZaaktypeConfiguration.productaanvraagtype?.also { productaanvraagtype ->
             zaaktypeConfigurationBeheerService.checkProductaanvraagtypeIsNotInUse(
                 productaanvraagtype = productaanvraagtype,
@@ -141,9 +138,14 @@ class ZaaktypeConfigurationRestService @Inject constructor(
                 identityService.validateIfUserIsInGroup(defaultBehandelaarId, defaultGroepId)
             }
         }
+        zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+            zaaktypeUuid = zaaktypeUUID,
+            processEngine = processDefinition.processEngine,
+            definitionKey = processDefinition.key
+        )
         return restZaaktypeConfigurationConverter.toZaaktypeConfiguration(restZaaktypeConfiguration)
             .let(zaaktypeConfigurationBeheerService::storeConfiguration)
-            .let { restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(it, true) }
+            .toRestZaaktypeConfigurationForBeheer()
     }
 
     /**
@@ -277,6 +279,17 @@ class ZaaktypeConfigurationRestService @Inject constructor(
             ?.getZaakbeeindigParameters()
             ?.map { it.zaakbeeindigReden.toRestZaakbeeindigReden() }
             .orEmpty()
+
+    /**
+     * Only the beheer screen of one zaaktype version needs [RestZaaktypeConfiguration.isProcessDefinitionChangeable],
+     * so only it pays for the Open Zaak call that this needs.
+     */
+    private fun ZaaktypeConfiguration.toRestZaaktypeConfigurationForBeheer() =
+        restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(this, inclusiefRelaties = true).apply {
+            isProcessDefinitionChangeable = zaaktypeConfigurationBeheerService.isProcessDefinitionChangeable(
+                this@toRestZaaktypeConfigurationForBeheer
+            )
+        }
 
     /**
      * Returns the configuration of the zaaktype version, or a new one when the zaaktype version has none yet, so that

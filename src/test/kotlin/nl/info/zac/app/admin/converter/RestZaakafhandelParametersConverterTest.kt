@@ -285,6 +285,11 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                 true
             )
 
+            then("it leaves out whether the process definition may change, so that no Open Zaak call is made") {
+                restZaakafhandelParameters.isProcessDefinitionChangeable shouldBe false
+                verify(exactly = 0) { zaaktypeConfigurationBeheerService.isProcessDefinitionChangeable(any()) }
+            }
+
             then("the created object is correct") {
                 with(restZaakafhandelParameters) {
                     id shouldBe zaaktypeBpmnConfiguration.id

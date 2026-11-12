@@ -13,6 +13,7 @@
 
 # specs annotated with @Isolate
 nl.info.zac.itest.ZaakRestServiceTest
+nl.info.zac.itest.bpmn.ZaaktypeConfigurationRestServiceBpmnProcessDefinitionTest
 
 # other specs
 nl.info.zac.itest.bpmn.BpmnDelegateAuthorisationTest

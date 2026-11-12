@@ -106,11 +106,21 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                 )
             } just runs
             every {
+                zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+                    restZaakafhandelParameters.zaaktype.uuid,
+                    restZaakafhandelParameters.processDefinition!!.processEngine,
+                    restZaakafhandelParameters.processDefinition!!.key
+                )
+            } just runs
+            every {
                 zaaktypeConfigurationBeheerService.storeConfiguration(zaakafhandelParameters)
             } returns createdZaakafhandelParameters
             every {
                 restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(createdZaakafhandelParameters, true)
             } returns updatedRestZaakafhandelParameters
+            every {
+                zaaktypeConfigurationBeheerService.isProcessDefinitionChangeable(createdZaakafhandelParameters)
+            } returns true
 
             `when`("the zaakafhandelparameters are created") {
                 val returnedRestZaakafhandelParameters =
@@ -125,6 +135,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                 """
                 ) {
                     returnedRestZaakafhandelParameters shouldBe updatedRestZaakafhandelParameters
+                    returnedRestZaakafhandelParameters.isProcessDefinitionChangeable shouldBe true
                     verify(exactly = 1) {
                         zaaktypeConfigurationBeheerService.storeConfiguration(zaakafhandelParameters)
                     }
@@ -260,6 +271,31 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
         }
     }
 
+    given("a configuration whose process definition may not change any more") {
+        val restZaaktypeConfiguration = createRestZaaktypeConfiguration()
+        every { policyService.readOverigeRechten().canBeheren } returns true
+        every {
+            zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+                restZaaktypeConfiguration.zaaktype.uuid,
+                restZaaktypeConfiguration.processDefinition!!.processEngine,
+                restZaaktypeConfiguration.processDefinition!!.key
+            )
+        } throws InputValidationFailedException(message = "fakeMessage")
+
+        `when`("it is stored") {
+            shouldThrow<InputValidationFailedException> {
+                zaaktypeConfigurationRestService.createOrUpdateZaaktypeConfiguration(
+                    restZaaktypeConfiguration.zaaktype.uuid,
+                    restZaaktypeConfiguration
+                )
+            }
+
+            then("nothing is stored") {
+                verify(exactly = 0) { zaaktypeConfigurationBeheerService.storeConfiguration(any()) }
+            }
+        }
+    }
+
     createZaaktypeConfigurationsUnderTest().forEach { (configurationType, createZaaktypeConfiguration) ->
         given("an existing zaaktype configuration bound to $configurationType") {
             val zaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype")
@@ -270,9 +306,17 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
             every {
                 restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeConfiguration, true)
             } returns createRestZaaktypeConfiguration()
+            every {
+                zaaktypeConfigurationBeheerService.isProcessDefinitionChangeable(zaaktypeConfiguration)
+            } returns true
 
             `when`("the zaaktype configuration is requested") {
-                zaaktypeConfigurationRestService.readZaaktypeConfiguration(zaaktypeConfiguration.zaaktypeUuid)
+                val restZaaktypeConfiguration =
+                    zaaktypeConfigurationRestService.readZaaktypeConfiguration(zaaktypeConfiguration.zaaktypeUuid)
+
+                then("it tells whether the process definition may change") {
+                    restZaaktypeConfiguration.isProcessDefinitionChangeable shouldBe true
+                }
 
                 then("the configuration is converted with its related data") {
                     verify(exactly = 1) {
@@ -291,6 +335,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
         every {
             restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(capture(newZaaktypeConfiguration), true)
         } returns createRestZaaktypeConfiguration()
+        every { zaaktypeConfigurationBeheerService.isProcessDefinitionChangeable(any()) } returns true
 
         `when`("zaaktypeConfiguration is requested") {
             zaaktypeConfigurationRestService.readZaaktypeConfiguration(zaaktypeUuid)

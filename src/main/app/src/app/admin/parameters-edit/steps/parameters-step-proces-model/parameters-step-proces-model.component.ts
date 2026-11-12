@@ -20,6 +20,8 @@ import { ProcessDefinition, ProcessModelForm } from "./process-model-form";
 export class ParametersStepProcesModelComponent {
   readonly form = input.required<ProcessModelForm>();
   readonly zaaktypeOmschrijving = input<string | null>();
+  readonly boundProcessEngine = input<ProcessDefinition["processEngine"]>();
+  readonly isProcessDefinitionChangeable = input<boolean | null>();
 
   private readonly zaakafhandelParametersService = inject(
     ZaakafhandelParametersService,
@@ -28,9 +30,25 @@ export class ParametersStepProcesModelComponent {
     this.zaakafhandelParametersService.listProcessDefinitions(),
   );
 
-  protected readonly processDefinitions = computed(
-    () => this.processDefinitionsQuery.data() ?? [],
-  );
+  protected readonly processDefinitions = computed(() => {
+    const boundProcessEngine = this.boundProcessEngine();
+    return (this.processDefinitionsQuery.data() ?? []).filter(
+      ({ processEngine }) =>
+        !boundProcessEngine || processEngine === boundProcessEngine,
+    );
+  });
+
+  protected readonly lockedExplanation = computed(() => {
+    if (this.isProcessDefinitionChangeable()) return null;
+    switch (this.boundProcessEngine()) {
+      case "BPMN":
+        return "zaps.step.procesmodel.locked.bpmn";
+      case "CMMN":
+        return "zaps.step.procesmodel.locked.cmmn";
+      default:
+        return null;
+    }
+  });
 
   protected readonly displayName = (processDefinition: ProcessDefinition) =>
     processDefinition.naam ?? processDefinition.key;

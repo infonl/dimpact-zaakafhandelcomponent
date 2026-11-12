@@ -23,7 +23,7 @@ import {
 import { MatStepperModule } from "@angular/material/stepper";
 import { ActivatedRoute } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
-import { injectQuery } from "@tanstack/angular-query-experimental";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { trackControl } from "../../shared/form/control-state";
 import { injectMutation } from "../../shared/http/inject-mutation";
@@ -90,6 +90,7 @@ export class ParametersEditComponent
   );
 
   private readonly referentieTabelService = inject(ReferentieTabelService);
+  private readonly queryClient = inject(QueryClient);
   private readonly formulierDefinitiesQuery = injectQuery(() =>
     this.zaakafhandelParametersService.listFormulierDefinities(),
   );
@@ -191,15 +192,36 @@ export class ParametersEditComponent
           if (smartDocumentsForm?.enabledForZaaktypeValue) {
             smartDocumentsForm.saveSmartDocumentsMapping();
           }
-          this.configuration.set(savedConfiguration);
-          this.setForm(
-            toForm(savedConfiguration, {
-              isBrpDoelbindingSetupEnabled:
-                this.brpDoelbindingSetupEnabled() ?? false,
-            }),
-          );
+          this.showConfiguration(savedConfiguration);
         },
+        onError: () => void this.showConfigurationIfProcessDefinitionLocked(),
       },
+    );
+  }
+
+  private async showConfigurationIfProcessDefinitionLocked() {
+    if (!this.configuration().isProcessDefinitionChangeable) return;
+
+    const storedConfiguration = await this.queryClient.fetchQuery({
+      ...this.zaakafhandelParametersService.readZaakafhandelparameters(
+        this.configuration().zaaktype.uuid,
+      ),
+      staleTime: 0,
+    });
+    if (storedConfiguration.isProcessDefinitionChangeable) return;
+
+    this.showConfiguration(storedConfiguration);
+  }
+
+  private showConfiguration(
+    configuration: GeneratedType<"RestZaaktypeConfiguration">,
+  ) {
+    this.configuration.set(configuration);
+    this.setForm(
+      toForm(configuration, {
+        isBrpDoelbindingSetupEnabled:
+          this.brpDoelbindingSetupEnabled() ?? false,
+      }),
     );
   }
 
