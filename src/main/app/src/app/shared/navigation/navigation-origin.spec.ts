@@ -44,7 +44,7 @@ describe(findOrigin.name, () => {
           { path: "admin", title: "Beheer", component: EmptyComponent },
           {
             path: "zaken",
-            title: "Zaken",
+            title: "Zaken-werkvoorraad",
             data: BREADCRUMB_SECTION,
             children: [
               {
@@ -63,7 +63,7 @@ describe(findOrigin.name, () => {
           },
           {
             path: "taken",
-            title: "Taken",
+            title: "Taken-werkvoorraad",
             data: BREADCRUMB_SECTION,
             children: [
               {
@@ -76,7 +76,7 @@ describe(findOrigin.name, () => {
           },
           {
             path: "informatie-objecten",
-            title: "Documenten",
+            title: "Inbox documenten",
             data: BREADCRUMB_SECTION,
             children: [
               {

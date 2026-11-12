@@ -33,17 +33,17 @@ export function navigateToBreadcrumb(breadcrumb: Breadcrumb, router: Router) {
   return router.navigateByUrl(url);
 }
 
-/** The deepest trail: the origin page and two pages below it */
-export const MAXIMUM_TRAIL_LENGTH = 3;
+const MAXIMUM_TRAIL_LENGTH = 3;
 
-export function detailPageType(url: string) {
+export function detailPageKind(url: string) {
   return segments(url)[0];
 }
 
 export function continueTrail(trail: Breadcrumb[], page: Breadcrumb) {
   const index = trail.findIndex(
-    ({ url, type }) =>
-      path(url) === path(page.url) || (!!page.type && type === page.type),
+    ({ url, detailPageKind }) =>
+      path(url) === path(page.url) ||
+      (!!page.detailPageKind && detailPageKind === page.detailPageKind),
   );
   const continued = [...(index === -1 ? trail : trail.slice(0, index)), page];
   return continued.length > MAXIMUM_TRAIL_LENGTH

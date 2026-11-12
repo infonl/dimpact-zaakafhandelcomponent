@@ -118,10 +118,15 @@ describe(BreadcrumbsComponent.name, () => {
             ],
           },
           {
-            path: "persoon/:id",
+            path: "persoon",
             title: "Persoonsgegevens",
-            data: BREADCRUMB_DETAIL,
-            component: PageStubComponent,
+            children: [
+              {
+                path: ":id",
+                data: BREADCRUMB_DETAIL,
+                component: PageStubComponent,
+              },
+            ],
           },
           {
             path: "admin",
