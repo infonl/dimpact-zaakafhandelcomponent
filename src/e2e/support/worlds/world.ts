@@ -13,6 +13,8 @@ import { worldParametersScheme } from "../../utils/schemes";
 
 export const authFile = "user.json";
 
+const OPEN_URL_ATTEMPTS = 3;
+
 export class CustomWorld extends World {
   page: playwright.Page;
   expect: typeof expect = expect;
@@ -60,8 +62,25 @@ export class CustomWorld extends World {
     this.initialized = false;
   }
 
+  /**
+   * Opens a URL. Chromium aborts a navigation (net::ERR_ABORTED) when the app starts one of its own
+   * at the same moment, for example the redirect after completing a task. Opening a page is a GET, so
+   * it is safe to repeat, and the repeated navigation then starts from the settled page.
+   */
   async openUrl(url: string) {
-    await this.page.goto(url);
+    for (let attempt = 1; attempt <= OPEN_URL_ATTEMPTS; attempt++) {
+      try {
+        await this.page.goto(url);
+        return;
+      } catch (error) {
+        const isAborted =
+          error instanceof Error && error.message.includes("net::ERR_ABORTED");
+        if (!isAborted || attempt === OPEN_URL_ATTEMPTS) {
+          throw error;
+        }
+        await this.page.waitForLoadState("load");
+      }
+    }
   }
 }
 setWorldConstructor(CustomWorld);
