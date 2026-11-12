@@ -40,7 +40,7 @@
   </header>
 }
 
-<ng-template #title let-breadcrumb>
+<ng-template #title zacBreadcrumbTitle let-breadcrumb>
   @if (breadcrumb.details?.zaak?.isZaakspecifiekGeautoriseerd) {
     <zac-zaak-identificatie
       [identificatie]="breadcrumb.title"
