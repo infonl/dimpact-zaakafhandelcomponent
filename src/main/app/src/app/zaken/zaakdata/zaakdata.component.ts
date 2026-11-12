@@ -5,7 +5,7 @@
 
 import { ClipboardModule } from "@angular/cdk/clipboard";
 import { KeyValuePipe, NgTemplateOutlet } from "@angular/common";
-import { Component, effect, inject, input, signal } from "@angular/core";
+import { Component, computed, inject, input } from "@angular/core";
 import {
   AbstractControl,
   FormArray,
@@ -59,26 +59,25 @@ export class ZaakdataComponent {
   protected readonly zaak = input.required<GeneratedType<"RestZaak">>();
   protected readonly sideNav = input.required<MatDrawer>();
 
-  protected readonly form = this.formBuilder.group({});
-  private readonly readForm = trackControl(signal(this.form));
-  protected readonly formControls = this.readForm((form) => ({
-    ...form.controls,
-  }));
-
   protected readonly procesVariabeleQuery = injectQuery(() =>
     this.zakenService.listProcesVariabelen(),
   );
 
-  constructor() {
-    effect(() => {
-      const zaakData = this.zaak().zaakdata;
-      const procesVariabele = this.procesVariabeleQuery.data();
-      if (!zaakData || !procesVariabele) return;
+  private readonly zaakData = computed(() => this.zaak().zaakdata);
 
-      this.buildForm(zaakData, this.form);
-      this.form.disable();
-    });
-  }
+  protected readonly form = computed(() => {
+    const form = this.formBuilder.group({});
+    const zaakData = this.zaakData();
+    if (!zaakData || !this.procesVariabeleQuery.data()) return form;
+
+    this.buildForm(zaakData, form);
+    form.disable();
+    return form;
+  });
+  private readonly readForm = trackControl(this.form);
+  protected readonly formControls = this.readForm((form) => ({
+    ...form.controls,
+  }));
 
   private buildForm(data: Record<string, unknown>, formGroup: FormGroup) {
     for (const [key, value] of Object.entries(data)) {

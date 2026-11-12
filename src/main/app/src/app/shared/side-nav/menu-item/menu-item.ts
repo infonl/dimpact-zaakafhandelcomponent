@@ -9,6 +9,7 @@ export abstract class MenuItem {
   abstract readonly type: MenuItemType;
   abstract readonly title: string;
   abstract readonly icon?: string;
+  readonly id?: string;
   activated = false;
 
   // Backed by a signal, so the OnPush side nav shows a change that code makes after a click.

@@ -24,6 +24,7 @@ import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../../../core/service/util.service";
 import { IdentityService } from "../../../../identity/identity.service";
+import { TypedMatCellDefDirective } from "../../../../shared/directives/typed-mat-cell-def.directive";
 import { runMutation } from "../../../../shared/http/run-mutation";
 import { EmptyPipe } from "../../../../shared/pipes/empty.pipe";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
@@ -42,6 +43,7 @@ import { ZakenService } from "../../../zaken.service";
     MatHeaderCellDef,
     MatCell,
     MatCellDef,
+    TypedMatCellDefDirective,
     MatHeaderRow,
     MatHeaderRowDef,
     MatNoDataRow,

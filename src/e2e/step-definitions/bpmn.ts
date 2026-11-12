@@ -455,39 +455,13 @@ Then(
   ) {
     const group = Object.values(groups).find(({ name }) => name === groupName);
     expect(group, `Unknown group "${groupName}"`).toBeDefined();
-    const behandelaarField = this.page.getByRole("textbox", {
-      name: "zaakBehandelaar",
-    });
-
-    // The zaakBehandelaar variable is set slightly after zaakGroep, so the
-    // panel can be stale if it was opened before ZAC finished writing it.
-    // Retry by closing and reloading rather than waiting longer in place.
-    const maxAttempts = 3;
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      await this.page.getByRole("button", { name: "Zaakdata" }).click();
-      await expect(
-        this.page.getByRole("textbox", { name: "zaakGroep" }),
-      ).toHaveValue(group!.id, { timeout: TEN_SECONDS_IN_MS });
-
-      const isLastAttempt = attempt === maxAttempts;
-      if (isLastAttempt) {
-        await expect(behandelaarField).toHaveValue(userName, {
-          timeout: TEN_SECONDS_IN_MS,
-        });
-        break;
-      }
-
-      const hasValue = await expect(behandelaarField)
-        .toHaveValue(userName, { timeout: TEN_SECONDS_IN_MS })
-        .then(() => true)
-        .catch(() => false);
-      if (hasValue) break;
-
-      await this.page
-        .locator("mat-toolbar button mat-icon", { hasText: "close" })
-        .click();
-      await this.page.reload();
-    }
+    await this.page.getByRole("button", { name: "Zaakdata" }).click();
+    await expect(
+      this.page.getByRole("textbox", { name: "zaakGroep" }),
+    ).toHaveValue(group!.id, { timeout: TEN_SECONDS_IN_MS });
+    await expect(
+      this.page.getByRole("textbox", { name: "zaakBehandelaar" }),
+    ).toHaveValue(userName, { timeout: TEN_SECONDS_IN_MS });
 
     await this.page
       .locator("mat-toolbar button mat-icon", { hasText: "close" })

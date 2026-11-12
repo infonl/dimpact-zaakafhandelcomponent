@@ -36,6 +36,7 @@ import moment from "moment";
 import { Subject, takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { UtilService } from "../../../core/service/util.service";
+import { TypedMatCellDefDirective } from "../../../shared/directives/typed-mat-cell-def.directive";
 import { trackControl } from "../../../shared/form/control-state";
 import { ZacDate } from "../../../shared/form/date/date";
 import { ZacInput } from "../../../shared/form/input/input";
@@ -63,6 +64,7 @@ import { FormCommunicatieService } from "../form-communicatie-service";
     ZacDate,
     ReactiveFormsModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     MatSortModule,
     MatButtonModule,
     MatIconModule,

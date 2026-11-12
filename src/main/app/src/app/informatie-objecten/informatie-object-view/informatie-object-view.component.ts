@@ -45,6 +45,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
 import { DocumentViewerComponent } from "../../shared/document-viewer/document-viewer.component";
 import { runMutation } from "../../shared/http/run-mutation";
@@ -90,6 +91,7 @@ import { FileFormat, FileFormatUtil } from "../model/file-format";
     MatSortModule,
     MatSidenavModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     MatTabsModule,
     MatTooltipModule,
     RouterModule,

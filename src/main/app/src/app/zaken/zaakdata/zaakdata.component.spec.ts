@@ -25,7 +25,7 @@ import { provideRouter } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
-import { within } from "@testing-library/angular";
+import { screen, within } from "@testing-library/angular";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -153,6 +153,51 @@ describe(ZaakdataComponent.name, () => {
     fixture.detectChanges();
     return result;
   };
+
+  describe("when the zaak reloads while the panel is open", () => {
+    const reload = (zaak: GeneratedType<"RestZaak">) => {
+      fixture.componentRef.setInput("zaak", zaak);
+      fixture.detectChanges();
+    };
+
+    it("shows the new value of a field the panel already shows", () => {
+      setupWithForm(makeZaak({ zaakdata: { zaakBehandelaar: "user1" } }));
+
+      reload(makeZaak({ zaakdata: { zaakBehandelaar: "user2" } }));
+
+      expect(
+        screen.getByRole("textbox", { name: /zaakBehandelaar/ }),
+      ).toHaveValue("user2");
+    });
+
+    it("shows a field the reloaded zaak adds", () => {
+      setupWithForm(makeZaak({ zaakdata: { zaakGroep: "group1" } }));
+
+      reload(
+        makeZaak({
+          zaakdata: { zaakGroep: "group1", zaakBehandelaar: "user1" },
+        }),
+      );
+
+      expect(
+        screen.getByRole("textbox", { name: /zaakBehandelaar/ }),
+      ).toHaveValue("user1");
+    });
+
+    it("no longer shows a field the reloaded zaak removes", () => {
+      setupWithForm(
+        makeZaak({
+          zaakdata: { zaakGroep: "group1", zaakBehandelaar: "user1" },
+        }),
+      );
+
+      reload(makeZaak({ zaakdata: { zaakGroep: "group1" } }));
+
+      expect(
+        screen.queryByRole("textbox", { name: /zaakBehandelaar/ }),
+      ).not.toBeInTheDocument();
+    });
+  });
 
   describe("clipboard copy icons", () => {
     it("copies the field name to clipboard when icon is clicked", async () => {

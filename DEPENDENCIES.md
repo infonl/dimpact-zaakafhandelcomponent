@@ -9,15 +9,15 @@ This document lists the Docker images and versions that the corresponding versio
 - **postgis**: 17-3.4
 - **redis**: 8.6.8
 - **solr**: 9.11.0-slim
-- **openpolicyagent/opa**: 1.22.2-static
-- **brp-api/personen-mock**: 2.7.0-202610201628
-- **gotenberg**: 8.40.0
+- **openpolicyagent/opa**: 1.22.3-static
+- **brp-api/personen-mock**: 2.7.0-202611120715
+- **gotenberg**: 9.4.1
 - **greenmail/standalone**: 2.1.15
 - **nginxinc/nginx-unprivileged**: 1.31.7
 
 ## Common Ground components
 
-- **open-zaak**: 1.31.1
+- **open-zaak**: 1.31.2
 - **open-object**: 4.1.1
 - **open-klant**: 2.19.2
 - **open-forms**: 4.0.7

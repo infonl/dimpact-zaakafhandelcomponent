@@ -5,7 +5,7 @@
 # The arm64 images of the kind stack, for scripts/kind/charts/zac-dev on an arm64 host such as a Mac with Apple
 # Silicon. The images that this file leaves out have an arm64 variant already, or none (Open Formulieren).
 openzaak:
-  image: ghcr.io/infonl/open-zaak:1.31.1@sha256:865c5e918ad869f76561ed65d80043e1307cd26047575e3cad6a69de37ce6ab0
+  image: ghcr.io/infonl/open-zaak:1.31.2@sha256:98c753a2923d6ed10fb0317bc185db15140c04e11e929dd144d342e34b6e94f3
 openklant:
   image: ghcr.io/infonl/open-klant:2.19.2@sha256:5af171e054de8e6c08776729476be544a3df8b4ec871e146450d7f9629a799d8
 openobject:

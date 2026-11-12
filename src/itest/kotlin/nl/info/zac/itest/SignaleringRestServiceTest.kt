@@ -11,19 +11,24 @@ import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.date.shouldBeBetween
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.OpenZaakClient
+import nl.info.zac.itest.client.TaskHelper
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.createZaakAndRetrieve
 import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.BEHANDELAAR_1_EN_BRP_ZOEKER_2
 import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_31
+import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
+import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BEHANDELAAR
@@ -42,6 +47,7 @@ import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -49,6 +55,9 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+
+private const val ZAAK_OP_NAAM_OMSCHRIJVING = "fakeZaakOpNaamOmschrijving"
+private const val ZAAK_DOCUMENT_TOEGEVOEGD_OMSCHRIJVING = "fakeZaakDocumentToegevoegdOmschrijving"
 
 @Isolate
 class SignaleringRestServiceTest : BehaviorSpec({
@@ -63,6 +72,78 @@ class SignaleringRestServiceTest : BehaviorSpec({
     lateinit var zaakUUID: UUID
     lateinit var zaakIdentificatie: String
     lateinit var zaakPath: String
+
+    val taskHelper = TaskHelper(zacClient)
+    val recipient = BEHANDELAAR_1_EN_BRP_ZOEKER_2
+
+    fun readRecipientInstellingen(type: String) =
+        itestHttpClient.performGetRequest(url = "$ZAC_API_URI/signaleringen/instellingen", testUser = recipient).run {
+            code shouldBe HTTP_OK
+            JSONArray(bodyAsString).let { instellingen ->
+                (0 until instellingen.length())
+                    .map(instellingen::getJSONObject)
+                    .single { it.getString("type") == type }
+            }
+        }
+
+    fun updateRecipientMail(type: String, isMailEnabled: Boolean) =
+        itestHttpClient.performPutRequest(
+            url = "$ZAC_API_URI/signaleringen/instellingen",
+            headers = Headers.headersOf("Content-Type", "application/json"),
+            requestBodyAsString = readRecipientInstellingen(type)
+                .put("isMailEnabled", isMailEnabled)
+                .put("isDashboardEnabled", false)
+                .toString(),
+            testUser = recipient
+        )
+
+    fun sendNotification(resource: String, zaakUuid: UUID, resourceUrl: String) =
+        itestHttpClient.performJSONPostRequest(
+            url = "$ZAC_API_URI/notificaties",
+            headers = Headers.headersOf(
+                "Content-Type",
+                "application/json",
+                "Authorization",
+                ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
+            ),
+            requestBodyAsString = JSONObject(
+                mapOf(
+                    "actie" to "create",
+                    "kanaal" to "zaken",
+                    "resource" to resource,
+                    "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakUuid",
+                    "resourceUrl" to resourceUrl.replace(OPEN_ZAAK_EXTERNAL_URI, OPEN_ZAAK_BASE_URI),
+                    "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
+                )
+            ).toString()
+        ).code shouldBe HTTP_NO_CONTENT
+
+    suspend fun shouldHaveReceivedMail(subject: String) =
+        eventually(afterThirtySeconds) {
+            val response = itestHttpClient.performGetRequest(url = "$GREENMAIL_API_URI/user/${recipient.email}/messages/")
+            response.code shouldBe HTTP_OK
+            JSONArray(response.bodyAsString).let { mails ->
+                (0 until mails.length())
+                    .map(mails::getJSONObject)
+                    .filter { it.getString("subject") == subject }
+            } shouldHaveSize 1
+        }
+
+    fun createZaakOfRecipient(description: String): UUID =
+        zacClient.createZaakAndRetrieve(
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
+            behandelaarId = recipient.username,
+            behandelaarName = recipient.displayName,
+            description = description,
+            startDate = DATE_TIME_2000_01_01,
+            testUser = BEHANDELAAR_1
+        ).run {
+            logger.info { "Response: $bodyAsString" }
+            code shouldBe HTTP_OK
+            JSONObject(bodyAsString).getString("uuid").run(UUID::fromString)
+        }
 
     given("A logged-in behandelaar") {
         `when`("dashboard signaleringen are turned on for all signalering types") {
@@ -499,6 +580,129 @@ class SignaleringRestServiceTest : BehaviorSpec({
             then("it is off again") {
                 response.code shouldBe HTTP_OK
                 readGroupInstellingen().single().getBoolean("isMailEnabled") shouldBe false
+            }
+        }
+    }
+
+    given("A behandelaar who has the mail of the zaak op naam signalering turned on") {
+        updateRecipientMail(type = "ZAAK_OP_NAAM", isMailEnabled = true).code shouldBe HTTP_OK
+
+        `when`("ZAC is notified that this behandelaar became the behandelaar of a zaak") {
+            val zaakUuid = createZaakOfRecipient(description = ZAAK_OP_NAAM_OMSCHRIJVING)
+            val behandelaarRolUrl = JSONObject(openZaakClient.getRolesForZaak(zaakUuid).bodyAsString)
+                .getJSONArray("results")
+                .let { rollen -> (0 until rollen.length()).map(rollen::getJSONObject) }
+                .single {
+                    it.getString("omschrijving") == ROLTYPE_NAME_BEHANDELAAR &&
+                        it.getString("betrokkeneType") == "medewerker"
+                }
+                .getString("url")
+            sendNotification(resource = "rol", zaakUuid = zaakUuid, resourceUrl = behandelaarRolUrl)
+
+            then("the behandelaar is mailed that the zaak is on their name") {
+                shouldHaveReceivedMail("Nieuwe zaak op jouw naam met omschrijving: $ZAAK_OP_NAAM_OMSCHRIJVING")
+            }
+        }
+
+        `when`("the mail of the zaak op naam signalering is turned off again") {
+            val response = updateRecipientMail(type = "ZAAK_OP_NAAM", isMailEnabled = false)
+
+            then("it is off again") {
+                response.code shouldBe HTTP_OK
+                readRecipientInstellingen("ZAAK_OP_NAAM").getBoolean("isMailEnabled") shouldBe false
+            }
+        }
+    }
+
+    given("A zaakbehandelaar who has the mail of the zaak document toegevoegd signalering turned on") {
+        updateRecipientMail(type = "ZAAK_DOCUMENT_TOEGEVOEGD", isMailEnabled = true).code shouldBe HTTP_OK
+        val zaakUuid = createZaakOfRecipient(description = ZAAK_DOCUMENT_TOEGEVOEGD_OMSCHRIJVING)
+
+        `when`("another behandelaar adds a document to the zaak and ZAC is notified of it") {
+            zacClient.createEnkelvoudigInformatieobjectForZaak(
+                zaakUUID = zaakUuid,
+                fileName = TEST_TXT_FILE_NAME,
+                fileMediaType = TEXT_MEDIA_TYPE,
+                vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDAANDUIDING_OPENBAAR,
+                testUser = BEHANDELAAR_1
+            ).code shouldBe HTTP_OK
+            val zaakInformatieobjectUrl = itestHttpClient.performZgwApiGetRequest(
+                url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaakinformatieobjecten" +
+                    "?zaak=$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaken/$zaakUuid"
+            ).run {
+                code shouldBe HTTP_OK
+                JSONArray(bodyAsString).getJSONObject(0).getString("url")
+            }
+            sendNotification(resource = "zaakinformatieobject", zaakUuid = zaakUuid, resourceUrl = zaakInformatieobjectUrl)
+
+            then("the zaakbehandelaar is mailed that a document was added to the zaak") {
+                shouldHaveReceivedMail("Nieuw document aan zaak ‘$ZAAK_DOCUMENT_TOEGEVOEGD_OMSCHRIJVING’ toegevoegd")
+            }
+        }
+
+        `when`("the mail of the zaak document toegevoegd signalering is turned off again") {
+            val response = updateRecipientMail(type = "ZAAK_DOCUMENT_TOEGEVOEGD", isMailEnabled = false)
+
+            then("it is off again") {
+                response.code shouldBe HTTP_OK
+                readRecipientInstellingen("ZAAK_DOCUMENT_TOEGEVOEGD").getBoolean("isMailEnabled") shouldBe false
+            }
+        }
+    }
+
+    given("A behandelaar who has the mail of the taak op naam signalering turned on and a zaak with an unassigned task") {
+        updateRecipientMail(type = "TAAK_OP_NAAM", isMailEnabled = true).code shouldBe HTTP_OK
+        lateinit var zaakUuid: UUID
+        lateinit var zaakIdentificatie: String
+        zacClient.createZaakAndRetrieve(
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
+            startDate = DATE_TIME_2000_01_01,
+            testUser = BEHANDELAAR_1
+        ).run {
+            logger.info { "Response: $bodyAsString" }
+            code shouldBe HTTP_OK
+            JSONObject(bodyAsString).run {
+                zaakUuid = getString("uuid").run(UUID::fromString)
+                zaakIdentificatie = getString("identificatie")
+            }
+        }
+        val taskId = taskHelper.startAanvullendeInformatieTaskForZaak(
+            zaakUuid = zaakUuid,
+            zaakIdentificatie = zaakIdentificatie,
+            fatalDate = LocalDate.now().plusWeeks(1),
+            group = GROUP_BEHANDELAARS_TEST_1,
+            testUser = BEHANDELAAR_1
+        )
+
+        `when`("another behandelaar assigns the task to this behandelaar") {
+            val response = itestHttpClient.performPatchRequest(
+                url = "$ZAC_API_URI/taken/toekennen",
+                requestBodyAsString = """
+                    {
+                        "taakId": "$taskId",
+                        "zaakUuid": "$zaakUuid",
+                        "groepId": "${GROUP_BEHANDELAARS_TEST_1.name}",
+                        "behandelaarId": "${recipient.username}",
+                        "reden": "fakeReason"
+                    }
+                """.trimIndent(),
+                testUser = BEHANDELAAR_1
+            )
+
+            then("the behandelaar is mailed that the task is on their name") {
+                response.code shouldBe HTTP_NO_CONTENT
+                shouldHaveReceivedMail("Nieuwe taak op jouw naam voor een $ZAAKTYPE_CMMN_TEST_2_DESCRIPTION-zaak")
+            }
+        }
+
+        `when`("the mail of the taak op naam signalering is turned off again") {
+            val response = updateRecipientMail(type = "TAAK_OP_NAAM", isMailEnabled = false)
+
+            then("it is off again") {
+                response.code shouldBe HTTP_OK
+                readRecipientInstellingen("TAAK_OP_NAAM").getBoolean("isMailEnabled") shouldBe false
             }
         }
     }

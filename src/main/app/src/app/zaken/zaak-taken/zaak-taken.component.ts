@@ -37,6 +37,7 @@ import { WebsocketListener } from "../../core/websocket/model/websocket-listener
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { detailExpand } from "../../shared/animations/animations";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { ExpandableTableData } from "../../shared/dynamic-table/model/expandable-table-data";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
@@ -69,6 +70,7 @@ import { TakenService } from "../../taken/taken.service";
     MatSortHeader,
     MatSortModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     ReactiveFormsModule,
     RouterLink,
     TranslatePipe,
@@ -263,11 +265,12 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-  protected isAfterDate(datum: Date | moment.Moment | string) {
+  protected isAfterDate(datum?: Date | moment.Moment | string | null) {
+    if (!datum) return false;
     return DateConditionals.isExceeded(datum);
   }
 
-  protected taskStatusChipColor(status: GeneratedType<"TaakStatus">) {
+  protected taskStatusChipColor(status?: GeneratedType<"TaakStatus"> | null) {
     switch (status) {
       case "AFGEROND":
         return "success";

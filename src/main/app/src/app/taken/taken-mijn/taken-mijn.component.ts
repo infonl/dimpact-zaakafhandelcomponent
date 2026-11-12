@@ -42,6 +42,7 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
 
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
@@ -59,6 +60,7 @@ import { TakenMijnDatasource } from "./taken-mijn-datasource";
     I18nKeyPipe,
     DragDropModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     MatSortModule,
     MatPaginator,
     MatIcon,

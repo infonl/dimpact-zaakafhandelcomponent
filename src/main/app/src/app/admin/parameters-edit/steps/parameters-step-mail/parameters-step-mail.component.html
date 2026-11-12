@@ -49,7 +49,10 @@
             <th mat-header-cell *matHeaderCellDef>
               {{ "default" | translate }}
             </th>
-            <td mat-cell *matCellDef="let zaakAfzender">
+            <td
+              mat-cell
+              *matCellDef="let zaakAfzender; dataSource: zaakAfzenders() ?? []"
+            >
               <mat-radio-button
                 (click)="chooseDefaultAfzender(zaakAfzender.form)"
                 [checked]="zaakAfzender.isDefaultMail"
@@ -63,7 +66,10 @@
               *matHeaderCellDef
               translate="mail.afzender"
             ></th>
-            <td mat-cell *matCellDef="let zaakAfzender">
+            <td
+              mat-cell
+              *matCellDef="let zaakAfzender; dataSource: zaakAfzenders() ?? []"
+            >
               {{
                 zaakAfzender.isSpeciaal
                   ? ("gegevens.mail.afzender." + zaakAfzender.mail
@@ -79,7 +85,10 @@
               *matHeaderCellDef
               translate="mail.antwoord"
             ></th>
-            <td mat-cell *matCellDef="let zaakAfzender">
+            <td
+              mat-cell
+              *matCellDef="let zaakAfzender; dataSource: zaakAfzenders() ?? []"
+            >
               <zac-select
                 [form]="zaakAfzender.form"
                 key="replyTo"
@@ -116,7 +125,10 @@
                 }
               </mat-menu>
             </th>
-            <td mat-cell *matCellDef="let zaakAfzender">
+            <td
+              mat-cell
+              *matCellDef="let zaakAfzender; dataSource: zaakAfzenders() ?? []"
+            >
               @if (!zaakAfzender.isSpeciaal) {
                 <button
                   mat-icon-button

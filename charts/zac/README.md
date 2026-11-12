@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.376](https://img.shields.io/badge/Version-1.0.376-informational?style=flat-square) ![AppVersion: 5.11](https://img.shields.io/badge/AppVersion-5.11-informational?style=flat-square)
+![Version: 1.0.385](https://img.shields.io/badge/Version-1.0.385-informational?style=flat-square) ![AppVersion: 5.12](https://img.shields.io/badge/AppVersion-5.12-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.178.2 |
+| @opentelemetry | opentelemetry-collector | 0.178.3 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -63,6 +63,43 @@ afterwards. To change a Solr password, set it through the Solr security API as `
 update the bootstrap secret by hand. See
 [Managing the Solr search engine](https://github.com/infonl/dimpact-zaakafhandelcomponent/blob/main/docs/development/managingSolr.md)
 for the Solr details, including how to read the admin password for the Solr admin UI.
+
+## Tracing
+
+ZAC sends its traces with OpenTelemetry (OTLP over gRPC) when `tracing.enabled` is true. Two settings decide
+where the traces go, one for each hop:
+
+```
+ZAC ──OTLP──▶ OpenTelemetry collector ──▶ tracing backend, such as Tempo
+    ↑                                 ↑
+    tracing.endpoint                  opentelemetry-collector.config.exporters
+                                      (bundled collector only)
+```
+
+To send the traces to a collector or tracing backend that already runs in the cluster, set its endpoint and leave
+the bundled collector disabled:
+
+```
+--set tracing.enabled=true
+--set tracing.endpoint=https://my-collector.monitoring.svc.cluster.local:4317
+```
+
+To deploy the bundled collector, leave `tracing.endpoint` empty and configure where the collector forwards the
+traces to:
+
+```
+--set tracing.enabled=true
+--set opentelemetry-collector.enabled=true
+--set opentelemetry-collector.config.exporters.otlp.endpoint=https://tempo.monitoring.svc.cluster.local:4317
+--set opentelemetry-collector.config.service.pipelines.traces.exporters={otlp}
+```
+
+For an endpoint without TLS, which is common inside a cluster, use `http://` instead of `https://`. The bundled
+collector then also needs `--set opentelemetry-collector.config.exporters.otlp.tls.insecure=true`.
+
+`opentelemetry_zaakafhandelcomponent.endpoint` is deprecated and replaced by `tracing.endpoint`. Until it is
+removed, it and an enabled bundled collector still turn on tracing, and `helm install` and `helm upgrade` print a
+deprecation notice.
 
 ## Changes to the helm chart
 
@@ -270,7 +307,7 @@ PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" helm plugin install https
 | office_converter.env.CHROMIUM_DISABLE_ROUTES | string | `"true"` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
 | office_converter.image.repository | string | `"docker.io/gotenberg/gotenberg"` |  |
-| office_converter.image.tag | string | `"8.40.0@sha256:53073e798c8ef39ea2187e44cb67bab77894ea2509100b94c4fe3b461f7b2996"` |  |
+| office_converter.image.tag | string | `"9.4.1@sha256:7d790c081a944f4d30cacb59a2cdccbe71569532af691b93c36551f6a877b4fc"` |  |
 | office_converter.imagePullSecrets | list | `[]` |  |
 | office_converter.name | string | `"office-converter"` |  |
 | office_converter.nodeSelector | object | `{}` |  |
@@ -298,7 +335,7 @@ PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" helm plugin install https
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"docker.io/openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.22.2-static@sha256:805656c845fb626b856fb4b4799d6c91e053a41eecc48537f4f1c2fd6974fbdd"` |  |
+| opa.image.tag | string | `"1.22.3-static@sha256:a6ccb6e0cc91b2d1807b1b65a844b189249b9ab33d126e0bca30c0cf43b0ae07"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
@@ -330,7 +367,7 @@ PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" helm plugin install https
 | opentelemetry-collector.enabled | bool | `false` |  |
 | opentelemetry-collector.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opentelemetry-collector.image.repository | string | `"otel/opentelemetry-collector-contrib"` |  |
-| opentelemetry-collector.image.tag | string | `"0.164.0@sha256:340c9ca6a36617084c6661bdc4f0fe92b7cda5a805d61673ec8db375fddc522b"` |  |
+| opentelemetry-collector.image.tag | string | `"0.165.0@sha256:e40d61f10c9a617cca1ffd1be4d7e2b3a4b0f0001798ff07e58cabe82e618cea"` |  |
 | opentelemetry-collector.mode | string | `"deployment"` |  |
 | opentelemetry-collector.ports.jaeger-compact.enabled | bool | `false` |  |
 | opentelemetry-collector.ports.jaeger-grpc.enabled | bool | `false` |  |
@@ -338,8 +375,6 @@ PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" helm plugin install https
 | opentelemetry-collector.ports.zipkin.enabled | bool | `false` |  |
 | opentelemetry-collector.presets.clusterMetrics.enabled | bool | `false` |  |
 | opentelemetry-collector.replicaCount | int | `1` |  |
-| opentelemetry_zaakafhandelcomponent.disabled | string | `"-true"` | Enables or disables the ZAC OpenTelemetry integration. Disabled by default. |
-| opentelemetry_zaakafhandelcomponent.endpoint | string | `""` | OpenTelemetry collector endpoint URL. Setting it turns on tracing in ZAC to this (external) collector, after which the bundled `opentelemetry-collector` can be disabled. When empty, ZAC sends traces to the bundled collector at `http://<release name>-opentelemetry-collector:4317`, but only when `opentelemetry-collector.enabled` is true. |
 | organizations.bron.rsin | string | `""` | The RSIN of the Non-natural person - the organization that created the zaak. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef |
 | organizations.verantwoordelijke.rsin | string | `""` | The RSIN of the Non-natural person - the organization that is ultimately responsible for handling a zaak or establishing a decision. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef |
 | pabcApi.apiKey | string | `""` |  |
@@ -451,6 +486,8 @@ PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" helm plugin install https
 | tmpVolumeSize | string | `"4Gi"` | Size of the emptyDir mounted at /tmp. WildFly buffers every request body to a temporary file there and ZAC streams the uploaded document from it, so this has to hold `maxFileSizeMB` for every concurrent upload. Keep `resources.requests.ephemeral-storage` and `resources.limits.ephemeral-storage` in step with it. Note that the matching 4Gi ephemeral-storage request is a scheduling requirement: a node without that much free ephemeral storage, or a namespace whose quota does not allow it, will not schedule the pod. Lower all three together when the environment cannot spare it; the cost is fewer concurrent transfers of `maxFileSizeMB`, not a lower maximum document size. |
 | tolerations | list | `[]` | set toleration parameters |
 | topologySpreadConstraints | list | `[{"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"ScheduleAnyway"}]` | set topologySpreadConstraints parameters. Note: labelSelector is automatically set by the template to match the deployment's labels |
+| tracing.enabled | bool | `false` | Whether ZAC sends its traces with OpenTelemetry (OTLP over gRPC). |
+| tracing.endpoint | string | `""` | OTLP endpoint that ZAC sends its traces to: an external OpenTelemetry collector or a tracing backend such as Tempo. When empty, ZAC sends its traces to the bundled `opentelemetry-collector`, which then has to be enabled. Not to be confused with `opentelemetry-collector.config.exporters.otlp.endpoint`, which is where the bundled collector forwards traces to. |
 | zacInternalEndpointsApiKey | string | `""` | API key for authentication of internal ZAC endpoints |
 | zgwApis.clientId | string | `""` |  |
 | zgwApis.secret | string | `""` |  |

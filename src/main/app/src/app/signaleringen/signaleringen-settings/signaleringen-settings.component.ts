@@ -11,6 +11,7 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -30,6 +31,7 @@ const SETTING_PER_COLUMN = {
     NgClass,
     MatCardModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     MatCheckboxModule,
     TranslatePipe,
   ],

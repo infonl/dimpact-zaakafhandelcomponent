@@ -91,7 +91,13 @@ export class ZakenService {
   ) {
     return mergeMutationOptions(base, {
       onSuccess: (zaak) => {
+        // A refetch that a websocket event started during the save reads the zaak as it was
+        // before the save, and would overwrite the saved zaak if it resolved after it.
+        void this.queryClient.cancelQueries({
+          queryKey: this.readZaakQuery(zaak.uuid).queryKey,
+        });
         this.cacheZaak(zaak);
+        this.invalidateZaak(zaak.uuid);
         this.invalidateHistorie(zaak.uuid);
       },
     });

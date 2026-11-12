@@ -2,7 +2,7 @@
   "name": "app",
   "version": "0.0.1",
   "engines": {
-    "node": "26.13.0",
+    "node": "26.13.1",
     "npm": "12.2.2"
   },
   "scripts": {
@@ -23,7 +23,7 @@
     "@playwright/test": "1.65.0",
     "@types/node": "24.19.2",
     "multiple-cucumber-html-reporter": "4.6.0",
-    "dotenv": "18.0.9",
+    "dotenv": "18.0.10",
     "playwright-bdd": "9.2.1",
     "ts-node": "10.9.2",
     "typescript": "6.0.3"

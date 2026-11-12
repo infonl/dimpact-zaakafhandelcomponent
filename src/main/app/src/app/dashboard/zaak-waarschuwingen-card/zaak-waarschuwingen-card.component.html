@@ -8,7 +8,7 @@
       <th mat-header-cell *matHeaderCellDef mat-sort-header="identificatie">
         {{ "zaak.identificatie" | translate }}
       </th>
-      <td mat-cell *matCellDef="let zaak">
+      <td mat-cell *matCellDef="let zaak; dataSource: dataSource">
         <zac-zaak-identificatie
           [identificatie]="zaak.identificatie"
           [isZaakspecifiekGeautoriseerd]="zaak.isZaakspecifiekGeautoriseerd"
@@ -19,7 +19,7 @@
       <th mat-header-cell *matHeaderCellDef mat-sort-header="einddatumGepland">
         {{ "einddatum-gepland" | translate }}
       </th>
-      <td mat-cell *matCellDef="let zaak">
+      <td mat-cell *matCellDef="let zaak; dataSource: dataSource">
         <div class="flex-row items-center gap-10">
           {{ zaak.einddatumGepland | datum | empty }}
           @if (isAfterDate(zaak.einddatumGepland, zaak.einddatum)) {
@@ -36,7 +36,7 @@
       <th mat-header-cell *matHeaderCellDef>
         {{ "dagen-tot-streefdatum" | translate }}
       </th>
-      <td mat-cell *matCellDef="let zaak">
+      <td mat-cell *matCellDef="let zaak; dataSource: dataSource">
         {{ zaak.einddatumGepland | dagen }}
       </td>
     </ng-container>
@@ -48,7 +48,7 @@
       >
         {{ "uiterlijke-einddatum-afdoening" | translate }}
       </th>
-      <td mat-cell *matCellDef="let zaak">
+      <td mat-cell *matCellDef="let zaak; dataSource: dataSource">
         <div class="flex-row items-center gap-10">
           {{ zaak.uiterlijkeEinddatumAfdoening | datum | empty }}
           @if (isAfterDate(zaak.uiterlijkeEinddatumAfdoening, zaak.einddatum)) {
@@ -65,15 +65,15 @@
       <th mat-header-cell *matHeaderCellDef>
         {{ "dagen-tot-fataledatum" | translate }}
       </th>
-      <td mat-cell *matCellDef="let zaak">
+      <td mat-cell *matCellDef="let zaak; dataSource: dataSource">
         {{ zaak.uiterlijkeEinddatumAfdoening | dagen }}
       </td>
     </ng-container>
 
     <ng-container matColumnDef="url" stickyEnd id="zaakButtons">
       <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let zaak">
-        @if (zaak.rechten.canLezen) {
+      <td mat-cell *matCellDef="let zaak; dataSource: dataSource">
+        @if (zaak.rechten?.canLezen) {
           <a
             mat-icon-button
             [routerLink]="['/zaken', zaak.identificatie]"

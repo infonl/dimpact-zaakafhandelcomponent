@@ -11,6 +11,7 @@
 javaOptions: >-
   -javaagent:/jacoco-agent/org.jacoco.agent-runtime.jar=output=tcpserver,address=*,port=6300
   -Xms1024m -Xmx1024m -Xlog:gc::time,uptime
+  -Duser.timezone=UTC
 
 bagApi:
   url: http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/

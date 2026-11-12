@@ -25,6 +25,7 @@ import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { finalize } from "rxjs";
 import { IdentityService } from "../../identity/identity.service";
+import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { runMutation } from "../../shared/http/run-mutation";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
@@ -44,6 +45,7 @@ import { SignaleringenSettingsBeheerService } from "../signaleringen-settings-be
     MatFormFieldModule,
     MatSelectModule,
     MatTableModule,
+    TypedMatCellDefDirective,
     MatCheckboxModule,
     SideNavComponent,
     TranslatePipe,

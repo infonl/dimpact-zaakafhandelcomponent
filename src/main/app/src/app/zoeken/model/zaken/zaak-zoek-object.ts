@@ -22,7 +22,7 @@ export type ZaakZoekObject =
     uiterlijkeEinddatumAfdoening: string;
     publicatiedatum: string;
     communicatiekanaal: string;
-    vertrouwelijkheidaanduiding: string;
+    vertrouwelijkheidaanduiding: GeneratedType<"RestVertrouwelijkheidaanduiding">;
     archiefActiedatum: string;
     archiefNominatie: string;
     isAfgehandeld: boolean;
@@ -47,6 +47,7 @@ export type ZaakZoekObject =
     isHoofdzaak: boolean;
     isHeropend: boolean;
     statusToelichting: string;
+    aantalOpenstaandeTaken: number;
     rechten: GeneratedType<"RestZaakRechten">;
     indicaties: GeneratedType<"ZaakIndicatie">[];
     betrokkenen: Record<GeneratedType<"OmschrijvingGeneriekEnum">, string[]>;

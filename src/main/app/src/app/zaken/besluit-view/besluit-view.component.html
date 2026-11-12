@@ -127,7 +127,13 @@
                 <th *matHeaderCellDef mat-header-cell mat-sort-header>
                   {{ "datum" | translate }}
                 </th>
-                <td *matCellDef="let regel" mat-cell>
+                <td
+                  *matCellDef="
+                    let regel;
+                    dataSource: historie(besluit.uuid) ?? []
+                  "
+                  mat-cell
+                >
                   <div matTooltip="{{ regel.datumTijd | datum: 'short' }}">
                     {{ regel.datumTijd | datum | empty }}
                   </div>
@@ -137,7 +143,13 @@
                 <th *matHeaderCellDef mat-header-cell mat-sort-header>
                   {{ "door" | translate }}
                 </th>
-                <td *matCellDef="let regel" mat-cell>
+                <td
+                  *matCellDef="
+                    let regel;
+                    dataSource: historie(besluit.uuid) ?? []
+                  "
+                  mat-cell
+                >
                   <div matTooltip="{{ regel.applicatie }}">
                     {{ regel.door | empty }}
                   </div>
@@ -147,7 +159,13 @@
                 <th mat-header-cell *matHeaderCellDef>
                   {{ "wijziging" | translate }}
                 </th>
-                <td mat-cell *matCellDef="let regel">
+                <td
+                  mat-cell
+                  *matCellDef="
+                    let regel;
+                    dataSource: historie(besluit.uuid) ?? []
+                  "
+                >
                   <read-more
                     [text]="regel.attribuutLabel | i18nLabel"
                     [maxLength]="20"
@@ -158,7 +176,13 @@
                 <th mat-header-cell *matHeaderCellDef>
                   {{ "waarde.oud" | translate | mimetypeToExtension }}
                 </th>
-                <td mat-cell *matCellDef="let regel">
+                <td
+                  mat-cell
+                  *matCellDef="
+                    let regel;
+                    dataSource: historie(besluit.uuid) ?? []
+                  "
+                >
                   <read-more
                     [text]="regel.oudeWaarde | empty"
                     [maxLength]="20"
@@ -169,7 +193,13 @@
                 <th mat-header-cell *matHeaderCellDef>
                   {{ "waarde.nieuw" | translate | mimetypeToExtension }}
                 </th>
-                <td mat-cell *matCellDef="let regel">
+                <td
+                  mat-cell
+                  *matCellDef="
+                    let regel;
+                    dataSource: historie(besluit.uuid) ?? []
+                  "
+                >
                   <read-more
                     [text]="regel.nieuweWaarde | empty"
                     [maxLength]="20"
@@ -180,7 +210,13 @@
                 <th mat-header-cell *matHeaderCellDef>
                   {{ "toelichting" | translate }}
                 </th>
-                <td mat-cell *matCellDef="let regel">
+                <td
+                  mat-cell
+                  *matCellDef="
+                    let regel;
+                    dataSource: historie(besluit.uuid) ?? []
+                  "
+                >
                   <read-more
                     [text]="regel.toelichting | empty"
                     [maxLength]="20"

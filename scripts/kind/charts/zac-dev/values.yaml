@@ -28,7 +28,7 @@ upstreamCharts:
     version: 1.12.0
 
 openzaak:
-  image: openzaak/open-zaak:1.31.1@sha256:63448221142145b0f56eabadaa9ef9578dd4aacc7f95476bd5368f767883ada0
+  image: openzaak/open-zaak:1.31.2@sha256:8b11bd7b35a6e2be9c1984b140ed4f54155e3940683b009b0206bfa9f64844e4
 openklant:
   image: maykinmedia/open-klant:2.19.2@sha256:f85ef0b31610cbf3ef6c09cbe217f113145e11623aa9ba140abd2e4ffb7bddff
 openobject:
@@ -137,15 +137,15 @@ solr:
 
 opa:
   # -- keep in sync with the OPA of charts/zac
-  image: openpolicyagent/opa:1.22.2-static@sha256:805656c845fb626b856fb4b4799d6c91e053a41eecc48537f4f1c2fd6974fbdd
+  image: openpolicyagent/opa:1.22.3-static@sha256:a6ccb6e0cc91b2d1807b1b65a844b189249b9ab33d126e0bca30c0cf43b0ae07
 
 officeConverter:
   # -- keep in sync with the office converter of charts/zac
-  image: gotenberg/gotenberg:8.40.0@sha256:53073e798c8ef39ea2187e44cb67bab77894ea2509100b94c4fe3b461f7b2996
+  image: gotenberg/gotenberg:9.4.1@sha256:7d790c081a944f4d30cacb59a2cdccbe71569532af691b93c36551f6a877b4fc
   username: zac
 
 brpPersonenMock:
-  image: ghcr.io/brp-api/personen-mock:2.7.0-202610201628@sha256:613605a8e613e0610d5209b67e8371ea5355085834951bfe105d9e4229d4571a
+  image: ghcr.io/brp-api/personen-mock:2.7.0-202611120715@sha256:0ac50fbc2b17e61e3597958ab9bdd7ec55005db601ff96599202f49b18536de6
 
 wiremock:
   image: wiremock/wiremock:3.13.2@sha256:0d4ecb3e4dc8213fd7a4d37d6a78f6e6b553a6d2e15bd51b0999781282ac61b3
