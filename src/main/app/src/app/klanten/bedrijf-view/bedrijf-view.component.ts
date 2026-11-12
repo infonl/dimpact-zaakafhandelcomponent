@@ -7,6 +7,7 @@ import { Component, computed, inject, signal } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { ActivatedRoute } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
@@ -28,6 +29,7 @@ import { KlantZakenTabelComponent } from "../klant-zaken-tabel/klant-zaken-tabel
     MatCardModule,
     MatButtonModule,
     MatIconModule,
+    MatProgressSpinnerModule,
     TranslatePipe,
     StaticTextComponent,
     KlantZakenTabelComponent,
@@ -40,7 +42,6 @@ export class BedrijfViewComponent {
   protected readonly bedrijf = signal<GeneratedType<"RestBedrijf"> | null>(
     null,
   );
-  protected readonly profielOphalenMogelijk = signal(true);
   warningIcon = new TextIcon(
     () => true,
     "warning",
@@ -61,7 +62,15 @@ export class BedrijfViewComponent {
 
   private readonly kvkProfiel = injectKvkProfiel(() => this.profielAanvraag());
 
+  protected readonly profielLaden = this.kvkProfiel.laden;
+
   protected readonly profielFoutmelding = this.kvkProfiel.foutmelding;
+
+  protected readonly profielOphalenMogelijk = computed(
+    () =>
+      !!this.profielAanvraag() &&
+      (!this.profielOpgevraagd() || !!this.profielFoutmelding()),
+  );
 
   protected readonly adressen = this.kvkProfiel.adressen;
 
@@ -74,12 +83,11 @@ export class BedrijfViewComponent {
       const bedrijf: GeneratedType<"RestBedrijf"> | null = data.bedrijf;
       this.bedrijf.set(bedrijf);
       this.profielOpgevraagd.set(false);
-      this.profielOphalenMogelijk.set(!!this.profielAanvraag());
     });
   }
 
   protected ophalenProfiel() {
-    this.profielOphalenMogelijk.set(false);
+    if (this.profielFoutmelding()) this.kvkProfiel.opnieuwOphalen();
     this.profielOpgevraagd.set(true);
   }
 }

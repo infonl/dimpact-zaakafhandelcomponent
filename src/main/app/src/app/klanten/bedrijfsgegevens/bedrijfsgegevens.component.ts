@@ -81,6 +81,8 @@ export class BedrijfsgegevensComponent {
     return null;
   });
 
+  protected readonly profielLaden = this.kvkProfiel.laden;
+
   protected readonly profielFoutmelding = this.kvkProfiel.foutmelding;
 
   protected readonly adressen = this.kvkProfiel.adressen;
@@ -102,6 +104,7 @@ export class BedrijfsgegevensComponent {
   }
 
   protected ophalenProfiel() {
+    if (this.profielFoutmelding()) this.kvkProfiel.opnieuwOphalen();
     this.profielOpgevraagd.set(true);
   }
 }

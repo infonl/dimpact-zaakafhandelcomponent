@@ -290,6 +290,57 @@ describe(BedrijfViewComponent.name, () => {
       expectStaticText("adres", "msg.hint.kvk.other-error");
     });
 
+    it("shows that the adressen are being fetched while fetching the profiel", async () => {
+      await sleep();
+      fixture.detectChanges();
+
+      expect(
+        screen.getByRole("progressbar", { name: "bedrijf.adressen.laden" }),
+      ).toBeInTheDocument();
+    });
+
+    it("does not show that the adressen are being fetched once the profiel is fetched", async () => {
+      await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
+
+      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+    });
+
+    it("fetches the profiel again when the profiel ophalen button is clicked after fetching the profiel failed", async () => {
+      httpController
+        .expectOne(vestigingsprofielUrl)
+        .flush(null, { status: 404, statusText: "fakeNotFound" });
+      await sleep();
+      fixture.detectChanges();
+
+      await clickProfielOphalen();
+      await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
+
+      expectStaticText("bezoekadres", "Teststraat 1, 1234AB Amsterdam");
+      expect(
+        screen.queryByText("msg.hint.kvk.outdated"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("keeps the profiel ophalen button enabled when fetching the profiel again fails, so that the user can retry", async () => {
+      httpController
+        .expectOne(vestigingsprofielUrl)
+        .flush(null, { status: 404, statusText: "fakeNotFound" });
+      await sleep();
+      fixture.detectChanges();
+
+      await clickProfielOphalen();
+      httpController
+        .expectOne(vestigingsprofielUrl)
+        .flush(null, { status: 404, statusText: "fakeNotFound" });
+      await sleep();
+      fixture.detectChanges();
+      await sleep();
+      fixture.detectChanges();
+
+      expect(profielOphalenButton()).toBeEnabled();
+      expectStaticText("adres", "msg.hint.kvk.outdated");
+    });
+
     it("shows the KvK error instead of the earlier fetched adressen when refetching the profiel fails", async () => {
       await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
 

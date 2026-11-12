@@ -47,25 +47,33 @@ export function injectKvkProfiel(aanvraag: () => KvkProfielAanvraag) {
     enabled: !!kvkNummer(),
   }));
 
-  const profiel = computed(() => {
-    if (vestigingsnummer()) return vestigingsprofielQuery.data() ?? null;
-    if (kvkNummer()) return basisprofielQuery.data() ?? null;
+  const actieveQuery = computed(() => {
+    if (vestigingsnummer()) return vestigingsprofielQuery;
+    if (kvkNummer()) return basisprofielQuery;
     return null;
   });
 
-  const foutmelding = computed(() => {
-    if (vestigingsnummer())
-      return toKvkFoutmelding(vestigingsprofielQuery.error());
-    if (kvkNummer()) return toKvkFoutmelding(basisprofielQuery.error());
-    return null;
+  const profiel = computed(() => actieveQuery()?.data() ?? null);
+
+  const laden = computed(() => {
+    const query = actieveQuery();
+    return (
+      !!query && query.isFetching() && (query.isPending() || query.isError())
+    );
   });
+
+  const foutmelding = computed(() =>
+    laden() ? null : toKvkFoutmelding(actieveQuery()?.error() ?? null),
+  );
 
   return {
     profiel,
     adressen: computed(() =>
-      foutmelding() ? [] : (profiel()?.adressen ?? []),
+      laden() || foutmelding() ? [] : (profiel()?.adressen ?? []),
     ),
+    laden,
     foutmelding,
+    opnieuwOphalen: () => void actieveQuery()?.refetch(),
   };
 }
 

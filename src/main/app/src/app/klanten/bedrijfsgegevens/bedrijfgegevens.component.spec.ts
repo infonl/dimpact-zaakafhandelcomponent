@@ -505,6 +505,36 @@ describe(BedrijfsgegevensComponent.name, () => {
         ).toBeInTheDocument();
       });
 
+      it("shows that the adressen are being fetched while fetching the vestigingsprofiel", () => {
+        expect(
+          screen.getByRole("progressbar", { name: "bedrijf.adressen.laden" }),
+        ).toBeInTheDocument();
+      });
+
+      it("does not show that the adressen are being fetched once the vestigingsprofiel is fetched", async () => {
+        await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
+
+        expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+      });
+
+      it("fetches the vestigingsprofiel again when the button is clicked after fetching the vestigingsprofiel failed", async () => {
+        httpController
+          .expectOne(vestigingsprofielUrl)
+          .flush(null, { status: 404, statusText: "fakeNotFound" });
+        await sleep();
+        fixture.detectChanges();
+
+        await clickProfielOphalen();
+        await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
+
+        expect(
+          screen.getByText("Teststraat 1, 1234AB Amsterdam"),
+        ).toBeInTheDocument();
+        expect(
+          screen.queryByText("msg.hint.kvk.outdated"),
+        ).not.toBeInTheDocument();
+      });
+
       it("shows the KvK error instead of the earlier fetched adressen when refetching the vestigingsprofiel fails", async () => {
         await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
 

@@ -46,7 +46,15 @@
             @if (profiel()) {
               <zac-static-text label="rsin" [value]="profiel()?.rsin" />
             }
-            @if (profielFoutmelding(); as profielFoutmelding) {
+            @if (profielLaden()) {
+              <zac-static-text label="adres">
+                <mat-spinner
+                  position="content"
+                  diameter="14"
+                  [attr.aria-label]="'bedrijf.adressen.laden' | translate"
+                />
+              </zac-static-text>
+            } @else if (profielFoutmelding(); as profielFoutmelding) {
               <zac-static-text
                 label="adres"
                 [icon]="warningIcon"
