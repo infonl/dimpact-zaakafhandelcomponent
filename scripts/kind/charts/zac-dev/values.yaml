@@ -28,7 +28,7 @@ upstreamCharts:
     version: 1.12.0
 
 openzaak:
-  image: openzaak/open-zaak:1.31.1@sha256:63448221142145b0f56eabadaa9ef9578dd4aacc7f95476bd5368f767883ada0
+  image: openzaak/open-zaak:1.31.2@sha256:8b11bd7b35a6e2be9c1984b140ed4f54155e3940683b009b0206bfa9f64844e4
 openklant:
   image: maykinmedia/open-klant:2.19.2@sha256:f85ef0b31610cbf3ef6c09cbe217f113145e11623aa9ba140abd2e4ffb7bddff
 openobject:
