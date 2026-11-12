@@ -73,7 +73,7 @@ async function openZaak(this: CustomWorld, user: z.infer<typeof worldUsers>) {
   worldUsers.parse(user);
   const caseNumber = this.testStorage.get("caseNumber");
 
-  await this.page.goto(`${this.worldParameters.urls.zac}/zaken/${caseNumber}`);
+  await this.openUrl(`${this.worldParameters.urls.zac}/zaken/${caseNumber}`);
 }
 
 Given(
@@ -314,7 +314,7 @@ Then(
 
     const caseNumber = this.testStorage.get("caseNumber");
 
-    await this.page.goto(`${this.worldParameters.urls.zac}/taken/mijn`);
+    await this.openUrl(`${this.worldParameters.urls.zac}/taken/mijn`);
 
     await this.expect(
       this.page.getByRole("cell", { name: caseNumber, exact: true }).first(),
