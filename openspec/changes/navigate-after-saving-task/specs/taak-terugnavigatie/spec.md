@@ -38,7 +38,9 @@ After a taak is saved or completed successfully, ZAC SHALL apply the first of th
 
 Saving or completing a taak SHALL update the taak in the search index and make that change searchable before the
 request returns, so the werklijsten that read from it show the saved values, such as the toelichting and the
-fatale datum, and no longer show a completed taak.
+fatale datum, and no longer show a completed taak. When converting the taak for the index fails, ZAC SHALL log a
+warning and still report the save as successful; the werklijsten then show the previous values until the taak is
+indexed again.
 
 After a taak is saved or completed successfully, and before ZAC navigates away from the taak, ZAC SHALL mark its
 cached copies of the werklijsten as stale: the takenwerkvoorraad, the taken and zoek cards on the dashboard, and
