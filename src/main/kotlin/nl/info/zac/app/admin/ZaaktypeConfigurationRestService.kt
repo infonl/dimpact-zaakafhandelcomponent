@@ -33,6 +33,7 @@ import nl.info.zac.app.admin.model.RestTaakFormulierDefinitie
 import nl.info.zac.app.admin.model.RestTaakFormulierVeldDefinitie
 import nl.info.zac.app.admin.model.RestZaakbeeindigReden
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
+import nl.info.zac.app.admin.model.RestZaaktypeConfigurationOverzicht
 import nl.info.zac.app.admin.model.toRestReplyTos
 import nl.info.zac.app.admin.model.toRestZaakbeeindigReden
 import nl.info.zac.app.zaak.model.RestResultaattype
@@ -83,11 +84,15 @@ class ZaaktypeConfigurationRestService @Inject constructor(
     }
 
     @GET
-    fun listZaaktypeConfigurations(): List<RestZaaktypeConfiguration> {
+    fun listZaaktypeConfigurations(): List<RestZaaktypeConfigurationOverzicht> {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
         return ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
-            .map { findOrCreateConfiguration(it.url.extractUuid()) }
-            .map { restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(it, false) }
+            .map { zaaktype ->
+                restZaaktypeConfigurationConverter.toRestZaaktypeConfigurationOverzicht(
+                    zaaktypeConfiguration = findOrCreateConfiguration(zaaktype.url.extractUuid()),
+                    zaaktype = zaaktype
+                )
+            }
     }
 
     @GET

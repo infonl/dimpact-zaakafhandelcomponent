@@ -83,7 +83,7 @@ export class ParametersComponent
     new ZaakafhandelParametersListParameters("valide", "asc"),
   );
   protected parameters = new MatTableDataSource<
-    GeneratedType<"RestZaaktypeConfiguration">
+    GeneratedType<"RestZaaktypeConfigurationOverzicht">
   >();
 
   private readonly parametersQuery = injectQuery(() =>
@@ -146,7 +146,7 @@ export class ParametersComponent
           ClientMatcher.matchObject(
             "identificatie",
             data.zaaktype,
-            parsedFilter.zaaktype as GeneratedType<"RestZaaktypeOverzicht">,
+            parsedFilter.zaaktype as GeneratedType<"RestZaaktypeBeheerOverzicht">,
           );
       }
 
@@ -259,15 +259,15 @@ export class ParametersComponent
   }
 
   protected compareZaaktype = (
-    zaaktype1?: GeneratedType<"RestZaaktype">,
-    zaaktype2?: GeneratedType<"RestZaaktype">,
+    zaaktype1?: GeneratedType<"RestZaaktypeBeheerOverzicht">,
+    zaaktype2?: GeneratedType<"RestZaaktypeBeheerOverzicht">,
   ) => {
     return zaaktype1?.identificatie === zaaktype2?.identificatie;
   };
 
   protected compareProcessDefinition = (
-    processDefinition1?: GeneratedType<"RestProcessDefinition">,
-    processDefinition2?: GeneratedType<"RestProcessDefinition">,
+    processDefinition1?: GeneratedType<"RestProcessDefinitionOverzicht">,
+    processDefinition2?: GeneratedType<"RestProcessDefinitionOverzicht">,
   ) => {
     return processDefinition1?.key === processDefinition2?.key;
   };

@@ -19,7 +19,7 @@ import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.app.admin.model.RestBuildInformation
 import nl.info.zac.app.admin.model.RestZaaktypeInrichtingscheck
-import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
+import nl.info.zac.app.admin.model.toRestInrichtingscheckZaaktype
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.healthcheck.model.ZaaktypeInrichtingscheck
@@ -82,7 +82,7 @@ class HealthCheckRestService @Inject constructor(
 
     private fun convertToREST(check: ZaaktypeInrichtingscheck): RestZaaktypeInrichtingscheck =
         RestZaaktypeInrichtingscheck(
-            zaaktype = check.zaaktype.toRestZaaktypeOverzicht(),
+            zaaktype = check.zaaktype.toRestInrichtingscheckZaaktype(),
             isBesluittypeAanwezig = check.isBesluittypeAanwezig,
             resultaattypesMetVerplichtBesluit = check.resultaattypesMetVerplichtBesluit,
             resultaattypesMetNietOndersteundeBrondatum = check.resultaattypesMetNietOndersteundeBrondatum,

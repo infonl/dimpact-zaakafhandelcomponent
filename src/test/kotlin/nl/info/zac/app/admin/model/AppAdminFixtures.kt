@@ -11,6 +11,7 @@ import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplateVariables
 import java.time.LocalDate
+import java.time.ZonedDateTime
 import java.util.UUID
 
 fun createRestFormioFormulierContent(
@@ -123,6 +124,40 @@ fun createRestZaaktypeOverzicht(
     eindeGeldigheid = eindeGeldigheid,
     vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
     isNuGeldig = nuGeldig
+)
+
+@Suppress("LongParameterList")
+fun createRestZaaktypeBeheerOverzicht(
+    uuid: UUID = UUID.randomUUID(),
+    identificatie: String = "fakeIdentificatie",
+    omschrijving: String = "fakeOmschrijving",
+    doel: String = "fakeDoel",
+    nuGeldig: Boolean = true,
+    beginGeldigheid: LocalDate = LocalDate.now(),
+    eindeGeldigheid: LocalDate? = null
+) = RestZaaktypeBeheerOverzicht(
+    uuid = uuid,
+    identificatie = identificatie,
+    omschrijving = omschrijving,
+    doel = doel,
+    isNuGeldig = nuGeldig,
+    beginGeldigheid = beginGeldigheid,
+    eindeGeldigheid = eindeGeldigheid
+)
+
+fun createRestZaaktypeConfigurationOverzicht(
+    restZaaktypeBeheerOverzicht: RestZaaktypeBeheerOverzicht = createRestZaaktypeBeheerOverzicht(),
+    restProcessDefinitionOverzicht: RestProcessDefinitionOverzicht? = RestProcessDefinitionOverzicht(
+        key = "fakeProcessDefinitionKey",
+        naam = "fakeProcessDefinitionName"
+    ),
+    creatiedatum: ZonedDateTime? = ZonedDateTime.now(),
+    valide: Boolean = true
+) = RestZaaktypeConfigurationOverzicht(
+    zaaktype = restZaaktypeBeheerOverzicht,
+    processDefinition = restProcessDefinitionOverzicht,
+    creatiedatum = creatiedatum,
+    isValide = valide
 )
 
 fun createRestZaakbeeindigReden(
