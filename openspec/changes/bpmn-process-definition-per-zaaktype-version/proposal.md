@@ -8,8 +8,9 @@ choice between CMMN and BPMN was locked. A new zaaktype version takes over the b
 the lock also holds on every new version, and a beheerder has to create a whole new zaaktype to use another process
 (PZ-13372).
 
-The reporter and Sander agreed on the rule in PZ-13372: another BPMN process is chosen on a new version of the
-zaaktype, not at any moment. "A new version that was never saved" cannot be detected, because ZAC stores the
+The reporter agreed in PZ-13372 that another BPMN process is chosen on a new version of the zaaktype, not at any
+moment. The resulting rule, "until the first zaak of that zaaktype version", is proposed in comment 100687 and awaits
+confirmation. "A new version that was never saved" cannot be detected, because ZAC stores the
 configuration of a new zaaktype version itself when Open Notificaties reports its publication. This change therefore
 defines a new version as a zaaktype version without zaken.
 
@@ -44,9 +45,11 @@ None.
 
 - Backend: `ZaaktypeConfigurationBeheerService`, `ZaaktypeConfigurationRestService` (`PUT
   /zaakafhandelparameters/{zaaktypeUUID}`), `RestZaaktypeConfigurationConverter` and `RestZaaktypeConfiguration` (new
-  field `isProcessDefinitionChangeable`).
+  field `isProcessDefinitionChangeable`), and the error codes `msg.error.process.engine.cannot.change`, `msg.error.process.definition.cannot.change.cmmn` and
+  `msg.error.process.definition.cannot.change`.
 - Open Zaak: an extra call, `GET /zaken?zaaktype=<url>`, when a beheerder opens or saves the configuration of a BPMN
-  zaaktype version, and a second one when the save changes its process definition. The list of all zaaktype
-  configurations does not make this call.
+  zaaktype version, a second one when the save changes its process definition, and one more when a failed save of a
+  changeable configuration reads it again. No other endpoint makes this
+  call: not the list of all zaaktype configurations, nor the zaaktype of a zaak or the zaaktypen to create a zaak with.
 - Frontend: `zaaktype-configuration-form.ts` and the process model step of `parameters-edit`.
 - Test-data scripts: unaffected, they store the same process definition again.

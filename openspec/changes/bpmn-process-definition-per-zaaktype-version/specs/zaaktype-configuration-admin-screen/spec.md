@@ -34,6 +34,13 @@ process definition, it SHALL explain why.
 - **THEN** the step shows that case definition, does not let the beheerder choose another one, and explains that
   the process definition of a CMMN zaaktype cannot change
 
+#### Scenario: A rejected change shows the lock
+- **GIVEN** a beheerder who chose another BPMN process definition for a zaaktype version without zaken
+- **AND** a zaak of that zaaktype version is created before the beheerder saves
+- **WHEN** the beheerder saves the configuration
+- **THEN** the screen shows that nothing was saved because the zaaktype version already has zaken, and the process
+  model step shows the stored process definition, locked, with its explanation
+
 #### Scenario: A process definition that may change has no explanation
 - **GIVEN** a configuration that is not bound, or a BPMN configuration whose zaaktype version has no zaken
 - **WHEN** a beheerder opens the process model step

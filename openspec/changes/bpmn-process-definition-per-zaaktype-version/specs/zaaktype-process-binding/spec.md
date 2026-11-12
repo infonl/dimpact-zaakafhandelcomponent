@@ -18,7 +18,8 @@ configuration SHALL keep its definition key. The REST resource SHALL expose the 
 #### Scenario: A bound configuration never changes engine
 - **GIVEN** a configuration bound to one engine
 - **WHEN** a beheerder saves it with a process definition of the other engine
-- **THEN** the save is rejected with a validation error, and the configuration keeps its binding
+- **THEN** the save is rejected with a validation error that says the engine cannot change, and the configuration
+  keeps its binding
 
 #### Scenario: A BPMN configuration without zaken can change its definition
 - **GIVEN** a configuration bound to BPMN with process definition key `K1`, and no zaak of its zaaktype version
@@ -29,12 +30,14 @@ configuration SHALL keep its definition key. The REST resource SHALL expose the 
 #### Scenario: A BPMN configuration with a zaak keeps its definition
 - **GIVEN** a configuration bound to BPMN with process definition key `K1`, and a zaak of its zaaktype version
 - **WHEN** a beheerder saves it with process definition key `K2`
-- **THEN** the save is rejected with a validation error, and the configuration keeps key `K1`
+- **THEN** the save is rejected with a validation error that says the zaaktype version already has zaken, and the
+  configuration keeps key `K1`
 
 #### Scenario: A CMMN configuration keeps its definition
 - **GIVEN** a configuration bound to CMMN with case definition `C1`
 - **WHEN** a beheerder saves it with case definition `C2`
-- **THEN** the save is rejected with a validation error, and the configuration keeps case definition `C1`
+- **THEN** the save is rejected with a validation error that says a CMMN case definition cannot change, and the
+  configuration keeps case definition `C1`
 
 #### Scenario: A new zaaktype version can get another BPMN process
 - **GIVEN** a zaaktype version bound to BPMN with key `K1` that has zaken, and a newly published version of that
