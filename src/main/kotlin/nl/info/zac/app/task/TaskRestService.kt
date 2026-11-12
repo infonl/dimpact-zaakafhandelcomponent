@@ -168,6 +168,7 @@ class TaskRestService @Inject constructor(
             taakVariabelenService.setTaskData(it, restTask.taakdata)
             taakVariabelenService.setTaskInformation(it, restTask.taakinformatie)
             val updatedTask = updateDescriptionAndDueDate(restTask)
+            indexingService.addOrUpdateTaak(updatedTask.id)
             eventingService.send(ScreenEventType.TAAK.updated(updatedTask))
             eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
             return restTask

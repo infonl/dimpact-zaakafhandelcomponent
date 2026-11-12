@@ -257,6 +257,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { eventingService.send(any<ScreenEvent>()) } just runs
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
+            every { indexingService.addOrUpdateTaak(task.id) } just runs
 
             `when`("'updateTaakdata' is called with changed description and due date from user with access") {
 
@@ -266,6 +267,12 @@ class TaskRestServiceTest : BehaviorSpec({
                     restTaakReturned shouldBe restTaak
                     verify(exactly = 1) {
                         flowableTaskService.updateTask(task)
+                    }
+                }
+
+                then("the task is reindexed, so the werklijsten show the changes") {
+                    verify(exactly = 1) {
+                        indexingService.addOrUpdateTaak(task.id)
                     }
                 }
             }
