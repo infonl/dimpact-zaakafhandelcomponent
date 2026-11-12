@@ -33,6 +33,8 @@ for saving to behave like completing.
 ### New Capabilities
 
 - `taak-terugnavigatie`: where ZAC goes after a taak is saved or completed.
+- `document-terugnavigatie`: where ZAC goes after a document is deleted. This records the existing behaviour of
+  [PZ-7875](https://dimpact.atlassian.net/browse/PZ-7875), which was built without a spec; it needs no code change.
 
 ### Modified Capabilities
 
