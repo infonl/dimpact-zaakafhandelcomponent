@@ -36,7 +36,7 @@ fun ZrcClientService.markZaakspecifiekGeautoriseerd(
                 this.zaak = zaak.url
                 this.waarde = ZAAKEIGENSCHAP_WAARDE_GEAUTORISEERD
             },
-            reden
+            reden = reden
         )
     }
 }
