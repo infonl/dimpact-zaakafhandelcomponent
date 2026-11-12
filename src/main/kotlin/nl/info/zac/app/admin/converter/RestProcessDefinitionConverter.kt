@@ -13,6 +13,7 @@ import nl.info.zac.app.admin.model.RestProcessDefinition
 import nl.info.zac.app.planitems.model.PlanItemType.HUMAN_TASK
 import nl.info.zac.app.planitems.model.PlanItemType.USER_EVENT_LISTENER
 import nl.info.zac.flowable.bpmn.BpmnService
+import nl.info.zac.flowable.bpmn.nameOrKey
 import nl.info.zac.flowable.cmmn.CmmnService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -58,9 +59,9 @@ class RestProcessDefinitionConverter @Inject constructor(
         if (processDefinitionKey in bpmnProcessDefinitionNamesByKey) {
             bpmnProcessDefinitionNamesByKey[processDefinitionKey]
         } else {
-            bpmnService.findProcessDefinitionByProcessDefinitionKey(processDefinitionKey)?.let {
-                it.name ?: it.key
-            }.also { bpmnProcessDefinitionNamesByKey[processDefinitionKey] = it }
+            bpmnService.findProcessDefinitionByProcessDefinitionKey(processDefinitionKey)
+                ?.nameOrKey()
+                .also { bpmnProcessDefinitionNamesByKey[processDefinitionKey] = it }
         }
 
     private fun CaseDefinition.toRestProcessDefinition(inclusiefRelaties: Boolean) =
@@ -75,7 +76,7 @@ class RestProcessDefinitionConverter @Inject constructor(
         }
 
     private fun ProcessDefinition.toRestProcessDefinition() =
-        RestProcessDefinition(processEngine = ProcessEngine.BPMN, key = key, naam = name ?: key)
+        RestProcessDefinition(processEngine = ProcessEngine.BPMN, key = key, naam = nameOrKey())
 
     private fun HumanTask.toRestPlanItemDefinition() = RestPlanItemDefinition(id, name, HUMAN_TASK)
 
