@@ -64,7 +64,7 @@ jboss-logmanager = "2.1.19.Final"
 
 eclipse-yasson = "3.0.5"
 
-kotest = "6.2.6"
+kotest = "6.2.7"
 mockk = "1.14.12"
 archunit = "1.5.1"
 
