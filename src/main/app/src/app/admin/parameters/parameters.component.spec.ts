@@ -11,7 +11,7 @@ import { MatSelectChange } from "@angular/material/select";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
-import { screen } from "@testing-library/angular";
+import { screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
@@ -125,10 +125,10 @@ describe(`${ParametersComponent.name} compare functions`, () => {
   describe("compareZaaktype", () => {
     it("should return true when identificatie matches", () => {
       const component = createParametersComponent();
-      const a = fromPartial<GeneratedType<"RestZaaktype">>({
+      const a = fromPartial<GeneratedType<"RestZaaktypeBeheerOverzicht">>({
         identificatie: "ZT-001",
       });
-      const b = fromPartial<GeneratedType<"RestZaaktype">>({
+      const b = fromPartial<GeneratedType<"RestZaaktypeBeheerOverzicht">>({
         identificatie: "ZT-001",
       });
       expect(component["compareZaaktype"](a, b)).toBe(true);
@@ -136,10 +136,10 @@ describe(`${ParametersComponent.name} compare functions`, () => {
 
     it("should return false when identificatie differs", () => {
       const component = createParametersComponent();
-      const a = fromPartial<GeneratedType<"RestZaaktype">>({
+      const a = fromPartial<GeneratedType<"RestZaaktypeBeheerOverzicht">>({
         identificatie: "ZT-001",
       });
-      const b = fromPartial<GeneratedType<"RestZaaktype">>({
+      const b = fromPartial<GeneratedType<"RestZaaktypeBeheerOverzicht">>({
         identificatie: "ZT-002",
       });
       expect(component["compareZaaktype"](a, b)).toBe(false);
@@ -149,10 +149,10 @@ describe(`${ParametersComponent.name} compare functions`, () => {
   describe("compareProcessDefinition", () => {
     it("should return true when key matches", () => {
       const component = createParametersComponent();
-      const a = fromPartial<GeneratedType<"RestProcessDefinition">>({
+      const a = fromPartial<GeneratedType<"RestProcessDefinitionOverzicht">>({
         key: "key-1",
       });
-      const b = fromPartial<GeneratedType<"RestProcessDefinition">>({
+      const b = fromPartial<GeneratedType<"RestProcessDefinitionOverzicht">>({
         key: "key-1",
       });
       expect(component["compareProcessDefinition"](a, b)).toBe(true);
@@ -160,10 +160,10 @@ describe(`${ParametersComponent.name} compare functions`, () => {
 
     it("should return false when key differs", () => {
       const component = createParametersComponent();
-      const a = fromPartial<GeneratedType<"RestProcessDefinition">>({
+      const a = fromPartial<GeneratedType<"RestProcessDefinitionOverzicht">>({
         key: "key-1",
       });
-      const b = fromPartial<GeneratedType<"RestProcessDefinition">>({
+      const b = fromPartial<GeneratedType<"RestProcessDefinitionOverzicht">>({
         key: "key-2",
       });
       expect(component["compareProcessDefinition"](a, b)).toBe(false);
@@ -199,7 +199,7 @@ describe(ParametersComponent.name, () => {
   });
 
   async function answerParametersWith(
-    parameters: GeneratedType<"RestZaaktypeConfiguration">[],
+    parameters: GeneratedType<"RestZaaktypeConfigurationOverzicht">[],
   ) {
     await sleep();
     httpTestingController
@@ -227,7 +227,7 @@ describe(ParametersComponent.name, () => {
 
   it("shows a row for every zaaktype it read the parameters of", async () => {
     await answerParametersWith([
-      fromPartial<GeneratedType<"RestZaaktypeConfiguration">>({
+      fromPartial<GeneratedType<"RestZaaktypeConfigurationOverzicht">>({
         zaaktype: {
           uuid: "fakeZaaktypeUuid",
           identificatie: "fakeIdentificatie",
@@ -246,6 +246,27 @@ describe(ParametersComponent.name, () => {
     ).not.toBeInTheDocument();
   });
 
+  it("links each row to the edit page of the configuration of its zaaktype", async () => {
+    await answerParametersWith([
+      fromPartial<GeneratedType<"RestZaaktypeConfigurationOverzicht">>({
+        zaaktype: {
+          uuid: "fakeZaaktypeUuid",
+          identificatie: "fakeIdentificatie",
+          omschrijving: "Fake zaaktype",
+          isNuGeldig: true,
+        },
+        processDefinition: { key: "fakeKey", naam: "Fake procesmodel" },
+        isValide: true,
+      }),
+    ]);
+
+    const row = screen.getByRole("row", { name: /Fake zaaktype/ });
+    expect(row).toHaveTextContent("Fake procesmodel");
+    expect(
+      within(row).getByRole("link", { name: "actie.bewerken" }),
+    ).toHaveAttribute("href", "/admin/parameters/fakeZaaktypeUuid");
+  });
+
   it.each([
     { geldigheid: "beginGeldigheid", position: 0 },
     { geldigheid: "eindeGeldigheid", position: 1 },
@@ -253,7 +274,7 @@ describe(ParametersComponent.name, () => {
     "shows only the zaaktypen whose $geldigheid lies in the typed range",
     async ({ geldigheid, position }) => {
       const parameters = (omschrijving: string, datum: string) =>
-        fromPartial<GeneratedType<"RestZaaktypeConfiguration">>({
+        fromPartial<GeneratedType<"RestZaaktypeConfigurationOverzicht">>({
           isValide: true,
           zaaktype: { omschrijving, [geldigheid]: datum, isNuGeldig: true },
         });
@@ -298,7 +319,7 @@ describe(`${ParametersComponent.name} on a second visit`, () => {
       TestBed.inject(ZaakafhandelParametersService).listZaakafhandelParameters()
         .queryKey,
       [
-        fromPartial<GeneratedType<"RestZaaktypeConfiguration">>({
+        fromPartial<GeneratedType<"RestZaaktypeConfigurationOverzicht">>({
           zaaktype: {
             uuid: "fakeZaaktypeUuid",
             identificatie: "fakeIdentificatie",

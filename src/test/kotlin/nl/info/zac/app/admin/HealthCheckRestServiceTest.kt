@@ -18,6 +18,7 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
+import nl.info.zac.app.admin.model.RestInrichtingscheckZaaktype
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.healthcheck.createBuildInformation
@@ -25,6 +26,7 @@ import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import java.net.URI
+import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -71,15 +73,88 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             ) {
                 result.size shouldBe 2
                 with(result[0]) {
-                    zaaktype.identificatie shouldBe zaaktypen[0].identificatie
                     zaaktype.omschrijving shouldBe zaaktypen[0].omschrijving
                     zaaktype.uuid shouldBe zaaktypen[0].url.extractUuid()
                     isValide shouldBe true
                 }
                 with(result[1]) {
-                    zaaktype.identificatie shouldBe zaaktypen[1].identificatie
                     zaaktype.omschrijving shouldBe zaaktypen[1].omschrijving
                     zaaktype.uuid shouldBe zaaktypen[1].url.extractUuid()
+                    isValide shouldBe false
+                }
+            }
+        }
+    }
+
+    given("A zaaktype with a doel and a begin geldigheid, whose check reports a finding for every check") {
+        val catalogusURI = URI("https://example.com/catalogs/${UUID.randomUUID()}")
+        val beginGeldigheid = LocalDate.now().minusDays(10)
+        val zaaktype = createZaakType(
+            omschrijving = "fakeOmschrijving",
+            doel = "fakeDoel",
+            beginGeldigheid = beginGeldigheid
+        )
+        val zaaktypeInrichtingscheck = createZaaktypeInrichtingscheck(
+            zaaktype = zaaktype,
+            statustypeIntakeAanwezig = false,
+            statustypeInBehandelingAanwezig = false,
+            statustypeHeropendAanwezig = false,
+            statustypeAfgerondAanwezig = false,
+            statustypeAfgerondLaatsteVolgnummer = false,
+            statustypeAanvullendeInformatieVereist = false,
+            initiatorrollen = 2,
+            behandelaarrollen = 3,
+            rolOverigeAanwezig = false,
+            informatieobjecttypeEmailAanwezig = false,
+            resultaattypeAanwezig = false,
+            zaakafhandelParametersValide = false,
+            besluittypeAanwezig = false,
+            brpInstellingenCorrect = false,
+            zaakspecifiekeAutorisatieEigenschapAanwezig = true,
+            zaakspecifiekeAutorisatieRoltypeAanwezig = false
+        ).apply {
+            addResultaattypesMetVerplichtBesluit("fakeResultaattypeMetVerplichtBesluit")
+            addResultaattypesMetNietOndersteundeBrondatum("fakeResultaattypeMetNietOndersteundeBrondatum")
+        }
+        every { policyService.readOverigeRechten().canBeheren } returns true
+        every { configurationService.readDefaultCatalogusURI() } returns catalogusURI
+        every { zaaktypeConfigurationService.findConfiguration(zaaktype.url.extractUuid()) } returns null
+        every { ztcClientService.listZaaktypen(catalogusURI) } returns listOf(zaaktype)
+        every { healthCheckService.controleerZaaktype(zaaktype.url) } returns zaaktypeInrichtingscheck
+
+        `when`("listZaaktypeInrichtingschecks is called") {
+            val result = healthCheckRestService.listZaaktypeInrichtingschecks()
+
+            then("the zaaktype of the check carries only the uuid, omschrijving, doel and begin geldigheid") {
+                result.single().zaaktype shouldBe RestInrichtingscheckZaaktype(
+                    uuid = zaaktype.url.extractUuid(),
+                    omschrijving = "fakeOmschrijving",
+                    doel = "fakeDoel",
+                    beginGeldigheid = beginGeldigheid
+                )
+            }
+            and("every check result is copied") {
+                with(result.single()) {
+                    isStatustypeIntakeAanwezig shouldBe false
+                    isStatustypeInBehandelingAanwezig shouldBe false
+                    isStatustypeHeropendAanwezig shouldBe false
+                    isStatustypeAfgerondAanwezig shouldBe false
+                    isStatustypeAfgerondLaatsteVolgnummer shouldBe false
+                    isStatustypeAanvullendeInformatieVereist shouldBe false
+                    aantalInitiatorroltypen shouldBe 2
+                    aantalBehandelaarroltypen shouldBe 3
+                    isRolOverigeAanwezig shouldBe false
+                    isInformatieobjecttypeEmailAanwezig shouldBe false
+                    isResultaattypeAanwezig shouldBe false
+                    isZaakafhandelParametersValide shouldBe false
+                    isBesluittypeAanwezig shouldBe false
+                    isBrpInstellingenCorrect shouldBe false
+                    isZaakspecifiekeAutorisatieEigenschapAanwezig shouldBe true
+                    isZaakspecifiekeAutorisatieRoltypeAanwezig shouldBe false
+                    resultaattypesMetVerplichtBesluit shouldBe listOf("fakeResultaattypeMetVerplichtBesluit")
+                    resultaattypesMetNietOndersteundeBrondatum shouldBe
+                        listOf("fakeResultaattypeMetNietOndersteundeBrondatum")
+                    hasWaarschuwingen shouldBe true
                     isValide shouldBe false
                 }
             }

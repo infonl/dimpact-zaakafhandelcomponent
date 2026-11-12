@@ -14,19 +14,14 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_10_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2025_07_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2026_07_23
-import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_4_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_4_DOEL
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_4_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_4_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import java.net.HttpURLConnection.HTTP_OK
@@ -98,13 +93,8 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         "zaaktype": {
                           "beginGeldigheid": "$DATE_2026_07_23",
                           "doel": "$ZAAKTYPE_CMMN_TEST_4_DOEL",
-                          "identificatie": "$ZAAKTYPE_CMMN_TEST_4_IDENTIFICATIE",
-                          "isNuGeldig": true,
                           "omschrijving": "$ZAAKTYPE_CMMN_TEST_4_DESCRIPTION",
-                          "hasServicenorm": false,
-                          "uuid": "$ZAAKTYPE_CMMN_TEST_4_UUID",
-                          "versiedatum": "$DATE_2023_10_01",
-                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
+                          "uuid": "$ZAAKTYPE_CMMN_TEST_4_UUID"
                         }
                       },
                       {
@@ -131,13 +121,8 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         "zaaktype": {
                           "beginGeldigheid": "$DATE_2025_07_01",
                           "doel": "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION",
-                          "identificatie": "$ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE",
-                          "isNuGeldig": true,
                           "omschrijving": "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION",
-                          "hasServicenorm": false,
-                          "uuid": "$ZAAKTYPE_CMMN_TEST_1_UUID",
-                          "versiedatum": "$DATE_2025_07_01",
-                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
+                          "uuid": "$ZAAKTYPE_CMMN_TEST_1_UUID"
                         }
                       },
                       {
@@ -164,13 +149,8 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         "zaaktype": {
                           "beginGeldigheid": "$DATE_2023_10_01",
                           "doel": "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
-                          "identificatie": "$ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE",
-                          "isNuGeldig": true,
                           "omschrijving": "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
-                          "hasServicenorm": false,
-                          "uuid": "$ZAAKTYPE_CMMN_TEST_2_UUID",
-                          "versiedatum": "$DATE_2023_10_01",
-                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
+                          "uuid": "$ZAAKTYPE_CMMN_TEST_2_UUID"
                         }
                       },
                       {
@@ -197,13 +177,8 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         "zaaktype": {
                           "beginGeldigheid": "$DATE_2023_09_21",
                           "doel": "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION",
-                          "identificatie": "$ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE",
-                          "isNuGeldig": true,
                           "omschrijving": "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION",
-                          "hasServicenorm": false,
-                          "uuid": "$ZAAKTYPE_CMMN_TEST_3_UUID",
-                          "versiedatum": "$DATE_2023_09_21",
-                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
+                          "uuid": "$ZAAKTYPE_CMMN_TEST_3_UUID"
                         }
                       }
                     ]

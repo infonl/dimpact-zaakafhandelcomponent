@@ -9,6 +9,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
@@ -35,7 +36,9 @@ import nl.info.zac.admin.model.createZaaktypeConfigurationsUnderTest
 import nl.info.zac.app.admin.converter.RestProcessDefinitionConverter
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
 import nl.info.zac.app.admin.model.createRestProcessDefinition
+import nl.info.zac.app.admin.model.createRestZaaktypeBeheerOverzicht
 import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
+import nl.info.zac.app.admin.model.createRestZaaktypeConfigurationOverzicht
 import nl.info.zac.app.admin.model.createRestZaaktypeOverzicht
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
@@ -45,6 +48,7 @@ import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import java.net.URI
@@ -342,27 +346,87 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
             }
         }
 
-        given("catalogus and zaaktype configurations") {
+        given("a zaaktype with a saved configuration and a zaaktype without one in the default catalogus") {
             val catalogusUri = URI("https://example.com/catalogi/1")
-            val zaakType = createZaakType()
-            val config = ZaaktypeConfiguration().apply {
-                zaaktypeUuid = zaakType.url.extractUuid()
-            }
-            val restConfig = createRestZaaktypeConfiguration(
-                restZaaktypeOverzicht = createRestZaaktypeOverzicht(uuid = zaakType.url.extractUuid())
+            val configuredZaaktype = createZaakType()
+            val unconfiguredZaaktype = createZaakType()
+            val zaaktypeConfiguration = createZaaktypeCmmnConfiguration(
+                zaaktypeUUID = configuredZaaktype.url.extractUuid()
+            )
+            val unsavedZaaktypeConfiguration = slot<ZaaktypeConfiguration>()
+            val configuredRestZaaktypeConfigurationOverzicht = createRestZaaktypeConfigurationOverzicht(
+                restZaaktypeBeheerOverzicht = createRestZaaktypeBeheerOverzicht(
+                    uuid = configuredZaaktype.url.extractUuid()
+                )
+            )
+            val unconfiguredRestZaaktypeConfigurationOverzicht = createRestZaaktypeConfigurationOverzicht(
+                restZaaktypeBeheerOverzicht = createRestZaaktypeBeheerOverzicht(
+                    uuid = unconfiguredZaaktype.url.extractUuid()
+                ),
+                restProcessDefinitionOverzicht = null,
+                creatiedatum = null,
+                valide = false
             )
             every { policyService.readOverigeRechten().canBeheren } returns true
             every { configurationService.readDefaultCatalogusURI() } returns catalogusUri
-            every { ztcClientService.listZaaktypen(catalogusUri) } returns listOf(zaakType)
-            every { zaaktypeConfigurationService.findConfiguration(zaakType.url.extractUuid()) } returns config
-            every { restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(config, false) } returns restConfig
+            every {
+                ztcClientService.listZaaktypen(catalogusUri)
+            } returns listOf(configuredZaaktype, unconfiguredZaaktype)
+            every {
+                zaaktypeConfigurationService.findConfiguration(configuredZaaktype.url.extractUuid())
+            } returns zaaktypeConfiguration
+            every {
+                zaaktypeConfigurationService.findConfiguration(unconfiguredZaaktype.url.extractUuid())
+            } returns null
+            every {
+                restZaaktypeConfigurationConverter.toRestZaaktypeConfigurationOverzicht(
+                    zaaktypeConfiguration,
+                    configuredZaaktype
+                )
+            } returns configuredRestZaaktypeConfigurationOverzicht
+            every {
+                restZaaktypeConfigurationConverter.toRestZaaktypeConfigurationOverzicht(
+                    capture(unsavedZaaktypeConfiguration),
+                    unconfiguredZaaktype
+                )
+            } returns unconfiguredRestZaaktypeConfigurationOverzicht
 
-            `when`("listing zaaktype configurations") {
-                val list = zaaktypeConfigurationRestService.listZaaktypeConfigurations()
+            `when`("a beheerder lists the zaaktype configurations") {
+                val restZaaktypeConfigurationOverzichten = zaaktypeConfigurationRestService.listZaaktypeConfigurations()
 
-                then("the converted configuration list is returned") {
-                    list shouldHaveSize 1
-                    list.first() shouldBe restConfig
+                then("a list item is returned for each zaaktype, in the order of the catalogus") {
+                    restZaaktypeConfigurationOverzichten shouldBe listOf(
+                        configuredRestZaaktypeConfigurationOverzicht,
+                        unconfiguredRestZaaktypeConfigurationOverzicht
+                    )
+                }
+                and("the zaaktype without a saved configuration is converted with a new, unbound configuration") {
+                    with(unsavedZaaktypeConfiguration.captured) {
+                        zaaktypeUuid shouldBe unconfiguredZaaktype.url.extractUuid()
+                        id shouldBe null
+                        processBinding shouldBe null
+                    }
+                }
+                and("the zaaktypes are not read again and the full configuration is not converted") {
+                    verify(exactly = 0) {
+                        ztcClientService.readZaaktype(any<UUID>())
+                        restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(any(), any(), any())
+                    }
+                }
+            }
+        }
+
+        given("a user without the beheren right") {
+            every { policyService.readOverigeRechten().canBeheren } returns false
+
+            `when`("the user lists the zaaktype configurations") {
+                val policyException = shouldThrow<PolicyException> {
+                    zaaktypeConfigurationRestService.listZaaktypeConfigurations()
+                }
+
+                then("the request is refused without listing the zaaktypes") {
+                    policyException shouldNotBe null
+                    verify(exactly = 0) { ztcClientService.listZaaktypen(any()) }
                 }
             }
         }
