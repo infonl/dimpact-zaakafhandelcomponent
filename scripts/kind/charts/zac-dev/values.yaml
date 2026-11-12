@@ -145,7 +145,7 @@ officeConverter:
   username: zac
 
 brpPersonenMock:
-  image: ghcr.io/brp-api/personen-mock:2.7.0-202610201628@sha256:613605a8e613e0610d5209b67e8371ea5355085834951bfe105d9e4229d4571a
+  image: ghcr.io/brp-api/personen-mock:2.7.0-202611120715@sha256:0ac50fbc2b17e61e3597958ab9bdd7ec55005db601ff96599202f49b18536de6
 
 wiremock:
   image: wiremock/wiremock:3.13.2@sha256:0d4ecb3e4dc8213fd7a4d37d6a78f6e6b553a6d2e15bd51b0999781282ac61b3
