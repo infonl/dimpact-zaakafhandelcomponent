@@ -9,3 +9,7 @@
 ## 2. Docs
 
 - [ ] 2.1 Gebruikershandleiding, *Inzien en behandelen van taken*: where ZAC goes after saving or completing a taak.
+
+## 3. Backend
+
+- [ ] 3.1 `TaskRestService.updateTaskData` reindexes the taak, with a unit test.

@@ -44,4 +44,6 @@ None.
   fixed Angular taakformulieren and the Form.io formulieren, which both save through it. Both first mark the
   werklijst queries stale.
 - **Docs**: gebruikershandleiding, *Inzien en behandelen van taken*.
-- **Backend, REST API, OPA, Solr**: no change.
+- **Backend**: `TaskRestService.updateTaskData` reindexes the taak in Solr, as assigning a taak already does.
+  Saving did not update the index, so a werklijst kept showing the old toelichting and fatale datum.
+- **REST API, OPA**: no change.

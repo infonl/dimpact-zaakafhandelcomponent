@@ -36,6 +36,9 @@ After a taak is saved or completed successfully, ZAC SHALL apply the first of th
 
 ### Requirement: The werklijst the user returns to shows the saved or completed taak
 
+Saving or completing a taak SHALL update the taak in the search index before the request returns, so the
+werklijsten that read from it show the saved values, such as the toelichting and the fatale datum.
+
 After a taak is saved or completed successfully, and before ZAC navigates away from the taak, ZAC SHALL mark its
 cached copies of the werklijsten as stale: the takenwerkvoorraad, the taken and zoek cards on the dashboard, and
 the taken of the zaak. A werklijst SHALL read its data again when it is shown next, instead of showing the copy
