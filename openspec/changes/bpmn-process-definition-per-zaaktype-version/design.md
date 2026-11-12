@@ -73,10 +73,14 @@ needs no reason field. The general warning about effects on existing zaken stays
 
 ## Risks / Trade-offs
 
-- [A zaak is created between opening and saving the screen] → the save checks again and rejects the change.
+- [A zaak is created between the check and the store of a save] → the save checks again just before it stores, which
+  makes the window short but does not close it. A zaak created in that window keeps the process instance it started
+  with; only new zaken use the new binding.
 - [A published zaaktype version is valid at once, so a zaak can be created with the copied process before the
   beheerder chooses another one] → the beheerder publishes the version with a future begin date, chooses the process,
-  and lets the date take effect. Documented in the PR, not enforced.
+  and lets the date take effect. This protects only zaken created by hand: the productaanvraag intake picks the most
+  recently created configuration and ignores the begin date, so for a zaaktype with a productaanvraagtype the beheerder
+  stops the intake first. Documented in the PR, not enforced.
 - [Open Zaak is unavailable] → opening and saving the configuration of a BPMN zaaktype fails, as other Open Zaak
   calls of the screen already do.
 - [The zaken of a zaaktype version are deleted] → the version counts as new again and its process can change; no
