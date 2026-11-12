@@ -1139,6 +1139,8 @@ Nadat een taak is aangemaakt verschijnt deze in het overzicht van taken. Vanuit 
 >Klik op het schuifje om ook de eerder afgeronde taken in het overzicht te zien.
 >Klik op het uitklappijltje in de kolomkop om meer gegevens over de taken te zien.
 
+Na het tussentijds opslaan of afronden van een taak ga je terug naar de plek waar je de taak hebt geopend: de zaak, het dashboard of de takenwerkvoorraad. Heb je de taak via een directe link of via zoeken geopend, dan ga je naar het dashboard. Heb je de taak vanuit een e-mail geopend, dan blijf je op de taak staan.
+
 ### Werking van de Taak: Aanvullende informatie
 
 Deze taak is bedoeld om ontbrekende informatie op te vragen bij de klant of een belanghebbende. Om de taak aan te maken volg je de volgende stappen:

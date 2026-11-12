@@ -11,7 +11,7 @@
 
 ## 2. Docs
 
-- [ ] 2.1 Gebruikershandleiding, *Inzien en behandelen van taken*: where ZAC goes after saving or completing a taak.
+- [x] 2.1 Gebruikershandleiding, *Inzien en behandelen van taken*: where ZAC goes after saving or completing a taak.
 
 ## 3. Backend
 
