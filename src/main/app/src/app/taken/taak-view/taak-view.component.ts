@@ -603,16 +603,6 @@ export class TaakViewComponent
     this.zaakDocumentenComponent()?.updateDocumentList();
   }
 
-  protected updateZaak() {
-    const zaakUuid = this.zaak()?.uuid ?? this.taak()?.zaakUuid;
-    if (!zaakUuid) return;
-    from(
-      this.queryClient.query(this.zakenService.readZaak(zaakUuid)),
-    ).subscribe((zaak) => {
-      this.zaak.set(zaak);
-    });
-  }
-
   /**
    *  Zaak is nog niet geladen, beschikbare zaak-data uit de taak vast weergeven totdat de zaak is geladen
    */
