@@ -185,6 +185,34 @@ describe(ZakenService.name, () => {
     });
   });
 
+  describe("readOpschortingZaak", () => {
+    it("opens the error dialog when a refetch fails, because the zaak view shows the opschorting of an opgeschorte zaak", () => {
+      expect(service.readOpschortingZaak("fakeZaakUuid1").meta).toEqual({
+        reportFailedRefetch: true,
+      });
+    });
+  });
+
+  describe("listBesluitenForZaak", () => {
+    it("keeps no copy of the besluiten, because the zaak view writes them into the zaak", async () => {
+      const read = testQueryClient.query(
+        service.listBesluitenForZaak("fakeZaakUuid1"),
+      );
+      await sleep();
+      httpTestingController
+        .expectOne("/rest/zaken/besluit/zaakUuid/fakeZaakUuid1")
+        .flush([]);
+      await read;
+      await sleep();
+
+      expect(
+        testQueryClient.getQueryState(
+          service.listBesluitenForZaak("fakeZaakUuid1").queryKey,
+        ),
+      ).toBeUndefined();
+    });
+  });
+
   describe("cacheZaak", () => {
     it("writes the zaak into the cache entry for its own uuid", () => {
       const zaak = fromPartial<GeneratedType<"RestZaak">>({

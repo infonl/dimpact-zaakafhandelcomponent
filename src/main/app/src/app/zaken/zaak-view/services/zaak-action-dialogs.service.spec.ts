@@ -13,7 +13,7 @@ import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatSidenav } from "@angular/material/sidenav";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { firstValueFrom, of, Subject } from "rxjs";
+import { firstValueFrom, Subject } from "rxjs";
 import { sleep, testQueryClient } from "../../../../../setupJest";
 import { fromPartial } from "../../../../test-helpers";
 import { UtilService } from "../../../core/service/util.service";
@@ -200,41 +200,6 @@ describe(ZaakActionDialogsService.name, () => {
     });
   });
 
-  describe("loadOpschorting", () => {
-    it("fetches the details for a zaak that is opgeschort", () => {
-      const opschorting = fromPartial<GeneratedType<"RestZaakOpschorting">>({
-        duurDagen: 14,
-      });
-      const readSpy = jest
-        .spyOn(zakenService, "readOpschortingZaak")
-        .mockReturnValue(of(opschorting));
-
-      service.loadOpschorting(fromPartial({ ...zaak, isOpgeschort: true }));
-
-      expect(readSpy).toHaveBeenCalledWith(zaak.uuid);
-      expect(service.opschorting()).toBe(opschorting);
-    });
-
-    it("does not call the backend for a zaak that is not opgeschort", () => {
-      const readSpy = jest.spyOn(zakenService, "readOpschortingZaak");
-
-      service.loadOpschorting(zaak);
-
-      expect(readSpy).not.toHaveBeenCalled();
-      expect(service.opschorting()).toBeUndefined();
-    });
-
-    it("clears previously loaded opschorting when the zaak is no longer opgeschort", () => {
-      service.opschorting.set(
-        fromPartial<GeneratedType<"RestZaakOpschorting">>({ duurDagen: 14 }),
-      );
-
-      service.loadOpschorting(fromPartial({ ...zaak, isOpgeschort: false }));
-
-      expect(service.opschorting()).toBeUndefined();
-    });
-  });
-
   /** The zaak as the menu handler captured it: still opgeschort. */
   const opgeschorteZaak = fromPartial<GeneratedType<"RestZaak">>({
     ...zaak,
@@ -243,7 +208,8 @@ describe(ZaakActionDialogsService.name, () => {
 
   describe("openHervatten", () => {
     it("passes the expected opschort duration from the loaded opschorting", () => {
-      service.opschorting.set(
+      testQueryClient.setQueryData(
+        zakenService.readOpschortingZaak(zaak.uuid).queryKey,
         fromPartial<GeneratedType<"RestZaakOpschorting">>({ duurDagen: 14 }),
       );
       const hervattenSpy = jest
@@ -256,20 +222,6 @@ describe(ZaakActionDialogsService.name, () => {
         expect.objectContaining({ verwachteDuur: 14 }),
         expect.any(Function),
       );
-    });
-
-    it("clears the opschorting after a successful hervatten, so the details card stops showing the expected duration", () => {
-      service.opschorting.set(
-        fromPartial<GeneratedType<"RestZaakOpschorting">>({ duurDagen: 14 }),
-      );
-      jest
-        .spyOn(zaakDialogService, "openHervatten")
-        .mockReturnValue(dialogRefClosingWith());
-
-      service.openHervatten(opgeschorteZaak);
-      closedWith(true);
-
-      expect(service.opschorting()).toBeUndefined();
     });
 
     it("resumes the zaak with the reden given in the dialog", async () => {
@@ -289,19 +241,22 @@ describe(ZaakActionDialogsService.name, () => {
       expect(request.request.body).toEqual({ reason: "fakeReden" });
     });
 
-    it("does not read the opschorting of a zaak it has just resumed", () => {
-      service.opschorting.set(
+    it("does not read the opschorting of a zaak it has just resumed", async () => {
+      testQueryClient.setQueryData(
+        zakenService.readOpschortingZaak(zaak.uuid).queryKey,
         fromPartial<GeneratedType<"RestZaakOpschorting">>({ duurDagen: 14 }),
       );
-      const readSpy = jest.spyOn(zakenService, "readOpschortingZaak");
       jest
         .spyOn(zaakDialogService, "openHervatten")
         .mockReturnValue(dialogRefClosingWith());
 
       service.openHervatten(opgeschorteZaak);
       closedWith(true);
+      await sleep();
 
-      expect(readSpy).not.toHaveBeenCalled();
+      httpTestingController.expectNone(
+        `/rest/zaken/zaak/${zaak.uuid}/opschorting`,
+      );
     });
   });
 
