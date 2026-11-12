@@ -224,6 +224,19 @@ describe(TaakViewComponent.name, () => {
     });
   });
 
+  describe("opening a taak whose zaak is cached", () => {
+    it("reads the zaak from the server again, so the taak never shows an outdated zaak", async () => {
+      await answerReads();
+
+      mockActivatedRoute.data.next({ taak });
+      await sleep();
+
+      TestBed.inject(HttpTestingController)
+        .expectOne(`/rest/zaken/zaak/${taak.zaakUuid}`)
+        .flush(zaak);
+    });
+  });
+
   describe("angular basic task form", () => {
     beforeEach(() => {
       jest
