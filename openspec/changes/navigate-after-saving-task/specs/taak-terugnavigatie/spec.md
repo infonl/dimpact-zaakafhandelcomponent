@@ -30,3 +30,25 @@ from a link in an e-mail, ZAC SHALL stay on the taak.
 - **GIVEN** a taak opened from any page
 - **WHEN** the user completes the taak
 - **THEN** ZAC navigates as it does after saving that taak
+
+### Requirement: The werklijst the user returns to shows the saved or completed taak
+
+After a taak is saved or completed successfully, and before ZAC navigates away from the taak, ZAC SHALL mark its
+cached copies of the werklijsten as stale: the takenwerkvoorraad, the taken and zoek cards on the dashboard, and
+the taken of the zaak. A werklijst SHALL read its data again when it is shown next, instead of showing the copy
+from before the taak was saved or completed.
+
+#### Scenario: Completing a taak opened from the takenwerkvoorraad
+- **GIVEN** the user opened a taak from the takenwerkvoorraad
+- **WHEN** the user completes the taak
+- **THEN** ZAC shows the takenwerkvoorraad without the completed taak
+
+#### Scenario: Completing a taak opened from a zaak
+- **GIVEN** the user opened a taak from its zaak
+- **WHEN** the user completes the taak
+- **THEN** ZAC shows the zaak with the taak as completed in its list of taken
+
+#### Scenario: Saving a taak opened from the dashboard
+- **GIVEN** the user opened a taak from a taken card on the dashboard
+- **WHEN** the user saves the taak
+- **THEN** ZAC shows the dashboard with the taak as it was saved

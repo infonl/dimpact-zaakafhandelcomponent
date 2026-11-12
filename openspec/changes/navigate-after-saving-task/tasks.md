@@ -2,6 +2,9 @@
 
 - [ ] 1.1 `TakenService.updateTaakdata` navigates on success with the same function as `TakenService.complete`.
 - [ ] 1.2 Specs: the navigation tests of `complete` run for `updateTaakdata` too.
+- [ ] 1.3 Before leaving the taak, after saving or completing it, mark the werklijst queries stale: the Solr
+      lists (takenwerkvoorraad, dashboard zoek-cards), the dashboard taken-signaleringen and the taken of the
+      zaak ([PZ-13506](https://dimpact.atlassian.net/browse/PZ-13506)).
 
 ## 2. Docs
 

@@ -18,6 +18,9 @@ for saving to behave like completing.
   | Direct link | Dashboard |
   | Search | Dashboard |
 
+- The werklijst the user returns to reads its data again, so it shows the saved or completed taak instead of a
+  cached copy from before ([PZ-13506](https://dimpact.atlassian.net/browse/PZ-13506)). This applies after
+  completing a taak too.
 - The e-mail case follows the implementation of PZ-7875 (stay on the taak), not the "terug naar het dashboard"
   line in the story, because the story's main criterion is to do the same as completing.
 
@@ -34,6 +37,7 @@ None.
 ## Impact
 
 - **Frontend**: `TakenService.updateTaakdata` navigates on success, like `TakenService.complete`. This covers the
-  fixed Angular taakformulieren and the Form.io formulieren, which both save through it.
+  fixed Angular taakformulieren and the Form.io formulieren, which both save through it. Both first mark the
+  werklijst queries stale.
 - **Docs**: gebruikershandleiding, *Inzien en behandelen van taken*.
 - **Backend, REST API, OPA, Solr**: no change.
