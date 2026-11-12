@@ -28,38 +28,38 @@
 
 ## 2. Layer `zaak-creation`: zaaktype choice and its settings
 
-- [ ] 2.1 Add `RestZaaktypeKeuze` (`uuid`, `omschrijving`) and `RestZaaktypeAanmaakInstellingen` (`uuid`,
+- [x] 2.1 Add `RestZaaktypeKeuze` (`uuid`, `omschrijving`) and `RestZaaktypeAanmaakInstellingen` (`uuid`,
       `omschrijving`, `vertrouwelijkheidaanduiding`, `defaultGroepId`, `defaultBehandelaarId`,
       `isKvkKoppelenEnabled`, `isBrpKoppelenEnabled`) with converters from `ZaakType` and `ZaaktypeConfiguration`.
       Verify with unit tests of the converters.
-- [ ] 2.2 Add `ZaaktypeRestService` for `/zaaktypen` (design D6) and move `listZaaktypesForZaakCreation` from
+- [x] 2.2 Add `ZaaktypeRestService` for `/zaaktypen` (design D6) and move `listZaaktypesForZaakCreation` from
       `ZaakRestService` into it as `GET /zaaktypen` with the `startbaar` filter. Extract the filter into one check
       (design D2), and return `List<RestZaaktypeKeuze>`. Verify with `ZaaktypeRestServiceTest` that `startbaar=true`
       offers the same zaaktypes, that the collection without a filter lists the whole catalogus, that
       `startbaar=false` lists the rest, and that each item has only `uuid` and `omschrijving`.
-- [ ] 2.3 Add `GET /zaaktypen/{zaaktypeUuid}` returning `RestZaaktypeAanmaakInstellingen`: HTTP
+- [x] 2.3 Add `GET /zaaktypen/{zaaktypeUuid}` returning `RestZaaktypeAanmaakInstellingen`: HTTP
       403 when the user may not start a zaak of the zaaktype, HTTP 404 when it is unknown or not offered. Verify with
       unit tests for an offered zaaktype, a zaaktype the user may not start, and a zaaktype with an invalid
       configuration.
-- [ ] 2.4 Regenerate the OpenAPI spec and the frontend types; check that `RestZaak.zaaktype` is unchanged.
-- [ ] 2.5 Add `ZakenService.readZaaktypeForCreationQuery(uuid)` next to `listZaaktypesForCreationQuery`, and change
+- [x] 2.4 Regenerate the OpenAPI spec and the frontend types; check that `RestZaak.zaaktype` is unchanged.
+- [x] 2.5 Add `ZakenService.readZaaktypeForCreationQuery(uuid)` next to `listZaaktypesForCreationQuery`, and change
       `zaaktypenForKoppeling` and `initiatorAllowedByZaaktype` in `zaak-create-koppeling.ts` to the list item and the
       settings type. Verify with their unit specs.
-- [ ] 2.6 Rework `ZaakCreateComponent` (design D3): the zaaktype control holds a `RestZaaktypeKeuze`; an
+- [x] 2.6 Rework `ZaakCreateComponent` (design D3): the zaaktype control holds a `RestZaaktypeKeuze`; an
       `injectQuery` on the settings of the chosen UUID; apply vertrouwelijkheidaanduiding, groep enable and default
       groep, default behandelaar, initiator enable/clear and the copied initiator when the settings of the still
       chosen zaaktype arrive; disable submit until then; send `zaaktype: { uuid }` on create. Verify with
       `npm test -- --test-path-patterns zaak-create`, covering each scenario of the requirement "The Zaak aanmaken
       form applies the settings of the chosen zaaktype after the choice", including a quick switch between two
       zaaktypes.
-- [ ] 2.7 Update `ZaakLinkComponent` and its spec to the new list item type; verify the deelzaak filter and the
+- [x] 2.7 Update `ZaakLinkComponent` and its spec to the new list item type; verify the deelzaak filter and the
       "no zaaktype available" message with `npm test -- --test-path-patterns zaak-link`.
-- [ ] 2.8 Update `ZaakRestServiceTest` in `src/itest` for `GET /zaaktypen?startbaar=true` and add itests for the read endpoint
+- [x] 2.8 Update `ZaakRestServiceTest` in `src/itest` for `GET /zaaktypen?startbaar=true` and add itests for the read endpoint
       (200 with settings, 403, 404). Verify with `./gradlew itest` on that class.
-- [ ] 2.9 Run the e2e features for zaak aanmaken and gekoppelde zaak aanmaken against the local stack
+- [x] 2.9 Run the e2e features for zaak aanmaken and gekoppelde zaak aanmaken against the local stack
       (`./start-e2e-with-local-env.sh`), or, when no stack is available, state in the pull request that they were not
       run.
-- [ ] 2.10 Run `./gradlew spotlessApply detektApply detekt test` and `npm run lint` and `npx ngc -p tsconfig.app.json
+- [x] 2.10 Run `./gradlew spotlessApply detektApply detekt test` and `npm run lint` and `npx ngc -p tsconfig.app.json
       --noEmit` in `src/main/app`, and fix what they report.
 
 ## 3. Layer `configuration-cache`: the cache of zaaktype configurations

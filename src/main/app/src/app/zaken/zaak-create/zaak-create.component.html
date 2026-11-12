@@ -9,14 +9,8 @@
         (klantGegevens)="initiatorSelected($event.klant)"
         [sideNav]="actionsSidenav()"
         [initiator]="true"
-        [allowBedrijf]="
-          zaaktype()?.zaakafhandelparameters?.betrokkeneKoppelingen
-            ?.isKvkKoppelenEnabled ?? false
-        "
-        [allowPersoon]="
-          zaaktype()?.zaakafhandelparameters?.betrokkeneKoppelingen
-            ?.isBrpKoppelenEnabled ?? false
-        "
+        [allowBedrijf]="zaaktypeSettings()?.isKvkKoppelenEnabled ?? false"
+        [allowPersoon]="zaaktypeSettings()?.isBrpKoppelenEnabled ?? false"
         [zaaktypeUUID]="zaaktype()?.uuid"
         class="side-nav-container"
       ></zac-klant-koppel>
@@ -214,6 +208,7 @@
           color="primary"
           [disabled]="
             !isFormValid() ||
+            !areZaaktypeSettingsApplied() ||
             createZaakMutation.isPending() ||
             createZaakMutation.isSuccess()
           "

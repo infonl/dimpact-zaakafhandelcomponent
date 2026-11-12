@@ -64,29 +64,25 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BS
 import nl.info.zac.itest.config.ItestConfiguration.VERANTWOORDELIJKE_ORGANISATIE
 import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_REFERENTIEPROCES
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_4_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_4_DOEL
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_4_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_4_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_2
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_EXPLANATION_1
@@ -97,11 +93,13 @@ import nl.info.zac.itest.config.TestGroup
 import nl.info.zac.itest.config.TestUser
 import nl.info.zac.itest.config.ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
 import nl.info.zac.itest.util.WebSocketTestListener
+import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
+import java.net.HttpURLConnection.HTTP_NOT_FOUND
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
@@ -258,7 +256,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         ) {
             `when`("zaak types are listed") {
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/zaken/zaaktypes-for-creation",
+                    url = "$ZAC_API_URI/zaaktypen?startbaar=true",
                     testUser = BEHEERDER_1
                 )
                 lateinit var responseBody: String
@@ -269,52 +267,43 @@ class ZaakRestServiceTest : BehaviorSpec({
                     response.code shouldBe HTTP_OK
                 }
 
-                and("the response body should contain the zaaktypes in all domains") {
-                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                and("the response body should contain the uuid and omschrijving of the zaaktypes in all domains") {
+                    responseBody shouldEqualJsonIgnoringOrder """
                     [
                       {
-                        "doel": "$ZAAKTYPE_CMMN_TEST_4_DOEL",
-                        "identificatie": "$ZAAKTYPE_CMMN_TEST_4_IDENTIFICATIE",
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_4_UUID",
                         "omschrijving": "$ZAAKTYPE_CMMN_TEST_4_DESCRIPTION"
                       },
                       {
-                        "doel": "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION",
-                        "identificatie": "$ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE",
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_1_UUID",
                         "omschrijving": "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION"
                       },
                       {
-                        "doel": "$ZAAKTYPE_BPMN_TEST_1_DESCRIPTION",
-                        "identificatie": "$ZAAKTYPE_BPMN_TEST_1_IDENTIFICATIE",
+                        "uuid": "$ZAAKTYPE_BPMN_TEST_1_UUID",
                         "omschrijving": "$ZAAKTYPE_BPMN_TEST_1_DESCRIPTION"
                       },
                       {
-                        "doel": "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
-                        "identificatie": "$ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE",
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_2_UUID",
                         "omschrijving": "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION"
                       },
                       {
-                        "doel": "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION",
-                        "identificatie": "$ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE",
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_3_UUID",
                         "omschrijving": "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION"
                       },
                       {
-                        "doel": "$ZAAKTYPE_BPMN_TEST_2_DESCRIPTION",
-                        "identificatie": "$ZAAKTYPE_BPMN_TEST_2_IDENTIFICATIE",
+                        "uuid": "$ZAAKTYPE_BPMN_TEST_2_UUID",
                         "omschrijving": "$ZAAKTYPE_BPMN_TEST_2_DESCRIPTION"
                       },
                       {
-                        "doel": "$ZAAKTYPE_BPMN_TEST_3_DESCRIPTION",
-                        "identificatie": "$ZAAKTYPE_BPMN_TEST_3_IDENTIFICATIE",
+                        "uuid": "$ZAAKTYPE_BPMN_TEST_3_UUID",
                         "omschrijving": "$ZAAKTYPE_BPMN_TEST_3_DESCRIPTION"
                       },
                       {
-                        "doel": "$ZAAKTYPE_BPMN_TEST_4_DESCRIPTION",
-                        "identificatie": "$ZAAKTYPE_BPMN_TEST_4_IDENTIFICATIE",
+                        "uuid": "$ZAAKTYPE_BPMN_TEST_4_UUID",
                         "omschrijving": "$ZAAKTYPE_BPMN_TEST_4_DESCRIPTION"
                       },
                       {
-                        "doel": "$ZAAKTYPE_BPMN_TEST_5_DESCRIPTION",
-                        "identificatie": "$ZAAKTYPE_BPMN_TEST_5_IDENTIFICATIE",
+                        "uuid": "$ZAAKTYPE_BPMN_TEST_5_UUID",
                         "omschrijving": "$ZAAKTYPE_BPMN_TEST_5_DESCRIPTION"
                       }
                     ]
@@ -333,7 +322,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             `when`("zaak types for creation are listed") {
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/zaken/zaaktypes-for-creation",
+                    url = "$ZAC_API_URI/zaaktypen?startbaar=true",
                     testUser = BEHANDELAAR_2
                 )
                 then("the response should be a 200 HTTP response") {
@@ -342,15 +331,80 @@ class ZaakRestServiceTest : BehaviorSpec({
                     response.code shouldBe HTTP_OK
                 }
                 and("the response body should contain only the zaaktypes for which the user is authorized") {
-                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                    responseBody shouldEqualJsonIgnoringOrder """
                     [
                       {
-                        "doel": "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION",
-                        "identificatie": "$ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE",
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_1_UUID",
                         "omschrijving": "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION"
                       }
                     ]
                     """.trimIndent()
+                }
+            }
+        }
+
+        given("A beheerder who may start a zaak of the '$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION' zaaktype") {
+            `when`("the settings of that zaaktype for zaak creation are read") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/zaaktypen/$ZAAKTYPE_CMMN_TEST_2_UUID",
+                    testUser = BEHEERDER_1
+                )
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+
+                then("the response should be a 200 HTTP response") {
+                    response.code shouldBe HTTP_OK
+                }
+                and("the response body contains the settings that the Zaak aanmaken form applies") {
+                    JSONObject(responseBody).keySet() - setOf(
+                        "uuid",
+                        "omschrijving",
+                        "vertrouwelijkheidaanduiding",
+                        "defaultGroepId",
+                        "defaultBehandelaarId",
+                        "isKvkKoppelenEnabled",
+                        "isBrpKoppelenEnabled"
+                    ) shouldBe emptySet()
+                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                    {
+                      "uuid": "$ZAAKTYPE_CMMN_TEST_2_UUID",
+                      "omschrijving": "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
+                      "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR",
+                      "defaultGroepId": "${GROUP_BEHANDELAARS_TEST_1.name}",
+                      "isKvkKoppelenEnabled": true,
+                      "isBrpKoppelenEnabled": true
+                    }
+                    """.trimIndent()
+                }
+            }
+        }
+
+        given(
+            """
+            A behandelaar who may start a zaak of the '$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION' zaaktype only
+            """.trimIndent()
+        ) {
+            `when`("the settings of the '$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION' zaaktype for zaak creation are read") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/zaaktypen/$ZAAKTYPE_CMMN_TEST_2_UUID",
+                    testUser = BEHANDELAAR_2
+                )
+
+                then("the request is refused with a 403 HTTP response") {
+                    response.code shouldBe HTTP_FORBIDDEN
+                }
+            }
+        }
+
+        given("A beheerder and a zaaktype UUID that does not exist") {
+            `when`("the settings of that zaaktype for zaak creation are read") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/zaaktypen/${UUID.randomUUID()}",
+                    testUser = BEHEERDER_1
+                )
+
+                then("the response should be a 404 HTTP response") {
+                    response.code shouldBe HTTP_NOT_FOUND
                 }
             }
         }
