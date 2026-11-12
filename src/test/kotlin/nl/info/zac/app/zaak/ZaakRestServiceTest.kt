@@ -2913,7 +2913,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             } returns zaakAssignment
             every { zaakService.assignZaak(zaak, zaakAssignment, changeDescription) } just runs
             every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
-            every { zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak) } just runs
+            every { zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak, changeDescription) } just runs
             every {
                 restZaakConverter.toRestZaak(
                     zaak = patchedZaak,
@@ -2933,7 +2933,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 then("the zaak is patched, then marked and only then assigned, so the new behandelaar keeps access") {
                     verifyOrder {
                         zrcClientService.patchZaak(zaak.uuid, any(), changeDescription)
-                        zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak)
+                        zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak, changeDescription)
                         zaakService.assignZaak(zaak, zaakAssignment, changeDescription)
                     }
                 }
@@ -2996,7 +2996,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             } returns zaakAssignment
             every { zaakService.assignZaak(zaak, zaakAssignment, changeDescription) } just runs
             every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
-            every { zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak) } just runs
+            every { zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak, changeDescription) } just runs
             every {
                 restZaakConverter.toRestZaak(
                     zaak = patchedZaak,
@@ -3015,7 +3015,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                 then("the returned zaak is converted only after the zaak is marked") {
                     verifyOrder {
-                        zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak)
+                        zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak, changeDescription)
                         restZaakConverter.toRestZaak(
                             zaak = patchedZaak,
                             zaakType = zaakType,
@@ -3100,7 +3100,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 then("the zaak is left unmarked, unassigned and unpatched") {
                     userNotInGroupException.errorCode shouldBe ErrorCode.ERROR_CODE_USER_NOT_IN_GROUP
                     verify(exactly = 0) {
-                        zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(any())
+                        zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(any(), any())
                         zaakService.assignZaak(any(), any<ZaakAssignment>(), any())
                         zrcClientService.patchZaak(any(), any(), any())
                     }
@@ -3153,7 +3153,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     loggedInUser = loggedInUser
                 )
             } returns true
-            every { zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak) } just runs
+            every { zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak, changeDescription) } just runs
             val zaakAssignment = createZaakAssignment(
                 group = createGroup(id = restGroup.id),
                 user = createUser(username = "fakeNewBehandelaarId")
@@ -3202,7 +3202,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 and("the zaak is patched, then marked and only then handed over") {
                     verifyOrder {
                         zrcClientService.patchZaak(zaak.uuid, any(), changeDescription)
-                        zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak)
+                        zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak, changeDescription)
                         zaakService.assignZaak(zaak, zaakAssignment, changeDescription)
                     }
                 }
@@ -3485,7 +3485,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
             } returns true
             every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
-            every { zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak) } just runs
+            every { zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak, changeDescription) } just runs
             every {
                 restZaakConverter.toRestZaak(
                     zaak = patchedZaak,
@@ -3505,7 +3505,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 then("the marking is recorded after the zaakgegevens are patched, without touching the behandelaar") {
                     verifyOrder {
                         zrcClientService.patchZaak(zaak.uuid, any(), changeDescription)
-                        zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak)
+                        zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak, changeDescription)
                     }
                     verify(exactly = 0) { zaakService.assignZaak(any(), any<ZaakAssignment>(), any()) }
                 }
@@ -3580,7 +3580,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 then("the zaak is neither marked nor assigned") {
                     zrcRuntimeException.message shouldBe "fakeMessage"
                     verify(exactly = 0) {
-                        zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(any())
+                        zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(any(), any())
                         zaakService.assignZaak(any(), any<ZaakAssignment>(), any())
                     }
                 }
@@ -3644,7 +3644,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     verify(exactly = 0) {
                         zaakService.assignZaak(any(), any<ZaakAssignment>(), any())
                         zrcClientService.patchZaak(any(), any(), any())
-                        zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(any())
+                        zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(any(), any())
                     }
                 }
             }
@@ -3711,7 +3711,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
 
                 then("the update succeeds and no second marking is recorded") {
-                    verify(exactly = 0) { zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(any()) }
+                    verify(exactly = 0) { zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(any(), any()) }
                 }
             }
         }
@@ -4047,7 +4047,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
 
                 and("no second marking is recorded") {
-                    verify(exactly = 0) { zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(any()) }
+                    verify(exactly = 0) { zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(any(), any()) }
                 }
             }
         }
@@ -4110,7 +4110,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         ErrorCode.ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER_ROLTYPE_NOT_FOUND
                     verify(exactly = 0) {
                         zrcClientService.patchZaak(any(), any(), any())
-                        zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(any())
+                        zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(any(), any())
                         zaakService.assignZaak(any(), any<ZaakAssignment>(), any())
                     }
                 }
