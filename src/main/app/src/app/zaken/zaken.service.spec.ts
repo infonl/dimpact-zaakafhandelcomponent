@@ -213,6 +213,54 @@ describe(ZakenService.name, () => {
     });
   });
 
+  describe("listZaaktypesForCreationQuery", () => {
+    it("lists only the zaaktypen that the user can start", async () => {
+      const zaaktypen = [
+        fromPartial<GeneratedType<"RestZaaktypeKeuze">>({
+          uuid: "fakeZaaktypeUuid",
+          omschrijving: "fakeOmschrijving",
+        }),
+      ];
+      const query = testQueryClient.query(
+        service.listZaaktypesForCreationQuery(),
+      );
+
+      await Promise.resolve();
+      httpTestingController
+        .expectOne("/rest/zaaktypen?startbaar=true")
+        .flush(zaaktypen);
+
+      await expect(query).resolves.toEqual(zaaktypen);
+    });
+  });
+
+  describe("readZaaktypeForCreationQuery", () => {
+    it("keys on the uuid of the zaaktype, so choosing the same zaaktype again reads its settings from the cache", () => {
+      expect(
+        service.readZaaktypeForCreationQuery("fakeZaaktypeUuid").queryKey,
+      ).toEqual([
+        "/rest/zaaktypen/{zaaktypeUuid}",
+        { path: { zaaktypeUuid: "fakeZaaktypeUuid" } },
+      ]);
+    });
+
+    it("reads the settings of the zaaktype from its own endpoint", async () => {
+      const settings = fromPartial<
+        GeneratedType<"RestZaaktypeAanmaakInstellingen">
+      >({ uuid: "fakeZaaktypeUuid", omschrijving: "fakeOmschrijving" });
+      const query = testQueryClient.query(
+        service.readZaaktypeForCreationQuery("fakeZaaktypeUuid"),
+      );
+
+      await Promise.resolve();
+      httpTestingController
+        .expectOne("/rest/zaaktypen/fakeZaaktypeUuid")
+        .flush(settings);
+
+      await expect(query).resolves.toEqual(settings);
+    });
+  });
+
   describe("cacheZaak", () => {
     it("writes the zaak into the cache entry for its own uuid", () => {
       const zaak = fromPartial<GeneratedType<"RestZaak">>({

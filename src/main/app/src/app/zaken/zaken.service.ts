@@ -204,7 +204,15 @@ export class ZakenService {
   }
 
   listZaaktypesForCreationQuery() {
-    return this.zacQueryClient.GET("/rest/zaken/zaaktypes-for-creation");
+    return this.zacQueryClient.GET("/rest/zaaktypen", {
+      query: { startbaar: true },
+    });
+  }
+
+  readZaaktypeForCreationQuery(zaaktypeUuid: string) {
+    return this.zacQueryClient.GET("/rest/zaaktypen/{zaaktypeUuid}", {
+      path: { zaaktypeUuid },
+    });
   }
 
   listZaaktypesToLinkQuery() {

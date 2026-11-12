@@ -31,7 +31,7 @@ import { ZaakLinkComponent } from "./zaak-link.component";
 
 const KOPPEL_URL = "/rest/zaken/zaak/koppel";
 const ZAAKTYPES_URL = "/rest/zaken/gekoppelde-zaken/zaaktypen";
-const ZAAKTYPES_FOR_CREATION_URL = "/rest/zaken/zaaktypes-for-creation";
+const ZAAKTYPES_FOR_CREATION_URL = "/rest/zaaktypen?startbaar=true";
 
 const makeFakeZaak = (
   fields: Partial<GeneratedType<"RestZaak">> = {},
@@ -75,7 +75,7 @@ describe(ZaakLinkComponent.name, () => {
 
   const setup = async (
     zaakFields: Partial<GeneratedType<"RestZaak">> = {},
-    zaaktypesForCreation: GeneratedType<"RestZaaktype">[] = [],
+    zaaktypesForCreation: GeneratedType<"RestZaaktypeKeuze">[] = [],
   ) => {
     const zaak = makeFakeZaak(zaakFields);
     const sideNav = fromPartial<MatDrawer>({
@@ -616,10 +616,10 @@ describe(ZaakLinkComponent.name, () => {
   });
 
   describe("creating a new zaak that is linked to the zaak", () => {
-    const startableZaaktype = fromPartial<GeneratedType<"RestZaaktype">>({
+    const startableZaaktype: GeneratedType<"RestZaaktypeKeuze"> = {
       uuid: "fake-startable-zaaktype-uuid",
       omschrijving: "fakeStartableZaaktype",
-    });
+    };
 
     const openZaakThatMayBeLinked = (
       fields: Partial<GeneratedType<"RestZaak">> = {},
