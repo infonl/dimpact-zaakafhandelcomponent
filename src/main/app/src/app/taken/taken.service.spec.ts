@@ -173,47 +173,50 @@ describe(TakenService.name, () => {
       service.complete();
       expect(zacQueryClient.PATCH).toHaveBeenCalledWith(expect.any(String));
     });
+  });
 
-    describe("when the taak is completed", () => {
-      let router: Router;
+  describe.each([
+    ["saved", (takenService: TakenService) => takenService.updateTaakdata()],
+    ["completed", (takenService: TakenService) => takenService.complete()],
+  ])("when the taak is %s", (_, mutationOptions) => {
+    let router: Router;
 
-      beforeEach(() => {
-        jest
-          .spyOn(TestBed.inject(UtilService), "openSnackbar")
-          .mockImplementation(() => {});
-        router = TestBed.inject(Router);
-        jest.spyOn(router, "navigateByUrl").mockResolvedValue(true);
+    beforeEach(() => {
+      jest
+        .spyOn(TestBed.inject(UtilService), "openSnackbar")
+        .mockImplementation(() => {});
+      router = TestBed.inject(Router);
+      jest.spyOn(router, "navigateByUrl").mockResolvedValue(true);
+    });
+
+    it("returns to the page before the taak in the navigation trail", async () => {
+      jest.spyOn(router, "url", "get").mockReturnValue("/taken/1");
+      TestBed.inject(Location).replaceState("/taken/1", "", {
+        navigationTrail: [
+          { title: "ZAAK-1", url: "/zaken/ZAAK-1" },
+          { title: "Taak", url: "/taken/1" },
+        ],
       });
 
-      it("returns to the page before the taak in the navigation trail", async () => {
-        jest.spyOn(router, "url", "get").mockReturnValue("/taken/1");
-        TestBed.inject(Location).replaceState("/taken/1", "", {
-          navigationTrail: [
-            { title: "ZAAK-1", url: "/zaken/ZAAK-1" },
-            { title: "Taak", url: "/taken/1" },
-          ],
-        });
+      await runMutationOnSuccess(mutationOptions(service));
 
-        await runMutationOnSuccess(service.complete());
+      expect(router.navigateByUrl).toHaveBeenCalledWith("/zaken/ZAAK-1");
+    });
 
-        expect(router.navigateByUrl).toHaveBeenCalledWith("/zaken/ZAAK-1");
-      });
+    it("goes to the dashboard when the navigation trail has no page before the taak", async () => {
+      jest.spyOn(router, "url", "get").mockReturnValue("/taken/1");
 
-      it("goes to the dashboard when the navigation trail has no page before the taak", async () => {
-        jest.spyOn(router, "url", "get").mockReturnValue("/taken/1");
+      await runMutationOnSuccess(mutationOptions(service));
 
-        await runMutationOnSuccess(service.complete());
+      expect(router.navigateByUrl).toHaveBeenCalledWith("/");
+    });
 
-        expect(router.navigateByUrl).toHaveBeenCalledWith("/");
-      });
+    it("stays on the taak when it was opened from an e-mail", async () => {
+      jest.spyOn(router, "url", "get").mockReturnValue("/taken/1?bron=email");
 
-      it("stays on the taak when it was opened from an e-mail", async () => {
-        jest.spyOn(router, "url", "get").mockReturnValue("/taken/1?bron=email");
+      await runMutationOnSuccess(mutationOptions(service));
 
-        await runMutationOnSuccess(service.complete());
-
-        expect(router.navigateByUrl).not.toHaveBeenCalled();
-      });
+      expect(router.navigateByUrl).not.toHaveBeenCalled();
     });
   });
 

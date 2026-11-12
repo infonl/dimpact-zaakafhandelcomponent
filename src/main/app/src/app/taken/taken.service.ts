@@ -88,7 +88,12 @@ export class TakenService {
   updateTaakdata() {
     return mergeMutationOptions(
       this.zacQueryClient.PUT("/rest/taken/taakdata"),
-      { onSuccess: () => this.utilService.openSnackbar("msg.taak.opgeslagen") },
+      {
+        onSuccess: () => {
+          this.utilService.openSnackbar("msg.taak.opgeslagen");
+          void this.leaveTaak();
+        },
+      },
     );
   }
 
@@ -98,13 +103,13 @@ export class TakenService {
       {
         onSuccess: () => {
           this.utilService.openSnackbar("msg.taak.afgerond");
-          void this.leaveCompletedTaak();
+          void this.leaveTaak();
         },
       },
     );
   }
 
-  private leaveCompletedTaak() {
+  private leaveTaak() {
     if (this.router.parseUrl(this.router.url).queryParams["bron"] === "email")
       return;
 
