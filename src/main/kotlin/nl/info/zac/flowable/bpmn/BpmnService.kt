@@ -218,7 +218,7 @@ class BpmnService @Inject constructor(
         repositoryService.getProcessModel(processDefinitionId)
 
     fun addProcessDefinition(filename: String, processDefinitionContent: String): Deployment {
-//        assertSingleProcessWithIdAndName(processDefinitionContent)
+        assertSingleProcessWithIdAndName(processDefinitionContent)
         return repositoryService.createDeployment()
             .addString(filename, processDefinitionContent)
             .name(filename)
