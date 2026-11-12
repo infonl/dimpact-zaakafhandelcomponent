@@ -17,11 +17,14 @@ import nl.info.zac.itest.client.urlEncode
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DOCX_MEDIA_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
 import nl.info.zac.itest.config.ItestConfiguration.PDF_MEDIA_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.SMART_DOCUMENTS_DOCX_FILE_ID
@@ -486,6 +489,76 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     "&taak=$taskId" +
                     "&doc=" + SMART_DOCUMENTS_DOCX_FILE_TITLE.urlEncode() +
                     "&result=cancelled"
+            }
+        }
+    }
+
+    given(
+        """
+        A zaak with a vestiging as initiator, of which the KvK vestigingsprofiel has a more complete address
+        than the KvK zoeken API, and a behandelaar is logged in
+        """
+    ) {
+        lateinit var zaakWithVestigingInitiatorUuid: String
+        zacClient.createZaakAndRetrieve(
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
+            startDate = DATE_TIME_2000_01_01,
+            testUser = BEHEERDER_1
+        ).run {
+            logger.info { "Response: $bodyAsString" }
+            code shouldBe HTTP_OK
+            zaakWithVestigingInitiatorUuid = JSONObject(bodyAsString).getString("uuid")
+        }
+        itestHttpClient.performPatchRequest(
+            url = "$ZAC_API_URI/zaken/initiator",
+            requestBodyAsString = """
+                {
+                    "betrokkeneIdentificatie": {
+                        "kvkNummer": "$TEST_KVK_NUMMER_1",
+                        "type": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
+                        "vestigingsnummer": "$TEST_KVK_VESTIGINGSNUMMER_1"
+                    },
+                    "zaakUUID": "$zaakWithVestigingInitiatorUuid"
+                }
+            """.trimIndent(),
+            testUser = BEHANDELAAR_1
+        ).run {
+            logger.info { "Response: $bodyAsString" }
+            code shouldBe HTTP_OK
+        }
+
+        `when`("the create document attended ('wizard') endpoint is called on the zaak") {
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/document-creation/create-document-attended",
+                requestBodyAsString = JSONObject(
+                    mapOf(
+                        "zaakUuid" to zaakWithVestigingInitiatorUuid,
+                        "smartDocumentsTemplateGroupId" to SMART_DOCUMENTS_ROOT_GROUP_ID,
+                        "smartDocumentsTemplateId" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID,
+                        "title" to SMART_DOCUMENTS_DOCX_FILE_TITLE,
+                        "author" to FAKE_AUTHOR_NAME,
+                        "creationDate" to ZonedDateTime.now()
+                    )
+                ).toString(),
+                testUser = BEHANDELAAR_1
+            )
+
+            then(
+                """
+                SmartDocuments receives the aanvrager with the address from the KvK vestigingsprofiel,
+                which the SmartDocuments mock only accepts with the complete huisnummer and postcode,
+                and the response contains a redirect URL to SmartDocuments
+                """
+            ) {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+                responseBody.shouldContainJsonKeyValue(
+                    "redirectURL",
+                    "$SMART_DOCUMENTS_MOCK_BASE_URI/smartdocuments/wizard?ticket=fakeSmartDocumentsTicketID"
+                )
             }
         }
     }
