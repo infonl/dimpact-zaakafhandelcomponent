@@ -1,5 +1,7 @@
 # Dashboard cards — migrate to TanStack Query
 
+> `ZacHttpClient` was removed in #7870. The "before" examples below show code that no longer exists; read them as history.
+
 ## Why we are doing this
 
 ### The current situation
