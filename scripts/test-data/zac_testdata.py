@@ -272,8 +272,15 @@ def upload_document_to_zaak(
         },
     )
     elapsed = int((time.monotonic() - start) * 1000)
+    document_uuid = None
+    if status == 200:
+        try:
+            document_uuid = json.loads(response).get("uuid")
+        except json.JSONDecodeError:
+            pass
     return {
         "zaak_uuid": zaak_uuid,
+        "document_uuid": document_uuid,
         "filename": document["filename"],
         "success": status == 200,
         "status_code": status,
