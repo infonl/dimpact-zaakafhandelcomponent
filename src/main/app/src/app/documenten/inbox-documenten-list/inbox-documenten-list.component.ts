@@ -36,6 +36,7 @@ import {
   MatTable,
   MatTableDataSource,
 } from "@angular/material/table";
+import { MatTooltip } from "@angular/material/tooltip";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { merge } from "rxjs";
@@ -96,6 +97,7 @@ type InboxDocumentSearch = PutBody<"/rest/inboxdocumenten"> & {
     MatIconButton,
     MatIconAnchor,
     MatIcon,
+    MatTooltip,
     TranslatePipe,
     TekstFilterComponent,
     DateRangeFilterComponent,

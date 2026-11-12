@@ -35,21 +35,32 @@ table {
   width: @inbox-list-actions-column-width;
 }
 
-.lock-icon {
-  color: var(--mat-chip-label-text-color);
-  block-size: fit-content;
-  margin-block: auto;
-  padding: 0.125em;
+.acties {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: center;
+  justify-items: center;
+
+  .verwijderen {
+    grid-column: 3;
+  }
+
+  .koppelen {
+    grid-column: 4;
+  }
 }
 
 .indication {
-  display: inline-flex;
-  justify-content: space-around;
-  width: 48px;
-  margin-right: 6px; // behave like the adjacent buttons to align properly
+  mat-chip {
+    font-size: 12px;
+    font-weight: 500;
+  }
 
-  .mat-icon {
-    font-size: 20px;
+  .chip-icon {
+    vertical-align: middle;
+    display: inline-flex;
+    align-items: center;
+    cursor: default;
   }
 }
 

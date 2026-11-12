@@ -25,6 +25,7 @@ import {
   MatIconButton,
 } from "@angular/material/button";
 import { MatCheckbox } from "@angular/material/checkbox";
+import { MatChip, MatChipSet } from "@angular/material/chips";
 import { MatDialog } from "@angular/material/dialog";
 import { MatFormField } from "@angular/material/form-field";
 import { MatIcon } from "@angular/material/icon";
@@ -49,6 +50,7 @@ import {
   MatTable,
   MatTableDataSource,
 } from "@angular/material/table";
+import { MatTooltip } from "@angular/material/tooltip";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectIsMutating } from "@tanstack/angular-query-experimental";
@@ -114,7 +116,10 @@ type DetachedDocumentSearch = PutBody<"/rest/ontkoppeldedocumenten"> & {
     MatIconAnchor,
     MatCheckbox,
     MatBadge,
+    MatChip,
+    MatChipSet,
     MatIcon,
+    MatTooltip,
     MatFormField,
     MatSelect,
     MatOption,
