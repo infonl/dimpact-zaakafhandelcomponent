@@ -34,6 +34,7 @@ import { ActivatedRoute } from "@angular/router";
 import type { FormioForm } from "@formio/angular";
 import { TranslatePipe } from "@ngx-translate/core";
 import { QueryClient, injectQuery } from "@tanstack/angular-query-experimental";
+import { from } from "rxjs";
 import { ZaakDocumentenComponent } from "src/app/zaken/zaak-documenten/zaak-documenten.component";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
@@ -304,7 +305,9 @@ export class TaakViewComponent
       return;
     }
 
-    this.zakenService.readZaak(taak.zaakUuid).subscribe((zaak) => {
+    from(
+      this.queryClient.query(this.zakenService.readZaak(taak.zaakUuid)),
+    ).subscribe((zaak) => {
       this.zaak.set(zaak);
       void this.createTaakForm(taak, zaak);
       this.initialized.set(true);
@@ -598,14 +601,6 @@ export class TaakViewComponent
 
   updateZaakDocumentList() {
     this.zaakDocumentenComponent()?.updateDocumentList();
-  }
-
-  protected updateZaak() {
-    const zaakUuid = this.zaak()?.uuid ?? this.taak()?.zaakUuid;
-    if (!zaakUuid) return;
-    this.zakenService.readZaak(zaakUuid).subscribe((zaak) => {
-      this.zaak.set(zaak);
-    });
   }
 
   /**

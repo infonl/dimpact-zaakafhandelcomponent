@@ -16,7 +16,11 @@ import { UtilService } from "../core/service/util.service";
 import { PatchBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
-import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
+import {
+  LOAD_PER_VISIT,
+  StaleTimes,
+  ZacQueryClient,
+} from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { toI18nKey } from "../shared/utils/i18n-key";
 
@@ -59,9 +63,11 @@ export class ZakenService {
   private readonly queryClient = inject(QueryClient);
 
   readZaak(uuid: string) {
-    return this.zacHttpClient.GET("/rest/zaken/zaak/{uuid}", {
-      path: { uuid },
-    });
+    return {
+      ...this.readZaakQuery(uuid),
+      staleTime: StaleTimes.Instant,
+      meta: { reportFailedRefetch: true },
+    };
   }
 
   readZaakQuery(uuid: string) {
@@ -104,9 +110,12 @@ export class ZakenService {
   }
 
   readZaakByID(identificatie: string) {
-    return this.zacHttpClient.GET("/rest/zaken/zaak/id/{identificatie}", {
-      path: { identificatie },
-    });
+    return {
+      ...this.zacQueryClient.GET("/rest/zaken/zaak/id/{identificatie}", {
+        path: { identificatie },
+      }),
+      ...LOAD_PER_VISIT,
+    };
   }
 
   createZaak() {
@@ -184,7 +193,7 @@ export class ZakenService {
   }
 
   listZaakWaarschuwingen() {
-    return this.zacHttpClient.GET("/rest/zaken/waarschuwing");
+    return this.zacQueryClient.GET("/rest/zaken/waarschuwing");
   }
 
   listZaaktypesForCreationQuery() {

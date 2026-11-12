@@ -25,7 +25,6 @@ import {
 import { RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { firstValueFrom } from "rxjs";
 import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { DagenPipe } from "../../shared/pipes/dagen.pipe";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
@@ -85,10 +84,7 @@ export class ZaakWaarschuwingenCardComponent extends DashboardCardComponent<
     "url",
   ] as const;
 
-  zakenQuery = injectQuery(() => ({
-    queryKey: ["zaak waarschuwingen dashboard"],
-    queryFn: () => firstValueFrom(this.zakenService.listZaakWaarschuwingen()),
-  }));
+  zakenQuery = injectQuery(() => this.zakenService.listZaakWaarschuwingen());
 
   constructor() {
     super();
