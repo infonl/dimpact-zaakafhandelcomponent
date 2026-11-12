@@ -52,3 +52,7 @@ None.
 - **Accepted risk**: when converting the taak for the index fails (for example an Open Zaak lookup), ZAC logs a
   warning and the save still succeeds, as when assigning a taak. A failed Solr write does fail the request. Failing
   the request after the taak is saved would tell the user the save failed, which it did not.
+- **Accepted risk**: the reindex after saving does not hold the zaak lock of the zaakspecifieke autorisatie, like
+  every other reindex of a taak (for example after assigning it). A save that overlaps with removing a medewerker
+  can write the old authorisations back into the index until the next reindex. Opening the taak is still checked
+  against the current rechten. Serialising all reindexes with that lock belongs in its own change.
