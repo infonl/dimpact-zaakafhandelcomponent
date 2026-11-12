@@ -207,12 +207,6 @@ describe(ZaakViewComponent.name, () => {
             readZaakQuery(uuid).queryKey,
           ) as GeneratedType<"RestZaak">,
       }));
-    jest
-      .spyOn(zakenService, "readOpschortingZaak")
-      .mockReturnValue(
-        of(fromPartial<GeneratedType<"RestZaakOpschorting">>({})),
-      );
-
     bagService = TestBed.inject(BAGService);
     jest.spyOn(bagService, "list").mockReturnValue({
       ...createQueryOptions([]),

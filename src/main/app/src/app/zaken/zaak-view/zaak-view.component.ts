@@ -24,7 +24,7 @@ import {
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
-import { forkJoin } from "rxjs";
+import { forkJoin, from } from "rxjs";
 import { PolicyService } from "src/app/policy/policy.service";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
@@ -159,15 +159,19 @@ export class ZaakViewComponent
     return this.zaakQuery.data()!;
   }
 
-  // Narrowed to a primitive off `zaakQuery.data()` so dependent effects re-run
-  // when the zaak or its opschorting state changes, but not on every unrelated
-  // zaak content write.
-  private readonly opschortingKey = computed(() => {
+  private readonly opschortingQuery = injectQuery(() => {
     const zaak = this.zaakQuery.data();
-    return zaak?.isOpgeschort === undefined
-      ? undefined
-      : `${zaak.uuid}:${zaak.isOpgeschort}`;
+    return {
+      ...this.zakenService.readOpschortingZaak(zaak?.uuid ?? ""),
+      enabled: zaak?.isOpgeschort === true,
+    };
   });
+
+  protected readonly opschorting = computed(() =>
+    this.zaakQuery.data()?.isOpgeschort
+      ? this.opschortingQuery.data()
+      : undefined,
+  );
 
   private readonly userEventListenerPlanItemsQuery = injectQuery(() => {
     const uuid = this.zaakUuid();
@@ -320,11 +324,6 @@ export class ZaakViewComponent
     });
 
     effect(() => {
-      if (!this.opschortingKey()) return;
-      untracked(() => this.dialogs.loadOpschorting(this.zaak));
-    });
-
-    effect(() => {
       const zaak = this.zaakQuery.data();
       if (!zaak) return;
       this.invalidateZaakHistorie();
@@ -415,7 +414,7 @@ export class ZaakViewComponent
 
     // Not part of RestZaak, so the echo check below says nothing about these.
     this.invalidateBagObjecten();
-    this.dialogs.loadOpschorting(this.zaak);
+    this.zakenService.invalidateOpschorting(this.zaak.uuid);
     this.invalidateZaakHistorie();
 
     const refetchSucceeded =
@@ -466,11 +465,13 @@ export class ZaakViewComponent
   }
 
   private loadBesluiten() {
-    this.zakenService
-      .listBesluitenForZaak(this.zaak.uuid)
-      .subscribe((besluiten) =>
-        this.zakenService.cacheZaak({ ...this.zaak, besluiten }),
-      );
+    from(
+      this.queryClient.query(
+        this.zakenService.listBesluitenForZaak(this.zaak.uuid),
+      ),
+    ).subscribe((besluiten) =>
+      this.zakenService.cacheZaak({ ...this.zaak, besluiten }),
+    );
   }
 
   protected initiatorGeselecteerd(

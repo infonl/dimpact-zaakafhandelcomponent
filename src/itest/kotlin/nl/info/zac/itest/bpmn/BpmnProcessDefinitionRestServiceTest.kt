@@ -258,4 +258,65 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
             }
         }
     }
+
+    given("A beheerder is logged in") {
+        `when`("a BPMN file whose executable process has no name is uploaded") {
+            val processDefinitionContent = bpmnContent("<process id='processWithoutName' isExecutable='true'>")
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/bpmn-process-definitions",
+                requestBodyAsString = """
+                    {
+                        "filename": "processWithoutName.bpmn",
+                        "content": "$processDefinitionContent"
+                    }
+                """.trimIndent(),
+                testUser = BEHEERDER_1
+            )
+
+            then("the upload is rejected with the error that the process definition has no name") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_BAD_REQUEST
+                responseBody shouldEqualJsonIgnoringExtraneousFields """
+                    {
+                      "message": "msg.error.bpmn.processdefinition.name-missing"
+                    }
+                """.trimIndent()
+            }
+        }
+
+        `when`("a BPMN file with two processes is uploaded") {
+            val processDefinitionContent = bpmnContent(
+                "<process id='firstProcess' name='First process' isExecutable='true'>",
+                "<process id='secondProcess' name='Second process' isExecutable='true'>"
+            )
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/bpmn-process-definitions",
+                requestBodyAsString = """
+                    {
+                        "filename": "twoProcesses.bpmn",
+                        "content": "$processDefinitionContent"
+                    }
+                """.trimIndent(),
+                testUser = BEHEERDER_1
+            )
+
+            then("the upload is rejected with the error that the file contains more than one process") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_BAD_REQUEST
+                responseBody shouldEqualJsonIgnoringExtraneousFields """
+                    {
+                      "message": "msg.error.bpmn.processdefinition.multiple-processes"
+                    }
+                """.trimIndent()
+            }
+        }
+    }
 })
+
+private fun bpmnContent(vararg processStartTags: String) =
+    "<?xml version='1.0' encoding='UTF-8'?>" +
+        "<definitions xmlns='http://www.omg.org/spec/BPMN/20100524/MODEL' targetNamespace='https://example.com/bpmn'>" +
+        processStartTags.joinToString("") { "$it<startEvent id='start'/></process>" } +
+        "</definitions>"

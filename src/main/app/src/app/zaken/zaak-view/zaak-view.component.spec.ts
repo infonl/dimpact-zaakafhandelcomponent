@@ -21,7 +21,7 @@ import { of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { BAGService } from "../../bag/bag.service";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
@@ -141,12 +141,6 @@ describe(ZaakViewComponent.name, () => {
     utilService = TestBed.inject(UtilService);
 
     zakenService = TestBed.inject(ZakenService);
-    jest
-      .spyOn(zakenService, "readOpschortingZaak")
-      .mockReturnValue(
-        of(fromPartial<GeneratedType<"RestZaakOpschorting">>({})),
-      );
-
     bagService = TestBed.inject(BAGService);
     bagObjectenQuery = {
       ...createQueryOptions([]),
@@ -446,12 +440,29 @@ describe(ZaakViewComponent.name, () => {
       expect(menuTitlesAfterWrite).not.toContain("actie.zaak.opschorten");
     });
 
-    it("does not reload the opschorting when only zaak content changes", () => {
-      mockActivatedRoute.data.next({
-        zaak: { ...opschortbareZaak, isOpgeschort: true },
-      });
+    const opschortingUrl = (zaakUuid: string) =>
+      `/rest/zaken/zaak/${zaakUuid}/opschorting`;
+
+    async function openZaak(openedZaak: GeneratedType<"RestZaak">) {
+      mockActivatedRoute.data.next({ zaak: openedZaak });
       fixture.detectChanges();
-      jest.mocked(zakenService.readOpschortingZaak).mockClear();
+      await sleep();
+    }
+
+    it("does not read the opschorting of a zaak that is not opgeschort", async () => {
+      await openZaak({ ...opschortbareZaak, isOpgeschort: false });
+
+      TestBed.inject(HttpTestingController).expectNone(
+        opschortingUrl(opschortbareZaak.uuid),
+      );
+    });
+
+    it("does not reload the opschorting when only zaak content changes", async () => {
+      const httpTestingController = TestBed.inject(HttpTestingController);
+      await openZaak({ ...opschortbareZaak, isOpgeschort: true });
+      httpTestingController
+        .expectOne(opschortingUrl(opschortbareZaak.uuid))
+        .flush(fromPartial<GeneratedType<"RestZaakOpschorting">>({}));
 
       zakenService.cacheZaak({
         ...opschortbareZaak,
@@ -459,29 +470,55 @@ describe(ZaakViewComponent.name, () => {
         omschrijving: "fakeUpdatedOmschrijving",
       });
       fixture.detectChanges();
+      await sleep();
 
-      expect(zakenService.readOpschortingZaak).not.toHaveBeenCalled();
+      httpTestingController.expectNone(opschortingUrl(opschortbareZaak.uuid));
     });
 
-    it("reloads the opschorting when navigating from one opgeschorte zaak to another", () => {
-      mockActivatedRoute.data.next({
-        zaak: { ...opschortbareZaak, isOpgeschort: true },
-      });
-      fixture.detectChanges();
-      jest.mocked(zakenService.readOpschortingZaak).mockClear();
+    it("reloads the opschorting when navigating from one opgeschorte zaak to another", async () => {
+      const httpTestingController = TestBed.inject(HttpTestingController);
+      await openZaak({ ...opschortbareZaak, isOpgeschort: true });
+      httpTestingController
+        .expectOne(opschortingUrl(opschortbareZaak.uuid))
+        .flush(fromPartial<GeneratedType<"RestZaakOpschorting">>({}));
 
-      mockActivatedRoute.data.next({
-        zaak: {
-          ...opschortbareZaak,
-          uuid: "fakeOtherZaakUuid",
-          isOpgeschort: true,
-        },
+      await openZaak({
+        ...opschortbareZaak,
+        uuid: "fakeOtherZaakUuid",
+        isOpgeschort: true,
       });
-      fixture.detectChanges();
 
-      expect(zakenService.readOpschortingZaak).toHaveBeenCalledWith(
-        "fakeOtherZaakUuid",
+      httpTestingController.expectOne(opschortingUrl("fakeOtherZaakUuid"));
+    });
+
+    it("shows the opschorting from the cache when the zaak is opened again", async () => {
+      const opschorting = fromPartial<GeneratedType<"RestZaakOpschorting">>({
+        duurDagen: 14,
+      });
+      testQueryClient.setQueryData(
+        zakenService.readOpschortingZaak(opschortbareZaak.uuid).queryKey,
+        opschorting,
       );
+
+      await openZaak({ ...opschortbareZaak, isOpgeschort: true });
+
+      TestBed.inject(HttpTestingController).expectNone(
+        opschortingUrl(opschortbareZaak.uuid),
+      );
+      expect(fixture.componentInstance["opschorting"]()).toEqual(opschorting);
+    });
+
+    it("stops showing the opschorting once the zaak is no longer opgeschort, so the details card drops the expected duration", async () => {
+      testQueryClient.setQueryData(
+        zakenService.readOpschortingZaak(opschortbareZaak.uuid).queryKey,
+        fromPartial<GeneratedType<"RestZaakOpschorting">>({ duurDagen: 14 }),
+      );
+      await openZaak({ ...opschortbareZaak, isOpgeschort: true });
+
+      zakenService.cacheZaak({ ...opschortbareZaak, isOpgeschort: false });
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance["opschorting"]()).toBeUndefined();
     });
   });
 
@@ -597,8 +634,13 @@ describe(ZaakViewComponent.name, () => {
     it("reloads the opschorting of a zaak that was already opgeschort before the change", async () => {
       mockActivatedRoute.data.next({ zaak: { ...zaak, isOpgeschort: true } });
       fixture.detectChanges();
+      await sleep();
+      httpTestingController
+        .match(`/rest/zaken/zaak/${zaak.uuid}/opschorting`)
+        .forEach((request) =>
+          request.flush(fromPartial<GeneratedType<"RestZaakOpschorting">>({})),
+        );
       httpTestingController.match(() => true);
-      jest.mocked(zakenService.readOpschortingZaak).mockClear();
 
       const pending = zaakChangedCallback(zaakChangedEvent);
       await flushRefetch({
@@ -607,8 +649,11 @@ describe(ZaakViewComponent.name, () => {
         omschrijving: "changedByOtherUser",
       });
       await pending;
+      await sleep();
 
-      expect(zakenService.readOpschortingZaak).toHaveBeenCalledWith(zaak.uuid);
+      httpTestingController.expectOne(
+        `/rest/zaken/zaak/${zaak.uuid}/opschorting`,
+      );
     });
 
     it("notifies when the refetch fails, rather than silently treating it as an echo", async () => {
@@ -705,13 +750,10 @@ describe(ZaakViewComponent.name, () => {
       fixture.detectChanges();
     });
 
-    it("puts the reloaded besluiten on the cached zaak", () => {
+    it("puts the reloaded besluiten on the cached zaak", async () => {
       const besluit = fromPartial<GeneratedType<"RestBesluit">>({
         toelichting: "fakeBesluitToelichting",
       });
-      jest
-        .spyOn(zakenService, "listBesluitenForZaak")
-        .mockReturnValue(of([besluit]));
 
       zaakBesluitenCallback(
         new ScreenEvent(
@@ -720,6 +762,11 @@ describe(ZaakViewComponent.name, () => {
           new ScreenEventId(zaak.uuid),
         ),
       );
+      await sleep();
+      TestBed.inject(HttpTestingController)
+        .expectOne(`/rest/zaken/besluit/zaakUuid/${zaak.uuid}`)
+        .flush([besluit]);
+      await sleep();
 
       expect(
         testQueryClient.getQueryData(

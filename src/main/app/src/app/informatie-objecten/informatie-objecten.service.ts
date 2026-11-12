@@ -11,7 +11,6 @@ import {
 import { UtilService } from "../core/service/util.service";
 import { DeleteBody, PostBody, PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
 
 const NOT_CACHED = { staleTime: StaleTimes.Instant, gcTime: 0 };
@@ -21,7 +20,6 @@ const NOT_CACHED = { staleTime: StaleTimes.Instant, gcTime: 0 };
 })
 export class InformatieObjectenService {
   private basepath = "/rest/informatieobjecten";
-  private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly queryClient = inject(QueryClient);
   private readonly utilService = inject(UtilService);

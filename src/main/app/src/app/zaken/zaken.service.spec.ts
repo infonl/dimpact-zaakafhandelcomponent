@@ -21,7 +21,7 @@ import {
 } from "@tanstack/angular-query-experimental";
 import { EMPTY } from "rxjs";
 import { fromPartial, runMutationOnSuccess } from "src/test-helpers";
-import { testQueryClient } from "../../../setupJest";
+import { sleep, testQueryClient } from "../../../setupJest";
 import { UtilService } from "../core/service/util.service";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { QUERY_CLIENT } from "../shared/http/query-client";
@@ -102,6 +102,114 @@ describe(ZakenService.name, () => {
         "/rest/zaken/zaak/{uuid}",
         { path: { uuid: "fakeZaakUuid1" } },
       ]);
+    });
+  });
+
+  describe("readZaak", () => {
+    const cachedZaak = fromPartial<GeneratedType<"RestZaak">>({
+      uuid: "fakeZaakUuid1",
+      omschrijving: "fakeCachedOmschrijving",
+    });
+    const serverZaak = fromPartial<GeneratedType<"RestZaak">>({
+      uuid: "fakeZaakUuid1",
+      omschrijving: "fakeServerOmschrijving",
+    });
+
+    it("asks the server even when the zaak is cached, because the taak view reads it after a change", async () => {
+      service.cacheZaak(cachedZaak);
+
+      const read = testQueryClient.query(service.readZaak("fakeZaakUuid1"));
+      await sleep();
+      httpTestingController
+        .expectOne("/rest/zaken/zaak/fakeZaakUuid1")
+        .flush(serverZaak);
+
+      await expect(read).resolves.toEqual(serverZaak);
+    });
+
+    it("writes the answer into the cache entry that the zaak view reads", async () => {
+      const read = testQueryClient.query(service.readZaak("fakeZaakUuid1"));
+      await sleep();
+      httpTestingController
+        .expectOne("/rest/zaken/zaak/fakeZaakUuid1")
+        .flush(serverZaak);
+      await read;
+
+      expect(
+        testQueryClient.getQueryData(
+          service.readZaakQuery("fakeZaakUuid1").queryKey,
+        ),
+      ).toEqual(serverZaak);
+    });
+
+    it("opens the error dialog when the read fails over a cached zaak, because the user waits on it", () => {
+      expect(service.readZaak("fakeZaakUuid1").meta).toEqual({
+        reportFailedRefetch: true,
+      });
+    });
+  });
+
+  describe("readZaakByID", () => {
+    const zaak = fromPartial<GeneratedType<"RestZaak">>({
+      uuid: "fakeZaakUuid1",
+      identificatie: "ZAAK-2026-0000000001",
+    });
+
+    async function readOnce() {
+      const read = testQueryClient.query(
+        service.readZaakByID("ZAAK-2026-0000000001"),
+      );
+      await sleep();
+      httpTestingController
+        .expectOne("/rest/zaken/zaak/id/ZAAK-2026-0000000001")
+        .flush(zaak);
+      return read;
+    }
+
+    it("asks the server every time, because a route or a document opens it once per visit", async () => {
+      await readOnce();
+      await sleep();
+
+      await expect(readOnce()).resolves.toEqual(zaak);
+    });
+
+    it("keeps no copy of the zaak after the read", async () => {
+      await readOnce();
+      await sleep();
+
+      expect(
+        testQueryClient.getQueryState(
+          service.readZaakByID("ZAAK-2026-0000000001").queryKey,
+        ),
+      ).toBeUndefined();
+    });
+  });
+
+  describe("readOpschortingZaak", () => {
+    it("opens the error dialog when a refetch fails, because the zaak view shows the opschorting of an opgeschorte zaak", () => {
+      expect(service.readOpschortingZaak("fakeZaakUuid1").meta).toEqual({
+        reportFailedRefetch: true,
+      });
+    });
+  });
+
+  describe("listBesluitenForZaak", () => {
+    it("keeps no copy of the besluiten, because the zaak view writes them into the zaak", async () => {
+      const read = testQueryClient.query(
+        service.listBesluitenForZaak("fakeZaakUuid1"),
+      );
+      await sleep();
+      httpTestingController
+        .expectOne("/rest/zaken/besluit/zaakUuid/fakeZaakUuid1")
+        .flush([]);
+      await read;
+      await sleep();
+
+      expect(
+        testQueryClient.getQueryState(
+          service.listBesluitenForZaak("fakeZaakUuid1").queryKey,
+        ),
+      ).toBeUndefined();
     });
   });
 
