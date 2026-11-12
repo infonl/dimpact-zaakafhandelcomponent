@@ -176,12 +176,7 @@ export class ZakenService {
           path: { uuid },
         }),
       ),
-      {
-        onSuccess: () => {
-          this.invalidateOpschorting(uuid);
-          this.utilService.openSnackbar("msg.zaak.opgeschort");
-        },
-      },
+      { onSuccess: () => this.utilService.openSnackbar("msg.zaak.opgeschort") },
     );
   }
 

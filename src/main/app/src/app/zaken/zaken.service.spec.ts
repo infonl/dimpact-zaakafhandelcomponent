@@ -185,24 +185,11 @@ describe(ZakenService.name, () => {
     });
   });
 
-  describe("suspendZaak", () => {
-    it("reads the opschorting again, because the zaak now has a new one", async () => {
-      const opschortingKey =
-        service.readOpschortingZaak("fakeZaakUuid1").queryKey;
-      testQueryClient.setQueryData(
-        opschortingKey,
-        fromPartial<GeneratedType<"RestZaakOpschorting">>({ duurDagen: 14 }),
-      );
-
-      await runMutationOnSuccess(
-        service.suspendZaak("fakeZaakUuid1"),
-        fromPartial({}),
-        fromPartial<GeneratedType<"RestZaak">>({ uuid: "fakeZaakUuid1" }),
-      );
-
-      expect(testQueryClient.getQueryState(opschortingKey)?.isInvalidated).toBe(
-        true,
-      );
+  describe("readOpschortingZaak", () => {
+    it("opens the error dialog when a refetch fails, because the zaak view shows the opschorting of an opgeschorte zaak", () => {
+      expect(service.readOpschortingZaak("fakeZaakUuid1").meta).toEqual({
+        reportFailedRefetch: true,
+      });
     });
   });
 
