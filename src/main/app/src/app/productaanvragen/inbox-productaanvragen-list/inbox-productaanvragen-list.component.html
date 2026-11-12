@@ -138,8 +138,7 @@
             <a
               mat-icon-button
               [routerLink]="['/informatie-objecten', row.aanvraagdocumentUUID]"
-              [attr.aria-label]="'actie.aanvraagdocument.bekijken' | translate"
-              [matTooltip]="'actie.aanvraagdocument.bekijken' | translate"
+              title="{{ 'actie.aanvraagdocument.bekijken' | translate }}"
             >
               <mat-icon>visibility</mat-icon>
             </a>
