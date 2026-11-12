@@ -9,9 +9,7 @@ import { injectQuery } from "@tanstack/angular-query-experimental";
 import { KlantenService } from "./klanten.service";
 
 export type KvkProfielAanvraag =
-  | { vestigingsnummer: string }
-  | { kvkNummer: string }
-  | null;
+  { vestigingsnummer: string } | { kvkNummer: string } | null;
 
 /**
  * The vestigingsprofiel of a vestiging, or the basisprofiel of a rechtspersoon.
@@ -62,7 +60,9 @@ export function injectKvkProfiel(aanvraag: () => KvkProfielAanvraag) {
 
   return {
     profiel,
-    adressen: computed(() => profiel()?.adressen ?? []),
+    adressen: computed(() =>
+      foutmelding() ? [] : (profiel()?.adressen ?? []),
+    ),
     foutmelding,
   };
 }

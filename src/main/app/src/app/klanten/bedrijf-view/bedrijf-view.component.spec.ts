@@ -290,6 +290,26 @@ describe(BedrijfViewComponent.name, () => {
       expectStaticText("adres", "msg.hint.kvk.other-error");
     });
 
+    it("shows the KvK error instead of the earlier fetched adressen when refetching the profiel fails", async () => {
+      await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
+
+      void TestBed.inject(QUERY_CLIENT).refetchQueries();
+      await sleep();
+      httpController
+        .expectOne(vestigingsprofielUrl)
+        .flush(null, { status: 404, statusText: "fakeNotFound" });
+      await sleep();
+      fixture.detectChanges();
+      await sleep();
+      fixture.detectChanges();
+
+      expectStaticText("adres", "msg.hint.kvk.outdated");
+      expect(screen.queryByText("bezoekadres")).not.toBeInTheDocument();
+      expect(
+        screen.queryByText("Teststraat 1, 1234AB Amsterdam"),
+      ).not.toBeInTheDocument();
+    });
+
     it("does not open the error dialog when fetching the profiel fails, so that it does not close open dialogs", async () => {
       httpController
         .expectOne(vestigingsprofielUrl)
