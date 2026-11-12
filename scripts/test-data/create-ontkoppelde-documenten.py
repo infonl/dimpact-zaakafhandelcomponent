@@ -12,12 +12,17 @@
 # then sends no notification and ZAC keeps the ontkoppelde document, as when a document disappears from
 # Open Zaak in production. Through the API, Open Notificaties would make ZAC remove it from its list.
 #
+# Before detaching, the script waits for Open Notificaties to deliver the notifications of the uploads:
+# ZAC adds a document to Inbox documenten when the notification that it was created arrives after it
+# was detached.
+#
 # Prerequisites: Python 3.10+, the local kind stack of ./start-kind.sh must be running with ZAC,
 # and kubectl on PATH for --missing.
 #
 # Usage:
 #   ./scripts/test-data/create-ontkoppelde-documenten.py [--count N] [--locked N] [--missing N]
-#                                                        [--zaaktype UUID] [--zac-url URL] [--keycloak-url URL]
+#                                                        [--wait SECONDS] [--zaaktype UUID]
+#                                                        [--zac-url URL] [--keycloak-url URL]
 #
 # Examples:
 #   ./scripts/test-data/create-ontkoppelde-documenten.py
@@ -33,6 +38,7 @@ import argparse
 import datetime
 import os
 import subprocess
+import time
 
 import zac_client
 import zac_testdata
@@ -141,6 +147,14 @@ def main() -> None:
         help="How many of them to remove from Open Zaak after detaching them (default: 0); needs kubectl",
     )
     parser.add_argument(
+        "--wait",
+        type=int,
+        default=10,
+        metavar="SECONDS",
+        help="How long to wait for Open Notificaties to deliver the upload notifications before detaching"
+        " (default: 10); use 0 when Open Notificaties does not run",
+    )
+    parser.add_argument(
         "--zaaktype",
         default=DEFAULT_ZAAKTYPE_UUID,
         metavar="UUID",
@@ -168,6 +182,10 @@ def main() -> None:
     for sequence, document_uuid in enumerate(document_uuids[: args.locked], start=1):
         lock_document(document_uuid, zaak["zaak_uuid"], token_manager, args.zac_url)
         print(f"  locked {run_id}-{sequence}")
+
+    if args.wait > 0:
+        print(f"Waiting {args.wait}s for Open Notificaties to deliver the upload notifications...")
+        time.sleep(args.wait)
 
     print("Detaching the documents...")
     for document_uuid in document_uuids:
