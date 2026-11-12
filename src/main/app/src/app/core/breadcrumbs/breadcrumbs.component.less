@@ -25,7 +25,7 @@ ol {
   padding: 0;
   list-style: none;
   font-size: 13px;
-  color: rgba(0, 0, 0, 0.6);
+  color: var(--mat-app-text-color);
 }
 
 li + li::before {
@@ -39,6 +39,10 @@ a {
 
   &:hover,
   &:focus-visible {
-    color: rgba(0, 0, 0, 0.87);
+    color: var(--mat-app-text-color);
   }
+}
+
+a zac-zaak-identificatie {
+  text-decoration: underline;
 }
