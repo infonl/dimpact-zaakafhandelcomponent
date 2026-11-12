@@ -11,6 +11,8 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import jakarta.ws.rs.NotFoundException
+import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.WebApplicationException
 import jakarta.ws.rs.core.Response
 import nl.info.client.brp.BrpClientService
@@ -20,6 +22,7 @@ import nl.info.client.brp.model.createPersoon
 import nl.info.client.brp.model.createVerblijfadresBinnenland
 import nl.info.client.brp.model.generated.Adres
 import nl.info.client.kvk.KvkClientService
+import nl.info.client.kvk.exception.KvkClientException
 import nl.info.client.kvk.model.createBasisprofiel
 import nl.info.client.kvk.model.createBasisprofielAdres
 import nl.info.client.kvk.model.createEigenaar
@@ -417,7 +420,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         }
     }
 
-    given("A zaak with an initiator of type vestiging and a KVK vestigingsprofiel call that fails") {
+    given("A zaak with an initiator of type vestiging whose vestigingsprofiel is not found at the KVK") {
         val loggedInUser = createLoggedInUser()
         val rolVestiging =
             createRolVestiging(
@@ -431,7 +434,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         every { kvkClientService.findVestiging(rolVestiging.identificatienummer!!) } returns resultaatItem
         every {
             kvkClientService.findVestigingsprofiel("fakeVestigingsnummer")
-        } throws WebApplicationException("fakeNotFound", Response.Status.NOT_FOUND)
+        } throws NotFoundException("fakeNotFound")
         stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
@@ -446,7 +449,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         }
     }
 
-    given("A zaak with an initiator of type rechtspersoon and a KVK basisprofiel call that fails") {
+    given("A zaak with an initiator of type rechtspersoon and a KVK basisprofiel call that fails with a server error") {
         val loggedInUser = createLoggedInUser()
         val kvkNummer = "fakeKvkNummer"
         val rolNietNatuurlijkPersoon =
@@ -460,7 +463,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
         every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns resultaatItem
-        every { kvkClientService.findBasisprofiel(kvkNummer) } throws RuntimeException("fakeServerError")
+        every { kvkClientService.findBasisprofiel(kvkNummer) } throws KvkClientException("fakeServerError")
         stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
@@ -471,6 +474,94 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
 
             then("the aanvrager data has the name of the rechtspersoon and no address, so that a document can still be created") {
                 data.aanvragerData shouldBe AanvragerData(naam = resultaatItem.naam)
+            }
+        }
+    }
+
+    given("A zaak with an initiator of type rechtspersoon and a KVK basisprofiel call that fails with a client error") {
+        val loggedInUser = createLoggedInUser()
+        val kvkNummer = "fakeKvkNummer"
+        val rolNietNatuurlijkPersoon =
+            createRolNietNatuurlijkPersoon(
+                rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR),
+                nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(kvkNummer = kvkNummer)
+            )
+        val zaakType = createZaakType()
+        val zaak = createZaak(zaaktypeUri = zaakType.url)
+        val resultaatItem = createResultaatItem(kvkNummer = kvkNummer, vestingsnummer = null)
+
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
+        every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns resultaatItem
+        every { kvkClientService.findBasisprofiel(kvkNummer) } throws WebApplicationException("fakeForbidden", Response.Status.FORBIDDEN)
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
+
+        `when`("SmartDocuments data is created") {
+            val data = documentCreationDataService.createData(
+                loggedInUser = loggedInUser,
+                zaak = zaak
+            )
+
+            then("the aanvrager data has the name of the rechtspersoon and no address, so that a document can still be created") {
+                data.aanvragerData shouldBe AanvragerData(naam = resultaatItem.naam)
+            }
+        }
+    }
+
+    given("A zaak with an initiator of type rechtspersoon and a KVK basisprofiel call that cannot reach the KVK") {
+        val loggedInUser = createLoggedInUser()
+        val kvkNummer = "fakeKvkNummer"
+        val rolNietNatuurlijkPersoon =
+            createRolNietNatuurlijkPersoon(
+                rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR),
+                nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(kvkNummer = kvkNummer)
+            )
+        val zaakType = createZaakType()
+        val zaak = createZaak(zaaktypeUri = zaakType.url)
+        val resultaatItem = createResultaatItem(kvkNummer = kvkNummer, vestingsnummer = null)
+
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
+        every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns resultaatItem
+        every { kvkClientService.findBasisprofiel(kvkNummer) } throws ProcessingException("fakeTimeout")
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
+
+        `when`("SmartDocuments data is created") {
+            val data = documentCreationDataService.createData(
+                loggedInUser = loggedInUser,
+                zaak = zaak
+            )
+
+            then("the aanvrager data has the name of the rechtspersoon and no address, so that a document can still be created") {
+                data.aanvragerData shouldBe AanvragerData(naam = resultaatItem.naam)
+            }
+        }
+    }
+
+    given("A zaak with an initiator of type rechtspersoon and a KVK basisprofiel call that fails unexpectedly") {
+        val loggedInUser = createLoggedInUser()
+        val kvkNummer = "fakeKvkNummer"
+        val rolNietNatuurlijkPersoon =
+            createRolNietNatuurlijkPersoon(
+                rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR),
+                nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(kvkNummer = kvkNummer)
+            )
+        val zaakType = createZaakType()
+        val zaak = createZaak(zaaktypeUri = zaakType.url)
+        val resultaatItem = createResultaatItem(kvkNummer = kvkNummer, vestingsnummer = null)
+
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
+        every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns resultaatItem
+        every { kvkClientService.findBasisprofiel(kvkNummer) } throws IllegalStateException("fakeUnexpectedError")
+
+        `when`("SmartDocuments data is created") {
+            val illegalStateException = shouldThrow<IllegalStateException> {
+                documentCreationDataService.createData(
+                    loggedInUser = loggedInUser,
+                    zaak = zaak
+                )
+            }
+
+            then("the error is not suppressed, so that an unexpected failure is not hidden") {
+                illegalStateException.message shouldBe "fakeUnexpectedError"
             }
         }
     }

@@ -5,11 +5,15 @@
 package nl.info.zac.documentcreation
 
 import jakarta.inject.Inject
+import jakarta.ws.rs.NotFoundException
+import jakarta.ws.rs.ProcessingException
+import jakarta.ws.rs.WebApplicationException
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.model.generated.Adres
 import nl.info.client.brp.model.generated.Persoon
 import nl.info.client.brp.model.generated.VerblijfadresBinnenland
 import nl.info.client.kvk.KvkClientService
+import nl.info.client.kvk.exception.KvkClientException
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.smartdocuments.model.document.AanvragerData
@@ -165,18 +169,32 @@ class DocumentCreationDataService @Inject constructor(
             ?.let(::createAanvragerDataBedrijf)
     }
 
-    @Suppress("TooGenericExceptionCaught")
     private fun createAanvragerDataBedrijf(resultaatItem: ResultaatItem) =
         try {
             findAanvragerDataBedrijfWithAdres(resultaatItem)
-        } catch (runtimeException: RuntimeException) {
+        } catch (notFoundException: NotFoundException) {
             LOG.log(
-                Level.WARNING,
-                "Could not read the KVK profiel of the aanvrager, so the aanvrager is sent without an address",
-                runtimeException
+                Level.INFO,
+                "The KVK profiel of the aanvrager was not found, so the aanvrager is sent without an address",
+                notFoundException
             )
             null
+        } catch (webApplicationException: WebApplicationException) {
+            logKvkProfielFailure(webApplicationException)
+        } catch (kvkClientException: KvkClientException) {
+            logKvkProfielFailure(kvkClientException)
+        } catch (processingException: ProcessingException) {
+            logKvkProfielFailure(processingException)
         } ?: AanvragerData(naam = resultaatItem.naam)
+
+    private fun logKvkProfielFailure(exception: RuntimeException): AanvragerData? {
+        LOG.log(
+            Level.WARNING,
+            "Could not read the KVK profiel of the aanvrager, so the aanvrager is sent without an address",
+            exception
+        )
+        return null
+    }
 
     private fun findAanvragerDataBedrijfWithAdres(resultaatItem: ResultaatItem): AanvragerData? {
         val vestigingsnummer = resultaatItem.vestigingsnummer
