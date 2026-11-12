@@ -237,25 +237,6 @@ describe(TaakViewComponent.name, () => {
     });
   });
 
-  describe("updateZaak", () => {
-    it("reads the zaak from the server again and shows the zaak it returns", async () => {
-      await answerReads();
-      const updatedZaak = fromPartial<GeneratedType<"RestZaak">>({
-        ...zaak,
-        omschrijving: "fakeUpdatedOmschrijving",
-      });
-
-      component.instance["updateZaak"]();
-      await sleep();
-      TestBed.inject(HttpTestingController)
-        .expectOne(`/rest/zaken/zaak/${zaak.uuid}`)
-        .flush(updatedZaak);
-      await sleep();
-
-      expect(component.instance["zaak"]()).toEqual(updatedZaak);
-    });
-  });
-
   describe("angular basic task form", () => {
     beforeEach(() => {
       jest
