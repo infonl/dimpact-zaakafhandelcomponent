@@ -115,8 +115,9 @@ export class TakenService {
     if (this.router.parseUrl(this.router.url).queryParams["bron"] === "email")
       return;
 
+    // A crumb without a history key is the parent route of a taak opened directly or from search, not a visited page
     const origin = findOrigin(this.location);
-    return origin
+    return origin?.key
       ? navigateToBreadcrumb(origin, this.router)
       : this.router.navigateByUrl("/");
   }

@@ -197,14 +197,28 @@ describe(TakenService.name, () => {
       jest.spyOn(router, "url", "get").mockReturnValue("/taken/1");
       TestBed.inject(Location).replaceState("/taken/1", "", {
         navigationTrail: [
-          { title: "ZAAK-1", url: "/zaken/ZAAK-1" },
-          { title: "Taak", url: "/taken/1" },
+          { title: "ZAAK-1", url: "/zaken/ZAAK-1", key: "zaak-entry" },
+          { title: "Taak", url: "/taken/1", key: "taak-entry" },
         ],
       });
 
       await runMutationOnSuccess(mutationOptions(service), taak);
 
       expect(router.navigateByUrl).toHaveBeenCalledWith("/zaken/ZAAK-1");
+    });
+
+    it("goes to the dashboard when the taak was opened directly or from search, because the page before it in the trail is only its parent route", async () => {
+      jest.spyOn(router, "url", "get").mockReturnValue("/taken/1");
+      TestBed.inject(Location).replaceState("/taken/1", "", {
+        navigationTrail: [
+          { title: "Taken", url: "/taken" },
+          { title: "Taak", url: "/taken/1", key: "taak-entry" },
+        ],
+      });
+
+      await runMutationOnSuccess(mutationOptions(service), taak);
+
+      expect(router.navigateByUrl).toHaveBeenCalledWith("/");
     });
 
     it("goes to the dashboard when the navigation trail has no page before the taak", async () => {
