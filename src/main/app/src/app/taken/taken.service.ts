@@ -89,9 +89,9 @@ export class TakenService {
     return mergeMutationOptions(
       this.zacQueryClient.PUT("/rest/taken/taakdata"),
       {
-        onSuccess: () => {
+        onSuccess: (_, taak) => {
           this.utilService.openSnackbar("msg.taak.opgeslagen");
-          void this.leaveTaak();
+          void this.leaveTaak(taak);
         },
       },
     );
@@ -101,15 +101,17 @@ export class TakenService {
     return mergeMutationOptions(
       this.zacQueryClient.PATCH("/rest/taken/complete"),
       {
-        onSuccess: () => {
+        onSuccess: (_, taak) => {
           this.utilService.openSnackbar("msg.taak.afgerond");
-          void this.leaveTaak();
+          void this.leaveTaak(taak);
         },
       },
     );
   }
 
-  private leaveTaak() {
+  private leaveTaak({ zaakUuid }: GeneratedType<"RestTask">) {
+    this.invalidateWerklijsten(zaakUuid);
+
     if (this.router.parseUrl(this.router.url).queryParams["bron"] === "email")
       return;
 
@@ -117,6 +119,16 @@ export class TakenService {
     return origin
       ? navigateToBreadcrumb(origin, this.router)
       : this.router.navigateByUrl("/");
+  }
+
+  private invalidateWerklijsten(zaakUuid: string) {
+    void this.queryClient.invalidateQueries({
+      queryKey: ["/rest/zoeken/list"],
+    });
+    void this.queryClient.invalidateQueries({
+      queryKey: ["/rest/signaleringen/taken/{type}"],
+    });
+    void this.invalidateTakenVoorZaak(zaakUuid);
   }
 
   verdelenVanuitLijst() {
