@@ -49,3 +49,6 @@ None.
   completing then commit the index: Solr's auto soft commit makes a change searchable only after 3 seconds, and
   the frontend reloads the werklijst right away.
 - **REST API, OPA**: no change.
+- **Accepted risk**: when converting the taak for the index fails (for example an Open Zaak lookup), ZAC logs a
+  warning and the save still succeeds, as when assigning a taak. A failed Solr write does fail the request. Failing
+  the request after the taak is saved would tell the user the save failed, which it did not.
