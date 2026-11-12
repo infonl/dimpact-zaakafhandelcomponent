@@ -18,6 +18,10 @@ for saving to behave like completing.
   | Direct link | Dashboard |
   | Search | Dashboard |
 
+- A taak opened from a direct link or from search goes to the dashboard again, after completing too. Since the
+  breadcrumbs ([#7411](https://github.com/infonl/dimpact-zaakafhandelcomponent/pull/7411)) its trail starts with
+  the parent route *Taken*, which redirects to the takenwerkvoorraad. ZAC now only returns to a page the user
+  visited.
 - The werklijst the user returns to reads its data again, so it shows the saved or completed taak instead of a
   cached copy from before ([PZ-13506](https://dimpact.atlassian.net/browse/PZ-13506)). This applies after
   completing a taak too.

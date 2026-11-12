@@ -2,9 +2,12 @@
 
 ### Requirement: Saving or completing a taak returns the user to where the taak was opened from
 
-After a taak is saved or completed successfully, ZAC SHALL navigate to the page before the taak in the navigation
-trail. When the trail has no page before the taak, ZAC SHALL navigate to the dashboard. When the taak was opened
-from a link in an e-mail, ZAC SHALL stay on the taak.
+After a taak is saved or completed successfully, ZAC SHALL apply the first of these rules that matches:
+
+1. When the taak was opened from a link in an e-mail, ZAC SHALL stay on the taak.
+2. When the user visited a page before the taak in the navigation trail, ZAC SHALL navigate to that page.
+3. Otherwise ZAC SHALL navigate to the dashboard. This includes a taak opened from a direct link or from the search
+   panel: the trail then shows only the parent route of the taak, which the user did not visit.
 
 #### Scenario: Saving a taak opened from a zaak
 - **GIVEN** a taak opened from its zaak
