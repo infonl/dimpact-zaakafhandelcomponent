@@ -45,5 +45,7 @@ None.
   werklijst queries stale.
 - **Docs**: gebruikershandleiding, *Inzien en behandelen van taken*.
 - **Backend**: `TaskRestService.updateTaskData` reindexes the taak in Solr, as assigning a taak already does.
-  Saving did not update the index, so a werklijst kept showing the old toelichting and fatale datum.
+  Saving did not update the index, so a werklijst kept showing the old toelichting and fatale datum. Saving and
+  completing then commit the index: Solr's auto soft commit makes a change searchable only after 3 seconds, and
+  the frontend reloads the werklijst right away.
 - **REST API, OPA**: no change.
