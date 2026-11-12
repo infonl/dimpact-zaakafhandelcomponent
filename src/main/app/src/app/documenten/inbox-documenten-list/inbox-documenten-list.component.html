@@ -102,29 +102,33 @@
                     '/informatie-objecten',
                     row.enkelvoudiginformatieobjectUUID,
                   ]"
-                  title="{{ 'actie.document.bekijken' | translate }}"
+                  [attr.aria-label]="'actie.document.bekijken' | translate"
+                  [matTooltip]="'actie.document.bekijken' | translate"
                 >
                   <mat-icon>visibility</mat-icon>
                 </a>
                 <a
                   mat-icon-button
-                  [disabled]="row.enkelvoudiginformatieobjectUUID"
+                  [disabled]="!row.enkelvoudiginformatieobjectUUID"
                   [href]="getDownloadURL(row)"
-                  title="{{ 'actie.downloaden' | translate }}"
+                  [attr.aria-label]="'actie.downloaden' | translate"
+                  [matTooltip]="'actie.downloaden' | translate"
                 >
                   <mat-icon>download</mat-icon>
                 </a>
                 <button
                   mat-icon-button
                   (click)="documentVerwijderen(row)"
-                  title="{{ 'actie.verwijderen' | translate }}"
+                  [attr.aria-label]="'actie.verwijderen' | translate"
+                  [matTooltip]="'actie.verwijderen' | translate"
                 >
                   <mat-icon>delete</mat-icon>
                 </button>
                 <button
                   mat-icon-button
                   (click)="openDrawer(row)"
-                  title="{{ 'actie.document.koppelen' | translate }}"
+                  [attr.aria-label]="'actie.document.koppelen' | translate"
+                  [matTooltip]="'actie.document.koppelen' | translate"
                 >
                   <mat-icon>link</mat-icon>
                 </button>

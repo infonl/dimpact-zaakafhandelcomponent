@@ -316,12 +316,14 @@ describe(InboxDocumentenListComponent.name, () => {
     await setup();
     await showDocuments([inboxDocument]);
 
-    expect(
-      within(documentRow()).getByRole("link", { name: "actie.downloaden" }),
-    ).toHaveAttribute(
+    const downloadLink = within(documentRow()).getByRole("link", {
+      name: "actie.downloaden",
+    });
+    expect(downloadLink).toHaveAttribute(
       "href",
       "/rest/informatieobjecten/informatieobject/fakeDocumentUuid/download",
     );
+    expect(downloadLink).not.toHaveAttribute("aria-disabled", "true");
   });
 
   it("offers no download for a document without an informatieobject", async () => {

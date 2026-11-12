@@ -135,33 +135,39 @@
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let row; dataSource: dataSource">
           <div class="flex-row">
-            @if (werklijstRechten()?.canInboxProductaanvragenVerwijderen) {
-              <button
-                mat-icon-button
-                (click)="inboxProductaanvragenVerwijderen(row)"
-                title="{{ 'actie.verwijderen' | translate }}"
-              >
-                <mat-icon>delete</mat-icon>
-              </button>
-            }
             <a
               mat-icon-button
               [routerLink]="['/informatie-objecten', row.aanvraagdocumentUUID]"
-              title="{{ 'actie.aanvraagdocument.bekijken' | translate }}"
+              [attr.aria-label]="'actie.aanvraagdocument.bekijken' | translate"
+              [matTooltip]="'actie.aanvraagdocument.bekijken' | translate"
             >
               <mat-icon>visibility</mat-icon>
             </a>
             <a
               mat-icon-button
               [href]="getDownloadURL(row)"
-              title="{{ 'actie.aanvraagdocument.downloaden' | translate }}"
+              [attr.aria-label]="
+                'actie.aanvraagdocument.downloaden' | translate
+              "
+              [matTooltip]="'actie.aanvraagdocument.downloaden' | translate"
             >
               <mat-icon>download</mat-icon>
             </a>
+            @if (werklijstRechten()?.canInboxProductaanvragenVerwijderen) {
+              <button
+                mat-icon-button
+                (click)="inboxProductaanvragenVerwijderen(row)"
+                [attr.aria-label]="'actie.verwijderen' | translate"
+                [matTooltip]="'actie.verwijderen' | translate"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
             <button
               (click)="aanmakenZaak(row)"
               mat-icon-button
-              title="{{ 'actie.zaak.aanmaken' | translate }}"
+              [attr.aria-label]="'actie.zaak.aanmaken' | translate"
+              [matTooltip]="'actie.zaak.aanmaken' | translate"
             >
               <mat-icon>create_new_folder</mat-icon>
             </button>
