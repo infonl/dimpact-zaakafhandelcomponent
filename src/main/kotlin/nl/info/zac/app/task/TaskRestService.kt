@@ -169,6 +169,9 @@ class TaskRestService @Inject constructor(
             taakVariabelenService.setTaskInformation(it, restTask.taakinformatie)
             val updatedTask = updateDescriptionAndDueDate(restTask)
             indexingService.addOrUpdateTaak(updatedTask.id)
+            // The frontend reloads the werklijst right away,
+            // but Solr's auto soft commit makes the change searchable only after 3 seconds
+            indexingService.commit()
             eventingService.send(ScreenEventType.TAAK.updated(updatedTask))
             eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
             return restTask
@@ -266,6 +269,8 @@ class TaskRestService @Inject constructor(
 
         return flowableTaskService.completeTask(updatedTask).also {
             indexingService.addOrUpdateZaakOrThrow(restTask.zaakUuid, false)
+            // Also makes the removal of the completed task from the index searchable before the werklijst reloads
+            indexingService.commit()
             eventingService.send(ScreenEventType.TAAK.updated(it))
             eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
             eventingService.send(signaleringEvent(SignaleringType.Type.TAAK_AFGEROND, it, loggedInUserInstance.get()))
