@@ -15,5 +15,5 @@
 
 ## 3. Backend
 
-- [ ] 3.1 `TaskRestService.updateTaskData` reindexes the taak, with a unit test.
-- [ ] 3.2 `TaskRestService.updateTaskData` and `completeTask` commit the index before they return, with unit tests.
+- [x] 3.1 `TaskRestService.updateTaskData` reindexes the taak, with a unit test.
+- [x] 3.2 `TaskRestService.updateTaskData` and `completeTask` commit the index before they return, with unit tests.
