@@ -278,6 +278,14 @@ class TaskRestServiceTest : BehaviorSpec({
                         indexingService.softCommit()
                     }
                 }
+
+                then("the screen events are sent before the task is reindexed, so other views refresh even if indexing fails") {
+                    verifyOrder {
+                        eventingService.send(any<ScreenEvent>())
+                        eventingService.send(any<ScreenEvent>())
+                        indexingService.addOrUpdateTaak(task.id)
+                    }
+                }
             }
         }
         given("task data without a task id") {
