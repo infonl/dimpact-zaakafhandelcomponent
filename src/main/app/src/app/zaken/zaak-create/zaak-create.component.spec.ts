@@ -25,7 +25,7 @@ import {
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
-import { screen, waitFor } from "@testing-library/angular";
+import { screen, waitFor, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { sleep } from "../../../../setupJest";
@@ -616,6 +616,14 @@ describe(ZaakCreateComponent.name, () => {
 
   it("insets the form as a page", () => {
     expect(sidenavContainer()).toHaveClass("p-2");
+  });
+
+  it("does not repeat the page title, because the page header above the breadcrumbs shows it", () => {
+    expect(
+      within(fixture.nativeElement).queryByRole("heading", {
+        name: "actie.zaak.aanmaken",
+      }),
+    ).not.toBeInTheDocument();
   });
 
   describe("communication channel", () => {
