@@ -151,13 +151,13 @@ class ZaakHistoryServiceTest : BehaviorSpec({
         `when`("the zaak history is listed") {
             val historyLines = zaakHistoryService.getZaakHistory(zaakUUID)
 
-            then("the marking is shown as linked with 'Zaakspecifiek geautoriseerd' as new value and the reden") {
+            then("the marking is shown as linked under the translatable label 'zaakspecifiekGeautoriseerd' with the reden") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
-                    attributeLabel shouldBe "zaakeigenschap"
+                    attributeLabel shouldBe "zaakspecifiekGeautoriseerd"
                     action shouldBe HistoryAction.GEKOPPELD
                     oldValue shouldBe null
-                    newValue shouldBe "Zaakspecifiek geautoriseerd"
+                    newValue shouldBe null
                     explanation shouldBe "fakeReden"
                 }
             }
@@ -187,8 +187,9 @@ class ZaakHistoryServiceTest : BehaviorSpec({
         `when`("the zaak history is listed") {
             val historyLines = zaakHistoryService.getZaakHistory(zaakUUID)
 
-            then("the line has no new value, as before") {
+            then("the line keeps the label 'zaakeigenschap' and has no new value, as before") {
                 historyLines.size shouldBe 1
+                historyLines.first().attributeLabel shouldBe "zaakeigenschap"
                 historyLines.first().newValue shouldBe null
             }
         }

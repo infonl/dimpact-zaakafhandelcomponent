@@ -47,7 +47,7 @@ private const val RESOURCE_ZAAKOBJECT = "zaakobject"
 private const val RESOURCE_EXTENSION = "verlenging"
 private const val RESOURCE_SUSPENSION = "opschorting"
 
-private const val ZAAKSPECIFIEK_GEAUTORISEERD = "Zaakspecifiek geautoriseerd"
+private const val ATTRIBUTE_LABEL_ZAAKSPECIFIEK_GEAUTORISEERD = "zaakspecifiekGeautoriseerd"
 
 private val ZAAK_LINK_ATTRIBUTES = setOf(RESOURCE_HOOFDZAAK, RESOURCE_GERELATEERDE_ZAKEN)
 
@@ -138,6 +138,8 @@ class ZaakHistoryService @Inject constructor(
         RESOURCE_ZAAKOBJECT -> obj.getTypedValue(Zaakobject::class.java)
             ?.let(::getObjectType)
             ?.let { "objecttype.$it" }
+        RESOURCE_ZAAKEIGENSCHAP if obj.stringProperty(RESOURCE_NAAM) == ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD ->
+            ATTRIBUTE_LABEL_ZAAKSPECIFIEK_GEAUTORISEERD
         else -> resource
     }
 
@@ -145,9 +147,6 @@ class ZaakHistoryService @Inject constructor(
         when (resource) {
             RESOURCE_ZAAK -> obj.stringProperty(RESOURCE_IDENTIFICATIE)
             RESOURCE_ROL -> obj.getTypedValue(Rol::class.java)?.naam
-            RESOURCE_ZAAKEIGENSCHAP -> obj.stringProperty(RESOURCE_NAAM)
-                ?.takeIf { it == ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD }
-                ?.let { ZAAKSPECIFIEK_GEAUTORISEERD }
             RESOURCE_ZAAKINFORMATIEOBJECT -> obj.stringProperty(RESOURCE_ITEL)
             RESOURCE_KLANTCONTACT -> resourceWeergave
             RESOURCE_RESULTAAT -> obj.stringProperty(RESOURCE_RESULTAATTYPE)

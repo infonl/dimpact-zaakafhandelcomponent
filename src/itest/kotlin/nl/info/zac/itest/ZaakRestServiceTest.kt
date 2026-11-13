@@ -1532,7 +1532,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                and("the zaak history shows the marking with 'Zaakspecifiek geautoriseerd' as new value and the reden") {
+                and("the zaak history shows the marking under the label 'zaakspecifiekGeautoriseerd' with the reden") {
                     val response = itestHttpClient.performGetRequest(
                         url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/historie",
                         testUser = BEHANDELAAR_1
@@ -1540,10 +1540,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                     response.code shouldBe HTTP_OK
                     val markingEntry = JSONArray(response.bodyAsString)
                         .run { (0 until length()).map(::getJSONObject) }
-                        .single { it.getString("attribuutLabel") == "zaakeigenschap" }
+                        .single { it.getString("attribuutLabel") == "zaakspecifiekGeautoriseerd" }
                     markingEntry.getString("actie") shouldBe "GEKOPPELD"
                     markingEntry.isNull("oudeWaarde") shouldBe true
-                    markingEntry.getString("nieuweWaarde") shouldBe "Zaakspecifiek geautoriseerd"
+                    markingEntry.isNull("nieuweWaarde") shouldBe true
                     markingEntry.getString("toelichting") shouldBe "fakeReason"
                 }
 
