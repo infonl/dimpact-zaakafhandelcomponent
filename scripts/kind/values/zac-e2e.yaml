@@ -1,0 +1,13 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+
+# The settings of ZAC for the end-to-end tests: ZAC calls the test doubles of './start-kind.sh -t' where
+# values/zac.yaml has a real or a placeholder URL. Pass this file to the stack with KIND_ZAC_VALUES.
+
+bagApi:
+  url: http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/
+
+kvkApi:
+  url: http://kvk-wiremock:8080

@@ -10,7 +10,6 @@ on:
       - "charts/zac/**"
       - "scripts/kind/**"
       - "src/e2e/**"
-      - "start-e2e.sh"
       - "start-e2e-with-local-env.sh"
       - "start-kind.sh"
   workflow_dispatch:
@@ -59,8 +58,9 @@ jobs:
       - name: Start the kind stack in the background
         env:
           KIND_ENV_FILE: ""
+          KIND_ZAC_VALUES: scripts/kind/values/zac-e2e.yaml
         run: |
-          nohup sh -c './start-kind.sh -z -e; echo $? > "$RUNNER_TEMP/kind-exit-code"' \
+          nohup sh -c './start-kind.sh -z -t -e; echo $? > "$RUNNER_TEMP/kind-exit-code"' \
             < /dev/null > "$RUNNER_TEMP/kind.log" 2>&1 &
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -72,7 +72,13 @@ jobs:
         run: |
           cd src/e2e
           npm ci --ignore-scripts
-          npx playwright install --with-deps msedge
+          npx playwright install --with-deps chromium
+
+      - name: Check the types and lint the e2e tests
+        run: |
+          cd src/e2e
+          npm run typecheck
+          npm run lint
 
       - name: Wait for the kind stack
         timeout-minutes: 30
@@ -83,24 +89,15 @@ jobs:
 
       - name: Run the e2e tests
         env:
-          HEADLESS: true
           SKIP_INSTALL: true
         run: ./start-e2e-with-local-env.sh
 
-      - name: Make a playwright report
-        if: ${{ !cancelled() }}
-        run: cd src/e2e && npm run e2e:generate:report
-
-      - name: Extract metrics from Cucumber report
-        if: ${{ !cancelled() }}
-        run: cd src/e2e && npm run e2e:extract:metrics
-
-      - name: Upload the e2e reports
+      - name: Upload the Playwright report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: e2e-kind-reports
-          path: src/e2e/reports
+          name: e2e-kind-playwright-report
+          path: src/e2e/playwright-report
           retention-days: 7
 
       - name: Collect the state and the logs of the kind stack

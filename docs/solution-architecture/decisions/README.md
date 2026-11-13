@@ -22,6 +22,8 @@ and its consequences. See [ADR-0007](0007-record-architecture-decisions-in-git-a
 | [0012](0012-use-helm-unittest-for-unit-tests-of-the-helm-chart.md) | Use helm-unittest for unit tests of the Helm chart | accepted | CI tests the rendered templates of the Helm chart with helm-unittest, without a cluster. |
 | [0013](0013-publish-the-helm-chart-on-gh-pages-without-github-releases.md) | Publish the Helm chart on gh-pages without GitHub releases | proposed | The chart packages are on the `gh-pages` branch; publishing the chart creates a tag but no release. |
 | [0014](0014-keep-only-release-tags-and-releases.md) | Keep only release tags and releases | proposed | Only sprint, hotfix and deployed releases, plus the chart tags, are kept; a weekly check enforces it. |
+| [0016](0016-use-playwright-bdd-as-the-only-runner-of-the-end-to-end-tests.md) | Use playwright-bdd as the only runner of the end-to-end tests | accepted | playwright-bdd replaces cucumber-js; a legacy feature is deleted when its scenarios are replaced. |
+| [0017](0017-select-the-target-of-the-end-to-end-tests-with-a-checked-in-profile.md) | Select the target of the end-to-end tests with a checked-in profile | accepted | `E2E_TARGET` selects a profile without secrets; the kind stack needs no configuration. |
 
 ## When to write an ADR
 
