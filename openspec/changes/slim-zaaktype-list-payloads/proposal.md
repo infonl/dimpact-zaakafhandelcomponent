@@ -8,6 +8,11 @@ fill its dropdown. The two admin lists, Inrichtingscheck and Zaakafhandelparamet
 tables do not show. With many zaaktypes this makes the responses large and the pages slow (PZ-13414, epic
 PZ-12602 Schaalbaarheid & Performance).
 
+A measurement with 200 zaaktypes (see "Measurements" in design.md) showed a second cause. The three lists read the
+configuration of every zaaktype, and the cache of zaaktype configurations holds only 20 of them. With more than 20
+zaaktypes, each request for a list reads almost all configurations from the database again. This takes 0.3 to 0.6
+seconds per request, and smaller responses do not change it.
+
 ## What Changes
 
 - **BREAKING (internal API)** `GET /rest/zaaktypen?startbaar=true` replaces `GET /rest/zaken/zaaktypes-for-creation`,
@@ -25,6 +30,8 @@ PZ-12602 Schaalbaarheid & Performance).
 - **BREAKING (internal API)** `GET /rest/zaakafhandelparameters` returns a list item per zaaktype with only the
   fields that the Zaakafhandelparameters table shows and filters on. `GET /rest/zaakafhandelparameters/{uuid}`
   and `PUT /rest/zaakafhandelparameters/{uuid}` keep the full `RestZaaktypeConfiguration`.
+- The cache of zaaktype configurations holds 2000 configurations instead of 20, and an entry expires one hour
+  after it was read from the database instead of one hour after its last use.
 - Zaak aanmaken, gekoppelde zaak aanmaken, Inrichtingscheck and Zaakafhandelparameters work as before for the
   user.
 - Only this repository calls these endpoints, so no external client breaks.
@@ -47,6 +54,8 @@ PZ-12602 Schaalbaarheid & Performance).
   `ZaaktypeConfigurationRestService.listZaaktypeConfigurations`, new REST models and their converters.
   `RestZaaktype`, `RestZaaktypeConverter`, `RestZaaktypeOverzicht` and `RestZaaktypeConfiguration` stay, because the
   zaak detail, the koppelen zaaktype list and the configuration edit page still use them.
+- Backend: the limits of the cache in `ZaaktypeConfigurationService`. Every reader of a zaaktype configuration
+  uses this cache, so the change also affects the zaak detail, tasks and plan items.
 - Generated OpenAPI spec and the generated frontend types.
 - Frontend: `ZakenService`, `ZaakCreateComponent`, `zaak-create-koppeling.ts`, `ZaakLinkComponent`,
   `InrichtingscheckComponent`, `ParametersComponent` and their specs.

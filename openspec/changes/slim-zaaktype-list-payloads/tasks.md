@@ -61,3 +61,12 @@
       run.
 - [ ] 2.10 Run `./gradlew spotlessApply detektApply detekt test` and `npm run lint` and `npx ngc -p tsconfig.app.json
       --noEmit` in `src/main/app`, and fix what they report.
+
+## 3. Layer `configuration-cache`: the cache of zaaktype configurations
+
+- [ ] 3.1 Set the limit of the caches in `ZaaktypeConfigurationService` to 2000 entries and let an entry expire one
+      hour after it was written (design D7). Verify with a unit test in `ZaaktypeConfigurationServiceTest` that the
+      configurations of 500 zaaktypes, each found twice, are each read from the database only once.
+- [ ] 3.2 Measure the three lists against a local stack with 200 zaaktypes, before and after the change, and
+      record the response times under "Measurements" in design.md.
+- [ ] 3.3 Run `./gradlew spotlessApply detektApply detekt test`, and fix what they report.

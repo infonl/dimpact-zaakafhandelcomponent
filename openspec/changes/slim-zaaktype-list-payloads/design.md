@@ -35,7 +35,10 @@ are.
 **Non-Goals:**
 - `GET /rest/zaken/gekoppelde-zaken/zaaktypen` also sends full `RestZaaktype` items. PZ-13414 does not name it.
   It is a candidate for a follow-up item with the same approach.
-- Paging of these lists, or caching on the server.
+- Paging of these lists, or a new cache on the server. D7 only changes the limits of the existing cache of
+  zaaktype configurations.
+- Loading the configurations of all zaaktypes in one query, or fewer eager relations on `ZaaktypeConfiguration`.
+  Both make a cache miss cheaper; with D7 a list has almost no cache misses.
 - A repository-wide convention for list payloads. This change does not add one, so it adds no ADR.
 - Changes to `RestZaaktype`, `RestZaaktypeConverter`, `RestZaaktypeOverzicht` or `RestZaaktypeConfiguration`.
 
@@ -103,12 +106,14 @@ inclusiefRelaties = false)`, which caches per request, and skips `isZaakspecifie
 and the other settings. The list therefore does fewer ZTC lookups as well as sending less data. `isValide` keeps
 using `ZaaktypeConfiguration.isValidForZaakCreation()`, so it agrees with the health check.
 
-### D5. Two code layers, split by screen
+### D5. Three code layers: two split by screen, one for the cache
 
 Layer 1 changes the two admin lists, backend and frontend together. Layer 2 changes zaak creation, backend and
 frontend together. Each endpoint change alters the generated frontend types, so a backend-only layer would not
 compile the frontend. The split by screen keeps the small, mechanical admin change apart from the zaak creation
-change, which moves logic in the form to the moment the settings arrive.
+change, which moves logic in the form to the moment the settings arrive. Layer 3 changes the limits of the cache
+of zaaktype configurations (D7). It is apart from the other two because it changes no endpoint and affects every
+reader of a zaaktype configuration.
 
 ### D6. The zaaktype choice is served from `/rest/zaaktypen`
 
@@ -125,7 +130,84 @@ The other endpoints that serve zaaktype data, such as `/zaken/statustypes/{zaakt
 *Alternative:* keep `/rest/zaken/zaaktypes-for-creation` and add the read under it. Rejected: it names a resource
 after the form that reads it, and a later move to `/rest/zaaktypen` would break the new read again.
 
+### D7. The cache of zaaktype configurations holds 2000 entries that expire after write
+
+`ZaaktypeConfigurationService` caches configurations by zaaktype UUID, with a limit of 20 entries. The three lists
+read the configuration of every zaaktype of the catalogus. With more zaaktypes than the limit, each request evicts
+and reads almost all configurations again (see "Measurements"). The limit becomes 2000.
+
+- A cached configuration takes about 5.3 kB, so a full cache takes about 11 MB. The limit is a maximum; the cache
+  holds only the configurations that were read.
+- Each version of a zaaktype has its own UUID and its own configuration, so the number of entries grows with each
+  new version of a zaaktype. 2000 leaves room for that; 1000 costs 5 MB less at most, and gives the same response
+  times until a catalogus has more than 1000 zaaktype versions.
+
+The expiry changes from one hour after the last use to one hour after the entry was read from the database.
+`evict` removes an entry only from the cache of the ZAC instance that saved the configuration. With a limit of 20,
+the lists removed an old entry from the other instances almost at once, by accident. With a limit of 2000 and
+expiry after the last use, an entry that is read regularly would never expire on another instance.
+
+*Alternative:* read all configurations in one query for the lists. Rejected for this change: it needs a new
+repository query and a second code path next to the cache, and the measurement shows that the larger cache
+already removes almost all of the time.
+
+*Alternative:* a cache without a limit. Rejected: the limit keeps the memory use bounded when old zaaktype
+versions accumulate.
+
+## Measurements
+
+Measured on a local kind stack with 200 generated zaaktypes with zaakafhandelparameters, next to the zaaktypes of
+the seed data (209 to 211 list items). "Before" is the commit that this change is based on (`a250ffcc25`), "after"
+is layer 2, and "with D7" is layer 3. A k6 script requested each list 50 times with one user, after a discarded
+warm-up run; ZAC was restarted with the image under test before each run.
+
+Response size per list, uncompressed and with gzip level 2 (the level of nginx in the Helm chart):
+
+| List                                    | Before         | After          | Gzip before | Gzip after      |
+|-----------------------------------------|----------------|----------------|-------------|-----------------|
+| Zaak aanmaken, list                     | 879,306 bytes  | 17,493 bytes (-98%) | 38,429 bytes | 5,540 bytes (-86%) |
+| Zaak aanmaken, chosen zaaktype (new)    | -              | 225 bytes      | -           | 188 bytes       |
+| Inrichtingscheck                        | 216,199 bytes  | 184,996 bytes (-14%) | 9,894 bytes | 8,769 bytes (-11%) |
+| Zaakafhandelparameters                  | 222,677 bytes  | 75,101 bytes (-66%) | 13,977 bytes | 9,172 bytes (-34%) |
+
+Median response time of ZAC on warm caches, in milliseconds. Before and after are the median of three alternating
+runs. "With D7" is one run on a quiet machine; three more runs on a machine under heavy load from other work also
+gave a list that was 6 to 60 times faster than layer 2 in the same round.
+
+| List                                    | Before | After | With D7 |
+|-----------------------------------------|--------|-------|---------|
+| Zaak aanmaken, list                     | 336    | 315   | 21      |
+| Zaak aanmaken, chosen zaaktype (new)    | -      | 7     | 9       |
+| Inrichtingscheck                        | 614    | 607   | 13      |
+| Zaakafhandelparameters                  | 314    | 307   | 10      |
+
+The smaller responses of layers 1 and 2 do not change the response time of ZAC. The cause of that time:
+
+- After the measurement runs with the limit of 20, the statistics of the cache showed 79,270 misses, 25,386 hits
+  and 78,690 evictions, and 127 seconds of load time: 1.6 ms per configuration.
+- One cache miss reads about 12 tables of the ZAC database in about 20 table scans, because `ZaaktypeConfiguration`
+  fetches its relations eagerly. A list request with the limit of 20 caused thousands of table scans and no
+  request to Open Zaak.
+- 211 cached configurations take 1,128,480 bytes, measured with JOL (ADR 0009): 5.3 kB per configuration.
+
+Limits of the measurement:
+
+- The database runs in the same cluster as ZAC. With network latency to the database, a cache miss costs more
+  than 1.6 ms.
+- All generated zaaktypes come from one template, so every configuration has the same size.
+- A measurement right after `GET /rest/admin/util/cache/clear` says nothing about a list: ZAC then refreshes its
+  ZTC caches in the background, which took about 1.5 seconds here, and the request waits for that refresh.
+- With 20 zaaktypes or fewer, the limit of 20 has no effect. The seed data of the kind stack and of the
+  integration tests has about ten zaaktypes.
+
 ## Risks / Trade-offs
+
+- [With more than one ZAC instance, another instance serves the previous configuration of a zaaktype until its
+  cache entry expires.] → The expiry after write limits this to one hour (D7). The Helm chart runs one instance
+  by default.
+- [A catalogus with more than 2000 zaaktype versions has the slow lists again.] → The response time then grows
+  with the number of zaaktypes, as it does now above 20. The admin page of the caches shows the number of entries
+  and the evictions.
 
 - [The form reacts later to a zaaktype choice, which can break the order of the groep prefill, behandelaar
   prefill and initiator handling.] → The specs of `ZaakCreateComponent` and `ZaakLinkComponent` cover each step
