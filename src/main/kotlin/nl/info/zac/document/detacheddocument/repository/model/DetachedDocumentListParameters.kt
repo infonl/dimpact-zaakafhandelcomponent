@@ -1,11 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.document.detacheddocument.repository.model
 
-import nl.info.zac.search.model.DatumRange
 import nl.info.zac.shared.model.ListParameters
+import nl.info.zac.time.DatumRange
 
 class DetachedDocumentListParameters : ListParameters() {
     var titel: String? = null

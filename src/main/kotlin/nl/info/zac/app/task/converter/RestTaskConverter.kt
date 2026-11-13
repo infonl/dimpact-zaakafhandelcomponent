@@ -23,8 +23,8 @@ import nl.info.zac.flowable.util.isCmmnTask
 import nl.info.zac.flowable.util.taakStatus
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
-import nl.info.zac.util.time.toLocalDate
-import nl.info.zac.util.time.toZonedDateTime
+import nl.info.zac.time.toLocalDate
+import nl.info.zac.time.toZonedDateTime
 import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo

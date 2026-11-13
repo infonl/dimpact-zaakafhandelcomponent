@@ -17,10 +17,10 @@ import nl.info.zac.productaanvraag.model.InboxProductaanvraag
 import nl.info.zac.productaanvraag.model.InboxProductaanvraagListParameters
 import nl.info.zac.productaanvraag.model.createInboxProductaanvraag
 import nl.info.zac.productaanvraag.model.createInboxProductaanvraagListParameters
-import nl.info.zac.search.model.DatumRange
 import nl.info.zac.shared.model.Paging
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.shared.model.Sorting
+import nl.info.zac.time.DatumRange
 import java.time.LocalDate
 
 class InboxProductaanvraagServiceTest : BehaviorSpec({
@@ -243,9 +243,9 @@ class InboxProductaanvraagServiceTest : BehaviorSpec({
             `when`("list is called") {
                 service.list(listParameters)
 
-                then("both greaterThanOrEqualTo and lessThanOrEqualTo predicates are applied") {
+                then("the range runs from the van day up to, but not including, the day after the tot day") {
                     verify { entityManager.criteriaBuilder.greaterThanOrEqualTo(any(), van) }
-                    verify { entityManager.criteriaBuilder.lessThanOrEqualTo(any(), tot) }
+                    verify { entityManager.criteriaBuilder.lessThan(any(), LocalDate.of(2025, 1, 1)) }
                 }
             }
         }
@@ -284,8 +284,8 @@ class InboxProductaanvraagServiceTest : BehaviorSpec({
             `when`("list is called") {
                 service.list(listParameters)
 
-                then("lessThanOrEqualTo predicate is applied") {
-                    verify { entityManager.criteriaBuilder.lessThanOrEqualTo(any(), tot) }
+                then("the range runs up to, but not including, the day after the tot day") {
+                    verify { entityManager.criteriaBuilder.lessThan(any(), LocalDate.of(2024, 7, 1)) }
                 }
             }
         }

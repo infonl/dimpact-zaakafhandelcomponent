@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.util.time
+package nl.info.zac.time
 
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.WebApplicationException
@@ -13,27 +13,25 @@ import jakarta.ws.rs.ext.Provider
 import java.io.IOException
 import java.io.InputStream
 import java.lang.reflect.Type
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME
 
 @Provider
 @Produces(MediaType.TEXT_PLAIN)
-class LocalDateReader : MessageBodyReader<LocalDate> {
-    private val defaultFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmXXX")
-
+class ZonedDateTimeReader : MessageBodyReader<ZonedDateTime> {
     override fun isReadable(aClass: Class<*>, type: Type, annotations: Array<Annotation>, mediaType: MediaType): Boolean =
-        type == LocalDate::class.java
+        type == ZonedDateTime::class.java
 
     @Throws(IOException::class, WebApplicationException::class)
     override fun readFrom(
-        aClass: Class<LocalDate>,
+        aClass: Class<ZonedDateTime>,
         type: Type,
         annotations: Array<Annotation>,
         mediaType: MediaType,
         multivaluedMap: MultivaluedMap<String, String>,
         inputStream: InputStream
-    ): LocalDate {
-        val localDateBytes = inputStream.readAllBytes()
-        return LocalDate.parse(String(localDateBytes), defaultFormatter)
+    ): ZonedDateTime {
+        val zonedDateTimeBytes = inputStream.readAllBytes()
+        return ZonedDateTime.parse(String(zonedDateTimeBytes), ISO_ZONED_DATE_TIME)
     }
 }

@@ -1,3 +1,4 @@
 #
-#Mon Oct 26 20:15:36 CET 2026
+#Fri Nov 13 15:37:30 CET 2026
 no\ classes\ that\ reside\ in\ any\ package\ ['nl.info.zac..',\ 'net.atos..']\ and\ reside\ outside\ of\ package\ 'nl.info.zac.app..'\ should\ depend\ on\ classes\ that\ reside\ in\ a\ package\ 'nl.info.zac.app..'=0fd75618-9098-4a5a-80fa-18830d750869
+no\ classes\ that\ reside\ outside\ of\ packages\ ['nl.info.zac.time..',\ '..generated..']\ should\ call\ method\ ZoneId.systemDefault()\ or\ should\ call\ method\ TimeZone.getDefault()\ or\ should\ call\ method\ Clock.systemDefaultZone()\ or\ should\ call\ method\ LocalDate.now()\ or\ should\ call\ method\ LocalDate.now(ZoneId)\ or\ should\ call\ method\ LocalDateTime.now()\ or\ should\ call\ method\ LocalDateTime.now(ZoneId)\ or\ should\ call\ method\ ZonedDateTime.now()\ or\ should\ call\ method\ ZonedDateTime.now(ZoneId)\ or\ should\ call\ method\ OffsetDateTime.now()\ or\ should\ call\ method\ OffsetDateTime.now(ZoneId)\ or\ should\ call\ method\ LocalDate.atStartOfDay(ZoneId)=b7854513-d15c-4ae8-9899-0511432160f9

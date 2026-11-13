@@ -11,7 +11,7 @@ import nl.info.zac.policy.output.TaakRechten
 import nl.info.zac.search.model.zoekobject.TaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.task.model.TaakStatus
-import nl.info.zac.util.time.toLocalDate
+import nl.info.zac.time.toLocalDate
 import java.time.LocalDate
 
 data class RestTaakZoekObject(

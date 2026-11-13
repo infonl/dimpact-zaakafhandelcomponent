@@ -13,7 +13,7 @@ import nl.info.client.zgw.brc.model.generated.VervalredenEnum
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.zac.util.time.numberOfDaysFromToday
+import nl.info.zac.time.numberOfDaysFromToday
 import org.apache.commons.collections4.CollectionUtils
 import java.time.LocalDate
 import java.time.Period

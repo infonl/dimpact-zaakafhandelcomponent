@@ -59,7 +59,7 @@ import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.task.TaskHistoryService
-import nl.info.zac.util.time.toDate
+import nl.info.zac.time.toDate
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import org.flowable.cmmn.api.runtime.PlanItemInstance
