@@ -1,0 +1,20 @@
+## 1. Backend: one time module and one meaning of "t/m"
+
+- [ ] 1.1 Create the package `nl.info.zac.time` with `ZacTime` (`ZONE = Europe/Amsterdam`, `today(clock)`, `now(clock)`, `startOfDay(date)`), move `DatumRange` from `nl.info.zac.search.model` and the files of `nl.info.zac.util.time` into it, and update the imports. Verify `./gradlew compileKotlin compileTestKotlin` succeeds
+- [ ] 1.2 Add `DatumRange.toTimeRange()` (inclusive start of the van day, exclusive start of the day after the t/m day, both in `ZacTime.ZONE`) and a helper for `LocalDate` columns. Verify with a `DatumRangeTest` that covers van only, t/m only, both, the same day, and a JVM default zone of UTC
+- [ ] 1.3 Make `DateTimeConverterUtil` and `nl.info.client.zgw.util.LocalDateConversions.toZonedDateTime` use `ZacTime.ZONE` instead of `ZoneId.systemDefault()`. Verify with unit tests that run with the default zone set to UTC
+- [ ] 1.4 Use `toTimeRange()` in `SearchService` and build the Solr filter as `veld:[from TO until}` with `*` for a missing bound. Verify with a `SearchServiceTest` case that asserts the filter query for van today t/m today
+- [ ] 1.5 Use the shared range in `InboxDocumentRepository`, `DetachedDocumentRepository` (`>= from`, `< until`) and `InboxProductaanvraagService` (the `LocalDate` helper). Verify with their unit tests
+- [ ] 1.6 Make `LocalDateAdapter.adaptFromJson` convert a value with a time to the date of that instant in `ZacTime.ZONE`. Verify with a unit test: `2026-07-29T22:00:00.000Z` gives 30-07-2026, `2026-07-30` gives 30-07-2026
+- [ ] 1.7 Add an ArchUnit rule to `ArchitectureTest`: no class outside `nl.info.zac.time..` calls `ZoneId.systemDefault()`, `TimeZone.getDefault()`, `Clock.systemDefaultZone()` or the `now()` of `LocalDate`, `LocalDateTime`, `ZonedDateTime` and `OffsetDateTime`. Freeze the existing violations in the freeze store and add the rule to the table in `docs/development/architectureRules.md`. Verify `./gradlew test --tests "nl.info.zac.architecture.ArchitectureTest"` passes, and fails after a temporary `ZoneId.systemDefault()` call in another package
+- [ ] 1.8 Add the ADR `use Europe/Amsterdam and half-open date ranges` with the next free number in `docs/solution-architecture/decisions/` (status `accepted`, D1, D2, D4, D5 of the design) and its row in the index. Verify the links in the index resolve
+- [ ] 1.9 Add an integration test that creates a task, filters the task list on "Aangemaakt op" van today t/m today, and finds it, and a search for documents van today t/m today that finds a document registered today. Verify `./gradlew itest` passes with the itest stack in UTC
+- [ ] 1.10 Add `, 2026 INFO.nl` to the SPDX header of each touched file where `INFO.nl` is missing, run `./gradlew spotlessApply detektApply`, then verify `./gradlew detekt test` passes
+
+## 2. Frontend: one date-time module and dates without a time
+
+- [ ] 2.1 Create `src/main/app/src/app/date-time/` with a public `index.ts`: `toApiDate` (`yyyy-MM-dd` of the local date), `fromApiDate` (accepts `yyyy-MM-dd` and an ISO instant), the shared `MAT_DATE_FORMATS` and the moment date adapter providers. Verify with `date-time.spec.ts`: picking 30-07-2026 in `Europe/Amsterdam` gives `2026-07-30`, and `2026-07-29T22:00:00.000Z` gives 30-07-2026
+- [ ] 2.2 Make `DateRangeFilterComponent` and `DateFilterComponent` use the module, so they send `yyyy-MM-dd` and show old saved values on the right day. Verify with their specs (Testing Library) that the emitted range holds `"2026-07-30"`
+- [ ] 2.3 Add the ESLint rules of design D5 to `eslint.config.js`, with the files that break them today in a frozen list that turns the rules off for those files only. Verify `npm run lint` passes, and fails after a temporary `moment` import in a file outside the list
+- [ ] 2.4 Run `./gradlew spotlessApply` and verify `npm test -- --test-path-patterns "date"` and `npx ngc -p tsconfig.app.json --noEmit` pass
+- [ ] 2.5 In the local kind stack, filter "Mijn taken" on "Aangemaakt op" van today t/m today and verify the tasks created today show; filter the inbox documents on one day and verify no document of the day before shows
