@@ -37,7 +37,17 @@ class ZaaktypeConfigurationService @Inject constructor(
         const val INADMISSIBLE_TERMINATION_REASON = "Zaak is niet ontvankelijk"
 
         private val LOG = Logger.getLogger(ZaaktypeConfigurationService::class.java.name)
-        private const val MAX_CACHE_SIZE = 20L
+
+        /**
+         * Above the number of zaaktype versions of a catalogus. A list of all zaaktypes reads the configuration of each
+         * one, so with a smaller cache every such request reads almost all configurations from the database again.
+         */
+        private const val MAX_CACHE_SIZE = 2000L
+
+        /**
+         * Counted from the moment an entry is read from the database, because [evict] only reaches the cache of
+         * this ZAC instance. Another instance then serves the previous configuration for at most this long.
+         */
         private const val EXPIRATION_TIME_HOURS = 1L
 
         private val caches = mutableMapOf<String, Cache<*, *>>()
@@ -45,7 +55,7 @@ class ZaaktypeConfigurationService @Inject constructor(
         private fun <K : Any, V : Any> createCache(name: String): Cache<K, V> =
             Caffeine.newBuilder()
                 .maximumSize(MAX_CACHE_SIZE)
-                .expireAfterAccess(EXPIRATION_TIME_HOURS, TimeUnit.HOURS)
+                .expireAfterWrite(EXPIRATION_TIME_HOURS, TimeUnit.HOURS)
                 .recordStats()
                 .removalListener<K, V> { key, _, cause ->
                     LOG.fine("Removing key: $key in cache $name because of: $cause")
