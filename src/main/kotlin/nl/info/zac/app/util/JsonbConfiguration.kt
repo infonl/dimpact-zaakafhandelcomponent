@@ -9,8 +9,8 @@ import jakarta.json.bind.JsonbBuilder
 import jakarta.json.bind.JsonbConfig
 import jakarta.ws.rs.ext.ContextResolver
 import jakarta.ws.rs.ext.Provider
-import nl.info.zac.util.time.LocalDateAdapter
-import nl.info.zac.util.time.ZonedDateTimeAdapter
+import nl.info.zac.time.LocalDateAdapter
+import nl.info.zac.time.ZonedDateTimeAdapter
 
 @Provider
 class JsonbConfiguration : ContextResolver<Jsonb> {

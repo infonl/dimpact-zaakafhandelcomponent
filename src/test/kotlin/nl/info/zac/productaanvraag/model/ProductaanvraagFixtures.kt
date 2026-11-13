@@ -7,7 +7,7 @@ package nl.info.zac.productaanvraag.model
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Bron
 import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact
-import nl.info.zac.search.model.DatumRange
+import nl.info.zac.time.DatumRange
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID

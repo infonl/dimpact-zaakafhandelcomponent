@@ -13,7 +13,7 @@ import nl.info.zac.policy.output.ZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
-import nl.info.zac.util.time.toLocalDate
+import nl.info.zac.time.toLocalDate
 import java.time.LocalDate
 import java.util.EnumSet
 

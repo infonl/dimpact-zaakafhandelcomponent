@@ -14,6 +14,7 @@ import nl.info.zac.productaanvraag.model.InboxProductaanvraag
 import nl.info.zac.productaanvraag.model.InboxProductaanvraagListParameters
 import nl.info.zac.productaanvraag.model.InboxProductaanvraagResultaat
 import nl.info.zac.shared.model.SorteerRichting
+import nl.info.zac.time.toDatePredicates
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.Locale
@@ -93,13 +94,8 @@ class InboxProductaanvraagService @Inject constructor(
         listParameters.type?.takeIf { it.isNotBlank() }?.let {
             predicates.add(builder.equal(root.get<String>(InboxProductaanvraag.TYPE), it))
         }
-        listParameters.ontvangstdatum?.let { range ->
-            range.van?.let {
-                predicates.add(builder.greaterThanOrEqualTo(root.get(InboxProductaanvraag.ONTVANGSTDATUM), it))
-            }
-            range.tot?.let {
-                predicates.add(builder.lessThanOrEqualTo(root.get(InboxProductaanvraag.ONTVANGSTDATUM), it))
-            }
+        listParameters.ontvangstdatum?.let {
+            predicates.addAll(it.toDatePredicates(builder, root.get(InboxProductaanvraag.ONTVANGSTDATUM)))
         }
         @Suppress("SpreadOperator")
         return builder.and(*predicates.toTypedArray())

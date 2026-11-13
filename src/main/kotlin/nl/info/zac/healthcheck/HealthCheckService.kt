@@ -37,8 +37,8 @@ import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCH
 import nl.info.zac.healthcheck.exception.BuildInformationException
 import nl.info.zac.healthcheck.model.BuildInformation
 import nl.info.zac.healthcheck.model.ZaaktypeInrichtingscheck
+import nl.info.zac.time.dateNowIsBetween
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.time.dateNowIsBetween
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.io.File
 import java.io.IOException

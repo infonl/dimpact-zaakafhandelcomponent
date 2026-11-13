@@ -36,9 +36,9 @@ import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.time.dateNowIsBetween
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.time.dateNowIsBetween
 import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.ZaakService
 import org.apache.commons.collections4.CollectionUtils

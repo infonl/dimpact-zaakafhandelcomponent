@@ -8,7 +8,7 @@ package nl.info.zac.app.inboxdocument.converter
 import nl.info.zac.app.inboxdocument.model.RestInboxDocumentListParameters
 import nl.info.zac.app.shared.applyCommonParametersTo
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocumentListParameters
-import nl.info.zac.search.model.DatumRange
+import nl.info.zac.time.DatumRange
 
 fun RestInboxDocumentListParameters.toInboxDocumentListParameters() =
     InboxDocumentListParameters().also { params ->

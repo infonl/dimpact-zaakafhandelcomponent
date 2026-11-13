@@ -24,7 +24,7 @@ import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocumentListParameters
 import nl.info.zac.document.inboxdocument.repository.model.createInboxDocument
 import nl.info.zac.document.inboxdocument.repository.model.createInboxDocumentListParameters
-import nl.info.zac.search.model.DatumRange
+import nl.info.zac.time.DatumRange
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID

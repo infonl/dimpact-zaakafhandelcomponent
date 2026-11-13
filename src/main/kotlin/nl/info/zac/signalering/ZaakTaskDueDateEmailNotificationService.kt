@@ -17,7 +17,6 @@ import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.gebruikersvoorkeuren.model.TabelInstellingen
 import nl.info.zac.search.SearchService
-import nl.info.zac.search.model.DatumRange
 import nl.info.zac.search.model.DatumVeld
 import nl.info.zac.search.model.FilterVeld
 import nl.info.zac.search.model.FilterWaarde
@@ -30,6 +29,7 @@ import nl.info.zac.signalering.model.SignaleringTarget
 import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.signalering.model.SignaleringVerzendInfo
 import nl.info.zac.signalering.model.SignaleringVerzondenZoekParameters
+import nl.info.zac.time.DatumRange
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.task.api.Task

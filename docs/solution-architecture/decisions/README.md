@@ -22,6 +22,7 @@ and its consequences. See [ADR-0007](0007-record-architecture-decisions-in-git-a
 | [0012](0012-use-helm-unittest-for-unit-tests-of-the-helm-chart.md) | Use helm-unittest for unit tests of the Helm chart | accepted | CI tests the rendered templates of the Helm chart with helm-unittest, without a cluster. |
 | [0013](0013-publish-the-helm-chart-on-gh-pages-without-github-releases.md) | Publish the Helm chart on gh-pages without GitHub releases | proposed | The chart packages are on the `gh-pages` branch; publishing the chart creates a tag but no release. |
 | [0014](0014-keep-only-release-tags-and-releases.md) | Keep only release tags and releases | proposed | Only sprint, hotfix and deployed releases, plus the chart tags, are kept; a weekly check enforces it. |
+| [0015](0015-use-europe-amsterdam-and-half-open-date-ranges.md) | Use Europe/Amsterdam and half-open date ranges | accepted | ZAC uses `Europe/Amsterdam`; "van t/m" includes the whole t/m day; date and time handling lives in one module per side. |
 
 ## When to write an ADR
 

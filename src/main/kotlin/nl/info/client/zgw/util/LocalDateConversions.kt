@@ -4,8 +4,8 @@
  */
 package nl.info.client.zgw.util
 
+import nl.info.zac.time.ZacTime
 import java.time.LocalDate
-import java.time.ZoneId
 import java.time.ZonedDateTime
 
-fun LocalDate.toZonedDateTime(): ZonedDateTime = atStartOfDay(ZoneId.systemDefault())
+fun LocalDate.toZonedDateTime(): ZonedDateTime = ZacTime.startOfDay(this)

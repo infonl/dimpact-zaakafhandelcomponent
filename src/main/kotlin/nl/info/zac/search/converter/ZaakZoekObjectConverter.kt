@@ -30,7 +30,7 @@ import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.search.model.zoekobject.toBetrokkeneIdentification
 import nl.info.zac.search.model.zoekobject.toSolrFormatting
-import nl.info.zac.util.time.toDate
+import nl.info.zac.time.toDate
 import java.util.Date
 import java.util.UUID
 

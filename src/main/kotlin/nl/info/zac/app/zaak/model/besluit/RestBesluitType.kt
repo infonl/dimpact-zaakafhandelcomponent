@@ -6,10 +6,10 @@ package nl.info.zac.app.zaak.model.besluit
 
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.generated.BesluitType
+import nl.info.zac.time.format
+import nl.info.zac.time.numberOfDaysFromToday
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.time.format
-import nl.info.zac.util.time.numberOfDaysFromToday
 import java.net.URI
 import java.time.Period
 import java.util.UUID

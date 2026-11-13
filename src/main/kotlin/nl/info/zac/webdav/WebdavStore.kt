@@ -14,7 +14,7 @@ import nl.info.webdav.StoredObject
 import nl.info.zac.authentication.setLoggedInUser
 import nl.info.zac.document.content.DocumentContentReader
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectUpdateService
-import nl.info.zac.util.time.toDate
+import nl.info.zac.time.toDate
 import org.apache.commons.collections4.map.LRUMap
 import org.apache.commons.io.FilenameUtils
 import java.io.File

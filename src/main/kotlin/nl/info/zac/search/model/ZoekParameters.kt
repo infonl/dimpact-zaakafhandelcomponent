@@ -6,6 +6,7 @@ package nl.info.zac.search.model
 
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
+import nl.info.zac.time.DatumRange
 import java.util.EnumMap
 
 @Suppress("TooManyFunctions")

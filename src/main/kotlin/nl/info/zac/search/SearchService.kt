@@ -34,7 +34,6 @@ import org.apache.solr.client.solrj.SolrRequest
 import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.common.params.SimpleParams
 import java.io.IOException
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter.ISO_INSTANT
 
 @ApplicationScoped
@@ -188,14 +187,11 @@ class SearchService @Inject constructor(
     }
 
     private fun getFilterQueriesForDatumsParameters(zoekParameters: ZoekParameters): List<String> =
-        zoekParameters.datums.map { (dateField, date) ->
-            val from = date.van?.let {
-                ISO_INSTANT.format(it.atStartOfDay(ZoneId.systemDefault()))
-            } ?: "*"
-            val to = date.tot?.let {
-                ISO_INSTANT.format(it.atStartOfDay(ZoneId.systemDefault()))
-            } ?: "*"
-            "${dateField.veld}:[$from TO $to]"
+        zoekParameters.datums.map { (dateField, datumRange) ->
+            val timeRange = datumRange.toTimeRange()
+            val from = timeRange.from?.let(ISO_INSTANT::format) ?: "*"
+            val until = timeRange.until?.let(ISO_INSTANT::format) ?: "*"
+            "${dateField.veld}:[$from TO $until}"
         }
 
     private fun getFilterQueriesForZoekenParameters(zoekParameters: ZoekParameters): List<String> =

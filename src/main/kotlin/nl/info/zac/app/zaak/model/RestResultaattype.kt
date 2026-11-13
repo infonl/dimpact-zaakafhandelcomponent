@@ -9,9 +9,9 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
+import nl.info.zac.time.format
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.time.format
 import nl.info.zac.zaak.model.ZaaktypeResultaattype
 import java.time.Period
 import java.util.UUID

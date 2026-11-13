@@ -13,9 +13,9 @@ import nl.info.zac.flowable.task.model.ValueChangeData
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.task.TaskHistoryService
+import nl.info.zac.time.toLocalDate
+import nl.info.zac.time.toZonedDateTime
 import nl.info.zac.util.JSONB
-import nl.info.zac.util.time.toLocalDate
-import nl.info.zac.util.time.toZonedDateTime
 import org.flowable.task.api.history.HistoricTaskLogEntry
 import org.flowable.task.api.history.HistoricTaskLogEntryType
 import java.util.Date
