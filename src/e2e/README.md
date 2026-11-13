@@ -1,210 +1,110 @@
-# E2E Testing
+# End-to-end tests
 
-This directory contains end-to-end tests for the ZAC application.
+This directory contains the end-to-end tests of ZAC. They use [Playwright](https://playwright.dev/) with
+[playwright-bdd](https://vitalets.github.io/playwright-bdd), which runs Gherkin feature files with the Playwright
+test runner.
 
-We are currently migrating from [**Cucumber**](https://cucumber.io/) to [**Playwright BDD**](https://vitalets.github.io/playwright-bdd/#/).
+Each feature file in [bdd](./bdd) is a journey: one goal of a user, followed from start to finish through the real UI.
+A journey proves that the parts of ZAC work together. It does not prove each business rule; the integration tests,
+the Angular specs and the OPA policy tests do that.
 
-## Prerequisites
+The cucumber-js suite in [features](./features) is being replaced, feature by feature. See
+[The cucumber-js suite](#the-cucumber-js-suite).
 
-- Node.js 22.22.0
-- npm 10.9.4
-- A running ZAC instance: a deployed one, or ZAC in the local kind stack (`./start-kind.sh -b`, see
-  [installKind.md](../../docs/development/installKind.md))
+## Running the tests
 
-## Quick Start
+[docs/development/testing.md](../../docs/development/testing.md#end-to-end-e2e-tests) describes how to start the
+local kind stack and how to run the tests against it. In this directory you can also use these commands:
 
-### Playwright BDD (Recommended)
+| Command             | What it does                                                    |
+|---------------------|-----------------------------------------------------------------|
+| `npm test`          | Generates the tests from the feature files and runs them.       |
+| `npm run test:ui`   | The same, in the Playwright UI.                                 |
+| `npm run typecheck` | Checks the types of the suite.                                  |
+| `npm run lint`      | Runs ESLint on the suite.                                       |
 
-1. Install dependencies:
+`npm test` runs `bddgen` first. Run `npx bddgen` yourself before you start one test from your IDE, also after you
+change the fixtures that a step uses.
 
-```bash
-cd src/e2e && npm ci
-```
+## Layout
 
-2. Set up environment variables (see [Environment Configuration](#environment-configuration))
+| Path                                         | What it holds                                                                              |
+|----------------------------------------------|--------------------------------------------------------------------------------------------|
+| [playwright.config.ts](./playwright.config.ts) | The projects `setup` and `journeys`, and the settings that differ between a developer machine and CI. |
+| [config/env.ts](./config/env.ts)             | `ENV`: the validated configuration of the run.                                             |
+| [config/targets](./config/targets)           | One profile for each place where ZAC can run.                                              |
+| [setup](./setup)                             | The setup project, which signs in once for each role.                                      |
+| [bdd/_core](./bdd/_core)                     | The fixtures that every journey can use, and `Given`, `When` and `Then`.                   |
+| `bdd/@<domain>`                              | The feature files, the steps and the fixtures of one domain.                               |
+| [bdd/support](./bdd/support)                 | Helpers for steps: the ZAC REST API, Keycloak and parts of the ZAC UI.                     |
 
-3. Run tests:
+A directory name that starts with `@` is a tag of the scenarios in it. For example,
+`npm test -- --grep @cmmn` runs the journeys in `bdd/@zaak/@cmmn`.
 
-```bash
-npm run bdd        # Run in UI mode (interactive)
-npm run bdd:ci     # Run in CI mode (headless)
-```
+## Configuration
 
-### Cucumber (Legacy)
+The target is the place where ZAC runs. `E2E_TARGET` selects a profile in [config/targets](./config/targets); the
+default is `kind`. A profile holds what is not secret about a target: where the URL of ZAC comes from, and the account
+of each role. It reads secrets from environment variables.
 
-> ⚠️ Cucumber tests are only supported in CI mode, see [the E2E workflow](../../.github/workflows/run-e2e.yml) for more information
+| Variable            | Meaning                                                                           | Default |
+|---------------------|-----------------------------------------------------------------------------------|---------|
+| `E2E_TARGET`        | The profile to use.                                                               | `kind`  |
+| `KIND_CLUSTER_NAME` | Target `kind`: the kind cluster. The profile reads the port of ZAC from its ports file. | `zac`   |
+| `ZAC_URL`           | Target `kind`: the URL of ZAC when ZAC does not run in the cluster.               | none    |
+| `CI`                | Set by the pipeline. It selects the number of workers, the retries, the traces and the reporters. | none    |
 
-```bash
-npm run e2e:start    # Install packages and run tests
-npm run e2e:run      # Run tests (requires dependencies installed)
-```
+The target `kind` needs no configuration and no `.env` file. It uses the accounts of the Keycloak realm seed in
+[scripts/kind/seed/keycloak](../../scripts/kind/seed/keycloak). You can set the variables in a `.env` file in this
+directory; see [.env.example](./.env.example).
 
-To run the Cucumber tests against the local kind stack, use `./start-e2e-with-local-env.sh` in the root of the
-repository; see [Running e2e tests locally](../../docs/development/testing.md#running-e2e-tests-locally). It leaves
-out the features with the tag `@live-env-only`, which need the users, groups and zaaktypes of the TEST environment.
-The [Playwright Tests on kind](../../.github/workflows/run-e2e-on-kind.yml) workflow runs them the same way.
+[config/env.ts](./config/env.ts) validates the settings when the run starts and stops the run when one is missing.
+It is the only place that reads `process.env`; an ESLint rule checks this. Steps and fixtures import `ENV`.
 
-## Playwright BDD
+To run the tests against another environment, add a profile to [config/targets](./config/targets) and register it in
+[config/env.ts](./config/env.ts). Let it read the URL and the passwords from environment variables.
 
-The `bdd` command runs [`bddgen`](https://vitalets.github.io/playwright-bdd/#/cli?id=bddgen-test-or-just-bddgen) to generate test files from feature files, then runs Playwright tests with the UI mode enabled for interactive debugging.
+## Roles and sessions
 
-See the [full documentation](https://vitalets.github.io/playwright-bdd/) for detailed instructions and full capabilities.
+A role tag on a feature or a scenario selects the session of the scenario:
+`@behandelaar`, `@coordinator`, `@recordmanager`, `@beheerder` or `@raadpleger`. A scenario without a role tag starts
+signed out.
 
-### Directory Structure
+The setup project signs in once for each role and saves the session in `.auth`. The scenarios reuse these sessions,
+so only the journey about signing in uses the Keycloak login page. When the target has no account for a role, the
+scenarios of that role are skipped, and the report shows why.
 
-The directory structure might seem arbitrary, but is actually to automatically [tag from path](https://vitalets.github.io/playwright-bdd/#/writing-features/tags-from-path?id=tags-from-path)
+## Writing a journey
 
-### Test Fixtures
+- `Given` steps set up data through the REST API of ZAC. `When` steps act through the UI. `Then` steps check the UI.
+- A scenario makes sure that the data that it needs is present. It does not rely on another scenario or on data that
+  someone set up by hand. For example, the step that names a zaaktype sets up its zaakafhandelparameters when they
+  are not valid yet.
+- Scenarios run in parallel and in any order. Give data that a scenario creates a description that starts with `E2E`.
+- Do not wait a fixed time and do not wait for `networkidle`. Use the assertions of Playwright, which wait, and
+  `expect(...).toPass()` for the search index.
+- Find elements as a user does: by role and name first, then by label or text. See
+  [testing.md](../../docs/development/testing.md#using-the-right-selectors-in-the-e2e-tests).
+- Write the Gherkin keywords in English and keep the Dutch domain nouns, such as zaak, taak and zaaktype.
 
-Playwright BDD uses test fixtures to share state between steps. Fixtures are defined in `**/fixture.ts` files and can be extended:
+Steps import `Given`, `When` and `Then` from [bdd/_core/fixture.ts](./bdd/_core/fixture.ts) and are named
+`*.steps.ts`. These fixtures are available in every step:
 
-- [**`@login/fixture.ts`**](./bdd/@login/fixture.ts): Provides `signIn` function and `userToLogin` context
-- [**`@zaak/fixture.ts`**](./bdd/@zaak/fixture.ts): Extends login fixture with `caseType` and `caseNumber` context
+| Fixture                  | What it gives                                                                                  |
+|--------------------------|------------------------------------------------------------------------------------------------|
+| `accountOfRole`          | The account of a role in the target.                                                           |
+| `apiAs`                  | A client for the REST API of ZAC with the session of a role, for example `apiAs("beheerder")`. |
+| `whileNoOtherWorkerDoes` | Runs an action that changes shared data, such as zaakafhandelparameters, in one worker at a time. |
 
-Fixtures are automatically injected into step definitions:
+A domain adds its own fixtures in `bdd/@<domain>/fixtures.ts`, which extends the fixtures of
+[bdd/_core/core-fixtures.ts](./bdd/_core/core-fixtures.ts).
 
-```typescript
-When("I add a new case", async ({ page, caseType, caseNumber }) => {
-  // page, caseType, and caseNumber are automatically available
-});
-```
+## The cucumber-js suite
 
-### Hooks and Tags
+The cucumber-js suite consists of [features](./features), [step-definitions](./step-definitions),
+[support](./support) and [utils](./utils). It runs against the TEST environment; see
+[testing.md](../../docs/development/testing.md#the-cucumber-js-suite). A feature of this suite is deleted in the
+pull request that adds the journeys that replace it.
 
-Global hooks are defined in [`bdd/hooks.ts`](./bdd/hooks.ts):
-
-- **`@auth`**: Automatically signs in with `DEFAULT_USER` before the scenario
-- **`@timeout`**: Adds a 10-second timeout after each step (useful for debugging)
-
-Example:
-
-```gherkin
-@auth
-Feature: Managing cases
-  Scenario: Create a new case
-    # User is automatically signed in before this scenario runs
-    Given I am on the "zaken/create" page
-    When I add a new case
-```
-
-## Environment Configuration
-
-The Playwright BDD setup uses environment variables that are parsed into a typed `ENV` object. The configuration is defined in [`bdd/types.ts`](./bdd/types.ts).
-
-### Setup
-
-Create a `.env` file in the `src/e2e` directory with the following variables:
-
-```bash
-cp .env.example .env
-```
-
-`ZAC_URL=http://localhost:8080` in `.env.example` is ZAC in the local kind stack. There, the local test users log in
-with their username as password, for example `BEHEERDER_USERNAME=beheerder1` and `BEHEERDER_PASSWORD=beheerder1`.
-
-### Environment Schema
-
-The environment variables are parsed and validated using Zod schemas in [`bdd/types.ts`](./bdd/types.ts):
-
-```typescript
-export const ENV = envSchema.parse({
-  businessLanguage: process.env.BUSINESS_LANGUAGE ?? "en",
-  baseUrl: process.env.ZAC_URL,
-  users: {
-    [DEFAULT_USER]: { ... },
-    beheerder: { ... },
-    thisuserdoesnotexist: { ... },
-    // ...other roles
-  },
-  caseTypes: {
-    CMMN: process.env.CMMN_CASE_TYPE,
-    BPMN: process.env.BPMN_CASE_TYPE,
-    // ...other case types
-  },
-});
-```
-
-### Setting up the BPMN E2E Test
-
-Running the BPMN E2E test requires the currently running ZAC instance to be configured with the BPMN case type and process definition.
-The [`process definition`](./testdata/E2ETestProcessDefinition.bpmn) can be found in the [`e2e/testdata`](./testdata) folder along with the required forms. These are needed for the process to be selectable for a case type.
-
-## Using `ENV` Parameters in Tests
-
-### Users Parameter
-
-Users are defined in `ENV.users` and can be referenced in feature files by their key.
-
-> ℹ️ **Tip**: When a feature is tagged with `@auth`, the `DEFAULT_USER` will automatically be used for authentication.
-
-**Example in feature file:**
-
-```gherkin
-When I am signing in as "beheerder"
-```
-
-**In step definition [(`bdd/@login/steps.ts`)](./bdd/@login/steps.ts):**
-
-```typescript
-When(
-  "I am signing in as {string}",
-  async ({ userToLogin, signIn }, user: string) => {
-    userToLogin.value = ENV.users[user]; // <-- user is injected here
-    await signIn(); // <-- and made sure to be signed in
-  },
-);
-```
-
-The step definition:
-
-1. Looks up the user by the string parameter (e.g., `"beheerder"`) in `ENV.users`
-2. Stores it in the `userToLogin` fixture
-3. Calls `signIn()` to perform the authentication
-
-### Case Types Parameter
-
-Case types are defined in `ENV.caseTypes` and can be referenced in feature files by their key.
-
-**Example in feature file:**
-
-```gherkin
-Background:
-  Given the case type "BPMN" exists # Adds the case type to the whole test context
-```
-
-**In step definition [(`bdd/@zaak/steps.ts`)](./bdd/@zaak/steps.ts):**
-
-```typescript
-Given("the case type {string} exists", async ({ caseType }, type: string) => {
-  const caseTypeName = ENV.caseTypes[type];
-  if (!caseTypeName) throw new Error(`Case type ${type} not found in ZAC`);
-  caseType.value = caseTypeName; // <-- caseType is injected here
-});
-```
-
-The step definition:
-
-1. Looks up the case type by the string parameter (e.g., `"BPMN"`) in `ENV.caseTypes`
-2. Validates that the case type exists
-3. Stores it in the `caseType` fixture for use in subsequent steps
-
-**Accessing `caseType` in a subsequent step:**
-
-```gherkin
-Background:
-  Given the case type "BPMN" exists
-
-Scenario: Add a new case
-  Given I am on the "zaken/create" page
-  When I add a new case # has access to the context
-  Then the case gets created
-```
-
-```typescript
-When("I add a new case", async ({ page, caseType }) => {
-  // Access `caseType` from the context
-  await page.getByRole("combobox", { name: "Casetype" }).click();
-  await page.getByRole("option", { name: caseType.value }).click();
-  // ... rest of the step
-});
-```
+Its BPMN feature uploads the [process definition](./testdata/E2ETestProcessDefinition.bpmn) and the forms in
+[testdata](./testdata) to the environment that it runs against.

@@ -146,40 +146,66 @@ The following steps can help you debug failing integration tests:
 
 ## End-to-end (e2e) tests
 
-Our end-to-end tests use the [Playwright e2e test framework](https://playwright.dev/).
-We use [Cucumber](https://cucumber.io/) to write reusable end-to-end tests in human-readable format using [Gherkin syntax](https://cucumber.io/docs/gherkin/).
+Our end-to-end tests use [Playwright](https://playwright.dev/) with
+[playwright-bdd](https://vitalets.github.io/playwright-bdd), which runs
+[Gherkin](https://cucumber.io/docs/gherkin/) feature files with the Playwright test runner. See
+[ADR-0016](../solution-architecture/decisions/0016-use-playwright-bdd-as-the-only-runner-of-the-end-to-end-tests.md)
+for this choice and
+[ADR-0017](../solution-architecture/decisions/0017-select-the-target-of-the-end-to-end-tests-with-a-checked-in-profile.md)
+for the configuration.
 
-### Running the e2e tests
+The tests are in the `src/e2e` folder. Each feature file in `src/e2e/bdd` is a journey: one goal of a user, followed
+from start to finish through the real UI. The [README of the e2e tests](../../src/e2e/README.md) describes how the
+suite is built, how it is configured and how to write a journey.
 
-The end-to-end tests are located in the `src/e2e` folder.
-You can use the [start-e2e-with-local-env.sh](../../start-e2e-with-local-env.sh) script if you want to run the end-to-end tests against the [local kind stack](#running-e2e-tests-locally),
-or [start-e2e-with-test-env.sh](../../start-e2e-with-test-env.sh) if you want to run the end-to-end tests against the INFO TEST environment (accessible for INFO developers only).
-Most features need the users, groups and zaaktypes of the TEST environment, which the local stack does not have.
-These features have the tag `@live-env-only`, and the local script leaves them out.
+The older cucumber-js suite in `src/e2e/features` is being replaced, feature by feature. See
+[The cucumber-js suite](#the-cucumber-js-suite).
 
-To run the tests in headless mode you can use the following command:
+### Running e2e tests locally
 
-```shell
-HEADLESS=true ./start-e2e-with-test-env.sh
+The local e2e tests run against ZAC in the [kind stack](installKind.md). The browser of the tests runs on your
+machine and uses the same `localhost` URLs of ZAC and Keycloak as your own browser, so no `/etc/hosts` entry is needed.
+
+1. Start the kind stack with ZAC in the cluster and with the test doubles, for example with a ZAC Docker image that
+   you build first:
+
+   ```sh
+   KIND_ZAC_VALUES=scripts/kind/values/zac-e2e.yaml ./start-kind.sh -b -t
+   ```
+
+   `-t` starts the test doubles, such as the WireMock services for KVK and BAG. The values file makes ZAC call them.
+   `-l` uses an image that you built before, and `-z` the image of the registry (amd64 only).
+
+2. Run the e2e tests:
+
+   ```sh
+   ./start-e2e-with-local-env.sh
+   ```
+
+The tests need no configuration for the kind stack. They read the host port of ZAC from the stack, so they also work
+with `KIND_PORT_OFFSET` or `KIND_PORT_ZAC`, and they log in as the [local test users](#local-test-users), one user for
+each role. For a cluster with another name, set `KIND_CLUSTER_NAME` for both scripts:
+
+```sh
+KIND_CLUSTER_NAME=zac-e2e KIND_PORT_OFFSET=11000 KIND_ZAC_VALUES=scripts/kind/values/zac-e2e.yaml ./start-kind.sh -b -t
+KIND_CLUSTER_NAME=zac-e2e ./start-e2e-with-local-env.sh
 ```
 
-#### Running only a single test feature
+Set `ZAC_URL` for a ZAC that runs elsewhere, for example in your IDE.
 
-To run a single test feature (or similar features with the same tag), you can use the `TAGS` environment variable.
-For example, to only run the test scenario(s) with the tag `@bpmn` in headless mode on the TEST environment,
-you can use the following command:
+The script passes its arguments to Playwright:
 
-```shell
-HEADLESS=true TAGS="@bpmn" ./start-e2e-with-test-env.sh
+```sh
+./start-e2e-with-local-env.sh --ui             # choose, run and inspect the tests in the Playwright UI
+./start-e2e-with-local-env.sh --headed         # show the browser
+./start-e2e-with-local-env.sh --grep @cmmn     # only the journeys with this tag
 ```
 
-### Writing e2e tests
+The tests run headless by default. After a run, `npx playwright show-report` in `src/e2e` opens the report, with a
+trace of every scenario.
 
-We have predefined steps that you can use to write tests. You can find them in the [src/main/e2e/step-definitions](../../src/e2e/step-definitions) folder. each file in this folder represents a specific domain, like "zaak" is meant for non reusables steps that are specific to the "zaak" domain. steps in common are meant to be reusable across domains.
-![Alt text](./attachments/images/cucumber-example.png)
-
-In a .feature file you should be able to write out tests based on the predefined steps with auto complete.
-![Alt text](./attachments/images/cucumber-auto-complete.png)
+The [Playwright Tests on kind](../../.github/workflows/run-e2e-on-kind.yml) workflow runs the same tests in the
+pipeline, for pull requests that change the e2e tests or the kind stack.
 
 ### Using the right selectors in the e2e tests
 
@@ -201,62 +227,28 @@ The categories we use for selecting an element:
 
 ### Generating e2e tests with Playwright Codegen
 
-You can use the Playwright Codegen tool to generate e2e tests. This is a great way to get started with e2e tests. You 
-can find more information about this tool [here](https://playwright.dev/docs/codegen).
+You can use the Playwright Codegen tool to record your clicks and to generate the code of a step. You can find more
+information about this tool [here](https://playwright.dev/docs/codegen).
 
-You can run the following command to generate a test with taking the INFO.nl test environment as a base:
+Run this command in `src/e2e` to record against the local kind stack:
 
 ```shell
-npx playwright codegen https://zaakafhandelcomponent-zac-dev.dimpact.lifely.nl
+npx playwright codegen http://localhost:8080
 ```
 
-This will open a Chrome window, will record all your clicks, and will generate code that you can copy paste into your cucumber test.
+### The cucumber-js suite
 
-#### Writing Cucumber tests in IntelliJ
+The cucumber-js suite in `src/e2e/features` runs against the INFO TEST environment (accessible for INFO developers
+only), because its features need the users, groups and zaaktypes of that environment. A feature of this suite is
+deleted when journeys of the playwright-bdd suite replace it.
 
-You need to make sure to install the [cucumber.js](https://plugins.jetbrains.com/plugin/7418-cucumber-js) plugin.
-
-Then you will have all the autocomplete features available to you
-
-#### Writing Cucumber tests in VSCode
-
-You need to make sure to install the official [cucumber](https://marketplace.visualstudio.com/items?itemName=CucumberOpen.cucumber-official) plugin.
-
-Then you will have all the autocomplete features available to you
-
-### Running e2e tests locally
-
-The local e2e tests run against ZAC in the [kind stack](installKind.md). The browser of the tests runs on your
-machine and uses the same `localhost` URLs of ZAC and Keycloak as your own browser, so no `/etc/hosts` entry is needed.
-
-1. Start the kind stack with ZAC in the cluster, for example with a ZAC Docker image that you build first:
-
-   ```sh
-   ./start-kind.sh -b
-   ```
-
-   `-l` uses an image that you built before, and `-z` the image of the registry (amd64 only).
-
-2. Run the e2e tests:
-
-   ```sh
-   ./start-e2e-with-local-env.sh
-   ```
-
-The script reads the host port of ZAC from the stack, so it also works with `KIND_PORT_OFFSET` or `KIND_PORT_ZAC`.
-For a cluster with another name, set `KIND_CLUSTER_NAME` for both scripts:
-
-```sh
-KIND_CLUSTER_NAME=zac-e2e KIND_PORT_OFFSET=11000 ./start-kind.sh -b
-KIND_CLUSTER_NAME=zac-e2e HEADLESS=true ./start-e2e-with-local-env.sh
+```shell
+./start-e2e-with-test-env.sh
+HEADLESS=true ./start-e2e-with-test-env.sh                 # without a browser window
+HEADLESS=true TAGS="@bpmn" ./start-e2e-with-test-env.sh    # only the features with this tag
 ```
 
-The tests log in as the [local test users](#local-test-users) `beheerder1` and `behandelaar1`. Set
-`E2E_TEST_USER_1_USERNAME`, `E2E_TEST_USER_1_PASSWORD`, `E2E_TEST_USER_2_USERNAME` and `E2E_TEST_USER_2_PASSWORD` to
-use other users, and `ZAC_URL` for a ZAC that runs elsewhere, for example in your IDE.
-
-The [Playwright Tests on kind](../../.github/workflows/run-e2e-on-kind.yml) workflow runs the same tests in the
-pipeline, for pull requests that change the e2e tests or the kind stack.
+Its steps are in [src/e2e/step-definitions](../../src/e2e/step-definitions), one file per domain.
 
 ## GitHub Action Tests
 

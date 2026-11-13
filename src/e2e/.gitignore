@@ -67,3 +67,5 @@ user.json
 
 # playwright-bdd
 .features-gen/
+# sessions of the setup project
+/.auth/
