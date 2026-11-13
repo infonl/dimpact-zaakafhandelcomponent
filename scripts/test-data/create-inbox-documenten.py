@@ -58,7 +58,7 @@ def read_informatieobjecttype_url(open_zaak_url: str) -> str:
 
 
 def create_document_in_open_zaak(titel: str, sequence: int, informatieobjecttype_url: str, open_zaak_url: str) -> str:
-    document = zac_testdata.TEST_DOCUMENTS[(sequence - 1) % len(zac_testdata.TEST_DOCUMENTS)]
+    document = zac_testdata.test_document(sequence, titel)
     body = {
         "bronorganisatie": BRONORGANISATIE,
         "creatiedatum": datetime.date.today().isoformat(),
@@ -130,7 +130,7 @@ def main() -> None:
         default=20,
         metavar="SECONDS",
         help="How long to wait for Open Notificaties before notifying ZAC directly (default: 20). "
-        "Keep it when Open Notificaties runs: a notification that arrives later adds the document a second time.",
+        "Keep it when Open Notificaties runs: a notification that arrives later makes ZAC answer HTTP 500.",
     )
     parser.add_argument("--zac-url", default="http://localhost:8080", metavar="URL", help="ZAC base URL")
     parser.add_argument("--keycloak-url", default="http://localhost:8081", metavar="URL", help="Keycloak base URL")

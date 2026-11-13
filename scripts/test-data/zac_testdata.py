@@ -147,6 +147,14 @@ TEST_DOCUMENTS = [
 ]
 
 
+def test_document(sequence: int, titel: str | None = None) -> dict:
+    """Return a copy of the test document for a 1-based sequence number, cycling through TEST_DOCUMENTS."""
+    document = dict(TEST_DOCUMENTS[(sequence - 1) % len(TEST_DOCUMENTS)])
+    if titel is not None:
+        document["titel"] = titel
+    return document
+
+
 # ---------------------------------------------------------------------------
 # Zaak creation
 # ---------------------------------------------------------------------------

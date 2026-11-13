@@ -83,10 +83,7 @@ def upload_documents(
 ) -> list[str]:
     document_uuids = []
     for sequence in range(1, count + 1):
-        document = {
-            **zac_testdata.TEST_DOCUMENTS[(sequence - 1) % len(zac_testdata.TEST_DOCUMENTS)],
-            "titel": f"{run_id}-{sequence}",
-        }
+        document = zac_testdata.test_document(sequence, f"{run_id}-{sequence}")
         result = zac_testdata.upload_document_to_zaak(
             zaak["zaak_uuid"], zaak["zaaktype_uuid"], document, token_manager, zac_url
         )
