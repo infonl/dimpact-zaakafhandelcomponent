@@ -1,4 +1,10 @@
-## ADDED Requirements
+# zgw-shared-utilities Specification
+
+## Purpose
+
+Shared utilities for the ZGW clients and the REST layer: date conversion, the formatting of historie values and the JSON-B configuration.
+
+## Requirements
 
 ### Requirement: Date conversion
 The system SHALL convert a `LocalDate` to a `ZonedDateTime` at start-of-day in the system default time zone.
