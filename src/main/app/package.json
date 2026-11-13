@@ -81,7 +81,7 @@
     "@testing-library/angular": "18.1.1",
     "@testing-library/dom": "10.4.2",
     "@testing-library/jest-dom": "7.0.1",
-    "@testing-library/user-event": "14.6.8",
+    "@testing-library/user-event": "14.6.9",
     "@types/jest": "30.0.0",
     "@types/node": "24.19.2",
     "angular-eslint": "22.6.0",
