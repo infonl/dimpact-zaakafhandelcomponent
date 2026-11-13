@@ -88,7 +88,12 @@ export class TakenService {
   updateTaakdata() {
     return mergeMutationOptions(
       this.zacQueryClient.PUT("/rest/taken/taakdata"),
-      { onSuccess: () => this.utilService.openSnackbar("msg.taak.opgeslagen") },
+      {
+        onSuccess: (_, taak) => {
+          this.utilService.openSnackbar("msg.taak.opgeslagen");
+          void this.leaveTaak(taak);
+        },
+      },
     );
   }
 
@@ -96,22 +101,35 @@ export class TakenService {
     return mergeMutationOptions(
       this.zacQueryClient.PATCH("/rest/taken/complete"),
       {
-        onSuccess: () => {
+        onSuccess: (_, taak) => {
           this.utilService.openSnackbar("msg.taak.afgerond");
-          void this.leaveCompletedTaak();
+          void this.leaveTaak(taak);
         },
       },
     );
   }
 
-  private leaveCompletedTaak() {
+  private leaveTaak({ zaakUuid }: GeneratedType<"RestTask">) {
+    this.invalidateWerklijsten(zaakUuid);
+
     if (this.router.parseUrl(this.router.url).queryParams["bron"] === "email")
       return;
 
+    // A crumb without a history key is the parent route of a taak opened directly or from search, not a visited page
     const origin = findOrigin(this.location);
-    return origin
+    return origin?.key
       ? navigateToBreadcrumb(origin, this.router)
       : this.router.navigateByUrl("/");
+  }
+
+  private invalidateWerklijsten(zaakUuid: string) {
+    void this.queryClient.invalidateQueries({
+      queryKey: ["/rest/zoeken/list"],
+    });
+    void this.queryClient.invalidateQueries({
+      queryKey: ["/rest/signaleringen/taken/{type}"],
+    });
+    void this.invalidateTakenVoorZaak(zaakUuid);
   }
 
   verdelenVanuitLijst() {
