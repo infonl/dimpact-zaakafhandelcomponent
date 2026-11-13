@@ -21,9 +21,9 @@ import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.time.toDate
+import nl.info.zac.time.toLocalDate
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.time.toDate
-import nl.info.zac.util.time.toLocalDate
 import nl.info.zac.zaak.exception.ZaakCannotBeSuspendedAgainException
 import org.flowable.task.api.Task
 import java.time.LocalDate

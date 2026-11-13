@@ -11,7 +11,7 @@ import nl.info.zac.policy.output.DocumentRechten
 import nl.info.zac.search.model.DocumentIndicatie
 import nl.info.zac.search.model.zoekobject.DocumentZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
-import nl.info.zac.util.time.toLocalDate
+import nl.info.zac.time.toLocalDate
 import java.time.LocalDate
 import java.util.EnumSet
 

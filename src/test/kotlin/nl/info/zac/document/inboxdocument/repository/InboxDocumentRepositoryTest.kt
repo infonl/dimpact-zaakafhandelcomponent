@@ -13,14 +13,15 @@ import io.mockk.verify
 import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import jakarta.persistence.criteria.CriteriaQuery
+import jakarta.persistence.criteria.Expression
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocumentListParameters
 import nl.info.zac.document.inboxdocument.repository.model.createInboxDocument
 import nl.info.zac.document.inboxdocument.repository.model.createInboxDocumentListParameters
-import nl.info.zac.search.model.DatumRange
 import nl.info.zac.shared.model.Paging
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.shared.model.Sorting
+import nl.info.zac.time.DatumRange
 import java.time.LocalDate
 import java.util.UUID
 
@@ -290,6 +291,15 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
 
                 then("results are returned") {
                     result shouldBe documents
+                }
+                and("the creatiedatum is on or after the van day and before the day after the tot day") {
+                    verify {
+                        entityManager.criteriaBuilder.greaterThanOrEqualTo(
+                            any<Expression<LocalDate>>(),
+                            LocalDate.of(2024, 1, 1)
+                        )
+                        entityManager.criteriaBuilder.lessThan(any<Expression<LocalDate>>(), LocalDate.of(2025, 1, 1))
+                    }
                 }
             }
         }

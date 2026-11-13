@@ -13,11 +13,10 @@ import jakarta.persistence.criteria.Root
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
-import nl.info.client.zgw.util.toZonedDateTime
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocumentListParameters
-import nl.info.zac.search.model.DatumRange
 import nl.info.zac.shared.model.SorteerRichting
+import nl.info.zac.time.toDatePredicates
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.Locale
@@ -104,39 +103,10 @@ class InboxDocumentRepository @Inject constructor(
                 )
             }
         }
-        addCreatiedatumPredicates(
-            creatiedatum = listParameters.creatiedatum,
-            predicates = predicates,
-            root = root,
-            builder = builder
-        )
+        listParameters.creatiedatum?.let {
+            predicates.addAll(it.toDatePredicates(builder, root.get(InboxDocument.CREATIE_DATUM_PROPERTY_NAME)))
+        }
         @Suppress("SpreadOperator")
         return builder.and(*predicates.toTypedArray())
-    }
-
-    private fun addCreatiedatumPredicates(
-        creatiedatum: DatumRange?,
-        predicates: MutableList<Predicate>,
-        root: Root<InboxDocument>,
-        builder: CriteriaBuilder
-    ) {
-        creatiedatum?.let {
-            it.van?.let { van ->
-                predicates.add(
-                    builder.greaterThanOrEqualTo(
-                        root.get(InboxDocument.CREATIE_DATUM_PROPERTY_NAME),
-                        van.toZonedDateTime()
-                    )
-                )
-            }
-            it.tot?.let { tot ->
-                predicates.add(
-                    builder.lessThanOrEqualTo(
-                        root.get(InboxDocument.CREATIE_DATUM_PROPERTY_NAME),
-                        tot.toZonedDateTime().plusDays(1).minusSeconds(1)
-                    )
-                )
-            }
-        }
     }
 }

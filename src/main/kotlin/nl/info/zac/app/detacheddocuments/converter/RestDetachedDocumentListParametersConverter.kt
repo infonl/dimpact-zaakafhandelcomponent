@@ -8,7 +8,7 @@ package nl.info.zac.app.detacheddocuments.converter
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters
 import nl.info.zac.app.shared.applyCommonParametersTo
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocumentListParameters
-import nl.info.zac.search.model.DatumRange
+import nl.info.zac.time.DatumRange
 
 fun RestDetachedDocumentListParameters.toDetachedDocumentListParameters() =
     DetachedDocumentListParameters().also { params ->

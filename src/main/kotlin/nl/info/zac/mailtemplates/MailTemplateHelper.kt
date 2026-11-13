@@ -33,9 +33,9 @@ import nl.info.zac.identity.model.getFullName
 import nl.info.zac.mailtemplates.model.MailLink
 import nl.info.zac.mailtemplates.model.MailTemplateVariables
 import nl.info.zac.mailtemplates.model.MailTemplateVariables.Companion.ZAAKDATA_VARIABLE_PREFIX
+import nl.info.zac.time.toLocalDate
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.time.toLocalDate
 import org.apache.commons.text.StringEscapeUtils
 import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo

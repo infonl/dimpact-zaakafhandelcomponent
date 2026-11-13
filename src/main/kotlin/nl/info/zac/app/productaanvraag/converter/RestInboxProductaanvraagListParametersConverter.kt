@@ -8,7 +8,7 @@ package nl.info.zac.app.productaanvraag.converter
 import nl.info.zac.app.productaanvraag.model.RestInboxProductaanvraagListParameters
 import nl.info.zac.app.shared.applyCommonParametersTo
 import nl.info.zac.productaanvraag.model.InboxProductaanvraagListParameters
-import nl.info.zac.search.model.DatumRange
+import nl.info.zac.time.DatumRange
 
 fun RestInboxProductaanvraagListParameters.toInboxProductaanvraagListParameters() =
     InboxProductaanvraagListParameters().also { params ->

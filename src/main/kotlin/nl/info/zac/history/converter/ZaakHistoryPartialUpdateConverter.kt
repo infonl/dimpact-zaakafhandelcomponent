@@ -15,10 +15,10 @@ import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
 import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
 import nl.info.zac.history.model.HistoryAction
 import nl.info.zac.history.model.HistoryLine
+import nl.info.zac.time.toFormattedDate
 import nl.info.zac.util.asMapWithKeyOfString
 import nl.info.zac.util.diff
 import nl.info.zac.util.getTypedValue
-import nl.info.zac.util.time.toFormattedDate
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.logging.Level

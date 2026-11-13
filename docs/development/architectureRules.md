@@ -22,17 +22,23 @@ The backend has three layers. A layer may only depend on the layers below it:
 
 ## Rules
 
-| Rule                                                                  | Existing violations |
-| --------------------------------------------------------------------- | ------------------- |
-| The domain code does not depend on the REST layer                     | Frozen              |
-| The clients do not depend on the REST layer                           | None                |
-| No field is annotated with `@Inject`; ZAC uses constructor injection  | None                |
-| No class depends on the `javax` Java EE APIs that Jakarta EE replaced | None                |
+| Rule                                                                    | Existing violations |
+| ----------------------------------------------------------------------- | ------------------- |
+| The domain code does not depend on the REST layer                       | Frozen              |
+| The clients do not depend on the REST layer                             | None                |
+| No field is annotated with `@Inject`; ZAC uses constructor injection    | None                |
+| No class depends on the `javax` Java EE APIs that Jakarta EE replaced   | None                |
+| No class outside `nl.info.zac.time` reads the system time zone or clock | Frozen              |
 
 Fields annotated with `@Resource` are allowed, because JNDI resources such as a `DataSource` cannot be
 injected through a constructor.
 
-Generated code (`..generated..`) is excluded from the `javax` rule. The rule allows the `javax` packages
+The date and time rule forbids, outside `nl.info.zac.time..`, calls of `ZoneId.systemDefault()`,
+`TimeZone.getDefault()`, `Clock.systemDefaultZone()`, `LocalDate.atStartOfDay(ZoneId)` and the `now()` and
+`now(ZoneId)` of `LocalDate`, `LocalDateTime`, `ZonedDateTime` and `OffsetDateTime`. Use `ZacTime` instead, see
+[ADR-0015](../solution-architecture/decisions/0015-use-europe-amsterdam-and-half-open-date-ranges.md).
+
+Generated code (`..generated..`) is excluded from the `javax` rule and the date and time rule. The rule allows the `javax` packages
 that are still part of Java SE, such as `javax.annotation.processing` and `javax.transaction.xa`.
 
 ## Frozen violations

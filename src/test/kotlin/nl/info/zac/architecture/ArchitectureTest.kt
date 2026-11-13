@@ -10,10 +10,18 @@ import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noFields
 import com.tngtech.archunit.library.freeze.FreezingArchRule.freeze
 import io.kotest.core.spec.style.BehaviorSpec
+import java.time.Clock
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.util.TimeZone
 
 private const val REST_LAYER_PACKAGE = "nl.info.zac.app.."
 private const val CLIENT_PACKAGE = "nl.info.client.."
 private const val GENERATED_PACKAGE = "..generated.."
+private const val TIME_PACKAGE = "nl.info.zac.time.."
 
 class ArchitectureTest : BehaviorSpec({
     val zacClasses = ClassFileImporter()
@@ -81,6 +89,34 @@ class ArchitectureTest : BehaviorSpec({
                             "javax.ws.rs.."
                         )
                         .check(zacClasses)
+                }
+            }
+        }
+    }
+
+    context("The handling of dates and times") {
+        given("the ZAC classes outside the time package that are not generated") {
+            `when`("their method calls are checked") {
+                then(
+                    "they do not read the system time zone or the system clock, and do not convert a date to a " +
+                        "point in time with a time zone of their own, apart from the frozen existing violations"
+                ) {
+                    freeze(
+                        noClasses()
+                            .that().resideOutsideOfPackages(TIME_PACKAGE, GENERATED_PACKAGE)
+                            .should().callMethod(ZoneId::class.java, "systemDefault")
+                            .orShould().callMethod(TimeZone::class.java, "getDefault")
+                            .orShould().callMethod(Clock::class.java, "systemDefaultZone")
+                            .orShould().callMethod(LocalDate::class.java, "now")
+                            .orShould().callMethod(LocalDate::class.java, "now", ZoneId::class.java)
+                            .orShould().callMethod(LocalDateTime::class.java, "now")
+                            .orShould().callMethod(LocalDateTime::class.java, "now", ZoneId::class.java)
+                            .orShould().callMethod(ZonedDateTime::class.java, "now")
+                            .orShould().callMethod(ZonedDateTime::class.java, "now", ZoneId::class.java)
+                            .orShould().callMethod(OffsetDateTime::class.java, "now")
+                            .orShould().callMethod(OffsetDateTime::class.java, "now", ZoneId::class.java)
+                            .orShould().callMethod(LocalDate::class.java, "atStartOfDay", ZoneId::class.java)
+                    ).check(zacClasses)
                 }
             }
         }

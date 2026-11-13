@@ -69,9 +69,9 @@ import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.signalering.model.SignaleringZoekParameters
 import nl.info.zac.task.BpmnTaskFormRuntimeService
 import nl.info.zac.task.TaskService
+import nl.info.zac.time.toDate
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.time.toDate
 import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.readZaakAutorisatieGegevens

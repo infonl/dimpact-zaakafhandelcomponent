@@ -19,7 +19,6 @@ import nl.info.zac.app.search.model.createZoekParameters
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.policy.PolicyService
-import nl.info.zac.search.model.DatumRange
 import nl.info.zac.search.model.DatumVeld
 import nl.info.zac.search.model.FilterParameters
 import nl.info.zac.search.model.FilterVeld
@@ -31,6 +30,7 @@ import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.solr.SolrClientFactory
+import nl.info.zac.time.DatumRange
 import org.apache.solr.client.solrj.SolrRequest
 import org.apache.solr.client.solrj.beans.DocumentObjectBinder
 import org.apache.solr.client.solrj.impl.Http2SolrClient
@@ -39,8 +39,6 @@ import org.apache.solr.common.SolrDocument
 import org.apache.solr.common.SolrDocumentList
 import org.apache.solr.common.params.SolrParams
 import java.time.LocalDate
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.EnumMap
 
 class SearchServiceTest : BehaviorSpec({
@@ -128,12 +126,6 @@ class SearchServiceTest : BehaviorSpec({
                         items[1] shouldBe zaakZoekObject2
                     }
                 }
-                val zaakSearchStartDateString = DateTimeFormatter.ISO_INSTANT.format(
-                    zaakSearchStartDate.atStartOfDay(ZoneId.systemDefault())
-                )
-                val zaakSearchEndDateString = DateTimeFormatter.ISO_INSTANT.format(
-                    zaakSearchEndDate.atStartOfDay(ZoneId.systemDefault())
-                )
                 with(solrParamsSlot.captured) {
                     get("q") shouldBe "*:*"
                     getParams("fq") shouldBe arrayOf(
@@ -142,7 +134,7 @@ class SearchServiceTest : BehaviorSpec({
                             "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeUsername\")",
                         "type:ZAAK",
                         "zaak_omschrijving:($zaakDescriptionSearchField)",
-                        "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString]",
+                        "startdatum:[1999-12-31T23:00:00Z TO 2000-02-01T23:00:00Z}",
                         """{!tag=ZAAKTYPE}zaaktypeOmschrijving:("$zaakType1" OR "$zaakType2")""",
                         """{!tag=BEHANDELAAR}behandelaarNaam:("$behandelaarFilterValue1" OR "$behandelaarFilterValue2")"""
                     )
@@ -222,12 +214,6 @@ class SearchServiceTest : BehaviorSpec({
                         items[0] shouldBe taakZoekObject1
                     }
                 }
-                val zaakSearchStartDateString = DateTimeFormatter.ISO_INSTANT.format(
-                    zaakSearchStartDate.atStartOfDay(ZoneId.systemDefault())
-                )
-                val zaakSearchEndDateString = DateTimeFormatter.ISO_INSTANT.format(
-                    zaakSearchEndDate.atStartOfDay(ZoneId.systemDefault())
-                )
                 with(solrParamsSlot.captured) {
                     get("q") shouldBe "*:*"
                     getParams("fq") shouldBe arrayOf(
@@ -235,7 +221,7 @@ class SearchServiceTest : BehaviorSpec({
                         "-({!terms f=zaaktypeOmschrijving separator='\n' v=\$zaaktypenZonderZaakspecifiekGeautoriseerd} " +
                             "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeUsername\")",
                         "type:TAAK",
-                        "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString]",
+                        "startdatum:[1999-12-31T23:00:00Z TO 2000-02-01T23:00:00Z}",
                         """{!tag=ZAAKTYPE}zaaktypeOmschrijving:("$zaakType1")"""
                     )
                     get("zaaktypenZonderZaakspecifiekGeautoriseerd") shouldBe "$zaakType1"
@@ -383,12 +369,6 @@ class SearchServiceTest : BehaviorSpec({
                     }
                 }
 
-                val zaakSearchStartDateString = DateTimeFormatter.ISO_INSTANT.format(
-                    zaakSearchStartDate.atStartOfDay(ZoneId.systemDefault())
-                )
-                val zaakSearchEndDateString = DateTimeFormatter.ISO_INSTANT.format(
-                    zaakSearchEndDate.atStartOfDay(ZoneId.systemDefault())
-                )
 
                 with(solrParamsSlot.captured) {
                     get("q") shouldBe "*:*"
@@ -397,7 +377,7 @@ class SearchServiceTest : BehaviorSpec({
                         "-({!terms f=zaaktypeOmschrijving separator='\n' v=\$zaaktypenZonderZaakspecifiekGeautoriseerd} " +
                             "AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:\"fakeUsername\")",
                         "type:TAAK",
-                        "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString]",
+                        "startdatum:[1999-12-31T23:00:00Z TO 2000-02-01T23:00:00Z}",
                         """{!tag=ZAAKTYPE}zaaktypeOmschrijving:("$zaakType1")"""
                     )
                     get("zaaktypenZonderZaakspecifiekGeautoriseerd") shouldBe "$zaakType1"

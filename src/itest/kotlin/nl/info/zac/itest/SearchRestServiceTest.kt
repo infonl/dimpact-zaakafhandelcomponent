@@ -44,6 +44,7 @@ import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
+import java.time.ZoneId
 
 /**
  * This test creates multiple zaken, tasks and documents, indexes them, and performs searches.
@@ -423,6 +424,85 @@ class SearchRestServiceTest : BehaviorSpec({
                               "naam" : "GEBRUIKSRECHT"
                             } ]
                           }
+                        }
+                    """.trimIndent()
+                }
+            }
+
+            `when`(
+                """the search endpoint is called to search for the tasks of the zaak
+                    created van today t/m today in Europe/Amsterdam"""
+            ) {
+                val todayInAmsterdam = LocalDate.now(ZoneId.of("Europe/Amsterdam"))
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/zoeken/list",
+                    requestBodyAsString = """
+                    {
+                        "alleenMijnZaken": false,
+                        "alleenOpenstaandeZaken": false,
+                        "alleenAfgeslotenZaken": false,
+                        "alleenMijnTaken": false,
+                        "zoeken": { "TAAK_ZAAK_ID": "$zaakIdentification" },
+                        "filters": {},
+                        "datums": { "TAAK_CREATIEDATUM": { "van": "$todayInAmsterdam", "tot": "$todayInAmsterdam" } },
+                        "rows": 10,
+                        "page": 0,
+                        "type": "TAAK"
+                    }
+                    """.trimIndent(),
+                    testUser = RAADPLEGER_1,
+                )
+                then("the response is successful and the results include the task created today") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                        {
+                          "resultaten" : [ {
+                            "naam" : "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
+                            "zaakIdentificatie" : "$zaakIdentification"
+                          } ],
+                          "totaal" : 1
+                        }
+                    """.trimIndent()
+                }
+            }
+
+            `when`(
+                """the search endpoint is called to search for the uploaded document
+                    registered van today t/m today in Europe/Amsterdam"""
+            ) {
+                val todayInAmsterdam = LocalDate.now(ZoneId.of("Europe/Amsterdam"))
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/zoeken/list",
+                    requestBodyAsString = """
+                    {
+                        "alleenMijnZaken": false,
+                        "alleenOpenstaandeZaken": false,
+                        "alleenAfgeslotenZaken": false,
+                        "alleenMijnTaken": false,
+                        "zoeken": { "DOCUMENT_TITEL": "$documentTitle" },
+                        "filters": {},
+                        "datums": {
+                            "INFORMATIEOBJECT_REGISTRATIEDATUM": { "van": "$todayInAmsterdam", "tot": "$todayInAmsterdam" }
+                        },
+                        "rows": 10,
+                        "page": 0,
+                        "type": "DOCUMENT"
+                    }
+                    """.trimIndent(),
+                    testUser = RAADPLEGER_1,
+                )
+                then("the response is successful and the results include the document registered today") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                        {
+                          "resultaten" : [ {
+                            "titel" : "$documentTitle"
+                          } ],
+                          "totaal" : 1
                         }
                     """.trimIndent()
                 }

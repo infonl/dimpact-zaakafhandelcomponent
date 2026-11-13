@@ -2,9 +2,8 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.util.time
+package nl.info.zac.time
 
-import java.time.LocalDateTime
 import java.time.Period
 import java.time.temporal.ChronoUnit
 
@@ -18,7 +17,7 @@ fun Period.format(): String = when (this) {
 }
 
 fun Period.numberOfDaysFromToday(): Int {
-    val start = LocalDateTime.now()
+    val start = ZacTime.today()
     return start.until(start.plus(this), ChronoUnit.DAYS).toInt()
 }
 

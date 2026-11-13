@@ -11,7 +11,6 @@ import jakarta.inject.Inject
 import nl.info.zac.app.search.model.RestDatumRange
 import nl.info.zac.app.search.model.RestZoekParameters
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.search.model.DatumRange
 import nl.info.zac.search.model.DatumVeld
 import nl.info.zac.search.model.FilterParameters
 import nl.info.zac.search.model.FilterVeld
@@ -21,6 +20,7 @@ import nl.info.zac.search.model.ZoekVeld
 import nl.info.zac.search.model.zoekobject.TaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.shared.model.toSorteerRichting
+import nl.info.zac.time.DatumRange
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.lang3.BooleanUtils

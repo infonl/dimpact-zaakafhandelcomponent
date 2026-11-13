@@ -4,8 +4,8 @@
  */
 package nl.info.zac.document.inboxdocument.repository.model
 
-import nl.info.zac.search.model.DatumRange
 import nl.info.zac.shared.model.ListParameters
+import nl.info.zac.time.DatumRange
 
 class InboxDocumentListParameters : ListParameters() {
     var titel: String? = null

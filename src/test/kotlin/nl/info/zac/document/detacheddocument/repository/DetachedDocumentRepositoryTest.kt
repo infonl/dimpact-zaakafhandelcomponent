@@ -18,6 +18,10 @@ import jakarta.persistence.criteria.Expression
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocumentListParameters
 import nl.info.zac.document.detacheddocument.repository.model.createDetachedDocument
+import nl.info.zac.time.DatumRange
+import nl.info.zac.time.ZacTime
+import java.time.LocalDate
+import java.time.ZonedDateTime
 import java.util.UUID
 
 class DetachedDocumentRepositoryTest : BehaviorSpec({
@@ -188,6 +192,44 @@ class DetachedDocumentRepositoryTest : BehaviorSpec({
                 then("the documents are not filtered on zaak ID") {
                     verify(exactly = 0) {
                         criteriaBuilder.like(any<Expression<String>>(), any<String>())
+                    }
+                }
+            }
+        }
+    }
+
+    context("Filtering detached documents on dates") {
+        given("list parameters with a creatiedatum and an ontkoppeld op range van 30-07-2026 t/m 30-07-2026") {
+            val dateEntityManager = mockk<EntityManager>(relaxed = true)
+            val criteriaBuilder = mockk<CriteriaBuilder>(relaxed = true)
+            every { dateEntityManager.criteriaBuilder } returns criteriaBuilder
+            val dateDetachedDocumentRepository = DetachedDocumentRepository(dateEntityManager)
+            val day = LocalDate.of(2026, 7, 30)
+
+            `when`("list is called") {
+                dateDetachedDocumentRepository.list(
+                    DetachedDocumentListParameters().apply {
+                        creatiedatum = DatumRange(van = day, tot = day)
+                        ontkoppeldOp = DatumRange(van = day, tot = day)
+                    }
+                )
+
+                then("the creatiedatum is on or after 30-07-2026 and before 31-07-2026") {
+                    verify(exactly = 1) {
+                        criteriaBuilder.greaterThanOrEqualTo(any<Expression<LocalDate>>(), day)
+                        criteriaBuilder.lessThan(any<Expression<LocalDate>>(), LocalDate.of(2026, 7, 31))
+                    }
+                }
+                and("ontkoppeld op is from the start of 30-07-2026 up to the start of 31-07-2026 in Europe/Amsterdam") {
+                    verify(exactly = 1) {
+                        criteriaBuilder.greaterThanOrEqualTo(
+                            any<Expression<ZonedDateTime>>(),
+                            ZonedDateTime.of(2026, 7, 30, 0, 0, 0, 0, ZacTime.ZONE)
+                        )
+                        criteriaBuilder.lessThan(
+                            any<Expression<ZonedDateTime>>(),
+                            ZonedDateTime.of(2026, 7, 31, 0, 0, 0, 0, ZacTime.ZONE)
+                        )
                     }
                 }
             }
