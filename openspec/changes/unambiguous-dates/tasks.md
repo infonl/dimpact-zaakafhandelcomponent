@@ -13,8 +13,8 @@
 
 ## 2. Frontend: one date-time module and dates without a time
 
-- [ ] 2.1 Create `src/main/app/src/app/date-time/` with a public `index.ts`: `toApiDate` (`yyyy-MM-dd` of the local date), `fromApiDate` (accepts `yyyy-MM-dd` and an ISO instant), the shared `MAT_DATE_FORMATS` and the moment date adapter providers. Verify with `date-time.spec.ts`: picking 30-07-2026 in `Europe/Amsterdam` gives `2026-07-30`, and `2026-07-29T22:00:00.000Z` gives 30-07-2026
-- [ ] 2.2 Make `DateRangeFilterComponent` and `DateFilterComponent` use the module, so they send `yyyy-MM-dd` and show old saved values on the right day. Verify with their specs (Testing Library) that the emitted range holds `"2026-07-30"`
-- [ ] 2.3 Add the ESLint rules of design D5 to `eslint.config.js`, with the files that break them today in a frozen list that turns the rules off for those files only. Verify `npm run lint` passes, and fails after a temporary `moment` import in a file outside the list
-- [ ] 2.4 Run `./gradlew spotlessApply` and verify `npm test -- --test-path-patterns "date"` and `npx ngc -p tsconfig.app.json --noEmit` pass
+- [x] 2.1 Create `src/main/app/src/app/date-time/` with a public `index.ts`: `toApiDate` (`yyyy-MM-dd` of the local date), `fromApiDate` (accepts `yyyy-MM-dd` and an ISO instant), the shared `MAT_DATE_FORMATS` and the moment date adapter providers. Verify with `date-time.spec.ts`: picking 30-07-2026 in `Europe/Amsterdam` gives `2026-07-30`, and `2026-07-29T22:00:00.000Z` gives 30-07-2026
+- [x] 2.2 Make `DateRangeFilterComponent` and `DateFilterComponent` use the module, so they send `yyyy-MM-dd` and show old saved values on the right day. Verify with their specs (Testing Library) that the emitted range holds `"2026-07-30"`
+- [x] 2.3 Add the ESLint rules of design D5 to `eslint.config.js`, with the files that break them today in a frozen list that turns the rules off for those files only. Verify `npm run lint` passes, and fails after a temporary `moment` import in a file outside the list
+- [x] 2.4 Run `./gradlew spotlessApply` and verify `npm test -- --test-path-patterns "date"` and `npx ngc -p tsconfig.app.json --noEmit` pass
 - [ ] 2.5 In the local kind stack, filter "Mijn taken" on "Aangemaakt op" van today t/m today and verify the tasks created today show; filter the inbox documents on one day and verify no document of the day before shows

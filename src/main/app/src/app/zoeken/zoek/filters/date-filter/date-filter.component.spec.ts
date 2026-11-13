@@ -18,12 +18,12 @@ import { DateFilterComponent } from "./date-filter.component";
 type DatumRange = GeneratedType<"RestDatumRange">;
 
 const LABEL = "fakeDatumLabel";
-const JANUARY_15 = "2026-01-15T00:00:00.000Z";
-const MARCH_31 = "2026-03-31T00:00:00.000Z";
+const JANUARY_15 = "2026-01-15";
+const MARCH_31 = "2026-03-31";
 const TYPED_JUNE_1 = "2026-06-01";
-const JUNE_1 = "2026-06-01T00:00:00.000Z";
+const JUNE_1 = "2026-06-01";
 const TYPED_DECEMBER_31 = "2026-12-31";
-const DECEMBER_31 = "2026-12-31T00:00:00.000Z";
+const DECEMBER_31 = "2026-12-31";
 
 describe(DateFilterComponent.name, () => {
   let fixture: ComponentFixture<DateFilterComponent>;
@@ -90,6 +90,12 @@ describe(DateFilterComponent.name, () => {
       expect(panelHeader()).toHaveAttribute("aria-expanded", "true");
     });
 
+    it("shows the date of an old saved search that holds a UTC instant on the day the user picked", async () => {
+      await setup({ range: { van: "2026-07-29T22:00:00.000Z" } });
+
+      expect(vanField()).toHaveValue("30-7-2026");
+    });
+
     it("fills the van and tot fields from the range", async () => {
       await setup({ range: { van: JANUARY_15, tot: MARCH_31 } });
 
@@ -134,6 +140,19 @@ describe(DateFilterComponent.name, () => {
 
       expect(changed).toHaveBeenCalledTimes(1);
       expect(changed).toHaveBeenCalledWith({ van: JUNE_1, tot: undefined });
+    });
+
+    it("emits the picked date without a time", async () => {
+      await setup();
+      await user.click(panelHeader());
+
+      await typeDate(vanField(), "2026-07-30");
+      await typeDate(totField(), "2026-07-30");
+
+      expect(changed).toHaveBeenLastCalledWith({
+        van: "2026-07-30",
+        tot: "2026-07-30",
+      });
     });
 
     it("keeps the picked van date when a tot date is picked afterwards", async () => {

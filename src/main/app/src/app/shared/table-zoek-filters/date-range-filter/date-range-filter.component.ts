@@ -13,12 +13,16 @@ import {
   untracked,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
-import { MAT_DATE_FORMATS } from "@angular/material/core";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { TranslatePipe } from "@ngx-translate/core";
-import moment, { Moment } from "moment";
+import {
+  fromApiDate,
+  PickedDate,
+  provideFilterDateFormats,
+  toApiDate,
+} from "../../../date-time";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { GeneratedType } from "../../utils/generated-types";
 
@@ -35,22 +39,7 @@ import { GeneratedType } from "../../utils/generated-types";
     TranslatePipe,
     CapitalizeFirstLetterPipe,
   ],
-  providers: [
-    {
-      provide: MAT_DATE_FORMATS,
-      useValue: {
-        parse: {
-          dateInput: "DD-MM-yyyy",
-        },
-        display: {
-          dateInput: "DD-MM-yyyy",
-          monthYearLabel: "MMMM YYYY",
-          dateA11yLabel: "LL",
-          monthYearA11yLabel: "MMMM YYYY",
-        },
-      },
-    },
-  ],
+  providers: [provideFilterDateFormats()],
 })
 export class DateRangeFilterComponent {
   readonly range = model.required<
@@ -60,8 +49,8 @@ export class DateRangeFilterComponent {
   readonly showLabel = input<boolean>();
   readonly changed = output<GeneratedType<"RestDatumRange">>();
 
-  protected dateVan = new FormControl<Moment | null>(null);
-  protected dateTM = new FormControl<Moment | null>(null);
+  protected dateVan = new FormControl<PickedDate | null>(null);
+  protected dateTM = new FormControl<PickedDate | null>(null);
 
   private readonly currentRange = computed<GeneratedType<"RestDatumRange">>(
     () => this.range() ?? { van: null, tot: null },
@@ -71,8 +60,8 @@ export class DateRangeFilterComponent {
     effect(() => {
       const currentRange = this.currentRange();
       untracked(() => {
-        this.dateVan.setValue(this.toMoment(currentRange.van));
-        this.dateTM.setValue(this.toMoment(currentRange.tot));
+        this.dateVan.setValue(fromApiDate(currentRange.van));
+        this.dateTM.setValue(fromApiDate(currentRange.tot));
       });
     });
   }
@@ -88,8 +77,8 @@ export class DateRangeFilterComponent {
 
   protected change(): void {
     const range = {
-      van: this.dateVan.value?.toISOString() ?? null,
-      tot: this.dateTM.value?.toISOString() ?? null,
+      van: toApiDate(this.dateVan.value),
+      tot: toApiDate(this.dateTM.value),
     };
     this.setRange(range);
     if (this.hasRange()) {
@@ -108,9 +97,5 @@ export class DateRangeFilterComponent {
       return;
     }
     this.range.set(range);
-  }
-
-  private toMoment(value?: string | null) {
-    return value ? moment(value) : null;
   }
 }

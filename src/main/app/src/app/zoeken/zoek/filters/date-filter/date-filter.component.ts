@@ -18,6 +18,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { TranslatePipe } from "@ngx-translate/core";
+import { fromApiDate, PickedDate, toApiDate } from "../../../../date-time";
 import { trackControl } from "../../../../shared/form/control-state";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 
@@ -41,8 +42,8 @@ export class DateFilterComponent implements OnInit {
   readonly label = input.required<string>();
   readonly changed = output<GeneratedType<"RestDatumRange">>();
 
-  protected dateVan = new FormControl<Date | null>(null);
-  protected dateTM = new FormControl<Date | null>(null);
+  protected dateVan = new FormControl<PickedDate | null>(null);
+  protected dateTM = new FormControl<PickedDate | null>(null);
   protected readonly hasDateVan = trackControl(signal(this.dateVan))(
     (control) => !!control.value,
   );
@@ -54,8 +55,8 @@ export class DateFilterComponent implements OnInit {
 
   ngOnInit() {
     const range = this.currentRange();
-    this.dateVan.setValue(range?.van ? new Date(range.van) : null);
-    this.dateTM.setValue(range?.tot ? new Date(range.tot) : null);
+    this.dateVan.setValue(fromApiDate(range?.van));
+    this.dateTM.setValue(fromApiDate(range?.tot));
   }
 
   protected change() {
@@ -66,15 +67,15 @@ export class DateFilterComponent implements OnInit {
 
   private updateRangeProperty(
     property: "van" | "tot",
-    control: FormControl<Date | null>,
+    control: FormControl<PickedDate | null>,
   ) {
     const range = this.currentRange();
     if (range?.[property]) {
-      range[property] = control.value?.toISOString();
+      range[property] = toApiDate(control.value) ?? undefined;
     } else {
       this.currentRange.set({
         ...range,
-        [property]: control.value?.toISOString(),
+        [property]: toApiDate(control.value) ?? undefined,
       });
     }
   }
