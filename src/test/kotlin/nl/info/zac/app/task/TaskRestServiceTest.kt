@@ -372,6 +372,15 @@ class TaskRestServiceTest : BehaviorSpec({
                         indexingService.softCommit()
                     }
                 }
+                and("the events and the signalering are sent before the zaak is reindexed, so an index failure does not lose them") {
+                    verifyOrder {
+                        flowableTaskService.completeTask(task)
+                        eventingService.send(any<ScreenEvent>())
+                        eventingService.send(any<ScreenEvent>())
+                        eventingService.send(any<SignaleringEvent<*>>())
+                        indexingService.addOrUpdateZaakOrThrow(restTaak.zaakUuid, false)
+                    }
+                }
                 and("the behandelaar of the zaak is signalled that the user completed the task") {
                     with(signaleringEvent.captured) {
                         objectType shouldBe SignaleringType.Type.TAAK_AFGEROND

@@ -268,12 +268,12 @@ class TaskRestService @Inject constructor(
         } ?: processHardCodedFormTask(restTask, zaak)
 
         return flowableTaskService.completeTask(updatedTask).also {
-            indexingService.addOrUpdateZaakOrThrow(restTask.zaakUuid, false)
-            // Also makes the removal of the completed task from the index searchable before the werklijst reloads
-            indexingService.softCommit()
             eventingService.send(ScreenEventType.TAAK.updated(it))
             eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
             eventingService.send(signaleringEvent(SignaleringType.Type.TAAK_AFGEROND, it, loggedInUserInstance.get()))
+            indexingService.addOrUpdateZaakOrThrow(restTask.zaakUuid, false)
+            // Also makes the removal of the completed task from the index searchable before the werklijst reloads
+            indexingService.softCommit()
         }.let { restTaskConverter.toRestTask(it) }
     }
 
