@@ -26,6 +26,7 @@ import { BreadcrumbsComponent } from "./breadcrumbs.component";
 import {
   BREADCRUMB_DETAIL,
   BREADCRUMB_ORIGIN,
+  BREADCRUMB_SECTION,
   breadcrumbDetails,
   translatedTitle,
 } from "./route-title";
@@ -57,7 +58,8 @@ describe(BreadcrumbsComponent.name, () => {
           { path: "untitled", component: PageStubComponent },
           {
             path: "zaken",
-            title: "Zaken",
+            title: "Zaken-werkvoorraad",
+            data: BREADCRUMB_SECTION,
             children: [
               {
                 path: "mijn",
@@ -92,7 +94,8 @@ describe(BreadcrumbsComponent.name, () => {
           },
           {
             path: "taken",
-            title: "Taken",
+            title: "Taken-werkvoorraad",
+            data: BREADCRUMB_SECTION,
             children: [
               {
                 path: "mijn",
@@ -101,8 +104,25 @@ describe(BreadcrumbsComponent.name, () => {
                 component: PageStubComponent,
               },
               {
+                path: "werkvoorraad",
+                title: "Taken-werkvoorraad",
+                data: BREADCRUMB_ORIGIN,
+                component: PageStubComponent,
+              },
+              {
                 path: ":id",
                 title: (route) => `Taak ${route.paramMap.get("id")}`,
+                data: BREADCRUMB_DETAIL,
+                component: PageStubComponent,
+              },
+            ],
+          },
+          {
+            path: "persoon",
+            title: "Persoonsgegevens",
+            children: [
+              {
+                path: ":id",
                 data: BREADCRUMB_DETAIL,
                 component: PageStubComponent,
               },
@@ -227,7 +247,44 @@ describe(BreadcrumbsComponent.name, () => {
   it("continues the breadcrumbs of the origin page a detail page is opened from", async () => {
     await navigateTo("/taken/mijn", "/zaken/ZAAK-1", "/taken/1");
 
-    expect(crumbs()).toEqual(["Taken", "Mijn taken", "ZAAK-1", "Taak 1"]);
+    expect(crumbs()).toEqual(["Mijn taken", "ZAAK-1", "Taak 1"]);
+  });
+
+  it("shows no section above a page of that section, because a section is no page", async () => {
+    await navigateTo("/zaken/mijn");
+
+    expect(crumbs()).toEqual(["Mijn zaken"]);
+  });
+
+  it("shows the section as the parent of a detail page that was opened without an origin page", async () => {
+    await navigateTo("/zaken/ZAAK-1");
+
+    expect(crumbs()).toEqual(["Zaken-werkvoorraad", "ZAAK-1"]);
+    expect(
+      screen.getByRole("link", { name: "Zaken-werkvoorraad" }),
+    ).toHaveAttribute("href", "/zaken");
+  });
+
+  it("replaces a detail page with the detail page of the same type that is opened further on", async () => {
+    await navigateTo(
+      "/taken/werkvoorraad",
+      "/taken/1",
+      "/zaken/ZAAK-1",
+      "/taken/2",
+    );
+
+    expect(crumbs()).toEqual(["Taken-werkvoorraad", "Taak 2"]);
+  });
+
+  it("shows at most three levels: the origin page and the last two pages opened from it", async () => {
+    await navigateTo(
+      "/zaken/mijn",
+      "/zaken/ZAAK-1",
+      "/taken/1",
+      "/persoon/persoon-1",
+    );
+
+    expect(crumbs()).toEqual(["Mijn zaken", "Taak 1", "Persoonsgegevens"]);
   });
 
   it("links the inherited breadcrumbs to the pages they came from", async () => {
@@ -244,7 +301,7 @@ describe(BreadcrumbsComponent.name, () => {
 
     await userEvent.setup().click(screen.getByRole("link", { name: "ZAAK-1" }));
 
-    expect(crumbs()).toEqual(["Zaken", "Mijn zaken", "ZAAK-1"]);
+    expect(crumbs()).toEqual(["Mijn zaken", "ZAAK-1"]);
   });
 
   it("shows a lock that screen readers announce as zaakspecifiek geautoriseerd beside the zaaknummer of a zaakspecifiek geautoriseerde zaak", async () => {

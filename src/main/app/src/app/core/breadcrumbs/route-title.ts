@@ -23,6 +23,7 @@ export type Breadcrumb = {
   title: string;
   url: string;
   key?: string;
+  detailPageKind?: string;
   details?: Partial<BreadcrumbDetails>;
 };
 
@@ -32,6 +33,9 @@ type BreadcrumbDetailsFn = (
 
 export const BREADCRUMB_ORIGIN = { breadcrumbs: "origin" } as const;
 export const BREADCRUMB_DETAIL = { breadcrumbs: "detail" } as const;
+const BREADCRUMB_SECTION_KEY = "breadcrumbSection";
+// The title of a section names the page it redirects to.
+export const BREADCRUMB_SECTION = { [BREADCRUMB_SECTION_KEY]: true } as const;
 
 // The details end up in the browser history with the trail, so they must be plain data.
 export function breadcrumbDetails(details: BreadcrumbDetailsFn) {
@@ -46,6 +50,7 @@ export function breadcrumbKind(root: ActivatedRouteSnapshot) {
 }
 
 export function breadcrumbs(root: ActivatedRouteSnapshot) {
+  const showsSections = breadcrumbKind(root) === "detail";
   const crumbs: Breadcrumb[] = [];
   for (
     let route: ActivatedRouteSnapshot | null = root;
@@ -53,7 +58,13 @@ export function breadcrumbs(root: ActivatedRouteSnapshot) {
     route = route.firstChild
   ) {
     // A route without a title of its own inherits the title of its parent.
-    if (route.routeConfig?.title !== undefined && route.title) {
+    const isSection =
+      route.routeConfig?.data?.[BREADCRUMB_SECTION_KEY] === true;
+    if (
+      route.routeConfig?.title !== undefined &&
+      route.title &&
+      (showsSections || !isSection)
+    ) {
       const details = route.data["breadcrumbDetails"] as
         | BreadcrumbDetailsFn
         | undefined;

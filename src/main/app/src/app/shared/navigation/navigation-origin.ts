@@ -33,25 +33,22 @@ export function navigateToBreadcrumb(breadcrumb: Breadcrumb, router: Router) {
   return router.navigateByUrl(url);
 }
 
-export function continueTrail(trail: Breadcrumb[], page: Breadcrumb) {
-  const last = trail.at(-1);
-  if (last && isVersionOf(last.url, page.url))
-    return [...trail.slice(0, -1), page];
+const MAXIMUM_TRAIL_LENGTH = 3;
 
-  const index = trail.findIndex(({ url }) => path(url) === path(page.url));
-  return [...(index === -1 ? trail : trail.slice(0, index)), page];
+export function detailPageKind(url: string) {
+  return segments(url)[0];
 }
 
-// Another version of a page, like `/informatie-objecten/<uuid>/2` of `/informatie-objecten/<uuid>`,
-// has the url of that page as its start. A one-segment url such as `/zaken` is a section, not a page.
-function isVersionOf(url: string, otherUrl: string) {
-  const [shorter, longer] = [segments(url), segments(otherUrl)].sort(
-    (a, b) => a.length - b.length,
+export function continueTrail(trail: Breadcrumb[], page: Breadcrumb) {
+  const index = trail.findIndex(
+    ({ url, detailPageKind }) =>
+      path(url) === path(page.url) ||
+      (!!page.detailPageKind && detailPageKind === page.detailPageKind),
   );
-  return (
-    shorter.length > 1 &&
-    shorter.every((segment, index) => segment === longer[index])
-  );
+  const continued = [...(index === -1 ? trail : trail.slice(0, index)), page];
+  return continued.length > MAXIMUM_TRAIL_LENGTH
+    ? [continued[0], ...continued.slice(1 - MAXIMUM_TRAIL_LENGTH)]
+    : continued;
 }
 
 function path(url: string) {
