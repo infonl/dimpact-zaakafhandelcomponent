@@ -4,11 +4,11 @@
  */
 
 import { TestBed } from "@angular/core/testing";
-import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
+import { provideZacDateAdapter } from "../../../date-time";
 import { GeneratedType } from "../../utils/generated-types";
 import { DateRangeFilterComponent } from "./date-range-filter.component";
 
@@ -26,7 +26,7 @@ describe(DateRangeFilterComponent.name, () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [DateRangeFilterComponent, NoopAnimationsModule],
-      providers: [provideTranslateService(), provideMomentDateAdapter()],
+      providers: [provideTranslateService(), provideZacDateAdapter()],
     }).compileComponents();
   });
 
@@ -58,6 +58,12 @@ describe(DateRangeFilterComponent.name, () => {
   };
 
   describe("the range input", () => {
+    it("shows a UTC instant of an old saved search on the day the user picked", async () => {
+      await setup({ range: { van: "2026-07-29T22:00:00.000Z", tot: null } });
+
+      expect(startInput()).toHaveValue("30-07-2026");
+    });
+
     it("shows the dates of the bound range in DD-MM-YYYY format", async () => {
       await setup({
         range: {
@@ -212,10 +218,10 @@ describe(DateRangeFilterComponent.name, () => {
   });
 
   describe("typing a date", () => {
-    const firstOfJanuary = "2024-01-01T00:00:00.000+01:00";
-    const thirtyFirstOfJanuary = "2024-01-31T00:00:00.000+01:00";
+    const firstOfJanuary = "2024-01-01";
+    const thirtyFirstOfJanuary = "2024-01-31";
 
-    it("emits the range with the typed dates as ISO strings with their offset", async () => {
+    it("emits the range with the typed dates as dates without a time", async () => {
       const { changed } = await setup({ range: { van: null, tot: null } });
 
       await typeDate(startInput(), "01-01-2024");
@@ -233,9 +239,21 @@ describe(DateRangeFilterComponent.name, () => {
       });
     });
 
-    it("keeps the offset of the bound date when only the other date is typed", async () => {
+    it("emits 2026-07-30 for a van and t/m date of 30-07-2026", async () => {
+      const { changed } = await setup({ range: { van: null, tot: null } });
+
+      await typeDate(startInput(), "30-07-2026");
+      await typeDate(endInput(), "30-07-2026");
+
+      expect(changed).toHaveBeenLastCalledWith({
+        van: "2026-07-30",
+        tot: "2026-07-30",
+      });
+    });
+
+    it("sends a bound date of an old saved search without a time when only the other date is typed", async () => {
       const { changed } = await setup({
-        range: { van: firstOfJanuary, tot: null },
+        range: { van: "2023-12-31T23:00:00.000Z", tot: null },
       });
 
       await typeDate(endInput(), "31-01-2024");

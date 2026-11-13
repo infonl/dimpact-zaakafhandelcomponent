@@ -14,7 +14,7 @@ import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
-import { provideZacDateAdapter } from "../../shared/form/date/provide-zac-date-adapter";
+import { provideZacDateAdapter } from "../../date-time";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakOpschortenDialogComponent } from "./zaak-opschorten-dialog.component";
 
