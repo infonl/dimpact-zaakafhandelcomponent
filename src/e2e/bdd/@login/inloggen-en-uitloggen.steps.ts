@@ -33,8 +33,9 @@ When("I sign in as a {word}", async ({ page, accountOfRole }, role: string) => {
 When(
   "I sign in as a {word} with a wrong password",
   async ({ page, accountOfRole }, role: string) => {
-    const { username, password } = accountOfRole(roleNamed(role));
-    await signIn(page, { username, password: `not-${password}` });
+    const account = accountOfRole(roleNamed(role));
+    const wrongPassword = account.username + account.password;
+    await signIn(page, { ...account, password: wrongPassword });
   },
 );
 
