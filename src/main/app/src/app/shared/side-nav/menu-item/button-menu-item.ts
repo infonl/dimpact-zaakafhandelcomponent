@@ -13,6 +13,7 @@ export class ButtonMenuItem extends MenuItem {
     readonly fn: () => void,
     readonly icon?: string,
     readonly id?: string,
+    readonly count?: number,
   ) {
     super();
   }

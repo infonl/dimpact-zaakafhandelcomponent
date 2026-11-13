@@ -45,6 +45,7 @@ import { ViewResourceUtil } from "../../locatie/view-resource.util";
 import { MailCreateComponent } from "../../mail/mail-create/mail-create.component";
 import { OntvangstbevestigingComponent } from "../../mail/ontvangstbevestiging/ontvangstbevestiging.component";
 import { NotitiesComponent } from "../../notities/notities.component";
+import { NotitieService } from "../../notities/notities.service";
 import { HumanTaskDoComponent } from "../../plan-items/human-task-do/human-task-do.component";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
@@ -139,6 +140,7 @@ export class ZaakViewComponent
   private readonly bagService = inject(BAGService);
   private readonly policyService = inject(PolicyService);
   private readonly zaakDialogService = inject(ZaakDialogService);
+  private readonly notitieService = inject(NotitieService);
   protected readonly sideActions = inject(ZaakSideActionService);
   protected readonly dialogs = inject(ZaakActionDialogsService);
 
@@ -205,6 +207,7 @@ export class ZaakViewComponent
       this.dialogs,
       this.hasBrpSearchRight(),
       this.zaak.isZaakdataGearchiveerd!,
+      this.mayViewNotities() ? (this.notitiesQuery.data()?.length ?? 0) : null,
     );
   });
 
@@ -258,6 +261,19 @@ export class ZaakViewComponent
   protected readonly notitieRechtenQuery = injectQuery(() =>
     this.policyService.readNotitieRechten(),
   );
+
+  private readonly mayViewNotities = computed(() => {
+    const notitieRechten = this.notitieRechtenQuery.data();
+    return Boolean(notitieRechten?.canLezen || notitieRechten?.canWijzigen);
+  });
+
+  private readonly notitiesQuery = injectQuery(() => {
+    const uuid = this.zaakUuid();
+    return {
+      ...this.notitieService.listNotities(uuid ?? ""),
+      enabled: Boolean(uuid) && this.mayViewNotities(),
+    };
+  });
 
   protected readonly betrokkenenQuery = injectQuery(() =>
     this.zakenService.listBetrokkenenVoorZaakQuery(this.zaak.uuid),
@@ -329,6 +345,21 @@ export class ZaakViewComponent
       this.invalidateZaakHistorie();
       this.invalidatePlanItems();
       ViewResourceUtil.actieveZaak = zaak;
+    });
+
+    effect((onCleanup) => {
+      const zaakUuid = this.zaakUuid();
+      if (!zaakUuid) return;
+      const notitiesListener = this.websocketService.addListener(
+        "UPDATED",
+        "ZAAK_NOTITIES",
+        zaakUuid,
+        () =>
+          void this.queryClient.invalidateQueries({
+            queryKey: this.notitieService.listNotities(zaakUuid).queryKey,
+          }),
+      );
+      onCleanup(() => this.websocketService.removeListener(notitiesListener));
     });
 
     effect(() => {
