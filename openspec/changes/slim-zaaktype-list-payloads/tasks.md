@@ -1,29 +1,29 @@
 ## 1. Layer `admin-lists`: Inrichtingscheck and Zaakafhandelparameters lists
 
-- [ ] 1.1 Add `RestInrichtingscheckZaaktype` (`uuid`, `omschrijving`, `doel`, `beginGeldigheid`) with a
+- [x] 1.1 Add `RestInrichtingscheckZaaktype` (`uuid`, `omschrijving`, `doel`, `beginGeldigheid`) with a
       `ZaakType.toRestInrichtingscheckZaaktype()` converter, and make `RestZaaktypeInrichtingscheck.zaaktype` that
       type in `HealthCheckRestService.convertToREST`. Verify with a unit test in `HealthCheckRestServiceTest` that
       the zaaktype of a check carries exactly these four values and that every check result is still copied.
-- [ ] 1.2 Add `RestZaaktypeConfigurationOverzicht` with `RestZaaktypeBeheerOverzicht` and
+- [x] 1.2 Add `RestZaaktypeConfigurationOverzicht` with `RestZaaktypeBeheerOverzicht` and
       `RestProcessDefinitionOverzicht` (design D1), and a converter function that builds it from the `ZaakType` in
       hand and the stored or unsaved `ZaaktypeConfiguration`, taking `naam` from
       `RestProcessDefinitionConverter.toRestProcessDefinition(binding, inclusiefRelaties = false)` (design D4).
       Verify with unit tests: a saved CMMN configuration, a saved BPMN configuration, and an unsaved configuration
       (no process definition, no creatiedatum, `isValide` false).
-- [ ] 1.3 Make `ZaaktypeConfigurationRestService.listZaaktypeConfigurations` return
+- [x] 1.3 Make `ZaaktypeConfigurationRestService.listZaaktypeConfigurations` return
       `List<RestZaaktypeConfigurationOverzicht>` through 1.2, keeping the beheren check. Verify with
       `src/test/kotlin/nl/info/zac/app/admin/ZaaktypeConfigurationRestServiceTest.kt` that the list no longer reads
       the zaaktype again nor calls `isZaakspecifiekAutoriseerbaar`, and that the read of one configuration still
       returns the full `RestZaaktypeConfiguration`.
-- [ ] 1.4 Regenerate the OpenAPI spec (`./gradlew generateOpenApiSpec`) and the frontend types, and check that only
+- [x] 1.4 Regenerate the OpenAPI spec (`./gradlew generateOpenApiSpec`) and the frontend types, and check that only
       the two list responses changed.
-- [ ] 1.5 Update `InrichtingscheckComponent` and `ParametersComponent` (and `ZaakafhandelParametersListParameters`,
+- [x] 1.5 Update `InrichtingscheckComponent` and `ParametersComponent` (and `ZaakafhandelParametersListParameters`,
       `compareZaaktype`) to the new generated types without changing property paths. Verify with
       `npm test -- --test-path-patterns 'inrichtingscheck|parameters.component|zaakafhandel-parameters.service'` and
       `npx ngc -p tsconfig.app.json --noEmit`; update the mocks in those specs to the new list item types.
-- [ ] 1.6 Update `HealthCheckRestServiceTest` and the itests that read `GET /zaakafhandelparameters` to expect the
+- [x] 1.6 Update `HealthCheckRestServiceTest` and the itests that read `GET /zaakafhandelparameters` to expect the
       slim items. Verify with `./gradlew itest` on those test classes.
-- [ ] 1.7 Run `./gradlew spotlessApply detektApply detekt test` and `npm run lint` in `src/main/app`, and fix what
+- [x] 1.7 Run `./gradlew spotlessApply detektApply detekt test` and `npm run lint` in `src/main/app`, and fix what
       they report.
 
 ## 2. Layer `zaak-creation`: zaaktype choice and its settings
