@@ -6,8 +6,9 @@ After a taak is saved or completed successfully, ZAC SHALL apply the first of th
 
 1. When the taak was opened from a link in an e-mail, ZAC SHALL stay on the taak.
 2. When the user visited a page before the taak in the navigation trail, ZAC SHALL navigate to that page.
-3. Otherwise ZAC SHALL navigate to the dashboard. This includes a taak opened from a direct link or from the search
-   panel: the trail then shows only the parent route of the taak, which the user did not visit.
+3. Otherwise ZAC SHALL navigate to the dashboard. This includes a taak opened from a direct link, from the search
+   panel or in a new browser tab: the trail then shows only the parent route of the taak, which the user did not
+   visit. ZAC cannot tell a new tab from a direct link.
 
 #### Scenario: Saving a taak opened from a zaak
 - **GIVEN** a taak opened from its zaak
@@ -23,6 +24,11 @@ After a taak is saved or completed successfully, ZAC SHALL apply the first of th
 - **GIVEN** a taak opened from a direct link or from the search panel
 - **WHEN** the user saves the taak
 - **THEN** ZAC navigates to the dashboard
+
+#### Scenario: Saving a taak opened in a new tab from the takenwerkvoorraad
+- **GIVEN** a taak opened in a new browser tab from the takenwerkvoorraad
+- **WHEN** the user saves or completes the taak
+- **THEN** ZAC navigates to the dashboard, as for a direct link
 
 #### Scenario: Saving a taak opened from an e-mail
 - **GIVEN** a taak opened from a link in an e-mail
