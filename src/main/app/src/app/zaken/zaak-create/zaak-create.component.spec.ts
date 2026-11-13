@@ -57,6 +57,11 @@ describe(ZaakCreateComponent.name, () => {
   let fixture: ComponentFixture<ZaakCreateComponent>;
   let loader: HarnessLoader;
   let router: Router;
+  let zaaktypeSettings: Record<
+    string,
+    GeneratedType<"RestZaaktypeAanmaakInstellingen">
+  >;
+  let createZaakMutationFn: jest.Mock;
 
   beforeAll(() => {
     // disable animations for the tests
@@ -136,44 +141,58 @@ describe(ZaakCreateComponent.name, () => {
 
     zakenService = TestBed.inject(ZakenService);
     jest.spyOn(zakenService, "listZaaktypesForCreationQuery").mockReturnValue(
-      createQueryOptions([
-        fromPartial<GeneratedType<"RestZaaktype">>({
+      createQueryOptions<GeneratedType<"RestZaaktypeKeuze">[]>([
+        {
           uuid: "test-cmmn-zaaktype-1",
           omschrijving: "test-cmmn-description-1",
-          vertrouwelijkheidaanduiding: "OPENBAAR",
-          zaakafhandelparameters: {
-            defaultGroepId: "test-cmmn-group-id",
-            defaultBehandelaarId: "test-user-id",
-            zaaktype: { uuid: "uuid-test-cmmn-zaaktype-1" },
-          },
-        }),
-        fromPartial<GeneratedType<"RestZaaktype">>({
+        },
+        {
           uuid: "test-cmmn-zaaktype-2",
           omschrijving: "test-cmmn-description-2",
-          vertrouwelijkheidaanduiding: "OPENBAAR",
-          zaakafhandelparameters: {
-            zaaktype: { uuid: "uuid-test-cmmn-zaaktype-2" },
-          },
-        }),
-        fromPartial<GeneratedType<"RestZaaktype">>({
+        },
+        {
           uuid: "test-bpmn-zaaktype-1",
           omschrijving: "test-bpmn-description-1",
-          vertrouwelijkheidaanduiding: "OPENBAAR",
-          zaakafhandelparameters: {
-            defaultGroepId: "test-bpmn-group-id",
-            zaaktype: { uuid: "uuid-test-bpmn-zaaktype-1" },
-          },
-        }),
+        },
       ]) as never,
+    );
+    zaaktypeSettings = {
+      "test-cmmn-zaaktype-1": fromPartial({
+        uuid: "test-cmmn-zaaktype-1",
+        omschrijving: "test-cmmn-description-1",
+        vertrouwelijkheidaanduiding: "OPENBAAR",
+        defaultGroepId: "test-cmmn-group-id",
+        defaultBehandelaarId: "test-user-id",
+      }),
+      "test-cmmn-zaaktype-2": fromPartial({
+        uuid: "test-cmmn-zaaktype-2",
+        omschrijving: "test-cmmn-description-2",
+        vertrouwelijkheidaanduiding: "OPENBAAR",
+      }),
+      "test-bpmn-zaaktype-1": fromPartial({
+        uuid: "test-bpmn-zaaktype-1",
+        omschrijving: "test-bpmn-description-1",
+        vertrouwelijkheidaanduiding: "OPENBAAR",
+        defaultGroepId: "test-bpmn-group-id",
+      }),
+    };
+    const readZaaktypeForCreationQuery =
+      zakenService.readZaaktypeForCreationQuery.bind(zakenService);
+    jest.spyOn(zakenService, "readZaaktypeForCreationQuery").mockImplementation(
+      (zaaktypeUuid) =>
+        ({
+          ...readZaaktypeForCreationQuery(zaaktypeUuid),
+          queryFn: () => Promise.resolve(zaaktypeSettings[zaaktypeUuid]),
+        }) as never,
+    );
+    createZaakMutationFn = jest.fn().mockResolvedValue(
+      fromPartial<GeneratedType<"CreateZaakResponse">>({
+        identificatie: "test-zaak-uuid-123",
+      }),
     );
     jest.spyOn(zakenService, "createZaak").mockReturnValue({
       mutationKey: [],
-      mutationFn: () =>
-        Promise.resolve(
-          fromPartial<GeneratedType<"CreateZaakResponse">>({
-            identificatie: "test-zaak-uuid-123",
-          }),
-        ),
+      mutationFn: createZaakMutationFn,
     });
 
     referentieTabelService = TestBed.inject(ReferentieTabelService);
@@ -204,7 +223,14 @@ describe(ZaakCreateComponent.name, () => {
     fixture.detectChanges();
   });
 
-  describe(ZaakCreateComponent.prototype.caseTypeSelected.name, () => {
+  const waitForZaaktypeSettings = async () => {
+    await sleep();
+    await fixture.whenStable();
+    await sleep();
+    await fixture.whenStable();
+  };
+
+  describe("choosing a zaaktype", () => {
     const getAutocompleteOptions = async (options: {
       loader: HarnessLoader;
       inputs: MatInputHarness[];
@@ -252,6 +278,7 @@ describe(ZaakCreateComponent.name, () => {
         expect(autocompleteOptions.length).toEqual(2);
 
         await autocompleteOptions[0].click();
+        await waitForZaaktypeSettings();
         expect(await input.getValue()).toBe("test-cmmn-description-1");
 
         // --- Groep ---
@@ -264,6 +291,7 @@ describe(ZaakCreateComponent.name, () => {
         expect(autocompleteOptions.length).toEqual(1);
 
         await autocompleteOptions[0].click();
+        await waitForZaaktypeSettings();
         expect(await input.getValue()).toBe("test group CMMN");
 
         // --- Behandelaar ---
@@ -276,6 +304,7 @@ describe(ZaakCreateComponent.name, () => {
         expect(autocompleteOptions.length).toEqual(1);
 
         await autocompleteOptions[0].click();
+        await waitForZaaktypeSettings();
         expect(await input.getValue()).toBe("test user");
       });
 
@@ -289,6 +318,7 @@ describe(ZaakCreateComponent.name, () => {
         });
 
         await autocompleteOptions[0].click();
+        await waitForZaaktypeSettings();
 
         expect(await inputs[4].getValue()).toBe("test group CMMN");
         expect(await inputs[5].getValue()).toBe("test user");
@@ -296,13 +326,12 @@ describe(ZaakCreateComponent.name, () => {
 
       describe("when the user switches to a zaaktype with another default behandelaar", () => {
         const pickCaseType = async (
-          caseType: GeneratedType<"RestZaaktype">,
+          caseType: GeneratedType<"RestZaaktypeKeuze">,
         ) => {
           fixture.componentInstance["form"].controls.zaaktype.setValue(
             caseType,
           );
-          await sleep();
-          await fixture.whenStable();
+          await waitForZaaktypeSettings();
         };
 
         const caseTypeWithDefaults = (
@@ -318,11 +347,15 @@ describe(ZaakCreateComponent.name, () => {
               { id: "test-bpmn-group-id", naam: "test group BPMN" },
             ],
           );
-          return fromPartial<GeneratedType<"RestZaaktype">>({
+          const uuid = `fake-${omschrijving}-uuid`;
+          zaaktypeSettings[uuid] = fromPartial({
+            uuid,
             omschrijving,
             vertrouwelijkheidaanduiding: "OPENBAAR",
-            zaakafhandelparameters: { defaultGroepId, defaultBehandelaarId },
+            defaultGroepId,
+            defaultBehandelaarId,
           });
+          return { uuid, omschrijving };
         };
 
         beforeEach(() => {
@@ -433,6 +466,7 @@ describe(ZaakCreateComponent.name, () => {
           query: "cmmn",
         });
         await autocompleteOptions[0].click();
+        await waitForZaaktypeSettings();
         const form = fixture.componentInstance["form"];
         form.controls.groep.setValue({
           id: "test-bpmn-group-id",
@@ -476,6 +510,7 @@ describe(ZaakCreateComponent.name, () => {
           query: "cmmn",
         });
         await autocompleteOptions[0].click();
+        await waitForZaaktypeSettings();
         const form = fixture.componentInstance["form"];
         const vertrouwelijkheidaanduiding =
           form.controls.vertrouwelijkheidaanduiding.value;
@@ -498,6 +533,7 @@ describe(ZaakCreateComponent.name, () => {
           query: "cmmn",
         });
         await autocompleteOptions[0].click();
+        await waitForZaaktypeSettings();
 
         fixture.componentInstance["form"].controls.groep.setValue(
           "test" as unknown as GeneratedType<"RestGroup">,
@@ -524,6 +560,7 @@ describe(ZaakCreateComponent.name, () => {
         expect(autocompleteOptions.length).toEqual(1);
 
         await autocompleteOptions[0].click();
+        await waitForZaaktypeSettings();
         expect(await input.getValue()).toBe("test-bpmn-description-1");
 
         // --- Groep ---
@@ -536,6 +573,7 @@ describe(ZaakCreateComponent.name, () => {
         expect(autocompleteOptions.length).toEqual(1);
 
         await autocompleteOptions[0].click();
+        await waitForZaaktypeSettings();
         expect(await input.getValue()).toBe("test group BPMN");
 
         // --- Behandelaar should be enabled ---
@@ -555,6 +593,7 @@ describe(ZaakCreateComponent.name, () => {
         expect(autocompleteOptions.length).toBeGreaterThan(0);
 
         await autocompleteOptions[0].click();
+        await waitForZaaktypeSettings();
         expect(await input.getValue()).toBeTruthy();
 
         const selectFields = await loader.getAllHarnesses(MatSelectHarness);
@@ -587,6 +626,7 @@ describe(ZaakCreateComponent.name, () => {
         expect(autocompleteOptions.length).toEqual(2);
 
         await autocompleteOptions[0].click();
+        await waitForZaaktypeSettings();
         expect(await input.getValue()).toBe("test-cmmn-description-1");
 
         // --- Description ---
@@ -602,7 +642,14 @@ describe(ZaakCreateComponent.name, () => {
         await submitButton.click();
         await sleep();
 
-        expect(zakenService.createZaak).toHaveBeenCalled();
+        expect(createZaakMutationFn).toHaveBeenCalledWith(
+          expect.objectContaining({
+            zaak: expect.objectContaining({
+              zaaktype: { uuid: "test-cmmn-zaaktype-1" },
+            }),
+          }),
+          expect.anything(),
+        );
         expect(navigateSpy).toHaveBeenCalledWith([
           "/zaken/",
           "test-zaak-uuid-123",
@@ -808,10 +855,15 @@ describe(ZaakCreateComponent.name, () => {
     beforeEach(() => notifyManager.setScheduler((fn) => fn()));
     afterEach(() => notifyManager.setScheduler((fn) => setTimeout(fn, 0)));
 
-    it("includes selected BAG objects in the submit payload", () => {
+    it("includes selected BAG objects in the submit payload", async () => {
       const bagObject = fromPartial<GeneratedType<"RestBagObject">>({
         omschrijving: "Teststraat 1",
       });
+      fixture.componentInstance["form"].controls.zaaktype.setValue({
+        uuid: "test-cmmn-zaaktype-1",
+        omschrijving: "test-cmmn-description-1",
+      });
+      await waitForZaaktypeSettings();
 
       fixture.componentInstance["form"].controls.bagObjecten.setValue([
         bagObject,
@@ -846,85 +898,265 @@ describe(ZaakCreateComponent.name, () => {
   });
 
   describe("canAddInitiator()", () => {
-    it("returns false when both brpKoppelen and kvkKoppelen are false", () => {
-      fixture.componentInstance["form"].controls.zaaktype.setValue(
-        fromPartial<GeneratedType<"RestZaaktype">>({
-          zaakafhandelparameters: {
-            betrokkeneKoppelingen: {
-              isBrpKoppelenEnabled: false,
-              isKvkKoppelenEnabled: false,
-            },
-          },
-        }),
-      );
+    const chooseZaaktypeWithKoppelingen = async (
+      koppelingen: Pick<
+        GeneratedType<"RestZaaktypeAanmaakInstellingen">,
+        "isBrpKoppelenEnabled" | "isKvkKoppelenEnabled"
+      >,
+    ) => {
+      zaaktypeSettings["fake-koppelingen-zaaktype-uuid"] = fromPartial({
+        uuid: "fake-koppelingen-zaaktype-uuid",
+        omschrijving: "fakeKoppelingenZaaktype",
+        ...koppelingen,
+      });
+      fixture.componentInstance["form"].controls.zaaktype.setValue({
+        uuid: "fake-koppelingen-zaaktype-uuid",
+        omschrijving: "fakeKoppelingenZaaktype",
+      });
+      await waitForZaaktypeSettings();
+    };
+
+    it("returns false when both brpKoppelen and kvkKoppelen are false", async () => {
+      await chooseZaaktypeWithKoppelingen({
+        isBrpKoppelenEnabled: false,
+        isKvkKoppelenEnabled: false,
+      });
       expect(fixture.componentInstance["canAddInitiator"]()).toBe(false);
     });
 
-    it("returns false when zaaktype has no betrokkeneKoppelingen", () => {
-      fixture.componentInstance["form"].controls.zaaktype.setValue(
-        fromPartial<GeneratedType<"RestZaaktype">>({
-          zaakafhandelparameters: { betrokkeneKoppelingen: undefined },
-        }),
-      );
+    it("returns false when no zaaktype is chosen", () => {
       expect(fixture.componentInstance["canAddInitiator"]()).toBe(false);
     });
 
-    it("returns true when brpKoppelen is enabled", () => {
-      fixture.componentInstance["form"].controls.zaaktype.setValue(
-        fromPartial<GeneratedType<"RestZaaktype">>({
-          zaakafhandelparameters: {
-            betrokkeneKoppelingen: {
-              isBrpKoppelenEnabled: true,
-              isKvkKoppelenEnabled: false,
-            },
-          },
-        }),
-      );
+    it("returns true when brpKoppelen is enabled", async () => {
+      await chooseZaaktypeWithKoppelingen({
+        isBrpKoppelenEnabled: true,
+        isKvkKoppelenEnabled: false,
+      });
       expect(fixture.componentInstance["canAddInitiator"]()).toBe(true);
     });
 
-    it("returns true when kvkKoppelen is enabled", () => {
-      fixture.componentInstance["form"].controls.zaaktype.setValue(
-        fromPartial<GeneratedType<"RestZaaktype">>({
-          zaakafhandelparameters: {
-            betrokkeneKoppelingen: {
-              isBrpKoppelenEnabled: false,
-              isKvkKoppelenEnabled: true,
-            },
-          },
+    it("returns true when kvkKoppelen is enabled", async () => {
+      await chooseZaaktypeWithKoppelingen({
+        isBrpKoppelenEnabled: false,
+        isKvkKoppelenEnabled: true,
+      });
+      expect(fixture.componentInstance["canAddInitiator"]()).toBe(true);
+    });
+  });
+
+  describe("when the settings of the chosen zaaktype arrive from the server", () => {
+    const user = userEvent.setup({ delay: null });
+    let httpTestingController: HttpTestingController;
+
+    const cmmnSettings = fromPartial<
+      GeneratedType<"RestZaaktypeAanmaakInstellingen">
+    >({
+      uuid: "test-cmmn-zaaktype-1",
+      omschrijving: "test-cmmn-description-1",
+      vertrouwelijkheidaanduiding: "OPENBAAR",
+      defaultGroepId: "test-cmmn-group-id",
+      defaultBehandelaarId: "test-user-id",
+      isBrpKoppelenEnabled: true,
+      isKvkKoppelenEnabled: false,
+    });
+    const bpmnSettings = fromPartial<
+      GeneratedType<"RestZaaktypeAanmaakInstellingen">
+    >({
+      uuid: "test-bpmn-zaaktype-1",
+      omschrijving: "test-bpmn-description-1",
+      vertrouwelijkheidaanduiding: "VERTROUWELIJK",
+      defaultGroepId: "test-bpmn-group-id",
+      isBrpKoppelenEnabled: false,
+      isKvkKoppelenEnabled: false,
+    });
+
+    const zaaktypeField = () =>
+      screen.getByRole("combobox", { name: /zaaktype/i });
+    const groepField = () =>
+      screen.getByRole("combobox", { name: /actie.zaak.toekennen.groep/ });
+    const behandelaarField = () =>
+      screen.getByRole("combobox", {
+        name: /actie.zaak.toekennen.medewerker/,
+      });
+    const vertrouwelijkheidaanduidingField = () =>
+      screen.getByRole("combobox", { name: /vertrouwelijkheidaanduiding/i });
+    const initiatorField = () =>
+      screen.getByRole("textbox", { name: /initiator/i });
+    const submitButton = () =>
+      screen.getByRole("button", { name: "actie.aanmaken" });
+
+    const chooseZaaktype = async (omschrijving: string) => {
+      await user.clear(zaaktypeField());
+      await user.click(zaaktypeField());
+      await sleep(10);
+      await user.click(screen.getByRole("option", { name: omschrijving }));
+      await waitFor(() => expect(zaaktypeField()).toHaveValue(omschrijving));
+    };
+
+    const settingsRequest = (zaaktypeUuid: string) =>
+      waitFor(() =>
+        httpTestingController.expectOne(`/rest/zaaktypen/${zaaktypeUuid}`),
+      );
+
+    const answer = async (
+      zaaktypeUuid: string,
+      settings: GeneratedType<"RestZaaktypeAanmaakInstellingen">,
+    ) => {
+      (await settingsRequest(zaaktypeUuid)).flush(settings);
+      await sleep(10);
+    };
+
+    const fillOtherRequiredFields = async () => {
+      await user.type(
+        screen.getByRole("textbox", { name: /omschrijving/i }),
+        "fakeOmschrijving",
+      );
+      await user.click(
+        screen.getByRole("combobox", { name: /communicatiekanaal/i }),
+      );
+      await user.click(
+        await screen.findByRole("option", { name: "Rooksignalen" }),
+      );
+      await sleep(10);
+    };
+
+    beforeEach(async () => {
+      jest.mocked(zakenService.readZaaktypeForCreationQuery).mockRestore();
+      httpTestingController = TestBed.inject(HttpTestingController);
+      fixture.destroy();
+      fixture = TestBed.createComponent(ZaakCreateComponent);
+      fixture.autoDetectChanges();
+      await waitFor(() =>
+        expect(TestBed.inject(QueryClient).isFetching()).toBe(0),
+      );
+      await sleep(10);
+    });
+
+    it("shows the vertrouwelijkheidaanduiding, the default groep and the default behandelaar of the zaaktype", async () => {
+      await chooseZaaktype("test-cmmn-description-1");
+      await answer("test-cmmn-zaaktype-1", cmmnSettings);
+
+      await waitFor(() => expect(behandelaarField()).toHaveValue("test user"));
+      expect(groepField()).toHaveValue("test group CMMN");
+      expect(vertrouwelijkheidaanduidingField()).toHaveTextContent(
+        "vertrouwelijkheidaanduiding.openbaar",
+      );
+    });
+
+    it("cannot be submitted while the settings of the chosen zaaktype have not arrived", async () => {
+      await chooseZaaktype("test-cmmn-description-1");
+      await answer("test-cmmn-zaaktype-1", cmmnSettings);
+      await fillOtherRequiredFields();
+      await waitFor(() => expect(submitButton()).toBeEnabled());
+
+      await chooseZaaktype("test-bpmn-description-1");
+      const request = await settingsRequest("test-bpmn-zaaktype-1");
+
+      expect(submitButton()).toBeDisabled();
+
+      request.flush(bpmnSettings);
+      await sleep(10);
+
+      await waitFor(() => expect(submitButton()).toBeEnabled());
+    });
+
+    it("applies only the settings of the zaaktype that is still chosen when the user switches before the first settings arrive", async () => {
+      await chooseZaaktype("test-cmmn-description-1");
+      const cmmnRequest = await settingsRequest("test-cmmn-zaaktype-1");
+      await chooseZaaktype("test-bpmn-description-1");
+      await answer("test-bpmn-zaaktype-1", bpmnSettings);
+
+      cmmnRequest.flush(cmmnSettings);
+      await sleep(10);
+
+      expect(zaaktypeField()).toHaveValue("test-bpmn-description-1");
+      expect(groepField()).toHaveValue("test group BPMN");
+      expect(vertrouwelijkheidaanduidingField()).toHaveTextContent(
+        "vertrouwelijkheidaanduiding.vertrouwelijk",
+      );
+    });
+
+    it("applies the settings of the new zaaktype when the user changes the zaaktype", async () => {
+      await chooseZaaktype("test-cmmn-description-1");
+      await answer("test-cmmn-zaaktype-1", cmmnSettings);
+      await waitFor(() => expect(groepField()).toHaveValue("test group CMMN"));
+
+      await chooseZaaktype("test-bpmn-description-1");
+      await answer("test-bpmn-zaaktype-1", bpmnSettings);
+
+      await waitFor(() => expect(groepField()).toHaveValue("test group BPMN"));
+      expect(vertrouwelijkheidaanduidingField()).toHaveTextContent(
+        "vertrouwelijkheidaanduiding.vertrouwelijk",
+      );
+    });
+
+    it("removes the initiator and does not let the user add one when the new zaaktype has neither the KVK nor the BRP koppeling", async () => {
+      await chooseZaaktype("test-cmmn-description-1");
+      await answer("test-cmmn-zaaktype-1", cmmnSettings);
+      await fixture.componentInstance.initiatorSelected(
+        fromPartial<GeneratedType<"RestPersoon">>({
+          identificatieType: "BSN",
+          bsn: "999993896",
+          naam: "fakeInitiatorNaam",
         }),
       );
-      expect(fixture.componentInstance["canAddInitiator"]()).toBe(true);
+      expect(await screen.findByText("fakeInitiatorNaam")).toBeInTheDocument();
+      expect(initiatorField()).toBeEnabled();
+
+      fixture.componentInstance["form"].controls.zaaktype.setValue({
+        uuid: "test-bpmn-zaaktype-1",
+        omschrijving: "test-bpmn-description-1",
+      });
+      await answer("test-bpmn-zaaktype-1", bpmnSettings);
+
+      await waitFor(() =>
+        expect(screen.queryByText("fakeInitiatorNaam")).not.toBeInTheDocument(),
+      );
+      expect(initiatorField()).toBeDisabled();
+    });
+
+    it("creates the zaak with only the uuid of the chosen zaaktype", async () => {
+      await chooseZaaktype("test-cmmn-description-1");
+      await answer("test-cmmn-zaaktype-1", cmmnSettings);
+      await fillOtherRequiredFields();
+      await waitFor(() => expect(submitButton()).toBeEnabled());
+
+      await user.click(submitButton());
+      await sleep(10);
+
+      expect(createZaakMutationFn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          zaak: expect.objectContaining({
+            zaaktype: { uuid: "test-cmmn-zaaktype-1" },
+          }),
+        }),
+        expect.anything(),
+      );
     });
   });
 
   describe("creating a zaak that is linked to the current zaak", () => {
     const user = userEvent.setup({ delay: null });
 
-    const deelzaaktype = fromPartial<GeneratedType<"RestZaaktype">>({
+    const deelzaaktype: GeneratedType<"RestZaaktypeKeuze"> = {
       uuid: "fake-deelzaaktype-uuid",
       omschrijving: "fakeDeelzaaktype",
-      vertrouwelijkheidaanduiding: "OPENBAAR",
-      zaakafhandelparameters: {
-        defaultGroepId: "test-cmmn-group-id",
-        betrokkeneKoppelingen: {
-          isBrpKoppelenEnabled: true,
-          isKvkKoppelenEnabled: false,
-        },
-      },
-    });
-    const otherZaaktype = fromPartial<GeneratedType<"RestZaaktype">>({
+    };
+    const otherZaaktype: GeneratedType<"RestZaaktypeKeuze"> = {
       uuid: "fake-other-zaaktype-uuid",
       omschrijving: "fakeOtherZaaktype",
-      vertrouwelijkheidaanduiding: "OPENBAAR",
-      zaakafhandelparameters: {
+    };
+    const settingsWithOnlyBrpKoppeling = (
+      zaaktype: GeneratedType<"RestZaaktypeKeuze">,
+    ) =>
+      fromPartial<GeneratedType<"RestZaaktypeAanmaakInstellingen">>({
+        ...zaaktype,
+        vertrouwelijkheidaanduiding: "OPENBAAR",
         defaultGroepId: "test-cmmn-group-id",
-        betrokkeneKoppelingen: {
-          isBrpKoppelenEnabled: true,
-          isKvkKoppelenEnabled: false,
-        },
-      },
-    });
+        isBrpKoppelenEnabled: true,
+        isKvkKoppelenEnabled: false,
+      });
 
     const createCurrentZaak = (
       fields: Partial<GeneratedType<"RestZaak">> = {},
@@ -973,6 +1205,10 @@ describe(ZaakCreateComponent.name, () => {
         .mockReturnValue(
           createQueryOptions([deelzaaktype, otherZaaktype]) as never,
         );
+      zaaktypeSettings[deelzaaktype.uuid] =
+        settingsWithOnlyBrpKoppeling(deelzaaktype);
+      zaaktypeSettings[otherZaaktype.uuid] =
+        settingsWithOnlyBrpKoppeling(otherZaaktype);
       fixture = TestBed.createComponent(ZaakCreateComponent);
       fixture.autoDetectChanges();
       fixture.componentRef.setInput("koppeling", koppeling);
@@ -1103,6 +1339,24 @@ describe(ZaakCreateComponent.name, () => {
       expect(await offeredZaaktypen()).toEqual([]);
     });
 
+    it("applies the settings of the deelzaaktype that is chosen for a deelzaak", async () => {
+      await renderLinked({
+        zaak: createCurrentZaak(),
+        relatieType: "DEELZAAK",
+      });
+
+      await chooseZaaktype("fakeDeelzaaktype");
+
+      await waitFor(() =>
+        expect(
+          screen.getByRole("combobox", { name: /actie.zaak.toekennen.groep/ }),
+        ).toHaveValue("test group CMMN"),
+      );
+      expect(zakenService.readZaaktypeForCreationQuery).toHaveBeenCalledWith(
+        "fake-deelzaaktype-uuid",
+      );
+    });
+
     it("clears the chosen zaaktype when the relation changes to one that does not offer it", async () => {
       const zaak = createCurrentZaak();
       await renderLinked({ zaak, relatieType: "GERELATEERD" });
@@ -1224,6 +1478,7 @@ describe(ZaakCreateComponent.name, () => {
       expect(createZaak).toHaveBeenCalledWith(
         expect.objectContaining({
           zaak: expect.objectContaining({
+            zaaktype: { uuid: "fake-deelzaaktype-uuid" },
             initiatorIdentificatie: expect.objectContaining({
               type: "BSN",
               temporaryPersonId: "fake-temporary-person-id",
