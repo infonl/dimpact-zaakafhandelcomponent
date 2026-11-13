@@ -335,7 +335,7 @@ PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" helm plugin install https
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"docker.io/openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.22.3-static@sha256:a6ccb6e0cc91b2d1807b1b65a844b189249b9ab33d126e0bca30c0cf43b0ae07"` |  |
+| opa.image.tag | string | `"1.22.4-static@sha256:12cecac5a174368f7d3f09d3a19d040ebe0c91d576e520335ae7a985a26e39d3"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
