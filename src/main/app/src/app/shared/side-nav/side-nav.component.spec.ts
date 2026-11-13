@@ -106,6 +106,61 @@ describe(SideNavComponent.name, () => {
       ).toBeInTheDocument();
     });
 
+    it("shows the count of a button menu item in brackets behind its label", () => {
+      const buttonItem = new ButtonMenuItem(
+        "notities",
+        () => {},
+        "sticky_note_2",
+        undefined,
+        2,
+      );
+
+      fixture.componentRef.setInput("menu", [buttonItem]);
+      fixture.detectChanges();
+
+      expect(
+        screen.getByRole("button", { name: "notities (2)" }),
+      ).toBeInTheDocument();
+    });
+
+    it("shows only the label of a button menu item with a count of 0", () => {
+      const buttonItem = new ButtonMenuItem(
+        "notities",
+        () => {},
+        "sticky_note_2",
+        undefined,
+        0,
+      );
+
+      fixture.componentRef.setInput("menu", [buttonItem]);
+      fixture.detectChanges();
+
+      expect(
+        screen.getByRole("button", { name: "notities" }),
+      ).toBeInTheDocument();
+    });
+
+    it("shows the count in the tooltip of a button menu item when the menu is collapsed", async () => {
+      const buttonItem = new ButtonMenuItem(
+        "notities",
+        () => {},
+        "sticky_note_2",
+        undefined,
+        2,
+      );
+
+      component["menuMode"].set(MenuMode.CLOSED);
+      component["menuState"].set(MenuState.CLOSED);
+      fixture.componentRef.setInput("menu", [buttonItem]);
+      fixture.detectChanges();
+
+      await fixture.whenStable();
+
+      expect(screen.getByText("sticky_note_2")).toHaveAccessibleDescription(
+        "notities (2)",
+      );
+    });
+
     it("should render href menu items", () => {
       const hrefItem = new HrefMenuItem(
         "test.href",
