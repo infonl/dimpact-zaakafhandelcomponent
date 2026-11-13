@@ -72,22 +72,6 @@ jobs:
         with:
           path: src/e2e/reports
           retention-days: 7
-      - name: Create .env file from secrets
-        if: ${{ !cancelled() }}
-        run: |
-          echo "${{ secrets.E2E_ENV_FILE }}" > src/e2e/.env
-      - name: BDD playwright
-        run: cd src/e2e && npm run bdd:ci
-        if: ${{ !cancelled() }}
-        continue-on-error: true
-      - name: Upload BDD test artifacts
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: bdd-test-artifacts
-          path: |
-            src/e2e/playwright-report
-          retention-days: 7
       - name: Deploy to GitHub Pages
         if: ${{ !cancelled() }}
         uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0

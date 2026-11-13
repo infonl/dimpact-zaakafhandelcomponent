@@ -7,20 +7,18 @@
 
 # Runs the end-to-end tests against the local kind stack of ./start-kind.sh.
 # Please refer to the instructions in `docs/development/testing.md` before using this script.
+# The arguments go to Playwright, for example: ./start-e2e-with-local-env.sh --ui
 
 set -e
 
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/src/e2e"
 
-ports_file="build/kind/${KIND_CLUSTER_NAME:-zac}/ports.env"
-zac_port=$(sed -n 's/^HOST_PORT_ZAC=//p' "$ports_file" 2> /dev/null || true)
+if [ "$SKIP_INSTALL" != "true" ]; then
+  echo "Install dependencies ..."
+  npm ci --ignore-scripts
 
-export E2E_TEST_USER_1_USERNAME="${E2E_TEST_USER_1_USERNAME:-beheerder1}"
-export E2E_TEST_USER_1_PASSWORD="${E2E_TEST_USER_1_PASSWORD:-$E2E_TEST_USER_1_USERNAME}"
-export E2E_TEST_USER_2_USERNAME="${E2E_TEST_USER_2_USERNAME:-behandelaar1}"
-export E2E_TEST_USER_2_PASSWORD="${E2E_TEST_USER_2_PASSWORD:-$E2E_TEST_USER_2_USERNAME}"
-export ZAC_URL="${ZAC_URL:-http://localhost:${zac_port:-8080}}"
-export EXCLUDE_LIVE_SCENARIO_TAGS=true
+  echo "Install the browser of Playwright ..."
+  npx playwright install --with-deps chromium
+fi
 
-echo "Running the end-to-end tests against $ZAC_URL ..."
-exec ./start-e2e.sh
+npm test -- "$@"

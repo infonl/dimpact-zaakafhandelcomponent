@@ -52,10 +52,13 @@ ZAC Docker image, which `itest` builds first.
 KIND_PORT_OFFSET=2000 ./gradlew itest  # Move the host ports when another stack uses them
 ```
 
-### End-to-End Tests (Playwright + Cucumber)
+### End-to-End Tests (Playwright + playwright-bdd)
+The local stack must run ZAC with the test doubles:
+`KIND_ZAC_VALUES=scripts/kind/values/zac-e2e.yaml ./start-kind.sh -b -t`.
 ```bash
-./start-e2e.sh                      # Full stack e2e
-./start-e2e-with-local-env.sh       # E2E against ZAC in the local kind stack (./start-kind.sh -b)
+./start-e2e-with-local-env.sh       # E2E journeys against ZAC in the local kind stack
+./start-e2e-with-local-env.sh --ui  # ... in the Playwright UI; other arguments go to Playwright too
+./start-e2e-with-test-env.sh        # The cucumber-js suite against the TEST environment, until its features are replaced
 ```
 
 ### Local Kubernetes Stack (kind)
