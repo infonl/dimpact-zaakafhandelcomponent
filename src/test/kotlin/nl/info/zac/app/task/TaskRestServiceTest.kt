@@ -16,6 +16,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
+import io.mockk.verifyOrder
 import jakarta.enterprise.inject.Instance
 import jakarta.json.Json
 import jakarta.servlet.http.HttpSession
@@ -257,6 +258,8 @@ class TaskRestServiceTest : BehaviorSpec({
             every { eventingService.send(any<ScreenEvent>()) } just runs
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
+            every { indexingService.addOrUpdateTaak(task.id) } just runs
+            every { indexingService.softCommit() } just runs
 
             `when`("'updateTaakdata' is called with changed description and due date from user with access") {
 
@@ -266,6 +269,21 @@ class TaskRestServiceTest : BehaviorSpec({
                     restTaakReturned shouldBe restTaak
                     verify(exactly = 1) {
                         flowableTaskService.updateTask(task)
+                    }
+                }
+
+                then("the task is reindexed and soft committed, so the werklijst the user returns to finds the changes") {
+                    verifyOrder {
+                        indexingService.addOrUpdateTaak(task.id)
+                        indexingService.softCommit()
+                    }
+                }
+
+                then("the screen events are sent before the task is reindexed, so other views refresh even if indexing fails") {
+                    verifyOrder {
+                        eventingService.send(any<ScreenEvent>())
+                        eventingService.send(any<ScreenEvent>())
+                        indexingService.addOrUpdateTaak(task.id)
                     }
                 }
             }
@@ -328,6 +346,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { taakVariabelenService.setTaskInformation(task, null) } just runs
             every { flowableTaskService.completeTask(task) } returns historicTaskInstance
             every { indexingService.addOrUpdateZaakOrThrow(restTaak.zaakUuid, false) } just runs
+            every { indexingService.softCommit() } just runs
             every { historicTaskInstance.id } returns restTaak.id
             every { restTaskConverter.toRestTask(historicTaskInstance) } returns restTaakConverted
             every { eventingService.send(any<ScreenEvent>()) } just runs
@@ -345,6 +364,22 @@ class TaskRestServiceTest : BehaviorSpec({
                 }
                 and("the completed task is returned") {
                     restTaakReturned shouldBe restTaakConverted
+                }
+                and("the index is soft committed after the zaak is reindexed, so the werklijst no longer finds the task") {
+                    verifyOrder {
+                        flowableTaskService.completeTask(task)
+                        indexingService.addOrUpdateZaakOrThrow(restTaak.zaakUuid, false)
+                        indexingService.softCommit()
+                    }
+                }
+                and("the events and the signalering are sent before the zaak is reindexed, so an index failure does not lose them") {
+                    verifyOrder {
+                        flowableTaskService.completeTask(task)
+                        eventingService.send(any<ScreenEvent>())
+                        eventingService.send(any<ScreenEvent>())
+                        eventingService.send(any<SignaleringEvent<*>>())
+                        indexingService.addOrUpdateZaakOrThrow(restTaak.zaakUuid, false)
+                    }
                 }
                 and("the behandelaar of the zaak is signalled that the user completed the task") {
                     with(signaleringEvent.captured) {
@@ -401,6 +436,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
             every { flowableTaskService.completeTask(task) } returns historicTaskInstance
             every { indexingService.addOrUpdateZaakOrThrow(restTaak.zaakUuid, false) } just runs
+            every { indexingService.softCommit() } just runs
             every { restTaskConverter.toRestTask(historicTaskInstance) } returns restTaakConverted
             every { httpSessionInstance.get() } returns httpSession
             // in this test we assume there was no document uploaded to the http session beforehand
@@ -488,6 +524,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { flowableTaskService.completeTask(assignedTask) } returns historicTaskInstance
             every { historicTaskInstance.id } returns restTask.id
             every { indexingService.addOrUpdateZaakOrThrow(restTask.zaakUuid, false) } just runs
+            every { indexingService.softCommit() } just runs
             every { restTaskConverter.toRestTask(historicTaskInstance) } returns restTaskConverted
             every { eventingService.send(any<ScreenEvent>()) } just runs
             every { eventingService.send(any<SignaleringEvent<*>>()) } just runs

@@ -434,4 +434,6 @@ class IndexingService @Inject constructor(
     fun removeTaak(taskID: String) = reindexSupportService.removeFromSolrIndex(taskID)
 
     fun commit() = reindexSupportService.commit()
+
+    fun softCommit() = reindexSupportService.softCommit()
 }
