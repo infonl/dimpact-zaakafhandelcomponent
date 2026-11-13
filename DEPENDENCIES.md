@@ -11,7 +11,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **solr**: 9.11.0-slim
 - **openpolicyagent/opa**: 1.22.3-static
 - **brp-api/personen-mock**: 2.7.0-202611120715
-- **gotenberg**: 9.4.1
+- **gotenberg**: 9.5.0
 - **greenmail/standalone**: 2.1.15
 - **nginxinc/nginx-unprivileged**: 1.31.7
 
