@@ -123,16 +123,22 @@ input[type=search] { width: 260px; max-width: 100%; }
 .below { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; padding-top: 16px; }
 .below .card { padding: 4px 16px 14px; }
 ol.ranking { padding-left: 22px; margin: 6px 0; }
-ol.ranking li { margin: 3px 0; cursor: pointer; overflow-wrap: anywhere; }
+ol.ranking li { margin: 3px 0; overflow-wrap: anywhere; }
 .movement li { overflow-wrap: anywhere; }
+button.link-button {
+  background: none; border: 0; border-radius: 3px; padding: 0; min-height: 0; color: inherit; font: inherit;
+  text-align: left; overflow-wrap: anywhere; cursor: pointer;
+}
+button.link-button:hover { background: none; text-decoration: underline; }
+button.link-button:focus-visible, #files th button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#files th button { background: none; border: 0; padding: 0; min-height: 0; font: inherit; font-weight: 600; color: inherit; cursor: pointer; white-space: nowrap; }
 ol.ranking li .score { color: var(--text-muted); font-variant-numeric: tabular-nums; }
 ol.ranking li .reason { display: block; color: var(--text-secondary); font-size: 12px; }
 .formula { font-size: 12.5px; color: var(--text-secondary); background: var(--surface-2); border-radius: 6px; padding: 6px 10px; }
 .movement ul { margin: 4px 0; padding-left: 18px; }
-.movement li { cursor: pointer; }
 .table-card { margin-top: 16px; padding: 4px 0 0; overflow: auto; max-height: 70vh; }
 #files { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-#files th { position: sticky; top: 0; background: var(--surface-1); text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--axis); cursor: pointer; white-space: nowrap; }
+#files th { position: sticky; top: 0; background: var(--surface-1); text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--axis); white-space: nowrap; }
 #files th.num, #files td.num { text-align: right; font-variant-numeric: tabular-nums; }
 #files td { padding: 4px 8px; border-bottom: 1px solid var(--grid); }
 #files td.path { word-break: break-all; min-width: 280px; }
@@ -411,12 +417,12 @@ function renderChips() {
     const swatch = state.view === "treemap" ? css(QUADRANT_VAR[quadrant]) : null;
     chip(quadrants, quadrant, state.quadrants.has(quadrant), quadrantCounts[quadrant] || 0, swatch, () => {
       state.quadrants.has(quadrant) ? state.quadrants.delete(quadrant) : state.quadrants.add(quadrant);
-      render(false);
+      renderChips(); render(false); renderTable();
     });
   }
 }
 
-$("#search").addEventListener("input", (event) => { state.search = event.target.value.trim().toLowerCase(); render(false); });
+$("#search").addEventListener("input", (event) => { state.search = event.target.value.trim().toLowerCase(); render(false); renderTable(); });
 $("#reset-zoom").addEventListener("click", () => { state.domain = null; render(false); });
 
 // ------------------------------------------------------------------ time slider
@@ -870,8 +876,8 @@ function renderRanking() {
   $("#formula").innerHTML = `score = √(u² + v²), u = log(1 + churn) / log(1 + max churn), v = log(1 + complexity) / log(1 + max complexity), over the ${current.rows.length} files in view.
     Thresholds: churn (${churnName}, ${state.window === "all" ? "all history" : "last 12 months"}) above the median <b>${format.format(current.churnThreshold)}</b>, complexity (${state.complexity === "total" ? "total" : "worst function"}) above the median <b>${format.format(current.complexityThreshold)}</b>. ${current.danger.length} files in the Danger Zone.`;
   $("#ranking").innerHTML = current.danger.slice(0, 10).map((row) =>
-    `<li data-file="${row.file}"><span>${escapeHtml(row.path)}</span> <span class="score">${row.score.toFixed(3)}</span><span class="reason">${reason(row)}</span></li>`).join("");
-  $("#ranking").querySelectorAll("li").forEach((li) => li.addEventListener("click", () => select(Number(li.dataset.file))));
+    `<li><button type="button" class="link-button" data-file="${row.file}">${escapeHtml(row.path)}</button> <span class="score">${row.score.toFixed(3)}</span><span class="reason">${reason(row)}</span></li>`).join("");
+  $("#ranking").querySelectorAll("button[data-file]").forEach((button) => button.addEventListener("click", () => select(Number(button.dataset.file))));
 }
 function renderMovement() {
   const frame = FRAMES[state.frame];
@@ -886,12 +892,12 @@ function renderMovement() {
   const left = then.danger.filter((r) => !nowSet.has(r.file));
   $("#movement-title").textContent = `Danger Zone since ${FRAMES[earlier].label}`;
   const stillExists = new Set(frame.rows.map((row) => row[COLUMN.file]));
-  const item = (row, note) => `<li data-file="${row.file}">${escapeHtml(row.path)} <span class="meta">${note}</span></li>`;
+  const item = (row, note) => `<li><button type="button" class="link-button" data-file="${row.file}">${escapeHtml(row.path)}</button> <span class="meta">${note}</span></li>`;
   container.innerHTML = `
     <p class="meta">Each snapshot uses its own medians. ${entered.length} files entered, ${left.length} left. Entering is the warning; leaving shows which changes worked (or that the file was deleted or split).</p>
     <h3>Entered (highest score first)</h3><ul>${entered.slice(0, 8).map((r) => item(r, then.byFile.has(r.file) ? `from ${then.byFile.get(r.file).quadrant}` : "new file")).join("") || "<li class=empty>none</li>"}</ul>
     <h3>Left (highest former score first)</h3><ul>${left.slice(0, 8).map((r) => item(r, current.byFile.has(r.file) ? `now ${current.byFile.get(r.file).quadrant}` : stillExists.has(r.file) ? "out of view" : "deleted")).join("") || "<li class=empty>none</li>"}</ul>`;
-  container.querySelectorAll("li[data-file]").forEach((li) => li.addEventListener("click", () => select(Number(li.dataset.file))));
+  container.querySelectorAll("button[data-file]").forEach((button) => button.addEventListener("click", () => select(Number(button.dataset.file))));
 }
 
 // ------------------------------------------------------------------ table
@@ -904,11 +910,12 @@ function renderTable(scrollToSelected = false) {
   const thead = $("#files thead"), tbody = $("#files tbody");
   const atHead = state.frame === FRAMES.length - 1;
   thead.innerHTML = `<tr>${TABLE_COLUMNS.map(([key, label, numeric]) =>
-    `<th class="${numeric ? "num" : ""}" data-key="${key}" aria-sort="${state.sort.key === key ? (state.sort.descending ? "descending" : "ascending") : "none"}">${label}${state.sort.key === key ? (state.sort.descending ? " ▾" : " ▴") : ""}</th>`).join("")}</tr>`;
-  thead.querySelectorAll("th").forEach((th) => th.addEventListener("click", () => {
-    const key = th.dataset.key;
+    `<th class="${numeric ? "num" : ""}" aria-sort="${state.sort.key === key ? (state.sort.descending ? "descending" : "ascending") : "none"}"><button type="button" data-key="${key}">${label}${state.sort.key === key ? (state.sort.descending ? " ▾" : " ▴") : ""}</button></th>`).join("")}</tr>`;
+  thead.querySelectorAll("button[data-key]").forEach((button) => button.addEventListener("click", () => {
+    const key = button.dataset.key;
     state.sort = { key, descending: state.sort.key === key ? !state.sort.descending : !["path", "quadrant", "last"].includes(key) };
     renderTable();
+    thead.querySelector(`button[data-key="${key}"]`).focus();
   }));
   const commitsKey = state.window === "all" ? "commits" : "commitsYear", linesKey = state.window === "all" ? "lines" : "linesYear";
   const value = (row, key) => {
@@ -927,13 +934,18 @@ function renderTable(scrollToSelected = false) {
   tbody.innerHTML = rows.map((row) => {
     const detail = atHead ? DETAILS[row.file] : null;
     const classes = [state.selected === row.file ? "selected" : "", state.search && !matchesSearch(row) ? "dim" : ""].join(" ");
-    return `<tr class="${classes}" data-file="${row.file}"><td class="path">${escapeHtml(row.path)}</td><td class="num">${row[commitsKey]}</td><td class="num">${format.format(row[linesKey])}</td>
+    return `<tr class="${classes}" data-file="${row.file}"><td class="path"><button type="button" class="link-button">${escapeHtml(row.path)}</button></td><td class="num">${row[commitsKey]}</td><td class="num">${format.format(row[linesKey])}</td>
       <td class="num">${row.total}</td><td class="num">${row.worst}</td><td class="num">${format.format(row.loc)}</td>
       <td class="num">${detail ? detail.authors.length : "—"}</td><td>${detail ? detail.last_change || "—" : "—"}</td><td>${row.quadrant}</td><td class="num">${row.score.toFixed(3)}</td></tr>`;
   }).join("");
   if (scrollToSelected) {
     const selected = tbody.querySelector("tr.selected");
-    if (selected) selected.scrollIntoView({ block: "nearest" });
+    if (selected) {
+      const container = $(".table-card"), header = thead.getBoundingClientRect().height;
+      const rowBox = selected.getBoundingClientRect(), box = container.getBoundingClientRect();
+      if (rowBox.top < box.top + header) container.scrollTop -= box.top + header - rowBox.top;
+      else if (rowBox.bottom > box.bottom) container.scrollTop += rowBox.bottom - box.bottom;
+    }
   }
 }
 $("#files tbody").addEventListener("click", (event) => {

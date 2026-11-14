@@ -1,12 +1,12 @@
 #!/usr/bin/env -S uv run --script
-# /// script
-# requires-python = ">=3.11"
-# dependencies = ["lizard>=1.17", "javalang>=0.13"]
-# ///
 #
 # SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["lizard>=1.17", "javalang>=0.13"]
+# ///
 """Churn vs complexity map of the code base.
 
 Plots every source file by how often it changes (churn) and how hard it is to work in (complexity),
@@ -54,7 +54,7 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 ASSET_DIR = SCRIPT_DIR / "churn_complexity"
-CACHE_VERSION = "1"
+CACHE_VERSION = "2"
 DEFAULT_DETEKT_VERSION = "2.0.0-alpha.6"
 SECONDS_PER_YEAR = 365 * 24 * 3600
 
@@ -106,15 +106,15 @@ class Git:
             raise RuntimeError(f"git {' '.join(args)} failed: {completed.stderr.decode(errors='replace')}")
         return completed.stdout if binary else completed.stdout.decode("utf-8", errors="surrogateescape")
 
-    def tree(self, commit: str) -> dict[str, str]:
-        """path -> blob sha of every regular file in the commit."""
+    def tree(self, commit: str, include_links: bool = False) -> dict[str, str]:
+        """path -> blob sha of every regular file in the commit, and of every symbolic link if asked for."""
         files = {}
         for entry in self.run("ls-tree", "-r", "-z", "--full-tree", commit).split("\0"):
             if not entry:
                 continue
             meta, path = entry.split("\t", 1)
             mode, kind, sha = meta.split()
-            if kind == "blob" and mode != "120000":
+            if kind == "blob" and (include_links or mode != "120000"):
                 files[path] = sha
         return files
 
@@ -144,17 +144,24 @@ class Git:
 class Commit:
     index: int
     sha: str
+    parents: list
     time: int
     author: str
     subject: str
-    changes: list  # (status, old path, new path)
+    changes: list  # (status, old path, new path); for a merge, against its first parent
     numstat: dict  # new path -> (added, deleted)
+
+    @property
+    def is_merge(self) -> bool:
+        return len(self.parents) > 1
 
 
 def parse_log(git: Git, ref: str) -> list[Commit]:
+    """Every commit reachable from ref, parents before children. Merges are read too, with their changes against
+    the first parent, so the file identities of each branch can be replayed; they never count as churn."""
     raw = git.run(
-        "log", ref, "--no-merges", "--topo-order", "--reverse", "-M", "-l0", "--raw", "--numstat", "-z",
-        "--format=%x1e%H%x1f%at%x1f%aN%x1f%s", binary=True,
+        "log", ref, "--topo-order", "--reverse", "--diff-merges=first-parent", "-M", "-l0", "--raw", "--numstat",
+        "-z", "--format=%x1e%H%x1f%P%x1f%at%x1f%aN%x1f%s", binary=True,
     )
     commits = []
 
@@ -163,7 +170,7 @@ def parse_log(git: Git, ref: str) -> list[Commit]:
 
     for record in raw.split(b"\x1e")[1:]:
         tokens = record.split(b"\0")
-        sha, time, author, subject = decode(tokens[0]).split("\x1f", 3)
+        sha, parents, time, author, subject = decode(tokens[0]).split("\x1f", 4)
         changes, numstat = [], {}
         position = 1
         while position < len(tokens):
@@ -186,7 +193,7 @@ def parse_log(git: Git, ref: str) -> list[Commit]:
                     path = decode(tokens[position + 1])
                     position += 2
                 numstat[path] = (int(added) if added != "-" else 0, int(deleted) if deleted != "-" else 0)
-        commits.append(Commit(len(commits), sha, int(time), author, subject, changes, numstat))
+        commits.append(Commit(len(commits), sha, parents.split(), int(time), author, subject, changes, numstat))
     return commits
 
 
@@ -197,7 +204,7 @@ def parse_log(git: Git, ref: str) -> list[Commit]:
 class Lineage:
     id: int
     paths: list  # (commit index, path) in order
-    born: int | None  # commit index of creation, None when created by a merge we skipped
+    born: int | None  # commit index of creation, None when the file first shows up as a change
     events: list = field(default_factory=list)  # (commit index, added, deleted)
 
 
@@ -205,78 +212,86 @@ class Lineage:
 class History:
     commits: list
     lineages: list
-    path_history: dict  # path -> sorted [(commit index, lineage id)]
-    live: dict  # path -> lineage id after replaying everything
+    snapshots: dict  # commit sha -> {path: lineage id} for the requested commits
     renames: list  # (sha, old, new, kind)
     mass_candidates: list
     ignored: set
 
+    @property
+    def non_merge_commits(self) -> int:
+        return sum(1 for commit in self.commits if not commit.is_merge)
 
-def replay(commits: list[Commit], ignored: set[str], mass_threshold: float, link_conversions: bool) -> History:
+
+def replay(commits: list[Commit], ignored: set[str], mass_threshold: float, link_conversions: bool,
+           snapshot_shas: set[str]) -> History:
+    """Follows every file through the commit graph.
+
+    Each commit starts from its first parent's path -> lineage map, so an edit on one branch can never be attributed
+    to a file that only exists on a sibling branch. A merge takes the lineage of an added or renamed path from the
+    branch it merges in. All changes of one commit are resolved against the state before that commit, so chained
+    renames (A -> B and B -> C in one commit) keep their own lineages.
+    """
     lineages: list[Lineage] = []
-    live: dict[str, int] = {}
-    retired: dict[str, int] = {}
-    path_history: dict[str, list] = collections.defaultdict(list)
     renames, mass_candidates = [], []
+    known = {commit.sha for commit in commits}
+    children = collections.Counter(parent for commit in commits for parent in commit.parents if parent in known)
+    states: dict[str, dict[str, int]] = {}
+    snapshots: dict[str, dict[str, int]] = {}
 
     def new_lineage(path: str, index: int, born: int | None) -> int:
-        lineage = Lineage(len(lineages), [(index, path)], born)
-        lineages.append(lineage)
-        path_history[path].append((index, lineage.id))
-        return lineage.id
+        lineages.append(Lineage(len(lineages), [(index, path)], born))
+        return len(lineages) - 1
 
-    def move(lineage_id: int, old: str, new: str, index: int):
-        live.pop(old, None)
-        retired[old] = lineage_id
-        live[new] = lineage_id
-        lineages[lineage_id].paths.append((index, new))
-        path_history[new].append((index, lineage_id))
+    def take(parent: str, copy: bool) -> dict[str, int]:
+        children[parent] -= 1
+        if children[parent] == 0:
+            return states.pop(parent)
+        return dict(states[parent]) if copy else states[parent]
 
     for commit in commits:
         index = commit.index
-        is_ignored = commit.sha in ignored
-        if live and len(commit.changes) / len(live) > mass_threshold:
+        parents = [parent for parent in commit.parents if parent in states]
+        state = take(parents[0], copy=True) if parents else {}
+        merged_in = [take(parent, copy=False) for parent in parents[1:]]
+        if not commit.is_merge and state and len(commit.changes) / len(state) > mass_threshold:
             mass_candidates.append({
                 "sha": commit.sha, "date": iso_date(commit.time), "author": commit.author, "subject": commit.subject,
-                "files": len(commit.changes), "share": round(len(commit.changes) / len(live), 3),
+                "files": len(commit.changes), "share": round(len(commit.changes) / len(state), 3),
             })
-        changes = list(commit.changes)
-        if link_conversions:
-            changes = link_language_conversions(changes)
+        changes = link_language_conversions(commit.changes) if link_conversions else list(commit.changes)
+        resolved = []
         for status, old, new in changes:
+            lineage_id = None if status in "AC" else state.get(old if status in "RXD" else new)
+            if commit.is_merge and status in "ACRX":
+                lineage_id = next((other[new] for other in merged_in if new in other), lineage_id)
+            resolved.append((status, old, new, lineage_id))
+        for status, old, _new, _lineage in resolved:
+            if status in "RXD":
+                state.pop(old, None)
+        counts_as_churn = not commit.is_merge and commit.sha not in ignored
+        for status, old, new, lineage_id in resolved:
+            if status == "D":
+                continue
+            if lineage_id is None:
+                lineage_id = new_lineage(new, index, index if status in "AC" else None)
+            elif status in "RX" and lineages[lineage_id].paths[-1][1] != new:
+                lineages[lineage_id].paths.append((index, new))
+                if not commit.is_merge:
+                    renames.append((commit.sha, old, new, "conversion" if status == "X" else "rename"))
+            state[new] = lineage_id
+            if not counts_as_churn or status in "AC":
+                continue
             added, deleted = commit.numstat.get(new, (0, 0))
-            if status == "X":  # delete + add that we link as a conversion (e.g. Foo.java -> Foo.kt)
-                lineage_id = live.get(old, retired.get(old))
-                if lineage_id is None:
-                    lineage_id = new_lineage(old, index, None)
-                move(lineage_id, old, new, index)
-                added, _ = commit.numstat.get(new, (0, 0))
-                _, deleted = commit.numstat.get(old, (0, 0))
-                renames.append((commit.sha, old, new, "conversion"))
-                if not is_ignored and added + deleted:
-                    lineages[lineage_id].events.append((index, added, deleted))
-            elif status in "AC":
-                live[new] = new_lineage(new, index, index)
-            elif status == "D":
-                lineage_id = live.pop(old, None)
-                if lineage_id is not None:
-                    retired[old] = lineage_id
-            elif status == "R":
-                lineage_id = live.get(old, retired.get(old))
-                if lineage_id is None:
-                    lineage_id = new_lineage(old, index, None)
-                move(lineage_id, old, new, index)
-                renames.append((commit.sha, old, new, "rename"))
-                if not is_ignored and added + deleted:
-                    lineages[lineage_id].events.append((index, added, deleted))
-            else:
-                lineage_id = live.get(new, retired.get(new))
-                if lineage_id is None:
-                    lineage_id = new_lineage(new, index, None)
-                    live[new] = lineage_id
-                if not is_ignored:
-                    lineages[lineage_id].events.append((index, added, deleted))
-    return History(commits, lineages, dict(path_history), live, renames, mass_candidates, ignored)
+            if status == "X":
+                deleted = commit.numstat.get(old, (0, 0))[1]
+            if status in "RX" and added + deleted == 0:
+                continue  # a pure move is not churn
+            lineages[lineage_id].events.append((index, added, deleted))
+        if commit.sha in snapshot_shas:
+            snapshots[commit.sha] = dict(state)
+        if children[commit.sha] > 0:
+            states[commit.sha] = state
+    return History(commits, lineages, snapshots, renames, mass_candidates, ignored)
 
 
 def link_language_conversions(changes: list) -> list:
@@ -318,14 +333,6 @@ def package_path(path: str) -> str:
     return re.sub(r"^.*?src/(main|test|itest)/(java|kotlin)/", "", os.path.dirname(path))
 
 
-def lineage_at(history: History, path: str, ancestors: set[int]) -> int | None:
-    best = None
-    for index, lineage_id in history.path_history.get(path, []):
-        if index in ancestors:
-            best = lineage_id
-    return best
-
-
 # ---------------------------------------------------------------------------------- classification
 
 
@@ -364,6 +371,11 @@ class Classifier:
     def _read_gradle(self, prefix: str, text: str):
         self.build_output_roots.add(f"{prefix}build/")
         self.source_roots.update({f"{prefix}src/main/kotlin/", f"{prefix}src/main/java/"})
+        # source sets the build creates next to main, e.g. `sourceSets.create("logFilter")`; test suites are tests
+        created = re.findall(r'sourceSets\.create\("(\w+)"\)|val\s+(\w+)\s+by\s+sourceSets\.creating', text)
+        for name in {first or second for first, second in created}:
+            if "test" not in name.lower():
+                self.source_roots.update({f"{prefix}src/{name}/kotlin/", f"{prefix}src/{name}/java/"})
         directories = {
             name: value for name, value in re.findall(r'val\s+(\w+)\s*=\s*layout\.projectDirectory\.dir\("([^"]+)"\)', text)
         }
@@ -576,6 +588,33 @@ def strip_inline_tests(text: str, language: str) -> tuple[str, int]:
     return "\n".join("" if number in blanked else line for number, line in enumerate(lines)), counted
 
 
+MEASURED_RULE_IDS = {"CyclomaticComplexMethod", "ComplexMethod", "CognitiveComplexMethod", "LongMethod", "complexity", "all"}
+
+
+def neutralise_suppressions(text: str, language: str) -> str:
+    """Disables suppressions of the measured metrics, so a suppressed function still counts. Keeps line numbers.
+
+    detekt honours `@Suppress("CyclomaticComplexMethod")`, also as `detekt:`, `complexity:` or `all`; lizard honours
+    a `#lizard forgives` comment. ESLint already runs with inline configuration disabled.
+    """
+    if language != "kotlin":
+        return re.sub(r"#lizard\s+forgives", "#lizard counts", text, flags=re.I)
+
+    def neutralise_ids(arguments: str) -> str:
+        return re.sub(
+            r'"([^"]*)"',
+            lambda literal: f'"not-{literal.group(1)}"'
+            if re.split(r"[.:]", literal.group(1))[-1] in MEASURED_RULE_IDS else literal.group(0),
+            arguments,
+        )
+
+    return re.sub(
+        r"(@(?:file:)?Suppress(?:Warnings)?\s*\()([^)]*)\)",
+        lambda match: match.group(1) + neutralise_ids(match.group(2)) + ")",
+        text,
+    )
+
+
 def lines_of_code(text: str, language: str) -> int:
     return sum(1 for line in strip_comments_and_strings(text, language).split("\n") if line.strip())
 
@@ -731,6 +770,7 @@ def measure_blobs(git: Git, tools: Tools, cache: ComplexityCache, wanted: dict[s
             language, extension = wanted[blob]
             text = content.decode("utf-8", errors="replace")
             text, stripped = strip_inline_tests(text, language)
+            text = neutralise_suppressions(text, language)
             tool = tools.tool_for(language)
             directory = base / tool
             directory.mkdir(exist_ok=True)
@@ -920,7 +960,7 @@ def frame_rows(git: Git, history: History, classifier: Classifier, frame: dict, 
         if group == "not code" or group == "lockfiles":
             rows.append({"path": path, "group": group, "blob": None})
             continue
-        lineage_id = lineage_at(history, path, ancestors)
+        lineage_id = history.snapshots[frame["sha"]].get(path)
         commits = lines = commits_year = lines_year = 0
         if lineage_id is not None:
             for index, added, deleted in history.lineages[lineage_id].events:
@@ -1054,6 +1094,7 @@ def spot_check(git: Git, ref_commit: str, rows: list[dict], history: History, to
             directory.mkdir()
             text = git.run("cat-file", "-p", row["blob"])
             text, _ = strip_inline_tests(text, language)
+            text = neutralise_suppressions(text, language)
             (directory / f"{row['blob']}.{extension}").write_text(text)
             tool = tools.tool_for(language)
             if tool == "detekt":
@@ -1187,15 +1228,16 @@ def main():
     for revision in arguments.ignore_rev:
         ignored[git.run("rev-parse", f"{revision}^{{commit}}").strip()] = "--ignore-rev"
 
+    frames = select_frames(git, ref_commit, arguments.frames, arguments.max_frames)
     log("Reading history")
     commits = parse_log(git, ref_commit)
-    history = replay(commits, set(ignored), arguments.mass_threshold, not arguments.no_link_conversions)
+    history = replay(commits, set(ignored), arguments.mass_threshold, not arguments.no_link_conversions,
+                     {frame["sha"] for frame in frames})
     sha_to_index = {commit.sha: commit.index for commit in commits}
-    log(f"  {len(commits)} non-merge commits, {len(history.lineages)} file lineages")
+    log(f"  {history.non_merge_commits} non-merge commits, {len(history.lineages)} file lineages")
 
     head_tree = git.tree(ref_commit)
     classifier = Classifier(git, ref_commit, head_tree)
-    frames = select_frames(git, ref_commit, arguments.frames, arguments.max_frames)
     log(f"Collecting {len(frames)} frames")
     frame_data = []
     all_paths: set[str] = set()
@@ -1228,8 +1270,9 @@ def main():
     production = [row for row in head_code if row["group"] == "production"]
 
     # ---- consistency checks
-    ghosts = sorted(set(history.live) - set(head_tree))
-    missing = sorted(set(head_tree) - set(history.live))
+    replayed = history.snapshots[ref_commit]
+    ghosts = sorted(set(replayed) - set(git.tree(ref_commit, include_links=True)))
+    missing = sorted(set(head_tree) - set(replayed))
     stale_paths = [row["path"] for row in head_rows if row["path"] not in head_tree]
     checks = {
         "tools": tool_check(head_rows, measurements, tools),
@@ -1339,7 +1382,7 @@ def main():
         "ref": ref, "commit": ref_commit,
         "analysis_date": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
         "history": {"from": iso_date(first_time), "to": iso_date(frames[-1]["time"]), "shallow": shallow,
-                    "commits": len(commits), "merges_skipped": True,
+                    "commits": history.non_merge_commits, "merges_skipped": True,
                     "description": f"{ref} at {ref_commit[:10]}, non-merge commits reachable from it"},
         "subdir": arguments.subdir,
         "groups": {name: group_counts.get(name, 0) for name in group_names + ["not code"]},
