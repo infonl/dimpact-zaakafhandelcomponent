@@ -1,0 +1,43 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<div mat-dialog-title>
+  <h3>{{ data.confirmButtonActionKey | translate }}</h3>
+  <button mat-icon-button (click)="cancel()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<div mat-dialog-content>
+  <p *ngIf="data.melding" [innerHTML]="data.melding"></p>
+  <p *ngIf="data.uitleg" class="uitleg" [innerHTML]="data.uitleg"></p>
+  <ng-container *ngFor="let formField of data.formFields">
+    <mfb-form-field [field]="formField"></mfb-form-field>
+  </ng-container>
+</div>
+<div mat-dialog-actions>
+  <button
+    *ngIf="data.confirmButtonActionKey"
+    mat-raised-button
+    color="primary"
+    id="confirmButton"
+    [disabled]="disabled()"
+    (click)="confirm()"
+  >
+    <mat-icon *ngIf="loading">
+      <mat-spinner diameter="18"></mat-spinner>
+    </mat-icon>
+    {{ data.confirmButtonActionKey | translate }}
+  </button>
+  <button
+    *ngIf="data.cancelButtonActionKey"
+    mat-raised-button
+    id="cancelButton"
+    [disabled]="loading"
+    (click)="cancel()"
+  >
+    {{ data.cancelButtonActionKey | translate }}
+  </button>
+</div>

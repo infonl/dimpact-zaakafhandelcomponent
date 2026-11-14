@@ -1,0 +1,18 @@
+{
+  "request": {
+    "url": "/lvbag/individuelebevragingen/v2/adressen/0363200003761447",
+    "method": "GET",
+    "headers": {
+      "Accept": {
+        "equalTo": "*/*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "bag-adressen-0363200003761447-body.json",
+    "headers": {
+      "Content-Type": "application/hal+json"
+    }
+  }
+}

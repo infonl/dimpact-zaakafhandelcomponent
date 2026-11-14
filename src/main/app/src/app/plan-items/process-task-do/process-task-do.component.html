@@ -1,0 +1,13 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<div class="form">
+  <mfb-form
+    *ngIf="this.formItems"
+    (formSubmit)="onFormSubmit($event)"
+    [formFields]="this.formItems"
+    [config]="formConfig"
+  ></mfb-form>
+</div>
