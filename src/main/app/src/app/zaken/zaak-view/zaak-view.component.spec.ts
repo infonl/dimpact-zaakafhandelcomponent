@@ -17,6 +17,7 @@ import {
 } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { within } from "@testing-library/angular";
+import { userEvent } from "@testing-library/user-event";
 import { of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
@@ -27,8 +28,9 @@ import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
+import { IdentityService } from "../../identity/identity.service";
 import { KlantenService } from "../../klanten/klanten.service";
-import { NotitiesComponent } from "../../notities/notities.component";
+import { NotitieService } from "../../notities/notities.service";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { PolicyService } from "../../policy/policy.service";
 import { ZaakIndicatiesComponent } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
@@ -111,7 +113,6 @@ describe(ZaakViewComponent.name, () => {
         ZaakBetrokkeneListComponent,
         ZaakDetailsCardComponent,
         ZaakInitiatorPanelComponent,
-        NotitiesComponent,
         ZaakIndicatiesComponent,
         SideNavComponent,
         StaticTextComponent,
@@ -281,53 +282,197 @@ describe(ZaakViewComponent.name, () => {
 
   describe("notities", () => {
     let policyService: PolicyService;
+    let notitiesChangedCallback: (() => void) | undefined;
+    let notitiesOnServer: GeneratedType<"RestNote">[];
+    const notitiesListener = fromPartial<WebsocketListener>({});
+
+    const notitie = (id: number) =>
+      fromPartial<GeneratedType<"RestNote">>({
+        id,
+        zaakUUID: zaak.uuid,
+        tekst: `fakeTekst${id}`,
+      });
+
+    async function openZaak(
+      notitieRechten?: GeneratedType<"RestNotitieRechten">,
+    ) {
+      if (notitieRechten) {
+        testQueryClient.setQueryData(
+          policyService.readNotitieRechten().queryKey,
+          notitieRechten,
+        );
+      }
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+      await sleep();
+      fixture.detectChanges();
+    }
+
+    const scrollIntoView = Element.prototype.scrollIntoView;
+
+    afterEach(() => {
+      Element.prototype.scrollIntoView = scrollIntoView;
+    });
 
     beforeEach(() => {
+      Element.prototype.scrollIntoView = jest.fn();
       policyService = TestBed.inject(PolicyService);
+      notitiesChangedCallback = undefined;
+      notitiesOnServer = [notitie(1), notitie(2)];
+
+      jest.spyOn(NotitieService.prototype, "listNotities").mockReturnValue(
+        queryOptions({
+          queryKey: ["fakeNotities"],
+          queryFn: async () => notitiesOnServer,
+        }) as ReturnType<NotitieService["listNotities"]>,
+      );
+      jest
+        .spyOn(websocketService, "addListener")
+        .mockImplementation((_opcode, objectType, _objectId, callback) => {
+          if (objectType !== "ZAAK_NOTITIES") {
+            return fromPartial<WebsocketListener>({});
+          }
+          notitiesChangedCallback = callback as () => void;
+          return notitiesListener;
+        });
     });
 
-    it("should render <zac-notities> when notitieRechten.lezen is true", async () => {
-      testQueryClient.setQueryData(
-        policyService.readNotitieRechten().queryKey,
-        { canLezen: true, canWijzigen: false },
-      );
-      mockActivatedRoute.data.next({ zaak });
-      fixture.detectChanges();
+    it("shows the menu action with the number of notes to an employee who may read notes", async () => {
+      await openZaak({ canLezen: true, canWijzigen: false });
 
       expect(
-        await screen().findByRole("button", { name: "Notities" }),
+        await screen().findByRole("button", { name: "notities (2)" }),
       ).toBeInTheDocument();
     });
 
-    it("should render <zac-notities> when notitieRechten.wijzigen is true", async () => {
-      testQueryClient.setQueryData(
-        policyService.readNotitieRechten().queryKey,
-        { canLezen: false, canWijzigen: true },
-      );
-      mockActivatedRoute.data.next({ zaak });
-      fixture.detectChanges();
+    it("shows the menu action to an employee who may only change notes", async () => {
+      await openZaak({ canLezen: false, canWijzigen: true });
 
       expect(
-        await screen().findByRole("button", { name: "Notities" }),
+        await screen().findByRole("button", { name: "notities (2)" }),
       ).toBeInTheDocument();
     });
 
-    it("should not render <zac-notities> when both notitieRechten.lezen and wijzigen are false", () => {
-      testQueryClient.setQueryData(
-        policyService.readNotitieRechten().queryKey,
-        { canLezen: false, canWijzigen: false },
-      );
-      mockActivatedRoute.data.next({ zaak });
-      fixture.detectChanges();
+    it("does not show the menu action when the employee may neither read nor change notes", async () => {
+      await openZaak({ canLezen: false, canWijzigen: false });
 
-      expect(screen().queryByRole("button", { name: "Notities" })).toBeNull();
+      expect(
+        screen().queryByRole("button", { name: /^notities/ }),
+      ).not.toBeInTheDocument();
+      expect(
+        testQueryClient.getQueryState(["fakeNotities"])?.fetchStatus ?? "idle",
+      ).toBe("idle");
+      expect(testQueryClient.getQueryData(["fakeNotities"])).toBeUndefined();
     });
 
-    it("should not render <zac-notities> when notitieRechten is absent", () => {
-      mockActivatedRoute.data.next({ zaak });
+    it("does not show the menu action while the notes rights are unknown", async () => {
+      await openZaak();
+
+      expect(
+        screen().queryByRole("button", { name: /^notities/ }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("shows no notes button outside the menu", async () => {
+      await openZaak({ canLezen: true, canWijzigen: true });
+
+      expect(
+        await screen().findAllByRole("button", { name: /^notities/i }),
+      ).toHaveLength(1);
+    });
+
+    it("updates the number in the menu when the notes of the zaak change elsewhere", async () => {
+      await openZaak({ canLezen: true, canWijzigen: false });
+      expect(
+        await screen().findByRole("button", { name: "notities (2)" }),
+      ).toBeInTheDocument();
+
+      notitiesOnServer = [notitie(1), notitie(2), notitie(3)];
+      notitiesChangedCallback!();
+      await sleep();
       fixture.detectChanges();
 
-      expect(screen().queryByRole("button", { name: "Notities" })).toBeNull();
+      expect(
+        await screen().findByRole("button", { name: "notities (3)" }),
+      ).toBeInTheDocument();
+    });
+
+    it("listens for changes to the notes of the zaak and stops when the view is destroyed", async () => {
+      await openZaak({ canLezen: true, canWijzigen: false });
+
+      expect(websocketService.addListener).toHaveBeenCalledWith(
+        "UPDATED",
+        "ZAAK_NOTITIES",
+        zaak.uuid,
+        expect.any(Function),
+      );
+
+      fixture.destroy();
+
+      expect(websocketService.removeListener).toHaveBeenCalledWith(
+        notitiesListener,
+      );
+    });
+
+    it("raises the number in the menu and the panel heading when the employee adds a note", async () => {
+      const user = userEvent.setup();
+      testQueryClient.setQueryData(
+        TestBed.inject(IdentityService).readLoggedInUser().queryKey,
+        fromPartial<GeneratedType<"RestLoggedInUser">>({
+          username: "fakeGebruiker",
+        }),
+      );
+      await openZaak({ canLezen: true, canWijzigen: true });
+      await user.click(
+        await screen().findByRole("button", { name: "notities (2)" }),
+      );
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      await user.type(
+        await screen().findByRole("textbox", {
+          name: "actie.notitie.aanmaken",
+        }),
+        "fakeTekst3",
+      );
+      fixture.detectChanges();
+      await user.click(screen().getByRole("button", { name: "actie.opslaan" }));
+      TestBed.inject(HttpTestingController)
+        .expectOne("/rest/notities")
+        .flush(notitie(3));
+      await sleep();
+      fixture.detectChanges();
+
+      expect(
+        await screen().findByRole("button", { name: "notities (3)" }),
+      ).toBeInTheDocument();
+      expect(
+        screen().getByRole("heading", { level: 3, name: "notities (3)" }),
+      ).toBeInTheDocument();
+    });
+
+    it("opens the notes in the side panel when the employee chooses the menu action", async () => {
+      await openZaak({ canLezen: true, canWijzigen: false });
+      const openSpy = jest.spyOn(
+        fixture.componentInstance.actionsSidenav(),
+        "open",
+      );
+
+      await userEvent
+        .setup()
+        .click(await screen().findByRole("button", { name: "notities (2)" }));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(openSpy).toHaveBeenCalled();
+      expect(
+        await screen().findByRole("heading", {
+          level: 3,
+          name: "notities (2)",
+        }),
+      ).toBeInTheDocument();
     });
   });
 

@@ -14,12 +14,13 @@ import {
 } from "@angular/common/http/testing";
 import { Component, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { screen } from "@testing-library/angular";
-import { userEvent } from "@testing-library/user-event";
 import { sleep, testQueryClient } from "../../../setupJest";
+import { fromPartial } from "../../test-helpers";
 import { IdentityService } from "../identity/identity.service";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { NotitiesComponent } from "./notities.component";
@@ -27,12 +28,14 @@ import { NotitiesComponent } from "./notities.component";
 @Component({
   template: `<zac-notities
     zaakUuid="fakeZaakUuid"
+    [sideNav]="sideNav"
     [notitieRechten]="notitieRechten()"
   ></zac-notities>`,
   standalone: true,
   imports: [NotitiesComponent],
 })
 class TestHostComponent {
+  readonly sideNav = fromPartial<MatDrawer>({ close: jest.fn() });
   readonly notitieRechten = signal<
     GeneratedType<"RestNotitieRechten"> | undefined
   >(undefined);
@@ -73,15 +76,11 @@ describe("NotitiesComponent harness", () => {
       .expectOne("/rest/notities/zaken/fakeZaakUuid")
       .flush([{ id: 1, zaakUUID: "fakeZaakUuid", tekst: "fakeTekst" }]);
     await sleep();
+    await sleep();
     fixture.detectChanges();
   });
 
-  it("should show the notities of the zaak it is given as a static attribute", async () => {
-    await userEvent
-      .setup()
-      .click(screen.getByRole("button", { name: "Notities" }));
-    fixture.detectChanges();
-
+  it("should show the notities of the zaak it is given as a static attribute", () => {
     expect(screen.getByText("fakeTekst")).toBeInTheDocument();
   });
 
@@ -92,7 +91,6 @@ describe("NotitiesComponent harness", () => {
   `(
     "should $str show textarea when wijzigen is $wijzigen",
     async ({ wijzigen, expected }) => {
-      const user = userEvent.setup();
       fixture.componentInstance.notitieRechten.set({
         canLezen: false,
         canWijzigen: wijzigen,
@@ -100,13 +98,6 @@ describe("NotitiesComponent harness", () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      await user.click(screen.getByRole("button", { name: "Notities" }));
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      expect(
-        screen.getByRole("button", { name: "actie.minimaliseren" }),
-      ).toBeInTheDocument();
       expect(screen.queryByRole("textbox") !== null).toBe(expected);
     },
   );

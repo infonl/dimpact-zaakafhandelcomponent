@@ -53,11 +53,13 @@
           <mat-icon
             [matTooltipDisabled]="menuState() === MenuState.OPEN"
             matTooltipPosition="after"
-            [matTooltip]="menuItem.title | translate"
+            [matTooltip]="(menuItem.title | translate) + countSuffix(menuItem)"
             matListItemIcon
             >{{ menuItem.icon }}</mat-icon
           >
-          <div matListItemTitle>{{ menuItem.title | translate }}</div>
+          <div matListItemTitle>
+            {{ menuItem.title | translate }}{{ countSuffix(menuItem) }}
+          </div>
         </button>
       }
       @case (menuItemType.HREF) {
