@@ -13,10 +13,12 @@ import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { Subject } from "rxjs";
+import { EMPTY, Subject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { sleep, testQueryClient } from "../../../../setupJest";
+import { sleep } from "../../../../setupJest";
 import { KlantContactmomentenTabelComponent } from "../../contactmomenten/klant-contactmomenten-tabel/klant-contactmomenten-tabel.component";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
+import { QUERY_CLIENT } from "../../shared/http/query-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantZakenTabelComponent } from "../klant-zaken-tabel/klant-zaken-tabel.component";
 import { BedrijfViewComponent } from "./bedrijf-view.component";
@@ -107,6 +109,7 @@ describe(BedrijfViewComponent.name, () => {
   let component: BedrijfViewComponent;
   let fixture: ComponentFixture<BedrijfViewComponent>;
   let httpController: HttpTestingController;
+  let foutAfhandelen: jest.SpyInstance;
 
   const routeDataSubject = new Subject<{
     bedrijf: GeneratedType<"RestBedrijf"> | null;
@@ -142,7 +145,7 @@ describe(BedrijfViewComponent.name, () => {
         provideTranslateService(),
         provideNativeDateAdapter(),
         provideRouter(testRoutes),
-        provideQueryClient(testQueryClient),
+        provideQueryClient(QUERY_CLIENT),
         {
           provide: ActivatedRoute,
           useValue: { data: routeDataSubject.asObservable() },
@@ -166,6 +169,9 @@ describe(BedrijfViewComponent.name, () => {
       .compileComponents();
 
     httpController = TestBed.inject(HttpTestingController);
+    foutAfhandelen = jest
+      .spyOn(TestBed.inject(FoutAfhandelingService), "foutAfhandelen")
+      .mockReturnValue(EMPTY);
 
     fixture = TestBed.createComponent(BedrijfViewComponent);
     component = fixture.componentInstance;
@@ -239,8 +245,135 @@ describe(BedrijfViewComponent.name, () => {
       expectStaticText("type", "rechtspersoon");
     });
 
-    it("renders adres when no profiel is loaded", () => {
+    it("renders the bezoekadres and correspondentieadres from the profiel without clicking the profiel ophalen button", async () => {
+      await flushProfiel(
+        vestigingsprofielUrl,
+        makeBedrijfsprofiel({
+          adressen: [
+            {
+              type: "correspondentieadres",
+              volledigAdres: "Postbus 12, 1000AA Amsterdam",
+            },
+            {
+              type: "bezoekadres",
+              volledigAdres: "Teststraat 1A, 1234AB Amsterdam",
+            },
+          ],
+        }),
+      );
+
+      expectStaticText("correspondentieadres", "Postbus 12, 1000AA Amsterdam");
+      expectStaticText("bezoekadres", "Teststraat 1A, 1234AB Amsterdam");
+    });
+
+    it("shows that the bedrijf is no longer known at the KvK instead of the adressen when the profiel is not found", async () => {
+      httpController
+        .expectOne(vestigingsprofielUrl)
+        .flush(null, { status: 404, statusText: "fakeNotFound" });
+      await sleep();
+      fixture.detectChanges();
+      await sleep();
+      fixture.detectChanges();
+
+      expectStaticText("adres", "msg.hint.kvk.outdated");
+    });
+
+    it("shows a KvK error instead of the adressen when fetching the profiel fails otherwise", async () => {
+      httpController
+        .expectOne(vestigingsprofielUrl)
+        .flush(null, { status: 403, statusText: "fakeForbidden" });
+      await sleep();
+      fixture.detectChanges();
+      await sleep();
+      fixture.detectChanges();
+
+      expectStaticText("adres", "msg.hint.kvk.other-error");
+    });
+
+    it("shows that the adressen are being fetched while fetching the profiel", async () => {
+      await sleep();
+      fixture.detectChanges();
+
+      expect(
+        screen.getByRole("progressbar", { name: "bedrijf.adressen.laden" }),
+      ).toBeInTheDocument();
+    });
+
+    it("does not show that the adressen are being fetched once the profiel is fetched", async () => {
+      await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
+
+      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+    });
+
+    it("fetches the profiel again when the profiel ophalen button is clicked after fetching the profiel failed", async () => {
+      httpController
+        .expectOne(vestigingsprofielUrl)
+        .flush(null, { status: 404, statusText: "fakeNotFound" });
+      await sleep();
+      fixture.detectChanges();
+
+      await clickProfielOphalen();
+      await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
+
       expectStaticText("bezoekadres", "Teststraat 1, 1234AB Amsterdam");
+      expect(
+        screen.queryByText("msg.hint.kvk.outdated"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("keeps the profiel ophalen button enabled when fetching the profiel again fails, so that the user can retry", async () => {
+      httpController
+        .expectOne(vestigingsprofielUrl)
+        .flush(null, { status: 404, statusText: "fakeNotFound" });
+      await sleep();
+      fixture.detectChanges();
+
+      await clickProfielOphalen();
+      httpController
+        .expectOne(vestigingsprofielUrl)
+        .flush(null, { status: 404, statusText: "fakeNotFound" });
+      await sleep();
+      fixture.detectChanges();
+      await sleep();
+      fixture.detectChanges();
+
+      expect(profielOphalenButton()).toBeEnabled();
+      expectStaticText("adres", "msg.hint.kvk.outdated");
+    });
+
+    it("shows the KvK error instead of the earlier fetched adressen when refetching the profiel fails", async () => {
+      await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
+
+      void TestBed.inject(QUERY_CLIENT).refetchQueries();
+      await sleep();
+      httpController
+        .expectOne(vestigingsprofielUrl)
+        .flush(null, { status: 404, statusText: "fakeNotFound" });
+      await sleep();
+      fixture.detectChanges();
+      await sleep();
+      fixture.detectChanges();
+
+      expectStaticText("adres", "msg.hint.kvk.outdated");
+      expect(screen.queryByText("bezoekadres")).not.toBeInTheDocument();
+      expect(
+        screen.queryByText("Teststraat 1, 1234AB Amsterdam"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("does not open the error dialog when fetching the profiel fails, so that it does not close open dialogs", async () => {
+      httpController
+        .expectOne(vestigingsprofielUrl)
+        .flush(null, { status: 404, statusText: "fakeNotFound" });
+      await sleep();
+
+      expect(foutAfhandelen).not.toHaveBeenCalled();
+    });
+
+    it("does not render the adres of the bedrijf, because the profiel has the complete adressen", () => {
+      expect(
+        screen.queryByText("Teststraat 1, 1234AB Amsterdam"),
+      ).not.toBeInTheDocument();
     });
 
     it("renders telefoonnummer field", () => {
@@ -307,7 +440,7 @@ describe(BedrijfViewComponent.name, () => {
       expect(profielOphalenButton()).toBeDisabled();
     });
 
-    it("fetches the vestigingsprofiel when vestigingsnummer is present", async () => {
+    it("fetches the vestigingsprofiel and not the basisprofiel without clicking the button when vestigingsnummer is present", () => {
       routeDataSubject.next({
         bedrijf: makeBedrijf({
           type: "RECHTSPERSOON",
@@ -316,13 +449,11 @@ describe(BedrijfViewComponent.name, () => {
       });
       fixture.detectChanges();
 
-      await clickProfielOphalen();
-
       httpController.expectOne(vestigingsprofielUrl);
       httpController.expectNone(basisprofielUrl);
     });
 
-    it("fetches the basisprofiel when type is RECHTSPERSOON without vestigingsnummer", async () => {
+    it("fetches the basisprofiel and not the vestigingsprofiel without clicking the button when type is RECHTSPERSOON without vestigingsnummer", () => {
       routeDataSubject.next({
         bedrijf: makeBedrijf({
           type: "RECHTSPERSOON",
@@ -332,9 +463,8 @@ describe(BedrijfViewComponent.name, () => {
       });
       fixture.detectChanges();
 
-      await clickProfielOphalen();
-
       httpController.expectOne(basisprofielUrl);
+      httpController.expectNone(vestigingsprofielUrl);
     });
 
     it("is disabled after it is clicked", async () => {
@@ -346,12 +476,63 @@ describe(BedrijfViewComponent.name, () => {
       expect(profielOphalenButton()).toBeDisabled();
     });
 
-    it("does not fetch a profiel before it is clicked", () => {
-      routeDataSubject.next({ bedrijf: makeBedrijf() });
+    it("does not fetch a profiel when the bedrijf is no vestiging and no rechtspersoon", () => {
+      routeDataSubject.next({
+        bedrijf: makeBedrijf({
+          type: "NEVENVESTIGING",
+          vestigingsnummer: undefined,
+          kvkNummer: "12345678",
+        }),
+      });
       fixture.detectChanges();
 
       httpController.expectNone(vestigingsprofielUrl);
       httpController.expectNone(basisprofielUrl);
+    });
+
+    describe("after navigating to another bedrijf", () => {
+      beforeEach(async () => {
+        routeDataSubject.next({ bedrijf: makeBedrijf() });
+        fixture.detectChanges();
+        await clickProfielOphalen();
+        await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
+
+        routeDataSubject.next({
+          bedrijf: makeBedrijf({ vestigingsnummer: "999988887777" }),
+        });
+        fixture.detectChanges();
+        await flushProfiel(
+          "/rest/klanten/vestigingsprofiel/999988887777",
+          makeBedrijfsprofiel({
+            vestigingsnummer: "999988887777",
+            website: "https://anderbedrijf.nl",
+          }),
+        );
+      });
+
+      it("hides the other profiel details of the new bedrijf until it is clicked again", () => {
+        expect(
+          screen.queryByText("https://anderbedrijf.nl"),
+        ).not.toBeInTheDocument();
+        expect(
+          screen.queryByText("https://testbedrijf.nl"),
+        ).not.toBeInTheDocument();
+      });
+
+      it("is enabled again", () => {
+        expect(profielOphalenButton()).toBeEnabled();
+      });
+    });
+
+    it("hides the other profiel details until it is clicked", async () => {
+      routeDataSubject.next({ bedrijf: makeBedrijf() });
+      fixture.detectChanges();
+      await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
+
+      expect(
+        screen.queryByText("https://testbedrijf.nl"),
+      ).not.toBeInTheDocument();
+      expect(screen.queryByText("rsin")).not.toBeInTheDocument();
     });
   });
 
@@ -363,7 +544,7 @@ describe(BedrijfViewComponent.name, () => {
       await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
     });
 
-    it("hides adres field when profiel is loaded", () => {
+    it("renders each adres once after the profiel ophalen button is clicked", () => {
       expect(screen.getAllByText("bezoekadres")).toHaveLength(1);
       expect(
         screen.getAllByText("Teststraat 1, 1234AB Amsterdam"),

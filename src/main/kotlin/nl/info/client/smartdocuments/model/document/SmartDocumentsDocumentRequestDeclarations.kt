@@ -6,11 +6,15 @@ package nl.info.client.smartdocuments.model.document
 
 import jakarta.json.bind.annotation.JsonbDateFormat
 import jakarta.json.bind.annotation.JsonbProperty
-import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.zac.util.joinNonBlank
 import java.time.LocalDate
+import nl.info.client.kvk.basisprofiel.model.generated.Adres as BasisprofielAdres
+import nl.info.client.kvk.vestigingsprofiel.model.generated.Adres as VestigingsprofielAdres
 
 private const val DATE_FORMAT = "dd-MM-yyyy"
+private const val KVK_ADRES_TYPE_CORRESPONDENTIEADRES = "correspondentieadres"
+private const val KVK_ADRES_TYPE_BEZOEKADRES = "bezoekadres"
+private const val POSTBUS = "Postbus"
 
 data class AanvragerData(
     val naam: String? = null,
@@ -140,16 +144,45 @@ data class ZaakData(
     val zaaktype: String? = null
 )
 
-fun ResultaatItem.toAanvragerDataBedrijf() =
-    this.adres?.binnenlandsAdres.let {
-        AanvragerData(
-            naam = this.naam,
-            straat = it?.straatnaam,
-            huisnummer = this.toHuisnummer(),
-            postcode = it?.postcode,
-            woonplaats = it?.plaats
+internal fun <T> List<T>.findCorrespondentieadresOrBezoekadres(adresType: (T) -> String?) =
+    firstOrNull { adresType(it) == KVK_ADRES_TYPE_CORRESPONDENTIEADRES }
+        ?: firstOrNull { adresType(it) == KVK_ADRES_TYPE_BEZOEKADRES }
+
+fun VestigingsprofielAdres.toAanvragerData(naam: String?) =
+    when {
+        postbusnummer != null -> AanvragerData(
+            naam = naam,
+            straat = POSTBUS,
+            huisnummer = postbusnummer.toString(),
+            postcode = postcode,
+            woonplaats = plaats
+        )
+        straatHuisnummer != null -> AanvragerData(
+            naam = naam,
+            straat = listOf(straatHuisnummer, toevoegingAdres).joinNonBlank(" "),
+            woonplaats = listOf(postcodeWoonplaats, land).joinNonBlank(", ")
+        )
+        else -> AanvragerData(
+            naam = naam,
+            straat = straatnaam,
+            huisnummer = listOf(huisnummer?.toString(), huisletter, huisnummerToevoeging).joinNonBlank(),
+            postcode = postcode,
+            woonplaats = plaats
         )
     }
 
-fun ResultaatItem.toHuisnummer() =
-    listOf(this.adres?.binnenlandsAdres?.huisnummer?.toString(), this.adres?.binnenlandsAdres?.huisletter).joinNonBlank()
+fun BasisprofielAdres.toAanvragerData(naam: String?) = toVestigingsprofielAdres().toAanvragerData(naam)
+
+private fun BasisprofielAdres.toVestigingsprofielAdres() =
+    VestigingsprofielAdres()
+        .postbusnummer(postbusnummer)
+        .straatHuisnummer(straatHuisnummer)
+        .toevoegingAdres(toevoegingAdres)
+        .postcodeWoonplaats(postcodeWoonplaats)
+        .land(land)
+        .straatnaam(straatnaam)
+        .huisnummer(huisnummer)
+        .huisletter(huisletter)
+        .huisnummerToevoeging(huisnummerToevoeging)
+        .postcode(postcode)
+        .plaats(plaats)

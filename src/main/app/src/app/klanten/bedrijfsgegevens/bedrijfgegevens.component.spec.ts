@@ -13,15 +13,15 @@ import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatProgressSpinnerHarness } from "@angular/material/progress-spinner/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
-import {
-  provideTanStackQuery,
-  QueryClient,
-} from "@tanstack/angular-query-experimental";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
+import { EMPTY } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep } from "../../../../setupJest";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
+import { QUERY_CLIENT } from "../../shared/http/query-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
 import { KlantenService } from "../klanten.service";
@@ -50,9 +50,7 @@ describe(BedrijfsgegevensComponent.name, () => {
   let httpController: HttpTestingController;
 
   let klantenService: KlantenService;
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
+  let foutAfhandelen: jest.SpyInstance;
 
   const betrokkeneIdentificatie = fromPartial<BetrokkeneIdentificatie>({
     type: "VN",
@@ -82,9 +80,13 @@ describe(BedrijfsgegevensComponent.name, () => {
       providers: [
         provideTranslateService(),
         KlantenService,
-        provideTanStackQuery(queryClient),
+        provideQueryClient(QUERY_CLIENT),
       ],
     });
+
+    foutAfhandelen = jest
+      .spyOn(TestBed.inject(FoutAfhandelingService), "foutAfhandelen")
+      .mockReturnValue(EMPTY);
 
     klantenService = TestBed.inject(KlantenService);
     jest.spyOn(klantenService, "readBedrijf").mockReturnValue({
@@ -101,10 +103,6 @@ describe(BedrijfsgegevensComponent.name, () => {
     httpController = TestBed.inject(HttpTestingController);
 
     fixture.detectChanges();
-  });
-
-  afterEach(() => {
-    queryClient.clear();
   });
 
   describe("while loading", () => {
@@ -438,16 +436,139 @@ describe(BedrijfsgegevensComponent.name, () => {
         notifyManager.setScheduler(queueMicrotask);
       });
 
-      it("does not fetch a profiel before the button is clicked", () => {
-        httpController.expectNone(vestigingsprofielUrl);
+      it("fetches the vestigingsprofiel and not the basisprofiel without clicking the button", () => {
+        httpController.expectOne(vestigingsprofielUrl);
         httpController.expectNone(basisprofielUrl);
       });
 
-      it("fetches the vestigingsprofiel and not the basisprofiel", async () => {
+      it("renders the bezoekadres and correspondentieadres from the vestigingsprofiel without clicking the button", async () => {
+        await flushProfiel(
+          vestigingsprofielUrl,
+          makeBedrijfsprofiel({
+            adressen: [
+              {
+                type: "correspondentieadres",
+                volledigAdres: "Piersonstraat 7, 7103HA Winterswijk",
+              },
+              {
+                type: "bezoekadres",
+                volledigAdres: "Jaspersweg 11, 7103AV Winterswijk",
+              },
+            ],
+          }),
+        );
+
+        expect(screen.getByText("correspondentieadres")).toBeInTheDocument();
+        expect(
+          screen.getByText("Piersonstraat 7, 7103HA Winterswijk"),
+        ).toBeInTheDocument();
+        expect(screen.getByText("bezoekadres")).toBeInTheDocument();
+        expect(
+          screen.getByText("Jaspersweg 11, 7103AV Winterswijk"),
+        ).toBeInTheDocument();
+      });
+
+      it("does not render the other profiel details before the button is clicked", async () => {
+        await flushProfiel(
+          vestigingsprofielUrl,
+          makeBedrijfsprofiel({
+            website: "https://test.nl",
+            rsin: "123456789",
+          }),
+        );
+
+        expect(screen.queryByText("https://test.nl")).not.toBeInTheDocument();
+        expect(screen.queryByText("123456789")).not.toBeInTheDocument();
+      });
+
+      it("shows that the bedrijf is no longer known at the KvK instead of the adressen when the vestigingsprofiel is not found", async () => {
+        httpController
+          .expectOne(vestigingsprofielUrl)
+          .flush(null, { status: 404, statusText: "fakeNotFound" });
+        await sleep();
+        fixture.detectChanges();
+
+        expect(screen.getByText("adres")).toBeInTheDocument();
+        expect(screen.getByText("msg.hint.kvk.outdated")).toBeInTheDocument();
+      });
+
+      it("shows a KvK error instead of the adressen when fetching the vestigingsprofiel fails otherwise", async () => {
+        httpController
+          .expectOne(vestigingsprofielUrl)
+          .flush(null, { status: 403, statusText: "fakeForbidden" });
+        await sleep();
+        fixture.detectChanges();
+
+        expect(screen.getByText("adres")).toBeInTheDocument();
+        expect(
+          screen.getByText("msg.hint.kvk.other-error"),
+        ).toBeInTheDocument();
+      });
+
+      it("shows that the adressen are being fetched while fetching the vestigingsprofiel", () => {
+        expect(
+          screen.getByRole("progressbar", { name: "bedrijf.adressen.laden" }),
+        ).toBeInTheDocument();
+      });
+
+      it("does not show that the adressen are being fetched once the vestigingsprofiel is fetched", async () => {
+        await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
+
+        expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+      });
+
+      it("fetches the vestigingsprofiel again when the button is clicked after fetching the vestigingsprofiel failed", async () => {
+        httpController
+          .expectOne(vestigingsprofielUrl)
+          .flush(null, { status: 404, statusText: "fakeNotFound" });
+        await sleep();
+        fixture.detectChanges();
+
+        await clickProfielOphalen();
+        await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
+
+        expect(
+          screen.getByText("Teststraat 1, 1234AB Amsterdam"),
+        ).toBeInTheDocument();
+        expect(
+          screen.queryByText("msg.hint.kvk.outdated"),
+        ).not.toBeInTheDocument();
+      });
+
+      it("shows the KvK error instead of the earlier fetched adressen when refetching the vestigingsprofiel fails", async () => {
+        await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
+
+        void TestBed.inject(QUERY_CLIENT).refetchQueries();
+        await sleep();
+        httpController
+          .expectOne(vestigingsprofielUrl)
+          .flush(null, { status: 404, statusText: "fakeNotFound" });
+        await sleep();
+        fixture.detectChanges();
+
+        expect(screen.getByText("msg.hint.kvk.outdated")).toBeInTheDocument();
+        expect(screen.queryByText("bezoekadres")).not.toBeInTheDocument();
+        expect(
+          screen.queryByText("Teststraat 1, 1234AB Amsterdam"),
+        ).not.toBeInTheDocument();
+      });
+
+      it("does not open the error dialog when fetching the vestigingsprofiel fails, so that it does not close open dialogs", async () => {
+        httpController
+          .expectOne(vestigingsprofielUrl)
+          .flush(null, { status: 404, statusText: "fakeNotFound" });
+        await sleep();
+
+        expect(foutAfhandelen).not.toHaveBeenCalled();
+      });
+
+      it("renders the adressen once after the button is clicked", async () => {
+        await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
         await clickProfielOphalen();
 
-        httpController.expectOne(vestigingsprofielUrl);
-        httpController.expectNone(basisprofielUrl);
+        expect(
+          screen.getAllByText("Teststraat 1, 1234AB Amsterdam"),
+        ).toHaveLength(1);
       });
 
       it("renders totaalWerkzamePersonen after profiel is loaded", async () => {
@@ -505,11 +626,59 @@ describe(BedrijfsgegevensComponent.name, () => {
         notifyManager.setScheduler(queueMicrotask);
       });
 
-      it("fetches the basisprofiel and not the vestigingsprofiel", async () => {
-        await clickProfielOphalen();
-
+      it("fetches the basisprofiel and not the vestigingsprofiel without clicking the button", () => {
         httpController.expectOne(basisprofielUrl);
         httpController.expectNone(vestigingsprofielUrl);
+      });
+
+      it("shows that the bedrijf is no longer known at the KvK instead of the adressen when the basisprofiel is not found", async () => {
+        httpController
+          .expectOne(basisprofielUrl)
+          .flush(null, { status: 404, statusText: "fakeNotFound" });
+        await sleep();
+        fixture.detectChanges();
+
+        expect(screen.getByText("msg.hint.kvk.outdated")).toBeInTheDocument();
+      });
+
+      it("shows a KvK error instead of the adressen when fetching the basisprofiel fails otherwise", async () => {
+        httpController
+          .expectOne(basisprofielUrl)
+          .flush(null, { status: 403, statusText: "fakeForbidden" });
+        await sleep();
+        fixture.detectChanges();
+
+        expect(
+          screen.getByText("msg.hint.kvk.other-error"),
+        ).toBeInTheDocument();
+      });
+
+      it("does not open the error dialog when fetching the basisprofiel fails, so that it does not close open dialogs", async () => {
+        httpController
+          .expectOne(basisprofielUrl)
+          .flush(null, { status: 404, statusText: "fakeNotFound" });
+        await sleep();
+
+        expect(foutAfhandelen).not.toHaveBeenCalled();
+      });
+
+      it("renders the adressen from the basisprofiel without clicking the button", async () => {
+        await flushProfiel(
+          basisprofielUrl,
+          makeBedrijfsprofiel({
+            adressen: [
+              {
+                type: "bezoekadres",
+                volledigAdres: "Jaspersweg 11, 7103AV Winterswijk",
+              },
+            ],
+          }),
+        );
+
+        expect(screen.getByText("bezoekadres")).toBeInTheDocument();
+        expect(
+          screen.getByText("Jaspersweg 11, 7103AV Winterswijk"),
+        ).toBeInTheDocument();
       });
 
       it("renders rechtsvorm after profiel is loaded", async () => {

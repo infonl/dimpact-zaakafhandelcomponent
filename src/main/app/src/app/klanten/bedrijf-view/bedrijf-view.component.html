@@ -45,13 +45,23 @@
             />
             @if (profiel()) {
               <zac-static-text label="rsin" [value]="profiel()?.rsin" />
-            } @else {
+            }
+            @if (profielLaden()) {
+              <zac-static-text label="adres">
+                <mat-spinner
+                  position="content"
+                  diameter="14"
+                  [attr.aria-label]="'bedrijf.adressen.laden' | translate"
+                />
+              </zac-static-text>
+            } @else if (profielFoutmelding(); as profielFoutmelding) {
               <zac-static-text
-                [label]="bedrijf()?.adres?.type ?? 'adres'"
-                [value]="bedrijf()?.adres?.volledigAdres"
+                label="adres"
+                [icon]="warningIcon"
+                [value]="profielFoutmelding | translate"
               />
             }
-            @for (adres of profiel()?.adressen; track adres) {
+            @for (adres of adressen(); track adres) {
               <zac-static-text
                 [label]="adres.type"
                 [value]="adres.volledigAdres"
