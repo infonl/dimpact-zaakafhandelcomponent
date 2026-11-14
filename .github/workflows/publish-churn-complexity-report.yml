@@ -1,0 +1,147 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+name: Publish churn vs complexity report
+on:
+  schedule:
+    # Runs at 00:08 AM UTC on Wednesday, before the nightly e2e run (01:00 AM UTC Mon-Fri)
+    # that also deploys to gh-pages.
+    - cron: "8 0 * * 3"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: publish-churn-complexity-report
+  cancel-in-progress: false
+
+jobs:
+  churn-complexity:
+    name: "Churn vs complexity report"
+    runs-on: ubuntu-26.04
+    timeout-minutes: 60
+    steps:
+      - name: Get current date
+        id: date
+        run: |
+          date=$(date -u +'%Y-%m-%d-%H-%M')
+          echo "date=$date" >> "$GITHUB_OUTPUT"
+          echo "report_path=churn-complexity/$date" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # the report reads the whole history of the default branch
+          fetch-depth: 0
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          # runs detekt-cli for the Kotlin complexity
+          java-version: "25.0.5"
+          distribution: "temurin"
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+      - name: Install frontend dependencies for ESLint
+        run: cd src/main/app && npm ci --ignore-scripts
+      - name: Restore complexity cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          # complexity per file version and the detekt-cli jar, so a run only measures new file versions
+          path: ~/.cache/churn-complexity
+          key: churn-complexity-${{ github.run_id }}
+          restore-keys: churn-complexity-
+      - name: Generate report
+        run: |
+          uv run .github/scripts/churn_complexity.py \
+            --ref "origin/${{ github.event.repository.default_branch }}" \
+            --out "reports/${{ steps.date.outputs.report_path }}"
+          cat "reports/${{ steps.date.outputs.report_path }}/summary.md" >> "$GITHUB_STEP_SUMMARY"
+      - name: Extract the Danger Zone top five
+        id: metrics
+        run: |
+          python3 - <<'EOF' >> "$GITHUB_OUTPUT"
+          import json
+          meta = json.load(open("reports/${{ steps.date.outputs.report_path }}/data.json"))["meta"]
+          lines = [f"*Danger Zone top five* ({meta['groups']['production']} production files, {meta['commit'][:10]}):"]
+          lines += [f"{rank}. `{entry['path'].split('/')[-1]}` ({entry['score']:.2f})"
+                    for rank, entry in enumerate(meta["danger_top"][:5], 1)]
+          print("slack_summary=" + json.dumps("\n".join(lines)))
+          EOF
+      - name: Publish the report also as latest
+        run: |
+          # data.json is already embedded in index.html
+          rm "reports/${{ steps.date.outputs.report_path }}/data.json"
+          mkdir -p reports/churn-complexity/latest
+          cp reports/${{ steps.date.outputs.report_path }}/* reports/churn-complexity/latest/
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: churn-complexity-report
+          path: reports/${{ steps.date.outputs.report_path }}
+          retention-days: 7
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./reports/
+          publish_branch: gh-pages
+          keep_files: true # retains the e2e reports and earlier churn reports
+      - name: Notify Slack
+        if: ${{ !cancelled() }}
+        uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": ":chart_with_upwards_trend: Churn vs complexity report",
+              "attachments": [
+                {
+                  "color": "${{ job.status == 'success' && 'good' || job.status == 'failure' && 'danger' || 'warning' }}",
+                  "blocks": [
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Workflow:*\n${{ github.workflow }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Status:*\n${{ job.status }} ${{ job.status == 'success' && ':white_check_mark:' || ':x:' }}"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "section",
+                      "text": {
+                        "type": "mrkdwn",
+                        "text": ${{ steps.metrics.outputs.slack_summary || '"No report was generated."' }}
+                      }
+                    },
+                    {
+                      "type": "actions",
+                      "elements": [
+                        {
+                          "type": "button",
+                          "text": {
+                            "type": "plain_text",
+                            "text": "View Report"
+                          },
+                          "url": "https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.report_path }}/index.html"
+                        },
+                        {
+                          "type": "button",
+                          "text": {
+                            "type": "plain_text",
+                            "text": "View Run"
+                          },
+                          "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
