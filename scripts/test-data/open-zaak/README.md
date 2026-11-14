@@ -1,8 +1,8 @@
 # Open Zaak SQL templates
 
 SQL templates that [`create-zaaktypes.py`](../create-zaaktypes.py) renders and executes against the local Open Zaak
-PostgreSQL database to create test zaaktypes. See the [test data README](../README.md#create-zaaktypespy) for how to
-run that script.
+PostgreSQL database to create test zaaktypes. See the [test data README](../README.md#scripts) and
+`create-zaaktypes.py --help` for how to run that script.
 
 | Template | Purpose |
 |---|---|

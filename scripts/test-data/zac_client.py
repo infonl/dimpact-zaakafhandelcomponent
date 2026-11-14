@@ -7,6 +7,8 @@
 # Shared by every test-data script that talks to ZAC over HTTP; contains no ZAC domain logic.
 
 import base64
+import hashlib
+import hmac
 import http.cookiejar
 import json
 import os
@@ -39,6 +41,16 @@ CONFIG_PASSWORD = os.environ.get("ZAC_TESTDATA_PASSWORD", "beheerder1")
 # (behandelaar1 is restricted to domein_test_1 only)
 ZAAK_USER = CONFIG_USER
 ZAAK_PASSWORD = CONFIG_PASSWORD
+
+# The Open Zaak client of ZAC in the local kind stack, the same values as ZGW_API_CLIENTID and
+# ZGW_API_SECRET in .env.example
+OPEN_ZAAK_CLIENT_ID = os.environ.get("ZAC_TESTDATA_OPEN_ZAAK_CLIENT_ID", "zac-client")
+OPEN_ZAAK_CLIENT_SECRET = os.environ.get(
+    "ZAC_TESTDATA_OPEN_ZAAK_CLIENT_SECRET", "openzaakZaakafhandelcomponentClientSecret"
+)
+
+# The key Open Notificaties sends to ZAC, the same value as OPEN_NOTIFICATIONS_API_SECRET_KEY in .env.example
+NOTIFICATIONS_API_KEY = os.environ.get("ZAC_TESTDATA_NOTIFICATIONS_API_KEY", "openNotificatiesApiSecretKey")
 
 _TOKEN_REFRESH_MARGIN = 30  # seconds before expiry at which to proactively refresh
 
@@ -93,6 +105,28 @@ def http_request(method: str, url: str, body: Any = None, headers: dict | None =
 
 def auth_headers(token: str) -> dict:
     return {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+
+
+def open_zaak_auth_headers() -> dict:
+    """Headers for the ZGW APIs of Open Zaak: a JWT that is signed with the client secret, as Open Zaak expects."""
+    header = {"alg": "HS256", "typ": "JWT", "client_identifier": OPEN_ZAAK_CLIENT_ID}
+    claims = {"iss": OPEN_ZAAK_CLIENT_ID, "client_id": OPEN_ZAAK_CLIENT_ID, "iat": int(time.time())}
+    signing_input = f"{_base64url_json(header)}.{_base64url_json(claims)}"
+    signature = hmac.new(OPEN_ZAAK_CLIENT_SECRET.encode(), signing_input.encode(), hashlib.sha256).digest()
+    return {"Authorization": f"Bearer {signing_input}.{_base64url(signature)}", "Content-Type": "application/json"}
+
+
+def notification_headers() -> dict:
+    """Headers for the notification endpoint of ZAC, as Open Notificaties sends them."""
+    return {"Authorization": NOTIFICATIONS_API_KEY, "Content-Type": "application/json"}
+
+
+def _base64url_json(value: dict) -> str:
+    return _base64url(json.dumps(value, separators=(",", ":")).encode())
+
+
+def _base64url(value: bytes) -> str:
+    return base64.urlsafe_b64encode(value).rstrip(b"=").decode()
 
 
 def build_multipart(fields: list) -> tuple:

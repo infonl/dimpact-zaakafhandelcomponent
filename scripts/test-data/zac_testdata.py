@@ -147,6 +147,14 @@ TEST_DOCUMENTS = [
 ]
 
 
+def test_document(sequence: int, titel: str | None = None) -> dict:
+    """Return a copy of the test document for a 1-based sequence number, cycling through TEST_DOCUMENTS."""
+    document = dict(TEST_DOCUMENTS[(sequence - 1) % len(TEST_DOCUMENTS)])
+    if titel is not None:
+        document["titel"] = titel
+    return document
+
+
 # ---------------------------------------------------------------------------
 # Zaak creation
 # ---------------------------------------------------------------------------
@@ -272,8 +280,15 @@ def upload_document_to_zaak(
         },
     )
     elapsed = int((time.monotonic() - start) * 1000)
+    document_uuid = None
+    if status == 200:
+        try:
+            document_uuid = json.loads(response).get("uuid")
+        except json.JSONDecodeError:
+            pass
     return {
         "zaak_uuid": zaak_uuid,
+        "document_uuid": document_uuid,
         "filename": document["filename"],
         "success": status == 200,
         "status_code": status,

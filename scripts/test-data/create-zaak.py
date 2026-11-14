@@ -168,13 +168,10 @@ def upload_documents(
     document_results = []
     for zaak_result in successful_zaken:
         for sequence in range(1, document_count + 1):
-            base_document = zac_testdata.TEST_DOCUMENTS[
-                (sequence - 1) % len(zac_testdata.TEST_DOCUMENTS)
-            ]
-            document = {
-                **base_document,
-                "titel": f"{base_document['titel']}-zaak{zaak_result['index']}-{sequence}",
-            }
+            base_titel = zac_testdata.test_document(sequence)["titel"]
+            document = zac_testdata.test_document(
+                sequence, f"{base_titel}-zaak{zaak_result['index']}-{sequence}"
+            )
             result = zac_testdata.upload_document_to_zaak(
                 zaak_result["zaak_uuid"], zaak_result["zaaktype_uuid"], document, token_manager, zac_url
             )
