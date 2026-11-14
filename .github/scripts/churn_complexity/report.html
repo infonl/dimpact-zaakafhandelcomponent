@@ -1,0 +1,1005 @@
+<!doctype html>
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Churn vs complexity</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface-1: #fcfcfb; --surface-2: #f0efec;
+  --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #6f6e69;
+  --grid: #e1e0d9; --axis: #c3c2b7; --threshold: #898781; --border: rgba(11,11,11,0.10);
+  --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a; --series-other: #a3a29b;
+  --quadrant-danger: #eb6834; --quadrant-cowboy: #2a78d6; --quadrant-fertile: #1baf7a; --quadrant-healthy: #c9c8c1;
+  --highlight: #0b0b0b; --accent: #2a78d6; --tooltip: #ffffff;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface-1: #1a1a19; --surface-2: #262624;
+    --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #9a998f;
+    --grid: #2c2c2a; --axis: #383835; --threshold: #77766f; --border: rgba(255,255,255,0.10);
+    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-other: #6b6a64;
+    --quadrant-danger: #d95926; --quadrant-cowboy: #3987e5; --quadrant-fertile: #199e70; --quadrant-healthy: #4a4a46;
+    --highlight: #f0efec; --accent: #3987e5; --tooltip: #262624;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface-1: #1a1a19; --surface-2: #262624;
+  --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #9a998f;
+  --grid: #2c2c2a; --axis: #383835; --threshold: #77766f; --border: rgba(255,255,255,0.10);
+  --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-other: #6b6a64;
+  --quadrant-danger: #d95926; --quadrant-cowboy: #3987e5; --quadrant-fertile: #199e70; --quadrant-healthy: #4a4a46;
+  --highlight: #f0efec; --accent: #3987e5; --tooltip: #262624;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--text-primary); font-size: 14px; line-height: 1.45; }
+a { color: var(--accent); }
+header, section, main { padding: 0 20px; max-width: 1600px; margin: 0 auto; }
+header { padding-top: 16px; display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
+h1 { font-size: 20px; margin: 0 0 4px; }
+h2 { font-size: 15px; margin: 18px 0 8px; }
+h3 { font-size: 13px; margin: 14px 0 6px; color: var(--text-secondary); }
+.meta { color: var(--text-secondary); font-size: 12.5px; }
+.warning { color: var(--text-primary); background: var(--surface-2); border-left: 3px solid var(--quadrant-danger); padding: 4px 8px; margin-top: 6px; }
+button, select, input[type=search] {
+  font: inherit; color: var(--text-primary); background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: 6px; padding: 4px 10px; min-height: 30px;
+}
+button { cursor: pointer; }
+button:hover { background: var(--surface-2); }
+.segmented { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.segmented button { border: 0; border-radius: 0; }
+.segmented button[aria-pressed=true] { background: var(--text-primary); color: var(--surface-1); }
+.controls { display: flex; flex-direction: column; gap: 8px; padding-top: 12px; }
+.control-row { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.control-row label.caption { font-size: 12px; color: var(--text-muted); margin-right: -6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.chip { display: inline-flex; gap: 6px; align-items: center; font-size: 12.5px; border-radius: 999px; padding: 2px 10px; min-height: 26px; }
+.chip[aria-pressed=false] { opacity: 0.5; text-decoration: line-through; }
+.chip .swatch { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.chip .count { color: var(--text-muted); font-variant-numeric: tabular-nums; }
+input[type=search] { width: 260px; max-width: 100%; }
+.time { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding-top: 10px; }
+.time input[type=range] { flex: 1 1 320px; accent-color: var(--accent); }
+.time .frame-label { font-variant-numeric: tabular-nums; min-width: 190px; font-weight: 600; }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; padding-top: 10px; }
+.card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; }
+.chart-card { position: relative; padding: 8px; }
+#chart { width: 100%; height: min(72vh, 760px); min-height: 360px; display: block; touch-action: none; user-select: none; }
+#chart text { fill: var(--text-muted); font-size: 11px; }
+#chart .tick-label { font-variant-numeric: tabular-nums; }
+#chart .axis-title { fill: var(--text-secondary); font-size: 12px; }
+#chart .quadrant-name { fill: var(--text-muted); opacity: 0.55; font-size: 15px; font-weight: 600; }
+#chart .quadrant-hint { fill: var(--text-muted); opacity: 0.55; font-size: 11px; }
+#chart .grid { stroke: var(--grid); stroke-width: 1; }
+#chart .axis { stroke: var(--axis); stroke-width: 1; }
+#chart .threshold { stroke: var(--threshold); stroke-width: 1.5; }
+#chart .threshold-label { fill: var(--text-secondary); font-size: 11px; }
+#chart circle.point { stroke: var(--surface-1); stroke-width: 1; cursor: pointer; }
+#chart circle.point.dim { opacity: 0.12; }
+#chart circle.point.match { stroke: var(--highlight); stroke-width: 2; }
+#chart circle.point.selected { stroke: var(--highlight); stroke-width: 3; }
+#chart .label-box { fill: var(--surface-1); stroke: var(--border); }
+#chart .label-text { fill: var(--text-primary); font-size: 11px; font-weight: 600; }
+#chart .leader { stroke: var(--text-secondary); stroke-width: 1; }
+#chart .tm-dir { fill: none; stroke: var(--surface-1); stroke-width: 2; }
+#chart .tm-dir-label { fill: var(--text-secondary); font-size: 11px; font-weight: 600; }
+#chart .tm-leaf { stroke: var(--surface-1); stroke-width: 1; cursor: pointer; }
+#chart .tm-leaf.dim { opacity: 0.15; }
+#chart .tm-leaf.selected { stroke: var(--highlight); stroke-width: 3; }
+#chart .tm-leaf-label { fill: #0b0b0b; font-size: 10.5px; pointer-events: none; }
+.chart-hint { font-size: 11.5px; color: var(--text-muted); display: flex; gap: 8px; align-items: center; justify-content: flex-end; padding: 0 6px 4px; min-height: 30px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--text-secondary); padding: 6px 8px 2px; }
+.legend .swatch { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; vertical-align: -1px; }
+.legend .square { border-radius: 2px; }
+#tooltip {
+  position: fixed; pointer-events: none; z-index: 10; background: var(--tooltip); color: var(--text-primary);
+  border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 12px; max-width: 420px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18); display: none;
+}
+#tooltip .path { font-weight: 600; word-break: break-all; margin-bottom: 4px; }
+#tooltip dl { display: grid; grid-template-columns: auto auto; gap: 1px 12px; margin: 0; }
+#tooltip dt { color: var(--text-muted); }
+#tooltip dd { margin: 0; font-variant-numeric: tabular-nums; }
+#panel { padding: 12px 14px; max-height: calc(min(72vh, 760px) + 60px); overflow: auto; }
+#panel .path { font-weight: 600; word-break: break-all; }
+#panel table { width: 100%; border-collapse: collapse; font-size: 12px; }
+#panel td, #panel th { padding: 3px 4px; border-bottom: 1px solid var(--grid); text-align: left; }
+#panel td.num, #panel th.num { text-align: right; font-variant-numeric: tabular-nums; }
+#panel .empty { color: var(--text-muted); }
+.badge { display: inline-block; border-radius: 4px; padding: 0 6px; font-size: 11.5px; font-weight: 600; background: var(--surface-2); }
+.badge .swatch { width: 8px; height: 8px; border-radius: 2px; display: inline-block; margin-right: 4px; }
+.stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 12px; margin: 8px 0; font-size: 12.5px; }
+.stats div span { color: var(--text-muted); display: block; font-size: 11px; }
+.stats div b { font-variant-numeric: tabular-nums; }
+.below { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; padding-top: 16px; }
+.below .card { padding: 4px 16px 14px; }
+ol.ranking { padding-left: 22px; margin: 6px 0; }
+ol.ranking li { margin: 3px 0; cursor: pointer; overflow-wrap: anywhere; }
+.movement li { overflow-wrap: anywhere; }
+ol.ranking li .score { color: var(--text-muted); font-variant-numeric: tabular-nums; }
+ol.ranking li .reason { display: block; color: var(--text-secondary); font-size: 12px; }
+.formula { font-size: 12.5px; color: var(--text-secondary); background: var(--surface-2); border-radius: 6px; padding: 6px 10px; }
+.movement ul { margin: 4px 0; padding-left: 18px; }
+.movement li { cursor: pointer; }
+.table-card { margin-top: 16px; padding: 4px 0 0; overflow: auto; max-height: 70vh; }
+#files { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+#files th { position: sticky; top: 0; background: var(--surface-1); text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--axis); cursor: pointer; white-space: nowrap; }
+#files th.num, #files td.num { text-align: right; font-variant-numeric: tabular-nums; }
+#files td { padding: 4px 8px; border-bottom: 1px solid var(--grid); }
+#files td.path { word-break: break-all; min-width: 280px; }
+#files tbody tr { cursor: pointer; }
+#files tbody tr:hover { background: var(--surface-2); }
+#files tbody tr.selected { background: var(--surface-2); outline: 2px solid var(--highlight); outline-offset: -2px; }
+#files tbody tr.dim { opacity: 0.45; }
+.method { padding-bottom: 40px; }
+.method .card { padding: 4px 16px 14px; margin-top: 16px; font-size: 13px; overflow-x: auto; }
+.method td { overflow-wrap: anywhere; }
+.method table { border-collapse: collapse; font-size: 12.5px; }
+.method td, .method th { padding: 3px 10px 3px 0; border-bottom: 1px solid var(--grid); text-align: left; vertical-align: top; }
+.method code { font-size: 12px; }
+.pass { font-weight: 600; }
+@media (max-width: 1000px) {
+  .layout, .below { grid-template-columns: minmax(0, 1fr); }
+  #panel { max-height: none; }
+  #chart { height: 70vh; min-height: 320px; }
+}
+@media (max-width: 560px) {
+  header, section, main { padding-left: 10px; padding-right: 10px; }
+  .time .frame-label { min-width: 0; }
+  input[type=search] { width: 100%; }
+}
+@media (forced-colors: active) { #chart circle.point { forced-color-adjust: none; } }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Churn vs complexity</h1>
+    <div class="meta" id="meta-line"></div>
+    <div id="shallow"></div>
+  </div>
+  <div class="segmented" role="group" aria-label="Theme">
+    <button type="button" data-theme-choice="auto" aria-pressed="true">Auto</button>
+    <button type="button" data-theme-choice="light" aria-pressed="false">Light</button>
+    <button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button>
+  </div>
+</header>
+
+<section class="controls" aria-label="Filters">
+  <div class="control-row">
+    <div class="segmented" role="group" aria-label="View">
+      <button type="button" data-view="scatter" aria-pressed="true">Scatter</button>
+      <button type="button" data-view="treemap" aria-pressed="false">Treemap</button>
+    </div>
+    <label class="caption">Churn</label>
+    <div class="segmented" role="group" aria-label="Churn measure">
+      <button type="button" data-churn="commits" aria-pressed="true">Commits</button>
+      <button type="button" data-churn="lines" aria-pressed="false">Lines added + deleted</button>
+    </div>
+    <label class="caption">Window</label>
+    <div class="segmented" role="group" aria-label="Churn window">
+      <button type="button" data-window="all" aria-pressed="true">All history</button>
+      <button type="button" data-window="year" aria-pressed="false">Last 12 months</button>
+    </div>
+    <label class="caption">Complexity</label>
+    <div class="segmented" role="group" aria-label="Complexity roll-up">
+      <button type="button" data-complexity="total" aria-pressed="true">Total</button>
+      <button type="button" data-complexity="worst" aria-pressed="false">Worst function</button>
+    </div>
+    <input type="search" id="search" placeholder="Search paths…" aria-label="Search paths">
+    <span class="meta" id="search-count"></span>
+  </div>
+  <div class="control-row"><label class="caption">Quadrant</label><div class="chips" id="quadrant-chips"></div></div>
+  <div class="control-row"><label class="caption">Directory</label><div class="chips" id="directory-chips"></div>
+    <label class="caption">Language</label><div class="chips" id="language-chips"></div></div>
+  <div class="control-row"><label class="caption">Include</label><div class="chips" id="group-chips"></div></div>
+</section>
+
+<section class="time" aria-label="Time">
+  <button type="button" id="play" aria-label="Play through time">▶ Play</button>
+  <input type="range" id="slider" min="0" max="0" value="0" aria-label="Snapshot">
+  <span class="frame-label" id="frame-label"></span>
+</section>
+
+<main class="layout">
+  <div class="card chart-card">
+    <div class="chart-hint"><span id="hint-text">Scroll to zoom · drag to pan</span><button type="button" id="reset-zoom">Fit</button></div>
+    <svg id="chart" role="img" aria-label="Scatter plot of churn against complexity per file"></svg>
+    <div class="legend" id="legend"></div>
+  </div>
+  <aside class="card" id="panel" aria-live="polite"><p class="empty">Click a point, a treemap cell or a table row to see the file's functions, churn per month, authors and largest commits.</p></aside>
+</main>
+
+<section class="below">
+  <div class="card">
+    <h2>Danger Zone: top ten</h2>
+    <div class="formula" id="formula"></div>
+    <ol class="ranking" id="ranking"></ol>
+  </div>
+  <div class="card movement">
+    <h2 id="movement-title">Movement</h2>
+    <div id="movement"></div>
+  </div>
+</section>
+
+<section>
+  <div class="card table-card">
+    <table id="files" aria-label="All files in view"><thead></thead><tbody></tbody></table>
+  </div>
+</section>
+
+<section class="method" id="method"></section>
+<div id="tooltip" role="tooltip"></div>
+
+<script>
+const DATA = /*__DATA__*/null;
+</script>
+<script>
+(() => {
+"use strict";
+const META = DATA.meta, PATHS = DATA.paths, FRAMES = DATA.frames, DETAILS = DATA.details, FILES = DATA.files;
+const GROUPS = META.group_names, LANGUAGES = META.language_names;
+const COLUMN = { file: 0, path: 1, group: 2, language: 3, commits: 4, lines: 5, commitsYear: 6, linesYear: 7, total: 8, worst: 9, loc: 10 };
+const QUADRANTS = ["Danger Zone", "Cowboy Code", "Fertile Ground", "Healthy Closure"];
+const QUADRANT_VAR = { "Danger Zone": "--quadrant-danger", "Cowboy Code": "--quadrant-cowboy", "Fertile Ground": "--quadrant-fertile", "Healthy Closure": "--quadrant-healthy" };
+const QUADRANT_HINT = {
+  "Danger Zone": "complex and changes often — refactor here first",
+  "Cowboy Code": "complex but rarely touched — watch it",
+  "Fertile Ground": "simple but changing often",
+  "Healthy Closure": "simple and stable — leave it alone",
+};
+const COLOUR_SLOTS = 3;
+const colourOrder = META.colour_order.slice(0, COLOUR_SLOTS);
+const SVG_NS = "http://www.w3.org/2000/svg";
+const format = new Intl.NumberFormat("en");
+
+const state = {
+  frame: FRAMES.length - 1, view: "scatter", churn: "commits", window: "all", complexity: "total",
+  groups: new Set(["production"]), languages: new Set(LANGUAGES), directories: null, quadrants: new Set(QUADRANTS),
+  search: "", selected: null, domain: null, sort: { key: "score", descending: true },
+};
+
+// ------------------------------------------------------------------ helpers
+const $ = (selector) => document.querySelector(selector);
+const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const escapeHtml = (text) => String(text).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const directoryKey = (path) => path.split("/").slice(0, META.colour_depth).join("/");
+const colourSlot = (path) => { const index = colourOrder.indexOf(directoryKey(path)); return index < 0 ? "other" : index + 1; };
+const colourOf = (path) => css(colourSlot(path) === "other" ? "--series-other" : `--series-${colourSlot(path)}`);
+const median = (values) => {
+  if (!values.length) return 0;
+  const sorted = [...values].sort((a, b) => a - b), middle = sorted.length >> 1;
+  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+};
+const element = (name, attributes = {}, parent) => {
+  const node = document.createElementNS(SVG_NS, name);
+  for (const [key, value] of Object.entries(attributes)) node.setAttribute(key, value);
+  if (parent) parent.appendChild(node);
+  return node;
+};
+const fileLink = (path, line) => META.forge ? `${META.forge}/blob/${META.commit}/${path.split("/").map(encodeURIComponent).join("/")}${line ? `#L${line}` : ""}` : null;
+const commitLink = (sha) => META.forge ? `${META.forge}/commit/${sha}` : null;
+const baseName = (path) => path.split("/").pop();
+
+// ------------------------------------------------------------------ the model
+function churnColumn() {
+  if (state.churn === "commits") return state.window === "all" ? COLUMN.commits : COLUMN.commitsYear;
+  return state.window === "all" ? COLUMN.lines : COLUMN.linesYear;
+}
+function complexityColumn() { return state.complexity === "total" ? COLUMN.total : COLUMN.worst; }
+
+function inView(row) {
+  return state.groups.has(GROUPS[row[COLUMN.group]]) && state.languages.has(LANGUAGES[row[COLUMN.language]])
+    && (!state.directories || state.directories.has(directoryKey(PATHS[row[COLUMN.path]])));
+}
+
+/** The files in view for a frame, with quadrant and score; thresholds and maxima over exactly these files. */
+function model(frameIndex) {
+  const churn = churnColumn(), complexity = complexityColumn();
+  const rows = FRAMES[frameIndex].rows.filter(inView).map((row) => ({
+    file: row[COLUMN.file], path: PATHS[row[COLUMN.path]], group: GROUPS[row[COLUMN.group]], language: LANGUAGES[row[COLUMN.language]],
+    commits: row[COLUMN.commits], lines: row[COLUMN.lines], commitsYear: row[COLUMN.commitsYear], linesYear: row[COLUMN.linesYear],
+    total: row[COLUMN.total], worst: row[COLUMN.worst], loc: row[COLUMN.loc], churn: row[churn], complexity: row[complexity],
+  }));
+  const churnThreshold = median(rows.map((r) => r.churn)), complexityThreshold = median(rows.map((r) => r.complexity));
+  const maxChurn = Math.max(0, ...rows.map((r) => r.churn)), maxComplexity = Math.max(0, ...rows.map((r) => r.complexity));
+  for (const row of rows) {
+    const highChurn = row.churn > churnThreshold, highComplexity = row.complexity > complexityThreshold;
+    row.quadrant = highChurn && highComplexity ? "Danger Zone" : highComplexity ? "Cowboy Code" : highChurn ? "Fertile Ground" : "Healthy Closure";
+    const u = maxChurn ? Math.log1p(row.churn) / Math.log1p(maxChurn) : 0;
+    const v = maxComplexity ? Math.log1p(row.complexity) / Math.log1p(maxComplexity) : 0;
+    row.score = Math.hypot(u, v);
+  }
+  const danger = rows.filter((r) => r.quadrant === "Danger Zone").sort((a, b) => b.score - a.score);
+  return { rows, churnThreshold, complexityThreshold, maxChurn, maxComplexity, danger, byFile: new Map(rows.map((r) => [r.file, r])) };
+}
+
+/** Axis extent over all frames, so the axes stay put while the slider animates. */
+function globalExtent() {
+  const churn = churnColumn(), complexity = complexityColumn();
+  let maxChurn = 1, maxComplexity = 1, maxLoc = 1;
+  for (const frame of FRAMES) for (const row of frame.rows) {
+    if (!inView(row)) continue;
+    if (row[churn] > maxChurn) maxChurn = row[churn];
+    if (row[complexity] > maxComplexity) maxComplexity = row[complexity];
+    if (row[COLUMN.loc] > maxLoc) maxLoc = row[COLUMN.loc];
+  }
+  return { x: Math.log1p(maxChurn) * 1.04, y: Math.log1p(maxComplexity) * 1.06, maxLoc };
+}
+
+let current = null, extent = null;
+function recompute() { extent = globalExtent(); current = model(state.frame); }
+
+// ------------------------------------------------------------------ controls
+function segmented(attribute, key, after) {
+  document.querySelectorAll(`[data-${attribute}]`).forEach((button) => button.addEventListener("click", () => {
+    state[key] = button.dataset[attribute];
+    document.querySelectorAll(`[data-${attribute}]`).forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+    after();
+  }));
+}
+segmented("view", "view", () => { $("#hint-text").textContent = state.view === "scatter" ? "Scroll to zoom · drag to pan" : "Area = lines of code · colour = quadrant"; $("#reset-zoom").hidden = state.view !== "scatter"; renderChips(); render(false); });
+segmented("churn", "churn", () => { state.domain = null; update(); });
+segmented("window", "window", () => { state.domain = null; update(); });
+segmented("complexity", "complexity", () => { state.domain = null; update(); });
+document.querySelectorAll("[data-theme-choice]").forEach((button) => button.addEventListener("click", () => {
+  const choice = button.dataset.themeChoice;
+  if (choice === "auto") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = choice;
+  document.querySelectorAll("[data-theme-choice]").forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+  render(false);
+}));
+
+function chip(container, label, pressed, count, swatch, onToggle) {
+  const button = document.createElement("button");
+  button.type = "button"; button.className = "chip"; button.setAttribute("aria-pressed", String(pressed));
+  button.innerHTML = `${swatch ? `<span class="swatch" style="background:${swatch}"></span>` : ""}${escapeHtml(label)} <span class="count">${count}</span>`;
+  button.addEventListener("click", onToggle);
+  container.appendChild(button);
+}
+
+function renderChips() {
+  const frame = FRAMES[state.frame];
+  const counts = { group: {}, language: {}, directory: {} };
+  for (const row of frame.rows) {
+    const group = GROUPS[row[COLUMN.group]], language = LANGUAGES[row[COLUMN.language]], directory = directoryKey(PATHS[row[COLUMN.path]]);
+    counts.group[group] = (counts.group[group] || 0) + 1;
+    if (state.groups.has(group)) {
+      counts.language[language] = (counts.language[language] || 0) + 1;
+      counts.directory[directory] = (counts.directory[directory] || 0) + 1;
+    }
+  }
+  const groups = $("#group-chips"); groups.innerHTML = "";
+  for (const group of GROUPS) {
+    const excluded = group !== "production";
+    const label = excluded ? `${group}${META.groups[group] !== undefined ? "" : ""}` : "production";
+    chip(groups, label, state.groups.has(group), counts.group[group] || 0, null, () => {
+      state.groups.has(group) ? state.groups.delete(group) : state.groups.add(group);
+      state.domain = null; update();
+    });
+  }
+  const languages = $("#language-chips"); languages.innerHTML = "";
+  for (const language of LANGUAGES) {
+    if (!counts.language[language] && state.languages.has(language)) continue;
+    chip(languages, language, state.languages.has(language), counts.language[language] || 0, null, () => {
+      state.languages.has(language) ? state.languages.delete(language) : state.languages.add(language);
+      state.domain = null; update();
+    });
+  }
+  const directories = $("#directory-chips"); directories.innerHTML = "";
+  const keys = Object.keys(counts.directory).sort((a, b) => counts.directory[b] - counts.directory[a]);
+  for (const key of keys) {
+    const pressed = !state.directories || state.directories.has(key);
+    chip(directories, key, pressed, counts.directory[key], colourOf(key + "/x"), () => {
+      if (!state.directories) state.directories = new Set(keys);
+      state.directories.has(key) ? state.directories.delete(key) : state.directories.add(key);
+      state.domain = null; update();
+    });
+  }
+  const quadrants = $("#quadrant-chips"); quadrants.innerHTML = "";
+  const quadrantCounts = {};
+  for (const row of current.rows) quadrantCounts[row.quadrant] = (quadrantCounts[row.quadrant] || 0) + 1;
+  for (const quadrant of QUADRANTS) {
+    const swatch = state.view === "treemap" ? css(QUADRANT_VAR[quadrant]) : null;
+    chip(quadrants, quadrant, state.quadrants.has(quadrant), quadrantCounts[quadrant] || 0, swatch, () => {
+      state.quadrants.has(quadrant) ? state.quadrants.delete(quadrant) : state.quadrants.add(quadrant);
+      render(false);
+    });
+  }
+}
+
+$("#search").addEventListener("input", (event) => { state.search = event.target.value.trim().toLowerCase(); render(false); });
+$("#reset-zoom").addEventListener("click", () => { state.domain = null; render(false); });
+
+// ------------------------------------------------------------------ time slider
+const slider = $("#slider");
+slider.max = String(FRAMES.length - 1); slider.value = String(state.frame);
+slider.addEventListener("input", () => setFrame(Number(slider.value)));
+let playing = null;
+$("#play").addEventListener("click", () => {
+  if (playing) { clearInterval(playing); playing = null; $("#play").textContent = "▶ Play"; return; }
+  if (state.frame === FRAMES.length - 1) setFrame(0);
+  $("#play").textContent = "❚❚ Pause";
+  playing = setInterval(() => {
+    if (state.frame >= FRAMES.length - 1) { clearInterval(playing); playing = null; $("#play").textContent = "▶ Play"; return; }
+    setFrame(state.frame + 1);
+  }, 900);
+});
+function setFrame(index) {
+  state.frame = index; slider.value = String(index);
+  current = model(index);
+  renderChips(); render(true); renderSide(); renderTable(); renderRanking(); renderMovement();
+}
+function frameLabel(frame) {
+  return frame.label === "now" ? `${frame.date} · ${frame.sha.slice(0, 10)} (analysed commit)` : `${frame.label} · ${frame.sha.slice(0, 10)}`;
+}
+
+// ------------------------------------------------------------------ scatter
+const svg = $("#chart");
+const tooltip = $("#tooltip");
+const margin = { top: 28, right: 18, bottom: 46, left: 58 };
+let size = { width: 800, height: 600 };
+let positions = new Map();
+let animation = null;
+
+function niceTicks(maxRaw) {
+  const ticks = [0];
+  const steps = [1, 2, 5];
+  for (let power = 1; power <= 1e7; power *= 10) for (const step of steps) {
+    const value = step * power;
+    if (value <= maxRaw) ticks.push(value);
+  }
+  return ticks;
+}
+function scales() {
+  const domain = state.domain || { x0: 0, x1: extent.x, y0: 0, y1: extent.y };
+  const width = size.width - margin.left - margin.right, height = size.height - margin.top - margin.bottom;
+  return {
+    domain, width, height,
+    x: (value) => margin.left + (value - domain.x0) / (domain.x1 - domain.x0) * width,
+    y: (value) => margin.top + height - (value - domain.y0) / (domain.y1 - domain.y0) * height,
+    invertX: (pixel) => domain.x0 + (pixel - margin.left) / width * (domain.x1 - domain.x0),
+    invertY: (pixel) => domain.y0 + (margin.top + height - pixel) / height * (domain.y1 - domain.y0),
+  };
+}
+function radius(loc) {
+  const largest = Math.max(4, Math.min(10.5, (size.width - margin.left - margin.right) / 60));
+  return 3.5 + largest * Math.sqrt(loc / extent.maxLoc);
+}
+function visible(row) { return state.quadrants.has(row.quadrant); }
+function matchesSearch(row) { return state.search && row.path.toLowerCase().includes(state.search); }
+
+function renderScatter(animate) {
+  const rect = svg.getBoundingClientRect();
+  size = { width: Math.max(320, rect.width), height: Math.max(320, rect.height) };
+  svg.setAttribute("viewBox", `0 0 ${size.width} ${size.height}`);
+  svg.setAttribute("aria-label", "Scatter plot of churn against complexity per file");
+  const s = scales();
+  svg.innerHTML = "";
+  const defs = element("defs", {}, svg);
+  const clip = element("clipPath", { id: "plot-clip" }, defs);
+  element("rect", { x: margin.left, y: margin.top, width: s.width, height: s.height }, clip);
+  const back = element("g", {}, svg);
+  // gridlines, ticks
+  const churnName = state.churn === "commits" ? "commits" : "lines added + deleted";
+  const windowName = state.window === "all" ? "all history" : "last 12 months";
+  for (const tick of niceTicks(Math.expm1(s.domain.x1))) {
+    const value = Math.log1p(tick); if (value < s.domain.x0 || value > s.domain.x1) continue;
+    element("line", { class: "grid", x1: s.x(value), x2: s.x(value), y1: margin.top, y2: margin.top + s.height }, back);
+    element("text", { class: "tick-label", x: s.x(value), y: margin.top + s.height + 16, "text-anchor": "middle" }, back).textContent = format.format(tick);
+  }
+  for (const tick of niceTicks(Math.expm1(s.domain.y1))) {
+    const value = Math.log1p(tick); if (value < s.domain.y0 || value > s.domain.y1) continue;
+    element("line", { class: "grid", x1: margin.left, x2: margin.left + s.width, y1: s.y(value), y2: s.y(value) }, back);
+    element("text", { class: "tick-label", x: margin.left - 8, y: s.y(value) + 4, "text-anchor": "end" }, back).textContent = format.format(tick);
+  }
+  element("line", { class: "axis", x1: margin.left, x2: margin.left + s.width, y1: margin.top + s.height, y2: margin.top + s.height }, back);
+  element("line", { class: "axis", x1: margin.left, x2: margin.left, y1: margin.top, y2: margin.top + s.height }, back);
+  element("text", { class: "axis-title", x: margin.left + s.width / 2, y: size.height - 8, "text-anchor": "middle" }, back)
+    .textContent = `Churn: ${churnName}, ${windowName} (log(1 + x) scale)`;
+  element("text", { class: "axis-title", transform: `translate(14 ${margin.top + s.height / 2}) rotate(-90)`, "text-anchor": "middle" }, back)
+    .textContent = `Complexity: ${state.complexity === "total" ? "total cyclomatic" : "worst function cyclomatic"} (log(1 + x))`;
+  // thresholds & quadrant names
+  const plot = element("g", { "clip-path": "url(#plot-clip)" }, svg);
+  const tx = s.x(Math.log1p(current.churnThreshold)), ty = s.y(Math.log1p(current.complexityThreshold));
+  const quadrantLayer = element("g", {}, plot);
+  const corners = [
+    ["Danger Zone", margin.left + s.width - 10, margin.top + 20, "end"],
+    ["Cowboy Code", margin.left + 10, margin.top + 20, "start"],
+    ["Fertile Ground", margin.left + s.width - 10, margin.top + s.height - 22, "end"],
+    ["Healthy Closure", margin.left + 10, margin.top + s.height - 22, "start"],
+  ];
+  for (const [name, x, y, anchor] of corners) {
+    element("text", { class: "quadrant-name", x, y, "text-anchor": anchor }, quadrantLayer).textContent = name;
+    if (s.width >= 560) element("text", { class: "quadrant-hint", x, y: y + 14, "text-anchor": anchor }, quadrantLayer).textContent = QUADRANT_HINT[name];
+  }
+  element("line", { class: "threshold", id: "threshold-x", x1: tx, x2: tx, y1: margin.top, y2: margin.top + s.height, "data-value": current.churnThreshold }, plot);
+  element("line", { class: "threshold", id: "threshold-y", x1: margin.left, x2: margin.left + s.width, y1: ty, y2: ty, "data-value": current.complexityThreshold }, plot);
+  element("text", { class: "threshold-label", x: tx + 4, y: margin.top + s.height - 6 }, plot).textContent = `median ${format.format(current.churnThreshold)}`;
+  element("text", { class: "threshold-label", x: margin.left + 4, y: ty - 4 }, plot).textContent = `median ${format.format(current.complexityThreshold)}`;
+  // points
+  const points = element("g", {}, plot);
+  const rows = [...current.rows].sort((a, b) => b.loc - a.loc);
+  const target = new Map();
+  for (const row of rows) target.set(row.file, { x: s.x(Math.log1p(row.churn)), y: s.y(Math.log1p(row.complexity)), r: radius(row.loc) });
+  const circles = [];
+  for (const row of rows) {
+    const end = target.get(row.file);
+    const start = animate && positions.get(row.file) || null;
+    const circle = element("circle", {
+      class: "point", cx: (start || end).x, cy: (start || end).y, r: end.r, fill: colourOf(row.path), "fill-opacity": 0.78,
+      "data-file": row.file, "data-path": row.path,
+    }, points);
+    if (!visible(row)) circle.style.display = "none";
+    if (state.search) circle.classList.add(matchesSearch(row) ? "match" : "dim");
+    if (state.selected === row.file) circle.classList.add("selected");
+    if (animate && !start) circle.setAttribute("opacity", 0);
+    circle.addEventListener("pointerenter", (event) => showTooltip(event, row));
+    circle.addEventListener("pointermove", (event) => moveTooltip(event));
+    circle.addEventListener("pointerleave", hideTooltip);
+    circle.addEventListener("click", (event) => { event.stopPropagation(); select(row.file); });
+    circles.push([circle, start, end]);
+  }
+  if (animation) cancelAnimationFrame(animation);
+  if (animate && positions.size) {
+    const begin = performance.now(), duration = 650;
+    const step = (now) => {
+      const t = Math.min(1, (now - begin) / duration), eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      for (const [circle, start, end] of circles) {
+        if (start) { circle.setAttribute("cx", start.x + (end.x - start.x) * eased); circle.setAttribute("cy", start.y + (end.y - start.y) * eased); }
+        else circle.setAttribute("opacity", eased);
+      }
+      if (t < 1) animation = requestAnimationFrame(step); else { animation = null; drawLabels(s, target); }
+    };
+    animation = requestAnimationFrame(step);
+  } else {
+    drawLabels(s, target);
+  }
+  positions = target;
+  renderLegend("scatter");
+}
+
+/** Labels the top ten Danger Zone files; tries positions around each point at growing distances, never overlapping. */
+function drawLabels(s, target) {
+  svg.querySelector("#labels")?.remove();
+  const layer = element("g", { id: "labels" }, svg);
+  const top = current.danger.filter(visible).slice(0, 10).filter((row) => {
+    const p = target.get(row.file);
+    return p && p.x >= margin.left && p.x <= margin.left + s.width && p.y >= margin.top && p.y <= margin.top + s.height;
+  });
+  const placed = [];
+  const obstacles = top.map((row) => { const p = target.get(row.file); return { x: p.x - p.r, y: p.y - p.r, width: 2 * p.r, height: 2 * p.r }; });
+  const overlaps = (a, b) => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+  const measure = element("text", { class: "label-text", x: -999, y: -999 }, layer);
+  const directions = [[1, -1], [1, 1], [-1, -1], [-1, 1], [0, -1], [0, 1], [1, 0], [-1, 0]];
+  top.forEach((row, index) => {
+    const p = target.get(row.file);
+    const text = `${index + 1}. ${baseName(row.path)}`;
+    measure.textContent = text;
+    const width = measure.getComputedTextLength() + 10, height = 17;
+    let best = null;
+    search: for (const distance of [8, 18, 30, 46, 64, 86, 110, 140, 175]) {
+      for (const [dx, dy] of directions) {
+        const cx = p.x + dx * (p.r + distance), cy = p.y + dy * (p.r + distance);
+        const box = { x: dx < 0 ? cx - width : dx === 0 ? cx - width / 2 : cx, y: dy < 0 ? cy - height : dy === 0 ? cy - height / 2 : cy, width, height };
+        if (box.x < margin.left || box.x + width > margin.left + s.width || box.y < margin.top || box.y + height > margin.top + s.height) continue;
+        if (placed.some((other) => overlaps(box, other)) || obstacles.some((other) => overlaps(box, other))) continue;
+        best = { box, distance }; break search;
+      }
+    }
+    if (!best) return;
+    placed.push(best.box);
+    const anchorX = Math.max(best.box.x, Math.min(p.x, best.box.x + width)), anchorY = Math.max(best.box.y, Math.min(p.y, best.box.y + height));
+    if (best.distance > 8) element("line", { class: "leader", x1: p.x, y1: p.y, x2: anchorX, y2: anchorY }, layer);
+    const group = element("g", { class: "label", "data-file": row.file, style: "cursor:pointer" }, layer);
+    element("rect", { class: "label-box", x: best.box.x, y: best.box.y, width, height, rx: 4 }, group);
+    element("text", { class: "label-text", x: best.box.x + 5, y: best.box.y + 12.5 }, group).textContent = text;
+    group.addEventListener("click", () => select(row.file));
+    group.addEventListener("pointerenter", (event) => showTooltip(event, row));
+    group.addEventListener("pointermove", moveTooltip);
+    group.addEventListener("pointerleave", hideTooltip);
+  });
+  measure.remove();
+}
+
+// zoom & pan
+svg.addEventListener("wheel", (event) => {
+  if (state.view !== "scatter") return;
+  event.preventDefault();
+  const s = scales(), rect = svg.getBoundingClientRect();
+  const px = (event.clientX - rect.left) * size.width / rect.width, py = (event.clientY - rect.top) * size.height / rect.height;
+  const fx = s.invertX(px), fy = s.invertY(py), factor = Math.exp(event.deltaY * 0.0015);
+  const d = s.domain;
+  state.domain = { x0: fx - (fx - d.x0) * factor, x1: fx + (d.x1 - fx) * factor, y0: fy - (fy - d.y0) * factor, y1: fy + (d.y1 - fy) * factor };
+  renderScatter(false);
+}, { passive: false });
+let drag = null;
+svg.addEventListener("pointerdown", (event) => {
+  if (state.view !== "scatter" || event.target.closest(".point, .label")) return;
+  drag = { x: event.clientX, y: event.clientY, domain: { ...scales().domain } };
+  svg.setPointerCapture(event.pointerId);
+});
+svg.addEventListener("pointermove", (event) => {
+  if (!drag) return;
+  const s = scales(), rect = svg.getBoundingClientRect();
+  const dx = (event.clientX - drag.x) * size.width / rect.width / s.width * (drag.domain.x1 - drag.domain.x0);
+  const dy = (event.clientY - drag.y) * size.height / rect.height / s.height * (drag.domain.y1 - drag.domain.y0);
+  state.domain = { x0: drag.domain.x0 - dx, x1: drag.domain.x1 - dx, y0: drag.domain.y0 + dy, y1: drag.domain.y1 + dy };
+  renderScatter(false);
+});
+svg.addEventListener("pointerup", () => { drag = null; });
+svg.addEventListener("dblclick", () => { if (state.view === "scatter") { state.domain = null; renderScatter(false); } });
+
+// ------------------------------------------------------------------ treemap
+function renderTreemap() {
+  const rect = svg.getBoundingClientRect();
+  size = { width: Math.max(320, rect.width), height: Math.max(320, rect.height) };
+  svg.setAttribute("viewBox", `0 0 ${size.width} ${size.height}`);
+  svg.setAttribute("aria-label", "Treemap of files by directory; area is lines of code, colour is quadrant");
+  svg.innerHTML = "";
+  const root = { name: "", path: "", children: new Map(), rows: [] };
+  for (const row of current.rows.filter(visible)) {
+    let node = root;
+    const parts = row.path.split("/");
+    parts.slice(0, -1).forEach((part, index) => {
+      if (!node.children.has(part)) node.children.set(part, { name: part, path: parts.slice(0, index + 1).join("/"), children: new Map(), rows: [] });
+      node = node.children.get(part);
+    });
+    node.rows.push(row);
+  }
+  const build = (node) => {
+    const children = [...node.children.values()].map(build);
+    const leaves = node.rows.map((row) => ({ leaf: true, row, value: Math.max(1, row.loc) }));
+    let result = { name: node.name, path: node.path, children: [...children, ...leaves] };
+    while (result.children.length === 1 && !result.children[0].leaf) {
+      const only = result.children[0];
+      result = { name: result.name ? `${result.name}/${only.name}` : only.name, path: only.path, children: only.children };
+    }
+    result.value = result.children.reduce((sum, child) => sum + child.value, 0);
+    const rows = [];
+    const collect = (n) => n.leaf ? rows.push(n.row) : n.children.forEach(collect);
+    collect(result);
+    result.rollup = {
+      files: rows.length, loc: rows.reduce((a, r) => a + r.loc, 0), commits: rows.reduce((a, r) => a + r.commits, 0),
+      lines: rows.reduce((a, r) => a + r.lines, 0), total: rows.reduce((a, r) => a + r.total, 0), worst: Math.max(0, ...rows.map((r) => r.worst)),
+      quadrants: QUADRANTS.map((q) => rows.filter((r) => r.quadrant === q).length),
+    };
+    return result;
+  };
+  const tree = build(root);
+  const layer = element("g", {}, svg);
+  const header = 16;
+  const layout = (node, x, y, width, height, depth) => {
+    if (node.leaf) {
+      const row = node.row;
+      const cell = element("rect", { class: "tm-leaf", x, y, width: Math.max(0.5, width), height: Math.max(0.5, height), fill: css(QUADRANT_VAR[row.quadrant]), "data-file": row.file }, layer);
+      if (state.search) cell.classList.toggle("dim", !matchesSearch(row));
+      if (state.selected === row.file) cell.classList.add("selected");
+      cell.addEventListener("pointerenter", (event) => showTooltip(event, row));
+      cell.addEventListener("pointermove", moveTooltip);
+      cell.addEventListener("pointerleave", hideTooltip);
+      cell.addEventListener("click", () => select(row.file));
+      if (width > 60 && height > 14) {
+        const label = element("text", { class: "tm-leaf-label", x: x + 3, y: y + 11 }, layer);
+        label.textContent = baseName(row.path).slice(0, Math.floor(width / 6));
+        if (row.quadrant === "Healthy Closure" || row.quadrant === "Fertile Ground") label.style.fill = css("--text-primary");
+        else label.style.fill = "#ffffff";
+      }
+      return;
+    }
+    let innerY = y, innerHeight = height;
+    const pad = width > 12 && height > 12 ? 2 : 0;
+    if (depth > 0) {
+      const frame = element("rect", { class: "tm-dir", x, y, width, height }, layer);
+      frame.addEventListener("pointerenter", (event) => showDirectoryTooltip(event, node));
+      frame.addEventListener("pointermove", moveTooltip);
+      frame.addEventListener("pointerleave", hideTooltip);
+      if (height > header * 2 && width > 50) {
+        const label = element("text", { class: "tm-dir-label", x: x + 4, y: y + 12 }, layer);
+        label.textContent = `${node.name} · ${format.format(node.rollup.commits)} commits · complexity ${format.format(node.rollup.total)}`.slice(0, Math.floor(width / 6.2));
+        label.style.cursor = "default";
+        label.addEventListener("pointerenter", (event) => showDirectoryTooltip(event, node));
+        label.addEventListener("pointermove", moveTooltip);
+        label.addEventListener("pointerleave", hideTooltip);
+        innerY += header; innerHeight -= header;
+      }
+    }
+    const children = [...node.children].sort((a, b) => b.value - a.value);
+    squarify(children, x + pad, innerY + pad, width - 2 * pad, innerHeight - 2 * pad, (child, cx, cy, cw, ch) => layout(child, cx, cy, cw, ch, depth + 1));
+  };
+  layout(tree, 0, 0, size.width, size.height, 0);
+  renderLegend("treemap");
+}
+function squarify(nodes, x, y, width, height, place) {
+  if (!nodes.length) return;
+  width = Math.max(1, width); height = Math.max(1, height);
+  const total = nodes.reduce((sum, n) => sum + n.value, 0);
+  const scale = width * height / total;
+  let remaining = nodes.map((n) => ({ node: n, area: n.value * scale }));
+  while (remaining.length) {
+    const short = Math.min(width, height);
+    let row = [remaining[0]], best = worst(row, short);
+    for (let i = 1; i < remaining.length; i++) {
+      const candidate = [...row, remaining[i]], score = worst(candidate, short);
+      if (score > best) break;
+      row = candidate; best = score;
+    }
+    const rowArea = row.reduce((sum, item) => sum + item.area, 0);
+    if (width >= height) {
+      const rowWidth = rowArea / height; let cy = y;
+      for (const item of row) { const h = item.area / rowWidth; place(item.node, x, cy, rowWidth, h); cy += h; }
+      x += rowWidth; width -= rowWidth;
+    } else {
+      const rowHeight = rowArea / width; let cx = x;
+      for (const item of row) { const w = item.area / rowHeight; place(item.node, cx, y, w, rowHeight); cx += w; }
+      y += rowHeight; height -= rowHeight;
+    }
+    remaining = remaining.slice(row.length);
+  }
+  function worst(row, side) {
+    const sum = row.reduce((a, item) => a + item.area, 0), max = Math.max(...row.map((i) => i.area)), min = Math.min(...row.map((i) => i.area));
+    return Math.max(side * side * max / (sum * sum), sum * sum / (side * side * min));
+  }
+}
+
+function renderLegend(view) {
+  const legend = $("#legend");
+  if (view === "scatter") {
+    const keys = colourOrder.map((key, index) => `<span><span class="swatch" style="background:${css(`--series-${index + 1}`)}"></span>${escapeHtml(key)}</span>`);
+    keys.push(`<span><span class="swatch" style="background:${css("--series-other")}"></span>other directories</span>`);
+    legend.innerHTML = `${keys.join("")}<span>· size = lines of code · ${current.rows.length} files in view</span>`;
+  } else {
+    legend.innerHTML = QUADRANTS.map((q) => `<span><span class="swatch square" style="background:${css(QUADRANT_VAR[q])}"></span>${q}</span>`).join("")
+      + `<span>· area = lines of code · directory labels show summed commits and complexity</span>`;
+  }
+}
+
+// ------------------------------------------------------------------ tooltip
+function showTooltip(event, row) {
+  tooltip.innerHTML = `<div class="path">${escapeHtml(row.path)}</div><dl>
+    <dt>Quadrant</dt><dd>${row.quadrant}</dd>
+    <dt>Commits</dt><dd>${format.format(row.commits)} all · ${format.format(row.commitsYear)} last 12 mo</dd>
+    <dt>Lines changed</dt><dd>${format.format(row.lines)} all · ${format.format(row.linesYear)} last 12 mo</dd>
+    <dt>Complexity</dt><dd>total ${format.format(row.total)} · worst function ${format.format(row.worst)}</dd>
+    <dt>Lines of code</dt><dd>${format.format(row.loc)}</dd>
+    <dt>Score</dt><dd>${row.score.toFixed(3)}</dd></dl>`;
+  tooltip.style.display = "block"; moveTooltip(event);
+}
+function showDirectoryTooltip(event, node) {
+  const r = node.rollup;
+  tooltip.innerHTML = `<div class="path">${escapeHtml(node.path)}/</div><dl>
+    <dt>Files</dt><dd>${r.files}</dd><dt>Lines of code</dt><dd>${format.format(r.loc)}</dd>
+    <dt>Commits (summed)</dt><dd>${format.format(r.commits)}</dd><dt>Lines changed</dt><dd>${format.format(r.lines)}</dd>
+    <dt>Complexity</dt><dd>total ${format.format(r.total)} · worst function ${r.worst}</dd>
+    ${QUADRANTS.map((q, i) => `<dt>${q}</dt><dd>${r.quadrants[i]}</dd>`).join("")}</dl>`;
+  tooltip.style.display = "block"; moveTooltip(event);
+}
+function moveTooltip(event) {
+  const width = tooltip.offsetWidth, height = tooltip.offsetHeight;
+  let x = event.clientX + 14, y = event.clientY + 14;
+  if (x + width > window.innerWidth - 8) x = event.clientX - width - 14;
+  if (y + height > window.innerHeight - 8) y = event.clientY - height - 14;
+  tooltip.style.left = `${Math.max(4, x)}px`; tooltip.style.top = `${Math.max(4, y)}px`;
+}
+function hideTooltip() { tooltip.style.display = "none"; }
+
+// ------------------------------------------------------------------ side panel
+function select(file) {
+  state.selected = file;
+  render(false); renderSide(); renderTable(true);
+}
+function renderSide() {
+  const panel = $("#panel");
+  if (state.selected === null) return;
+  const row = current.byFile.get(state.selected);
+  const detail = DETAILS[state.selected];
+  const headPath = FILES[state.selected]?.head;
+  if (!detail) {
+    panel.innerHTML = `<div class="path">${escapeHtml(row ? row.path : "")}</div><p class="empty">This file no longer exists at the analysed commit, so there are no function details.</p>`;
+    return;
+  }
+  const quadrant = row ? row.quadrant : null;
+  const functions = detail.functions;
+  const hasCognitive = functions.some((f) => f[4] !== null && f[4] !== undefined);
+  const functionRows = functions.slice(0, 40).map(([name, line, cc, length, cognitive]) => {
+    const link = fileLink(headPath, line);
+    return `<tr><td>${link ? `<a href="${link}" target="_blank" rel="noopener" data-line="${line}">${escapeHtml(name)}</a>` : escapeHtml(name)}<br><span class="meta">${escapeHtml(baseName(headPath))}:${line}</span></td><td class="num">${cc}</td>${hasCognitive ? `<td class="num">${cognitive ?? ""}</td>` : ""}<td class="num">${length ?? ""}</td></tr>`;
+  }).join("");
+  const authors = detail.authors.slice(0, 8).map(([name, count]) => `<tr><td>${escapeHtml(name)}</td><td class="num">${count}</td></tr>`).join("");
+  const largest = detail.largest.map(([sha, date, lines, subject]) => {
+    const link = commitLink(sha);
+    return `<tr><td>${link ? `<a href="${link}" target="_blank" rel="noopener">${sha.slice(0, 10)}</a>` : sha.slice(0, 10)} <span class="meta">${date}</span><br>${escapeHtml(subject)}</td><td class="num">${format.format(lines)}</td></tr>`;
+  }).join("");
+  const frame = FRAMES[state.frame];
+  panel.innerHTML = `
+    <div class="path">${fileLink(headPath) ? `<a href="${fileLink(headPath)}" target="_blank" rel="noopener">${escapeHtml(headPath)}</a>` : escapeHtml(headPath)}</div>
+    ${row && row.path !== headPath ? `<div class="meta">At ${frame.label}: ${escapeHtml(row.path)}</div>` : ""}
+    <div style="margin-top:6px">${quadrant ? `<span class="badge"><span class="swatch" style="background:${css(QUADRANT_VAR[quadrant])}"></span>${quadrant}</span>` : `<span class="badge">not in view at this snapshot</span>`}</div>
+    <div class="stats">
+      <div><span>Commits (all / 12 mo)</span><b>${row ? `${row.commits} / ${row.commitsYear}` : "—"}</b></div>
+      <div><span>Lines changed (all / 12 mo)</span><b>${row ? `${format.format(row.lines)} / ${format.format(row.linesYear)}` : "—"}</b></div>
+      <div><span>Complexity total / worst</span><b>${row ? `${row.total} / ${row.worst}` : "—"}</b></div>
+      <div><span>Lines of code</span><b>${row ? format.format(row.loc) : "—"}</b></div>
+      <div><span>Authors (all / 12 mo)</span><b>${detail.authors.length} / ${detail.authors_year}</b></div>
+      <div><span>Last changed · created</span><b>${detail.last_change || "—"} · ${detail.born || "before history"}</b></div>
+    </div>
+    ${detail.paths.length > 1 ? `<details><summary class="meta">Followed ${detail.paths.length - 1} rename(s)</summary><ol class="meta">${detail.paths.map((p) => `<li>${escapeHtml(p)}</li>`).join("")}</ol></details>` : ""}
+    <h3>Churn per month (commits)</h3>${sparkline(detail.monthly)}
+    <h3>Functions by complexity (at ${META.commit.slice(0, 10)})</h3>
+    ${functions.length ? `<table><thead><tr><th>Function</th><th class="num">Cyclomatic</th>${hasCognitive ? `<th class="num">Cognitive</th>` : ""}<th class="num">Length</th></tr></thead><tbody>${functionRows}</tbody></table>${functions.length > 40 ? `<p class="meta">${functions.length - 40} more</p>` : ""}` : `<p class="empty">No functions.</p>`}
+    <h3>Authors</h3>${authors ? `<table><tbody>${authors}</tbody></table>${detail.authors.length > 8 ? `<p class="meta">${detail.authors.length - 8} more</p>` : ""}` : `<p class="empty">No changes after creation.</p>`}
+    <h3>Five largest commits</h3>${largest ? `<table><tbody>${largest}</tbody></table>` : `<p class="empty">No changes after creation.</p>`}`;
+}
+function sparkline(monthly) {
+  if (!monthly.length) return `<p class="empty">No changes after creation.</p>`;
+  const first = monthly[0][0], last = FRAMES[FRAMES.length - 1].date.slice(0, 7);
+  const months = [];
+  let [year, month] = first.split("-").map(Number);
+  while (`${year}-${String(month).padStart(2, "0")}` <= last) { months.push(`${year}-${String(month).padStart(2, "0")}`); month++; if (month > 12) { month = 1; year++; } }
+  const counts = new Map(monthly.map(([m, c]) => [m, c]));
+  const max = Math.max(...monthly.map((m) => m[1]));
+  const width = 320, height = 56, barWidth = width / months.length;
+  const bars = months.map((m, index) => {
+    const value = counts.get(m) || 0, h = value ? Math.max(1.5, value / max * (height - 14)) : 0;
+    return value ? `<rect x="${(index * barWidth).toFixed(2)}" y="${(height - 12 - h).toFixed(2)}" width="${Math.max(1, barWidth - 1).toFixed(2)}" height="${h.toFixed(2)}" rx="1" fill="var(--accent)"><title>${m}: ${value} commits</title></rect>` : "";
+  }).join("");
+  return `<svg viewBox="0 0 ${width} ${height}" width="100%" role="img" aria-label="Commits per month from ${months[0]} to ${months[months.length - 1]}, maximum ${max}">
+    <line x1="0" x2="${width}" y1="${height - 12}" y2="${height - 12}" stroke="var(--axis)"/>${bars}
+    <text x="0" y="${height - 1}" font-size="10" fill="var(--text-muted)">${months[0]}</text>
+    <text x="${width}" y="${height - 1}" font-size="10" fill="var(--text-muted)" text-anchor="end">${months[months.length - 1]} · max ${max}/month</text></svg>`;
+}
+
+// ------------------------------------------------------------------ ranking & movement
+function reason(row) {
+  const parts = [];
+  parts.push(`${row.commits} commits (${row.commitsYear} in the last 12 months)`);
+  parts.push(row.worst >= 10 ? `one function scores ${row.worst}` : `total ${row.total} spread over its functions (worst ${row.worst})`);
+  parts.push(`${format.format(row.loc)} lines of code`);
+  return parts.join(" · ");
+}
+function renderRanking() {
+  const churnName = state.churn === "commits" ? "commits" : "lines added + deleted";
+  $("#formula").innerHTML = `score = √(u² + v²), u = log(1 + churn) / log(1 + max churn), v = log(1 + complexity) / log(1 + max complexity), over the ${current.rows.length} files in view.
+    Thresholds: churn (${churnName}, ${state.window === "all" ? "all history" : "last 12 months"}) above the median <b>${format.format(current.churnThreshold)}</b>, complexity (${state.complexity === "total" ? "total" : "worst function"}) above the median <b>${format.format(current.complexityThreshold)}</b>. ${current.danger.length} files in the Danger Zone.`;
+  $("#ranking").innerHTML = current.danger.slice(0, 10).map((row) =>
+    `<li data-file="${row.file}"><span>${escapeHtml(row.path)}</span> <span class="score">${row.score.toFixed(3)}</span><span class="reason">${reason(row)}</span></li>`).join("");
+  $("#ranking").querySelectorAll("li").forEach((li) => li.addEventListener("click", () => select(Number(li.dataset.file))));
+}
+function renderMovement() {
+  const frame = FRAMES[state.frame];
+  const target = new Date(frame.date); target.setFullYear(target.getFullYear() - 1);
+  let earlier = -1;
+  FRAMES.forEach((f, index) => { if (new Date(f.date) <= target) earlier = index; });
+  const container = $("#movement");
+  if (earlier < 0) { $("#movement-title").textContent = "Movement"; container.innerHTML = `<p class="empty">No snapshot a year before ${frame.date}.</p>`; return; }
+  const then = model(earlier);
+  const nowSet = new Set(current.danger.map((r) => r.file)), thenSet = new Set(then.danger.map((r) => r.file));
+  const entered = current.danger.filter((r) => !thenSet.has(r.file));
+  const left = then.danger.filter((r) => !nowSet.has(r.file));
+  $("#movement-title").textContent = `Danger Zone since ${FRAMES[earlier].label}`;
+  const stillExists = new Set(frame.rows.map((row) => row[COLUMN.file]));
+  const item = (row, note) => `<li data-file="${row.file}">${escapeHtml(row.path)} <span class="meta">${note}</span></li>`;
+  container.innerHTML = `
+    <p class="meta">Each snapshot uses its own medians. ${entered.length} files entered, ${left.length} left. Entering is the warning; leaving shows which changes worked (or that the file was deleted or split).</p>
+    <h3>Entered (highest score first)</h3><ul>${entered.slice(0, 8).map((r) => item(r, then.byFile.has(r.file) ? `from ${then.byFile.get(r.file).quadrant}` : "new file")).join("") || "<li class=empty>none</li>"}</ul>
+    <h3>Left (highest former score first)</h3><ul>${left.slice(0, 8).map((r) => item(r, current.byFile.has(r.file) ? `now ${current.byFile.get(r.file).quadrant}` : stillExists.has(r.file) ? "out of view" : "deleted")).join("") || "<li class=empty>none</li>"}</ul>`;
+  container.querySelectorAll("li[data-file]").forEach((li) => li.addEventListener("click", () => select(Number(li.dataset.file))));
+}
+
+// ------------------------------------------------------------------ table
+const TABLE_COLUMNS = [
+  ["path", "Path", false], ["commits", "Commits", true], ["lines", "Lines changed", true], ["total", "Complexity total", true],
+  ["worst", "Worst function", true], ["loc", "LOC", true], ["authors", "Authors", true], ["last", "Last changed", false],
+  ["quadrant", "Quadrant", false], ["score", "Score", true],
+];
+function renderTable(scrollToSelected = false) {
+  const thead = $("#files thead"), tbody = $("#files tbody");
+  const atHead = state.frame === FRAMES.length - 1;
+  thead.innerHTML = `<tr>${TABLE_COLUMNS.map(([key, label, numeric]) =>
+    `<th class="${numeric ? "num" : ""}" data-key="${key}" aria-sort="${state.sort.key === key ? (state.sort.descending ? "descending" : "ascending") : "none"}">${label}${state.sort.key === key ? (state.sort.descending ? " ▾" : " ▴") : ""}</th>`).join("")}</tr>`;
+  thead.querySelectorAll("th").forEach((th) => th.addEventListener("click", () => {
+    const key = th.dataset.key;
+    state.sort = { key, descending: state.sort.key === key ? !state.sort.descending : !["path", "quadrant", "last"].includes(key) };
+    renderTable();
+  }));
+  const commitsKey = state.window === "all" ? "commits" : "commitsYear", linesKey = state.window === "all" ? "lines" : "linesYear";
+  const value = (row, key) => {
+    if (key === "commits") return row[commitsKey];
+    if (key === "lines") return row[linesKey];
+    if (key === "authors") return atHead && DETAILS[row.file] ? DETAILS[row.file].authors.length : -1;
+    if (key === "last") return atHead && DETAILS[row.file] ? DETAILS[row.file].last_change || "" : "";
+    if (key === "quadrant") return QUADRANTS.indexOf(row.quadrant);
+    return row[key];
+  };
+  const rows = current.rows.filter(visible).sort((a, b) => {
+    const x = value(a, state.sort.key), y = value(b, state.sort.key);
+    const order = x < y ? -1 : x > y ? 1 : 0;
+    return state.sort.descending ? -order : order;
+  });
+  tbody.innerHTML = rows.map((row) => {
+    const detail = atHead ? DETAILS[row.file] : null;
+    const classes = [state.selected === row.file ? "selected" : "", state.search && !matchesSearch(row) ? "dim" : ""].join(" ");
+    return `<tr class="${classes}" data-file="${row.file}"><td class="path">${escapeHtml(row.path)}</td><td class="num">${row[commitsKey]}</td><td class="num">${format.format(row[linesKey])}</td>
+      <td class="num">${row.total}</td><td class="num">${row.worst}</td><td class="num">${format.format(row.loc)}</td>
+      <td class="num">${detail ? detail.authors.length : "—"}</td><td>${detail ? detail.last_change || "—" : "—"}</td><td>${row.quadrant}</td><td class="num">${row.score.toFixed(3)}</td></tr>`;
+  }).join("");
+  if (scrollToSelected) {
+    const selected = tbody.querySelector("tr.selected");
+    if (selected) selected.scrollIntoView({ block: "nearest" });
+  }
+}
+$("#files tbody").addEventListener("click", (event) => {
+  const tr = event.target.closest("tr[data-file]");
+  if (tr) select(Number(tr.dataset.file));
+});
+
+// ------------------------------------------------------------------ method & data notes
+function renderMethod() {
+  const history = META.history;
+  $("#meta-line").innerHTML = `${META.forge ? `<a href="${META.forge}">${escapeHtml(META.forge.replace("https://", ""))}</a>` : escapeHtml(META.repository)}
+    · <b>${escapeHtml(META.ref)}</b> at ${META.forge ? `<a href="${commitLink(META.commit)}">${META.commit.slice(0, 10)}</a>` : META.commit.slice(0, 10)}
+    · history ${history.from} → ${history.to}, ${format.format(history.commits)} non-merge commits reachable from that commit
+    · analysed ${META.analysis_date}${META.subdir ? ` · subdirectory ${escapeHtml(META.subdir)}` : ""}`;
+  $("#shallow").innerHTML = history.shallow ? `<div class="warning">Shallow clone: history only goes back to ${history.from}. Churn before that is missing.</div>` : "";
+  const checks = META.checks.tools;
+  const toolRows = Object.entries(checks).map(([language, c]) => `<tr><td>${language}</td><td>${escapeHtml(c.tool)}</td>
+    <td>${c.files_compared ? `${c.files_compared - c.files_mismatched} of ${c.files_compared} files match (${format.format(c.functions_reported)} reported / ${format.format(c.functions_declared)} declared)` : "no declaration count"}${c.parse_errors ? `, ${c.parse_errors} parse errors` : ""} — <span class="pass">${c.passed ? "pass" : "check"}</span></td>
+    <td>${c.longest.map((l) => `${escapeHtml(l.name)} (${l.length} lines) → ${l.cc}`).join("<br>")}</td></tr>`).join("");
+  const groupRows = Object.entries(META.groups).map(([group, count]) => `<tr><td>${group}</td><td class="num">${format.format(count)}</td></tr>`).join("");
+  const spot = META.spot_checks.map((c) => `<tr><td>${escapeHtml(c.path)}</td>
+    <td>${c.churn.script_commits} commits / ${format.format(c.churn.script_lines)} lines vs <code>--follow</code> ${c.churn.follow_commits} / ${format.format(c.churn.follow_lines)} ${c.churn.match ? "— match" : `— differs: <code>--follow</code> reaches back to ${escapeHtml(c.churn.follow_oldest_path)}, the lineage to ${escapeHtml(c.churn.lineage_oldest_path)}`}</td>
+    <td>${c.complexity.script_total}/${c.complexity.script_worst} vs ${c.complexity.single_total}/${c.complexity.single_worst} — ${c.complexity.match ? "match" : "differs"}</td></tr>`).join("");
+  const mass = META.mass_candidates.map((c) => `<tr><td>${commitLink(c.sha) ? `<a href="${commitLink(c.sha)}">${c.sha.slice(0, 10)}</a>` : c.sha.slice(0, 10)}</td><td>${c.date}</td><td>${escapeHtml(c.subject)}</td><td class="num">${c.files} (${Math.round(c.share * 100)}%)</td><td>${META.ignored.some((i) => i.sha === c.sha) ? "ignored" : "kept"}</td></tr>`).join("");
+  $("#method").innerHTML = `<div class="card">
+    <h2>How this was measured</h2>
+    <p>Each point is a file at the snapshot's commit. <b>Churn</b> counts the non-merge commits that changed the file after the commit that created it, plus lines added and deleted. Renames are followed: git's own rename detection (${format.format(META.renames.git)} renames), plus ${format.format(META.renames.conversions)} Java→Kotlin conversions, where git saw a deleted <code>Foo.java</code> and an added <code>Foo.kt</code> in one commit. ${format.format(META.renames.production_files_with_renames)} production files have at least one followed rename. Pure moves (no lines changed) are not counted as churn. ${META.ignored.length ? `${META.ignored.length} revisions ignored${META.ignore_source ? ` from ${escapeHtml(META.ignore_source)}` : ""}.` : `No revisions ignored${META.ignore_source ? "" : " (no .git-blame-ignore-revs)"}.`}</p>
+    <p><b>Complexity</b>: ${escapeHtml(META.metric)}. A file's total is the sum over its functions, as turbulence does, so it grows with file size. The worst function is the single highest score. Both axes use log(1 + value), so files with no churn or complexity sit at the origin. Thresholds are the medians of the raw values of the files in view, drawn through the same transform.</p>
+    <h3>Tools, and the check against the language's own function count</h3>
+    <table><thead><tr><th>Language</th><th>Tool</th><th>Function count check</th><th>Three longest functions → score</th></tr></thead><tbody>${toolRows}</tbody></table>
+    <h3>Files by group at the analysed commit</h3>
+    <table><tbody>${groupRows}</tbody></table>
+    <p class="meta">Generated roots (from the build setup and .gitattributes): ${META.generated_roots.map(escapeHtml).join(", ") || "none"} (${format.format(META.groups.generated)} tracked files fall under them at the analysed commit). Production source roots: ${META.source_roots.map(escapeHtml).join(", ")}. Test code inside production files that was stripped: ${META.stripped_inline_test_lines} lines.</p>
+    <h3>Spot checks</h3>
+    <table><thead><tr><th>File</th><th>Churn (script vs <code>git log --follow --numstat</code>)</th><th>Complexity total/worst (script vs tool on that file alone)</th></tr></thead><tbody>${spot}</tbody></table>
+    <h3>Commits that touched more than 25% of the files</h3>
+    <table><thead><tr><th>Commit</th><th>Date</th><th>Subject</th><th class="num">Files</th><th></th></tr></thead><tbody>${mass || "<tr><td>none</td></tr>"}</tbody></table>
+    <h3>Existing hotspot tooling</h3><p>${META.hotspot_tools.length ? META.hotspot_tools.map(escapeHtml).join(", ") : "None found (no turbulence, Code Climate or CodeScene configuration)."}</p>
+    <h3>What these numbers cannot tell you</h3>
+    <ul>
+      <li>Churn from a big planned migration (Java→Kotlin, the net.atos → nl.info package move, the ESLint reformat, the license-header change) looks like instability.</li>
+      <li>Complexity tools disagree with each other. ESLint counts <code>?.</code> and <code>??</code> as branches, detekt does not count Kotlin's <code>?.</code> or <code>?:</code>, and detekt adds lambda bodies to the enclosing function while ESLint scores arrow functions separately. Compare Kotlin with Kotlin and TypeScript with TypeScript: use the language chips.</li>
+      <li>Code moved between files resets both metrics: the new file starts with no churn, and the old file's complexity leaves with the code.</li>
+      <li>Churn says nothing about bugs unless you also join it with fix commits.</li>
+      <li>Angular templates (.html), OPA policies (.rego) and SQL migrations have no complexity tool here and are not plotted.</li>
+    </ul></div>`;
+}
+
+// ------------------------------------------------------------------ render loop
+function render(animate) {
+  hideTooltip();
+  if (state.view === "scatter") renderScatter(animate); else renderTreemap();
+  const matches = state.search ? current.rows.filter(matchesSearch).length : null;
+  $("#search-count").textContent = matches === null ? "" : `${matches} matching`;
+  $("#frame-label").textContent = frameLabel(FRAMES[state.frame]);
+}
+function update() {
+  recompute(); renderChips(); render(false); renderSide(); renderTable(); renderRanking(); renderMovement();
+}
+let resizeTimer = null;
+window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => render(false), 120); });
+if (window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => render(false));
+renderMethod();
+update();
+window.__churn = { state, model: () => current, scales, setFrame, select, FRAMES };
+})();
+</script>
+</body>
+</html>

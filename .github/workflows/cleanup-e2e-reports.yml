@@ -65,6 +65,8 @@ jobs:
 
           prune_by_name "." "${MAIN_RETENTION_DAYS}"
           prune_by_name "branches" "${BRANCH_RETENTION_DAYS}"
+          # churn-complexity/latest has no date prefix and is kept
+          prune_by_name "churn-complexity" "${MAIN_RETENTION_DAYS}"
 
       - name: Squash history into a single orphan commit and force-push
         run: |
