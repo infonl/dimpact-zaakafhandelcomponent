@@ -13,6 +13,7 @@ import jakarta.ws.rs.NotFoundException
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.inboxdocument.repository.InboxDocumentRepository
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocumentListParameters
@@ -27,10 +28,18 @@ import java.util.UUID
 class InboxDocumentService @Inject constructor(
     private val inboxDocumentRepository: InboxDocumentRepository,
     private val zrcClientService: ZrcClientService,
-    private val drcClientService: DrcClientService
+    private val drcClientService: DrcClientService,
+    private val detachedDocumentService: DetachedDocumentService
 ) {
     @Transactional(REQUIRED)
-    fun create(enkelvoudiginformatieobjectUUID: UUID): InboxDocument? {
+    fun create(enkelvoudiginformatieobjectUUID: UUID): InboxDocument? =
+        if (detachedDocumentService.find(enkelvoudiginformatieobjectUUID) == null) {
+            createUnlessLinkedToZaak(enkelvoudiginformatieobjectUUID)
+        } else {
+            null
+        }
+
+    private fun createUnlessLinkedToZaak(enkelvoudiginformatieobjectUUID: UUID): InboxDocument? {
         val informatieobject = drcClientService.readEnkelvoudigInformatieobject(enkelvoudiginformatieobjectUUID)
         if (zrcClientService.listZaakinformatieobjecten(informatieobject).isNotEmpty()) return null
         return InboxDocument().apply {

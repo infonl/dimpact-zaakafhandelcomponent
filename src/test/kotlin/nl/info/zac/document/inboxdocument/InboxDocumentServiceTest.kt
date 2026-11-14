@@ -19,6 +19,8 @@ import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.zac.document.detacheddocument.DetachedDocumentService
+import nl.info.zac.document.detacheddocument.repository.model.createDetachedDocument
 import nl.info.zac.document.inboxdocument.repository.InboxDocumentRepository
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocumentListParameters
@@ -33,8 +35,14 @@ class InboxDocumentServiceTest : BehaviorSpec({
     val inboxDocumentRepository = mockk<InboxDocumentRepository>()
     val drcClientService = mockk<DrcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
+    val detachedDocumentService = mockk<DetachedDocumentService>()
 
-    val inboxDocumentService = InboxDocumentService(inboxDocumentRepository, zrcClientService, drcClientService)
+    val inboxDocumentService = InboxDocumentService(
+        inboxDocumentRepository,
+        zrcClientService,
+        drcClientService,
+        detachedDocumentService
+    )
 
     afterEach {
         checkUnnecessaryStub()
@@ -56,6 +64,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
                 setBestandsnaam(bestandsnaam)
             }
 
+            every { detachedDocumentService.find(uuid) } returns null
             every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
             every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns emptyList()
             every { inboxDocumentRepository.save(capture(inboxDocumentSlot)) } just Runs
@@ -91,6 +100,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
                 setTitel("fakeLinkedDocument")
             }
 
+            every { detachedDocumentService.find(linkedUuid) } returns null
             every {
                 drcClientService.readEnkelvoudigInformatieobject(linkedUuid)
             } returns linkedEnkelvoudigInformatieObject
@@ -104,6 +114,23 @@ class InboxDocumentServiceTest : BehaviorSpec({
                 then("no inbox document is created so that a linked document never ends up in the inbox") {
                     verify(exactly = 0) {
                         inboxDocumentRepository.save(match { it.enkelvoudiginformatieobjectUUID == linkedUuid })
+                    }
+                    result shouldBe null
+                }
+            }
+        }
+
+        given("an EnkelvoudigInformatieObject that was detached from its zaak before its creation notification arrived") {
+            val detachedUuid = UUID.randomUUID()
+            every { detachedDocumentService.find(detachedUuid) } returns createDetachedDocument(uuid = detachedUuid)
+
+            `when`("the Inbox Document Service creates a Document from the EnkelvoudigInformatieObject's UUID") {
+                val result = inboxDocumentService.create(detachedUuid)
+
+                then("no inbox document is created so that a detached document never ends up in the inbox") {
+                    verify(exactly = 0) {
+                        inboxDocumentRepository.save(match { it.enkelvoudiginformatieobjectUUID == detachedUuid })
+                        drcClientService.readEnkelvoudigInformatieobject(detachedUuid)
                     }
                     result shouldBe null
                 }
