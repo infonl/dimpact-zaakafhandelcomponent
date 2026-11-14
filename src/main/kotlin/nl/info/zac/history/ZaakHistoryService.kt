@@ -12,6 +12,7 @@ import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum
 import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
+import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.history.converter.RESOURCE_GERELATEERDE_ZAKEN
 import nl.info.zac.history.converter.RESOURCE_HOOFDZAAK
@@ -31,6 +32,7 @@ private const val ACTION_PARTIAL_UPDATE = "partial_update"
 
 private const val RESOURCE_IDENTIFICATIE = "identificatie"
 private const val RESOURCE_KLANTCONTACT = "klantcontact"
+private const val RESOURCE_NAAM = "naam"
 private const val RESOURCE_RESULTAAT = "resultaat"
 private const val RESOURCE_RESULTAATTYPE = "resultaattype"
 private const val RESOURCE_ROL = "rol"
@@ -39,10 +41,13 @@ private const val RESOURCE_STATUS = "status"
 private const val RESOURCE_STATUSTYPE = "statustype"
 private const val RESOURCE_ITEL = "titel"
 private const val RESOURCE_ZAAK = "zaak"
+private const val RESOURCE_ZAAKEIGENSCHAP = "zaakeigenschap"
 private const val RESOURCE_ZAAKINFORMATIEOBJECT = "zaakinformatieobject"
 private const val RESOURCE_ZAAKOBJECT = "zaakobject"
 private const val RESOURCE_EXTENSION = "verlenging"
 private const val RESOURCE_SUSPENSION = "opschorting"
+
+private const val ATTRIBUTE_LABEL_ZAAKSPECIFIEK_GEAUTORISEERD = "zaakspecifiekGeautoriseerd"
 
 private val ZAAK_LINK_ATTRIBUTES = setOf(RESOURCE_HOOFDZAAK, RESOURCE_GERELATEERDE_ZAKEN)
 
@@ -133,6 +138,8 @@ class ZaakHistoryService @Inject constructor(
         RESOURCE_ZAAKOBJECT -> obj.getTypedValue(Zaakobject::class.java)
             ?.let(::getObjectType)
             ?.let { "objecttype.$it" }
+        RESOURCE_ZAAKEIGENSCHAP if obj.stringProperty(RESOURCE_NAAM) == ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD ->
+            ATTRIBUTE_LABEL_ZAAKSPECIFIEK_GEAUTORISEERD
         else -> resource
     }
 

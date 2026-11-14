@@ -23,6 +23,7 @@ import nl.info.client.zgw.model.createRolMedewerkerForReads
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheidForReads
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.model.createZaakEigenschap
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.model.createZaakobjectPand
 import nl.info.client.zgw.shared.model.Results
@@ -31,6 +32,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.exception.ZaakGeometrieNotSupportedException
 import nl.info.client.zgw.zrc.model.ZaakListParameters
 import nl.info.client.zgw.zrc.model.ZaakUuid
+import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
 import nl.info.client.zgw.ztc.model.createBehandelaarRolType
 import nl.info.client.zgw.ztc.model.createZaakspecifiekGeautoriseerdeMedewerkerRolType
 import nl.info.zac.configuration.ConfigurationService
@@ -292,6 +294,28 @@ class ZrcClientServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zgwClientHeadersFactory.withAuditExplanation<Any?>(auditExplanation, any())
                     zrcClient.rolDelete(rol.uuid!!)
+                }
+            }
+        }
+    }
+
+    given("A zaakeigenschap to be created with a reden") {
+        val zaakUuid = UUID.randomUUID()
+        val zaakEigenschap = createZaakEigenschap()
+        val reden = "fakeReden"
+        every { zrcClient.zaakeigenschapCreate(zaakUuid, zaakEigenschap) } returns zaakEigenschap
+        every {
+            zgwClientHeadersFactory.withAuditExplanation<ZaakEigenschap>(reden, any())
+        } answers { secondArg<() -> ZaakEigenschap>()() }
+
+        `when`("createEigenschap is called") {
+            val createdZaakEigenschap = zrcClientService.createEigenschap(zaakUuid, zaakEigenschap, reden)
+
+            then("it should create the zaakeigenschap and set the audit description") {
+                createdZaakEigenschap shouldBe zaakEigenschap
+                verify(exactly = 1) {
+                    zgwClientHeadersFactory.withAuditExplanation<ZaakEigenschap>(reden, any())
+                    zrcClient.zaakeigenschapCreate(zaakUuid, zaakEigenschap)
                 }
             }
         }

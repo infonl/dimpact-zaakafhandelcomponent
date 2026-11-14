@@ -720,7 +720,7 @@ class ZaakRestService @Inject constructor(
             restZaakEditMetRedenGegevens.reden
         )
         if (shouldBeMarkedZaakspecifiekGeautoriseerd) {
-            zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak)
+            zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak, restZaakEditMetRedenGegevens.reden)
         }
         if (shouldZaakspecifiekeAutorisatieBeRemoved) {
             zaakspecifiekeAutorisatieService.removeZaakspecifiekeAutorisatie(zaak, restZaakEditMetRedenGegevens.reden)

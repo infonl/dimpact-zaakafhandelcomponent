@@ -1532,6 +1532,21 @@ class ZaakRestServiceTest : BehaviorSpec({
                     }
                 }
 
+                and("the zaak history shows the marking under the label 'zaakspecifiekGeautoriseerd' with the reden") {
+                    val response = itestHttpClient.performGetRequest(
+                        url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/historie",
+                        testUser = BEHANDELAAR_1
+                    )
+                    response.code shouldBe HTTP_OK
+                    val markingEntry = JSONArray(response.bodyAsString)
+                        .run { (0 until length()).map(::getJSONObject) }
+                        .single { it.getString("attribuutLabel") == "zaakspecifiekGeautoriseerd" }
+                    markingEntry.getString("actie") shouldBe "GEKOPPELD"
+                    markingEntry.isNull("oudeWaarde") shouldBe true
+                    markingEntry.isNull("nieuweWaarde") shouldBe true
+                    markingEntry.getString("toelichting") shouldBe "fakeReason"
+                }
+
                 and("marking the already marked zaak again is accepted and creates no second marking") {
                     markZaakspecifiekGeautoriseerd(zaakUuid, BEHANDELAAR_1).code shouldBe HTTP_OK
                     val zaakeigenschappen = JSONArray(
