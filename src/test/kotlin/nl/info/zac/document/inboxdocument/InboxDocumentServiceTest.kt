@@ -56,6 +56,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
                 setBestandsnaam(bestandsnaam)
             }
 
+            every { inboxDocumentRepository.find(uuid) } returns null
             every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
             every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns emptyList()
             every { inboxDocumentRepository.save(capture(inboxDocumentSlot)) } just Runs
@@ -91,6 +92,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
                 setTitel("fakeLinkedDocument")
             }
 
+            every { inboxDocumentRepository.find(linkedUuid) } returns null
             every {
                 drcClientService.readEnkelvoudigInformatieobject(linkedUuid)
             } returns linkedEnkelvoudigInformatieObject
@@ -106,6 +108,29 @@ class InboxDocumentServiceTest : BehaviorSpec({
                         inboxDocumentRepository.save(match { it.enkelvoudiginformatieobjectUUID == linkedUuid })
                     }
                     result shouldBe null
+                }
+            }
+        }
+
+        given("an EnkelvoudigInformatieObject that is already in the inbox") {
+            val enkelvoudiginformatieobjectUUID = UUID.randomUUID()
+            val inboxDocument = createInboxDocument(uuid = enkelvoudiginformatieobjectUUID)
+            every { inboxDocumentRepository.find(enkelvoudiginformatieobjectUUID) } returns inboxDocument
+
+            `when`("the Inbox Document Service creates a Document from the EnkelvoudigInformatieObject's UUID") {
+                val result = inboxDocumentService.create(enkelvoudiginformatieobjectUUID)
+
+                then(
+                    "it returns the existing inbox document without saving a second one, " +
+                        "so that a notification that arrives twice does not violate the unique constraint"
+                ) {
+                    result shouldBe inboxDocument
+                    verify(exactly = 0) {
+                        inboxDocumentRepository.save(
+                            match { it.enkelvoudiginformatieobjectUUID == enkelvoudiginformatieobjectUUID }
+                        )
+                        drcClientService.readEnkelvoudigInformatieobject(enkelvoudiginformatieobjectUUID)
+                    }
                 }
             }
         }

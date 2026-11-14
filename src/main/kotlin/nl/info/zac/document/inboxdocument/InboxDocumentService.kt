@@ -30,7 +30,11 @@ class InboxDocumentService @Inject constructor(
     private val drcClientService: DrcClientService
 ) {
     @Transactional(REQUIRED)
-    fun create(enkelvoudiginformatieobjectUUID: UUID): InboxDocument? {
+    fun create(enkelvoudiginformatieobjectUUID: UUID): InboxDocument? =
+        inboxDocumentRepository.find(enkelvoudiginformatieobjectUUID)
+            ?: createUnlessLinkedToZaak(enkelvoudiginformatieobjectUUID)
+
+    private fun createUnlessLinkedToZaak(enkelvoudiginformatieobjectUUID: UUID): InboxDocument? {
         val informatieobject = drcClientService.readEnkelvoudigInformatieobject(enkelvoudiginformatieobjectUUID)
         if (zrcClientService.listZaakinformatieobjecten(informatieobject).isNotEmpty()) return null
         return InboxDocument().apply {
