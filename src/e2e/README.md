@@ -100,6 +100,11 @@ These fixtures are available in every step:
 | `apiAs`                  | A client for the REST API of ZAC with the session of a role, for example `apiAs("beheerder")`. |
 | `whileNoOtherWorkerDoes` | Runs an action that changes shared data, such as zaakafhandelparameters, in one worker at a time. |
 
+`whileNoOtherWorkerDoes` uses a lock in the output folder of the run, so it only keeps apart the workers of one run
+on one machine. It does not protect a target that several machines or pipelines use at the same time. A lock of a
+worker that was killed, for example when you stop a run in the Playwright UI, is broken by the next worker that needs
+it.
+
 A domain adds its own fixtures in `bdd/@<domain>/fixtures.ts`, which extends `coreTest` of
 [bdd/_core/fixtures.ts](./bdd/_core/fixtures.ts). Add the test of a new domain to `mergeTests` in
 [bdd/fixtures.ts](./bdd/fixtures.ts). That file is the only one that calls `createBdd`, so every step can use every
