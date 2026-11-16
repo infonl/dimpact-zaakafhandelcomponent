@@ -18,8 +18,8 @@ import {
 } from "@tanstack/angular-query-experimental";
 import "@testing-library/jest-dom";
 import { FoutAfhandelingService } from "./src/app/fout-afhandeling/fout-afhandeling.service";
-import { createZacQueryCache } from "./src/app/shared/http/query-client";
 import { provideZacDateAdapter } from "./src/app/shared/form/date/provide-zac-date-adapter";
+import { createZacQueryCache } from "./src/app/shared/http/query-client";
 import { alterMoment } from "./src/functions";
 
 const cryptoPolyfill = {
