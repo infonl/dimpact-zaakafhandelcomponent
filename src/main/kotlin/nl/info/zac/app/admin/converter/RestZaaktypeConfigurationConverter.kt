@@ -14,13 +14,16 @@ import nl.info.zac.admin.model.ZaaktypeCmmnExtension
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.app.admin.model.RestAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
+import nl.info.zac.app.admin.model.RestZaaktypeConfigurationOverzicht
 import nl.info.zac.app.admin.model.toAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.toRestAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
+import nl.info.zac.app.admin.model.toRestProcessDefinitionOverzicht
 import nl.info.zac.app.admin.model.toRestSmartDocuments
 import nl.info.zac.app.admin.model.toRestUserEventListenerParameter
 import nl.info.zac.app.admin.model.toRestZaakAfzenders
+import nl.info.zac.app.admin.model.toRestZaaktypeBeheerOverzicht
 import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
 import nl.info.zac.app.admin.model.toZaakAfzenders
 import nl.info.zac.app.admin.model.toZaaktypeBetrokkenParameters
@@ -84,6 +87,17 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
         }
         return restZaaktypeConfiguration
     }
+
+    fun toRestZaaktypeConfigurationOverzicht(zaaktypeConfiguration: ZaaktypeConfiguration, zaaktype: ZaakType) =
+        RestZaaktypeConfigurationOverzicht(
+            zaaktype = zaaktype.toRestZaaktypeBeheerOverzicht(),
+            processDefinition = zaaktypeConfiguration.processBinding?.let {
+                processDefinitionConverter.toRestProcessDefinition(it, inclusiefRelaties = false)
+                    .toRestProcessDefinitionOverzicht()
+            },
+            creatiedatum = zaaktypeConfiguration.creatiedatum,
+            isValide = zaaktypeConfiguration.isValidForZaakCreation()
+        )
 
     /**
      * Converts the REST configuration to the stored configuration of its zaaktype version, and updates that stored

@@ -8,6 +8,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
@@ -58,6 +59,62 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
         .map { it as JSONObject }
         .single { it.getBoolean("isDefaultMail") }
         .getString("mail")
+
+    given("Zaaktype CMMN configurations have been created for the CMMN test zaaktypes, and a beheerder is logged in") {
+        `when`("the beheerder lists the zaaktype configurations") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/zaakafhandelparameters",
+                testUser = BEHEERDER_1
+            )
+            val responseBody = response.bodyAsString
+            logger.info { "Response: $responseBody" }
+            val restZaaktypeConfigurationOverzichten = JSONArray(responseBody).map { it as JSONObject }
+
+            then("the response is ok") {
+                response.code shouldBe HTTP_OK
+            }
+            and("each list item has only the fields that the Zaakafhandelparameters page shows") {
+                restZaaktypeConfigurationOverzichten.forEach { restZaaktypeConfigurationOverzicht ->
+                    (restZaaktypeConfigurationOverzicht.keySet() - setOf("processDefinition", "creatiedatum"))
+                        .shouldContainExactlyInAnyOrder("zaaktype", "isValide")
+                    restZaaktypeConfigurationOverzicht.getJSONObject("zaaktype").keySet() - setOf(
+                        "uuid",
+                        "identificatie",
+                        "omschrijving",
+                        "doel",
+                        "isNuGeldig",
+                        "beginGeldigheid",
+                        "eindeGeldigheid"
+                    ) shouldBe emptySet()
+                    restZaaktypeConfigurationOverzicht.optJSONObject("processDefinition")?.keySet()
+                        ?.shouldContainExactlyInAnyOrder("key", "naam")
+                }
+            }
+            and(
+                "the item of the '$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION' zaaktype has its zaaktype, its case definition " +
+                    "and its creatiedatum, and is valid"
+            ) {
+                val restZaaktypeConfigurationOverzicht = restZaaktypeConfigurationOverzichten.single {
+                    it.getJSONObject("zaaktype").getString("uuid") == ZAAKTYPE_CMMN_TEST_1_UUID.toString()
+                }
+                with(restZaaktypeConfigurationOverzicht.toString()) {
+                    shouldContainJsonKeyValue("zaaktype.identificatie", ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE)
+                    shouldContainJsonKeyValue("zaaktype.omschrijving", ZAAKTYPE_CMMN_TEST_1_DESCRIPTION)
+                    shouldContainJsonKeyValue("zaaktype.isNuGeldig", true)
+                    shouldContainJsonKeyValue("processDefinition.key", "generiek-zaakafhandelmodel")
+                    shouldContainJsonKeyValue("processDefinition.naam", "Generiek zaakafhandelmodel")
+                    shouldContainJsonKeyValue("isValide", true)
+                }
+                restZaaktypeConfigurationOverzicht.has("creatiedatum") shouldBe true
+            }
+            and("an item without a process definition has no creatiedatum and is not valid") {
+                restZaaktypeConfigurationOverzichten.filterNot { it.has("processDefinition") }.forEach {
+                    it.has("creatiedatum") shouldBe false
+                    it.getBoolean("isValide") shouldBe false
+                }
+            }
+        }
+    }
 
     given(
         """

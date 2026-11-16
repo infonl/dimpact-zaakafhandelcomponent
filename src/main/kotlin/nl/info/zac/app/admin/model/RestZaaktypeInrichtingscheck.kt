@@ -7,7 +7,7 @@ package nl.info.zac.app.admin.model
 import jakarta.json.bind.annotation.JsonbProperty
 
 data class RestZaaktypeInrichtingscheck(
-    var zaaktype: RestZaaktypeOverzicht,
+    var zaaktype: RestInrichtingscheckZaaktype,
 
     @get:JsonbProperty("isStatustypeIntakeAanwezig")
     @set:JsonbProperty("isStatustypeIntakeAanwezig")
