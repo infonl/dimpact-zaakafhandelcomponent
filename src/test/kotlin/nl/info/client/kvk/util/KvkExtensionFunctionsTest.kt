@@ -18,6 +18,7 @@ import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.exception.KvkClientException
 import nl.info.client.kvk.model.createBasisprofiel
 import nl.info.client.kvk.model.createBasisprofielAdres
+import nl.info.client.kvk.model.createBasisprofielHoofdvestiging
 import nl.info.client.kvk.model.createEigenaar
 import nl.info.client.kvk.model.createResultaatItem
 import nl.info.client.kvk.model.createVestiging
@@ -87,6 +88,36 @@ class KvkExtensionFunctionsTest : BehaviorSpec({
 
                 then("it is the bezoekadres of the basisprofiel") {
                     adres?.toAddressString() shouldBe "fakeStraatnaam 7, fakePostcode fakePlaats"
+                }
+            }
+        }
+
+        given(
+            "A rechtspersoon with vestigingen, of which the KVK basisprofiel has the addresses only at the hoofdvestiging"
+        ) {
+            val resultaatItem = createResultaatItem(kvkNummer = "fakeKvkNummer2", vestingsnummer = null)
+            every {
+                kvkClientService.findBasisprofiel("fakeKvkNummer2")
+            } returns createBasisprofiel(
+                eigenaar = createEigenaar(adressen = null),
+                hoofdvestiging = createBasisprofielHoofdvestiging(
+                    adressen = listOf(
+                        createBasisprofielAdres(
+                            type = "bezoekadres",
+                            straatnaam = "fakeHoofdvestigingStraatnaam",
+                            huisnummer = 3,
+                            postcode = "fakePostcode",
+                            plaats = "fakePlaats"
+                        )
+                    )
+                )
+            )
+
+            `when`("the address of the rechtspersoon is looked up") {
+                val adres = kvkClientService.findCorrespondentieadresOrBezoekadres(resultaatItem)
+
+                then("it is the bezoekadres of the hoofdvestiging") {
+                    adres?.toAddressString() shouldBe "fakeHoofdvestigingStraatnaam 3, fakePostcode fakePlaats"
                 }
             }
         }

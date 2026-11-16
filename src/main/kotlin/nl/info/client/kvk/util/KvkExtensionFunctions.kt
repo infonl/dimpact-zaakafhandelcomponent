@@ -8,6 +8,7 @@ import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.WebApplicationException
 import jakarta.ws.rs.core.Response
 import nl.info.client.kvk.KvkClientService
+import nl.info.client.kvk.basisprofiel.model.generated.Basisprofiel
 import nl.info.client.kvk.exception.KvkClientException
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.zac.util.formatHuisnummer
@@ -26,7 +27,7 @@ fun KvkClientService.findCorrespondentieadresOrBezoekadres(resultaatItem: Result
     try {
         findProfielCorrespondentieadresOrBezoekadres(resultaatItem)
     } catch (webApplicationException: WebApplicationException) {
-        if (webApplicationException.response?.statusInfo?.family == Response.Status.Family.CLIENT_ERROR) {
+        if (webApplicationException.response?.status == Response.Status.NOT_FOUND.statusCode) {
             logKvkProfielFailure(Level.FINE, webApplicationException)
         } else {
             logKvkProfielFailure(Level.WARNING, webApplicationException)
@@ -47,12 +48,15 @@ private fun KvkClientService.findProfielCorrespondentieadresOrBezoekadres(
             ?.adressen
             ?.findCorrespondentieadresOrBezoekadres { it.type }
         kvkNummer != null -> findBasisprofiel(kvkNummer)
-            ?.embedded?.eigenaar?.adressen
+            ?.findAdressen()
             ?.findCorrespondentieadresOrBezoekadres { it.type }
             ?.toVestigingsprofielAdres()
         else -> null
     }
 }
+
+fun Basisprofiel.findAdressen(): List<BasisprofielAdres>? =
+    embedded?.eigenaar?.adressen?.takeUnless { it.isEmpty() } ?: embedded?.hoofdvestiging?.adressen
 
 private fun logKvkProfielFailure(level: Level, exception: RuntimeException): VestigingsprofielAdres? {
     LOG.log(level, "Could not read the KVK profiel of the bedrijf, so its address is left out", exception)
