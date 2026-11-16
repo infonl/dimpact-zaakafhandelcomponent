@@ -8,7 +8,12 @@ import { accountOrSkip } from "../bdd/_core/accounts";
 import { sessionFileOfRole } from "../bdd/_core/roles";
 import { signIn } from "../bdd/support/keycloak";
 import { dashboard } from "../bdd/support/zac";
+import { requireZacUrl } from "../config/env";
 import { ROLES } from "../config/targets/target";
+
+setup.beforeAll(() => {
+  requireZacUrl();
+});
 
 for (const role of ROLES) {
   setup(`sign in once as ${role}`, async ({ page }, testInfo) => {

@@ -28,13 +28,26 @@ function loadEnvironment(environment: NodeJS.ProcessEnv) {
     );
   }
 
+  const { zacUrl, accounts } = settings.data;
   return {
     target: targetName,
     runsInCi: Boolean(environment.CI),
-    ...settings.data,
+    accounts,
+    zacUrl: typeof zacUrl === "string" ? zacUrl : undefined,
+    zacUrlUnknownBecause:
+      typeof zacUrl === "string" ? undefined : zacUrl.unknownBecause,
   };
 }
 
 dotenv.config({ path: path.resolve(__dirname, "../.env"), quiet: true });
 
 export const ENV = loadEnvironment(process.env);
+
+export function requireZacUrl() {
+  if (ENV.zacUrl === undefined) {
+    throw new Error(
+      `The target "${ENV.target}" cannot tell the URL of ZAC. ${ENV.zacUrlUnknownBecause}`,
+    );
+  }
+  return ENV.zacUrl;
+}

@@ -74,11 +74,14 @@ jobs:
           npm ci --ignore-scripts
           npx playwright install --with-deps chromium
 
-      - name: Check the types and lint the e2e tests
+      # These checks need no running stack, so a missing step definition fails before the wait for the stack
+      - name: Check the types, lint and generate the e2e tests
         run: |
           cd src/e2e
           npm run typecheck
           npm run lint
+          npx bddgen
+          npx playwright test --list
 
       - name: Wait for the kind stack
         timeout-minutes: 30

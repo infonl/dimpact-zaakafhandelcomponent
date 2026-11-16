@@ -5,11 +5,11 @@
 
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import type { Account, Target } from "./target";
+import type { Account, Target, UnknownZacUrl } from "./target";
 
 const REPOSITORY_ROOT = path.resolve(__dirname, "../../../..");
 
-function zacUrlOfKindCluster(clusterName: string) {
+function zacUrlOfKindCluster(clusterName: string): string | UnknownZacUrl {
   const portsFile = path.join(
     REPOSITORY_ROOT,
     "build/kind",
@@ -21,18 +21,20 @@ function zacUrlOfKindCluster(clusterName: string) {
   try {
     ports = readFileSync(portsFile, "utf8");
   } catch {
-    throw new Error(
-      `The kind cluster "${clusterName}" has no ports file at ${portsFile}. ` +
+    return {
+      unknownBecause:
+        `The kind cluster "${clusterName}" has no ports file at ${portsFile}. ` +
         `Start the stack with "./start-kind.sh -b -t", or set ZAC_URL.`,
-    );
+    };
   }
 
   const zacPort = /^HOST_PORT_ZAC=(\d+)$/m.exec(ports)?.[1];
   if (!zacPort) {
-    throw new Error(
-      `ZAC does not run in the kind cluster "${clusterName}": ${portsFile} has no HOST_PORT_ZAC. ` +
+    return {
+      unknownBecause:
+        `ZAC does not run in the kind cluster "${clusterName}": ${portsFile} has no HOST_PORT_ZAC. ` +
         `Start the stack with "./start-kind.sh -b -t", or set ZAC_URL.`,
-    );
+    };
   }
   return `http://localhost:${zacPort}`;
 }

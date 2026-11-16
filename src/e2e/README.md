@@ -58,8 +58,11 @@ The target `kind` needs no configuration and no `.env` file. It uses the account
 [scripts/kind/seed/keycloak](../../scripts/kind/seed/keycloak). You can set the variables in a `.env` file in this
 directory; see [.env.example](./.env.example).
 
-[config/env.ts](./config/env.ts) validates the settings when the run starts and stops the run when one is missing.
-It is the only place that reads `process.env`; an ESLint rule checks this. Steps and fixtures import `ENV`.
+[config/env.ts](./config/env.ts) validates the settings when the run starts and stops the run when one is not valid.
+A target that cannot tell the URL of ZAC, for example because the kind stack does not run, does not stop
+`bddgen`, `playwright test --list`, the type check or the lint: the setup project fails first, with the reason.
+[config/env.ts](./config/env.ts) is the only place that reads `process.env`; an ESLint rule checks this. Steps and
+fixtures import `ENV`.
 
 To run the tests against another environment, add a profile to [config/targets](./config/targets) and register it in
 [config/env.ts](./config/env.ts). Let it read the URL and the passwords from environment variables.
