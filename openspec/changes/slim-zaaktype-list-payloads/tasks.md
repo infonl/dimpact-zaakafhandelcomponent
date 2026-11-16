@@ -71,3 +71,6 @@
 - [x] 3.2 Measure the three lists against a local stack with 200 zaaktypes, before and after the change, and
       record the response times under "Measurements" in design.md.
 - [x] 3.3 Run `./gradlew spotlessApply detektApply detekt test`, and fix what they report.
+- [x] 3.4 Clear the cache of zaaktype configurations when `MailTemplateService` updates, stores or deletes a mail
+      template, because a cached configuration holds its linked mail templates and the longer expiry would keep an
+      edited template stale. Verify with unit tests in `MailTemplateServiceTest`.

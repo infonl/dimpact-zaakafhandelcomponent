@@ -9,6 +9,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -20,6 +21,7 @@ import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.mailtemplates.exception.MailTemplateNotConfiguredException
 import nl.info.zac.mailtemplates.exception.MailTemplateNotFoundException
 import nl.info.zac.mailtemplates.model.Mail
@@ -34,7 +36,8 @@ class MailTemplateServiceTest : BehaviorSpec({
     val root = mockk<Root<MailTemplate>>()
     val mailTemplateNamePath = mockk<Path<String>>()
     val typedQuery = mockk<TypedQuery<MailTemplate>>()
-    val mailTemplateService = MailTemplateService(entityManager)
+    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
+    val mailTemplateService = MailTemplateService(entityManager, zaaktypeConfigurationService)
 
     afterEach {
         checkUnnecessaryStub()
@@ -47,13 +50,16 @@ class MailTemplateServiceTest : BehaviorSpec({
 
             every { entityManager.find(MailTemplate::class.java, mailTemplateId) } returns mailTemplate
             every { entityManager.remove(mailTemplate) } just Runs
+            clearMocks(zaaktypeConfigurationService)
+            every { zaaktypeConfigurationService.clearManagedCache() } returns "fakeCacheCleared"
 
             `when`("delete is called with the ID") {
                 mailTemplateService.delete(mailTemplateId)
 
-                then("it should remove the mail template") {
+                then("it should remove the mail template and clear the cached zaaktype configurations") {
                     verify(exactly = 1) {
                         entityManager.remove(mailTemplate)
+                        zaaktypeConfigurationService.clearManagedCache()
                     }
                 }
             }
@@ -293,6 +299,8 @@ class MailTemplateServiceTest : BehaviorSpec({
         given("an existing mail template") {
             every { entityManager.find(MailTemplate::class.java, mailTemplateId) } returns existingTemplate
             every { entityManager.merge(existingTemplate) } returns existingTemplate
+            clearMocks(zaaktypeConfigurationService)
+            every { zaaktypeConfigurationService.clearManagedCache() } returns "fakeCacheCleared"
 
             `when`("updateMailtemplate is called") {
                 val result = mailTemplateService.updateMailtemplate(mailTemplateId, updatedTemplate)
@@ -304,6 +312,10 @@ class MailTemplateServiceTest : BehaviorSpec({
                     existingTemplate.body shouldBe "updatedBody"
                     verify(exactly = 1) { entityManager.merge(existingTemplate) }
                     result shouldBe existingTemplate
+                }
+
+                then("the cached zaaktype configurations are cleared, so that they no longer hold the old mail template") {
+                    verify(exactly = 1) { zaaktypeConfigurationService.clearManagedCache() }
                 }
             }
         }
@@ -327,6 +339,8 @@ class MailTemplateServiceTest : BehaviorSpec({
             val newMailTemplate = createMailTemplate()
             every { entityManager.find(MailTemplate::class.java, newMailTemplate.id) } returns null
             every { entityManager.persist(newMailTemplate) } just Runs
+            clearMocks(zaaktypeConfigurationService)
+            every { zaaktypeConfigurationService.clearManagedCache() } returns "fakeCacheCleared"
 
             `when`("storeMailtemplate is called") {
                 val result = mailTemplateService.storeMailtemplate(newMailTemplate)
@@ -336,6 +350,10 @@ class MailTemplateServiceTest : BehaviorSpec({
                     verify(exactly = 1) { entityManager.persist(newMailTemplate) }
                     result shouldBe newMailTemplate
                 }
+
+                then("the cached zaaktype configurations are cleared") {
+                    verify(exactly = 1) { zaaktypeConfigurationService.clearManagedCache() }
+                }
             }
         }
 
@@ -344,6 +362,8 @@ class MailTemplateServiceTest : BehaviorSpec({
             val existingTemplate = createMailTemplate(id = 5678L)
             every { entityManager.find(MailTemplate::class.java, existingMailTemplate.id) } returns existingTemplate
             every { entityManager.merge(existingTemplate) } returns existingTemplate
+            clearMocks(zaaktypeConfigurationService)
+            every { zaaktypeConfigurationService.clearManagedCache() } returns "fakeCacheCleared"
 
             `when`("storeMailtemplate is called with an existing ID") {
                 val result = mailTemplateService.storeMailtemplate(existingMailTemplate)
@@ -357,6 +377,10 @@ class MailTemplateServiceTest : BehaviorSpec({
                     existingTemplate.isDefaultMailtemplate shouldBe existingMailTemplate.isDefaultMailtemplate
                     verify(exactly = 1) { entityManager.merge(existingTemplate) }
                     result shouldBe existingTemplate
+                }
+
+                then("the cached zaaktype configurations are cleared once") {
+                    verify(exactly = 1) { zaaktypeConfigurationService.clearManagedCache() }
                 }
             }
         }
