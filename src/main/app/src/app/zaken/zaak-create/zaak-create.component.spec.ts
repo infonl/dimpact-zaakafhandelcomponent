@@ -722,17 +722,17 @@ describe(ZaakCreateComponent.name, () => {
 
   describe("initiator button", () => {
     const allowInitiator = async () => {
-      fixture.componentInstance["form"].controls.zaaktype.setValue(
-        fromPartial<GeneratedType<"RestZaaktype">>({
-          zaakafhandelparameters: {
-            betrokkeneKoppelingen: {
-              isBrpKoppelenEnabled: true,
-              isKvkKoppelenEnabled: true,
-            },
-          },
-        }),
-      );
-      await fixture.whenStable();
+      zaaktypeSettings["fake-initiator-zaaktype-uuid"] = fromPartial({
+        uuid: "fake-initiator-zaaktype-uuid",
+        omschrijving: "fakeInitiatorZaaktype",
+        isBrpKoppelenEnabled: true,
+        isKvkKoppelenEnabled: true,
+      });
+      fixture.componentInstance["form"].controls.zaaktype.setValue({
+        uuid: "fake-initiator-zaaktype-uuid",
+        omschrijving: "fakeInitiatorZaaktype",
+      });
+      await waitForZaaktypeSettings();
     };
 
     it("is named after linking an initiator while no initiator is set, so that a screen reader user can find it", async () => {
