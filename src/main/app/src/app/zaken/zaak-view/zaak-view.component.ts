@@ -272,6 +272,7 @@ export class ZaakViewComponent
     return {
       ...this.notitieService.listNotities(uuid ?? ""),
       enabled: Boolean(uuid) && this.mayViewNotities(),
+      refetchOnMount: "always",
     };
   });
 

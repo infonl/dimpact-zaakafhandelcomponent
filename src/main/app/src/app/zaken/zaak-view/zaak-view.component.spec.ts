@@ -33,6 +33,7 @@ import { KlantenService } from "../../klanten/klanten.service";
 import { NotitieService } from "../../notities/notities.service";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { PolicyService } from "../../policy/policy.service";
+import { StaleTimes } from "../../shared/http/zac-query-client";
 import { ZaakIndicatiesComponent } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
@@ -324,6 +325,7 @@ describe(ZaakViewComponent.name, () => {
         queryOptions({
           queryKey: ["fakeNotities"],
           queryFn: async () => notitiesOnServer,
+          staleTime: StaleTimes.Long,
         }) as ReturnType<NotitieService["listNotities"]>,
       );
       jest
@@ -391,6 +393,22 @@ describe(ZaakViewComponent.name, () => {
       notitiesChangedCallback!();
       await sleep();
       fixture.detectChanges();
+
+      expect(
+        await screen().findByRole("button", { name: "notities (3)" }),
+      ).toBeInTheDocument();
+    });
+
+    it("reloads the notes when the employee opens the zaak again, so changes made while the zaak was closed are not missed", async () => {
+      await openZaak({ canLezen: true, canWijzigen: false });
+      expect(
+        await screen().findByRole("button", { name: "notities (2)" }),
+      ).toBeInTheDocument();
+      fixture.destroy();
+
+      notitiesOnServer = [notitie(1), notitie(2), notitie(3)];
+      fixture = TestBed.createComponent(ZaakViewComponent);
+      await openZaak();
 
       expect(
         await screen().findByRole("button", { name: "notities (3)" }),
