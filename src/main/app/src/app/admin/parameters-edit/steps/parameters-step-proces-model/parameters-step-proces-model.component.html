@@ -4,7 +4,22 @@
   -->
 
 <header>
-  <h2>{{ zaaktypeOmschrijving() }}</h2>
+  <h2>{{ zaaktype().omschrijving }}</h2>
+  <p>
+    <small>{{
+      (zaaktype().eindeGeldigheid
+        ? "zaps.step.procesmodel.versie.einde"
+        : "zaps.step.procesmodel.versie"
+      )
+        | translate
+          : {
+              identificatie: zaaktype().identificatie,
+              versiedatum: (zaaktype().versiedatum | datum),
+              beginGeldigheid: (zaaktype().beginGeldigheid | datum),
+              eindeGeldigheid: (zaaktype().eindeGeldigheid | datum),
+            }
+    }}</small>
+  </p>
   <p>
     {{ "zaps.step.procesmodel.intro" | translate }}
   </p>
@@ -18,14 +33,15 @@
     [options]="processDefinitions()"
     [optionDisplayValue]="displayName"
     [compare]="isSameProcessDefinition"
-  ></zac-select>
-
-  @if (isLocked()) {
-    <p>{{ "zaps.step.procesmodel.locked" | translate }}</p>
-  }
+    [subscriptSizing]="hint() ? 'dynamic' : 'fixed'"
+  >
+    @if (hint(); as hint) {
+      <mat-hint>{{ hint | translate }}</mat-hint>
+    }
+  </zac-select>
 
   <div class="flex-row items-center gap-10 ml-1 my-3">
-    <mat-icon color="warn" class="pr-3">warning</mat-icon>
+    <mat-icon color="warn" class="pr-3 shrink-0">warning</mat-icon>
     <small>{{ "msg.zaakafhandelparameters.waarschuwing" | translate }}</small>
   </div>
 </section>

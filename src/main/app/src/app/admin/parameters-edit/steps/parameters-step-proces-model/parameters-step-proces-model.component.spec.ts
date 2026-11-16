@@ -8,6 +8,7 @@ import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
+import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { ZaakafhandelParametersService } from "../../../zaakafhandel-parameters.service";
 import { ParametersStepProcesModelComponent } from "./parameters-step-proces-model.component";
 import {
@@ -58,12 +59,19 @@ describe(ParametersStepProcesModelComponent.name, () => {
       otherBpmnProcessDefinition,
     ],
     isProcessDefinitionChangeable?: boolean,
+    zaaktype = fromPartial<GeneratedType<"RestZaaktypeOverzicht">>({
+      omschrijving: "Test zaaktype omschrijving",
+      identificatie: "test-zaaktype",
+      versiedatum: "2026-11-16",
+      beginGeldigheid: "2026-11-16",
+    }),
   ) {
     await render(ParametersStepProcesModelComponent, {
       imports: [NoopAnimationsModule],
       inputs: {
         form,
-        zaaktypeOmschrijving: "Test zaaktype omschrijving",
+        zaaktype,
+        isBound: form.controls.processDefinition.value !== null,
         isProcessDefinitionChangeable,
       },
       providers: [
@@ -95,6 +103,29 @@ describe(ParametersStepProcesModelComponent.name, () => {
       screen.getByRole("heading", { name: "Test zaaktype omschrijving" }),
     ).toBeVisible();
   });
+
+  it.each([
+    ["without an end date", null, "zaps.step.procesmodel.versie"],
+    ["with an end date", "2026-12-31", "zaps.step.procesmodel.versie.einde"],
+  ])(
+    "shows the identificatie and the validity of the zaaktype version %s",
+    async (_situation, eindeGeldigheid, versionText) => {
+      await setup(
+        createProcessModelForm(null),
+        undefined,
+        true,
+        fromPartial<GeneratedType<"RestZaaktypeOverzicht">>({
+          omschrijving: "Test zaaktype omschrijving",
+          identificatie: "test-zaaktype",
+          versiedatum: "2026-11-16",
+          beginGeldigheid: "2026-11-16",
+          eindeGeldigheid,
+        }),
+      );
+
+      expect(screen.getByText(versionText)).toBeVisible();
+    },
+  );
 
   describe("for a configuration that was never saved", () => {
     it("offers the process definitions of every process engine, without choosing one", async () => {
@@ -162,6 +193,18 @@ describe(ParametersStepProcesModelComponent.name, () => {
         );
       });
 
+      it("explains that the process definition can change until the first zaak", async () => {
+        await setup(
+          createProcessModelForm(boundProcessDefinition),
+          undefined,
+          true,
+        );
+
+        expect(
+          screen.getByText("zaps.step.procesmodel.changeable"),
+        ).toBeVisible();
+      });
+
       it("does not explain a lock, as its process definition can change", async () => {
         await setup(
           createProcessModelForm(boundProcessDefinition),
@@ -192,8 +235,12 @@ describe(ParametersStepProcesModelComponent.name, () => {
     },
   );
 
-  it("does not explain a lock for a configuration that is not bound yet", async () => {
+  it("shows no hint for a configuration that is not bound yet", async () => {
     await setup(createProcessModelForm(null), undefined, true);
+
+    expect(
+      screen.queryByText("zaps.step.procesmodel.changeable"),
+    ).not.toBeInTheDocument();
 
     expect(
       screen.queryByText("zaps.step.procesmodel.locked"),

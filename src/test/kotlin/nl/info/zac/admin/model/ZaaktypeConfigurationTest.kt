@@ -175,9 +175,9 @@ class ZaaktypeConfigurationTest : BehaviorSpec({
                 val config = createConfigurationWithPlanItemSettings()
                 config.bindTo(ProcessEngine.CMMN, "otherFakeCaseDefinition")
 
-                then("the plan item settings of the previous case definition are cleared") {
-                    config.cmmnExtension?.getHumanTaskParametersCollection()?.size shouldBe 0
-                    config.cmmnExtension?.getUserEventListenerParametersCollection()?.size shouldBe 0
+                then("the plan item settings are kept, so that the save keeps the rows of the plan items both share") {
+                    config.cmmnExtension?.getHumanTaskParametersCollection()?.size shouldBe 1
+                    config.cmmnExtension?.getUserEventListenerParametersCollection()?.size shouldBe 1
                 }
             }
         }

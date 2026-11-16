@@ -41,7 +41,8 @@
             }}</ng-template>
             <zac-parameters-step-proces-model
               [form]="form.controls.procesModel"
-              [zaaktypeOmschrijving]="configuration().zaaktype.omschrijving"
+              [zaaktype]="configuration().zaaktype"
+              [isBound]="!!configuration().processDefinition"
               [isProcessDefinitionChangeable]="
                 configuration().isProcessDefinitionChangeable
               "

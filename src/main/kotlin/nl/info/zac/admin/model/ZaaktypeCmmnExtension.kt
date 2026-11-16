@@ -95,11 +95,6 @@ class ZaaktypeCmmnExtension {
         userEventListenerParameters.mergeWith(desired) { it.planItemDefinitionID }
     }
 
-    fun clearPlanItemSettings() {
-        zaaktypeCmmnHumantaskParametersCollection?.clear()
-        zaaktypeCmmnUsereventlistenerParametersCollection?.clear()
-    }
-
     @Suppress("TooGenericExceptionThrown")
     fun readUserEventListenerParameters(planitemDefinitionID: String): ZaaktypeCmmnUsereventlistenerParameters =
         getUserEventListenerParametersCollection().firstOrNull {
