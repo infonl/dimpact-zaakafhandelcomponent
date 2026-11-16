@@ -6,6 +6,7 @@
 import { expect, type Page } from "@playwright/test";
 import { Given, Then, When } from "../../fixtures";
 import { setUpZaaktype } from "../../support/zaakafhandelparameters";
+import { dataOf, type ZacApi } from "../../support/zac-api";
 
 // The BAG test double of the kind stack, in scripts/kind/seed/bag-wiremock, only answers this search text.
 const BAG_STUB = {
@@ -26,6 +27,22 @@ async function openInitiatorPanel(page: Page) {
     .locator("mat-form-field")
     .filter({ hasText: "Initiator" });
   await initiatorField.getByRole("button").click();
+}
+
+async function isInSearchIndex(api: ZacApi, identificatie: string) {
+  const { resultaten } = await dataOf(
+    api.PUT("/rest/zoeken/list", {
+      body: {
+        type: "ZAAK",
+        page: 0,
+        rows: 10,
+        zoeken: { ZAAK_IDENTIFICATIE: identificatie },
+      },
+    }),
+  );
+  return (resultaten ?? []).some(
+    (zaak) => zaak.identificatie === identificatie,
+  );
 }
 
 async function gegevensOfZaak(page: Page) {
@@ -186,8 +203,17 @@ Then(
 
 Then(
   "the zaak appears in the zaken werkvoorraad",
-  async ({ page, zaakOfScenario }) => {
+  async ({ page, apiAs, zaakOfScenario }) => {
     const identificatie = required(zaakOfScenario.identificatie, "zaak");
+    const api = await apiAs("behandelaar");
+    // The search index gets the zaak a moment after ZAC creates it.
+    await expect
+      .poll(() => isInSearchIndex(api, identificatie), {
+        message: `The search index of ZAC has no zaak ${identificatie}.`,
+        timeout: 60_000,
+      })
+      .toBe(true);
+
     await page.goto("/zaken/werkvoorraad");
     const zaaknummerFilter = page
       .getByRole("table")
@@ -196,15 +222,6 @@ Then(
       .first();
     await zaaknummerFilter.fill(identificatie);
     await zaaknummerFilter.press("Enter");
-
-    // The search index gets the zaak a moment after ZAC creates it.
-    await expect(async () => {
-      await page.reload();
-      await expect(page.getByRole("cell", { name: identificatie })).toBeVisible(
-        {
-          timeout: 3_000,
-        },
-      );
-    }).toPass({ timeout: 60_000 });
+    await expect(page.getByRole("cell", { name: identificatie })).toBeVisible();
   },
 );

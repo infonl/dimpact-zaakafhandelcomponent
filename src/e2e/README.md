@@ -97,8 +97,9 @@ scenarios of that role are skipped, and the report shows why.
   someone set up by hand. For example, the step that names a zaaktype sets up its zaakafhandelparameters when they
   are not valid yet.
 - Scenarios run in parallel and in any order. Give data that a scenario creates a description that starts with `E2E`.
-- Do not wait a fixed time and do not wait for `networkidle`. Use the assertions of Playwright, which wait, and
-  `expect(...).toPass()` for the search index.
+- Do not wait a fixed time and do not wait for `networkidle`. Use the assertions of Playwright, which wait. To wait
+  for the search index, poll the search REST API of ZAC with `expect.poll()` and `apiAs`, and check the UI once the
+  data is indexed. Do not reload a page until it shows the data.
 - Find elements as a user does: by role and name first, then by label or text. See
   [testing.md](../../docs/development/testing.md#using-the-right-selectors-in-the-e2e-tests). ESLint forbids CSS
   and XPath locators and `first()`, `last()` and `nth()`. When an element has no accessible name, give it one in the
