@@ -443,6 +443,7 @@ class MailTemplateHelperTest : BehaviorSpec({
                         straatnaam = "fakeStraatnaam",
                         huisnummer = 7,
                         huisletter = "A",
+                        huisnummerToevoeging = "bis",
                         postcode = "fakePostcode",
                         plaats = "fakePlaats"
                     )
@@ -457,7 +458,7 @@ class MailTemplateHelperTest : BehaviorSpec({
                 )
 
                 then("the initiator address is the complete correspondentieadres from the KVK vestigingsprofiel") {
-                    resolvedText shouldBe "fakeText, ${resultaatItem.naam}, fakeStraatnaam 7A, fakePostcode fakePlaats"
+                    resolvedText shouldBe "fakeText, ${resultaatItem.naam}, fakeStraatnaam 7Abis, fakePostcode fakePlaats"
                 }
             }
         }

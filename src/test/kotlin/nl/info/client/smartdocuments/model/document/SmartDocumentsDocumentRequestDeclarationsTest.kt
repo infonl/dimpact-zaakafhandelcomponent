@@ -16,6 +16,7 @@ class SmartDocumentsDocumentRequestDeclarationsTest : BehaviorSpec({
             straatnaam = "fakeStraatnaam",
             huisnummer = 7,
             huisletter = "A",
+            huisnummerToevoeging = "bis",
             postcode = "fakePostcode",
             plaats = "fakePlaats"
         )
@@ -27,7 +28,7 @@ class SmartDocumentsDocumentRequestDeclarationsTest : BehaviorSpec({
                 aanvragerData shouldBe AanvragerData(
                     naam = "fakeNaam",
                     straat = "fakeStraatnaam",
-                    huisnummer = "7A",
+                    huisnummer = "7Abis",
                     postcode = "fakePostcode",
                     woonplaats = "fakePlaats"
                 )
