@@ -9,9 +9,10 @@ how the Zaak aanmaken form reads and applies the settings of the zaaktype that t
 
 ### Requirement: The zaaktype list for zaak creation carries only what the choice needs
 
-`GET /rest/zaaktypen?startbaar=true` SHALL return, for each zaaktype, only its `uuid` and its `omschrijving`.
-It SHALL offer the same zaaktypes as before: the zaaktypes of the default catalogus that are not a concept, that are
-valid today, whose configuration is valid for zaak creation, and for which the user may start a zaak.
+`GET /rest/zaaktypen` SHALL return, for each zaaktype, only its `uuid` and its `omschrijving`. It SHALL offer the
+same zaaktypes as before: the zaaktypes of the default catalogus that are not a concept, that are valid today, whose
+configuration is valid for zaak creation, that pass the inrichtingscheck (the process engine is ready for the
+zaaktype), and for which the user may start a zaak. It SHALL NOT list any other zaaktype of the catalogus.
 
 #### Scenario: A list item has only the UUID and the omschrijving
 - **GIVEN** a zaaktype *Melding openbare ruimte* that the user may start and whose configuration is valid
@@ -30,32 +31,20 @@ valid today, whose configuration is valid for zaak creation, and for which the u
 - **WHEN** the user lists the zaaktypes for zaak creation
 - **THEN** the zaaktype is not in the list
 
-### Requirement: The zaaktype collection lists the default catalogus
-
-`GET /rest/zaaktypen` without the `startbaar` filter SHALL return every zaaktype of the default catalogus, each with
-only its `uuid` and its `omschrijving`, in the order of the ZTC. With `startbaar=true` it SHALL return only the
-zaaktypes that are offered for zaak creation. With `startbaar=false` it SHALL return the zaaktypes of the default
-catalogus that are not offered for zaak creation.
-
-#### Scenario: Without a filter every zaaktype of the catalogus is listed
-- **GIVEN** a default catalogus with a zaaktype A that the user may start, a concept zaaktype B and a zaaktype C for
-  which the user may not start a zaak
-- **WHEN** the user reads `GET /rest/zaaktypen`
-- **THEN** the list has A, B and C, each with only its `uuid` and its `omschrijving`
-
-#### Scenario: startbaar=false lists the zaaktypes that are not offered
-- **GIVEN** the same default catalogus
-- **WHEN** the user reads `GET /rest/zaaktypen?startbaar=false`
-- **THEN** the list has B and C, and not A
+#### Scenario: A zaaktype that fails the inrichtingscheck is not listed
+- **GIVEN** a zaaktype that the user may start, whose configuration is valid, but that fails the inrichtingscheck
+- **WHEN** the user lists the zaaktypes for zaak creation
+- **THEN** the zaaktype is not in the list
 
 ### Requirement: The settings of the chosen zaaktype are read separately
 
 `GET /rest/zaaktypen/{zaaktypeUuid}` SHALL return the settings of one zaaktype that the Zaak
 aanmaken form applies: its `uuid`, its `omschrijving`, its `vertrouwelijkheidaanduiding`, the `defaultGroepId` and
 the `defaultBehandelaarId` of its configuration, and whether its configuration allows a KVK and a BRP initiator. It
-SHALL answer only for a zaaktype that `GET /rest/zaaktypen?startbaar=true` offers to the user. It SHALL refuse the request
-with HTTP 403 when the user may not start a zaak of the zaaktype, and SHALL answer HTTP 404 when the zaaktype does
-not exist or is not offered for zaak creation for another reason.
+SHALL answer only for a zaaktype that `GET /rest/zaaktypen` offers to the user, so also only for a zaaktype that
+passes the inrichtingscheck. It SHALL refuse the request with HTTP 403 when the user may not start a zaak of the
+zaaktype, and SHALL answer HTTP 404 when the zaaktype does not exist or is not offered for zaak creation for another
+reason.
 
 #### Scenario: The settings of an offered zaaktype are returned
 - **GIVEN** a zaaktype `U` that the user may start, with vertrouwelijkheidaanduiding *openbaar*, default groep
@@ -73,6 +62,12 @@ not exist or is not offered for zaak creation for another reason.
 - **GIVEN** a zaaktype `U` that the user may start, but whose configuration is not valid for zaak creation
 - **WHEN** the user reads `GET /rest/zaaktypen/U`
 - **THEN** the response is HTTP 404
+
+#### Scenario: A zaaktype that fails the inrichtingscheck is not found
+- **GIVEN** a zaaktype `U` that the user may start, whose configuration is valid, but that fails the
+  inrichtingscheck
+- **WHEN** the user reads `GET /rest/zaaktypen/U`
+- **THEN** the response is HTTP 404 and has no settings
 
 ### Requirement: The Zaak aanmaken form applies the settings of the chosen zaaktype after the choice
 
