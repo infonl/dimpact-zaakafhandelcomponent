@@ -65,7 +65,7 @@ of each role. It reads secrets from environment variables.
 | `E2E_TARGET`        | The profile to use.                                                               | `kind`  |
 | `KIND_CLUSTER_NAME` | Target `kind`: the kind cluster. The profile reads the port of ZAC from its ports file. | `zac`   |
 | `ZAC_URL`           | Target `kind`: the URL of ZAC when ZAC does not run in the cluster.               | none    |
-| `CI`                | Set by the pipeline. It selects the number of workers, the retries, the traces and the reporters. | none    |
+| `CI`                | Set by the pipeline. It selects the number of workers, the retries, the traces and the reporters. In CI a test that passes only on its retry fails the run. | none    |
 
 The target `kind` needs no configuration and no `.env` file. It uses the accounts of the Keycloak realm seed in
 [scripts/kind/seed/keycloak](../../scripts/kind/seed/keycloak). You can set the variables in a `.env` file in this

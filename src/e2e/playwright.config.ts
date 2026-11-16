@@ -17,6 +17,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: ENV.runsInCi,
   retries: ENV.runsInCi ? 1 : 0,
+  failOnFlakyTests: ENV.runsInCi,
   workers: ENV.runsInCi ? 2 : 4,
   timeout: 120_000,
   expect: { timeout: 10_000 },
@@ -29,6 +30,7 @@ export default defineConfig({
     timezoneId: "Europe/Amsterdam",
     trace: ENV.runsInCi ? "on-first-retry" : "on",
     screenshot: "only-on-failure",
+    video: "retain-on-failure",
   },
   projects: [
     {
