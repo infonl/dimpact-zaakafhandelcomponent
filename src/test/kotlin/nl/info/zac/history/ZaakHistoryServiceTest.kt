@@ -13,6 +13,7 @@ import nl.info.client.zgw.shared.model.Bron
 import nl.info.client.zgw.shared.model.audit.createZrcAuditTrailRegel
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Wijzigingen
+import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
@@ -123,6 +124,73 @@ class ZaakHistoryServiceTest : BehaviorSpec({
                     explanation shouldBe "rol updated"
                     action shouldBe HistoryAction.GEWIJZIGD
                 }
+            }
+        }
+    }
+
+    given("an audit trail line of the zaakeigenschap that marks the zaak as zaakspecifiek geautoriseerd") {
+        val zaakUUID = UUID.randomUUID()
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
+            bron = Bron.ZAKEN_API,
+            actie = "create",
+            actieWeergave = "Object aangemaakt",
+            resultaat = 201,
+            hoofdObject = URI("https://example.com/zaak"),
+            resource = "zaakeigenschap",
+            resourceUrl = URI("https://example.com/zaakeigenschap"),
+            toelichting = "fakeReden",
+            wijzigingen = Wijzigingen().apply {
+                nieuw = mapOf(
+                    "naam" to ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD,
+                    "waarde" to "true"
+                )
+            }
+        )
+        every { zrcClientService.listAuditTrail(zaakUUID) } returns listOf(zrcAuditTrailRegel)
+
+        `when`("the zaak history is listed") {
+            val historyLines = zaakHistoryService.getZaakHistory(zaakUUID)
+
+            then("the marking is shown as linked under the translatable label 'zaakspecifiekGeautoriseerd' with the reden") {
+                historyLines.size shouldBe 1
+                with(historyLines.first()) {
+                    attributeLabel shouldBe "zaakspecifiekGeautoriseerd"
+                    action shouldBe HistoryAction.GEKOPPELD
+                    oldValue shouldBe null
+                    newValue shouldBe null
+                    explanation shouldBe "fakeReden"
+                }
+            }
+        }
+    }
+
+    given("an audit trail line of another zaakeigenschap") {
+        val zaakUUID = UUID.randomUUID()
+        val zrcAuditTrailRegel = createZrcAuditTrailRegel(
+            bron = Bron.ZAKEN_API,
+            actie = "create",
+            actieWeergave = "Object aangemaakt",
+            resultaat = 201,
+            hoofdObject = URI("https://example.com/zaak"),
+            resource = "zaakeigenschap",
+            resourceUrl = URI("https://example.com/zaakeigenschap"),
+            toelichting = "fakeToelichting",
+            wijzigingen = Wijzigingen().apply {
+                nieuw = mapOf(
+                    "naam" to "fakeOtherEigenschapNaam",
+                    "waarde" to "fakeWaarde"
+                )
+            }
+        )
+        every { zrcClientService.listAuditTrail(zaakUUID) } returns listOf(zrcAuditTrailRegel)
+
+        `when`("the zaak history is listed") {
+            val historyLines = zaakHistoryService.getZaakHistory(zaakUUID)
+
+            then("the line keeps the label 'zaakeigenschap' and has no new value, as before") {
+                historyLines.size shouldBe 1
+                historyLines.first().attributeLabel shouldBe "zaakeigenschap"
+                historyLines.first().newValue shouldBe null
             }
         }
     }

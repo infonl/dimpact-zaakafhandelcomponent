@@ -391,6 +391,7 @@
   "zaakdata": "Zaakdata",
   "zaak.identificatie": "Zaaknummer",
   "zaak.is-zaakspecifiek-geautoriseerd": "Zaak is zaakspecifiek geautoriseerd",
+  "zaakspecifiek-geautoriseerd": "Zaakspecifiek geautoriseerd",
   "is-zaakspecifiek-geautoriseerd": "Zaak zaakspecifiek autoriseren",
   "zaak.zaakspecifiek-geautoriseerd.hint": "Alleen de behandelaar en medewerkers die zaakspecifiek geautoriseerd zijn voor dit zaaktype kunnen deze zaak nog inzien. Een behandelaar die de zaak overdraagt houdt toegang tot deze zaak.",
   "msg.zaken-verdelen.behandelaar-verplicht": "Kies een behandelaar. Een zaakspecifiek geautoriseerde zaak kun je niet zonder behandelaar verdelen.",
