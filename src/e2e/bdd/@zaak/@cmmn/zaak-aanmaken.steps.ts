@@ -21,12 +21,11 @@ function required<Value>(value: Value | undefined, description: string) {
 }
 
 async function openInitiatorPanel(page: Page) {
-  // The button that opens the panel has no accessible name, so the form field that holds it finds it.
-  await page
+  // eslint-disable-next-line playwright/no-raw-locators -- the button has no accessible name until the fix that names it "Initiator koppelen" is on main
+  const initiatorField = page
     .locator("mat-form-field")
-    .filter({ hasText: "Initiator" })
-    .getByRole("button")
-    .click();
+    .filter({ hasText: "Initiator" });
+  await initiatorField.getByRole("button").click();
 }
 
 async function gegevensOfZaak(page: Page) {
@@ -99,18 +98,15 @@ When(
   "I search an address from the BAG stub and add it as BAG object",
   async ({ page, zaakOfScenario }) => {
     await page.getByRole("button", { name: "BAG object koppelen" }).click();
-    const bagSearch = page.locator("zac-bag-zoek");
-    await bagSearch
-      .getByRole("textbox", { name: "BAG objecten" })
-      .fill(BAG_STUB.searchText);
-    await bagSearch
-      .getByRole("button", { name: "Zoeken", exact: true })
-      .click();
-    await bagSearch
+    const bagSearchText = page.getByRole("textbox", { name: "BAG objecten" });
+    await bagSearchText.fill(BAG_STUB.searchText);
+    await bagSearchText.press("Enter");
+    await page
       .getByRole("row", { name: BAG_STUB.adres })
       .getByRole("button", { name: "Koppelen" })
       .click();
-    await bagSearch.getByRole("button", { name: "Annuleren" }).click();
+    await page.keyboard.press("Escape");
+    await expect(bagSearchText).toBeHidden();
     zaakOfScenario.bagAdres = BAG_STUB.adres;
   },
 );
@@ -193,10 +189,10 @@ Then(
   async ({ page, zaakOfScenario }) => {
     const identificatie = required(zaakOfScenario.identificatie, "zaak");
     await page.goto("/zaken/werkvoorraad");
-    // The filter fields of the werkvoorraad have no label. The first one filters on the zaaknummer.
     const zaaknummerFilter = page
       .getByRole("table")
       .getByRole("textbox")
+      // eslint-disable-next-line playwright/no-nth-methods -- the filters have no accessible name until the fix that names this one "Zaaknummer" is on main
       .first();
     await zaaknummerFilter.fill(identificatie);
     await zaaknummerFilter.press("Enter");

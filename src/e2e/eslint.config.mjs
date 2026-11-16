@@ -53,6 +53,8 @@ export default tseslint.config(
       // A step definition has its expectations outside a test() call.
       "playwright/no-standalone-expect": "off",
       "playwright/no-networkidle": "error",
+      "playwright/no-nth-methods": "error",
+      "playwright/no-raw-locators": "error",
       "playwright/no-wait-for-timeout": "error",
     },
   },

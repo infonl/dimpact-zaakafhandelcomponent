@@ -100,7 +100,10 @@ scenarios of that role are skipped, and the report shows why.
 - Do not wait a fixed time and do not wait for `networkidle`. Use the assertions of Playwright, which wait, and
   `expect(...).toPass()` for the search index.
 - Find elements as a user does: by role and name first, then by label or text. See
-  [testing.md](../../docs/development/testing.md#using-the-right-selectors-in-the-e2e-tests).
+  [testing.md](../../docs/development/testing.md#using-the-right-selectors-in-the-e2e-tests). ESLint forbids CSS
+  and XPath locators and `first()`, `last()` and `nth()`. When an element has no accessible name, give it one in the
+  app. The tests run against the ZAC image of `main`, so until that fix is on `main`, disable the rule on that line
+  with a reason that names the fix.
 - Write the Gherkin keywords in English and keep the Dutch domain nouns, such as zaak, taak and zaaktype.
 
 Steps import `Given`, `When` and `Then` from [bdd/fixtures.ts](./bdd/fixtures.ts) and are named `*.steps.ts`.
