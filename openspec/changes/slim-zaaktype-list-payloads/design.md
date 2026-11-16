@@ -50,7 +50,7 @@ Each endpoint gets its own response type with exactly the fields its page reads:
 
 | Endpoint | New type (suggested name) | Fields |
 |---|---|---|
-| `GET /zaaktypen?startbaar=true` | `RestZaaktypeKeuze` | `uuid`, `omschrijving` |
+| `GET /zaaktypen` | `RestZaaktypeKeuze` | `uuid`, `omschrijving` |
 | `GET /zaaktypen/{uuid}` | `RestZaaktypeAanmaakInstellingen` | `uuid`, `omschrijving`, `vertrouwelijkheidaanduiding`, `defaultGroepId`, `defaultBehandelaarId`, `isKvkKoppelenEnabled`, `isBrpKoppelenEnabled` |
 | `GET /health-check/zaaktypes` | `RestZaaktypeInrichtingscheck.zaaktype` becomes `RestInrichtingscheckZaaktype` | `uuid`, `omschrijving`, `doel`, `beginGeldigheid` |
 | `GET /zaakafhandelparameters` | `RestZaaktypeConfigurationOverzicht` | `zaaktype` (`RestZaaktypeBeheerOverzicht`: `uuid`, `identificatie`, `omschrijving`, `doel`, `isNuGeldig`, `beginGeldigheid`, `eindeGeldigheid`), `processDefinition` (`RestProcessDefinitionOverzicht`: `key`, `naam`), `creatiedatum`, `isValide` |
@@ -91,7 +91,7 @@ item. The submit button stays disabled while the settings of the chosen zaaktype
 error dialog of the query client, as for other queries, and the zaaktype stays chosen without settings, so the
 form cannot be submitted.
 
-The create request sends `zaaktype: { uuid }`. `RestZaak.zaaktype` stays `RestZaaktype`, whose only required field
+The create request sends `zaaktype: { uuid }`. `RestZaakCreateData.zaaktype` stays `RestZaaktype`, whose only required field
 is `uuid`, so the POST contract does not change.
 
 *Alternative:* fetch the settings inside `createZaak` on the server and drop them from the form. Rejected: the form
@@ -118,11 +118,13 @@ reader of a zaaktype configuration.
 ### D6. The zaaktype choice is served from `/rest/zaaktypen`
 
 The list and the read move to a new `ZaaktypeRestService` under `/rest/zaaktypen`. The list becomes
-`GET /rest/zaaktypen?startbaar=true` and the read becomes `GET /rest/zaaktypen/{zaaktypeUuid}`. A zaaktype is then
-addressed as a zaaktype, and "offered for zaak creation" is a filter on the collection instead of a path under
-`/zaken`. Without `startbaar`, the collection lists every zaaktype of the default catalogus as the same list item, in
-the order of the ZTC. With `startbaar=false`, it lists the zaaktypes that `startbaar=true` leaves out. The read keeps
-the checks of D2, so it answers only for a zaaktype that `startbaar=true` offers.
+`GET /rest/zaaktypen` and the read becomes `GET /rest/zaaktypen/{zaaktypeUuid}`, so a zaaktype is addressed as a
+zaaktype instead of by a path under `/zaken`. The collection lists only the zaaktypes that D2 offers to the user. The
+read keeps the checks of D2, so it answers only for a zaaktype that the collection offers.
+
+*Alternative:* list the whole default catalogus without a filter, with a `startbaar` filter for the zaaktypes that are
+offered. Rejected: only the zaaktypes that are offered have a consumer, and the other variants would show concept
+zaaktypes and the zaaktypes of other domains to any user, which no user-facing zaaktype list does today.
 
 The other endpoints that serve zaaktype data, such as `/zaken/statustypes/{zaaktypeUUID}` and
 `/zaakafhandelparameters/{zaaktypeUUID}`, stay where they are. Moving them is outside PZ-13414.
@@ -214,18 +216,17 @@ Limits of the measurement:
   with the settings response from `HttpTestingController`, including a quick switch between two zaaktypes where
   the first response arrives after the second choice; only settings for the zaaktype that is still chosen are
   applied.
-- [Without `startbaar`, the collection lists zaaktypes that the user may not start.] → An item carries only the
-  UUID and the omschrijving, which are catalogue data and not zaak data. The frontend reads only
-  `startbaar=true`.
 - [One more request when the user chooses a zaaktype.] → The request is small, and TanStack caches it per UUID, so
   choosing the same zaaktype again does not call the server.
 - [The main spec `zaaktype-configuration` still has the requirement "The configuration REST contract stays
-  unchanged", which the active change `unify-zaaktype-configuration-frontend` removes.] → This change only adds a
-  requirement. When it is archived before that change, the main spec briefly holds both; the new requirement is
-  the more specific one for the list.
-- [The e2e tests for zaak creation choose a zaaktype and fill the form at once.] → Playwright waits for the
-  enabled submit button and the filled fields, so the extra request only adds waiting time. Run the zaak creation
-  e2e features against layer 2.
+  unchanged", which the active change `unify-zaaktype-configuration-frontend` removes.] → This change modifies that
+  requirement so that it exempts the list `GET /zaakafhandelparameters`, and keeps its name. The main spec is then
+  correct whichever change is archived first, and the removal by the other change still finds the requirement.
+- [The e2e tests for zaak creation choose a zaaktype and fill the form at once.] → The settings now arrive after
+  the choice, and the initiator button stays disabled until then. The step that adds the initiator clicks a `div`
+  around that button, and Playwright does not wait until a `div` is enabled, so the click can do nothing. Layer 2
+  changes that step to click the button by its role and accessible name, which makes Playwright wait until the
+  button is enabled. The zaak creation e2e features must run against layer 2 before it is merged.
 
 ## Migration Plan
 

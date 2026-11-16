@@ -15,9 +15,8 @@ seconds per request, and smaller responses do not change it.
 
 ## What Changes
 
-- **BREAKING (internal API)** `GET /rest/zaaktypen?startbaar=true` replaces `GET /rest/zaken/zaaktypes-for-creation`,
-  and returns, per zaaktype, only its UUID and its omschrijving. The list keeps the same zaaktypes, in the same
-  order. Without `startbaar`, `GET /rest/zaaktypen` lists every zaaktype of the default catalogus as the same item.
+- **BREAKING (internal API)** `GET /rest/zaaktypen` replaces `GET /rest/zaken/zaaktypes-for-creation`, and returns,
+  per zaaktype, only its UUID and its omschrijving. The list keeps the same zaaktypes, in the same order.
 - New endpoint `GET /rest/zaaktypen/{zaaktypeUuid}` returns the settings that the Zaak
   aanmaken form applies after the user chose a zaaktype: the vertrouwelijkheidaanduiding, the default groep, the
   default behandelaar, and the KVK and BRP koppelingen for the initiator. It answers only for a zaaktype that the
