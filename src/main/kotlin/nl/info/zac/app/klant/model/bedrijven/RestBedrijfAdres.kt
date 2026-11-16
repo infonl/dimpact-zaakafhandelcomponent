@@ -75,7 +75,4 @@ internal fun BuitenlandsAdres.toFormattedAddress(): String = listOf(
 
 internal fun BasisprofielAdres.toFormattedAddress() = toVestigingsprofielAdres().toFormattedAddress()
 
-internal fun VestigingsprofielAdres.toFormattedAddress() = toAddressString(
-    wordSeparator = NON_BREAKING_SPACE,
-    huisnummerToevoegingSeparator = NON_BREAKING_SPACE
-)
+internal fun VestigingsprofielAdres.toFormattedAddress() = toAddressString(wordSeparator = NON_BREAKING_SPACE)

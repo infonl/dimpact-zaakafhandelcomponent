@@ -10,6 +10,7 @@ import jakarta.ws.rs.core.Response
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.exception.KvkClientException
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
+import nl.info.zac.util.formatHuisnummer
 import nl.info.zac.util.joinNonBlank
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -79,7 +80,7 @@ fun BasisprofielAdres.toVestigingsprofielAdres(): VestigingsprofielAdres =
         .postcode(postcode)
         .plaats(plaats)
 
-fun VestigingsprofielAdres.toAddressString(wordSeparator: String = " ", huisnummerToevoegingSeparator: String = "") =
+fun VestigingsprofielAdres.toAddressString(wordSeparator: String = " ") =
     when {
         postbusnummer != null -> listOf(
             "Postbus $postbusnummer",
@@ -93,10 +94,7 @@ fun VestigingsprofielAdres.toAddressString(wordSeparator: String = " ", huisnumm
         else -> listOf(
             listOf(
                 straatnaam,
-                listOf(
-                    listOf(huisnummer?.toString(), huisletter).joinNonBlank(),
-                    huisnummerToevoeging
-                ).joinNonBlank(huisnummerToevoegingSeparator)
+                formatHuisnummer(huisnummer, huisletter, huisnummerToevoeging)
             ).joinWords(wordSeparator),
             listOf(postcode, plaats).joinWords(wordSeparator)
         )

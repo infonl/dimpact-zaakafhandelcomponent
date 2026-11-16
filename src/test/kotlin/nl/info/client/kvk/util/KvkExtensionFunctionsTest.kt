@@ -158,7 +158,7 @@ class KvkExtensionFunctionsTest : BehaviorSpec({
                 val addressString = adres.toAddressString()
 
                 then("it contains the street, the house number with its huisletter and huisnummertoevoeging, the postcode and the place") {
-                    addressString shouldBe "Kerkstraat 12Abis, 1234AB Amsterdam"
+                    addressString shouldBe "Kerkstraat 12A bis, 1234AB Amsterdam"
                 }
             }
         }

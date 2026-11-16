@@ -6,6 +6,7 @@ package nl.info.client.smartdocuments.model.document
 
 import jakarta.json.bind.annotation.JsonbDateFormat
 import jakarta.json.bind.annotation.JsonbProperty
+import nl.info.zac.util.formatHuisnummer
 import nl.info.zac.util.joinNonBlank
 import java.time.LocalDate
 import nl.info.client.kvk.vestigingsprofiel.model.generated.Adres as VestigingsprofielAdres
@@ -158,7 +159,7 @@ fun VestigingsprofielAdres.toAanvragerData(naam: String?) =
         else -> AanvragerData(
             naam = naam,
             straat = straatnaam,
-            huisnummer = listOf(huisnummer?.toString(), huisletter, huisnummerToevoeging).joinNonBlank(),
+            huisnummer = formatHuisnummer(huisnummer, huisletter, huisnummerToevoeging),
             postcode = postcode,
             woonplaats = plaats
         )

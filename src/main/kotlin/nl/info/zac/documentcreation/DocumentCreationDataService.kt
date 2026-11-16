@@ -43,7 +43,7 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.joinNonBlank
+import nl.info.zac.util.formatHuisnummer
 import java.net.URI
 import java.util.UUID
 
@@ -138,11 +138,7 @@ class DocumentCreationDataService @Inject constructor(
         )
 
     private fun convertToHuisnummer(verblijfadres: VerblijfadresBinnenland) =
-        listOf(
-            verblijfadres.huisnummer?.toString(),
-            verblijfadres.huisletter,
-            verblijfadres.huisnummertoevoeging
-        ).joinNonBlank()
+        formatHuisnummer(verblijfadres.huisnummer, verblijfadres.huisletter, verblijfadres.huisnummertoevoeging)
 
     private fun createAanvragerDataVestiging(vestigingsnummer: String): AanvragerData? =
         kvkClientService.findVestiging(vestigingsnummer)?.let(::createAanvragerDataBedrijf)

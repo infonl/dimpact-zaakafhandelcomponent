@@ -9,6 +9,7 @@ import nl.info.client.brp.model.generated.Persoon
 import nl.info.client.brp.model.generated.VerblijfadresBinnenland
 import nl.info.client.brp.model.generated.VerblijfadresBuitenland
 import nl.info.client.brp.model.generated.VerblijfplaatsBuitenland
+import nl.info.zac.util.formatHuisnummer
 import nl.info.zac.util.joinNonBlank
 
 fun Persoon.toAddressString(): String {
@@ -22,17 +23,14 @@ fun Persoon.toAddressString(): String {
     }
 }
 
-private fun VerblijfadresBinnenland.toAddressString(): String {
-    val huisnummerWithSuffix = listOf(
-        this.getHuisnummer()?.toString(),
-        this.getHuisletter(),
-        this.getHuisnummertoevoeging()
-    ).joinNonBlank()
-    return listOf(
-        listOf(this.getOfficieleStraatnaam(), huisnummerWithSuffix).joinNonBlank(" "),
+private fun VerblijfadresBinnenland.toAddressString() =
+    listOf(
+        listOf(
+            this.getOfficieleStraatnaam(),
+            formatHuisnummer(this.getHuisnummer(), this.getHuisletter(), this.getHuisnummertoevoeging())
+        ).joinNonBlank(" "),
         listOf(this.getPostcode(), this.getWoonplaats()).joinNonBlank(" ")
     ).joinNonBlank(", ")
-}
 
 private fun VerblijfadresBuitenland.toAddressString() =
     listOf(this.getRegel1(), this.getRegel2(), this.getRegel3()).joinNonBlank(", ")
