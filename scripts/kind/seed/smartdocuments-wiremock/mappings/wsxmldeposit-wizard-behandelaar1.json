@@ -120,7 +120,7 @@
                   "communicatiekanaal": "fakeCommunicatiekanaal1",
                   "groep": "Test group behandelaars domein test 1",
                   "identificatie": "${json-unit.any-string}",
-                  "omschrijving": "fakeOmschrijving",
+                  "omschrijving": "fakeOmschrijvingWithVestigingInitiator",
                   "registratiedatum": "${json-unit.any-string}",
                   "startdatum": "${json-unit.any-string}",
                   "status": "${json-unit.any-string}",

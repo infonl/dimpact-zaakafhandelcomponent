@@ -49,6 +49,8 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
+private const val ZAAK_OMSCHRIJVING_WITH_VESTIGING_INITIATOR = "fakeOmschrijvingWithVestigingInitiator"
+
 class DocumentCreationRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
@@ -504,6 +506,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
             groupId = GROUP_BEHANDELAARS_TEST_1.name,
             groupName = GROUP_BEHANDELAARS_TEST_1.description,
+            description = ZAAK_OMSCHRIJVING_WITH_VESTIGING_INITIATOR,
             startDate = DATE_TIME_2000_01_01,
             testUser = BEHEERDER_1
         ).run {
@@ -548,7 +551,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             then(
                 """
                 SmartDocuments receives the aanvrager with the address from the KvK vestigingsprofiel,
-                which the SmartDocuments mock only accepts with the complete huisnummer and postcode,
+                which the SmartDocuments mock only accepts for this zaak with the complete huisnummer and postcode,
                 and the response contains a redirect URL to SmartDocuments
                 """
             ) {
