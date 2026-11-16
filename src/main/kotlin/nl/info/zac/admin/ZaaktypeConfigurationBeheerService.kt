@@ -17,9 +17,7 @@ import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.admin.model.ZaaktypeConfiguration
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_CMMN_PROCESS_DEFINITION_CANNOT_CHANGE
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_PROCESS_ENGINE_CANNOT_CHANGE
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
@@ -66,33 +64,30 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
     }
 
     /**
-     * Indicates whether a beheerder may bind the configuration to another process definition. A BPMN binding may
-     * change until the first zaak of its zaaktype version exists. A CMMN binding never changes, because the running
-     * zaken of the zaaktype version read the plan item settings of its case definition.
+     * Stores the configuration as [storeConfiguration] does, and builds [toResponse] of the stored configuration in
+     * the same transaction, so that a failure while building it stores nothing.
      */
-    fun isProcessDefinitionChangeable(zaaktypeConfiguration: ZaaktypeConfiguration): Boolean =
-        when (zaaktypeConfiguration.getProcessEngine()) {
-            null -> true
-            ProcessEngine.CMMN -> false
-            ProcessEngine.BPMN -> !hasZaken(zaaktypeConfiguration.zaaktypeUuid)
-        }
+    @Transactional(REQUIRED)
+    fun <T> storeConfiguration(zaaktypeConfiguration: ZaaktypeConfiguration, toResponse: (ZaaktypeConfiguration) -> T): T =
+        toResponse(storeConfiguration(zaaktypeConfiguration))
 
     /**
-     * Rejects binding the configuration of the zaaktype version to another engine, or to another process definition
-     * unless [isProcessDefinitionChangeable] allows it, with an error code that names the reason.
+     * Indicates whether a beheerder may bind the configuration to another process definition, of either engine:
+     * until the first zaak of its zaaktype version exists, no zaak depends on its binding.
+     */
+    fun isProcessDefinitionChangeable(zaaktypeConfiguration: ZaaktypeConfiguration): Boolean =
+        zaaktypeConfiguration.processBinding == null || !hasZaken(zaaktypeConfiguration.zaaktypeUuid)
+
+    /**
+     * Rejects binding the configuration of the zaaktype version to another engine or process definition when
+     * [isProcessDefinitionChangeable] does not allow it.
      */
     fun checkProcessDefinitionMayChange(zaaktypeUuid: UUID, processEngine: ProcessEngine, definitionKey: String) {
         val binding = findConfiguration(zaaktypeUuid)?.processBinding ?: return
-        val errorCode = when {
-            binding.processEngine != processEngine -> ERROR_CODE_PROCESS_ENGINE_CANNOT_CHANGE
-            binding.definitionKey == definitionKey -> null
-            processEngine == ProcessEngine.CMMN -> ERROR_CODE_CMMN_PROCESS_DEFINITION_CANNOT_CHANGE
-            hasZaken(zaaktypeUuid) -> ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE
-            else -> null
-        }
-        errorCode?.let {
+        val isSameBinding = binding.processEngine == processEngine && binding.definitionKey == definitionKey
+        if (!isSameBinding && hasZaken(zaaktypeUuid)) {
             throw InputValidationFailedException(
-                errorCode = it,
+                errorCode = ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE,
                 message = "The process definition of the configuration of zaaktype '$zaaktypeUuid' cannot change " +
                     "from ${binding.processEngine} '${binding.definitionKey}' to $processEngine '$definitionKey'"
             )

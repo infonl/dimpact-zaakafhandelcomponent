@@ -29,5 +29,4 @@
 
 ## Workflow follow-up
 
-- Discuss this change with Sander before implementing or merging it.
 - Archive `unify-zaaktype-configuration-frontend` first, then this change.

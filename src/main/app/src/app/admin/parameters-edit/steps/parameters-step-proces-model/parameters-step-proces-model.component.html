@@ -20,8 +20,8 @@
     [compare]="isSameProcessDefinition"
   ></zac-select>
 
-  @if (lockedExplanation(); as explanation) {
-    <p>{{ explanation | translate }}</p>
+  @if (isLocked()) {
+    <p>{{ "zaps.step.procesmodel.locked" | translate }}</p>
   }
 
   <div class="flex-row items-center gap-10 ml-1 my-3">

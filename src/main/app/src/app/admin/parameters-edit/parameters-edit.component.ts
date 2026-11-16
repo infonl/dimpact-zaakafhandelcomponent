@@ -34,11 +34,15 @@ import { SmartDocumentsFormComponent } from "../parameters-components/smart-docu
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ParametersStepButtonsComponent } from "./parameters-step-buttons.component";
-import { createActiesFormForProcessDefinition } from "./steps/parameters-step-acties/acties-form";
+import {
+  createActiesForm,
+  createActiesFormForProcessDefinition,
+} from "./steps/parameters-step-acties/acties-form";
 import { ParametersStepActiesComponent } from "./steps/parameters-step-acties/parameters-step-acties.component";
 import { ParametersStepAlgemeenComponent } from "./steps/parameters-step-algemeen/parameters-step-algemeen.component";
 import { ParametersStepBeeindigingComponent } from "./steps/parameters-step-beeindiging/parameters-step-beeindiging.component";
 import {
+  createHumanTasksForm,
   createHumanTasksFormForProcessDefinition,
   syncReferentieTabellen,
 } from "./steps/parameters-step-humantasks/human-tasks-form";
@@ -56,6 +60,9 @@ import {
   toRestConfiguration,
   ZaaktypeConfigurationForm,
 } from "./zaaktype-configuration-form";
+
+const PROCESS_DEFINITION_CANNOT_CHANGE =
+  "msg.error.process.definition.cannot.change";
 
 @Component({
   templateUrl: "./parameters-edit.component.html",
@@ -194,14 +201,15 @@ export class ParametersEditComponent
           }
           this.showConfiguration(savedConfiguration);
         },
-        onError: () => void this.showConfigurationIfProcessDefinitionLocked(),
+        onError: (error) => {
+          if (error.error?.message !== PROCESS_DEFINITION_CANNOT_CHANGE) return;
+          void this.showConfigurationIfProcessDefinitionLocked();
+        },
       },
     );
   }
 
   private async showConfigurationIfProcessDefinitionLocked() {
-    if (!this.configuration().isProcessDefinitionChangeable) return;
-
     const storedConfiguration = await this.queryClient.fetchQuery({
       ...this.zaakafhandelParametersService.readZaakafhandelparameters(
         this.configuration().zaaktype.uuid,
@@ -228,16 +236,26 @@ export class ParametersEditComponent
   private setForm(form: ZaaktypeConfigurationForm) {
     form.controls.procesModel.valueChanges.subscribe(() => {
       const processDefinition = toProcessDefinition(form.controls.procesModel);
+      const configuration = this.configuration();
+      const isStoredProcessDefinition =
+        processDefinition !== null &&
+        processDefinition.processEngine ===
+          configuration.processDefinition?.processEngine &&
+        processDefinition.key === configuration.processDefinition?.key;
       form.setControl(
         "humanTasks",
-        createHumanTasksFormForProcessDefinition(
-          processDefinition,
-          form.controls.algemeen.controls.defaultGroepId.value,
-        ),
+        isStoredProcessDefinition
+          ? createHumanTasksForm(configuration.humanTaskParameters)
+          : createHumanTasksFormForProcessDefinition(
+              processDefinition,
+              form.controls.algemeen.controls.defaultGroepId.value,
+            ),
       );
       form.setControl(
         "acties",
-        createActiesFormForProcessDefinition(processDefinition),
+        isStoredProcessDefinition
+          ? createActiesForm(configuration.userEventListenerParameters)
+          : createActiesFormForProcessDefinition(processDefinition),
       );
       this.syncReferentieTabellen(form);
       applyProcessDefinition(form, processDefinition);

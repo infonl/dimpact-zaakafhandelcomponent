@@ -12,6 +12,7 @@ import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.admin.model.ZaaktypeCmmnExtension
 import nl.info.zac.admin.model.ZaaktypeConfiguration
+import nl.info.zac.admin.model.ZaaktypeProcessBinding
 import nl.info.zac.app.admin.model.RestAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
 import nl.info.zac.app.admin.model.toAutomaticEmailConfirmation
@@ -146,18 +147,40 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
     private fun ZaaktypeConfiguration.applyProcessDefinition(restZaaktypeConfiguration: RestZaaktypeConfiguration) {
         val processDefinition = restZaaktypeConfiguration.processDefinition
             ?: throw NullPointerException("restZaakafhandelParameters.processDefinition is null")
+        val isOtherDefinition = processBinding?.let {
+            it.processEngine != processDefinition.processEngine || it.definitionKey != processDefinition.key
+        } ?: false
         bindTo(processDefinition.processEngine, processDefinition.key)
         cmmnExtension?.apply {
+            val planItemIds = processBinding?.takeIf { isOtherDefinition }?.let(::readPlanItemIds)
+            val isOfCaseDefinition = { planItemId: String -> planItemIds == null || planItemId in planItemIds }
             restZaaktypeConfiguration.intakeMail?.let { intakeMail = it.name }
             restZaaktypeConfiguration.afrondenMail?.let { afrondenMail = it.name }
-            restZaaktypeConfiguration.humanTaskParameters.ifSupplied {
-                setHumanTaskParametersCollection(with(humanTaskParametersConverter) { it.toZaaktypeCmmnHumantaskParameters() })
+            restZaaktypeConfiguration.humanTaskParameters.ifSupplied { humanTaskParameters ->
+                setHumanTaskParametersCollection(
+                    with(humanTaskParametersConverter) {
+                        humanTaskParameters.filter { isOfCaseDefinition(it.planItemDefinition.id) }
+                            .toZaaktypeCmmnHumantaskParameters()
+                    }
+                )
             }
-            restZaaktypeConfiguration.userEventListenerParameters.ifSupplied {
-                setUserEventListenerParametersCollection(it.map { parameter -> parameter.toZaaktypeCmmnUsereventlistenerParameters() })
+            restZaaktypeConfiguration.userEventListenerParameters.ifSupplied { userEventListenerParameters ->
+                setUserEventListenerParametersCollection(
+                    userEventListenerParameters.filter { isOfCaseDefinition(it.id) }
+                        .map { it.toZaaktypeCmmnUsereventlistenerParameters() }
+                )
             }
         }
     }
+
+    /**
+     * The settings that a save sends may still belong to the previous case definition, so after a change of case
+     * definition only those of its own plan items are stored.
+     */
+    private fun readPlanItemIds(processBinding: ZaaktypeProcessBinding): Set<String> =
+        processDefinitionConverter.toRestProcessDefinition(processBinding, inclusiefRelaties = true).let { caseDefinition ->
+            (caseDefinition.humanTaskDefinitions + caseDefinition.userEventListenerDefinitions).map { it.id }.toSet()
+        }
 
     private fun RestZaaktypeConfiguration.addRelatedData(
         zaaktypeConfiguration: ZaaktypeConfiguration,

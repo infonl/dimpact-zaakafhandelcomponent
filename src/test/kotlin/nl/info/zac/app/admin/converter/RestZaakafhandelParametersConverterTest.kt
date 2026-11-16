@@ -12,6 +12,7 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import jakarta.json.bind.JsonbBuilder
 import nl.info.client.zgw.shared.ZgwApiService
@@ -28,15 +29,19 @@ import nl.info.zac.admin.ResultaattypeReferenceService
 import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
 import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
+import nl.info.zac.admin.model.ZaaktypeCmmnUsereventlistenerParameters
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.createAutomaticEmailConfirmation
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeBrpParameters
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.createZaaktypeCmmnHumantaskParameters
 import nl.info.zac.admin.model.createZaaktypeCompletionParameters
 import nl.info.zac.app.admin.model.RestAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.RestHumanTaskParameters
+import nl.info.zac.app.admin.model.RestPlanItemDefinition
 import nl.info.zac.app.admin.model.RestSmartDocuments
+import nl.info.zac.app.admin.model.RestUserEventListenerParameter
 import nl.info.zac.app.admin.model.RestZaakAfzender
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
 import nl.info.zac.app.admin.model.createRestProcessDefinition
@@ -44,6 +49,7 @@ import nl.info.zac.app.admin.model.createRestResultaattype
 import nl.info.zac.app.admin.model.createRestZaakbeeindigParameter
 import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
 import nl.info.zac.app.admin.model.createRestZaaktypeOverzicht
+import nl.info.zac.app.planitems.model.PlanItemType
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
@@ -182,6 +188,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         } returns emptyList()
         every { resultaattypeReferenceService.readOmschrijving(restResultType.id) } returns "fakeNietOntvankelijk"
         every { zaakbeeindigParameterConverter.toZaaktypeCompletionParameters(any()) } returns emptyList()
+        every { processDefinitionConverter.toRestProcessDefinition(any(), true) } returns restCaseDefinition
 
         `when`("converted to DB model representation") {
             val zaaktypeCmmnConfiguration = restZaaktypeConfigurationConverter.toZaaktypeConfiguration(
@@ -576,6 +583,88 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                 then("the stored intake and afronden mail options are kept") {
                     zaaktypeConfiguration.cmmnExtension?.intakeMail shouldBe "BESCHIKBAAR_AAN"
                     zaaktypeConfiguration.cmmnExtension?.afrondenMail shouldBe "NIET_BESCHIKBAAR"
+                }
+            }
+        }
+
+        given("a stored CMMN configuration with the plan item settings of its case definition") {
+            fun createStoredConfiguration() = createZaaktypeCmmnConfiguration(caseDefinitionId = "fakeCaseDefinitionA").apply {
+                getOrCreateCmmnExtension().apply {
+                    setHumanTaskParametersCollection(
+                        listOf(createZaaktypeCmmnHumantaskParameters(planItemDefinitionId = "fakeHumanTaskOfA"))
+                    )
+                    setUserEventListenerParametersCollection(
+                        listOf(ZaaktypeCmmnUsereventlistenerParameters().apply { planItemDefinitionID = "fakeListenerOfA" })
+                    )
+                }
+            }
+            val caseDefinitionB = createRestProcessDefinition(key = "fakeCaseDefinitionB").apply {
+                humanTaskDefinitions = listOf(RestPlanItemDefinition("fakeHumanTaskOfB", null, PlanItemType.HUMAN_TASK))
+                userEventListenerDefinitions = listOf(
+                    RestPlanItemDefinition("fakeListenerOfB", null, PlanItemType.USER_EVENT_LISTENER)
+                )
+            }
+
+            `when`("it is saved with another case definition and no plan item settings") {
+                val storedConfiguration = createStoredConfiguration()
+                every {
+                    zaaktypeConfigurationBeheerService.findConfiguration(storedConfiguration.zaaktypeUuid)
+                } returns storedConfiguration
+                every { processDefinitionConverter.toRestProcessDefinition(any(), true) } returns caseDefinitionB
+                val restZaaktypeConfiguration = JsonbBuilder.create().fromJson(
+                    """
+                    {
+                      "zaaktype": { "uuid": "${storedConfiguration.zaaktypeUuid}", "omschrijving": "fakeOmschrijving" },
+                      "processDefinition": { "processEngine": "CMMN", "key": "fakeCaseDefinitionB" },
+                      "defaultGroepId": "fakeGroupId",
+                      "smartDocuments": { "isEnabledGlobally": false, "isEnabledForZaaktype": false }
+                    }
+                    """.trimIndent(),
+                    RestZaaktypeConfiguration::class.java
+                )
+
+                val zaaktypeConfiguration = restZaaktypeConfigurationConverter.toZaaktypeConfiguration(
+                    restZaaktypeConfiguration
+                )
+
+                then("it holds no plan item settings of the previous case definition") {
+                    zaaktypeConfiguration.processBinding?.definitionKey shouldBe "fakeCaseDefinitionB"
+                    zaaktypeConfiguration.cmmnExtension?.getHumanTaskParametersCollection()?.size shouldBe 0
+                    zaaktypeConfiguration.cmmnExtension?.getUserEventListenerParametersCollection()?.size shouldBe 0
+                }
+            }
+
+            `when`("it is saved with another case definition and the plan item settings of the previous one") {
+                val storedConfiguration = createStoredConfiguration()
+                every {
+                    zaaktypeConfigurationBeheerService.findConfiguration(storedConfiguration.zaaktypeUuid)
+                } returns storedConfiguration
+                every { processDefinitionConverter.toRestProcessDefinition(any(), true) } returns caseDefinitionB
+                every { zaakbeeindigParameterConverter.toZaaktypeCompletionParameters(emptyList()) } returns emptyList()
+                val humanTaskParametersSlot = slot<List<RestHumanTaskParameters>>()
+                every {
+                    with(restHumanTaskParametersConverter) { capture(humanTaskParametersSlot).toZaaktypeCmmnHumantaskParameters() }
+                } returns emptyList()
+                val restZaaktypeConfiguration = createRestZaaktypeConfiguration(
+                    restZaaktypeOverzicht = createRestZaaktypeOverzicht(uuid = storedConfiguration.zaaktypeUuid),
+                    restProcessDefinition = createRestProcessDefinition(key = "fakeCaseDefinitionB")
+                ).apply {
+                    humanTaskParameters = listOf(
+                        RestHumanTaskParameters(
+                            planItemDefinition = RestPlanItemDefinition("fakeHumanTaskOfA", null, PlanItemType.HUMAN_TASK)
+                        )
+                    )
+                    userEventListenerParameters = listOf(RestUserEventListenerParameter(id = "fakeListenerOfA"))
+                }
+
+                val zaaktypeConfiguration = restZaaktypeConfigurationConverter.toZaaktypeConfiguration(
+                    restZaaktypeConfiguration
+                )
+
+                then("it stores only settings of plan items of the new case definition") {
+                    humanTaskParametersSlot.captured shouldBe emptyList()
+                    zaaktypeConfiguration.cmmnExtension?.getHumanTaskParametersCollection()?.size shouldBe 0
+                    zaaktypeConfiguration.cmmnExtension?.getUserEventListenerParametersCollection()?.size shouldBe 0
                 }
             }
         }

@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HttpErrorResponse } from "@angular/common/http";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
@@ -74,20 +75,39 @@ const adviesReferentieTabel = fromPartial<GeneratedType<"RestReferenceTable">>({
   name: "Advies",
 });
 
+const otherCaseDefinition = fromPartial<GeneratedType<"RestProcessDefinition">>(
+  {
+    processEngine: "CMMN",
+    key: "fakeOtherCaseDefinitionKey",
+    naam: "Ander zaakafhandelmodel",
+    humanTaskDefinitions: [
+      {
+        id: "fakeOtherTaskId",
+        naam: "Andere taak",
+        defaultFormulierDefinitie: "ADVIES",
+      },
+    ],
+    userEventListenerDefinitions: [],
+  },
+);
+
 const cmmnConfiguration = fromPartial<ZaaktypeConfiguration>({
   ...sharedSettings,
   processDefinition: caseDefinition,
   humanTaskParameters: [],
   userEventListenerParameters: [],
+  isProcessDefinitionChangeable: false,
 });
 
 const bpmnConfiguration = fromPartial<ZaaktypeConfiguration>({
   ...sharedSettings,
   processDefinition: bpmnProcessDefinition,
+  isProcessDefinitionChangeable: false,
 });
 
 const unsavedConfiguration = fromPartial<ZaaktypeConfiguration>({
   ...sharedSettings,
+  isProcessDefinitionChangeable: true,
   defaultGroepId: null,
   smartDocuments: { isEnabledGlobally: false, isEnabledForZaaktype: false },
 });
@@ -97,6 +117,15 @@ const caseDefinitionSteps = [
   "gegevens.algemeen",
   "gegevens.humantasks",
   "gegevens.acties",
+  "gegevens.mail",
+  "gegevens.beeindiging",
+  "gegevens.koppelingen",
+];
+
+const otherCaseDefinitionSteps = [
+  "gegevens.procesmodel",
+  "gegevens.algemeen",
+  "gegevens.humantasks",
   "gegevens.mail",
   "gegevens.beeindiging",
   "gegevens.koppelingen",
@@ -116,6 +145,9 @@ const otherBpmnProcessDefinition = fromPartial<
   key: "fakeOtherProcessDefinitionKey",
   naam: "Nieuw vergunningsproces",
 });
+
+const rejectedWith = (errorCode: string) =>
+  new HttpErrorResponse({ status: 400, error: { message: errorCode } });
 
 describe(ParametersEditComponent.name, () => {
   const user = userEvent.setup();
@@ -155,6 +187,7 @@ describe(ParametersEditComponent.name, () => {
             listProcessDefinitions: () => ({
               ...createQueryOptions([
                 caseDefinition,
+                otherCaseDefinition,
                 bpmnProcessDefinition,
                 otherBpmnProcessDefinition,
               ]),
@@ -274,25 +307,8 @@ describe(ParametersEditComponent.name, () => {
           within(procesModel).getByRole("combobox", { name: /procesmodel/i }),
         ).toHaveAttribute("aria-disabled", "true");
         expect(
-          within(procesModel).getByText(/^zaps\.step\.procesmodel\.locked\./),
+          within(procesModel).getByText("zaps.step.procesmodel.locked"),
         ).toBeInTheDocument();
-      });
-
-      it("does not read the configuration again when saving fails, as its process definition is locked already", async () => {
-        const { updateZaakafhandelparameters, readZaakafhandelparameters } =
-          await setup(configuration);
-        updateZaakafhandelparameters.mutationFn.mockRejectedValue(
-          new Error("msg.error.server.generic"),
-        );
-
-        await waitFor(() => expect(opslaan()).toBeEnabled());
-        await user.click(opslaan());
-
-        await waitFor(() =>
-          expect(updateZaakafhandelparameters.mutationFn).toHaveBeenCalled(),
-        );
-        await new Promise((resolve) => setTimeout(resolve));
-        expect(readZaakafhandelparameters.queryFn).not.toHaveBeenCalled();
       });
 
       it("stores its process definition and keeps SmartDocuments switched on without opening the koppelingen step", async () => {
@@ -317,86 +333,127 @@ describe(ParametersEditComponent.name, () => {
     },
   );
 
-  describe("for a BPMN zaaktype version whose process definition may change", () => {
-    const changeableBpmnConfiguration = fromPartial<ZaaktypeConfiguration>({
-      ...bpmnConfiguration,
-      isProcessDefinitionChangeable: true,
-    });
+  describe.each([
+    [
+      "CMMN",
+      cmmnConfiguration,
+      "Nieuw vergunningsproces",
+      bpmnProcessDefinitionSteps,
+    ],
+    [
+      "BPMN",
+      bpmnConfiguration,
+      "Ander zaakafhandelmodel",
+      otherCaseDefinitionSteps,
+    ],
+  ])(
+    "for a %s zaaktype version without zaken",
+    (_engine, configuration, otherEngineNaam, otherEngineSteps) => {
+      const changeableConfiguration = fromPartial<ZaaktypeConfiguration>({
+        ...configuration,
+        isProcessDefinitionChangeable: true,
+      });
 
-    it("offers only the BPMN process definitions", async () => {
-      await setup(changeableBpmnConfiguration);
+      it("offers the process definitions of every process engine", async () => {
+        await setup(changeableConfiguration);
 
-      const procesModel = await goToStep("gegevens.procesmodel");
-      await user.click(
-        within(procesModel).getByRole("combobox", { name: /procesmodel/i }),
-      );
+        const procesModel = await goToStep("gegevens.procesmodel");
+        await user.click(
+          within(procesModel).getByRole("combobox", { name: /procesmodel/i }),
+        );
 
-      expect(
-        (await screen.findAllByRole("option")).map((option) =>
-          option.textContent?.trim(),
-        ),
-      ).toEqual(["Vergunningsproces", "Nieuw vergunningsproces"]);
-    });
+        expect(
+          (await screen.findAllByRole("option")).map((option) =>
+            option.textContent?.trim(),
+          ),
+        ).toEqual([
+          "Generiek zaakafhandelmodel",
+          "Ander zaakafhandelmodel",
+          "Vergunningsproces",
+          "Nieuw vergunningsproces",
+        ]);
+      });
 
-    it("does not explain a lock", async () => {
-      await setup(changeableBpmnConfiguration);
+      it("does not explain a lock", async () => {
+        await setup(changeableConfiguration);
 
-      const procesModel = await goToStep("gegevens.procesmodel");
+        const procesModel = await goToStep("gegevens.procesmodel");
 
-      expect(
-        within(procesModel).queryByText(/^zaps\.step\.procesmodel\.locked\./),
-      ).not.toBeInTheDocument();
-    });
+        expect(
+          within(procesModel).queryByText("zaps.step.procesmodel.locked"),
+        ).not.toBeInTheDocument();
+      });
 
-    it("locks the process model and explains why when a zaak was created before the beheerder saved another one", async () => {
-      const { updateZaakafhandelparameters } = await setup(
-        changeableBpmnConfiguration,
-        changeableBpmnConfiguration,
-        bpmnConfiguration,
-      );
-      updateZaakafhandelparameters.mutationFn.mockRejectedValue(
-        new Error("msg.error.process.definition.cannot.change"),
-      );
+      it("stores a process definition of the other process engine, and shows the steps that it has use for", async () => {
+        const { updateZaakafhandelparameters } = await setup(
+          changeableConfiguration,
+        );
 
-      await goToStep("gegevens.procesmodel");
-      await chooseProcessDefinition("Nieuw vergunningsproces");
-      await waitFor(() => expect(opslaan()).toBeEnabled());
-      await user.click(opslaan());
+        await goToStep("gegevens.procesmodel");
+        await chooseProcessDefinition(otherEngineNaam);
+        await waitFor(() => expectSteps(otherEngineSteps));
+        await waitFor(() => expect(opslaan()).toBeEnabled());
+        await user.click(opslaan());
 
-      expect(
-        await screen.findByText("zaps.step.procesmodel.locked.bpmn"),
-      ).toBeInTheDocument();
-      const procesModelCombobox = within(
-        screen.getByRole("tabpanel", { name: /gegevens.procesmodel/ }),
-      ).getByRole("combobox", { name: /procesmodel/i });
-      expect(procesModelCombobox).toHaveAttribute("aria-disabled", "true");
-      await waitFor(() =>
-        expect(procesModelCombobox).toHaveTextContent("Vergunningsproces"),
-      );
-      expect(procesModelCombobox).not.toHaveTextContent(
-        "Nieuw vergunningsproces",
-      );
-    });
+        await waitFor(() =>
+          expect(updateZaakafhandelparameters.mutationFn).toHaveBeenCalledWith(
+            expect.objectContaining({
+              processDefinition: expect.objectContaining({
+                naam: otherEngineNaam,
+              }),
+            }),
+            expect.anything(),
+          ),
+        );
+      });
 
-    it("keeps the chosen process model open to change when saving fails for another reason", async () => {
-      const { updateZaakafhandelparameters, readZaakafhandelparameters } =
-        await setup(changeableBpmnConfiguration);
-      updateZaakafhandelparameters.mutationFn.mockRejectedValue(
-        new Error("msg.error.server.generic"),
-      );
+      it("locks the stored process definition and explains why when a zaak was created before the beheerder saved another one", async () => {
+        const { updateZaakafhandelparameters } = await setup(
+          changeableConfiguration,
+          changeableConfiguration,
+          configuration,
+        );
+        updateZaakafhandelparameters.mutationFn.mockRejectedValue(
+          rejectedWith("msg.error.process.definition.cannot.change"),
+        );
 
-      await goToStep("gegevens.procesmodel");
-      await chooseProcessDefinition("Nieuw vergunningsproces");
-      await waitFor(() => expect(opslaan()).toBeEnabled());
-      await user.click(opslaan());
+        await goToStep("gegevens.procesmodel");
+        await chooseProcessDefinition(otherEngineNaam);
+        await waitFor(() => expect(opslaan()).toBeEnabled());
+        await user.click(opslaan());
 
-      await waitFor(() =>
-        expect(readZaakafhandelparameters.queryFn).toHaveBeenCalled(),
-      );
-      await readZaakafhandelparameters.queryFn.mock.results[0].value;
-      await new Promise((resolve) => setTimeout(resolve));
+        expect(
+          await screen.findByText("zaps.step.procesmodel.locked"),
+        ).toBeInTheDocument();
+        const procesModelCombobox = within(
+          screen.getByRole("tabpanel", { name: /gegevens.procesmodel/ }),
+        ).getByRole("combobox", { name: /procesmodel/i });
+        expect(procesModelCombobox).toHaveAttribute("aria-disabled", "true");
+        await waitFor(() =>
+          expect(procesModelCombobox).toHaveTextContent(
+            configuration.processDefinition?.naam ?? "",
+          ),
+        );
+      });
 
-      await waitFor(() => {
+      it("keeps the chosen process definition open to change when the process definition still may change after that rejection", async () => {
+        const { updateZaakafhandelparameters, readZaakafhandelparameters } =
+          await setup(changeableConfiguration);
+        updateZaakafhandelparameters.mutationFn.mockRejectedValue(
+          rejectedWith("msg.error.process.definition.cannot.change"),
+        );
+
+        await goToStep("gegevens.procesmodel");
+        await chooseProcessDefinition(otherEngineNaam);
+        await waitFor(() => expect(opslaan()).toBeEnabled());
+        await user.click(opslaan());
+
+        await waitFor(() =>
+          expect(readZaakafhandelparameters.queryFn).toHaveBeenCalled(),
+        );
+        await readZaakafhandelparameters.queryFn.mock.results[0].value;
+        await new Promise((resolve) => setTimeout(resolve));
+
         const procesModelCombobox = screen.getByRole("combobox", {
           name: /procesmodel/i,
         });
@@ -404,26 +461,108 @@ describe(ParametersEditComponent.name, () => {
           "aria-disabled",
           "true",
         );
-        expect(procesModelCombobox).toHaveTextContent(
-          "Nieuw vergunningsproces",
-        );
+        expect(procesModelCombobox).toHaveTextContent(otherEngineNaam);
       });
+
+      it("does not read the configuration again when saving fails for another reason, and keeps the chosen process definition", async () => {
+        const { updateZaakafhandelparameters, readZaakafhandelparameters } =
+          await setup(changeableConfiguration);
+        updateZaakafhandelparameters.mutationFn.mockRejectedValue(
+          rejectedWith("msg.error.validation.generic"),
+        );
+
+        await goToStep("gegevens.procesmodel");
+        await chooseProcessDefinition(otherEngineNaam);
+        await waitFor(() => expect(opslaan()).toBeEnabled());
+        await user.click(opslaan());
+
+        await waitFor(() =>
+          expect(updateZaakafhandelparameters.mutationFn).toHaveBeenCalled(),
+        );
+        await new Promise((resolve) => setTimeout(resolve));
+        expect(readZaakafhandelparameters.queryFn).not.toHaveBeenCalled();
+        expect(
+          screen.getByRole("combobox", { name: /procesmodel/i }),
+        ).toHaveTextContent(otherEngineNaam);
+      });
+    },
+  );
+
+  describe("for a CMMN zaaktype version without zaken with changed task and action settings", () => {
+    const changedCmmnConfiguration = fromPartial<ZaaktypeConfiguration>({
+      ...cmmnConfiguration,
+      isProcessDefinitionChangeable: true,
+      humanTaskParameters: [
+        {
+          planItemDefinition: { id: "fakeTaskId", naam: "Taak" },
+          actief: false,
+          doorlooptijd: 7,
+          defaultGroepId: "test-group-id",
+          formulierDefinitieId: "ADVIES",
+          referentieTabellen: [],
+        },
+      ],
+      userEventListenerParameters: [
+        {
+          id: "INTAKE_AFRONDEN",
+          naam: "Intake afronden",
+          toelichting: "fakeStoredToelichting",
+        },
+      ],
     });
 
-    it("stores the other BPMN process definition that the beheerder chooses", async () => {
+    it("stores another case definition with the default settings of its own tasks", async () => {
       const { updateZaakafhandelparameters } = await setup(
-        changeableBpmnConfiguration,
+        changedCmmnConfiguration,
       );
 
       await goToStep("gegevens.procesmodel");
-      await chooseProcessDefinition("Nieuw vergunningsproces");
+      await chooseProcessDefinition("Ander zaakafhandelmodel");
       await waitFor(() => expect(opslaan()).toBeEnabled());
       await user.click(opslaan());
 
       await waitFor(() =>
         expect(updateZaakafhandelparameters.mutationFn).toHaveBeenCalledWith(
           expect.objectContaining({
-            processDefinition: otherBpmnProcessDefinition,
+            processDefinition: otherCaseDefinition,
+            humanTaskParameters: [
+              expect.objectContaining({
+                planItemDefinition: expect.objectContaining({
+                  id: "fakeOtherTaskId",
+                }),
+                actief: true,
+              }),
+            ],
+            userEventListenerParameters: [],
+          }),
+          expect.anything(),
+        ),
+      );
+    });
+
+    it("restores the stored settings when the beheerder chooses another process definition and then the stored one again", async () => {
+      const { updateZaakafhandelparameters } = await setup(
+        changedCmmnConfiguration,
+      );
+
+      await goToStep("gegevens.procesmodel");
+      await chooseProcessDefinition("Vergunningsproces");
+      await waitFor(() => expectSteps(bpmnProcessDefinitionSteps));
+      await chooseProcessDefinition("Generiek zaakafhandelmodel");
+      await waitFor(() => expectSteps(caseDefinitionSteps));
+      await waitFor(() => expect(opslaan()).toBeEnabled());
+      await user.click(opslaan());
+
+      await waitFor(() =>
+        expect(updateZaakafhandelparameters.mutationFn).toHaveBeenCalledWith(
+          expect.objectContaining({
+            processDefinition: caseDefinition,
+            humanTaskParameters: [
+              expect.objectContaining({ actief: false, doorlooptijd: 7 }),
+            ],
+            userEventListenerParameters: [
+              expect.objectContaining({ toelichting: "fakeStoredToelichting" }),
+            ],
           }),
           expect.anything(),
         ),

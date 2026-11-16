@@ -27,9 +27,7 @@ import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeConfigurationsUnderTest
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_CMMN_PROCESS_DEFINITION_CANNOT_CHANGE
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_PROCESS_ENGINE_CANNOT_CHANGE
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
@@ -409,15 +407,28 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
             }
         }
 
-        given("a CMMN configuration") {
+        given("a CMMN configuration of a zaaktype version without zaken") {
             val zaaktypeConfiguration = createZaaktypeCmmnConfiguration()
+            stubZakenOfZaaktypeVersion(zaaktypeConfiguration.zaaktypeUuid, zakenCount = 0)
 
             `when`("it is checked") {
                 val isChangeable = zaaktypeConfigurationBeheerService.isProcessDefinitionChangeable(zaaktypeConfiguration)
 
-                then("it may not change, without asking Open Zaak for zaken") {
+                then("it may change, as no zaak reads the plan item settings of its case definition yet") {
+                    isChangeable shouldBe true
+                }
+            }
+        }
+
+        given("a CMMN configuration of a zaaktype version with a zaak") {
+            val zaaktypeConfiguration = createZaaktypeCmmnConfiguration()
+            stubZakenOfZaaktypeVersion(zaaktypeConfiguration.zaaktypeUuid, zakenCount = 1)
+
+            `when`("it is checked") {
+                val isChangeable = zaaktypeConfigurationBeheerService.isProcessDefinitionChangeable(zaaktypeConfiguration)
+
+                then("it may not change, so that all zaken of a zaaktype version follow the same case definition") {
                     isChangeable shouldBe false
-                    verify(exactly = 0) { zrcClientService.listZakenUuids(any()) }
                 }
             }
         }
@@ -480,11 +491,43 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
             }
         }
 
-        given("a CMMN configuration") {
+        given("a CMMN configuration of a zaaktype version without zaken") {
+            val zaaktypeConfiguration = createZaaktypeCmmnConfiguration()
+            val zaaktypeUuid = zaaktypeConfiguration.zaaktypeUuid
+            every { zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid) } returns zaaktypeConfiguration
+            stubZakenOfZaaktypeVersion(zaaktypeUuid, zakenCount = 0)
+
+            `when`("it is bound to another CMMN case definition") {
+                then("the binding is accepted") {
+                    shouldNotThrowAny {
+                        zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+                            zaaktypeUuid,
+                            ProcessEngine.CMMN,
+                            "fakeOtherCaseDefinition"
+                        )
+                    }
+                }
+            }
+
+            `when`("it is bound to a BPMN process definition") {
+                then("the binding is accepted, so that the zaaktype version switches engine") {
+                    shouldNotThrowAny {
+                        zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+                            zaaktypeUuid,
+                            ProcessEngine.BPMN,
+                            "fakeProcessB"
+                        )
+                    }
+                }
+            }
+        }
+
+        given("a CMMN configuration of a zaaktype version with a zaak") {
             val zaaktypeConfiguration = createZaaktypeCmmnConfiguration()
             val zaaktypeUuid = zaaktypeConfiguration.zaaktypeUuid
             val caseDefinitionKey = zaaktypeConfiguration.processBinding!!.definitionKey
             every { zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid) } returns zaaktypeConfiguration
+            stubZakenOfZaaktypeVersion(zaaktypeUuid, zakenCount = 1)
 
             `when`("it is bound to another CMMN case definition") {
                 val exception = shouldThrow<InputValidationFailedException> {
@@ -495,8 +538,8 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                     )
                 }
 
-                then("the binding is rejected because a CMMN case definition never changes") {
-                    exception.errorCode shouldBe ERROR_CODE_CMMN_PROCESS_DEFINITION_CANNOT_CHANGE
+                then("the binding is rejected with the error code that the beheerder sees explained") {
+                    exception.errorCode shouldBe ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE
                     exception.message shouldBe "The process definition of the configuration of zaaktype " +
                         "'$zaaktypeUuid' cannot change from CMMN '$caseDefinitionKey' to CMMN 'fakeOtherCaseDefinition'"
                 }
@@ -511,8 +554,8 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                     )
                 }
 
-                then("the binding is rejected because the engine never changes") {
-                    exception.errorCode shouldBe ERROR_CODE_PROCESS_ENGINE_CANNOT_CHANGE
+                then("the binding is rejected with the same error code") {
+                    exception.errorCode shouldBe ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE
                 }
             }
         }
@@ -521,6 +564,26 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
             val zaaktypeConfiguration = createZaaktypeBpmnConfiguration(bpmnProcessDefinitionKey = "fakeProcessA")
             val zaaktypeUuid = zaaktypeConfiguration.zaaktypeUuid
             every { zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid) } returns zaaktypeConfiguration
+            stubZakenOfZaaktypeVersion(zaaktypeUuid, zakenCount = 0)
+
+            `when`("the binding is checked") {
+                then("it is accepted, so that the zaaktype version switches engine") {
+                    shouldNotThrowAny {
+                        zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+                            zaaktypeUuid,
+                            ProcessEngine.CMMN,
+                            "fakeCaseDefinition"
+                        )
+                    }
+                }
+            }
+        }
+
+        given("a BPMN configuration of a zaaktype version with a zaak, bound to a CMMN case definition") {
+            val zaaktypeConfiguration = createZaaktypeBpmnConfiguration(bpmnProcessDefinitionKey = "fakeProcessA")
+            val zaaktypeUuid = zaaktypeConfiguration.zaaktypeUuid
+            every { zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid) } returns zaaktypeConfiguration
+            stubZakenOfZaaktypeVersion(zaaktypeUuid, zakenCount = 1)
 
             `when`("the binding is checked") {
                 val exception = shouldThrow<InputValidationFailedException> {
@@ -531,9 +594,8 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                     )
                 }
 
-                then("it is rejected because the engine never changes, without asking Open Zaak for zaken") {
-                    exception.errorCode shouldBe ERROR_CODE_PROCESS_ENGINE_CANNOT_CHANGE
-                    verify(exactly = 0) { ztcClientService.readZaaktype(zaaktypeUuid) }
+                then("it is rejected with the error code that the beheerder sees explained") {
+                    exception.errorCode shouldBe ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE
                 }
             }
         }
@@ -551,6 +613,30 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                             "fakeProcessB"
                         )
                     }
+                }
+            }
+        }
+    }
+
+    context("storing a configuration together with its response") {
+        given("a configuration whose response cannot be built") {
+            val zaaktypeConfiguration = createZaaktypeBpmnConfiguration()
+            every {
+                zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeConfiguration.zaaktypeUuid)
+            } returns null
+            every { zaaktypeConfigurationRepository.store(zaaktypeConfiguration) } returns zaaktypeConfiguration
+            every { zaaktypeConfigurationService.evict(zaaktypeConfiguration.zaaktypeUuid) } just runs
+
+            `when`("it is stored") {
+                val exception = shouldThrow<IllegalStateException> {
+                    zaaktypeConfigurationBeheerService.storeConfiguration(zaaktypeConfiguration) {
+                        throw IllegalStateException("fakeOpenZaakFailure")
+                    }
+                }
+
+                then("the failure leaves the transactional store, so that the transaction stores nothing") {
+                    exception.message shouldBe "fakeOpenZaakFailure"
+                    verify { zaaktypeConfigurationRepository.store(zaaktypeConfiguration) }
                 }
             }
         }

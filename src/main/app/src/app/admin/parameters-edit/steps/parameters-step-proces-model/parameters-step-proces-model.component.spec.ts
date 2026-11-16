@@ -57,7 +57,6 @@ describe(ParametersStepProcesModelComponent.name, () => {
       bpmnProcessDefinition,
       otherBpmnProcessDefinition,
     ],
-    boundProcessEngine?: ProcessDefinition["processEngine"],
     isProcessDefinitionChangeable?: boolean,
   ) {
     await render(ParametersStepProcesModelComponent, {
@@ -65,7 +64,6 @@ describe(ParametersStepProcesModelComponent.name, () => {
       inputs: {
         form,
         zaaktypeOmschrijving: "Test zaaktype omschrijving",
-        boundProcessEngine,
         isProcessDefinitionChangeable,
       },
       providers: [
@@ -126,88 +124,80 @@ describe(ParametersStepProcesModelComponent.name, () => {
     });
   });
 
-  describe("for a configuration that is bound to BPMN", () => {
-    it("offers only the BPMN process definitions, so that the beheerder cannot switch to CMMN", async () => {
-      await setup(
-        createProcessModelForm(bpmnProcessDefinition),
-        undefined,
-        "BPMN",
-      );
-
-      expect(await offeredProcessDefinitions()).toEqual([
-        "Vergunningsproces",
-        "Nieuw vergunningsproces",
-      ]);
-    });
-
-    it("lets the beheerder choose another BPMN process definition", async () => {
-      const form = createProcessModelForm(bpmnProcessDefinition);
-      await setup(form, undefined, "BPMN");
-
-      await offeredProcessDefinitions();
-      await user.click(
-        screen.getByRole("option", { name: "Nieuw vergunningsproces" }),
-      );
-
-      expect(form.value.processDefinition).toEqual(otherBpmnProcessDefinition);
-    });
-  });
-
-  describe("explains why the beheerder cannot choose another process definition", () => {
-    it("for a BPMN zaaktype version that already has zaken", async () => {
-      await setup(
-        createProcessModelForm(bpmnProcessDefinition),
-        undefined,
-        "BPMN",
-        false,
-      );
-
-      expect(
-        screen.getByText("zaps.step.procesmodel.locked.bpmn"),
-      ).toBeVisible();
-    });
-
-    it("for a CMMN zaaktype", async () => {
-      await setup(
-        createProcessModelForm(caseDefinition),
-        undefined,
-        "CMMN",
-        false,
-      );
-
-      expect(
-        screen.getByText("zaps.step.procesmodel.locked.cmmn"),
-      ).toBeVisible();
-    });
-
-    it.each([
-      [
-        "a BPMN zaaktype version without zaken",
-        bpmnProcessDefinition,
-        "BPMN",
-        true,
-      ],
-      ["a configuration that is not bound yet", null, undefined, true],
-    ] as const)(
-      "but not for %s, as it can change",
-      async (
-        _situation,
-        processDefinition,
-        boundProcessEngine,
-        isChangeable,
-      ) => {
+  describe.each([
+    [
+      "BPMN",
+      bpmnProcessDefinition,
+      caseDefinition,
+      "Generiek zaakafhandelmodel",
+    ],
+    ["CMMN", caseDefinition, bpmnProcessDefinition, "Vergunningsproces"],
+  ] as const)(
+    "for a configuration bound to %s whose zaaktype version has no zaken",
+    (_engine, boundProcessDefinition, otherEngineProcessDefinition, name) => {
+      it("offers the process definitions of every process engine", async () => {
         await setup(
-          createProcessModelForm(processDefinition),
+          createProcessModelForm(boundProcessDefinition),
           undefined,
-          boundProcessEngine,
-          isChangeable,
+          true,
+        );
+
+        expect(await offeredProcessDefinitions()).toEqual([
+          "Generiek zaakafhandelmodel",
+          "Ander zaakafhandelmodel",
+          "Vergunningsproces",
+          "Nieuw vergunningsproces",
+        ]);
+      });
+
+      it("lets the beheerder choose a process definition of the other process engine", async () => {
+        const form = createProcessModelForm(boundProcessDefinition);
+        await setup(form, undefined, true);
+
+        await offeredProcessDefinitions();
+        await user.click(screen.getByRole("option", { name }));
+
+        expect(form.value.processDefinition).toEqual(
+          otherEngineProcessDefinition,
+        );
+      });
+
+      it("does not explain a lock, as its process definition can change", async () => {
+        await setup(
+          createProcessModelForm(boundProcessDefinition),
+          undefined,
+          true,
         );
 
         expect(
-          screen.queryByText(/zaps\.step\.procesmodel\.locked/),
+          screen.queryByText("zaps.step.procesmodel.locked"),
         ).not.toBeInTheDocument();
-      },
-    );
+      });
+    },
+  );
+
+  it.each([
+    ["BPMN", bpmnProcessDefinition],
+    ["CMMN", caseDefinition],
+  ] as const)(
+    "explains why the beheerder cannot choose another process definition for a configuration bound to %s whose zaaktype version has zaken",
+    async (_engine, boundProcessDefinition) => {
+      await setup(
+        createProcessModelForm(boundProcessDefinition),
+        undefined,
+        false,
+      );
+
+      expect(screen.getByText("zaps.step.procesmodel.locked")).toBeVisible();
+    },
+  );
+
+  it("does not explain a lock for a configuration that is not bound yet", async () => {
+    await setup(createProcessModelForm(null), undefined, true);
+
+    expect(
+      screen.queryByText("zaps.step.procesmodel.locked"),
+    ).not.toBeInTheDocument();
   });
 
   it("marks only the chosen process definition as selected when a CMMN and a BPMN process definition have the same name", async () => {

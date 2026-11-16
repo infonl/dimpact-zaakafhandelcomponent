@@ -105,8 +105,8 @@ class ZaaktypeConfigurationRestService @Inject constructor(
      * configuration, that configuration is updated
      * @throws InputValidationFailedException if the configuration belongs to another zaaktype version than
      * [zaaktypeUUID], if it names no process definition, if the productaanvraagtype is already in use by another active
-     * zaaktype, if it binds a configuration to another engine than the one it is bound to, or if it binds a
-     * configuration to another process definition while that is not allowed
+     * zaaktype, or if it binds a configuration to another engine or process definition while its zaaktype version has
+     * zaken
      */
     @PUT
     @Path("{zaaktypeUUID}")
@@ -143,9 +143,9 @@ class ZaaktypeConfigurationRestService @Inject constructor(
             processEngine = processDefinition.processEngine,
             definitionKey = processDefinition.key
         )
-        return restZaaktypeConfigurationConverter.toZaaktypeConfiguration(restZaaktypeConfiguration)
-            .let(zaaktypeConfigurationBeheerService::storeConfiguration)
-            .toRestZaaktypeConfigurationForBeheer()
+        return zaaktypeConfigurationBeheerService.storeConfiguration(
+            restZaaktypeConfigurationConverter.toZaaktypeConfiguration(restZaaktypeConfiguration)
+        ) { it.toRestZaaktypeConfigurationForBeheer() }
     }
 
     /**

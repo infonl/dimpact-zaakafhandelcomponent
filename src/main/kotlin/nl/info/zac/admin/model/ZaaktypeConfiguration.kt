@@ -18,7 +18,6 @@ import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import nl.info.zac.database.flyway.FlywayIntegrator.Companion.SCHEMA
-import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.util.AllOpen
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -150,19 +149,16 @@ class ZaaktypeConfiguration {
     fun getProcessEngine(): ProcessEngine? = processBinding?.processEngine
 
     /**
-     * Binds this configuration to the given engine and definition, replacing the definition of a previous binding.
-     * A configuration never changes engine. A CMMN-bound configuration has a CMMN extension for the settings of the
-     * plan items of its case definition, and a BPMN-bound configuration has none.
+     * Binds this configuration to the given engine and definition, replacing a previous binding. Whether the binding
+     * may change is decided before. A CMMN-bound configuration has a CMMN extension that holds only the settings of
+     * the plan items of its case definition, and a BPMN-bound configuration has none.
      */
     fun bindTo(processEngine: ProcessEngine, definitionKey: String) {
-        getProcessEngine()?.takeIf { it != processEngine }?.let {
-            throw InputValidationFailedException(
-                message = "Zaaktype configuration for zaaktype '$zaaktypeUuid' is bound to $it and cannot be " +
-                    "bound to $processEngine"
-            )
-        }
+        val isOtherDefinition = processBinding?.let {
+            it.processEngine != processEngine || it.definitionKey != definitionKey
+        } ?: false
         when (processEngine) {
-            ProcessEngine.CMMN -> getOrCreateCmmnExtension()
+            ProcessEngine.CMMN -> getOrCreateCmmnExtension().also { if (isOtherDefinition) it.clearPlanItemSettings() }
             ProcessEngine.BPMN -> cmmnExtension = null
         }
         val binding = processBinding ?: ZaaktypeProcessBinding().also { processBinding = it }
