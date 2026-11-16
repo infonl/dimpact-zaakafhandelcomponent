@@ -25,7 +25,6 @@ import { BAGService } from "../../bag/bag.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { KlantenService } from "../../klanten/klanten.service";
-import { NotitiesComponent } from "../../notities/notities.component";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { PolicyService } from "../../policy/policy.service";
 import { RedenDialogFormComponent } from "../../shared/dialog/reden-dialog-form/reden-dialog-form.component";
@@ -112,7 +111,6 @@ describe(ZaakViewComponent.name, () => {
         ZaakBetrokkeneListComponent,
         ZaakDetailsCardComponent,
         ZaakInitiatorPanelComponent,
-        NotitiesComponent,
         ZaakIndicatiesComponent,
         SideNavComponent,
         StaticTextComponent,

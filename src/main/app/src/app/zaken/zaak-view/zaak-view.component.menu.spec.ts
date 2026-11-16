@@ -35,7 +35,6 @@ import { InformatieObjectCreateAttendedComponent } from "../../informatie-object
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
-import { NotitiesComponent } from "../../notities/notities.component";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { PolicyService } from "../../policy/policy.service";
 import { ZaakIndicatiesComponent } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
@@ -149,7 +148,6 @@ describe(ZaakViewComponent.name, () => {
         ZaakBetrokkeneListComponent,
         ZaakDetailsCardComponent,
         ZaakInitiatorPanelComponent,
-        NotitiesComponent,
         ZaakIndicatiesComponent,
         SideNavComponent,
         StaticTextComponent,

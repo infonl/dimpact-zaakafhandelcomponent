@@ -24,7 +24,6 @@ import { WebsocketService } from "../../core/websocket/websocket.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { KlantGegevens } from "../../klanten/model/klanten/klant-gegevens";
-import { NotitiesComponent } from "../../notities/notities.component";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { PolicyService } from "../../policy/policy.service";
 import { RedenDialogFormComponent } from "../../shared/dialog/reden-dialog-form/reden-dialog-form.component";
@@ -109,7 +108,6 @@ describe(ZaakViewComponent.name, () => {
         ZaakBetrokkeneListComponent,
         ZaakDetailsCardComponent,
         ZaakInitiatorPanelComponent,
-        NotitiesComponent,
         ZaakIndicatiesComponent,
         SideNavComponent,
         StaticTextComponent,

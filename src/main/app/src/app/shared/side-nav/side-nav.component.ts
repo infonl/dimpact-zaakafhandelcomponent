@@ -110,6 +110,11 @@ export class SideNavComponent {
     buttonMenuItem.fn();
   }
 
+  protected countSuffix(menuItem: MenuItem) {
+    const count = this.asButtonMenuItem(menuItem).count;
+    return count ? ` (${count})` : "";
+  }
+
   asButtonMenuItem(menuItem: MenuItem): ButtonMenuItem {
     return menuItem as ButtonMenuItem;
   }
