@@ -92,6 +92,16 @@ class ReindexSupportService @Inject constructor(
     }
 
     /**
+     * Makes the changes searchable without flushing them to disk, so a soft commit is much cheaper than [commit].
+     * The automatic hard commit of Solr still makes them durable.
+     */
+    fun softCommit() {
+        runTranslatingToIndexingException {
+            solrClient.commit(null, true, true, true)
+        }
+    }
+
+    /**
      * Builds the [ZaakListParameters] for [page] of the zaken listing, ordered consistently so that paging
      * through it in [reindexAllZaken]/[ZaakGedrevenReindexService] sees a stable ordering across pages.
      */

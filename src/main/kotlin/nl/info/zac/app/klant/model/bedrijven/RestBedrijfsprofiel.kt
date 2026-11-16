@@ -55,7 +55,7 @@ fun Vestiging.toRestBedrijfsprofiel() = RestBedrijfsprofiel(
         it.indHoofdactiviteit?.isIndicatie() == false
     }?.map { it.sbiOmschrijving },
     adressen = this.adressen?.map { it.toRestBedrijfAdres() },
-    website = this.websites?.first()
+    website = this.websites?.firstOrNull()
 )
 
 fun Basisprofiel.toRestBedrijfsprofiel() = RestBedrijfsprofiel(

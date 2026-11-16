@@ -92,14 +92,29 @@ fun createVestiging(
     this.adressen = adressen
 }
 
+@Suppress("LongParameterList")
 fun createVestigingsAdres(
     type: String = "fakeType",
     indAfgeschermd: String = "nee",
-    volledigAdres: String = "fakeVolledigAdres"
+    volledigAdres: String = "fakeVolledigAdres",
+    straatnaam: String? = null,
+    huisnummer: Int? = null,
+    huisletter: String? = null,
+    huisnummerToevoeging: String? = null,
+    postbusnummer: Int? = null,
+    postcode: String? = null,
+    plaats: String? = null
 ) = nl.info.client.kvk.vestigingsprofiel.model.generated.Adres().apply {
     this.type = type
     this.indAfgeschermd = indAfgeschermd
     this.volledigAdres = volledigAdres
+    this.straatnaam = straatnaam
+    this.huisnummer = huisnummer
+    this.huisletter = huisletter
+    this.huisnummerToevoeging = huisnummerToevoeging
+    this.postbusnummer = postbusnummer
+    this.postcode = postcode
+    this.plaats = plaats
 }
 
 fun createRandomVestigingsNumber() = createRandomDigitsString(12)

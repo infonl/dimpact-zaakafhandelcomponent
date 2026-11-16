@@ -5,6 +5,7 @@
 
 import { TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideTranslateService } from "@ngx-translate/core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { TekstFilterComponent } from "./tekst-filter.component";
@@ -15,10 +16,13 @@ describe(TekstFilterComponent.name, () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TekstFilterComponent, NoopAnimationsModule],
+      providers: [provideTranslateService()],
     }).compileComponents();
   });
 
-  const setup = async (inputs: { value?: string | null } = {}) => {
+  const setup = async (
+    inputs: { value?: string | null; label?: string } = {},
+  ) => {
     const fixture = TestBed.createComponent(TekstFilterComponent);
     Object.entries(inputs).forEach(([name, value]) =>
       fixture.componentRef.setInput(name, value),
@@ -38,6 +42,14 @@ describe(TekstFilterComponent.name, () => {
   };
 
   describe("the text field", () => {
+    it("is named after the translated label, so that a screen reader user knows what it filters", async () => {
+      await setup({ label: "zaak.identificatie" });
+
+      expect(
+        screen.getByRole("textbox", { name: "zaak.identificatie" }),
+      ).toBeInTheDocument();
+    });
+
     it("is pre-filled with the bound value", async () => {
       await setup({ value: "fakeValue" });
 
