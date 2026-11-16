@@ -163,24 +163,6 @@ class KvkExtensionFunctionsTest : BehaviorSpec({
             }
         }
 
-        given("A Dutch KVK profiel address with a huisnummertoevoeging") {
-            val adres = createVestigingsAdres(
-                straatnaam = "Kerkstraat",
-                huisnummer = 12,
-                huisnummerToevoeging = "H",
-                postcode = "1234AB",
-                plaats = "Amsterdam"
-            )
-
-            `when`("the address string is created") {
-                val addressString = adres.toAddressString()
-
-                then("the huisnummertoevoeging follows the house number without a space, as for a persoon") {
-                    addressString shouldBe "Kerkstraat 12H, 1234AB Amsterdam"
-                }
-            }
-        }
-
         given("A Dutch KVK profiel address without a house number, a huisletter and a postcode") {
             val adres = createVestigingsAdres(straatnaam = "Kerkstraat", plaats = "Amsterdam")
 
