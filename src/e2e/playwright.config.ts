@@ -10,7 +10,7 @@ import { ENV } from "./config/env";
 const journeysDirectory = defineBddConfig({
   featuresRoot: "bdd",
   features: "bdd/**/*.feature",
-  steps: ["bdd/**/*.steps.ts", "bdd/_core/fixture.ts"],
+  steps: ["bdd/**/*.steps.ts", "bdd/fixtures.ts"],
 });
 
 export default defineConfig({

@@ -4,8 +4,8 @@
  */
 
 import { expect } from "@playwright/test";
-import { Given, Then, When } from "../_core/fixture";
 import { isRole } from "../_core/roles";
+import { Given, Then, When } from "../fixtures";
 import { keycloakLoginPage, signIn } from "../support/keycloak";
 import { dashboard, profileMenuButton } from "../support/zac";
 

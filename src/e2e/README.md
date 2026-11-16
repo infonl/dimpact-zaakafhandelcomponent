@@ -34,7 +34,8 @@ change the fixtures that a step uses.
 | [config/env.ts](./config/env.ts)             | `ENV`: the validated configuration of the run.                                             |
 | [config/targets](./config/targets)           | One profile for each place where ZAC can run.                                              |
 | [setup](./setup)                             | The setup project, which signs in once for each role.                                      |
-| [bdd/_core](./bdd/_core)                     | The fixtures that every journey can use, and `Given`, `When` and `Then`.                   |
+| [bdd/fixtures.ts](./bdd/fixtures.ts)         | Combines the fixtures of `_core` and of every domain, and exports `Given`, `When` and `Then`. |
+| [bdd/_core](./bdd/_core)                     | The fixtures that every journey can use. They know no domain.                              |
 | `bdd/@<domain>`                              | The feature files, the steps and the fixtures of one domain.                               |
 | [bdd/support](./bdd/support)                 | Helpers for steps: the ZAC REST API, Keycloak and parts of the ZAC UI.                     |
 
@@ -90,8 +91,8 @@ scenarios of that role are skipped, and the report shows why.
   [testing.md](../../docs/development/testing.md#using-the-right-selectors-in-the-e2e-tests).
 - Write the Gherkin keywords in English and keep the Dutch domain nouns, such as zaak, taak and zaaktype.
 
-Steps import `Given`, `When` and `Then` from [bdd/_core/fixture.ts](./bdd/_core/fixture.ts) and are named
-`*.steps.ts`. These fixtures are available in every step:
+Steps import `Given`, `When` and `Then` from [bdd/fixtures.ts](./bdd/fixtures.ts) and are named `*.steps.ts`.
+These fixtures are available in every step:
 
 | Fixture                  | What it gives                                                                                  |
 |--------------------------|------------------------------------------------------------------------------------------------|
@@ -99,8 +100,10 @@ Steps import `Given`, `When` and `Then` from [bdd/_core/fixture.ts](./bdd/_core/
 | `apiAs`                  | A client for the REST API of ZAC with the session of a role, for example `apiAs("beheerder")`. |
 | `whileNoOtherWorkerDoes` | Runs an action that changes shared data, such as zaakafhandelparameters, in one worker at a time. |
 
-A domain adds its own fixtures in `bdd/@<domain>/fixtures.ts`, which extends the fixtures of
-[bdd/_core/core-fixtures.ts](./bdd/_core/core-fixtures.ts).
+A domain adds its own fixtures in `bdd/@<domain>/fixtures.ts`, which extends `coreTest` of
+[bdd/_core/fixtures.ts](./bdd/_core/fixtures.ts). Add the test of a new domain to `mergeTests` in
+[bdd/fixtures.ts](./bdd/fixtures.ts). That file is the only one that calls `createBdd`, so every step can use every
+fixture, and `bddgen` imports the generated tests from it.
 
 ## The cucumber-js suite
 

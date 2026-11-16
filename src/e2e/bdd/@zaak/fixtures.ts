@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { coreTest } from "../_core/core-fixtures";
+import { coreTest } from "../_core/fixtures";
 
 export const zaakTest = coreTest.extend<{
   zaakOfScenario: { identificatie?: string; bagAdres?: string };

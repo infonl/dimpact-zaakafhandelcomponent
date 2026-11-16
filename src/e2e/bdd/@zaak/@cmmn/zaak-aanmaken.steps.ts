@@ -4,7 +4,7 @@
  */
 
 import { expect, type Page } from "@playwright/test";
-import { Given, Then, When } from "../../_core/fixture";
+import { Given, Then, When } from "../../fixtures";
 import { setUpZaaktype } from "../../support/zaakafhandelparameters";
 
 // The BAG test double of the kind stack, in scripts/kind/seed/bag-wiremock, only answers this search text.
