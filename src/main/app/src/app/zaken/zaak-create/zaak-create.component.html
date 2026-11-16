@@ -40,21 +40,17 @@
   <form
     [formGroup]="form"
     (ngSubmit)="formSubmit()"
-    aria-labelledby="zaak-create-title"
+    [attr.aria-labelledby]="koppeling() ? 'zaak-create-title' : null"
   >
     <fieldset>
-      <legend>
-        @if (koppeling()) {
+      @if (koppeling()) {
+        <legend>
           <h2 id="zaak-create-title">
             {{ "actie.zaak.aanmaken" | translate }}
           </h2>
-        } @else {
-          <h1 id="zaak-create-title">
-            {{ "actie.zaak.aanmaken" | translate }}
-          </h1>
-        }
-        <ng-content></ng-content>
-      </legend>
+          <ng-content></ng-content>
+        </legend>
+      }
       <section class="row">
         <zac-auto-complete
           key="zaaktype"

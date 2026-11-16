@@ -21,3 +21,9 @@
 span {
   align-self: baseline;
 }
+
+// The inline-flex host stops the underline of a surrounding link, which would
+// otherwise also underline the icon.
+:host-context(a) span {
+  text-decoration: underline;
+}

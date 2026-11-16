@@ -5,6 +5,7 @@
 
 import { Injectable, inject } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { ZakenService } from "./zaken.service";
 
 @Injectable({
@@ -12,6 +13,7 @@ import { ZakenService } from "./zaken.service";
 })
 export class ZaakIdentificatieResolver {
   private readonly zakenService = inject(ZakenService);
+  private readonly queryClient = inject(QueryClient);
 
   resolve(route: ActivatedRouteSnapshot) {
     const zaakID = route.paramMap.get("zaakIdentificatie");
@@ -21,6 +23,6 @@ export class ZaakIdentificatieResolver {
       );
     }
 
-    return this.zakenService.readZaakByID(zaakID);
+    return this.queryClient.query(this.zakenService.readZaakByID(zaakID));
   }
 }

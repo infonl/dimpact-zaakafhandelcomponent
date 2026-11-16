@@ -14,6 +14,7 @@ import { BreadcrumbsComponent } from "../../core/breadcrumbs/breadcrumbs.compone
 import {
   BREADCRUMB_DETAIL,
   BREADCRUMB_ORIGIN,
+  BREADCRUMB_SECTION,
 } from "../../core/breadcrumbs/route-title";
 import {
   findOrigin,
@@ -43,7 +44,8 @@ describe(findOrigin.name, () => {
           { path: "admin", title: "Beheer", component: EmptyComponent },
           {
             path: "zaken",
-            title: "Zaken",
+            title: "Zaken-werkvoorraad",
+            data: BREADCRUMB_SECTION,
             children: [
               {
                 path: "mijn",
@@ -61,7 +63,8 @@ describe(findOrigin.name, () => {
           },
           {
             path: "taken",
-            title: "Taken",
+            title: "Taken-werkvoorraad",
+            data: BREADCRUMB_SECTION,
             children: [
               {
                 path: ":id",
@@ -73,7 +76,8 @@ describe(findOrigin.name, () => {
           },
           {
             path: "informatie-objecten",
-            title: "Documenten",
+            title: "Inbox documenten",
+            data: BREADCRUMB_SECTION,
             children: [
               {
                 path: ":uuid",
@@ -107,7 +111,6 @@ describe(findOrigin.name, () => {
 
     expect(findOrigin(location)?.url).toBe("/zaken/ZAAK-1");
     expect(navigationTrail(location).map(({ title }) => title)).toEqual([
-      "Zaken",
       "Mijn zaken",
       "ZAAK-1",
       "Taak 1",
