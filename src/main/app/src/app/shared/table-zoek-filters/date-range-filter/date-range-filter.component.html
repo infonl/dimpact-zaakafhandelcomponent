@@ -15,12 +15,12 @@
     <input
       matStartDate
       [placeholder]="'zoeken.filter.van' | translate"
-      [formControl]="dateVan"
+      [formControl]="startDate"
     />
     <input
       matEndDate
       [placeholder]="'zoeken.filter.tot-en-met' | translate"
-      [formControl]="dateTM"
+      [formControl]="endDate"
     />
   </mat-date-range-input>
   @if (hasRange()) {

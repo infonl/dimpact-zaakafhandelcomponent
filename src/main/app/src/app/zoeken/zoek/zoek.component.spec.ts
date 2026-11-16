@@ -512,9 +512,9 @@ describe(ZoekComponent.name, () => {
 
     describe("dateFilterChange", () => {
       it("sets date range for a key", () => {
-        const range = fromPartial<GeneratedType<"RestDatumRange">>({
-          van: "2024-01-01",
-          tot: "2024-12-31",
+        const range = fromPartial<GeneratedType<"RestDateRange">>({
+          from: "2024-01-01",
+          through: "2024-12-31",
         });
         component["dateFilterChange"]("STARTDATUM", range);
         expect(component["zoekParameters"]().datums?.["STARTDATUM"]).toEqual(

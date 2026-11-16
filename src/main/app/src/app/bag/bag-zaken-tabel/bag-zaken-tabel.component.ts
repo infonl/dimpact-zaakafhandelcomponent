@@ -130,11 +130,11 @@ export class BagZakenTabelComponent {
 
   protected datumChanged(
     veld: string,
-    range: GeneratedType<"RestDatumRange"> | null | undefined,
+    range: GeneratedType<"RestDateRange"> | null | undefined,
   ) {
     const { datums } = this.zoekParameters();
     this.searchFirstPage({
-      datums: { ...datums, [veld]: range ?? { van: null, tot: null } },
+      datums: { ...datums, [veld]: range ?? { from: null, through: null } },
     });
   }
 

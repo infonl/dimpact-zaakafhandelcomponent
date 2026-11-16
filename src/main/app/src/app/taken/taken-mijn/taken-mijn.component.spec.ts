@@ -253,6 +253,6 @@ describe(`${TakenMijnComponent.name} column filters`, () => {
     );
 
     expect(search).toMatchObject(expectedSearchFor(toelichtingFilter));
-    expect(search.datums?.TAAK_CREATIEDATUM?.van ?? null).toBeNull();
+    expect(search.datums?.TAAK_CREATIEDATUM?.from ?? null).toBeNull();
   });
 });

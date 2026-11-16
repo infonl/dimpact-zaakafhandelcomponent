@@ -13,11 +13,11 @@
       <input
         matInput
         [matDatepicker]="pickerVan"
-        [formControl]="dateVan"
+        [formControl]="startDate"
         (dateChange)="change()"
       />
-      @if (hasDateVan()) {
-        <mat-icon matSuffix (click)="dateVan.setValue(null); change()"
+      @if (hasStartDate()) {
+        <mat-icon matSuffix (click)="startDate.setValue(null); change()"
           >clear</mat-icon
         >
       } @else {
@@ -33,11 +33,11 @@
       <input
         matInput
         [matDatepicker]="pickerTM"
-        [formControl]="dateTM"
+        [formControl]="endDate"
         (dateChange)="change()"
       />
-      @if (hasDateTM()) {
-        <mat-icon matSuffix (click)="dateTM.setValue(null); change()"
+      @if (hasEndDate()) {
+        <mat-icon matSuffix (click)="endDate.setValue(null); change()"
           >clear</mat-icon
         >
       } @else {

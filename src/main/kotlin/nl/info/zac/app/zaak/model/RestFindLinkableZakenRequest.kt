@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Positive
 import jakarta.validation.constraints.PositiveOrZero
 import jakarta.validation.constraints.Size
-import nl.info.zac.app.search.model.RestDatumRange
+import nl.info.zac.app.search.model.RestDateRange
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.model.RelatieType
@@ -27,9 +27,9 @@ class RestFindLinkableZakenRequest {
     @field:Size(min = 2)
     var zoekZaakOmschrijving: String? = null
 
-    var startdatum: RestDatumRange? = null
+    var startdatum: RestDateRange? = null
 
-    var einddatum: RestDatumRange? = null
+    var einddatum: RestDateRange? = null
 
     var zoekZaakTypeOmschrijving: String? = null
 

@@ -160,8 +160,8 @@ export class ParametersComponent
           );
       }
       if (
-        parsedFilter.beginGeldigheid.van !== null ||
-        parsedFilter.beginGeldigheid.tot !== null
+        parsedFilter.beginGeldigheid.from !== null ||
+        parsedFilter.beginGeldigheid.through !== null
       ) {
         match =
           match &&
@@ -172,8 +172,8 @@ export class ParametersComponent
       }
 
       if (
-        parsedFilter.eindeGeldigheid.van !== null ||
-        parsedFilter.eindeGeldigheid.tot !== null
+        parsedFilter.eindeGeldigheid.from !== null ||
+        parsedFilter.eindeGeldigheid.through !== null
       ) {
         match =
           match &&
@@ -242,7 +242,7 @@ export class ParametersComponent
 
   protected applyDateRangeFilter(
     filter: "beginGeldigheid" | "eindeGeldigheid",
-    range: GeneratedType<"RestDatumRange">,
+    range: GeneratedType<"RestDateRange">,
   ) {
     this.setFilter(filter, range);
     this.applyFilter();

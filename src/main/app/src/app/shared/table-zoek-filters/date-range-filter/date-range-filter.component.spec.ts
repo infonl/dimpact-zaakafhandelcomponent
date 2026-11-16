@@ -12,10 +12,10 @@ import { provideZacDateAdapter } from "../../../date-time";
 import { GeneratedType } from "../../utils/generated-types";
 import { DateRangeFilterComponent } from "./date-range-filter.component";
 
-type DatumRange = GeneratedType<"RestDatumRange">;
+type DateRange = GeneratedType<"RestDateRange">;
 
 type DateRangeFilterInputs = {
-  range: DatumRange | null | undefined;
+  range: DateRange | null | undefined;
   label?: string;
   showLabel?: boolean;
 };
@@ -35,9 +35,9 @@ describe(DateRangeFilterComponent.name, () => {
     Object.entries({ label: "creatiedatum", ...inputs }).forEach(
       ([name, value]) => fixture.componentRef.setInput(name, value),
     );
-    const changed = jest.fn<void, [DatumRange]>();
+    const changed = jest.fn<void, [DateRange]>();
     fixture.componentInstance.changed.subscribe(changed);
-    const rangeChange = jest.fn<void, [DatumRange | null | undefined]>();
+    const rangeChange = jest.fn<void, [DateRange | null | undefined]>();
     fixture.componentInstance.range.subscribe(rangeChange);
     fixture.autoDetectChanges();
     await fixture.whenStable();
@@ -59,7 +59,9 @@ describe(DateRangeFilterComponent.name, () => {
 
   describe("the range input", () => {
     it("shows a UTC instant of an old saved search on the day the user picked", async () => {
-      await setup({ range: { van: "2026-07-29T22:00:00.000Z", tot: null } });
+      await setup({
+        range: { from: "2026-07-29T22:00:00.000Z", through: null },
+      });
 
       expect(startInput()).toHaveValue("30-07-2026");
     });
@@ -67,8 +69,8 @@ describe(DateRangeFilterComponent.name, () => {
     it("shows the dates of the bound range in DD-MM-YYYY format", async () => {
       await setup({
         range: {
-          van: "2026-03-25T00:00:00.000+01:00",
-          tot: "2026-03-31T00:00:00.000+02:00",
+          from: "2026-03-25T00:00:00.000+01:00",
+          through: "2026-03-31T00:00:00.000+02:00",
         },
       });
 
@@ -88,12 +90,12 @@ describe(DateRangeFilterComponent.name, () => {
 
     it("shows the dates of a different range bound by the parent", async () => {
       const { fixture } = await setup({
-        range: { van: "2024-01-01T00:00:00.000+01:00", tot: null },
+        range: { from: "2024-01-01T00:00:00.000+01:00", through: null },
       });
 
       fixture.componentRef.setInput("range", {
-        van: "2025-06-10T00:00:00.000+02:00",
-        tot: "2025-06-20T00:00:00.000+02:00",
+        from: "2025-06-10T00:00:00.000+02:00",
+        through: "2025-06-20T00:00:00.000+02:00",
       });
       fixture.detectChanges();
       await fixture.whenStable();
@@ -105,8 +107,8 @@ describe(DateRangeFilterComponent.name, () => {
     it("empties the date inputs when the parent binds null after a range", async () => {
       const { fixture } = await setup({
         range: {
-          van: "2024-01-01T00:00:00.000+01:00",
-          tot: "2024-01-31T00:00:00.000+01:00",
+          from: "2024-01-01T00:00:00.000+01:00",
+          through: "2024-01-31T00:00:00.000+01:00",
         },
       });
 
@@ -138,7 +140,7 @@ describe(DateRangeFilterComponent.name, () => {
 
   describe("the suffix", () => {
     it("shows the calendar toggle and no clear icon while no date is set", async () => {
-      await setup({ range: { van: null, tot: null } });
+      await setup({ range: { from: null, through: null } });
 
       expect(calendarToggle()).toBeInTheDocument();
       expect(clearIcon()).not.toBeInTheDocument();
@@ -146,12 +148,12 @@ describe(DateRangeFilterComponent.name, () => {
 
     it.each([
       {
-        dateThatIsSet: "van",
-        range: { van: "2024-01-01T00:00:00.000+01:00", tot: null },
+        dateThatIsSet: "the start date",
+        range: { from: "2024-01-01T00:00:00.000+01:00", through: null },
       },
       {
-        dateThatIsSet: "tot",
-        range: { van: null, tot: "2024-01-31T00:00:00.000+01:00" },
+        dateThatIsSet: "the end date",
+        range: { from: null, through: "2024-01-31T00:00:00.000+01:00" },
       },
     ])(
       "shows the clear icon instead of the calendar toggle when only $dateThatIsSet is set",
@@ -168,8 +170,8 @@ describe(DateRangeFilterComponent.name, () => {
     it("empties the date inputs and emits a range without dates", async () => {
       const { changed } = await setup({
         range: {
-          van: "2024-01-01T00:00:00.000+01:00",
-          tot: "2024-01-31T00:00:00.000+01:00",
+          from: "2024-01-01T00:00:00.000+01:00",
+          through: "2024-01-31T00:00:00.000+01:00",
         },
       });
 
@@ -178,14 +180,14 @@ describe(DateRangeFilterComponent.name, () => {
       expect(startInput()).toHaveValue("");
       expect(endInput()).toHaveValue("");
       expect(changed).toHaveBeenCalledTimes(1);
-      expect(changed).toHaveBeenCalledWith({ van: null, tot: null });
+      expect(changed).toHaveBeenCalledWith({ from: null, through: null });
       expect(calendarToggle()).toBeInTheDocument();
     });
 
     it("sets a new empty range on the model and leaves the bound range object untouched", async () => {
-      const range: DatumRange = {
-        van: "2024-01-01T00:00:00.000+01:00",
-        tot: "2024-01-31T00:00:00.000+01:00",
+      const range: DateRange = {
+        from: "2024-01-01T00:00:00.000+01:00",
+        through: "2024-01-31T00:00:00.000+01:00",
       };
       const { changed, rangeChange } = await setup({ range });
 
@@ -193,13 +195,13 @@ describe(DateRangeFilterComponent.name, () => {
 
       expect(rangeChange).toHaveBeenCalledTimes(1);
       expect(rangeChange).toHaveBeenCalledWith({
-        van: null,
-        tot: null,
+        from: null,
+        through: null,
       });
       expect(changed.mock.calls[0][0]).toBe(rangeChange.mock.calls[0][0]);
       expect(range).toEqual({
-        van: "2024-01-01T00:00:00.000+01:00",
-        tot: "2024-01-31T00:00:00.000+01:00",
+        from: "2024-01-01T00:00:00.000+01:00",
+        through: "2024-01-31T00:00:00.000+01:00",
       });
     });
   });
@@ -222,66 +224,66 @@ describe(DateRangeFilterComponent.name, () => {
     const thirtyFirstOfJanuary = "2024-01-31";
 
     it("emits the range with the typed dates as dates without a time", async () => {
-      const { changed } = await setup({ range: { van: null, tot: null } });
+      const { changed } = await setup({ range: { from: null, through: null } });
 
       await typeDate(startInput(), "01-01-2024");
 
       expect(changed).toHaveBeenLastCalledWith({
-        van: firstOfJanuary,
-        tot: null,
+        from: firstOfJanuary,
+        through: null,
       });
 
       await typeDate(endInput(), "31-01-2024");
 
       expect(changed).toHaveBeenLastCalledWith({
-        van: firstOfJanuary,
-        tot: thirtyFirstOfJanuary,
+        from: firstOfJanuary,
+        through: thirtyFirstOfJanuary,
       });
     });
 
-    it("emits 2026-07-30 for a van and t/m date of 30-07-2026", async () => {
-      const { changed } = await setup({ range: { van: null, tot: null } });
+    it("emits 2026-07-30 for a start and end date of 30-07-2026", async () => {
+      const { changed } = await setup({ range: { from: null, through: null } });
 
       await typeDate(startInput(), "30-07-2026");
       await typeDate(endInput(), "30-07-2026");
 
       expect(changed).toHaveBeenLastCalledWith({
-        van: "2026-07-30",
-        tot: "2026-07-30",
+        from: "2026-07-30",
+        through: "2026-07-30",
       });
     });
 
     it("sends a bound date of an old saved search without a time when only the other date is typed", async () => {
       const { changed } = await setup({
-        range: { van: "2023-12-31T23:00:00.000Z", tot: null },
+        range: { from: "2023-12-31T23:00:00.000Z", through: null },
       });
 
       await typeDate(endInput(), "31-01-2024");
 
       expect(changed).toHaveBeenLastCalledWith({
-        van: firstOfJanuary,
-        tot: thirtyFirstOfJanuary,
+        from: firstOfJanuary,
+        through: thirtyFirstOfJanuary,
       });
     });
 
     it("sets the typed dates on the model and leaves the bound range object untouched", async () => {
-      const range: DatumRange = { van: null, tot: null };
+      const range: DateRange = { from: null, through: null };
       const { changed, rangeChange } = await setup({ range });
 
       await typeDate(startInput(), "01-01-2024");
 
       expect(rangeChange).toHaveBeenCalledTimes(1);
       expect(rangeChange).toHaveBeenCalledWith({
-        van: firstOfJanuary,
-        tot: null,
+        from: firstOfJanuary,
+        through: null,
       });
       expect(changed.mock.calls[0][0]).toBe(rangeChange.mock.calls[0][0]);
-      expect(range).toEqual({ van: null, tot: null });
+      expect(range).toEqual({ from: null, through: null });
     });
 
     it("shows the typed dates again when the parent binds null and then the same range back", async () => {
       const { fixture, rangeChange } = await setup({
-        range: { van: null, tot: null },
+        range: { from: null, through: null },
       });
       await typeDate(startInput(), "01-01-2024");
       const typedRange = rangeChange.mock.calls[0][0];
@@ -297,7 +299,7 @@ describe(DateRangeFilterComponent.name, () => {
     });
 
     it("shows the clear icon once a date is typed", async () => {
-      await setup({ range: { van: null, tot: null } });
+      await setup({ range: { from: null, through: null } });
 
       await typeDate(startInput(), "01-01-2024");
 
@@ -307,7 +309,7 @@ describe(DateRangeFilterComponent.name, () => {
 
     it("does not emit changed when the only date is erased, but does set an empty range on the model", async () => {
       const { changed, rangeChange } = await setup({
-        range: { van: "2024-01-01T00:00:00.000+01:00", tot: null },
+        range: { from: "2024-01-01T00:00:00.000+01:00", through: null },
       });
 
       await user.clear(startInput());
@@ -316,8 +318,8 @@ describe(DateRangeFilterComponent.name, () => {
       expect(changed).not.toHaveBeenCalled();
       expect(rangeChange).toHaveBeenCalledTimes(1);
       expect(rangeChange).toHaveBeenCalledWith({
-        van: null,
-        tot: null,
+        from: null,
+        through: null,
       });
     });
   });

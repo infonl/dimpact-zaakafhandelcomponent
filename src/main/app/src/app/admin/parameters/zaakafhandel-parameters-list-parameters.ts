@@ -14,8 +14,14 @@ export class ZaakafhandelParametersListParameters extends ListParameters {
   zaaktype: Partial<GeneratedType<"RestZaaktype">> | null = null;
   processDefinition: Partial<GeneratedType<"RestProcessDefinition">> | null =
     null;
-  beginGeldigheid: GeneratedType<"RestDatumRange"> = { van: null, tot: null };
-  eindeGeldigheid: GeneratedType<"RestDatumRange"> = { van: null, tot: null };
+  beginGeldigheid: GeneratedType<"RestDateRange"> = {
+    from: null,
+    through: null,
+  };
+  eindeGeldigheid: GeneratedType<"RestDateRange"> = {
+    from: null,
+    through: null,
+  };
 
   constructor(sort: string, order: SortDirection) {
     super(sort, order);

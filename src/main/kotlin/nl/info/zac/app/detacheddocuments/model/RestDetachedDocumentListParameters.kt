@@ -5,7 +5,7 @@
 package nl.info.zac.app.detacheddocuments.model
 
 import nl.info.zac.app.identity.model.RestUser
-import nl.info.zac.app.search.model.RestDatumRange
+import nl.info.zac.app.search.model.RestDateRange
 import nl.info.zac.app.shared.RestListParameters
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -17,11 +17,11 @@ class RestDetachedDocumentListParameters : RestListParameters() {
 
     var reden: String? = null
 
-    var creatiedatum: RestDatumRange? = null
+    var creatiedatum: RestDateRange? = null
 
     var ontkoppeldDoor: RestUser? = null
 
-    var ontkoppeldOp: RestDatumRange? = null
+    var ontkoppeldOp: RestDateRange? = null
 
     var zaakID: String? = null
 }

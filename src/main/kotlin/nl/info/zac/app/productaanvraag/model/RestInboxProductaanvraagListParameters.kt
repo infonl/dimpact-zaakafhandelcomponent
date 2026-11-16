@@ -4,7 +4,7 @@
  */
 package nl.info.zac.app.productaanvraag.model
 
-import nl.info.zac.app.search.model.RestDatumRange
+import nl.info.zac.app.search.model.RestDateRange
 import nl.info.zac.app.shared.RestListParameters
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -13,6 +13,6 @@ import nl.info.zac.util.NoArgConstructor
 @NoArgConstructor
 class RestInboxProductaanvraagListParameters : RestListParameters() {
     var type: String? = null
-    var ontvangstdatum: RestDatumRange? = null
+    var ontvangstdatum: RestDateRange? = null
     var initiatorID: String? = null
 }

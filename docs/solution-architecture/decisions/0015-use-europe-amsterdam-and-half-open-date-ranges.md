@@ -37,8 +37,8 @@ rules", because it is the only option that gives the same result on every server
   including, the start of the day after the end date, in `Europe/Amsterdam`. A range without a start date or without
   an end date has no bound on that side. The sealed `DateRange` in `nl.info.zac.time` owns this conversion for Solr
   and JPA; its type says which bounds a range has.
-* The frontend sends a picked date as `yyyy-MM-dd`, without a time. The backend reads a date with a time as the date
-  of that instant in `Europe/Amsterdam`.
+* The REST API sends a date range as `{ from, through }`. The frontend sends a picked date as `yyyy-MM-dd`, without a
+  time. The backend reads a date with a time as the date of that instant in `Europe/Amsterdam`.
 * Date and time handling lives in the backend package `nl.info.zac.time` and the frontend module
   `src/main/app/src/app/date-time/`, which has one public `index.ts`.
 

@@ -66,8 +66,8 @@ fun createRestZoekParameters(
     filters: Map<FilterVeld, FilterParameters> = mapOf(
         FilterVeld.BEHANDELAAR to FilterParameters(listOf("fakeFilterValue"), false)
     ),
-    datums: Map<DatumVeld, RestDatumRange> = mapOf(
-        DatumVeld.STARTDATUM to RestDatumRange()
+    datums: Map<DatumVeld, RestDateRange> = mapOf(
+        DatumVeld.STARTDATUM to RestDateRange()
     ),
     sorteerVeld: SorteerVeld = SorteerVeld.CREATED,
     sorteerRichting: String = "ASC",

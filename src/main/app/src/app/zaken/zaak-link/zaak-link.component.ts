@@ -225,13 +225,13 @@ export class ZaakLinkComponent {
     );
   });
 
-  protected readonly startdatum = signal<GeneratedType<"RestDatumRange">>({
-    van: null,
-    tot: null,
+  protected readonly startdatum = signal<GeneratedType<"RestDateRange">>({
+    from: null,
+    through: null,
   });
-  protected readonly einddatum = signal<GeneratedType<"RestDatumRange">>({
-    van: null,
-    tot: null,
+  protected readonly einddatum = signal<GeneratedType<"RestDateRange">>({
+    from: null,
+    through: null,
   });
 
   constructor() {
@@ -308,10 +308,10 @@ export class ZaakLinkComponent {
       caseNumberToSearchFor ||
         caseDescriptionToSearchFor ||
         caseTypeToSearchFor ||
-        this.startdatum().van ||
-        this.startdatum().tot ||
-        this.einddatum().van ||
-        this.einddatum().tot,
+        this.startdatum().from ||
+        this.startdatum().through ||
+        this.einddatum().from ||
+        this.einddatum().through,
     );
   });
 
@@ -387,8 +387,8 @@ export class ZaakLinkComponent {
 
   protected reset() {
     this.form.reset();
-    this.startdatum.set({ van: null, tot: null });
-    this.einddatum.set({ van: null, tot: null });
+    this.startdatum.set({ from: null, through: null });
+    this.einddatum.set({ from: null, through: null });
     this.clearSearchResult();
   }
 

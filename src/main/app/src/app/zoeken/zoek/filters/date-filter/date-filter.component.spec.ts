@@ -15,7 +15,7 @@ import userEvent from "@testing-library/user-event";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { DateFilterComponent } from "./date-filter.component";
 
-type DatumRange = GeneratedType<"RestDatumRange">;
+type DateRange = GeneratedType<"RestDateRange">;
 
 const LABEL = "fakeDatumLabel";
 const JANUARY_15 = "2026-01-15";
@@ -27,11 +27,11 @@ const DECEMBER_31 = "2026-12-31";
 
 describe(DateFilterComponent.name, () => {
   let fixture: ComponentFixture<DateFilterComponent>;
-  let changed: jest.Mock<void, [DatumRange]>;
+  let changed: jest.Mock<void, [DateRange]>;
 
   const user = userEvent.setup({ delay: null });
 
-  async function setup(inputs: { range?: DatumRange | undefined } = {}) {
+  async function setup(inputs: { range?: DateRange | undefined } = {}) {
     changed = jest.fn();
     const rendered = await render(DateFilterComponent, {
       inputs: { label: LABEL, ...inputs },
@@ -82,8 +82,8 @@ describe(DateFilterComponent.name, () => {
     });
 
     it.each([
-      ["a van date", { van: JANUARY_15 }],
-      ["a tot date", { tot: MARCH_31 }],
+      ["a start date", { from: JANUARY_15 }],
+      ["an end date", { through: MARCH_31 }],
     ])("is expanded when the range has %s", async (_description, range) => {
       await setup({ range });
 
@@ -91,20 +91,20 @@ describe(DateFilterComponent.name, () => {
     });
 
     it("shows the date of an old saved search that holds a UTC instant on the day the user picked", async () => {
-      await setup({ range: { van: "2026-07-29T22:00:00.000Z" } });
+      await setup({ range: { from: "2026-07-29T22:00:00.000Z" } });
 
       expect(vanField()).toHaveValue("30-7-2026");
     });
 
-    it("fills the van and tot fields from the range", async () => {
-      await setup({ range: { van: JANUARY_15, tot: MARCH_31 } });
+    it("fills the start and end date fields from the range", async () => {
+      await setup({ range: { from: JANUARY_15, through: MARCH_31 } });
 
       expect(vanField()).toHaveValue("15-1-2026");
       expect(totField()).toHaveValue("31-3-2026");
     });
 
     it("offers to clear a filled field and to pick a date for an empty field", async () => {
-      await setup({ range: { van: JANUARY_15 } });
+      await setup({ range: { from: JANUARY_15 } });
 
       expect(screen.getAllByText("clear")).toHaveLength(1);
       expect(
@@ -113,9 +113,9 @@ describe(DateFilterComponent.name, () => {
     });
 
     it("keeps showing the dates it started with when the range input changes afterwards", async () => {
-      await setup({ range: { van: JANUARY_15 } });
+      await setup({ range: { from: JANUARY_15 } });
 
-      fixture.componentRef.setInput("range", { van: MARCH_31 });
+      fixture.componentRef.setInput("range", { from: MARCH_31 });
       fixture.detectChanges();
 
       expect(vanField()).toHaveValue("15-1-2026");
@@ -124,7 +124,7 @@ describe(DateFilterComponent.name, () => {
     it("expands when the range input gets a date afterwards", async () => {
       await setup();
 
-      fixture.componentRef.setInput("range", { tot: MARCH_31 });
+      fixture.componentRef.setInput("range", { through: MARCH_31 });
       fixture.detectChanges();
 
       expect(panelHeader()).toHaveAttribute("aria-expanded", "true");
@@ -132,14 +132,17 @@ describe(DateFilterComponent.name, () => {
   });
 
   describe("changing a date", () => {
-    it("emits a range with the picked van date when there was no range", async () => {
+    it("emits a range with the picked start date when there was no range", async () => {
       await setup({ range: undefined });
       await user.click(panelHeader());
 
       await typeDate(vanField(), TYPED_JUNE_1);
 
       expect(changed).toHaveBeenCalledTimes(1);
-      expect(changed).toHaveBeenCalledWith({ van: JUNE_1, tot: undefined });
+      expect(changed).toHaveBeenCalledWith({
+        from: JUNE_1,
+        through: undefined,
+      });
     });
 
     it("emits the picked date without a time", async () => {
@@ -150,12 +153,12 @@ describe(DateFilterComponent.name, () => {
       await typeDate(totField(), "2026-07-30");
 
       expect(changed).toHaveBeenLastCalledWith({
-        van: "2026-07-30",
-        tot: "2026-07-30",
+        from: "2026-07-30",
+        through: "2026-07-30",
       });
     });
 
-    it("keeps the picked van date when a tot date is picked afterwards", async () => {
+    it("keeps the picked start date when an end date is picked afterwards", async () => {
       await setup();
       await user.click(panelHeader());
 
@@ -164,52 +167,58 @@ describe(DateFilterComponent.name, () => {
 
       expect(changed).toHaveBeenCalledTimes(2);
       expect(changed).toHaveBeenLastCalledWith({
-        van: JUNE_1,
-        tot: DECEMBER_31,
+        from: JUNE_1,
+        through: DECEMBER_31,
       });
     });
 
     it("emits the range with the new date and the unchanged other date", async () => {
-      await setup({ range: { van: JANUARY_15, tot: MARCH_31 } });
+      await setup({ range: { from: JANUARY_15, through: MARCH_31 } });
 
       await typeDate(vanField(), TYPED_JUNE_1);
 
-      expect(changed).toHaveBeenCalledWith({ van: JUNE_1, tot: MARCH_31 });
+      expect(changed).toHaveBeenCalledWith({ from: JUNE_1, through: MARCH_31 });
     });
 
     it("writes a changed date into the range object of the parent when that date was already set", async () => {
-      const range: DatumRange = { van: JANUARY_15, tot: MARCH_31 };
+      const range: DateRange = { from: JANUARY_15, through: MARCH_31 };
       await setup({ range });
 
       await typeDate(vanField(), TYPED_JUNE_1);
 
-      expect(range).toEqual({ van: JUNE_1, tot: MARCH_31 });
+      expect(range).toEqual({ from: JUNE_1, through: MARCH_31 });
       expect(changed).toHaveBeenCalledWith(range);
     });
 
     it("leaves the range object of the parent untouched when the changed date was not set yet", async () => {
-      const range: DatumRange = {};
+      const range: DateRange = {};
       await setup({ range });
       await user.click(panelHeader());
 
       await typeDate(vanField(), TYPED_JUNE_1);
 
       expect(range).toEqual({});
-      expect(changed).toHaveBeenCalledWith({ van: JUNE_1, tot: undefined });
+      expect(changed).toHaveBeenCalledWith({
+        from: JUNE_1,
+        through: undefined,
+      });
     });
 
-    it("emits the range without the van date when that date is cleared", async () => {
-      await setup({ range: { van: JANUARY_15, tot: MARCH_31 } });
+    it("emits the range without the start date when that date is cleared", async () => {
+      await setup({ range: { from: JANUARY_15, through: MARCH_31 } });
 
       await user.click(screen.getAllByText("clear")[0]);
 
       expect(changed).toHaveBeenCalledTimes(1);
-      expect(changed).toHaveBeenCalledWith({ van: undefined, tot: MARCH_31 });
+      expect(changed).toHaveBeenCalledWith({
+        from: undefined,
+        through: MARCH_31,
+      });
       expect(vanField()).toHaveValue("");
     });
 
     it("collapses when its only date is cleared", async () => {
-      await setup({ range: { van: JANUARY_15 } });
+      await setup({ range: { from: JANUARY_15 } });
 
       await user.click(screen.getByText("clear"));
 
@@ -224,8 +233,8 @@ describe(DateFilterComponent.name, () => {
       await user.click(screen.getByText("clear"));
 
       expect(changed).toHaveBeenLastCalledWith({
-        van: undefined,
-        tot: undefined,
+        from: undefined,
+        through: undefined,
       });
       expect(panelHeader()).toHaveAttribute("aria-expanded", "false");
     });

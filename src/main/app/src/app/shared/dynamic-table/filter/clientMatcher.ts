@@ -9,22 +9,22 @@ import { GeneratedType } from "../../utils/generated-types";
 export class ClientMatcher {
   static matchDatum(
     dataField: string,
-    filterField: GeneratedType<"RestDatumRange">,
+    filterField: GeneratedType<"RestDateRange">,
   ) {
     if (!dataField) {
       return false;
     }
     const inputDate: moment.Moment = moment(dataField);
 
-    if (!!filterField.van && !!filterField.tot) {
+    if (!!filterField.from && !!filterField.through) {
       return (
-        inputDate.isSameOrAfter(moment(filterField.van)) &&
-        inputDate.isSameOrBefore(moment(filterField.tot))
+        inputDate.isSameOrAfter(moment(filterField.from)) &&
+        inputDate.isSameOrBefore(moment(filterField.through))
       );
-    } else if (filterField.van) {
-      return inputDate.isSameOrAfter(moment(filterField.van));
-    } else if (filterField.tot) {
-      return inputDate.isSameOrBefore(moment(filterField.tot));
+    } else if (filterField.from) {
+      return inputDate.isSameOrAfter(moment(filterField.from));
+    } else if (filterField.through) {
+      return inputDate.isSameOrBefore(moment(filterField.through));
     }
     return false;
   }

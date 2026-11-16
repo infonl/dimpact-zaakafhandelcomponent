@@ -176,17 +176,17 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
       case "DetachedDocumentListParameters":
         if (zoekFilters.zaakID) return true;
         if (zoekFilters.ontkoppeldDoor) return true;
-        if (zoekFilters.ontkoppeldOp?.van) return true;
-        if (zoekFilters.ontkoppeldOp?.tot) return true;
-        if (zoekFilters.creatiedatum?.van) return true;
-        if (zoekFilters.creatiedatum?.tot) return true;
+        if (zoekFilters.ontkoppeldOp?.from) return true;
+        if (zoekFilters.ontkoppeldOp?.through) return true;
+        if (zoekFilters.creatiedatum?.from) return true;
+        if (zoekFilters.creatiedatum?.through) return true;
         if (zoekFilters.titel) return true;
         if (zoekFilters.reden) return true;
         return false;
       case "InboxDocumentListParameters":
         if (zoekFilters.identificatie) return true;
-        if (zoekFilters.creatiedatum?.van) return true;
-        if (zoekFilters.creatiedatum?.tot) return true;
+        if (zoekFilters.creatiedatum?.from) return true;
+        if (zoekFilters.creatiedatum?.through) return true;
         if (zoekFilters.titel) return true;
         return false;
       default:

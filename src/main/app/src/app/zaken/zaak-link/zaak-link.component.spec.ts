@@ -163,16 +163,20 @@ describe(ZaakLinkComponent.name, () => {
   const dateRangeField = (label: string) =>
     screen.getByRole("group", { name: label });
 
-  const fillDateRange = async (label: string, van: string, tot: string) => {
+  const fillDateRange = async (
+    label: string,
+    from: string,
+    through: string,
+  ) => {
     await user.type(
       within(dateRangeField(label)).getByPlaceholderText("zoeken.filter.van"),
-      van,
+      from,
     );
     await user.type(
       within(dateRangeField(label)).getByPlaceholderText(
         "zoeken.filter.tot-en-met",
       ),
-      tot,
+      through,
     );
     await user.tab();
   };
@@ -304,12 +308,12 @@ describe(ZaakLinkComponent.name, () => {
       zoekZaakTypeOmschrijving: undefined,
       relationType: "DEELZAAK",
       startdatum: {
-        van: "2026-02-01T00:00:00.000+01:00",
-        tot: "2026-03-01T00:00:00.000+01:00",
+        from: "2026-02-01",
+        through: "2026-03-01",
       },
       einddatum: {
-        van: "2026-04-01T00:00:00.000+02:00",
-        tot: "2026-05-01T00:00:00.000+02:00",
+        from: "2026-04-01",
+        through: "2026-05-01",
       },
     });
   });

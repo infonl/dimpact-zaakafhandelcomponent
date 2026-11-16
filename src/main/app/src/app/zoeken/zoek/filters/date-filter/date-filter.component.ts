@@ -38,16 +38,16 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   ],
 })
 export class DateFilterComponent implements OnInit {
-  readonly range = input<GeneratedType<"RestDatumRange"> | undefined>({});
+  readonly range = input<GeneratedType<"RestDateRange"> | undefined>({});
   readonly label = input.required<string>();
-  readonly changed = output<GeneratedType<"RestDatumRange">>();
+  readonly changed = output<GeneratedType<"RestDateRange">>();
 
-  protected dateVan = new FormControl<PickedDate | null>(null);
-  protected dateTM = new FormControl<PickedDate | null>(null);
-  protected readonly hasDateVan = trackControl(signal(this.dateVan))(
+  protected startDate = new FormControl<PickedDate | null>(null);
+  protected endDate = new FormControl<PickedDate | null>(null);
+  protected readonly hasStartDate = trackControl(signal(this.startDate))(
     (control) => !!control.value,
   );
-  protected readonly hasDateTM = trackControl(signal(this.dateTM))(
+  protected readonly hasEndDate = trackControl(signal(this.endDate))(
     (control) => !!control.value,
   );
 
@@ -55,18 +55,18 @@ export class DateFilterComponent implements OnInit {
 
   ngOnInit() {
     const range = this.currentRange();
-    this.dateVan.setValue(fromApiDate(range?.van));
-    this.dateTM.setValue(fromApiDate(range?.tot));
+    this.startDate.setValue(fromApiDate(range?.from));
+    this.endDate.setValue(fromApiDate(range?.through));
   }
 
   protected change() {
-    this.updateRangeProperty("van", this.dateVan);
-    this.updateRangeProperty("tot", this.dateTM);
+    this.updateRangeProperty("from", this.startDate);
+    this.updateRangeProperty("through", this.endDate);
     this.changed.emit(this.currentRange());
   }
 
   private updateRangeProperty(
-    property: "van" | "tot",
+    property: "from" | "through",
     control: FormControl<PickedDate | null>,
   ) {
     const range = this.currentRange();
@@ -82,6 +82,6 @@ export class DateFilterComponent implements OnInit {
 
   protected expanded() {
     const range = this.currentRange();
-    return !!range?.van || !!range?.tot;
+    return !!range?.from || !!range?.through;
   }
 }
