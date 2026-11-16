@@ -11,6 +11,7 @@ import { targetSettingsSchema, type Target } from "./targets/target";
 
 const TARGETS: Record<string, Target> = { kind };
 const DEFAULT_TARGET = "kind";
+const ciSchema = z.stringbool().default(false);
 
 function loadEnvironment(environment: NodeJS.ProcessEnv) {
   const targetName = environment.E2E_TARGET ?? DEFAULT_TARGET;
@@ -28,10 +29,18 @@ function loadEnvironment(environment: NodeJS.ProcessEnv) {
     );
   }
 
+  const runsInCi = ciSchema.safeParse(environment.CI || undefined);
+  if (!runsInCi.success) {
+    throw new Error(
+      `CI has the value "${environment.CI}", which is not a boolean such as "true" or "false":\n` +
+        z.prettifyError(runsInCi.error),
+    );
+  }
+
   const { zacUrl, accounts } = settings.data;
   return {
     target: targetName,
-    runsInCi: Boolean(environment.CI),
+    runsInCi: runsInCi.data,
     accounts,
     zacUrl: typeof zacUrl === "string" ? zacUrl : undefined,
     zacUrlUnknownBecause:

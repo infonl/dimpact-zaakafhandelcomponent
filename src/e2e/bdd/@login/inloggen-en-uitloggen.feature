@@ -25,4 +25,4 @@ Feature: Inloggen en uitloggen
   Scenario: A wrong password is refused
     When I sign in as a behandelaar with a wrong password
     Then I see the message "Invalid username or password."
-    And I stay on the Keycloak login page
+    And I still see the Keycloak login page

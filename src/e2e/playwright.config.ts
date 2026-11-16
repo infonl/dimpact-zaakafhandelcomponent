@@ -25,6 +25,7 @@ export default defineConfig({
     ? [["html", { open: "never" }], ["github"], ["list"]]
     : [["html", { open: "never" }], ["list"]],
   use: {
+    ...devices["Desktop Chrome"],
     baseURL: ENV.zacUrl,
     locale: "nl-NL",
     timezoneId: "Europe/Amsterdam",
@@ -37,14 +38,12 @@ export default defineConfig({
       name: "setup",
       testDir: "setup",
       testMatch: /.*\.setup\.ts/,
-      use: devices["Desktop Chrome"],
     },
     {
       name: "journeys",
       testDir: journeysDirectory,
       dependencies: ["setup"],
       grepInvert: /@live-env-only/,
-      use: devices["Desktop Chrome"],
     },
   ],
 });

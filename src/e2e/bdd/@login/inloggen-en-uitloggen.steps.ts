@@ -15,14 +15,10 @@ function roleNamed(name: string) {
 }
 
 Given("I am signed out", async ({ context }) => {
-  expect(await context.cookies()).toEqual([]);
+  await context.clearCookies();
 });
 
-When("I open ZAC", async ({ page }) => {
-  await page.goto("/");
-});
-
-When("I open ZAC again", async ({ page }) => {
+When("I open ZAC( again)", async ({ page }) => {
   await page.goto("/");
 });
 
@@ -44,11 +40,7 @@ When("I sign out", async ({ page }) => {
   await page.getByRole("menuitem", { name: "Uitloggen" }).click();
 });
 
-Then("I see the Keycloak login page", async ({ page }) => {
-  await expect(keycloakLoginPage(page)).toBeVisible();
-});
-
-Then("I stay on the Keycloak login page", async ({ page }) => {
+Then("I (still )see the Keycloak login page", async ({ page }) => {
   await expect(keycloakLoginPage(page)).toBeVisible();
 });
 
