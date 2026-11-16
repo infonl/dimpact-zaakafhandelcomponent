@@ -37,6 +37,7 @@ import {
   MatTable,
   MatTableDataSource,
 } from "@angular/material/table";
+import { MatTooltip } from "@angular/material/tooltip";
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
@@ -96,6 +97,7 @@ type InboxProductaanvraagListParameters =
     MatIconButton,
     MatIconAnchor,
     MatIcon,
+    MatTooltip,
     MatFormField,
     MatSelect,
     MatOption,

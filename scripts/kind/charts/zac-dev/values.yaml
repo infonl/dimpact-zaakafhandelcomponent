@@ -137,7 +137,7 @@ solr:
 
 opa:
   # -- keep in sync with the OPA of charts/zac
-  image: openpolicyagent/opa:1.22.3-static@sha256:a6ccb6e0cc91b2d1807b1b65a844b189249b9ab33d126e0bca30c0cf43b0ae07
+  image: openpolicyagent/opa:1.22.4-static@sha256:12cecac5a174368f7d3f09d3a19d040ebe0c91d576e520335ae7a985a26e39d3
 
 officeConverter:
   # -- keep in sync with the office converter of charts/zac
@@ -145,7 +145,7 @@ officeConverter:
   username: zac
 
 brpPersonenMock:
-  image: ghcr.io/brp-api/personen-mock:2.7.0-202611120715@sha256:0ac50fbc2b17e61e3597958ab9bdd7ec55005db601ff96599202f49b18536de6
+  image: ghcr.io/brp-api/personen-mock:2.7.0-202611131533@sha256:d8baa99c89a18a6ea7fec5b9a41c32e520eefdfa362b48227c9cf6b222660dbf
 
 wiremock:
   image: wiremock/wiremock:3.13.2@sha256:0d4ecb3e4dc8213fd7a4d37d6a78f6e6b553a6d2e15bd51b0999781282ac61b3

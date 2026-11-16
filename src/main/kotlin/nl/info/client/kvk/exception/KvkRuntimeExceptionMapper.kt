@@ -8,10 +8,10 @@ import jakarta.ws.rs.core.MultivaluedMap
 import jakarta.ws.rs.core.Response
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper
 
-class KvkRuntimeExceptionMapper : ResponseExceptionMapper<RuntimeException> {
+class KvkRuntimeExceptionMapper : ResponseExceptionMapper<KvkClientException> {
     override fun handles(status: Int, headers: MultivaluedMap<String, Any>): Boolean =
         status >= Response.Status.INTERNAL_SERVER_ERROR.statusCode
 
     override fun toThrowable(response: Response) =
-        RuntimeException("Server response from KVK zoeken: '${response.status}' (${response.statusInfo})")
+        KvkClientException("Server response from the KVK API: '${response.status}' (${response.statusInfo})")
 }

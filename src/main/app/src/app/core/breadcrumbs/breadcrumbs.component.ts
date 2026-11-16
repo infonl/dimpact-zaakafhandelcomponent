@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Location } from "@angular/common";
+import { Location, NgTemplateOutlet } from "@angular/common";
 import { Component, DestroyRef, inject, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRouteSnapshot, NavigationEnd, Router } from "@angular/router";
@@ -12,12 +12,14 @@ import { QueryClient } from "@tanstack/angular-query-experimental";
 import { filter } from "rxjs";
 import {
   continueTrail,
+  detailPageKind,
   navigateToBreadcrumb,
   NavigationState,
   openedFromSearchState,
 } from "../../shared/navigation/navigation-origin";
 import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { ZakenService } from "../../zaken/zaken.service";
+import { BreadcrumbTitleTemplateDirective } from "./breadcrumb-title-template.directive";
 import { Breadcrumb, breadcrumbKind, breadcrumbs } from "./route-title";
 
 @Component({
@@ -25,7 +27,12 @@ import { Breadcrumb, breadcrumbKind, breadcrumbs } from "./route-title";
   templateUrl: "./breadcrumbs.component.html",
   styleUrls: ["./breadcrumbs.component.less"],
   standalone: true,
-  imports: [TranslatePipe, ZaakIdentificatieComponent],
+  imports: [
+    BreadcrumbTitleTemplateDirective,
+    NgTemplateOutlet,
+    TranslatePipe,
+    ZaakIdentificatieComponent,
+  ],
 })
 export class BreadcrumbsComponent {
   private readonly router = inject(Router);
@@ -90,6 +97,9 @@ export class BreadcrumbsComponent {
       ...routePage,
       url: this.router.url,
       key: window.navigation.currentEntry?.key,
+      ...(kind === "detail" && {
+        detailPageKind: detailPageKind(this.router.url),
+      }),
     };
     return kind === "detail" &&
       this.originTrail &&

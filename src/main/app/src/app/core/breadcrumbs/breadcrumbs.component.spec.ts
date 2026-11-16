@@ -26,6 +26,7 @@ import { BreadcrumbsComponent } from "./breadcrumbs.component";
 import {
   BREADCRUMB_DETAIL,
   BREADCRUMB_ORIGIN,
+  BREADCRUMB_SECTION,
   breadcrumbDetails,
   translatedTitle,
 } from "./route-title";
@@ -57,7 +58,8 @@ describe(BreadcrumbsComponent.name, () => {
           { path: "untitled", component: PageStubComponent },
           {
             path: "zaken",
-            title: "Zaken",
+            title: "Zaken-werkvoorraad",
+            data: BREADCRUMB_SECTION,
             children: [
               {
                 path: "mijn",
@@ -92,11 +94,18 @@ describe(BreadcrumbsComponent.name, () => {
           },
           {
             path: "taken",
-            title: "Taken",
+            title: "Taken-werkvoorraad",
+            data: BREADCRUMB_SECTION,
             children: [
               {
                 path: "mijn",
                 title: "Mijn taken",
+                data: BREADCRUMB_ORIGIN,
+                component: PageStubComponent,
+              },
+              {
+                path: "werkvoorraad",
+                title: "Taken-werkvoorraad",
                 data: BREADCRUMB_ORIGIN,
                 component: PageStubComponent,
               },
@@ -107,6 +116,23 @@ describe(BreadcrumbsComponent.name, () => {
                 component: PageStubComponent,
               },
             ],
+          },
+          {
+            path: "persoon",
+            title: "Persoonsgegevens",
+            children: [
+              {
+                path: ":id",
+                data: BREADCRUMB_DETAIL,
+                component: PageStubComponent,
+              },
+            ],
+          },
+          {
+            path: "bedrijf/:id",
+            title: "Bedrijfsgegevens",
+            data: BREADCRUMB_DETAIL,
+            component: PageStubComponent,
           },
           {
             path: "admin",
@@ -197,10 +223,17 @@ describe(BreadcrumbsComponent.name, () => {
   it("marks the last crumb as the current page", async () => {
     await navigateTo("/admin/parameters/some-uuid");
 
-    expect(screen.getByText("Intern zaaktype")).toHaveAttribute(
-      "aria-current",
-      "page",
+    expect(screen.getByRole("listitem", { current: "page" })).toHaveTextContent(
+      "Intern zaaktype",
     );
+  });
+
+  it("shows the title of the page as its heading, above the breadcrumbs", async () => {
+    await navigateTo("/admin/parameters/some-uuid");
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Intern zaaktype" }),
+    ).toBeInTheDocument();
   });
 
   it("shows a parent title once, although the empty-path child inherits it", async () => {
@@ -217,17 +250,64 @@ describe(BreadcrumbsComponent.name, () => {
     );
   });
 
-  it("shows no breadcrumbs on a route without a title", async () => {
+  it("shows no title and no breadcrumbs on a route without a title", async () => {
     await navigateTo("/untitled");
 
     expect(screen.queryByRole("navigation")).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading")).not.toBeInTheDocument();
     expect(TestBed.inject(Title).getTitle()).toBe("Zaakafhandelcomponent");
   });
 
   it("continues the breadcrumbs of the origin page a detail page is opened from", async () => {
     await navigateTo("/taken/mijn", "/zaken/ZAAK-1", "/taken/1");
 
-    expect(crumbs()).toEqual(["Taken", "Mijn taken", "ZAAK-1", "Taak 1"]);
+    expect(crumbs()).toEqual(["Mijn taken", "ZAAK-1", "Taak 1"]);
+  });
+
+  it("shows no section above a page of that section, because a section is no page", async () => {
+    await navigateTo("/zaken/mijn");
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Mijn zaken" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("navigation")).not.toBeInTheDocument();
+  });
+
+  it("shows the section as the parent of a detail page that was opened without an origin page", async () => {
+    await navigateTo("/zaken/ZAAK-1");
+
+    expect(crumbs()).toEqual(["Zaken-werkvoorraad", "ZAAK-1"]);
+    expect(
+      screen.getByRole("link", { name: "Zaken-werkvoorraad" }),
+    ).toHaveAttribute("href", "/zaken");
+  });
+
+  it("replaces a detail page with the detail page of the same type that is opened further on", async () => {
+    await navigateTo(
+      "/taken/werkvoorraad",
+      "/taken/1",
+      "/zaken/ZAAK-1",
+      "/taken/2",
+    );
+
+    expect(crumbs()).toEqual(["Taken-werkvoorraad", "Taak 2"]);
+  });
+
+  it("shows at most four levels: the origin page and the last three pages opened from it", async () => {
+    await navigateTo(
+      "/zaken/mijn",
+      "/zaken/ZAAK-1",
+      "/taken/1",
+      "/persoon/persoon-1",
+      "/bedrijf/bedrijf-1",
+    );
+
+    expect(crumbs()).toEqual([
+      "Mijn zaken",
+      "Taak 1",
+      "Persoonsgegevens",
+      "Bedrijfsgegevens",
+    ]);
   });
 
   it("links the inherited breadcrumbs to the pages they came from", async () => {
@@ -244,7 +324,7 @@ describe(BreadcrumbsComponent.name, () => {
 
     await userEvent.setup().click(screen.getByRole("link", { name: "ZAAK-1" }));
 
-    expect(crumbs()).toEqual(["Zaken", "Mijn zaken", "ZAAK-1"]);
+    expect(crumbs()).toEqual(["Mijn zaken", "ZAAK-1"]);
   });
 
   it("shows a lock that screen readers announce as zaakspecifiek geautoriseerd beside the zaaknummer of a zaakspecifiek geautoriseerde zaak", async () => {
@@ -274,7 +354,9 @@ describe(BreadcrumbsComponent.name, () => {
   it("shows no lock beside the zaaknummer of a zaak that is not zaakspecifiek geautoriseerd", async () => {
     await navigateTo("/zaken/mijn", "/zaken/ZAAK-1");
 
-    expect(screen.getByText("ZAAK-1")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 1, name: "ZAAK-1" }),
+    ).toBeInTheDocument();
     expect(
       screen.queryByRole("img", { name: "Zaakspecifiek geautoriseerd" }),
     ).not.toBeInTheDocument();
@@ -287,7 +369,9 @@ describe(BreadcrumbsComponent.name, () => {
     fixture.detectChanges();
 
     expect(
-      screen.getByRole("img", { name: "Zaakspecifiek geautoriseerd" }),
+      within(screen.getByRole("heading", { level: 1 })).getByRole("img", {
+        name: "Zaakspecifiek geautoriseerd",
+      }),
     ).toBeInTheDocument();
   });
 

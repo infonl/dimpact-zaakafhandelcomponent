@@ -4,7 +4,7 @@
  */
 
 import { ComponentType } from "@angular/cdk/portal";
-import { inject, Injectable, signal } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
@@ -45,25 +45,6 @@ export class ZaakActionDialogsService {
   );
   private readonly zakenService = inject(ZakenService);
   private readonly sideActions = inject(ZaakSideActionService);
-
-  /**
-   * The opschorting details do not travel with the zaak, so they are fetched
-   * separately. Kept here because the hervatten dialog is their only writer.
-   */
-  readonly opschorting = signal<
-    GeneratedType<"RestZaakOpschorting"> | undefined
-  >(undefined);
-
-  loadOpschorting(zaak: Zaak) {
-    if (!zaak.isOpgeschort) {
-      this.opschorting.set(undefined);
-      return;
-    }
-
-    this.zakenService
-      .readOpschortingZaak(zaak.uuid)
-      .subscribe((opschorting) => this.opschorting.set(opschorting));
-  }
 
   private onClosed<T>(
     closed: Observable<T>,
@@ -241,7 +222,9 @@ export class ZaakActionDialogsService {
   openHervatten(zaak: Zaak) {
     this.sideActions.close();
 
-    const opschorting = this.opschorting();
+    const opschorting = this.queryClient.getQueryData(
+      this.zakenService.readOpschortingZaak(zaak.uuid).queryKey,
+    );
     const werkelijkeOpschortDuur = moment().diff(
       moment(opschorting?.vanafDatumTijd),
       "days",
@@ -262,10 +245,6 @@ export class ZaakActionDialogsService {
             ),
         )
         .afterClosed(),
-      (result) => {
-        if (!result) return;
-        this.opschorting.set(undefined);
-      },
     );
   }
 

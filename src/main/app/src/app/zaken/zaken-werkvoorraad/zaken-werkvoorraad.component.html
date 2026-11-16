@@ -48,6 +48,7 @@
     <ng-container matColumnDef="zaak.identificatie_filter">
       <th mat-header-cell *matHeaderCellDef>
         <zac-tekst-filter
+          label="zaak.identificatie"
           [value]="dataSource.zoekParameters.zoeken.ZAAK_IDENTIFICATIE"
           (changed)="
             dataSource.zoekParameters.zoeken.ZAAK_IDENTIFICATIE = $event;
@@ -131,6 +132,7 @@
     <ng-container matColumnDef="omschrijving_filter">
       <th mat-header-cell *matHeaderCellDef id="omschrijving_filter">
         <zac-tekst-filter
+          label="omschrijving"
           [value]="dataSource.zoekParameters.zoeken.ZAAK_OMSCHRIJVING"
           (changed)="
             dataSource.zoekParameters.zoeken.ZAAK_OMSCHRIJVING = $event;
@@ -411,6 +413,7 @@
     <ng-container matColumnDef="toelichting_filter">
       <th mat-header-cell *matHeaderCellDef>
         <zac-tekst-filter
+          label="toelichting"
           [value]="dataSource.zoekParameters.zoeken.ZAAK_TOELICHTING"
           (changed)="
             dataSource.zoekParameters.zoeken.ZAAK_TOELICHTING = $event;
