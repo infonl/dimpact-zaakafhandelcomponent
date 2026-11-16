@@ -1,8 +1,11 @@
 ## Purpose
 
-Defines how ZAC handles dates and times: one time zone for the whole application, one meaning of a date range
-"van t/m", dates without a time between frontend and backend, and lint rules that keep date and time handling in one
-backend module and one frontend module.
+Defines how ZAC handles dates and times: one time zone for the whole application, one meaning of a date range,
+dates without a time between frontend and backend, and lint rules that keep date and time handling in one backend
+module and one frontend module.
+
+A date range has a start date and an end date, and includes the whole end date. The user interface labels the start
+date "van" and the end date "t/m" (tot en met, "through"). The REST API sends a date range as `from` and `through`.
 
 ## ADDED Requirements
 
@@ -18,35 +21,35 @@ whenever it determines the current date, independent of the time zone of the ser
 - **WHEN** the backend runs with the JVM time zone UTC and converts the date 30-07-2026 to the start of that day
 - **THEN** the result is 30-07-2026 00:00 in `Europe/Amsterdam`, which is 29-07-2026 22:00 UTC
 
-### Requirement: A date range includes the whole t/m day
-A date filter with a van date and a t/m date SHALL match every value from the start of the van day up to, but not
-including, the start of the day after the t/m day, in the time zone `Europe/Amsterdam`. A range without a van date has
-no lower bound; a range without a t/m date has no upper bound. This SHALL hold for the work lists of zaken, taken,
+### Requirement: A date range includes the whole end date
+A date filter with a start date and an end date SHALL match every value from the start of the start date up to, but
+not including, the start of the day after the end date, in the time zone `Europe/Amsterdam`. A range without a start
+date has no lower bound; a range without an end date has no upper bound. This SHALL hold for the work lists of zaken, taken,
 inbox documents, detached documents and inbox productaanvragen, and for the date filters of the search screen.
 
-#### Scenario: Van today t/m today on a field with a time
-- **WHEN** a user filters the tasks on "Aangemaakt op" van today t/m today, and a task was created today at 09:15
+#### Scenario: From today through today on a field with a time
+- **WHEN** a user filters the tasks on "Aangemaakt op" from today through today, and a task was created today at 09:15
 - **THEN** the list shows that task
 
-#### Scenario: The last moment of the t/m day
-- **WHEN** a user filters on a range t/m 30-07-2026, and a value is 30-07-2026 23:59:59 in `Europe/Amsterdam`
+#### Scenario: The last moment of the end date
+- **WHEN** a user filters on a range through 30-07-2026, and a value is 30-07-2026 23:59:59 in `Europe/Amsterdam`
 - **THEN** the value matches
 
-#### Scenario: The start of the day after the t/m day
-- **WHEN** a user filters on a range t/m 30-07-2026, and a value is 31-07-2026 00:00 in `Europe/Amsterdam`
+#### Scenario: The start of the day after the end date
+- **WHEN** a user filters on a range through 30-07-2026, and a value is 31-07-2026 00:00 in `Europe/Amsterdam`
 - **THEN** the value does not match
 
-#### Scenario: The day before the van day
-- **WHEN** a user filters on a range van 30-07-2026, and a value is 29-07-2026 23:59 in `Europe/Amsterdam`
+#### Scenario: The day before the start date
+- **WHEN** a user filters on a range from 30-07-2026, and a value is 29-07-2026 23:59 in `Europe/Amsterdam`
 - **THEN** the value does not match
 
 #### Scenario: A field without a time
-- **WHEN** a user filters zaken on "Startdatum" van 30-07-2026 t/m 30-07-2026, and a zaak has the startdatum 30-07-2026
+- **WHEN** a user filters zaken on "Startdatum" from 30-07-2026 through 30-07-2026, and a zaak has the startdatum 30-07-2026
 - **THEN** the list shows that zaak
 
 #### Scenario: The same filter on every list
-- **WHEN** a user filters the inbox documents, the detached documents and the search screen documents on van 30-07-2026
-  t/m 30-07-2026
+- **WHEN** a user filters the inbox documents, the detached documents and the search screen documents from 30-07-2026
+  through 30-07-2026
 - **THEN** each list shows exactly the documents of 30-07-2026 and none of 29-07-2026
 
 ### Requirement: Dates travel without a time
@@ -55,16 +58,20 @@ When the backend receives a date field that holds a time, it SHALL use the date 
 `Europe/Amsterdam`.
 
 #### Scenario: The frontend sends a picked date
-- **WHEN** a user in the Netherlands picks 30-07-2026 as the van date of a date filter
-- **THEN** the request holds `"van": "2026-07-30"`
+- **WHEN** a user in the Netherlands picks 30-07-2026 as the start date of a date filter
+- **THEN** the request holds `"from": "2026-07-30"`
 
 #### Scenario: The backend receives a date with a time
-- **WHEN** the backend receives `"van": "2026-07-29T22:00:00.000Z"` for a date field, for example from a saved search
+- **WHEN** the backend receives `"from": "2026-07-29T22:00:00.000Z"` for a date field, for example from a saved search
 - **THEN** the backend uses the date 30-07-2026
 
 #### Scenario: A saved search with an old date shows the same date
 - **WHEN** a user opens a saved search that holds the date `2026-07-29T22:00:00.000Z`
 - **THEN** the date filter shows 30-07-2026
+
+#### Scenario: A saved search from before the English names keeps its date filter
+- **WHEN** a saved search holds a date range as `{"van": "2026-07-01", "tot": "2026-07-30"}`, and ZAC is upgraded
+- **THEN** the saved search holds `{"from": "2026-07-01", "through": "2026-07-30"}` and filters on the same dates
 
 ### Requirement: Date and time handling stays in one module per side
 The build SHALL fail when code outside the backend date and time module reads the system clock or the system time
