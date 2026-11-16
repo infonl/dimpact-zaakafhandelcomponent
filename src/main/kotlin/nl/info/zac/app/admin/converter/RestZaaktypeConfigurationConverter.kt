@@ -88,10 +88,6 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
         return restZaaktypeConfiguration
     }
 
-    /**
-     * Converts the configuration of [zaaktype] to a row of the configuration list. It does not read the zaaktype
-     * again, nor the settings that only the edit page of the configuration shows.
-     */
     fun toRestZaaktypeConfigurationOverzicht(zaaktypeConfiguration: ZaaktypeConfiguration, zaaktype: ZaakType) =
         RestZaaktypeConfigurationOverzicht(
             zaaktype = zaaktype.toRestZaaktypeBeheerOverzicht(),

@@ -125,48 +125,74 @@ describe(`${ParametersComponent.name} compare functions`, () => {
   describe("compareZaaktype", () => {
     it("should return true when identificatie matches", () => {
       const component = createParametersComponent();
-      const a = fromPartial<GeneratedType<"RestZaaktypeBeheerOverzicht">>({
+      const zaaktype1 = fromPartial<
+        GeneratedType<"RestZaaktypeBeheerOverzicht">
+      >({
         identificatie: "ZT-001",
       });
-      const b = fromPartial<GeneratedType<"RestZaaktypeBeheerOverzicht">>({
+      const zaaktype2 = fromPartial<
+        GeneratedType<"RestZaaktypeBeheerOverzicht">
+      >({
         identificatie: "ZT-001",
       });
-      expect(component["compareZaaktype"](a, b)).toBe(true);
+      expect(component["compareZaaktype"](zaaktype1, zaaktype2)).toBe(true);
     });
 
     it("should return false when identificatie differs", () => {
       const component = createParametersComponent();
-      const a = fromPartial<GeneratedType<"RestZaaktypeBeheerOverzicht">>({
+      const zaaktype1 = fromPartial<
+        GeneratedType<"RestZaaktypeBeheerOverzicht">
+      >({
         identificatie: "ZT-001",
       });
-      const b = fromPartial<GeneratedType<"RestZaaktypeBeheerOverzicht">>({
+      const zaaktype2 = fromPartial<
+        GeneratedType<"RestZaaktypeBeheerOverzicht">
+      >({
         identificatie: "ZT-002",
       });
-      expect(component["compareZaaktype"](a, b)).toBe(false);
+      expect(component["compareZaaktype"](zaaktype1, zaaktype2)).toBe(false);
     });
   });
 
   describe("compareProcessDefinition", () => {
     it("should return true when key matches", () => {
       const component = createParametersComponent();
-      const a = fromPartial<GeneratedType<"RestProcessDefinitionOverzicht">>({
+      const processDefinition1 = fromPartial<
+        GeneratedType<"RestProcessDefinitionOverzicht">
+      >({
         key: "key-1",
       });
-      const b = fromPartial<GeneratedType<"RestProcessDefinitionOverzicht">>({
+      const processDefinition2 = fromPartial<
+        GeneratedType<"RestProcessDefinitionOverzicht">
+      >({
         key: "key-1",
       });
-      expect(component["compareProcessDefinition"](a, b)).toBe(true);
+      expect(
+        component["compareProcessDefinition"](
+          processDefinition1,
+          processDefinition2,
+        ),
+      ).toBe(true);
     });
 
     it("should return false when key differs", () => {
       const component = createParametersComponent();
-      const a = fromPartial<GeneratedType<"RestProcessDefinitionOverzicht">>({
+      const processDefinition1 = fromPartial<
+        GeneratedType<"RestProcessDefinitionOverzicht">
+      >({
         key: "key-1",
       });
-      const b = fromPartial<GeneratedType<"RestProcessDefinitionOverzicht">>({
+      const processDefinition2 = fromPartial<
+        GeneratedType<"RestProcessDefinitionOverzicht">
+      >({
         key: "key-2",
       });
-      expect(component["compareProcessDefinition"](a, b)).toBe(false);
+      expect(
+        component["compareProcessDefinition"](
+          processDefinition1,
+          processDefinition2,
+        ),
+      ).toBe(false);
     });
   });
 });

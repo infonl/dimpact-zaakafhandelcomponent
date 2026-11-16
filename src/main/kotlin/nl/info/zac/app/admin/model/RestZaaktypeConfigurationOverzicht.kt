@@ -11,8 +11,7 @@ import java.time.ZonedDateTime
 
 /**
  * A row of the Zaakafhandelparameters page: the configuration of a zaaktype version, with only the fields that the
- * page shows, filters and sorts on. A zaaktype version without a saved configuration has no [processDefinition] and
- * no [creatiedatum].
+ * page shows, filters and sorts on.
  */
 @NoArgConstructor
 @AllOpen

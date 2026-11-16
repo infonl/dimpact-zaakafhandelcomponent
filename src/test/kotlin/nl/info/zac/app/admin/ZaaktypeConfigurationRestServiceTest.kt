@@ -9,7 +9,6 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
@@ -425,7 +424,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                 }
 
                 then("the request is refused without listing the zaaktypes") {
-                    policyException shouldNotBe null
+                    policyException.message shouldBe null
                     verify(exactly = 0) { ztcClientService.listZaaktypen(any()) }
                 }
             }
