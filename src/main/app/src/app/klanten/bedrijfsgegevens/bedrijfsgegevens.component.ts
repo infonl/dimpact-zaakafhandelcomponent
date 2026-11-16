@@ -25,6 +25,7 @@ import { StaticTextComponent } from "../../shared/static-text/static-text.compon
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
 import { buildBedrijfRouteLink } from "../bedrijf-route-link";
+import { injectKvkProfiel, KvkProfielAanvraag } from "../inject-kvk-profiel";
 import { KlantenService } from "../klanten.service";
 
 @Component({
@@ -72,33 +73,23 @@ export class BedrijfsgegevensComponent {
     computation: () => false,
   });
 
-  private readonly vestigingsnummer = computed(
-    () => this.bedrijfQuery.data()?.vestigingsnummer,
-  );
-
-  private readonly kvkNummer = computed(
-    () => this.bedrijfQuery.data()?.kvkNummer,
-  );
-
-  private readonly vestigingsprofielQuery = injectQuery(() => ({
-    ...this.klantenService.readVestigingsprofiel(this.vestigingsnummer() ?? ""),
-    enabled: this.profielOpgevraagd() && !!this.vestigingsnummer(),
-  }));
-
-  private readonly basisprofielQuery = injectQuery(() => ({
-    ...this.klantenService.readBasisprofiel(this.kvkNummer() ?? ""),
-    enabled:
-      this.profielOpgevraagd() &&
-      !this.vestigingsnummer() &&
-      !!this.kvkNummer(),
-  }));
-
-  protected readonly profiel = computed(() => {
-    if (!this.profielOpgevraagd()) return null;
-    if (this.vestigingsnummer())
-      return this.vestigingsprofielQuery.data() ?? null;
-    return this.basisprofielQuery.data() ?? null;
+  private readonly kvkProfiel = injectKvkProfiel((): KvkProfielAanvraag => {
+    const bedrijf = this.bedrijfQuery.data();
+    if (bedrijf?.vestigingsnummer)
+      return { vestigingsnummer: bedrijf.vestigingsnummer };
+    if (bedrijf?.kvkNummer) return { kvkNummer: bedrijf.kvkNummer };
+    return null;
   });
+
+  protected readonly profielLaden = this.kvkProfiel.laden;
+
+  protected readonly profielFoutmelding = this.kvkProfiel.foutmelding;
+
+  protected readonly adressen = this.kvkProfiel.adressen;
+
+  protected readonly profiel = computed(() =>
+    this.profielOpgevraagd() ? this.kvkProfiel.profiel() : null,
+  );
 
   protected warningIcon = new TextIcon(
     () => true,
@@ -113,6 +104,7 @@ export class BedrijfsgegevensComponent {
   }
 
   protected ophalenProfiel() {
+    if (this.profielFoutmelding()) this.kvkProfiel.opnieuwOphalen();
     this.profielOpgevraagd.set(true);
   }
 }

@@ -46,29 +46,34 @@ export function reportsErrors(meta: ZacMeta | undefined) {
  * Only a response is reported: anything else that fails a read, such as a
  * read that is cancelled, is not a failure the server gave.
  */
+export function createZacQueryCache(
+  foutAfhandelingService: () => FoutAfhandelingService,
+) {
+  return new QueryCache({
+    onError: (error, query) => {
+      if (!(error instanceof HttpErrorResponse)) return;
+      if (!reportsErrors(query.meta)) return;
+
+      if (
+        query.state.data !== undefined &&
+        !query.meta?.reportFailedRefetch &&
+        !isLoggedOut(error)
+      ) {
+        console.error(error);
+        return;
+      }
+
+      foutAfhandelingService().foutAfhandelen(error);
+    },
+  });
+}
+
 export const QUERY_CLIENT = new InjectionToken<QueryClient>("QUERY_CLIENT", {
   providedIn: "root",
   factory: () => {
     const foutAfhandelingService = inject(FoutAfhandelingService);
-
     return new QueryClient({
-      queryCache: new QueryCache({
-        onError: (error, query) => {
-          if (!(error instanceof HttpErrorResponse)) return;
-          if (!reportsErrors(query.meta)) return;
-
-          if (
-            query.state.data !== undefined &&
-            !query.meta?.reportFailedRefetch &&
-            !isLoggedOut(error)
-          ) {
-            console.error(error);
-            return;
-          }
-
-          foutAfhandelingService.foutAfhandelen(error);
-        },
-      }),
+      queryCache: createZacQueryCache(() => foutAfhandelingService),
     });
   },
 });
