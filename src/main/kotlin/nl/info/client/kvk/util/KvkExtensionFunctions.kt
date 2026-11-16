@@ -4,22 +4,105 @@
  */
 package nl.info.client.kvk.util
 
-import nl.info.client.kvk.zoeken.model.generated.BinnenlandsAdres
-import nl.info.client.kvk.zoeken.model.generated.BuitenlandsAdres
+import jakarta.ws.rs.ProcessingException
+import jakarta.ws.rs.WebApplicationException
+import jakarta.ws.rs.core.Response
+import nl.info.client.kvk.KvkClientService
+import nl.info.client.kvk.basisprofiel.model.generated.Basisprofiel
+import nl.info.client.kvk.exception.KvkClientException
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
+import nl.info.zac.util.formatHuisnummer
 import nl.info.zac.util.joinNonBlank
+import java.util.logging.Level
+import java.util.logging.Logger
+import nl.info.client.kvk.basisprofiel.model.generated.Adres as BasisprofielAdres
+import nl.info.client.kvk.vestigingsprofiel.model.generated.Adres as VestigingsprofielAdres
 
-fun ResultaatItem.toAddressString() =
-    this.getAdres()?.getBinnenlandsAdres()?.toAddressString()
-        ?: this.getAdres()?.getBuitenlandsAdres()?.toAddressString().orEmpty()
+private const val KVK_ADRES_TYPE_CORRESPONDENTIEADRES = "correspondentieadres"
+private const val KVK_ADRES_TYPE_BEZOEKADRES = "bezoekadres"
 
-private fun BinnenlandsAdres.toAddressString(): String {
-    val huisnummerWithSuffix = listOf(this.getHuisnummer()?.toString(), this.getHuisletter()).joinNonBlank()
-    return listOf(
-        listOf(this.getStraatnaam(), huisnummerWithSuffix).joinNonBlank(" "),
-        listOf(this.getPostcode(), this.getPlaats()).joinNonBlank(" ")
-    ).joinNonBlank(", ")
+private val LOG = Logger.getLogger(KvkClientService::class.java.name)
+
+fun KvkClientService.findCorrespondentieadresOrBezoekadres(resultaatItem: ResultaatItem): VestigingsprofielAdres? =
+    try {
+        findProfielCorrespondentieadresOrBezoekadres(resultaatItem)
+    } catch (webApplicationException: WebApplicationException) {
+        if (webApplicationException.response?.status == Response.Status.NOT_FOUND.statusCode) {
+            logKvkProfielFailure(Level.FINE, webApplicationException)
+        } else {
+            logKvkProfielFailure(Level.WARNING, webApplicationException)
+        }
+    } catch (kvkClientException: KvkClientException) {
+        logKvkProfielFailure(Level.WARNING, kvkClientException)
+    } catch (processingException: ProcessingException) {
+        logKvkProfielFailure(Level.WARNING, processingException)
+    }
+
+private fun KvkClientService.findProfielCorrespondentieadresOrBezoekadres(
+    resultaatItem: ResultaatItem
+): VestigingsprofielAdres? {
+    val vestigingsnummer = resultaatItem.vestigingsnummer
+    val kvkNummer = resultaatItem.kvkNummer
+    return when {
+        vestigingsnummer != null -> findVestigingsprofiel(vestigingsnummer)
+            ?.adressen
+            ?.findCorrespondentieadresOrBezoekadres { it.type }
+        kvkNummer != null -> findBasisprofiel(kvkNummer)
+            ?.findAdressen()
+            ?.findCorrespondentieadresOrBezoekadres { it.type }
+            ?.toVestigingsprofielAdres()
+        else -> null
+    }
 }
 
-private fun BuitenlandsAdres.toAddressString() =
-    listOf(this.getStraatHuisnummer(), this.getPostcodeWoonplaats(), this.getLand()).joinNonBlank(", ")
+fun Basisprofiel.findAdressen(): List<BasisprofielAdres>? =
+    embedded?.eigenaar?.adressen?.takeUnless { it.isEmpty() } ?: embedded?.hoofdvestiging?.adressen
+
+private fun logKvkProfielFailure(level: Level, exception: RuntimeException): VestigingsprofielAdres? {
+    LOG.log(level, "Could not read the KVK profiel of the bedrijf, so its address is left out", exception)
+    return null
+}
+
+private fun <T> List<T>.findCorrespondentieadresOrBezoekadres(adresType: (T) -> String?) =
+    firstOrNull { adresType(it) == KVK_ADRES_TYPE_CORRESPONDENTIEADRES }
+        ?: firstOrNull { adresType(it) == KVK_ADRES_TYPE_BEZOEKADRES }
+
+fun BasisprofielAdres.toVestigingsprofielAdres(): VestigingsprofielAdres =
+    VestigingsprofielAdres()
+        .type(type)
+        .indAfgeschermd(indAfgeschermd)
+        .volledigAdres(volledigAdres)
+        .postbusnummer(postbusnummer)
+        .straatHuisnummer(straatHuisnummer)
+        .toevoegingAdres(toevoegingAdres)
+        .postcodeWoonplaats(postcodeWoonplaats)
+        .land(land)
+        .straatnaam(straatnaam)
+        .huisnummer(huisnummer)
+        .huisletter(huisletter)
+        .huisnummerToevoeging(huisnummerToevoeging)
+        .postcode(postcode)
+        .plaats(plaats)
+
+fun VestigingsprofielAdres.toAddressString(wordSeparator: String = " ") =
+    when {
+        postbusnummer != null -> listOf(
+            "Postbus $postbusnummer",
+            listOf(postcode, plaats).joinWords(wordSeparator)
+        )
+        straatHuisnummer != null -> listOf(
+            listOf(straatHuisnummer, toevoegingAdres).joinWords(wordSeparator),
+            listOf(postcodeWoonplaats).joinWords(wordSeparator),
+            land
+        )
+        else -> listOf(
+            listOf(
+                straatnaam,
+                formatHuisnummer(huisnummer, huisletter, huisnummerToevoeging)
+            ).joinWords(wordSeparator),
+            listOf(postcode, plaats).joinWords(wordSeparator)
+        )
+    }.joinNonBlank(", ")
+
+private fun List<String?>.joinWords(wordSeparator: String) =
+    joinNonBlank(wordSeparator).replace(" ", wordSeparator)

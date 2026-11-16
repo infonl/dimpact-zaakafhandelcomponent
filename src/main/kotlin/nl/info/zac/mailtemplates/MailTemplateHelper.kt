@@ -10,6 +10,7 @@ import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.model.generated.Persoon
 import nl.info.client.brp.util.toAddressString
 import nl.info.client.kvk.KvkClientService
+import nl.info.client.kvk.util.findCorrespondentieadresOrBezoekadres
 import nl.info.client.kvk.util.toAddressString
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
@@ -41,6 +42,7 @@ import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+import java.util.logging.Level
 import java.util.logging.Logger
 
 @AllOpen
@@ -335,9 +337,26 @@ class MailTemplateHelper @Inject constructor(
         replaceInitiatorVariables(
             resolvedText = resolvedText,
             name = initiatorResultaatItem.getNaam(),
-            address = it.toAddressString()
+            address = if (MailTemplateVariables.ZAAK_INITIATOR_ADRES.getVariable() in resolvedText) {
+                resolveAddressBedrijf(it)
+            } else {
+                ""
+            }
         )
     } ?: replaceInitiatorVariablesWithEmptyText(resolvedText)
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun resolveAddressBedrijf(resultaatItem: ResultaatItem) =
+        try {
+            kvkClientService.findCorrespondentieadresOrBezoekadres(resultaatItem)?.toAddressString().orEmpty()
+        } catch (runtimeException: RuntimeException) {
+            LOG.log(
+                Level.WARNING,
+                "Could not read the KVK address of the initiator, so the mail is sent without it",
+                runtimeException
+            )
+            ""
+        }
 
     private fun replaceInitiatorVariablesWithEmptyText(resolvedTekst: String) =
         replaceInitiatorVariables(resolvedTekst, "", "")

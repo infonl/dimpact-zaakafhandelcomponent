@@ -15,7 +15,13 @@ import nl.info.client.brp.model.createNaamPersoon
 import nl.info.client.brp.model.createPersoon
 import nl.info.client.brp.model.createVerblijfadresBinnenland
 import nl.info.client.kvk.KvkClientService
+import nl.info.client.kvk.exception.KvkClientException
+import nl.info.client.kvk.model.createBasisprofiel
+import nl.info.client.kvk.model.createBasisprofielAdres
+import nl.info.client.kvk.model.createEigenaar
 import nl.info.client.kvk.model.createResultaatItem
+import nl.info.client.kvk.model.createVestiging
+import nl.info.client.kvk.model.createVestigingsAdres
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createMedewerkerIdentificatie
 import nl.info.client.zgw.model.createNatuurlijkPersoonIdentificatie
@@ -25,6 +31,8 @@ import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolNietNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheidForReads
+import nl.info.client.zgw.model.createRolVestiging
+import nl.info.client.zgw.model.createVestigingIdentificatie
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakStatus
 import nl.info.client.zgw.shared.ZgwApiService
@@ -44,6 +52,7 @@ import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
 
+@Suppress("LargeClass")
 class MailTemplateHelperTest : BehaviorSpec({
     val brpClientService = mockk<BrpClientService>()
     val configurationService = mockk<ConfigurationService>()
@@ -357,8 +366,9 @@ class MailTemplateHelperTest : BehaviorSpec({
                     "userName"
                 )
 
-                then("the variables in the provided text should be replaced by the correct values from the zaak") {
+                then("the initiator placeholder is replaced by the name, without reading the KVK vestigingsprofiel") {
                     resolvedText shouldBe "fakeText, ${resultaatItem.naam}"
+                    verify(exactly = 0) { kvkClientService.findVestigingsprofiel(any()) }
                 }
             }
         }
@@ -396,24 +406,147 @@ class MailTemplateHelperTest : BehaviorSpec({
             }
         }
 
-        given("A zaak with an initiator of role niet-natuurlijk persoon with only a KVK number and no KVK address") {
+        given(
+            """
+            A zaak with an initiator of role niet-natuurlijk persoon with a vestigingsnummer, of which the KVK
+            vestigingsprofiel has a bezoekadres and a correspondentieadres
+            """
+        ) {
             val zaakType = createZaakType()
             val zaak = createZaak(
                 zaaktypeUri = zaakType.url,
                 status = URI("https://example.com/fakeStatus"),
                 startDate = LocalDate.of(2021, 10, 12)
             )
-            val kvkNummer = "12345678"
+            val vestigingsnummer = "fakeVestigingsnummer1"
+            val rolNietNatuurlijkPersoon = createRolNietNatuurlijkPersoon(
+                nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
+                    vestigingsnummer = vestigingsnummer
+                )
+            )
+            val resultaatItem = createResultaatItem(vestingsnummer = vestigingsnummer)
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns createZaakType()
+            every { configurationService.zaakTonenUrl(zaak.identificatie) } returns URI("https://example.com/fakeURL")
+            every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
+            every { kvkClientService.findVestiging(vestigingsnummer) } returns resultaatItem
+            every { kvkClientService.findVestigingsprofiel(vestigingsnummer) } returns createVestiging(
+                adressen = listOf(
+                    createVestigingsAdres(
+                        type = "bezoekadres",
+                        straatnaam = "fakeBezoekStraatnaam",
+                        huisnummer = 1,
+                        postcode = "fakeBezoekPostcode",
+                        plaats = "fakeBezoekPlaats"
+                    ),
+                    createVestigingsAdres(
+                        type = "correspondentieadres",
+                        straatnaam = "fakeStraatnaam",
+                        huisnummer = 7,
+                        huisletter = "A",
+                        huisnummerToevoeging = "bis",
+                        postcode = "fakePostcode",
+                        plaats = "fakePlaats"
+                    )
+                )
+            )
+
+            `when`("the variables are resolved with a text containing placeholders for the zaak initiator") {
+                val resolvedText = mailTemplateHelper.resolveZaakVariables(
+                    "fakeText, {ZAAK_INITIATOR}, {ZAAK_INITIATOR_ADRES}",
+                    zaak,
+                    "userName"
+                )
+
+                then("the initiator address is the complete correspondentieadres from the KVK vestigingsprofiel") {
+                    resolvedText shouldBe "fakeText, ${resultaatItem.naam}, fakeStraatnaam 7A bis, fakePostcode fakePlaats"
+                }
+            }
+        }
+
+        given(
+            """
+            A zaak with an initiator of role niet-natuurlijk persoon with only a KVK number, of which the KVK
+            basisprofiel has a bezoekadres
+            """
+        ) {
+            val zaakType = createZaakType()
+            val zaak = createZaak(
+                zaaktypeUri = zaakType.url,
+                status = URI("https://example.com/fakeStatus"),
+                startDate = LocalDate.of(2021, 10, 12)
+            )
+            val kvkNummer = "fakeKvkNummer2"
             val rolNietNatuurlijkPersoon = createRolNietNatuurlijkPersoon(
                 nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
                     kvkNummer = kvkNummer
                 )
             )
-            val resultaatItem = createResultaatItem(adres = null, type = "rechtspersoon")
+            val resultaatItem = createResultaatItem(
+                adres = null,
+                kvkNummer = kvkNummer,
+                type = "rechtspersoon",
+                vestingsnummer = null
+            )
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns createZaakType()
             every { configurationService.zaakTonenUrl(zaak.identificatie) } returns URI("https://example.com/fakeURL")
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
             every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns resultaatItem
+            every { kvkClientService.findBasisprofiel(kvkNummer) } returns createBasisprofiel(
+                eigenaar = createEigenaar(
+                    adressen = listOf(
+                        createBasisprofielAdres(
+                            type = "bezoekadres",
+                            straatnaam = "fakeStraatnaam",
+                            huisnummer = 17,
+                            postcode = "fakePostcode",
+                            plaats = "fakePlaats"
+                        )
+                    )
+                )
+            )
+
+            `when`("the variables are resolved with a text containing placeholders for the zaak initiator") {
+                val resolvedText = mailTemplateHelper.resolveZaakVariables(
+                    "fakeText, {ZAAK_INITIATOR}, {ZAAK_INITIATOR_ADRES}",
+                    zaak,
+                    "userName"
+                )
+
+                then("the initiator address is the bezoekadres from the KVK basisprofiel") {
+                    resolvedText shouldBe "fakeText, ${resultaatItem.naam}, fakeStraatnaam 17, fakePostcode fakePlaats"
+                }
+            }
+        }
+
+        given(
+            """
+            A zaak with an initiator of role niet-natuurlijk persoon with only a KVK number, of which the KVK
+            basisprofiel cannot be read
+            """
+        ) {
+            val zaakType = createZaakType()
+            val zaak = createZaak(
+                zaaktypeUri = zaakType.url,
+                status = URI("https://example.com/fakeStatus"),
+                startDate = LocalDate.of(2021, 10, 12)
+            )
+            val kvkNummer = "fakeKvkNummer3"
+            val rolNietNatuurlijkPersoon = createRolNietNatuurlijkPersoon(
+                nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
+                    kvkNummer = kvkNummer
+                )
+            )
+            val resultaatItem = createResultaatItem(
+                adres = null,
+                kvkNummer = kvkNummer,
+                type = "rechtspersoon",
+                vestingsnummer = null
+            )
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns createZaakType()
+            every { configurationService.zaakTonenUrl(zaak.identificatie) } returns URI("https://example.com/fakeURL")
+            every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
+            every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns resultaatItem
+            every { kvkClientService.findBasisprofiel(kvkNummer) } throws KvkClientException("fakeServerError")
 
             `when`("the variables are resolved with a text containing placeholders for the zaak initiator") {
                 val resolvedText = mailTemplateHelper.resolveZaakVariables(
@@ -424,6 +557,89 @@ class MailTemplateHelperTest : BehaviorSpec({
 
                 then("the initiator name is filled in and the initiator address is replaced by empty text") {
                     resolvedText shouldBe "fakeText, ${resultaatItem.naam}, "
+                }
+            }
+        }
+
+        given(
+            "A zaak with an initiator of role niet-natuurlijk persoon of which reading the KVK basisprofiel fails unexpectedly"
+        ) {
+            val zaakType = createZaakType()
+            val zaak = createZaak(
+                zaaktypeUri = zaakType.url,
+                status = URI("https://example.com/fakeStatus"),
+                startDate = LocalDate.of(2021, 10, 12)
+            )
+            val kvkNummer = "fakeKvkNummer4"
+            val rolNietNatuurlijkPersoon = createRolNietNatuurlijkPersoon(
+                nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
+                    kvkNummer = kvkNummer
+                )
+            )
+            val resultaatItem = createResultaatItem(
+                adres = null,
+                kvkNummer = kvkNummer,
+                type = "rechtspersoon",
+                vestingsnummer = null
+            )
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns createZaakType()
+            every { configurationService.zaakTonenUrl(zaak.identificatie) } returns URI("https://example.com/fakeURL")
+            every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
+            every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns resultaatItem
+            every { kvkClientService.findBasisprofiel(kvkNummer) } throws IllegalStateException("fakeUnexpectedError")
+
+            `when`("the variables are resolved with a text containing placeholders for the zaak initiator") {
+                val resolvedText = mailTemplateHelper.resolveZaakVariables(
+                    "fakeText, {ZAAK_INITIATOR}, {ZAAK_INITIATOR_ADRES}",
+                    zaak,
+                    "userName"
+                )
+
+                then("the initiator address is replaced by empty text, so that the mail can still be sent") {
+                    resolvedText shouldBe "fakeText, ${resultaatItem.naam}, "
+                }
+            }
+        }
+
+        given(
+            "A zaak with an initiator of role vestiging, of which the KVK vestigingsprofiel has only a bezoekadres"
+        ) {
+            val zaakType = createZaakType()
+            val zaak = createZaak(
+                zaaktypeUri = zaakType.url,
+                status = URI("https://example.com/fakeStatus"),
+                startDate = LocalDate.of(2021, 10, 12)
+            )
+            val vestigingsnummer = "fakeVestigingsnummer5"
+            val rolVestiging = createRolVestiging(
+                vestigingIdentificatie = createVestigingIdentificatie(vestigingsNummer = vestigingsnummer)
+            )
+            val resultaatItem = createResultaatItem(vestingsnummer = vestigingsnummer)
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns createZaakType()
+            every { configurationService.zaakTonenUrl(zaak.identificatie) } returns URI("https://example.com/fakeURL")
+            every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolVestiging
+            every { kvkClientService.findVestiging(vestigingsnummer) } returns resultaatItem
+            every { kvkClientService.findVestigingsprofiel(vestigingsnummer) } returns createVestiging(
+                adressen = listOf(
+                    createVestigingsAdres(
+                        type = "bezoekadres",
+                        straatnaam = "fakeStraatnaam",
+                        huisnummer = 3,
+                        postcode = "fakePostcode",
+                        plaats = "fakePlaats"
+                    )
+                )
+            )
+
+            `when`("the variables are resolved with a text containing placeholders for the zaak initiator") {
+                val resolvedText = mailTemplateHelper.resolveZaakVariables(
+                    "fakeText, {ZAAK_INITIATOR}, {ZAAK_INITIATOR_ADRES}",
+                    zaak,
+                    "userName"
+                )
+
+                then("the initiator address is the bezoekadres from the KVK vestigingsprofiel") {
+                    resolvedText shouldBe "fakeText, ${resultaatItem.naam}, fakeStraatnaam 3, fakePostcode fakePlaats"
                 }
             }
         }

@@ -8,6 +8,7 @@ package nl.info.client.smartdocuments.model.document
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.client.kvk.model.createBasisprofielAdres
+import nl.info.client.kvk.util.toVestigingsprofielAdres
 
 class SmartDocumentsDocumentRequestDeclarationsTest : BehaviorSpec({
     given("A Dutch address from a KVK basisprofiel") {
@@ -15,19 +16,19 @@ class SmartDocumentsDocumentRequestDeclarationsTest : BehaviorSpec({
             straatnaam = "fakeStraatnaam",
             huisnummer = 7,
             huisletter = "A",
-            huisnummerToevoeging = "2",
+            huisnummerToevoeging = "bis",
             postcode = "fakePostcode",
             plaats = "fakePlaats"
         )
 
         `when`("it is converted to aanvrager data") {
-            val aanvragerData = basisprofielAdres.toAanvragerData("fakeNaam")
+            val aanvragerData = basisprofielAdres.toVestigingsprofielAdres().toAanvragerData("fakeNaam")
 
             then("it has the street, the house number, the postcode and the place of the address") {
                 aanvragerData shouldBe AanvragerData(
                     naam = "fakeNaam",
                     straat = "fakeStraatnaam",
-                    huisnummer = "7A2",
+                    huisnummer = "7A bis",
                     postcode = "fakePostcode",
                     woonplaats = "fakePlaats"
                 )
@@ -44,7 +45,7 @@ class SmartDocumentsDocumentRequestDeclarationsTest : BehaviorSpec({
         }
 
         `when`("it is converted to aanvrager data") {
-            val aanvragerData = basisprofielAdres.toAanvragerData("fakeNaam")
+            val aanvragerData = basisprofielAdres.toVestigingsprofielAdres().toAanvragerData("fakeNaam")
 
             then("it has the foreign street line as straat and the postcode, woonplaats and land as woonplaats") {
                 aanvragerData shouldBe AanvragerData(
