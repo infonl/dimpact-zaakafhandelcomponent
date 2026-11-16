@@ -12,6 +12,7 @@ import {
   ONE_MINUTE_IN_MS,
 } from "../support/time-constants";
 import { CustomWorld } from "../support/worlds/world";
+import { expectZaakNumberVisible } from "../utils/zaak-number";
 
 let smartDocumentsWizardPage: Page;
 
@@ -112,12 +113,11 @@ When(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
     const caseNumber = this.testStorage.get("caseNumber");
-    const caseNumberLocator = smartDocumentsWizardPage.locator(
-      `text=${caseNumber}`,
+    await expectZaakNumberVisible(
+      smartDocumentsWizardPage,
+      caseNumber,
+      FIFTEEN_SECONDS_IN_MS,
     );
-    await expect(caseNumberLocator).toHaveCount(2, {
-      timeout: FIFTEEN_SECONDS_IN_MS,
-    });
 
     // This locator selects the status message container of the wizard.
     // The status message container is only visible when the wizard has been completed.
@@ -142,11 +142,7 @@ When(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
     const caseNumber = this.testStorage.get("caseNumber");
-    const caseNumberLocator = this.page.locator(`text=${caseNumber}`);
-
-    await expect(caseNumberLocator).toHaveCount(2, {
-      timeout: FIFTEEN_SECONDS_IN_MS,
-    });
+    await expectZaakNumberVisible(this.page, caseNumber, FIFTEEN_SECONDS_IN_MS);
 
     const documentTitleText = this.page.locator(`text=${documentInput.title}`);
     // increase the timout because it can take a while for the document to be visible
