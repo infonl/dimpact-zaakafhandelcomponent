@@ -4,9 +4,9 @@
  */
 package nl.info.client.kvk.util
 
-import jakarta.ws.rs.NotFoundException
 import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.WebApplicationException
+import jakarta.ws.rs.core.Response
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.exception.KvkClientException
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
@@ -21,24 +21,19 @@ private const val KVK_ADRES_TYPE_BEZOEKADRES = "bezoekadres"
 
 private val LOG = Logger.getLogger(KvkClientService::class.java.name)
 
-/**
- * Returns the correspondentieadres, or else the bezoekadres, from the KVK vestigingsprofiel of a vestiging or from
- * the KVK basisprofiel of a rechtspersoon.
- * Returns `null` when KVK has neither address, and also when the profiel cannot be read, so that the caller can
- * continue without an address.
- */
 fun KvkClientService.findCorrespondentieadresOrBezoekadres(resultaatItem: ResultaatItem): VestigingsprofielAdres? =
     try {
         findProfielCorrespondentieadresOrBezoekadres(resultaatItem)
-    } catch (notFoundException: NotFoundException) {
-        LOG.log(Level.INFO, "The KVK profiel of the bedrijf was not found, so its address is left out", notFoundException)
-        null
     } catch (webApplicationException: WebApplicationException) {
-        logKvkProfielFailure(webApplicationException)
+        if (webApplicationException.response?.statusInfo?.family == Response.Status.Family.CLIENT_ERROR) {
+            logKvkProfielFailure(Level.FINE, webApplicationException)
+        } else {
+            logKvkProfielFailure(Level.WARNING, webApplicationException)
+        }
     } catch (kvkClientException: KvkClientException) {
-        logKvkProfielFailure(kvkClientException)
+        logKvkProfielFailure(Level.WARNING, kvkClientException)
     } catch (processingException: ProcessingException) {
-        logKvkProfielFailure(processingException)
+        logKvkProfielFailure(Level.WARNING, processingException)
     }
 
 private fun KvkClientService.findProfielCorrespondentieadresOrBezoekadres(
@@ -58,8 +53,8 @@ private fun KvkClientService.findProfielCorrespondentieadresOrBezoekadres(
     }
 }
 
-private fun logKvkProfielFailure(exception: RuntimeException): VestigingsprofielAdres? {
-    LOG.log(Level.WARNING, "Could not read the KVK profiel of the bedrijf, so its address is left out", exception)
+private fun logKvkProfielFailure(level: Level, exception: RuntimeException): VestigingsprofielAdres? {
+    LOG.log(level, "Could not read the KVK profiel of the bedrijf, so its address is left out", exception)
     return null
 }
 

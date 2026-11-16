@@ -31,6 +31,8 @@ import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolNietNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheidForReads
+import nl.info.client.zgw.model.createRolVestiging
+import nl.info.client.zgw.model.createVestigingIdentificatie
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakStatus
 import nl.info.client.zgw.shared.ZgwApiService
@@ -594,6 +596,49 @@ class MailTemplateHelperTest : BehaviorSpec({
 
                 then("the initiator address is replaced by empty text, so that the mail can still be sent") {
                     resolvedText shouldBe "fakeText, ${resultaatItem.naam}, "
+                }
+            }
+        }
+
+        given(
+            "A zaak with an initiator of role vestiging, of which the KVK vestigingsprofiel has only a bezoekadres"
+        ) {
+            val zaakType = createZaakType()
+            val zaak = createZaak(
+                zaaktypeUri = zaakType.url,
+                status = URI("https://example.com/fakeStatus"),
+                startDate = LocalDate.of(2021, 10, 12)
+            )
+            val vestigingsnummer = "fakeVestigingsnummer5"
+            val rolVestiging = createRolVestiging(
+                vestigingIdentificatie = createVestigingIdentificatie(vestigingsNummer = vestigingsnummer)
+            )
+            val resultaatItem = createResultaatItem(vestingsnummer = vestigingsnummer)
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns createZaakType()
+            every { configurationService.zaakTonenUrl(zaak.identificatie) } returns URI("https://example.com/fakeURL")
+            every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolVestiging
+            every { kvkClientService.findVestiging(vestigingsnummer) } returns resultaatItem
+            every { kvkClientService.findVestigingsprofiel(vestigingsnummer) } returns createVestiging(
+                adressen = listOf(
+                    createVestigingsAdres(
+                        type = "bezoekadres",
+                        straatnaam = "fakeStraatnaam",
+                        huisnummer = 3,
+                        postcode = "fakePostcode",
+                        plaats = "fakePlaats"
+                    )
+                )
+            )
+
+            `when`("the variables are resolved with a text containing placeholders for the zaak initiator") {
+                val resolvedText = mailTemplateHelper.resolveZaakVariables(
+                    "fakeText, {ZAAK_INITIATOR}, {ZAAK_INITIATOR_ADRES}",
+                    zaak,
+                    "userName"
+                )
+
+                then("the initiator address is the bezoekadres from the KVK vestigingsprofiel") {
+                    resolvedText shouldBe "fakeText, ${resultaatItem.naam}, fakeStraatnaam 3, fakePostcode fakePlaats"
                 }
             }
         }

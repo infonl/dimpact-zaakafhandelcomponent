@@ -106,6 +106,21 @@ class KvkExtensionFunctionsTest : BehaviorSpec({
             }
         }
 
+        given("A vestiging of which the KVK vestigingsprofiel cannot be read") {
+            val resultaatItem = createResultaatItem(vestingsnummer = "fakeVestigingsnummer3")
+            every {
+                kvkClientService.findVestigingsprofiel("fakeVestigingsnummer3")
+            } throws KvkClientException("fakeServerError")
+
+            `when`("the address of the vestiging is looked up") {
+                val adres = kvkClientService.findCorrespondentieadresOrBezoekadres(resultaatItem)
+
+                then("there is no address, so that the caller can continue without one") {
+                    adres.shouldBeNull()
+                }
+            }
+        }
+
         mapOf(
             "is not found" to NotFoundException("fakeNotFound"),
             "returns a server error" to KvkClientException("fakeServerError"),
@@ -143,6 +158,24 @@ class KvkExtensionFunctionsTest : BehaviorSpec({
 
                 then("it contains the street, the house number with its huisletter, the postcode and the place") {
                     addressString shouldBe "Kerkstraat 12A, 1234AB Amsterdam"
+                }
+            }
+        }
+
+        given("A Dutch KVK profiel address with a huisnummertoevoeging") {
+            val adres = createVestigingsAdres(
+                straatnaam = "Kerkstraat",
+                huisnummer = 12,
+                huisnummerToevoeging = "H",
+                postcode = "1234AB",
+                plaats = "Amsterdam"
+            )
+
+            `when`("the address string is created") {
+                val addressString = adres.toAddressString()
+
+                then("the huisnummertoevoeging follows the house number without a space, as for a persoon") {
+                    addressString shouldBe "Kerkstraat 12H, 1234AB Amsterdam"
                 }
             }
         }

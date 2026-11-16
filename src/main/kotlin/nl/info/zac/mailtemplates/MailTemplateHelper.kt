@@ -338,7 +338,7 @@ class MailTemplateHelper @Inject constructor(
             resolvedText = resolvedText,
             name = initiatorResultaatItem.getNaam(),
             address = if (MailTemplateVariables.ZAAK_INITIATOR_ADRES.getVariable() in resolvedText) {
-                findAddressBedrijf(it)
+                resolveAddressBedrijf(it)
             } else {
                 ""
             }
@@ -346,7 +346,7 @@ class MailTemplateHelper @Inject constructor(
     } ?: replaceInitiatorVariablesWithEmptyText(resolvedText)
 
     @Suppress("TooGenericExceptionCaught")
-    private fun findAddressBedrijf(resultaatItem: ResultaatItem) =
+    private fun resolveAddressBedrijf(resultaatItem: ResultaatItem) =
         try {
             kvkClientService.findCorrespondentieadresOrBezoekadres(resultaatItem)?.toAddressString().orEmpty()
         } catch (runtimeException: RuntimeException) {
