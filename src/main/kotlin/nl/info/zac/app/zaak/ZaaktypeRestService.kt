@@ -13,7 +13,6 @@ import jakarta.ws.rs.NotFoundException
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
-import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -48,16 +47,15 @@ class ZaaktypeRestService @Inject constructor(
     private val ztcClientService: ZtcClientService
 ) {
     /**
-     * Lists the zaaktypes of the default catalogus. With [startbaar] `true` only the zaaktypes that the user can create
-     * a zaak of, with `false` only the others.
+     * Lists the zaaktypes of the default catalogus that the user can create a zaak of.
      */
     @GET
-    fun listZaaktypen(@QueryParam("startbaar") startbaar: Boolean?): List<RestZaaktypeKeuze> {
+    fun listZaaktypen(): List<RestZaaktypeKeuze> {
         val loggedInUser = lazy { loggedInUserInstance.get() }
         val startrollen = lazy { policyService.readStartrollen() }
         return ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
             .asSequence()
-            .filter { startbaar == null || it.isOfferedForZaakCreation(loggedInUser.value, startrollen) == startbaar }
+            .filter { it.isOfferedForZaakCreation(loggedInUser.value, startrollen) }
             .map { it.toRestZaaktypeKeuze() }
             .toList()
     }
@@ -66,8 +64,7 @@ class ZaaktypeRestService @Inject constructor(
      * Reads the settings that the Zaak aanmaken form applies once the user chose the zaaktype.
      *
      * @throws nl.info.zac.policy.exception.PolicyException when the user may not start a zaak of the zaaktype
-     * @throws NotFoundException when the zaaktype does not exist, or [listZaaktypen] with `startbaar=true` does not
-     * offer it
+     * @throws NotFoundException when the zaaktype does not exist, or [listZaaktypen] does not offer it
      */
     @GET
     @Path("{zaaktypeUuid}")

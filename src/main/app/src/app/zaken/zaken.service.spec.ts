@@ -226,9 +226,7 @@ describe(ZakenService.name, () => {
       );
 
       await Promise.resolve();
-      httpTestingController
-        .expectOne("/rest/zaaktypen?startbaar=true")
-        .flush(zaaktypen);
+      httpTestingController.expectOne("/rest/zaaktypen").flush(zaaktypen);
 
       await expect(query).resolves.toEqual(zaaktypen);
     });

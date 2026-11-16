@@ -217,10 +217,7 @@ When(
       this.page.getByRole("combobox", { name: "Zaaktype" }),
       this.page.getByRole("option", { name: zaakTypeName }),
     );
-    await this.page
-      .locator("div")
-      .filter({ hasText: /^person$/ })
-      .click();
+    await this.page.getByRole("button", { name: "Initiator koppelen" }).click();
     await this.page.getByLabel("BSN").click();
     await this.page.getByLabel("BSN").fill(TEST_PERSON_HENDRIKA_JANSE_BSN);
     await this.page

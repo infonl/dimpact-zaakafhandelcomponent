@@ -256,7 +256,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         ) {
             `when`("zaak types are listed") {
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/zaaktypen?startbaar=true",
+                    url = "$ZAC_API_URI/zaaktypen",
                     testUser = BEHEERDER_1
                 )
                 lateinit var responseBody: String
@@ -322,7 +322,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             `when`("zaak types for creation are listed") {
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/zaaktypen?startbaar=true",
+                    url = "$ZAC_API_URI/zaaktypen",
                     testUser = BEHANDELAAR_2
                 )
                 then("the response should be a 200 HTTP response") {

@@ -99,7 +99,7 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
             every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
 
             `when`("the zaaktypes are requested") {
-                val returnedRestZaaktypes = zaaktypeRestService.listZaaktypen(startbaar = true)
+                val returnedRestZaaktypes = zaaktypeRestService.listZaaktypen()
 
                 then("both zaaktypes are returned and the start roles are read from OPA once for all zaaktypes") {
                     verify(exactly = 1) {
@@ -166,7 +166,7 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
                 every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
 
                 `when`("the zaaktypes are listed") {
-                    val returnedRestZaaktypes = zaaktypeRestService.listZaaktypen(startbaar = true)
+                    val returnedRestZaaktypes = zaaktypeRestService.listZaaktypen()
 
                     then("all zaaktypes are returned") {
                         verify(exactly = 1) {
@@ -190,7 +190,7 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
                 )
 
                 `when`("the zaaktypes are listed") {
-                    val returnedRestZaaktypes = zaaktypeRestService.listZaaktypen(startbaar = true)
+                    val returnedRestZaaktypes = zaaktypeRestService.listZaaktypen()
 
                     then("only the zaaktypes for which the user is authorised are returned") {
                         verify(exactly = 1) {
@@ -212,7 +212,7 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
                 )
 
                 `when`("the zaaktypes are listed") {
-                    val returnedRestZaaktypes = zaaktypeRestService.listZaaktypen(startbaar = true)
+                    val returnedRestZaaktypes = zaaktypeRestService.listZaaktypen()
 
                     then("all zaaktypes are returned, because one start role is enough to start a zaak") {
                         returnedRestZaaktypes shouldBe restZaaktypeKeuzes
@@ -227,7 +227,7 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
                 )
 
                 `when`("the zaaktypes are listed") {
-                    val returnedRestZaaktypes = zaaktypeRestService.listZaaktypen(startbaar = true)
+                    val returnedRestZaaktypes = zaaktypeRestService.listZaaktypen()
 
                     then("no zaaktypes are returned and the ZAC configuration of the zaaktypes is not read") {
                         returnedRestZaaktypes shouldBe emptyList()
@@ -257,7 +257,7 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
             every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
 
             `when`("the zaaktypes are listed") {
-                val returnedRestZaaktypes = zaaktypeRestService.listZaaktypen(startbaar = true)
+                val returnedRestZaaktypes = zaaktypeRestService.listZaaktypen()
 
                 then("no zaaktypes are returned and the start roles are not read from OPA") {
                     returnedRestZaaktypes shouldBe emptyList()
@@ -291,7 +291,7 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
             }
 
             `when`("the zaaktypes are listed") {
-                val returnedRestZaaktypes = zaaktypeRestService.listZaaktypen(startbaar = true)
+                val returnedRestZaaktypes = zaaktypeRestService.listZaaktypen()
 
                 then("both versions are returned and the start roles are read from OPA once") {
                     returnedRestZaaktypes shouldBe restZaaktypeKeuzes
@@ -330,7 +330,7 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
             } returns createZaaktypeCmmnConfiguration(groupId = null)
 
             `when`("the zaaktypes are listed") {
-                val returnedRestZaaktypes = zaaktypeRestService.listZaaktypen(startbaar = true)
+                val returnedRestZaaktypes = zaaktypeRestService.listZaaktypen()
 
                 then("no zaaktypes are returned and the inrichtingscheck is not run for them") {
                     returnedRestZaaktypes shouldBe emptyList()
@@ -338,6 +338,32 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
                         zaakProcessService.isZaaktypeReady(any(), unconfiguredZaaktype.url)
                         zaakProcessService.isZaaktypeReady(any(), invalidlyConfiguredZaaktype.url)
                     }
+                }
+            }
+        }
+
+        given("A zaaktype the user may start, whose configuration is valid, but that fails the inrichtingscheck") {
+            val defaultCatalogueURI = URI("https://example.com/fakeCatalogueWithAnUnreadyZaaktype")
+            val zaaktype = createZaakType(
+                omschrijving = "fakeUnreadyZaaktype",
+                beginGeldigheid = LocalDate.now().minusDays(1)
+            )
+            every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
+            every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns listOf(zaaktype)
+            every { loggedInUserInstance.get() } returns createLoggedInUser(
+                applicationRolesPerZaaktype = mapOf(zaaktype.omschrijving to setOf("fakeStartrol"))
+            )
+            every { policyService.readStartrollen() } returns setOf("fakeStartrol")
+            every {
+                zaaktypeConfigurationService.findConfiguration(zaaktype.url.extractUuid())
+            } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
+            every { zaakProcessService.isZaaktypeReady(any(), zaaktype.url) } returns false
+
+            `when`("the zaaktypes are listed") {
+                val returnedRestZaaktypes = zaaktypeRestService.listZaaktypen()
+
+                then("the zaaktype is not returned") {
+                    returnedRestZaaktypes shouldBe emptyList()
                 }
             }
         }
@@ -355,7 +381,7 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
             every { zaakProcessService.isZaaktypeReady(any(), zaaktype.url) } returns true
 
             `when`("the zaaktypes are listed") {
-                val returnedRestZaaktypes = zaaktypeRestService.listZaaktypen(startbaar = true)
+                val returnedRestZaaktypes = zaaktypeRestService.listZaaktypen()
 
                 then("the zaaktype is returned, because the overall roles count for every zaaktype") {
                     returnedRestZaaktypes shouldBe listOf(
@@ -376,7 +402,7 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
             every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns listOf(zaaktype)
 
             `when`("the zaaktypes are listed") {
-                val returnedRestZaaktypes = zaaktypeRestService.listZaaktypen(startbaar = true)
+                val returnedRestZaaktypes = zaaktypeRestService.listZaaktypen()
 
                 then("no zaaktypes are returned and the ZAC configuration is not read") {
                     returnedRestZaaktypes shouldBe emptyList()
@@ -514,6 +540,35 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
             }
         }
 
+        given("A zaaktype that the user may start, whose configuration is valid, but that fails the inrichtingscheck") {
+            val defaultCatalogueURI = URI("https://example.com/fakeCatalogueForAnUnreadyZaaktype")
+            val zaaktype = createZaakType(
+                omschrijving = "fakeUnreadyZaaktype",
+                beginGeldigheid = LocalDate.now().minusDays(1)
+            )
+            every { loggedInUserInstance.get() } returns createLoggedInUser(
+                applicationRolesPerZaaktype = mapOf(zaaktype.omschrijving to setOf("fakeStartrol"))
+            )
+            every { policyService.readStartrollen() } returns setOf("fakeStartrol")
+            every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
+            every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns listOf(zaaktype)
+            every {
+                zaaktypeConfigurationService.findConfiguration(zaaktype.url.extractUuid())
+            } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
+            every { zaakProcessService.isZaaktypeReady(any(), zaaktype.url) } returns false
+
+            `when`("the settings of the zaaktype are read") {
+                val notFoundException = shouldThrow<NotFoundException> {
+                    zaaktypeRestService.readZaaktype(zaaktype.url.extractUuid())
+                }
+
+                then("the zaaktype is not found, because it is not offered for zaak creation") {
+                    notFoundException.message shouldBe
+                        "Zaaktype '${zaaktype.url.extractUuid()}' is not offered for zaak creation"
+                }
+            }
+        }
+
         given("A zaaktype UUID that is not in the default catalogus") {
             val defaultCatalogueURI = URI("https://example.com/fakeCatalogueWithoutTheZaaktype")
             val unknownZaaktypeUuid = UUID.randomUUID()
@@ -528,66 +583,6 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
                 then("the zaaktype is not found") {
                     notFoundException.message shouldBe
                         "Zaaktype '$unknownZaaktypeUuid' is not offered for zaak creation"
-                }
-            }
-        }
-    }
-
-    context("Listing the zaaktypen without the startbaar filter") {
-        given("A zaaktype the user may start, a concept zaaktype and a zaaktype the user may not start") {
-            val defaultCatalogueURI = URI("https://example.com/fakeCatalogueForTheUnfilteredList")
-            val zaaktypes = listOf(
-                createZaakType(omschrijving = "fakeStartableZaaktype"),
-                createZaakType(omschrijving = "fakeConceptZaaktype", concept = true),
-                createZaakType(omschrijving = "fakeForbiddenZaaktype")
-            )
-            clearMocks(policyService, loggedInUserInstance)
-            every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
-            every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
-
-            `when`("the zaaktypen are listed without a filter") {
-                val returnedRestZaaktypes = zaaktypeRestService.listZaaktypen(startbaar = null)
-
-                then("every zaaktype of the catalogus is returned without checking the rights of the user") {
-                    returnedRestZaaktypes shouldBe zaaktypes.map {
-                        RestZaaktypeKeuze(uuid = it.url.extractUuid(), omschrijving = it.omschrijving)
-                    }
-                    verify(exactly = 0) {
-                        loggedInUserInstance.get()
-                        policyService.readStartrollen()
-                    }
-                }
-            }
-        }
-    }
-
-    context("Listing the zaaktypen that the user cannot start") {
-        given("A zaaktype the user may start, a concept zaaktype and a zaaktype the user may not start") {
-            val defaultCatalogueURI = URI("https://example.com/fakeCatalogueForTheNotStartableList")
-            val startableZaaktype = createZaakType(omschrijving = "fakeStartableZaaktype")
-            val conceptZaaktype = createZaakType(omschrijving = "fakeConceptZaaktype", concept = true)
-            val forbiddenZaaktype = createZaakType(omschrijving = "fakeForbiddenZaaktype")
-            clearMocks(policyService)
-            every { loggedInUserInstance.get() } returns createLoggedInUser(
-                applicationRolesPerZaaktype = mapOf("fakeStartableZaaktype" to setOf("fakeStartrol"))
-            )
-            every { policyService.readStartrollen() } returns setOf("fakeStartrol")
-            every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
-            every {
-                ztcClientService.listZaaktypen(defaultCatalogueURI)
-            } returns listOf(startableZaaktype, conceptZaaktype, forbiddenZaaktype)
-            every {
-                zaaktypeConfigurationService.findConfiguration(startableZaaktype.url.extractUuid())
-            } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
-            every { zaakProcessService.isZaaktypeReady(any(), startableZaaktype.url) } returns true
-
-            `when`("the zaaktypen are listed with startbaar=false") {
-                val returnedRestZaaktypes = zaaktypeRestService.listZaaktypen(startbaar = false)
-
-                then("only the zaaktypen that the user cannot start are returned") {
-                    returnedRestZaaktypes shouldBe listOf(conceptZaaktype, forbiddenZaaktype).map {
-                        RestZaaktypeKeuze(uuid = it.url.extractUuid(), omschrijving = it.omschrijving)
-                    }
                 }
             }
         }

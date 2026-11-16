@@ -31,7 +31,7 @@ import { ZaakLinkComponent } from "./zaak-link.component";
 
 const KOPPEL_URL = "/rest/zaken/zaak/koppel";
 const ZAAKTYPES_URL = "/rest/zaken/gekoppelde-zaken/zaaktypen";
-const ZAAKTYPES_FOR_CREATION_URL = "/rest/zaaktypen?startbaar=true";
+const ZAAKTYPES_FOR_CREATION_URL = "/rest/zaaktypen";
 
 const makeFakeZaak = (
   fields: Partial<GeneratedType<"RestZaak">> = {},
