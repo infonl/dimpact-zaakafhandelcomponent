@@ -73,7 +73,8 @@ def create_zaak(zaaktype_uuid: str, run_id: str, token_manager: zac_client.Token
     if not result["success"] or not result["zaak_uuid"]:
         sys.exit(
             f"ERROR: could not create a zaak of zaaktype {zaaktype_uuid} (HTTP {result['status_code']}):"
-            f" {result['error']}\nIs the zaaktype configured in ZAC? See configure-zaakafhandelparameters.py."
+            f" {result['error']}\nIs the zaaktype configured in ZAC? See configure-zaakafhandelparameters.py"
+            " for a CMMN zaaktype, or create-load.py for all test zaaktypes."
         )
     return result
 
@@ -114,16 +115,33 @@ def detach_document(document_uuid: str, zaak_uuid: str, token_manager: zac_clien
         sys.exit(f"ERROR: could not detach document {document_uuid} (HTTP {status}): {response[:200]}")
 
 
-def remove_from_open_zaak(document_uuid: str, kube_context: str) -> None:
-    result = subprocess.run(
+def run_sql_in_open_zaak(sql: str, kube_context: str, *psql_arguments: str) -> subprocess.CompletedProcess:
+    return subprocess.run(
         [
             "kubectl", "--context", kube_context, "-n", "zac", "exec", "-i", "deploy/postgres", "--",
-            "psql", "-q", "-U", "postgres", "-d", "openzaak", "-v", "ON_ERROR_STOP=1", "-v", f"uuid={document_uuid}",
+            "psql", "-q", "-U", "postgres", "-d", "openzaak", "-v", "ON_ERROR_STOP=1", *psql_arguments,
         ],
-        input=REMOVE_FROM_OPEN_ZAAK_SQL,
+        input=sql,
         capture_output=True,
         text=True,
     )
+
+
+def check_open_zaak_database_reachable(kube_context: str) -> None:
+    """Stop before anything is created when --missing could not remove the documents at the end."""
+    try:
+        result = run_sql_in_open_zaak("SELECT 1;", kube_context)
+    except FileNotFoundError:
+        sys.exit("ERROR: --missing needs kubectl on PATH")
+    if result.returncode != 0:
+        sys.exit(
+            f"ERROR: --missing cannot reach the Open Zaak database in kube context {kube_context}:"
+            f" {result.stderr.strip()}\nSet KIND_CLUSTER_NAME when the kind cluster is not called 'zac'."
+        )
+
+
+def remove_from_open_zaak(document_uuid: str, kube_context: str) -> None:
+    result = run_sql_in_open_zaak(REMOVE_FROM_OPEN_ZAAK_SQL, kube_context, "-v", f"uuid={document_uuid}")
     if result.returncode != 0:
         sys.exit(f"ERROR: could not remove document {document_uuid} from Open Zaak: {result.stderr.strip()}")
 
@@ -167,6 +185,8 @@ def main() -> None:
 
     run_id = f"ontkoppeld-document-{datetime.datetime.now():%Y%m%d-%H%M%S}"
     kube_context = f"kind-{os.environ.get('KIND_CLUSTER_NAME', 'zac')}"
+    if args.missing > 0:
+        check_open_zaak_database_reachable(kube_context)
     token_manager = zac_client.TokenManager(zac_client.ZAAK_USER, zac_client.ZAAK_PASSWORD, args.keycloak_url)
 
     print(f"Creating a zaak of zaaktype {args.zaaktype}...")

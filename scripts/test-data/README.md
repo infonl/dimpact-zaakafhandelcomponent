@@ -15,7 +15,7 @@ Start the stack with ZAC first, for example with `./start-kind.sh -l`. The scrip
 | [`create-zaak.py`](create-zaak.py)                                           | Creates zaken of a test zaaktype, optionally with documents.                                         |
 | [`create-inbox-documenten.py`](create-inbox-documenten.py)                   | Creates documents without a zaak, which ZAC shows in *Inbox documenten*.                             |
 | [`create-ontkoppelde-documenten.py`](create-ontkoppelde-documenten.py)       | Creates *Ontkoppelde documenten*, optionally locked or missing in Open Zaak.                         |
-| [`configure-zaakafhandelparameters.py`](configure-zaakafhandelparameters.py) | Configures one zaaktype in ZAC, so that you can create zaken of it.                                  |
+| [`configure-zaakafhandelparameters.py`](configure-zaakafhandelparameters.py) | Configures one CMMN zaaktype in ZAC, so that you can create zaken of it.                             |
 | [`create-zaaktypes.py`](create-zaaktypes.py)                                 | Creates extra zaaktypes in Open Zaak and PABC, and configures them in ZAC.                           |
 | [`create-load.py`](create-load.py)                                           | Load test: configures all 8 test zaaktypes and creates many zaken, optionally in parallel.           |
 
@@ -32,8 +32,9 @@ zaaktypes and documents) and `zac_reporting.py` are shared modules of the script
 
 ## Good to know
 
-- On a fresh stack you can create zaken of *Test zaaktype 2* right away. For another zaaktype, run
-  `configure-zaakafhandelparameters.py` with its UUID first.
+- On a fresh stack you can create zaken of *Test zaaktype 2* right away. Configure another zaaktype first:
+  `create-load.py 1` configures all 8 test zaaktypes, the BPMN ones included. `configure-zaakafhandelparameters.py`
+  configures one CMMN zaaktype; it needs a resultaattype *Geweigerd*, which *Test zaaktype 4* does not have.
 - `create-load.py` overwrites the configuration of the 8 test zaaktypes; pass `--skip-config` to keep yours.
 - New zaaktypes from `create-zaaktypes.py --skip-config` only show up in ZAC after a restart, or after
   `GET /rest/admin/util/cache/ztc/clear`.
