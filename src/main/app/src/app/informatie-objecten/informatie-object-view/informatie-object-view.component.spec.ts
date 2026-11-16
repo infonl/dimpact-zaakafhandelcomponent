@@ -31,7 +31,6 @@ import { RedenDialogData } from "../../shared/dialog/reden-dialog-form/reden-dia
 import { MenuMode } from "../../shared/side-nav/side-nav.component";
 import { SideNavUtil } from "../../shared/side-nav/side-nav.util";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { ZakenService } from "../../zaken/zaken.service";
 import { InformatieObjectEditComponent } from "../informatie-object-edit/informatie-object-edit.component";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { FileFormat } from "../model/file-format";
@@ -129,6 +128,11 @@ describe(InformatieObjectViewComponent.name, () => {
     httpTestingController.expectOne(`${documentUrl}/historie`).flush(historie);
     await sleep();
     TestBed.tick();
+    httpTestingController
+      .match(`/rest/zaken/zaak/id/${zaak.identificatie}`)
+      .forEach((request) => request.flush(zaak));
+    await sleep();
+    TestBed.tick();
     fixture.detectChanges();
   }
 
@@ -171,9 +175,6 @@ describe(InformatieObjectViewComponent.name, () => {
 
     httpTestingController = TestBed.inject(HttpTestingController);
     addListener = jest.spyOn(TestBed.inject(WebsocketService), "addListener");
-    jest
-      .spyOn(TestBed.inject(ZakenService), "readZaakByID")
-      .mockReturnValue(of(zaak));
   });
 
   afterEach(() =>

@@ -27,6 +27,7 @@ import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionTaskForm
 import nl.info.zac.flowable.bpmn.model.isUsedIn
+import nl.info.zac.flowable.bpmn.nameOrKey
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.MediaTypes
@@ -53,7 +54,7 @@ class BpmnProcessDefinitionRestService @Inject constructor(
         }
         return bpmnService.listProcessDefinitions()
             .map {
-                RestBpmnProcessDefinition(id = it.id, name = it.name, version = it.version, key = it.key)
+                RestBpmnProcessDefinition(id = it.id, name = it.nameOrKey(), version = it.version, key = it.key)
             }
     }
 
@@ -73,7 +74,7 @@ class BpmnProcessDefinitionRestService @Inject constructor(
                 val metadata = bpmnService.getProcessDefinitionMetadata(it)
                 RestBpmnProcessDefinition(
                     id = it.id,
-                    name = it.name,
+                    name = it.nameOrKey(),
                     version = it.version,
                     key = it.key,
                     details = RestBpmnProcessDefinitionDetails(

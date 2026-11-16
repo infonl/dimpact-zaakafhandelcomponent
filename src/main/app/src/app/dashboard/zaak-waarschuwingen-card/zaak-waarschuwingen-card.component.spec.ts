@@ -6,6 +6,10 @@
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient, withXhr } from "@angular/common/http";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatSortHeaderHarness } from "@angular/material/sort/testing";
@@ -13,14 +17,15 @@ import { MatTableHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
-import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
-import { of } from "rxjs";
+import {
+  notifyManager,
+  provideTanStackQuery,
+} from "@tanstack/angular-query-experimental";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { ZakenService } from "../../zaken/zaken.service";
 import { DashboardCard } from "../model/dashboard-card";
 import { DashboardCardId } from "../model/dashboard-card-id";
 import { DashboardCardType } from "../model/dashboard-card-type";
@@ -51,14 +56,15 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
   let fixture: ComponentFixture<ZaakWaarschuwingenCardComponent>;
   let component: ZaakWaarschuwingenCardComponent;
   let loader: HarnessLoader;
-  let zakenService: ZakenService;
 
   beforeEach(async () => {
+    notifyManager.setScheduler((callback) => callback());
     await TestBed.configureTestingModule({
       imports: [ZaakWaarschuwingenCardComponent, NoopAnimationsModule],
       providers: [
         provideTranslateService(),
         provideHttpClient(withXhr()),
+        provideHttpClientTesting(),
         provideRouter([]),
         provideTanStackQuery(testQueryClient),
         // useValue: real WebsocketService opens a websocket connection in its
@@ -66,9 +72,6 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
         { provide: WebsocketService, useValue: { addListener: jest.fn() } },
       ],
     }).compileComponents();
-
-    zakenService = TestBed.inject(ZakenService);
-    jest.spyOn(zakenService, "listZaakWaarschuwingen").mockReturnValue(of([]));
 
     const identityService = TestBed.inject(IdentityService);
     testQueryClient.setQueryData(
@@ -86,10 +89,30 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
     fixture.detectChanges();
   });
 
-  it("calls listZaakWaarschuwingen on load", async () => {
+  async function answerWaarschuwingen(
+    zaken: GeneratedType<"RestZaakOverzicht">[],
+  ) {
+    await sleep();
+    TestBed.inject(HttpTestingController)
+      .match("/rest/zaken/waarschuwing")
+      .forEach((request) => request.flush(zaken));
+    await sleep();
+    TestBed.tick();
+    fixture.detectChanges();
+  }
+
+  afterEach(async () => {
+    await answerWaarschuwingen([]);
+    notifyManager.setScheduler((callback) => setTimeout(callback, 0));
+  });
+
+  it("reads the zaak waarschuwingen again on load, so that a cached list is refreshed", async () => {
+    await answerWaarschuwingen([]);
+
     component["onLoad"]();
     await sleep();
-    expect(zakenService.listZaakWaarschuwingen).toHaveBeenCalled();
+
+    TestBed.inject(HttpTestingController).expectOne("/rest/zaken/waarschuwing");
   });
 
   it("populates dataSource with zaken returned by the service", async () => {
@@ -97,16 +120,23 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
       makeZaak({ identificatie: "ZAAK-A" }),
       makeZaak({ identificatie: "ZAAK-B" }),
     ];
-    testQueryClient.setQueryData(["zaak waarschuwingen dashboard"], zaken);
-    jest
-      .spyOn(zakenService, "listZaakWaarschuwingen")
-      .mockReturnValue(of(zaken));
 
-    component["onLoad"]();
-    await sleep();
-    fixture.detectChanges();
+    await answerWaarschuwingen(zaken);
 
     expect(component.dataSource.data).toEqual(zaken);
+  });
+
+  it("shows the cached zaken at once on a second mount, so that the dashboard does not wait for the server", async () => {
+    const zaken = [makeZaak({ identificatie: "ZAAK-CACHED" })];
+    await answerWaarschuwingen(zaken);
+
+    const secondFixture = TestBed.createComponent(
+      ZaakWaarschuwingenCardComponent,
+    );
+    secondFixture.componentRef.setInput("data", makeDashboardCard());
+    secondFixture.detectChanges();
+
+    expect(secondFixture.componentInstance.dataSource.data).toEqual(zaken);
   });
 
   it("wires up sort and paginator on the dataSource after view init", () => {
@@ -120,10 +150,7 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
       makeZaak({ identificatie: "ZAAK-A" }),
       makeZaak({ identificatie: "ZAAK-B" }),
     ];
-    testQueryClient.setQueryData(["zaak waarschuwingen dashboard"], zaken);
-    fixture.detectChanges();
-    await sleep();
-    fixture.detectChanges();
+    await answerWaarschuwingen(zaken);
 
     const sortHeader = await loader.getHarness(
       MatSortHeaderHarness.with({ label: "zaak.identificatie" }),
@@ -163,10 +190,7 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
       makeZaak({ identificatie: "ZAAK-X" }),
       makeZaak({ identificatie: "ZAAK-Y" }),
     ];
-    testQueryClient.setQueryData(["zaak waarschuwingen dashboard"], zaken);
-    fixture.detectChanges();
-    await sleep();
-    fixture.detectChanges();
+    await answerWaarschuwingen(zaken);
 
     const table = await loader.getHarness(MatTableHarness);
     const rows = await table.getRows();
@@ -174,10 +198,7 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
   });
 
   it("renders empty state row when dataSource is empty", async () => {
-    testQueryClient.setQueryData(["zaak waarschuwingen dashboard"], []);
-    fixture.detectChanges();
-    await sleep();
-    fixture.detectChanges();
+    await answerWaarschuwingen([]);
 
     const table = await loader.getHarness(MatTableHarness);
     const rows = await table.getRows();
@@ -192,10 +213,7 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
         }),
       }),
     ];
-    testQueryClient.setQueryData(["zaak waarschuwingen dashboard"], zaken);
-    fixture.detectChanges();
-    await sleep();
-    fixture.detectChanges();
+    await answerWaarschuwingen(zaken);
 
     const buttons = await loader.getAllHarnesses(
       MatButtonHarness.with({ selector: '[id^="zaakBekijken_"]' }),
@@ -211,10 +229,7 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
         }),
       }),
     ];
-    testQueryClient.setQueryData(["zaak waarschuwingen dashboard"], zaken);
-    fixture.detectChanges();
-    await sleep();
-    fixture.detectChanges();
+    await answerWaarschuwingen(zaken);
 
     const buttons = await loader.getAllHarnesses(
       MatButtonHarness.with({ selector: '[id^="zaakBekijken_"]' }),

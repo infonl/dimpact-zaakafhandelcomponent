@@ -19,6 +19,8 @@ import { testQueryClient } from "../../../setupJest";
 import { UtilService } from "../core/service/util.service";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
+import { SignaleringenService } from "../signaleringen.service";
+import { ZoekenService } from "../zoeken/zoeken.service";
 import { TakenService } from "./taken.service";
 
 describe(TakenService.name, () => {
@@ -67,9 +69,10 @@ describe(TakenService.name, () => {
 
   describe("invalidateTakenVoorZaak", () => {
     it("invalidates the taken listing of the given zaak", async () => {
-      const invalidateQueries = jest
-        .spyOn(testQueryClient, "invalidateQueries")
-        .mockResolvedValue(undefined);
+      const invalidateQueries = jest.spyOn(
+        testQueryClient,
+        "invalidateQueries",
+      );
 
       await service.invalidateTakenVoorZaak("zaak-uuid-1");
 
@@ -173,47 +176,91 @@ describe(TakenService.name, () => {
       service.complete();
       expect(zacQueryClient.PATCH).toHaveBeenCalledWith(expect.any(String));
     });
+  });
 
-    describe("when the taak is completed", () => {
-      let router: Router;
+  describe.each([
+    ["saved", (takenService: TakenService) => takenService.updateTaakdata()],
+    ["completed", (takenService: TakenService) => takenService.complete()],
+  ])("when the taak is %s", (_, mutationOptions) => {
+    let router: Router;
+    const taak = fromPartial<GeneratedType<"RestTask">>({ zaakUuid: "zaak-1" });
 
-      beforeEach(() => {
-        jest
-          .spyOn(TestBed.inject(UtilService), "openSnackbar")
-          .mockImplementation(() => {});
-        router = TestBed.inject(Router);
-        jest.spyOn(router, "navigateByUrl").mockResolvedValue(true);
+    beforeEach(() => {
+      jest
+        .spyOn(TestBed.inject(UtilService), "openSnackbar")
+        .mockImplementation(() => {});
+      router = TestBed.inject(Router);
+      jest.spyOn(router, "navigateByUrl").mockResolvedValue(true);
+    });
+
+    it("returns to the page before the taak in the navigation trail", async () => {
+      jest.spyOn(router, "url", "get").mockReturnValue("/taken/1");
+      TestBed.inject(Location).replaceState("/taken/1", "", {
+        navigationTrail: [
+          { title: "ZAAK-1", url: "/zaken/ZAAK-1", key: "zaak-entry" },
+          { title: "Taak", url: "/taken/1", key: "taak-entry" },
+        ],
       });
 
-      it("returns to the page before the taak in the navigation trail", async () => {
-        jest.spyOn(router, "url", "get").mockReturnValue("/taken/1");
-        TestBed.inject(Location).replaceState("/taken/1", "", {
-          navigationTrail: [
-            { title: "ZAAK-1", url: "/zaken/ZAAK-1" },
-            { title: "Taak", url: "/taken/1" },
-          ],
-        });
+      await runMutationOnSuccess(mutationOptions(service), taak);
 
-        await runMutationOnSuccess(service.complete());
+      expect(router.navigateByUrl).toHaveBeenCalledWith("/zaken/ZAAK-1");
+    });
 
-        expect(router.navigateByUrl).toHaveBeenCalledWith("/zaken/ZAAK-1");
+    it("goes to the dashboard when the taak was opened directly or from search, because the page before it in the trail is only its parent route", async () => {
+      jest.spyOn(router, "url", "get").mockReturnValue("/taken/1");
+      TestBed.inject(Location).replaceState("/taken/1", "", {
+        navigationTrail: [
+          { title: "Taken", url: "/taken" },
+          { title: "Taak", url: "/taken/1", key: "taak-entry" },
+        ],
       });
 
-      it("goes to the dashboard when the navigation trail has no page before the taak", async () => {
-        jest.spyOn(router, "url", "get").mockReturnValue("/taken/1");
+      await runMutationOnSuccess(mutationOptions(service), taak);
 
-        await runMutationOnSuccess(service.complete());
+      expect(router.navigateByUrl).toHaveBeenCalledWith("/");
+    });
 
-        expect(router.navigateByUrl).toHaveBeenCalledWith("/");
+    it("goes to the dashboard when the navigation trail has no page before the taak", async () => {
+      jest.spyOn(router, "url", "get").mockReturnValue("/taken/1");
+
+      await runMutationOnSuccess(mutationOptions(service), taak);
+
+      expect(router.navigateByUrl).toHaveBeenCalledWith("/");
+    });
+
+    it("stays on the taak when it was opened from an e-mail", async () => {
+      jest.spyOn(router, "url", "get").mockReturnValue("/taken/1?bron=email");
+
+      await runMutationOnSuccess(mutationOptions(service), taak);
+
+      expect(router.navigateByUrl).not.toHaveBeenCalled();
+    });
+
+    it("marks the werklijsten stale before it leaves the taak, so the page it returns to shows the change", async () => {
+      jest.spyOn(router, "url", "get").mockReturnValue("/taken/1");
+      const werklijstQueryKeys = [
+        TestBed.inject(ZoekenService).list(fromPartial({})).queryKey,
+        TestBed.inject(SignaleringenService).listTakenSignalering(
+          "TAAK_OP_NAAM",
+        ).queryKey,
+        service.listTakenVoorZaak("zaak-1").queryKey,
+      ];
+      werklijstQueryKeys.forEach((queryKey) =>
+        testQueryClient.setQueryData(queryKey, []),
+      );
+      let staleWhenLeaving: boolean[] = [];
+      jest.spyOn(router, "navigateByUrl").mockImplementation(async () => {
+        staleWhenLeaving = werklijstQueryKeys.map(
+          (queryKey) =>
+            testQueryClient.getQueryState(queryKey)?.isInvalidated ?? false,
+        );
+        return true;
       });
 
-      it("stays on the taak when it was opened from an e-mail", async () => {
-        jest.spyOn(router, "url", "get").mockReturnValue("/taken/1?bron=email");
+      await runMutationOnSuccess(mutationOptions(service), taak);
 
-        await runMutationOnSuccess(service.complete());
-
-        expect(router.navigateByUrl).not.toHaveBeenCalled();
-      });
+      expect(staleWhenLeaving).toEqual([true, true, true]);
     });
   });
 

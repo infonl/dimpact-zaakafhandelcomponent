@@ -25,7 +25,7 @@ import {
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
-import { screen, waitFor } from "@testing-library/angular";
+import { screen, waitFor, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { sleep } from "../../../../setupJest";
@@ -618,6 +618,14 @@ describe(ZaakCreateComponent.name, () => {
     expect(sidenavContainer()).toHaveClass("p-2");
   });
 
+  it("does not repeat the page title, because the page header above the breadcrumbs shows it", () => {
+    expect(
+      within(fixture.nativeElement).queryByRole("heading", {
+        name: "actie.zaak.aanmaken",
+      }),
+    ).not.toBeInTheDocument();
+  });
+
   describe("communication channel", () => {
     const renderWithCommunicationChannels = async (channels: string[]) => {
       TestBed.inject(QueryClient).removeQueries({
@@ -666,6 +674,46 @@ describe(ZaakCreateComponent.name, () => {
   });
 
   describe("initiator button", () => {
+    const allowInitiator = async () => {
+      fixture.componentInstance["form"].controls.zaaktype.setValue(
+        fromPartial<GeneratedType<"RestZaaktype">>({
+          zaakafhandelparameters: {
+            betrokkeneKoppelingen: {
+              isBrpKoppelenEnabled: true,
+              isKvkKoppelenEnabled: true,
+            },
+          },
+        }),
+      );
+      await fixture.whenStable();
+    };
+
+    it("is named after linking an initiator while no initiator is set, so that a screen reader user can find it", async () => {
+      await allowInitiator();
+
+      expect(
+        screen.getByRole("button", { name: "actie.initiator.koppelen" }),
+      ).toBeEnabled();
+    });
+
+    it("is named after unlinking the initiator once an initiator is set", async () => {
+      await allowInitiator();
+      const initiator =
+        fixture.componentInstance["form"].controls.initiatorIdentificatie;
+      initiator.enable();
+      initiator.setValue(
+        fromPartial<GeneratedType<"BetrokkeneIdentificatie">>({
+          type: "BSN",
+          bsn: "123456789",
+        }),
+      );
+      await fixture.whenStable();
+
+      expect(
+        screen.getByRole("button", { name: "actie.initiator.ontkoppelen" }),
+      ).toBeEnabled();
+    });
+
     it("hasInitiator() returns false when no initiator is set", () => {
       expect(fixture.componentInstance.hasInitiator()).toBe(false);
     });

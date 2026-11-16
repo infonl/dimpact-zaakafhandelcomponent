@@ -216,6 +216,39 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         }
     }
 
+    given("User has beheren rights and a process definition without a name, deployed before the upload check existed") {
+        val processDefinition = createProcessDefinition(
+            id = "fakeProcessDefinitionId",
+            name = null,
+            version = 1,
+            key = "fakeProcessDefinitionKey"
+        )
+        every { policyService.readOverigeRechten() } returns createOverigeRechten(beheren = true)
+        every { bpmnService.listProcessDefinitions() } returns listOf(processDefinition)
+
+        `when`("listProcessDefinitions is called without details") {
+            val result = restService.listProcessDefinitions(false)
+
+            then("the key of the process definition is returned as its name") {
+                result.single().name shouldBe "fakeProcessDefinitionKey"
+            }
+        }
+
+        `when`("listProcessDefinitions is called with details") {
+            every { bpmnProcessDefinitionTaskFormService.listForms() } returns emptyList()
+            every { bpmnService.findUniqueBpmnProcessDefinitionKeysFromProcessInstances() } returns emptySet()
+            every { bpmnService.findUniqueBpmnProcessDefinitionKeysFromConfigurations() } returns emptySet()
+            every { bpmnService.getProcessDefinitionMetadata(processDefinition) } returns
+                createBpmnProcessDefinitionMetadata(formKeys = emptyList())
+
+            val result = restService.listProcessDefinitions(true)
+
+            then("the key of the process definition is returned as its name") {
+                result.single().name shouldBe "fakeProcessDefinitionKey"
+            }
+        }
+    }
+
     given("User has beheren rights and wants to create a process definition") {
         val filename = "testProcess.bpmn"
         val content = "<bpmn:definitions>...</bpmn:definitions>"

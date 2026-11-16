@@ -15,8 +15,11 @@ import {
 import { UtilService } from "../core/service/util.service";
 import { PatchBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
-import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
+import {
+  LOAD_PER_VISIT,
+  StaleTimes,
+  ZacQueryClient,
+} from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { toI18nKey } from "../shared/utils/i18n-key";
 
@@ -53,15 +56,16 @@ type ZaakDetailsUpdateVariables = Pick<
   providedIn: "root",
 })
 export class ZakenService {
-  private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly utilService = inject(UtilService);
   private readonly queryClient = inject(QueryClient);
 
   readZaak(uuid: string) {
-    return this.zacHttpClient.GET("/rest/zaken/zaak/{uuid}", {
-      path: { uuid },
-    });
+    return {
+      ...this.readZaakQuery(uuid),
+      staleTime: StaleTimes.Instant,
+      meta: { reportFailedRefetch: true },
+    };
   }
 
   readZaakQuery(uuid: string) {
@@ -104,9 +108,12 @@ export class ZakenService {
   }
 
   readZaakByID(identificatie: string) {
-    return this.zacHttpClient.GET("/rest/zaken/zaak/id/{identificatie}", {
-      path: { identificatie },
-    });
+    return {
+      ...this.zacQueryClient.GET("/rest/zaken/zaak/id/{identificatie}", {
+        path: { identificatie },
+      }),
+      ...LOAD_PER_VISIT,
+    };
   }
 
   createZaak() {
@@ -148,8 +155,17 @@ export class ZakenService {
   }
 
   readOpschortingZaak(uuid: string) {
-    return this.zacHttpClient.GET("/rest/zaken/zaak/{uuid}/opschorting", {
-      path: { uuid },
+    return {
+      ...this.zacQueryClient.GET("/rest/zaken/zaak/{uuid}/opschorting", {
+        path: { uuid },
+      }),
+      meta: { reportFailedRefetch: true },
+    };
+  }
+
+  invalidateOpschorting(uuid: string) {
+    this.queryClient.invalidateQueries({
+      queryKey: this.readOpschortingZaak(uuid).queryKey,
     });
   }
 
@@ -184,7 +200,7 @@ export class ZakenService {
   }
 
   listZaakWaarschuwingen() {
-    return this.zacHttpClient.GET("/rest/zaken/waarschuwing");
+    return this.zacQueryClient.GET("/rest/zaken/waarschuwing");
   }
 
   listZaaktypesForCreationQuery() {
@@ -494,9 +510,12 @@ export class ZakenService {
   }
 
   listBesluitenForZaak(zaakUuid: string) {
-    return this.zacHttpClient.GET("/rest/zaken/besluit/zaakUuid/{zaakUuid}", {
-      path: { zaakUuid },
-    });
+    return {
+      ...this.zacQueryClient.GET("/rest/zaken/besluit/zaakUuid/{zaakUuid}", {
+        path: { zaakUuid },
+      }),
+      ...LOAD_PER_VISIT,
+    };
   }
 
   listBesluitHistorie(uuid: string) {

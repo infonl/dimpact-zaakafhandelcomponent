@@ -436,14 +436,19 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
       await showDocuments([missingDocument]);
 
       const row = within(documentRow());
-      expect(row.getByTitle("indicatie.ontbreekt-in-open-zaak")).toBeVisible();
+      expect(
+        row.getByRole("img", { name: "indicatie.ontbreekt-in-open-zaak" }),
+      ).toBeVisible();
       expect(
         row.getByRole("button", { name: "actie.verwijderen" }),
-      ).toBeVisible();
+      ).toBeEnabled();
       expect(row.queryByRole("link")).toBeNull();
       expect(
-        row.queryByRole("button", { name: "actie.document.koppelen" }),
-      ).toBeNull();
+        row.getByRole("button", { name: "actie.downloaden" }),
+      ).toBeDisabled();
+      expect(
+        row.getByRole("button", { name: "actie.document.koppelen" }),
+      ).toBeDisabled();
     });
   });
 
@@ -581,7 +586,9 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
     expect(
       within(row).queryByRole("button", { name: "actie.verwijderen" }),
     ).toBeNull();
-    expect(within(row).getByTitle("indicatie.vergrendeld")).toBeVisible();
+    expect(
+      within(row).getByRole("img", { name: "indicatie.vergrendeld" }),
+    ).toBeVisible();
   });
 
   it("asks for confirmation before deleting the document of the row", async () => {
