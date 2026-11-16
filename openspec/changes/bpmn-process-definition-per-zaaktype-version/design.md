@@ -66,8 +66,12 @@ technical error. The check makes no Open Zaak call when the binding stays the sa
 makes one, to fill in `isProcessDefinitionChangeable`.
 
 The entity method that binds a configuration no longer rejects a change of engine: the check above decides. When it
-binds to BPMN, it still removes the CMMN extension; when it binds to another CMMN case definition, the plan item
-settings of the previous case definition are replaced by the ones that the save sends.
+binds to BPMN, it still removes the CMMN extension. When it binds to another CMMN case definition, it first clears the
+plan item settings of the previous case definition, also when the save sends none, and stores only the settings of
+plan items that the new case definition has.
+
+The save looks up `isProcessDefinitionChangeable` for its response before the transaction commits, so a failed Open
+Zaak call stores nothing instead of reporting an error for a configuration that did change.
 
 ### D5. The process model step offers every engine while the binding may change
 
@@ -90,7 +94,8 @@ existing zaken stays.
 - [A zaak is created between the check and the store of a save] → the save checks again just before it stores, which
   makes the window short but does not close it. A zaak created in that window keeps the process instance it started
   with; only new zaken use the new binding. For a CMMN zaak in that window, its plan item settings may no longer
-  match its case definition.
+  match its case definition, and after a change of engine, terminating it targets the engine of the configuration
+  instead of the one it runs on. Routing termination by the running instance is a separate ticket.
 - [A published zaaktype version is valid at once, so a zaak can be created with the copied process before the
   beheerder chooses another one] → the beheerder publishes the version with a future begin date, chooses the process,
   and lets the date take effect. This protects only zaken created by hand: the productaanvraag intake picks the most

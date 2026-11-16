@@ -52,3 +52,9 @@ process definition, it SHALL explain why.
   productaanvraagtype
 - **WHEN** the beheerder goes back to the process model step and chooses another process definition, of either engine
 - **THEN** the screen shows the steps of the new process definition, and the productaanvraagtype is kept
+
+#### Scenario: Returning to the stored process definition keeps its settings
+- **GIVEN** a saved configuration without zaken, bound to a CMMN case definition with changed task and action
+  settings
+- **WHEN** a beheerder chooses another process definition and then the stored case definition again
+- **THEN** the screen shows the stored task and action settings of that case definition, not the defaults

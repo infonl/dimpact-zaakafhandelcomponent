@@ -57,3 +57,10 @@ expose the binding as one `processDefinition` that names the engine and the defi
   version
 - **WHEN** a beheerder saves it with case definition `C2` and the plan item settings of `C2`
 - **THEN** the configuration holds the plan item settings of `C2` and none of `C1`
+
+#### Scenario: A change of case definition clears the settings of the previous one
+- **GIVEN** a CMMN configuration with case definition `C1` and its plan item settings, and no zaak of its zaaktype
+  version
+- **WHEN** a beheerder saves it with case definition `C2` and no plan item settings, or with the plan item settings
+  of `C1`
+- **THEN** the configuration holds no plan item settings of `C1`
