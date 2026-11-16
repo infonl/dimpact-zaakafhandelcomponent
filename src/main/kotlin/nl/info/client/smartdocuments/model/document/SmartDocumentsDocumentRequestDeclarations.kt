@@ -8,12 +8,9 @@ import jakarta.json.bind.annotation.JsonbDateFormat
 import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.util.joinNonBlank
 import java.time.LocalDate
-import nl.info.client.kvk.basisprofiel.model.generated.Adres as BasisprofielAdres
 import nl.info.client.kvk.vestigingsprofiel.model.generated.Adres as VestigingsprofielAdres
 
 private const val DATE_FORMAT = "dd-MM-yyyy"
-private const val KVK_ADRES_TYPE_CORRESPONDENTIEADRES = "correspondentieadres"
-private const val KVK_ADRES_TYPE_BEZOEKADRES = "bezoekadres"
 private const val POSTBUS = "Postbus"
 
 data class AanvragerData(
@@ -144,10 +141,6 @@ data class ZaakData(
     val zaaktype: String? = null
 )
 
-internal fun <T> List<T>.findCorrespondentieadresOrBezoekadres(adresType: (T) -> String?) =
-    firstOrNull { adresType(it) == KVK_ADRES_TYPE_CORRESPONDENTIEADRES }
-        ?: firstOrNull { adresType(it) == KVK_ADRES_TYPE_BEZOEKADRES }
-
 fun VestigingsprofielAdres.toAanvragerData(naam: String?) =
     when {
         postbusnummer != null -> AanvragerData(
@@ -170,19 +163,3 @@ fun VestigingsprofielAdres.toAanvragerData(naam: String?) =
             woonplaats = plaats
         )
     }
-
-fun BasisprofielAdres.toAanvragerData(naam: String?) = toVestigingsprofielAdres().toAanvragerData(naam)
-
-private fun BasisprofielAdres.toVestigingsprofielAdres() =
-    VestigingsprofielAdres()
-        .postbusnummer(postbusnummer)
-        .straatHuisnummer(straatHuisnummer)
-        .toevoegingAdres(toevoegingAdres)
-        .postcodeWoonplaats(postcodeWoonplaats)
-        .land(land)
-        .straatnaam(straatnaam)
-        .huisnummer(huisnummer)
-        .huisletter(huisletter)
-        .huisnummerToevoeging(huisnummerToevoeging)
-        .postcode(postcode)
-        .plaats(plaats)

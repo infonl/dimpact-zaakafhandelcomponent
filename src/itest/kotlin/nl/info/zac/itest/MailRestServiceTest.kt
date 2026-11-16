@@ -306,7 +306,7 @@ class MailRestServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_NO_CONTENT
             }
 
-            and("the delivered mail contains the name and address of the rechtspersoon found in the KVK") {
+            and("the delivered mail contains the name and the complete address from the KVK basisprofiel") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
                     url = "$GREENMAIL_API_URI/user/$receiverMail/messages/",
                     testUser = BEHANDELAAR_1
@@ -317,8 +317,8 @@ class MailRestServiceTest : BehaviorSpec({
                 receivedMails.length() shouldBeGreaterThan 0
                 with(receivedMails.getJSONObject(receivedMails.length() - 1).getString("mimeMessage")) {
                     shouldContain("Beste $TEST_KVK_NAAM_1,")
-                    shouldContain(TEST_KVK_ADRES_1)
-                    shouldContain(TEST_KVK_PLAATS_1)
+                    shouldContain("$TEST_KVK_ADRES_1 17")
+                    shouldContain("1034WL $TEST_KVK_PLAATS_1")
                     shouldNotContain("{ZAAK_INITIATOR}")
                     shouldNotContain("{ZAAK_INITIATOR_ADRES}")
                 }
