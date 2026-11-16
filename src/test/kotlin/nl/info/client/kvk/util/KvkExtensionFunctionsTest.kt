@@ -129,12 +129,11 @@ class KvkExtensionFunctionsTest : BehaviorSpec({
     }
 
     context("toAddressString") {
-        given("A Dutch KVK profiel address with a huisletter and a huisnummertoevoeging") {
+        given("A Dutch KVK profiel address with a huisletter") {
             val adres = createVestigingsAdres(
                 straatnaam = "Kerkstraat",
                 huisnummer = 12,
                 huisletter = "A",
-                huisnummerToevoeging = "2",
                 postcode = "1234AB",
                 plaats = "Amsterdam"
             )
@@ -142,8 +141,8 @@ class KvkExtensionFunctionsTest : BehaviorSpec({
             `when`("the address string is created") {
                 val addressString = adres.toAddressString()
 
-                then("it contains the street, the complete house number, the postcode and the place") {
-                    addressString shouldBe "Kerkstraat 12A2, 1234AB Amsterdam"
+                then("it contains the street, the house number with its huisletter, the postcode and the place") {
+                    addressString shouldBe "Kerkstraat 12A, 1234AB Amsterdam"
                 }
             }
         }

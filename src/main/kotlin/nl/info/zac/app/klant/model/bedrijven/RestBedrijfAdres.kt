@@ -5,6 +5,8 @@
 package nl.info.zac.app.klant.model.bedrijven
 
 import jakarta.json.bind.annotation.JsonbProperty
+import nl.info.client.kvk.util.toAddressString
+import nl.info.client.kvk.util.toVestigingsprofielAdres
 import nl.info.client.kvk.zoeken.model.generated.BinnenlandsAdres
 import nl.info.client.kvk.zoeken.model.generated.BuitenlandsAdres
 import nl.info.zac.util.NON_BREAKING_SPACE
@@ -71,48 +73,9 @@ internal fun BuitenlandsAdres.toFormattedAddress(): String = listOf(
     land
 ).joinNonBlank(", ")
 
-internal fun BasisprofielAdres.toFormattedAddress(): String = when {
-    postbusnummer != null -> listOf(
-        "Postbus $postbusnummer",
-        listOf(postcode, plaats).joinNonBlank(NON_BREAKING_SPACE)
-            .replace(" ", NON_BREAKING_SPACE)
-    ).joinNonBlank(", ")
-    straatHuisnummer != null -> listOf(
-        listOf(straatHuisnummer, toevoegingAdres).joinNonBlank(NON_BREAKING_SPACE)
-            .replace(" ", NON_BREAKING_SPACE),
-        postcodeWoonplaats?.replace(" ", NON_BREAKING_SPACE),
-        land
-    ).joinNonBlank(", ")
-    else -> {
-        val huisnummerMetHuisletter = listOf(huisnummer?.toString(), huisletter).joinNonBlank()
-        listOf(
-            listOf(straatnaam, huisnummerMetHuisletter, huisnummerToevoeging).joinNonBlank(NON_BREAKING_SPACE)
-                .replace(" ", NON_BREAKING_SPACE),
-            listOf(postcode, plaats).joinNonBlank(NON_BREAKING_SPACE)
-                .replace(" ", NON_BREAKING_SPACE)
-        ).joinNonBlank(", ")
-    }
-}
+internal fun BasisprofielAdres.toFormattedAddress() = toVestigingsprofielAdres().toFormattedAddress()
 
-internal fun VestigingsprofielAdres.toFormattedAddress(): String = when {
-    postbusnummer != null -> listOf(
-        "Postbus $postbusnummer",
-        listOf(postcode, plaats).joinNonBlank(NON_BREAKING_SPACE)
-            .replace(" ", NON_BREAKING_SPACE)
-    ).joinNonBlank(", ")
-    straatHuisnummer != null -> listOf(
-        listOf(straatHuisnummer, toevoegingAdres).joinNonBlank(NON_BREAKING_SPACE)
-            .replace(" ", NON_BREAKING_SPACE),
-        postcodeWoonplaats?.replace(" ", NON_BREAKING_SPACE),
-        land
-    ).joinNonBlank(", ")
-    else -> {
-        val huisnummerMetHuisletter = listOf(huisnummer?.toString(), huisletter).joinNonBlank()
-        listOf(
-            listOf(straatnaam, huisnummerMetHuisletter, huisnummerToevoeging).joinNonBlank(NON_BREAKING_SPACE)
-                .replace(" ", NON_BREAKING_SPACE),
-            listOf(postcode, plaats).joinNonBlank(NON_BREAKING_SPACE)
-                .replace(" ", NON_BREAKING_SPACE)
-        ).joinNonBlank(", ")
-    }
-}
+internal fun VestigingsprofielAdres.toFormattedAddress() = toAddressString(
+    wordSeparator = NON_BREAKING_SPACE,
+    huisnummerToevoegingSeparator = NON_BREAKING_SPACE
+)

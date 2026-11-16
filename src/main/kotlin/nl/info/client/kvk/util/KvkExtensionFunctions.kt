@@ -84,22 +84,28 @@ fun BasisprofielAdres.toVestigingsprofielAdres(): VestigingsprofielAdres =
         .postcode(postcode)
         .plaats(plaats)
 
-fun VestigingsprofielAdres.toAddressString(): String =
+fun VestigingsprofielAdres.toAddressString(wordSeparator: String = " ", huisnummerToevoegingSeparator: String = "") =
     when {
         postbusnummer != null -> listOf(
             "Postbus $postbusnummer",
-            listOf(postcode, plaats).joinNonBlank(" ")
-        ).joinNonBlank(", ")
+            listOf(postcode, plaats).joinWords(wordSeparator)
+        )
         straatHuisnummer != null -> listOf(
-            listOf(straatHuisnummer, toevoegingAdres).joinNonBlank(" "),
-            postcodeWoonplaats,
+            listOf(straatHuisnummer, toevoegingAdres).joinWords(wordSeparator),
+            listOf(postcodeWoonplaats).joinWords(wordSeparator),
             land
-        ).joinNonBlank(", ")
+        )
         else -> listOf(
             listOf(
                 straatnaam,
-                listOf(huisnummer?.toString(), huisletter, huisnummerToevoeging).joinNonBlank()
-            ).joinNonBlank(" "),
-            listOf(postcode, plaats).joinNonBlank(" ")
-        ).joinNonBlank(", ")
-    }
+                listOf(
+                    listOf(huisnummer?.toString(), huisletter).joinNonBlank(),
+                    huisnummerToevoeging
+                ).joinNonBlank(huisnummerToevoegingSeparator)
+            ).joinWords(wordSeparator),
+            listOf(postcode, plaats).joinWords(wordSeparator)
+        )
+    }.joinNonBlank(", ")
+
+private fun List<String?>.joinWords(wordSeparator: String) =
+    joinNonBlank(wordSeparator).replace(" ", wordSeparator)

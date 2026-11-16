@@ -42,6 +42,7 @@ import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+import java.util.logging.Level
 import java.util.logging.Logger
 
 @AllOpen
@@ -344,8 +345,18 @@ class MailTemplateHelper @Inject constructor(
         )
     } ?: replaceInitiatorVariablesWithEmptyText(resolvedText)
 
+    @Suppress("TooGenericExceptionCaught")
     private fun findAddressBedrijf(resultaatItem: ResultaatItem) =
-        kvkClientService.findCorrespondentieadresOrBezoekadres(resultaatItem)?.toAddressString().orEmpty()
+        try {
+            kvkClientService.findCorrespondentieadresOrBezoekadres(resultaatItem)?.toAddressString().orEmpty()
+        } catch (runtimeException: RuntimeException) {
+            LOG.log(
+                Level.WARNING,
+                "Could not read the KVK address of the initiator, so the mail is sent without it",
+                runtimeException
+            )
+            ""
+        }
 
     private fun replaceInitiatorVariablesWithEmptyText(resolvedTekst: String) =
         replaceInitiatorVariables(resolvedTekst, "", "")
