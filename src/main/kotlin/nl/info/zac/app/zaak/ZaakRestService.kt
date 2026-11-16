@@ -35,7 +35,6 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ResultaattypeReferenceService
@@ -50,7 +49,6 @@ import nl.info.zac.app.bag.model.toZaakobjectRequest
 import nl.info.zac.app.productaanvraag.model.RestInboxProductaanvraag
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
-import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
 import nl.info.zac.app.zaak.exception.BetrokkeneCannotBeDeletedException
 import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowedException
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
@@ -74,7 +72,6 @@ import nl.info.zac.app.zaak.model.RestZaakInitiatorGegevens
 import nl.info.zac.app.zaak.model.RestZaakLocatieGegevens
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import nl.info.zac.app.zaak.model.RestZaakVerlengGegevens
-import nl.info.zac.app.zaak.model.RestZaaktype
 import nl.info.zac.app.zaak.model.toGeoJSONGeometry
 import nl.info.zac.app.zaak.model.toPatchZaak
 import nl.info.zac.app.zaak.model.toRestResultaatType
@@ -139,7 +136,6 @@ class ZaakRestService @Inject constructor(
     private val productaanvraagDocumentService: ProductaanvraagDocumentService,
     private val restZaakConverter: RestZaakConverter,
     private val restZaakOverzichtConverter: RestZaakOverzichtConverter,
-    private val restZaaktypeConverter: RestZaaktypeConverter,
     private val signaleringService: SignaleringService,
     private val zaakHistoryService: ZaakHistoryService,
     private val zaakService: ZaakService,
@@ -466,21 +462,6 @@ class ZaakRestService @Inject constructor(
             }
             .map { restZaakOverzichtConverter.convertToRestZaakOverzicht(zaak = it, loggedInUser = loggedInUser) }
             .filter { it.rechten?.canLezen == true && it.behandelaar?.username == loggedInUser.username }
-    }
-
-    @GET
-    @Path("zaaktypes-for-creation")
-    fun listZaaktypesForZaakCreation(): List<RestZaaktype> {
-        val loggedInUser = loggedInUserInstance.get()
-        val startrollen by lazy { policyService.readStartrollen() }
-        return ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
-            .asSequence()
-            .filter { !it.concept }
-            .filter { it.isNuGeldig() }
-            .filter { loggedInUser.mayStartZaakOfZaaktype(it.omschrijving, startrollen) }
-            .filter { it.isValidForZaakCreation() }
-            .map(restZaaktypeConverter::convert)
-            .toList()
     }
 
     /**
@@ -969,20 +950,6 @@ class ZaakRestService @Inject constructor(
         listOfNotNull(kvkNummer, vestigingsnummer).joinToString(VESTIGING_IDENTIFICATIE_DELIMITER)
 
     private fun datumWaarschuwing(vandaag: LocalDate, dagen: Int): LocalDate = vandaag.plusDays(dagen + 1L)
-
-    // Mirrors OPA's `starten_zaak` rule, which evaluates the roles for the zaaktype together with the overall roles,
-    // so that listing the zaaktypen takes one OPA call instead of one per zaaktype.
-    private fun LoggedInUser.mayStartZaakOfZaaktype(zaaktypeOmschrijving: String, startrollen: Set<String>) =
-        (applicationRolesPerZaaktype[zaaktypeOmschrijving].orEmpty() + overallRoles).any(startrollen::contains)
-
-    /**
-     * The engine check of the zaaktype can call Open Zaak several times, so it only runs when the ZAC configuration
-     * of the zaaktype is valid.
-     */
-    private fun ZaakType.isValidForZaakCreation() =
-        zaaktypeConfigurationService.findConfiguration(url.extractUuid())?.let {
-            it.isValidForZaakCreation() && zaakProcessService.isZaaktypeReady(it, url)
-        } ?: false
 
     private fun isWarning(
         today: LocalDate,
