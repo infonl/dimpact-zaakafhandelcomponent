@@ -538,6 +538,7 @@ configure<SpotlessExtension> {
         targetExclude(
             "$e2ePath/node_modules/**",
             "$e2ePath/.features-gen/**",
+            "$e2ePath/generated/**",
             "$e2ePath/playwright-report/**",
             "$e2ePath/test-results/**"
         )

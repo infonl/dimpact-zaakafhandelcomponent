@@ -13,7 +13,8 @@
     "test": "bddgen && playwright test",
     "test:ui": "bddgen && playwright test --ui",
     "lint": "eslint .",
-    "typecheck": "tsc -p tsconfig.playwright.json"
+    "typecheck": "npm run generate:types:zac-openapi && tsc -p tsconfig.playwright.json",
+    "generate:types:zac-openapi": "openapi-typescript ../../build/generated/openapi/META-INF/openapi/openapi.json -o ./generated/zac-openapi-types.d.ts"
   },
   "private": true,
   "dependencies": {
@@ -29,10 +30,17 @@
     "eslint": "10.14.0",
     "eslint-plugin-playwright": "2.12.2",
     "multiple-cucumber-html-reporter": "4.6.0",
+    "openapi-fetch": "0.17.0",
+    "openapi-typescript": "7.13.0",
     "playwright-bdd": "9.2.1",
     "ts-node": "10.9.2",
     "typescript": "6.0.3",
     "typescript-eslint": "8.72.2"
+  },
+  "overrides": {
+    "openapi-typescript": {
+      "typescript": "$typescript"
+    }
   },
   "cucumber.features": ["features/**/*.feature"]
 }

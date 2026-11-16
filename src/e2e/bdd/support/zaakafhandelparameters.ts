@@ -3,43 +3,21 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import type { APIRequestContext } from "@playwright/test";
-import { getJson, putJson } from "./zac-api";
+import { dataOf, type Schemas, type ZacApi } from "./zac-api";
 
 const CMMN_CASE_DEFINITION_KEY = "generiek-zaakafhandelmodel";
 const NIET_ONTVANKELIJK_RESULTAATTYPE = "Geweigerd";
-const STATUS_MAIL_OFF = "BESCHIKBAAR_UIT";
+const STATUS_MAIL_OFF: Schemas["ZaakafhandelparametersStatusMailOption"] =
+  "BESCHIKBAAR_UIT";
 const REFERENTIETABELLEN_OF_HUMAN_TASK: Record<string, string[]> = {
   ADVIES_INTERN: ["ADVIES"],
 };
 
-type Zaaktype = { uuid: string; omschrijving: string; isNuGeldig: boolean };
-type Groep = { id: string; naam: string };
-type ZaakAfzender = { mail: string; isDefaultMail: boolean; replyTo?: string };
-type HumanTaskDefinition = { id: string; defaultFormulierDefinitie: string };
-type UserEventListenerDefinition = { id: string; naam: string };
-type ProcessDefinition = {
-  key: string;
-  processEngine: string;
-  humanTaskDefinitions: HumanTaskDefinition[];
-  userEventListenerDefinitions: UserEventListenerDefinition[];
-};
-type Zaakafhandelparameters = {
-  zaaktype: Zaaktype;
-  isValide: boolean;
-  defaultGroepId?: string;
-  betrokkeneKoppelingen: {
-    isBrpKoppelenEnabled: boolean;
-    isKvkKoppelenEnabled: boolean;
-  };
-  zaakAfzenders: ZaakAfzender[];
-  intakeMail?: string;
-  afrondenMail?: string;
-  [setting: string]: unknown;
-};
+type Zaaktype = Schemas["RestZaaktypeOverzicht"];
+type ZaaktypeConfiguration = Schemas["RestZaaktypeConfiguration"];
 
-async function groepNamed(api: APIRequestContext, naam: string) {
-  const groepen = await getJson<Groep[]>(api, "/rest/identity/groups");
+async function groepNamed(api: ZacApi, naam: string) {
+  const groepen = await dataOf(api.GET("/rest/identity/groups"));
   const groep = groepen.find((candidate) => candidate.naam === naam);
   if (!groep) {
     throw new Error(
@@ -49,15 +27,11 @@ async function groepNamed(api: APIRequestContext, naam: string) {
   return groep;
 }
 
-async function currentZaaktypeNamed(
-  api: APIRequestContext,
-  omschrijving: string,
-) {
-  const all = await getJson<Zaakafhandelparameters[]>(
-    api,
-    "/rest/zaakafhandelparameters",
+async function currentZaaktypeNamed(api: ZacApi, omschrijving: string) {
+  const configurations = await dataOf(api.GET("/rest/zaakafhandelparameters"));
+  const zaaktypes = configurations.map(
+    (configuration) => configuration.zaaktype,
   );
-  const zaaktypes = all.map((parameters) => parameters.zaaktype);
   const zaaktype = zaaktypes.find(
     (candidate) =>
       candidate.omschrijving === omschrijving && candidate.isNuGeldig,
@@ -74,12 +48,11 @@ async function currentZaaktypeNamed(
 }
 
 async function cmmnParametersFor(
-  api: APIRequestContext,
+  api: ZacApi,
   zaaktype: Zaaktype,
-): Promise<Record<string, unknown>> {
-  const processDefinitions = await getJson<ProcessDefinition[]>(
-    api,
-    "/rest/zaakafhandelparameters/process-definitions",
+): Promise<Partial<ZaaktypeConfiguration>> {
+  const processDefinitions = await dataOf(
+    api.GET("/rest/zaakafhandelparameters/process-definitions"),
   );
   const caseDefinition = processDefinitions.find(
     (definition) =>
@@ -92,9 +65,10 @@ async function cmmnParametersFor(
     );
   }
 
-  const resultaattypes = await getJson<{ naam: string }[]>(
-    api,
-    `/rest/zaakafhandelparameters/resultaattypes/${zaaktype.uuid}`,
+  const resultaattypes = await dataOf(
+    api.GET("/rest/zaakafhandelparameters/resultaattypes/{zaaktypeUUID}", {
+      params: { path: { zaaktypeUUID: zaaktype.uuid } },
+    }),
   );
   const nietOntvankelijk = resultaattypes.find(
     (resultaattype) => resultaattype.naam === NIET_ONTVANKELIJK_RESULTAATTYPE,
@@ -105,15 +79,16 @@ async function cmmnParametersFor(
     );
   }
 
-  const humanTaskParameters = [];
-  for (const humanTask of caseDefinition.humanTaskDefinitions) {
-    const referentieTabellen = [];
+  const humanTaskParameters: Schemas["RestHumanTaskParameters"][] = [];
+  for (const humanTask of caseDefinition.humanTaskDefinitions ?? []) {
+    const referentieTabellen: Schemas["RestHumanTaskReferenceTable"][] = [];
     for (const code of REFERENTIETABELLEN_OF_HUMAN_TASK[humanTask.id] ?? []) {
-      const tabel = await getJson<{ id: number }>(
-        api,
-        `/rest/referentietabellen/code/${code}`,
+      const tabel = await dataOf(
+        api.GET("/rest/referentietabellen/code/{code}", {
+          params: { path: { code } },
+        }),
       );
-      referentieTabellen.push({ veld: code, tabel: { id: tabel.id } });
+      referentieTabellen.push({ veld: code, tabel });
     }
     humanTaskParameters.push({
       planItemDefinition: humanTask,
@@ -127,42 +102,53 @@ async function cmmnParametersFor(
     processDefinition: caseDefinition,
     zaakNietOntvankelijkResultaattype: nietOntvankelijk,
     humanTaskParameters,
-    userEventListenerParameters: caseDefinition.userEventListenerDefinitions,
+    userEventListenerParameters: (
+      caseDefinition.userEventListenerDefinitions ?? []
+    ).map(({ id, naam }) => ({ id, naam })),
   };
 }
 
 export async function setUpZaaktype(
-  api: APIRequestContext,
+  api: ZacApi,
   zaaktypeOmschrijving: string,
   groepNaam: string,
 ) {
   const groep = await groepNamed(api, groepNaam);
   const zaaktype = await currentZaaktypeNamed(api, zaaktypeOmschrijving);
-  const path = `/rest/zaakafhandelparameters/${zaaktype.uuid}`;
-  const current = await getJson<Zaakafhandelparameters>(api, path);
+  const path = { zaaktypeUUID: zaaktype.uuid };
+  const current = await dataOf(
+    api.GET("/rest/zaakafhandelparameters/{zaaktypeUUID}", {
+      params: { path },
+    }),
+  );
 
   const isSetUp =
     current.isValide &&
     current.defaultGroepId === groep.id &&
-    current.betrokkeneKoppelingen.isBrpKoppelenEnabled &&
-    current.betrokkeneKoppelingen.isKvkKoppelenEnabled;
+    current.betrokkeneKoppelingen?.isBrpKoppelenEnabled &&
+    current.betrokkeneKoppelingen?.isKvkKoppelenEnabled;
   if (isSetUp) return;
 
-  await putJson(api, path, {
-    ...current,
-    ...(current.isValide ? {} : await cmmnParametersFor(api, zaaktype)),
-    defaultGroepId: groep.id,
-    intakeMail: current.intakeMail ?? STATUS_MAIL_OFF,
-    afrondenMail: current.afrondenMail ?? STATUS_MAIL_OFF,
-    zaakAfzenders: current.zaakAfzenders.map((afzender) =>
-      afzender.mail === "GEMEENTE"
-        ? { ...afzender, isDefaultMail: true, replyTo: "GEMEENTE" }
-        : afzender,
-    ),
-    betrokkeneKoppelingen: {
-      ...current.betrokkeneKoppelingen,
-      isBrpKoppelenEnabled: true,
-      isKvkKoppelenEnabled: true,
-    },
-  });
+  await dataOf(
+    api.PUT("/rest/zaakafhandelparameters/{zaaktypeUUID}", {
+      params: { path },
+      body: {
+        ...current,
+        ...(current.isValide ? {} : await cmmnParametersFor(api, zaaktype)),
+        defaultGroepId: groep.id,
+        intakeMail: current.intakeMail ?? STATUS_MAIL_OFF,
+        afrondenMail: current.afrondenMail ?? STATUS_MAIL_OFF,
+        zaakAfzenders: (current.zaakAfzenders ?? []).map((afzender) =>
+          afzender.mail === "GEMEENTE"
+            ? { ...afzender, isDefaultMail: true, replyTo: "GEMEENTE" }
+            : afzender,
+        ),
+        betrokkeneKoppelingen: {
+          ...current.betrokkeneKoppelingen,
+          isBrpKoppelenEnabled: true,
+          isKvkKoppelenEnabled: true,
+        },
+      },
+    }),
+  );
 }

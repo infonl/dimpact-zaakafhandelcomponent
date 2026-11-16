@@ -17,7 +17,13 @@ const journeyFiles = [
 
 export default tseslint.config(
   {
-    ignores: [".features-gen/", "playwright-report/", "test-results/", "reports/"],
+    ignores: [
+      ".features-gen/",
+      "generated/",
+      "playwright-report/",
+      "test-results/",
+      "reports/",
+    ],
   },
   {
     files: journeyFiles,

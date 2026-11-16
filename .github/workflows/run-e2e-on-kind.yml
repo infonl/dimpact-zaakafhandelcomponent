@@ -22,6 +22,9 @@ on:
 permissions:
   contents: read
 
+env:
+  JAVA_VERSION: "25.0.5"
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -73,6 +76,20 @@ jobs:
           cd src/e2e
           npm ci --ignore-scripts
           npx playwright install --with-deps chromium
+
+      - name: Setup JDK
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      # The type check of the e2e tests generates the types of the ZAC REST API from this spec
+      - name: Generate the OpenAPI spec of ZAC
+        timeout-minutes: 20
+        run: ./gradlew generateOpenApiSpec
 
       # These checks need no running stack, so a missing step definition fails before the wait for the stack
       - name: Check the types, lint and generate the e2e tests

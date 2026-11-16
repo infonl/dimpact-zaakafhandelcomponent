@@ -6,8 +6,10 @@
 import type { APIRequestContext } from "@playwright/test";
 import path from "node:path";
 import { test as base } from "playwright-bdd";
+import { requireZacUrl } from "../../config/env";
 import type { Account, Role } from "../../config/targets/target";
 import { withLock } from "../support/lock";
+import { zacApiClient, type ZacApi } from "../support/zac-api";
 import { accountOrSkip } from "./accounts";
 import { roleOfTags, sessionFileOfRole } from "./roles";
 
@@ -15,7 +17,7 @@ const SIGNED_OUT = { cookies: [], origins: [] };
 
 export const coreTest = base.extend<{
   accountOfRole: (role: Role) => Account;
-  apiAs: (role: Role) => Promise<APIRequestContext>;
+  apiAs: (role: Role) => Promise<ZacApi>;
   whileNoOtherWorkerDoes: <Result>(
     name: string,
     action: () => Promise<Result>,
@@ -35,16 +37,15 @@ export const coreTest = base.extend<{
     await use((role) => accountOrSkip(role, testInfo));
   },
 
-  apiAs: async ({ playwright, baseURL }, use, testInfo) => {
+  apiAs: async ({ playwright }, use, testInfo) => {
     const contexts: APIRequestContext[] = [];
     await use(async (role) => {
       accountOrSkip(role, testInfo);
       const context = await playwright.request.newContext({
-        baseURL,
         storageState: sessionFileOfRole(role),
       });
       contexts.push(context);
-      return context;
+      return zacApiClient(context, requireZacUrl());
     });
     await Promise.all(contexts.map((context) => context.dispose()));
   },

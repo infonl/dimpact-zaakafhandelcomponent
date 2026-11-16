@@ -69,3 +69,5 @@ user.json
 .features-gen/
 # sessions of the setup project
 /.auth/
+# types of the REST API of ZAC, generated from its OpenAPI spec
+/generated/

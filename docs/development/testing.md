@@ -204,6 +204,14 @@ The script passes its arguments to Playwright:
 The tests run headless by default. After a run, `npx playwright show-report` in `src/e2e` opens the report, with a
 trace of every scenario.
 
+The steps call the REST API of ZAC with a client that is typed by the OpenAPI spec of ZAC. To check the types of the
+tests, generate the spec first, also after a change in the REST API:
+
+```sh
+./gradlew generateOpenApiSpec
+cd src/e2e && npm run typecheck
+```
+
 The [Playwright Tests on kind](../../.github/workflows/run-e2e-on-kind.yml) workflow runs the same tests in the
 pipeline, for pull requests that change the e2e tests or the kind stack.
 
