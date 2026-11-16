@@ -85,6 +85,19 @@ describe(ZakenWerkvoorraadComponent.name, () => {
     fixture.detectChanges();
   }
 
+  describe("the filters of the columns", () => {
+    it.each(["zaak.identificatie", "omschrijving"])(
+      "name the text filter of the column %s after that column, so that a screen reader user knows what it filters",
+      async (column) => {
+        await setup();
+
+        expect(
+          screen.getByRole("textbox", { name: column }),
+        ).toBeInTheDocument();
+      },
+    );
+  });
+
   describe("showAssignToMe", () => {
     it.each([
       ["user2", true],

@@ -7,6 +7,7 @@
   <input
     matInput
     placeholder="..."
+    [attr.aria-label]="label() | translate"
     (blur)="change()"
     (keyup.enter)="change()"
     [formControl]="formControl"

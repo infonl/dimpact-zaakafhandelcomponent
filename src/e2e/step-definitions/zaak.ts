@@ -15,6 +15,7 @@ import {
   INFLATED_STEP_TIMEOUT_IN_MS,
   INFLATED_TIMEOUT_IN_MS,
   ONE_MINUTE_IN_MS,
+  TEN_SECONDS_IN_MS,
   TWO_MINUTES_IN_MS,
   TWO_SECONDS_IN_MS,
 } from "../support/time-constants";
@@ -438,11 +439,27 @@ Then(
 
 Then(
   "Employee {string} sees the zaak that {string} created in open-forms",
-  { timeout: ONE_MINUTE_IN_MS + 30000 },
+  { timeout: INFLATED_STEP_TIMEOUT_IN_MS },
   async function (this: CustomWorld, user, profile) {
     const openFormsTestId = this.testStorage.get("open-forms-testid");
 
-    await this.page.locator(".preview-chevron").nth(1).click();
+    // Open Forms adds the documents to the zaak after it has registered the zaak, and the document list
+    // of an open zaak does not refresh by itself, so reload until both documents (the submission and
+    // its attachment) are listed.
+    const documentPreviewToggles = this.page.locator(
+      "zac-zaak-documenten .preview-chevron",
+    );
+    await this.expect(async () => {
+      await this.page.reload();
+      await this.expect(documentPreviewToggles.nth(1)).toBeVisible({
+        timeout: TEN_SECONDS_IN_MS,
+      });
+    }).toPass({
+      intervals: [FIVE_SECONDS_IN_MS],
+      timeout: INFLATED_SEARCH_INDEX_TIMEOUT_IN_MS,
+    });
+
+    await documentPreviewToggles.nth(1).click();
     await this.expect(
       this.page.getByAltText("Bijgevoegd document"),
     ).toBeVisible();

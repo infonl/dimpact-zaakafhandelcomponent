@@ -11,6 +11,10 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import jakarta.ws.rs.NotFoundException
+import jakarta.ws.rs.ProcessingException
+import jakarta.ws.rs.WebApplicationException
+import jakarta.ws.rs.core.Response
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.model.createAdres
 import nl.info.client.brp.model.createAdressering
@@ -18,7 +22,13 @@ import nl.info.client.brp.model.createPersoon
 import nl.info.client.brp.model.createVerblijfadresBinnenland
 import nl.info.client.brp.model.generated.Adres
 import nl.info.client.kvk.KvkClientService
+import nl.info.client.kvk.exception.KvkClientException
+import nl.info.client.kvk.model.createBasisprofiel
+import nl.info.client.kvk.model.createBasisprofielAdres
+import nl.info.client.kvk.model.createEigenaar
 import nl.info.client.kvk.model.createResultaatItem
+import nl.info.client.kvk.model.createVestiging
+import nl.info.client.kvk.model.createVestigingsAdres
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.or.`object`.model.createModelObject
 import nl.info.client.smartdocuments.model.document.AanvragerData
@@ -38,12 +48,14 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.identity.IdentityService
@@ -55,6 +67,7 @@ import org.flowable.task.api.TaskInfo
 import java.net.URI
 import java.util.UUID
 
+@Suppress("LargeClass")
 class DocumentCreationDataServiceTest : BehaviorSpec({
     val zgwApiService = mockk<ZgwApiService>()
     val zrcClientService = mockk<ZrcClientService>()
@@ -79,6 +92,13 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
 
     afterEach {
         checkUnnecessaryStub()
+    }
+
+    fun stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak: Zaak, zaakType: ZaakType) {
+        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
+        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
+        every { zgwApiService.findGroepForZaak(zaak) } returns null
+        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
     }
 
     given("A logged-in user and a zaak with a behandelaar and an initiator of type natuurlijk persoon") {
@@ -153,16 +173,34 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
             )
         val zaakType = createZaakType()
         val zaak = createZaak(zaaktypeUri = zaakType.url)
-        val resultaatItem = createResultaatItem()
+        val resultaatItem = createResultaatItem(vestingsnummer = "fakeVestigingsnummer")
+        val vestigingsprofiel = createVestiging(
+            adressen = listOf(
+                createVestigingsAdres(
+                    type = "bezoekadres",
+                    straatnaam = "fakeBezoekStraatnaam",
+                    huisnummer = 11,
+                    postcode = "fakeBezoekPostcode",
+                    plaats = "fakeBezoekPlaats"
+                ),
+                createVestigingsAdres(
+                    type = "correspondentieadres",
+                    straatnaam = "fakeCorrespondentieStraatnaam",
+                    huisnummer = 7,
+                    huisletter = "A",
+                    huisnummerToevoeging = "2",
+                    postcode = "fakeCorrespondentiePostcode",
+                    plaats = "fakeCorrespondentiePlaats"
+                )
+            )
+        )
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolVestiging
         every {
             kvkClientService.findVestiging(rolVestiging.identificatienummer!!)
         } returns resultaatItem
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every { kvkClientService.findVestigingsprofiel("fakeVestigingsnummer") } returns vestigingsprofiel
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(
@@ -170,16 +208,17 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                 zaak = zaak
             )
 
-            then("the data is created correctly") {
+            then(
+                "the data is created correctly, with the correspondentieadres of the vestigingsprofiel as aanvrager address"
+            ) {
                 with(data) {
-                    with(aanvragerData!!) {
-                        naam shouldBe resultaatItem.naam
-                        straat shouldBe resultaatItem.adres.binnenlandsAdres.straatnaam
-                        huisnummer shouldBe
-                            "${resultaatItem.adres.binnenlandsAdres.huisnummer}${resultaatItem.adres.binnenlandsAdres.huisletter}"
-                        postcode shouldBe resultaatItem.adres.binnenlandsAdres.postcode
-                        woonplaats shouldBe resultaatItem.adres.binnenlandsAdres.plaats
-                    }
+                    aanvragerData shouldBe AanvragerData(
+                        naam = resultaatItem.naam,
+                        straat = "fakeCorrespondentieStraatnaam",
+                        huisnummer = "7A2",
+                        postcode = "fakeCorrespondentiePostcode",
+                        woonplaats = "fakeCorrespondentiePlaats"
+                    )
                     with(gebruikerData) {
                         id shouldBe loggedInUser.username
                         naam shouldBe loggedInUser.getFullName()
@@ -214,16 +253,25 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
             )
         val zaakType = createZaakType()
         val zaak = createZaak(zaaktypeUri = zaakType.url)
-        val resultaatItem = createResultaatItem()
+        val resultaatItem = createResultaatItem(vestingsnummer = vestigingsNummer)
+        val vestigingsprofiel = createVestiging(
+            adressen = listOf(
+                createVestigingsAdres(
+                    type = "bezoekadres",
+                    straatnaam = "fakeBezoekStraatnaam",
+                    huisnummer = 11,
+                    postcode = "fakeBezoekPostcode",
+                    plaats = "fakeBezoekPlaats"
+                )
+            )
+        )
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
         every {
             kvkClientService.findVestiging(vestigingsNummer)
         } returns resultaatItem
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every { kvkClientService.findVestigingsprofiel(vestigingsNummer) } returns vestigingsprofiel
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(
@@ -231,16 +279,17 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                 zaak = zaak
             )
 
-            then("the data is created correctly") {
+            then(
+                "the data is created correctly, with the bezoekadres as aanvrager address because there is no correspondentieadres"
+            ) {
                 with(data) {
-                    with(aanvragerData!!) {
-                        naam shouldBe resultaatItem.naam
-                        straat shouldBe resultaatItem.adres.binnenlandsAdres.straatnaam
-                        huisnummer shouldBe
-                            "${resultaatItem.adres.binnenlandsAdres.huisnummer}${resultaatItem.adres.binnenlandsAdres.huisletter}"
-                        postcode shouldBe resultaatItem.adres.binnenlandsAdres.postcode
-                        woonplaats shouldBe resultaatItem.adres.binnenlandsAdres.plaats
-                    }
+                    aanvragerData shouldBe AanvragerData(
+                        naam = resultaatItem.naam,
+                        straat = "fakeBezoekStraatnaam",
+                        huisnummer = "11",
+                        postcode = "fakeBezoekPostcode",
+                        woonplaats = "fakeBezoekPlaats"
+                    )
                     with(gebruikerData) {
                         id shouldBe loggedInUser.username
                         naam shouldBe loggedInUser.getFullName()
@@ -264,10 +313,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         val zaak = createZaak(zaaktypeUri = zaakType.url)
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns null
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(
@@ -294,10 +340,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         every {
             brpClientService.retrievePersoon(rolNatuurlijkPersoon.identificatienummer!!, any(), any())
         } returns null
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(
@@ -322,10 +365,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolVestiging
         every { kvkClientService.findVestiging(rolVestiging.identificatienummer!!) } returns null
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(
@@ -335,6 +375,222 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
 
             then("the aanvragerData is null") {
                 data.aanvragerData shouldBe null
+            }
+        }
+    }
+
+    given("A zaak with an initiator of type vestiging with a foreign correspondentieadres") {
+        val loggedInUser = createLoggedInUser()
+        val rolVestiging =
+            createRolVestiging(
+                rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR)
+            )
+        val zaakType = createZaakType()
+        val zaak = createZaak(zaaktypeUri = zaakType.url)
+        val resultaatItem = createResultaatItem(vestingsnummer = "fakeVestigingsnummer")
+        val vestigingsprofiel = createVestiging(
+            adressen = listOf(
+                createVestigingsAdres(type = "correspondentieadres").apply {
+                    straatHuisnummer = "fakeStraatHuisnummer"
+                    toevoegingAdres = "fakeToevoegingAdres"
+                    postcodeWoonplaats = "fakePostcodeWoonplaats"
+                    land = "fakeLand"
+                }
+            )
+        )
+
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolVestiging
+        every { kvkClientService.findVestiging(rolVestiging.identificatienummer!!) } returns resultaatItem
+        every { kvkClientService.findVestigingsprofiel("fakeVestigingsnummer") } returns vestigingsprofiel
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
+
+        `when`("SmartDocuments data is created") {
+            val data = documentCreationDataService.createData(
+                loggedInUser = loggedInUser,
+                zaak = zaak
+            )
+
+            then("the aanvrager address has the foreign street line as straat and the postcode, woonplaats and land as woonplaats") {
+                data.aanvragerData shouldBe AanvragerData(
+                    naam = resultaatItem.naam,
+                    straat = "fakeStraatHuisnummer fakeToevoegingAdres",
+                    woonplaats = "fakePostcodeWoonplaats, fakeLand"
+                )
+            }
+        }
+    }
+
+    given("A zaak with an initiator of type vestiging whose vestigingsprofiel is not found at the KVK") {
+        val loggedInUser = createLoggedInUser()
+        val rolVestiging =
+            createRolVestiging(
+                rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR)
+            )
+        val zaakType = createZaakType()
+        val zaak = createZaak(zaaktypeUri = zaakType.url)
+        val resultaatItem = createResultaatItem(vestingsnummer = "fakeVestigingsnummer")
+
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolVestiging
+        every { kvkClientService.findVestiging(rolVestiging.identificatienummer!!) } returns resultaatItem
+        every {
+            kvkClientService.findVestigingsprofiel("fakeVestigingsnummer")
+        } throws NotFoundException("fakeNotFound")
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
+
+        `when`("SmartDocuments data is created") {
+            val data = documentCreationDataService.createData(
+                loggedInUser = loggedInUser,
+                zaak = zaak
+            )
+
+            then("the aanvrager data has the name of the vestiging and no address, so that a document can still be created") {
+                data.aanvragerData shouldBe AanvragerData(naam = resultaatItem.naam)
+            }
+        }
+    }
+
+    given("A zaak with an initiator of type rechtspersoon and a KVK basisprofiel call that fails with a server error") {
+        val loggedInUser = createLoggedInUser()
+        val kvkNummer = "fakeKvkNummer"
+        val rolNietNatuurlijkPersoon =
+            createRolNietNatuurlijkPersoon(
+                rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR),
+                nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(kvkNummer = kvkNummer)
+            )
+        val zaakType = createZaakType()
+        val zaak = createZaak(zaaktypeUri = zaakType.url)
+        val resultaatItem = createResultaatItem(kvkNummer = kvkNummer, vestingsnummer = null)
+
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
+        every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns resultaatItem
+        every { kvkClientService.findBasisprofiel(kvkNummer) } throws KvkClientException("fakeServerError")
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
+
+        `when`("SmartDocuments data is created") {
+            val data = documentCreationDataService.createData(
+                loggedInUser = loggedInUser,
+                zaak = zaak
+            )
+
+            then("the aanvrager data has the name of the rechtspersoon and no address, so that a document can still be created") {
+                data.aanvragerData shouldBe AanvragerData(naam = resultaatItem.naam)
+            }
+        }
+    }
+
+    given("A zaak with an initiator of type rechtspersoon and a KVK basisprofiel call that fails with a client error") {
+        val loggedInUser = createLoggedInUser()
+        val kvkNummer = "fakeKvkNummer"
+        val rolNietNatuurlijkPersoon =
+            createRolNietNatuurlijkPersoon(
+                rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR),
+                nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(kvkNummer = kvkNummer)
+            )
+        val zaakType = createZaakType()
+        val zaak = createZaak(zaaktypeUri = zaakType.url)
+        val resultaatItem = createResultaatItem(kvkNummer = kvkNummer, vestingsnummer = null)
+
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
+        every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns resultaatItem
+        every { kvkClientService.findBasisprofiel(kvkNummer) } throws WebApplicationException("fakeForbidden", Response.Status.FORBIDDEN)
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
+
+        `when`("SmartDocuments data is created") {
+            val data = documentCreationDataService.createData(
+                loggedInUser = loggedInUser,
+                zaak = zaak
+            )
+
+            then("the aanvrager data has the name of the rechtspersoon and no address, so that a document can still be created") {
+                data.aanvragerData shouldBe AanvragerData(naam = resultaatItem.naam)
+            }
+        }
+    }
+
+    given("A zaak with an initiator of type rechtspersoon and a KVK basisprofiel call that cannot reach the KVK") {
+        val loggedInUser = createLoggedInUser()
+        val kvkNummer = "fakeKvkNummer"
+        val rolNietNatuurlijkPersoon =
+            createRolNietNatuurlijkPersoon(
+                rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR),
+                nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(kvkNummer = kvkNummer)
+            )
+        val zaakType = createZaakType()
+        val zaak = createZaak(zaaktypeUri = zaakType.url)
+        val resultaatItem = createResultaatItem(kvkNummer = kvkNummer, vestingsnummer = null)
+
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
+        every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns resultaatItem
+        every { kvkClientService.findBasisprofiel(kvkNummer) } throws ProcessingException("fakeTimeout")
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
+
+        `when`("SmartDocuments data is created") {
+            val data = documentCreationDataService.createData(
+                loggedInUser = loggedInUser,
+                zaak = zaak
+            )
+
+            then("the aanvrager data has the name of the rechtspersoon and no address, so that a document can still be created") {
+                data.aanvragerData shouldBe AanvragerData(naam = resultaatItem.naam)
+            }
+        }
+    }
+
+    given("A zaak with an initiator of type rechtspersoon and a KVK basisprofiel call that fails unexpectedly") {
+        val loggedInUser = createLoggedInUser()
+        val kvkNummer = "fakeKvkNummer"
+        val rolNietNatuurlijkPersoon =
+            createRolNietNatuurlijkPersoon(
+                rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR),
+                nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(kvkNummer = kvkNummer)
+            )
+        val zaakType = createZaakType()
+        val zaak = createZaak(zaaktypeUri = zaakType.url)
+        val resultaatItem = createResultaatItem(kvkNummer = kvkNummer, vestingsnummer = null)
+
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
+        every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns resultaatItem
+        every { kvkClientService.findBasisprofiel(kvkNummer) } throws IllegalStateException("fakeUnexpectedError")
+
+        `when`("SmartDocuments data is created") {
+            val illegalStateException = shouldThrow<IllegalStateException> {
+                documentCreationDataService.createData(
+                    loggedInUser = loggedInUser,
+                    zaak = zaak
+                )
+            }
+
+            then("the error is not suppressed, so that an unexpected failure is not hidden") {
+                illegalStateException.message shouldBe "fakeUnexpectedError"
+            }
+        }
+    }
+
+    given("A zaak with an initiator of type vestiging whose vestigingsprofiel has no address") {
+        val loggedInUser = createLoggedInUser()
+        val rolVestiging =
+            createRolVestiging(
+                rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR)
+            )
+        val zaakType = createZaakType()
+        val zaak = createZaak(zaaktypeUri = zaakType.url)
+        val resultaatItem = createResultaatItem(vestingsnummer = "fakeVestigingsnummer")
+
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolVestiging
+        every { kvkClientService.findVestiging(rolVestiging.identificatienummer!!) } returns resultaatItem
+        every {
+            kvkClientService.findVestigingsprofiel("fakeVestigingsnummer")
+        } returns createVestiging(adressen = emptyList())
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
+
+        `when`("SmartDocuments data is created") {
+            val data = documentCreationDataService.createData(
+                loggedInUser = loggedInUser,
+                zaak = zaak
+            )
+
+            then("the aanvrager data has the name of the vestiging and no address") {
+                data.aanvragerData shouldBe AanvragerData(naam = resultaatItem.naam)
             }
         }
     }
@@ -351,14 +607,25 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
             )
         val zaakType = createZaakType()
         val zaak = createZaak(zaaktypeUri = zaakType.url)
-        val resultaatItem = createResultaatItem()
+        val resultaatItem = createResultaatItem(kvkNummer = "fakeKvkNummer", vestingsnummer = null)
+        val basisprofiel = createBasisprofiel(
+            eigenaar = createEigenaar(
+                adressen = listOf(
+                    createBasisprofielAdres(type = "bezoekadres", straatnaam = "fakeBezoekStraatnaam"),
+                    createBasisprofielAdres(
+                        type = "correspondentieadres",
+                        postbusnummer = 1234,
+                        postcode = "fakePostbusPostcode",
+                        plaats = "fakePostbusPlaats"
+                    )
+                )
+            )
+        )
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
         every { kvkClientService.findRechtspersoonByRsin(rsin) } returns resultaatItem
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every { kvkClientService.findBasisprofiel("fakeKvkNummer") } returns basisprofiel
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(
@@ -366,8 +633,16 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                 zaak = zaak
             )
 
-            then("the data is created correctly using the RSIN lookup") {
-                data.aanvragerData?.naam shouldBe resultaatItem.naam
+            then(
+                "the aanvrager data has the name found by the RSIN lookup and the postbus correspondentieadres of the basisprofiel"
+            ) {
+                data.aanvragerData shouldBe AanvragerData(
+                    naam = resultaatItem.naam,
+                    straat = "Postbus",
+                    huisnummer = "1234",
+                    postcode = "fakePostbusPostcode",
+                    woonplaats = "fakePostbusPlaats"
+                )
             }
         }
     }
@@ -382,14 +657,25 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
             )
         val zaakType = createZaakType()
         val zaak = createZaak(zaaktypeUri = zaakType.url)
-        val resultaatItem = createResultaatItem()
+        val resultaatItem = createResultaatItem(kvkNummer = kvkNummer, vestingsnummer = null)
+        val basisprofiel = createBasisprofiel(
+            eigenaar = createEigenaar(
+                adressen = listOf(
+                    createBasisprofielAdres(
+                        type = "bezoekadres",
+                        straatnaam = "fakeBezoekStraatnaam",
+                        huisnummer = 11,
+                        postcode = "fakeBezoekPostcode",
+                        plaats = "fakeBezoekPlaats"
+                    )
+                )
+            )
+        )
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
         every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns resultaatItem
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every { kvkClientService.findBasisprofiel(kvkNummer) } returns basisprofiel
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(
@@ -397,13 +683,19 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                 zaak = zaak
             )
 
-            then("the aanvrager data is created from the rechtspersoon found by KVK number") {
-                data.aanvragerData?.naam shouldBe resultaatItem.naam
+            then("the aanvrager data has the name and the bezoekadres of the rechtspersoon found by KVK number") {
+                data.aanvragerData shouldBe AanvragerData(
+                    naam = resultaatItem.naam,
+                    straat = "fakeBezoekStraatnaam",
+                    huisnummer = "11",
+                    postcode = "fakeBezoekPostcode",
+                    woonplaats = "fakeBezoekPlaats"
+                )
             }
         }
     }
 
-    given("A zaak with an initiator of type niet-natuurlijk persoon with only a KVK number and no KVK address") {
+    given("A zaak with an initiator of type niet-natuurlijk persoon with only a KVK number and no address in the basisprofiel") {
         val loggedInUser = createLoggedInUser()
         val kvkNummer = "fakeKvkNummer"
         val rolNietNatuurlijkPersoon =
@@ -413,14 +705,19 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
             )
         val zaakType = createZaakType()
         val zaak = createZaak(zaaktypeUri = zaakType.url)
-        val resultaatItem = createResultaatItem(adres = null, type = "rechtspersoon")
+        val resultaatItem = createResultaatItem(
+            adres = null,
+            type = "rechtspersoon",
+            kvkNummer = kvkNummer,
+            vestingsnummer = null
+        )
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
         every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns resultaatItem
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every { kvkClientService.findBasisprofiel(kvkNummer) } returns createBasisprofiel(
+            eigenaar = createEigenaar(adressen = emptyList())
+        )
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(
@@ -429,7 +726,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
             )
 
             then("the aanvrager data contains the name of the rechtspersoon and no address") {
-                data.aanvragerData shouldBe AanvragerData(naam = resultaatItem.naam, huisnummer = "")
+                data.aanvragerData shouldBe AanvragerData(naam = resultaatItem.naam)
             }
         }
     }
@@ -509,10 +806,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
         every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns null
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
 
         `when`("SmartDocuments data is created") {
             val data = documentCreationDataService.createData(
@@ -572,10 +866,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         val statusType = createStatusType(omschrijving = "fakeStatusOmschrijving")
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns null
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
         every { zrcClientService.readResultaat(resultaatUri) } returns resultaat
         every { ztcClientService.readResultaattype(resultaat.resultaattype) } returns resultaatType
         every { zrcClientService.readStatus(statusUri) } returns status
@@ -641,10 +932,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         val taskInfo = mockk<TaskInfo>()
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns null
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
         every { flowableTaskService.readTask(taskId) } returns taskInfo
         every { taskInfo.name } returns "fakeTaskName"
         every { taskInfo.assignee } returns assigneeId
@@ -674,10 +962,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         val taskInfo = mockk<TaskInfo>()
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns null
-        every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        stubZaakWithoutZaakobjectenBehandelaarAndGroep(zaak, zaakType)
         every { flowableTaskService.readTask(taskId) } returns taskInfo
         every { taskInfo.name } returns "fakeTaskName"
         every { taskInfo.assignee } returns null

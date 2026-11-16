@@ -209,6 +209,19 @@ class ReindexSupportServiceTest : BehaviorSpec({
         }
     }
 
+    given("softCommit") {
+        val ctx = setupContext()
+        every { ctx.solrClient.commit(null, true, true, true) } returns UpdateResponse()
+
+        `when`("softCommit is called") {
+            ctx.reindexSupportService.softCommit()
+
+            then("a soft Solr commit is performed, which makes the changes searchable without flushing them to disk") {
+                verify(exactly = 1) { ctx.solrClient.commit(null, true, true, true) }
+            }
+        }
+    }
+
     given("finishReindex when reindexing was aborted, i.e. the summary is null") {
         val ctx = setupContext()
         val emptyDocumentList = SolrDocumentList()
