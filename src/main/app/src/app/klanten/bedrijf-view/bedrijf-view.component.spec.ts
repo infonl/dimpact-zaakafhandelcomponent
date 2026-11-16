@@ -10,15 +10,13 @@ import { provideNativeDateAdapter } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter, Routes } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { EMPTY, Subject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { sleep } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { KlantContactmomentenTabelComponent } from "../../contactmomenten/klant-contactmomenten-tabel/klant-contactmomenten-tabel.component";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
-import { QUERY_CLIENT } from "../../shared/http/query-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantZakenTabelComponent } from "../klant-zaken-tabel/klant-zaken-tabel.component";
 import { BedrijfViewComponent } from "./bedrijf-view.component";
@@ -145,7 +143,6 @@ describe(BedrijfViewComponent.name, () => {
         provideTranslateService(),
         provideNativeDateAdapter(),
         provideRouter(testRoutes),
-        provideQueryClient(QUERY_CLIENT),
         {
           provide: ActivatedRoute,
           useValue: { data: routeDataSubject.asObservable() },
@@ -344,7 +341,7 @@ describe(BedrijfViewComponent.name, () => {
     it("shows the KvK error instead of the earlier fetched adressen when refetching the profiel fails", async () => {
       await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
 
-      void TestBed.inject(QUERY_CLIENT).refetchQueries();
+      void testQueryClient.refetchQueries();
       await sleep();
       httpController
         .expectOne(vestigingsprofielUrl)

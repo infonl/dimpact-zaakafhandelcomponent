@@ -13,15 +13,13 @@ import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatProgressSpinnerHarness } from "@angular/material/progress-spinner/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { EMPTY } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { sleep } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
-import { QUERY_CLIENT } from "../../shared/http/query-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
 import { KlantenService } from "../klanten.service";
@@ -77,11 +75,7 @@ describe(BedrijfsgegevensComponent.name, () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [BedrijfsgegevensComponent, NoopAnimationsModule],
-      providers: [
-        provideTranslateService(),
-        KlantenService,
-        provideQueryClient(QUERY_CLIENT),
-      ],
+      providers: [provideTranslateService(), KlantenService],
     });
 
     foutAfhandelen = jest
@@ -538,7 +532,7 @@ describe(BedrijfsgegevensComponent.name, () => {
       it("shows the KvK error instead of the earlier fetched adressen when refetching the vestigingsprofiel fails", async () => {
         await flushProfiel(vestigingsprofielUrl, makeBedrijfsprofiel());
 
-        void TestBed.inject(QUERY_CLIENT).refetchQueries();
+        void testQueryClient.refetchQueries();
         await sleep();
         httpController
           .expectOne(vestigingsprofielUrl)
