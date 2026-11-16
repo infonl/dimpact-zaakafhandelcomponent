@@ -674,6 +674,46 @@ describe(ZaakCreateComponent.name, () => {
   });
 
   describe("initiator button", () => {
+    const allowInitiator = async () => {
+      fixture.componentInstance["form"].controls.zaaktype.setValue(
+        fromPartial<GeneratedType<"RestZaaktype">>({
+          zaakafhandelparameters: {
+            betrokkeneKoppelingen: {
+              isBrpKoppelenEnabled: true,
+              isKvkKoppelenEnabled: true,
+            },
+          },
+        }),
+      );
+      await fixture.whenStable();
+    };
+
+    it("is named after linking an initiator while no initiator is set, so that a screen reader user can find it", async () => {
+      await allowInitiator();
+
+      expect(
+        screen.getByRole("button", { name: "actie.initiator.koppelen" }),
+      ).toBeEnabled();
+    });
+
+    it("is named after unlinking the initiator once an initiator is set", async () => {
+      await allowInitiator();
+      const initiator =
+        fixture.componentInstance["form"].controls.initiatorIdentificatie;
+      initiator.enable();
+      initiator.setValue(
+        fromPartial<GeneratedType<"BetrokkeneIdentificatie">>({
+          type: "BSN",
+          bsn: "123456789",
+        }),
+      );
+      await fixture.whenStable();
+
+      expect(
+        screen.getByRole("button", { name: "actie.initiator.ontkoppelen" }),
+      ).toBeEnabled();
+    });
+
     it("hasInitiator() returns false when no initiator is set", () => {
       expect(fixture.componentInstance.hasInitiator()).toBe(false);
     });

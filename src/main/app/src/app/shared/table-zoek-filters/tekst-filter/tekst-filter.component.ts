@@ -3,11 +3,19 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, effect, model, output, untracked } from "@angular/core";
+import {
+  Component,
+  effect,
+  input,
+  model,
+  output,
+  untracked,
+} from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
+import { TranslatePipe } from "@ngx-translate/core";
 
 @Component({
   selector: "zac-tekst-filter",
@@ -19,11 +27,13 @@ import { MatInputModule } from "@angular/material/input";
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
+    TranslatePipe,
   ],
 })
 export class TekstFilterComponent {
   protected formControl = new FormControl<string | undefined>(undefined);
   readonly value = model<string | null>();
+  readonly label = input<string>();
   readonly changed = output<string>();
 
   constructor() {

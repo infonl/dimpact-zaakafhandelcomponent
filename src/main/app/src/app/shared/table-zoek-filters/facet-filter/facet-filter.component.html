@@ -7,6 +7,7 @@
   <mat-select
     panelClass="facet-filter-options"
     id="{{ label() + '_filter' }}"
+    [aria-label]="label() | i18nKey | translate"
     (selectionChange)="change()"
     placeholder="{{ 'filter.alle' | translate }}"
     [formControl]="selected"

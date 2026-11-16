@@ -59,6 +59,14 @@ describe(FacetFilterComponent.name, () => {
   };
 
   describe("the select", () => {
+    it("is named after the translated label, so that a screen reader user knows what it filters", async () => {
+      await setup({ label: "archiefNominatie" });
+
+      expect(
+        screen.getByRole("combobox", { name: "archief-nominatie" }),
+      ).toBeInTheDocument();
+    });
+
     it("gets the id <label>_filter", async () => {
       await setup({ label: "behandelaar" });
 
