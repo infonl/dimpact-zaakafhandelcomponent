@@ -6,7 +6,7 @@ package nl.info.zac.search.model
 
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
-import nl.info.zac.time.DatumRange
+import nl.info.zac.time.DateRange
 import java.util.EnumMap
 
 @Suppress("TooManyFunctions")
@@ -19,7 +19,7 @@ class ZoekParameters(val type: ZoekObjectType?) {
 
     var rows: Int = 0
     var start: Int = 0
-    var datums = EnumMap<DatumVeld, DatumRange>(DatumVeld::class.java)
+    var datums = EnumMap<DatumVeld, DateRange>(DatumVeld::class.java)
     var sortering = Sortering(SorteerVeld.CREATED, SorteerRichting.DESCENDING)
 
     fun getZoeken(): Map<ZoekVeld, String> = zoeken
@@ -28,7 +28,7 @@ class ZoekParameters(val type: ZoekObjectType?) {
         zoeken[zoekVeld] = zoekTekst
     }
 
-    fun addDatum(zoekVeld: DatumVeld, range: DatumRange) {
+    fun addDatum(zoekVeld: DatumVeld, range: DateRange) {
         datums[zoekVeld] = range
     }
 

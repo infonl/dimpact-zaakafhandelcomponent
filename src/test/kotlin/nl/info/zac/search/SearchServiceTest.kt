@@ -30,7 +30,7 @@ import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.solr.SolrClientFactory
-import nl.info.zac.time.DatumRange
+import nl.info.zac.time.DateRange
 import org.apache.solr.client.solrj.SolrRequest
 import org.apache.solr.client.solrj.beans.DocumentObjectBinder
 import org.apache.solr.client.solrj.impl.Http2SolrClient
@@ -100,11 +100,11 @@ class SearchServiceTest : BehaviorSpec({
         `when`("searching for all documents of type ZAAK for a specific behandelaar and zaaktypen") {
             val zaakSearchStartDate = LocalDate.of(2000, 1, 1)
             val zaakSearchEndDate = LocalDate.of(2000, 2, 1)
-            val zaakSearchDateRange = DatumRange(zaakSearchStartDate, zaakSearchEndDate)
+            val zaakSearchDateRange = DateRange.Between(zaakSearchStartDate, zaakSearchEndDate)
             val zoekResultaat = zoekService.search(
                 createZoekParameters(
                     zoekObjectType = ZoekObjectType.ZAAK,
-                    datums = EnumMap<DatumVeld, DatumRange>(DatumVeld::class.java).apply {
+                    datums = EnumMap<DatumVeld, DateRange>(DatumVeld::class.java).apply {
                         put(DatumVeld.STARTDATUM, zaakSearchDateRange)
                     }
                 ).apply {
@@ -193,11 +193,11 @@ class SearchServiceTest : BehaviorSpec({
         `when`("searching for all documents of type TAAK with a specific filter") {
             val zaakSearchStartDate = LocalDate.of(2000, 1, 1)
             val zaakSearchEndDate = LocalDate.of(2000, 2, 1)
-            val zaakSearchDateRange = DatumRange(zaakSearchStartDate, zaakSearchEndDate)
+            val zaakSearchDateRange = DateRange.Between(zaakSearchStartDate, zaakSearchEndDate)
             val zoekResultaat = zoekService.search(
                 createZoekParameters(
                     zoekObjectType = ZoekObjectType.TAAK,
-                    datums = EnumMap<DatumVeld, DatumRange>(DatumVeld::class.java).apply {
+                    datums = EnumMap<DatumVeld, DateRange>(DatumVeld::class.java).apply {
                         put(DatumVeld.STARTDATUM, zaakSearchDateRange)
                     }
                 ).apply {
@@ -347,11 +347,11 @@ class SearchServiceTest : BehaviorSpec({
         `when`("searching for all documents of type TAAK with a specific filter") {
             val zaakSearchStartDate = LocalDate.of(2000, 1, 1)
             val zaakSearchEndDate = LocalDate.of(2000, 2, 1)
-            val zaakSearchDateRange = DatumRange(zaakSearchStartDate, zaakSearchEndDate)
+            val zaakSearchDateRange = DateRange.Between(zaakSearchStartDate, zaakSearchEndDate)
             val zoekResultaat = zoekService.search(
                 createZoekParameters(
                     zoekObjectType = ZoekObjectType.TAAK,
-                    datums = EnumMap<DatumVeld, DatumRange>(DatumVeld::class.java).apply {
+                    datums = EnumMap<DatumVeld, DateRange>(DatumVeld::class.java).apply {
                         put(DatumVeld.STARTDATUM, zaakSearchDateRange)
                     }
                 ).apply {

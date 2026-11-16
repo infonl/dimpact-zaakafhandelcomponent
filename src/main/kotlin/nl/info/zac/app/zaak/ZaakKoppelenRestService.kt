@@ -48,7 +48,6 @@ import nl.info.zac.search.model.ZoekVeld
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
-import nl.info.zac.time.DatumRange
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakKoppelenService
@@ -252,12 +251,8 @@ class ZaakKoppelenRestService @Inject constructor(
         request.zoekZaakTypeOmschrijving?.takeIf { it.isNotBlank() }?.let {
             addFilter(FilterVeld.ZAAK_ZAAKTYPE, it)
         }
-        request.startdatum?.takeIf { it.hasValue() }?.let{
-            addDatum(DatumVeld.ZAAK_STARTDATUM, DatumRange(it.van, it.tot))
-        }
-        request.einddatum?.takeIf { it.hasValue() }?.let {
-            addDatum(DatumVeld.ZAAK_EINDDATUM, DatumRange(it.van, it.tot))
-        }
+        request.startdatum?.toDateRange()?.let { addDatum(DatumVeld.ZAAK_STARTDATUM, it) }
+        request.einddatum?.toDateRange()?.let { addDatum(DatumVeld.ZAAK_EINDDATUM, it) }
     }
 
     private fun filterSearchResults(

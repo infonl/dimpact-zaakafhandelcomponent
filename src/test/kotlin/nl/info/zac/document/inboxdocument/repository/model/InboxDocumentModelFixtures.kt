@@ -4,7 +4,7 @@
  */
 package nl.info.zac.document.inboxdocument.repository.model
 
-import nl.info.zac.time.DatumRange
+import nl.info.zac.time.DateRange
 import java.time.LocalDate
 import java.util.UUID
 
@@ -28,7 +28,7 @@ fun createInboxDocument(
 fun createInboxDocumentListParameters(
     title: String? = "fakeTitle",
     identification: String? = "fakeIdentification",
-    creationDateRange: DatumRange? = null
+    creationDateRange: DateRange? = null
 ) = InboxDocumentListParameters().apply {
     titel = title
     identificatie = identification

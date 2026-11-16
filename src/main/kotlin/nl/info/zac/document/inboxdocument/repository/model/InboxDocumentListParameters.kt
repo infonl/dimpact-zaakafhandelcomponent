@@ -5,12 +5,12 @@
 package nl.info.zac.document.inboxdocument.repository.model
 
 import nl.info.zac.shared.model.ListParameters
-import nl.info.zac.time.DatumRange
+import nl.info.zac.time.DateRange
 
 class InboxDocumentListParameters : ListParameters() {
     var titel: String? = null
 
     var identificatie: String? = null
 
-    var creatiedatum: DatumRange? = null
+    var creatiedatum: DateRange? = null
 }

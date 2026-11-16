@@ -15,7 +15,7 @@ import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
-import nl.info.zac.time.DatumRange
+import nl.info.zac.time.DateRange
 import java.util.EnumMap
 import java.util.UUID
 
@@ -153,7 +153,7 @@ fun createZoekParameters(
     rows: Int = 0,
     start: Int = 0,
     zoekObjectType: ZoekObjectType = ZoekObjectType.ZAAK,
-    datums: EnumMap<DatumVeld, DatumRange> = EnumMap<DatumVeld, DatumRange>(DatumVeld::class.java),
+    datums: EnumMap<DatumVeld, DateRange> = EnumMap<DatumVeld, DateRange>(DatumVeld::class.java),
     sorteerVeld: SorteerVeld = SorteerVeld.CREATED,
     sorteerRichting: SorteerRichting = SorteerRichting.ASCENDING
 ) = ZoekParameters(zoekObjectType).apply {

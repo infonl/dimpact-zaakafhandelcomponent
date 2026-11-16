@@ -29,7 +29,7 @@ import nl.info.zac.signalering.model.SignaleringTarget
 import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.signalering.model.SignaleringVerzendInfo
 import nl.info.zac.signalering.model.SignaleringVerzondenZoekParameters
-import nl.info.zac.time.DatumRange
+import nl.info.zac.time.DateRange
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.task.api.Task
@@ -245,7 +245,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     ): ZoekParameters {
         val now = LocalDate.now()
         val parameters = getOpenZaakMetBehandelaarZoekParameters(zaaktype)
-        parameters.addDatum(veld, DatumRange(now, now.plusDays(venster.toLong())))
+        parameters.addDatum(veld, DateRange.Between(now, now.plusDays(venster.toLong())))
         return parameters
     }
 
@@ -256,7 +256,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     ): ZoekParameters {
         val now = LocalDate.now()
         val parameters = getOpenZaakMetBehandelaarZoekParameters(zaaktype)
-        parameters.addDatum(veld, DatumRange(now.plusDays(venster.toLong() + 1), null))
+        parameters.addDatum(veld, DateRange.From(now.plusDays(venster.toLong() + 1)))
         return parameters
     }
 

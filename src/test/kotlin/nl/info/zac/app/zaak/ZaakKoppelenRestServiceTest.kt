@@ -47,6 +47,7 @@ import nl.info.zac.search.model.ZoekResultaat
 import nl.info.zac.search.model.ZoekVeld
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType.ZAAK
+import nl.info.zac.time.DateRange
 import nl.info.zac.zaak.ZaakKoppelenService
 import nl.info.zac.zaak.ZaakService
 import nl.info.zac.zaak.model.RelatieType
@@ -1008,9 +1009,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 )
 
                 then("the search parameters should contain the ZAAK_STARTDATUM datum range") {
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM] shouldNotBe null
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM]!!.van shouldBe fakeVan
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM]!!.tot shouldBe fakeTot
+                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM] shouldBe DateRange.Between(fakeVan, fakeTot)
                 }
             }
 
@@ -1026,9 +1025,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 )
 
                 then("the search parameters should contain the ZAAK_STARTDATUM datum range with only van") {
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM] shouldNotBe null
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM]!!.van shouldBe fakeVan
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM]!!.tot shouldBe null
+                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM] shouldBe DateRange.From(fakeVan)
                 }
             }
 
@@ -1044,9 +1041,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 )
 
                 then("the search parameters should contain the ZAAK_STARTDATUM datum range with only tot") {
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM] shouldNotBe null
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM]!!.van shouldBe null
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM]!!.tot shouldBe fakeTot
+                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM] shouldBe DateRange.Through(fakeTot)
                 }
             }
 
@@ -1093,9 +1088,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 )
 
                 then("the search parameters should contain the ZAAK_EINDDATUM datum range") {
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_EINDDATUM] shouldNotBe null
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_EINDDATUM]!!.van shouldBe fakeVan
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_EINDDATUM]!!.tot shouldBe fakeTot
+                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_EINDDATUM] shouldBe DateRange.Between(fakeVan, fakeTot)
                 }
             }
 
@@ -1111,9 +1104,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 )
 
                 then("the search parameters should contain the ZAAK_EINDDATUM datum range with only van") {
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_EINDDATUM] shouldNotBe null
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_EINDDATUM]!!.van shouldBe fakeVan
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_EINDDATUM]!!.tot shouldBe null
+                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_EINDDATUM] shouldBe DateRange.From(fakeVan)
                 }
             }
 
@@ -1129,9 +1120,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 )
 
                 then("the search parameters should contain the ZAAK_EINDDATUM datum range with only tot") {
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_EINDDATUM] shouldNotBe null
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_EINDDATUM]!!.van shouldBe null
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_EINDDATUM]!!.tot shouldBe fakeTot
+                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_EINDDATUM] shouldBe DateRange.Through(fakeTot)
                 }
             }
 

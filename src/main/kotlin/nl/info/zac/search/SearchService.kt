@@ -26,6 +26,8 @@ import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.solr.SolrClientFactory
 import nl.info.zac.solr.encoded
 import nl.info.zac.solr.quoted
+import nl.info.zac.time.TimeRange
+import nl.info.zac.time.toTimeRange
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.solr.client.solrj.SolrClient
@@ -187,10 +189,12 @@ class SearchService @Inject constructor(
     }
 
     private fun getFilterQueriesForDatumsParameters(zoekParameters: ZoekParameters): List<String> =
-        zoekParameters.datums.map { (dateField, datumRange) ->
-            val timeRange = datumRange.toTimeRange()
-            val from = timeRange.from?.let(ISO_INSTANT::format) ?: "*"
-            val until = timeRange.until?.let(ISO_INSTANT::format) ?: "*"
+        zoekParameters.datums.map { (dateField, dateRange) ->
+            val (from, until) = when (val timeRange = dateRange.toTimeRange()) {
+                is TimeRange.Between -> ISO_INSTANT.format(timeRange.from) to ISO_INSTANT.format(timeRange.until)
+                is TimeRange.From -> ISO_INSTANT.format(timeRange.from) to "*"
+                is TimeRange.Until -> "*" to ISO_INSTANT.format(timeRange.until)
+            }
             "${dateField.veld}:[$from TO $until}"
         }
 

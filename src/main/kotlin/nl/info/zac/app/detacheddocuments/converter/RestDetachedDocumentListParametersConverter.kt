@@ -8,7 +8,6 @@ package nl.info.zac.app.detacheddocuments.converter
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters
 import nl.info.zac.app.shared.applyCommonParametersTo
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocumentListParameters
-import nl.info.zac.time.DatumRange
 
 fun RestDetachedDocumentListParameters.toDetachedDocumentListParameters() =
     DetachedDocumentListParameters().also { params ->
@@ -16,17 +15,9 @@ fun RestDetachedDocumentListParameters.toDetachedDocumentListParameters() =
         params.reden = this.reden
         params.titel = this.titel
         params.zaakID = this.zaakID
-        this.creatiedatum?.let { creatiedatum ->
-            if (creatiedatum.hasValue()) {
-                params.creatiedatum = DatumRange(van = creatiedatum.van, tot = creatiedatum.tot)
-            }
-        }
+        params.creatiedatum = this.creatiedatum?.toDateRange()
         this.ontkoppeldDoor?.let { ontkoppeldDoor ->
             params.ontkoppeldDoor = ontkoppeldDoor.username
         }
-        this.ontkoppeldOp?.let { ontkoppeldOp ->
-            if (ontkoppeldOp.hasValue()) {
-                params.ontkoppeldOp = DatumRange(van = ontkoppeldOp.van, tot = ontkoppeldOp.tot)
-            }
-        }
+        params.ontkoppeldOp = this.ontkoppeldOp?.toDateRange()
     }

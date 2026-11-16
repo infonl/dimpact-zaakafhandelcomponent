@@ -5,10 +5,10 @@
 package nl.info.zac.productaanvraag.model
 
 import nl.info.zac.shared.model.ListParameters
-import nl.info.zac.time.DatumRange
+import nl.info.zac.time.DateRange
 
 class InboxProductaanvraagListParameters : ListParameters() {
-    var ontvangstdatum: DatumRange? = null
+    var ontvangstdatum: DateRange? = null
     var type: String? = null
     var initiatorID: String? = null
 

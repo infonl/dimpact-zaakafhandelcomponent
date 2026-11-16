@@ -52,9 +52,9 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.NotSupportedException
+import nl.info.zac.time.ZacTime
 import java.net.URI
 import java.time.LocalDate
-import java.time.ZoneId
 import java.util.UUID
 
 @Suppress("LargeClass")
@@ -1308,7 +1308,7 @@ class ZgwApiServiceTest : BehaviorSpec({
     context("Creating a ZaakInformatieobject for zaak") {
         given("Valid input data for creating a ZaakInformatieobject") {
             val today = LocalDate.now()
-            val todayAtStartOfDay = today.atStartOfDay(ZoneId.systemDefault()).toOffsetDateTime()
+            val todayAtStartOfDay = today.atStartOfDay(ZacTime.ZONE).toOffsetDateTime()
             val zaak = createZaak()
             val enkelvoudigInformatieObjectCreateLockRequest = createEnkelvoudigInformatieObjectCreateLockRequest()
             val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(

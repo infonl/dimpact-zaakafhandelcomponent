@@ -18,7 +18,7 @@ import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.model.DatumVeld
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.solr.SolrClientFactory
-import nl.info.zac.time.DatumRange
+import nl.info.zac.time.DateRange
 import nl.info.zac.time.UtcDefaultTimeZone
 import org.apache.solr.client.solrj.SolrRequest
 import org.apache.solr.client.solrj.impl.Http2SolrClient
@@ -29,7 +29,7 @@ import org.apache.solr.common.params.SolrParams
 import java.time.LocalDate
 import java.util.EnumMap
 
-class SearchServiceDatumRangeTest : BehaviorSpec({
+class SearchServiceDateRangeTest : BehaviorSpec({
     extension(UtcDefaultTimeZone())
 
     val solrClient = mockk<Http2SolrClient>()
@@ -65,14 +65,14 @@ class SearchServiceDatumRangeTest : BehaviorSpec({
         every { solrDocumentList.numFound } returns 0
         every { queryResponse.facetFields } returns emptyList()
 
-        `when`("searching tasks created van 30-07-2026 t/m 30-07-2026") {
+        `when`("searching tasks created from 30-07-2026 through 30-07-2026") {
             zoekService.search(
                 createZoekParameters(
                     zoekObjectType = ZoekObjectType.TAAK,
-                    datums = EnumMap<DatumVeld, DatumRange>(DatumVeld::class.java).apply {
+                    datums = EnumMap<DatumVeld, DateRange>(DatumVeld::class.java).apply {
                         put(
                             DatumVeld.TAAK_CREATIEDATUM,
-                            DatumRange(van = LocalDate.of(2026, 7, 30), tot = LocalDate.of(2026, 7, 30))
+                            DateRange.Between(LocalDate.of(2026, 7, 30), LocalDate.of(2026, 7, 30))
                         )
                     }
                 )
@@ -87,12 +87,12 @@ class SearchServiceDatumRangeTest : BehaviorSpec({
             }
         }
 
-        `when`("searching tasks with a fatale datum van 30-07-2026 and without a t/m date") {
+        `when`("searching tasks with a fatale datum from 30-07-2026 and without an end date") {
             zoekService.search(
                 createZoekParameters(
                     zoekObjectType = ZoekObjectType.TAAK,
-                    datums = EnumMap<DatumVeld, DatumRange>(DatumVeld::class.java).apply {
-                        put(DatumVeld.TAAK_FATALEDATUM, DatumRange(van = LocalDate.of(2026, 7, 30), tot = null))
+                    datums = EnumMap<DatumVeld, DateRange>(DatumVeld::class.java).apply {
+                        put(DatumVeld.TAAK_FATALEDATUM, DateRange.From(LocalDate.of(2026, 7, 30)))
                     }
                 )
             )
@@ -102,14 +102,14 @@ class SearchServiceDatumRangeTest : BehaviorSpec({
             }
         }
 
-        `when`("searching documents registered t/m 30-07-2026 and without a van date") {
+        `when`("searching documents registered through 30-07-2026 and without a start date") {
             zoekService.search(
                 createZoekParameters(
                     zoekObjectType = ZoekObjectType.DOCUMENT,
-                    datums = EnumMap<DatumVeld, DatumRange>(DatumVeld::class.java).apply {
+                    datums = EnumMap<DatumVeld, DateRange>(DatumVeld::class.java).apply {
                         put(
                             DatumVeld.INFORMATIEOBJECT_REGISTRATIEDATUM,
-                            DatumRange(van = null, tot = LocalDate.of(2026, 7, 30))
+                            DateRange.Through(LocalDate.of(2026, 7, 30))
                         )
                     }
                 )

@@ -33,9 +33,9 @@ import nl.info.zac.search.ReindexSupportService
 import nl.info.zac.search.model.DocumentIndicatie
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.createZaakAutorisatieGegevens
+import nl.info.zac.time.ZacTime
 import java.net.URI
 import java.time.LocalDate
-import java.time.ZoneId
 import java.util.Date
 import java.util.UUID
 
@@ -321,7 +321,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
 
             then("the ontvangstdatum is indexed, but no ondertekening datum, because the document is not signed") {
                 with(documentZoekObject!!) {
-                    this.ontvangstdatum shouldBe Date.from(ontvangstdatum.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
+                    this.ontvangstdatum shouldBe Date.from(ontvangstdatum.atStartOfDay(ZacTime.ZONE).toInstant())
                     ondertekeningDatum.shouldBeNull()
                     getDocumentIndicaties() shouldNotContain DocumentIndicatie.ONDERTEKEND
                 }
@@ -356,7 +356,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
             then("the ondertekening datum is indexed from the ondertekening and not from the ontvangstdatum") {
                 with(documentZoekObject!!) {
                     this.ondertekeningDatum shouldBe Date.from(
-                        ondertekeningDatum.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()
+                        ondertekeningDatum.atStartOfDay(ZacTime.ZONE).toInstant()
                     )
                     getDocumentIndicaties() shouldContain DocumentIndicatie.ONDERTEKEND
                 }

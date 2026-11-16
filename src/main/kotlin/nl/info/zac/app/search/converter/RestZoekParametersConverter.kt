@@ -20,7 +20,6 @@ import nl.info.zac.search.model.ZoekVeld
 import nl.info.zac.search.model.zoekobject.TaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.shared.model.toSorteerRichting
-import nl.info.zac.time.DatumRange
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.lang3.BooleanUtils
@@ -36,9 +35,7 @@ class RestZoekParametersConverter @Inject constructor(
             zoekParameters.addFilter(filterVeld, filterParameters)
         }
         restZoekParameters.datums?.forEach { (key: DatumVeld, value: RestDatumRange) ->
-            if (value.hasValue()) {
-                zoekParameters.addDatum(key, DatumRange(value.van, value.tot))
-            }
+            value.toDateRange()?.let { zoekParameters.addDatum(key, it) }
         }
         if (restZoekParameters.isAlleenOpenstaandeZaken) {
             zoekParameters.addFilterQuery(ZaakZoekObject.AFGEHANDELD_FIELD, BooleanUtils.FALSE)

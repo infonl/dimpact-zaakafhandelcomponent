@@ -20,7 +20,7 @@ import nl.info.zac.productaanvraag.model.createInboxProductaanvraagListParameter
 import nl.info.zac.shared.model.Paging
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.shared.model.Sorting
-import nl.info.zac.time.DatumRange
+import nl.info.zac.time.DateRange
 import java.time.LocalDate
 
 class InboxProductaanvraagServiceTest : BehaviorSpec({
@@ -229,10 +229,10 @@ class InboxProductaanvraagServiceTest : BehaviorSpec({
         }
 
         given("list parameters with a full ontvangstdatum range") {
-            val van = LocalDate.of(2024, 1, 1)
-            val tot = LocalDate.of(2024, 12, 31)
+            val from = LocalDate.of(2024, 1, 1)
+            val through = LocalDate.of(2024, 12, 31)
             val listParameters = createInboxProductaanvraagListParameters(
-                ontvangstdatumRange = DatumRange(van = van, tot = tot)
+                ontvangstdatumRange = DateRange.Between(from, through)
             )
             val typedQuery = mockk<TypedQuery<InboxProductaanvraag>>(relaxed = true) {
                 every { resultList } returns emptyList()
@@ -243,17 +243,17 @@ class InboxProductaanvraagServiceTest : BehaviorSpec({
             `when`("list is called") {
                 service.list(listParameters)
 
-                then("the range runs from the van day up to, but not including, the day after the tot day") {
-                    verify { entityManager.criteriaBuilder.greaterThanOrEqualTo(any(), van) }
+                then("the range runs from the first day up to, but not including, the day after the last day") {
+                    verify { entityManager.criteriaBuilder.greaterThanOrEqualTo(any(), from) }
                     verify { entityManager.criteriaBuilder.lessThan(any(), LocalDate.of(2025, 1, 1)) }
                 }
             }
         }
 
-        given("list parameters with only the ontvangstdatum van boundary") {
-            val van = LocalDate.of(2024, 6, 1)
+        given("list parameters with only a start date for the ontvangstdatum") {
+            val from = LocalDate.of(2024, 6, 1)
             val listParameters = createInboxProductaanvraagListParameters(
-                ontvangstdatumRange = DatumRange(van = van, tot = null)
+                ontvangstdatumRange = DateRange.From(from)
             )
             val typedQuery = mockk<TypedQuery<InboxProductaanvraag>>(relaxed = true) {
                 every { resultList } returns emptyList()
@@ -265,15 +265,15 @@ class InboxProductaanvraagServiceTest : BehaviorSpec({
                 service.list(listParameters)
 
                 then("greaterThanOrEqualTo predicate is applied") {
-                    verify { entityManager.criteriaBuilder.greaterThanOrEqualTo(any(), van) }
+                    verify { entityManager.criteriaBuilder.greaterThanOrEqualTo(any(), from) }
                 }
             }
         }
 
-        given("list parameters with only the ontvangstdatum tot boundary") {
-            val tot = LocalDate.of(2024, 6, 30)
+        given("list parameters with only an end date for the ontvangstdatum") {
+            val through = LocalDate.of(2024, 6, 30)
             val listParameters = createInboxProductaanvraagListParameters(
-                ontvangstdatumRange = DatumRange(van = null, tot = tot)
+                ontvangstdatumRange = DateRange.Through(through)
             )
             val typedQuery = mockk<TypedQuery<InboxProductaanvraag>>(relaxed = true) {
                 every { resultList } returns emptyList()

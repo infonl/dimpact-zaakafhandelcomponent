@@ -4,8 +4,8 @@
 */
 package nl.info.zac.test.date
 
+import nl.info.zac.time.ZacTime
 import java.time.LocalDate
-import java.time.ZoneId
 import java.util.Date
 
-fun LocalDate.toDate(): Date = Date.from(this.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
+fun LocalDate.toDate(): Date = Date.from(this.atStartOfDay(ZacTime.ZONE).toInstant())

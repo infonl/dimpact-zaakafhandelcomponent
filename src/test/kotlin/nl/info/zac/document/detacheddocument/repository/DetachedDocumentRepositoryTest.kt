@@ -18,7 +18,7 @@ import jakarta.persistence.criteria.Expression
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocumentListParameters
 import nl.info.zac.document.detacheddocument.repository.model.createDetachedDocument
-import nl.info.zac.time.DatumRange
+import nl.info.zac.time.DateRange
 import nl.info.zac.time.ZacTime
 import java.time.LocalDate
 import java.time.ZonedDateTime
@@ -199,7 +199,7 @@ class DetachedDocumentRepositoryTest : BehaviorSpec({
     }
 
     context("Filtering detached documents on dates") {
-        given("list parameters with a creatiedatum and an ontkoppeld op range van 30-07-2026 t/m 30-07-2026") {
+        given("list parameters with a creatiedatum and an ontkoppeld op range from 30-07-2026 through 30-07-2026") {
             val dateEntityManager = mockk<EntityManager>(relaxed = true)
             val criteriaBuilder = mockk<CriteriaBuilder>(relaxed = true)
             every { dateEntityManager.criteriaBuilder } returns criteriaBuilder
@@ -209,8 +209,8 @@ class DetachedDocumentRepositoryTest : BehaviorSpec({
             `when`("list is called") {
                 dateDetachedDocumentRepository.list(
                     DetachedDocumentListParameters().apply {
-                        creatiedatum = DatumRange(van = day, tot = day)
-                        ontkoppeldOp = DatumRange(van = day, tot = day)
+                        creatiedatum = DateRange.Between(day, day)
+                        ontkoppeldOp = DateRange.Between(day, day)
                     }
                 )
 

@@ -7,7 +7,7 @@ package nl.info.zac.productaanvraag.model
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Bron
 import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact
-import nl.info.zac.time.DatumRange
+import nl.info.zac.time.DateRange
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
@@ -55,7 +55,7 @@ fun createInboxProductaanvraag(
 fun createInboxProductaanvraagListParameters(
     initiatorID: String? = null,
     type: String? = null,
-    ontvangstdatumRange: DatumRange? = null
+    ontvangstdatumRange: DateRange? = null
 ) = InboxProductaanvraagListParameters().apply {
     this.initiatorID = initiatorID
     this.type = type
