@@ -33,7 +33,7 @@ expose the binding as one `processDefinition` that names the engine and the defi
 - **THEN** the save is rejected with a validation error that says the zaaktype version already has zaken, and the
   configuration keeps key `K1`
 
-#### Scenario: A configuration with a zaak keeps its engine
+#### Scenario: A bound configuration never changes engine
 - **GIVEN** a configuration bound to one engine, and a zaak of its zaaktype version
 - **WHEN** a beheerder saves it with a process definition of the other engine
 - **THEN** the save is rejected with a validation error that says the zaaktype version already has zaken, and the
