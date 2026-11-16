@@ -79,6 +79,31 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
         }
     }
 
+    context("finding the configurations of all zaaktypes of a large catalogus") {
+        given("the stored configurations of 500 zaaktypes") {
+            val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository)
+            val zaaktypeUuids = List(500) { UUID.randomUUID() }
+            zaaktypeUuids.forEach { zaaktypeUuid ->
+                every {
+                    zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid)
+                } returns ZaaktypeConfiguration().apply { this.zaaktypeUuid = zaaktypeUuid }
+            }
+
+            `when`("the configuration of every zaaktype is found twice, as two requests for a list do") {
+                repeat(2) { zaaktypeUuids.forEach(zaaktypeConfigurationService::findConfiguration) }
+
+                then(
+                    "every configuration is read from the database only once, " +
+                        "so that a list of zaaktypes does not read them all again on each request"
+                ) {
+                    zaaktypeUuids.forEach { zaaktypeUuid ->
+                        verify(exactly = 1) { zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid) }
+                    }
+                }
+            }
+        }
+    }
+
     context("finding the configuration of a zaaktype without a configuration") {
         given("a zaaktype UUID without a configuration") {
             val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository)
