@@ -12,6 +12,7 @@ import io.mockk.mockk
 import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.Expression
 import jakarta.persistence.criteria.Predicate
+import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZonedDateTime
@@ -109,6 +110,47 @@ class DateRangeTest : BehaviorSpec({
 
             then("29-07-2026 23:59 in Europe/Amsterdam is before the start") {
                 ZonedDateTime.of(2026, 7, 29, 23, 59, 0, 0, ZacTime.ZONE).isBefore(timeRange.from) shouldBe true
+            }
+        }
+
+        given("a range from 29-03-2026 through 29-03-2026, the day the clocks go forward in Europe/Amsterdam") {
+            val changeDay = LocalDate.of(2026, 3, 29)
+            val timeRange = DateRange.Between(changeDay, changeDay).toTimeRange() as TimeRange.Between
+
+            then("it runs from 00:00 winter time up to 00:00 summer time, 23 hours") {
+                timeRange.from.toInstant() shouldBe Instant.parse("2026-03-28T23:00:00Z")
+                timeRange.until.toInstant() shouldBe Instant.parse("2026-03-29T22:00:00Z")
+                Duration.between(timeRange.from, timeRange.until) shouldBe Duration.ofHours(23)
+            }
+            and("the last moment of 29-03-2026 in summer time is before the end") {
+                ZonedDateTime.of(2026, 3, 29, 23, 59, 59, 0, ZacTime.ZONE).isBefore(timeRange.until) shouldBe true
+            }
+            and("the start of 30-03-2026 is not before the end") {
+                ZonedDateTime.of(2026, 3, 30, 0, 0, 0, 0, ZacTime.ZONE).isBefore(timeRange.until) shouldBe false
+            }
+        }
+
+        given("a range from 25-10-2026 through 25-10-2026, the day the clocks go back in Europe/Amsterdam") {
+            val changeDay = LocalDate.of(2026, 10, 25)
+            val timeRange = DateRange.Between(changeDay, changeDay).toTimeRange() as TimeRange.Between
+
+            then("it runs from 00:00 summer time up to 00:00 winter time, 25 hours") {
+                timeRange.from.toInstant() shouldBe Instant.parse("2026-10-24T22:00:00Z")
+                timeRange.until.toInstant() shouldBe Instant.parse("2026-10-25T23:00:00Z")
+                Duration.between(timeRange.from, timeRange.until) shouldBe Duration.ofHours(25)
+            }
+            and("both occurrences of 02:30 on 25-10-2026 are in the range") {
+                val firstOccurrence = ZonedDateTime.of(2026, 10, 25, 2, 30, 0, 0, ZacTime.ZONE)
+                    .withEarlierOffsetAtOverlap()
+                val secondOccurrence = firstOccurrence.withLaterOffsetAtOverlap()
+                secondOccurrence.toInstant() shouldBe firstOccurrence.toInstant().plus(Duration.ofHours(1))
+                listOf(firstOccurrence, secondOccurrence).forEach {
+                    it.isBefore(timeRange.from) shouldBe false
+                    it.isBefore(timeRange.until) shouldBe true
+                }
+            }
+            and("23:30 on 25-10-2026 in winter time, 22:30 UTC, is before the end") {
+                ZonedDateTime.of(2026, 10, 25, 23, 30, 0, 0, ZacTime.ZONE).isBefore(timeRange.until) shouldBe true
             }
         }
     }
