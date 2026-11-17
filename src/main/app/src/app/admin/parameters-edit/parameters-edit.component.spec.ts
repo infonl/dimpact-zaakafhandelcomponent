@@ -76,6 +76,12 @@ const adviesReferentieTabel = fromPartial<GeneratedType<"RestReferenceTable">>({
   name: "Advies",
 });
 
+const anderReferentieTabel = fromPartial<GeneratedType<"RestReferenceTable">>({
+  id: 2,
+  code: "ANDERS",
+  name: "Anders",
+});
+
 const otherCaseDefinition = fromPartial<GeneratedType<"RestProcessDefinition">>(
   {
     processEngine: "CMMN",
@@ -157,6 +163,7 @@ describe(ParametersEditComponent.name, () => {
     configuration: ZaaktypeConfiguration,
     savedConfiguration = configuration,
     storedConfiguration = configuration,
+    formulierDefinitiesResponse = Promise.resolve(formulierDefinities),
   ) {
     const updateZaakafhandelparameters =
       createMutationOptions(savedConfiguration);
@@ -197,8 +204,8 @@ describe(ParametersEditComponent.name, () => {
             updateZaakafhandelparameters: () => updateZaakafhandelparameters,
             readZaakafhandelparameters: () => readZaakafhandelparameters,
             listFormulierDefinities: () => ({
-              ...createQueryOptions(formulierDefinities),
               queryKey: ["formulierDefinities"],
+              queryFn: () => formulierDefinitiesResponse,
             }),
           }),
         },
@@ -338,18 +345,20 @@ describe(ParametersEditComponent.name, () => {
     [
       "CMMN",
       cmmnConfiguration,
+      caseDefinitionSteps,
       "Nieuw vergunningsproces",
       bpmnProcessDefinitionSteps,
     ],
     [
       "BPMN",
       bpmnConfiguration,
+      bpmnProcessDefinitionSteps,
       "Ander zaakafhandelmodel",
       otherCaseDefinitionSteps,
     ],
   ])(
     "for a %s zaaktype version without zaken",
-    (_engine, configuration, otherEngineNaam, otherEngineSteps) => {
+    (_engine, configuration, steps, otherEngineNaam, otherEngineSteps) => {
       const changeableConfiguration = fromPartial<ZaaktypeConfiguration>({
         ...configuration,
         isProcessDefinitionChangeable: true,
@@ -444,6 +453,28 @@ describe(ParametersEditComponent.name, () => {
           expect(procesModelCombobox).toHaveTextContent(
             configuration.processDefinition?.naam ?? "",
           ),
+        );
+      });
+
+      it("shows the procesmodel step with the steps of the stored process definition when a zaak was created before the beheerder saved another one", async () => {
+        const { updateZaakafhandelparameters } = await setup(
+          changeableConfiguration,
+          changeableConfiguration,
+          configuration,
+        );
+        updateZaakafhandelparameters.mutationFn.mockRejectedValue(
+          rejectedWith("msg.error.process.definition.cannot.change"),
+        );
+
+        await goToStep("gegevens.procesmodel");
+        await chooseProcessDefinition(otherEngineNaam);
+        await waitFor(() => expectSteps(otherEngineSteps));
+        await goToStep("gegevens.algemeen");
+        await user.click(opslaan());
+
+        await waitFor(() => expectSteps(steps));
+        expect(screen.getByRole("tab", { selected: true })).toHaveTextContent(
+          "gegevens.procesmodel",
         );
       });
 
@@ -608,6 +639,55 @@ describe(ParametersEditComponent.name, () => {
         ),
       );
     });
+  });
+
+  it("keeps the stored reference tables when the beheerder chooses the stored process definition again before the formulier definitions are loaded", async () => {
+    let resolveFormulierDefinities: (
+      value: typeof formulierDefinities,
+    ) => void = () => undefined;
+    const { updateZaakafhandelparameters } = await setup(
+      fromPartial<ZaaktypeConfiguration>({
+        ...cmmnConfiguration,
+        isProcessDefinitionChangeable: true,
+        humanTaskParameters: [
+          {
+            planItemDefinition: { id: "fakeTaskId", naam: "Taak" },
+            formulierDefinitieId: "ADVIES",
+            actief: true,
+            referentieTabellen: [
+              { veld: "ADVIES", tabel: anderReferentieTabel },
+            ],
+          },
+        ],
+      }),
+      undefined,
+      undefined,
+      new Promise((resolve) => (resolveFormulierDefinities = resolve)),
+    );
+
+    await goToStep("gegevens.procesmodel");
+    await chooseProcessDefinition("Vergunningsproces");
+    await waitFor(() => expectSteps(bpmnProcessDefinitionSteps));
+    await chooseProcessDefinition("Generiek zaakafhandelmodel");
+    await waitFor(() => expectSteps(caseDefinitionSteps));
+    resolveFormulierDefinities(formulierDefinities);
+    await waitFor(() => expect(opslaan()).toBeEnabled());
+    await user.click(opslaan());
+
+    await waitFor(() =>
+      expect(updateZaakafhandelparameters.mutationFn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          humanTaskParameters: [
+            expect.objectContaining({
+              referentieTabellen: [
+                { veld: "ADVIES", tabel: anderReferentieTabel },
+              ],
+            }),
+          ],
+        }),
+        expect.anything(),
+      ),
+    );
   });
 
   it("stores the default reference table of each formulier field without opening the Taken step", async () => {

@@ -210,15 +210,23 @@ export class ParametersEditComponent
   }
 
   private async showConfigurationIfProcessDefinitionLocked() {
-    const storedConfiguration = await this.queryClient.fetchQuery({
-      ...this.zaakafhandelParametersService.readZaakafhandelparameters(
-        this.configuration().zaaktype.uuid,
-      ),
-      staleTime: 0,
-    });
-    if (storedConfiguration.isProcessDefinitionChangeable) return;
+    const storedConfiguration = await this.queryClient
+      .fetchQuery({
+        ...this.zaakafhandelParametersService.readZaakafhandelparameters(
+          this.configuration().zaaktype.uuid,
+        ),
+        staleTime: 0,
+      })
+      .catch(() => null);
+    if (
+      !storedConfiguration ||
+      storedConfiguration.isProcessDefinitionChangeable
+    )
+      return;
 
     this.showConfiguration(storedConfiguration);
+    this.processDefinition.set(storedConfiguration.processDefinition ?? null);
+    this.selectedIndex.set(0);
   }
 
   private showConfiguration(
@@ -270,10 +278,14 @@ export class ParametersEditComponent
    * tables; otherwise a configuration saved without opening that step stores none.
    */
   private syncReferentieTabellen(form: ZaaktypeConfigurationForm) {
+    const formulierDefinities = this.formulierDefinitiesQuery.data();
+    const referentieTabellen = this.referentieTabellenQuery.data();
+    if (!formulierDefinities || !referentieTabellen) return;
+
     for (const humanTaskForm of form.controls.humanTasks.controls) {
       syncReferentieTabellen(humanTaskForm, {
-        formulierDefinities: this.formulierDefinitiesQuery.data() ?? [],
-        referentieTabellen: this.referentieTabellenQuery.data() ?? [],
+        formulierDefinities,
+        referentieTabellen,
       });
     }
   }

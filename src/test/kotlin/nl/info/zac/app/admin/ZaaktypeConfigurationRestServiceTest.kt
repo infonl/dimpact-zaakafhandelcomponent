@@ -291,14 +291,15 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
         } throws InputValidationFailedException(message = "fakeMessage")
 
         `when`("it is stored") {
-            shouldThrow<InputValidationFailedException> {
+            val exception = shouldThrow<InputValidationFailedException> {
                 zaaktypeConfigurationRestService.createOrUpdateZaaktypeConfiguration(
                     restZaaktypeConfiguration.zaaktype.uuid,
                     restZaaktypeConfiguration
                 )
             }
 
-            then("nothing is stored") {
+            then("the change is rejected and nothing is stored") {
+                exception.message shouldBe "fakeMessage"
                 verify(exactly = 0) { zaaktypeConfigurationBeheerService.storeConfiguration(any()) }
             }
         }
