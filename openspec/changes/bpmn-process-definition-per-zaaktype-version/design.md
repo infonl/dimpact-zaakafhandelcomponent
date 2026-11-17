@@ -40,7 +40,8 @@ no zaak reads the plan item settings or runs a process instance of the old bindi
 
 ### D2. Open Zaak is the source for "has zaken"
 
-The backend lists the zaken of the zaaktype URL in Open Zaak and checks whether there is at least one. Alternatives:
+The backend lists the UUIDs of the zaken of the zaaktype URL in Open Zaak with `listZakenUuids`, and checks whether
+there is at least one; it needs no other data of the zaken. Alternatives:
 - *Solr*: faster, but lags behind when a notification is missed, which would unlock a configuration that has zaken.
 - *Flowable process variables*: only know zaken that ZAC started.
 - *`isProcessDefinitionInUse` of the BPMN service*: checks a key across all zaaktypen, not one zaaktype version.
@@ -105,7 +106,7 @@ existing zaken stays.
   beheerder chooses another one] → the beheerder publishes the version with a future begin date, chooses the process,
   and lets the date take effect. This protects only zaken created by hand: the productaanvraag intake picks the most
   recently created configuration and ignores the begin date, so for a zaaktype with a productaanvraagtype the beheerder
-  stops the intake first. Documented in the PR, not enforced.
+  stops the intake first. Documented in the beheerder manual (task 2.7), not enforced.
 - [Open Zaak is unavailable] → opening and saving the configuration of a bound zaaktype fails, as other Open Zaak
   calls of the screen already do.
 - [The zaken of a zaaktype version are deleted in Open Zaak; ZAC cannot delete a zaak] → the version counts as new
