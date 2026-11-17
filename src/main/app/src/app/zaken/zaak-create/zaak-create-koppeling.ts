@@ -18,7 +18,7 @@ export type ZaakCreateKoppeling = {
 };
 
 export function zaaktypenForKoppeling(
-  zaaktypen: GeneratedType<"RestZaaktype">[],
+  zaaktypen: GeneratedType<"RestZaaktypeKeuze">[],
   koppeling: ZaakCreateKoppeling | null,
 ) {
   if (koppeling?.relatieType !== "DEELZAAK") return zaaktypen;
@@ -33,11 +33,9 @@ export function zaaktypenForKoppeling(
 
 export function initiatorAllowedByZaaktype(
   initiator: GeneratedType<"BetrokkeneIdentificatie">,
-  zaaktype: GeneratedType<"RestZaaktype">,
+  zaaktypeSettings: GeneratedType<"RestZaaktypeAanmaakInstellingen">,
 ) {
-  const betrokkeneKoppelingen =
-    zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen;
   return initiator.type === "BSN"
-    ? Boolean(betrokkeneKoppelingen?.isBrpKoppelenEnabled)
-    : Boolean(betrokkeneKoppelingen?.isKvkKoppelenEnabled);
+    ? Boolean(zaaktypeSettings.isBrpKoppelenEnabled)
+    : Boolean(zaaktypeSettings.isKvkKoppelenEnabled);
 }
