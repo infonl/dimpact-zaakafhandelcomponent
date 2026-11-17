@@ -7,6 +7,7 @@ package nl.info.zac.app.admin
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.validation.Valid
+import jakarta.ws.rs.BeanParam
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST
@@ -34,7 +35,6 @@ import nl.info.zac.app.admin.model.RestTaakFormulierVeldDefinitie
 import nl.info.zac.app.admin.model.RestZaakbeeindigReden
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
 import nl.info.zac.app.admin.model.RestZaaktypeConfigurationListParameters
-import nl.info.zac.app.admin.model.RestZaaktypeConfigurationOverzicht
 import nl.info.zac.app.admin.model.RestZaaktypeConfigurationOverzichtResultaat
 import nl.info.zac.app.admin.model.toRestReplyTos
 import nl.info.zac.app.admin.model.toRestZaakbeeindigReden
@@ -86,19 +86,13 @@ class ZaaktypeConfigurationRestService @Inject constructor(
         return processDefinitionConverter.listProcessDefinitions()
     }
 
-    @GET
-    fun listZaaktypeConfigurations(): List<RestZaaktypeConfigurationOverzicht> {
-        assertPolicy(policyService.readOverigeRechten().canBeheren)
-        return listRestZaaktypeConfigurationOverzichten()
-    }
-
     /**
      * Lists one page of the zaaktype configurations of the default catalogus that match the filters, in the
      * requested order, with the zaaktypes and process definitions of all configurations to filter on.
      */
-    @PUT
+    @GET
     fun listZaaktypeConfigurationPage(
-        @Valid restZaaktypeConfigurationListParameters: RestZaaktypeConfigurationListParameters
+        @BeanParam @Valid restZaaktypeConfigurationListParameters: RestZaaktypeConfigurationListParameters
     ): RestZaaktypeConfigurationOverzichtResultaat {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
         return listRestZaaktypeConfigurationOverzichten()

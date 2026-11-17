@@ -25,27 +25,34 @@ With paging in the browser, the full list would still travel and render. With pa
 in the browser, a filter would only see the current page. So the server does all three, in that order: filter,
 sort, page. The total in the response is the number of rows that match the filters.
 
-### D2. `PUT /rest/zaakafhandelparameters` with a body, next to the `GET`
+### D2. `GET /rest/zaakafhandelparameters` with query parameters
 
-`docs/development/paging.md` asks for a `PUT` with a body that extends `RestPageParameters`, and the other paged
-lists (`/ontkoppeldedocumenten`, `/inboxdocumenten`) follow it. The body `RestZaaktypeConfigurationListParameters`
-has `page`, `rows`, `sortField` (`RestZaaktypeConfigurationSortField`), `sortOrder` (`SorteerRichting`) and one
-nullable field per filter: `isValide`, `isNuGeldig`, `zaaktypeIdentificatie`, `processDefinitionKey`,
-`beginGeldigheid` and `eindeGeldigheid` (`RestDatumRange`). A `null` filter does not filter.
+Reading a page changes nothing on the server, so it is a `GET`, which a browser or proxy can cache and a beheerder
+could link to. `docs/development/paging.md` asks for a `PUT` with a body, as `/ontkoppeldedocumenten` and
+`/inboxdocumenten` do; this list deviates from it after review feedback on #7973.
 
-The story is delivered as a stack of two pull requests, backend first. The backend pull request adds the `PUT`
-and keeps the `GET`, so the frontend on that branch still compiles against the generated types. The frontend pull
-request moves the page to the `PUT` and removes the `GET`.
+The query parameters (`RestZaaktypeConfigurationListParameters`, a `@BeanParam`) are `page` (default 0), `rows`
+(default 25), `sortField` (`RestZaaktypeConfigurationSortField`), `sortOrder` (`SorteerRichting`, default `ASC`)
+and one parameter per filter: `isValide`, `isNuGeldig`, `zaaktypeIdentificatie`, `processDefinitionKey`,
+`beginGeldigheidVan`, `beginGeldigheidTot`, `eindeGeldigheidVan` and `eindeGeldigheidTot`. A filter that is not
+given does not filter. The dates use the ISO date format (`2025-01-31`). A new `LocalDateParamConverter` reads them
+and refuses a value with a time with HTTP 400, so a time in UTC is never read as another day.
+
+The story is delivered as a stack of pull requests, backend first. One path has one `GET`, so the paged `GET`
+replaces the `GET` of all configurations in the backend pull request. To keep the page working on that branch,
+the backend pull request lets `ZaakafhandelParametersService` read one page with all configurations and hand its
+rows to the page, which filters and sorts them in the browser as before. The frontend pull request replaces that
+with real paging.
 
 ### D3. The filters and the sort order match the page
 
-| Page filter or column | Request field | Rule |
+| Page filter or column | Query parameter | Rule |
 |---|---|---|
 | valide toggle | `isValide` | `isValide` of the row equals the value |
 | geldig toggle | `isNuGeldig` | `zaaktype.isNuGeldig` equals the value |
 | zaaktype select | `zaaktypeIdentificatie` | `zaaktype.identificatie` equals the value |
 | procesmodel select | `processDefinitionKey` | `processDefinition.key` equals the value |
-| begin / einde geldigheid | `beginGeldigheid` / `eindeGeldigheid` | the date lies in the range, both ends included; a row without the date does not match |
+| begin / einde geldigheid | `beginGeldigheidVan`, `beginGeldigheidTot` / `eindeGeldigheidVan`, `eindeGeldigheidTot` | the date lies in the range, both ends included; a row without the date does not match |
 
 The sort fields are `VALIDE`, `OMSCHRIJVING`, `PROCESS_DEFINITION` (by `naam`), `GELDIG`, `BEGIN_GELDIGHEID` and
 `EINDE_GELDIGHEID`. A missing process definition or einde geldigheid sorts last when ascending and first when

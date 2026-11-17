@@ -4,50 +4,62 @@
  */
 package nl.info.zac.app.admin.model
 
-import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.validation.constraints.Positive
 import jakarta.validation.constraints.PositiveOrZero
-import nl.info.zac.app.search.model.RestDatumRange
+import jakarta.ws.rs.DefaultValue
+import jakarta.ws.rs.QueryParam
 import nl.info.zac.app.shared.RestPageParameters
 import nl.info.zac.search.model.SorteerRichting
-import nl.info.zac.util.AllOpen
-import nl.info.zac.util.NoArgConstructor
+import java.time.LocalDate
 
+// Not a data class: RESTEasy fills a @BeanParam through a no-arg constructor that must run the initializers.
 /**
- * A page of the Zaakafhandelparameters page, with its filters and its sort order. A filter that is `null` does not
- * filter. Without a sort field, the page keeps the order of the catalogus.
+ * The query parameters of a page of the Zaakafhandelparameters page, with its filters and its sort order. A filter
+ * that is not given does not filter. Without a sort field, the page keeps the order of the catalogus.
  */
-@NoArgConstructor
-@AllOpen
-@Suppress("LongParameterList")
-data class RestZaaktypeConfigurationListParameters(
-    @field:PositiveOrZero
-    override var page: Int = 0,
-
-    @field:Positive
-    override var rows: Int = DEFAULT_ROWS,
-
-    var sortField: RestZaaktypeConfigurationSortField? = null,
-
-    var sortOrder: SorteerRichting = SorteerRichting.ASC,
-
-    @get:JsonbProperty("isValide")
-    @set:JsonbProperty("isValide")
-    var isValide: Boolean? = null,
-
-    @get:JsonbProperty("isNuGeldig")
-    @set:JsonbProperty("isNuGeldig")
-    var isNuGeldig: Boolean? = null,
-
-    var zaaktypeIdentificatie: String? = null,
-
-    var processDefinitionKey: String? = null,
-
-    var beginGeldigheid: RestDatumRange? = null,
-
-    var eindeGeldigheid: RestDatumRange? = null
-) : RestPageParameters {
+class RestZaaktypeConfigurationListParameters : RestPageParameters {
     companion object {
         const val DEFAULT_ROWS = 25
     }
+
+    @field:QueryParam("page")
+    @field:DefaultValue("0")
+    @field:PositiveOrZero
+    override var page: Int = 0
+
+    @field:QueryParam("rows")
+    @field:DefaultValue(DEFAULT_ROWS.toString())
+    @field:Positive
+    override var rows: Int = DEFAULT_ROWS
+
+    @field:QueryParam("sortField")
+    var sortField: RestZaaktypeConfigurationSortField? = null
+
+    @field:QueryParam("sortOrder")
+    @field:DefaultValue("ASC")
+    var sortOrder: SorteerRichting = SorteerRichting.ASC
+
+    @field:QueryParam("isValide")
+    var isValide: Boolean? = null
+
+    @field:QueryParam("isNuGeldig")
+    var isNuGeldig: Boolean? = null
+
+    @field:QueryParam("zaaktypeIdentificatie")
+    var zaaktypeIdentificatie: String? = null
+
+    @field:QueryParam("processDefinitionKey")
+    var processDefinitionKey: String? = null
+
+    @field:QueryParam("beginGeldigheidVan")
+    var beginGeldigheidVan: LocalDate? = null
+
+    @field:QueryParam("beginGeldigheidTot")
+    var beginGeldigheidTot: LocalDate? = null
+
+    @field:QueryParam("eindeGeldigheidVan")
+    var eindeGeldigheidVan: LocalDate? = null
+
+    @field:QueryParam("eindeGeldigheidTot")
+    var eindeGeldigheidTot: LocalDate? = null
 }

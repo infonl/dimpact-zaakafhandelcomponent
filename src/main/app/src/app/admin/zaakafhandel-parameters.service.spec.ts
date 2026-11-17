@@ -159,9 +159,9 @@ describe(ZaakafhandelParametersService.name, () => {
   });
 
   describe("listZaakafhandelParameters", () => {
-    it("reads the parameters of all zaaktypes", async () => {
+    it("reads the parameters of all zaaktypes in one page", async () => {
       const parameters = [
-        fromPartial<GeneratedType<"RestZaaktypeConfiguration">>({
+        fromPartial<GeneratedType<"RestZaaktypeConfigurationOverzicht">>({
           zaaktype: { uuid: "fakeZaaktypeUuid" },
         }),
       ];
@@ -170,11 +170,34 @@ describe(ZaakafhandelParametersService.name, () => {
         service.listZaakafhandelParameters(),
       );
       await sleep();
-      httpTestingController
-        .expectOne("/rest/zaakafhandelparameters")
-        .flush(parameters);
+      const request = httpTestingController.expectOne(
+        "/rest/zaakafhandelparameters?rows=10000",
+      );
+      expect(request.request.method).toBe("GET");
+      request.flush({ resultaten: parameters, totaal: 1 });
 
-      await expect(result).resolves.toEqual(parameters);
+      await expect(result).resolves.toEqual({
+        resultaten: parameters,
+        totaal: 1,
+      });
+    });
+
+    it("gives its observers the rows of the page", () => {
+      const parameters = [
+        fromPartial<GeneratedType<"RestZaaktypeConfigurationOverzicht">>({
+          zaaktype: { uuid: "fakeZaaktypeUuid" },
+        }),
+      ];
+
+      expect(
+        service
+          .listZaakafhandelParameters()
+          .select(
+            fromPartial<
+              GeneratedType<"RestZaaktypeConfigurationOverzichtResultaat">
+            >({ resultaten: parameters }),
+          ),
+      ).toEqual(parameters);
     });
   });
 
