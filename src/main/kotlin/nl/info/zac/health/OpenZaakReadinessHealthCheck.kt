@@ -11,11 +11,11 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.CatalogusListParameters
 import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
 import org.eclipse.microprofile.health.HealthCheck
 import org.eclipse.microprofile.health.HealthCheckResponse
 import org.eclipse.microprofile.health.Readiness
-import java.time.LocalDateTime
 
 @Readiness
 @ApplicationScoped
@@ -36,7 +36,7 @@ class OpenZaakReadinessHealthCheck @Inject constructor(
             HealthCheckResponse.up(OpenZaakReadinessHealthCheck::class.java.name)
         } catch (@Suppress("TooGenericExceptionCaught") exception: RuntimeException) {
             HealthCheckResponse.named(OpenZaakReadinessHealthCheck::class.java.name)
-                .withData("time", LocalDateTime.now().toString())
+                .withData("time", ZacTime.now().toLocalDateTime().toString())
                 .withData("error", exception.message)
                 .down()
                 .build()

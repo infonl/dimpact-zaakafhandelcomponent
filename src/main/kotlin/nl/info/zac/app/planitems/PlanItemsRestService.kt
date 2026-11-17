@@ -55,6 +55,7 @@ import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.task.TaskHistoryService
+import nl.info.zac.time.ZacTime
 import nl.info.zac.time.toDate
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -160,7 +161,7 @@ class PlanItemsRestService @Inject constructor(
             zaak = zaak
         )?.also {
             if (isZaakOpschorten(taakdata)) {
-                val numberOfDays = ChronoUnit.DAYS.between(LocalDate.now(), it)
+                val numberOfDays = ChronoUnit.DAYS.between(ZacTime.today(), it)
                 suspensionZaakHelper.suspendZaak(zaak, numberOfDays, REDEN_OPSCHORTING)
             } else if (it.isAfter(zaak.uiterlijkeEinddatumAfdoening)) {
                 val numberOfDays = ChronoUnit.DAYS.between(zaak.uiterlijkeEinddatumAfdoening, it)
@@ -319,7 +320,7 @@ class PlanItemsRestService @Inject constructor(
         zaakFatalDate: LocalDate?
     ): LocalDate? {
         zaaktypeCmmnHumantaskParameters?.doorlooptijd?.let { days ->
-            var calculatedFinalDate = LocalDate.now().plusDays(days.toLong())
+            var calculatedFinalDate = ZacTime.today().plusDays(days.toLong())
             if (zaakFatalDate != null && calculatedFinalDate.isAfter(zaakFatalDate)) {
                 calculatedFinalDate = zaakFatalDate
             }

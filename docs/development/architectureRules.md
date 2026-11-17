@@ -28,7 +28,7 @@ The backend has three layers. A layer may only depend on the layers below it:
 | The clients do not depend on the REST layer                             | None                |
 | No field is annotated with `@Inject`; ZAC uses constructor injection    | None                |
 | No class depends on the `javax` Java EE APIs that Jakarta EE replaced   | None                |
-| No class outside `nl.info.zac.time` reads the system time zone or clock | Frozen              |
+| No class outside `nl.info.zac.time` reads the system time zone or clock | None                |
 
 Fields annotated with `@Resource` are allowed, because JNDI resources such as a `DataSource` cannot be
 injected through a constructor.

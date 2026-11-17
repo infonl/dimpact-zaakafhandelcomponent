@@ -31,6 +31,7 @@ import nl.info.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.zac.flowable.task.readTaskDocuments
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
@@ -91,7 +92,7 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
         EnkelvoudigInformatieObjectWithLockRequest().apply {
             ondertekening = OndertekeningRequest().apply {
                 soort = SoortEnum.DIGITAAL
-                datum = LocalDate.now()
+                datum = ZacTime.today()
             }
             status = StatusEnum.DEFINITIEF
             updateEnkelvoudigInformatieObjectWithLockData(uuid, this, ONDERTEKENEN_TOELICHTING)

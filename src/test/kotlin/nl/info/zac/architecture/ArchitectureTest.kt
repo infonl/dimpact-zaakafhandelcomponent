@@ -99,24 +99,23 @@ class ArchitectureTest : BehaviorSpec({
             `when`("their method calls are checked") {
                 then(
                     "they do not read the system time zone or the system clock, and do not convert a date to a " +
-                        "point in time with a time zone of their own, apart from the frozen existing violations"
+                        "point in time with a time zone of their own"
                 ) {
-                    freeze(
-                        noClasses()
-                            .that().resideOutsideOfPackages(TIME_PACKAGE, GENERATED_PACKAGE)
-                            .should().callMethod(ZoneId::class.java, "systemDefault")
-                            .orShould().callMethod(TimeZone::class.java, "getDefault")
-                            .orShould().callMethod(Clock::class.java, "systemDefaultZone")
-                            .orShould().callMethod(LocalDate::class.java, "now")
-                            .orShould().callMethod(LocalDate::class.java, "now", ZoneId::class.java)
-                            .orShould().callMethod(LocalDateTime::class.java, "now")
-                            .orShould().callMethod(LocalDateTime::class.java, "now", ZoneId::class.java)
-                            .orShould().callMethod(ZonedDateTime::class.java, "now")
-                            .orShould().callMethod(ZonedDateTime::class.java, "now", ZoneId::class.java)
-                            .orShould().callMethod(OffsetDateTime::class.java, "now")
-                            .orShould().callMethod(OffsetDateTime::class.java, "now", ZoneId::class.java)
-                            .orShould().callMethod(LocalDate::class.java, "atStartOfDay", ZoneId::class.java)
-                    ).check(zacClasses)
+                    noClasses()
+                        .that().resideOutsideOfPackages(TIME_PACKAGE, GENERATED_PACKAGE)
+                        .should().callMethod(ZoneId::class.java, "systemDefault")
+                        .orShould().callMethod(TimeZone::class.java, "getDefault")
+                        .orShould().callMethod(Clock::class.java, "systemDefaultZone")
+                        .orShould().callMethod(LocalDate::class.java, "now")
+                        .orShould().callMethod(LocalDate::class.java, "now", ZoneId::class.java)
+                        .orShould().callMethod(LocalDateTime::class.java, "now")
+                        .orShould().callMethod(LocalDateTime::class.java, "now", ZoneId::class.java)
+                        .orShould().callMethod(ZonedDateTime::class.java, "now")
+                        .orShould().callMethod(ZonedDateTime::class.java, "now", ZoneId::class.java)
+                        .orShould().callMethod(OffsetDateTime::class.java, "now")
+                        .orShould().callMethod(OffsetDateTime::class.java, "now", ZoneId::class.java)
+                        .orShould().callMethod(LocalDate::class.java, "atStartOfDay", ZoneId::class.java)
+                        .check(zacClasses)
                 }
             }
         }

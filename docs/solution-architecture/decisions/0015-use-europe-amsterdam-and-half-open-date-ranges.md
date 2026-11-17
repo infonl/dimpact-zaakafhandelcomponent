@@ -48,14 +48,14 @@ rules", because it is the only option that gives the same result on every server
 * Good, because a server or itest stack in UTC gives the same dates as one in `Europe/Amsterdam`.
 * Bad, because an installation that runs in another time zone than `Europe/Amsterdam` must rebuild its Solr index
   once. The Helm chart already sets `TZ: Europe/Amsterdam`.
-* Bad, because existing backend code outside `nl.info.zac.time` is frozen, not moved; later changes move it. The
-  frontend code outside `date-time/` was moved before this decision was merged.
+* Neutral, because all existing date and time code in the backend and the frontend was moved into these modules
+  before this decision was merged. No violation is frozen.
 
 ### Confirmation
 
 The ArchUnit rule "The handling of dates and times" in `ArchitectureTest` fails when a class outside
-`nl.info.zac.time` reads the system time zone or clock, or calls `LocalDate.atStartOfDay(ZoneId)`; the existing
-violations are frozen, see [the architecture rules](../../development/architectureRules.md). In the frontend,
+`nl.info.zac.time` reads the system time zone or clock, or calls `LocalDate.atStartOfDay(ZoneId)`, see
+[the architecture rules](../../development/architectureRules.md). In the frontend,
 ESLint rules in `src/main/app/eslint.config.js` forbid imports of `moment` and the Material moment adapter, deep
 imports into `date-time/`, and calls of `toISOString` and `Date.parse` outside the module.
 
@@ -75,5 +75,6 @@ imports into `date-time/`, and calls of `toISOString` and `Date.parse` outside t
 
 ## More Information
 
-ArchUnit is used instead of detekt `ForbiddenMethodCall`, because detekt has no per-violation freeze.
+ArchUnit is used instead of detekt `ForbiddenMethodCall`, so this rule sits with the other architecture rules in
+`ArchitectureTest`.
 `eslint-plugin-boundaries` was not added: one boundary does not justify a new dependency yet.

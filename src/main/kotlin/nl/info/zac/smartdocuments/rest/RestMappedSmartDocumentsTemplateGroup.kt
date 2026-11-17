@@ -8,9 +8,9 @@ package nl.info.zac.smartdocuments.rest
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.smartdocuments.templates.model.SmartDocumentsTemplate
 import nl.info.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
+import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.time.ZonedDateTime
 
 @NoArgConstructor
 @AllOpen
@@ -42,7 +42,7 @@ private fun createModelTemplateGroup(
     smartDocumentsId = smartDocumentsTemplateGroup.id
     zaaktypeConfiguration = zaakafhandelParams
     parent = parentGroup
-    creationDate = ZonedDateTime.now()
+    creationDate = ZacTime.now()
 }
 
 private fun createModelTemplate(
@@ -54,7 +54,7 @@ private fun createModelTemplate(
     zaaktypeConfiguration = zaakafhandelParams
     informatieObjectTypeUUID = smartDocumentsTemplate.informatieObjectTypeUUID
     templateGroup = parentGroup
-    creationDate = ZonedDateTime.now()
+    creationDate = ZacTime.now()
 }
 
 private fun convertTemplateGroupToStringRepresentation(

@@ -39,10 +39,10 @@ import nl.info.zac.identity.model.getFullName
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.DocumentRechten
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
+import nl.info.zac.time.ZacTime
 import nl.info.zac.util.toBase64String
 import nl.info.zac.zaak.model.RelatieType
 import org.eclipse.jetty.http.HttpStatus
-import java.time.LocalDate
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -221,7 +221,7 @@ class RestInformatieobjectConverter @Inject constructor(
         val fileContent = checkNotNull(bestand.file) { "Task form attachment '${bestand.filename}' has no content" }
         return EnkelvoudigInformatieObjectCreateLockRequest().apply {
             bronorganisatie = configurationService.readBronOrganisatie()
-            creatiedatum = LocalDate.now()
+            creatiedatum = ZacTime.today()
             titel = documentData.documentTitel
             auteur = loggedInUserInstance.get().getFullName()
             taal = ConfigurationService.TAAL_NEDERLANDS

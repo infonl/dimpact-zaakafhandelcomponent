@@ -43,12 +43,12 @@ import nl.info.zac.document.content.DocumentContent
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.NotSupportedException
+import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI
 import java.time.LocalDate
 import java.time.Period
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import java.util.logging.Logger
@@ -161,7 +161,7 @@ class ZgwApiService @Inject constructor(
         val statusType = getStatusTypeEind(zaak.zaaktype)
         val status = StatusSub().apply {
             statustype = statusType.url
-            datumStatusGezet = ZonedDateTime.now().toOffsetDateTime()
+            datumStatusGezet = ZacTime.now().toOffsetDateTime()
             statustoelichting = description
         }
 
@@ -209,7 +209,7 @@ class ZgwApiService @Inject constructor(
                 if (zaak.einddatum != null && brondatum.isBefore(zaak.einddatum)) {
                     throw InputValidationFailedException(ErrorCode.ERROR_CODE_BRONDATUM_CANNOT_BE_BEFORE_END_DATE)
                 }
-                if (zaak.einddatum == null && brondatum.isBefore(LocalDate.now())) {
+                if (zaak.einddatum == null && brondatum.isBefore(ZacTime.today())) {
                     throw InputValidationFailedException(ErrorCode.ERROR_CODE_BRONDATUM_CANNOT_BE_BEFORE_END_DATE)
                 }
                 this.upsertEigenschapToZaak(
@@ -466,7 +466,7 @@ class ZgwApiService @Inject constructor(
     private fun createStatusForZaak(zaakUUID: UUID, statustypeURI: URI, toelichting: String?): StatusSub {
         val status = StatusSub().apply {
             statustype = statustypeURI
-            datumStatusGezet = ZonedDateTime.now().toOffsetDateTime()
+            datumStatusGezet = ZacTime.now().toOffsetDateTime()
             statustoelichting = toelichting
         }
         return zrcClientService.createStatus(zaakUUID, status)

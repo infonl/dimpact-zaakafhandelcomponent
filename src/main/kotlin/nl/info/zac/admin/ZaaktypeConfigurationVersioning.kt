@@ -20,9 +20,9 @@ import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.ZaaktypeEmailParameters
 import nl.info.zac.admin.model.ZaaktypeMailtemplateParameters
 import nl.info.zac.admin.model.ZaaktypeZaakafzenderParameters
+import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.time.ZonedDateTime
 
 @ApplicationScoped
 @NoArgConstructor
@@ -41,7 +41,7 @@ class ZaaktypeConfigurationVersioning @Inject constructor(
         return ZaaktypeConfiguration().apply {
             zaaktypeUuid = newZaaktype.url.extractUuid()
             zaaktypeOmschrijving = newZaaktype.omschrijving
-            creatiedatum = ZonedDateTime.now()
+            creatiedatum = ZacTime.now()
             groepID = previous.groepID
             defaultBehandelaarId = previous.defaultBehandelaarId
             productaanvraagtype = previous.productaanvraagtype

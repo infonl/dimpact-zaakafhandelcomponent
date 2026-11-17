@@ -5,11 +5,11 @@
 package nl.info.client.zgw.ztc.model.extensions
 
 import nl.info.client.zgw.ztc.model.generated.InformatieObjectType
-import java.time.LocalDate
+import nl.info.zac.time.ZacTime
 
 fun InformatieObjectType.isNuGeldig(): Boolean =
     this.eindeGeldigheid.let { eindeGeldigheid ->
         this.beginGeldigheid.isBefore(
-            LocalDate.now().plusDays(1)
-        ) && (eindeGeldigheid == null || eindeGeldigheid.isAfter(LocalDate.now()))
+            ZacTime.today().plusDays(1)
+        ) && (eindeGeldigheid == null || eindeGeldigheid.isAfter(ZacTime.today()))
     }

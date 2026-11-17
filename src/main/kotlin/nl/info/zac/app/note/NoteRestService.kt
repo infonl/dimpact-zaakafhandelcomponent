@@ -27,10 +27,10 @@ import nl.info.zac.note.NoteService
 import nl.info.zac.note.model.Note
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.websocket.event.ScreenEventType
-import java.time.ZonedDateTime
 import java.util.UUID
 
 @Singleton
@@ -74,7 +74,7 @@ class NoteRestService @Inject constructor(
         assertCanReadZaak(note.zaakUUID)
         val updatedNotitie = note.apply {
             text = restNote.text
-            dateTimeLastModified = ZonedDateTime.now()
+            dateTimeLastModified = ZacTime.now()
         }.let(noteService::updateNote)
         eventingService.send(ScreenEventType.ZAAK_NOTITIES.updated(updatedNotitie.zaakUUID))
         return noteConverter.toRestNote(updatedNotitie)

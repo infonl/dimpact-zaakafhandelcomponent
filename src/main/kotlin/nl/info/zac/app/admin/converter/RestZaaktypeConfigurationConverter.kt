@@ -29,10 +29,10 @@ import nl.info.zac.app.admin.model.toZaaktypeCmmnUsereventlistenerParameters
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.smartdocuments.SmartDocumentsService
+import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
-import java.time.ZonedDateTime
 
 @AllOpen
 @NoArgConstructor
@@ -110,7 +110,7 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
             defaultBehandelaarId = restZaaktypeConfiguration.defaultBehandelaarId
             einddatumGeplandWaarschuwing = restZaaktypeConfiguration.einddatumGeplandWaarschuwing
             isSmartDocumentsEnabled = restZaaktypeConfiguration.smartDocuments.isEnabledForZaaktype
-            creatiedatum = restZaaktypeConfiguration.creatiedatum ?: ZonedDateTime.now()
+            creatiedatum = restZaaktypeConfiguration.creatiedatum ?: ZacTime.now()
             restZaaktypeConfiguration.automaticEmailConfirmation.ifSupplied {
                 zaaktypeEmailParameters = it.toAutomaticEmailConfirmation(this)
             }

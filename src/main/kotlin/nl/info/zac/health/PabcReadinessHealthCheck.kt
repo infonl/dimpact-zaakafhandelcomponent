@@ -8,11 +8,11 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import nl.info.client.pabc.PabcClientService
+import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
 import org.eclipse.microprofile.health.HealthCheck
 import org.eclipse.microprofile.health.HealthCheckResponse
 import org.eclipse.microprofile.health.Readiness
-import java.time.LocalDateTime
 
 @Readiness
 @ApplicationScoped
@@ -40,7 +40,7 @@ class PabcReadinessHealthCheck @Inject constructor(
         } catch (@Suppress("TooGenericExceptionCaught") exception: Throwable) {
             HealthCheckResponse
                 .named(PabcReadinessHealthCheck::class.java.name)
-                .withData("time", LocalDateTime.now().toString())
+                .withData("time", ZacTime.now().toLocalDateTime().toString())
                 .withData("error", exception.message)
                 .down()
                 .build()

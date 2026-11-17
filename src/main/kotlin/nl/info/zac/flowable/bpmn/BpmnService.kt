@@ -18,6 +18,7 @@ import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionMultipleProcesse
 import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNameMissingException
 import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNotFoundException
 import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionMetadata
+import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.bpmn.constants.BpmnXMLConstants.BPMN2_NAMESPACE
@@ -404,6 +405,6 @@ class BpmnService @Inject constructor(
             .deploymentId(deploymentId)
             .singleResult()
             ?.deploymentTime
-            ?.let { ZonedDateTime.ofInstant(it.toInstant(), java.time.ZoneId.systemDefault()) }
+            ?.let { ZonedDateTime.ofInstant(it.toInstant(), ZacTime.ZONE) }
     }
 }
