@@ -45,7 +45,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import {
-  toZaaktypeConfigurationListBody,
+  toZaaktypeConfigurationListQuery,
   ZAAKAFHANDELPARAMETERS_PAGE_SIZE,
   ZaakafhandelParametersListParameters,
   ZaakafhandelParametersSortColumn,
@@ -95,7 +95,7 @@ export class ParametersComponent extends AdminComponent implements OnInit {
 
   private readonly parametersQuery = injectQuery(() => ({
     ...this.zaakafhandelParametersService.listZaakafhandelParameters(
-      toZaaktypeConfigurationListBody(this.filterParameters()),
+      toZaaktypeConfigurationListQuery(this.filterParameters()),
     ),
     placeholderData: keepPreviousData,
   }));

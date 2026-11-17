@@ -7,11 +7,15 @@ import { inject, Injectable } from "@angular/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
 import { MailtemplateService } from "../mailtemplate/mailtemplate.service";
-import { PutBody } from "../shared/http/http-client";
+import { PathParameters, PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { ZakenService } from "../zaken/zaken.service";
 import { MailtemplateKoppelingService } from "./mailtemplate-koppeling.service";
+
+export type ZaakafhandelParametersListQuery = NonNullable<
+  NonNullable<PathParameters<"/rest/zaakafhandelparameters", "get">>["query"]
+>;
 
 @Injectable({
   providedIn: "root",
@@ -29,11 +33,10 @@ export class ZaakafhandelParametersService {
   private readonly zaakafhandelParametersListUrl =
     "/rest/zaakafhandelparameters" as const;
 
-  listZaakafhandelParameters(body: PutBody<"/rest/zaakafhandelparameters">) {
-    return this.zacQueryClient.PUT_QUERY(
-      this.zaakafhandelParametersListUrl,
-      body,
-    );
+  listZaakafhandelParameters(query: ZaakafhandelParametersListQuery) {
+    return this.zacQueryClient.GET(this.zaakafhandelParametersListUrl, {
+      query,
+    });
   }
 
   readZaakafhandelparameters(zaaktypeUUID: string) {
@@ -86,7 +89,9 @@ export class ZaakafhandelParametersService {
             queryKey: this.readZaakafhandelparameters(zaaktypeUUID).queryKey,
           });
           void this.queryClient?.invalidateQueries({
-            queryKey: [this.zaakafhandelParametersListUrl],
+            queryKey: this.zacQueryClient.GET(
+              this.zaakafhandelParametersListUrl,
+            ).queryKey,
           });
           void this.queryClient?.invalidateQueries({
             queryKey:

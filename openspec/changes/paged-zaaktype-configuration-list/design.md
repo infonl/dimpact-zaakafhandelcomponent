@@ -90,8 +90,9 @@ bar above the table, so the table does not empty between pages. With the filters
 "Geen gegevens gevonden" also shows when no configuration matches the filters; before, a filter that matched
 nothing left an empty table without a message.
 
-The list is read with `PUT_QUERY`, which keeps a response fresh for 15 seconds, where the `GET` kept it for
-5 minutes. A save of a configuration invalidates every stored page.
+Each page is a `GET` query of its own, keyed by its query parameters, and stays fresh for 5 minutes, as the list
+did before. A save of a configuration invalidates every stored page through the key of the `GET` without query
+parameters, which is the start of the key of every page.
 
 ## Risks / Trade-offs
 

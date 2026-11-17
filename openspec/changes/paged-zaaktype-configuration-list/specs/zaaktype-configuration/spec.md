@@ -43,13 +43,14 @@ catalogus. It SHALL require the beheren right. The Zaakafhandelparameters page S
 
 ### Requirement: The configuration list carries only what the list page shows
 
-`PUT /zaakafhandelparameters` SHALL return, in pages, one item for each zaaktype of the default catalogus that
+`GET /zaakafhandelparameters` SHALL return, in pages, one item for each zaaktype of the default catalogus that
 matches the filters of the request, with only the fields that the Zaakafhandelparameters page shows, filters and
 sorts on: the `uuid`, `identificatie`, `omschrijving`, `doel`, `isNuGeldig`, `beginGeldigheid` and
 `eindeGeldigheid` of the zaaktype, the `key` and `naam` of the process definition that the configuration is bound
-to, the `creatiedatum` of the configuration, and whether the configuration `isValide` for zaak creation. A zaaktype without a saved configuration SHALL have an
-item without a process definition and without a creatiedatum, and SHALL NOT be valid. The list SHALL require the
-beheren right. `GET /zaakafhandelparameters/{zaaktypeUuid}` SHALL keep returning the complete configuration.
+to, the `creatiedatum` of the configuration, and whether the configuration `isValide` for zaak creation. A
+zaaktype without a saved configuration SHALL have an item without a process definition and without a creatiedatum,
+and SHALL NOT be valid. The list SHALL require the beheren right. `GET /zaakafhandelparameters/{zaaktypeUuid}`
+SHALL keep returning the complete configuration.
 
 #### Scenario: A list item has only the fields of the page
 - **GIVEN** a zaaktype `U` with a saved CMMN configuration with groep, SmartDocuments and BRP doelbindingen

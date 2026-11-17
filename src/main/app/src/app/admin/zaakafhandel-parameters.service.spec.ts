@@ -184,21 +184,24 @@ describe(ZaakafhandelParametersService.name, () => {
   });
 
   describe("listZaakafhandelParameters", () => {
-    it("reads one page of the parameters of the zaaktypes with the filters in the request body", async () => {
-      const body = { page: 1, rows: 25, isValide: true };
+    it("reads one page of the parameters of the zaaktypes with the filters as query parameters", async () => {
       const page = fromPartial<
         GeneratedType<"RestZaaktypeConfigurationOverzichtResultaat">
       >({ totaal: 26, resultaten: [] });
 
       const result = testQueryClient.fetchQuery(
-        service.listZaakafhandelParameters(body),
+        service.listZaakafhandelParameters({
+          page: 1,
+          rows: 25,
+          isValide: true,
+          zaaktypeIdentificatie: null,
+        }),
       );
       await sleep();
       const request = httpTestingController.expectOne(
-        "/rest/zaakafhandelparameters",
+        "/rest/zaakafhandelparameters?page=1&rows=25&isValide=true",
       );
-      expect(request.request.method).toBe("PUT");
-      expect(request.request.body).toEqual(body);
+      expect(request.request.method).toBe("GET");
       request.flush(page);
 
       await expect(result).resolves.toEqual(page);

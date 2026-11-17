@@ -26,7 +26,7 @@ import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.servic
 import { ParametersComponent } from "./parameters.component";
 import {
   ZaakafhandelParametersListParameters,
-  toZaaktypeConfigurationListBody,
+  toZaaktypeConfigurationListQuery,
 } from "./zaakafhandel-parameters-list-parameters";
 
 const fakeZaaktypeConfigurationOverzicht = (
@@ -83,10 +83,17 @@ describe(ParametersComponent.name, () => {
   async function expectPageRequest() {
     await sleep();
     const request = httpTestingController.expectOne(
-      "/rest/zaakafhandelparameters",
+      ({ url }) => url.split("?")[0] === "/rest/zaakafhandelparameters",
     );
-    expect(request.request.method).toBe("PUT");
+    expect(request.request.method).toBe("GET");
     return request;
+  }
+
+  function requestedQuery(request: TestRequest) {
+    return Object.fromEntries(
+      new URL(request.request.urlWithParams, "https://example.com")
+        .searchParams,
+    );
   }
 
   async function answer(
@@ -138,14 +145,14 @@ describe(ParametersComponent.name, () => {
 
     const request = await expectPageRequest();
 
-    expect(request.request.body).toEqual(
+    expect(requestedQuery(request)).toEqual(
       expect.objectContaining({
-        page: 0,
-        rows: 25,
+        page: "0",
+        rows: "25",
         sortField: "GELDIG",
         sortOrder: "DESC",
-        isValide: true,
-        isNuGeldig: true,
+        isValide: "true",
+        isNuGeldig: "true",
       }),
     );
   });
@@ -175,8 +182,8 @@ describe(ParametersComponent.name, () => {
     await user.click(screen.getByRole("button", { name: "Next page" }));
     fixture.detectChanges();
 
-    expect((await expectPageRequest()).request.body).toEqual(
-      expect.objectContaining({ page: 1, rows: 25 }),
+    expect(requestedQuery(await expectPageRequest())).toEqual(
+      expect.objectContaining({ page: "1", rows: "25" }),
     );
   });
 
@@ -228,9 +235,9 @@ describe(ParametersComponent.name, () => {
     await user.click(screen.getByText("zaaktype-omschrijving"));
     fixture.detectChanges();
 
-    expect((await expectPageRequest()).request.body).toEqual(
+    expect(requestedQuery(await expectPageRequest())).toEqual(
       expect.objectContaining({
-        page: 0,
+        page: "0",
         sortField: "OMSCHRIJVING",
         sortOrder: "ASC",
       }),
@@ -244,8 +251,8 @@ describe(ParametersComponent.name, () => {
 
     await answer(await expectPageRequest(), { resultaten: [], totaal: 25 });
 
-    expect((await expectPageRequest()).request.body).toEqual(
-      expect.objectContaining({ page: 0 }),
+    expect(requestedQuery(await expectPageRequest())).toEqual(
+      expect.objectContaining({ page: "0" }),
     );
     expect(setItem).toHaveBeenCalledWith(
       "zaakafhandelParametersListParameters",
@@ -274,12 +281,14 @@ describe(ParametersComponent.name, () => {
       await user.tab();
       fixture.detectChanges();
 
-      expect((await expectPageRequest()).request.body).toEqual(
+      const query = requestedQuery(await expectPageRequest());
+      expect(query).toEqual(
         expect.objectContaining({
-          page: 0,
-          [geldigheid]: { van: "2025-01-01", tot: null },
+          page: "0",
+          [`${geldigheid}Van`]: "2025-01-01",
         }),
       );
+      expect(query).not.toHaveProperty(`${geldigheid}Tot`);
     },
   );
 
@@ -303,9 +312,9 @@ describe(ParametersComponent.name, () => {
     );
     fixture.detectChanges();
 
-    expect((await expectPageRequest()).request.body).toEqual(
+    expect(requestedQuery(await expectPageRequest())).toEqual(
       expect.objectContaining({
-        page: 0,
+        page: "0",
         zaaktypeIdentificatie: "fakeIdentificatie",
       }),
     );
@@ -338,8 +347,8 @@ describe(ParametersComponent.name, () => {
     );
     fixture.detectChanges();
 
-    expect((await expectPageRequest()).request.body).toEqual(
-      expect.objectContaining({ page: 0, processDefinitionKey: "fakeKey" }),
+    expect(requestedQuery(await expectPageRequest())).toEqual(
+      expect.objectContaining({ page: "0", processDefinitionKey: "fakeKey" }),
     );
   });
 
@@ -354,7 +363,7 @@ describe(ParametersComponent.name, () => {
     await render();
 
     const request = await expectPageRequest();
-    expect(request.request.body).toEqual(
+    expect(requestedQuery(request)).toEqual(
       expect.objectContaining({
         zaaktypeIdentificatie: "fakeIdentificatie",
         processDefinitionKey: "fakeKey",
@@ -384,7 +393,7 @@ describe(ParametersComponent.name, () => {
     );
     await render();
 
-    expect((await expectPageRequest()).request.body).toEqual(
+    expect(requestedQuery(await expectPageRequest())).toEqual(
       expect.objectContaining({ sortField: "GELDIG", sortOrder: "DESC" }),
     );
   });
@@ -396,7 +405,7 @@ describe(`${ParametersComponent.name} on a second visit`, () => {
     sessionStorage.clear();
     testQueryClient.setQueryData(
       TestBed.inject(ZaakafhandelParametersService).listZaakafhandelParameters(
-        toZaaktypeConfigurationListBody(
+        toZaaktypeConfigurationListQuery(
           new ZaakafhandelParametersListParameters("geldig", "desc"),
         ),
       ).queryKey,
@@ -414,7 +423,7 @@ describe(`${ParametersComponent.name} on a second visit`, () => {
   });
 });
 
-describe(toZaaktypeConfigurationListBody.name, () => {
+describe(toZaaktypeConfigurationListQuery.name, () => {
   it.each([
     [ToggleSwitchOptions.CHECKED, true],
     [ToggleSwitchOptions.UNCHECKED, false],
@@ -422,14 +431,14 @@ describe(toZaaktypeConfigurationListBody.name, () => {
   ])(
     "filters on valide and geldig %s as %s",
     (toggleSwitchOption, expected) => {
-      const body = toZaaktypeConfigurationListBody({
+      const query = toZaaktypeConfigurationListQuery({
         ...new ZaakafhandelParametersListParameters("geldig", "desc"),
         valide: toggleSwitchOption,
         geldig: toggleSwitchOption,
       });
 
-      expect(body.isValide).toBe(expected);
-      expect(body.isNuGeldig).toBe(expected);
+      expect(query.isValide).toBe(expected);
+      expect(query.isNuGeldig).toBe(expected);
     },
   );
 
@@ -442,7 +451,7 @@ describe(toZaaktypeConfigurationListBody.name, () => {
     ["eindeGeldigheid", "EINDE_GELDIGHEID"],
   ])("sorts the column %s on the field %s", (column, sortField) => {
     expect(
-      toZaaktypeConfigurationListBody(
+      toZaaktypeConfigurationListQuery(
         new ZaakafhandelParametersListParameters(column, "asc"),
       ).sortField,
     ).toBe(sortField);
@@ -452,7 +461,7 @@ describe(toZaaktypeConfigurationListBody.name, () => {
     const timeZone = process.env.TZ;
     process.env.TZ = "Europe/Amsterdam";
 
-    const body = toZaaktypeConfigurationListBody({
+    const query = toZaaktypeConfigurationListQuery({
       ...new ZaakafhandelParametersListParameters("geldig", "desc"),
       beginGeldigheid: {
         van: "2024-12-31T23:00:00.000Z",
@@ -461,15 +470,13 @@ describe(toZaaktypeConfigurationListBody.name, () => {
     });
     process.env.TZ = timeZone;
 
-    expect(body.beginGeldigheid).toEqual({
-      van: "2025-01-01",
-      tot: "2025-02-01",
-    });
+    expect(query.beginGeldigheidVan).toBe("2025-01-01");
+    expect(query.beginGeldigheidTot).toBe("2025-02-01");
   });
 
   it("keeps the order of the catalogus when the sort is cleared", () => {
     expect(
-      toZaaktypeConfigurationListBody(
+      toZaaktypeConfigurationListQuery(
         new ZaakafhandelParametersListParameters("omschrijving", ""),
       ).sortField,
     ).toBeNull();

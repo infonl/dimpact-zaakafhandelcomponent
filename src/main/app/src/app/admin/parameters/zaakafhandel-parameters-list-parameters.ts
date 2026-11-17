@@ -5,10 +5,10 @@
 
 import { SortDirection } from "@angular/material/sort";
 import moment from "moment";
-import { PutBody } from "../../shared/http/http-client";
 import { ListParameters } from "../../shared/model/list-parameters";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakafhandelParametersListQuery } from "../zaakafhandel-parameters.service";
 
 export const ZAAKAFHANDELPARAMETERS_PAGE_SIZE = 25;
 
@@ -58,16 +58,9 @@ const toBoolean = (toggleSwitchOption: ToggleSwitchOptions) => {
 const toLocalDate = (date?: string | null) =>
   date ? moment(date).format("YYYY-MM-DD") : null;
 
-const toLocalDateRange = (
-  range: GeneratedType<"RestDatumRange">,
-): GeneratedType<"RestDatumRange"> => ({
-  van: toLocalDate(range.van),
-  tot: toLocalDate(range.tot),
-});
-
-export const toZaaktypeConfigurationListBody = (
+export const toZaaktypeConfigurationListQuery = (
   listParameters: ZaakafhandelParametersListParameters,
-): PutBody<"/rest/zaakafhandelparameters"> => ({
+): ZaakafhandelParametersListQuery => ({
   page: listParameters.page,
   rows: ZAAKAFHANDELPARAMETERS_PAGE_SIZE,
   sortField:
@@ -79,6 +72,8 @@ export const toZaaktypeConfigurationListBody = (
   isNuGeldig: toBoolean(listParameters.geldig),
   zaaktypeIdentificatie: listParameters.zaaktype?.identificatie ?? null,
   processDefinitionKey: listParameters.processDefinition?.key ?? null,
-  beginGeldigheid: toLocalDateRange(listParameters.beginGeldigheid),
-  eindeGeldigheid: toLocalDateRange(listParameters.eindeGeldigheid),
+  beginGeldigheidVan: toLocalDate(listParameters.beginGeldigheid.van),
+  beginGeldigheidTot: toLocalDate(listParameters.beginGeldigheid.tot),
+  eindeGeldigheidVan: toLocalDate(listParameters.eindeGeldigheid.van),
+  eindeGeldigheidTot: toLocalDate(listParameters.eindeGeldigheid.tot),
 });
