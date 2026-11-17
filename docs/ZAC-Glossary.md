@@ -3,7 +3,7 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-# Dimpact Glossary
+# ZAC Glossary
 
 This glossary promotes a [Ubiquitous Language](https://martinfowler.com/bliki/UbiquitousLanguage.html),
 so that the team can communicate with the business more effectively.
