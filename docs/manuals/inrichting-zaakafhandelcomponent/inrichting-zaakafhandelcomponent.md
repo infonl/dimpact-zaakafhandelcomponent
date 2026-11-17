@@ -913,7 +913,7 @@ Nadat je een keuze hebt gemaakt worden de bijbehorende tabbladen zichtbaar.
 ![Zaakafhandelparameters BPMN](images/zaps_cmmn_bpmn.png)
 
 #### Procesmodel wijzigen
-Het procesmodel geldt per versie van het zaaktype. Bovenaan de stap staan daarom de identificatie, de versiedatum en de geldigheid van de zaaktypeversie die je inricht.
+Het procesmodel geldt per versie van het zaaktype. Bovenaan de stap staat daarom de geldigheid van de zaaktypeversie die je inricht. Zo zie je in stap 4 hieronder of je de nieuwe versie inricht of de huidige.
 
 Zolang er nog geen zaken van een zaaktypeversie zijn, kun je een ander procesmodel kiezen: een ander CMMN-model, een andere BPMN-procesdefinitie, of een wissel tussen CMMN en BPMN. Onder het keuzeveld staat dan dat het procesmodel vastligt zodra de eerste zaak van deze versie is aangemaakt. Kies je een ander CMMN-model of wissel je naar CMMN, dan richt je de taken en acties van het nieuwe model opnieuw in.
 
