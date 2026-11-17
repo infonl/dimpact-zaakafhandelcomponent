@@ -5,21 +5,22 @@
 
 export { fromApiDate, toApiDate, type PickedDate } from "./api-date";
 export {
+  FILTER_DATE_FORMATS,
+  ZAC_DATE_FORMATS,
+  provideFilterDateFormats,
+  provideZacDateAdapter,
+} from "./date-adapter";
+export {
   addDays,
   daysBetween,
+  endOfDay,
   isAfter,
   isPickedDate,
   isSameOrAfter,
   now,
   startOfDay,
   toApiDateTime,
-  today,
   toPickedDate,
+  today,
   type DateInput,
 } from "./picked-date";
-export {
-  FILTER_DATE_FORMATS,
-  ZAC_DATE_FORMATS,
-  provideFilterDateFormats,
-  provideZacDateAdapter,
-} from "./date-adapter";

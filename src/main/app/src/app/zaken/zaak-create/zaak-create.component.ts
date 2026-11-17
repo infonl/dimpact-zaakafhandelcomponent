@@ -31,11 +31,11 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { Router } from "@angular/router";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
-import moment from "moment";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
+import { now, PickedDate, toApiDate } from "../../date-time";
 import { IdentityService } from "../../identity/identity.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { KlantKoppelComponent } from "../../klanten/koppel/klanten/klant-koppel/klant-koppel.component";
@@ -183,7 +183,9 @@ export class ZaakCreateComponent {
     initiatorIdentificatie: this.formBuilder.control<
       GeneratedType<"BetrokkeneIdentificatie"> | null | undefined
     >(null),
-    startdatum: this.formBuilder.control(moment(), [Validators.required]),
+    startdatum: this.formBuilder.control<PickedDate | null>(now(), [
+      Validators.required,
+    ]),
     bagObjecten: this.formBuilder.control<GeneratedType<"RestBagObject">[]>([]),
     groep: this.formBuilder.control<
       GeneratedType<"RestGroup"> | null | undefined
@@ -355,7 +357,7 @@ export class ZaakCreateComponent {
           ? new BetrokkeneIdentificatie(value.initiatorIdentificatie)
           : null,
         vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
-        startdatum: value.startdatum?.toISOString(),
+        startdatum: toApiDate(value.startdatum),
         omschrijving: value.omschrijving!,
         zaaktype: value.zaaktype!,
       },

@@ -41,6 +41,10 @@ export function startOfDay(value: DateInput): PickedDate {
   return toMoment(value).startOf("day");
 }
 
+export function endOfDay(value: DateInput): PickedDate {
+  return toMoment(value).endOf("day");
+}
+
 export function addDays(value: DateInput, days: number): PickedDate {
   return toMoment(value).add(days, "days");
 }

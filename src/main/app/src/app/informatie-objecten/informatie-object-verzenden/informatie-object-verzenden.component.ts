@@ -13,8 +13,8 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import moment, { Moment } from "moment";
 import { UtilService } from "../../core/service/util.service";
+import { now, PickedDate, toApiDate } from "../../date-time";
 import { ZacDate } from "../../shared/form/date/date";
 import { ZacDocuments } from "../../shared/form/documents/documents";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
@@ -63,7 +63,7 @@ export class InformatieObjectVerzendenComponent {
     documenten: this.formBuilder.control<
       GeneratedType<"RestEnkelvoudigInformatieobject">[]
     >([], [Validators.required]),
-    verzenddatum: this.formBuilder.control<Moment | null>(moment(), [
+    verzenddatum: this.formBuilder.control<PickedDate | null>(now(), [
       Validators.required,
     ]),
     toelichting: this.formBuilder.control<string | null>(null, [
@@ -83,7 +83,7 @@ export class InformatieObjectVerzendenComponent {
 
     this.verzendenMutation.mutate({
       zaakUuid: this.zaak().uuid,
-      verzenddatum: verzenddatum!.toISOString(),
+      verzenddatum: toApiDate(verzenddatum)!,
       informatieobjecten: documenten?.map(({ uuid }) => uuid!) ?? [],
       toelichting,
     });

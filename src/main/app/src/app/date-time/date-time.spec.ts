@@ -7,6 +7,7 @@ import moment from "moment";
 import {
   addDays,
   daysBetween,
+  endOfDay,
   fromApiDate,
   isAfter,
   isPickedDate,
@@ -105,6 +106,12 @@ describe("date-time", () => {
     it("gives the start of the day", () => {
       expect(startOfDay(new Date(2026, 6, 30, 15, 45)).valueOf()).toBe(
         new Date(2026, 6, 30).valueOf(),
+      );
+    });
+
+    it("gives the last millisecond of the day", () => {
+      expect(endOfDay(new Date(2026, 6, 30, 15, 45)).valueOf()).toBe(
+        new Date(2026, 6, 31).valueOf() - 1,
       );
     });
 

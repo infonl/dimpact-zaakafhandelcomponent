@@ -27,6 +27,7 @@ import { userEvent } from "@testing-library/user-event";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
+import { toPickedDate } from "../../date-time";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -442,6 +443,43 @@ describe("HumanTaskDoComponent", () => {
 
       expect(getAngularRequestFormBuilderSpy).not.toHaveBeenCalled();
       expect(component["formFields"]()).toHaveLength(0);
+    });
+  });
+
+  describe("submitting a form with a fatale datum", () => {
+    beforeEach(async () => {
+      jest
+        .spyOn(taakFormulierenService, "getAngularRequestFormBuilder")
+        .mockResolvedValue([{ type: "date", key: "taakFataledatum" }]);
+      seedUsersOfGroup([]);
+      fixture.componentRef.setInput(
+        "planItem",
+        fromPartial<GeneratedType<"RestPlanItem">>({
+          id: "test-plan-item-id",
+          type: "HUMAN_TASK",
+          formulierDefinitie: "AANVULLENDE_INFORMATIE",
+        }),
+      );
+
+      await initialise();
+      getFormControl("taakFataledatum")?.setValue(toPickedDate("2026-02-10"));
+      getFormControl("group")?.setValue(group);
+    });
+
+    it("sends the fatale datum, also in the task data, as a date without a time", async () => {
+      component["onFormSubmit"](component["form"]);
+      await sleep();
+
+      const request = httpTestingController.expectOne(
+        "/rest/planitems/doHumanTaskPlanItem",
+      );
+      expect(request.request.body).toEqual(
+        expect.objectContaining({
+          fataledatum: "2026-02-10",
+          taakdata: expect.objectContaining({ taakFataledatum: "2026-02-10" }),
+        }),
+      );
+      request.flush({});
     });
   });
 
