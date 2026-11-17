@@ -70,11 +70,12 @@ The entity method that binds a configuration no longer rejects a change of engin
 binds to BPMN, it still removes the CMMN extension. When it binds to another CMMN case definition, it first clears the
 plan item settings of the previous case definition, also when the save sends none, and stores only the settings of
 plan items that the new case definition has. On every bind to CMMN, it adds a default setting, without toelichting,
-for each user event listener of the case definition that the save does not send, because listing the actions of a
-zaak requires one per listener.
+for each user event listener of the case definition that has no setting after the save, because listing the actions
+of a zaak requires one per listener. Stored settings that the save leaves out keep their toelichting.
 
-No Open Zaak call runs inside the transaction of the save, and the save builds its response after the commit. A
-failed Open Zaak call therefore stores nothing. The save evicts the cached configuration before it commits, so a
+The zaken lookup runs before the transaction of the save, and the save builds its response after the commit. A
+failed zaken lookup therefore stores nothing. The Catalogi reads of the response run after the commit, as they did
+before this change, and are mostly cached. The save evicts the cached configuration before it commits, so a
 remote call inside the transaction would give a concurrent read the time to cache the previous binding again, and
 zaken created in the next hour would start the previous process. A zaak created between the lookup and the commit
 makes the response report a changeable configuration once; the next save checks again.
@@ -97,11 +98,12 @@ existing zaken stays.
 - [A zaak is created between opening and saving the screen] → the save checks again and rejects the change. The
   screen then reads the configuration again and, when it is locked, shows the stored process definition, locked, with
   its explanation. Other unsaved settings are lost; that is rare and the message says nothing was saved.
-- [A zaak is created between the check and the store of a save] → the save checks again just before it stores, which
-  makes the window short but does not close it. A zaak created in that window keeps the process instance it started
-  with; only new zaken use the new binding. For a CMMN zaak in that window, its plan item settings may no longer
-  match its case definition, and after a change of engine, terminating it targets the engine of the configuration
-  instead of the one it runs on. Routing termination by the running instance is a separate ticket.
+- [A zaak is created between the check and the store of a save] → the check uses the single zaken lookup of the save,
+  made just before it stores, which makes the window short but does not close it. A zaak created in that window keeps
+  the process instance it started with; only new zaken use the new binding. For a CMMN zaak in that window, its plan
+  item settings may no longer match its case definition, and after a change of engine, terminating it targets the
+  engine of the configuration instead of the one it runs on. Routing termination by the running instance is a separate
+  ticket.
 - [A published zaaktype version is valid at once, so a zaak can be created with the copied process before the
   beheerder chooses another one] → the beheerder publishes the version with a future begin date, chooses the process,
   and lets the date take effect. This protects only zaken created by hand: the productaanvraag intake picks the most
