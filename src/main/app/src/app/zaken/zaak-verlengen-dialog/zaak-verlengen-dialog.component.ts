@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, OnDestroy, inject, signal } from "@angular/core";
+import { Component, inject, OnDestroy, signal } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import {
@@ -18,8 +18,16 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
-import moment, { Moment } from "moment";
 import { Subject, takeUntil } from "rxjs";
+import {
+  addDays,
+  daysBetween,
+  endOfDay,
+  PickedDate,
+  startOfDay,
+  toApiDate,
+  toPickedDate,
+} from "../../date-time";
 import { ZacCheckbox } from "../../shared/form/checkbox/checkbox";
 import { trackControl } from "../../shared/form/control-state";
 import { ZacDate } from "../../shared/form/date/date";
@@ -79,40 +87,24 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
       Validators.max(Number(this.data.zaak.zaaktype.verlengingstermijn)),
     ]),
     einddatumGepland: this.data.zaak.einddatumGepland
-      ? this.formBuilder.control<Moment | null>(
-          moment(this.data.zaak.einddatumGepland),
+      ? this.formBuilder.control<PickedDate | null>(
+          toPickedDate(this.data.zaak.einddatumGepland),
           [
             Validators.required,
-            Validators.min(
-              moment(this.data.zaak.einddatumGepland)
-                .add(1, "day")
-                .startOf("day")
-                .valueOf(),
-            ),
-            Validators.max(
-              moment(this.data.zaak.einddatumGepland)
-                .add(this.data.zaak.zaaktype.verlengingstermijn, "day")
-                .startOf("day")
-                .valueOf(),
+            ...this.extensionBounds(
+              this.data.zaak.einddatumGepland,
+              startOfDay,
             ),
           ],
         )
-      : this.formBuilder.control<Moment | null>(null),
-    uiterlijkeEinddatumAfdoening: this.formBuilder.control(
-      moment(this.data.zaak.uiterlijkeEinddatumAfdoening),
+      : this.formBuilder.control<PickedDate | null>(null),
+    uiterlijkeEinddatumAfdoening: this.formBuilder.control<PickedDate | null>(
+      toPickedDate(this.data.zaak.uiterlijkeEinddatumAfdoening),
       [
         Validators.required,
-        Validators.min(
-          moment(this.data.zaak.uiterlijkeEinddatumAfdoening)
-            .add(1, "day")
-            .startOf("day")
-            .valueOf(),
-        ),
-        Validators.max(
-          moment(this.data.zaak.uiterlijkeEinddatumAfdoening)
-            .add(this.data.zaak.zaaktype.verlengingstermijn, "day")
-            .endOf("day")
-            .valueOf(),
+        ...this.extensionBounds(
+          this.data.zaak.uiterlijkeEinddatumAfdoening,
+          endOfDay,
         ),
       ],
     ),
@@ -147,7 +139,7 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
         this.updateDateFields(
-          moment(value).diff(this.data.zaak.einddatumGepland, "days"),
+          this.daysSince(this.data.zaak.einddatumGepland, value),
         );
       });
 
@@ -155,12 +147,28 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
         this.updateDateFields(
-          moment(value).diff(
-            this.data.zaak.uiterlijkeEinddatumAfdoening,
-            "days",
-          ),
+          this.daysSince(this.data.zaak.uiterlijkeEinddatumAfdoening, value),
         );
       });
+  }
+
+  private extensionBounds(
+    date: string | null,
+    lastDayBound: (value: PickedDate) => PickedDate,
+  ) {
+    if (!date) return [];
+    return [
+      Validators.min(startOfDay(addDays(date, 1)).valueOf()),
+      Validators.max(
+        lastDayBound(
+          addDays(date, this.data.zaak.zaaktype.verlengingstermijn ?? 0),
+        ).valueOf(),
+      ),
+    ];
+  }
+
+  private daysSince(date: string | null, value: PickedDate | null | undefined) {
+    return date && value ? daysBetween(date, value) : Number.NaN;
   }
 
   private updateDateFields(duurDagen?: number | null) {
@@ -168,11 +176,12 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
       {
         duurDagen,
         einddatumGepland: this.data.zaak.einddatumGepland
-          ? moment(this.data.zaak.einddatumGepland).add(duurDagen ?? 0, "days")
+          ? addDays(this.data.zaak.einddatumGepland, duurDagen ?? 0)
           : null,
-        uiterlijkeEinddatumAfdoening: moment(
-          this.data.zaak.uiterlijkeEinddatumAfdoening,
-        ).add(duurDagen ?? 0, "days"),
+        uiterlijkeEinddatumAfdoening: this.data.zaak
+          .uiterlijkeEinddatumAfdoening
+          ? addDays(this.data.zaak.uiterlijkeEinddatumAfdoening, duurDagen ?? 0)
+          : null,
       },
       { emitEvent: false },
     );
@@ -185,9 +194,10 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
     const formValues = this.form.value;
     const body = {
       ...formValues,
-      einddatumGepland: formValues.einddatumGepland?.toISOString(),
-      uiterlijkeEinddatumAfdoening:
-        formValues.uiterlijkeEinddatumAfdoening?.toISOString(),
+      einddatumGepland: toApiDate(formValues.einddatumGepland),
+      uiterlijkeEinddatumAfdoening: toApiDate(
+        formValues.uiterlijkeEinddatumAfdoening,
+      ),
       shouldTakenVerlengen: formValues.takenVerlengen ?? false,
       redenVerlenging: formValues.redenVerlenging,
       duurDagen: formValues.duurDagen,

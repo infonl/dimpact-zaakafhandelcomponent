@@ -5,14 +5,21 @@
 
 import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
+import { FormGroup } from "@angular/forms";
 import { TranslateService, provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import moment from "moment";
 import { sleep, testQueryClient } from "../../../../../setupJest";
 import { createQueryOptions, fromPartial } from "../../../../test-helpers";
+import {
+  isPickedDate,
+  toApiDate,
+  toPickedDate,
+  today,
+} from "../../../date-time";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { FormField } from "../../../shared/form/composed-form/form-field.types";
 import { GeneratedType } from "../../../shared/utils/generated-types";
+import { mapFormGroupToTaskData } from "../taak.utils";
 import { DocumentVerzendenPostTaskForm } from "./document-verzenden-post-task-form";
 
 describe(DocumentVerzendenPostTaskForm.name, () => {
@@ -370,13 +377,14 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
         expect(control?.errors?.["required"]).toBeDefined();
       });
 
-      it("should default verzenddatum to today (moment) when taakdata is empty", async () => {
+      it("should default verzenddatum to today when taakdata is empty", async () => {
         const fields = await formulier.handleForm(baseTaak);
 
         const value = fields.find((field) => field.key === "verzenddatum")
           ?.control?.value;
-        expect(moment.isMoment(value)).toBe(true);
-        expect((value as moment.Moment).isSame(moment(), "day")).toBe(true);
+        expect(isPickedDate(value) && toApiDate(value)).toBe(
+          toApiDate(today()),
+        );
       });
 
       it("should pre-fill verzenddatum from taakdata when present", async () => {
@@ -389,10 +397,23 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
 
         const value = fields.find((field) => field.key === "verzenddatum")
           ?.control?.value;
-        expect(moment.isMoment(value)).toBe(true);
-        expect(
-          (value as moment.Moment).isSame(moment("2026-03-15T00:00:00.000Z")),
-        ).toBe(true);
+        expect(isPickedDate(value) && value.valueOf()).toBe(
+          toPickedDate("2026-03-15T00:00:00.000Z")?.valueOf(),
+        );
+      });
+
+      it("puts the picked verzenddatum in the task data as a date without a time", async () => {
+        const fields = await formulier.handleForm(baseTaak);
+        const verzenddatum = fields.find(
+          (field) => field.key === "verzenddatum",
+        )?.control;
+        verzenddatum?.setValue(toPickedDate("2026-03-15"));
+
+        const formGroup = new FormGroup({ verzenddatum: verzenddatum! });
+
+        expect(mapFormGroupToTaskData(formGroup, {})).toEqual({
+          verzenddatum: "2026-03-15",
+        });
       });
     });
 

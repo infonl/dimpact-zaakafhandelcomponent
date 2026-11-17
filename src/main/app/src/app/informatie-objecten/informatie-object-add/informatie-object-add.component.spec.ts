@@ -22,10 +22,10 @@ import {
   provideQueryClient,
   provideTanStackQuery,
 } from "@tanstack/angular-query-experimental";
-import moment from "moment";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
+import { now, toApiDate, toPickedDate, today } from "../../date-time";
 import { IdentityService } from "../../identity/identity.service";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -92,9 +92,9 @@ describe(InformatieObjectAddComponent.name, () => {
     beschrijving: "Test Description",
     status: { label: "In bewerking", value: "IN_BEWERKING" },
     informatieobjectType: mockInformatieObjectTypes[0],
-    creatiedatum: moment("2025-09-24T11:59:23.111Z"),
+    creatiedatum: toPickedDate("2025-09-24"),
     ontvangstdatum: null,
-    verzenddatum: moment("2025-09-24T11:59:23.333Z"),
+    verzenddatum: toPickedDate("2025-09-25"),
     vertrouwelijkheidaanduiding: {
       label: "vertrouwelijkheidaanduiding.intern",
       value: "INTERN",
@@ -168,14 +168,14 @@ describe(InformatieObjectAddComponent.name, () => {
         MatDatepickerInputHarness,
       );
 
-      expect(await creatiedatum.getValue()).toBe(moment().format("YYYY-MM-DD"));
+      expect(await creatiedatum.getValue()).toBe(toApiDate(today()));
     });
 
     it("should disable the verzenddatum and status when ontvangstdatum is set", async () => {
       const [, ontvangstdatumInput, verzenddatumInput] =
         await loader.getAllHarnesses(MatDatepickerInputHarness);
 
-      await ontvangstdatumInput.setValue(moment().format("YYYY-MM-DD"));
+      await ontvangstdatumInput.setValue(toApiDate(today())!);
       expect(await verzenddatumInput.isDisabled()).toBe(true);
     });
   });
@@ -208,6 +208,23 @@ describe(InformatieObjectAddComponent.name, () => {
       expect(formDataObject.bestandsnaam).toBe(mockFile.name);
       expect(formDataObject.status).toBe("IN_BEWERKING");
       expect(formDataObject.file).toBeInstanceOf(File);
+    });
+
+    it("sends the creatiedatum and verzenddatum on the days that were picked", async () => {
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.toevoegen" }),
+      );
+      await submitButton.click();
+      await new Promise(requestAnimationFrame);
+
+      const request = httpTestingController.expectOne(
+        `/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`,
+      );
+      const formDataObject = Object.fromEntries(
+        (request.request.body as FormData).entries(),
+      );
+      expect(formDataObject.creatiedatum).toMatch(/^2025-09-24T/);
+      expect(formDataObject.verzenddatum).toMatch(/^2025-09-25T/);
     });
 
     it("should emit document event after form add and submit", async () => {
@@ -401,7 +418,7 @@ describe(InformatieObjectAddComponent.name, () => {
         },
         auteur: "Test Author",
       });
-      component["form"].controls.ontvangstdatum.setValue(moment());
+      component["form"].controls.ontvangstdatum.setValue(now());
       component["form"].markAsDirty();
       fixture.detectChanges();
 

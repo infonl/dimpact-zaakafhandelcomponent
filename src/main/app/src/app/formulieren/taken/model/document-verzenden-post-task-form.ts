@@ -6,7 +6,7 @@
 import { inject, Injectable } from "@angular/core";
 import { Validators } from "@angular/forms";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import moment from "moment";
+import { now, toPickedDate } from "../../../date-time";
 import { mapStringToDocumentenStrings } from "../../../documenten/document-utils";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { FormField } from "../../../shared/form/composed-form/form-field.types";
@@ -87,7 +87,9 @@ export class DocumentVerzendenPostTaskForm extends AbstractTaskForm {
         type: "date",
         key: "verzenddatum",
         control: this.formBuilder.control(
-          verzenddatum ? moment(verzenddatum) : moment(),
+          toPickedDate(
+            typeof verzenddatum === "string" ? verzenddatum : null,
+          ) ?? now(),
           [Validators.required],
         ),
         readonly,
