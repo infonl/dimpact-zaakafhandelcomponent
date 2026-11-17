@@ -3,22 +3,19 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { expect, type Page } from "@playwright/test";
+import { expect, type Page, type TestInfo } from "@playwright/test";
+import { ENV } from "../../../config/env";
 import { Given, Then, When } from "../../fixtures";
-import { setUpZaaktype } from "../../support/zaakafhandelparameters";
-import { dataOf, type ZacApi } from "../../support/zac-api";
+import { zakenWerkvoorraad } from "../../screens/werkvoorraad";
+import { zaakPage } from "../../screens/zaak";
 
-// The BAG test double of the kind stack, in scripts/kind/seed/bag-wiremock, only answers this search text.
-const BAG_STUB = {
-  searchText: "fake search text",
-  adres: "Dam 1, 1012JS Amsterdam",
-};
-
-function required<Value>(value: Value | undefined, description: string) {
-  if (value === undefined) {
-    throw new Error(`This scenario has no ${description} yet.`);
-  }
-  return value;
+function bagTestDoubleOrSkip(testInfo: TestInfo) {
+  testInfo.skip(
+    !ENV.testDoubles,
+    `The target "${ENV.target}" has no BAG test double.`,
+  );
+  // skip() ends the test when the target has no test doubles, so they exist from here on.
+  return ENV.testDoubles!.bag;
 }
 
 async function openInitiatorPanel(page: Page) {
@@ -29,38 +26,10 @@ async function openInitiatorPanel(page: Page) {
   await initiatorField.getByRole("button").click();
 }
 
-async function isInSearchIndex(api: ZacApi, identificatie: string) {
-  const { resultaten } = await dataOf(
-    api.PUT("/rest/zoeken/list", {
-      body: {
-        type: "ZAAK",
-        page: 0,
-        rows: 10,
-        zoeken: { ZAAK_IDENTIFICATIE: identificatie },
-      },
-    }),
-  );
-  return (resultaten ?? []).some(
-    (zaak) => zaak.identificatie === identificatie,
-  );
-}
-
-async function gegevensOfZaak(page: Page) {
-  await page.getByRole("tab", { name: "Gegevens" }).click();
-  return page.getByRole("tabpanel", { name: "Gegevens" });
-}
-
 Given(
   "the zaaktype {string} is set up and assigns new zaken to groep {string}",
-  async (
-    { apiAs, whileNoOtherWorkerDoes },
-    zaaktype: string,
-    groep: string,
-  ) => {
-    const api = await apiAs("beheerder");
-    await whileNoOtherWorkerDoes(`set up the zaaktype ${zaaktype}`, () =>
-      setUpZaaktype(api, zaaktype, groep),
-    );
+  async ({ testData }, zaaktype: string, groep: string) => {
+    await testData.ensureZaaktype(zaaktype, { groep });
   },
 );
 
@@ -113,18 +82,20 @@ When(
 
 When(
   "I search an address from the BAG stub and add it as BAG object",
-  async ({ page, zaakOfScenario }) => {
+  async ({ page, $testInfo }) => {
+    const bag = bagTestDoubleOrSkip($testInfo);
     await page.getByRole("button", { name: "BAG object koppelen" }).click();
     const bagSearchText = page.getByRole("textbox", { name: "BAG objecten" });
-    await bagSearchText.fill(BAG_STUB.searchText);
+    await bagSearchText.fill(bag.searchText);
     await bagSearchText.press("Enter");
     await page
-      .getByRole("row", { name: BAG_STUB.adres })
+      .getByRole("row", { name: bag.adres })
       .getByRole("button", { name: "Koppelen" })
       .click();
-    await page.keyboard.press("Escape");
+    // The click disables the button, so the focus leaves the panel, and the panel only closes on an Escape that
+    // happens inside it. Its close button has no accessible name.
+    await bagSearchText.press("Escape");
     await expect(bagSearchText).toBeHidden();
-    zaakOfScenario.bagAdres = BAG_STUB.adres;
   },
 );
 
@@ -140,88 +111,62 @@ When(
 
 When(
   "I enter the omschrijving {string}",
-  async ({ page }, omschrijving: string) => {
+  async ({ page, testData }, omschrijving: string) => {
     await page
       .getByRole("textbox", { name: "Omschrijving" })
-      .fill(omschrijving);
+      .fill(testData.unique(omschrijving));
   },
 );
 
-When("I create the zaak", async ({ page, zaakOfScenario }) => {
+When("I create the zaak", async ({ page, testData }) => {
   await page.getByRole("button", { name: "Aanmaken" }).click();
   await expect(page).toHaveURL(/\/zaken\/ZAAK-[\d-]+$/);
-  zaakOfScenario.identificatie = new URL(page.url()).pathname.split("/").pop();
+  const identificatie = new URL(page.url()).pathname.split("/").pop();
+  if (!identificatie) throw new Error(`${page.url()} names no zaak.`);
+  testData.rememberZaak({ identificatie });
 });
 
 Then(
   "the zaak opens with status {string}",
-  async ({ page, zaakOfScenario }, status: string) => {
-    const identificatie = required(zaakOfScenario.identificatie, "zaak");
-    await expect(
-      page.getByRole("heading", { name: identificatie, level: 1 }),
-    ).toBeVisible();
-    await expect(await gegevensOfZaak(page)).toContainText(
-      new RegExp(`Status\\s*${status}`),
-    );
+  async ({ page, testData }, status: string) => {
+    const zaak = zaakPage(page);
+    await zaak.expectOpened(testData.zaak.identificatie);
+    await zaak.expectGegeven("Status", status);
   },
 );
 
 Then("the zaak shows {string} as initiator", async ({ page }, naam: string) => {
-  await expect(
-    page.getByRole("button", { name: `Initiator ${naam}` }),
-  ).toBeVisible();
+  await zaakPage(page).expectInitiator(naam);
 });
 
 Then(
   "the zaak shows that address as BAG object",
-  async ({ page, zaakOfScenario }) => {
-    const adres = required(zaakOfScenario.bagAdres, "BAG object");
-    await page.getByRole("tab", { name: "BAG objecten" }).click();
-    await expect(
-      page.getByRole("tabpanel", { name: "BAG objecten" }),
-    ).toContainText(adres);
+  async ({ page, $testInfo }) => {
+    await zaakPage(page).expectBagObject(bagTestDoubleOrSkip($testInfo).adres);
   },
 );
 
 Then(
   "the zaak is assigned to groep {string}",
   async ({ page }, groep: string) => {
-    await expect(await gegevensOfZaak(page)).toContainText(
-      new RegExp(`Groep\\s*${groep}`),
-    );
+    await zaakPage(page).expectGegeven("Groep", groep);
   },
 );
 
 Then(
   "the zaak shows that no ontvangstbevestiging is sent",
   async ({ page }) => {
-    await expect(
-      page.getByRole("option", { name: "Geen bevestiging verstuurd" }),
-    ).toBeVisible();
+    await zaakPage(page).expectNoOntvangstbevestiging();
   },
 );
 
 Then(
   "the zaak appears in the zaken werkvoorraad",
-  async ({ page, apiAs, zaakOfScenario }) => {
-    const identificatie = required(zaakOfScenario.identificatie, "zaak");
-    const api = await apiAs("behandelaar");
-    // The search index gets the zaak a moment after ZAC creates it.
-    await expect
-      .poll(() => isInSearchIndex(api, identificatie), {
-        message: `The search index of ZAC has no zaak ${identificatie}.`,
-        timeout: 60_000,
-      })
-      .toBe(true);
-
-    await page.goto("/zaken/werkvoorraad");
-    const zaaknummerFilter = page
-      .getByRole("table")
-      .getByRole("textbox")
-      // eslint-disable-next-line playwright/no-nth-methods -- the filters have no accessible name until the fix that names this one "Zaaknummer" is on main
-      .first();
-    await zaaknummerFilter.fill(identificatie);
-    await zaaknummerFilter.press("Enter");
-    await expect(page.getByRole("cell", { name: identificatie })).toBeVisible();
+  async ({ page, testData }) => {
+    const { identificatie } = testData.zaak;
+    await testData.untilZaakIsIndexed(identificatie);
+    const werkvoorraad = zakenWerkvoorraad(page);
+    await werkvoorraad.open();
+    await werkvoorraad.expectZaak(identificatie);
   },
 );

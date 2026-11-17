@@ -43,7 +43,8 @@ export default defineConfig({
       name: "journeys",
       testDir: journeysDirectory,
       dependencies: ["setup"],
-      grepInvert: /@live-env-only/,
+      // Live scenarios need the real external systems, which only some targets have.
+      grepInvert: ENV.runsLiveScenarios ? undefined : /@live-env-only/,
     },
   ],
 });

@@ -8,29 +8,28 @@ import path from "node:path";
 import { test as base } from "playwright-bdd";
 import { requireZacUrl } from "../../config/env";
 import type { Account, Role } from "../../config/targets/target";
-import { withLock } from "../support/lock";
+import { createTestData, type TestData } from "../support/test-data";
 import { zacApiClient, type ZacApi } from "../support/zac-api";
-import { accountOrSkip } from "./accounts";
-import { roleOfTags, sessionFileOfRole } from "./roles";
-
-const SIGNED_OUT = { cookies: [], origins: [] };
+import { accountOrSkip, roleOfTags, sessionOf, SIGNED_OUT } from "./sessions";
+import { skipWhenBlocked } from "./tags";
 
 export const coreTest = base.extend<{
   accountOfRole: (role: Role) => Account;
   apiAs: (role: Role) => Promise<ZacApi>;
-  whileNoOtherWorkerDoes: <Result>(
-    name: string,
-    action: () => Promise<Result>,
-  ) => Promise<Result>;
+  testData: TestData;
+  blockedScenarios: void;
 }>({
+  blockedScenarios: [
+    async ({ $tags }, use, testInfo) => {
+      skipWhenBlocked($tags, testInfo);
+      await use();
+    },
+    { auto: true },
+  ],
+
   storageState: async ({ $tags }, use, testInfo) => {
     const role = roleOfTags($tags);
-    if (!role) {
-      await use(SIGNED_OUT);
-      return;
-    }
-    accountOrSkip(role, testInfo);
-    await use(sessionFileOfRole(role));
+    await use(role ? sessionOf(role, testInfo) : SIGNED_OUT);
   },
 
   accountOfRole: async ({}, use, testInfo) => {
@@ -40,9 +39,8 @@ export const coreTest = base.extend<{
   apiAs: async ({ playwright }, use, testInfo) => {
     const contexts: APIRequestContext[] = [];
     await use(async (role) => {
-      accountOrSkip(role, testInfo);
       const context = await playwright.request.newContext({
-        storageState: sessionFileOfRole(role),
+        storageState: sessionOf(role, testInfo),
       });
       contexts.push(context);
       return zacApiClient(context, requireZacUrl());
@@ -50,8 +48,13 @@ export const coreTest = base.extend<{
     await Promise.all(contexts.map((context) => context.dispose()));
   },
 
-  whileNoOtherWorkerDoes: async ({}, use, testInfo) => {
-    const locksDirectory = path.join(testInfo.project.outputDir, ".locks");
-    await use((name, action) => withLock(locksDirectory, name, action));
+  testData: async ({ apiAs }, use, testInfo) => {
+    await use(
+      createTestData({
+        apiAs,
+        // The output folder of the project is shared by all workers of the run, so their locks meet there.
+        locksDirectory: path.join(testInfo.project.outputDir, ".locks"),
+      }),
+    );
   },
 });

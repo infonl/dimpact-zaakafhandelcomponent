@@ -55,4 +55,18 @@ export const kind: Target = (environment) => ({
     beheerder: seededAccount("beheerder1", "Test Beheerder 1"),
     raadpleger: seededAccount("raadpleger1", "Test Raadpleger 1"),
   },
+  // The realm of the kind stack has the default theme of Keycloak and no internationalisation.
+  signInPage: {
+    heading: "Sign in to your account",
+    usernameField: "Username or email",
+    passwordField: "Password",
+    signInButton: "Sign In",
+    invalidCredentialsMessage: "Invalid username or password.",
+  },
+  // The test doubles of './start-kind.sh -t', with the settings of scripts/kind/values/zac-e2e.yaml.
+  testDoubles: {
+    // scripts/kind/seed/bag-wiremock only answers this search text.
+    bag: { searchText: "fake search text", adres: "Dam 1, 1012JS Amsterdam" },
+  },
+  runsLiveScenarios: false,
 });

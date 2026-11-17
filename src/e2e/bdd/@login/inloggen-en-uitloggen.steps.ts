@@ -4,10 +4,14 @@
  */
 
 import { expect } from "@playwright/test";
-import { isRole } from "../_core/roles";
+import { isRole } from "../_core/sessions";
 import { Given, Then, When } from "../fixtures";
-import { keycloakLoginPage, signIn } from "../support/keycloak";
-import { dashboard, profileMenuButton } from "../support/zac";
+import { dashboard, profileMenuButton } from "../screens/header";
+import {
+  invalidCredentialsMessage,
+  keycloakLoginPage,
+  signIn,
+} from "../screens/keycloak";
 
 function roleNamed(name: string) {
   if (!isRole(name)) throw new Error(`"${name}" is not a role of ZAC.`);
@@ -64,6 +68,6 @@ Then(
   },
 );
 
-Then("I see the message {string}", async ({ page }, message: string) => {
-  await expect(page.getByText(message)).toBeVisible();
+Then("Keycloak says that the credentials are invalid", async ({ page }) => {
+  await expect(invalidCredentialsMessage(page)).toBeVisible();
 });

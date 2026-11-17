@@ -10,5 +10,11 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": ["bdd", "config", "setup", "playwright.config.ts"]
+  "include": [
+    "bdd",
+    "config",
+    "setup",
+    "playwright.config.ts",
+    "playwright.unit.config.ts"
+  ]
 }

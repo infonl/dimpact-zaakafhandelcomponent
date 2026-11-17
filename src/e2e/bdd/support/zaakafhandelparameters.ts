@@ -108,6 +108,46 @@ async function cmmnParametersFor(
   };
 }
 
+type ZaakAfzender = Schemas["RestZaakAfzender"];
+type Groep = Schemas["RestGroup"];
+
+function withGemeenteAsDefaultAfzender(afzenders: ZaakAfzender[]) {
+  return afzenders.map((afzender) =>
+    afzender.mail === "GEMEENTE"
+      ? { ...afzender, isDefaultMail: true, replyTo: "GEMEENTE" }
+      : afzender,
+  );
+}
+
+/**
+ * Whether the zaakafhandelparameters already are what the journeys expect: valid, routing new zaken to the groep,
+ * with the BRP and KVK koppelingen on, no automatic mail at the intake and at the end, and the gemeente as default
+ * afzender.
+ */
+export function isSetUpFor(
+  current: ZaaktypeConfiguration,
+  groep: Pick<Groep, "id">,
+) {
+  const gemeente = current.zaakAfzenders?.find(
+    (afzender) => afzender.mail === "GEMEENTE",
+  );
+  return (
+    current.isValide === true &&
+    current.defaultGroepId === groep.id &&
+    current.betrokkeneKoppelingen?.isBrpKoppelenEnabled === true &&
+    current.betrokkeneKoppelingen?.isKvkKoppelenEnabled === true &&
+    current.intakeMail === STATUS_MAIL_OFF &&
+    current.afrondenMail === STATUS_MAIL_OFF &&
+    (!gemeente ||
+      (gemeente.isDefaultMail === true && gemeente.replyTo === "GEMEENTE"))
+  );
+}
+
+/**
+ * Sets up the zaakafhandelparameters of the zaaktype so that it routes new zaken to the groep, as `isSetUpFor`
+ * describes. It changes nothing when they already are, so every scenario can call it. The caller keeps other workers
+ * from setting up the same zaaktype at the same time.
+ */
 export async function setUpZaaktype(
   api: ZacApi,
   zaaktypeOmschrijving: string,
@@ -121,13 +161,7 @@ export async function setUpZaaktype(
       params: { path },
     }),
   );
-
-  const isSetUp =
-    current.isValide &&
-    current.defaultGroepId === groep.id &&
-    current.betrokkeneKoppelingen?.isBrpKoppelenEnabled &&
-    current.betrokkeneKoppelingen?.isKvkKoppelenEnabled;
-  if (isSetUp) return;
+  if (isSetUpFor(current, groep)) return zaaktype;
 
   await dataOf(
     api.PUT("/rest/zaakafhandelparameters/{zaaktypeUUID}", {
@@ -136,12 +170,10 @@ export async function setUpZaaktype(
         ...current,
         ...(current.isValide ? {} : await cmmnParametersFor(api, zaaktype)),
         defaultGroepId: groep.id,
-        intakeMail: current.intakeMail ?? STATUS_MAIL_OFF,
-        afrondenMail: current.afrondenMail ?? STATUS_MAIL_OFF,
-        zaakAfzenders: (current.zaakAfzenders ?? []).map((afzender) =>
-          afzender.mail === "GEMEENTE"
-            ? { ...afzender, isDefaultMail: true, replyTo: "GEMEENTE" }
-            : afzender,
+        intakeMail: STATUS_MAIL_OFF,
+        afrondenMail: STATUS_MAIL_OFF,
+        zaakAfzenders: withGemeenteAsDefaultAfzender(
+          current.zaakAfzenders ?? [],
         ),
         betrokkeneKoppelingen: {
           ...current.betrokkeneKoppelingen,
@@ -151,4 +183,5 @@ export async function setUpZaaktype(
       },
     }),
   );
+  return zaaktype;
 }

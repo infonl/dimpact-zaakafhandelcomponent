@@ -36,6 +36,8 @@ jobs:
     timeout-minutes: 60
     env:
       ZAC_DOCKER_IMAGE: ${{ inputs.zac-docker-image || 'ghcr.io/infonl/zaakafhandelcomponent:latest' }}
+      # start-kind.sh creates this cluster, and the target kind of the e2e tests reads the port of ZAC from it
+      KIND_CLUSTER_NAME: zac
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -92,11 +94,12 @@ jobs:
         run: ./gradlew generateOpenApiSpec
 
       # These checks need no running stack, so a missing step definition fails before the wait for the stack
-      - name: Check the types, lint and generate the e2e tests
+      - name: Check the types, lint, run the unit tests and generate the e2e tests
         run: |
           cd src/e2e
           npm run typecheck
           npm run lint
+          npm run test:unit
           npx bddgen
           npx playwright test --list
 
@@ -126,10 +129,10 @@ jobs:
           mkdir -p "$RUNNER_TEMP/kind-diagnostics"
           cd "$RUNNER_TEMP/kind-diagnostics"
           cp "$RUNNER_TEMP/kind.log" . || true
-          kubectl --context kind-zac get all,events --all-namespaces > resources.txt 2>&1 || true
-          kubectl --context kind-zac -n zac describe pods > pods.txt 2>&1 || true
-          for deployment in $(kubectl --context kind-zac -n zac get deployments -o name 2> /dev/null); do
-            kubectl --context kind-zac -n zac logs "$deployment" --all-containers --tail=2000 \
+          kubectl --context "kind-$KIND_CLUSTER_NAME" get all,events --all-namespaces > resources.txt 2>&1 || true
+          kubectl --context "kind-$KIND_CLUSTER_NAME" -n zac describe pods > pods.txt 2>&1 || true
+          for deployment in $(kubectl --context "kind-$KIND_CLUSTER_NAME" -n zac get deployments -o name 2> /dev/null); do
+            kubectl --context "kind-$KIND_CLUSTER_NAME" -n zac logs "$deployment" --all-containers --tail=2000 \
               > "logs-${deployment#deployment.apps/}.txt" 2>&1 || true
           done
 

@@ -13,6 +13,7 @@ const journeyFiles = [
   "config/**/*.ts",
   "setup/**/*.ts",
   "playwright.config.ts",
+  "playwright.unit.config.ts",
 ];
 
 export default tseslint.config(
@@ -56,6 +57,11 @@ export default tseslint.config(
       "playwright/no-nth-methods": "error",
       "playwright/no-raw-locators": "error",
       "playwright/no-wait-for-timeout": "error",
+      // saveSessionOf expects the dashboard before it saves a session.
+      "playwright/expect-expect": [
+        "warn",
+        { assertFunctionNames: ["saveSessionOf"] },
+      ],
     },
   },
   {

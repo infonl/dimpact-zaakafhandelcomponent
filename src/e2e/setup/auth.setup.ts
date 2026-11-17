@@ -3,11 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { expect, test as setup } from "@playwright/test";
-import { accountOrSkip } from "../bdd/_core/accounts";
-import { sessionFileOfRole } from "../bdd/_core/roles";
-import { signIn } from "../bdd/support/keycloak";
-import { dashboard } from "../bdd/support/zac";
+import { test as setup } from "@playwright/test";
+import { saveSessionOf } from "../bdd/_core/sessions";
 import { requireZacUrl } from "../config/env";
 import { ROLES } from "../config/targets/target";
 
@@ -17,12 +14,6 @@ setup.beforeAll(() => {
 
 for (const role of ROLES) {
   setup(`sign in once as ${role}`, async ({ page }, testInfo) => {
-    const account = accountOrSkip(role, testInfo);
-
-    await page.goto("/");
-    await signIn(page, account);
-    await expect(dashboard(page)).toBeVisible();
-
-    await page.context().storageState({ path: sessionFileOfRole(role) });
+    await saveSessionOf(role, page, testInfo);
   });
 }

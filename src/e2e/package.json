@@ -12,6 +12,7 @@
     "e2e:extract:metrics": "node extract-metrics.mjs",
     "test": "bddgen && playwright test",
     "test:ui": "bddgen && playwright test --ui",
+    "test:unit": "playwright test -c playwright.unit.config.ts",
     "lint": "eslint .",
     "typecheck": "npm run generate:types:zac-openapi && tsc -p tsconfig.playwright.json",
     "generate:types:zac-openapi": "openapi-typescript ../../build/generated/openapi/META-INF/openapi/openapi.json -o ./generated/zac-openapi-types.d.ts"

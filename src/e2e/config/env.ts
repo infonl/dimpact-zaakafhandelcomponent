@@ -13,12 +13,19 @@ const TARGETS: Record<string, Target> = { kind };
 const DEFAULT_TARGET = "kind";
 const ciSchema = z.stringbool().default(false);
 
-function loadEnvironment(environment: NodeJS.ProcessEnv) {
+/**
+ * Combines the profile that `E2E_TARGET` selects with the environment variables, and validates the result.
+ * It throws an error that names the wrong value, so a run with an invalid configuration stops before its first test.
+ */
+export function loadEnvironment(
+  environment: NodeJS.ProcessEnv,
+  targets: Record<string, Target> = TARGETS,
+) {
   const targetName = environment.E2E_TARGET ?? DEFAULT_TARGET;
-  const target = TARGETS[targetName];
+  const target = targets[targetName];
   if (!target) {
     throw new Error(
-      `Unknown E2E_TARGET "${targetName}". Known targets: ${Object.keys(TARGETS).join(", ")}.`,
+      `Unknown E2E_TARGET "${targetName}". Known targets: ${Object.keys(targets).join(", ")}.`,
     );
   }
 
@@ -37,11 +44,11 @@ function loadEnvironment(environment: NodeJS.ProcessEnv) {
     );
   }
 
-  const { zacUrl, accounts } = settings.data;
+  const { zacUrl, ...settingsOfTarget } = settings.data;
   return {
     target: targetName,
     runsInCi: runsInCi.data,
-    accounts,
+    ...settingsOfTarget,
     zacUrl: typeof zacUrl === "string" ? zacUrl : undefined,
     zacUrlUnknownBecause:
       typeof zacUrl === "string" ? undefined : zacUrl.unknownBecause,

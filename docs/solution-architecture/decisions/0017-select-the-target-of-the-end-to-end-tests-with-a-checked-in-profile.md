@@ -39,8 +39,9 @@ reviewed place.
 * The target is where ZAC runs: the kind stack or a deployed environment. The runner is who runs the tests: a
   developer machine or GitHub Actions. The two are configured apart.
 * `E2E_TARGET` selects a profile in `src/e2e/config/targets`. The default is `kind`.
-* A profile holds what is not secret about a target: where the URL comes from and the account of each role. A
-  profile holds no secrets.
+* A profile holds what is not secret about a target: where the URL comes from, the account of each role, the texts
+  of its Keycloak login page, what its test doubles answer and whether it runs the scenarios that need real external
+  systems. A profile holds no secrets. A step asks the profile instead of assuming the kind stack.
 * The profile of the kind stack reads the URL from the ports file of the cluster and uses the accounts of the
   Keycloak realm seed. A developer machine and CI use this same profile.
 * A deployed environment gets its URL and its credentials from environment variables.
