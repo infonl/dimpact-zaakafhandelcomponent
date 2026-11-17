@@ -64,8 +64,6 @@ describe(ParametersStepProcesModelComponent.name, () => {
       isProcessDefinitionChangeable,
       zaaktype = fromPartial<GeneratedType<"RestZaaktypeOverzicht">>({
         omschrijving: "Test zaaktype omschrijving",
-        identificatie: "test-zaaktype",
-        versiedatum: "2026-11-16",
         beginGeldigheid: "2026-11-16",
       }),
     }: {
@@ -114,35 +112,24 @@ describe(ParametersStepProcesModelComponent.name, () => {
   });
 
   it.each([
-    [
-      "without an end date",
-      null,
-      "test-zaaktype, versie 02‑11‑2026, vanaf 16‑11‑2026",
-    ],
-    [
-      "with an end date",
-      "2026-12-31",
-      "test-zaaktype, versie 02‑11‑2026, van 16‑11‑2026 tot 31‑12‑2026",
-    ],
+    ["without an end date", null, "geldig vanaf 16‑11‑2026"],
+    ["with an end date", "2026-12-31", "geldig van 16‑11‑2026 tot 31‑12‑2026"],
   ])(
-    "shows the identificatie and the validity of the zaaktype version %s",
+    "shows the validity of the zaaktype version %s",
     async (_situation, eindeGeldigheid, versionText) => {
       await setup(createProcessModelForm(null), {
         isProcessDefinitionChangeable: true,
         zaaktype: fromPartial<GeneratedType<"RestZaaktypeOverzicht">>({
           omschrijving: "Test zaaktype omschrijving",
-          identificatie: "test-zaaktype",
-          versiedatum: "2026-11-02",
           beginGeldigheid: "2026-11-16",
           eindeGeldigheid,
         }),
       });
       const translateService = TestBed.inject(TranslateService);
       translateService.setTranslation("nl", {
-        "zaps.step.procesmodel.versie":
-          "{{identificatie}}, versie {{versiedatum}}, vanaf {{beginGeldigheid}}",
+        "zaps.step.procesmodel.versie": "geldig vanaf {{beginGeldigheid}}",
         "zaps.step.procesmodel.versie.einde":
-          "{{identificatie}}, versie {{versiedatum}}, van {{beginGeldigheid}} tot {{eindeGeldigheid}}",
+          "geldig van {{beginGeldigheid}} tot {{eindeGeldigheid}}",
       });
       translateService.use("nl");
 

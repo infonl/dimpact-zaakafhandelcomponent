@@ -13,8 +13,6 @@
       )
         | translate
           : {
-              identificatie: zaaktype().identificatie,
-              versiedatum: (zaaktype().versiedatum | datum),
               beginGeldigheid: (zaaktype().beginGeldigheid | datum),
               eindeGeldigheid: (zaaktype().eindeGeldigheid | datum),
             }
