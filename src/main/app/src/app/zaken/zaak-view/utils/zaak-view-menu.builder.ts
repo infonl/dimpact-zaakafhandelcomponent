@@ -61,6 +61,7 @@ export function userEventListenerIcon(
  * Builds the zaak view side menu. Pass `null` for `planItems` while the plan
  * item calls are still in flight: the sections that depend on them, and the
  * koppelingen section that follows them, are then left out entirely.
+ * Pass `null` for `aantalNotities` when the employee may not see the notes.
  */
 export function buildZaakMenu(
   zaak: Zaak,
@@ -69,10 +70,11 @@ export function buildZaakMenu(
   dialogs: ZaakMenuDialogs,
   hasBrpSearchRight: boolean,
   isZaakdataGearchiveerd: boolean,
+  aantalNotities: number | null,
 ): MenuItem[] {
   const menu: MenuItem[] = [
     new HeaderMenuItem("zaak"),
-    ...zaakMenuItems(zaak, handlers, isZaakdataGearchiveerd),
+    ...zaakMenuItems(zaak, handlers, isZaakdataGearchiveerd, aantalNotities),
   ];
 
   if (!planItems) return menu;
@@ -128,6 +130,7 @@ function zaakMenuItems(
   zaak: Zaak,
   handlers: ZaakMenuHandlers,
   isZaakdataGearchiveerd: boolean,
+  aantalNotities: number | null,
 ) {
   const menu: MenuItem[] = [];
   const open = () => handlers.openSideAction();
@@ -165,6 +168,18 @@ function zaakMenuItems(
     );
     menu.push(
       new ButtonMenuItem("actie.document.verzenden", open, "local_post_office"),
+    );
+  }
+
+  if (aantalNotities !== null) {
+    menu.push(
+      new ButtonMenuItem(
+        "notities",
+        open,
+        "sticky_note_2",
+        undefined,
+        aantalNotities,
+      ),
     );
   }
 

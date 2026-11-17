@@ -141,7 +141,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                     with(aanvragerData!!) {
                         naam shouldBe persoon.naam
                         straat shouldBe (persoon.verblijfplaats as Adres).verblijfadres.officieleStraatnaam
-                        huisnummer shouldBe "12Abis"
+                        huisnummer shouldBe "12A bis"
                         postcode shouldBe (persoon.verblijfplaats as Adres).verblijfadres.postcode
                         woonplaats shouldBe (persoon.verblijfplaats as Adres).verblijfadres.woonplaats
                     }
@@ -188,7 +188,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                     straatnaam = "fakeCorrespondentieStraatnaam",
                     huisnummer = 7,
                     huisletter = "A",
-                    huisnummerToevoeging = "2",
+                    huisnummerToevoeging = "bis",
                     postcode = "fakeCorrespondentiePostcode",
                     plaats = "fakeCorrespondentiePlaats"
                 )
@@ -215,7 +215,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                     aanvragerData shouldBe AanvragerData(
                         naam = resultaatItem.naam,
                         straat = "fakeCorrespondentieStraatnaam",
-                        huisnummer = "7A2",
+                        huisnummer = "7A bis",
                         postcode = "fakeCorrespondentiePostcode",
                         woonplaats = "fakeCorrespondentiePlaats"
                     )

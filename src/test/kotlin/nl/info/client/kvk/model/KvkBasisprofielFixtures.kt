@@ -10,6 +10,7 @@ import nl.info.client.kvk.basisprofiel.model.generated.Eigenaar
 import nl.info.client.kvk.basisprofiel.model.generated.EmbeddedContainer
 import nl.info.client.kvk.basisprofiel.model.generated.Handelsnaam
 import nl.info.client.kvk.basisprofiel.model.generated.SBIActiviteit as BasisprofielSBIActiviteit
+import nl.info.client.kvk.basisprofiel.model.generated.Vestiging as BasisprofielVestiging
 
 fun createHandelsnaam(
     naam: String = "fakeHandelsnaam",
@@ -66,6 +67,14 @@ fun createEigenaar(
     this.websites = websites
 }
 
+fun createBasisprofielHoofdvestiging(
+    vestigingsnummer: String = "fakeVestigingsnummer",
+    adressen: List<Adres>? = listOf(createBasisprofielAdres())
+) = BasisprofielVestiging().apply {
+    this.vestigingsnummer = vestigingsnummer
+    this.adressen = adressen
+}
+
 @Suppress("LongParameterList")
 fun createBasisprofiel(
     kvkNummer: String = "fakeKvkNummer",
@@ -76,12 +85,20 @@ fun createBasisprofiel(
         createBasisprofielSBIActiviteit(sbiOmschrijving = "fakeHoofdactiviteit", indHoofdactiviteit = "ja"),
         createBasisprofielSBIActiviteit(sbiOmschrijving = "fakeNevenactiviteit", indHoofdactiviteit = "nee")
     ),
-    eigenaar: Eigenaar? = createEigenaar()
+    eigenaar: Eigenaar? = createEigenaar(),
+    hoofdvestiging: BasisprofielVestiging? = null
 ) = Basisprofiel().apply {
     this.kvkNummer = kvkNummer
     this.totaalWerkzamePersonen = totaalWerkzamePersonen
     this.statutaireNaam = statutaireNaam
     this.handelsnamen = handelsnamen
     this.sbiActiviteiten = sbiActiviteiten
-    this.embedded = if (eigenaar != null) EmbeddedContainer().apply { this.eigenaar = eigenaar } else null
+    this.embedded = if (eigenaar != null || hoofdvestiging != null) {
+        EmbeddedContainer().apply {
+            this.eigenaar = eigenaar
+            this.hoofdvestiging = hoofdvestiging
+        }
+    } else {
+        null
+    }
 }

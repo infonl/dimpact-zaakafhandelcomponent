@@ -36,7 +36,7 @@ class BrpExtensionFunctionsTest : BehaviorSpec({
                 val addressString = persoon.toAddressString()
 
                 then("it contains the street, house number, house letter, addition, postal code and city") {
-                    addressString shouldBe "Kerkstraat 12Abis, 1234AB Amsterdam"
+                    addressString shouldBe "Kerkstraat 12A bis, 1234AB Amsterdam"
                 }
             }
         }

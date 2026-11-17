@@ -343,8 +343,8 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
         }
     }
 
-    fun markZaakspecifiekGeautoriseerd(zaak: Zaak) {
-        zrcClientService.markZaakspecifiekGeautoriseerd(zaak, ztcClientService)
+    fun markZaakspecifiekGeautoriseerd(zaak: Zaak, reden: String) {
+        zrcClientService.markZaakspecifiekGeautoriseerd(zaak, ztcClientService, reden)
         flowableTaskService.listOpenTasksForZaak(zaak.uuid)
             .filter { it.assignee != null }
             .distinctBy { it.assignee }

@@ -3,61 +3,21 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-@import "../../variables";
-
-// The FAB is fixed, so the host reserves its room at the end of the page.
-:host {
-  display: block;
-  height: 80px;
-}
-
-.show-notes-button {
-  position: fixed;
-  bottom: 15px;
-  right: 15px;
-  z-index: 10;
-}
-
-.notitie-container {
-  position: fixed;
-  bottom: 15px;
-  right: 15px;
-  width: 380px;
-  box-shadow: 6px 6px 25px -8px @box-shadow-color;
-  background: @body-foreground-color;
-  z-index: 1;
-}
-
-@media (max-width: 599px) {
-  .notitie-container {
-    width: 97%;
-    right: 2px;
-    bottom: 2px;
-  }
-}
-
-.notitie-header {
-  font-size: 14px;
-  font-weight: 500;
-  color: @primary-text-color;
-  padding: 0 8px 0 16px;
-  background: @primary-background-color;
-}
-
 .notitie-body {
-  width: 100%;
-  min-height: 300px;
-  max-height: 420px;
-  padding: 0;
-  border-bottom: 1px solid @border-color;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
 
   p {
     white-space: pre-wrap;
   }
 }
 
-.notitie {
-  background: #fff;
-  border-bottom: 1px solid @border-color;
+.nieuwe-notitie {
+  margin-top: 16px;
+}
+
+.notitie-acties {
+  padding: 16px;
 }
