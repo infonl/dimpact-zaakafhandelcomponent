@@ -142,11 +142,10 @@ When(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
     const caseNumber = this.testStorage.get("caseNumber");
-    const caseNumberLocator = this.page.locator(`text=${caseNumber}`);
 
-    await expect(caseNumberLocator).toHaveCount(2, {
-      timeout: FIFTEEN_SECONDS_IN_MS,
-    });
+    await expect(
+      this.page.getByRole("heading", { name: caseNumber }).first(),
+    ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
 
     const documentTitleText = this.page.locator(`text=${documentInput.title}`);
     // increase the timout because it can take a while for the document to be visible
