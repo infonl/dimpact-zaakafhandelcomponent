@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024-2026 INFO.nl
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024-2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -43,9 +43,9 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import {
+  toZaaktypeConfigurationListBody,
   ZAAKAFHANDELPARAMETERS_PAGE_SIZE,
   ZaakafhandelParametersListParameters,
-  toZaaktypeConfigurationListBody,
 } from "./zaakafhandel-parameters-list-parameters";
 
 @Component({
