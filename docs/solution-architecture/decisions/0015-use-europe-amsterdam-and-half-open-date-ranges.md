@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: proposed
 date: 2026-11-13
 decision-makers: Team Genève
 tags: [backend, frontend, dates]
