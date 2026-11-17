@@ -11,9 +11,10 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 export class ZaakafhandelParametersListParameters extends ListParameters {
   valide: ToggleSwitchOptions = ToggleSwitchOptions.CHECKED;
   geldig: ToggleSwitchOptions = ToggleSwitchOptions.CHECKED;
-  zaaktype: Partial<GeneratedType<"RestZaaktype">> | null = null;
-  processDefinition: Partial<GeneratedType<"RestProcessDefinition">> | null =
-    null;
+  zaaktype: Partial<GeneratedType<"RestZaaktypeBeheerOverzicht">> | null = null;
+  processDefinition: Partial<
+    GeneratedType<"RestProcessDefinitionOverzicht">
+  > | null = null;
   beginGeldigheid: GeneratedType<"RestDatumRange"> = { van: null, tot: null };
   eindeGeldigheid: GeneratedType<"RestDatumRange"> = { van: null, tot: null };
 

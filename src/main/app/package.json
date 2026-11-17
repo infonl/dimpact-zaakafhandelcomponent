@@ -65,7 +65,7 @@
     "openapi-typescript": {
       "typescript": "$typescript"
     },
-    "postcss": "8.5.32",
+    "postcss": "8.5.33",
     "uuid": "11.1.1",
     "webpack-dev-server": "6.1.0"
   },
@@ -85,7 +85,7 @@
     "@types/jest": "30.0.0",
     "@types/node": "24.19.2",
     "angular-eslint": "22.6.0",
-    "eslint": "10.14.0",
+    "eslint": "10.15.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.7",
     "eslint-plugin-testing-library": "7.16.2",
