@@ -87,8 +87,8 @@ same omschrijving apart.
 #### Scenario: The process model step names the zaaktype version
 - **GIVEN** a zaaktype version, with or without an einde geldigheid
 - **WHEN** a beheerder opens the process model step
-- **THEN** the step shows the omschrijving of the zaaktype and, under it, the identificatie, the versiedatum and the
-  begin geldigheid of the zaaktype version, and its einde geldigheid when it has one
+- **THEN** the step shows the omschrijving of the zaaktype and, under it, the begin geldigheid of the zaaktype version,
+  and its einde geldigheid when it has one
 
 #### Scenario: The process definition follows the backend once the configuration is saved
 - **GIVEN** a zaaktype version without a saved configuration, for which a beheerder chose a process definition
