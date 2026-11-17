@@ -15,6 +15,7 @@ import {
   createQueryOptions,
   fromPartial,
 } from "src/test-helpers";
+import { testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { IdentityService } from "../../identity/identity.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
@@ -384,6 +385,16 @@ describe(ParametersEditComponent.name, () => {
         ).not.toBeInTheDocument();
       });
 
+      it("says that the process definition locks once the first zaak exists", async () => {
+        await setup(changeableConfiguration);
+
+        const procesModel = await goToStep("gegevens.procesmodel");
+
+        expect(
+          within(procesModel).getByText("zaps.step.procesmodel.changeable"),
+        ).toBeInTheDocument();
+      });
+
       it("stores a process definition of the other process engine, and shows the steps that it has use for", async () => {
         const { updateZaakafhandelparameters } = await setup(
           changeableConfiguration,
@@ -481,6 +492,35 @@ describe(ParametersEditComponent.name, () => {
         );
         await new Promise((resolve) => setTimeout(resolve));
         expect(readZaakafhandelparameters.queryFn).not.toHaveBeenCalled();
+        expect(
+          screen.getByRole("combobox", { name: /procesmodel/i }),
+        ).toHaveTextContent(otherEngineNaam);
+      });
+
+      it("keeps the chosen process definition when reading the configuration again fails after that rejection", async () => {
+        const { updateZaakafhandelparameters, readZaakafhandelparameters } =
+          await setup(changeableConfiguration);
+        updateZaakafhandelparameters.mutationFn.mockRejectedValue(
+          rejectedWith("msg.error.process.definition.cannot.change"),
+        );
+        readZaakafhandelparameters.queryFn.mockRejectedValue(
+          new HttpErrorResponse({ status: 500 }),
+        );
+        testQueryClient.setQueryData(
+          readZaakafhandelparameters.queryKey,
+          changeableConfiguration,
+        );
+
+        await goToStep("gegevens.procesmodel");
+        await chooseProcessDefinition(otherEngineNaam);
+        await waitFor(() => expect(opslaan()).toBeEnabled());
+        await user.click(opslaan());
+
+        await waitFor(() =>
+          expect(readZaakafhandelparameters.queryFn).toHaveBeenCalled(),
+        );
+        await new Promise((resolve) => setTimeout(resolve));
+
         expect(
           screen.getByRole("combobox", { name: /procesmodel/i }),
         ).toHaveTextContent(otherEngineNaam);

@@ -469,6 +469,21 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                         "'$zaaktypeUuid' cannot change from BPMN 'fakeProcessA' to BPMN 'fakeProcessB'"
                 }
             }
+
+            `when`("it is bound to a CMMN case definition with the same key as its BPMN process definition") {
+                val exception = shouldThrow<InputValidationFailedException> {
+                    zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+                        zaaktypeUuid = zaaktypeUuid,
+                        processEngine = ProcessEngine.CMMN,
+                        definitionKey = "fakeProcessA",
+                        hasZaken = true
+                    )
+                }
+
+                then("the binding is rejected, because the engine is part of the binding") {
+                    exception.errorCode shouldBe ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE
+                }
+            }
         }
 
         given("a BPMN configuration of a zaaktype version without zaken") {

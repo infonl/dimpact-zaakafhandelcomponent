@@ -304,6 +304,41 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
         }
     }
 
+    given("a configuration of a zaaktype version with zaken, saved with the process definition it is bound to") {
+        val restZaaktypeConfiguration = createRestZaaktypeConfiguration()
+        val zaaktypeConfiguration = createZaaktypeCmmnConfiguration()
+        val storedRestZaaktypeConfiguration = createRestZaaktypeConfiguration()
+        every { policyService.readOverigeRechten().canBeheren } returns true
+        every { zaaktypeConfigurationBeheerService.hasZaken(restZaaktypeConfiguration.zaaktype.uuid) } returns true
+        every {
+            zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+                zaaktypeUuid = restZaaktypeConfiguration.zaaktype.uuid,
+                processEngine = restZaaktypeConfiguration.processDefinition!!.processEngine,
+                definitionKey = restZaaktypeConfiguration.processDefinition!!.key,
+                hasZaken = true
+            )
+        } just runs
+        every {
+            restZaaktypeConfigurationConverter.toZaaktypeConfiguration(restZaaktypeConfiguration)
+        } returns zaaktypeConfiguration
+        every { zaaktypeConfigurationBeheerService.storeConfiguration(zaaktypeConfiguration) } returns zaaktypeConfiguration
+        every {
+            restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeConfiguration, true)
+        } returns storedRestZaaktypeConfiguration
+
+        `when`("it is stored") {
+            val returnedRestZaaktypeConfiguration = zaaktypeConfigurationRestService.createOrUpdateZaaktypeConfiguration(
+                restZaaktypeConfiguration.zaaktype.uuid,
+                restZaaktypeConfiguration
+            )
+
+            then("it is stored, and the response tells the screen that the process definition may not change") {
+                verify(exactly = 1) { zaaktypeConfigurationBeheerService.storeConfiguration(zaaktypeConfiguration) }
+                returnedRestZaaktypeConfiguration.isProcessDefinitionChangeable shouldBe false
+            }
+        }
+    }
+
     given("a configuration of a zaaktype version for which Open Zaak cannot list the zaken") {
         val restZaaktypeConfiguration = createRestZaaktypeConfiguration()
         every { policyService.readOverigeRechten().canBeheren } returns true

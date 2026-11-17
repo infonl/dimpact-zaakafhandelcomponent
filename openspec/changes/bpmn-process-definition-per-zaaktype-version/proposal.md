@@ -9,8 +9,9 @@ the lock also holds on every new version, and a beheerder has to create a whole 
 (PZ-13372).
 
 The reporter agreed in PZ-13372 that another BPMN process is chosen on a new version of the zaaktype, not at any
-moment. The resulting rule, "until the first zaak of that zaaktype version", is proposed in comment 100687 and awaits
-confirmation. "A new version that was never saved" cannot be detected, because ZAC stores the
+moment. The resulting rule, "until the first zaak of that zaaktype version", was proposed in comment 100687, and the
+acceptance criteria of PZ-13372 apply it to both engines and to a switch between them. "A new version that was never
+saved" cannot be detected, because ZAC stores the
 configuration of a new zaaktype version itself when Open Notificaties reports its publication. This change therefore
 defines a new version as a zaaktype version without zaken. Without zaken, nothing depends on the binding, so the same
 rule also lets a new version change its CMMN case definition or switch between CMMN and BPMN.

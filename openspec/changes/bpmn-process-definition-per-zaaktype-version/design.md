@@ -67,11 +67,13 @@ technical error. The save asks Open Zaak once, before anything is stored, whethe
 and uses the answer both for the check and for `isProcessDefinitionChangeable` in its response.
 
 The entity method that binds a configuration no longer rejects a change of engine: the check above decides. When it
-binds to BPMN, it still removes the CMMN extension. When it binds to another CMMN case definition, it first clears the
-plan item settings of the previous case definition, also when the save sends none, and stores only the settings of
-plan items that the new case definition has. On every bind to CMMN, it adds a default setting, without toelichting,
-for each user event listener of the case definition that has no setting after the save, because listing the actions
-of a zaak requires one per listener. Stored settings that the save leaves out keep their toelichting.
+binds to BPMN, it still removes the CMMN extension; otherwise it only replaces the binding and keeps the stored plan
+item settings. The converter that applies a save to the configuration handles those settings. When the save binds to
+another CMMN case definition, it clears the plan item settings of the previous case definition, also when the save
+sends none, and stores only the settings of plan items that the new case definition has; rows of plan items that
+both case definitions share are updated in place. On every bind to CMMN, it adds a default setting, without
+toelichting, for each user event listener of the case definition that has no setting after the save, because listing
+the actions of a zaak requires one per listener. Stored settings that the save leaves out keep their toelichting.
 
 The zaken lookup runs before the transaction of the save, and the save builds its response after the commit. A
 failed zaken lookup therefore stores nothing. The Catalogi reads of the response run after the commit, as they did
@@ -86,12 +88,18 @@ While `isProcessDefinitionChangeable` is `true`, the step offers the CMMN case d
 definitions, as for an unbound configuration. When the beheerder chooses another engine, the screen shows the steps of
 that engine, as it does for an unsaved configuration.
 
-### D6. The screen explains a locked process definition
+### D6. The screen explains whether the process definition may change
 
 When the process model step is locked, it shows one line under the list with the reason: the zaaktype version
-already has zaken and a new version is needed for another process definition. The frontend derives it from
-`isProcessDefinitionChangeable`, so the REST contract needs no reason field. The general warning about effects on
-existing zaken stays.
+already has zaken and a new version is needed for another process definition. When a bound configuration may still
+change, the line instead says that the process definition locks once the first zaak exists, so the beheerder knows
+the choice is not open for ever. An unbound configuration shows no line. The frontend derives both from
+`isProcessDefinitionChangeable` and whether the configuration is bound, so the REST contract needs no reason field.
+The general warning about effects on existing zaken stays.
+
+Because the rule is per zaaktype version, and versions share their omschrijving, the step also names the version it
+configures under the omschrijving: its identificatie, versiedatum, begin geldigheid and, when set, einde geldigheid.
+The screen already receives these fields with the zaaktype of the configuration.
 
 ## Risks / Trade-offs
 
@@ -109,7 +117,7 @@ existing zaken stays.
   and lets the date take effect. This protects only zaken created by hand: the productaanvraag intake picks the most
   recently created configuration and ignores the begin date, so for a zaaktype with a productaanvraagtype the beheerder
   stops the intake first. Documented in the beheerder manual (task 2.7), not enforced.
-- [Open Zaak is unavailable] → opening and saving the configuration of a bound zaaktype fails, as other Open Zaak
-  calls of the screen already do.
+- [Open Zaak is unavailable] → opening the configuration of a bound zaaktype, and saving any configuration, fails,
+  as other Open Zaak calls of the screen already do.
 - [The zaken of a zaaktype version are deleted in Open Zaak; ZAC cannot delete a zaak] → the version counts as new
   again and its process can change; no zaak runs on the old binding, so that is safe.
