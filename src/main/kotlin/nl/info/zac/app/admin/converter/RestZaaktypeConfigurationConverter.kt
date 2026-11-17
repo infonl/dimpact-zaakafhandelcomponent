@@ -157,19 +157,48 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
         if (this != null) store(this)
     }
 
+    /**
+     * Settings that a save leaves out keep their stored value, except after a change of case definition: those of the
+     * previous case definition do not apply any more, so they count as none.
+     */
+    private fun <T> T.orNoneWhen(isOtherDefinition: Boolean, none: T): T =
+        if (isOtherDefinition && this == null) none else this
+
     private fun ZaaktypeConfiguration.applyProcessDefinition(restZaaktypeConfiguration: RestZaaktypeConfiguration) {
         val processDefinition = restZaaktypeConfiguration.processDefinition
             ?: throw NullPointerException("restZaakafhandelParameters.processDefinition is null")
+        val isOtherDefinition =
+            processBinding?.isBoundTo(processDefinition.processEngine, processDefinition.key) == false
         bindTo(processDefinition.processEngine, processDefinition.key)
         cmmnExtension?.apply {
+            val caseDefinition = processBinding?.let {
+                processDefinitionConverter.toRestProcessDefinition(it, inclusiefRelaties = true)
+            }
+            val userEventListenerIds = caseDefinition?.userEventListenerDefinitions.orEmpty().map { it.id }
+            val planItemIds = caseDefinition?.takeIf { isOtherDefinition }
+                ?.let { it.humanTaskDefinitions.map { humanTask -> humanTask.id }.toSet() + userEventListenerIds }
+            val isOfCaseDefinition = { planItemId: String -> planItemIds == null || planItemId in planItemIds }
             restZaaktypeConfiguration.intakeMail?.let { intakeMail = it.name }
             restZaaktypeConfiguration.afrondenMail?.let { afrondenMail = it.name }
-            restZaaktypeConfiguration.humanTaskParameters.ifSupplied {
-                setHumanTaskParametersCollection(with(humanTaskParametersConverter) { it.toZaaktypeCmmnHumantaskParameters() })
+            restZaaktypeConfiguration.humanTaskParameters
+                .orNoneWhen(isOtherDefinition, emptyList())
+                .ifSupplied { humanTaskParameters ->
+                setHumanTaskParametersCollection(
+                    with(humanTaskParametersConverter) {
+                        humanTaskParameters.filter { isOfCaseDefinition(it.planItemDefinition.id) }
+                            .toZaaktypeCmmnHumantaskParameters()
+                    }
+                )
             }
-            restZaaktypeConfiguration.userEventListenerParameters.ifSupplied {
-                setUserEventListenerParametersCollection(it.map { parameter -> parameter.toZaaktypeCmmnUsereventlistenerParameters() })
+            restZaaktypeConfiguration.userEventListenerParameters
+                .orNoneWhen(isOtherDefinition, emptyList())
+                .ifSupplied { userEventListenerParameters ->
+                setUserEventListenerParametersCollection(
+                    userEventListenerParameters.filter { isOfCaseDefinition(it.id) }
+                        .map { it.toZaaktypeCmmnUsereventlistenerParameters() }
+                )
             }
+            addMissingUserEventListenerParameters(userEventListenerIds)
         }
     }
 

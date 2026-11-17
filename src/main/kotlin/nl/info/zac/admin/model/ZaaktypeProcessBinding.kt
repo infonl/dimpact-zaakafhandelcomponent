@@ -54,4 +54,7 @@ class ZaaktypeProcessBinding {
     @field:NotBlank
     @Column(name = "definition_key", nullable = false)
     lateinit var definitionKey: String
+
+    fun isBoundTo(processEngine: ProcessEngine, definitionKey: String) =
+        this.processEngine == processEngine && this.definitionKey == definitionKey
 }
