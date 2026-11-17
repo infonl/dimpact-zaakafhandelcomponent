@@ -34,6 +34,7 @@ import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeConfigurationsUnderTest
 import nl.info.zac.app.admin.converter.RestProcessDefinitionConverter
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
+import nl.info.zac.app.admin.model.RestZaaktypeConfigurationListParameters
 import nl.info.zac.app.admin.model.createRestProcessDefinition
 import nl.info.zac.app.admin.model.createRestZaaktypeBeheerOverzicht
 import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
@@ -413,6 +414,19 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                     }
                 }
             }
+
+            `when`("a beheerder lists the first page of one row of the valid zaaktype configurations") {
+                val restZaaktypeConfigurationOverzichtResultaat =
+                    zaaktypeConfigurationRestService.listZaaktypeConfigurationPage(
+                        RestZaaktypeConfigurationListParameters(page = 0, rows = 1, isValide = true)
+                    )
+
+                then("only the configuration of the configured zaaktype is returned, and it is the only match") {
+                    restZaaktypeConfigurationOverzichtResultaat.results shouldBe
+                        listOf(configuredRestZaaktypeConfigurationOverzicht)
+                    restZaaktypeConfigurationOverzichtResultaat.resultCount shouldBe 1
+                }
+            }
         }
 
         given("a user without the beheren right") {
@@ -421,6 +435,19 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
             `when`("the user lists the zaaktype configurations") {
                 val policyException = shouldThrow<PolicyException> {
                     zaaktypeConfigurationRestService.listZaaktypeConfigurations()
+                }
+
+                then("the request is refused without listing the zaaktypes") {
+                    policyException.message shouldBe null
+                    verify(exactly = 0) { ztcClientService.listZaaktypen(any()) }
+                }
+            }
+
+            `when`("the user lists a page of the zaaktype configurations") {
+                val policyException = shouldThrow<PolicyException> {
+                    zaaktypeConfigurationRestService.listZaaktypeConfigurationPage(
+                        RestZaaktypeConfigurationListParameters()
+                    )
                 }
 
                 then("the request is refused without listing the zaaktypes") {

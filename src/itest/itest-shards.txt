@@ -40,6 +40,7 @@ nl.info.zac.itest.ZaakRestServiceTerminateTest
 nl.info.zac.itest.ZaakspecifiekeAutorisatieRestServiceTest
 nl.info.zac.itest.bpmn.ZaaktypeConfigurationRestServiceBpmnTest
 nl.info.zac.itest.bpmn.ZaaktypeConfigurationRestServiceBpmnUpdateTest
+nl.info.zac.itest.ZaaktypeConfigurationRestServicePagingTest
 
 [shard 2]
 
