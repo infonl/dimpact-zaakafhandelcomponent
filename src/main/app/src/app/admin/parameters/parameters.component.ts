@@ -10,6 +10,7 @@ import {
   inject,
   OnInit,
   signal,
+  untracked,
   viewChild,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
@@ -118,6 +119,22 @@ export class ParametersComponent extends AdminComponent implements OnInit {
       this.parameters.data = [
         ...(this.parametersQuery.data()?.resultaten ?? []),
       ];
+    });
+    effect(() => {
+      if (
+        !this.parametersQuery.isSuccess() ||
+        this.parametersQuery.isPlaceholderData() ||
+        this.parametersQuery.isFetching()
+      ) {
+        return;
+      }
+      const lastPage = Math.max(
+        Math.ceil(this.totaal() / this.pageSize) - 1,
+        0,
+      );
+      if (untracked(this.filterParameters).page > lastPage) {
+        untracked(() => this.updateFilterParameters({ page: lastPage }));
+      }
     });
   }
 

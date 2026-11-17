@@ -195,6 +195,25 @@ describe(ParametersComponent.name, () => {
     );
   });
 
+  it("reads the last page that has rows, and remembers it, when the stored page lies past the last page", async () => {
+    jest.spyOn(SessionStorageUtil, "getItem").mockReturnValue({
+      ...new ZaakafhandelParametersListParameters("geldig", "desc"),
+      page: 1,
+    });
+    const setItem = jest.spyOn(SessionStorageUtil, "setItem");
+    await render();
+
+    await answer(await expectPageRequest(), { resultaten: [], totaal: 25 });
+
+    expect((await expectPageRequest()).request.body).toEqual(
+      expect.objectContaining({ page: 0 }),
+    );
+    expect(setItem).toHaveBeenCalledWith(
+      "parameterFilters",
+      expect.objectContaining({ page: 0 }),
+    );
+  });
+
   it.each([
     { geldigheid: "beginGeldigheid", position: 0 },
     { geldigheid: "eindeGeldigheid", position: 1 },
