@@ -55,7 +55,8 @@ keep the order of the catalogus. Without a sort field, the list keeps the order 
 ### D4. The filter options come with every page
 
 The page offers each zaaktype (by `identificatie`, with the `omschrijving` of its first version) and each process
-definition (by `key`) of all configurations, ordered by name. The response carries them as `filterZaaktypes`
+definition (by `key`) of all configurations, ordered by name with a Dutch `Collator`, so that case and accents
+do not change the order, as the `localeCompare` of the page did. The response carries them as `filterZaaktypes`
 (`RestZaaktypeFilterOptie`: `identificatie`, `omschrijving`) and `filterProcessDefinitions`
 (`RestProcessDefinitionOverzicht`), computed over all configurations before filtering, as the page did. This
 follows `filterOntkoppeldDoor` of `RestDetachedDocumentResult`.

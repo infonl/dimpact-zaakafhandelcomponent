@@ -221,6 +221,30 @@ class RestZaaktypeConfigurationOverzichtPageTest : BehaviorSpec({
         }
     }
 
+    context("Order of the filter options") {
+        given("zaaktypes and process definitions whose names differ in case and accents") {
+            val restZaaktypeConfigurationOverzichten = listOf("Zorg", "aanvraag", "Échte melding", "beroep").map {
+                createOverzicht(
+                    omschrijving = it,
+                    processDefinition = RestProcessDefinitionOverzicht(key = "fakeKey$it", naam = it)
+                )
+            }
+
+            `when`("a page is listed") {
+                val restZaaktypeConfigurationOverzichtResultaat = restZaaktypeConfigurationOverzichten
+                    .toRestZaaktypeConfigurationOverzichtResultaat(RestZaaktypeConfigurationListParameters())
+
+                then("the zaaktypes and process definitions are ordered alphabetically, ignoring case and accents") {
+                    val alphabeticalOrder = listOf("aanvraag", "beroep", "Échte melding", "Zorg")
+                    restZaaktypeConfigurationOverzichtResultaat.filterZaaktypes.map { it.omschrijving } shouldBe
+                        alphabeticalOrder
+                    restZaaktypeConfigurationOverzichtResultaat.filterProcessDefinitions.map { it.naam } shouldBe
+                        alphabeticalOrder
+                }
+            }
+        }
+    }
+
     context("Sorting the zaaktype configurations") {
         val configurationB = createOverzicht(
             omschrijving = "fakeB",
