@@ -5,6 +5,15 @@
 
 import { expect, type Page } from "@playwright/test";
 
+/** A row of the historie of a zaak. ZAC cuts long values short and ends them with "...". */
+export type HistorieRegel = {
+  gegeven: string;
+  actie: string;
+  oudeWaarde: string;
+  nieuweWaarde: string;
+  reden: string;
+};
+
 /** The page of one zaak. */
 export function zaakPage(page: Page) {
   async function tab(name: string) {
@@ -39,6 +48,37 @@ export function zaakPage(page: Page) {
 
     async expectBagObject(adres: string) {
       await expect(await tab("BAG objecten")).toContainText(adres);
+    },
+
+    /** Clicks an item of the menu of the zaak, such as an action or a task to start. */
+    async chooseFromMenu(item: string) {
+      await page
+        .getByRole("navigation")
+        .getByRole("button", { name: item })
+        .click();
+    },
+
+    indicatie(indicatie: string) {
+      return page.getByRole("option", { name: indicatie });
+    },
+
+    /** The task in the list of tasks of the zaak. */
+    taak(naam: string) {
+      return page.getByRole("row", { name: new RegExp(`^${naam} `) });
+    },
+
+    /** The rows of the historie, the newest first. */
+    async historie(): Promise<HistorieRegel[]> {
+      const rows = (await tab("Historie")).getByRole("row");
+      await expect(rows.getByRole("cell")).not.toHaveCount(0);
+      const regels: HistorieRegel[] = [];
+      for (const row of await rows.all()) {
+        const cells = await row.getByRole("cell").allInnerTexts();
+        if (cells.length < 7) continue;
+        const [, , gegeven, actie, oudeWaarde, nieuweWaarde, reden] = cells;
+        regels.push({ gegeven, actie, oudeWaarde, nieuweWaarde, reden });
+      }
+      return regels;
     },
 
     async expectNoOntvangstbevestiging() {

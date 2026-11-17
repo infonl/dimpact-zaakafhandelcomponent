@@ -4,10 +4,16 @@
 #
 
 # The settings of ZAC for the end-to-end tests: ZAC calls the test doubles of './start-kind.sh -t' where
-# values/zac.yaml has a real or a placeholder URL. Pass this file to the stack with KIND_ZAC_VALUES.
+# values/zac.yaml has a real or a placeholder URL, and sends its mail to GreenMail. Pass this file to the stack with
+# KIND_ZAC_VALUES.
 
 bagApi:
   url: http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/
 
 kvkApi:
   url: http://kvk-wiremock:8080
+
+mail:
+  smtp:
+    server: greenmail
+    port: 25

@@ -7,12 +7,19 @@ import { expect } from "@playwright/test";
 import { randomBytes } from "node:crypto";
 import type { Role } from "../../config/targets/target";
 import { withLock } from "./lock";
-import { setUpZaaktype } from "./zaakafhandelparameters";
+import { groepNamed, setUpZaaktype } from "./zaakafhandelparameters";
 import { dataOf, type ZacApi } from "./zac-api";
 
 const SEARCH_INDEX_TIMEOUT_MILLISECONDS = 60_000;
 
 export type RememberedZaak = { identificatie: string };
+
+export type NewZaak = {
+  zaaktype: string;
+  groep: string;
+  omschrijving: string;
+  initiator?: { bsn: string };
+};
 
 /**
  * The data of one scenario. `Given` steps make data exist through it, and later steps read back what the scenario
@@ -30,6 +37,11 @@ export type TestData = {
     omschrijving: string,
     settings: { groep: string },
   ): Promise<void>;
+  /**
+   * Creates a zaak in intake through the REST API as the behandelaar, and remembers it. Sets up its zaaktype first
+   * and makes its omschrijving unique.
+   */
+  createZaak(zaak: NewZaak): Promise<RememberedZaak>;
   /** Remembers a zaak that the scenario created, for example through the UI, so later steps can find it. */
   rememberZaak(zaak: RememberedZaak): void;
   /** The zaak that the scenario created last. Fails the step when the scenario created no zaak yet. */
@@ -54,6 +66,25 @@ async function isZaakInSearchIndex(api: ZacApi, identificatie: string) {
   );
 }
 
+/** ZAC accepts a person only by the temporary id that a search in the BRP gives, not by the BSN. */
+async function temporaryPersonId(
+  api: ZacApi,
+  bsn: string,
+  zaaktypeUuid: string,
+) {
+  const { resultaten } = await dataOf(
+    api.PUT("/rest/klanten/personen", {
+      params: { header: { "X-ZAAKTYPE-UUID": zaaktypeUuid } },
+      body: { bsn },
+    }),
+  );
+  const id = resultaten?.find(
+    (persoon) => persoon.bsn === bsn,
+  )?.temporaryPersonId;
+  if (!id) throw new Error(`The BRP of the target has no person ${bsn}.`);
+  return id;
+}
+
 export function createTestData({
   apiAs,
   locksDirectory,
@@ -65,15 +96,51 @@ export function createTestData({
 }): TestData {
   const zaken: RememberedZaak[] = [];
 
+  async function ensureZaaktype(omschrijving: string, groep: string) {
+    const api = await apiAs("beheerder");
+    return withLock(locksDirectory, `zaaktype ${omschrijving}`, () =>
+      setUpZaaktype(api, omschrijving, groep),
+    );
+  }
+
   return {
     unique: (text) =>
       `${text.startsWith("E2E") ? text : `E2E ${text}`} [${scenarioCode}]`,
 
     async ensureZaaktype(omschrijving, { groep }) {
-      const api = await apiAs("beheerder");
-      await withLock(locksDirectory, `zaaktype ${omschrijving}`, () =>
-        setUpZaaktype(api, omschrijving, groep),
+      await ensureZaaktype(omschrijving, groep);
+    },
+
+    async createZaak({ zaaktype, groep, omschrijving, initiator }) {
+      const { uuid } = await ensureZaaktype(zaaktype, groep);
+      const api = await apiAs("behandelaar");
+      const { id, naam } = await groepNamed(api, groep);
+      const { identificatie } = await dataOf(
+        api.POST("/rest/zaken/zaak", {
+          body: {
+            zaak: {
+              zaaktype: { uuid },
+              omschrijving: this.unique(omschrijving),
+              groep: { id, naam },
+              startdatum: new Date().toISOString().slice(0, 10),
+              communicatiekanaal: "E-mail",
+              vertrouwelijkheidaanduiding: "OPENBAAR",
+              initiatorIdentificatie: initiator && {
+                type: "BSN",
+                temporaryPersonId: await temporaryPersonId(
+                  api,
+                  initiator.bsn,
+                  uuid,
+                ),
+              },
+            },
+            bagObjecten: [],
+          },
+        }),
       );
+      const zaak = { identificatie };
+      this.rememberZaak(zaak);
+      return zaak;
     },
 
     rememberZaak(zaak) {

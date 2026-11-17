@@ -18,7 +18,7 @@ const REFERENTIETABELLEN_OF_HUMAN_TASK: Record<string, string[]> = {
 type Zaaktype = Schemas["RestZaaktypeBeheerOverzicht"];
 type ZaaktypeConfiguration = Schemas["RestZaaktypeConfiguration"];
 
-async function groepNamed(api: ZacApi, naam: string) {
+export async function groepNamed(api: ZacApi, naam: string) {
   const groepen = await dataOf(api.GET("/rest/identity/groups"));
   const groep = groepen.find((candidate) => candidate.naam === naam);
   if (!groep) {
