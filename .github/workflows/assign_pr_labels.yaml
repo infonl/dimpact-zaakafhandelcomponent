@@ -35,7 +35,18 @@ jobs:
               '.py': 'python',
               '.sh': 'shell',
               '.sql': 'sql',
+              '.rego': 'rego',
               '.bpmn': 'BPMN'
+            };
+
+            // dependency manifests and tool versions, wherever they are; Renovate's own PRs are labelled below
+            const fileNameLabels = {
+              'package.json': 'dependencies',
+              'package-lock.json': 'dependencies',
+              'libs.versions.toml': 'dependencies',
+              'requirements.txt': 'dependencies',
+              '.nvmrc': 'dependencies',
+              '.python-version': 'dependencies'
             };
               
             const pathLabels = [
@@ -47,6 +58,11 @@ jobs:
               { startsWith: '.github/scripts/', label: 'github_actions' },
               { startsWith: 'gradle/wrapper/', label: 'gradle-wrapper' },
               { startsWith: 'charts/', label: 'helm' },
+              { startsWith: 'src/e2e/', label: 'e2e' },
+              { startsWith: 'src/main/resources/wildfly/', label: 'wildfly' },
+              { startsWith: 'src/main/webapp/WEB-INF/', label: 'wildfly' },
+              { startsWith: 'src/logFilter/module/', label: 'wildfly' },
+              { startsWith: 'scripts/wildfly/', label: 'wildfly' },
               { startsWith: '.claude/', label: 'ai-instructions' },
               { startsWith: '.github/skills/', label: 'ai-instructions' },
               { startsWith: '.github/prompts/', label: 'ai-instructions' },
@@ -73,6 +89,9 @@ jobs:
               for (const [ext, label] of Object.entries(extensionLabels)) {
                 if (filename.endsWith(ext)) labels.add(label);
               }
+              // File-name-based labels
+              const fileNameLabel = fileNameLabels[filename.split('/').pop()];
+              if (fileNameLabel) labels.add(fileNameLabel);
               // Path-based labels
               for (const { startsWith, label } of pathLabels) {
                 if (filename.startsWith(startsWith)) labels.add(label);
