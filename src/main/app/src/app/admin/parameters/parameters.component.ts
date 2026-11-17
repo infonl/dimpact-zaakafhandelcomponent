@@ -47,6 +47,7 @@ import {
   toZaaktypeConfigurationListBody,
   ZAAKAFHANDELPARAMETERS_PAGE_SIZE,
   ZaakafhandelParametersListParameters,
+  ZaakafhandelParametersSortColumn,
 } from "./zaakafhandel-parameters-list-parameters";
 
 @Component({
@@ -104,7 +105,7 @@ export class ParametersComponent extends AdminComponent implements OnInit {
     () => this.parametersQuery.data()?.totaal ?? 0,
   );
 
-  private storedParameterFilters = "parameterFilters";
+  private storedParameterFilters = "zaakafhandelParametersListParameters";
 
   protected readonly zaaktypes = computed(
     () => this.parametersQuery.data()?.filterZaaktypes ?? [],
@@ -185,6 +186,10 @@ export class ParametersComponent extends AdminComponent implements OnInit {
       this.storedParameterFilters,
       this.filterParameters(),
     );
+  }
+
+  protected sortColumn(column: ZaakafhandelParametersSortColumn) {
+    return column;
   }
 
   protected compareZaaktype = (

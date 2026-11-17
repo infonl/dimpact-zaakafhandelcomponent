@@ -26,8 +26,14 @@ export class ZaakafhandelParametersService {
   private readonly zakenService = inject(ZakenService);
   private readonly queryClient = inject(QueryClient, { optional: true });
 
+  private readonly zaakafhandelParametersListUrl =
+    "/rest/zaakafhandelparameters" as const;
+
   listZaakafhandelParameters(body: PutBody<"/rest/zaakafhandelparameters">) {
-    return this.zacQueryClient.PUT_QUERY("/rest/zaakafhandelparameters", body);
+    return this.zacQueryClient.PUT_QUERY(
+      this.zaakafhandelParametersListUrl,
+      body,
+    );
   }
 
   readZaakafhandelparameters(zaaktypeUUID: string) {
@@ -80,7 +86,7 @@ export class ZaakafhandelParametersService {
             queryKey: this.readZaakafhandelparameters(zaaktypeUUID).queryKey,
           });
           void this.queryClient?.invalidateQueries({
-            queryKey: ["/rest/zaakafhandelparameters"],
+            queryKey: [this.zaakafhandelParametersListUrl],
           });
           void this.queryClient?.invalidateQueries({
             queryKey:

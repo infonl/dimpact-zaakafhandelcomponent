@@ -27,17 +27,22 @@ export class ZaakafhandelParametersListParameters extends ListParameters {
   }
 }
 
-const sortFields: Record<
-  string,
-  GeneratedType<"RestZaaktypeConfigurationSortField">
-> = {
+const sortFields = {
   valide: "VALIDE",
   omschrijving: "OMSCHRIJVING",
   model: "PROCESS_DEFINITION",
   geldig: "GELDIG",
   beginGeldigheid: "BEGIN_GELDIGHEID",
   eindeGeldigheid: "EINDE_GELDIGHEID",
-};
+} as const satisfies Record<
+  string,
+  GeneratedType<"RestZaaktypeConfigurationSortField">
+>;
+
+export type ZaakafhandelParametersSortColumn = keyof typeof sortFields;
+
+const isSortColumn = (sort: string): sort is ZaakafhandelParametersSortColumn =>
+  Object.hasOwn(sortFields, sort);
 
 const toBoolean = (toggleSwitchOption: ToggleSwitchOptions) => {
   switch (toggleSwitchOption) {
@@ -66,7 +71,7 @@ export const toZaaktypeConfigurationListBody = (
   page: listParameters.page,
   rows: ZAAKAFHANDELPARAMETERS_PAGE_SIZE,
   sortField:
-    listParameters.order && sortFields[listParameters.sort]
+    listParameters.order && isSortColumn(listParameters.sort)
       ? sortFields[listParameters.sort]
       : null,
   sortOrder: listParameters.order === "desc" ? "DESC" : "ASC",

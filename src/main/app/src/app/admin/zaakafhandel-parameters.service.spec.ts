@@ -32,6 +32,10 @@ describe(ZaakafhandelParametersService.name, () => {
     jest.spyOn(utilService, "openSnackbar").mockImplementation(() => {});
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   describe("updateZaakafhandelparameters", () => {
     it("confirms the save to the user", async () => {
       await runMutationOnSuccess(
@@ -127,18 +131,39 @@ describe(ZaakafhandelParametersService.name, () => {
       });
     });
 
-    it("makes every page of the overview of all zaaktypes read the parameters again", async () => {
-      const invalidateQueries = jest
-        .spyOn(testQueryClient, "invalidateQueries")
-        .mockResolvedValue(undefined);
+    it("makes every page of the overview of all zaaktypes read the parameters again, but not the configuration of another zaaktype", async () => {
+      const firstPage = service.listZaakafhandelParameters({
+        page: 0,
+        rows: 25,
+      }).queryKey;
+      const secondPage = service.listZaakafhandelParameters({
+        page: 1,
+        rows: 25,
+        isValide: true,
+      }).queryKey;
+      const otherConfiguration = service.readZaakafhandelparameters(
+        "fakeOtherZaaktypeUuid",
+      ).queryKey;
+      const processDefinitions = service.listProcessDefinitions().queryKey;
+      for (const queryKey of [
+        firstPage,
+        secondPage,
+        otherConfiguration,
+        processDefinitions,
+      ]) {
+        testQueryClient.setQueryData(queryKey, fromPartial({}));
+      }
 
       await runMutationOnSuccess(
         service.updateZaakafhandelparameters("fakeZaaktypeUuid"),
       );
 
-      expect(invalidateQueries).toHaveBeenCalledWith({
-        queryKey: ["/rest/zaakafhandelparameters"],
-      });
+      const isInvalidated = (queryKey: readonly unknown[]) =>
+        testQueryClient.getQueryState(queryKey)?.isInvalidated;
+      expect(isInvalidated(firstPage)).toBe(true);
+      expect(isInvalidated(secondPage)).toBe(true);
+      expect(isInvalidated(otherConfiguration)).toBe(false);
+      expect(isInvalidated(processDefinitions)).toBe(false);
     });
 
     it("makes the afbreken dialog read the zaakbeeindigredenen of the zaaktype again, as the parameters hold them", async () => {

@@ -100,6 +100,15 @@ describe(ParametersComponent.name, () => {
     fixture.detectChanges();
   }
 
+  function restoreStoredFilters(
+    changes: Partial<ZaakafhandelParametersListParameters>,
+  ) {
+    jest.spyOn(SessionStorageUtil, "getItem").mockReturnValue({
+      ...new ZaakafhandelParametersListParameters("geldig", "desc"),
+      ...changes,
+    });
+  }
+
   beforeEach(async () => {
     await configureTestingModule();
     sessionStorage.clear();
@@ -172,10 +181,7 @@ describe(ParametersComponent.name, () => {
   });
 
   it("reads the first page again, sorted on omschrijving, when the beheerder sorts on omschrijving", async () => {
-    jest.spyOn(SessionStorageUtil, "getItem").mockReturnValue({
-      ...new ZaakafhandelParametersListParameters("geldig", "desc"),
-      page: 1,
-    });
+    restoreStoredFilters({ page: 1 });
     await render();
     await answer(await expectPageRequest(), {
       resultaten: [fakeZaaktypeConfigurationOverzicht()],
@@ -196,10 +202,7 @@ describe(ParametersComponent.name, () => {
   });
 
   it("reads the last page that has rows, and remembers it, when the stored page lies past the last page", async () => {
-    jest.spyOn(SessionStorageUtil, "getItem").mockReturnValue({
-      ...new ZaakafhandelParametersListParameters("geldig", "desc"),
-      page: 1,
-    });
+    restoreStoredFilters({ page: 1 });
     const setItem = jest.spyOn(SessionStorageUtil, "setItem");
     await render();
 
@@ -209,7 +212,7 @@ describe(ParametersComponent.name, () => {
       expect.objectContaining({ page: 0 }),
     );
     expect(setItem).toHaveBeenCalledWith(
-      "parameterFilters",
+      "zaakafhandelParametersListParameters",
       expect.objectContaining({ page: 0 }),
     );
   });
@@ -218,10 +221,14 @@ describe(ParametersComponent.name, () => {
     { geldigheid: "beginGeldigheid", position: 0 },
     { geldigheid: "eindeGeldigheid", position: 1 },
   ] as const)(
-    "reads the first page of the zaaktypes whose $geldigheid lies in the typed range, by local date",
+    "reads the first page of the zaaktypes whose $geldigheid lies in the typed range",
     async ({ geldigheid, position }) => {
+      restoreStoredFilters({ page: 1 });
       await render();
-      await answer(await expectPageRequest());
+      await answer(await expectPageRequest(), {
+        resultaten: [fakeZaaktypeConfigurationOverzicht()],
+        totaal: 30,
+      });
 
       const user = userEvent.setup();
       await user.type(
@@ -240,9 +247,13 @@ describe(ParametersComponent.name, () => {
     },
   );
 
-  it("offers the zaaktypes of the response to filter on, and reads the first page of the chosen zaaktype", async () => {
+  it("offers the zaaktypes of the response to filter on, and reads and remembers the first page of the chosen zaaktype", async () => {
+    restoreStoredFilters({ page: 1 });
+    const setItem = jest.spyOn(SessionStorageUtil, "setItem");
     await render();
     await answer(await expectPageRequest(), {
+      resultaten: [fakeZaaktypeConfigurationOverzicht()],
+      totaal: 30,
       filterZaaktypes: [
         { identificatie: "fakeIdentificatie", omschrijving: "Fake zaaktype" },
       ],
@@ -261,6 +272,84 @@ describe(ParametersComponent.name, () => {
         page: 0,
         zaaktypeIdentificatie: "fakeIdentificatie",
       }),
+    );
+    expect(setItem).toHaveBeenCalledWith(
+      "zaakafhandelParametersListParameters",
+      expect.objectContaining({
+        page: 0,
+        zaaktype: {
+          identificatie: "fakeIdentificatie",
+          omschrijving: "Fake zaaktype",
+        },
+      }),
+    );
+  });
+
+  it("offers the procesmodellen of the response to filter on, and reads the first page of the chosen procesmodel", async () => {
+    restoreStoredFilters({ page: 1 });
+    await render();
+    await answer(await expectPageRequest(), {
+      resultaten: [fakeZaaktypeConfigurationOverzicht()],
+      totaal: 30,
+      filterProcessDefinitions: [{ key: "fakeKey", naam: "Fake procesmodel" }],
+    });
+
+    const user = userEvent.setup();
+    await user.click(screen.getAllByRole("combobox")[1]);
+    fixture.detectChanges();
+    await user.click(
+      await screen.findByRole("option", { name: "Fake procesmodel" }),
+    );
+    fixture.detectChanges();
+
+    expect((await expectPageRequest()).request.body).toEqual(
+      expect.objectContaining({ page: 0, processDefinitionKey: "fakeKey" }),
+    );
+  });
+
+  it("shows the stored zaaktype and procesmodel as chosen, and reads the page with them", async () => {
+    restoreStoredFilters({
+      zaaktype: {
+        identificatie: "fakeIdentificatie",
+        omschrijving: "Fake zaaktype",
+      },
+      processDefinition: { key: "fakeKey", naam: "Fake procesmodel" },
+    });
+    await render();
+
+    const request = await expectPageRequest();
+    expect(request.request.body).toEqual(
+      expect.objectContaining({
+        zaaktypeIdentificatie: "fakeIdentificatie",
+        processDefinitionKey: "fakeKey",
+      }),
+    );
+    await answer(request, {
+      filterZaaktypes: [
+        { identificatie: "fakeIdentificatie", omschrijving: "Fake zaaktype" },
+      ],
+      filterProcessDefinitions: [{ key: "fakeKey", naam: "Fake procesmodel" }],
+    });
+
+    await sleep();
+    fixture.detectChanges();
+
+    const [zaaktypeFilter, procesmodelFilter] = screen.getAllByRole("combobox");
+    expect(zaaktypeFilter).toHaveTextContent("Fake zaaktype");
+    expect(procesmodelFilter).toHaveTextContent("Fake procesmodel");
+  });
+
+  it("reads the first page sorted on geldig descending, not on the sort that the page stored before it read pages", async () => {
+    sessionStorage.setItem(
+      "parameterFilters",
+      JSON.stringify({
+        ...new ZaakafhandelParametersListParameters("valide", "asc"),
+      }),
+    );
+    await render();
+
+    expect((await expectPageRequest()).request.body).toEqual(
+      expect.objectContaining({ sortField: "GELDIG", sortOrder: "DESC" }),
     );
   });
 });
@@ -321,6 +410,25 @@ describe(toZaaktypeConfigurationListBody.name, () => {
         new ZaakafhandelParametersListParameters(column, "asc"),
       ).sortField,
     ).toBe(sortField);
+  });
+
+  it("sends the date in the Netherlands of a range that the date filter gives in UTC", () => {
+    const timeZone = process.env.TZ;
+    process.env.TZ = "Europe/Amsterdam";
+
+    const body = toZaaktypeConfigurationListBody({
+      ...new ZaakafhandelParametersListParameters("geldig", "desc"),
+      beginGeldigheid: {
+        van: "2024-12-31T23:00:00.000Z",
+        tot: "2025-01-31T23:00:00.000Z",
+      },
+    });
+    process.env.TZ = timeZone;
+
+    expect(body.beginGeldigheid).toEqual({
+      van: "2025-01-01",
+      tot: "2025-02-01",
+    });
   });
 
   it("keeps the order of the catalogus when the sort is cleared", () => {
