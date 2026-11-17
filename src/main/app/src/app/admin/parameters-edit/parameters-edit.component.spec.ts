@@ -574,6 +574,36 @@ describe(ParametersEditComponent.name, () => {
           screen.getByRole("combobox", { name: /procesmodel/i }),
         ).toHaveTextContent(otherEngineNaam);
       });
+
+      it("does not let the beheerder save again until the configuration is read again after that rejection, so an older read cannot replace a newer save", async () => {
+        const { updateZaakafhandelparameters, readZaakafhandelparameters } =
+          await setup(changeableConfiguration);
+        updateZaakafhandelparameters.mutationFn.mockRejectedValue(
+          rejectedWith(PROCESS_DEFINITION_CANNOT_CHANGE),
+        );
+        let resolveStoredConfiguration: (
+          storedConfiguration: ZaaktypeConfiguration,
+        ) => void = () => {};
+        readZaakafhandelparameters.queryFn.mockReturnValue(
+          new Promise<ZaaktypeConfiguration>((resolve) => {
+            resolveStoredConfiguration = resolve;
+          }),
+        );
+
+        await goToStep("gegevens.procesmodel");
+        await chooseProcessDefinition(otherEngineNaam);
+        await waitFor(() => expect(opslaan()).toBeEnabled());
+        await user.click(opslaan());
+
+        await waitFor(() =>
+          expect(readZaakafhandelparameters.queryFn).toHaveBeenCalled(),
+        );
+        await settle();
+        expect(opslaan()).toBeDisabled();
+
+        resolveStoredConfiguration(changeableConfiguration);
+        await waitFor(() => expect(opslaan()).toBeEnabled());
+      });
     },
   );
 

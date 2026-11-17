@@ -297,14 +297,20 @@ describe("The configuration of a zaaktype in the admin screen", () => {
     expect(form.controls.mail.controls.afrondenMail.enabled).toBe(true);
   });
 
-  it("lets the beheerder choose another process definition when the backend allows it, as for a BPMN zaaktype version without zaken", () => {
-    expect(
-      toForm(
-        { ...bpmnConfiguration, isProcessDefinitionChangeable: true },
-        brpSetup,
-      ).controls.procesModel.enabled,
-    ).toBe(true);
-  });
+  it.each([
+    ["CMMN", cmmnConfiguration],
+    ["BPMN", bpmnConfiguration],
+  ])(
+    "lets the beheerder choose another process definition when the backend allows it, as for a %s zaaktype version without zaken",
+    (_engine, configuration) => {
+      expect(
+        toForm(
+          { ...configuration, isProcessDefinitionChangeable: true },
+          brpSetup,
+        ).controls.procesModel.enabled,
+      ).toBe(true);
+    },
+  );
 
   describe("for a configuration that was never saved", () => {
     it("lets the beheerder choose a process definition", () => {

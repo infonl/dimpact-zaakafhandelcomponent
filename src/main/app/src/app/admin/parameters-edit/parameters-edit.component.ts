@@ -149,13 +149,16 @@ export class ParametersEditComponent
     ),
   );
 
+  private readonly isReadingStoredConfiguration = signal(false);
+
   protected readonly canSave = computed(
     () =>
       this.formValid() === true &&
       this.processDefinition() !== null &&
       this.formulierDefinitiesQuery.data() !== undefined &&
       this.referentieTabellenQuery.data() !== undefined &&
-      !this.updateZaakafhandelparametersMutation.isPending(),
+      !this.updateZaakafhandelparametersMutation.isPending() &&
+      !this.isReadingStoredConfiguration(),
   );
 
   constructor() {
@@ -213,6 +216,7 @@ export class ParametersEditComponent
   }
 
   private async showConfigurationIfProcessDefinitionLocked() {
+    this.isReadingStoredConfiguration.set(true);
     const storedConfiguration = await this.queryClient
       .fetchQuery({
         ...this.zaakafhandelParametersService.readZaakafhandelparameters(
@@ -220,7 +224,8 @@ export class ParametersEditComponent
         ),
         staleTime: 0,
       })
-      .catch(() => null);
+      .catch(() => null)
+      .finally(() => this.isReadingStoredConfiguration.set(false));
     if (
       !storedConfiguration ||
       storedConfiguration.isProcessDefinitionChangeable

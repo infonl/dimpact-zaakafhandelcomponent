@@ -48,7 +48,7 @@ export class ParametersStepProcesModelComponent {
   );
 
   protected readonly isLocked = computed(
-    () => this.isProcessDefinitionChangeable() === false,
+    () => this.isBound() && !this.isProcessDefinitionChangeable(),
   );
 
   protected readonly hint = computed(() => {
