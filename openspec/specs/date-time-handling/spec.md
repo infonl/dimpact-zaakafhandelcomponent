@@ -13,7 +13,8 @@ date "van" and the end date "t/m" (tot en met, "through"). The REST API sends a 
 
 ### Requirement: One time zone for ZAC
 The backend SHALL use the time zone `Europe/Amsterdam` whenever it converts between a date and a point in time, and
-whenever it determines the current date, independent of the time zone of the server or container.
+whenever it determines the current date, independent of the time zone of the server or container. It SHALL follow the
+changes between winter time and summer time of that time zone, and never use a fixed offset from UTC.
 
 #### Scenario: Today on a server in UTC
 - **WHEN** the backend runs with the JVM time zone UTC and the time is 23:30 UTC on 29-07-2026
@@ -22,6 +23,11 @@ whenever it determines the current date, independent of the time zone of the ser
 #### Scenario: Start of a day on a server in UTC
 - **WHEN** the backend runs with the JVM time zone UTC and converts the date 30-07-2026 to the start of that day
 - **THEN** the result is 30-07-2026 00:00 in `Europe/Amsterdam`, which is 29-07-2026 22:00 UTC
+
+#### Scenario: Today on a server in UTC after the change to winter time
+- **WHEN** the backend runs with the JVM time zone UTC and the time is 23:30 UTC on 25-10-2026
+- **THEN** the backend takes 26-10-2026 as the current date, because `Europe/Amsterdam` is one hour ahead of UTC in
+  winter time
 
 ### Requirement: A date range includes the whole end date
 A date filter with a start date and an end date SHALL match every value from the start of the start date up to, but
@@ -44,6 +50,24 @@ inbox documents, detached documents and inbox productaanvragen, and for the date
 #### Scenario: The day before the start date
 - **WHEN** a user filters on a range from 30-07-2026, and a value is 29-07-2026 23:59 in `Europe/Amsterdam`
 - **THEN** the value does not match
+
+#### Scenario: The day the clocks go forward
+- **WHEN** a user filters on a range from 29-03-2026 through 29-03-2026, the day that `Europe/Amsterdam` changes to
+  summer time
+- **THEN** the range runs from 29-03-2026 00:00 winter time up to 30-03-2026 00:00 summer time, which is 23 hours
+- **AND** a value of 29-03-2026 23:59:59 in `Europe/Amsterdam` matches, and a value of 30-03-2026 00:00 does not
+
+#### Scenario: The day the clocks go back
+- **WHEN** a user filters on a range from 25-10-2026 through 25-10-2026, the day that `Europe/Amsterdam` changes to
+  winter time
+- **THEN** the range runs from 25-10-2026 00:00 summer time up to 26-10-2026 00:00 winter time, which is 25 hours
+- **AND** both occurrences of 02:30 on 25-10-2026 match, and so does 25-10-2026 23:30 winter time
+
+#### Scenario: A field without a time on the day the clocks change
+- **WHEN** a user filters zaken on "Startdatum" from 29-03-2026 through 29-03-2026, and a zaak has the startdatum
+  29-03-2026
+- **THEN** the list shows that zaak, because the search index and the date filter both use the start of 29-03-2026 in
+  `Europe/Amsterdam`
 
 #### Scenario: A field without a time
 - **WHEN** a user filters zaken on "Startdatum" from 30-07-2026 through 30-07-2026, and a zaak has the startdatum 30-07-2026
