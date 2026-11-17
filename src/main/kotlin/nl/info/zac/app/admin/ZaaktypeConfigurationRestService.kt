@@ -287,10 +287,6 @@ class ZaaktypeConfigurationRestService @Inject constructor(
             ?.map { it.zaakbeeindigReden.toRestZaakbeeindigReden() }
             .orEmpty()
 
-    /**
-     * Returns the configuration of the zaaktype version, or a new one when the zaaktype version has none yet, so that
-     * a beheerder can configure it.
-     */
     private fun listRestZaaktypeConfigurationOverzichten() =
         ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
             .map { zaaktype ->
@@ -300,6 +296,10 @@ class ZaaktypeConfigurationRestService @Inject constructor(
                 )
             }
 
+    /**
+     * Returns the configuration of the zaaktype version, or a new one when the zaaktype version has none yet, so that
+     * a beheerder can configure it.
+     */
     private fun findOrCreateConfiguration(zaaktypeUuid: UUID) =
         zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
             ?: ZaaktypeConfiguration().apply { this.zaaktypeUuid = zaaktypeUuid }
