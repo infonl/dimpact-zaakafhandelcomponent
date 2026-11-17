@@ -5,7 +5,8 @@
 The system SHALL bind each zaaktype configuration to at most one process engine, together with the definition
 key in that engine: the case definition for CMMN, the process definition key for BPMN. A bound configuration SHALL
 change its engine or its definition key only while no zaak of its zaaktype version exists; once a zaak of its
-zaaktype version exists, it SHALL keep both. A BPMN-bound configuration SHALL have no CMMN extension, and a
+zaaktype version exists, it SHALL keep both. A new or changed binding to a BPMN process definition SHALL be
+rejected when that process definition has no active version. A BPMN-bound configuration SHALL have no CMMN extension, and a
 CMMN-bound configuration SHALL hold only the plan item settings of its case definition. The REST resource SHALL
 expose the binding as one `processDefinition` that names the engine and the definition key.
 
@@ -38,6 +39,13 @@ expose the binding as one `processDefinition` that names the engine and the defi
 - **WHEN** a beheerder saves it with a process definition of the other engine
 - **THEN** the save is rejected with a validation error that says the zaaktype version already has zaken, and the
   configuration keeps its binding
+
+#### Scenario: A BPMN process definition without an active version is rejected
+- **GIVEN** a configuration without a binding, or with a binding and no zaak of its zaaktype version
+- **WHEN** a beheerder saves it with a BPMN process definition key that has no active version, because the process
+  definition was deleted or suspended
+- **THEN** the save is rejected with a validation error that says the BPMN process definition cannot be found, and
+  the configuration keeps its binding, so that no zaak is created whose process cannot start
 
 #### Scenario: A new zaaktype version can get another process
 - **GIVEN** a zaaktype version bound to an engine with key `K1` that has zaken, and a newly published version of that
