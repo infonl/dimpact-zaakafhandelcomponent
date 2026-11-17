@@ -27,10 +27,13 @@ import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeConfigurationsUnderTest
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_BPMN_PROCESS_DEFINITION_NOT_FOUND
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
+import org.flowable.engine.repository.ProcessDefinition
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -42,13 +45,15 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val zaaktypeConfigurationVersioning = mockk<ZaaktypeConfigurationVersioning>()
+    val bpmnService = mockk<BpmnService>()
     val zaaktypeConfigurationBeheerService = ZaaktypeConfigurationBeheerService(
         zaaktypeConfigurationRepository = zaaktypeConfigurationRepository,
         zaaktypeConfigurationService = zaaktypeConfigurationService,
         ztcClientService = ztcClientService,
         zrcClientService = zrcClientService,
         smartDocumentsTemplatesService = smartDocumentsTemplatesService,
-        zaaktypeConfigurationVersioning = zaaktypeConfigurationVersioning
+        zaaktypeConfigurationVersioning = zaaktypeConfigurationVersioning,
+        bpmnService = bpmnService
     )
 
     afterEach {
@@ -435,6 +440,10 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
     }
 
     context("binding a configuration to a process definition") {
+        fun stubActiveBpmnProcessDefinition(definitionKey: String) {
+            every { bpmnService.findProcessDefinitionByProcessDefinitionKey(definitionKey) } returns mockk<ProcessDefinition>()
+        }
+
         given("a BPMN configuration of a zaaktype version with a zaak") {
             val zaaktypeConfiguration = createZaaktypeBpmnConfiguration(bpmnProcessDefinitionKey = "fakeProcessA")
             val zaaktypeUuid = zaaktypeConfiguration.zaaktypeUuid
@@ -492,6 +501,8 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
             every { zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid) } returns zaaktypeConfiguration
 
             `when`("it is bound to another BPMN process definition") {
+                stubActiveBpmnProcessDefinition("fakeProcessB")
+
                 then("the binding is accepted") {
                     shouldNotThrowAny {
                         zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
@@ -501,6 +512,25 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                             hasZaken = false
                         )
                     }
+                }
+            }
+
+            `when`("it is bound to a BPMN process definition without an active version") {
+                every { bpmnService.findProcessDefinitionByProcessDefinitionKey("fakeDeletedProcess") } returns null
+
+                val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
+                    zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+                        zaaktypeUuid = zaaktypeUuid,
+                        processEngine = ProcessEngine.BPMN,
+                        definitionKey = "fakeDeletedProcess",
+                        hasZaken = false
+                    )
+                }
+
+                then("the binding is rejected, so that no zaak is created that fails to start and locks the binding") {
+                    inputValidationFailedException.errorCode shouldBe ERROR_CODE_BPMN_PROCESS_DEFINITION_NOT_FOUND
+                    inputValidationFailedException.message shouldBe "The configuration of zaaktype '$zaaktypeUuid' " +
+                        "cannot be bound to BPMN process definition 'fakeDeletedProcess', because it has no active version"
                 }
             }
         }
@@ -524,6 +554,8 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
             }
 
             `when`("it is bound to a BPMN process definition") {
+                stubActiveBpmnProcessDefinition("fakeProcessB")
+
                 then("the binding is accepted, so that the zaaktype version switches engine") {
                     shouldNotThrowAny {
                         zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
@@ -620,7 +652,9 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
             val zaaktypeUuid = UUID.randomUUID()
             every { zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid) } returns null
 
-            `when`("it is bound to a process definition") {
+            `when`("it is bound to an active BPMN process definition") {
+                stubActiveBpmnProcessDefinition("fakeProcessB")
+
                 then("the binding is accepted") {
                     shouldNotThrowAny {
                         zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
@@ -630,6 +664,23 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                             hasZaken = false
                         )
                     }
+                }
+            }
+
+            `when`("it is bound to a BPMN process definition without an active version") {
+                every { bpmnService.findProcessDefinitionByProcessDefinitionKey("fakeDeletedProcess") } returns null
+
+                val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
+                    zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+                        zaaktypeUuid = zaaktypeUuid,
+                        processEngine = ProcessEngine.BPMN,
+                        definitionKey = "fakeDeletedProcess",
+                        hasZaken = false
+                    )
+                }
+
+                then("the binding is rejected") {
+                    inputValidationFailedException.errorCode shouldBe ERROR_CODE_BPMN_PROCESS_DEFINITION_NOT_FOUND
                 }
             }
         }
