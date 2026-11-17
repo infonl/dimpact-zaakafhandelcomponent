@@ -248,6 +248,27 @@ describe(BesluitCreateComponent.name, () => {
     );
   });
 
+  it("creates the besluit with its dates as dates without a time", async () => {
+    const { createBesluit } = await setup([fakeBesluittypeWithPublication]);
+    await selectBesluittype("Besluittype 2");
+
+    await user.clear(screen.getByLabelText("Ingangsdatum"));
+    await user.type(screen.getByLabelText("Ingangsdatum"), "2026-01-30");
+    await user.type(screen.getByLabelText("Vervaldatum"), "2026-12-31");
+    await user.clear(screen.getByLabelText("Publicatiedatum"));
+    await user.type(screen.getByLabelText("Publicatiedatum"), "2026-02-02");
+    await user.click(screen.getByRole("button", { name: "actie.aanmaken" }));
+
+    expect(createBesluit.mock.calls[0][0]).toEqual(
+      expect.objectContaining({
+        ingangsdatum: "2026-01-30",
+        vervaldatum: "2026-12-31",
+        publicationDate: "2026-02-02",
+        lastResponseDate: "2026-02-08",
+      }),
+    );
+  });
+
   it("creates the besluit for the chosen besluittype", async () => {
     const { createBesluit } = await setup();
     await selectBesluittype("Besluittype 1");

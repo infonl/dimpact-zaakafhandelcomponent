@@ -14,7 +14,6 @@ import {
 } from "@angular/common/http/testing";
 import { provideZonelessChangeDetection } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
-import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
@@ -26,6 +25,7 @@ import { EMPTY } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../../setupJest";
 import { UtilService } from "../../../core/service/util.service";
+import { provideZacDateAdapter } from "../../../date-time";
 import { FoutAfhandelingService } from "../../../fout-afhandeling/fout-afhandeling.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { BesluitIntrekkenDialogComponent } from "./besluit-intrekken-dialog.component";
@@ -56,15 +56,7 @@ describe(BesluitIntrekkenDialogComponent.name, () => {
         provideHttpClientTesting(),
         provideRouter([]),
         provideTanStackQuery(testQueryClient),
-        provideMomentDateAdapter({
-          parse: { dateInput: "yyyy-MM-DD" },
-          display: {
-            dateInput: "yyyy-MM-DD",
-            monthYearLabel: "MMMM YYYY",
-            dateA11yLabel: "LL",
-            monthYearA11yLabel: "MMMM YYYY",
-          },
-        }),
+        provideZacDateAdapter(),
         { provide: MAT_DIALOG_DATA, useValue: besluit },
         { provide: MatDialogRef, useValue: dialogRefMock },
       ],
@@ -174,7 +166,7 @@ describe(BesluitIntrekkenDialogComponent.name, () => {
     expect(submitButton()).toBeDisabled();
   });
 
-  it("withdraws the besluit with the values from the form", async () => {
+  it("withdraws the besluit with the values from the form and the vervaldatum as a date without a time", async () => {
     const { httpTestingController } = await setup();
     await fillValidForm();
 
@@ -186,6 +178,7 @@ describe(BesluitIntrekkenDialogComponent.name, () => {
     expect(request.request.body).toEqual(
       expect.objectContaining({
         besluitUuid: "besluit-uuid-1",
+        vervaldatum: "2026-12-31",
         reden: "Reden van intrekken",
         vervalreden: "INGETROKKEN_OVERHEID",
       }),

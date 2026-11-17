@@ -7,7 +7,15 @@ import { DestroyRef, inject, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Validators } from "@angular/forms";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import moment, { Moment } from "moment";
+import {
+  addDays,
+  DateInput,
+  isAfter,
+  now,
+  PickedDate,
+  startOfDay,
+  toPickedDate,
+} from "../../../date-time";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { injectContactEmailPrefill } from "../../../klanten/inject-contact-email-prefill";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
@@ -75,13 +83,13 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
       [Validators.required],
     );
 
-    const taakFataleDatumControl = this.formBuilder.control<Moment | null>(
+    const taakFataleDatumControl = this.formBuilder.control<PickedDate | null>(
       null,
-      [Validators.min(moment().add(1, "day").startOf("day").valueOf())],
+      [Validators.min(startOfDay(addDays(now(), 1)).valueOf())],
     );
 
     if (planItem?.fataleDatum) {
-      taakFataleDatumControl.setValue(moment(planItem.fataleDatum));
+      taakFataleDatumControl.setValue(toPickedDate(planItem.fataleDatum));
     }
 
     const messageControl = this.formBuilder.control(
@@ -91,9 +99,7 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
     taakFataleDatumControl.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
-        messageControl.setValue(
-          this.getMessageFieldLabel(zaak, value ? moment(value) : null),
-        );
+        messageControl.setValue(this.getMessageFieldLabel(zaak, value));
       });
 
     const emailControl = this.formBuilder.control<string | null>(null, [
@@ -131,7 +137,7 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
         type: "date",
         key: "datumGevraagd",
         hidden: true,
-        control: this.formBuilder.control(moment()),
+        control: this.formBuilder.control<PickedDate | null>(now()),
       },
       {
         type: "documents",
@@ -272,11 +278,9 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
 
   private getMessageFieldLabel(
     zaak: GeneratedType<"RestZaak">,
-    humanTaskDataFatalDate?: string | Moment | null,
+    humanTaskDataFatalDate?: DateInput | null,
   ) {
-    const fatalZaakDate =
-      zaak.uiterlijkeEinddatumAfdoening &&
-      moment(zaak.uiterlijkeEinddatumAfdoening);
+    const fatalZaakDate = zaak.uiterlijkeEinddatumAfdoening;
 
     if (!fatalZaakDate) {
       return `msg.taak.aanvullende-informatie.fatale-datum-zaak.leeg`;
@@ -290,7 +294,7 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
       return `msg.taak.aanvullende-informatie.fatale-datum-taak.overig${suspendedTextSuffix}`;
     }
 
-    if (moment(humanTaskDataFatalDate).isAfter(fatalZaakDate)) {
+    if (isAfter(humanTaskDataFatalDate, fatalZaakDate)) {
       return `msg.taak.aanvullende-informatie.fatale-datum-taak.overschreden${suspendedTextSuffix}`;
     }
 

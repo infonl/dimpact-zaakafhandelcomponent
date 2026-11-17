@@ -22,10 +22,10 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import moment, { Moment } from "moment";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
+import { now, PickedDate, toApiDate } from "../../date-time";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacCheckbox } from "../../shared/form/checkbox/checkbox";
 import { ZacDate } from "../../shared/form/date/date";
@@ -142,11 +142,11 @@ export class InformatieObjectAddComponent {
     status: this.formBuilder.control<
       (typeof this.informatieobjectStatussen)[number] | null
     >(null, [Validators.required]),
-    creatiedatum: this.formBuilder.control<Moment | null>(moment(), [
+    creatiedatum: this.formBuilder.control<PickedDate | null>(now(), [
       Validators.required,
     ]),
-    verzenddatum: this.formBuilder.control<Moment | null>(null),
-    ontvangstdatum: this.formBuilder.control<Moment | null>(null),
+    verzenddatum: this.formBuilder.control<PickedDate | null>(null),
+    ontvangstdatum: this.formBuilder.control<PickedDate | null>(null),
     informatieobjectType:
       this.formBuilder.control<GeneratedType<"RestInformatieobjecttype"> | null>(
         null,
@@ -247,9 +247,9 @@ export class InformatieObjectAddComponent {
       informatieobjectTypeUUID: value.informatieobjectType!.uuid!,
       status: value.status?.value as unknown as GeneratedType<"StatusEnum">,
       vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
-      creatiedatum: value.creatiedatum?.toISOString(),
-      verzenddatum: value.verzenddatum?.toISOString(),
-      ontvangstdatum: value.ontvangstdatum?.toISOString(),
+      creatiedatum: toApiDate(value.creatiedatum),
+      verzenddatum: toApiDate(value.verzenddatum),
+      ontvangstdatum: toApiDate(value.ontvangstdatum),
       taal: value.taal!.code,
       auteur: value.auteur!,
     };

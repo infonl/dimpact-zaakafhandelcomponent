@@ -15,7 +15,6 @@ import {
 } from "@angular/common/http/testing";
 import { provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -27,6 +26,7 @@ import { EMPTY } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
+import { provideZacDateAdapter } from "../../date-time";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectVerzendenComponent } from "./informatie-object-verzenden.component";
@@ -81,7 +81,7 @@ describe(InformatieObjectVerzendenComponent.name, () => {
         provideZonelessChangeDetection(),
         provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
-        provideMomentDateAdapter(),
+        provideZacDateAdapter(),
         provideQueryClient(testQueryClient),
       ],
     });
@@ -207,6 +207,22 @@ describe(InformatieObjectVerzendenComponent.name, () => {
       toelichting: "Ter kennisgeving",
     });
 
+    request.flush(null);
+    await sleep();
+  });
+
+  it("sends the chosen verzenddatum as a date without a time", async () => {
+    await setup();
+    await showDocuments();
+
+    await selectDocument("Document 1");
+    await user.clear(field("verzenddatum"));
+    await user.type(field("verzenddatum"), "2026-01-30");
+    await user.click(submitButton());
+    await sleep();
+
+    const request = httpTestingController.expectOne(VERZENDEN_URL);
+    expect(request.request.body).toMatchObject({ verzenddatum: "2026-01-30" });
     request.flush(null);
     await sleep();
   });

@@ -22,6 +22,7 @@ export { serializeDatesWithLocalOffset } from "./moment-serialization";
 export {
   addDays,
   daysBetween,
+  endOfDay,
   isAfter,
   isPickedDate,
   isSameOrAfter,

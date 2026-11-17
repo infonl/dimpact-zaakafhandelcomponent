@@ -30,7 +30,6 @@ import { MatDrawer, MatSidenavModule } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import moment, { Moment } from "moment";
 import { map } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { ZacCheckbox } from "src/app/shared/form/checkbox/checkbox";
@@ -41,6 +40,13 @@ import { ZacSelect } from "src/app/shared/form/select/select";
 import { ZacTextarea } from "src/app/shared/form/textarea/textarea";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
+import {
+  isAfter,
+  now,
+  PickedDate,
+  toApiDate,
+  toPickedDate,
+} from "../../date-time";
 import { IdentityService } from "../../identity/identity.service";
 import { FormHelper } from "../../shared/form/helpers";
 import { injectMutation } from "../../shared/http/inject-mutation";
@@ -161,11 +167,13 @@ export class CaseDetailsEditComponent implements OnInit {
     communicatiekanaal: this.formBuilder.control<string | null>(null, [
       Validators.required,
     ]),
-    startdatum: this.formBuilder.control<Moment>(moment(), [
+    startdatum: this.formBuilder.control<PickedDate | null>(now(), [
       Validators.required,
     ]),
-    einddatumGepland: this.formBuilder.control<Moment | null>(null),
-    uiterlijkeEinddatumAfdoening: this.formBuilder.control<Moment | null>(null),
+    einddatumGepland: this.formBuilder.control<PickedDate | null>(null),
+    uiterlijkeEinddatumAfdoening: this.formBuilder.control<PickedDate | null>(
+      null,
+    ),
     vertrouwelijkheidaanduiding: this.formBuilder.control<{
       label: string;
       value: string;
@@ -333,11 +341,11 @@ export class CaseDetailsEditComponent implements OnInit {
 
     this.form.patchValue({
       ...zaak,
-      startdatum: moment(zaak.startdatum),
-      uiterlijkeEinddatumAfdoening: moment(zaak.uiterlijkeEinddatumAfdoening),
-      einddatumGepland: zaak.einddatumGepland
-        ? moment(zaak.einddatumGepland)
-        : null,
+      startdatum: toPickedDate(zaak.startdatum),
+      uiterlijkeEinddatumAfdoening: toPickedDate(
+        zaak.uiterlijkeEinddatumAfdoening,
+      ),
+      einddatumGepland: toPickedDate(zaak.einddatumGepland),
       vertrouwelijkheidaanduiding:
         this.confidentialityDesignations.find(
           ({ value }) => value === zaak.vertrouwelijkheidaanduiding,
@@ -413,7 +421,7 @@ export class CaseDetailsEditComponent implements OnInit {
     if (
       startdatum &&
       einddatumGepland &&
-      moment(startdatum).isAfter(moment(einddatumGepland))
+      isAfter(startdatum, einddatumGepland)
     ) {
       changedControl.setErrors(
         FormHelper.CustomErrorMessage(
@@ -425,7 +433,7 @@ export class CaseDetailsEditComponent implements OnInit {
     if (
       startdatum &&
       uiterlijkeEinddatumAfdoening &&
-      startdatum.isAfter(moment(uiterlijkeEinddatumAfdoening))
+      isAfter(startdatum, uiterlijkeEinddatumAfdoening)
     ) {
       changedControl.setErrors(
         FormHelper.CustomErrorMessage(
@@ -437,7 +445,7 @@ export class CaseDetailsEditComponent implements OnInit {
     if (
       einddatumGepland &&
       uiterlijkeEinddatumAfdoening &&
-      moment(einddatumGepland).isAfter(moment(uiterlijkeEinddatumAfdoening))
+      isAfter(einddatumGepland, uiterlijkeEinddatumAfdoening)
     ) {
       changedControl.setErrors(
         FormHelper.CustomErrorMessage(
@@ -497,10 +505,11 @@ export class CaseDetailsEditComponent implements OnInit {
         behandelaar: value.behandelaar ?? undefined,
         communicatiekanaal: value.communicatiekanaal ?? undefined,
         vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
-        startdatum: value.startdatum?.toISOString(),
-        einddatumGepland: value.einddatumGepland?.toISOString(),
-        uiterlijkeEinddatumAfdoening:
-          value.uiterlijkeEinddatumAfdoening?.toISOString(),
+        startdatum: toApiDate(value.startdatum),
+        einddatumGepland: toApiDate(value.einddatumGepland),
+        uiterlijkeEinddatumAfdoening: toApiDate(
+          value.uiterlijkeEinddatumAfdoening,
+        ),
         omschrijving: value.omschrijving ?? "",
         toelichting: value.toelichting ?? undefined,
         isZaakspecifiekGeautoriseerd,

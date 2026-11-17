@@ -4,10 +4,12 @@
  */
 package nl.info.zac.time
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.client.zgw.ztc.model.createBesluitType
 import java.time.LocalDate
+import java.time.format.DateTimeParseException
 
 class LocalDateUtilTest : BehaviorSpec({
 
@@ -113,6 +115,60 @@ class LocalDateUtilTest : BehaviorSpec({
 
             then("it should be formatted as dd-MM-yyyy") {
                 formatted shouldBe "11-03-2024"
+            }
+        }
+    }
+
+    context("Reading a date that the frontend sent as a string") {
+        given("a date without a time, as the frontend sends a picked date") {
+            `when`("reading it as a date") {
+                val localDate = "2026-01-30".toLocalDate()
+
+                then("it is that date") {
+                    localDate shouldBe LocalDate.of(2026, 1, 30)
+                }
+            }
+        }
+
+        given("midnight in Europe/Amsterdam with its offset, as an older frontend sent a picked date") {
+            `when`("reading it as a date") {
+                val localDate = "2026-01-30T00:00:00.000+01:00".toLocalDate()
+
+                then("it is that date") {
+                    localDate shouldBe LocalDate.of(2026, 1, 30)
+                }
+            }
+        }
+
+        given("the UTC instant of midnight in Europe/Amsterdam") {
+            `when`("reading it as a date") {
+                val localDate = "2026-07-29T22:00:00.000Z".toLocalDate()
+
+                then("it is the date of that instant in Europe/Amsterdam") {
+                    localDate shouldBe LocalDate.of(2026, 7, 30)
+                }
+            }
+        }
+
+        given("midnight in a browser time zone ahead of Europe/Amsterdam") {
+            `when`("reading it as a date") {
+                val localDate = "2026-01-30T00:00:00.000+02:00".toLocalDate()
+
+                then("it is the date of that instant in Europe/Amsterdam, the day before") {
+                    localDate shouldBe LocalDate.of(2026, 1, 29)
+                }
+            }
+        }
+
+        given("a string that is not a date") {
+            `when`("reading it as a date") {
+                val dateTimeParseException = shouldThrow<DateTimeParseException> {
+                    "not a date".toLocalDate()
+                }
+
+                then("it is rejected") {
+                    dateTimeParseException.parsedString shouldBe "not a date"
+                }
             }
         }
     }

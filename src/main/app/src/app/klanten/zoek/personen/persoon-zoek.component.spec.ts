@@ -27,6 +27,7 @@ import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../../setupJest";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { UtilService } from "../../../core/service/util.service";
+import { toPickedDate } from "../../../date-time";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { KlantenService } from "../../klanten.service";
 import { FormCommunicatieService } from "../form-communicatie-service";
@@ -212,6 +213,20 @@ describe(PersoonZoekComponent.name, () => {
         expect.objectContaining({
           gemeenteVanInschrijving: "0344",
         }),
+        "test-zaaktype-uuid",
+      );
+    });
+
+    it("searches with the geboortedatum as a date without a time", () => {
+      const spy = jest.spyOn(klantenService, "listPersonen");
+      component.formGroup.controls.geboortedatum.setValue(
+        toPickedDate("1990-05-17"),
+      );
+
+      component.zoekPersonen();
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({ geboortedatum: "1990-05-17" }),
         "test-zaaktype-uuid",
       );
     });

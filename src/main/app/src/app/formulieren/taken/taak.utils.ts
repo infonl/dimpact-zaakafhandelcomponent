@@ -4,7 +4,7 @@
  */
 
 import { AbstractControl, FormGroup } from "@angular/forms";
-import { isMoment } from "moment";
+import { isPickedDate, toApiDate } from "../../date-time";
 import {
   DOCUMENT_STRING_SPLITTER,
   mapDocumentenToString,
@@ -30,7 +30,7 @@ function mapControlToTaskDataValue(
 ): string {
   const { value } = control;
   if (value === null || value === undefined) return "";
-  if (isMoment(value)) return value.toISOString();
+  if (isPickedDate(value)) return toApiDate(value) ?? "";
   switch (typeof value) {
     case "boolean":
       return `${value}`;

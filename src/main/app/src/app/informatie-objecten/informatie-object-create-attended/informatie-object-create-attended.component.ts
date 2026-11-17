@@ -24,7 +24,6 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
-import moment, { Moment } from "moment";
 import {
   catchError,
   EMPTY,
@@ -39,6 +38,7 @@ import {
 } from "rxjs";
 import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
+import { now, PickedDate, toApiDateTime } from "../../date-time";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { ZacDate } from "../../shared/form/date/date";
@@ -119,7 +119,7 @@ export class InformatieObjectCreateAttendedComponent
     ]),
     informationObjectType: this.formBuilder.control<string | null>(null),
     confidentiality: this.formBuilder.control<string | null>(null),
-    creationDate: this.formBuilder.control<Moment | null>(moment(), [
+    creationDate: this.formBuilder.control<PickedDate | null>(now(), [
       Validators.required,
     ]),
     author: this.formBuilder.control<string | null>(null, [
@@ -274,7 +274,7 @@ export class InformatieObjectCreateAttendedComponent
       smartDocumentsTemplateGroupId: values.templateGroup!.id,
       smartDocumentsTemplateId: values.template!.id,
       title: values.title!,
-      creationDate: values.creationDate!.toISOString(),
+      creationDate: toApiDateTime(values.creationDate)!,
       description: values.description,
       zaakUuid: this.zaak().uuid,
       taskId: this.taak()?.id,

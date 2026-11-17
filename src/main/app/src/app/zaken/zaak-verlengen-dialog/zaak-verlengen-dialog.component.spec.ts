@@ -13,7 +13,6 @@ import {
 import { provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
-import { provideNativeDateAdapter } from "@angular/material/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MatErrorHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
@@ -21,9 +20,11 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
-import moment from "moment";
+import { screen } from "@testing-library/angular";
+import { userEvent } from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
+import { provideZacDateAdapter } from "../../date-time";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 import { ZaakVerlengenDialogComponent } from "./zaak-verlengen-dialog.component";
@@ -42,17 +43,17 @@ describe("ZaakVerlengenDialogComponent", () => {
     uuid: "b7e8f9a2-4c3d-11ee-bb2f-0242ac130003",
     zaaktype: { verlengingstermijn: 10 },
     einddatumGepland: null,
-    uiterlijkeEinddatumAfdoening: moment().toISOString(),
+    uiterlijkeEinddatumAfdoening: "2026-01-30",
   });
 
-  beforeEach(async () => {
+  async function setup(zaak = mockZaak) {
     await TestBed.configureTestingModule({
       imports: [ZaakVerlengenDialogComponent, NoopAnimationsModule],
       providers: [
         provideTranslateService(),
         provideHttpClient(withXhr()),
         provideHttpClientTesting(),
-        provideNativeDateAdapter(),
+        provideZacDateAdapter(),
         provideZonelessChangeDetection(),
         provideQueryClient(testQueryClient),
         {
@@ -62,7 +63,7 @@ describe("ZaakVerlengenDialogComponent", () => {
         {
           provide: MAT_DIALOG_DATA,
           useValue: {
-            zaak: { ...mockZaak },
+            zaak: { ...zaak },
           },
         },
       ],
@@ -75,10 +76,57 @@ describe("ZaakVerlengenDialogComponent", () => {
 
     component = fixture.componentInstance;
     fixture.detectChanges();
-  });
+  }
+
+  async function verlengen(verlengduur: string) {
+    const user = userEvent.setup();
+    await user.type(screen.getByLabelText(/verlengduur/i), verlengduur);
+    await user.type(screen.getByLabelText(/reden/i), "Reden verlenging");
+    fixture.detectChanges();
+    await user.click(
+      screen.getByRole("button", { name: /actie.zaak.verlengen/ }),
+    );
+    await new Promise(requestAnimationFrame);
+
+    return httpTestingController.expectOne(
+      `/rest/zaken/zaak/${mockZaak.uuid}/verlenging`,
+    );
+  }
 
   describe("Buttons and form submission", () => {
+    it("sends the uiterlijke einddatum afdoening, moved by the verlengduur, as a date without a time", async () => {
+      await setup();
+
+      const request = await verlengen("5");
+
+      expect(request.request.body).toEqual(
+        expect.objectContaining({
+          einddatumGepland: null,
+          uiterlijkeEinddatumAfdoening: "2026-02-04",
+        }),
+      );
+    });
+
+    it("sends the einddatum gepland, moved by the verlengduur, as a date without a time", async () => {
+      await setup(
+        fromPartial<GeneratedType<"RestZaak">>({
+          ...mockZaak,
+          einddatumGepland: "2026-01-20",
+        }),
+      );
+
+      const request = await verlengen("5");
+
+      expect(request.request.body).toEqual(
+        expect.objectContaining({
+          einddatumGepland: "2026-01-25",
+          uiterlijkeEinddatumAfdoening: "2026-02-04",
+        }),
+      );
+    });
+
     it("makes HTTP PATCH request with form payload when verlengen is called", async () => {
+      await setup();
       component["form"].patchValue(
         {
           duurDagen: 5,
@@ -106,6 +154,7 @@ describe("ZaakVerlengenDialogComponent", () => {
     });
 
     it("should call close() when annuleren button is clicked", async () => {
+      await setup();
       const dialogRefSpy = jest.spyOn(dialogRef, "close");
 
       const cancelButton = await loader.getHarness(
@@ -118,6 +167,7 @@ describe("ZaakVerlengenDialogComponent", () => {
     });
 
     it("keeps the submit button disabled after a successful verlenging", async () => {
+      await setup();
       component["form"].patchValue(
         { duurDagen: 5, redenVerlenging: "Reden verlenging" },
         { emitEvent: false },
@@ -144,6 +194,7 @@ describe("ZaakVerlengenDialogComponent", () => {
     });
 
     it("caches the zaak returned by verlenging and closes the dialog", async () => {
+      await setup();
       const zakenService = TestBed.inject(ZakenService);
       const cacheZaakSpy = jest.spyOn(zakenService, "cacheZaak");
       const dialogRefSpy = jest.spyOn(dialogRef, "close");
@@ -157,7 +208,7 @@ describe("ZaakVerlengenDialogComponent", () => {
 
       const updatedZaak = fromPartial<GeneratedType<"RestZaak">>({
         uuid: mockZaak.uuid,
-        uiterlijkeEinddatumAfdoening: moment().toISOString(),
+        uiterlijkeEinddatumAfdoening: "2026-02-04",
       });
       httpTestingController
         .expectOne(
@@ -177,6 +228,7 @@ describe("ZaakVerlengenDialogComponent", () => {
 
   describe("Check errors", () => {
     it("should show an error when verlengingsDuur exceeds the zaaktype limit", async () => {
+      await setup();
       const inputs = await loader.getAllHarnesses(MatInputHarness);
       const [verlengingsDuur, , redenVerlenging] = inputs;
 

@@ -8,7 +8,6 @@ const { defineConfig } = require("eslint/config");
 const angular = require("angular-eslint");
 const testingLibrary = require("eslint-plugin-testing-library");
 const tseslint = require("typescript-eslint");
-const dateTimeFrozenFiles = require("./eslint.date-time-frozen.js");
 
 // Stylelint only sees .less files, so this catches ::ng-deep in inline component styles.
 const noNgDeep = {
@@ -35,8 +34,7 @@ const typedMatCellDefImport = {
     "Import TypedMatCellDefDirective next to MatTableModule or MatCellDef and add it to the component's imports. Without it the dataSource of *matCellDef binds to nothing and the row is typed any.",
 };
 
-// Date and time handling lives in src/app/date-time, see ADR-0015. The files in eslint.date-time-frozen.js broke
-// these rules before they were added; that list may only shrink.
+// Date and time handling lives in src/app/date-time, see ADR-0015.
 const DATE_TIME_MODULE = "src/app/date-time/**";
 const dateTimeRestrictedImportPaths = [
   {
@@ -178,7 +176,7 @@ module.exports = defineConfig(
     },
   },
   {
-    files: [DATE_TIME_MODULE, ...dateTimeFrozenFiles],
+    files: [DATE_TIME_MODULE],
     rules: {
       "no-restricted-imports": ["error", { paths: restrictedImportPaths }],
       "no-restricted-syntax": [

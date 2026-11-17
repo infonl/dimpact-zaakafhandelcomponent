@@ -25,6 +25,7 @@ import { MatToolbar } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
+import { toApiDate } from "../../date-time";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import { mapFormGroupToTaskData } from "../../formulieren/taken/taak.utils";
 import { IdentityService } from "../../identity/identity.service";
@@ -213,7 +214,7 @@ export class HumanTaskDoComponent implements OnInit {
       planItemInstanceId: this.planItem()!.id!,
       groep: this.form.get("group")!.value!,
       medewerker: this.form.get("user")!.value!,
-      fataledatum: this.form.get("taakFataledatum")?.value,
+      fataledatum: toApiDate(this.form.get("taakFataledatum")?.value),
       taakdata: mapFormGroupToTaskData(formGroup, {
         ignoreKeys: ["group", "user"],
       }),
