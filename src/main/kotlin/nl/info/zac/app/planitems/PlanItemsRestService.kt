@@ -58,7 +58,7 @@ import nl.info.zac.task.TaskHistoryService
 import nl.info.zac.time.toDate
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.toLocalDate
+import nl.info.zac.util.toValidatedLocalDate
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.time.LocalDate
@@ -275,7 +275,7 @@ class PlanItemsRestService @Inject constructor(
                 zaak = zaak,
                 resultaatTypeUUID = resultaattypeUUID,
                 description = userEventListenerData.resultaatToelichting,
-                brondatum = userEventListenerData.brondatum?.let(String::toLocalDate)
+                brondatum = userEventListenerData.brondatum?.toValidatedLocalDate()
             )
         } ?: throw InputValidationFailedException(
             errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
@@ -285,7 +285,7 @@ class PlanItemsRestService @Inject constructor(
 
     private fun handleBrondatumZetten(zaak: Zaak, userEventListenerData: RestUserEventListenerData) {
         userEventListenerData.brondatum?.let {
-            val brondatum = it.let(String::toLocalDate)
+            val brondatum = it.toValidatedLocalDate()
             LOG.info { "Set brondatum to $brondatum for ${zaak.identificatie}" }
             zgwApiService.setBrondatum(zaak, brondatum)
         } ?: throw InputValidationFailedException(

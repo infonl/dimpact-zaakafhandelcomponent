@@ -32,8 +32,8 @@ class LocalDateReader : MessageBodyReader<LocalDate> {
         mediaType: MediaType,
         multivaluedMap: MultivaluedMap<String, String>,
         inputStream: InputStream
-    ): LocalDate {
-        val localDateBytes = inputStream.readAllBytes()
-        return LocalDate.parse(String(localDateBytes), defaultFormatter)
-    }
+    ): LocalDate =
+        String(inputStream.readAllBytes()).let {
+            if (it.contains('T')) LocalDate.parse(it, defaultFormatter) else LocalDate.parse(it)
+        }
 }

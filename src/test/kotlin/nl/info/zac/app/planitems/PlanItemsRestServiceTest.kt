@@ -65,7 +65,6 @@ import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNo
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI
 import java.time.LocalDate
-import java.time.ZonedDateTime
 import java.util.UUID
 
 @Suppress("LargeClass")
@@ -729,50 +728,51 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             }
         }
 
-        given("Zaak exists with resultaattype that has afleidingswijze EIGENSCHAP") {
-            val zaak = createZaak(
-                resultaat = null,
-            )
-            val resultaattypeUuid = UUID.randomUUID()
-            val datumkenmerk = "testDatumkenmerk"
-            val brondatumEigenschap = "2023-12-01T00:00:00.000+01:00"
-            val brondatumArchiefprocedure = BrondatumArchiefprocedure().apply {
-                afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP
-            }
-            brondatumArchiefprocedure.datumkenmerk = datumkenmerk
-            val loggedInUser = createLoggedInUser()
-
-            val restUserEventListenerData = createRestUserEventListenerData(
-                zaakUuid = zaak.uuid,
-                actie = UserEventListenerActie.ZAAK_AFHANDELEN,
-                restMailGegevens = null,
-                resultaattypeUuid = resultaattypeUuid,
-                brondatum = brondatumEigenschap
-            )
-
-            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
-            every {
-                zgwApiService.closeZaak(
-                    zaak = zaak,
-                    resultaatTypeUUID = resultaattypeUuid,
-                    description = null,
-                    brondatum = ZonedDateTime.parse(brondatumEigenschap).toLocalDate()
+        listOf("2023-12-01", "2023-12-01T00:00:00.000+01:00").forEach { brondatum ->
+            given("Zaak exists with resultaattype that has afleidingswijze EIGENSCHAP and the brondatum '$brondatum'") {
+                val zaak = createZaak(
+                    resultaat = null,
                 )
-            } just runs
-            every { loggedInUserInstance.get() } returns loggedInUser
+                val resultaattypeUuid = UUID.randomUUID()
+                val datumkenmerk = "testDatumkenmerk"
+                val brondatumArchiefprocedure = BrondatumArchiefprocedure().apply {
+                    afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP
+                }
+                brondatumArchiefprocedure.datumkenmerk = datumkenmerk
+                val loggedInUser = createLoggedInUser()
 
-            `when`("the user event listener plan item is processed") {
-                planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+                val restUserEventListenerData = createRestUserEventListenerData(
+                    zaakUuid = zaak.uuid,
+                    actie = UserEventListenerActie.ZAAK_AFHANDELEN,
+                    restMailGegevens = null,
+                    resultaattypeUuid = resultaattypeUuid,
+                    brondatum = brondatum
+                )
 
-                then("the zaak is closed") {
-                    verify(exactly = 1) {
-                        zgwApiService.closeZaak(
-                            zaak = zaak,
-                            resultaatTypeUUID = resultaattypeUuid,
-                            description = null,
-                            brondatum = ZonedDateTime.parse(brondatumEigenschap).toLocalDate()
-                        )
+                every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+                every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
+                every {
+                    zgwApiService.closeZaak(
+                        zaak = zaak,
+                        resultaatTypeUUID = resultaattypeUuid,
+                        description = null,
+                        brondatum = LocalDate.of(2023, 12, 1)
+                    )
+                } just runs
+                every { loggedInUserInstance.get() } returns loggedInUser
+
+                `when`("the user event listener plan item is processed") {
+                    planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+
+                    then("the zaak is closed with the brondatum 1 December 2023") {
+                        verify(exactly = 1) {
+                            zgwApiService.closeZaak(
+                                zaak = zaak,
+                                resultaatTypeUUID = resultaattypeUuid,
+                                description = null,
+                                brondatum = LocalDate.of(2023, 12, 1)
+                            )
+                        }
                     }
                 }
             }
@@ -1105,30 +1105,31 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             }
         }
 
-        given("Zaak with a valid brondatum when setting the brondatum") {
-            val zaak = createZaak(resultaat = null)
-            val brondatum = "2023-12-01T00:00:00.000+01:00"
-            val restUserEventListenerData = createRestUserEventListenerData(
-                zaakUuid = zaak.uuid,
-                actie = UserEventListenerActie.BRONDATUM_ZETTEN,
-                restMailGegevens = null,
-                brondatum = brondatum
-            )
-            val loggedInUser = createLoggedInUser()
+        listOf("2023-12-01", "2023-12-01T00:00:00.000+01:00").forEach { brondatum ->
+            given("Zaak with the valid brondatum '$brondatum' when setting the brondatum") {
+                val zaak = createZaak(resultaat = null)
+                val restUserEventListenerData = createRestUserEventListenerData(
+                    zaakUuid = zaak.uuid,
+                    actie = UserEventListenerActie.BRONDATUM_ZETTEN,
+                    restMailGegevens = null,
+                    brondatum = brondatum
+                )
+                val loggedInUser = createLoggedInUser()
 
-            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(brondatumZetten = true)
-            every {
-                zgwApiService.setBrondatum(zaak, ZonedDateTime.parse(brondatum).toLocalDate())
-            } just runs
-            every { loggedInUserInstance.get() } returns loggedInUser
+                every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+                every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(brondatumZetten = true)
+                every {
+                    zgwApiService.setBrondatum(zaak, LocalDate.of(2023, 12, 1))
+                } just runs
+                every { loggedInUserInstance.get() } returns loggedInUser
 
-            `when`("doUserEventListenerPlanItem is called to set the brondatum") {
-                planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+                `when`("doUserEventListenerPlanItem is called to set the brondatum") {
+                    planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
 
-                then("processBrondatumProcedure should be called with the parsed brondatum") {
-                    verify(exactly = 1) {
-                        zgwApiService.setBrondatum(zaak, ZonedDateTime.parse(brondatum).toLocalDate())
+                    then("the brondatum of the zaak is set to 1 December 2023") {
+                        verify(exactly = 1) {
+                            zgwApiService.setBrondatum(zaak, LocalDate.of(2023, 12, 1))
+                        }
                     }
                 }
             }
