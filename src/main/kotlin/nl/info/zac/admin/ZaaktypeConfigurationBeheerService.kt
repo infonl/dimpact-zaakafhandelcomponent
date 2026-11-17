@@ -64,14 +64,6 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
     }
 
     /**
-     * Stores the configuration as [storeConfiguration] does, and builds [toResponse] of the stored configuration in
-     * the same transaction, so that a failure while building it stores nothing.
-     */
-    @Transactional(REQUIRED)
-    fun <T> storeConfiguration(zaaktypeConfiguration: ZaaktypeConfiguration, toResponse: (ZaaktypeConfiguration) -> T): T =
-        toResponse(storeConfiguration(zaaktypeConfiguration))
-
-    /**
      * Indicates whether a beheerder may bind the configuration to another process definition, of either engine:
      * until the first zaak of its zaaktype version exists, no zaak depends on its binding.
      */
@@ -79,13 +71,18 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
         zaaktypeConfiguration.processBinding == null || !hasZaken(zaaktypeConfiguration.zaaktypeUuid)
 
     /**
-     * Rejects binding the configuration of the zaaktype version to another engine or process definition when
-     * [isProcessDefinitionChangeable] does not allow it.
+     * Rejects binding the configuration of the zaaktype version to another engine or process definition when its
+     * zaaktype version [hasZaken]. The caller asks Open Zaak for [hasZaken], so that a save asks only once.
      */
-    fun checkProcessDefinitionMayChange(zaaktypeUuid: UUID, processEngine: ProcessEngine, definitionKey: String) {
+    fun checkProcessDefinitionMayChange(
+        zaaktypeUuid: UUID,
+        processEngine: ProcessEngine,
+        definitionKey: String,
+        hasZaken: Boolean
+    ) {
         val binding = findConfiguration(zaaktypeUuid)?.processBinding ?: return
         val isSameBinding = binding.processEngine == processEngine && binding.definitionKey == definitionKey
-        if (!isSameBinding && hasZaken(zaaktypeUuid)) {
+        if (!isSameBinding && hasZaken) {
             throw InputValidationFailedException(
                 errorCode = ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE,
                 message = "The process definition of the configuration of zaaktype '$zaaktypeUuid' cannot change " +
@@ -94,7 +91,7 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
         }
     }
 
-    private fun hasZaken(zaaktypeUuid: UUID): Boolean =
+    fun hasZaken(zaaktypeUuid: UUID): Boolean =
         zrcClientService.listZakenUuids(
             ZaakListParameters().apply { zaaktype = ztcClientService.readZaaktype(zaaktypeUuid).url }
         ).count() > 0

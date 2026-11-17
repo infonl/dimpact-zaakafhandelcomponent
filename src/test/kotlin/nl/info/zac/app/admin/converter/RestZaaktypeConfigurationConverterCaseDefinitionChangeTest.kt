@@ -89,10 +89,11 @@ class RestZaaktypeConfigurationConverterCaseDefinitionChangeTest : BehaviorSpec(
                 restZaaktypeConfiguration
             )
 
-            then("it holds no plan item settings of the previous case definition") {
+            then("it holds no settings of the previous case definition, and a default for each user event listener") {
                 zaaktypeConfiguration.processBinding?.definitionKey shouldBe "fakeCaseDefinitionB"
                 zaaktypeConfiguration.cmmnExtension?.getHumanTaskParametersCollection()?.size shouldBe 0
-                zaaktypeConfiguration.cmmnExtension?.getUserEventListenerParametersCollection()?.size shouldBe 0
+                zaaktypeConfiguration.cmmnExtension?.getUserEventListenerParametersCollection()
+                    ?.map { it.planItemDefinitionID to it.toelichting } shouldBe listOf("fakeListenerOfB" to null)
             }
         }
 
@@ -123,10 +124,11 @@ class RestZaaktypeConfigurationConverterCaseDefinitionChangeTest : BehaviorSpec(
                 restZaaktypeConfiguration
             )
 
-            then("it stores only settings of plan items of the new case definition") {
+            then("it stores only settings of the new case definition, and a default for each user event listener") {
                 humanTaskParametersSlot.captured shouldBe emptyList()
                 zaaktypeConfiguration.cmmnExtension?.getHumanTaskParametersCollection()?.size shouldBe 0
-                zaaktypeConfiguration.cmmnExtension?.getUserEventListenerParametersCollection()?.size shouldBe 0
+                zaaktypeConfiguration.cmmnExtension?.getUserEventListenerParametersCollection()
+                    ?.map { it.planItemDefinitionID to it.toelichting } shouldBe listOf("fakeListenerOfB" to null)
             }
         }
 

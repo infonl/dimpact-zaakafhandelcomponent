@@ -12,7 +12,6 @@ import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.admin.model.ZaaktypeCmmnExtension
 import nl.info.zac.admin.model.ZaaktypeConfiguration
-import nl.info.zac.admin.model.ZaaktypeProcessBinding
 import nl.info.zac.app.admin.model.RestAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
 import nl.info.zac.app.admin.model.RestZaaktypeConfigurationOverzicht
@@ -173,7 +172,12 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
         } ?: false
         bindTo(processDefinition.processEngine, processDefinition.key)
         cmmnExtension?.apply {
-            val planItemIds = processBinding?.takeIf { isOtherDefinition }?.let(::readPlanItemIds)
+            val caseDefinition = processBinding?.let {
+                processDefinitionConverter.toRestProcessDefinition(it, inclusiefRelaties = true)
+            }
+            val userEventListenerIds = caseDefinition?.userEventListenerDefinitions.orEmpty().map { it.id }
+            val planItemIds = caseDefinition?.takeIf { isOtherDefinition }
+                ?.let { it.humanTaskDefinitions.map { humanTask -> humanTask.id }.toSet() + userEventListenerIds }
             val isOfCaseDefinition = { planItemId: String -> planItemIds == null || planItemId in planItemIds }
             restZaaktypeConfiguration.intakeMail?.let { intakeMail = it.name }
             restZaaktypeConfiguration.afrondenMail?.let { afrondenMail = it.name }
@@ -195,17 +199,9 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
                         .map { it.toZaaktypeCmmnUsereventlistenerParameters() }
                 )
             }
+            addMissingUserEventListenerParameters(userEventListenerIds)
         }
     }
-
-    /**
-     * The settings that a save sends may still belong to the previous case definition, so after a change of case
-     * definition only those of its own plan items are stored.
-     */
-    private fun readPlanItemIds(processBinding: ZaaktypeProcessBinding): Set<String> =
-        processDefinitionConverter.toRestProcessDefinition(processBinding, inclusiefRelaties = true).let { caseDefinition ->
-            (caseDefinition.humanTaskDefinitions + caseDefinition.userEventListenerDefinitions).map { it.id }.toSet()
-        }
 
     private fun RestZaaktypeConfiguration.addRelatedData(
         zaaktypeConfiguration: ZaaktypeConfiguration,
