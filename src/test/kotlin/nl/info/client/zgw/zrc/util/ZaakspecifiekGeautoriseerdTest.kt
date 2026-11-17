@@ -38,13 +38,13 @@ class ZaakspecifiekGeautoriseerdTest : BehaviorSpec({
             ztcClientService.readEigenschap(zaak.zaaktype, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD)
         } returns eigenschap
         every {
-            zrcClientService.createEigenschap(zaak.uuid, capture(zaakEigenschapSlot))
+            zrcClientService.createEigenschap(zaak.uuid, capture(zaakEigenschapSlot), "fakeReden")
         } returns createZaakEigenschap()
 
         `when`("the zaak is marked as zaakspecifiek geautoriseerd") {
-            zrcClientService.markZaakspecifiekGeautoriseerd(zaak, ztcClientService)
+            zrcClientService.markZaakspecifiekGeautoriseerd(zaak, ztcClientService, "fakeReden")
 
-            then("a zaakeigenschap referring to the zaaktype's own eigenschap is created with value 'true'") {
+            then("a zaakeigenschap referring to the zaaktype's own eigenschap is created with value 'true' and the reden") {
                 with(zaakEigenschapSlot.captured) {
                     this.eigenschap shouldBe eigenschap.url
                     this.zaak shouldBe zaak.url
@@ -62,10 +62,10 @@ class ZaakspecifiekGeautoriseerdTest : BehaviorSpec({
         )
 
         `when`("the zaak is marked as zaakspecifiek geautoriseerd again") {
-            zrcClientService.markZaakspecifiekGeautoriseerd(zaak, ztcClientService)
+            zrcClientService.markZaakspecifiekGeautoriseerd(zaak, ztcClientService, "fakeReden")
 
             then("no second zaakeigenschap is created") {
-                verify(exactly = 0) { zrcClientService.createEigenschap(any(), any()) }
+                verify(exactly = 0) { zrcClientService.createEigenschap(any(), any(), any()) }
             }
         }
     }
@@ -80,12 +80,12 @@ class ZaakspecifiekGeautoriseerdTest : BehaviorSpec({
 
         `when`("the zaak is marked as zaakspecifiek geautoriseerd") {
             val exception = shouldThrow<EigenschapNotFoundException> {
-                zrcClientService.markZaakspecifiekGeautoriseerd(zaak, ztcClientService)
+                zrcClientService.markZaakspecifiekGeautoriseerd(zaak, ztcClientService, "fakeReden")
             }
 
             then("the marking fails and nothing is recorded in the zaakregister") {
                 exception.message shouldBe "fakeMessage"
-                verify(exactly = 0) { zrcClientService.createEigenschap(any(), any()) }
+                verify(exactly = 0) { zrcClientService.createEigenschap(any(), any(), any()) }
             }
         }
     }

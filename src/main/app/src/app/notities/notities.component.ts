@@ -8,22 +8,22 @@ import { CdkTextareaAutosize } from "@angular/cdk/text-field";
 import {
   Component,
   computed,
-  effect,
   ElementRef,
   inject,
   input,
   signal,
   viewChild,
 } from "@angular/core";
-import { MatBadgeModule } from "@angular/material/badge";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
+import { MatDividerModule } from "@angular/material/divider";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
+import { MatDrawer } from "@angular/material/sidenav";
+import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
-import { WebsocketService } from "../core/websocket/websocket.service";
 import { IdentityService } from "../identity/identity.service";
 import { injectMutation } from "../shared/http/inject-mutation";
 import { DatumPipe } from "../shared/pipes/datum.pipe";
@@ -50,8 +50,9 @@ function nieuwsteWijzigingEerst(
   imports: [
     MatButtonModule,
     MatIconModule,
-    MatBadgeModule,
     MatCardModule,
+    MatDividerModule,
+    MatToolbarModule,
     MatFormFieldModule,
     MatInputModule,
     CdkTextareaAutosize,
@@ -62,15 +63,12 @@ function nieuwsteWijzigingEerst(
 export class NotitiesComponent {
   private readonly identityService = inject(IdentityService);
   private readonly notitieService = inject(NotitieService);
-  private readonly websocketService = inject(WebsocketService);
   private readonly queryClient = inject(QueryClient);
 
+  readonly sideNav = input.required<MatDrawer>();
   readonly zaakUuid = input.required<string>();
   readonly notitieRechten = input<GeneratedType<"RestNotitieRechten">>();
 
-  readonly notitieTekst = viewChild<{
-    nativeElement: HTMLTextAreaElement;
-  }>("notitieTekst");
   readonly scrollTarget = viewChild<ElementRef>("scrollTarget");
 
   private readonly loggedInUserQuery = injectQuery(() =>
@@ -82,14 +80,20 @@ export class NotitiesComponent {
   protected readonly notities = computed(() =>
     [...(this.notitiesQuery.data() ?? [])].sort(nieuwsteWijzigingEerst),
   );
+  protected readonly aantalNotitiesSuffix = computed(() => {
+    const aantalNotities = this.notities().length;
+    return aantalNotities ? ` (${aantalNotities})` : "";
+  });
+
+  protected readonly nieuweNotitieTekst = signal("");
+  protected readonly bewerkteNotitieTekst = signal("");
 
   private readonly createNotitieMutation = injectMutation(
     () => this.notitieService.createNotitie(),
     {
       onSuccess: (notitie) => {
         this.updateCachedNotities((notities) => [notitie, ...notities]);
-        const notitieTekst = this.notitieTekst();
-        if (notitieTekst) notitieTekst.nativeElement.value = "";
+        this.nieuweNotitieTekst.set("");
         this.scrollTarget()?.nativeElement.scrollIntoView({
           behavior: "smooth",
           block: "start",
@@ -121,32 +125,16 @@ export class NotitiesComponent {
     },
   );
 
-  protected readonly showNotes = signal(false);
   protected readonly geselecteerdeNotitieId = signal<number | null>(null);
   protected readonly maxLengteTextArea = 1000;
 
-  constructor() {
-    effect((onCleanup) => {
-      const zaakUuid = this.zaakUuid();
-      const notitiesListener = this.websocketService.addListener(
-        "UPDATED",
-        "ZAAK_NOTITIES",
-        zaakUuid,
-        () =>
-          void this.queryClient.invalidateQueries({
-            queryKey: this.notitieService.listNotities(zaakUuid).queryKey,
-          }),
-      );
-      onCleanup(() => this.websocketService.removeListener(notitiesListener));
-    });
+  protected pasNotitieAan(notitie: GeneratedType<"RestNote">) {
+    this.bewerkteNotitieTekst.set(notitie.tekst);
+    this.geselecteerdeNotitieId.set(notitie.id ?? null);
   }
 
-  protected toggleNotitieContainer() {
-    this.showNotes.update((showNotes) => !showNotes);
-  }
-
-  protected pasNotitieAan(id: GeneratedType<"RestNote">["id"]) {
-    this.geselecteerdeNotitieId.set(id ?? null);
+  protected tekstVan(event: Event) {
+    return (event.target as HTMLTextAreaElement).value;
   }
 
   private updateCachedNotities(
@@ -160,7 +148,8 @@ export class NotitiesComponent {
     );
   }
 
-  protected maakNotitieAan(tekst: string) {
+  protected maakNotitieAan() {
+    const tekst = this.nieuweNotitieTekst();
     const loggedInUser = this.loggedInUserQuery.data();
     if (!loggedInUser?.username) return;
     if (tekst.length === 0) return;
@@ -173,7 +162,8 @@ export class NotitiesComponent {
     });
   }
 
-  protected updateNotitie(notitie: GeneratedType<"RestNote">, tekst: string) {
+  protected updateNotitie(notitie: GeneratedType<"RestNote">) {
+    const tekst = this.bewerkteNotitieTekst();
     const loggedInUser = this.loggedInUserQuery.data();
     if (!loggedInUser?.username) return;
 
@@ -188,8 +178,6 @@ export class NotitiesComponent {
   }
 
   protected annuleerUpdateNotitie() {
-    const notitieTekst = this.notitieTekst();
-    if (notitieTekst) notitieTekst.nativeElement.value = "";
     this.geselecteerdeNotitieId.set(null);
   }
 

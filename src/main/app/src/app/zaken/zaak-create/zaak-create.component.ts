@@ -117,15 +117,15 @@ export class ZaakCreateComponent {
   private readonly inboxProductaanvraag: GeneratedType<"RestInboxProductaanvraag"> =
     this.router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
 
-  private readonly selectedCaseType = signal<
-    GeneratedType<"RestZaaktype"> | undefined
+  private readonly appliedZaaktypeSettings = signal<
+    GeneratedType<"RestZaaktypeAanmaakInstellingen"> | undefined
   >(undefined);
 
   private readonly groupsQuery = injectQuery(() => ({
     ...this.identityService.listBehandelaarGroupsForZaaktype(
-      this.selectedCaseType()?.omschrijving ?? "",
+      this.appliedZaaktypeSettings()?.omschrijving ?? "",
     ),
-    enabled: !!this.selectedCaseType()?.omschrijving,
+    enabled: !!this.appliedZaaktypeSettings()?.omschrijving,
   }));
 
   protected readonly groups = computed(() => this.groupsQuery.data() ?? []);
@@ -139,7 +139,7 @@ export class ZaakCreateComponent {
 
   protected readonly users = computed(() => this.usersQuery.data() ?? []);
 
-  private groupPrefilledForCaseType?: GeneratedType<"RestZaaktype">;
+  private groupPrefilledForCaseType?: GeneratedType<"RestZaaktypeAanmaakInstellingen">;
   private readonly caseTypesQuery = injectQuery(() =>
     this.zakenService.listZaaktypesForCreationQuery(),
   );
@@ -176,10 +176,11 @@ export class ZaakCreateComponent {
   );
 
   protected readonly form = this.formBuilder.group({
-    zaaktype: this.formBuilder.control<GeneratedType<"RestZaaktype"> | null>(
-      null,
-      [Validators.required],
-    ),
+    zaaktype:
+      this.formBuilder.control<GeneratedType<"RestZaaktypeKeuze"> | null>(
+        null,
+        [Validators.required],
+      ),
     initiatorIdentificatie: this.formBuilder.control<
       GeneratedType<"BetrokkeneIdentificatie"> | null | undefined
     >(null),
@@ -210,6 +211,30 @@ export class ZaakCreateComponent {
   );
   protected readonly zaaktype = this.readZaaktype((control) => control.value);
 
+  private readonly zaaktypeSettingsQuery = injectQuery(() => ({
+    ...this.zakenService.readZaaktypeForCreationQuery(
+      this.zaaktype()?.uuid ?? "",
+    ),
+    enabled: !!this.zaaktype()?.uuid,
+  }));
+
+  protected readonly zaaktypeSettings = computed(() => {
+    const zaaktypeSettings = this.zaaktypeSettingsQuery.data();
+    const chosenZaaktypeUuid = this.zaaktype()?.uuid;
+    return chosenZaaktypeUuid && zaaktypeSettings?.uuid === chosenZaaktypeUuid
+      ? zaaktypeSettings
+      : undefined;
+  });
+
+  private lastSeenZaaktypeSettings?: GeneratedType<"RestZaaktypeAanmaakInstellingen">;
+
+  protected readonly areZaaktypeSettingsApplied = computed(() => {
+    const zaaktypeSettings = this.zaaktypeSettings();
+    return (
+      !!zaaktypeSettings && this.appliedZaaktypeSettings() === zaaktypeSettings
+    );
+  });
+
   private readonly readInitiator = trackControl(
     signal(this.form.controls.initiatorIdentificatie),
   );
@@ -223,12 +248,10 @@ export class ZaakCreateComponent {
   );
 
   protected readonly canAddInitiator = computed(() => {
-    const betrokkeneKoppelingen =
-      this.zaaktype()?.zaakafhandelparameters?.betrokkeneKoppelingen;
-    if (!betrokkeneKoppelingen) return false;
+    const zaaktypeSettings = this.zaaktypeSettings();
+    if (!zaaktypeSettings) return false;
 
-    const { isBrpKoppelenEnabled, isKvkKoppelenEnabled } =
-      betrokkeneKoppelingen;
+    const { isBrpKoppelenEnabled, isKvkKoppelenEnabled } = zaaktypeSettings;
 
     return Boolean(isBrpKoppelenEnabled || isKvkKoppelenEnabled);
   });
@@ -258,21 +281,18 @@ export class ZaakCreateComponent {
     this.form.controls.zaaktype.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((caseType) => {
-        this.caseTypeSelected(caseType);
-
-        if (this.koppeling()) {
-          this.applyCopiedInitiator();
-          return;
-        }
-
-        if (!this.canAddInitiator()) {
-          this.form.controls.initiatorIdentificatie.setValue(null);
-          this.form.controls.initiatorIdentificatie.disable();
-          return;
-        }
-
-        this.form.controls.initiatorIdentificatie.enable();
+        if (caseType?.uuid) return;
+        this.applyInitiatorSettings();
       });
+
+    effect(() => {
+      const zaaktypeSettings = this.zaaktypeSettings();
+      if (zaaktypeSettings === this.lastSeenZaaktypeSettings) return;
+      this.lastSeenZaaktypeSettings = zaaktypeSettings;
+      if (!zaaktypeSettings) return;
+
+      untracked(() => this.applyZaaktypeSettings(zaaktypeSettings));
+    });
 
     this.form.controls.groep.valueChanges
       .pipe(takeUntilDestroyed())
@@ -290,14 +310,14 @@ export class ZaakCreateComponent {
       });
 
     effect(() => {
-      const caseType = this.selectedCaseType();
+      const caseType = this.appliedZaaktypeSettings();
       const groups = this.groupsQuery.data();
       if (!caseType || !groups || this.groupPrefilledForCaseType === caseType)
         return;
       this.groupPrefilledForCaseType = caseType;
 
       const defaultGroup = groups.find(
-        ({ id }) => id === caseType.zaakafhandelparameters?.defaultGroepId,
+        ({ id }) => id === caseType.defaultGroepId,
       );
       untracked(() => this.form.controls.groep.setValue(defaultGroup));
     });
@@ -338,14 +358,14 @@ export class ZaakCreateComponent {
 
     this.form.controls.behandelaar.enable();
     const defaultBehandelaarId =
-      this.form.controls.zaaktype.value?.zaakafhandelparameters
-        ?.defaultBehandelaarId;
+      this.appliedZaaktypeSettings()?.defaultBehandelaarId;
     this.form.controls.behandelaar.setValue(
       users.find(({ username }) => username === defaultBehandelaarId) ?? null,
     );
   }
 
   formSubmit() {
+    if (!this.areZaaktypeSettingsApplied()) return;
     const value = this.form.getRawValue();
 
     this.createZaakMutation.mutate({
@@ -357,7 +377,7 @@ export class ZaakCreateComponent {
         vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
         startdatum: value.startdatum?.toISOString(),
         omschrijving: value.omschrijving!,
-        zaaktype: value.zaaktype!,
+        zaaktype: { uuid: value.zaaktype!.uuid },
       },
       bagObjecten: value.bagObjecten,
       inboxProductaanvraag: this.inboxProductaanvraag,
@@ -420,11 +440,11 @@ export class ZaakCreateComponent {
 
   private applyCopiedInitiator() {
     const initiator = this.copiedInitiator();
-    const caseType = this.form.controls.zaaktype.value;
+    const zaaktypeSettings = this.zaaktypeSettings();
     const isAllowed =
       !initiator ||
-      !caseType ||
-      initiatorAllowedByZaaktype(initiator, caseType);
+      !zaaktypeSettings ||
+      initiatorAllowedByZaaktype(initiator, zaaktypeSettings);
 
     this.initiatorNotCopied.set(!isAllowed);
     this.form.controls.initiatorIdentificatie.setValue(
@@ -441,29 +461,34 @@ export class ZaakCreateComponent {
     await this.actionsSidenav().close();
   }
 
-  caseTypeSelected(caseType?: GeneratedType<"RestZaaktype"> | null) {
-    if (!caseType) return;
-
-    const { vertrouwelijkheidaanduiding } = caseType;
+  private applyZaaktypeSettings(
+    zaaktypeSettings: GeneratedType<"RestZaaktypeAanmaakInstellingen">,
+  ) {
     this.form.controls.groep.enable();
-    if (!caseType.omschrijving) return;
-
-    this.selectedCaseType.set(caseType);
+    this.appliedZaaktypeSettings.set(zaaktypeSettings);
 
     this.form.controls.vertrouwelijkheidaanduiding.setValue(
       this.confidentialityNotices.find(
-        ({ value }) => value === vertrouwelijkheidaanduiding,
+        ({ value }) => value === zaaktypeSettings.vertrouwelijkheidaanduiding,
       ),
     );
 
-    if (
-      !caseType.zaakafhandelparameters?.betrokkeneKoppelingen
-        ?.isKvkKoppelenEnabled &&
-      !caseType.zaakafhandelparameters?.betrokkeneKoppelingen
-        ?.isBrpKoppelenEnabled
-    ) {
-      this.form.controls.initiatorIdentificatie.setValue(null);
+    this.applyInitiatorSettings();
+  }
+
+  private applyInitiatorSettings() {
+    if (this.koppeling()) {
+      this.applyCopiedInitiator();
+      return;
     }
+
+    if (!this.canAddInitiator()) {
+      this.form.controls.initiatorIdentificatie.setValue(null);
+      this.form.controls.initiatorIdentificatie.disable();
+      return;
+    }
+
+    this.form.controls.initiatorIdentificatie.enable();
   }
 
   protected async openSideNav(action: string) {

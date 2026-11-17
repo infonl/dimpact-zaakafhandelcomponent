@@ -22,7 +22,11 @@ fun ZrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID: UUID): Boolean =
         it.naam == ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD && it.waarde == ZAAKEIGENSCHAP_WAARDE_GEAUTORISEERD
     }
 
-fun ZrcClientService.markZaakspecifiekGeautoriseerd(zaak: Zaak, ztcClientService: ZtcClientService) {
+fun ZrcClientService.markZaakspecifiekGeautoriseerd(
+    zaak: Zaak,
+    ztcClientService: ZtcClientService,
+    reden: String
+) {
     if (isZaakspecifiekGeautoriseerd(zaak.uuid)) return
     ztcClientService.readEigenschap(zaak.zaaktype, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD).let { eigenschap ->
         createEigenschap(
@@ -31,7 +35,8 @@ fun ZrcClientService.markZaakspecifiekGeautoriseerd(zaak: Zaak, ztcClientService
                 this.eigenschap = eigenschap.url
                 this.zaak = zaak.url
                 this.waarde = ZAAKEIGENSCHAP_WAARDE_GEAUTORISEERD
-            }
+            },
+            reden = reden
         )
     }
 }

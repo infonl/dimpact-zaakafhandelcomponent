@@ -525,7 +525,7 @@ Een zaak bevat vaak verschillende gegevens zoals documenten, taken, notities en 
 >**C** Initiator | Dit blok bevat de gegevens van de initiator van de zaak. De initiator kan een persoon of bedrijf zijn en is de klant voor wie de zaak aangemaakt is en behandeld wordt.
 >**D** Handelingen | In dit menu staan de handelingen die een behandelaar tot de beschikking heeft bij het behandelen en afhandelen van een zaak. Ook de beschikbare taken en koppelingen zijn via dit menu aan te maken.
 >**E** Taken | In dit blok zijn de aangemaakte taken voor de zaak in te zien.
->**F** Notities | Deze knop activeert het notitieblok.
+>**F** Notities | Deze handeling in het menu opent de notities van de zaak. Tussen haakjes staat hoeveel notities de zaak heeft.
 >**G** Besluiten | In dit blok zijn de vastgelegde besluiten te zien.
 
 ## Zaakgegevens bewerken
@@ -1670,7 +1670,7 @@ Staat er bij een document een waarschuwing dat het niet meer bestaat in Open Zaa
 
 Er kan op ieder moment bij een zaak een notitie worden vastgelegd. Een notitie kan handig zijn om bijvoorbeeld een aantekening vast te leggen die tijdens de behandeling kan helpen maar geen informatie bevat over de uiteindelijke uitkomst van de zaak.
 
-De notities functie wordt geactiveerd met het Notities icoon rechtsonder in het zaakscherm. Als er notities bij een zaak aanwezig zijn dan geeft het icoon aan hoeveel er zijn.
+De notities open je met de handeling Notities in het menu van de zaak, onder Zaak. Als er notities bij een zaak aanwezig zijn, dan staat het aantal tussen haakjes achter de naam, bijvoorbeeld Notities (2). De notities openen in een paneel aan de rechterkant van het zaakscherm. Met Sluiten of het kruis rechtsboven sluit je het paneel.
 
 > De raadpleger mag notities alleen inzien, niet aanpassen of verwijderen. Een behandelaar mag notities van andere behandelaren inzien, maar niet aanpassen of verwijderen. 
 
@@ -1680,13 +1680,13 @@ Een nieuwe notitie kan vanuit de Notities functie gestart worden.
 
 **Stappen:**
 
-1 In een zaak klik je op de Notities icoon
+1 In een zaak klik je in het menu op Notities
 
 2 Voeg de tekst in de tekst box in
 
 ![Notitie aanmaken](./images/notitie-aanmaken.png)
 
-3 Klik op Opslaan om de notitie toe te voegen
+3 Klik op de verzendknop om de notitie op te slaan
 
 4 De notitie is toegevoegd aan het notitieblok
 
@@ -1696,7 +1696,7 @@ Een bestaande notitie kan aangepast worden.
 
 **Stappen:**
 
-1 In een zaak klik je op de Notities icoon
+1 In een zaak klik je in het menu op Notities
 
 2 Klik op het potlood icoon om de tekst box te activeren
 
@@ -1712,7 +1712,7 @@ Een notitie kan verwijderd worden via de Notities functie. Let op de notitie is 
 
 **Stappen:**
 
-1 In een zaak klik je op de Notities icoon
+1 In een zaak klik je in het menu op Notities
 
 2 Klik op het prullenbak icoon om de notitie te verwijderen.
 

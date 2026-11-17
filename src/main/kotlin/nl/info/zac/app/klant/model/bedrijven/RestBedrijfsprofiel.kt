@@ -6,6 +6,7 @@ package nl.info.zac.app.klant.model.bedrijven
 
 import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.client.kvk.basisprofiel.model.generated.Basisprofiel
+import nl.info.client.kvk.util.findAdressen
 import nl.info.client.kvk.vestigingsprofiel.model.generated.Vestiging
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -71,7 +72,7 @@ fun Basisprofiel.toRestBedrijfsprofiel() = RestBedrijfsprofiel(
     rsin = this.embedded?.eigenaar?.rsin,
     rechtsvorm = this.embedded?.eigenaar?.rechtsvorm,
     uitgebreideRechtsvorm = this.embedded?.eigenaar?.uitgebreideRechtsvorm,
-    adressen = this.embedded?.eigenaar?.adressen?.map { it.toRestBedrijfAdres() },
+    adressen = this.findAdressen()?.map { it.toRestBedrijfAdres() },
     website = this.embedded?.eigenaar?.websites?.firstOrNull(),
     statutaireNaam = this.statutaireNaam
 )

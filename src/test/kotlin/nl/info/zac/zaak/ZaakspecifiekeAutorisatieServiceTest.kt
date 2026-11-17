@@ -1874,14 +1874,14 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             val zaakEigenschapSlot = slot<ZaakEigenschap>()
             every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
             every { ztcClientService.readEigenschap(zaak.zaaktype, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD) } returns eigenschap
-            every { zrcClientService.createEigenschap(zaak.uuid, capture(zaakEigenschapSlot)) } returns createZaakEigenschap()
+            every { zrcClientService.createEigenschap(zaak.uuid, capture(zaakEigenschapSlot), "fakeReden") } returns createZaakEigenschap()
             every { flowableTaskService.listOpenTasksForZaak(zaak.uuid) } returns emptyList()
             every { indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid) } just runs
 
             `when`("the zaak is marked") {
-                zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak)
+                zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak, "fakeReden")
 
-                then("the marking is recorded in the zaakregister") {
+                then("the marking is recorded in the zaakregister, with the reden as audit explanation") {
                     with(zaakEigenschapSlot.captured) {
                         this.eigenschap shouldBe eigenschap.url
                         this.zaak shouldBe zaak.url
@@ -1891,7 +1891,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
 
                 and("the zaak, its taken and its documenten are reindexed right away, in that order") {
                     verifyOrder {
-                        zrcClientService.createEigenschap(zaak.uuid, any())
+                        zrcClientService.createEigenschap(zaak.uuid, any(), "fakeReden")
                         indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid)
                     }
                 }
@@ -1915,7 +1915,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             every {
                 ztcClientService.readEigenschap(zaak.zaaktype, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD)
             } returns createEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD)
-            every { zrcClientService.createEigenschap(zaak.uuid, any()) } returns createZaakEigenschap()
+            every { zrcClientService.createEigenschap(zaak.uuid, any(), "fakeReden") } returns createZaakEigenschap()
             every { flowableTaskService.listOpenTasksForZaak(zaak.uuid) } returns listOf(
                 firstTaskOfTaakbehandelaar,
                 secondTaskOfTaakbehandelaar,
@@ -1942,7 +1942,7 @@ class ZaakspecifiekeAutorisatieServiceTest : BehaviorSpec({
             every { indexingService.addOrUpdateZaakWithTakenAndInformatieobjecten(zaak.uuid) } just runs
 
             `when`("the zaak is marked") {
-                zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak)
+                zaakspecifiekeAutorisatieService.markZaakspecifiekGeautoriseerd(zaak, "fakeReden")
 
                 then("only the taakbehandelaar gets a zaakspecifiek geautoriseerde medewerker rol, and only once") {
                     verify(exactly = 1) {

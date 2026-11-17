@@ -8,14 +8,13 @@ import {
   TestRequest,
 } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import { userEvent } from "@testing-library/user-event";
 import { sleep } from "../../../setupJest";
 import { fromPartial } from "../../test-helpers";
-import { WebsocketListener } from "../core/websocket/model/websocket-listener";
-import { WebsocketService } from "../core/websocket/websocket.service";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { NotitiesComponent } from "./notities.component";
 
@@ -36,8 +35,7 @@ const notitie = (fields: Partial<GeneratedType<"RestNote">> = {}) =>
 describe(NotitiesComponent.name, () => {
   let fixture: ComponentFixture<NotitiesComponent>;
   let httpTestingController: HttpTestingController;
-  let websocketService: WebsocketService;
-  let notitiesChangedCallback: () => void;
+  let sideNav: MatDrawer;
 
   async function setup({
     notities = [],
@@ -46,21 +44,12 @@ describe(NotitiesComponent.name, () => {
     notities?: GeneratedType<"RestNote">[];
     notitieRechten?: GeneratedType<"RestNotitieRechten">;
   } = {}) {
-    websocketService = fromPartial<WebsocketService>({
-      addListener: jest.fn((_opcode, _objectType, _objectId, callback) => {
-        notitiesChangedCallback = callback as () => void;
-        return fromPartial<WebsocketListener>({});
-      }),
-      removeListener: jest.fn(),
-    });
+    sideNav = fromPartial<MatDrawer>({ close: jest.fn() });
 
     ({ fixture } = await render(NotitiesComponent, {
-      inputs: { zaakUuid: "fakeZaakUuid", notitieRechten },
+      inputs: { sideNav, zaakUuid: "fakeZaakUuid", notitieRechten },
       imports: [NoopAnimationsModule],
-      providers: [
-        provideTranslateService(),
-        { provide: WebsocketService, useValue: websocketService },
-      ],
+      providers: [provideTranslateService()],
     }));
 
     httpTestingController = TestBed.inject(HttpTestingController);
@@ -75,6 +64,7 @@ describe(NotitiesComponent.name, () => {
       .expectOne("/rest/notities/zaken/fakeZaakUuid")
       .flush(notities);
     await sleep();
+    await sleep();
     fixture.detectChanges();
   }
 
@@ -88,46 +78,61 @@ describe(NotitiesComponent.name, () => {
     fixture.detectChanges();
   }
 
-  async function openNotities() {
-    await userEvent
-      .setup()
-      .click(screen.getByRole("button", { name: "Notities" }));
-    fixture.detectChanges();
-  }
+  describe("the heading", () => {
+    it("shows the number of notities behind the label", async () => {
+      await setup({
+        notities: [notitie({ id: 1 }), notitie({ id: 2 })],
+        notitieRechten: { canLezen: true, canWijzigen: false },
+      });
+
+      expect(
+        screen.getByRole("heading", { level: 3, name: "notities (2)" }),
+      ).toBeInTheDocument();
+    });
+
+    it("shows only the label for a zaak without notities", async () => {
+      await setup({ notitieRechten: { canLezen: true, canWijzigen: false } });
+
+      expect(
+        screen.getByRole("heading", { level: 3, name: "notities" }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("closing the panel", () => {
+    it("closes the side panel with the close button", async () => {
+      await setup({ notitieRechten: { canLezen: true, canWijzigen: false } });
+
+      const [closeButton] = screen.getAllByRole("button", {
+        name: "actie.sluiten",
+      });
+      await userEvent.setup().click(closeButton);
+
+      expect(sideNav.close).toHaveBeenCalledTimes(1);
+    });
+
+    it("closes the side panel with the button Sluiten at the bottom", async () => {
+      await setup({ notitieRechten: { canLezen: true, canWijzigen: false } });
+
+      const [, sluitenButton] = screen.getAllByRole("button", {
+        name: "actie.sluiten",
+      });
+      await userEvent.setup().click(sluitenButton);
+
+      expect(sideNav.close).toHaveBeenCalledTimes(1);
+    });
+  });
 
   describe("for a user who may change notities", () => {
     const notitieRechten = { canLezen: true, canWijzigen: true };
 
-    it("should show the notities of the zaak", async () => {
+    it("shows the notities of the zaak", async () => {
       await setup({ notities: [notitie()], notitieRechten });
-
-      await openNotities();
 
       expect(screen.getByText("fakeTekst1")).toBeInTheDocument();
     });
 
-    it("should listen for changes to the notities of the zaak", async () => {
-      await setup({ notitieRechten });
-
-      expect(websocketService.addListener).toHaveBeenCalledWith(
-        "UPDATED",
-        "ZAAK_NOTITIES",
-        "fakeZaakUuid",
-        expect.any(Function),
-      );
-    });
-
-    it("should reload the notities when someone else adds one", async () => {
-      await setup({ notitieRechten });
-
-      notitiesChangedCallback();
-      await respondWithNotities([notitie({ tekst: "fakeNieuweTekst" })]);
-      await openNotities();
-
-      expect(screen.getByText("fakeNieuweTekst")).toBeInTheDocument();
-    });
-
-    it("should show the notities of the new zaak and listen to it instead when the zaakUuid changes", async () => {
+    it("shows the notities of the new zaak when the zaakUuid changes", async () => {
       await setup({ notitieRechten });
 
       fixture.componentRef.setInput("zaakUuid", "fakeZaakUuid2");
@@ -136,42 +141,13 @@ describe(NotitiesComponent.name, () => {
         .expectOne("/rest/notities/zaken/fakeZaakUuid2")
         .flush([notitie({ zaakUUID: "fakeZaakUuid2", tekst: "fakeTekst2" })]);
       await sleep();
+      await sleep();
       fixture.detectChanges();
-      await openNotities();
 
       expect(screen.getByText("fakeTekst2")).toBeInTheDocument();
-      expect(websocketService.removeListener).toHaveBeenCalledTimes(1);
-      expect(websocketService.addListener).toHaveBeenLastCalledWith(
-        "UPDATED",
-        "ZAAK_NOTITIES",
-        "fakeZaakUuid2",
-        expect.any(Function),
-      );
     });
 
-    it("should stop listening for changes to the notities when it is destroyed", async () => {
-      await setup({ notitieRechten });
-
-      fixture.destroy();
-
-      expect(websocketService.removeListener).toHaveBeenCalledTimes(1);
-    });
-
-    it("should reload the notities when it is shown again, so changes made while it was not listening are not missed", async () => {
-      await setup({ notities: [notitie()], notitieRechten });
-      fixture.destroy();
-
-      fixture = TestBed.createComponent(NotitiesComponent);
-      fixture.componentRef.setInput("zaakUuid", "fakeZaakUuid");
-      fixture.componentRef.setInput("notitieRechten", notitieRechten);
-      fixture.detectChanges();
-      await respondWithNotities([notitie({ tekst: "fakeNieuweTekst" })]);
-      await openNotities();
-
-      expect(screen.getByText("fakeNieuweTekst")).toBeInTheDocument();
-    });
-
-    it("should show the most recently changed notitie first, after the notities without a change time", async () => {
+    it("shows the most recently changed notitie first, after the notities without a change time", async () => {
       await setup({
         notities: [
           notitie({
@@ -189,8 +165,6 @@ describe(NotitiesComponent.name, () => {
         notitieRechten,
       });
 
-      await openNotities();
-
       expect(
         screen
           .getAllByText(/^fake.*Tekst/)
@@ -202,20 +176,8 @@ describe(NotitiesComponent.name, () => {
       ]);
     });
 
-    it("should offer to add a notitie", async () => {
-      await setup({ notitieRechten });
-
-      await openNotities();
-
-      expect(
-        screen.getByRole("textbox", { name: "actie.notitie.aanmaken" }),
-      ).toBeInTheDocument();
-    });
-
-    it("should offer to edit and to delete a notitie the user may edit", async () => {
+    it("offers to edit and to delete a notitie the user may edit", async () => {
       await setup({ notities: [notitie()], notitieRechten });
-
-      await openNotities();
 
       expect(
         screen.getByRole("button", { name: "actie.bewerken" }),
@@ -223,6 +185,20 @@ describe(NotitiesComponent.name, () => {
       expect(
         screen.getByRole("button", { name: "actie.verwijderen" }),
       ).toBeInTheDocument();
+    });
+
+    it("offers neither edit nor delete for a notitie the user may not edit", async () => {
+      await setup({
+        notities: [notitie({ isBewerkenToegestaan: false })],
+        notitieRechten,
+      });
+
+      expect(
+        screen.queryByRole("button", { name: "actie.bewerken" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "actie.verwijderen" }),
+      ).not.toBeInTheDocument();
     });
 
     describe("adding a notitie", () => {
@@ -238,10 +214,26 @@ describe(NotitiesComponent.name, () => {
           scrollIntoView as Element["scrollIntoView"];
       });
 
-      it("should add the notitie to the zaak, in the name of the current user", async () => {
-        const user = userEvent.setup();
+      it("disables the send button while the field is empty", async () => {
         await setup({ notitieRechten });
-        await openNotities();
+
+        expect(
+          screen.getByRole("button", { name: "actie.opslaan" }),
+        ).toBeDisabled();
+      });
+
+      it("adds the notitie to the zaak in the name of the current user, shows it at the top and empties the field", async () => {
+        const user = userEvent.setup();
+        await setup({
+          notities: [
+            notitie({
+              id: 1,
+              tekst: "fakeBestaandeTekst",
+              tijdstipLaatsteWijziging: "2026-01-01T10:00:00Z",
+            }),
+          ],
+          notitieRechten,
+        });
 
         await user.type(
           screen.getByRole("textbox", { name: "actie.notitie.aanmaken" }),
@@ -258,27 +250,44 @@ describe(NotitiesComponent.name, () => {
           tekst: "fakeNieuweTekst",
           gebruikersnaamMedewerker: "currentUser",
         });
-        await answerMutation(request, { ...request.request.body, id: 2 });
+        await answerMutation(request, {
+          ...request.request.body,
+          id: 2,
+          tijdstipLaatsteWijziging: "2026-02-01T10:00:00Z",
+        });
 
-        expect(screen.getByText("fakeNieuweTekst")).toBeInTheDocument();
+        expect(
+          screen
+            .getAllByText(/^fake.*Tekst$/)
+            .map((element) => element.textContent?.trim()),
+        ).toEqual(["fakeNieuweTekst", "fakeBestaandeTekst"]);
+        expect(
+          screen.getByRole("textbox", { name: "actie.notitie.aanmaken" }),
+        ).toHaveValue("");
+        expect(
+          screen.getByRole("heading", { level: 3, name: "notities (2)" }),
+        ).toBeInTheDocument();
       });
     });
 
     describe("editing a notitie", () => {
-      async function editNotitie(tekst: string) {
+      async function startEditing() {
         const user = userEvent.setup();
         await setup({ notities: [notitie()], notitieRechten });
-        await openNotities();
-
         await user.click(
           screen.getByRole("button", { name: "actie.bewerken" }),
         );
         fixture.detectChanges();
+        return user;
+      }
+
+      async function editNotitie(tekst: string) {
+        const user = await startEditing();
         const textbox = screen.getByRole("textbox", {
           name: "actie.notitie.wijzigen",
         });
         await user.clear(textbox);
-        if (tekst) await user.type(textbox, tekst);
+        await user.type(textbox, tekst);
         fixture.detectChanges();
         const [opslaanButton] = screen.getAllByRole("button", {
           name: "actie.opslaan",
@@ -287,7 +296,18 @@ describe(NotitiesComponent.name, () => {
         await sleep();
       }
 
-      it("should save the new text in the name of the current user and show it", async () => {
+      it("starts with the current text of the notitie and disables adding a notitie meanwhile", async () => {
+        await startEditing();
+
+        expect(
+          screen.getByRole("textbox", { name: "actie.notitie.wijzigen" }),
+        ).toHaveValue("fakeTekst1");
+        expect(
+          screen.getByRole("textbox", { name: "actie.notitie.aanmaken" }),
+        ).toBeDisabled();
+      });
+
+      it("saves the new text in the name of the current user and shows it", async () => {
         await editNotitie("fakeGewijzigdeTekst");
 
         const request = httpTestingController.expectOne("/rest/notities");
@@ -300,16 +320,46 @@ describe(NotitiesComponent.name, () => {
         await answerMutation(request, request.request.body);
 
         expect(screen.getByText("fakeGewijzigdeTekst")).toBeInTheDocument();
+        expect(
+          screen.queryByRole("textbox", { name: "actie.notitie.wijzigen" }),
+        ).not.toBeInTheDocument();
       });
 
-      it("should not save an empty text", async () => {
-        await editNotitie("");
+      it("disables saving an empty text", async () => {
+        const user = await startEditing();
 
+        await user.clear(
+          screen.getByRole("textbox", { name: "actie.notitie.wijzigen" }),
+        );
+        fixture.detectChanges();
+
+        const [opslaanButton] = screen.getAllByRole("button", {
+          name: "actie.opslaan",
+        });
+        expect(opslaanButton).toBeDisabled();
+      });
+
+      it("keeps the old text and leaves edit mode on cancel", async () => {
+        const user = await startEditing();
+        await user.type(
+          screen.getByRole("textbox", { name: "actie.notitie.wijzigen" }),
+          "fakeNietOpgeslagen",
+        );
+
+        await user.click(
+          screen.getByRole("button", { name: "actie.annuleren" }),
+        );
+        fixture.detectChanges();
+
+        expect(screen.getByText("fakeTekst1")).toBeInTheDocument();
+        expect(
+          screen.queryByRole("textbox", { name: "actie.notitie.wijzigen" }),
+        ).not.toBeInTheDocument();
         httpTestingController.expectNone("/rest/notities");
       });
     });
 
-    it("should delete the selected notitie and remove it from the list", async () => {
+    it("deletes the selected notitie, removes it from the list and lowers the count", async () => {
       await setup({
         notities: [
           notitie({ id: 1, tekst: "een", isBewerkenToegestaan: false }),
@@ -317,7 +367,6 @@ describe(NotitiesComponent.name, () => {
         ],
         notitieRechten,
       });
-      await openNotities();
 
       await userEvent
         .setup()
@@ -329,16 +378,17 @@ describe(NotitiesComponent.name, () => {
 
       expect(screen.getByText("een")).toBeInTheDocument();
       expect(screen.queryByText("twee")).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { level: 3, name: "notities (1)" }),
+      ).toBeInTheDocument();
     });
   });
 
   describe("for a user who may only read notities", () => {
     const notitieRechten = { canLezen: true, canWijzigen: false };
 
-    it("should show the notities, without offering to add, edit or delete one", async () => {
+    it("shows the notities, without offering to add, edit or delete one", async () => {
       await setup({ notities: [notitie()], notitieRechten });
-
-      await openNotities();
 
       expect(screen.getByText("fakeTekst1")).toBeInTheDocument();
       expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
@@ -350,9 +400,8 @@ describe(NotitiesComponent.name, () => {
       ).not.toBeInTheDocument();
     });
 
-    it("should offer to add a notitie once the user may change notities", async () => {
+    it("offers to add a notitie once the user may change notities", async () => {
       await setup({ notities: [notitie()], notitieRechten });
-      await openNotities();
 
       fixture.componentRef.setInput("notitieRechten", {
         canLezen: true,
@@ -367,10 +416,8 @@ describe(NotitiesComponent.name, () => {
   });
 
   describe("without notitie rights", () => {
-    it("should not offer to add a notitie", async () => {
+    it("does not offer to add a notitie", async () => {
       await setup();
-
-      await openNotities();
 
       expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
     });

@@ -245,8 +245,10 @@ class ZrcClientService @Inject constructor(
         }
     }
 
-    fun createEigenschap(zaakUUID: UUID, zaakEigenschap: ZaakEigenschap): ZaakEigenschap =
-        zrcClient.zaakeigenschapCreate(zaakUUID, zaakEigenschap)
+    fun createEigenschap(zaakUUID: UUID, zaakEigenschap: ZaakEigenschap, reden: String? = null): ZaakEigenschap =
+        zgwClientHeadersFactory.withAuditExplanation(reden) {
+            zrcClient.zaakeigenschapCreate(zaakUUID, zaakEigenschap)
+        }
 
     fun listZaakeigenschappen(zaakUUID: UUID): List<ZaakEigenschap> = zrcClient.zaakeigenschapList(zaakUUID)
 
