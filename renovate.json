@@ -760,7 +760,7 @@
       "matchDatasources": [
         "helm"
       ],
-      "allowedVersions": "< 1.2.0",
+      "allowedVersions": "< 1.3.0",
       "description": [
         "The upstream Open Object Helm chart of the kind stack, pinned by the next Dimpact PodiumD release"
       ]
@@ -796,7 +796,7 @@
       "matchDatasources": [
         "helm"
       ],
-      "allowedVersions": "< 1.13.0",
+      "allowedVersions": "< 1.14.0",
       "description": [
         "The upstream Open Formulieren Helm chart of the kind stack, pinned by the next Dimpact PodiumD release"
       ]
