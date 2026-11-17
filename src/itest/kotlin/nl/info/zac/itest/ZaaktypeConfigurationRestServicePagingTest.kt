@@ -8,10 +8,13 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.longs.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.ResponseContent
 import nl.info.zac.itest.config.BEHEERDER_1
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_BEGIN_GELDIGHEID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_UUID
@@ -19,6 +22,8 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_IDENTIFI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_OK
+
+private const val ALL_ROWS = 1000
 
 class ZaaktypeConfigurationRestServicePagingTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
@@ -29,6 +34,15 @@ class ZaaktypeConfigurationRestServicePagingTest : BehaviorSpec({
         requestBodyAsString = requestBody,
         testUser = BEHEERDER_1
     ).also { logger.info { "Response: ${it.bodyAsString}" } }
+
+    fun beginGeldigheidRangeBody(van: String?, tot: String?) = JSONObject()
+        .put("page", 0)
+        .put("rows", ALL_ROWS)
+        .put("beginGeldigheid", JSONObject().put("van", van ?: JSONObject.NULL).put("tot", tot ?: JSONObject.NULL))
+        .toString()
+
+    fun ResponseContent.zaaktypeConfigurationOverzichten() =
+        JSONObject(bodyAsString).getJSONArray("resultaten").map { it as JSONObject }
 
     given("Zaaktype CMMN configurations have been created for the CMMN test zaaktypes, and a beheerder is logged in") {
         `when`("the beheerder lists the first page of one row of the zaaktype configurations, sorted on omschrijving") {
@@ -85,6 +99,48 @@ class ZaaktypeConfigurationRestServicePagingTest : BehaviorSpec({
                 }
                 restZaaktypeConfigurationOverzichtResultaat.getLong("totaal") shouldBe
                     restZaaktypeConfigurationOverzichten.size.toLong()
+            }
+        }
+
+        `when`(
+            "the beheerder lists the zaaktype configurations whose begin geldigheid lies in a range that starts and " +
+                "ends on the begin geldigheid of the '$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION' zaaktype"
+        ) {
+            val response = listZaaktypeConfigurationPage(
+                beginGeldigheidRangeBody(ZAAKTYPE_CMMN_TEST_1_BEGIN_GELDIGHEID, ZAAKTYPE_CMMN_TEST_1_BEGIN_GELDIGHEID)
+            )
+            val restZaaktypeConfigurationOverzichten = response.zaaktypeConfigurationOverzichten()
+
+            then("the configuration of that zaaktype is returned, so both ends of the range are included") {
+                response.code shouldBe HTTP_OK
+                restZaaktypeConfigurationOverzichten.map { it.getJSONObject("zaaktype").getString("uuid") }
+                    .shouldContain(ZAAKTYPE_CMMN_TEST_1_UUID.toString())
+            }
+            and("every returned configuration belongs to a zaaktype with that begin geldigheid") {
+                restZaaktypeConfigurationOverzichten.forEach {
+                    it.getJSONObject("zaaktype").getString("beginGeldigheid") shouldBe
+                        ZAAKTYPE_CMMN_TEST_1_BEGIN_GELDIGHEID
+                }
+            }
+        }
+
+        `when`(
+            "the beheerder lists the zaaktype configurations whose begin geldigheid lies in a range that starts the " +
+                "day after, or ends the day before, the begin geldigheid of the '$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION' " +
+                "zaaktype"
+        ) {
+            val rangeFromTheDayAfter = listZaaktypeConfigurationPage(
+                beginGeldigheidRangeBody(van = "2025-07-02", tot = null)
+            ).zaaktypeConfigurationOverzichten()
+            val rangeUntilTheDayBefore = listZaaktypeConfigurationPage(
+                beginGeldigheidRangeBody(van = null, tot = "2025-06-30")
+            ).zaaktypeConfigurationOverzichten()
+
+            then("the configuration of that zaaktype is not returned") {
+                listOf(rangeFromTheDayAfter, rangeUntilTheDayBefore).forEach { restZaaktypeConfigurationOverzichten ->
+                    restZaaktypeConfigurationOverzichten.map { it.getJSONObject("zaaktype").getString("uuid") }
+                        .shouldNotContain(ZAAKTYPE_CMMN_TEST_1_UUID.toString())
+                }
             }
         }
     }
