@@ -51,6 +51,7 @@ import { ParametersStepKoppelingenComponent } from "./steps/parameters-step-kopp
 import { ParametersStepMailComponent } from "./steps/parameters-step-mail/parameters-step-mail.component";
 import { ParametersStepProcesModelComponent } from "./steps/parameters-step-proces-model/parameters-step-proces-model.component";
 import {
+  isSameProcessDefinition,
   ProcessDefinition,
   toProcessDefinition,
 } from "./steps/parameters-step-proces-model/process-model-form";
@@ -152,7 +153,6 @@ export class ParametersEditComponent
     () =>
       this.formValid() === true &&
       this.processDefinition() !== null &&
-      // Until both have loaded, tasks lack their default reference tables.
       this.formulierDefinitiesQuery.data() !== undefined &&
       this.referentieTabellenQuery.data() !== undefined &&
       !this.updateZaakafhandelparametersMutation.isPending(),
@@ -250,9 +250,10 @@ export class ParametersEditComponent
       const configuration = this.configuration();
       const isStoredProcessDefinition =
         processDefinition !== null &&
-        processDefinition.processEngine ===
-          configuration.processDefinition?.processEngine &&
-        processDefinition.key === configuration.processDefinition?.key;
+        isSameProcessDefinition(
+          processDefinition,
+          configuration.processDefinition,
+        );
       form.setControl(
         "humanTasks",
         isStoredProcessDefinition

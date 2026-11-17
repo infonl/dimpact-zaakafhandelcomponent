@@ -81,8 +81,7 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
         hasZaken: Boolean
     ) {
         val binding = findConfiguration(zaaktypeUuid)?.processBinding ?: return
-        val isSameBinding = binding.processEngine == processEngine && binding.definitionKey == definitionKey
-        if (!isSameBinding && hasZaken) {
+        if (!binding.isBoundTo(processEngine, definitionKey) && hasZaken) {
             throw InputValidationFailedException(
                 errorCode = ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE,
                 message = "The process definition of the configuration of zaaktype '$zaaktypeUuid' cannot change " +

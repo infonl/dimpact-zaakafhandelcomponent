@@ -167,9 +167,8 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
     private fun ZaaktypeConfiguration.applyProcessDefinition(restZaaktypeConfiguration: RestZaaktypeConfiguration) {
         val processDefinition = restZaaktypeConfiguration.processDefinition
             ?: throw NullPointerException("restZaakafhandelParameters.processDefinition is null")
-        val isOtherDefinition = processBinding?.let {
-            it.processEngine != processDefinition.processEngine || it.definitionKey != processDefinition.key
-        } ?: false
+        val isOtherDefinition =
+            processBinding?.isBoundTo(processDefinition.processEngine, processDefinition.key) == false
         bindTo(processDefinition.processEngine, processDefinition.key)
         cmmnExtension?.apply {
             val caseDefinition = processBinding?.let {

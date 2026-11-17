@@ -226,7 +226,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                 } returns listOf(otherZaaktypeConfiguration)
 
                 `when`("a configuration of a zaaktype with another omschrijving uses it") {
-                    val exception = shouldThrow<InputValidationFailedException> {
+                    val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
                         zaaktypeConfigurationBeheerService.checkProductaanvraagtypeIsNotInUse(
                             productaanvraagtype = "fakeProductaanvraagtype",
                             zaaktypeOmschrijving = "fakeZaaktype"
@@ -234,7 +234,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                     }
 
                     then("it is rejected as already in use") {
-                        exception.errorCode shouldBe ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
+                        inputValidationFailedException.errorCode shouldBe ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
                     }
                 }
             }
@@ -454,7 +454,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
             }
 
             `when`("it is bound to another BPMN process definition") {
-                val exception = shouldThrow<InputValidationFailedException> {
+                val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
                     zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
                         zaaktypeUuid = zaaktypeUuid,
                         processEngine = ProcessEngine.BPMN,
@@ -464,14 +464,14 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                 }
 
                 then("the binding is rejected with an error code that the beheerder sees explained") {
-                    exception.errorCode shouldBe ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE
-                    exception.message shouldBe "The process definition of the configuration of zaaktype " +
+                    inputValidationFailedException.errorCode shouldBe ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE
+                    inputValidationFailedException.message shouldBe "The process definition of the configuration of zaaktype " +
                         "'$zaaktypeUuid' cannot change from BPMN 'fakeProcessA' to BPMN 'fakeProcessB'"
                 }
             }
 
             `when`("it is bound to a CMMN case definition with the same key as its BPMN process definition") {
-                val exception = shouldThrow<InputValidationFailedException> {
+                val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
                     zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
                         zaaktypeUuid = zaaktypeUuid,
                         processEngine = ProcessEngine.CMMN,
@@ -481,7 +481,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                 }
 
                 then("the binding is rejected, because the engine is part of the binding") {
-                    exception.errorCode shouldBe ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE
+                    inputValidationFailedException.errorCode shouldBe ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE
                 }
             }
         }
@@ -544,7 +544,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
             every { zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid) } returns zaaktypeConfiguration
 
             `when`("it is bound to another CMMN case definition") {
-                val exception = shouldThrow<InputValidationFailedException> {
+                val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
                     zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
                         zaaktypeUuid = zaaktypeUuid,
                         processEngine = ProcessEngine.CMMN,
@@ -554,14 +554,14 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                 }
 
                 then("the binding is rejected with the error code that the beheerder sees explained") {
-                    exception.errorCode shouldBe ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE
-                    exception.message shouldBe "The process definition of the configuration of zaaktype " +
+                    inputValidationFailedException.errorCode shouldBe ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE
+                    inputValidationFailedException.message shouldBe "The process definition of the configuration of zaaktype " +
                         "'$zaaktypeUuid' cannot change from CMMN '$caseDefinitionKey' to CMMN 'fakeOtherCaseDefinition'"
                 }
             }
 
             `when`("it is bound to a BPMN process definition") {
-                val exception = shouldThrow<InputValidationFailedException> {
+                val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
                     zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
                         zaaktypeUuid = zaaktypeUuid,
                         processEngine = ProcessEngine.BPMN,
@@ -571,7 +571,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                 }
 
                 then("the binding is rejected with the same error code") {
-                    exception.errorCode shouldBe ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE
+                    inputValidationFailedException.errorCode shouldBe ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE
                 }
             }
         }
@@ -601,7 +601,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
             every { zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid) } returns zaaktypeConfiguration
 
             `when`("the binding is checked") {
-                val exception = shouldThrow<InputValidationFailedException> {
+                val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
                     zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
                         zaaktypeUuid = zaaktypeUuid,
                         processEngine = ProcessEngine.CMMN,
@@ -611,7 +611,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                 }
 
                 then("it is rejected with the error code that the beheerder sees explained") {
-                    exception.errorCode shouldBe ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE
+                    inputValidationFailedException.errorCode shouldBe ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE
                 }
             }
         }

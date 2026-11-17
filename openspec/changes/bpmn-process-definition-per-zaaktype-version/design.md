@@ -74,6 +74,8 @@ sends none, and stores only the settings of plan items that the new case definit
 both case definitions share are updated in place. On every bind to CMMN, it adds a default setting, without
 toelichting, for each user event listener of the case definition that has no setting after the save, because listing
 the actions of a zaak requires one per listener. Stored settings that the save leaves out keep their toelichting.
+Because the converter reads the case definition before the store, a save with an unknown case definition stores
+nothing; before this change, it stored the binding and then failed while building the response.
 
 The zaken lookup runs before the transaction of the save, and the save builds its response after the commit. A
 failed zaken lookup therefore stores nothing. The Catalogi reads of the response run after the commit, as they did
@@ -86,7 +88,10 @@ makes the response report a changeable configuration once; the next save checks 
 
 While `isProcessDefinitionChangeable` is `true`, the step offers the CMMN case definitions and the BPMN process
 definitions, as for an unbound configuration. When the beheerder chooses another engine, the screen shows the steps of
-that engine, as it does for an unsaved configuration.
+that engine, as it does for an unsaved configuration. When the beheerder chooses the stored process definition again,
+the screen restores its stored task and action settings. Because the human tasks get their default reference tables
+from the formulier definitions and the reference tables, the screen enables Save only once both have loaded; when one
+of those reads fails, the screen reports that error and Save stays disabled.
 
 ### D6. The screen explains whether the process definition may change
 

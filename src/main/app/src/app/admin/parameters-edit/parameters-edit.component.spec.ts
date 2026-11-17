@@ -156,15 +156,28 @@ const otherBpmnProcessDefinition = fromPartial<
 const rejectedWith = (errorCode: string) =>
   new HttpErrorResponse({ status: 400, error: { message: errorCode } });
 
+const PROCESS_DEFINITION_CANNOT_CHANGE =
+  "msg.error.process.definition.cannot.change";
+
+/** Lets pending requests and their effects settle before asserting that nothing changed. */
+const settle = () => new Promise((resolve) => setTimeout(resolve));
+
 describe(ParametersEditComponent.name, () => {
   const user = userEvent.setup();
 
   async function setup(
     configuration: ZaaktypeConfiguration,
-    savedConfiguration = configuration,
-    storedConfiguration = configuration,
-    formulierDefinitiesResponse = Promise.resolve(formulierDefinities),
-    referentieTabellenResponse = Promise.resolve([adviesReferentieTabel]),
+    {
+      savedConfiguration = configuration,
+      storedConfiguration = configuration,
+      formulierDefinitiesResponse = Promise.resolve(formulierDefinities),
+      referentieTabellenResponse = Promise.resolve([adviesReferentieTabel]),
+    }: {
+      savedConfiguration?: ZaaktypeConfiguration;
+      storedConfiguration?: ZaaktypeConfiguration;
+      formulierDefinitiesResponse?: Promise<typeof formulierDefinities>;
+      referentieTabellenResponse?: Promise<(typeof adviesReferentieTabel)[]>;
+    } = {},
   ) {
     const updateZaakafhandelparameters =
       createMutationOptions(savedConfiguration);
@@ -431,11 +444,13 @@ describe(ParametersEditComponent.name, () => {
       it("locks the stored process definition and explains why when a zaak was created before the beheerder saved another one", async () => {
         const { updateZaakafhandelparameters } = await setup(
           changeableConfiguration,
-          changeableConfiguration,
-          configuration,
+          {
+            savedConfiguration: changeableConfiguration,
+            storedConfiguration: configuration,
+          },
         );
         updateZaakafhandelparameters.mutationFn.mockRejectedValue(
-          rejectedWith("msg.error.process.definition.cannot.change"),
+          rejectedWith(PROCESS_DEFINITION_CANNOT_CHANGE),
         );
 
         await goToStep("gegevens.procesmodel");
@@ -460,11 +475,13 @@ describe(ParametersEditComponent.name, () => {
       it("shows the procesmodel step with the steps of the stored process definition when a zaak was created before the beheerder saved another one", async () => {
         const { updateZaakafhandelparameters } = await setup(
           changeableConfiguration,
-          changeableConfiguration,
-          configuration,
+          {
+            savedConfiguration: changeableConfiguration,
+            storedConfiguration: configuration,
+          },
         );
         updateZaakafhandelparameters.mutationFn.mockRejectedValue(
-          rejectedWith("msg.error.process.definition.cannot.change"),
+          rejectedWith(PROCESS_DEFINITION_CANNOT_CHANGE),
         );
 
         await goToStep("gegevens.procesmodel");
@@ -483,7 +500,7 @@ describe(ParametersEditComponent.name, () => {
         const { updateZaakafhandelparameters, readZaakafhandelparameters } =
           await setup(changeableConfiguration);
         updateZaakafhandelparameters.mutationFn.mockRejectedValue(
-          rejectedWith("msg.error.process.definition.cannot.change"),
+          rejectedWith(PROCESS_DEFINITION_CANNOT_CHANGE),
         );
 
         await goToStep("gegevens.procesmodel");
@@ -495,7 +512,7 @@ describe(ParametersEditComponent.name, () => {
           expect(readZaakafhandelparameters.queryFn).toHaveBeenCalled(),
         );
         await readZaakafhandelparameters.queryFn.mock.results[0].value;
-        await new Promise((resolve) => setTimeout(resolve));
+        await settle();
 
         const procesModelCombobox = screen.getByRole("combobox", {
           name: /procesmodel/i,
@@ -522,7 +539,7 @@ describe(ParametersEditComponent.name, () => {
         await waitFor(() =>
           expect(updateZaakafhandelparameters.mutationFn).toHaveBeenCalled(),
         );
-        await new Promise((resolve) => setTimeout(resolve));
+        await settle();
         expect(readZaakafhandelparameters.queryFn).not.toHaveBeenCalled();
         expect(
           screen.getByRole("combobox", { name: /procesmodel/i }),
@@ -533,7 +550,7 @@ describe(ParametersEditComponent.name, () => {
         const { updateZaakafhandelparameters, readZaakafhandelparameters } =
           await setup(changeableConfiguration);
         updateZaakafhandelparameters.mutationFn.mockRejectedValue(
-          rejectedWith("msg.error.process.definition.cannot.change"),
+          rejectedWith(PROCESS_DEFINITION_CANNOT_CHANGE),
         );
         readZaakafhandelparameters.queryFn.mockRejectedValue(
           new HttpErrorResponse({ status: 500 }),
@@ -551,7 +568,7 @@ describe(ParametersEditComponent.name, () => {
         await waitFor(() =>
           expect(readZaakafhandelparameters.queryFn).toHaveBeenCalled(),
         );
-        await new Promise((resolve) => setTimeout(resolve));
+        await settle();
 
         expect(
           screen.getByRole("combobox", { name: /procesmodel/i }),
@@ -660,15 +677,12 @@ describe(ParametersEditComponent.name, () => {
       formulierDefinitiesResponse,
       referentieTabellenResponse,
     ) => {
-      await setup(
-        cmmnConfiguration,
-        undefined,
-        undefined,
+      await setup(cmmnConfiguration, {
         formulierDefinitiesResponse,
         referentieTabellenResponse,
-      );
+      });
 
-      await new Promise((resolve) => setTimeout(resolve));
+      await settle();
 
       expect(opslaan()).toBeDisabled();
     },
@@ -693,9 +707,11 @@ describe(ParametersEditComponent.name, () => {
           },
         ],
       }),
-      undefined,
-      undefined,
-      new Promise((resolve) => (resolveFormulierDefinities = resolve)),
+      {
+        formulierDefinitiesResponse: new Promise(
+          (resolve) => (resolveFormulierDefinities = resolve),
+        ),
+      },
     );
 
     await goToStep("gegevens.procesmodel");
@@ -869,7 +885,9 @@ describe(ParametersEditComponent.name, () => {
     }
 
     it("follows the backend after saving, and no longer lets the beheerder choose another process definition when it does not allow it", async () => {
-      await setup(unsavedConfiguration, bpmnConfiguration);
+      await setup(unsavedConfiguration, {
+        savedConfiguration: bpmnConfiguration,
+      });
 
       await saveAsBpmnConfiguration();
       const procesModel = await goToStep("gegevens.procesmodel");
@@ -884,10 +902,12 @@ describe(ParametersEditComponent.name, () => {
     it("follows the backend after saving, and keeps letting the beheerder choose another process definition when it allows it", async () => {
       const { updateZaakafhandelparameters } = await setup(
         unsavedConfiguration,
-        fromPartial<ZaaktypeConfiguration>({
-          ...bpmnConfiguration,
-          isProcessDefinitionChangeable: true,
-        }),
+        {
+          savedConfiguration: fromPartial<ZaaktypeConfiguration>({
+            ...bpmnConfiguration,
+            isProcessDefinitionChangeable: true,
+          }),
+        },
       );
 
       await saveAsBpmnConfiguration();

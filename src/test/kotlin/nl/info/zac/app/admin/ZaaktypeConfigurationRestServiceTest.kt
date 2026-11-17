@@ -171,7 +171,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
             } throws InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
 
             `when`("the zaakafhandelparameters are created") {
-                val exception = shouldThrow<InputValidationFailedException> {
+                val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
                     zaaktypeConfigurationRestService.createOrUpdateZaaktypeConfiguration(
                         restZaakafhandelParameters.zaaktype.uuid,
                         restZaakafhandelParameters
@@ -183,8 +183,8 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                 an exception should be thrown indicating that the provided productaanvraagtype is already in use
                 """
                 ) {
-                    exception.errorCode shouldBe ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
-                    exception.message shouldBe null
+                    inputValidationFailedException.errorCode shouldBe ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
+                    inputValidationFailedException.message shouldBe null
                     verify(exactly = 0) { zaaktypeConfigurationBeheerService.storeConfiguration(zaakafhandelParameters) }
                 }
             }
@@ -196,7 +196,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
         every { smartDocumentsTemplatesService.listTemplates() } returns emptySet()
 
         `when`("storing templates mapping") {
-            val exception = shouldThrow<SmartDocumentsConfigurationException> {
+            val smartDocumentsConfigurationException = shouldThrow<SmartDocumentsConfigurationException> {
                 zaaktypeConfigurationRestService.storeSmartDocumentsTemplatesMapping(
                     UUID.randomUUID(),
                     emptySet()
@@ -204,7 +204,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
             }
 
             then("exception is thrown") {
-                exception.message shouldBe "Validation failed. No SmartDocuments templates available"
+                smartDocumentsConfigurationException.message shouldBe "Validation failed. No SmartDocuments templates available"
             }
         }
     }
@@ -223,7 +223,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                 defaultBehandelaarId = behandelaarId,
                 defaultGroupId = behandelaarGroupId
             )
-            val exception = shouldThrow<InputValidationFailedException> {
+            val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
                 zaaktypeConfigurationRestService.createOrUpdateZaaktypeConfiguration(
                     restZaakafhandelParameters.zaaktype.uuid,
                     restZaakafhandelParameters
@@ -231,8 +231,8 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
             }
 
             then("an exception is thrown") {
-                exception.errorCode shouldBe ERROR_CODE_USER_NOT_IN_GROUP
-                exception.message shouldBe null
+                inputValidationFailedException.errorCode shouldBe ERROR_CODE_USER_NOT_IN_GROUP
+                inputValidationFailedException.message shouldBe null
                 verify(exactly = 0) { zaaktypeConfigurationBeheerService.storeConfiguration(zaaktypeCmmnConfiguration) }
             }
         }
@@ -244,7 +244,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
         every { policyService.readOverigeRechten().canBeheren } returns true
 
         `when`("it is stored") {
-            val exception = shouldThrow<InputValidationFailedException> {
+            val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
                 zaaktypeConfigurationRestService.createOrUpdateZaaktypeConfiguration(
                     otherZaaktypeUuid,
                     restZaaktypeConfiguration
@@ -252,7 +252,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
             }
 
             then("it is rejected and nothing is stored") {
-                exception.errorCode shouldBe ERROR_CODE_VALIDATION_GENERIC
+                inputValidationFailedException.errorCode shouldBe ERROR_CODE_VALIDATION_GENERIC
                 verify(exactly = 0) { zaaktypeConfigurationBeheerService.storeConfiguration(any()) }
             }
         }
@@ -263,7 +263,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
         every { policyService.readOverigeRechten().canBeheren } returns true
 
         `when`("it is stored") {
-            val exception = shouldThrow<InputValidationFailedException> {
+            val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
                 zaaktypeConfigurationRestService.createOrUpdateZaaktypeConfiguration(
                     restZaaktypeConfiguration.zaaktype.uuid,
                     restZaaktypeConfiguration
@@ -271,7 +271,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
             }
 
             then("it is rejected and nothing is stored") {
-                exception.errorCode shouldBe ERROR_CODE_VALIDATION_GENERIC
+                inputValidationFailedException.errorCode shouldBe ERROR_CODE_VALIDATION_GENERIC
                 verify(exactly = 0) { zaaktypeConfigurationBeheerService.storeConfiguration(any()) }
             }
         }
@@ -291,7 +291,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
         } throws InputValidationFailedException(message = "fakeMessage")
 
         `when`("it is stored") {
-            val exception = shouldThrow<InputValidationFailedException> {
+            val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
                 zaaktypeConfigurationRestService.createOrUpdateZaaktypeConfiguration(
                     restZaaktypeConfiguration.zaaktype.uuid,
                     restZaaktypeConfiguration
@@ -299,7 +299,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
             }
 
             then("the change is rejected and nothing is stored") {
-                exception.message shouldBe "fakeMessage"
+                inputValidationFailedException.message shouldBe "fakeMessage"
                 verify(exactly = 0) { zaaktypeConfigurationBeheerService.storeConfiguration(any()) }
             }
         }
@@ -348,7 +348,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
         } throws IllegalStateException("fakeOpenZaakFailure")
 
         `when`("it is stored") {
-            val exception = shouldThrow<IllegalStateException> {
+            val illegalStateException = shouldThrow<IllegalStateException> {
                 zaaktypeConfigurationRestService.createOrUpdateZaaktypeConfiguration(
                     restZaaktypeConfiguration.zaaktype.uuid,
                     restZaaktypeConfiguration
@@ -356,7 +356,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
             }
 
             then("the failure stores nothing") {
-                exception.message shouldBe "fakeOpenZaakFailure"
+                illegalStateException.message shouldBe "fakeOpenZaakFailure"
                 verify(exactly = 0) { zaaktypeConfigurationBeheerService.storeConfiguration(any()) }
             }
         }

@@ -47,8 +47,9 @@ None.
   `ZaaktypeConfigurationRestService` (`PUT /zaakafhandelparameters/{zaaktypeUUID}`),
   `RestZaaktypeConfigurationConverter` and `RestZaaktypeConfiguration` (new field `isProcessDefinitionChangeable`), and
   the error code `msg.error.process.definition.cannot.change`.
-- Open Zaak: an extra call, `GET /zaken?zaaktype=<url>`, when a beheerder opens or saves the configuration of a bound
-  zaaktype version, once per save, used for both the check and the response, and one more when a save rejected with
+- Open Zaak: an extra call, `GET /zaken?zaaktype=<url>`, when a beheerder opens the configuration of a bound zaaktype
+  version or saves any configuration, once per save, used for both the check and the response, so that the response
+  of a first save already locks the process definition of a version with zaken, and one more when a save rejected with
   `msg.error.process.definition.cannot.change` reads the configuration again. No other endpoint makes this call: not
   the list of all zaaktype configurations, nor the zaaktype of a zaak or the zaaktypen to create a zaak with.
 - Frontend: `zaaktype-configuration-form.ts` and the process model step of `parameters-edit`.
