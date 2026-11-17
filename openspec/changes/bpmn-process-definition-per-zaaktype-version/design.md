@@ -103,8 +103,10 @@ the choice is not open for ever. An unbound configuration shows no line. The fro
 The general warning about effects on existing zaken stays.
 
 Because the rule is per zaaktype version, and versions share their omschrijving, the step also names the version it
-configures under the omschrijving: its identificatie, versiedatum, begin geldigheid and, when set, einde geldigheid.
-The screen already receives these fields with the zaaktype of the configuration.
+configures under the omschrijving by its validity: its begin geldigheid and, when set, einde geldigheid. These are the
+dates a beheerder uses to change the process model of a zaaktype with zaken: the new version starts in the future and
+the current version ends on that date. The identificatie and the versiedatum are left out, because ZAC does not use them
+to tell versions apart. The screen already receives these fields with the zaaktype of the configuration.
 
 ## Risks / Trade-offs
 
