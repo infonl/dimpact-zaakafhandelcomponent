@@ -6,7 +6,7 @@
 import { Given, Then, When } from "@cucumber/cucumber";
 import { ONE_MINUTE_IN_MS } from "../support/time-constants";
 import { CustomWorld } from "../support/worlds/world";
-import { describeTestOriginShort } from "../utils/test-origin";
+import { assignInDialog, releaseInDialog } from "../utils/verdelen-dialog";
 
 let _noOfTaken = 0;
 
@@ -36,30 +36,14 @@ When(
 When(
   "{string} assigns the taken to the first group and user available",
   async function (this: CustomWorld, s: string) {
-    await this.page.getByRole("button", { name: "Verdelen" }).click();
-    await this.page.getByLabel(/groep/i).click();
-    await this.page.getByRole("option").first().click();
-    await this.page.getByLabel(/medewerker/i).isEnabled();
-    await this.page.getByLabel(/medewerker/i).click();
-    await this.page.getByRole("option").first().click();
-    await this.page
-      .getByLabel(/reden/i)
-      .fill(describeTestOriginShort(this.browser));
-    await this.page.getByRole("button", { name: "Verdelen" }).click();
+    await assignInDialog(this.page, this.browser);
   },
 );
 
 When(
   "{string} releases the taken",
   async function (this: CustomWorld, s: string) {
-    await this.page.getByRole("button", { name: "Vrijgeven" }).click();
-    await this.page
-      .getByLabel("Reden")
-      .fill(describeTestOriginShort(this.browser));
-    await this.page
-      .getByRole("button", { name: /Vrijgeven/ })
-      .nth(1)
-      .click();
+    await releaseInDialog(this.page, this.browser);
   },
 );
 
