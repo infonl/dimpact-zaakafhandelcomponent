@@ -160,8 +160,8 @@ export class ParametersComponent
           );
       }
       if (
-        parsedFilter.beginGeldigheid.from !== null ||
-        parsedFilter.beginGeldigheid.through !== null
+        parsedFilter.beginGeldigheid.from != null ||
+        parsedFilter.beginGeldigheid.through != null
       ) {
         match =
           match &&
@@ -172,8 +172,8 @@ export class ParametersComponent
       }
 
       if (
-        parsedFilter.eindeGeldigheid.from !== null ||
-        parsedFilter.eindeGeldigheid.through !== null
+        parsedFilter.eindeGeldigheid.from != null ||
+        parsedFilter.eindeGeldigheid.through != null
       ) {
         match =
           match &&

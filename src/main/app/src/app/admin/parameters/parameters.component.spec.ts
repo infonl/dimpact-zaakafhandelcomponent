@@ -322,3 +322,59 @@ describe(`${ParametersComponent.name} on a second visit`, () => {
     ).toBeInTheDocument();
   });
 });
+
+describe(`${ParametersComponent.name} with a filter stored before the date range used from and through`, () => {
+  it("shows a row for every zaaktype, because a stored { van, tot } range filters nothing", async () => {
+    await TestBed.configureTestingModule({
+      imports: [ParametersComponent, NoopAnimationsModule, MatNativeDateModule],
+      providers: [
+        provideTranslateService(),
+        {
+          provide: UtilService,
+          useValue: fromPartial<UtilService>({
+            getUniqueItemsList: jest.fn().mockReturnValue([]),
+            loading: signal(false),
+          }),
+        },
+        { provide: ConfiguratieService, useValue: {} },
+        provideRouter([]),
+      ],
+    }).compileComponents();
+    sessionStorage.clear();
+    sessionStorage.setItem(
+      "parameterFilters",
+      JSON.stringify({
+        ...new ZaakafhandelParametersListParameters("valide", "asc"),
+        beginGeldigheid: { van: null, tot: null },
+        eindeGeldigheid: { van: null, tot: null },
+      }),
+    );
+    testQueryClient.setQueryData(
+      TestBed.inject(ZaakafhandelParametersService).listZaakafhandelParameters()
+        .queryKey,
+      [
+        fromPartial<GeneratedType<"RestZaaktypeConfiguration">>({
+          zaaktype: {
+            uuid: "fakeZaaktypeUuid",
+            identificatie: "fakeIdentificatie",
+            omschrijving: "Fake zaaktype",
+            isNuGeldig: true,
+            beginGeldigheid: "2025-01-01",
+          },
+          isValide: true,
+        }),
+      ],
+    );
+
+    const fixture = TestBed.createComponent(ParametersComponent);
+    fixture.detectChanges();
+    await sleep();
+    fixture.detectChanges();
+    await sleep();
+    fixture.detectChanges();
+
+    expect(
+      screen.getByRole("row", { name: /Fake zaaktype/ }),
+    ).toBeInTheDocument();
+  });
+});
