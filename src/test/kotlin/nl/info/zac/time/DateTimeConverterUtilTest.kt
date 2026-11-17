@@ -45,4 +45,17 @@ class DateTimeConverterUtilTest : BehaviorSpec({
             }
         }
     }
+
+    given("the JVM time zone UTC and the LocalDate 29-03-2026, the day the clocks go forward in Europe/Amsterdam") {
+        val localDate = LocalDate.of(2026, 3, 29)
+
+        `when`("converting to a Date, as the search index does for a field with only a date") {
+            val date = localDate.toDate()
+
+            then("it returns 00:00 winter time, the same instant as the start of a date filter on that day") {
+                date shouldBe Date.from(Instant.parse("2026-03-28T23:00:00Z"))
+                date.toInstant() shouldBe (DateRange.From(localDate).toTimeRange() as TimeRange.From).from.toInstant()
+            }
+        }
+    }
 })

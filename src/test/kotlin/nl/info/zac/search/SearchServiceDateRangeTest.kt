@@ -87,6 +87,44 @@ class SearchServiceDateRangeTest : BehaviorSpec({
             }
         }
 
+        `when`("searching tasks created from 29-03-2026 through 29-03-2026, the day the clocks go forward") {
+            zoekService.search(
+                createZoekParameters(
+                    zoekObjectType = ZoekObjectType.TAAK,
+                    datums = EnumMap<DatumVeld, DateRange>(DatumVeld::class.java).apply {
+                        put(
+                            DatumVeld.TAAK_CREATIEDATUM,
+                            DateRange.Between(LocalDate.of(2026, 3, 29), LocalDate.of(2026, 3, 29))
+                        )
+                    }
+                )
+            )
+
+            then("the filter covers the 23 hours from 00:00 winter time up to 00:00 summer time") {
+                solrParamsSlot.captured.getParams("fq") shouldContain
+                    "taak_creatiedatum:[2026-03-28T23:00:00Z TO 2026-03-29T22:00:00Z}"
+            }
+        }
+
+        `when`("searching tasks created from 25-10-2026 through 25-10-2026, the day the clocks go back") {
+            zoekService.search(
+                createZoekParameters(
+                    zoekObjectType = ZoekObjectType.TAAK,
+                    datums = EnumMap<DatumVeld, DateRange>(DatumVeld::class.java).apply {
+                        put(
+                            DatumVeld.TAAK_CREATIEDATUM,
+                            DateRange.Between(LocalDate.of(2026, 10, 25), LocalDate.of(2026, 10, 25))
+                        )
+                    }
+                )
+            )
+
+            then("the filter covers the 25 hours from 00:00 summer time up to 00:00 winter time") {
+                solrParamsSlot.captured.getParams("fq") shouldContain
+                    "taak_creatiedatum:[2026-10-24T22:00:00Z TO 2026-10-25T23:00:00Z}"
+            }
+        }
+
         `when`("searching tasks with a fatale datum from 30-07-2026 and without an end date") {
             zoekService.search(
                 createZoekParameters(
