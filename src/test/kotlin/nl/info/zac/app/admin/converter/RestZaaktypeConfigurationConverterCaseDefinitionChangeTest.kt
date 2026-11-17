@@ -132,6 +132,40 @@ class RestZaaktypeConfigurationConverterCaseDefinitionChangeTest : BehaviorSpec(
             }
         }
 
+        `when`("it is saved with another case definition and human task settings with the id of a user event listener") {
+            val storedConfiguration = createStoredConfiguration()
+            every {
+                zaaktypeConfigurationBeheerService.findConfiguration(storedConfiguration.zaaktypeUuid)
+            } returns storedConfiguration
+            every { processDefinitionConverter.toRestProcessDefinition(any(), true) } returns caseDefinitionB
+            every { zaakbeeindigParameterConverter.toZaaktypeCompletionParameters(emptyList()) } returns emptyList()
+            val humanTaskParametersSlot = slot<List<RestHumanTaskParameters>>()
+            every {
+                with(restHumanTaskParametersConverter) { capture(humanTaskParametersSlot).toZaaktypeCmmnHumantaskParameters() }
+            } returns emptyList()
+            val restZaaktypeConfiguration = createRestZaaktypeConfiguration(
+                restZaaktypeOverzicht = createRestZaaktypeOverzicht(uuid = storedConfiguration.zaaktypeUuid),
+                restProcessDefinition = createRestProcessDefinition(key = "fakeCaseDefinitionB")
+            ).apply {
+                humanTaskParameters = listOf(
+                    RestHumanTaskParameters(
+                        planItemDefinition = RestPlanItemDefinition("fakeListenerOfB", null, PlanItemType.HUMAN_TASK)
+                    )
+                )
+                userEventListenerParameters = listOf(RestUserEventListenerParameter(id = "fakeHumanTaskOfB"))
+            }
+
+            val zaaktypeConfiguration = restZaaktypeConfigurationConverter.toZaaktypeConfiguration(
+                restZaaktypeConfiguration
+            )
+
+            then("it stores each setting only when the new case definition has a plan item of its own type with that id") {
+                humanTaskParametersSlot.captured shouldBe emptyList()
+                zaaktypeConfiguration.cmmnExtension?.getUserEventListenerParametersCollection()
+                    ?.map { it.planItemDefinitionID } shouldBe listOf("fakeListenerOfB")
+            }
+        }
+
         `when`("it is saved with another case definition that shares a human task with the previous one") {
             val storedConfiguration = createStoredConfiguration().apply {
                 cmmnExtension?.apply {

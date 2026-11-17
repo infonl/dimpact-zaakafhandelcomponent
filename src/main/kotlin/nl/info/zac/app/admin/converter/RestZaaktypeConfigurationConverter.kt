@@ -164,6 +164,11 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
     private fun <T> T.orNoneWhen(isOtherDefinition: Boolean, none: T): T =
         if (isOtherDefinition && this == null) none else this
 
+    /**
+     * Without a change of case definition there are no plan item ids to check against, so every id is allowed.
+     */
+    private fun Set<String>?.allows(planItemId: String) = this == null || planItemId in this
+
     private fun ZaaktypeConfiguration.applyProcessDefinition(restZaaktypeConfiguration: RestZaaktypeConfiguration) {
         val processDefinition = restZaaktypeConfiguration.processDefinition
             ?: throw NullPointerException("restZaakafhandelParameters.processDefinition is null")
@@ -175,29 +180,30 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
                 processDefinitionConverter.toRestProcessDefinition(it, inclusiefRelaties = true)
             }
             val userEventListenerIds = caseDefinition?.userEventListenerDefinitions.orEmpty().map { it.id }
-            val planItemIds = caseDefinition?.takeIf { isOtherDefinition }
-                ?.let { it.humanTaskDefinitions.map { humanTask -> humanTask.id }.toSet() + userEventListenerIds }
-            val isOfCaseDefinition = { planItemId: String -> planItemIds == null || planItemId in planItemIds }
+            val otherCaseDefinition = caseDefinition?.takeIf { isOtherDefinition }
+            val humanTaskIdsOfOtherCaseDefinition = otherCaseDefinition?.humanTaskDefinitions?.map { it.id }?.toSet()
+            val userEventListenerIdsOfOtherCaseDefinition = otherCaseDefinition?.let { userEventListenerIds.toSet() }
             restZaaktypeConfiguration.intakeMail?.let { intakeMail = it.name }
             restZaaktypeConfiguration.afrondenMail?.let { afrondenMail = it.name }
             restZaaktypeConfiguration.humanTaskParameters
                 .orNoneWhen(isOtherDefinition, emptyList())
                 .ifSupplied { humanTaskParameters ->
-                setHumanTaskParametersCollection(
-                    with(humanTaskParametersConverter) {
-                        humanTaskParameters.filter { isOfCaseDefinition(it.planItemDefinition.id) }
-                            .toZaaktypeCmmnHumantaskParameters()
-                    }
-                )
-            }
+                    setHumanTaskParametersCollection(
+                        with(humanTaskParametersConverter) {
+                            humanTaskParameters
+                                .filter { humanTaskIdsOfOtherCaseDefinition.allows(it.planItemDefinition.id) }
+                                .toZaaktypeCmmnHumantaskParameters()
+                        }
+                    )
+                }
             restZaaktypeConfiguration.userEventListenerParameters
                 .orNoneWhen(isOtherDefinition, emptyList())
                 .ifSupplied { userEventListenerParameters ->
-                setUserEventListenerParametersCollection(
-                    userEventListenerParameters.filter { isOfCaseDefinition(it.id) }
-                        .map { it.toZaaktypeCmmnUsereventlistenerParameters() }
-                )
-            }
+                    setUserEventListenerParametersCollection(
+                        userEventListenerParameters.filter { userEventListenerIdsOfOtherCaseDefinition.allows(it.id) }
+                            .map { it.toZaaktypeCmmnUsereventlistenerParameters() }
+                    )
+                }
             addMissingUserEventListenerParameters(userEventListenerIds)
         }
     }
