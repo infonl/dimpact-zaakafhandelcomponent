@@ -651,7 +651,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 4.2.0",
+      "allowedVersions": "<= 4.3.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
@@ -722,7 +722,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 8.7.0",
+      "allowedVersions": "<= 8.10.1",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
