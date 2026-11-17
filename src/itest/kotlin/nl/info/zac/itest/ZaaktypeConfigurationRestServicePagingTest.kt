@@ -22,6 +22,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_IDENTIFI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
+import java.net.HttpURLConnection.HTTP_NOT_FOUND
 import java.net.HttpURLConnection.HTTP_OK
 import java.net.URLEncoder
 import kotlin.text.Charsets.UTF_8
@@ -143,6 +144,33 @@ class ZaaktypeConfigurationRestServicePagingTest : BehaviorSpec({
                 listOf(rangeFromTheDayAfter, rangeUntilTheDayBefore).forEach {
                     it.zaaktypeUuids().shouldNotContain(ZAAKTYPE_CMMN_TEST_1_UUID.toString())
                 }
+            }
+        }
+
+        `when`("the beheerder lists the zaaktype configurations with a sort order that does not exist") {
+            val response = listZaaktypeConfigurationPage("sortField" to "OMSCHRIJVING", "sortOrder" to "FOO")
+
+            then("the request is refused with the status that JAX-RS gives for a query parameter it cannot read") {
+                response.code shouldBe HTTP_NOT_FOUND
+            }
+        }
+
+        `when`("the beheerder lists the zaaktype configurations with an empty sort order") {
+            val emptySortOrder = listZaaktypeConfigurationPage(
+                "rows" to ALL_ROWS,
+                "sortField" to "OMSCHRIJVING",
+                "sortOrder" to ""
+            )
+            val ascendingSortOrder = listZaaktypeConfigurationPage(
+                "rows" to ALL_ROWS,
+                "sortField" to "OMSCHRIJVING",
+                "sortOrder" to "ASC"
+            )
+
+            then("the configurations are sorted ascending, as without a sort order") {
+                emptySortOrder.code shouldBe HTTP_OK
+                emptySortOrder.zaaktypeConfigurationOverzichten().zaaktypeUuids() shouldBe
+                    ascendingSortOrder.zaaktypeConfigurationOverzichten().zaaktypeUuids()
             }
         }
 
