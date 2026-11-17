@@ -8,6 +8,7 @@ import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
+import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { ZaakafhandelParametersService } from "../../../zaakafhandel-parameters.service";
 import { ParametersStepProcesModelComponent } from "./parameters-step-proces-model.component";
 import {
@@ -34,6 +35,12 @@ const bpmnProcessDefinition: ProcessDefinition = {
   naam: "Vergunningsproces",
 };
 
+const otherBpmnProcessDefinition: ProcessDefinition = {
+  processEngine: "BPMN",
+  key: "fakeOtherProcessDefinitionKey",
+  naam: "Nieuw vergunningsproces",
+};
+
 const caseDefinitionNamedAsBpmnProcessDefinition: ProcessDefinition = {
   processEngine: "CMMN",
   key: "fakeVergunningCaseDefinitionKey",
@@ -45,17 +52,33 @@ describe(ParametersStepProcesModelComponent.name, () => {
 
   async function setup(
     form: ProcessModelForm,
-    processDefinitions = [
-      caseDefinition,
-      otherCaseDefinition,
-      bpmnProcessDefinition,
-    ],
+    {
+      processDefinitions = [
+        caseDefinition,
+        otherCaseDefinition,
+        bpmnProcessDefinition,
+        otherBpmnProcessDefinition,
+      ],
+      isProcessDefinitionChangeable,
+      zaaktype = fromPartial<GeneratedType<"RestZaaktypeOverzicht">>({
+        omschrijving: "Test zaaktype omschrijving",
+        identificatie: "test-zaaktype",
+        versiedatum: "2026-11-16",
+        beginGeldigheid: "2026-11-16",
+      }),
+    }: {
+      processDefinitions?: ProcessDefinition[];
+      isProcessDefinitionChangeable?: boolean;
+      zaaktype?: GeneratedType<"RestZaaktypeOverzicht">;
+    } = {},
   ) {
     await render(ParametersStepProcesModelComponent, {
       imports: [NoopAnimationsModule],
       inputs: {
         form,
-        zaaktypeOmschrijving: "Test zaaktype omschrijving",
+        zaaktype,
+        isBound: form.controls.processDefinition.value !== null,
+        isProcessDefinitionChangeable,
       },
       providers: [
         provideTranslateService(),
@@ -87,6 +110,27 @@ describe(ParametersStepProcesModelComponent.name, () => {
     ).toBeVisible();
   });
 
+  it.each([
+    ["without an end date", null, "zaps.step.procesmodel.versie"],
+    ["with an end date", "2026-12-31", "zaps.step.procesmodel.versie.einde"],
+  ])(
+    "shows the identificatie and the validity of the zaaktype version %s",
+    async (_situation, eindeGeldigheid, versionText) => {
+      await setup(createProcessModelForm(null), {
+        isProcessDefinitionChangeable: true,
+        zaaktype: fromPartial<GeneratedType<"RestZaaktypeOverzicht">>({
+          omschrijving: "Test zaaktype omschrijving",
+          identificatie: "test-zaaktype",
+          versiedatum: "2026-11-16",
+          beginGeldigheid: "2026-11-16",
+          eindeGeldigheid,
+        }),
+      });
+
+      expect(screen.getByText(versionText)).toBeVisible();
+    },
+  );
+
   describe("for a configuration that was never saved", () => {
     it("offers the process definitions of every process engine, without choosing one", async () => {
       const form = createProcessModelForm(null);
@@ -96,6 +140,7 @@ describe(ParametersStepProcesModelComponent.name, () => {
         "Generiek zaakafhandelmodel",
         "Ander zaakafhandelmodel",
         "Vergunningsproces",
+        "Nieuw vergunningsproces",
       ]);
       expect(form.valid).toBe(false);
     });
@@ -114,11 +159,99 @@ describe(ParametersStepProcesModelComponent.name, () => {
     });
   });
 
-  it("marks only the chosen process definition as selected when a CMMN and a BPMN process definition have the same name", async () => {
-    await setup(createProcessModelForm({ ...bpmnProcessDefinition }), [
-      caseDefinitionNamedAsBpmnProcessDefinition,
+  describe.each([
+    [
+      "BPMN",
       bpmnProcessDefinition,
-    ]);
+      caseDefinition,
+      "Generiek zaakafhandelmodel",
+    ],
+    ["CMMN", caseDefinition, bpmnProcessDefinition, "Vergunningsproces"],
+  ] as const)(
+    "for a configuration bound to %s whose zaaktype version has no zaken",
+    (_engine, boundProcessDefinition, otherEngineProcessDefinition, name) => {
+      it("offers the process definitions of every process engine", async () => {
+        await setup(createProcessModelForm(boundProcessDefinition), {
+          isProcessDefinitionChangeable: true,
+        });
+
+        expect(await offeredProcessDefinitions()).toEqual([
+          "Generiek zaakafhandelmodel",
+          "Ander zaakafhandelmodel",
+          "Vergunningsproces",
+          "Nieuw vergunningsproces",
+        ]);
+      });
+
+      it("lets the beheerder choose a process definition of the other process engine", async () => {
+        const form = createProcessModelForm(boundProcessDefinition);
+        await setup(form, { isProcessDefinitionChangeable: true });
+
+        await offeredProcessDefinitions();
+        await user.click(screen.getByRole("option", { name }));
+
+        expect(form.value.processDefinition).toEqual(
+          otherEngineProcessDefinition,
+        );
+      });
+
+      it("explains that the process definition can change until the first zaak", async () => {
+        await setup(createProcessModelForm(boundProcessDefinition), {
+          isProcessDefinitionChangeable: true,
+        });
+
+        expect(
+          screen.getByText("zaps.step.procesmodel.changeable"),
+        ).toBeVisible();
+      });
+
+      it("does not explain a lock, as its process definition can change", async () => {
+        await setup(createProcessModelForm(boundProcessDefinition), {
+          isProcessDefinitionChangeable: true,
+        });
+
+        expect(
+          screen.queryByText("zaps.step.procesmodel.locked"),
+        ).not.toBeInTheDocument();
+      });
+    },
+  );
+
+  it.each([
+    ["BPMN", bpmnProcessDefinition],
+    ["CMMN", caseDefinition],
+  ] as const)(
+    "explains why the beheerder cannot choose another process definition for a configuration bound to %s whose zaaktype version has zaken",
+    async (_engine, boundProcessDefinition) => {
+      await setup(createProcessModelForm(boundProcessDefinition), {
+        isProcessDefinitionChangeable: false,
+      });
+
+      expect(screen.getByText("zaps.step.procesmodel.locked")).toBeVisible();
+    },
+  );
+
+  it("shows no hint for a configuration that is not bound yet", async () => {
+    await setup(createProcessModelForm(null), {
+      isProcessDefinitionChangeable: true,
+    });
+
+    expect(
+      screen.queryByText("zaps.step.procesmodel.changeable"),
+    ).not.toBeInTheDocument();
+
+    expect(
+      screen.queryByText("zaps.step.procesmodel.locked"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("marks only the chosen process definition as selected when a CMMN and a BPMN process definition have the same name", async () => {
+    await setup(createProcessModelForm({ ...bpmnProcessDefinition }), {
+      processDefinitions: [
+        caseDefinitionNamedAsBpmnProcessDefinition,
+        bpmnProcessDefinition,
+      ],
+    });
 
     await offeredProcessDefinitions();
 

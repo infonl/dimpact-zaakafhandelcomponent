@@ -161,9 +161,12 @@ describe("The configuration of a zaaktype in the admin screen", () => {
         );
       });
 
-      it("keeps the process definition it is bound to", () => {
+      it("keeps the process definition it is bound to when the backend does not allow another one", () => {
         expect(
-          toForm(configuration, brpSetup).controls.procesModel.disabled,
+          toForm(
+            { ...configuration, isProcessDefinitionChangeable: false },
+            brpSetup,
+          ).controls.procesModel.disabled,
         ).toBe(true);
       });
 
@@ -292,6 +295,15 @@ describe("The configuration of a zaaktype in the admin screen", () => {
 
     expect(form.controls.mail.controls.intakeMail.disabled).toBe(true);
     expect(form.controls.mail.controls.afrondenMail.enabled).toBe(true);
+  });
+
+  it("lets the beheerder choose another process definition when the backend allows it, as for a BPMN zaaktype version without zaken", () => {
+    expect(
+      toForm(
+        { ...bpmnConfiguration, isProcessDefinitionChangeable: true },
+        brpSetup,
+      ).controls.procesModel.enabled,
+    ).toBe(true);
   });
 
   describe("for a configuration that was never saved", () => {
