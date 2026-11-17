@@ -164,6 +164,7 @@ describe(ParametersEditComponent.name, () => {
     savedConfiguration = configuration,
     storedConfiguration = configuration,
     formulierDefinitiesResponse = Promise.resolve(formulierDefinities),
+    referentieTabellenResponse = Promise.resolve([adviesReferentieTabel]),
   ) {
     const updateZaakafhandelparameters =
       createMutationOptions(savedConfiguration);
@@ -231,8 +232,8 @@ describe(ParametersEditComponent.name, () => {
             listBrpViewValues: () => createQueryOptions([]),
             listBrpProcessingValues: () => createQueryOptions([]),
             listReferentieTabellen: () => ({
-              ...createQueryOptions([adviesReferentieTabel]),
               queryKey: ["referentieTabellen"],
+              queryFn: () => referentieTabellenResponse,
             }),
           }),
         },
@@ -640,6 +641,38 @@ describe(ParametersEditComponent.name, () => {
       );
     });
   });
+
+  it.each([
+    [
+      "formulier definitions",
+      new Promise<typeof formulierDefinities>(() => undefined),
+      undefined,
+    ],
+    [
+      "reference tables",
+      undefined,
+      new Promise<(typeof adviesReferentieTabel)[]>(() => undefined),
+    ],
+  ])(
+    "does not let the beheerder save before the %s are loaded, so no task is stored without its default reference tables",
+    async (
+      _loading,
+      formulierDefinitiesResponse,
+      referentieTabellenResponse,
+    ) => {
+      await setup(
+        cmmnConfiguration,
+        undefined,
+        undefined,
+        formulierDefinitiesResponse,
+        referentieTabellenResponse,
+      );
+
+      await new Promise((resolve) => setTimeout(resolve));
+
+      expect(opslaan()).toBeDisabled();
+    },
+  );
 
   it("keeps the stored reference tables when the beheerder chooses the stored process definition again before the formulier definitions are loaded", async () => {
     let resolveFormulierDefinities: (

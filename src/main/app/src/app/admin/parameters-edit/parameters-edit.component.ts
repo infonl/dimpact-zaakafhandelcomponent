@@ -152,6 +152,9 @@ export class ParametersEditComponent
     () =>
       this.formValid() === true &&
       this.processDefinition() !== null &&
+      // Until both have loaded, tasks lack their default reference tables.
+      this.formulierDefinitiesQuery.data() !== undefined &&
+      this.referentieTabellenQuery.data() !== undefined &&
       !this.updateZaakafhandelparametersMutation.isPending(),
   );
 
