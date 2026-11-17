@@ -4,7 +4,7 @@
  */
 
 import { FormControl } from "@angular/forms";
-import moment, { Moment } from "moment";
+import { DateInput, isEarlierDay, isLaterDay, now } from "../../date-time";
 
 export declare type ConditionalFn = (control: FormControl) => boolean;
 
@@ -13,8 +13,6 @@ type Funcs = (typeof DateConditionals)["isExceeded"];
 type ShiftTuple<T extends Array<unknown>> = T extends [T[0], ...infer R]
   ? R
   : never;
-
-const DATE_FORMATS = ["YYYY-MM-DD", "DD-MM-YYYY", "MM/DD/YYYY"];
 
 export class DateConditionals {
   static provideFormControlValue<
@@ -27,30 +25,21 @@ export class DateConditionals {
   }
 
   static isExceeded(
-    value: Date | Moment | string | null,
-    actual?: Date | Moment | string | null,
+    value: DateInput | null,
+    actual?: DateInput | null,
   ): boolean {
     if (!value) return false;
 
-    const limit = moment(value, DATE_FORMATS, false);
-    const compareDate = actual ? moment(actual, DATE_FORMATS, false) : moment();
-
-    return limit.isBefore(compareDate, "day");
+    return isEarlierDay(value, actual || now());
   }
 
-  static isPreceded(
-    value: Date | Moment | string,
-    actual?: Date | Moment | string | null,
-  ): boolean {
+  static isPreceded(value: DateInput, actual?: DateInput | null): boolean {
     if (!value) return false;
 
-    const limit = moment(value, DATE_FORMATS, false);
-    const compareDate = actual ? moment(actual, DATE_FORMATS, false) : moment();
-
-    return limit.isAfter(compareDate, "day");
+    return isLaterDay(value, actual || now());
   }
 
-  static always(_value: Date | moment.Moment | string) {
+  static always(_value: DateInput) {
     console.warn("condition always returns true", _value);
     return true;
   }

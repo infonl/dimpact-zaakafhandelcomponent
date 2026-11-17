@@ -7,11 +7,11 @@ import { ComponentType } from "@angular/cdk/portal";
 import { inject, Injectable } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import moment from "moment";
 import { defer, Observable } from "rxjs";
 import { ActieOnmogelijkDialogComponent } from "src/app/fout-afhandeling/dialog/actie-onmogelijk-dialog.component";
 import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../../core/service/util.service";
+import { daysSince } from "../../../date-time";
 import { runMutation } from "../../../shared/http/run-mutation";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { toI18nKey } from "../../../shared/utils/i18n-key";
@@ -225,10 +225,7 @@ export class ZaakActionDialogsService {
     const opschorting = this.queryClient.getQueryData(
       this.zakenService.readOpschortingZaak(zaak.uuid).queryKey,
     );
-    const werkelijkeOpschortDuur = moment().diff(
-      moment(opschorting?.vanafDatumTijd),
-      "days",
-    );
+    const werkelijkeOpschortDuur = daysSince(opschorting?.vanafDatumTijd);
 
     this.onClosed(
       this.zaakDialogService

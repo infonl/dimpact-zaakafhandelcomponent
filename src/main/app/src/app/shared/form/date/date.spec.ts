@@ -19,7 +19,13 @@ import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
-import moment from "moment";
+import {
+  addDays,
+  isPickedDate,
+  now,
+  startOfDay,
+  today,
+} from "../../../date-time";
 import { ZacDate } from "./date";
 
 interface TestForm extends Record<string, AbstractControl> {
@@ -90,7 +96,7 @@ describe(ZacDate.name, () => {
 
   describe("min / max from validators", () => {
     it("should compute min from Validators.min", () => {
-      const minMs = moment().add(1, "day").startOf("day").valueOf();
+      const minMs = startOfDay(addDays(now(), 1)).valueOf();
       const form = new FormGroup<TestForm>({
         date: new FormControl<string | null>(null, [Validators.min(minMs)]),
       });
@@ -100,7 +106,7 @@ describe(ZacDate.name, () => {
 
       const minValue = component["min"]();
       expect(minValue).not.toBeNull();
-      expect(moment.isMoment(minValue)).toBe(true);
+      expect(isPickedDate(minValue)).toBe(true);
     });
 
     it("should return null for min when no Validators.min is set", () => {
@@ -112,7 +118,7 @@ describe(ZacDate.name, () => {
     });
 
     it("should compute max from Validators.max", () => {
-      const maxMs = moment().add(30, "days").endOf("day").valueOf();
+      const maxMs = addDays(today(), 31).valueOf() - 1;
       const form = new FormGroup<TestForm>({
         date: new FormControl<string | null>(null, [Validators.max(maxMs)]),
       });
@@ -122,7 +128,7 @@ describe(ZacDate.name, () => {
 
       const maxValue = component["max"]();
       expect(maxValue).not.toBeNull();
-      expect(moment.isMoment(maxValue)).toBe(true);
+      expect(isPickedDate(maxValue)).toBe(true);
     });
 
     it("should return null for max when no Validators.max is set", () => {
@@ -141,7 +147,7 @@ describe(ZacDate.name, () => {
 
       expect(component["min"]()).toBeNull();
 
-      const minMs = moment().add(5, "days").startOf("day").valueOf();
+      const minMs = startOfDay(addDays(now(), 5)).valueOf();
       form.controls.date.addValidators(Validators.min(minMs));
       form.controls.date.updateValueAndValidity();
       fixture.detectChanges();
