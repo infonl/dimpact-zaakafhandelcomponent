@@ -56,7 +56,5 @@ module.exports = [
   "src/app/zaken/zaak-view/zaak-details-card/zaak-details-algemeen-tab/zaak-details-algemeen-tab.component.spec.ts",
   "src/app/zaken/zaken-afgehandeld/zaken-afgehandeld.component.ts",
   "src/app/zaken/zaken-mijn/zaken-mijn.component.ts",
-  "src/functions.spec.ts",
-  "src/functions.ts",
   "src/test-helpers.ts",
 ];

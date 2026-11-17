@@ -17,10 +17,12 @@ import {
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import "@testing-library/jest-dom";
-import { provideZacDateAdapter } from "./src/app/date-time";
+import {
+  provideZacDateAdapter,
+  serializeDatesWithLocalOffset,
+} from "./src/app/date-time";
 import { FoutAfhandelingService } from "./src/app/fout-afhandeling/fout-afhandeling.service";
 import { createZacQueryCache } from "./src/app/shared/http/query-client";
-import { alterMoment } from "./src/functions";
 
 const cryptoPolyfill = {
   randomUUID: () => {
@@ -47,7 +49,7 @@ const cryptoPolyfill = {
   getRandomValues: jest.fn(),
 } as Crypto;
 
-alterMoment();
+serializeDatesWithLocalOffset();
 
 // jsdom does not implement matchMedia
 Object.defineProperty(window, "matchMedia", {

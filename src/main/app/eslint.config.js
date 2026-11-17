@@ -18,7 +18,7 @@ const noNgDeep = {
     "Avoid ::ng-deep, Angular deprecated it. Style through a CSS custom property, a global stylesheet or the Angular Material theming API instead.",
 };
 
-// alterMoment() makes the app send dates with the local offset, so a UTC string from Date never shows what is sent.
+// serializeDatesWithLocalOffset() makes the app send dates with the local offset, so a UTC string from Date never shows what is sent.
 const noNativeDateIsoString = {
   selector:
     "CallExpression[callee.property.name='toISOString'][callee.object.type='NewExpression'][callee.object.callee.name='Date']",

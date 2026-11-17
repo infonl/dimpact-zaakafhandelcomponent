@@ -1,11 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import moment from "moment";
 
-export function alterMoment() {
+export function serializeDatesWithLocalOffset() {
   /**
    * returning an `ISO8601` string that reflects the utcOffset
    * @source https://momentjs.com/docs/#/displaying/as-json/
