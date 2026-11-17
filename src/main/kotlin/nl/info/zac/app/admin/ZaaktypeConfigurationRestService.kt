@@ -34,7 +34,6 @@ import nl.info.zac.app.admin.model.RestTaakFormulierVeldDefinitie
 import nl.info.zac.app.admin.model.RestZaakbeeindigReden
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
 import nl.info.zac.app.admin.model.RestZaaktypeConfigurationListParameters
-import nl.info.zac.app.admin.model.RestZaaktypeConfigurationOverzicht
 import nl.info.zac.app.admin.model.RestZaaktypeConfigurationOverzichtResultaat
 import nl.info.zac.app.admin.model.toRestReplyTos
 import nl.info.zac.app.admin.model.toRestZaakbeeindigReden
@@ -84,12 +83,6 @@ class ZaaktypeConfigurationRestService @Inject constructor(
     fun listBindableProcessDefinitions(): List<RestProcessDefinition> {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
         return processDefinitionConverter.listProcessDefinitions()
-    }
-
-    @GET
-    fun listZaaktypeConfigurations(): List<RestZaaktypeConfigurationOverzicht> {
-        assertPolicy(policyService.readOverigeRechten().canBeheren)
-        return listRestZaaktypeConfigurationOverzichten()
     }
 
     /**

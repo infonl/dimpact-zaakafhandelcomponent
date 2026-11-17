@@ -10,9 +10,9 @@
 
 ## 2. Frontend (PZ-12914)
 
-- [ ] 2.1 Make `ZaakafhandelParametersService` list a page through `PUT /rest/zaakafhandelparameters`.
-- [ ] 2.2 Make `ParametersComponent` request a page of 25 rows with its filters and sort order, show a paginator,
+- [x] 2.1 Make `ZaakafhandelParametersService` list a page through `PUT /rest/zaakafhandelparameters`.
+- [x] 2.2 Make `ParametersComponent` request a page of 25 rows with its filters and sort order, show a paginator,
       and take the filter options from the response. Go back to the first page when a filter or the sort order
       changes. Verify with `parameters.component.spec.ts`.
-- [ ] 2.3 Remove `GET /rest/zaakafhandelparameters` and its tests, and update the itest that reads it.
-- [ ] 2.4 Run `npm run lint` and `npm test` in `src/main/app`, and `./gradlew spotlessApply detektApply detekt`.
+- [x] 2.3 Remove `GET /rest/zaakafhandelparameters` and its tests, and update the itest that reads it.
+- [x] 2.4 Run `npm run lint` and `npm test` in `src/main/app`, and `./gradlew spotlessApply detektApply detekt`.

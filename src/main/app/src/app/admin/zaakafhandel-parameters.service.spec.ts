@@ -127,7 +127,7 @@ describe(ZaakafhandelParametersService.name, () => {
       });
     });
 
-    it("makes the overview of all zaaktypes read the parameters again", async () => {
+    it("makes every page of the overview of all zaaktypes read the parameters again", async () => {
       const invalidateQueries = jest
         .spyOn(testQueryClient, "invalidateQueries")
         .mockResolvedValue(undefined);
@@ -137,7 +137,7 @@ describe(ZaakafhandelParametersService.name, () => {
       );
 
       expect(invalidateQueries).toHaveBeenCalledWith({
-        queryKey: service.listZaakafhandelParameters().queryKey,
+        queryKey: ["/rest/zaakafhandelparameters"],
       });
     });
 
@@ -159,22 +159,24 @@ describe(ZaakafhandelParametersService.name, () => {
   });
 
   describe("listZaakafhandelParameters", () => {
-    it("reads the parameters of all zaaktypes", async () => {
-      const parameters = [
-        fromPartial<GeneratedType<"RestZaaktypeConfiguration">>({
-          zaaktype: { uuid: "fakeZaaktypeUuid" },
-        }),
-      ];
+    it("reads one page of the parameters of the zaaktypes with the filters in the request body", async () => {
+      const body = { page: 1, rows: 25, isValide: true };
+      const page = fromPartial<
+        GeneratedType<"RestZaaktypeConfigurationOverzichtResultaat">
+      >({ totaal: 26, resultaten: [] });
 
       const result = testQueryClient.fetchQuery(
-        service.listZaakafhandelParameters(),
+        service.listZaakafhandelParameters(body),
       );
       await sleep();
-      httpTestingController
-        .expectOne("/rest/zaakafhandelparameters")
-        .flush(parameters);
+      const request = httpTestingController.expectOne(
+        "/rest/zaakafhandelparameters",
+      );
+      expect(request.request.method).toBe("PUT");
+      expect(request.request.body).toEqual(body);
+      request.flush(page);
 
-      await expect(result).resolves.toEqual(parameters);
+      await expect(result).resolves.toEqual(page);
     });
   });
 

@@ -391,8 +391,10 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                 )
             } returns unconfiguredRestZaaktypeConfigurationOverzicht
 
-            `when`("a beheerder lists the zaaktype configurations") {
-                val restZaaktypeConfigurationOverzichten = zaaktypeConfigurationRestService.listZaaktypeConfigurations()
+            `when`("a beheerder lists the first page of the zaaktype configurations without filters") {
+                val restZaaktypeConfigurationOverzichten = zaaktypeConfigurationRestService
+                    .listZaaktypeConfigurationPage(RestZaaktypeConfigurationListParameters())
+                    .results
 
                 then("a list item is returned for each zaaktype, in the order of the catalogus") {
                     restZaaktypeConfigurationOverzichten shouldBe listOf(
@@ -431,17 +433,6 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
 
         given("a user without the beheren right") {
             every { policyService.readOverigeRechten().canBeheren } returns false
-
-            `when`("the user lists the zaaktype configurations") {
-                val policyException = shouldThrow<PolicyException> {
-                    zaaktypeConfigurationRestService.listZaaktypeConfigurations()
-                }
-
-                then("the request is refused without listing the zaaktypes") {
-                    policyException.message shouldBe null
-                    verify(exactly = 0) { ztcClientService.listZaaktypen(any()) }
-                }
-            }
 
             `when`("the user lists a page of the zaaktype configurations") {
                 val policyException = shouldThrow<PolicyException> {
