@@ -13,7 +13,6 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.CapturingSlot
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -75,7 +74,6 @@ import nl.info.zac.admin.model.createZaaktypeConfigurationsUnderTest
 import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
-import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
 import nl.info.zac.app.zaak.exception.BetrokkeneCannotBeDeletedException
 import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowedException
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
@@ -88,7 +86,6 @@ import nl.info.zac.app.zaak.model.RestZaakAfbrekenGegevens
 import nl.info.zac.app.zaak.model.RestZaakAfsluitenGegevens
 import nl.info.zac.app.zaak.model.RestZaakEditMetRedenGegevens
 import nl.info.zac.app.zaak.model.RestZaakHeropenenGegevens
-import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import nl.info.zac.app.zaak.model.RestZaakVerlengGegevens
 import nl.info.zac.app.zaak.model.RestZaaktype
 import nl.info.zac.app.zaak.model.ZAAK_TYPE_1_OMSCHRIJVING
@@ -104,7 +101,6 @@ import nl.info.zac.app.zaak.model.createRestZaakCreateData
 import nl.info.zac.app.zaak.model.createRestZaakInitiatorGegevens
 import nl.info.zac.app.zaak.model.createRestZaakLocatieGegevens
 import nl.info.zac.app.zaak.model.createRestZaakRechten
-import nl.info.zac.app.zaak.model.createRestZaaktype
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
@@ -116,7 +112,6 @@ import nl.info.zac.flowable.ProcessStartData
 import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.bpmn.BpmnService
-import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
 import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.identification.BetrokkeneIdentificatie
 import nl.info.zac.identification.IdentificatieType
@@ -175,7 +170,6 @@ class ZaakRestServiceTest : BehaviorSpec({
     val productaanvraagDocumentService = mockk<ProductaanvraagDocumentService>()
     val restZaakConverter = mockk<RestZaakConverter>()
     val restZaakOverzichtConverter = mockk<RestZaakOverzichtConverter>()
-    val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
     val signaleringService = mockk<SignaleringService>()
     val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val resultaattypeReferenceService = mockk<ResultaattypeReferenceService>()
@@ -205,7 +199,6 @@ class ZaakRestServiceTest : BehaviorSpec({
         productaanvraagDocumentService = productaanvraagDocumentService,
         restZaakConverter = restZaakConverter,
         restZaakOverzichtConverter = restZaakOverzichtConverter,
-        restZaaktypeConverter = restZaaktypeConverter,
         signaleringService = signaleringService,
         zaakHistoryService = zaakHistoryService,
         zaakService = zaakService,
@@ -1735,337 +1728,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                             identificatieType shouldBe IdentificatieType.RSIN
                         }
                     }
-                }
-            }
-        }
-    }
-
-    context("Listing zaak types that can be used for zaak creation") {
-        given(
-            """
-        Two existing CMMN zaaktypes in the configured catalogue for which the logged in user is authorised
-        and which are valid on the current date
-        """
-        ) {
-            val defaultCatalogueURI = URI("https://example.com/fakeCatalogue")
-            val now = LocalDate.now()
-            val zaaktypes = listOf(
-                createZaakType(
-                    omschrijving = "Zaaktype 1",
-                    identification = "ZAAKTYPE1",
-                    beginGeldigheid = now.minusDays(1)
-                ),
-                createZaakType(
-                    omschrijving = "Zaaktype 2",
-                    identification = "ZAAKTYPE2",
-                    beginGeldigheid = now.minusDays(2),
-                    eindeGeldigheid = now.plusDays(1)
-                )
-            )
-            val restZaaktypes = listOf(createRestZaaktype(), createRestZaaktype())
-            val zaaktypeInrichtingscheck = createZaaktypeInrichtingscheck()
-            clearMocks(policyService)
-            every { loggedInUserInstance.get() } returns createLoggedInUser(
-                applicationRolesPerZaaktype = mapOf("Zaaktype 1" to setOf("fakeStartrol"), "Zaaktype 2" to setOf("fakeStartrol"))
-            )
-            every { policyService.readStartrollen() } returns setOf("fakeStartrol")
-            every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
-            zaaktypes.forEach {
-                every { zaakProcessService.isZaaktypeReady(any(), it.url) } returns zaaktypeInrichtingscheck.isValide
-                every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
-                every {
-                    zaaktypeConfigurationService.findConfiguration(it.url.extractUuid())
-                } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
-            }
-            every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
-
-            `when`("the zaaktypes are requested") {
-                val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
-
-                then("both zaaktypes are returned and the start roles are read from OPA once for all zaaktypes") {
-                    verify(exactly = 1) {
-                        ztcClientService.listZaaktypen(defaultCatalogueURI)
-                        policyService.readStartrollen()
-                    }
-                    returnedRestZaaktypes shouldHaveSize 2
-                    returnedRestZaaktypes shouldBe restZaaktypes
-                }
-            }
-        }
-
-        given("Two CMMN and one BPMN zaaktypes valid on the current date") {
-            val defaultCatalogueURI = URI("https://example.com/fakeCatalogue")
-            val now = LocalDate.now()
-            val zaakType1UUID = UUID.randomUUID()
-            val zaakType2UUID = UUID.randomUUID()
-            val zaakType3UUID = UUID.randomUUID()
-            val zaaktypes = listOf(
-                createZaakType(
-                    omschrijving = "Zaaktype 1",
-                    identification = "ZAAKTYPE1",
-                    uri = URI("https://example.com/zaaktypes/$zaakType1UUID"),
-                    beginGeldigheid = now.minusDays(1)
-                ),
-                createZaakType(
-                    omschrijving = "Zaaktype 2",
-                    identification = "ZAAKTYPE2",
-                    uri = URI("https://example.com/zaaktypes/$zaakType2UUID"),
-                    beginGeldigheid = now.minusDays(1)
-                ),
-                createZaakType(
-                    omschrijving = "Zaaktype 3",
-                    identification = "ZAAKTYPE3",
-                    uri = URI("https://example.com/zaaktypes/$zaakType3UUID"),
-                    beginGeldigheid = now.minusDays(1)
-                ),
-            )
-            val restZaaktype1 = createRestZaaktype()
-            val restZaaktype2 = createRestZaaktype()
-            val restZaaktype3 = createRestZaaktype()
-            val restZaaktypes = listOf(restZaaktype1, restZaaktype2, restZaaktype3)
-            val zaaktypeInrichtingscheck = createZaaktypeInrichtingscheck()
-            zaaktypes.slice(0..1).forEach {
-                every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
-                every { zaakProcessService.isZaaktypeReady(any(), it.url) } returns zaaktypeInrichtingscheck.isValide
-                every {
-                    zaaktypeConfigurationService.findConfiguration(it.url.extractUuid())
-                } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
-            }
-            zaaktypes.last().let {
-                every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
-                every { zaakProcessService.isZaaktypeReady(any(), it.url) } returns true
-                every {
-                    zaaktypeConfigurationService.findConfiguration(it.url.extractUuid())
-                } returns createZaaktypeBpmnConfiguration(groupId = "fakeGroupId")
-            }
-
-            every { policyService.readStartrollen() } returns setOf("fakeStartrol")
-
-            and("the user has a start role for all zaaktypes") {
-                every { loggedInUserInstance.get() } returns createLoggedInUser(
-                    applicationRolesPerZaaktype = zaaktypes.associate { it.omschrijving to setOf("fakeStartrol") }
-                )
-
-                every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
-                every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
-
-                `when`("the zaaktypes are listed") {
-                    val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
-
-                    then("all zaaktypes are returned") {
-                        verify(exactly = 1) {
-                            ztcClientService.listZaaktypen(defaultCatalogueURI)
-                        }
-                        verify(exactly = 3) {
-                            zaaktypeConfigurationService.findConfiguration(any<UUID>())
-                        }
-                        returnedRestZaaktypes shouldHaveSize 3
-                        returnedRestZaaktypes shouldBe restZaaktypes
-                    }
-                }
-            }
-            and("the user has no start role for one of the CMMN zaaktypes") {
-                clearMocks(ztcClientService, zaaktypeConfigurationService, answers = false)
-                every { loggedInUserInstance.get() } returns createLoggedInUser(
-                    applicationRolesPerZaaktype = mapOf(
-                        zaaktypes[0].omschrijving to setOf("fakeStartrol"),
-                        zaaktypes[1].omschrijving to setOf("fakeOtherRole"),
-                        zaaktypes[2].omschrijving to setOf("fakeStartrol")
-                    )
-                )
-
-                `when`("the zaaktypes are listed") {
-                    val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
-
-                    then("only the zaaktypes for which the user is authorised are returned") {
-                        verify(exactly = 1) {
-                            ztcClientService.listZaaktypen(defaultCatalogueURI)
-                        }
-                        verify(exactly = 2) {
-                            zaaktypeConfigurationService.findConfiguration(any<UUID>())
-                        }
-                        returnedRestZaaktypes shouldHaveSize 2
-                        returnedRestZaaktypes shouldBe listOf(restZaaktype1, restZaaktype3)
-                    }
-                }
-            }
-            and("the user has a start role and a role that is not a start role for every zaaktype") {
-                clearMocks(ztcClientService, zaaktypeConfigurationService, answers = false)
-                every { loggedInUserInstance.get() } returns createLoggedInUser(
-                    applicationRolesPerZaaktype = zaaktypes.associate {
-                        it.omschrijving to setOf("fakeStartrol", "fakeOtherRole")
-                    }
-                )
-
-                `when`("the zaaktypes are listed") {
-                    val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
-
-                    then("all zaaktypes are returned, because one start role is enough to start a zaak") {
-                        returnedRestZaaktypes shouldBe restZaaktypes
-                    }
-                }
-            }
-            and("the user has no roles at all") {
-                clearMocks(ztcClientService, zaaktypeConfigurationService, answers = false)
-                every { loggedInUserInstance.get() } returns createLoggedInUser(
-                    applicationRolesPerZaaktype = emptyMap(),
-                    overallRoles = emptySet()
-                )
-
-                `when`("the zaaktypes are listed") {
-                    val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
-
-                    then("no zaaktypes are returned and the ZAC configuration of the zaaktypes is not read") {
-                        returnedRestZaaktypes shouldBe emptyList()
-                        verify(exactly = 0) {
-                            zaaktypeConfigurationService.findConfiguration(any<UUID>())
-                        }
-                    }
-                }
-            }
-        }
-
-        given("A concept zaaktype, a zaaktype not yet valid and an expired zaaktype") {
-            val defaultCatalogueURI = URI("https://example.com/fakeCatalogueWithInvalidZaaktypes")
-            val now = LocalDate.now()
-            val zaaktypes = listOf(
-                createZaakType(omschrijving = "fakeConceptZaaktype", concept = true, beginGeldigheid = now.minusDays(1)),
-                createZaakType(omschrijving = "fakeFutureZaaktype", beginGeldigheid = now.plusDays(1)),
-                createZaakType(
-                    omschrijving = "fakeExpiredZaaktype",
-                    beginGeldigheid = now.minusDays(10),
-                    eindeGeldigheid = now.minusDays(1)
-                )
-            )
-            clearMocks(policyService)
-            every { loggedInUserInstance.get() } returns createLoggedInUser()
-            every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
-            every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
-
-            `when`("the zaaktypes are listed") {
-                val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
-
-                then("no zaaktypes are returned and the start roles are not read from OPA") {
-                    returnedRestZaaktypes shouldBe emptyList()
-                    verify(exactly = 0) { policyService.readStartrollen() }
-                }
-            }
-        }
-
-        given("Two valid versions of a CMMN zaaktype with the same omschrijving") {
-            val defaultCatalogueURI = URI("https://example.com/fakeCatalogueWithTwoVersions")
-            val now = LocalDate.now()
-            val zaaktypes = listOf(
-                createZaakType(omschrijving = "fakeVersionedZaaktype", beginGeldigheid = now.minusDays(2)),
-                createZaakType(omschrijving = "fakeVersionedZaaktype", beginGeldigheid = now.minusDays(1))
-            )
-            val restZaaktypes = listOf(createRestZaaktype(), createRestZaaktype())
-            clearMocks(policyService)
-            every { loggedInUserInstance.get() } returns createLoggedInUser(
-                applicationRolesPerZaaktype = mapOf("fakeVersionedZaaktype" to setOf("fakeStartrol"))
-            )
-            every { policyService.readStartrollen() } returns setOf("fakeStartrol")
-            every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
-            every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
-            zaaktypes.forEachIndexed { index, zaaktype ->
-                every {
-                    zaaktypeConfigurationService.findConfiguration(zaaktype.url.extractUuid())
-                } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
-                every { zaakProcessService.isZaaktypeReady(any(), zaaktype.url) } returns createZaaktypeInrichtingscheck().isValide
-                every { restZaaktypeConverter.convert(zaaktype) } returns restZaaktypes[index]
-            }
-
-            `when`("the zaaktypes are listed") {
-                val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
-
-                then("both versions are returned and the start roles are read from OPA once") {
-                    returnedRestZaaktypes shouldBe restZaaktypes
-                    verify(exactly = 1) { policyService.readStartrollen() }
-                }
-            }
-        }
-
-        given("A zaaktype without ZAC configuration and a zaaktype with an invalid CMMN configuration") {
-            val defaultCatalogueURI = URI("https://example.com/fakeCatalogueWithUnconfiguredZaaktypes")
-            val now = LocalDate.now()
-            val unconfiguredZaaktype = createZaakType(
-                omschrijving = "fakeUnconfiguredZaaktype",
-                beginGeldigheid = now.minusDays(1)
-            )
-            val invalidlyConfiguredZaaktype = createZaakType(
-                omschrijving = "fakeInvalidlyConfiguredZaaktype",
-                beginGeldigheid = now.minusDays(1)
-            )
-            every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
-            every {
-                ztcClientService.listZaaktypen(defaultCatalogueURI)
-            } returns listOf(unconfiguredZaaktype, invalidlyConfiguredZaaktype)
-            every { loggedInUserInstance.get() } returns createLoggedInUser(
-                applicationRolesPerZaaktype = mapOf(
-                    unconfiguredZaaktype.omschrijving to setOf("fakeStartrol"),
-                    invalidlyConfiguredZaaktype.omschrijving to setOf("fakeStartrol")
-                )
-            )
-            every { policyService.readStartrollen() } returns setOf("fakeStartrol")
-            every {
-                zaaktypeConfigurationService.findConfiguration(unconfiguredZaaktype.url.extractUuid())
-            } returns null
-            every {
-                zaaktypeConfigurationService.findConfiguration(invalidlyConfiguredZaaktype.url.extractUuid())
-            } returns createZaaktypeCmmnConfiguration(groupId = null)
-
-            `when`("the zaaktypes are listed") {
-                val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
-
-                then("no zaaktypes are returned and the inrichtingscheck is not run for them") {
-                    returnedRestZaaktypes shouldBe emptyList()
-                    verify(exactly = 0) {
-                        zaakProcessService.isZaaktypeReady(any(), unconfiguredZaaktype.url)
-                        zaakProcessService.isZaaktypeReady(any(), invalidlyConfiguredZaaktype.url)
-                    }
-                }
-            }
-        }
-
-        given("A valid CMMN zaaktype and a user without roles for it, but with an overall start role") {
-            val defaultCatalogueURI = URI("https://example.com/fakeCatalogueForOverallRoles")
-            val zaaktype = createZaakType(omschrijving = "fakeZaaktypeWithoutRoles", beginGeldigheid = LocalDate.now().minusDays(1))
-            val restZaaktype = createRestZaaktype()
-            every { loggedInUserInstance.get() } returns createLoggedInUser(overallRoles = setOf("fakeStartrol"))
-            every { policyService.readStartrollen() } returns setOf("fakeStartrol")
-            every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
-            every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns listOf(zaaktype)
-            every {
-                zaaktypeConfigurationService.findConfiguration(zaaktype.url.extractUuid())
-            } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
-            every { zaakProcessService.isZaaktypeReady(any(), zaaktype.url) } returns true
-            every { restZaaktypeConverter.convert(zaaktype) } returns restZaaktype
-
-            `when`("the zaaktypes are listed") {
-                val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
-
-                then("the zaaktype is returned, because the overall roles count for every zaaktype") {
-                    returnedRestZaaktypes shouldBe listOf(restZaaktype)
-                }
-            }
-        }
-
-        given("A valid CMMN zaaktype and a user with only a non-start role for it") {
-            val defaultCatalogueURI = URI("https://example.com/fakeCatalogueForNonStartRoles")
-            val zaaktype = createZaakType(omschrijving = "fakeZaaktypeWithReadRole", beginGeldigheid = LocalDate.now().minusDays(1))
-            every { loggedInUserInstance.get() } returns createLoggedInUser(
-                applicationRolesPerZaaktype = mapOf(zaaktype.omschrijving to setOf("fakeReadRole"))
-            )
-            every { policyService.readStartrollen() } returns setOf("fakeStartrol")
-            every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
-            every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns listOf(zaaktype)
-
-            `when`("the zaaktypes are listed") {
-                val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
-
-                then("no zaaktypes are returned and the ZAC configuration is not read") {
-                    returnedRestZaaktypes shouldBe emptyList()
-                    verify(exactly = 0) { zaaktypeConfigurationService.findConfiguration(zaaktype.url.extractUuid()) }
                 }
             }
         }
