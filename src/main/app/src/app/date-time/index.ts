@@ -10,6 +10,7 @@ export {
   provideFilterDateFormats,
   provideZacDateAdapter,
 } from "./date-adapter";
+export { daysFromToday, formatForDisplay, type DisplayFormat } from "./display";
 export { serializeDatesWithLocalOffset } from "./moment-serialization";
 export {
   addDays,

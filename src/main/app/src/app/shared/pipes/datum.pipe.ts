@@ -4,18 +4,7 @@
  */
 
 import { LOCALE_ID, Pipe, PipeTransform, inject } from "@angular/core";
-import moment from "moment";
-import "moment/locale/nl";
-
-type DateFormat =
-  | "shortDate"
-  | "mediumDate"
-  | "longDate"
-  | "short"
-  | "medium"
-  | "long"
-  | "full"
-  | "fullDate";
+import { DateInput, DisplayFormat, formatForDisplay } from "../../date-time";
 
 @Pipe({
   name: "datum",
@@ -24,46 +13,21 @@ type DateFormat =
 export class DatumPipe implements PipeTransform {
   readonly locale = inject(LOCALE_ID);
 
-  transform(
-    value?: Date | moment.Moment | string | null,
-    dateFormat?: DateFormat,
-  ) {
+  transform(value?: DateInput | null, dateFormat?: DisplayFormat) {
     if (!value) return value;
 
-    const localeDate = moment(value, moment.ISO_8601).locale(this.locale);
+    const formatted = formatForDisplay(
+      value,
+      dateFormat ?? "shortDate",
+      this.locale,
+    );
 
-    if (!localeDate.isValid()) return value.toString();
-
-    const format = this.getFormat(dateFormat ?? "shortDate");
+    if (formatted === null) return value.toString();
 
     // Format dates with hard non-breaking hyphens, because the normal soft hyphens in a date will be seen
     // by the browser as a point where a new line can be started if necessary. Replacing soft hyphens with
     // hard hyphens prevents that meaning that the date will either remain on the same line or moved as a
     // whole to the next line.
-    return localeDate.format(format).replace(/-/g, "\u2011");
-  }
-
-  // mapping angular format to moment format
-  getFormat(dateFormat: DateFormat) {
-    switch (dateFormat) {
-      case "shortDate":
-        return "L";
-      case "mediumDate":
-        return "ll";
-      case "longDate":
-        return "LL";
-      case "short":
-        return "L LT";
-      case "medium":
-        return "ll LT";
-      case "long":
-        return "LL LT";
-      case "full":
-        return "LLLL";
-      case "fullDate":
-        return "dddd, LL";
-      default:
-        return "L";
-    }
+    return formatted.replace(/-/g, "‑");
   }
 }

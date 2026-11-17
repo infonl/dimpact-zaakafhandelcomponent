@@ -5,7 +5,7 @@
 
 import { Pipe, PipeTransform, inject } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import moment from "moment";
+import { DateInput, daysFromToday } from "../../date-time";
 
 @Pipe({
   name: "dagen",
@@ -17,9 +17,7 @@ export class DagenPipe implements PipeTransform {
   transform(value: unknown) {
     if (!value) return null;
 
-    const today = moment().startOf("day");
-    const verloopt = moment(value).startOf("day");
-    const daysDifference = verloopt.diff(today, "days");
+    const daysDifference = daysFromToday(value as DateInput);
 
     switch (Math.abs(daysDifference)) {
       case 0:

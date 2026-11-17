@@ -27,8 +27,6 @@ module.exports = [
   "src/app/shared/dynamic-table/filter/clientMatcher.ts",
   "src/app/shared/form/date/date.spec.ts",
   "src/app/shared/form/date/date.ts",
-  "src/app/shared/pipes/dagen.pipe.ts",
-  "src/app/shared/pipes/datum.pipe.ts",
   "src/app/shared/utils/date-conditionals.spec.ts",
   "src/app/shared/utils/date-conditionals.ts",
   "src/app/shared/utils/file-upload.ts",
