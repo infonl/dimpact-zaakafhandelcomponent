@@ -65,7 +65,7 @@
     "openapi-typescript": {
       "typescript": "$typescript"
     },
-    "postcss": "8.5.32",
+    "postcss": "8.5.33",
     "uuid": "11.1.1",
     "webpack-dev-server": "6.1.0"
   },
