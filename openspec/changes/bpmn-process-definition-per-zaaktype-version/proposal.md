@@ -9,8 +9,9 @@ the lock also holds on every new version, and a beheerder has to create a whole 
 (PZ-13372).
 
 The reporter agreed in PZ-13372 that another BPMN process is chosen on a new version of the zaaktype, not at any
-moment. The resulting rule, "until the first zaak of that zaaktype version", is proposed in comment 100687 and awaits
-confirmation. "A new version that was never saved" cannot be detected, because ZAC stores the
+moment. The resulting rule, "until the first zaak of that zaaktype version", was proposed in comment 100687, and the
+acceptance criteria of PZ-13372 apply it to both engines and to a switch between them. "A new version that was never
+saved" cannot be detected, because ZAC stores the
 configuration of a new zaaktype version itself when Open Notificaties reports its publication. This change therefore
 defines a new version as a zaaktype version without zaken. Without zaken, nothing depends on the binding, so the same
 rule also lets a new version change its CMMN case definition or switch between CMMN and BPMN.
@@ -46,8 +47,9 @@ None.
   `ZaaktypeConfigurationRestService` (`PUT /zaakafhandelparameters/{zaaktypeUUID}`),
   `RestZaaktypeConfigurationConverter` and `RestZaaktypeConfiguration` (new field `isProcessDefinitionChangeable`), and
   the error code `msg.error.process.definition.cannot.change`.
-- Open Zaak: an extra call, `GET /zaken?zaaktype=<url>`, when a beheerder opens or saves the configuration of a bound
-  zaaktype version, once per save, used for both the check and the response, and one more when a save rejected with
+- Open Zaak: an extra call, `GET /zaken?zaaktype=<url>`, when a beheerder opens the configuration of a bound zaaktype
+  version or saves any configuration, once per save, used for both the check and the response, so that the response
+  of a first save already locks the process definition of a version with zaken, and one more when a save rejected with
   `msg.error.process.definition.cannot.change` reads the configuration again. No other endpoint makes this call: not
   the list of all zaaktype configurations, nor the zaaktype of a zaak or the zaaktypen to create a zaak with.
 - Frontend: `zaaktype-configuration-form.ts` and the process model step of `parameters-edit`.
