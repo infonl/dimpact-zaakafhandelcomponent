@@ -10,8 +10,12 @@ import { MailtemplateService } from "../mailtemplate/mailtemplate.service";
 import { PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { GeneratedType } from "../shared/utils/generated-types";
 import { ZakenService } from "../zaken/zaken.service";
 import { MailtemplateKoppelingService } from "./mailtemplate-koppeling.service";
+
+// The overview filters and sorts all zaaktype configurations in the browser, so it reads them in one page.
+const ALL_ZAAKTYPE_CONFIGURATIONS = 10_000;
 
 @Injectable({
   providedIn: "root",
@@ -27,7 +31,14 @@ export class ZaakafhandelParametersService {
   private readonly queryClient = inject(QueryClient, { optional: true });
 
   listZaakafhandelParameters() {
-    return this.zacQueryClient.GET("/rest/zaakafhandelparameters");
+    return {
+      ...this.zacQueryClient.GET("/rest/zaakafhandelparameters", {
+        query: { rows: ALL_ZAAKTYPE_CONFIGURATIONS },
+      }),
+      select: (
+        page: GeneratedType<"RestZaaktypeConfigurationOverzichtResultaat">,
+      ) => page.resultaten ?? [],
+    };
   }
 
   readZaakafhandelparameters(zaaktypeUUID: string) {
