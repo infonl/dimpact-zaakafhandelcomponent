@@ -19,11 +19,7 @@ function bagTestDoubleOrSkip(testInfo: TestInfo) {
 }
 
 async function openInitiatorPanel(page: Page) {
-  // eslint-disable-next-line playwright/no-raw-locators -- the button has no accessible name until the fix that names it "Initiator koppelen" is on main
-  const initiatorField = page
-    .locator("mat-form-field")
-    .filter({ hasText: "Initiator" });
-  await initiatorField.getByRole("button").click();
+  await page.getByRole("button", { name: "Initiator koppelen" }).click();
 }
 
 Given(

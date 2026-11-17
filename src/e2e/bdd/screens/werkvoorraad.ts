@@ -13,11 +13,9 @@ export function zakenWerkvoorraad(page: Page) {
     },
 
     async expectZaak(identificatie: string) {
-      const zaaknummerFilter = page
-        .getByRole("table")
-        .getByRole("textbox")
-        // eslint-disable-next-line playwright/no-nth-methods -- the filters have no accessible name until the fix that names this one "Zaaknummer" is on main
-        .first();
+      const zaaknummerFilter = page.getByRole("textbox", {
+        name: "Zaaknummer",
+      });
       await zaaknummerFilter.fill(identificatie);
       await zaaknummerFilter.press("Enter");
       await expect(
