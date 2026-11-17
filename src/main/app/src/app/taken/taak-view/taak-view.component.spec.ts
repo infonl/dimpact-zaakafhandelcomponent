@@ -23,12 +23,12 @@ import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { screen, within } from "@testing-library/angular";
 import { randomUUID } from "crypto";
-import moment from "moment";
 import { ReplaySubject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
 import { WebsocketService } from "../../core/websocket/websocket.service";
+import { now, toApiDateTime } from "../../date-time";
 import { FormioCustomEvent } from "../../formulieren/formio-wrapper/formio-wrapper.component";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -54,8 +54,8 @@ describe(TaakViewComponent.name, () => {
     behandelaar: undefined,
     groep: undefined,
     naam: "test-taak",
-    fataledatum: moment().toISOString(),
-    creatiedatumTijd: moment().toISOString(),
+    fataledatum: toApiDateTime(now()),
+    creatiedatumTijd: toApiDateTime(now()),
     formioFormulier: {},
     rechten: {
       canLezen: true,
@@ -70,7 +70,7 @@ describe(TaakViewComponent.name, () => {
     taakdocumenten: [],
     taakinformatie: {},
     toelichting: undefined,
-    toekenningsdatumTijd: moment().toISOString(),
+    toekenningsdatumTijd: toApiDateTime(now()),
     zaaktypeOmschrijving: "test-zaaktypeOmschrijving",
     zaakIdentificatie: "test-zaakIdentificatie",
   };

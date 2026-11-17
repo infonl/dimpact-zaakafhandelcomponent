@@ -9,7 +9,6 @@ import {
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatDrawer } from "@angular/material/sidenav";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -22,6 +21,7 @@ import { EMPTY } from "rxjs";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
+import { provideZacDateAdapter } from "../../date-time";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { toI18nKey } from "../../shared/utils/i18n-key";
@@ -93,7 +93,7 @@ describe(ZaakLinkComponent.name, () => {
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
         provideRouter([]),
-        provideMomentDateAdapter(),
+        provideZacDateAdapter(),
       ],
     });
 

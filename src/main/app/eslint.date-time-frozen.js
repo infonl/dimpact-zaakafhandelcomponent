@@ -5,8 +5,6 @@
 // The files that handled dates and times outside src/app/date-time before the date-time rules of eslint.config.js
 // were added. This list may only shrink: move the date handling of a file into src/app/date-time and remove it here.
 module.exports = [
-  "src/app/documenten/inbox-documenten-list/inbox-documenten-list.component.spec.ts",
-  "src/app/documenten/ontkoppelde-documenten-list/ontkoppelde-documenten-list.component.spec.ts",
   "src/app/formulieren/taken/model/aanvullende-informatie-task-form.spec.ts",
   "src/app/formulieren/taken/model/aanvullende-informatie-task-form.ts",
   "src/app/formulieren/taken/model/document-verzenden-post-task-form.spec.ts",
@@ -21,15 +19,12 @@ module.exports = [
   "src/app/informatie-objecten/informatie-object-verzenden/informatie-object-verzenden.component.spec.ts",
   "src/app/informatie-objecten/informatie-object-verzenden/informatie-object-verzenden.component.ts",
   "src/app/klanten/zoek/personen/persoon-zoek.component.ts",
-  "src/app/productaanvragen/inbox-productaanvragen-list/inbox-productaanvragen-list.component.spec.ts",
   "src/app/taken/taak-view/formio/formio-setup-service.test-fixtures.ts",
-  "src/app/taken/taak-view/taak-view.component.spec.ts",
   "src/app/zaken/besluit-create/besluit-create.component.ts",
   "src/app/zaken/besluit-edit/besluit-edit.component.spec.ts",
   "src/app/zaken/besluit-edit/besluit-edit.component.ts",
   "src/app/zaken/besluit-view/besluit-intrekken-dialog/besluit-intrekken-dialog.component.spec.ts",
   "src/app/zaken/besluit-view/besluit-intrekken-dialog/besluit-intrekken-dialog.component.ts",
-  "src/app/zaken/besluit-view/besluit-view.component.spec.ts",
   "src/app/zaken/zaak-afhandelen-dialog/zaak-afhandelen-dialog.component.spec.ts",
   "src/app/zaken/zaak-afhandelen-dialog/zaak-afhandelen-dialog.component.ts",
   "src/app/zaken/zaak-brondatum-zetten-dialog/zaak-brondatum-zetten-dialog.component.spec.ts",
@@ -37,9 +32,6 @@ module.exports = [
   "src/app/zaken/zaak-create/zaak-create.component.ts",
   "src/app/zaken/zaak-details-wijzigen/zaak-details-wijzigen.component.spec.ts",
   "src/app/zaken/zaak-details-wijzigen/zaak-details-wijzigen.component.ts",
-  "src/app/zaken/zaak-link/zaak-link.component.spec.ts",
   "src/app/zaken/zaak-verlengen-dialog/zaak-verlengen-dialog.component.spec.ts",
   "src/app/zaken/zaak-verlengen-dialog/zaak-verlengen-dialog.component.ts",
-  "src/app/zaken/zaak-view/zaak-details-card/zaak-details-algemeen-tab/zaak-details-algemeen-tab.component.spec.ts",
-  "src/test-helpers.ts",
 ];
