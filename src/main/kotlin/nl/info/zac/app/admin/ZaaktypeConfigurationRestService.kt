@@ -7,6 +7,7 @@ package nl.info.zac.app.admin
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.validation.Valid
+import jakarta.ws.rs.BeanParam
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST
@@ -89,9 +90,9 @@ class ZaaktypeConfigurationRestService @Inject constructor(
      * Lists one page of the zaaktype configurations of the default catalogus that match the filters, in the
      * requested order, with the zaaktypes and process definitions of all configurations to filter on.
      */
-    @PUT
+    @GET
     fun listZaaktypeConfigurationPage(
-        @Valid restZaaktypeConfigurationListParameters: RestZaaktypeConfigurationListParameters
+        @BeanParam @Valid restZaaktypeConfigurationListParameters: RestZaaktypeConfigurationListParameters
     ): RestZaaktypeConfigurationOverzichtResultaat {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
         return listRestZaaktypeConfigurationOverzichten()

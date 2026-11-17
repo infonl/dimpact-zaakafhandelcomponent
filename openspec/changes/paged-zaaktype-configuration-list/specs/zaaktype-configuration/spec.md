@@ -2,7 +2,7 @@
 
 ### Requirement: The configuration list is served in pages
 
-`PUT /zaakafhandelparameters` SHALL return one page of the items that the requirement "The configuration list
+`GET /zaakafhandelparameters` SHALL return one page of the items that the requirement "The configuration list
 carries only what the list page shows" defines. It SHALL filter the items on the filters of the request, sort the
 filtered items on the sort field and sort order of the request, and return the requested page of the requested
 number of rows. It SHALL return the number of items that match the filters, and the zaaktypes and process

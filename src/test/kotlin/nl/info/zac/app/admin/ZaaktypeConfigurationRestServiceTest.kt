@@ -34,10 +34,10 @@ import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeConfigurationsUnderTest
 import nl.info.zac.app.admin.converter.RestProcessDefinitionConverter
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
-import nl.info.zac.app.admin.model.RestZaaktypeConfigurationListParameters
 import nl.info.zac.app.admin.model.createRestProcessDefinition
 import nl.info.zac.app.admin.model.createRestZaaktypeBeheerOverzicht
 import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
+import nl.info.zac.app.admin.model.createRestZaaktypeConfigurationListParameters
 import nl.info.zac.app.admin.model.createRestZaaktypeConfigurationOverzicht
 import nl.info.zac.app.admin.model.createRestZaaktypeOverzicht
 import nl.info.zac.configuration.ConfigurationService
@@ -393,7 +393,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
 
             `when`("a beheerder lists the first page of the zaaktype configurations without filters") {
                 val restZaaktypeConfigurationOverzichten = zaaktypeConfigurationRestService
-                    .listZaaktypeConfigurationPage(RestZaaktypeConfigurationListParameters())
+                    .listZaaktypeConfigurationPage(createRestZaaktypeConfigurationListParameters())
                     .results
 
                 then("a list item is returned for each zaaktype, in the order of the catalogus") {
@@ -420,7 +420,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
             `when`("a beheerder lists the first page of one row of the valid zaaktype configurations") {
                 val restZaaktypeConfigurationOverzichtResultaat =
                     zaaktypeConfigurationRestService.listZaaktypeConfigurationPage(
-                        RestZaaktypeConfigurationListParameters(page = 0, rows = 1, isValide = true)
+                        createRestZaaktypeConfigurationListParameters(page = 0, rows = 1, isValide = true)
                     )
 
                 then("only the configuration of the configured zaaktype is returned, and it is the only match") {
@@ -437,7 +437,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
             `when`("the user lists a page of the zaaktype configurations") {
                 val policyException = shouldThrow<PolicyException> {
                     zaaktypeConfigurationRestService.listZaaktypeConfigurationPage(
-                        RestZaaktypeConfigurationListParameters()
+                        createRestZaaktypeConfigurationListParameters()
                     )
                 }
 

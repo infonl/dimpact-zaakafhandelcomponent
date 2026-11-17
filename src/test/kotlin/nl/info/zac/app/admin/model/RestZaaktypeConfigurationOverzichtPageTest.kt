@@ -13,7 +13,6 @@ import nl.info.zac.app.admin.model.RestZaaktypeConfigurationSortField.EINDE_GELD
 import nl.info.zac.app.admin.model.RestZaaktypeConfigurationSortField.OMSCHRIJVING
 import nl.info.zac.app.admin.model.RestZaaktypeConfigurationSortField.PROCESS_DEFINITION
 import nl.info.zac.app.admin.model.RestZaaktypeConfigurationSortField.VALIDE
-import nl.info.zac.app.search.model.RestDatumRange
 import nl.info.zac.search.model.SorteerRichting
 import java.time.LocalDate
 
@@ -48,7 +47,7 @@ class RestZaaktypeConfigurationOverzichtPageTest : BehaviorSpec({
             `when`("the third page of 25 rows is requested without a sort field") {
                 val restZaaktypeConfigurationOverzichtResultaat = restZaaktypeConfigurationOverzichten
                     .toRestZaaktypeConfigurationOverzichtResultaat(
-                        RestZaaktypeConfigurationListParameters(page = 2, rows = 25)
+                        createRestZaaktypeConfigurationListParameters(page = 2, rows = 25)
                     )
 
                 then("the last 10 configurations are returned, in the order of the catalogus") {
@@ -63,7 +62,7 @@ class RestZaaktypeConfigurationOverzichtPageTest : BehaviorSpec({
             `when`("a page after the last page is requested") {
                 val restZaaktypeConfigurationOverzichtResultaat = restZaaktypeConfigurationOverzichten
                     .toRestZaaktypeConfigurationOverzichtResultaat(
-                        RestZaaktypeConfigurationListParameters(page = Int.MAX_VALUE, rows = 25)
+                        createRestZaaktypeConfigurationListParameters(page = Int.MAX_VALUE, rows = 25)
                     )
 
                 then("no rows are returned, and the total is still the number of all configurations") {
@@ -94,7 +93,7 @@ class RestZaaktypeConfigurationOverzichtPageTest : BehaviorSpec({
             `when`("the configurations are filtered on valide false") {
                 val restZaaktypeConfigurationOverzichtResultaat = restZaaktypeConfigurationOverzichten
                     .toRestZaaktypeConfigurationOverzichtResultaat(
-                        RestZaaktypeConfigurationListParameters(isValide = false)
+                        createRestZaaktypeConfigurationListParameters(isValide = false)
                     )
 
                 then("only the invalid configuration is returned, and the total counts only that one") {
@@ -107,7 +106,7 @@ class RestZaaktypeConfigurationOverzichtPageTest : BehaviorSpec({
             `when`("the configurations are filtered on geldig true and on the process definition") {
                 val restZaaktypeConfigurationOverzichtResultaat = restZaaktypeConfigurationOverzichten
                     .toRestZaaktypeConfigurationOverzichtResultaat(
-                        RestZaaktypeConfigurationListParameters(isNuGeldig = true, processDefinitionKey = "fakeKey")
+                        createRestZaaktypeConfigurationListParameters(isNuGeldig = true, processDefinitionKey = "fakeKey")
                     )
 
                 then("only the configuration that is valid today and bound to that process definition is returned") {
@@ -119,7 +118,7 @@ class RestZaaktypeConfigurationOverzichtPageTest : BehaviorSpec({
             `when`("the configurations are filtered on the identificatie of a zaaktype") {
                 val restZaaktypeConfigurationOverzichtResultaat = restZaaktypeConfigurationOverzichten
                     .toRestZaaktypeConfigurationOverzichtResultaat(
-                        RestZaaktypeConfigurationListParameters(zaaktypeIdentificatie = "fakeIdentificatiefakeNietGeldig")
+                        createRestZaaktypeConfigurationListParameters(zaaktypeIdentificatie = "fakeIdentificatiefakeNietGeldig")
                     )
 
                 then("only the configuration of that zaaktype is returned") {
@@ -133,11 +132,9 @@ class RestZaaktypeConfigurationOverzichtPageTest : BehaviorSpec({
             `when`("the configurations are filtered on a begin geldigheid in 2025, both ends included") {
                 val restZaaktypeConfigurationOverzichtResultaat = restZaaktypeConfigurationOverzichten
                     .toRestZaaktypeConfigurationOverzichtResultaat(
-                        RestZaaktypeConfigurationListParameters(
-                            beginGeldigheid = RestDatumRange(
-                                van = LocalDate.of(2025, 1, 1),
-                                tot = LocalDate.of(2025, 12, 31)
-                            )
+                        createRestZaaktypeConfigurationListParameters(
+                            beginGeldigheidVan = LocalDate.of(2025, 1, 1),
+                            beginGeldigheidTot = LocalDate.of(2025, 12, 31)
                         )
                     )
 
@@ -150,8 +147,8 @@ class RestZaaktypeConfigurationOverzichtPageTest : BehaviorSpec({
             `when`("the configurations are filtered on an einde geldigheid from a date") {
                 val restZaaktypeConfigurationOverzichtResultaat = restZaaktypeConfigurationOverzichten
                     .toRestZaaktypeConfigurationOverzichtResultaat(
-                        RestZaaktypeConfigurationListParameters(
-                            eindeGeldigheid = RestDatumRange(van = LocalDate.of(2020, 1, 1))
+                        createRestZaaktypeConfigurationListParameters(
+                            eindeGeldigheidVan = LocalDate.of(2020, 1, 1)
                         )
                     )
 
@@ -161,10 +158,10 @@ class RestZaaktypeConfigurationOverzichtPageTest : BehaviorSpec({
                 }
             }
 
-            `when`("the configurations are filtered on an empty range") {
+            `when`("the configurations are filtered without a date range") {
                 val restZaaktypeConfigurationOverzichtResultaat = restZaaktypeConfigurationOverzichten
                     .toRestZaaktypeConfigurationOverzichtResultaat(
-                        RestZaaktypeConfigurationListParameters(eindeGeldigheid = RestDatumRange())
+                        createRestZaaktypeConfigurationListParameters()
                     )
 
                 then("all configurations are returned") {
@@ -178,7 +175,7 @@ class RestZaaktypeConfigurationOverzichtPageTest : BehaviorSpec({
             `when`("the configurations are filtered") {
                 val restZaaktypeConfigurationOverzichtResultaat = restZaaktypeConfigurationOverzichten
                     .toRestZaaktypeConfigurationOverzichtResultaat(
-                        RestZaaktypeConfigurationListParameters(processDefinitionKey = "fakeUnknownKey")
+                        createRestZaaktypeConfigurationListParameters(processDefinitionKey = "fakeUnknownKey")
                     )
 
                 then("the zaaktypes and process definitions to filter on are still those of all configurations") {
@@ -204,7 +201,7 @@ class RestZaaktypeConfigurationOverzichtPageTest : BehaviorSpec({
 
             `when`("a page is listed") {
                 val restZaaktypeConfigurationOverzichtResultaat = restZaaktypeConfigurationOverzichten
-                    .toRestZaaktypeConfigurationOverzichtResultaat(RestZaaktypeConfigurationListParameters())
+                    .toRestZaaktypeConfigurationOverzichtResultaat(createRestZaaktypeConfigurationListParameters())
 
                 then("each zaaktype is offered once, with the omschrijving of its first version, ordered by omschrijving") {
                     restZaaktypeConfigurationOverzichtResultaat.filterZaaktypes shouldBe listOf(
@@ -232,7 +229,7 @@ class RestZaaktypeConfigurationOverzichtPageTest : BehaviorSpec({
 
             `when`("a page is listed") {
                 val restZaaktypeConfigurationOverzichtResultaat = restZaaktypeConfigurationOverzichten
-                    .toRestZaaktypeConfigurationOverzichtResultaat(RestZaaktypeConfigurationListParameters())
+                    .toRestZaaktypeConfigurationOverzichtResultaat(createRestZaaktypeConfigurationListParameters())
 
                 then("the zaaktypes and process definitions are ordered alphabetically, ignoring case and accents") {
                     val alphabeticalOrder = listOf("aanvraag", "beroep", "Échte melding", "Zorg")
@@ -267,7 +264,7 @@ class RestZaaktypeConfigurationOverzichtPageTest : BehaviorSpec({
 
         fun sort(sortField: RestZaaktypeConfigurationSortField, sortOrder: SorteerRichting) =
             restZaaktypeConfigurationOverzichten.toRestZaaktypeConfigurationOverzichtResultaat(
-                RestZaaktypeConfigurationListParameters(sortField = sortField, sortOrder = sortOrder)
+                createRestZaaktypeConfigurationListParameters(sortField = sortField, sortOrder = sortOrder)
             ).results.toList().omschrijvingen()
 
         given("three configurations") {

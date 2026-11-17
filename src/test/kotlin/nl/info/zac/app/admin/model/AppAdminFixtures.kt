@@ -10,6 +10,7 @@ import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplateVariables
+import nl.info.zac.search.model.SorteerRichting
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -223,3 +224,32 @@ fun createRestMailTemplate(
     variabelen = mailTemplateVariables,
     isDefaultMailtemplate = defaultTemplate
 )
+
+@Suppress("LongParameterList")
+fun createRestZaaktypeConfigurationListParameters(
+    page: Int = 0,
+    rows: Int = RestZaaktypeConfigurationListParameters.DEFAULT_ROWS,
+    sortField: RestZaaktypeConfigurationSortField? = null,
+    sortOrder: SorteerRichting = SorteerRichting.ASC,
+    isValide: Boolean? = null,
+    isNuGeldig: Boolean? = null,
+    zaaktypeIdentificatie: String? = null,
+    processDefinitionKey: String? = null,
+    beginGeldigheidVan: LocalDate? = null,
+    beginGeldigheidTot: LocalDate? = null,
+    eindeGeldigheidVan: LocalDate? = null,
+    eindeGeldigheidTot: LocalDate? = null
+) = RestZaaktypeConfigurationListParameters().apply {
+    this.page = page
+    this.rows = rows
+    this.sortField = sortField
+    this.sortOrder = sortOrder
+    this.isValide = isValide
+    this.isNuGeldig = isNuGeldig
+    this.zaaktypeIdentificatie = zaaktypeIdentificatie
+    this.processDefinitionKey = processDefinitionKey
+    this.beginGeldigheidVan = beginGeldigheidVan
+    this.beginGeldigheidTot = beginGeldigheidTot
+    this.eindeGeldigheidVan = eindeGeldigheidVan
+    this.eindeGeldigheidTot = eindeGeldigheidTot
+}

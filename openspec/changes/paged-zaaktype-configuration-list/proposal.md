@@ -7,9 +7,9 @@ sooner.
 
 ## What Changes
 
-- New endpoint `PUT /rest/zaakafhandelparameters` returns one page of the zaaktype configurations of the default
-  catalogus. The request carries the page, the number of rows, the sort field and sort order, and the filters of
-  the page: valide, geldig, zaaktype, process definition, and the ranges of begin and einde geldigheid. The
+- `GET /rest/zaakafhandelparameters` returns one page of the zaaktype configurations of the default catalogus. Its
+  query parameters carry the page, the number of rows, the sort field and sort order, and the filters of the page:
+  valide, geldig, zaaktype, process definition, and the ranges of begin and einde geldigheid. The
   response carries the rows of the page, the number of rows that match the filters, and the zaaktypes and process
   definitions of all configurations, for the filter lists of the page.
 - The server filters and sorts the list, as the page did in the browser.
@@ -20,9 +20,8 @@ sooner.
 - A loading bar shows above the table while the next page is read. The rows of the current page stay visible
   until then.
 - The page shows "Geen gegevens gevonden" when no configuration matches the filters.
-- The list stays fresh for 15 seconds instead of 5 minutes, the setting of the frontend for search requests.
-- **BREAKING (internal API)** `GET /rest/zaakafhandelparameters` is removed once the page no longer calls it.
-  Only this repository calls it.
+- **BREAKING (internal API)** `GET /rest/zaakafhandelparameters` returns that page (`resultaten`, `totaal` and the
+  filter options) instead of a list of all configurations. Only this repository calls it.
 
 ## Capabilities
 
@@ -32,10 +31,10 @@ sooner.
 ## Impact
 
 - Backend: `ZaaktypeConfigurationRestService`, new REST models for the list parameters, the sort field, the page
-  result and the zaaktype filter option, and the functions that filter, sort and page the list.
+  result and the zaaktype filter option, the functions that filter, sort and page the list, and a `ParamConverter`
+  for `LocalDate` query parameters.
 - Generated OpenAPI spec and the generated frontend types.
 - Frontend: `ParametersComponent`, `ZaakafhandelParametersListParameters`, `ZaakafhandelParametersService` and
   their specs.
-- Integration tests: `ZaaktypeConfigurationRestServicePagingTest`, and `ZaaktypeConfigurationRestServiceTest` once
-  the `GET` is removed.
+- Integration tests: `ZaaktypeConfigurationRestServicePagingTest` and `ZaaktypeConfigurationRestServiceTest`.
 - The test-data scripts in `scripts/test-data/` do not call the list endpoint and do not change.

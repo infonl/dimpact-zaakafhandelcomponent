@@ -62,9 +62,8 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
 
     given("Zaaktype CMMN configurations have been created for the CMMN test zaaktypes, and a beheerder is logged in") {
         `when`("the beheerder lists one page with all zaaktype configurations") {
-            val response = itestHttpClient.performPutRequest(
-                url = "$ZAC_API_URI/zaakafhandelparameters",
-                requestBodyAsString = """{ "page": 0, "rows": 1000 }""",
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/zaakafhandelparameters?page=0&rows=1000",
                 testUser = BEHEERDER_1
             )
             val responseBody = response.bodyAsString

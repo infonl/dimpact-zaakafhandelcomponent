@@ -40,8 +40,10 @@ private fun RestZaaktypeConfigurationListParameters.toFilters() = listOfNotNull<
     isNuGeldig?.let { isNuGeldig -> { it.zaaktype.isNuGeldig == isNuGeldig } },
     zaaktypeIdentificatie?.let { identificatie -> { it.zaaktype.identificatie == identificatie } },
     processDefinitionKey?.let { key -> { it.processDefinition?.key == key } },
-    beginGeldigheid?.takeIf { it.hasValue() }?.let { range -> { it.zaaktype.beginGeldigheid.isIn(range) } },
-    eindeGeldigheid?.takeIf { it.hasValue() }?.let { range -> { it.zaaktype.eindeGeldigheid.isIn(range) } }
+    RestDatumRange(beginGeldigheidVan, beginGeldigheidTot).takeIf { it.hasValue() }
+        ?.let { range -> { it.zaaktype.beginGeldigheid.isIn(range) } },
+    RestDatumRange(eindeGeldigheidVan, eindeGeldigheidTot).takeIf { it.hasValue() }
+        ?.let { range -> { it.zaaktype.eindeGeldigheid.isIn(range) } }
 )
 
 private fun LocalDate?.isIn(restDatumRange: RestDatumRange) =
