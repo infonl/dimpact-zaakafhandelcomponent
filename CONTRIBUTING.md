@@ -29,6 +29,7 @@ We are especially interested in ways this project could be extended or adapted t
 
 Please use English for all communication, contributions and reported issues.
 The preferred language for Dutch domain-specific terminology (typically within the context of 'zaakgericht werken'), however, is Dutch.
+See the [Dimpact Glossary](docs/Dimpact-Glossary.md) for these terms.
 
 ## Coding conventions
 
