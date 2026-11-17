@@ -64,3 +64,10 @@ expose the binding as one `processDefinition` that names the engine and the defi
 - **WHEN** a beheerder saves it with case definition `C2` and no plan item settings, or with the plan item settings
   of `C1`
 - **THEN** the configuration holds no plan item settings of `C1`
+
+#### Scenario: A CMMN binding has a setting for every user event listener
+- **GIVEN** a BPMN configuration, and no zaak of its zaaktype version
+- **WHEN** a beheerder binds it to a CMMN case definition with user event listeners, and the save sends no plan item
+  settings
+- **THEN** the configuration holds a setting without toelichting for each user event listener of that case
+  definition, and the actions of a new zaak of the zaaktype version can be listed

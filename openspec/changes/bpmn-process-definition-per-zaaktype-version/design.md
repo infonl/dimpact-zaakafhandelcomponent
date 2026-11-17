@@ -62,16 +62,21 @@ would otherwise make a second request on every open.
 `PUT /zaakafhandelparameters/{zaaktypeUUID}` rejects a binding with another engine or key when the zaaktype version
 has zaken, before anything is stored. The validation error has the error code
 `msg.error.process.definition.cannot.change`, so the beheerder sees a translated message instead of a generic
-technical error. The check makes no Open Zaak call when the binding stays the same; the response of the save still
-makes one, to fill in `isProcessDefinitionChangeable`.
+technical error. The save asks Open Zaak once, before anything is stored, whether the zaaktype version has zaken,
+and uses the answer both for the check and for `isProcessDefinitionChangeable` in its response.
 
 The entity method that binds a configuration no longer rejects a change of engine: the check above decides. When it
 binds to BPMN, it still removes the CMMN extension. When it binds to another CMMN case definition, it first clears the
 plan item settings of the previous case definition, also when the save sends none, and stores only the settings of
-plan items that the new case definition has.
+plan items that the new case definition has. On every bind to CMMN, it adds a default setting, without toelichting,
+for each user event listener of the case definition that the save does not send, because listing the actions of a
+zaak requires one per listener.
 
-The save looks up `isProcessDefinitionChangeable` for its response before the transaction commits, so a failed Open
-Zaak call stores nothing instead of reporting an error for a configuration that did change.
+No Open Zaak call runs inside the transaction of the save, and the save builds its response after the commit. A
+failed Open Zaak call therefore stores nothing. The save evicts the cached configuration before it commits, so a
+remote call inside the transaction would give a concurrent read the time to cache the previous binding again, and
+zaken created in the next hour would start the previous process. A zaak created between the lookup and the commit
+makes the response report a changeable configuration once; the next save checks again.
 
 ### D5. The process model step offers every engine while the binding may change
 
