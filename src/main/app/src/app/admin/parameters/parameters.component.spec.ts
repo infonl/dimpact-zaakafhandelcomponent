@@ -180,6 +180,42 @@ describe(ParametersComponent.name, () => {
     );
   });
 
+  it("shows a loading bar over the rows of the current page while the next page is being read", async () => {
+    await render();
+    await answer(await expectPageRequest(), {
+      resultaten: [fakeZaaktypeConfigurationOverzicht()],
+      totaal: 30,
+    });
+    expect(
+      screen.queryByRole("progressbar", { name: "msg.loading" }),
+    ).not.toBeInTheDocument();
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    fixture.detectChanges();
+    const nextPageRequest = await expectPageRequest();
+    fixture.detectChanges();
+
+    expect(
+      screen.getByRole("progressbar", { name: "msg.loading" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("row", { name: /Fake zaaktype/ }),
+    ).toBeInTheDocument();
+
+    await answer(nextPageRequest, {
+      resultaten: [fakeZaaktypeConfigurationOverzicht("Volgend zaaktype")],
+      totaal: 30,
+    });
+
+    expect(
+      screen.queryByRole("progressbar", { name: "msg.loading" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("row", { name: /Volgend zaaktype/ }),
+    ).toBeInTheDocument();
+  });
+
   it("reads the first page again, sorted on omschrijving, when the beheerder sorts on omschrijving", async () => {
     restoreStoredFilters({ page: 1 });
     await render();
