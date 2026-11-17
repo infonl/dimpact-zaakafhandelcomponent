@@ -7,7 +7,6 @@ package nl.info.zac.healthcheck
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import nl.info.client.zgw.shared.ZgwApiService
-import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
@@ -25,8 +24,8 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.MEDE_INIT
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.ZAAKCOORDINATOR
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ReferenceTableService
-import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.COMMUNICATIEKANAAL
+import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.configuration.ConfigurationService.Companion.COMMUNICATIEKANAAL_EFORMULIER
 import nl.info.zac.configuration.ConfigurationService.Companion.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL
 import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
@@ -42,11 +41,9 @@ import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.io.File
 import java.io.IOException
-import java.net.URI
 import java.nio.file.Files
 import java.time.ZonedDateTime
 import java.util.Optional
-import java.util.UUID
 
 @Singleton
 @NoArgConstructor
@@ -61,7 +58,6 @@ class HealthCheckService @Inject constructor(
 
     private val referenceTableService: ReferenceTableService,
     private val brpInstellingenCheck: BrpInstellingenCheck,
-    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val ztcClientService: ZtcClientService
 ) {
     companion object {
@@ -76,27 +72,20 @@ class HealthCheckService @Inject constructor(
             COMMUNICATIEKANAAL_EFORMULIER == it.name
         }
 
-    fun controleerZaaktype(zaaktypeUrl: URI): ZaaktypeInrichtingscheck {
-        ztcClientService.readZaaktype(zaaktypeUrl).let { zaaktype ->
-            zaaktype.url.extractUuid().let {
-                return inrichtingscheck(it, zaaktype)
-            }
-        }
-    }
-
-    private fun inrichtingscheck(zaaktypeUuid: UUID, zaaktype: ZaakType): ZaaktypeInrichtingscheck =
-        zaaktypeConfigurationService.findConfiguration(zaaktypeUuid).let { zaaktypeConfiguration ->
-            return ZaaktypeInrichtingscheck(zaaktype).apply {
-                isZaakafhandelParametersValide = zaaktypeConfiguration?.isValidForZaakCreation() ?: false
-            }.also {
-                controleerZaaktypeStatustypeInrichting(it)
-                controleerZaaktypeResultaattypeInrichting(it)
-                controleerZaaktypeBesluittypeInrichting(it)
-                controleerZaaktypeRoltypeInrichting(it)
-                controleerZaaktypeInformatieobjecttypeInrichting(it)
-                controleerZaakspecifiekeAutorisatieInrichting(it)
-                controleerBrpInstellingenCorrect(it)
-            }
+    fun controleerZaaktype(
+        zaaktype: ZaakType,
+        zaaktypeConfiguration: ZaaktypeConfiguration?
+    ): ZaaktypeInrichtingscheck =
+        ZaaktypeInrichtingscheck(zaaktype).apply {
+            isZaakafhandelParametersValide = zaaktypeConfiguration?.isValidForZaakCreation() ?: false
+        }.also {
+            controleerZaaktypeStatustypeInrichting(it)
+            controleerZaaktypeResultaattypeInrichting(it)
+            controleerZaaktypeBesluittypeInrichting(it)
+            controleerZaaktypeRoltypeInrichting(it)
+            controleerZaaktypeInformatieobjecttypeInrichting(it)
+            controleerZaakspecifiekeAutorisatieInrichting(it)
+            controleerBrpInstellingenCorrect(it)
         }
 
     fun readBuildInformatie() = buildInformation

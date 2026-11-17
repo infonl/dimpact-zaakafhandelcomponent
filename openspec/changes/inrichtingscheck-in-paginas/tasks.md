@@ -5,20 +5,30 @@
 - [x] 1.1 Baseline: on a local kind stack with about 200 generated zaaktypes, run a local k6 script (not checked in)
       against `GET /rest/health-check/zaaktypes` on the base commit, as design D6 describes, and time the page until
       it shows its first rows. Verify: the numbers are noted for task 1.9.
-- [ ] 1.2 `HealthCheckService.controleerZaaktype` takes the `ZaakType` and the zaaktype configuration that the list
+- [x] 1.2 `HealthCheckService.controleerZaaktype` takes the `ZaakType` and the zaaktype configuration that the list
       already has, instead of the URL (D3). Verify: unit tests in `HealthCheckServiceTest` show that the zaaktype is
       not read again from `ZtcClientService` and that all checks give the same results as before.
+<<<<<<< HEAD
 - [ ] 1.3 `GET /rest/health-check/zaaktypes` takes the `@BeanParam` `RestInrichtingscheckParameters` (`page`, `rows`,
       `zoekterm`, `status`, `sortField`, `sortOrder`, with Bean Validation and enums) and returns a
+=======
+- [x] 1.3 `GET /rest/health-check/zaaktypes` takes the `@BeanParam` `RestInrichtingscheckParameters` (`page`, `rows`,
+      `omschrijving`, `status`, `sort`, `order`, with Bean Validation and enums) and returns a
+>>>>>>> cb52ccbdf9 (feat: read the inrichtingscheck in pages, filtered and sorted on the server)
       `RestResultaat<RestZaaktypeInrichtingscheck>`: check all eligible zaaktypes, filter, sort, page (D1, D2).
       Verify: unit tests in `HealthCheckRestServiceTest` for each scenario of the requirements "read in pages" and
       "filtered and sorted before it is paged", including the policy check.
-- [ ] 1.4 Replace `GET /rest/health-check/bestaat-communicatiekanaal-eformulier` with
+- [x] 1.4 Replace `GET /rest/health-check/bestaat-communicatiekanaal-eformulier` with
       `GET /rest/health-check/referentietabellen`, returning `RestReferentietabellenInrichtingscheck` (D4). Verify:
       unit test for both values and the policy check.
+<<<<<<< HEAD
 - [ ] 1.5 Update the integration test `HealthCheckRestServiceTest`: the page object of the list with its default
       filters, a filter on `zoekterm`, `rows` 101 giving `400`, an unknown `status` or `sortField` giving `400`, and
       the `referentietabellen` resource. Verify:
+=======
+- [x] 1.5 Update the integration test `HealthCheckRestServiceTest`: the page object of the list with its default
+      filters, a filter on `omschrijving`, `rows` 101 giving `400`, and the `referentietabellen` resource. Verify:
+>>>>>>> cb52ccbdf9 (feat: read the inrichtingscheck in pages, filtered and sorted on the server)
       `./gradlew itest --tests "nl.info.zac.itest.HealthCheckRestServiceTest"` passes.
 - [x] 1.6 Add an ADR (next free number, status `proposed`) "Read a paged list with GET and query parameters", add it
       to the index, and add the `GET` form to `docs/development/paging.md`. Verify:

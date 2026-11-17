@@ -9,6 +9,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
 import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
@@ -24,7 +25,6 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.ReferenceTableService
-import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.configuration.ConfigurationService
@@ -48,7 +48,6 @@ class HealthCheckServiceTest : BehaviorSpec({
 
         val referenceTableService = mockk<ReferenceTableService>()
         val brpInstellingenCheck = mockk<BrpInstellingenCheck>()
-        val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
         val ztcClientService = mockk<ZtcClientService>()
 
         val healthCheckService = HealthCheckService(
@@ -57,14 +56,11 @@ class HealthCheckServiceTest : BehaviorSpec({
             versionNumber,
             referenceTableService,
             brpInstellingenCheck,
-            zaaktypeConfigurationService,
             ztcClientService
         )
 
-        every { ztcClientService.readZaaktype(zaaktypeUri) } returns createZaakType(zaaktypeUri)
-        every {
-            zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
-        } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
+        val zaaktype = createZaakType(zaaktypeUri)
+        val zaaktypeConfiguration = createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
         every {
             ztcClientService.readStatustypen(zaaktypeUri)
         } returns listOf(
@@ -103,7 +99,12 @@ class HealthCheckServiceTest : BehaviorSpec({
         every { brpInstellingenCheck.isBrpInstellingenCorrect() } returns false
 
         `when`("controleerZaaktype is called") {
-            val zaaktypeInrichtingscheck = healthCheckService.controleerZaaktype(zaaktypeUri)
+            val zaaktypeInrichtingscheck = healthCheckService.controleerZaaktype(zaaktype, zaaktypeConfiguration)
+
+            then("the zaaktype is not read again from the catalogue") {
+                verify(exactly = 0) { ztcClientService.readZaaktype(any<URI>()) }
+                verify(exactly = 0) { ztcClientService.readZaaktype(any<UUID>()) }
+            }
 
             then("The zaaktypeInrichtingscheck is invalid") {
                 zaaktypeInrichtingscheck.isValide shouldBe false
@@ -144,7 +145,6 @@ class HealthCheckServiceTest : BehaviorSpec({
 
         val referenceTableService = mockk<ReferenceTableService>()
         val brpInstellingenCheck = mockk<BrpInstellingenCheck>()
-        val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
         val ztcClientService = mockk<ZtcClientService>()
 
         val healthCheckService = HealthCheckService(
@@ -153,14 +153,11 @@ class HealthCheckServiceTest : BehaviorSpec({
             versionNumber,
             referenceTableService,
             brpInstellingenCheck,
-            zaaktypeConfigurationService,
             ztcClientService
         )
 
-        every { ztcClientService.readZaaktype(zaaktypeUri) } returns createZaakType(zaaktypeUri)
-        every {
-            zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
-        } returns createZaaktypeBpmnConfiguration(groupId = "fakeGroupId")
+        val zaaktype = createZaakType(zaaktypeUri)
+        val zaaktypeConfiguration = createZaaktypeBpmnConfiguration(groupId = "fakeGroupId")
         every {
             ztcClientService.readStatustypen(zaaktypeUri)
         } returns listOf(
@@ -197,7 +194,12 @@ class HealthCheckServiceTest : BehaviorSpec({
         every { brpInstellingenCheck.isBrpInstellingenCorrect() } returns true
 
         `when`("controleerZaaktype is called") {
-            val zaaktypeInrichtingscheck = healthCheckService.controleerZaaktype(zaaktypeUri)
+            val zaaktypeInrichtingscheck = healthCheckService.controleerZaaktype(zaaktype, zaaktypeConfiguration)
+
+            then("the zaaktype is not read again from the catalogue") {
+                verify(exactly = 0) { ztcClientService.readZaaktype(any<URI>()) }
+                verify(exactly = 0) { ztcClientService.readZaaktype(any<UUID>()) }
+            }
 
             then("The zaaktypeInrichtingscheck is valid") {
                 zaaktypeInrichtingscheck.isValide shouldBe true
@@ -238,7 +240,6 @@ class HealthCheckServiceTest : BehaviorSpec({
 
         val referenceTableService = mockk<ReferenceTableService>()
         val brpInstellingenCheck = mockk<BrpInstellingenCheck>()
-        val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
         val ztcClientService = mockk<ZtcClientService>()
 
         val healthCheckService = HealthCheckService(
@@ -247,14 +248,11 @@ class HealthCheckServiceTest : BehaviorSpec({
             versionNumber,
             referenceTableService,
             brpInstellingenCheck,
-            zaaktypeConfigurationService,
             ztcClientService
         )
 
-        every { ztcClientService.readZaaktype(zaaktypeUri) } returns createZaakType(zaaktypeUri)
-        every {
-            zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
-        } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
+        val zaaktype = createZaakType(zaaktypeUri)
+        val zaaktypeConfiguration = createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
         every {
             ztcClientService.readStatustypen(zaaktypeUri)
         } returns listOf(
@@ -298,7 +296,12 @@ class HealthCheckServiceTest : BehaviorSpec({
         every { brpInstellingenCheck.isBrpInstellingenCorrect() } returns true
 
         `when`("controleerZaaktype is called") {
-            val zaaktypeInrichtingscheck = healthCheckService.controleerZaaktype(zaaktypeUri)
+            val zaaktypeInrichtingscheck = healthCheckService.controleerZaaktype(zaaktype, zaaktypeConfiguration)
+
+            then("the zaaktype is not read again from the catalogue") {
+                verify(exactly = 0) { ztcClientService.readZaaktype(any<URI>()) }
+                verify(exactly = 0) { ztcClientService.readZaaktype(any<UUID>()) }
+            }
 
             then("both zaakspecifieke autorisatie flags are set") {
                 with(zaaktypeInrichtingscheck) {
@@ -328,7 +331,6 @@ class HealthCheckServiceTest : BehaviorSpec({
 
         val referenceTableService = mockk<ReferenceTableService>()
         val brpInstellingenCheck = mockk<BrpInstellingenCheck>()
-        val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
         val ztcClientService = mockk<ZtcClientService>()
 
         val healthCheckService = HealthCheckService(
@@ -337,14 +339,11 @@ class HealthCheckServiceTest : BehaviorSpec({
             versionNumber,
             referenceTableService,
             brpInstellingenCheck,
-            zaaktypeConfigurationService,
             ztcClientService
         )
 
-        every { ztcClientService.readZaaktype(zaaktypeUri) } returns createZaakType(zaaktypeUri)
-        every {
-            zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
-        } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
+        val zaaktype = createZaakType(zaaktypeUri)
+        val zaaktypeConfiguration = createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
         every {
             ztcClientService.readStatustypen(zaaktypeUri)
         } returns listOf(
@@ -388,7 +387,12 @@ class HealthCheckServiceTest : BehaviorSpec({
         every { brpInstellingenCheck.isBrpInstellingenCorrect() } returns true
 
         `when`("controleerZaaktype is called") {
-            val zaaktypeInrichtingscheck = healthCheckService.controleerZaaktype(zaaktypeUri)
+            val zaaktypeInrichtingscheck = healthCheckService.controleerZaaktype(zaaktype, zaaktypeConfiguration)
+
+            then("the zaaktype is not read again from the catalogue") {
+                verify(exactly = 0) { ztcClientService.readZaaktype(any<URI>()) }
+                verify(exactly = 0) { ztcClientService.readZaaktype(any<UUID>()) }
+            }
 
             then("only the eigenschap flag is set") {
                 with(zaaktypeInrichtingscheck) {
@@ -452,7 +456,6 @@ class HealthCheckServiceTest : BehaviorSpec({
             val zaaktypeUri = URI("https://example.com/zaaktype/$zaaktypeUuid")
             val referenceTableService = mockk<ReferenceTableService>()
             val brpInstellingenCheck = mockk<BrpInstellingenCheck>()
-            val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
             val ztcClientService = mockk<ZtcClientService>()
             val healthCheckService = HealthCheckService(
                 branchName = Optional.of("dev") as Optional<String?>,
@@ -460,14 +463,11 @@ class HealthCheckServiceTest : BehaviorSpec({
                 versionNumber = Optional.of("0.0.0") as Optional<String?>,
                 referenceTableService = referenceTableService,
                 brpInstellingenCheck = brpInstellingenCheck,
-                zaaktypeConfigurationService = zaaktypeConfigurationService,
                 ztcClientService = ztcClientService
             )
 
-            every { ztcClientService.readZaaktype(zaaktypeUri) } returns createZaakType(zaaktypeUri)
-            every {
-                zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
-            } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
+            val zaaktype = createZaakType(zaaktypeUri)
+            val zaaktypeConfiguration = createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
             every {
                 ztcClientService.readStatustypen(zaaktypeUri)
             } returns listOf(
@@ -513,7 +513,12 @@ class HealthCheckServiceTest : BehaviorSpec({
             every { brpInstellingenCheck.isBrpInstellingenCorrect() } returns true
 
             `when`("controleerZaaktype is called") {
-                val zaaktypeInrichtingscheck = healthCheckService.controleerZaaktype(zaaktypeUri)
+                val zaaktypeInrichtingscheck = healthCheckService.controleerZaaktype(zaaktype, zaaktypeConfiguration)
+
+                then("the zaaktype is not read again from the catalogue") {
+                    verify(exactly = 0) { ztcClientService.readZaaktype(any<URI>()) }
+                    verify(exactly = 0) { ztcClientService.readZaaktype(any<UUID>()) }
+                }
 
                 then("the omschrijving of each resultaattype with an unsupported afleidingswijze is reported") {
                     zaaktypeInrichtingscheck.resultaattypesMetNietOndersteundeBrondatum shouldBe

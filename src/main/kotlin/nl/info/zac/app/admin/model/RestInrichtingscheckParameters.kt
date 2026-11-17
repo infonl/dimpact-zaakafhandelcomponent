@@ -1,0 +1,47 @@
+/*
+ * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+package nl.info.zac.app.admin.model
+
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
+import jakarta.ws.rs.DefaultValue
+import jakarta.ws.rs.QueryParam
+import nl.info.zac.app.shared.RestSorteerRichting
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
+
+@NoArgConstructor
+@AllOpen
+data class RestInrichtingscheckParameters(
+    @field:QueryParam("page")
+    @field:DefaultValue("0")
+    @field:Min(0)
+    var page: Int = 0,
+
+    @field:QueryParam("rows")
+    @field:DefaultValue("25")
+    @field:Min(1)
+    @field:Max(MAX_ROWS)
+    var rows: Int = DEFAULT_ROWS,
+
+    @field:QueryParam("omschrijving")
+    var omschrijving: String? = null,
+
+    @field:QueryParam("status")
+    var status: RestInrichtingscheckStatus? = null,
+
+    @field:QueryParam("sort")
+    @field:DefaultValue("omschrijving")
+    var sort: RestInrichtingscheckSorteerVeld = RestInrichtingscheckSorteerVeld.OMSCHRIJVING,
+
+    @field:QueryParam("order")
+    @field:DefaultValue("asc")
+    var order: RestSorteerRichting = RestSorteerRichting.ASC
+) {
+    companion object {
+        const val DEFAULT_ROWS = 25
+        const val MAX_ROWS = 100L
+    }
+}
