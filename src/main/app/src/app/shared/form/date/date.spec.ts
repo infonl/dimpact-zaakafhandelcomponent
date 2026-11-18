@@ -5,7 +5,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { ComponentRef } from "@angular/core";
+import { ComponentRef, LOCALE_ID } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import {
   AbstractControl,
@@ -18,7 +18,11 @@ import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideTranslateService } from "@ngx-translate/core";
+import { provideTranslateService, TranslateService } from "@ngx-translate/core";
+import { screen } from "@testing-library/angular";
+import { userEvent } from "@testing-library/user-event";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import {
   addDays,
   isPickedDate,
@@ -47,7 +51,10 @@ describe(ZacDate.name, () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ZacDate, NoopAnimationsModule],
-      providers: [provideTranslateService()],
+      providers: [
+        provideTranslateService(),
+        { provide: LOCALE_ID, useValue: "nl-NL" },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(
@@ -207,6 +214,54 @@ describe(ZacDate.name, () => {
       const formField = await loader.getHarness(MatFormFieldHarness);
       const hasErrors = await formField.hasErrors();
       expect(hasErrors).toBe(true);
+    });
+  });
+
+  describe("a typed date outside the bounds", () => {
+    function readDutchTranslations() {
+      const file = join(__dirname, "../../../../assets/i18n/nl.json");
+      return JSON.parse(readFileSync(file, "utf-8"));
+    }
+
+    async function typeDate(date: string) {
+      const user = userEvent.setup();
+      await user.type(screen.getByLabelText(/date/i), date, {
+        initialSelectionStart: 0,
+        initialSelectionEnd: Infinity,
+      });
+      await user.tab();
+      fixture.detectChanges();
+    }
+
+    beforeEach(() => {
+      const translateService = TestBed.inject(TranslateService);
+      translateService.setTranslation("nl", readDutchTranslations());
+      translateService.use("nl");
+      componentRef.setInput(
+        "form",
+        createTestForm([
+          Validators.min(new Date(2026, 6, 30).valueOf()),
+          Validators.max(new Date(2026, 7, 9).valueOf()),
+        ]),
+      );
+      componentRef.setInput("key", "date");
+      fixture.detectChanges();
+    });
+
+    it("names the earliest date that can be picked when the typed date is earlier", async () => {
+      await typeDate("2026-07-29");
+
+      expect(
+        screen.getByText("De minimum datum is 30-07-2026"),
+      ).toBeInTheDocument();
+    });
+
+    it("names the latest date that can be picked when the typed date is later", async () => {
+      await typeDate("2026-08-10");
+
+      expect(
+        screen.getByText("De maximum datum is 09-08-2026"),
+      ).toBeInTheDocument();
     });
   });
 });
