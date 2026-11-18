@@ -54,7 +54,7 @@ describe("date-time", () => {
       );
     });
 
-    it("reads an instant with the local offset as that local date", () => {
+    it("reads an instant with the Amsterdam offset as that date", () => {
       expect(fromApiDate("2026-03-25T00:00:00.000+01:00")).toEqual(
         new Date(2026, 2, 25),
       );
@@ -75,9 +75,9 @@ describe("date-time", () => {
       );
     });
 
-    it("keeps the instant of a date with a time", () => {
+    it("reads a date with a time as local midnight of its date in Europe/Amsterdam", () => {
       expect(toPickedDate("2026-07-29T22:00:00.000Z")?.valueOf()).toBe(
-        Date.UTC(2026, 6, 29, 22),
+        new Date(2026, 6, 30).valueOf(),
       );
     });
 
