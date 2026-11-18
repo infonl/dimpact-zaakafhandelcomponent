@@ -170,6 +170,12 @@ describe("The configuration of a zaaktype in the admin screen", () => {
         ).toBe(true);
       });
 
+      it("keeps the process definition it is bound to when the backend does not say whether another one is allowed", () => {
+        expect(
+          toForm(configuration, brpSetup).controls.procesModel.disabled,
+        ).toBe(true);
+      });
+
       it("is valid as it was read", () => {
         expect(toForm(configuration, brpSetup).valid).toBe(true);
       });
