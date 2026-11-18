@@ -147,19 +147,16 @@ class ZaaktypeConfigurationRestService @Inject constructor(
                 identityService.validateIfUserIsInGroup(defaultBehandelaarId, defaultGroepId)
             }
         }
-        // Asked before the store, because a remote call between the cache eviction and the commit of the store
-        // lets a concurrent read cache the previous binding again.
-        val hasZaken = zaaktypeConfigurationBeheerService.hasZaken(zaaktypeUUID)
-        zaaktypeConfigurationBeheerService.checkProcessBinding(
-            zaaktypeUuid = zaaktypeUUID,
-            processEngine = processDefinition.processEngine,
-            definitionKey = processDefinition.key,
-            hasZaken = hasZaken
-        )
+        val isProcessDefinitionStillChangeable =
+            zaaktypeConfigurationBeheerService.checkProcessBindingAndReadChangeability(
+                zaaktypeUuid = zaaktypeUUID,
+                processEngine = processDefinition.processEngine,
+                definitionKey = processDefinition.key
+            )
         return restZaaktypeConfigurationConverter.toZaaktypeConfiguration(restZaaktypeConfiguration)
             .let(zaaktypeConfigurationBeheerService::storeConfiguration)
             .let { restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(it, inclusiefRelaties = true) }
-            .apply { isProcessDefinitionChangeable = !hasZaken }
+            .apply { isProcessDefinitionChangeable = isProcessDefinitionStillChangeable }
     }
 
     /**

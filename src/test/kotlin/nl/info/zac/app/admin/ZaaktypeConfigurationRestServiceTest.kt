@@ -109,15 +109,13 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                     updatedRestZaakafhandelParameters.zaaktype.omschrijving!!
                 )
             } just runs
-            every { zaaktypeConfigurationBeheerService.hasZaken(restZaakafhandelParameters.zaaktype.uuid) } returns false
             every {
-                zaaktypeConfigurationBeheerService.checkProcessBinding(
+                zaaktypeConfigurationBeheerService.checkProcessBindingAndReadChangeability(
                     zaaktypeUuid = restZaakafhandelParameters.zaaktype.uuid,
                     processEngine = restZaakafhandelParameters.processDefinition!!.processEngine,
-                    definitionKey = restZaakafhandelParameters.processDefinition!!.key,
-                    hasZaken = false
+                    definitionKey = restZaakafhandelParameters.processDefinition!!.key
                 )
-            } just runs
+            } returns true
             every {
                 zaaktypeConfigurationBeheerService.storeConfiguration(zaakafhandelParameters)
             } returns createdZaakafhandelParameters
@@ -142,11 +140,15 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                     verify(exactly = 1) { zaaktypeConfigurationBeheerService.storeConfiguration(zaakafhandelParameters) }
                 }
 
-                then("it asks Open Zaak once whether the zaaktype version has zaken, and only before it stores") {
-                    verify(exactly = 1) { zaaktypeConfigurationBeheerService.hasZaken(any()) }
+                then("it checks the process binding once, and only before it stores") {
+                    verify(exactly = 1) { zaaktypeConfigurationBeheerService.checkProcessBindingAndReadChangeability(any(), any(), any()) }
                     verify(exactly = 0) { zaaktypeConfigurationBeheerService.isProcessDefinitionChangeable(any()) }
                     verifyOrder {
-                        zaaktypeConfigurationBeheerService.hasZaken(restZaakafhandelParameters.zaaktype.uuid)
+                        zaaktypeConfigurationBeheerService.checkProcessBindingAndReadChangeability(
+                            zaaktypeUuid = restZaakafhandelParameters.zaaktype.uuid,
+                            processEngine = restZaakafhandelParameters.processDefinition!!.processEngine,
+                            definitionKey = restZaakafhandelParameters.processDefinition!!.key
+                        )
                         zaaktypeConfigurationBeheerService.storeConfiguration(zaakafhandelParameters)
                         restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(createdZaakafhandelParameters, true)
                     }
@@ -281,13 +283,11 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
     given("a configuration whose process definition may not change any more") {
         val restZaaktypeConfiguration = createRestZaaktypeConfiguration()
         every { policyService.readOverigeRechten().canBeheren } returns true
-        every { zaaktypeConfigurationBeheerService.hasZaken(restZaaktypeConfiguration.zaaktype.uuid) } returns true
         every {
-            zaaktypeConfigurationBeheerService.checkProcessBinding(
+            zaaktypeConfigurationBeheerService.checkProcessBindingAndReadChangeability(
                 zaaktypeUuid = restZaaktypeConfiguration.zaaktype.uuid,
                 processEngine = restZaaktypeConfiguration.processDefinition!!.processEngine,
-                definitionKey = restZaaktypeConfiguration.processDefinition!!.key,
-                hasZaken = true
+                definitionKey = restZaaktypeConfiguration.processDefinition!!.key
             )
         } throws InputValidationFailedException(message = "fakeMessage")
 
@@ -311,15 +311,13 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
         val zaaktypeConfiguration = createZaaktypeCmmnConfiguration()
         val storedRestZaaktypeConfiguration = createRestZaaktypeConfiguration()
         every { policyService.readOverigeRechten().canBeheren } returns true
-        every { zaaktypeConfigurationBeheerService.hasZaken(restZaaktypeConfiguration.zaaktype.uuid) } returns true
         every {
-            zaaktypeConfigurationBeheerService.checkProcessBinding(
+            zaaktypeConfigurationBeheerService.checkProcessBindingAndReadChangeability(
                 zaaktypeUuid = restZaaktypeConfiguration.zaaktype.uuid,
                 processEngine = restZaaktypeConfiguration.processDefinition!!.processEngine,
-                definitionKey = restZaaktypeConfiguration.processDefinition!!.key,
-                hasZaken = true
+                definitionKey = restZaaktypeConfiguration.processDefinition!!.key
             )
-        } just runs
+        } returns false
         every {
             restZaaktypeConfigurationConverter.toZaaktypeConfiguration(restZaaktypeConfiguration)
         } returns zaaktypeConfiguration
@@ -337,28 +335,6 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
             then("it is stored, and the response tells the screen that the process definition may not change") {
                 verify(exactly = 1) { zaaktypeConfigurationBeheerService.storeConfiguration(zaaktypeConfiguration) }
                 returnedRestZaaktypeConfiguration.isProcessDefinitionChangeable shouldBe false
-            }
-        }
-    }
-
-    given("a configuration of a zaaktype version for which Open Zaak cannot list the zaken") {
-        val restZaaktypeConfiguration = createRestZaaktypeConfiguration()
-        every { policyService.readOverigeRechten().canBeheren } returns true
-        every {
-            zaaktypeConfigurationBeheerService.hasZaken(restZaaktypeConfiguration.zaaktype.uuid)
-        } throws IllegalStateException("fakeOpenZaakFailure")
-
-        `when`("it is stored") {
-            val illegalStateException = shouldThrow<IllegalStateException> {
-                zaaktypeConfigurationRestService.createOrUpdateZaaktypeConfiguration(
-                    restZaaktypeConfiguration.zaaktype.uuid,
-                    restZaaktypeConfiguration
-                )
-            }
-
-            then("the failure stores nothing") {
-                illegalStateException.message shouldBe "fakeOpenZaakFailure"
-                verify(exactly = 0) { zaaktypeConfigurationBeheerService.storeConfiguration(any()) }
             }
         }
     }
