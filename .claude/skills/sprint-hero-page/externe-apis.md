@@ -15,7 +15,7 @@ Run `python3 scripts/python/dependencies/versions.py` from the root of the ZAC c
 
 The script prints these four lines first. If it stops with an error further on, the lines already printed still count.
 
-If the script cannot fill a row (it printed `?` with an error on that line, or `None`), show `?` in that cell and name the row and the error below the table. Do not look the version up elsewhere: a failing script is to be fixed, not worked around.
+If the script cannot fill a row (it printed `?` with an error on that line, or `None`), show `?` in that cell and name the row and the error below the table. Do not look the version up elsewhere: a failing script is to be fixed, not worked around. Leave that column out of the Confluence values file, so the page keeps its value.
 
 ### The KVK rule
 

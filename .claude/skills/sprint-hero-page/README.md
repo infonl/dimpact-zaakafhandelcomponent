@@ -1,6 +1,6 @@
 # Update the sprint hero page with Claude Code
 
-The `sprint-hero-page` skill fills the version sections and the summary of the sprint hero page in Confluence. It reads from GitHub, Docker Hub, release notes, download pages and the ZAC repo, among other sources. It changes nothing except refreshing your local `origin/main` ref; it never touches remote repositories, your branch or your working tree.
+The `sprint-hero-page` skill fills the version sections and the summary of the sprint hero page in Confluence. It reads from GitHub, Docker Hub, release notes, download pages and the ZAC repo, among other sources. It changes nothing except refreshing your local `origin/main` ref and, after your yes, the version table on the hero page; it never touches your branch or your working tree.
 
 ## What you need
 
@@ -22,12 +22,14 @@ Type `/sprint-hero-page <task>`, or just `/sprint-hero-page` and it asks which o
 - `Security issues in component repositories`: Open, New and Closed code-scanning alerts per severity for ZAC and WebDAV
 - `Samenvatting`: at most 3 bullets on components and security in this sprint; the WebDAV bullet only appears when there is a WebDAV fix (asks for the sprint start date)
 
-Tip for the table tasks: paste the current table from Confluence. The skill then reports what changed and which remarks on the page are outdated. For PodiumD componenten the pasted table also sets which PodiumD releases become columns; without it, the skill asks which releases to show.
+For the table tasks the skill reads the current table from the hero page itself, so it can report what changed and which remarks on the page are outdated. For PodiumD componenten the page also sets which PodiumD releases become columns.
 
 ## Put the result in Confluence
 
-- Copy the table Claude returns into the page. Its first column names the component, followed by the version columns, in the order of the page.
-- Then let Rovo update the cell colours and "Last checked" (see the instruction with each table).
+- For the three version tables, the skill then also updates that table on the hero page. Without a link it finds the newest "Sprint <n> - Hero" page and asks you to confirm it.
+- It shows every cell that changes and writes only after your yes: the version columns, "Last checked" (today, only when the whole row was verified) and, in Supporting componenten and Externe API's, the colour of "Our Version on TEST" according to the legend. It changes nothing else, and Confluence keeps the previous version in the page history.
+- Still by hand: the Remarks / Stories (the skill names the outdated ones) and the colours in the PodiumD table (ask Rovo, see the help panel above that table).
+- Writing needs an Atlassian API token: `ATLASSIAN_EMAIL` and `ATLASSIAN_API_TOKEN`, or the macOS Keychain item `atlassian-api-token`. Without one, copy the table Claude returns into the page and let Rovo update the cell colours and "Last checked" (see the instruction with each table).
 - Log out when you are done: `gh auth logout -h github.com`. The skill reminds you.
 
 ## Good to know
