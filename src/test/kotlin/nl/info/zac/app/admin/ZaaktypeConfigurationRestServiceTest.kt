@@ -594,4 +594,3 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
         }
     }
 })
-
