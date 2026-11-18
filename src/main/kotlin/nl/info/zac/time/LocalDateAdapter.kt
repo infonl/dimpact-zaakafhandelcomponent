@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.util.time
+package nl.info.zac.time
 
 import jakarta.json.bind.adapter.JsonbAdapter
 import java.time.LocalDate
@@ -14,8 +14,7 @@ class LocalDateAdapter : JsonbAdapter<LocalDate, String> {
 
     override fun adaptFromJson(datum: String): LocalDate? = when {
         datum.isBlank() -> null
-        // zone niet aanpassen aan locale tijdzone (withZoneSameInstant(ZoneId.of("Europe/Amsterdam")))
-        datum.any { it in "+TZ" } -> ZonedDateTime.parse(datum).toLocalDate()
+        datum.any { it in "+TZ" } -> ZonedDateTime.parse(datum).withZoneSameInstant(ZacTime.ZONE).toLocalDate()
         else -> LocalDate.parse(datum)
     }
 }

@@ -13,14 +13,14 @@ import jakarta.persistence.criteria.Root
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
-import nl.info.client.zgw.util.toZonedDateTime
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument.Companion.REDEN_PROPERTY_NAME
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument.Companion.TITEL_PROPERTY_NAME
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument.Companion.ZAAK_ID_PROPERTY_NAME
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocumentListParameters
-import nl.info.zac.search.model.DatumRange
 import nl.info.zac.shared.model.SorteerRichting
+import nl.info.zac.time.toDatePredicates
+import nl.info.zac.time.toPredicates
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.Locale
@@ -136,49 +136,12 @@ class DetachedDocumentRepository @Inject constructor(
             }
         }
         listParameters.creatiedatum?.let {
-            addDatumRangePredicates(
-                dateRange = it,
-                veld = DetachedDocument.CREATIEDATUM_PROPERTY_NAME,
-                predicates = predicates,
-                root = root,
-                builder = builder
-            )
+            predicates.addAll(it.toDatePredicates(builder, root.get(DetachedDocument.CREATIEDATUM_PROPERTY_NAME)))
         }
         listParameters.ontkoppeldOp?.let {
-            addDatumRangePredicates(
-                dateRange = it,
-                veld = DetachedDocument.ONTKOPPELD_OP_PROPERTY_NAME,
-                predicates = predicates,
-                root = root,
-                builder = builder
-            )
+            predicates.addAll(it.toPredicates(builder, root.get(DetachedDocument.ONTKOPPELD_OP_PROPERTY_NAME)))
         }
         @Suppress("SpreadOperator")
         return builder.and(*predicates.toTypedArray<Predicate?>())
-    }
-
-    private fun addDatumRangePredicates(
-        dateRange: DatumRange,
-        veld: String?,
-        predicates: MutableList<Predicate>,
-        root: Root<DetachedDocument>,
-        builder: CriteriaBuilder
-    ) {
-        dateRange.van?.let {
-            predicates.add(
-                builder.greaterThanOrEqualTo(
-                    root.get(veld),
-                    it.toZonedDateTime()
-                )
-            )
-        }
-        dateRange.tot?.let {
-            predicates.add(
-                builder.lessThan(
-                    root.get(veld),
-                    it.toZonedDateTime().plusDays(1)
-                )
-            )
-        }
     }
 }

@@ -2,13 +2,15 @@
  * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.util.time
+package nl.info.zac.time
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import java.time.LocalDate
 
 class LocalDateAdapterTest : BehaviorSpec({
+    extension(UtcDefaultTimeZone())
+
     val localDateAdapter = LocalDateAdapter()
 
     given("a LocalDate") {
@@ -37,8 +39,28 @@ class LocalDateAdapterTest : BehaviorSpec({
         `when`("adapting from JSON") {
             val result = localDateAdapter.adaptFromJson("2024-03-11T10:44:00+01:00")
 
-            then("it should return the local date part") {
+            then("it should return the date of that instant in Europe/Amsterdam") {
                 result shouldBe LocalDate.of(2024, 3, 11)
+            }
+        }
+    }
+
+    given("the JVM time zone UTC and a UTC instant of midnight in Europe/Amsterdam, as sent by an old frontend") {
+        `when`("adapting from JSON") {
+            val result = localDateAdapter.adaptFromJson("2026-07-29T22:00:00.000Z")
+
+            then("it returns the date of that instant in Europe/Amsterdam") {
+                result shouldBe LocalDate.of(2026, 7, 30)
+            }
+        }
+    }
+
+    given("a date string without a time") {
+        `when`("adapting from JSON") {
+            val result = localDateAdapter.adaptFromJson("2026-07-30")
+
+            then("it returns that date") {
+                result shouldBe LocalDate.of(2026, 7, 30)
             }
         }
     }

@@ -55,9 +55,9 @@ import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.task.TaskHistoryService
+import nl.info.zac.time.toDate
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.time.toDate
 import nl.info.zac.util.toLocalDate
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import org.flowable.cmmn.api.runtime.PlanItemInstance

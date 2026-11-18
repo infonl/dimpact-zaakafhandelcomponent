@@ -24,8 +24,8 @@ import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.task.model.BpmnTaskFormData
-import nl.info.zac.util.time.toDate
-import nl.info.zac.util.time.toLocalDate
+import nl.info.zac.time.toDate
+import nl.info.zac.time.toLocalDate
 import org.flowable.task.api.Task
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter

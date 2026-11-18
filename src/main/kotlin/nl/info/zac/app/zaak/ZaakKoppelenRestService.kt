@@ -37,7 +37,6 @@ import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.SearchService
-import nl.info.zac.search.model.DatumRange
 import nl.info.zac.search.model.DatumVeld
 import nl.info.zac.search.model.FilterParameters
 import nl.info.zac.search.model.FilterVeld
@@ -252,12 +251,8 @@ class ZaakKoppelenRestService @Inject constructor(
         request.zoekZaakTypeOmschrijving?.takeIf { it.isNotBlank() }?.let {
             addFilter(FilterVeld.ZAAK_ZAAKTYPE, it)
         }
-        request.startdatum?.takeIf { it.hasValue() }?.let{
-            addDatum(DatumVeld.ZAAK_STARTDATUM, DatumRange(it.van, it.tot))
-        }
-        request.einddatum?.takeIf { it.hasValue() }?.let {
-            addDatum(DatumVeld.ZAAK_EINDDATUM, DatumRange(it.van, it.tot))
-        }
+        request.startdatum?.toDateRange()?.let { addDatum(DatumVeld.ZAAK_STARTDATUM, it) }
+        request.einddatum?.toDateRange()?.let { addDatum(DatumVeld.ZAAK_EINDDATUM, it) }
     }
 
     private fun filterSearchResults(

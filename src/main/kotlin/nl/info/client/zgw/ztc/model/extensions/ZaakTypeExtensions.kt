@@ -5,7 +5,7 @@
 package nl.info.client.zgw.ztc.model.extensions
 
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.util.time.numberOfDaysFromToday
+import nl.info.zac.time.numberOfDaysFromToday
 import java.time.LocalDate
 import java.time.Period
 

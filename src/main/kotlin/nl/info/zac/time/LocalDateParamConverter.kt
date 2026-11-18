@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.util.time
+package nl.info.zac.time
 
 import jakarta.ws.rs.BadRequestException
 import jakarta.ws.rs.ext.ParamConverter

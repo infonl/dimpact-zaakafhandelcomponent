@@ -10,8 +10,9 @@ import nl.info.zac.app.admin.model.RestZaaktypeConfigurationSortField.GELDIG
 import nl.info.zac.app.admin.model.RestZaaktypeConfigurationSortField.OMSCHRIJVING
 import nl.info.zac.app.admin.model.RestZaaktypeConfigurationSortField.PROCESS_DEFINITION
 import nl.info.zac.app.admin.model.RestZaaktypeConfigurationSortField.VALIDE
-import nl.info.zac.app.search.model.RestDatumRange
 import nl.info.zac.search.model.SorteerRichting
+import nl.info.zac.time.DateRange
+import nl.info.zac.time.contains
 import nl.info.zac.util.dutchCollator
 import java.time.LocalDate
 
@@ -39,16 +40,13 @@ private fun RestZaaktypeConfigurationListParameters.toFilters() = listOfNotNull<
     isNuGeldig?.let { isNuGeldig -> { it.zaaktype.isNuGeldig == isNuGeldig } },
     zaaktypeIdentificatie?.let { identificatie -> { it.zaaktype.identificatie == identificatie } },
     processDefinitionKey?.let { key -> { it.processDefinition?.key == key } },
-    RestDatumRange(beginGeldigheidVan, beginGeldigheidTot).takeIf { it.hasValue() }
+    DateRange.of(beginGeldigheidVan, beginGeldigheidTot)
         ?.let { range -> { it.zaaktype.beginGeldigheid.isIn(range) } },
-    RestDatumRange(eindeGeldigheidVan, eindeGeldigheidTot).takeIf { it.hasValue() }
+    DateRange.of(eindeGeldigheidVan, eindeGeldigheidTot)
         ?.let { range -> { it.zaaktype.eindeGeldigheid.isIn(range) } }
 )
 
-private fun LocalDate?.isIn(restDatumRange: RestDatumRange) =
-    this != null &&
-        restDatumRange.van?.let { !isBefore(it) } != false &&
-        restDatumRange.tot?.let { !isAfter(it) } != false
+private fun LocalDate?.isIn(dateRange: DateRange) = this != null && this in dateRange
 
 private fun RestZaaktypeConfigurationListParameters.toComparator(): Comparator<RestZaaktypeConfigurationOverzicht> {
     val comparator = sortField?.toComparator() ?: return Comparator { _, _ -> 0 }

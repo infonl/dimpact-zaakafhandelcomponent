@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package nl.info.zac.util.time
+package nl.info.zac.time
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
@@ -11,27 +11,27 @@ import io.kotest.matchers.shouldBe
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.MultivaluedHashMap
 import java.io.ByteArrayInputStream
-import java.time.LocalDate
+import java.time.ZonedDateTime
 import java.time.format.DateTimeParseException
 
-class LocalDateReaderTest : DescribeSpec({
+class ZonedDateTimeReaderTest : DescribeSpec({
 
-    val localDateReader = LocalDateReader()
+    val zonedDateTimeReader = ZonedDateTimeReader()
     val noAnnotations = emptyArray<Annotation>()
     val multivaluedMap = MultivaluedHashMap<String, String>()
 
     describe("isReadable") {
-        it("can read LocalDate class") {
-            localDateReader.isReadable(
-                aClass = LocalDate::class.java,
-                type = LocalDate::class.java,
+        it("can read ZonedDateTime class") {
+            zonedDateTimeReader.isReadable(
+                aClass = ZonedDateTime::class.java,
+                type = ZonedDateTime::class.java,
                 annotations = noAnnotations,
                 mediaType = MediaType.TEXT_PLAIN_TYPE
             ) shouldBe true
         }
 
         it("cannot read unknown classes") {
-            localDateReader.isReadable(
+            zonedDateTimeReader.isReadable(
                 aClass = String::class.java,
                 type = String::class.java,
                 annotations = noAnnotations,
@@ -42,33 +42,22 @@ class LocalDateReaderTest : DescribeSpec({
 
     describe("readFrom") {
         it("parses a well formatted string") {
-            localDateReader.readFrom(
-                aClass = LocalDate::class.java,
-                type = LocalDate::class.java,
+            zonedDateTimeReader.readFrom(
+                aClass = ZonedDateTime::class.java,
+                type = ZonedDateTime::class.java,
                 annotations = noAnnotations,
                 mediaType = MediaType.TEXT_PLAIN_TYPE,
                 multivaluedMap = multivaluedMap,
                 inputStream = "2024-03-11T10:44+01:00".byteInputStream()
-            ) shouldBe LocalDate.parse("2024-03-11")
-        }
-
-        it("parses a different time zone") {
-            localDateReader.readFrom(
-                aClass = LocalDate::class.java,
-                type = LocalDate::class.java,
-                annotations = noAnnotations,
-                mediaType = MediaType.TEXT_PLAIN_TYPE,
-                multivaluedMap = multivaluedMap,
-                inputStream = "2024-03-11T10:44+02:00".byteInputStream()
-            ) shouldBe LocalDate.parse("2024-03-11")
+            ) shouldBe ZonedDateTime.parse("2024-03-11T10:44+01:00")
         }
 
         describe("with mis-formatted data") {
             it("errors on empty string") {
                 shouldThrow<DateTimeParseException> {
-                    localDateReader.readFrom(
-                        aClass = LocalDate::class.java,
-                        type = LocalDate::class.java,
+                    zonedDateTimeReader.readFrom(
+                        aClass = ZonedDateTime::class.java,
+                        type = ZonedDateTime::class.java,
                         annotations = noAnnotations,
                         mediaType = MediaType.TEXT_PLAIN_TYPE,
                         multivaluedMap = multivaluedMap,
@@ -79,9 +68,9 @@ class LocalDateReaderTest : DescribeSpec({
 
             it("errors with empty stream") {
                 shouldThrow<DateTimeParseException> {
-                    localDateReader.readFrom(
-                        aClass = LocalDate::class.java,
-                        type = LocalDate::class.java,
+                    zonedDateTimeReader.readFrom(
+                        aClass = ZonedDateTime::class.java,
+                        type = ZonedDateTime::class.java,
                         annotations = noAnnotations,
                         mediaType = MediaType.TEXT_PLAIN_TYPE,
                         multivaluedMap = multivaluedMap,
@@ -92,9 +81,9 @@ class LocalDateReaderTest : DescribeSpec({
 
             it("errors on mis-formatted string") {
                 shouldThrow<DateTimeParseException> {
-                    localDateReader.readFrom(
-                        aClass = LocalDate::class.java,
-                        type = LocalDate::class.java,
+                    zonedDateTimeReader.readFrom(
+                        aClass = ZonedDateTime::class.java,
+                        type = ZonedDateTime::class.java,
                         annotations = noAnnotations,
                         mediaType = MediaType.TEXT_PLAIN_TYPE,
                         multivaluedMap = multivaluedMap,

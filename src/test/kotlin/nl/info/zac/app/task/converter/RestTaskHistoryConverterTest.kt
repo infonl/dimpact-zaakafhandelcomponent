@@ -17,7 +17,7 @@ import nl.info.zac.history.model.toValue
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.task.TaskHistoryService
-import nl.info.zac.util.time.toLocalDate
+import nl.info.zac.time.toLocalDate
 import org.flowable.task.api.history.HistoricTaskLogEntryType
 import org.flowable.task.service.impl.persistence.entity.HistoricTaskLogEntryEntityImpl
 import java.util.Date
