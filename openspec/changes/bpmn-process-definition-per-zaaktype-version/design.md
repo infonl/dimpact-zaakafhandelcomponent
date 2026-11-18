@@ -23,6 +23,7 @@
 - Migrating running zaken to another process definition, engine or newer version of their process definition.
 - Linking zaaktype versions by `identificatie` instead of `omschrijving`.
 - Re-uploading the forms of a new process definition version.
+- Switching between CMMN models in the admin screen, because ZAC provides one CMMN model; the backend only guards a change of case definition by dropping the settings of the previous one.
 
 ## Decisions
 
