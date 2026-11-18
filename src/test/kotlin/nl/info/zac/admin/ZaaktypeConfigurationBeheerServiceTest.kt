@@ -710,6 +710,12 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                 then("it has zaken") {
                     hasZaken shouldBe true
                 }
+
+                and("it asks Open Zaak for a single zaak, because only the total count is needed") {
+                    verify(exactly = 1) {
+                        zrcClientService.listZakenUuids(match<ZaakListParameters> { it.pageSize == 1 })
+                    }
+                }
             }
         }
     }

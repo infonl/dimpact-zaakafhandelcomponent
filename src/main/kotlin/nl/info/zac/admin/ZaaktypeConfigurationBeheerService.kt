@@ -107,7 +107,10 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
 
     fun hasZaken(zaaktypeUuid: UUID): Boolean =
         zrcClientService.listZakenUuids(
-            ZaakListParameters().apply { zaaktype = ztcClientService.readZaaktype(zaaktypeUuid).url }
+            ZaakListParameters().apply {
+                zaaktype = ztcClientService.readZaaktype(zaaktypeUuid).url
+                pageSize = 1
+            }
         ).count() > 0
 
     /**
