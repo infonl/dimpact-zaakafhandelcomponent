@@ -91,7 +91,7 @@ jobs:
               }
               // File-name-based labels
               const fileNameLabel = fileNameLabels[filename.split('/').pop()];
-              if (fileNameLabel) labels.add(fileNameLabel);
+              if (typeof fileNameLabel === 'string') labels.add(fileNameLabel);
               // Path-based labels
               for (const { startsWith, label } of pathLabels) {
                 if (filename.startsWith(startsWith)) labels.add(label);
