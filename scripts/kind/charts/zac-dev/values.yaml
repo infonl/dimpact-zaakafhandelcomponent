@@ -32,7 +32,7 @@ openzaak:
 openklant:
   image: maykinmedia/open-klant:2.19.2@sha256:f85ef0b31610cbf3ef6c09cbe217f113145e11623aa9ba140abd2e4ffb7bddff
 openobject:
-  image: maykinmedia/open-object:4.1.1@sha256:593571842b4af655383964fb3fa869b62313e7cd1e56a02f173afa8e4713c4b6
+  image: maykinmedia/open-object:4.3.0@sha256:502b75f194c15efe673d62648e1f5199589dace3368e16ba2af4b99b2a7c3847
 opennotificaties:
   image: openzaak/open-notificaties:1.17.0@sha256:5200540e78eb67993760bd9ad98d6c7f174ce61f5122b3e20627a690cbf3dfe0
 openarchiefbeheer:
