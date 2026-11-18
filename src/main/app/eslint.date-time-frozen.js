@@ -16,7 +16,6 @@ module.exports = [
   "src/app/shared/pipes/datum.pipe.ts",
   "src/app/shared/utils/date-conditionals.spec.ts",
   "src/app/shared/utils/date-conditionals.ts",
-  "src/app/shared/utils/file-upload.ts",
   "src/app/taken/taak-view/taak-view.component.spec.ts",
   "src/app/zaken/besluit-view/besluit-view.component.spec.ts",
   "src/app/zaken/zaak-link/zaak-link.component.spec.ts",

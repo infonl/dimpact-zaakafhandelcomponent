@@ -38,7 +38,7 @@ import {
 } from "rxjs";
 import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
-import { now, PickedDate, toApiDateTime } from "../../date-time";
+import { now, PickedDate, toApiDate } from "../../date-time";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { ZacDate } from "../../shared/form/date/date";
@@ -274,7 +274,7 @@ export class InformatieObjectCreateAttendedComponent
       smartDocumentsTemplateGroupId: values.templateGroup!.id,
       smartDocumentsTemplateId: values.template!.id,
       title: values.title!,
-      creationDate: toApiDateTime(values.creationDate)!,
+      creationDate: toApiDate(values.creationDate)!,
       description: values.description,
       zaakUuid: this.zaak().uuid,
       taskId: this.taak()?.id,

@@ -223,8 +223,8 @@ describe(InformatieObjectAddComponent.name, () => {
       const formDataObject = Object.fromEntries(
         (request.request.body as FormData).entries(),
       );
-      expect(formDataObject.creatiedatum).toMatch(/^2025-09-24T/);
-      expect(formDataObject.verzenddatum).toMatch(/^2025-09-25T/);
+      expect(formDataObject.creatiedatum).toBe("2025-09-24");
+      expect(formDataObject.verzenddatum).toBe("2025-09-25");
     });
 
     it("should emit document event after form add and submit", async () => {

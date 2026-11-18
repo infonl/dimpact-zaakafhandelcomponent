@@ -72,19 +72,16 @@ describe(toDocumentFormData.name, () => {
     expect(formData.has("bestand")).toBe(false);
   });
 
-  it("formats the document dates the way the backend parses them", () => {
+  it("sends the document dates as given, without a time", () => {
     const formData = toDocumentFormData({
-      creatiedatum: "2025-09-24T11:59:23.111Z",
-      ontvangstdatum: "2025-09-25T00:00:00.000Z",
-      verzenddatum: "2025-09-26T00:00:00.000Z",
+      creatiedatum: "2025-09-24",
+      ontvangstdatum: "2025-09-25",
+      verzenddatum: "2025-09-26",
     });
 
-    for (const key of ["creatiedatum", "ontvangstdatum", "verzenddatum"]) {
-      expect(formData.get(key)).toMatch(
-        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}[+-]\d{2}:\d{2}$/,
-      );
-    }
-    expect(formData.get("creatiedatum")).toMatch(/^2025-09-24/);
+    expect(formData.get("creatiedatum")).toBe("2025-09-24");
+    expect(formData.get("ontvangstdatum")).toBe("2025-09-25");
+    expect(formData.get("verzenddatum")).toBe("2025-09-26");
   });
 
   it("sends objects as JSON and everything else as text, leaving out fields without a value", () => {

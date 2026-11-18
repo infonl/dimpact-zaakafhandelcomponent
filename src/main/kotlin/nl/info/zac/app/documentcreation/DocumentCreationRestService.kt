@@ -48,7 +48,8 @@ import nl.info.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import nl.info.zac.smartdocuments.exception.SmartDocumentsUnsupportedOutputFormatException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.time.ZonedDateTime
+import nl.info.zac.time.toLocalDate
+import java.time.LocalDate
 import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -115,7 +116,7 @@ class DocumentCreationRestService @Inject constructor(
         @QueryParam("templateId") templateId: String,
         @QueryParam("title") title: String,
         @QueryParam("description") description: String?,
-        @QueryParam("creationDate") creationDate: ZonedDateTime,
+        @QueryParam("creationDate") creationDate: String,
         @QueryParam("userName") userName: String,
         @QueryParam("documentCreationToken") documentCreationToken: UUID?,
         @FormParam("sdDocument") @DefaultValue("") fileId: String,
@@ -124,7 +125,7 @@ class DocumentCreationRestService @Inject constructor(
             zaakUuid = zaakUuid,
             title = title,
             description = description,
-            creationDate = creationDate,
+            creationDate = creationDate.toLocalDate(),
             userName = userName,
             documentCreationToken = documentCreationToken,
             fileId = fileId
@@ -150,7 +151,7 @@ class DocumentCreationRestService @Inject constructor(
         @QueryParam("templateId") templateId: String,
         @QueryParam("title") title: String,
         @QueryParam("description") description: String?,
-        @QueryParam("creationDate") creationDate: ZonedDateTime,
+        @QueryParam("creationDate") creationDate: String,
         @QueryParam("userName") userName: String,
         @QueryParam("documentCreationToken") documentCreationToken: UUID?,
         @FormParam("sdDocument") @DefaultValue("") fileId: String,
@@ -160,7 +161,7 @@ class DocumentCreationRestService @Inject constructor(
             taskId = taskId,
             title = title,
             description = description,
-            creationDate = creationDate,
+            creationDate = creationDate.toLocalDate(),
             userName = userName,
             documentCreationToken = documentCreationToken,
             fileId = fileId
@@ -195,7 +196,7 @@ class DocumentCreationRestService @Inject constructor(
         taskId: String? = null,
         title: String,
         description: String?,
-        creationDate: ZonedDateTime,
+        creationDate: LocalDate,
         userName: String,
         documentCreationToken: UUID?,
         fileId: String,
@@ -235,7 +236,7 @@ class DocumentCreationRestService @Inject constructor(
         taskId: String?,
         title: String,
         description: String?,
-        creationDate: ZonedDateTime,
+        creationDate: LocalDate,
         userName: String,
         fileId: String,
         fetchInformatieobjecttypeUuidFunction: (zaak: Zaak) -> UUID,

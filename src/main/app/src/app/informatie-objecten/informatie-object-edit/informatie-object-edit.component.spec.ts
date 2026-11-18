@@ -308,8 +308,8 @@ describe(InformatieObjectEditComponent.name, () => {
       const formDataObject = Object.fromEntries(
         (request.request.body as FormData).entries(),
       );
-      expect(formDataObject.verzenddatum).toMatch(/^2026-01-30T/);
-      expect(formDataObject.ontvangstdatum).toMatch(/^2026-01-29T/);
+      expect(formDataObject.verzenddatum).toBe("2026-01-30");
+      expect(formDataObject.ontvangstdatum).toBe("2026-01-29");
     });
 
     it("sends the status even though the status control is disabled because the document has an ontvangstdatum", async () => {
