@@ -187,15 +187,12 @@ describe(ParametersComponent.name, () => {
     );
   });
 
-  it("shows a loading bar over the rows of the current page while the next page is being read", async () => {
+  it("keeps showing the rows of the current page while the next page is being read", async () => {
     await render();
     await answer(await expectPageRequest(), {
       resultaten: [fakeZaaktypeConfigurationOverzicht()],
       totaal: 30,
     });
-    expect(
-      screen.queryByRole("progressbar", { name: "msg.loading" }),
-    ).not.toBeInTheDocument();
 
     const user = userEvent.setup();
     await user.click(screen.getByRole("button", { name: "Next page" }));
@@ -203,9 +200,6 @@ describe(ParametersComponent.name, () => {
     const nextPageRequest = await expectPageRequest();
     fixture.detectChanges();
 
-    expect(
-      screen.getByRole("progressbar", { name: "msg.loading" }),
-    ).toBeInTheDocument();
     expect(
       screen.getByRole("row", { name: /Fake zaaktype/ }),
     ).toBeInTheDocument();
@@ -216,14 +210,11 @@ describe(ParametersComponent.name, () => {
     });
 
     expect(
-      screen.queryByRole("progressbar", { name: "msg.loading" }),
-    ).not.toBeInTheDocument();
-    expect(
       screen.getByRole("row", { name: /Volgend zaaktype/ }),
     ).toBeInTheDocument();
   });
 
-  it("shows a loading bar over the cached rows of a page while it reads that page again because the cache is stale", async () => {
+  it("shows the cached rows of a page while it reads that page again because the cache is stale", async () => {
     const sixMinutesAgo = Date.now() - 6 * 60 * 1000;
     testQueryClient.setQueryData(
       TestBed.inject(ZaakafhandelParametersService).listZaakafhandelParameters(
@@ -253,18 +244,12 @@ describe(ParametersComponent.name, () => {
     expect(
       screen.getByRole("row", { name: /Bewaard zaaktype/ }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("progressbar", { name: "msg.loading" }),
-    ).toBeInTheDocument();
 
     await answer(refreshRequest, {
       resultaten: [fakeZaaktypeConfigurationOverzicht("Nieuw zaaktype")],
       totaal: 30,
     });
 
-    expect(
-      screen.queryByRole("progressbar", { name: "msg.loading" }),
-    ).not.toBeInTheDocument();
     expect(
       screen.getByRole("row", { name: /Nieuw zaaktype/ }),
     ).toBeInTheDocument();

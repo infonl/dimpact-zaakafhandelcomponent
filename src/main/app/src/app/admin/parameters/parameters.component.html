@@ -23,12 +23,6 @@
   <mat-sidenav-content class="flex-col gap-20">
     <mat-card>
       <mat-card-content>
-        @if (loadingPage()) {
-          <mat-progress-bar
-            mode="query"
-            [attr.aria-label]="'msg.loading' | translate"
-          ></mat-progress-bar>
-        }
         <div class="table-wrapper">
           <table
             mat-table

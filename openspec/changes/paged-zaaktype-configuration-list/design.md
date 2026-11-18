@@ -86,11 +86,11 @@ the page would otherwise sort on it. A stored page that lies past the last page,
 than when it was stored, moves to the last page with rows after the response arrives.
 
 While the next page is read, the page keeps the rows of the current page (`keepPreviousData`), so the table does
-not empty between pages. A loading bar shows above the table whenever the page reads while it shows rows
-(`isFetching` and not `isPending`): for the next page, and for a cached page that is read again because it is stale
-or a save invalidated it. The first read shows the message "Bezig met het ophalen van de gegevens" instead. With the filters on the server, the message
-"Geen gegevens gevonden" also shows when no configuration matches the filters; before, a filter that matched
-nothing left an empty table without a message.
+not empty between pages. The page shows no loading indicator of its own: the global loading bar of ZAC already shows
+every query that is being read, also a cached page that is read again because it is stale or a save invalidated
+it. Only the first read, when the table has no rows yet, shows the message "Bezig met het ophalen van de gegevens".
+With the filters on the server, the message "Geen gegevens gevonden" also shows when no configuration matches the
+filters; before, a filter that matched nothing left an empty table without a message.
 
 Each page is a `GET` query of its own, keyed by its query parameters, and stays fresh for 5 minutes, as the list
 did before. A save of a configuration invalidates every stored page through the key of the `GET` without query

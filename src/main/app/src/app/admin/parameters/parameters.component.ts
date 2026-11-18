@@ -18,7 +18,6 @@ import { MatCardModule } from "@angular/material/card";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
-import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { MatSelectChange, MatSelectModule } from "@angular/material/select";
 import {
   MatSidenavContainer,
@@ -64,7 +63,6 @@ import {
     TypedMatCellDefDirective,
     MatSortModule,
     MatPaginatorModule,
-    MatProgressBarModule,
     MatFormFieldModule,
     MatSelectModule,
     MatIconModule,
@@ -100,10 +98,6 @@ export class ParametersComponent extends AdminComponent implements OnInit {
     placeholderData: keepPreviousData,
   }));
   protected readonly loading = computed(() => this.parametersQuery.isPending());
-  protected readonly loadingPage = computed(
-    () =>
-      this.parametersQuery.isFetching() && !this.parametersQuery.isPending(),
-  );
   protected readonly hasNoParameters = computed(
     () => !this.parametersQuery.data()?.resultaten?.length,
   );
