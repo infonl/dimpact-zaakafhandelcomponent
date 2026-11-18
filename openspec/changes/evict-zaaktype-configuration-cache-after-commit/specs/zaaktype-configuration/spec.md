@@ -2,11 +2,12 @@
 
 ### Requirement: A stored configuration change is visible at once and a rolled-back one is never served
 
-The system SHALL clear the cached configuration of a zaaktype version, and the cached list of deadline warning
-windows, only after the transaction that changes the configuration has completed, whether it commits or rolls
-back. Without a transaction, the system SHALL clear them at once. This SHALL apply to every change of the
-configuration: storing it on the admin screen, storing it on the notification of a zaaktype version, and storing or
-deleting a mailtemplate koppeling. Clearing the caches by hand on the admin page SHALL take effect at once.
+When the configuration of a zaaktype version changes, the system SHALL clear its cached configuration and the cached
+list of deadline warning windows at once, so that the rest of the changing transaction reads the change, and SHALL
+clear them again after that transaction has completed, whether it commits or rolls back. Without a transaction, the
+system SHALL clear them at once. This SHALL apply to every change of the configuration: storing it on the admin
+screen, storing it on the notification of a zaaktype version, and storing or deleting a mailtemplate koppeling.
+Clearing the caches by hand on the admin page SHALL take effect at once.
 
 #### Scenario: A stored configuration is used at once
 - **GIVEN** a zaaktype version whose configuration is in the cache
@@ -24,11 +25,12 @@ deleting a mailtemplate koppeling. Clearing the caches by hand on the admin page
 - **THEN** that cached configuration is cleared after the rollback, and the next read returns the committed
   configuration
 
-#### Scenario: A new zaaktype version gets its configuration at once
-- **WHEN** ZAC stores the configuration of a new zaaktype version on its notification, and copies its SmartDocuments
-  template mappings in the same transaction
-- **THEN** the cache of that zaaktype version is cleared after the transaction completes, not before the mappings
-  are copied
+#### Scenario: A new zaaktype version gets its configuration and its SmartDocuments mappings
+- **GIVEN** a new zaaktype version that has no configuration yet, and whose absence of a configuration is cached
+- **WHEN** ZAC stores its configuration on its notification, and copies the SmartDocuments template mappings of the
+  previous version in the same transaction
+- **THEN** the copy finds the stored configuration, the mappings are stored, and the cache is cleared again after the
+  transaction completes
 
 #### Scenario: A removed mailtemplate koppeling is not used
 - **GIVEN** a zaak whose zaaktype configuration links a mail to a mail template of its own, and whose configuration

@@ -61,30 +61,32 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
                 }
             }
 
-            given("a cached $configurationType configuration that is evicted") {
+            given("a zaaktype version without a $configurationType configuration, whose absence is cached") {
                 val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository, cacheEvictionEvent)
                 val zaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype")
                 every {
                     zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeConfiguration.zaaktypeUuid)
-                } returns zaaktypeConfiguration
+                } returnsMany listOf(null, zaaktypeConfiguration)
                 every { cacheEvictionEvent.fire(any()) } just runs
                 zaaktypeConfigurationService.findConfiguration(zaaktypeConfiguration.zaaktypeUuid)
 
-                `when`("the configuration is found again before the transaction of the eviction has completed") {
+                `when`("its configuration is stored and evicted, and found again before the transaction completes") {
                     zaaktypeConfigurationService.evict(zaaktypeConfiguration.zaaktypeUuid)
                     val foundConfiguration = zaaktypeConfigurationService.findConfiguration(
                         zaaktypeConfiguration.zaaktypeUuid
                     )
 
                     then(
-                        "an eviction event for the zaaktype is fired and the configuration is still served from the " +
-                            "cache, so that the cache is only cleared once the transaction has completed"
+                        "the stored configuration is read from the database, so that code later in the same " +
+                            "transaction sees it, and an eviction event is fired to clear the cache again afterwards"
                     ) {
                         foundConfiguration shouldBe zaaktypeConfiguration
                         verify(exactly = 1) {
                             cacheEvictionEvent.fire(
                                 ZaaktypeConfigurationCacheEvictionEvent(zaaktypeConfiguration.zaaktypeUuid)
                             )
+                        }
+                        verify(exactly = 2) {
                             zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeConfiguration.zaaktypeUuid)
                         }
                     }
@@ -203,8 +205,8 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
                 zaaktypeConfigurationService.evict(zaaktypeUuid)
                 zaaktypeConfigurationService.listDeadlineWarningWindows()
 
-                then("they are still served from the cache") {
-                    verify(exactly = 1) { zaaktypeConfigurationRepository.listDeadlineWarningWindows() }
+                then("they are read from the database again, so that code later in the same transaction sees the change") {
+                    verify(exactly = 2) { zaaktypeConfigurationRepository.listDeadlineWarningWindows() }
                 }
             }
         }

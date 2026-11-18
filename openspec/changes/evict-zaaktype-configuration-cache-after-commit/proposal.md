@@ -9,24 +9,25 @@ the previous defaults, deadline warnings, SmartDocuments setting or mail templat
 
 ## What Changes
 
-- `ZaaktypeConfigurationService.evict` fires a CDI event instead of clearing the caches itself. An observer in
-  `TransactionPhase.AFTER_COMPLETION` clears both caches after the transaction completes, after a commit and after
-  a rollback. Outside a transaction CDI calls the observer at once, so the caches are cleared right away.
+- `ZaaktypeConfigurationService.evict` keeps clearing both caches at once, so that code later in the same
+  transaction reads the change from the database. It also fires a CDI event. An observer in
+  `TransactionPhase.AFTER_COMPLETION` clears both caches again after the transaction completes, after a commit and
+  after a rollback. Outside a transaction CDI calls the observer at once.
 - The callers of `evict` do not change: `ZaaktypeConfigurationBeheerService.storeConfiguration`, which the admin
   screen and the notification of a zaaktype version both use, and `MailTemplateKoppelingenService`
   `storeMailtemplateKoppeling` and `delete`.
-- Clearing the caches by hand (`clearManagedCache`, `clearListCache`) stays immediate.
-- A new ADR records clearing an application-wide cache after the transaction completes, with a CDI transactional
-  observer, as the pattern for ZAC.
+- Clearing the caches by hand (`clearManagedCache`, `clearListCache`) stays a single, immediate clear.
+- A new ADR records clearing an application-wide cache at once and again after the transaction completes, with a
+  CDI transactional observer, as the pattern for ZAC.
 
-Out of scope: the cleanup of `hasZaken` and `checkProcessBinding` (PZ-13551), and clearing the cache of other ZAC
-instances.
+Out of scope: the cleanup of `hasZaken` and `checkProcessBinding` (PZ-13551), clearing the cache of other ZAC
+instances, and replacing the Caffeine cache with the Hibernate second-level cache.
 
 ## Capabilities
 
 ### Modified Capabilities
-- `zaaktype-configuration`: a stored change of a zaaktype configuration is visible at once, and a rolled-back change
-  is never served from the cache.
+- `zaaktype-configuration`: a stored change of a zaaktype configuration is visible at once, also later in the same
+  transaction, and a rolled-back change is never served from the cache.
 
 ## Impact
 

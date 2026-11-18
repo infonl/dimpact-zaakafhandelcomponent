@@ -106,15 +106,19 @@ class ZaaktypeConfigurationService @Inject constructor(
 
     fun isSmartDocumentsEnabled(zaaktypeUuid: UUID): Boolean = findConfiguration(zaaktypeUuid)?.isSmartDocumentsEnabled ?: false
 
-    /** [onCacheEviction] clears after the transaction, as a read before the commit would cache the previous row again. */
-    fun evict(zaaktypeUuid: UUID) =
+    /** Clears now for reads later in this transaction, and again after it, as a read before the commit may re-cache the old row. */
+    fun evict(zaaktypeUuid: UUID) {
+        clear(zaaktypeUuid)
         cacheEvictionEvent.fire(ZaaktypeConfigurationCacheEvictionEvent(zaaktypeUuid))
+    }
 
     fun onCacheEviction(
         @Observes(during = TransactionPhase.AFTER_COMPLETION)
         zaaktypeConfigurationCacheEvictionEvent: ZaaktypeConfigurationCacheEvictionEvent
-    ) {
-        uuidToConfigurationCache.invalidate(zaaktypeConfigurationCacheEvictionEvent.zaaktypeUuid)
+    ) = clear(zaaktypeConfigurationCacheEvictionEvent.zaaktypeUuid)
+
+    private fun clear(zaaktypeUuid: UUID) {
+        uuidToConfigurationCache.invalidate(zaaktypeUuid)
         deadlineWarningWindowsCache.invalidateAll()
     }
 
