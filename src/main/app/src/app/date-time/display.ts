@@ -37,8 +37,3 @@ export function formatForDisplay(
   if (!date.isValid()) return null;
   return date.format(DISPLAY_FORMATS[format] ?? DISPLAY_FORMATS.shortDate);
 }
-
-export function daysFromToday(value: DateInput) {
-  const today = moment().startOf("day");
-  return moment(value).startOf("day").diff(today, "days");
-}

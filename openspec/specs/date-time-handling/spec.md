@@ -3,7 +3,7 @@
 ## Purpose
 
 Defines how ZAC handles dates and times: one time zone for the whole application, one meaning of a date range,
-dates without a time between frontend and backend, and lint rules that keep date and time handling in one backend
+dates without a time between frontend and backend, the dates that the backend sets itself, and lint rules that keep date and time handling in one backend
 module and one frontend module.
 
 A date range has a start date and an end date, and includes the whole end date. The user interface labels the start
@@ -98,6 +98,37 @@ When the backend receives a date field that holds a time, it SHALL use the date 
 #### Scenario: A saved search from before the English names keeps its date filter
 - **WHEN** a saved search holds a date range as `{"van": "2026-07-01", "tot": "2026-07-30"}`, and ZAC is upgraded
 - **THEN** the saved search holds `{"from": "2026-07-01", "through": "2026-07-30"}` and filters on the same dates
+
+### Requirement: The backend sets the dates that nobody picks
+The backend SHALL set a date that no user picks itself, from the current date or time in `Europe/Amsterdam` or from
+the dates it has stored, and SHALL ignore a value that a client sends for such a date. This SHALL hold for the date on
+which aanvullende informatie is requested, for the creation date of a zaaktype configuration and of a saved search,
+and for the dates that an extension of a zaak moves.
+
+#### Scenario: Aanvullende informatie is requested
+- **WHEN** a user starts an aanvullende informatie task, and the task data from the client holds
+  `"datumGevraagd": "2000-01-01"`
+- **THEN** the task holds the current date in `Europe/Amsterdam` as `datumGevraagd`
+
+#### Scenario: Another task form gets no request date
+- **WHEN** a user starts a task with another form than aanvullende informatie
+- **THEN** the backend does not add `datumGevraagd` to the task data
+
+#### Scenario: A saved zaaktype configuration keeps its creation date
+- **WHEN** a user saves a zaaktype configuration that was created on 01-07-2026
+- **THEN** the zaaktype configuration keeps the creation date 01-07-2026, whatever creation date the client sends
+- **AND** a new zaaktype configuration gets the current date and time in `Europe/Amsterdam` as its creation date
+
+#### Scenario: A saved search keeps its creation date
+- **WHEN** a user saves a search again that was created on 01-07-2026
+- **THEN** the saved search keeps the creation date 01-07-2026, whatever creation date the client sends
+
+#### Scenario: A zaak is extended
+- **WHEN** a user extends a zaak with the einddatum gepland 30-07-2026 and the uiterlijke einddatum afdoening
+  10-08-2026 by 14 days
+- **THEN** the zaak gets the einddatum gepland 13-08-2026 and the uiterlijke einddatum afdoening 24-08-2026
+- **AND** the request to extend the zaak holds only the number of days, and the backend ignores
+  `einddatumGepland` and `uiterlijkeEinddatumAfdoening` when a client still sends them
 
 ### Requirement: Date and time handling stays in one module per side
 The build SHALL fail when code outside the backend date and time module reads the system clock or the system time

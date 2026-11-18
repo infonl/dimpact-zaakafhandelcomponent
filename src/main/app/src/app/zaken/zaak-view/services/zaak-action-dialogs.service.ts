@@ -11,7 +11,7 @@ import { defer, Observable } from "rxjs";
 import { ActieOnmogelijkDialogComponent } from "src/app/fout-afhandeling/dialog/actie-onmogelijk-dialog.component";
 import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../../core/service/util.service";
-import { daysSince } from "../../../date-time";
+import { daysElapsedSince } from "../../../date-time";
 import { runMutation } from "../../../shared/http/run-mutation";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { toI18nKey } from "../../../shared/utils/i18n-key";
@@ -225,7 +225,9 @@ export class ZaakActionDialogsService {
     const opschorting = this.queryClient.getQueryData(
       this.zakenService.readOpschortingZaak(zaak.uuid).queryKey,
     );
-    const werkelijkeOpschortDuur = daysSince(opschorting?.vanafDatumTijd);
+    const werkelijkeOpschortDuur = daysElapsedSince(
+      opschorting?.vanafDatumTijd,
+    );
 
     this.onClosed(
       this.zaakDialogService

@@ -138,7 +138,7 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
         this.updateDateFields(
-          this.daysSince(this.data.zaak.einddatumGepland, value),
+          this.extensionDays(this.data.zaak.einddatumGepland, value),
         );
       });
 
@@ -146,7 +146,10 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
         this.updateDateFields(
-          this.daysSince(this.data.zaak.uiterlijkeEinddatumAfdoening, value),
+          this.extensionDays(
+            this.data.zaak.uiterlijkeEinddatumAfdoening,
+            value,
+          ),
         );
       });
   }
@@ -166,7 +169,10 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
     ];
   }
 
-  private daysSince(date: string | null, value: PickedDate | null | undefined) {
+  private extensionDays(
+    date: string | null,
+    value: PickedDate | null | undefined,
+  ) {
     return date && value ? daysBetween(date, value) : Number.NaN;
   }
 

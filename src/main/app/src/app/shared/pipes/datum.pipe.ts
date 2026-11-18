@@ -28,6 +28,6 @@ export class DatumPipe implements PipeTransform {
     // by the browser as a point where a new line can be started if necessary. Replacing soft hyphens with
     // hard hyphens prevents that meaning that the date will either remain on the same line or moved as a
     // whole to the next line.
-    return formatted.replace(/-/g, "‑");
+    return formatted.replace(/-/g, "\u2011");
   }
 }

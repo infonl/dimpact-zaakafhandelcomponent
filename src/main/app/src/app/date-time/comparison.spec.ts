@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { daysSince, isEarlierDay, isLaterDay } from "./index";
+import { isEarlierDay, isLaterDay } from "./index";
 
 describe("comparison", () => {
   describe(isEarlierDay.name, () => {
@@ -26,6 +26,12 @@ describe("comparison", () => {
         isEarlierDay(new Date(2026, 6, 29, 23), new Date(2026, 6, 30)),
       ).toBe(true);
     });
+
+    it("compares a picked date by the day, not by the time", () => {
+      expect(
+        isEarlierDay(new Date(2026, 6, 30, 7), new Date(2026, 6, 30, 19)),
+      ).toBe(false);
+    });
   });
 
   describe(isLaterDay.name, () => {
@@ -40,24 +46,11 @@ describe("comparison", () => {
       expect(isLaterDay("31-07-2026", "2026-07-30")).toBe(true);
       expect(isLaterDay("07/29/2026", "2026-07-30")).toBe(false);
     });
-  });
 
-  describe(daysSince.name, () => {
-    beforeEach(() => {
-      jest.useFakeTimers().setSystemTime(new Date(2026, 6, 30, 12));
-    });
-
-    afterEach(() => {
-      jest.useRealTimers();
-    });
-
-    it("counts the whole days since a moment", () => {
-      expect(daysSince("2026-07-20T13:00:00+02:00")).toBe(9);
-      expect(daysSince("2026-07-20T11:00:00+02:00")).toBe(10);
-    });
-
-    it("counts no days when there is no moment", () => {
-      expect(daysSince(undefined)).toBe(0);
+    it("compares a picked date by the day, not by the time", () => {
+      expect(
+        isLaterDay(new Date(2026, 6, 30, 19), new Date(2026, 6, 30, 7)),
+      ).toBe(false);
     });
   });
 });

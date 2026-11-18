@@ -57,6 +57,18 @@ export function daysBetween(from: DateInput, to: DateInput) {
   return toMoment(to).diff(toMoment(from), "days");
 }
 
+function toLenientMoment(value: DateInput | null | undefined) {
+  return moment(value);
+}
+
+export function daysElapsedSince(value: DateInput | null | undefined) {
+  return daysBetween(toLenientMoment(value), now());
+}
+
+export function daysFromToday(value: DateInput) {
+  return daysBetween(today(), startOfDay(toLenientMoment(value)));
+}
+
 export function isAfter(value: DateInput, other: DateInput, unit?: "day") {
   return toMoment(value).isAfter(toMoment(other), unit);
 }
