@@ -36,7 +36,7 @@ Check the prerequisites yourself; when one is missing, ask the user to fix it an
 
 ## Rules for every task
 
-- Read-only, except the writes below. The user's `gh` login may have full rights: run only the read calls the task page lists. Never push, edit files, open PRs or touch other repos in any other way. When done, tell the user they can log out (`gh auth logout -h github.com`).
+- Read-only, except as listed below. The user's `gh` login may have full rights: run only the read calls the task page lists. Never push, edit files, open PRs or touch other repos in any other way. When done, tell the user they can log out (`gh auth logout -h github.com`).
 - The only write: updating the table of the current task in Confluence with `hero_page_tables.py apply` (see [confluence.md](confluence.md)), only after the user confirmed its change list. Never write to Confluence or GitHub in any other way.
 - Always state where the values came from (tag, branch, file or PRs) in one line, so the user can verify them.
 
