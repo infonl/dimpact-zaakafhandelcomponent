@@ -26,3 +26,13 @@ export function createProcessModelForm(
 export function toProcessDefinition(form: ProcessModelForm) {
   return form.controls.processDefinition.value;
 }
+
+export function isSameProcessDefinition(
+  processDefinition: ProcessDefinition,
+  other?: ProcessDefinition | null,
+) {
+  return (
+    processDefinition.processEngine === other?.processEngine &&
+    processDefinition.key === other?.key
+  );
+}
