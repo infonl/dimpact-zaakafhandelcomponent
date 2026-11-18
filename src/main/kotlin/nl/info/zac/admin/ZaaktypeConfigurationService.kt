@@ -8,6 +8,9 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.stats.CacheStats
 import jakarta.enterprise.context.ApplicationScoped
+import jakarta.enterprise.event.Event
+import jakarta.enterprise.event.Observes
+import jakarta.enterprise.event.TransactionPhase
 import jakarta.inject.Inject
 import nl.info.client.zgw.shared.cache.Caching
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
@@ -30,7 +33,8 @@ import java.util.logging.Logger
 @AllOpen
 @Suppress("TooManyFunctions")
 class ZaaktypeConfigurationService @Inject constructor(
-    private val zaaktypeConfigurationRepository: ZaaktypeConfigurationRepository
+    private val zaaktypeConfigurationRepository: ZaaktypeConfigurationRepository,
+    private val cacheEvictionEvent: Event<ZaaktypeConfigurationCacheEvictionEvent>
 ) : Caching {
     companion object {
         const val INADMISSIBLE_TERMINATION_ID = "ZAAK_NIET_ONTVANKELIJK"
@@ -102,8 +106,15 @@ class ZaaktypeConfigurationService @Inject constructor(
 
     fun isSmartDocumentsEnabled(zaaktypeUuid: UUID): Boolean = findConfiguration(zaaktypeUuid)?.isSmartDocumentsEnabled ?: false
 
-    fun evict(zaaktypeUuid: UUID) {
-        uuidToConfigurationCache.invalidate(zaaktypeUuid)
+    /** [onCacheEviction] clears after the transaction, as a read before the commit would cache the previous row again. */
+    fun evict(zaaktypeUuid: UUID) =
+        cacheEvictionEvent.fire(ZaaktypeConfigurationCacheEvictionEvent(zaaktypeUuid))
+
+    fun onCacheEviction(
+        @Observes(during = TransactionPhase.AFTER_COMPLETION)
+        zaaktypeConfigurationCacheEvictionEvent: ZaaktypeConfigurationCacheEvictionEvent
+    ) {
+        uuidToConfigurationCache.invalidate(zaaktypeConfigurationCacheEvictionEvent.zaaktypeUuid)
         deadlineWarningWindowsCache.invalidateAll()
     }
 
