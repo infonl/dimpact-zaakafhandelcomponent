@@ -4,31 +4,34 @@
  */
 
 import {
-  AfterViewInit,
   Component,
   computed,
   effect,
   inject,
   OnInit,
   signal,
+  untracked,
   viewChild,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
+import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
 import { MatSelectChange, MatSelectModule } from "@angular/material/select";
 import {
   MatSidenavContainer,
   MatSidenavModule,
 } from "@angular/material/sidenav";
-import { MatSort, MatSortModule } from "@angular/material/sort";
+import { MatSortModule, Sort } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
-import { injectQuery } from "@tanstack/angular-query-experimental";
+import {
+  injectQuery,
+  keepPreviousData,
+} from "@tanstack/angular-query-experimental";
 import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
-import { ClientMatcher } from "../../shared/dynamic-table/filter/clientMatcher";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
@@ -40,7 +43,12 @@ import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filt
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
-import { ZaakafhandelParametersListParameters } from "./zaakafhandel-parameters-list-parameters";
+import {
+  toZaaktypeConfigurationListQuery,
+  ZAAKAFHANDELPARAMETERS_PAGE_SIZE,
+  ZaakafhandelParametersListParameters,
+  ZaakafhandelParametersSortColumn,
+} from "./zaakafhandel-parameters-list-parameters";
 
 @Component({
   templateUrl: "./parameters.component.html",
@@ -54,6 +62,7 @@ import { ZaakafhandelParametersListParameters } from "./zaakafhandel-parameters-
     MatTableModule,
     TypedMatCellDefDirective,
     MatSortModule,
+    MatPaginatorModule,
     MatFormFieldModule,
     MatSelectModule,
     MatIconModule,
@@ -66,127 +75,67 @@ import { ZaakafhandelParametersListParameters } from "./zaakafhandel-parameters-
     EmptyPipe,
   ],
 })
-export class ParametersComponent
-  extends AdminComponent
-  implements OnInit, AfterViewInit
-{
+export class ParametersComponent extends AdminComponent implements OnInit {
   private readonly zaakafhandelParametersService = inject(
     ZaakafhandelParametersService,
   );
 
   protected readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
-  private readonly parametersSort =
-    viewChild.required<MatSort>("parametersSort");
 
+  protected readonly pageSize = ZAAKAFHANDELPARAMETERS_PAGE_SIZE;
   protected readonly filterParameters = signal(
-    new ZaakafhandelParametersListParameters("valide", "asc"),
+    new ZaakafhandelParametersListParameters("geldig", "desc"),
   );
   protected parameters = new MatTableDataSource<
     GeneratedType<"RestZaaktypeConfigurationOverzicht">
   >();
 
-  private readonly parametersQuery = injectQuery(() =>
-    this.zaakafhandelParametersService.listZaakafhandelParameters(),
-  );
+  private readonly parametersQuery = injectQuery(() => ({
+    ...this.zaakafhandelParametersService.listZaakafhandelParameters(
+      toZaaktypeConfigurationListQuery(this.filterParameters()),
+    ),
+    placeholderData: keepPreviousData,
+  }));
   protected readonly loading = computed(() => this.parametersQuery.isPending());
   protected readonly hasNoParameters = computed(
-    () => !this.parametersQuery.data()?.length,
+    () => !this.parametersQuery.data()?.resultaten?.length,
+  );
+  protected readonly totaal = computed(
+    () => this.parametersQuery.data()?.totaal ?? 0,
   );
 
-  private storedParameterFilters = "parameterFilters";
+  private storedParameterFilters = "zaakafhandelParametersListParameters";
 
-  protected readonly zaaktypes = computed(() =>
-    this.utilService.getUniqueItemsList(
-      this.parametersQuery.data() ?? [],
-      "zaaktype",
-      "identificatie",
-      "omschrijving",
-    ),
+  protected readonly zaaktypes = computed(
+    () => this.parametersQuery.data()?.filterZaaktypes ?? [],
   );
-  protected readonly processDefinitions = computed(() =>
-    this.utilService.getUniqueItemsList(
-      this.parametersQuery.data() ?? [],
-      "processDefinition",
-      "key",
-      "naam",
-    ),
+  protected readonly processDefinitions = computed(
+    () => this.parametersQuery.data()?.filterProcessDefinitions ?? [],
   );
 
   constructor() {
     super();
-    this.parameters.filterPredicate = (data, filter) => {
-      let match = true;
-
-      const parsedFilter = JSON.parse(
-        filter,
-      ) as ZaakafhandelParametersListParameters;
-
-      if (parsedFilter.valide !== ToggleSwitchOptions.INDETERMINATE) {
-        match =
-          match &&
-          ClientMatcher.matchBoolean(
-            Boolean(data.isValide),
-            parsedFilter.valide === ToggleSwitchOptions.CHECKED,
-          );
-      }
-
-      if (parsedFilter.geldig !== ToggleSwitchOptions.INDETERMINATE) {
-        match =
-          match &&
-          ClientMatcher.matchBoolean(
-            Boolean(data.zaaktype.isNuGeldig),
-            parsedFilter.geldig === ToggleSwitchOptions.CHECKED,
-          );
-      }
-
-      if (parsedFilter.zaaktype) {
-        match =
-          match &&
-          ClientMatcher.matchObject(
-            "identificatie",
-            data.zaaktype,
-            parsedFilter.zaaktype as GeneratedType<"RestZaaktypeBeheerOverzicht">,
-          );
-      }
-
-      if (parsedFilter.processDefinition) {
-        match =
-          match &&
-          ClientMatcher.matchObject(
-            "key",
-            data.processDefinition,
-            parsedFilter.processDefinition,
-          );
-      }
-      if (
-        parsedFilter.beginGeldigheid.van !== null ||
-        parsedFilter.beginGeldigheid.tot !== null
-      ) {
-        match =
-          match &&
-          ClientMatcher.matchDatum(
-            data.zaaktype.beginGeldigheid ?? "",
-            parsedFilter.beginGeldigheid,
-          );
-      }
-
-      if (
-        parsedFilter.eindeGeldigheid.van !== null ||
-        parsedFilter.eindeGeldigheid.tot !== null
-      ) {
-        match =
-          match &&
-          ClientMatcher.matchDatum(
-            data.zaaktype.eindeGeldigheid ?? "",
-            parsedFilter.eindeGeldigheid,
-          );
-      }
-
-      return match;
-    };
     effect(() => {
-      this.parameters.data = this.parametersQuery.data() ?? [];
+      this.parameters.data = [
+        ...(this.parametersQuery.data()?.resultaten ?? []),
+      ];
+    });
+    effect(() => {
+      if (
+        !this.parametersQuery.isSuccess() ||
+        this.parametersQuery.isPlaceholderData() ||
+        this.parametersQuery.isFetching()
+      ) {
+        return;
+      }
+      const lastPage = Math.max(
+        Math.ceil(this.totaal() / this.pageSize) - 1,
+        0,
+      );
+      if (untracked(this.filterParameters).page > lastPage) {
+        untracked(() => this.updateFilterParameters({ page: lastPage }));
+      }
     });
   }
 
@@ -195,72 +144,57 @@ export class ParametersComponent
     this.filterParameters.set(
       SessionStorageUtil.getItem(
         this.storedParameterFilters,
-        new ZaakafhandelParametersListParameters("valide", "asc"),
+        new ZaakafhandelParametersListParameters("geldig", "desc"),
       ),
     );
-    this.applyFilter();
   }
 
-  ngAfterViewInit() {
-    this.parameters.sortingDataAccessor = (item, property) => {
-      switch (property) {
-        case "omschrijving":
-          return String(item.zaaktype.omschrijving);
-        case "model":
-          return String(item.processDefinition?.naam);
-        case "valide":
-          return Number(item.isValide);
-        case "geldig":
-          return Number(item.zaaktype.isNuGeldig);
-        case "beginGeldigheid":
-          return String(item.zaaktype.beginGeldigheid);
-        case "eindeGeldigheid":
-          return String(item.zaaktype.eindeGeldigheid);
-        default:
-          return String(item[property as keyof typeof item]);
-      }
-    };
-
-    this.parameters.sort = this.parametersSort();
-  }
-
-  protected applyFilter(options?: {
+  protected applyFilter(options: {
     event: ToggleSwitchOptions | MatSelectChange | string | number | undefined;
-    filter?: keyof ZaakafhandelParametersListParameters;
+    filter: keyof ZaakafhandelParametersListParameters;
   }) {
-    if (options?.filter) {
-      const { event, filter } = options;
-      this.setFilter(filter, typeof event === "object" ? event?.value : event);
-    }
-
-    this.parameters.filter = JSON.stringify(this.filterParameters());
-    SessionStorageUtil.setItem(
-      this.storedParameterFilters,
-      this.filterParameters(),
-    );
+    const { event, filter } = options;
+    this.updateFilterParameters({
+      [filter]: typeof event === "object" ? event?.value : event,
+      page: 0,
+    });
   }
 
   protected applyDateRangeFilter(
     filter: "beginGeldigheid" | "eindeGeldigheid",
     range: GeneratedType<"RestDatumRange">,
   ) {
-    this.setFilter(filter, range);
-    this.applyFilter();
+    this.updateFilterParameters({ [filter]: range, page: 0 });
   }
 
-  private setFilter(
-    filter: keyof ZaakafhandelParametersListParameters,
-    value: unknown,
+  protected applySort({ active, direction }: Sort) {
+    this.updateFilterParameters({ sort: active, order: direction, page: 0 });
+  }
+
+  protected applyPage({ pageIndex }: PageEvent) {
+    this.updateFilterParameters({ page: pageIndex });
+  }
+
+  private updateFilterParameters(
+    changes: Partial<ZaakafhandelParametersListParameters>,
   ) {
     this.filterParameters.update((filterParameters) => ({
       ...filterParameters,
-      [filter]: value,
+      ...changes,
     }));
+    SessionStorageUtil.setItem(
+      this.storedParameterFilters,
+      this.filterParameters(),
+    );
+  }
+
+  protected sortColumn(column: ZaakafhandelParametersSortColumn) {
+    return column;
   }
 
   protected compareZaaktype = (
-    zaaktype1?: GeneratedType<"RestZaaktypeBeheerOverzicht">,
-    zaaktype2?: GeneratedType<"RestZaaktypeBeheerOverzicht">,
+    zaaktype1?: GeneratedType<"RestZaaktypeFilterOptie">,
+    zaaktype2?: GeneratedType<"RestZaaktypeFilterOptie">,
   ) => {
     return zaaktype1?.identificatie === zaaktype2?.identificatie;
   };
