@@ -34,7 +34,7 @@ could link to. `docs/development/paging.md` asks for a `PUT` with a body, as `/o
 The query parameters (`RestZaaktypeConfigurationListParameters`, a `@BeanParam`) are `page` (default 0), `rows`
 (default 25), `sortField` (`RestZaaktypeConfigurationSortField`), `sortOrder` (`SorteerRichting`, default `ASC`)
 and one parameter per filter: `isValide`, `isNuGeldig`, `zaaktypeIdentificatie`, `processDefinitionKey`,
-`beginGeldigheidVan`, `beginGeldigheidTot`, `eindeGeldigheidVan` and `eindeGeldigheidTot`. A filter that is not
+`beginGeldigheidFrom`, `beginGeldigheidThrough`, `eindeGeldigheidFrom` and `eindeGeldigheidThrough`. A filter that is not
 given does not filter. The dates use the ISO date format (`2025-01-31`). A new `LocalDateParamConverter` reads them
 and refuses a value with a time with HTTP 400, so a time in UTC is never read as another day.
 
@@ -52,7 +52,7 @@ with real paging.
 | geldig toggle | `isNuGeldig` | `zaaktype.isNuGeldig` equals the value |
 | zaaktype select | `zaaktypeIdentificatie` | `zaaktype.identificatie` equals the value |
 | procesmodel select | `processDefinitionKey` | `processDefinition.key` equals the value |
-| begin / einde geldigheid | `beginGeldigheidVan`, `beginGeldigheidTot` / `eindeGeldigheidVan`, `eindeGeldigheidTot` | the date lies in the range, both ends included; a row without the date does not match |
+| begin / einde geldigheid | `beginGeldigheidFrom`, `beginGeldigheidThrough` / `eindeGeldigheidFrom`, `eindeGeldigheidThrough` | the date lies in the range, both ends included; a row without the date does not match |
 
 The sort fields are `VALIDE`, `OMSCHRIJVING`, `PROCESS_DEFINITION` (by `naam`), `GELDIG`, `BEGIN_GELDIGHEID` and
 `EINDE_GELDIGHEID`. A missing process definition or einde geldigheid sorts last when ascending and first when

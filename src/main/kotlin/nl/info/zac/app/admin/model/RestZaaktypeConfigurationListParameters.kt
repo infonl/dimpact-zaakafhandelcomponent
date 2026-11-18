@@ -51,15 +51,15 @@ class RestZaaktypeConfigurationListParameters : RestPageParameters {
     @field:QueryParam("processDefinitionKey")
     var processDefinitionKey: String? = null
 
-    @field:QueryParam("beginGeldigheidVan")
-    var beginGeldigheidVan: LocalDate? = null
+    @field:QueryParam("beginGeldigheidFrom")
+    var beginGeldigheidFrom: LocalDate? = null
 
-    @field:QueryParam("beginGeldigheidTot")
-    var beginGeldigheidTot: LocalDate? = null
+    @field:QueryParam("beginGeldigheidThrough")
+    var beginGeldigheidThrough: LocalDate? = null
 
-    @field:QueryParam("eindeGeldigheidVan")
-    var eindeGeldigheidVan: LocalDate? = null
+    @field:QueryParam("eindeGeldigheidFrom")
+    var eindeGeldigheidFrom: LocalDate? = null
 
-    @field:QueryParam("eindeGeldigheidTot")
-    var eindeGeldigheidTot: LocalDate? = null
+    @field:QueryParam("eindeGeldigheidThrough")
+    var eindeGeldigheidThrough: LocalDate? = null
 }
