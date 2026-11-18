@@ -235,10 +235,10 @@ fun createRestZaaktypeConfigurationListParameters(
     isNuGeldig: Boolean? = null,
     zaaktypeIdentificatie: String? = null,
     processDefinitionKey: String? = null,
-    beginGeldigheidVan: LocalDate? = null,
-    beginGeldigheidTot: LocalDate? = null,
-    eindeGeldigheidVan: LocalDate? = null,
-    eindeGeldigheidTot: LocalDate? = null
+    beginGeldigheidFrom: LocalDate? = null,
+    beginGeldigheidThrough: LocalDate? = null,
+    eindeGeldigheidFrom: LocalDate? = null,
+    eindeGeldigheidThrough: LocalDate? = null
 ) = RestZaaktypeConfigurationListParameters().apply {
     this.page = page
     this.rows = rows
@@ -248,8 +248,8 @@ fun createRestZaaktypeConfigurationListParameters(
     this.isNuGeldig = isNuGeldig
     this.zaaktypeIdentificatie = zaaktypeIdentificatie
     this.processDefinitionKey = processDefinitionKey
-    this.beginGeldigheidVan = beginGeldigheidVan
-    this.beginGeldigheidTot = beginGeldigheidTot
-    this.eindeGeldigheidVan = eindeGeldigheidVan
-    this.eindeGeldigheidTot = eindeGeldigheidTot
+    this.beginGeldigheidFrom = beginGeldigheidFrom
+    this.beginGeldigheidThrough = beginGeldigheidThrough
+    this.eindeGeldigheidFrom = eindeGeldigheidFrom
+    this.eindeGeldigheidThrough = eindeGeldigheidThrough
 }
