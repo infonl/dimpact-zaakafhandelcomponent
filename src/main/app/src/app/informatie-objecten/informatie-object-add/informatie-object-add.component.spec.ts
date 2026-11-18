@@ -227,6 +227,28 @@ describe(InformatieObjectAddComponent.name, () => {
       expect(formDataObject.verzenddatum).toBe("2025-09-25");
     });
 
+    it("sends the ontvangstdatum on the day that was picked", async () => {
+      component["form"].patchValue({
+        ontvangstdatum: toPickedDate("2025-09-26"),
+        verzenddatum: null,
+      });
+      fixture.detectChanges();
+
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.toevoegen" }),
+      );
+      await submitButton.click();
+      await new Promise(requestAnimationFrame);
+
+      const request = httpTestingController.expectOne(
+        `/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`,
+      );
+      const formDataObject = Object.fromEntries(
+        (request.request.body as FormData).entries(),
+      );
+      expect(formDataObject.ontvangstdatum).toBe("2025-09-26");
+    });
+
     it("should emit document event after form add and submit", async () => {
       const emitSpy = jest.spyOn(component["document"], "emit");
 

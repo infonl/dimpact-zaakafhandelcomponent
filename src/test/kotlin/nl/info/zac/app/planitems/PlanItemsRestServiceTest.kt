@@ -603,6 +603,11 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                         taskDataSlot.captured shouldBe restHumanTaskData.taakdata
                     }
 
+                    and("the backend sets datumGevraagd only for an aanvullende informatie task") {
+                        taskDataSlot.captured.containsKey("datumGevraagd") shouldBe
+                            (formulierDefinitie == FormulierDefinitie.AANVULLENDE_INFORMATIE)
+                    }
+
                     and("the email belonging to the formulier definitie is sent to the recipient from the task data") {
                         verify(exactly = 1) {
                             mailTemplateService.readDefaultMailTemplate(mail)

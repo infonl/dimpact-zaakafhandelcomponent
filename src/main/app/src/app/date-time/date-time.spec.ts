@@ -124,6 +124,10 @@ describe("date-time", () => {
       expect(toApiDate(addDays("2026-03-28", 2))).toBe("2026-03-30");
     });
 
+    it("adds days across the day the clocks go back", () => {
+      expect(toApiDate(addDays("2026-10-24", 2))).toBe("2026-10-26");
+    });
+
     it("counts the whole days between two dates", () => {
       expect(daysBetween("2026-07-30", new Date(2026, 7, 9))).toBe(10);
     });
