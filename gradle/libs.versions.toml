@@ -62,7 +62,7 @@ jakarta-jakartaee = "11.0.0"
 jboss-logmanager = "2.1.19.Final"
 # ~Versions of dependencies provided by WildFly.
 
-eclipse-yasson = "3.0.5"
+eclipse-yasson = "3.0.6"
 
 kotest = "6.2.7"
 mockk = "1.14.12"
