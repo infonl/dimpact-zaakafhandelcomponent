@@ -24,7 +24,6 @@ module.exports = [
   "src/app/informatie-objecten/informatie-object-verzenden/informatie-object-verzenden.component.ts",
   "src/app/klanten/zoek/personen/persoon-zoek.component.ts",
   "src/app/productaanvragen/inbox-productaanvragen-list/inbox-productaanvragen-list.component.spec.ts",
-  "src/app/shared/dynamic-table/filter/clientMatcher.ts",
   "src/app/shared/form/date/date.spec.ts",
   "src/app/shared/form/date/date.ts",
   "src/app/shared/pipes/dagen.pipe.ts",

@@ -12,7 +12,6 @@ import { TranslateService } from "@ngx-translate/core";
 import { Observable, Subject } from "rxjs";
 import { map, shareReplay } from "rxjs/operators";
 import { ProgressDialogComponent } from "src/app/shared/progress-dialog/progress-dialog.component";
-import { OrderUtil } from "../../shared/order/order-util";
 import { toI18nKey } from "../../shared/utils/i18n-key";
 
 /**
@@ -176,34 +175,6 @@ export class UtilService {
 
   closeProgressDialog() {
     this.dialog.closeAll();
-  }
-
-  getUniqueItemsList<
-    T extends Array<Record<string, unknown>>,
-    Item extends keyof T[number],
-    Key extends keyof NonNullable<T[number][Item]>,
-    SortKey extends keyof NonNullable<T[number][Item]> | undefined,
-  >(source: T, item: Item, key: Key, sortKey?: SortKey) {
-    const uniqueItems = source
-      .map((value) => value[item as keyof typeof value])
-      .filter((value, index, self) => {
-        return (
-          value &&
-          self.findIndex(
-            (v) =>
-              v &&
-              v[key as keyof typeof value] === value[key as keyof typeof value],
-          ) === index
-        );
-      });
-    const sortedItems = sortKey
-      ? uniqueItems.sort(
-          // @ts-expect-error sortkey is not a key of T[number][Item]
-          OrderUtil.orderBy(sortKey),
-        )
-      : uniqueItems;
-
-    return sortedItems as NonNullable<T[number][Item]>[];
   }
 
   downloadBlobResponse(response: Blob, fileName: string) {
