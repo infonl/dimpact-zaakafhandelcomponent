@@ -10,12 +10,7 @@ import { provideTranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { sleep } from "../../../../../setupJest";
 import { createQueryOptions, fromPartial } from "../../../../test-helpers";
-import {
-  isPickedDate,
-  toApiDate,
-  toPickedDate,
-  today,
-} from "../../../date-time";
+import { isPickedDate, toApiDate, toPickedDate } from "../../../date-time";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZakenService } from "../../../zaken/zaken.service";
@@ -141,7 +136,6 @@ describe(AanvullendeInformatieTaskForm.name, () => {
           "replyTo",
           "emailadres",
           "body",
-          "datumGevraagd",
           "bijlagen",
           "taakFataledatum",
           "messageField",
@@ -155,15 +149,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
         expect(field?.hidden).toBe(true);
       });
 
-      it("should set datumGevraagd as hidden with a picked date", async () => {
-        const fields = await requestForm(mockZaak);
-
-        const field = fields.find((f) => f.key === "datumGevraagd");
-        expect(field?.hidden).toBe(true);
-        expect(isPickedDate(field?.control?.value)).toBe(true);
-      });
-
-      it("puts datumGevraagd, today, and taakFataledatum in the task data as dates without a time", async () => {
+      it("leaves datumGevraagd to the backend and puts taakFataledatum in the task data as a date without a time", async () => {
         const fields = await requestForm(
           mockZaak,
           fromPartial<GeneratedType<"RestPlanItem">>({
@@ -178,12 +164,11 @@ describe(AanvullendeInformatieTaskForm.name, () => {
           ),
         );
 
-        expect(mapFormGroupToTaskData(formGroup, {})).toEqual(
-          expect.objectContaining({
-            datumGevraagd: toApiDate(today()),
-            taakFataledatum: "2026-06-01",
-          }),
+        const taskData = mapFormGroupToTaskData(formGroup, {});
+        expect(taskData).toEqual(
+          expect.objectContaining({ taakFataledatum: "2026-06-01" }),
         );
+        expect(taskData).not.toHaveProperty("datumGevraagd");
       });
 
       it("should set body control value to mail template body", async () => {
