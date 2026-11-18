@@ -114,8 +114,8 @@ class ZaaktypeConfigurationRestService @Inject constructor(
      * configuration, that configuration is updated
      * @throws InputValidationFailedException if the configuration belongs to another zaaktype version than
      * [zaaktypeUUID], if it names no process definition, if the productaanvraagtype is already in use by another active
-     * zaaktype, or if it binds a configuration to another engine or process definition while its zaaktype version has
-     * zaken
+     * zaaktype, if it binds a configuration to another engine or process definition while its zaaktype version has
+     * zaken, or if it binds a configuration to another BPMN process definition that has no active version
      */
     @PUT
     @Path("{zaaktypeUUID}")

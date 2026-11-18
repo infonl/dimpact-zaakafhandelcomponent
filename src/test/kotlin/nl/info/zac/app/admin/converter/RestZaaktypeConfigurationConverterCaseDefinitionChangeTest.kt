@@ -219,4 +219,55 @@ class RestZaaktypeConfigurationConverterCaseDefinitionChangeTest : BehaviorSpec(
             }
         }
     }
+
+    given("a stored CMMN extension with plan item settings but no process binding, as V102 migrates it") {
+        val storedConfiguration = createZaaktypeCmmnConfiguration(caseDefinitionId = "fakeCaseDefinitionA").apply {
+            getOrCreateCmmnExtension().apply {
+                setHumanTaskParametersCollection(
+                    listOf(createZaaktypeCmmnHumantaskParameters(planItemDefinitionId = "fakeHumanTaskOfA"))
+                )
+                setUserEventListenerParametersCollection(
+                    listOf(ZaaktypeCmmnUsereventlistenerParameters().apply { planItemDefinitionID = "fakeListenerOfA" })
+                )
+            }
+            processBinding = null
+        }
+
+        `when`("it is first bound to a case definition with a save that sends no plan item settings") {
+            every {
+                zaaktypeConfigurationBeheerService.findConfiguration(storedConfiguration.zaaktypeUuid)
+            } returns storedConfiguration
+            every { processDefinitionConverter.toRestProcessDefinition(any(), true) } returns
+                createRestProcessDefinition(key = "fakeCaseDefinitionB").apply {
+                    userEventListenerDefinitions = listOf(
+                        RestPlanItemDefinition("fakeListenerOfB", null, PlanItemType.USER_EVENT_LISTENER)
+                    )
+                }
+            every {
+                with(restHumanTaskParametersConverter) { emptyList<RestHumanTaskParameters>().toZaaktypeCmmnHumantaskParameters() }
+            } returns emptyList()
+            val restZaaktypeConfiguration = JsonbBuilder.create().fromJson(
+                """
+                {
+                  "zaaktype": { "uuid": "${storedConfiguration.zaaktypeUuid}", "omschrijving": "fakeOmschrijving" },
+                  "processDefinition": { "processEngine": "CMMN", "key": "fakeCaseDefinitionB" },
+                  "defaultGroepId": "fakeGroupId",
+                  "smartDocuments": { "isEnabledGlobally": false, "isEnabledForZaaktype": false }
+                }
+                """.trimIndent(),
+                RestZaaktypeConfiguration::class.java
+            )
+
+            val zaaktypeConfiguration = restZaaktypeConfigurationConverter.toZaaktypeConfiguration(
+                restZaaktypeConfiguration
+            )
+
+            then("it holds none of the stored settings, and a default for each user event listener") {
+                zaaktypeConfiguration.processBinding?.definitionKey shouldBe "fakeCaseDefinitionB"
+                zaaktypeConfiguration.cmmnExtension?.getHumanTaskParametersCollection()?.size shouldBe 0
+                zaaktypeConfiguration.cmmnExtension?.getUserEventListenerParametersCollection()
+                    ?.map { it.planItemDefinitionID to it.toelichting } shouldBe listOf("fakeListenerOfB" to null)
+            }
+        }
+    }
 })

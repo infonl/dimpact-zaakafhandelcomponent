@@ -158,8 +158,8 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
     }
 
     /**
-     * Settings that a save leaves out keep their stored value, except after a change of case definition: those of the
-     * previous case definition do not apply any more, so they count as none.
+     * Settings that a save leaves out keep their stored value, except after a change of case definition or a first
+     * binding: those of the previous or no case definition do not apply, so they count as none.
      */
     private fun <T> T.orNoneWhen(isOtherDefinition: Boolean, none: T): T =
         if (isOtherDefinition && this == null) none else this
@@ -173,7 +173,7 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
         val processDefinition = restZaaktypeConfiguration.processDefinition
             ?: throw NullPointerException("restZaakafhandelParameters.processDefinition is null")
         val isOtherDefinition =
-            processBinding?.isBoundTo(processDefinition.processEngine, processDefinition.key) == false
+            processBinding?.isBoundTo(processDefinition.processEngine, processDefinition.key) != true
         bindTo(processDefinition.processEngine, processDefinition.key)
         cmmnExtension?.apply {
             val caseDefinition = processBinding?.let {
