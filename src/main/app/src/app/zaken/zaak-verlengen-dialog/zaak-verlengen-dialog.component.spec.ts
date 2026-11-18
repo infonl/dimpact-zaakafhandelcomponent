@@ -94,20 +94,7 @@ describe("ZaakVerlengenDialogComponent", () => {
   }
 
   describe("Buttons and form submission", () => {
-    it("sends the uiterlijke einddatum afdoening, moved by the verlengduur, as a date without a time", async () => {
-      await setup();
-
-      const request = await verlengen("5");
-
-      expect(request.request.body).toEqual(
-        expect.objectContaining({
-          einddatumGepland: null,
-          uiterlijkeEinddatumAfdoening: "2026-02-04",
-        }),
-      );
-    });
-
-    it("sends the einddatum gepland, moved by the verlengduur, as a date without a time", async () => {
+    it("sends only the verlengduur, so the backend moves the dates of the zaak", async () => {
       await setup(
         fromPartial<GeneratedType<"RestZaak">>({
           ...mockZaak,
@@ -117,12 +104,11 @@ describe("ZaakVerlengenDialogComponent", () => {
 
       const request = await verlengen("5");
 
-      expect(request.request.body).toEqual(
-        expect.objectContaining({
-          einddatumGepland: "2026-01-25",
-          uiterlijkeEinddatumAfdoening: "2026-02-04",
-        }),
-      );
+      expect(request.request.body).toEqual({
+        duurDagen: 5,
+        redenVerlenging: "Reden verlenging",
+        shouldTakenVerlengen: false,
+      });
     });
 
     it("makes HTTP PATCH request with form payload when verlengen is called", async () => {

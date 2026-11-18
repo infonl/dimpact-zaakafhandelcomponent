@@ -25,7 +25,6 @@ import {
   endOfDay,
   PickedDate,
   startOfDay,
-  toApiDate,
   toPickedDate,
 } from "../../date-time";
 import { ZacCheckbox } from "../../shared/form/checkbox/checkbox";
@@ -192,19 +191,12 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
     this.dialogRef.disableClose = true;
 
     const formValues = this.form.value;
-    const body = {
-      ...formValues,
-      einddatumGepland: toApiDate(formValues.einddatumGepland),
-      uiterlijkeEinddatumAfdoening: toApiDate(
-        formValues.uiterlijkeEinddatumAfdoening,
-      ),
+
+    this.extendZaakMutation.mutate({
       shouldTakenVerlengen: formValues.takenVerlengen ?? false,
       redenVerlenging: formValues.redenVerlenging,
-      duurDagen: formValues.duurDagen,
-      verlengingVastleggen: formValues.verlengingVastleggen ?? false,
-    };
-
-    this.extendZaakMutation.mutate(body);
+      duurDagen: Number(formValues.duurDagen ?? 0),
+    });
   }
 
   protected close() {
