@@ -213,4 +213,12 @@ describe(DateConditionals.name, () => {
       expect(result).toBe(expected);
     });
   });
+
+  describe(DateConditionals.always.name, () => {
+    it("meets the condition for any date", () => {
+      jest.spyOn(console, "warn").mockImplementation();
+
+      expect(DateConditionals.always("2026-01-30")).toBe(true);
+    });
+  });
 });
