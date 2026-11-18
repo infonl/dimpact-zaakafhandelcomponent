@@ -153,6 +153,11 @@ const otherBpmnProcessDefinition = fromPartial<
   naam: "Nieuw vergunningsproces",
 });
 
+const failingTaskLookups = [
+  ["formulier definitions", "formulierDefinitiesResponse"],
+  ["reference tables", "referentieTabellenResponse"],
+] as const;
+
 const rejectedWith = (errorCode: string) =>
   new HttpErrorResponse({ status: 400, error: { message: errorCode } });
 
@@ -710,6 +715,30 @@ describe(ParametersEditComponent.name, () => {
       await setup(cmmnConfiguration, {
         formulierDefinitiesResponse,
         referentieTabellenResponse,
+      });
+
+      await settle();
+
+      expect(opslaan()).toBeDisabled();
+    },
+  );
+
+  it.each(failingTaskLookups)(
+    "lets the beheerder save a BPMN configuration when the %s cannot be loaded, because a BPMN process has no tasks that need them",
+    async (_failing, failingResponse) => {
+      await setup(bpmnConfiguration, {
+        [failingResponse]: Promise.reject(new Error("fakeError")),
+      });
+
+      await waitFor(() => expect(opslaan()).toBeEnabled());
+    },
+  );
+
+  it.each(failingTaskLookups)(
+    "does not let the beheerder save a CMMN configuration when the %s cannot be loaded, so no task is stored without its default reference tables",
+    async (_failing, failingResponse) => {
+      await setup(cmmnConfiguration, {
+        [failingResponse]: Promise.reject(new Error("fakeError")),
       });
 
       await settle();

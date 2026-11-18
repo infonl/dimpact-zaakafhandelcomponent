@@ -151,12 +151,18 @@ export class ParametersEditComponent
 
   private readonly isReadingStoredConfiguration = signal(false);
 
+  private readonly areTaskLookupsLoaded = computed(
+    () =>
+      this.processDefinition()?.processEngine !== "CMMN" ||
+      (this.formulierDefinitiesQuery.data() !== undefined &&
+        this.referentieTabellenQuery.data() !== undefined),
+  );
+
   protected readonly canSave = computed(
     () =>
       this.formValid() === true &&
       this.processDefinition() !== null &&
-      this.formulierDefinitiesQuery.data() !== undefined &&
-      this.referentieTabellenQuery.data() !== undefined &&
+      this.areTaskLookupsLoaded() &&
       !this.updateZaakafhandelparametersMutation.isPending() &&
       !this.isReadingStoredConfiguration(),
   );
