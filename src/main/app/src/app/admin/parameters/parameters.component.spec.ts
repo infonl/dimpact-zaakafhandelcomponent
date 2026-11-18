@@ -229,8 +229,8 @@ describe(ParametersComponent.name, () => {
   ) {
     await sleep();
     httpTestingController
-      .expectOne("/rest/zaakafhandelparameters")
-      .flush(parameters);
+      .expectOne("/rest/zaakafhandelparameters?rows=10000")
+      .flush({ resultaten: parameters, totaal: parameters.length });
     await sleep();
     fixture.detectChanges();
     await sleep();
@@ -344,17 +344,21 @@ describe(`${ParametersComponent.name} on a second visit`, () => {
     testQueryClient.setQueryData(
       TestBed.inject(ZaakafhandelParametersService).listZaakafhandelParameters()
         .queryKey,
-      [
-        fromPartial<GeneratedType<"RestZaaktypeConfigurationOverzicht">>({
-          zaaktype: {
-            uuid: "fakeZaaktypeUuid",
-            identificatie: "fakeIdentificatie",
-            omschrijving: "Fake zaaktype",
-            isNuGeldig: true,
-          },
-          isValide: true,
-        }),
-      ],
+      fromPartial<GeneratedType<"RestZaaktypeConfigurationOverzichtResultaat">>(
+        {
+          resultaten: [
+            fromPartial<GeneratedType<"RestZaaktypeConfigurationOverzicht">>({
+              zaaktype: {
+                uuid: "fakeZaaktypeUuid",
+                identificatie: "fakeIdentificatie",
+                omschrijving: "Fake zaaktype",
+                isNuGeldig: true,
+              },
+              isValide: true,
+            }),
+          ],
+        },
+      ),
     );
 
     const fixture = TestBed.createComponent(ParametersComponent);
