@@ -222,7 +222,7 @@ Stappen:
 De zaakafhandelparameters (hierna ‘zaps’) zijn bedoeld om een zaaktype dat in de ZAC gebruikt wordt in te richten.
 
 #### Werking van de zaakafhandelparameters
-Bij het openen van de zaps worden alle zaaktypen uit de zaaktypecatalogus getoond. Ook de oudere versies met een einde geldigheid worden opgehaald. Vanuit het overzicht kan een zaaktype geopend worden om deze in te richten. Wijzigingen in een actief zaaktype zijn na het opslaan direct zichtbaar in de ZAC.
+Bij het openen van de zaps worden de zaaktypen uit de zaaktypecatalogus getoond, in pagina's van 25 zaaktypen. Ook de oudere versies met een einde geldigheid worden opgehaald. Met de filters en de sortering boven de kolommen wordt in alle zaaktypen gezocht, niet alleen in de getoonde pagina. Met de knoppen onder de lijst ga je naar een volgende of vorige pagina. Vanuit het overzicht kan een zaaktype geopend worden om deze in te richten. Wijzigingen in een actief zaaktype zijn na het opslaan direct zichtbaar in de ZAC.
 
 ### BPMN-procesdefinities
 

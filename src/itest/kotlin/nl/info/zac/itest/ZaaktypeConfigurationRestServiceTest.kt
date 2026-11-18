@@ -61,14 +61,15 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
         .getString("mail")
 
     given("Zaaktype CMMN configurations have been created for the CMMN test zaaktypes, and a beheerder is logged in") {
-        `when`("the beheerder lists the zaaktype configurations") {
+        `when`("the beheerder lists one page with all zaaktype configurations") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaakafhandelparameters",
+                url = "$ZAC_API_URI/zaakafhandelparameters?page=0&rows=1000",
                 testUser = BEHEERDER_1
             )
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
-            val restZaaktypeConfigurationOverzichten = JSONArray(responseBody).map { it as JSONObject }
+            val restZaaktypeConfigurationOverzichten = JSONObject(responseBody).getJSONArray("resultaten")
+                .map { it as JSONObject }
 
             then("the response is ok") {
                 response.code shouldBe HTTP_OK

@@ -20,22 +20,6 @@ export function isLaterDay(value: DateInput, reference: DateInput) {
   return toTypedDay(value).isAfter(toTypedDay(reference), "day");
 }
 
-export function isInDateRange(
-  value: string,
-  range: { from?: string | null; through?: string | null },
-) {
-  const date = moment(value);
-  if (range.from && range.through) {
-    return (
-      date.isSameOrAfter(moment(range.from)) &&
-      date.isSameOrBefore(moment(range.through))
-    );
-  }
-  if (range.from) return date.isSameOrAfter(moment(range.from));
-  if (range.through) return date.isSameOrBefore(moment(range.through));
-  return false;
-}
-
 export function daysSince(value: DateInput | null | undefined) {
   return moment().diff(moment(value), "days");
 }
