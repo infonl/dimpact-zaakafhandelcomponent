@@ -1,6 +1,6 @@
 ## Context
 
-`createOrUpdateZaaktypeConfiguration` calls `hasZaken` before `storeConfiguration`, passes the answer to `checkProcessBinding`, and sets `isProcessDefinitionChangeable = !hasZaken` on the response. The REST service runs without a transaction; only `storeConfiguration` is `@Transactional(REQUIRED)` and clears the cache inside its transaction. Since PZ-13546 `ZaaktypeConfigurationService.evict` also clears the cache after the transaction completes.
+`createOrUpdateZaaktypeConfiguration` calls `hasZaken` before `storeConfiguration`, passes the answer to `checkProcessBinding`, and sets `isProcessDefinitionChangeable = !hasZaken` on the response. Since PZ-13546 `ZaaktypeConfigurationService.evict` also clears the cache after the transaction completes.
 
 ## Goals / Non-Goals
 
