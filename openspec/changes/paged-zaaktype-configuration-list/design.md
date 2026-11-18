@@ -77,6 +77,25 @@ in hand while it builds the page.
 functions work on the converted rows (`RestZaaktypeConfigurationOverzichtPage.kt`). They are pure, and have their
 own unit test.
 
+### D6. The page keeps its state for the session and shows when it reads a page
+
+The page stores its filters, sort order and page in sessionStorage under `zaakafhandelParametersListParameters`, as
+it already stored its filters, so a beheerder who returns from the edit page sees the same page. The key is new:
+the old key `parameterFilters` holds a sort (`valide`, ascending) that the old page stored but never applied, and
+the page would otherwise sort on it. A stored page that lies past the last page, because fewer configurations match
+than when it was stored, moves to the last page with rows after the response arrives.
+
+While the next page is read, the page keeps the rows of the current page (`keepPreviousData`), so the table does
+not empty between pages. The page shows no loading indicator of its own: the global loading bar of ZAC already shows
+every query that is being read, also a cached page that is read again because it is stale or a save invalidated
+it. Only the first read, when the table has no rows yet, shows the message "Bezig met het ophalen van de gegevens".
+With the filters on the server, the message "Geen gegevens gevonden" also shows when no configuration matches the
+filters; before, a filter that matched nothing left an empty table without a message.
+
+Each page is a `GET` query of its own, keyed by its query parameters, and stays fresh for 5 minutes, as the list
+did before. A save of a configuration invalidates every stored page through the key of the `GET` without query
+parameters, which is the start of the key of every page.
+
 ## Risks / Trade-offs
 
 - [The server still converts every configuration for each page.] → The conversion reads from the ZTC cache and the

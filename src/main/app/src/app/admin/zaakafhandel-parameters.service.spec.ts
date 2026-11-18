@@ -32,6 +32,10 @@ describe(ZaakafhandelParametersService.name, () => {
     jest.spyOn(utilService, "openSnackbar").mockImplementation(() => {});
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   describe("updateZaakafhandelparameters", () => {
     it("confirms the save to the user", async () => {
       await runMutationOnSuccess(
@@ -127,18 +131,39 @@ describe(ZaakafhandelParametersService.name, () => {
       });
     });
 
-    it("makes the overview of all zaaktypes read the parameters again", async () => {
-      const invalidateQueries = jest
-        .spyOn(testQueryClient, "invalidateQueries")
-        .mockResolvedValue(undefined);
+    it("makes every page of the overview of all zaaktypes read the parameters again, but not the configuration of another zaaktype", async () => {
+      const firstPage = service.listZaakafhandelParameters({
+        page: 0,
+        rows: 25,
+      }).queryKey;
+      const secondPage = service.listZaakafhandelParameters({
+        page: 1,
+        rows: 25,
+        isValide: true,
+      }).queryKey;
+      const otherConfiguration = service.readZaakafhandelparameters(
+        "fakeOtherZaaktypeUuid",
+      ).queryKey;
+      const processDefinitions = service.listProcessDefinitions().queryKey;
+      for (const queryKey of [
+        firstPage,
+        secondPage,
+        otherConfiguration,
+        processDefinitions,
+      ]) {
+        testQueryClient.setQueryData(queryKey, fromPartial({}));
+      }
 
       await runMutationOnSuccess(
         service.updateZaakafhandelparameters("fakeZaaktypeUuid"),
       );
 
-      expect(invalidateQueries).toHaveBeenCalledWith({
-        queryKey: service.listZaakafhandelParameters().queryKey,
-      });
+      const isInvalidated = (queryKey: readonly unknown[]) =>
+        testQueryClient.getQueryState(queryKey)?.isInvalidated;
+      expect(isInvalidated(firstPage)).toBe(true);
+      expect(isInvalidated(secondPage)).toBe(true);
+      expect(isInvalidated(otherConfiguration)).toBe(false);
+      expect(isInvalidated(processDefinitions)).toBe(false);
     });
 
     it("makes the afbreken dialog read the zaakbeeindigredenen of the zaaktype again, as the parameters hold them", async () => {
@@ -159,45 +184,27 @@ describe(ZaakafhandelParametersService.name, () => {
   });
 
   describe("listZaakafhandelParameters", () => {
-    it("reads the parameters of all zaaktypes in one page", async () => {
-      const parameters = [
-        fromPartial<GeneratedType<"RestZaaktypeConfigurationOverzicht">>({
-          zaaktype: { uuid: "fakeZaaktypeUuid" },
-        }),
-      ];
+    it("reads one page of the parameters of the zaaktypes with the filters as query parameters", async () => {
+      const page = fromPartial<
+        GeneratedType<"RestZaaktypeConfigurationOverzichtResultaat">
+      >({ totaal: 26, resultaten: [] });
 
       const result = testQueryClient.fetchQuery(
-        service.listZaakafhandelParameters(),
+        service.listZaakafhandelParameters({
+          page: 1,
+          rows: 25,
+          isValide: true,
+          zaaktypeIdentificatie: null,
+        }),
       );
       await sleep();
       const request = httpTestingController.expectOne(
-        "/rest/zaakafhandelparameters?rows=10000",
+        "/rest/zaakafhandelparameters?page=1&rows=25&isValide=true",
       );
       expect(request.request.method).toBe("GET");
-      request.flush({ resultaten: parameters, totaal: 1 });
+      request.flush(page);
 
-      await expect(result).resolves.toEqual({
-        resultaten: parameters,
-        totaal: 1,
-      });
-    });
-
-    it("gives its observers the rows of the page", () => {
-      const parameters = [
-        fromPartial<GeneratedType<"RestZaaktypeConfigurationOverzicht">>({
-          zaaktype: { uuid: "fakeZaaktypeUuid" },
-        }),
-      ];
-
-      expect(
-        service
-          .listZaakafhandelParameters()
-          .select(
-            fromPartial<
-              GeneratedType<"RestZaaktypeConfigurationOverzichtResultaat">
-            >({ resultaten: parameters }),
-          ),
-      ).toEqual(parameters);
+      await expect(result).resolves.toEqual(page);
     });
   });
 

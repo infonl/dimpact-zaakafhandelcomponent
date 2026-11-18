@@ -7,15 +7,15 @@ import { inject, Injectable } from "@angular/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
 import { MailtemplateService } from "../mailtemplate/mailtemplate.service";
-import { PutBody } from "../shared/http/http-client";
+import { PathParameters, PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
-import { GeneratedType } from "../shared/utils/generated-types";
 import { ZakenService } from "../zaken/zaken.service";
 import { MailtemplateKoppelingService } from "./mailtemplate-koppeling.service";
 
-// The overview filters and sorts all zaaktype configurations in the browser, so it reads them in one page.
-const ALL_ZAAKTYPE_CONFIGURATIONS = 10_000;
+export type ZaakafhandelParametersListQuery = NonNullable<
+  NonNullable<PathParameters<"/rest/zaakafhandelparameters", "get">>["query"]
+>;
 
 @Injectable({
   providedIn: "root",
@@ -30,15 +30,13 @@ export class ZaakafhandelParametersService {
   private readonly zakenService = inject(ZakenService);
   private readonly queryClient = inject(QueryClient, { optional: true });
 
-  listZaakafhandelParameters() {
-    return {
-      ...this.zacQueryClient.GET("/rest/zaakafhandelparameters", {
-        query: { rows: ALL_ZAAKTYPE_CONFIGURATIONS },
-      }),
-      select: (
-        page: GeneratedType<"RestZaaktypeConfigurationOverzichtResultaat">,
-      ) => page.resultaten ?? [],
-    };
+  private readonly zaakafhandelParametersListUrl =
+    "/rest/zaakafhandelparameters" as const;
+
+  listZaakafhandelParameters(query: ZaakafhandelParametersListQuery) {
+    return this.zacQueryClient.GET(this.zaakafhandelParametersListUrl, {
+      query,
+    });
   }
 
   readZaakafhandelparameters(zaaktypeUUID: string) {
@@ -91,7 +89,9 @@ export class ZaakafhandelParametersService {
             queryKey: this.readZaakafhandelparameters(zaaktypeUUID).queryKey,
           });
           void this.queryClient?.invalidateQueries({
-            queryKey: this.listZaakafhandelParameters().queryKey,
+            queryKey: this.zacQueryClient.GET(
+              this.zaakafhandelParametersListUrl,
+            ).queryKey,
           });
           void this.queryClient?.invalidateQueries({
             queryKey:

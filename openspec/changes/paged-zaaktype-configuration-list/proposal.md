@@ -15,6 +15,11 @@ sooner.
 - The server filters and sorts the list, as the page did in the browser.
 - The Zaakafhandelparameters page shows 25 rows per page, with a paginator, and requests a page from the server
   when the beheerder changes a filter, the sort order or the page.
+- The page keeps its filters, sort order and page for the browser session, so a beheerder who returns from the
+  edit page of a zaaktype sees the same page. A stored page past the last page moves to the last page with rows.
+- While a page is read, the rows that the table shows stay visible until the page arrives. The global loading bar
+  of ZAC shows that a page is being read.
+- The page shows "Geen gegevens gevonden" when no configuration matches the filters.
 - **BREAKING (internal API)** `GET /rest/zaakafhandelparameters` returns that page (`resultaten`, `totaal` and the
   filter options) instead of a list of all configurations. Only this repository calls it.
 
