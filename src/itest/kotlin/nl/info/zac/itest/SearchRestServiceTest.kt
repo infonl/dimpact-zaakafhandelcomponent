@@ -431,7 +431,7 @@ class SearchRestServiceTest : BehaviorSpec({
 
             `when`(
                 """the search endpoint is called to search for the tasks of the zaak
-                    created van today t/m today in Europe/Amsterdam"""
+                    created from today through today in Europe/Amsterdam"""
             ) {
                 val todayInAmsterdam = LocalDate.now(ZoneId.of("Europe/Amsterdam"))
                 val response = itestHttpClient.performPutRequest(
@@ -444,7 +444,7 @@ class SearchRestServiceTest : BehaviorSpec({
                         "alleenMijnTaken": false,
                         "zoeken": { "TAAK_ZAAK_ID": "$zaakIdentification" },
                         "filters": {},
-                        "datums": { "TAAK_CREATIEDATUM": { "van": "$todayInAmsterdam", "tot": "$todayInAmsterdam" } },
+                        "datums": { "TAAK_CREATIEDATUM": { "from": "$todayInAmsterdam", "through": "$todayInAmsterdam" } },
                         "rows": 10,
                         "page": 0,
                         "type": "TAAK"
@@ -470,7 +470,7 @@ class SearchRestServiceTest : BehaviorSpec({
 
             `when`(
                 """the search endpoint is called to search for the uploaded document
-                    registered van today t/m today in Europe/Amsterdam"""
+                    registered from today through today in Europe/Amsterdam"""
             ) {
                 val todayInAmsterdam = LocalDate.now(ZoneId.of("Europe/Amsterdam"))
                 val response = itestHttpClient.performPutRequest(
@@ -484,7 +484,7 @@ class SearchRestServiceTest : BehaviorSpec({
                         "zoeken": { "DOCUMENT_TITEL": "$documentTitle" },
                         "filters": {},
                         "datums": {
-                            "INFORMATIEOBJECT_REGISTRATIEDATUM": { "van": "$todayInAmsterdam", "tot": "$todayInAmsterdam" }
+                            "INFORMATIEOBJECT_REGISTRATIEDATUM": { "from": "$todayInAmsterdam", "through": "$todayInAmsterdam" }
                         },
                         "rows": 10,
                         "page": 0,

@@ -108,8 +108,8 @@ class ZaaktypeConfigurationRestServicePagingTest : BehaviorSpec({
         ) {
             val response = listZaaktypeConfigurationPage(
                 "rows" to ALL_ROWS,
-                "beginGeldigheidVan" to ZAAKTYPE_CMMN_TEST_1_BEGIN_GELDIGHEID,
-                "beginGeldigheidTot" to ZAAKTYPE_CMMN_TEST_1_BEGIN_GELDIGHEID
+                "beginGeldigheidFrom" to ZAAKTYPE_CMMN_TEST_1_BEGIN_GELDIGHEID,
+                "beginGeldigheidThrough" to ZAAKTYPE_CMMN_TEST_1_BEGIN_GELDIGHEID
             )
             val restZaaktypeConfigurationOverzichten = response.zaaktypeConfigurationOverzichten()
 
@@ -133,11 +133,11 @@ class ZaaktypeConfigurationRestServicePagingTest : BehaviorSpec({
         ) {
             val rangeFromTheDayAfter = listZaaktypeConfigurationPage(
                 "rows" to ALL_ROWS,
-                "beginGeldigheidVan" to "2025-07-02"
+                "beginGeldigheidFrom" to "2025-07-02"
             ).zaaktypeConfigurationOverzichten()
             val rangeUntilTheDayBefore = listZaaktypeConfigurationPage(
                 "rows" to ALL_ROWS,
-                "beginGeldigheidTot" to "2025-06-30"
+                "beginGeldigheidThrough" to "2025-06-30"
             ).zaaktypeConfigurationOverzichten()
 
             then("the configuration of that zaaktype is not returned") {
@@ -175,7 +175,7 @@ class ZaaktypeConfigurationRestServicePagingTest : BehaviorSpec({
         }
 
         `when`("the beheerder lists the zaaktype configurations with a begin geldigheid that has a time in UTC") {
-            val response = listZaaktypeConfigurationPage("beginGeldigheidVan" to "2025-06-30T22:00:00.000Z")
+            val response = listZaaktypeConfigurationPage("beginGeldigheidFrom" to "2025-06-30T22:00:00.000Z")
 
             then("the request is refused, so the time is never read as another day") {
                 response.code shouldBe HTTP_BAD_REQUEST

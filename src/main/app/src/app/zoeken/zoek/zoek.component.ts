@@ -355,7 +355,7 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
 
   protected dateFilterChange(
     key: string,
-    value: GeneratedType<"RestDatumRange">,
+    value: GeneratedType<"RestDateRange">,
   ) {
     const zoekParameters = this.zoekParameters();
     this.zoeken({

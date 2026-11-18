@@ -4,7 +4,6 @@
  */
 
 import { SortDirection } from "@angular/material/sort";
-import moment from "moment";
 import { ListParameters } from "../../shared/model/list-parameters";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -19,8 +18,14 @@ export class ZaakafhandelParametersListParameters extends ListParameters {
   processDefinition: Partial<
     GeneratedType<"RestProcessDefinitionOverzicht">
   > | null = null;
-  beginGeldigheid: GeneratedType<"RestDatumRange"> = { van: null, tot: null };
-  eindeGeldigheid: GeneratedType<"RestDatumRange"> = { van: null, tot: null };
+  beginGeldigheid: GeneratedType<"RestDateRange"> = {
+    from: null,
+    through: null,
+  };
+  eindeGeldigheid: GeneratedType<"RestDateRange"> = {
+    from: null,
+    through: null,
+  };
 
   constructor(sort: string, order: SortDirection) {
     super(sort, order);
@@ -55,9 +60,6 @@ const toBoolean = (toggleSwitchOption: ToggleSwitchOptions) => {
   }
 };
 
-const toLocalDate = (date?: string | null) =>
-  date ? moment(date).format("YYYY-MM-DD") : null;
-
 export const toZaaktypeConfigurationListQuery = (
   listParameters: ZaakafhandelParametersListParameters,
 ): ZaakafhandelParametersListQuery => ({
@@ -72,8 +74,8 @@ export const toZaaktypeConfigurationListQuery = (
   isNuGeldig: toBoolean(listParameters.geldig),
   zaaktypeIdentificatie: listParameters.zaaktype?.identificatie ?? null,
   processDefinitionKey: listParameters.processDefinition?.key ?? null,
-  beginGeldigheidVan: toLocalDate(listParameters.beginGeldigheid.van),
-  beginGeldigheidTot: toLocalDate(listParameters.beginGeldigheid.tot),
-  eindeGeldigheidVan: toLocalDate(listParameters.eindeGeldigheid.van),
-  eindeGeldigheidTot: toLocalDate(listParameters.eindeGeldigheid.tot),
+  beginGeldigheidFrom: listParameters.beginGeldigheid.from ?? null,
+  beginGeldigheidThrough: listParameters.beginGeldigheid.through ?? null,
+  eindeGeldigheidFrom: listParameters.eindeGeldigheid.from ?? null,
+  eindeGeldigheidThrough: listParameters.eindeGeldigheid.through ?? null,
 });

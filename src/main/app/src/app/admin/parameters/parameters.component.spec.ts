@@ -317,10 +317,10 @@ describe(ParametersComponent.name, () => {
       expect(query).toEqual(
         expect.objectContaining({
           page: "0",
-          [`${geldigheid}Van`]: "2025-01-01",
+          [`${geldigheid}From`]: "2025-01-01",
         }),
       );
-      expect(query).not.toHaveProperty(`${geldigheid}Tot`);
+      expect(query).not.toHaveProperty(`${geldigheid}Through`);
     },
   );
 
@@ -489,21 +489,28 @@ describe(toZaaktypeConfigurationListQuery.name, () => {
     ).toBe(sortField);
   });
 
-  it("sends the date in the Netherlands of a range that the date filter gives in UTC", () => {
-    const timeZone = process.env.TZ;
-    process.env.TZ = "Europe/Amsterdam";
-
+  it("sends the dates of a range as the date filter gives them", () => {
     const query = toZaaktypeConfigurationListQuery({
       ...new ZaakafhandelParametersListParameters("geldig", "desc"),
-      beginGeldigheid: {
-        van: "2024-12-31T23:00:00.000Z",
-        tot: "2025-01-31T23:00:00.000Z",
-      },
+      beginGeldigheid: { from: "2025-01-01", through: "2025-01-31" },
     });
-    process.env.TZ = timeZone;
 
-    expect(query.beginGeldigheidVan).toBe("2025-01-01");
-    expect(query.beginGeldigheidTot).toBe("2025-02-01");
+    expect(query.beginGeldigheidFrom).toBe("2025-01-01");
+    expect(query.beginGeldigheidThrough).toBe("2025-01-31");
+  });
+
+  it("sends no date filter for a range stored before the date range used from and through", () => {
+    const query = toZaaktypeConfigurationListQuery(
+      JSON.parse(
+        JSON.stringify({
+          ...new ZaakafhandelParametersListParameters("geldig", "desc"),
+          beginGeldigheid: { van: "2024-12-31T23:00:00.000Z", tot: null },
+        }),
+      ),
+    );
+
+    expect(query.beginGeldigheidFrom).toBeNull();
+    expect(query.beginGeldigheidThrough).toBeNull();
   });
 
   it("keeps the order of the catalogus when the sort is cleared", () => {

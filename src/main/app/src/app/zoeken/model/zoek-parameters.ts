@@ -51,7 +51,7 @@ export function hasActiveSearchFilters(zoekFilters: ZoekFilters) {
   }
   if (zoekFilters.datums) {
     return Object.values(zoekFilters.datums).some(
-      ({ van, tot }) => van != null || tot != null,
+      ({ from, through }) => from != null || through != null,
     );
   }
   return false;

@@ -5,7 +5,7 @@
 
 package nl.info.zac.app.zaak.model
 
-import nl.info.zac.app.search.model.RestDatumRange
+import nl.info.zac.app.search.model.RestDateRange
 import nl.info.zac.zaak.model.RelatieType
 
 @Suppress("LongParameterList")
@@ -13,8 +13,8 @@ fun createRestFindLinkableZakenRequest(
     zoekZaakIdentifier: String? = "ZAAK-2000-00002",
     zoekZaakOmschrijving: String? = null,
     zoekZaakTypeOmschrijving: String? = null,
-    startdatum: RestDatumRange? = null,
-    einddatum: RestDatumRange? = null,
+    startdatum: RestDateRange? = null,
+    einddatum: RestDateRange? = null,
     relationType: RelatieType = RelatieType.GERELATEERD,
     page: Int = 0,
     rows: Int = 10

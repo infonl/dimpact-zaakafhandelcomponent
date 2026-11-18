@@ -162,7 +162,7 @@ export class ParametersComponent extends AdminComponent implements OnInit {
 
   protected applyDateRangeFilter(
     filter: "beginGeldigheid" | "eindeGeldigheid",
-    range: GeneratedType<"RestDatumRange">,
+    range: GeneratedType<"RestDateRange">,
   ) {
     this.updateFilterParameters({ [filter]: range, page: 0 });
   }

@@ -133,8 +133,8 @@ class RestZaaktypeConfigurationOverzichtPageTest : BehaviorSpec({
                 val restZaaktypeConfigurationOverzichtResultaat = restZaaktypeConfigurationOverzichten
                     .toRestZaaktypeConfigurationOverzichtResultaat(
                         createRestZaaktypeConfigurationListParameters(
-                            beginGeldigheidVan = LocalDate.of(2025, 1, 1),
-                            beginGeldigheidTot = LocalDate.of(2025, 12, 31)
+                            beginGeldigheidFrom = LocalDate.of(2025, 1, 1),
+                            beginGeldigheidThrough = LocalDate.of(2025, 12, 31)
                         )
                     )
 
@@ -148,7 +148,7 @@ class RestZaaktypeConfigurationOverzichtPageTest : BehaviorSpec({
                 val restZaaktypeConfigurationOverzichtResultaat = restZaaktypeConfigurationOverzichten
                     .toRestZaaktypeConfigurationOverzichtResultaat(
                         createRestZaaktypeConfigurationListParameters(
-                            eindeGeldigheidVan = LocalDate.of(2020, 1, 1)
+                            eindeGeldigheidFrom = LocalDate.of(2020, 1, 1)
                         )
                     )
 

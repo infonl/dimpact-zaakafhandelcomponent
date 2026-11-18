@@ -25,7 +25,7 @@ import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.zac.app.search.model.RestDatumRange
+import nl.info.zac.app.search.model.RestDateRange
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
 import nl.info.zac.app.zaak.model.createRestFindLinkableZakenRequest
 import nl.info.zac.app.zaak.model.createRestZaakLinkData
@@ -997,51 +997,51 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             }
 
             `when`("startdatum has both van and tot set") {
-                val fakeVan = LocalDate.of(2025, 1, 1)
-                val fakeTot = LocalDate.of(2025, 6, 30)
+                val fakeFrom = LocalDate.of(2025, 1, 1)
+                val fakeThrough = LocalDate.of(2025, 6, 30)
                 zaakKoppelenRestService.findLinkableZaken(
                     zaakUuid = sourceZaak.uuid,
                     createRestFindLinkableZakenRequest(
                         zoekZaakIdentifier = null,
-                        startdatum = RestDatumRange(van = fakeVan, tot = fakeTot),
+                        startdatum = RestDateRange(from = fakeFrom, through = fakeThrough),
                         relationType = RelatieType.GERELATEERD
                     )
                 )
 
-                then("the search parameters should contain the ZAAK_STARTDATUM datum range") {
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM] shouldBe DateRange.Between(fakeVan, fakeTot)
+                then("the search parameters should contain the ZAAK_STARTDATUM date range") {
+                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM] shouldBe DateRange.Between(fakeFrom, fakeThrough)
                 }
             }
 
             `when`("startdatum has only van set") {
-                val fakeVan = LocalDate.of(2025, 3, 15)
+                val fakeFrom = LocalDate.of(2025, 3, 15)
                 zaakKoppelenRestService.findLinkableZaken(
                     zaakUuid = sourceZaak.uuid,
                     createRestFindLinkableZakenRequest(
                         zoekZaakIdentifier = null,
-                        startdatum = RestDatumRange(van = fakeVan, tot = null),
+                        startdatum = RestDateRange(from = fakeFrom, through = null),
                         relationType = RelatieType.GERELATEERD
                     )
                 )
 
-                then("the search parameters should contain the ZAAK_STARTDATUM datum range with only van") {
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM] shouldBe DateRange.From(fakeVan)
+                then("the search parameters should contain the ZAAK_STARTDATUM date range with only a start date") {
+                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM] shouldBe DateRange.From(fakeFrom)
                 }
             }
 
             `when`("startdatum has only tot set") {
-                val fakeTot = LocalDate.of(2025, 12, 31)
+                val fakeThrough = LocalDate.of(2025, 12, 31)
                 zaakKoppelenRestService.findLinkableZaken(
                     zaakUuid = sourceZaak.uuid,
                     createRestFindLinkableZakenRequest(
                         zoekZaakIdentifier = null,
-                        startdatum = RestDatumRange(van = null, tot = fakeTot),
+                        startdatum = RestDateRange(from = null, through = fakeThrough),
                         relationType = RelatieType.GERELATEERD
                     )
                 )
 
-                then("the search parameters should contain the ZAAK_STARTDATUM datum range with only tot") {
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM] shouldBe DateRange.Through(fakeTot)
+                then("the search parameters should contain the ZAAK_STARTDATUM date range with only an end date") {
+                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM] shouldBe DateRange.Through(fakeThrough)
                 }
             }
 
@@ -1055,7 +1055,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     )
                 )
 
-                then("the search parameters should not contain the ZAAK_STARTDATUM datum range") {
+                then("the search parameters should not contain the ZAAK_STARTDATUM date range") {
                     zoekParametersSlot.captured.datums.containsKey(DatumVeld.ZAAK_STARTDATUM) shouldBe false
                 }
             }
@@ -1065,62 +1065,62 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     zaakUuid = sourceZaak.uuid,
                     createRestFindLinkableZakenRequest(
                         zoekZaakIdentifier = null,
-                        startdatum = RestDatumRange(van = null, tot = null),
+                        startdatum = RestDateRange(from = null, through = null),
                         relationType = RelatieType.GERELATEERD
                     )
                 )
 
-                then("the search parameters should not contain the ZAAK_STARTDATUM datum range") {
+                then("the search parameters should not contain the ZAAK_STARTDATUM date range") {
                     zoekParametersSlot.captured.datums.containsKey(DatumVeld.ZAAK_STARTDATUM) shouldBe false
                 }
             }
 
             `when`("einddatum has both van and tot set") {
-                val fakeVan = LocalDate.of(2025, 2, 1)
-                val fakeTot = LocalDate.of(2025, 8, 31)
+                val fakeFrom = LocalDate.of(2025, 2, 1)
+                val fakeThrough = LocalDate.of(2025, 8, 31)
                 zaakKoppelenRestService.findLinkableZaken(
                     zaakUuid = sourceZaak.uuid,
                     createRestFindLinkableZakenRequest(
                         zoekZaakIdentifier = null,
-                        einddatum = RestDatumRange(van = fakeVan, tot = fakeTot),
+                        einddatum = RestDateRange(from = fakeFrom, through = fakeThrough),
                         relationType = RelatieType.GERELATEERD
                     )
                 )
 
-                then("the search parameters should contain the ZAAK_EINDDATUM datum range") {
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_EINDDATUM] shouldBe DateRange.Between(fakeVan, fakeTot)
+                then("the search parameters should contain the ZAAK_EINDDATUM date range") {
+                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_EINDDATUM] shouldBe DateRange.Between(fakeFrom, fakeThrough)
                 }
             }
 
             `when`("einddatum has only van set") {
-                val fakeVan = LocalDate.of(2025, 4, 10)
+                val fakeFrom = LocalDate.of(2025, 4, 10)
                 zaakKoppelenRestService.findLinkableZaken(
                     zaakUuid = sourceZaak.uuid,
                     createRestFindLinkableZakenRequest(
                         zoekZaakIdentifier = null,
-                        einddatum = RestDatumRange(van = fakeVan, tot = null),
+                        einddatum = RestDateRange(from = fakeFrom, through = null),
                         relationType = RelatieType.GERELATEERD
                     )
                 )
 
-                then("the search parameters should contain the ZAAK_EINDDATUM datum range with only van") {
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_EINDDATUM] shouldBe DateRange.From(fakeVan)
+                then("the search parameters should contain the ZAAK_EINDDATUM date range with only a start date") {
+                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_EINDDATUM] shouldBe DateRange.From(fakeFrom)
                 }
             }
 
             `when`("einddatum has only tot set") {
-                val fakeTot = LocalDate.of(2025, 11, 15)
+                val fakeThrough = LocalDate.of(2025, 11, 15)
                 zaakKoppelenRestService.findLinkableZaken(
                     zaakUuid = sourceZaak.uuid,
                     createRestFindLinkableZakenRequest(
                         zoekZaakIdentifier = null,
-                        einddatum = RestDatumRange(van = null, tot = fakeTot),
+                        einddatum = RestDateRange(from = null, through = fakeThrough),
                         relationType = RelatieType.GERELATEERD
                     )
                 )
 
-                then("the search parameters should contain the ZAAK_EINDDATUM datum range with only tot") {
-                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_EINDDATUM] shouldBe DateRange.Through(fakeTot)
+                then("the search parameters should contain the ZAAK_EINDDATUM date range with only an end date") {
+                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_EINDDATUM] shouldBe DateRange.Through(fakeThrough)
                 }
             }
 
@@ -1134,7 +1134,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     )
                 )
 
-                then("the search parameters should not contain the ZAAK_EINDDATUM datum range") {
+                then("the search parameters should not contain the ZAAK_EINDDATUM date range") {
                     zoekParametersSlot.captured.datums.containsKey(DatumVeld.ZAAK_EINDDATUM) shouldBe false
                 }
             }
@@ -1144,12 +1144,12 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     zaakUuid = sourceZaak.uuid,
                     createRestFindLinkableZakenRequest(
                         zoekZaakIdentifier = null,
-                        einddatum = RestDatumRange(van = null, tot = null),
+                        einddatum = RestDateRange(from = null, through = null),
                         relationType = RelatieType.GERELATEERD
                     )
                 )
 
-                then("the search parameters should not contain the ZAAK_EINDDATUM datum range") {
+                then("the search parameters should not contain the ZAAK_EINDDATUM date range") {
                     zoekParametersSlot.captured.datums.containsKey(DatumVeld.ZAAK_EINDDATUM) shouldBe false
                 }
             }

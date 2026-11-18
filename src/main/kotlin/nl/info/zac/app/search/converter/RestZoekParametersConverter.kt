@@ -8,7 +8,7 @@ package nl.info.zac.app.search.converter
 
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
-import nl.info.zac.app.search.model.RestDatumRange
+import nl.info.zac.app.search.model.RestDateRange
 import nl.info.zac.app.search.model.RestZoekParameters
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.search.model.DatumVeld
@@ -34,7 +34,7 @@ class RestZoekParametersConverter @Inject constructor(
         restZoekParameters.filters?.forEach { (filterVeld: FilterVeld, filterParameters: FilterParameters) ->
             zoekParameters.addFilter(filterVeld, filterParameters)
         }
-        restZoekParameters.datums?.forEach { (key: DatumVeld, value: RestDatumRange) ->
+        restZoekParameters.datums?.forEach { (key: DatumVeld, value: RestDateRange) ->
             value.toDateRange()?.let { zoekParameters.addDatum(key, it) }
         }
         if (restZoekParameters.isAlleenOpenstaandeZaken) {

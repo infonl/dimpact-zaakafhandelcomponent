@@ -9,9 +9,9 @@ import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 
 @NoArgConstructor
-data class RestDatumRange(
-    var van: LocalDate? = null,
-    var tot: LocalDate? = null
+data class RestDateRange(
+    var from: LocalDate? = null,
+    var through: LocalDate? = null
 ) {
-    fun toDateRange() = DateRange.of(van, tot)
+    fun toDateRange() = DateRange.of(from, through)
 }
