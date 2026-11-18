@@ -77,7 +77,8 @@ describe(ParametersStepProcesModelComponent.name, () => {
       inputs: {
         form,
         zaaktype,
-        isBound: form.controls.processDefinition.value !== null,
+        hasStoredProcessDefinition:
+          form.controls.processDefinition.value !== null,
         isProcessDefinitionChangeable,
       },
       providers: [

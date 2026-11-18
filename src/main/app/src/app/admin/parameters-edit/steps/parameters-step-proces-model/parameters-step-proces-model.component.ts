@@ -33,7 +33,7 @@ import {
 export class ParametersStepProcesModelComponent {
   readonly form = input.required<ProcessModelForm>();
   readonly zaaktype = input.required<GeneratedType<"RestZaaktypeOverzicht">>();
-  readonly isBound = input(false);
+  readonly hasStoredProcessDefinition = input(false);
   readonly isProcessDefinitionChangeable = input<boolean | null>();
 
   private readonly zaakafhandelParametersService = inject(
@@ -48,12 +48,15 @@ export class ParametersStepProcesModelComponent {
   );
 
   protected readonly isLocked = computed(
-    () => this.isBound() && !this.isProcessDefinitionChangeable(),
+    () =>
+      this.hasStoredProcessDefinition() &&
+      !this.isProcessDefinitionChangeable(),
   );
 
   protected readonly hint = computed(() => {
     if (this.isLocked()) return "zaps.step.procesmodel.locked";
-    if (this.isBound()) return "zaps.step.procesmodel.changeable";
+    if (this.hasStoredProcessDefinition())
+      return "zaps.step.procesmodel.changeable";
     return null;
   });
 

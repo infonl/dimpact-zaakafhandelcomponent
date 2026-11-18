@@ -42,7 +42,7 @@
             <zac-parameters-step-proces-model
               [form]="form.controls.procesModel"
               [zaaktype]="configuration().zaaktype"
-              [isBound]="!!configuration().processDefinition"
+              [hasStoredProcessDefinition]="!!configuration().processDefinition"
               [isProcessDefinitionChangeable]="
                 configuration().isProcessDefinitionChangeable
               "
