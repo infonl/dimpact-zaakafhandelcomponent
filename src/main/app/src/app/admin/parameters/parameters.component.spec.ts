@@ -317,10 +317,10 @@ describe(ParametersComponent.name, () => {
       expect(query).toEqual(
         expect.objectContaining({
           page: "0",
-          [`${geldigheid}Van`]: "2025-01-01",
+          [`${geldigheid}From`]: "2025-01-01",
         }),
       );
-      expect(query).not.toHaveProperty(`${geldigheid}Tot`);
+      expect(query).not.toHaveProperty(`${geldigheid}Through`);
     },
   );
 
@@ -495,8 +495,8 @@ describe(toZaaktypeConfigurationListQuery.name, () => {
       beginGeldigheid: { from: "2025-01-01", through: "2025-01-31" },
     });
 
-    expect(query.beginGeldigheidVan).toBe("2025-01-01");
-    expect(query.beginGeldigheidTot).toBe("2025-01-31");
+    expect(query.beginGeldigheidFrom).toBe("2025-01-01");
+    expect(query.beginGeldigheidThrough).toBe("2025-01-31");
   });
 
   it("sends no date filter for a range stored before the date range used from and through", () => {
@@ -509,8 +509,8 @@ describe(toZaaktypeConfigurationListQuery.name, () => {
       ),
     );
 
-    expect(query.beginGeldigheidVan).toBeNull();
-    expect(query.beginGeldigheidTot).toBeNull();
+    expect(query.beginGeldigheidFrom).toBeNull();
+    expect(query.beginGeldigheidThrough).toBeNull();
   });
 
   it("keeps the order of the catalogus when the sort is cleared", () => {
