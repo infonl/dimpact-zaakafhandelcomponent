@@ -12,7 +12,7 @@ BPMN is used for custom process flows, typically used for more complex zaaktypes
 
 Every zaaktype which is to be handled in ZAC, needs to be configured to either use the generic CMMN model or a custom BPMN process definition.
 This is done using so called `zaakafhandelparameters` (also known as `CMMN` or `BPMN` zaaktype configurations).
-Once a zaaktype is configured through its `zaakafhandelparameters` as being either a CMMN or BPMN zaaktype in ZAC, it can never be changed.
+A beheerder may change the process model of a zaaktype version, to another process definition of the same or the other engine, until the first zaak of that version exists. From then on it is locked, and a new version of the zaaktype is needed to use another process model. Existing zaken always continue with the process model they started with.
 
 ## Zaak life cycle
 
