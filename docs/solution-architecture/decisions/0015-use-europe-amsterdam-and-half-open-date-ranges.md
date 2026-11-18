@@ -54,7 +54,8 @@ rules", because it is the only option that gives the same result on every server
 ### Confirmation
 
 The ArchUnit rule "The handling of dates and times" in `ArchitectureTest` fails when a class outside
-`nl.info.zac.time` reads the system time zone or clock, or calls `LocalDate.atStartOfDay(ZoneId)`, see
+`nl.info.zac.time` reads the system time zone or clock, calls `LocalDate.atStartOfDay(ZoneId)`, or uses
+`java.util.Calendar` or the date utilities of `org.apache.commons.lang3.time`, see
 [the architecture rules](../../development/architectureRules.md). In the frontend,
 ESLint rules in `src/main/app/eslint.config.js` forbid imports of `moment` and the Material moment adapter, deep
 imports into `date-time/`, and calls of `toISOString` and `Date.parse` outside the module.

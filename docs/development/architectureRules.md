@@ -35,7 +35,9 @@ injected through a constructor.
 
 The date and time rule forbids, outside `nl.info.zac.time..`, calls of `ZoneId.systemDefault()`,
 `TimeZone.getDefault()`, `Clock.systemDefaultZone()`, `LocalDate.atStartOfDay(ZoneId)` and the `now()` and
-`now(ZoneId)` of `LocalDate`, `LocalDateTime`, `ZonedDateTime` and `OffsetDateTime`. Use `ZacTime` instead, see
+`now(ZoneId)` of `LocalDate`, `LocalDateTime`, `ZonedDateTime` and `OffsetDateTime`. It also forbids any use of
+`java.util.Calendar` and its subclasses and of `org.apache.commons.lang3.time..`, such as `DateUtils`, which compute
+in the system time zone. Use `ZacTime` instead, see
 [ADR-0015](../solution-architecture/decisions/0015-use-europe-amsterdam-and-half-open-date-ranges.md).
 
 ArchUnit only checks the main classes. In the unit tests and the integration tests, detekt `ForbiddenMethodCall`
