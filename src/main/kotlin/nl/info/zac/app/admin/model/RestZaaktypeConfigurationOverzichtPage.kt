@@ -12,9 +12,8 @@ import nl.info.zac.app.admin.model.RestZaaktypeConfigurationSortField.PROCESS_DE
 import nl.info.zac.app.admin.model.RestZaaktypeConfigurationSortField.VALIDE
 import nl.info.zac.app.search.model.RestDatumRange
 import nl.info.zac.search.model.SorteerRichting
-import java.text.Collator
+import nl.info.zac.util.dutchCollator
 import java.time.LocalDate
-import java.util.Locale
 
 private typealias RestZaaktypeConfigurationOverzichtFilter = (RestZaaktypeConfigurationOverzicht) -> Boolean
 
@@ -82,6 +81,3 @@ private fun List<RestZaaktypeConfigurationOverzicht>.toFilterProcessDefinitions(
     mapNotNull { it.processDefinition }
         .distinctBy { it.key }
         .sortedWith(compareBy(nullsLast(dutchCollator())) { it.naam })
-
-private fun dutchCollator() =
-    Collator.getInstance(Locale.forLanguageTag("nl")).let { collator -> Comparator<String>(collator::compare) }
