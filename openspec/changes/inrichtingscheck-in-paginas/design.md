@@ -16,10 +16,12 @@ See proposal.md for the motivation. The current state:
   `MatTableDataSource`, and filters (text on omschrijving and doel, plus a three-state toggle on "needs attention")
   and sorts it in the browser. It renders all zaaktypes at once, as two table rows each (`multiTemplateDataRows`),
   and removes the whole table, including the filter row in its header, while the query fetches.
-- `docs/development/paging.md` describes the only paging convention of ZAC: `PUT` with a body that extends
+- `docs/development/paging.md` describes one paging convention: `PUT` with a body that extends
   `RestPageParameters`, answered with a `RestResultaat` (`totaal`, `resultaten`, `foutmelding`).
-- The related item [PZ-12505](https://dimpact.atlassian.net/browse/PZ-12505) asks the same for the
-  Zaakafhandelparameters page; it is not part of this change, but it can reuse the paging form of D1.
+- The related item [PZ-12505](https://dimpact.atlassian.net/browse/PZ-12505) gave the Zaakafhandelparameters page
+  pages of 25 (change `paged-zaaktype-configuration-list`). Its list is a `GET` with the query parameters `page`,
+  `rows`, `sortField` and `sortOrder`, in a `@BeanParam` class that implements `RestPageParameters`. Its design D2
+  records that as a deviation from `paging.md`. This change uses the same form (D1).
 
 ## Goals / Non-Goals
 
@@ -42,19 +44,22 @@ See proposal.md for the motivation. The current state:
 
 ### D1: A paged list is a `GET` with query parameters
 
-`GET /rest/health-check/zaaktypes?page=0&rows=25&omschrijving=melding&status=AANDACHT_NODIG&sort=omschrijving&order=asc`
+`GET /rest/health-check/zaaktypes?page=0&rows=25&omschrijving=melding&status=AANDACHT_NODIG&sortField=OMSCHRIJVING&sortOrder=ASC`
 returns a `RestResultaat<RestZaaktypeInrichtingscheck>`. The parameters are a `@BeanParam` class
-`RestInrichtingscheckParameters` with Bean Validation (`@Min(0)` on `page`, `@Min(1) @Max(100)` on `rows`), and
-enums for `status`, `sort` and `order`, so an invalid value gives `400 Bad Request` from JAX-RS and the existing
-exception mapping. The parameter names `page` and `rows` and the response type are those of the `PUT` convention,
-so a client sees the same paging fields in both forms.
+`RestInrichtingscheckParameters` that implements `RestPageParameters`, with Bean Validation (`@PositiveOrZero` on
+`page`, `@Positive @Max(100)` on `rows`). The names `page`, `rows`, `sortField` and `sortOrder`, the enum
+`SorteerRichting` (`ASC`, `DESC`) for the sort order and the response type are those of
+`GET /rest/zaakafhandelparameters`, so a client sees the same paging and sort parameters in every `GET` list. The
+enums of `status` and `sortField` refuse an unknown value with `400 Bad Request`. The step that takes the page from
+the list becomes one function on `RestPageParameters`, which both lists use.
 
 *Why:* a read that changes nothing belongs on `GET`; a `GET` URL can be bookmarked, logged, cached and retried, and
 TanStack Query can key on its parameters. The person who started this item asked for a more RESTful API.
 
 *Alternative:* `PUT /rest/health-check/zaaktypes` with a `RestPageParameters` body, as `paging.md` describes.
-Rejected: it uses a write method for a read. Because this sets a new convention, the change adds an ADR (status
-`proposed`, so the team decides) and adds the `GET` form to `paging.md`. Existing `PUT` lists stay as they are.
+Rejected: it uses a write method for a read. `GET /rest/zaakafhandelparameters` already deviates from `paging.md`
+for the same reason. Two lists make it a convention, so this change adds an ADR (status `proposed`, so the team
+decides) and adds the `GET` form to `paging.md`. Existing `PUT` lists stay as they are.
 
 ### D2: Check all zaaktypes, then filter, sort and page
 
@@ -130,8 +135,11 @@ the archive. The k6 script is not checked in.
   and the e2e tests do not call them. The pull request description names both changed endpoints.
 - [Each page request still checks all zaaktypes] → Cheap on warm caches (D2); the measurements show whether that
   also holds right after a restart, and a follow-up story can check per page.
-- [A new paging convention next to the old one] → The ADR is `proposed`, so the team can reject it; the change
-  only touches these two endpoints.
+- [A second paging convention next to the `PUT` form] → The ADR is `proposed`, so the team can reject it; the
+  Zaakafhandelparameters list already uses the `GET` form.
+- [An unknown `sortOrder` gives `404 Not Found`, not `400`] → `SorteerRichting` is shared with the search and has
+  no conversion that refuses a value, so JAX-RS answers as it does for `GET /rest/zaakafhandelparameters`. The
+  page only sends `ASC` or `DESC`.
 - [Typing a filter fires a request per pause] → The 300 ms debounce limits the requests, and because the filter is
   part of the query key, the table only shows the response that belongs to the current filter.
 
@@ -150,8 +158,8 @@ time. Rollback is a revert of that pull request. No data migration.
   custom error code is added.
 - The item's attachment `Inrichtingscheck.png` is a picture of the current page, not a design; it could not be read
   here. The page keeps its current layout; only the paginator below the table is new.
-- The new ADR gets status `proposed` and the decision-makers "ZAC development team"; the team accepts or rejects it
-  in the review.
+- The new ADR gets status `proposed` and the decision-makers "Team Genève"; the team accepts or rejects it in the
+  review.
 - The concurrent change `inrichtingscheck-zonder-bpmn` is already implemented on main (BPMN filter and removal of the
   synchronise button), so this change builds on that code.
 

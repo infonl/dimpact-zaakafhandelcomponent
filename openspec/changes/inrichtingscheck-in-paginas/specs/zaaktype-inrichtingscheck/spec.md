@@ -81,28 +81,29 @@ valid, or with a warning) or `IN_ORDE` (valid, without a warning); without `stat
 ### Requirement: The inrichtingscheck list is sorted before it is paged
 
 `GET /rest/health-check/zaaktypes` SHALL sort all matching zaaktypes before it takes the page, on the query
-parameter `sort` (`omschrijving`, `doel`, `beginGeldigheid` or `valide`, default `omschrijving`) in the direction
-`order` (`asc` or `desc`, default `asc`).
+parameter `sortField` (`OMSCHRIJVING`, `DOEL`, `BEGIN_GELDIGHEID` or `VALIDE`, default `OMSCHRIJVING`) in the
+direction `sortOrder` (`ASC` or `DESC`, default `ASC`).
 
 #### Scenario: The sort applies to all pages
 - **GIVEN** 30 checked zaaktypes
-- **WHEN** a beheerder requests `page` 0 and `page` 1 with `rows` 25, `sort` `beginGeldigheid` and `order` `desc`
+- **WHEN** a beheerder requests `page` 0 and `page` 1 with `rows` 25, `sortField` `BEGIN_GELDIGHEID` and
+  `sortOrder` `DESC`
 - **THEN** the 30 zaaktypes over both pages are in descending order of begin geldigheid
 
 #### Scenario: The default order is by omschrijving
-- **WHEN** a beheerder requests the list without `sort` and `order`
+- **WHEN** a beheerder requests the list without `sortField` and `sortOrder`
 - **THEN** the zaaktypes are in ascending order of omschrijving
 
 #### Scenario: An unknown sort field is refused
-- **WHEN** a beheerder requests the list with `sort` `identificatie`
+- **WHEN** a beheerder requests the list with `sortField` `IDENTIFICATIE`
 - **THEN** the response is `400 Bad Request`
 
 ### Requirement: The Inrichtingscheck page shows the list in pages of 25
 
 The Inrichtingscheck page SHALL show at most 25 zaaktypes at a time with a paginator that shows the total number of
 matching zaaktypes, and SHALL read each page from the backend. The page SHALL send the filter text as `omschrijving`,
-the toggle as `status` and the column sort as `sort` and `order`, and SHALL go back to the first page when one of
-them changes. The table and its filter row SHALL stay on screen while a page loads.
+the toggle as `status` and the column sort as `sortField` and `sortOrder`, and SHALL go back to the first page when
+one of them changes. The table and its filter row SHALL stay on screen while a page loads.
 
 #### Scenario: The page opens on the first page of zaaktypes that need attention
 - **GIVEN** 40 checked zaaktypes, of which 30 need attention

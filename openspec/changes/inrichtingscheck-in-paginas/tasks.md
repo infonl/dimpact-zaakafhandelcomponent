@@ -9,7 +9,7 @@
       already has, instead of the URL (D3). Verify: unit tests in `HealthCheckServiceTest` show that the zaaktype is
       not read again from `ZtcClientService` and that all checks give the same results as before.
 - [ ] 1.3 `GET /rest/health-check/zaaktypes` takes the `@BeanParam` `RestInrichtingscheckParameters` (`page`, `rows`,
-      `omschrijving`, `status`, `sort`, `order`, with Bean Validation and enums) and returns a
+      `omschrijving`, `status`, `sortField`, `sortOrder`, with Bean Validation and enums) and returns a
       `RestResultaat<RestZaaktypeInrichtingscheck>`: check all eligible zaaktypes, filter, sort, page (D1, D2).
       Verify: unit tests in `HealthCheckRestServiceTest` for each scenario of the requirements "read in pages" and
       "filtered and sorted before it is paged", including the policy check.
