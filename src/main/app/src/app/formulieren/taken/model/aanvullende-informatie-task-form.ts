@@ -134,12 +134,6 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
         variables: mailTemplate.variabelen ?? [],
       },
       {
-        type: "date",
-        key: "datumGevraagd",
-        hidden: true,
-        control: this.formBuilder.control<PickedDate | null>(now()),
-      },
-      {
         type: "documents",
         key: "bijlagen",
         options: runQuery(

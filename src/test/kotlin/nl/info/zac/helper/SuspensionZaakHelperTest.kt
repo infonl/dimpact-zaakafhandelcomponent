@@ -407,8 +407,11 @@ class SuspensionZaakHelperTest : BehaviorSpec({
     }
 
     context("Extend zaak") {
-        given("Zaak") {
-            val zaak = createZaak()
+        given("Zaak with an einddatum gepland and an uiterlijke einddatum afdoening") {
+            val zaak = createZaak(
+                einddatumGepland = LocalDate.of(2026, 2, 1),
+                uiterlijkeEinddatumAfdoening = LocalDate.of(2026, 3, 1)
+            )
             val description = "fakeDescription"
 
             val zaakSlot = slot<Zaak>()
@@ -421,8 +424,6 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                 val updatedZaak = suspensionZaakHelper.extendZaak(
                     zaak = zaak,
                     zaakType = createZaakType(),
-                    dueDate = today,
-                    fatalDate = tomorrow,
                     extensionReason = description,
                     numberOfDays = numberOfDays.toInt()
                 )
@@ -435,10 +436,10 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                     descriptionSlot.captured shouldBe "Verlenging: $description"
                 }
 
-                and("zaak update is triggered") {
+                and("both dates of the zaak move by the number of days, as the backend works them out") {
                     with(zaakSlot.captured) {
-                        einddatumGepland shouldBe today
-                        uiterlijkeEinddatumAfdoening shouldBe tomorrow
+                        einddatumGepland shouldBe LocalDate.of(2026, 2, 3)
+                        uiterlijkeEinddatumAfdoening shouldBe LocalDate.of(2026, 3, 3)
                         with(verlenging) {
                             duur shouldBe "P2D"
                             reden shouldBe description
@@ -457,8 +458,6 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                 val updatedZaak = suspensionZaakHelper.extendZaak(
                     zaak = zaak,
                     zaakType = zaakType,
-                    dueDate = today,
-                    fatalDate = tomorrow,
                     extensionReason = "fakeExtensionReason",
                     numberOfDays = 30
                 )
@@ -479,8 +478,6 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                     suspensionZaakHelper.extendZaak(
                         zaak = zaak,
                         zaakType = zaakType,
-                        dueDate = today,
-                        fatalDate = tomorrow,
                         extensionReason = "fakeExtensionReason",
                         numberOfDays = 365
                     )
@@ -507,8 +504,6 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                     suspensionZaakHelper.extendZaak(
                         zaak = zaak,
                         zaakType = createZaakType(verlengingMogelijk = true, verlengingstermijn = "P30D"),
-                        dueDate = today,
-                        fatalDate = tomorrow,
                         extensionReason = "fakeExtensionReason",
                         numberOfDays = 0
                     )

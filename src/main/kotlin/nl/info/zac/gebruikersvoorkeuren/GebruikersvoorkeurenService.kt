@@ -29,7 +29,8 @@ class GebruikersvoorkeurenService @Inject constructor(
     private val signaleringService: SignaleringService
 ) {
     fun createZoekopdracht(zoekopdracht: Zoekopdracht): Zoekopdracht {
-        if (zoekopdracht.id != null) {
+        zoekopdracht.id?.let { id ->
+            findZoekopdracht(id)?.let { zoekopdracht.creatiedatum = it.creatiedatum }
             return entityManager.merge(zoekopdracht)
         }
         if (existsZoekopdracht(zoekopdracht)) {

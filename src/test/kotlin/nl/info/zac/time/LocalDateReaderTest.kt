@@ -76,18 +76,28 @@ class LocalDateReaderTest : BehaviorSpec({
             `when`("reading it") {
                 val localDate = read("2024-03-11T10:44+01:00".byteInputStream())
 
-                then("it is the date that was written") {
+                then("it is the date of that point in time in Europe/Amsterdam") {
                     localDate shouldBe LocalDate.parse("2024-03-11")
                 }
             }
         }
 
-        given("a date with a time and another offset") {
+        given("a date with a time late in the evening of another offset") {
             `when`("reading it") {
-                val localDate = read("2024-03-11T10:44+02:00".byteInputStream())
+                val localDate = read("2026-01-30T23:30-05:00".byteInputStream())
 
-                then("it is the date that was written") {
-                    localDate shouldBe LocalDate.parse("2024-03-11")
+                then("it is the date of that point in time in Europe/Amsterdam") {
+                    localDate shouldBe LocalDate.parse("2026-01-31")
+                }
+            }
+        }
+
+        given("a date with a time in UTC just before midnight in Europe/Amsterdam") {
+            `when`("reading it") {
+                val localDate = read("2026-07-29T22:00:00.000Z".byteInputStream())
+
+                then("it is the next date, as in Europe/Amsterdam") {
+                    localDate shouldBe LocalDate.parse("2026-07-30")
                 }
             }
         }

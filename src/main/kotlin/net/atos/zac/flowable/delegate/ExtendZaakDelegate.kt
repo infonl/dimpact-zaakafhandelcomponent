@@ -56,8 +56,6 @@ class ExtendZaakDelegate : AbstractDelegate() {
         val updatedZaak = flowableHelper.suspensionZaakHelper.extendZaak(
             zaak = zaak,
             zaakType = zaaktype,
-            dueDate = zaak.einddatumGepland?.plusDays(numberOfDays.toLong()),
-            fatalDate = zaak.uiterlijkeEinddatumAfdoening.plusDays(numberOfDays.toLong()),
             extensionReason = verlengingReden.resolveValueAsString(execution),
             numberOfDays = numberOfDays
         )

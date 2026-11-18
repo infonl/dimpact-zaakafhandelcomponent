@@ -5,7 +5,7 @@
 
 package nl.info.zac.app.documentcreation.model
 
-import java.time.ZonedDateTime
+import java.time.LocalDate
 import java.util.UUID
 
 @Suppress("LongParameterList")
@@ -16,7 +16,7 @@ fun createRestDocumentCreationAttendedData(
     smartDocumentsTemplateId: String = "fakeTtemplateId",
     title: String = "fakeTitle",
     author: String = "fakeAuthor",
-    creationDate: ZonedDateTime = ZonedDateTime.now()
+    creationDate: LocalDate = LocalDate.of(2026, 1, 30)
 ) = RestDocumentCreationAttendedData(
     zaakUuid = zaakUuid,
     taskId = taskId,

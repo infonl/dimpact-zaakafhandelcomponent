@@ -40,7 +40,7 @@ import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import nl.info.zac.smartdocuments.exception.SmartDocumentsUnsupportedOutputFormatException
 import java.net.URI
-import java.time.ZonedDateTime
+import java.time.LocalDate
 import java.util.UUID
 import java.util.logging.Handler
 import java.util.logging.Level
@@ -220,7 +220,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 templateId = "fakeTemplateId",
                 title = "fakeTitle",
                 description = null,
-                creationDate = ZonedDateTime.now(),
+                creationDate = "2026-01-30",
                 userName = "fakeUserDisplayName",
                 documentCreationToken = documentCreationToken,
                 fileId = "fakeFileId"
@@ -228,6 +228,51 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
 
             then("the document is stored as the user that started the document creation") {
                 userWhileStoringDocument shouldBe loggedInUser
+            }
+        }
+    }
+
+    given("a SmartDocuments callback URL from before the creation date became a date, so it holds a time") {
+        val zaak = createZaak()
+        val documentCreationToken = UUID.randomUUID()
+        val creationDate = slot<LocalDate>()
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { documentCreationUserStore.consumeUser(documentCreationToken, any()) } returns createLoggedInUser()
+        every { smartDocumentsService.downloadDocument("fakeFileId") } returns createFile()
+        every {
+            documentCreationService.getInformationObjecttypeUuid(zaak, "fakeTemplateGroupId", "fakeTemplateId")
+        } returns UUID.randomUUID()
+        every {
+            documentCreationService.storeDownloadedDocument(
+                zaak = any(),
+                taskId = any(),
+                file = any(),
+                title = any(),
+                description = any(),
+                informatieobjecttypeUuid = any(),
+                creationDate = capture(creationDate),
+                userName = any()
+            )
+        } returns mockk<ZaakInformatieObject>()
+        every {
+            documentCreationService.documentCreationFinishPageUrl(zaakId = any(), taskId = any(), documentName = any(), result = any())
+        } returns URI("https://example.com/finish")
+
+        `when`("the callback is called") {
+            documentCreationRestService.createCmmnDocumentForZaakCallback(
+                zaakUuid = zaak.uuid,
+                templateGroupId = "fakeTemplateGroupId",
+                templateId = "fakeTemplateId",
+                title = "fakeTitle",
+                description = null,
+                creationDate = "2026-01-30T23:30-05:00",
+                userName = "fakeUserDisplayName",
+                documentCreationToken = documentCreationToken,
+                fileId = "fakeFileId"
+            )
+
+            then("the document gets the date of that point in time in Europe/Amsterdam") {
+                creationDate.captured shouldBe LocalDate.of(2026, 1, 31)
             }
         }
     }
@@ -277,7 +322,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     templateId = "fakeTemplateId",
                     title = "fakeTitle",
                     description = null,
-                    creationDate = ZonedDateTime.now(),
+                    creationDate = "2026-01-30",
                     userName = "fakeUserDisplayName",
                     documentCreationToken = expiredDocumentCreationToken,
                     fileId = "fakeFileId"
@@ -343,7 +388,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 templateId = "fakeTemplateId",
                 title = "fakeTitle",
                 description = null,
-                creationDate = ZonedDateTime.now(),
+                creationDate = "2026-01-30",
                 userName = "fakeUserDisplayName",
                 documentCreationToken = documentCreationToken,
                 fileId = "fakeFileId"
@@ -376,7 +421,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 templateId = "fakeTemplateId",
                 title = "fakeTitle",
                 description = null,
-                creationDate = ZonedDateTime.now(),
+                creationDate = "2026-01-30",
                 userName = "fakeUserDisplayName",
                 documentCreationToken = documentCreationToken,
                 fileId = ""
@@ -422,7 +467,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 templateId = "fakeTemplateId",
                 title = "fakeTitle",
                 description = null,
-                creationDate = ZonedDateTime.now(),
+                creationDate = "2026-01-30",
                 userName = "fakeUserDisplayName",
                 documentCreationToken = documentCreationToken,
                 fileId = "fakeFileId"
@@ -465,7 +510,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 templateId = "fakeTemplateId",
                 title = "fakeTitle",
                 description = null,
-                creationDate = ZonedDateTime.now(),
+                creationDate = "2026-01-30",
                 userName = "fakeUserDisplayName",
                 documentCreationToken = documentCreationToken,
                 fileId = "fakeFileId"
