@@ -54,6 +54,42 @@ class DateRangeTest : BehaviorSpec({
         }
     }
 
+    context("Checking whether a date lies in a date range") {
+        given("a range from 30-07-2026 through 31-07-2026") {
+            val range = DateRange.Between(day, day.plusDays(1))
+
+            then("it contains its start date and its end date") {
+                (day in range) shouldBe true
+                (day.plusDays(1) in range) shouldBe true
+            }
+
+            then("it does not contain the day before the start date or the day after the end date") {
+                (day.minusDays(1) in range) shouldBe false
+                (day.plusDays(2) in range) shouldBe false
+            }
+        }
+
+        given("a range with only a start date") {
+            val range = DateRange.From(day)
+
+            then("it contains every date from the start date on") {
+                (day.minusDays(1) in range) shouldBe false
+                (day in range) shouldBe true
+                (day.plusYears(100) in range) shouldBe true
+            }
+        }
+
+        given("a range with only an end date") {
+            val range = DateRange.Through(day)
+
+            then("it contains every date through the end date") {
+                (day.minusYears(100) in range) shouldBe true
+                (day in range) shouldBe true
+                (day.plusDays(1) in range) shouldBe false
+            }
+        }
+    }
+
     context("Converting a date range to a time range") {
         given("a range from 30-07-2026 through 30-07-2026 and the JVM time zone UTC") {
             val timeRange = DateRange.Between(day, day).toTimeRange()

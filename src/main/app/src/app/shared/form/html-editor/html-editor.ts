@@ -104,6 +104,7 @@ export class ZacHtmlEditor<
 
     return new Editor({
       keyboardShortcuts: false,
+      inputRules: false,
       schema: plainTextSchema,
       plugins: [unwrapParagraphs],
     });

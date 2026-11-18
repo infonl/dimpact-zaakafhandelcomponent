@@ -10,7 +10,6 @@ module.exports = [
   "src/app/documenten/inbox-documenten-list/inbox-documenten-list.component.spec.ts",
   "src/app/documenten/ontkoppelde-documenten-list/ontkoppelde-documenten-list.component.spec.ts",
   "src/app/productaanvragen/inbox-productaanvragen-list/inbox-productaanvragen-list.component.spec.ts",
-  "src/app/shared/dynamic-table/filter/clientMatcher.ts",
   "src/app/shared/form/date/date.spec.ts",
   "src/app/shared/form/date/date.ts",
   "src/app/shared/pipes/dagen.pipe.ts",
