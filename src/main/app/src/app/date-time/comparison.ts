@@ -19,7 +19,3 @@ export function isEarlierDay(value: DateInput, reference: DateInput) {
 export function isLaterDay(value: DateInput, reference: DateInput) {
   return toTypedDay(value).isAfter(toTypedDay(reference), "day");
 }
-
-export function daysSince(value: DateInput | null | undefined) {
-  return moment().diff(moment(value), "days");
-}

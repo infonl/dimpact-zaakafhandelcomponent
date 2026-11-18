@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { daysSince, isEarlierDay, isLaterDay } from "./index";
+import { isEarlierDay, isLaterDay } from "./index";
 
 describe("comparison", () => {
   describe(isEarlierDay.name, () => {
@@ -39,25 +39,6 @@ describe("comparison", () => {
     it("reads a typed day as DD-MM-YYYY or MM/DD/YYYY too", () => {
       expect(isLaterDay("31-07-2026", "2026-07-30")).toBe(true);
       expect(isLaterDay("07/29/2026", "2026-07-30")).toBe(false);
-    });
-  });
-
-  describe(daysSince.name, () => {
-    beforeEach(() => {
-      jest.useFakeTimers().setSystemTime(new Date(2026, 6, 30, 12));
-    });
-
-    afterEach(() => {
-      jest.useRealTimers();
-    });
-
-    it("counts the whole days since a moment", () => {
-      expect(daysSince("2026-07-20T13:00:00+02:00")).toBe(9);
-      expect(daysSince("2026-07-20T11:00:00+02:00")).toBe(10);
-    });
-
-    it("counts no days when there is no moment", () => {
-      expect(daysSince(undefined)).toBe(0);
     });
   });
 });

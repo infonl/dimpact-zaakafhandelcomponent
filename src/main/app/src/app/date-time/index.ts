@@ -4,7 +4,7 @@
  */
 
 export { fromApiDate, toApiDate, type PickedDate } from "./api-date";
-export { daysSince, isEarlierDay, isLaterDay } from "./comparison";
+export { isEarlierDay, isLaterDay } from "./comparison";
 export { fromTimestamp } from "./conversion";
 export {
   FILTER_DATE_FORMATS,
@@ -12,11 +12,13 @@ export {
   provideFilterDateFormats,
   provideZacDateAdapter,
 } from "./date-adapter";
-export { daysFromToday, formatForDisplay, type DisplayFormat } from "./display";
+export { formatForDisplay, type DisplayFormat } from "./display";
 export { serializeDatesWithLocalOffset } from "./moment-serialization";
 export {
   addDays,
   daysBetween,
+  daysFromToday,
+  daysSince,
   endOfDay,
   isAfter,
   isPickedDate,

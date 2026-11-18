@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { daysFromToday, formatForDisplay } from "./index";
+import { formatForDisplay } from "./index";
 
 describe("display", () => {
   describe(formatForDisplay.name, () => {
@@ -37,24 +37,5 @@ describe("display", () => {
         expect(formatForDisplay(value, "shortDate", "nl-NL")).toBeNull();
       },
     );
-  });
-
-  describe(daysFromToday.name, () => {
-    beforeEach(() => {
-      jest.useFakeTimers().setSystemTime(new Date(2026, 6, 30, 23, 30));
-    });
-
-    afterEach(() => {
-      jest.useRealTimers();
-    });
-
-    it.each([
-      ["2026-07-30T00:00:00+02:00", 0],
-      ["2026-07-31T00:30:00+02:00", 1],
-      ["2026-08-09", 10],
-      ["2026-07-28", -2],
-    ])("counts the calendar days from today to %s as %d", (value, expected) => {
-      expect(daysFromToday(value)).toBe(expected);
-    });
   });
 });

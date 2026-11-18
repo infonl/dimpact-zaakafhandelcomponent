@@ -7,6 +7,8 @@ import moment from "moment";
 import {
   addDays,
   daysBetween,
+  daysFromToday,
+  daysSince,
   endOfDay,
   fromApiDate,
   isAfter,
@@ -148,6 +150,51 @@ describe("date-time", () => {
 
     it.each([null, undefined])("gives null for %s", (value) => {
       expect(toApiDateTime(value)).toBeNull();
+    });
+  });
+  describe(daysSince.name, () => {
+    beforeEach(() => {
+      jest.useFakeTimers().setSystemTime(new Date(2026, 6, 30, 12));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it("counts the whole days since a moment", () => {
+      expect(daysSince("2026-07-20T13:00:00+02:00")).toBe(9);
+      expect(daysSince("2026-07-20T11:00:00+02:00")).toBe(10);
+    });
+
+    it("counts no days when there is no moment", () => {
+      expect(daysSince(undefined)).toBe(0);
+    });
+
+    it("also reads a moment that is not written in ISO 8601", () => {
+      expect(daysSince("Mon, 20 Jul 2026 13:00:00 +0200")).toBe(9);
+    });
+  });
+
+  describe(daysFromToday.name, () => {
+    beforeEach(() => {
+      jest.useFakeTimers().setSystemTime(new Date(2026, 6, 30, 23, 30));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it.each([
+      ["2026-07-30T00:00:00+02:00", 0],
+      ["2026-07-31T00:30:00+02:00", 1],
+      ["2026-08-09", 10],
+      ["2026-07-28", -2],
+    ])("counts the calendar days from today to %s as %d", (value, expected) => {
+      expect(daysFromToday(value)).toBe(expected);
+    });
+
+    it("also reads a moment that is not written in ISO 8601", () => {
+      expect(daysFromToday("Fri, 31 Jul 2026 00:30:00 +0200")).toBe(1);
     });
   });
 });
