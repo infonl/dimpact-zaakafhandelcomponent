@@ -6,14 +6,26 @@ Columns: Latest | Our Version on TEST.
 
 ## 1. Latest
 
-Public release notes. Strip the HTML tags and ignore the `__NEXT_DATA__` JSON; the newest version is the first `X.Y.Z` in the page text.
+Run `python3 scripts/python/dependencies/versions.py` from the root of the ZAC checkout. Use only these lines and ignore the other components it prints:
+
+- `KvK Zoeken API latest version: <version> - <url>`
+- `KvK Basisprofiel API latest version: <version> - <url>`
+- `KvK Vestigingsprofiel API latest version: <version> - <url>`
+- `Haal-Centraal-BRP latest version: <version> - <url>`
+
+The script prints these four lines first. If it stops with an error further on, the lines already printed still count.
+
+If the script cannot fill a row (it stopped with an error before that line, or printed `None`), show `?` in that cell and name the row and the error below the table. Do not look the version up elsewhere: a failing script is to be fixed, not worked around.
+
+### The KVK rule
+
+The script takes the highest version number on the release notes page. KVK sometimes labels a bug fix with a version number without releasing a new API version. So for every KVK API, read the text of the newest release note (strip the HTML tags and ignore the `__NEXT_DATA__` JSON):
 
 - KVK Zoeken: https://developers.kvk.nl/documentation/release-notes/zoeken-api
 - KVK Basisprofiel: https://developers.kvk.nl/documentation/release-notes/basisprofiel-api
 - KVK Vestigingsprofiel: https://developers.kvk.nl/documentation/release-notes/vestigingsprofiel-api
-- KVK sometimes labels a bug fix with a version number without releasing a new API version. For every KVK API, read the text of the newest release note: if it only describes a fix and no new or changed specification, report the previous real version as Latest and mention the label in a remark.
-- When Latest is higher than our version, say a human should confirm it is a real API version, so a changed page or label is noticed instead of silently giving a wrong number.
-- BRP: https://brp-api.github.io/Haal-Centraal-BRP-bevragen/releasenotes, the highest "versie X.Y.Z".
+
+If it only describes a fix and no new or changed specification, report the previous real version as Latest and mention the label in a remark. When Latest is higher than our version, say a human should confirm it is a real API version, so a changed page or label is noticed instead of silently giving a wrong number.
 
 ## 2. Our Version on TEST
 

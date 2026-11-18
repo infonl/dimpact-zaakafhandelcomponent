@@ -21,10 +21,10 @@ class BrpVersionExtractor:
         response = requests.get(self.url)
 
         # Parse the web page content
-        soup = BeautifulSoup(response.content, 'html.parser')
+        soup = BeautifulSoup(response.text, 'html.parser')
 
         # Find all version numbers matching the pattern 'Versi(on|e) x.y.z'
-        version_pattern = re.compile(r'Versi[e|o]n? ([\d.]+)')
+        version_pattern = re.compile(r'[Vv]ersi[eo]n? ([\d.]+)')
         versions = version_pattern.findall(soup.text)
 
         # Extract the version numbers from a tags within the ul

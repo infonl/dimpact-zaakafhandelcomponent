@@ -6,21 +6,14 @@ Columns: Latest | Our Version on TEST.
 
 ## 1. Latest
 
-GitHub releases via `gh api --paginate "repos/<repo>/releases?per_page=100"`: inspect every page and take the highest non-prerelease, non-draft version. Release lists are not sorted by version, so compare numbers, not order. The prerelease flag is not always set, so also skip versions with a suffix such as `-rc.1`, `Alpha` or `Beta`.
+Run `python3 scripts/python/dependencies/supporting_componenten.py` from the root of the ZAC checkout. It prints one line per component: `<Component> latest version: <version> - <source url>`. Take the version of every row from it. nginx has two lines; show them as `<mainline> (mainline) / <stable> (stable)`.
 
-- Fluent-bit: `fluent/fluent-bit` (patches of older lines can be released after the newest one; still take the highest number)
-- Grafana: `grafana/grafana`
-- Grafana Loki: `grafana/loki` (ignore `operator/…` tags)
-- Tempo: `grafana/tempo`
-- Redis: `redis/redis`
-- WildFly: `wildfly/wildfly` (`X.Y.Z.Final`, skip Beta)
-- PABC: `Platform-Autorisatie-Beheer-Component/PABC-API`. Also mention a newer prerelease, if there is one.
+If the script cannot fill a row (it stopped with an error before that line, or printed `None`), show `?` in that cell and name the row and the error below the table. Do not look the version up elsewhere: a failing script is to be fixed, not worked around.
 
-Other sources:
+The script only gives the latest stable version. Two checks it does not do:
 
-- nginx: https://nginx.org/en/download.html, shown as `<mainline> (mainline) / <stable> (stable)`.
-- BRP Personen Mock: ghcr.io `brp-api/personen-mock`. Get an anonymous token from `https://ghcr.io/token?scope=repository:brp-api/personen-mock:pull`, then read `https://ghcr.io/v2/brp-api/personen-mock/tags/list?n=1000`. Take the highest `X.Y.Z-<12-digit timestamp>` tag, not `-latest`.
-- Solr: https://solr.apache.org/downloads.html. To check the remark about the Solr Operator, read its latest release via `gh api repos/apache/solr-operator/releases/latest` and the supported Solr versions in the "Version Compatibility Matrixes" section of the upgrade notes at that release tag. The file has moved between releases (`docs/upgrade-notes.md` up to v0.9.1, `docs/modules/upgrade-notes/pages/upgrade-notes.adoc` on the default branch), so find its path with `gh api "repos/apache/solr-operator/git/trees/<latest release tag>?recursive=1" --jq '.tree[].path | select(test("upgrade-notes\\.(md|adoc)$"))'`, then read it with `gh api "repos/apache/solr-operator/contents/<path>?ref=<latest release tag>" --jq .content | base64 -d`. Read it at the release tag, not the default branch, which already lists unreleased versions. Count Solr 10 as supported only when a column explicitly names 10; an open-ended column such as "9.4+" does not count.
+- PABC: also mention a newer prerelease, if there is one: `gh api "repos/Platform-Autorisatie-Beheer-Component/PABC-API/releases?per_page=100" --jq '.[] | select(.prerelease) | .tag_name'`, compared by number with the script's version.
+- Solr: to check the remark about the Solr Operator, read its latest release via `gh api repos/apache/solr-operator/releases/latest` and the supported Solr versions in the "Version Compatibility Matrixes" section of the upgrade notes at that release tag. The file has moved between releases (`docs/upgrade-notes.md` up to v0.9.1, `docs/modules/upgrade-notes/pages/upgrade-notes.adoc` on the default branch), so find its path with `gh api "repos/apache/solr-operator/git/trees/<latest release tag>?recursive=1" --jq '.tree[].path | select(test("upgrade-notes\\.(md|adoc)$"))'`, then read it with `gh api "repos/apache/solr-operator/contents/<path>?ref=<latest release tag>" --jq .content | base64 -d`. Read it at the release tag, not the default branch, which already lists unreleased versions. Count Solr 10 as supported only when a column explicitly names 10; an open-ended column such as "9.4+" does not count.
 
 ## 2. Our Version on TEST
 

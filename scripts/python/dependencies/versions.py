@@ -85,7 +85,7 @@ def print_versions_of_components():
 
     # Extract the latest version of ZAC from the GitHub tags
     zac_latest_version = GitHubTagVersionExtractor('https://github.com/infonl/dimpact-zaakafhandelcomponent/tags',
-                                                   'v').get_latest_version()
+                                                   'v', hotfix_suffix=True).get_latest_version()
     print(f'Zaakafhandelcomponent latest version: {zac_latest_version}')
 
     # Extract the latest version of Keycloak from the GitHub tags
