@@ -36,7 +36,7 @@ class OpenZaakReadinessHealthCheck @Inject constructor(
             HealthCheckResponse.up(OpenZaakReadinessHealthCheck::class.java.name)
         } catch (@Suppress("TooGenericExceptionCaught") exception: RuntimeException) {
             HealthCheckResponse.named(OpenZaakReadinessHealthCheck::class.java.name)
-                .withData("time", ZacTime.now().toLocalDateTime().toString())
+                .withData("time", ZacTime.now().toOffsetDateTime().toString())
                 .withData("error", exception.message)
                 .down()
                 .build()

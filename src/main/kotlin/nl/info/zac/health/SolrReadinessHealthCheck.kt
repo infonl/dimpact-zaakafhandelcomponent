@@ -58,7 +58,7 @@ class SolrReadinessHealthCheck @Inject constructor(
             } else {
                 HealthCheckResponse
                     .named(SolrReadinessHealthCheck::class.java.name)
-                    .withData("time", ZacTime.now().toLocalDateTime().toString())
+                    .withData("time", ZacTime.now().toOffsetDateTime().toString())
                     .withData("core", SOLR_CORE)
                     .withData("status", status.toLong())
                     .withData("error", "Solr ping returned non-zero status")
@@ -68,7 +68,7 @@ class SolrReadinessHealthCheck @Inject constructor(
         } catch (@Suppress("TooGenericExceptionCaught") exception: Throwable) {
             HealthCheckResponse
                 .named(SolrReadinessHealthCheck::class.java.name)
-                .withData("time", ZacTime.now().toLocalDateTime().toString())
+                .withData("time", ZacTime.now().toOffsetDateTime().toString())
                 .withData("core", SOLR_CORE)
                 .withData("error", exception.message)
                 .down()

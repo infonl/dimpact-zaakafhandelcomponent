@@ -40,7 +40,7 @@ class PabcReadinessHealthCheck @Inject constructor(
         } catch (@Suppress("TooGenericExceptionCaught") exception: Throwable) {
             HealthCheckResponse
                 .named(PabcReadinessHealthCheck::class.java.name)
-                .withData("time", ZacTime.now().toLocalDateTime().toString())
+                .withData("time", ZacTime.now().toOffsetDateTime().toString())
                 .withData("error", exception.message)
                 .down()
                 .build()
