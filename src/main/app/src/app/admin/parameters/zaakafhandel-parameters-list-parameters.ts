@@ -74,8 +74,8 @@ export const toZaaktypeConfigurationListQuery = (
   isNuGeldig: toBoolean(listParameters.geldig),
   zaaktypeIdentificatie: listParameters.zaaktype?.identificatie ?? null,
   processDefinitionKey: listParameters.processDefinition?.key ?? null,
-  beginGeldigheidVan: listParameters.beginGeldigheid.from ?? null,
-  beginGeldigheidTot: listParameters.beginGeldigheid.through ?? null,
-  eindeGeldigheidVan: listParameters.eindeGeldigheid.from ?? null,
-  eindeGeldigheidTot: listParameters.eindeGeldigheid.through ?? null,
+  beginGeldigheidFrom: listParameters.beginGeldigheid.from ?? null,
+  beginGeldigheidThrough: listParameters.beginGeldigheid.through ?? null,
+  eindeGeldigheidFrom: listParameters.eindeGeldigheid.from ?? null,
+  eindeGeldigheidThrough: listParameters.eindeGeldigheid.through ?? null,
 });

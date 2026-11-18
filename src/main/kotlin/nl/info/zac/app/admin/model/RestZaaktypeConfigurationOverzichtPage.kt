@@ -40,9 +40,9 @@ private fun RestZaaktypeConfigurationListParameters.toFilters() = listOfNotNull<
     isNuGeldig?.let { isNuGeldig -> { it.zaaktype.isNuGeldig == isNuGeldig } },
     zaaktypeIdentificatie?.let { identificatie -> { it.zaaktype.identificatie == identificatie } },
     processDefinitionKey?.let { key -> { it.processDefinition?.key == key } },
-    DateRange.of(beginGeldigheidVan, beginGeldigheidTot)
+    DateRange.of(beginGeldigheidFrom, beginGeldigheidThrough)
         ?.let { range -> { it.zaaktype.beginGeldigheid.isIn(range) } },
-    DateRange.of(eindeGeldigheidVan, eindeGeldigheidTot)
+    DateRange.of(eindeGeldigheidFrom, eindeGeldigheidThrough)
         ?.let { range -> { it.zaaktype.eindeGeldigheid.isIn(range) } }
 )
 
