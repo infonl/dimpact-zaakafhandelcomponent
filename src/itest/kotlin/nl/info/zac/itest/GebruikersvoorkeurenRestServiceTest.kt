@@ -10,6 +10,7 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RAADPLEGER_EN_BEHANDELAAR_1
+import nl.info.zac.itest.util.todayInZac
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
@@ -153,7 +154,7 @@ class GebruikersvoorkeurenRestServiceTest : BehaviorSpec({
                         getString("json") shouldBe """{"fakeField":"fakeValue1"}"""
                         getBoolean("actief") shouldBe true
                         LocalDate.parse(getString("creatiedatum")) shouldBeIn
-                            (-1L..1L).map { LocalDate.now().plusDays(it) }
+                            (-1L..1L).map { todayInZac().plusDays(it) }
                     }
                 }
             }

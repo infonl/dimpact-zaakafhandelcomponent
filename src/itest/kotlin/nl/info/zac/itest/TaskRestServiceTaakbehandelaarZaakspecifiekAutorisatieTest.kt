@@ -25,11 +25,11 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.TestGroup
 import nl.info.zac.itest.config.TestUser
+import nl.info.zac.itest.util.todayInZac
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
-import java.time.LocalDate
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
@@ -111,7 +111,7 @@ class TaskRestServiceTaakbehandelaarZaakspecifiekAutorisatieTest : BehaviorSpec(
         val taskId = taskHelper.startAanvullendeInformatieTaskForZaak(
             zaakUuid = zaakUuid,
             zaakIdentificatie = zaakIdentificatie,
-            fatalDate = LocalDate.now().plusWeeks(1),
+            fatalDate = todayInZac().plusWeeks(1),
             group = GROUP_BEHANDELAARS_TEST_1,
             medewerker = BEHANDELAAR_1_EN_BRP_ZOEKER_2,
             testUser = BEHANDELAAR_1
@@ -248,7 +248,7 @@ class TaskRestServiceTaakbehandelaarZaakspecifiekAutorisatieTest : BehaviorSpec(
         val taskId = taskHelper.startAanvullendeInformatieTaskForZaak(
             zaakUuid = zaakUuid,
             zaakIdentificatie = zaakIdentificatie,
-            fatalDate = LocalDate.now().plusWeeks(1),
+            fatalDate = todayInZac().plusWeeks(1),
             group = GROUP_BEHANDELAARS_TEST_1,
             medewerker = BEHANDELAAR_1_EN_BRP_ZOEKER_2,
             testUser = BEHANDELAAR_1
@@ -290,7 +290,7 @@ class TaskRestServiceTaakbehandelaarZaakspecifiekAutorisatieTest : BehaviorSpec(
             val taskId = taskHelper.startAanvullendeInformatieTaskForZaak(
                 zaakUuid = zaakUuid,
                 zaakIdentificatie = zaakIdentificatie,
-                fatalDate = LocalDate.now().plusWeeks(1),
+                fatalDate = todayInZac().plusWeeks(1),
                 group = GROUP_BEHANDELAARS_TEST_1,
                 testUser = BEHANDELAAR_1
             )

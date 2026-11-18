@@ -9,6 +9,7 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.healthcheck.model.BuildInformation
 import nl.info.zac.healthcheck.model.ZaaktypeInrichtingscheck
+import nl.info.zac.time.ZacTime
 import java.time.ZonedDateTime
 
 @Suppress("LongParameterList")
@@ -52,7 +53,7 @@ fun createZaaktypeInrichtingscheck(
 fun createBuildInformation(
     commit: String = "fakeCommit",
     buildId: String = "fakeBuildId",
-    buildDatumTijd: ZonedDateTime = ZonedDateTime.now(),
+    buildDatumTijd: ZonedDateTime = ZacTime.now(),
     versienummer: String = "fakeVersion",
 ) = BuildInformation(
     commit = commit,

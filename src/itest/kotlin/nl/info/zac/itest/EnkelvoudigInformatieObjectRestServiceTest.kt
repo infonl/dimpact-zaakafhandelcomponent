@@ -35,7 +35,9 @@ import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_Z
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RECORDMANAGER_1
+import nl.info.zac.itest.util.nowInZac
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
+import nl.info.zac.itest.util.todayInZac
 import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -47,8 +49,6 @@ import java.net.HttpURLConnection.HTTP_NOT_FOUND
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.net.URLDecoder
-import java.time.LocalDate
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
@@ -57,7 +57,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val zacClient = ZacClient(itestHttpClient)
     val zaakHelper = ZaakHelper(zacClient)
     val taskHelper = TaskHelper(zacClient)
-    val today = LocalDate.now()
+    val today = todayInZac()
 
     given(
         """
@@ -102,7 +102,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                           "auteur" : "$FAKE_AUTHOR_NAME",
                           "beschrijving" : "",
                           "bestandsomvang" : ${file.length()},
-                          "creatiedatum" : "${LocalDate.now()}",
+                          "creatiedatum" : "${todayInZac()}",
                           "formaat" : "$PDF_MEDIA_TYPE",
                           "hasGebruiksrecht" : false,
                           "indicaties" : [ ],
@@ -342,8 +342,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     .addFormDataPart(
                         "creatiedatum",
                         DateTimeFormatter.ofPattern(
-                            "yyyy-MM-dd'T'HH:mm+01:00"
-                        ).format(ZonedDateTime.now())
+                            "yyyy-MM-dd'T'HH:mmxxx"
+                        ).format(nowInZac())
                     )
                     .addFormDataPart("auteur", FAKE_AUTHOR_NAME)
                     .addFormDataPart("taal", "eng")
@@ -378,7 +378,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                       "auteur" : "$FAKE_AUTHOR_NAME",
                       "beschrijving" : "",
                       "bestandsomvang" : ${file.length()},
-                      "creatiedatum" : "${LocalDate.now()}",
+                      "creatiedatum" : "${todayInZac()}",
                       "formaat" : "$TEXT_MEDIA_TYPE",
                       "hasGebruiksrecht" : false,
                       "indicaties" : [ ],
@@ -441,7 +441,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                   "bestandsnaam" : "$TEST_TXT_CONVERTED_TO_PDF_FILE_NAME",
                   "auteur" : "$FAKE_AUTHOR_NAME",
                   "beschrijving" : "",
-                  "creatiedatum" : "${LocalDate.now()}",
+                  "creatiedatum" : "${todayInZac()}",
                   "formaat" : "$PDF_MEDIA_TYPE",
                   "hasGebruiksrecht" : false,
                   "indicaties" : [ ],
@@ -501,7 +501,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val taskId = taskHelper.startAanvullendeInformatieTaskForZaak(
             zaakUuid = zaakUuid,
             zaakIdentificatie = zaakIdentification,
-            fatalDate = LocalDate.now().plusDays(1),
+            fatalDate = todayInZac().plusDays(1),
             group = GROUP_BEHANDELAARS_TEST_1,
             testUser = BEHANDELAAR_1
         )
@@ -534,8 +534,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     .addFormDataPart(
                         "creatiedatum",
                         DateTimeFormatter.ofPattern(
-                            "yyyy-MM-dd'T'HH:mm+01:00"
-                        ).format(ZonedDateTime.now())
+                            "yyyy-MM-dd'T'HH:mmxxx"
+                        ).format(nowInZac())
                     )
                     .addFormDataPart("auteur", FAKE_AUTHOR_NAME)
                     .addFormDataPart("taal", "eng")
@@ -563,7 +563,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                   "bestandsnaam" : "$TEST_PDF_FILE_NAME",
                   "auteur" : "$FAKE_AUTHOR_NAME",
                   "beschrijving" : "",
-                  "creatiedatum" : "${LocalDate.now()}",
+                  "creatiedatum" : "${todayInZac()}",
                   "formaat" : "$PDF_MEDIA_TYPE",
                   "hasGebruiksrecht" : false,
                   "indicaties" : [ ],

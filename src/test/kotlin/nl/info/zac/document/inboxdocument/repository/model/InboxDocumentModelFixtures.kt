@@ -5,6 +5,7 @@
 package nl.info.zac.document.inboxdocument.repository.model
 
 import nl.info.zac.time.DateRange
+import nl.info.zac.time.ZacTime
 import java.time.LocalDate
 import java.util.UUID
 
@@ -14,7 +15,7 @@ fun createInboxDocument(
     id: Long = 1L,
     enkelvoudiginformatieobjectID: String = "DOC-123",
     titel: String = "fakeTitel",
-    creatiedatum: LocalDate = LocalDate.now(),
+    creatiedatum: LocalDate = ZacTime.today(),
     bestandsnaam: String = "test.pdf",
 ) = InboxDocument().apply {
     this.id = id

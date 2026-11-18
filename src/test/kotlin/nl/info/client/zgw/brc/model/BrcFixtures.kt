@@ -7,6 +7,7 @@ package nl.info.client.zgw.brc.model
 
 import nl.info.client.zgw.brc.model.generated.Besluit
 import nl.info.client.zgw.brc.model.generated.VervalredenEnum
+import nl.info.zac.time.ZacTime
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
@@ -17,10 +18,10 @@ fun createBesluit(
     verantwoordelijkeOrganisatie: String = "fakeVerantwoordelijkeOrganisatie",
     besluittypeUri: URI = URI("http://localhost/besluittype/${UUID.randomUUID()}"),
     zaakUri: URI = URI("http://localhost/zaak/${UUID.randomUUID()}"),
-    date: LocalDate = LocalDate.now(),
+    date: LocalDate = ZacTime.today(),
     reason: String = "fakeReason",
-    startDate: LocalDate = LocalDate.now(),
-    fatalDate: LocalDate = LocalDate.now().plusDays(1),
+    startDate: LocalDate = ZacTime.today(),
+    fatalDate: LocalDate = ZacTime.today().plusDays(1),
     publicationDate: LocalDate? = null,
     reactionDate: LocalDate? = null,
     url: URI = URI("http://localhost/besluit/${UUID.randomUUID()}"),

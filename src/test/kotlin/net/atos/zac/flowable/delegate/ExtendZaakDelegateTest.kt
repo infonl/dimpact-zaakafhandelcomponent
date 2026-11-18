@@ -28,11 +28,11 @@ import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.shared.helper.SuspensionZaakHelper
+import nl.info.zac.time.ZacTime
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.zaak.ZaakService
 import org.flowable.common.engine.impl.el.JuelExpression
 import org.flowable.engine.delegate.DelegateExecution
-import java.time.LocalDate
 
 class ExtendZaakDelegateTest : BehaviorSpec({
     val delegateExecution = mockk<DelegateExecution>()
@@ -49,7 +49,7 @@ class ExtendZaakDelegateTest : BehaviorSpec({
     }
 
     given("Process using ExtendZaakDelegate with a JUEL expressions") {
-        val zaak = createZaak(einddatumGepland = LocalDate.now())
+        val zaak = createZaak(einddatumGepland = ZacTime.today())
         val zaaktype = createZaakType(uri = zaak.zaaktype)
         val extendDays = 2
 
@@ -134,7 +134,7 @@ class ExtendZaakDelegateTest : BehaviorSpec({
     }
 
     given("Process using ExtendZaakDelegate when user is not authorized to extend zaak") {
-        val zaak = createZaak(einddatumGepland = LocalDate.now())
+        val zaak = createZaak(einddatumGepland = ZacTime.today())
         val zaaktype = createZaakType(uri = zaak.zaaktype)
 
         mockkObject(FlowableHelper)

@@ -11,6 +11,7 @@ import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplateVariables
 import nl.info.zac.search.model.SorteerRichting
+import nl.info.zac.time.ZacTime
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -109,9 +110,9 @@ fun createRestZaaktypeOverzicht(
     doel: String = "fakeDoel",
     omschrijving: String = "fakeOmschrijving",
     servicenorm: Boolean = false,
-    versiedatum: LocalDate = LocalDate.now(),
-    beginGeldigheid: LocalDate = LocalDate.now(),
-    eindeGeldigheid: LocalDate = LocalDate.now().plusDays(1),
+    versiedatum: LocalDate = ZacTime.today(),
+    beginGeldigheid: LocalDate = ZacTime.today(),
+    eindeGeldigheid: LocalDate = ZacTime.today().plusDays(1),
     vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding = RestVertrouwelijkheidaanduiding.OPENBAAR,
     nuGeldig: Boolean = true
 ) = RestZaaktypeOverzicht(
@@ -134,7 +135,7 @@ fun createRestZaaktypeBeheerOverzicht(
     omschrijving: String = "fakeOmschrijving",
     doel: String = "fakeDoel",
     nuGeldig: Boolean = true,
-    beginGeldigheid: LocalDate = LocalDate.now(),
+    beginGeldigheid: LocalDate = ZacTime.today(),
     eindeGeldigheid: LocalDate? = null
 ) = RestZaaktypeBeheerOverzicht(
     uuid = uuid,
@@ -152,7 +153,7 @@ fun createRestZaaktypeConfigurationOverzicht(
         key = "fakeProcessDefinitionKey",
         naam = "fakeProcessDefinitionName"
     ),
-    creatiedatum: ZonedDateTime? = ZonedDateTime.now(),
+    creatiedatum: ZonedDateTime? = ZacTime.now(),
     valide: Boolean = true
 ) = RestZaaktypeConfigurationOverzicht(
     zaaktype = restZaaktypeBeheerOverzicht,

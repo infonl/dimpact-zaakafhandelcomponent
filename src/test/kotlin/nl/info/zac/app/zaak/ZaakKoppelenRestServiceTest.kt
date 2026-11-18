@@ -48,6 +48,7 @@ import nl.info.zac.search.model.ZoekVeld
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType.ZAAK
 import nl.info.zac.time.DateRange
+import nl.info.zac.time.ZacTime
 import nl.info.zac.zaak.ZaakKoppelenService
 import nl.info.zac.zaak.ZaakService
 import nl.info.zac.zaak.model.RelatieType
@@ -1162,25 +1163,25 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 val validZaakType = createZaakType(
                     omschrijving = "fakeValidZaakType",
                     concept = false,
-                    beginGeldigheid = LocalDate.now(),
+                    beginGeldigheid = ZacTime.today(),
                     eindeGeldigheid = null
                 )
                 val conceptZaakType = createZaakType(
                     omschrijving = "fakeConceptZaakType",
                     concept = true,
-                    beginGeldigheid = LocalDate.now(),
+                    beginGeldigheid = ZacTime.today(),
                     eindeGeldigheid = null
                 )
                 val expiredZaakType = createZaakType(
                     omschrijving = "fakeExpiredZaakType",
                     concept = false,
-                    beginGeldigheid = LocalDate.now().minusYears(2),
-                    eindeGeldigheid = LocalDate.now().minusDays(1)
+                    beginGeldigheid = ZacTime.today().minusYears(2),
+                    eindeGeldigheid = ZacTime.today().minusDays(1)
                 )
                 val noPermissionZaakType = createZaakType(
                     omschrijving = "fakeNoPermissionZaakType",
                     concept = false,
-                    beginGeldigheid = LocalDate.now(),
+                    beginGeldigheid = ZacTime.today(),
                     eindeGeldigheid = null
                 )
                 val fakeRestZaaktype = createRestZaaktype()

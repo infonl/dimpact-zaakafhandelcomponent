@@ -5,6 +5,7 @@
 
 package nl.info.zac.app.signalering.model
 
+import nl.info.zac.time.ZacTime
 import java.time.ZonedDateTime
 
 fun createRestSignaleringTaskSummary(
@@ -12,7 +13,7 @@ fun createRestSignaleringTaskSummary(
     naam: String = "naam",
     zaakIdentificatie: String = "zakIdentificatie",
     zaaktypeOmschrijving: String = "zaaktypeOmschrijving",
-    creatiedatumTijd: ZonedDateTime = ZonedDateTime.now(),
+    creatiedatumTijd: ZonedDateTime = ZacTime.now(),
 ) = RestSignaleringTaskSummary(
     id = id,
     naam = naam,

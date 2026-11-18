@@ -21,6 +21,7 @@ import nl.info.zac.app.zaak.model.besluit.RestBesluitCreateData
 import nl.info.zac.identification.BetrokkeneIdentificatie
 import nl.info.zac.identification.IdentificatieType
 import nl.info.zac.search.model.ZaakIndicatie
+import nl.info.zac.time.ZacTime
 import nl.info.zac.zaak.model.RelatieType
 import java.net.URI
 import java.time.LocalDate
@@ -412,7 +413,7 @@ fun createRestZaaktype(
     omschrijving = ZAAK_TYPE_1_OMSCHRIJVING,
     referentieproces = "Sample Referentieproces",
     hasServicenorm = true,
-    versiedatum = LocalDate.now(),
+    versiedatum = ZacTime.today(),
     beginGeldigheid = LocalDate.of(2023, 1, 1),
     eindeGeldigheid = LocalDate.of(2023, 12, 31),
     vertrouwelijkheidaanduiding = RestVertrouwelijkheidaanduiding.OPENBAAR,
@@ -464,7 +465,7 @@ fun createRestDetachDocumentData(
 )
 
 fun createRestZaakSetBrondatum(
-    brondatum: LocalDate = LocalDate.now()
+    brondatum: LocalDate = ZacTime.today()
 ) = RestZaakSetBrondatum(
     brondatum = brondatum
 )

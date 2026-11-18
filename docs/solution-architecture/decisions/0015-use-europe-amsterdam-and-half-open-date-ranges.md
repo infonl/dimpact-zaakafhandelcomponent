@@ -76,5 +76,6 @@ imports into `date-time/`, and calls of `toISOString` and `Date.parse` outside t
 ## More Information
 
 ArchUnit is used instead of detekt `ForbiddenMethodCall`, so this rule sits with the other architecture rules in
-`ArchitectureTest`.
+`ArchitectureTest`. ArchUnit only checks the main classes, so in the unit tests and the integration tests detekt
+`ForbiddenMethodCall` forbids the `now()` without arguments of the `java.time` types.
 `eslint-plugin-boundaries` was not added: one boundary does not justify a new dependency yet.

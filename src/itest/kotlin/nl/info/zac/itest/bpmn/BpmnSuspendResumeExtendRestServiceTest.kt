@@ -23,10 +23,10 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_DOORLOOP
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_SERVICENORM_DAYS
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.util.nowInZac
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
-import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -133,7 +133,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
             }
 
             and("the resume form is submitted with a resume date set to now") {
-                val resumeDate = ZonedDateTime.now()
+                val resumeDate = nowInZac()
                 val resumeTaskPatchResponse = zacClient.submitFormData(
                     bpmnZaakUuid = zaakUuid,
                     taakData = """{ "resumeDate": "$resumeDate" }""",

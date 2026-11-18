@@ -35,6 +35,7 @@ import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.generated.RolType
+import nl.info.zac.time.ZacTime
 import java.math.BigDecimal
 import java.net.URI
 import java.time.LocalDate
@@ -278,7 +279,7 @@ fun createVestigingIdentificatie(
 fun createZaak(
     uuid: UUID = UUID.randomUUID(),
     zaaktypeUri: URI = URI("https://example.com/${UUID.randomUUID()}"),
-    startDate: LocalDate = LocalDate.now(),
+    startDate: LocalDate = ZacTime.today(),
     endDate: LocalDate? = null,
     bronOrganisatie: String = "fakeBronOrganisatie",
     verantwoordelijkeOrganisatie: String = "fakeVerantwoordelijkeOrganisatie",
@@ -287,9 +288,9 @@ fun createZaak(
     opschorting: Opschorting? = null,
     einddatumGepland: LocalDate? = null,
     identificatie: String = "fakeIdentificatie",
-    registratiedatum: LocalDate = LocalDate.now(),
+    registratiedatum: LocalDate = ZacTime.today(),
     resultaat: URI? = null,
-    uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.now().plusDays(1),
+    uiterlijkeEinddatumAfdoening: LocalDate = ZacTime.today().plusDays(1),
     vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR,
     status: URI? = null,
     verlenging: Verlenging? = null,
@@ -365,7 +366,7 @@ fun createZaakInformatieobjectForReads(
     informatieobject: URI = URI("https://example.com/${UUID.randomUUID()}"),
     zaak: URI = URI("https://example.com/${UUID.randomUUID()}"),
     aardRelatieWeergave: AardRelatieWeergaveEnum = AardRelatieWeergaveEnum.HOORT_BIJ_OMGEKEERD_KENT,
-    registratiedatum: ZonedDateTime = ZonedDateTime.now()
+    registratiedatum: ZonedDateTime = ZacTime.now()
 ) = ZaakInformatieObject(
     url,
     uuid,
@@ -409,7 +410,7 @@ fun createZaakStatus(
     uri: URI = URI("https://example.com/catalogus/${UUID.randomUUID()}"),
     zaakURI: URI = URI("https://example.com/catalogus/${UUID.randomUUID()}"),
     statustypeURI: URI = URI("https://example.com/catalogus/${UUID.randomUUID()}"),
-    datumStatusGezet: OffsetDateTime = ZonedDateTime.now().toOffsetDateTime()
+    datumStatusGezet: OffsetDateTime = ZacTime.now().toOffsetDateTime()
 ) = Status(
     uri,
     uuid,

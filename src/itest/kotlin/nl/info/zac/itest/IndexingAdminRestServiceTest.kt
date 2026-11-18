@@ -26,12 +26,12 @@ import nl.info.zac.itest.util.newLogsSince
 import nl.info.zac.itest.util.reindexingFinishedRegex
 import nl.info.zac.itest.util.reindexingStartedRegex
 import nl.info.zac.itest.util.shouldContainLogLineMatching
+import nl.info.zac.itest.util.todayInZac
 import nl.info.zac.itest.util.zacContainerLogs
 import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_ACCEPTED
 import java.net.HttpURLConnection.HTTP_OK
-import java.time.LocalDate
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
@@ -60,7 +60,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
         taskHelper.startAanvullendeInformatieTaskForZaak(
             zaakUuid = zaakUuid,
             zaakIdentificatie = zaakIdentification,
-            fatalDate = LocalDate.now().plusWeeks(1),
+            fatalDate = todayInZac().plusWeeks(1),
             group = GROUP_BEHANDELAARS_TEST_1,
             testUser = BEHEERDER_1
         )

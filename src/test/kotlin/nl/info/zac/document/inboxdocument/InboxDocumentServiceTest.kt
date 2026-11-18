@@ -25,8 +25,8 @@ import nl.info.zac.document.inboxdocument.repository.model.InboxDocumentListPara
 import nl.info.zac.document.inboxdocument.repository.model.createInboxDocument
 import nl.info.zac.document.inboxdocument.repository.model.createInboxDocumentListParameters
 import nl.info.zac.time.DateRange
+import nl.info.zac.time.ZacTime
 import java.net.URI
-import java.time.LocalDate
 import java.util.UUID
 
 class InboxDocumentServiceTest : BehaviorSpec({
@@ -44,7 +44,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
         given("an EnkelvoudigInformatieObject that is not linked to any zaak") {
             val uuid = UUID.randomUUID()
             val identificatie = "DOC-123"
-            val creatiedatum = LocalDate.now()
+            val creatiedatum = ZacTime.today()
             val titel = "fakeDocument"
             val bestandsnaam = "document.pdf"
             val inboxDocumentSlot = slot<InboxDocument>()
@@ -225,7 +225,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
 
             `when`("list is called with filled inbox document list parameters") {
                 val inboxDocumentListParameters = createInboxDocumentListParameters(
-                    creationDateRange = DateRange.Between(LocalDate.now(), LocalDate.now().plusDays(1)),
+                    creationDateRange = DateRange.Between(ZacTime.today(), ZacTime.today().plusDays(1)),
                 )
                 val result = inboxDocumentService.list(inboxDocumentListParameters)
 

@@ -31,9 +31,9 @@ import nl.info.zac.document.inboxdocument.repository.model.createInboxDocument
 import nl.info.zac.productaanvraag.model.InboxProductaanvraag
 import nl.info.zac.productaanvraag.model.createBron
 import nl.info.zac.productaanvraag.model.generated.Geometry
+import nl.info.zac.time.ZacTime
 import java.net.URI
 import java.time.LocalDate
-import java.time.ZonedDateTime
 import java.util.UUID
 
 class ProductaanvraagServiceTest : BehaviorSpec({
@@ -276,9 +276,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             clearAllMocks()
             val productaanvraagObjectUuid = UUID.randomUUID()
             val productaanvraagObject = createProductaanvraagObject(productaanvraagObjectUuid)
-            val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(creationDate = ZonedDateTime.now())
+            val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(creationDate = ZacTime.now())
             val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration(
-                creationDate = ZonedDateTime.now().minusDays(1)
+                creationDate = ZacTime.now().minusDays(1)
             )
             every { productaanvraagClaimRepository.claim(productaanvraagObjectUuid) } returns true
             every { objectsClientService.readObject(productaanvraagObjectUuid) } returns productaanvraagObject

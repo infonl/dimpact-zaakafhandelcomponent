@@ -133,6 +133,7 @@ import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.time.ZacTime
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.zaak.ZaakKoppelenService
 import nl.info.zac.zaak.ZaakService
@@ -423,7 +424,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 val formulierData = mapOf(Pair("fakeKey", "fakeValue"))
                 val objectRegistratieObject = createORObject()
                 val productaanvraagDimpact = createProductaanvraagDimpact()
-                val restZaakCreateData = createRestZaakCreateData(einddatumGepland = LocalDate.now().minusDays(1))
+                val restZaakCreateData = createRestZaakCreateData(einddatumGepland = ZacTime.today().minusDays(1))
                 val zaakTypeUUID = UUID.randomUUID()
                 val zaakType = createZaakType(
                     omschrijving = ZAAK_TYPE_1_OMSCHRIJVING,
@@ -568,8 +569,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                 val formulierData = mapOf(Pair("fakeKey", "fakeValue"))
                 val objectRegistratieObject = createORObject()
                 val productaanvraagDimpact = createProductaanvraagDimpact()
-                val restZaakCreateData = createRestZaakCreateData(einddatumGepland = LocalDate.now().minusDays(1))
-                val restZaak = createRestZaak(einddatumGepland = LocalDate.now().minusDays(1))
+                val restZaakCreateData = createRestZaakCreateData(einddatumGepland = ZacTime.today().minusDays(1))
+                val restZaak = createRestZaak(einddatumGepland = ZacTime.today().minusDays(1))
                 val zaakTypeUUID = UUID.randomUUID()
                 val zaakType = createZaakType(
                     omschrijving = ZAAK_TYPE_1_OMSCHRIJVING,
@@ -763,7 +764,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             given("zaak input data has due date when servicenorm is not specified in OpenZaak") {
                 val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
                 val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(
-                    restZaakCreateData = createRestZaakCreateData(einddatumGepland = LocalDate.now())
+                    restZaakCreateData = createRestZaakCreateData(einddatumGepland = ZacTime.today())
                 )
                 every { zaakService.readZaakTypeByUUID(any<UUID>()) } returns zaakType
                 every {
@@ -1329,11 +1330,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
                 val zaakNearItsDeadline = createZaak(
                     zaaktypeUri = URI("https://example.com/zaaktypes/$zaaktypeUuid"),
-                    uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1)
+                    uiterlijkeEinddatumAfdoening = ZacTime.today().plusDays(1)
                 )
                 val zaakFarFromItsDeadline = createZaak(
                     zaaktypeUri = URI("https://example.com/zaaktypes/$zaaktypeUuid"),
-                    uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(5)
+                    uiterlijkeEinddatumAfdoening = ZacTime.today().plusDays(5)
                 )
                 val loggedInUser = createLoggedInUser()
                 val restZaakOverzicht = createRESTZaakOverzicht().apply {
@@ -1372,13 +1373,13 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaaktypeUuid = UUID.randomUUID()
             val zaakNearItsEinddatumGepland = createZaak(
                 zaaktypeUri = URI("https://example.com/zaaktypes/$zaaktypeUuid"),
-                einddatumGepland = LocalDate.now().plusDays(1),
-                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1)
+                einddatumGepland = ZacTime.today().plusDays(1),
+                uiterlijkeEinddatumAfdoening = ZacTime.today().plusDays(1)
             )
             val zaakFarFromItsEinddatumGepland = createZaak(
                 zaaktypeUri = URI("https://example.com/zaaktypes/$zaaktypeUuid"),
-                einddatumGepland = LocalDate.now().plusDays(5),
-                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1)
+                einddatumGepland = ZacTime.today().plusDays(5),
+                uiterlijkeEinddatumAfdoening = ZacTime.today().plusDays(1)
             )
             val loggedInUser = createLoggedInUser()
             val restZaakOverzicht = createRESTZaakOverzicht().apply {
@@ -1419,9 +1420,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         ) {
             val zaaktypeUuid = UUID.randomUUID()
             val zaaktypeUri = URI("https://example.com/zaaktypes/$zaaktypeUuid")
-            val zaak = createZaak(zaaktypeUri = zaaktypeUri, uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1))
-            val unreadableZaak = createZaak(zaaktypeUri = zaaktypeUri, uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1))
-            val reassignedZaak = createZaak(zaaktypeUri = zaaktypeUri, uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1))
+            val zaak = createZaak(zaaktypeUri = zaaktypeUri, uiterlijkeEinddatumAfdoening = ZacTime.today().plusDays(1))
+            val unreadableZaak = createZaak(zaaktypeUri = zaaktypeUri, uiterlijkeEinddatumAfdoening = ZacTime.today().plusDays(1))
+            val reassignedZaak = createZaak(zaaktypeUri = zaaktypeUri, uiterlijkeEinddatumAfdoening = ZacTime.today().plusDays(1))
             val loggedInUser = createLoggedInUser()
             val restZaakOverzicht = createRESTZaakOverzicht().apply {
                 rechten = createRestZaakRechten()
@@ -4098,7 +4099,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
-            val restZaakCreateData = createRestZaakCreateData(einddatumGepland = LocalDate.now())
+            val restZaakCreateData = createRestZaakCreateData(einddatumGepland = ZacTime.today())
             val restZaakEditMetRedenGegevens = RestZaakEditMetRedenGegevens(restZaakCreateData, "change description")
             val loggedInUser = createLoggedInUser()
 

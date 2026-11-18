@@ -25,11 +25,11 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_RESULTAA
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
+import nl.info.zac.itest.util.nowInZac
 import okhttp3.Headers
 import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONArray
 import java.net.HttpURLConnection.HTTP_OK
-import java.time.ZonedDateTime
 import kotlin.time.Duration.Companion.seconds
 
 class ZaakRestServiceBpmnWarningTest : BehaviorSpec({
@@ -79,7 +79,7 @@ class ZaakRestServiceBpmnWarningTest : BehaviorSpec({
         }
         val (zaakIdentification, zaakUuid) = zaakHelper.createZaak(
             zaaktypeUuid = ZAAKTYPE_BPMN_TEST_1_UUID,
-            startDate = ZonedDateTime.now().minusDays(1),
+            startDate = nowInZac().minusDays(1),
             group = GROUP_BEHANDELAARS_TEST_1,
             testUser = BEHANDELAAR_BPMN_WAARSCHUWING_1,
             behandelaarId = BEHANDELAAR_BPMN_WAARSCHUWING_1.username,
@@ -90,7 +90,7 @@ class ZaakRestServiceBpmnWarningTest : BehaviorSpec({
             requestBodyAsString = """
                 {
                     "zaak": {
-                        "uiterlijkeEinddatumAfdoening": "${ZonedDateTime.now().plusDays(1)}"
+                        "uiterlijkeEinddatumAfdoening": "${nowInZac().plusDays(1)}"
                     },
                     "reden": "fakeReason"
                 }

@@ -40,11 +40,10 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
+import nl.info.zac.itest.util.todayInZac
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_OK
-import java.time.LocalDate
-import java.time.ZoneId
 
 /**
  * This test creates multiple zaken, tasks and documents, indexes them, and performs searches.
@@ -76,7 +75,7 @@ class SearchRestServiceTest : BehaviorSpec({
             val zaakDescription = "${SearchRestServiceTest::class.simpleName}-listingsearchresults-$now"
             val documentTitle = "${SearchRestServiceTest::class.simpleName}-listingsearchresults-$now"
             val documentAuthorName = "fakeAuthorNameForSearchRestServiceTest"
-            val today = LocalDate.now()
+            val today = todayInZac()
             val aanvullendeInformatieTaskFatalDate = today.plusDays(1)
             val (zaakIdentification, zaakUuid) = zaakHelper.createZaak(
                 zaakDescription = zaakDescription,
@@ -202,7 +201,7 @@ class SearchRestServiceTest : BehaviorSpec({
                               "canWijzigenDoorlooptijd" : false,
                               "canWijzigenLocatie" : false
                             },
-                            "registratiedatum" : "${LocalDate.now()}",
+                            "registratiedatum" : "${todayInZac()}",
                             "startdatum" : "$DATE_2024_01_01",
                             "statusToelichting" : "Status gewijzigd",
                             "statustypeOmschrijving" : "$STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE",
@@ -433,7 +432,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 """the search endpoint is called to search for the tasks of the zaak
                     created from today through today in Europe/Amsterdam"""
             ) {
-                val todayInAmsterdam = LocalDate.now(ZoneId.of("Europe/Amsterdam"))
+                val todayInAmsterdam = todayInZac()
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/zoeken/list",
                     requestBodyAsString = """
@@ -472,7 +471,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 """the search endpoint is called to search for the uploaded document
                     registered from today through today in Europe/Amsterdam"""
             ) {
-                val todayInAmsterdam = LocalDate.now(ZoneId.of("Europe/Amsterdam"))
+                val todayInAmsterdam = todayInZac()
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/zoeken/list",
                     requestBodyAsString = """

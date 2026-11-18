@@ -24,7 +24,7 @@ import nl.info.zac.document.detacheddocument.repository.DetachedDocumentReposito
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocumentListParameters
 import nl.info.zac.document.detacheddocument.repository.model.createDetachedDocument
-import java.time.LocalDate
+import nl.info.zac.time.ZacTime
 import java.util.UUID
 
 class DetachedDocumentServiceTest : BehaviorSpec({
@@ -43,7 +43,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
         given("a valid EnkelvoudigInformatieObject for a given Zaak") {
             val documentUuid = UUID.randomUUID()
             val identificatie = "DOC-456"
-            val creatiedatum = LocalDate.now()
+            val creatiedatum = ZacTime.today()
             val titel = "Ontkoppeld Document"
             val bestandsnaam = "ontkoppeld.pdf"
             val reden = "Test reden"

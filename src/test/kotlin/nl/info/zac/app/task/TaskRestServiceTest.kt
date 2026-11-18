@@ -73,6 +73,7 @@ import nl.info.zac.signalering.event.SignaleringEvent
 import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.task.BpmnTaskFormRuntimeService
 import nl.info.zac.task.TaskService
+import nl.info.zac.time.ZacTime
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import org.flowable.task.api.history.HistoricTaskInstance
@@ -542,7 +543,7 @@ class TaskRestServiceTest : BehaviorSpec({
                     url = URI("https://example.com/$enkelvoudigInformatieObjectUUID"),
                     ondertekening = createOndertekening(
                         type = SoortEnum.DIGITAAL,
-                        date = LocalDate.now()
+                        date = ZacTime.today()
                     )
                 )
                 every {

@@ -4,12 +4,13 @@
  */
 package nl.info.zac.gebruikersvoorkeuren.model
 
+import nl.info.zac.time.ZacTime
 import java.time.ZonedDateTime
 
 @Suppress("LongParameterList")
 fun createZoekopdracht(
     id: Long? = 1L,
-    creationDate: ZonedDateTime = ZonedDateTime.now(),
+    creationDate: ZonedDateTime = ZacTime.now(),
     name: String = "fakeZoekopdracht",
     lijstID: Werklijst = Werklijst.MIJN_ZAKEN,
     medewerkerID: String = "testMedewerker",

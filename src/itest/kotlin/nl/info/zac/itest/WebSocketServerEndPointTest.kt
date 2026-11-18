@@ -31,13 +31,13 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_WEBSOCKET_BASE_URI
 import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.util.WebSocketTestListener
+import nl.info.zac.itest.util.todayInZac
 import okhttp3.Headers
 import okhttp3.WebSocket
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.Instant
-import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -195,7 +195,7 @@ class WebSocketServerEndPointTest : BehaviorSpec({
             val taskId = taskHelper.startAanvullendeInformatieTaskForZaak(
                 zaakUuid = zaakMetTaakUuid,
                 zaakIdentificatie = zaakMetTaakJson.getString("identificatie"),
-                fatalDate = LocalDate.now().plusWeeks(1),
+                fatalDate = todayInZac().plusWeeks(1),
                 group = GROUP_BEHANDELAARS_TEST_1,
                 testUser = BEHANDELAAR_1
             )

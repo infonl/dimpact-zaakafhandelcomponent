@@ -21,11 +21,11 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
+import nl.info.zac.itest.util.todayInZac
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
-import java.time.LocalDate
 import java.util.UUID
 
 /**
@@ -111,7 +111,7 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
         }
 
         `when`("a besluit is added to the zaak") {
-            val today = LocalDate.now()
+            val today = todayInZac()
             val tomorrow = today.plusDays(1)
             val publicationDate = today.plusMonths(2)
             val responseDate = today.plusMonths(3)
@@ -167,10 +167,10 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
         }
 
         `when`("the besluit is updated with a new result type, start date, end date, last response date and reason") {
-            val startDate = LocalDate.now().plusDays(1)
-            val fatalDate = LocalDate.now().plusDays(2)
-            val newPublicationDate = LocalDate.now().plusMonths(3)
-            val newResponseDate = LocalDate.now().plusMonths(4)
+            val startDate = todayInZac().plusDays(1)
+            val fatalDate = todayInZac().plusDays(2)
+            val newPublicationDate = todayInZac().plusMonths(3)
+            val newResponseDate = todayInZac().plusMonths(4)
             val updateReason = "fakeBesluitUpdateToelichting"
             itestHttpClient.performPutRequest(
                 "$ZAC_API_URI/zaken/besluit",
@@ -302,9 +302,9 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
         }
 
         `when`("the besluit is updated with the optional vervaldatum cleared") {
-            val ingangsdatum = LocalDate.now()
-            val publicationDate = LocalDate.now().plusMonths(5)
-            val responseDate = LocalDate.now().plusMonths(6)
+            val ingangsdatum = todayInZac()
+            val publicationDate = todayInZac().plusMonths(5)
+            val responseDate = todayInZac().plusMonths(6)
             itestHttpClient.performPutRequest(
                 "$ZAC_API_URI/zaken/besluit",
                 requestBodyAsString = """
