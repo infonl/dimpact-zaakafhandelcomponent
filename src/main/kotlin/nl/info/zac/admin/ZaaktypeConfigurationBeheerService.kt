@@ -79,7 +79,7 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
      * Also rejects a new binding to a BPMN process definition that is not active: the first zaak would be created in
      * Open Zaak before its process fails to start, and that zaak would lock the binding.
      */
-    fun checkProcessDefinitionMayChange(
+    fun checkProcessBinding(
         zaaktypeUuid: UUID,
         processEngine: ProcessEngine,
         definitionKey: String,

@@ -452,7 +452,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
             `when`("it is bound to the process definition it already has") {
                 then("the binding is accepted") {
                     shouldNotThrowAny {
-                        zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+                        zaaktypeConfigurationBeheerService.checkProcessBinding(
                             zaaktypeUuid = zaaktypeUuid,
                             processEngine = ProcessEngine.BPMN,
                             definitionKey = "fakeProcessA",
@@ -464,7 +464,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
 
             `when`("it is bound to another BPMN process definition") {
                 val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
-                    zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+                    zaaktypeConfigurationBeheerService.checkProcessBinding(
                         zaaktypeUuid = zaaktypeUuid,
                         processEngine = ProcessEngine.BPMN,
                         definitionKey = "fakeProcessB",
@@ -481,7 +481,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
 
             `when`("it is bound to a CMMN case definition with the same key as its BPMN process definition") {
                 val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
-                    zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+                    zaaktypeConfigurationBeheerService.checkProcessBinding(
                         zaaktypeUuid = zaaktypeUuid,
                         processEngine = ProcessEngine.CMMN,
                         definitionKey = "fakeProcessA",
@@ -505,7 +505,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
 
                 then("the binding is accepted") {
                     shouldNotThrowAny {
-                        zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+                        zaaktypeConfigurationBeheerService.checkProcessBinding(
                             zaaktypeUuid = zaaktypeUuid,
                             processEngine = ProcessEngine.BPMN,
                             definitionKey = "fakeProcessB",
@@ -519,7 +519,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                 every { bpmnService.findProcessDefinitionByProcessDefinitionKey("fakeDeletedProcess") } returns null
 
                 val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
-                    zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+                    zaaktypeConfigurationBeheerService.checkProcessBinding(
                         zaaktypeUuid = zaaktypeUuid,
                         processEngine = ProcessEngine.BPMN,
                         definitionKey = "fakeDeletedProcess",
@@ -543,7 +543,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
             `when`("it is bound to another CMMN case definition") {
                 then("the binding is accepted") {
                     shouldNotThrowAny {
-                        zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+                        zaaktypeConfigurationBeheerService.checkProcessBinding(
                             zaaktypeUuid = zaaktypeUuid,
                             processEngine = ProcessEngine.CMMN,
                             definitionKey = "fakeOtherCaseDefinition",
@@ -558,7 +558,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
 
                 then("the binding is accepted, so that the zaaktype version switches engine") {
                     shouldNotThrowAny {
-                        zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+                        zaaktypeConfigurationBeheerService.checkProcessBinding(
                             zaaktypeUuid = zaaktypeUuid,
                             processEngine = ProcessEngine.BPMN,
                             definitionKey = "fakeProcessB",
@@ -577,7 +577,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
 
             `when`("it is bound to another CMMN case definition") {
                 val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
-                    zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+                    zaaktypeConfigurationBeheerService.checkProcessBinding(
                         zaaktypeUuid = zaaktypeUuid,
                         processEngine = ProcessEngine.CMMN,
                         definitionKey = "fakeOtherCaseDefinition",
@@ -594,7 +594,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
 
             `when`("it is bound to a BPMN process definition") {
                 val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
-                    zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+                    zaaktypeConfigurationBeheerService.checkProcessBinding(
                         zaaktypeUuid = zaaktypeUuid,
                         processEngine = ProcessEngine.BPMN,
                         definitionKey = "fakeProcessB",
@@ -616,7 +616,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
             `when`("the binding is checked") {
                 then("it is accepted, so that the zaaktype version switches engine") {
                     shouldNotThrowAny {
-                        zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+                        zaaktypeConfigurationBeheerService.checkProcessBinding(
                             zaaktypeUuid = zaaktypeUuid,
                             processEngine = ProcessEngine.CMMN,
                             definitionKey = "fakeCaseDefinition",
@@ -634,7 +634,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
 
             `when`("the binding is checked") {
                 val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
-                    zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+                    zaaktypeConfigurationBeheerService.checkProcessBinding(
                         zaaktypeUuid = zaaktypeUuid,
                         processEngine = ProcessEngine.CMMN,
                         definitionKey = "fakeCaseDefinition",
@@ -657,7 +657,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
 
                 then("the binding is accepted") {
                     shouldNotThrowAny {
-                        zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+                        zaaktypeConfigurationBeheerService.checkProcessBinding(
                             zaaktypeUuid = zaaktypeUuid,
                             processEngine = ProcessEngine.BPMN,
                             definitionKey = "fakeProcessB",
@@ -671,7 +671,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                 every { bpmnService.findProcessDefinitionByProcessDefinitionKey("fakeDeletedProcess") } returns null
 
                 val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
-                    zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+                    zaaktypeConfigurationBeheerService.checkProcessBinding(
                         zaaktypeUuid = zaaktypeUuid,
                         processEngine = ProcessEngine.BPMN,
                         definitionKey = "fakeDeletedProcess",

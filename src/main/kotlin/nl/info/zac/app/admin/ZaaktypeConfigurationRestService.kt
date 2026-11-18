@@ -150,7 +150,7 @@ class ZaaktypeConfigurationRestService @Inject constructor(
         // Asked before the store, because a remote call between the cache eviction and the commit of the store
         // lets a concurrent read cache the previous binding again.
         val hasZaken = zaaktypeConfigurationBeheerService.hasZaken(zaaktypeUUID)
-        zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+        zaaktypeConfigurationBeheerService.checkProcessBinding(
             zaaktypeUuid = zaaktypeUUID,
             processEngine = processDefinition.processEngine,
             definitionKey = processDefinition.key,

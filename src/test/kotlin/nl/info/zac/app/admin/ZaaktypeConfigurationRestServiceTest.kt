@@ -111,7 +111,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
             } just runs
             every { zaaktypeConfigurationBeheerService.hasZaken(restZaakafhandelParameters.zaaktype.uuid) } returns false
             every {
-                zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+                zaaktypeConfigurationBeheerService.checkProcessBinding(
                     zaaktypeUuid = restZaakafhandelParameters.zaaktype.uuid,
                     processEngine = restZaakafhandelParameters.processDefinition!!.processEngine,
                     definitionKey = restZaakafhandelParameters.processDefinition!!.key,
@@ -283,7 +283,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
         every { policyService.readOverigeRechten().canBeheren } returns true
         every { zaaktypeConfigurationBeheerService.hasZaken(restZaaktypeConfiguration.zaaktype.uuid) } returns true
         every {
-            zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+            zaaktypeConfigurationBeheerService.checkProcessBinding(
                 zaaktypeUuid = restZaaktypeConfiguration.zaaktype.uuid,
                 processEngine = restZaaktypeConfiguration.processDefinition!!.processEngine,
                 definitionKey = restZaaktypeConfiguration.processDefinition!!.key,
@@ -313,7 +313,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
         every { policyService.readOverigeRechten().canBeheren } returns true
         every { zaaktypeConfigurationBeheerService.hasZaken(restZaaktypeConfiguration.zaaktype.uuid) } returns true
         every {
-            zaaktypeConfigurationBeheerService.checkProcessDefinitionMayChange(
+            zaaktypeConfigurationBeheerService.checkProcessBinding(
                 zaaktypeUuid = restZaaktypeConfiguration.zaaktype.uuid,
                 processEngine = restZaaktypeConfiguration.processDefinition!!.processEngine,
                 definitionKey = restZaaktypeConfiguration.processDefinition!!.key,
