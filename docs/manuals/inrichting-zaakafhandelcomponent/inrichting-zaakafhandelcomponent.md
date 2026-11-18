@@ -922,8 +922,8 @@ Zodra er een zaak van de zaaktypeversie bestaat, ligt het procesmodel vast. De s
 Een nieuwe versie van een zaaktype neemt bij publicatie de inrichting van de vorige versie over, ook het procesmodel, en is meteen te gebruiken. Om een zaaktype met zaken een ander procesmodel te geven, voorkom je dat er zaken met het oude procesmodel worden aangemaakt voordat je het nieuwe kiest:
 
 1. Wissel je van BPMN naar CMMN, richt dan in de nieuwe versie in de zaaktypecatalogus eerst de statussen, rollen en andere onderdelen in die een CMMN-zaaktype nodig heeft. Controleer de versie na de publicatie in de [Zaaktype inrichtingscheck](#zaaktype-inrichtingscheck).
-2. Publiceer de nieuwe versie met een begin geldigheid in de toekomst. Geef de huidige versie als einde geldigheid dezelfde datum als de begin geldigheid van de nieuwe versie. ZAC biedt een versie aan tot de dag van haar einde geldigheid, dus zo blijft de huidige versie te gebruiken tot de nieuwe ingaat.
-3. Heeft het zaaktype een productaanvraagtype, stop dan eerst de intake van productaanvragen voor dit zaaktype. ZAC maakt een zaak uit een productaanvraag aan bij de nieuwste versie van het zaaktype, ook als die nog niet geldig is, en die eerste zaak legt het procesmodel vast.
+2. Heeft het zaaktype een productaanvraagtype, stop dan vóór de publicatie de intake van productaanvragen voor dit zaaktype. ZAC maakt een zaak uit een productaanvraag aan bij de nieuwste versie van het zaaktype, ook als die nog niet geldig is, en die eerste zaak legt het procesmodel vast.
+3. Publiceer de nieuwe versie met een begin geldigheid in de toekomst. Geef de huidige versie als einde geldigheid dezelfde datum als de begin geldigheid van de nieuwe versie. ZAC biedt een versie aan tot de dag van haar einde geldigheid, dus zo blijft de huidige versie te gebruiken tot de nieuwe ingaat.
 4. Open de nieuwe versie in de zaakafhandelparameters, kies het procesmodel en sla de inrichting op.
 5. Laat de begin geldigheid ingaan en start daarna de intake van productaanvragen weer.
 
