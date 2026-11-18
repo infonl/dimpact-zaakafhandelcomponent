@@ -79,4 +79,16 @@ class StringUtilsTest : BehaviorSpec({
             }
         }
     }
+
+    context("dutchCollator") {
+        given("words that differ in upper and lower case and in accents") {
+            `when`("they are sorted with the Dutch collator") {
+                val sortedWords = listOf("Zorg", "aanvraag", "Échte melding", "beroep").sortedWith(dutchCollator())
+
+                then("they are in alphabetical order, as if case and accents were absent") {
+                    sortedWords shouldBe listOf("aanvraag", "beroep", "Échte melding", "Zorg")
+                }
+            }
+        }
+    }
 })
