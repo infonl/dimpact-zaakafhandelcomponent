@@ -17,8 +17,8 @@ export { serializeDatesWithLocalOffset } from "./moment-serialization";
 export {
   addDays,
   daysBetween,
+  daysElapsedSince,
   daysFromToday,
-  daysSince,
   endOfDay,
   isAfter,
   isPickedDate,

@@ -7,8 +7,8 @@ import moment from "moment";
 import {
   addDays,
   daysBetween,
+  daysElapsedSince,
   daysFromToday,
-  daysSince,
   endOfDay,
   fromApiDate,
   isAfter,
@@ -152,7 +152,7 @@ describe("date-time", () => {
       expect(toApiDateTime(value)).toBeNull();
     });
   });
-  describe(daysSince.name, () => {
+  describe(daysElapsedSince.name, () => {
     beforeEach(() => {
       jest.useFakeTimers().setSystemTime(new Date(2026, 6, 30, 12));
     });
@@ -162,16 +162,16 @@ describe("date-time", () => {
     });
 
     it("counts the whole days since a moment", () => {
-      expect(daysSince("2026-07-20T13:00:00+02:00")).toBe(9);
-      expect(daysSince("2026-07-20T11:00:00+02:00")).toBe(10);
+      expect(daysElapsedSince("2026-07-20T13:00:00+02:00")).toBe(9);
+      expect(daysElapsedSince("2026-07-20T11:00:00+02:00")).toBe(10);
     });
 
     it("counts no days when there is no moment", () => {
-      expect(daysSince(undefined)).toBe(0);
+      expect(daysElapsedSince(undefined)).toBe(0);
     });
 
     it("also reads a moment that is not written in ISO 8601", () => {
-      expect(daysSince("Mon, 20 Jul 2026 13:00:00 +0200")).toBe(9);
+      expect(daysElapsedSince("Mon, 20 Jul 2026 13:00:00 +0200")).toBe(9);
     });
   });
 

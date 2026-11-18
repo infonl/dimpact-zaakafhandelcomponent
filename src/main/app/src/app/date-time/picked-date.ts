@@ -61,7 +61,7 @@ function toLenientMoment(value: DateInput | null | undefined) {
   return moment(value);
 }
 
-export function daysSince(value: DateInput | null | undefined) {
+export function daysElapsedSince(value: DateInput | null | undefined) {
   return daysBetween(toLenientMoment(value), now());
 }
 
