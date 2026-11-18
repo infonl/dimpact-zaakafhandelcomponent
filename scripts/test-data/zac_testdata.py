@@ -176,7 +176,7 @@ def create_zaak(
     body = {
         "zaak": {
             "zaaktype": {"uuid": zaaktype_uuid},
-            "startdatum": datetime.datetime.now().astimezone().replace(microsecond=0).isoformat(),
+            "startdatum": datetime.date.today().isoformat(),
             "groep": {"id": ZAAK_GROUP_ID, "naam": ZAAK_GROUP_NAME},
             "communicatiekanaal": "fakeCommunicatiekanaal1",
             "vertrouwelijkheidaanduiding": "OPENBAAR",
@@ -252,9 +252,7 @@ def upload_document_to_zaak(
     informatieobjecttype_uuid = BIJLAGE_UUID_BY_ZAAKTYPE.get(
         zaaktype_uuid, INFORMATIEOBJECTTYPE_BIJLAGE_UUID
     )
-    # ZAC parses this with the strict pattern "yyyy-MM-dd'T'HH:mmXXX", so minute precision
-    # is required: an ISO string including seconds is rejected.
-    creatiedatum = datetime.datetime.now().astimezone().isoformat(timespec="minutes")
+    creatiedatum = datetime.date.today().isoformat()
     fields = [
         ("bestandsnaam", document["filename"], None, None),
         ("titel", document["titel"], None, None),

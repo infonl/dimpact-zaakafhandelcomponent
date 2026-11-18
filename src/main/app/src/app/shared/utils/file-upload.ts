@@ -3,10 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { toFormDataDateTime } from "../../date-time";
-
-const DATE_FIELDS = ["creatiedatum", "ontvangstdatum", "verzenddatum"];
-
 export function toDocumentFormData(
   document: Record<string, unknown>,
 ): FormData {
@@ -16,8 +12,6 @@ export function toDocumentFormData(
     if (value === undefined || value === null) continue;
     if (value instanceof Blob) {
       appendFileToFormData(formData, value, filename);
-    } else if (DATE_FIELDS.includes(key)) {
-      formData.append(key, toFormDataDateTime(String(value)));
     } else if (typeof value === "object") {
       formData.append(key, JSON.stringify(value));
     } else {

@@ -119,13 +119,17 @@ class SuspensionZaakHelper @Inject constructor(
     fun extendZaak(
         zaak: Zaak,
         zaakType: ZaakType,
-        dueDate: LocalDate?,
-        fatalDate: LocalDate?,
         extensionReason: String?,
         numberOfDays: Int
     ): Zaak {
         assertExtensionPeriodIsValid(zaakType, numberOfDays)
-        return convertToPatch(zaak, dueDate, fatalDate, extensionReason, numberOfDays).let {
+        return convertToPatch(
+            zaak = zaak,
+            dueDate = zaak.einddatumGepland?.plusDays(numberOfDays.toLong()),
+            fatalDate = zaak.uiterlijkeEinddatumAfdoening?.plusDays(numberOfDays.toLong()),
+            extensionReason = extensionReason,
+            numberOfDays = numberOfDays
+        ).let {
             zrcClientService.patchZaak(zaak.uuid, it, "$VERLENGING: $extensionReason")
         }
     }

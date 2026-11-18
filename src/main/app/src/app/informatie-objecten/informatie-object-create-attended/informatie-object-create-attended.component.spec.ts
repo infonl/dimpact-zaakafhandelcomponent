@@ -313,7 +313,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
     expect(windowOpen).toHaveBeenCalledWith("https://example.com/doc");
   });
 
-  it("creates the document with a creation date that keeps its time and offset", async () => {
+  it("creates the document with the picked creation date, without a time", async () => {
     await setup();
     await fillInValidForm();
 
@@ -321,11 +321,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
     await sleep();
 
     const request = httpTestingController.expectOne(CREATE_URL);
-    expect(request.request.body.creationDate).toMatch(
-      new RegExp(
-        `^${toApiDate(today())}T\\d{2}:\\d{2}:\\d{2}[+-]\\d{2}:\\d{2}$`,
-      ),
-    );
+    expect(request.request.body.creationDate).toBe(toApiDate(today()));
   });
 
   it("creates the document for the taak it was opened from", async () => {

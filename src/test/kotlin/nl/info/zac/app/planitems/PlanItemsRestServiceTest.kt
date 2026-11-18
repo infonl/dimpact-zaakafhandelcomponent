@@ -59,6 +59,7 @@ import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.task.TaskHistoryService
+import nl.info.zac.time.ZacTime
 import nl.info.zac.time.toDate
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
@@ -612,6 +613,66 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                             vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                         }
                     }
+                }
+            }
+        }
+
+        given("Task data for an aanvullende informatie task that holds a datumGevraagd chosen by the client") {
+            val restHumanTaskData = createRestHumanTaskData(
+                planItemInstanceId = planItemInstanceId,
+                taakdata = mapOf(
+                    "emailadres" to "example@example.com",
+                    "body" to "body",
+                    "datumGevraagd" to "2000-01-01"
+                ),
+                fataledatum = null
+            )
+            val taskDataSlot = slot<Map<String, String>>()
+            val zaak = createZaak(
+                zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
+                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
+            )
+            val zaaktypeConfiguration = createZaaktypeCmmnConfiguration(zaaktypeUUID = zaakTypeUUID).apply {
+                getOrCreateCmmnExtension().setHumanTaskParametersCollection(
+                    listOf(
+                        createHumanTaskParameters(
+                            planItemDefinitionID = planItemInstanceId,
+                            formulierDefinitieID = FormulierDefinitie.AANVULLENDE_INFORMATIE.name,
+                            leadTime = null
+                        )
+                    )
+                )
+            }
+            val loggedInUser = createLoggedInUser()
+            every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
+            every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { zaaktypeConfigurationService.findConfiguration(zaakTypeUUID) } returns zaaktypeConfiguration
+            every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
+            every { mailTemplateService.readDefaultMailTemplate(Mail.TAAK_AANVULLENDE_INFORMATIE) } returns createMailTemplate()
+            every { configurationService.readGemeenteNaam() } returns "gemeenteNaam"
+            every { mailService.getGemeenteMailAdres() } returns createMailAdres()
+            every { mailService.sendMail(any(), any()) } returns "body"
+            every {
+                cmmnService.startHumanTaskPlanItem(
+                    planItemInstanceId = planItemInstanceId,
+                    groupId = restHumanTaskData.groep.id,
+                    assignee = null,
+                    dueDate = any(),
+                    description = restHumanTaskData.toelichting,
+                    taakdata = capture(taskDataSlot),
+                    zaakUUID = zaak.uuid
+                )
+            } just runs
+            every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
+
+            `when`("the human task plan item is started") {
+                planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
+
+                then("the backend sets datumGevraagd to today, whatever the client sent") {
+                    taskDataSlot.captured["datumGevraagd"] shouldBe ZacTime.today().toString()
                 }
             }
         }

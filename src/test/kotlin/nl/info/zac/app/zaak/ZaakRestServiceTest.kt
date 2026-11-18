@@ -4242,9 +4242,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val restZaakVerlengGegevens = RestZaakVerlengGegevens(
                 redenVerlenging = "fakeExtensionReason",
                 duurDagen = 30,
-                shouldTakenVerlengen = false,
-                einddatumGepland = LocalDate.of(2026, 2, 1),
-                uiterlijkeEinddatumAfdoening = LocalDate.of(2026, 3, 1)
+                shouldTakenVerlengen = false
             )
 
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -4256,8 +4254,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                 suspensionZaakHelper.extendZaak(
                     zaak = zaak,
                     zaakType = zaakType,
-                    dueDate = restZaakVerlengGegevens.einddatumGepland,
-                    fatalDate = restZaakVerlengGegevens.uiterlijkeEinddatumAfdoening,
                     extensionReason = restZaakVerlengGegevens.redenVerlenging,
                     numberOfDays = 30
                 )
@@ -4279,8 +4275,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                         suspensionZaakHelper.extendZaak(
                             zaak = zaak,
                             zaakType = zaakType,
-                            dueDate = restZaakVerlengGegevens.einddatumGepland,
-                            fatalDate = restZaakVerlengGegevens.uiterlijkeEinddatumAfdoening,
                             extensionReason = restZaakVerlengGegevens.redenVerlenging,
                             numberOfDays = 30
                         )

@@ -14,7 +14,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.runs
-import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import nl.info.client.zgw.model.createZaak
@@ -82,14 +81,10 @@ class ExtendZaakDelegateTest : BehaviorSpec({
         val takenVerlengenExpression = mockk<JuelExpression>()
         every { takenVerlengenExpression.getValue(delegateExecution) } returns true
 
-        val dueDateSlot = slot<LocalDate>()
-        val fatalDateSlot = slot<LocalDate>()
         every {
             suspensionZaakHelper.extendZaak(
                 zaak = zaak,
                 zaakType = zaaktype,
-                dueDate = capture(dueDateSlot),
-                fatalDate = capture(fatalDateSlot),
                 extensionReason = any<String>(),
                 numberOfDays = extendDays
             )
@@ -122,18 +117,11 @@ class ExtendZaakDelegateTest : BehaviorSpec({
                     suspensionZaakHelper.extendZaak(
                         zaak = zaak,
                         zaakType = zaaktype,
-                        dueDate = any<LocalDate>(),
-                        fatalDate = any<LocalDate>(),
                         extensionReason = any<String>(),
                         numberOfDays = extendDays
                     )
                     suspensionZaakHelper.extendTasks(zaak, extendDays)
                 }
-            }
-
-            and("due date and fatal date are extended") {
-                dueDateSlot.captured shouldBe zaak.einddatumGepland.plusDays(extendDays.toLong())
-                fatalDateSlot.captured shouldBe zaak.uiterlijkeEinddatumAfdoening.plusDays(extendDays.toLong())
             }
 
             and("events are sent") {
@@ -185,8 +173,6 @@ class ExtendZaakDelegateTest : BehaviorSpec({
                     suspensionZaakHelper.extendZaak(
                         zaak = any(),
                         zaakType = any(),
-                        dueDate = any(),
-                        fatalDate = any(),
                         extensionReason = any(),
                         numberOfDays = any()
                     )

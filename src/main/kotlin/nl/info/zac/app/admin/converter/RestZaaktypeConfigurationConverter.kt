@@ -124,7 +124,7 @@ class RestZaaktypeConfigurationConverter @Inject constructor(
             defaultBehandelaarId = restZaaktypeConfiguration.defaultBehandelaarId
             einddatumGeplandWaarschuwing = restZaaktypeConfiguration.einddatumGeplandWaarschuwing
             isSmartDocumentsEnabled = restZaaktypeConfiguration.smartDocuments.isEnabledForZaaktype
-            creatiedatum = restZaaktypeConfiguration.creatiedatum ?: ZacTime.now()
+            creatiedatum = creatiedatum ?: ZacTime.now()
             restZaaktypeConfiguration.automaticEmailConfirmation.ifSupplied {
                 zaaktypeEmailParameters = it.toAutomaticEmailConfirmation(this)
             }

@@ -5,7 +5,7 @@
 
 export { fromApiDate, toApiDate, type PickedDate } from "./api-date";
 export { daysSince, isEarlierDay, isLaterDay } from "./comparison";
-export { fromTimestamp, toFormDataDateTime } from "./conversion";
+export { fromTimestamp } from "./conversion";
 export {
   FILTER_DATE_FORMATS,
   ZAC_DATE_FORMATS,

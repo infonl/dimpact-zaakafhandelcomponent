@@ -100,6 +100,7 @@ class PlanItemsRestService @Inject constructor(
     companion object {
         private const val REDEN_OPSCHORTING = "Aanvullende informatie opgevraagd"
         private const val REDEN_PAST_FATALE_DATUM = "Aanvullende informatie opgevraagd"
+        const val TAAKDATA_DATUM_GEVRAAGD = "datumGevraagd"
     }
 
     @GET
@@ -172,6 +173,9 @@ class PlanItemsRestService @Inject constructor(
         val formulierDefinitieID = zaaktypeConfiguration?.cmmnExtension
             ?.findHumanTaskParameter(planItem.planItemDefinitionId)
             ?.getFormulierDefinitieID()
+        if (formulierDefinitieID == FormulierDefinitie.AANVULLENDE_INFORMATIE.name) {
+            taakdata[TAAKDATA_DATUM_GEVRAAGD] = ZacTime.today().toString()
+        }
         readTaskMail(formulierDefinitieID)?.let { mail ->
             val mailTemplate = zaaktypeConfiguration?.getMailtemplateKoppelingen().orEmpty()
                 .map { it.mailTemplate }
