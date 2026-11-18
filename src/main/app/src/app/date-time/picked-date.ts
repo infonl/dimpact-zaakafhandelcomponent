@@ -4,7 +4,7 @@
  */
 
 import moment from "moment";
-import { PickedDate } from "./api-date";
+import { fromApiDate, PickedDate } from "./api-date";
 
 export type DateInput = PickedDate | string;
 
@@ -33,7 +33,11 @@ export function toPickedDate(
   value: DateInput | null | undefined,
 ): PickedDate | null {
   if (value === null || value === undefined || value === "") return null;
-  const date = toMoment(value);
+  if (typeof value === "string") {
+    const date = fromApiDate(value);
+    return date ? moment(date) : null;
+  }
+  const date = moment(value);
   return date.isValid() ? date : null;
 }
 
