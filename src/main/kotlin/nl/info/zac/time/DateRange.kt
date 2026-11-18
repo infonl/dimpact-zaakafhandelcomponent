@@ -34,6 +34,15 @@ sealed interface DateRange {
 }
 
 /**
+ * Whether the date lies in the range, the end date included.
+ */
+operator fun DateRange.contains(date: LocalDate) = when (this) {
+    is DateRange.Between -> !date.isBefore(from) && !date.isAfter(through)
+    is DateRange.From -> !date.isBefore(from)
+    is DateRange.Through -> !date.isAfter(through)
+}
+
+/**
  * The range as a half-open time range in [ZacTime.ZONE]: from the start of the first day up to, but not including,
  * the start of the day after the last day.
  */

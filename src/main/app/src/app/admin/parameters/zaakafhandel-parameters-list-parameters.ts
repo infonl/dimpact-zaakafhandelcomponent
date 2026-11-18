@@ -4,14 +4,18 @@
  */
 
 import { SortDirection } from "@angular/material/sort";
+import moment from "moment";
 import { ListParameters } from "../../shared/model/list-parameters";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakafhandelParametersListQuery } from "../zaakafhandel-parameters.service";
+
+export const ZAAKAFHANDELPARAMETERS_PAGE_SIZE = 25;
 
 export class ZaakafhandelParametersListParameters extends ListParameters {
   valide: ToggleSwitchOptions = ToggleSwitchOptions.CHECKED;
   geldig: ToggleSwitchOptions = ToggleSwitchOptions.CHECKED;
-  zaaktype: Partial<GeneratedType<"RestZaaktypeBeheerOverzicht">> | null = null;
+  zaaktype: GeneratedType<"RestZaaktypeFilterOptie"> | null = null;
   processDefinition: Partial<
     GeneratedType<"RestProcessDefinitionOverzicht">
   > | null = null;
@@ -22,3 +26,54 @@ export class ZaakafhandelParametersListParameters extends ListParameters {
     super(sort, order);
   }
 }
+
+const sortFields = {
+  valide: "VALIDE",
+  omschrijving: "OMSCHRIJVING",
+  model: "PROCESS_DEFINITION",
+  geldig: "GELDIG",
+  beginGeldigheid: "BEGIN_GELDIGHEID",
+  eindeGeldigheid: "EINDE_GELDIGHEID",
+} as const satisfies Record<
+  string,
+  GeneratedType<"RestZaaktypeConfigurationSortField">
+>;
+
+export type ZaakafhandelParametersSortColumn = keyof typeof sortFields;
+
+const isSortColumn = (sort: string): sort is ZaakafhandelParametersSortColumn =>
+  Object.hasOwn(sortFields, sort);
+
+const toBoolean = (toggleSwitchOption: ToggleSwitchOptions) => {
+  switch (toggleSwitchOption) {
+    case ToggleSwitchOptions.CHECKED:
+      return true;
+    case ToggleSwitchOptions.UNCHECKED:
+      return false;
+    default:
+      return null;
+  }
+};
+
+const toLocalDate = (date?: string | null) =>
+  date ? moment(date).format("YYYY-MM-DD") : null;
+
+export const toZaaktypeConfigurationListQuery = (
+  listParameters: ZaakafhandelParametersListParameters,
+): ZaakafhandelParametersListQuery => ({
+  page: listParameters.page,
+  rows: ZAAKAFHANDELPARAMETERS_PAGE_SIZE,
+  sortField:
+    listParameters.order && isSortColumn(listParameters.sort)
+      ? sortFields[listParameters.sort]
+      : null,
+  sortOrder: listParameters.order === "desc" ? "DESC" : "ASC",
+  isValide: toBoolean(listParameters.valide),
+  isNuGeldig: toBoolean(listParameters.geldig),
+  zaaktypeIdentificatie: listParameters.zaaktype?.identificatie ?? null,
+  processDefinitionKey: listParameters.processDefinition?.key ?? null,
+  beginGeldigheidVan: toLocalDate(listParameters.beginGeldigheid.van),
+  beginGeldigheidTot: toLocalDate(listParameters.beginGeldigheid.tot),
+  eindeGeldigheidVan: toLocalDate(listParameters.eindeGeldigheid.van),
+  eindeGeldigheidTot: toLocalDate(listParameters.eindeGeldigheid.tot),
+});
