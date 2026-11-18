@@ -15,8 +15,11 @@ import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearMocks
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 import io.mockk.verify
+import jakarta.enterprise.event.Event
 import nl.info.client.zgw.shared.cache.Caching
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.admin.model.ProcessEngine
@@ -28,16 +31,17 @@ import java.util.UUID
 
 class ZaaktypeConfigurationServiceTest : BehaviorSpec({
     val zaaktypeConfigurationRepository = mockk<ZaaktypeConfigurationRepository>()
+    val cacheEvictionEvent = mockk<Event<ZaaktypeConfigurationCacheEvictionEvent>>()
 
     afterEach {
         checkUnnecessaryStub()
-        clearMocks(zaaktypeConfigurationRepository)
+        clearMocks(zaaktypeConfigurationRepository, cacheEvictionEvent)
     }
 
     createZaaktypeConfigurationsUnderTest().forEach { (configurationType, createZaaktypeConfiguration) ->
         context("finding the configuration of a zaaktype bound to $configurationType") {
             given("a stored $configurationType configuration") {
-                val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository)
+                val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository, cacheEvictionEvent)
                 val zaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype")
                 every {
                     zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeConfiguration.zaaktypeUuid)
@@ -58,15 +62,47 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
             }
 
             given("a cached $configurationType configuration that is evicted") {
-                val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository)
+                val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository, cacheEvictionEvent)
+                val zaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype")
+                every {
+                    zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeConfiguration.zaaktypeUuid)
+                } returns zaaktypeConfiguration
+                every { cacheEvictionEvent.fire(any()) } just runs
+                zaaktypeConfigurationService.findConfiguration(zaaktypeConfiguration.zaaktypeUuid)
+
+                `when`("the configuration is found again before the transaction of the eviction has completed") {
+                    zaaktypeConfigurationService.evict(zaaktypeConfiguration.zaaktypeUuid)
+                    val foundConfiguration = zaaktypeConfigurationService.findConfiguration(
+                        zaaktypeConfiguration.zaaktypeUuid
+                    )
+
+                    then(
+                        "an eviction event for the zaaktype is fired and the configuration is still served from the " +
+                            "cache, so that the cache is only cleared once the transaction has completed"
+                    ) {
+                        foundConfiguration shouldBe zaaktypeConfiguration
+                        verify(exactly = 1) {
+                            cacheEvictionEvent.fire(
+                                ZaaktypeConfigurationCacheEvictionEvent(zaaktypeConfiguration.zaaktypeUuid)
+                            )
+                            zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeConfiguration.zaaktypeUuid)
+                        }
+                    }
+                }
+            }
+
+            given("a cached $configurationType configuration whose eviction event is observed") {
+                val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository, cacheEvictionEvent)
                 val zaaktypeConfiguration = createZaaktypeConfiguration("fakeNietOntvankelijkResultaattype")
                 every {
                     zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeConfiguration.zaaktypeUuid)
                 } returns zaaktypeConfiguration
                 zaaktypeConfigurationService.findConfiguration(zaaktypeConfiguration.zaaktypeUuid)
 
-                `when`("the configuration is found again") {
-                    zaaktypeConfigurationService.evict(zaaktypeConfiguration.zaaktypeUuid)
+                `when`("the transaction completes and the configuration is found again") {
+                    zaaktypeConfigurationService.onCacheEviction(
+                        ZaaktypeConfigurationCacheEvictionEvent(zaaktypeConfiguration.zaaktypeUuid)
+                    )
                     zaaktypeConfigurationService.findConfiguration(zaaktypeConfiguration.zaaktypeUuid)
 
                     then("it is read from the database again") {
@@ -81,7 +117,7 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
 
     context("finding the configurations of all zaaktypes of a large catalogus") {
         given("the stored configurations of 500 zaaktypes") {
-            val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository)
+            val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository, cacheEvictionEvent)
             val zaaktypeUuids = List(500) { UUID.randomUUID() }
             zaaktypeUuids.forEach { zaaktypeUuid ->
                 every {
@@ -106,7 +142,7 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
 
     context("finding the configuration of a zaaktype without a configuration") {
         given("a zaaktype UUID without a configuration") {
-            val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository)
+            val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository, cacheEvictionEvent)
             val zaaktypeUuid = UUID.randomUUID()
             every { zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid) } returns null
 
@@ -132,7 +168,7 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
 
     context("listing the deadline warning windows") {
         given("a zaaktype configuration with a deadline warning window") {
-            val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository)
+            val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository, cacheEvictionEvent)
             val deadlineWarningWindows = listOf(
                 ZaaktypeDeadlineWarningWindows(
                     zaaktypeUuid = UUID.randomUUID(),
@@ -155,11 +191,43 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
                 }
             }
         }
+
+        given("cached deadline warning windows and a zaaktype whose configuration is evicted") {
+            val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository, cacheEvictionEvent)
+            val zaaktypeUuid = UUID.randomUUID()
+            every { zaaktypeConfigurationRepository.listDeadlineWarningWindows() } returns emptyList()
+            every { cacheEvictionEvent.fire(any()) } just runs
+            zaaktypeConfigurationService.listDeadlineWarningWindows()
+
+            `when`("the windows are listed again before the transaction of the eviction has completed") {
+                zaaktypeConfigurationService.evict(zaaktypeUuid)
+                zaaktypeConfigurationService.listDeadlineWarningWindows()
+
+                then("they are still served from the cache") {
+                    verify(exactly = 1) { zaaktypeConfigurationRepository.listDeadlineWarningWindows() }
+                }
+            }
+        }
+
+        given("cached deadline warning windows and an observed eviction event") {
+            val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository, cacheEvictionEvent)
+            every { zaaktypeConfigurationRepository.listDeadlineWarningWindows() } returns emptyList()
+            zaaktypeConfigurationService.listDeadlineWarningWindows()
+
+            `when`("the transaction completes and the windows are listed again") {
+                zaaktypeConfigurationService.onCacheEviction(ZaaktypeConfigurationCacheEvictionEvent(UUID.randomUUID()))
+                zaaktypeConfigurationService.listDeadlineWarningWindows()
+
+                then("they are read from the database again") {
+                    verify(exactly = 2) { zaaktypeConfigurationRepository.listDeadlineWarningWindows() }
+                }
+            }
+        }
     }
 
     context("listing the definition keys of an engine") {
         given("BPMN configurations with definition keys") {
-            val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository)
+            val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository, cacheEvictionEvent)
             every {
                 zaaktypeConfigurationRepository.listDistinctDefinitionKeys(ProcessEngine.BPMN)
             } returns listOf("fakeProcessDefinitionKey1", "fakeProcessDefinitionKey2")
@@ -176,7 +244,7 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
 
     context("finding current configuration and querying collections") {
         given("a configuration found by omschrijving") {
-            val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository)
+            val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository, cacheEvictionEvent)
             val config = ZaaktypeConfiguration().apply {
                 zaaktypeUuid = UUID.randomUUID()
                 zaaktypeOmschrijving = "fakeOmschrijving"
@@ -196,7 +264,7 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
         }
 
         given("configurations listed by productaanvraagtype") {
-            val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository)
+            val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository, cacheEvictionEvent)
             val config = ZaaktypeConfiguration().apply {
                 zaaktypeUuid = UUID.randomUUID()
                 zaaktypeOmschrijving = "fakeOmschrijving"
@@ -217,7 +285,7 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
 
     context("smart documents status and termination reasons") {
         given("a configuration with smart documents enabled") {
-            val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository)
+            val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository, cacheEvictionEvent)
             val configUuid = UUID.randomUUID()
             val nonExistingUuid = UUID.randomUUID()
             val config = ZaaktypeConfiguration().apply {
@@ -239,7 +307,7 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
         }
 
         given("zaakbeeindig redenen in repository") {
-            val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository)
+            val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository, cacheEvictionEvent)
             val reden = ZaakbeeindigReden().apply {
                 id = 1L
                 naam = "fakeReden"
@@ -258,13 +326,29 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
 
     context("cache clearing and statistics") {
         given("a ZaaktypeConfigurationService instance") {
-            val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository)
+            val zaaktypeConfigurationService = ZaaktypeConfigurationService(zaaktypeConfigurationRepository, cacheEvictionEvent)
 
             `when`("clearing managed cache") {
                 val message = zaaktypeConfigurationService.clearManagedCache()
 
                 then("it returns the cleared message") {
                     message shouldContain Caching.ZAC_ZAAKTYPECMMNCONFIGURATION_MANAGED
+                }
+            }
+
+            `when`("a cached configuration is found again after clearing the managed cache") {
+                val zaaktypeUuid = UUID.randomUUID()
+                every { zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid) } returns null
+                zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
+                zaaktypeConfigurationService.clearManagedCache()
+                zaaktypeConfigurationService.findConfiguration(zaaktypeUuid)
+
+                then(
+                    "it is read from the database again, so that clearing by hand does not wait for a transaction " +
+                        "and fires no eviction event"
+                ) {
+                    verify(exactly = 2) { zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid) }
+                    verify(exactly = 0) { cacheEvictionEvent.fire(any()) }
                 }
             }
 

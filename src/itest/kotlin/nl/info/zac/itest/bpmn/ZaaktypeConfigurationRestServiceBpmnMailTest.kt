@@ -16,6 +16,7 @@ import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_ALGEMEEN_MAIL
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_ALGEMEEN_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_RESULTAATTYPE_AFGEBROKEN_UUID
@@ -120,6 +121,22 @@ class ZaaktypeConfigurationRestServiceBpmnMailTest : BehaviorSpec({
             then("it is the default zaakafzender of the configuration") {
                 response.code shouldBe HTTP_OK
                 JSONObject(response.bodyAsString).getString("mail") shouldBe BPMN_ZAAKAFZENDER
+            }
+        }
+
+        `when`("a beheerder removes the koppeling and a behandelaar asks for the ZAAK_ALGEMEEN mail template again") {
+            storeBpmnTest2Configuration(mailtemplateKoppelingenJson = "[]", zaakAfzendersJson = "[]").code shouldBe HTTP_OK
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/mailtemplates/$MAIL_TEMPLATE_ZAAK_ALGEMEEN_MAIL/$zaakUuid",
+                testUser = BEHANDELAAR_1
+            )
+
+            then(
+                "the default mail template is proposed, so that the cached configuration is cleared once the save " +
+                    "has completed"
+            ) {
+                response.code shouldBe HTTP_OK
+                JSONObject(response.bodyAsString).getString("mailTemplateNaam") shouldBe MAIL_TEMPLATE_ZAAK_ALGEMEEN_NAME
             }
         }
     }
