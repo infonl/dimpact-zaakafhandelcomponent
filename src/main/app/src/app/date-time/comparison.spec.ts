@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { daysSince, isEarlierDay, isInDateRange, isLaterDay } from "./index";
+import { daysSince, isEarlierDay, isLaterDay } from "./index";
 
 describe("comparison", () => {
   describe(isEarlierDay.name, () => {
@@ -39,41 +39,6 @@ describe("comparison", () => {
     it("reads a typed day as DD-MM-YYYY or MM/DD/YYYY too", () => {
       expect(isLaterDay("31-07-2026", "2026-07-30")).toBe(true);
       expect(isLaterDay("07/29/2026", "2026-07-30")).toBe(false);
-    });
-  });
-
-  describe(isInDateRange.name, () => {
-    it.each([
-      ["2026-07-01", true],
-      ["2026-07-15", true],
-      ["2026-07-31", true],
-      ["2026-06-30", false],
-      ["2026-08-01", false],
-    ])(
-      "with both ends, includes the first and the last day: %s gives %s",
-      (value, expected) => {
-        expect(
-          isInDateRange(value, { from: "2026-07-01", through: "2026-07-31" }),
-        ).toBe(expected);
-      },
-    );
-
-    it("with only a start, includes every day from the start", () => {
-      expect(isInDateRange("2026-07-01", { from: "2026-07-01" })).toBe(true);
-      expect(isInDateRange("2026-06-30", { from: "2026-07-01" })).toBe(false);
-    });
-
-    it("with only an end, includes every day through the end", () => {
-      expect(isInDateRange("2026-07-31", { through: "2026-07-31" })).toBe(true);
-      expect(isInDateRange("2026-08-01", { through: "2026-07-31" })).toBe(
-        false,
-      );
-    });
-
-    it("matches nothing without a start or an end", () => {
-      expect(isInDateRange("2026-07-15", { from: null, through: null })).toBe(
-        false,
-      );
     });
   });
 

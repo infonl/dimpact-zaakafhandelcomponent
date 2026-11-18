@@ -7,6 +7,7 @@ package nl.info.zac.app.admin
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.validation.Valid
+import jakarta.ws.rs.BeanParam
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST
@@ -33,9 +34,11 @@ import nl.info.zac.app.admin.model.RestTaakFormulierDefinitie
 import nl.info.zac.app.admin.model.RestTaakFormulierVeldDefinitie
 import nl.info.zac.app.admin.model.RestZaakbeeindigReden
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
-import nl.info.zac.app.admin.model.RestZaaktypeConfigurationOverzicht
+import nl.info.zac.app.admin.model.RestZaaktypeConfigurationListParameters
+import nl.info.zac.app.admin.model.RestZaaktypeConfigurationOverzichtResultaat
 import nl.info.zac.app.admin.model.toRestReplyTos
 import nl.info.zac.app.admin.model.toRestZaakbeeindigReden
+import nl.info.zac.app.admin.model.toRestZaaktypeConfigurationOverzichtResultaat
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
 import nl.info.zac.configuration.ConfigurationService
@@ -83,16 +86,17 @@ class ZaaktypeConfigurationRestService @Inject constructor(
         return processDefinitionConverter.listProcessDefinitions()
     }
 
+    /**
+     * Lists one page of the zaaktype configurations of the default catalogus that match the filters, in the
+     * requested order, with the zaaktypes and process definitions of all configurations to filter on.
+     */
     @GET
-    fun listZaaktypeConfigurations(): List<RestZaaktypeConfigurationOverzicht> {
+    fun listZaaktypeConfigurationPage(
+        @BeanParam @Valid restZaaktypeConfigurationListParameters: RestZaaktypeConfigurationListParameters
+    ): RestZaaktypeConfigurationOverzichtResultaat {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
-        return ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
-            .map { zaaktype ->
-                restZaaktypeConfigurationConverter.toRestZaaktypeConfigurationOverzicht(
-                    zaaktypeConfiguration = findOrCreateConfiguration(zaaktype.url.extractUuid()),
-                    zaaktype = zaaktype
-                )
-            }
+        return listRestZaaktypeConfigurationOverzichten()
+            .toRestZaaktypeConfigurationOverzichtResultaat(restZaaktypeConfigurationListParameters)
     }
 
     @GET
@@ -282,6 +286,15 @@ class ZaaktypeConfigurationRestService @Inject constructor(
             ?.getZaakbeeindigParameters()
             ?.map { it.zaakbeeindigReden.toRestZaakbeeindigReden() }
             .orEmpty()
+
+    private fun listRestZaaktypeConfigurationOverzichten() =
+        ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
+            .map { zaaktype ->
+                restZaaktypeConfigurationConverter.toRestZaaktypeConfigurationOverzicht(
+                    zaaktypeConfiguration = findOrCreateConfiguration(zaaktype.url.extractUuid()),
+                    zaaktype = zaaktype
+                )
+            }
 
     /**
      * Returns the configuration of the zaaktype version, or a new one when the zaaktype version has none yet, so that

@@ -37,6 +37,7 @@ import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
 import nl.info.zac.app.admin.model.createRestProcessDefinition
 import nl.info.zac.app.admin.model.createRestZaaktypeBeheerOverzicht
 import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
+import nl.info.zac.app.admin.model.createRestZaaktypeConfigurationListParameters
 import nl.info.zac.app.admin.model.createRestZaaktypeConfigurationOverzicht
 import nl.info.zac.app.admin.model.createRestZaaktypeOverzicht
 import nl.info.zac.configuration.ConfigurationService
@@ -390,8 +391,10 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                 )
             } returns unconfiguredRestZaaktypeConfigurationOverzicht
 
-            `when`("a beheerder lists the zaaktype configurations") {
-                val restZaaktypeConfigurationOverzichten = zaaktypeConfigurationRestService.listZaaktypeConfigurations()
+            `when`("a beheerder lists the first page of the zaaktype configurations without filters") {
+                val restZaaktypeConfigurationOverzichten = zaaktypeConfigurationRestService
+                    .listZaaktypeConfigurationPage(createRestZaaktypeConfigurationListParameters())
+                    .results
 
                 then("a list item is returned for each zaaktype, in the order of the catalogus") {
                     restZaaktypeConfigurationOverzichten shouldBe listOf(
@@ -413,14 +416,29 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                     }
                 }
             }
+
+            `when`("a beheerder lists the first page of one row of the valid zaaktype configurations") {
+                val restZaaktypeConfigurationOverzichtResultaat =
+                    zaaktypeConfigurationRestService.listZaaktypeConfigurationPage(
+                        createRestZaaktypeConfigurationListParameters(page = 0, rows = 1, isValide = true)
+                    )
+
+                then("only the configuration of the configured zaaktype is returned, and it is the only match") {
+                    restZaaktypeConfigurationOverzichtResultaat.results shouldBe
+                        listOf(configuredRestZaaktypeConfigurationOverzicht)
+                    restZaaktypeConfigurationOverzichtResultaat.resultCount shouldBe 1
+                }
+            }
         }
 
         given("a user without the beheren right") {
             every { policyService.readOverigeRechten().canBeheren } returns false
 
-            `when`("the user lists the zaaktype configurations") {
+            `when`("the user lists a page of the zaaktype configurations") {
                 val policyException = shouldThrow<PolicyException> {
-                    zaaktypeConfigurationRestService.listZaaktypeConfigurations()
+                    zaaktypeConfigurationRestService.listZaaktypeConfigurationPage(
+                        createRestZaaktypeConfigurationListParameters()
+                    )
                 }
 
                 then("the request is refused without listing the zaaktypes") {

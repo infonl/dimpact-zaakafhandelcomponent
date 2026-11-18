@@ -28,9 +28,9 @@
             mat-table
             [dataSource]="parameters"
             matSort
-            #parametersSort="matSort"
-            matSortActive="geldig"
-            matSortDirection="desc"
+            [matSortActive]="filterParameters().sort"
+            [matSortDirection]="filterParameters().order"
+            (matSortChange)="applySort($event)"
           >
             <ng-container matColumnDef="valide_filter">
               <th mat-header-cell *matHeaderCellDef>
@@ -126,7 +126,7 @@
               <th
                 mat-header-cell
                 *matHeaderCellDef
-                mat-sort-header="valide"
+                [mat-sort-header]="sortColumn('valide')"
               ></th>
               <td mat-cell *matCellDef="let row; dataSource: parameters">
                 @if (row.isValide) {
@@ -137,7 +137,11 @@
               </td>
             </ng-container>
             <ng-container matColumnDef="omschrijving">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                [mat-sort-header]="sortColumn('omschrijving')"
+              >
                 {{ "zaaktype-omschrijving" | translate }}
               </th>
               <td mat-cell *matCellDef="let row; dataSource: parameters">
@@ -159,7 +163,11 @@
               </td>
             </ng-container>
             <ng-container matColumnDef="model">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                [mat-sort-header]="sortColumn('model')"
+              >
                 {{ "procesmodel" | translate }}
               </th>
               <td mat-cell *matCellDef="let row; dataSource: parameters">
@@ -175,7 +183,11 @@
               </td>
             </ng-container>
             <ng-container matColumnDef="geldig">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                [mat-sort-header]="sortColumn('geldig')"
+              >
                 {{ "geldig" | translate }}
               </th>
               <td mat-cell *matCellDef="let row; dataSource: parameters">
@@ -187,7 +199,11 @@
               </td>
             </ng-container>
             <ng-container matColumnDef="beginGeldigheid">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                [mat-sort-header]="sortColumn('beginGeldigheid')"
+              >
                 {{ "begin.geldigheid" | translate }}
               </th>
               <td mat-cell *matCellDef="let row; dataSource: parameters">
@@ -195,7 +211,11 @@
               </td>
             </ng-container>
             <ng-container matColumnDef="eindeGeldigheid">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                [mat-sort-header]="sortColumn('eindeGeldigheid')"
+              >
                 {{ "einde.geldigheid" | translate }}
               </th>
               <td mat-cell *matCellDef="let row; dataSource: parameters">
@@ -278,6 +298,13 @@
             </p>
           }
         </div>
+        <mat-paginator
+          [length]="totaal()"
+          [pageIndex]="filterParameters().page"
+          [pageSize]="pageSize"
+          [hidePageSize]="true"
+          (page)="applyPage($event)"
+        ></mat-paginator>
       </mat-card-content>
     </mat-card>
   </mat-sidenav-content>
