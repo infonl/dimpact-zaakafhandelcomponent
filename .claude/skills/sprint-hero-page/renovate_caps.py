@@ -299,7 +299,8 @@ def apply(plan_file, ticket):
         lines = [f'- {change["component"]}: `{change["old"]}` -> `{change["new"]}`' for change in entry['changes']]
         gh('api', '-X', 'POST', f'repos/{repo}/git/refs', '-f', f'ref=refs/heads/{branch}', '-f',
            f'sha={entry["main_sha"]}')
-        commit_message = (f'{title}\n\nRaise the Renovate allowedVersions caps of the images and Helm charts to the versions of {release}:\n')
+        commit_message = (f'{title}\n\nRaise the Renovate allowedVersions caps of the images and Helm charts to the versions of {release}:\n'
+                          + '\n'.join(lines) + '\n')
         gh('api', '-X', 'PUT', f'repos/{repo}/contents/renovate.json', '--input', '-', input_text=json.dumps({
             'message': commit_message,
             'content': base64.b64encode(entry['new_text'].encode()).decode(),
