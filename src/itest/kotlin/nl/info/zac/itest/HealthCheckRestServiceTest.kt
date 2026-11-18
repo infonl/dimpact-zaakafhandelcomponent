@@ -226,7 +226,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             "a page size above the maximum" to "rows=101",
             "a negative page" to "page=-1",
             "an unknown status" to "status=ONBEKEND",
-            "an unknown sort field" to "sort=identificatie"
+            "an unknown sort field" to "sortField=IDENTIFICATIE"
         ).forEach { (description, queryParameter) ->
             `when`("the inrichtingschecks are listed with $description") {
                 val response = itestHttpClient.performGetRequest(

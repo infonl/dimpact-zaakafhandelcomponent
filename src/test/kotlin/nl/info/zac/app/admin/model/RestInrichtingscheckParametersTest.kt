@@ -10,7 +10,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import jakarta.validation.Validation
 import jakarta.ws.rs.BadRequestException
-import nl.info.zac.app.shared.RestSorteerRichting
+import nl.info.zac.search.model.SorteerRichting
 
 class RestInrichtingscheckParametersTest : BehaviorSpec({
     val validator = Validation.buildDefaultValidatorFactory().validator
@@ -28,8 +28,8 @@ class RestInrichtingscheckParametersTest : BehaviorSpec({
                         page shouldBe 0
                         rows shouldBe 25
                         status shouldBe null
-                        sort shouldBe RestInrichtingscheckSorteerVeld.OMSCHRIJVING
-                        order shouldBe RestSorteerRichting.ASC
+                        sortField shouldBe RestInrichtingscheckSortField.OMSCHRIJVING
+                        sortOrder shouldBe SorteerRichting.ASC
                     }
                 }
             }
@@ -63,15 +63,13 @@ class RestInrichtingscheckParametersTest : BehaviorSpec({
     }
 
     context("Converting the query parameter values to enums") {
-        given("the query values of the sort fields and directions") {
+        given("the query values of the sort fields") {
             `when`("they are converted") {
-                val sorteerVelden = listOf("omschrijving", "doel", "beginGeldigheid", "valide")
-                    .map(RestInrichtingscheckSorteerVeld::fromString)
-                val sorteerRichtingen = listOf("asc", "desc").map(RestSorteerRichting::fromString)
+                val restInrichtingscheckSortFields = listOf("OMSCHRIJVING", "DOEL", "BEGIN_GELDIGHEID", "VALIDE")
+                    .map(RestInrichtingscheckSortField::fromString)
 
                 then("each value gives its enum") {
-                    sorteerVelden shouldBe RestInrichtingscheckSorteerVeld.entries
-                    sorteerRichtingen shouldBe RestSorteerRichting.entries
+                    restInrichtingscheckSortFields shouldBe RestInrichtingscheckSortField.entries
                 }
             }
         }
@@ -79,11 +77,11 @@ class RestInrichtingscheckParametersTest : BehaviorSpec({
         given("an unknown sort field") {
             `when`("it is converted") {
                 val badRequestException = shouldThrow<BadRequestException> {
-                    RestInrichtingscheckSorteerVeld.fromString("identificatie")
+                    RestInrichtingscheckSortField.fromString("IDENTIFICATIE")
                 }
 
                 then("the conversion fails with 400 Bad Request") {
-                    badRequestException.message shouldBe "Unknown sort field 'identificatie'"
+                    badRequestException.message shouldBe "Unknown sort field 'IDENTIFICATIE'"
                 }
             }
         }
@@ -106,18 +104,6 @@ class RestInrichtingscheckParametersTest : BehaviorSpec({
 
                 then("the conversion fails with 400 Bad Request") {
                     badRequestException.message shouldBe "Unknown status 'ONBEKEND'"
-                }
-            }
-        }
-
-        given("an unknown sort order") {
-            `when`("it is converted") {
-                val badRequestException = shouldThrow<BadRequestException> {
-                    RestSorteerRichting.fromString("up")
-                }
-
-                then("the conversion fails with 400 Bad Request") {
-                    badRequestException.message shouldBe "Unknown sort order 'up'"
                 }
             }
         }

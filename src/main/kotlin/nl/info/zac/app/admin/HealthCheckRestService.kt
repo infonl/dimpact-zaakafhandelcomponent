@@ -20,18 +20,19 @@ import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.app.admin.model.RestBuildInformation
 import nl.info.zac.app.admin.model.RestInrichtingscheckParameters
-import nl.info.zac.app.admin.model.RestInrichtingscheckSorteerVeld
+import nl.info.zac.app.admin.model.RestInrichtingscheckSortField
 import nl.info.zac.app.admin.model.RestInrichtingscheckStatus
 import nl.info.zac.app.admin.model.RestReferentietabellenInrichtingscheck
 import nl.info.zac.app.admin.model.RestZaaktypeInrichtingscheck
 import nl.info.zac.app.admin.model.toRestInrichtingscheckZaaktype
 import nl.info.zac.app.shared.RestResultaat
-import nl.info.zac.app.shared.RestSorteerRichting
+import nl.info.zac.app.shared.takePage
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.healthcheck.model.ZaaktypeInrichtingscheck
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.search.model.SorteerRichting
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -59,10 +60,10 @@ class HealthCheckRestService @Inject constructor(
                 healthCheckService.controleerZaaktype(zaaktype, zaaktypeConfiguration)
             }
             .filter { it.matchesOmschrijving(parameters.omschrijving) && it.matchesStatus(parameters.status) }
-            .sortedWith(comparatorOf(parameters.sort, parameters.order))
+            .sortedWith(comparatorOf(parameters.sortField, parameters.sortOrder))
             .let { checks ->
                 RestResultaat(
-                    results = checks.page(parameters.page, parameters.rows).map(::convertToREST),
+                    results = checks.takePage(parameters).map(::convertToREST),
                     resultCount = checks.size.toLong()
                 )
             }
@@ -110,26 +111,21 @@ class HealthCheckRestService @Inject constructor(
         }
 
     private fun comparatorOf(
-        sorteerVeld: RestInrichtingscheckSorteerVeld,
-        sorteerRichting: RestSorteerRichting
+        restInrichtingscheckSortField: RestInrichtingscheckSortField,
+        sorteerRichting: SorteerRichting
     ): Comparator<ZaaktypeInrichtingscheck> {
         val byOmschrijving = compareBy<ZaaktypeInrichtingscheck, String>(String.CASE_INSENSITIVE_ORDER) {
             it.zaaktype.omschrijving
         }
-        val bySorteerVeld = when (sorteerVeld) {
-            RestInrichtingscheckSorteerVeld.OMSCHRIJVING -> byOmschrijving
-            RestInrichtingscheckSorteerVeld.DOEL -> compareBy(nullsFirst(String.CASE_INSENSITIVE_ORDER)) {
+        val bySortField = when (restInrichtingscheckSortField) {
+            RestInrichtingscheckSortField.OMSCHRIJVING -> byOmschrijving
+            RestInrichtingscheckSortField.DOEL -> compareBy(nullsFirst(String.CASE_INSENSITIVE_ORDER)) {
                 it.zaaktype.doel
             }
-            RestInrichtingscheckSorteerVeld.BEGIN_GELDIGHEID -> compareBy { it.zaaktype.beginGeldigheid }
-            RestInrichtingscheckSorteerVeld.VALIDE -> compareBy { it.isValide }
+            RestInrichtingscheckSortField.BEGIN_GELDIGHEID -> compareBy { it.zaaktype.beginGeldigheid }
+            RestInrichtingscheckSortField.VALIDE -> compareBy { it.isValide }
         }.thenComparing(byOmschrijving).thenComparing { check -> check.zaaktype.url }
-        return if (sorteerRichting == RestSorteerRichting.DESC) bySorteerVeld.reversed() else bySorteerVeld
-    }
-
-    private fun <T> List<T>.page(page: Int, rows: Int): List<T> {
-        val offset = page.toLong() * rows
-        return if (offset >= size) emptyList() else subList(offset.toInt(), minOf(size, offset.toInt() + rows))
+        return if (sorteerRichting == SorteerRichting.DESC) bySortField.reversed() else bySortField
     }
 
     private fun convertToREST(check: ZaaktypeInrichtingscheck): RestZaaktypeInrichtingscheck =

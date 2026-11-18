@@ -26,7 +26,7 @@ and its consequences. See [ADR-0007](0007-record-architecture-decisions-in-git-a
 | [0016](0016-clear-an-application-wide-cache-at-once-and-after-the-transaction-completes.md) | Clear an application-wide cache at once and again after the transaction that changes its data completes | accepted | A change clears the cache at once, and an `AFTER_COMPLETION` observer of a CDI event clears it again after a commit or rollback. |
 | [0017](0017-use-playwright-bdd-as-the-only-runner-of-the-end-to-end-tests.md) | Use playwright-bdd as the only runner of the end-to-end tests | accepted | playwright-bdd replaces cucumber-js; a legacy feature is deleted when its scenarios are replaced. |
 | [0018](0018-select-the-target-of-the-end-to-end-tests-with-a-checked-in-profile.md) | Select the target of the end-to-end tests with a checked-in profile | accepted | `E2E_TARGET` selects a profile without secrets; the kind stack needs no configuration. |
-| [0019](0019-read-a-paged-list-with-get-and-query-parameters.md) | Read a paged list with GET and query parameters | proposed | A paged list is read with `GET` and query parameters `page`, `rows` and the filters, answered with a `RestResultaat`. |
+| [0019](0019-read-a-paged-list-with-get-and-query-parameters.md) | Read a paged list with GET and query parameters | proposed | A paged list is read with `GET` and the query parameters `page`, `rows`, `sortField`, `sortOrder` and the filters, answered with a `RestResultaat`. |
 
 ## When to write an ADR
 

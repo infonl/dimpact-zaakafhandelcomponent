@@ -61,6 +61,21 @@ const STATUS_BY_TOGGLE: Record<
   [ToggleSwitchOptions.INDETERMINATE]: null,
 };
 
+const SORT_FIELD_BY_COLUMN = {
+  omschrijving: "OMSCHRIJVING",
+  doel: "DOEL",
+  beginGeldigheid: "BEGIN_GELDIGHEID",
+  valide: "VALIDE",
+} as const satisfies Record<
+  string,
+  NonNullable<InrichtingscheckParameters["sortField"]>
+>;
+
+const isSortColumn = (
+  column: string,
+): column is keyof typeof SORT_FIELD_BY_COLUMN =>
+  Object.hasOwn(SORT_FIELD_BY_COLUMN, column);
+
 type ZaaktypeInrichtingscheck = GeneratedType<"RestZaaktypeInrichtingscheck">;
 
 type InrichtingscheckBevinding = {
@@ -259,19 +274,17 @@ export class InrichtingscheckComponent extends AdminComponent {
   );
 
   private readonly parameters = computed<InrichtingscheckParameters>(() => {
-    const sort = this.sort();
-    const isSorted = Boolean(sort.active) && sort.direction !== "";
+    const { active, direction } = this.sort();
     return {
       page: this.pageIndex(),
       rows: INRICHTINGSCHECK_PAGE_SIZE,
       omschrijving: this.debouncedOmschrijvingFilter().trim() || null,
       status: STATUS_BY_TOGGLE[this.valideFilter()],
-      sort: isSorted
-        ? (sort.active as NonNullable<InrichtingscheckParameters["sort"]>)
-        : "omschrijving",
-      order: isSorted
-        ? (sort.direction as NonNullable<InrichtingscheckParameters["order"]>)
-        : "asc",
+      sortField:
+        direction && isSortColumn(active)
+          ? SORT_FIELD_BY_COLUMN[active]
+          : "OMSCHRIJVING",
+      sortOrder: direction === "desc" ? "DESC" : "ASC",
     };
   });
 

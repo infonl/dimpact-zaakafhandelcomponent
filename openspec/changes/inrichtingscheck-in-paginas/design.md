@@ -189,7 +189,7 @@ restarted, one warm-up run was discarded, then a local k6 script (not checked in
 | Before: the whole list (209 zaaktypes)                      | 25.1 ms | 30.1 ms | 185,184 B    | 9,078 B |
 | After: first page as the page asks it (`AANDACHT_NODIG`)    | 23.9 ms | 29.4 ms | 22,278 B     | 1,521 B |
 | After: a later page (`page=3`, no `status`)                 | 22.3 ms | 26.7 ms | 22,171 B     | 1,357 B |
-| After: filter on `omschrijving` (`zaaktype 15`, 10 matches) | 21.6 ms | 23.9 ms | 8,895 B      | 813 B   |
+| After: filter on the omschrijving (`zaaktype 15`, 10 matches) | 21.6 ms | 23.9 ms | 8,895 B      | 813 B   |
 | After: no query parameters (`status` absent)                | 21.0 ms | 24.9 ms | 22,239 B     | 1,552 B |
 
 ### Right after a restart

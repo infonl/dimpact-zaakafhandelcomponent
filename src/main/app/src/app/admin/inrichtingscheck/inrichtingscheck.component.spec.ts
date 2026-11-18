@@ -15,7 +15,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { provideTranslateService, TranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { render, screen, within } from "@testing-library/angular";
+import { render, screen, waitFor, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { fromPartial } from "../../../test-helpers";
@@ -123,18 +123,21 @@ describe(InrichtingscheckComponent.name, () => {
       ],
     }));
     httpTestingController = TestBed.inject(HttpTestingController);
-    await settle();
-    httpTestingController
-      .expectOne(REFERENTIETABELLEN_URL)
-      .flush({ isCommunicatiekanaalEformulierAanwezig });
-    httpTestingController.expectOne(BUILD_INFORMATIE_URL).flush({});
+    (await expectRequest(REFERENTIETABELLEN_URL)).flush({
+      isCommunicatiekanaalEformulierAanwezig,
+    });
+    (await expectRequest(BUILD_INFORMATIE_URL)).flush({});
     await settle();
   }
 
-  function expectZaaktypesRequest() {
-    return httpTestingController.expectOne((request) =>
-      request.url.startsWith(ZAAKTYPES_URL),
+  function expectRequest(url: string) {
+    return waitFor(() =>
+      httpTestingController.expectOne((request) => request.url.startsWith(url)),
     );
+  }
+
+  function expectZaaktypesRequest() {
+    return expectRequest(ZAAKTYPES_URL);
   }
 
   function queryParametersOf(testRequest: TestRequest) {
@@ -150,7 +153,7 @@ describe(InrichtingscheckComponent.name, () => {
   ) {
     testRequest.flush({ resultaten, totaal, foutmelding: "" });
     await settle();
-    await settle();
+    await waitFor(() => expect(zaaktypeRows()).toHaveLength(resultaten.length));
   }
 
   function zaaktypeRows() {
@@ -171,13 +174,13 @@ describe(InrichtingscheckComponent.name, () => {
     it("opens on the first page of 25 zaaktypes that need attention, sorted on omschrijving, with 30 in total", async () => {
       await renderComponent();
 
-      const testRequest = expectZaaktypesRequest();
+      const testRequest = await expectZaaktypesRequest();
       expect(queryParametersOf(testRequest)).toEqual({
         page: "0",
         rows: "25",
         status: "AANDACHT_NODIG",
-        sort: "omschrijving",
-        order: "asc",
+        sortField: "OMSCHRIJVING",
+        sortOrder: "ASC",
       });
       await respond(testRequest, zaaktypesThatNeedAttention.slice(0, 25), 30);
 
@@ -188,7 +191,7 @@ describe(InrichtingscheckComponent.name, () => {
     it("shows the other 5 zaaktypes on the next page", async () => {
       await renderComponent();
       await respond(
-        expectZaaktypesRequest(),
+        await expectZaaktypesRequest(),
         zaaktypesThatNeedAttention.slice(0, 25),
         30,
       );
@@ -198,7 +201,7 @@ describe(InrichtingscheckComponent.name, () => {
       );
       await settle();
 
-      const testRequest = expectZaaktypesRequest();
+      const testRequest = await expectZaaktypesRequest();
       expect(queryParametersOf(testRequest)).toMatchObject({ page: "1" });
       await respond(testRequest, zaaktypesThatNeedAttention.slice(25), 30);
 
@@ -209,7 +212,7 @@ describe(InrichtingscheckComponent.name, () => {
     it("starts on the first page when the beheerder types a filter, and keeps the text and focus of the filter while the page loads", async () => {
       await renderComponent();
       await respond(
-        expectZaaktypesRequest(),
+        await expectZaaktypesRequest(),
         zaaktypesThatNeedAttention.slice(0, 25),
         30,
       );
@@ -218,7 +221,7 @@ describe(InrichtingscheckComponent.name, () => {
       );
       await settle();
       await respond(
-        expectZaaktypesRequest(),
+        await expectZaaktypesRequest(),
         zaaktypesThatNeedAttention.slice(25),
         30,
       );
@@ -227,7 +230,7 @@ describe(InrichtingscheckComponent.name, () => {
       await user.type(filterInput, "melding");
       await settle(INRICHTINGSCHECK_FILTER_DEBOUNCE_MS + 50);
 
-      const testRequest = expectZaaktypesRequest();
+      const testRequest = await expectZaaktypesRequest();
       expect(queryParametersOf(testRequest)).toMatchObject({
         page: "0",
         omschrijving: "melding",
@@ -236,14 +239,16 @@ describe(InrichtingscheckComponent.name, () => {
       expect(screen.getByRole("textbox", { name: "filter" })).toHaveValue(
         "melding",
       );
-      expect(screen.getByRole("progressbar")).toBeInTheDocument();
+      expect(await screen.findByRole("progressbar")).toBeInTheDocument();
 
       const meldingZaaktypes = createZaaktypesThatNeedAttention(2, "melding");
       await respond(testRequest, meldingZaaktypes);
 
       expect(zaaktypeRows()).toHaveLength(2);
       expect(zaaktypeRow("melding zaaktype 01")).toBeInTheDocument();
-      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+      await waitFor(() =>
+        expect(screen.queryByRole("progressbar")).not.toBeInTheDocument(),
+      );
     });
   });
 
@@ -251,7 +256,7 @@ describe(InrichtingscheckComponent.name, () => {
     it("sends the toggle as status, without a status for all zaaktypes, and starts on the first page", async () => {
       await renderComponent();
       await respond(
-        expectZaaktypesRequest(),
+        await expectZaaktypesRequest(),
         createZaaktypesThatNeedAttention(25),
         30,
       );
@@ -260,7 +265,7 @@ describe(InrichtingscheckComponent.name, () => {
       );
       await settle();
       await respond(
-        expectZaaktypesRequest(),
+        await expectZaaktypesRequest(),
         createZaaktypesThatNeedAttention(5),
         30,
       );
@@ -271,19 +276,19 @@ describe(InrichtingscheckComponent.name, () => {
       await user.click(within(filterRow!).getByRole("button"));
       await settle();
 
-      const allZaaktypesRequest = expectZaaktypesRequest();
+      const allZaaktypesRequest = await expectZaaktypesRequest();
       expect(queryParametersOf(allZaaktypesRequest)).toEqual({
         page: "0",
         rows: "25",
-        sort: "omschrijving",
-        order: "asc",
+        sortField: "OMSCHRIJVING",
+        sortOrder: "ASC",
       });
       await respond(allZaaktypesRequest, []);
 
       await user.click(within(filterRow!).getByRole("button"));
       await settle();
 
-      const zaaktypesInOrdeRequest = expectZaaktypesRequest();
+      const zaaktypesInOrdeRequest = await expectZaaktypesRequest();
       expect(queryParametersOf(zaaktypesInOrdeRequest)).toMatchObject({
         page: "0",
         status: "IN_ORDE",
@@ -291,10 +296,10 @@ describe(InrichtingscheckComponent.name, () => {
       await respond(zaaktypesInOrdeRequest, []);
     });
 
-    it("sends the column sort as sort and order and starts on the first page", async () => {
+    it("sends the column sort as sortField and sortOrder and starts on the first page", async () => {
       await renderComponent();
       await respond(
-        expectZaaktypesRequest(),
+        await expectZaaktypesRequest(),
         createZaaktypesThatNeedAttention(25),
         30,
       );
@@ -303,7 +308,7 @@ describe(InrichtingscheckComponent.name, () => {
       );
       await settle();
       await respond(
-        expectZaaktypesRequest(),
+        await expectZaaktypesRequest(),
         createZaaktypesThatNeedAttention(5),
         30,
       );
@@ -311,11 +316,11 @@ describe(InrichtingscheckComponent.name, () => {
       await user.click(screen.getByRole("button", { name: /^doel/ }));
       await settle();
 
-      const testRequest = expectZaaktypesRequest();
+      const testRequest = await expectZaaktypesRequest();
       expect(queryParametersOf(testRequest)).toMatchObject({
         page: "0",
-        sort: "doel",
-        order: "asc",
+        sortField: "DOEL",
+        sortOrder: "ASC",
       });
       await respond(testRequest, []);
     });
@@ -338,7 +343,7 @@ describe(InrichtingscheckComponent.name, () => {
 
     async function renderPage() {
       await renderComponent();
-      await respond(expectZaaktypesRequest(), [
+      await respond(await expectZaaktypesRequest(), [
         zaaktypeZonderResultaattype,
         zaaktypeZonderRoltype,
         volledigIngerichtZaaktype,
@@ -354,7 +359,7 @@ describe(InrichtingscheckComponent.name, () => {
       await user.click(zaaktypeRow("fake zaaktype 01"));
       await settle();
 
-      const bevindingen = screen.getByRole("table", {
+      const bevindingen = await screen.findByRole("table", {
         name: BEVINDINGEN_TABLE_NAME,
       });
       expect(
@@ -394,7 +399,7 @@ describe(InrichtingscheckComponent.name, () => {
 
       expect(
         within(
-          screen.getByRole("table", { name: BEVINDINGEN_TABLE_NAME }),
+          await screen.findByRole("table", { name: BEVINDINGEN_TABLE_NAME }),
         ).getByText(ROLTYPE_ONTBREEKT_MESSAGE),
       ).toBeInTheDocument();
     });
@@ -418,7 +423,7 @@ describe(InrichtingscheckComponent.name, () => {
 
   it("shows that no data was found and keeps the filter row when no zaaktype matches", async () => {
     await renderComponent();
-    await respond(expectZaaktypesRequest(), []);
+    await respond(await expectZaaktypesRequest(), []);
 
     expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeInTheDocument();
     expect(screen.getByRole("textbox", { name: "filter" })).toBeInTheDocument();
@@ -430,13 +435,13 @@ describe(InrichtingscheckComponent.name, () => {
     expect(screen.getByText("msg.loading")).toBeInTheDocument();
     expect(screen.getByRole("textbox", { name: "filter" })).toBeInTheDocument();
 
-    await respond(expectZaaktypesRequest(), []);
+    await respond(await expectZaaktypesRequest(), []);
   });
 
   describe("the E-formulier communicatiekanaal", () => {
     it("shows that it is present", async () => {
       await renderComponent({ isCommunicatiekanaalEformulierAanwezig: true });
-      await respond(expectZaaktypesRequest(), []);
+      await respond(await expectZaaktypesRequest(), []);
 
       expect(
         screen.getByText(
@@ -447,7 +452,7 @@ describe(InrichtingscheckComponent.name, () => {
 
     it("shows that it is missing", async () => {
       await renderComponent({ isCommunicatiekanaalEformulierAanwezig: false });
-      await respond(expectZaaktypesRequest(), []);
+      await respond(await expectZaaktypesRequest(), []);
 
       expect(
         screen.getByText(

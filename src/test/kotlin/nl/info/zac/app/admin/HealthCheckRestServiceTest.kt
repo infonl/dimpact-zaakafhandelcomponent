@@ -23,10 +23,9 @@ import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.model.RestInrichtingscheckParameters
-import nl.info.zac.app.admin.model.RestInrichtingscheckSorteerVeld
+import nl.info.zac.app.admin.model.RestInrichtingscheckSortField
 import nl.info.zac.app.admin.model.RestInrichtingscheckStatus
 import nl.info.zac.app.admin.model.RestInrichtingscheckZaaktype
-import nl.info.zac.app.shared.RestSorteerRichting
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.healthcheck.createBuildInformation
@@ -34,6 +33,7 @@ import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
 import nl.info.zac.healthcheck.model.ZaaktypeInrichtingscheck
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
+import nl.info.zac.search.model.SorteerRichting
 import nl.info.zac.time.ZacTime
 import java.net.URI
 import java.time.LocalDate
@@ -398,8 +398,8 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                 givenCheckedZaaktypes(zaaktypeInrichtingschecks)
                 val parameters = RestInrichtingscheckParameters(
                     rows = 25,
-                    sort = RestInrichtingscheckSorteerVeld.BEGIN_GELDIGHEID,
-                    order = RestSorteerRichting.DESC
+                    sortField = RestInrichtingscheckSortField.BEGIN_GELDIGHEID,
+                    sortOrder = SorteerRichting.DESC
                 )
                 val firstPage = healthCheckRestService.listZaaktypeInrichtingschecks(parameters.copy(page = 0))
                 val secondPage = healthCheckRestService.listZaaktypeInrichtingschecks(parameters.copy(page = 1))
@@ -423,7 +423,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                 createZaaktypeInrichtingscheck(zaaktype = createZaakType(omschrijving = "fakeA", doel = "fakeDoelB"))
             )
 
-            `when`("the list is requested without sort and order") {
+            `when`("the list is requested without sortField and sortOrder") {
                 givenCheckedZaaktypes(zaaktypeInrichtingschecks)
                 val restResultaat = healthCheckRestService.listZaaktypeInrichtingschecks(
                     RestInrichtingscheckParameters()
@@ -439,8 +439,8 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                 givenCheckedZaaktypes(zaaktypeInrichtingschecks)
                 val restResultaat = healthCheckRestService.listZaaktypeInrichtingschecks(
                     RestInrichtingscheckParameters(
-                        sort = RestInrichtingscheckSorteerVeld.DOEL,
-                        order = RestSorteerRichting.DESC
+                        sortField = RestInrichtingscheckSortField.DOEL,
+                        sortOrder = SorteerRichting.DESC
                     )
                 )
 
@@ -453,7 +453,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             `when`("the list is sorted on valide in ascending order") {
                 givenCheckedZaaktypes(zaaktypeInrichtingschecks)
                 val restResultaat = healthCheckRestService.listZaaktypeInrichtingschecks(
-                    RestInrichtingscheckParameters(sort = RestInrichtingscheckSorteerVeld.VALIDE)
+                    RestInrichtingscheckParameters(sortField = RestInrichtingscheckSortField.VALIDE)
                 )
 
                 then("the zaaktype that is not valid comes first, then the valid ones by omschrijving") {
