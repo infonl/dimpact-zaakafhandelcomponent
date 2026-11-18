@@ -224,7 +224,7 @@ export class ParametersEditComponent
   private async showConfigurationIfProcessDefinitionLocked() {
     this.isReadingStoredConfiguration.set(true);
     const storedConfiguration = await this.queryClient
-      .fetchQuery({
+      .query({
         ...this.zaakafhandelParametersService.readZaakafhandelparameters(
           this.configuration().zaaktype.uuid,
         ),
@@ -258,17 +258,17 @@ export class ParametersEditComponent
   private setForm(form: ZaaktypeConfigurationForm) {
     form.controls.procesModel.valueChanges.subscribe(() => {
       const processDefinition = toProcessDefinition(form.controls.procesModel);
-      const configuration = this.configuration();
+      const zaaktypeConfiguration = this.configuration();
       const isStoredProcessDefinition =
         processDefinition !== null &&
         isSameProcessDefinition(
           processDefinition,
-          configuration.processDefinition,
+          zaaktypeConfiguration.processDefinition,
         );
       form.setControl(
         "humanTasks",
         isStoredProcessDefinition
-          ? createHumanTasksForm(configuration.humanTaskParameters)
+          ? createHumanTasksForm(zaaktypeConfiguration.humanTaskParameters)
           : createHumanTasksFormForProcessDefinition(
               processDefinition,
               form.controls.algemeen.controls.defaultGroepId.value,
@@ -277,7 +277,7 @@ export class ParametersEditComponent
       form.setControl(
         "acties",
         isStoredProcessDefinition
-          ? createActiesForm(configuration.userEventListenerParameters)
+          ? createActiesForm(zaaktypeConfiguration.userEventListenerParameters)
           : createActiesFormForProcessDefinition(processDefinition),
       );
       this.syncReferentieTabellen(form);

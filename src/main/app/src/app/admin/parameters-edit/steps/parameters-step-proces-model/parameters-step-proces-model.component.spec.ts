@@ -228,7 +228,7 @@ describe(ParametersStepProcesModelComponent.name, () => {
     ["BPMN", bpmnProcessDefinition],
     ["CMMN", caseDefinition],
   ] as const)(
-    "explains why the beheerder cannot choose another process definition for a configuration bound to %s whose zaaktype version has zaken",
+    "explains why the beheerder cannot choose another process definition for a configuration bound to %s whose zaaktype version has a zaak",
     async (_engine, boundProcessDefinition) => {
       await setup(createProcessModelForm(boundProcessDefinition), {
         isProcessDefinitionChangeable: false,
