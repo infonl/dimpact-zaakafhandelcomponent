@@ -26,6 +26,12 @@ describe("comparison", () => {
         isEarlierDay(new Date(2026, 6, 29, 23), new Date(2026, 6, 30)),
       ).toBe(true);
     });
+
+    it("compares a picked date by the day, not by the time", () => {
+      expect(
+        isEarlierDay(new Date(2026, 6, 30, 7), new Date(2026, 6, 30, 19)),
+      ).toBe(false);
+    });
   });
 
   describe(isLaterDay.name, () => {
@@ -39,6 +45,12 @@ describe("comparison", () => {
     it("reads a typed day as DD-MM-YYYY or MM/DD/YYYY too", () => {
       expect(isLaterDay("31-07-2026", "2026-07-30")).toBe(true);
       expect(isLaterDay("07/29/2026", "2026-07-30")).toBe(false);
+    });
+
+    it("compares a picked date by the day, not by the time", () => {
+      expect(
+        isLaterDay(new Date(2026, 6, 30, 19), new Date(2026, 6, 30, 7)),
+      ).toBe(false);
     });
   });
 });

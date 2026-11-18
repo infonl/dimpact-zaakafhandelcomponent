@@ -189,6 +189,7 @@ describe("date-time", () => {
       ["2026-07-31T00:30:00+02:00", 1],
       ["2026-08-09", 10],
       ["2026-07-28", -2],
+      ["2026-07-28T12:00:00+02:00", -2],
     ])("counts the calendar days from today to %s as %d", (value, expected) => {
       expect(daysFromToday(value)).toBe(expected);
     });
