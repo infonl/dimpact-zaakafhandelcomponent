@@ -25,7 +25,7 @@ upstreamCharts:
     version: 2.0.0
   openforms:
     repository: https://maykinmedia.github.io/charts/
-    version: 1.12.0
+    version: 1.13.0
 
 openzaak:
   image: openzaak/open-zaak:1.31.2@sha256:8b11bd7b35a6e2be9c1984b140ed4f54155e3940683b009b0206bfa9f64844e4
