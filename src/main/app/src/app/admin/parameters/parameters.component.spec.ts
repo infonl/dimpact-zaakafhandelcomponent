@@ -223,6 +223,53 @@ describe(ParametersComponent.name, () => {
     ).toBeInTheDocument();
   });
 
+  it("shows a loading bar over the cached rows of a page while it reads that page again because the cache is stale", async () => {
+    const sixMinutesAgo = Date.now() - 6 * 60 * 1000;
+    testQueryClient.setQueryData(
+      TestBed.inject(ZaakafhandelParametersService).listZaakafhandelParameters(
+        toZaaktypeConfigurationListQuery({
+          ...new ZaakafhandelParametersListParameters("geldig", "desc"),
+          page: 1,
+        }),
+      ).queryKey,
+      fakePage({
+        resultaten: [fakeZaaktypeConfigurationOverzicht("Bewaard zaaktype")],
+        totaal: 30,
+      }),
+      { updatedAt: sixMinutesAgo },
+    );
+    await render();
+    await answer(await expectPageRequest(), {
+      resultaten: [fakeZaaktypeConfigurationOverzicht()],
+      totaal: 30,
+    });
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    fixture.detectChanges();
+    const refreshRequest = await expectPageRequest();
+    fixture.detectChanges();
+
+    expect(
+      screen.getByRole("row", { name: /Bewaard zaaktype/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("progressbar", { name: "msg.loading" }),
+    ).toBeInTheDocument();
+
+    await answer(refreshRequest, {
+      resultaten: [fakeZaaktypeConfigurationOverzicht("Nieuw zaaktype")],
+      totaal: 30,
+    });
+
+    expect(
+      screen.queryByRole("progressbar", { name: "msg.loading" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("row", { name: /Nieuw zaaktype/ }),
+    ).toBeInTheDocument();
+  });
+
   it("reads the first page again, sorted on omschrijving, when the beheerder sorts on omschrijving", async () => {
     restoreStoredFilters({ page: 1 });
     await render();

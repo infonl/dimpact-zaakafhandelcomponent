@@ -100,8 +100,9 @@ export class ParametersComponent extends AdminComponent implements OnInit {
     placeholderData: keepPreviousData,
   }));
   protected readonly loading = computed(() => this.parametersQuery.isPending());
-  protected readonly loadingPage = computed(() =>
-    this.parametersQuery.isPlaceholderData(),
+  protected readonly loadingPage = computed(
+    () =>
+      this.parametersQuery.isFetching() && !this.parametersQuery.isPending(),
   );
   protected readonly hasNoParameters = computed(
     () => !this.parametersQuery.data()?.resultaten?.length,

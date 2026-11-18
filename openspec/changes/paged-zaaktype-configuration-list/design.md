@@ -85,8 +85,10 @@ the old key `parameterFilters` holds a sort (`valide`, ascending) that the old p
 the page would otherwise sort on it. A stored page that lies past the last page, because fewer configurations match
 than when it was stored, moves to the last page with rows after the response arrives.
 
-While the next page is read, the page keeps the rows of the current page (`keepPreviousData`) and shows a loading
-bar above the table, so the table does not empty between pages. With the filters on the server, the message
+While the next page is read, the page keeps the rows of the current page (`keepPreviousData`), so the table does
+not empty between pages. A loading bar shows above the table whenever the page reads while it shows rows
+(`isFetching` and not `isPending`): for the next page, and for a cached page that is read again because it is stale
+or a save invalidated it. The first read shows the message "Bezig met het ophalen van de gegevens" instead. With the filters on the server, the message
 "Geen gegevens gevonden" also shows when no configuration matches the filters; before, a filter that matched
 nothing left an empty table without a message.
 

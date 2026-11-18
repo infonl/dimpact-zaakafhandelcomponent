@@ -21,5 +21,5 @@
 - [x] 2.3 Check that no frontend code reads the list of all configurations any more.
 - [x] 2.4 Run `npm run lint` and `npm test` in `src/main/app`, and `./gradlew spotlessApply detektApply detekt`.
 - [x] 2.5 Keep the filters, sort order and page for the session under a new key, move a stored page past the last
-      page to the last page with rows, and show a loading bar while the next page is read (design D6). Verify with
+      page to the last page with rows, and show a loading bar while a page is read (design D6). Verify with
       `parameters.component.spec.ts`.
