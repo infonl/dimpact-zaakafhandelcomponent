@@ -817,9 +817,9 @@ opentelemetry-collector:
 nginx:
   enabled: false
   image:
-    repository: docker.io/nginxinc/nginx-unprivileged
+    repository: docker.io/nginx/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.31.7@sha256:09b0d3eda2aa592d2487f284519419015cab010d7df16cd0fe224b585fc60eb6
+    tag: 1.31.7@sha256:8f61f47734a1ff4a639ac7045d63959da8d8f3089be05e18cf4c8aa165c67738
   service:
     type: ClusterIP
     port: 80

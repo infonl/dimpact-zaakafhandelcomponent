@@ -327,10 +327,10 @@
     {
       "customType": "regex",
       "matchStrings": [
-        "- \\*\\*nginxinc/nginx-unprivileged\\*\\*: (?<currentValue>[^\\n]+)"
+        "- \\*\\*nginx/nginx-unprivileged\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "nginxinc/nginx-unprivileged",
+      "depNameTemplate": "nginx/nginx-unprivileged",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
@@ -566,8 +566,8 @@
     {
       "groupName": "nginx-unprivileged docker image",
       "matchPackageNames": [
-        "nginxinc/nginx-unprivileged",
-        "docker.io/nginxinc/nginx-unprivileged"
+        "nginx/nginx-unprivileged",
+        "docker.io/nginx/nginx-unprivileged"
       ],
       "matchDatasources": [
         "docker"
@@ -923,8 +923,8 @@
         "!docker.io/openpolicyagent/opa",
         "!gotenberg/gotenberg",
         "!docker.io/gotenberg/gotenberg",
-        "!nginxinc/nginx-unprivileged",
-        "!docker.io/nginxinc/nginx-unprivileged"
+        "!nginx/nginx-unprivileged",
+        "!docker.io/nginx/nginx-unprivileged"
       ],
       "matchUpdateTypes": [
         "minor",
