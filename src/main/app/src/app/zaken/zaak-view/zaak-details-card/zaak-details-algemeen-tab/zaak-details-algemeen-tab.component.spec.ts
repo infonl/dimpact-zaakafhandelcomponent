@@ -11,8 +11,8 @@ import { MatIconHarness } from "@angular/material/icon/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { within } from "@testing-library/angular";
-import moment from "moment";
 import { fromPartial } from "src/test-helpers";
+import { addDays, toApiDate, today } from "../../../../date-time";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { ZaakDetailsAlgemeenTabComponent } from "./zaak-details-algemeen-tab.component";
 
@@ -57,9 +57,9 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
   });
 
   describe("dateFieldIconMap icon logic", () => {
-    const yesterdayDate = moment().subtract(1, "days").format("YYYY-MM-DD");
-    const today = moment().format("YYYY-MM-DD");
-    const tomorrowDate = moment().add(1, "days").format("YYYY-MM-DD");
+    const yesterdayDate = toApiDate(addDays(today(), -1));
+    const todayDate = toApiDate(today());
+    const tomorrowDate = toApiDate(addDays(today(), 1));
 
     it.each([
       [
@@ -101,7 +101,7 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
       [
         "warns on neither date when the zaak was afgehandeld before both",
         {
-          einddatum: today,
+          einddatum: todayDate,
           einddatumGepland: tomorrowDate,
           uiterlijkeEinddatumAfdoening: tomorrowDate,
         },

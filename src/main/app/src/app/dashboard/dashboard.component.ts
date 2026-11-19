@@ -45,7 +45,7 @@ import {
   injectIsFetching,
   injectQuery,
 } from "@tanstack/angular-query-experimental";
-import moment from "moment";
+import { now } from "../date-time";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { trackControl } from "../shared/form/control-state";
 import { injectMutation } from "../shared/http/inject-mutation";
@@ -223,7 +223,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit() {
     // TODO instead of session storage use userpreferences in a db
-    SessionStorageUtil.setItem("dashboardOpened", moment());
+    SessionStorageUtil.setItem("dashboardOpened", now());
     void this.signaleringenService.invalidateLatestSignalering();
   }
 

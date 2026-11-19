@@ -48,7 +48,8 @@ rules", because it is the only option that gives the same result on every server
 * Good, because a server or itest stack in UTC gives the same dates as one in `Europe/Amsterdam`.
 * Bad, because an installation that runs in another time zone than `Europe/Amsterdam` must rebuild its Solr index
   once. The Helm chart already sets `TZ: Europe/Amsterdam`.
-* Bad, because existing code outside the two modules is frozen, not moved; later changes move it.
+* Bad, because existing backend code outside `nl.info.zac.time` is frozen, not moved; later changes move it. The
+  frontend code outside `date-time/` was moved before this decision was merged.
 
 ### Confirmation
 
@@ -56,8 +57,7 @@ The ArchUnit rule "The handling of dates and times" in `ArchitectureTest` fails 
 `nl.info.zac.time` reads the system time zone or clock, or calls `LocalDate.atStartOfDay(ZoneId)`; the existing
 violations are frozen, see [the architecture rules](../../development/architectureRules.md). In the frontend,
 ESLint rules in `src/main/app/eslint.config.js` forbid imports of `moment` and the Material moment adapter, deep
-imports into `date-time/`, and calls of `toISOString` and `Date.parse` outside the module; the existing violations
-are listed in `src/main/app/eslint.date-time-frozen.js`.
+imports into `date-time/`, and calls of `toISOString` and `Date.parse` outside the module.
 
 ## Pros and Cons of the Options
 

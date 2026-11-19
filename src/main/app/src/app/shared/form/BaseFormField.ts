@@ -11,6 +11,7 @@ import {
   effect,
   inject,
   input,
+  LOCALE_ID,
   OnDestroy,
   signal,
 } from "@angular/core";
@@ -43,6 +44,8 @@ export class SingleInputFormField<
   implements DoCheck, OnDestroy
 {
   private readonly translateService = inject(TranslateService);
+
+  private readonly locale = inject(LOCALE_ID);
 
   private readonly mutatingCount = injectIsMutating();
 
@@ -128,6 +131,7 @@ export class SingleInputFormField<
     return FormHelper.getErrorMessage(
       this.controlErrors() ?? null,
       this.translateService,
+      this.locale,
     );
   });
 

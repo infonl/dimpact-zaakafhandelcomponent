@@ -19,7 +19,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { TranslatePipe } from "@ngx-translate/core";
-import moment, { Moment } from "moment";
+import { fromTimestamp, PickedDate } from "../../../date-time";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { DagenPipe } from "../../pipes/dagen.pipe";
 import { SingleInputFormField } from "../BaseFormField";
@@ -51,16 +51,16 @@ export class ZacDate<
   /**
    * To set the minimum date for the datepicker use the `Validators.min` property.
    *
-   * @example `Validators.min(moment().add(1, "day").startOf("day").valueOf())`
+   * @example `Validators.min(startOfDay(addDays(now(), 1)).valueOf())`
    */
-  protected readonly min = signal<Moment | null>(null);
+  protected readonly min = signal<PickedDate | null>(null);
 
   /**
    * To set the maximum date for the datepicker use the `Validators.max` property.
    *
-   * @example `Validators.max(moment().add(1, "day").endOf("day").valueOf())`
+   * @example `Validators.max(addDays(today(), 1).valueOf())`
    */
-  protected readonly max = signal<Moment | null>(null);
+  protected readonly max = signal<PickedDate | null>(null);
 
   constructor() {
     super();
@@ -93,10 +93,10 @@ export class ZacDate<
   }
 
   private setBoundIfChanged(
-    bound: WritableSignal<Moment | null>,
+    bound: WritableSignal<PickedDate | null>,
     value: number | null,
   ) {
     if (value === (bound()?.valueOf() ?? null)) return;
-    bound.set(value ? moment(value) : null);
+    bound.set(value ? fromTimestamp(value) : null);
   }
 }
