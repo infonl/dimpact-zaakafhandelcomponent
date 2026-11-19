@@ -156,6 +156,20 @@ describe(ZaakOpschortenDialogComponent.name, () => {
     expect(opschortenButton()).toBeDisabled();
   });
 
+  it("leaves the uiterlijke einddatum afdoening empty and does not offer to suspend when the zaak has none", async () => {
+    await setup(makeZaak({ uiterlijkeEinddatumAfdoening: null }));
+    const user = userEvent.setup();
+
+    await user.type(opschortduur(), "5");
+    await user.type(screen.getByRole("textbox", { name: /reason/i }), "Reden");
+    fixture.detectChanges();
+
+    expect(
+      screen.getByLabelText(/uiterlijke.?einddatum.?afdoening/i),
+    ).toHaveValue("");
+    expect(opschortenButton()).toBeDisabled();
+  });
+
   it("dismisses the dialog without a result when cancelled", async () => {
     await setup();
 
