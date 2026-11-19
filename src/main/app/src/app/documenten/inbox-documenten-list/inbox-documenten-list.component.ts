@@ -39,8 +39,8 @@ import {
 import { MatTooltip } from "@angular/material/tooltip";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
-import { merge } from "rxjs";
-import { startWith, switchMap, tap } from "rxjs/operators";
+import { EMPTY, merge } from "rxjs";
+import { catchError, startWith, switchMap, tap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
@@ -188,9 +188,11 @@ export class InboxDocumentenListComponent
               ...this.listParametersSort,
               ...this.listParameters,
             }),
+          ).pipe(
+            tap({ next: stopLoading, error: stopLoading }),
+            catchError(() => EMPTY),
           );
         }),
-        tap({ next: stopLoading, error: stopLoading }),
       )
       .subscribe((data) => {
         this.paginator().length = data.totaal ?? 0;

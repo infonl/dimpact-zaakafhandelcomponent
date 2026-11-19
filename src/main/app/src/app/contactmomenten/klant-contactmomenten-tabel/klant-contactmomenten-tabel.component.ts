@@ -18,7 +18,8 @@ import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
 import { MatTableModule } from "@angular/material/table";
 import { TranslatePipe } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { startWith, switchMap, tap } from "rxjs/operators";
+import { EMPTY } from "rxjs";
+import { catchError, startWith, switchMap, tap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { PutBody } from "../../shared/http/http-client";
@@ -94,9 +95,11 @@ export class KlantContactmomentenTabelComponent implements AfterViewInit {
         switchMap(() => {
           this.isLoadingResults.set(true);
           this.utilService.setLoading(true);
-          return runQuery(this.queryClient, this.loadContactmomenten());
+          return runQuery(this.queryClient, this.loadContactmomenten()).pipe(
+            tap({ next: stopLoading, error: stopLoading }),
+            catchError(() => EMPTY),
+          );
         }),
-        tap({ next: stopLoading, error: stopLoading }),
       )
       .subscribe((resultaat) => {
         this.totaal.set(resultaat.totaal ?? 0);

@@ -41,8 +41,8 @@ import { MatTooltip } from "@angular/material/tooltip";
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
-import { merge } from "rxjs";
-import { startWith, switchMap, tap } from "rxjs/operators";
+import { EMPTY, merge } from "rxjs";
+import { catchError, startWith, switchMap, tap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
@@ -191,9 +191,11 @@ export class InboxProductaanvragenListComponent
           return runQuery(
             this.queryClient,
             this.inboxProductaanvragenService.list({ ...this.listParameters }),
+          ).pipe(
+            tap({ next: stopLoading, error: stopLoading }),
+            catchError(() => EMPTY),
           );
         }),
-        tap({ next: stopLoading, error: stopLoading }),
       )
       .subscribe((data) => {
         this.paginator().length = Number(data.totaal);

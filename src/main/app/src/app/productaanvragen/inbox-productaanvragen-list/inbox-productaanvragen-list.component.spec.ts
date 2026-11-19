@@ -13,6 +13,7 @@ import {
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatDialog } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
@@ -339,6 +340,62 @@ describe(InboxProductaanvragenListComponent.name, () => {
       order: "desc",
     });
     expect(fixture.componentInstance["sort"]().active).toBe("id");
+  });
+
+  describe("when a search fails", () => {
+    async function failSearch() {
+      await sleep();
+      listRequests().forEach((request) =>
+        request.flush(null, { status: 400, statusText: "Bad Request" }),
+      );
+      await sleep();
+      TestBed.inject(MatDialog).closeAll();
+      await sleep();
+      fixture.detectChanges();
+    }
+
+    it("stops the loading indicator", async () => {
+      const setLoading = jest.spyOn(UtilService.prototype, "setLoading");
+      await setup();
+
+      await failSearch();
+
+      expect(setLoading).toHaveBeenLastCalledWith(false);
+    });
+
+    it("searches again when the sorting changes", async () => {
+      await setup();
+      await failSearch();
+
+      await user.click(screen.getByRole("columnheader", { name: "type" }));
+
+      expect(await lastListRequestBody()).toMatchObject({
+        sort: "type",
+        order: "asc",
+      });
+    });
+
+    it("searches again when another page is chosen", async () => {
+      await setup();
+      await showProductaanvragen([inboxProductaanvraag], 30);
+      await user.click(screen.getByRole("button", { name: "Next page" }));
+      await failSearch();
+
+      await user.click(screen.getByRole("button", { name: "Next page" }));
+
+      expect(await lastListRequestBody()).toMatchObject({ page: 2 });
+    });
+
+    it("searches again when a filter changes", async () => {
+      await setup();
+      await failSearch();
+
+      await user.type(screen.getByPlaceholderText("..."), "999993653{Enter}");
+
+      expect(await lastListRequestBody()).toMatchObject({
+        initiatorID: "999993653",
+      });
+    });
   });
 
   it("remembers the first page for the next visit when it is destroyed", async () => {

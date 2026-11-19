@@ -13,6 +13,7 @@ import {
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatDialog } from "@angular/material/dialog";
 import { MatPaginatorIntl } from "@angular/material/paginator";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
@@ -239,6 +240,65 @@ describe(InboxDocumentenListComponent.name, () => {
       sort: "titel",
       order: "asc",
       page: 0,
+    });
+  });
+
+  describe("when a search fails", () => {
+    async function failSearch() {
+      await sleep();
+      listRequests().forEach((request) =>
+        request.flush(null, { status: 400, statusText: "Bad Request" }),
+      );
+      await sleep();
+      TestBed.inject(MatDialog).closeAll();
+      await sleep();
+      fixture.detectChanges();
+    }
+
+    it("stops the loading indicator", async () => {
+      const setLoading = jest.spyOn(UtilService.prototype, "setLoading");
+      await setup();
+
+      await failSearch();
+
+      expect(setLoading).toHaveBeenLastCalledWith(false);
+    });
+
+    it("searches again when the sorting changes", async () => {
+      await setup();
+      await failSearch();
+
+      await user.click(screen.getByRole("columnheader", { name: "titel" }));
+
+      expect(await lastListRequestBody()).toMatchObject({
+        sort: "titel",
+        order: "asc",
+      });
+    });
+
+    it("searches again when another page is chosen", async () => {
+      await setup();
+      await showDocuments([inboxDocument], 30);
+      await user.click(
+        screen.getByRole("button", { name: "actie.pagina.volgende" }),
+      );
+      await failSearch();
+
+      await user.click(
+        screen.getByRole("button", { name: "actie.pagina.volgende" }),
+      );
+
+      expect(await lastListRequestBody()).toMatchObject({ page: 2 });
+    });
+
+    it("searches again when a filter changes", async () => {
+      await setup();
+      await failSearch();
+
+      const [, titelFilter] = screen.getAllByPlaceholderText("...");
+      await user.type(titelFilter, "Aanvraag{Enter}");
+
+      expect(await lastListRequestBody()).toMatchObject({ titel: "Aanvraag" });
     });
   });
 

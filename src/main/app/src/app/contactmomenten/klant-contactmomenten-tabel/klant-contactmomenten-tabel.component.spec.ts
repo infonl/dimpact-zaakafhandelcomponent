@@ -3,7 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient, withXhr } from "@angular/common/http";
+import {
+  HttpErrorResponse,
+  provideHttpClient,
+  withXhr,
+} from "@angular/common/http";
+import { TestBed } from "@angular/core/testing";
+import { MatDialog } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
@@ -19,9 +25,12 @@ import { KlantContactmomentenTabelComponent } from "./klant-contactmomenten-tabe
 describe(KlantContactmomentenTabelComponent.name, () => {
   const user = userEvent.setup();
 
-  let pendingSearches: ((
-    resultaat: GeneratedType<"RestResultaatRestContactmoment">,
-  ) => void)[] = [];
+  let pendingSearches: {
+    resolve: (
+      resultaat: GeneratedType<"RestResultaatRestContactmoment">,
+    ) => void;
+    reject: (error: HttpErrorResponse) => void;
+  }[] = [];
   let detectChanges: () => void;
   let setLoading: jest.SpyInstance;
   let changeInputs: (inputs: {
@@ -37,7 +46,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
       queryKey: ["contactmomenten", ++searchCount],
       queryFn: () =>
         new Promise<GeneratedType<"RestResultaatRestContactmoment">>(
-          (resolve) => pendingSearches.push(resolve),
+          (resolve, reject) => pendingSearches.push({ resolve, reject }),
         ),
     }),
   );
@@ -80,8 +89,19 @@ describe(KlantContactmomentenTabelComponent.name, () => {
   function resolveContactmomenten(
     resultaat: GeneratedType<"RestResultaatRestContactmoment">,
   ) {
-    pendingSearches.forEach((resolve) => resolve(resultaat));
+    pendingSearches.forEach(({ resolve }) => resolve(resultaat));
     pendingSearches = [];
+  }
+
+  async function failSearch() {
+    pendingSearches.forEach(({ reject }) =>
+      reject(new HttpErrorResponse({ status: 400 })),
+    );
+    pendingSearches = [];
+    await sleep();
+    TestBed.inject(MatDialog).closeAll();
+    await sleep();
+    detectChanges();
   }
 
   async function receive(
@@ -236,6 +256,32 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     await sleep();
 
     expect(lastSearch().page).toBe(1);
+  });
+
+  describe("when a search fails", () => {
+    it("stops the loading indicator", async () => {
+      await setup({ bsn: "999993896" });
+
+      await failSearch();
+
+      expect(setLoading).toHaveBeenLastCalledWith(false);
+    });
+
+    it("searches again when another page is chosen", async () => {
+      await setup({ bsn: "999993896" });
+      await receive([fromPartial<GeneratedType<"RestContactmoment">>({})], 15);
+      await user.click(
+        await screen.findByRole("button", { name: "Next page" }),
+      );
+      await sleep();
+      await failSearch();
+
+      await user.click(screen.getByRole("button", { name: "Next page" }));
+      await sleep();
+
+      expect(listContactmomenten).toHaveBeenCalledTimes(3);
+      expect(lastSearch().page).toBe(2);
+    });
   });
 
   it("returns to the first page when it is pointed at another klant", async () => {
