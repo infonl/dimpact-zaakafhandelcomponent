@@ -39,6 +39,10 @@ const NIET_VALIDE_ICON_LABEL = "health-check.zaaktype.status.niet-valide";
 const BEVINDINGEN_TABLE_NAME = "health-check.zaaktype.bevindingen";
 const ROLTYPE_ONTBREEKT_MESSAGE =
   "health-check.zaaktype.zaakspecifieke-autorisatie.roltype-ontbreekt";
+const EIGENSCHAP_ONTBREEKT_MESSAGE =
+  "health-check.zaaktype.zaakspecifieke-autorisatie.eigenschap-ontbreekt";
+const NIET_ONDERSTEUNDE_BRONDATUM_MESSAGE =
+  "health-check.zaaktype.niet-ondersteunde-brondatum";
 const GEEN_RESULTAATTYPE_MESSAGE =
   "health-check.zaaktype.geen-resultaattype-aanwezig";
 
@@ -229,6 +233,19 @@ describe(InrichtingscheckComponent.name, () => {
       const filterInput = screen.getByRole("textbox", { name: "filter" });
       await user.type(filterInput, "melding");
       await settle(INRICHTINGSCHECK_FILTER_DEBOUNCE_MS + 50);
+      httpTestingController
+        .match(
+          (request) =>
+            request.url.startsWith(ZAAKTYPES_URL) &&
+            !request.url.includes("omschrijving="),
+        )
+        .forEach((unfilteredRequest) =>
+          unfilteredRequest.flush({
+            resultaten: zaaktypesThatNeedAttention.slice(0, 25),
+            totaal: 30,
+            foutmelding: "",
+          }),
+        );
 
       const testRequest = await expectZaaktypesRequest();
       expect(queryParametersOf(testRequest)).toMatchObject({
@@ -340,6 +357,20 @@ describe(InrichtingscheckComponent.name, () => {
     );
     const volledigIngerichtZaaktype =
       createZaaktypeInrichtingscheck("fake zaaktype 03");
+    const zaaktypeZonderEigenschap = createZaaktypeInrichtingscheck(
+      "fake zaaktype 04",
+      {
+        hasWaarschuwingen: true,
+        isZaakspecifiekeAutorisatieRoltypeAanwezig: true,
+      },
+    );
+    const zaaktypeMetNietOndersteundeBrondatum = createZaaktypeInrichtingscheck(
+      "fake zaaktype 05",
+      {
+        isValide: false,
+        resultaattypesMetNietOndersteundeBrondatum: ["Toegekend", "Afgewezen"],
+      },
+    );
 
     async function renderPage() {
       await renderComponent();
@@ -347,7 +378,17 @@ describe(InrichtingscheckComponent.name, () => {
         zaaktypeZonderResultaattype,
         zaaktypeZonderRoltype,
         volledigIngerichtZaaktype,
+        zaaktypeZonderEigenschap,
+        zaaktypeMetNietOndersteundeBrondatum,
       ]);
+    }
+
+    async function expandedBevinding(omschrijving: string, message: string) {
+      await user.click(zaaktypeRow(omschrijving));
+      await settle();
+      return within(
+        await screen.findByRole("table", { name: BEVINDINGEN_TABLE_NAME }),
+      ).getByRole("row", { name: new RegExp(message) });
     }
 
     it("expands a zaaktype without a resultaattype and shows that no resultaattype is present", async () => {
@@ -402,6 +443,45 @@ describe(InrichtingscheckComponent.name, () => {
           await screen.findByRole("table", { name: BEVINDINGEN_TABLE_NAME }),
         ).getByText(ROLTYPE_ONTBREEKT_MESSAGE),
       ).toBeInTheDocument();
+    });
+
+    it("shows the waarschuwing icon for a valide zaaktype without the eigenschap and reveals that the eigenschap is missing", async () => {
+      await renderPage();
+      expect(
+        within(zaaktypeRow("fake zaaktype 04")).getByRole("img", {
+          name: WAARSCHUWING_ICON_LABEL,
+        }),
+      ).toBeInTheDocument();
+
+      const bevinding = await expandedBevinding(
+        "fake zaaktype 04",
+        EIGENSCHAP_ONTBREEKT_MESSAGE,
+      );
+
+      expect(within(bevinding).getByText("eigenschap")).toBeInTheDocument();
+    });
+
+    it("reveals the brondatum error with the category resultaattype for a zaaktype with resultaattypen whose brondatum afleidingswijze is not supported", async () => {
+      await renderPage();
+
+      const bevinding = await expandedBevinding(
+        "fake zaaktype 05",
+        NIET_ONDERSTEUNDE_BRONDATUM_MESSAGE,
+      );
+
+      expect(within(bevinding).getByText("resultaattype")).toBeInTheDocument();
+    });
+
+    it("shows no brondatum error for a zaaktype without resultaattypen whose brondatum afleidingswijze is not supported", async () => {
+      await renderPage();
+      await user.click(zaaktypeRow("fake zaaktype 01"));
+      await settle();
+
+      expect(
+        within(
+          await screen.findByRole("table", { name: BEVINDINGEN_TABLE_NAME }),
+        ).queryByText(NIET_ONDERSTEUNDE_BRONDATUM_MESSAGE),
+      ).not.toBeInTheDocument();
     });
 
     it("shows the valide icon for a fully configured zaaktype and does not expand it on click", async () => {

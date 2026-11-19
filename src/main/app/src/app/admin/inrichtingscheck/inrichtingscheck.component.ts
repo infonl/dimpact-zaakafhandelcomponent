@@ -31,7 +31,7 @@ import {
   injectQuery,
   keepPreviousData,
 } from "@tanstack/angular-query-experimental";
-import { debounceTime, distinctUntilChanged, tap } from "rxjs";
+import { debounceTime, distinctUntilChanged } from "rxjs";
 import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
@@ -268,7 +268,6 @@ export class InrichtingscheckComponent extends AdminComponent {
     toObservable(this.omschrijvingFilter).pipe(
       debounceTime(INRICHTINGSCHECK_FILTER_DEBOUNCE_MS),
       distinctUntilChanged(),
-      tap(() => this.pageIndex.set(0)),
     ),
     { initialValue: "" },
   );
@@ -349,6 +348,7 @@ export class InrichtingscheckComponent extends AdminComponent {
 
   protected omschrijvingFilterChanged(event: Event) {
     this.omschrijvingFilter.set((event.target as HTMLInputElement).value);
+    this.pageIndex.set(0);
   }
 
   protected valideFilterChanged(valideFilter: ToggleSwitchOptions) {
