@@ -227,8 +227,10 @@ removes every violation. A test checks a fixture class in `src/test` against the
 a direct `Logger.getLogger(...)` fails it.
 
 Detekt's built-in `ForbiddenImport` rule for the same logging packages, and `ForbiddenMethodCall` for `println`,
-`print` and `printStackTrace`, excluding `**/nl/info/zac/log/**` and the
-`logFilter` source set, reports the same problem in the IDE and in `./gradlew detekt`.
+`print` and `printStackTrace`, report the same problem in the IDE and in `./gradlew detekt`. `config/detekt.yml` also
+applies to `detektTest` and `detektItest`, so both rules exclude `**/nl/info/zac/log/**`, the `logFilter` source set
+and the test sources (`src/test`, `src/itest`): the rule is for production code only, the itest `LoggingTest` uses
+kotlin-logging, and the fixtures of the ArchUnit test violate the rule on purpose.
 
 - Alternative: a custom Detekt rule module. More code to maintain for the same result. Rejected.
 
@@ -280,6 +282,9 @@ companion object {
   written as `unknown` without a new lookup; after it the next log line tries again. So during a Keycloak outage ZAC
   calls Keycloak at most once per employee per 5 minutes, not once per log line. A lookup never throws to the caller:
   the log line is written with `unknown`, and the business operation (such as assigning a zaak) never depends on it.
+  This covers only the lookup for the log. The business operation keeps its own Keycloak calls and their behaviour:
+  assigning a zaak still validates and reads the user and group through `IdentityService`
+  (`ZaakService.readZaakAssignment`), and still fails as today when Keycloak cannot be reached.
 - The lookup runs on the calling thread, so its latency must be bounded. The Keycloak admin client
   (`KeycloakEmployeesAdminClientConfiguration`) has no connect or read timeout today, so a Keycloak that does not
   answer would hold the business thread without limit. It gets a connect and a read timeout of 2 seconds. That bound
@@ -360,6 +365,13 @@ birth.
   logged without the `ZgwValidationErrorException`, because the message of that exception holds the reasons, and its
   stack trace adds nothing for a 400 response of a ZGW API. Clean fields alone would not keep the reasons out of the
   record.
+- The same holds outside `RestExceptionMapper`, wherever a `ZgwValidationErrorException` is caught: no log record
+  holds its message or the exception itself, only its error code and the names of its invalid parameters. Known
+  places: `DrcClientService.logFailureToCleanUp` and `DetachedDocumentBulkService.failureMessage` (both interpolate
+  the message), `ProductaanvraagZaakService.logAanvraagPdfPairingFailure` (attaches the exception) and
+  `UpdateZaakJavaDelegate`, which wraps it as the cause of a `FlowableZgwValidationErrorException` that Flowable logs
+  itself. That wrapper gets a message with the error code and parameter names, and no cause, because ZAC cannot
+  control what Flowable logs of a cause. The migration (decision 9) checks every other catch of the exception.
 - `MailTemplateHelper` no longer logs the `geboorte` of an initiator without a name; it logs that the name is missing
   and the role UUID.
 - `UserPrincipalFilter` calls `ZacLogger.registerEmployee` first, then logs one `UserLoggedIn(employee, groupIds,
@@ -396,8 +408,8 @@ package, and the ArchUnit rule last, once it passes.
 
 Event classes are named after what happened, without an `Event` suffix (`MailSendCompleted`, `UserLoggedIn`,
 `PolicyDenied`).
-The new ADR goes into PR 1 with status `proposed`, so that the team accepts it in the review; it is set to `accepted`
-after the merge.
+The new ADR goes into PR 1 with status `accepted`, as the ADR README prescribes: the team agrees on it in the review,
+and merging the pull request accepts the decision. `proposed` is only for a decision that is merged but not taken.
 
 ### 11. PR split
 

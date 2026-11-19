@@ -69,7 +69,11 @@
       record per execution instead of up to three, with `emailSource=NONE` when no mail is sent; unit tests
 - [ ] 4.4 `RestExceptionMapper`: log `ZgwValidationFailed(errorCode, invalid parameter names and codes)` without the
       reasons and without the exception, keep the reasons in the REST response; unit test with a rejected email value
-      that checks the whole record, including its exception, and the REST response
+      that checks the whole record, including its exception, and the REST response; do the same in
+      `DrcClientService.logFailureToCleanUp`, `DetachedDocumentBulkService.failureMessage` and
+      `ProductaanvraagZaakService.logAanvraagPdfPairingFailure`, and let `UpdateZaakJavaDelegate` throw its
+      `FlowableZgwValidationErrorException` with the error code and parameter names and without the cause; unit tests
+      that check the whole record
 - [ ] 4.5 `UpdateZaakAssignmentDelegate`: log zaak identification, group and the assignee as an `Employee` field,
       without the reason; unit test
 - [ ] 4.6 `UserPrincipalFilter`: log one `UserLoggedIn` record with `Employee` fields instead of usernames, with the
@@ -77,7 +81,7 @@
 - [ ] 4.7 `WebSocketServerEndPoint`: log the employee of the session as an `Employee` field (or the session ID when
       there is none) in all websocket events; unit tests
 - [ ] 4.8 `ProductaanvraagZaakService`: log the behandelaar as an `Employee` field, and check that a failed lookup
-      does not stop the assignment; unit tests
+      for the log does not stop an assignment that succeeds otherwise; unit tests
 - [ ] 4.9 `MailTemplateHelper`: stop logging the `geboorte` of an initiator without a name; unit test
 - [ ] 4.10 `ZaakService` and `SmartDocumentsService`: replace the logged employee name or username with an
       `Employee` field
@@ -115,12 +119,14 @@
 - [ ] 6.2 Add tests with fixture classes in `src/test` (JUL `Logger.getLogger`, SLF4J `LoggerFactory.getLogger`,
       `println`, `printStackTrace`) that each violate the rules
 - [ ] 6.3 Configure Detekt `ForbiddenImport` for the same packages and `ForbiddenMethodCall` for `println`, `print`
-      and `printStackTrace` in `config/detekt.yml`, excluding `nl/info/zac/log` and the `logFilter` source set
+      and `printStackTrace` in `config/detekt.yml`, excluding `nl/info/zac/log`, the `logFilter` source set and the
+      test sources (`src/test`, `src/itest`); check that `./gradlew detekt` passes with `LoggingTest` and the fixtures
+      of task 6.2
 - [ ] 6.4 Update `docs/development/architectureRules.md` with the new rule
 
 ## 7. Documentation and ADR
 
-- [ ] 7.1 Add an ADR (next free number, status `proposed`) "Log only typed log events through ZacLogger", with the ArchUnit rule as
+- [ ] 7.1 Add an ADR (next free number, status `accepted`) "Log only typed log events through ZacLogger", with the ArchUnit rule as
       confirmation, the employee resolution in `ZacLogger`, the structured fields through MDC and the extension of the
       ADR-0011 filter to the MDC, and the known limitations (description literal, exception
       messages); add it to the ADR index; run

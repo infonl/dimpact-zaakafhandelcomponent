@@ -218,6 +218,12 @@ validation error code and the names of the invalid parameters.
 - **AND** neither its fields, its message nor its exception contain `geen-email` or the reason
 - **AND** the REST response still contains the reason
 
+#### Scenario: A rejected value outside the REST layer
+- **WHEN** Open Zaak rejects the deletion of a document with a reason that holds the rejected value, and ZAC logs the
+  failure of that clean-up
+- **THEN** the log record contains the error code and the names of the invalid parameters
+- **AND** neither its fields, its message nor its exception contain the reason
+
 ### Requirement: Employees are identified by their Keycloak user ID
 When a log record identifies an employee, the backend SHALL use the Keycloak user ID of that employee (the `sub` claim
 of the access token). It SHALL NOT log the username, the name or the email address of an employee. When the Keycloak
@@ -261,19 +267,23 @@ user ID cannot be determined, the log record SHALL write `unknown` for that empl
 - **AND** it does not contain the username `jjansen`
 
 #### Scenario: The Keycloak user ID of an assigned employee cannot be found
-- **WHEN** a productaanvraag assigns a new zaak to the employee with username `jjansen`, and Keycloak does not know
-  that user or cannot be reached
+- **WHEN** a productaanvraag assigns a new zaak to the employee with username `jjansen`, the assignment itself
+  succeeds, and the lookup of the Keycloak user ID for the log fails
 - **THEN** the zaak is still assigned
 - **AND** the log record contains the zaak UUID, the group and `unknown` for the employee, and not the username
   `jjansen`
 - **AND** a log record for `jjansen` within 5 minutes writes `unknown` without calling Keycloak
 - **AND** the first log record for `jjansen` after 5 minutes calls Keycloak again
 
-#### Scenario: Keycloak does not answer
-- **WHEN** a productaanvraag assigns a new zaak to the employee `jjansen`, who has not logged in on that instance, and
-  Keycloak accepts the connection but does not answer
+#### Scenario: Keycloak does not answer the lookup for the log
+- **WHEN** a productaanvraag assigns a new zaak to the employee `jjansen`, who has not logged in on that instance, the
+  assignment itself succeeds, and Keycloak does not answer the lookup of the Keycloak user ID for the log
 - **THEN** the zaak is assigned and the log record contains `unknown` for the employee
 - **AND** the lookup waits no longer than the 2 second read timeout of the Keycloak admin client
+
+#### Scenario: Keycloak cannot be reached for the assignment
+- **WHEN** a productaanvraag assigns a new zaak to an employee and Keycloak cannot be reached
+- **THEN** the assignment behaves as before this change, because the logging does not change its own Keycloak calls
 
 #### Scenario: A BPMN task assigns a zaak to an employee
 - **WHEN** the `UpdateZaakAssignmentDelegate` assigns zaak `ZAAK-2026-0000000001` to the employee with username
