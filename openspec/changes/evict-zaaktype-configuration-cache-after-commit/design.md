@@ -94,6 +94,5 @@ other caches will follow, so a new ADR records it.
   CDI specification.
 - [A read that starts before the commit and caches its result after the second clear] → Caffeine runs the loader of
   `Cache.get(key, loader)` inside the compute of its map, and `invalidate(key)` waits for a running compute of that
-  key, so the configuration per zaaktype cannot keep a previous row. `invalidateAll()` on the list of deadline warning
-  windows does not wait for a load that is still running; that list can keep the previous windows until it expires.
-  This window is a few milliseconds and smaller than before this change.
+  key, so neither the configuration per zaaktype nor the list of deadline warning windows, which uses one fixed key,
+  can keep a previous value.
