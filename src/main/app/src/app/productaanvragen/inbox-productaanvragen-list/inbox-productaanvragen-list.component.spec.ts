@@ -363,13 +363,13 @@ describe(InboxProductaanvragenListComponent.name, () => {
       await settle();
     }
 
-    it("stops the loading indicator", async () => {
-      const setLoading = jest.spyOn(UtilService.prototype, "setLoading");
+    it("stops announcing that it is loading", async () => {
       await setup();
 
       await failSearch();
 
-      expect(setLoading).toHaveBeenLastCalledWith(false);
+      expect(screen.queryByText("msg.loading")).toBeNull();
+      expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
     });
 
     it("searches again when the sorting changes", async () => {

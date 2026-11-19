@@ -6,8 +6,6 @@
 import {
   Component,
   computed,
-  DestroyRef,
-  effect,
   inject,
   input,
   linkedSignal,
@@ -16,7 +14,6 @@ import { MatCardModule } from "@angular/material/card";
 import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
 import { MatTableModule } from "@angular/material/table";
 import { TranslatePipe } from "@ngx-translate/core";
-import { UtilService } from "../../core/service/util.service";
 import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { PutBody } from "../../shared/http/http-client";
 import { injectLastSuccessfulSearch } from "../../shared/http/last-successful-search";
@@ -43,7 +40,6 @@ type ContactmomentenSearch = PutBody<"/rest/klanten/contactmomenten">;
 })
 export class KlantContactmomentenTabelComponent {
   private readonly contactmomentenService = inject(ContactmomentenService);
-  private readonly utilService = inject(UtilService);
 
   readonly bsn = input<string>();
   readonly vestigingsnummer = input<string>();
@@ -77,11 +73,6 @@ export class KlantContactmomentenTabelComponent {
     () => this.search.data()?.resultaten ?? [],
   );
   protected readonly totaal = computed(() => this.search.data()?.totaal ?? 0);
-
-  constructor() {
-    effect(() => this.utilService.setLoading(this.isLoadingResults()));
-    inject(DestroyRef).onDestroy(() => this.utilService.setLoading(false));
-  }
 
   protected pageChanged({ pageIndex }: PageEvent) {
     this.search.request({ ...this.search.requested(), page: pageIndex });

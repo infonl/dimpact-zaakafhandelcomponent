@@ -17,7 +17,6 @@ import { render, screen, waitFor } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
-import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ContactmomentenService } from "../contactmomenten.service";
 import { KlantContactmomentenTabelComponent } from "./klant-contactmomenten-tabel.component";
@@ -32,7 +31,6 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     reject: (error: HttpErrorResponse) => void;
   }[] = [];
   let detectChanges: () => void;
-  let setLoading: jest.SpyInstance;
   let changeInputs: (inputs: {
     bsn?: string;
     vestigingsnummer?: string;
@@ -56,9 +54,6 @@ describe(KlantContactmomentenTabelComponent.name, () => {
   }
 
   async function setup(inputs: { bsn?: string; vestigingsnummer?: string }) {
-    setLoading = jest
-      .spyOn(UtilService.prototype, "setLoading")
-      .mockImplementation(() => undefined);
     const rendered = await render(KlantContactmomentenTabelComponent, {
       inputs,
       imports: [NoopAnimationsModule],
@@ -170,16 +165,6 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     await waitFor(() => expect(screen.queryByText("msg.loading")).toBeNull());
   });
 
-  it("turns the loading indicator on until the contactmomenten arrive", async () => {
-    await setup({ bsn: "999993896" });
-
-    expect(setLoading).toHaveBeenLastCalledWith(true);
-
-    await receive([]);
-
-    expect(setLoading).toHaveBeenLastCalledWith(false);
-  });
-
   it("lists the contactmomenten it found", async () => {
     await setup({ bsn: "999993896" });
 
@@ -265,12 +250,13 @@ describe(KlantContactmomentenTabelComponent.name, () => {
   });
 
   describe("when a search fails", () => {
-    it("stops the loading indicator", async () => {
+    it("stops announcing that it is loading", async () => {
       await setup({ bsn: "999993896" });
 
       await failSearch();
 
-      expect(setLoading).toHaveBeenLastCalledWith(false);
+      expect(screen.queryByText("msg.loading")).toBeNull();
+      expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
     });
 
     it("goes back to the page it showed and searches again when another page is chosen", async () => {

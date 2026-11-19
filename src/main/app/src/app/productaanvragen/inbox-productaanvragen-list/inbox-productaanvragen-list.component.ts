@@ -7,7 +7,6 @@ import {
   afterNextRender,
   Component,
   computed,
-  DestroyRef,
   effect,
   EventEmitter,
   inject,
@@ -44,7 +43,6 @@ import { MatTooltip } from "@angular/material/tooltip";
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
-import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
@@ -117,7 +115,6 @@ export class InboxProductaanvragenListComponent
     InboxProductaanvragenService,
   );
   private readonly infoService = inject(InformatieObjectenService);
-  private readonly utilService = inject(UtilService);
   private readonly dialog = inject(MatDialog);
   private readonly injector = inject(Injector);
   readonly gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
@@ -196,8 +193,6 @@ export class InboxProductaanvragenListComponent
         );
       }
     });
-    effect(() => this.utilService.setLoading(this.isLoadingResults()));
-    inject(DestroyRef).onDestroy(() => this.utilService.setLoading(false));
   }
 
   ngOnInit() {
