@@ -537,7 +537,13 @@ configure<SpotlessExtension> {
     }
     format("e2e") {
         target("$e2ePath/**/*.js", "$e2ePath/**/*.ts")
-        targetExclude("$e2ePath/node_modules/**")
+        targetExclude(
+            "$e2ePath/node_modules/**",
+            "$e2ePath/.features-gen/**",
+            "$e2ePath/generated/**",
+            "$e2ePath/playwright-report/**",
+            "$e2ePath/test-results/**"
+        )
 
         prettier(prettierDevDependencies).withNodeExecutables().config(prettierTypescriptConfig)
     }
@@ -569,6 +575,9 @@ configure<SpotlessExtension> {
         targetExclude(
             "$e2ePath/node_modules/**",
             "$e2ePath/reports/**",
+            "$e2ePath/.auth/**",
+            "$e2ePath/playwright-report/**",
+            "$e2ePath/test-results/**",
             "$appPath/node_modules/**",
             "$appPath/dist/**",
             "$appPath/.angular/**",
@@ -583,6 +592,9 @@ configure<SpotlessExtension> {
         targetExclude(
             "$e2ePath/node_modules/**",
             "$e2ePath/reports/**",
+            "$e2ePath/.auth/**",
+            "$e2ePath/playwright-report/**",
+            "$e2ePath/test-results/**",
             "$appPath/node_modules/**",
             "$appPath/dist/**",
             "$appPath/.angular/**",
@@ -596,6 +608,9 @@ configure<SpotlessExtension> {
         targetExclude(
             "$e2ePath/node_modules/**",
             "$e2ePath/reports/**",
+            "$e2ePath/.auth/**",
+            "$e2ePath/playwright-report/**",
+            "$e2ePath/test-results/**",
             "$appPath/node_modules/**",
             "$appPath/dist/**",
             "$appPath/.angular/**",

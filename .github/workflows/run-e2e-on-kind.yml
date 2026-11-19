@@ -4,15 +4,22 @@
 #
 name: Playwright Tests on kind
 on:
-  pull_request:
-    paths:
-      - ".github/workflows/run-e2e-on-kind.yml"
-      - "charts/zac/**"
-      - "scripts/kind/**"
-      - "src/e2e/**"
-      - "start-e2e.sh"
-      - "start-e2e-with-local-env.sh"
-      - "start-kind.sh"
+  # The 'e2e-tests' job of the build workflow calls this workflow for every pull request: with the ZAC image of the
+  # pull request when ZAC changes, and with the latest image when only the end-to-end tests or the kind stack change.
+  workflow_call:
+    inputs:
+      zac-docker-image:
+        description: "The ZAC Docker image to test, from the registry. Not used when zac-jar-artifact is set."
+        type: string
+        default: "ghcr.io/infonl/zaakafhandelcomponent:latest"
+      zac-jar-artifact:
+        description: "The artifact with the ZAC JAR of this run, to build the ZAC Docker image to test from"
+        type: string
+        default: ""
+      zac-version:
+        description: "The version of ZAC in the Docker image that is built from zac-jar-artifact"
+        type: string
+        default: ""
   workflow_dispatch:
     inputs:
       zac-docker-image:
@@ -20,20 +27,26 @@ on:
         required: true
         default: "ghcr.io/infonl/zaakafhandelcomponent:latest"
 
+# No concurrency group: the calling workflow has one, and the same group here would cancel the caller.
 permissions:
   contents: read
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+env:
+  JAVA_VERSION: "25.0.5"
 
 jobs:
   playwright-kind:
     name: "Playwright Tests on kind"
     runs-on: ubuntu-26.04
     timeout-minutes: 60
+    permissions:
+      contents: read
+      # to comment on the pull request when the tests fail
+      pull-requests: write
     env:
       ZAC_DOCKER_IMAGE: ${{ inputs.zac-docker-image || 'ghcr.io/infonl/zaakafhandelcomponent:latest' }}
+      # start-kind.sh creates this cluster, and the target kind of the e2e tests reads the port of ZAC from it
+      KIND_CLUSTER_NAME: zac
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -55,12 +68,40 @@ jobs:
         with:
           install_only: true
 
+      # The same reservation as in the 'itest-shard' job: the stack publishes Postgres ports in this range
+      - name: Reserve the Postgres ports of the kind stack so the kernel never uses them as ephemeral ports
+        run: sudo sysctl -w net.ipv4.ip_local_reserved_ports=54320-54330
+
+      - name: Download the built ZAC JAR
+        if: ${{ inputs.zac-jar-artifact != '' }}
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: ${{ inputs.zac-jar-artifact }}
+          path: target
+
+      # start-kind.sh -l runs the image with the 'dev' tag from the local Docker daemon
+      - name: Build the ZAC Docker image of this run
+        if: ${{ inputs.zac-jar-artifact != '' }}
+        env:
+          ZAC_VERSION: ${{ inputs.zac-version }}
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+          GIT_COMMIT_HASH: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          docker build \
+            --tag ghcr.io/infonl/zaakafhandelcomponent:dev \
+            --build-arg versionNumber="${ZAC_VERSION}" \
+            --build-arg branchName="${BRANCH_NAME}" \
+            --build-arg commitHash="${GIT_COMMIT_HASH}" \
+            .
+
       # The stack pulls its images while the e2e dependencies and the browser are installed
       - name: Start the kind stack in the background
         env:
           KIND_ENV_FILE: ""
+          KIND_ZAC_VALUES: scripts/kind/values/zac-e2e.yaml
+          ZAC_SOURCE: ${{ inputs.zac-jar-artifact != '' && '-l' || '-z' }}
         run: |
-          nohup sh -c './start-kind.sh -z -e; echo $? > "$RUNNER_TEMP/kind-exit-code"' \
+          nohup sh -c './start-kind.sh "$ZAC_SOURCE" -t -e; echo $? > "$RUNNER_TEMP/kind-exit-code"' \
             < /dev/null > "$RUNNER_TEMP/kind.log" 2>&1 &
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -72,7 +113,31 @@ jobs:
         run: |
           cd src/e2e
           npm ci --ignore-scripts
-          npx playwright install --with-deps msedge
+          npx playwright install --with-deps chromium
+
+      - name: Setup JDK
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      # The type check of the e2e tests generates the types of the ZAC REST API from this spec
+      - name: Generate the OpenAPI spec of ZAC
+        timeout-minutes: 20
+        run: ./gradlew generateOpenApiSpec
+
+      # These checks need no running stack, so a missing step definition fails before the wait for the stack
+      - name: Check the types, lint, run the unit tests and generate the e2e tests
+        run: |
+          cd src/e2e
+          npm run typecheck
+          npm run lint
+          npm run test:unit
+          npx bddgen
+          npx playwright test --list
 
       - name: Wait for the kind stack
         timeout-minutes: 30
@@ -83,24 +148,15 @@ jobs:
 
       - name: Run the e2e tests
         env:
-          HEADLESS: true
           SKIP_INSTALL: true
         run: ./start-e2e-with-local-env.sh
 
-      - name: Make a playwright report
-        if: ${{ !cancelled() }}
-        run: cd src/e2e && npm run e2e:generate:report
-
-      - name: Extract metrics from Cucumber report
-        if: ${{ !cancelled() }}
-        run: cd src/e2e && npm run e2e:extract:metrics
-
-      - name: Upload the e2e reports
+      - name: Upload the Playwright report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: e2e-kind-reports
-          path: src/e2e/reports
+          name: e2e-kind-playwright-report
+          path: src/e2e/playwright-report
           retention-days: 7
 
       - name: Collect the state and the logs of the kind stack
@@ -109,10 +165,10 @@ jobs:
           mkdir -p "$RUNNER_TEMP/kind-diagnostics"
           cd "$RUNNER_TEMP/kind-diagnostics"
           cp "$RUNNER_TEMP/kind.log" . || true
-          kubectl --context kind-zac get all,events --all-namespaces > resources.txt 2>&1 || true
-          kubectl --context kind-zac -n zac describe pods > pods.txt 2>&1 || true
-          for deployment in $(kubectl --context kind-zac -n zac get deployments -o name 2> /dev/null); do
-            kubectl --context kind-zac -n zac logs "$deployment" --all-containers --tail=2000 \
+          kubectl --context "kind-$KIND_CLUSTER_NAME" get all,events --all-namespaces > resources.txt 2>&1 || true
+          kubectl --context "kind-$KIND_CLUSTER_NAME" -n zac describe pods > pods.txt 2>&1 || true
+          for deployment in $(kubectl --context "kind-$KIND_CLUSTER_NAME" -n zac get deployments -o name 2> /dev/null); do
+            kubectl --context "kind-$KIND_CLUSTER_NAME" -n zac logs "$deployment" --all-containers --tail=2000 \
               > "logs-${deployment#deployment.apps/}.txt" 2>&1 || true
           done
 
@@ -123,3 +179,16 @@ jobs:
           name: e2e-kind-diagnostics
           path: ${{ runner.temp }}/kind-diagnostics
           retention-days: 7
+
+      # The end-to-end tests are not a required check yet, so a failure would go unnoticed without this comment.
+      # Pull requests from forks get a read-only token and no comment.
+      - name: Comment on the pull request
+        if: ${{ !cancelled() && github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+          PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          ZAC_IMAGE_DESCRIPTION: ${{ inputs.zac-jar-artifact != '' && 'the ZAC image of this pull request' || inputs.zac-docker-image }}
+        run: scripts/github/comment-e2e-result.sh

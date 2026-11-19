@@ -177,6 +177,7 @@ jobs:
     needs: validate-input
     outputs:
       changes-requiring-build: ${{ steps.paths-filter.outputs.changes-requiring-build }}
+      changes-to-e2e-tests: ${{ steps.e2e-paths-filter.outputs.changes-to-e2e-tests }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -199,6 +200,21 @@ jobs:
               - '!src/e2e/**'
               - '!openspec/**'
               - '!renovate.json'
+
+      # The build skips these files, but the end-to-end tests have to run when they change
+      - name: Find changes to the end-to-end tests or to the kind stack they run on
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: e2e-paths-filter
+        with:
+          filters: |
+            changes-to-e2e-tests:
+              - '.github/workflows/run-e2e-on-kind.yml'
+              - 'charts/zac/**'
+              - 'scripts/github/comment-e2e-result.sh'
+              - 'scripts/kind/**'
+              - 'src/e2e/**'
+              - 'start-e2e-with-local-env.sh'
+              - 'start-kind.sh'
 
   build:
     runs-on: ubuntu-26.04
@@ -711,6 +727,22 @@ jobs:
         run: |
           echo "The integration test shards finished with result '${{ needs.itest-shard.result }}'"
           exit 1
+
+  # Runs the end-to-end tests next to the integration test shards, on a kind stack of its own: with the ZAC image of
+  # the pull request when ZAC changes, and with the latest image when only the end-to-end tests or the kind stack
+  # change. Not a required status check yet, and no other job needs it: a failure comments on the pull request but
+  # does not block the merge.
+  e2e-tests:
+    needs: [build, paths-filter, determine-version]
+    if: ${{ !cancelled() && github.event_name == 'pull_request' && (needs.build.result == 'success' || (needs.build.result == 'skipped' && needs.paths-filter.outputs.changes-to-e2e-tests == 'true')) }}
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/run-e2e-on-kind.yml
+    with:
+      zac-jar-artifact: ${{ needs.build.result == 'success' && 'zac-jar' || '' }}
+      zac-version: ${{ needs.determine-version.outputs.version }}
+    secrets: inherit
 
   push-docker-image:
     needs: [build, run-unit-tests, build-docker-image-and-run-itests, determine-version]

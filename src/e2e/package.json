@@ -10,8 +10,12 @@
     "e2e:start": "npm ci --ignore-scripts && npx playwright install --with-deps && npm run e2e:run",
     "e2e:generate:report": "node generate-report.mjs",
     "e2e:extract:metrics": "node extract-metrics.mjs",
-    "bdd:ci": "npx bddgen && npx playwright test",
-    "bdd": "npx bddgen && npx playwright test --ui"
+    "test": "bddgen && playwright test",
+    "test:ui": "bddgen && playwright test --ui",
+    "test:unit": "playwright test -c playwright.unit.config.ts",
+    "lint": "eslint .",
+    "typecheck": "npm run generate:types:zac-openapi && tsc -p tsconfig.playwright.json",
+    "generate:types:zac-openapi": "openapi-typescript ../../build/generated/openapi/META-INF/openapi/openapi.json -o ./generated/zac-openapi-types.d.ts"
   },
   "private": true,
   "dependencies": {
@@ -20,13 +24,24 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
+    "@eslint/js": "10.0.1",
     "@playwright/test": "1.65.1",
     "@types/node": "24.19.2",
-    "multiple-cucumber-html-reporter": "4.6.0",
     "dotenv": "18.0.10",
+    "eslint": "10.14.0",
+    "eslint-plugin-playwright": "2.12.2",
+    "multiple-cucumber-html-reporter": "4.6.0",
+    "openapi-fetch": "0.17.0",
+    "openapi-typescript": "7.13.0",
     "playwright-bdd": "9.2.1",
     "ts-node": "10.9.2",
-    "typescript": "6.0.3"
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.2"
+  },
+  "overrides": {
+    "openapi-typescript": {
+      "typescript": "$typescript"
+    }
   },
   "cucumber.features": ["features/**/*.feature"]
 }
