@@ -10,7 +10,7 @@ Run `python3 scripts/python/dependencies/versions.py` from the root of the ZAC c
 
 - Open Formulieren, Open Object, Open Klant, Open Notificaties, Keycloak, Open Zaak.
 
-If the script cannot fill a row (it stopped with an error before that line, or printed `None`), show `?` in that cell and name the row and the error below the table. Do not look the version up elsewhere: a failing script is to be fixed, not worked around.
+If the script cannot fill a row (it printed `?` with an error on that line, or `None`), show `?` in that cell and name the row and the error below the table. Do not look the version up elsewhere: a failing script is to be fixed, not worked around.
 
 Open Archiefbeheer is not in the script. Take it from Docker Hub: start with `https://hub.docker.com/v2/repositories/maykinmedia/open-archiefbeheer/tags?page_size=100&ordering=last_updated` and follow each response's `next` URL until it is null. Keep only `X.Y.Z` tags from all pages and take the highest by number.
 

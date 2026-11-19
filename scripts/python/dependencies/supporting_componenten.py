@@ -11,6 +11,7 @@ import subprocess
 import requests
 from bs4 import BeautifulSoup
 
+from latest_version_printer import print_latest_version
 from version_data import VersionData
 
 SEMANTIC_VERSION = r'\d+\.\d+\.\d+'
@@ -116,17 +117,20 @@ def print_versions_of_supporting_components():
     - PABC                  from https://github.com/Platform-Autorisatie-Beheer-Component/PABC-API/releases
     """
 
-    print(f'Fluent-bit latest version: {latest_github_release("fluent/fluent-bit")}')
-    print(f'Grafana latest version: {latest_github_release("grafana/grafana")}')
-    print(f'Grafana Loki latest version: {latest_github_release("grafana/loki")}')
-    print(f'Tempo latest version: {latest_github_release("grafana/tempo")}')
-    print(f'nginx latest mainline version: {latest_nginx_version("Mainline version")}')
-    print(f'nginx latest stable version: {latest_nginx_version("Stable version")}')
-    print(f'Redis latest version: {latest_github_release("redis/redis")}')
-    print(f'BRP Personen Mock latest version: {latest_ghcr_tag("brp-api/personen-mock", BRP_PERSONEN_MOCK_TAG)}')
-    print(f'Solr latest version: {latest_solr_version()}')
-    print(f'WildFly latest version: {latest_github_release("wildfly/wildfly", WILDFLY_RELEASE_TAG)}')
-    print(f'PABC latest version: {latest_github_release("Platform-Autorisatie-Beheer-Component/PABC-API")}')
+    print_latest_version('Fluent-bit latest version', lambda: latest_github_release("fluent/fluent-bit"))
+    print_latest_version('Grafana latest version', lambda: latest_github_release("grafana/grafana"))
+    print_latest_version('Grafana Loki latest version', lambda: latest_github_release("grafana/loki"))
+    print_latest_version('Tempo latest version', lambda: latest_github_release("grafana/tempo"))
+    print_latest_version('nginx latest mainline version', lambda: latest_nginx_version("Mainline version"))
+    print_latest_version('nginx latest stable version', lambda: latest_nginx_version("Stable version"))
+    print_latest_version('Redis latest version', lambda: latest_github_release("redis/redis"))
+    print_latest_version('BRP Personen Mock latest version',
+                         lambda: latest_ghcr_tag("brp-api/personen-mock", BRP_PERSONEN_MOCK_TAG))
+    print_latest_version('Solr latest version', latest_solr_version)
+    print_latest_version('WildFly latest version',
+                         lambda: latest_github_release("wildfly/wildfly", WILDFLY_RELEASE_TAG))
+    print_latest_version('PABC latest version',
+                         lambda: latest_github_release("Platform-Autorisatie-Beheer-Component/PABC-API"))
 
 
 if __name__ == '__main__':
