@@ -123,7 +123,9 @@ export function toForm(
   });
 
   applyProcessDefinition(form, processDefinition);
-  if (processDefinition) form.controls.procesModel.disable();
+  if (processDefinition && !configuration.isProcessDefinitionChangeable) {
+    form.controls.procesModel.disable();
+  }
   return form;
 }
 

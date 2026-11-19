@@ -59,6 +59,13 @@ data class RestZaaktypeConfiguration(
     @set:JsonbProperty("isZaakspecifiekAutoriseerbaar")
     var isZaakspecifiekAutoriseerbaar: Boolean = false,
     /**
+     * Indicates that a beheerder may choose another process definition for this zaaktype version.
+     * Only filled in by the beheer endpoints that read or store one configuration.
+     */
+    @get:JsonbProperty("isProcessDefinitionChangeable")
+    @set:JsonbProperty("isProcessDefinitionChangeable")
+    var isProcessDefinitionChangeable: Boolean = false,
+    /**
      * The frontend currently requires this field to be non-null
      */
     var humanTaskParameters: List<RestHumanTaskParameters> = emptyList(),

@@ -4,22 +4,37 @@
  */
 
 import { Component, computed, inject, input } from "@angular/core";
+import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ZacSelect } from "../../../../shared/form/select/select";
+import { DatumPipe } from "../../../../shared/pipes/datum.pipe";
+import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { ZaakafhandelParametersService } from "../../../zaakafhandel-parameters.service";
-import { ProcessDefinition, ProcessModelForm } from "./process-model-form";
+import {
+  isSameProcessDefinition,
+  ProcessDefinition,
+  ProcessModelForm,
+} from "./process-model-form";
 
 @Component({
   selector: "zac-parameters-step-proces-model",
   templateUrl: "./parameters-step-proces-model.component.html",
   standalone: true,
-  imports: [MatIconModule, TranslatePipe, ZacSelect],
+  imports: [
+    DatumPipe,
+    MatFormFieldModule,
+    MatIconModule,
+    TranslatePipe,
+    ZacSelect,
+  ],
 })
 export class ParametersStepProcesModelComponent {
   readonly form = input.required<ProcessModelForm>();
-  readonly zaaktypeOmschrijving = input<string | null>();
+  readonly zaaktype = input.required<GeneratedType<"RestZaaktypeOverzicht">>();
+  readonly hasStoredProcessDefinition = input(false);
+  readonly isProcessDefinitionChangeable = input<boolean | null>();
 
   private readonly zaakafhandelParametersService = inject(
     ZaakafhandelParametersService,
@@ -32,13 +47,21 @@ export class ParametersStepProcesModelComponent {
     () => this.processDefinitionsQuery.data() ?? [],
   );
 
+  protected readonly isLocked = computed(
+    () =>
+      this.hasStoredProcessDefinition() &&
+      !this.isProcessDefinitionChangeable(),
+  );
+
+  protected readonly hint = computed(() => {
+    if (this.isLocked()) return "zaps.step.procesmodel.locked";
+    if (this.hasStoredProcessDefinition())
+      return "zaps.step.procesmodel.changeable";
+    return null;
+  });
+
   protected readonly displayName = (processDefinition: ProcessDefinition) =>
     processDefinition.naam ?? processDefinition.key;
 
-  protected readonly isSameProcessDefinition = (
-    processDefinition: ProcessDefinition,
-    other?: ProcessDefinition | null,
-  ) =>
-    processDefinition.processEngine === other?.processEngine &&
-    processDefinition.key === other?.key;
+  protected readonly isSameProcessDefinition = isSameProcessDefinition;
 }

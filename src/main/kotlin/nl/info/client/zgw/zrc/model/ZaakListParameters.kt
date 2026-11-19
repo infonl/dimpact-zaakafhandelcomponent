@@ -128,6 +128,12 @@ class ZaakListParameters : AbstractListParameters() {
     @QueryParam("ordering")
     var ordering: String? = null
 
+    /**
+     * The number of results per page (default: 100, maximum: 500).
+     */
+    @QueryParam("pageSize")
+    var pageSize: Int? = null
+
     @get:QueryParam("archiefnominatie")
     val archiefnominatie: String?
         get() = archiefnominatieValue?.toString()

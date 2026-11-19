@@ -9,20 +9,19 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import nl.info.zac.exception.InputValidationFailedException
 import java.util.UUID
 
 class ZaaktypeConfigurationTest : BehaviorSpec({
 
     context("isValidForZaakCreation") {
         given("a configuration without a group") {
-            val config = ZaaktypeConfiguration().apply {
+            val zaaktypeConfiguration = ZaaktypeConfiguration().apply {
                 groepID = null
                 bindTo(ProcessEngine.BPMN, "fakeProcessKey")
             }
 
             `when`("checking isValidForZaakCreation") {
-                val isValid = config.isValidForZaakCreation()
+                val isValid = zaaktypeConfiguration.isValidForZaakCreation()
 
                 then("it returns false") {
                     isValid shouldBe false
@@ -31,13 +30,13 @@ class ZaaktypeConfigurationTest : BehaviorSpec({
         }
 
         given("a configuration without a process binding") {
-            val config = ZaaktypeConfiguration().apply {
+            val zaaktypeConfiguration = ZaaktypeConfiguration().apply {
                 groepID = "fakeGroup"
                 processBinding = null
             }
 
             `when`("checking isValidForZaakCreation") {
-                val isValid = config.isValidForZaakCreation()
+                val isValid = zaaktypeConfiguration.isValidForZaakCreation()
 
                 then("it returns false") {
                     isValid shouldBe false
@@ -107,56 +106,95 @@ class ZaaktypeConfigurationTest : BehaviorSpec({
 
     context("bindTo and engine properties") {
         given("a fresh configuration") {
-            val config = ZaaktypeConfiguration().apply { zaaktypeUuid = UUID.randomUUID() }
+            val zaaktypeConfiguration = ZaaktypeConfiguration().apply { zaaktypeUuid = UUID.randomUUID() }
 
             `when`("binding to CMMN") {
-                config.bindTo(ProcessEngine.CMMN, "fakeCaseDefinition")
+                zaaktypeConfiguration.bindTo(ProcessEngine.CMMN, "fakeCaseDefinition")
 
                 then("it is bound to the case definition and has a CMMN extension for the settings of its plan items") {
-                    config.getProcessEngine() shouldBe ProcessEngine.CMMN
-                    config.processBinding?.definitionKey shouldBe "fakeCaseDefinition"
-                    config.cmmnExtension.shouldNotBeNull()
+                    zaaktypeConfiguration.getProcessEngine() shouldBe ProcessEngine.CMMN
+                    zaaktypeConfiguration.processBinding?.definitionKey shouldBe "fakeCaseDefinition"
+                    zaaktypeConfiguration.cmmnExtension.shouldNotBeNull()
                 }
             }
 
             `when`("rebinding to another case definition") {
-                config.bindTo(ProcessEngine.CMMN, "otherFakeCaseDefinition")
+                zaaktypeConfiguration.bindTo(ProcessEngine.CMMN, "otherFakeCaseDefinition")
 
                 then("the definition key is replaced and the CMMN extension is kept") {
-                    config.getProcessEngine() shouldBe ProcessEngine.CMMN
-                    config.processBinding?.definitionKey shouldBe "otherFakeCaseDefinition"
-                    config.cmmnExtension.shouldNotBeNull()
+                    zaaktypeConfiguration.getProcessEngine() shouldBe ProcessEngine.CMMN
+                    zaaktypeConfiguration.processBinding?.definitionKey shouldBe "otherFakeCaseDefinition"
+                    zaaktypeConfiguration.cmmnExtension.shouldNotBeNull()
                 }
             }
 
             `when`("rebinding to BPMN") {
-                val exception = shouldThrow<InputValidationFailedException> {
-                    config.bindTo(ProcessEngine.BPMN, "fakeBpmnProcess")
-                }
+                zaaktypeConfiguration.bindTo(ProcessEngine.BPMN, "fakeBpmnProcess")
 
-                then("it is rejected, because a configuration never changes engine, and the CMMN binding is kept") {
-                    exception.message shouldBe "Zaaktype configuration for zaaktype '${config.zaaktypeUuid}' is " +
-                        "bound to CMMN and cannot be bound to BPMN"
-                    config.getProcessEngine() shouldBe ProcessEngine.CMMN
-                    config.processBinding?.definitionKey shouldBe "otherFakeCaseDefinition"
-                    config.cmmnExtension.shouldNotBeNull()
+                then("it is bound to the BPMN process definition, without a CMMN extension") {
+                    zaaktypeConfiguration.getProcessEngine() shouldBe ProcessEngine.BPMN
+                    zaaktypeConfiguration.processBinding?.definitionKey shouldBe "fakeBpmnProcess"
+                    zaaktypeConfiguration.cmmnExtension.shouldBeNull()
+                }
+            }
+
+            `when`("rebinding to CMMN") {
+                zaaktypeConfiguration.bindTo(ProcessEngine.CMMN, "fakeCaseDefinition")
+
+                then("it is bound to the case definition, with a new CMMN extension") {
+                    zaaktypeConfiguration.getProcessEngine() shouldBe ProcessEngine.CMMN
+                    zaaktypeConfiguration.processBinding?.definitionKey shouldBe "fakeCaseDefinition"
+                    zaaktypeConfiguration.cmmnExtension.shouldNotBeNull()
+                }
+            }
+        }
+
+        given("a CMMN configuration with the plan item settings of its case definition") {
+            fun createConfigurationWithPlanItemSettings() = ZaaktypeConfiguration().apply {
+                zaaktypeUuid = UUID.randomUUID()
+                bindTo(ProcessEngine.CMMN, "fakeCaseDefinition")
+                getOrCreateCmmnExtension().apply {
+                    setHumanTaskParametersCollection(listOf(createZaaktypeCmmnHumantaskParameters()))
+                    setUserEventListenerParametersCollection(
+                        listOf(ZaaktypeCmmnUsereventlistenerParameters().apply { planItemDefinitionID = "fakeListener" })
+                    )
+                }
+            }
+
+            `when`("it is bound to the same case definition again") {
+                val zaaktypeConfiguration = createConfigurationWithPlanItemSettings()
+                zaaktypeConfiguration.bindTo(ProcessEngine.CMMN, "fakeCaseDefinition")
+
+                then("the plan item settings are kept") {
+                    zaaktypeConfiguration.cmmnExtension?.getHumanTaskParametersCollection()?.size shouldBe 1
+                    zaaktypeConfiguration.cmmnExtension?.getUserEventListenerParametersCollection()?.size shouldBe 1
+                }
+            }
+
+            `when`("it is bound to another case definition") {
+                val zaaktypeConfiguration = createConfigurationWithPlanItemSettings()
+                zaaktypeConfiguration.bindTo(ProcessEngine.CMMN, "otherFakeCaseDefinition")
+
+                then("the plan item settings are kept, so that the save keeps the rows of the plan items both share") {
+                    zaaktypeConfiguration.cmmnExtension?.getHumanTaskParametersCollection()?.size shouldBe 1
+                    zaaktypeConfiguration.cmmnExtension?.getUserEventListenerParametersCollection()?.size shouldBe 1
                 }
             }
         }
 
         given("an unbound configuration with a CMMN extension") {
-            val config = ZaaktypeConfiguration().apply {
+            val zaaktypeConfiguration = ZaaktypeConfiguration().apply {
                 zaaktypeUuid = UUID.randomUUID()
                 getOrCreateCmmnExtension()
             }
 
             `when`("binding to BPMN") {
-                config.bindTo(ProcessEngine.BPMN, "fakeBpmnProcess")
+                zaaktypeConfiguration.bindTo(ProcessEngine.BPMN, "fakeBpmnProcess")
 
                 then("the configuration is bound to BPMN and the CMMN extension is removed") {
-                    config.getProcessEngine() shouldBe ProcessEngine.BPMN
-                    config.processBinding?.definitionKey shouldBe "fakeBpmnProcess"
-                    config.cmmnExtension.shouldBeNull()
+                    zaaktypeConfiguration.getProcessEngine() shouldBe ProcessEngine.BPMN
+                    zaaktypeConfiguration.processBinding?.definitionKey shouldBe "fakeBpmnProcess"
+                    zaaktypeConfiguration.cmmnExtension.shouldBeNull()
                 }
             }
         }
@@ -164,7 +202,7 @@ class ZaaktypeConfigurationTest : BehaviorSpec({
 
     context("zaakbeeindig parameters") {
         given("a configuration with completion parameters") {
-            val config = ZaaktypeConfiguration().apply {
+            val zaaktypeConfiguration = ZaaktypeConfiguration().apply {
                 zaaktypeUuid = UUID.randomUUID()
             }
             val reden1 = ZaakbeeindigReden().apply {
@@ -179,14 +217,14 @@ class ZaaktypeConfigurationTest : BehaviorSpec({
             val param2 = createZaaktypeCompletionParameters(zaakbeeindigReden = reden2, resultaattypeOmschrijving = "fakeResultaat2")
 
             `when`("setting parameters collection") {
-                config.setZaakbeeindigParameters(listOf(param1, param2))
+                zaaktypeConfiguration.setZaakbeeindigParameters(listOf(param1, param2))
 
                 then("parameters can be retrieved and queried by reason ID") {
-                    config.getZaakbeeindigParameters().size shouldBe 2
-                    config.readZaakbeeindigParameter(1L) shouldBe param1
-                    config.readZaakbeeindigParameter(2L) shouldBe param2
+                    zaaktypeConfiguration.getZaakbeeindigParameters().size shouldBe 2
+                    zaaktypeConfiguration.readZaakbeeindigParameter(1L) shouldBe param1
+                    zaaktypeConfiguration.readZaakbeeindigParameter(2L) shouldBe param2
                     shouldThrow<RuntimeException> {
-                        config.readZaakbeeindigParameter(999L)
+                        zaaktypeConfiguration.readZaakbeeindigParameter(999L)
                     }
                 }
             }
@@ -196,10 +234,10 @@ class ZaaktypeConfigurationTest : BehaviorSpec({
                     zaakbeeindigReden = reden1,
                     resultaattypeOmschrijving = "fakeUpdatedResultaat"
                 )
-                config.setZaakbeeindigParameters(listOf(updatedParam1, param2))
+                zaaktypeConfiguration.setZaakbeeindigParameters(listOf(updatedParam1, param2))
 
                 then("the parameter is updated") {
-                    config.readZaakbeeindigParameter(1L).resultaattypeOmschrijving shouldBe "fakeUpdatedResultaat"
+                    zaaktypeConfiguration.readZaakbeeindigParameter(1L).resultaattypeOmschrijving shouldBe "fakeUpdatedResultaat"
                 }
             }
         }
@@ -207,11 +245,11 @@ class ZaaktypeConfigurationTest : BehaviorSpec({
 
     context("betrokkene and BRP default parameters") {
         given("a configuration without betrokkene or BRP parameters") {
-            val config = ZaaktypeConfiguration()
+            val zaaktypeConfiguration = ZaaktypeConfiguration()
 
             `when`("accessing betrokkene and BRP parameters") {
-                val betrokkene = config.getBetrokkeneParameters()
-                val brp = config.getBrpParameters()
+                val betrokkene = zaaktypeConfiguration.getBetrokkeneParameters()
+                val brp = zaaktypeConfiguration.getBrpParameters()
 
                 then("default non-null instances are returned") {
                     betrokkene.shouldNotBeNull()

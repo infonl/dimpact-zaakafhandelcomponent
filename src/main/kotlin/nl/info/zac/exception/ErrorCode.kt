@@ -23,6 +23,7 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_SERVER_GENERIC("msg.error.server.generic"),
     ERROR_CODE_KLANTINTERACTIES_CLIENT("msg.error.klanten.client.exception"),
     ERROR_CODE_OBJECTS_CLIENT("msg.error.objects.client.exception"),
+    ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE("msg.error.process.definition.cannot.change"),
     ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE("msg.error.productaanvraagtype.already.in.use"),
     ERROR_CODE_REFERENCE_TABLE_SYSTEM_VALUES_CANNOT_BE_CHANGED(
         "msg.error.system.reference.table.system.values.cannot.be.changed"

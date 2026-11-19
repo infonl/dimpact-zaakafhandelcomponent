@@ -16,12 +16,14 @@ import io.mockk.runs
 import io.mockk.verify
 import io.mockk.verifyOrder
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.createZaaktypeConfigurationsUnderTest
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.time.ZacTime
 import java.net.URI
@@ -31,14 +33,18 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
     val zaaktypeConfigurationRepository = mockk<ZaaktypeConfigurationRepository>()
     val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val ztcClientService = mockk<ZtcClientService>()
+    val zrcClientService = mockk<ZrcClientService>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val zaaktypeConfigurationVersioning = mockk<ZaaktypeConfigurationVersioning>()
+    val bpmnService = mockk<BpmnService>()
     val zaaktypeConfigurationBeheerService = ZaaktypeConfigurationBeheerService(
         zaaktypeConfigurationRepository = zaaktypeConfigurationRepository,
         zaaktypeConfigurationService = zaaktypeConfigurationService,
         ztcClientService = ztcClientService,
+        zrcClientService = zrcClientService,
         smartDocumentsTemplatesService = smartDocumentsTemplatesService,
-        zaaktypeConfigurationVersioning = zaaktypeConfigurationVersioning
+        zaaktypeConfigurationVersioning = zaaktypeConfigurationVersioning,
+        bpmnService = bpmnService
     )
 
     afterEach {
@@ -216,7 +222,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                 } returns listOf(otherZaaktypeConfiguration)
 
                 `when`("a configuration of a zaaktype with another omschrijving uses it") {
-                    val exception = shouldThrow<InputValidationFailedException> {
+                    val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
                         zaaktypeConfigurationBeheerService.checkProductaanvraagtypeIsNotInUse(
                             productaanvraagtype = "fakeProductaanvraagtype",
                             zaaktypeOmschrijving = "fakeZaaktype"
@@ -224,7 +230,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                     }
 
                     then("it is rejected as already in use") {
-                        exception.errorCode shouldBe ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
+                        inputValidationFailedException.errorCode shouldBe ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
                     }
                 }
             }

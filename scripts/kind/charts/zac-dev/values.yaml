@@ -16,7 +16,7 @@ upstreamCharts:
     version: 1.14.2
   openobject:
     repository: https://maykinmedia.github.io/charts/
-    version: 1.1.1
+    version: 1.2.0
   opennotificaties:
     repository: https://maykinmedia.github.io/charts/
     version: 2.1.0
@@ -25,7 +25,7 @@ upstreamCharts:
     version: 2.0.0
   openforms:
     repository: https://maykinmedia.github.io/charts/
-    version: 1.12.0
+    version: 1.13.0
 
 openzaak:
   image: openzaak/open-zaak:1.31.2@sha256:8b11bd7b35a6e2be9c1984b140ed4f54155e3940683b009b0206bfa9f64844e4
@@ -73,7 +73,7 @@ postgres:
       owner: selectielijst
 
 redis:
-  image: redis:8.6.8@sha256:8b30009c0de4fdb3fb67deb8afab050fe454e9b233c6a2c142ec34fcc51fa7f5
+  image: redis:8.8.4@sha256:6e61ab45b3e867bacbef2fdd969ec74f4e0f8aaca8cc946cb8ac0c494035e7e7
 
 keycloak:
   image: quay.io/keycloak/keycloak:26.8.2@sha256:3879c623248408de29a5303178b5816c77e8dfef3890c361f8c0bbeaa979ba3b

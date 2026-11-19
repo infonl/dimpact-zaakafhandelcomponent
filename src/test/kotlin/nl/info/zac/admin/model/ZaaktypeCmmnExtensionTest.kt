@@ -88,6 +88,31 @@ class ZaaktypeCmmnExtensionTest : BehaviorSpec({
                 }
             }
         }
+
+        given("a CMMN extension with a toelichting for one user event listener") {
+            val zaaktypeCmmnExtension = ZaaktypeCmmnExtension().apply {
+                setUserEventListenerParametersCollection(
+                    listOf(
+                        ZaaktypeCmmnUsereventlistenerParameters().apply {
+                            planItemDefinitionID = "fakeListener1"
+                            toelichting = "fakeToelichting"
+                        }
+                    )
+                )
+            }
+
+            `when`("the missing settings of that and another user event listener are added") {
+                zaaktypeCmmnExtension.addMissingUserEventListenerParameters(listOf("fakeListener1", "fakeListener2"))
+
+                then("the existing setting keeps its toelichting, and the other gets a setting without toelichting") {
+                    zaaktypeCmmnExtension.getUserEventListenerParametersCollection()
+                        .map { it.planItemDefinitionID to it.toelichting }
+                        .toSet() shouldBe setOf("fakeListener1" to "fakeToelichting", "fakeListener2" to null)
+                    zaaktypeCmmnExtension.readUserEventListenerParameters("fakeListener2")
+                        .zaaktypeCmmnExtension shouldBeSameInstanceAs zaaktypeCmmnExtension
+                }
+            }
+        }
     }
 
     context("binding to ZaaktypeConfiguration") {
