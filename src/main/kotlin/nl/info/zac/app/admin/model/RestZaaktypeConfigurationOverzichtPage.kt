@@ -10,6 +10,7 @@ import nl.info.zac.app.admin.model.RestZaaktypeConfigurationSortField.GELDIG
 import nl.info.zac.app.admin.model.RestZaaktypeConfigurationSortField.OMSCHRIJVING
 import nl.info.zac.app.admin.model.RestZaaktypeConfigurationSortField.PROCESS_DEFINITION
 import nl.info.zac.app.admin.model.RestZaaktypeConfigurationSortField.VALIDE
+import nl.info.zac.app.shared.takePage
 import nl.info.zac.search.model.SorteerRichting
 import nl.info.zac.time.DateRange
 import nl.info.zac.time.contains
@@ -26,9 +27,7 @@ fun List<RestZaaktypeConfigurationOverzicht>.toRestZaaktypeConfigurationOverzich
         filters.all { it(restZaaktypeConfigurationOverzicht) }
     }.sortedWith(restZaaktypeConfigurationListParameters.toComparator())
     return RestZaaktypeConfigurationOverzichtResultaat(
-        results = matchingRestZaaktypeConfigurationOverzichten
-            .drop(restZaaktypeConfigurationListParameters.firstRowIndex())
-            .take(restZaaktypeConfigurationListParameters.rows),
+        results = matchingRestZaaktypeConfigurationOverzichten.takePage(restZaaktypeConfigurationListParameters),
         resultCount = matchingRestZaaktypeConfigurationOverzichten.size.toLong(),
         filterZaaktypes = toRestZaaktypeFilterOpties(),
         filterProcessDefinitions = toFilterProcessDefinitions()
@@ -62,9 +61,6 @@ private fun RestZaaktypeConfigurationSortField.toComparator(): Comparator<RestZa
         BEGIN_GELDIGHEID -> compareBy { it.zaaktype.beginGeldigheid }
         EINDE_GELDIGHEID -> compareBy(nullsLast()) { it.zaaktype.eindeGeldigheid }
     }
-
-private fun RestZaaktypeConfigurationListParameters.firstRowIndex() =
-    (page.toLong() * rows).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
 
 private fun List<RestZaaktypeConfigurationOverzicht>.toRestZaaktypeFilterOpties() =
     mapNotNull { restZaaktypeConfigurationOverzicht ->

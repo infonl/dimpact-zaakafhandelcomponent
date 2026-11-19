@@ -11,29 +11,27 @@ import {
   trigger,
 } from "@angular/animations";
 
-import {
-  Component,
-  computed,
-  effect,
-  inject,
-  OnInit,
-  signal,
-  untracked,
-  viewChild,
-} from "@angular/core";
+import { Component, computed, inject, signal, viewChild } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { MatCardModule } from "@angular/material/card";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
+import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
+import { MatProgressBarModule } from "@angular/material/progress-bar";
 import {
   MatSidenavContainer,
   MatSidenavModule,
 } from "@angular/material/sidenav";
 import { MatSortModule, Sort } from "@angular/material/sort";
-import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { MatTableModule } from "@angular/material/table";
 import { TranslatePipe } from "@ngx-translate/core";
-import { injectQuery } from "@tanstack/angular-query-experimental";
+import {
+  injectQuery,
+  keepPreviousData,
+} from "@tanstack/angular-query-experimental";
+import { debounceTime, distinctUntilChanged } from "rxjs";
 import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
@@ -46,7 +44,37 @@ import {
   VersionLayout,
 } from "../../shared/version/version.component";
 import { AdminComponent } from "../admin/admin.component";
-import { HealthCheckService } from "../health-check.service";
+import {
+  HealthCheckService,
+  InrichtingscheckParameters,
+} from "../health-check.service";
+
+export const INRICHTINGSCHECK_PAGE_SIZE = 25;
+export const INRICHTINGSCHECK_FILTER_DEBOUNCE_MS = 300;
+
+const STATUS_BY_TOGGLE: Record<
+  ToggleSwitchOptions,
+  InrichtingscheckParameters["status"]
+> = {
+  [ToggleSwitchOptions.UNCHECKED]: "AANDACHT_NODIG",
+  [ToggleSwitchOptions.CHECKED]: "IN_ORDE",
+  [ToggleSwitchOptions.INDETERMINATE]: null,
+};
+
+const SORT_FIELD_BY_COLUMN = {
+  omschrijving: "OMSCHRIJVING",
+  doel: "DOEL",
+  beginGeldigheid: "BEGIN_GELDIGHEID",
+  valide: "VALIDE",
+} as const satisfies Record<
+  string,
+  NonNullable<InrichtingscheckParameters["sortField"]>
+>;
+
+const isSortColumn = (
+  column: string,
+): column is keyof typeof SORT_FIELD_BY_COLUMN =>
+  Object.hasOwn(SORT_FIELD_BY_COLUMN, column);
 
 type ZaaktypeInrichtingscheck = GeneratedType<"RestZaaktypeInrichtingscheck">;
 
@@ -199,6 +227,8 @@ export function inrichtingscheckBevindingen(
     MatExpansionModule,
     MatIconModule,
     MatTableModule,
+    MatPaginatorModule,
+    MatProgressBarModule,
     TypedMatCellDefDirective,
     MatSortModule,
     MatFormFieldModule,
@@ -211,161 +241,127 @@ export function inrichtingscheckBevindingen(
     ReadMoreComponent,
   ],
 })
-export class InrichtingscheckComponent
-  extends AdminComponent
-  implements OnInit
-{
+export class InrichtingscheckComponent extends AdminComponent {
   private readonly healthCheckService = inject(HealthCheckService);
 
   protected readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
   protected readonly versionLayout = VersionLayout;
   protected readonly bevindingen = inrichtingscheckBevindingen;
-  protected dataSource: MatTableDataSource<
-    GeneratedType<"RestZaaktypeInrichtingscheck">
-  > = new MatTableDataSource<GeneratedType<"RestZaaktypeInrichtingscheck">>();
-  protected columnsToDisplay = [
+  protected readonly pageSize = INRICHTINGSCHECK_PAGE_SIZE;
+  protected readonly columnsToDisplay = [
     "valide",
     "expand",
     "zaaktypeOmschrijving",
     "zaaktypeDoel",
     "beginGeldigheid",
   ];
-  protected readonly expandedRow =
-    signal<GeneratedType<"RestZaaktypeInrichtingscheck"> | null>(null);
+  protected readonly expandedZaaktypeUuid = signal<string | null>(null);
   protected readonly valideFilter = signal<ToggleSwitchOptions>(
     ToggleSwitchOptions.UNCHECKED,
   );
-  private filterValue = "";
-  private readonly zaaktypeInrichtingschecksQuery = injectQuery(() =>
-    this.healthCheckService.listZaaktypeInrichtingschecks(),
+  protected readonly zoektermFilter = signal("");
+  protected readonly sort = signal<Sort>({ active: "", direction: "" });
+  protected readonly pageIndex = signal(0);
+
+  private readonly debouncedZoektermFilter = toSignal(
+    toObservable(this.zoektermFilter).pipe(
+      debounceTime(INRICHTINGSCHECK_FILTER_DEBOUNCE_MS),
+      distinctUntilChanged(),
+    ),
+    { initialValue: "" },
   );
+
+  private readonly parameters = computed<InrichtingscheckParameters>(() => {
+    const { active, direction } = this.sort();
+    return {
+      page: this.pageIndex(),
+      rows: INRICHTINGSCHECK_PAGE_SIZE,
+      zoekterm: this.debouncedZoektermFilter().trim() || null,
+      status: STATUS_BY_TOGGLE[this.valideFilter()],
+      sortField:
+        direction && isSortColumn(active)
+          ? SORT_FIELD_BY_COLUMN[active]
+          : "OMSCHRIJVING",
+      sortOrder: direction === "desc" ? "DESC" : "ASC",
+    };
+  });
+
+  private readonly zaaktypeInrichtingschecksQuery = injectQuery(() => ({
+    ...this.healthCheckService.listZaaktypeInrichtingschecks(this.parameters()),
+    placeholderData: keepPreviousData,
+  }));
   protected readonly loadingZaaktypes = computed(() =>
     this.zaaktypeInrichtingschecksQuery.isFetching(),
   );
-  protected readonly zaaktypeInrichtingschecks = computed(() =>
-    this.loadingZaaktypes()
-      ? []
-      : (this.zaaktypeInrichtingschecksQuery.data() ?? []),
+  protected readonly zaaktypeInrichtingschecks = computed(
+    () => this.zaaktypeInrichtingschecksQuery.data()?.resultaten ?? [],
   );
-  private readonly bestaatCommunicatiekanaalEformulierQuery = injectQuery(() =>
-    this.healthCheckService.readBestaatCommunicatiekanaalEformulier(),
+  protected readonly totaal = computed(
+    () => this.zaaktypeInrichtingschecksQuery.data()?.totaal ?? 0,
+  );
+
+  private readonly referentietabellenQuery = injectQuery(() =>
+    this.healthCheckService.readReferentietabellenInrichtingscheck(),
   );
   protected readonly loadingCommunicatiekanaal = computed(() =>
-    this.bestaatCommunicatiekanaalEformulierQuery.isPending(),
+    this.referentietabellenQuery.isPending(),
   );
   protected readonly bestaatCommunicatiekanaalEformulier = computed(() =>
-    Boolean(this.bestaatCommunicatiekanaalEformulierQuery.data()),
+    Boolean(
+      this.referentietabellenQuery.data()
+        ?.isCommunicatiekanaalEformulierAanwezig,
+    ),
   );
 
   constructor() {
     super();
-
-    this.dataSource.filterPredicate = (data, filter: string) => {
-      if (
-        this.valideFilter() === ToggleSwitchOptions.CHECKED &&
-        this.needsAttention(data)
-      ) {
-        return false;
-      }
-      if (
-        this.valideFilter() === ToggleSwitchOptions.UNCHECKED &&
-        !this.needsAttention(data)
-      ) {
-        return false;
-      }
-      const dataString = (data.zaaktype.omschrijving + " " + data.zaaktype.doel)
-        .trim()
-        .toLowerCase();
-      return dataString.indexOf(filter.trim().toLowerCase()) !== -1;
-    };
-
-    effect(() => {
-      const zaaktypeInrichtingschecks = this.zaaktypeInrichtingschecks();
-      untracked(() => this.showZaaktypes(zaaktypeInrichtingschecks));
-    });
-  }
-
-  ngOnInit(): void {
     this.setupMenu("title.inrichtingscheck");
   }
 
-  protected needsAttention(
-    zaaktypeInrichtingscheck: GeneratedType<"RestZaaktypeInrichtingscheck">,
-  ) {
+  protected needsAttention(zaaktypeInrichtingscheck: ZaaktypeInrichtingscheck) {
     return (
       !zaaktypeInrichtingscheck.isValide ||
       Boolean(zaaktypeInrichtingscheck.hasWaarschuwingen)
     );
   }
 
-  protected rowStateClass(
-    zaaktypeInrichtingscheck: GeneratedType<"RestZaaktypeInrichtingscheck">,
-  ) {
+  protected isExpanded(zaaktypeInrichtingscheck: ZaaktypeInrichtingscheck) {
+    return (
+      this.expandedZaaktypeUuid() === zaaktypeInrichtingscheck.zaaktype.uuid
+    );
+  }
+
+  protected toggleExpanded(zaaktypeInrichtingscheck: ZaaktypeInrichtingscheck) {
+    if (!this.needsAttention(zaaktypeInrichtingscheck)) return;
+    this.expandedZaaktypeUuid.set(
+      this.isExpanded(zaaktypeInrichtingscheck)
+        ? null
+        : zaaktypeInrichtingscheck.zaaktype.uuid,
+    );
+  }
+
+  protected rowStateClass(zaaktypeInrichtingscheck: ZaaktypeInrichtingscheck) {
     if (!zaaktypeInrichtingscheck.isValide) return "error";
     return zaaktypeInrichtingscheck.hasWaarschuwingen ? "warning" : "ok";
   }
 
-  protected applyFilter(event?: Event) {
-    if (event) {
-      this.filterValue = (event.target as HTMLInputElement).value
-        .trim()
-        .toLowerCase();
-    }
-    // MatTableDataSource skips the filterPredicate, and so the valide filter, for an empty filter
-    this.dataSource.filter = " " + this.filterValue;
+  protected zoektermFilterChanged(event: Event) {
+    this.zoektermFilter.set((event.target as HTMLInputElement).value);
+    this.pageIndex.set(0);
   }
 
-  private showZaaktypes(
-    zaaktypeInrichtingschecks: GeneratedType<"RestZaaktypeInrichtingscheck">[],
-  ) {
-    this.dataSource.data = [...zaaktypeInrichtingschecks].sort((a, b) =>
-      (a.zaaktype.omschrijving ?? "").localeCompare(
-        b.zaaktype.omschrijving ?? "",
-      ),
-    );
-    this.applyFilter();
+  protected valideFilterChanged(valideFilter: ToggleSwitchOptions) {
+    this.valideFilter.set(valideFilter);
+    this.pageIndex.set(0);
   }
 
-  protected sortData(sort: Sort) {
-    if (!sort.active || sort.direction === "") {
-      return;
-    }
-
-    this.dataSource.data = this.dataSource.data.slice().sort((a, b) => {
-      const isAsc = sort.direction === "asc";
-      switch (sort.active) {
-        case "zaaktypeOmschrijving":
-          return this.compare(
-            a.zaaktype.omschrijving ?? "",
-            b.zaaktype.omschrijving ?? "",
-            isAsc,
-          );
-        case "zaaktypeDoel":
-          return this.compare(
-            a.zaaktype.doel ?? "",
-            b.zaaktype.doel ?? "",
-            isAsc,
-          );
-        case "beginGeldigheid":
-          return this.compare(
-            a.zaaktype.beginGeldigheid ?? "",
-            b.zaaktype.beginGeldigheid ?? "",
-            isAsc,
-          );
-        case "valide":
-          return this.compare(a.isValide ?? false, b.isValide ?? false, isAsc);
-        default:
-          return 0;
-      }
-    });
+  protected sortChanged(sort: Sort) {
+    this.sort.set(sort);
+    this.pageIndex.set(0);
   }
 
-  private compare(
-    a: number | string | boolean,
-    b: number | string | boolean,
-    isAsc: boolean,
-  ) {
-    return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
+  protected pageChanged(pageEvent: PageEvent) {
+    this.pageIndex.set(pageEvent.pageIndex);
   }
 }

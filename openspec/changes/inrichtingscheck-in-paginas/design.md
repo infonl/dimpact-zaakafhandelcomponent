@@ -172,3 +172,54 @@ time. Rollback is a revert of that pull request. No data migration.
 ## Open Questions
 
 - Whether D2 needs a per-page check follows from the measurements; that does not change the spec.
+
+## Measurements
+
+Measured on 2026-11-17 as D6 describes, on a local kind stack (`zac-inrichtingscheck`, arm64 Mac) with 209 checked
+zaaktypes: the seed data plus 200 generated with `scripts/test-data/create-zaaktypes.py`. 160 of them are configured
+in ZAC; 40 are not, so 49 zaaktypes need attention. *Before* is the ZAC image built from the base commit 9352355552,
+*after* the image of the code layer. The two images ran one after the other in the same cluster. For each run ZAC was
+restarted, one warm-up run was discarded, then a local k6 script (not checked in) sent 50 sequential requests as
+`beheerder1`. Sizes are uncompressed and with gzip at level 2.
+
+### Response time and size, warm caches
+
+| Request                                                     | median  | p95     | uncompressed | gzip 2  |
+|-------------------------------------------------------------|---------|---------|--------------|---------|
+| Before: the whole list (209 zaaktypes)                      | 25.1 ms | 30.1 ms | 185,184 B    | 9,078 B |
+| After: first page as the page asks it (`AANDACHT_NODIG`)    | 23.9 ms | 29.4 ms | 22,278 B     | 1,521 B |
+| After: a later page (`page=3`, no `status`)                 | 22.3 ms | 26.7 ms | 22,171 B     | 1,357 B |
+| After: filter on the omschrijving (`zaaktype 15`, 10 matches) | 21.6 ms | 23.9 ms | 8,895 B      | 813 B   |
+| After: no query parameters (`status` absent)                | 21.0 ms | 24.9 ms | 22,239 B     | 1,552 B |
+
+### Right after a restart
+
+| Request                                           | Before   | After    |
+|---------------------------------------------------|----------|----------|
+| First request after the restart                   | 1,139 ms | 1,162 ms |
+| Second and third request                          | 42, 33 ms | 41, 34 ms |
+| k6 run started at once: median / p95              | 27.2 / 36.0 ms | 26.6 / 35.6 ms |
+
+The cache-refresh process finishes about 1.6 s after the start, so only the first request pays for cold caches.
+
+### Time until the page shows its first rows
+
+Measured with a throwaway Playwright probe in Chromium (not checked in): from the start of the navigation to
+`/admin/check` until the first row is visible, five runs after one warm-up run.
+
+| Page                                                   | Before                 | After                  |
+|--------------------------------------------------------|------------------------|------------------------|
+| First rows (default toggle, zaaktypes needing attention) | 137-145 ms, 49 rows    | 145-150 ms, 25 rows    |
+| Toggle to all zaaktypes until the rows are shown       | 117 ms, 209 rows       | 62-85 ms, 25 rows      |
+
+### Conclusion
+
+Paging cuts the response to an eighth (185 kB to 22 kB; 9 kB to 1.5 kB with gzip) and the page renders at most 25
+rows. The response time does not change: each request still checks all zaaktypes (D2), and with warm caches that costs
+about 20 ms for 209 zaaktypes, before and after. At this size the time until the first rows is the same; the gain
+shows when the page would otherwise render many rows, such as the toggle to all zaaktypes. The numbers give no reason
+for a per-page check (Open Questions): the check of all zaaktypes stays below 30 ms at p95 on warm caches.
+
+A manual check on the same stack confirmed the page: pages of 25 with the total in the paginator, the next page,
+the filter on `omschrijving` going back to the first page while the filter keeps its text and focus, the toggle, and
+the sort on omschrijving in both directions.

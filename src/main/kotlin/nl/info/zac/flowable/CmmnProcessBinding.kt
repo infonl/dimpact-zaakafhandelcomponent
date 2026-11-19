@@ -6,8 +6,11 @@ package nl.info.zac.flowable
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.flowable.cmmn.CmmnService
 import nl.info.zac.healthcheck.HealthCheckService
@@ -21,7 +24,9 @@ import java.util.UUID
 @AllOpen
 class CmmnProcessBinding @Inject constructor(
     private val cmmnService: CmmnService,
-    private val healthCheckService: HealthCheckService
+    private val healthCheckService: HealthCheckService,
+    private val ztcClientService: ZtcClientService,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService
 ) : ProcessBinding {
     override val processEngine = ProcessEngine.CMMN
 
@@ -37,7 +42,11 @@ class CmmnProcessBinding @Inject constructor(
      * The zaaktype check calls Open Zaak several times, so callers only ask for it after the ZAC configuration of
      * the zaaktype has proven to be valid.
      */
-    override fun isZaaktypeReady(zaaktypeUri: URI) = healthCheckService.controleerZaaktype(zaaktypeUri).isValide
+    override fun isZaaktypeReady(zaaktypeUri: URI) =
+        healthCheckService.controleerZaaktype(
+            zaaktype = ztcClientService.readZaaktype(zaaktypeUri),
+            zaaktypeConfiguration = zaaktypeConfigurationService.findConfiguration(zaaktypeUri.extractUuid())
+        ).isValide
 
     override fun terminate(zaakUuid: UUID) {
         cmmnService.terminateCase(zaakUuid)

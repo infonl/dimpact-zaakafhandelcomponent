@@ -4,7 +4,13 @@
  */
 
 import { inject, Injectable } from "@angular/core";
+import { queryOptions } from "@tanstack/angular-query-experimental";
+import { PathParameters } from "../shared/http/http-client";
 import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
+
+export type InrichtingscheckParameters = NonNullable<
+  NonNullable<PathParameters<"/rest/health-check/zaaktypes", "get">>["query"]
+>;
 
 @Injectable({
   providedIn: "root",
@@ -12,20 +18,20 @@ import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
 export class HealthCheckService {
   private readonly zacQueryClient = inject(ZacQueryClient);
 
-  listZaaktypeInrichtingschecks() {
-    return {
-      ...this.zacQueryClient.GET("/rest/health-check/zaaktypes"),
+  listZaaktypeInrichtingschecks(parameters: InrichtingscheckParameters) {
+    return queryOptions({
+      ...this.zacQueryClient.GET("/rest/health-check/zaaktypes", {
+        query: parameters,
+      }),
       staleTime: StaleTimes.Instant,
-    };
+    });
   }
 
-  readBestaatCommunicatiekanaalEformulier() {
-    return {
-      ...this.zacQueryClient.GET(
-        "/rest/health-check/bestaat-communicatiekanaal-eformulier",
-      ),
+  readReferentietabellenInrichtingscheck() {
+    return queryOptions({
+      ...this.zacQueryClient.GET("/rest/health-check/referentietabellen"),
       staleTime: StaleTimes.Instant,
-    };
+    });
   }
 
   readBuildInformatie() {

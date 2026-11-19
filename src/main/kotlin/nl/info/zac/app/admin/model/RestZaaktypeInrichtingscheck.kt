@@ -5,6 +5,7 @@
 package nl.info.zac.app.admin.model
 
 import jakarta.json.bind.annotation.JsonbProperty
+import nl.info.zac.healthcheck.model.ZaaktypeInrichtingscheck
 
 data class RestZaaktypeInrichtingscheck(
     var zaaktype: RestInrichtingscheckZaaktype,
@@ -76,3 +77,28 @@ data class RestZaaktypeInrichtingscheck(
     @set:JsonbProperty("isValide")
     var isValide: Boolean = false
 )
+
+fun ZaaktypeInrichtingscheck.toRestZaaktypeInrichtingscheck() =
+    RestZaaktypeInrichtingscheck(
+        zaaktype = zaaktype.toRestInrichtingscheckZaaktype(),
+        isBesluittypeAanwezig = isBesluittypeAanwezig,
+        resultaattypesMetVerplichtBesluit = resultaattypesMetVerplichtBesluit,
+        resultaattypesMetNietOndersteundeBrondatum = resultaattypesMetNietOndersteundeBrondatum,
+        isResultaattypeAanwezig = isResultaattypeAanwezig,
+        isInformatieobjecttypeEmailAanwezig = isInformatieobjecttypeEmailAanwezig,
+        aantalBehandelaarroltypen = aantalBehandelaarroltypen,
+        aantalInitiatorroltypen = aantalInitiatorroltypen,
+        isRolOverigeAanwezig = isRolOverigeAanwezig,
+        isStatustypeAfgerondAanwezig = isStatustypeAfgerondAanwezig,
+        isStatustypeAfgerondLaatsteVolgnummer = isStatustypeAfgerondLaatsteVolgnummer,
+        isStatustypeHeropendAanwezig = isStatustypeHeropendAanwezig,
+        isStatustypeAanvullendeInformatieVereist = isStatustypeAanvullendeInformatieVereist,
+        isStatustypeInBehandelingAanwezig = isStatustypeInBehandelingAanwezig,
+        isStatustypeIntakeAanwezig = isStatustypeIntakeAanwezig,
+        isZaakafhandelParametersValide = isZaakafhandelParametersValide,
+        isBrpInstellingenCorrect = isBrpInstellingenCorrect,
+        isZaakspecifiekeAutorisatieEigenschapAanwezig = isZaakspecifiekeAutorisatieEigenschapAanwezig,
+        isZaakspecifiekeAutorisatieRoltypeAanwezig = isZaakspecifiekeAutorisatieRoltypeAanwezig,
+        hasWaarschuwingen = hasWaarschuwingen,
+        isValide = isValide
+    )

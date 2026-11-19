@@ -15,3 +15,7 @@ interface RestPageParameters {
      */
     var rows: Int
 }
+
+fun <T> List<T>.takePage(restPageParameters: RestPageParameters): List<T> =
+    drop((restPageParameters.page.toLong() * restPageParameters.rows).coerceAtMost(Int.MAX_VALUE.toLong()).toInt())
+        .take(restPageParameters.rows)
