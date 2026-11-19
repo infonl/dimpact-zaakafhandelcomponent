@@ -37,7 +37,7 @@ This means for code and documentation:
   Write `zaak`, `zaaktype`, `behandelaar` and `signalering`, not `case`, `caseType`, `caseManager` and `notification`.
 - Do not translate these terms into English, not even partly. Combine them with English words where needed,
   for example `ZaakService`, `RestZaak` or `findZaaktypeByUuid`.
-- Write everything else, such as comments, commit messages, pull requests and the rest of the documentation, in English.
+- Write everything else, such as comments, commit messages, pull requests and the rest of the documentation, in English, except for the functional-administrator and end-user manuals, which remain in Dutch.
 
 ## Coding conventions
 
