@@ -154,6 +154,17 @@ one of them changes. The table and its filter row SHALL stay on screen while a p
 - **WHEN** the beheerder goes to the next page
 - **THEN** the table shows the other 5 zaaktypes
 
+#### Scenario: The beheerder switches the toggle to all zaaktypes
+- **GIVEN** 40 checked zaaktypes, of which 30 need attention
+- **AND** the Inrichtingscheck page shows the second page of the zaaktypes that need attention
+- **WHEN** the beheerder switches the toggle to all zaaktypes
+- **THEN** the table shows the first page of all checked zaaktypes, and the paginator shows 40 zaaktypes in total
+
+#### Scenario: The beheerder switches the toggle to the zaaktypes that are in order
+- **GIVEN** 40 checked zaaktypes, of which 30 need attention
+- **WHEN** the beheerder switches the toggle to the zaaktypes that are in order
+- **THEN** the table shows only the 10 zaaktypes that are in order, and the paginator shows 10 zaaktypes in total
+
 #### Scenario: Typing a filter starts on the first page
 - **GIVEN** the Inrichtingscheck page shows the second page
 - **WHEN** the beheerder types *melding* in the filter
