@@ -237,7 +237,7 @@ describe(InrichtingscheckComponent.name, () => {
         .match(
           (request) =>
             request.url.startsWith(ZAAKTYPES_URL) &&
-            !request.url.includes("omschrijving="),
+            !request.url.includes("zoekterm="),
         )
         .forEach((unfilteredRequest) =>
           unfilteredRequest.flush({
@@ -250,7 +250,7 @@ describe(InrichtingscheckComponent.name, () => {
       const testRequest = await expectZaaktypesRequest();
       expect(queryParametersOf(testRequest)).toMatchObject({
         page: "0",
-        omschrijving: "melding",
+        zoekterm: "melding",
       });
       expect(screen.getByRole("textbox", { name: "filter" })).toHaveFocus();
       expect(screen.getByRole("textbox", { name: "filter" })).toHaveValue(

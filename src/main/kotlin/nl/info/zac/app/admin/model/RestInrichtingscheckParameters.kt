@@ -28,8 +28,8 @@ data class RestInrichtingscheckParameters(
     @field:Max(MAX_ROWS)
     override var rows: Int = DEFAULT_ROWS,
 
-    @field:QueryParam("omschrijving")
-    var omschrijving: String? = null,
+    @field:QueryParam("zoekterm")
+    var zoekterm: String? = null,
 
     @field:QueryParam("status")
     var status: RestInrichtingscheckStatus? = null,

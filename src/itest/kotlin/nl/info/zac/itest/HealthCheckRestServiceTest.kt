@@ -196,9 +196,9 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             }
         }
 
-        `when`("the inrichtingschecks are listed with a filter on part of the omschrijving") {
+        `when`("the inrichtingschecks are listed with a zoekterm that is part of the omschrijving") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/health-check/zaaktypes?omschrijving=ZAAKTYPE%204&rows=10",
+                url = "$ZAC_API_URI/health-check/zaaktypes?zoekterm=ZAAKTYPE%204&rows=10",
                 testUser = BEHEERDER_1
             )
             val responseBody = response.bodyAsString

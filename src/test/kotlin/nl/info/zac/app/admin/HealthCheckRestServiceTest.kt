@@ -238,15 +238,35 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             ).map { createZaaktypeInrichtingscheck(zaaktype = createZaakType(omschrijving = it)) }
             givenCheckedZaaktypes(zaaktypeInrichtingschecks)
 
-            `when`("the list is requested with the omschrijving 'MELDING ' in another case and with white space") {
+            `when`("the list is requested with the zoekterm 'MELDING ' in another case and with white space") {
                 val restResultaat = healthCheckRestService.listZaaktypeInrichtingschecks(
-                    RestInrichtingscheckParameters(omschrijving = "MELDING ")
+                    RestInrichtingscheckParameters(zoekterm = "MELDING ")
                 )
 
                 then("the two melding zaaktypes are returned in order of omschrijving and totaal is 2") {
                     restResultaat.resultCount shouldBe 2
                     restResultaat.results.map { it.zaaktype.omschrijving } shouldContainExactly
                         listOf("Melding evenement", "Melding openbare ruimte")
+                }
+            }
+        }
+
+        given("The checked zaaktype 'Aanvraag vergunning' with a doel about an evenement and 'Melding openbare ruimte'") {
+            val zaaktypeInrichtingschecks = listOf(
+                createZaakType(omschrijving = "Aanvraag vergunning", doel = "Vergunning voor een evenement"),
+                createZaakType(omschrijving = "Melding openbare ruimte", doel = "Melding van een gebrek")
+            ).map { createZaaktypeInrichtingscheck(zaaktype = it) }
+            givenCheckedZaaktypes(zaaktypeInrichtingschecks)
+
+            `when`("the list is requested with the zoekterm 'evenement'") {
+                val restResultaat = healthCheckRestService.listZaaktypeInrichtingschecks(
+                    RestInrichtingscheckParameters(zoekterm = "evenement")
+                )
+
+                then("only the zaaktype whose doel contains the zoekterm is returned and totaal is 1") {
+                    restResultaat.resultCount shouldBe 1
+                    restResultaat.results.map { it.zaaktype.omschrijving } shouldContainExactly
+                        listOf("Aanvraag vergunning")
                 }
             }
         }

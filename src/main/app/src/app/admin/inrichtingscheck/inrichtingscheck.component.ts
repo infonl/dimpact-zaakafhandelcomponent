@@ -260,12 +260,12 @@ export class InrichtingscheckComponent extends AdminComponent {
   protected readonly valideFilter = signal<ToggleSwitchOptions>(
     ToggleSwitchOptions.UNCHECKED,
   );
-  protected readonly omschrijvingFilter = signal("");
+  protected readonly zoektermFilter = signal("");
   protected readonly sort = signal<Sort>({ active: "", direction: "" });
   protected readonly pageIndex = signal(0);
 
-  private readonly debouncedOmschrijvingFilter = toSignal(
-    toObservable(this.omschrijvingFilter).pipe(
+  private readonly debouncedZoektermFilter = toSignal(
+    toObservable(this.zoektermFilter).pipe(
       debounceTime(INRICHTINGSCHECK_FILTER_DEBOUNCE_MS),
       distinctUntilChanged(),
     ),
@@ -277,7 +277,7 @@ export class InrichtingscheckComponent extends AdminComponent {
     return {
       page: this.pageIndex(),
       rows: INRICHTINGSCHECK_PAGE_SIZE,
-      omschrijving: this.debouncedOmschrijvingFilter().trim() || null,
+      zoekterm: this.debouncedZoektermFilter().trim() || null,
       status: STATUS_BY_TOGGLE[this.valideFilter()],
       sortField:
         direction && isSortColumn(active)
@@ -346,8 +346,8 @@ export class InrichtingscheckComponent extends AdminComponent {
     return zaaktypeInrichtingscheck.hasWaarschuwingen ? "warning" : "ok";
   }
 
-  protected omschrijvingFilterChanged(event: Event) {
-    this.omschrijvingFilter.set((event.target as HTMLInputElement).value);
+  protected zoektermFilterChanged(event: Event) {
+    this.zoektermFilter.set((event.target as HTMLInputElement).value);
     this.pageIndex.set(0);
   }
 

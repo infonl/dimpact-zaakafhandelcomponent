@@ -14,7 +14,7 @@ fun List<ZaaktypeInrichtingscheck>.toRestZaaktypeInrichtingscheckResultaat(
     restInrichtingscheckParameters: RestInrichtingscheckParameters
 ): RestResultaat<RestZaaktypeInrichtingscheck> {
     val matchingZaaktypeInrichtingschecks = filter {
-        it.matchesOmschrijving(restInrichtingscheckParameters.omschrijving) &&
+        it.matchesZoekterm(restInrichtingscheckParameters.zoekterm) &&
             it.matchesStatus(restInrichtingscheckParameters.status)
     }.sortedWith(restInrichtingscheckParameters.toComparator())
     return RestResultaat(
@@ -24,8 +24,12 @@ fun List<ZaaktypeInrichtingscheck>.toRestZaaktypeInrichtingscheckResultaat(
     )
 }
 
-private fun ZaaktypeInrichtingscheck.matchesOmschrijving(omschrijving: String?) =
-    omschrijving.isNullOrBlank() || zaaktype.omschrijving.contains(omschrijving.trim(), ignoreCase = true)
+private fun ZaaktypeInrichtingscheck.matchesZoekterm(zoekterm: String?) =
+    zoekterm.isNullOrBlank() ||
+        zoekterm.trim().let { trimmedZoekterm ->
+            zaaktype.omschrijving.contains(trimmedZoekterm, ignoreCase = true) ||
+                zaaktype.doel?.contains(trimmedZoekterm, ignoreCase = true) == true
+        }
 
 private fun ZaaktypeInrichtingscheck.matchesStatus(status: RestInrichtingscheckStatus?) =
     when (status) {
