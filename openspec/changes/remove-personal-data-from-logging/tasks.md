@@ -1,21 +1,21 @@
 ## 1. Type-safe logging API (`nl.info.zac.log`)
 
-- [x] 1.1 Add the `@Redacted` annotation (`@Target(FIELD)`, runtime retention) and the abstract class
+- [ ] 1.1 Add the `@Redacted` annotation (`@Target(FIELD)`, runtime retention) and the abstract class
       `LogEvent(description)`
-- [x] 1.2 Add `LogEventRenderer`: the fields of an event as name → string value via Java reflection, `*****` for
+- [ ] 1.2 Add `LogEventRenderer`: the fields of an event as name → string value via Java reflection, `*****` for
       `@Redacted` fields, `null` for null values, fields of `LogEvent` and synthetic fields skipped; plus
       `render(event)` as `<description> [name=value, ...]` for tests
-- [x] 1.3 Add `ZacLogger` (`getLogger(KClass)`, `severe`/`warning`/`info`/`fine`/`log(level)` with an optional
+- [ ] 1.3 Add `ZacLogger` (`getLogger(KClass)`, `severe`/`warning`/`info`/`fine`/`log(level)` with an optional
       throwable, a lazy `fine { }` overload, `isLoggable`), keeping the JUL logger name; it writes the description as
       message and the fields plus `event`, `errorType` (from the throwable), `traceId` and `spanId` (from a valid
       `Span.current()`) as MDC entries through `org.jboss.logging.MDC`, restoring the previous MDC in a `finally`
-- [x] 1.4 Unit tests: the fields, masking (`MailSent` with a recipient that is not in the record), a null redacted
+- [ ] 1.4 Unit tests: the fields, masking (`MailSent` with a recipient that is not in the record), a null redacted
       field, a disabled level that renders nothing, exceptions and `errorType`, trace IDs with and without a valid span,
       the MDC restored after a call (also when the JUL call throws)
-- [x] 1.5 Add `LogFieldNames` with the standard field names and the `Outcome` enum (`SUCCESS`, `FAILURE`), and a unit
+- [ ] 1.5 Add `LogFieldNames` with the standard field names and the `Outcome` enum (`SUCCESS`, `FAILURE`), and a unit
       test over all `LogEvent` subclasses that fails on a synonym of a standard name (`zaakId`, `zaakUUID`, `uuid`,
       `user`, `username`, `userId`, ...)
-- [x] 1.6 Extend `PersonalDataMaskingLogFilter` to mask BSNs and IBANs in the MDC values of a record; unit test
+- [ ] 1.6 Extend `PersonalDataMaskingLogFilter` to mask BSNs and IBANs in the MDC values of a record; unit test
 - [ ] 1.7 Remove `LogUtils` once `RestExceptionMapper` and `IdentityService` are migrated (tasks 4.4 and 5.x)
 
 ## 2. Central Keycloak user ID of employees
