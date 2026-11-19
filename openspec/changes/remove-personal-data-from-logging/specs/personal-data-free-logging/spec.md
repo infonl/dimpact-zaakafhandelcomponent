@@ -256,13 +256,16 @@ user ID cannot be determined, the log record SHALL write `unknown` for that empl
 
 #### Scenario: A productaanvraag assigns a zaak to an employee
 - **WHEN** a productaanvraag assigns a new zaak to the employee with username `jjansen`, and Keycloak knows that user
-- **THEN** the log record contains the Keycloak user ID of `jjansen` and not `jjansen`
+  with Keycloak user ID `5f0c8f8e-6f0d-4c63-9d0e-2b8a1c3e4d5f`
+- **THEN** the log record contains `5f0c8f8e-6f0d-4c63-9d0e-2b8a1c3e4d5f` for the employee
+- **AND** it does not contain the username `jjansen`
 
 #### Scenario: The Keycloak user ID of an assigned employee cannot be found
 - **WHEN** a productaanvraag assigns a new zaak to the employee with username `jjansen`, and Keycloak does not know
   that user or cannot be reached
 - **THEN** the zaak is still assigned
-- **AND** the log record contains the zaak UUID, the group and `unknown` for the employee, and not `jjansen`
+- **AND** the log record contains the zaak UUID, the group and `unknown` for the employee, and not the username
+  `jjansen`
 - **AND** a log record for `jjansen` within 5 minutes writes `unknown` without calling Keycloak
 - **AND** the first log record for `jjansen` after 5 minutes calls Keycloak again
 
@@ -273,9 +276,10 @@ user ID cannot be determined, the log record SHALL write `unknown` for that empl
 - **AND** the lookup waits no longer than the 2 second read timeout of the Keycloak admin client
 
 #### Scenario: A BPMN task assigns a zaak to an employee
-- **WHEN** the `UpdateZaakAssignmentDelegate` assigns zaak `ZAAK-2026-0000000001` to the employee `jjansen`, and `FINE`
-  is enabled for that delegate
-- **THEN** the log record contains the Keycloak user ID of `jjansen` and not `jjansen`
+- **WHEN** the `UpdateZaakAssignmentDelegate` assigns zaak `ZAAK-2026-0000000001` to the employee with username
+  `jjansen` and Keycloak user ID `5f0c8f8e-6f0d-4c63-9d0e-2b8a1c3e4d5f`, and `FINE` is enabled for that delegate
+- **THEN** the log record contains `5f0c8f8e-6f0d-4c63-9d0e-2b8a1c3e4d5f` for the employee
+- **AND** it does not contain the username `jjansen`
 
 ### Requirement: Notification properties are not logged
 The backend SHALL log a received notification with its channel, main resource URL, resource, resource URL, action and
