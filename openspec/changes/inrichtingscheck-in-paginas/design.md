@@ -44,13 +44,16 @@ See proposal.md for the motivation. The current state:
 
 ### D1: A paged list is a `GET` with query parameters
 
-`GET /rest/health-check/zaaktypes?page=0&rows=25&omschrijving=melding&status=AANDACHT_NODIG&sortField=OMSCHRIJVING&sortOrder=ASC`
+`GET /rest/health-check/zaaktypes?page=0&rows=25&zoekterm=melding&status=AANDACHT_NODIG&sortField=OMSCHRIJVING&sortOrder=ASC`
 returns a `RestResultaat<RestZaaktypeInrichtingscheck>`. The parameters are a `@BeanParam` class
 `RestInrichtingscheckParameters` that implements `RestPageParameters`, with Bean Validation (`@PositiveOrZero` on
 `page`, `@Positive @Max(100)` on `rows`). The names `page`, `rows`, `sortField` and `sortOrder`, the enum
 `SorteerRichting` (`ASC`, `DESC`) for the sort order and the response type are those of
-`GET /rest/zaakafhandelparameters`, so a client sees the same paging and sort parameters in every `GET` list. The
-enums of `status` and `sortField` refuse an unknown value with `400 Bad Request`. The step that takes the page from
+`GET /rest/zaakafhandelparameters`, so a client sees the same paging and sort parameters in every `GET` list. JAX-RS
+reads `status` and `sortField` with a static `fromString` on their enums, which throws a `BadRequestException` for an
+unknown value, so the response is `400 Bad Request`. Without that method JAX-RS answers `404 Not Found` for an enum
+query parameter that it cannot read, as it does for `sortOrder` (see Risks). `zoekterm` keeps the zaaktypes whose
+omschrijving or doel contains it, as the text filter of the page does today. The step that takes the page from
 the list becomes one function on `RestPageParameters`, which both lists use.
 
 *Why:* a read that changes nothing belongs on `GET`; a `GET` URL can be bookmarked, logged, cached and retried, and
@@ -63,7 +66,7 @@ decides) and adds the `GET` form to `paging.md`. Existing `PUT` lists stay as th
 
 ### D2: Check all zaaktypes, then filter, sort and page
 
-The backend still checks every eligible zaaktype on each request, then filters on `omschrijving` and `status`,
+The backend still checks every eligible zaaktype on each request, then filters on `zoekterm` and `status`,
 sorts, and takes the page. The toggle on "needs attention" and the sort on `valide` need the result of every
 check, and `totaal` must count after those filters.
 
@@ -71,33 +74,36 @@ check, and `totaal` must count after those filters.
 185 kB response and the rendering of all rows in the browser, both of which paging removes.
 
 *Alternative:* check only the zaaktypes of the requested page when no `status` filter and no sort on `valide` is
-given. Rejected for now: two code paths with different costs for the same endpoint, for a gain the PZ-13414
-numbers do not show. The measurements of this change (task 1.9) decide whether it is needed; if the list without
-`status` is still slow on warm caches, a follow-up story adds it.
+given. Rejected: two code paths with different costs for the same endpoint, for a gain the PZ-13414 numbers do not
+show. The checks of all zaaktypes cost milliseconds on warm caches; the response size and the rendering of all rows
+are what made the page slow, and paging removes both. The measurements of this change (task 1.9) record the effect;
+they do not decide on a per-page check.
 
 ### D3: Check the `ZaakType` that the list already has
 
 `HealthCheckService.controleerZaaktype` takes the `ZaakType` instead of its URL, so the backend no longer reads
 each zaaktype again from the catalogue. The BPMN filter and the check both need the zaaktype configuration; the
-service reads it once per zaaktype and passes it on.
+service reads it once per zaaktype and passes it on. `CmmnProcessBinding.isZaaktypeReady`, the other caller, reads
+the zaaktype and its configuration itself and passes them on, so the zaaktypes for which a behandelaar can start a
+zaak stay the same.
 
 *Why:* this is the "simple performance improvement" of the acceptance criteria that needs no new structure. On
 warm caches each saved lookup is a cache hit, so the gain is small; it is larger right after a restart or a cache
 clear, when the ZTC caches are still filling.
 
-### D4: The reference-table check becomes `GET /rest/health-check/referentietabellen`
+### D4: The reference-table check stays as it is
 
-It returns `RestReferentietabellenInrichtingscheck` with `isCommunicatiekanaalEformulierAanwezig` (with
-`@get:JsonbProperty` and `@set:JsonbProperty`, as the Kotlin rules ask). The old
-`GET /rest/health-check/bestaat-communicatiekanaal-eformulier` is removed in the same pull request; the frontend is
-its only client.
+`GET /rest/health-check/bestaat-communicatiekanaal-eformulier` keeps returning a bare `true` or `false`.
 
-*Why:* the old path is a question with a bare boolean as body; the new path names a resource and returns an object
-that can get more reference-table checks later without a new endpoint.
+*Why:* no acceptance criterion asks to change it, and it does not make the page faster.
+
+*Alternative:* replace it with `GET /rest/health-check/referentietabellen`, which names a resource and returns an
+object that can hold more reference-table checks. Moved to [PZ-13555](https://dimpact.atlassian.net/browse/PZ-13555),
+because it is a breaking REST change outside the scope of this timeboxed item.
 
 ### D5: The component derives everything from signals
 
-- Signals for `omschrijving` (debounced by 300 ms, through `toObservable` and `toSignal`), `status` (from the
+- Signals for `zoekterm` (debounced by 300 ms, through `toObservable` and `toSignal`), `status` (from the
   toggle), `sort` (from `matSortChange`) and `pageIndex` (from `mat-paginator`). A change of the first three sets
   `pageIndex` to 0; the handler of each control does that, not an `effect`.
 - `HealthCheckService.listZaaktypeInrichtingschecks(parameters)` returns `queryOptions()` with the parameters in the
@@ -121,7 +127,7 @@ Measured as in PZ-13414: a local kind stack with about 200 generated zaaktypes n
 with the image under test before each run, one discarded warm-up run, then 50 requests with one beheerder. Measured:
 
 - `GET /rest/health-check/zaaktypes` before (whole list) and after (first page, default filters; a later page; a
-  filter on `omschrijving`; `status` absent), median and p95 response time and response size, uncompressed and with
+  filter on `zoekterm`; `status` absent), median and p95 response time and response size, uncompressed and with
   gzip level 2;
 - the same right after a restart, while the cache-refresh process still runs;
 - the time until the page shows the first rows, from a browser run against the same stack.
@@ -150,12 +156,11 @@ time. Rollback is a revert of that pull request. No data migration.
 
 ## Assumptions
 
-- The filter of the acceptance criterion "(deel van) de naam van het zaaktype" matches the omschrijving of the
-  zaaktype only. Today the text filter also matches the doel; that match is dropped.
 - The default of the toggle stays "needs attention" (`AANDACHT_NODIG`), as on the page today.
 - The page size is fixed at 25 on the page, without a page-size choice; the API allows 1 to 100.
-- `400 Bad Request` for invalid query parameters comes from the existing Bean Validation handling of WildFly; no
-  custom error code is added.
+- `400 Bad Request` for an invalid `page` or `rows` comes from the existing Bean Validation handling of WildFly, and
+  for an unknown `status` or `sortField` from the `BadRequestException` of their `fromString` (D1); no custom error
+  code is added.
 - The item's attachment `Inrichtingscheck.png` is a picture of the current page, not a design; it could not be read
   here. The page keeps its current layout; only the paginator below the table is new.
 - The new ADR gets status `proposed` and the decision-makers "Team Genève"; the team accepts or rejects it in the
