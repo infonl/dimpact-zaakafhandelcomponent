@@ -13,15 +13,25 @@ known findings and makes free-text logging impossible in the backend.
 - Add a type-safe logging API in `nl.info.zac.log`:
   - a `LogEvent` base type: every log statement is a typed event with a fixed description and typed fields;
   - a `ZacLogger` wrapper around `java.util.logging.Logger` that accepts only a `LogEvent`, never a `String`;
-  - a `@Redacted` annotation: the logger masks the value of an annotated field when it writes the log record.
+  - a `@Redacted` annotation: the logger masks the value of an annotated field when it writes the log record;
+  - an `Employee` field type: `ZacLogger` writes the Keycloak user ID of the employee instead of the username.
+- Apply the logging best practices of loggingsucks.com that fit a single log statement:
+  - structured records: the description of the event is the message, its fields are separate JSON keys (through the
+    MDC that the WildFly JSON formatter already writes);
+  - one vocabulary of field names (`zaakUuid`, `zaakIdentificatie`, `employee`, `outcome`, `durationMs`, ...);
+  - one record per operation instead of several, with `outcome` and `durationMs`, and `errorType` for errors;
+  - `traceId` and `spanId` of the active OpenTelemetry span on every record.
+  A wide event per unit of work, outcome-based levels and tail sampling are left to a follow-up story.
 - Migrate every log statement in `src/main` to `ZacLogger` with a `LogEvent`, and remove `LogUtils`.
 - **BREAKING (internal API)**: `assertPolicy(policy, logger, message)` takes a `ZacLogger` and a `LogEvent` instead of
   a `Logger` and a `String`.
-- Enforce the API with an ArchUnit rule: no production class outside `nl.info.zac.log` may use
-  `java.util.logging.Logger`. A Detekt `ForbiddenImport` rule reports the same error in the IDE.
+- Enforce the API with ArchUnit rules: no production class outside `nl.info.zac.log` may use another logging API
+  (JUL `Logger`, SLF4J, JBoss Logging, Log4j, Commons Logging, kotlin-logging, `System.Logger`), print to
+  `System.out`/`System.err` or call `printStackTrace()`. Detekt rules report the same errors in the IDE.
 - Fix the findings of the audit:
-  - `JsonLoggingFilter` no longer logs headers, query strings or payloads. Per outbound call it logs a correlation ID,
-    the HTTP method, the host and path, the status and the duration.
+  - `JsonLoggingFilter` no longer logs headers, query strings or payloads. Per outbound call it logs one record with a
+    correlation ID (the span ID when tracing is enabled), the HTTP method, the host and path, the status, the outcome
+    and the duration.
   - `MailService`, `SendEmailDelegate` and `SendConfirmationEmailDelegate` no longer log recipient or sender email
     addresses or names. `MailService` logs the recipient as a `@Redacted` field of a `MailSent` event.
   - `UpdateZaakAssignmentDelegate` no longer logs the free-text assignment reason.
@@ -29,9 +39,13 @@ known findings and makes free-text logging impossible in the backend.
     validation error code and the names of the invalid parameters.
   - Employee identities are logged as the Keycloak user ID (the `sub` claim) instead of a username, name or email
     address, in `UserPrincipalFilter`, `WebSocketServerEndPoint`, the five `assertPolicy` call sites that name the
-    user, `ProductaanvraagZaakService` and the other places the migration finds.
+    user, `ProductaanvraagZaakService` and the other places the migration finds. A log event holds an `Employee`
+    field; `ZacLogger` itself resolves its Keycloak user ID once per employee: from the token when the employee logs
+    in, or with one Keycloak call for an employee who is not logged in. Log lines never trigger a lookup of their own.
   - `MailTemplateHelper` no longer logs an initiator's date or place of birth.
+  - `NotificationReceiver` no longer logs the `kenmerken` of a notification.
 - `LoggedInUser` gets the Keycloak user ID of the logged-in user.
+- Extend the WildFly masking filter (ADR-0011) to mask BSNs and IBANs in the fields of a record too.
 - Update `docs/development/logging.md`: describe `ZacLogger` as the only way to log, and mark every finding fixed by this
   change as resolved.
 - Add an ADR for type-safe logging through `ZacLogger`.
@@ -40,9 +54,9 @@ known findings and makes free-text logging impossible in the backend.
 
 ### New Capabilities
 
-- `personal-data-free-logging`: how the backend writes log records. Only typed log events, personal data masked or
-  absent, employees identified by a pseudonymous ID, no payloads of outbound REST calls, and an automated check that
-  enforces this.
+- `personal-data-free-logging`: how the backend writes log records. Only typed, structured log events with one
+  vocabulary of field names, one record per operation, trace IDs, personal data masked or absent, employees identified
+  by a pseudonymous ID, no payloads of outbound REST calls, and an automated check that enforces this.
 
 ### Modified Capabilities
 
@@ -56,12 +70,13 @@ keeps the content of those log lines.
   `WebSocketServerEndPoint`, `MailService`, `ProductaanvraagZaakService` and `IdentityService`. There is no Java code
   left in `src/main`.
 - The `logFilter` source set (the WildFly masking filter) keeps using `java.util.logging`, because it is a WildFly
-  module and not part of ZAC. The ArchUnit rule does not check it.
+  module and not part of ZAC. The ArchUnit rule does not check it. Its filter is extended to the MDC of a record.
 - Unit tests that mock a `Logger` or the `log` function of `LogUtils` change to mock `ZacLogger`.
-- Log output: the format of every log line changes to `<description> [field=value, ...]`. Operators who search the
-  logs for exact old messages need the new texts. Log levels stay the same.
-- `ProductaanvraagZaakService` makes an extra Keycloak call (`IdentityService`) to resolve the Keycloak user ID of the
-  assigned employee.
+- Log output: the `message` of every record becomes the description of the event, and the details move to fields
+  under `mdc` in the JSON record. Some operations log one record instead of several. Operators who search the logs for
+  exact old messages need the new texts and field names. Log levels stay the same.
+- At most one extra Keycloak call per employee per ZAC instance, for employees who are logged but have not logged in
+  on that instance (for example the behandelaar of a productaanvraag).
 - No REST API, database or frontend changes. `scripts/test-data` does not change.
 - New ADR in `docs/solution-architecture/decisions`. ADR-0011 stays valid. Its masking of `geboorte` fields in
   `JsonLoggingFilter` no longer applies, because the filter no longer logs payloads.
