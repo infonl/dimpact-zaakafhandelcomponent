@@ -25,8 +25,8 @@ import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
+import nl.info.zac.time.ZacTime
 import java.net.URI
-import java.time.ZonedDateTime
 import java.util.UUID
 
 class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
@@ -333,7 +333,7 @@ class ZaaktypeConfigurationBeheerServiceTest : BehaviorSpec({
                 this.zaaktypeUuid = zaaktypeUuid
                 zaaktypeOmschrijving = "fakeOriginalOmschrijving"
                 einddatumGeplandWaarschuwing = 5
-                creatiedatum = ZonedDateTime.now()
+                creatiedatum = ZacTime.now()
             }
             val updatedZaaktype = createZaakType(
                 uri = URI("https://example.com/zaaktypes/$zaaktypeUuid"),

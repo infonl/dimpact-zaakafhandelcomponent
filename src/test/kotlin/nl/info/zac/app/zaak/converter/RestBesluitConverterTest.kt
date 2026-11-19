@@ -25,7 +25,7 @@ import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverte
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
 import nl.info.zac.app.zaak.model.createRestBesluitCreateData
 import nl.info.zac.configuration.ConfigurationService
-import java.time.LocalDate
+import nl.info.zac.time.ZacTime
 
 class RestBesluitConverterTest : BehaviorSpec({
     val brcClientService = mockk<BrcClientService>()
@@ -48,10 +48,10 @@ class RestBesluitConverterTest : BehaviorSpec({
     given("Besluit toevoegen data with a vervaldatum") {
         val zaak = createZaak()
         val besluitCreateData = createRestBesluitCreateData(
-            ingangsdatum = LocalDate.now().plusDays(1),
-            vervaldatum = LocalDate.now().plusDays(2),
-            publicationDate = LocalDate.now().plusDays(3),
-            lastResponseDate = LocalDate.now().plusDays(4)
+            ingangsdatum = ZacTime.today().plusDays(1),
+            vervaldatum = ZacTime.today().plusDays(2),
+            publicationDate = ZacTime.today().plusDays(3),
+            lastResponseDate = ZacTime.today().plusDays(4)
         )
         val besluittype = createBesluitType()
 
@@ -59,7 +59,7 @@ class RestBesluitConverterTest : BehaviorSpec({
         every { configurationService.readVerantwoordelijkeOrganisatie() } returns "316245124"
 
         `when`("this data is converted to a besluit") {
-            val dateNow = LocalDate.now()
+            val dateNow = ZacTime.today()
             val besluit = restBesluitConverter.convertToBesluit(zaak, besluitCreateData)
 
             then("the besluit is correctly converted and should have a vervalreden of type 'tijdelijk'") {

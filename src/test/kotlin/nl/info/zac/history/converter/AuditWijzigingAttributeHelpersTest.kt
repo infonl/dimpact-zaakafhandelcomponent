@@ -10,6 +10,7 @@ import io.kotest.matchers.shouldBe
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.history.model.HistoryLine
+import nl.info.zac.time.ZacTime
 import java.time.LocalDate
 import java.time.ZonedDateTime
 
@@ -109,8 +110,8 @@ class AuditWijzigingAttributeHelpersTest : BehaviorSpec({
     context("ZonedDateTime overload of addHistorieRegel") {
         given("Two different ZonedDateTime values") {
             val list = mutableListOf<HistoryLine>()
-            val oudDateTime = ZonedDateTime.now().minusDays(1)
-            val nieuwDateTime = ZonedDateTime.now()
+            val oudDateTime = ZacTime.now().minusDays(1)
+            val nieuwDateTime = ZacTime.now()
 
             `when`("addHistorieRegel is called") {
                 list.addHistorieRegel("fakeLabel", oudDateTime, nieuwDateTime)

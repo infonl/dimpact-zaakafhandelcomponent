@@ -48,7 +48,6 @@ import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.time.ZacTime
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
-import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -91,7 +90,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
     given("ZaakafhandelParameters CMMN with minimal content") {
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
         val zaakType = createZaakType().apply {
-            beginGeldigheid = LocalDate.now().minusDays(1)
+            beginGeldigheid = ZacTime.today().minusDays(1)
         }
         val resultaatType = createResultaatType()
         val restResultType = resultaatType.toRestResultaatType()
@@ -318,7 +317,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
         val restBpmnProcessDefinition = createRestProcessDefinition(processEngine = ProcessEngine.BPMN)
         val zaakType = createZaakType().apply {
-            beginGeldigheid = LocalDate.now().minusDays(1)
+            beginGeldigheid = ZacTime.today().minusDays(1)
         }
         val resultaatType = createResultaatType()
         val restResultType = resultaatType.toRestResultaatType()

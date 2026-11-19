@@ -5,14 +5,14 @@
 
 package nl.info.zac.smartdocuments.templates.model
 
-import java.time.ZonedDateTime
+import nl.info.zac.time.ZacTime
 import java.util.UUID
 
 fun createSmartDocumentsTemplateGroup(
     id: String = UUID.randomUUID().toString(),
 ) = SmartDocumentsTemplateGroup().apply {
     smartDocumentsId = id
-    creationDate = ZonedDateTime.now()
+    creationDate = ZacTime.now()
 }
 
 fun createSmartDocumentsTemplate(

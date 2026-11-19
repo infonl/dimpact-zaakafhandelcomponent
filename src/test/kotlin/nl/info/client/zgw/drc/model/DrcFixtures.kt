@@ -15,6 +15,7 @@ import nl.info.client.zgw.drc.model.generated.Ondertekening
 import nl.info.client.zgw.drc.model.generated.SoortEnum
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.zac.time.ZacTime
 import java.net.URI
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -25,7 +26,7 @@ fun createEnkelvoudigInformatieObject(
     uuid: UUID = UUID.randomUUID(),
     url: URI = URI("https://example.com/$uuid"),
     versie: Int = 1234,
-    beginRegistratie: OffsetDateTime = OffsetDateTime.now(),
+    beginRegistratie: OffsetDateTime = ZacTime.now().toOffsetDateTime(),
     inhoud: URI = URI("https://example.com/${UUID.randomUUID()}"),
     locked: Boolean = false,
     bestandsdelen: List<BestandsDeel> = emptyList(),
@@ -38,7 +39,7 @@ fun createEnkelvoudigInformatieObject(
     bestandsomvang: Int? = 1234,
     title: String = "fakeTitle",
     ondertekening: Ondertekening? = null,
-    creatiedatum: LocalDate = LocalDate.now(),
+    creatiedatum: LocalDate = ZacTime.today(),
     identificatie: String? = null,
     bestandsnaam: String? = null,
     taal: String? = null,
@@ -72,7 +73,7 @@ fun createEnkelvoudigInformatieObject(
 fun createEnkelvoudigInformatieObjectCreateLockRequest(
     url: URI = URI("https://example.com/${UUID.randomUUID()}"),
     bronorganisatie: String = "123456789",
-    creatiedatum: LocalDate = LocalDate.now(),
+    creatiedatum: LocalDate = ZacTime.today(),
     titel: String = "fakeTitle",
     inhoud: String = "fakeContent"
 ) = EnkelvoudigInformatieObjectCreateLockRequest().apply {
@@ -86,7 +87,7 @@ fun createEnkelvoudigInformatieObjectCreateLockRequest(
 fun createEnkelvoudigInformatieObjectWithLockRequest(
     url: URI = URI("https://example.com/${UUID.randomUUID()}"),
     bronorganisatie: String = "123456789",
-    creatiedatum: LocalDate = LocalDate.now(),
+    creatiedatum: LocalDate = ZacTime.today(),
     titel: String = "fakeTitle",
     inhoud: String = "fakeContent"
 ) = EnkelvoudigInformatieObjectWithLockRequest().apply {
@@ -104,7 +105,7 @@ fun createLockEnkelvoudigInformatieObject(
 fun createGebruiksrechten(
     url: URI = URI("https://example.com/${UUID.randomUUID()}"),
     informatieobject: URI = URI("https://example.com/${UUID.randomUUID()}"),
-    startdatum: OffsetDateTime = OffsetDateTime.now(),
+    startdatum: OffsetDateTime = ZacTime.now().toOffsetDateTime(),
     einddatum: OffsetDateTime? = null,
     omschrijvingVoorwaarden: String = "fakeOmschrijvingVoorwaarden"
 ) = Gebruiksrechten(url).apply {
@@ -116,7 +117,7 @@ fun createGebruiksrechten(
 
 fun createOndertekening(
     type: SoortEnum = SoortEnum.DIGITAAL,
-    date: LocalDate = LocalDate.now()
+    date: LocalDate = ZacTime.today()
 ) = Ondertekening().apply {
     this.soort = type
     this.datum = date
@@ -139,7 +140,7 @@ fun createEnkelvoudigInformatieObjectCreateLockSub(
     uuid: UUID = UUID.randomUUID(),
     url: URI = URI("https://example.com/$uuid"),
     versie: Int = 1234,
-    beginRegistratie: OffsetDateTime = OffsetDateTime.now(),
+    beginRegistratie: OffsetDateTime = ZacTime.now().toOffsetDateTime(),
     locked: Boolean = true,
     bestandsdelen: List<BestandsDeel> = emptyList(),
     lock: String = "fakeLock"

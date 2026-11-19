@@ -18,8 +18,8 @@ import nl.info.zac.app.zaak.model.besluit.RestBesluit
 import nl.info.zac.app.zaak.model.besluit.RestBesluitCreateData
 import nl.info.zac.app.zaak.model.besluit.toRestBesluitType
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.time.ZacTime
 import nl.info.zac.util.NoArgConstructor
-import java.time.LocalDate
 
 @NoArgConstructor
 class RestBesluitConverter @Inject constructor(
@@ -56,7 +56,7 @@ class RestBesluitConverter @Inject constructor(
             Besluit().apply {
                 this.zaak = zaak.url
                 besluittype = besluitType.url
-                datum = LocalDate.now()
+                datum = ZacTime.today()
                 ingangsdatum = besluitToevoegenGegevens.ingangsdatum
                 vervaldatum = besluitToevoegenGegevens.vervaldatum
                 besluitToevoegenGegevens.vervaldatum?.apply {

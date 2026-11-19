@@ -25,9 +25,9 @@ import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.shared.helper.SuspensionZaakHelper
+import nl.info.zac.time.ZacTime
 import org.flowable.common.engine.impl.el.JuelExpression
 import org.flowable.engine.delegate.DelegateExecution
-import java.time.ZonedDateTime
 
 class ResumeZaakDelegateTest : BehaviorSpec({
     val delegateExecution = mockk<DelegateExecution>()
@@ -41,7 +41,7 @@ class ResumeZaakDelegateTest : BehaviorSpec({
     val opschorting = createOpschorting(indicatie = true)
     zaak.opschorting = opschorting
     val reason = "test"
-    val date = ZonedDateTime.now()
+    val date = ZacTime.now()
 
     afterEach {
         checkUnnecessaryStub()

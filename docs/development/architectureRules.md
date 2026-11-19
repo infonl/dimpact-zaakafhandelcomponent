@@ -28,15 +28,23 @@ The backend has three layers. A layer may only depend on the layers below it:
 | The clients do not depend on the REST layer                             | None                |
 | No field is annotated with `@Inject`; ZAC uses constructor injection    | None                |
 | No class depends on the `javax` Java EE APIs that Jakarta EE replaced   | None                |
-| No class outside `nl.info.zac.time` reads the system time zone or clock | Frozen              |
+| No class outside `nl.info.zac.time` reads the system time zone or clock | None                |
 
 Fields annotated with `@Resource` are allowed, because JNDI resources such as a `DataSource` cannot be
 injected through a constructor.
 
 The date and time rule forbids, outside `nl.info.zac.time..`, calls of `ZoneId.systemDefault()`,
 `TimeZone.getDefault()`, `Clock.systemDefaultZone()`, `LocalDate.atStartOfDay(ZoneId)` and the `now()` and
-`now(ZoneId)` of `LocalDate`, `LocalDateTime`, `ZonedDateTime` and `OffsetDateTime`. Use `ZacTime` instead, see
+`now(ZoneId)` of `LocalDate`, `LocalDateTime`, `ZonedDateTime` and `OffsetDateTime`. It also forbids any use of
+`java.util.Calendar` and its subclasses and of `org.apache.commons.lang3.time..`, such as `DateUtils`, which compute
+in the system time zone. Use `ZacTime` instead, see
 [ADR-0015](../solution-architecture/decisions/0015-use-europe-amsterdam-and-half-open-date-ranges.md).
+
+ArchUnit only checks the main classes. In the unit tests and the integration tests, detekt `ForbiddenMethodCall`
+forbids the `now()` without arguments of the `java.time` types, because its result depends on the time zone of the
+JVM, which is UTC on CI. A unit test takes the expected date from `ZacTime`. An integration test cannot see `ZacTime`
+and uses the functions in `src/itest/kotlin/nl/info/zac/itest/util/ItestTime.kt`: `todayInZac()` for a date that ZAC
+computes or reads, and `todayInUtc()` for a date of Open Zaak, which runs in UTC.
 
 Generated code (`..generated..`) is excluded from the `javax` rule and the date and time rule. The rule allows the `javax` packages
 that are still part of Java SE, such as `javax.annotation.processing` and `javax.transaction.xa`.

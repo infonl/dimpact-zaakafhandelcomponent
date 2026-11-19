@@ -41,9 +41,9 @@ import nl.info.zac.identity.model.createUser
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createDocumentRechtenAllDeny
+import nl.info.zac.time.ZacTime
 import org.eclipse.jetty.http.HttpStatus
 import java.net.URI
-import java.time.LocalDate
 import java.util.Base64
 import java.util.UUID
 
@@ -93,7 +93,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
             then("the provided data is converted correctly") {
                 with(enkelvoudigInformatieObjectData) {
                     bronorganisatie shouldBe "123443210"
-                    creatiedatum shouldHaveSameDayAs LocalDate.now()
+                    creatiedatum shouldHaveSameDayAs ZacTime.today()
                     titel shouldBe restTaakDocumentData.documentTitel
                     auteur shouldBe loggedInUser.getFullName()
                     // currently hardcoded
@@ -115,7 +115,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         // conversion compared to when converting a taak
         val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject(
             vertrouwelijkheidaanduiding = RestVertrouwelijkheidaanduiding.VERTROUWELIJK,
-            creatieDatum = LocalDate.now(),
+            creatieDatum = ZacTime.today(),
             auteur = "fakeAuteur",
             taal = "fakeTaal",
             bestandsNaam = "fakeBestandsNaam"
@@ -134,7 +134,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
             then("the metadata is converted, while the content is left to the documents registry client") {
                 with(enkelvoudigInformatieObjectData) {
                     bronorganisatie shouldBe "123443210"
-                    creatiedatum shouldHaveSameDayAs LocalDate.now()
+                    creatiedatum shouldHaveSameDayAs ZacTime.today()
                     titel shouldBe restEnkelvoudigInformatieobject.titel
                     auteur shouldBe restEnkelvoudigInformatieobject.auteur
                     taal shouldBe restEnkelvoudigInformatieobject.taal

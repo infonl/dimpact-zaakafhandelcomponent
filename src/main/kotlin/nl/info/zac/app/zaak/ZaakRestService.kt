@@ -100,6 +100,7 @@ import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toValidatedLocalDate
@@ -434,7 +435,7 @@ class ZaakRestService @Inject constructor(
     @GET
     @Path("waarschuwing")
     fun listZaakWarnings(): List<RestZaakOverzicht> {
-        val vandaag = LocalDate.now()
+        val vandaag = ZacTime.today()
         val einddatumGeplandWaarschuwing = mutableMapOf<UUID, LocalDate>()
         val uiterlijkeEinddatumAfdoeningWaarschuwing = mutableMapOf<UUID, LocalDate>()
         val loggedInUser = loggedInUserInstance.get()

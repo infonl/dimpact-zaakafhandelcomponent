@@ -23,8 +23,8 @@ import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.shared.helper.SuspensionZaakHelper
+import nl.info.zac.time.ZacTime
 import nl.info.zac.zaak.ZaakService
-import java.time.ZonedDateTime
 import java.util.UUID
 
 class ZaakSuspendRestServiceTest : BehaviorSpec({
@@ -56,7 +56,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
         val loggedInUser = createLoggedInUser()
 
         given("a suspended zaak exists") {
-            val suspensionDateTime = ZonedDateTime.now().minusDays(3)
+            val suspensionDateTime = ZacTime.now().minusDays(3)
             val expectedDays = 5
 
             every { loggedInUserInstance.get() } returns loggedInUser

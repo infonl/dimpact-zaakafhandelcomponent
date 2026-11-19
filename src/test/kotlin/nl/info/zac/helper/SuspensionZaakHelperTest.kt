@@ -35,10 +35,10 @@ import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.test.date.toDate
+import nl.info.zac.time.ZacTime
 import nl.info.zac.zaak.exception.ZaakCannotBeSuspendedAgainException
 import org.flowable.task.api.Task
 import java.time.LocalDate
-import java.time.ZonedDateTime
 
 class SuspensionZaakHelperTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
@@ -55,7 +55,7 @@ class SuspensionZaakHelperTest : BehaviorSpec({
         loggedInUserInstance
     )
 
-    val today = LocalDate.now()
+    val today = ZacTime.today()
     val tomorrow = today.plusDays(1)
     val numberOfDays = 2L
 
@@ -70,12 +70,12 @@ class SuspensionZaakHelperTest : BehaviorSpec({
             val zaak = createZaak(
                 opschorting = createOpschorting(reden = null),
                 einddatumGepland = null,
-                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1)
+                uiterlijkeEinddatumAfdoening = ZacTime.today().plusDays(1)
             )
             val postponedZaak = createZaak(
                 opschorting = createOpschorting(reden = "fakeReason"),
                 einddatumGepland = null,
-                uiterlijkeEinddatumAfdoening = LocalDate.now()
+                uiterlijkeEinddatumAfdoening = ZacTime.today()
                     .plusDays(1 + numberOfDaysPostponed)
             )
             val patchedZaak = slot<Zaak>()
@@ -151,7 +151,7 @@ class SuspensionZaakHelperTest : BehaviorSpec({
         given("a zaak that was suspended before and was resumed without a reason") {
             val zaak = createZaak(
                 opschorting = createOpschorting(reden = "", indicatie = false, eerdereOpschorting = true),
-                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1)
+                uiterlijkeEinddatumAfdoening = ZacTime.today().plusDays(1)
             )
             val loggedInUser = createLoggedInUser()
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -175,7 +175,7 @@ class SuspensionZaakHelperTest : BehaviorSpec({
         given("a zaak that has a suspension reason") {
             val zaak = createZaak(
                 opschorting = createOpschorting(reden = "fakeExistingSuspensionReason"),
-                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1)
+                uiterlijkeEinddatumAfdoening = ZacTime.today().plusDays(1)
             )
             val loggedInUser = createLoggedInUser()
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -206,7 +206,7 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                     indicatie = true
                 ),
                 einddatumGepland = null,
-                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1)
+                uiterlijkeEinddatumAfdoening = ZacTime.today().plusDays(1)
             )
             val patchedZaak = slot<Zaak>()
             val loggedInUser = createLoggedInUser()
@@ -263,14 +263,14 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                     reden = "fakePostponementReason",
                     indicatie = true
                 ),
-                einddatumGepland = LocalDate.now().plusDays(2),
-                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1)
+                einddatumGepland = ZacTime.today().plusDays(2),
+                uiterlijkeEinddatumAfdoening = ZacTime.today().plusDays(1)
             )
             val patchedZaak = slot<Zaak>()
             val loggedInUser = createLoggedInUser()
 
             // Suspended 3 days ago (on Friday, now it is Monday)
-            every { zaakVariabelenService.findDatumtijdOpgeschort(zaak.uuid) } returns ZonedDateTime.now().minusDays(3)
+            every { zaakVariabelenService.findDatumtijdOpgeschort(zaak.uuid) } returns ZacTime.now().minusDays(3)
             // One day needed for processing
             every { zaakVariabelenService.findVerwachteDagenOpgeschort(zaak.uuid) } returns 1
             every {
@@ -312,7 +312,7 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                 clearMocks(zrcClientService, zaakVariabelenService, answers = false, verificationMarks = true)
 
                 // Response received on Friday, processing it on Monday. Resume date set to Friday (3 days ago)
-                suspensionZaakHelper.resumeZaak(zaak, reasonResumed, ZonedDateTime.now().minusDays(3))
+                suspensionZaakHelper.resumeZaak(zaak, reasonResumed, ZacTime.now().minusDays(3))
 
                 then("the zaak should be resumed") {
                     verify(exactly = 1) {
@@ -337,7 +337,7 @@ class SuspensionZaakHelperTest : BehaviorSpec({
             `when`("the zaak is resumed with date before the suspension date") {
                 clearMocks(zrcClientService, zaakVariabelenService, answers = false, verificationMarks = true)
 
-                val yesterday = ZonedDateTime.now().minusDays(1)
+                val yesterday = ZacTime.now().minusDays(1)
                 val dayBeforeYesterday = yesterday.minusDays(1)
 
                 every { zaakVariabelenService.findDatumtijdOpgeschort(zaak.uuid) } returns yesterday
@@ -364,13 +364,13 @@ class SuspensionZaakHelperTest : BehaviorSpec({
         given("a zaak with a final date") {
             val extensionDescription = "extension description"
             val zaak = createZaak(
-                einddatumGepland = LocalDate.now().plusDays(1),
-                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
+                einddatumGepland = ZacTime.today().plusDays(1),
+                uiterlijkeEinddatumAfdoening = ZacTime.today().plusDays(2)
             )
             val extendedZaak = createZaak(
                 opschorting = createOpschorting(reden = null),
-                einddatumGepland = LocalDate.now().plusDays(3),
-                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(4)
+                einddatumGepland = ZacTime.today().plusDays(3),
+                uiterlijkeEinddatumAfdoening = ZacTime.today().plusDays(4)
             )
             val patchedZaak = slot<Zaak>()
             val loggedInUser = createLoggedInUser()

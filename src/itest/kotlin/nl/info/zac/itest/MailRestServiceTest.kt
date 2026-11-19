@@ -33,12 +33,12 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
+import nl.info.zac.itest.util.todayInZac
 import okhttp3.Headers
 import org.json.JSONArray
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.net.URLEncoder
-import java.time.LocalDate
 
 class MailRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
@@ -48,7 +48,7 @@ class MailRestServiceTest : BehaviorSpec({
     val documentHelper = DocumentHelper(zacClient)
     val urlEncodedFileName = URLEncoder.encode(TEST_TXT_FILE_NAME, Charsets.UTF_8)
     val now = System.currentTimeMillis()
-    val today = LocalDate.now()
+    val today = todayInZac()
 
     given("A zaak with a document exists and the SMTP server is configured and a behandelaar is logged in") {
         val (_, zaakUuid) = zaakHelper.createZaak(

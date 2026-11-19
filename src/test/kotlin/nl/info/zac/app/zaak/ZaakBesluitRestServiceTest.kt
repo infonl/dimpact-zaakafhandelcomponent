@@ -41,10 +41,10 @@ import nl.info.zac.policy.output.createWerklijstRechten
 import nl.info.zac.policy.output.createWerklijstRechtenAllDeny
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
+import nl.info.zac.time.ZacTime
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.zaak.ZaakService
 import java.net.URI
-import java.time.LocalDate
 import java.util.UUID
 
 class ZaakBesluitRestServiceTest : BehaviorSpec({
@@ -288,12 +288,12 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
         val zaaktypeUUID = UUID.randomUUID()
         val zaakType = createZaakType()
         val inRangeBesluitType = createBesluitType(description = "inRangeBesluitType").apply {
-            setBeginGeldigheid(LocalDate.now().minusDays(1))
-            setEindeGeldigheid(LocalDate.now().plusDays(1))
+            setBeginGeldigheid(ZacTime.today().minusDays(1))
+            setEindeGeldigheid(ZacTime.today().plusDays(1))
         }
         val outOfRangeBesluitType = createBesluitType(description = "outOfRangeBesluitType").apply {
-            setBeginGeldigheid(LocalDate.now().minusDays(10))
-            setEindeGeldigheid(LocalDate.now().minusDays(1))
+            setBeginGeldigheid(ZacTime.today().minusDays(10))
+            setEindeGeldigheid(ZacTime.today().minusDays(1))
         }
 
         given("user has zakenTaken permission") {

@@ -36,6 +36,7 @@ import nl.info.zac.itest.config.SMART_DOCUMENTS_ROOT_GROUP_ID
 import nl.info.zac.itest.config.SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID
 import nl.info.zac.itest.config.SMART_DOCUMENTS_XML_FILE_ID
 import nl.info.zac.itest.config.SMART_DOCUMENTS_XML_FILE_TITLE
+import nl.info.zac.itest.util.todayInZac
 import okhttp3.FormBody
 import okhttp3.Headers
 import org.json.JSONArray
@@ -44,7 +45,6 @@ import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_NOT_FOUND
 import java.net.HttpURLConnection.HTTP_OK
 import java.net.HttpURLConnection.HTTP_SEE_OTHER
-import java.time.LocalDate
 import java.util.UUID
 
 private const val ZAAK_OMSCHRIJVING_WITH_VESTIGING_INITIATOR = "fakeOmschrijvingWithVestigingInitiator"
@@ -104,7 +104,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         taskId = taskHelper.startAanvullendeInformatieTaskForZaak(
             zaakUuid = zaakUuid.let(UUID::fromString),
             zaakIdentificatie = zaakIdentification,
-            fatalDate = LocalDate.now().plusWeeks(1),
+            fatalDate = todayInZac().plusWeeks(1),
             group = GROUP_BEHANDELAARS_TEST_1,
             testUser = BEHEERDER_1
         )
@@ -121,7 +121,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                         "smartDocumentsTemplateId" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID,
                         "title" to SMART_DOCUMENTS_DOCX_FILE_TITLE,
                         "author" to FAKE_AUTHOR_NAME,
-                        "creationDate" to LocalDate.now().toString()
+                        "creationDate" to todayInZac().toString()
                     )
                 ).toString(),
                 testUser = BEHANDELAAR_1
@@ -154,7 +154,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                         "title" to SMART_DOCUMENTS_DOCX_FILE_TITLE,
                         "description" to "document description",
                         "author" to FAKE_AUTHOR_NAME,
-                        "creationDate" to LocalDate.now().toString()
+                        "creationDate" to todayInZac().toString()
                     )
                 ).toString(),
                 testUser = BEHANDELAAR_1
@@ -202,7 +202,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakUuid" +
                     "?userName=" + BEHANDELAAR_1.displayName.urlEncode() +
                     "&title=" + SMART_DOCUMENTS_DOCX_FILE_TITLE.urlEncode() +
-                    "&creationDate=" + LocalDate.now() +
+                    "&creationDate=" + todayInZac() +
                     "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
                     "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID"
 
@@ -246,7 +246,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakUuid" +
                     "?userName=" + BEHANDELAAR_1.displayName.urlEncode() +
                     "&title=" + SMART_DOCUMENTS_PDF_FILE_TITLE.urlEncode() +
-                    "&creationDate=" + LocalDate.now() +
+                    "&creationDate=" + todayInZac() +
                     "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
                     "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID"
 
@@ -290,7 +290,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakUuid" +
                     "?userName=" + BEHANDELAAR_1.displayName.urlEncode() +
                     "&title=" + SMART_DOCUMENTS_XML_FILE_TITLE.urlEncode() +
-                    "&creationDate=" + LocalDate.now() +
+                    "&creationDate=" + todayInZac() +
                     "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
                     "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID"
 
@@ -341,7 +341,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakUuid" +
                     "?userName=" + BEHANDELAAR_1.displayName.urlEncode() +
                     "&title=" + documentTitle.urlEncode() +
-                    "&creationDate=" + LocalDate.now() +
+                    "&creationDate=" + todayInZac() +
                     "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
                     "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID" +
                     "&documentCreationToken=" + "<script>alert(1)</script>".urlEncode()
@@ -379,7 +379,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     "zaak/$zaakUuid/task/$taskId" +
                     "?title=" + SMART_DOCUMENTS_DOCX_FILE_TITLE.urlEncode() +
                     "&description=A+file" +
-                    "&creationDate=" + LocalDate.now() +
+                    "&creationDate=" + todayInZac() +
                     "&userName=" + BEHANDELAAR_1.displayName.urlEncode() +
                     "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
                     "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID"
@@ -421,7 +421,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakUuid" +
                     "?userName=" + BEHANDELAAR_1.displayName.urlEncode() +
                     "&title=" + SMART_DOCUMENTS_DOCX_FILE_TITLE.urlEncode() +
-                    "&creationDate=" + LocalDate.now() +
+                    "&creationDate=" + todayInZac() +
                     "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
                     "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID"
 
@@ -460,7 +460,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     "zaak/$zaakUuid/task/$taskId" +
                     "?userName=" + BEHANDELAAR_1.displayName.urlEncode() +
                     "&title=" + SMART_DOCUMENTS_DOCX_FILE_TITLE.urlEncode() +
-                    "&creationDate=" + LocalDate.now() +
+                    "&creationDate=" + todayInZac() +
                     "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
                     "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID"
 
@@ -540,7 +540,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                         "smartDocumentsTemplateId" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID,
                         "title" to SMART_DOCUMENTS_DOCX_FILE_TITLE,
                         "author" to FAKE_AUTHOR_NAME,
-                        "creationDate" to LocalDate.now().toString()
+                        "creationDate" to todayInZac().toString()
                     )
                 ).toString(),
                 testUser = BEHANDELAAR_1

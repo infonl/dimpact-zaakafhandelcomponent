@@ -27,6 +27,7 @@ import nl.info.zac.itest.config.ItestConfiguration.WORD_DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_BASE_URI
+import nl.info.zac.itest.util.nowInZac
 import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -40,7 +41,6 @@ import java.net.HttpURLConnection.HTTP_INTERNAL_ERROR
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.net.URLDecoder
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
@@ -139,8 +139,8 @@ class WebDavServletTest : BehaviorSpec({
                     .addFormDataPart(
                         "creatiedatum",
                         DateTimeFormatter.ofPattern(
-                            "yyyy-MM-dd'T'HH:mm+01:00"
-                        ).format(ZonedDateTime.now())
+                            "yyyy-MM-dd'T'HH:mmxxx"
+                        ).format(nowInZac())
                     )
                     .addFormDataPart("auteur", FAKE_AUTHOR_NAME)
                     .addFormDataPart("taal", "dut")

@@ -18,13 +18,13 @@ import io.mockk.verify
 import nl.info.test.org.flowable.cmmn.api.runtime.createTestPlanItemInstance
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_DATUMTIJD_OPGESCHORT
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_VERWACHTE_DAGEN_OPGESCHORT
+import nl.info.zac.time.ZacTime
 import org.flowable.cmmn.api.CmmnHistoryService
 import org.flowable.cmmn.api.CmmnRuntimeService
 import org.flowable.cmmn.api.runtime.CaseInstance
 import org.flowable.engine.HistoryService
 import org.flowable.engine.RuntimeService
 import org.flowable.engine.runtime.ProcessInstance
-import java.time.ZonedDateTime
 import java.util.UUID
 
 class ZaakVariabelenServiceTest : BehaviorSpec({
@@ -257,7 +257,7 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
         }
 
         `when`("reading DatumtijdOpgeschort") {
-            val date = ZonedDateTime.now()
+            val date = ZacTime.now()
             every {
                 cmmnRuntimeService
                     .createCaseInstanceQuery()

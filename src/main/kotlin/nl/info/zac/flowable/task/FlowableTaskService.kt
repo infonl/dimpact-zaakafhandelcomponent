@@ -13,10 +13,11 @@ import nl.info.zac.flowable.task.model.ValueChangeData
 import nl.info.zac.flowable.util.isCmmnTask
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.task.model.TaakSortering
+import nl.info.zac.time.ZacTime
+import nl.info.zac.time.toDate
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.FIELD_VISIBILITY_STRATEGY
 import nl.info.zac.util.NoArgConstructor
-import org.apache.commons.lang3.time.DateUtils
 import org.flowable.cmmn.api.CmmnTaskService
 import org.flowable.engine.HistoryService
 import org.flowable.engine.TaskService
@@ -25,7 +26,6 @@ import org.flowable.task.api.Task
 import org.flowable.task.api.TaskInfo
 import org.flowable.task.api.history.HistoricTaskInstance
 import org.flowable.task.api.history.HistoricTaskLogEntry
-import java.util.Calendar
 import java.util.Date
 import java.util.UUID
 
@@ -68,13 +68,13 @@ class FlowableTaskService @Inject constructor(
     fun listOpenTasksDueNow(): List<Task> =
         taskService.createTaskQuery()
             .taskAssigned()
-            .taskDueBefore(tomorrow())
+            .taskDueBefore(startOfTomorrow())
             .list()
 
     fun listOpenTasksDueLater(): List<Task> =
         taskService.createTaskQuery()
             .taskAssigned()
-            .taskDueAfter(DateUtils.addSeconds(tomorrow(), -1))
+            .taskDueAfter(Date.from(startOfTomorrow().toInstant().minusSeconds(1)))
             .list()
 
     fun listTasksForZaak(zaakUUID: UUID): List<TaskInfo> =
@@ -233,5 +233,5 @@ class FlowableTaskService @Inject constructor(
         }
     }
 
-    private fun tomorrow(): Date = DateUtils.addDays(DateUtils.truncate(Date(), Calendar.DATE), 1)
+    private fun startOfTomorrow() = ZacTime.today().plusDays(1).toDate()
 }

@@ -14,8 +14,8 @@ import java.time.format.DateTimeParseException
 class LocalDateUtilTest : BehaviorSpec({
 
     given("a date range with both begin and end set") {
-        val begin = LocalDate.now().minusDays(1)
-        val end = LocalDate.now().plusDays(1)
+        val begin = ZacTime.today().minusDays(1)
+        val end = ZacTime.today().plusDays(1)
 
         `when`("now falls within the range") {
             val isDateNowBetween = dateNowIsBetween(begin, end)
@@ -26,7 +26,7 @@ class LocalDateUtilTest : BehaviorSpec({
         }
 
         `when`("now equals the begin date") {
-            val isDateNowBetween = dateNowIsBetween(LocalDate.now(), end)
+            val isDateNowBetween = dateNowIsBetween(ZacTime.today(), end)
 
             then("it should return true") {
                 isDateNowBetween shouldBe true
@@ -34,7 +34,7 @@ class LocalDateUtilTest : BehaviorSpec({
         }
 
         `when`("now equals the end date") {
-            val isDateNowBetween = dateNowIsBetween(begin, LocalDate.now())
+            val isDateNowBetween = dateNowIsBetween(begin, ZacTime.today())
 
             then("it should return false") {
                 isDateNowBetween shouldBe false
@@ -42,7 +42,7 @@ class LocalDateUtilTest : BehaviorSpec({
         }
 
         `when`("now is before the begin date") {
-            val isDateNowBetween = dateNowIsBetween(LocalDate.now().plusDays(1), LocalDate.now().plusDays(2))
+            val isDateNowBetween = dateNowIsBetween(ZacTime.today().plusDays(1), ZacTime.today().plusDays(2))
 
             then("it should return false") {
                 isDateNowBetween shouldBe false
@@ -50,7 +50,7 @@ class LocalDateUtilTest : BehaviorSpec({
         }
 
         `when`("now is after the end date") {
-            val isDateNowBetween = dateNowIsBetween(LocalDate.now().minusDays(2), LocalDate.now().minusDays(1))
+            val isDateNowBetween = dateNowIsBetween(ZacTime.today().minusDays(2), ZacTime.today().minusDays(1))
 
             then("it should return false") {
                 isDateNowBetween shouldBe false
@@ -60,7 +60,7 @@ class LocalDateUtilTest : BehaviorSpec({
 
     given("a date range with a null begin date") {
         `when`("now is before the end date") {
-            val isDateNowBetween = dateNowIsBetween(null, LocalDate.now().plusDays(1))
+            val isDateNowBetween = dateNowIsBetween(null, ZacTime.today().plusDays(1))
 
             then("it should return true") {
                 isDateNowBetween shouldBe true
@@ -70,7 +70,7 @@ class LocalDateUtilTest : BehaviorSpec({
 
     given("a date range with a null end date") {
         `when`("now is after the begin date") {
-            val isDateNowBetween = dateNowIsBetween(LocalDate.now().minusDays(1), null)
+            val isDateNowBetween = dateNowIsBetween(ZacTime.today().minusDays(1), null)
 
             then("it should return true") {
                 isDateNowBetween shouldBe true
@@ -80,8 +80,8 @@ class LocalDateUtilTest : BehaviorSpec({
 
     given("a besluittype that is currently valid") {
         val besluitType = createBesluitType().apply {
-            beginGeldigheid = LocalDate.now().minusDays(1)
-            eindeGeldigheid = LocalDate.now().plusDays(1)
+            beginGeldigheid = ZacTime.today().minusDays(1)
+            eindeGeldigheid = ZacTime.today().plusDays(1)
         }
 
         `when`("checking whether now falls within its validity period") {
@@ -95,7 +95,7 @@ class LocalDateUtilTest : BehaviorSpec({
 
     given("a besluittype without a beginGeldigheid") {
         val besluitType = createBesluitType().apply {
-            eindeGeldigheid = LocalDate.now().plusDays(1)
+            eindeGeldigheid = ZacTime.today().plusDays(1)
         }
 
         `when`("checking whether now falls within its validity period") {

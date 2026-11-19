@@ -10,12 +10,12 @@ import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.TestUser
+import nl.info.zac.itest.util.nowInZac
 import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
@@ -54,8 +54,8 @@ fun ZacClient.createEnkelvoudigInformatieobjectForZaak(
             .addFormDataPart(
                 "creatiedatum",
                 DateTimeFormatter.ofPattern(
-                    "yyyy-MM-dd'T'HH:mm+01:00"
-                ).format(ZonedDateTime.now())
+                    "yyyy-MM-dd'T'HH:mmxxx"
+                ).format(nowInZac())
             )
             .addFormDataPart("auteur", authorName)
             .addFormDataPart("taal", "dut")

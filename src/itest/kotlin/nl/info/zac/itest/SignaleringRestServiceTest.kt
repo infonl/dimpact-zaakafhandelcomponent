@@ -40,6 +40,9 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.util.ZAC_ZONE
+import nl.info.zac.itest.util.nowInZac
+import nl.info.zac.itest.util.todayInZac
 import okhttp3.Headers
 import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONArray
@@ -47,8 +50,6 @@ import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
-import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -299,8 +300,8 @@ class SignaleringRestServiceTest : BehaviorSpec({
                     val dateString = responseBody.replace("\"", "")
 
                     val date = ZonedDateTime.parse(dateString, DateTimeFormatter.ISO_DATE_TIME)
-                        .withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()
-                    date.shouldBeBetween(START_DATE, LocalDateTime.now())
+                        .withZoneSameInstant(ZAC_ZONE).toLocalDateTime()
+                    date.shouldBeBetween(START_DATE, nowInZac().toLocalDateTime())
                 }
             }
         }
@@ -671,7 +672,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
         val taskId = taskHelper.startAanvullendeInformatieTaskForZaak(
             zaakUuid = zaakUuid,
             zaakIdentificatie = zaakIdentificatie,
-            fatalDate = LocalDate.now().plusWeeks(1),
+            fatalDate = todayInZac().plusWeeks(1),
             group = GROUP_BEHANDELAARS_TEST_1,
             testUser = BEHANDELAAR_1
         )

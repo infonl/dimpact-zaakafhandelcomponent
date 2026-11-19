@@ -162,7 +162,7 @@ class PlanItemsRestService @Inject constructor(
             zaak = zaak
         )?.also {
             if (isZaakOpschorten(taakdata)) {
-                val numberOfDays = ChronoUnit.DAYS.between(LocalDate.now(), it)
+                val numberOfDays = ChronoUnit.DAYS.between(ZacTime.today(), it)
                 suspensionZaakHelper.suspendZaak(zaak, numberOfDays, REDEN_OPSCHORTING)
             } else if (it.isAfter(zaak.uiterlijkeEinddatumAfdoening)) {
                 val numberOfDays = ChronoUnit.DAYS.between(zaak.uiterlijkeEinddatumAfdoening, it)
@@ -324,7 +324,7 @@ class PlanItemsRestService @Inject constructor(
         zaakFatalDate: LocalDate?
     ): LocalDate? {
         zaaktypeCmmnHumantaskParameters?.doorlooptijd?.let { days ->
-            var calculatedFinalDate = LocalDate.now().plusDays(days.toLong())
+            var calculatedFinalDate = ZacTime.today().plusDays(days.toLong())
             if (zaakFatalDate != null && calculatedFinalDate.isAfter(zaakFatalDate)) {
                 calculatedFinalDate = zaakFatalDate
             }

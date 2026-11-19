@@ -24,6 +24,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_4_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RECORDMANAGER_1
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
+import nl.info.zac.itest.util.todayInZac
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
@@ -119,9 +120,9 @@ class ZaakRestServiceBrondatumAfleidingswijzeIngangsdatumBesluitArchiveTest : Be
         }
 
         `when`("a besluit is added to the zaak") {
-            ingangsdatumBesluit = LocalDate.now().plusDays(3)
-            val vervaldatumBesluit = LocalDate.now().plusDays(21)
-            val today = LocalDate.now()
+            ingangsdatumBesluit = todayInZac().plusDays(3)
+            val vervaldatumBesluit = todayInZac().plusDays(21)
+            val today = todayInZac()
             val publicationDate = today.plusMonths(2)
             val responseDate = today.plusMonths(3)
 

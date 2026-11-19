@@ -22,9 +22,8 @@ import nl.info.zac.app.admin.model.RestZaaktypeBeheerOverzicht
 import nl.info.zac.app.admin.model.RestZaaktypeConfigurationOverzicht
 import nl.info.zac.app.admin.model.createRestProcessDefinition
 import nl.info.zac.smartdocuments.SmartDocumentsService
+import nl.info.zac.time.ZacTime
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
-import java.time.LocalDate
-import java.time.ZonedDateTime
 import java.util.UUID
 
 class RestZaaktypeConfigurationConverterTest : BehaviorSpec({
@@ -54,10 +53,10 @@ class RestZaaktypeConfigurationConverterTest : BehaviorSpec({
                 identification = "fakeIdentificatie",
                 omschrijving = "fakeOmschrijving",
                 doel = "fakeDoel",
-                beginGeldigheid = LocalDate.now().minusDays(1),
-                eindeGeldigheid = LocalDate.now().plusDays(1)
+                beginGeldigheid = ZacTime.today().minusDays(1),
+                eindeGeldigheid = ZacTime.today().plusDays(1)
             )
-            val creatiedatum = ZonedDateTime.now().minusDays(2)
+            val creatiedatum = ZacTime.now().minusDays(2)
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeUUID = zaaktype.url.extractUuid(),
                 creationDate = creatiedatum,
@@ -166,7 +165,7 @@ class RestZaaktypeConfigurationConverterTest : BehaviorSpec({
             val zaaktypeConfiguration = ZaaktypeConfiguration().apply {
                 zaaktypeUuid = zaaktype.url.extractUuid()
                 groepID = "fakeGroepId"
-                creatiedatum = ZonedDateTime.now()
+                creatiedatum = ZacTime.now()
             }
 
             `when`("it is converted to a list row") {

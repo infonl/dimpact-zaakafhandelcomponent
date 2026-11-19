@@ -20,6 +20,7 @@ import nl.info.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.zac.flowable.task.model.ValueChangeData
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.task.model.TaakSortering
+import nl.info.zac.time.ZacTime
 import nl.info.zac.util.JSONB
 import org.flowable.cmmn.api.CmmnTaskService
 import org.flowable.common.engine.api.scope.ScopeTypes
@@ -30,6 +31,7 @@ import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.Task
 import org.flowable.task.api.TaskQuery
 import org.flowable.task.api.history.HistoricTaskInstance
+import java.util.Date
 
 class FlowableTaskServiceTest : BehaviorSpec({
     val taskService = mockk<TaskService>()
@@ -48,6 +50,36 @@ class FlowableTaskServiceTest : BehaviorSpec({
 
     afterEach {
         clearAllMocks()
+    }
+
+    given("assigned open tasks") {
+        val tasks = listOf(mockk<Task>())
+        val dueBefore = slot<Date>()
+        val dueAfter = slot<Date>()
+        every {
+            taskService.createTaskQuery().taskAssigned().taskDueBefore(capture(dueBefore)).list()
+        } returns tasks
+        every {
+            taskService.createTaskQuery().taskAssigned().taskDueAfter(capture(dueAfter)).list()
+        } returns tasks
+
+        `when`("the tasks that are due now and the tasks that are due later are listed") {
+            val tasksDueNow = flowableTaskService.listOpenTasksDueNow()
+            val tasksDueLater = flowableTaskService.listOpenTasksDueLater()
+
+            then(
+                """
+                the tasks due now are due before the start of tomorrow in Europe/Amsterdam,
+                and the tasks due later are due from the start of tomorrow in Europe/Amsterdam
+                """
+            ) {
+                val startOfTomorrow = ZacTime.startOfDay(ZacTime.today().plusDays(1)).toInstant()
+                tasksDueNow shouldBe tasks
+                tasksDueLater shouldBe tasks
+                dueBefore.captured.toInstant() shouldBe startOfTomorrow
+                dueAfter.captured.toInstant() shouldBe startOfTomorrow.minusSeconds(1)
+            }
+        }
     }
 
     given("An open task") {

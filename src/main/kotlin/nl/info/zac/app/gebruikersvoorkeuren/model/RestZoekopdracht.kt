@@ -8,10 +8,10 @@ import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.gebruikersvoorkeuren.model.Werklijst
 import nl.info.zac.gebruikersvoorkeuren.model.Zoekopdracht
+import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
-import java.time.ZonedDateTime
 
 @NoArgConstructor
 @AllOpen
@@ -42,6 +42,6 @@ fun RestZoekopdracht.toZoekopdracht(loggedInUser: LoggedInUser) =
         medewerkerID = loggedInUser.username
         naam = this@toZoekopdracht.naam
         isActief = this@toZoekopdracht.isActief
-        creatiedatum = ZonedDateTime.now()
+        creatiedatum = ZacTime.now()
         json = this@toZoekopdracht.json
     }
