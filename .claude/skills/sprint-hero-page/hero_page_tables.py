@@ -428,7 +428,13 @@ def latest():
     if not credentials:
         raise HeroPageError('searching needs an API token; ask the user for the link of the sprint hero page')
     query = urllib.parse.urlencode({'cql': f'space = {SPACE} and type = page and title ~ "Hero"', 'limit': 200})
-    results = _request('GET', f'/wiki/rest/api/content/search?{query}', credentials)['results']
+    results = []
+    path = f'/wiki/rest/api/content/search?{query}'
+    while path:
+        response = _request('GET', path, credentials)
+        results += response['results']
+        next_path = response.get('_links', {}).get('next')
+        path = f'/wiki{next_path}' if next_path else None
     sprints = []
     for result in results:
         match = re.fullmatch(r'Sprint (\d+) - Hero', result['title'].strip())
