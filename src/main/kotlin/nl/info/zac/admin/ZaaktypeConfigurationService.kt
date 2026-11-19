@@ -8,6 +8,9 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.stats.CacheStats
 import jakarta.enterprise.context.ApplicationScoped
+import jakarta.enterprise.event.Event
+import jakarta.enterprise.event.Observes
+import jakarta.enterprise.event.TransactionPhase
 import jakarta.inject.Inject
 import nl.info.client.zgw.shared.cache.Caching
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
@@ -30,7 +33,8 @@ import java.util.logging.Logger
 @AllOpen
 @Suppress("TooManyFunctions")
 class ZaaktypeConfigurationService @Inject constructor(
-    private val zaaktypeConfigurationRepository: ZaaktypeConfigurationRepository
+    private val zaaktypeConfigurationRepository: ZaaktypeConfigurationRepository,
+    private val cacheEvictionEvent: Event<ZaaktypeConfigurationCacheEvictionEvent>
 ) : Caching {
     companion object {
         const val INADMISSIBLE_TERMINATION_ID = "ZAAK_NIET_ONTVANKELIJK"
@@ -102,9 +106,20 @@ class ZaaktypeConfigurationService @Inject constructor(
 
     fun isSmartDocumentsEnabled(zaaktypeUuid: UUID): Boolean = findConfiguration(zaaktypeUuid)?.isSmartDocumentsEnabled ?: false
 
+    /** Clears now for reads later in this transaction, and again after it, as a read before the commit may re-cache the old row. */
     fun evict(zaaktypeUuid: UUID) {
+        clear(zaaktypeUuid)
+        cacheEvictionEvent.fire(ZaaktypeConfigurationCacheEvictionEvent(zaaktypeUuid))
+    }
+
+    fun onCacheEviction(
+        @Observes(during = TransactionPhase.AFTER_COMPLETION)
+        zaaktypeConfigurationCacheEvictionEvent: ZaaktypeConfigurationCacheEvictionEvent
+    ) = clear(zaaktypeConfigurationCacheEvictionEvent.zaaktypeUuid)
+
+    private fun clear(zaaktypeUuid: UUID) {
         uuidToConfigurationCache.invalidate(zaaktypeUuid)
-        deadlineWarningWindowsCache.invalidateAll()
+        deadlineWarningWindowsCache.invalidate(Caching.ZAC_ZAAKTYPECMMNCONFIGURATION)
     }
 
     fun clearManagedCache(): String {
@@ -113,7 +128,7 @@ class ZaaktypeConfigurationService @Inject constructor(
     }
 
     fun clearListCache(): String {
-        deadlineWarningWindowsCache.invalidateAll()
+        deadlineWarningWindowsCache.invalidate(Caching.ZAC_ZAAKTYPECMMNCONFIGURATION)
         return cleared(Caching.ZAC_ZAAKTYPECMMNCONFIGURATION)
     }
 
