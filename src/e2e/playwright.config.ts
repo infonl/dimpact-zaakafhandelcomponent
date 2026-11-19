@@ -22,7 +22,13 @@ export default defineConfig({
   timeout: 120_000,
   expect: { timeout: 10_000 },
   reporter: ENV.runsInCi
-    ? [["html", { open: "never" }], ["github"], ["list"]]
+    ? [
+        ["html", { open: "never" }],
+        ["github"],
+        ["list"],
+        // scripts/github/comment-e2e-result.sh lists the failed scenarios of this report on the pull request
+        ["json", { outputFile: "reports/results.json" }],
+      ]
     : [["html", { open: "never" }], ["list"]],
   use: {
     ...devices["Desktop Chrome"],

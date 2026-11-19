@@ -212,8 +212,12 @@ tests, generate the spec first, also after a change in the REST API:
 cd src/e2e && npm run typecheck
 ```
 
-The [Playwright Tests on kind](../../.github/workflows/run-e2e-on-kind.yml) workflow runs the same tests in the
-pipeline, for pull requests that change the e2e tests or the kind stack.
+The `e2e-tests` job of the build workflow runs the same tests in the pipeline for every pull request, next to the
+integration tests, with the [Playwright Tests on kind](../../.github/workflows/run-e2e-on-kind.yml) workflow. It
+builds the ZAC image of the pull request when ZAC changes, and uses the latest image when only the e2e tests or the
+kind stack change. The job is not a required check yet. When it fails, it adds a comment with the failed scenarios to
+the pull request, and it updates that comment when the tests pass again. To test another image, start the workflow
+by hand with that image.
 
 ### Using the right selectors in the e2e tests
 
