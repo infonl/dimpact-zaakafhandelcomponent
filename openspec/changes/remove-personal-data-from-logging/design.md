@@ -27,9 +27,11 @@ Relevant current code:
   exception message, which `generateResponse` both returns to the client and logs at `FINE`.
 - `UserPrincipalFilter` logs the username at `INFO` once per session. `WebSocketServerEndPoint` stores the username in
   the websocket session property `LOGGED_IN_USER_SESSION_ATTRIBUTE` and logs it per event.
-- `assertPolicy(policy, logger, message)` is called with the username in the message by `ExtendZaakDelegate`,
-  `ResumeZaakDelegate`, `SendEmailDelegate`, `SuspendZaakDelegate` and `UpdateZaakAssignmentDelegate`. The story
-  mentions six call sites; the current code has five.
+- `assertPolicy(policy, logger, message)` is called with the username in the message by six delegates, as the story
+  says: `ExtendZaakDelegate`, `ResumeZaakDelegate`, `SendEmailDelegate`, `SuspendZaakDelegate`,
+  `UpdateZaakAssignmentDelegate` and `UpdateZaakJavaDelegate`. `SignDocumentDelegate` also calls `assertPolicy`, but
+  without a user. The second call in `ResumeZaakDelegate` ("is not suspended") checks the state of the zaak, not a
+  policy.
 - `ProductaanvraagZaakService` logs the `behandelaarId` (a username from the productaanvraag) at `INFO`.
 - `LoggedInUser` has the username (`preferred_username`), not the Keycloak user ID (`sub`).
 - `kotlin-reflect` is not a dependency.
@@ -69,7 +71,8 @@ follow-up story (decision 12).
 - Log shipping changes. The JUL handlers and the JSON formatter of WildFly stay as they are.
 - Logging of exceptions thrown by third-party libraries or by WildFly itself.
 - KVK numbers and vestigingsnummers (marked "suspected" in the audit). They are not part of this story and stay in the
-  log lines and in the URLs that `JsonLoggingFilter` logs. The finding stays open in `logging.md`.
+  log lines. `JsonLoggingFilter` no longer logs paths, so KVK numbers in URLs are gone. The finding stays open in
+  `logging.md`.
 - Free text in exception messages and stack traces, of ZAC and of libraries. The WildFly masking filter masks BSNs and
   IBANs in them; the ADR names this as a known limitation, and a follow-up ticket covers an audit of exception messages.
 - Changes to the REST API: the error response of a `ZgwValidationErrorException` keeps the `reason` texts.
@@ -81,7 +84,12 @@ follow-up story (decision 12).
 ```kotlin
 abstract class LogEvent(val description: String)
 
-class MailSent(@Redacted val recipient: String, val subject: String) : LogEvent("Mail sent")
+class MailSendCompleted(
+    val zaakUuid: UUID?,
+    @Redacted val recipient: String,
+    val outcome: Outcome,
+    val durationMs: Long
+) : LogEvent("Mail send completed")
 ```
 
 Each event is a small class with typed fields and a description passed as a literal in the class header. Events live
@@ -104,14 +112,22 @@ known limitation.
 MDC entry. The WildFly JSON formatter writes the MDC as a JSON object, so a record looks like:
 
 ```json
-{"level":"FINE","loggerName":"nl.info.zac.mail.MailService","message":"Mail sent",
- "mdc":{"event":"MailSent","recipient":"*****","subject":"Uw aanvraag","zaakUuid":"…","traceId":"…","spanId":"…"}}
+{"level":"FINE","loggerName":"nl.info.zac.mail.MailService","message":"Mail send completed",
+ "mdc":{"event":"MailSendCompleted","zaakUuid":"…","recipient":"*****","outcome":"SUCCESS","durationMs":"84",
+        "traceId":"…","spanId":"…"}}
 ```
 
 `ZacLogger` puts the entries in the MDC (`org.jboss.logging.MDC`, which WildFly gives every deployment and which writes
 to the MDC of the JBoss LogManager) right before the JUL call and restores the previous MDC in a `finally` right
 after, so no entry leaks to another log record on the same thread. Besides the event fields it always writes `event`
 (the simple class name of the event) and, when a throwable is passed, `errorType` (the class name of the throwable).
+
+`ZacLogger` renders all fields of the event, including the resolution of `Employee` fields (decision 6), into a map
+before it puts anything into the MDC. Resolving an employee can write a log record of its own (`IdentityService` logs
+through `ZacLogger`); that inner record is then written while the MDC still holds only the entries of the caller, and
+it restores them itself. A thread-local guard makes an `Employee` that is rendered during an employee lookup render as
+`unknown` without a new lookup, so a lookup never starts another lookup. A unit test logs an event whose employee
+lookup logs an event, and checks that neither record holds a field of the other.
 
 `LogEventRenderer` reads the fields with Java reflection (`javaClass.declaredFields`, skipping synthetic fields and the
 fields of `LogEvent`), so no `kotlin-reflect` dependency is needed. Values are written as strings: a collection as
@@ -124,7 +140,9 @@ tests and for log handlers without a JSON formatter, such as a local WildFly `se
 
 `PersonalDataMaskingLogFilter` (ADR-0011) masks BSNs and IBANs in the message and exceptions only. It is extended to
 mask the MDC values of a record as well (`ExtLogRecord.getMdcCopy`/`setMdc`), so that the safety net also covers the
-fields. The decision of ADR-0011 does not change; only its coverage grows.
+fields. When masking fails, `withholdContent` today clears the message, the parameters and the throwable; it is
+extended to clear the MDC of the record too, so that a failed masking never writes an original field value. The
+decision of ADR-0011 does not change; only its coverage grows.
 
 - Alternative: the fields in the message text, `<description> [name=value, ...]`. It needs no MDC and no filter
   change, but logs stay text to search in, and the follow-up story for wide events would change the format a second
@@ -218,7 +236,10 @@ Detekt's built-in `ForbiddenImport` rule for the same logging packages, and `For
 
 `assertPolicy(policy: Boolean, logger: ZacLogger, event: LogEvent)` logs the event at `INFO` before it throws. The
 event is built eagerly, which costs one small object per call; that is negligible next to the OPA call before it.
-`PolicyDenied(action: String, zaakIdentificatie: String?, employee: Employee)` is the event for the five delegates.
+`PolicyDenied(action: String, zaakIdentificatie: String?, employee: Employee)` is the event for the six delegates that
+name the user. `SignDocumentDelegate` logs `DocumentSigningDenied(informatieobjectIdentificatie, zaakIdentificatie)`,
+without an employee, as today. The state check in `ResumeZaakDelegate` logs `ZaakNotSuspended(zaakIdentificatie)`; it
+keeps using `assertPolicy`, because it throws the same `PolicyException` today.
 
 ### 6. Employees are logged as the Keycloak user ID, resolved once per employee in a central place
 
@@ -255,12 +276,20 @@ companion object {
   companion objects outside CDI and must not depend on `IdentityService` (which itself logs through `ZacLogger`), so it
   receives the lookup as a function. Before that (very early startup logging) an unregistered `Employee` is written as
   `unknown`.
-- A failed or empty lookup is not stored, so a later log line tries again. It never throws to the caller: the log
-  line is written with `unknown`, and the business operation (such as assigning a zaak) never depends on it.
+- A failed or empty lookup is stored as a miss for 5 minutes. During that time an `Employee` for that username is
+  written as `unknown` without a new lookup; after it the next log line tries again. So during a Keycloak outage ZAC
+  calls Keycloak at most once per employee per 5 minutes, not once per log line. A lookup never throws to the caller:
+  the log line is written with `unknown`, and the business operation (such as assigning a zaak) never depends on it.
+- The lookup runs on the calling thread, so its latency must be bounded. The Keycloak admin client
+  (`KeycloakEmployeesAdminClientConfiguration`) has no connect or read timeout today, so a Keycloak that does not
+  answer would hold the business thread without limit. It gets a connect and a read timeout of 2 seconds. That bound
+  also applies to the other Keycloak admin calls of ZAC (reading users and groups), which today can hang just as
+  long; this is accepted as an improvement.
 
-`LoggedInUser` also gets a `keycloakUserId: String?` field, filled from `sub`. `WebSocketServerEndPoint` uses its session property
-`LOGGED_IN_USER_SESSION_ATTRIBUTE` only for logging (`WebSocketServerEndPoint.kt:85`), so it logs an `Employee` field
-for that username directly.
+`LoggedInUser` does not change: `UserPrincipalFilter` passes the `sub` claim straight to
+`ZacLogger.registerEmployee`, and nothing else needs the Keycloak user ID. `WebSocketServerEndPoint` uses its session
+property `LOGGED_IN_USER_SESSION_ATTRIBUTE` only for logging (`WebSocketServerEndPoint.kt:85`), so it logs an
+`Employee` field for that username directly.
 
 The map has no eviction. A ZAC instance has a bounded number of employees (at most thousands), and a username keeps its
 Keycloak user ID. When an account is deleted and recreated with the same username, the old ID stays in the map until
@@ -279,27 +308,47 @@ ZAC restarts; that only affects log correlation.
 
 The request filter stores the start time and a correlation ID as properties of the `ClientRequestContext`; it logs
 nothing. The response filter logs one record at `FINE`:
-`OutboundRestCall(correlationId, method, url, status, outcome, durationMs)`. The correlation ID is the `spanId` of the
-current span when tracing is enabled, and a random UUID otherwise. The URL is `scheme://host[:port]/path` without query
-string or fragment. `outcome` is `SUCCESS` for a 2xx or 3xx status and `FAILURE` otherwise. The masking of `geboorte`
-fields and the payload buffering are removed. The class keeps its name and its logger name, so existing log level
-configurations keep working.
+`OutboundRestCall(correlationId, method, host, operation, status, outcome, durationMs)`. The correlation ID is the
+`spanId` of the current span when tracing is enabled, and a random UUID otherwise. `outcome` is `SUCCESS` for a 2xx or
+3xx status and `FAILURE` otherwise. The masking of `geboorte` fields and the payload buffering are removed. The class
+keeps its name and its logger name, so existing log level configurations keep working.
+
+The record has no path. Acceptance criterion 1 asks for "only a non-traceable correlation ID", and a path can hold an
+identifier that leads to a person: the BAG `nummeraanduidingIdentificatie` (`AdresApi.bevraagAdressenMetNumId`) leads
+to an address, and the KVK number of an eenmanszaak is personal data. Instead, `operation` is the invoked client
+method as `<interface>.<method>`, such as `PersonenApi.personen`. Every REST client of ZAC is a MicroProfile Rest
+Client, which puts that method in the request property `org.eclipse.microprofile.rest.client.invokedMethod`. A
+request without that property (a plain JAX-RS client) is logged with its host and without `operation`. The method,
+host and operation hold no personal data, and tell more for troubleshooting than a path full of identifiers.
 
 A call that fails before a response (connection refused, timeout) reaches no response filter and gets no record from
-`JsonLoggingFilter`; the caller logs or maps that failure, as today.
+`JsonLoggingFilter`. Today the request filter writes the URL before such a call; that record is lost. A filter cannot
+see a failure without a response, so the caller logs or maps that failure, as today (`RestExceptionMapper` maps a
+`ProcessingException`). The spec therefore requires a record only for a call that gets a response.
 
 ADR-0011 stays valid: its rule that `JsonLoggingFilter` masks `geboorte` fields in the payloads it logs is now
 trivially true, because it logs no payloads. `LoggingTest` (itest) now expects the masked BSN `******896` in the
 logged BRP payload; it is rewritten: with `FINE` enabled, a BRP lookup by BSN logs one `OutboundRestCall` record with
-method, URL, status and duration, and the logs contain neither the BSN (plain or masked) nor the date of birth.
+method, host, operation, status and duration, and the logs contain neither the BSN (plain or masked) nor the date of
+birth.
 
 ### 8. Specific fixes
 
-- `MailService.sendMail` logs `MailSent(@Redacted recipient, subject)`. This is the example that proves the masking.
-- `SendEmailDelegate` and `SendConfirmationEmailDelegate` log `MailSendingStarted(zaakIdentificatie, templateName)`
-  without addresses. The addresses are removed, not masked: they add nothing to the zaak identification for
-  diagnosing a task, as acceptance criterion 6 and the technical background of PZ-12683 state. Acceptance criterion 3
-  asks for the address as a `@Redacted` field in these two delegates; the product owner chose removal for both.
+- `MailService.sendMail` logs one `MailSendCompleted(zaakUuid, @Redacted recipient, outcome, durationMs)` record per
+  mail, instead of a `FINE` record on success and a separate `SEVERE` record on failure. `durationMs` is the duration
+  of `Transport.send`. On success it is written at `FINE` with `outcome=SUCCESS`; on a `MessagingException` at
+  `SEVERE` with `outcome=FAILURE` and the exception, as today. This is the example that proves the masking. The
+  subject is not logged: it is resolved from the mail template variables or typed by the employee, so it can hold
+  the name or address of a citizen or the name of an employee (`MailTemplateHelper`).
+- `SendEmailDelegate` logs `ZaakMailSending(zaakIdentificatie, templateName)` right before it sends the mail.
+  `SendConfirmationEmailDelegate` logs one `ConfirmationMailSending(zaakIdentificatie, templateName, emailSource)`
+  record per execution, with `emailSource` `ZAAK_CONTACT_DETAILS`, `INITIATOR` or `NONE`, instead of up to three `FINE`
+  records ("using zaak-specific contact details", "using initiator email", "skipping", "sending"). With `NONE` it is
+  the only record and no mail is sent. The delegates log no `outcome`: the result of sending is the
+  `MailSendCompleted` record of `MailService`. The addresses are removed, not masked: they add nothing to the zaak
+  identification for diagnosing a task, as acceptance criterion 6 and the technical background of PZ-12683 state.
+  Acceptance criterion 3 asks for the address as a `@Redacted` field in these two delegates; the product owner chose
+  removal for both.
 - `UpdateZaakAssignmentDelegate` logs `ZaakAssignmentUpdating(zaakIdentificatie, groupId, assignee: Employee?)`
   without the reason.
 - `ProductaanvraagZaakService` logs `ZaakAssigning(zaakUuid, groupId, behandelaar: Employee?)`.
@@ -307,16 +356,16 @@ method, URL, status and duration, and the logs contain neither the BSN (plain or
 - `NotificationReceiver` logs the channel, the main resource URL, the resource, the resource URL, the action and the
   creation date of a notification, and not its `kenmerken`.
 - `RestExceptionMapper` separates the response message from the log event: the response keeps the joined reasons, and
-  the log event `ZgwValidationFailed(errorCode, invalidParams: List<"name:code">)` has no reasons.
+  the log event `ZgwValidationFailed(errorCode, invalidParams: List<"name:code">)` has no reasons. The event is
+  logged without the `ZgwValidationErrorException`, because the message of that exception holds the reasons, and its
+  stack trace adds nothing for a 400 response of a ZGW API. Clean fields alone would not keep the reasons out of the
+  record.
 - `MailTemplateHelper` no longer logs the `geboorte` of an initiator without a name; it logs that the name is missing
   and the role UUID.
 - `UserPrincipalFilter` calls `ZacLogger.registerEmployee` first, then logs one `UserLoggedIn(employee, groupIds,
   roles, ..., previousSessionEmployee: Employee?)` record. When the session of another user was invalidated first, the
   previous employee is a field of that record instead of a separate `SessionInvalidated` record. The user principal
   name is not logged.
-- `SendConfirmationEmailDelegate` logs one record per execution, `ConfirmationMailSent(zaakIdentificatie,
-  emailSource, outcome)` with `emailSource` `ZAAK_CONTACT_DETAILS`, `INITIATOR` or `NONE`, instead of up to four `FINE`
-  records ("using zaak-specific contact details", "using initiator email", "skipping", "sending").
 
 ### 9. Migration of the other log statements
 
@@ -345,7 +394,8 @@ package, and the ArchUnit rule last, once it passes.
 
 ### 10. Event names and ADR status
 
-Event classes are named after what happened, without an `Event` suffix (`MailSent`, `UserLoggedIn`, `PolicyDenied`).
+Event classes are named after what happened, without an `Event` suffix (`MailSendCompleted`, `UserLoggedIn`,
+`PolicyDenied`).
 The new ADR goes into PR 1 with status `proposed`, so that the team accepts it in the review; it is set to `accepted`
 after the merge.
 
@@ -383,6 +433,8 @@ this change writes that ticket.
   has its fields under `mdc`; the fallback is an `ExtLogRecord` with its own MDC (decision 2).
 - [Personal data in an MDC field passes the WildFly safety net] → `PersonalDataMaskingLogFilter` masks MDC values too,
   with a unit test and the itest.
+- [`JsonLoggingFilter` no longer logs the path of a call, nor any record for a call without a response] → The
+  operation names the endpoint, and the caller still logs or maps a connection failure.
 - [Merging records hides an intermediate step that was useful] → Each choice that was a separate record becomes a
   field (such as `emailSource`), so the information stays.
 - [About 300 call sites change in one go] → Migrate per package with the unit tests of that package green before the
@@ -391,8 +443,13 @@ this change writes that ticket.
   `logging.md` state the rule. This is the remaining hole of the type-safe approach.
 - [A developer forgets `@Redacted` on a personal-data field] → The WildFly masking filter still masks BSNs and IBANs.
   The ADR and `logging.md` list the field types that need `@Redacted`.
-- [The Keycloak lookup for an employee who is not logged in fails or is slow] → It runs at most once per employee per
-  ZAC instance, only when the log line is written, never throws, and only affects the log line (`unknown`).
+- [The Keycloak lookup for an employee who is not logged in fails or is slow] → It runs only when the log line is
+  written, takes at most about 2 seconds (the timeouts of the admin client), never throws, and only affects the log
+  line (`unknown`). A found ID is looked up once per employee per ZAC instance; a miss is retried at most once per 5
+  minutes per employee.
+- [The 2 second timeouts on the Keycloak admin client also apply to its other calls] → Those calls had no bound at
+  all; Keycloak answers them well within 2 seconds in normal operation. The timeouts are constants that a later
+  change can make configurable when needed.
 - [`ZacLogger` holds a stale ID after an account is recreated with the same username] → Only log correlation is
   affected, until ZAC restarts.
 - [Field order from Java reflection] → Tested. Only the order in the log line would change.

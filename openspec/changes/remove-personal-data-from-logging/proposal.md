@@ -29,23 +29,25 @@ known findings and makes free-text logging impossible in the backend.
   (JUL `Logger`, SLF4J, JBoss Logging, Log4j, Commons Logging, kotlin-logging, `System.Logger`), print to
   `System.out`/`System.err` or call `printStackTrace()`. Detekt rules report the same errors in the IDE.
 - Fix the findings of the audit:
-  - `JsonLoggingFilter` no longer logs headers, query strings or payloads. Per outbound call it logs one record with a
-    correlation ID (the span ID when tracing is enabled), the HTTP method, the host and path, the status, the outcome
-    and the duration.
+  - `JsonLoggingFilter` no longer logs paths, headers, query strings or payloads. Per outbound call with a response it
+    logs one record with a correlation ID (the span ID when tracing is enabled), the HTTP method, the host, the
+    invoked client operation (such as `PersonenApi.personen`), the status, the outcome and the duration.
   - `MailService`, `SendEmailDelegate` and `SendConfirmationEmailDelegate` no longer log recipient or sender email
-    addresses or names. `MailService` logs the recipient as a `@Redacted` field of a `MailSent` event.
+    addresses or names, nor the mail subject. `MailService` logs one `MailSendCompleted` record per mail, with the
+    recipient as a `@Redacted` field, the outcome and the duration.
   - `UpdateZaakAssignmentDelegate` no longer logs the free-text assignment reason.
   - `RestExceptionMapper` no longer logs the rejected values of a `ZgwValidationErrorException`. It logs only the
-    validation error code and the names of the invalid parameters.
+    validation error code and the names of the invalid parameters, without the exception, whose message holds the
+    reasons.
   - Employee identities are logged as the Keycloak user ID (the `sub` claim) instead of a username, name or email
-    address, in `UserPrincipalFilter`, `WebSocketServerEndPoint`, the five `assertPolicy` call sites that name the
+    address, in `UserPrincipalFilter`, `WebSocketServerEndPoint`, the six `assertPolicy` call sites that name the
     user, `ProductaanvraagZaakService` and the other places the migration finds. A log event holds an `Employee`
     field; `ZacLogger` itself resolves its Keycloak user ID once per employee: from the token when the employee logs
     in, or with one Keycloak call for an employee who is not logged in. Log lines never trigger a lookup of their own.
   - `MailTemplateHelper` no longer logs an initiator's date or place of birth.
   - `NotificationReceiver` no longer logs the `kenmerken` of a notification.
-- `LoggedInUser` gets the Keycloak user ID of the logged-in user.
-- Extend the WildFly masking filter (ADR-0011) to mask BSNs and IBANs in the fields of a record too.
+- Extend the WildFly masking filter (ADR-0011) to mask BSNs and IBANs in the fields of a record too, and to withhold
+  the fields when masking fails.
 - Update `docs/development/logging.md`: describe `ZacLogger` as the only way to log, and mark every finding fixed by this
   change as resolved.
 - Add an ADR for type-safe logging through `ZacLogger`.
@@ -76,7 +78,9 @@ keeps the content of those log lines.
   under `mdc` in the JSON record. Some operations log one record instead of several. Operators who search the logs for
   exact old messages need the new texts and field names. Log levels stay the same.
 - At most one extra Keycloak call per employee per ZAC instance, for employees who are logged but have not logged in
-  on that instance (for example the behandelaar of a productaanvraag).
+  on that instance (for example the behandelaar of a productaanvraag). When Keycloak does not know the employee or
+  cannot be reached, at most one call per employee per 5 minutes.
+- The Keycloak admin client gets a connect and a read timeout of 2 seconds, for all its calls.
 - No REST API, database or frontend changes. `scripts/test-data` does not change.
 - New ADR in `docs/solution-architecture/decisions`. ADR-0011 stays valid. Its masking of `geboorte` fields in
   `JsonLoggingFilter` no longer applies, because the filter no longer logs payloads.
