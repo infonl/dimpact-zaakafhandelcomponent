@@ -17,7 +17,8 @@ Only the allowedVersions of the Docker images and Helm charts below count: image
 PodiumD values.yaml, charts against the chart versions in the PodiumD Chart.yaml. Open Archiefbeheer, the Bitnami
 Redis chart (PodiumD uses redis-operator instead) and other rules are never changed. A cap only goes up, in the style of the other caps: `< X.<Y+1>.0` for PodiumD version
 X.Y.Z, so the PodiumD version and its patches are allowed and the next minor is not. A cap that already allows the
-PodiumD version stays as it is. Needs `gh`, logged in with push access to both repos.
+PodiumD version stays as it is, and so does a cap whose PodiumD version is no plain X.Y.Z release, such as a
+prerelease. Needs `gh`, logged in with push access to both repos.
 """
 
 from __future__ import annotations
@@ -57,6 +58,22 @@ CHARTS = {
 
 class RenovateCapsError(Exception):
     pass
+
+
+class UnsupportedVersion:
+    """A PodiumD tag or chart version that is not a plain X.Y.Z release, such as a prerelease."""
+
+    def __init__(self, tag):
+        self.tag = tag
+
+    def __str__(self):
+        return self.tag
+
+
+def release_version(tag):
+    """'X.Y.Z' of a release tag ('X.Y.Z', 'vX.Y.Z', optionally with '@sha256:...'); UnsupportedVersion otherwise."""
+    match = re.fullmatch(r'v?(\d+\.\d+\.\d+)(?:@sha256:[0-9a-f]+)?', tag)
+    return match.group(1) if match else UnsupportedVersion(tag)
 
 
 # ---------------------------------------------------------------- GitHub
@@ -102,9 +119,9 @@ def chart_dependencies(chart_yaml):
         if name:
             current = name.group(1)
             continue
-        version = re.match(r'^\s+version:\s*["\']?(\d+\.\d+\.\d+)', line)
+        version = re.match(r'^\s+version:\s*["\']?([^"\'#\s]+)', line)
         if version and current and current not in dependencies:
-            dependencies[current] = version.group(1)
+            dependencies[current] = release_version(version.group(1))
     return dependencies
 
 
@@ -153,9 +170,7 @@ def podiumd_version(values, path, required_repository):
         return None
     if required_repository and required_repository not in block.get('repository', ''):
         return None
-    tag = re.sub(r'^&\S+\s+', '', block['tag']).strip('"\'')
-    match = re.match(r'v?(\d+\.\d+\.\d+)', tag)
-    return match.group(1) if match else None
+    return release_version(re.sub(r'^&\S+\s+', '', block['tag']).strip('"\''))
 
 
 # ---------------------------------------------------------------- caps
@@ -197,6 +212,9 @@ def plan_repo(text, versions):
         old = rule['allowedVersions']
         if version is None:
             unchanged.append((name, old, 'not in this PodiumD release'))
+            continue
+        if isinstance(version, UnsupportedVersion):
+            unchanged.append((name, old, f'PodiumD has {version}, which is no X.Y.Z release'))
             continue
         allowed = allows(old, version)
         if allowed is None:

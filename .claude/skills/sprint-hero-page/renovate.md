@@ -22,7 +22,7 @@ per repo, so both repos stay aligned.
   tag in its `values.yaml`, for a chart the dependency version in its `Chart.yaml`. The new cap keeps
   the style of the other caps: `< X.<Y+1>.0` for PodiumD version X.Y.Z (PodiumD 4.3.0 gives `< 4.4.0`), so that
   version and its patches are allowed and the next minor is not. A cap only goes up; one that already allows the
-  PodiumD version stays.
+  PodiumD version stays, and so does one whose PodiumD version is no plain `X.Y.Z` release, such as a prerelease.
 
 ## Steps
 
