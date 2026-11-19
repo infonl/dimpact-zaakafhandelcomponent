@@ -70,23 +70,28 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
      * Indicates whether a beheerder may bind the configuration to another process definition, of either engine:
      * until the first zaak of its zaaktype version exists, no zaak depends on its binding.
      */
-    fun isProcessDefinitionChangeable(zaaktypeConfiguration: ZaaktypeConfiguration): Boolean =
-        zaaktypeConfiguration.processBinding == null || !hasZaken(zaaktypeConfiguration.zaaktypeUuid)
+    fun isProcessDefinitionChangeable(zaaktypeConfiguration: ZaaktypeConfiguration) =
+        isProcessDefinitionChangeable(isBound = zaaktypeConfiguration.processBinding != null) {
+            hasZaken(zaaktypeConfiguration.zaaktypeUuid)
+        }
 
     /**
      * Rejects binding the configuration of the zaaktype version to another engine or process definition when its
-     * zaaktype version [hasZaken]. The caller asks Open Zaak for [hasZaken], so that a save asks only once.
+     * zaaktype version [hasZaken].
      * Also rejects a new binding to a BPMN process definition that is not active: the first zaak would be created in
      * Open Zaak before its process fails to start, and that zaak would lock the binding.
+     *
+     * @return whether the process definition stays changeable once the configuration is bound to it
      */
-    fun checkProcessBinding(
+    fun checkProcessBindingAndReadChangeability(
         zaaktypeUuid: UUID,
         processEngine: ProcessEngine,
-        definitionKey: String,
-        hasZaken: Boolean
-    ) {
+        definitionKey: String
+    ): Boolean {
+        val hasZaken = hasZaken(zaaktypeUuid)
+        val isProcessDefinitionStillChangeable = isProcessDefinitionChangeable(isBound = true) { hasZaken }
         val binding = findConfiguration(zaaktypeUuid)?.processBinding
-        if (binding?.isBoundTo(processEngine, definitionKey) == true) return
+        if (binding?.isBoundTo(processEngine, definitionKey) == true) return isProcessDefinitionStillChangeable
         if (binding != null && hasZaken) {
             throw InputValidationFailedException(
                 errorCode = ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE,
@@ -103,7 +108,10 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
                     "'$definitionKey', because it has no active version"
             )
         }
+        return isProcessDefinitionStillChangeable
     }
+
+    private fun isProcessDefinitionChangeable(isBound: Boolean, hasZaken: () -> Boolean) = !isBound || !hasZaken()
 
     fun hasZaken(zaaktypeUuid: UUID): Boolean =
         zrcClientService.listZakenUuids(
