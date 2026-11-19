@@ -64,6 +64,9 @@ VERSION_DISTANCE_COLOURS = {
     'aligned': '#57d9a3',
 }
 
+# Labels of a prerelease, such as '1.2.3-rc.1' or '37.0.0.Beta1'; a build number or '.Final' is no prerelease.
+PRERELEASE = re.compile(r'[-.](?:alpha|beta|rc|cr|preview|pre|snapshot|dev|milestone)\d*(?:\b|[.-])', re.I)
+
 CELL = re.compile(r'<(td|th)\b([^>]*?)(?:/>|>(.*?)</\1>)', re.S)
 
 
@@ -228,7 +231,12 @@ def _numbers(version):
 
 
 def version_distance(ours, latest):
-    """'aligned', 'patch', 'minor', 'major' or 'ahead'; None when a version has no numbers."""
+    """
+    'aligned', 'patch', 'minor', 'major' or 'ahead'; 'prerelease' when a version is a prerelease, which numbers alone
+    cannot order; None when a version has no numbers.
+    """
+    if PRERELEASE.search(ours) or PRERELEASE.search(latest):
+        return 'prerelease'
     ours_numbers = _numbers(ours)
     if not ours_numbers:
         return None
@@ -279,6 +287,8 @@ def _set_date(inner, date):
     empty_paragraph = re.fullmatch(r'\s*<p\b([^>]*?)\s*/>\s*', inner or '')
     if empty_paragraph:
         return f'<p{empty_paragraph.group(1)}><time datetime="{date}" /></p>'
+    if inner is None or not inner.strip():
+        return f'<p><time datetime="{date}" /></p>'
     raise HeroPageError(f'cannot place a date in this Last Checked cell: {_text(inner)}')
 
 
@@ -286,6 +296,11 @@ def _set_colour(attributes, colour):
     if 'data-highlight-colour="' in attributes:
         return re.sub(r'data-highlight-colour="[^"]*"', f'data-highlight-colour="{colour}"', attributes, count=1)
     return f' data-highlight-colour="{colour}"{attributes}'
+
+
+def _row_span(attributes):
+    match = re.search(r'\browspan="(\d+)"', attributes)
+    return int(match.group(1)) if match else 1
 
 
 def _cell_html(cell, attributes, inner):
@@ -341,6 +356,10 @@ def plan_changes(page, values, today):
                 elif distance == 'ahead':
                     warnings.append(f'{table_name} / {row_name}: {OUR_VERSION} {final_values[OUR_VERSION]} is higher '
                                     f'than {latest_column} {final_values[latest_column]}; colour left as it is')
+                elif distance == 'prerelease':
+                    warnings.append(f'{table_name} / {row_name}: {OUR_VERSION} {final_values[OUR_VERSION]} or '
+                                    f'{latest_column} {final_values[latest_column]} is a prerelease; colour left as it '
+                                    f'is, check it')
                 elif distance is None:
                     warnings.append(f'{table_name} / {row_name}: no version number to compare; colour left as it is')
                 elif VERSION_DISTANCE_COLOURS[distance] != cell_colour(row[OUR_VERSION]):
@@ -349,7 +368,7 @@ def plan_changes(page, values, today):
                 warnings.append(f'{table_name} / {row_name}: values changed; the colour of this table is not set '
                                 f'automatically, check it')
 
-            version_columns = [column for column in row
+            version_columns = [column for column in table['columns']
                                if column not in PROTECTED_COLUMNS and column != table['columns'][0]]
             unverified_columns = [column for column in version_columns if column not in verified_columns]
             if unverified_columns and LAST_CHECKED in row:
@@ -372,7 +391,10 @@ def plan_changes(page, values, today):
                     changed = True
                 if column == LAST_CHECKED and not unverified_columns:
                     old_date = (re.search(r'datetime="([^"]*)"', inner or '') or [None, 'none'])[1]
-                    if old_date != today:
+                    if _row_span(attributes) > 1:
+                        warnings.append(f'{table_name} / {row_name}: {LAST_CHECKED} is shared with other rows; '
+                                        f'kept at {old_date}, update it by hand')
+                    elif old_date != today:
                         inner = _set_date(inner, today)
                         changes.append((table_name, row_name, LAST_CHECKED, old_date, today))
                         changed = True
