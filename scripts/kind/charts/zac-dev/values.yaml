@@ -44,7 +44,7 @@ vngSelectielijst:
   image: openzaak/vng-selectielijst:1.0.6@sha256:80c4c4f7b73889f1d8a816b8633cc4584961b6f8e4f21b7078df26ec4010f76d
 # the nginx of the upstream charts and the container that publishes the ports on the host
 nginx:
-  image: nginx/nginx-unprivileged:1.31.7@sha256:8f61f47734a1ff4a639ac7045d63959da8d8f3089be05e18cf4c8aa165c67738
+  image: nginx/nginx-unprivileged:1.31.9@sha256:0255fc1dcc1d7b358aac20166543e52029fea577413edadb0912f5b928c7e312
 
 # -- one PostGIS server for the databases of every component
 postgres:
