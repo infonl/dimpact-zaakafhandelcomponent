@@ -119,7 +119,7 @@ class ZaaktypeConfigurationService @Inject constructor(
 
     private fun clear(zaaktypeUuid: UUID) {
         uuidToConfigurationCache.invalidate(zaaktypeUuid)
-        deadlineWarningWindowsCache.invalidateAll()
+        deadlineWarningWindowsCache.invalidate(Caching.ZAC_ZAAKTYPECMMNCONFIGURATION)
     }
 
     fun clearManagedCache(): String {
@@ -128,7 +128,7 @@ class ZaaktypeConfigurationService @Inject constructor(
     }
 
     fun clearListCache(): String {
-        deadlineWarningWindowsCache.invalidateAll()
+        deadlineWarningWindowsCache.invalidate(Caching.ZAC_ZAAKTYPECMMNCONFIGURATION)
         return cleared(Caching.ZAC_ZAAKTYPECMMNCONFIGURATION)
     }
 
