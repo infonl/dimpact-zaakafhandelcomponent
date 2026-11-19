@@ -13,7 +13,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **brp-api/personen-mock**: 2.7.0-202611131533
 - **gotenberg**: 9.7.0
 - **greenmail/standalone**: 2.1.15
-- **nginx/nginx-unprivileged**: 1.31.7
+- **nginx/nginx-unprivileged**: 1.31.9
 
 ## Common Ground components
 
