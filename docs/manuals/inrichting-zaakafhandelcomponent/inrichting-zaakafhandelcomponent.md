@@ -900,7 +900,7 @@ Klik in het overzicht op het oog icoon van het zaaktype dat je wilt inrichten
 Afhankelijk van het soort zaaktype BPMN of CMMN krijg je een aantal stappen die je moet inrichten, deze worden hier behandeld
 
 ### CMMN/BPMN
-Bij een volledig nieuw zaaktype kies je hier of het een BPMN- of CMMN-zaaktype afhandelconfiguratie moet krijgen.
+Hier kies je het procesmodel van de zaaktypeversie: een CMMN-model of een BPMN-procesdefinitie. Zolang er nog geen zaken van deze versie zijn, kun je het procesmodel nog wijzigen, zie [Procesmodel wijzigen](#procesmodel-wijzigen).
 
 ![Zaakafhandelparameters CMMN](images/zaps_cmmn.png)
 
@@ -911,6 +911,21 @@ Nadat je een keuze hebt gemaakt worden de bijbehorende tabbladen zichtbaar.
 ###### BPMN
 
 ![Zaakafhandelparameters BPMN](images/zaps_cmmn_bpmn.png)
+
+#### Procesmodel wijzigen
+Het procesmodel geldt per versie van het zaaktype. Bovenaan de stap staat daarom de geldigheid van de zaaktypeversie die je inricht. Zo zie je in stap 4 hieronder of je de nieuwe versie inricht of de huidige.
+
+Zolang er nog geen zaken van een zaaktypeversie zijn, kun je een ander procesmodel kiezen: een andere BPMN-procesdefinitie, of een wissel tussen CMMN en BPMN. Onder het keuzeveld staat dan dat het procesmodel vastligt zodra de eerste zaak van deze versie is aangemaakt. Wissel je naar CMMN, dan richt je de taken en acties van het CMMN-model opnieuw in.
+
+Zodra er een zaak van de zaaktypeversie bestaat, ligt het procesmodel vast. De stap legt dan uit dat je voor een ander procesmodel een nieuwe versie van het zaaktype nodig hebt. Wordt er een zaak aangemaakt terwijl je de inrichting nog aan het wijzigen bent, dan wordt bij het opslaan niets opgeslagen en toont de stap het vastgelegde procesmodel. Bestaande zaken lopen altijd verder met het procesmodel waarmee ze zijn gestart.
+
+Een nieuwe versie van een zaaktype neemt bij publicatie de inrichting van de vorige versie over, ook het procesmodel, en is meteen te gebruiken. Om een zaaktype met zaken een ander procesmodel te geven, voorkom je dat er zaken met het oude procesmodel worden aangemaakt voordat je het nieuwe kiest:
+
+1. Wissel je van BPMN naar CMMN, richt dan in de nieuwe versie in de zaaktypecatalogus eerst de statussen, rollen en andere onderdelen in die een CMMN-zaaktype nodig heeft. Controleer de versie na de publicatie in de [Zaaktype inrichtingscheck](#zaaktype-inrichtingscheck).
+2. Heeft het zaaktype een productaanvraagtype, stop dan vóór de publicatie de intake van productaanvragen voor dit zaaktype. ZAC maakt een zaak uit een productaanvraag aan bij de nieuwste versie van het zaaktype, ook als die nog niet geldig is, en die eerste zaak legt het procesmodel vast.
+3. Publiceer de nieuwe versie met een begin geldigheid in de toekomst. Geef de huidige versie als einde geldigheid dezelfde datum als de begin geldigheid van de nieuwe versie. ZAC biedt een versie aan tot de dag van haar einde geldigheid, dus zo blijft de huidige versie te gebruiken tot de nieuwe ingaat.
+4. Open de nieuwe versie in de zaakafhandelparameters, kies het procesmodel en sla de inrichting op.
+5. Laat de begin geldigheid ingaan en start daarna de intake van productaanvragen weer.
 
 
 ### Gegevens

@@ -6,7 +6,10 @@ The system SHALL let a beheerder choose the process definition of a zaaktype con
 SHALL offer the CMMN case definitions and the BPMN process definitions. For a bound configuration, the screen SHALL
 show its process definition and SHALL let the beheerder choose another one, of either engine, only while the backend
 allows it: while its zaaktype version has no zaken. When the screen does not let the beheerder choose another
-process definition, it SHALL explain why.
+process definition, it SHALL explain why. When it lets the beheerder choose another process definition for a bound
+configuration, it SHALL say that the process definition locks once the first zaak of the zaaktype version exists.
+The process model step SHALL name the zaaktype version it configures, so the beheerder can tell versions with the
+same omschrijving apart.
 
 #### Scenario: Unsaved configuration offers the process definitions of every engine
 - **GIVEN** a zaaktype version without a saved configuration
@@ -36,10 +39,23 @@ process definition, it SHALL explain why.
 - **THEN** the screen shows that nothing was saved because the zaaktype version already has zaken, and the process
   model step shows the stored process definition, locked, with its explanation
 
-#### Scenario: A process definition that may change has no explanation
-- **GIVEN** a configuration that is not bound, or a bound configuration whose zaaktype version has no zaken
+#### Scenario: An unbound configuration has no hint
+- **GIVEN** a configuration that is not bound
 - **WHEN** a beheerder opens the process model step
-- **THEN** the step shows no explanation about a locked process definition
+- **THEN** the step shows no hint about changing or locking the process definition
+
+#### Scenario: A bound configuration without zaken says when it locks
+- **GIVEN** a zaaktype version without zaken, whose saved configuration is bound to a CMMN case definition or a BPMN
+  process definition
+- **WHEN** a beheerder opens the process model step
+- **THEN** the step shows no explanation about a locked process definition, and says that the process definition
+  can change until the first zaak of the zaaktype version is created
+
+#### Scenario: The process model step names the zaaktype version
+- **GIVEN** a zaaktype version, with or without an einde geldigheid
+- **WHEN** a beheerder opens the process model step
+- **THEN** the step shows the omschrijving of the zaaktype and, under it, the begin geldigheid of the zaaktype version,
+  and its einde geldigheid when it has one
 
 #### Scenario: The process definition follows the backend once the configuration is saved
 - **GIVEN** a zaaktype version without a saved configuration, for which a beheerder chose a process definition

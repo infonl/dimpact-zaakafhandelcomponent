@@ -184,6 +184,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         } returns emptyList()
         every { resultaattypeReferenceService.readOmschrijving(restResultType.id) } returns "fakeNietOntvankelijk"
         every { zaakbeeindigParameterConverter.toZaaktypeCompletionParameters(any()) } returns emptyList()
+        every { processDefinitionConverter.toRestProcessDefinition(any(), true) } returns restCaseDefinition
 
         `when`("converted to DB model representation") {
             val zaaktypeCmmnConfiguration = restZaaktypeConfigurationConverter.toZaaktypeConfiguration(
@@ -344,6 +345,11 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                 zaaktypeBpmnConfiguration,
                 true
             )
+
+            then("it leaves out whether the process definition may change, so that no Open Zaak call is made") {
+                restZaakafhandelParameters.isProcessDefinitionChangeable shouldBe false
+                verify(exactly = 0) { zaaktypeConfigurationBeheerService.isProcessDefinitionChangeable(any()) }
+            }
 
             then("the created object is correct") {
                 with(restZaakafhandelParameters) {
@@ -542,6 +548,9 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                 }
             } returns emptyList()
             every {
+                processDefinitionConverter.toRestProcessDefinition(any(), true)
+            } returns createRestProcessDefinition()
+            every {
                 resultaattypeReferenceService.readOmschrijving(restZaaktypeConfig.zaakNietOntvankelijkResultaattype!!.id)
             } returns "fakeNietOntvankelijk"
             every {
@@ -587,6 +596,9 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     any<List<RestHumanTaskParameters>>().toZaaktypeCmmnHumantaskParameters()
                 }
             } returns emptyList()
+            every {
+                processDefinitionConverter.toRestProcessDefinition(any(), true)
+            } returns createRestProcessDefinition()
             every { zaakbeeindigParameterConverter.toZaaktypeCompletionParameters(emptyList()) } returns emptyList()
 
             `when`("converting REST configuration to ZaaktypeConfiguration entity") {
@@ -621,6 +633,9 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     any<List<RestHumanTaskParameters>>().toZaaktypeCmmnHumantaskParameters()
                 }
             } returns emptyList()
+            every {
+                processDefinitionConverter.toRestProcessDefinition(any(), true)
+            } returns createRestProcessDefinition()
             every { zaakbeeindigParameterConverter.toZaaktypeCompletionParameters(emptyList()) } returns emptyList()
 
             `when`("converting REST configuration to ZaaktypeConfiguration entity") {
