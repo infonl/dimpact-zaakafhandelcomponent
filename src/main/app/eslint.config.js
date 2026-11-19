@@ -17,7 +17,7 @@ const noNgDeep = {
     "Avoid ::ng-deep, Angular deprecated it. Style through a CSS custom property, a global stylesheet or the Angular Material theming API instead.",
 };
 
-// alterMoment() makes the app send dates with the local offset, so a UTC string from Date never shows what is sent.
+// serializeDatesWithLocalOffset() makes the app send dates with the local offset, so a UTC string from Date never shows what is sent.
 const noNativeDateIsoString = {
   selector:
     "CallExpression[callee.property.name='toISOString'][callee.object.type='NewExpression'][callee.object.callee.name='Date']",
@@ -33,6 +33,55 @@ const typedMatCellDefImport = {
   message:
     "Import TypedMatCellDefDirective next to MatTableModule or MatCellDef and add it to the component's imports. Without it the dataSource of *matCellDef binds to nothing and the row is typed any.",
 };
+
+// Date and time handling lives in src/app/date-time, see ADR-0015.
+const DATE_TIME_MODULE = "src/app/date-time/**";
+const dateTimeRestrictedImportPaths = [
+  {
+    name: "moment",
+    message:
+      "Handle dates in src/app/date-time and import from its index.ts, e.g. toApiDate() or fromApiDate().",
+  },
+  {
+    name: "@angular/material-moment-adapter",
+    message:
+      "Use provideZacDateAdapter() or provideFilterDateFormats() from src/app/date-time.",
+  },
+];
+const dateTimeRestrictedImportPatterns = [
+  {
+    group: ["**/date-time/*", "!**/date-time/index"],
+    message: "Import src/app/date-time through its index.ts.",
+  },
+];
+const dateTimeRestrictedSyntax = [
+  {
+    selector: "CallExpression[callee.property.name='toISOString']",
+    message:
+      "Send a date as toApiDate(value) from src/app/date-time: toISOString() turns a picked date into a UTC instant of another day.",
+  },
+  {
+    selector:
+      "CallExpression[callee.object.name='Date'][callee.property.name='parse']",
+    message: "Read a date with fromApiDate(value) from src/app/date-time.",
+  },
+];
+
+const restrictedImportPaths = [
+  {
+    name: "@angular/core",
+    importNames: ["NO_ERRORS_SCHEMA"],
+    message:
+      "Import the real dependencies instead, so the compiler catches a missing declaration.",
+  },
+  {
+    name: "@angular/core",
+    importNames: ["OnChanges", "SimpleChange", "SimpleChanges"],
+    message:
+      "React to an input with computed() or effect() instead of ngOnChanges.",
+  },
+];
+const restrictedSyntax = [noNgDeep, typedMatCellDefImport];
 
 const typeScriptLanguageOptions = {
   parserOptions: {
@@ -90,20 +139,8 @@ module.exports = defineConfig(
       "no-restricted-imports": [
         "error",
         {
-          paths: [
-            {
-              name: "@angular/core",
-              importNames: ["NO_ERRORS_SCHEMA"],
-              message:
-                "Import the real dependencies instead, so the compiler catches a missing declaration.",
-            },
-            {
-              name: "@angular/core",
-              importNames: ["OnChanges", "SimpleChange", "SimpleChanges"],
-              message:
-                "React to an input with computed() or effect() instead of ngOnChanges.",
-            },
-          ],
+          paths: [...restrictedImportPaths, ...dateTimeRestrictedImportPaths],
+          patterns: dateTimeRestrictedImportPatterns,
         },
       ],
       "no-restricted-properties": [
@@ -127,15 +164,25 @@ module.exports = defineConfig(
       ],
       "no-restricted-syntax": [
         "error",
-        noNgDeep,
-        noNativeDateIsoString,
-        typedMatCellDefImport,
+        ...restrictedSyntax,
+        ...dateTimeRestrictedSyntax,
       ],
       // Jira ticket references belong in commit messages and pull request descriptions, not in code.
       // ESLint has no rule with a custom message for comment contents, so this one reports the matched term.
       "no-warning-comments": [
         "error",
         { terms: ["pz-", "drt-"], location: "anywhere" },
+      ],
+    },
+  },
+  {
+    files: [DATE_TIME_MODULE],
+    rules: {
+      "no-restricted-imports": ["error", { paths: restrictedImportPaths }],
+      "no-restricted-syntax": [
+        "error",
+        ...restrictedSyntax,
+        noNativeDateIsoString,
       ],
     },
   },

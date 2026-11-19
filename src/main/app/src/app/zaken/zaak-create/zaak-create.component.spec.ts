@@ -1535,6 +1535,26 @@ describe(ZaakCreateComponent.name, () => {
       expect(router.navigate).not.toHaveBeenCalled();
     });
 
+    it("creates the zaak with the startdatum as a date without a time", async () => {
+      const createZaak = mockCreateZaak();
+      await renderLinked({
+        zaak: createCurrentZaak(),
+        relatieType: "GERELATEERD",
+      });
+
+      await chooseZaaktype("fakeDeelzaaktype");
+      await user.clear(screen.getByLabelText(/startdatum/i));
+      await user.type(screen.getByLabelText(/startdatum/i), "2026-01-30");
+      await fillRequiredFieldsAndSubmit();
+
+      expect(createZaak).toHaveBeenCalledWith(
+        expect.objectContaining({
+          zaak: expect.objectContaining({ startdatum: "2026-01-30" }),
+        }),
+        expect.anything(),
+      );
+    });
+
     it("creates the zaak without the initiator and says so when the zaaktype does not allow that kind of initiator", async () => {
       jest.spyOn(TestBed.inject(KlantenService), "readBedrijf").mockReturnValue(
         klantQueryOptions(

@@ -11,12 +11,29 @@ import {
   Validators,
 } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
+import { formatForDisplay, isPickedDate } from "../../date-time";
 import { toI18nKey } from "../utils/i18n-key";
+
+function toDisplayParameters(
+  parameters: ValidationErrors[string],
+  locale: string,
+) {
+  if (!parameters || typeof parameters !== "object") return parameters;
+  return Object.fromEntries(
+    Object.entries(parameters).map(([name, value]) => [
+      name,
+      isPickedDate(value)
+        ? formatForDisplay(value, "shortDate", locale)
+        : value,
+    ]),
+  );
+}
 
 export class FormHelper {
   static getErrorMessage(
-    errors?: ValidationErrors | null,
-    translateService?: TranslateService,
+    errors: ValidationErrors | null,
+    translateService: TranslateService,
+    locale: string,
   ): string | null {
     if (!errors) return null;
 
@@ -26,12 +43,12 @@ export class FormHelper {
       const { message, ...rest } = parameters as ReturnType<
         typeof FormHelper.CustomErrorMessage
       >["custom"];
-      return translateService?.instant(String(message), rest);
+      return translateService.instant(String(message), rest);
     }
 
-    return translateService?.instant(
+    return translateService.instant(
       toI18nKey(`validators.${error}`),
-      parameters,
+      toDisplayParameters(parameters, locale),
     );
   }
 

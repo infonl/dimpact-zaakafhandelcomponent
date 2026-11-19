@@ -123,7 +123,9 @@ export function toForm(
   });
 
   applyProcessDefinition(form, processDefinition);
-  if (processDefinition) form.controls.procesModel.disable();
+  if (processDefinition && !configuration.isProcessDefinitionChangeable) {
+    form.controls.procesModel.disable();
+  }
   return form;
 }
 
@@ -144,7 +146,6 @@ export function toRestConfiguration(
   return {
     id: configuration.id,
     zaaktype: configuration.zaaktype,
-    creatiedatum: configuration.creatiedatum,
     processDefinition: toProcessDefinition(procesModel) ?? undefined,
     ...toAlgemeenSettings(form.controls.algemeen),
     intakeMail: mail.controls.intakeMail.value,

@@ -5,6 +5,7 @@
 package nl.info.zac.app.note
 
 import nl.info.zac.app.note.model.RestNote
+import nl.info.zac.time.ZacTime
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -13,7 +14,7 @@ fun createRestNote(
     id: Long = 1,
     zaakUUID: UUID = UUID.randomUUID(),
     text: String = "fakeText",
-    dateTimeLastModified: ZonedDateTime = ZonedDateTime.now(),
+    dateTimeLastModified: ZonedDateTime = ZacTime.now(),
     employeeUsername: String = "fakeUserName",
     employeeFullname: String = "fakeUserFullName",
     updatingAllowed: Boolean = true

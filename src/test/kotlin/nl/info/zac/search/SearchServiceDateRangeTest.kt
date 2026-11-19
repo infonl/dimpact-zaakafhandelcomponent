@@ -1,0 +1,162 @@
+/*
+ * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+package nl.info.zac.search
+
+import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldContain
+import io.mockk.checkUnnecessaryStub
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.slot
+import jakarta.enterprise.inject.Instance
+import nl.info.zac.app.search.model.createZoekParameters
+import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.search.model.DatumVeld
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.solr.SolrClientFactory
+import nl.info.zac.time.DateRange
+import nl.info.zac.time.UtcDefaultTimeZone
+import org.apache.solr.client.solrj.SolrRequest
+import org.apache.solr.client.solrj.impl.Http2SolrClient
+import org.apache.solr.client.solrj.response.QueryResponse
+import org.apache.solr.common.SolrDocument
+import org.apache.solr.common.SolrDocumentList
+import org.apache.solr.common.params.SolrParams
+import java.time.LocalDate
+import java.util.EnumMap
+
+class SearchServiceDateRangeTest : BehaviorSpec({
+    extension(UtcDefaultTimeZone())
+
+    val solrClient = mockk<Http2SolrClient>()
+    val solrClientFactory = mockk<SolrClientFactory> {
+        every { createSolrClient(any()) } returns solrClient
+    }
+    val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
+    val policyService = mockk<PolicyService>()
+    val leesrollen = setOf("raadpleger", "behandelaar", "coordinator", "recordmanager", "beheerder")
+    val zoekService = SearchService(
+        loggedInUserInstance = loggedInUserInstance,
+        policyService = policyService,
+        solrClientFactory = solrClientFactory
+    )
+
+    afterEach {
+        checkUnnecessaryStub()
+    }
+
+    given("the JVM time zone UTC, a logged-in user and a search index without results") {
+        val queryResponse = mockk<QueryResponse>()
+        val solrDocumentList = mockk<SolrDocumentList>()
+        val solrParamsSlot = slot<SolrParams>()
+
+        every { loggedInUserInstance.get() } returns createLoggedInUser(
+            applicationRolesPerZaaktype = mapOf("fakeZaaktype1" to setOf("behandelaar"))
+        )
+        every { policyService.readLeesrollen() } returns leesrollen
+        every { solrClient.query(capture(solrParamsSlot), SolrRequest.METHOD.POST) } returns queryResponse
+        every { queryResponse.results } returns solrDocumentList
+        every { solrDocumentList.size } returns 0
+        every { solrDocumentList.iterator() } returns mutableListOf<SolrDocument>().iterator()
+        every { solrDocumentList.numFound } returns 0
+        every { queryResponse.facetFields } returns emptyList()
+
+        `when`("searching tasks created from 30-07-2026 through 30-07-2026") {
+            zoekService.search(
+                createZoekParameters(
+                    zoekObjectType = ZoekObjectType.TAAK,
+                    datums = EnumMap<DatumVeld, DateRange>(DatumVeld::class.java).apply {
+                        put(
+                            DatumVeld.TAAK_CREATIEDATUM,
+                            DateRange.Between(LocalDate.of(2026, 7, 30), LocalDate.of(2026, 7, 30))
+                        )
+                    }
+                )
+            )
+
+            then(
+                "the filter runs from the start of 30-07-2026 in Europe/Amsterdam up to, but not including, " +
+                    "the start of 31-07-2026 in Europe/Amsterdam"
+            ) {
+                solrParamsSlot.captured.getParams("fq") shouldContain
+                    "taak_creatiedatum:[2026-07-29T22:00:00Z TO 2026-07-30T22:00:00Z}"
+            }
+        }
+
+        `when`("searching tasks created from 29-03-2026 through 29-03-2026, the day the clocks go forward") {
+            zoekService.search(
+                createZoekParameters(
+                    zoekObjectType = ZoekObjectType.TAAK,
+                    datums = EnumMap<DatumVeld, DateRange>(DatumVeld::class.java).apply {
+                        put(
+                            DatumVeld.TAAK_CREATIEDATUM,
+                            DateRange.Between(LocalDate.of(2026, 3, 29), LocalDate.of(2026, 3, 29))
+                        )
+                    }
+                )
+            )
+
+            then("the filter covers the 23 hours from 00:00 winter time up to 00:00 summer time") {
+                solrParamsSlot.captured.getParams("fq") shouldContain
+                    "taak_creatiedatum:[2026-03-28T23:00:00Z TO 2026-03-29T22:00:00Z}"
+            }
+        }
+
+        `when`("searching tasks created from 25-10-2026 through 25-10-2026, the day the clocks go back") {
+            zoekService.search(
+                createZoekParameters(
+                    zoekObjectType = ZoekObjectType.TAAK,
+                    datums = EnumMap<DatumVeld, DateRange>(DatumVeld::class.java).apply {
+                        put(
+                            DatumVeld.TAAK_CREATIEDATUM,
+                            DateRange.Between(LocalDate.of(2026, 10, 25), LocalDate.of(2026, 10, 25))
+                        )
+                    }
+                )
+            )
+
+            then("the filter covers the 25 hours from 00:00 summer time up to 00:00 winter time") {
+                solrParamsSlot.captured.getParams("fq") shouldContain
+                    "taak_creatiedatum:[2026-10-24T22:00:00Z TO 2026-10-25T23:00:00Z}"
+            }
+        }
+
+        `when`("searching tasks with a fatale datum from 30-07-2026 and without an end date") {
+            zoekService.search(
+                createZoekParameters(
+                    zoekObjectType = ZoekObjectType.TAAK,
+                    datums = EnumMap<DatumVeld, DateRange>(DatumVeld::class.java).apply {
+                        put(DatumVeld.TAAK_FATALEDATUM, DateRange.From(LocalDate.of(2026, 7, 30)))
+                    }
+                )
+            )
+
+            then("the filter has no upper bound") {
+                solrParamsSlot.captured.getParams("fq") shouldContain "taak_fataledatum:[2026-07-29T22:00:00Z TO *}"
+            }
+        }
+
+        `when`("searching documents registered through 30-07-2026 and without a start date") {
+            zoekService.search(
+                createZoekParameters(
+                    zoekObjectType = ZoekObjectType.DOCUMENT,
+                    datums = EnumMap<DatumVeld, DateRange>(DatumVeld::class.java).apply {
+                        put(
+                            DatumVeld.INFORMATIEOBJECT_REGISTRATIEDATUM,
+                            DateRange.Through(LocalDate.of(2026, 7, 30))
+                        )
+                    }
+                )
+            )
+
+            then("the filter has no lower bound") {
+                solrParamsSlot.captured.getParams("fq") shouldContain
+                    "informatieobject_registratiedatum:[* TO 2026-07-30T22:00:00Z}"
+            }
+        }
+    }
+})

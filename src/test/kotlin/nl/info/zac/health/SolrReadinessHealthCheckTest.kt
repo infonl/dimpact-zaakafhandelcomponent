@@ -12,12 +12,14 @@ import io.mockk.mockk
 import io.mockk.mockkConstructor
 import nl.info.zac.search.IndexingService.Companion.SOLR_CORE
 import nl.info.zac.solr.SolrClientFactory
+import nl.info.zac.time.ZacTime
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.client.solrj.request.SolrPing
 import org.apache.solr.client.solrj.response.SolrPingResponse
 import org.eclipse.microprofile.health.HealthCheckResponse
+import java.time.OffsetDateTime
 
 class SolrReadinessHealthCheckTest : BehaviorSpec({
     lateinit var solrClientFactory: SolrClientFactory
@@ -68,14 +70,15 @@ class SolrReadinessHealthCheckTest : BehaviorSpec({
                 every { solrPingResponse.status } returns status
                 val response = SolrReadinessHealthCheck(solrClientFactory).call()
 
-                then("the health check should return DOWN status") {
+                then("the health check returns DOWN with the time with the offset of Europe/Amsterdam") {
                     response.status shouldBe HealthCheckResponse.Status.DOWN
 
                     with(response.data.get()) {
                         get("core") shouldBe SOLR_CORE
                         get("status") shouldBe status
                         get("error") shouldBe "Solr ping returned non-zero status"
-                        containsKey("time") shouldBe true
+                        val time = OffsetDateTime.parse(get("time").toString())
+                        time.offset shouldBe ZacTime.ZONE.rules.getOffset(time.toInstant())
                     }
                 }
             }
@@ -91,13 +94,14 @@ class SolrReadinessHealthCheckTest : BehaviorSpec({
                 every { solrPingResponse.status } throws err
                 val response = SolrReadinessHealthCheck(solrClientFactory).call()
 
-                then("the health check should return DOWN status with error") {
+                then("the health check returns DOWN with the error and the time with the offset of Europe/Amsterdam") {
                     response.status shouldBe HealthCheckResponse.Status.DOWN
 
                     with(response.data.get()) {
                         get("core") shouldBe SOLR_CORE
                         get("error") shouldBe err.message
-                        containsKey("time") shouldBe true
+                        val time = OffsetDateTime.parse(get("time").toString())
+                        time.offset shouldBe ZacTime.ZONE.rules.getOffset(time.toInstant())
                         containsKey("status") shouldBe false
                     }
                 }

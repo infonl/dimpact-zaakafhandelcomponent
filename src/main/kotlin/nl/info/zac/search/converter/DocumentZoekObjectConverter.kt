@@ -23,7 +23,7 @@ import nl.info.zac.search.model.DocumentIndicatie
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.DocumentZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
-import nl.info.zac.util.time.toDate
+import nl.info.zac.time.toDate
 import java.util.Date
 import java.util.UUID
 

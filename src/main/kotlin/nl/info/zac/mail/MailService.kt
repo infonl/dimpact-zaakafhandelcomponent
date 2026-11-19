@@ -36,6 +36,7 @@ import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mailtemplates.MailTemplateHelper
 import nl.info.zac.mailtemplates.model.MailGegevens
 import nl.info.zac.mailtemplates.model.MailTemplateVariables
+import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.MediaTypes
 import nl.info.zac.util.NoArgConstructor
@@ -45,7 +46,6 @@ import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.htmlcleaner.HtmlCleaner
 import org.htmlcleaner.PrettyXmlSerializer
 import java.io.ByteArrayInputStream
-import java.time.LocalDate
 import java.util.Base64
 import java.util.Optional
 import java.util.logging.Level
@@ -174,7 +174,7 @@ class MailService @Inject constructor(
         val pdfDocument = convertEmailToPdf(html, subject) ?: return
         val enkelvoudigInformatieobjectWithInhoud = EnkelvoudigInformatieObjectCreateLockRequest().apply {
             bronorganisatie = configurationService.readBronOrganisatie()
-            creatiedatum = LocalDate.now()
+            creatiedatum = ZacTime.today()
             titel = subject
             auteur = loggedInUserInstance.get().getFullName()
             taal = ConfigurationService.TAAL_NEDERLANDS
@@ -184,7 +184,7 @@ class MailService @Inject constructor(
             formaat = MediaTypes.Application.PDF.mediaType
             bestandsnaam = "$subject.pdf"
             status = StatusEnum.DEFINITIEF
-            verzenddatum = LocalDate.now()
+            verzenddatum = ZacTime.today()
         }
         zgwApiService.createZaakInformatieobjectForZaak(
             zaak = zaak,

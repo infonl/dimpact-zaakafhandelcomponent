@@ -22,10 +22,10 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
-import moment, { Moment } from "moment";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
+import { PickedDate, toApiDate, toPickedDate } from "../../date-time";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacDate } from "../../shared/form/date/date";
 import { ZacFile } from "../../shared/form/file/file";
@@ -129,8 +129,8 @@ export class InformatieObjectEditComponent {
     status: this.formBuilder.control<
       (typeof this.informatieobjectStatussen)[number] | null
     >(null, [Validators.required]),
-    verzenddatum: this.formBuilder.control<Moment | null>(null),
-    ontvangstdatum: this.formBuilder.control<Moment | null>(null),
+    verzenddatum: this.formBuilder.control<PickedDate | null>(null),
+    ontvangstdatum: this.formBuilder.control<PickedDate | null>(null),
     informatieobjectType:
       this.formBuilder.control<GeneratedType<"RestInformatieobjecttype"> | null>(
         null,
@@ -221,12 +221,8 @@ export class InformatieObjectEditComponent {
             value: infoObject.status,
           }
         : null,
-      verzenddatum: infoObject.verzenddatum
-        ? moment(infoObject.verzenddatum)
-        : null,
-      ontvangstdatum: infoObject.ontvangstdatum
-        ? moment(infoObject.ontvangstdatum)
-        : null,
+      verzenddatum: toPickedDate(infoObject.verzenddatum),
+      ontvangstdatum: toPickedDate(infoObject.ontvangstdatum),
       vertrouwelijkheidaanduiding:
         this.vertrouwelijkheidsAanduidingen.find(
           ({ value }) => value === infoObject.vertrouwelijkheidaanduiding,
@@ -267,8 +263,8 @@ export class InformatieObjectEditComponent {
       informatieobjectTypeUUID: value.informatieobjectType!.uuid!,
       status: value.status?.value,
       vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
-      verzenddatum: value.verzenddatum?.toISOString(),
-      ontvangstdatum: value.ontvangstdatum?.toISOString(),
+      verzenddatum: toApiDate(value.verzenddatum),
+      ontvangstdatum: toApiDate(value.ontvangstdatum),
       taal: value.taal,
       auteur: value.auteur,
       toelichting: value.toelichting,

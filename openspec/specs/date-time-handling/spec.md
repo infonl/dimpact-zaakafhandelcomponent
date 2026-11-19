@@ -1,0 +1,150 @@
+# date-time-handling Specification
+
+## Purpose
+
+Defines how ZAC handles dates and times: one time zone for the whole application, one meaning of a date range,
+dates without a time between frontend and backend, the dates that the backend sets itself, and lint rules that keep date and time handling in one backend
+module and one frontend module.
+
+A date range has a start date and an end date, and includes the whole end date. The user interface labels the start
+date "van" and the end date "t/m" (tot en met, "through"). The REST API sends a date range as `from` and `through`.
+
+## Requirements
+
+### Requirement: One time zone for ZAC
+The backend SHALL use the time zone `Europe/Amsterdam` whenever it converts between a date and a point in time, and
+whenever it determines the current date, independent of the time zone of the server or container. It SHALL follow the
+changes between winter time and summer time of that time zone, and never use a fixed offset from UTC.
+
+#### Scenario: Today on a server in UTC
+- **WHEN** the backend runs with the JVM time zone UTC and the time is 23:30 UTC on 29-07-2026
+- **THEN** the backend takes 30-07-2026 as the current date
+
+#### Scenario: Start of a day on a server in UTC
+- **WHEN** the backend runs with the JVM time zone UTC and converts the date 30-07-2026 to the start of that day
+- **THEN** the result is 30-07-2026 00:00 in `Europe/Amsterdam`, which is 29-07-2026 22:00 UTC
+
+#### Scenario: Today on a server in UTC after the change to winter time
+- **WHEN** the backend runs with the JVM time zone UTC and the time is 23:30 UTC on 25-10-2026
+- **THEN** the backend takes 26-10-2026 as the current date, because `Europe/Amsterdam` is one hour ahead of UTC in
+  winter time
+
+### Requirement: A date range includes the whole end date
+A date filter with a start date and an end date SHALL match every value from the start of the start date up to, but
+not including, the start of the day after the end date, in the time zone `Europe/Amsterdam`. A range without a start
+date has no lower bound; a range without an end date has no upper bound. This SHALL hold for the work lists of zaken, taken,
+inbox documents, detached documents and inbox productaanvragen, and for the date filters of the search screen.
+
+#### Scenario: From today through today on a field with a time
+- **WHEN** a user filters the tasks on "Aangemaakt op" from today through today, and a task was created today at 09:15
+- **THEN** the list shows that task
+
+#### Scenario: The last moment of the end date
+- **WHEN** a user filters on a range through 30-07-2026, and a value is 30-07-2026 23:59:59 in `Europe/Amsterdam`
+- **THEN** the value matches
+
+#### Scenario: The start of the day after the end date
+- **WHEN** a user filters on a range through 30-07-2026, and a value is 31-07-2026 00:00 in `Europe/Amsterdam`
+- **THEN** the value does not match
+
+#### Scenario: The day before the start date
+- **WHEN** a user filters on a range from 30-07-2026, and a value is 29-07-2026 23:59 in `Europe/Amsterdam`
+- **THEN** the value does not match
+
+#### Scenario: The day the clocks go forward
+- **WHEN** a user filters on a range from 29-03-2026 through 29-03-2026, the day that `Europe/Amsterdam` changes to
+  summer time
+- **THEN** the range runs from 29-03-2026 00:00 winter time up to 30-03-2026 00:00 summer time, which is 23 hours
+- **AND** a value of 29-03-2026 23:59:59 in `Europe/Amsterdam` matches, and a value of 30-03-2026 00:00 does not
+
+#### Scenario: The day the clocks go back
+- **WHEN** a user filters on a range from 25-10-2026 through 25-10-2026, the day that `Europe/Amsterdam` changes to
+  winter time
+- **THEN** the range runs from 25-10-2026 00:00 summer time up to 26-10-2026 00:00 winter time, which is 25 hours
+- **AND** both occurrences of 02:30 on 25-10-2026 match, and so does 25-10-2026 23:30 winter time
+
+#### Scenario: A field without a time on the day the clocks change
+- **WHEN** a user filters zaken on "Startdatum" from 29-03-2026 through 29-03-2026, and a zaak has the startdatum
+  29-03-2026
+- **THEN** the list shows that zaak, because the search index and the date filter both use the start of 29-03-2026 in
+  `Europe/Amsterdam`
+
+#### Scenario: A field without a time
+- **WHEN** a user filters zaken on "Startdatum" from 30-07-2026 through 30-07-2026, and a zaak has the startdatum 30-07-2026
+- **THEN** the list shows that zaak
+
+#### Scenario: The same filter on every list
+- **WHEN** a user filters the inbox documents, the detached documents and the search screen documents from 30-07-2026
+  through 30-07-2026
+- **THEN** each list shows exactly the documents of 30-07-2026 and none of 29-07-2026
+
+### Requirement: Dates travel without a time
+The frontend SHALL send a date that a user picks as a date without a time, in the form `yyyy-MM-dd`, to the backend.
+When the backend receives a date field that holds a time, it SHALL use the date of that point in time in
+`Europe/Amsterdam`.
+
+#### Scenario: The frontend sends a picked date
+- **WHEN** a user in the Netherlands picks 30-07-2026 as the start date of a date filter
+- **THEN** the request holds `"from": "2026-07-30"`
+
+#### Scenario: The backend receives a date with a time
+- **WHEN** the backend receives `"from": "2026-07-29T22:00:00.000Z"` for a date field, for example from a saved search
+- **THEN** the backend uses the date 30-07-2026
+
+#### Scenario: A saved search with an old date shows the same date
+- **WHEN** a user opens a saved search that holds the date `2026-07-29T22:00:00.000Z`
+- **THEN** the date filter shows 30-07-2026
+
+#### Scenario: A saved search from before the English names keeps its date filter
+- **WHEN** a saved search holds a date range as `{"van": "2026-07-01", "tot": "2026-07-30"}`, and ZAC is upgraded
+- **THEN** the saved search holds `{"from": "2026-07-01", "through": "2026-07-30"}` and filters on the same dates
+
+### Requirement: The backend sets the dates that nobody picks
+The backend SHALL set a date that no user picks itself, from the current date or time in `Europe/Amsterdam` or from
+the dates it has stored, and SHALL ignore a value that a client sends for such a date. This SHALL hold for the date on
+which aanvullende informatie is requested, for the creation date of a zaaktype configuration and of a saved search,
+and for the dates that an extension of a zaak moves.
+
+#### Scenario: Aanvullende informatie is requested
+- **WHEN** a user starts an aanvullende informatie task, and the task data from the client holds
+  `"datumGevraagd": "2000-01-01"`
+- **THEN** the task holds the current date in `Europe/Amsterdam` as `datumGevraagd`
+
+#### Scenario: Another task form gets no request date
+- **WHEN** a user starts a task with another form than aanvullende informatie
+- **THEN** the backend does not add `datumGevraagd` to the task data
+
+#### Scenario: A saved zaaktype configuration keeps its creation date
+- **WHEN** a user saves a zaaktype configuration that was created on 01-07-2026
+- **THEN** the zaaktype configuration keeps the creation date 01-07-2026, whatever creation date the client sends
+- **AND** a new zaaktype configuration gets the current date and time in `Europe/Amsterdam` as its creation date
+
+#### Scenario: A saved search keeps its creation date
+- **WHEN** a user saves a search again that was created on 01-07-2026
+- **THEN** the saved search keeps the creation date 01-07-2026, whatever creation date the client sends
+
+#### Scenario: A zaak is extended
+- **WHEN** a user extends a zaak with the einddatum gepland 30-07-2026 and the uiterlijke einddatum afdoening
+  10-08-2026 by 14 days
+- **THEN** the zaak gets the einddatum gepland 13-08-2026 and the uiterlijke einddatum afdoening 24-08-2026
+- **AND** the request to extend the zaak holds only the number of days, and the backend ignores
+  `einddatumGepland` and `uiterlijkeEinddatumAfdoening` when a client still sends them
+
+### Requirement: Date and time handling stays in one module per side
+The build SHALL fail when code outside the backend date and time module reads the system clock or the system time
+zone, or converts between a date and a point in time with a time zone of its own. The build SHALL fail when frontend
+code outside the frontend date and time module imports a date library or parses or formats a date itself. Code that
+broke these rules before the rules were added SHALL be listed as frozen exceptions, and the list SHALL only shrink.
+
+#### Scenario: New backend code reads the system time zone
+- **WHEN** a pull request adds a call to the system default time zone outside the backend date and time module
+- **THEN** the architecture tests fail and name the new violation
+
+#### Scenario: New frontend code imports a date library
+- **WHEN** a pull request adds an import of the date library to a frontend file outside the frontend date and time
+  module and outside the frozen list
+- **THEN** the frontend lint fails
+
+#### Scenario: Frozen code is moved into the module
+- **WHEN** a pull request moves a frozen use into the date and time module
+- **THEN** the build passes and the frozen exception is removed from the list

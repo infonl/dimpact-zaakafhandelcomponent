@@ -3,9 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { FormControl, FormGroup } from "@angular/forms";
 import { fromPartial } from "../../../test-helpers";
+import { toPickedDate } from "../../date-time";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { mapTaskdataToTaskInformation } from "./taak.utils";
+import {
+  mapFormGroupToTaskData,
+  mapTaskdataToTaskInformation,
+} from "./taak.utils";
 
 describe("mapTaskdataToTaskInformation", () => {
   const ALL_UITKOMST_VALUES = {
@@ -70,5 +75,29 @@ describe("mapTaskdataToTaskInformation", () => {
     expect(() => mapTaskdataToTaskInformation({}, taak)).toThrow(
       "Onbekend formulier: UNKNOWN",
     );
+  });
+});
+
+describe("mapFormGroupToTaskData", () => {
+  it("puts a picked date in the task data as a date without a time", () => {
+    const formGroup = new FormGroup({
+      verzenddatum: new FormControl(toPickedDate("2026-01-30")),
+      datumGeleverd: new FormControl(new Date(2026, 0, 31)),
+    });
+
+    expect(mapFormGroupToTaskData(formGroup, {})).toEqual({
+      verzenddatum: "2026-01-30",
+      datumGeleverd: "2026-01-31",
+    });
+  });
+
+  it("keeps a date that the task data already held as text", () => {
+    const formGroup = new FormGroup({
+      datumGevraagd: new FormControl("2026-01-30T10:15:00.000+01:00"),
+    });
+
+    expect(mapFormGroupToTaskData(formGroup, {})).toEqual({
+      datumGevraagd: "2026-01-30T10:15:00.000+01:00",
+    });
   });
 });

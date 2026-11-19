@@ -21,6 +21,7 @@ import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.client.zgw.ztc.model.generated.ZaakTypeInformatieObjectType
+import nl.info.zac.time.ZacTime
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
@@ -34,8 +35,8 @@ fun createBesluitType(
     resultaattypenOmschrijving: List<String> =
         listOf("fakeResultaatTypeOmschrijving1", "fakeResultaatTypeOmschrijving2"),
     vastgelegdIn: List<String> = listOf("fakeVastgelegdIn1", "fakeVastgelegdIn2"),
-    beginObject: LocalDate = LocalDate.now(),
-    eindeObject: LocalDate = LocalDate.now().plusDays(1),
+    beginObject: LocalDate = ZacTime.today(),
+    eindeObject: LocalDate = ZacTime.today().plusDays(1),
     informatieobjecttypen: List<URI>? = listOf(URI("fakeInformatieObjectType1"), URI("fakeInformatieObjectType2")),
     description: String = "description",
     explanation: String = "explanation",
@@ -108,9 +109,9 @@ fun createCatalogusListParameters(
 
 @Suppress("LongParameterList")
 fun createRolType(
-    beginObject: LocalDate = LocalDate.now(),
+    beginObject: LocalDate = ZacTime.today(),
     catalogusUri: URI = URI("https://example.com/catalogus/${UUID.randomUUID()}"),
-    eindeObject: LocalDate = LocalDate.now().plusDays(1),
+    eindeObject: LocalDate = ZacTime.today().plusDays(1),
     omschrijving: String = "fakeOmschrijving",
     omschrijvingGeneriek: OmschrijvingGeneriekEnum = OmschrijvingGeneriekEnum.INITIATOR,
     uri: URI = URI("https://example.com/roltype/${UUID.randomUUID()}"),
@@ -163,11 +164,11 @@ fun createZaakType(
     concept: Boolean = false,
     doorloopTijd: String = "P10D",
     servicenorm: String? = null,
-    beginGeldigheid: LocalDate = LocalDate.now(),
+    beginGeldigheid: LocalDate = ZacTime.today(),
     eindeGeldigheid: LocalDate? = null,
     referentieProces: ReferentieProces? = null,
     doel: String = "fakeDoel",
-    versieDatum: LocalDate = LocalDate.now(),
+    versieDatum: LocalDate = ZacTime.today(),
     vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR,
     verlengingMogelijk: Boolean? = null,
     verlengingstermijn: String? = null
@@ -202,7 +203,7 @@ fun createInformatieObjectType(
     uri: URI = URI("https://example.com/catalogus/${UUID.randomUUID()}"),
     omschrijving: String = "fakeOmschrijving",
     vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR,
-    beginGeldigheid: LocalDate = LocalDate.now(),
+    beginGeldigheid: LocalDate = ZacTime.today(),
     concept: Boolean = false,
 ) = InformatieObjectType(
     uri,
@@ -234,8 +235,8 @@ fun createResultaatType(
     catalogus: URI = URI("https://example.com/catalogus${UUID.randomUUID()}"),
     besluittypeOmschrijving: MutableList<String> = mutableListOf("fakeBesluittypeOmschrijving"),
     informatieobjecttypeOmschrijving: MutableList<String> = mutableListOf("fakeInformatieobjecttypeOmschrijving"),
-    beginObject: LocalDate = LocalDate.now(),
-    eindeObject: LocalDate = LocalDate.now().plusDays(1),
+    beginObject: LocalDate = ZacTime.today(),
+    eindeObject: LocalDate = ZacTime.today().plusDays(1),
     archiefnominatie: ArchiefnominatieEnum = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
     archiefactietermijn: String? = null,
     brondatumArchiefprocedure: BrondatumArchiefprocedure? = null,
@@ -263,8 +264,8 @@ fun createStatusType(
     catalogus: URI = URI("https://example.com/catalogus/${UUID.randomUUID()}"),
     eigenschappen: List<URI> = listOf(URI("https://example.com/catalogus/${UUID.randomUUID()}")),
     zaakobjecttypen: List<URI> = listOf(URI("https://example.com/catalogus/${UUID.randomUUID()}")),
-    beginObject: LocalDate = LocalDate.now(),
-    eindeObject: LocalDate = LocalDate.now(),
+    beginObject: LocalDate = ZacTime.today(),
+    eindeObject: LocalDate = ZacTime.today(),
     omschrijving: String = "fakeOmschrijving",
     volgnummer: Int? = 1
 ) = StatusType(

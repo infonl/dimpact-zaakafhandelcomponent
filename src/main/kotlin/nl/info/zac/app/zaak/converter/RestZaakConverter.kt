@@ -46,7 +46,7 @@ import nl.info.zac.search.model.ZaakIndicatie.HOOFDZAAK
 import nl.info.zac.search.model.ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD
 import nl.info.zac.search.model.ZaakIndicatie.OPSCHORTING
 import nl.info.zac.search.model.ZaakIndicatie.VERLENGD
-import nl.info.zac.util.time.format
+import nl.info.zac.time.format
 import nl.info.zac.zaak.ZaakService
 import nl.info.zac.zaak.model.RelatieType
 import java.time.Period

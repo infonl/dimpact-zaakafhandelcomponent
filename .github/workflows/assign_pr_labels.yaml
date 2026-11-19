@@ -6,7 +6,8 @@ name: Assign PR labels
 
 on:
   pull_request:
-    types: [opened]
+    # also on later pushes, so a PR that grows beyond its first commit gets the labels of its new files
+    types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
   contents: read
@@ -24,18 +25,50 @@ jobs:
             const extensionLabels = {
               '.java': 'java',
               '.kt': 'kotlin',
+              '.kts': 'gradle',
               '.ts': 'typescript',
               '.js': 'javascript',
+              '.mjs': 'javascript',
+              '.cjs': 'javascript',
+              '.html': 'html',
+              '.less': 'less',
               '.py': 'python',
               '.sh': 'shell',
-              '.sql': 'sql'
+              '.sql': 'sql',
+              '.rego': 'rego',
+              '.bpmn': 'BPMN'
+            };
+
+            // dependency manifests and tool versions, wherever they are; Renovate's own PRs are labelled below
+            const fileNameLabels = {
+              'package.json': 'dependencies',
+              'package-lock.json': 'dependencies',
+              'libs.versions.toml': 'dependencies',
+              'requirements.txt': 'dependencies',
+              '.nvmrc': 'dependencies',
+              '.python-version': 'dependencies'
             };
               
             const pathLabels = [
               { startsWith: 'docs/', label: 'documentation' },
+              { startsWith: 'docs/solution-architecture/decisions/', label: 'adr' },
+              { startsWith: 'openspec/', label: 'openspec' },
+              { startsWith: 'src/main/resources/policies/', label: 'authorization' },
               { startsWith: '.github/workflows/', label: 'github_actions' },
+              { startsWith: '.github/scripts/', label: 'github_actions' },
               { startsWith: 'gradle/wrapper/', label: 'gradle-wrapper' },
-              { startsWith: 'charts/', label: 'helm' }
+              { startsWith: 'charts/', label: 'helm' },
+              { startsWith: 'src/e2e/', label: 'e2e' },
+              { startsWith: 'src/main/resources/wildfly/', label: 'wildfly' },
+              { startsWith: 'src/main/webapp/WEB-INF/', label: 'wildfly' },
+              { startsWith: 'src/logFilter/module/', label: 'wildfly' },
+              { startsWith: 'scripts/wildfly/', label: 'wildfly' },
+              { startsWith: '.claude/', label: 'ai-instructions' },
+              { startsWith: '.github/skills/', label: 'ai-instructions' },
+              { startsWith: '.github/prompts/', label: 'ai-instructions' },
+              { startsWith: '.github/copilot-instructions.md', label: 'ai-instructions' },
+              { startsWith: 'AGENTS.md', label: 'ai-instructions' },
+              { startsWith: 'CLAUDE.md', label: 'ai-instructions' }
             ];
               
             const labels = new Set();
@@ -56,6 +89,9 @@ jobs:
               for (const [ext, label] of Object.entries(extensionLabels)) {
                 if (filename.endsWith(ext)) labels.add(label);
               }
+              // File-name-based labels
+              const fileNameLabel = fileNameLabels[filename.split('/').pop()];
+              if (typeof fileNameLabel === 'string') labels.add(fileNameLabel);
               // Path-based labels
               for (const { startsWith, label } of pathLabels) {
                 if (filename.startsWith(startsWith)) labels.add(label);

@@ -39,9 +39,9 @@ import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.createZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.time.ZacTime
 import java.net.URI
 import java.time.LocalDate
-import java.time.ZoneId
 import java.util.Date
 import java.util.UUID
 
@@ -142,8 +142,8 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                     identificatie shouldBe zaak.identificatie
                     omschrijving shouldBe zaak.omschrijving
                     toelichting shouldBe zaak.toelichting
-                    registratiedatum shouldBe Date.from(zaak.registratiedatum.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
-                    startdatum shouldBe Date.from(zaak.startdatum.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
+                    registratiedatum shouldBe Date.from(zaak.registratiedatum.atStartOfDay(ZacTime.ZONE).toInstant())
+                    startdatum shouldBe Date.from(zaak.startdatum.atStartOfDay(ZacTime.ZONE).toInstant())
                     vertrouwelijkheidaanduiding shouldBe zaak.vertrouwelijkheidaanduiding.name
                     isAfgehandeld shouldBe !zaak.isOpen()
                     initiatorIdentificatie shouldBe rolInitiator.identificatienummer
@@ -242,7 +242,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                     identificatie shouldBe zaak.identificatie
                     omschrijving shouldBe zaak.omschrijving
                     toelichting shouldBe zaak.toelichting
-                    registratiedatum shouldBe Date.from(zaak.registratiedatum.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
+                    registratiedatum shouldBe Date.from(zaak.registratiedatum.atStartOfDay(ZacTime.ZONE).toInstant())
                     vertrouwelijkheidaanduiding shouldBe zaak.vertrouwelijkheidaanduiding.name
                     isAfgehandeld shouldBe !zaak.isOpen()
                     initiatorIdentificatie shouldBe rolInitiator.identificatienummer

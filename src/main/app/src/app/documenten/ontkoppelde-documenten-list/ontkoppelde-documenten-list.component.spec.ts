@@ -13,7 +13,6 @@ import {
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatDialog } from "@angular/material/dialog";
 import { MatPaginatorIntl } from "@angular/material/paginator";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -28,6 +27,7 @@ import { PaginatorTranslator } from "src/app/shared/paginator/paginator-translat
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
+import { provideZacDateAdapter } from "../../date-time";
 import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service";
 import { OntkoppeldeDocumentenListComponent } from "./ontkoppelde-documenten-list.component";
 
@@ -95,7 +95,7 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
           },
           provideHttpClient(withXhr(), withInterceptorsFromDi()),
           provideHttpClientTesting(),
-          provideMomentDateAdapter(),
+          provideZacDateAdapter(),
           provideQueryClient(testQueryClient),
         ],
       },
@@ -285,8 +285,8 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
       expect(await lastListRequestBody()).toEqual({
         ...UNFILTERED_REQUEST_BODY,
         [filter]: {
-          van: "2024-01-01T00:00:00.000+01:00",
-          tot: "2024-01-31T00:00:00.000+01:00",
+          from: "2024-01-01",
+          through: "2024-01-31",
         },
       });
     },

@@ -4,7 +4,7 @@
  */
 package nl.info.zac.app.inboxdocument.model
 
-import nl.info.zac.app.search.model.RestDatumRange
+import nl.info.zac.app.search.model.RestDateRange
 import nl.info.zac.app.shared.RestListParameters
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -16,5 +16,5 @@ class RestInboxDocumentListParameters : RestListParameters() {
 
     var identificatie: String? = null
 
-    var creatiedatum: RestDatumRange? = null
+    var creatiedatum: RestDateRange? = null
 }

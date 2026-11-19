@@ -10,13 +10,13 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import nl.info.zac.search.IndexingService.Companion.SOLR_CORE
 import nl.info.zac.solr.SolrClientFactory
+import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
 import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.client.solrj.request.SolrPing
 import org.eclipse.microprofile.health.HealthCheck
 import org.eclipse.microprofile.health.HealthCheckResponse
 import org.eclipse.microprofile.health.Readiness
-import java.time.LocalDateTime
 
 @Readiness
 @ApplicationScoped
@@ -58,7 +58,7 @@ class SolrReadinessHealthCheck @Inject constructor(
             } else {
                 HealthCheckResponse
                     .named(SolrReadinessHealthCheck::class.java.name)
-                    .withData("time", LocalDateTime.now().toString())
+                    .withData("time", ZacTime.now().toOffsetDateTime().toString())
                     .withData("core", SOLR_CORE)
                     .withData("status", status.toLong())
                     .withData("error", "Solr ping returned non-zero status")
@@ -68,7 +68,7 @@ class SolrReadinessHealthCheck @Inject constructor(
         } catch (@Suppress("TooGenericExceptionCaught") exception: Throwable) {
             HealthCheckResponse
                 .named(SolrReadinessHealthCheck::class.java.name)
-                .withData("time", LocalDateTime.now().toString())
+                .withData("time", ZacTime.now().toOffsetDateTime().toString())
                 .withData("core", SOLR_CORE)
                 .withData("error", exception.message)
                 .down()

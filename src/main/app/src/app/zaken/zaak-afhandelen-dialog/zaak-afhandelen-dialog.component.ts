@@ -28,7 +28,14 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import moment, { Moment } from "moment";
+import {
+  isPickedDate,
+  isSameOrAfter,
+  now,
+  PickedDate,
+  toApiDate,
+  today,
+} from "../../date-time";
 import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
@@ -101,9 +108,9 @@ export class ZaakAfhandelenDialogComponent {
     verzender:
       this.formBuilder.control<GeneratedType<"RestZaakAfzender"> | null>(null),
     ontvanger: this.formBuilder.control<string>("", [CustomValidators.email]),
-    brondatum: this.formBuilder.control<Moment | null>(null, [
+    brondatum: this.formBuilder.control<PickedDate | null>(null, [
       this.brondatumNietVoorVandaag(),
-      Validators.min(moment().startOf("day").valueOf()),
+      Validators.min(today().valueOf()),
     ]),
   });
 
@@ -213,7 +220,7 @@ export class ZaakAfhandelenDialogComponent {
   private brondatumNietVoorVandaag(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
       const value = control.value;
-      if (!moment.isMoment(value) || value.isSameOrAfter(moment(), "day")) {
+      if (!isPickedDate(value) || isSameOrAfter(value, now(), "day")) {
         return null;
       }
       return FormHelper.CustomErrorMessage(
@@ -246,7 +253,7 @@ export class ZaakAfhandelenDialogComponent {
     this.afsluitenMutation.mutate({
       reden: value.toelichting,
       resultaattypeUuid: value.resultaattype!.id,
-      brondatum: value.brondatum?.toISOString(),
+      brondatum: toApiDate(value.brondatum),
     });
   }
 
@@ -275,7 +282,7 @@ export class ZaakAfhandelenDialogComponent {
         this.data.zaak.resultaat?.resultaattype?.id ?? value.resultaattype?.id,
       resultaatToelichting: value.toelichting,
       restMailGegevens,
-      brondatum: value.brondatum?.toISOString(),
+      brondatum: toApiDate(value.brondatum),
     });
   }
 

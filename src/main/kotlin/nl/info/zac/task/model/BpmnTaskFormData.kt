@@ -4,7 +4,8 @@
  */
 package nl.info.zac.task.model
 
-import nl.info.zac.util.time.LocalDateAdapter
+import nl.info.zac.time.LocalDateAdapter
+import nl.info.zac.time.ZacTime
 import java.time.LocalDate
 
 class BpmnTaskFormData(taakData: Map<String, Any>) {
@@ -89,7 +90,7 @@ class BpmnTaskFormData(taakData: Map<String, Any>) {
             documentenVerzendenDatum = LocalDateAdapter().adaptFromJson(it.toString())
             zaakVariabelen.remove(DOCUMENTEN_VERZENDEN_DATUM)
         } ?: run {
-            documentenVerzendenDatum = LocalDate.now()
+            documentenVerzendenDatum = ZacTime.today()
         }
         taakData[DOCUMENTEN_ONDERTEKENEN]?.toString()?.also {
             if (it.isNotBlank()) documentenOndertekenen = it

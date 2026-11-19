@@ -4,12 +4,13 @@
  */
 package nl.info.zac.flowable.bpmn.model
 
+import nl.info.zac.time.ZacTime
 import java.time.ZonedDateTime
 
 fun createBpmnProcessDefinitionMetadata(
     documentation: String? = "Test Documentation",
-    modificationDate: ZonedDateTime? = ZonedDateTime.now(),
-    uploadDate: ZonedDateTime? = ZonedDateTime.now(),
+    modificationDate: ZonedDateTime? = ZacTime.now(),
+    uploadDate: ZonedDateTime? = ZacTime.now(),
     formKeys: List<String> = emptyList()
 ) = BpmnProcessDefinitionMetadata(
     documentation = documentation,

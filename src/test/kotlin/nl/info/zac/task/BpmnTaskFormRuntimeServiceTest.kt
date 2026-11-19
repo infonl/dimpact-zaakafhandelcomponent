@@ -32,12 +32,10 @@ import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.shared.helper.SuspensionZaakHelper
+import nl.info.zac.time.ZacTime
+import nl.info.zac.time.toDate
 import java.net.URI
-import java.time.LocalDate
-import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Date
 import java.util.UUID
 
 class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
@@ -127,7 +125,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
     given("A formio task with zaak-opschorten=true and a non-suspended zaak") {
         val zaakUuid = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUuid)
-        val dueDate = Date.from(LocalDate.now().plusDays(5).atStartOfDay(ZoneId.systemDefault()).toInstant())
+        val dueDate = ZacTime.today().plusDays(5).toDate()
         val task = createTestTask(dueDate = dueDate)
         val restTask = createRestTask(
             zaakUuid = zaakUuid,
@@ -152,7 +150,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
     given("A formio task with zaak-opschorten=true and an already suspended zaak") {
         val zaakUuid = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUuid, opschorting = createOpschorting(indicatie = true))
-        val dueDate = Date.from(LocalDate.now().plusDays(5).atStartOfDay(ZoneId.systemDefault()).toInstant())
+        val dueDate = ZacTime.today().plusDays(5).toDate()
         val task = createTestTask(dueDate = dueDate)
         val restTask = createRestTask(
             zaakUuid = zaakUuid,
@@ -337,7 +335,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
 
     given("A formio formulier with a TAAK:STARTDATUM defaultValue") {
         val zaakUuid = UUID.randomUUID()
-        val creationDateTime = ZonedDateTime.now()
+        val creationDateTime = ZacTime.now()
         val restTask = createRestTask(
             zaakUuid = zaakUuid,
             formioFormulier = Json.createObjectBuilder()

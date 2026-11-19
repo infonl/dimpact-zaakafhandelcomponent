@@ -17,9 +17,9 @@ import nl.info.zac.itest.config.GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TES
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
+import nl.info.zac.itest.util.todayInZac
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import java.net.HttpURLConnection.HTTP_OK
-import java.time.LocalDate
 
 class TaskRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
@@ -41,7 +41,7 @@ class TaskRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
         val taskId = taskHelper.startAanvullendeInformatieTaskForZaak(
             zaakUuid = zaakUuid,
             zaakIdentificatie = zaakIdentificatie,
-            fatalDate = LocalDate.now().plusWeeks(1),
+            fatalDate = todayInZac().plusWeeks(1),
             group = GROUP_BEHANDELAARS_TEST_1,
             testUser = BEHANDELAAR_1
         )
@@ -92,7 +92,7 @@ class TaskRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
         val taskId = taskHelper.startAanvullendeInformatieTaskForZaak(
             zaakUuid = zaakUuid,
             zaakIdentificatie = zaakIdentificatie,
-            fatalDate = LocalDate.now().plusWeeks(1),
+            fatalDate = todayInZac().plusWeeks(1),
             group = GROUP_BEHANDELAARS_TEST_1,
             testUser = BEHANDELAAR_1
         )

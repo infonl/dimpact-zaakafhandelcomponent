@@ -149,9 +149,9 @@ The following steps can help you debug failing integration tests:
 Our end-to-end tests use [Playwright](https://playwright.dev/) with
 [playwright-bdd](https://vitalets.github.io/playwright-bdd), which runs
 [Gherkin](https://cucumber.io/docs/gherkin/) feature files with the Playwright test runner. See
-[ADR-0016](../solution-architecture/decisions/0016-use-playwright-bdd-as-the-only-runner-of-the-end-to-end-tests.md)
+[ADR-0017](../solution-architecture/decisions/0017-use-playwright-bdd-as-the-only-runner-of-the-end-to-end-tests.md)
 for this choice and
-[ADR-0017](../solution-architecture/decisions/0017-select-the-target-of-the-end-to-end-tests-with-a-checked-in-profile.md)
+[ADR-0018](../solution-architecture/decisions/0018-select-the-target-of-the-end-to-end-tests-with-a-checked-in-profile.md)
 for the configuration.
 
 The tests are in the `src/e2e` folder. Each feature file in `src/e2e/bdd` is a journey: one goal of a user, followed

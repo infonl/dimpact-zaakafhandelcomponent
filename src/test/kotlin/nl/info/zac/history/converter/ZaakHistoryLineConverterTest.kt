@@ -22,8 +22,8 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.history.converter.documenten.AuditBesluitInformatieobjectConverter
 import nl.info.zac.history.converter.documenten.AuditEnkelvoudigInformatieobjectConverter
 import nl.info.zac.history.model.HistoryAction
+import nl.info.zac.time.ZacTime
 import java.net.URI
-import java.time.ZonedDateTime
 
 class ZaakHistoryLineConverterTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
@@ -111,7 +111,7 @@ class ZaakHistoryLineConverterTest : BehaviorSpec({
             resource = "enkelvoudiginformatieobject",
             resourceUrl = URI("https://example.com/informatieobject"),
             resourceWeergave = "123443210 - ZAAK-2024-0000000003",
-            aanmaakdatum = ZonedDateTime.now(),
+            aanmaakdatum = ZacTime.now(),
             wijzigingen = null
         )
 

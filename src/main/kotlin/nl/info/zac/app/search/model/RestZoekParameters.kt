@@ -29,7 +29,7 @@ data class RestZoekParameters(
     var type: ZoekObjectType? = null,
     var zoeken: Map<String, String>? = null,
     var filters: Map<FilterVeld, FilterParameters>? = null,
-    var datums: Map<DatumVeld, RestDatumRange>? = null,
+    var datums: Map<DatumVeld, RestDateRange>? = null,
     var sorteerVeld: SorteerVeld? = null,
     var sorteerRichting: String? = null,
 

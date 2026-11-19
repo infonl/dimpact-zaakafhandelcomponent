@@ -20,9 +20,9 @@ import { MatSort, MatSortHeader } from "@angular/material/sort";
 import { MatTable, MatTableModule } from "@angular/material/table";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
-import moment from "moment";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { UtilService } from "../../core/service/util.service";
+import { DateInput } from "../../date-time";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
@@ -152,7 +152,7 @@ export class ZakenMijnComponent
     this.table().dataSource = this.dataSource;
   }
 
-  isAfterDate(datum: Date | moment.Moment | string) {
+  isAfterDate(datum: DateInput) {
     return DateConditionals.isExceeded(datum);
   }
 

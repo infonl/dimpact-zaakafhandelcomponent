@@ -55,10 +55,11 @@ import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.task.TaskHistoryService
+import nl.info.zac.time.ZacTime
+import nl.info.zac.time.toDate
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.time.toDate
-import nl.info.zac.util.toLocalDate
+import nl.info.zac.util.toValidatedLocalDate
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.time.LocalDate
@@ -99,6 +100,7 @@ class PlanItemsRestService @Inject constructor(
     companion object {
         private const val REDEN_OPSCHORTING = "Aanvullende informatie opgevraagd"
         private const val REDEN_PAST_FATALE_DATUM = "Aanvullende informatie opgevraagd"
+        const val TAAKDATA_DATUM_GEVRAAGD = "datumGevraagd"
     }
 
     @GET
@@ -160,7 +162,7 @@ class PlanItemsRestService @Inject constructor(
             zaak = zaak
         )?.also {
             if (isZaakOpschorten(taakdata)) {
-                val numberOfDays = ChronoUnit.DAYS.between(LocalDate.now(), it)
+                val numberOfDays = ChronoUnit.DAYS.between(ZacTime.today(), it)
                 suspensionZaakHelper.suspendZaak(zaak, numberOfDays, REDEN_OPSCHORTING)
             } else if (it.isAfter(zaak.uiterlijkeEinddatumAfdoening)) {
                 val numberOfDays = ChronoUnit.DAYS.between(zaak.uiterlijkeEinddatumAfdoening, it)
@@ -171,6 +173,9 @@ class PlanItemsRestService @Inject constructor(
         val formulierDefinitieID = zaaktypeConfiguration?.cmmnExtension
             ?.findHumanTaskParameter(planItem.planItemDefinitionId)
             ?.getFormulierDefinitieID()
+        if (formulierDefinitieID == FormulierDefinitie.AANVULLENDE_INFORMATIE.name) {
+            taakdata[TAAKDATA_DATUM_GEVRAAGD] = ZacTime.today().toString()
+        }
         readTaskMail(formulierDefinitieID)?.let { mail ->
             val mailTemplate = zaaktypeConfiguration?.getMailtemplateKoppelingen().orEmpty()
                 .map { it.mailTemplate }
@@ -275,7 +280,7 @@ class PlanItemsRestService @Inject constructor(
                 zaak = zaak,
                 resultaatTypeUUID = resultaattypeUUID,
                 description = userEventListenerData.resultaatToelichting,
-                brondatum = userEventListenerData.brondatum?.let(String::toLocalDate)
+                brondatum = userEventListenerData.brondatum?.toValidatedLocalDate()
             )
         } ?: throw InputValidationFailedException(
             errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
@@ -285,7 +290,7 @@ class PlanItemsRestService @Inject constructor(
 
     private fun handleBrondatumZetten(zaak: Zaak, userEventListenerData: RestUserEventListenerData) {
         userEventListenerData.brondatum?.let {
-            val brondatum = it.let(String::toLocalDate)
+            val brondatum = it.toValidatedLocalDate()
             LOG.info { "Set brondatum to $brondatum for ${zaak.identificatie}" }
             zgwApiService.setBrondatum(zaak, brondatum)
         } ?: throw InputValidationFailedException(
@@ -319,7 +324,7 @@ class PlanItemsRestService @Inject constructor(
         zaakFatalDate: LocalDate?
     ): LocalDate? {
         zaaktypeCmmnHumantaskParameters?.doorlooptijd?.let { days ->
-            var calculatedFinalDate = LocalDate.now().plusDays(days.toLong())
+            var calculatedFinalDate = ZacTime.today().plusDays(days.toLong())
             if (zaakFatalDate != null && calculatedFinalDate.isAfter(zaakFatalDate)) {
                 calculatedFinalDate = zaakFatalDate
             }

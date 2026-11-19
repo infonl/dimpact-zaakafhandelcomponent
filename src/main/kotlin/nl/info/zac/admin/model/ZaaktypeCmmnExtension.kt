@@ -95,6 +95,24 @@ class ZaaktypeCmmnExtension {
         userEventListenerParameters.mergeWith(desired) { it.planItemDefinitionID }
     }
 
+    /**
+     * Adds a setting without toelichting for each user event listener that has none, because listing the actions of
+     * a zaak needs a setting for each user event listener of its case definition. Existing settings stay as they are.
+     */
+    fun addMissingUserEventListenerParameters(planItemDefinitionIds: Collection<String>) {
+        val existingPlanItemDefinitionIds = getUserEventListenerParametersCollection().map { it.planItemDefinitionID }
+        val missingUserEventListenerParameters = planItemDefinitionIds
+            .filterNot { it in existingPlanItemDefinitionIds }
+            .map { ZaaktypeCmmnUsereventlistenerParameters().apply { planItemDefinitionID = it } }
+        if (missingUserEventListenerParameters.isEmpty()) return
+        missingUserEventListenerParameters.forEach { it.zaaktypeCmmnExtension = this }
+        val userEventListenerParameters = zaaktypeCmmnUsereventlistenerParametersCollection
+            ?: mutableSetOf<ZaaktypeCmmnUsereventlistenerParameters>().also {
+                zaaktypeCmmnUsereventlistenerParametersCollection = it
+            }
+        userEventListenerParameters.addAll(missingUserEventListenerParameters)
+    }
+
     @Suppress("TooGenericExceptionThrown")
     fun readUserEventListenerParameters(planitemDefinitionID: String): ZaaktypeCmmnUsereventlistenerParameters =
         getUserEventListenerParametersCollection().firstOrNull {

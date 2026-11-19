@@ -11,6 +11,7 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.app.signalering.model.RestSignaleringInstellingen
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
+import nl.info.zac.time.ZacTime
 import org.flowable.task.api.TaskInfo
 import java.time.ZonedDateTime
 
@@ -33,7 +34,7 @@ fun createSignalering(
     zaak: Zaak? = createZaak(),
     taskInfo: TaskInfo? = null,
     enkelvoudigInformatieObject: EnkelvoudigInformatieObject? = null,
-    tijdstip: ZonedDateTime = ZonedDateTime.now(),
+    tijdstip: ZonedDateTime = ZacTime.now(),
     targetUser: User? = null,
     targetGroup: Group? = null
 ) = Signalering().apply {

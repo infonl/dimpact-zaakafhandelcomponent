@@ -7,6 +7,7 @@ package nl.info.client.zgw.shared.model.audit
 
 import nl.info.client.zgw.shared.model.Bron
 import nl.info.client.zgw.zrc.model.generated.Wijzigingen
+import nl.info.zac.time.ZacTime
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -27,7 +28,7 @@ fun <T> createAuditTrailRegel(
     resourceUrl: URI,
     toelichting: String,
     resourceWeergave: String = "123443210 - ZAAK-2024-0000000003",
-    aanmaakdatum: ZonedDateTime = ZonedDateTime.now(),
+    aanmaakdatum: ZonedDateTime = ZacTime.now(),
     wijzigingen: AuditWijziging<T>
 ) = AuditTrailRegel(
     uuid = uuid,
@@ -65,7 +66,7 @@ fun createZrcAuditTrailRegel(
     resourceUrl: URI,
     toelichting: String,
     resourceWeergave: String = "123443210 - ZAAK-2024-0000000003",
-    aanmaakdatum: ZonedDateTime = ZonedDateTime.now(),
+    aanmaakdatum: ZonedDateTime = ZacTime.now(),
     wijzigingen: Wijzigingen
 ) = ZrcAuditTrailRegel(
     url = uri,

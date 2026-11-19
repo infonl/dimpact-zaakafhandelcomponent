@@ -15,7 +15,9 @@ import nl.info.client.zgw.ztc.model.CatalogusListParameters
 import nl.info.client.zgw.ztc.model.generated.Catalogus
 import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.time.ZacTime
 import org.eclipse.microprofile.health.HealthCheckResponse
+import java.time.OffsetDateTime
 
 class OpenZaakReadinessHealthCheckTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
@@ -69,8 +71,12 @@ class OpenZaakReadinessHealthCheckTest : BehaviorSpec({
                     result.status shouldBe HealthCheckResponse.Status.DOWN
                 }
 
-                and("the error data contains the exception message") {
-                    result.data.get()["error"] shouldBe "fakeConnectionError"
+                and("the error data contains the exception message and the time with the offset of Europe/Amsterdam") {
+                    with(result.data.get()) {
+                        get("error") shouldBe "fakeConnectionError"
+                        val time = OffsetDateTime.parse(get("time").toString())
+                        time.offset shouldBe ZacTime.ZONE.rules.getOffset(time.toInstant())
+                    }
                 }
             }
         }

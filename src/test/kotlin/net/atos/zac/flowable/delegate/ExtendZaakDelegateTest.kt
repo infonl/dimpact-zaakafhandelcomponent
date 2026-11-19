@@ -14,7 +14,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.runs
-import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import nl.info.client.zgw.model.createZaak
@@ -29,11 +28,11 @@ import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.shared.helper.SuspensionZaakHelper
+import nl.info.zac.time.ZacTime
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.zaak.ZaakService
 import org.flowable.common.engine.impl.el.JuelExpression
 import org.flowable.engine.delegate.DelegateExecution
-import java.time.LocalDate
 
 class ExtendZaakDelegateTest : BehaviorSpec({
     val delegateExecution = mockk<DelegateExecution>()
@@ -50,7 +49,7 @@ class ExtendZaakDelegateTest : BehaviorSpec({
     }
 
     given("Process using ExtendZaakDelegate with a JUEL expressions") {
-        val zaak = createZaak(einddatumGepland = LocalDate.now())
+        val zaak = createZaak(einddatumGepland = ZacTime.today())
         val zaaktype = createZaakType(uri = zaak.zaaktype)
         val extendDays = 2
 
@@ -82,14 +81,10 @@ class ExtendZaakDelegateTest : BehaviorSpec({
         val takenVerlengenExpression = mockk<JuelExpression>()
         every { takenVerlengenExpression.getValue(delegateExecution) } returns true
 
-        val dueDateSlot = slot<LocalDate>()
-        val fatalDateSlot = slot<LocalDate>()
         every {
             suspensionZaakHelper.extendZaak(
                 zaak = zaak,
                 zaakType = zaaktype,
-                dueDate = capture(dueDateSlot),
-                fatalDate = capture(fatalDateSlot),
                 extensionReason = any<String>(),
                 numberOfDays = extendDays
             )
@@ -122,18 +117,11 @@ class ExtendZaakDelegateTest : BehaviorSpec({
                     suspensionZaakHelper.extendZaak(
                         zaak = zaak,
                         zaakType = zaaktype,
-                        dueDate = any<LocalDate>(),
-                        fatalDate = any<LocalDate>(),
                         extensionReason = any<String>(),
                         numberOfDays = extendDays
                     )
                     suspensionZaakHelper.extendTasks(zaak, extendDays)
                 }
-            }
-
-            and("due date and fatal date are extended") {
-                dueDateSlot.captured shouldBe zaak.einddatumGepland.plusDays(extendDays.toLong())
-                fatalDateSlot.captured shouldBe zaak.uiterlijkeEinddatumAfdoening.plusDays(extendDays.toLong())
             }
 
             and("events are sent") {
@@ -146,7 +134,7 @@ class ExtendZaakDelegateTest : BehaviorSpec({
     }
 
     given("Process using ExtendZaakDelegate when user is not authorized to extend zaak") {
-        val zaak = createZaak(einddatumGepland = LocalDate.now())
+        val zaak = createZaak(einddatumGepland = ZacTime.today())
         val zaaktype = createZaakType(uri = zaak.zaaktype)
 
         mockkObject(FlowableHelper)
@@ -185,8 +173,6 @@ class ExtendZaakDelegateTest : BehaviorSpec({
                     suspensionZaakHelper.extendZaak(
                         zaak = any(),
                         zaakType = any(),
-                        dueDate = any(),
-                        fatalDate = any(),
                         extensionReason = any(),
                         numberOfDays = any()
                     )

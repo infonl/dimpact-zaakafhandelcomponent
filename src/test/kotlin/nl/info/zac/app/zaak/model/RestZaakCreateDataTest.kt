@@ -9,6 +9,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import jakarta.json.bind.JsonbBuilder
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.time.ZacTime
 import java.time.LocalDate
 
 class RestZaakCreateDataTest : BehaviorSpec({
@@ -90,7 +91,7 @@ class RestZaakCreateDataTest : BehaviorSpec({
             )
 
             then("the zaak starts today") {
-                zaak.startdatum shouldBe LocalDate.now()
+                zaak.startdatum shouldBe ZacTime.today()
             }
         }
     }

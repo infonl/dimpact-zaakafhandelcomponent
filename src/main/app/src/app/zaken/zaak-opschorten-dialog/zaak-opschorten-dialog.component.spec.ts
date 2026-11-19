@@ -14,7 +14,7 @@ import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
-import { provideZacDateAdapter } from "../../shared/form/date/provide-zac-date-adapter";
+import { provideZacDateAdapter } from "../../date-time";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakOpschortenDialogComponent } from "./zaak-opschorten-dialog.component";
 
@@ -90,9 +90,83 @@ describe(ZaakOpschortenDialogComponent.name, () => {
     expect(screen.getByLabelText(/einddatum.?gepland/i)).toBeInTheDocument();
   });
 
+  async function pickDate(label: RegExp, date: string) {
+    const user = userEvent.setup();
+    const input = screen.getByLabelText(label);
+    if (date) {
+      await user.type(input, date, {
+        initialSelectionStart: 0,
+        initialSelectionEnd: Infinity,
+      });
+    } else {
+      await user.clear(input);
+    }
+    fixture.detectChanges();
+  }
+
+  function opschortduur() {
+    return screen.getByRole("spinbutton", { name: /opschortduur/i });
+  }
+
+  it("suspends for the days between the uiterlijke einddatum afdoening and the picked date", async () => {
+    await setup(makeZaak({ uiterlijkeEinddatumAfdoening: "2026-12-31" }));
+
+    await pickDate(/uiterlijke.?einddatum.?afdoening/i, "2027-01-05");
+
+    expect(opschortduur()).toHaveValue(5);
+  });
+
+  it("suspends for the days between the einddatum gepland and the picked date, and moves the uiterlijke einddatum afdoening as far", async () => {
+    await setup(
+      makeZaak({
+        einddatumGepland: "2026-06-30",
+        uiterlijkeEinddatumAfdoening: "2026-12-31",
+      }),
+    );
+
+    await pickDate(/einddatum.?gepland/i, "2026-07-03");
+
+    expect(opschortduur()).toHaveValue(3);
+    expect(
+      screen.getByLabelText(/uiterlijke.?einddatum.?afdoening/i),
+    ).toHaveValue("2027-01-03");
+  });
+
+  it("clears the opschortduur when the einddatum gepland is cleared", async () => {
+    await setup(makeZaak({ einddatumGepland: "2026-06-30" }));
+    await pickDate(/einddatum.?gepland/i, "2026-07-03");
+
+    await pickDate(/einddatum.?gepland/i, "");
+
+    expect(opschortduur()).toHaveValue(null);
+  });
+
+  it("clears the opschortduur when the uiterlijke einddatum afdoening is cleared", async () => {
+    await setup(makeZaak({ uiterlijkeEinddatumAfdoening: "2026-12-31" }));
+    await pickDate(/uiterlijke.?einddatum.?afdoening/i, "2027-01-05");
+
+    await pickDate(/uiterlijke.?einddatum.?afdoening/i, "");
+
+    expect(opschortduur()).toHaveValue(null);
+  });
+
   it("does not offer to suspend before the form is filled in", async () => {
     await setup();
 
+    expect(opschortenButton()).toBeDisabled();
+  });
+
+  it("leaves the uiterlijke einddatum afdoening empty and does not offer to suspend when the zaak has none", async () => {
+    await setup(makeZaak({ uiterlijkeEinddatumAfdoening: null }));
+    const user = userEvent.setup();
+
+    await user.type(opschortduur(), "5");
+    await user.type(screen.getByRole("textbox", { name: /reason/i }), "Reden");
+    fixture.detectChanges();
+
+    expect(
+      screen.getByLabelText(/uiterlijke.?einddatum.?afdoening/i),
+    ).toHaveValue("");
     expect(opschortenButton()).toBeDisabled();
   });
 

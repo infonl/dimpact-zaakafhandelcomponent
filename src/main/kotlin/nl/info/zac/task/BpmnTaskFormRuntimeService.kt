@@ -24,10 +24,10 @@ import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.task.model.BpmnTaskFormData
-import nl.info.zac.util.time.toDate
-import nl.info.zac.util.time.toLocalDate
+import nl.info.zac.time.ZacTime
+import nl.info.zac.time.toDate
+import nl.info.zac.time.toLocalDate
 import org.flowable.task.api.Task
-import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.UUID
@@ -81,7 +81,7 @@ class BpmnTaskFormRuntimeService @Inject constructor(
         if (bpmnTaskFormData.shouldZaakOpschorten && !zaak.isOpgeschort()) {
             suspensionZaakHelper.suspendZaak(
                 zaak,
-                ChronoUnit.DAYS.between(LocalDate.now(), submittedTask.dueDate.toLocalDate()),
+                ChronoUnit.DAYS.between(ZacTime.today(), submittedTask.dueDate.toLocalDate()),
                 restTask.formioFormulier?.getString(FORMIO_TITLE, null)
             )
         }

@@ -6,7 +6,6 @@ package nl.info.zac.app.zaak.model
 
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.time.LocalDate
 
 @NoArgConstructor
 @AllOpen
@@ -15,9 +14,5 @@ data class RestZaakVerlengGegevens(
 
     var duurDagen: Int = 0,
 
-    var shouldTakenVerlengen: Boolean,
-
-    var einddatumGepland: LocalDate? = null,
-
-    var uiterlijkeEinddatumAfdoening: LocalDate? = null
+    var shouldTakenVerlengen: Boolean
 )

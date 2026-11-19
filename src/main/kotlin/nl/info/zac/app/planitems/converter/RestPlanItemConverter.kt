@@ -14,9 +14,9 @@ import nl.info.zac.admin.model.ZaaktypeCmmnExtension
 import nl.info.zac.app.planitems.model.PlanItemType
 import nl.info.zac.app.planitems.model.RestPlanItem
 import nl.info.zac.app.planitems.model.UserEventListenerActie
+import nl.info.zac.time.ZacTime
 import org.flowable.cmmn.api.runtime.PlanItemDefinitionType
 import org.flowable.cmmn.api.runtime.PlanItemInstance
-import java.time.LocalDate
 import java.util.UUID
 
 class RestPlanItemConverter @Inject constructor(
@@ -83,7 +83,7 @@ class RestPlanItemConverter @Inject constructor(
                     }
                     groepId = it.groepID
                     it.doorlooptijd?.let { days ->
-                        fataleDatum = LocalDate.now().plusDays(days.toLong())
+                        fataleDatum = ZacTime.today().plusDays(days.toLong())
                     }
                 }
         }

@@ -8,10 +8,9 @@ package nl.info.zac.app.search.converter
 
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
-import nl.info.zac.app.search.model.RestDatumRange
+import nl.info.zac.app.search.model.RestDateRange
 import nl.info.zac.app.search.model.RestZoekParameters
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.search.model.DatumRange
 import nl.info.zac.search.model.DatumVeld
 import nl.info.zac.search.model.FilterParameters
 import nl.info.zac.search.model.FilterVeld
@@ -35,10 +34,8 @@ class RestZoekParametersConverter @Inject constructor(
         restZoekParameters.filters?.forEach { (filterVeld: FilterVeld, filterParameters: FilterParameters) ->
             zoekParameters.addFilter(filterVeld, filterParameters)
         }
-        restZoekParameters.datums?.forEach { (key: DatumVeld, value: RestDatumRange) ->
-            if (value.hasValue()) {
-                zoekParameters.addDatum(key, DatumRange(value.van, value.tot))
-            }
+        restZoekParameters.datums?.forEach { (key: DatumVeld, value: RestDateRange) ->
+            value.toDateRange()?.let { zoekParameters.addDatum(key, it) }
         }
         if (restZoekParameters.isAlleenOpenstaandeZaken) {
             zoekParameters.addFilterQuery(ZaakZoekObject.AFGEHANDELD_FIELD, BooleanUtils.FALSE)

@@ -23,8 +23,8 @@ import nl.info.zac.notification.Resource
 import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.signalering.model.createSignalering
 import nl.info.zac.signalering.model.createSignaleringType
+import nl.info.zac.time.ZacTime
 import java.net.URI
-import java.time.ZonedDateTime
 import java.util.UUID
 
 class ScreenEventTypeTest : BehaviorSpec({
@@ -37,7 +37,7 @@ class ScreenEventTypeTest : BehaviorSpec({
         resource = resource,
         resourceUrl = URI("https://example.com/zaken/api/v1/${resource.name.lowercase()}/$resourceUuid"),
         action = action,
-        creationDateTime = ZonedDateTime.now()
+        creationDateTime = ZacTime.now()
     )
 
     context("Mapping notifications about a resource that belongs to a zaak") {

@@ -93,8 +93,10 @@ import nl.info.zac.itest.config.TestGroup
 import nl.info.zac.itest.config.TestUser
 import nl.info.zac.itest.config.ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
 import nl.info.zac.itest.util.WebSocketTestListener
+import nl.info.zac.itest.util.nowInZac
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
+import nl.info.zac.itest.util.todayInZac
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
@@ -102,8 +104,6 @@ import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import java.net.HttpURLConnection.HTTP_NOT_FOUND
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
-import java.time.LocalDate
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import kotlin.random.Random
@@ -127,7 +127,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val longitude = Random.nextFloat()
     val latitude = Random.nextFloat()
-    val startDateNew = LocalDate.now()
+    val startDateNew = todayInZac()
     val fatalDateNew = startDateNew.plusDays(1)
     lateinit var zaak1UUID: UUID
     lateinit var zaak2UUID: UUID
@@ -501,7 +501,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "canWijzigenDoorlooptijd": true,
                         "canWijzigenLocatie": true
                       },
-                      "registratiedatum": "${LocalDate.now()}",
+                      "registratiedatum": "${todayInZac()}",
                       "startdatum": "$DATE_2020_01_01",
                       "toelichting": "$ZAAK_EXPLANATION_1",
                       "uiterlijkeEinddatumAfdoening": "$DATE_2021_01_01",
@@ -932,7 +932,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "isVerlengd": false,
                       "kenmerken": [],
                       "omschrijving": "changedDescription",         
-                      "registratiedatum": "${LocalDate.now()}",
+                      "registratiedatum": "${todayInZac()}",
                       "startdatum": "$startDateNew",
                       "toelichting": "$ZAAK_EXPLANATION_1",
                       "uiterlijkeEinddatumAfdoening": "$fatalDateNew",
@@ -2278,7 +2278,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             which is before today plus the 'fatal date warning window' of the related zaaktype plus one day
             """
         ) {
-            val today = ZonedDateTime.now()
+            val today = nowInZac()
             val yesterday = today.minusDays(1)
             val tomorrow = today.plusDays(1)
             val zaakDescription = "itestZaakDescription-${System.currentTimeMillis()}"

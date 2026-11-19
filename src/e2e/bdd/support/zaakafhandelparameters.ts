@@ -7,13 +7,15 @@ import { dataOf, type Schemas, type ZacApi } from "./zac-api";
 
 const CMMN_CASE_DEFINITION_KEY = "generiek-zaakafhandelmodel";
 const NIET_ONTVANKELIJK_RESULTAATTYPE = "Geweigerd";
+// The kind stack and the test environments have far fewer zaaktypes, so one page holds them all.
+const ALL_ZAAKTYPES = 1000;
 const STATUS_MAIL_OFF: Schemas["ZaakafhandelparametersStatusMailOption"] =
   "BESCHIKBAAR_UIT";
 const REFERENTIETABELLEN_OF_HUMAN_TASK: Record<string, string[]> = {
   ADVIES_INTERN: ["ADVIES"],
 };
 
-type Zaaktype = Schemas["RestZaaktypeOverzicht"];
+type Zaaktype = Schemas["RestZaaktypeBeheerOverzicht"];
 type ZaaktypeConfiguration = Schemas["RestZaaktypeConfiguration"];
 
 async function groepNamed(api: ZacApi, naam: string) {
@@ -28,13 +30,14 @@ async function groepNamed(api: ZacApi, naam: string) {
 }
 
 async function currentZaaktypeNamed(api: ZacApi, omschrijving: string) {
-  const configurations = await dataOf(api.GET("/rest/zaakafhandelparameters"));
-  const zaaktypes = configurations.map(
-    (configuration) => configuration.zaaktype,
+  const { resultaten = [] } = await dataOf(
+    api.GET("/rest/zaakafhandelparameters", {
+      params: { query: { isNuGeldig: true, rows: ALL_ZAAKTYPES } },
+    }),
   );
+  const zaaktypes = resultaten.map((configuration) => configuration.zaaktype);
   const zaaktype = zaaktypes.find(
-    (candidate) =>
-      candidate.omschrijving === omschrijving && candidate.isNuGeldig,
+    (candidate) => candidate.omschrijving === omschrijving,
   );
   if (!zaaktype) {
     const known = [

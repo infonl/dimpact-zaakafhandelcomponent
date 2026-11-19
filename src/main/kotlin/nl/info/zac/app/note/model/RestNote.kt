@@ -6,6 +6,7 @@ package nl.info.zac.app.note.model
 
 import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.note.model.Note
+import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
@@ -40,6 +41,6 @@ data class RestNote(
 fun RestNote.toNote(employeeUsername: String) = Note().apply {
     zaakUUID = this@toNote.zaakUUID
     text = this@toNote.text
-    dateTimeLastModified = ZonedDateTime.now()
+    dateTimeLastModified = ZacTime.now()
     this.employeeUsername = employeeUsername
 }

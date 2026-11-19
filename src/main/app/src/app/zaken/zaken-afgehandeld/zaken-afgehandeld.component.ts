@@ -24,9 +24,9 @@ import { MatSort, MatSortHeader } from "@angular/material/sort";
 import { MatTable, MatTableModule } from "@angular/material/table";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
-import moment from "moment";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { UtilService } from "../../core/service/util.service";
+import { DateInput } from "../../date-time";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
 import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
@@ -163,10 +163,7 @@ export class ZakenAfgehandeldComponent
     this.table().dataSource = this.dataSource;
   }
 
-  protected isAfterDateLimit(
-    date: Date | moment.Moment | string,
-    dateLimit: Date | moment.Moment | string,
-  ): boolean {
+  protected isAfterDateLimit(date: DateInput, dateLimit: DateInput): boolean {
     return DateConditionals.isExceeded(date, dateLimit);
   }
 

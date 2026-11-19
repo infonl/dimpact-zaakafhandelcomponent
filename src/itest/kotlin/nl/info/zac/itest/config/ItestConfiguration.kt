@@ -4,11 +4,12 @@
  */
 package nl.info.zac.itest.config
 
+import nl.info.zac.itest.util.ZAC_ZONE
+import nl.info.zac.itest.util.nowInZac
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Month
 import java.time.ZonedDateTime
-import java.util.TimeZone
 import java.util.UUID
 
 /**
@@ -359,12 +360,13 @@ object ItestConfiguration {
     @Suppress("MagicNumber")
     val DATE_2026_07_23: LocalDate = LocalDate.of(2026, Month.JULY, 23)
 
-    val DATE_TIME_2000_01_01: ZonedDateTime = DATE_2000_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
-    val DATE_TIME_2020_01_01: ZonedDateTime = DATE_2020_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
-    val DATE_TIME_2024_01_01: ZonedDateTime = DATE_2024_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
-    val DATE_TIME_2024_01_31: ZonedDateTime = DATE_2024_01_31.atStartOfDay(TimeZone.getDefault().toZoneId())
+    val DATE_TIME_2000_01_01: ZonedDateTime = DATE_2000_01_01.atStartOfDay(ZAC_ZONE)
+    val DATE_TIME_2020_01_01: ZonedDateTime = DATE_2020_01_01.atStartOfDay(ZAC_ZONE)
+    val DATE_TIME_2024_01_01: ZonedDateTime = DATE_2024_01_01.atStartOfDay(ZAC_ZONE)
+    val DATE_TIME_2024_01_31: ZonedDateTime = DATE_2024_01_31.atStartOfDay(ZAC_ZONE)
 
     val ZAAKTYPE_CMMN_TEST_1_UUID: UUID = UUID.fromString("8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a")
+    const val ZAAKTYPE_CMMN_TEST_1_BEGIN_GELDIGHEID = "2025-07-01"
     val ZAAKTYPE_CMMN_TEST_1_VERSION_2_UUID: UUID = UUID.fromString("ffa8a2a5-44ab-4644-ae6e-1d3c6d122e5a")
     const val ZAAKTYPE_CMMN_TEST_1_VERSION_2_RESULTAATTYPE_GEWEIGERD_UUID = "19d9ad5d-d341-4179-a0e3-52b3d53e8965"
     const val ZAAKTYPE_CMMN_TEST_1_VERSION_2_RESULTAATTYPE_AFGEBROKEN_UUID = "4132de6c-ed50-496e-a22e-536d9c03feba"
@@ -392,7 +394,7 @@ object ItestConfiguration {
     const val ZAAKTYPE_CMMN_TEST_4_DESCRIPTION = "Test zaaktype 4"
     const val ZAAKTYPE_CMMN_TEST_4_DOEL = "Testen afhandelwijze brondatum"
 
-    val START_DATE: LocalDateTime = LocalDateTime.now()
+    val START_DATE: LocalDateTime = nowInZac().toLocalDateTime()
 
     // BPMN tests constants
     val ZAAKTYPE_BPMN_TEST_1_UUID: UUID = UUID.fromString("26076928-ce07-4d5d-8638-c2d276f6caca")

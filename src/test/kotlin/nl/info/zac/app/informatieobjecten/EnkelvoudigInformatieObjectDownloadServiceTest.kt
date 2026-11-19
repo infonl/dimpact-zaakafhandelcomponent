@@ -18,11 +18,11 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectDownloadException
+import nl.info.zac.time.ZacTime
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.net.URI
-import java.time.LocalDate
 import java.util.UUID
 import java.util.zip.ZipInputStream
 
@@ -53,7 +53,7 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
         val zaakUri = URI("https://example.com/zaak/${UUID.randomUUID()}")
         val informatieobject = createEnkelvoudigInformatieObject(
             uuid = uuid,
-            ontvangstdatum = LocalDate.now()
+            ontvangstdatum = ZacTime.today()
         ).apply {
             identificatie = "DOC-001"
             bestandsnaam = "report.pdf"
@@ -94,7 +94,7 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
         val informatieobject = createEnkelvoudigInformatieObject(uuid = uuid, ontvangstdatum = null).apply {
             identificatie = "DOC-002"
             bestandsnaam = "letter.docx"
-            verzenddatum = LocalDate.now()
+            verzenddatum = ZacTime.today()
         }
 
         every { zrcClientService.listZaakinformatieobjecten(informatieobject) } returns
@@ -152,7 +152,7 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
         val zaakUri2 = URI("https://example.com/zaak/${UUID.randomUUID()}")
         val informatieobject1 = createEnkelvoudigInformatieObject(
             uuid = uuid1,
-            ontvangstdatum = LocalDate.now()
+            ontvangstdatum = ZacTime.today()
         ).apply {
             identificatie = "DOC-A"
             bestandsnaam = "doc-a.pdf"
@@ -197,7 +197,7 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
         val zaakUri = URI("https://example.com/zaak/${UUID.randomUUID()}")
         val informatieobject = createEnkelvoudigInformatieObject(
             uuid = uuid,
-            ontvangstdatum = LocalDate.now()
+            ontvangstdatum = ZacTime.today()
         ).apply {
             identificatie = "DOC-FAIL"
             bestandsnaam = "broken.pdf"

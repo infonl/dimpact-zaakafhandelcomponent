@@ -5,7 +5,7 @@
 package nl.info.zac.documentcreation.model
 
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import java.time.ZonedDateTime
+import java.time.LocalDate
 
 data class DocumentCreationDataAttended(
     val zaak: Zaak,
@@ -22,5 +22,5 @@ data class DocumentCreationDataAttended(
 
     var author: String? = null,
 
-    var creationDate: ZonedDateTime,
+    var creationDate: LocalDate,
 )

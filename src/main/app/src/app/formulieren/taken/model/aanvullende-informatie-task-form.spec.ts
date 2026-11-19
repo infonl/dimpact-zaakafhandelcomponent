@@ -5,14 +5,16 @@
 
 import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
+import { FormGroup } from "@angular/forms";
 import { provideTranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import moment from "moment";
 import { sleep } from "../../../../../setupJest";
 import { createQueryOptions, fromPartial } from "../../../../test-helpers";
+import { isPickedDate, toApiDate, toPickedDate } from "../../../date-time";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZakenService } from "../../../zaken/zaken.service";
+import { mapFormGroupToTaskData } from "../taak.utils";
 import { AanvullendeInformatieTaskForm } from "./aanvullende-informatie-task-form";
 
 function afzendersQuery(afzenders: GeneratedType<"RestZaakAfzender">[]) {
@@ -134,7 +136,6 @@ describe(AanvullendeInformatieTaskForm.name, () => {
           "replyTo",
           "emailadres",
           "body",
-          "datumGevraagd",
           "bijlagen",
           "taakFataledatum",
           "messageField",
@@ -148,12 +149,26 @@ describe(AanvullendeInformatieTaskForm.name, () => {
         expect(field?.hidden).toBe(true);
       });
 
-      it("should set datumGevraagd as hidden with a moment value", async () => {
-        const fields = await requestForm(mockZaak);
+      it("leaves datumGevraagd to the backend and puts taakFataledatum in the task data as a date without a time", async () => {
+        const fields = await requestForm(
+          mockZaak,
+          fromPartial<GeneratedType<"RestPlanItem">>({
+            fataleDatum: "2026-06-01",
+          }),
+        );
+        const formGroup = new FormGroup(
+          Object.fromEntries(
+            fields.flatMap(({ key, control }) =>
+              control ? [[key, control]] : [],
+            ),
+          ),
+        );
 
-        const field = fields.find((f) => f.key === "datumGevraagd");
-        expect(field?.hidden).toBe(true);
-        expect(moment.isMoment(field?.control?.value)).toBe(true);
+        const taskData = mapFormGroupToTaskData(formGroup, {});
+        expect(taskData).toEqual(
+          expect.objectContaining({ taakFataledatum: "2026-06-01" }),
+        );
+        expect(taskData).not.toHaveProperty("datumGevraagd");
       });
 
       it("should set body control value to mail template body", async () => {
@@ -283,13 +298,8 @@ describe(AanvullendeInformatieTaskForm.name, () => {
         const fields = await requestForm(mockZaak, planItem);
 
         const datumField = fields.find((f) => f.key === "taakFataledatum");
-        expect(moment.isMoment(datumField?.control?.value)).toBe(true);
-        expect(
-          (datumField?.control?.value as moment.Moment).isSame(
-            moment(fataleDatum),
-            "day",
-          ),
-        ).toBe(true);
+        const value = datumField?.control?.value;
+        expect(isPickedDate(value) && toApiDate(value)).toBe(fataleDatum);
       });
     });
 
@@ -348,7 +358,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
         );
         const messageField = fields.find((f) => f.key === "messageField");
 
-        taakFataledatumField?.control?.setValue(moment("2026-12-31"));
+        taakFataledatumField?.control?.setValue(toPickedDate("2026-12-31"));
 
         expect(messageField?.control?.value).toBe(
           "msg.taak.aanvullende-informatie.fatale-datum-taak.overschreden.opgeschort",
@@ -369,7 +379,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
         );
         const messageField = fields.find((f) => f.key === "messageField");
 
-        taakFataledatumField?.control?.setValue(moment("2026-06-01"));
+        taakFataledatumField?.control?.setValue(toPickedDate("2026-06-01"));
 
         expect(messageField?.control?.value).toBe(
           "msg.taak.aanvullende-informatie.fatale-datum-taak.overig.opgeschort",

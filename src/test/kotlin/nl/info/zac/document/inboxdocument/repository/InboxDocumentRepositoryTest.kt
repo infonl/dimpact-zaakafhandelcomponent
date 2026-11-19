@@ -13,14 +13,15 @@ import io.mockk.verify
 import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import jakarta.persistence.criteria.CriteriaQuery
+import jakarta.persistence.criteria.Expression
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocumentListParameters
 import nl.info.zac.document.inboxdocument.repository.model.createInboxDocument
 import nl.info.zac.document.inboxdocument.repository.model.createInboxDocumentListParameters
-import nl.info.zac.search.model.DatumRange
 import nl.info.zac.shared.model.Paging
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.shared.model.Sorting
+import nl.info.zac.time.DateRange
 import java.time.LocalDate
 import java.util.UUID
 
@@ -275,9 +276,9 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
             val listParameters = createInboxDocumentListParameters(
                 title = null,
                 identification = null,
-                creationDateRange = DatumRange(
-                    van = LocalDate.of(2024, 1, 1),
-                    tot = LocalDate.of(2024, 12, 31)
+                creationDateRange = DateRange.Between(
+                    LocalDate.of(2024, 1, 1),
+                    LocalDate.of(2024, 12, 31)
                 )
             )
             val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
@@ -291,15 +292,24 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
                 then("results are returned") {
                     result shouldBe documents
                 }
+                and("the creatiedatum is on or after the first day and before the day after the last day") {
+                    verify {
+                        entityManager.criteriaBuilder.greaterThanOrEqualTo(
+                            any<Expression<LocalDate>>(),
+                            LocalDate.of(2024, 1, 1)
+                        )
+                        entityManager.criteriaBuilder.lessThan(any<Expression<LocalDate>>(), LocalDate.of(2025, 1, 1))
+                    }
+                }
             }
         }
 
-        given("list parameters with only the creatiedatum van boundary") {
+        given("list parameters with only a start date for the creatiedatum") {
             val documents = listOf(createInboxDocument())
             val listParameters = createInboxDocumentListParameters(
                 title = null,
                 identification = null,
-                creationDateRange = DatumRange(van = LocalDate.of(2024, 6, 1), tot = null)
+                creationDateRange = DateRange.From(LocalDate.of(2024, 6, 1))
             )
             val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
                 every { resultList } returns documents
@@ -315,12 +325,12 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
             }
         }
 
-        given("list parameters with only the creatiedatum tot boundary") {
+        given("list parameters with only an end date for the creatiedatum") {
             val documents = listOf(createInboxDocument())
             val listParameters = createInboxDocumentListParameters(
                 title = null,
                 identification = null,
-                creationDateRange = DatumRange(van = null, tot = LocalDate.of(2024, 6, 30))
+                creationDateRange = DateRange.Through(LocalDate.of(2024, 6, 30))
             )
             val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
                 every { resultList } returns documents
@@ -414,9 +424,9 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
                     createInboxDocumentListParameters(
                         title = null,
                         identification = null,
-                        creationDateRange = DatumRange(
-                            van = LocalDate.of(2024, 1, 1),
-                            tot = LocalDate.of(2024, 12, 31)
+                        creationDateRange = DateRange.Between(
+                            LocalDate.of(2024, 1, 1),
+                            LocalDate.of(2024, 12, 31)
                         )
                     )
                 )
@@ -427,7 +437,7 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
             }
         }
 
-        given("list parameters with only the creatiedatum van boundary") {
+        given("list parameters with only a start date for the creatiedatum") {
             val typedQuery = mockk<TypedQuery<Long>>(relaxed = true) {
                 every { singleResult } returns 4L
             }
@@ -438,7 +448,7 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
                     createInboxDocumentListParameters(
                         title = null,
                         identification = null,
-                        creationDateRange = DatumRange(van = LocalDate.of(2024, 6, 1), tot = null)
+                        creationDateRange = DateRange.From(LocalDate.of(2024, 6, 1))
                     )
                 )
 
@@ -448,7 +458,7 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
             }
         }
 
-        given("list parameters with only the creatiedatum tot boundary") {
+        given("list parameters with only an end date for the creatiedatum") {
             val typedQuery = mockk<TypedQuery<Long>>(relaxed = true) {
                 every { singleResult } returns 7L
             }
@@ -459,7 +469,7 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
                     createInboxDocumentListParameters(
                         title = null,
                         identification = null,
-                        creationDateRange = DatumRange(van = null, tot = LocalDate.of(2024, 6, 30))
+                        creationDateRange = DateRange.Through(LocalDate.of(2024, 6, 30))
                     )
                 )
 

@@ -21,13 +21,14 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_4_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RECORDMANAGER_1
+import nl.info.zac.itest.util.ZAC_ZONE
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
+import nl.info.zac.itest.util.todayInZac
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
@@ -109,7 +110,7 @@ class ZaakRestServiceBrondatumAfleidingswijzeEigenschapArchiveTest : BehaviorSpe
 
         `when`("the zaak is completed with afhandelwijze 'Opgelegd - Eigenschap' (afleidingswijze 'eigenschap'") {
             val afhandelenId: Int
-            val brondatum = LocalDate.now().plusMonths(BRONDATUM_MONTHS_IN_FUTURE)
+            val brondatum = todayInZac().plusMonths(BRONDATUM_MONTHS_IN_FUTURE)
             itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/planitems/zaak/$zaakUuid/userEventListenerPlanItems",
                 testUser = RECORDMANAGER_1
@@ -130,7 +131,7 @@ class ZaakRestServiceBrondatumAfleidingswijzeEigenschapArchiveTest : BehaviorSpe
                     "resultaattypeUuid": "$resultaatTypeUuid",
                     "resultaatToelichting":"afronden",
                     "brondatum":"${
-                        brondatum.atStartOfDay(ZoneId.systemDefault()).format(BRONDATUM_FORMATTER)
+                        brondatum.atStartOfDay(ZAC_ZONE).format(BRONDATUM_FORMATTER)
                     }"
                 }
             """.trimIndent()
@@ -273,11 +274,11 @@ class ZaakRestServiceBrondatumAfleidingswijzeEigenschapArchiveTest : BehaviorSpe
         }
 
         `when`("the brondatum is set for the zaak") {
-            val brondatum = LocalDate.now().plusMonths(BRONDATUM_MONTHS_IN_FUTURE)
+            val brondatum = todayInZac().plusMonths(BRONDATUM_MONTHS_IN_FUTURE)
             val requestBodyAsString = """
                 {
                     "brondatum":"${
-                brondatum.atStartOfDay(ZoneId.systemDefault()).format(BRONDATUM_FORMATTER)
+                brondatum.atStartOfDay(ZAC_ZONE).format(BRONDATUM_FORMATTER)
             }"
                 }
             """.trimIndent()

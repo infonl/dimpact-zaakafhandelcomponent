@@ -14,7 +14,7 @@ import nl.info.client.smartdocuments.model.document.ZaakData
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import java.net.URI
-import java.time.ZonedDateTime
+import java.time.LocalDate
 
 fun createAanvragerData(
     naam: String = "fakeNaam",
@@ -51,7 +51,7 @@ fun createDocumentCreationDataAttended(
     templateGroupId: String = "1",
     templateId: String = "2",
     title: String = "title",
-    creationDate: ZonedDateTime = ZonedDateTime.now(),
+    creationDate: LocalDate = LocalDate.of(2026, 1, 30),
 ) = DocumentCreationDataAttended(
     zaak = zaak,
     taskId = taskId,

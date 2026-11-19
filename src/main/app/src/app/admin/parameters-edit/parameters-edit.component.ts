@@ -23,7 +23,7 @@ import {
 import { MatStepperModule } from "@angular/material/stepper";
 import { ActivatedRoute } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
-import { injectQuery } from "@tanstack/angular-query-experimental";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { trackControl } from "../../shared/form/control-state";
 import { injectMutation } from "../../shared/http/inject-mutation";
@@ -34,11 +34,15 @@ import { SmartDocumentsFormComponent } from "../parameters-components/smart-docu
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ParametersStepButtonsComponent } from "./parameters-step-buttons.component";
-import { createActiesFormForProcessDefinition } from "./steps/parameters-step-acties/acties-form";
+import {
+  createActiesForm,
+  createActiesFormForProcessDefinition,
+} from "./steps/parameters-step-acties/acties-form";
 import { ParametersStepActiesComponent } from "./steps/parameters-step-acties/parameters-step-acties.component";
 import { ParametersStepAlgemeenComponent } from "./steps/parameters-step-algemeen/parameters-step-algemeen.component";
 import { ParametersStepBeeindigingComponent } from "./steps/parameters-step-beeindiging/parameters-step-beeindiging.component";
 import {
+  createHumanTasksForm,
   createHumanTasksFormForProcessDefinition,
   syncReferentieTabellen,
 } from "./steps/parameters-step-humantasks/human-tasks-form";
@@ -47,6 +51,7 @@ import { ParametersStepKoppelingenComponent } from "./steps/parameters-step-kopp
 import { ParametersStepMailComponent } from "./steps/parameters-step-mail/parameters-step-mail.component";
 import { ParametersStepProcesModelComponent } from "./steps/parameters-step-proces-model/parameters-step-proces-model.component";
 import {
+  isSameProcessDefinition,
   ProcessDefinition,
   toProcessDefinition,
 } from "./steps/parameters-step-proces-model/process-model-form";
@@ -56,6 +61,9 @@ import {
   toRestConfiguration,
   ZaaktypeConfigurationForm,
 } from "./zaaktype-configuration-form";
+
+const PROCESS_DEFINITION_CANNOT_CHANGE =
+  "msg.error.process.definition.cannot.change";
 
 @Component({
   templateUrl: "./parameters-edit.component.html",
@@ -90,6 +98,7 @@ export class ParametersEditComponent
   );
 
   private readonly referentieTabelService = inject(ReferentieTabelService);
+  private readonly queryClient = inject(QueryClient);
   private readonly formulierDefinitiesQuery = injectQuery(() =>
     this.zaakafhandelParametersService.listFormulierDefinities(),
   );
@@ -140,11 +149,22 @@ export class ParametersEditComponent
     ),
   );
 
+  private readonly isReadingStoredConfiguration = signal(false);
+
+  private readonly areTaskLookupsLoaded = computed(
+    () =>
+      this.processDefinition()?.processEngine !== "CMMN" ||
+      (this.formulierDefinitiesQuery.data() !== undefined &&
+        this.referentieTabellenQuery.data() !== undefined),
+  );
+
   protected readonly canSave = computed(
     () =>
       this.formValid() === true &&
       this.processDefinition() !== null &&
-      !this.updateZaakafhandelparametersMutation.isPending(),
+      this.areTaskLookupsLoaded() &&
+      !this.updateZaakafhandelparametersMutation.isPending() &&
+      !this.isReadingStoredConfiguration(),
   );
 
   constructor() {
@@ -191,31 +211,74 @@ export class ParametersEditComponent
           if (smartDocumentsForm?.enabledForZaaktypeValue) {
             smartDocumentsForm.saveSmartDocumentsMapping();
           }
-          this.configuration.set(savedConfiguration);
-          this.setForm(
-            toForm(savedConfiguration, {
-              isBrpDoelbindingSetupEnabled:
-                this.brpDoelbindingSetupEnabled() ?? false,
-            }),
-          );
+          this.showConfiguration(savedConfiguration);
+        },
+        onError: (error) => {
+          if (error.error?.message !== PROCESS_DEFINITION_CANNOT_CHANGE) return;
+          void this.showConfigurationIfProcessDefinitionLocked();
         },
       },
+    );
+  }
+
+  private async showConfigurationIfProcessDefinitionLocked() {
+    this.isReadingStoredConfiguration.set(true);
+    const storedConfiguration = await this.queryClient
+      .query({
+        ...this.zaakafhandelParametersService.readZaakafhandelparameters(
+          this.configuration().zaaktype.uuid,
+        ),
+        staleTime: 0,
+      })
+      .catch(() => null)
+      .finally(() => this.isReadingStoredConfiguration.set(false));
+    if (
+      !storedConfiguration ||
+      storedConfiguration.isProcessDefinitionChangeable
+    )
+      return;
+
+    this.showConfiguration(storedConfiguration);
+    this.processDefinition.set(storedConfiguration.processDefinition ?? null);
+    this.selectedIndex.set(0);
+  }
+
+  private showConfiguration(
+    configuration: GeneratedType<"RestZaaktypeConfiguration">,
+  ) {
+    this.configuration.set(configuration);
+    this.setForm(
+      toForm(configuration, {
+        isBrpDoelbindingSetupEnabled:
+          this.brpDoelbindingSetupEnabled() ?? false,
+      }),
     );
   }
 
   private setForm(form: ZaaktypeConfigurationForm) {
     form.controls.procesModel.valueChanges.subscribe(() => {
       const processDefinition = toProcessDefinition(form.controls.procesModel);
+      const zaaktypeConfiguration = this.configuration();
+      const isStoredProcessDefinition =
+        processDefinition !== null &&
+        isSameProcessDefinition(
+          processDefinition,
+          zaaktypeConfiguration.processDefinition,
+        );
       form.setControl(
         "humanTasks",
-        createHumanTasksFormForProcessDefinition(
-          processDefinition,
-          form.controls.algemeen.controls.defaultGroepId.value,
-        ),
+        isStoredProcessDefinition
+          ? createHumanTasksForm(zaaktypeConfiguration.humanTaskParameters)
+          : createHumanTasksFormForProcessDefinition(
+              processDefinition,
+              form.controls.algemeen.controls.defaultGroepId.value,
+            ),
       );
       form.setControl(
         "acties",
-        createActiesFormForProcessDefinition(processDefinition),
+        isStoredProcessDefinition
+          ? createActiesForm(zaaktypeConfiguration.userEventListenerParameters)
+          : createActiesFormForProcessDefinition(processDefinition),
       );
       this.syncReferentieTabellen(form);
       applyProcessDefinition(form, processDefinition);
@@ -230,10 +293,14 @@ export class ParametersEditComponent
    * tables; otherwise a configuration saved without opening that step stores none.
    */
   private syncReferentieTabellen(form: ZaaktypeConfigurationForm) {
+    const formulierDefinities = this.formulierDefinitiesQuery.data();
+    const referentieTabellen = this.referentieTabellenQuery.data();
+    if (!formulierDefinities || !referentieTabellen) return;
+
     for (const humanTaskForm of form.controls.humanTasks.controls) {
       syncReferentieTabellen(humanTaskForm, {
-        formulierDefinities: this.formulierDefinitiesQuery.data() ?? [],
-        referentieTabellen: this.referentieTabellenQuery.data() ?? [],
+        formulierDefinities,
+        referentieTabellen,
       });
     }
   }

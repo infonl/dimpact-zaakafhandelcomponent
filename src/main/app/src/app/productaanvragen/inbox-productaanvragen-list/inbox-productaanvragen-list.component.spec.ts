@@ -13,7 +13,6 @@ import {
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
@@ -25,6 +24,7 @@ import { UtilService } from "src/app/core/service/util.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
+import { provideZacDateAdapter } from "../../date-time";
 import { InboxProductaanvragenListComponent } from "./inbox-productaanvragen-list.component";
 
 const SEARCH_PARAMETERS_KEY = "INBOX_PRODUCTAANVRAGEN_ZOEKPARAMETERS";
@@ -82,7 +82,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
           },
           provideHttpClient(withXhr(), withInterceptorsFromDi()),
           provideHttpClientTesting(),
-          provideMomentDateAdapter(),
+          provideZacDateAdapter(),
           provideQueryClient(testQueryClient),
         ],
       },
@@ -277,8 +277,8 @@ describe(InboxProductaanvragenListComponent.name, () => {
     expect(await lastListRequestBody()).toEqual({
       ...UNFILTERED_REQUEST_BODY,
       ontvangstdatum: {
-        van: "2024-01-01T00:00:00.000+01:00",
-        tot: "2024-01-31T00:00:00.000+01:00",
+        from: "2024-01-01",
+        through: "2024-01-31",
       },
     });
   });

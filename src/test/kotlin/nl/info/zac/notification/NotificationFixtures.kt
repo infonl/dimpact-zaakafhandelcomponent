@@ -5,6 +5,7 @@
 
 package nl.info.zac.notification
 
+import nl.info.zac.time.ZacTime
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -12,7 +13,7 @@ import java.util.UUID
 @Suppress("LongParameterList")
 fun createNotificatie(
     channel: Channel = Channel.OBJECTEN,
-    creationDateTime: ZonedDateTime = ZonedDateTime.now(),
+    creationDateTime: ZonedDateTime = ZacTime.now(),
     properties: MutableMap<String, String> = mutableMapOf(
         "objectType" to "https://example.com/fakeproducttype/${UUID.randomUUID()}"
     ),

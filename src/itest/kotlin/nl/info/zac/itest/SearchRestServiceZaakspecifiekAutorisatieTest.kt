@@ -23,9 +23,9 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.TestUser
 import nl.info.zac.itest.config.ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
+import nl.info.zac.itest.util.todayInZac
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_OK
-import java.time.LocalDate
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
@@ -126,7 +126,7 @@ class SearchRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
         taskHelper.startAanvullendeInformatieTaskForZaak(
             zaakUuid = zaakUuid,
             zaakIdentificatie = zaakIdentificatie,
-            fatalDate = LocalDate.now().plusWeeks(1),
+            fatalDate = todayInZac().plusWeeks(1),
             group = GROUP_BEHANDELAARS_TEST_1,
             waitForTaskToBeIndexed = true,
             testUser = BEHANDELAAR_1
@@ -221,7 +221,7 @@ class SearchRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
         taskHelper.startAanvullendeInformatieTaskForZaak(
             zaakUuid = zaakUuid,
             zaakIdentificatie = zaakIdentificatie,
-            fatalDate = LocalDate.now().plusWeeks(1),
+            fatalDate = todayInZac().plusWeeks(1),
             group = GROUP_BEHANDELAARS_TEST_1,
             waitForTaskToBeIndexed = true,
             testUser = BEHANDELAAR_1
@@ -320,7 +320,7 @@ class SearchRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
         taskHelper.startAanvullendeInformatieTaskForZaak(
             zaakUuid = zaakUuid,
             zaakIdentificatie = zaakIdentificatie,
-            fatalDate = LocalDate.now().plusWeeks(1),
+            fatalDate = todayInZac().plusWeeks(1),
             group = GROUP_BEHANDELAARS_TEST_1,
             waitForTaskToBeIndexed = true,
             testUser = BEHANDELAAR_1

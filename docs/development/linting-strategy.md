@@ -125,6 +125,7 @@ Coding conventions that a linter can check are enforced there rather than only d
 | Kotlin class names: `RestZaak`, not `RESTZaak`                | detekt `ClassNaming` (`classPattern`)                            |
 | No `catch (exception: Exception)` in main code                | detekt `TooGenericExceptionCaught` (default)                     |
 | No `requireNotNull` or `runCatching`                          | detekt `ForbiddenMethodCall`                                     |
+| No `now()` without arguments of `LocalDate`, `ZonedDateTime` and the other `java.time` types; use `ZacTime`, or `ItestTime.kt` in the integration tests | detekt `ForbiddenMethodCall` |
 | Boolean properties start with is/has/are/can/should           | detekt `BooleanPropertyNaming`                                   |
 | A call with more than three arguments names them             | detekt `NamedArguments`, unless an argument is already named after its parameter |
 | Kotlin imports are sorted in the IntelliJ IDEA order          | detekt `ImportOrdering` (ktlint wrapper), fixed by `detektApply` |

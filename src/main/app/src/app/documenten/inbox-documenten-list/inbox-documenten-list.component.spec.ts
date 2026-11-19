@@ -13,7 +13,6 @@ import {
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatPaginatorIntl } from "@angular/material/paginator";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
@@ -26,6 +25,7 @@ import { UtilService } from "src/app/core/service/util.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
+import { provideZacDateAdapter } from "../../date-time";
 import { PaginatorTranslator } from "../../shared/paginator/paginator-translator";
 import { InboxDocumentenListComponent } from "./inbox-documenten-list.component";
 
@@ -84,7 +84,7 @@ describe(InboxDocumentenListComponent.name, () => {
           },
           provideHttpClient(withXhr(), withInterceptorsFromDi()),
           provideHttpClientTesting(),
-          provideMomentDateAdapter(),
+          provideZacDateAdapter(),
           provideQueryClient(testQueryClient),
         ],
       },
@@ -218,8 +218,8 @@ describe(InboxDocumentenListComponent.name, () => {
     expect(await lastListRequestBody()).toEqual({
       ...UNFILTERED_REQUEST_BODY,
       creatiedatum: {
-        van: "2024-01-01T00:00:00.000+01:00",
-        tot: "2024-01-31T00:00:00.000+01:00",
+        from: "2024-01-01",
+        through: "2024-01-31",
       },
     });
   });

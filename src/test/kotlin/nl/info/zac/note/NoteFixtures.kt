@@ -5,6 +5,7 @@
 package nl.info.zac.note
 
 import nl.info.zac.note.model.Note
+import nl.info.zac.time.ZacTime
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.UUID.randomUUID
@@ -13,7 +14,7 @@ fun createNote(
     id: Long = 1L,
     zaakUUID: UUID = randomUUID(),
     text: String = "fakeText",
-    dateTimeLastModified: ZonedDateTime = ZonedDateTime.now(),
+    dateTimeLastModified: ZonedDateTime = ZacTime.now(),
     employeeUsername: String = "fakeUsername",
 ) = Note().apply {
     this.id = id

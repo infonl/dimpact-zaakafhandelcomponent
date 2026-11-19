@@ -7,6 +7,7 @@ package nl.info.zac.app.admin
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.validation.Valid
+import jakarta.ws.rs.BeanParam
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST
@@ -33,9 +34,11 @@ import nl.info.zac.app.admin.model.RestTaakFormulierDefinitie
 import nl.info.zac.app.admin.model.RestTaakFormulierVeldDefinitie
 import nl.info.zac.app.admin.model.RestZaakbeeindigReden
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
-import nl.info.zac.app.admin.model.RestZaaktypeConfigurationOverzicht
+import nl.info.zac.app.admin.model.RestZaaktypeConfigurationListParameters
+import nl.info.zac.app.admin.model.RestZaaktypeConfigurationOverzichtResultaat
 import nl.info.zac.app.admin.model.toRestReplyTos
 import nl.info.zac.app.admin.model.toRestZaakbeeindigReden
+import nl.info.zac.app.admin.model.toRestZaaktypeConfigurationOverzichtResultaat
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
 import nl.info.zac.configuration.ConfigurationService
@@ -83,26 +86,24 @@ class ZaaktypeConfigurationRestService @Inject constructor(
         return processDefinitionConverter.listProcessDefinitions()
     }
 
+    /**
+     * Lists one page of the zaaktype configurations of the default catalogus that match the filters, in the
+     * requested order, with the zaaktypes and process definitions of all configurations to filter on.
+     */
     @GET
-    fun listZaaktypeConfigurations(): List<RestZaaktypeConfigurationOverzicht> {
+    fun listZaaktypeConfigurationPage(
+        @BeanParam @Valid restZaaktypeConfigurationListParameters: RestZaaktypeConfigurationListParameters
+    ): RestZaaktypeConfigurationOverzichtResultaat {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
-        return ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
-            .map { zaaktype ->
-                restZaaktypeConfigurationConverter.toRestZaaktypeConfigurationOverzicht(
-                    zaaktypeConfiguration = findOrCreateConfiguration(zaaktype.url.extractUuid()),
-                    zaaktype = zaaktype
-                )
-            }
+        return listRestZaaktypeConfigurationOverzichten()
+            .toRestZaaktypeConfigurationOverzichtResultaat(restZaaktypeConfigurationListParameters)
     }
 
     @GET
     @Path("{zaaktypeUUID}")
     fun readZaaktypeConfiguration(@PathParam("zaaktypeUUID") zaakTypeUUID: UUID): RestZaaktypeConfiguration {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
-        return restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(
-            zaaktypeConfiguration = findOrCreateConfiguration(zaakTypeUUID),
-            inclusiefRelaties = true
-        )
+        return findOrCreateConfiguration(zaakTypeUUID).toRestZaaktypeConfigurationForBeheer()
     }
 
     /**
@@ -113,7 +114,8 @@ class ZaaktypeConfigurationRestService @Inject constructor(
      * configuration, that configuration is updated
      * @throws InputValidationFailedException if the configuration belongs to another zaaktype version than
      * [zaaktypeUUID], if it names no process definition, if the productaanvraagtype is already in use by another active
-     * zaaktype, or if it binds a configuration to another engine than the one it is bound to
+     * zaaktype, if it binds a configuration to another engine or process definition while its zaaktype version has
+     * zaken, or if it binds a configuration to another BPMN process definition that has no active version
      */
     @PUT
     @Path("{zaaktypeUUID}")
@@ -129,12 +131,11 @@ class ZaaktypeConfigurationRestService @Inject constructor(
                     "and not to zaaktype '$zaaktypeUUID'"
             )
         }
-        if (restZaaktypeConfiguration.processDefinition == null) {
-            throw InputValidationFailedException(
+        val processDefinition = restZaaktypeConfiguration.processDefinition
+            ?: throw InputValidationFailedException(
                 errorCode = ERROR_CODE_VALIDATION_GENERIC,
                 message = "The configuration of zaaktype '$zaaktypeUUID' names no process definition"
             )
-        }
         restZaaktypeConfiguration.productaanvraagtype?.also { productaanvraagtype ->
             zaaktypeConfigurationBeheerService.checkProductaanvraagtypeIsNotInUse(
                 productaanvraagtype = productaanvraagtype,
@@ -146,9 +147,16 @@ class ZaaktypeConfigurationRestService @Inject constructor(
                 identityService.validateIfUserIsInGroup(defaultBehandelaarId, defaultGroepId)
             }
         }
+        val isProcessDefinitionStillChangeable =
+            zaaktypeConfigurationBeheerService.checkProcessBindingAndReadChangeability(
+                zaaktypeUuid = zaaktypeUUID,
+                processEngine = processDefinition.processEngine,
+                definitionKey = processDefinition.key
+            )
         return restZaaktypeConfigurationConverter.toZaaktypeConfiguration(restZaaktypeConfiguration)
             .let(zaaktypeConfigurationBeheerService::storeConfiguration)
-            .let { restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(it, true) }
+            .let { restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(it, inclusiefRelaties = true) }
+            .apply { isProcessDefinitionChangeable = isProcessDefinitionStillChangeable }
     }
 
     /**
@@ -282,6 +290,26 @@ class ZaaktypeConfigurationRestService @Inject constructor(
             ?.getZaakbeeindigParameters()
             ?.map { it.zaakbeeindigReden.toRestZaakbeeindigReden() }
             .orEmpty()
+
+    private fun listRestZaaktypeConfigurationOverzichten() =
+        ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
+            .map { zaaktype ->
+                restZaaktypeConfigurationConverter.toRestZaaktypeConfigurationOverzicht(
+                    zaaktypeConfiguration = findOrCreateConfiguration(zaaktype.url.extractUuid()),
+                    zaaktype = zaaktype
+                )
+            }
+
+    /**
+     * Only the beheer screen of one zaaktype version needs [RestZaaktypeConfiguration.isProcessDefinitionChangeable],
+     * so only it pays for the Open Zaak call that this needs.
+     */
+    private fun ZaaktypeConfiguration.toRestZaaktypeConfigurationForBeheer() =
+        restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(this, inclusiefRelaties = true).apply {
+            isProcessDefinitionChangeable = zaaktypeConfigurationBeheerService.isProcessDefinitionChangeable(
+                this@toRestZaaktypeConfigurationForBeheer
+            )
+        }
 
     /**
      * Returns the configuration of the zaaktype version, or a new one when the zaaktype version has none yet, so that

@@ -4,7 +4,6 @@
  */
 package nl.info.zac.app.search.model
 
-import nl.info.zac.search.model.DatumRange
 import nl.info.zac.search.model.DatumVeld
 import nl.info.zac.search.model.FilterParameters
 import nl.info.zac.search.model.FilterResultaat
@@ -16,6 +15,7 @@ import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
+import nl.info.zac.time.DateRange
 import java.util.EnumMap
 import java.util.UUID
 
@@ -66,8 +66,8 @@ fun createRestZoekParameters(
     filters: Map<FilterVeld, FilterParameters> = mapOf(
         FilterVeld.BEHANDELAAR to FilterParameters(listOf("fakeFilterValue"), false)
     ),
-    datums: Map<DatumVeld, RestDatumRange> = mapOf(
-        DatumVeld.STARTDATUM to RestDatumRange()
+    datums: Map<DatumVeld, RestDateRange> = mapOf(
+        DatumVeld.STARTDATUM to RestDateRange()
     ),
     sorteerVeld: SorteerVeld = SorteerVeld.CREATED,
     sorteerRichting: String = "ASC",
@@ -153,7 +153,7 @@ fun createZoekParameters(
     rows: Int = 0,
     start: Int = 0,
     zoekObjectType: ZoekObjectType = ZoekObjectType.ZAAK,
-    datums: EnumMap<DatumVeld, DatumRange> = EnumMap<DatumVeld, DatumRange>(DatumVeld::class.java),
+    datums: EnumMap<DatumVeld, DateRange> = EnumMap<DatumVeld, DateRange>(DatumVeld::class.java),
     sorteerVeld: SorteerVeld = SorteerVeld.CREATED,
     sorteerRichting: SorteerRichting = SorteerRichting.ASCENDING
 ) = ZoekParameters(zoekObjectType).apply {

@@ -9,9 +9,9 @@ import { bootstrapApplication } from "@angular/platform-browser";
 
 import { AppComponent } from "./app/app.component";
 import { appConfig } from "./app/app.config";
-import { alterMoment } from "./functions";
+import { serializeDatesWithLocalOffset } from "./app/date-time";
 
-alterMoment();
+serializeDatesWithLocalOffset();
 registerLocaleData(localeNl, "nl-NL");
 
 bootstrapApplication(AppComponent, appConfig).catch((err) =>

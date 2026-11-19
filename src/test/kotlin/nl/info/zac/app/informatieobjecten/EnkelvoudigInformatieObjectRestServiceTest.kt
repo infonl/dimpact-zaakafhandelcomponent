@@ -82,6 +82,7 @@ import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.search.model.DocumentIndicatie
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
+import nl.info.zac.time.ZacTime
 import nl.info.zac.webdav.WebdavHelper
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
@@ -1947,7 +1948,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val zaakType = createZaakType(informatieObjectTypen = listOf(validTypeUri, invalidTypeUri))
         val validType = createInformatieObjectType(uri = validTypeUri, omschrijving = "validType")
         val invalidType = createInformatieObjectType(uri = invalidTypeUri, omschrijving = "invalidType")
-            .apply { this.eindeGeldigheid = LocalDate.now().minusDays(1) }
+            .apply { this.eindeGeldigheid = ZacTime.today().minusDays(1) }
 
         every { zrcClientService.readZaak(zaakUUID) } returns zaak
         every { ztcClientService.readZaaktype(zaakTypeUri) } returns zaakType

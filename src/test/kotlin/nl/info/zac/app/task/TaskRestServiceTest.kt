@@ -73,12 +73,12 @@ import nl.info.zac.signalering.event.SignaleringEvent
 import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.task.BpmnTaskFormRuntimeService
 import nl.info.zac.task.TaskService
+import nl.info.zac.time.ZacTime
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import org.flowable.task.api.history.HistoricTaskInstance
 import java.net.URI
 import java.time.LocalDate
-import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.io.reader
 
@@ -316,12 +316,12 @@ class TaskRestServiceTest : BehaviorSpec({
                 name = loggedInUser.getFullName()
             )
             val documentUUID = UUID.randomUUID()
-            val dateTime = ZonedDateTime.now()
+            val verzenddatum = LocalDate.of(2026, 1, 30)
             val restTaak = createRestTask(
                 behandelaar = restUser,
                 taakData = mutableMapOf(
                     TAAK_DATA_DOCUMENTEN_VERZENDEN_POST to documentUUID.toString(),
-                    TAAK_DATA_VERZENDDATUM to dateTime.toString()
+                    TAAK_DATA_VERZENDDATUM to "2026-01-30"
                 )
             )
             val restTaakConverted = createRestTask(
@@ -339,7 +339,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns enkelvoudigInformatieObject
             every {
                 enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
-                    enkelvoudigInformatieObjectUUID, dateTime.toLocalDate(), null
+                    enkelvoudigInformatieObjectUUID, verzenddatum, null
                 )
             } just Runs
             every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
@@ -398,6 +398,65 @@ class TaskRestServiceTest : BehaviorSpec({
                 }
 
                 then("it throws exception with no message") { exception.message shouldBe null }
+            }
+        }
+
+        listOf(
+            "2026-01-30T00:00:00.000+01:00" to LocalDate.of(2026, 1, 30),
+            "2026-01-29T23:00:00.000Z" to LocalDate.of(2026, 1, 30),
+            "2026-01-30T00:00:00.000+02:00" to LocalDate.of(2026, 1, 29)
+        ).forEach { (storedVerzenddatum, verzenddatumInAmsterdam) ->
+            given("a document verzenden post task with the verzenddatum '$storedVerzenddatum' of an older frontend") {
+                val task = createTestTask()
+                val zaak = createZaak()
+                val httpSession = mockk<HttpSession>()
+                val historicTaskInstance = mockk<HistoricTaskInstance>()
+                val documentUUID = UUID.randomUUID()
+                val restTaak = createRestTask(
+                    taakData = mutableMapOf(
+                        TAAK_DATA_DOCUMENTEN_VERZENDEN_POST to documentUUID.toString(),
+                        TAAK_DATA_VERZENDDATUM to storedVerzenddatum
+                    )
+                )
+                val enkelvoudigInformatieObjectUUID = UUID.randomUUID()
+                val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(uuid = enkelvoudigInformatieObjectUUID)
+
+                every { loggedInUserInstance.get() } returns loggedInUser
+                every { flowableTaskService.readOpenTask(restTaak.id!!) } returns task
+                every { flowableTaskService.updateTask(task) } returns task
+                every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
+                every { httpSessionInstance.get() } returns httpSession
+                every { httpSession.getAttribute(any<String>()) } returns null
+                every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns enkelvoudigInformatieObject
+                every {
+                    enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
+                        enkelvoudigInformatieObjectUUID, verzenddatumInAmsterdam, null
+                    )
+                } just Runs
+                every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
+                every { taakVariabelenService.setTaskInformation(task, null) } just runs
+                every { flowableTaskService.completeTask(task) } returns historicTaskInstance
+                every { indexingService.addOrUpdateZaakOrThrow(restTaak.zaakUuid, false) } just runs
+                every { indexingService.softCommit() } just runs
+                every { historicTaskInstance.id } returns restTaak.id
+                every { restTaskConverter.toRestTask(historicTaskInstance) } returns restTaak
+                every { eventingService.send(any<ScreenEvent>()) } just runs
+                every { eventingService.send(any<SignaleringEvent<*>>()) } just runs
+                every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
+
+                `when`("the task is completed") {
+                    taskRestService.completeTask(restTaak)
+
+                    then("the documents are sent on the date of that instant in Europe/Amsterdam") {
+                        verify(exactly = 1) {
+                            enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
+                                enkelvoudigInformatieObjectUUID,
+                                verzenddatumInAmsterdam,
+                                null
+                            )
+                        }
+                    }
+                }
             }
         }
 
@@ -484,7 +543,7 @@ class TaskRestServiceTest : BehaviorSpec({
                     url = URI("https://example.com/$enkelvoudigInformatieObjectUUID"),
                     ondertekening = createOndertekening(
                         type = SoortEnum.DIGITAAL,
-                        date = LocalDate.now()
+                        date = ZacTime.today()
                     )
                 )
                 every {

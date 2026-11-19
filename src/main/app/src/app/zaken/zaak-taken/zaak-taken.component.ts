@@ -31,10 +31,10 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import moment from "moment";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
+import { DateInput } from "../../date-time";
 import { IdentityService } from "../../identity/identity.service";
 import { detailExpand } from "../../shared/animations/animations";
 import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
@@ -265,7 +265,7 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-  protected isAfterDate(datum?: Date | moment.Moment | string | null) {
+  protected isAfterDate(datum?: DateInput | null) {
     if (!datum) return false;
     return DateConditionals.isExceeded(datum);
   }

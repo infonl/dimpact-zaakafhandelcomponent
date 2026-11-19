@@ -25,9 +25,8 @@ import nl.info.zac.healthcheck.createBuildInformation
 import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
+import nl.info.zac.time.ZacTime
 import java.net.URI
-import java.time.LocalDate
-import java.time.ZonedDateTime
 import java.util.UUID
 
 class HealthCheckRestServiceTest : BehaviorSpec({
@@ -88,7 +87,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
 
     given("A zaaktype with a doel and a begin geldigheid, whose check reports a finding for every check") {
         val catalogusURI = URI("https://example.com/catalogs/${UUID.randomUUID()}")
-        val beginGeldigheid = LocalDate.now().minusDays(10)
+        val beginGeldigheid = ZacTime.today().minusDays(10)
         val zaaktype = createZaakType(
             omschrijving = "fakeOmschrijving",
             doel = "fakeDoel",
@@ -250,7 +249,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
     }
 
     given("build information is available") {
-        val now = ZonedDateTime.now()
+        val now = ZacTime.now()
         val buildInformation = createBuildInformation(
             commit = "fakeCommit",
             buildId = "fakeCommit",

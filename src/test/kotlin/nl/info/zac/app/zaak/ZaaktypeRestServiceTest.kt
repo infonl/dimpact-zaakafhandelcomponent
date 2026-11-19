@@ -34,8 +34,8 @@ import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
+import nl.info.zac.time.ZacTime
 import java.net.URI
-import java.time.LocalDate
 import java.util.UUID
 
 class ZaaktypeRestServiceTest : BehaviorSpec({
@@ -66,7 +66,7 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
         """
         ) {
             val defaultCatalogueURI = URI("https://example.com/fakeCatalogue")
-            val now = LocalDate.now()
+            val now = ZacTime.today()
             val zaaktypes = listOf(
                 createZaakType(
                     omschrijving = "Zaaktype 1",
@@ -113,7 +113,7 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
 
         given("Two CMMN and one BPMN zaaktypes valid on the current date") {
             val defaultCatalogueURI = URI("https://example.com/fakeCatalogue")
-            val now = LocalDate.now()
+            val now = ZacTime.today()
             val zaakType1UUID = UUID.randomUUID()
             val zaakType2UUID = UUID.randomUUID()
             val zaakType3UUID = UUID.randomUUID()
@@ -241,7 +241,7 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
 
         given("A concept zaaktype, a zaaktype not yet valid and an expired zaaktype") {
             val defaultCatalogueURI = URI("https://example.com/fakeCatalogueWithInvalidZaaktypes")
-            val now = LocalDate.now()
+            val now = ZacTime.today()
             val zaaktypes = listOf(
                 createZaakType(omschrijving = "fakeConceptZaaktype", concept = true, beginGeldigheid = now.minusDays(1)),
                 createZaakType(omschrijving = "fakeFutureZaaktype", beginGeldigheid = now.plusDays(1)),
@@ -268,7 +268,7 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
 
         given("Two valid versions of a CMMN zaaktype with the same omschrijving") {
             val defaultCatalogueURI = URI("https://example.com/fakeCatalogueWithTwoVersions")
-            val now = LocalDate.now()
+            val now = ZacTime.today()
             val zaaktypes = listOf(
                 createZaakType(omschrijving = "fakeVersionedZaaktype", beginGeldigheid = now.minusDays(2)),
                 createZaakType(omschrijving = "fakeVersionedZaaktype", beginGeldigheid = now.minusDays(1))
@@ -302,7 +302,7 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
 
         given("A zaaktype without ZAC configuration and a zaaktype with an invalid CMMN configuration") {
             val defaultCatalogueURI = URI("https://example.com/fakeCatalogueWithUnconfiguredZaaktypes")
-            val now = LocalDate.now()
+            val now = ZacTime.today()
             val unconfiguredZaaktype = createZaakType(
                 omschrijving = "fakeUnconfiguredZaaktype",
                 beginGeldigheid = now.minusDays(1)
@@ -346,7 +346,7 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
             val defaultCatalogueURI = URI("https://example.com/fakeCatalogueWithAnUnreadyZaaktype")
             val zaaktype = createZaakType(
                 omschrijving = "fakeUnreadyZaaktype",
-                beginGeldigheid = LocalDate.now().minusDays(1)
+                beginGeldigheid = ZacTime.today().minusDays(1)
             )
             every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
             every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns listOf(zaaktype)
@@ -370,7 +370,7 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
 
         given("A valid CMMN zaaktype and a user without roles for it, but with an overall start role") {
             val defaultCatalogueURI = URI("https://example.com/fakeCatalogueForOverallRoles")
-            val zaaktype = createZaakType(omschrijving = "fakeZaaktypeWithoutRoles", beginGeldigheid = LocalDate.now().minusDays(1))
+            val zaaktype = createZaakType(omschrijving = "fakeZaaktypeWithoutRoles", beginGeldigheid = ZacTime.today().minusDays(1))
             every { loggedInUserInstance.get() } returns createLoggedInUser(overallRoles = setOf("fakeStartrol"))
             every { policyService.readStartrollen() } returns setOf("fakeStartrol")
             every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
@@ -393,7 +393,7 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
 
         given("A valid CMMN zaaktype and a user with only a non-start role for it") {
             val defaultCatalogueURI = URI("https://example.com/fakeCatalogueForNonStartRoles")
-            val zaaktype = createZaakType(omschrijving = "fakeZaaktypeWithReadRole", beginGeldigheid = LocalDate.now().minusDays(1))
+            val zaaktype = createZaakType(omschrijving = "fakeZaaktypeWithReadRole", beginGeldigheid = ZacTime.today().minusDays(1))
             every { loggedInUserInstance.get() } returns createLoggedInUser(
                 applicationRolesPerZaaktype = mapOf(zaaktype.omschrijving to setOf("fakeReadRole"))
             )
@@ -422,7 +422,7 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
             val defaultCatalogueURI = URI("https://example.com/fakeCatalogueForCreationSettings")
             val zaaktype = createZaakType(
                 omschrijving = "fakeOfferedZaaktype",
-                beginGeldigheid = LocalDate.now().minusDays(1),
+                beginGeldigheid = ZacTime.today().minusDays(1),
                 vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
             )
             val zaaktypeUuid = zaaktype.url.extractUuid()
@@ -463,7 +463,7 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
             val defaultCatalogueURI = URI("https://example.com/fakeCatalogueForForbiddenCreationSettings")
             val zaaktype = createZaakType(
                 omschrijving = "fakeForbiddenZaaktype",
-                beginGeldigheid = LocalDate.now().minusDays(1)
+                beginGeldigheid = ZacTime.today().minusDays(1)
             )
             every { loggedInUserInstance.get() } returns createLoggedInUser(
                 applicationRolesPerZaaktype = mapOf(zaaktype.omschrijving to setOf("fakeReadRole"))
@@ -491,8 +491,8 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
             val defaultCatalogueURI = URI("https://example.com/fakeCatalogueForForbiddenExpiredZaaktype")
             val zaaktype = createZaakType(
                 omschrijving = "fakeForbiddenExpiredZaaktype",
-                beginGeldigheid = LocalDate.now().minusDays(10),
-                eindeGeldigheid = LocalDate.now().minusDays(1)
+                beginGeldigheid = ZacTime.today().minusDays(10),
+                eindeGeldigheid = ZacTime.today().minusDays(1)
             )
             every { loggedInUserInstance.get() } returns createLoggedInUser(
                 applicationRolesPerZaaktype = mapOf(zaaktype.omschrijving to setOf("fakeReadRole"))
@@ -516,7 +516,7 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
             val defaultCatalogueURI = URI("https://example.com/fakeCatalogueForInvalidCreationSettings")
             val zaaktype = createZaakType(
                 omschrijving = "fakeInvalidlyConfiguredZaaktype",
-                beginGeldigheid = LocalDate.now().minusDays(1)
+                beginGeldigheid = ZacTime.today().minusDays(1)
             )
             every { loggedInUserInstance.get() } returns createLoggedInUser(
                 applicationRolesPerZaaktype = mapOf(zaaktype.omschrijving to setOf("fakeStartrol"))
@@ -544,7 +544,7 @@ class ZaaktypeRestServiceTest : BehaviorSpec({
             val defaultCatalogueURI = URI("https://example.com/fakeCatalogueForAnUnreadyZaaktype")
             val zaaktype = createZaakType(
                 omschrijving = "fakeUnreadyZaaktype",
-                beginGeldigheid = LocalDate.now().minusDays(1)
+                beginGeldigheid = ZacTime.today().minusDays(1)
             )
             every { loggedInUserInstance.get() } returns createLoggedInUser(
                 applicationRolesPerZaaktype = mapOf(zaaktype.omschrijving to setOf("fakeStartrol"))
