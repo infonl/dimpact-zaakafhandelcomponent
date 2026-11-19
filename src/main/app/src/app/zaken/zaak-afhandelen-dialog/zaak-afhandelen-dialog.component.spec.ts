@@ -16,9 +16,9 @@ import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import moment from "moment";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
+import { addDays, toApiDate, toApiDateTime, today } from "../../date-time";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -433,17 +433,16 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
   });
 
   describe("the brondatum of a resultaattype that requires one", () => {
-    it("sends the brondatum along on submit", async () => {
+    it("sends the brondatum along on submit as a date without a time", async () => {
       seedQueries(zaak);
       await setup();
-      const brondatum = moment().add(1, "day");
 
       await chooseResultaattype("fakeResultaatMetBrondatum");
       await user.type(
         screen.getByRole("textbox", { name: /Toelichting/ }),
         "fakeToelichting",
       );
-      await user.type(brondatumField(), brondatum.format("YYYY-MM-DD"));
+      await user.type(brondatumField(), "2099-12-31");
       await submit();
       await sleep();
 
@@ -457,7 +456,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
           zaakUuid: "fakeZaakUuid",
           resultaattypeUuid: "fakeResultaattypeId1",
           resultaatToelichting: "fakeToelichting",
-          brondatum: brondatum.startOf("day").toISOString(),
+          brondatum: "2099-12-31",
         }),
       );
       request.flush({});
@@ -468,10 +467,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await setup();
 
       await chooseResultaattype("fakeResultaatMetBrondatum");
-      await user.type(
-        brondatumField(),
-        moment().subtract(1, "day").format("YYYY-MM-DD"),
-      );
+      await user.type(brondatumField(), toApiDate(addDays(today(), -1))!);
 
       expect(submitButton()).toBeDisabled();
     });
@@ -481,7 +477,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await setup();
 
       await chooseResultaattype("fakeResultaatMetBrondatum");
-      await user.type(brondatumField(), moment().format("YYYY-MM-DD"));
+      await user.type(brondatumField(), toApiDate(today())!);
 
       expect(submitButton()).toBeEnabled();
     });
@@ -501,10 +497,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
 
       await chooseResultaattype("fakeResultaatMetBrondatum");
 
-      expect(brondatumField()).toHaveAttribute(
-        "min",
-        moment().startOf("day").format(),
-      );
+      expect(brondatumField()).toHaveAttribute("min", toApiDateTime(today()));
     });
   });
 
@@ -614,6 +607,27 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       expect(request.request.body).toEqual(
         expect.objectContaining({
           resultaattypeUuid: "fakeResultaattypeId3",
+        }),
+      );
+      request.flush({});
+    });
+
+    it("closes the zaak with the brondatum as a date without a time", async () => {
+      seedQueries(zaak);
+      await setup({ planItemToHandle: null });
+
+      await chooseResultaattype("fakeResultaatMetBrondatum");
+      await user.type(brondatumField(), "2099-12-31");
+      await submit();
+      await sleep();
+
+      const request = httpTestingController.expectOne(
+        "/rest/zaken/zaak/fakeZaakUuid/afsluiten",
+      );
+      expect(request.request.body).toEqual(
+        expect.objectContaining({
+          resultaattypeUuid: "fakeResultaattypeId1",
+          brondatum: "2099-12-31",
         }),
       );
       request.flush({});

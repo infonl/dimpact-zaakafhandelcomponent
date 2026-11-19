@@ -12,16 +12,7 @@ import {
 } from "@angular/common/http/testing";
 import { provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import {
-  MAT_MOMENT_DATE_ADAPTER_OPTIONS,
-  MomentDateAdapter,
-} from "@angular/material-moment-adapter";
 import { MatButtonHarness } from "@angular/material/button/testing";
-import {
-  DateAdapter,
-  MAT_DATE_FORMATS,
-  MAT_DATE_LOCALE,
-} from "@angular/material/core";
 import { MatDatepickerInputHarness } from "@angular/material/datepicker/testing";
 import { MatFormField } from "@angular/material/form-field";
 import { MatSelectHarness } from "@angular/material/select/testing";
@@ -34,10 +25,10 @@ import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { screen, waitFor } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import moment from "moment";
 import { of } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { UtilService } from "src/app/core/service/util.service";
+import { provideZacDateAdapter, toPickedDate } from "src/app/date-time";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
@@ -95,27 +86,7 @@ describe(CaseDetailsEditComponent.name, () => {
         provideRouter([]),
         provideQueryClient(testQueryClient),
         provideZonelessChangeDetection(),
-        {
-          provide: DateAdapter,
-          useClass: MomentDateAdapter,
-          deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS],
-        },
-        {
-          provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS,
-          useValue: { strict: false },
-        },
-        {
-          provide: MAT_DATE_FORMATS,
-          useValue: {
-            parse: { dateInput: "yyyy-MM-DD" },
-            display: {
-              dateInput: "yyyy-MM-DD",
-              monthYearLabel: "MMMM YYYY",
-              dateA11yLabel: "LL",
-              monthYearA11yLabel: "MMMM YYYY",
-            },
-          },
-        },
+        provideZacDateAdapter(),
       ],
     }).compileComponents();
 
@@ -380,7 +351,9 @@ describe(CaseDetailsEditComponent.name, () => {
       it("sets error on startdatum when startdatum changes to after einddatumGepland", () => {
         renderComponent(zaakWithAllDates("2024-01-10"));
 
-        component["form"].controls.startdatum.setValue(moment("2024-01-25"));
+        component["form"].controls.startdatum.setValue(
+          toPickedDate("2024-01-25"),
+        );
 
         expect(component["form"].controls.startdatum.errors).toEqual(
           FormHelper.CustomErrorMessage(
@@ -393,7 +366,7 @@ describe(CaseDetailsEditComponent.name, () => {
         renderComponent(zaakWithAllDates("2024-01-10"));
 
         component["form"].controls.einddatumGepland.setValue(
-          moment("2024-01-05"),
+          toPickedDate("2024-01-05"),
         );
 
         expect(component["form"].controls.einddatumGepland.errors).toEqual(
@@ -408,7 +381,9 @@ describe(CaseDetailsEditComponent.name, () => {
       it("sets error on startdatum when startdatum changes to after uiterlijkeEinddatumAfdoening", () => {
         renderComponent(zaakWithAllDates("2024-01-10"));
 
-        component["form"].controls.startdatum.setValue(moment("2024-02-01"));
+        component["form"].controls.startdatum.setValue(
+          toPickedDate("2024-02-01"),
+        );
 
         expect(component["form"].controls.startdatum.errors).toEqual(
           FormHelper.CustomErrorMessage(
@@ -431,7 +406,7 @@ describe(CaseDetailsEditComponent.name, () => {
         });
 
         component["form"].controls.uiterlijkeEinddatumAfdoening.setValue(
-          moment("2024-01-15"),
+          toPickedDate("2024-01-15"),
         );
 
         expect(
@@ -449,7 +424,7 @@ describe(CaseDetailsEditComponent.name, () => {
         renderComponent(zaakWithAllDates("2024-01-01"));
 
         component["form"].controls.einddatumGepland.setValue(
-          moment("2024-02-01"),
+          toPickedDate("2024-02-01"),
         );
 
         expect(component["form"].controls.einddatumGepland.errors).toEqual(
@@ -463,7 +438,7 @@ describe(CaseDetailsEditComponent.name, () => {
         renderComponent(zaakWithAllDates("2024-01-01"));
 
         component["form"].controls.uiterlijkeEinddatumAfdoening.setValue(
-          moment("2024-01-15"),
+          toPickedDate("2024-01-15"),
         );
 
         expect(
@@ -652,7 +627,9 @@ describe(CaseDetailsEditComponent.name, () => {
         > as unknown as GeneratedType<"RestZaaktype">,
       });
 
-      component["form"].controls.startdatum.setValue(moment("2024-01-25"));
+      component["form"].controls.startdatum.setValue(
+        toPickedDate("2024-01-25"),
+      );
 
       expect(component["form"].valid).toBe(false);
     });
@@ -842,6 +819,29 @@ describe(CaseDetailsEditComponent.name, () => {
       await new Promise(requestAnimationFrame);
 
       expect(mockSideNav.close).toHaveBeenCalled();
+    });
+
+    it("sends the startdatum, einddatum gepland and uiterlijke einddatum afdoening as dates without a time", async () => {
+      renderComponent({
+        startdatum: "2024-01-10",
+        einddatumGepland: "2024-01-20",
+        uiterlijkeEinddatumAfdoening: "2024-01-30",
+      });
+      component["form"].controls.reden.enable();
+      component["form"].controls.reden.setValue("een reden");
+
+      component["onSubmit"]();
+      await new Promise(requestAnimationFrame);
+
+      const request = expectUpdateZaakRequest();
+      expect(request.request.body.zaak).toEqual(
+        expect.objectContaining({
+          startdatum: "2024-01-10",
+          einddatumGepland: "2024-01-20",
+          uiterlijkeEinddatumAfdoening: "2024-01-30",
+        }),
+      );
+      request.flush({});
     });
 
     it("sends a changed behandelaar in the same request as the rest of the zaakgegevens", async () => {

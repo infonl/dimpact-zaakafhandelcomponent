@@ -149,7 +149,6 @@ import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.net.URI
 import java.time.LocalDate
-import java.time.ZonedDateTime
 import java.util.*
 
 @Suppress("LongParameterList", "LargeClass")
@@ -246,42 +245,43 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        given("open zaak with a valid brondatum") {
-            val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
-            val zaak = createZaak(zaaktypeUri = zaakType.url)
-            val reden = "Fake reden"
-            val resultaattypeUuid = UUID.randomUUID()
-            val brondatum = "2023-12-01T00:00:00.000+01:00"
-            val restZaakAfsluitenGegevens = RestZaakAfsluitenGegevens(reden, resultaattypeUuid, brondatum)
-            val loggedInUser = createLoggedInUser()
-            val zaakRechten = createZaakRechten(behandelen = true)
+        listOf("2023-12-01", "2023-12-01T00:00:00.000+01:00").forEach { brondatum ->
+            given("open zaak with the valid brondatum '$brondatum'") {
+                val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
+                val zaak = createZaak(zaaktypeUri = zaakType.url)
+                val reden = "Fake reden"
+                val resultaattypeUuid = UUID.randomUUID()
+                val restZaakAfsluitenGegevens = RestZaakAfsluitenGegevens(reden, resultaattypeUuid, brondatum)
+                val loggedInUser = createLoggedInUser()
+                val zaakRechten = createZaakRechten(behandelen = true)
 
-            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
-            every {
-                policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
-            } returns zaakRechten
-            every {
-                zgwApiService.closeZaak(
-                    zaak = zaak,
-                    resultaatTypeUUID = resultaattypeUuid,
-                    description = reden,
-                    brondatum = ZonedDateTime.parse(brondatum).toLocalDate()
-                )
-            } just runs
-            every { loggedInUserInstance.get() } returns loggedInUser
-            every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser) } returns createRestZaak()
+                every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+                every {
+                    policyService.readZaakRechten(zaak = zaak, zaaktype = zaakType, loggedInUser = loggedInUser)
+                } returns zaakRechten
+                every {
+                    zgwApiService.closeZaak(
+                        zaak = zaak,
+                        resultaatTypeUUID = resultaattypeUuid,
+                        description = reden,
+                        brondatum = LocalDate.of(2023, 12, 1)
+                    )
+                } just runs
+                every { loggedInUserInstance.get() } returns loggedInUser
+                every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser) } returns createRestZaak()
 
-            `when`("zaak is closed") {
-                zaakRestService.closeZaak(zaak.uuid, restZaakAfsluitenGegevens)
+                `when`("zaak is closed") {
+                    zaakRestService.closeZaak(zaak.uuid, restZaakAfsluitenGegevens)
 
-                then("the brondatum is parsed and passed through") {
-                    verify(exactly = 1) {
-                        zgwApiService.closeZaak(
-                            zaak = zaak,
-                            resultaatTypeUUID = resultaattypeUuid,
-                            description = reden,
-                            brondatum = ZonedDateTime.parse(brondatum).toLocalDate()
-                        )
+                    then("the zaak is closed with the brondatum 1 December 2023") {
+                        verify(exactly = 1) {
+                            zgwApiService.closeZaak(
+                                zaak = zaak,
+                                resultaatTypeUUID = resultaattypeUuid,
+                                description = reden,
+                                brondatum = LocalDate.of(2023, 12, 1)
+                            )
+                        }
                     }
                 }
             }
@@ -4242,9 +4242,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val restZaakVerlengGegevens = RestZaakVerlengGegevens(
                 redenVerlenging = "fakeExtensionReason",
                 duurDagen = 30,
-                shouldTakenVerlengen = false,
-                einddatumGepland = LocalDate.of(2026, 2, 1),
-                uiterlijkeEinddatumAfdoening = LocalDate.of(2026, 3, 1)
+                shouldTakenVerlengen = false
             )
 
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -4256,8 +4254,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                 suspensionZaakHelper.extendZaak(
                     zaak = zaak,
                     zaakType = zaakType,
-                    dueDate = restZaakVerlengGegevens.einddatumGepland,
-                    fatalDate = restZaakVerlengGegevens.uiterlijkeEinddatumAfdoening,
                     extensionReason = restZaakVerlengGegevens.redenVerlenging,
                     numberOfDays = 30
                 )
@@ -4279,8 +4275,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                         suspensionZaakHelper.extendZaak(
                             zaak = zaak,
                             zaakType = zaakType,
-                            dueDate = restZaakVerlengGegevens.einddatumGepland,
-                            fatalDate = restZaakVerlengGegevens.uiterlijkeEinddatumAfdoening,
                             extensionReason = restZaakVerlengGegevens.redenVerlenging,
                             numberOfDays = 30
                         )

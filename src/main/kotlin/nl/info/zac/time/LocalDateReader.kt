@@ -14,13 +14,10 @@ import java.io.IOException
 import java.io.InputStream
 import java.lang.reflect.Type
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 @Provider
 @Produces(MediaType.TEXT_PLAIN)
 class LocalDateReader : MessageBodyReader<LocalDate> {
-    private val defaultFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmXXX")
-
     override fun isReadable(aClass: Class<*>, type: Type, annotations: Array<Annotation>, mediaType: MediaType): Boolean =
         type == LocalDate::class.java
 
@@ -32,8 +29,6 @@ class LocalDateReader : MessageBodyReader<LocalDate> {
         mediaType: MediaType,
         multivaluedMap: MultivaluedMap<String, String>,
         inputStream: InputStream
-    ): LocalDate {
-        val localDateBytes = inputStream.readAllBytes()
-        return LocalDate.parse(String(localDateBytes), defaultFormatter)
-    }
+    ): LocalDate =
+        String(inputStream.readAllBytes()).toLocalDate()
 }

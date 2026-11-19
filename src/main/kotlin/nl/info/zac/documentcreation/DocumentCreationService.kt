@@ -31,8 +31,7 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.decodedBase64StringLength
 import java.net.URI
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
+import java.time.LocalDate
 import java.util.UUID
 
 @NoArgConstructor
@@ -65,7 +64,7 @@ class DocumentCreationService @Inject constructor(
         title: String,
         description: String?,
         informatieobjecttypeUuid: UUID,
-        creationDate: ZonedDateTime,
+        creationDate: LocalDate,
         userName: String
     ): ZaakInformatieObject =
         createEnkelvoudigInformatieObjectCreateLockRequest(
@@ -115,7 +114,7 @@ class DocumentCreationService @Inject constructor(
         templateId: String,
         title: String,
         description: String?,
-        creationDate: ZonedDateTime,
+        creationDate: LocalDate,
         userName: String
     ): URI {
         val builder = createDocumentCreationUriBuilder(
@@ -144,14 +143,14 @@ class DocumentCreationService @Inject constructor(
     fun createDocumentCreationUriBuilder(
         title: String,
         description: String?,
-        creationDate: ZonedDateTime,
+        creationDate: LocalDate,
         userName: String
     ): UriBuilder =
         UriBuilder
             .fromUri(configurationService.readContextUrl())
             .queryParam("title", title)
             .queryParam("userName", userName)
-            .queryParam("creationDate", creationDate.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
+            .queryParam("creationDate", creationDate.toString())
             .apply {
                 if (description != null) {
                     queryParam("description", description)
@@ -206,11 +205,11 @@ class DocumentCreationService @Inject constructor(
         title: String,
         description: String?,
         informatieobjecttypeUrl: URI,
-        creationDate: ZonedDateTime,
+        creationDate: LocalDate,
         userName: String
     ) = EnkelvoudigInformatieObjectCreateLockRequest().apply {
         bronorganisatie = configurationService.readBronOrganisatie()
-        creatiedatum = creationDate.toLocalDate()
+        creatiedatum = creationDate
         titel = title
         auteur = userName
         taal = ConfigurationService.TAAL_NEDERLANDS

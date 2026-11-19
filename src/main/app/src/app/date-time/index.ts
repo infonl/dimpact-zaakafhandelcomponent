@@ -10,3 +10,17 @@ export {
   provideFilterDateFormats,
   provideZacDateAdapter,
 } from "./date-adapter";
+export {
+  addDays,
+  daysBetween,
+  endOfDay,
+  isAfter,
+  isPickedDate,
+  isSameOrAfter,
+  now,
+  startOfDay,
+  toApiDateTime,
+  toPickedDate,
+  today,
+  type DateInput,
+} from "./picked-date";

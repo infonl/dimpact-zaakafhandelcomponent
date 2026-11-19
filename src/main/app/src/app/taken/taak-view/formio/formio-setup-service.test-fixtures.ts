@@ -19,11 +19,11 @@ import {
   provideQueryClient,
   QueryClient,
 } from "@tanstack/angular-query-experimental";
-import moment from "moment";
 import { of } from "rxjs";
 import { testQueryClient } from "../../../../../setupJest";
 import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../../core/service/util.service";
+import { now, toApiDate, toApiDateTime, today } from "../../../date-time";
 import { IdentityService } from "../../../identity/identity.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import {
@@ -147,8 +147,8 @@ export const taak: GeneratedType<"RestTask"> = {
   behandelaar: undefined,
   groep: undefined,
   naam: "test-taak",
-  fataledatum: moment().toISOString(),
-  creatiedatumTijd: moment().toISOString(),
+  fataledatum: toApiDate(today()),
+  creatiedatumTijd: toApiDateTime(now()),
   formioFormulier: {},
   rechten: {
     canLezen: true,
@@ -163,7 +163,7 @@ export const taak: GeneratedType<"RestTask"> = {
   taakdocumenten: [],
   taakinformatie: {},
   toelichting: undefined,
-  toekenningsdatumTijd: moment().toISOString(),
+  toekenningsdatumTijd: toApiDateTime(now()),
   zaaktypeOmschrijving: "test-zaaktypeOmschrijving",
   zaakIdentificatie: "test-zaakIdentificatie",
 };

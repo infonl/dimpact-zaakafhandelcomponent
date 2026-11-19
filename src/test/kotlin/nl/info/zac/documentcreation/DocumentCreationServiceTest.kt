@@ -36,10 +36,7 @@ import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.util.decodedBase64StringLength
 import java.net.URI
-import java.net.URLEncoder
-import java.time.ZoneOffset
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
+import java.time.LocalDate
 import java.util.UUID
 
 class DocumentCreationServiceTest : BehaviorSpec({
@@ -71,7 +68,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
         val title = "title"
         val description = "description"
         val informatieobjecttypeUuid = UUID.randomUUID()
-        val creationDate = ZonedDateTime.now()
+        val creationDate = LocalDate.of(2026, 1, 30)
         val userName = "Full Name"
         val bronOrganisatie = "fakeBronOrganisatie"
         val zaak = createZaak()
@@ -108,7 +105,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
 
                 with(enkelvoudigInformatieObjectLockRequestSlot.captured) {
                     bronorganisatie shouldBe bronOrganisatie
-                    creatiedatum shouldBe creationDate.toLocalDate()
+                    creatiedatum shouldBe creationDate
                     titel shouldBe title
                     auteur shouldBe userName
                     taal shouldBe ConfigurationService.TAAL_NEDERLANDS
@@ -224,10 +221,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
                             "/task/$taskId" +
                             "?title=${documentCreationData.title}" +
                             "&userName=$userDisplayName" +
-                            "&creationDate=${URLEncoder.encode(
-                                documentCreationData.creationDate.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
-                                Charsets.UTF_8
-                            )}" +
+                            "&creationDate=${documentCreationData.creationDate}" +
                             "&templateId=${documentCreationData.templateId}" +
                             "&templateGroupId=${documentCreationData.templateGroupId}" +
                             "&documentCreationToken=$documentCreationToken"
@@ -312,7 +306,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
         val templateId = "templateId"
         val title = "title"
         val description = "description"
-        val creationDate = ZonedDateTime.of(2024, 10, 7, 0, 0, 0, 0, ZoneOffset.UTC)
+        val creationDate = LocalDate.of(2024, 10, 7)
         val userName = "Full User Name"
         val documentCreationToken = UUID.randomUUID()
 
@@ -335,7 +329,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
                 uri.toString() shouldBe "$contextUrl/rest/document-creation/smartdocuments/callback/zaak/$zaakUuid" +
                     "?title=$title" +
                     "&userName=Full+User+Name" +
-                    "&creationDate=2024-10-07T00%3A00%3A00Z" +
+                    "&creationDate=2024-10-07" +
                     "&description=$description" +
                     "&templateId=$templateId" +
                     "&templateGroupId=$templateGroupId" +
@@ -361,7 +355,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
                     "$contextUrl/rest/document-creation/smartdocuments/callback/zaak/$zaakUuid/task/$taakUuid" +
                     "?title=$title" +
                     "&userName=Full+User+Name" +
-                    "&creationDate=2024-10-07T00%3A00%3A00Z" +
+                    "&creationDate=2024-10-07" +
                     "&description=$description" +
                     "&templateId=$templateId" +
                     "&templateGroupId=$templateGroupId" +

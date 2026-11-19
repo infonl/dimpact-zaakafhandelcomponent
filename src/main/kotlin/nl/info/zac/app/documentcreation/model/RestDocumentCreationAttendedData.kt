@@ -6,7 +6,7 @@ package nl.info.zac.app.documentcreation.model
 
 import jakarta.validation.constraints.NotNull
 import nl.info.zac.util.NoArgConstructor
-import java.time.ZonedDateTime
+import java.time.LocalDate
 import java.util.UUID
 
 @NoArgConstructor
@@ -25,7 +25,7 @@ data class RestDocumentCreationAttendedData(
     var author: String,
 
     @field:NotNull
-    var creationDate: ZonedDateTime,
+    var creationDate: LocalDate,
 
     var smartDocumentsTemplateGroupId: String?,
     var smartDocumentsTemplateId: String?,

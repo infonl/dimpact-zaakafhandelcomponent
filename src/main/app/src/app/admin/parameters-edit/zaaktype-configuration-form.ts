@@ -146,7 +146,6 @@ export function toRestConfiguration(
   return {
     id: configuration.id,
     zaaktype: configuration.zaaktype,
-    creatiedatum: configuration.creatiedatum,
     processDefinition: toProcessDefinition(procesModel) ?? undefined,
     ...toAlgemeenSettings(form.controls.algemeen),
     intakeMail: mail.controls.intakeMail.value,

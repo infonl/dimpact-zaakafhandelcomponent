@@ -14,18 +14,17 @@ import {
   provideZonelessChangeDetection,
 } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import moment from "moment";
 import { EMPTY } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
+import { provideZacDateAdapter } from "../../date-time";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BesluitEditComponent } from "./besluit-edit.component";
@@ -98,15 +97,7 @@ describe(BesluitEditComponent.name, () => {
         provideZonelessChangeDetection(),
         provideHttpClient(withXhr()),
         provideHttpClientTesting(),
-        provideMomentDateAdapter({
-          parse: { dateInput: "yyyy-MM-DD" },
-          display: {
-            dateInput: "yyyy-MM-DD",
-            monthYearLabel: "MMMM YYYY",
-            dateA11yLabel: "LL",
-            monthYearA11yLabel: "MMMM YYYY",
-          },
-        }),
+        provideZacDateAdapter(),
         provideQueryClient(testQueryClient),
       ],
     });
@@ -324,7 +315,7 @@ describe(BesluitEditComponent.name, () => {
     expect(screen.getByLabelText("Uiterlijkereactiedatum")).toHaveValue("");
   });
 
-  it("updates the besluit and reports the change", async () => {
+  it("updates the besluit with its dates as dates without a time and reports the change", async () => {
     const { besluitGewijzigd, utilService } = await setup();
     await fillText("Wijziging.reden", "Wijziging reden");
 
@@ -340,8 +331,8 @@ describe(BesluitEditComponent.name, () => {
         besluitUuid: "besluit-uuid-1",
         reden: "Wijziging reden",
         informatieobjecten: ["document-uuid-1"],
-        ingangsdatum: moment("2026-01-01").toISOString(),
-        vervaldatum: moment("2026-12-31").toISOString(),
+        ingangsdatum: "2026-01-01",
+        vervaldatum: "2026-12-31",
       }),
     );
     request.flush(null);
@@ -353,7 +344,7 @@ describe(BesluitEditComponent.name, () => {
     expect(besluitGewijzigd).toHaveBeenCalledWith(true);
   });
 
-  it("includes the publication dates when the besluittype requires publication", async () => {
+  it("includes the publication dates, as dates without a time, when the besluittype requires publication", async () => {
     await setup(
       makeBesluit({
         besluittype: publicationBesluittype,
@@ -373,8 +364,8 @@ describe(BesluitEditComponent.name, () => {
     });
     expect(request.request.body).toEqual(
       expect.objectContaining({
-        publicationDate: moment("2026-02-01").toISOString(),
-        lastResponseDate: moment("2026-02-07").toISOString(),
+        publicationDate: "2026-02-01",
+        lastResponseDate: "2026-02-07",
       }),
     );
     request.flush(null);

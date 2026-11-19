@@ -16,9 +16,9 @@ import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, screen } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import moment from "moment";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
+import { addDays, PickedDate, toApiDate, today } from "../../date-time";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakBrondatumZettenDialogComponent } from "./zaak-brondatum-zetten-dialog.component";
 
@@ -77,11 +77,8 @@ describe(ZaakBrondatumZettenDialogComponent.name, () => {
     return screen.getByRole("button", { name: "actie.zaak.brondatum-zetten" });
   }
 
-  async function fillInBrondatum(date: moment.Moment) {
-    await user.type(
-      screen.getByLabelText("zaak.brondatum"),
-      date.format("YYYY-MM-DD"),
-    );
+  async function fillInBrondatum(date: PickedDate) {
+    await user.type(screen.getByLabelText("zaak.brondatum"), toApiDate(date)!);
   }
 
   it("keeps the submit button disabled while no brondatum has been filled in", async () => {
@@ -93,7 +90,7 @@ describe(ZaakBrondatumZettenDialogComponent.name, () => {
   it("allows submitting a brondatum of today", async () => {
     await setup({ planItemToHandle: planItem });
 
-    await fillInBrondatum(moment());
+    await fillInBrondatum(today());
 
     expect(submitButton()).toBeEnabled();
   });
@@ -101,22 +98,22 @@ describe(ZaakBrondatumZettenDialogComponent.name, () => {
   it("refuses a brondatum before today when the zaak has no einddatum", async () => {
     await setup({ planItemToHandle: planItem });
 
-    await fillInBrondatum(moment().subtract(1, "day"));
+    await fillInBrondatum(addDays(today(), -1));
 
     expect(submitButton()).toBeDisabled();
   });
 
   describe("given a zaak that was closed in the past", () => {
-    const einddatum = moment().subtract(10, "days");
+    const einddatum = addDays(today(), -10);
     const closedZaak = fromPartial<GeneratedType<"RestZaak">>({
       ...zaak,
-      einddatum: einddatum.format("YYYY-MM-DD"),
+      einddatum: toApiDate(einddatum),
     });
 
     it("allows a brondatum in the past on the einddatum of the zaak", async () => {
       await setup({ zaakToHandle: closedZaak, planItemToHandle: planItem });
 
-      await fillInBrondatum(einddatum.clone());
+      await fillInBrondatum(einddatum);
 
       expect(submitButton()).toBeEnabled();
     });
@@ -124,7 +121,7 @@ describe(ZaakBrondatumZettenDialogComponent.name, () => {
     it("allows a brondatum in the past after the einddatum of the zaak", async () => {
       await setup({ zaakToHandle: closedZaak, planItemToHandle: planItem });
 
-      await fillInBrondatum(einddatum.clone().add(1, "day"));
+      await fillInBrondatum(addDays(einddatum, 1));
 
       expect(submitButton()).toBeEnabled();
     });
@@ -132,7 +129,7 @@ describe(ZaakBrondatumZettenDialogComponent.name, () => {
     it("refuses a brondatum before the einddatum of the zaak", async () => {
       await setup({ zaakToHandle: closedZaak, planItemToHandle: planItem });
 
-      await fillInBrondatum(einddatum.clone().subtract(1, "day"));
+      await fillInBrondatum(addDays(einddatum, -1));
       await user.tab();
 
       expect(submitButton()).toBeDisabled();
@@ -152,9 +149,9 @@ describe(ZaakBrondatumZettenDialogComponent.name, () => {
     expect(dialogRef.close).toHaveBeenCalled();
   });
 
-  it("afhandelt the plan item with the brondatum when the dialog has one", async () => {
+  it("afhandelt the plan item with the brondatum, as a date without a time, when the dialog has one", async () => {
     await setup({ planItemToHandle: planItem });
-    const brondatum = moment().add(1, "day");
+    const brondatum = addDays(today(), 1);
 
     await fillInBrondatum(brondatum);
     await user.click(submitButton());
@@ -169,15 +166,15 @@ describe(ZaakBrondatumZettenDialogComponent.name, () => {
         actie: "BRONDATUM_ZETTEN",
         planItemInstanceId: "fakePlanItemId",
         zaakUuid: "fakeZaakUuid",
-        brondatum: brondatum.startOf("day").toISOString(),
+        brondatum: toApiDate(brondatum),
       }),
     );
     request.flush({});
   });
 
-  it("sets the brondatum on the zaak when the dialog has no plan item", async () => {
+  it("sets the brondatum on the zaak, as a date without a time, when the dialog has no plan item", async () => {
     await setup({ planItemToHandle: null });
-    const brondatum = moment().add(1, "day");
+    const brondatum = addDays(today(), 1);
 
     await fillInBrondatum(brondatum);
     await user.click(submitButton());
@@ -189,7 +186,7 @@ describe(ZaakBrondatumZettenDialogComponent.name, () => {
     expect(request.request.method).toBe("PUT");
     expect(request.request.body).toEqual(
       expect.objectContaining({
-        brondatum: brondatum.startOf("day").toISOString(),
+        brondatum: toApiDate(brondatum),
       }),
     );
     request.flush({});
@@ -198,7 +195,7 @@ describe(ZaakBrondatumZettenDialogComponent.name, () => {
   it("closes the dialog with true once the brondatum has been set", async () => {
     await setup({ planItemToHandle: null });
 
-    await fillInBrondatum(moment().add(1, "day"));
+    await fillInBrondatum(addDays(today(), 1));
     await user.click(submitButton());
     await sleep();
 

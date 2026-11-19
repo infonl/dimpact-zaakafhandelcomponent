@@ -13,7 +13,6 @@ import {
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
@@ -27,6 +26,7 @@ import userEvent from "@testing-library/user-event";
 import { EMPTY } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
+import { provideZacDateAdapter, toApiDate, today } from "../../date-time";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectCreateAttendedComponent } from "./informatie-object-create-attended.component";
@@ -118,7 +118,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
           provideRouter([]),
           provideHttpClient(withXhr(), withInterceptorsFromDi()),
           provideHttpClientTesting(),
-          provideMomentDateAdapter(),
+          provideZacDateAdapter(),
           provideTanStackQuery(testQueryClient),
           provideQueryClient(testQueryClient),
         ],
@@ -193,7 +193,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
           provideRouter([]),
           provideHttpClient(withXhr(), withInterceptorsFromDi()),
           provideHttpClientTesting(),
-          provideMomentDateAdapter(),
+          provideZacDateAdapter(),
           provideTanStackQuery(testQueryClient),
           provideQueryClient(testQueryClient),
         ],
@@ -311,6 +311,17 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
 
     expect(documentCreated).toHaveBeenCalled();
     expect(windowOpen).toHaveBeenCalledWith("https://example.com/doc");
+  });
+
+  it("creates the document with the picked creation date, without a time", async () => {
+    await setup();
+    await fillInValidForm();
+
+    await user.click(submitButton());
+    await sleep();
+
+    const request = httpTestingController.expectOne(CREATE_URL);
+    expect(request.request.body.creationDate).toBe(toApiDate(today()));
   });
 
   it("creates the document for the taak it was opened from", async () => {

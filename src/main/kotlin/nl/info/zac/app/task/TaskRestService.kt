@@ -70,6 +70,7 @@ import nl.info.zac.signalering.model.SignaleringZoekParameters
 import nl.info.zac.task.BpmnTaskFormRuntimeService
 import nl.info.zac.task.TaskService
 import nl.info.zac.time.toDate
+import nl.info.zac.time.toLocalDate
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.websocket.event.ScreenEventType
@@ -79,7 +80,6 @@ import org.flowable.task.api.Task
 import org.flowable.task.api.TaskInfo
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
 import java.time.LocalDate
-import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -445,7 +445,7 @@ class TaskRestService @Inject constructor(
         verzenddatumString: String,
         toelichting: String?
     ) {
-        val verzenddatum = ZonedDateTime.parse(verzenddatumString).toLocalDate()
+        val verzenddatum = verzenddatumString.toLocalDate()
         documenten.split(
             TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER.toRegex()
         ).dropLastWhile { it.isEmpty() }.toTypedArray()
