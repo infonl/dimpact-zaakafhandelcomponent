@@ -722,7 +722,7 @@ office_converter:
    # url: ""
   image:
     repository: docker.io/gotenberg/gotenberg
-    tag: "9.7.0@sha256:3f00eba12da1d3fc1795be0d3ba66e2e97b31087c92ae238ed23937441c7a941"
+    tag: "9.9.0@sha256:2f4945f698c3d02f691a27d56bb8e7ba4585e6ab50bd233329a36eb0423ae587"
     pullPolicy: IfNotPresent
   name: "office-converter"
   replicas: 1
