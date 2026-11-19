@@ -91,15 +91,16 @@ zaak stay the same.
 warm caches each saved lookup is a cache hit, so the gain is small; it is larger right after a restart or a cache
 clear, when the ZTC caches are still filling.
 
-### D4: The reference-table check stays as it is
+### D4: The reference-table check becomes `GET /rest/health-check/referentietabellen`
 
-`GET /rest/health-check/bestaat-communicatiekanaal-eformulier` keeps returning a bare `true` or `false`.
+It returns `RestReferentietabellenInrichtingscheck` with `isCommunicatiekanaalEformulierAanwezig` (with
+`@get:JsonbProperty` and `@set:JsonbProperty`, as the Kotlin rules ask). The old
+`GET /rest/health-check/bestaat-communicatiekanaal-eformulier` is removed in the same pull request; the frontend is
+its only client.
 
-*Why:* no acceptance criterion asks to change it, and it does not make the page faster.
-
-*Alternative:* replace it with `GET /rest/health-check/referentietabellen`, which names a resource and returns an
-object that can hold more reference-table checks. Moved to [PZ-13555](https://dimpact.atlassian.net/browse/PZ-13555),
-because it is a breaking REST change outside the scope of this timeboxed item.
+*Why:* the old path is a question with a bare boolean as body; the new path names a resource and returns an object
+that can get more reference-table checks later without a new endpoint. No acceptance criterion asks for it; it is
+a deliberate clean-up of the API of this page while the change touches it.
 
 ### D5: The component derives everything from signals
 

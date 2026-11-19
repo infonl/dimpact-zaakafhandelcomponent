@@ -148,6 +148,23 @@ one of them changes. The table and its filter row SHALL stay on screen while a p
 - **WHEN** the beheerder types a filter that no omschrijving or doel contains
 - **THEN** the page shows that no data was found, and the filter row stays on screen
 
+### Requirement: The reference-table check is read as a resource
+
+`GET /rest/health-check/referentietabellen` SHALL return an object with the field
+`isCommunicatiekanaalEformulierAanwezig`, which is true when the system reference table *Communicatiekanaal* holds
+the value *E-formulier*. Only a user with the right to beheren SHALL read it. The Inrichtingscheck page SHALL show
+its result as before this change.
+
+#### Scenario: The E-formulier communicatiekanaal is present
+- **GIVEN** the default reference tables that ZAC provisions on startup
+- **WHEN** a beheerder requests `GET /rest/health-check/referentietabellen`
+- **THEN** the response is `200 OK` with `isCommunicatiekanaalEformulierAanwezig` true
+
+#### Scenario: The E-formulier communicatiekanaal is missing
+- **GIVEN** a Communicatiekanaal reference table without the value *E-formulier*
+- **WHEN** a beheerder opens the Inrichtingscheck page
+- **THEN** the page shows that the communicatiekanaal E-formulier is missing, as before this change
+
 ## REMOVED Requirements
 
 ### Requirement: The inrichtingscheck list carries only the zaaktype fields that the page shows
