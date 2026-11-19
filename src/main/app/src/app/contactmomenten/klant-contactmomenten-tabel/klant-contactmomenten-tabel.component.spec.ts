@@ -93,15 +93,21 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     pendingSearches = [];
   }
 
+  async function settle() {
+    await sleep();
+    detectChanges();
+    await sleep();
+    detectChanges();
+  }
+
   async function failSearch() {
     pendingSearches.forEach(({ reject }) =>
       reject(new HttpErrorResponse({ status: 400 })),
     );
     pendingSearches = [];
-    await sleep();
+    await settle();
     TestBed.inject(MatDialog).closeAll();
-    await sleep();
-    detectChanges();
+    await settle();
   }
 
   async function receive(
@@ -114,7 +120,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
         totaal,
       }),
     );
-    await sleep();
+    await settle();
   }
 
   afterEach(async () => {
@@ -267,7 +273,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
       expect(setLoading).toHaveBeenLastCalledWith(false);
     });
 
-    it("searches again when another page is chosen", async () => {
+    it("goes back to the page it showed and searches again when another page is chosen", async () => {
       await setup({ bsn: "999993896" });
       await receive([fromPartial<GeneratedType<"RestContactmoment">>({})], 15);
       await user.click(
@@ -276,11 +282,12 @@ describe(KlantContactmomentenTabelComponent.name, () => {
       await sleep();
       await failSearch();
 
+      expect(screen.getByText("1 – 5 of 15")).toBeVisible();
+
       await user.click(screen.getByRole("button", { name: "Next page" }));
       await sleep();
 
-      expect(listContactmomenten).toHaveBeenCalledTimes(3);
-      expect(lastSearch().page).toBe(2);
+      expect(lastSearch().page).toBe(1);
     });
   });
 

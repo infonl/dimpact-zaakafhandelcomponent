@@ -4,26 +4,30 @@
  */
 
 import {
-  AfterViewInit,
+  afterNextRender,
   Component,
+  computed,
+  DestroyRef,
+  effect,
   EventEmitter,
   inject,
+  Injector,
   OnDestroy,
   OnInit,
   signal,
-  viewChild,
 } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";
 import { MatFormField } from "@angular/material/form-field";
 import { MatIcon } from "@angular/material/icon";
-import { MatPaginator } from "@angular/material/paginator";
+import { MatPaginator, PageEvent } from "@angular/material/paginator";
+import { MatOption, MatSelect } from "@angular/material/select";
 import {
-  MatOption,
-  MatSelect,
-  MatSelectChange,
-} from "@angular/material/select";
-import { MatSort, MatSortHeader, SortDirection } from "@angular/material/sort";
+  MatSort,
+  MatSortHeader,
+  Sort,
+  SortDirection,
+} from "@angular/material/sort";
 import {
   MatCell,
   MatCellDef,
@@ -35,14 +39,11 @@ import {
   MatRow,
   MatRowDef,
   MatTable,
-  MatTableDataSource,
 } from "@angular/material/table";
 import { MatTooltip } from "@angular/material/tooltip";
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
-import { EMPTY, merge } from "rxjs";
-import { catchError, startWith, switchMap, tap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
@@ -55,7 +56,7 @@ import {
 import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { runQuery } from "../../shared/http/run-query";
+import { injectLastSuccessfulSearch } from "../../shared/http/last-successful-search";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import {
   SessionStorageUtil,
@@ -110,7 +111,7 @@ type InboxProductaanvraagListParameters =
 })
 export class InboxProductaanvragenListComponent
   extends WerklijstComponent
-  implements OnInit, AfterViewInit, OnDestroy
+  implements OnInit, OnDestroy
 {
   private readonly inboxProductaanvragenService = inject(
     InboxProductaanvragenService,
@@ -118,18 +119,39 @@ export class InboxProductaanvragenListComponent
   private readonly infoService = inject(InformatieObjectenService);
   private readonly utilService = inject(UtilService);
   private readonly dialog = inject(MatDialog);
+  private readonly injector = inject(Injector);
   readonly gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
   readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly sanitizer = inject(DomSanitizer);
 
-  protected readonly isLoadingResults = signal(true);
-  protected readonly totaal = signal(0);
-  protected dataSource = new MatTableDataSource<
-    GeneratedType<"RestInboxProductaanvraag">
-  >();
-  readonly paginator = viewChild.required(MatPaginator);
-  readonly sort = viewChild.required(MatSort);
+  /** `null` until the page size of the werklijst is known. */
+  private readonly requestedSearch =
+    signal<InboxProductaanvraagListParameters | null>(null);
+  private readonly search = injectLastSuccessfulSearch({
+    requested: this.requestedSearch,
+    query: (search) => ({
+      ...this.inboxProductaanvragenService.list(search ?? {}),
+      enabled: search !== null,
+    }),
+  });
+  protected readonly listParameters = computed(
+    () => this.search.requested() ?? this.createDefaultParameters(),
+  );
+  protected readonly isLoadingResults = computed(
+    () => this.search.requested() === null || this.search.query.isFetching(),
+  );
+  protected readonly totaal = computed(() =>
+    Number(this.search.data()?.totaal ?? 0),
+  );
+  protected readonly productaanvragen = computed(
+    () => this.search.data()?.resultaten ?? [],
+  );
+  protected readonly filterType = computed(
+    () =>
+      (this.search.data() as { filterType?: string[] } | undefined)
+        ?.filterType ?? [],
+  );
   protected readonly displayedColumns = [
     "expand",
     "type",
@@ -152,67 +174,43 @@ export class InboxProductaanvragenListComponent
     "aantal_bijlagen_filter",
     "actions_filter",
   ] as const;
-  protected listParameters = this.withSupportedSort(
-    SessionStorageUtil.getItem(
-      `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
-      this.createDefaultParameters(),
-    ),
-  );
   protected readonly expandedRow =
     signal<GeneratedType<"RestInboxProductaanvraag"> | null>(null);
-  protected readonly filterType = signal<string[]>([]);
-  protected filterChange = new EventEmitter<void>();
   protected clearZoekopdracht = new EventEmitter<void>();
   protected readonly previewSrc = signal<SafeUrl | null>(null);
   private readonly deleteMutation = injectMutation(
     () => this.inboxProductaanvragenService.delete(),
     {
-      onSuccess: () => this.filterChange.emit(),
+      onSuccess: () => this.search.request(this.listParameters()),
     },
   );
 
+  constructor() {
+    super();
+    effect(() => {
+      const search = this.search.requested();
+      if (search) {
+        SessionStorageUtil.setItem(
+          `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
+          search,
+        );
+      }
+    });
+    effect(() => this.utilService.setLoading(this.isLoadingResults()));
+    inject(DestroyRef).onDestroy(() => this.utilService.setLoading(false));
+  }
+
   ngOnInit() {
     super.ngOnInit();
-  }
-
-  ngAfterViewInit() {
-    this.sort().sortChange.subscribe(() => (this.paginator().pageIndex = 0));
-    const stopLoading = () => {
-      this.isLoadingResults.set(false);
-      this.utilService.setLoading(false);
-    };
-    merge(this.sort().sortChange, this.paginator().page, this.filterChange)
-      .pipe(
-        startWith({}),
-        switchMap(() => {
-          this.isLoadingResults.set(true);
-          this.utilService.setLoading(true);
-          this.updateListParameters();
-          return runQuery(
-            this.queryClient,
-            this.inboxProductaanvragenService.list({ ...this.listParameters }),
-          ).pipe(
-            tap({ next: stopLoading, error: stopLoading }),
-            catchError(() => EMPTY),
-          );
-        }),
-      )
-      .subscribe((data) => {
-        this.paginator().length = Number(data.totaal);
-        this.totaal.set(Number(data.totaal));
-        this.filterType.set((data as { filterType: string[] }).filterType);
-        this.dataSource.data = data.resultaten ?? [];
-      });
-  }
-
-  protected updateListParameters() {
-    this.listParameters.sort = this.sort().active;
-    this.listParameters.order = this.sort().direction;
-    this.listParameters.page = this.paginator().pageIndex;
-    this.listParameters.maxResults = this.paginator().pageSize;
-    SessionStorageUtil.setItem(
-      `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
-      this.listParameters,
+    this.search.request(
+      this.withSupportedSort({
+        ...SessionStorageUtil.getItem<InboxProductaanvraagListParameters>(
+          `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
+          this.createDefaultParameters(),
+        ),
+        page: 0,
+        maxResults: this.aantalPerPagina(),
+      }),
     );
   }
 
@@ -220,47 +218,62 @@ export class InboxProductaanvragenListComponent
     return this.infoService.getDownloadURL(ip.aanvraagdocumentUUID!);
   }
 
-  protected filtersChanged(options?: {
-    event: MatSelectChange | string;
-    filter: "type" | "initiatorID";
-  }) {
-    if (options) {
-      this.listParameters[options.filter] =
-        typeof options.event === "object" ? options.event.value : options.event;
-    }
-    this.paginator().pageIndex = 0;
-    this.clearZoekopdracht.emit();
-    this.filterChange.emit();
+  protected filtersChanged(
+    changes: Partial<InboxProductaanvraagListParameters>,
+  ) {
+    this.searchFirstPage(changes);
+    // The zoekopdracht reads its zoekFilters input when it is told, so only once that input has the new filters.
+    afterNextRender(() => this.clearZoekopdracht.emit(), {
+      injector: this.injector,
+    });
+  }
+
+  protected sortChanged({ active, direction }: Sort) {
+    this.searchFirstPage({ sort: active, order: direction });
+  }
+
+  protected pageChanged(event: PageEvent) {
+    this.paginatorChanged(event);
+    this.search.request({
+      ...this.listParameters(),
+      page: event.pageIndex,
+      maxResults: event.pageSize,
+    });
   }
 
   protected resetSearch() {
-    this.listParameters = SessionStorageUtil.setItem(
-      `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
-      this.createDefaultParameters(),
-    );
-    this.sort().active = this.listParameters.sort;
-    this.sort().direction = this.listParameters.order;
-    this.paginator().pageIndex = 0;
-    this.filterChange.emit();
+    this.searchFirstPage(this.createDefaultParameters(), true);
   }
 
   protected zoekopdrachtChanged(
     actieveZoekopdracht: GeneratedType<"RestZoekopdracht"> | null,
   ) {
     if (actieveZoekopdracht?.json) {
-      this.listParameters = this.withSupportedSort({
-        ...this.createDefaultParameters(),
-        ...JSON.parse(actieveZoekopdracht.json),
-      });
-      this.sort().active = this.listParameters.sort;
-      this.sort().direction = this.listParameters.order;
-      this.paginator().pageIndex = 0;
-      this.filterChange.emit();
+      this.searchFirstPage(
+        this.withSupportedSort({
+          ...this.createDefaultParameters(),
+          ...JSON.parse(actieveZoekopdracht.json),
+        }),
+        true,
+      );
     } else if (actieveZoekopdracht === null) {
       this.resetSearch();
     } else {
-      this.filterChange.emit();
+      this.search.request(this.listParameters());
     }
+  }
+
+  private searchFirstPage(
+    changes: Partial<InboxProductaanvraagListParameters>,
+    replace = false,
+  ) {
+    const { maxResults } = this.listParameters();
+    this.search.request({
+      ...(replace ? this.createDefaultParameters() : this.listParameters()),
+      ...changes,
+      page: 0,
+      maxResults,
+    });
   }
 
   private withSupportedSort(
@@ -329,11 +342,9 @@ export class InboxProductaanvragenListComponent
   }
 
   ngOnDestroy() {
-    // Make sure when returning to this comnponent, the very first page is loaded
-    this.listParameters.page = 0;
     SessionStorageUtil.setItem(
       `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
-      this.listParameters,
+      { ...this.listParameters(), page: 0 },
     );
   }
 }

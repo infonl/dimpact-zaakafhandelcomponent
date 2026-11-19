@@ -4,30 +4,27 @@
  */
 
 import {
-  AfterViewInit,
   Component,
+  computed,
+  DestroyRef,
   effect,
   inject,
   input,
-  signal,
-  untracked,
-  viewChild,
+  linkedSignal,
 } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
-import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
+import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
 import { MatTableModule } from "@angular/material/table";
 import { TranslatePipe } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
-import { EMPTY } from "rxjs";
-import { catchError, startWith, switchMap, tap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { PutBody } from "../../shared/http/http-client";
-import { runQuery } from "../../shared/http/run-query";
+import { injectLastSuccessfulSearch } from "../../shared/http/last-successful-search";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
-import { GeneratedType } from "../../shared/utils/generated-types";
 import { ContactmomentenService } from "../contactmomenten.service";
+
+type ContactmomentenSearch = PutBody<"/rest/klanten/contactmomenten">;
 
 @Component({
   selector: "zac-klant-contactmomenten-tabel",
@@ -44,17 +41,12 @@ import { ContactmomentenService } from "../contactmomenten.service";
     EmptyPipe,
   ],
 })
-export class KlantContactmomentenTabelComponent implements AfterViewInit {
+export class KlantContactmomentenTabelComponent {
   private readonly contactmomentenService = inject(ContactmomentenService);
   private readonly utilService = inject(UtilService);
 
   readonly bsn = input<string>();
   readonly vestigingsnummer = input<string>();
-  readonly paginator = viewChild.required(MatPaginator);
-  protected readonly contactmomenten = signal<
-    GeneratedType<"RestContactmoment">[]
-  >([]);
-  protected readonly totaal = signal(0);
   protected columns: string[] = [
     "registratiedatum",
     "kanaal",
@@ -62,55 +54,36 @@ export class KlantContactmomentenTabelComponent implements AfterViewInit {
     "medewerker",
     "tekst",
   ];
-  private listParameters: PutBody<"/rest/klanten/contactmomenten"> = {
-    page: 0,
-  };
-  private init = false;
-  protected readonly isLoadingResults = signal(true);
 
-  private readonly queryClient = inject(QueryClient);
+  private readonly requestedSearch = linkedSignal<
+    Pick<ContactmomentenSearch, "bsn" | "vestigingsnummer">,
+    ContactmomentenSearch
+  >({
+    source: () => ({
+      bsn: this.bsn(),
+      vestigingsnummer: this.vestigingsnummer(),
+    }),
+    computation: (klant) => ({ page: 0, ...klant }),
+  });
+  private readonly search = injectLastSuccessfulSearch({
+    requested: this.requestedSearch,
+    query: (search) => this.contactmomentenService.listContactmomenten(search),
+  });
+  protected readonly page = computed(() => this.search.requested().page ?? 0);
+  protected readonly isLoadingResults = computed(() =>
+    this.search.query.isFetching(),
+  );
+  protected readonly contactmomenten = computed(
+    () => this.search.data()?.resultaten ?? [],
+  );
+  protected readonly totaal = computed(() => this.search.data()?.totaal ?? 0);
 
   constructor() {
-    effect(() => {
-      this.bsn();
-      this.vestigingsnummer();
-      untracked(() => {
-        if (this.init) {
-          this.paginator().pageIndex = 0;
-          this.paginator().page.emit();
-        }
-      });
-    });
+    effect(() => this.utilService.setLoading(this.isLoadingResults()));
+    inject(DestroyRef).onDestroy(() => this.utilService.setLoading(false));
   }
 
-  ngAfterViewInit(): void {
-    this.init = true;
-    const stopLoading = () => {
-      this.isLoadingResults.set(false);
-      this.utilService.setLoading(false);
-    };
-    this.paginator()
-      .page.pipe(
-        startWith({}),
-        switchMap(() => {
-          this.isLoadingResults.set(true);
-          this.utilService.setLoading(true);
-          return runQuery(this.queryClient, this.loadContactmomenten()).pipe(
-            tap({ next: stopLoading, error: stopLoading }),
-            catchError(() => EMPTY),
-          );
-        }),
-      )
-      .subscribe((resultaat) => {
-        this.totaal.set(resultaat.totaal ?? 0);
-        this.contactmomenten.set(resultaat.resultaten ?? []);
-      });
-  }
-
-  private loadContactmomenten() {
-    this.listParameters.page = this.paginator().pageIndex;
-    this.listParameters.bsn = this.bsn();
-    this.listParameters.vestigingsnummer = this.vestigingsnummer();
-    return this.contactmomentenService.listContactmomenten(this.listParameters);
+  protected pageChanged({ pageIndex }: PageEvent) {
+    this.search.request({ ...this.search.requested(), page: pageIndex });
   }
 }

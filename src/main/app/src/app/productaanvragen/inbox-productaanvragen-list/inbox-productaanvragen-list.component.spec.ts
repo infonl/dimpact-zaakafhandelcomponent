@@ -105,7 +105,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
     totaal = productaanvragen.length,
     filterType = ["type-A", "type-B"],
   ) {
-    await sleep();
+    await settle();
     listRequests().forEach((request) =>
       request.flush({
         totaal,
@@ -113,20 +113,24 @@ describe(InboxProductaanvragenListComponent.name, () => {
         filterType,
       }),
     );
+    await settle();
+  }
+
+  async function settle() {
     await sleep();
-    // the table creates the row views in one pass and binds their cells in the next
     fixture.detectChanges();
+    await sleep();
     fixture.detectChanges();
   }
 
   async function lastListRequestBody() {
-    await sleep();
+    await settle();
     const requests = listRequests();
     const body = requests[requests.length - 1].request.body;
     requests.forEach((request) =>
       request.flush({ totaal: 0, resultaten: [], filterType: [] }),
     );
-    await sleep();
+    await settle();
     return body;
   }
 
@@ -192,13 +196,11 @@ describe(InboxProductaanvragenListComponent.name, () => {
       }),
     );
 
-    expect(fixture.componentInstance["listParameters"]).toMatchObject({
+    expect(await lastListRequestBody()).toMatchObject({
       sort: "id",
       order: "desc",
       type: "type-B",
     });
-    expect(fixture.componentInstance["sort"]().active).toBe("id");
-    expect(fixture.componentInstance["sort"]().direction).toBe("desc");
   });
 
   it("restores the default order when a saved search omits only the order", async () => {
@@ -211,13 +213,15 @@ describe(InboxProductaanvragenListComponent.name, () => {
       }),
     );
 
-    expect(fixture.componentInstance["listParameters"]).toMatchObject({
+    expect(await lastListRequestBody()).toMatchObject({
       sort: "type",
       order: "desc",
       type: "type-B",
     });
-    expect(fixture.componentInstance["sort"]().active).toBe("type");
-    expect(fixture.componentInstance["sort"]().direction).toBe("desc");
+    expect(screen.getByRole("columnheader", { name: "type" })).toHaveAttribute(
+      "aria-sort",
+      "descending",
+    );
   });
 
   it("forgets the remembered filters and asks for the default first page again", async () => {
@@ -228,12 +232,19 @@ describe(InboxProductaanvragenListComponent.name, () => {
     await setup();
     await showProductaanvragen([inboxProductaanvraag]);
 
+    expect(screen.getByRole("columnheader", { name: "type" })).toHaveAttribute(
+      "aria-sort",
+      "ascending",
+    );
+
     fixture.componentInstance["resetSearch"]();
 
-    expect(rememberedParameters()).toEqual(UNFILTERED_REQUEST_BODY);
-    expect(fixture.componentInstance["sort"]().active).toBe("id");
-    expect(fixture.componentInstance["sort"]().direction).toBe("desc");
     expect(await lastListRequestBody()).toEqual(UNFILTERED_REQUEST_BODY);
+    expect(rememberedParameters()).toEqual(UNFILTERED_REQUEST_BODY);
+    expect(screen.getByRole("columnheader", { name: "type" })).toHaveAttribute(
+      "aria-sort",
+      "none",
+    );
   });
 
   it("filters on the type that was chosen in the type filter", async () => {
@@ -335,23 +346,21 @@ describe(InboxProductaanvragenListComponent.name, () => {
       }),
     );
 
-    expect(fixture.componentInstance["listParameters"]).toMatchObject({
+    expect(await lastListRequestBody()).toMatchObject({
       sort: "id",
       order: "desc",
     });
-    expect(fixture.componentInstance["sort"]().active).toBe("id");
   });
 
   describe("when a search fails", () => {
     async function failSearch() {
-      await sleep();
+      await settle();
       listRequests().forEach((request) =>
         request.flush(null, { status: 400, statusText: "Bad Request" }),
       );
-      await sleep();
+      await settle();
       TestBed.inject(MatDialog).closeAll();
-      await sleep();
-      fixture.detectChanges();
+      await settle();
     }
 
     it("stops the loading indicator", async () => {
@@ -375,15 +384,17 @@ describe(InboxProductaanvragenListComponent.name, () => {
       });
     });
 
-    it("searches again when another page is chosen", async () => {
+    it("goes back to the page it showed and searches again when another page is chosen", async () => {
       await setup();
       await showProductaanvragen([inboxProductaanvraag], 30);
       await user.click(screen.getByRole("button", { name: "Next page" }));
       await failSearch();
 
+      expect(screen.getByText("1 – 10 of 30")).toBeVisible();
+
       await user.click(screen.getByRole("button", { name: "Next page" }));
 
-      expect(await lastListRequestBody()).toMatchObject({ page: 2 });
+      expect(await lastListRequestBody()).toMatchObject({ page: 1 });
     });
 
     it("searches again when a filter changes", async () => {

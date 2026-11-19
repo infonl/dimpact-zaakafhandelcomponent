@@ -102,26 +102,30 @@ describe(InboxDocumentenListComponent.name, () => {
     return httpTestingController.match("/rest/inboxdocumenten");
   }
 
+  async function settle() {
+    await sleep();
+    fixture.detectChanges();
+    await sleep();
+    fixture.detectChanges();
+  }
+
   async function showDocuments(
     documents: GeneratedType<"RestInboxDocument">[],
     totaal = documents.length,
   ) {
-    await sleep();
+    await settle();
     listRequests().forEach((request) =>
       request.flush({ totaal, resultaten: documents }),
     );
-    await sleep();
-    // the table creates the row views in one pass and binds their cells in the next
-    fixture.detectChanges();
-    fixture.detectChanges();
+    await settle();
   }
 
   async function lastListRequestBody() {
-    await sleep();
+    await settle();
     const requests = listRequests();
     const body = requests[requests.length - 1].request.body;
     requests.forEach((request) => request.flush({ totaal: 0, resultaten: [] }));
-    await sleep();
+    await settle();
     return body;
   }
 
@@ -245,14 +249,13 @@ describe(InboxDocumentenListComponent.name, () => {
 
   describe("when a search fails", () => {
     async function failSearch() {
-      await sleep();
+      await settle();
       listRequests().forEach((request) =>
         request.flush(null, { status: 400, statusText: "Bad Request" }),
       );
-      await sleep();
+      await settle();
       TestBed.inject(MatDialog).closeAll();
-      await sleep();
-      fixture.detectChanges();
+      await settle();
     }
 
     it("stops the loading indicator", async () => {
@@ -276,7 +279,7 @@ describe(InboxDocumentenListComponent.name, () => {
       });
     });
 
-    it("searches again when another page is chosen", async () => {
+    it("goes back to the page it showed and searches again when another page is chosen", async () => {
       await setup();
       await showDocuments([inboxDocument], 30);
       await user.click(
@@ -284,11 +287,13 @@ describe(InboxDocumentenListComponent.name, () => {
       );
       await failSearch();
 
+      expect(screen.getByText("1 - 10 msg.pagina 30")).toBeVisible();
+
       await user.click(
         screen.getByRole("button", { name: "actie.pagina.volgende" }),
       );
 
-      expect(await lastListRequestBody()).toMatchObject({ page: 2 });
+      expect(await lastListRequestBody()).toMatchObject({ page: 1 });
     });
 
     it("searches again when a filter changes", async () => {
