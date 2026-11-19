@@ -8,7 +8,7 @@ import { randomBytes } from "node:crypto";
 import type { Role } from "../../config/targets/target";
 import { withLock } from "./lock";
 import { groepNamed, setUpZaaktype } from "./zaakafhandelparameters";
-import { dataOf, type ZacApi } from "./zac-api";
+import { dataOf, type Schemas, type ZacApi } from "./zac-api";
 
 const SEARCH_INDEX_TIMEOUT_MILLISECONDS = 60_000;
 
@@ -32,6 +32,11 @@ export type TestData = {
    * Scenarios run in parallel against the same target, so give every description of new data a unique text.
    */
   unique(text: string): string;
+  /**
+   * The groep of the account of the role, as the identity provider of the target has it. Fails the step when the
+   * account is not in exactly one groep, because the journeys then cannot tell which groep to use.
+   */
+  groepOf(role: Role): Promise<Schemas["RestGroup"]>;
   /** Makes sure the zaaktype routes new zaken to the groep. Changes the zaaktype only when it does not yet. */
   ensureZaaktype(
     omschrijving: string,
@@ -66,6 +71,24 @@ async function isZaakInSearchIndex(api: ZacApi, identificatie: string) {
   );
 }
 
+async function onlyGroepOf(api: ZacApi, role: Role) {
+  const groupIds =
+    (await dataOf(api.GET("/rest/identity/loggedInUser"))).groupIds ?? [];
+  if (groupIds.length !== 1) {
+    throw new Error(
+      `The account of the ${role} is in ${groupIds.length} groepen (${groupIds.join(", ")}), not in exactly one.`,
+    );
+  }
+  const groepen = await dataOf(api.GET("/rest/identity/groups"));
+  const groep = groepen.find(({ id }) => id === groupIds[0]);
+  if (!groep) {
+    throw new Error(
+      `ZAC has no groep "${groupIds[0]}", which the account of the ${role} is in.`,
+    );
+  }
+  return groep;
+}
+
 /** ZAC accepts a person only by the temporary id that a search in the BRP gives, not by the BSN. */
 async function temporaryPersonId(
   api: ZacApi,
@@ -95,6 +118,7 @@ export function createTestData({
   scenarioCode?: string;
 }): TestData {
   const zaken: RememberedZaak[] = [];
+  const groepen = new Map<Role, Promise<Schemas["RestGroup"]>>();
 
   async function ensureZaaktype(omschrijving: string, groep: string) {
     const api = await apiAs("beheerder");
@@ -106,6 +130,15 @@ export function createTestData({
   return {
     unique: (text) =>
       `${text.startsWith("E2E") ? text : `E2E ${text}`} [${scenarioCode}]`,
+
+    groepOf(role) {
+      let groep = groepen.get(role);
+      if (!groep) {
+        groep = apiAs(role).then((api) => onlyGroepOf(api, role));
+        groepen.set(role, groep);
+      }
+      return groep;
+    },
 
     async ensureZaaktype(omschrijving, { groep }) {
       await ensureZaaktype(omschrijving, groep);

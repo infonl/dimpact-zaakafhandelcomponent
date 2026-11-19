@@ -5,8 +5,9 @@
 
 import { expect } from "@playwright/test";
 import { Then, When } from "../../fixtures";
+import { confirmDialog, findDialog } from "../../screens/dialog";
 import { zaakPage, type HistorieRegel } from "../../screens/zaak";
-import { SEED } from "../seed";
+import { seededPersoonOrSkip } from "../seed";
 
 const AANVULLENDE_INFORMATIE = "Aanvullende informatie";
 
@@ -35,13 +36,17 @@ const EVENTS_IN_HISTORIE: Record<string, (regel: HistorieRegel) => boolean> = {
 
 When(
   "I request aanvullende informatie from the initiator",
-  async ({ page }) => {
+  async ({ page, testData, $testInfo }) => {
     const zaak = zaakPage(page);
     await zaak.chooseFromMenu(AANVULLENDE_INFORMATIE);
     await page
       .getByRole("combobox", { name: "Taak toekennen aan groep" })
       .click();
-    await page.getByRole("option", { name: SEED.groep }).click();
+    const { naam } = await testData.groepOf("behandelaar");
+    await page.getByRole("option", { name: naam }).click();
+    await expect(
+      page.getByRole("textbox", { name: "E-mailadres" }),
+    ).toHaveValue(seededPersoonOrSkip($testInfo).emailadres);
     await page.getByRole("button", { name: "Starten" }).click();
     await expect(zaak.taak(AANVULLENDE_INFORMATIE)).toBeVisible();
   },
@@ -51,13 +56,12 @@ When(
   "I suspend the zaak for {int} days with the reason {string}",
   async ({ page }, dagen: number, reden: string) => {
     await zaakPage(page).chooseFromMenu("Zaak opschorten");
-    const dialog = page.getByRole("dialog", { name: "Zaak opschorten" });
+    const dialog = findDialog(page, "Zaak opschorten");
     await dialog
       .getByRole("spinbutton", { name: "Opschortduur (kalenderdagen)" })
       .fill(String(dagen));
     await dialog.getByRole("textbox", { name: "Reden" }).fill(reden);
-    await dialog.getByRole("button", { name: "Zaak opschorten" }).click();
-    await expect(dialog).toBeHidden();
+    await confirmDialog(dialog, "Zaak opschorten");
   },
 );
 
@@ -94,8 +98,9 @@ Then(
 
 When(
   "I complete the aanvullende informatie task",
-  async ({ page, accountOfRole }) => {
-    const taak = zaakPage(page).taak(AANVULLENDE_INFORMATIE);
+  async ({ page, accountOfRole, testData }) => {
+    const zaak = zaakPage(page);
+    const taak = zaak.taak(AANVULLENDE_INFORMATIE);
     await taak.getByRole("button", { name: "Ken aan mij toe" }).click();
     await expect(taak).toContainText(accountOfRole("behandelaar").displayName);
     await taak.getByRole("link", { name: "Taak bekijken" }).click();
@@ -105,7 +110,8 @@ When(
       .getByRole("radio", { name: "Nee, de opschorting behouden" })
       .check();
     await page.getByRole("button", { name: "Opslaan & afronden" }).click();
-    await expect(zaakPage(page).taak(AANVULLENDE_INFORMATIE)).toBeHidden();
+    await zaak.expectOpened(testData.zaak.identificatie);
+    await expect(taak).toBeHidden();
   },
 );
 
@@ -113,38 +119,32 @@ When(
   "I resume the zaak with the reason {string}",
   async ({ page }, reden: string) => {
     await zaakPage(page).chooseFromMenu("Zaak hervatten");
-    // This dialog has no accessible name, so it is found by its heading.
-    const dialog = page
-      .getByRole("dialog")
-      .filter({ has: page.getByRole("heading", { name: "Zaak hervatten" }) });
+    const dialog = findDialog(page, "Zaak hervatten");
     await dialog.getByRole("textbox", { name: "Reden" }).fill(reden);
-    await dialog.getByRole("button", { name: "Zaak hervatten" }).click();
-    await expect(dialog).toBeHidden();
+    await confirmDialog(dialog, "Zaak hervatten");
   },
 );
 
 When("I finish the intake as ontvankelijk", async ({ page }) => {
   await zaakPage(page).chooseFromMenu("Intake afronden");
-  const dialog = page.getByRole("dialog", { name: /^Intake afronden/ });
+  const dialog = findDialog(page, "Intake afronden");
   await dialog
     .getByRole("radiogroup", { name: "Is deze zaak ontvankelijk?" })
     .getByRole("radio", { name: "Ja" })
     .check();
-  await dialog.getByRole("button", { name: "Intake afronden" }).click();
-  await expect(dialog).toBeHidden();
+  await confirmDialog(dialog, "Intake afronden");
 });
 
 When(
   "I extend the zaak by {int} days with the reason {string}",
   async ({ page }, dagen: number, reden: string) => {
     await zaakPage(page).chooseFromMenu("Zaak verlengen");
-    const dialog = page.getByRole("dialog", { name: "Zaak verlengen" });
+    const dialog = findDialog(page, "Zaak verlengen");
     await dialog
       .getByRole("spinbutton", { name: "Verlengingsduur (kalenderdagen)" })
       .fill(String(dagen));
     await dialog.getByRole("textbox", { name: "Reden" }).fill(reden);
-    await dialog.getByRole("button", { name: "Zaak verlengen" }).click();
-    await expect(dialog).toBeHidden();
+    await confirmDialog(dialog, "Zaak verlengen");
   },
 );
 

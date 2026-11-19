@@ -129,7 +129,9 @@ such as `@slow` and `@timeout:N`, work too.
 - Put what you do on a screen that more than one journey uses in [bdd/screens](./bdd/screens), and keep a screen that
   only one journey uses in its steps.
 - A step that needs seed data that its feature does not name, such as the zaaktype of "a zaak in intake", takes it
-  from the `SEED` of its domain, for example [bdd/@zaak/seed.ts](./bdd/@zaak/seed.ts).
+  from the `SEED` of its domain, for example [bdd/@zaak/seed.ts](./bdd/@zaak/seed.ts). Data that differs per target,
+  such as a person and its e-mail address, lives in the `seed` of the target. Do not repeat what ZAC can tell: the
+  groep of an account comes from `testData.groepOf()`.
 - Find elements as a user does: by role and name first, then by label or text. See
   [testing.md](../../docs/development/testing.md#using-the-right-selectors-in-the-e2e-tests). ESLint forbids CSS
   and XPath locators and `first()`, `last()` and `nth()`. When an element has no accessible name, give it one in the
