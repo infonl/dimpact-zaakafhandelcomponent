@@ -68,5 +68,10 @@ export const kind: Target = (environment) => ({
     // scripts/kind/seed/bag-wiremock only answers this search text.
     bag: { searchText: "fake search text", adres: "Dam 1, 1012JS Amsterdam" },
   },
+  seed: {
+    // The BRP test double knows this person, and scripts/kind/seed/openklant/1-setup-applicatie.sql gives it this
+    // preferred e-mail address.
+    persoon: { bsn: "999992958", emailadres: "anita.van.buren@example.com" },
+  },
   runsLiveScenarios: false,
 });

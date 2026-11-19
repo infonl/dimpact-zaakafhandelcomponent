@@ -38,11 +38,17 @@ const testDoublesSchema = z.object({
 });
 export type TestDoubles = z.infer<typeof testDoublesSchema>;
 
+const seedSchema = z.object({
+  persoon: z.object({ bsn: z.string().min(1), emailadres: z.email() }),
+});
+export type Seed = z.infer<typeof seedSchema>;
+
 export const targetSettingsSchema = z.object({
   zacUrl: z.union([z.url(), unknownZacUrlSchema]),
   accounts: z.partialRecord(z.enum(ROLES), accountSchema),
   signInPage: signInPageSchema,
   testDoubles: testDoublesSchema.optional(),
+  seed: seedSchema.optional(),
   runsLiveScenarios: z.boolean(),
 });
 export type TargetSettings = z.infer<typeof targetSettingsSchema>;
@@ -55,6 +61,8 @@ export type TargetSettings = z.infer<typeof targetSettingsSchema>;
  * - `signInPage`: the texts of the Keycloak login page of the target, which depend on its theme and language.
  * - `testDoubles`: what the test doubles of the target answer. A target without test doubles skips the steps that
  *   need them.
+ * - `seed`: data that the target has before the tests run. `persoon` is a person that the BRP knows and that has
+ *   a preferred e-mail address in Open Klant. A target without a seed skips the steps that need it.
  * - `runsLiveScenarios`: whether the scenarios tagged `@live-env-only`, which need real external systems, run.
  *
  * When a target cannot tell the URL of ZAC, it says why, so that tools that do not run tests, such as `bddgen`,

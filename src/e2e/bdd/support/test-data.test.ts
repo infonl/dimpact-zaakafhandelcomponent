@@ -5,6 +5,26 @@
 
 import { expect, test } from "@playwright/test";
 import { createTestData } from "./test-data";
+import type { ZacApi } from "./zac-api";
+
+const GROEPEN = [
+  { id: "behandelaars-test-1", naam: "Test group behandelaars domein test 1" },
+  { id: "behandelaars-test-2", naam: "Test group behandelaars domein test 2" },
+];
+
+function testDataOfAccountIn(groupIds: string[]) {
+  const responses: Record<string, unknown> = {
+    "/rest/identity/loggedInUser": { groupIds },
+    "/rest/identity/groups": GROEPEN,
+  };
+  const api = {
+    GET: (path: string) => Promise.resolve({ data: responses[path] }),
+  } as unknown as ZacApi;
+  return createTestData({
+    apiAs: () => Promise.resolve(api),
+    locksDirectory: "unused",
+  });
+}
 
 function testData(scenarioCode = "a1b2c3d4") {
   return createTestData({
@@ -52,4 +72,28 @@ test("given a scenario that created two zaken, when a step asks for its zaak, th
   data.rememberZaak({ identificatie: "ZAAK-2026-0000000002" });
 
   expect(data.zaak.identificatie).toBe("ZAAK-2026-0000000002");
+});
+
+test("given an account in one groep, when a step asks for the groep of its role, then it gets that groep", async () => {
+  await expect(
+    testDataOfAccountIn(["behandelaars-test-2"]).groepOf("behandelaar"),
+  ).resolves.toEqual(GROEPEN[1]);
+});
+
+test("given an account in two groepen, when a step asks for the groep of its role, then the step fails and names them", async () => {
+  await expect(
+    testDataOfAccountIn(["behandelaars-test-1", "behandelaars-test-2"]).groepOf(
+      "behandelaar",
+    ),
+  ).rejects.toThrow(
+    "The account of the behandelaar is in 2 groepen (behandelaars-test-1, behandelaars-test-2), not in exactly one.",
+  );
+});
+
+test("given an account in a groep that ZAC does not know, when a step asks for the groep of its role, then the step fails and names it", async () => {
+  await expect(
+    testDataOfAccountIn(["unknown-group"]).groepOf("behandelaar"),
+  ).rejects.toThrow(
+    'ZAC has no groep "unknown-group", which the account of the behandelaar is in.',
+  );
 });
