@@ -37,8 +37,9 @@ known findings and makes free-text logging impossible in the backend.
     recipient as a `@Redacted` field, the outcome and the duration.
   - `UpdateZaakAssignmentDelegate` no longer logs the free-text assignment reason.
   - `RestExceptionMapper` no longer logs the rejected values of a `ZgwValidationErrorException`. It logs only the
-    validation error code and the names of the invalid parameters, without the exception, whose message holds the
-    reasons.
+    validation error code and the names of the invalid parameters, without the exception. The message of a
+    `ZgwValidationErrorException` no longer holds the reasons, so that it holds no rejected value wherever it is
+    logged, also as the cause that Flowable logs.
   - Employee identities are logged as the Keycloak user ID (the `sub` claim) instead of a username, name or email
     address, in `UserPrincipalFilter`, `WebSocketServerEndPoint`, the six `assertPolicy` call sites that name the
     user, `ProductaanvraagZaakService` and the other places the migration finds. A log event holds an `Employee`

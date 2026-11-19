@@ -69,25 +69,27 @@
       record per execution instead of up to three, with `emailSource=NONE` when no mail is sent; unit tests
 - [ ] 4.4 `RestExceptionMapper`: log `ZgwValidationFailed(errorCode, invalid parameter names and codes)` without the
       reasons and without the exception, keep the reasons in the REST response; unit test with a rejected email value
-      that checks the whole record, including its exception, and the REST response; do the same in
-      `DrcClientService.logFailureToCleanUp`, `DetachedDocumentBulkService.failureMessage` and
-      `ProductaanvraagZaakService.logAanvraagPdfPairingFailure`, and let `UpdateZaakJavaDelegate` throw its
-      `FlowableZgwValidationErrorException` with the error code and parameter names and without the cause; unit tests
-      that check the whole record
-- [ ] 4.5 `UpdateZaakAssignmentDelegate`: log zaak identification, group and the assignee as an `Employee` field,
+      that checks the whole record, including its exception, and the REST response
+- [ ] 4.5 `ZgwValidationErrorException.message`: leave out the `reason` of each invalid parameter, keep its name and
+      code; unit test of the message; unit tests that the log records of `DrcClientService.logFailureToCleanUp`,
+      `DetachedDocumentBulkService.failureMessage` and `ProductaanvraagZaakService.logAanvraagPdfPairingFailure`
+      contain no reason; a `RestExceptionMapper` test that a `FlowableZgwValidationErrorException` from
+      `UpdateZaakJavaDelegate` still gives HTTP 400 with the error code and the reasons, and that its whole log record
+      (including the cause) contains no reason
+- [ ] 4.6 `UpdateZaakAssignmentDelegate`: log zaak identification, group and the assignee as an `Employee` field,
       without the reason; unit test
-- [ ] 4.6 `UserPrincipalFilter`: log one `UserLoggedIn` record with `Employee` fields instead of usernames, with the
+- [ ] 4.7 `UserPrincipalFilter`: log one `UserLoggedIn` record with `Employee` fields instead of usernames, with the
       previous employee as a field when another user's session was invalidated; unit tests
-- [ ] 4.7 `WebSocketServerEndPoint`: log the employee of the session as an `Employee` field (or the session ID when
+- [ ] 4.8 `WebSocketServerEndPoint`: log the employee of the session as an `Employee` field (or the session ID when
       there is none) in all websocket events; unit tests
-- [ ] 4.8 `ProductaanvraagZaakService`: log the behandelaar as an `Employee` field, and check that a failed lookup
+- [ ] 4.9 `ProductaanvraagZaakService`: log the behandelaar as an `Employee` field, and check that a failed lookup
       for the log does not stop an assignment that succeeds otherwise; unit tests
-- [ ] 4.9 `MailTemplateHelper`: stop logging the `geboorte` of an initiator without a name; unit test
-- [ ] 4.10 `ZaakService` and `SmartDocumentsService`: replace the logged employee name or username with an
+- [ ] 4.10 `MailTemplateHelper`: stop logging the `geboorte` of an initiator without a name; unit test
+- [ ] 4.11 `ZaakService` and `SmartDocumentsService`: replace the logged employee name or username with an
       `Employee` field
-- [ ] 4.11 `NotificationReceiver`: log the channel, main resource URL, resource, resource URL, action and creation
+- [ ] 4.12 `NotificationReceiver`: log the channel, main resource URL, resource, resource URL, action and creation
       date, without the `kenmerken`; unit test
-- [ ] 4.12 `BrpClientService`: migrate to `ZacLogger`, keeping only the query type in the log; check with a test that
+- [ ] 4.13 `BrpClientService`: migrate to `ZacLogger`, keeping only the query type in the log; check with a test that
       no BSN is logged
 
 ## 5. Migration of all other log statements

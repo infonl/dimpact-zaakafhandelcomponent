@@ -365,13 +365,19 @@ birth.
   logged without the `ZgwValidationErrorException`, because the message of that exception holds the reasons, and its
   stack trace adds nothing for a 400 response of a ZGW API. Clean fields alone would not keep the reasons out of the
   record.
-- The same holds outside `RestExceptionMapper`, wherever a `ZgwValidationErrorException` is caught: no log record
-  holds its message or the exception itself, only its error code and the names of its invalid parameters. Known
-  places: `DrcClientService.logFailureToCleanUp` and `DetachedDocumentBulkService.failureMessage` (both interpolate
-  the message), `ProductaanvraagZaakService.logAanvraagPdfPairingFailure` (attaches the exception) and
+- The same holds outside `RestExceptionMapper`, wherever a `ZgwValidationErrorException` is caught. Known places:
+  `DrcClientService.logFailureToCleanUp` and `DetachedDocumentBulkService.failureMessage` (both interpolate the
+  message), `ProductaanvraagZaakService.logAanvraagPdfPairingFailure` (attaches the exception) and
   `UpdateZaakJavaDelegate`, which wraps it as the cause of a `FlowableZgwValidationErrorException` that Flowable logs
-  itself. That wrapper gets a message with the error code and parameter names, and no cause, because ZAC cannot
-  control what Flowable logs of a cause. The migration (decision 9) checks every other catch of the exception.
+  itself. The fix is at the source: `ZgwValidationErrorException.message` no longer holds the `reason` of each invalid
+  parameter, only its name and code (`emailadres [invalid]`). Then the message is safe wherever it ends up: in an
+  interpolated log line, in an attached exception, or in the cause that Flowable logs, also in places that the
+  migration does not find. The wrapper in `UpdateZaakJavaDelegate` keeps its cause, because
+  `RestExceptionMapper` reads the reasons for the HTTP 400 response from it
+  (`handleZgwValidationErrorException(exception.cause)`); the response reads them from
+  `validatieFout.invalidParams`, not from the message, so it does not change.
+- Alternative: a `FlowableZgwValidationErrorException` without a cause that keeps the validation error as data, plus
+  a fix per known place. It changes more code and only covers the places we know of. Rejected.
 - `MailTemplateHelper` no longer logs the `geboorte` of an initiator without a name; it logs that the name is missing
   and the role UUID.
 - `UserPrincipalFilter` calls `ZacLogger.registerEmployee` first, then logs one `UserLoggedIn(employee, groupIds,
