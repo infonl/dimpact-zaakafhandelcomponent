@@ -92,15 +92,21 @@ results and only the `uuid`, `omschrijving`, `doel` and `beginGeldigheid` of the
 
 ### Requirement: The inrichtingscheck list is filtered before it is paged
 
-`GET /rest/health-check/zaaktypes` SHALL apply the query parameters `omschrijving` and `status` to all checked
-zaaktypes before it takes the page, and SHALL count `totaal` after them. `omschrijving` SHALL keep the zaaktypes whose
-omschrijving contains the value, ignoring case and surrounding white space. `status` SHALL be `AANDACHT_NODIG` (not
+`GET /rest/health-check/zaaktypes` SHALL apply the query parameters `zoekterm` and `status` to all checked zaaktypes
+before it takes the page, and SHALL count `totaal` after them. `zoekterm` SHALL keep the zaaktypes whose omschrijving
+or doel contains the value, ignoring case and surrounding white space. `status` SHALL be `AANDACHT_NODIG` (not
 valid, or with a warning) or `IN_ORDE` (valid, without a warning); without `status` all checked zaaktypes are kept.
 
 #### Scenario: Filter on part of the omschrijving
 - **GIVEN** the checked zaaktypes *Melding openbare ruimte*, *Melding evenement* and *Aanvraag vergunning*
-- **WHEN** a beheerder requests the list with `omschrijving` `MELDING `
+- **WHEN** a beheerder requests the list with `zoekterm` `MELDING `
 - **THEN** `resultaten` holds *Melding evenement* and *Melding openbare ruimte*, and `totaal` is 2
+
+#### Scenario: Filter on part of the doel
+- **GIVEN** the checked zaaktype *Aanvraag vergunning* with the doel *Vergunning voor een evenement* and the checked
+  zaaktype *Melding openbare ruimte* with the doel *Melding van een gebrek*
+- **WHEN** a beheerder requests the list with `zoekterm` `evenement`
+- **THEN** `resultaten` holds only *Aanvraag vergunning*, and `totaal` is 1
 
 #### Scenario: Filter on the zaaktypes that need attention
 - **GIVEN** a valid zaaktype without warnings, a valid zaaktype with a warning and a zaaktype that is not valid
@@ -139,7 +145,7 @@ direction `sortOrder` (`ASC` or `DESC`, default `ASC`).
 ### Requirement: The Inrichtingscheck page shows the list in pages of 25
 
 The Inrichtingscheck page SHALL show at most 25 zaaktypes at a time with a paginator that shows the total number of
-matching zaaktypes, and SHALL read each page from the backend. The page SHALL send the filter text as `omschrijving`,
+matching zaaktypes, and SHALL read each page from the backend. The page SHALL send the filter text as `zoekterm`,
 the toggle as `status` and the column sort as `sortField` and `sortOrder`, and SHALL go back to the first page when
 one of them changes. The table and its filter row SHALL stay on screen while a page loads.
 
@@ -168,7 +174,7 @@ one of them changes. The table and its filter row SHALL stay on screen while a p
 #### Scenario: Typing a filter starts on the first page
 - **GIVEN** the Inrichtingscheck page shows the second page
 - **WHEN** the beheerder types *melding* in the filter
-- **THEN** the table shows the first page of the zaaktypes whose omschrijving contains *melding*
+- **THEN** the table shows the first page of the zaaktypes whose omschrijving or doel contains *melding*
 - **AND** the filter field keeps its text and focus while the page loads
 
 #### Scenario: A zaaktype that needs attention still expands
@@ -177,7 +183,7 @@ one of them changes. The table and its filter row SHALL stay on screen while a p
 - **THEN** the row expands and shows the finding that no resultaattype is present
 
 #### Scenario: No zaaktype matches
-- **WHEN** the beheerder types a filter that no omschrijving contains
+- **WHEN** the beheerder types a filter that no omschrijving or doel contains
 - **THEN** the page shows that no data was found, and the filter row stays on screen
 
 ### Requirement: The reference-table check is read as a resource
