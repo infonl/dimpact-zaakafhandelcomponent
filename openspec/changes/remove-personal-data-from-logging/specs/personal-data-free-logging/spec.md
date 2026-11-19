@@ -219,16 +219,17 @@ validation error code and the names of the invalid parameters.
 - **AND** the REST response still contains the reason
 
 #### Scenario: The message of a validation error holds no reasons
-- **WHEN** Open Zaak rejects the parameter `emailadres` with code `invalid` and the reason
-  `Voer een geldig e-mailadres in: geen-email`
-- **THEN** the message of the `ZgwValidationErrorException` names `emailadres` and `invalid`
-- **AND** it contains neither `geen-email` nor the reason
+- **WHEN** Open Zaak rejects the parameter `emailadres` with code `invalid`, the reason
+  `Voer een geldig e-mailadres in: geen-email` and the detail `geen-email is not valid`
+- **THEN** the message of the `ZgwValidationErrorException` holds the status, the error code, `emailadres` and
+  `invalid`
+- **AND** it contains neither `geen-email`, the reason nor the detail
 
 #### Scenario: A validation error in a BPMN task
-- **WHEN** the BPMN task that closes a zaak fails because Open Zaak rejects a value with a reason that holds the
-  rejected value
+- **WHEN** the BPMN task that closes a zaak fails because Open Zaak rejects a value with a reason and a detail that
+  hold the rejected value
 - **THEN** the REST response is HTTP 400 with the validation error code and the reason, as before
-- **AND** no log record, including its exception and the cause of that exception, contains the reason
+- **AND** no log record, including its exception and the cause of that exception, contains the rejected value
 
 #### Scenario: A rejected value outside the REST layer
 - **WHEN** Open Zaak rejects the deletion of a document with a reason that holds the rejected value, and ZAC logs the

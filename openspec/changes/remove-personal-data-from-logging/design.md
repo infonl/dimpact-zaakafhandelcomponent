@@ -369,8 +369,11 @@ birth.
   `DrcClientService.logFailureToCleanUp` and `DetachedDocumentBulkService.failureMessage` (both interpolate the
   message), `ProductaanvraagZaakService.logAanvraagPdfPairingFailure` (attaches the exception) and
   `UpdateZaakJavaDelegate`, which wraps it as the cause of a `FlowableZgwValidationErrorException` that Flowable logs
-  itself. The fix is at the source: `ZgwValidationErrorException.message` no longer holds the `reason` of each invalid
-  parameter, only its name and code (`emailadres [invalid]`). Then the message is safe wherever it ends up: in an
+  itself. The fix is at the source: `ZgwValidationErrorException.message` holds only the status, the error code and
+  the name and code of each invalid parameter (`400 invalid: emailadres [invalid]`). It no longer holds the `reason`
+  of a parameter, nor the `title`, `detail`, `type` and `instance` of the remote error: `detail` is free text of the
+  remote system that can echo a rejected value, and the others add nothing for diagnosis. The response is built from
+  `validatieFout`, which keeps all of them. Then the message is safe wherever it ends up: in an
   interpolated log line, in an attached exception, or in the cause that Flowable logs, also in places that the
   migration does not find. The wrapper in `UpdateZaakJavaDelegate` keeps its cause, because
   `RestExceptionMapper` reads the reasons for the HTTP 400 response from it

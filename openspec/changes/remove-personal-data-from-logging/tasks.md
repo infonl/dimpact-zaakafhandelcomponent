@@ -70,8 +70,9 @@
 - [ ] 4.4 `RestExceptionMapper`: log `ZgwValidationFailed(errorCode, invalid parameter names and codes)` without the
       reasons and without the exception, keep the reasons in the REST response; unit test with a rejected email value
       that checks the whole record, including its exception, and the REST response
-- [ ] 4.5 `ZgwValidationErrorException.message`: leave out the `reason` of each invalid parameter, keep its name and
-      code; unit test of the message; unit tests that the log records of `DrcClientService.logFailureToCleanUp`,
+- [ ] 4.5 `ZgwValidationErrorException.message`: only the status, the error code and the name and code of each
+      invalid parameter, without the `reason`s, `title`, `detail`, `type` and `instance`; unit test of the message with
+      the rejected value in a `reason` and in `detail`; unit tests that the log records of `DrcClientService.logFailureToCleanUp`,
       `DetachedDocumentBulkService.failureMessage` and `ProductaanvraagZaakService.logAanvraagPdfPairingFailure`
       contain no reason; a `RestExceptionMapper` test that a `FlowableZgwValidationErrorException` from
       `UpdateZaakJavaDelegate` still gives HTTP 400 with the error code and the reasons, and that its whole log record
