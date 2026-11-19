@@ -5,6 +5,7 @@
 package nl.info.zac.healthcheck
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -12,6 +13,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
 import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER
+import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createBesluitType
@@ -25,9 +27,11 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.ReferenceTableService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.time.ZacTime
 import java.net.URI
 import java.util.Optional
 import java.util.UUID
@@ -36,6 +40,57 @@ class HealthCheckServiceTest : BehaviorSpec({
 
     afterEach {
         checkUnnecessaryStub()
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    given("A zaaktype bound to BPMN, a zaaktype bound to CMMN, a concept zaaktype and an expired zaaktype") {
+        val catalogusURI = URI("https://example.com/catalogs/${UUID.randomUUID()}")
+        val ztcClientService = mockk<ZtcClientService>(relaxed = true)
+        val configurationService = mockk<ConfigurationService>()
+        val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
+        val healthCheckService = HealthCheckService(
+            branchName = Optional.of("dev") as Optional<String?>,
+            commitHash = Optional.of("hash") as Optional<String?>,
+            versionNumber = Optional.of("0.0.0") as Optional<String?>,
+            referenceTableService = mockk<ReferenceTableService>(),
+            brpInstellingenCheck = mockk<BrpInstellingenCheck>(relaxed = true),
+            ztcClientService = ztcClientService,
+            configurationService = configurationService,
+            zaaktypeConfigurationService = zaaktypeConfigurationService
+        )
+        val bpmnZaaktype = createZaakType()
+        val cmmnZaaktype = createZaakType()
+        val conceptZaaktype = createZaakType(concept = true)
+        val expiredZaaktype = createZaakType(
+            beginGeldigheid = ZacTime.today().minusYears(2),
+            eindeGeldigheid = ZacTime.today().minusYears(1)
+        )
+        every { configurationService.readDefaultCatalogusURI() } returns catalogusURI
+        every {
+            ztcClientService.listZaaktypen(catalogusURI)
+        } returns listOf(bpmnZaaktype, cmmnZaaktype, conceptZaaktype, expiredZaaktype)
+        every {
+            zaaktypeConfigurationService.findConfiguration(bpmnZaaktype.url.extractUuid())
+        } returns createZaaktypeBpmnConfiguration(zaaktypeUUID = bpmnZaaktype.url.extractUuid())
+        every {
+            zaaktypeConfigurationService.findConfiguration(cmmnZaaktype.url.extractUuid())
+        } returns createZaaktypeCmmnConfiguration(zaaktypeUUID = cmmnZaaktype.url.extractUuid())
+
+        `when`("controleerZaaktypes is called") {
+            val zaaktypeInrichtingschecks = healthCheckService.controleerZaaktypes()
+
+            then("only the CMMN zaaktype of the default catalogue is checked") {
+                zaaktypeInrichtingschecks.map { it.zaaktype } shouldContainExactly listOf(cmmnZaaktype)
+                listOf(bpmnZaaktype, conceptZaaktype, expiredZaaktype).forEach { zaaktype ->
+                    verify(exactly = 0) { ztcClientService.readStatustypen(zaaktype.url) }
+                }
+            }
+
+            and("no zaaktype is read again from the catalogue") {
+                verify(exactly = 0) { ztcClientService.readZaaktype(any<URI>()) }
+                verify(exactly = 0) { ztcClientService.readZaaktype(any<UUID>()) }
+            }
+        }
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -51,12 +106,14 @@ class HealthCheckServiceTest : BehaviorSpec({
         val ztcClientService = mockk<ZtcClientService>()
 
         val healthCheckService = HealthCheckService(
-            branchName,
-            commitHash,
-            versionNumber,
-            referenceTableService,
-            brpInstellingenCheck,
-            ztcClientService
+            branchName = branchName,
+            commitHash = commitHash,
+            versionNumber = versionNumber,
+            referenceTableService = referenceTableService,
+            brpInstellingenCheck = brpInstellingenCheck,
+            ztcClientService = ztcClientService,
+            configurationService = mockk<ConfigurationService>(),
+            zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
         )
 
         val zaaktype = createZaakType(zaaktypeUri)
@@ -148,12 +205,14 @@ class HealthCheckServiceTest : BehaviorSpec({
         val ztcClientService = mockk<ZtcClientService>()
 
         val healthCheckService = HealthCheckService(
-            branchName,
-            commitHash,
-            versionNumber,
-            referenceTableService,
-            brpInstellingenCheck,
-            ztcClientService
+            branchName = branchName,
+            commitHash = commitHash,
+            versionNumber = versionNumber,
+            referenceTableService = referenceTableService,
+            brpInstellingenCheck = brpInstellingenCheck,
+            ztcClientService = ztcClientService,
+            configurationService = mockk<ConfigurationService>(),
+            zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
         )
 
         val zaaktype = createZaakType(zaaktypeUri)
@@ -243,12 +302,14 @@ class HealthCheckServiceTest : BehaviorSpec({
         val ztcClientService = mockk<ZtcClientService>()
 
         val healthCheckService = HealthCheckService(
-            branchName,
-            commitHash,
-            versionNumber,
-            referenceTableService,
-            brpInstellingenCheck,
-            ztcClientService
+            branchName = branchName,
+            commitHash = commitHash,
+            versionNumber = versionNumber,
+            referenceTableService = referenceTableService,
+            brpInstellingenCheck = brpInstellingenCheck,
+            ztcClientService = ztcClientService,
+            configurationService = mockk<ConfigurationService>(),
+            zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
         )
 
         val zaaktype = createZaakType(zaaktypeUri)
@@ -334,12 +395,14 @@ class HealthCheckServiceTest : BehaviorSpec({
         val ztcClientService = mockk<ZtcClientService>()
 
         val healthCheckService = HealthCheckService(
-            branchName,
-            commitHash,
-            versionNumber,
-            referenceTableService,
-            brpInstellingenCheck,
-            ztcClientService
+            branchName = branchName,
+            commitHash = commitHash,
+            versionNumber = versionNumber,
+            referenceTableService = referenceTableService,
+            brpInstellingenCheck = brpInstellingenCheck,
+            ztcClientService = ztcClientService,
+            configurationService = mockk<ConfigurationService>(),
+            zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
         )
 
         val zaaktype = createZaakType(zaaktypeUri)
@@ -463,7 +526,9 @@ class HealthCheckServiceTest : BehaviorSpec({
                 versionNumber = Optional.of("0.0.0") as Optional<String?>,
                 referenceTableService = referenceTableService,
                 brpInstellingenCheck = brpInstellingenCheck,
-                ztcClientService = ztcClientService
+                ztcClientService = ztcClientService,
+                configurationService = mockk<ConfigurationService>(),
+                zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
             )
 
             val zaaktype = createZaakType(zaaktypeUri)

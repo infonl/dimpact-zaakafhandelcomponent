@@ -14,19 +14,13 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import nl.info.client.zgw.util.extractUuid
-import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.admin.ZaaktypeConfigurationService
-import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
-import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.model.RestInrichtingscheckParameters
 import nl.info.zac.app.admin.model.RestInrichtingscheckSortField
 import nl.info.zac.app.admin.model.RestInrichtingscheckStatus
 import nl.info.zac.app.admin.model.RestInrichtingscheckZaaktype
-import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.healthcheck.createBuildInformation
 import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
@@ -35,36 +29,19 @@ import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.search.model.SorteerRichting
 import nl.info.zac.time.ZacTime
-import java.net.URI
 import java.time.LocalDate
-import java.util.UUID
 
 class HealthCheckRestServiceTest : BehaviorSpec({
-    val ztcClientService = mockk<ZtcClientService>()
-    val configurationService = mockk<ConfigurationService>()
     val healthCheckService = mockk<HealthCheckService>()
     val policyService = mockk<PolicyService>()
-    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val healthCheckRestService = HealthCheckRestService(
-        ztcClientService = ztcClientService,
-        configurationService = configurationService,
         healthCheckService = healthCheckService,
-        policyService = policyService,
-        zaaktypeConfigurationService = zaaktypeConfigurationService
+        policyService = policyService
     )
 
     fun givenCheckedZaaktypes(zaaktypeInrichtingschecks: List<ZaaktypeInrichtingscheck>) {
-        val catalogusURI = URI("https://example.com/catalogs/${UUID.randomUUID()}")
-        val zaaktypeConfiguration = createZaaktypeCmmnConfiguration()
         every { policyService.readOverigeRechten().canBeheren } returns true
-        every { configurationService.readDefaultCatalogusURI() } returns catalogusURI
-        every { ztcClientService.listZaaktypen(catalogusURI) } returns zaaktypeInrichtingschecks.map { it.zaaktype }
-        zaaktypeInrichtingschecks.forEach {
-            every {
-                zaaktypeConfigurationService.findConfiguration(it.zaaktype.url.extractUuid())
-            } returns zaaktypeConfiguration
-            every { healthCheckService.controleerZaaktype(it.zaaktype, zaaktypeConfiguration) } returns it
-        }
+        every { healthCheckService.controleerZaaktypes() } returns zaaktypeInrichtingschecks
     }
 
     fun createValidZaaktypeInrichtingschecks(count: Int, omschrijvingPrefix: String = "fakeZaaktype") =
@@ -174,52 +151,6 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         isValide shouldBe false
                         isResultaattypeAanwezig shouldBe false
                     }
-                }
-            }
-        }
-
-        given("A zaaktype bound to BPMN, a zaaktype bound to CMMN, a concept zaaktype and an expired zaaktype") {
-            val catalogusURI = URI("https://example.com/catalogs/${UUID.randomUUID()}")
-            val bpmnZaaktype = createZaakType()
-            val cmmnZaaktype = createZaakType()
-            val conceptZaaktype = createZaakType(concept = true)
-            val expiredZaaktype = createZaakType(
-                beginGeldigheid = ZacTime.today().minusYears(2),
-                eindeGeldigheid = ZacTime.today().minusYears(1)
-            )
-            val cmmnConfiguration = createZaaktypeCmmnConfiguration(zaaktypeUUID = cmmnZaaktype.url.extractUuid())
-            every { policyService.readOverigeRechten().canBeheren } returns true
-            every { configurationService.readDefaultCatalogusURI() } returns catalogusURI
-            every {
-                ztcClientService.listZaaktypen(catalogusURI)
-            } returns listOf(bpmnZaaktype, cmmnZaaktype, conceptZaaktype, expiredZaaktype)
-            every {
-                zaaktypeConfigurationService.findConfiguration(bpmnZaaktype.url.extractUuid())
-            } returns createZaaktypeBpmnConfiguration(zaaktypeUUID = bpmnZaaktype.url.extractUuid())
-            every {
-                zaaktypeConfigurationService.findConfiguration(cmmnZaaktype.url.extractUuid())
-            } returns cmmnConfiguration
-            every {
-                healthCheckService.controleerZaaktype(cmmnZaaktype, cmmnConfiguration)
-            } returns createZaaktypeInrichtingscheck(zaaktype = cmmnZaaktype)
-
-            `when`("the inrichtingschecks are listed") {
-                val restResultaat = healthCheckRestService.listZaaktypeInrichtingschecks(
-                    RestInrichtingscheckParameters(status = null)
-                )
-
-                then("only the CMMN zaaktype is returned, checked with the configuration that the list already read") {
-                    restResultaat.resultCount shouldBe 1
-                    restResultaat.results.single().zaaktype.uuid shouldBe cmmnZaaktype.url.extractUuid()
-                }
-                and("the BPMN, concept and expired zaaktypes are not checked") {
-                    listOf(bpmnZaaktype, conceptZaaktype, expiredZaaktype).forEach { zaaktype ->
-                        verify(exactly = 0) { healthCheckService.controleerZaaktype(zaaktype, any()) }
-                    }
-                }
-                and("no zaaktype is read again from the catalogue") {
-                    verify(exactly = 0) { ztcClientService.readZaaktype(any<URI>()) }
-                    verify(exactly = 0) { ztcClientService.readZaaktype(any<UUID>()) }
                 }
             }
         }
@@ -459,6 +390,36 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                 then("the zaaktype that is not valid comes first, then the valid ones by omschrijving") {
                     restResultaat.results.map { it.zaaktype.omschrijving } shouldContainExactly
                         listOf("fakeC", "fakeA", "fakeB")
+                }
+            }
+        }
+
+        given("Checked zaaktypes whose omschrijvingen and doelen differ in case and accents") {
+            val zaaktypeInrichtingschecks = listOf("zebra", "Éénmalige subsidie", "beheer", "Aanvraag", "Ölie").map {
+                createZaaktypeInrichtingscheck(zaaktype = createZaakType(omschrijving = it, doel = it))
+            }
+
+            `when`("the list is requested without sortField and sortOrder") {
+                givenCheckedZaaktypes(zaaktypeInrichtingschecks)
+                val restResultaat = healthCheckRestService.listZaaktypeInrichtingschecks(
+                    RestInrichtingscheckParameters()
+                )
+
+                then("the zaaktypes are in Dutch alphabetical order of omschrijving, with the accented letters among the others") {
+                    restResultaat.results.map { it.zaaktype.omschrijving } shouldContainExactly
+                        listOf("Aanvraag", "beheer", "Éénmalige subsidie", "Ölie", "zebra")
+                }
+            }
+
+            `when`("the list is sorted on doel in ascending order") {
+                givenCheckedZaaktypes(zaaktypeInrichtingschecks)
+                val restResultaat = healthCheckRestService.listZaaktypeInrichtingschecks(
+                    RestInrichtingscheckParameters(sortField = RestInrichtingscheckSortField.DOEL)
+                )
+
+                then("the zaaktypes are in Dutch alphabetical order of doel") {
+                    restResultaat.results.map { it.zaaktype.doel } shouldContainExactly
+                        listOf("Aanvraag", "beheer", "Éénmalige subsidie", "Ölie", "zebra")
                 }
             }
         }
