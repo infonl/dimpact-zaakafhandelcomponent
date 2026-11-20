@@ -27,7 +27,7 @@ Out of scope: clearing the cache of other ZAC instances, and the gap of `invalid
 
 ### Modified Capabilities
 - `zaaktype-configuration`: a change of a mail template is visible at once in the cached configurations, and a
-  rolled-back change is never served from the cache.
+  rolled-back change is not retained in the cache.
 
 ## Impact
 
