@@ -10,6 +10,18 @@ and nothing else. The `zac-review-specs` skill checks exactly that, so this skil
 
 This skill wraps `openspec-propose` with the ZAC rules below. It writes planning files only, never code.
 
+## Subagents
+
+- **`zac-researcher`** (Haiku), several in parallel when the questions are independent: the baseline specs and
+  open changes per capability, every caller of each function, endpoint or type that changes (for Impact), the
+  `file:line` of every name the change will mention, the Dutch UI texts in `nl.json`, how sibling code checks
+  the same right.
+- Writing the proposal, design, specs and tasks stays with you, on the main model.
+
+Check every `file:line`, quote and finding a subagent returns before it goes into a spec, a comment or a PR:
+cheaper models sometimes invent them. Delegate only work that reads many files or runs long; a few quick lookups
+are cheaper inline.
+
 ## Inputs
 
 - The ticket, its parent and subtasks, read with `acli` (see `zac-pick-up-story`). Number the acceptance criteria

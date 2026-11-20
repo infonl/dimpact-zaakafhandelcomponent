@@ -9,6 +9,19 @@ Turns the agreed OpenSpec change into code: one or more code PRs stacked on the 
 The specs are the source of truth. The code follows them, and when the code shows they are wrong, the specs
 change first.
 
+## Subagents
+
+- **`zac-researcher`** (Haiku): the review state and open threads of the specs PR, CI status, callers and
+  patterns around the code to change.
+- **`zac-implementer`** (Sonnet): one per code PR, in that PR's branch, with the tasks of its group, the change
+  folder and the branch name. Run them one after another: each PR builds on the one below.
+- Planning the stack, judging a blocker or a spec change, and the final check of each PR stay with you: read the
+  diff of every PR yourself, and run its tests again before you push.
+
+Check every `file:line`, quote and finding a subagent returns before it goes into a spec, a comment or a PR:
+cheaper models sometimes invent them. Delegate only work that reads many files or runs long; a few quick lookups
+are cheaper inline.
+
 ## 1. Find the change and check it is agreed
 
 1. From the input (specs PR number, `PZ-XXX`, or change name): `gh pr view <n> --json

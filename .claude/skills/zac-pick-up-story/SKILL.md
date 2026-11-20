@@ -25,12 +25,24 @@ stress-tests a plan at any step.
 When the user asks for the next step on a story, find where it is (`gh pr list --search PZ-XXX --state all`,
 the stack, the review state) and point to the skill for that step.
 
+## Subagents
+
+- **`zac-researcher`** (Haiku): reading the ticket, its parent, subtasks and linked issues, and the code facts
+  the challenge step needs (callers, policies, existing specs). Give it the questions; it returns facts with
+  their source.
+- Challenging the plan and every decision stay with you, on the main model.
+
+Check every `file:line`, quote and finding a subagent returns before it goes into a spec, a comment or a PR:
+cheaper models sometimes invent them. Delegate only work that reads many files or runs long; a few quick lookups
+are cheaper inline.
+
 ## 1. Read the story
 
-1. `acli jira workitem view PZ-XXX --fields '*all' --json`: description, acceptance criteria, comments, linked
-   issues, subtasks. The plain output glues lines together; use `--json`. When the description is thin, read the
-   parent too. Not logged in: ask the user to run `! acli jira auth login --web`. Use `acli`, not the Atlassian
-   MCP: the MCP is not allowed on the dimpact domain.
+1. Have `zac-researcher` run `acli jira workitem view PZ-XXX --fields '*all' --json` and return the
+   description, the acceptance criteria verbatim, comments, linked issues and subtasks. The plain output glues
+   lines together; use `--json`. When the description is thin, read the parent too. Not logged in: ask the
+   user to run `! acli jira auth login --web`. Use `acli`, not the Atlassian MCP: the MCP is not allowed on the
+   dimpact domain.
 2. Read every subtask (e.g. "Gebruikershandleiding bijwerken", "Design maken") up front, so its work is part of
    the plan and the PR split, not an afterthought.
 3. Session title: the key plus the Jira title, e.g. `PZ-1234 Zaakspecifieke autorisatie verwijderen`. If you
