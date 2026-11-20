@@ -21,8 +21,9 @@ who follows only this change build the right thing, and nothing else".
 - **`zac-researcher`** (Haiku), in step 1: the ticket and its parent, the baseline specs and other open changes
   per capability, and the existing review comments.
 - **Sections A to E of step 2** in parallel, one subagent each on Sonnet (`model: "sonnet"` on the Agent call).
-  Give each one the change files, the numbered ACs, the baseline and its section's checklist, copied from this
-  skill: it sees nothing else. Section A runs `openspec validate` itself.
+  It sees nothing else, so give each one: the PR number, title and body; `$H`, `$B` and `$T` from step 1, with
+  the rule that every read uses `$B` (code) or `$H` (the change); the change files; the numbered ACs; the
+  baseline; and its section's checklist, copied from this skill. Section A runs `openspec validate` itself.
 - Weighing the findings, proving each one ("Prove it before drafting") and writing the drafts stay with you, on
   the main model.
 
@@ -35,8 +36,9 @@ subagents cost more than they save.
 1. `gh pr view <n> --json title,body,headRefName,headRefOid,baseRefName,files` and `gh pr diff <n>`.
 2. Temp dir: `T=${CLAUDE_JOB_DIR:+$CLAUDE_JOB_DIR/tmp}; T=${T:-$(mktemp -d)}; mkdir -p "$T"`.
    Pin both revisions as SHAs, without creating or overwriting a local branch:
-   `git fetch -q origin <base> "refs/pull/<n>/head"`, then `B=$(git rev-parse origin/<base>)` and
-   `H=$(git ls-remote origin "refs/pull/<n>/head" | cut -f1)`. Every read below uses `$B` or `$H`, never the
+   `git fetch -q origin <base>` and `B=$(git rev-parse origin/<base>)`, then
+   `git fetch -q origin "refs/pull/<n>/head"` and `H=$(git rev-parse FETCH_HEAD)` (so `$H` is the commit you
+   fetched, even when the author pushes in between). Every read below uses `$B` or `$H`, never the
    user's checkout, which may be on another branch. Never switch branches in the user's checkout.
 3. Find the change: the `openspec/changes/<change>/` folder the diff adds or edits. Write each artifact to
    `$T` (`git show "$H:<path>" > "$T/<file>"`, quote the argument: in zsh `$H:src/...` breaks) and read them
@@ -79,7 +81,8 @@ Go through every section. Each one ends up in the output, also when it finds not
 - Unhappy paths have scenarios: no right / wrong role, empty or missing data, external system error, the user
   without a read role, the second click. Not every one applies; flag the ones that clearly do.
 - `tasks.md`: each task names what to verify and how; tests are tasks; there is a task for
-  `spotlessApply detektApply` and for `scripts/test-data/` if a REST path or payload changes (CLAUDE.md rule).
+  `spotlessApply detektApply` and for `scripts/test-data/` if a REST path, payload or validation changes
+  (CLAUDE.md rule).
   Do not ask for an `openspec validate` task: validation belongs in the review (above) or CI, not in `tasks.md`.
   Tasks do not contradict design.md.
 
