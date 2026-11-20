@@ -10,7 +10,8 @@ English speakers and not always developers.
 
 ## Before opening
 
-1. `git fetch origin` and check the branch holds only its own commits: `git log --oneline origin/main..HEAD`.
+1. `git fetch origin` and check the branch holds only its own commits: `git log --oneline <parent>..HEAD`, where
+   `<parent>` is `origin/main` for the bottom PR and the branch below it for an upper layer of a stack.
 2. Branch name: `feature/PZ-XXX-description` (CLAUDE.md). Never `renovate/`.
 3. Backend changes: `./gradlew spotlessApply detektApply`, then `./gradlew detekt`, from the repo root. Frontend
    changes: `./gradlew spotlessApply` too (local prettier passes things CI's spotless rejects), and
@@ -36,7 +37,8 @@ A story goes up as a native GitHub stack, even a small one:
 
 Commands:
 - Adopt existing branches: `gh stack init --base main <b1> <b2> ...`, then `gh stack submit --auto` (new PRs
-  open as drafts).
+  open as drafts). `--auto` fills each new PR with the PR template as is, so set the real title and
+  description right after: `gh pr edit <n> --title "<title>" --body-file <file>`.
 - Add a layer from the top branch: `gh stack add <branch>`. Keep in sync with `gh stack sync` / `gh stack rebase`.
 - Merge bottom-up. Merging a PR in the middle merges everything below it.
 
