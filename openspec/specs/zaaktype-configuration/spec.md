@@ -222,8 +222,9 @@ beheren right. `GET /zaakafhandelparameters/{zaaktypeUuid}` SHALL keep returning
 ### Requirement: A changed mail template is used at once and a rolled-back one is not retained
 
 When a beheerder changes a mail template, the ZAC instance that stores the change SHALL clear its cached
-configuration of every zaaktype that links that template when the change is stored, at once, and SHALL clear it again after that transaction has completed,
-whether it commits or rolls back, including a read that is still loading at that moment.
+configuration of each zaaktype that links that template when the change is stored, and only those, at once. It SHALL
+clear them again after that transaction has completed, whether it commits or rolls back, including a read that is
+still loading at that moment.
 Clearing the zaaktype configuration cache by hand on the admin page SHALL invalidate it at once.
 
 #### Scenario: A changed mail template is used at once
@@ -252,7 +253,9 @@ Clearing the zaaktype configuration cache by hand on the admin page SHALL invali
 #### Scenario: Deleting a mail template leaves the cache alone
 - **GIVEN** a mail template that no zaaktype configuration links
 - **WHEN** a beheerder deletes it
-- **THEN** no cached zaaktype configuration is cleared, because none of them holds that template
+- **THEN** no cached zaaktype configuration is cleared, because no committed koppeling links that template
+- **AND** another ZAC instance that cached the template before its last koppeling was removed MAY still return it
+  until its cache entry expires or the cache is cleared by hand on it
 
 #### Scenario: A koppeling stored during the change is not covered
 - **GIVEN** a mail template change whose transaction has not committed yet
