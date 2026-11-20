@@ -8,7 +8,7 @@ Columns: Latest | Our Version on TEST.
 
 Run `python3 scripts/python/dependencies/supporting_componenten.py` from the root of the ZAC checkout. It prints one line per component: `<Component> latest version: <version> - <source url>`. Take the version of every row from it. nginx has two lines; show them as `<mainline> (mainline) / <stable> (stable)`.
 
-If the script cannot fill a row (it printed `?` with an error on that line, or `None`), show `?` in that cell and name the row and the error below the table. Do not look the version up elsewhere: a failing script is to be fixed, not worked around.
+If the script cannot fill a row (it printed `?` with an error on that line, or `None`), show `?` in that cell and name the row and the error below the table. Do not look the version up elsewhere: a failing script is to be fixed, not worked around. Leave that column out of the Confluence values file, so the page keeps its value.
 
 The script only gives the latest stable version. Two checks it does not do:
 
