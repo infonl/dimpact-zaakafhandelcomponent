@@ -1,5 +1,9 @@
 ## Context
 
+This is the first flow that follows the accepted
+[ADR 0008](../../../docs/solution-architecture/decisions/0008-update-the-ui-without-waiting-for-notifications-on-zac-initiated-changes.md):
+ZAC updates the UI when the external system confirms a change it initiated, not when the notification arrives.
+
 - `ZaakAssignAndReleaseRestService.assignFromList` / `releaseZakenFromList`
   (`src/main/kotlin/nl/info/zac/app/zaak/ZaakAssignAndReleaseRestService.kt:61, 144`) check
   `canZakenTakenVerdelen` and run `ZaakService.assignZaken` / `releaseZaken` in
@@ -43,6 +47,11 @@ is added next to `skipped(eventResourceId: String)` (`:348`). The user-not-in-gr
 The final event keeps the `screenEventResourceId` as resource. Zaak UUIDs and the random resource ID cannot
 collide.
 
+`UPDATED` means Open Zaak confirmed the rol changes, as AC2 asks. `assignZaak` still indexes the zaak directly,
+and the rol notification indexes it again, as today. `indexeerDirect` only logs an indexing error
+(`ReindexSupportService.kt:468-481`); a batch-specific indexing path that fails the zaak instead is not part of
+this change: a stale row needs both an indexing error and an unavailable Open Notificaties.
+
 Why these types: rol notifications never produce them, so a notification can neither count twice nor count a
 zaak too early, without the frontend having to filter. Why the zaak UUID as resource: the existing
 `BatchProcessService` subscribes per ID on the resource, as the taken werkvoorraad does with `TAAK`.
@@ -57,20 +66,33 @@ event for that zaak. The taken werkvoorraad has the same property.
 - Rejected: a synchronous REST call that returns the failed zaken. It loses the progress dialog and runs into
   HTTP timeouts of ingresses in front of ZAC on large selections.
 
-### 2. Each zaak in its own try, the final event in `finally`
+### 2. Each zaak in its own try, the failed count in the final event
 
 `assignZaken` / `releaseZaken` read and handle one zaak at a time. Every exception other than the known skip
 exceptions is caught per zaak (`@Suppress("TooGenericExceptionCaught")`, as in `ScreenEventObserver.kt:37`),
-logged at `WARNING` with the zaak UUID only (no personal data, `docs/development/logging.md`), and the loop goes
-on. The final event is sent in a `finally` block, so it also goes out when something outside the loop fails.
+logged at `SEVERE` with the zaak UUID only (server errors are `SEVERE` and carry no personal data,
+`docs/development/logging.md`), counted, and the loop goes on. The final event is sent in a `finally` block, so
+it also goes out when something outside the loop fails.
 
-A failed zaak gets no per-zaak event. The frontend counts it as failed when the final event arrives (decision 4).
-That needs no new opcode and no payload in the final event.
+A failed zaak gets no per-zaak event. ZAC puts the number of failed zaken in the `detail` of the final event
+(`updated(eventResourceId, detail)`, next to `ScreenEventType.kt:284`, through the existing private
+`instance(opcode, type, id, detail)`). Subscriptions match on the resource only, so the `finalSubscription` still
+matches; `websocket.service.ts:337` already reads a `detail` on the client.
+
+Why the backend counts: screen events go out through separate `fireAsync` calls (`EventingService.kt:45`) on
+their own threads, so the final event can overtake the last per-zaak events. A count worked out in the frontend
+would then report a distributed zaak as failed.
+
+- Rejected: a new `FAILED` opcode per zaak. The frontend would still miss failures whose event comes after the
+  final event.
 
 Known limit, as today: ZGW has no transactions. When Open Zaak fails after the old behandelaar rol is deleted,
 the zaak can stay without behandelaar. It is reported as failed, so the employee can look at it.
 
 ### 3. Per-zaaktype rights in the batch
+
+Both `assignZaken` and `releaseZaken` use this; for release only the zaakspecifiek part applies, because release
+does no PABC check.
 
 `assignZaken` keeps a map per batch from zaaktype UUID to the result of
 `isAuthorisedForApplicationRoleAndZaaktype` (`ZaakService.kt:533`), so the PABC is called once per zaaktype.
@@ -96,8 +118,13 @@ the behaviour is as today.
 - `finalSubscription`: opcode `ANY` (the user-not-in-group path sends the final event as `SKIPPED`), the same
   objectType, the `screenEventResourceId`.
 
-In `finally`, the zaken sent to the backend without a per-zaak event are counted, and when there are any, a
-snackbar shows the new text with the count. The selection is cleared, the index committed and the list reloaded
+`BatchProcessService` gets an optional `onNotification(event)` on `finalSubscription`, called with the final
+event before `finally` (today the final listener calls only `finally`, `batch-process.service.ts:83-91`). The
+taken werkvoorraad does not pass it and works as before. The werkvoorraad's callback reads the failed count from
+the `detail` of the final event and, when it is above zero, shows a snackbar with the new text and the count.
+Only that callback shows it: `BatchProcessService`
+also calls `finally` on a timeout (`batch-process.service.ts:126-129`), and then only the timeout message
+shows. `finally` stays as it is: the selection is cleared, the index committed and the list reloaded
 with `dataSource.load()` without the 5 second delay: the Solr commit waits for the new searcher
 (`ReindexSupportService.kt:89`), and ZAC has indexed every zaak before reporting it.
 
@@ -116,8 +143,8 @@ frontend in between. The frontend PR switches to the new events and removes the 
 Nothing else listens to `ZAAK_ROLLEN` `SKIPPED`: the zaakdetailpagina listens to `UPDATED` only
 (`zaak-view.component.ts:311`).
 
-No Flyway migration, Solr field, Flowable model, configuration or ADR is needed: the change reuses the existing
-screen event and batch-progress patterns.
+No Flyway migration, Solr field, Flowable model, configuration or new ADR is needed: the change follows ADR 0008
+and reuses the existing screen event and batch-progress patterns.
 
 ## Risks / Trade-offs
 

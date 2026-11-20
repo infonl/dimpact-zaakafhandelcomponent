@@ -9,8 +9,9 @@ unexpected error from Open Zaak on one zaak stops the whole batch: the other zak
 employee only sees the timeout.
 
 ZAC already knows when a zaak is done: when Open Zaak has confirmed the rol changes. This change makes the
-werkvoorraad follow ZAC itself instead of the notifications, as agreed in the architecture discussion of
-[PZ-13239](https://dimpact.atlassian.net/browse/PZ-13239).
+werkvoorraad follow ZAC itself instead of the notifications. It is the first flow that follows the accepted
+[ADR 0008](../../../docs/solution-architecture/decisions/0008-update-the-ui-without-waiting-for-notifications-on-zac-initiated-changes.md),
+the outcome of [PZ-13239](https://dimpact.atlassian.net/browse/PZ-13239).
 Story: [PZ-13284](https://dimpact.atlassian.net/browse/PZ-13284).
 
 ## What Changes
@@ -26,7 +27,8 @@ Story: [PZ-13284](https://dimpact.atlassian.net/browse/PZ-13284).
   `ZAKEN_VRIJGEVEN` event for the batch arrives, as the taken werkvoorraad already does. The vrijgeven dialog
   starts sending a `screenEventResourceId`; the verdelen dialog sends the one the werkvoorraad listens to.
 - **One failing zaak no longer stops the batch.** ZAC logs the error, continues with the next zaak and always
-  sends the final event. The werkvoorraad then shows how many zaken could not be distributed or released.
+  sends the final event, with the number of failed zaken in it. The werkvoorraad then shows how many zaken could
+  not be distributed or released.
 - **Rights once per zaaktype.** Within a batch, ZAC asks the PABC which groups may handle a zaaktype once per
   zaaktype, and skips the per-zaak lookup of the *zaakspecifiek geautoriseerd* eigenschap for zaaktypes that do
   not define it (the remaining part of [PZ-12678](https://dimpact.atlassian.net/browse/PZ-12678) for this flow).
@@ -59,15 +61,16 @@ are skipped and the message about them; this change does not alter them.
     `ZaakspecifiekeAutorisatieService.readZaakToewijzing` (`ZaakspecifiekeAutorisatieService.kt:85`), which take
     the known marking from the batch. `assignZaak` is also called by the single-zaak endpoints in
     `ZaakAssignAndReleaseRestService.kt`; their behaviour does not change.
-  - `ScreenEventType` (`src/main/kotlin/nl/info/zac/websocket/event/ScreenEventType.kt:79-81, 340-348`): a
-    `skipped(uuid)` factory.
+  - `ScreenEventType` (`src/main/kotlin/nl/info/zac/websocket/event/ScreenEventType.kt:79-81, 284, 340-348`): a
+    `skipped(uuid)` factory and an `updated(eventResourceId, detail)` factory for the final event.
   - REST: `PUT /rest/zaken/lijst/verdelen` and `PUT /rest/zaken/lijst/vrijgeven` keep path and payload; the
     vrijgeven call now gets a `screenEventResourceId` filled in. No caller in `scripts/test-data/`.
 - **Frontend**
   - `zaken-werkvoorraad.component.ts:333-441`, `zaken-verdelen-dialog.component.ts:164`,
     `zaken-vrijgeven-dialog.component.ts:75-82`, their specs, and two new texts per language in `nl.json` /
     `en.json`.
-  - `BatchProcessService` is reused as it is.
+  - `BatchProcessService` (`batch-process.service.ts`) gets an optional callback for the final event; the taken
+    werkvoorraad does not use it and stays the same.
 - **Tests**
   - `ZaakServiceTest` ("Assigning zaken in a batch" `:797`, "Releasing zaken" `:1342`): the `ZAAK_ROLLEN.skipped`
     expectations move to the new event, and the test at `:1081` that expects a read error to stop the batch

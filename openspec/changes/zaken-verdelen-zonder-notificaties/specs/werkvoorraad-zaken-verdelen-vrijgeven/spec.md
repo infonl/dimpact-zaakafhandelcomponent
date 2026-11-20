@@ -57,8 +57,8 @@ progress, as it does today.
 ### Requirement: The werkvoorraad follows ZAC's own event per zaak
 
 For every zaak in a verdelen or vrijgeven batch, ZAC SHALL send a `ZAKEN_VERDELEN` or `ZAKEN_VRIJGEVEN` screen
-event with the zaak UUID as resource: `UPDATED` once Open Zaak has confirmed all rol changes of the zaak and ZAC
-has indexed it, `SKIPPED` when ZAC skips it. The zaken werkvoorraad SHALL count a zaak as processed, and update
+event with the zaak UUID as resource: `UPDATED` once Open Zaak has confirmed all rol changes of the zaak,
+`SKIPPED` when ZAC skips it. The zaken werkvoorraad SHALL count a zaak as processed, and update
 its row, on that event only.
 
 #### Scenario: Distributing updates the werkvoorraad as soon as Open Zaak confirms
@@ -86,33 +86,48 @@ its row, on that event only.
 ### Requirement: The batch ends on ZAC's final event
 
 When ZAC has handled every zaak of a batch, it SHALL send one final `ZAKEN_VERDELEN` or `ZAKEN_VRIJGEVEN` event
-with the `screenEventResourceId` of the request as resource. The zaken werkvoorraad SHALL send a
-`screenEventResourceId` with both requests and SHALL end the progress, commit the search index and reload the
-list without extra wait when the final event arrives.
+with the `screenEventResourceId` of the request as resource and the number of failed zaken as detail. The zaken
+werkvoorraad SHALL send a `screenEventResourceId` with both requests and SHALL end the progress, commit the search
+index and reload the list without extra wait when the final event arrives.
 
 #### Scenario: Open Notificaties is unavailable
 - **WHEN** Open Notificaties is unavailable and an employee distributes or releases a selection of zaken
 - **THEN** the werkvoorraad finishes the progress when ZAC's final event arrives
 - **AND** shows no "Het proces duurde te lang en is afgebroken." message
 
+#### Scenario: The final event arrives before the last per-zaak event
+- **WHEN** the final event of a batch without failed zaken reaches the werkvoorraad before the per-zaak event of
+  the last zaak
+- **THEN** the werkvoorraad shows no error message
+- **AND** the reloaded list shows the last zaak with its new groep and behandelaar
+
 #### Scenario: The final event never arrives
-- **WHEN** the final event does not arrive within 5 minutes, for example because ZAC restarted
+- **WHEN** no event of the batch arrives for 5 minutes, for example because ZAC restarted
 - **THEN** the werkvoorraad ends the progress with "Het proces duurde te lang en is afgebroken.", as today
+- **AND** shows no message about zaken that could not be distributed or released
 
 ### Requirement: An error on one zaak does not stop the batch
 
 When Open Zaak answers with an error for a zaak, or the zaak cannot be read, ZAC SHALL log the error with the
-zaak UUID, send no per-zaak event for it, continue with the next zaak, and still send the final event. When the
-final event arrives, the zaken werkvoorraad SHALL show one general error message with the number of zaken of the
-request that got no per-zaak event.
+zaak UUID, send no per-zaak event for it, continue with the next zaak, and count it in the final event. When the
+final event reports one or more failed zaken, the zaken werkvoorraad SHALL show one general error message with
+that number.
 
 #### Scenario: Open Zaak fails for one zaak of the selection
 - **WHEN** an employee distributes three zaken and Open Zaak answers with an error for the second zaak
-- **THEN** ZAC still distributes the first and the third zaak and sends the final event
+- **THEN** ZAC still distributes the first and the third zaak and sends the final event with 1 failed zaak
 - **AND** the second zaak does not count as distributed
 - **AND** the werkvoorraad shows "Eén zaak kon niet verdeeld worden." after the progress ends
 
-#### Scenario: Releasing with failing zaken
+#### Scenario: Distributing with more failing zaken
+- **WHEN** an employee distributes a selection and Open Zaak answers with an error for two of the zaken
+- **THEN** the werkvoorraad shows "2 zaken konden niet verdeeld worden." after the progress ends
+
+#### Scenario: Releasing with one failing zaak
+- **WHEN** an employee releases a selection and Open Zaak answers with an error for one of the zaken
+- **THEN** the werkvoorraad shows "Eén zaak kon niet vrijgegeven worden." after the progress ends
+
+#### Scenario: Releasing with more failing zaken
 - **WHEN** an employee releases a selection and Open Zaak answers with an error for two of the zaken
 - **THEN** the werkvoorraad shows "2 zaken konden niet vrijgegeven worden." after the progress ends
 
