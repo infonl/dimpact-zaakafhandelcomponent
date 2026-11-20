@@ -6,14 +6,17 @@
   `ZAKEN_VRIJGEVEN` `updated(zaak.uuid)` after `assignZaak` returns and `skipped(zaak.uuid)` wherever
   `ZAAK_ROLLEN.skipped(zaak)` is sent now (keep that send for now, design decision 5). In `isUserInGroup` send
   `skipped(uuid)` per UUID without reading the zaken.
-- [ ] 1.3 Catch any other exception per zaak, log it at `SEVERE` with the zaak UUID only, count it, and continue;
-  send the final event with the failed count as detail in `finally`.
+- [ ] 1.3 Catch any other exception per zaak, log it at `SEVERE` with the zaak UUID only, and continue. Move the
+  group and user lookups of `ZaakAssignAndReleaseRestService` (`:67-79`) inside the batch's `try`. Send exactly
+  one final event in `finally`, with as detail the number of zaken that got no per-zaak event.
 - [ ] 1.4 Per batch, in `assignZaken` and `releaseZaken`: call the PABC once per zaaktype (verdelen only); pass
   `isZaakspecifiekGeautoriseerd = false` through `assignZaak` to `readZaakToewijzing` for zaaktypes without the
   `ZAAK_GEAUTORISEERD` eigenschap.
 - [ ] 1.5 `ZaakServiceTest`: per-zaak `UPDATED` and `SKIPPED` events for verdelen and vrijgeven; an Open Zaak error
   and a read error on one zaak (replaces the test at `:1081`): the other zaken are processed, no per-zaak event
-  for the failed one, the final event carries the failed count (`0` when all succeed); the PABC is called once
+  for the failed one, the final event carries the failed count (`0` when all succeed); a failing group or user
+  lookup and a failing group membership check each send one final event that counts every zaak as failed
+  (also in `ZaakAssignAndReleaseRestServiceTest`); the PABC is called once
   for two zaken of one zaaktype; no `listZaakeigenschappen` for a zaaktype without the eigenschap, and still for
   one with it, for both verdelen and vrijgeven. Run `./gradlew test --tests "nl.info.zac.zaak.ZaakServiceTest"`.
 - [ ] 1.6 Itest in `ZaakRestServiceTest` ("Assigning zaken from the list", "Releasing zaken from the list"):

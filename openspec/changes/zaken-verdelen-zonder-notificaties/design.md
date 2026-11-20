@@ -71,10 +71,14 @@ event for that zaak. The taken werkvoorraad has the same property.
 `assignZaken` / `releaseZaken` read and handle one zaak at a time. Every exception other than the known skip
 exceptions is caught per zaak (`@Suppress("TooGenericExceptionCaught")`, as in `ScreenEventObserver.kt:37`),
 logged at `SEVERE` with the zaak UUID only (server errors are `SEVERE` and carry no personal data,
-`docs/development/logging.md`), counted, and the loop goes on. The final event is sent in a `finally` block, so
-it also goes out when something outside the loop fails.
+`docs/development/logging.md`), and the loop goes on. The final event is sent once, in a `finally` block, so it
+also goes out when something outside the loop fails. The group and user lookups that
+`ZaakAssignAndReleaseRestService` now does before `assignZaken` (`ZaakAssignAndReleaseRestService.kt:67-79`)
+move inside that `try`, so a failing lookup ends the batch the same way.
 
-A failed zaak gets no per-zaak event. ZAC puts the number of failed zaken in the `detail` of the final event
+A failed zaak gets no per-zaak event. The failed count is the number of zaken of the request that got no
+per-zaak event, so when the batch stops early (a failing lookup or group membership check), every zaak not yet
+handled counts as failed. ZAC puts that number in the `detail` of the final event
 (`updated(eventResourceId, detail)`, next to `ScreenEventType.kt:284`, through the existing private
 `instance(opcode, type, id, detail)`). Subscriptions match on the resource only, so the `finalSubscription` still
 matches; `websocket.service.ts:337` already reads a `detail` on the client.

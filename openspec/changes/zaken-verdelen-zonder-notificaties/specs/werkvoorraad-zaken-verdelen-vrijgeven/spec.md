@@ -109,7 +109,8 @@ index and reload the list without extra wait when the final event arrives.
 ### Requirement: An error on one zaak does not stop the batch
 
 When Open Zaak answers with an error for a zaak, or the zaak cannot be read, ZAC SHALL log the error with the
-zaak UUID, send no per-zaak event for it, continue with the next zaak, and count it in the final event. When the
+zaak UUID, send no per-zaak event for it and continue with the next zaak. The final event SHALL count every zaak
+of the request that got no per-zaak event as failed. When the
 final event reports one or more failed zaken, the zaken werkvoorraad SHALL show one general error message with
 that number.
 
@@ -118,6 +119,12 @@ that number.
 - **THEN** ZAC still distributes the first and the third zaak and sends the final event with 1 failed zaak
 - **AND** the second zaak does not count as distributed
 - **AND** the werkvoorraad shows "Eén zaak kon niet verdeeld worden." after the progress ends
+
+#### Scenario: The batch cannot start
+- **WHEN** an employee distributes three zaken and ZAC cannot read the chosen groep or behandelaar, or cannot
+  check whether the behandelaar is a member of the groep
+- **THEN** ZAC changes no zaak and sends the final event with 3 failed zaken
+- **AND** the werkvoorraad shows "3 zaken konden niet verdeeld worden." without waiting for the timeout
 
 #### Scenario: Distributing with more failing zaken
 - **WHEN** an employee distributes a selection and Open Zaak answers with an error for two of the zaken
