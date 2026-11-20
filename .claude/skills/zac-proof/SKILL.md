@@ -18,6 +18,18 @@ Arguments: `<PR number | PR URL | branch | PZ-XXXX> [--guide] [--headed]`.
 `bash <skill dir>/scripts/<name>.sh ...`, without `cd` or `&&` around it. Scratch files go in
 `$CLAUDE_JOB_DIR/tmp` when that is set, otherwise in `/tmp`.
 
+## Subagents
+
+- **`zac-researcher`** (Haiku): finding a zaak, task or document in the stack that fits the test guide, and the
+  Dutch UI texts in `nl.json`. Creating a zaak with `create-zaak.py` you run yourself: it writes to the stack.
+- **The walkthrough** (step 5): one subagent on Sonnet (`model: "sonnet"` on the Agent call) writes, runs and
+  fixes the explore and walkthrough specs, with the test guide, the evidence folder, the environment variables
+  and step 5 of this skill in its prompt. It reports per step pass or fail, with the failed requests.
+- Choosing the candidate, swapping the image (always ask the user), the test guide and judging a failure
+  (script, environment or change) stay with you, on the main model.
+
+Check every finding a subagent returns before you report it: open the screenshot and `steps.jsonl` yourself.
+
 ## 1. Find the change
 
 ```bash
