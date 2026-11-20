@@ -15,15 +15,20 @@ only the OpenSpec change, and a stop. The code comes after the team has reviewed
 | 1. Pick up | author | `zac-pick-up-story` (this one) | ticket in progress, plan challenged |
 | 2. Write the specs | author | `zac-write-specs` | `docs(openspec): ...` draft PR |
 | 3. Review the specs | team | `zac-review-specs` | agreed behaviour |
-| 4. Build | author | `zac-apply-specs` | code PRs stacked on the specs PR, docs PR last |
+| 4. Build | author | `zac-apply-specs` | code PRs stacked on the specs PR, a docs + archive PR on top |
 | 5. Review the code | team | `zac-review-pr` | reviewed stack |
 | 6. Try it out | anyone | `zac-proof` | a test guide on the local stack, or Playwright proof |
+| 7. Merge | team | – | the stack merged bottom-up; the top PR updates `openspec/specs/` |
+
+Every stack ends with a PR that archives the OpenSpec change, so `openspec/specs/` is updated as soon as the
+story is merged and nobody has to remember the archive step.
 
 `zac-create-pr` sets how every PR in the stack is opened and how review comments are handled. `zac-grilling`
 stress-tests a plan at any step.
 
 When the user asks for the next step on a story, find where it is (`gh pr list --search PZ-XXX --state all`,
-the stack, the review state) and point to the skill for that step.
+the stack, the review state) and point to the skill for that step. A stack without the archive PR on top, or a
+merged story whose change still sits in `openspec/changes/`, needs the archive step of `zac-apply-specs`.
 
 ## Subagents
 
@@ -80,6 +85,10 @@ knows why the rule is wrong.
 
 For an action that takes something away (unlink, revoke, delete), check every flow that grants the same thing
 (add, grant, assign), and make them consistent in one go: same lock, same reindex, same order.
+
+Check whether the area the story touches has specs: a capability in `openspec/specs/` that describes the
+behaviour it changes. Most of ZAC has none yet. When it has none, say so: `zac-write-specs` then starts with an
+explore step that records the current behaviour first.
 
 Say it when something in the story is unnecessary, risky or better solved differently. For a larger or riskier
 story, offer to run `zac-grilling` on the plan before writing the specs.

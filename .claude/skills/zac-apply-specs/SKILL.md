@@ -41,8 +41,12 @@ Take the PR split from `design.md` and the groups in `tasks.md`. Show it to the 
 #2 refactor: convert <package> to Kotlin   (only when Java code changes; no functional change)
 #3 feat(<scope>): <backend part>
 #4 feat(<scope>): <frontend part>
-#5 docs: update the gebruikershandleiding
+#5 docs: update the gebruikershandleiding and archive the <change> change
 ```
+
+The top PR is always there: it archives the OpenSpec change, and holds the manual updates when the story needs
+them. Without manual updates it is `docs(openspec): archive the <change> change`. Create it with the rest of
+the stack, so the stack cannot be merged without updating `openspec/specs/`.
 
 - Split by what a reviewer can read in one go: per layer, screen or flow. Each PR builds, passes its tests and
   carries its own tests and i18n texts.
@@ -83,9 +87,13 @@ continue. Don't let code and specs drift apart silently.
 
 - The top PR updates the manual under `docs/manuals/` when the story or a subtask asks for it. Describe the
   behaviour in the words of the manual, in Dutch.
-- After the code PRs are merged, archive the change (`openspec-archive-change`) in a
-  `docs(openspec): archive the <change> change` PR, or in the docs PR when it is still open. Archive merges the
-  delta specs into `openspec/specs/`; check the result reads well.
+- The top PR also archives the change, with `openspec-archive-change` (`openspec archive <change> --yes`):
+  it moves the change to `openspec/changes/archive/<date>-<change>/` and merges the delta specs into
+  `openspec/specs/`. Check the merged specs read well, and that `openspec validate --specs --strict` passes.
+- Make the archive commit when the code PRs are approved, after the last `tasks.md` checkmark. When the change
+  changes below it after that (a spec fix, a checkmark), drop the archive commit and archive again, so the
+  archived copy and `openspec/specs/` match the final change.
+- The stack merges bottom-up, so the archive lands together with the code it describes.
 
 ## 6. Hand back
 

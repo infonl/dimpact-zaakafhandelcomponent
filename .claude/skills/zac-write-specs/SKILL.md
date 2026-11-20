@@ -37,6 +37,23 @@ are cheaper inline.
 - Read the code the story touches, and write down `file:line` for every class, endpoint, right, policy rule,
   table or config key you are going to name. Every claim about existing code must hold.
 
+### Unspecced code: explore first
+
+When no capability in `openspec/specs/` describes the behaviour the story changes, record that behaviour before
+writing the change:
+
+1. Tell the user the area has no specs yet, and which part you will describe.
+2. Explore with `openspec-explore` (thinking mode, no code changes), with `zac-researcher` for the lookups:
+   what the code does today, read from the code, the unit and integration tests, `docs/manuals/` and the UI
+   texts in `nl.json`. Only the behaviour the story touches, not the whole module.
+3. Write it down as requirements and scenarios of a new capability, every claim with its `file:line`. Where the
+   code and the manual disagree, the code is the baseline; list the difference as a question for the team.
+4. In the change, the new capability holds both: the current behaviour as `ADDED` requirements and the change
+   of the story. `proposal.md` lists which requirements describe existing behaviour and which are new, so
+   reviewers check both: "is this how it works today?" and "is the change right?".
+
+For a large unspecced area, propose a separate baseline-only specs PR first, and ask the user.
+
 ## 2. Create the change
 
 The CLI needs Node ≥ 22. If `openspec` is not on the path, use
@@ -86,7 +103,8 @@ Follow `openspec-propose`: `openspec new change "<kebab-case-name>"`, then the a
 - Tests are tasks. So are `./gradlew spotlessApply detektApply` + `./gradlew detekt`, the
   `scripts/test-data/` scripts when a REST path or payload changes, the SPDX headers of touched files, and the
   manual update when a subtask asks for it.
-- One last task: try it out in the local kind stack, with the user and the steps (`zac-proof` can guide it).
+- A task to try it out in the local kind stack, with the user and the steps (`zac-proof` can guide it).
+- The last task: archive the change in the top PR of the stack (`zac-apply-specs`, step 5).
 - Don't add an `openspec validate` task; validation happens below and in review.
 - No task contradicts design.md.
 
