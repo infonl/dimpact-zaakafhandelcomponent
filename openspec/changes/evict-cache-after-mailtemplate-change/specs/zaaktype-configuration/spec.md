@@ -4,9 +4,7 @@
 
 When a beheerder changes a mail template, the system SHALL clear the cached configuration of every zaaktype that
 links that template when the change is stored, at once, and SHALL clear it again after that transaction has completed,
-whether it commits or rolls back, including a read that is still loading at that moment. A koppeling to the template
-that another transaction stores at the same moment is not covered: that zaaktype MAY keep the previous template until
-its cache entry expires or the cache is cleared by hand.
+whether it commits or rolls back, including a read that is still loading at that moment.
 Clearing the zaaktype configuration cache by hand on the admin page SHALL clear it at once.
 
 #### Scenario: A changed mail template is used at once
@@ -34,3 +32,9 @@ Clearing the zaaktype configuration cache by hand on the admin page SHALL clear 
 - **GIVEN** a mail template that no zaaktype configuration links
 - **WHEN** a beheerder deletes it
 - **THEN** no cached zaaktype configuration is cleared, because none of them holds that template
+
+#### Scenario: A koppeling stored during the change is not covered
+- **GIVEN** a mail template change whose transaction has not committed yet
+- **WHEN** another transaction links the template to another zaaktype at the same moment, by a beheerder or by the
+  notification of a new zaaktype version
+- **THEN** that zaaktype MAY keep the previous template until its cache entry expires or the cache is cleared by hand
