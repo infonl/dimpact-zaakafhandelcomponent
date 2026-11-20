@@ -10,8 +10,10 @@
 So, contrary to the design of `evict-zaaktype-configuration-cache-after-commit` (D5), `clearManagedCache` does run
 inside a transaction that changes cached data, and it clears before the commit.
 
-`clearManagedCache()` (`ZaaktypeConfigurationService.kt:125`) is also called by `UtilRestService.clearCaches`
-(`UtilRestService.kt:185`), the "cache legen" button, which runs outside such a transaction.
+`clearManagedCache()` (`ZaaktypeConfigurationService.kt:125`) uses `invalidateAll()`. Caffeine's `invalidateAll()`
+skips entries that are still being loaded, while `invalidate(key)` waits for a running load of that key. So a
+whole-cache clear after the commit could miss a read that started before it. `evict(zaaktypeUuid)`
+(`ZaaktypeConfigurationService.kt:110-123`) clears per key, at once and again after the transaction completes.
 
 ## Goals / Non-Goals
 
@@ -21,46 +23,47 @@ inside a transaction that changes cached data, and it clears before the commit.
 - The "cache legen" button keeps clearing at once, once.
 
 **Non-Goals:**
-- The deadline warning windows cache, which holds no mail templates.
-- Changing which mail template operations clear the cache.
+- Changing `ZaaktypeConfigurationService` or the "cache legen" button.
 
 ## Decisions
 
-### D1. `evictAll()` follows ADR 0016
+### D1. Evict the zaaktypes that link the template, with the existing `evict`
 
-`evictAll()` calls `uuidToConfigurationCache.invalidateAll()` and fires `AllZaaktypeConfigurationsCacheEvictionEvent`
-with the `Event` that the constructor injects, next to the existing `Event<ZaaktypeConfigurationCacheEvictionEvent>`.
-`onCacheEvictionOfAll(@Observes(during = TransactionPhase.AFTER_COMPLETION) ...)` calls `invalidateAll()` again. This
-is the pattern of `evict` (`ZaaktypeConfigurationService.kt:110-123`), but for all zaaktypes, since one template can be
-linked to the configuration of any zaaktype. Outside a transaction CDI calls the observer at once (ADR 0016).
+`MailTemplateKoppelingenService` gets `listZaaktypeUuidsLinkedTo(mailTemplateId)`: the distinct
+`zaaktypeConfiguration.zaaktypeUuid` of the `ZaaktypeMailtemplateParameters` whose `mailTemplate` is that template.
+`MailTemplateService.updateMailtemplate` and `delete` call `zaaktypeConfigurationService.evict(uuid)` for each UUID it
+returns. `MailTemplateService` gets `MailTemplateKoppelingenService` injected; there is no cycle.
 
-### D2. A separate event, not a nullable zaaktype UUID
+`evict` already follows ADR 0016 and clears per key, so a read that is loading when the second clear runs is waited
+for and then removed. It also clears the deadline warning windows list, which costs one extra read.
 
-`AllZaaktypeConfigurationsCacheEvictionEvent` is a `data object`. Making the UUID of
-`ZaaktypeConfigurationCacheEvictionEvent` nullable to mean "all" would hide a second meaning in a null.
+### D2. No eviction on create
 
-### D3. `MailTemplateService` calls `evictAll()`; `clearManagedCache()` stays as it is
+A new template is in no koppeling, so no cached configuration holds it. The create branch of `storeMailtemplate`
+stops calling `clearManagedCache()`, like `createMailtemplate`, which the REST endpoint calls, never did.
 
-The three calls in `MailTemplateService` become `evictAll()`. `clearManagedCache()` keeps its immediate, single clear
-and its return message for `UtilRestService`. `createMailtemplate` keeps not clearing: a new template is not linked.
+### D3. `clearManagedCache()` stays as it is
+
+It keeps its immediate, single clear and its return message for `UtilRestService` (`UtilRestService.kt:185`).
 
 ## PR split
 
-1. `fix: clear the zaaktype configuration cache after a mail template change completes` — D1-D3 with unit and
+1. `fix: clear the cached zaaktype configurations after a mail template change completes` — D1-D3 with unit and
    integration tests.
 
 No docs PR: ADR 0016 and the manual need no change.
 
 ## Rejected alternatives
 
-- Evict only the zaaktypes linked to the template: needs a query per change for no real gain, and misses a template
-  that is linked inside the same transaction.
-- Turn `clearManagedCache()` itself into the double clear: the admin button would fire a needless event, and the
-  story asks to keep it immediate and single.
+- `evictAll()` with `invalidateAll()` twice: misses a load that is still running at the second clear.
+- Replace the whole cache with a new instance on each change: covers loads in flight, but makes the cache field
+  mutable and its statistics harder to keep, for a rare admin action.
 
 ## Risks / Trade-offs
 
-- [The transaction phase cannot be unit tested] → The unit tests check that `evictAll` clears at once and fires the
-  event, and that the observer clears; the integration test checks the result on WildFly. Neither can force a read
-  between the clear and the commit (ADR 0016).
-- [Each mail template change re-reads every configuration once more] → Template changes are rare admin actions.
+- [The transaction phase cannot be unit tested] → The unit tests check which zaaktypes `evict` is called for; the
+  integration test checks the result on WildFly. Neither can force a read between the clear and the commit (ADR
+  0016).
+- [Another beheerder links the template to a new zaaktype while it is being changed] → The lookup does not see that
+  koppeling yet, so that zaaktype can keep the previous template for up to an hour. Two admin changes to the same
+  template at the same moment are rare; "cache legen" fixes it.
