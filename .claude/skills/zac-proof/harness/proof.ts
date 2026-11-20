@@ -41,8 +41,8 @@ function watchRequests(page: Page) {
 
 /**
  * Signs in through Keycloak. Clears the cookies first, so a second role in the same context gets a login form
- * instead of the session of the previous one. With ZAC_LOGIN_URL set (the frontend dev server on 4200 runs without auth),
- * it signs in on that ZAC first; the session cookie is shared across localhost ports.
+ * instead of the session of the previous one. With ZAC_LOGIN_URL set (the frontend dev server on 4200 runs
+ * without auth), it signs in on that ZAC first; the session cookie is shared across localhost ports.
  */
 export async function signIn(page: Page, username: string = USERS.beheerder) {
   watchRequests(page);
