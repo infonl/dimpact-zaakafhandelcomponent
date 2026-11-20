@@ -79,7 +79,10 @@ Solves PZ-12608
 
 ## After opening: the Copilot loop
 
-Keep at it for every PR in the stack until done:
+Keep at it for every PR in the stack until done. The waiting and reading go to a **`zac-researcher`** subagent
+(Haiku): it watches CI and the Copilot review of each PR and returns the verdict, the failing checks and the new
+comments with their `file:line`. Judging and fixing comments, and every reply, stay with you, on the main model.
+
 
 1. Wait for the Copilot review and CI.
 2. Fix valid Copilot comments; reply briefly to the ones you reject, with the reason.
