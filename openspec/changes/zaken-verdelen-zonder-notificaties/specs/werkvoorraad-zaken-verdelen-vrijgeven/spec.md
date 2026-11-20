@@ -43,8 +43,12 @@ progress, as it does today.
 
 #### Scenario: A zaakspecifiek geautoriseerde zaak whose zaaktype cannot keep the previous behandelaar authorised
 - **WHEN** an employee distributes a zaakspecifiek geautoriseerde zaak whose zaaktype has no *Zaakspecifiek
-  geautoriseerde medewerker* roltype
+  geautoriseerde medewerker* roltype to another behandelaar
 - **THEN** ZAC skips that zaak
+
+#### Scenario: The same zaak distributed to its own behandelaar
+- **WHEN** an employee distributes such a zaak to another groep with the behandelaar it already has
+- **THEN** ZAC assigns the groep, because the previous behandelaar does not need to keep access
 
 #### Scenario: A groep without the behandelaar rol for the zaaktype
 - **WHEN** an employee distributes a zaak to a groep that has no *behandelaar* rol for its zaaktype in the PABC
@@ -56,9 +60,9 @@ progress, as it does today.
 
 ### Requirement: The werkvoorraad follows ZAC's own event per zaak
 
-For every zaak in a verdelen or vrijgeven batch, ZAC SHALL send a `ZAKEN_VERDELEN` or `ZAKEN_VRIJGEVEN` screen
-event with the zaak UUID as resource: `UPDATED` once Open Zaak has confirmed all rol changes of the zaak,
-`SKIPPED` when ZAC skips it. The zaken werkvoorraad SHALL count a zaak as processed, and update
+For every zaak in a verdelen or vrijgeven batch that it handles without error, ZAC SHALL send a `ZAKEN_VERDELEN`
+or `ZAKEN_VRIJGEVEN` screen event with the zaak UUID as resource: `UPDATED` once Open Zaak has confirmed all rol
+changes of the zaak, `SKIPPED` when ZAC skips it. The zaken werkvoorraad SHALL count a zaak as processed, and update
 its row, on that event only.
 
 #### Scenario: Distributing updates the werkvoorraad as soon as Open Zaak confirms
