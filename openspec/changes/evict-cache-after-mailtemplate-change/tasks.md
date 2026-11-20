@@ -1,19 +1,20 @@
 ## 1. Backend (PR 1)
 
 - [ ] 1.1 Add `listZaaktypeUuidsLinkedTo(mailTemplateId)` to `MailTemplateKoppelingenService` (design D1).
-- [ ] 1.2 In `MailTemplateService`, inject `MailTemplateKoppelingenService`; let `updateMailtemplate` and `delete` call
+- [ ] 1.2 In `MailTemplateService`, inject `MailTemplateKoppelingenService`; let `updateMailtemplate` call
       `zaaktypeConfigurationService.evict(uuid)` for each linked zaaktype instead of `clearManagedCache()`, and drop
-      the clear in the create branch of `storeMailtemplate` (design D1, D2).
+      the clear in `delete` and in the create branch of `storeMailtemplate` (design D1, D2).
 
 ## 2. Tests (PR 1)
 
 - [ ] 2.1 In `MailTemplateKoppelingenServiceTest`, test that `listZaaktypeUuidsLinkedTo` queries the koppelingen of
       the given template.
-- [ ] 2.2 In `MailTemplateServiceTest`, verify that `updateMailtemplate` and `delete` call `evict` for each linked
-      zaaktype and never `clearManagedCache()`, and that creating a template evicts nothing.
+- [ ] 2.2 In `MailTemplateServiceTest`, verify that `updateMailtemplate` calls `evict` for each linked zaaktype and never
+      `clearManagedCache()`, and that creating or deleting a template evicts nothing.
 - [ ] 2.3 In the itest `ZaaktypeConfigurationRestServiceBpmnMailTest`, after the linked template was read, change its
       onderwerp via `PUT /beheer/mailtemplates/{id}` and check that the next read of the mail template of the zaak
-      returns the new onderwerp.
+      returns the new onderwerp. This also passes on main, so it guards against a regression; it cannot prove the race
+      fix (design, Risks).
 
 ## 3. Checks (PR 1)
 

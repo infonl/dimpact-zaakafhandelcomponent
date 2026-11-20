@@ -2,7 +2,7 @@
 
 ### Requirement: A changed mail template is used at once and a rolled-back one is never served
 
-When a beheerder changes or deletes a mail template, the system SHALL clear the cached configuration of every
+When a beheerder changes a mail template, the system SHALL clear the cached configuration of every
 zaaktype that links that template at once, and SHALL clear it again after that transaction has completed, whether it
 commits or rolls back, including a read that is still loading at that moment.
 Clearing the zaaktype configuration cache by hand on the admin page SHALL clear it at once.
@@ -27,3 +27,8 @@ Clearing the zaaktype configuration cache by hand on the admin page SHALL clear 
 #### Scenario: Clearing the cache by hand
 - **WHEN** a beheerder clears the zaaktype configuration cache on the admin page
 - **THEN** the cache is empty at once, and no second clear is scheduled for after a transaction
+
+#### Scenario: Deleting a mail template leaves the cache alone
+- **GIVEN** a mail template that no zaaktype configuration links
+- **WHEN** a beheerder deletes it
+- **THEN** no cached zaaktype configuration is cleared, because none of them holds that template
