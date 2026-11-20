@@ -159,11 +159,8 @@ export class InboxDocumentenListComponent
   protected clearZoekopdracht = new EventEmitter<void>();
   protected readonly selectedInformationObject =
     signal<GeneratedType<"RestInboxDocument"> | null>(null);
-  private readonly deleteMutation = injectMutation(
-    () => this.inboxDocumentenService.delete(),
-    {
-      onSuccess: () => this.retriggerSearch(),
-    },
+  private readonly deleteMutation = injectMutation(() =>
+    this.inboxDocumentenService.delete(),
   );
 
   constructor() {

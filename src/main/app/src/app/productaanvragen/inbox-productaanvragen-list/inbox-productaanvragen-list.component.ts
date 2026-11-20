@@ -175,11 +175,8 @@ export class InboxProductaanvragenListComponent
     signal<GeneratedType<"RestInboxProductaanvraag"> | null>(null);
   protected clearZoekopdracht = new EventEmitter<void>();
   protected readonly previewSrc = signal<SafeUrl | null>(null);
-  private readonly deleteMutation = injectMutation(
-    () => this.inboxProductaanvragenService.delete(),
-    {
-      onSuccess: () => this.search.request(this.listParameters()),
-    },
+  private readonly deleteMutation = injectMutation(() =>
+    this.inboxProductaanvragenService.delete(),
   );
 
   constructor() {

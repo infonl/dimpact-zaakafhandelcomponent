@@ -538,6 +538,25 @@ describe(InboxProductaanvragenListComponent.name, () => {
     ).toBe("DELETE");
   });
 
+  it("searches the list once again after a productaanvraag is deleted", async () => {
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    await user.click(
+      within(productaanvraagRow()).getByRole("button", {
+        name: "actie.verwijderen",
+      }),
+    );
+    await user.click(screen.getByRole("button", { name: "actie.ja" }));
+    await sleep();
+    httpTestingController
+      .expectOne("/rest/inbox-productaanvragen/42")
+      .flush(null);
+    await settle();
+
+    expect(listRequests()).toHaveLength(1);
+  });
+
   it("keeps the productaanvraag when the confirmation is cancelled", async () => {
     await setup();
     await showProductaanvragen([inboxProductaanvraag]);

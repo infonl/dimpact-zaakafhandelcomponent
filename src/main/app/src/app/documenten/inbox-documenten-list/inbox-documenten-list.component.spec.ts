@@ -435,6 +435,21 @@ describe(InboxDocumentenListComponent.name, () => {
     ).toBe("DELETE");
   });
 
+  it("searches the list once again after a document is deleted", async () => {
+    await setup();
+    await showDocuments([inboxDocument]);
+
+    await user.click(
+      within(documentRow()).getByRole("button", { name: "actie.verwijderen" }),
+    );
+    await user.click(screen.getByRole("button", { name: "actie.ja" }));
+    await sleep();
+    httpTestingController.expectOne("/rest/inboxdocumenten/42").flush({});
+    await settle();
+
+    expect(listRequests()).toHaveLength(1);
+  });
+
   it("keeps the document when the confirmation is cancelled", async () => {
     await setup();
     await showDocuments([inboxDocument]);

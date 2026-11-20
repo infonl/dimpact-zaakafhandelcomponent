@@ -289,6 +289,28 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     expect(lastSearch().page).toBe(0);
   });
 
+  it("shows no contactmomenten of the previous klant when the search for another klant fails", async () => {
+    await setup({ bsn: "999993896" });
+    await receive(
+      [
+        fromPartial<GeneratedType<"RestContactmoment">>({
+          tekst: "Vraag van de vorige klant",
+        }),
+      ],
+      15,
+    );
+
+    changeInputs({ bsn: "999990408" });
+    await sleep();
+    await failSearch();
+
+    expect(
+      screen.queryByRole("row", { name: /Vraag van de vorige klant/ }),
+    ).toBeNull();
+    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
+    expect(lastSearch().bsn).toBe("999990408");
+  });
+
   it("searches for the new bsn when the bsn changes", async () => {
     await setup({ bsn: "999993896", vestigingsnummer: "000099998888" });
     await receive([]);

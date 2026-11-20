@@ -6,9 +6,11 @@
 import {
   Component,
   computed,
+  effect,
   inject,
   input,
   linkedSignal,
+  untracked,
 } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
@@ -73,6 +75,14 @@ export class KlantContactmomentenTabelComponent {
     () => this.search.data()?.resultaten ?? [],
   );
   protected readonly totaal = computed(() => this.search.data()?.totaal ?? 0);
+
+  constructor() {
+    effect(() => {
+      this.bsn();
+      this.vestigingsnummer();
+      untracked(() => this.search.clear());
+    });
+  }
 
   protected pageChanged({ pageIndex }: PageEvent) {
     this.search.request({ ...this.search.requested(), page: pageIndex });
