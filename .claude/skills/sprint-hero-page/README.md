@@ -9,6 +9,7 @@ The `sprint-hero-page` skill fills the version sections and the summary of the s
   - PodiumD componenten and Supporting componenten: read access to `infonl/dimpact-provisioning`.
   - Security issues: write access to the ZAC repo and `infonl/webdav-servlet`, which GitHub requires to read code-scanning alerts.
   - Samenvatting: read access to `infonl/dimpact-provisioning` and `infonl/webdav-servlet`, plus write access to the ZAC repo, which GitHub requires to read its code-scanning alerts.
+- Python 3 with the packages of `scripts/python/requirements.txt`, for PodiumD componenten, Supporting componenten and Externe API's. Their Latest column comes from `scripts/python/dependencies/versions.py` and `supporting_componenten.py`.
 - If access is missing, the skill stops and tells you what to do.
 
 ## Usage

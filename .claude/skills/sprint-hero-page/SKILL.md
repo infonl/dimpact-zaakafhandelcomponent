@@ -25,6 +25,7 @@ Check the prerequisites yourself; when one is missing, ask the user to fix it an
   - Not logged in: ask the user to run `gh auth login -h github.com -w` (choose SSH, then Skip for the key upload).
   - 404/403: the token has no access to that repo, or awaits infonl org approval. Ask the user to fix the token. Never guess those values.
 - Externe API's needs no login.
+- PodiumD componenten, Supporting componenten and Externe API's get Latest from the Python scripts in `scripts/python/dependencies/`. They need `requests` and `beautifulsoup4`: check with `python3 -c "import requests, bs4"`. If that fails, ask the user to run `pip3 install -r scripts/python/requirements.txt`, or to activate the virtual environment of `scripts/python/init-pyenv.sh` before starting Claude Code.
 - Security issues reads the code-scanning alerts of `infonl/dimpact-zaakafhandelcomponent` and `infonl/webdav-servlet`, which needs write access to both. Check with `gh api "repos/infonl/<repo>/code-scanning/alerts?per_page=1" --jq length`; a 403/404 means the token lacks access.
 - Supporting componenten, Externe API's and Samenvatting read the ZAC repo via `git show origin/main:<file>`.
   - Check the session runs in the ZAC repo: `git remote get-url origin` must point to `infonl/dimpact-zaakafhandelcomponent`. If not, ask the user to start Claude Code in their ZAC checkout.
@@ -50,4 +51,5 @@ The Samenvatting and Security issues have their own output rules on their page.
 - `gh` on macOS needs the sandbox disabled, otherwise the keychain is blocked and gh fails with `x509: OSStatus -26276`.
 - Do not assume `yq`, `helm` or PyYAML are installed. Read YAML paths by indentation with `grep`/`awk`.
 - `git fetch` over SSH also needs the sandbox disabled; otherwise it fails with `This proxy requires authentication` and `origin/main` stays stale.
+- Run the Python scripts with `python3 <path>`, not as `./<path>`: the shebang of `versions.py` names `python`, which does not exist outside a virtual environment on macOS. Run them with the sandbox disabled: they need the network, and `supporting_componenten.py` reads the `gh` token from the keychain.
 - The anonymous GitHub API allows only 60 requests/hour. Use `gh api` or the sources named on the task page instead of paging through GitHub tags.

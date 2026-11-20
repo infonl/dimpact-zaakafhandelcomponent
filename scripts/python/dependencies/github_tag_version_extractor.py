@@ -1,45 +1,41 @@
 #  SPDX-FileCopyrightText: 2024 INFO.nl
 #  SPDX-License-Identifier: EUPL-1.2+
 
-import requests
-from bs4 import BeautifulSoup
 import re
+import subprocess
 
 from version_data import VersionData
 
 class GitHubTagVersionExtractor:
     """
-    Version extractor specifically for a GitHub tags page.
+    Version extractor for the tags of a GitHub repository.
+
+    Reads all tags with `git ls-remote`, so it is not limited to the first page of the tags page and needs no GitHub
+    API token. Only tags that are exactly '<prefix>X.Y.Z' count, so pre-releases such as '4.1.0-alpha.2' or
+    '5.13.0-dev' are skipped. With hotfix_suffix, ZAC's hotfix tags '<prefix>X.Y.Z-N' (ADR-0014) count too, and
+    'X.Y.Z-N' is higher than 'X.Y.Z'.
     """
 
-    def __init__(self, url, prefix = ''):
+    def __init__(self, url, prefix = '', hotfix_suffix = False):
         self.url = url
         self.prefix = prefix
+        self.hotfix_suffix = hotfix_suffix
 
     def get_latest_version(self):
-        # Send a GET request to the web page
-        response = requests.get(self.url)
+        repository_url = re.sub(r'/tags/?$', '', self.url)
+        result = subprocess.run(['git', 'ls-remote', '--tags', '--refs', f'{repository_url}.git'],
+                                capture_output=True, text=True, timeout=120, check=True)
 
-        # Parse the web page content
-        soup = BeautifulSoup(response.content, 'html.parser')
+        suffix = r'(?:-\d+)?' if self.hotfix_suffix else ''
+        versions = []
+        for line in result.stdout.splitlines():
+            tag = line.split('refs/tags/', 1)[-1]
+            match = re.fullmatch(rf'{re.escape(self.prefix)}(\d+\.\d+\.\d+{suffix})', tag)
+            if match:
+                versions.append((match.group(1), tag))
 
-        # Find all h2.a tags containing the version information
-        commits = soup.find_all('div', class_='commit')
-
-        # Extract the version numbers from a tags within the ul
-        version_list = []
-        for commit in commits:
-            a_tag = commit.find('a')
-            if a_tag:
-                version_number = a_tag.text.strip()
-                if re.match(rf'{re.escape(self.prefix)}[\d.]+', version_number):
-                    href = a_tag['href']
-                    if not href.startswith('http'):
-                        href = requests.compat.urljoin(self.url, href)
-                    version_list.append(VersionData(version_number.lstrip(self.prefix), href))
-
-        # Return the latest version
-        if version_list:
-            return max(version_list)
-        else:
+        if not versions:
             return None
+        # VersionData cannot order 'X.Y.Z-N', so order by all numbers; a missing hotfix number counts as 0.
+        version, tag = max(versions, key=lambda entry: [int(number) for number in re.findall(r'\d+', entry[0])] + [0])
+        return VersionData(version, f'{repository_url}/releases/tag/{tag}')
