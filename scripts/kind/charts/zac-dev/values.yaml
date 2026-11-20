@@ -141,7 +141,7 @@ opa:
 
 officeConverter:
   # -- keep in sync with the office converter of charts/zac
-  image: gotenberg/gotenberg:9.9.0@sha256:2f4945f698c3d02f691a27d56bb8e7ba4585e6ab50bd233329a36eb0423ae587
+  image: gotenberg/gotenberg:9.9.1@sha256:0fc05327fcc4af8ba84bb99b3da35fe728840d98cef9d3bf0d701bd077834eb5
   username: zac
 
 brpPersonenMock:
