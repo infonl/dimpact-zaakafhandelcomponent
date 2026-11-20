@@ -23,20 +23,29 @@ export const USERS = {
   raadpleger: "raadpleger1",
 } as const;
 
-/** Records every /rest response with status >= 400, so a failed step names the request behind it. */
+/** Records every /rest request that fails or gets a status >= 400, so a failed step names the request behind it. */
 function watchRequests(page: Page) {
   if (watchedPages.has(page)) return;
   watchedPages.add(page);
   page.on("response", (response) => {
     const url = new URL(response.url());
     if (response.status() >= 400 && url.pathname.startsWith("/rest/")) {
-      const line = `${response.status()} ${response.request().method()} ${url.pathname}`;
-      failedRequests.push(line);
-      if (!exploring) {
-        appendFileSync(join(evidenceDir, "failed-requests.log"), `step ${stepNumber}: ${line}\n`);
-      }
+      recordFailedRequest(`${response.status()} ${response.request().method()} ${url.pathname}`);
     }
   });
+  page.on("requestfailed", (request) => {
+    const url = new URL(request.url());
+    if (url.pathname.startsWith("/rest/")) {
+      recordFailedRequest(`${request.failure()?.errorText ?? "failed"} ${request.method()} ${url.pathname}`);
+    }
+  });
+}
+
+function recordFailedRequest(line: string) {
+  failedRequests.push(line);
+  if (!exploring) {
+    appendFileSync(join(evidenceDir, "failed-requests.log"), `step ${stepNumber}: ${line}\n`);
+  }
 }
 
 /**

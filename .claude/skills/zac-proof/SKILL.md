@@ -104,10 +104,13 @@ releases with `helm --kube-context <context> -n zac list -q` and pass a flag for
 which of them the user runs. Ask before leaving any running service out.
 
 A fresh worktree has no `.env`: it is gitignored. Pass the one of the main checkout with
-`KIND_ENV_FILE=<main checkout>/.env`. Then, from the worktree, in the background:
+`KIND_ENV_FILE=<main checkout>/.env`. Keep extra ZAC values the stack runs with: when it was started with
+`KIND_ZAC_VALUES` (e.g. `scripts/kind/values/zac-e2e.yaml`, which points BAG, KVK and mail at test doubles),
+pass the same files again, or ZAC talks to the real services. `helm --kube-context <context> -n zac get values
+zac` shows them; when unsure, ask. Then, from the worktree, in the background:
 
 ```bash
-KIND_ENV_FILE=<main checkout>/.env ./start-kind.sh -b <flags>
+KIND_ENV_FILE=<main checkout>/.env [KIND_ZAC_VALUES="<same files>"] ./start-kind.sh -b <flags>
 kubectl --context <context> -n zac rollout status deploy/zac --timeout=20m
 ```
 
@@ -135,7 +138,9 @@ when the change is about rights. Use a private window per user, or sign out in b
 **Which data.** A concrete zaak, task or document, never "open a zaak":
 - Look for one that fits in the stack first (the werkvoorraad, the search) and name its identificatie.
 - None fits: create one, from the worktree:
-  `python3 scripts/test-data/create-zaak.py --zaaktype "Test zaaktype 2" --doc-count 0`. On a fresh stack only
+  `python3 scripts/test-data/create-zaak.py --zaaktype "Test zaaktype 2" --doc-count 0 --zac-url <ZAC URL>
+  --keycloak-url <Keycloak URL>` (Keycloak: `HOST_PORT_KEYCLOAK` in `build/kind/<cluster>/ports.env`, default
+  `http://localhost:8081`). On a fresh stack only
   *Test zaaktype 2* works right away. Other zaaktypes (BPMN: `"BPMN test zaaktype 1"`) need
   `create-load.py 1` first, which overwrites the configuration of the 8 test zaaktypes, or
   `configure-zaakafhandelparameters.py`. `--doc-count N` adds documents. It prints the links to the new zaak.
