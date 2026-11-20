@@ -10,10 +10,13 @@ import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
+import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.ZaaktypeMailtemplateParameters
+import nl.info.zac.mailtemplates.model.MailTemplate
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.validateObject
+import java.util.UUID
 
 @ApplicationScoped
 @Transactional(SUPPORTS)
@@ -60,6 +63,23 @@ class MailTemplateKoppelingenService @Inject constructor(
         val query = builder.createQuery(ZaaktypeMailtemplateParameters::class.java)
         val root = query.from(ZaaktypeMailtemplateParameters::class.java)
         query.select(root)
+        return entityManager.createQuery(query).resultList
+    }
+
+    fun listZaaktypeUuidsLinkedTo(mailTemplateId: Long): List<UUID> {
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(UUID::class.java)
+        val root = query.from(ZaaktypeMailtemplateParameters::class.java)
+        query.select(
+            root.get<ZaaktypeConfiguration>(ZaaktypeMailtemplateParameters::zaaktypeConfiguration.name)
+                .get(ZaaktypeConfiguration::zaaktypeUuid.name)
+        ).distinct(true).where(
+            builder.equal(
+                root.get<MailTemplate>(ZaaktypeMailtemplateParameters::mailTemplate.name)
+                    .get<Long>(MailTemplate::id.name),
+                mailTemplateId
+            )
+        )
         return entityManager.createQuery(query).resultList
     }
 }
