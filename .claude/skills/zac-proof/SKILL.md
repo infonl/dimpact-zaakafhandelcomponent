@@ -50,6 +50,8 @@ The JSON:
 
 Pick the candidate:
 - One candidate: use it.
+- A candidate with `ambiguousChildren`: more than one open PR is stacked on its top, so the stack stops there.
+  Ask the user which of those PRs to follow, then run `resolve.sh` again on that PR number.
 - Several (e.g. one PR per subtask): ask which one, listing the PR titles. When all are merged and
   `mergeCommitOnMain` is true, offer the most recent merge commit: it contains all of them.
 - None: say so and stop.
@@ -68,8 +70,15 @@ A detached worktree under `<main checkout>/.claude/worktrees/proof-<run name>`; 
 
 ## 3. Run it
 
-First see what runs now: `kubectl --context kind-zac -n zac get deploy zac -o jsonpath='{.spec.template.spec.containers[0].image}'`
-and `curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/` (302 = up).
+Pick one target and use it everywhere (checks, guide links, the walkthrough): the cluster context
+`kind-${KIND_CLUSTER_NAME:-zac}` and the ZAC URL. The URL is `http://localhost:8080` unless the user's stack
+uses another port (`KIND_PORT_ZAC`, `KIND_PORT_OFFSET`, or `HOST_PORT_ZAC` in `build/kind/<cluster>/ports.env`).
+When more than one cluster or port could be meant, ask. Set `ZAC_URL` for `run-walkthrough.sh`, which stops
+when it finds several ports.
+
+First see what runs now:
+`kubectl --context <context> -n zac get deploy zac -o jsonpath='{.spec.template.spec.containers[0].image}'`
+and `curl -s -o /dev/null -w '%{http_code}' <ZAC URL>/` (302 = up).
 
 **`frontendOnly: true`**: no image swap. From the worktree, in the background:
 
@@ -83,27 +92,40 @@ Use Node from `.nvmrc` (`nvm use`). It needs a running ZAC on 8080; when there i
 
 **Otherwise**: ask the user first, naming the image that runs now. The swap replaces their running ZAC
 and runs this branch's Flyway migrations on their local database; list `migrations` when there are any,
-and suggest `-d` (fresh seed data) when the migrations would leave the database ahead of their own branch.
-Then, from the worktree, in the background:
+and mention that migrations may leave the database ahead of their own branch.
+Never add `-d` on your own. It deletes every workload and volume in namespace zac: the databases of all
+components, Solr and the Open Zaak documents, not only ZAC's. Offer it only with that scope named, and only
+run it after separate explicit consent.
+
+`start-kind.sh` removes the optional services whose flags are left out. Keep what the user runs: list the
+releases with `helm --kube-context <context> -n zac list -q` and pass a flag for each of `opennotificaties -n`,
+`openobject -o`, `openarchiefbeheer -a`, `openforms -f`. Add the `integrationHints` flags on top
+(openObjecten -o, openNotificaties -n, openFormulieren -f). `-t` and `-v` do not show as releases: ask
+which of them the user runs. Ask before leaving any running service out.
+
+A fresh worktree has no `.env`: it is gitignored. Pass the one of the main checkout with
+`KIND_ENV_FILE=<main checkout>/.env`. Then, from the worktree, in the background:
 
 ```bash
-./start-kind.sh -b [-o] [-n] [-f]   # true integrationHints: openObjecten -o, openNotificaties -n, openFormulieren -f
-kubectl --context kind-zac -n zac rollout status deploy/zac --timeout=20m
+KIND_ENV_FILE=<main checkout>/.env ./start-kind.sh -b <flags>
+kubectl --context <context> -n zac rollout status deploy/zac --timeout=20m
 ```
 
-The build takes several minutes. `start-kind.sh` reads secrets with the 1Password CLI. When `op` is not
-signed in (background jobs usually are not), stop and give the user the command to run themselves:
+The build takes several minutes. `start-kind.sh` reads secrets with the 1Password CLI when `op` is signed in,
+and otherwise uses the environment variables that are set (add `-e` to skip `op` on purpose). A missing `op`
+login is not a blocker by itself. Only when the settings truly cannot be supplied (no `.env`, no `op`, and
+the variables are not set), stop and give the user the command to run themselves:
 `! cd <worktree> && ./start-kind.sh -b ...`.
-When 8080 returns WildFly's plain 404 after the rollout, ZAC failed to deploy: read
-`kubectl --context kind-zac -n zac logs deploy/zac -c zaakafhandelcomponent | grep -E 'WFLYCTL0186|ERROR' | head`.
+When the ZAC URL returns WildFly's plain 404 after the rollout, ZAC failed to deploy: read
+`kubectl --context <context> -n zac logs deploy/zac -c zaakafhandelcomponent | grep -E 'WFLYCTL0186|ERROR' | head`.
 
 ## 4. Write the test guide
 
 From the acceptance criteria, the OpenSpec scenarios, the PR description and the diff, write a guide a person
 can follow without reading the code. Save it as `manual-test-steps.md` in the evidence folder and show it in chat.
 
-**Where.** The exact URL to open: `http://localhost:8080` for an image built from the worktree,
-`http://localhost:4200` for the frontend dev server. Link straight to the page under test, e.g.
+**Where.** The exact URL to open: the ZAC URL (`http://localhost:8080` by default) for an image built from
+the worktree, `http://localhost:4200` for the frontend dev server. Link straight to the page under test, e.g.
 `http://localhost:8080/zaken/ZAAK-2026-0000000012`, not to the dashboard.
 
 **Who.** Per step, the seed user to sign in with (password = username): `beheerder1`, `behandelaar1`,
@@ -113,9 +135,12 @@ when the change is about rights. Use a private window per user, or sign out in b
 **Which data.** A concrete zaak, task or document, never "open a zaak":
 - Look for one that fits in the stack first (the werkvoorraad, the search) and name its identificatie.
 - None fits: create one, from the worktree:
-  `python3 scripts/test-data/create-zaak.py --zaaktype "Test zaaktype 1" --doc-count 0` (BPMN flows:
-  `"BPMN test zaaktype 1"`; `--doc-count N` adds documents). It prints the links to the new zaak. Make sure the
-  user of the guide can see it (group, zaakspecifieke autorisatie); assign it in the guide's setup step if needed.
+  `python3 scripts/test-data/create-zaak.py --zaaktype "Test zaaktype 2" --doc-count 0`. On a fresh stack only
+  *Test zaaktype 2* works right away. Other zaaktypes (BPMN: `"BPMN test zaaktype 1"`) need
+  `create-load.py 1` first, which overwrites the configuration of the 8 test zaaktypes, or
+  `configure-zaakafhandelparameters.py`. `--doc-count N` adds documents. It prints the links to the new zaak.
+  Make sure the user of the guide can see it (group, zaakspecifieke autorisatie); assign it in the guide's
+  setup step if needed.
 - State needed beyond that (a task in a certain status, a besluit, a linked zaak): a setup step that creates it
   through the UI, with the user and the clicks.
 
@@ -233,5 +258,7 @@ Offer once: turn the walkthrough into a real e2e scenario in `src/e2e/bdd` (only
 Tell the user how to get back to their own state; don't run it unasked:
 - `bash <skill dir>/scripts/cleanup.sh <run name>` removes the worktree (`--all` for every proof worktree); the
   evidence folder stays.
-- Their own ZAC again: `./start-kind.sh -b` (or `-l`, `-z`) from their own checkout, with the flags they normally use.
+- Their own ZAC again: `./start-kind.sh -b` from their own checkout, with the flags they normally use. After
+  a proof build the local `:dev` image is the PR image, so `-l` would redeploy the proof. Offer `-l` or `-z`
+  only when you know the image is the right one.
 - A frontend dev server started in step 3: stop the background task.

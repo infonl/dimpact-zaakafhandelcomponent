@@ -12,6 +12,7 @@ const exploreDir = join(evidenceDir, ".explore");
 const watchedPages = new WeakSet<Page>();
 let stepNumber = 0;
 let failedRequests: string[] = [];
+const exploring = process.env.SPEC === "explore.spec.ts";
 
 /** Seed users of the local kind stack: the password equals the username. */
 export const USERS = {
@@ -31,17 +32,21 @@ function watchRequests(page: Page) {
     if (response.status() >= 400 && url.pathname.startsWith("/rest/")) {
       const line = `${response.status()} ${response.request().method()} ${url.pathname}`;
       failedRequests.push(line);
-      appendFileSync(join(evidenceDir, "failed-requests.log"), `step ${stepNumber}: ${line}\n`);
+      if (!exploring) {
+        appendFileSync(join(evidenceDir, "failed-requests.log"), `step ${stepNumber}: ${line}\n`);
+      }
     }
   });
 }
 
 /**
- * Signs in through Keycloak. With ZAC_LOGIN_URL set (the frontend dev server on 4200 runs without auth),
+ * Signs in through Keycloak. Clears the cookies first, so a second role in the same context gets a login form
+ * instead of the session of the previous one. With ZAC_LOGIN_URL set (the frontend dev server on 4200 runs without auth),
  * it signs in on that ZAC first; the session cookie is shared across localhost ports.
  */
 export async function signIn(page: Page, username: string = USERS.beheerder) {
   watchRequests(page);
+  await page.context().clearCookies();
   await page.goto(process.env.ZAC_LOGIN_URL ?? "/");
   await page.getByRole("textbox", { name: /Username or email|Gebruikersnaam/ }).fill(username);
   await page.getByRole("textbox", { name: /Password|Wachtwoord/ }).fill(username);

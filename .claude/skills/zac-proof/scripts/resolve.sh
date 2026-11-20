@@ -36,7 +36,7 @@ prs_for_key() {
       ("\\b" + $key + "(?![0-9])") as $pattern
       | [.[] | select(
           ((.title + " " + .headRefName) | test($pattern; "i"))
-          or ((.body // "") | test("(?i)solves[^\\n]*" + $pattern) and (.headRefName | test("^(hotfix|release)/") | not))
+          or (((.body // "") | test("(?i)solves[^\\n]*" + $pattern)) and (.headRefName | test("^(hotfix|release)/") | not))
         ) | del(.body)]'
 }
 
@@ -64,8 +64,10 @@ if [ -z "$jira_key" ]; then
 fi
 
 # The stack around a PR: down via its base branch, up via open PRs based on its head branch.
+# Prints {stack, ambiguousChildren}. When more than one open PR is based on a head branch, it stops going
+# up there and lists those PRs in ambiguousChildren instead of picking one.
 stack_for() {
-  local number="$1" pr base head stack below above
+  local number="$1" pr base head stack below above children ambiguous="[]"
   pr=$(gh pr view "$number" --repo "$repo" --json "$pr_fields")
   stack="[$pr]"
   base=$(echo "$pr" | jq -r .baseRefName)
@@ -77,12 +79,17 @@ stack_for() {
   done
   head=$(echo "$pr" | jq -r .headRefName)
   while :; do
-    above=$(list_prs --base "$head" | jq '[.[] | select(.state != "CLOSED")][0] // empty')
+    children=$(list_prs --base "$head" | jq '[.[] | select(.state != "CLOSED")]')
+    if [ "$(echo "$children" | jq length)" -gt 1 ]; then
+      ambiguous=$(echo "$children" | jq '[.[] | {number, title, state, url, headRefName}]')
+      break
+    fi
+    above=$(echo "$children" | jq '.[0] // empty')
     [ -z "$above" ] && break
     stack=$(jq -n --argjson pr "$above" --argjson stack "$stack" '$stack + [$pr]')
     head=$(echo "$above" | jq -r .headRefName)
   done
-  echo "$stack"
+  jq -n --argjson stack "$stack" --argjson ambiguous "$ambiguous" '{stack: $stack, ambiguousChildren: $ambiguous}'
 }
 
 files_for() {
@@ -91,7 +98,9 @@ files_for() {
 
 result_candidates="[]"
 for number in $(echo "$candidates" | jq -r '.[].number'); do
-  stack=$(stack_for "$number")
+  stack_result=$(stack_for "$number")
+  stack=$(echo "$stack_result" | jq '.stack')
+  ambiguous_children=$(echo "$stack_result" | jq '.ambiguousChildren')
   top_merge_commit=$(echo "$stack" | jq -r 'last | select(.state == "MERGED") | .mergeCommit.oid')
   on_main=null
   if [ -n "$top_merge_commit" ]; then
@@ -99,13 +108,14 @@ for number in $(echo "$candidates" | jq -r '.[].number'); do
     if [ "$status" = behind ] || [ "$status" = identical ]; then on_main=true; else on_main=false; fi
   fi
   files=$(for stacked in $(echo "$stack" | jq -r '.[].number'); do files_for "$stacked"; done | jq -s 'add | unique')
-  result_candidates=$(jq -n --argjson all "$result_candidates" --argjson stack "$stack" --argjson files "$files" --argjson onMain "$on_main" '
+  result_candidates=$(jq -n --argjson all "$result_candidates" --argjson stack "$stack" --argjson ambiguous "$ambiguous_children" --argjson files "$files" --argjson onMain "$on_main" '
     ($stack | last) as $top
     | $all + [{
         stack: [$stack[] | {number, title, state, isDraft, url, headRefName, baseRefName, mergedAt}],
         runPr: $top.number,
         runRef: (if $top.state == "MERGED" then $top.mergeCommit.oid else "refs/pull/\($top.number)/head" end),
         runRefDescription: (if $top.state == "MERGED" then "merge commit of #\($top.number)" else "head of #\($top.number) (\($top.headRefName))" end),
+        ambiguousChildren: $ambiguous,
         mergeCommitOnMain: $onMain,
         changedFiles: ($files | length),
         frontendOnly: ($files | all(test("^(src/main/app/|docs/|openspec/|\\.claude/|\\.github/|README)"))),

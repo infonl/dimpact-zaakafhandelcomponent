@@ -9,7 +9,8 @@
 # its dumpPage output goes to .explore/.
 #
 # Usage: bash run-walkthrough.sh <evidence dir> [--headed] [--explore]
-# Env:   ZAC_URL (default: the ZAC port of the kind stack, else http://localhost:8080)
+# Env:   ZAC_URL (default: the ZAC port of the kind cluster KIND_CLUSTER_NAME (default zac), else
+#        http://localhost:8080; required when that cluster has more than one ZAC port on record)
 #        ZAC_LOGIN_URL (frontend dev server only: the ZAC to sign in on, e.g. http://localhost:8080)
 set -uo pipefail
 
@@ -44,8 +45,14 @@ fi
 (cd "$e2e_dir" && npx --no-install playwright install chromium > /dev/null)
 
 if [ -z "${ZAC_URL:-}" ]; then
-  zac_port=$(sed -n 's/^HOST_PORT_ZAC=//p' "$main_checkout"/build/kind/*/ports.env "$main_checkout"/.claude/worktrees/proof-*/build/kind/*/ports.env 2> /dev/null | head -1)
-  export ZAC_URL="http://localhost:${zac_port:-8080}"
+  cluster="${KIND_CLUSTER_NAME:-zac}"
+  zac_ports=$(sed -n 's/^HOST_PORT_ZAC=//p' "$main_checkout/build/kind/$cluster/ports.env" \
+    "$main_checkout"/.claude/worktrees/proof-*/build/kind/"$cluster"/ports.env 2> /dev/null | sort -u)
+  if [ "$(echo "$zac_ports" | grep -c .)" -gt 1 ]; then
+    echo "More than one ZAC port found for cluster $cluster ($(echo "$zac_ports" | tr "\n" " ")). Set ZAC_URL." >&2
+    exit 2
+  fi
+  export ZAC_URL="http://localhost:${zac_ports:-8080}"
 fi
 
 cp "$skill_dir/harness/playwright.config.ts" "$skill_dir/harness/proof.ts" "$evidence_dir/"
