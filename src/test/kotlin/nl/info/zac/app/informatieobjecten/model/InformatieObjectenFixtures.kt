@@ -8,13 +8,14 @@ package nl.info.zac.app.informatieobjecten.model
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
+import nl.info.zac.time.ZacTime
 import java.io.InputStream
 import java.time.LocalDate
 import java.util.UUID
 
 fun createRestDocumentVerzendGegevens(
     zaakUuid: UUID = UUID.randomUUID(),
-    verzenddatum: LocalDate = LocalDate.now(),
+    verzenddatum: LocalDate = ZacTime.today(),
     informatieobjecten: List<UUID> = listOf(UUID.randomUUID()),
     toelichting: String = "fakeToelichting",
 ) = RestDocumentVerzendGegevens(

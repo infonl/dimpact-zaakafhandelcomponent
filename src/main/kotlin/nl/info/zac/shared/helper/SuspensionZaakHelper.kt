@@ -21,6 +21,7 @@ import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.time.ZacTime
 import nl.info.zac.time.toDate
 import nl.info.zac.time.toLocalDate
 import nl.info.zac.util.NoArgConstructor
@@ -66,12 +67,12 @@ class SuspensionZaakHelper @Inject constructor(
         )
 
         val updatedZaak = zrcClientService.patchZaak(zaakUUID, patchZaak, toelichting)
-        zaakVariabelenService.setDatumtijdOpgeschort(zaakUUID, ZonedDateTime.now())
+        zaakVariabelenService.setDatumtijdOpgeschort(zaakUUID, ZacTime.now())
         zaakVariabelenService.setVerwachteDagenOpgeschort(zaakUUID, Math.toIntExact(numberOfDays))
         return updatedZaak
     }
 
-    fun resumeZaak(zaak: Zaak, resumeReason: String?, resumeDate: ZonedDateTime = ZonedDateTime.now()): Zaak {
+    fun resumeZaak(zaak: Zaak, resumeReason: String?, resumeDate: ZonedDateTime = ZacTime.now()): Zaak {
         val loggedInUser = loggedInUserInstance.get()
         assertPolicy(policyService.readZaakRechten(zaak, loggedInUser).canHervatten)
         assertPolicy(zaak.isOpgeschort())
@@ -81,7 +82,7 @@ class SuspensionZaakHelper @Inject constructor(
             require(resumeDate.isAfter(it)) {
                 "Resume date $resumeDate cannot be before suspension date $it"
             }
-        } ?: ZonedDateTime.now()
+        } ?: ZacTime.now()
         val expectedDaysSuspended = zaakVariabelenService.findVerwachteDagenOpgeschort(zaakUuid) ?: 0
         val daysSinceSuspended = ChronoUnit.DAYS.between(dateSuspended, resumeDate)
         val offset = daysSinceSuspended - expectedDaysSuspended
@@ -118,13 +119,17 @@ class SuspensionZaakHelper @Inject constructor(
     fun extendZaak(
         zaak: Zaak,
         zaakType: ZaakType,
-        dueDate: LocalDate?,
-        fatalDate: LocalDate?,
         extensionReason: String?,
         numberOfDays: Int
     ): Zaak {
         assertExtensionPeriodIsValid(zaakType, numberOfDays)
-        return convertToPatch(zaak, dueDate, fatalDate, extensionReason, numberOfDays).let {
+        return convertToPatch(
+            zaak = zaak,
+            dueDate = zaak.einddatumGepland?.plusDays(numberOfDays.toLong()),
+            fatalDate = zaak.uiterlijkeEinddatumAfdoening?.plusDays(numberOfDays.toLong()),
+            extensionReason = extensionReason,
+            numberOfDays = numberOfDays
+        ).let {
             zrcClientService.patchZaak(zaak.uuid, it, "$VERLENGING: $extensionReason")
         }
     }

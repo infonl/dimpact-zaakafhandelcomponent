@@ -18,12 +18,12 @@ import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_CLIENT_ID
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_CLIENT_SECRET
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.util.todayInUtc
 import okhttp3.Headers
 import org.json.JSONObject
 import java.io.File
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.URLDecoder
-import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.Base64
@@ -208,7 +208,7 @@ class OpenZaakClient(
         val requestBody = JSONObject(
             mapOf(
                 "bronorganisatie" to BRON_ORGANISATIE,
-                "creatiedatum" to LocalDate.now().toString(),
+                "creatiedatum" to todayInUtc().toString(),
                 "titel" to title,
                 "auteur" to FAKE_AUTHOR_NAME,
                 "taal" to "dut",

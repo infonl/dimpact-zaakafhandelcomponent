@@ -31,11 +31,11 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.util.WebSocketTestListener
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
+import nl.info.zac.itest.util.todayInZac
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
-import java.time.LocalDate
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
@@ -73,14 +73,14 @@ class TaskRestServiceTest : BehaviorSpec({
         task1ID = taskHelper.startAanvullendeInformatieTaskForZaak(
             zaakUuid = zaakUuid.let(UUID::fromString),
             zaakIdentificatie = zaakIdentification,
-            fatalDate = LocalDate.now().plusWeeks(1),
+            fatalDate = todayInZac().plusWeeks(1),
             group = GROUP_BEHANDELAARS_TEST_1,
             testUser = BEHANDELAAR_1
         )
         taskHelper.startAanvullendeInformatieTaskForZaak(
             zaakUuid = zaakUuid.let(UUID::fromString),
             zaakIdentificatie = zaakIdentification,
-            fatalDate = LocalDate.now().plusWeeks(1),
+            fatalDate = todayInZac().plusWeeks(1),
             group = GROUP_BEHANDELAARS_TEST_1,
             testUser = BEHANDELAAR_1
         )

@@ -6,53 +6,51 @@ package nl.info.zac.app.admin
 
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import jakarta.validation.Valid
+import jakarta.ws.rs.BeanParam
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import nl.info.client.zgw.util.extractUuid
-import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
-import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.admin.ZaaktypeConfigurationService
-import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.app.admin.model.RestBuildInformation
+import nl.info.zac.app.admin.model.RestInrichtingscheckParameters
+import nl.info.zac.app.admin.model.RestReferentietabellenInrichtingscheck
 import nl.info.zac.app.admin.model.RestZaaktypeInrichtingscheck
-import nl.info.zac.app.admin.model.toRestInrichtingscheckZaaktype
-import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.app.admin.model.toRestZaaktypeInrichtingscheckResultaat
+import nl.info.zac.app.shared.RestResultaat
 import nl.info.zac.healthcheck.HealthCheckService
-import nl.info.zac.healthcheck.model.ZaaktypeInrichtingscheck
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
 @Singleton
 @Path("health-check")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@AllOpen
 @NoArgConstructor
 class HealthCheckRestService @Inject constructor(
-    private val ztcClientService: ZtcClientService,
-    private val configurationService: ConfigurationService,
     private val healthCheckService: HealthCheckService,
-    private val policyService: PolicyService,
-    private val zaaktypeConfigurationService: ZaaktypeConfigurationService
+    private val policyService: PolicyService
 ) {
     @GET
     @Path("zaaktypes")
-    fun listZaaktypeInrichtingschecks(): List<RestZaaktypeInrichtingscheck> {
+    fun listZaaktypeInrichtingschecks(
+        @Valid @BeanParam parameters: RestInrichtingscheckParameters
+    ): RestResultaat<RestZaaktypeInrichtingscheck> {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
-        return listZaaktypes().map {
-            convertToREST(healthCheckService.controleerZaaktype(it.url))
-        }
+        return healthCheckService.controleerZaaktypes().toRestZaaktypeInrichtingscheckResultaat(parameters)
     }
 
     @GET
-    @Path("bestaat-communicatiekanaal-eformulier")
-    fun readBestaatCommunicatiekanaalEformulier(): Boolean {
+    @Path("referentietabellen")
+    fun readReferentietabellenInrichtingscheck(): RestReferentietabellenInrichtingscheck {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
-        return healthCheckService.bestaatCommunicatiekanaalEformulier()
+        return RestReferentietabellenInrichtingscheck(
+            isCommunicatiekanaalEformulierAanwezig = healthCheckService.bestaatCommunicatiekanaalEformulier()
+        )
     }
 
     /**
@@ -69,39 +67,4 @@ class HealthCheckRestService @Inject constructor(
                 versienummer = it.versionNumber
             )
         }
-
-    private fun listZaaktypes() =
-        ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
-            .filter { !it.concept }
-            .filter { it.isNuGeldig() }
-            .filterNot(::isBoundToBpmn)
-
-    private fun isBoundToBpmn(zaaktype: ZaakType) =
-        zaaktypeConfigurationService.findConfiguration(zaaktype.url.extractUuid())?.getProcessEngine() ==
-            ProcessEngine.BPMN
-
-    private fun convertToREST(check: ZaaktypeInrichtingscheck): RestZaaktypeInrichtingscheck =
-        RestZaaktypeInrichtingscheck(
-            zaaktype = check.zaaktype.toRestInrichtingscheckZaaktype(),
-            isBesluittypeAanwezig = check.isBesluittypeAanwezig,
-            resultaattypesMetVerplichtBesluit = check.resultaattypesMetVerplichtBesluit,
-            resultaattypesMetNietOndersteundeBrondatum = check.resultaattypesMetNietOndersteundeBrondatum,
-            isResultaattypeAanwezig = check.isResultaattypeAanwezig,
-            isInformatieobjecttypeEmailAanwezig = check.isInformatieobjecttypeEmailAanwezig,
-            aantalBehandelaarroltypen = check.aantalBehandelaarroltypen,
-            aantalInitiatorroltypen = check.aantalInitiatorroltypen,
-            isRolOverigeAanwezig = check.isRolOverigeAanwezig,
-            isStatustypeAfgerondAanwezig = check.isStatustypeAfgerondAanwezig,
-            isStatustypeAfgerondLaatsteVolgnummer = check.isStatustypeAfgerondLaatsteVolgnummer,
-            isStatustypeHeropendAanwezig = check.isStatustypeHeropendAanwezig,
-            isStatustypeAanvullendeInformatieVereist = check.isStatustypeAanvullendeInformatieVereist,
-            isStatustypeInBehandelingAanwezig = check.isStatustypeInBehandelingAanwezig,
-            isStatustypeIntakeAanwezig = check.isStatustypeIntakeAanwezig,
-            isZaakafhandelParametersValide = check.isZaakafhandelParametersValide,
-            isBrpInstellingenCorrect = check.isBrpInstellingenCorrect,
-            isZaakspecifiekeAutorisatieEigenschapAanwezig = check.isZaakspecifiekeAutorisatieEigenschapAanwezig,
-            isZaakspecifiekeAutorisatieRoltypeAanwezig = check.isZaakspecifiekeAutorisatieRoltypeAanwezig,
-            hasWaarschuwingen = check.hasWaarschuwingen,
-            isValide = check.isValide
-        )
 }

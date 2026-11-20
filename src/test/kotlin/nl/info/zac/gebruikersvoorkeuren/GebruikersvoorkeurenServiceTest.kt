@@ -38,6 +38,8 @@ import nl.info.zac.gebruikersvoorkeuren.model.createZoekopdracht
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.signalering.model.SignaleringInstellingen
 import nl.info.zac.signalering.model.SignaleringType
+import nl.info.zac.time.ZacTime
+import java.time.ZonedDateTime
 
 class GebruikersvoorkeurenServiceTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>()
@@ -102,11 +104,16 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
     context("Creating a zoekopdracht") {
         given("A zoekopdracht that already exists") {
             val zoekopdracht = createZoekopdracht()
+            val storedZoekopdracht = createZoekopdracht(
+                id = zoekopdracht.id,
+                creationDate = ZonedDateTime.of(2025, 3, 1, 9, 30, 0, 0, ZacTime.ZONE)
+            )
             val mergedZoekopdracht = createZoekopdracht(
                 id = zoekopdracht.id,
                 name = "mergedZoekopdracht"
             )
 
+            every { entityManager.find(Zoekopdracht::class.java, zoekopdracht.id) } returns storedZoekopdracht
             every { entityManager.merge(zoekopdracht) } returns mergedZoekopdracht
 
             `when`("the create zoekopdracht function is called") {
@@ -115,6 +122,10 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
                 then("it should merge the zoekopdracht and return the uprated zoekopdracht") {
                     result shouldBe mergedZoekopdracht
                     verify { entityManager.merge(zoekopdracht) }
+                }
+
+                and("it keeps the creatiedatum of the stored zoekopdracht") {
+                    zoekopdracht.creatiedatum shouldBe storedZoekopdracht.creatiedatum
                 }
             }
         }

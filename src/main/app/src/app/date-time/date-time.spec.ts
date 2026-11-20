@@ -4,7 +4,22 @@
  */
 
 import moment from "moment";
-import { fromApiDate, toApiDate } from "./index";
+import {
+  addDays,
+  daysBetween,
+  daysElapsedSince,
+  daysFromToday,
+  endOfDay,
+  fromApiDate,
+  isAfter,
+  isPickedDate,
+  isSameOrAfter,
+  startOfDay,
+  toApiDate,
+  toApiDateTime,
+  today,
+  toPickedDate,
+} from "./index";
 
 describe("date-time", () => {
   describe(toApiDate.name, () => {
@@ -41,7 +56,7 @@ describe("date-time", () => {
       );
     });
 
-    it("reads an instant with the local offset as that local date", () => {
+    it("reads an instant with the Amsterdam offset as that date", () => {
       expect(fromApiDate("2026-03-25T00:00:00.000+01:00")).toEqual(
         new Date(2026, 2, 25),
       );
@@ -53,5 +68,138 @@ describe("date-time", () => {
         expect(fromApiDate(value)).toBeNull();
       },
     );
+  });
+
+  describe(toPickedDate.name, () => {
+    it("reads 2026-07-30 as local midnight of 30-07-2026", () => {
+      expect(toPickedDate("2026-07-30")?.valueOf()).toBe(
+        new Date(2026, 6, 30).valueOf(),
+      );
+    });
+
+    it("reads a date with a time as local midnight of its date in Europe/Amsterdam", () => {
+      expect(toPickedDate("2026-07-29T22:00:00.000Z")?.valueOf()).toBe(
+        new Date(2026, 6, 30).valueOf(),
+      );
+    });
+
+    it.each([null, undefined, "", "not a date"])(
+      "gives null for %p, not the current time",
+      (value) => {
+        expect(toPickedDate(value)).toBeNull();
+      },
+    );
+  });
+
+  describe(isPickedDate.name, () => {
+    it.each([new Date(2026, 6, 30), moment([2026, 6, 30])])(
+      "accepts %p",
+      (value) => {
+        expect(isPickedDate(value)).toBe(true);
+      },
+    );
+
+    it.each([null, "2026-07-30", 1785369600000])("rejects %p", (value) => {
+      expect(isPickedDate(value)).toBe(false);
+    });
+  });
+
+  describe("day arithmetic", () => {
+    it("gives the start of the day", () => {
+      expect(startOfDay(new Date(2026, 6, 30, 15, 45)).valueOf()).toBe(
+        new Date(2026, 6, 30).valueOf(),
+      );
+    });
+
+    it("gives the last millisecond of the day", () => {
+      expect(endOfDay(new Date(2026, 6, 30, 15, 45)).valueOf()).toBe(
+        new Date(2026, 6, 31).valueOf() - 1,
+      );
+    });
+
+    it("gives the start of today", () => {
+      expect(toApiDate(today())).toBe(toApiDate(new Date()));
+      expect(today().valueOf()).toBe(startOfDay(new Date()).valueOf());
+    });
+
+    it("adds days across the day the clocks go forward", () => {
+      expect(toApiDate(addDays("2026-03-28", 2))).toBe("2026-03-30");
+    });
+
+    it("adds days across the day the clocks go back", () => {
+      expect(toApiDate(addDays("2026-10-24", 2))).toBe("2026-10-26");
+    });
+
+    it("counts the whole days between two dates", () => {
+      expect(daysBetween("2026-07-30", new Date(2026, 7, 9))).toBe(10);
+    });
+
+    it("compares by the millisecond, or by the day", () => {
+      const morning = new Date(2026, 6, 30, 9);
+      const evening = new Date(2026, 6, 30, 21);
+
+      expect(isAfter(evening, morning)).toBe(true);
+      expect(isAfter(evening, morning, "day")).toBe(false);
+      expect(isSameOrAfter(morning, evening)).toBe(false);
+      expect(isSameOrAfter(morning, evening, "day")).toBe(true);
+    });
+  });
+
+  describe(toApiDateTime.name, () => {
+    it("sends the local time with its offset", () => {
+      expect(toApiDateTime(moment.parseZone("2026-07-30T10:15:00+02:00"))).toBe(
+        "2026-07-30T10:15:00+02:00",
+      );
+    });
+
+    it.each([null, undefined])("gives null for %s", (value) => {
+      expect(toApiDateTime(value)).toBeNull();
+    });
+  });
+  describe(daysElapsedSince.name, () => {
+    beforeEach(() => {
+      jest.useFakeTimers().setSystemTime(new Date(2026, 6, 30, 12));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it("counts the whole days since a moment", () => {
+      expect(daysElapsedSince("2026-07-20T13:00:00+02:00")).toBe(9);
+      expect(daysElapsedSince("2026-07-20T11:00:00+02:00")).toBe(10);
+    });
+
+    it("counts no days when there is no moment", () => {
+      expect(daysElapsedSince(undefined)).toBe(0);
+    });
+
+    it("also reads a moment that is not written in ISO 8601", () => {
+      expect(daysElapsedSince("Mon, 20 Jul 2026 13:00:00 +0200")).toBe(9);
+    });
+  });
+
+  describe(daysFromToday.name, () => {
+    beforeEach(() => {
+      jest.useFakeTimers().setSystemTime(new Date(2026, 6, 30, 23, 30));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it.each([
+      ["2026-07-30T00:00:00+02:00", 0],
+      ["2026-07-31T00:30:00+02:00", 1],
+      ["2026-08-09", 10],
+      ["2026-07-28", -2],
+      ["2026-07-28T12:00:00+02:00", -2],
+    ])("counts the calendar days from today to %s as %d", (value, expected) => {
+      expect(daysFromToday(value)).toBe(expected);
+    });
+
+    it("also reads a moment that is not written in ISO 8601", () => {
+      expect(daysFromToday("Fri, 31 Jul 2026 00:30:00 +0200")).toBe(1);
+    });
   });
 });

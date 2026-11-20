@@ -19,10 +19,10 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
+import nl.info.zac.itest.util.todayInUtc
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_OK
-import java.time.LocalDate
 
 class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
@@ -58,7 +58,7 @@ class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
                 )
 
             `when`("informatieobjecten history is requested") {
-                val today = LocalDate.now()
+                val today = todayInUtc()
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudiginformatieobjectUuid/historie",
                     testUser = RAADPLEGER_1

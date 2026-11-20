@@ -15,7 +15,6 @@ import {
 } from "@angular/common/http/testing";
 import type { Provider, Type } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
-import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
@@ -28,6 +27,7 @@ import { render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
 import { sleep, testQueryClient } from "../setupJest";
+import { provideZacDateAdapter } from "./app/date-time";
 import { GeneratedType } from "./app/shared/utils/generated-types";
 import { ZoekenService } from "./app/zoeken/zoeken.service";
 
@@ -201,7 +201,7 @@ async function renderWerklijst(
       provideHttpClient(withXhr(), withInterceptorsFromDi()),
       provideHttpClientTesting(),
       provideQueryClient(testQueryClient),
-      provideMomentDateAdapter(),
+      provideZacDateAdapter(),
     ],
   });
   const httpTestingController = TestBed.inject(HttpTestingController);

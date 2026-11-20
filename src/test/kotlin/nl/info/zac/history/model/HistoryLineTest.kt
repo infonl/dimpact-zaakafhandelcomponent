@@ -12,8 +12,8 @@ import io.mockk.checkUnnecessaryStub
 import jakarta.json.bind.JsonbBuilder
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.zac.time.ZacTime
 import java.time.LocalDate
-import java.time.ZoneId
 import java.time.ZonedDateTime
 
 class HistoryLineTest : BehaviorSpec({
@@ -46,7 +46,7 @@ class HistoryLineTest : BehaviorSpec({
 
     given("a ZonedDateTime") {
         `when`("toValue is called") {
-            val value = ZonedDateTime.of(2026, 7, 14, 9, 30, 0, 0, ZoneId.systemDefault()).toValue()
+            val value = ZonedDateTime.of(2026, 7, 14, 9, 30, 0, 0, ZacTime.ZONE).toValue()
 
             then("the result is formatted as dd-MM-yyyy HH:mm") {
                 value shouldBe "14-07-2026 09:30"

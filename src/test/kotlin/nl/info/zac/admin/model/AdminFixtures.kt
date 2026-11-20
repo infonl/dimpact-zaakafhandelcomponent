@@ -6,6 +6,7 @@ package nl.info.zac.admin.model
 
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
+import nl.info.zac.time.ZacTime
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -109,7 +110,7 @@ fun createReferenceTableValue(
 @Suppress("LongParameterList")
 fun createZaaktypeCmmnConfiguration(
     id: Long? = 1234L,
-    creationDate: ZonedDateTime = ZonedDateTime.now(),
+    creationDate: ZonedDateTime = ZacTime.now(),
     zaaktypeUUID: UUID = UUID.randomUUID(),
     zaaktypeOmschrijving: String = "fakeZaaktypeOmschrijving",
     einddatumGeplandWaarschuwing: Int? = null,
@@ -162,7 +163,7 @@ fun createZaaktypeCmmnConfiguration(
 @Suppress("LongParameterList")
 fun createZaaktypeBpmnConfiguration(
     id: Long? = 1234L,
-    creationDate: ZonedDateTime = ZonedDateTime.now(),
+    creationDate: ZonedDateTime = ZacTime.now(),
     zaaktypeUUID: UUID = UUID.randomUUID(),
     zaaktypeOmschrijving: String = "fakeZaaktypeOmschrijving",
     productaanvraagtype: String? = null,

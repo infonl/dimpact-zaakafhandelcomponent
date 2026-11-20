@@ -56,6 +56,7 @@ import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.signalering.model.SignaleringVerzonden
 import nl.info.zac.signalering.model.SignaleringVerzondenZoekParameters
 import nl.info.zac.signalering.model.SignaleringZoekParameters
+import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.validateObject
@@ -112,7 +113,7 @@ class SignaleringService @Inject constructor(
      */
     fun signaleringInstance(signaleringsType: SignaleringType.Type): Signalering =
         Signalering().apply {
-            tijdstip = ZonedDateTime.now()
+            tijdstip = ZacTime.now()
             type = signaleringTypeInstance(signaleringsType)
         }
 
@@ -138,7 +139,7 @@ class SignaleringService @Inject constructor(
      */
     fun signaleringVerzondenInstance(signalering: Signalering) =
         SignaleringVerzonden().apply {
-            tijdstip = ZonedDateTime.now()
+            tijdstip = ZacTime.now()
             type = signaleringTypeInstance(signalering.type.type)
             targettype = signalering.targettype
             target = signalering.target
@@ -197,7 +198,7 @@ class SignaleringService @Inject constructor(
         query.where(
             builder.lessThan(
                 root.get("tijdstip"),
-                ZonedDateTime.now().minusDays(deleteOlderThanDays)
+                ZacTime.now().minusDays(deleteOlderThanDays)
             )
         )
         return entityManager.createQuery(query).executeUpdate().also {

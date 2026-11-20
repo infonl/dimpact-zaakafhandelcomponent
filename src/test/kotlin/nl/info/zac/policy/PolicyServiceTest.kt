@@ -55,10 +55,10 @@ import nl.info.zac.search.model.createDocumentZoekObject
 import nl.info.zac.search.model.createTaakZoekObject
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.task.model.TaakStatus
+import nl.info.zac.time.ZacTime
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.model.createZaakToewijzing
 import java.net.URI
-import java.time.LocalDate
 import java.util.UUID
 
 private fun createZaakToewijzingForBehandelaar(behandelaarId: String) = createZaakToewijzing(
@@ -162,7 +162,7 @@ class PolicyServiceTest : BehaviorSpec({
             val zaak = createZaak(
                 status = URI("https://example.com/status/${UUID.randomUUID()}")
             ).apply {
-                startdatumBewaartermijn = LocalDate.now()
+                startdatumBewaartermijn = ZacTime.today()
             }
             val zaakType = createZaakType(
                 omschrijving = zaaktypeOmschrijving
@@ -887,7 +887,7 @@ class PolicyServiceTest : BehaviorSpec({
             val enkelvoudigInformatieobject = createEnkelvoudigInformatieObject(locked = true).apply {
                 ondertekening = Ondertekening().apply {
                     soort = SoortEnum.ANALOOG
-                    datum = LocalDate.now()
+                    datum = ZacTime.today()
                 }
             }
             val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()

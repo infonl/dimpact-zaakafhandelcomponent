@@ -19,7 +19,13 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
-import moment, { Moment } from "moment";
+import {
+  addDays,
+  daysBetween,
+  PickedDate,
+  startOfDay,
+  toPickedDate,
+} from "../../date-time";
 import { trackControl } from "../../shared/form/control-state";
 import { ZacDate } from "../../shared/form/date/date";
 import { ZacInput } from "../../shared/form/input/input";
@@ -64,8 +70,8 @@ export class ZaakOpschortenDialogComponent {
       Validators.required,
       Validators.min(1),
     ]),
-    einddatumGepland: this.formBuilder.control<Moment | null>(null, []),
-    uiterlijkeEinddatumAfdoening: this.formBuilder.control<Moment | null>(
+    einddatumGepland: this.formBuilder.control<PickedDate | null>(null, []),
+    uiterlijkeEinddatumAfdoening: this.formBuilder.control<PickedDate | null>(
       null,
       [Validators.required],
     ),
@@ -79,34 +85,26 @@ export class ZaakOpschortenDialogComponent {
   protected readonly formValid = this.readForm((form) => form.valid);
 
   constructor() {
-    if (this.data.zaak.einddatumGepland) {
+    const { einddatumGepland, uiterlijkeEinddatumAfdoening } = this.data.zaak;
+
+    if (einddatumGepland) {
       this.form.controls.einddatumGepland.setValidators([
         Validators.required,
-        Validators.min(
-          moment(this.data.zaak.einddatumGepland)
-            .add(1, "day")
-            .startOf("day")
-            .valueOf(),
-        ),
+        Validators.min(startOfDay(addDays(einddatumGepland, 1)).valueOf()),
       ]);
       this.form.controls.einddatumGepland.valueChanges
         .pipe(takeUntilDestroyed())
         .subscribe((value) => {
           if (!value) return this.resetFields();
-          this.updateDateFields(
-            moment(value).diff(this.data.zaak.einddatumGepland, "days"),
-          );
+          this.updateDateFields(daysBetween(einddatumGepland, value));
         });
     }
 
-    if (this.data.zaak.uiterlijkeEinddatumAfdoening) {
+    if (uiterlijkeEinddatumAfdoening) {
       this.form.controls.uiterlijkeEinddatumAfdoening.setValidators([
         Validators.required,
         Validators.min(
-          moment(this.data.zaak.uiterlijkeEinddatumAfdoening)
-            .add(1, "day")
-            .startOf("day")
-            .valueOf(),
+          startOfDay(addDays(uiterlijkeEinddatumAfdoening, 1)).valueOf(),
         ),
       ]);
       this.form.controls.uiterlijkeEinddatumAfdoening.valueChanges
@@ -114,10 +112,7 @@ export class ZaakOpschortenDialogComponent {
         .subscribe((value) => {
           if (!value) return this.resetFields();
           this.updateDateFields(
-            moment(value).diff(
-              this.data.zaak.uiterlijkeEinddatumAfdoening,
-              "days",
-            ),
+            daysBetween(uiterlijkeEinddatumAfdoening, value),
           );
         });
     }
@@ -141,15 +136,16 @@ export class ZaakOpschortenDialogComponent {
   private updateDateFields(duur: number) {
     if (duur <= 0) return this.resetFields();
 
+    const { einddatumGepland, uiterlijkeEinddatumAfdoening } = this.data.zaak;
     this.form.patchValue(
       {
         numberOfDays: duur,
-        einddatumGepland: this.data.zaak.einddatumGepland
-          ? moment(this.data.zaak.einddatumGepland).add(duur, "days")
+        einddatumGepland: einddatumGepland
+          ? addDays(einddatumGepland, duur)
           : null,
-        uiterlijkeEinddatumAfdoening: moment(
-          this.data.zaak.uiterlijkeEinddatumAfdoening,
-        ).add(duur, "days"),
+        uiterlijkeEinddatumAfdoening: uiterlijkeEinddatumAfdoening
+          ? addDays(uiterlijkeEinddatumAfdoening, duur)
+          : null,
       },
       { emitEvent: false },
     );
@@ -159,13 +155,10 @@ export class ZaakOpschortenDialogComponent {
     this.form.setValue(
       {
         numberOfDays: null,
-        einddatumGepland: this.data.zaak.einddatumGepland
-          ? moment(this.data.zaak.einddatumGepland)
-          : null,
-        uiterlijkeEinddatumAfdoening: this.data.zaak
-          .uiterlijkeEinddatumAfdoening
-          ? moment(this.data.zaak.uiterlijkeEinddatumAfdoening)
-          : null,
+        einddatumGepland: toPickedDate(this.data.zaak.einddatumGepland),
+        uiterlijkeEinddatumAfdoening: toPickedDate(
+          this.data.zaak.uiterlijkeEinddatumAfdoening,
+        ),
         reason: null,
       },
       { emitEvent: false },

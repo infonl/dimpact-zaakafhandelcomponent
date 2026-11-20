@@ -23,12 +23,12 @@ import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_O
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.util.nowInZac
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
-import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
@@ -185,7 +185,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                 url = "$ZAC_API_URI/taken/complete",
                 requestBodyAsString = """
                     {
-                        "creatiedatumTijd": "${ZonedDateTime.now()}",
+                        "creatiedatumTijd": "${nowInZac()}",
                         "formulierDefinitieId": "GOEDKEUREN",
                         "groep": { "id": "${GROUP_BEHANDELAARS_TEST_1.name}", "naam": "${GROUP_BEHANDELAARS_TEST_1.description}" },
                         "id": "$goedkeurenTaskId",

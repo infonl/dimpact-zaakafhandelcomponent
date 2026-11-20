@@ -14,7 +14,11 @@ import io.mockk.runs
 import io.mockk.verify
 import io.mockk.verifyOrder
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICATIEKANAAL
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
@@ -29,7 +33,14 @@ class EngineProcessBindingsTest : BehaviorSpec({
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val healthCheckService = mockk<HealthCheckService>()
     val bpmnService = mockk<BpmnService>()
-    val cmmnProcessBinding = CmmnProcessBinding(cmmnService, healthCheckService)
+    val ztcClientService = mockk<ZtcClientService>()
+    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
+    val cmmnProcessBinding = CmmnProcessBinding(
+        cmmnService = cmmnService,
+        healthCheckService = healthCheckService,
+        ztcClientService = ztcClientService,
+        zaaktypeConfigurationService = zaaktypeConfigurationService
+    )
     val bpmnProcessBinding = BpmnProcessBinding(bpmnService, zaakVariabelenService)
 
     afterEach { checkUnnecessaryStub() }
@@ -136,8 +147,13 @@ class EngineProcessBindingsTest : BehaviorSpec({
     context("checking whether a zaaktype is ready for zaak creation") {
         given("a zaaktype whose CMMN zaaktype check fails") {
             val zaaktype = createZaakType()
+            val zaaktypeConfiguration = createZaaktypeCmmnConfiguration()
+            every { ztcClientService.readZaaktype(zaaktype.url) } returns zaaktype
             every {
-                healthCheckService.controleerZaaktype(zaaktype.url)
+                zaaktypeConfigurationService.findConfiguration(zaaktype.url.extractUuid())
+            } returns zaaktypeConfiguration
+            every {
+                healthCheckService.controleerZaaktype(zaaktype, zaaktypeConfiguration)
             } returns createZaaktypeInrichtingscheck().apply { isZaakafhandelParametersValide = false }
 
             `when`("each engine checks the zaaktype") {

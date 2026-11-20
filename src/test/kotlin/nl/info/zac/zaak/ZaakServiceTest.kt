@@ -62,6 +62,7 @@ import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.time.ZacTime
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
@@ -70,7 +71,6 @@ import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeRelease
 import nl.info.zac.zaak.model.ZaakAssignment
 import nl.info.zac.zaak.model.createZaakToewijzing
 import java.net.URI
-import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.concurrent.locks.ReentrantLock
 
@@ -1723,7 +1723,7 @@ class ZaakServiceTest : BehaviorSpec({
                 uri = URI(statusUuid.toString()),
                 zaakURI = zaak.url,
                 statustypeURI = statusType.url,
-                datumStatusGezet = ZonedDateTime.now().toOffsetDateTime()
+                datumStatusGezet = ZacTime.now().toOffsetDateTime()
             )
 
             every { zrcClientService.readStatus(zaak.status) } returns status
@@ -1765,7 +1765,7 @@ class ZaakServiceTest : BehaviorSpec({
                 uri = URI(statusUuid.toString()),
                 zaakURI = zaak.url,
                 statustypeURI = statusType.url,
-                datumStatusGezet = ZonedDateTime.now().toOffsetDateTime()
+                datumStatusGezet = ZacTime.now().toOffsetDateTime()
             )
 
             every { zrcClientService.readStatus(zaak.status) } returns status

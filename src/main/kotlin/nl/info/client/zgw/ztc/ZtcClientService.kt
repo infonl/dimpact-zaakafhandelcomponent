@@ -38,6 +38,7 @@ import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.client.zgw.ztc.model.generated.ZaakTypeInformatieObjectType
+import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -145,7 +146,7 @@ class ZtcClientService @Inject constructor(
                 "No catalogus found for catalogus list parameters '$catalogusListParameters'."
             )
 
-    fun resetCacheTimeToNow(): ZonedDateTime = ztcTimeCache.get(Caching.ZTC_CACHE_TIME) { ZonedDateTime.now() }
+    fun resetCacheTimeToNow(): ZonedDateTime = ztcTimeCache.get(Caching.ZTC_CACHE_TIME) { ZacTime.now() }
 
     /**
      * Read [ZaakType] via URI.

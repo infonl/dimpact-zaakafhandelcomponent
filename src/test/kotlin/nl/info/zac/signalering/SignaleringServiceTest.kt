@@ -74,6 +74,7 @@ import nl.info.zac.signalering.model.createSignalering
 import nl.info.zac.signalering.model.createSignaleringInstellingen
 import nl.info.zac.signalering.model.createSignaleringType
 import nl.info.zac.signalering.model.createSignaleringZoekParameters
+import nl.info.zac.time.ZacTime
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
@@ -137,7 +138,7 @@ class SignaleringServiceTest : BehaviorSpec({
     }
 
     given("signaleringen older than two days") {
-        val now = ZonedDateTime.now()
+        val now = ZacTime.now()
         val deleteOlderThanDays = 2L
         val zoneDateTimeSlot = slot<ZonedDateTime>()
         every { entityManager.criteriaBuilder } returns criteriaBuilder
@@ -1069,7 +1070,7 @@ class SignaleringServiceTest : BehaviorSpec({
         because the taak was assigned back to the user
         """
     ) {
-        val checkedTijdstip = ZonedDateTime.now().minusMinutes(5)
+        val checkedTijdstip = ZacTime.now().minusMinutes(5)
         val checkedSignalering = spyk(
             createSignalering(targetUser = createUser(username = "fakeUserA"), tijdstip = checkedTijdstip)
         ) { every { id } returns 1L }

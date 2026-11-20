@@ -14421,7 +14421,7 @@ components:
             properties:
               zaaktype:
                 allOf:
-                - $ref: https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.2.0/src/openapi.yaml#/components/schemas/ZaakType
+                - $ref: './ztc-openapi.yaml#/components/schemas/ZaakType'
                 description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
               hoofdzaak:
                 allOf:

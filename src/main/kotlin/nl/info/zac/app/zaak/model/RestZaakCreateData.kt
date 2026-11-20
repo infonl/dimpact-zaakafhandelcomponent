@@ -15,6 +15,7 @@ import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.identification.BetrokkeneIdentificatie
+import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
@@ -72,12 +73,12 @@ fun RestZaakCreateData.toZaak(
 ).apply {
     this.bronorganisatie = bronOrganisatie
     this.verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie
-    this.startdatum = this@toZaak.startdatum ?: LocalDate.now()
+    this.startdatum = this@toZaak.startdatum ?: ZacTime.today()
     this.zaaktype = zaaktype.url
     this.communicatiekanaalNaam = this@toZaak.communicatiekanaal
     this.omschrijving = this@toZaak.omschrijving
     this.toelichting = this@toZaak.toelichting
-    this.registratiedatum = LocalDate.now()
+    this.registratiedatum = ZacTime.today()
     this.vertrouwelijkheidaanduiding = this@toZaak.vertrouwelijkheidaanduiding?.let {
         // convert this enum to uppercase in case the client sends it in lowercase
         VertrouwelijkheidaanduidingEnum.valueOf(it.uppercase())

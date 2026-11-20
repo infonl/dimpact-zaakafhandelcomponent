@@ -531,7 +531,7 @@ solr-operator:
        # -- solr image repository
       repository: library/solr
        # -- solr image tag
-      tag: 9.11.0-slim@sha256:54cec2ced0f2c26436605a7dd5dde5ae78f26d5c0d19a7358349d5cb71fdfc1a
+      tag: 9.11.0-slim@sha256:5bd2ca3fb2ac07c284d5e135ab970047de43312b6a8af639a988e7872f392e59
      # -- solr memory settings
     javaMem: -Xms512m -Xmx768m
      # jobs settings
@@ -722,7 +722,7 @@ office_converter:
    # url: ""
   image:
     repository: docker.io/gotenberg/gotenberg
-    tag: "9.7.0@sha256:3f00eba12da1d3fc1795be0d3ba66e2e97b31087c92ae238ed23937441c7a941"
+    tag: "9.9.0@sha256:2f4945f698c3d02f691a27d56bb8e7ba4585e6ab50bd233329a36eb0423ae587"
     pullPolicy: IfNotPresent
   name: "office-converter"
   replicas: 1
@@ -817,9 +817,9 @@ opentelemetry-collector:
 nginx:
   enabled: false
   image:
-    repository: docker.io/nginxinc/nginx-unprivileged
+    repository: docker.io/nginx/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.31.7@sha256:09b0d3eda2aa592d2487f284519419015cab010d7df16cd0fe224b585fc60eb6
+    tag: 1.31.9@sha256:0255fc1dcc1d7b358aac20166543e52029fea577413edadb0912f5b928c7e312
   service:
     type: ClusterIP
     port: 80

@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.390](https://img.shields.io/badge/Version-1.0.390-informational?style=flat-square) ![AppVersion: 5.12](https://img.shields.io/badge/AppVersion-5.12-informational?style=flat-square)
+![Version: 1.0.395](https://img.shields.io/badge/Version-1.0.395-informational?style=flat-square) ![AppVersion: 5.12](https://img.shields.io/badge/AppVersion-5.12-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.179.1 |
+| @opentelemetry | opentelemetry-collector | 0.180.0 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -269,8 +269,8 @@ PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" helm plugin install https
 | nginx.enabled | bool | `false` |  |
 | nginx.existingConfigmap | string | `nil` |  |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
-| nginx.image.repository | string | `"docker.io/nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.31.7@sha256:09b0d3eda2aa592d2487f284519419015cab010d7df16cd0fe224b585fc60eb6"` |  |
+| nginx.image.repository | string | `"docker.io/nginx/nginx-unprivileged"` |  |
+| nginx.image.tag | string | `"1.31.9@sha256:0255fc1dcc1d7b358aac20166543e52029fea577413edadb0912f5b928c7e312"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
@@ -307,7 +307,7 @@ PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" helm plugin install https
 | office_converter.env.CHROMIUM_DISABLE_ROUTES | string | `"true"` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
 | office_converter.image.repository | string | `"docker.io/gotenberg/gotenberg"` |  |
-| office_converter.image.tag | string | `"9.7.0@sha256:3f00eba12da1d3fc1795be0d3ba66e2e97b31087c92ae238ed23937441c7a941"` |  |
+| office_converter.image.tag | string | `"9.9.0@sha256:2f4945f698c3d02f691a27d56bb8e7ba4585e6ab50bd233329a36eb0423ae587"` |  |
 | office_converter.imagePullSecrets | list | `[]` |  |
 | office_converter.name | string | `"office-converter"` |  |
 | office_converter.nodeSelector | object | `{}` |  |
@@ -433,7 +433,7 @@ PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" helm plugin install https
 | solr-operator.solr.enabled | bool | `true` |  |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
-| solr-operator.solr.image.tag | string | `"9.11.0-slim@sha256:54cec2ced0f2c26436605a7dd5dde5ae78f26d5c0d19a7358349d5cb71fdfc1a"` | solr image tag |
+| solr-operator.solr.image.tag | string | `"9.11.0-slim@sha256:5bd2ca3fb2ac07c284d5e135ab970047de43312b6a8af639a988e7872f392e59"` | solr image tag |
 | solr-operator.solr.javaMem | string | `"-Xms512m -Xmx768m"` |  |
 | solr-operator.solr.jobs.affinity | object | `{}` | affinity for jobs |
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |

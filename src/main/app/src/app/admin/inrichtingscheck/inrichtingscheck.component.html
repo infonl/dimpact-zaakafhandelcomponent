@@ -30,210 +30,248 @@
       <mat-card-content>
         <mat-card>
           <mat-card-content>
+            @if (loadingZaaktypes()) {
+              <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+            }
             <div class="table-wrapper">
-              @if (!loadingZaaktypes()) {
-                <table
-                  mat-table
-                  [dataSource]="dataSource"
-                  matSort
-                  matSortDirection="asc"
-                  (matSortChange)="sortData($event)"
-                  multiTemplateDataRows
-                >
-                  <ng-container matColumnDef="expand">
-                    <th
-                      mat-header-cell
-                      *matHeaderCellDef
-                      aria-label="row actions"
-                    >
-                      &nbsp;
-                    </th>
-                    <td mat-cell *matCellDef="let row; dataSource: dataSource">
-                      @if (needsAttention(row) && expandedRow() !== row) {
-                        <mat-icon>keyboard_arrow_down</mat-icon>
-                      }
-                      @if (needsAttention(row) && expandedRow() === row) {
-                        <mat-icon>keyboard_arrow_up</mat-icon>
-                      }
-                    </td>
-                  </ng-container>
-                  <ng-container matColumnDef="zaaktypeOmschrijving">
-                    <th
-                      mat-header-cell
-                      *matHeaderCellDef
-                      mat-sort-header="zaaktypeOmschrijving"
-                    >
-                      {{ "zaaktype-omschrijving" | translate }}
-                    </th>
-                    <td mat-cell *matCellDef="let row; dataSource: dataSource">
-                      {{ row.zaaktype.omschrijving }}
-                    </td>
-                  </ng-container>
-                  <ng-container matColumnDef="zaaktypeDoel">
-                    <th
-                      mat-header-cell
-                      *matHeaderCellDef
-                      mat-sort-header="zaaktypeDoel"
-                    >
-                      {{ "doel" | translate }}
-                    </th>
-                    <td mat-cell *matCellDef="let row; dataSource: dataSource">
-                      <read-more
-                        [text]="row.zaaktype.doel"
-                        [maxLength]="100"
-                      ></read-more>
-                    </td>
-                  </ng-container>
-                  <ng-container matColumnDef="beginGeldigheid">
-                    <th
-                      mat-header-cell
-                      *matHeaderCellDef
-                      mat-sort-header="beginGeldigheid"
-                    >
-                      {{ "begin.geldigheid" | translate }}
-                    </th>
-                    <td mat-cell *matCellDef="let row; dataSource: dataSource">
-                      {{ row.zaaktype.beginGeldigheid | datum }}
-                    </td>
-                  </ng-container>
-                  <ng-container matColumnDef="valide">
-                    <th
-                      mat-header-cell
-                      *matHeaderCellDef
-                      mat-sort-header="valide"
-                    ></th>
-                    <td mat-cell *matCellDef="let row; dataSource: dataSource">
-                      @if (row.isValide && !row.hasWaarschuwingen) {
-                        <mat-icon
-                          outlined
-                          color="primary"
-                          aria-hidden="false"
-                          [attr.aria-label]="
-                            'health-check.zaaktype.status.valide' | translate
-                          "
-                          >check_circle</mat-icon
-                        >
-                      }
-                      @if (row.isValide && row.hasWaarschuwingen) {
-                        <mat-icon
-                          outlined
-                          class="warning"
-                          aria-hidden="false"
-                          [attr.aria-label]="
-                            'health-check.zaaktype.status.waarschuwing'
-                              | translate
-                          "
-                          >warning</mat-icon
-                        >
-                      }
-                      @if (!row.isValide) {
-                        <mat-icon
-                          outlined
-                          color="warn"
-                          aria-hidden="false"
-                          [attr.aria-label]="
-                            'health-check.zaaktype.status.niet-valide'
-                              | translate
-                          "
-                          >error</mat-icon
-                        >
-                      }
-                    </td>
-                  </ng-container>
-                  <ng-container matColumnDef="expandedPrefix">
-                    <td
-                      mat-cell
-                      *matCellDef="let row; dataSource: dataSource"
-                      colspan="2"
-                    ></td>
-                  </ng-container>
-                  <ng-container matColumnDef="expandedDetail">
-                    <td
-                      mat-cell
-                      *matCellDef="let row; dataSource: dataSource"
-                      [attr.colspan]="columnsToDisplay.length - 2"
-                    >
-                      <div
-                        class="detail"
-                        [@detailExpand]="
-                          row === expandedRow() ? 'expanded' : 'collapsed'
-                        "
-                        [attr.aria-hidden]="row !== expandedRow()"
-                      >
-                        <table
-                          class="bevindingen"
-                          [attr.aria-label]="
-                            'health-check.zaaktype.bevindingen' | translate
-                          "
-                        >
-                          <colgroup>
-                            <col class="bevinding-categorie" />
-                            <col />
-                          </colgroup>
-                          <tbody>
-                            @for (bevinding of bevindingen(row); track $index) {
-                              <tr>
-                                <td>{{ bevinding.categorie | translate }}</td>
-                                <td
-                                  [innerHTML]="
-                                    bevinding.melding
-                                      | translate: bevinding.parameters
-                                  "
-                                ></td>
-                              </tr>
-                            }
-                          </tbody>
-                        </table>
-                      </div>
-                    </td>
-                  </ng-container>
-                  <ng-container matColumnDef="zoekFilter">
-                    <th mat-header-cell *matHeaderCellDef colspan="3">
-                      <mat-form-field subscriptSizing="dynamic">
-                        <mat-label>{{ "filter" | translate }}</mat-label>
-                        <input matInput (keyup)="applyFilter($event)" />
-                      </mat-form-field>
-                    </th>
-                  </ng-container>
-                  <ng-container matColumnDef="valideFilter">
-                    <th mat-header-cell *matHeaderCellDef colspan="2">
-                      <zac-toggle-filter
-                        unCheckedIcon="error"
-                        [selected]="valideFilter()"
-                        (changed)="valideFilter.set($event); applyFilter()"
-                      ></zac-toggle-filter>
-                    </th>
-                  </ng-container>
-                  <tr
-                    mat-header-row
-                    *matHeaderRowDef="columnsToDisplay; sticky: true"
-                  ></tr>
-                  <tr
-                    mat-header-row
-                    *matHeaderRowDef="['valideFilter', 'zoekFilter']"
-                  ></tr>
-                  <tr
-                    (click)="
-                      needsAttention(row)
-                        ? expandedRow.set(expandedRow() === row ? null : row)
-                        : null
-                    "
-                    [class]="rowStateClass(row)"
-                    class="main-row"
-                    mat-row
-                    *matRowDef="let row; columns: columnsToDisplay"
-                  ></tr>
-                  <tr
-                    mat-row
-                    *matRowDef="
+              <table
+                mat-table
+                [dataSource]="zaaktypeInrichtingschecks()"
+                matSort
+                (matSortChange)="sortChanged($event)"
+                multiTemplateDataRows
+              >
+                <ng-container matColumnDef="expand">
+                  <th
+                    mat-header-cell
+                    *matHeaderCellDef
+                    aria-label="row actions"
+                  >
+                    &nbsp;
+                  </th>
+                  <td
+                    mat-cell
+                    *matCellDef="
                       let row;
-                      columns: ['expandedPrefix', 'expandedDetail']
+                      dataSource: zaaktypeInrichtingschecks()
                     "
-                    class="detail-row"
-                  ></tr>
-                </table>
-              }
+                  >
+                    @if (needsAttention(row) && !isExpanded(row)) {
+                      <mat-icon>keyboard_arrow_down</mat-icon>
+                    }
+                    @if (needsAttention(row) && isExpanded(row)) {
+                      <mat-icon>keyboard_arrow_up</mat-icon>
+                    }
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="zaaktypeOmschrijving">
+                  <th
+                    mat-header-cell
+                    *matHeaderCellDef
+                    mat-sort-header="omschrijving"
+                  >
+                    {{ "zaaktype-omschrijving" | translate }}
+                  </th>
+                  <td
+                    mat-cell
+                    *matCellDef="
+                      let row;
+                      dataSource: zaaktypeInrichtingschecks()
+                    "
+                  >
+                    {{ row.zaaktype.omschrijving }}
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="zaaktypeDoel">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header="doel">
+                    {{ "doel" | translate }}
+                  </th>
+                  <td
+                    mat-cell
+                    *matCellDef="
+                      let row;
+                      dataSource: zaaktypeInrichtingschecks()
+                    "
+                  >
+                    <read-more
+                      [text]="row.zaaktype.doel"
+                      [maxLength]="100"
+                    ></read-more>
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="beginGeldigheid">
+                  <th
+                    mat-header-cell
+                    *matHeaderCellDef
+                    mat-sort-header="beginGeldigheid"
+                  >
+                    {{ "begin.geldigheid" | translate }}
+                  </th>
+                  <td
+                    mat-cell
+                    *matCellDef="
+                      let row;
+                      dataSource: zaaktypeInrichtingschecks()
+                    "
+                  >
+                    {{ row.zaaktype.beginGeldigheid | datum }}
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="valide">
+                  <th
+                    mat-header-cell
+                    *matHeaderCellDef
+                    mat-sort-header="valide"
+                  ></th>
+                  <td
+                    mat-cell
+                    *matCellDef="
+                      let row;
+                      dataSource: zaaktypeInrichtingschecks()
+                    "
+                  >
+                    @if (row.isValide && !row.hasWaarschuwingen) {
+                      <mat-icon
+                        outlined
+                        color="primary"
+                        aria-hidden="false"
+                        [attr.aria-label]="
+                          'health-check.zaaktype.status.valide' | translate
+                        "
+                        >check_circle</mat-icon
+                      >
+                    }
+                    @if (row.isValide && row.hasWaarschuwingen) {
+                      <mat-icon
+                        outlined
+                        class="warning"
+                        aria-hidden="false"
+                        [attr.aria-label]="
+                          'health-check.zaaktype.status.waarschuwing'
+                            | translate
+                        "
+                        >warning</mat-icon
+                      >
+                    }
+                    @if (!row.isValide) {
+                      <mat-icon
+                        outlined
+                        color="warn"
+                        aria-hidden="false"
+                        [attr.aria-label]="
+                          'health-check.zaaktype.status.niet-valide' | translate
+                        "
+                        >error</mat-icon
+                      >
+                    }
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="expandedPrefix">
+                  <td
+                    mat-cell
+                    *matCellDef="
+                      let row;
+                      dataSource: zaaktypeInrichtingschecks()
+                    "
+                    colspan="2"
+                  ></td>
+                </ng-container>
+                <ng-container matColumnDef="expandedDetail">
+                  <td
+                    mat-cell
+                    *matCellDef="
+                      let row;
+                      dataSource: zaaktypeInrichtingschecks()
+                    "
+                    [attr.colspan]="columnsToDisplay.length - 2"
+                  >
+                    <div
+                      class="detail"
+                      [@detailExpand]="
+                        isExpanded(row) ? 'expanded' : 'collapsed'
+                      "
+                      [attr.aria-hidden]="!isExpanded(row)"
+                    >
+                      <table
+                        class="bevindingen"
+                        [attr.aria-label]="
+                          'health-check.zaaktype.bevindingen' | translate
+                        "
+                      >
+                        <colgroup>
+                          <col class="bevinding-categorie" />
+                          <col />
+                        </colgroup>
+                        <tbody>
+                          @for (bevinding of bevindingen(row); track $index) {
+                            <tr>
+                              <td>{{ bevinding.categorie | translate }}</td>
+                              <td
+                                [innerHTML]="
+                                  bevinding.melding
+                                    | translate: bevinding.parameters
+                                "
+                              ></td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="zoekFilter">
+                  <th mat-header-cell *matHeaderCellDef colspan="3">
+                    <mat-form-field subscriptSizing="dynamic">
+                      <mat-label>{{ "filter" | translate }}</mat-label>
+                      <input
+                        matInput
+                        [value]="zoektermFilter()"
+                        (input)="zoektermFilterChanged($event)"
+                      />
+                    </mat-form-field>
+                  </th>
+                </ng-container>
+                <ng-container matColumnDef="valideFilter">
+                  <th mat-header-cell *matHeaderCellDef colspan="2">
+                    <zac-toggle-filter
+                      unCheckedIcon="error"
+                      [selected]="valideFilter()"
+                      (changed)="valideFilterChanged($event)"
+                    ></zac-toggle-filter>
+                  </th>
+                </ng-container>
+                <tr
+                  mat-header-row
+                  *matHeaderRowDef="columnsToDisplay; sticky: true"
+                ></tr>
+                <tr
+                  mat-header-row
+                  *matHeaderRowDef="['valideFilter', 'zoekFilter']"
+                ></tr>
+                <tr
+                  (click)="toggleExpanded(row)"
+                  [class]="rowStateClass(row)"
+                  class="main-row"
+                  mat-row
+                  *matRowDef="let row; columns: columnsToDisplay"
+                ></tr>
+                <tr
+                  mat-row
+                  *matRowDef="
+                    let row;
+                    columns: ['expandedPrefix', 'expandedDetail']
+                  "
+                  class="detail-row"
+                ></tr>
+              </table>
             </div>
+            <mat-paginator
+              [length]="totaal()"
+              [pageIndex]="pageIndex()"
+              [pageSize]="pageSize"
+              [hidePageSize]="true"
+              (page)="pageChanged($event)"
+            ></mat-paginator>
             @if (
               zaaktypeInrichtingschecks().length === 0 && !loadingZaaktypes()
             ) {

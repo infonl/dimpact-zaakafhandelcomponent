@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.history.model
@@ -7,9 +7,9 @@ package nl.info.zac.history.model
 import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.zac.time.ZacTime
 import org.apache.commons.lang3.BooleanUtils
 import java.time.LocalDate
-import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -77,7 +77,7 @@ fun Boolean.toValue(): String = BooleanUtils.toString(this, TRUE, FALSE)
 private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 
 private val DATE_TIME_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")
-    .withZone(ZoneId.systemDefault())
+    .withZone(ZacTime.ZONE)
 
 private const val TRUE = "Ja"
 

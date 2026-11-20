@@ -37,7 +37,7 @@ import nl.info.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createTaakRechten
-import java.time.LocalDate
+import nl.info.zac.time.ZacTime
 import java.util.UUID
 
 class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
@@ -298,7 +298,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
 
     context("Sending an enkelvoudig informatie object") {
         val uuid = UUID.randomUUID()
-        val verzenddatum = LocalDate.now()
+        val verzenddatum = ZacTime.today()
         val username = "fakeUsername"
 
         given("A UUID, verzenddatum and a toelichting") {
@@ -370,7 +370,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
             every { enkelvoudigInformatieObjectLockService.deleteLock(uuid) } returns Unit
 
             `when`("ondertekenEnkelvoudigInformatieObject is called") {
-                val today = LocalDate.now()
+                val today = ZacTime.today()
                 enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(uuid)
 
                 then("the ondertekening is set to DIGITAAL with today's date") {

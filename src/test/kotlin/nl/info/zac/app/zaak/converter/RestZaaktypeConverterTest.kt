@@ -17,6 +17,7 @@ import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
 import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
+import nl.info.zac.time.ZacTime
 import java.time.LocalDate
 
 class RestZaaktypeConverterTest : BehaviorSpec({
@@ -72,7 +73,7 @@ class RestZaaktypeConverterTest : BehaviorSpec({
         val zaaktype = createZaakType()
         val zaaktypeUuid = zaaktype.url.extractUuid()
         val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
-        val now = LocalDate.now()
+        val now = ZacTime.today()
         val restZaakafhandelParameters = createRestZaaktypeConfiguration()
 
         every { zaaktypeConfigurationService.findConfiguration(zaaktypeUuid) } returns zaaktypeBpmnConfiguration

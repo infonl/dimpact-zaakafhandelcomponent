@@ -46,8 +46,9 @@ import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
 import nl.info.zac.app.admin.model.createRestZaaktypeOverzicht
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.smartdocuments.SmartDocumentsService
+import nl.info.zac.time.ZacTime
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
-import java.time.LocalDate
+import java.time.ZonedDateTime
 import java.util.UUID
 
 class RestZaakafhandelParametersConverterTest : BehaviorSpec({
@@ -89,7 +90,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
     given("ZaakafhandelParameters CMMN with minimal content") {
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
         val zaakType = createZaakType().apply {
-            beginGeldigheid = LocalDate.now().minusDays(1)
+            beginGeldigheid = ZacTime.today().minusDays(1)
         }
         val resultaatType = createResultaatType()
         val restResultType = resultaatType.toRestResultaatType()
@@ -211,6 +212,64 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         }
     }
 
+    given("a stored configuration and a request that sends another creatiedatum") {
+        val zaaktypeUuid = UUID.randomUUID()
+        val storedCreatiedatum = ZonedDateTime.of(2025, 3, 1, 9, 30, 0, 0, ZacTime.ZONE)
+        val storedConfiguration = createZaaktypeBpmnConfiguration(zaaktypeUUID = zaaktypeUuid).apply {
+            creatiedatum = storedCreatiedatum
+        }
+        val restZaaktypeConfiguration = JsonbBuilder.create().fromJson(
+            """
+            {
+              "zaaktype": { "uuid": "$zaaktypeUuid", "omschrijving": "fakeOmschrijving" },
+              "processDefinition": { "processEngine": "BPMN", "key": "fakeBpmnProcessDefinitionKey" },
+              "defaultGroepId": "fakeGroupId",
+              "creatiedatum": "2000-01-01T00:00:00+01:00",
+              "smartDocuments": { "isEnabledGlobally": false, "isEnabledForZaaktype": false }
+            }
+            """.trimIndent(),
+            RestZaaktypeConfiguration::class.java
+        )
+        every { zaaktypeConfigurationBeheerService.findConfiguration(zaaktypeUuid) } returns storedConfiguration
+
+        `when`("converted to DB model representation") {
+            val zaaktypeConfiguration = restZaaktypeConfigurationConverter.toZaaktypeConfiguration(
+                restZaaktypeConfiguration
+            )
+
+            then("the creatiedatum stays the stored one, because the backend sets it and not the client") {
+                zaaktypeConfiguration.creatiedatum shouldBe storedCreatiedatum
+            }
+        }
+    }
+
+    given("a request for a zaaktype without a stored configuration that sends a creatiedatum") {
+        val zaaktypeUuid = UUID.randomUUID()
+        val restZaaktypeConfiguration = JsonbBuilder.create().fromJson(
+            """
+            {
+              "zaaktype": { "uuid": "$zaaktypeUuid", "omschrijving": "fakeOmschrijving" },
+              "processDefinition": { "processEngine": "BPMN", "key": "fakeBpmnProcessDefinitionKey" },
+              "defaultGroepId": "fakeGroupId",
+              "creatiedatum": "2000-01-01T00:00:00+01:00",
+              "smartDocuments": { "isEnabledGlobally": false, "isEnabledForZaaktype": false }
+            }
+            """.trimIndent(),
+            RestZaaktypeConfiguration::class.java
+        )
+        every { zaaktypeConfigurationBeheerService.findConfiguration(zaaktypeUuid) } returns null
+
+        `when`("converted to DB model representation") {
+            val zaaktypeConfiguration = restZaaktypeConfigurationConverter.toZaaktypeConfiguration(
+                restZaaktypeConfiguration
+            )
+
+            then("the creatiedatum is the current time of the backend") {
+                zaaktypeConfiguration.creatiedatum!!.toLocalDate() shouldBe ZacTime.today()
+            }
+        }
+    }
+
     given(
         """
         a stored BPMN configuration with confirmation email parameters and BRP doelbindingen,
@@ -258,7 +317,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
         val restBpmnProcessDefinition = createRestProcessDefinition(processEngine = ProcessEngine.BPMN)
         val zaakType = createZaakType().apply {
-            beginGeldigheid = LocalDate.now().minusDays(1)
+            beginGeldigheid = ZacTime.today().minusDays(1)
         }
         val resultaatType = createResultaatType()
         val restResultType = resultaatType.toRestResultaatType()

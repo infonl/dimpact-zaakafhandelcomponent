@@ -44,7 +44,7 @@ vngSelectielijst:
   image: openzaak/vng-selectielijst:1.0.6@sha256:80c4c4f7b73889f1d8a816b8633cc4584961b6f8e4f21b7078df26ec4010f76d
 # the nginx of the upstream charts and the container that publishes the ports on the host
 nginx:
-  image: nginxinc/nginx-unprivileged:1.31.7@sha256:09b0d3eda2aa592d2487f284519419015cab010d7df16cd0fe224b585fc60eb6
+  image: nginx/nginx-unprivileged:1.31.9@sha256:0255fc1dcc1d7b358aac20166543e52029fea577413edadb0912f5b928c7e312
 
 # -- one PostGIS server for the databases of every component
 postgres:
@@ -76,7 +76,7 @@ redis:
   image: redis:8.10.3@sha256:1f88291b4c57bdf249f02eb085a8669889b2d2954e91d4de5118a5da6b78dd53
 
 keycloak:
-  image: quay.io/keycloak/keycloak:26.8.2@sha256:3879c623248408de29a5303178b5816c77e8dfef3890c361f8c0bbeaa979ba3b
+  image: quay.io/keycloak/keycloak:26.8.2@sha256:7e66a96e4739239070aeaf72e4c5decf0f7f682cfc725b9f7ea2b336eaba38b3
   # -- the URL of Keycloak in the browser, which is also the issuer of the tokens; set by scripts/kind/up.sh
   hostname: ""
   # -- the e-mail addresses of the test users and groups of the realm, which <NAME>_EMAIL_ADDRESS in
@@ -133,7 +133,7 @@ pabc:
     ZgwZaakregister__CatalogusDomein: ALG
 
 solr:
-  image: solr:9.11.0-slim@sha256:54cec2ced0f2c26436605a7dd5dde5ae78f26d5c0d19a7358349d5cb71fdfc1a
+  image: solr:9.11.0-slim@sha256:5bd2ca3fb2ac07c284d5e135ab970047de43312b6a8af639a988e7872f392e59
 
 opa:
   # -- keep in sync with the OPA of charts/zac
@@ -141,7 +141,7 @@ opa:
 
 officeConverter:
   # -- keep in sync with the office converter of charts/zac
-  image: gotenberg/gotenberg:9.7.0@sha256:3f00eba12da1d3fc1795be0d3ba66e2e97b31087c92ae238ed23937441c7a941
+  image: gotenberg/gotenberg:9.9.0@sha256:2f4945f698c3d02f691a27d56bb8e7ba4585e6ab50bd233329a36eb0423ae587
   username: zac
 
 brpPersonenMock:

@@ -36,6 +36,7 @@ import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.createZaakTypeInformatieObjectType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import nl.info.zac.time.ZacTime
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -53,7 +54,7 @@ class ZtcClientServiceTest : BehaviorSpec({
     val ztcClientService = createZtcClientService(ztcClient)
     val initialUUID = UUID.randomUUID()
     val expectedZaakType = createZaakType()
-    val testStartDateTime = ZonedDateTime.now()
+    val testStartDateTime = ZacTime.now()
     lateinit var initialDateTime: ZonedDateTime
 
     afterEach {

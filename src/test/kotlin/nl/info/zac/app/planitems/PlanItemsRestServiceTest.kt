@@ -59,13 +59,13 @@ import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.task.TaskHistoryService
+import nl.info.zac.time.ZacTime
 import nl.info.zac.time.toDate
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI
 import java.time.LocalDate
-import java.time.ZonedDateTime
 import java.util.UUID
 
 @Suppress("LargeClass")
@@ -128,7 +128,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             val taskDataSlot = slot<Map<String, String>>()
             val zaak = createZaak(
                 zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
-                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
+                uiterlijkeEinddatumAfdoening = ZacTime.today().plusDays(2)
             )
             val loggedInUser = createLoggedInUser()
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
@@ -195,7 +195,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             )
             val zaak = createZaak(
                 zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
-                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
+                uiterlijkeEinddatumAfdoening = ZacTime.today().plusDays(2)
             )
             val loggedInUser = createLoggedInUser()
             val task = createTestTask(id = "fakeTaskId", assignee = "fakeTaakbehandelaarId")
@@ -307,11 +307,11 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     "fakeKey" to "fakeValue",
                     "zaakOpschorten" to "true"
                 ),
-                fataledatum = LocalDate.now().plusDays(1)
+                fataledatum = ZacTime.today().plusDays(1)
             )
             val zaak = createZaak(
                 zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
-                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
+                uiterlijkeEinddatumAfdoening = ZacTime.today().plusDays(2)
             )
             val loggedInUser = createLoggedInUser()
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
@@ -364,11 +364,11 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 taakdata = mapOf(
                     "fakeKey" to "fakeValue"
                 ),
-                fataledatum = LocalDate.now().plusDays(3)
+                fataledatum = ZacTime.today().plusDays(3)
             )
             val zaak = createZaak(
                 zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
-                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
+                uiterlijkeEinddatumAfdoening = ZacTime.today().plusDays(2)
             )
             val loggedInUser = createLoggedInUser()
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
@@ -471,15 +471,15 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 taakdata = mapOf(
                     "fakeKey" to "fakeValue"
                 ),
-                fataledatum = LocalDate.now().plusDays(numberOfDays)
+                fataledatum = ZacTime.today().plusDays(numberOfDays)
             )
             val zaak = createZaak(
                 zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
-                uiterlijkeEinddatumAfdoening = LocalDate.now()
+                uiterlijkeEinddatumAfdoening = ZacTime.today()
             )
             val extendedZaak = createZaak(
                 zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
-                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(numberOfDays)
+                uiterlijkeEinddatumAfdoening = ZacTime.today().plusDays(numberOfDays)
             )
             val zaaktypeCmmnConfigurationMock = mockk<ZaaktypeConfiguration>()
             val loggedInUser = createLoggedInUser()
@@ -558,7 +558,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 val mailGegevensSlot = slot<MailGegevens>()
                 val zaak = createZaak(
                     zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
-                    uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
+                    uiterlijkeEinddatumAfdoening = ZacTime.today().plusDays(2)
                 )
                 val zaaktypeConfiguration = createZaaktypeCmmnConfiguration(zaaktypeUUID = zaakTypeUUID).apply {
                     getOrCreateCmmnExtension().setHumanTaskParametersCollection(
@@ -603,6 +603,11 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                         taskDataSlot.captured shouldBe restHumanTaskData.taakdata
                     }
 
+                    and("the backend sets datumGevraagd only for an aanvullende informatie task") {
+                        taskDataSlot.captured.containsKey("datumGevraagd") shouldBe
+                            (formulierDefinitie == FormulierDefinitie.AANVULLENDE_INFORMATIE)
+                    }
+
                     and("the email belonging to the formulier definitie is sent to the recipient from the task data") {
                         verify(exactly = 1) {
                             mailTemplateService.readDefaultMailTemplate(mail)
@@ -613,6 +618,66 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                             vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                         }
                     }
+                }
+            }
+        }
+
+        given("Task data for an aanvullende informatie task that holds a datumGevraagd chosen by the client") {
+            val restHumanTaskData = createRestHumanTaskData(
+                planItemInstanceId = planItemInstanceId,
+                taakdata = mapOf(
+                    "emailadres" to "example@example.com",
+                    "body" to "body",
+                    "datumGevraagd" to "2000-01-01"
+                ),
+                fataledatum = null
+            )
+            val taskDataSlot = slot<Map<String, String>>()
+            val zaak = createZaak(
+                zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
+                uiterlijkeEinddatumAfdoening = ZacTime.today().plusDays(2)
+            )
+            val zaaktypeConfiguration = createZaaktypeCmmnConfiguration(zaaktypeUUID = zaakTypeUUID).apply {
+                getOrCreateCmmnExtension().setHumanTaskParametersCollection(
+                    listOf(
+                        createHumanTaskParameters(
+                            planItemDefinitionID = planItemInstanceId,
+                            formulierDefinitieID = FormulierDefinitie.AANVULLENDE_INFORMATIE.name,
+                            leadTime = null
+                        )
+                    )
+                )
+            }
+            val loggedInUser = createLoggedInUser()
+            every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
+            every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { zaaktypeConfigurationService.findConfiguration(zaakTypeUUID) } returns zaaktypeConfiguration
+            every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
+            every { mailTemplateService.readDefaultMailTemplate(Mail.TAAK_AANVULLENDE_INFORMATIE) } returns createMailTemplate()
+            every { configurationService.readGemeenteNaam() } returns "gemeenteNaam"
+            every { mailService.getGemeenteMailAdres() } returns createMailAdres()
+            every { mailService.sendMail(any(), any()) } returns "body"
+            every {
+                cmmnService.startHumanTaskPlanItem(
+                    planItemInstanceId = planItemInstanceId,
+                    groupId = restHumanTaskData.groep.id,
+                    assignee = null,
+                    dueDate = any(),
+                    description = restHumanTaskData.toelichting,
+                    taakdata = capture(taskDataSlot),
+                    zaakUUID = zaak.uuid
+                )
+            } just runs
+            every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
+
+            `when`("the human task plan item is started") {
+                planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
+
+                then("the backend sets datumGevraagd to today, whatever the client sent") {
+                    taskDataSlot.captured["datumGevraagd"] shouldBe ZacTime.today().toString()
                 }
             }
         }
@@ -628,7 +693,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             )
             val zaak = createZaak(
                 zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
-                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
+                uiterlijkeEinddatumAfdoening = ZacTime.today().plusDays(2)
             )
             val zaaktypeConfiguration = createZaaktypeCmmnConfiguration(zaaktypeUUID = zaakTypeUUID).apply {
                 getOrCreateCmmnExtension().setHumanTaskParametersCollection(
@@ -729,50 +794,51 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             }
         }
 
-        given("Zaak exists with resultaattype that has afleidingswijze EIGENSCHAP") {
-            val zaak = createZaak(
-                resultaat = null,
-            )
-            val resultaattypeUuid = UUID.randomUUID()
-            val datumkenmerk = "testDatumkenmerk"
-            val brondatumEigenschap = "2023-12-01T00:00:00.000+01:00"
-            val brondatumArchiefprocedure = BrondatumArchiefprocedure().apply {
-                afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP
-            }
-            brondatumArchiefprocedure.datumkenmerk = datumkenmerk
-            val loggedInUser = createLoggedInUser()
-
-            val restUserEventListenerData = createRestUserEventListenerData(
-                zaakUuid = zaak.uuid,
-                actie = UserEventListenerActie.ZAAK_AFHANDELEN,
-                restMailGegevens = null,
-                resultaattypeUuid = resultaattypeUuid,
-                brondatum = brondatumEigenschap
-            )
-
-            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
-            every {
-                zgwApiService.closeZaak(
-                    zaak = zaak,
-                    resultaatTypeUUID = resultaattypeUuid,
-                    description = null,
-                    brondatum = ZonedDateTime.parse(brondatumEigenschap).toLocalDate()
+        listOf("2023-12-01", "2023-12-01T00:00:00.000+01:00").forEach { brondatum ->
+            given("Zaak exists with resultaattype that has afleidingswijze EIGENSCHAP and the brondatum '$brondatum'") {
+                val zaak = createZaak(
+                    resultaat = null,
                 )
-            } just runs
-            every { loggedInUserInstance.get() } returns loggedInUser
+                val resultaattypeUuid = UUID.randomUUID()
+                val datumkenmerk = "testDatumkenmerk"
+                val brondatumArchiefprocedure = BrondatumArchiefprocedure().apply {
+                    afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP
+                }
+                brondatumArchiefprocedure.datumkenmerk = datumkenmerk
+                val loggedInUser = createLoggedInUser()
 
-            `when`("the user event listener plan item is processed") {
-                planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+                val restUserEventListenerData = createRestUserEventListenerData(
+                    zaakUuid = zaak.uuid,
+                    actie = UserEventListenerActie.ZAAK_AFHANDELEN,
+                    restMailGegevens = null,
+                    resultaattypeUuid = resultaattypeUuid,
+                    brondatum = brondatum
+                )
 
-                then("the zaak is closed") {
-                    verify(exactly = 1) {
-                        zgwApiService.closeZaak(
-                            zaak = zaak,
-                            resultaatTypeUUID = resultaattypeUuid,
-                            description = null,
-                            brondatum = ZonedDateTime.parse(brondatumEigenschap).toLocalDate()
-                        )
+                every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+                every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
+                every {
+                    zgwApiService.closeZaak(
+                        zaak = zaak,
+                        resultaatTypeUUID = resultaattypeUuid,
+                        description = null,
+                        brondatum = LocalDate.of(2023, 12, 1)
+                    )
+                } just runs
+                every { loggedInUserInstance.get() } returns loggedInUser
+
+                `when`("the user event listener plan item is processed") {
+                    planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+
+                    then("the zaak is closed with the brondatum 1 December 2023") {
+                        verify(exactly = 1) {
+                            zgwApiService.closeZaak(
+                                zaak = zaak,
+                                resultaatTypeUUID = resultaattypeUuid,
+                                description = null,
+                                brondatum = LocalDate.of(2023, 12, 1)
+                            )
+                        }
                     }
                 }
             }
@@ -1105,30 +1171,31 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             }
         }
 
-        given("Zaak with a valid brondatum when setting the brondatum") {
-            val zaak = createZaak(resultaat = null)
-            val brondatum = "2023-12-01T00:00:00.000+01:00"
-            val restUserEventListenerData = createRestUserEventListenerData(
-                zaakUuid = zaak.uuid,
-                actie = UserEventListenerActie.BRONDATUM_ZETTEN,
-                restMailGegevens = null,
-                brondatum = brondatum
-            )
-            val loggedInUser = createLoggedInUser()
+        listOf("2023-12-01", "2023-12-01T00:00:00.000+01:00").forEach { brondatum ->
+            given("Zaak with the valid brondatum '$brondatum' when setting the brondatum") {
+                val zaak = createZaak(resultaat = null)
+                val restUserEventListenerData = createRestUserEventListenerData(
+                    zaakUuid = zaak.uuid,
+                    actie = UserEventListenerActie.BRONDATUM_ZETTEN,
+                    restMailGegevens = null,
+                    brondatum = brondatum
+                )
+                val loggedInUser = createLoggedInUser()
 
-            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(brondatumZetten = true)
-            every {
-                zgwApiService.setBrondatum(zaak, ZonedDateTime.parse(brondatum).toLocalDate())
-            } just runs
-            every { loggedInUserInstance.get() } returns loggedInUser
+                every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+                every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(brondatumZetten = true)
+                every {
+                    zgwApiService.setBrondatum(zaak, LocalDate.of(2023, 12, 1))
+                } just runs
+                every { loggedInUserInstance.get() } returns loggedInUser
 
-            `when`("doUserEventListenerPlanItem is called to set the brondatum") {
-                planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+                `when`("doUserEventListenerPlanItem is called to set the brondatum") {
+                    planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
 
-                then("processBrondatumProcedure should be called with the parsed brondatum") {
-                    verify(exactly = 1) {
-                        zgwApiService.setBrondatum(zaak, ZonedDateTime.parse(brondatum).toLocalDate())
+                    then("the brondatum of the zaak is set to 1 December 2023") {
+                        verify(exactly = 1) {
+                            zgwApiService.setBrondatum(zaak, LocalDate.of(2023, 12, 1))
+                        }
                     }
                 }
             }

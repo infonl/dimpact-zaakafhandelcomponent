@@ -3,94 +3,91 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import moment from "moment";
 import { DateConditionals } from "./date-conditionals";
 
 describe(DateConditionals.name, () => {
   describe(DateConditionals.isExceeded.name, () => {
-    const now = moment("2024-01-15T12:00:00Z");
-
     it.each([
       {
         description:
           "should return true if the control value is 1 day before the actual date",
-        value: now.clone().subtract(1, "days").toISOString(),
-        actualDate: now.toISOString(),
+        value: "2024-01-14T13:00:00.000+01:00",
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: true,
       },
       {
         description:
           "should return false if the control value is 1 day after the actual date",
-        value: now.clone().add(1, "days").toISOString(),
-        actualDate: now.toISOString(),
+        value: "2024-01-16T13:00:00.000+01:00",
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: false,
       },
       {
         description:
           "should return false if the control value is the same day as the actual date",
-        value: now.toISOString(),
-        actualDate: now.toISOString(),
+        value: "2024-01-15T13:00:00.000+01:00",
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: false,
       },
       {
         description: "should return false if the control value is null",
         value: null,
-        actualDate: now.toISOString(),
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: false,
       },
       {
         description: "should return false if the control value is empty string",
         value: "",
-        actualDate: now.toISOString(),
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: false,
       },
       {
         description:
           "should return true if the control value is 1 week before the actual date",
-        value: now.clone().subtract(1, "weeks").toISOString(),
-        actualDate: now.toISOString(),
+        value: "2024-01-08T13:00:00.000+01:00",
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: true,
       },
       {
         description:
           "should return false if the control value is 1 week after the actual date",
-        value: now.clone().add(1, "weeks").toISOString(),
-        actualDate: now.toISOString(),
+        value: "2024-01-22T13:00:00.000+01:00",
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: false,
       },
       {
         description:
           "should return true if the control value is 1 month before the actual date",
-        value: now.clone().subtract(1, "months").toISOString(),
-        actualDate: now.toISOString(),
+        value: "2023-12-15T13:00:00.000+01:00",
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: true,
       },
       {
         description:
           "should return false if the control value is 1 month after the actual date",
-        value: now.clone().add(1, "months").toISOString(),
-        actualDate: now.toISOString(),
+        value: "2024-02-15T13:00:00.000+01:00",
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: false,
       },
       {
         description:
           "should return true if the control value is 1 year before the actual date",
-        value: now.clone().subtract(1, "years").toISOString(),
-        actualDate: now.toISOString(),
+        value: "2023-01-15T13:00:00.000+01:00",
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: true,
       },
       {
         description:
           "should return false if the control value is 1 year after the actual date",
-        value: now.clone().add(1, "years").toISOString(),
-        actualDate: now.toISOString(),
+        value: "2025-01-15T13:00:00.000+01:00",
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: false,
       },
       {
         description:
           "should return false if the control value is hours before the actual date but same day",
-        value: now.clone().subtract(6, "hours").toISOString(),
-        actualDate: now.toISOString(),
+        value: "2024-01-15T07:00:00.000+01:00",
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: false,
       },
       {
@@ -114,89 +111,87 @@ describe(DateConditionals.name, () => {
   });
 
   describe(DateConditionals.isPreceded.name, () => {
-    const now = moment("2024-01-15T12:00:00Z");
-
     it.each([
       {
         description:
           "should return false if the control value is 1 day before the actual date",
-        value: now.clone().subtract(1, "days").toISOString(),
-        actualDate: now.toISOString(),
+        value: "2024-01-14T13:00:00.000+01:00",
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: false,
       },
       {
         description:
           "should return true if the control value is 1 day after the actual date",
-        value: now.clone().add(1, "days").toISOString(),
-        actualDate: now.toISOString(),
+        value: "2024-01-16T13:00:00.000+01:00",
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: true,
       },
       {
         description:
           "should return false if the control value is the same day as the actual date",
-        value: now.toISOString(),
-        actualDate: now.toISOString(),
+        value: "2024-01-15T13:00:00.000+01:00",
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: false,
       },
       {
         description: "should return false if the control value is null",
         value: null,
-        actualDate: now.toISOString(),
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: false,
       },
       {
         description: "should return false if the control value is empty string",
         value: "",
-        actualDate: now.toISOString(),
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: false,
       },
       {
         description:
           "should return false if the control value is 1 week before the actual date",
-        value: now.clone().subtract(1, "weeks").toISOString(),
-        actualDate: now.toISOString(),
+        value: "2024-01-08T13:00:00.000+01:00",
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: false,
       },
       {
         description:
           "should return true if the control value is 1 week after the actual date",
-        value: now.clone().add(1, "weeks").toISOString(),
-        actualDate: now.toISOString(),
+        value: "2024-01-22T13:00:00.000+01:00",
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: true,
       },
       {
         description:
           "should return false if the control value is 1 month before the actual date",
-        value: now.clone().subtract(1, "months").toISOString(),
-        actualDate: now.toISOString(),
+        value: "2023-12-15T13:00:00.000+01:00",
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: false,
       },
       {
         description:
           "should return true if the control value is 1 month after the actual date",
-        value: now.clone().add(1, "months").toISOString(),
-        actualDate: now.toISOString(),
+        value: "2024-02-15T13:00:00.000+01:00",
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: true,
       },
       {
         description:
           "should return false if the control value is 1 year before the actual date",
-        value: now.clone().subtract(1, "years").toISOString(),
-        actualDate: now.toISOString(),
+        value: "2023-01-15T13:00:00.000+01:00",
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: false,
       },
       {
         description:
           "should return true if the control value is 1 year after the actual date",
-        value: now.clone().add(1, "years").toISOString(),
-        actualDate: now.toISOString(),
+        value: "2025-01-15T13:00:00.000+01:00",
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: true,
       },
       {
         description:
           "should return false if the control value is hours after the actual date but same day",
-        value: now.clone().add(6, "hours").toISOString(),
-        actualDate: now.toISOString(),
+        value: "2024-01-15T19:00:00.000+01:00",
+        actualDate: "2024-01-15T13:00:00.000+01:00",
         expected: false,
       },
       {
@@ -216,6 +211,14 @@ describe(DateConditionals.name, () => {
     ])("$description", ({ value, actualDate, expected }) => {
       const result = DateConditionals.isPreceded(value ?? "", actualDate);
       expect(result).toBe(expected);
+    });
+  });
+
+  describe(DateConditionals.always.name, () => {
+    it("meets the condition for any date", () => {
+      jest.spyOn(console, "warn").mockImplementation();
+
+      expect(DateConditionals.always("2026-01-30")).toBe(true);
     });
   });
 });

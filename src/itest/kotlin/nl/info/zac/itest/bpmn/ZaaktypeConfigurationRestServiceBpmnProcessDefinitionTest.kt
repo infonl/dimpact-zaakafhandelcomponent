@@ -19,12 +19,12 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_VERSION_2_RESULTAATTYPE_VERLEEND_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_VERSION_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.util.nowInZac
 import nl.info.zac.itest.util.queryZacDatabase
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_OK
-import java.time.ZonedDateTime
 import java.util.UUID
 
 private const val ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHANGE = "\"msg.error.process.definition.cannot.change\""
@@ -154,7 +154,7 @@ class ZaaktypeConfigurationRestServiceBpmnProcessDefinitionTest : BehaviorSpec({
     given("a BPMN zaaktype version with a zaak") {
         zaakHelper.createZaak(
             zaaktypeUuid = ZAAKTYPE_BPMN_TEST_1_UUID,
-            startDate = ZonedDateTime.now().minusDays(1),
+            startDate = nowInZac().minusDays(1),
             testUser = BEHANDELAAR_1
         )
 

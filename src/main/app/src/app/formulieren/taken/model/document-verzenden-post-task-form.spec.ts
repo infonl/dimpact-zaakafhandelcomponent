@@ -1,18 +1,28 @@
-/*
+/**
  * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
+ *
+ * @jest-environment <rootDir>/jest-environment-browser-time-zone.js
+ * @browser-time-zone America/New_York
  */
 
 import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
+import { FormGroup } from "@angular/forms";
 import { TranslateService, provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import moment from "moment";
 import { sleep, testQueryClient } from "../../../../../setupJest";
 import { createQueryOptions, fromPartial } from "../../../../test-helpers";
+import {
+  isPickedDate,
+  toApiDate,
+  toPickedDate,
+  today,
+} from "../../../date-time";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { FormField } from "../../../shared/form/composed-form/form-field.types";
 import { GeneratedType } from "../../../shared/utils/generated-types";
+import { mapFormGroupToTaskData } from "../taak.utils";
 import { DocumentVerzendenPostTaskForm } from "./document-verzenden-post-task-form";
 
 describe(DocumentVerzendenPostTaskForm.name, () => {
@@ -370,29 +380,58 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
         expect(control?.errors?.["required"]).toBeDefined();
       });
 
-      it("should default verzenddatum to today (moment) when taakdata is empty", async () => {
+      it("should default verzenddatum to today when taakdata is empty", async () => {
         const fields = await formulier.handleForm(baseTaak);
 
         const value = fields.find((field) => field.key === "verzenddatum")
           ?.control?.value;
-        expect(moment.isMoment(value)).toBe(true);
-        expect((value as moment.Moment).isSame(moment(), "day")).toBe(true);
+        expect(isPickedDate(value) && toApiDate(value)).toBe(
+          toApiDate(today()),
+        );
       });
 
       it("should pre-fill verzenddatum from taakdata when present", async () => {
         const taakWithDate = fromPartial<GeneratedType<"RestTask">>({
           ...baseTaak,
-          taakdata: { verzenddatum: "2026-03-15T00:00:00.000Z" },
+          taakdata: { verzenddatum: "2026-03-15" },
         });
 
         const fields = await formulier.handleForm(taakWithDate);
 
         const value = fields.find((field) => field.key === "verzenddatum")
           ?.control?.value;
-        expect(moment.isMoment(value)).toBe(true);
-        expect(
-          (value as moment.Moment).isSame(moment("2026-03-15T00:00:00.000Z")),
-        ).toBe(true);
+        expect(isPickedDate(value) && toApiDate(value)).toBe("2026-03-15");
+      });
+
+      it("sends back an unchanged verzenddatum saved with a time as its date in Europe/Amsterdam, whatever the time zone of the browser", async () => {
+        const taakWithLegacyDate = fromPartial<GeneratedType<"RestTask">>({
+          ...baseTaak,
+          taakdata: { verzenddatum: "2026-01-29T23:00:00.000Z" },
+        });
+
+        const fields = await formulier.handleForm(taakWithLegacyDate);
+        const verzenddatum = fields.find(
+          (field) => field.key === "verzenddatum",
+        )?.control;
+        const formGroup = new FormGroup({ verzenddatum: verzenddatum! });
+
+        expect(mapFormGroupToTaskData(formGroup, {})).toEqual({
+          verzenddatum: "2026-01-30",
+        });
+      });
+
+      it("puts the picked verzenddatum in the task data as a date without a time", async () => {
+        const fields = await formulier.handleForm(baseTaak);
+        const verzenddatum = fields.find(
+          (field) => field.key === "verzenddatum",
+        )?.control;
+        verzenddatum?.setValue(toPickedDate("2026-03-15"));
+
+        const formGroup = new FormGroup({ verzenddatum: verzenddatum! });
+
+        expect(mapFormGroupToTaskData(formGroup, {})).toEqual({
+          verzenddatum: "2026-03-15",
+        });
       });
     });
 

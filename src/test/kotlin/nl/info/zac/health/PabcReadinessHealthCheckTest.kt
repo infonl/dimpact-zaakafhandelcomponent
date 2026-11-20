@@ -11,7 +11,9 @@ import io.mockk.every
 import io.mockk.mockk
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.model.createApplicationRolesResponse
+import nl.info.zac.time.ZacTime
 import org.eclipse.microprofile.health.HealthCheckResponse
+import java.time.OffsetDateTime
 
 class PabcReadinessHealthCheckTest : BehaviorSpec({
     val pabcClientService = mockk<PabcClientService>()
@@ -48,13 +50,14 @@ class PabcReadinessHealthCheckTest : BehaviorSpec({
             `when`("the health check is called") {
                 val healthCheckResponse = pabcReadinessHealthCheck.call()
 
-                then("the health check should return DOWN status with error") {
+                then("the health check returns DOWN with the error and the time with the offset of Europe/Amsterdam") {
                     healthCheckResponse.status shouldBe HealthCheckResponse.Status.DOWN
                     healthCheckResponse.name shouldBe "nl.info.zac.health.PabcReadinessHealthCheck"
 
                     with(healthCheckResponse.data.get()) {
                         get("error") shouldBe runtimeException.message
-                        containsKey("time") shouldBe true
+                        val time = OffsetDateTime.parse(get("time").toString())
+                        time.offset shouldBe ZacTime.ZONE.rules.getOffset(time.toInstant())
                     }
                 }
             }

@@ -16,8 +16,7 @@ import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
 import nl.info.zac.document.detacheddocument.repository.model.createDetachedDocument
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.enkelvoudiginformatieobject.model.createEnkelvoudigInformatieObjectLock
-import java.time.LocalDate
-import java.time.ZonedDateTime
+import nl.info.zac.time.ZacTime
 import java.util.UUID
 
 class RestDetachedDocumentConverterTest : BehaviorSpec({
@@ -102,8 +101,8 @@ class RestDetachedDocumentConverterTest : BehaviorSpec({
             titel = "Zonder lock"
             bestandsnaam = "bestand.pdf"
             zaakID = "ZAAK-999"
-            creatiedatum = LocalDate.now()
-            ontkoppeldOp = ZonedDateTime.now()
+            creatiedatum = ZacTime.today()
+            ontkoppeldOp = ZacTime.now()
             reden = "Geen lock"
         }
 

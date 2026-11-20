@@ -32,10 +32,10 @@ import { MatTableModule } from "@angular/material/table";
 import { Router } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
-import moment from "moment";
 import { Subject, takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { UtilService } from "../../../core/service/util.service";
+import { PickedDate, toApiDate } from "../../../date-time";
 import { TypedMatCellDefDirective } from "../../../shared/directives/typed-mat-cell-def.directive";
 import { trackControl } from "../../../shared/form/control-state";
 import { ZacDate } from "../../../shared/form/date/date";
@@ -115,7 +115,7 @@ export class PersoonZoekComponent implements OnInit, DoCheck, OnDestroy {
       CustomValidators.bsn,
       Validators.maxLength(BSN_LENGTH),
     ]),
-    geboortedatum: this.formBuilder.control<moment.Moment | null>(null),
+    geboortedatum: this.formBuilder.control<PickedDate | null>(null),
     voornamen: this.formBuilder.control<string | null>(null, [
       Validators.maxLength(50),
     ]),
@@ -148,7 +148,7 @@ export class PersoonZoekComponent implements OnInit, DoCheck, OnDestroy {
       this.getValidQueries(
         {
           ...form.value,
-          geboortedatum: form.value.geboortedatum?.toISOString(),
+          geboortedatum: toApiDate(form.value.geboortedatum),
         },
         true,
       ).length > 0,
@@ -175,7 +175,7 @@ export class PersoonZoekComponent implements OnInit, DoCheck, OnDestroy {
       .subscribe((value) => {
         const parameters = {
           ...value,
-          geboortedatum: value.geboortedatum?.toISOString(),
+          geboortedatum: toApiDate(value.geboortedatum),
         };
         this.updateControls(this.getValidQueries(parameters, false));
       });
@@ -321,7 +321,7 @@ export class PersoonZoekComponent implements OnInit, DoCheck, OnDestroy {
       this.klantenService.listPersonen(
         {
           ...value,
-          geboortedatum: value.geboortedatum?.toISOString(),
+          geboortedatum: toApiDate(value.geboortedatum),
           gemeenteVanInschrijving:
             typeof value.gemeenteVanInschrijving === "string"
               ? value.gemeenteVanInschrijving

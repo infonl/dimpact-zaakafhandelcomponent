@@ -15,8 +15,8 @@ import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
-import moment, { Moment } from "moment";
 import { UtilService } from "../../../core/service/util.service";
+import { PickedDate, startOfDay, toApiDate } from "../../../date-time";
 import { ZacDate } from "../../../shared/form/date/date";
 import { ZacFormActions } from "../../../shared/form/form-actions/form-actions.component";
 import { ZacInput } from "../../../shared/form/input/input";
@@ -77,7 +77,7 @@ export class BesluitIntrekkenDialogComponent {
   );
 
   protected readonly form = this.formBuilder.group({
-    vervaldatum: this.formBuilder.control<Moment | null>(
+    vervaldatum: this.formBuilder.control<PickedDate | null>(
       null,
       Validators.required,
     ),
@@ -107,9 +107,7 @@ export class BesluitIntrekkenDialogComponent {
   constructor() {
     if (this.besluit.ingangsdatum) {
       this.form.controls.vervaldatum.addValidators(
-        Validators.min(
-          moment(this.besluit.ingangsdatum).startOf("day").valueOf(),
-        ),
+        Validators.min(startOfDay(this.besluit.ingangsdatum).valueOf()),
       );
       this.form.controls.vervaldatum.updateValueAndValidity({
         emitEvent: false,
@@ -125,7 +123,7 @@ export class BesluitIntrekkenDialogComponent {
     const { vervaldatum, vervalreden, toelichting } = this.form.getRawValue();
     this.mutation.mutate({
       besluitUuid: this.besluit.uuid,
-      vervaldatum: vervaldatum?.toISOString(),
+      vervaldatum: toApiDate(vervaldatum),
       vervalreden: vervalreden?.value ?? "",
       reden: toelichting ?? "",
     });

@@ -1176,7 +1176,7 @@ class ZgwApiServiceTest : BehaviorSpec({
                     datumkenmerk = datumkenmerk
                 )
             )
-            val brondatum = LocalDate.now().minusDays(1)
+            val brondatum = ZacTime.today().minusDays(1)
 
             every { zrcClientService.readResultaat(resultaatURI) } returns resultaat
             every { ztcClientService.readResultaattype(resultaatTypeURI) } returns resultaatType
@@ -1307,7 +1307,7 @@ class ZgwApiServiceTest : BehaviorSpec({
 
     context("Creating a ZaakInformatieobject for zaak") {
         given("Valid input data for creating a ZaakInformatieobject") {
-            val today = LocalDate.now()
+            val today = ZacTime.today()
             val todayAtStartOfDay = today.atStartOfDay(ZacTime.ZONE).toOffsetDateTime()
             val zaak = createZaak()
             val enkelvoudigInformatieObjectCreateLockRequest = createEnkelvoudigInformatieObjectCreateLockRequest()

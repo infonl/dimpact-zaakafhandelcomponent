@@ -19,9 +19,9 @@ import nl.info.zac.document.detacheddocument.repository.DetachedDocumentReposito
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocumentListParameters
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocumentResult
+import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.time.ZonedDateTime
 import java.util.UUID
 
 @ApplicationScoped
@@ -44,7 +44,7 @@ class DetachedDocumentService @Inject constructor(
             creatiedatum = enkelvoudigInformatieObject.getCreatiedatum()
             titel = enkelvoudigInformatieObject.getTitel()
             bestandsnaam = enkelvoudigInformatieObject.getBestandsnaam()
-            ontkoppeldOp = ZonedDateTime.now()
+            ontkoppeldOp = ZacTime.now()
             ontkoppeldDoor = loggedInUserInstance.get().username
             zaakID = zaak.getIdentificatie()
             reden = reason

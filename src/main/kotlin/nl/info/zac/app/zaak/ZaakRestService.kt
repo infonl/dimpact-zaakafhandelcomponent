@@ -100,9 +100,10 @@ import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.toLocalDate
+import nl.info.zac.util.toValidatedLocalDate
 import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.ZaakKoppelenService
 import nl.info.zac.zaak.ZaakService
@@ -197,7 +198,7 @@ class ZaakRestService @Inject constructor(
             zaak = zaak,
             resultaatTypeUUID = afsluitenGegevens.resultaattypeUuid,
             description = afsluitenGegevens.reden,
-            brondatum = afsluitenGegevens.brondatum?.let(String::toLocalDate)
+            brondatum = afsluitenGegevens.brondatum?.toValidatedLocalDate()
         )
         return zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID).let { (closedZaak, closedZaakType) ->
             val closedZaakRechten = policyService.readZaakRechten(
@@ -434,7 +435,7 @@ class ZaakRestService @Inject constructor(
     @GET
     @Path("waarschuwing")
     fun listZaakWarnings(): List<RestZaakOverzicht> {
-        val vandaag = LocalDate.now()
+        val vandaag = ZacTime.today()
         val einddatumGeplandWaarschuwing = mutableMapOf<UUID, LocalDate>()
         val uiterlijkeEinddatumAfdoeningWaarschuwing = mutableMapOf<UUID, LocalDate>()
         val loggedInUser = loggedInUserInstance.get()
@@ -762,8 +763,6 @@ class ZaakRestService @Inject constructor(
         val updatedZaak = suspensionZaakHelper.extendZaak(
             zaak = zaak,
             zaakType = zaakType,
-            dueDate = restZaakVerlengGegevens.einddatumGepland,
-            fatalDate = restZaakVerlengGegevens.uiterlijkeEinddatumAfdoening,
             extensionReason = restZaakVerlengGegevens.redenVerlenging,
             numberOfDays = restZaakVerlengGegevens.duurDagen
         )

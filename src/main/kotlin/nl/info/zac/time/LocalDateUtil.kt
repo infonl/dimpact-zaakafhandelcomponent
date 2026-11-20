@@ -6,6 +6,7 @@ package nl.info.zac.time
 
 import nl.info.client.zgw.ztc.model.generated.BesluitType
 import java.time.LocalDate
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
@@ -26,3 +27,10 @@ fun dateNowIsBetween(besluitType: BesluitType): Boolean =
     dateNowIsBetween(begin = besluitType.beginGeldigheid, end = besluitType.eindeGeldigheid)
 
 fun String.toFormattedDate(): String = LocalDate.parse(this).format(DATE_FORMATTER)
+
+fun String.toLocalDate(): LocalDate =
+    if (any { it in "+TZ" }) {
+        ZonedDateTime.parse(this).withZoneSameInstant(ZacTime.ZONE).toLocalDate()
+    } else {
+        LocalDate.parse(this)
+    }

@@ -24,6 +24,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BESLUIT_PUBLICATION_DATE_MISSING_TYPE
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BESLUIT_RESPONSE_DATE_MISSING_TYPE
+import nl.info.zac.time.ZacTime
 import java.time.LocalDate
 import java.util.UUID
 
@@ -79,8 +80,8 @@ class BesluitServiceTest : BehaviorSpec({
             besluitType.publicatieIndicatie(true)
             val besluitToCreate = createBesluit(
                 besluittypeUri = besluitType.url,
-                publicationDate = LocalDate.now(),
-                reactionDate = LocalDate.now().plusDays(3)
+                publicationDate = ZacTime.today(),
+                reactionDate = ZacTime.today().plusDays(3)
             )
             val informatieobjectUuid = UUID.randomUUID()
 
@@ -139,8 +140,8 @@ class BesluitServiceTest : BehaviorSpec({
             besluitType.publicatieIndicatie(false)
             val besluitToCreate = createBesluit(
                 besluittypeUri = besluitType.url,
-                publicationDate = LocalDate.now(),
-                reactionDate = LocalDate.now().plusDays(3)
+                publicationDate = ZacTime.today(),
+                reactionDate = ZacTime.today().plusDays(3)
             )
 
             every { ztcClientService.readBesluittype(besluitType.url.extractUuid()) } returns besluitType
@@ -159,7 +160,7 @@ class BesluitServiceTest : BehaviorSpec({
 
         given("a besluit type with enabled publication and a besluit with only a publication date") {
             besluitType.publicatieIndicatie(true)
-            val besluitToCreate = createBesluit(besluittypeUri = besluitType.url, publicationDate = LocalDate.now())
+            val besluitToCreate = createBesluit(besluittypeUri = besluitType.url, publicationDate = ZacTime.today())
 
             every { ztcClientService.readBesluittype(besluitType.url.extractUuid()) } returns besluitType
 
@@ -177,7 +178,7 @@ class BesluitServiceTest : BehaviorSpec({
 
         given("a besluit type with enabled publication and a besluit with only a response date") {
             besluitType.publicatieIndicatie(true)
-            val besluitToCreate = createBesluit(besluittypeUri = besluitType.url, reactionDate = LocalDate.now())
+            val besluitToCreate = createBesluit(besluittypeUri = besluitType.url, reactionDate = ZacTime.today())
 
             every { ztcClientService.readBesluittype(besluitType.url.extractUuid()) } returns besluitType
 
@@ -195,8 +196,8 @@ class BesluitServiceTest : BehaviorSpec({
 
         given("enabled publication and a besluit with a response date before the calculated response date") {
             besluitType.publicatieIndicatie(true)
-            val publicationDate = LocalDate.now()
-            val responseDate = LocalDate.now().plusDays(1)
+            val publicationDate = ZacTime.today()
+            val responseDate = ZacTime.today().plusDays(1)
             val besluitToCreate = createBesluit(
                 besluittypeUri = besluitType.url,
                 publicationDate = publicationDate,
@@ -223,8 +224,8 @@ class BesluitServiceTest : BehaviorSpec({
         given("a besluit and a patch with publication and response dates and an informatieobject") {
             besluitType.publicatieIndicatie(true)
             val besluitPatch = createNillableDatesBesluitPatch(
-                publicatiedatum = LocalDate.now(),
-                uiterlijkeReactiedatum = LocalDate.now().plusDays(3)
+                publicatiedatum = ZacTime.today(),
+                uiterlijkeReactiedatum = ZacTime.today().plusDays(3)
             )
             val informatieobjectUuid = UUID.randomUUID()
 
@@ -293,8 +294,8 @@ class BesluitServiceTest : BehaviorSpec({
         given("a besluit type that cannot have publications and a patch with a publication date") {
             besluitType.publicatieIndicatie(false)
             val besluitPatch = createNillableDatesBesluitPatch(
-                publicatiedatum = LocalDate.now(),
-                uiterlijkeReactiedatum = LocalDate.now().plusDays(3)
+                publicatiedatum = ZacTime.today(),
+                uiterlijkeReactiedatum = ZacTime.today().plusDays(3)
             )
 
             every { ztcClientService.readBesluittype(besluit.besluittype.extractUuid()) } returns besluitType
@@ -318,7 +319,7 @@ class BesluitServiceTest : BehaviorSpec({
 
         given("a besluit type with enabled publications and a patch without a publication date") {
             besluitType.publicatieIndicatie(true)
-            val besluitPatch = createNillableDatesBesluitPatch(uiterlijkeReactiedatum = LocalDate.now())
+            val besluitPatch = createNillableDatesBesluitPatch(uiterlijkeReactiedatum = ZacTime.today())
 
             every { ztcClientService.readBesluittype(besluit.besluittype.extractUuid()) } returns besluitType
 
@@ -341,7 +342,7 @@ class BesluitServiceTest : BehaviorSpec({
 
         given("a besluit type with enabled publications and a patch without a response date") {
             besluitType.publicatieIndicatie(true)
-            val besluitPatch = createNillableDatesBesluitPatch(publicatiedatum = LocalDate.now())
+            val besluitPatch = createNillableDatesBesluitPatch(publicatiedatum = ZacTime.today())
 
             every { ztcClientService.readBesluittype(besluit.besluittype.extractUuid()) } returns besluitType
 
@@ -364,8 +365,8 @@ class BesluitServiceTest : BehaviorSpec({
 
         given("enabled publications and a patch with a response date before the calculated response date") {
             besluitType.publicatieIndicatie(true)
-            val publicationDate = LocalDate.now().plusDays(1)
-            val responseDate = LocalDate.now().plusDays(1)
+            val publicationDate = ZacTime.today().plusDays(1)
+            val responseDate = ZacTime.today().plusDays(1)
             val besluitPatch = createNillableDatesBesluitPatch(
                 publicatiedatum = publicationDate,
                 uiterlijkeReactiedatum = responseDate

@@ -9,7 +9,6 @@ import {
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
-import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
@@ -19,6 +18,7 @@ import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
+import { provideZacDateAdapter } from "../../date-time";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BesluitIntrekkenDialogComponent } from "./besluit-intrekken-dialog/besluit-intrekken-dialog.component";
 import { BesluitViewComponent } from "./besluit-view.component";
@@ -73,7 +73,7 @@ describe(BesluitViewComponent.name, () => {
         provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
-        provideMomentDateAdapter(),
+        provideZacDateAdapter(),
       ],
     });
 

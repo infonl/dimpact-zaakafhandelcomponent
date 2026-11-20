@@ -9,6 +9,13 @@ export type PickedDate = Date | Moment;
 
 const API_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
 
+const ZAC_CALENDAR = new Intl.DateTimeFormat("en-US", {
+  timeZone: "Europe/Amsterdam",
+  year: "numeric",
+  month: "numeric",
+  day: "numeric",
+});
+
 const pad = (value: number) => String(value).padStart(2, "0");
 
 export function toApiDate(value: PickedDate | null | undefined) {
@@ -29,10 +36,15 @@ export function fromApiDate(value: string | null | undefined) {
   }
   const instant = moment(value, moment.ISO_8601, true);
   if (!instant.isValid()) return null;
-  const localDate = instant.toDate();
+  const calendarDate = Object.fromEntries(
+    ZAC_CALENDAR.formatToParts(instant.toDate()).map(({ type, value }) => [
+      type,
+      Number(value),
+    ]),
+  );
   return new Date(
-    localDate.getFullYear(),
-    localDate.getMonth(),
-    localDate.getDate(),
+    calendarDate["year"],
+    calendarDate["month"] - 1,
+    calendarDate["day"],
   );
 }

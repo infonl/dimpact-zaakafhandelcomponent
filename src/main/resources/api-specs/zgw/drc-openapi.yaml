@@ -7610,7 +7610,7 @@ components:
             properties:
               informatieobjecttype:
                 allOf:
-                - $ref: https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.2.0/src/openapi.yaml#/components/schemas/InformatieObjectType
+                - $ref: './ztc-openapi.yaml#/components/schemas/InformatieObjectType'
                 description: URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi
                   API).
     ExpandGebruiksrechten:

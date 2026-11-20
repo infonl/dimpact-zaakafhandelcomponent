@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: accepted
 date: 2026-11-13
 decision-makers: Team Genève
 tags: [backend, frontend, dates]
@@ -48,16 +48,17 @@ rules", because it is the only option that gives the same result on every server
 * Good, because a server or itest stack in UTC gives the same dates as one in `Europe/Amsterdam`.
 * Bad, because an installation that runs in another time zone than `Europe/Amsterdam` must rebuild its Solr index
   once. The Helm chart already sets `TZ: Europe/Amsterdam`.
-* Bad, because existing code outside the two modules is frozen, not moved; later changes move it.
+* Neutral, because all existing date and time code in the backend and the frontend was moved into these modules
+  before this decision was merged. No violation is frozen.
 
 ### Confirmation
 
 The ArchUnit rule "The handling of dates and times" in `ArchitectureTest` fails when a class outside
-`nl.info.zac.time` reads the system time zone or clock, or calls `LocalDate.atStartOfDay(ZoneId)`; the existing
-violations are frozen, see [the architecture rules](../../development/architectureRules.md). In the frontend,
+`nl.info.zac.time` reads the system time zone or clock, calls `LocalDate.atStartOfDay(ZoneId)`, or uses
+`java.util.Calendar` or the date utilities of `org.apache.commons.lang3.time`, see
+[the architecture rules](../../development/architectureRules.md). In the frontend,
 ESLint rules in `src/main/app/eslint.config.js` forbid imports of `moment` and the Material moment adapter, deep
-imports into `date-time/`, and calls of `toISOString` and `Date.parse` outside the module; the existing violations
-are listed in `src/main/app/eslint.date-time-frozen.js`.
+imports into `date-time/`, and calls of `toISOString` and `Date.parse` outside the module.
 
 ## Pros and Cons of the Options
 
@@ -75,5 +76,7 @@ are listed in `src/main/app/eslint.date-time-frozen.js`.
 
 ## More Information
 
-ArchUnit is used instead of detekt `ForbiddenMethodCall`, because detekt has no per-violation freeze.
+ArchUnit is used instead of detekt `ForbiddenMethodCall`, so this rule sits with the other architecture rules in
+`ArchitectureTest`. ArchUnit only checks the main classes, so in the unit tests and the integration tests detekt
+`ForbiddenMethodCall` forbids the `now()` without arguments of the `java.time` types.
 `eslint-plugin-boundaries` was not added: one boundary does not justify a new dependency yet.

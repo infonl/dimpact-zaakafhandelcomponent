@@ -10,6 +10,7 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.gebruikersvoorkeuren.model.Werklijst
 import nl.info.zac.gebruikersvoorkeuren.model.createZoekopdracht
+import nl.info.zac.time.ZacTime
 import java.time.ZonedDateTime
 
 class RestZoekopdrachtTest : BehaviorSpec({
@@ -52,7 +53,7 @@ class RestZoekopdrachtTest : BehaviorSpec({
                 json = """{"fakeField":"fakeValue"}"""
             )
             val loggedInUser = createLoggedInUser(username = "fakeMedewerker")
-            val timeBeforeConversion = ZonedDateTime.now().minusSeconds(1)
+            val timeBeforeConversion = ZacTime.now().minusSeconds(1)
 
             `when`("it is converted to a domain model") {
                 val zoekopdracht = restZoekopdracht.toZoekopdracht(loggedInUser)

@@ -24,12 +24,12 @@ import {
   provideTanStackQuery,
 } from "@tanstack/angular-query-experimental";
 import { screen } from "@testing-library/angular";
-import moment from "moment";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
+import { toApiDate, today } from "../../date-time";
 import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
@@ -62,9 +62,9 @@ describe(InformatieObjectEditComponent.name, () => {
     bestandsnaam: "Test File Name",
     formaat: "Test Format",
     taal: fromPartial<GeneratedType<"RestTaal">>({ naam: "Nederlands" }),
-    ontvangstdatum: new Date().toDateString(),
+    ontvangstdatum: "2026-01-29",
     toelichting: "Test Explanation",
-    verzenddatum: new Date().toDateString(),
+    verzenddatum: "2026-01-30",
     status: "IN_BEWERKING",
     file: "file",
   });
@@ -233,11 +233,9 @@ describe(InformatieObjectEditComponent.name, () => {
     });
 
     it("should disable verzenddatum and status when ontvangstdatum is set", async () => {
-      const ontvangstdatum = moment();
-
       const [ontvangstdatumInput, verzenddatumInput] =
         await loader.getAllHarnesses(MatDatepickerInputHarness);
-      await ontvangstdatumInput.setValue(ontvangstdatum.format("YYYY-MM-DD"));
+      await ontvangstdatumInput.setValue(toApiDate(today())!);
 
       expect(await verzenddatumInput.isDisabled()).toBe(true);
     });
@@ -302,6 +300,16 @@ describe(InformatieObjectEditComponent.name, () => {
       expect(JSON.parse(formDataObject.taal as string)).toEqual(mockTalen[0]);
       expect(formDataObject).not.toHaveProperty("uuid");
       expect(formDataObject).not.toHaveProperty("zaakUuid");
+    });
+
+    it("sends the verzenddatum and ontvangstdatum of the document on their days", async () => {
+      const request = await submitAndUpload();
+
+      const formDataObject = Object.fromEntries(
+        (request.request.body as FormData).entries(),
+      );
+      expect(formDataObject.verzenddatum).toBe("2026-01-30");
+      expect(formDataObject.ontvangstdatum).toBe("2026-01-29");
     });
 
     it("sends the status even though the status control is disabled because the document has an ontvangstdatum", async () => {

@@ -43,8 +43,8 @@ import {
   injectIsMutating,
   injectQuery,
 } from "@tanstack/angular-query-experimental";
-import moment from "moment";
 import { filter, map } from "rxjs";
+import { isAfter } from "../../date-time";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { PolicyService } from "../../policy/policy.service";
@@ -132,9 +132,7 @@ export class ToolbarComponent implements OnDestroy {
       SessionStorageUtil.getItem("dashboardOpened");
     if (!dashboardLastOpened) return true;
 
-    return moment(latestSignalering, moment.ISO_8601).isAfter(
-      moment(dashboardLastOpened, moment.ISO_8601),
-    );
+    return isAfter(latestSignalering, dashboardLastOpened);
   });
   protected readonly medewerkerNaamToolbar = computed(() =>
     this.loggedInUserQuery

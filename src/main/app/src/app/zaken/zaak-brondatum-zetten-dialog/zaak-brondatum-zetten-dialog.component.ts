@@ -26,7 +26,15 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
-import moment, { Moment } from "moment";
+import {
+  isPickedDate,
+  isSameOrAfter,
+  now,
+  PickedDate,
+  startOfDay,
+  toApiDate,
+  today,
+} from "../../date-time";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { trackControl } from "../../shared/form/control-state";
 import { ZacDate } from "../../shared/form/date/date";
@@ -75,14 +83,14 @@ export class ZaakBrondatumZettenDialogComponent {
     : undefined;
 
   private readonly zaakEinddatum = this.data.zaak.einddatum
-    ? moment(this.data.zaak.einddatum).startOf("day")
+    ? startOfDay(this.data.zaak.einddatum)
     : null;
 
   form = this.formBuilder.group({
-    brondatum: this.formBuilder.control<Moment | null>(null, [
+    brondatum: this.formBuilder.control<PickedDate | null>(null, [
       this.brondatumNietVoorMinimum(),
       Validators.required,
-      Validators.min((this.zaakEinddatum ?? moment().startOf("day")).valueOf()),
+      Validators.min((this.zaakEinddatum ?? today()).valueOf()),
     ]),
   });
 
@@ -111,8 +119,8 @@ export class ZaakBrondatumZettenDialogComponent {
   private brondatumNietVoorMinimum(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
       const value = control.value;
-      const minimum = this.zaakEinddatum ?? moment();
-      if (!moment.isMoment(value) || value.isSameOrAfter(minimum, "day")) {
+      const minimum = this.zaakEinddatum ?? now();
+      if (!isPickedDate(value) || isSameOrAfter(value, minimum, "day")) {
         return null;
       }
       return FormHelper.CustomErrorMessage(
@@ -143,11 +151,9 @@ export class ZaakBrondatumZettenDialogComponent {
   }
 
   private afsluiten() {
-    const { value } = this.form;
-    if (value.brondatum) {
-      this.brondatumZettenMutation.mutate({
-        brondatum: value.brondatum.toISOString(),
-      });
+    const brondatum = toApiDate(this.form.value.brondatum);
+    if (brondatum) {
+      this.brondatumZettenMutation.mutate({ brondatum });
     }
   }
 
@@ -158,7 +164,7 @@ export class ZaakBrondatumZettenDialogComponent {
       actie: "BRONDATUM_ZETTEN",
       planItemInstanceId: planItem.id,
       zaakUuid: this.data.zaak.uuid,
-      brondatum: value.brondatum?.toISOString(),
+      brondatum: toApiDate(value.brondatum),
     });
   }
 }

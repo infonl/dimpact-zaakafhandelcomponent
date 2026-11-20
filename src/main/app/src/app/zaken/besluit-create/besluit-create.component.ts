@@ -19,7 +19,14 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
-import moment, { Moment } from "moment";
+import {
+  addDays,
+  now,
+  PickedDate,
+  startOfDay,
+  toApiDate,
+  today,
+} from "../../date-time";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { trackControl } from "../../shared/form/control-state";
 import { ZacDate } from "../../shared/form/date/date";
@@ -79,13 +86,16 @@ export class BesluitCreateComponent {
       null,
       Validators.maxLength(1000),
     ),
-    ingangsdatum: this.formBuilder.control(moment(), Validators.required),
-    vervaldatum: this.formBuilder.control<Moment | null>(null, [
-      Validators.min(moment().startOf("day").valueOf()),
+    ingangsdatum: this.formBuilder.control<PickedDate | null>(
+      now(),
+      Validators.required,
+    ),
+    vervaldatum: this.formBuilder.control<PickedDate | null>(null, [
+      Validators.min(today().valueOf()),
     ]),
     publicationEnabled: this.formBuilder.control(false),
-    publicatiedatum: this.formBuilder.control<Moment | null>(moment()),
-    uiterlijkereactiedatum: this.formBuilder.control<Moment | null>(null),
+    publicatiedatum: this.formBuilder.control<PickedDate | null>(now()),
+    uiterlijkereactiedatum: this.formBuilder.control<PickedDate | null>(null),
     documenten: this.formBuilder.control<
       GeneratedType<"RestEnkelvoudigInformatieobject">[]
     >([]),
@@ -122,7 +132,7 @@ export class BesluitCreateComponent {
 
         if (value) {
           this.vervaldatumMinDateValidator = Validators.min(
-            moment(value).startOf("day").valueOf(),
+            startOfDay(value).valueOf(),
           );
           this.form.controls.vervaldatum.addValidators([
             this.vervaldatumMinDateValidator,
@@ -151,7 +161,7 @@ export class BesluitCreateComponent {
         );
         if (!value.publication.isEnabled) return;
         this.setUiterlijkereactiedatum(
-          moment(),
+          now(),
           value.publication.responseTermDays,
         );
       });
@@ -173,12 +183,10 @@ export class BesluitCreateComponent {
   }
 
   private setUiterlijkereactiedatum(
-    date: Moment,
+    date: PickedDate,
     responseTermDays?: number | null,
   ) {
-    const uiterlijkereactiedatum = date
-      .clone()
-      .add(responseTermDays ?? 0, "days");
+    const uiterlijkereactiedatum = addDays(date, responseTermDays ?? 0);
     this.form.controls.uiterlijkereactiedatum.setValue(uiterlijkereactiedatum);
 
     if (this.uiterlijkereactiedatumMinDateValidator) {
@@ -187,7 +195,7 @@ export class BesluitCreateComponent {
       ]);
     }
     this.uiterlijkereactiedatumMinDateValidator = Validators.min(
-      moment(uiterlijkereactiedatum).startOf("day").valueOf(),
+      startOfDay(uiterlijkereactiedatum).valueOf(),
     );
     this.form.controls.uiterlijkereactiedatum.addValidators([
       this.uiterlijkereactiedatumMinDateValidator,
@@ -201,15 +209,15 @@ export class BesluitCreateComponent {
       ...value,
       zaakUuid: this.zaak().uuid,
       besluittypeUuid: value.besluit!.id,
-      ingangsdatum: value.ingangsdatum?.toISOString(),
-      vervaldatum: value.vervaldatum?.toISOString(),
+      ingangsdatum: toApiDate(value.ingangsdatum),
+      vervaldatum: toApiDate(value.vervaldatum),
       informatieobjecten: value.documenten
         ?.map(({ uuid }) => uuid!)
         .filter(Boolean),
       ...(value.publicationEnabled
         ? {
-            publicationDate: value.publicatiedatum?.toISOString(),
-            lastResponseDate: value.uiterlijkereactiedatum?.toISOString(),
+            publicationDate: toApiDate(value.publicatiedatum),
+            lastResponseDate: toApiDate(value.uiterlijkereactiedatum),
           }
         : {}),
     });
