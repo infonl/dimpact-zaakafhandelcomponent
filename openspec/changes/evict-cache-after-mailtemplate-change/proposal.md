@@ -10,17 +10,17 @@ and a koppeling (ADR 0016), but its design wrongly assumed that `clearManagedCac
 
 ## What Changes
 
-- `ZaaktypeConfigurationService` gets `evictAll()`: it clears the cache of all configurations at once and fires a CDI
-  event. An observer in `TransactionPhase.AFTER_COMPLETION` clears it again after a commit or rollback (ADR 0016).
-- `MailTemplateService.delete`, `updateMailtemplate` and `storeMailtemplate` call `evictAll()` instead of
-  `clearManagedCache()`.
+- `MailTemplateService.delete` and `updateMailtemplate` (also via `storeMailtemplate`) no longer call
+  `clearManagedCache()`. They look up the zaaktypes whose configuration links the template and call the existing
+  `ZaaktypeConfigurationService.evict(zaaktypeUuid)` for each, which clears at once and again after the transaction
+  completes (ADR 0016).
+- Creating a template no longer clears the cache: a new template is in no koppeling, so in no cached configuration.
 - `clearManagedCache()` stays a single, immediate clear for the "cache legen" button on the admin page.
 - The design of the open change `evict-zaaktype-configuration-cache-after-commit` no longer says that
   `clearManagedCache` never runs inside a transaction that changes the configuration.
 
-Out of scope: the deadline warning windows cache (it holds no mail templates), `createMailtemplate` called directly
-by the REST endpoint (a new template is in no koppeling, so in no cached configuration), and clearing the cache of
-other ZAC instances.
+Out of scope: clearing the cache of other ZAC instances, and the gap of `invalidateAll()` with loads in flight for the
+"cache legen" button.
 
 ## Capabilities
 
@@ -30,12 +30,13 @@ other ZAC instances.
 
 ## Impact
 
-- Backend: `ZaaktypeConfigurationService`, `MailTemplateService`, and a new event class.
+- Backend: `MailTemplateService`, and a new query in `MailTemplateKoppelingenService`. `ZaaktypeConfigurationService`
+  does not change.
 - Callers of the changed `MailTemplateService` functions: `MailtemplateBeheerRestService.deleteMailtemplate` and
   `updateMailtemplate` (`MailtemplateBeheerRestService.kt:71,95`). `storeMailtemplate` has no production caller.
 - Readers of the cached templates: `MailtemplateRestService.findMailtemplate` (`MailtemplateRestService.kt:42`) and
   `PlanItemsRestService` (`PlanItemsRestService.kt:180`). They do not change.
-- Unit tests `ZaaktypeConfigurationServiceTest` and `MailTemplateServiceTest`; integration test
+- Unit tests `MailTemplateServiceTest` and `MailTemplateKoppelingenServiceTest`; integration test
   `ZaaktypeConfigurationRestServiceBpmnMailTest`.
 - No REST, OpenAPI, database, Solr, Flowable or frontend change; the test-data scripts do not change. No new ADR: this
   follows ADR 0016.
