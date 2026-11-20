@@ -260,15 +260,24 @@ def version_distance(ours, latest):
 
 # ---------------------------------------------------------------- editing
 
+def _fill_empty_cell(inner, content):
+    """
+    Puts content in a cell without text: an empty cell, or one empty paragraph ('<p />', '<p></p>', or a paragraph
+    with only white space or '<br />'), keeping the attributes of that paragraph. None when the cell is not empty.
+    """
+    if inner is None or not inner.strip():
+        return f'<p>{content}</p>'
+    empty_paragraph = re.fullmatch(r'\s*<p\b([^>]*?)\s*(?:/>|>(?:\s|&nbsp;|<br\b[^>]*>)*</p>)\s*', inner)
+    return f'<p{empty_paragraph.group(1)}>{content}</p>' if empty_paragraph else None
+
+
 def _replace_text(inner, value):
     """Replaces the only text of a cell, keeping its formatting (paragraph, bold, colour span)."""
     escaped = html.escape(value, quote=False)
     if inner is None or not _text(inner):
-        empty_paragraph = re.fullmatch(r'\s*<p\b([^>]*?)\s*/>\s*', inner or '')
-        if empty_paragraph:
-            return f'<p{empty_paragraph.group(1)}>{escaped}</p>'
-        if inner is None or not inner.strip():
-            return f'<p>{escaped}</p>'
+        filled = _fill_empty_cell(inner, escaped)
+        if filled is not None:
+            return filled
         raise HeroPageError(f'cannot place a value in this empty cell: {inner[:200]}')
     parts = re.split(r'(<[^>]+>)', inner)
     text_parts = [index for index, part in enumerate(parts) if not part.startswith('<') and part.strip()]
@@ -284,11 +293,9 @@ def _replace_text(inner, value):
 def _set_date(inner, date):
     if re.search(r'<time\b[^>]*datetime="[^"]*"', inner or ''):
         return re.sub(r'(<time\b[^>]*datetime=")[^"]*(")', rf'\g<1>{date}\g<2>', inner, count=1)
-    empty_paragraph = re.fullmatch(r'\s*<p\b([^>]*?)\s*/>\s*', inner or '')
-    if empty_paragraph:
-        return f'<p{empty_paragraph.group(1)}><time datetime="{date}" /></p>'
-    if inner is None or not inner.strip():
-        return f'<p><time datetime="{date}" /></p>'
+    filled = _fill_empty_cell(inner, f'<time datetime="{date}" />')
+    if filled is not None:
+        return filled
     raise HeroPageError(f'cannot place a date in this Last Checked cell: {_text(inner)}')
 
 
