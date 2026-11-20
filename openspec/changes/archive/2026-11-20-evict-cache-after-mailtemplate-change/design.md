@@ -42,8 +42,9 @@ A new template is in no koppeling, so no cached configuration holds it. The crea
 stops calling `clearManagedCache()`, like `createMailtemplate`, which the REST endpoint calls, never did.
 
 A linked template cannot be deleted: `fk_id_mail_template` is `ON DELETE RESTRICT`
-(`V35__mail_template_koppelingen.sql:12-13`). A delete that commits removes a template that no cached configuration
-holds, and the delete of a linked one fails. So `delete` stops calling `clearManagedCache()` too.
+(`V35__mail_template_koppelingen.sql:12-13`). A delete that commits removes a template that no committed koppeling
+links, so the deleting instance holds no cached configuration with it, and the delete of a linked one fails. Another
+instance may still hold a copy cached before the last koppeling was removed, until it expires. So `delete` stops calling `clearManagedCache()` too.
 
 ### D3. `clearManagedCache()` stays as it is
 
