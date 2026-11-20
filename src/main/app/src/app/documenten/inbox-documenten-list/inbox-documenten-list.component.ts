@@ -4,10 +4,13 @@
  */
 
 import {
-  AfterViewInit,
+  afterNextRender,
   Component,
+  computed,
+  effect,
   EventEmitter,
   inject,
+  Injector,
   OnDestroy,
   OnInit,
   signal,
@@ -16,13 +19,18 @@ import {
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";
 import { MatIcon } from "@angular/material/icon";
-import { MatPaginator } from "@angular/material/paginator";
+import { MatPaginator, PageEvent } from "@angular/material/paginator";
 import {
   MatDrawer,
   MatDrawerContainer,
   MatDrawerContent,
 } from "@angular/material/sidenav";
-import { MatSort, MatSortHeader, SortDirection } from "@angular/material/sort";
+import {
+  MatSort,
+  MatSortHeader,
+  Sort,
+  SortDirection,
+} from "@angular/material/sort";
 import {
   MatCell,
   MatCellDef,
@@ -34,14 +42,10 @@ import {
   MatRow,
   MatRowDef,
   MatTable,
-  MatTableDataSource,
 } from "@angular/material/table";
 import { MatTooltip } from "@angular/material/tooltip";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
-import { merge } from "rxjs";
-import { startWith, switchMap, tap } from "rxjs/operators";
-import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
 import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
@@ -55,7 +59,7 @@ import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { PutBody } from "../../shared/http/http-client";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { runQuery } from "../../shared/http/run-query";
+import { injectLastSuccessfulSearch } from "../../shared/http/last-successful-search";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import {
@@ -67,7 +71,8 @@ import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filt
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InboxDocumentenService } from "../inbox-documenten.service";
 
-type InboxDocumentSearch = PutBody<"/rest/inboxdocumenten"> & {
+type InboxDocumentSearch = Omit<PutBody<"/rest/inboxdocumenten">, "order"> & {
+  order?: SortDirection;
   filtersType: ZoekFilters["filtersType"];
 };
 
@@ -109,22 +114,34 @@ type InboxDocumentSearch = PutBody<"/rest/inboxdocumenten"> & {
 })
 export class InboxDocumentenListComponent
   extends WerklijstComponent
-  implements OnInit, AfterViewInit, OnDestroy
+  implements OnInit, OnDestroy
 {
   private readonly inboxDocumentenService = inject(InboxDocumentenService);
   private readonly infoService = inject(InformatieObjectenService);
-  private readonly utilService = inject(UtilService);
   private readonly dialog = inject(MatDialog);
+  private readonly injector = inject(Injector);
   readonly gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
   readonly route = inject(ActivatedRoute);
 
-  protected readonly isLoadingResults = signal(true);
-  protected readonly totaal = signal(0);
-  protected dataSource = new MatTableDataSource<
-    GeneratedType<"RestInboxDocument">
-  >();
-  readonly paginator = viewChild.required(MatPaginator);
-  readonly sort = viewChild.required(MatSort);
+  /** `null` until the page size of the werklijst is known. */
+  private readonly requestedSearch = signal<InboxDocumentSearch | null>(null);
+  private readonly search = injectLastSuccessfulSearch({
+    requested: this.requestedSearch,
+    query: (search) => ({
+      ...this.inboxDocumentenService.list(search ?? {}),
+      enabled: search !== null,
+    }),
+  });
+  protected readonly listParameters = computed(
+    () => this.search.requested() ?? this.createDefaultParameters(),
+  );
+  protected readonly isLoadingResults = computed(
+    () => this.search.requested() === null || this.search.query.isFetching(),
+  );
+  protected readonly totaal = computed(() => this.search.data()?.totaal ?? 0);
+  protected readonly documenten = computed(
+    () => this.search.data()?.resultaten ?? [],
+  );
   readonly actionsSidenav = viewChild.required<MatDrawer>("actionsSidenav");
 
   protected readonly displayedColumns = [
@@ -139,75 +156,36 @@ export class InboxDocumentenListComponent
     "titel_filter",
     "actions_filter",
   ] as const;
-  protected listParameters: InboxDocumentSearch =
-    this.createDefaultParameters();
-  protected listParametersSort: {
-    sort: keyof PutBody<"/rest/inboxdocumenten">;
-    order: "desc" | "asc";
-    filtersType: ZoekFilters["filtersType"];
-  } = {
-    sort: "creatiedatum",
-    order: "desc",
-    filtersType: "InboxDocumentListParameters",
-  };
-  protected filterChange = new EventEmitter<void>();
   protected clearZoekopdracht = new EventEmitter<void>();
   protected readonly selectedInformationObject =
     signal<GeneratedType<"RestInboxDocument"> | null>(null);
-  private readonly deleteMutation = injectMutation(
-    () => this.inboxDocumentenService.delete(),
-    {
-      onSuccess: () => this.filterChange.emit(),
-    },
+  private readonly deleteMutation = injectMutation(() =>
+    this.inboxDocumentenService.delete(),
   );
+
+  constructor() {
+    super();
+    effect(() => {
+      const search = this.search.requested();
+      if (search) {
+        SessionStorageUtil.setItem(
+          "INBOX_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
+          search,
+        );
+      }
+    });
+  }
 
   ngOnInit() {
     super.ngOnInit();
-    this.listParameters = SessionStorageUtil.getItem(
-      "INBOX_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
-      this.createDefaultParameters(),
-    );
-  }
-
-  ngAfterViewInit() {
-    this.sort().sortChange.subscribe(() => (this.paginator().pageIndex = 0));
-    const stopLoading = () => {
-      this.isLoadingResults.set(false);
-      this.utilService.setLoading(false);
-    };
-    merge(this.sort().sortChange, this.paginator().page, this.filterChange)
-      .pipe(
-        startWith({}),
-        switchMap(() => {
-          this.isLoadingResults.set(true);
-          this.utilService.setLoading(true);
-          this.updateListParameters();
-          return runQuery(
-            this.queryClient,
-            this.inboxDocumentenService.list({
-              ...this.listParametersSort,
-              ...this.listParameters,
-            }),
-          );
-        }),
-        tap({ next: stopLoading, error: stopLoading }),
-      )
-      .subscribe((data) => {
-        this.paginator().length = data.totaal ?? 0;
-        this.totaal.set(data.totaal ?? 0);
-        this.dataSource.data = data.resultaten ?? [];
-      });
-  }
-
-  updateListParameters() {
-    this.listParameters.sort = this.sort().active;
-    this.listParameters.order = this.sort().direction;
-    this.listParameters.page = this.paginator().pageIndex;
-    this.listParameters.maxResults = this.paginator().pageSize;
-    SessionStorageUtil.setItem(
-      "INBOX_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
-      this.listParameters,
-    );
+    this.search.request({
+      ...SessionStorageUtil.getItem<InboxDocumentSearch>(
+        "INBOX_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
+        this.createDefaultParameters(),
+      ),
+      page: 0,
+      maxResults: this.aantalPerPagina(),
+    });
   }
 
   getDownloadURL(inboxDocument: GeneratedType<"RestInboxDocument">) {
@@ -233,52 +211,75 @@ export class InboxDocumentenListComponent
       });
   }
 
-  filtersChanged() {
-    this.paginator().pageIndex = 0;
-    this.clearZoekopdracht.emit();
-    this.filterChange.emit();
+  protected filtersChanged(changes: Partial<InboxDocumentSearch>) {
+    this.searchFirstPage(changes);
+    // The zoekopdracht reads its zoekFilters input when it is told, so only once that input has the new filters.
+    afterNextRender(() => this.clearZoekopdracht.emit(), {
+      injector: this.injector,
+    });
+  }
+
+  protected sortChanged({ active, direction }: Sort) {
+    this.searchFirstPage({
+      sort: active as InboxDocumentSearch["sort"],
+      order: direction,
+    });
+  }
+
+  protected pageChanged(event: PageEvent) {
+    this.paginatorChanged(event);
+    this.search.request({
+      ...this.listParameters(),
+      page: event.pageIndex,
+      maxResults: event.pageSize,
+    });
   }
 
   resetSearch() {
-    this.listParameters = SessionStorageUtil.setItem(
-      "INBOX_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
-      this.createDefaultParameters(),
-    );
-    this.sort().active = this.listParametersSort.sort;
-    this.sort().direction = this.listParametersSort.order;
-    this.paginator().pageIndex = 0;
-    this.filterChange.emit();
+    this.searchFirstPage(this.createDefaultParameters(), true);
   }
 
   retriggerSearch() {
-    this.filterChange.emit();
+    this.search.request(this.listParameters());
   }
 
-  createDefaultParameters() {
+  createDefaultParameters(): InboxDocumentSearch {
     return {
       sort: "creatiedatum",
       order: "desc",
       filtersType: "InboxDocumentListParameters",
-    } satisfies typeof this.listParametersSort;
+    };
   }
 
   zoekopdrachtChanged(
     actieveZoekopdracht: GeneratedType<"RestZoekopdracht"> | null,
   ) {
     if (actieveZoekopdracht?.json) {
-      this.listParameters = {
-        ...this.createDefaultParameters(),
-        ...JSON.parse(actieveZoekopdracht.json),
-      };
-      this.sort().active = this.listParameters.sort!;
-      this.sort().direction = this.listParameters.order as SortDirection;
-      this.paginator().pageIndex = 0;
-      this.filterChange.emit();
+      this.searchFirstPage(
+        {
+          ...this.createDefaultParameters(),
+          ...JSON.parse(actieveZoekopdracht.json),
+        },
+        true,
+      );
     } else if (actieveZoekopdracht === null) {
       this.resetSearch();
     } else {
-      this.filterChange.emit();
+      this.retriggerSearch();
     }
+  }
+
+  private searchFirstPage(
+    changes: Partial<InboxDocumentSearch>,
+    replace = false,
+  ) {
+    const { maxResults } = this.listParameters();
+    this.search.request({
+      ...(replace ? this.createDefaultParameters() : this.listParameters()),
+      ...changes,
+      page: 0,
+      maxResults,
+    });
   }
 
   getWerklijst(): GeneratedType<"Werklijst"> {
@@ -291,11 +292,9 @@ export class InboxDocumentenListComponent
   }
 
   ngOnDestroy() {
-    // Make sure when returning to this component, the very first page is loaded
-    this.listParameters.page = 0;
     SessionStorageUtil.setItem(
       "INBOX_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
-      this.listParameters,
+      { ...this.listParameters(), page: 0 },
     );
   }
 }

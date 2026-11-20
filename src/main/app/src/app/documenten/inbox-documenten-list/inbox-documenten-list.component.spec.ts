@@ -13,6 +13,7 @@ import {
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatDialog } from "@angular/material/dialog";
 import { MatPaginatorIntl } from "@angular/material/paginator";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
@@ -101,26 +102,30 @@ describe(InboxDocumentenListComponent.name, () => {
     return httpTestingController.match("/rest/inboxdocumenten");
   }
 
+  async function settle() {
+    await sleep();
+    fixture.detectChanges();
+    await sleep();
+    fixture.detectChanges();
+  }
+
   async function showDocuments(
     documents: GeneratedType<"RestInboxDocument">[],
     totaal = documents.length,
   ) {
-    await sleep();
+    await settle();
     listRequests().forEach((request) =>
       request.flush({ totaal, resultaten: documents }),
     );
-    await sleep();
-    // the table creates the row views in one pass and binds their cells in the next
-    fixture.detectChanges();
-    fixture.detectChanges();
+    await settle();
   }
 
   async function lastListRequestBody() {
-    await sleep();
+    await settle();
     const requests = listRequests();
     const body = requests[requests.length - 1].request.body;
     requests.forEach((request) => request.flush({ totaal: 0, resultaten: [] }));
-    await sleep();
+    await settle();
     return body;
   }
 
@@ -239,6 +244,66 @@ describe(InboxDocumentenListComponent.name, () => {
       sort: "titel",
       order: "asc",
       page: 0,
+    });
+  });
+
+  describe("when a search fails", () => {
+    async function failSearch() {
+      await settle();
+      listRequests().forEach((request) =>
+        request.flush(null, { status: 400, statusText: "Bad Request" }),
+      );
+      await settle();
+      TestBed.inject(MatDialog).closeAll();
+      await settle();
+    }
+
+    it("stops announcing that it is loading", async () => {
+      await setup();
+
+      await failSearch();
+
+      expect(screen.queryByText("msg.loading")).toBeNull();
+      expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
+    });
+
+    it("searches again when the sorting changes", async () => {
+      await setup();
+      await failSearch();
+
+      await user.click(screen.getByRole("columnheader", { name: "titel" }));
+
+      expect(await lastListRequestBody()).toMatchObject({
+        sort: "titel",
+        order: "asc",
+      });
+    });
+
+    it("goes back to the page it showed and searches again when another page is chosen", async () => {
+      await setup();
+      await showDocuments([inboxDocument], 30);
+      await user.click(
+        screen.getByRole("button", { name: "actie.pagina.volgende" }),
+      );
+      await failSearch();
+
+      expect(screen.getByText("1 - 10 msg.pagina 30")).toBeVisible();
+
+      await user.click(
+        screen.getByRole("button", { name: "actie.pagina.volgende" }),
+      );
+
+      expect(await lastListRequestBody()).toMatchObject({ page: 1 });
+    });
+
+    it("searches again when a filter changes", async () => {
+      await setup();
+      await failSearch();
+
+      const [, titelFilter] = screen.getAllByPlaceholderText("...");
+      await user.type(titelFilter, "Aanvraag{Enter}");
+
+      expect(await lastListRequestBody()).toMatchObject({ titel: "Aanvraag" });
     });
   });
 
@@ -368,6 +433,21 @@ describe(InboxDocumentenListComponent.name, () => {
       httpTestingController.expectOne("/rest/inboxdocumenten/42").request
         .method,
     ).toBe("DELETE");
+  });
+
+  it("searches the list once again after a document is deleted", async () => {
+    await setup();
+    await showDocuments([inboxDocument]);
+
+    await user.click(
+      within(documentRow()).getByRole("button", { name: "actie.verwijderen" }),
+    );
+    await user.click(screen.getByRole("button", { name: "actie.ja" }));
+    await sleep();
+    httpTestingController.expectOne("/rest/inboxdocumenten/42").flush({});
+    await settle();
+
+    expect(listRequests()).toHaveLength(1);
   });
 
   it("keeps the document when the confirmation is cancelled", async () => {

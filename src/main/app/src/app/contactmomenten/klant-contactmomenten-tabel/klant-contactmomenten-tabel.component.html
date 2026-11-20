@@ -86,9 +86,9 @@
       </table>
     </div>
     <mat-paginator
-      #paginator
       [length]="totaal()"
-      [pageIndex]="0"
+      [pageIndex]="page()"
+      (page)="pageChanged($event)"
       [pageSize]="5"
       [pageSizeOptions]="[5, 10, 20]"
     >

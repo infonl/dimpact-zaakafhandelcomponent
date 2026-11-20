@@ -56,7 +56,6 @@ import { TranslatePipe } from "@ngx-translate/core";
 import { injectIsMutating } from "@tanstack/angular-query-experimental";
 import { merge } from "rxjs";
 import { map, startWith } from "rxjs/operators";
-import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
 import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
@@ -140,7 +139,6 @@ export class OntkoppeldeDocumentenListComponent
     OntkoppeldeDocumentenService,
   );
   private readonly infoService = inject(InformatieObjectenService);
-  private readonly utilService = inject(UtilService);
   private readonly dialog = inject(MatDialog);
   readonly gebruikersvoorkeurenService = inject(GebruikersvoorkeurenService);
   readonly route = inject(ActivatedRoute);
@@ -293,7 +291,6 @@ export class OntkoppeldeDocumentenListComponent
       const isLoading = this.isLoadingResults();
       this.shownList();
       untracked(() => {
-        this.utilService.setLoading(isLoading);
         if (!isLoading) this.finishLoad();
       });
     });
@@ -575,7 +572,6 @@ export class OntkoppeldeDocumentenListComponent
   }
 
   ngOnDestroy() {
-    this.utilService.setLoading(false);
     // Make sure when returning to this component, the very first page is loaded
     this.listParameters.page = 0;
     SessionStorageUtil.setItem(

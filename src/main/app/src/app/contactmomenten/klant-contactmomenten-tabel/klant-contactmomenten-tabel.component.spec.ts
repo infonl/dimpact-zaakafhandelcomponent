@@ -3,7 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient, withXhr } from "@angular/common/http";
+import {
+  HttpErrorResponse,
+  provideHttpClient,
+  withXhr,
+} from "@angular/common/http";
+import { TestBed } from "@angular/core/testing";
+import { MatDialog } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
@@ -11,7 +17,6 @@ import { render, screen, waitFor } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
-import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ContactmomentenService } from "../contactmomenten.service";
 import { KlantContactmomentenTabelComponent } from "./klant-contactmomenten-tabel.component";
@@ -19,11 +24,13 @@ import { KlantContactmomentenTabelComponent } from "./klant-contactmomenten-tabe
 describe(KlantContactmomentenTabelComponent.name, () => {
   const user = userEvent.setup();
 
-  let pendingSearches: ((
-    resultaat: GeneratedType<"RestResultaatRestContactmoment">,
-  ) => void)[] = [];
+  let pendingSearches: {
+    resolve: (
+      resultaat: GeneratedType<"RestResultaatRestContactmoment">,
+    ) => void;
+    reject: (error: HttpErrorResponse) => void;
+  }[] = [];
   let detectChanges: () => void;
-  let setLoading: jest.SpyInstance;
   let changeInputs: (inputs: {
     bsn?: string;
     vestigingsnummer?: string;
@@ -37,7 +44,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
       queryKey: ["contactmomenten", ++searchCount],
       queryFn: () =>
         new Promise<GeneratedType<"RestResultaatRestContactmoment">>(
-          (resolve) => pendingSearches.push(resolve),
+          (resolve, reject) => pendingSearches.push({ resolve, reject }),
         ),
     }),
   );
@@ -47,9 +54,6 @@ describe(KlantContactmomentenTabelComponent.name, () => {
   }
 
   async function setup(inputs: { bsn?: string; vestigingsnummer?: string }) {
-    setLoading = jest
-      .spyOn(UtilService.prototype, "setLoading")
-      .mockImplementation(() => undefined);
     const rendered = await render(KlantContactmomentenTabelComponent, {
       inputs,
       imports: [NoopAnimationsModule],
@@ -80,8 +84,25 @@ describe(KlantContactmomentenTabelComponent.name, () => {
   function resolveContactmomenten(
     resultaat: GeneratedType<"RestResultaatRestContactmoment">,
   ) {
-    pendingSearches.forEach((resolve) => resolve(resultaat));
+    pendingSearches.forEach(({ resolve }) => resolve(resultaat));
     pendingSearches = [];
+  }
+
+  async function settle() {
+    await sleep();
+    detectChanges();
+    await sleep();
+    detectChanges();
+  }
+
+  async function failSearch() {
+    pendingSearches.forEach(({ reject }) =>
+      reject(new HttpErrorResponse({ status: 400 })),
+    );
+    pendingSearches = [];
+    await settle();
+    TestBed.inject(MatDialog).closeAll();
+    await settle();
   }
 
   async function receive(
@@ -94,7 +115,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
         totaal,
       }),
     );
-    await sleep();
+    await settle();
   }
 
   afterEach(async () => {
@@ -142,16 +163,6 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     await receive([]);
 
     await waitFor(() => expect(screen.queryByText("msg.loading")).toBeNull());
-  });
-
-  it("turns the loading indicator on until the contactmomenten arrive", async () => {
-    await setup({ bsn: "999993896" });
-
-    expect(setLoading).toHaveBeenLastCalledWith(true);
-
-    await receive([]);
-
-    expect(setLoading).toHaveBeenLastCalledWith(false);
   });
 
   it("lists the contactmomenten it found", async () => {
@@ -238,6 +249,34 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     expect(lastSearch().page).toBe(1);
   });
 
+  describe("when a search fails", () => {
+    it("stops announcing that it is loading", async () => {
+      await setup({ bsn: "999993896" });
+
+      await failSearch();
+
+      expect(screen.queryByText("msg.loading")).toBeNull();
+      expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
+    });
+
+    it("goes back to the page it showed and searches again when another page is chosen", async () => {
+      await setup({ bsn: "999993896" });
+      await receive([fromPartial<GeneratedType<"RestContactmoment">>({})], 15);
+      await user.click(
+        await screen.findByRole("button", { name: "Next page" }),
+      );
+      await sleep();
+      await failSearch();
+
+      expect(screen.getByText("1 – 5 of 15")).toBeVisible();
+
+      await user.click(screen.getByRole("button", { name: "Next page" }));
+      await sleep();
+
+      expect(lastSearch().page).toBe(1);
+    });
+  });
+
   it("returns to the first page when it is pointed at another klant", async () => {
     await setup({ bsn: "999993896" });
     await receive([fromPartial<GeneratedType<"RestContactmoment">>({})], 10);
@@ -248,6 +287,28 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     await sleep();
 
     expect(lastSearch().page).toBe(0);
+  });
+
+  it("shows no contactmomenten of the previous klant when the search for another klant fails", async () => {
+    await setup({ bsn: "999993896" });
+    await receive(
+      [
+        fromPartial<GeneratedType<"RestContactmoment">>({
+          tekst: "Vraag van de vorige klant",
+        }),
+      ],
+      15,
+    );
+
+    changeInputs({ bsn: "999990408" });
+    await sleep();
+    await failSearch();
+
+    expect(
+      screen.queryByRole("row", { name: /Vraag van de vorige klant/ }),
+    ).toBeNull();
+    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
+    expect(lastSearch().bsn).toBe("999990408");
   });
 
   it("searches for the new bsn when the bsn changes", async () => {
