@@ -17,7 +17,8 @@ English speakers and not always developers.
    `cd src/main/app && npm run lint`. Only say a check passed when it ran: check the exit code and the
    `BUILD SUCCESSFUL` line, and don't filter the output so far that an error line disappears.
 4. A REST path, payload or validation change updates `scripts/test-data/` in the same PR (CLAUDE.md).
-5. Open as **draft**: `gh pr create --draft`, or `gh stack submit` for a stack. Draft until CI is green and the
+5. Open as **draft**: `gh pr create --draft`, or `gh stack submit --auto` for a stack (without `--auto` an
+   interactive run opens new PRs as ready for review). Draft until CI is green and the
    Copilot loop below is done; the developer marks it ready.
 
 ## One story, one stack
@@ -38,6 +39,14 @@ Commands:
   open as drafts).
 - Add a layer from the top branch: `gh stack add <branch>`. Keep in sync with `gh stack sync` / `gh stack rebase`.
 - Merge bottom-up. Merging a PR in the middle merges everything below it.
+
+### CI on the upper layers
+
+Some workflows only run for PRs whose base is `main`: `lint-changed-specs.yml` (strict lint of changed Angular
+specs) and `helm-chart-testing.yml`. An upper layer gets them only once the layer below is merged. Until then,
+run them yourself for a layer that changes Angular specs or the Helm chart:
+`cd src/main/app && npx eslint -c eslint.strict-specs.config.js <changed .spec.ts files>`, and say in the PR
+that the Helm checks still have to run.
 
 ### Fixing a PR lower in the stack
 
@@ -84,7 +93,8 @@ Keep at it for every PR in the stack until done. The waiting and reading go to a
 comments with their `file:line`. Judging and fixing comments, and every reply, stay with you, on the main model.
 
 
-1. Wait for the Copilot review and CI.
+1. Request the first Copilot review unless one is running or done (drafts are not always reviewed
+   automatically): `gh pr edit <n> --add-reviewer @copilot`. Wait for it and for CI.
 2. Fix valid Copilot comments; reply briefly to the ones you reject, with the reason.
 3. Push, and re-request a Copilot review.
 4. Repeat until CI is green and Copilot's remaining comments are nits.
