@@ -88,7 +88,8 @@ class MailSendCompleted(
     val zaakUuid: UUID?,
     @Redacted val recipient: String,
     val outcome: Outcome,
-    val durationMs: Long
+    val durationMs: Long,
+    val errorType: String? = null
 ) : LogEvent("Mail send completed")
 ```
 
@@ -135,8 +136,10 @@ fields of `LogEvent`), so no `kotlin-reflect` dependency is needed. Values are w
 has `@Target(AnnotationTarget.FIELD)` and runtime retention, so Kotlin puts it on the backing field even when it is
 written on a `val` constructor parameter, and Java reflection finds it there.
 
-`LogEventRenderer` also offers `render(event): String` (`Mail sent [recipient=*****, subject=Uw aanvraag]`), for unit
-tests and for log handlers without a JSON formatter, such as a local WildFly `server.log`.
+`LogEventRenderer` also offers `render(event): String`
+(`Mail send completed [zaakUuid=…, recipient=*****, outcome=SUCCESS, durationMs=84, errorType=null]`), for unit tests
+only. `ZacLogger` does not use it: a log record always has the description as message and the fields in the MDC, and
+WildFly writes them through its JSON formatter.
 
 `PersonalDataMaskingLogFilter` (ADR-0011) masks BSNs and IBANs in the message and exceptions only. It is extended to
 mask the MDC values of a record as well (`ExtLogRecord.getMdcCopy`/`setMdc`), so that the safety net also covers the
@@ -177,7 +180,7 @@ the same package, also listed in `logging.md`. The first version:
 | Process / case definition key | `processDefinitionKey` / `caseDefinitionKey` |
 | Outcome of an operation | `outcome` (`SUCCESS` or `FAILURE`) |
 | Duration of an operation in milliseconds | `durationMs` |
-| Error type / code | `errorType` (set by `ZacLogger` from the throwable) / `errorCode` |
+| Error type / code | `errorType` (set by `ZacLogger` from the throwable, or a field of an event that is logged without its exception, such as `MailSendCompleted`) / `errorCode` |
 | Trace / span ID | `traceId` / `spanId` (set by `ZacLogger`, decision 3a) |
 
 So the same zaak never appears as `zaak 'ZAAK-1'` in one record and `zaak with UUID …` in another. An event for an
@@ -321,9 +324,11 @@ keeps its name and its logger name, so existing log level configurations keep wo
 The record has no path. Acceptance criterion 1 asks for "only a non-traceable correlation ID", and a path can hold an
 identifier that leads to a person: the BAG `nummeraanduidingIdentificatie` (`AdresApi.bevraagAdressenMetNumId`) leads
 to an address, and the KVK number of an eenmanszaak is personal data. Instead, `operation` is the invoked client
-method as `<interface>.<method>`, such as `PersonenApi.personen`. Every REST client of ZAC is a MicroProfile Rest
-Client, which puts that method in the request property `org.eclipse.microprofile.rest.client.invokedMethod`. A
-request without that property (a plain JAX-RS client) is logged with its host and without `operation`. The method,
+method as `<interface>.<method>`, such as `PersonenApi.personen`. The REST clients of ZAC are MicroProfile Rest
+Clients, which put that method in the request property `org.eclipse.microprofile.rest.client.invokedMethod`, except
+the Keycloak admin client, which `KeycloakEmployeesAdminClientConfiguration` builds with `KeycloakBuilder`. A request
+without that property (such as a call of the Keycloak admin client) is logged with its host and without `operation`.
+The method,
 host and operation hold no personal data, and tell more for troubleshooting than a path full of identifiers.
 
 A call that fails before a response (connection refused, timeout) reaches no response filter and gets no record from
@@ -339,21 +344,26 @@ birth.
 
 ### 8. Specific fixes
 
-- `MailService.sendMail` logs one `MailSendCompleted(zaakUuid, @Redacted recipient, outcome, durationMs)` record per
-  mail, instead of a `FINE` record on success and a separate `SEVERE` record on failure. `durationMs` is the duration
-  of `Transport.send`. On success it is written at `FINE` with `outcome=SUCCESS`; on a `MessagingException` at
-  `SEVERE` with `outcome=FAILURE` and the exception, as today. This is the example that proves the masking. The
-  subject is not logged: it is resolved from the mail template variables or typed by the employee, so it can hold
-  the name or address of a citizen or the name of an employee (`MailTemplateHelper`).
-- `SendEmailDelegate` logs `ZaakMailSending(zaakIdentificatie, templateName)` right before it sends the mail.
-  `SendConfirmationEmailDelegate` logs one `ConfirmationMailSending(zaakIdentificatie, templateName, emailSource)`
-  record per execution, with `emailSource` `ZAAK_CONTACT_DETAILS`, `INITIATOR` or `NONE`, instead of up to three `FINE`
-  records ("using zaak-specific contact details", "using initiator email", "skipping", "sending"). With `NONE` it is
-  the only record and no mail is sent. The delegates log no `outcome`: the result of sending is the
-  `MailSendCompleted` record of `MailService`. The addresses are removed, not masked: they add nothing to the zaak
-  identification for diagnosing a task, as acceptance criterion 6 and the technical background of PZ-12683 state.
-  Acceptance criterion 3 asks for the address as a `@Redacted` field in these two delegates; the product owner chose
-  removal for both.
+- `MailService.sendMail` logs one `MailSendCompleted(zaakUuid, @Redacted recipient, outcome, durationMs, errorType)`
+  record per mail, instead of a `FINE` record on success and a separate `SEVERE` record on failure. `durationMs` is
+  the duration of `Transport.send`. On success it is written at `FINE` with `outcome=SUCCESS`; on a
+  `MessagingException` at `SEVERE` with `outcome=FAILURE` and the class name of the exception as `errorType`, but
+  without the exception itself. When the mail server rejects a recipient, JavaMail throws a `SendFailedException`
+  whose nested `SMTPAddressFailedException` has the reply of the mail server as its message, and that reply usually
+  holds the address (`550 5.1.1 <burger@example.com>: Recipient address rejected`). The stack trace adds nothing to
+  tell whether the mail server could not be reached, refused the login or rejected a recipient: the error type
+  (`MailConnectException`, `AuthenticationFailedException`, `SendFailedException`) already does. This is the example
+  that proves the masking. The subject is not logged: it is resolved from the mail template variables or typed by
+  the employee, so it can hold the name or address of a citizen or the name of an employee (`MailTemplateHelper`).
+- `SendEmailDelegate` logs `ZaakMailSending(zaakIdentificatie, templateName, @Redacted recipient)` right before it
+  sends the mail. `SendConfirmationEmailDelegate` logs one `ConfirmationMailSending(zaakIdentificatie, templateName,
+  emailSource, @Redacted recipient: String?)` record per execution, with `emailSource` `ZAAK_CONTACT_DETAILS`,
+  `INITIATOR` or `NONE`, instead of up to three `FINE` records ("using zaak-specific contact details", "using
+  initiator email", "skipping", "sending"). With `NONE` it is the only record, `recipient` is `null` and no mail is
+  sent. The delegates log no `outcome`: the result of sending is the `MailSendCompleted` record of `MailService`.
+  Acceptance criterion 3 asks for the email address of the recipient as a `@Redacted` field in these two delegates;
+  acceptance criterion 6 asks to remove the to and from addresses from the free text of the `FINE` log line. Both
+  hold: the recipient is a `@Redacted` field, so its value is never written, and the sender is not logged at all.
 - `UpdateZaakAssignmentDelegate` logs `ZaakAssignmentUpdating(zaakIdentificatie, groupId, assignee: Employee?)`
   without the reason.
 - `ProductaanvraagZaakService` logs `ZaakAssigning(zaakUuid, groupId, behandelaar: Employee?)`.
@@ -391,9 +401,9 @@ birth.
 ### 9. Migration of the other log statements
 
 Every other log statement keeps its level and its technical content and gets an event. The rule for personal data
-in a log line: remove the value when it adds nothing to diagnosis (as in the mail delegates); mark it `@Redacted` only
-when the field itself must stay visible in the log line and only its value must be masked (as the recipient in
-`MailService`).
+in a log line: remove the value when it adds nothing to diagnosis (as the sender in the mail delegates); mark it
+`@Redacted` only when the field itself must stay visible in the log line and only its value must be masked (as the
+recipient in `MailService` and in the mail delegates).
 
 One record per operation: log statements in the same function or class that together describe one operation (its
 choices, intermediate steps and result) become one event, written when the operation ends, with `outcome` and
@@ -474,6 +484,9 @@ this change writes that ticket.
 - [`ZacLogger` holds a stale ID after an account is recreated with the same username] → Only log correlation is
   affected, until ZAC restarts.
 - [Field order from Java reflection] → Tested. Only the order in the log line would change.
+- [MDC values are strings, so `durationMs` is written as `"84"`, not as a number] → A log tool cannot filter on
+  `durationMs > 1000` without parsing the value or mapping the field as a number. Accepted for this change; the ADR
+  names it as a known limitation, and the follow-up story for wide events (decision 12) decides on typed values.
 - [Mocks of `Logger`/`log` in unit tests break] → Expected; those tests move to mocking `ZacLogger`.
 
 ## Migration Plan

@@ -77,6 +77,14 @@ A field of a `LogEvent` that names a shared concept SHALL use the standard field
 - **THEN** exactly one log record is written at `SEVERE`, with `zaakUuid=5f0c8f8e-6f0d-4c63-9d0e-2b8a1c3e4d5f`,
   `outcome=FAILURE`, `durationMs`, `errorType` and the field `recipient` as `*****`
 - **AND** the record does not contain `burger@example.com`
+- **AND** the record has no exception
+
+#### Scenario: The mail server rejects the recipient
+- **WHEN** ZAC sends a mail to `burger@example.com` and the mail server rejects the recipient with the reply
+  `550 5.1.1 <burger@example.com>: Recipient address rejected`
+- **THEN** the record has `outcome=FAILURE` and `errorType=jakarta.mail.SendFailedException`
+- **AND** neither its fields, its message nor an exception in the record contain `burger@example.com` or the reply of
+  the mail server
 
 ### Requirement: One log record per operation
 When several log statements in one function or class describe the same operation, the backend SHALL write one log
@@ -88,12 +96,13 @@ progress and its end.
 - **WHEN** the `SendConfirmationEmailDelegate` sends the confirmation mail with template `Ontvangstbevestiging` for
   zaak `ZAAK-2026-0000000001` to the email address from the zaak-specific contact details
 - **THEN** exactly one log record is written for that execution, with `zaakIdentificatie=ZAAK-2026-0000000001`,
-  `templateName=Ontvangstbevestiging` and `emailSource=ZAAK_CONTACT_DETAILS`
+  `templateName=Ontvangstbevestiging`, `emailSource=ZAAK_CONTACT_DETAILS` and the field `recipient` as `*****`
 
 #### Scenario: No email address for a confirmation mail
 - **WHEN** the `SendConfirmationEmailDelegate` runs for zaak `ZAAK-2026-0000000001` and neither the zaak-specific
   contact details nor the initiator have an email address
-- **THEN** exactly one log record is written, with `zaakIdentificatie=ZAAK-2026-0000000001` and `emailSource=NONE`
+- **THEN** exactly one log record is written, with `zaakIdentificatie=ZAAK-2026-0000000001`, `emailSource=NONE` and
+  the field `recipient` as `null`
 - **AND** no mail is sent
 
 #### Scenario: An employee logs in after another user in the same session
@@ -180,8 +189,9 @@ the response.
 
 ### Requirement: Mail sending is logged without addresses
 The backend SHALL NOT log the email address or the name of the sender or the recipient of a mail in plain text, nor
-the subject of a mail. The BPMN mail delegates SHALL log only the zaak identification, the name of the mail template
-and, for the confirmation mail, the source of the email address.
+the subject of a mail. The BPMN mail delegates SHALL log the zaak identification, the name of the mail template, the
+email address of the recipient as a `@Redacted` field and, for the confirmation mail, the source of the email address.
+They SHALL NOT log the sender.
 
 #### Scenario: A mail with personal data in its subject is sent
 - **WHEN** ZAC sends a mail whose subject resolves to `Uw aanvraag, mevrouw Jansen`
@@ -190,14 +200,15 @@ and, for the confirmation mail, the source of the email address.
 #### Scenario: The send email BPMN task sends a mail
 - **WHEN** the `SendEmailDelegate` sends a mail with template `Ontvangstbevestiging` for zaak `ZAAK-2026-0000000001`
   from `zaken@gemeente.example.com` to `burger@example.com`
-- **THEN** the log record contains `ZAAK-2026-0000000001` and `Ontvangstbevestiging`
+- **THEN** the log record contains `ZAAK-2026-0000000001` and `Ontvangstbevestiging`, and the field `recipient` as
+  `*****`
 - **AND** it contains neither `zaken@gemeente.example.com` nor `burger@example.com`
 
 #### Scenario: The confirmation email BPMN task sends a mail
 - **WHEN** the `SendConfirmationEmailDelegate` sends the confirmation mail for zaak `ZAAK-2026-0000000001` to the email
   address of the initiator
-- **THEN** the log record contains `ZAAK-2026-0000000001` and does not contain the email address of the initiator or
-  of the sender
+- **THEN** the log record contains `ZAAK-2026-0000000001` and the field `recipient` as `*****`
+- **AND** it does not contain the email address of the initiator or of the sender
 
 ### Requirement: Free-text assignment reasons are not logged
 The backend SHALL NOT log the free-text reason of a zaak assignment.

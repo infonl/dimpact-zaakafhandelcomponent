@@ -61,12 +61,16 @@
       `<interface>.<method>`; no path, query, headers or payload; remove the payload, header and `geboorte` handling;
       unit tests for a BRP `POST` with a BSN body, a BAG call with an identifier in the path, a URL with a query string,
       a request without the invoked method, and with and without an active span
-- [ ] 4.2 `MailService.sendMail`: log one `MailSendCompleted(zaakUuid, @Redacted recipient, outcome, durationMs)`
-      record, at `FINE` on success and at `SEVERE` with the exception on failure, without the subject; unit tests that
-      the recipient address and a subject with a name do not appear in the record, for a sent and a failed mail
-- [ ] 4.3 `SendEmailDelegate`: log `ZaakMailSending(zaakIdentificatie, templateName)` without addresses;
-      `SendConfirmationEmailDelegate`: log one `ConfirmationMailSending(zaakIdentificatie, templateName, emailSource)`
-      record per execution instead of up to three, with `emailSource=NONE` when no mail is sent; unit tests
+- [ ] 4.2 `MailService.sendMail`: log one `MailSendCompleted(zaakUuid, @Redacted recipient, outcome, durationMs,
+      errorType)` record, at `FINE` on success and at `SEVERE` on failure with the class name of the exception as
+      `errorType` but without the exception itself, and without the subject; unit tests that the recipient address and
+      a subject with a name do not appear in the record, for a sent and a failed mail, and for a `SendFailedException`
+      with a nested `SMTPAddressFailedException` whose message holds the recipient address
+- [ ] 4.3 `SendEmailDelegate`: log `ZaakMailSending(zaakIdentificatie, templateName, @Redacted recipient)` without
+      the sender; `SendConfirmationEmailDelegate`: log one `ConfirmationMailSending(zaakIdentificatie, templateName,
+      emailSource, @Redacted recipient)` record per execution instead of up to three, with `emailSource=NONE` and
+      `recipient=null` when no mail is sent; unit tests that the record has `recipient=*****` and contains neither the
+      recipient nor the sender address
 - [ ] 4.4 `RestExceptionMapper`: log `ZgwValidationFailed(errorCode, invalid parameter names and codes)` without the
       reasons and without the exception, keep the reasons in the REST response; unit test with a rejected email value
       that checks the whole record, including its exception, and the REST response
@@ -132,7 +136,7 @@
 - [ ] 7.1 Add an ADR (next free number, status `accepted`) "Log only typed log events through ZacLogger", with the ArchUnit rule as
       confirmation, the employee resolution in `ZacLogger`, the structured fields through MDC and the extension of the
       ADR-0011 filter to the MDC, and the known limitations (description literal, exception
-      messages); add it to the ADR index; run
+      messages, MDC values as strings so `durationMs` is not a number); add it to the ADR index; run
       `python3 scripts/adr/check-adrs.py --base origin/main`
 - [ ] 7.2 Update `docs/development/logging.md`: describe `ZacLogger`, `LogEvent`, `@Redacted`, the field vocabulary,
       the one-record-per-operation rule, `outcome`/`durationMs`/`errorType` and `traceId`/`spanId` as the only way to

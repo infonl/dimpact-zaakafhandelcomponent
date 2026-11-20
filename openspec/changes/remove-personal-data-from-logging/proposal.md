@@ -33,8 +33,10 @@ known findings and makes free-text logging impossible in the backend.
     logs one record with a correlation ID (the span ID when tracing is enabled), the HTTP method, the host, the
     invoked client operation (such as `PersonenApi.personen`), the status, the outcome and the duration.
   - `MailService`, `SendEmailDelegate` and `SendConfirmationEmailDelegate` no longer log recipient or sender email
-    addresses or names, nor the mail subject. `MailService` logs one `MailSendCompleted` record per mail, with the
-    recipient as a `@Redacted` field, the outcome and the duration.
+    addresses or names in plain text, nor the mail subject. All three log the recipient as a `@Redacted` field, and
+    none of them logs the sender. `MailService` logs one `MailSendCompleted` record per mail, with the outcome and the
+    duration. A failed send is logged with the error type, but
+    without the exception, because the reply of the mail server in that exception can hold the recipient address.
   - `UpdateZaakAssignmentDelegate` no longer logs the free-text assignment reason.
   - `RestExceptionMapper` no longer logs the rejected values of a `ZgwValidationErrorException`. It logs only the
     validation error code and the names of the invalid parameters, without the exception. The message of a
