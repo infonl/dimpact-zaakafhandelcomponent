@@ -16,6 +16,20 @@ who follows only this change build the right thing, and nothing else".
 - Only post when the user says "post it" for a specific draft in the same turn.
 - No AI attribution in drafts.
 
+## Subagents
+
+- **`zac-researcher`** (Haiku), in step 1: the ticket and its parent, the baseline specs and other open changes
+  per capability, and the existing review comments.
+- **Sections A to E of step 2** in parallel, one subagent each on Sonnet (`model: "sonnet"` on the Agent call).
+  Give each one the change files, the numbered ACs, the baseline and its section's checklist, copied from this
+  skill: it sees nothing else. Section A runs `openspec validate` itself.
+- Weighing the findings, proving each one ("Prove it before drafting") and writing the drafts stay with you, on
+  the main model.
+
+Check every `file:line`, quote and finding a subagent returns before it becomes a draft: cheaper models sometimes
+invent them. For a small change (one capability, a few requirements), do the sections inline instead: five
+subagents cost more than they save.
+
 ## 1. Gather
 
 1. `gh pr view <n> --json title,body,headRefName,headRefOid,baseRefName,files` and `gh pr diff <n>`.

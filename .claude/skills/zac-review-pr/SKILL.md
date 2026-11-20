@@ -128,6 +128,8 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 
 ### 4. Spawn all four sub-agents in parallel
 
+Start each sub-agent on Sonnet: pass `model: "sonnet"` on the Agent call. The review needs judgment, but each sub-agent works one axis with everything it needs in its prompt; reconciling and verifying the findings (steps 5 and 6) stay on the main model.
+
 Paste **the scope rule** (the section above) and **the scope list** from _Build the scope_ (step 2) into the Spec and both Regression prompts. The sub-agents have no other access to them.
 
 **Standards sub-agent prompt** should include:
