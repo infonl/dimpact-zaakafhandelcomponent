@@ -33,20 +33,24 @@ subagents cost more than they save.
 ## 1. Gather
 
 1. `gh pr view <n> --json title,body,headRefName,headRefOid,baseRefName,files` and `gh pr diff <n>`.
-2. Temp dir: `T=${CLAUDE_JOB_DIR:+$CLAUDE_JOB_DIR/tmp}; T=${T:-$(mktemp -d)}`.
-   Fetch the head: `git fetch -fq origin pull/<n>/head:pr<n>` (`-f`: the author may have force-pushed). Never
-   switch branches in the user's checkout.
+2. Temp dir: `T=${CLAUDE_JOB_DIR:+$CLAUDE_JOB_DIR/tmp}; T=${T:-$(mktemp -d)}; mkdir -p "$T"`.
+   Pin both revisions as SHAs, without creating or overwriting a local branch:
+   `git fetch -q origin <base> "refs/pull/<n>/head"`, then `B=$(git rev-parse origin/<base>)` and
+   `H=$(git ls-remote origin "refs/pull/<n>/head" | cut -f1)`. Every read below uses `$B` or `$H`, never the
+   user's checkout, which may be on another branch. Never switch branches in the user's checkout.
 3. Find the change: the `openspec/changes/<change>/` folder the diff adds or edits. Write each artifact to
-   `$T` (`git show "pr<n>:<path>" > "$T/<file>"`, quote the argument: in zsh `$B:src/...` breaks) and read them
-   one by one, in full: `proposal.md`, `design.md`, `tasks.md` and every `specs/<capability>/spec.md`.
+   `$T` (`git show "$H:<path>" > "$T/<file>"`, quote the argument: in zsh `$H:src/...` breaks) and read them
+   one by one, in full: `proposal.md`, `design.md` (when present), `tasks.md` and every
+   `specs/<capability>/spec.md`.
 4. Find the ticket: `PZ-XXX` from title, body or branch. `acli jira workitem view PZ-XXX --fields
    summary,description,status,comment,parent,subtasks --json` (the plain output glues the AC lines together).
-   If the description is thin, fetch the parent (`... --fields parent --json | jq -r .fields.parent.key`). If
+   For a subtask, always fetch the parent too (`... --fields parent --json | jq -r .fields.parent.key`): the
+   acceptance criteria are usually there. Also fetch the description of every subtask the PR covers. If
    `acli` is not logged in, ask the user to run `! acli jira auth login --web`. No ticket → say so and check
    against the PR body only.
-5. Baseline: for every capability the change modifies, read `openspec/specs/<capability>/spec.md` on the base
-   branch. Also find other open changes for the same capability
-   (`git ls-tree -r --name-only origin/<base> openspec/changes/ | grep -v archive/ | grep "specs/<capability>/"`)
+5. Baseline: for every capability the change modifies, read `openspec/specs/<capability>/spec.md` at `$B`. Also
+   find other open changes for the same capability
+   (`git ls-tree -r --name-only "$B" openspec/changes/ | grep -v archive/ | grep "specs/<capability>/"`)
    and read them too: an open change may already be in the code without being in `openspec/specs/`, so it is part
    of the baseline. Check that the two changes do not clash on archive.
 6. Existing review comments: `gh api --paginate repos/{owner}/{repo}/pulls/<n>/comments` and
@@ -58,12 +62,15 @@ subagents cost more than they save.
 Go through every section. Each one ends up in the output, also when it finds nothing.
 
 ### A. Complete and valid
-- Validate in a worktree: `git worktree add "$T/pr<n>" pr<n>`, then in it
+- Validate in a detached worktree: `git worktree add --detach "$T/pr<n>" "$H"`, then in it
   `npx -y -p node@22 -p @fission-ai/openspec@latest openspec validate <change> --strict` (the CLI needs
-  Node ≥ 22; ignore `EBADENGINE` noise). Afterwards `git worktree remove "$T/pr<n>"` and `git branch -D pr<n>`.
+  Node ≥ 22; ignore `EBADENGINE` noise). Afterwards `git worktree remove "$T/pr<n>"`.
   Report errors, not the run. Skip this step when a CI check on the PR already runs `openspec validate`
   (`gh pr checks <n>`); then report its result instead.
-- All four artifacts present. `proposal.md` has Why, What Changes, Capabilities, Impact.
+- `proposal.md`, `tasks.md` and the delta specs are present. `design.md` is optional in the `spec-driven`
+  schema: missing is fine for a small change, but a change with a new pattern, migration, REST contract change
+  or a choice between options needs one. Skip the design checks below when it is legitimately absent.
+- `proposal.md` has Why, What Changes, Capabilities, Impact.
 - Every requirement uses SHALL/MUST and has at least one `#### Scenario:` with WHEN/THEN.
 - `MODIFIED` requirements copy the **whole** baseline requirement, header identical to the baseline, not just the
   changed lines (a partial copy silently deletes the rest on archive). `REMOVED` has Reason and Migration.
@@ -88,7 +95,8 @@ Go through every section. Each one ends up in the output, also when it finds not
 - The PR title is `docs(openspec): ...` and the PR body names the ticket (`Solves PZ-XXX`).
 
 ### C. True to the code
-Specs describe the system. Every claim about existing code must hold. I check, with `file:line`:
+Specs describe the system. Every claim about existing code must hold. I check, with `file:line`, at `$B` (a
+specs-only PR changes no code): `git grep -n <pattern> "$B" -- <paths>` and `git show "$B:<path>"`.
 - Every class, function, endpoint, path, role, right, policy rule, table or config key the change names exists
   and does what the spec says (grep `src/main/kotlin`, `src/main/app/src`, `src/main/resources/policies`,
   `src/main/resources/schemas`).
@@ -141,8 +149,7 @@ roles enumerated in the acceptance criteria..."
 - Lines in the diff: `https://github.com/<owner>/<repo>/pull/<n>/changes#diff-<sha256 of path>R<line>`;
   hash with `printf '%s' "<path>" | shasum -a 256 | cut -d' ' -f1`. Build every link with a command and paste
   it whole; never guess or retype.
-- Existing code: `https://github.com/<owner>/<repo>/blob/<sha>/<path>#L<a>-L<b>`, with the base branch sha
-  (`git rev-parse origin/<base>`). A specs-only PR does not change code, so base and head show the same code.
+- Existing code: `https://github.com/<owner>/<repo>/blob/<sha>/<path>#L<a>-L<b>`, with `$B` as the sha. A specs-only PR does not change code, so base and head show the same code.
 
 ## Output
 
