@@ -32,8 +32,10 @@ A story goes up as a native GitHub stack, even a small one:
    behaviour before anyone reads code. The `zac-pick-up-story` skill opens this one and stops.
 2. **Code PRs**: one or more, split logically (one per screen, flow or layer). Each carries its own tests and
    i18n texts. A Java-to-Kotlin conversion is its own PR below the PR that changes the behaviour.
-3. **Docs PR**: last; the manual updates (`docs/manuals/`) and, once the code is in, the archive of the
-   OpenSpec change.
+3. **Docs and archive PR**: always last. It archives the OpenSpec change, which updates `openspec/specs/`, and
+   holds the manual updates (`docs/manuals/`) when the story needs them. Without manual updates it is
+   `docs(openspec): archive the <change> change`. Every stack ends with this PR, so the archive cannot be
+   forgotten.
 
 Commands:
 - Adopt existing branches: `gh stack init --base main <b1> <b2> ...`, then `gh stack submit --auto` (new PRs
