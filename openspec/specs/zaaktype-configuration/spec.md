@@ -238,3 +238,42 @@ read before.
 - **AND** a new version of a zaaktype was published in Open Zaak in another tab, and ZAC created its configuration
 - **WHEN** the beheerder comes back to the tab with the page
 - **THEN** the page shows the new version with the procesmodel it took over
+
+### Requirement: A changed mail template is used at once and a rolled-back one is never served
+
+When a beheerder changes a mail template, the system SHALL clear the cached configuration of every zaaktype that
+links that template when the change is stored, at once, and SHALL clear it again after that transaction has completed,
+whether it commits or rolls back, including a read that is still loading at that moment.
+Clearing the zaaktype configuration cache by hand on the admin page SHALL clear it at once.
+
+#### Scenario: A changed mail template is used at once
+- **GIVEN** a zaak whose zaaktype configuration links a mail to a mail template, and whose configuration is cached
+- **WHEN** a beheerder changes the onderwerp of that mail template
+- **THEN** the next request for the mail template of that zaak returns the changed onderwerp
+
+#### Scenario: A read during the save does not keep the previous mail template
+- **GIVEN** a mail template change whose transaction has not committed yet
+- **WHEN** another request reads the configuration of a zaaktype that links the template before the commit, and so
+  caches the previous template
+- **THEN** that cached configuration is cleared after the commit, and the next read returns the changed template
+
+#### Scenario: A rolled-back mail template change is not served
+- **GIVEN** a transaction that changes a mail template and then rolls back
+- **WHEN** a configuration that links the template was read inside that transaction, and so cached with the
+  uncommitted template
+- **THEN** that cached configuration is cleared after the rollback, and the next read returns the committed template
+
+#### Scenario: Clearing the cache by hand
+- **WHEN** a beheerder clears the zaaktype configuration cache on the admin page
+- **THEN** the cache is empty at once, and no second clear is scheduled for after a transaction
+
+#### Scenario: Deleting a mail template leaves the cache alone
+- **GIVEN** a mail template that no zaaktype configuration links
+- **WHEN** a beheerder deletes it
+- **THEN** no cached zaaktype configuration is cleared, because none of them holds that template
+
+#### Scenario: A koppeling stored during the change is not covered
+- **GIVEN** a mail template change whose transaction has not committed yet
+- **WHEN** another transaction links the template to another zaaktype at the same moment, by a beheerder or by the
+  notification of a new zaaktype version
+- **THEN** that zaaktype MAY keep the previous template until its cache entry expires or the cache is cleared by hand
