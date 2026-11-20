@@ -31,16 +31,19 @@ whole-cache clear after the commit could miss a read that started before it. `ev
 
 `MailTemplateKoppelingenService` gets `listZaaktypeUuidsLinkedTo(mailTemplateId)`: the distinct
 `zaaktypeConfiguration.zaaktypeUuid` of the `ZaaktypeMailtemplateParameters` whose `mailTemplate` is that template.
-`MailTemplateService.updateMailtemplate` and `delete` call `zaaktypeConfigurationService.evict(uuid)` for each UUID it
-returns. `MailTemplateService` gets `MailTemplateKoppelingenService` injected; there is no cycle.
+`MailTemplateService.updateMailtemplate` calls `zaaktypeConfigurationService.evict(uuid)` for each UUID it returns. `MailTemplateService` gets `MailTemplateKoppelingenService` injected; there is no cycle.
 
 `evict` already follows ADR 0016 and clears per key, so a read that is loading when the second clear runs is waited
 for and then removed. It also clears the deadline warning windows list, which costs one extra read.
 
-### D2. No eviction on create
+### D2. No eviction on create or delete
 
 A new template is in no koppeling, so no cached configuration holds it. The create branch of `storeMailtemplate`
 stops calling `clearManagedCache()`, like `createMailtemplate`, which the REST endpoint calls, never did.
+
+A linked template cannot be deleted: `fk_id_mail_template` is `ON DELETE RESTRICT`
+(`V35__mail_template_koppelingen.sql:12-13`). A delete that commits removes a template that no cached configuration
+holds, and the delete of a linked one fails. So `delete` stops calling `clearManagedCache()` too.
 
 ### D3. `clearManagedCache()` stays as it is
 
@@ -64,6 +67,7 @@ No docs PR: ADR 0016 and the manual need no change.
 - [The transaction phase cannot be unit tested] → The unit tests check which zaaktypes `evict` is called for; the
   integration test checks the result on WildFly. Neither can force a read between the clear and the commit (ADR
   0016).
-- [Another beheerder links the template to a new zaaktype while it is being changed] → The lookup does not see that
-  koppeling yet, so that zaaktype can keep the previous template for up to an hour. Two admin changes to the same
-  template at the same moment are rare; "cache legen" fixes it.
+- [The template gets a new koppeling while it is being changed] → This happens when another beheerder links it, or
+  when the notification of a new zaaktype version copies the koppelingen of the previous version
+  (`ZaaktypeConfigurationVersioning.kt:59`). The lookup does not see that koppeling yet, so that zaaktype can keep the
+  previous template for up to an hour. Both at the same moment as a template change is rare; "cache legen" fixes it.

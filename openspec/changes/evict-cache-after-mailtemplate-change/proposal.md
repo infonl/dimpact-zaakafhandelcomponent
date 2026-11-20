@@ -10,11 +10,12 @@ and a koppeling (ADR 0016), but its design wrongly assumed that `clearManagedCac
 
 ## What Changes
 
-- `MailTemplateService.delete` and `updateMailtemplate` (also via `storeMailtemplate`) no longer call
-  `clearManagedCache()`. They look up the zaaktypes whose configuration links the template and call the existing
+- `MailTemplateService.updateMailtemplate` (also via `storeMailtemplate`) no longer calls
+  `clearManagedCache()`. It looks up the zaaktypes whose configuration links the template and call the existing
   `ZaaktypeConfigurationService.evict(zaaktypeUuid)` for each, which clears at once and again after the transaction
   completes (ADR 0016).
-- Creating a template no longer clears the cache: a new template is in no koppeling, so in no cached configuration.
+- Creating or deleting a template no longer clears the cache: a new template is in no koppeling, and the database
+  refuses to delete a linked one, so neither is in a cached configuration.
 - `clearManagedCache()` stays a single, immediate clear for the "cache legen" button on the admin page.
 - The design of the open change `evict-zaaktype-configuration-cache-after-commit` no longer says that
   `clearManagedCache` never runs inside a transaction that changes the configuration.
