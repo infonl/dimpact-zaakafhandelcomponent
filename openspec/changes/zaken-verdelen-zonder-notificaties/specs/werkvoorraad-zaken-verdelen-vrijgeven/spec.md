@@ -75,8 +75,13 @@ its row, on that event only.
 - **AND** the werkvoorraad counts the zaak as processed and shows it without behandelaar
 
 #### Scenario: A zaak that already has the chosen groep and behandelaar
-- **WHEN** an employee distributes a zaak to the groep and behandelaar it already has
+- **WHEN** an employee distributes a zaak that ZAC does not skip to the groep and behandelaar it already has
 - **THEN** ZAC changes nothing in Open Zaak and sends a `ZAKEN_VERDELEN` `UPDATED` event for it
+
+#### Scenario: A zaak that ZAC skips and that already has the chosen groep and behandelaar
+- **WHEN** an employee distributes a closed zaak, or a selection whose behandelaar is not a member of the groep,
+  and a zaak already has that groep and behandelaar
+- **THEN** ZAC skips the zaak and sends a `ZAKEN_VERDELEN` `SKIPPED` event for it, as the skip checks come first
 
 #### Scenario: A skipped zaak counts as before
 - **WHEN** ZAC skips a zaak of the selection
