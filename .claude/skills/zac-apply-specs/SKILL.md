@@ -74,7 +74,7 @@ continue. Don't let code and specs drift apart silently.
 
 ## 4. Open and review
 
-1. Open each PR as a draft with `zac-create-pr` (`gh stack submit`), and run the Copilot loop.
+1. Open each PR as a draft with `zac-create-pr` (`gh stack submit --auto`), and run the Copilot loop.
 2. Offer to review the stack with `zac-review-pr` before asking the team, PR by PR.
 3. Offer to try it out with `zac-proof`: a test guide with a localhost link, the user and the zaak to use.
 4. Move the subtasks you finished to the next status the team uses (ask which, once).
