@@ -28,7 +28,7 @@ inside a transaction that changes cached data, and it clears before the commit.
 
 ### D1. `evictAll()` follows ADR 0016
 
-`evictAll()` calls `uuidToConfigurationCache.invalidateAll()` and fires `ZaaktypeConfigurationsCacheEvictionEvent`
+`evictAll()` calls `uuidToConfigurationCache.invalidateAll()` and fires `AllZaaktypeConfigurationsCacheEvictionEvent`
 with the `Event` that the constructor injects, next to the existing `Event<ZaaktypeConfigurationCacheEvictionEvent>`.
 `onCacheEvictionOfAll(@Observes(during = TransactionPhase.AFTER_COMPLETION) ...)` calls `invalidateAll()` again. This
 is the pattern of `evict` (`ZaaktypeConfigurationService.kt:110-123`), but for all zaaktypes, since one template can be
@@ -36,7 +36,7 @@ linked to the configuration of any zaaktype. Outside a transaction CDI calls the
 
 ### D2. A separate event, not a nullable zaaktype UUID
 
-`ZaaktypeConfigurationsCacheEvictionEvent` is a `data object`. Making the UUID of
+`AllZaaktypeConfigurationsCacheEvictionEvent` is a `data object`. Making the UUID of
 `ZaaktypeConfigurationCacheEvictionEvent` nullable to mean "all" would hide a second meaning in a null.
 
 ### D3. `MailTemplateService` calls `evictAll()`; `clearManagedCache()` stays as it is

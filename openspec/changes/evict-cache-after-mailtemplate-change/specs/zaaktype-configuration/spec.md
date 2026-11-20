@@ -25,4 +25,4 @@ Clearing the zaaktype configuration cache by hand on the admin page SHALL clear 
 
 #### Scenario: Clearing the cache by hand
 - **WHEN** a beheerder clears the zaaktype configuration cache on the admin page
-- **THEN** the cache is empty at once, and it is cleared once
+- **THEN** the cache is empty at once, and no second clear is scheduled for after a transaction

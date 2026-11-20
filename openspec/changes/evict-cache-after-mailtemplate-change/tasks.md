@@ -1,7 +1,7 @@
 ## 1. Backend (PR 1)
 
-- [ ] 1.1 Add `ZaaktypeConfigurationsCacheEvictionEvent` as a `data object` in `nl.info.zac.admin`.
-- [ ] 1.2 In `ZaaktypeConfigurationService`, inject `Event<ZaaktypeConfigurationsCacheEvictionEvent>`, add
+- [ ] 1.1 Add `AllZaaktypeConfigurationsCacheEvictionEvent` as a `data object` in `nl.info.zac.admin`.
+- [ ] 1.2 In `ZaaktypeConfigurationService`, inject `Event<AllZaaktypeConfigurationsCacheEvictionEvent>`, add
       `evictAll()` and the `AFTER_COMPLETION` observer that clears all configurations again (design D1, D2). Leave
       `clearManagedCache()` unchanged.
 - [ ] 1.3 In `MailTemplateService`, replace the three `clearManagedCache()` calls with `evictAll()` (design D3).

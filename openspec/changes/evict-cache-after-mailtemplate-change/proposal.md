@@ -15,10 +15,12 @@ and a koppeling (ADR 0016), but its design wrongly assumed that `clearManagedCac
 - `MailTemplateService.delete`, `updateMailtemplate` and `storeMailtemplate` call `evictAll()` instead of
   `clearManagedCache()`.
 - `clearManagedCache()` stays a single, immediate clear for the "cache legen" button on the admin page.
+- The design of the open change `evict-zaaktype-configuration-cache-after-commit` no longer says that
+  `clearManagedCache` never runs inside a transaction that changes the configuration.
 
 Out of scope: the deadline warning windows cache (it holds no mail templates), `createMailtemplate` called directly
-by the REST endpoint (a new template is in no koppeling, so in no cached configuration), clearing the cache of other
-ZAC instances, and the design text of the open change `evict-zaaktype-configuration-cache-after-commit`.
+by the REST endpoint (a new template is in no koppeling, so in no cached configuration), and clearing the cache of
+other ZAC instances.
 
 ## Capabilities
 
