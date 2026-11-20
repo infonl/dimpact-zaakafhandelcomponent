@@ -28,6 +28,7 @@ import java.net.HttpURLConnection.HTTP_CREATED
 import java.net.HttpURLConnection.HTTP_OK
 
 private const val BPMN_MAILTEMPLATE_NAME = "fakeBpmnZaakAlgemeenMailtemplate"
+private const val BPMN_CHANGED_ONDERWERP = "fakeChangedOnderwerp"
 private const val BPMN_ZAAKAFZENDER = "fakeBpmnAfzender@example.com"
 
 class ZaaktypeConfigurationRestServiceBpmnMailTest : BehaviorSpec({
@@ -121,6 +122,26 @@ class ZaaktypeConfigurationRestServiceBpmnMailTest : BehaviorSpec({
             then("it is the default zaakafzender of the configuration") {
                 response.code shouldBe HTTP_OK
                 JSONObject(response.bodyAsString).getString("mail") shouldBe BPMN_ZAAKAFZENDER
+            }
+        }
+
+        `when`("a beheerder changes the onderwerp of the linked mail template") {
+            val updateResponse = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/beheer/mailtemplates/${mailtemplate.getLong("id")}",
+                requestBodyAsString = JSONObject(mailtemplate.toString())
+                    .put("onderwerp", BPMN_CHANGED_ONDERWERP)
+                    .toString(),
+                testUser = BEHEERDER_1
+            )
+            updateResponse.code shouldBe HTTP_OK
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/mailtemplates/$MAIL_TEMPLATE_ZAAK_ALGEMEEN_MAIL/$zaakUuid",
+                testUser = BEHANDELAAR_1
+            )
+
+            then("the next request for the mail template of the zaak returns the changed onderwerp") {
+                response.code shouldBe HTTP_OK
+                JSONObject(response.bodyAsString).getString("onderwerp") shouldBe BPMN_CHANGED_ONDERWERP
             }
         }
 

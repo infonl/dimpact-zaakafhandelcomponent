@@ -17,6 +17,8 @@ import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.CriteriaQuery
+import jakarta.persistence.criteria.Path
+import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import nl.info.zac.admin.MailTemplateKoppelingenService
 import nl.info.zac.admin.ZaaktypeConfigurationService
@@ -24,6 +26,7 @@ import nl.info.zac.admin.model.ZaaktypeMailtemplateParameters
 import nl.info.zac.admin.model.createMailTemplate
 import nl.info.zac.admin.model.createMailtemplateKoppelingen
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
+import java.util.UUID
 
 class MailTemplateKoppelingenServiceTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>()
@@ -205,6 +208,44 @@ class MailTemplateKoppelingenServiceTest : BehaviorSpec({
 
             then("both koppelingen are returned") {
                 result.size shouldBe 2
+            }
+        }
+    }
+
+    given("A mail template that two zaaktype configurations link") {
+        val mailTemplateId = 31L
+        val zaaktypeUuids = listOf(UUID.randomUUID(), UUID.randomUUID())
+        val uuidQuery = mockk<CriteriaQuery<UUID>>()
+        val uuidRoot = mockk<Root<ZaaktypeMailtemplateParameters>>()
+        val zaaktypeConfigurationPath = mockk<Path<Any>>()
+        val zaaktypeUuidPath = mockk<Path<Any>>()
+        val mailTemplatePath = mockk<Path<Any>>()
+        val mailTemplateIdPath = mockk<Path<Long>>()
+        val predicate = mockk<Predicate>()
+        val uuidTypedQuery = mockk<TypedQuery<UUID>>()
+        every { entityManager.criteriaBuilder } returns criteriaBuilder
+        every { criteriaBuilder.createQuery(UUID::class.java) } returns uuidQuery
+        every { uuidQuery.from(ZaaktypeMailtemplateParameters::class.java) } returns uuidRoot
+        every { uuidRoot.get<Any>("zaaktypeConfiguration") } returns zaaktypeConfigurationPath
+        every { zaaktypeConfigurationPath.get<Any>("zaaktypeUuid") } returns zaaktypeUuidPath
+        every { uuidRoot.get<Any>("mailTemplate") } returns mailTemplatePath
+        every { mailTemplatePath.get<Long>("id") } returns mailTemplateIdPath
+        every { criteriaBuilder.equal(mailTemplateIdPath, mailTemplateId) } returns predicate
+        every { uuidQuery.select(any()) } returns uuidQuery
+        every { uuidQuery.distinct(true) } returns uuidQuery
+        every { uuidQuery.where(predicate) } returns uuidQuery
+        every { entityManager.createQuery(uuidQuery) } returns uuidTypedQuery
+        every { uuidTypedQuery.resultList } returns zaaktypeUuids
+
+        `when`("listZaaktypeUuidsLinkedTo is called with the id of the mail template") {
+            val result = service.listZaaktypeUuidsLinkedTo(mailTemplateId)
+
+            then("the distinct zaaktype UUIDs of the koppelingen of that template are returned") {
+                result shouldBe zaaktypeUuids
+                verify {
+                    uuidQuery.distinct(true)
+                    uuidQuery.where(predicate)
+                }
             }
         }
     }
