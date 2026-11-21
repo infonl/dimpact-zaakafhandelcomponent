@@ -1,0 +1,9 @@
+style:
+  MaxLineLength:
+    maxLineLength: 140
+  WildcardImport:
+    excludeImports: []
+
+formatting:
+  MaximumLineLength:
+    maxLineLength: 140

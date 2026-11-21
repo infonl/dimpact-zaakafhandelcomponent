@@ -1,0 +1,23 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<div class="sidenav-title">
+  <h3>
+    <mat-icon>upload_file</mat-icon>
+    {{ "actie.document.maken" | translate }}
+  </h3>
+  <button mat-icon-button (click)="sideNav.close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<div class="form">
+  <mfb-form
+    *ngIf="fields"
+    (formSubmit)="onFormSubmit($event)"
+    [formFields]="fields"
+    [config]="formConfig"
+  ></mfb-form>
+</div>

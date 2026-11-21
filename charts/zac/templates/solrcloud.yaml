@@ -1,0 +1,80 @@
+{{- if (index .Values "solr-operator").enabled }}
+{{- if (index .Values "solr-operator").solr.enabled }}
+apiVersion: solr.apache.org/v1beta1
+kind: SolrCloud
+metadata:
+  name: {{ include "zaakafhandelcomponent.solrcloud.fullname" . }}
+spec:
+  customSolrKubeOptions:
+    podOptions:
+      {{- with (index .Values "solr-operator").solr.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (index .Values "solr-operator").solr.annotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (index .Values "solr-operator").solr.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (index .Values "solr-operator").solr.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  busyBoxImage:
+    pullPolicy: {{ (index .Values "solr-operator").solr.busyBoxImage.pullPolicy }}
+    repository: {{ (index .Values "solr-operator").solr.busyBoxImage.repository }}
+    tag: {{ (index .Values "solr-operator").solr.busyBoxImage.tag }}
+  replicas: {{ (index .Values "solr-operator").solr.replicas }}
+  solrImage:
+    pullPolicy: {{ (index .Values "solr-operator").solr.image.pullPolicy }}
+    repository: {{ (index .Values "solr-operator").solr.image.repository }}
+    tag: {{ (index .Values "solr-operator").solr.image.tag }}
+  solrJavaMem: {{ (index .Values "solr-operator").solr.javaMem }}
+  solrLogLevel: {{ (index .Values "solr-operator").solr.logLevel }}
+  dataStorage:
+    persistent:
+      pvcTemplate:
+         spec:
+           storageClassName: {{ (index .Values "solr-operator").solr.storage.storageClassName }}
+           resources:
+             requests:
+               storage: {{ (index .Values "solr-operator").solr.storage.size }}
+      reclaimPolicy: {{ (index .Values "solr-operator").solr.storage.reclaimPolicy }}
+  zookeeperRef:
+    provided:
+      zookeeperPodPolicy:
+        {{- with (index (index .Values "solr-operator") "zookeeper-operator").zookeeper.affinity }}
+        affinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with (index (index .Values "solr-operator") "zookeeper-operator").zookeeper.annotations }}
+        annotations:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with (index (index .Values "solr-operator") "zookeeper-operator").zookeeper.nodeSelector }}
+        nodeSelector:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with (index (index .Values "solr-operator") "zookeeper-operator").zookeeper.tolerations }}
+        tolerations:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      image:
+        pullPolicy: {{ (index (index .Values "solr-operator") "zookeeper-operator").zookeeper.image.pullPolicy }}
+        repository: {{ (index (index .Values "solr-operator") "zookeeper-operator").zookeeper.image.repository }}
+        tag: {{ (index (index .Values "solr-operator") "zookeeper-operator").zookeeper.image.tag }}
+      replicas: {{ (index (index .Values "solr-operator") "zookeeper-operator").zookeeper.replicas }}
+      persistence:
+        reclaimPolicy: {{ (index (index .Values "solr-operator") "zookeeper-operator").zookeeper.storage.reclaimPolicy }}
+        spec:
+          storageClassName: {{ (index (index .Values "solr-operator") "zookeeper-operator").zookeeper.storage.storageClassName }}
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: {{ (index (index .Values "solr-operator") "zookeeper-operator").zookeeper.storage.size }}
+{{- end }}
+{{- end }}

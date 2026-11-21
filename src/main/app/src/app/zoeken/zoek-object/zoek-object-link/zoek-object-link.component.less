@@ -1,0 +1,48 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+.link {
+  margin: 3px 5px;
+  font-size: small;
+  white-space: pre-line;
+
+  a {
+    all: unset;
+    cursor: pointer;
+    min-height: 20px;
+    font-size: 14px;
+    margin-top: 3px;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    read-more {
+      display: inline-flex;
+    }
+  }
+
+  label {
+    font-weight: 500;
+    color: #ff4081;
+  }
+
+  mat-icon {
+    font-size: 17px;
+    margin-top: -11px;
+    position: relative;
+    top: 11px;
+    left: 2px;
+  }
+
+  zac-zaak-indicaties,
+  zac-informatie-object-indicaties {
+    margin-right: 5px;
+
+    ::ng-deep mat-chip-list {
+      max-width: 80px;
+    }
+  }
+}
