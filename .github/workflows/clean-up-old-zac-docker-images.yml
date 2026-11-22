@@ -33,7 +33,7 @@ jobs:
       # This means build artifacts like main-12345 are eligible for cleanup.
       # An image is preserved if any of its tags matches, so e.g. 'main-12345' is kept when it
       # shares a digest with a release tag.
-      - uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1.2.2
+      - uses: dataaxiom/ghcr-cleanup-action@ac45a8c04b1eb4b27974ca79a0a74f344c93664b # v1.3.0
         with:
           owner: infonl
           package: zaakafhandelcomponent
@@ -51,7 +51,7 @@ jobs:
 
       # The NVD database cache image is republished daily under the ':latest' tag,
       # which orphans the previous digest. Clean up those untagged versions too.
-      - uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1.2.2
+      - uses: dataaxiom/ghcr-cleanup-action@ac45a8c04b1eb4b27974ca79a0a74f344c93664b # v1.3.0
         with:
           owner: infonl
           package: nvd-database-cache
