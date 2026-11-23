@@ -48,17 +48,17 @@ function bulkActions(page: Page, soort: "Zaken" | "Taken") {
       await page.getByRole("checkbox", { name: "Alles selecteren" }).check();
     },
 
-    /** Assigns the selected rows. Leave out the groep to keep the groep that the dialog proposes. */
+    /** Assigns the selected rows. The dialog offers the medewerkers only after the choice of a groep. */
     async verdelen({
       groep,
       medewerker,
     }: {
-      groep?: string;
+      groep: string;
       medewerker: string;
     }) {
       await page.getByRole("button", { name: "Verdelen" }).click();
       const dialog = findDialog(page, `${soort} verdelen`);
-      if (groep) await choose(page, dialog, "Groep", groep);
+      await choose(page, dialog, "Groep", groep);
       await choose(page, dialog, "Medewerker", medewerker);
       await confirmDialog(dialog, "Verdelen");
     },
@@ -73,9 +73,11 @@ function bulkActions(page: Page, soort: "Zaken" | "Taken") {
       ).toBeHidden({ timeout: 60_000 });
     },
 
-    async vrijgeven() {
+    async vrijgeven(reden: string) {
       await page.getByRole("button", { name: "Vrijgeven" }).click();
-      await confirmDialog(findDialog(page, `${soort} vrijgeven`), "Vrijgeven");
+      const dialog = findDialog(page, `${soort} vrijgeven`);
+      await dialog.getByRole("textbox", { name: "Reden" }).fill(reden);
+      await confirmDialog(dialog, "Vrijgeven");
     },
   };
 }
@@ -87,8 +89,11 @@ function zakenLijst(page: Page, path: string) {
       await openList(page, path);
     },
 
+    /** The row of the zaak. The row of the filters can also hold the zaaknummer, but in a textbox, not in a cell. */
     zaak(identificatie: string) {
-      return page.getByRole("row", { name: identificatie });
+      return page
+        .getByRole("row")
+        .filter({ has: page.getByRole("cell", { name: identificatie }) });
     },
 
     filterOnZaaknummer(identificatie: string) {

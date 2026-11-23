@@ -100,15 +100,23 @@ When(
   },
 );
 
-When("I assign them to the behandelaar", async ({ page, accountOfRole }) => {
-  await takenWerkvoorraad(page).verdelen({
-    medewerker: accountOfRole("behandelaar").displayName,
-  });
-});
+When(
+  "I assign them to the behandelaar",
+  async ({ page, accountOfRole, testData }) => {
+    const { naam } = await testData.groepOf("behandelaar");
+    await takenWerkvoorraad(page).verdelen({
+      groep: naam,
+      medewerker: accountOfRole("behandelaar").displayName,
+    });
+  },
+);
 
-When("I release them", async ({ page }) => {
-  await zakenWerkvoorraad(page).vrijgeven();
-});
+When(
+  "I release them with the reason {string}",
+  async ({ page }, reden: string) => {
+    await zakenWerkvoorraad(page).vrijgeven(reden);
+  },
+);
 
 Then("I see the message {string}", async ({ page }, message: string) => {
   await expect(page.getByText(message)).toBeVisible();

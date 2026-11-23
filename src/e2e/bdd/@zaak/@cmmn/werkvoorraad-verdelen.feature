@@ -16,7 +16,7 @@ Feature: Werkvoorraad verdelen en vrijgeven
     Then I see the message "3 zaken worden verdeeld..."
     And the 3 zaken show the behandelaar without a page reload
     When I select the 3 zaken
-    And I release them
+    And I release them with the reason "Behandelaar met verlof"
     Then I see the message "3 zaken worden vrijgegeven..."
     And the 3 zaken show no behandelaar without a page reload
 
