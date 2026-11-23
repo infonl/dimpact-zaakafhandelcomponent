@@ -24,7 +24,7 @@ function zacUrlOfKindCluster(clusterName: string): string | UnknownZacUrl {
     return {
       unknownBecause:
         `The kind cluster "${clusterName}" has no ports file at ${portsFile}. ` +
-        `Start the stack with "./start-kind.sh -b -t", or set ZAC_URL.`,
+        `Start the stack with "./start-kind.sh -b -t -n", or set ZAC_URL.`,
     };
   }
 
@@ -33,7 +33,7 @@ function zacUrlOfKindCluster(clusterName: string): string | UnknownZacUrl {
     return {
       unknownBecause:
         `ZAC does not run in the kind cluster "${clusterName}": ${portsFile} has no HOST_PORT_ZAC. ` +
-        `Start the stack with "./start-kind.sh -b -t", or set ZAC_URL.`,
+        `Start the stack with "./start-kind.sh -b -t -n", or set ZAC_URL.`,
     };
   }
   return `http://localhost:${zacPort}`;
