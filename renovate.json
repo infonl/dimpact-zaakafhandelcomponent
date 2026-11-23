@@ -458,15 +458,18 @@
       "groupName": "Angular",
       "matchPackageNames": [
         "/^@angular\\//",
+        "/^@angular-devkit\\//",
         "/^@angular-eslint\\//",
         "/^@angular-builders\\//",
+        "angular-eslint",
         "ngx-bootstrap"
       ],
-      "allowedVersions": "< 22.0.0",
+      "allowedVersions": "< 23.0.0",
       "description": [
-        "Group all Angular ecosystem packages (framework, CLI, components, eslint, builders) so the CLI/build packages never upgrade ahead of the framework",
+        "Group all Angular ecosystem packages (framework, CLI, devkit, components, eslint, builders) so the CLI/build packages never upgrade ahead of the framework",
+        "@angular-devkit/build-angular depends on @angular/build and @angular-devkit/core of its own version, so upgrading it apart from @angular/build and @angular/cli leaves mixed @angular-devkit/core versions with conflicting chokidar peers",
         "ngx-bootstrap is a peer dependency of @formio/angular and each of its majors supports exactly one Angular major, so it must upgrade together with Angular or npm ci fails on a peer conflict",
-        "Pinned to v21.x until the next major Angular upgrade"
+        "Pinned to v22.x until the next major Angular upgrade"
       ]
     },
     {
