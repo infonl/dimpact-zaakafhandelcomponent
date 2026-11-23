@@ -64,8 +64,8 @@ function bulkActions(page: Page, soort: "Zaken" | "Taken") {
     },
 
     /**
-     * Waits until ZAC has processed every selected row. Until then a dialog shows the progress and hides the list.
-     * ZAC gives up after a minute, so this waits as long.
+     * Waits until ZAC has processed every selected row. Until then a dialog shows the progress and hides the list. For
+     * zaken, the dialog closes when Open Notificaties has told ZAC about the new rol of each zaak.
      */
     async untilProcessed() {
       await expect(

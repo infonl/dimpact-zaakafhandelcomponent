@@ -170,10 +170,12 @@ machine and uses the same `localhost` URLs of ZAC and Keycloak as your own brows
    you build first:
 
    ```sh
-   KIND_ZAC_VALUES=scripts/kind/values/zac-e2e.yaml ./start-kind.sh -b -t
+   KIND_ZAC_VALUES=scripts/kind/values/zac-e2e.yaml ./start-kind.sh -b -t -n
    ```
 
    `-t` starts the test doubles, such as the WireMock services for KVK and BAG. The values file makes ZAC call them.
+   `-n` starts Open Notificaties, which tells ZAC about changes in Open Zaak. The werkvoorraad needs it to show the
+   result of assigning or releasing zaken.
    `-l` uses an image that you built before, and `-z` the image of the registry (amd64 only).
 
 2. Run the e2e tests:
@@ -187,7 +189,7 @@ with `KIND_PORT_OFFSET` or `KIND_PORT_ZAC`, and they log in as the [local test u
 each role. For a cluster with another name, set `KIND_CLUSTER_NAME` for both scripts:
 
 ```sh
-KIND_CLUSTER_NAME=zac-e2e KIND_PORT_OFFSET=11000 KIND_ZAC_VALUES=scripts/kind/values/zac-e2e.yaml ./start-kind.sh -b -t
+KIND_CLUSTER_NAME=zac-e2e KIND_PORT_OFFSET=11000 KIND_ZAC_VALUES=scripts/kind/values/zac-e2e.yaml ./start-kind.sh -b -t -n
 KIND_CLUSTER_NAME=zac-e2e ./start-e2e-with-local-env.sh
 ```
 

@@ -94,14 +94,15 @@ jobs:
             --build-arg commitHash="${GIT_COMMIT_HASH}" \
             .
 
-      # The stack pulls its images while the e2e dependencies and the browser are installed
+      # The stack pulls its images while the e2e dependencies and the browser are installed. Open Notificaties (-n) tells
+      # ZAC about changes in Open Zaak, such as a new behandelaar, which the werkvoorraad then shows over the websocket.
       - name: Start the kind stack in the background
         env:
           KIND_ENV_FILE: ""
           KIND_ZAC_VALUES: scripts/kind/values/zac-e2e.yaml
           ZAC_SOURCE: ${{ inputs.zac-jar-artifact != '' && '-l' || '-z' }}
         run: |
-          nohup sh -c './start-kind.sh "$ZAC_SOURCE" -t -e; echo $? > "$RUNNER_TEMP/kind-exit-code"' \
+          nohup sh -c './start-kind.sh "$ZAC_SOURCE" -t -n -e; echo $? > "$RUNNER_TEMP/kind-exit-code"' \
             < /dev/null > "$RUNNER_TEMP/kind.log" 2>&1 &
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
