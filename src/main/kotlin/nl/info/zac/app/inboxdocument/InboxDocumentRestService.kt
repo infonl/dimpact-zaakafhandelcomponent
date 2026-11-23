@@ -22,16 +22,18 @@ import nl.info.zac.app.inboxdocument.model.RestInboxDocument
 import nl.info.zac.app.inboxdocument.model.RestInboxDocumentDeleteResult
 import nl.info.zac.app.inboxdocument.model.RestInboxDocumentListParameters
 import nl.info.zac.app.inboxdocument.model.toRestInboxDocuments
+import nl.info.zac.app.log.InboxDocumentAlreadyDeleted
+import nl.info.zac.app.log.InboxDocumentInformatieobjectKept
+import nl.info.zac.app.log.InboxDocumentInformatieobjectReadFailed
 import nl.info.zac.app.shared.RestResultaat
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
-import java.util.logging.Level
-import java.util.logging.Logger
 
 @Singleton
 @Path("inboxdocumenten")
@@ -46,7 +48,7 @@ class InboxDocumentRestService @Inject constructor(
     private val policyService: PolicyService
 ) {
     companion object {
-        private val LOG = Logger.getLogger(InboxDocumentRestService::class.java.name)
+        private val LOG = ZacLogger.getLogger(InboxDocumentRestService::class)
     }
 
     @PUT
@@ -69,7 +71,7 @@ class InboxDocumentRestService @Inject constructor(
     fun deleteInboxDocument(@PathParam("id") id: Long): RestInboxDocumentDeleteResult {
         assertPolicy(policyService.readWerklijstRechten().canInbox)
         val inboxDocument = inboxDocumentService.find(id) ?: run {
-            LOG.warning { "Inbox document with id '$id' not found. It may already have been deleted." }
+            LOG.warning(InboxDocumentAlreadyDeleted(inboxDocumentId = id))
             return RestInboxDocumentDeleteResult(isInformatieobjectDeleted = true)
         }
 
@@ -82,11 +84,12 @@ class InboxDocumentRestService @Inject constructor(
         val isGekoppeldAanZaak = zaakInformatieobjecten.isNotEmpty()
         if (isGekoppeldAanZaak) {
             val zaakUuid = zaakInformatieobjecten.first().zaak.extractUuid()
-            LOG.log(Level.WARNING) {
-                "Deleting inbox document but not the related informatieobject. " +
-                    "Reason: informatieobject '${enkelvoudigInformatieobject.identificatie}' is linked " +
-                    "to zaak '$zaakUuid'."
-            }
+            LOG.warning(
+                InboxDocumentInformatieobjectKept(
+                    informatieobjectIdentificatie = enkelvoudigInformatieobject.identificatie,
+                    zaakUuid = zaakUuid
+                )
+            )
         } else {
             drcClientService.deleteEnkelvoudigInformatieobject(
                 inboxDocument.enkelvoudiginformatieobjectUUID
@@ -103,11 +106,13 @@ class InboxDocumentRestService @Inject constructor(
             )
             return informatieobject.getInformatieobjecttype().extractUuid()
         } catch (notFoundException: NotFoundException) {
-            LOG.log(Level.WARNING, notFoundException) {
-                "Error reading EnkelvoudigInformatieobject for InboxDocument with id '${inboxDocument.id}' " +
-                    "and enkelvoudiginformatieobjectUUID '${inboxDocument.enkelvoudiginformatieobjectUUID}' " +
-                    "Error: ${notFoundException.message}"
-            }
+            LOG.warning(
+                InboxDocumentInformatieobjectReadFailed(
+                    inboxDocumentId = inboxDocument.id,
+                    informatieobjectUuid = inboxDocument.enkelvoudiginformatieobjectUUID
+                ),
+                notFoundException
+            )
         }
         return null
     }

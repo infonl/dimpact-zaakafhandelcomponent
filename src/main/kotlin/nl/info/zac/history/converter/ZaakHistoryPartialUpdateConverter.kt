@@ -13,16 +13,17 @@ import nl.info.client.zgw.shared.model.audit.ZrcAuditTrailRegel
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
 import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
+import nl.info.zac.history.converter.log.GerelateerdeZaakUnreadable
+import nl.info.zac.history.converter.log.InvalidGerelateerdeZaakUrl
 import nl.info.zac.history.model.HistoryAction
 import nl.info.zac.history.model.HistoryLine
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.time.toFormattedDate
 import nl.info.zac.util.asMapWithKeyOfString
 import nl.info.zac.util.diff
 import nl.info.zac.util.getTypedValue
 import java.net.URI
 import java.time.ZonedDateTime
-import java.util.logging.Level
-import java.util.logging.Logger
 
 internal const val RESOURCE_GERELATEERDE_ZAKEN = "gerelateerdeZaken"
 private const val RESOURCE_COMMUNICATION_CHANNEL = "communicatiekanaal"
@@ -38,7 +39,7 @@ class ZaakHistoryPartialUpdateConverter @Inject constructor(
     private val zrcClientService: ZrcClientService
 ) {
     companion object {
-        private val LOG = Logger.getLogger(ZaakHistoryPartialUpdateConverter::class.java.name)
+        private val LOG = ZacLogger.getLogger(ZaakHistoryPartialUpdateConverter::class)
     }
 
     fun convertPartialUpdate(
@@ -103,7 +104,7 @@ class ZaakHistoryPartialUpdateConverter @Inject constructor(
         try {
             URI.create(uri)
         } catch (illegalArgumentException: IllegalArgumentException) {
-            LOG.log(Level.FINE, "Ignoring invalid gerelateerde zaak URL '$uri'", illegalArgumentException)
+            LOG.fine(InvalidGerelateerdeZaakUrl(url = uri.toString()), illegalArgumentException)
             null
         }
 
@@ -127,7 +128,7 @@ class ZaakHistoryPartialUpdateConverter @Inject constructor(
         }
 
     private fun logUnreadableZaak(zaakUri: URI, exception: RuntimeException): String? {
-        LOG.log(Level.FINE, "Cannot read gerelateerde zaak '$zaakUri'; showing its URL instead", exception)
+        LOG.fine(GerelateerdeZaakUnreadable(zaakUri = zaakUri), exception)
         return null
     }
 }

@@ -48,6 +48,7 @@ import nl.info.zac.app.informatieobjecten.model.RestInformatieobjectZoekParamete
 import nl.info.zac.app.informatieobjecten.model.RestInformatieobjecttype
 import nl.info.zac.app.informatieobjecten.model.RestZaakInformatieobject
 import nl.info.zac.app.informatieobjecten.model.toRestInformatieobjecttype
+import nl.info.zac.app.log.DocumentLinkedToMultipleZaken
 import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.zaak.model.toRestZaakStatus
 import nl.info.zac.authentication.LoggedInUser
@@ -62,6 +63,7 @@ import nl.info.zac.exception.ErrorCode.ERROR_CODE_DOCUMENT_UPLOAD_INVALID
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
@@ -77,8 +79,6 @@ import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
 import java.io.IOException
 import java.net.URI
 import java.util.UUID
-import java.util.logging.Level
-import java.util.logging.Logger
 
 @Singleton
 @Path("informatieobjecten")
@@ -109,7 +109,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val zaakspecifiekeAutorisatieService: ZaakspecifiekeAutorisatieService,
 ) {
     companion object {
-        private val LOG = Logger.getLogger(EnkelvoudigInformatieObjectRestService::class.java.name)
+        private val LOG = ZacLogger.getLogger(EnkelvoudigInformatieObjectRestService::class)
     }
 
     @GET
@@ -160,11 +160,13 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
             .also { zaakInformatieobjecten ->
                 if (zaakInformatieobjecten.size > 1) {
-                    LOG.log(Level.WARNING) {
-                        "Document with UUID '${enkelvoudigInformatieObject.url.extractUuid()}' is linked to " +
-                            "${zaakInformatieobjecten.size} zaken; using ${zaakInformatieobjecten[0].zaakUUID} " +
-                            "to determine document rights."
-                    }
+                    LOG.warning(
+                        DocumentLinkedToMultipleZaken(
+                            informatieobjectUuid = enkelvoudigInformatieObject.url.extractUuid(),
+                            zaakCount = zaakInformatieobjecten.size,
+                            zaakUuid = zaakInformatieobjecten[0].zaakUUID
+                        )
+                    )
                 }
             }
             .firstOrNull()

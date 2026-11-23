@@ -8,12 +8,13 @@ import jakarta.annotation.PostConstruct
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import nl.info.zac.configuration.exception.BrpProtocolleringConfigurationException
+import nl.info.zac.configuration.log.InvalidBrpLogLevel
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.util.Optional
 import java.util.logging.Level
-import java.util.logging.Logger
 import kotlin.jvm.optionals.getOrElse
 import kotlin.jvm.optionals.getOrNull
 
@@ -100,7 +101,7 @@ class BrpConfiguration @Inject constructor(
     private val apiKey: Optional<String>,
 ) : BrpConfigurationProvider {
     companion object {
-        private val LOG = Logger.getLogger(BrpConfiguration::class.java.name)
+        private val LOG = ZacLogger.getLogger(BrpConfiguration::class)
 
         const val ENV_VAR_BRP_ORIGIN_OIN = "BRP_ORIGIN_OIN"
         const val ENV_VAR_BRP_ORIGIN_OIN_HEADER = "BRP_ORIGIN_OIN_HEADER"
@@ -165,7 +166,7 @@ class BrpConfiguration @Inject constructor(
         try {
             logLevel.getOrElse { "OFF" }.let(Level::parse)
         } catch (illegalArgumentException: IllegalArgumentException) {
-            LOG.log(Level.FINE, "Invalid BRP log level '${logLevel.orElse(null)}'; BRP logging is switched off", illegalArgumentException)
+            LOG.fine(InvalidBrpLogLevel(logLevel = logLevel.orElse(null)), illegalArgumentException)
             Level.OFF
         }
 

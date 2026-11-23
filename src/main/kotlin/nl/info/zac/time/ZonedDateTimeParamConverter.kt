@@ -6,25 +6,26 @@ package nl.info.zac.time
 
 import jakarta.ws.rs.BadRequestException
 import jakarta.ws.rs.ext.ParamConverter
+import nl.info.zac.log.ZacLogger
+import nl.info.zac.time.log.InvalidDateParameter
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
-import java.util.logging.Level
-import java.util.logging.Logger
 
 /**
  * RestEasy converter ZonedDateTime <-> String
  */
 class ZonedDateTimeParamConverter : ParamConverter<ZonedDateTime> {
     companion object {
-        private val LOG = Logger.getLogger(ZonedDateTimeParamConverter::class.java.name)
+        private val LOG = ZacLogger.getLogger(ZonedDateTimeParamConverter::class)
     }
 
     override fun fromString(param: String): ZonedDateTime =
         try {
             ZonedDateTime.parse(param, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
         } catch (dateTimeParseException: DateTimeParseException) {
-            LOG.log(Level.WARNING, dateTimeParseException) { "Could not parse date string: $param" }
+            // Without the exception: its message holds the date, which can be a date of birth
+            LOG.warning(InvalidDateParameter(targetType = "ZonedDateTime"))
             throw BadRequestException(dateTimeParseException)
         }
 

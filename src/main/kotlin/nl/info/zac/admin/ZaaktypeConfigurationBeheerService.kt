@@ -15,6 +15,7 @@ import nl.info.client.zgw.zrc.model.ZaakListParameters
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.admin.log.ProductaanvraagtypeEvent
 import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BPMN_PROCESS_DEFINITION_NOT_FOUND
@@ -22,12 +23,13 @@ import nl.info.zac.exception.ErrorCode.ERROR_CODE_PROCESS_DEFINITION_CANNOT_CHAN
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.bpmn.BpmnService
+import nl.info.zac.log.ZaaktypeEvent
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI
 import java.util.UUID
-import java.util.logging.Logger
 
 /**
  * Stores zaaktype configurations, whatever process engine they are bound to.
@@ -46,7 +48,7 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
     private val bpmnService: BpmnService
 ) {
     companion object {
-        private val LOG = Logger.getLogger(ZaaktypeConfigurationBeheerService::class.java.name)
+        private val LOG = ZacLogger.getLogger(ZaaktypeConfigurationBeheerService::class)
     }
 
     fun findConfiguration(zaaktypeUuid: UUID): ZaaktypeConfiguration? =
@@ -129,10 +131,13 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
         zaaktypeConfigurationService.listCurrentConfigurationsByProductaanvraagtype(productaanvraagtype)
             .firstOrNull { it.zaaktypeOmschrijving != zaaktypeOmschrijving }
             ?.let {
-                LOG.info {
-                    "Productaanvraagtype '$productaanvraagtype' is already in use by zaaktype " +
-                        "'${it.zaaktypeOmschrijving}' with UUID '${it.zaaktypeUuid}'"
-                }
+                LOG.info(
+                    ProductaanvraagtypeEvent(type = ProductaanvraagtypeEvent.Type.PRODUCTAANVRAAGTYPE_ALREADY_IN_USE, 
+                        productaanvraagType = productaanvraagtype,
+                        zaaktypeOmschrijving = it.zaaktypeOmschrijving,
+                        zaaktypeUuid = it.zaaktypeUuid
+                    )
+                )
                 throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
             }
     }
@@ -146,7 +151,13 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
         ztcClientService.invalidateZaaktype(zaaktypeUri)
         val zaaktype = ztcClientService.readZaaktype(zaaktypeUri)
         if (zaaktype.concept) {
-            LOG.info { "Zaaktype '${zaaktype.omschrijving}' with UUID ${zaaktypeUri.extractUuid()} is still a concept. Ignoring" }
+            LOG.info(
+                ZaaktypeEvent(
+                    type = ZaaktypeEvent.Type.CONCEPT_ZAAKTYPE_IGNORED,
+                    zaaktypeOmschrijving = zaaktype.omschrijving,
+                    zaaktypeUuid = zaaktypeUri.extractUuid()
+                )
+            )
             return
         }
         upsertConfiguration(zaaktype)
@@ -156,7 +167,7 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
     fun upsertConfiguration(zaaktype: ZaakType) {
         val zaaktypeUuid = zaaktype.url.extractUuid()
         zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid)?.let { existingConfiguration ->
-            LOG.info { "Zaaktype configuration for zaaktype with UUID $zaaktypeUuid already exists. Updating it" }
+            LOG.info(ZaaktypeEvent(type = ZaaktypeEvent.Type.ZAAKTYPE_CONFIGURATION_UPDATING, zaaktypeUuid = zaaktypeUuid))
             existingConfiguration.apply {
                 zaaktypeOmschrijving = zaaktype.omschrijving
                 einddatumGeplandWaarschuwing = einddatumGeplandWaarschuwing.takeIf { zaaktype.isServicenormAvailable() }
@@ -167,7 +178,13 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
         val previousConfiguration = zaaktypeConfigurationRepository.findCurrentByZaaktypeOmschrijving(
             zaaktype.omschrijving
         ) ?: run {
-            LOG.info { "Zaaktype '${zaaktype.omschrijving}' with UUID $zaaktypeUuid has no known configuration. Ignoring" }
+            LOG.info(
+                ZaaktypeEvent(
+                    type = ZaaktypeEvent.Type.ZAAKTYPE_WITHOUT_CONFIGURATION_IGNORED,
+                    zaaktypeOmschrijving = zaaktype.omschrijving,
+                    zaaktypeUuid = zaaktypeUuid
+                )
+            )
             return
         }
         storeConfiguration(zaaktypeConfigurationVersioning.createNextVersion(previousConfiguration, zaaktype))

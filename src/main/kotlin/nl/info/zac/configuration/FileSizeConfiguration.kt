@@ -11,11 +11,12 @@ import jakarta.inject.Inject
 import nl.info.zac.configuration.exception.FileSizeExceededException
 import nl.info.zac.configuration.exception.FileTooLargeToOpenException
 import nl.info.zac.configuration.exception.InvalidFileSizeConfigurationException
+import nl.info.zac.configuration.log.FileSizeConfigurationRead
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.io.InputStream
-import java.util.logging.Logger
 
 /**
  * The two file size limits that ZAC enforces, and the check that the configured values fit in the
@@ -71,7 +72,7 @@ class FileSizeConfiguration @Inject constructor(
          */
         const val MAX_SUPPORTED_FILE_SIZE_MB = Int.MAX_VALUE / (1024 * 1024)
 
-        private val LOG = Logger.getLogger(FileSizeConfiguration::class.java.name)
+        private val LOG = ZacLogger.getLogger(FileSizeConfiguration::class)
     }
 
     val maxFileSizeBytes = maxFileSizeMB * BYTES_PER_MB
@@ -89,13 +90,13 @@ class FileSizeConfiguration @Inject constructor(
 
     fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) {
         validate()
-        LOG.info {
-            """ZAC file size configuration:
-            |- $ENV_VAR_MAX_FILE_SIZE_MB: '$maxFileSizeMB'
-            |- $ENV_VAR_MAX_IN_MEMORY_FILE_SIZE_MB: '$maxInMemoryFileSizeMB'
-            |- maximum heap size in MB: '${maxHeapSizeMB()}'
-            """.trimMargin()
-        }
+        LOG.info(
+            FileSizeConfigurationRead(
+                maxFileSizeMb = maxFileSizeMB.toString(),
+                maxInMemoryFileSizeMb = maxInMemoryFileSizeMB.toString(),
+                maxHeapSizeMb = maxHeapSizeMB().toString()
+            )
+        )
     }
 
     fun assertFileSizeAllowed(fileSizeBytes: Long) {

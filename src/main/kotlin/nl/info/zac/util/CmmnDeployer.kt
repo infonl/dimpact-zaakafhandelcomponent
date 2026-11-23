@@ -8,9 +8,10 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.context.Initialized
 import jakarta.enterprise.event.Observes
 import jakarta.inject.Inject
+import nl.info.zac.log.ZacLogger
+import nl.info.zac.util.log.CmmnModelDeployed
 import org.flowable.cmmn.api.CmmnRepositoryService
 import org.w3c.dom.Document
-import java.util.logging.Logger
 import javax.xml.XMLConstants
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.xpath.XPath
@@ -25,7 +26,7 @@ class CmmnDeployer @Inject constructor(
         private const val CMMN_MODELS_FILE_NAME = "models"
         private const val CASE_ID_XPATH_EXPRESSION = "/definitions/case/@id"
         private const val CASE_NAME_XPATH_EXPRESSION = "/definitions/case/@name"
-        private val LOG = Logger.getLogger(CmmnDeployer::class.java.name)
+        private val LOG = ZacLogger.getLogger(CmmnDeployer::class)
     }
 
     fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) =
@@ -70,6 +71,6 @@ class CmmnDeployer @Inject constructor(
     ) {
         val name = xPath.evaluate(CASE_NAME_XPATH_EXPRESSION, modelXml, XPathConstants.STRING) as String
         cmmnRepositoryService.createDeployment().key(key).name(name).addBytes(modelFileName, modelBytes).deploy()
-        LOG.info { "Successfully deployed CMMN model with key '$key' and name '$name' from file '$modelFileName'" }
+        LOG.info(CmmnModelDeployed(caseDefinitionKey = key, name = name, modelFileName = modelFileName))
     }
 }

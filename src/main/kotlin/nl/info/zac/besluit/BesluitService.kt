@@ -13,13 +13,14 @@ import nl.info.client.zgw.brc.model.generated.VervalredenEnum
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.besluit.log.UnknownBesluitWithdrawalReason
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.time.numberOfDaysFromToday
 import org.apache.commons.collections4.CollectionUtils
 import java.time.LocalDate
 import java.time.Period
 import java.util.Locale
 import java.util.UUID
-import java.util.logging.Logger
 
 class BesluitService @Inject constructor(
     private val brcClientService: BrcClientService,
@@ -27,7 +28,7 @@ class BesluitService @Inject constructor(
     private val ztcClientService: ZtcClientService,
 ) {
     companion object {
-        private val LOG = Logger.getLogger(BesluitService::class.java.name)
+        private val LOG = ZacLogger.getLogger(BesluitService::class)
 
         private const val CREATE_BESLUIT_EXPLANATION = "Aanmaken besluit"
         private const val CHANGE_BESLUIT_EXPLANATION = "Wijzigen besluit"
@@ -160,7 +161,7 @@ class BesluitService @Inject constructor(
             VervalredenEnum.INGETROKKEN_OVERHEID -> "Overheid: %s"
             VervalredenEnum.INGETROKKEN_BELANGHEBBENDE -> "Belanghebbende: %s"
             else -> {
-                LOG.info("Unknown besluit withdrawal reason: '$withdrawalReason'. Returning 'null'.")
+                LOG.info(UnknownBesluitWithdrawalReason(withdrawalReason = withdrawalReason.toString()))
                 null
             }
         }

@@ -9,8 +9,9 @@ import jakarta.enterprise.context.Initialized
 import jakarta.enterprise.event.Observes
 import jakarta.inject.Inject
 import nl.info.client.opa.OpaAdminClient
+import nl.info.zac.log.ZacLogger
+import nl.info.zac.util.log.PolicyModuleDeploying
 import org.eclipse.microprofile.rest.client.inject.RestClient
-import java.util.logging.Logger
 
 class PoliciesDeployer @Inject constructor(
     @RestClient private val opaAdminClient: OpaAdminClient
@@ -19,7 +20,7 @@ class PoliciesDeployer @Inject constructor(
         private const val POLICIES_FOLDER_NAME = "policies"
         private const val POLICIES_FILE_NAME = "policies"
         private const val POLICIES_FILE_EXTENSION = ".rego"
-        private val LOG = Logger.getLogger(PoliciesDeployer::class.java.name)
+        private val LOG = ZacLogger.getLogger(PoliciesDeployer::class)
     }
 
     fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) =
@@ -29,7 +30,7 @@ class PoliciesDeployer @Inject constructor(
     private fun deployPolicy(policyFileName: String) {
         val policy = javaClass.classLoader.readResourceBytes("$POLICIES_FOLDER_NAME/$policyFileName").decodeToString()
         val moduleId = policyFileName.substringBefore(POLICIES_FILE_EXTENSION)
-        LOG.info { "Deploying policy module: $moduleId" }
+        LOG.info(PolicyModuleDeploying(moduleId = moduleId))
         opaAdminClient.policyUpdate(moduleId, policy)
     }
 }

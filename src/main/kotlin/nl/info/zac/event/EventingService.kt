@@ -9,6 +9,8 @@ import jakarta.enterprise.event.Event
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.event.log.SignaleringEventHandlingFailed
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.signalering.event.SignaleringEvent
 import nl.info.zac.signalering.event.signaleringEvent
 import nl.info.zac.util.AllOpen
@@ -16,8 +18,6 @@ import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.event.JobEvent
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.websocket.event.ScreenEventType
-import java.util.logging.Level
-import java.util.logging.Logger
 
 @ApplicationScoped
 @AllOpen
@@ -29,7 +29,7 @@ class EventingService @Inject constructor(
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object {
-        private val LOG = Logger.getLogger(EventingService::class.java.name)
+        private val LOG = ZacLogger.getLogger(EventingService::class)
     }
 
     /**
@@ -54,7 +54,14 @@ class EventingService @Inject constructor(
      */
     fun send(event: SignaleringEvent<*>) {
         signaleringEvent.fireAsync(event).exceptionally { throwable ->
-            LOG.log(Level.SEVERE, "Failed to handle signalering event: ${event.opcode} ${event.objectType} ${event.objectId}", throwable)
+            LOG.severe(
+                SignaleringEventHandlingFailed(
+                    opcode = event.opcode.toString(),
+                    signaleringType = event.objectType.toString(),
+                    objectId = event.objectId.toString()
+                ),
+                throwable
+            )
             null
         }
     }

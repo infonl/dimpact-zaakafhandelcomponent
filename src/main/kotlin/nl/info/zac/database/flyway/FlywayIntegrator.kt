@@ -11,8 +11,9 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.context.Initialized
 import jakarta.enterprise.event.Observes
 import nl.info.zac.database.flyway.exception.DatabaseConfigurationException
+import nl.info.zac.database.flyway.log.DatabaseMigrated
+import nl.info.zac.log.ZacLogger
 import org.flywaydb.core.Flyway
-import java.util.logging.Logger
 import javax.sql.DataSource
 
 /**
@@ -23,7 +24,7 @@ import javax.sql.DataSource
 class FlywayIntegrator {
     companion object {
         const val SCHEMA = "zaakafhandelcomponent"
-        private val LOG = Logger.getLogger(FlywayIntegrator::class.java.name)
+        private val LOG = ZacLogger.getLogger(FlywayIntegrator::class)
         private const val SCHEMA_FILES_LOCATION = "schemas"
         private const val SCHEMA_PLACEHOLDER = "schema"
     }
@@ -42,11 +43,14 @@ class FlywayIntegrator {
             .placeholders(mapOf(SCHEMA_PLACEHOLDER to SCHEMA))
             .outOfOrder(false)
             .load()
-        flyway.info().current()?.let {
-            LOG.info("Found existing ZAC database: version '${it.version}', description: '${it.description}'")
-        } ?: LOG.info("No existing ZAC database at the configured datasource")
-
+        val previousMigration = flyway.info().current()
         flyway.migrate()
-        LOG.info("Successfully migrated to database version: '${flyway.info().current().version}'")
+        LOG.info(
+            DatabaseMigrated(
+                previousVersion = previousMigration?.version?.toString(),
+                previousDescription = previousMigration?.description,
+                currentVersion = flyway.info().current()?.version?.toString()
+            )
+        )
     }
 }

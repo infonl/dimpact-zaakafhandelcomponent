@@ -6,25 +6,26 @@ package nl.info.zac.time
 
 import jakarta.ws.rs.BadRequestException
 import jakarta.ws.rs.ext.ParamConverter
+import nl.info.zac.log.ZacLogger
+import nl.info.zac.time.log.InvalidDateParameter
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
-import java.util.logging.Level
-import java.util.logging.Logger
 
 /**
  * Converts a query or path parameter in the ISO date format (`2025-01-31`) to a [LocalDate].
  */
 class LocalDateParamConverter : ParamConverter<LocalDate> {
     companion object {
-        private val LOG = Logger.getLogger(LocalDateParamConverter::class.java.name)
+        private val LOG = ZacLogger.getLogger(LocalDateParamConverter::class)
     }
 
     override fun fromString(param: String): LocalDate =
         try {
             LocalDate.parse(param, DateTimeFormatter.ISO_LOCAL_DATE)
         } catch (dateTimeParseException: DateTimeParseException) {
-            LOG.log(Level.WARNING, dateTimeParseException) { "Could not parse date string: $param" }
+            // Without the exception: its message holds the date, which can be a date of birth
+            LOG.warning(InvalidDateParameter(targetType = "LocalDate"))
             throw BadRequestException(dateTimeParseException)
         }
 
