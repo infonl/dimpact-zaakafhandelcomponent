@@ -28,8 +28,8 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { TranslatePipe } from "@ngx-translate/core";
-import { injectQuery } from "@tanstack/angular-query-experimental";
-import { lastValueFrom, takeUntil } from "rxjs";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
+import { takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { FileDragAndDropDirective } from "../../directives/file-drag-and-drop.directive";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
@@ -62,6 +62,7 @@ export class ZacFile<
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly formBuilder = inject(FormBuilder);
   private readonly configuratieService = inject(ConfiguratieService);
+  private readonly queryClient = inject(QueryClient);
 
   protected maxFileSizeMB = input(0, { transform: numberAttribute });
   protected fileInput = viewChild<ElementRef>("fileInput");
@@ -70,7 +71,9 @@ export class ZacFile<
     const maxFileSizeMB = this.maxFileSizeMB();
     if (maxFileSizeMB) return Promise.resolve(maxFileSizeMB);
 
-    return lastValueFrom(this.configuratieService.readMaxFileSizeMB());
+    return this.queryClient.fetchQuery(
+      this.configuratieService.readMaxFileSizeMB(),
+    );
   });
 
   protected displayControl = this.formBuilder.control<string | null>(null);
