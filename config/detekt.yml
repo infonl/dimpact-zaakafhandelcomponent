@@ -67,6 +67,19 @@ style:
         value: 'java.time.YearMonth.now()'
       - reason: 'Depends on the time zone of the JVM. Use ZacTime, or in the integration tests the functions in ItestTime.kt.'
         value: 'java.time.MonthDay.now()'
+  # all logging of the production code goes through ZacLogger; see ADR-0020 and the ArchUnit rules in ArchitectureTest
+  ForbiddenMethodCall/logging:
+    active: true
+    excludes: ['**/nl/info/zac/log/**', '**/logFilter/**', '**/test/**', '**/itest/**']
+    methods:
+      - reason: 'Log a LogEvent through ZacLogger; see ADR-0020.'
+        value: 'kotlin.io.println'
+      - reason: 'Log a LogEvent through ZacLogger; see ADR-0020.'
+        value: 'kotlin.io.print'
+      - reason: 'Log a LogEvent through ZacLogger; see ADR-0020.'
+        value: 'java.lang.Throwable.printStackTrace'
+      - reason: 'Log a LogEvent through ZacLogger; see ADR-0020.'
+        value: 'kotlin.printStackTrace'
   ForbiddenComment:
     comments:
       - reason: 'Forbidden FIXME todo marker in comment, please fix the problem.'
@@ -82,6 +95,29 @@ style:
     forbiddenImports:
       - reason: 'Use the Kotlin standard library string functions, or the extensions in nl.info.zac.util.'
         value: 'org.apache.commons.lang3.StringUtils'
+  # all logging of the production code goes through ZacLogger; see ADR-0020 and the ArchUnit rules in ArchitectureTest
+  ForbiddenImport/logging:
+    active: true
+    excludes: ['**/nl/info/zac/log/**', '**/logFilter/**', '**/test/**', '**/itest/**']
+    forbiddenImports:
+      - reason: 'Log a LogEvent through ZacLogger; see ADR-0020.'
+        value: 'java.util.logging.Logger'
+      - reason: 'Log a LogEvent through ZacLogger; see ADR-0020.'
+        value: 'java.lang.System.Logger'
+      - reason: 'Log a LogEvent through ZacLogger; see ADR-0020.'
+        value: 'org.slf4j.*'
+      - reason: 'Log a LogEvent through ZacLogger; see ADR-0020.'
+        value: 'org.jboss.logging.*'
+      - reason: 'Log a LogEvent through ZacLogger; see ADR-0020.'
+        value: 'org.apache.logging.log4j.*'
+      - reason: 'Log a LogEvent through ZacLogger; see ADR-0020.'
+        value: 'org.apache.log4j.*'
+      - reason: 'Log a LogEvent through ZacLogger; see ADR-0020.'
+        value: 'org.apache.commons.logging.*'
+      - reason: 'Log a LogEvent through ZacLogger; see ADR-0020.'
+        value: 'io.github.oshai.kotlinlogging.*'
+      - reason: 'Log a LogEvent through ZacLogger; see ADR-0020.'
+        value: 'mu.*'
 ktlint:
   ImportOrdering:
     active: true

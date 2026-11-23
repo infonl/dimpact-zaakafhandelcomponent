@@ -29,6 +29,18 @@ The backend has three layers. A layer may only depend on the layers below it:
 | No field is annotated with `@Inject`; ZAC uses constructor injection    | None                |
 | No class depends on the `javax` Java EE APIs that Jakarta EE replaced   | None                |
 | No class outside `nl.info.zac.time` reads the system time zone or clock | None                |
+| No class outside `nl.info.zac.log` logs through another logging API     | None                |
+| No class outside `nl.info.zac.log` prints to the console or a stack trace | None              |
+
+The two logging rules ([ADR-0020](../solution-architecture/decisions/0020-log-only-typed-log-events-through-zaclogger.md))
+are defined in `LoggingArchitectureRules` and checked in `ArchitectureTest`. Outside `nl.info.zac.log..` and the WildFly
+logging filter (`nl.info.zac.logfilter..`), no class of `nl.info.zac..`, `nl.info.client..` or `net.atos..` may
+depend on `java.util.logging.Logger`, `System.Logger`, SLF4J, JBoss Logging, Log4j, Commons Logging or
+kotlin-logging, access `System.out` or `System.err` (Kotlin's `println` compiles to `System.out`), or call
+`printStackTrace()` on a throwable. `java.util.logging.Level` stays allowed for configurable log levels.
+`LoggingArchitectureRulesTest` checks the rules against fixture classes in `src/test` that break them. Detekt reports
+the same imports and `println`/`print` calls in the IDE (`ForbiddenImport/logging` and `ForbiddenMethodCall/logging`
+in `config/detekt.yml`); `printStackTrace()` is only caught by ArchUnit.
 
 Fields annotated with `@Resource` are allowed, because JNDI resources such as a `DataSource` cannot be
 injected through a constructor.
