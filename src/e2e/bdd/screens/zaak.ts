@@ -4,6 +4,7 @@
  */
 
 import { expect, type Page } from "@playwright/test";
+import { findDialog } from "./dialog";
 
 /** A row of the historie of a zaak. ZAC cuts long values short and ends them with "...". */
 export type HistorieRegel = {
@@ -16,9 +17,12 @@ export type HistorieRegel = {
 
 /** The page of one zaak. */
 export function zaakPage(page: Page) {
+  // A besluit of the zaak has tabs with the same names, outside this region.
+  const zaak = page.getByRole("region", { name: "Zaak", exact: true });
+
   async function tab(name: string) {
-    await page.getByRole("tab", { name }).click();
-    return page.getByRole("tabpanel", { name });
+    await zaak.getByRole("tab", { name }).click();
+    return zaak.getByRole("tabpanel", { name });
   }
 
   return {
@@ -59,6 +63,16 @@ export function zaakPage(page: Page) {
         .getByRole("navigation")
         .getByRole("button", { name: item })
         .click();
+    },
+
+    /** Chooses "Zaak afhandelen" with the resultaat, and returns the dialog, which stays open when ZAC refuses. */
+    async afhandelen(resultaat: string) {
+      await this.chooseFromMenu("Zaak afhandelen");
+      const dialog = findDialog(page, "Zaak afhandelen");
+      await dialog.getByRole("combobox", { name: "Resultaat" }).click();
+      await page.getByRole("option", { name: resultaat }).click();
+      await dialog.getByRole("button", { name: "Afhandelen" }).click();
+      return dialog;
     },
 
     indicatie(indicatie: string) {
