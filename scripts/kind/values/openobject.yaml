@@ -25,6 +25,13 @@ settings:
 persistence:
   enabled: false
 
+# Open Object 4.2 renamed UWSGI_PORT to OPENOBJECT_PORT. The Kubernetes Service named openobject injects
+# OPENOBJECT_PORT=tcp://<cluster-ip>:80 into the pods, which uWSGI then reads as its bind address. A container
+# variable overrides the injected one.
+extraEnvVars:
+  - name: OPENOBJECT_PORT
+    value: "8000"
+
 startupProbe:
   initialDelaySeconds: 5
   periodSeconds: 2
