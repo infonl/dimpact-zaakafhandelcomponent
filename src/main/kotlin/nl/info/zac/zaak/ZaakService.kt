@@ -39,6 +39,8 @@ import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
 import nl.info.zac.identity.model.ZacApplicationRole
 import nl.info.zac.identity.model.ZacApplicationRole.BEHANDELAAR
+import nl.info.zac.log.Employee
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
@@ -46,6 +48,12 @@ import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
 import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
+import nl.info.zac.zaak.log.EmployeeNotInGroup
+import nl.info.zac.zaak.log.ZaakBatchOperation
+import nl.info.zac.zaak.log.ZaakSkipReason
+import nl.info.zac.zaak.log.ZaakSkipped
+import nl.info.zac.zaak.log.ZakenAssigned
+import nl.info.zac.zaak.log.ZakenReleased
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import nl.info.zac.zaak.model.ZaakAssignment
 import nl.info.zac.zaak.model.ZaakToewijzing
@@ -53,11 +61,9 @@ import nl.info.zac.zaak.model.ZaaktypeResultaattype
 import java.net.URI
 import java.util.Locale
 import java.util.UUID
-import java.util.logging.Level
-import java.util.logging.Logger
 import kotlin.concurrent.withLock
 
-private val LOG = Logger.getLogger(ZaakService::class.java.name)
+private val LOG = ZacLogger.getLogger(ZaakService::class)
 
 @AllOpen
 @Suppress("TooManyFunctions", "LongParameterList")
@@ -130,13 +136,8 @@ class ZaakService @Inject constructor(
         explanation: String? = null,
         screenEventResourceId: String? = null,
     ) {
-        LOG.fine {
-            "Started to assign ${zaakUUIDs.size} zaken with screen event resource ID: '$screenEventResourceId'."
-        }
-
-        if (!isUserInGroup(user, group, zaakUUIDs)) {
+        if (!isUserInGroup(user, group, zaakUUIDs, screenEventResourceId)) {
             screenEventResourceId?.let {
-                LOG.fine { "Sending 'ZAKEN_VERDELEN' skipped screen event with ID '$it'." }
                 eventingService.send(ScreenEventType.ZAKEN_VERDELEN.skipped(it))
             }
             return
@@ -146,13 +147,18 @@ class ZaakService @Inject constructor(
             .map(zrcClientService::readZaak)
             .count { assignZaakFromBatch(zaak = it, group = group, user = user, explanation = explanation) }
 
-        LOG.fine { "Successfully assigned $numberOfAssignedZaken zaken." }
+        LOG.fine {
+            ZakenAssigned(
+                zaakCount = zaakUUIDs.size,
+                assignedCount = numberOfAssignedZaken,
+                screenEventResourceId = screenEventResourceId
+            )
+        }
 
         // if a screen event resource ID was specified, send an 'updated zaken_verdelen' screen event
         // with the job UUID so that it can be picked up by a client
         // that has created a websocket subscription to this event
         screenEventResourceId?.let {
-            LOG.fine { "Sending 'ZAKEN_VERDELEN' updated screen event with ID '$it'." }
             eventingService.send(ScreenEventType.ZAKEN_VERDELEN.updated(it))
         }
     }
@@ -279,19 +285,15 @@ class ZaakService @Inject constructor(
         explanation: String? = null,
         screenEventResourceId: String? = null
     ) {
-        LOG.fine {
-            "Started to release ${zaakUUIDs.size} zaken with screen event resource ID: '$screenEventResourceId'."
-        }
         zaakUUIDs
             .map(zrcClientService::readZaak)
             .forEach { releaseZaakFromBatch(it, explanation) }
-        LOG.fine { "Successfully released  ${zaakUUIDs.size} zaken." }
+        LOG.fine { ZakenReleased(zaakCount = zaakUUIDs.size, screenEventResourceId = screenEventResourceId) }
 
         // if a screen event resource ID was specified, send a screen event
         // with the job UUID so that it can be picked up by a client
         // that has created a websocket subscription to this event
         screenEventResourceId?.let {
-            LOG.fine { "Sending 'ZAKEN_VRIJGEVEN' screen event with ID '$it'." }
             eventingService.send(ScreenEventType.ZAKEN_VRIJGEVEN.updated(it))
         }
     }
@@ -364,26 +366,26 @@ class ZaakService @Inject constructor(
         } catch (
             zaakspecifiekGeautoriseerdeZaakCannotBeReleasedException: ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
         ) {
-            LOG.log(Level.FINE, zaakspecifiekGeautoriseerdeZaakCannotBeReleasedException) {
-                "Zaak with UUID '${zaak.uuid}' is zaakspecifiek geautoriseerd and cannot be left without a " +
-                    "behandelaar. Therefore it is skipped and not assigned."
-            }
+            LOG.fine(
+                ZaakSkipped(zaak.uuid, ZaakBatchOperation.ASSIGN, ZaakSkipReason.ZAAKSPECIFIEK_GEAUTORISEERD_WITHOUT_BEHANDELAAR),
+                zaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
+            )
             eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
             false
         } catch (
             zaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException: ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
         ) {
-            LOG.log(Level.WARNING, zaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException) {
-                "Zaak with UUID '${zaak.uuid}' is zaakspecifiek geautoriseerd but its zaaktype cannot keep the " +
-                    "previous behandelaar authorised. Therefore it is skipped and not assigned."
-            }
+            LOG.warning(
+                ZaakSkipped(zaak.uuid, ZaakBatchOperation.ASSIGN, ZaakSkipReason.ZAAKSPECIFIEK_MEDEWERKER_ROLTYPE_NOT_FOUND),
+                zaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
+            )
             eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
             false
         } catch (multipleBehandelaarRolesException: MultipleBehandelaarRolesException) {
-            LOG.log(Level.WARNING, multipleBehandelaarRolesException) {
-                "Zaak with UUID '${zaak.uuid}' has more than one groep or behandelaar rol. " +
-                    "Therefore it is skipped and not assigned."
-            }
+            LOG.warning(
+                ZaakSkipped(zaak.uuid, ZaakBatchOperation.ASSIGN, ZaakSkipReason.MULTIPLE_BEHANDELAAR_ROLES),
+                multipleBehandelaarRolesException
+            )
             eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
             false
         }
@@ -391,7 +393,7 @@ class ZaakService @Inject constructor(
 
     private fun releaseZaakFromBatch(zaak: Zaak, explanation: String?) {
         if (!zaak.isOpen()) {
-            LOG.fine { "Zaak with UUID '${zaak.uuid}' cannot be released. Therefore it is not released." }
+            LOG.fine { ZaakSkipped(zaak.uuid, ZaakBatchOperation.RELEASE, ZaakSkipReason.NOT_OPEN) }
             eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
             return
         }
@@ -400,15 +402,16 @@ class ZaakService @Inject constructor(
         } catch (
             zaakspecifiekGeautoriseerdeZaakCannotBeReleasedException: ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
         ) {
-            LOG.log(Level.FINE, zaakspecifiekGeautoriseerdeZaakCannotBeReleasedException) {
-                "Zaak with UUID '${zaak.uuid}' cannot be released. Therefore it is not released."
-            }
+            LOG.fine(
+                ZaakSkipped(zaak.uuid, ZaakBatchOperation.RELEASE, ZaakSkipReason.ZAAKSPECIFIEK_GEAUTORISEERD_WITHOUT_BEHANDELAAR),
+                zaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
+            )
             eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
         } catch (multipleBehandelaarRolesException: MultipleBehandelaarRolesException) {
-            LOG.log(Level.WARNING, multipleBehandelaarRolesException) {
-                "Zaak with UUID '${zaak.uuid}' has more than one groep or behandelaar rol. " +
-                    "Therefore it is not released."
-            }
+            LOG.warning(
+                ZaakSkipped(zaak.uuid, ZaakBatchOperation.RELEASE, ZaakSkipReason.MULTIPLE_BEHANDELAAR_ROLES),
+                multipleBehandelaarRolesException
+            )
             eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
         }
     }
@@ -500,14 +503,19 @@ class ZaakService @Inject constructor(
     private fun isUserInGroup(
         user: User?,
         group: Group,
-        zaakUUIDs: List<UUID>
+        zaakUUIDs: List<UUID>,
+        screenEventResourceId: String?
     ) =
         user?.let {
             val isInGroup = identityService.isUserInGroup(user.username, group.name)
             if (!isInGroup) {
                 LOG.warning(
-                    "User '${user.displayName}' (id: {$user.id}) is not in the group '${group.description}'. " +
-                        "Skipping all zaken."
+                    EmployeeNotInGroup(
+                        employee = Employee(user.username),
+                        groupId = group.name,
+                        zaakCount = zaakUUIDs.size,
+                        screenEventResourceId = screenEventResourceId
+                    )
                 )
                 zaakUUIDs
                     .map(zrcClientService::readZaak)
@@ -519,7 +527,7 @@ class ZaakService @Inject constructor(
     private fun isZaakOpen(zaak: Zaak) =
         zaak.let {
             if (!it.isOpen()) {
-                LOG.fine("Zaak with UUID '${zaak.uuid} is not open. Therefore it is skipped and not assigned.")
+                LOG.fine { ZaakSkipped(zaak.uuid, ZaakBatchOperation.ASSIGN, ZaakSkipReason.NOT_OPEN) }
             }
             it.isOpen()
         }

@@ -13,15 +13,16 @@ import java.util.Locale
  */
 class ZgwValidationErrorException(val validatieFout: ZgwValidationError) : InputValidationFailedException() {
 
+    /**
+     * Only the status, the error code and the name and code of each invalid parameter. Not the reasons, nor the title,
+     * detail, type and instance of the remote error: those can echo a rejected value, which can be personal data, and
+     * this message ends up in logs. The REST response reads them from [validatieFout].
+     */
     override val message: String
-        get() = "%s [%d %s] %s: %s (%s %s)".format(
+        get() = "%d %s: %s".format(
             Locale.ROOT,
-            validatieFout.title,
             validatieFout.status,
             validatieFout.code,
-            validatieFout.detail,
-            validatieFout.invalidParams.joinToString(", ") { "${it.name} [${it.code}] ${it.reason}" },
-            validatieFout.type,
-            validatieFout.instance
+            validatieFout.invalidParams.joinToString(", ") { "${it.name} [${it.code}]" }
         )
 }

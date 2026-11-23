@@ -29,6 +29,13 @@ import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.event.EventingService
 import nl.info.zac.flowable.ZaakProcessService
+import nl.info.zac.log.GenericEvent
+import nl.info.zac.log.ZaakEvent
+import nl.info.zac.log.ZacLogger
+import nl.info.zac.notification.log.FormerBehandelaarSignaleringenDeleted
+import nl.info.zac.notification.log.NotificationHandlingFailed
+import nl.info.zac.notification.log.NotificationReceived
+import nl.info.zac.notification.log.ZaakSignaleringenDeleted
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService
 import nl.info.zac.signalering.SignaleringService
@@ -42,8 +49,6 @@ import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.websocket.event.ScreenEventType
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.util.UUID
-import java.util.logging.Level
-import java.util.logging.Logger
 
 /**
  * Provides REST endpoints for receiving notifications about events that ZAC needs to know about
@@ -76,7 +81,7 @@ class NotificationReceiver @Inject constructor(
     private val httpSession: Instance<HttpSession>
 ) {
     companion object {
-        private val LOG = Logger.getLogger(NotificationReceiver::class.java.getName())
+        private val LOG = ZacLogger.getLogger(NotificationReceiver::class)
         private const val OBJECTTYPE_KENMERK = "objectType"
     }
 
@@ -86,7 +91,7 @@ class NotificationReceiver @Inject constructor(
             return Response.noContent().status(Response.Status.FORBIDDEN).build()
         }
         setFunctioneelGebruiker(httpSession.get())
-        LOG.info { "Received notification: '$notification'" }
+        LOG.info(notification.toNotificationReceived())
         handleSignaleringen(notification)
         handleProductaanvraag(notification)
         handleIndexing(notification)
@@ -104,58 +109,43 @@ class NotificationReceiver @Inject constructor(
      * for the given zaak UUID.
      */
     private fun deleteSignaleringenForZaak(zaakUUID: UUID) {
-        signaleringService.deleteSignaleringen(
-            SignaleringZoekParameters(
-                SignaleringSubject.ZAAK,
-                zaakUUID.toString()
-            )
-        ).also {
-            LOG.info("Deleted $it zaak signaleringen for zaak with UUID '$zaakUUID'.")
-        }
-        if (signaleringService.deleteSignaleringVerzonden(
-                SignaleringVerzondenZoekParameters(
-                    SignaleringSubject.ZAAK,
-                    zaakUUID.toString()
-                )
-            )
-        ) {
-            LOG.info("Deleted 1 'zaak signaleringen verzonden' record for zaak with UUID '$zaakUUID'.")
-        }
+        val zaakSignaleringCount = signaleringService.deleteSignaleringen(
+            SignaleringZoekParameters(SignaleringSubject.ZAAK, zaakUUID.toString())
+        )
+        val isZaakSignaleringVerzondenDeleted = signaleringService.deleteSignaleringVerzonden(
+            SignaleringVerzondenZoekParameters(SignaleringSubject.ZAAK, zaakUUID.toString())
+        )
+        var taakSignaleringCount = 0
+        var taakSignaleringVerzondenCount = 0
         taskService.listTasksForZaak(zaakUUID).forEach { task ->
-            signaleringService.deleteSignaleringen(
-                SignaleringZoekParameters(
-                    SignaleringSubject.TAAK,
-                    task.id
-                )
-            ).also {
-                LOG.info(
-                    "Deleted $it taak signaleringen for task with ID '${task.id}' and zaak with UUID: '$zaakUUID'."
-                )
-            }
+            taakSignaleringCount += signaleringService.deleteSignaleringen(
+                SignaleringZoekParameters(SignaleringSubject.TAAK, task.id)
+            )
             if (signaleringService.deleteSignaleringVerzonden(
-                    SignaleringVerzondenZoekParameters(
-                        SignaleringSubject.TAAK,
-                        task.id
-                    )
+                    SignaleringVerzondenZoekParameters(SignaleringSubject.TAAK, task.id)
                 )
             ) {
-                LOG.info(
-                    "Deleted 1 'taak signaleringen verzonden' record for task with ID '${task.id}' and " +
-                        "zaak with UUID: '$zaakUUID'."
-                )
+                taakSignaleringVerzondenCount++
             }
         }
+        LOG.info(
+            ZaakSignaleringenDeleted(
+                zaakUuid = zaakUUID,
+                zaakSignaleringCount = zaakSignaleringCount,
+                isZaakSignaleringVerzondenDeleted = isZaakSignaleringVerzondenDeleted,
+                taakSignaleringCount = taakSignaleringCount,
+                taakSignaleringVerzondenCount = taakSignaleringVerzondenCount
+            )
+        )
     }
 
     private fun deleteZaakSignaleringenOfFormerBehandelaren(zaakUUID: UUID) {
         try {
             signaleringService.deleteZaakSignaleringenOfFormerBehandelaren(zaakUUID).also {
-                LOG.info("Deleted $it zaak signaleringen of former behandelaren for zaak with UUID '$zaakUUID'.")
+                LOG.info(FormerBehandelaarSignaleringenDeleted(zaakUuid = zaakUUID, signaleringCount = it))
             }
         } catch (notFoundException: NotFoundException) {
-            LOG.log(Level.FINE, notFoundException) {
-                "Zaak with UUID '$zaakUUID' of a deleted rol no longer exists. Therefore no signaleringen are deleted."
-            }
+            LOG.fine(ZaakEvent(type = ZaakEvent.Type.ZAAK_OF_DELETED_ROL_NOT_FOUND, zaakUuid = zaakUUID), notFoundException)
         }
     }
 
@@ -170,9 +160,8 @@ class NotificationReceiver @Inject constructor(
         try {
             if (notification.channel == Channel.ZAKEN && notification.resource == Resource.ZAAK && notification.action == Action.DELETE) {
                 notification.resourceUrl.extractUuid().let { zaakUUID ->
-                    LOG.info { "Deleting Flowable process data for zaak with UUID '$zaakUUID'" }
                     zaakProcessService.deleteInAllEngines(zaakUUID)
-                    LOG.info { "Successfully deleted Flowable process data for zaak with UUID '$zaakUUID'" }
+                    LOG.info(ZaakEvent(type = ZaakEvent.Type.FLOWABLE_PROCESS_DATA_DELETED, zaakUuid = zaakUUID))
                 }
             }
         } catch (exception: RuntimeException) {
@@ -338,11 +327,7 @@ class NotificationReceiver @Inject constructor(
             zrcClientService.readZaakeigenschap(zaakUUID, notification.resourceUrl.extractUuid()).naam ==
                 ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
         } catch (exception: RuntimeException) {
-            LOG.log(
-                Level.WARNING,
-                "Failed to read zaakeigenschap for zaak with UUID '$zaakUUID'; reindexing the zaak defensively",
-                exception
-            )
+            LOG.warning(ZaakEvent(type = ZaakEvent.Type.ZAAKEIGENSCHAP_READ_FAILED, zaakUuid = zaakUUID), exception)
             true
         }
 
@@ -350,7 +335,7 @@ class NotificationReceiver @Inject constructor(
     private fun handleInboxDocuments(notification: Notification) {
         // Used by "Abonnementen" functionality in OpenNotificaties to check if callback URL is active
         if (notification.channel == Channel.TEST) {
-            LOG.info("Received test callback URL status notification")
+            LOG.info(GenericEvent(type = GenericEvent.Type.TEST_NOTIFICATION_RECEIVED))
             return
         }
         try {
@@ -416,9 +401,23 @@ class NotificationReceiver @Inject constructor(
     }
 
     private fun warning(handler: String, notification: Notification, exception: RuntimeException) =
-        LOG.log(
-            Level.WARNING,
-            "Failed to handle notification '$notification' in handler '$handler'",
+        LOG.warning(
+            NotificationHandlingFailed(
+                handler = handler,
+                channel = notification.channel,
+                resource = notification.resource,
+                resourceUrl = notification.resourceUrl,
+                action = notification.action
+            ),
             exception
         )
+
+    private fun Notification.toNotificationReceived() = NotificationReceived(
+        channel = channel,
+        mainResourceUrl = mainResourceUrl,
+        resource = resource,
+        resourceUrl = resourceUrl,
+        action = action,
+        creationDateTime = creationDateTime
+    )
 }

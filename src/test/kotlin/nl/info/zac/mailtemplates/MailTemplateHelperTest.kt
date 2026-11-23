@@ -14,6 +14,9 @@ import nl.info.client.brp.model.createAdres
 import nl.info.client.brp.model.createNaamPersoon
 import nl.info.client.brp.model.createPersoon
 import nl.info.client.brp.model.createVerblijfadresBinnenland
+import nl.info.client.brp.model.generated.Geboorte
+import nl.info.client.brp.model.generated.VolledigeDatum
+import nl.info.client.brp.model.generated.Waardetabel
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.exception.KvkClientException
 import nl.info.client.kvk.model.createBasisprofiel
@@ -46,6 +49,7 @@ import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_OMSCHRIJVING
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_IDENTIFICATIE
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.log.LogCapture
 import org.flowable.common.engine.api.scope.ScopeTypes
 import org.flowable.task.api.Task
 import java.net.URI
@@ -315,7 +319,11 @@ class MailTemplateHelperTest : BehaviorSpec({
             val persoon = createPersoon(
                 bsn = bsn,
                 verblijfplaats = null
-            )
+            ).apply {
+                geboorte = Geboorte()
+                    .datum(VolledigeDatum().datum(LocalDate.of(1970, 5, 17)))
+                    .plaats(Waardetabel().omschrijving("fakeGeboorteplaats"))
+            }
             val userName = "fakeUserName"
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns createZaakType()
             every { configurationService.zaakTonenUrl(zaak.identificatie) } returns zaakTonenURL
@@ -325,16 +333,27 @@ class MailTemplateHelperTest : BehaviorSpec({
             } returns persoon
 
             `when`("the variables are resolved with a text containing a placeholder for the zaak initiator") {
-                val resolvedText = mailTemplateHelper.resolveZaakVariables(
-                    "fakeText, {ZAAK_INITIATOR}, {ZAAK_INITIATOR_ADRES}",
-                    zaak,
-                    userName
-                )
+                val (resolvedText, records) = LogCapture(MailTemplateHelper::class).use { logCapture ->
+                    mailTemplateHelper.resolveZaakVariables(
+                        "fakeText, {ZAAK_INITIATOR}, {ZAAK_INITIATOR_ADRES}",
+                        zaak,
+                        userName
+                    ) to logCapture.records
+                }
 
                 then(
                     "the text 'Onbekend' should be used for the persoon's name and no verblijfplaats should be replaced"
                 ) {
                     resolvedText shouldBe "fakeText, Onbekend, "
+                }
+
+                and("the missing name is logged with the rol UUID, without the date or place of birth") {
+                    with(records.single { it.mdc["type"] == "INITIATOR_WITHOUT_NAME" }) {
+                        mdc["rolUuid"] shouldBe rolNietNatuurlijkPersoon.uuid.toString()
+                        containsAnywhere("1970") shouldBe false
+                        containsAnywhere("fakeGeboorteplaats") shouldBe false
+                        containsAnywhere(bsn) shouldBe false
+                    }
                 }
             }
         }

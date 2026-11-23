@@ -4,378 +4,184 @@
  */
 package nl.info.zac.util
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.maps.shouldContainAll
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
-import io.kotest.matchers.string.shouldNotContain
+import io.kotest.matchers.string.shouldMatch
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.slot
 import io.mockk.verify
+import io.opentelemetry.api.trace.Span
+import io.opentelemetry.api.trace.SpanContext
+import io.opentelemetry.api.trace.TraceFlags
+import io.opentelemetry.api.trace.TraceState
 import jakarta.ws.rs.client.ClientRequestContext
 import jakarta.ws.rs.client.ClientResponseContext
-import jakarta.ws.rs.core.MediaType
-import jakarta.ws.rs.core.MultivaluedHashMap
-import jakarta.ws.rs.core.Response
-import java.io.ByteArrayInputStream
-import java.io.IOException
-import java.io.InputStream
+import nl.info.client.bag.api.AdresApi
+import nl.info.client.brp.PersonenApi
+import nl.info.zac.log.LogCapture
 import java.net.URI
-import java.nio.charset.StandardCharsets
-import java.util.logging.Handler
 import java.util.logging.Level
-import java.util.logging.LogRecord
-import java.util.logging.Logger
 
 class JsonLoggingFilterTest : BehaviorSpec({
     val jsonLoggingFilter = JsonLoggingFilter()
+    val personenMethod = PersonenApi::class.java.methods.first { it.name == "personen" }
+    val bevraagAdressenMetNumIdMethod = AdresApi::class.java.methods.first { it.name == "bevraagAdressenMetNumId" }
+
+    fun createClientRequestContext(
+        method: String,
+        uri: String,
+        invokedMethod: java.lang.reflect.Method?
+    ): ClientRequestContext {
+        val properties = mutableMapOf<String, Any?>()
+        return mockk<ClientRequestContext>().also { clientRequestContext ->
+            every { clientRequestContext.method } returns method
+            every { clientRequestContext.uri } returns URI(uri)
+            every { clientRequestContext.setProperty(any(), any()) } answers { properties[firstArg()] = secondArg() }
+            every { clientRequestContext.getProperty(any()) } answers { properties[firstArg()] }
+            properties[JsonLoggingFilter.INVOKED_METHOD_PROPERTY] = invokedMethod
+        }
+    }
+
+    fun createClientResponseContext(status: Int) =
+        mockk<ClientResponseContext>().also { every { it.status } returns status }
+
+    fun callFilter(
+        clientRequestContext: ClientRequestContext,
+        clientResponseContext: ClientResponseContext,
+        level: Level = Level.FINE
+    ) = LogCapture(JsonLoggingFilter::class, level).use { logCapture ->
+        jsonLoggingFilter.filter(clientRequestContext)
+        jsonLoggingFilter.filter(clientRequestContext, clientResponseContext)
+        logCapture.records
+    }
 
     afterEach {
         checkUnnecessaryStub()
     }
 
-    context("Filtering a REST request") {
-        given("the log level of the filter is higher than FINE") {
-            val clientRequestContext = mockk<ClientRequestContext>()
+    context("Filtering an outbound REST call") {
+        given("FINE is enabled and a BRP person query by BSN that BRP answers with 200") {
+            val clientRequestContext = createClientRequestContext(
+                method = "POST",
+                uri = "https://brp.example.com/haalcentraal/api/brp/personen",
+                invokedMethod = personenMethod
+            )
+            val clientResponseContext = createClientResponseContext(200)
 
-            `when`("the request is filtered") {
-                val logRecords = captureLogRecords(Level.INFO) { jsonLoggingFilter.filter(clientRequestContext) }
+            `when`("the call is filtered") {
+                val records = callFilter(clientRequestContext, clientResponseContext)
 
-                then("nothing is logged and the request is not read") {
-                    logRecords.shouldBeEmpty()
-                    verify(exactly = 0) { clientRequestContext.uri }
+                then("one record is logged with method, host, operation, status, outcome and duration, and no path") {
+                    with(records.single()) {
+                        message shouldBe "Outbound REST call"
+                        mdc shouldContainAll mapOf(
+                            "event" to "OutboundRestCall",
+                            "method" to "POST",
+                            "host" to "brp.example.com",
+                            "operation" to "PersonenApi.personen",
+                            "status" to "200",
+                            "outcome" to "SUCCESS"
+                        )
+                        mdc.getValue("durationMs") shouldMatch Regex("[0-9]+")
+                        mdc.getValue("correlationId") shouldMatch Regex("[0-9a-f-]{36}")
+                        containsAnywhere("/haalcentraal") shouldBe false
+                    }
                 }
-            }
-        }
 
-        given("the log level of the filter is FINE and the request has a JSON entity") {
-            val clientRequestContext = mockk<ClientRequestContext>()
-            every { clientRequestContext.uri } returns URI("https://example.com/fakePath")
-            every { clientRequestContext.method } returns "POST"
-            every { clientRequestContext.mediaType } returns MediaType.APPLICATION_JSON_TYPE
-            every { clientRequestContext.headers } returns MultivaluedHashMap<String, Any>().apply {
-                add("fakeHeader", "fakeHeaderValue")
-            }
-            every { clientRequestContext.hasEntity() } returns true
-            every { clientRequestContext.entity } returns mapOf("fakeKey" to "fakeValue")
-
-            `when`("the request is filtered") {
-                val logRecords = captureLogRecords(Level.FINE) { jsonLoggingFilter.filter(clientRequestContext) }
-
-                then("the URL, method, media type, headers and formatted payload are logged") {
-                    with(logRecords.single()) {
-                        level shouldBe Level.FINE
-                        message shouldContain "REST Request"
-                        message shouldContain "URL: https://example.com/fakePath"
-                        message shouldContain "Method: POST"
-                        message shouldContain "Media type: application/json"
-                        message shouldContain "fakeHeader : [fakeHeaderValue]"
-                        message shouldContain "Payload:"
-                        message shouldContain "\"fakeKey\": \"fakeValue\""
+                and("the body and the headers of the call are not read") {
+                    verify(exactly = 0) {
+                        clientRequestContext.entity
+                        clientRequestContext.headers
+                        clientResponseContext.entityStream
+                        clientResponseContext.headers
                     }
                 }
             }
         }
 
-        given("the log level of the filter is FINE and the request has no entity") {
-            val clientRequestContext = mockk<ClientRequestContext>()
-            every { clientRequestContext.uri } returns URI("https://example.com/fakePath")
-            every { clientRequestContext.method } returns "GET"
-            every { clientRequestContext.mediaType } returns null
-            every { clientRequestContext.headers } returns MultivaluedHashMap()
-            every { clientRequestContext.hasEntity() } returns false
-
-            `when`("the request is filtered") {
-                val logRecords = captureLogRecords(Level.FINE) { jsonLoggingFilter.filter(clientRequestContext) }
-
-                then("the request is logged without a payload") {
-                    with(logRecords.single().message) {
-                        this shouldContain "Method: GET"
-                        this shouldNotContain "Payload:"
-                    }
-                }
-            }
-        }
-
-        given("the log level of the filter is FINE and the request has a JSON entity with a surname and a date of birth") {
-            val clientRequestContext = mockk<ClientRequestContext>()
-            every { clientRequestContext.uri } returns URI("https://example.com/rollen")
-            every { clientRequestContext.method } returns "POST"
-            every { clientRequestContext.mediaType } returns MediaType.APPLICATION_JSON_TYPE
-            every { clientRequestContext.headers } returns MultivaluedHashMap()
-            every { clientRequestContext.hasEntity() } returns true
-            every { clientRequestContext.entity } returns mapOf(
-                "betrokkeneIdentificatie" to mapOf(
-                    "inpBsn" to "999993896",
-                    "geslachtsnaam" to "fakeGeslachtsnaam",
-                    "geboortedatum" to "1980-05-17"
-                )
+        given("FINE is enabled and a BAG call with an identifier in its path") {
+            val clientRequestContext = createClientRequestContext(
+                method = "GET",
+                uri = "https://bag.example.com/lvbag/individuelebevragingen/v2/adressen/0363200000123456",
+                invokedMethod = bevraagAdressenMetNumIdMethod
             )
 
-            `when`("the request is filtered") {
-                val logRecords = captureLogRecords(Level.FINE) { jsonLoggingFilter.filter(clientRequestContext) }
+            `when`("the call is filtered") {
+                val records = callFilter(clientRequestContext, createClientResponseContext(200))
 
-                then(
-                    "the date of birth is masked, so that it is not logged together with the surname, " +
-                        "and the other fields are logged as they are"
-                ) {
-                    with(logRecords.single().message) {
-                        this shouldContain "\"geboortedatum\": \"${JsonLoggingFilter.MASKED_VALUE}\""
-                        this shouldContain "\"geslachtsnaam\": \"fakeGeslachtsnaam\""
-                        this shouldContain "\"inpBsn\": \"999993896\""
-                        this shouldNotContain "1980-05-17"
-                    }
-                }
-            }
-        }
-    }
-
-    context("Filtering a REST response") {
-        given("the log level of the filter is higher than FINE") {
-            val clientRequestContext = mockk<ClientRequestContext>()
-            val clientResponseContext = mockk<ClientResponseContext>()
-
-            `when`("the response is filtered") {
-                val logRecords = captureLogRecords(Level.INFO) {
-                    jsonLoggingFilter.filter(clientRequestContext, clientResponseContext)
-                }
-
-                then("nothing is logged and the response is not read") {
-                    logRecords.shouldBeEmpty()
-                    verify(exactly = 0) { clientResponseContext.statusInfo }
-                }
-            }
-        }
-
-        given("the log level of the filter is FINE and the response has a JSON entity") {
-            val clientRequestContext = mockk<ClientRequestContext>()
-            val clientResponseContext = mockk<ClientResponseContext>()
-            val payload = "{\"fakeKey\":\"fakeValue\"}"
-            val resetEntityStream = slot<InputStream>()
-            every { clientResponseContext.statusInfo } returns Response.Status.OK
-            every { clientResponseContext.mediaType } returns MediaType.APPLICATION_JSON_TYPE
-            every { clientResponseContext.headers } returns MultivaluedHashMap<String, String>().apply {
-                add("fakeHeader", "fakeHeaderValue")
-            }
-            every { clientResponseContext.hasEntity() } returns true
-            every { clientResponseContext.entityStream } returns payload.toInputStream()
-            every { clientResponseContext.entityStream = capture(resetEntityStream) } returns Unit
-
-            `when`("the response is filtered") {
-                val logRecords = captureLogRecords(Level.FINE) {
-                    jsonLoggingFilter.filter(clientRequestContext, clientResponseContext)
-                }
-
-                then("the status, media type, headers and pretty printed payload are logged") {
-                    with(logRecords.single()) {
-                        level shouldBe Level.FINE
-                        message shouldContain "REST Response"
-                        message shouldContain "Status: 200 (OK)"
-                        message shouldContain "Media type: application/json"
-                        message shouldContain "fakeHeader : [fakeHeaderValue]"
-                        message shouldContain "\"fakeKey\": \"fakeValue\""
-                    }
-                }
-
-                and("the entity stream is replaced, so that the payload can still be read by the client") {
-                    String(resetEntityStream.captured.readAllBytes(), StandardCharsets.UTF_8) shouldBe payload
-                }
-            }
-        }
-
-        given("the log level of the filter is FINE and the response has a BRP person with a surname and a date of birth") {
-            val clientRequestContext = mockk<ClientRequestContext>()
-            val clientResponseContext = mockk<ClientResponseContext>()
-            val payload = """
-                {
-                  "fields": ["naam", "geboorte"],
-                  "personen": [
-                    {
-                      "naam": { "geslachtsnaam": "fakeGeslachtsnaam" },
-                      "geboorte": { "datum": { "datum": "1980-05-17", "langFormaat": "17 mei 1980" } }
-                    }
-                  ]
-                }
-            """.trimIndent()
-            val resetEntityStream = slot<InputStream>()
-            every { clientResponseContext.statusInfo } returns Response.Status.OK
-            every { clientResponseContext.mediaType } returns MediaType.APPLICATION_JSON_TYPE
-            every { clientResponseContext.headers } returns MultivaluedHashMap()
-            every { clientResponseContext.hasEntity() } returns true
-            every { clientResponseContext.entityStream } returns payload.toInputStream()
-            every { clientResponseContext.entityStream = capture(resetEntityStream) } returns Unit
-
-            `when`("the response is filtered") {
-                val logRecords = captureLogRecords(Level.FINE) {
-                    jsonLoggingFilter.filter(clientRequestContext, clientResponseContext)
-                }
-
-                then(
-                    "the whole date of birth is masked, so that it is not logged together with the surname, " +
-                        "while a field name in a list of values is kept"
-                ) {
-                    with(logRecords.single().message) {
-                        this shouldContain "\"geboorte\": \"${JsonLoggingFilter.MASKED_VALUE}\""
-                        this shouldContain "\"geslachtsnaam\": \"fakeGeslachtsnaam\""
-                        this shouldContain "\"geboorte\"\n"
-                        this shouldNotContain "1980-05-17"
-                        this shouldNotContain "17 mei 1980"
-                    }
-                }
-
-                and("the client still receives the unmasked payload") {
-                    String(resetEntityStream.captured.readAllBytes(), StandardCharsets.UTF_8) shouldBe payload
-                }
-            }
-        }
-
-        given("the log level of the filter is FINE and the response has an entity that is not JSON") {
-            val clientRequestContext = mockk<ClientRequestContext>()
-            val clientResponseContext = mockk<ClientResponseContext>()
-            every { clientResponseContext.statusInfo } returns Response.Status.OK
-            every { clientResponseContext.mediaType } returns MediaType.TEXT_PLAIN_TYPE
-            every { clientResponseContext.headers } returns MultivaluedHashMap()
-            every { clientResponseContext.hasEntity() } returns true
-            every { clientResponseContext.entityStream } returns "fakePlainTextPayload".toInputStream()
-            every { clientResponseContext.entityStream = any() } returns Unit
-
-            `when`("the response is filtered") {
-                val logRecords = captureLogRecords(Level.FINE) {
-                    jsonLoggingFilter.filter(clientRequestContext, clientResponseContext)
-                }
-
-                then("the payload is logged as is") {
-                    logRecords.single().message shouldContain "Payload:fakePlainTextPayload"
-                }
-            }
-        }
-
-        given("the log level of the filter is FINE and the response has malformed JSON with a surname and a date of birth") {
-            val clientRequestContext = mockk<ClientRequestContext>()
-            val clientResponseContext = mockk<ClientResponseContext>()
-            every { clientResponseContext.statusInfo } returns Response.Status.OK
-            every { clientResponseContext.mediaType } returns MediaType.APPLICATION_JSON_TYPE
-            every { clientResponseContext.headers } returns MultivaluedHashMap()
-            every { clientResponseContext.hasEntity() } returns true
-            every { clientResponseContext.entityStream } returns
-                """{"geslachtsnaam":"fakeGeslachtsnaam","geboortedatum":"1980-05-17",}""".toInputStream()
-            every { clientResponseContext.entityStream = any() } returns Unit
-
-            `when`("the response is filtered") {
-                val logRecords = captureLogRecords(Level.FINE) {
-                    jsonLoggingFilter.filter(clientRequestContext, clientResponseContext)
-                }
-
-                then("the payload is not logged, because the date of birth cannot be masked reliably in invalid JSON") {
-                    with(logRecords.single().message) {
-                        this shouldContain "Payload:${JsonLoggingFilter.WITHHELD_PAYLOAD}"
-                        this shouldNotContain "fakeGeslachtsnaam"
-                        this shouldNotContain "1980-05-17"
+                then("the record names the operation and does not contain the identifier") {
+                    with(records.single()) {
+                        mdc["operation"] shouldBe "AdresApi.bevraagAdressenMetNumId"
+                        containsAnywhere("0363200000123456") shouldBe false
                     }
                 }
             }
         }
 
-        given("the log level of the filter is FINE and the response is a truncated BRP person with a surname and a date of birth") {
-            val clientRequestContext = mockk<ClientRequestContext>()
-            val clientResponseContext = mockk<ClientResponseContext>()
-            every { clientResponseContext.statusInfo } returns Response.Status.OK
-            every { clientResponseContext.mediaType } returns MediaType.APPLICATION_JSON_TYPE
-            every { clientResponseContext.headers } returns MultivaluedHashMap()
-            every { clientResponseContext.hasEntity() } returns true
-            every { clientResponseContext.entityStream } returns (
-                """{"naam":{"geslachtsnaam":"fakeGeslachtsnaam"},""" +
-                    """"geboorte":{"datum":{"type":"Datum","datum":"1980-05-17","langFormaat":"17 mei 1980"""
-                ).toInputStream()
-            every { clientResponseContext.entityStream = any() } returns Unit
+        given("FINE is enabled and a call with a BSN in its query string that the remote system answers with 500") {
+            val clientRequestContext = createClientRequestContext(
+                method = "GET",
+                uri = "https://klant.example.com/klantinteracties/api/v1/partijen?partijIdentificator__objectId=999993896",
+                invokedMethod = null
+            )
 
-            `when`("the response is filtered") {
-                val logRecords = captureLogRecords(Level.FINE) {
-                    jsonLoggingFilter.filter(clientRequestContext, clientResponseContext)
-                }
+            `when`("the call is filtered") {
+                val records = callFilter(clientRequestContext, createClientResponseContext(500))
 
-                then("the payload is not logged") {
-                    with(logRecords.single().message) {
-                        this shouldContain "Payload:${JsonLoggingFilter.WITHHELD_PAYLOAD}"
-                        this shouldNotContain "1980-05-17"
-                        this shouldNotContain "17 mei 1980"
+                then("the record has the failure, no operation, and no part of the path or the query string") {
+                    with(records.single()) {
+                        mdc shouldContainAll mapOf(
+                            "host" to "klant.example.com",
+                            "operation" to "null",
+                            "status" to "500",
+                            "outcome" to "FAILURE"
+                        )
+                        containsAnywhere("999993896") shouldBe false
+                        containsAnywhere("partijen") shouldBe false
                     }
                 }
             }
         }
 
-        given("the log level of the filter is FINE and the response has no entity") {
-            val clientRequestContext = mockk<ClientRequestContext>()
-            val clientResponseContext = mockk<ClientResponseContext>()
-            every { clientResponseContext.statusInfo } returns Response.Status.NO_CONTENT
-            every { clientResponseContext.mediaType } returns null
-            every { clientResponseContext.headers } returns MultivaluedHashMap()
-            every { clientResponseContext.hasEntity() } returns false
+        given("FINE is enabled and a call inside an active span") {
+            val spanContext = SpanContext.create(
+                "0af7651916cd43dd8448eb211c80319c",
+                "b7ad6b7169203331",
+                TraceFlags.getSampled(),
+                TraceState.getDefault()
+            )
+            val clientRequestContext = createClientRequestContext(
+                method = "GET",
+                uri = "https://example.com/fakePath",
+                invokedMethod = null
+            )
 
-            `when`("the response is filtered") {
-                val logRecords = captureLogRecords(Level.FINE) {
-                    jsonLoggingFilter.filter(clientRequestContext, clientResponseContext)
+            `when`("the call is filtered") {
+                val records = Span.wrap(spanContext).makeCurrent().use {
+                    callFilter(clientRequestContext, createClientResponseContext(204))
                 }
 
-                then("the response is logged without a payload") {
-                    with(logRecords.single().message) {
-                        this shouldContain "Status: 204 (No Content)"
-                        this shouldNotContain "Payload:"
-                    }
+                then("the correlation ID is the span ID") {
+                    records.single().mdc["correlationId"] shouldBe "b7ad6b7169203331"
                 }
             }
         }
 
-        given("the log level of the filter is FINE and reading the response entity fails") {
+        given("FINE is disabled") {
             val clientRequestContext = mockk<ClientRequestContext>()
-            val clientResponseContext = mockk<ClientResponseContext>()
-            every { clientResponseContext.statusInfo } returns Response.Status.OK
-            every { clientResponseContext.mediaType } returns MediaType.APPLICATION_JSON_TYPE
-            every { clientResponseContext.headers } returns MultivaluedHashMap()
-            every { clientResponseContext.hasEntity() } returns true
-            every { clientResponseContext.entityStream } returns object : InputStream() {
-                override fun read(): Int = throw IOException("fakeIOExceptionMessage")
-            }
+            every { clientRequestContext.getProperty(JsonLoggingFilter.START_TIME_PROPERTY) } returns null
 
-            `when`("the response is filtered") {
-                val runtimeException = shouldThrow<RuntimeException> {
-                    captureLogRecords(Level.FINE) {
-                        jsonLoggingFilter.filter(clientRequestContext, clientResponseContext)
-                    }
-                }
+            `when`("the call is filtered") {
+                val records = callFilter(clientRequestContext, createClientResponseContext(200), Level.INFO)
 
-                then("an exception is thrown that wraps the IO exception") {
-                    runtimeException.message shouldBe "Error logging REST response"
-                    runtimeException.cause!!.message shouldBe "fakeIOExceptionMessage"
+                then("nothing is logged and nothing of the call is read") {
+                    records.shouldBeEmpty()
+                    verify(exactly = 0) { clientRequestContext.uri }
                 }
             }
         }
     }
 })
-
-private fun String.toInputStream() = ByteArrayInputStream(toByteArray(StandardCharsets.UTF_8))
-
-private fun captureLogRecords(level: Level, block: () -> Unit): List<LogRecord> {
-    val logger = Logger.getLogger(JsonLoggingFilter::class.java.name)
-    val originalLevel = logger.level
-    val records = mutableListOf<LogRecord>()
-    val handler = object : Handler() {
-        override fun publish(record: LogRecord) {
-            records.add(record)
-        }
-        override fun flush() = Unit
-        override fun close() = Unit
-    }
-    logger.level = level
-    logger.addHandler(handler)
-    try {
-        block()
-    } finally {
-        logger.removeHandler(handler)
-        logger.level = originalLevel
-    }
-    return records
-}

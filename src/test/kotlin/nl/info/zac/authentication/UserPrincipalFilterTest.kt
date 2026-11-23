@@ -28,6 +28,9 @@ import nl.info.client.pabc.ROLE_NAME_SYSTEEMROL_BEHANDELAAR_ALLE_ZAAKTYPEN
 import nl.info.client.pabc.model.createApplicationRolesResponseModel
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
 import nl.info.zac.identity.model.getFullName
+import nl.info.zac.log.EmployeeKeycloakUserIds
+import nl.info.zac.log.LogCapture
+import nl.info.zac.log.UNKNOWN_EMPLOYEE
 import nl.info.zac.policy.PolicyService
 import org.jose4j.jwt.JwtClaims
 import org.wildfly.security.http.oidc.AccessToken
@@ -35,6 +38,7 @@ import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext
 import org.wildfly.security.http.oidc.RefreshableOidcSecurityContext
 
+@Suppress("LargeClass")
 class UserPrincipalFilterTest : BehaviorSpec({
     val pabcClientService = mockk<PabcClientService>()
     val policyService = mockk<PolicyService>()
@@ -69,6 +73,10 @@ class UserPrincipalFilterTest : BehaviorSpec({
 
     afterEach {
         checkUnnecessaryStub()
+    }
+
+    afterSpec {
+        EmployeeKeycloakUserIds.reset()
     }
 
     context("PABC integration is enabled") {
@@ -118,6 +126,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 JwtClaims.parse(
                     """
                     {
+                        "sub": "fakeKeycloakUserId",
                         "name": "fakeFullName",
                         "given_name": "fakeGivenName",
                         "family_name": "fakeFamilyName",
@@ -135,7 +144,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
             val oidcPrincipal = OidcPrincipal("aDifferentUsername", oidcSecurityContext)
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
             every { httpServletRequest.getSession(true) } returns httpSession andThen newHttpSession
-            every { httpServletRequest.servletContext.contextPath } returns "fakeContextPath"
             every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
             every { httpSession.invalidate() } just runs
             every { filterChain.doFilter(any(), any()) } just runs
@@ -152,7 +160,10 @@ class UserPrincipalFilterTest : BehaviorSpec({
             every { newHttpSession.setAttribute("logged-in-user", capture(capturedLoggedInUser)) } just runs
 
             `when`("doFilter is called") {
-                userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
+                val records = LogCapture(UserPrincipalFilter::class).use { logCapture ->
+                    userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
+                    logCapture.records
+                }
 
                 then("the existing HTTP session is invalidated and the user is added to a new HTTP session") {
                     verify(exactly = 1) {
@@ -164,6 +175,20 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     with(capturedLoggedInUser.captured) {
                         this.roles shouldContainAll functionalRoles
                         this.applicationRolesPerZaaktype[entityTypeId]?.shouldContainAll(pabcRoleNames)
+                    }
+                }
+
+                then(
+                    "one record is logged with the Keycloak user ID from the token and the previous employee, " +
+                        "without the usernames"
+                ) {
+                    with(records.single()) {
+                        message shouldBe "User logged in"
+                        mdc["employee"] shouldBe "fakeKeycloakUserId"
+                        mdc["previousSessionEmployee"] shouldBe UNKNOWN_EMPLOYEE
+                        mdc["roles"] shouldBe "[fakeFunctionalRole1, fakeFunctionalRole2]"
+                        containsAnywhere("fakeUserName") shouldBe false
+                        containsAnywhere(loggedInUser.username) shouldBe false
                     }
                 }
             }

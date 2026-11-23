@@ -5,12 +5,16 @@
 
 package net.atos.zac.flowable.delegate
 
+import net.atos.zac.flowable.delegate.log.ZaakNotSuspended
+import net.atos.zac.flowable.delegate.log.ZaakResuming
 import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.zac.flowable.FlowableHelper
+import nl.info.zac.log.Employee
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.policy.log.PolicyDenied
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
-import java.util.logging.Logger
 
 /**
  * Flowable BPMN delegate to resume a zaak.
@@ -26,7 +30,7 @@ class ResumeZaakDelegate : AbstractDelegate() {
     var hervattenDatum: Expression? = null
 
     companion object {
-        private val LOG = Logger.getLogger(ResumeZaakDelegate::class.java.name)
+        private val LOG = ZacLogger.getLogger(ResumeZaakDelegate::class)
     }
 
     override fun execute(execution: DelegateExecution) {
@@ -36,19 +40,18 @@ class ResumeZaakDelegate : AbstractDelegate() {
         assertPolicy(
             flowableHelper.policyService.readZaakRechten(zaak, loggedInUser).canHervatten,
             LOG,
-            "User ${loggedInUser.username} not allowed to resume zaak ${zaak.identificatie}"
+            PolicyDenied(action = "resumeZaak", zaakIdentificatie = zaak.identificatie, employee = Employee(loggedInUser.username))
         )
-        assertPolicy(
-            zaak.isOpgeschort(),
-            LOG,
-            "Zaak '${zaak.identificatie}' is not suspended and cannot be resumed"
-        )
+        assertPolicy(zaak.isOpgeschort(), LOG, ZaakNotSuspended(zaakIdentificatie = zaak.identificatie))
         val resumeReason = hervattenReden.resolveValueAsString(execution)
         val resumeDate = hervattenDatum?.resolveValueAsZonedDateTime(execution)
 
         LOG.fine(
-            "Resuming zaak '${zaak.identificatie}' from activity '${execution.currentActivityName}' " +
-                "with reason '$resumeReason' ${resumeDate?.let { "and resume date '$it'" }.orEmpty()}"
+            ZaakResuming(
+                zaakIdentificatie = zaak.identificatie,
+                activityName = execution.currentActivityName,
+                resumeDate = resumeDate
+            )
         )
 
         resumeDate?.let {

@@ -1,9 +1,8 @@
 # Logging in ZAC
 
-This page describes how logging is currently implemented in ZAC's production code (`src/main`), as
-opposed to test code (`src/test`, `src/itest`, `src/e2e`), which is out of scope here. It also documents
-required follow-up changes to bring logging in line with GDPR/AVG requirements — see
-[Follow-up recommendations](#follow-up-recommendations).
+This page describes how ZAC's production code (`src/main`) logs, as opposed to test code (`src/test`, `src/itest`,
+`src/e2e`), which is out of scope here. It also documents the audit of personal data in the logs and which of its
+findings are resolved — see [Personal data in logs](#personal-data-in-logs).
 
 ## Logging philosophy
 
@@ -22,58 +21,95 @@ For some of these events the log level is configurable, for others it is not.
 
 ## Backend
 
-The backend logs exclusively through `java.util.logging.Logger` (JUL). No third-party logging
-facade (SLF4J, Log4j, KotlinLogging) is currently used in production code.
-
-The near-universal convention is a companion-object constant named `LOG`:
+All backend logging goes through [`ZacLogger`](../../src/main/kotlin/nl/info/zac/log/ZacLogger.kt) in
+`nl.info.zac.log` ([ADR-0020](../solution-architecture/decisions/0020-log-only-typed-log-events-through-zaclogger.md)).
+`ZacLogger` accepts no free text: every log statement is a typed `LogEvent`.
 
 ```kotlin
 companion object {
-    private val LOG = Logger.getLogger(MyService::class.java.name)
+    private val LOG = ZacLogger.getLogger(MailService::class)
 }
+
+LOG.fine(MailSendCompleted(zaakUuid = zaak.uuid, recipient = address, outcome = Outcome.SUCCESS, durationMs = 84))
+LOG.severe(MailPdfConversionFailed(zaakUuid = zaak.uuid), exception)
+LOG.fine { ExpensiveEvent(...) }  // the event is only created when FINE is enabled
 ```
 
-A small wrapper, [`nl.info.zac.log.LogUtils`](../../src/main/kotlin/nl/info/zac/log/LogUtils.kt), exists
-to make exception logging easier to stub out in unit tests:
+An event is a small class with typed fields and a description that is a literal:
 
 ```kotlin
-fun log(logger: Logger, level: Level, message: String, throwable: Throwable) = logger.log(level, message, throwable)
-fun log(logger: Logger, level: Level, message: String) = logger.log(level, message)
+class MailSendCompleted(
+    val zaakUuid: UUID?,
+    @Redacted val recipient: String,
+    val outcome: Outcome,
+    val durationMs: Long,
+    val errorType: String? = null
+) : LogEvent("Mail send completed")
 ```
 
-`PolicyService.kt` is the one exception to the `LOG` naming convention: it accepts a `Logger` as a
-function parameter named `logger`.
+Rules:
 
-### Lazy message evaluation
+* Put each event in its own file in a `log` package next to the code that logs it, for example
+  `nl/info/zac/mail/log/MailSendCompleted.kt`. Name it after what happened, without an `Event` suffix.
+* Reuse an event before you add one. Events with the same fields share one class with a nested `Type` enum that holds
+  the fixed descriptions, such as `GenericEvent` (no fields), `ZaakEvent`, `InformatieobjectEvent`, `ZaaktypeEvent`
+  and `RolEvent` in `nl.info.zac.log`: add a constant to its `Type` instead of a new class. The record then has the
+  field `type` with the name of the constant.
+* Pass the description as a literal. Never build it from values: values belong in fields. Start the description with
+  the words of the message it replaces, so that people who search the logs still find it.
+* A value that is personal data and adds nothing to diagnosis is not logged at all. A value that must stay visible as a
+  field, but whose content is personal data, is annotated with `@Redacted` and written as `*****`. Examples are the
+  recipient of a mail and the email address in the mail delegates.
+* An employee is an `Employee(username)` field. `ZacLogger` writes the Keycloak user ID of the employee (the `sub`
+  claim), never the username, name or email address. It knows the ID of an employee who logged in on the instance,
+  and looks up any other employee once in Keycloak. A lookup that fails is written as `unknown` and is not repeated
+  for 5 minutes.
+* Use the field names of [`LogFieldNames`](../../src/main/kotlin/nl/info/zac/log/LogFieldNames.kt) for shared
+  concepts: `zaakUuid`, `zaakIdentificatie`, `zaaktypeUuid`, `taakId`, `informatieobjectUuid`,
+  `informatieobjectIdentificatie`, `groupId`, `employee` (or a name ending in `Employee`), `processDefinitionKey`,
+  `caseDefinitionKey`, `outcome`, `durationMs`, `errorType`, `errorCode`. A unit test fails on a synonym such as
+  `zaakId`, `uuid`, `user`, `username` or `userId`, and on a field named `event`.
+* Log one record per operation: when several statements in one function or class describe the same operation, write
+  one event when it ends, with its choices as fields. An operation with a start and an end has `outcome`
+  (`SUCCESS` or `FAILURE`) and `durationMs`. A long-running operation that reports progress, such as a reindex, keeps
+  a record for its start, its progress and its end.
+* Log a failure whose exception message can hold personal data without the exception, with its class name as
+  `errorType`, as `MailService` does for a mail that the mail server rejects.
 
-`CLAUDE.md` documents a target style of `logger.debug { "Value: $value" }` to avoid unnecessary string
-interpolation. The codebase does not use KotlinLogging (which is where that syntax comes from), but
-achieves the same lazy-evaluation effect using JUL's own `Supplier<String>` overloads, for example:
+The record of an event has the description as `message`, and every field as a separate JSON key under `mdc`, which
+the JSON formatter of WildFly writes:
 
-```kotlin
-LOG.fine { "Job event ontvangen: $event" }
-LOG.log(Level.WARNING) { "Could not parse date string: $param" }
+```json
+{"level":"FINE","loggerName":"nl.info.zac.mail.MailService","message":"Mail send completed",
+ "mdc":{"event":"MailSendCompleted","zaakUuid":"…","recipient":"*****","outcome":"SUCCESS","durationMs":"84",
+        "traceId":"…","spanId":"…"}}
 ```
 
-vs. eager (string built even if the log level is disabled):
+`ZacLogger` always adds `event` (the class name of the event), `errorType` when a throwable is passed, and `traceId`
+and `spanId` of the active OpenTelemetry span when tracing is enabled. A `null` field is written as `null`. MDC values
+are strings, so `durationMs` is the string `"84"`.
 
-```kotlin
-LOG.info(String.format("Deploying policy module: %s", moduleId))
-```
+`ZacLogger` keeps the class name as logger name, so the log categories of WildFly keep working. `java.util.logging.Level`
+may still be used, for example for a configurable level (`ZacLogger.log(level, event)`); `Logger` may not.
 
-Both styles are currently in use; prefer the lazy-supplier style for `FINE`/`WARNING` messages that build
-non-trivial strings.
+Outbound REST calls are logged by `JsonLoggingFilter` as one `OutboundRestCall` record at `FINE`, with a correlation
+ID, the HTTP method, the host, the client operation (such as `PersonenApi.personen`), the status, the outcome and the
+duration. It never logs the path, the query string, the headers or the body.
+
+A policy check that logs uses `assertPolicy(policy, LOG, PolicyDenied(action, zaakIdentificatie, Employee(username)))`.
+
+In unit tests, capture the records of a logger with `LogCapture` (in `src/test`) and check the `message`, the `mdc`
+fields and `thrown` of a record. `CapturedLogRecord.containsAnywhere(text)` checks that a value appears nowhere in a
+record.
 
 ### Level usage
-
-Observed usage of `java.util.logging.Level` in this codebase:
 
 | Level | Typical use |
 |---|---|
 | `SEVERE` | Unrecoverable failures: async-processing guards, mail send failures, unexpected reindexing failures, external API calls that failed outright (e.g. KVK search) |
 | `WARNING` | Recoverable/expected-but-unwanted conditions: unknown enum values from external systems, failed lookups, validation problems, external client failures that have a fallback |
 | `INFO` | Notable lifecycle events: zaak status transitions, case/process start, database migration status, reindexing start/finish, notifications sent/received |
-| `FINE` | Verbose diagnostic detail: websocket connection lifecycle, per-item progress, cache eviction, individual delegate execution steps |
+| `FINE` | Verbose diagnostic detail: websocket connection lifecycle, per-item progress, cache eviction, individual delegate execution steps, outbound REST calls |
 
 ### Where logging is concentrated
 
@@ -86,8 +122,8 @@ Observed usage of `java.util.logging.Level` in this codebase:
 - `nl/info/client/{brp,kvk,klant,keycloak,zgw}` — external API client warnings and failures.
 - `nl/info/zac/notification`, `nl/info/zac/signalering`, `nl/info/zac/mail` — notification receipt,
   signalering cleanup/due-date emails, mail send outcomes.
-- `nl/info/zac/websocket` and `nl/info/zac/util` — websocket connection lifecycle and a JSON
-  request/response logging filter (`JsonLoggingFilter`).
+- `nl/info/zac/websocket` and `nl/info/zac/util` — websocket connection lifecycle and the outbound REST call
+  record (`JsonLoggingFilter`).
 
 ## Frontend
 
@@ -214,6 +250,8 @@ treated as personal data on its own.
   **Resolved for PZ-13151:** BSNs and IBANs are masked by the
   [WildFly logging filter](#masking-personal-data-in-the-wildfly-logging), and the filter masks every JSON field
   whose name contains `geboorte`.
+  **Resolved for PZ-12683:** it logs one `OutboundRestCall` record per call, without the path, the query string, the
+  headers or the body.
 - [`nl/info/client/brp/BrpClientService.kt`](../../src/main/kotlin/nl/info/client/brp/BrpClientService.kt)
   (`queryPersonen`) — logs the full `PersonenQuery` request and `PersonenQueryResponse` via `toString()`,
   gated by a configurable log level. `queryPersonen` backs every BRP query variant: only the BSN-lookup
@@ -226,15 +264,22 @@ treated as personal data on its own.
   accident — but it means BSNs and partial BRP person records can appear in logs whenever that level is
   enabled.
   **Resolved for PZ-13151:** it logs only the query type of a BRP query.
+  **Resolved for PZ-12683:** it logs one record with the query type, the outcome, the duration and only the names of the
+  protocollering headers, because their values hold the username of the employee and can hold the API key.
 - [`nl/info/zac/mail/MailService.kt`](../../src/main/kotlin/nl/info/zac/mail/MailService.kt) (`sendMail`) —
   `LOG.fine("Sent mail to ${mailGegevens.to} with subject '$subject'.")`. `MailAdres.toString()` returns
   `"$email ($name)"`, so this logs the recipient's email address and name on every successfully sent
   email, including citizen-facing zaak confirmation emails.
+  **Resolved for PZ-12683:** it logs one `MailSendCompleted` record with the recipient as a `@Redacted` field, without the
+  subject, and a failed send without the exception, whose message can hold the reply of the mail server with the
+  address.
 - [`nl/info/zac/flowable/bpmn/delegate/SendConfirmationEmailDelegate.kt`](../../src/main/kotlin/nl/info/zac/flowable/bpmn/delegate/SendConfirmationEmailDelegate.kt)
   (lines 67-69) — resolves the confirmation email's recipient (lines 51-57) from the zaak's Open Klant
   contact details or, failing that, the initiator role's digital address, then logs it: `LOG.fine("Sending
   mail to '$toAddress' from '$fromAddress' for zaak ...")`. Since `toAddress` is a real citizen or company
   contact address resolved from Open Klant/ZGW data, this is confirmed personal data, not a placeholder.
+  **Resolved for PZ-12683:** it logs one `ConfirmationMailSending` record with the recipient as a `@Redacted` field and the
+  source of the address, without the sender.
 - [`nl/info/zac/app/exception/RestExceptionMapper.kt`](../../src/main/kotlin/nl/info/zac/app/exception/RestExceptionMapper.kt) —
   its `generateResponse`/`handleZgwValidationErrorException` paths log `exception.message`, and for
   `ZgwValidationErrorException` specifically, the joined `reason` of each rejected `invalidParams` entry.
@@ -242,10 +287,14 @@ treated as personal data on its own.
   user submitted. Confirmed against the live-log sample (see
   [Validated against live logs](#validated-against-live-logs)), where only test data was observed — but the
   same echo-the-rejected-value pattern applies to any personal-data field that fails validation.
+  **Resolved for PZ-12683:** it logs `ZgwValidationFailed` with the error code and the name and code of each invalid
+  parameter, without the exception. The message of `ZgwValidationErrorException` holds no reasons, title or detail
+  anymore, so it is safe wherever it ends up; the REST response still has the reasons.
 - [`nl/info/zac/mailtemplates/MailTemplateHelper.kt`](../../src/main/kotlin/nl/info/zac/mailtemplates/MailTemplateHelper.kt) —
   logs an initiator's `geboorte` (BRP date/place of birth) when that person has no name. The surrounding
   code comment notes the BSN is deliberately *not* logged for privacy reasons, but the date/place of
   birth that *is* logged is still personal data.
+  **Resolved for PZ-12683:** it logs that the name is missing, with the UUID of the rol.
 - [`nl/info/zac/authentication/UserPrincipalFilter.kt`](../../src/main/kotlin/nl/info/zac/authentication/UserPrincipalFilter.kt) —
   logs `User logged in: '<username>' with groups: [...], functional roles: [...]` at `INFO`, from
   `setLoggedInUserOnHttpSession` (lines 81-92). This is not per request: it only runs when the HTTP session
@@ -258,6 +307,7 @@ treated as personal data on its own.
   email address, and several accounts log in under their real first name rather than a pseudonymous ID.
   This is staff data, not citizen data, but it is personal data under GDPR, and — unlike the BRP/mail
   findings above — it fires at `INFO`, so it can't be silenced by keeping `FINE` disabled.
+  **Resolved for PZ-12683:** it logs one `UserLoggedIn` record with the employee as Keycloak user ID.
 
 ### Backend — suspected
 
@@ -265,41 +315,53 @@ treated as personal data on its own.
   and [`nl/info/zac/productaanvraag/ProductaanvraagBetrokkeneService.kt`](../../src/main/kotlin/nl/info/zac/productaanvraag/ProductaanvraagBetrokkeneService.kt) —
   log `kvkNummer`/`vestigingsnummer` business identifiers directly. Lower sensitivity than BSN (these
   identify a company, not a natural person), but a `vestiging` can be a sole proprietorship.
+  Still open: KVK numbers and vestigingsnummers are not part of PZ-12683.
 - `MailTemplateHelper.kt` also logs an unsupported `NietNatuurlijkPersoonIdentificatie` (RSIN/KVK/
   vestigingsnummer) via `toString()` — type not fully traced.
+  **Resolved for PZ-12683:** it logs only that the identificatie is unsupported.
 - [`nl/info/zac/zaak/ZaakService.kt`](../../src/main/kotlin/nl/info/zac/zaak/ZaakService.kt) — logs an
   employee's full display name and user ID when they're not in an expected group. Staff data, not
   citizen data, but still personal data under GDPR.
+  **Resolved for PZ-12683:** it logs the employee as Keycloak user ID and the group ID.
 - `nl/info/zac/smartdocuments/SmartDocumentsService.kt` — logs the logged-in employee's user ID. Same
   lower-sensitivity staff-data caveat as the `UserPrincipalFilter` finding above.
+  **Resolved for PZ-12683:** it logs the employee as Keycloak user ID, and nothing of the response.
 - `nl/info/zac/notification/NotificationReceiver.kt` — logs an incoming `Notification` including its
   free-form `properties` map ("kenmerken"), whose content depends on the sending system and wasn't fully
   verified to be PII-free across all notification channels. Verified clean for the `ZAKEN` and
   `INFORMATIEOBJECTEN` channels in the live-log sample below (only resource URLs, UUIDs,
   `vertrouwelijkheidaanduiding`, and RSIN) — still marked suspected because other channels weren't
   observed.
+  **Resolved for PZ-12683:** it logs the channel, main resource URL, resource, resource URL, action and creation date,
+  without the `kenmerken`.
 - [`net/atos/zac/flowable/delegate/SendEmailDelegate.kt`](../../src/main/kotlin/net/atos/zac/flowable/delegate/SendEmailDelegate.kt)
   (lines 82-84) — logs `to`/`from` addresses resolved from BPMN process variables/expressions:
   `LOG.fine("Sending mail to '$toAddress' from '$fromAddress' ...")`. Suspected rather than confirmed
   because these are configured per BPMN process — they may resolve to a citizen address or a fixed
   organizational mailbox depending on how the process is set up.
+  **Resolved for PZ-12683:** it logs the recipient as a `@Redacted` field and not the sender.
 - [`nl/info/zac/websocket/WebSocketServerEndPoint.kt`](../../src/main/kotlin/nl/info/zac/websocket/WebSocketServerEndPoint.kt) —
   stores the authenticated user's ID (the same Keycloak `preferred_username` as the `UserPrincipalFilter`
   finding above) as a websocket session property, then logs it on every `open`/`processMessage`/`error`/
   `close`/`denyAccess` event. Unlike `UserPrincipalFilter`, this is not once per session: `processMessage`
   logs it on every subscription message, so it fires far more frequently. Staff data, not citizen data.
+  **Resolved for PZ-12683:** it logs the employee as Keycloak user ID.
 - [`net/atos/zac/flowable/delegate/UpdateZaakAssignmentDelegate.kt`](../../src/main/kotlin/net/atos/zac/flowable/delegate/UpdateZaakAssignmentDelegate.kt)
   (line 52) — logs a free-text zaak-assignment `reason` at `FINE`, entered by staff and not validated to
   exclude personal data (e.g. a citizen's name could appear in the explanation).
+  **Resolved for PZ-12683:** it logs the zaak, the group and the assignee as Keycloak user ID, without the reason.
 - [`nl/info/zac/productaanvraag/ProductaanvraagService.kt`](../../src/main/kotlin/nl/info/zac/productaanvraag/ProductaanvraagService.kt)
   (`assignZaakToEmployee`, line 149) — logs the assigned employee's username at `INFO`. Same
   lower-sensitivity staff-data caveat as the `UserPrincipalFilter`/`SmartDocumentsService` findings above.
+  **Resolved for PZ-12683:** `ProductaanvraagZaakService` logs the behandelaar as Keycloak user ID.
 - [`nl/info/zac/policy/PolicyService.kt`](../../src/main/kotlin/nl/info/zac/policy/PolicyService.kt)
   (`assertPolicy(policy, logger, message)`, lines 276-281) — logs the given `message` at `INFO` whenever a
   policy check fails, before throwing. Of the 167 call sites of `assertPolicy` across the codebase, 6
   interpolate the denied user's ID into that message (e.g.
   [`SendEmailDelegate.kt:56`](../../src/main/kotlin/net/atos/zac/flowable/delegate/SendEmailDelegate.kt)).
   Same category as the `UserPrincipalFilter` finding, but fires per policy denial rather than per session.
+  **Resolved for PZ-12683:** `assertPolicy` takes a `LogEvent`; the six call sites log `PolicyDenied` with the employee as
+  Keycloak user ID.
 
 Everything else audited (`KvkClientService`, `ProductaanvraagEmailService`, `IdentificationService`,
 `ZgwApiService`, `BesluitService`, `SignaleringService`, `SignaleringEventObserver`, and the REST layer such
@@ -403,6 +465,8 @@ log-level configuration.
 - `ProductaanvraagService.assignZaakToEmployee` already logs a technical username rather than a display
   name, but that username is still staff personal data — apply the same pseudonymization approach used
   elsewhere for staff identifiers, or drop it to `FINE`.
+- **Resolved for PZ-12683:** every recommendation above for the backend, through the type-safe logging below. The
+  frontend recommendation is PZ-12685.
 - Longer term, replace free-text log statements with **type-safe logging**: a small `LogEvent` sealed
   hierarchy plus a `ZacLogger` wrapper around `java.util.logging.Logger` whose `info`/`warning`/`severe`
   methods only accept a `LogEvent`, not a raw `String`. Each call site would construct a typed event
@@ -411,6 +475,8 @@ log-level configuration.
   the renderer masks or hashes them centrally, or the type system rejects logging them altogether. This
   is what should prevent findings like these from recurring, instead of relying on a manual/log audit
   each time.
+  **Resolved for PZ-12683:** built as `ZacLogger` and `LogEvent` (see [Backend](#backend)), with `LogEvent` an open abstract
+  class instead of a sealed hierarchy, and enforced by ArchUnit and Detekt rules.
 
 ## Masking personal data in the WildFly logging
 
@@ -423,7 +489,9 @@ it writes the record, whatever its log level or logger
 | BSN           | `999993896`          | `******896`          |
 | IBAN          | `NL91ABNA0417164300` | `******************` |
 
-The masking applies to the log message and to the messages and `toString()` of a logged exception and its causes.
+The masking applies to the log message, to the MDC fields of a record (the fields of a `LogEvent`), and to the
+messages and `toString()` of a logged exception and its causes. When masking a record fails, the filter withholds its
+message, parameters, exception and MDC fields.
 An exception with personal data in them is logged as a `MaskedThrowable` whose message is the masked `toString()` of
 the original, which normally starts with the name of its class, for example
 `java.lang.IllegalStateException: Geen persoon gevonden voor BSN '******896'`; an exception without personal data is
@@ -435,9 +503,8 @@ numeric ID. It cannot recognise a surname or a date of birth in plain text, so l
 those. The two log statements that wrote a surname together with a date of birth handle that combination at the source:
 
 * `BrpClientService.queryPersonen` logs only the query type of a BRP query, not the query and the response.
-* `JsonLoggingFilter` masks every JSON field whose name contains `geboorte` in the REST payloads that it logs. It
-  does not log a payload that is not valid JSON and contains `geboorte`, because a date of birth cannot be masked
-  reliably in it; it logs any other payload that is not valid JSON, such as an error page, as is.
+* `JsonLoggingFilter` no longer logs payloads at all (PZ-12683), so ADR-0011's masking of `geboorte` fields in its
+  payloads no longer applies.
 
 How it works:
 
@@ -452,11 +519,14 @@ How it works:
 * The [WildFly install script](../../scripts/wildfly/install-wildfly.sh) adds the module to a locally installed
   WildFly, and also attaches the filter to its file log handler (`server.log`).
 
-## Known inconsistencies
+## Known limitations
 
-- No adoption yet of the `logger.debug { }` (KotlinLogging-style) convention documented in `CLAUDE.md`;
-  the equivalent behaviour exists today via JUL's `Supplier` overloads instead.
-- `PolicyService.kt` uses a lowercase `logger` parameter name instead of the `LOG` companion-object
-  convention used everywhere else.
+- The description of a `LogEvent` is a constructor argument, so a subclass could pass an interpolated string. The
+  review of the small event classes has to catch that; no automated check can.
+- Exception messages and stack traces are free text, of ZAC and of libraries. The WildFly filter masks BSNs and IBANs
+  in them; other personal data in an exception message is not covered.
+- MDC values are strings, so a log tool must map `durationMs` as a number to filter on it.
+- A wide event per unit of work (one record per REST request or job that collects context along the way) and tail
+  sampling are a follow-up story.
 - The frontend has no shared logging/error-reporting service — every component calls `console.*`
-  directly, so there is no single point to add remote error reporting or log-level filtering.
+  directly, so there is no single point to add remote error reporting or log-level filtering (PZ-12685).

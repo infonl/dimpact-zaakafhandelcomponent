@@ -19,7 +19,14 @@ import jakarta.websocket.EndpointConfig
 import jakarta.websocket.Session
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.LoggedInUserProvider.Companion.LOGGED_IN_USER_SESSION_ATTRIBUTE
+import nl.info.zac.event.Opcode
+import nl.info.zac.log.EmployeeKeycloakUserIds
+import nl.info.zac.log.LogCapture
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.websocket.WebsocketHandshakeInterceptor.Companion.HTTP_SESSION
+import nl.info.zac.websocket.event.ScreenEventType
+import nl.info.zac.websocket.event.createScreenEvent
+import nl.info.zac.websocket.event.createScreenEventId
 
 class WebSocketServerEndPointTest : BehaviorSpec({
     val sessionRegistry = mockk<SessionRegistry>()
@@ -27,6 +34,10 @@ class WebSocketServerEndPointTest : BehaviorSpec({
 
     afterEach {
         checkUnnecessaryStub()
+    }
+
+    afterSpec {
+        EmployeeKeycloakUserIds.reset()
     }
 
     given("a WebSocket open event with no HTTP session in the endpoint config") {
@@ -115,9 +126,13 @@ class WebSocketServerEndPointTest : BehaviorSpec({
         every { endpointConfig.userProperties } returns mutableMapOf<String, Any>(HTTP_SESSION to httpSession)
         every { httpSession.getAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE) } returns loggedInUser
         every { sessionRegistry.addSession(wsSession) } just runs
+        ZacLogger.registerEmployee("user-123", "fakeKeycloakUserId")
 
         `when`("open is called") {
-            endpoint.open(wsSession, endpointConfig)
+            val records = LogCapture(WebSocketServerEndPoint::class).use { logCapture ->
+                endpoint.open(wsSession, endpointConfig)
+                logCapture.records
+            }
 
             then("the WebSocket session is opened and the user ID is stored in session properties") {
                 wsUserProperties[LOGGED_IN_USER_SESSION_ATTRIBUTE] shouldBe "user-123"
@@ -125,6 +140,14 @@ class WebSocketServerEndPointTest : BehaviorSpec({
 
             then("the session is registered in the session registry so it can receive heartbeats") {
                 verify(exactly = 1) { sessionRegistry.addSession(wsSession) }
+            }
+
+            then("the opening is logged with the Keycloak user ID of the employee and not the username") {
+                with(records.single()) {
+                    message shouldBe "WebSocket open"
+                    mdc["employee"] shouldBe "fakeKeycloakUserId"
+                    containsAnywhere("user-123") shouldBe false
+                }
             }
         }
     }
@@ -139,6 +162,31 @@ class WebSocketServerEndPointTest : BehaviorSpec({
 
             then("the message is registered with the session registry") {
                 verify(exactly = 1) { sessionRegistry.deleteAll(wsSession) }
+            }
+        }
+    }
+
+    given("an open WebSocket session subscribing to the signaleringen of a user, whose object ID is the username") {
+        val wsSession = mockk<Session>(relaxed = true)
+        val screenEvent = createScreenEvent(
+            opcode = Opcode.UPDATED,
+            screenEventType = ScreenEventType.SIGNALERINGEN,
+            screenEventId = createScreenEventId(resource = "fakeSubscribedUsername")
+        )
+        every { sessionRegistry.create(screenEvent, wsSession) } just runs
+
+        `when`("the message is processed") {
+            val records = LogCapture(WebSocketServerEndPoint::class).use { logCapture ->
+                endpoint.processMessage(SubscriptionType.CREATE.message(screenEvent), wsSession)
+                logCapture.records
+            }
+
+            then("the subscription is logged with the type of the screen event, but not with the username in its ID") {
+                with(records.single()) {
+                    mdc["opcode"] shouldBe "UPDATED"
+                    mdc["screenEventType"] shouldBe "SIGNALERINGEN"
+                    containsAnywhere("fakeSubscribedUsername") shouldBe false
+                }
             }
         }
     }

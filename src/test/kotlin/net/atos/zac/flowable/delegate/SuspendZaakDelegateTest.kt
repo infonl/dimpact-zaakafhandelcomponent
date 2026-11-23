@@ -6,6 +6,7 @@ package net.atos.zac.flowable.delegate
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearMocks
@@ -21,6 +22,9 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.flowable.ZaakVariabelenService
+import nl.info.zac.log.EmployeeKeycloakUserIds
+import nl.info.zac.log.LogCapture
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
@@ -46,6 +50,10 @@ class SuspendZaakDelegateTest : BehaviorSpec({
 
     afterEach {
         checkUnnecessaryStub()
+    }
+
+    afterSpec {
+        EmployeeKeycloakUserIds.reset()
     }
 
     given("Service task with expressions for aantalDagen and opschortingReden") {
@@ -142,6 +150,7 @@ class SuspendZaakDelegateTest : BehaviorSpec({
 
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny()
+        ZacLogger.registerEmployee(loggedInUser.username, "fakeKeycloakUserId")
 
         val suspendZaakDelegate = SuspendZaakDelegate().apply {
             aantalDagen = mockk()
@@ -149,8 +158,8 @@ class SuspendZaakDelegateTest : BehaviorSpec({
         }
 
         `when`("suspend zaak is called") {
-            val policyException = shouldThrow<PolicyException> {
-                suspendZaakDelegate.execute(delegateExecution)
+            val (policyException, records) = LogCapture(SuspendZaakDelegate::class).use { logCapture ->
+                shouldThrow<PolicyException> { suspendZaakDelegate.execute(delegateExecution) } to logCapture.records
             }
 
             then("a PolicyException is thrown") {
@@ -160,6 +169,16 @@ class SuspendZaakDelegateTest : BehaviorSpec({
             and("the zaak is not suspended") {
                 verify(exactly = 0) {
                     suspensionZaakHelper.suspendZaak(any(), any(), any())
+                }
+            }
+
+            and("the denial is logged with the zaak and the Keycloak user ID of the employee, and not the username") {
+                with(records.single()) {
+                    message shouldBe "Policy denied"
+                    mdc["action"] shouldBe "suspendZaak"
+                    mdc["zaakIdentificatie"] shouldBe zaak.identificatie
+                    mdc["employee"] shouldBe "fakeKeycloakUserId"
+                    containsAnywhere(loggedInUser.username) shouldBe false
                 }
             }
         }

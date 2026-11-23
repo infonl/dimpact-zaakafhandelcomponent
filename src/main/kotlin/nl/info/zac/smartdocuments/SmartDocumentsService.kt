@@ -17,8 +17,11 @@ import nl.info.client.smartdocuments.model.document.SmartDocument
 import nl.info.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.documentcreation.model.DocumentCreationAttendedResponse
+import nl.info.zac.log.Employee
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.smartdocuments.exception.SmartDocumentsUnsupportedOutputFormatException
+import nl.info.zac.smartdocuments.log.SmartDocumentsAttendedDepositCreated
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.MediaTypes
 import nl.info.zac.util.NoArgConstructor
@@ -27,7 +30,6 @@ import org.apache.commons.io.FilenameUtils.getExtension
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.util.Optional
-import java.util.logging.Logger
 import kotlin.jvm.optionals.getOrDefault
 
 @NoArgConstructor
@@ -70,7 +72,7 @@ class SmartDocumentsService @Inject constructor(
     }
 
     companion object {
-        private val LOG = Logger.getLogger(SmartDocumentsService::class.java.name)
+        private val LOG = ZacLogger.getLogger(SmartDocumentsService::class)
     }
 
     fun isEnabled() = enabled.getOrDefault(false)
@@ -87,10 +89,9 @@ class SmartDocumentsService @Inject constructor(
             data = data,
             smartDocument = smartDocument
         )
-        return if (useWizardAuthEnabled()) {
-            val userName = determineUserName().also {
-                LOG.fine("Starting Smart Documents wizard for user: '$it'")
-            }
+        val isWizardAuthEnabled = useWizardAuthEnabled()
+        return if (isWizardAuthEnabled) {
+            val userName = determineUserName()
             smartDocumentsClient.get().attendedDeposit(
                 authenticationToken = "Basic ${authenticationToken.get()}",
                 userName = userName,
@@ -102,7 +103,17 @@ class SmartDocumentsService @Inject constructor(
                 deposit = deposit
             )
         }.also {
-            LOG.fine("SmartDocuments attended document creation response: $it")
+            LOG.fine {
+                SmartDocumentsAttendedDepositCreated(
+                    isWizardAuthEnabled = isWizardAuthEnabled,
+                    isFixedUserName = fixedUserName.isPresent,
+                    employee = if (isWizardAuthEnabled && !fixedUserName.isPresent) {
+                        Employee(loggedInUserInstance.get().username)
+                    } else {
+                        null
+                    }
+                )
+            }
         }.let {
             DocumentCreationAttendedResponse(
                 redirectUrl = UriBuilder.fromUri(smartDocumentsURL.get())

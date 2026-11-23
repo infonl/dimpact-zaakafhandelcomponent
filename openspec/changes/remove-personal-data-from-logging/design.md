@@ -94,9 +94,16 @@ class MailSendCompleted(
 ```
 
 Each event is a small class with typed fields and a description passed as a literal in the class header. Events live
-next to the code that logs them, grouped per domain in a `<domain>/log/<Domain>LogEvents.kt` file (for example
-`nl/info/zac/mail/log/MailLogEvents.kt`). Generic events in `nl.info.zac.log` cover recurring shapes such as "operation
+next to the code that logs them, in a `log` package of their domain, each in its own file as the Kotlin conventions of
+ZAC require (for example `nl/info/zac/mail/log/MailSendCompleted.kt`). Generic events in `nl.info.zac.log` cover recurring shapes such as "operation
 failed for zaak".
+
+Events with the same fields share one class instead of one class each: the class has a nested `Type` enum whose
+constants carry the fixed description, and the description of the event is that of its type, such as
+`ZaakEvent(type = ZaakEvent.Type.FLOWABLE_PROCESS_DATA_DELETED, zaakUuid = ...)`. Shared events that span domains
+live in `nl.info.zac.log` (`GenericEvent` without fields, `ZaakEvent`, `InformatieobjectEvent`, `ZaaktypeEvent`,
+`RolEvent`); shared events of one domain live in its `log` package. The `type` field tells such events apart in the
+log.
 
 - Alternative: a `sealed` hierarchy, as `logging.md` suggests. Kotlin requires all subclasses of a sealed class in
   the same package and module, so about 200 event classes would end up in `nl.info.zac.log`, far from their domain.
@@ -327,7 +334,7 @@ to an address, and the KVK number of an eenmanszaak is personal data. Instead, `
 method as `<interface>.<method>`, such as `PersonenApi.personen`. The REST clients of ZAC are MicroProfile Rest
 Clients, which put that method in the request property `org.eclipse.microprofile.rest.client.invokedMethod`, except
 the Keycloak admin client, which `KeycloakEmployeesAdminClientConfiguration` builds with `KeycloakBuilder`. A request
-without that property (such as a call of the Keycloak admin client) is logged with its host and without `operation`.
+without that property (such as a call of the Keycloak admin client) is logged with its host and `operation=null`.
 The method,
 host and operation hold no personal data, and tell more for troubleshooting than a path full of identifiers.
 

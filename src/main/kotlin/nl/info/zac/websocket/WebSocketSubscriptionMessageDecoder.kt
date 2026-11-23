@@ -10,21 +10,21 @@ import jakarta.websocket.DecodeException
 import jakarta.websocket.Decoder
 import jakarta.websocket.EndpointConfig
 import nl.info.zac.event.Opcode
+import nl.info.zac.log.GenericEvent
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.websocket.SubscriptionType.DELETE_ALL
 import nl.info.zac.websocket.SubscriptionType.SubscriptionMessage
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.websocket.event.ScreenEventId
 import nl.info.zac.websocket.event.ScreenEventType
 import java.io.StringReader
-import java.util.logging.Level
-import java.util.logging.Logger
 
 /**
  * Converts websocket messages to SubscriptionType.SubscriptionMessage objects
  */
 class WebSocketSubscriptionMessageDecoder : Decoder.Text<SubscriptionMessage> {
     companion object {
-        private val LOG = Logger.getLogger(WebSocketSubscriptionMessageDecoder::class.java.name)
+        private val LOG = ZacLogger.getLogger(WebSocketSubscriptionMessageDecoder::class)
 
         private const val SUBSCRIPTION_TYPE = "subscriptionType"
         private const val EVENT = "event"
@@ -63,7 +63,7 @@ class WebSocketSubscriptionMessageDecoder : Decoder.Text<SubscriptionMessage> {
             Json.createReader(StringReader(jsonMessage)).use { it.readObject() }
             true
         } catch (jsonException: JsonException) {
-            LOG.log(Level.WARNING, "SubscriptionMessage cannot be decrypted: $jsonMessage", jsonException)
+            LOG.warning(GenericEvent(type = GenericEvent.Type.SUBSCRIPTION_MESSAGE_UNDECODABLE), jsonException)
             false
         }
 }

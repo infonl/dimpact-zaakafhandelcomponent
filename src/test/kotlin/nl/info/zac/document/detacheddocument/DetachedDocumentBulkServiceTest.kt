@@ -27,6 +27,7 @@ import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.shared.exception.ZgwErrorException
 import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
 import nl.info.client.zgw.shared.model.ZgwError
+import nl.info.client.zgw.shared.model.createFieldValidationError
 import nl.info.client.zgw.shared.model.createValidationZgwError
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.exception.ZrcRuntimeException
@@ -36,6 +37,7 @@ import nl.info.zac.document.detacheddocument.model.DetachedDocumentBulkFailure
 import nl.info.zac.document.detacheddocument.model.DetachedDocumentBulkFailureReason
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
 import nl.info.zac.document.detacheddocument.repository.model.createDetachedDocument
+import nl.info.zac.log.LogCapture
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createDocumentRechten
 import nl.info.zac.policy.output.createZaakRechten
@@ -485,7 +487,12 @@ class DetachedDocumentBulkServiceTest : BehaviorSpec({
                 if (detachedDocument.id == 122L) {
                     every {
                         zrcClientService.koppelInformatieobject(informatieObject, targetZaak, any())
-                    } throws ZgwValidationErrorException(createValidationZgwError())
+                    } throws ZgwValidationErrorException(
+                        createValidationZgwError(
+                            detail = "fakeRejectedValue is not valid",
+                            invalidParams = listOf(createFieldValidationError(reason = "Invalid value: fakeRejectedValue"))
+                        )
+                    )
                 } else {
                     every {
                         zrcClientService.koppelInformatieobject(informatieObject, targetZaak, any())
@@ -495,12 +502,20 @@ class DetachedDocumentBulkServiceTest : BehaviorSpec({
             }
 
             `when`("the documents are linked in bulk") {
-                val result = detachedDocumentBulkService.linkInBulk(listOf(121L, 122L, 123L), nieuweZaakID)
+                val (result, records) = LogCapture(DetachedDocumentBulkService::class).use { logCapture ->
+                    detachedDocumentBulkService.linkInBulk(listOf(121L, 122L, 123L), nieuweZaakID) to logCapture.records
+                }
 
                 then("the first and third are linked and the second is reported as failed") {
                     result.processedIds shouldBe listOf(121L, 123L)
                     result.failures.single().id shouldBe 122L
                     result.failures.single().reason shouldBe DetachedDocumentBulkFailureReason.OPEN_ZAAK_ERROR
+                }
+
+                and("the failure is logged without the reason or the detail of the validation error") {
+                    records.single { it.message == "Ontkoppeld document kon niet worden verwerkt" }.mdc["detachedDocumentId"] shouldBe
+                        "122"
+                    records.forEach { it.containsAnywhere("fakeRejectedValue") shouldBe false }
                 }
             }
         }

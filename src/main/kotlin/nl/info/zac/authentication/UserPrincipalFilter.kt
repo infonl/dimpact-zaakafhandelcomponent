@@ -20,12 +20,14 @@ import nl.info.client.pabc.ENTITY_TYPE_ZAAKTYPE
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.ROLE_NAME_BRP_ZOEKEN
 import nl.info.client.pabc.ROLE_NAME_SYSTEEMROL_BEHANDELAAR_ALLE_ZAAKTYPEN
+import nl.info.zac.authentication.log.UserLoggedIn
+import nl.info.zac.log.Employee
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext
-import java.util.logging.Logger
 
 private data class ApplicationRoleMappings(
     val rolesPerZaaktype: Map<String, Set<String>>,
@@ -44,7 +46,7 @@ constructor(
     private val policyService: PolicyService
 ) : Filter {
     companion object {
-        private val LOG = Logger.getLogger(UserPrincipalFilter::class.java.name)
+        private val LOG = ZacLogger.getLogger(UserPrincipalFilter::class)
         private const val GROUP_MEMBERSHIP_CLAIM_NAME = "group_membership"
     }
 
@@ -61,15 +63,11 @@ constructor(
 
             getLoggedInUser(httpSession)?.let { loggedInUser ->
                 if (loggedInUser.username != userPrincipal.name) {
-                    LOG.info {
-                        "Invalidating HTTP session of user '${loggedInUser.username}' " +
-                            "on context path '${servletRequest.servletContext.contextPath}'. " +
-                            "Creating new session for user with user principal name '${userPrincipal.name}'."
-                    }
                     httpSession.invalidate()
                     setLoggedInUserOnHttpSession(
                         userPrincipal as OidcPrincipal<*>,
-                        servletRequest.getSession(true)
+                        servletRequest.getSession(true),
+                        previousSessionUsername = loggedInUser.username
                     )
                 }
             } ?: run {
@@ -83,16 +81,24 @@ constructor(
 
     fun setLoggedInUserOnHttpSession(
         oidcPrincipal: OidcPrincipal<*>,
-        httpSession: HttpSession
+        httpSession: HttpSession,
+        previousSessionUsername: String? = null
     ) = createLoggedInUser(oidcPrincipal.oidcSecurityContext).let { loggedInUser ->
         setLoggedInUser(httpSession, loggedInUser)
-        LOG.info {
-            "User logged in: '${loggedInUser.username}' with groups: ${loggedInUser.groupIds}, " +
-                "functional roles: '${loggedInUser.roles}' " +
-                "and application roles per zaaktype: ${loggedInUser.applicationRolesPerZaaktype}, " +
-                "overall roles: ${loggedInUser.overallRoles}, " +
-                "has read application role: ${loggedInUser.hasReadApplicationRole}"
+        oidcPrincipal.oidcSecurityContext.token.subject?.let { keycloakUserId ->
+            ZacLogger.registerEmployee(loggedInUser.username, keycloakUserId)
         }
+        LOG.info(
+            UserLoggedIn(
+                employee = Employee(loggedInUser.username),
+                groupIds = loggedInUser.groupIds,
+                roles = loggedInUser.roles,
+                applicationRolesPerZaaktype = loggedInUser.applicationRolesPerZaaktype,
+                overallRoles = loggedInUser.overallRoles,
+                hasReadApplicationRole = loggedInUser.hasReadApplicationRole,
+                previousSessionEmployee = previousSessionUsername?.let(::Employee)
+            )
+        )
     }
 
     private fun createLoggedInUser(oidcSecurityContext: OidcSecurityContext): LoggedInUser =

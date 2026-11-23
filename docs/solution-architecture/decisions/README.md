@@ -27,6 +27,7 @@ and its consequences. See [ADR-0007](0007-record-architecture-decisions-in-git-a
 | [0017](0017-use-playwright-bdd-as-the-only-runner-of-the-end-to-end-tests.md) | Use playwright-bdd as the only runner of the end-to-end tests | accepted | playwright-bdd replaces cucumber-js; a legacy feature is deleted when its scenarios are replaced. |
 | [0018](0018-select-the-target-of-the-end-to-end-tests-with-a-checked-in-profile.md) | Select the target of the end-to-end tests with a checked-in profile | accepted | `E2E_TARGET` selects a profile without secrets; the kind stack needs no configuration. |
 | [0019](0019-read-a-paged-list-with-get-and-query-parameters.md) | Read a paged list with GET and query parameters | proposed | A paged list is read with `GET` and the query parameters `page`, `rows`, `sortField`, `sortOrder` and the filters, answered with a `RestResultaat`. |
+| [0020](0020-log-only-typed-log-events-through-zaclogger.md) | Log only typed log events through ZacLogger | accepted | All backend logging goes through `ZacLogger` as typed `LogEvent`s, with fields as MDC entries, `@Redacted` masking and employees as Keycloak user IDs. |
 
 ## When to write an ADR
 

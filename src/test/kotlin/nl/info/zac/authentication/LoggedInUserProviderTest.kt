@@ -13,10 +13,9 @@ import io.mockk.every
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
-import java.util.logging.Handler
+import nl.info.zac.log.LogCapture
 import java.util.logging.Level
-import java.util.logging.LogRecord
-import java.util.logging.Logger
+import kotlin.reflect.KClass
 
 class LoggedInUserProviderTest : BehaviorSpec({
     val httpSession = mockk<HttpSession>()
@@ -204,7 +203,7 @@ class LoggedInUserProviderTest : BehaviorSpec({
                 LoggedInUserProvider.loggedFallbackOrigins.clear()
                 lateinit var firstResult: LoggedInUser
                 lateinit var secondResult: LoggedInUser
-                val logRecords = captureLogRecords {
+                val logRecords = captureLogRecordsOf(LoggedInUserProvider::class) {
                     firstResult = loggedInUserProvider.getLoggedInUser()
                     secondResult = loggedInUserProvider.getLoggedInUser()
                 }
@@ -217,7 +216,7 @@ class LoggedInUserProviderTest : BehaviorSpec({
                 and("the fallback is reported once, naming where it happened") {
                     val warnings = logRecords.filter { it.level == Level.WARNING }
                     warnings.size shouldBe 1
-                    warnings.first().message shouldContain "LoggedInUserProviderTest"
+                    warnings.first().mdc.getValue("origin") shouldContain "LoggedInUserProviderTest"
                 }
 
                 and("the warning tells developers how to name the user explicitly") {
@@ -228,21 +227,8 @@ class LoggedInUserProviderTest : BehaviorSpec({
     }
 })
 
-private fun captureLogRecords(block: () -> Unit): List<LogRecord> {
-    val logger = Logger.getLogger(LoggedInUserProvider::class.java.name)
-    val records = mutableListOf<LogRecord>()
-    val handler = object : Handler() {
-        override fun publish(record: LogRecord) {
-            records.add(record)
-        }
-        override fun flush() = Unit
-        override fun close() = Unit
-    }
-    logger.addHandler(handler)
-    try {
+private fun captureLogRecordsOf(clazz: KClass<*>, block: () -> Unit) =
+    LogCapture(clazz).use { logCapture ->
         block()
-    } finally {
-        logger.removeHandler(handler)
+        logCapture.records.toList()
     }
-    return records
-}

@@ -15,10 +15,11 @@ import kotlinx.coroutines.launch
 import nl.info.client.pabc.ROLE_NAME_SYSTEEMROL_BEHANDELAAR_ALLE_ZAAKTYPEN
 import nl.info.zac.authentication.LoggedInUserProvider.Companion.FUNCTIONEEL_GEBRUIKER
 import nl.info.zac.authentication.LoggedInUserProvider.Companion.LOGGED_IN_USER_SESSION_ATTRIBUTE
+import nl.info.zac.authentication.log.FunctioneleGebruikerFallback
+import nl.info.zac.log.ZacLogger
 import java.io.Serial
 import java.io.Serializable
 import java.util.concurrent.ConcurrentHashMap
-import java.util.logging.Logger
 
 class LoggedInUserProvider @Inject constructor(
     @ActiveSession
@@ -28,7 +29,7 @@ class LoggedInUserProvider @Inject constructor(
         @Serial
         private const val serialVersionUID = 654714651976511004L
 
-        private val LOG = Logger.getLogger(LoggedInUserProvider::class.java.name)
+        private val LOG = ZacLogger.getLogger(LoggedInUserProvider::class)
 
         private const val MAX_LOGGED_FALLBACK_ORIGINS = 100
         private const val FALLBACK_ORIGIN_FRAMES = 3L
@@ -110,12 +111,7 @@ class LoggedInUserProvider @Inject constructor(
     private fun fallBackToFunctioneelGebruiker(): LoggedInUser {
         val origin = fallbackOrigin()
         if (loggedFallbackOrigins.add(origin) && loggedFallbackOrigins.size <= MAX_LOGGED_FALLBACK_ORIGINS) {
-            LOG.warning {
-                "No user specified, fell back to the functionele gebruiker. This fallback is deprecated. " +
-                    "Beheerders: no action needed, please report this to the ZAC developers. " +
-                    "Developers: wrap the background work that leads here in runAsSystemUser or runAsLoggedInUser. " +
-                    "Called from: $origin"
-            }
+            LOG.warning(FunctioneleGebruikerFallback(origin = origin))
         }
         return FUNCTIONEEL_GEBRUIKER
     }

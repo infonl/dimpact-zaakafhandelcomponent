@@ -87,7 +87,9 @@ Run `./gradlew spotlessApply detektApply` before committing backend changes.
 - **Runtime**: WildFly (bootable JAR via Galleon provisioning) with Jakarta EE
 - **Language**: Kotlin (primary); any Java code encountered should be converted to Kotlin, not modified (see [Convert Java to Kotlin in a separate pull request](#convert-java-to-kotlin-in-a-separate-pull-request))
 - **DI**: Weld CDI with **constructor-based injection** (not field injection)
-- **Logging**: Use lambda syntax — `logger.debug { "Value: $value" }` — to avoid unnecessary string interpolation
+- **Logging**: Log only through `ZacLogger` with a typed `LogEvent`, never free text — `LOG.info(ZaakAssigned(...))`, or
+  `LOG.fine { ... }` when building the event is expensive. Mark personal-data fields `@Redacted` and log employees as
+  `Employee`; see [logging.md](docs/development/logging.md)
 - **Database**: PostgreSQL with Flyway migrations (`src/main/resources/schemas/`)
 - **Search**: Apache Solr
 - **Auth**: Keycloak (OpenID Connect) + Open Policy Agent for authorization

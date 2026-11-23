@@ -10,8 +10,8 @@ import java.util.logging.LogRecord
 import java.util.logging.SimpleFormatter
 
 /**
- * WildFly logging filter that masks personal data in every log record that reaches the log handler that it is
- * attached to.
+ * WildFly logging filter that masks personal data in the message, the exception and the MDC fields of every log
+ * record that reaches the log handler that it is attached to.
  *
  * WildFly loads this class from the `nl.info.zac.logfilter` module, not from the ZAC deployment.
  */
@@ -38,6 +38,7 @@ class PersonalDataMaskingLogFilter : Filter {
                 parameters = null
                 setMessage(maskedMessage, ExtLogRecord.FormatStyle.NO_FORMAT)
             }
+            setMdc(mdcCopy.mapValues { (_, value) -> value?.maskPersonalData() })
         } else {
             message = simpleFormatter.formatMessage(this)?.maskPersonalData()
             parameters = null
@@ -50,7 +51,10 @@ class PersonalDataMaskingLogFilter : Filter {
             "with ${runtimeException.javaClass.name}"
         message = withheldMessage
         parameters = null
-        if (this is ExtLogRecord) setMessage(withheldMessage, ExtLogRecord.FormatStyle.NO_FORMAT)
+        if (this is ExtLogRecord) {
+            setMessage(withheldMessage, ExtLogRecord.FormatStyle.NO_FORMAT)
+            setMdc(emptyMap<String, String>())
+        }
         thrown = null
     }
 }

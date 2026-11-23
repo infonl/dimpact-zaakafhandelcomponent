@@ -209,8 +209,10 @@ dependencies {
     providedCompile(libs.eclipse.microprofile.fault.tolerance.api)
     providedCompile(libs.eclipse.microprofile.openapi.api)
     providedCompile(libs.jboss.resteasy.multipart.provider)
+    providedCompile(libs.jboss.resteasy.client)
     providedCompile(libs.wildfly.security.elytron.http.oidc)
     providedCompile(libs.hibernate.validator)
+    providedCompile(libs.jboss.logging)
     // ~dependencies provided by WildFly
 
     "logFilterImplementation"(kotlin("stdlib"))

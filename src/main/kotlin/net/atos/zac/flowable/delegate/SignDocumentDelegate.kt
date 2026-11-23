@@ -6,15 +6,17 @@
 package net.atos.zac.flowable.delegate
 
 import jakarta.enterprise.inject.spi.CDI
+import net.atos.zac.flowable.delegate.log.DocumentSigningEvent
+import net.atos.zac.flowable.delegate.log.DocumentsToSignFound
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.flowable.ZaakVariabelenService
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.websocket.event.ScreenEventType
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
 import java.util.UUID
-import java.util.logging.Logger
 
 /**
  * Flowable BPMN delegate to sign one or multiple documents.
@@ -28,7 +30,7 @@ class SignDocumentDelegate : AbstractDelegate() {
     var documentenKey: Expression? = null
 
     companion object {
-        private val LOG = Logger.getLogger(SignDocumentDelegate::class.java.name)
+        private val LOG = ZacLogger.getLogger(SignDocumentDelegate::class)
         private const val DEFAULT_DOCUMENTS_TO_SIGN_ZAAK_DATA_KEY = "ZAAK_Documenten_Te_Ondertekenen"
     }
 
@@ -40,9 +42,6 @@ class SignDocumentDelegate : AbstractDelegate() {
         val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
         val documentsToSignZaakDataKey = documentenKey?.resolveValueAsString(execution)?.takeUnless { it.isBlank() }
             ?: DEFAULT_DOCUMENTS_TO_SIGN_ZAAK_DATA_KEY
-        LOG.fine(
-            "Signing documents with key '$documentsToSignZaakDataKey' from activity '${execution.currentActivityName}'"
-        )
         val documentsToSign = flowableHelper.zaakVariabelenService.readZaakdata(zaakUuid)
             .filter { (key, _) -> key.startsWith(documentsToSignZaakDataKey) }
             .values
@@ -57,8 +56,12 @@ class SignDocumentDelegate : AbstractDelegate() {
             .toList()
 
         LOG.fine(
-            "Found ${documentsToSign.size} document(s) to sign " +
-                "from activity '${execution.currentActivityName}'"
+            DocumentsToSignFound(
+                zaakIdentificatie = zaak.identificatie,
+                activityName = execution.currentActivityName,
+                zaakdataKey = documentsToSignZaakDataKey,
+                documentCount = documentsToSign.size
+            )
         )
 
         documentsToSign.forEach { uuid ->
@@ -66,15 +69,28 @@ class SignDocumentDelegate : AbstractDelegate() {
             assertPolicy(
                 flowableHelper.policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).canOndertekenen,
                 LOG,
-                "Not authorised to sign document '${enkelvoudigInformatieobject.identificatie}' for zaak '${zaak.identificatie}'"
+                DocumentSigningEvent(type = DocumentSigningEvent.Type.DOCUMENT_SIGNING_DENIED, 
+                    informatieobjectIdentificatie = enkelvoudigInformatieobject.identificatie,
+                    zaakIdentificatie = zaak.identificatie
+                )
             )
 
             if (enkelvoudigInformatieobject.ondertekening?.datum != null) {
-                LOG.warning("Document '${enkelvoudigInformatieobject.identificatie}' is already signed, skipping")
+                LOG.warning(
+                    DocumentSigningEvent(type = DocumentSigningEvent.Type.DOCUMENT_ALREADY_SIGNED, 
+                        informatieobjectIdentificatie = enkelvoudigInformatieobject.identificatie,
+                        zaakIdentificatie = zaak.identificatie
+                    )
+                )
                 return@forEach
             }
 
-            LOG.fine("Signing document '${enkelvoudigInformatieobject.identificatie}'")
+            LOG.fine(
+                DocumentSigningEvent(type = DocumentSigningEvent.Type.DOCUMENT_SIGNING, 
+                    informatieobjectIdentificatie = enkelvoudigInformatieobject.identificatie,
+                    zaakIdentificatie = zaak.identificatie
+                )
+            )
             enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(uuid)
 
             flowableHelper.eventingService.send(

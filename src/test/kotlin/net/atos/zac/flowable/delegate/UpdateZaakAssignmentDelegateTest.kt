@@ -6,6 +6,7 @@ package net.atos.zac.flowable.delegate
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -21,6 +22,9 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.flowable.ZaakVariabelenService
+import nl.info.zac.log.EmployeeKeycloakUserIds
+import nl.info.zac.log.LogCapture
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
@@ -44,6 +48,10 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
 
     afterEach {
         checkUnnecessaryStub()
+    }
+
+    afterSpec {
+        EmployeeKeycloakUserIds.reset()
     }
 
     given("zaak and assignment details as expressions") {
@@ -72,6 +80,7 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
         every { reasonExpression.getValue(delegateExecution) } returns reason
 
         every { zaakService.assignZaak(zaak = zaak, groupId = groupId, userName = username, reason = reason) } just runs
+        ZacLogger.registerEmployee(username, "fakeKeycloakUserId")
 
         val updateZaakAssignmentDelegate = UpdateZaakAssignmentDelegate().apply {
             groepId = groupExpression
@@ -80,11 +89,25 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
         }
 
         `when`("execute is called") {
-            updateZaakAssignmentDelegate.execute(delegateExecution)
+            val records = LogCapture(UpdateZaakAssignmentDelegate::class).use { logCapture ->
+                updateZaakAssignmentDelegate.execute(delegateExecution)
+                logCapture.records
+            }
 
             then("zaak is updated with correct assignment") {
                 verify(exactly = 1) {
                     zaakService.assignZaak(zaak = zaak, groupId = groupId, userName = username, reason = reason)
+                }
+            }
+
+            and("the assignment is logged with the zaak, the group and the Keycloak user ID, without the reason and the username") {
+                with(records.single()) {
+                    message shouldBe "Updating zaak assignment"
+                    mdc["zaakIdentificatie"] shouldBe zaak.identificatie
+                    mdc["groupId"] shouldBe groupId
+                    mdc["assignee"] shouldBe "fakeKeycloakUserId"
+                    containsAnywhere(reason) shouldBe false
+                    containsAnywhere(username) shouldBe false
                 }
             }
         }

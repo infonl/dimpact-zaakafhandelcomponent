@@ -11,20 +11,22 @@ import nl.info.client.pabc.PabcClientService
 import nl.info.zac.identity.exception.GroupNotFoundException
 import nl.info.zac.identity.exception.UserNotFoundException
 import nl.info.zac.identity.exception.UserNotInGroupException
+import nl.info.zac.identity.log.GroupNotFoundInKeycloak
+import nl.info.zac.identity.log.PabcGroupNotFoundInKeycloak
+import nl.info.zac.identity.log.UserNotFoundInKeycloak
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
 import nl.info.zac.identity.model.ZacApplicationRole
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.identity.model.toGroup
 import nl.info.zac.identity.model.toUser
-import nl.info.zac.log.log
+import nl.info.zac.log.Employee
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.keycloak.admin.client.resource.GroupResource
 import org.keycloak.admin.client.resource.RealmResource
 import org.keycloak.representations.idm.UserRepresentation
-import java.util.logging.Level
-import java.util.logging.Logger
 
 @AllOpen
 @NoArgConstructor
@@ -37,7 +39,7 @@ class IdentityService @Inject constructor(
     private val pabcClientService: PabcClientService
 ) {
     companion object {
-        private val LOG = Logger.getLogger(IdentityService::class.java.name)
+        private val LOG = ZacLogger.getLogger(IdentityService::class)
         private const val GROUP_MEMBERS_PAGE_SIZE = 100
     }
 
@@ -96,12 +98,7 @@ class IdentityService @Inject constructor(
             try {
                 listUsersInGroup(group.name)
             } catch (groupNotFoundException: GroupNotFoundException) {
-                log(
-                    logger = LOG,
-                    level = Level.WARNING,
-                    message = "Group '${group.name}' from the PABC could not be found in Keycloak",
-                    throwable = groupNotFoundException
-                )
+                LOG.warning(PabcGroupNotFoundInKeycloak(groupId = group.name), groupNotFoundException)
                 emptyList()
             }
         }
@@ -117,14 +114,16 @@ class IdentityService @Inject constructor(
         .searchByUsername(username, true)
         .map { it.toUser() }.firstOrNull()
         ?: run {
-            log(
-                LOG,
-                Level.WARNING,
-                "User with username '$username' could not be found in Keycloak${logContext.toLogContextSuffix()}. " +
-                    "Returning username only, since no other data about this user could be retrieved."
-            )
+            LOG.warning(UserNotFoundInKeycloak(employee = Employee(username), context = logContext))
             User(username)
         }
+
+    /**
+     * Returns the Keycloak user ID of the user with [username], or null when Keycloak does not know that user.
+     */
+    fun findKeycloakUserId(username: String): String? = keycloakZacRealmResource.users()
+        .searchByUsername(username, true)
+        .firstOrNull()?.id
 
     /**
      * Reads the group with [groupId] from Keycloak, or returns a placeholder group when it cannot be found.
@@ -136,12 +135,7 @@ class IdentityService @Inject constructor(
         .groups(groupId, true, 0, 1, false)
         .firstOrNull()?.toGroup()
         ?: run {
-            log(
-                LOG,
-                Level.WARNING,
-                "Group with id '$groupId' could not be found in Keycloak${logContext.toLogContextSuffix()}. " +
-                    "Returning a placeholder."
-            )
+            LOG.warning(GroupNotFoundInKeycloak(groupId = groupId, context = logContext))
             Group(groupId)
         }
 
@@ -185,4 +179,3 @@ class IdentityService @Inject constructor(
     }
 }
 
-private fun String?.toLogContextSuffix() = this?.let { " for $it" }.orEmpty()

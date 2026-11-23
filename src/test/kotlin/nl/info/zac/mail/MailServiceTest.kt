@@ -6,6 +6,7 @@ package nl.info.zac.mail
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.comparables.shouldBeGreaterThanOrEqualTo
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldEndWith
@@ -22,6 +23,7 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.mail.Message
 import jakarta.mail.MessagingException
+import jakarta.mail.SendFailedException
 import jakarta.mail.Transport
 import jakarta.mail.internet.MimeMultipart
 import jakarta.ws.rs.ProcessingException
@@ -35,6 +37,7 @@ import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.shared.ZgwApiService
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -43,7 +46,10 @@ import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.configuration.FileSizeConfiguration
 import nl.info.zac.configuration.exception.FileTooLargeToOpenException
+import nl.info.zac.log.LogCapture
+import nl.info.zac.log.REDACTED_VALUE
 import nl.info.zac.mail.model.Bronnen
+import nl.info.zac.mail.model.createMailAdres
 import nl.info.zac.mailtemplates.MailTemplateHelper
 import nl.info.zac.mailtemplates.model.MailTemplateVariables
 import nl.info.zac.mailtemplates.model.createMailGegevens
@@ -53,6 +59,7 @@ import java.io.ByteArrayInputStream
 import java.net.URI
 import java.util.Properties
 import java.util.UUID
+import java.util.logging.Level
 
 class MailServiceTest : BehaviorSpec({
     val configurationService = mockk<ConfigurationService>()
@@ -589,6 +596,92 @@ class MailServiceTest : BehaviorSpec({
                     with((content as MimeMultipart).getBodyPart(0).dataHandler) {
                         contentType shouldBe "text/html; charset=UTF-8"
                         content shouldBe resolvedBody
+                    }
+                }
+            }
+        }
+    }
+
+    context("Logging a sent mail") {
+        val subjectWithName = "Uw aanvraag, mevrouw Jansen"
+        val recipientAddress = "burger@example.com"
+
+        fun stubMailWithSubject(zaak: Zaak) {
+            every { loggedInUserInstance.get() } returns createLoggedInUser(username = loggedInUserName)
+            every { mailTemplateHelper.resolveGemeenteVariable(any()) } answers { firstArg() }
+            every { mailTemplateHelper.resolveZaakVariables(any(), zaak, loggedInUserName) } answers { firstArg() }
+            every { mailTemplateHelper.resolveZaakdataVariables(any(), emptyMap()) } answers { firstArg() }
+            mockkObject(MailService.Companion)
+            every { MailService.mailSession.properties } returns Properties()
+            mockkStatic(Transport::class)
+        }
+
+        given("a mail to a citizen with a name in its subject, which the mail server accepts") {
+            val zaak = createZaak()
+            val mailGegevens = createMailGegevens(
+                to = createMailAdres(email = recipientAddress, name = "Jansen"),
+                subject = subjectWithName
+            )
+            stubMailWithSubject(zaak)
+            every { Transport.send(any<Message>()) } just runs
+
+            `when`("the mail is sent") {
+                val records = LogCapture(MailService::class).use { logCapture ->
+                    mailService.sendMail(mailGegevens, Bronnen.Builder().add(zaak).build())
+                    logCapture.records
+                }
+
+                then("one FINE record is logged with the zaak, the masked recipient, the outcome and the duration") {
+                    with(records.single()) {
+                        level shouldBe Level.FINE
+                        message shouldBe "Mail send completed"
+                        mdc["zaakUuid"] shouldBe zaak.uuid.toString()
+                        mdc["recipient"] shouldBe REDACTED_VALUE
+                        mdc["outcome"] shouldBe "SUCCESS"
+                        mdc.getValue("durationMs").toLong() shouldBeGreaterThanOrEqualTo 0L
+                    }
+                }
+
+                and("the record contains neither the recipient address nor the subject") {
+                    with(records.single()) {
+                        containsAnywhere(recipientAddress) shouldBe false
+                        containsAnywhere("Jansen") shouldBe false
+                    }
+                }
+            }
+        }
+
+        given("a mail whose recipient the mail server rejects with a reply that holds the address") {
+            val zaak = createZaak()
+            val mailGegevens = createMailGegevens(to = createMailAdres(email = recipientAddress), subject = subjectWithName)
+            stubMailWithSubject(zaak)
+            every { Transport.send(any<Message>()) } throws SendFailedException(
+                "Invalid Addresses",
+                MessagingException("550 5.1.1 <$recipientAddress>: Recipient address rejected")
+            )
+
+            `when`("the mail is sent") {
+                val records = LogCapture(MailService::class).use { logCapture ->
+                    mailService.sendMail(mailGegevens, Bronnen.Builder().add(zaak).build())
+                    logCapture.records
+                }
+
+                then("one SEVERE record is logged with the failure and the error type, without the exception") {
+                    with(records.single()) {
+                        level shouldBe Level.SEVERE
+                        mdc["zaakUuid"] shouldBe zaak.uuid.toString()
+                        mdc["outcome"] shouldBe "FAILURE"
+                        mdc["errorType"] shouldBe "jakarta.mail.SendFailedException"
+                        mdc["recipient"] shouldBe REDACTED_VALUE
+                        thrown shouldBe null
+                    }
+                }
+
+                and("the record contains neither the recipient address, the reply of the mail server nor the subject") {
+                    with(records.single()) {
+                        containsAnywhere(recipientAddress) shouldBe false
+                        containsAnywhere("Recipient address rejected") shouldBe false
+                        containsAnywhere("Jansen") shouldBe false
                     }
                 }
             }

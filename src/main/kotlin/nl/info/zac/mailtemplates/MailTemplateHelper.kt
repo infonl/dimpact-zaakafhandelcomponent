@@ -31,6 +31,9 @@ import nl.info.zac.identification.toIdentificatieType
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.getFullName
+import nl.info.zac.log.GenericEvent
+import nl.info.zac.log.RolEvent
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.mailtemplates.model.MailLink
 import nl.info.zac.mailtemplates.model.MailTemplateVariables
 import nl.info.zac.mailtemplates.model.MailTemplateVariables.Companion.ZAAKDATA_VARIABLE_PREFIX
@@ -42,8 +45,6 @@ import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo
 import java.time.format.DateTimeFormatter
 import java.util.UUID
-import java.util.logging.Level
-import java.util.logging.Logger
 
 @AllOpen
 @NoArgConstructor
@@ -59,7 +60,7 @@ class MailTemplateHelper @Inject constructor(
     private val ztcClientService: ZtcClientService
 ) {
     companion object {
-        private val LOG = Logger.getLogger(MailTemplateHelper::class.java.name)
+        private val LOG = ZacLogger.getLogger(MailTemplateHelper::class)
         private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
         private const val REPLACEMENT_FOR_UNKNOWN_NAME = "Onbekend"
         private val ZAAKDATA_VARIABLE_PATTERN = Regex("""\$ZAAKDATA_VARIABLE_PREFIX([^}]+)}""")
@@ -278,13 +279,13 @@ class MailTemplateHelper @Inject constructor(
         userName: String
     ): String {
         val identificatie = initiatorRole.identificatienummer ?: run {
-            LOG.warning { "Initiator role '$initiatorRole' has no 'identificatie'. Cannot resolve initiator variables." }
+            LOG.warning(RolEvent(type = RolEvent.Type.INITIATOR_ROLE_WITHOUT_IDENTIFICATIE, rolUuid = initiatorRole.uuid))
             return ""
         }
         return when (initiatorRole.betrokkeneType) {
             BetrokkeneTypeEnum.NATUURLIJK_PERSOON ->
                 brpClientService.retrievePersoon(identificatie, zaaktypeUuid, userName)?.let {
-                    replaceInitiatorVariablesPersoon(resolvedText, it)
+                    replaceInitiatorVariablesPersoon(resolvedText, it, initiatorRole.uuid)
                 }.orEmpty()
 
             BetrokkeneTypeEnum.VESTIGING ->
@@ -305,7 +306,7 @@ class MailTemplateHelper @Inject constructor(
 
     private fun findResultaatItem(nietNatuurlijkPersoonIdentificatie: NietNatuurlijkPersoonIdentificatie) =
         if (nietNatuurlijkPersoonIdentificatie.toIdentificatieType() == null) {
-            LOG.warning { "Unsupported niet-natuurlijk persoon identificatie: '$nietNatuurlijkPersoonIdentificatie'" }
+            LOG.warning(GenericEvent(type = GenericEvent.Type.UNSUPPORTED_NIET_NATUURLIJK_PERSOON_IDENTIFICATIE))
             null
         } else {
             kvkClientService.findRechtspersoonOrVestiging(nietNatuurlijkPersoonIdentificatie)
@@ -313,17 +314,13 @@ class MailTemplateHelper @Inject constructor(
 
     private fun replaceInitiatorVariablesPersoon(
         resolvedTekst: String,
-        initiatorPersoon: Persoon
+        initiatorPersoon: Persoon,
+        rolUuid: UUID?
     ): String {
         return replaceInitiatorVariables(
             resolvedText = resolvedTekst,
             name = initiatorPersoon.getNaam()?.getVolledigeNaam() ?: run {
-                // In practise most likely never going to happen, but we log it anyway.
-                // Note that we do not log the person's BSN because of data privacy reasons.
-                LOG.warning(
-                    "Initiator persoon with geboorte: '${initiatorPersoon.geboorte}' does not have a name. " +
-                        "Using: '$REPLACEMENT_FOR_UNKNOWN_NAME' for full name."
-                )
+                LOG.warning(RolEvent(type = RolEvent.Type.INITIATOR_WITHOUT_NAME, rolUuid = rolUuid))
                 REPLACEMENT_FOR_UNKNOWN_NAME
             },
             address = initiatorPersoon.toAddressString()
@@ -350,11 +347,7 @@ class MailTemplateHelper @Inject constructor(
         try {
             kvkClientService.findCorrespondentieadresOrBezoekadres(resultaatItem)?.toAddressString().orEmpty()
         } catch (runtimeException: RuntimeException) {
-            LOG.log(
-                Level.WARNING,
-                "Could not read the KVK address of the initiator, so the mail is sent without it",
-                runtimeException
-            )
+            LOG.warning(GenericEvent(type = GenericEvent.Type.INITIATOR_KVK_ADDRESS_READ_FAILED), runtimeException)
             ""
         }
 

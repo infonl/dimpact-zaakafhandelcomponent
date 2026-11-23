@@ -30,6 +30,11 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.configuration.FileSizeConfiguration
 import nl.info.zac.identity.model.getFullName
+import nl.info.zac.log.GenericEvent
+import nl.info.zac.log.Outcome
+import nl.info.zac.log.ZaakEvent
+import nl.info.zac.log.ZacLogger
+import nl.info.zac.mail.log.MailSendCompleted
 import nl.info.zac.mail.model.Attachment
 import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mail.model.MailAdres
@@ -48,8 +53,7 @@ import org.htmlcleaner.PrettyXmlSerializer
 import java.io.ByteArrayInputStream
 import java.util.Base64
 import java.util.Optional
-import java.util.logging.Level
-import java.util.logging.Logger
+import java.util.concurrent.TimeUnit
 import kotlin.ByteArray
 import kotlin.String
 import kotlin.Suppress
@@ -75,7 +79,7 @@ class MailService @Inject constructor(
     private val smtpUsername: Optional<String> = Optional.empty()
 ) {
     companion object {
-        private val LOG = Logger.getLogger(MailService::class.java.name)
+        private val LOG = ZacLogger.getLogger(MailService::class)
 
         @Resource(mappedName = "java:jboss/mail/zac")
         lateinit var mailSession: Session
@@ -121,9 +125,17 @@ class MailService @Inject constructor(
             body = body,
             attachments = attachments
         ).build(mailSession)
+        val sendStartTime = System.nanoTime()
         try {
             Transport.send(message)
-            LOG.fine("Sent mail to ${mailGegevens.to} with subject '$subject'.")
+            LOG.fine(
+                MailSendCompleted(
+                    zaakUuid = bronnen.zaak?.uuid,
+                    recipient = mailGegevens.to.email,
+                    outcome = Outcome.SUCCESS,
+                    durationMs = sendStartTime.millisecondsUntilNow()
+                )
+            )
             if (mailGegevens.isCreateDocumentFromMail && bronnen.zaak != null) {
                 createZaakDocumentFromMail(
                     verzender = mailGegevens.from.email,
@@ -136,7 +148,16 @@ class MailService @Inject constructor(
                 )
             }
         } catch (messagingException: MessagingException) {
-            LOG.log(Level.SEVERE, "Failed to send mail with subject '$subject'.", messagingException)
+            // Without the exception: the reply of the mail server in its message can hold the recipient address.
+            LOG.severe(
+                MailSendCompleted(
+                    zaakUuid = bronnen.zaak?.uuid,
+                    recipient = mailGegevens.to.email,
+                    outcome = Outcome.FAILURE,
+                    durationMs = sendStartTime.millisecondsUntilNow(),
+                    errorType = messagingException.javaClass.name
+                )
+            )
             return null
         }
 
@@ -155,7 +176,7 @@ class MailService @Inject constructor(
         //    - mail Transport below throws AuthenticationFailedException because of insufficient configuration
         if (!smtpUsername.isPresent) {
             mailSession.properties.setProperty(JAVAMAIL_SMTP_AUTH_KEY, "false")
-            LOG.warning { "SMTP authentication disabled" }
+            LOG.warning(GenericEvent(type = GenericEvent.Type.SMTP_AUTHENTICATION_DISABLED))
         }
     }
 
@@ -171,7 +192,7 @@ class MailService @Inject constructor(
     ) {
         val eMailObjectType = getEmailInformatieObjectType(zaak)
         val html = buildEmailHtml(verzender, ontvanger, subject, body, attachments)
-        val pdfDocument = convertEmailToPdf(html, subject) ?: return
+        val pdfDocument = convertEmailToPdf(html, zaak) ?: return
         val enkelvoudigInformatieobjectWithInhoud = EnkelvoudigInformatieObjectCreateLockRequest().apply {
             bronorganisatie = configurationService.readBronOrganisatie()
             creatiedatum = ZacTime.today()
@@ -195,29 +216,27 @@ class MailService @Inject constructor(
         )
     }
 
-    private fun convertEmailToPdf(html: String, subject: String): ByteArray? =
+    private fun convertEmailToPdf(html: String, zaak: Zaak): ByteArray? =
         try {
             officeConverterClientService.convertToPDF(
                 ByteArrayInputStream(html.toByteArray(Charsets.UTF_8)),
                 EMAIL_HTML_FILENAME
             ).use { it.readAllBytes() }
         } catch (processingException: ProcessingException) {
-            logPdfConversionFailure(subject, processingException)
+            logPdfConversionFailure(zaak, processingException)
             null
         } catch (webApplicationException: WebApplicationException) {
-            logPdfConversionFailure(subject, webApplicationException)
+            logPdfConversionFailure(zaak, webApplicationException)
             null
         } catch (exception: MessageEntityDataCouldNotBeBufferedException) {
-            logPdfConversionFailure(subject, exception)
+            logPdfConversionFailure(zaak, exception)
             null
         }
 
-    private fun logPdfConversionFailure(subject: String, exception: Exception) =
-        LOG.log(
-            Level.SEVERE,
-            "Failed to convert the sent e-mail with subject '$subject' to PDF. No zaak document was created.",
-            exception
-        )
+    private fun logPdfConversionFailure(zaak: Zaak, exception: Exception) =
+        LOG.severe(ZaakEvent(type = ZaakEvent.Type.MAIL_PDF_CONVERSION_FAILED, zaakUuid = zaak.uuid), exception)
+
+    private fun Long.millisecondsUntilNow() = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - this)
 
     private fun buildEmailHtml(
         verzender: String,

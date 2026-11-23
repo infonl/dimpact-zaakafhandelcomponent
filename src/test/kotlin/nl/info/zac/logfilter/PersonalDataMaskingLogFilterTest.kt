@@ -172,5 +172,39 @@ class PersonalDataMaskingLogFilterTest : BehaviorSpec({
                 }
             }
         }
+
+        given("a WildFly log record with a BSN and an IBAN in its MDC fields") {
+            val extLogRecord = ExtLogRecord(Level.INFO, "fakeMessage", "fakeLoggerClassName").apply {
+                putMdc("fakeBsnField", "999993896")
+                putMdc("fakeIbanField", "NL91ABNA0417164300")
+                putMdc("zaakIdentificatie", "ZAAK-2026-0000000001")
+            }
+
+            `when`("the log record is filtered") {
+                val isLoggable = personalDataMaskingLogFilter.isLoggable(extLogRecord)
+
+                then("the BSN and the IBAN are masked in the MDC fields, and the other fields are unchanged") {
+                    isLoggable shouldBe true
+                    extLogRecord.getMdc("fakeBsnField") shouldBe "******896"
+                    extLogRecord.getMdc("fakeIbanField") shouldBe MASKED_VALUE.repeat(18)
+                    extLogRecord.getMdc("zaakIdentificatie") shouldBe "ZAAK-2026-0000000001"
+                }
+            }
+        }
+
+        given("a WildFly log record with a BSN in its MDC fields, whose message cannot be formatted") {
+            val extLogRecord = object : ExtLogRecord(Level.SEVERE, "fakeMessage", "fakeLoggerClassName") {
+                override fun getFormattedMessage(): String = throw IllegalArgumentException("fakeFormattingError")
+            }.apply { putMdc("fakeBsnField", "999993896") }
+
+            `when`("the log record is filtered") {
+                personalDataMaskingLogFilter.isLoggable(extLogRecord)
+
+                then("the log record is logged without any of its MDC fields, which could not be masked") {
+                    extLogRecord.getMdcCopy() shouldBe emptyMap()
+                    extLogRecord.getMdc("fakeBsnField") shouldBe null
+                }
+            }
+        }
     }
 })

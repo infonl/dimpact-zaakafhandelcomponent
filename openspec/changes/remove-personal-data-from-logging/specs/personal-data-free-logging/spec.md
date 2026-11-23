@@ -172,7 +172,7 @@ NOT log the path, the query string, the headers or the body of any outbound REST
 #### Scenario: An outbound call without a client operation is logged
 - **WHEN** `FINE` logging is enabled for `JsonLoggingFilter` and a REST client that is not a MicroProfile Rest Client
   sends a request
-- **THEN** the record has the host and no `operation` field
+- **THEN** the record has the host and `operation=null`
 
 #### Scenario: An outbound call fails before a response
 - **WHEN** `FINE` logging is enabled for `JsonLoggingFilter` and the connection to the remote system is refused

@@ -60,6 +60,7 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
+import nl.info.zac.log.LogCapture
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.time.ZacTime
@@ -1166,15 +1167,27 @@ class ZaakServiceTest : BehaviorSpec({
             every { eventingService.send(capture(screenEventSlot)) } just runs
 
             `when`("the zaken are assigned to that group and user") {
-                zaakService.assignZaken(
-                    zaakUUIDs = zaken.map { it.uuid },
-                    explanation = explanation,
-                    group = group,
-                    user = user,
-                    screenEventResourceId = screenEventResourceId
-                )
+                val records = LogCapture(ZaakService::class).use { logCapture ->
+                    zaakService.assignZaken(
+                        zaakUUIDs = zaken.map { it.uuid },
+                        explanation = explanation,
+                        group = group,
+                        user = user,
+                        screenEventResourceId = screenEventResourceId
+                    )
+                    logCapture.records
+                }
 
-                then("every zaak is reported as skipped") {
+                then("the employee who is not in the group is logged without the username or the display name") {
+                    with(records.single { it.mdc["event"] == "EmployeeNotInGroup" }) {
+                        mdc["groupId"] shouldBe group.name
+                        mdc["zaakCount"] shouldBe "2"
+                        containsAnywhere(user.username) shouldBe false
+                        user.displayName?.let { containsAnywhere(it) shouldBe false }
+                    }
+                }
+
+                and("every zaak is reported as skipped") {
                     verify(exactly = 1) {
                         eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaken[0]))
                         eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaken[1]))

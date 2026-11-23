@@ -8,7 +8,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE
@@ -26,6 +25,7 @@ import java.net.HttpURLConnection.HTTP_OK
 const val NUMBER_OF_LOG_LINES = 10
 private const val PERSONAL_DATA_MASKING_FILTER = "personalDataMaskingFilter"
 private const val MASKED_TEST_PERSON_HENDRIKA_JANSE_BSN = "******896"
+private const val BRP_PERSONEN_PATH = "/haalcentraal/api/brp/personen"
 private const val JSON_LOGGING_FILTER_LOGGER = "nl.info.zac.util.JsonLoggingFilter"
 
 @Isolate
@@ -103,13 +103,28 @@ class LoggingTest : BehaviorSpec({
             val logsOfLookup = zacContainerLogs().newLogsSince(logsBeforeLookup)
 
             then(
-                "the BRP traffic is logged with the BSN masked to its last three digits by the WildFly logging filter, " +
-                    "and without the date of birth"
+                "the BRP call is logged as one outbound REST call record with its fields under mdc, " +
+                    "and the logs contain neither the BSN, plain or masked, nor the date of birth nor the path"
             ) {
                 response.code shouldBe HTTP_OK
-                logsOfLookup shouldContain MASKED_TEST_PERSON_HENDRIKA_JANSE_BSN
+                val outboundBrpCalls = logsOfLookup.lines()
+                    .filter { it.trimStart().startsWith("{") }
+                    .map(::JSONObject)
+                    .filter { it.optString("loggerName") == JSON_LOGGING_FILTER_LOGGER }
+                    .map { it.getJSONObject("mdc") }
+                    .filter { it.optString("operation") == "PersonenApi.personen" }
+                outboundBrpCalls.size shouldBe 1
+                outboundBrpCalls.single().run {
+                    getString("event") shouldBe "OutboundRestCall"
+                    getString("method") shouldBe "POST"
+                    getString("status") shouldBe "$HTTP_OK"
+                    getString("outcome") shouldBe "SUCCESS"
+                    has("durationMs") shouldBe true
+                }
                 logsOfLookup shouldNotContain TEST_PERSON_HENDRIKA_JANSE_BSN
+                logsOfLookup shouldNotContain MASKED_TEST_PERSON_HENDRIKA_JANSE_BSN
                 logsOfLookup shouldNotContain TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE
+                logsOfLookup shouldNotContain BRP_PERSONEN_PATH
             }
         }
     }

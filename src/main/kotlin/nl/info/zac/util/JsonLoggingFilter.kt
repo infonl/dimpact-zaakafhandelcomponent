@@ -4,125 +4,69 @@
  */
 package nl.info.zac.util
 
-import jakarta.json.Json
-import jakarta.json.JsonArray
-import jakarta.json.JsonObject
-import jakarta.json.JsonValue
-import jakarta.json.bind.JsonbBuilder
-import jakarta.json.stream.JsonGenerator
-import jakarta.json.stream.JsonParsingException
+import io.opentelemetry.api.trace.Span
 import jakarta.ws.rs.client.ClientRequestContext
 import jakarta.ws.rs.client.ClientRequestFilter
 import jakarta.ws.rs.client.ClientResponseContext
 import jakarta.ws.rs.client.ClientResponseFilter
-import jakarta.ws.rs.core.MultivaluedMap
+import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.ext.Provider
-import org.apache.commons.io.IOUtils
-import java.io.IOException
-import java.io.StringReader
-import java.io.StringWriter
-import java.nio.charset.StandardCharsets
+import nl.info.zac.log.Outcome
+import nl.info.zac.log.ZacLogger
+import nl.info.zac.util.log.OutboundRestCall
+import java.lang.reflect.Method
+import java.util.UUID
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
-import java.util.logging.Logger
 
+/**
+ * Logs one record per outbound REST call that gets a response, without its path, query string, headers or payload,
+ * because those can hold personal data.
+ */
 @Provider
 class JsonLoggingFilter : ClientRequestFilter, ClientResponseFilter {
     companion object {
+        private val LOG = ZacLogger.getLogger(JsonLoggingFilter::class)
         private val LOG_LEVEL = Level.FINE
-        private val LOG = Logger.getLogger(JsonLoggingFilter::class.java.name)
 
-        // BSNs and IBANs are masked by the WildFly logging filter, but a date of birth cannot be recognised in
-        // plain text, so it is masked here by the name of its JSON field; see ADR-0011
-        private const val DATE_OF_BIRTH_FIELD_NAME_PART = "geboorte"
-        const val MASKED_VALUE = "*****"
-        const val WITHHELD_PAYLOAD = "[not logged, because the payload is not valid JSON and may contain a date of birth]"
+        const val START_TIME_PROPERTY = "nl.info.zac.util.JsonLoggingFilter.startTime"
+        const val CORRELATION_ID_PROPERTY = "nl.info.zac.util.JsonLoggingFilter.correlationId"
+
+        // The request property in which a MicroProfile Rest Client puts the client method that it invokes
+        const val INVOKED_METHOD_PROPERTY = "org.eclipse.microprofile.rest.client.invokedMethod"
     }
 
     override fun filter(requestContext: ClientRequestContext) {
         if (LOG.isLoggable(LOG_LEVEL)) {
-            val message = StringBuilder("REST Request\n")
-            message.append("URL: ${requestContext.uri}\n")
-            message.append("Method: ${requestContext.method}\n")
-            message.append("Media type: ${requestContext.mediaType}\n")
-            message.appendHeaders(requestContext.headers)
-            if (requestContext.hasEntity()) {
-                message.append("Payload:")
-                message.append(getPayload(requestContext))
-            }
-            LOG.log(LOG_LEVEL, message.toString())
+            requestContext.setProperty(START_TIME_PROPERTY, System.nanoTime())
+            requestContext.setProperty(CORRELATION_ID_PROPERTY, createCorrelationId())
         }
     }
 
     override fun filter(requestContext: ClientRequestContext, responseContext: ClientResponseContext) {
-        if (LOG.isLoggable(LOG_LEVEL)) {
-            val message = StringBuilder("REST Response\n")
-            message.append(
-                "Status: ${responseContext.statusInfo.statusCode} (${responseContext.statusInfo.reasonPhrase})\n"
+        val startTime = requestContext.getProperty(START_TIME_PROPERTY) as? Long ?: return
+        val status = responseContext.status
+        LOG.log(
+            LOG_LEVEL,
+            OutboundRestCall(
+                correlationId = requestContext.getProperty(CORRELATION_ID_PROPERTY) as? String ?: createCorrelationId(),
+                method = requestContext.method,
+                host = requestContext.uri?.host,
+                operation = (requestContext.getProperty(INVOKED_METHOD_PROPERTY) as? Method)?.toOperation(),
+                status = status,
+                outcome = if (status.isSuccessOrRedirection()) Outcome.SUCCESS else Outcome.FAILURE,
+                durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime)
             )
-            message.append("Media type: ${responseContext.mediaType}\n")
-            message.appendHeaders(responseContext.headers)
-            if (responseContext.hasEntity()) {
-                message.append("Payload:")
-                message.append(getPayload(responseContext))
-            }
-            LOG.log(LOG_LEVEL, message.toString())
-        }
+        )
     }
 
-    private fun StringBuilder.appendHeaders(headers: MultivaluedMap<String, *>) {
-        append("Headers:\n")
-        headers.forEach { (header, value) -> append("   $header : $value\n") }
-    }
+    private fun createCorrelationId() =
+        Span.current().spanContext.takeIf { it.isValid }?.spanId ?: UUID.randomUUID().toString()
 
-    @Suppress("TooGenericExceptionCaught", "TooGenericExceptionThrown")
-    private fun getPayload(requestContext: ClientRequestContext): String =
-        try {
-            JsonbBuilder.create().use { it.toJson(requestContext.entity) }.toPrettyJsonWithMaskedDatesOfBirth()
-        } catch (exception: Exception) {
-            throw RuntimeException("Failed to create or close JSON builder", exception)
-        }
+    private fun Method.toOperation() = "${declaringClass.simpleName}.$name"
 
-    @Suppress("TooGenericExceptionThrown")
-    private fun getPayload(responseContext: ClientResponseContext): String {
-        try {
-            val payload = IOUtils.toString(responseContext.entityStream, StandardCharsets.UTF_8)
-            responseContext.entityStream = IOUtils.toInputStream(payload, StandardCharsets.UTF_8)
-            return payload.toPrettyJsonWithMaskedDatesOfBirth()
-        } catch (ioException: IOException) {
-            throw RuntimeException("Error logging REST response", ioException)
-        }
-    }
-
-    private fun String.toPrettyJsonWithMaskedDatesOfBirth(): String =
-        try {
-            StringWriter().also { payloadWriter ->
-                Json.createWriterFactory(mapOf(JsonGenerator.PRETTY_PRINTING to true)).createWriter(payloadWriter).use { jsonWriter ->
-                    Json.createReader(StringReader(this)).use { jsonReader ->
-                        jsonWriter.write(jsonReader.readValue().maskDatesOfBirth())
-                    }
-                }
-            }.toString()
-        } catch (_: JsonParsingException) {
-            if (contains(DATE_OF_BIRTH_FIELD_NAME_PART, ignoreCase = true)) WITHHELD_PAYLOAD else this
-        }
-
-    private fun JsonValue.maskDatesOfBirth(): JsonValue =
-        when (this) {
-            is JsonObject -> Json.createObjectBuilder().apply {
-                this@maskDatesOfBirth.forEach { (name, value) ->
-                    add(
-                        name,
-                        if (name.contains(DATE_OF_BIRTH_FIELD_NAME_PART, ignoreCase = true)) {
-                            Json.createValue(MASKED_VALUE)
-                        } else {
-                            value.maskDatesOfBirth()
-                        }
-                    )
-                }
-            }.build()
-            is JsonArray -> Json.createArrayBuilder().apply {
-                this@maskDatesOfBirth.forEach { add(it.maskDatesOfBirth()) }
-            }.build()
-            else -> this
+    private fun Int.isSuccessOrRedirection() =
+        Response.Status.Family.familyOf(this).let {
+            it == Response.Status.Family.SUCCESSFUL || it == Response.Status.Family.REDIRECTION
         }
 }

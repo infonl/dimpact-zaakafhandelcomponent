@@ -4,11 +4,14 @@
  */
 package net.atos.zac.flowable.delegate
 
+import net.atos.zac.flowable.delegate.log.ZaakAssignmentUpdating
 import nl.info.zac.flowable.FlowableHelper
+import nl.info.zac.log.Employee
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.policy.log.PolicyDenied
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
-import java.util.logging.Logger
 
 /**
  * Flowable BPMN delegate to update a zaak assignment.
@@ -27,7 +30,7 @@ class UpdateZaakAssignmentDelegate : AbstractDelegate() {
     var reden: Expression? = null
 
     companion object {
-        private val LOG = Logger.getLogger(UpdateZaakAssignmentDelegate::class.java.name)
+        private val LOG = ZacLogger.getLogger(UpdateZaakAssignmentDelegate::class)
     }
 
     override fun execute(execution: DelegateExecution) {
@@ -42,14 +45,20 @@ class UpdateZaakAssignmentDelegate : AbstractDelegate() {
         assertPolicy(
             zaakRechten.canToekennen,
             LOG,
-            "User '${loggedInUser.username}' is not authorised to assign zaak '${zaak.identificatie}'"
+            PolicyDenied(action = "assignZaak", zaakIdentificatie = zaak.identificatie, employee = Employee(loggedInUser.username))
         )
 
         val groupId = groepId.resolveValueAsString(execution)
         val username = behandelaarGebruikersnaam?.resolveValueAsString(execution)
         val reason = reden?.resolveValueAsString(execution)
 
-        LOG.fine { "Updating zaak ${zaak.identificatie} assignment with group '$groupId', user '$username', reason '$reason'" }
+        LOG.fine {
+            ZaakAssignmentUpdating(
+                zaakIdentificatie = zaak.identificatie,
+                groupId = groupId,
+                assignee = username?.let(::Employee)
+            )
+        }
         flowableHelper.zaakService.assignZaak(zaak = zaak, groupId = groupId, userName = username, reason = reason)
     }
 }
