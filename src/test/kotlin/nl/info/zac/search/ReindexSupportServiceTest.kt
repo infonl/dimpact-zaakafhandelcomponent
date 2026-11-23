@@ -31,6 +31,7 @@ import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.flowable.task.FlowableTaskService
+import nl.info.zac.log.captureLogTexts
 import nl.info.zac.search.converter.ZoekObjectConverter
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObject
@@ -47,9 +48,6 @@ import org.apache.solr.common.SolrDocumentList
 import org.apache.solr.common.params.CursorMarkParams
 import org.flowable.task.api.Task
 import java.util.UUID
-import java.util.logging.Handler
-import java.util.logging.LogRecord
-import java.util.logging.Logger
 
 private data class ReindexSupportServiceTestContext(
     val solrClient: Http2SolrClient,
@@ -62,24 +60,6 @@ private data class ReindexSupportServiceTestContext(
     val reindexSupportService: ReindexSupportService
 )
 
-private fun captureLogRecords(block: () -> Unit): List<LogRecord> {
-    val logger = Logger.getLogger(ReindexSupportService::class.java.name)
-    val records = mutableListOf<LogRecord>()
-    val handler = object : Handler() {
-        override fun publish(record: LogRecord) {
-            records.add(record)
-        }
-        override fun flush() = Unit
-        override fun close() = Unit
-    }
-    logger.addHandler(handler)
-    try {
-        block()
-    } finally {
-        logger.removeHandler(handler)
-    }
-    return records
-}
 
 private fun setupContext(): ReindexSupportServiceTestContext {
     val solrClient = mockk<Http2SolrClient>()
@@ -275,7 +255,7 @@ class ReindexSupportServiceTest : BehaviorSpec({
 
         `when`("continueOnExceptions is called") {
             var result: String? = "not yet overwritten"
-            val logRecords = captureLogRecords {
+            val logRecords = captureLogTexts(ReindexSupportService::class) {
                 result = ctx.reindexSupportService.continueOnExceptions(ZoekObjectType.ZAAK) {
                     throw IllegalStateException("fake failure")
                 }
@@ -287,7 +267,7 @@ class ReindexSupportServiceTest : BehaviorSpec({
 
             then("the failure is logged") {
                 logRecords.any {
-                    it.message == "[${ZoekObjectType.ZAAK}] Error during indexing" &&
+                    it.message == "Error during indexing [objectType=${ZoekObjectType.ZAAK}, type=INDEXING_FAILED]" &&
                         it.thrown?.cause?.message == "fake failure"
                 } shouldBe true
             }

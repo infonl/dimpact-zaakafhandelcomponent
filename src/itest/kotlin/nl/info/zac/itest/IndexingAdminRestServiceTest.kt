@@ -22,10 +22,11 @@ import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_Z
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
+import nl.info.zac.itest.util.completeReindexing
 import nl.info.zac.itest.util.newLogsSince
-import nl.info.zac.itest.util.reindexingFinishedRegex
-import nl.info.zac.itest.util.reindexingStartedRegex
-import nl.info.zac.itest.util.shouldContainLogLineMatching
+import nl.info.zac.itest.util.reindexingFinished
+import nl.info.zac.itest.util.reindexingStarted
+import nl.info.zac.itest.util.shouldContainLogRecord
 import nl.info.zac.itest.util.todayInZac
 import nl.info.zac.itest.util.zacContainerLogs
 import okhttp3.Headers.Companion.toHeaders
@@ -114,8 +115,8 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             and("the ZAC log reports that zaken reindexing started, finished and its reindex summary") {
                 eventually(20.seconds) {
                     val newLogs = zacContainerLogs().newLogsSince(logsBeforeReindex)
-                    newLogs.shouldContainLogLineMatching(reindexingStartedRegex("ZAAK"))
-                    newLogs.shouldContainLogLineMatching(reindexingFinishedRegex("ZAAK"))
+                    newLogs.shouldContainLogRecord(reindexingStarted("ZAAK"))
+                    newLogs.shouldContainLogRecord(reindexingFinished("ZAAK"))
                 }
             }
         }
@@ -165,8 +166,8 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             and("the ZAC log reports that taken reindexing started, finished and its reindex summary") {
                 eventually(20.seconds) {
                     val newLogs = zacContainerLogs().newLogsSince(logsBeforeReindex)
-                    newLogs.shouldContainLogLineMatching(reindexingStartedRegex("TAAK"))
-                    newLogs.shouldContainLogLineMatching(reindexingFinishedRegex("TAAK"))
+                    newLogs.shouldContainLogRecord(reindexingStarted("TAAK"))
+                    newLogs.shouldContainLogRecord(reindexingFinished("TAAK"))
                 }
             }
         }
@@ -212,8 +213,8 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             and("the ZAC log reports that documenten reindexing started, finished and its reindex summary") {
                 eventually(20.seconds) {
                     val newLogs = zacContainerLogs().newLogsSince(logsBeforeReindex)
-                    newLogs.shouldContainLogLineMatching(reindexingStartedRegex("DOCUMENT"))
-                    newLogs.shouldContainLogLineMatching(reindexingFinishedRegex("DOCUMENT"))
+                    newLogs.shouldContainLogRecord(reindexingStarted("DOCUMENT"))
+                    newLogs.shouldContainLogRecord(reindexingFinished("DOCUMENT"))
                 }
             }
         }
@@ -260,15 +261,15 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                 // meaningfully longer than reindexing a single type, hence the larger timeout here
                 eventually(60.seconds) {
                     val newLogs = zacContainerLogs().newLogsSince(logsBeforeReindex)
-                    newLogs.shouldContainLogLineMatching(
-                        Regex("""Complete reindexing process started for object types: \[ZAAK, TAAK, DOCUMENT]""")
+                    newLogs.shouldContainLogRecord(
+                        completeReindexing("CompleteReindexingStarted", "[ZAAK, TAAK, DOCUMENT]")
                     )
-                    newLogs.shouldContainLogLineMatching(
-                        Regex("""Complete reindexing process finished for object types: \[ZAAK, TAAK, DOCUMENT]""")
+                    newLogs.shouldContainLogRecord(
+                        completeReindexing("CompleteReindexingFinished", "[ZAAK, TAAK, DOCUMENT]")
                     )
                     listOf("ZAAK", "TAAK", "DOCUMENT").forEach { zoekObjectType ->
-                        newLogs.shouldContainLogLineMatching(reindexingStartedRegex(zoekObjectType))
-                        newLogs.shouldContainLogLineMatching(reindexingFinishedRegex(zoekObjectType))
+                        newLogs.shouldContainLogRecord(reindexingStarted(zoekObjectType))
+                        newLogs.shouldContainLogRecord(reindexingFinished(zoekObjectType))
                     }
                 }
             }

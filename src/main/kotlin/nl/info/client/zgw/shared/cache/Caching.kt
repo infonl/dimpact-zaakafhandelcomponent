@@ -5,7 +5,9 @@
 package nl.info.client.zgw.shared.cache
 
 import com.github.benmanes.caffeine.cache.stats.CacheStats
-import java.util.logging.Logger
+import nl.info.client.zgw.shared.log.CacheCleared
+import nl.info.client.zgw.shared.log.CacheEntryRemoved
+import nl.info.zac.log.ZacLogger
 
 /**
  * Never call methods with caching annotations from within the service (or it will not work).
@@ -14,7 +16,7 @@ import java.util.logging.Logger
  */
 interface Caching {
     companion object {
-        private val LOG = Logger.getLogger(Caching::class.java.name)
+        private val LOG = ZacLogger.getLogger(Caching::class)
 
         const val ZTC_CACHE_TIME = "ztc-cache-datetime"
         const val ZTC_RESULTAATTYPE = "ztc-resultaattype"
@@ -34,11 +36,11 @@ interface Caching {
 
     fun cleared(cache: String): String {
         val message = "$cache cache cleared"
-        LOG.info(message)
+        LOG.info(CacheCleared(cacheName = cache))
         return message
     }
 
     fun <K> removed(cache: String, key: K) {
-        LOG.fine { "Removed from $cache cache: $key" }
+        LOG.fine { CacheEntryRemoved(cacheName = cache, key = key?.toString()) }
     }
 }

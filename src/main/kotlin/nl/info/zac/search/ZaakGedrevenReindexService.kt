@@ -15,16 +15,17 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import nl.info.zac.flowable.task.FlowableTaskService
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.search.converter.DocumentZoekObjectConverter
 import nl.info.zac.search.converter.TaakZoekObjectConverter
 import nl.info.zac.search.converter.ZaakZoekObjectConverter
+import nl.info.zac.search.log.ReindexEvent
+import nl.info.zac.search.log.ReindexProgress
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
-import java.util.logging.Level
-import java.util.logging.Logger
 
 internal data class ReindexScope(val shouldIncludeTaken: Boolean, val shouldIncludeDocumenten: Boolean)
 
@@ -46,7 +47,7 @@ class ZaakGedrevenReindexService @Inject constructor(
     private val taakZoekObjectConverter: TaakZoekObjectConverter
 ) {
     companion object {
-        private val LOG = Logger.getLogger(ZaakGedrevenReindexService::class.java.name)
+        private val LOG = ZacLogger.getLogger(ZaakGedrevenReindexService::class)
     }
 
     private data class ZakenTakenDocumentenCounts(
@@ -92,9 +93,9 @@ class ZaakGedrevenReindexService @Inject constructor(
      * without touching existing data when their own count fails.
      */
     internal fun reindex(scope: ReindexScope) {
-        LOG.info(reindexSupportService.reindexStartedMessage(ZoekObjectType.ZAAK))
-        if (scope.shouldIncludeTaken) LOG.info(reindexSupportService.reindexStartedMessage(ZoekObjectType.TAAK))
-        if (scope.shouldIncludeDocumenten) LOG.info(reindexSupportService.reindexStartedMessage(ZoekObjectType.DOCUMENT))
+        LOG.info(reindexSupportService.reindexStarted(ZoekObjectType.ZAAK))
+        if (scope.shouldIncludeTaken) LOG.info(reindexSupportService.reindexStarted(ZoekObjectType.TAAK))
+        if (scope.shouldIncludeDocumenten) LOG.info(reindexSupportService.reindexStarted(ZoekObjectType.DOCUMENT))
 
         val numberOfZaken = reindexSupportService.continueOnExceptions(ZoekObjectType.ZAAK) { countZaken() }
         if (numberOfZaken == null) {
@@ -158,10 +159,10 @@ class ZaakGedrevenReindexService @Inject constructor(
             null
         }
         if (requestedScope.shouldIncludeTaken && numberOfTasks == null) {
-            LOG.warning("[${ZoekObjectType.TAAK}] Cannot find tasks count! Aborting reindexing")
+            LOG.warning(ReindexEvent(type = ReindexEvent.Type.REINDEX_COUNT_NOT_FOUND, objectType = ZoekObjectType.TAAK))
         }
         if (requestedScope.shouldIncludeDocumenten && numberOfInformatieobjecten == null) {
-            LOG.warning("[${ZoekObjectType.DOCUMENT}] Cannot find information objects count! Aborting reindexing")
+            LOG.warning(ReindexEvent(type = ReindexEvent.Type.REINDEX_COUNT_NOT_FOUND, objectType = ZoekObjectType.DOCUMENT))
         }
         return TaakDocumentReindexPlan(
             numberOfTasks = numberOfTasks,
@@ -179,7 +180,7 @@ class ZaakGedrevenReindexService @Inject constructor(
      * means there is no zaak-driven pass for them to be part of.
      */
     private fun reindexFallback(scope: ReindexScope) {
-        LOG.warning("[${ZoekObjectType.ZAAK}] Cannot find zaken count! Aborting reindexing")
+        LOG.warning(ReindexEvent(type = ReindexEvent.Type.REINDEX_COUNT_NOT_FOUND, objectType = ZoekObjectType.ZAAK))
         reindexSupportService.finishReindex(ZoekObjectType.ZAAK, null)
         if (scope.shouldIncludeTaken) {
             reindexSupportService.finishReindex(ZoekObjectType.TAAK, reindexSupportService.reindexAllTaken())
@@ -247,7 +248,7 @@ class ZaakGedrevenReindexService @Inject constructor(
         reindexSupportService.addToSolrIndex(documentenOutcomes.zoekObjecten(), performCommit = false)
 
         val progress = (pageNumber - ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.DEFAULT_ZGW_PAGE_SIZE + zaakUUIDs.size
-        LOG.info("[${ZoekObjectType.ZAAK}] Reindexed: $progress / $totalCount ")
+        LOG.info(ReindexProgress(objectType = ZoekObjectType.ZAAK, progress = progress, totalCount = totalCount))
 
         return ZakenTakenDocumentenCounts(
             zaakCounts = ReindexCounts(
@@ -294,7 +295,7 @@ class ZaakGedrevenReindexService @Inject constructor(
                 Triple(zaak, reusingZaak, zaakZoekObjectConverter.convert(zaak, reusingZaak))
             }
         } catch (indexingException: IndexingException) {
-            LOG.log(Level.WARNING, "[${ZoekObjectType.ZAAK}] Error during indexing", indexingException)
+            LOG.warning(ReindexEvent(type = ReindexEvent.Type.INDEXING_FAILED, objectType = ZoekObjectType.ZAAK), indexingException)
             null
         }
         if (zaakConversion == null) {
@@ -343,7 +344,7 @@ class ZaakGedrevenReindexService @Inject constructor(
                 }
             )
         } catch (indexingException: IndexingException) {
-            LOG.log(Level.WARNING, "[${ZoekObjectType.TAAK}] Error during indexing", indexingException)
+            LOG.warning(ReindexEvent(type = ReindexEvent.Type.INDEXING_FAILED, objectType = ZoekObjectType.TAAK), indexingException)
             ConversionOutcome.Errored
         }
 
@@ -359,7 +360,7 @@ class ZaakGedrevenReindexService @Inject constructor(
                 }
             )
         } catch (indexingException: IndexingException) {
-            LOG.log(Level.WARNING, "[${ZoekObjectType.DOCUMENT}] Error during indexing", indexingException)
+            LOG.warning(ReindexEvent(type = ReindexEvent.Type.INDEXING_FAILED, objectType = ZoekObjectType.DOCUMENT), indexingException)
             ConversionOutcome.Errored
         }
 

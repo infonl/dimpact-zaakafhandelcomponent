@@ -13,11 +13,11 @@ import nl.info.client.kvk.model.KvkSearchParameters
 import nl.info.client.kvk.vestigingsprofiel.model.generated.Vestiging
 import nl.info.client.kvk.zoeken.model.generated.Resultaat
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
+import nl.info.zac.log.GenericEvent
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
-import java.util.logging.Level
-import java.util.logging.Logger
 
 @ApplicationScoped
 @NoArgConstructor
@@ -28,7 +28,7 @@ class KvkClientService @Inject constructor(
     @RestClient private val kvkBasisprofielClient: KvkBasisprofielClient
 ) {
     companion object {
-        private val LOG = Logger.getLogger(KvkClientService::class.java.getName())
+        private val LOG = ZacLogger.getLogger(KvkClientService::class)
     }
 
     @Suppress("TooGenericExceptionCaught")
@@ -38,7 +38,7 @@ class KvkClientService @Inject constructor(
         } catch (_: KvkClientNoResultException) {
             // Nothing to report
         } catch (exception: RuntimeException) {
-            LOG.log(Level.SEVERE, "Failed to search for company information using the KVK API", exception)
+            LOG.severe(GenericEvent(type = GenericEvent.Type.KVK_SEARCH_FAILED), exception)
         }
         return Resultaat().apply {
             totaal = 0

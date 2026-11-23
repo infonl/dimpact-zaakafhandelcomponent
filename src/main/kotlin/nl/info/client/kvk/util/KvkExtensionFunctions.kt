@@ -11,17 +11,18 @@ import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.basisprofiel.model.generated.Basisprofiel
 import nl.info.client.kvk.exception.KvkClientException
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
+import nl.info.zac.log.GenericEvent
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.formatHuisnummer
 import nl.info.zac.util.joinNonBlank
 import java.util.logging.Level
-import java.util.logging.Logger
 import nl.info.client.kvk.basisprofiel.model.generated.Adres as BasisprofielAdres
 import nl.info.client.kvk.vestigingsprofiel.model.generated.Adres as VestigingsprofielAdres
 
 private const val KVK_ADRES_TYPE_CORRESPONDENTIEADRES = "correspondentieadres"
 private const val KVK_ADRES_TYPE_BEZOEKADRES = "bezoekadres"
 
-private val LOG = Logger.getLogger(KvkClientService::class.java.name)
+private val LOG = ZacLogger.getLogger(KvkClientService::class)
 
 fun KvkClientService.findCorrespondentieadresOrBezoekadres(resultaatItem: ResultaatItem): VestigingsprofielAdres? =
     try {
@@ -59,7 +60,7 @@ fun Basisprofiel.findAdressen(): List<BasisprofielAdres>? =
     embedded?.eigenaar?.adressen?.takeUnless { it.isEmpty() } ?: embedded?.hoofdvestiging?.adressen
 
 private fun logKvkProfielFailure(level: Level, exception: RuntimeException): VestigingsprofielAdres? {
-    LOG.log(level, "Could not read the KVK profiel of the bedrijf, so its address is left out", exception)
+    LOG.log(level, GenericEvent(type = GenericEvent.Type.KVK_PROFIEL_READ_FAILED), exception)
     return null
 }
 

@@ -33,6 +33,8 @@ import nl.info.client.zgw.util.validateZgwApiUri
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.content.DocumentContent
 import nl.info.zac.document.content.InMemoryDocumentContent
+import nl.info.zac.log.InformatieobjectEvent
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
@@ -42,7 +44,6 @@ import java.io.InputStream
 import java.io.StringReader
 import java.net.URI
 import java.util.UUID
-import java.util.logging.Logger
 
 @ApplicationScoped
 @NoArgConstructor
@@ -54,7 +55,7 @@ class DrcClientService @Inject constructor(
     private val configurationService: ConfigurationService
 ) {
     companion object {
-        private val LOG = Logger.getLogger(DrcClientService::class.java.name)
+        private val LOG = ZacLogger.getLogger(DrcClientService::class)
         private val JSONB = JsonbBuilder.create()
     }
 
@@ -228,7 +229,12 @@ class DrcClientService @Inject constructor(
      * must not replace it. A locked document cannot be deleted, so it is unlocked first.
      */
     private fun deleteDocumentWithIncompleteContent(documentUUID: UUID, lock: String) {
-        LOG.warning { "Deleting document with uuid '$documentUUID' because uploading its content in parts failed" }
+        LOG.warning(
+            InformatieobjectEvent(
+                type = InformatieobjectEvent.Type.DOCUMENT_WITH_INCOMPLETE_CONTENT_DELETING,
+                informatieobjectUuid = documentUUID
+            )
+        )
         logFailureToCleanUp(documentUUID) {
             drcClient.enkelvoudigInformatieobjectUnlock(
                 uuid = documentUUID,
@@ -242,13 +248,37 @@ class DrcClientService @Inject constructor(
         try {
             cleanUp()
         } catch (zgwRuntimeException: ZgwRuntimeException) {
-            LOG.warning { "Failed to delete document with uuid '$documentUUID': ${zgwRuntimeException.message}" }
+            LOG.warning(
+                InformatieobjectEvent(
+                    type = InformatieobjectEvent.Type.DOCUMENT_CLEAN_UP_FAILED,
+                    informatieobjectUuid = documentUUID
+                ),
+                zgwRuntimeException
+            )
         } catch (zgwValidationErrorException: ZgwValidationErrorException) {
-            LOG.warning { "Failed to delete document with uuid '$documentUUID': ${zgwValidationErrorException.message}" }
+            LOG.warning(
+                InformatieobjectEvent(
+                    type = InformatieobjectEvent.Type.DOCUMENT_CLEAN_UP_FAILED,
+                    informatieobjectUuid = documentUUID
+                ),
+                zgwValidationErrorException
+            )
         } catch (webApplicationException: WebApplicationException) {
-            LOG.warning { "Failed to delete document with uuid '$documentUUID': ${webApplicationException.message}" }
+            LOG.warning(
+                InformatieobjectEvent(
+                    type = InformatieobjectEvent.Type.DOCUMENT_CLEAN_UP_FAILED,
+                    informatieobjectUuid = documentUUID
+                ),
+                webApplicationException
+            )
         } catch (processingException: ProcessingException) {
-            LOG.warning { "Failed to delete document with uuid '$documentUUID': ${processingException.message}" }
+            LOG.warning(
+                InformatieobjectEvent(
+                    type = InformatieobjectEvent.Type.DOCUMENT_CLEAN_UP_FAILED,
+                    informatieobjectUuid = documentUUID
+                ),
+                processingException
+            )
         }
     }
 

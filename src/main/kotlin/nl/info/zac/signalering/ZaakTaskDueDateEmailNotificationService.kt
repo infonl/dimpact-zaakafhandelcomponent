@@ -16,6 +16,7 @@ import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.gebruikersvoorkeuren.model.TabelInstellingen
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.DatumVeld
 import nl.info.zac.search.model.FilterVeld
@@ -23,8 +24,10 @@ import nl.info.zac.search.model.FilterWaarde
 import nl.info.zac.search.model.ZoekParameters
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.signalering.log.DueDateEmailNotificationsSent
 import nl.info.zac.signalering.model.Signalering
 import nl.info.zac.signalering.model.SignaleringDetail
+import nl.info.zac.signalering.model.SignaleringSubject
 import nl.info.zac.signalering.model.SignaleringTarget
 import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.signalering.model.SignaleringVerzendInfo
@@ -35,7 +38,6 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.task.api.Task
 import java.util.UUID
-import java.util.logging.Logger
 
 @ApplicationScoped
 @Transactional
@@ -51,7 +53,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     private val flowableTaskService: FlowableTaskService
 ) {
     companion object {
-        private val LOG = Logger.getLogger(ZaakTaskDueDateEmailNotificationService::class.java.name)
+        private val LOG = ZacLogger.getLogger(ZaakTaskDueDateEmailNotificationService::class)
         const val ZAAK_AFGEHANDELD_QUERY = "zaak_afgehandeld"
     }
 
@@ -70,11 +72,14 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
      */
     private fun sendTaskDueDateEmailNotifications() {
         val signaleringVerzendInfo = SignaleringVerzendInfo()
-        LOG.info("Sending task due date email notifications...")
         signaleringVerzendInfo.fataledatumVerzonden += sendTaskDueDateNotifications()
         deleteUnjustlySentTaskDueSignaleringen()
         LOG.info(
-            "Finished sending task due date email notifications (${signaleringVerzendInfo.fataledatumVerzonden} fatal date warnings)"
+            DueDateEmailNotificationsSent(
+                subjecttype = SignaleringSubject.TAAK,
+                streefdatumWarningCount = null,
+                fataledatumWarningCount = signaleringVerzendInfo.fataledatumVerzonden
+            )
         )
     }
 
@@ -85,7 +90,6 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
      */
     private fun sendZaakDueDateEmailNotifications() {
         val signaleringVerzendInfo = SignaleringVerzendInfo()
-        LOG.info("Sending zaak due date email notifications...")
         ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
             .forEach { zaaktype ->
                 zaaktypeConfigurationService.findConfiguration(
@@ -114,8 +118,11 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
                 }
             }
         LOG.info(
-            "Finished sending zaak due date email notifications (${signaleringVerzendInfo.streefdatumVerzonden} target date " +
-                "warnings, ${signaleringVerzendInfo.fataledatumVerzonden} fatal date warnings)"
+            DueDateEmailNotificationsSent(
+                subjecttype = SignaleringSubject.ZAAK,
+                streefdatumWarningCount = signaleringVerzendInfo.streefdatumVerzonden,
+                fataledatumWarningCount = signaleringVerzendInfo.fataledatumVerzonden
+            )
         )
     }
 

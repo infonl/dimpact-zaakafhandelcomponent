@@ -29,11 +29,15 @@ import nl.info.client.zgw.drc.model.createLockEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.BestandsDeel
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.LockEnkelvoudigInformatieObject
+import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
+import nl.info.client.zgw.shared.model.createFieldValidationError
+import nl.info.client.zgw.shared.model.createValidationZgwError
 import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.content.InMemoryDocumentContent
 import nl.info.zac.document.content.TemporaryFileDocumentContent
+import nl.info.zac.log.LogCapture
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.net.URI
@@ -345,6 +349,49 @@ class DrcClientServiceTest : BehaviorSpec({
             then("the failure surfaces and no document with missing content is left behind") {
                 drcRuntimeException.message shouldBe "fake upload failure"
                 verify(exactly = 1) { drcClient.enkelvoudigInformatieobjectDelete(documentUUID) }
+            }
+        }
+
+        content.close()
+    }
+
+    given("A document whose parts cannot be uploaded, and whose deletion Open Zaak rejects with a reason that holds a value") {
+        val bytes = "0123456789".toByteArray()
+        val documentUUID = UUID.randomUUID()
+        val temporaryFile = Files.createTempFile("fakeDocument", null).also { Files.write(it, bytes) }
+        val content = TemporaryFileDocumentContent(temporaryFile)
+        val createdDocument = createEnkelvoudigInformatieObjectCreateLockSub(
+            uuid = documentUUID,
+            url = URI("https://example.com/enkelvoudiginformatieobjecten/$documentUUID"),
+            bestandsdelen = listOf(createBestandsDeel(volgnummer = 1, omvang = 10))
+        )
+        every { drcClient.enkelvoudigInformatieobjectCreateForPartsUpload(any()) } returns createdDocument
+        every { drcClient.bestandsdeelUpdate(any(), any(), any()) } throws DrcRuntimeException("fake upload failure")
+        every { drcClient.enkelvoudigInformatieobjectUnlock(documentUUID, any()) } returns mockk()
+        every {
+            drcClient.enkelvoudigInformatieobjectDelete(documentUUID)
+        } throws ZgwValidationErrorException(
+            createValidationZgwError(
+                detail = "fakeRejectedValue is not valid",
+                invalidParams = listOf(createFieldValidationError(reason = "Invalid value: fakeRejectedValue"))
+            )
+        )
+
+        `when`("it is created") {
+            val records = LogCapture(DrcClientService::class).use { logCapture ->
+                shouldThrow<DrcRuntimeException> {
+                    drcClientService.createEnkelvoudigInformatieobject(
+                        createEnkelvoudigInformatieObjectCreateLockRequest(),
+                        content
+                    )
+                }
+                logCapture.records
+            }
+
+            then("the failed clean-up is logged without the reason or the detail of the validation error") {
+                records.single { it.message == "Failed to delete document" }.mdc["informatieobjectUuid"] shouldBe
+                    documentUUID.toString()
+                records.forEach { it.containsAnywhere("fakeRejectedValue") shouldBe false }
             }
         }
 

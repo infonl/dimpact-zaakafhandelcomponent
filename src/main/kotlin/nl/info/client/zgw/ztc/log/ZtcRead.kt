@@ -1,0 +1,12 @@
+/*
+ * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+package nl.info.client.zgw.ztc.log
+
+import nl.info.zac.log.LogEvent
+
+class ZtcRead(
+    val operation: String,
+    val parameters: List<String>
+) : LogEvent("OpenZaak ZTC read on a cache miss")

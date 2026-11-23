@@ -25,14 +25,18 @@ import nl.info.zac.event.AbstractEventObserver
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.task.readZaakUUID
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.signalering.log.SignaleringEventHandled
+import nl.info.zac.signalering.log.SignaleringEventResult
+import nl.info.zac.signalering.log.SignaleringTypeIgnored
+import nl.info.zac.signalering.log.UnexpectedBetrokkeneType
 import nl.info.zac.signalering.model.Signalering
 import nl.info.zac.signalering.model.SignaleringType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.task.api.TaskInfo
 import java.net.URI
-import java.util.logging.Logger
 
 @Named
 @ApplicationScoped
@@ -46,26 +50,30 @@ class SignaleringEventObserver @Inject constructor(
     private val signaleringService: SignaleringService
 ) : AbstractEventObserver<SignaleringEvent<*>>() {
     companion object {
-        private val LOG = Logger.getLogger(SignaleringEventObserver::class.java.name)
+        private val LOG = ZacLogger.getLogger(SignaleringEventObserver::class)
     }
 
     // signaleringen are sent on behalf of ZAC, and this async thread has no user session
     override fun onFire(@ObservesAsync event: SignaleringEvent<*>) = runAsSystemUser { handle(event) }
 
     private fun handle(event: SignaleringEvent<*>) {
-        LOG.fine { "Signalering event received: $event" }
-
         val signalering = buildSignalering(event) ?: run {
-            LOG.fine { "No signal generated for received event: $event" }
+            LOG.fine { event.toSignaleringEventHandled(SignaleringEventResult.NO_SIGNALERING) }
             return
         }
         if (!signaleringService.isNecessary(signalering, event.actor)) {
-            LOG.fine { "Unnecessary signalering: $signalering for actor ${event.actor}" }
+            LOG.fine { event.toSignaleringEventHandled(SignaleringEventResult.UNNECESSARY) }
             return
         }
 
         val subscriptions = signaleringService.readInstellingen(signalering)
-        LOG.fine { "Subscription settings: $subscriptions for signalering: $signalering" }
+        LOG.fine {
+            event.toSignaleringEventHandled(
+                result = SignaleringEventResult.SUBSCRIPTIONS_APPLIED,
+                isDashboard = subscriptions.isDashboard,
+                isMail = subscriptions.isMail
+            )
+        }
         if (subscriptions.isDashboard) {
             signaleringService.storeSignalering(signalering)
         }
@@ -102,7 +110,7 @@ class SignaleringEventObserver @Inject constructor(
             }
             SignaleringType.Type.ZAAK_VERLOPEND, SignaleringType.Type.TAAK_VERLOPEN -> {
                 // these are not event-driven and should not show up here
-                LOG.warning { "Ignored SignaleringType ${event.objectType}" }
+                LOG.warning(SignaleringTypeIgnored(signaleringType = event.objectType))
                 null
             }
         }
@@ -114,7 +122,7 @@ class SignaleringEventObserver @Inject constructor(
             is RolOrganisatorischeEenheid ->
                 getSignaleringVoorGroup(event = event, zaak = zaak, rolOrganisatorischeEenheid = rol)
             else -> {
-                LOG.warning { "Unexpected BetrokkeneType ${rol.betrokkeneType}" }
+                LOG.warning(UnexpectedBetrokkeneType(betrokkeneType = rol.betrokkeneType?.toString()))
                 null
             }
         }
@@ -178,9 +186,7 @@ class SignaleringEventObserver @Inject constructor(
     private fun fixActor(event: SignaleringEvent<*>, task: TaskInfo): SignaleringEvent<*> =
         if (event.actor == null) {
             val actor = task.owner?.let(identityService::readUser)
-            signaleringEvent(event.objectType, task, actor).also {
-                if (actor != null) LOG.fine { "Signalering event fixed: $it" }
-            }
+            signaleringEvent(event.objectType, task, actor)
         } else {
             event
         }
@@ -201,3 +207,15 @@ class SignaleringEventObserver @Inject constructor(
 
 private fun RolMedewerker.toUsername() =
     checkNotNull(betrokkeneIdentificatie) { "Rol '$uuid' has no medewerker" }.identificatie
+
+private fun SignaleringEvent<*>.toSignaleringEventHandled(
+    result: SignaleringEventResult,
+    isDashboard: Boolean = false,
+    isMail: Boolean = false
+) = SignaleringEventHandled(
+    signaleringType = objectType,
+    objectId = objectId.toString(),
+    result = result,
+    isDashboard = isDashboard,
+    isMail = isMail
+)

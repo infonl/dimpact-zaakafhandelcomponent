@@ -21,7 +21,15 @@ import nl.info.client.zgw.zrc.model.ZaakListParameters
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.authentication.systemUserContext
 import nl.info.zac.flowable.task.FlowableTaskService
+import nl.info.zac.log.LogEvent
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.search.converter.ZoekObjectConverter
+import nl.info.zac.search.log.ReindexEvent
+import nl.info.zac.search.log.ReindexProgress
+import nl.info.zac.search.log.ReindexingAborted
+import nl.info.zac.search.log.ReindexingFinished
+import nl.info.zac.search.log.ReindexingStarted
+import nl.info.zac.search.log.SolrPageFetchFailed
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -36,8 +44,6 @@ import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.common.params.CursorMarkParams
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
-import java.util.logging.Level
-import java.util.logging.Logger
 
 internal sealed interface ConversionOutcome {
     data class Converted(val zoekObject: ZoekObject) : ConversionOutcome
@@ -78,7 +84,7 @@ class ReindexSupportService @Inject constructor(
         private const val TAKEN_MAX_RESULTS = 100
         private const val PAGE_CONVERSION_PARALLELISM = 8
 
-        private val LOG = Logger.getLogger(ReindexSupportService::class.java.name)
+        private val LOG = ZacLogger.getLogger(ReindexSupportService::class)
     }
 
     private val pageConversionDispatcher = dispatcher.limitedParallelism(PAGE_CONVERSION_PARALLELISM)
@@ -127,7 +133,7 @@ class ReindexSupportService @Inject constructor(
                 ?.let { ConversionOutcome.Converted(it) }
                 ?: ConversionOutcome.Skipped
         } catch (indexingException: IndexingException) {
-            LOG.log(Level.WARNING, "[$objectType] Error during indexing", indexingException)
+            LOG.warning(ReindexEvent(type = ReindexEvent.Type.INDEXING_FAILED, objectType = objectType), indexingException)
             ConversionOutcome.Errored
         }
 
@@ -182,7 +188,7 @@ class ReindexSupportService @Inject constructor(
      * `IndexingService.reindexAll`).
      */
     private fun countInSolrIndex(objectType: ZoekObjectType): Long? =
-        continueOnExceptions(objectType, "Error counting Solr documents") {
+        continueOnExceptions(objectType, { ReindexEvent(type = ReindexEvent.Type.SOLR_DOCUMENT_COUNT_FAILED, it) }) {
             solrClient.query(
                 SolrQuery("*:*").apply {
                     addFilterQuery("type:$objectType")
@@ -195,9 +201,8 @@ class ReindexSupportService @Inject constructor(
      * Builds the "Reindexing started" log message for [objectType], including the current Solr
      * document count for that type (i.e. before any entities are removed or reindexed).
      */
-    internal fun reindexStartedMessage(objectType: ZoekObjectType): String =
-        "[$objectType] Reindexing started. Solr index currently contains " +
-            "${countInSolrIndex(objectType) ?: "unknown"} documents of type '$objectType'."
+    internal fun reindexStarted(objectType: ZoekObjectType) =
+        ReindexingStarted(objectType = objectType, solrDocumentCount = countInSolrIndex(objectType))
 
     /**
      * Deletes the existing Solr documents of [objectType]. Only called once the total count for
@@ -205,7 +210,7 @@ class ReindexSupportService @Inject constructor(
      * deletes entities that reindexing will not get a chance to replace.
      */
     internal fun deleteExistingEntities(objectType: ZoekObjectType) {
-        LOG.info("[$objectType] Deleting existing documents of type '$objectType' before reindexing.")
+        LOG.info(ReindexEvent(type = ReindexEvent.Type.EXISTING_DOCUMENTS_DELETING, objectType = objectType))
         removeEntitiesFromSolrIndex(objectType)
     }
 
@@ -222,15 +227,17 @@ class ReindexSupportService @Inject constructor(
      * failure. Since paging can overshoot the snapshot (e.g. more objects created after the page count
      * was fixed), the raw difference can go negative, so it is clamped to zero rather than logged as-is.
      */
-    private fun reindexFinishedMessage(objectType: ZoekObjectType, summary: ReindexSummary?): String {
-        val withSummary = summary?.let { (successCount, skippedCount, totalCount) ->
-            val errorCount = (totalCount - successCount - skippedCount).coerceAtLeast(0)
-            "[$objectType] Reindexing finished. Reindexed: $successCount / $totalCount, skipped: $skippedCount, " +
-                "not reindexed because of errors: $errorCount"
-        } ?: "[$objectType] Reindexing aborted"
-        return "$withSummary. Solr index contains ${countInSolrIndex(objectType) ?: "unknown"} " +
-            "documents of type '$objectType'."
-    }
+    private fun reindexFinished(objectType: ZoekObjectType, summary: ReindexSummary?): LogEvent =
+        summary?.let { (successCount, skippedCount, totalCount) ->
+            ReindexingFinished(
+                objectType = objectType,
+                reindexedCount = successCount,
+                totalCount = totalCount,
+                skippedCount = skippedCount,
+                errorCount = (totalCount - successCount - skippedCount).coerceAtLeast(0),
+                solrDocumentCount = countInSolrIndex(objectType)
+            )
+        } ?: ReindexingAborted(objectType = objectType, solrDocumentCount = countInSolrIndex(objectType))
 
     /**
      * Commits (when [summary] is non-null) and logs the "Reindexing finished" message for [objectType].
@@ -250,7 +257,7 @@ class ReindexSupportService @Inject constructor(
             // entities simply become visible whenever Solr's own autoCommit next fires instead.
             continueOnExceptions(objectType) { commit() }
         }
-        LOG.info(reindexFinishedMessage(objectType, summary))
+        LOG.info(reindexFinished(objectType, summary))
     }
 
     internal fun addToSolrIndex(zoekObjecten: List<ZoekObject?>, performCommit: Boolean) {
@@ -293,10 +300,7 @@ class ReindexSupportService @Inject constructor(
             query.set(CursorMarkParams.CURSOR_MARK_PARAM, cursorMark)
             val response = continueOnExceptions(objectType) { solrClient.query(query) }
             if (response == null) {
-                LOG.warning(
-                    "[$objectType] Cannot fetch next page. " +
-                        "Aborting removal of entities after cursor mark $cursorMark"
-                )
+                LOG.warning(SolrPageFetchFailed(objectType = objectType, cursorMark = cursorMark))
                 return
             }
 
@@ -334,7 +338,7 @@ class ReindexSupportService @Inject constructor(
             zrcClientService.listZakenUuids(zaakListParameters(ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS)).count()
         }
         if (numberOfZaken == null) {
-            LOG.warning("[${ZoekObjectType.ZAAK}] Cannot find zaken count! Aborting reindexing")
+            LOG.warning(ReindexEvent(type = ReindexEvent.Type.REINDEX_COUNT_NOT_FOUND, objectType = ZoekObjectType.ZAAK))
             return null
         }
         deleteExistingEntities(ZoekObjectType.ZAAK)
@@ -356,7 +360,7 @@ class ReindexSupportService @Inject constructor(
         val ids = zaakResults.results().map { it.uuid.toString() }
         val counts = indexeerDirectCountingSuccesses(ids, ZoekObjectType.ZAAK)
         val progress = (pageNumber - ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.DEFAULT_ZGW_PAGE_SIZE + ids.size
-        LOG.info("[${ZoekObjectType.ZAAK}] Reindexed: $progress / $totalCount ")
+        LOG.info(ReindexProgress(objectType = ZoekObjectType.ZAAK, progress = progress, totalCount = totalCount))
         return counts
     }
 
@@ -375,7 +379,7 @@ class ReindexSupportService @Inject constructor(
             ).count()
         }
         if (numberOfInformatieobjecten == null) {
-            LOG.warning("[${ZoekObjectType.DOCUMENT}] Cannot find information objects count! Aborting reindexing")
+            LOG.warning(ReindexEvent(type = ReindexEvent.Type.REINDEX_COUNT_NOT_FOUND, objectType = ZoekObjectType.DOCUMENT))
             return null
         }
         deleteExistingEntities(ZoekObjectType.DOCUMENT)
@@ -404,7 +408,7 @@ class ReindexSupportService @Inject constructor(
         val ids = informationObjectsResults.results().map { it.url.extractUuid().toString() }
         val counts = indexeerDirectCountingSuccesses(ids, ZoekObjectType.DOCUMENT, zaakAutorisatieGegevens)
         val progress = (pageNumber - ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.DEFAULT_ZGW_PAGE_SIZE + ids.size
-        LOG.info("[${ZoekObjectType.DOCUMENT}] Reindexed: $progress / $totalCount")
+        LOG.info(ReindexProgress(objectType = ZoekObjectType.DOCUMENT, progress = progress, totalCount = totalCount))
         return counts
     }
 
@@ -416,7 +420,7 @@ class ReindexSupportService @Inject constructor(
     internal fun reindexAllTaken(): ReindexSummary? {
         val numberOfTasks = continueOnExceptions(ZoekObjectType.TAAK) { flowableTaskService.countOpenTasks() }
         if (numberOfTasks == null) {
-            LOG.warning("[${ZoekObjectType.TAAK}] Cannot find tasks count. Aborting reindexing")
+            LOG.warning(ReindexEvent(type = ReindexEvent.Type.REINDEX_COUNT_NOT_FOUND, objectType = ZoekObjectType.TAAK))
             return null
         }
         deleteExistingEntities(ZoekObjectType.TAAK)
@@ -450,7 +454,7 @@ class ReindexSupportService @Inject constructor(
         }
         val counts = indexeerDirectCountingSuccesses(tasks.map { it.id }, ZoekObjectType.TAAK, zaakAutorisatieGegevens)
         val progress = firstResult + tasks.size
-        LOG.info("[${ZoekObjectType.TAAK}] Reindexed: $progress / $totalCount")
+        LOG.info(ReindexProgress(objectType = ZoekObjectType.TAAK, progress = progress.toLong(), totalCount = totalCount))
         return counts
     }
 
@@ -467,13 +471,13 @@ class ReindexSupportService @Inject constructor(
 
     internal fun <T> continueOnExceptions(
         objectType: ZoekObjectType,
-        message: String = "Error during indexing",
+        failureEvent: (ZoekObjectType) -> LogEvent = { ReindexEvent(type = ReindexEvent.Type.INDEXING_FAILED, it) },
         fn: () -> T
     ): T? =
         try {
             runTranslatingToIndexingException { fn() }
         } catch (indexingException: IndexingException) {
-            LOG.log(Level.WARNING, "[$objectType] $message", indexingException)
+            LOG.warning(failureEvent(objectType), indexingException)
             null
         }
 }

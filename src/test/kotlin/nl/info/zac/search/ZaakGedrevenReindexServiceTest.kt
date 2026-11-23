@@ -26,6 +26,7 @@ import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.search.converter.DocumentZoekObjectConverter
 import nl.info.zac.search.converter.TaakZoekObjectConverter
 import nl.info.zac.search.converter.ZaakZoekObjectConverter
+import nl.info.zac.search.log.ReindexingStarted
 import nl.info.zac.search.model.createDocumentZoekObject
 import nl.info.zac.search.model.createTaakZoekObject
 import nl.info.zac.search.model.createZaakAutorisatieGegevens
@@ -125,7 +126,7 @@ private fun setupContext(): ZaakGedrevenReindexServiceTestContext {
     val zaakZoekObjectConverter = mockk<ZaakZoekObjectConverter>()
     val taakZoekObjectConverter = mockk<TaakZoekObjectConverter>()
 
-    every { reindexSupportService.reindexStartedMessage(any()) } returns "fakeReindexStartedMessage"
+    every { reindexSupportService.reindexStarted(any()) } answers { ReindexingStarted(objectType = firstArg(), solrDocumentCount = null) }
     every { reindexSupportService.finishReindex(any(), any()) } just Runs
     every { reindexSupportService.zaakListParameters(any()) } answers {
         ZaakListParameters().apply {

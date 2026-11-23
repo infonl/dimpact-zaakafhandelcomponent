@@ -52,6 +52,8 @@ import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
+import nl.info.zac.log.CapturedLogText
+import nl.info.zac.log.toCapturedLogText
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.createMailAdres
 import nl.info.zac.mailtemplates.model.MailGegevens
@@ -778,11 +780,11 @@ class SignaleringServiceTest : BehaviorSpec({
     fun createBehandelaarRol(username: String) =
         createRolMedewerker(medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = username))
 
-    fun captureSignaleringServiceWarnings(): MutableList<LogRecord> {
-        val logRecords = mutableListOf<LogRecord>()
+    fun captureSignaleringServiceWarnings(): MutableList<CapturedLogText> {
+        val logRecords = mutableListOf<CapturedLogText>()
         Logger.getLogger(SignaleringService::class.java.name).addHandler(object : Handler() {
             override fun publish(logRecord: LogRecord) {
-                if (logRecord.level == Level.WARNING) logRecords.add(logRecord)
+                if (logRecord.level == Level.WARNING) logRecords.add(logRecord.toCapturedLogText())
             }
             override fun flush() = Unit
             override fun close() = Unit
@@ -1055,10 +1057,10 @@ class SignaleringServiceTest : BehaviorSpec({
             }
             and("a warning per signalering names the signalering and the reason, but not the user") {
                 warnings.map { it.message } shouldBe listOf(
-                    "Deleting signalering with id '1' of type 'ZAAK_OP_NAAM' for ZAAK '${zaak.uuid}', because " +
-                        "the user is not the behandelaar of the zaak.",
-                    "Deleting signalering with id '2' of type 'ZAAK_OP_NAAM' for ZAAK '${zaak.uuid}', because " +
-                        "the user has no read rights on the zaak."
+                    "Deleting invalid signalering [reason=the user is not the behandelaar of the zaak, signaleringId=1, " +
+                        "signaleringType=ZAAK_OP_NAAM, subject=${zaak.uuid}, subjecttype=ZAAK]",
+                    "Deleting invalid signalering [reason=the user has no read rights on the zaak, signaleringId=2, " +
+                        "signaleringType=ZAAK_OP_NAAM, subject=${zaak.uuid}, subjecttype=ZAAK]"
                 )
             }
         }
