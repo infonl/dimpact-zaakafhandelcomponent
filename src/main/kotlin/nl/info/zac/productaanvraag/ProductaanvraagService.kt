@@ -17,11 +17,19 @@ import nl.info.client.or.shared.exception.ORRuntimeException
 import nl.info.client.or.shared.exception.ORValidationErrorException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.log.ProductaanvraagtypeEvent
 import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.authentication.LoggedInUserProvider.Companion.PRODUCTAANVRAAG_GEBRUIKER
 import nl.info.zac.authentication.runAsLoggedInUser
 import nl.info.zac.document.inboxdocument.InboxDocumentService
+import nl.info.zac.log.InformatieobjectEvent
+import nl.info.zac.log.ZacLogger
+import nl.info.zac.productaanvraag.log.ProductaanvraagObjectEvent
+import nl.info.zac.productaanvraag.log.ProductaanvraagReceived
+import nl.info.zac.productaanvraag.log.ProductaanvraagRegisteredAsInbox
+import nl.info.zac.productaanvraag.log.UnboundZaaktypeConfigurationIgnored
+import nl.info.zac.productaanvraag.log.ZaakCreatingForProductaanvraag
 import nl.info.zac.productaanvraag.model.InboxProductaanvraag
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact
@@ -33,8 +41,6 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.JSONB
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
-import java.util.logging.Level
-import java.util.logging.Logger
 
 private const val PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS = "aanvraaggegevens"
 private const val PRODUCTAANVRAAG_FORMULIER_VELD_BRON = "bron"
@@ -54,18 +60,15 @@ class ProductaanvraagService @Inject constructor(
     private val productaanvraagClaimRepository: ProductaanvraagClaimRepository
 ) {
     companion object {
-        private val LOG = Logger.getLogger(ProductaanvraagService::class.java.name)
+        private val LOG = ZacLogger.getLogger(ProductaanvraagService::class)
     }
 
     fun handleProductaanvraag(productaanvraagObjectUUID: UUID) {
-        LOG.info { "Handling productaanvraag with object UUID: $productaanvraagObjectUUID" }
-        if (!productaanvraagClaimRepository.claim(productaanvraagObjectUUID)) {
-            LOG.info {
-                "Productaanvraag with object UUID: '$productaanvraagObjectUUID' is already being handled or has already " +
-                    "been handled. Skipping it."
-            }
-            return
-        }
+        val isClaimed = productaanvraagClaimRepository.claim(productaanvraagObjectUUID)
+        LOG.info(
+            ProductaanvraagReceived(productaanvraagObjectUuid = productaanvraagObjectUUID, isAlreadyHandled = !isClaimed)
+        )
+        if (!isClaimed) return
         runAsLoggedInUser(PRODUCTAANVRAAG_GEBRUIKER) {
             readProductaanvraagObject(productaanvraagObjectUUID)
                 ?.takeIf(::isProductaanvraagDimpact)
@@ -109,7 +112,13 @@ class ProductaanvraagService @Inject constructor(
         }
 
     private fun logUnreadableProductaanvraagObject(productaanvraagObjectUUID: UUID, exception: RuntimeException): Nothing? {
-        LOG.log(Level.WARNING, "Unable to read object with UUID: $productaanvraagObjectUUID", exception)
+        LOG.warning(
+            ProductaanvraagObjectEvent(
+                type = ProductaanvraagObjectEvent.Type.PRODUCTAANVRAAG_OBJECT_UNREADABLE,
+                productaanvraagObjectUuid = productaanvraagObjectUUID
+            ),
+            exception
+        )
         return null
     }
 
@@ -126,13 +135,20 @@ class ProductaanvraagService @Inject constructor(
         }
 
     private fun handleProductaanvraagDimpactWithoutFailing(productaanvraagObjectUUID: UUID, productaanvraagObject: ModelObject) {
-        LOG.info("Handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID")
+        LOG.info(
+            ProductaanvraagObjectEvent(
+                type = ProductaanvraagObjectEvent.Type.PRODUCTAANVRAAG_DIMPACT_HANDLING,
+                productaanvraagObjectUuid = productaanvraagObjectUUID
+            )
+        )
         try {
             handleProductaanvraagDimpact(productaanvraagObject)
         } catch (@Suppress("TooGenericExceptionCaught") runtimeException: RuntimeException) {
-            LOG.log(
-                Level.WARNING,
-                "Failed to handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID",
+            LOG.warning(
+                ProductaanvraagObjectEvent(
+                    type = ProductaanvraagObjectEvent.Type.PRODUCTAANVRAAG_DIMPACT_HANDLING_FAILED,
+                    productaanvraagObjectUuid = productaanvraagObjectUUID
+                ),
                 runtimeException
             )
         }
@@ -147,20 +163,18 @@ class ProductaanvraagService @Inject constructor(
      * - If no bound configuration has the productaanvraagtype, it creates an 'inbox productaanvraag'.
      */
     private fun handleProductaanvraagDimpact(productaanvraagObject: ModelObject) {
-        LOG.fine { "Start handling productaanvraag with object URL: ${productaanvraagObject.url}" }
         val productaanvraag = getProductaanvraag(productaanvraagObject)
         val zaaktypeConfiguration = findBoundZaaktypeConfiguration(productaanvraag.type) ?: run {
-            LOG.info(
-                "No zaaktype configured for productaanvraag-Dimpact type '${productaanvraag.type}'. " +
-                    "No zaak was created. Registering productaanvraag as inbox productaanvraag."
-            )
+            LOG.info(ProductaanvraagRegisteredAsInbox(productaanvraagType = productaanvraag.type))
             registreerInbox(productaanvraag, productaanvraagObject)
             productaanvraagClaimRepository.markDone(productaanvraagObject.uuid)
             return
         }
         LOG.fine {
-            "Creating a zaak using process engine ${zaaktypeConfiguration.getProcessEngine()} with zaaktype UUID: " +
-                "'${zaaktypeConfiguration.zaaktypeUuid}'"
+            ZaakCreatingForProductaanvraag(
+                processEngine = zaaktypeConfiguration.getProcessEngine().toString(),
+                zaaktypeUuid = zaaktypeConfiguration.zaaktypeUuid
+            )
         }
         when (zaaktypeConfiguration.getProcessEngine()) {
             ProcessEngine.BPMN -> productaanvraagBpmnService.createAndStartZaak(
@@ -182,16 +196,16 @@ class ProductaanvraagService @Inject constructor(
             .partition { it.processBinding != null }
         unboundConfigurations.forEach {
             LOG.warning(
-                "Zaaktype configuration with zaaktype UUID '${it.zaaktypeUuid}' has productaanvraag type " +
-                    "'$productaanvraagtype' but is not bound to a process engine, so it is ignored."
+                UnboundZaaktypeConfigurationIgnored(zaaktypeUuid = it.zaaktypeUuid, productaanvraagType = productaanvraagtype)
             )
         }
         if (boundConfigurations.size > 1) {
             LOG.warning(
-                "Multiple zaaktype configurations found for productaanvraag type '$productaanvraagtype'. " +
-                    "Using the most recently created one with zaaktype UUID: " +
-                    "'${boundConfigurations.first().zaaktypeUuid}' and zaaktype omschrijving: " +
-                    "'${boundConfigurations.first().zaaktypeOmschrijving}'."
+                ProductaanvraagtypeEvent(type = ProductaanvraagtypeEvent.Type.MULTIPLE_ZAAKTYPE_CONFIGURATIONS_FOUND, 
+                    productaanvraagType = productaanvraagtype,
+                    zaaktypeUuid = boundConfigurations.first().zaaktypeUuid,
+                    zaaktypeOmschrijving = boundConfigurations.first().zaaktypeOmschrijving
+                )
             )
         }
         return boundConfigurations.firstOrNull()
@@ -227,7 +241,12 @@ class ProductaanvraagService @Inject constructor(
 
     private fun deleteInboxDocument(documentUUID: UUID) {
         val inboxDocument = inboxDocumentService.find(documentUUID) ?: run {
-            LOG.warning { "Inbox document with id '$documentUUID' not found." }
+            LOG.warning(
+                InformatieobjectEvent(
+                    type = InformatieobjectEvent.Type.INBOX_DOCUMENT_NOT_FOUND,
+                    informatieobjectUuid = documentUUID
+                )
+            )
             return
         }
         inboxDocument.id?.run(inboxDocumentService::deleteIfExists)

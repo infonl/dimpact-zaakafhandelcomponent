@@ -15,12 +15,13 @@ import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraagRequest
+import nl.info.zac.log.GenericEvent
+import nl.info.zac.log.ZacLogger
+import nl.info.zac.productaanvraag.log.BijlagePairingFailed
 import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI
-import java.util.logging.Level
-import java.util.logging.Logger
 
 @ApplicationScoped
 @NoArgConstructor
@@ -30,7 +31,7 @@ class ProductaanvraagDocumentService @Inject constructor(
     private val zrcClientService: ZrcClientService,
 ) {
     companion object {
-        private val LOG = Logger.getLogger(ProductaanvraagDocumentService::class.java.name)
+        private val LOG = ZacLogger.getLogger(ProductaanvraagDocumentService::class)
 
         private const val AANVRAAG_PDF_TITEL = "Aanvraag PDF"
         private const val AANVRAAG_PDF_BESCHRIJVING = "PDF document met de aanvraag gegevens van de zaak"
@@ -45,7 +46,7 @@ class ProductaanvraagDocumentService @Inject constructor(
 
     fun pairAanvraagPDFWithZaak(productaanvraag: ProductaanvraagDimpact, zaakUrl: URI) {
         if (productaanvraag.pdf == null) {
-            LOG.warning { "No PDF found in productaanvraag to link to the zaak" }
+            LOG.warning(GenericEvent(type = GenericEvent.Type.AANVRAAG_PDF_MISSING))
             return
         }
         ZaakInformatieObjectRequest().apply {
@@ -98,5 +99,5 @@ class ProductaanvraagDocumentService @Inject constructor(
         }
 
     private fun logBijlagePairingFailure(bijlageURI: URI, zaakUrl: URI, exception: RuntimeException) =
-        LOG.log(Level.WARNING, "Failed to pair bijlage '$bijlageURI' with zaak url '$zaakUrl'", exception)
+        LOG.warning(BijlagePairingFailed(bijlage = bijlageURI, zaakUrl = zaakUrl), exception)
 }

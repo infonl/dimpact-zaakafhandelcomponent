@@ -16,18 +16,20 @@ import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.ZaaktypeEmailParameters
 import nl.info.zac.admin.model.ZaaktypeZaakafzenderParameters
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.getBronnenFromZaak
 import nl.info.zac.mailtemplates.MailTemplateService
 import nl.info.zac.mailtemplates.model.MailGegevens
 import nl.info.zac.mailtemplates.model.MailTemplate
+import nl.info.zac.productaanvraag.log.ConfirmationOfReceiptEmailSkipped
+import nl.info.zac.productaanvraag.log.ConfirmationOfReceiptSkipReason
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.util.performAction
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakService
-import java.util.logging.Logger
 
 @ApplicationScoped
 @NoArgConstructor
@@ -40,7 +42,7 @@ class ProductaanvraagEmailService @Inject constructor(
     private val mailTemplateService: MailTemplateService,
 ) {
     companion object {
-        private val LOG = Logger.getLogger(ProductaanvraagEmailService::class.java.name)
+        private val LOG = ZacLogger.getLogger(ProductaanvraagEmailService::class)
     }
 
     fun sendConfirmationOfReceiptEmailFromProductaanvraag(
@@ -49,10 +51,6 @@ class ProductaanvraagEmailService @Inject constructor(
         productaanvraagSpecificEmailAddress: String?,
         zaaktypeConfiguration: ZaaktypeConfiguration
     ) {
-        LOG.fine {
-            "Attempting to send automatic confirmation of receipt email for zaak with identification '${zaak.identificatie}' " +
-                "and zaaktype '${zaak.zaaktype}'."
-        }
         zaaktypeConfiguration.zaaktypeEmailParameters?.takeIf { it.isEnabled }?.let { zaaktypeEmailParameters ->
             productaanvraagSpecificEmailAddress?.let { to ->
                 sendConfirmationOfReceiptMail(zaaktypeEmailParameters, to, zaak)
@@ -60,11 +58,12 @@ class ProductaanvraagEmailService @Inject constructor(
                 extractBetrokkeneEmail(it)?.let { to ->
                     sendConfirmationOfReceiptMail(zaaktypeEmailParameters, to, zaak)
                 }
-            } ?: {
-                LOG.fine {
-                    "No email address found for zaak with identification: '${zaak.identificatie}' " +
-                        "and zaaktype '${zaak.zaaktype}'. Skipping automatic email confirmation."
-                }
+            } ?: LOG.fine {
+                ConfirmationOfReceiptEmailSkipped(
+                zaakIdentificatie = zaak.identificatie,
+                zaaktypeUri = zaak.zaaktype,
+                skipReason = ConfirmationOfReceiptSkipReason.NO_EMAIL_ADDRESS
+            )
             }
         }
     }
@@ -107,16 +106,26 @@ class ProductaanvraagEmailService @Inject constructor(
                         zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaakFromProductaanvraag)
                     }
                 } ?: LOG.warning(
-                    "No email sender configured for zaaktype '${zaakFromProductaanvraag.zaaktype}.' " +
-                        "Skipping automatic email confirmation."
+                    ConfirmationOfReceiptEmailSkipped(
+                zaakIdentificatie = zaakFromProductaanvraag.identificatie,
+                zaaktypeUri = zaakFromProductaanvraag.zaaktype,
+                skipReason = ConfirmationOfReceiptSkipReason.NO_SENDER_CONFIGURED
+            )
                 )
             } ?: LOG.warning(
-                "No mail template found with name: '${zaaktypeEmailParameters.templateName}'. " +
-                    "Skipping automatic email confirmation."
+                ConfirmationOfReceiptEmailSkipped(
+                zaakIdentificatie = zaakFromProductaanvraag.identificatie,
+                zaaktypeUri = zaakFromProductaanvraag.zaaktype,
+                skipReason = ConfirmationOfReceiptSkipReason.TEMPLATE_NOT_FOUND,
+                templateName = templateName
+            )
             )
         } ?: LOG.warning(
-            "No email template configured for zaaktype '${zaakFromProductaanvraag.zaaktype}'. " +
-                "Skipping automatic email confirmation."
+            ConfirmationOfReceiptEmailSkipped(
+                zaakIdentificatie = zaakFromProductaanvraag.identificatie,
+                zaaktypeUri = zaakFromProductaanvraag.zaaktype,
+                skipReason = ConfirmationOfReceiptSkipReason.NO_TEMPLATE_CONFIGURED
+            )
         )
     }
 

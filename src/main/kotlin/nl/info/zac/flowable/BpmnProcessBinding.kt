@@ -14,11 +14,12 @@ import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.flowable.exception.CaseOrProcessNotFoundException
+import nl.info.zac.log.ZaakEvent
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI
 import java.util.UUID
-import java.util.logging.Logger
 
 @ApplicationScoped
 @NoArgConstructor
@@ -28,7 +29,7 @@ class BpmnProcessBinding @Inject constructor(
     private val zaakVariabelenService: ZaakVariabelenService
 ) : ProcessBinding {
     companion object {
-        private val LOG = Logger.getLogger(BpmnProcessBinding::class.java.name)
+        private val LOG = ZacLogger.getLogger(BpmnProcessBinding::class)
     }
 
     override val processEngine = ProcessEngine.BPMN
@@ -66,7 +67,7 @@ class BpmnProcessBinding @Inject constructor(
                 zaakVariabelenService.setUser(zaakUuid, it)
             } ?: zaakVariabelenService.removeUser(zaakUuid)
         } catch (caseOrProcessNotFoundException: CaseOrProcessNotFoundException) {
-            LOG.warning { caseOrProcessNotFoundException.message }
+            LOG.warning(ZaakEvent(type = ZaakEvent.Type.CASE_OR_PROCESS_NOT_FOUND, zaakUuid = zaakUuid), caseOrProcessNotFoundException)
         }
     }
 

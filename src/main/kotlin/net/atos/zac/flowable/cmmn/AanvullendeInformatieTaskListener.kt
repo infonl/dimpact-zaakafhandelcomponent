@@ -4,18 +4,20 @@
  */
 package net.atos.zac.flowable.cmmn
 
+import net.atos.zac.flowable.cmmn.log.AanvullendeInformatieTaskEvent
+import net.atos.zac.flowable.cmmn.log.ZaakStatusChanging
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
 import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_INTAKE
 import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.flowable.processengine.ProcessEngineLookupImpl
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import org.flowable.engine.delegate.TaskListener
 import org.flowable.task.api.TaskInfo
 import org.flowable.task.service.delegate.BaseTaskListener
 import org.flowable.task.service.delegate.DelegateTask
-import java.util.logging.Logger
 
 /**
  * Custom Flowable task listener for the AanvullendeInformatie task.
@@ -27,7 +29,7 @@ import java.util.logging.Logger
 @NoArgConstructor
 class AanvullendeInformatieTaskListener : TaskListener {
     companion object {
-        private val LOG = Logger.getLogger(AanvullendeInformatieTaskListener::class.java.name)
+        private val LOG = ZacLogger.getLogger(AanvullendeInformatieTaskListener::class)
 
         private const val STATUS_TOELICHTING = "Status gewijzigd"
         private const val TASK_AANVULLENDE_INFORMATIE_ID = "AANVULLENDE_INFORMATIE"
@@ -35,7 +37,11 @@ class AanvullendeInformatieTaskListener : TaskListener {
 
     override fun notify(delegateTask: DelegateTask) {
         LOG.fine {
-            "AanvullendeInformatie task ${delegateTask.id} in state ${delegateTask.state} was ${delegateTask.eventName}"
+            AanvullendeInformatieTaskEvent(
+                taakId = delegateTask.id,
+                state = delegateTask.state,
+                eventName = delegateTask.eventName
+            )
         }
         with(delegateTask as TaskInfo) {
             when (delegateTask.eventName) {
@@ -98,7 +104,7 @@ class AanvullendeInformatieTaskListener : TaskListener {
 
     private fun updateZaakStatus(zaak: Zaak, statustypeOmschrijving: String) =
         withFlowableHelper { flowableHelper ->
-            LOG.info("Zaak with UUID '${zaak.uuid}': changing status to '$statustypeOmschrijving'")
+            LOG.info(ZaakStatusChanging(zaakUuid = zaak.uuid, statustypeOmschrijving = statustypeOmschrijving))
             flowableHelper.zgwApiService.createStatusForZaak(
                 zaak,
                 statustypeOmschrijving,

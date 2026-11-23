@@ -4,13 +4,14 @@
  */
 package net.atos.zac.flowable.cmmn
 
+import net.atos.zac.flowable.cmmn.log.ZaakStatusChanging
 import nl.info.zac.flowable.FlowableHelper
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.delegate.DelegatePlanItemInstance
 import org.flowable.cmmn.api.listener.PlanItemInstanceLifecycleListener
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import org.flowable.common.engine.api.delegate.Expression
-import java.util.logging.Logger
 
 /**
  * Custom Flowable update zaak lifecycle listener.
@@ -22,7 +23,7 @@ import java.util.logging.Logger
 @NoArgConstructor
 class UpdateZaakLifecycleListener : PlanItemInstanceLifecycleListener {
     companion object {
-        private val LOG = Logger.getLogger(UpdateZaakLifecycleListener::class.java.getName())
+        private val LOG = ZacLogger.getLogger(UpdateZaakLifecycleListener::class)
         private const val STATUS_TOELICHTING = "Status gewijzigd"
     }
 
@@ -49,7 +50,7 @@ class UpdateZaakLifecycleListener : PlanItemInstanceLifecycleListener {
     private fun updateZaak(planItemInstance: PlanItemInstance, statustypeOmschrijving: String) {
         val zaakUUID = FlowableHelper.getInstance().zaakVariabelenService.readZaakUUID(planItemInstance)
         val zaak = FlowableHelper.getInstance().zrcClientService.readZaak(zaakUUID)
-        LOG.info("Zaak '$zaakUUID': Change Status to '$statustypeOmschrijving'")
+        LOG.info(ZaakStatusChanging(zaakUuid = zaakUUID, statustypeOmschrijving = statustypeOmschrijving))
         FlowableHelper.getInstance().zgwApiService.createStatusForZaak(zaak, statustypeOmschrijving, STATUS_TOELICHTING)
     }
 }
