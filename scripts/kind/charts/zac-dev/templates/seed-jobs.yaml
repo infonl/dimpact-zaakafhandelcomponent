@@ -154,7 +154,12 @@ spec:
             - -c
             - |
               set -e
-              {{ include "zac-dev.waitForPort" (list "open-object-local" 8000) }}
+              # Not the port of Open Object: during an upgrade the pod of the previous version still serves it,
+              # while the new pod only starts after it has migrated the database that the fixtures need.
+              until python /app/src/manage.py migrate --check > /dev/null 2>&1; do
+                echo "waiting for the migrations of Open Object"
+                sleep 3
+              done
               python /app/src/manage.py loaddata demodata
               {{- include "zac-dev.createAdminUser" "/app/src/manage.py" | nindent 14 }}
           securityContext:
