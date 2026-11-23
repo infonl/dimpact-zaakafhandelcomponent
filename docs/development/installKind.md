@@ -234,8 +234,8 @@ The stack without ZAC and without optional services takes about 4 GiB of memory,
 
 On an arm64 host, such as a Mac with Apple Silicon, the stack uses the arm64 images of
 [values/arm64.yaml](../../scripts/kind/values/arm64.yaml). Set `DOCKER_USE_ARM64_CONTAINERS=false` to use the
-default images. Open Formulieren has no working arm64 image and runs emulated. The ZAC image in the registry is only
-built for amd64, so on an arm64 host `-l` and `-b` start ZAC faster than `-z`.
+default images. Open Formulieren has no working arm64 image and Open Object has no arm64 image, so both run emulated.
+The ZAC image in the registry is only built for amd64, so on an arm64 host `-l` and `-b` start ZAC faster than `-z`.
 
 ## Inspecting the stack
 

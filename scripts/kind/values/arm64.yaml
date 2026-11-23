@@ -3,13 +3,12 @@
 # SPDX-License-Identifier: EUPL-1.2+
 #
 # The arm64 images of the kind stack, for scripts/kind/charts/zac-dev on an arm64 host such as a Mac with Apple
-# Silicon. The images that this file leaves out have an arm64 variant already, or none (Open Formulieren).
+# Silicon. The images that this file leaves out have an arm64 variant already, or none (Open Formulieren and
+# Open Object).
 openzaak:
   image: ghcr.io/infonl/open-zaak:1.31.2@sha256:98c753a2923d6ed10fb0317bc185db15140c04e11e929dd144d342e34b6e94f3
 openklant:
   image: ghcr.io/infonl/open-klant:2.19.2@sha256:5af171e054de8e6c08776729476be544a3df8b4ec871e146450d7f9629a799d8
-openobject:
-  image: ghcr.io/infonl/open-object:4.1.1@sha256:8bda80d7de276ddd381ff45ac2c5e0b52b43787bf4c02f42d1b069b5e823ebdf
 opennotificaties:
   image: ghcr.io/infonl/open-notificaties:1.17.0@sha256:89c9e5fc46499c96aa02184fd2c2ef2870da69f09dc5bc2aa97e0adf976cd0e9
 openarchiefbeheer:
