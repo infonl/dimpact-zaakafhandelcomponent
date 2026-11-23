@@ -57,6 +57,7 @@ When(
 Then(
   "the task {string} appears in my takenlijst",
   async ({ page, testData }, taak: string) => {
+    await testData.untilTaakIsIndexed(testData.zaak.identificatie, taak);
     const takenlijst = mijnTaken(page);
     await takenlijst.open();
     await expect(

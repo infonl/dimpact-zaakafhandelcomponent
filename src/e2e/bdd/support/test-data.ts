@@ -56,6 +56,8 @@ export type TestData = {
   readonly zaak: RememberedZaak;
   /** Waits until the search index of ZAC has the zaak, so lists and werkvoorraden can show it. */
   untilZaakIsIndexed(identificatie: string): Promise<void>;
+  /** Waits until the search index of ZAC has the taak of the zaak, so the takenlijsten can show it. */
+  untilTaakIsIndexed(zaakIdentificatie: string, naam: string): Promise<void>;
 };
 
 async function isZaakInSearchIndex(api: ZacApi, identificatie: string) {
@@ -72,6 +74,25 @@ async function isZaakInSearchIndex(api: ZacApi, identificatie: string) {
   return (resultaten ?? []).some(
     (zaak) => zaak.identificatie === identificatie,
   );
+}
+
+async function isTaakInSearchIndex(
+  api: ZacApi,
+  zaakIdentificatie: string,
+  naam: string,
+) {
+  const { totaal } = await dataOf(
+    api.PUT("/rest/zoeken/list", {
+      body: {
+        type: "TAAK",
+        page: 0,
+        rows: 1,
+        zoeken: { TAAK_ZAAK_ID: zaakIdentificatie },
+        filters: { TAAK_NAAM: { values: [naam] } },
+      },
+    }),
+  );
+  return (totaal ?? 0) > 0;
 }
 
 async function onlyGroepOf(api: ZacApi, role: Role) {
@@ -233,6 +254,16 @@ export function createTestData({
       await expect
         .poll(() => isZaakInSearchIndex(api, identificatie), {
           message: `The search index of ZAC has no zaak ${identificatie}.`,
+          timeout: SEARCH_INDEX_TIMEOUT_MILLISECONDS,
+        })
+        .toBe(true);
+    },
+
+    async untilTaakIsIndexed(zaakIdentificatie, naam) {
+      const api = await apiAs("behandelaar");
+      await expect
+        .poll(() => isTaakInSearchIndex(api, zaakIdentificatie, naam), {
+          message: `The search index of ZAC has no taak "${naam}" of zaak ${zaakIdentificatie}.`,
           timeout: SEARCH_INDEX_TIMEOUT_MILLISECONDS,
         })
         .toBe(true);
