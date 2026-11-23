@@ -22,6 +22,8 @@ async function openList(page: Page, path: string) {
 /** Fills the filter of a column, and waits for the answer of the search, so a missing row is really missing. */
 async function filter(page: Page, column: string, text: string) {
   const textbox = page.getByRole("textbox", { name: column });
+  // ZAC does not search again for a filter that did not change, so no answer would come.
+  if ((await textbox.inputValue()) === text) return;
   await textbox.fill(text);
   await Promise.all([answerOfSearch(page), textbox.press("Enter")]);
 }
