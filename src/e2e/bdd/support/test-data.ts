@@ -11,6 +11,7 @@ import { groepNamed, setUpZaaktype } from "./zaakafhandelparameters";
 import { dataOf, type Schemas, type ZacApi } from "./zac-api";
 
 const SEARCH_INDEX_TIMEOUT_MILLISECONDS = 60_000;
+const STATUS_IN_BEHANDELING = "In behandeling";
 
 export type RememberedZaak = { identificatie: string };
 
@@ -47,12 +48,16 @@ export type TestData = {
    * and makes its omschrijving unique.
    */
   createZaak(zaak: NewZaak): Promise<RememberedZaak>;
+  /** Finishes the intake of the zaak as ontvankelijk through the REST API as the behandelaar, so it is in behandeling. */
+  finishIntake(zaak: RememberedZaak): Promise<void>;
   /** Remembers a zaak that the scenario created, for example through the UI, so later steps can find it. */
   rememberZaak(zaak: RememberedZaak): void;
   /** The zaak that the scenario created last. Fails the step when the scenario created no zaak yet. */
   readonly zaak: RememberedZaak;
   /** Waits until the search index of ZAC has the zaak, so lists and werkvoorraden can show it. */
   untilZaakIsIndexed(identificatie: string): Promise<void>;
+  /** Waits until the search index of ZAC has the taak of the zaak, so the takenlijsten can show it. */
+  untilTaakIsIndexed(zaakIdentificatie: string, naam: string): Promise<void>;
 };
 
 async function isZaakInSearchIndex(api: ZacApi, identificatie: string) {
@@ -71,6 +76,25 @@ async function isZaakInSearchIndex(api: ZacApi, identificatie: string) {
   );
 }
 
+async function isTaakInSearchIndex(
+  api: ZacApi,
+  zaakIdentificatie: string,
+  naam: string,
+) {
+  const { totaal } = await dataOf(
+    api.PUT("/rest/zoeken/list", {
+      body: {
+        type: "TAAK",
+        page: 0,
+        rows: 1,
+        zoeken: { TAAK_ZAAK_ID: zaakIdentificatie },
+        filters: { TAAK_NAAM: { values: [naam] } },
+      },
+    }),
+  );
+  return (totaal ?? 0) > 0;
+}
+
 async function onlyGroepOf(api: ZacApi, role: Role) {
   const groupIds =
     (await dataOf(api.GET("/rest/identity/loggedInUser"))).groupIds ?? [];
@@ -87,6 +111,41 @@ async function onlyGroepOf(api: ZacApi, role: Role) {
     );
   }
   return groep;
+}
+
+/**
+ * Open Zaak refuses a second status of a zaak within the same second as the first, so a zaak that was created a moment
+ * ago cannot finish its intake yet. Each try reads the zaak again, so a try that did change the status ends the wait.
+ */
+async function finishIntakeOf(api: ZacApi, identificatie: string) {
+  await expect(async () => {
+    const zaak = await dataOf(
+      api.GET("/rest/zaken/zaak/id/{identificatie}", {
+        params: { path: { identificatie } },
+      }),
+    );
+    if (zaak.status?.naam === STATUS_IN_BEHANDELING) return;
+    const listeners = await dataOf(
+      api.GET("/rest/planitems/zaak/{uuid}/userEventListenerPlanItems", {
+        params: { path: { uuid: zaak.uuid } },
+      }),
+    );
+    const intakeAfronden = listeners.find(
+      ({ userEventListenerActie }) =>
+        userEventListenerActie === "INTAKE_AFRONDEN",
+    );
+    if (!intakeAfronden) {
+      throw new Error(`The zaak ${identificatie} cannot finish its intake.`);
+    }
+    await api.POST("/rest/planitems/doUserEventListenerPlanItem", {
+      body: {
+        zaakUuid: zaak.uuid,
+        planItemInstanceId: intakeAfronden.id,
+        actie: "INTAKE_AFRONDEN",
+        isZaakOntvankelijk: true,
+      },
+    });
+  }).toPass();
 }
 
 /** ZAC accepts a person only by the temporary id that a search in the BRP gives, not by the BSN. */
@@ -176,6 +235,10 @@ export function createTestData({
       return zaak;
     },
 
+    async finishIntake({ identificatie }) {
+      await finishIntakeOf(await apiAs("behandelaar"), identificatie);
+    },
+
     rememberZaak(zaak) {
       zaken.push(zaak);
     },
@@ -191,6 +254,16 @@ export function createTestData({
       await expect
         .poll(() => isZaakInSearchIndex(api, identificatie), {
           message: `The search index of ZAC has no zaak ${identificatie}.`,
+          timeout: SEARCH_INDEX_TIMEOUT_MILLISECONDS,
+        })
+        .toBe(true);
+    },
+
+    async untilTaakIsIndexed(zaakIdentificatie, naam) {
+      const api = await apiAs("behandelaar");
+      await expect
+        .poll(() => isTaakInSearchIndex(api, zaakIdentificatie, naam), {
+          message: `The search index of ZAC has no taak "${naam}" of zaak ${zaakIdentificatie}.`,
           timeout: SEARCH_INDEX_TIMEOUT_MILLISECONDS,
         })
         .toBe(true);

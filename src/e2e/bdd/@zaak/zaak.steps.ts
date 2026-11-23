@@ -21,6 +21,16 @@ Given(
   },
 );
 
+Given("a zaak in behandeling", async ({ testData }) => {
+  const { naam } = await testData.groepOf("behandelaar");
+  const zaak = await testData.createZaak({
+    zaaktype: SEED.cmmnZaaktype,
+    groep: naam,
+    omschrijving: "zaak in behandeling",
+  });
+  await testData.finishIntake(zaak);
+});
+
 When("I open the zaak", async ({ page, testData }) => {
   await zaakPage(page).open(testData.zaak.identificatie);
 });
