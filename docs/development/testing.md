@@ -174,8 +174,8 @@ machine and uses the same `localhost` URLs of ZAC and Keycloak as your own brows
    ```
 
    `-t` starts the test doubles, such as the WireMock services for KVK and BAG. The values file makes ZAC call them.
-   `-n` starts Open Notificaties, which tells ZAC about changes in Open Zaak. The werkvoorraad needs it to show the
-   result of assigning or releasing zaken.
+   `-n` starts Open Notificaties, which tells ZAC about changes in Open Zaak. ZAC needs it to update its search index,
+   for example when a zaak closes, and the werkvoorraad needs it to show the result of assigning or releasing zaken.
    `-l` uses an image that you built before, and `-z` the image of the registry (amd64 only).
 
 2. Run the e2e tests:

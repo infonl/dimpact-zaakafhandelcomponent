@@ -95,7 +95,8 @@ jobs:
             .
 
       # The stack pulls its images while the e2e dependencies and the browser are installed. Open Notificaties (-n) tells
-      # ZAC about changes in Open Zaak, such as a new behandelaar, which the werkvoorraad then shows over the websocket.
+      # ZAC about changes in Open Zaak, so ZAC updates its search index and its screens, for example when a zaak closes
+      # or gets a new behandelaar.
       - name: Start the kind stack in the background
         env:
           KIND_ENV_FILE: ""
