@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpResponse } from "@angular/common/http";
 import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { MatDialog } from "@angular/material/dialog";
@@ -35,17 +34,21 @@ describe(BpmnService.name, () => {
   });
 
   describe("downloadProcessDefinition", () => {
-    it("requests the zip of the given process definition as a blob response", () => {
-      const zipBlob = new Blob(["fakeZipContent"]);
-      const responses: HttpResponse<Blob>[] = [];
+    const DOWNLOAD_URL =
+      "/rest/bpmn-process-definitions/fakeProcessDefinitionKey/download";
 
-      service
-        .downloadProcessDefinition("fakeProcessDefinitionKey")
-        .subscribe((response) => responses.push(response));
-
-      const request = httpTestingController.expectOne(
-        "/rest/bpmn-process-definitions/fakeProcessDefinitionKey/download",
+    const download = () =>
+      testQueryClient.fetchQuery(
+        service.downloadProcessDefinition("fakeProcessDefinitionKey"),
       );
+
+    it("requests the zip of the given process definition as a blob response", async () => {
+      const zipBlob = new Blob(["fakeZipContent"]);
+
+      const response = download();
+      await sleep();
+
+      const request = httpTestingController.expectOne(DOWNLOAD_URL);
       expect(request.request.method).toBe("GET");
       expect(request.request.responseType).toBe("blob");
 
@@ -53,26 +56,34 @@ describe(BpmnService.name, () => {
         headers: { "Content-Disposition": 'attachment; filename="zaak.zip"' },
       });
 
-      expect(responses[0].body).toBe(zipBlob);
-      expect(responses[0].headers.get("Content-Disposition")).toBe(
+      const { body, headers } = await response;
+      expect(body).toBe(zipBlob);
+      expect(headers.get("Content-Disposition")).toBe(
         'attachment; filename="zaak.zip"',
       );
     });
 
-    it("reports a failure to its caller instead of to the generic error dialog", () => {
-      const errors: unknown[] = [];
+    it("requests the zip again on every download instead of serving it from the cache", async () => {
+      const firstDownload = download();
+      await sleep();
+      httpTestingController.expectOne(DOWNLOAD_URL).flush(new Blob());
+      await firstDownload;
 
-      service
-        .downloadProcessDefinition("fakeProcessDefinitionKey")
-        .subscribe({ error: (error) => errors.push(error) });
+      const secondDownload = download();
+      await sleep();
+      httpTestingController.expectOne(DOWNLOAD_URL).flush(new Blob());
+      await secondDownload;
+    });
+
+    it("reports a failure to its caller instead of to the generic error dialog", async () => {
+      const response = download();
+      await sleep();
 
       httpTestingController
-        .expectOne(
-          "/rest/bpmn-process-definitions/fakeProcessDefinitionKey/download",
-        )
+        .expectOne(DOWNLOAD_URL)
         .flush(null, { status: 500, statusText: "Server Error" });
 
-      expect(errors).toHaveLength(1);
+      await expect(response).rejects.toMatchObject({ status: 500 });
       expect(dialog.open).not.toHaveBeenCalled();
     });
   });

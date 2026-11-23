@@ -24,7 +24,7 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslatePipe } from "@ngx-translate/core";
-import { lastValueFrom } from "rxjs";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../../core/service/util.service";
 import { FoutAfhandelingService } from "../../../fout-afhandeling/fout-afhandeling.service";
 import {
@@ -104,6 +104,7 @@ export class BpmnProcessDefinitionItemComponent {
 
   private readonly dialog = inject(MatDialog);
   private readonly bpmnService = inject(BpmnService);
+  private readonly queryClient = inject(QueryClient);
   private readonly utilService = inject(UtilService);
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
   private readonly uploadProcessDefinitionFormMutation = injectMutation(() =>
@@ -121,7 +122,7 @@ export class BpmnProcessDefinitionItemComponent {
           suggestedName: `${key}-v${version}.zip`,
           types: [{ accept: { "application/zip": [".zip"] } }],
         });
-        const response = await lastValueFrom(
+        const response = await this.queryClient.fetchQuery(
           this.bpmnService.downloadProcessDefinition(key),
         );
 

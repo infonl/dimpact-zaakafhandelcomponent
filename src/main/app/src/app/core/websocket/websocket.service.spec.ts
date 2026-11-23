@@ -8,12 +8,11 @@ import { EnvironmentInjector, createEnvironmentInjector } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { Subject, of, throwError } from "rxjs";
+import { Subject, of } from "rxjs";
 import type { WebSocketSubjectConfig } from "rxjs/webSocket";
 import { flushMicrotasks, fromPartial } from "src/test-helpers";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
-import { HttpClient } from "../../shared/http/http-client";
 import { UtilService } from "../service/util.service";
 import { ScreenEvent } from "./model/screen-event";
 import { SubscriptionMessage } from "./model/subscription-message";
@@ -46,6 +45,7 @@ describe(WebsocketService.name, () => {
   let isServerReachable: boolean;
   let readLoggedInUser: jest.Mock;
   let invalidateQueries: jest.Mock;
+  let fetchQuery: jest.Mock;
   let foutAfhandelen: jest.Mock;
 
   const closeWithCode = (socketIndex: number, code: number) => {
@@ -68,7 +68,10 @@ describe(WebsocketService.name, () => {
     sockets = [];
     socketConfigs = [];
     isServerReachable = true;
-    readLoggedInUser = jest.fn().mockReturnValue(of({}));
+    readLoggedInUser = jest.fn().mockResolvedValue({});
+    fetchQuery = jest.fn((options: { queryFn: () => unknown }) =>
+      options.queryFn(),
+    );
     invalidateQueries = jest.fn().mockResolvedValue(undefined);
     foutAfhandelen = jest.fn().mockReturnValue(of());
     const webSocketFactory = jest.fn(
@@ -96,17 +99,16 @@ describe(WebsocketService.name, () => {
         { provide: UtilService, useValue: { openSnackbar: jest.fn() } },
         {
           provide: QueryClient,
-          useValue: { getQueryData: jest.fn(), invalidateQueries },
+          useValue: { getQueryData: jest.fn(), invalidateQueries, fetchQuery },
         },
         {
           provide: IdentityService,
           useValue: {
-            readLoggedInUser: jest.fn().mockReturnValue({ queryKey: [] }),
+            readLoggedInUser: jest.fn().mockReturnValue({
+              queryKey: ["/rest/identity/loggedInUser"],
+              queryFn: readLoggedInUser,
+            }),
           },
-        },
-        {
-          provide: HttpClient,
-          useValue: fromPartial<HttpClient>({ GET: readLoggedInUser }),
         },
         {
           provide: FoutAfhandelingService,
@@ -257,9 +259,7 @@ describe(WebsocketService.name, () => {
     closeWithCode(0, POLICY_VIOLATION_CLOSE_CODE);
     await flushMicrotasks();
 
-    expect(readLoggedInUser).toHaveBeenCalledWith(
-      "/rest/identity/loggedInUser",
-    );
+    expect(readLoggedInUser).toHaveBeenCalled();
     expect(sockets.length).toBe(1);
 
     jest.advanceTimersByTime(LONGEST_FIRST_RECONNECT_DELAY_MS);
@@ -269,7 +269,7 @@ describe(WebsocketService.name, () => {
 
   it("stops reconnecting and hands the failure to the error handling after the server denies the connection to a user who is no longer logged in", async () => {
     const loggedOutError = new HttpErrorResponse({ status: 0 });
-    readLoggedInUser.mockReturnValue(throwError(() => loggedOutError));
+    readLoggedInUser.mockRejectedValue(loggedOutError);
 
     closeWithCode(0, POLICY_VIOLATION_CLOSE_CODE);
     await flushMicrotasks();
@@ -280,9 +280,7 @@ describe(WebsocketService.name, () => {
   });
 
   it("keeps reconnecting without reporting an error when checking the login fails for another reason than being logged out", async () => {
-    readLoggedInUser.mockReturnValue(
-      throwError(() => new HttpErrorResponse({ status: 404 })),
-    );
+    readLoggedInUser.mockRejectedValue(new HttpErrorResponse({ status: 404 }));
 
     closeWithCode(0, POLICY_VIOLATION_CLOSE_CODE);
     await flushMicrotasks();
@@ -290,6 +288,23 @@ describe(WebsocketService.name, () => {
 
     expect(foutAfhandelen).not.toHaveBeenCalled();
     expect(sockets.length).toBe(2);
+  });
+
+  it("checks the login on the server each time, without retrying, without the error dialog and without touching the cached user", async () => {
+    closeWithCode(0, POLICY_VIOLATION_CLOSE_CODE);
+    await flushMicrotasks();
+
+    expect(fetchQuery).toHaveBeenCalledWith(
+      expect.objectContaining({
+        staleTime: 0,
+        gcTime: 0,
+        retry: false,
+        meta: { reportErrors: false },
+      }),
+    );
+    expect(fetchQuery.mock.calls[0][0].queryKey).not.toEqual([
+      "/rest/identity/loggedInUser",
+    ]);
   });
 
   describe("a change announced by the server", () => {
