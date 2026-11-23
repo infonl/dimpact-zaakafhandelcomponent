@@ -29,6 +29,15 @@ We are especially interested in ways this project could be extended or adapted t
 
 Please use English for all communication, contributions and reported issues.
 The preferred language for Dutch domain-specific terminology (typically within the context of 'zaakgericht werken'), however, is Dutch.
+See the [glossary](docs/glossary.md) for these terms.
+
+This means for code and documentation:
+
+- Use the Dutch domain-specific term in code: in class, function, variable, database and REST API names, and in documentation.
+  Write `zaak`, `zaaktype`, `behandelaar` and `signalering`, not `case`, `caseType`, `caseManager` and `notification`.
+- Do not translate these terms into English, not even partly. Combine them with English words where needed,
+  for example `ZaakService`, `RestZaak` or `findZaaktypeByUuid`.
+- Write everything else, such as comments, commit messages, pull requests and the rest of the documentation, in English, except for the functional-administrator and end-user manuals, which remain in Dutch.
 
 ## Coding conventions
 
