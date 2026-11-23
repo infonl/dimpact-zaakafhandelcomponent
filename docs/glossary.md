@@ -7,11 +7,10 @@
 
 This glossary is here to promote [Ubiquitous Language](https://martinfowler.com/bliki/UbiquitousLanguage.html), so that the Team can communicate with the Business more effectively. It contains a list of terms that are used in the business domain and a list of terms used by the team with their agreed-upon definition.
 
-This file is the source of the glossary. Make changes here, not in Confluence.
-It started as a copy of the
-[Glossary page in the Dimpact Confluence](https://dimpact.atlassian.net/wiki/spaces/PZW/pages/4522123/Glossary).
+This is the glossary of ZAC.
 
-Also see the overall PodiumD glossary: PodiumD Glossary in the Dimpact Confluence (there is some overlap).
+Also see the overall [PodiumD Glossary](https://dimpact.atlassian.net/wiki/spaces/POO/pages/284131416/PodiumD+Glossary)
+in the Dimpact Confluence (there is some overlap).
 
 ## Domain Specific Terms
 
@@ -61,6 +60,7 @@ Also see the overall PodiumD glossary: PodiumD Glossary in the Dimpact Confluenc
 | VT&H | [https://vng.nl/rubrieken/onderwerpen/vergunningverlening-toezicht-en-handhaving](https://vng.nl/rubrieken/onderwerpen/vergunningverlening-toezicht-en-handhaving) | |
 | WOO | [https://www.rijksoverheid.nl/onderwerpen/wet-open-overheid-woo](https://www.rijksoverheid.nl/onderwerpen/wet-open-overheid-woo) | The Wet open overheid (WOO) requires Dutch councils to actively publish certain types of information, such as laws, decisions, and research reports. Councils must respond to information requests within 28 days, with a possible 14-day extension. The law aims to enhance transparency and accessibility of public information. |
 | [Zaak](https://www.gemmaonline.nl/index.php/Thema-architectuur_Zaakgericht_werken) | ‘Case' as used in 'zaakgericht werken’, a Dutch approach to case management for municipalities and other Dutch public institutions. | A coherent amount of work with a clear cause and a clear end result, of which the quality and lead time must be monitored.<br/>Not to be confused with the term `Case` in CMMN. A CMMN zaakprocess is modeled using a CMMN case, but a zaak is a more generic term, if only because a BPMN zaakprocess is modeled by a BPMN process instance. |
+| Zaaktype | Case type | The type of a zaak, defined in a zaaktypecatalogus (ZTC) such as Open Zaak. A zaaktype sets, among other things, the statustypen, resultaattypen, roltypen and informatieobjecttypen of its zaken. In ZAC the handling of the zaken of a zaaktype is configured with ZAPs, and users are authorised per zaaktype. |
 | ZAP / ZAPs | Zaak Afhandel Parameter / Zaak Afhandel Parameters | Zaaktype configuration managed by beheerders in the ZAC UI used to configure parts of the zaak handling process (CMMN or BPMN) process in ZAC. |
 | ZGW | Zaakgericht werken | Part of this are the ZGW APIs, which are used within PodiumD Zaak. |
 | ZRC | Zaakregistratiecomponent | Open Zaak is an example of a zaakregistratiecomponent (but Open Zaak is more than that). |
