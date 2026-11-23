@@ -446,12 +446,31 @@ agreed split is a stack, each PR based on the previous one:
 
 ### 12. Wide events are a follow-up story
 
-The fields as JSON keys, the vocabulary, `traceId`/`spanId` and `outcome`/`durationMs` are the base that a wide event
-per unit of work builds on: such an event is one `LogEvent` that collects these fields during the unit and is written
-once at its end. The follow-up story adds that unit-of-work API to `ZacLogger` (start and end in a servlet filter, a
-Flowable job interceptor, coroutine and websocket wrappers), turns the records inside a unit into fields of its event,
-derives the level from the outcome (including a 4xx policy), and adds tail sampling with its configuration. A task of
-this change writes that ticket.
+A wide event describes what happened to one unit of work (a REST request, a Flowable job, a websocket message, a
+background coroutine) in one record: it is created when the unit starts, code adds typed context to it while the unit
+runs, and it is written once when the unit ends, with the outcome, the duration and all collected fields. This change
+does not add it, for three reasons:
+
+- The last acceptance criterion limits this story to the loggingsucks.com principles that fit a single log statement.
+- A wide event does not remove personal data, which is the goal of this story; it changes how much context a record
+  holds.
+- This change already touches about 300 log statements in a stack of PRs. A unit-of-work API, its start and end
+  points and the choice per statement between a record and context would make every PR of that stack larger.
+
+Adding it later costs no rework of this change. The fields as JSON keys, the vocabulary, `traceId`/`spanId` and
+`outcome`/`durationMs` are the base that a wide event builds on: such an event is one `LogEvent` whose fields are
+collected during the unit. The follow-up story:
+
+- adds a unit-of-work API to `nl.info.zac.log`: start and end in a servlet filter for REST requests, a Flowable job
+  hook, and wrappers for websocket messages and background coroutines, a `requestId` per unit on every record, and an
+  `enrich` call that adds a typed context (with the same `@Redacted` and `Employee` rules) to the active unit;
+- writes the event when the unit ends, with the route and operation, status, employee, outcome, duration and the
+  counts of outbound calls and mails;
+- turns the step records inside a unit into context of its event, package by package;
+- derives the level from the outcome (including a 4xx policy), and adds tail sampling with its configuration.
+
+The wide event is then mostly an addition to the log: one new record per unit of work. Only the step records that
+become context disappear. A task of this change writes that ticket.
 
 ## Risks / Trade-offs
 
