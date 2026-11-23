@@ -13,7 +13,11 @@ import { dataOf, type Schemas, type ZacApi } from "./zac-api";
 const SEARCH_INDEX_TIMEOUT_MILLISECONDS = 60_000;
 const STATUS_IN_BEHANDELING = "In behandeling";
 
-export type RememberedZaak = { identificatie: string };
+export type RememberedZaak = {
+  identificatie: string;
+  /** The omschrijving that the scenario gave the zaak, before it was made unique. */
+  omschrijving?: string;
+};
 
 export type NewZaak = {
   zaaktype: string;
@@ -54,6 +58,8 @@ export type TestData = {
   rememberZaak(zaak: RememberedZaak): void;
   /** The zaak that the scenario created last. Fails the step when the scenario created no zaak yet. */
   readonly zaak: RememberedZaak;
+  /** The zaak that the scenario created with the omschrijving. Fails the step when it created no such zaak. */
+  zaakDescribed(omschrijving: string): RememberedZaak;
   /** Waits until the search index of ZAC has the zaak, so lists and werkvoorraden can show it. */
   untilZaakIsIndexed(identificatie: string): Promise<void>;
   /** Waits until the search index of ZAC has the taak of the zaak, so the takenlijsten can show it. */
@@ -230,7 +236,7 @@ export function createTestData({
           },
         }),
       );
-      const zaak = { identificatie };
+      const zaak = { identificatie, omschrijving };
       this.rememberZaak(zaak);
       return zaak;
     },
@@ -246,6 +252,18 @@ export function createTestData({
     get zaak() {
       const zaak = zaken.at(-1);
       if (!zaak) throw new Error("This scenario has not created a zaak yet.");
+      return zaak;
+    },
+
+    zaakDescribed(omschrijving) {
+      const zaak = zaken.find(
+        (candidate) => candidate.omschrijving === omschrijving,
+      );
+      if (!zaak) {
+        throw new Error(
+          `This scenario has not created a zaak "${omschrijving}".`,
+        );
+      }
       return zaak;
     },
 

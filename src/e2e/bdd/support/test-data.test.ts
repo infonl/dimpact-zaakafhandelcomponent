@@ -97,3 +97,25 @@ test("given an account in a groep that ZAC does not know, when a step asks for t
     'ZAC has no groep "unknown-group", which the account of the behandelaar is in.',
   );
 });
+
+test("given two zaken that the scenario remembered, when it asks for the zaak with an omschrijving, then it gets the zaak with that omschrijving", () => {
+  const scenarioData = testData();
+  scenarioData.rememberZaak({
+    identificatie: "ZAAK-1",
+    omschrijving: "E2E hoofdzaak",
+  });
+  scenarioData.rememberZaak({
+    identificatie: "ZAAK-2",
+    omschrijving: "E2E deelzaak",
+  });
+
+  expect(scenarioData.zaakDescribed("E2E hoofdzaak").identificatie).toBe(
+    "ZAAK-1",
+  );
+});
+
+test("given no zaak with the omschrijving, when the scenario asks for it, then the step fails and names the omschrijving", () => {
+  expect(() => testData().zaakDescribed("E2E hoofdzaak")).toThrow(
+    'This scenario has not created a zaak "E2E hoofdzaak".',
+  );
+});

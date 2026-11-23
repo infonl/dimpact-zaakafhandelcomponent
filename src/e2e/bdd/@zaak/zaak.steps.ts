@@ -5,6 +5,7 @@
 
 import { Given, When } from "../fixtures";
 import { zaakPage } from "../screens/zaak";
+import type { TestData } from "../support/test-data";
 import { SEED, seededPersoonOrSkip } from "./seed";
 
 Given(
@@ -21,16 +22,56 @@ Given(
   },
 );
 
-Given("a zaak in behandeling", async ({ testData }) => {
+async function createZaakInBehandeling(
+  testData: TestData,
+  zaaktype: string,
+  omschrijving: string,
+) {
   const { naam } = await testData.groepOf("behandelaar");
   const zaak = await testData.createZaak({
-    zaaktype: SEED.cmmnZaaktype,
+    zaaktype,
     groep: naam,
-    omschrijving: "zaak in behandeling",
+    omschrijving,
   });
   await testData.finishIntake(zaak);
+  return zaak;
+}
+
+Given("a zaak in behandeling", async ({ testData }) => {
+  await createZaakInBehandeling(
+    testData,
+    SEED.cmmnZaaktype,
+    "zaak in behandeling",
+  );
 });
+
+Given(
+  "a zaak {string} in behandeling",
+  async ({ testData }, omschrijving: string) => {
+    await createZaakInBehandeling(testData, SEED.cmmnZaaktype, omschrijving);
+  },
+);
+
+Given(
+  "a zaak {string} in behandeling, of a zaaktype that the hoofdzaak allows as deelzaak",
+  async ({ testData }, omschrijving: string) => {
+    await createZaakInBehandeling(
+      testData,
+      SEED.cmmnDeelzaaktype,
+      omschrijving,
+    );
+  },
+);
 
 When("I open the zaak", async ({ page, testData }) => {
   await zaakPage(page).open(testData.zaak.identificatie);
 });
+
+When(
+  "I open the zaak {string}",
+  async ({ page, testData }, omschrijving: string) => {
+    await zaakPage(page).open(
+      testData.zaakDescribed(omschrijving).identificatie,
+    );
+  },
+);

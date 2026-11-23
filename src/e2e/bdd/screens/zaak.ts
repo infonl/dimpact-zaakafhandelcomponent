@@ -40,6 +40,9 @@ export function zaakPage(page: Page) {
       );
     },
 
+    /** Opens the tab of the zaak, such as "Gerelateerde zaken", and returns its panel. */
+    openTab: tab,
+
     async expectInitiator(naam: string) {
       await expect(
         page.getByRole("button", { name: `Initiator ${naam}` }),
