@@ -61,6 +61,9 @@ are skipped and the message about them; this change does not alter them.
     `ZaakspecifiekeAutorisatieService.readZaakToewijzing` (`ZaakspecifiekeAutorisatieService.kt:85`), which take
     the known marking from the batch. `assignZaak` is also called by the single-zaak endpoints in
     `ZaakAssignAndReleaseRestService.kt`; their behaviour does not change.
+  - `ZaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents` (`:370`) takes the marking that
+    `assignZaak` already has. Its only caller is `ZaakService.kt:213`; its tests are in `ZaakServiceTest` and
+    `ZaakspecifiekeAutorisatieServiceTest.kt:2029-2044`.
   - `ScreenEventType` (`src/main/kotlin/nl/info/zac/websocket/event/ScreenEventType.kt:79-81, 284, 340-348`): a
     `skipped(uuid)` factory and an `updated(eventResourceId, detail)` factory for the final event.
   - REST: `PUT /rest/zaken/lijst/verdelen` and `PUT /rest/zaken/lijst/vrijgeven` keep path and payload; the
