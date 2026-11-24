@@ -38,6 +38,8 @@ import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ONTVANGSTBEVESTIGING_VERSTUURD
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identification.IdentificationService
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.policy.output.ZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.ZaakIndicatie.DEELZAAK
@@ -103,16 +105,18 @@ class RestZaakConverter @Inject constructor(
         isZaakSpecifiekGeautoriseerd: Boolean
     ): RestZaak {
         val roles = zrcClientService.listRollen(zaak)
+        val identityLookupContext =
+            IdentityLookupContext(source = IdentityLookupSource.ZAAK, zaakIdentificatie = zaak.identificatie)
         val groep = zgwApiService.findGroepForZaak(zaak, roles)?.let { rolOrganisatorischeEenheid ->
             rolOrganisatorischeEenheid.betrokkeneIdentificatie?.let {
-                restGroupConverter.convertGroupId(groupId = it.identificatie, logContext = "zaak '${zaak.identificatie}'")
+                restGroupConverter.convertGroupId(groupId = it.identificatie, context = identityLookupContext)
             }
         }
         val besluiten = brcClientService.listBesluiten(zaak)
             .map { restBesluitConverter.convertToRestBesluit(it) }
         val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak, roles)
             ?.identificatienummer
-            ?.let { restUserConverter.convertUsername(username = it, logContext = "zaak '${zaak.identificatie}'") }
+            ?.let { restUserConverter.convertUsername(username = it, context = identityLookupContext) }
         val initiator = zgwApiService.findInitiatorRoleForZaak(zaak, roles)
         val initiatorIdentificatie = initiator?.let {
             identificationService.createBetrokkeneIdentificatieForInitiatorRole(it)

@@ -31,8 +31,9 @@ companion object {
 }
 
 LOG.fine(MailSendCompleted(zaakUuid = zaak.uuid, recipient = address, outcome = Outcome.SUCCESS, durationMs = 84))
-LOG.severe(MailPdfConversionFailed(zaakUuid = zaak.uuid), exception)
-LOG.fine { ExpensiveEvent(...) }  // the event is only created when FINE is enabled
+LOG.severe(ZaakEvent(type = ZaakEvent.Type.MAIL_PDF_CONVERSION_FAILED, zaakUuid = zaak.uuid), exception)
+LOG.fine { ZakenAssigned(zaakCount = zaakUuids.size, assignedCount = assignedCount, screenEventResourceId = id) }
+// the event in braces is only created when FINE is enabled
 ```
 
 An event is a small class with typed fields and a description that is a literal:
@@ -50,11 +51,14 @@ class MailSendCompleted(
 Rules:
 
 * Put each event in its own file in a `log` package next to the code that logs it, for example
-  `nl/info/zac/mail/log/MailSendCompleted.kt`. Name it after what happened, without an `Event` suffix.
+  `nl/info/zac/mail/log/MailSendCompleted.kt`. Name it after what happened, without an `Event` suffix. A shared class
+  (see the next rule) is the exception: it holds several events about one subject, so it is named after that subject
+  with the suffix `Event`, such as `ZaakEvent`, and each of its `Type` constants is named after what happened.
 * Reuse an event before you add one. Events with the same fields share one class with a nested `Type` enum that holds
   the fixed descriptions, such as `GenericEvent` (no fields), `ZaakEvent`, `InformatieobjectEvent`, `ZaaktypeEvent`
   and `RolEvent` in `nl.info.zac.log`: add a constant to its `Type` instead of a new class. The record then has the
-  field `type` with the name of the constant.
+  field `type` with the name of the constant, and the field `event` with that name in the style of a class name,
+  such as `SmtpAuthenticationDisabled`, so that `event` alone identifies every event.
 * Pass the description as a literal. Never build it from values: values belong in fields. Start the description with
   the words of the message it replaces, so that people who search the logs still find it.
 * A value that is personal data and adds nothing to diagnosis is not logged at all. A value that must stay visible as a
@@ -62,13 +66,17 @@ Rules:
   recipient of a mail and the email address in the mail delegates.
 * An employee is an `Employee(username)` field. `ZacLogger` writes the Keycloak user ID of the employee (the `sub`
   claim), never the username, name or email address. It knows the ID of an employee who logged in on the instance,
-  and looks up any other employee once in Keycloak. A lookup that fails is written as `unknown` and is not repeated
-  for 5 minutes.
+  and looks up any other employee once in Keycloak. An employee that the lookup does not find is written as
+  `unknown` and not looked up again for 1 minute. When Keycloak cannot be reached, `ZacLogger` logs one warning and
+  looks up no employee for 1 minute, so that an outage does not make log records wait for Keycloak.
 * Use the field names of [`LogFieldNames`](../../src/main/kotlin/nl/info/zac/log/LogFieldNames.kt) for shared
   concepts: `zaakUuid`, `zaakIdentificatie`, `zaaktypeUuid`, `taakId`, `informatieobjectUuid`,
-  `informatieobjectIdentificatie`, `groupId`, `employee` (or a name ending in `Employee`), `processDefinitionKey`,
-  `caseDefinitionKey`, `outcome`, `durationMs`, `errorType`, `errorCode`. A unit test fails on a synonym such as
+  `informatieobjectIdentificatie`, `groupId`, `employee` (or the role of the employee, such as `assignee`),
+  `processDefinitionKey`, `caseDefinitionKey`, `outcome`, `durationMs`, `errorType`, `errorCode`. A unit test fails on a synonym such as
   `zaakId`, `uuid`, `user`, `username` or `userId`, and on a field named `event`.
+* Give a field a simple type: a string, number, boolean, UUID, URI, date, enum, `Employee` or a collection of these.
+  An object would be written with its `toString()`, which bypasses the `@Redacted` fields inside it, so a unit test
+  fails on a field of another type. Log the values you need as separate fields instead.
 * Log one record per operation: when several statements in one function or class describe the same operation, write
   one event when it ends, with its choices as fields. An operation with a start and an end has `outcome`
   (`SUCCESS` or `FAILURE`) and `durationMs`. A long-running operation that reports progress, such as a reindex, keeps
@@ -85,15 +93,15 @@ the JSON formatter of WildFly writes:
         "traceId":"…","spanId":"…"}}
 ```
 
-`ZacLogger` always adds `event` (the class name of the event), `errorType` when a throwable is passed, and `traceId`
-and `spanId` of the active OpenTelemetry span when tracing is enabled. A `null` field is written as `null`. MDC values
+`ZacLogger` always adds `event` (the class name of the event, or the name of its `type` constant), `errorType` when a
+throwable is passed, and `traceId` and `spanId` of the active OpenTelemetry span when tracing is enabled. A `null` field is written as `null`. MDC values
 are strings, so `durationMs` is the string `"84"`.
 
 `ZacLogger` keeps the class name as logger name, so the log categories of WildFly keep working. `java.util.logging.Level`
 may still be used, for example for a configurable level (`ZacLogger.log(level, event)`); `Logger` may not.
 
-Outbound REST calls are logged by `JsonLoggingFilter` as one `OutboundRestCall` record at `FINE`, with a correlation
-ID, the HTTP method, the host, the client operation (such as `PersonenApi.personen`), the status, the outcome and the
+Outbound REST calls are logged by `JsonLoggingFilter` as one `OutboundRestCall` record at `FINE`, with the HTTP
+method, the host, the client operation (such as `PersonenApi.personen`), the status, the outcome and the
 duration. It never logs the path, the query string, the headers or the body.
 
 A policy check that logs uses `assertPolicy(policy, LOG, PolicyDenied(action, zaakIdentificatie, Employee(username)))`.

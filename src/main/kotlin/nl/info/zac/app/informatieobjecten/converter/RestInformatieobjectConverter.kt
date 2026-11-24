@@ -34,6 +34,8 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.log.InformatieobjectEvent
@@ -176,7 +178,10 @@ class RestInformatieobjectConverter @Inject constructor(
         lock?.username?.let {
             restEnkelvoudigInformatieobject.gelockedDoor = identityService.readUser(
                 username = it,
-                logContext = "the lock on informatieobject '${enkelvoudigInformatieObject.identificatie}'"
+                context = IdentityLookupContext(
+                    source = IdentityLookupSource.INFORMATIEOBJECT_LOCK,
+                    informatieobjectIdentificatie = enkelvoudigInformatieObject.identificatie
+                )
             ).toRestUser()
         }
         restEnkelvoudigInformatieobject.bestandsomvang = enkelvoudigInformatieObject.bestandsomvang?.toLong() ?: 0

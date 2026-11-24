@@ -5,6 +5,8 @@
 package nl.info.zac.signalering
 
 import jakarta.inject.Inject
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.mail.model.MailAdres
@@ -25,7 +27,7 @@ class SignaleringMailHelper @Inject constructor(
             SignaleringTarget.GROUP -> {
                 identityService.readGroup(
                     groupId = signalering.target,
-                    logContext = "signalering '${signalering.id}'"
+                    context = IdentityLookupContext(source = IdentityLookupSource.SIGNALERING, signaleringId = signalering.id)
                 ).let { group ->
                     group.email?.let {
                         SignaleringTarget.Mail(group.description, it)
@@ -35,7 +37,7 @@ class SignaleringMailHelper @Inject constructor(
             SignaleringTarget.USER -> {
                 identityService.readUser(
                     username = signalering.target,
-                    logContext = "signalering '${signalering.id}'"
+                    context = IdentityLookupContext(source = IdentityLookupSource.SIGNALERING, signaleringId = signalering.id)
                 ).let { user ->
                     user.email?.let {
                         SignaleringTarget.Mail(user.getFullName(), it)

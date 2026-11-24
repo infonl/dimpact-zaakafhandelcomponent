@@ -55,6 +55,8 @@ import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ONTVANGSTBEVESTI
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identification.IdentificatieType
 import nl.info.zac.identification.IdentificationService
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD
 import nl.info.zac.zaak.ZaakService
@@ -158,7 +160,10 @@ class RestZaakConverterTest : BehaviorSpec({
         every {
             restGroupConverter.convertGroupId(
                 groupId = rolOrganisatorischeEenheid.identificatienummer!!,
-                logContext = "zaak '${zaak.identificatie}'"
+                context = IdentityLookupContext(
+                    source = IdentityLookupSource.ZAAK,
+                    zaakIdentificatie = zaak.identificatie
+                )
             )
         } returns restGroup
         every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
@@ -166,7 +171,10 @@ class RestZaakConverterTest : BehaviorSpec({
         every {
             restUserConverter.convertUsername(
                 username = rolMedewerker.identificatienummer!!,
-                logContext = "zaak '${zaak.identificatie}'"
+                context = IdentityLookupContext(
+                    source = IdentityLookupSource.ZAAK,
+                    zaakIdentificatie = zaak.identificatie
+                )
             )
         } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
@@ -257,7 +265,10 @@ class RestZaakConverterTest : BehaviorSpec({
         every {
             restGroupConverter.convertGroupId(
                 groupId = rolOrganistorischeEenheid.identificatienummer!!,
-                logContext = "zaak '${zaak.identificatie}'"
+                context = IdentityLookupContext(
+                    source = IdentityLookupSource.ZAAK,
+                    zaakIdentificatie = zaak.identificatie
+                )
             )
         } returns restGroup
         every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
@@ -265,7 +276,10 @@ class RestZaakConverterTest : BehaviorSpec({
         every {
             restUserConverter.convertUsername(
                 username = rolMedewerker.identificatienummer!!,
-                logContext = "zaak '${zaak.identificatie}'"
+                context = IdentityLookupContext(
+                    source = IdentityLookupSource.ZAAK,
+                    zaakIdentificatie = zaak.identificatie
+                )
             )
         } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
@@ -340,7 +354,10 @@ class RestZaakConverterTest : BehaviorSpec({
         every {
             restGroupConverter.convertGroupId(
                 groupId = rolOrganistorischeEenheid.identificatienummer!!,
-                logContext = "zaak '${zaak.identificatie}'"
+                context = IdentityLookupContext(
+                    source = IdentityLookupSource.ZAAK,
+                    zaakIdentificatie = zaak.identificatie
+                )
             )
         } returns restGroup
         every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
@@ -348,7 +365,10 @@ class RestZaakConverterTest : BehaviorSpec({
         every {
             restUserConverter.convertUsername(
                 username = rolMedewerker.identificatienummer!!,
-                logContext = "zaak '${zaak.identificatie}'"
+                context = IdentityLookupContext(
+                    source = IdentityLookupSource.ZAAK,
+                    zaakIdentificatie = zaak.identificatie
+                )
             )
         } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType

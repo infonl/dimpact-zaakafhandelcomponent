@@ -21,6 +21,8 @@ import nl.info.zac.flowable.task.readZaaktypeOmschrijving
 import nl.info.zac.flowable.task.readZaaktypeUUID
 import nl.info.zac.flowable.util.isCmmnTask
 import nl.info.zac.flowable.util.taakStatus
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.time.toLocalDate
@@ -51,7 +53,11 @@ class RestTaskConverter @Inject constructor(
     ): RestTask {
         val zaaktypeOmschrijving = readZaaktypeOmschrijving(taskInfo)
         val zaakIdentificatie = readZaakIdentificatie(taskInfo)
-        val logContext = "task '${taskInfo.id}' of zaak '$zaakIdentificatie'"
+        val identityLookupContext = IdentityLookupContext(
+            source = IdentityLookupSource.TAAK,
+            zaakIdentificatie = zaakIdentificatie,
+            taakId = taskInfo.id
+        )
         val restTaakRechten = policyService.readTaakRechten(
             taskInfo = taskInfo,
             zaaktypeOmschrijving = zaaktypeOmschrijving,
@@ -83,13 +89,13 @@ class RestTaskConverter @Inject constructor(
                 null
             },
             behandelaar = if (restTaakRechten.canLezen) {
-                taskInfo.assignee?.let { medewerkerConverter.convertUsername(username = it, logContext = logContext) }
+                taskInfo.assignee?.let { medewerkerConverter.convertUsername(username = it, context = identityLookupContext) }
             } else {
                 null
             },
             groep = if (restTaakRechten.canLezen) {
                 extractGroupId(taskInfo.identityLinks)?.let {
-                    groepConverter.convertGroupId(groupId = it, logContext = logContext)
+                    groepConverter.convertGroupId(groupId = it, context = identityLookupContext)
                 }
             } else {
                 null

@@ -18,10 +18,11 @@ import nl.info.client.smartdocuments.model.template.SmartDocumentsTemplatesRespo
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.documentcreation.model.DocumentCreationAttendedResponse
 import nl.info.zac.log.Employee
+import nl.info.zac.log.Outcome
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.smartdocuments.exception.SmartDocumentsUnsupportedOutputFormatException
-import nl.info.zac.smartdocuments.log.SmartDocumentsAttendedDepositCreated
+import nl.info.zac.smartdocuments.log.SmartDocumentsAttendedDepositCompleted
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.MediaTypes
 import nl.info.zac.util.NoArgConstructor
@@ -30,6 +31,7 @@ import org.apache.commons.io.FilenameUtils.getExtension
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.util.Optional
+import java.util.concurrent.TimeUnit
 import kotlin.jvm.optionals.getOrDefault
 
 @NoArgConstructor
@@ -80,7 +82,9 @@ class SmartDocumentsService @Inject constructor(
 
     /**
      * Sends a request to SmartDocuments to create a document using the Smart Documents wizard (= attended mode).
+     * A failure of the request is rethrown; it is only caught to log its type.
      */
+    @Suppress("TooGenericExceptionCaught")
     fun createDocumentAttended(
         data: Data,
         smartDocument: SmartDocument
@@ -90,38 +94,43 @@ class SmartDocumentsService @Inject constructor(
             smartDocument = smartDocument
         )
         val isWizardAuthEnabled = useWizardAuthEnabled()
-        return if (isWizardAuthEnabled) {
-            val userName = determineUserName()
-            smartDocumentsClient.get().attendedDeposit(
-                authenticationToken = "Basic ${authenticationToken.get()}",
-                userName = userName,
-                deposit = deposit
-            )
-        } else {
-            smartDocumentsClient.get().attendedDepositNoAuth(
-                authenticationToken = "Basic ${authenticationToken.get()}",
-                deposit = deposit
-            )
-        }.also {
+        val startTime = System.nanoTime()
+        var outcome = Outcome.FAILURE
+        var errorType: String? = null
+        val attendedResponse = try {
+            if (isWizardAuthEnabled) {
+                smartDocumentsClient.get().attendedDeposit(
+                    authenticationToken = "Basic ${authenticationToken.get()}",
+                    userName = determineUserName(),
+                    deposit = deposit
+                )
+            } else {
+                smartDocumentsClient.get().attendedDepositNoAuth(
+                    authenticationToken = "Basic ${authenticationToken.get()}",
+                    deposit = deposit
+                )
+            }.also { outcome = Outcome.SUCCESS }
+        } catch (runtimeException: RuntimeException) {
+            errorType = runtimeException.javaClass.name
+            throw runtimeException
+        } finally {
             LOG.fine {
-                SmartDocumentsAttendedDepositCreated(
+                SmartDocumentsAttendedDepositCompleted(
                     isWizardAuthEnabled = isWizardAuthEnabled,
                     isFixedUserName = fixedUserName.isPresent,
-                    employee = if (isWizardAuthEnabled && !fixedUserName.isPresent) {
-                        Employee(loggedInUserInstance.get().username)
-                    } else {
-                        null
-                    }
+                    employee = if (isWizardAuthEnabled && !fixedUserName.isPresent) loggedInEmployee() else null,
+                    outcome = outcome,
+                    durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime),
+                    errorType = errorType
                 )
             }
-        }.let {
-            DocumentCreationAttendedResponse(
-                redirectUrl = UriBuilder.fromUri(smartDocumentsURL.get())
-                    .path("smartdocuments/wizard")
-                    .queryParam("ticket", it.ticket)
-                    .build()
-            )
         }
+        return DocumentCreationAttendedResponse(
+            redirectUrl = UriBuilder.fromUri(smartDocumentsURL.get())
+                .path("smartdocuments/wizard")
+                .queryParam("ticket", attendedResponse.ticket)
+                .build()
+        )
     }
 
     /**
@@ -158,6 +167,9 @@ class SmartDocumentsService @Inject constructor(
      * Determines the username to use for SmartDocuments requests: the configured fixed username if present,
      * or else the currently logged-in user's id.
      */
+    private fun loggedInEmployee() =
+        loggedInUserInstance.takeUnless { it.isUnsatisfied }?.get()?.username?.let(::Employee)
+
     private fun determineUserName(): String =
         fixedUserName.orElseGet {
             if (loggedInUserInstance.isUnsatisfied) {
