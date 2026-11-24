@@ -13,6 +13,9 @@ const journeysDirectory = defineBddConfig({
   steps: ["bdd/**/*.steps.ts", "bdd/fixtures.ts"],
 });
 
+// A recording of a sign in holds a password.
+const recordingsOfSignIn = ENV.hasPublicReport ? { trace: "off" as const } : {};
+
 export default defineConfig({
   fullyParallel: true,
   forbidOnly: ENV.runsInCi,
@@ -35,22 +38,44 @@ export default defineConfig({
     baseURL: ENV.zacUrl,
     locale: "nl-NL",
     timezoneId: "Europe/Amsterdam",
-    trace: !ENV.recordsTraces ? "off" : ENV.runsInCi ? "on-first-retry" : "on",
-    screenshot: "only-on-failure",
-    video: "retain-on-failure",
+    ...(ENV.hasPublicReport
+      ? {
+          // The video replaces the film strip of the trace, which is ten times as large.
+          trace: {
+            mode: "on",
+            screenshots: false,
+            snapshots: true,
+            sources: true,
+          },
+          screenshot: "on",
+          video: "on",
+        }
+      : {
+          trace: ENV.runsInCi ? "on-first-retry" : "on",
+          screenshot: "only-on-failure",
+          video: "retain-on-failure",
+        }),
   },
   projects: [
     {
       name: "setup",
       testDir: "setup",
       testMatch: /.*\.setup\.ts/,
+      use: recordingsOfSignIn,
+    },
+    {
+      name: "login",
+      testDir: journeysDirectory,
+      dependencies: ["setup"],
+      grep: /@login/,
+      use: recordingsOfSignIn,
     },
     {
       name: "journeys",
       testDir: journeysDirectory,
       dependencies: ["setup"],
       // Live scenarios need the real external systems, which only some targets have.
-      grepInvert: ENV.runsLiveScenarios ? undefined : /@live-env-only/,
+      grepInvert: ENV.runsLiveScenarios ? /@login/ : /@login|@live-env-only/,
     },
   ],
 });

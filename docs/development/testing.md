@@ -262,8 +262,10 @@ the REST API. They change no other zaaktype of this shared environment, and they
 create. A scenario that needs something the environment does not have is skipped, with the reason in the report.
 
 The [Playwright Tests](../../.github/workflows/run-e2e.yml) workflow runs them every weeknight. It publishes the
-Playwright report on GitHub Pages and posts the result in Slack. That report is public, so this target records no
-traces, and the workflow publishes nothing when the report holds a password.
+Playwright report, with a trace, a video and screenshots of every scenario, on GitHub Pages and posts the result in
+Slack. That report is public. So the scenarios that sign in have no trace, `scripts/github/redact-e2e-report.py` removes
+the cookies, the tokens and the answers of the REST API from the other traces, and the workflow publishes nothing when
+the report still holds a password or a session.
 
 ## GitHub Action Tests
 

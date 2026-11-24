@@ -4,7 +4,6 @@
  */
 
 import type { TestInfo } from "@playwright/test";
-import { ENV } from "../../config/env";
 
 const BLOCKED_TAG = /^@blocked:([A-Z][A-Z0-9]*-\d+)$/;
 
@@ -17,12 +16,4 @@ export function blockingIssues(tags: string[]) {
 export function skipWhenBlocked(tags: string[], testInfo: TestInfo) {
   const issues = blockingIssues(tags);
   testInfo.skip(issues.length > 0, `Blocked by ${issues.join(", ")}.`);
-}
-
-/** Skips a scenario that reads a mailbox, before it changes anything, when the target has no mailbox to read. */
-export function skipWithoutMailbox(tags: string[], testInfo: TestInfo) {
-  testInfo.skip(
-    tags.includes("@mailbox") && !ENV.testDoubles,
-    `The target "${ENV.target}" has no mail server test double.`,
-  );
 }

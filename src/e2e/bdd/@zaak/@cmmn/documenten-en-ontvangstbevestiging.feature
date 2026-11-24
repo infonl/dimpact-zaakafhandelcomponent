@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 # 
-@behandelaar @mailbox
+@behandelaar
 Feature: Documenten en ontvangstbevestiging
   As a behandelaar
   I want to add documents to a zaak and confirm receipt to the initiator

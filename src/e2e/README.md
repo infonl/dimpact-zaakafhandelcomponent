@@ -39,7 +39,7 @@ The tests themselves run without the generated types.
 
 | Path                                         | What it holds                                                                              |
 |----------------------------------------------|--------------------------------------------------------------------------------------------|
-| [playwright.config.ts](./playwright.config.ts) | The projects `setup` and `journeys`, and the settings that differ between a developer machine and CI. |
+| [playwright.config.ts](./playwright.config.ts) | The projects `setup`, `login` and `journeys`, and the settings that differ between a developer machine and CI. |
 | [config/env.ts](./config/env.ts)             | `ENV`: the validated configuration of the run.                                             |
 | [config/targets](./config/targets)           | One profile for each place where ZAC can run.                                              |
 | [setup](./setup)                             | The setup project, which signs in once for each role.                                      |
@@ -68,7 +68,7 @@ variables. [config/targets/target.ts](./config/targets/target.ts) describes its 
 - what the test doubles of the target answer, such as the mail server. A target without test doubles skips the
   scenarios that need them;
 - the URL of Open Formulieren. A target without it skips the scenarios that need it;
-- whether the run records traces, and how long a test and an assertion may take;
+- whether the report of a run is public, and how long a test and an assertion may take;
 - whether the scenarios tagged `@live-env-only` run.
 
 Everything that differs between targets belongs in the profile, so a new target needs no change in a step.
@@ -118,7 +118,6 @@ holds all of this.
 | Tag                     | Meaning                                                                                       |
 |-------------------------|-----------------------------------------------------------------------------------------------|
 | `@live-env-only`        | Needs a real external system. Runs only against a target whose profile runs live scenarios.   |
-| `@mailbox`              | Reads the mail that ZAC sent. Skipped when the target has no mail server test double.        |
 | `@blocked:<Jira key>`   | Blocked by a known issue, for example `@blocked:PZ-1234`. Skipped, with the Jira key as the reason. |
 | `@fixme`                | Written, but the steps are not implemented yet. playwright-bdd skips it and does not require its steps. |
 

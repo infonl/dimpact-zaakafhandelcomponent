@@ -9,7 +9,7 @@ import { Then, When } from "../../fixtures";
 import { documentPage } from "../../screens/document";
 import { chooseOption } from "../../screens/select";
 import { zaakPage } from "../../screens/zaak";
-import { mailServerOrSkip, untilMailArrives } from "../../support/mail";
+import { mailServerOrNote, untilMailArrives } from "../../support/mail";
 import { dataOf } from "../../support/zac-api";
 import { seededPersoonOrSkip } from "../seed";
 
@@ -103,7 +103,6 @@ Then(
 When(
   "I send the ontvangstbevestiging to the initiator",
   async ({ page, testData, $testInfo }) => {
-    mailServerOrSkip($testInfo);
     const { emailadres } = seededPersoonOrSkip($testInfo);
     const zaak = zaakPage(page);
     await zaak.open(testData.zaak.identificatie);
@@ -131,7 +130,9 @@ When(
 Then(
   "the initiator receives the ontvangstbevestiging",
   async ({ request, testData, $testInfo }) => {
-    await untilMailArrives(request, mailServerOrSkip($testInfo), {
+    const mailServer = mailServerOrNote($testInfo);
+    if (!mailServer) return;
+    await untilMailArrives(request, mailServer, {
       ontvanger: seededPersoonOrSkip($testInfo).emailadres,
       onderwerp: onderwerpOfOntvangstbevestiging(testData.zaak.identificatie),
     });

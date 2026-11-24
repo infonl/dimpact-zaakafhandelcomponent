@@ -51,15 +51,18 @@ export const dev: Target = (environment) => {
     bag: { searchText: "Dam 1 Amsterdam", adres: "Dam 1, 1012JS Amsterdam" },
     names: {
       "Test zaaktype 2": "Zaaktype voor e2e testen",
-      "Test zaaktype 3": { missingBecause: NO_ZAAKTYPE_OF_OUR_OWN },
+      // This zaaktype allows itself as deelzaaktype.
+      "Test zaaktype 3": "Zaaktype voor e2e testen",
       "Test zaaktype 4": { missingBecause: NO_ZAAKTYPE_OF_OUR_OWN },
-      // "Zaaktype voor BPMN e2e testen" has zaken in another process, and ZAC then does not change its process.
-      "BPMN test zaaktype 5": { missingBecause: NO_ZAAKTYPE_OF_OUR_OWN },
+      "BPMN test zaaktype 5": "Zaaktype voor BPMN e2e testen",
+      // The zaaktype has zaken in the process with this key, and ZAC then does not change the key.
+      e2eBpmnProces: "E2ETestProcessDefinition",
       "Test group behandelaars domein test 1": "Test groep A",
       "Test group behandelaars with a very long group name": "Test groep B",
       Toegekend: "Verleend",
       "Besluit aansprakelijkstelling": "Besluit na heroverweging",
       besluit: "bijlage",
+      brief: "aanvraag",
       "12345678": "68750110",
       fakeNaam1: "Test BV Donald",
     },
@@ -70,7 +73,7 @@ export const dev: Target = (environment) => {
     runsLiveScenarios: true,
     openFormsUrl: environment.OPEN_FORMS_URL,
     // The nightly run publishes its report on GitHub Pages.
-    recordsTraces: false,
+    hasPublicReport: true,
     timeouts: { testMilliseconds: 300_000, expectMilliseconds: 30_000 },
   };
 };

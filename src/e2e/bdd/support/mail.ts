@@ -15,14 +15,18 @@ const MAIL_TIMEOUT_MILLISECONDS = 30_000;
 
 const mailsSchema = z.array(z.object({ subject: z.string() }));
 
-/** The API of the mail server of the target. Skips the scenario when the target has none. */
-export function mailServerOrSkip(testInfo: TestInfo) {
-  testInfo.skip(
-    !ENV.testDoubles,
-    `The target "${ENV.target}" has no mail server test double.`,
-  );
-  // skip() ends the test when the target has no test doubles, so they exist from here on.
-  return ENV.testDoubles!.mail.apiUrl;
+/**
+ * The API of the mail server of the target. A target that delivers real mail has none: the report of the scenario then
+ * tells that the mail itself was not checked.
+ */
+export function mailServerOrNote(testInfo: TestInfo) {
+  if (!ENV.testDoubles) {
+    testInfo.annotations.push({
+      type: "not checked",
+      description: `The target "${ENV.target}" has no mailbox to read, so nothing proves that the mail arrived.`,
+    });
+  }
+  return ENV.testDoubles?.mail.apiUrl;
 }
 
 async function onderwerpenOfMailsTo(

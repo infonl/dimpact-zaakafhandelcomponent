@@ -5,6 +5,7 @@
 
 import { expect } from "@playwright/test";
 import path from "node:path";
+import { nameInTarget } from "../../_core/names";
 import { Given, Then, When } from "../../fixtures";
 import { formioForm } from "../../screens/formio";
 import { zaakPage } from "../../screens/zaak";
@@ -14,7 +15,10 @@ import { dataOf } from "../../support/zac-api";
 const FILES_DIRECTORY = path.resolve(__dirname, "../files/bpmn");
 
 const E2E_PROCESS: BpmnProcess = {
-  key: "e2eBpmnProces",
+  idInFile: "e2eBpmnProces",
+  get key() {
+    return nameInTarget("e2eBpmnProces");
+  },
   bpmnFile: path.join(FILES_DIRECTORY, "e2eBpmnProces.bpmn"),
   formFiles: [
     path.join(FILES_DIRECTORY, "e2eMultipleFormItemsForm.json"),

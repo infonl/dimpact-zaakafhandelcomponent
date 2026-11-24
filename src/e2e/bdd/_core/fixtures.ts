@@ -11,7 +11,7 @@ import type { Account, Role } from "../../config/targets/target";
 import { createTestData, type TestData } from "../support/test-data";
 import { zacApiClient, type ZacApi } from "../support/zac-api";
 import { accountOrSkip, roleOfTags, sessionOf, SIGNED_OUT } from "./sessions";
-import { skipWhenBlocked, skipWithoutMailbox } from "./tags";
+import { skipWhenBlocked } from "./tags";
 
 export const coreTest = base.extend<{
   accountOfRole: (role: Role) => Account;
@@ -22,7 +22,6 @@ export const coreTest = base.extend<{
   blockedScenarios: [
     async ({ $tags }, use, testInfo) => {
       skipWhenBlocked($tags, testInfo);
-      skipWithoutMailbox($tags, testInfo);
       await use();
     },
     { auto: true },

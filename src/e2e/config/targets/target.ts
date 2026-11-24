@@ -77,7 +77,7 @@ export const targetSettingsSchema = z.object({
   seed: seedSchema.optional(),
   runsLiveScenarios: z.boolean(),
   openFormsUrl: z.url().optional(),
-  recordsTraces: z.boolean().default(true),
+  hasPublicReport: z.boolean().default(false),
   timeouts: timeoutsSchema.default({
     testMilliseconds: 120_000,
     expectMilliseconds: 10_000,
@@ -101,8 +101,8 @@ export type TargetSettings = z.infer<typeof targetSettingsSchema>;
  *   a preferred e-mail address in Open Klant. A target without a seed skips the steps that need it.
  * - `runsLiveScenarios`: whether the scenarios tagged `@live-env-only`, which need real external systems, run.
  * - `openFormsUrl`: the URL of Open Formulieren. A target without it skips the scenarios that need it.
- * - `recordsTraces`: whether a run records traces. A trace holds passwords and session cookies, so turn it off for a
- *   target whose report is public.
+ * - `hasPublicReport`: whether anyone can read the report of a run. Such a run records everything for every scenario,
+ *   except for the scenarios that sign in, because their recordings hold passwords.
  * - `timeouts`: how long a test and an assertion may take. Set them for a target that is slower than the kind stack.
  *
  * When a target cannot tell the URL of ZAC, it says why, so that tools that do not run tests, such as `bddgen`,

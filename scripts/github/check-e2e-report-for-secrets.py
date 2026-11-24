@@ -2,10 +2,11 @@
 # SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-"""Fails when a file of the Playwright report holds a secret, also inside the zip files in the report.
+"""Fails when a file of the Playwright report holds a secret or a saved session, also inside the zip files in the report.
 
 The nightly report is public, so run this before anything publishes it.
-Usage: check-e2e-report-for-secrets.py <report directory> <environment variable with a secret>...
+Usage: check-e2e-report-for-secrets.py <report directory> <directory with the saved sessions> <environment variable
+with a secret>...
 """
 
 import base64
@@ -17,6 +18,8 @@ import re
 import sys
 import urllib.parse
 import zipfile
+
+from e2e_sessions import saved_session_values
 
 EMBEDDED_ZIP = re.compile(rb"data:application/zip;base64,([A-Za-z0-9+/=]+)")
 
@@ -45,11 +48,12 @@ def files_with_secret(name, content, secrets):
         yield from files_with_secret(f"{name}!embedded", base64.b64decode(embedded.group(1)), secrets)
 
 
-def main(report_directory, variables):
+def main(report_directory, sessions_directory, variables):
     missing = [variable for variable in variables if not os.environ.get(variable)]
     if missing:
         sys.exit(f"These secrets are not set, so the report cannot be checked: {', '.join(missing)}")
-    secrets = set().union(*(spellings(os.environ[variable]) for variable in variables))
+    values = {os.environ[variable] for variable in variables} | saved_session_values(sessions_directory)
+    secrets = set().union(*map(spellings, values))
     paths = [os.path.join(directory, file) for directory, _, files in os.walk(report_directory) for file in files]
     if not paths:
         sys.exit(f"There is no report in {report_directory}.")
@@ -63,4 +67,4 @@ def main(report_directory, variables):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2:])
+    main(sys.argv[1], sys.argv[2], sys.argv[3:])
