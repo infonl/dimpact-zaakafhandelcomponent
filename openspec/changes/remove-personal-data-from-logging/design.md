@@ -152,7 +152,7 @@ WildFly writes them through its JSON formatter.
 mask the MDC values of a record as well (`ExtLogRecord.getMdcCopy`/`setMdc`), so that the safety net also covers the
 fields. When masking fails, `withholdContent` today clears the message, the parameters and the throwable; it is
 extended to clear the MDC of the record too, so that a failed masking never writes an original field value. The
-decision of ADR-0011 does not change; only its coverage grows.
+filter decision of ADR-0011 does not change, only its coverage grows; ADR-0021 records it and supersedes ADR-0011.
 
 - Alternative: the fields in the message text, `<description> [name=value, ...]`. It needs no MDC and no filter
   change, but logs stay text to search in, and the follow-up story for wide events would change the format a second
@@ -297,9 +297,9 @@ companion object {
   (`ZaakService.readZaakAssignment`), and still fails as today when Keycloak cannot be reached.
 - The lookup runs on the calling thread, so its latency must be bounded. The Keycloak admin client
   (`KeycloakEmployeesAdminClientConfiguration`) has no connect or read timeout today, so a Keycloak that does not
-  answer would hold the business thread without limit. It gets a connect and a read timeout of 2 seconds. That bound
-  also applies to the other Keycloak admin calls of ZAC (reading users and groups), which today can hang just as
-  long; this is accepted as an improvement.
+  answer would hold the business thread without limit. The lookup therefore uses a Keycloak admin client of its
+  own, with a connect and a read timeout of 2 seconds. The other Keycloak admin calls of ZAC (reading users and
+  groups) keep the client without timeouts, so that they behave as before this change.
 
 `LoggedInUser` does not change: `UserPrincipalFilter` passes the `sub` claim straight to
 `ZacLogger.registerEmployee`, and nothing else needs the Keycloak user ID. `WebSocketServerEndPoint` uses its session
@@ -343,8 +343,9 @@ A call that fails before a response (connection refused, timeout) reaches no res
 see a failure without a response, so the caller logs or maps that failure, as today (`RestExceptionMapper` maps a
 `ProcessingException`). The spec therefore requires a record only for a call that gets a response.
 
-ADR-0011 stays valid: its rule that `JsonLoggingFilter` masks `geboorte` fields in the payloads it logs is now
-trivially true, because it logs no payloads. `LoggingTest` (itest) now expects the masked BSN `******896` in the
+ADR-0011 decides that `JsonLoggingFilter` masks `geboorte` fields in the payloads it logs. That rule no longer
+applies, because it logs no payloads, so ADR-0021 supersedes ADR-0011 with the same filter decision, extended to the
+MDC fields and without the payload masking. `LoggingTest` (itest) now expects the masked BSN `******896` in the
 logged BRP payload; it is rewritten: with `FINE` enabled, a BRP lookup by BSN logs one `OutboundRestCall` record with
 method, host, operation, status and duration, and the logs contain neither the BSN (plain or masked) nor the date of
 birth.
@@ -501,12 +502,9 @@ become context disappear. A task of this change writes that ticket.
 - [A developer forgets `@Redacted` on a personal-data field] → The WildFly masking filter still masks BSNs and IBANs.
   The ADR and `logging.md` list the field types that need `@Redacted`.
 - [The Keycloak lookup for an employee who is not logged in fails or is slow] → It runs only when the log line is
-  written, takes at most about 2 seconds (the timeouts of the admin client), never throws, and only affects the log
+  written, is bounded by the 2 second timeouts of its own admin client, never throws, and only affects the log
   line (`unknown`). A found ID is looked up once per employee per ZAC instance; a miss is retried at most once per 5
   minutes per employee.
-- [The 2 second timeouts on the Keycloak admin client also apply to its other calls] → Those calls had no bound at
-  all; Keycloak answers them well within 2 seconds in normal operation. The timeouts are constants that a later
-  change can make configurable when needed.
 - [`ZacLogger` holds a stale ID after an account is recreated with the same username] → Only log correlation is
   affected, until ZAC restarts.
 - [Field order from Java reflection] → Tested. Only the order in the log line would change.
