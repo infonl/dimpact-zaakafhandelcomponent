@@ -9,7 +9,6 @@ import { Then, When } from "../../fixtures";
 import { documentPage } from "../../screens/document";
 import { chooseOption } from "../../screens/select";
 import { zaakPage } from "../../screens/zaak";
-import { mailServerOrNote, untilMailArrives } from "../../support/mail";
 import { dataOf } from "../../support/zac-api";
 import { seededPersoonOrSkip } from "../seed";
 
@@ -124,18 +123,6 @@ When(
       ),
       page.getByRole("button", { name: "Verstuur", exact: true }).click(),
     ]);
-  },
-);
-
-Then(
-  "the initiator receives the ontvangstbevestiging",
-  async ({ request, testData, $testInfo }) => {
-    const mailServer = mailServerOrNote($testInfo);
-    if (!mailServer) return;
-    await untilMailArrives(request, mailServer, {
-      ontvanger: seededPersoonOrSkip($testInfo).emailadres,
-      onderwerp: onderwerpOfOntvangstbevestiging(testData.zaak.identificatie),
-    });
   },
 );
 

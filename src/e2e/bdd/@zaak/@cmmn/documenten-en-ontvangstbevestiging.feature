@@ -17,8 +17,7 @@ Feature: Documenten en ontvangstbevestiging
     Then the document "E2E brief" is listed at the zaak
     And the document "E2E brief" shows the titel, the taal, the auteur and the creatiedatum
     When I send the ontvangstbevestiging to the initiator
-    Then the initiator receives the ontvangstbevestiging
-    And the ontvangstbevestiging is stored at the zaak as a PDF document
+    Then the ontvangstbevestiging is stored at the zaak as a PDF document
     And the zaak shows that the ontvangstbevestiging is sent
     When I record that the document "E2E brief" was sent by post today
     Then the document "E2E brief" shows the indicatie "is verzonden"

@@ -65,8 +65,7 @@ variables. [config/targets/target.ts](./config/targets/target.ts) describes its 
   skipped;
 - the texts of the Keycloak login page, which depend on the theme and the language of the target;
 - the names that the target uses for the data of the kind stack, see [Names of data](#names-of-data);
-- what the test doubles of the target answer, such as the mail server. A target without test doubles skips the
-  scenarios that need them;
+- the Objecten API of the target, to register a productaanvraag. A target without it skips the scenarios that need it;
 - the URL of Open Formulieren. A target without it skips the scenarios that need it;
 - whether the report of a run is public, and how long a test and an assertion may take;
 - whether the scenarios tagged `@live-env-only` run.
@@ -78,7 +77,7 @@ Everything that differs between targets belongs in the profile, so a new target 
 | `E2E_TARGET`        | The profile to use: `kind` or `dev`.                                              | `kind`  |
 | `KIND_CLUSTER_NAME` | Target `kind`: the kind cluster. The profile reads the port of ZAC from its ports file. | `zac`   |
 | `ZAC_URL`           | Target `kind`: the URL of ZAC when ZAC does not run in the cluster.               | none    |
-| `ZAC_URL`, `OPEN_FORMS_URL`, `E2E_TEST_USER_<1 or 2>_USERNAME` and `_PASSWORD` | Target `dev`: its URLs and accounts. `./start-e2e-with-test-env.sh` reads them from 1Password. | none |
+| `ZAC_URL`, `OPEN_FORMS_URL`, `E2E_TEST_USER_<1 or 2>_USERNAME` and `_PASSWORD`, `E2E_OBJECTEN_TOKEN` | Target `dev`: its URLs and accounts. `./start-e2e-with-test-env.sh` reads them from 1Password. | none |
 | `CI`                | Set by the pipeline. It selects the number of workers, the retries, the traces and the reporters. In CI a test that passes only on its retry fails the run. | none    |
 
 The target `kind` needs no configuration and no `.env` file. It uses the accounts of the Keycloak realm seed in

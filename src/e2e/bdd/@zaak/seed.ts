@@ -9,6 +9,10 @@ import { nameInTarget } from "../_core/names";
 
 /** Data that the seed of the kind stack provides, as the target names it, which the zaak journeys use without naming it in a feature. */
 export const SEED = {
+  /** An informatieobjecttype of the CMMN zaaktype. */
+  get informatieobjecttype() {
+    return nameInTarget("besluit");
+  },
   get cmmnZaaktype() {
     return nameInTarget("Test zaaktype 2");
   },

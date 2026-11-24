@@ -70,6 +70,16 @@ export const dev: Target = (environment) => {
       // A person of the test data of the BRP, with this preferred e-mail address in the Open Klant of the environment.
       persoon: { bsn: "999993896", emailadres: "hendrika.janse@example.com" },
     },
+    objecten: environment.E2E_OBJECTEN_TOKEN
+      ? {
+          apiUrl: "https://open-object-zac-dev.dimpact.lifely.nl/api/v2",
+          token: environment.E2E_OBJECTEN_TOKEN,
+          productaanvraagObjecttype: "f437384b-3f0a-4559-9f6d-e42085e64227",
+          objecttypeVersion: 10,
+          documentenApiUrl:
+            "https://open-zaak-zac-dev.dimpact.lifely.nl/documenten/api/v1",
+        }
+      : undefined,
     runsLiveScenarios: true,
     openFormsUrl: environment.OPEN_FORMS_URL,
     // The nightly run publishes its report on GitHub Pages.

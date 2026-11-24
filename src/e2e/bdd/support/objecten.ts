@@ -5,18 +5,16 @@
 
 import type { APIRequestContext, TestInfo } from "@playwright/test";
 import { ENV } from "../../config/env";
-import type { TestDoubles } from "../../config/targets/target";
-
-type Objecten = TestDoubles["objecten"];
+import type { Objecten } from "../../config/targets/target";
 
 /** The Objecten API of the target. Skips the scenario when the target has none. */
 export function objectenOrSkip(testInfo: TestInfo): Objecten {
   testInfo.skip(
-    !ENV.testDoubles,
+    !ENV.objecten,
     `The target "${ENV.target}" has no Objecten API for test data.`,
   );
-  // skip() ends the test when the target has no test doubles, so they exist from here on.
-  return ENV.testDoubles!.objecten;
+  // skip() ends the test when the target has no Objecten API, so it exists from here on.
+  return ENV.objecten!;
 }
 
 /**
@@ -25,8 +23,14 @@ export function objectenOrSkip(testInfo: TestInfo): Objecten {
  */
 export async function registerProductaanvraag(
   request: APIRequestContext,
-  { apiUrl, token, productaanvraagObjecttype, aanvraagdocument }: Objecten,
-  type: string,
+  {
+    apiUrl,
+    token,
+    productaanvraagObjecttype,
+    objecttypeVersion,
+    documentenApiUrl,
+  }: Objecten,
+  { type, documentUuid }: { type: string; documentUuid: string },
 ) {
   const response = await request.post(`${apiUrl}/objects`, {
     headers: {
@@ -36,14 +40,14 @@ export async function registerProductaanvraag(
     data: {
       type: `${apiUrl}/objecttypes/${productaanvraagObjecttype}`,
       record: {
-        typeVersion: 1,
+        typeVersion: objecttypeVersion,
         startAt: new Date().toISOString().slice(0, 10),
         data: {
           bron: { naam: "E2E", kenmerk: type },
           type,
           aanvraaggegevens: { aanvraag: { omschrijving: type } },
           taal: "nld",
-          pdf: aanvraagdocument.url,
+          pdf: `${documentenApiUrl}/enkelvoudiginformatieobjecten/${documentUuid}`,
           bijlagen: [],
         },
       },

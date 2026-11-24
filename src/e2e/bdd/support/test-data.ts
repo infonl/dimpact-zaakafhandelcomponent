@@ -93,9 +93,9 @@ export type TestData = {
   closeZaak(zaak: RememberedZaak, resultaat: string): Promise<void>;
   /**
    * Adds a small text document to the zaak through the REST API as the behandelaar, and remembers it. Makes its titel
-   * unique.
+   * unique. Returns the uuid of the document.
    */
-  addDocument(zaak: RememberedZaak, document: NewDocument): Promise<void>;
+  addDocument(zaak: RememberedZaak, document: NewDocument): Promise<string>;
   /** Remembers a document that the scenario added, for example through the UI, with the unique titel it got. */
   rememberDocument(titel: string, uniqueTitel: string): void;
   /** The unique titel of the document that the scenario added with the titel. Fails the step when it added none. */
@@ -377,7 +377,7 @@ async function addDocumentTo(
   }
   const inhoud = `${titel}\n`;
   const bestandsnaam = "besluitbrief.txt";
-  await dataOf(
+  const { uuid } = await dataOf(
     api.POST(
       "/rest/informatieobjecten/informatieobject/{zaakUuid}/{documentReferenceId}",
       {
@@ -414,6 +414,9 @@ async function addDocumentTo(
       },
     ),
   );
+  if (!uuid)
+    throw new Error(`ZAC returned no uuid of the document "${titel}".`);
+  return uuid;
 }
 
 /** ZAC accepts a person only by the temporary id that a search in the BRP gives, not by the BSN. */
@@ -540,11 +543,16 @@ export function createTestData({
 
     async addDocument({ identificatie }, { titel, informatieobjecttype }) {
       const uniqueTitel = this.unique(titel);
-      await addDocumentTo(await apiAs("behandelaar"), identificatie, {
-        titel: uniqueTitel,
-        informatieobjecttype,
-      });
+      const uuid = await addDocumentTo(
+        await apiAs("behandelaar"),
+        identificatie,
+        {
+          titel: uniqueTitel,
+          informatieobjecttype,
+        },
+      );
       this.rememberDocument(titel, uniqueTitel);
+      return uuid;
     },
 
     async startTaak({ identificatie }, taak) {
