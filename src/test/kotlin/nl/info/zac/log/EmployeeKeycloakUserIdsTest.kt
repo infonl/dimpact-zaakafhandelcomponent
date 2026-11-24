@@ -10,6 +10,10 @@ import java.time.Clock
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneOffset
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 
 class EmployeeKeycloakUserIdsTest : BehaviorSpec({
     val startInstant = Instant.parse("2026-11-23T10:00:00Z")
@@ -87,6 +91,38 @@ class EmployeeKeycloakUserIdsTest : BehaviorSpec({
                     secondKeycloakUserId shouldBe UNKNOWN_EMPLOYEE
                     lookupCountWithinFiveMinutes shouldBe 1
                     lookupCount shouldBe 2
+                }
+            }
+        }
+
+        given("an employee who has not logged in and whom a slow lookup finds") {
+            val lookupCount = AtomicInteger()
+            val lookupStarted = CountDownLatch(1)
+            val lookupMayFinish = CountDownLatch(1)
+            EmployeeKeycloakUserIds.useEmployeeLookup {
+                lookupCount.incrementAndGet()
+                lookupStarted.countDown()
+                lookupMayFinish.await(5, TimeUnit.SECONDS)
+                "fakeKeycloakUserId"
+            }
+
+            `when`("two threads resolve the employee at the same time") {
+                val keycloakUserIds = CopyOnWriteArrayList<String>()
+                fun resolvingThread() = Thread { keycloakUserIds += EmployeeKeycloakUserIds.resolve(Employee("fakeUsername")) }
+                val firstThread = resolvingThread().apply { start() }
+                lookupStarted.await(5, TimeUnit.SECONDS)
+                val secondThread = resolvingThread().apply { start() }
+                val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5)
+                while (secondThread.state != Thread.State.BLOCKED && lookupCount.get() < 2 && System.nanoTime() < deadline) {
+                    Thread.onSpinWait()
+                }
+                lookupMayFinish.countDown()
+                firstThread.join(5_000)
+                secondThread.join(5_000)
+
+                then("both threads get the found ID, and Keycloak is called only once") {
+                    keycloakUserIds shouldBe listOf("fakeKeycloakUserId", "fakeKeycloakUserId")
+                    lookupCount.get() shouldBe 1
                 }
             }
         }
