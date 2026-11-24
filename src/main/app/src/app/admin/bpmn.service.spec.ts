@@ -38,7 +38,7 @@ describe(BpmnService.name, () => {
       "/rest/bpmn-process-definitions/fakeProcessDefinitionKey/download";
 
     const download = () =>
-      testQueryClient.fetchQuery(
+      testQueryClient.query(
         service.downloadProcessDefinition("fakeProcessDefinitionKey"),
       );
 

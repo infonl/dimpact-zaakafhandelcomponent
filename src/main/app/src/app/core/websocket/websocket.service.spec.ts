@@ -7,10 +7,10 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { EnvironmentInjector, createEnvironmentInjector } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { TranslateService } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Subject, of } from "rxjs";
 import type { WebSocketSubjectConfig } from "rxjs/webSocket";
 import { flushMicrotasks, fromPartial } from "src/test-helpers";
+import { testQueryClient } from "../../../../setupJest";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { UtilService } from "../service/util.service";
@@ -28,6 +28,7 @@ const LONGEST_FIRST_RECONNECT_DELAY_MS = MIN_DELAY_MS + FIRST_SPREAD_MS;
 const LONGEST_SECOND_RECONNECT_DELAY_MS = MIN_DELAY_MS + FIRST_SPREAD_MS * 2;
 const LONGEST_RECONNECT_DELAY_MS = MIN_DELAY_MS + MAX_SPREAD_MS;
 const POLICY_VIOLATION_CLOSE_CODE = 1008;
+const LOGGED_IN_USER_QUERY_KEY = ["/rest/identity/loggedInUser"];
 
 const subscriptionToZaak1: SubscriptionMessage = {
   subscriptionType: "CREATE",
@@ -44,8 +45,7 @@ describe(WebsocketService.name, () => {
   let socketConfigs: WebSocketSubjectConfig<unknown>[];
   let isServerReachable: boolean;
   let readLoggedInUser: jest.Mock;
-  let invalidateQueries: jest.Mock;
-  let fetchQuery: jest.Mock;
+  let invalidateQueries: jest.SpyInstance;
   let foutAfhandelen: jest.Mock;
 
   const closeWithCode = (socketIndex: number, code: number) => {
@@ -69,10 +69,7 @@ describe(WebsocketService.name, () => {
     socketConfigs = [];
     isServerReachable = true;
     readLoggedInUser = jest.fn().mockResolvedValue({});
-    fetchQuery = jest.fn((options: { queryFn: () => unknown }) =>
-      options.queryFn(),
-    );
-    invalidateQueries = jest.fn().mockResolvedValue(undefined);
+    invalidateQueries = jest.spyOn(testQueryClient, "invalidateQueries");
     foutAfhandelen = jest.fn().mockReturnValue(of());
     const webSocketFactory = jest.fn(
       (config: WebSocketSubjectConfig<unknown>) => {
@@ -98,14 +95,10 @@ describe(WebsocketService.name, () => {
         },
         { provide: UtilService, useValue: { openSnackbar: jest.fn() } },
         {
-          provide: QueryClient,
-          useValue: { getQueryData: jest.fn(), invalidateQueries, fetchQuery },
-        },
-        {
           provide: IdentityService,
           useValue: {
             readLoggedInUser: jest.fn().mockReturnValue({
-              queryKey: ["/rest/identity/loggedInUser"],
+              queryKey: LOGGED_IN_USER_QUERY_KEY,
               queryFn: readLoggedInUser,
             }),
           },
@@ -255,56 +248,91 @@ describe(WebsocketService.name, () => {
     expect(sockets.length).toBe(1);
   });
 
-  it("checks that the user is still logged in before reconnecting after the server denies the connection", async () => {
-    closeWithCode(0, POLICY_VIOLATION_CLOSE_CODE);
-    await flushMicrotasks();
+  describe("after the server denies the connection", () => {
+    const defaultOptions = testQueryClient.getDefaultOptions();
+    const settleLoginCheck = () => jest.advanceTimersByTimeAsync(0);
 
-    expect(readLoggedInUser).toHaveBeenCalled();
-    expect(sockets.length).toBe(1);
+    afterEach(() => {
+      testQueryClient.setDefaultOptions(defaultOptions);
+    });
 
-    jest.advanceTimersByTime(LONGEST_FIRST_RECONNECT_DELAY_MS);
+    it("checks that the user is still logged in before reconnecting", async () => {
+      closeWithCode(0, POLICY_VIOLATION_CLOSE_CODE);
+      await settleLoginCheck();
 
-    expect(sockets.length).toBe(2);
-  });
+      expect(readLoggedInUser).toHaveBeenCalled();
+      expect(sockets.length).toBe(1);
 
-  it("stops reconnecting and hands the failure to the error handling after the server denies the connection to a user who is no longer logged in", async () => {
-    const loggedOutError = new HttpErrorResponse({ status: 0 });
-    readLoggedInUser.mockRejectedValue(loggedOutError);
+      jest.advanceTimersByTime(LONGEST_FIRST_RECONNECT_DELAY_MS);
 
-    closeWithCode(0, POLICY_VIOLATION_CLOSE_CODE);
-    await flushMicrotasks();
-    jest.advanceTimersByTime(LONGEST_RECONNECT_DELAY_MS);
+      expect(sockets.length).toBe(2);
+    });
 
-    expect(foutAfhandelen).toHaveBeenCalledWith(loggedOutError);
-    expect(sockets.length).toBe(1);
-  });
+    it("stops reconnecting and hands the failure to the error handling once when the user is no longer logged in", async () => {
+      const loggedOutError = new HttpErrorResponse({ status: 0 });
+      readLoggedInUser.mockRejectedValue(loggedOutError);
 
-  it("keeps reconnecting without reporting an error when checking the login fails for another reason than being logged out", async () => {
-    readLoggedInUser.mockRejectedValue(new HttpErrorResponse({ status: 404 }));
+      closeWithCode(0, POLICY_VIOLATION_CLOSE_CODE);
+      await settleLoginCheck();
+      jest.advanceTimersByTime(LONGEST_RECONNECT_DELAY_MS);
 
-    closeWithCode(0, POLICY_VIOLATION_CLOSE_CODE);
-    await flushMicrotasks();
-    jest.advanceTimersByTime(LONGEST_FIRST_RECONNECT_DELAY_MS);
+      expect(foutAfhandelen).toHaveBeenCalledTimes(1);
+      expect(foutAfhandelen).toHaveBeenCalledWith(loggedOutError);
+      expect(sockets.length).toBe(1);
+    });
 
-    expect(foutAfhandelen).not.toHaveBeenCalled();
-    expect(sockets.length).toBe(2);
-  });
+    it("keeps reconnecting without reporting an error when checking the login fails for another reason than being logged out", async () => {
+      readLoggedInUser.mockRejectedValue(
+        new HttpErrorResponse({ status: 404 }),
+      );
 
-  it("checks the login on the server each time, without retrying, without the error dialog and without touching the cached user", async () => {
-    closeWithCode(0, POLICY_VIOLATION_CLOSE_CODE);
-    await flushMicrotasks();
+      closeWithCode(0, POLICY_VIOLATION_CLOSE_CODE);
+      await settleLoginCheck();
+      jest.advanceTimersByTime(LONGEST_FIRST_RECONNECT_DELAY_MS);
 
-    expect(fetchQuery).toHaveBeenCalledWith(
-      expect.objectContaining({
-        staleTime: 0,
-        gcTime: 0,
-        retry: false,
-        meta: { reportErrors: false },
-      }),
-    );
-    expect(fetchQuery.mock.calls[0][0].queryKey).not.toEqual([
-      "/rest/identity/loggedInUser",
-    ]);
+      expect(foutAfhandelen).not.toHaveBeenCalled();
+      expect(sockets.length).toBe(2);
+    });
+
+    it("checks the login on the server again when the next connection is denied before it opens, instead of reusing the answer of the previous check", async () => {
+      jest.advanceTimersByTime(0);
+      closeWithCode(0, POLICY_VIOLATION_CLOSE_CODE);
+      await settleLoginCheck();
+      isServerReachable = false;
+      jest.advanceTimersByTime(LONGEST_FIRST_RECONNECT_DELAY_MS);
+
+      closeWithCode(1, POLICY_VIOLATION_CLOSE_CODE);
+      await settleLoginCheck();
+
+      expect(readLoggedInUser).toHaveBeenCalledTimes(2);
+    });
+
+    it("checks the login on the server when the logged-in user is cached, and leaves that cached user as it is", async () => {
+      const cachedUser = { username: "fakeCachedUsername" };
+      testQueryClient.setQueryData(LOGGED_IN_USER_QUERY_KEY, cachedUser);
+      readLoggedInUser.mockResolvedValue({ username: "fakeOtherUsername" });
+
+      closeWithCode(0, POLICY_VIOLATION_CLOSE_CODE);
+      await settleLoginCheck();
+
+      expect(readLoggedInUser).toHaveBeenCalled();
+      expect(testQueryClient.getQueryData(LOGGED_IN_USER_QUERY_KEY)).toBe(
+        cachedUser,
+      );
+    });
+
+    it("does not retry a failed login check, so that a blocked login redirect is reported at once", async () => {
+      testQueryClient.setDefaultOptions({
+        queries: { retry: 3, retryDelay: 0 },
+      });
+      readLoggedInUser.mockRejectedValue(new HttpErrorResponse({ status: 0 }));
+
+      closeWithCode(0, POLICY_VIOLATION_CLOSE_CODE);
+      await settleLoginCheck();
+
+      expect(readLoggedInUser).toHaveBeenCalledTimes(1);
+      expect(foutAfhandelen).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("a change announced by the server", () => {
@@ -323,9 +351,9 @@ describe(WebsocketService.name, () => {
     let openSnackbar: jest.Mock;
 
     beforeEach(() => {
-      jest
-        .mocked(TestBed.inject(QueryClient).getQueryData)
-        .mockReturnValue({ username: "fakeUsername" });
+      testQueryClient.setQueryData(LOGGED_IN_USER_QUERY_KEY, {
+        username: "fakeUsername",
+      });
       openSnackbar = jest.mocked(TestBed.inject(UtilService).openSnackbar);
       callback = jest.fn();
       service.addListenerWithSnackbar(

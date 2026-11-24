@@ -150,7 +150,7 @@ export class WebsocketService {
   private reconnectIfLoggedIn(url: string) {
     const { queryKey, queryFn } = this.identityService.readLoggedInUser();
     this.queryClient
-      .fetchQuery({
+      .query({
         // a key of its own, so this check neither reads nor rewrites the cached user
         queryKey: [...queryKey, "websocket-reconnect"],
         queryFn,

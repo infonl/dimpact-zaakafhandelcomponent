@@ -122,7 +122,7 @@ export class BpmnProcessDefinitionItemComponent {
           suggestedName: `${key}-v${version}.zip`,
           types: [{ accept: { "application/zip": [".zip"] } }],
         });
-        const response = await this.queryClient.fetchQuery(
+        const response = await this.queryClient.query(
           this.bpmnService.downloadProcessDefinition(key),
         );
 
