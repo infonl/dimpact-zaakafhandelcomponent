@@ -5,12 +5,15 @@
 package nl.info.zac.websocket
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.websocket.RemoteEndpoint
 import jakarta.websocket.Session
+import nl.info.zac.log.GenericEvent
+import nl.info.zac.log.LogCapture
 import java.io.IOException
 
 class WebSocketHeartbeatSchedulerTest : BehaviorSpec({
@@ -19,6 +22,20 @@ class WebSocketHeartbeatSchedulerTest : BehaviorSpec({
 
     afterEach {
         checkUnnecessaryStub()
+    }
+
+    given("an application that starts") {
+        `when`("the scheduler observes the start of the application scope") {
+            val records = LogCapture(WebSocketHeartbeatScheduler::class).use { logCapture ->
+                webSocketHeartbeatScheduler.onStartup(Any())
+                logCapture.records
+            }
+
+            then("the starting of the scheduler is logged") {
+                records.single().message shouldBe
+                    GenericEvent.Type.WEB_SOCKET_HEARTBEAT_SCHEDULER_STARTING.description
+            }
+        }
     }
 
     given("an open WebSocket session") {

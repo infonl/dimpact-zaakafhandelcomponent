@@ -144,11 +144,21 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
         }
 
         `when`("execute is called") {
-            updateZaakAssignmentDelegate.execute(delegateExecution)
+            val records = LogCapture(UpdateZaakAssignmentDelegate::class).use { logCapture ->
+                updateZaakAssignmentDelegate.execute(delegateExecution)
+                logCapture.records
+            }
 
             then("zaak is updated with correct assignment") {
                 verify(exactly = 1) {
                     zaakService.assignZaak(zaak = zaak, groupId = groupId, userName = null, reason = reason)
+                }
+            }
+
+            then("the assignment is logged with the group and without an assignee") {
+                with(records.single()) {
+                    mdc["groupId"] shouldBe groupId
+                    mdc["assignee"] shouldBe "null"
                 }
             }
         }
