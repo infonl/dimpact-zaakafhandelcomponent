@@ -51,7 +51,9 @@ class MailSendCompleted(
 Rules:
 
 * Put each event in its own file in a `log` package next to the code that logs it, for example
-  `nl/info/zac/mail/log/MailSendCompleted.kt`. Name it after what happened, without an `Event` suffix.
+  `nl/info/zac/mail/log/MailSendCompleted.kt`. Name it after what happened, without an `Event` suffix. A shared class
+  (see the next rule) is the exception: it holds several events about one subject, so it is named after that subject
+  with the suffix `Event`, such as `ZaakEvent`, and each of its `Type` constants is named after what happened.
 * Reuse an event before you add one. Events with the same fields share one class with a nested `Type` enum that holds
   the fixed descriptions, such as `GenericEvent` (no fields), `ZaakEvent`, `InformatieobjectEvent`, `ZaaktypeEvent`
   and `RolEvent` in `nl.info.zac.log`: add a constant to its `Type` instead of a new class. The record then has the
