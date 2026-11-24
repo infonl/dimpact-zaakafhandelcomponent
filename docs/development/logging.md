@@ -31,8 +31,9 @@ companion object {
 }
 
 LOG.fine(MailSendCompleted(zaakUuid = zaak.uuid, recipient = address, outcome = Outcome.SUCCESS, durationMs = 84))
-LOG.severe(MailPdfConversionFailed(zaakUuid = zaak.uuid), exception)
-LOG.fine { ExpensiveEvent(...) }  // the event is only created when FINE is enabled
+LOG.severe(ZaakEvent(type = ZaakEvent.Type.MAIL_PDF_CONVERSION_FAILED, zaakUuid = zaak.uuid), exception)
+LOG.fine { ZakenAssigned(zaakCount = zaakUuids.size, assignedCount = assignedCount, screenEventResourceId = id) }
+// the event in braces is only created when FINE is enabled
 ```
 
 An event is a small class with typed fields and a description that is a literal:
