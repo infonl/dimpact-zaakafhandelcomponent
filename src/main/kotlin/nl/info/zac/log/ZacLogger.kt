@@ -49,24 +49,30 @@ class ZacLogger private constructor(private val logger: Logger) {
 
     fun isLoggable(level: Level): Boolean = logger.isLoggable(level)
 
+    /**
+     * Writes the fields of [logEvent] for this one record to the MDC, the Mapped Diagnostic Context: the map of keys and
+     * values per thread that the log manager adds to every record of that thread. The JSON formatter of WildFly writes
+     * it as separate keys under `mdc`, so each field becomes a JSON key without a log formatter of our own. The previous
+     * MDC is restored afterwards, so that no field leaks to the next record on the thread.
+     */
     fun log(level: Level, logEvent: LogEvent, throwable: Throwable? = null) {
         if (!logger.isLoggable(level)) return
         // Render first: resolving an employee can log a record of its own, which must not see these fields.
-        val mdcFields = logEvent.toMdcFields(throwable)
-        val previousMdc = MDC.getMap().toMap()
+        val logRecordFields = logEvent.toLogRecordFields(throwable)
+        val previousMappedDiagnosticContext = MDC.getMap().toMap()
         try {
-            mdcFields.forEach { (key, value) -> MDC.put(key, value) }
+            logRecordFields.forEach { (key, value) -> MDC.put(key, value) }
             logger.log(level, logEvent.description, throwable)
         } finally {
             MDC.clear()
-            previousMdc.forEach { (key, value) -> MDC.put(key, value) }
+            previousMappedDiagnosticContext.forEach { (key, value) -> MDC.put(key, value) }
         }
     }
 
-    private fun LogEvent.toMdcFields(throwable: Throwable?): Map<String, String> =
+    private fun LogEvent.toLogRecordFields(throwable: Throwable?): Map<String, String> =
         buildMap {
-            put(LogFieldNames.EVENT, LogEventRenderer.eventName(this@toMdcFields))
-            putAll(LogEventRenderer.fields(this@toMdcFields, EmployeeKeycloakUserIds::resolve))
+            put(LogFieldNames.EVENT, LogEventRenderer.eventName(this@toLogRecordFields))
+            putAll(LogEventRenderer.fields(this@toLogRecordFields, EmployeeKeycloakUserIds::resolve))
             throwable?.let { put(LogFieldNames.ERROR_TYPE, it.javaClass.name) }
             Span.current().spanContext.takeIf { it.isValid }?.let {
                 put(LogFieldNames.TRACE_ID, it.traceId)
