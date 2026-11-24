@@ -16,6 +16,7 @@ import {
 import { dataOf, type Schemas, type ZacApi } from "./zac-api";
 
 const SEARCH_INDEX_TIMEOUT_MILLISECONDS = 60_000;
+const NOTIFICATION_TIMEOUT_MILLISECONDS = 60_000;
 const STATUS_IN_BEHANDELING = "In behandeling";
 
 export type RememberedZaak = {
@@ -127,7 +128,20 @@ export type TestData = {
     naam: string,
     aantal?: number,
   ): Promise<void>;
+  /** Waits until the inbox has a productaanvraag of the type, which reaches ZAC through Open Notificaties. */
+  untilProductaanvraagIsInInbox(type: string): Promise<void>;
+  /** Waits until the inbox has no productaanvraag of the type, which does not depend on what the page has rendered. */
+  untilProductaanvraagIsNotInInbox(type: string): Promise<void>;
 };
+
+async function isProductaanvraagInInbox(api: ZacApi, type: string) {
+  const { totaal } = await dataOf(
+    api.PUT("/rest/inbox-productaanvragen", {
+      body: { page: 0, maxResults: 1, type },
+    }),
+  );
+  return (totaal ?? 0) > 0;
+}
 
 async function isZaakInSearchIndex(
   api: ZacApi,
@@ -573,6 +587,25 @@ export function createTestData({
           timeout: SEARCH_INDEX_TIMEOUT_MILLISECONDS,
         })
         .toBeGreaterThanOrEqual(aantal);
+    },
+
+    async untilProductaanvraagIsInInbox(type) {
+      const api = await apiAs("coordinator");
+      await expect
+        .poll(() => isProductaanvraagInInbox(api, type), {
+          message: `The inbox of ZAC has no productaanvraag of the type "${type}".`,
+          timeout: NOTIFICATION_TIMEOUT_MILLISECONDS,
+        })
+        .toBe(true);
+    },
+
+    async untilProductaanvraagIsNotInInbox(type) {
+      const api = await apiAs("coordinator");
+      await expect
+        .poll(() => isProductaanvraagInInbox(api, type), {
+          message: `The inbox of ZAC still has a productaanvraag of the type "${type}".`,
+        })
+        .toBe(false);
     },
   };
 }

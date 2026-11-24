@@ -8,8 +8,9 @@ import path from "node:path";
 import type { Account, Target, UnknownZacUrl } from "./target";
 
 const REPOSITORY_ROOT = path.resolve(__dirname, "../../../..");
-// The host port of greenmail-api in scripts/kind/ports.json.
+// The host ports of greenmail-api and open-object in scripts/kind/ports.json.
 const DEFAULT_GREENMAIL_API_PORT = "18083";
+const DEFAULT_OPEN_OBJECT_PORT = "8010";
 
 function portsFileOf(clusterName: string) {
   return path.join(REPOSITORY_ROOT, "build/kind", clusterName, "ports.env");
@@ -52,11 +53,13 @@ function zacUrlOfKindCluster(clusterName: string): string | UnknownZacUrl {
   return `http://localhost:${zacPort}`;
 }
 
-function mailApiUrlOfKindCluster(clusterName: string) {
-  const port =
-    hostPort(publishedPortsOf(clusterName), "GREENMAIL_API") ??
-    DEFAULT_GREENMAIL_API_PORT;
-  return `http://localhost:${port}/api`;
+function urlOfService(
+  clusterName: string,
+  service: string,
+  defaultPort: string,
+) {
+  const port = hostPort(publishedPortsOf(clusterName), service) ?? defaultPort;
+  return `http://localhost:${port}`;
 }
 
 // The Keycloak realm seed in scripts/kind/seed/keycloak gives every test user a password that equals the username.
@@ -88,7 +91,17 @@ export const kind: Target = (environment) => ({
     // scripts/kind/seed/bag-wiremock only answers this search text.
     bag: { searchText: "fake search text", adres: "Dam 1, 1012JS Amsterdam" },
     mail: {
-      apiUrl: mailApiUrlOfKindCluster(environment.KIND_CLUSTER_NAME ?? "zac"),
+      apiUrl: `${urlOfService(environment.KIND_CLUSTER_NAME ?? "zac", "GREENMAIL_API", DEFAULT_GREENMAIL_API_PORT)}/api`,
+    },
+    // The object type and the token are in scripts/kind/seed/open-object, the document in scripts/kind/seed/openzaak.
+    objecten: {
+      apiUrl: `${urlOfService(environment.KIND_CLUSTER_NAME ?? "zac", "OPEN_OBJECT", DEFAULT_OPEN_OBJECT_PORT)}/api/v2`,
+      token: "fakeOpenFormulierenObjectsToken",
+      productaanvraagObjecttype: "021f685e-9482-4620-b157-34cd4003da6b",
+      aanvraagdocument: {
+        url: "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e",
+        titel: "Fake test document",
+      },
     },
   },
   seed: {
