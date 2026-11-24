@@ -146,6 +146,48 @@ class JsonLoggingFilterTest : BehaviorSpec({
             }
         }
 
+        given("FINE is enabled and a call that the remote system answers with a redirect") {
+            val clientRequestContext = createClientRequestContext(
+                method = "GET",
+                uri = "https://example.com/fakePath",
+                invokedMethod = null
+            )
+
+            `when`("the call is filtered") {
+                val records = callFilter(clientRequestContext, createClientResponseContext(302))
+
+                then("the call is logged as a success") {
+                    with(records.single()) {
+                        mdc["status"] shouldBe "302"
+                        mdc["outcome"] shouldBe "SUCCESS"
+                    }
+                }
+            }
+        }
+
+        given("FINE is enabled and a call without a URI, whose request was not given a correlation ID") {
+            val clientRequestContext = mockk<ClientRequestContext>()
+            every { clientRequestContext.method } returns "GET"
+            every { clientRequestContext.uri } returns null
+            every { clientRequestContext.getProperty(JsonLoggingFilter.START_TIME_PROPERTY) } returns System.nanoTime()
+            every { clientRequestContext.getProperty(JsonLoggingFilter.CORRELATION_ID_PROPERTY) } returns null
+            every { clientRequestContext.getProperty(JsonLoggingFilter.INVOKED_METHOD_PROPERTY) } returns null
+
+            `when`("the response is filtered") {
+                val records = LogCapture(JsonLoggingFilter::class, Level.FINE).use { logCapture ->
+                    jsonLoggingFilter.filter(clientRequestContext, createClientResponseContext(200))
+                    logCapture.records
+                }
+
+                then("the call is logged with a new correlation ID and without a host") {
+                    with(records.single()) {
+                        mdc.getValue("correlationId") shouldMatch Regex("[0-9a-f-]{36}")
+                        mdc["host"] shouldBe "null"
+                    }
+                }
+            }
+        }
+
         given("FINE is enabled and a call inside an active span") {
             val spanContext = SpanContext.create(
                 "0af7651916cd43dd8448eb211c80319c",
