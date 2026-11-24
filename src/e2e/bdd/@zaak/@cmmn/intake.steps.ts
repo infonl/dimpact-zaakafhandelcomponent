@@ -75,10 +75,6 @@ When(
   },
 );
 
-Then("the status is {string}", async ({ page }, status: string) => {
-  await zaakPage(page).expectGegeven("Status", status);
-});
-
 Then(
   "the zaak shows the indicatie {string}",
   async ({ page }, indicatie: string) => {

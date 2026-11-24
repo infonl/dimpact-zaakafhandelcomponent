@@ -29,19 +29,6 @@ Given(
   },
 );
 
-When("I open the form to create a zaak", async ({ page }) => {
-  await page.goto("/");
-  await page.getByRole("button", { name: "Zaak toevoegen" }).click();
-  await expect(
-    page.getByRole("heading", { name: "Zaak aanmaken", level: 1 }),
-  ).toBeVisible();
-});
-
-When("I choose the zaaktype {string}", async ({ page }, zaaktype: string) => {
-  await page.getByRole("combobox", { name: "Zaaktype" }).click();
-  await page.getByRole("option", { name: zaaktype, exact: true }).click();
-});
-
 When(
   "I search the persoon with BSN {string} and select {string} as initiator",
   async ({ page }, bsn: string, naam: string) => {
@@ -92,42 +79,6 @@ When(
     // happens inside it. Its close button has no accessible name.
     await bagSearchText.press("Escape");
     await expect(bagSearchText).toBeHidden();
-  },
-);
-
-When(
-  "I choose the communicatiekanaal {string}",
-  async ({ page }, communicatiekanaal: string) => {
-    await page.getByRole("combobox", { name: "Communicatiekanaal" }).click();
-    await page
-      .getByRole("option", { name: communicatiekanaal, exact: true })
-      .click();
-  },
-);
-
-When(
-  "I enter the omschrijving {string}",
-  async ({ page, testData }, omschrijving: string) => {
-    await page
-      .getByRole("textbox", { name: "Omschrijving" })
-      .fill(testData.unique(omschrijving));
-  },
-);
-
-When("I create the zaak", async ({ page, testData }) => {
-  await page.getByRole("button", { name: "Aanmaken" }).click();
-  await expect(page).toHaveURL(/\/zaken\/ZAAK-[\d-]+$/);
-  const identificatie = new URL(page.url()).pathname.split("/").pop();
-  if (!identificatie) throw new Error(`${page.url()} names no zaak.`);
-  testData.rememberZaak({ identificatie });
-});
-
-Then(
-  "the zaak opens with status {string}",
-  async ({ page, testData }, status: string) => {
-    const zaak = zaakPage(page);
-    await zaak.expectOpened(testData.zaak.identificatie);
-    await zaak.expectGegeven("Status", status);
   },
 );
 

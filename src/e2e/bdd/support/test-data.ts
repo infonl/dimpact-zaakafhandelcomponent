@@ -6,8 +6,13 @@
 import { expect } from "@playwright/test";
 import { randomBytes } from "node:crypto";
 import type { Role } from "../../config/targets/target";
+import { deployProcess, type BpmnProcess } from "./bpmn";
 import { withLock } from "./lock";
-import { groepNamed, setUpZaaktype } from "./zaakafhandelparameters";
+import {
+  groepNamed,
+  setUpBpmnZaaktype,
+  setUpZaaktype,
+} from "./zaakafhandelparameters";
 import { dataOf, type Schemas, type ZacApi } from "./zac-api";
 
 const SEARCH_INDEX_TIMEOUT_MILLISECONDS = 60_000;
@@ -66,6 +71,13 @@ export type TestData = {
   ensureZaaktype(
     omschrijving: string,
     settings: { groep: string },
+  ): Promise<void>;
+  /** Makes sure ZAC has the BPMN process with its forms. ZAC does not deploy the same process twice. */
+  ensureProcess(process: BpmnProcess): Promise<void>;
+  /** Makes sure the zaaktype is handled by the BPMN process, and routes new zaken to the groep. */
+  ensureBpmnZaaktype(
+    omschrijving: string,
+    settings: { process: BpmnProcess; groep: string },
   ): Promise<void>;
   /**
    * Creates a zaak in intake through the REST API as the behandelaar, and remembers it. Sets up its zaaktype first
@@ -426,6 +438,20 @@ export function createTestData({
 
     async ensureZaaktype(omschrijving, { groep }) {
       await ensureZaaktype(omschrijving, groep);
+    },
+
+    async ensureProcess(process) {
+      const api = await apiAs("beheerder");
+      await withLock(locksDirectory, `process ${process.key}`, () =>
+        deployProcess(api, process),
+      );
+    },
+
+    async ensureBpmnZaaktype(omschrijving, { process, groep }) {
+      const api = await apiAs("beheerder");
+      await withLock(locksDirectory, `zaaktype ${omschrijving}`, () =>
+        setUpBpmnZaaktype(api, omschrijving, process.key, groep),
+      );
     },
 
     async createZaak({ zaaktype, groep, omschrijving, initiator }) {

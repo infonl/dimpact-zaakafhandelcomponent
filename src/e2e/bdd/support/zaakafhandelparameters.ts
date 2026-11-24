@@ -50,6 +50,28 @@ async function currentZaaktypeNamed(api: ZacApi, omschrijving: string) {
   return zaaktype;
 }
 
+// No journey finishes an intake as niet ontvankelijk, so any resultaattype of a zaaktype without it will do.
+async function nietOntvankelijkResultaattypeOf(
+  api: ZacApi,
+  zaaktype: Zaaktype,
+) {
+  const resultaattypes = await dataOf(
+    api.GET("/rest/zaakafhandelparameters/resultaattypes/{zaaktypeUUID}", {
+      params: { path: { zaaktypeUUID: zaaktype.uuid } },
+    }),
+  );
+  const nietOntvankelijk =
+    resultaattypes.find(
+      ({ naam }) => naam === NIET_ONTVANKELIJK_RESULTAATTYPE,
+    ) ?? resultaattypes.at(0);
+  if (!nietOntvankelijk) {
+    throw new Error(
+      `The zaaktype "${zaaktype.omschrijving}" has no resultaattype.`,
+    );
+  }
+  return nietOntvankelijk;
+}
+
 async function cmmnParametersFor(
   api: ZacApi,
   zaaktype: Zaaktype,
@@ -65,22 +87,6 @@ async function cmmnParametersFor(
   if (!caseDefinition) {
     throw new Error(
       `ZAC has no CMMN case definition "${CMMN_CASE_DEFINITION_KEY}".`,
-    );
-  }
-
-  const resultaattypes = await dataOf(
-    api.GET("/rest/zaakafhandelparameters/resultaattypes/{zaaktypeUUID}", {
-      params: { path: { zaaktypeUUID: zaaktype.uuid } },
-    }),
-  );
-  // No journey finishes an intake as niet ontvankelijk, so any resultaattype of a zaaktype without it will do.
-  const nietOntvankelijk =
-    resultaattypes.find(
-      ({ naam }) => naam === NIET_ONTVANKELIJK_RESULTAATTYPE,
-    ) ?? resultaattypes.at(0);
-  if (!nietOntvankelijk) {
-    throw new Error(
-      `The zaaktype "${zaaktype.omschrijving}" has no resultaattype.`,
     );
   }
 
@@ -105,7 +111,10 @@ async function cmmnParametersFor(
 
   return {
     processDefinition: caseDefinition,
-    zaakNietOntvankelijkResultaattype: nietOntvankelijk,
+    zaakNietOntvankelijkResultaattype: await nietOntvankelijkResultaattypeOf(
+      api,
+      zaaktype,
+    ),
     humanTaskParameters,
     userEventListenerParameters: (
       caseDefinition.userEventListenerDefinitions ?? []
@@ -227,4 +236,41 @@ export async function setUpZaaktype(
     }),
   );
   return zaaktype;
+}
+
+/** Makes the BPMN process handle the zaaktype, and routes its new zaken to the groep. Changes nothing when it does. */
+export async function setUpBpmnZaaktype(
+  api: ZacApi,
+  zaaktypeOmschrijving: string,
+  processKey: string,
+  groepNaam: string,
+) {
+  const groep = await groepNamed(api, groepNaam);
+  const zaaktype = await currentZaaktypeNamed(api, zaaktypeOmschrijving);
+  const path = { zaaktypeUUID: zaaktype.uuid };
+  const current = await dataOf(
+    api.GET("/rest/zaakafhandelparameters/{zaaktypeUUID}", {
+      params: { path },
+    }),
+  );
+  if (
+    current.processDefinition?.key === processKey &&
+    current.defaultGroepId === groep.id
+  ) {
+    return;
+  }
+
+  await dataOf(
+    api.PUT("/rest/zaakafhandelparameters/{zaaktypeUUID}", {
+      params: { path },
+      body: {
+        ...current,
+        processDefinition: { processEngine: "BPMN", key: processKey },
+        defaultGroepId: groep.id,
+        zaakNietOntvankelijkResultaattype:
+          current.zaakNietOntvankelijkResultaattype ??
+          (await nietOntvankelijkResultaattypeOf(api, zaaktype)),
+      },
+    }),
+  );
 }

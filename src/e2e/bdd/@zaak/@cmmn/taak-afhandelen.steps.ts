@@ -100,13 +100,3 @@ Then(
     ).toBeHidden();
   },
 );
-
-Then(
-  "the zaak lists the task {string} as afgerond",
-  async ({ page, testData }, taak: string) => {
-    const zaak = zaakPage(page);
-    await zaak.open(testData.zaak.identificatie);
-    await page.getByRole("switch", { name: "Toon afgeronde taken" }).check();
-    await expect(zaak.taak(taak)).toContainText("Afgerond");
-  },
-);
