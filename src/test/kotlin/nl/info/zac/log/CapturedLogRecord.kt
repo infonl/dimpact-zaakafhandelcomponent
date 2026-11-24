@@ -15,5 +15,5 @@ class CapturedLogRecord(
     fun containsAnywhere(text: String) =
         message.orEmpty().contains(text) ||
             mdc.values.any { it.contains(text) } ||
-            generateSequence(thrown) { it.cause }.any { it.toString().contains(text) }
+            thrown?.stackTraceToString().orEmpty().contains(text)
 }
