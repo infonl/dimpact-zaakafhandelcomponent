@@ -81,6 +81,8 @@ export type TestData = {
    * unique.
    */
   addDocument(zaak: RememberedZaak, document: NewDocument): Promise<void>;
+  /** Remembers a document that the scenario added, for example through the UI, with the unique titel it got. */
+  rememberDocument(titel: string, uniqueTitel: string): void;
   /** The unique titel of the document that the scenario added with the titel. Fails the step when it added none. */
   documentTitled(titel: string): string;
   /** Starts the human task of the zaak for the groep, without a behandelaar, through the REST API as the behandelaar. */
@@ -472,11 +474,15 @@ export function createTestData({
         titel: uniqueTitel,
         informatieobjecttype,
       });
-      documenten.set(titel, uniqueTitel);
+      this.rememberDocument(titel, uniqueTitel);
     },
 
     async startTaak({ identificatie }, taak) {
       await startTaakOf(await apiAs("behandelaar"), identificatie, taak);
+    },
+
+    rememberDocument(titel, uniqueTitel) {
+      documenten.set(titel, uniqueTitel);
     },
 
     documentTitled(titel) {
