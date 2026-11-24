@@ -39,6 +39,8 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.identification.findRechtspersoonOrVestiging
 import nl.info.zac.identification.toIdentificatieType
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.productaanvraag.ProductaanvraagService
@@ -183,7 +185,11 @@ class DocumentCreationDataService @Inject constructor(
                 behandelaar = taskInfo.assignee?.let {
                     identityService.readUser(
                         username = it,
-                        logContext = "task '$taskId' of zaak '${zaak.identificatie}'"
+                        context = IdentityLookupContext(
+                            source = IdentityLookupSource.DOCUMENT_CREATION,
+                            zaakIdentificatie = zaak.identificatie,
+                            taakId = taskId
+                        )
                     ).getFullName()
                 }
             )

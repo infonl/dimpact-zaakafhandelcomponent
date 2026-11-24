@@ -26,6 +26,8 @@ import nl.info.zac.app.zaak.model.RestZakenVerdeelGegevens
 import nl.info.zac.app.zaak.model.RestZakenVrijgevenGegevens
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.launchAsLoggedInUser
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
@@ -70,10 +72,13 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
                 explanation = restZakenVerdeelGegevens.reden,
                 group = identityService.readGroup(
                     groupId = restZakenVerdeelGegevens.groepId,
-                    logContext = "assigning zaken from the werklijst"
+                    context = IdentityLookupContext(source = IdentityLookupSource.WERKLIJST_ASSIGNMENT)
                 ),
                 user = restZakenVerdeelGegevens.behandelaarGebruikersnaam?.let { userName ->
-                    identityService.readUser(username = userName, logContext = "assigning zaken from the werklijst")
+                    identityService.readUser(
+                        username = userName,
+                        context = IdentityLookupContext(source = IdentityLookupSource.WERKLIJST_ASSIGNMENT)
+                    )
                 },
                 screenEventResourceId = restZakenVerdeelGegevens.screenEventResourceId
             )

@@ -110,14 +110,14 @@ class IdentityService @Inject constructor(
 
     /**
      * Reads the user with [username] from Keycloak, or returns a placeholder user when it cannot be found.
-     * The optional [logContext], for example the task and zaak that refer to the user, is added to the warning
-     * that is logged when the user cannot be found.
+     * The fields of the optional [context], for example the task and zaak that refer to the user, are added to the
+     * warning that is logged when the user cannot be found.
      */
-    fun readUser(username: String, logContext: String? = null): User = keycloakZacRealmResource.users()
+    fun readUser(username: String, context: IdentityLookupContext? = null): User = keycloakZacRealmResource.users()
         .searchByUsername(username, true)
         .map { it.toUser() }.firstOrNull()
         ?: run {
-            LOG.warning(UserNotFoundInKeycloak(context = logContext))
+            LOG.warning(UserNotFoundInKeycloak(context = context))
             User(username)
         }
 
@@ -131,15 +131,15 @@ class IdentityService @Inject constructor(
 
     /**
      * Reads the group with [groupId] from Keycloak, or returns a placeholder group when it cannot be found.
-     * The optional [logContext], for example the task and zaak that refer to the group, is added to the warning
-     * that is logged when the group cannot be found.
+     * The fields of the optional [context], for example the task and zaak that refer to the group, are added to the
+     * warning that is logged when the group cannot be found.
      */
-    fun readGroup(groupId: String, logContext: String? = null): Group = keycloakZacRealmResource.groups()
+    fun readGroup(groupId: String, context: IdentityLookupContext? = null): Group = keycloakZacRealmResource.groups()
         // retrieve groups with 'full representation' or else the group attributes will not be filled
         .groups(groupId, true, 0, 1, false)
         .firstOrNull()?.toGroup()
         ?: run {
-            LOG.warning(GroupNotFoundInKeycloak(groupId = groupId, context = logContext))
+            LOG.warning(GroupNotFoundInKeycloak(groupId = groupId, context = context))
             Group(groupId)
         }
 

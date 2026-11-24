@@ -8,6 +8,8 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import nl.info.zac.app.note.model.RestNote
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.note.model.Note
 
@@ -18,7 +20,7 @@ class NoteConverter @Inject constructor(
     fun toRestNote(note: Note): RestNote {
         val medewerker = identityService.readUser(
             username = note.employeeUsername,
-            logContext = "note '${note.id}' of zaak with UUID '${note.zaakUUID}'"
+            context = IdentityLookupContext(source = IdentityLookupSource.NOTE, zaakUuid = note.zaakUUID, noteId = note.id)
         )
         return RestNote(
             id = note.id,

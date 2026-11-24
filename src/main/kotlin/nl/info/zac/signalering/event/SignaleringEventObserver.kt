@@ -24,6 +24,8 @@ import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.event.AbstractEventObserver
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.task.readZaakUUID
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.signalering.model.Signalering
@@ -126,7 +128,10 @@ class SignaleringEventObserver @Inject constructor(
             setTarget(
                 identityService.readUser(
                     username = rolMedewerker.toUsername(),
-                    logContext = "a signalering about zaak '${zaak.identificatie}'"
+                    context = IdentityLookupContext(
+                        source = IdentityLookupSource.SIGNALERING,
+                        zaakIdentificatie = zaak.identificatie
+                    )
                 )
             )
         }
@@ -144,7 +149,10 @@ class SignaleringEventObserver @Inject constructor(
             setTarget(
                 identityService.readGroup(
                     groupId = organisatorischeEenheidIdentificatie.identificatie,
-                    logContext = "a signalering about zaak '${zaak.identificatie}'"
+                    context = IdentityLookupContext(
+                        source = IdentityLookupSource.SIGNALERING,
+                        zaakIdentificatie = zaak.identificatie
+                    )
                 )
             )
         }
@@ -168,7 +176,12 @@ class SignaleringEventObserver @Inject constructor(
     ) = username?.let {
         signaleringService.signaleringInstance(event.objectType).apply {
             setSubject(task)
-            setTarget(identityService.readUser(username = it, logContext = "a signalering about task '${task.id}'"))
+            setTarget(
+                identityService.readUser(
+                    username = it,
+                    context = IdentityLookupContext(source = IdentityLookupSource.SIGNALERING, taakId = task.id)
+                )
+            )
         }
     }
 
