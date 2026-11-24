@@ -73,12 +73,14 @@ async function cmmnParametersFor(
       params: { path: { zaaktypeUUID: zaaktype.uuid } },
     }),
   );
-  const nietOntvankelijk = resultaattypes.find(
-    (resultaattype) => resultaattype.naam === NIET_ONTVANKELIJK_RESULTAATTYPE,
-  );
+  // No journey finishes an intake as niet ontvankelijk, so any resultaattype of a zaaktype without it will do.
+  const nietOntvankelijk =
+    resultaattypes.find(
+      ({ naam }) => naam === NIET_ONTVANKELIJK_RESULTAATTYPE,
+    ) ?? resultaattypes.at(0);
   if (!nietOntvankelijk) {
     throw new Error(
-      `The zaaktype "${zaaktype.omschrijving}" has no resultaattype "${NIET_ONTVANKELIJK_RESULTAATTYPE}".`,
+      `The zaaktype "${zaaktype.omschrijving}" has no resultaattype.`,
     );
   }
 
