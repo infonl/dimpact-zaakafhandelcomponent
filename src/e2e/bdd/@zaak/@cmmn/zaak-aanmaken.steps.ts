@@ -3,27 +3,18 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { expect, type Page, type TestInfo } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 import { ENV } from "../../../config/env";
 import { Given, Then, When } from "../../fixtures";
 import { zakenWerkvoorraad } from "../../screens/werkvoorraad";
 import { zaakPage } from "../../screens/zaak";
-
-function bagTestDoubleOrSkip(testInfo: TestInfo) {
-  testInfo.skip(
-    !ENV.testDoubles,
-    `The target "${ENV.target}" has no BAG test double.`,
-  );
-  // skip() ends the test when the target has no test doubles, so they exist from here on.
-  return ENV.testDoubles!.bag;
-}
 
 async function openInitiatorPanel(page: Page) {
   await page.getByRole("button", { name: "Initiator koppelen" }).click();
 }
 
 Given(
-  "the zaaktype {string} is set up and assigns new zaken to groep {string}",
+  "the zaaktype {seeded} is set up and assigns new zaken to groep {seeded}",
   async ({ testData }, zaaktype: string, groep: string) => {
     await testData.ensureZaaktype(zaaktype, { groep });
   },
@@ -44,7 +35,7 @@ When(
 );
 
 When(
-  "I search the bedrijf with KvK {string} and select {string} as initiator",
+  "I search the bedrijf with KvK {seeded} and select {seeded} as initiator",
   async ({ page }, kvkNummer: string, naam: string) => {
     await openInitiatorPanel(page);
     await page.getByRole("tab", { name: "Bedrijf" }).click();
@@ -64,9 +55,9 @@ When(
 );
 
 When(
-  "I search an address from the BAG stub and add it as BAG object",
-  async ({ page, $testInfo }) => {
-    const bag = bagTestDoubleOrSkip($testInfo);
+  "I search an address in the BAG and add it as BAG object",
+  async ({ page }) => {
+    const { bag } = ENV;
     await page.getByRole("button", { name: "BAG object koppelen" }).click();
     const bagSearchText = page.getByRole("textbox", { name: "BAG objecten" });
     await bagSearchText.fill(bag.searchText);
@@ -82,19 +73,16 @@ When(
   },
 );
 
-Then("the zaak shows {string} as initiator", async ({ page }, naam: string) => {
+Then("the zaak shows {seeded} as initiator", async ({ page }, naam: string) => {
   await zaakPage(page).expectInitiator(naam);
 });
 
-Then(
-  "the zaak shows that address as BAG object",
-  async ({ page, $testInfo }) => {
-    await zaakPage(page).expectBagObject(bagTestDoubleOrSkip($testInfo).adres);
-  },
-);
+Then("the zaak shows that address as BAG object", async ({ page }) => {
+  await zaakPage(page).expectBagObject(ENV.bag.adres);
+});
 
 Then(
-  "the zaak is assigned to groep {string}",
+  "the zaak is assigned to groep {seeded}",
   async ({ page }, groep: string) => {
     await zaakPage(page).expectGegeven("Groep", groep);
   },

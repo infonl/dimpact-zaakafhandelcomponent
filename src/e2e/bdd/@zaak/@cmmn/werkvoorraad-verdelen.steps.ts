@@ -17,7 +17,7 @@ const OMSCHRIJVING = "zaak zonder behandelaar";
 const TAAK = "Goedkeuren";
 
 Given(
-  "{int} zaken for groep {string} without a behandelaar",
+  "{int} zaken for groep {seeded} without a behandelaar",
   async ({ testData }, aantal: number, groep: string) => {
     for (let zaak = 0; zaak < aantal; zaak++) {
       await testData.createZaak({
@@ -30,7 +30,7 @@ Given(
 );
 
 Given(
-  "a zaak for groep {string} without a behandelaar",
+  "a zaak for groep {seeded} without a behandelaar",
   async ({ testData }, groep: string) => {
     await testData.createZaak({
       zaaktype: SEED.cmmnZaaktype,
@@ -41,7 +41,7 @@ Given(
 );
 
 Given(
-  "{int} open taken for groep {string} without a behandelaar",
+  "{int} open taken for groep {seeded} without a behandelaar",
   async ({ testData }, aantal: number, groep: string) => {
     const zaak = await testData.createZaak({
       zaaktype: SEED.cmmnZaaktype,
@@ -93,7 +93,7 @@ When("I select the {int} taken", async ({ page, testData }, aantal: number) => {
 });
 
 When(
-  "I assign them to groep {string} and to the behandelaar",
+  "I assign them to groep {seeded} and to the behandelaar",
   async ({ page, accountOfRole }, groep: string) => {
     await zakenWerkvoorraad(page).verdelen({
       groep,

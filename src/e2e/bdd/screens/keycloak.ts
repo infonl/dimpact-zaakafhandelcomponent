@@ -25,6 +25,9 @@ export async function signIn(
     .fill(credentials.username);
   await page
     .getByRole("textbox", { name: signInPage.passwordField })
-    .fill(credentials.password);
+    // The report shows the value of fill(), and the report of a deployed environment is public.
+    .evaluate((field: HTMLInputElement, password) => {
+      field.value = password;
+    }, credentials.password);
   await page.getByRole("button", { name: signInPage.signInButton }).click();
 }

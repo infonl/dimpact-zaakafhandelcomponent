@@ -50,34 +50,57 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
-      - name: Install dependencies
-        run: cd src/e2e && npm ci --ignore-scripts
-      - name: Install Playwright Browsers
+      - name: Install the e2e dependencies and the browser
         timeout-minutes: 20
-        run: cd src/e2e && npx playwright install --with-deps msedge
-      - name: Run your tests
-        run: 'cd src/e2e && npm run e2e:run -- --world-parameters "{\"urls\": { \"zac\": \"${{ secrets.ZAC_URL }}\", \"openForms\": \"${{ secrets.OPEN_FORMS_URL }}\" }, \"headless\": true, \"users\": { \"Bob\": { \"username\": \"${{ secrets.ZAC_E2E_TEST_USER_1_USERNAME }}\", \"password\": \"${{ secrets.ZAC_E2E_TEST_USER_1_PASSWORD }}\"}, \"Oscar\": { \"username\": \"${{ secrets.ZAC_E2E_TEST_USER_2_USERNAME }}\", \"password\": \"${{ secrets.ZAC_E2E_TEST_USER_2_PASSWORD }}\"}}}"'
-      - name: Make a playwright report
+        run: |
+          cd src/e2e
+          npm ci --ignore-scripts
+          npx playwright install --with-deps chromium
+      - name: Run the e2e tests
+        env:
+          E2E_TARGET: dev
+          ZAC_URL: ${{ secrets.ZAC_URL }}
+          OPEN_FORMS_URL: ${{ secrets.OPEN_FORMS_URL }}
+          E2E_TEST_USER_1_USERNAME: ${{ secrets.ZAC_E2E_TEST_USER_1_USERNAME }}
+          E2E_TEST_USER_1_PASSWORD: ${{ secrets.ZAC_E2E_TEST_USER_1_PASSWORD }}
+          E2E_TEST_USER_2_USERNAME: ${{ secrets.ZAC_E2E_TEST_USER_2_USERNAME }}
+          E2E_TEST_USER_2_PASSWORD: ${{ secrets.ZAC_E2E_TEST_USER_2_PASSWORD }}
+        run: cd src/e2e && npm test
+      - name: Summarize the results
+        id: summary
         if: ${{ !cancelled() }}
-        run: "cd src/e2e && npm run e2e:generate:report"
-      - name: Extract metrics from Cucumber report
-        id: metrics
+        run: |
+          cd src/e2e
+          node reporting/summarize.ts reports/results.json "$GITHUB_OUTPUT" | tee -a "$GITHUB_STEP_SUMMARY"
+      # GitHub Pages and the artifacts of this repository are public.
+      - name: Check that the report holds no secrets
+        id: report-check
         if: ${{ !cancelled() }}
-        run: "cd src/e2e && npm run e2e:extract:metrics"
-      - name: copy report to separate folder
-        if: ${{ !cancelled() }}
-        run: "cd src/e2e && mv reports ${{ steps.date.outputs.date }} && mkdir -p reports/$(dirname ${{ steps.date.outputs.report_path }}) && mv ${{ steps.date.outputs.date }} reports/${{ steps.date.outputs.report_path }}"
+        env:
+          E2E_TEST_USER_1_PASSWORD: ${{ secrets.ZAC_E2E_TEST_USER_1_PASSWORD }}
+          E2E_TEST_USER_2_PASSWORD: ${{ secrets.ZAC_E2E_TEST_USER_2_PASSWORD }}
+        run: >-
+          python3 -I scripts/github/check-e2e-report-for-secrets.py src/e2e/playwright-report
+          E2E_TEST_USER_1_PASSWORD E2E_TEST_USER_2_PASSWORD
+      - name: Copy the report to the folder of this run
+        if: ${{ !cancelled() && steps.report-check.outcome == 'success' }}
+        env:
+          REPORT_PATH: ${{ steps.date.outputs.report_path }}
+        run: |
+          mkdir -p "site/$(dirname "$REPORT_PATH")"
+          mv src/e2e/playwright-report "site/$REPORT_PATH"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.report-check.outcome == 'success' }}
         with:
-          path: src/e2e/reports
+          path: site
           retention-days: 7
       - name: Deploy to GitHub Pages
-        if: ${{ !cancelled() }}
+        id: deploy
+        if: ${{ !cancelled() && steps.report-check.outcome == 'success' }}
         uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./src/e2e/reports/ # directory of your reports
+          publish_dir: ./site
           publish_branch: gh-pages # deploying to gh-pages branch
           keep_files: true # retains files that are not part of the current publish
       - name: Notify Slack
@@ -133,14 +156,14 @@ jobs:
                       "type": "section",
                       "text": {
                         "type": "mrkdwn",
-                        "text": "*Report URL:*\n:link: https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.report_path }}/index.html"
+                        "text": "*Report URL:*\n${{ steps.deploy.outcome == 'success' && format(':link: https://infonl.github.io/dimpact-zaakafhandelcomponent/{0}/index.html', steps.date.outputs.report_path) || 'This run published no report.' }}"
                       }
                     },
                     {
                       "type": "section",
                       "text": {
                         "type": "mrkdwn",
-                        "text": ${{ steps.metrics.outputs.slack_summary || '"No e2e metrics available for this run."' }}
+                        "text": ${{ steps.summary.outputs.slack_summary || '"The run stopped before it had results."' }}
                       }
                     },
                     {
@@ -152,7 +175,7 @@ jobs:
                             "type": "plain_text",
                             "text": "View Report"
                           },
-                          "url": "https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.report_path }}/index.html"
+                          "url": "${{ steps.deploy.outcome == 'success' && format('https://infonl.github.io/dimpact-zaakafhandelcomponent/{0}/index.html', steps.date.outputs.report_path) || format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}"
                         },
                         {
                           "type": "button",
@@ -161,14 +184,6 @@ jobs:
                             "text": "View Run & Timings"
                           },
                           "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                        },
-                        {
-                          "type": "button",
-                          "text": {
-                            "type": "plain_text",
-                            "text": "View Videos"
-                          },
-                          "url": "https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.report_path }}/videos.html"
                         }
                       ]
                     }

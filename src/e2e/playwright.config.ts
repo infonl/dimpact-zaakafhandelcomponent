@@ -19,8 +19,8 @@ export default defineConfig({
   retries: ENV.runsInCi ? 1 : 0,
   failOnFlakyTests: ENV.runsInCi,
   workers: ENV.runsInCi ? 2 : 4,
-  timeout: 120_000,
-  expect: { timeout: 10_000 },
+  timeout: ENV.timeouts.testMilliseconds,
+  expect: { timeout: ENV.timeouts.expectMilliseconds },
   reporter: ENV.runsInCi
     ? [
         ["html", { open: "never" }],
@@ -35,7 +35,7 @@ export default defineConfig({
     baseURL: ENV.zacUrl,
     locale: "nl-NL",
     timezoneId: "Europe/Amsterdam",
-    trace: ENV.runsInCi ? "on-first-retry" : "on",
+    trace: !ENV.recordsTraces ? "off" : ENV.runsInCi ? "on-first-retry" : "on",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
   },

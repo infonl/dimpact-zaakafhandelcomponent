@@ -34,7 +34,7 @@ async function openDocument(page: Page, identificatie: string, titel: string) {
 }
 
 When(
-  "I add the document {string} with the titel {string} and the type {string}",
+  "I add the document {string} with the titel {string} and the type {seeded}",
   async ({ page, testData }, bestand: string, titel: string, type: string) => {
     await zaakPage(page).chooseFromMenu("Document toevoegen");
     const bestandsnaam = page.getByRole("textbox", { name: "Bestandsnaam" });

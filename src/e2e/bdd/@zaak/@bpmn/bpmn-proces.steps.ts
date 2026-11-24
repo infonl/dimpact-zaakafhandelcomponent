@@ -27,7 +27,7 @@ Given("the E2E process and its forms are deployed", async ({ testData }) => {
 });
 
 Given(
-  "the zaaktype {string} uses the E2E process and assigns new zaken to groep {string}",
+  "the zaaktype {seeded} uses the E2E process and assigns new zaken to groep {seeded}",
   async ({ testData }, zaaktype: string, groep: string) => {
     await testData.ensureBpmnZaaktype(zaaktype, {
       process: E2E_PROCESS,
@@ -72,7 +72,7 @@ When("I submit the form", async ({ page }) => {
 });
 
 Then(
-  "the task {string} starts for groep {string}",
+  "the task {string} starts for groep {seeded}",
   async ({ page }, taak: string, groep: string) => {
     await expect(zaakPage(page).taak(taak)).toContainText(groep);
   },

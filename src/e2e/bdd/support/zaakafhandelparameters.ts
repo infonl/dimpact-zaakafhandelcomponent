@@ -162,7 +162,7 @@ async function brpDoelbindingenOf(api: ZacApi) {
 
 /**
  * Whether the zaakafhandelparameters already are what the journeys expect: valid, routing new zaken to the groep,
- * with the BRP and KVK koppelingen on, no automatic mail at the intake and at the end, and the gemeente as default
+ * with the BRP and KVK koppelingen on, every human task on, no automatic mail at the intake and at the end, and the gemeente as default
  * afzender. When ZAC sets the BRP doelbindingen per zaaktype, they also have these, because a beheerder cannot save
  * the zaakafhandelparameters without them.
  */
@@ -180,6 +180,7 @@ export function isSetUpFor(
     current.defaultGroepId === groep.id &&
     current.betrokkeneKoppelingen?.isBrpKoppelenEnabled === true &&
     current.betrokkeneKoppelingen?.isKvkKoppelenEnabled === true &&
+    (current.humanTaskParameters ?? []).every(({ actief }) => actief) &&
     current.intakeMail === STATUS_MAIL_OFF &&
     current.afrondenMail === STATUS_MAIL_OFF &&
     (!gemeente ||
@@ -212,12 +213,19 @@ export async function setUpZaaktype(
     return zaaktype;
   }
 
+  const { humanTaskParameters, ...otherParameters } = {
+    ...current,
+    ...(current.isValide ? {} : await cmmnParametersFor(api, zaaktype)),
+  };
   await dataOf(
     api.PUT("/rest/zaakafhandelparameters/{zaaktypeUUID}", {
       params: { path },
       body: {
-        ...current,
-        ...(current.isValide ? {} : await cmmnParametersFor(api, zaaktype)),
+        ...otherParameters,
+        humanTaskParameters: humanTaskParameters?.map((parameters) => ({
+          ...parameters,
+          actief: true,
+        })),
         defaultGroepId: groep.id,
         intakeMail: STATUS_MAIL_OFF,
         afrondenMail: STATUS_MAIL_OFF,

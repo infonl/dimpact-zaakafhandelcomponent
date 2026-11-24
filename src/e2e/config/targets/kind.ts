@@ -86,10 +86,10 @@ export const kind: Target = (environment) => ({
     signInButton: "Sign In",
     invalidCredentialsMessage: "Invalid username or password.",
   },
+  // scripts/kind/seed/bag-wiremock only answers this search text.
+  bag: { searchText: "fake search text", adres: "Dam 1, 1012JS Amsterdam" },
   // The test doubles of './start-kind.sh -t', with the settings of scripts/kind/values/zac-e2e.yaml.
   testDoubles: {
-    // scripts/kind/seed/bag-wiremock only answers this search text.
-    bag: { searchText: "fake search text", adres: "Dam 1, 1012JS Amsterdam" },
     mail: {
       apiUrl: `${urlOfService(environment.KIND_CLUSTER_NAME ?? "zac", "GREENMAIL_API", DEFAULT_GREENMAIL_API_PORT)}/api`,
     },

@@ -17,3 +17,15 @@ export async function chooseOption(page: Page, select: string, optie: string) {
   }).toPass({ timeout: 30_000 });
   await option.click();
 }
+
+/** Chooses the option of an autocomplete, which only shows the options that match what is typed. */
+export async function chooseFromAutocomplete(
+  page: Page,
+  autocomplete: string,
+  optie: string,
+) {
+  const field = page.getByRole("combobox", { name: autocomplete, exact: true });
+  await field.click();
+  await field.fill(optie);
+  await page.getByRole("option", { name: optie, exact: true }).click();
+}

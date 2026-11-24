@@ -158,9 +158,6 @@ The tests are in the `src/e2e` folder. Each feature file in `src/e2e/bdd` is a j
 from start to finish through the real UI. The [README of the e2e tests](../../src/e2e/README.md) describes how the
 suite is built, how it is configured and how to write a journey.
 
-The older cucumber-js suite in `src/e2e/features` is being replaced, feature by feature. See
-[The cucumber-js suite](#the-cucumber-js-suite).
-
 ### Running e2e tests locally
 
 The local e2e tests run against ZAC in the [kind stack](installKind.md). The browser of the tests runs on your
@@ -250,19 +247,23 @@ Run this command in `src/e2e` to record against the local kind stack:
 npx playwright codegen http://localhost:8080
 ```
 
-### The cucumber-js suite
+### Running e2e tests against the TEST environment
 
-The cucumber-js suite in `src/e2e/features` runs against the INFO TEST environment (accessible for INFO developers
-only), because its features need the users, groups and zaaktypes of that environment. A feature of this suite is
-deleted when journeys of the playwright-bdd suite replace it.
+INFO developers can run the same tests against the TEST environment, with the accounts in 1Password:
 
 ```shell
 ./start-e2e-with-test-env.sh
-HEADLESS=true ./start-e2e-with-test-env.sh                 # without a browser window
-HEADLESS=true TAGS="@bpmn" ./start-e2e-with-test-env.sh    # only the features with this tag
+./start-e2e-with-test-env.sh --headed --grep "Intake"
 ```
 
-Its steps are in [src/e2e/step-definitions](../../src/e2e/step-definitions), one file per domain.
+The profile [dev](../../src/e2e/config/targets/dev.ts) holds how the environment names the zaaktypes, the groepen and
+the other data of the feature files, and what it does not have. The tests set up "Zaaktype voor e2e testen" through
+the REST API. They change no other zaaktype of this shared environment, and they do not delete the zaken that they
+create. A scenario that needs something the environment does not have is skipped, with the reason in the report.
+
+The [Playwright Tests](../../.github/workflows/run-e2e.yml) workflow runs them every weeknight. It publishes the
+Playwright report on GitHub Pages and posts the result in Slack. That report is public, so this target records no
+traces, and the workflow publishes nothing when the report holds a password.
 
 ## GitHub Action Tests
 

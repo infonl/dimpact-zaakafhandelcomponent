@@ -13,14 +13,14 @@ import { dataOf } from "../../support/zac-api";
 import { SEED } from "../seed";
 
 Given(
-  "the zaak has a document {string} of type {string}",
+  "the zaak has a document {string} of type {seeded}",
   async ({ testData }, titel: string, informatieobjecttype: string) => {
     await testData.addDocument(testData.zaak, { titel, informatieobjecttype });
   },
 );
 
 Given(
-  "a closed zaak with the resultaat {string}",
+  "a closed zaak with the resultaat {seeded}",
   async ({ testData }, resultaat: string) => {
     const { naam } = await testData.groepOf("behandelaar");
     const zaak = await testData.createZaak({
@@ -66,7 +66,7 @@ Then(
 );
 
 When(
-  "I close the zaak with the resultaat {string}",
+  "I close the zaak with the resultaat {seeded}",
   async ({ page }, resultaat: string) => {
     const dialog = await zaakPage(page).afhandelen(resultaat);
     await expect(dialog).toBeHidden();
@@ -74,7 +74,7 @@ When(
 );
 
 Then(
-  "the zaak appears in the list of afgehandelde zaken with the resultaat {string}",
+  "the zaak appears in the list of afgehandelde zaken with the resultaat {seeded}",
   async ({ page, testData }, resultaat: string) => {
     const { identificatie } = testData.zaak;
     await testData.untilZaakIsIndexed(identificatie, "afgesloten");

@@ -85,7 +85,7 @@ When("I open the form to create a zaak", async ({ page }) => {
   ).toBeVisible();
 });
 
-When("I choose the zaaktype {string}", async ({ page }, zaaktype: string) => {
+When("I choose the zaaktype {seeded}", async ({ page }, zaaktype: string) => {
   await page.getByRole("combobox", { name: "Zaaktype" }).click();
   await page.getByRole("option", { name: zaaktype, exact: true }).click();
 });

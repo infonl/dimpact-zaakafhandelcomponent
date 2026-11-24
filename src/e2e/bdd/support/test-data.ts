@@ -17,6 +17,8 @@ import { dataOf, type Schemas, type ZacApi } from "./zac-api";
 
 const SEARCH_INDEX_TIMEOUT_MILLISECONDS = 60_000;
 const NOTIFICATION_TIMEOUT_MILLISECONDS = 60_000;
+// Such a zaak goes from Open Formulieren through the Objecten API and Open Notificaties to ZAC.
+const ZAAK_FROM_OUTSIDE_TIMEOUT_MILLISECONDS = 180_000;
 const STATUS_IN_BEHANDELING = "In behandeling";
 
 export type RememberedZaak = {
@@ -100,6 +102,8 @@ export type TestData = {
   documentTitled(titel: string): string;
   /** Starts the human task of the zaak for the groep, without a behandelaar, through the REST API as the behandelaar. */
   startTaak(zaak: RememberedZaak, taak: NewTaak): Promise<void>;
+  /** Waits until the search index of ZAC has a zaak with the text in its toelichting, and remembers that zaak. */
+  untilZaakWithToelichting(text: string): Promise<void>;
   /** Remembers a zaak that the scenario created, for example through the UI, so later steps can find it. */
   rememberZaak(zaak: RememberedZaak): void;
   /** The zaak that the scenario created last. Fails the step when the scenario created no zaak yet. */
@@ -164,6 +168,20 @@ async function isZaakInSearchIndex(
   return (resultaten ?? []).some(
     (zaak) => zaak.identificatie === identificatie,
   );
+}
+
+async function zakenWithToelichting(api: ZacApi, text: string) {
+  const { resultaten } = await dataOf(
+    api.PUT("/rest/zoeken/list", {
+      body: {
+        type: "ZAAK",
+        page: 0,
+        rows: 10,
+        zoeken: { ZAAK_TOELICHTING: text },
+      },
+    }),
+  );
+  return (resultaten ?? []).flatMap(({ identificatie }) => identificatie ?? []);
 }
 
 async function isZaakWithStatusInSearchIndex(
@@ -498,6 +516,18 @@ export function createTestData({
       const zaak = { identificatie, omschrijving };
       this.rememberZaak(zaak);
       return zaak;
+    },
+
+    async untilZaakWithToelichting(text) {
+      const api = await apiAs("behandelaar");
+      await expect
+        .poll(() => zakenWithToelichting(api, text), {
+          message: `The search index has no zaak with "${text}" in its toelichting.`,
+          timeout: ZAAK_FROM_OUTSIDE_TIMEOUT_MILLISECONDS,
+        })
+        .toHaveLength(1);
+      const [identificatie] = await zakenWithToelichting(api, text);
+      this.rememberZaak({ identificatie });
     },
 
     async finishIntake({ identificatie }) {
