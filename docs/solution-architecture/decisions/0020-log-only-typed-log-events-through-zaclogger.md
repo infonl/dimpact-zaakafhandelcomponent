@@ -49,8 +49,8 @@ only option that accepts no free text and still keeps each event next to the cod
   instance. A failed lookup is written as `unknown` and is not repeated for 5 minutes.
 * Shared concepts use the field names of `LogFieldNames`. An operation with a start and an end is logged as one record
   with `outcome` and `durationMs`.
-* The WildFly logging filter of ADR-0011 also masks BSNs and IBANs in the MDC values, and withholds them when masking
-  fails.
+* The WildFly logging filter also masks BSNs and IBANs in the MDC values, and withholds them when masking
+  fails ([ADR-0021](0021-mask-personal-data-in-log-records-and-their-fields-with-a-wildfly-logging-filter.md)).
 
 ### Consequences
 
@@ -61,7 +61,8 @@ only option that accepts no free text and still keeps each event next to the cod
 * Bad, because the description is a constructor argument, so a subclass could still pass an interpolated string. The
   review of the event classes has to catch that.
 * Bad, because an exception message and a stack trace are still free text, of ZAC and of libraries. The filter of
-  ADR-0011 masks BSNs and IBANs in them; other personal data in exception messages is not covered.
+  [ADR-0021](0021-mask-personal-data-in-log-records-and-their-fields-with-a-wildfly-logging-filter.md) masks BSNs
+  and IBANs in them; other personal data in exception messages is not covered.
 * Bad, because MDC values are strings, so `durationMs` is written as `"84"` and a log tool must map it as a number.
 
 ### Confirmation
@@ -99,8 +100,8 @@ field name.
 
 ## More Information
 
-* [ADR-0011](0011-mask-personal-data-in-a-wildfly-logging-filter.md): the WildFly logging filter, which stays as a
-  safety net.
+* [ADR-0021](0021-mask-personal-data-in-log-records-and-their-fields-with-a-wildfly-logging-filter.md): the WildFly
+  logging filter, which stays as a safety net and also masks the MDC fields.
 * [logging.md](../../development/logging.md): how to log in ZAC.
 * The OpenSpec change `remove-personal-data-from-logging`; a wide event per unit of work and tail sampling are left
   to a follow-up story.

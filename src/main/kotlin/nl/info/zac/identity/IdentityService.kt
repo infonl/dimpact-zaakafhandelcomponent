@@ -36,6 +36,9 @@ class IdentityService @Inject constructor(
     @Named("keycloakZacRealmResource")
     private val keycloakZacRealmResource: RealmResource,
 
+    @Named("keycloakEmployeeLookupRealmResource")
+    private val keycloakEmployeeLookupRealmResource: RealmResource,
+
     private val pabcClientService: PabcClientService
 ) {
     companion object {
@@ -120,8 +123,9 @@ class IdentityService @Inject constructor(
 
     /**
      * Returns the Keycloak user ID of the user with [username], or null when Keycloak does not know that user.
+     * Only for the log records of [ZacLogger]: it uses a Keycloak client with short timeouts.
      */
-    fun findKeycloakUserId(username: String): String? = keycloakZacRealmResource.users()
+    fun findKeycloakUserId(username: String): String? = keycloakEmployeeLookupRealmResource.users()
         .searchByUsername(username, true)
         .firstOrNull()?.id
 
