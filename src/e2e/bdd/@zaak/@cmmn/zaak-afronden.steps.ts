@@ -29,6 +29,7 @@ Given(
     });
     await testData.finishIntake(zaak);
     await testData.closeZaak(zaak, resultaat);
+    await testData.untilZaakIsIndexed(zaak.identificatie, "afgesloten");
   },
 );
 
@@ -73,13 +74,14 @@ When(
 );
 
 Then(
-  "the zaak appears in the list of afgehandelde zaken",
-  async ({ page, testData }) => {
+  "the zaak appears in the list of afgehandelde zaken with the resultaat {string}",
+  async ({ page, testData }, resultaat: string) => {
     const { identificatie } = testData.zaak;
     await testData.untilZaakIsIndexed(identificatie, "afgesloten");
     const lijst = afgehandeldeZaken(page);
     await lijst.open();
     await lijst.expectZaak(identificatie);
+    await expect(lijst.zaak(identificatie)).toContainText(resultaat);
   },
 );
 

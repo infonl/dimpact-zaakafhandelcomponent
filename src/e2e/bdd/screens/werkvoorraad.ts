@@ -4,17 +4,25 @@
  */
 
 import { expect, type Locator, type Page } from "@playwright/test";
+import type { Schemas } from "../support/zac-api";
 import { confirmDialog, findDialog } from "./dialog";
 
-function answerOfSearch(page: Page) {
-  return page.waitForResponse(
-    (response) =>
-      new URL(response.url()).pathname.endsWith("/rest/zoeken/list") &&
-      response.ok(),
-  );
+/** Waits for the answer of a search. With a text, waits for the answer of the search for that text, not of another. */
+function answerOfSearch(page: Page, text?: string) {
+  return page.waitForResponse((response) => {
+    if (!new URL(response.url()).pathname.endsWith("/rest/zoeken/list")) {
+      return false;
+    }
+    if (!response.ok()) return false;
+    if (text === undefined) return true;
+    const { zoeken } = response
+      .request()
+      .postDataJSON() as Schemas["RestZoekParameters"];
+    return Object.values(zoeken ?? {}).includes(text);
+  });
 }
 
-/** Opens the list and waits for the answer of its first search, so a later filter waits for its own answer. */
+/** Opens the list and waits for the answer of its first search, so a filter shows the text it already has. */
 async function openList(page: Page, path: string) {
   await Promise.all([answerOfSearch(page), page.goto(path)]);
 }
@@ -25,7 +33,7 @@ async function filter(page: Page, column: string, text: string) {
   // ZAC does not search again for a filter that did not change, so no answer would come.
   if ((await textbox.inputValue()) === text) return;
   await textbox.fill(text);
-  await Promise.all([answerOfSearch(page), textbox.press("Enter")]);
+  await Promise.all([answerOfSearch(page, text), textbox.press("Enter")]);
 }
 
 /** Chooses the option of an autocomplete field of the dialog, such as "Groep" or "Medewerker". */
