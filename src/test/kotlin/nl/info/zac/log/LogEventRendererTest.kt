@@ -88,6 +88,24 @@ class LogEventRendererTest : BehaviorSpec({
                 }
             }
         }
+
+        given("an event with a static field and an inner event class with a synthetic field of its outer class") {
+            val fakeEventWithConstant = FakeEventWithConstant(count = 3)
+            val innerEvent = object : LogEvent("Inner event") {
+                val count = 3
+                val countOfOuterEvent get() = fakeEventWithConstant.count
+            }
+
+            `when`("the fields of both events are rendered") {
+                val fieldsOfEventWithConstant = LogEventRenderer.fields(fakeEventWithConstant)
+                val fieldsOfInnerEvent = LogEventRenderer.fields(innerEvent)
+
+                then("only the fields of the event itself are written") {
+                    fieldsOfEventWithConstant shouldBe mapOf("count" to "3")
+                    fieldsOfInnerEvent shouldBe mapOf("count" to "3")
+                }
+            }
+        }
     }
 
     context("Writing an employee as text") {
