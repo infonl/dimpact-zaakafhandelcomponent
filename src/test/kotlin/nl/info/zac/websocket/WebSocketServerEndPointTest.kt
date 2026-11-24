@@ -44,13 +44,25 @@ class WebSocketServerEndPointTest : BehaviorSpec({
         val wsSession = mockk<Session>(relaxed = true)
         val endpointConfig = mockk<EndpointConfig>()
         every { endpointConfig.userProperties } returns mutableMapOf()
+        every { wsSession.id } returns "fakeSessionId"
 
         `when`("open is called") {
-            endpoint.open(wsSession, endpointConfig)
+            val records = LogCapture(WebSocketServerEndPoint::class).use { logCapture ->
+                endpoint.open(wsSession, endpointConfig)
+                logCapture.records
+            }
 
             then("access is denied and the WebSocket session is closed with VIOLATED_POLICY") {
                 verify(exactly = 1) {
                     wsSession.close(match { it.closeCode.code == CloseReason.CloseCodes.VIOLATED_POLICY.code })
+                }
+            }
+
+            then("the denial is logged with the session ID and without an employee") {
+                with(records.single()) {
+                    message shouldBe "Open WebSocket denied"
+                    mdc["sessionId"] shouldBe "fakeSessionId"
+                    mdc["employee"] shouldBe "null"
                 }
             }
         }
@@ -208,9 +220,33 @@ class WebSocketServerEndPointTest : BehaviorSpec({
         val closeReason = CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, "normal close")
         every { sessionRegistry.deleteAll(wsSession) } just runs
         every { sessionRegistry.removeSession(wsSession) } just runs
+        every { wsSession.userProperties } returns mutableMapOf<String, Any>(
+            LOGGED_IN_USER_SESSION_ATTRIBUTE to "fakeClosingUsername"
+        )
+        ZacLogger.registerEmployee("fakeClosingUsername", "fakeClosingKeycloakUserId")
 
         `when`("close is called") {
-            endpoint.close(wsSession, closeReason)
+            val records = LogCapture(WebSocketServerEndPoint::class).use { logCapture ->
+                endpoint.close(wsSession, closeReason)
+                logCapture.records
+            }
+
+            then("the closing is logged with the close code and the Keycloak user ID of the employee") {
+                with(records.first()) {
+                    message shouldBe "WebSocket closed"
+                    mdc["closeCode"] shouldBe "NORMAL_CLOSURE"
+                    mdc["employee"] shouldBe "fakeClosingKeycloakUserId"
+                    containsAnywhere("fakeClosingUsername") shouldBe false
+                }
+            }
+
+            then("the DELETE_ALL subscription that the closing processes is logged without a screen event") {
+                with(records.last()) {
+                    mdc["subscriptionType"] shouldBe "DELETE_ALL"
+                    mdc["opcode"] shouldBe "null"
+                    mdc["screenEventType"] shouldBe "null"
+                }
+            }
 
             then("DELETE_ALL is processed for the session to prevent resource leaks") {
                 verify(exactly = 1) { sessionRegistry.deleteAll(wsSession) }

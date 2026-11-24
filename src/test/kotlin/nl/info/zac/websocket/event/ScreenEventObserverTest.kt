@@ -4,6 +4,7 @@
  */
 package nl.info.zac.websocket.event
 
+import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -15,7 +16,10 @@ import io.mockk.verify
 import jakarta.websocket.RemoteEndpoint
 import jakarta.websocket.Session
 import nl.info.zac.event.Opcode
+import nl.info.zac.log.GenericEvent
+import nl.info.zac.log.LogCapture
 import nl.info.zac.websocket.SessionRegistry
+import java.util.logging.Level
 
 class ScreenEventObserverTest : BehaviorSpec({
     val sessionRegistry = mockk<SessionRegistry>()
@@ -82,6 +86,51 @@ class ScreenEventObserverTest : BehaviorSpec({
 
                 then("the failure is logged and not thrown, because nobody awaits the asynchronous event") {
                     verify(exactly = 1) { sessionRegistry.listSessions(screenEvent) }
+                }
+            }
+        }
+
+        given("a screen event for the signaleringen of an employee, whose object ID is the username") {
+            val screenEvent = createScreenEvent(
+                opcode = Opcode.UPDATED,
+                screenEventType = ScreenEventType.SIGNALERINGEN,
+                screenEventId = createScreenEventId(resource = "fakeSignaleringenUsername")
+            )
+            every { sessionRegistry.listSessions(screenEvent) } returns emptySet()
+
+            `when`("the event is fired") {
+                val records = LogCapture(ScreenEventObserver::class).use { logCapture ->
+                    screenEventObserver.onFire(screenEvent)
+                    logCapture.records
+                }
+
+                then("the event is logged with its opcode and type, but not with the username in its ID") {
+                    with(records.single()) {
+                        message shouldBe "Received screen event"
+                        mdc["opcode"] shouldBe "UPDATED"
+                        mdc["screenEventType"] shouldBe "SIGNALERINGEN"
+                        containsAnywhere("fakeSignaleringenUsername") shouldBe false
+                    }
+                }
+            }
+        }
+
+        given("a screen event that cannot be converted to JSON") {
+            val screenEvent = createScreenEvent(screenEventType = ScreenEventType.ZAAK)
+            val jsonProcessingException = object : JsonProcessingException("fakeJsonMessage") {}
+            every { sessionRegistry.listSessions(screenEvent) } throws jsonProcessingException
+
+            `when`("the event is fired") {
+                val records = LogCapture(ScreenEventObserver::class).use { logCapture ->
+                    screenEventObserver.onFire(screenEvent)
+                    logCapture.records
+                }
+
+                then("a warning with the exception is logged and nothing is thrown") {
+                    with(records.single { it.level == Level.WARNING }) {
+                        message shouldBe GenericEvent.Type.SCREEN_EVENT_JSON_CONVERSION_FAILED.description
+                        thrown shouldBe jsonProcessingException
+                    }
                 }
             }
         }
