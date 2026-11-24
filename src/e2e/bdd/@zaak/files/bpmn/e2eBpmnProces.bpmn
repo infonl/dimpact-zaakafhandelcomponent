@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://flowable.org/test">
+  <process id="e2eBpmnProces" name="E2E BPMN-proces" isExecutable="true">
+    <documentation>The process of the end-to-end journey "BPMN-proces".</documentation>
+    <startEvent id="start" name="Start" flowable:initiator="initiator" flowable:formFieldValidation="false"/>
+    <userTask id="multipleFormItems" name="MultipleFormItems" flowable:assignee="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="e2eMultipleFormItemsForm" flowable:formFieldValidation="false"/>
+    <serviceTask id="assign" name="Assign for approval" flowable:class="net.atos.zac.flowable.delegate.UpdateZaakAssignmentDelegate">
+      <extensionElements>
+        <flowable:field name="groepId">
+          <flowable:expression><![CDATA[${AM_TeamBehandelaar_Groep}]]></flowable:expression>
+        </flowable:field>
+        <flowable:field name="behandelaarGebruikersnaam">
+          <flowable:expression><![CDATA[${AM_TeamBehandelaar_Medewerker}]]></flowable:expression>
+        </flowable:field>
+        <flowable:field name="reden">
+          <flowable:string><![CDATA[E2E]]></flowable:string>
+        </flowable:field>
+      </extensionElements>
+    </serviceTask>
+    <userTask id="multipleFormItemsSummary" name="MultipleFormItemsSummary" flowable:assignee="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="e2eMultipleFormItemsSummaryForm" flowable:formFieldValidation="false"/>
+    <serviceTask id="close" name="Change status" flowable:class="net.atos.zac.flowable.delegate.UpdateZaakJavaDelegate">
+      <extensionElements>
+        <flowable:field name="statustypeOmschrijving">
+          <flowable:expression><![CDATA[${ZK_Status}]]></flowable:expression>
+        </flowable:field>
+        <flowable:field name="resultaattypeOmschrijving">
+          <flowable:expression><![CDATA[${ZK_Result}]]></flowable:expression>
+        </flowable:field>
+      </extensionElements>
+    </serviceTask>
+    <endEvent id="end" name="End"/>
+    <sequenceFlow id="flow1" sourceRef="start" targetRef="multipleFormItems"/>
+    <sequenceFlow id="flow2" sourceRef="multipleFormItems" targetRef="assign"/>
+    <sequenceFlow id="flow3" sourceRef="assign" targetRef="multipleFormItemsSummary"/>
+    <sequenceFlow id="flow4" sourceRef="multipleFormItemsSummary" targetRef="close"/>
+    <sequenceFlow id="flow5" sourceRef="close" targetRef="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="Diagram_e2eBpmnProces">
+    <bpmndi:BPMNPlane bpmnElement="e2eBpmnProces" id="Plane_e2eBpmnProces">
+      <bpmndi:BPMNShape bpmnElement="start" id="Shape_start">
+        <omgdc:Bounds height="30" width="30" x="100" y="85"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="multipleFormItems" id="Shape_multipleFormItems">
+        <omgdc:Bounds height="80" width="100" x="180" y="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="assign" id="Shape_assign">
+        <omgdc:Bounds height="80" width="100" x="330" y="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="multipleFormItemsSummary" id="Shape_multipleFormItemsSummary">
+        <omgdc:Bounds height="80" width="100" x="480" y="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="close" id="Shape_close">
+        <omgdc:Bounds height="80" width="100" x="630" y="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="end" id="Shape_end">
+        <omgdc:Bounds height="28" width="28" x="780" y="86"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="Edge_flow1">
+        <omgdi:waypoint x="130" y="100"/>
+        <omgdi:waypoint x="180" y="100"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="Edge_flow2">
+        <omgdi:waypoint x="280" y="100"/>
+        <omgdi:waypoint x="330" y="100"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="Edge_flow3">
+        <omgdi:waypoint x="430" y="100"/>
+        <omgdi:waypoint x="480" y="100"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="Edge_flow4">
+        <omgdi:waypoint x="580" y="100"/>
+        <omgdi:waypoint x="630" y="100"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="Edge_flow5">
+        <omgdi:waypoint x="730" y="100"/>
+        <omgdi:waypoint x="780" y="100"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
