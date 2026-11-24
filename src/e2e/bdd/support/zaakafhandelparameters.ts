@@ -136,8 +136,8 @@ function withGemeenteAsDefaultAfzender(afzenders: ZaakAfzender[]) {
 function hasBrpDoelbindingen({ brpDoelbindingen }: ZaaktypeConfiguration) {
   return Boolean(
     brpDoelbindingen?.zoekWaarde &&
-    brpDoelbindingen.raadpleegWaarde &&
-    brpDoelbindingen.verwerkingregisterWaarde,
+      brpDoelbindingen.raadpleegWaarde &&
+      brpDoelbindingen.verwerkingregisterWaarde,
   );
 }
 
