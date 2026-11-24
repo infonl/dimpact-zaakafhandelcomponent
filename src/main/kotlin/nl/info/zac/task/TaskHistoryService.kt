@@ -7,6 +7,8 @@ package nl.info.zac.task
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import nl.info.zac.flowable.task.model.ValueChangeData
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.util.AllOpen
@@ -35,7 +37,10 @@ class TaskHistoryService @Inject constructor(
                 FIELD_VISIBILITY_STRATEGY.toJson(
                     ValueChangeData(
                         "",
-                        identityService.readUser(username = medewerkerId, logContext = "task '${task.id}'").getFullName(),
+                        identityService.readUser(
+                            username = medewerkerId,
+                            context = IdentityLookupContext(source = IdentityLookupSource.TAAK_HISTORY, taakId = task.id)
+                        ).getFullName(),
                         ZaakspecifiekeAutorisatieService.ROLTOELICHTING_ZAAKSPECIFIEK_GEAUTORISEERDE_MEDEWERKER
                     )
                 )

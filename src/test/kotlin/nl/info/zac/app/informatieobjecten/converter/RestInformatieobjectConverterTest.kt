@@ -209,7 +209,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         every { brcClientService.isInformatieObjectGekoppeldAanBesluit(enkelvoudigInformatieObject.url) } returns false
         every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns createInformatieObjectType()
         every {
-            identityService.readUser(username = "fakeUsername", logContext = any())
+            identityService.readUser(username = "fakeUsername", context = any())
         } returns createUser(username = "fakeUsername", fullName = "fakeFullName")
 
         `when`("converted to REST Enkelvoudig Informatie Object") {

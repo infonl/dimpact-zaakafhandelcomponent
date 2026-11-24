@@ -6,6 +6,7 @@ package nl.info.zac.app.identity.converter
 
 import jakarta.inject.Inject
 import nl.info.zac.app.identity.model.toRestGroup
+import nl.info.zac.identity.IdentityLookupContext
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.util.NoArgConstructor
 
@@ -13,6 +14,6 @@ import nl.info.zac.util.NoArgConstructor
 class RestGroupConverter @Inject constructor(
     private val identityService: IdentityService
 ) {
-    fun convertGroupId(groupId: String, logContext: String? = null) =
-        identityService.readGroup(groupId = groupId, logContext = logContext).toRestGroup()
+    fun convertGroupId(groupId: String, context: IdentityLookupContext? = null) =
+        identityService.readGroup(groupId = groupId, context = context).toRestGroup()
 }

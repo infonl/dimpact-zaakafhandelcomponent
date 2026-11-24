@@ -517,6 +517,13 @@ class DetachedDocumentBulkServiceTest : BehaviorSpec({
                         "122"
                     records.forEach { it.containsAnywhere("fakeRejectedValue") shouldBe false }
                 }
+
+                and("the failure is logged with the class of the exception, without the exception and its stack trace") {
+                    with(records.single { it.message == "Ontkoppeld document kon niet worden verwerkt" }) {
+                        mdc["errorType"] shouldBe ZgwValidationErrorException::class.java.name
+                        thrown shouldBe null
+                    }
+                }
             }
         }
 

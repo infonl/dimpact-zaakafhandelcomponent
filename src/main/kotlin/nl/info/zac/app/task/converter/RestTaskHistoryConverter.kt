@@ -10,6 +10,8 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.zac.app.task.model.RestTaskHistoryLine
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.task.model.ValueChangeData
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.task.TaskHistoryService
@@ -120,7 +122,10 @@ class RestTaskHistoryConverter @Inject constructor(
     }
 
     private fun getMedewerkerFullName(medewerkerId: String, taskId: String?): String =
-        identityService.readUser(username = medewerkerId, logContext = "the history of task '$taskId'").getFullName()
+        identityService.readUser(
+            username = medewerkerId,
+            context = IdentityLookupContext(source = IdentityLookupSource.TAAK_HISTORY, taakId = taskId)
+        ).getFullName()
 
     class DuedateChangedData {
         @JsonbDateFormat(JsonbDateFormat.TIME_IN_MILLIS)

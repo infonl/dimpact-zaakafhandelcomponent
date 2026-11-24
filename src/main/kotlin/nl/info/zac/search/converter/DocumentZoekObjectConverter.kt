@@ -16,6 +16,8 @@ import nl.info.client.zgw.zrc.model.zaakUUID
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.search.ReindexSupportService
@@ -154,7 +156,10 @@ class DocumentZoekObjectConverter @Inject constructor(
                     vergrendeldDoorGebruikersnaam = it
                     vergrendeldDoorNaam = identityService.readUser(
                         username = it,
-                        logContext = "the lock on informatieobject '${informatieobject.identificatie}'"
+                        context = IdentityLookupContext(
+                            source = IdentityLookupSource.INFORMATIEOBJECT_LOCK,
+                            informatieobjectIdentificatie = informatieobject.identificatie
+                        )
                     ).getFullName()
                 }
             }

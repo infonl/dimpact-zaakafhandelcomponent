@@ -34,6 +34,8 @@ import nl.info.zac.event.EventingService
 import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.identification.IdentificatieType
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
@@ -186,10 +188,16 @@ class ZaakService @Inject constructor(
     fun readZaakAssignment(groupId: String?, userName: String?): ZaakAssignment {
         val user = userName?.takeIf { it.isNotEmpty() }?.let { userNameToAssign ->
             groupId?.let { identityService.validateIfUserIsInGroup(userNameToAssign, it) }
-            identityService.readUser(username = userNameToAssign, logContext = "assigning a zaak")
+            identityService.readUser(
+                username = userNameToAssign,
+                context = IdentityLookupContext(source = IdentityLookupSource.ZAAK_ASSIGNMENT)
+            )
         }
         return ZaakAssignment(
-            group = groupId?.let { identityService.readGroup(groupId = it, logContext = "assigning a zaak") },
+            group = groupId?.let { identityService.readGroup(
+                    groupId = it,
+                    context = IdentityLookupContext(source = IdentityLookupSource.ZAAK_ASSIGNMENT)
+                ) },
             user = user
         )
     }

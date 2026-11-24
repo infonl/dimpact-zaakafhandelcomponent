@@ -29,7 +29,7 @@
 - [ ] 2.2 Add the log field type `Employee(username)` (its `toString()` never returns the username) and the employee
       resolution in `ZacLogger`: a shared username → Keycloak user ID map, `ZacLogger.registerEmployee(username,
       keycloakUserId)`, and a lookup that is called once per unknown username, stores a found ID for good and a miss
-      for 5 minutes, and never throws;
+      for 1 minute, skips all lookups for 1 minute when Keycloak cannot be reached, and never throws;
       a thread-local guard renders an `Employee` as `unknown` without a lookup while a lookup runs
 - [ ] 2.3 Give the employee lookup a Keycloak admin client of its own in `KeycloakEmployeesAdminClientConfiguration`,
       with a connect and a read timeout of 2 seconds; the other Keycloak calls keep the client without timeouts
@@ -37,7 +37,7 @@
       `ZacLogger` renders an `Employee` field as the resolved ID or `unknown`
 - [ ] 2.5 Call `ZacLogger.registerEmployee` with the `sub` claim in `UserPrincipalFilter` before its log line
 - [ ] 2.6 Unit tests: a registered employee is resolved without a Keycloak call; an unknown employee is looked up once
-      for two log lines; a failed lookup renders `unknown`, is not retried within 5 minutes and is retried after them
+      for two log lines; a failed lookup renders `unknown`, is not retried within 1 minute and is retried after it
       (with an injectable clock); a disabled level causes no
       lookup; before startup an `Employee` renders `unknown`; an `Employee` rendered during a lookup causes no second
       lookup
@@ -55,8 +55,8 @@
 
 ## 4. Fixes of the audit findings
 
-- [ ] 4.1 `JsonLoggingFilter`: log one `OutboundRestCall(correlationId, method, host, operation, status, outcome,
-      durationMs)` record at `FINE` from the response filter, with the span ID or a random UUID as correlation ID and
+- [ ] 4.1 `JsonLoggingFilter`: log one `OutboundRestCall(method, host, operation, status, outcome, durationMs)` record
+      at `FINE` from the response filter, without a correlation ID of its own, with
       the operation from the request property `org.eclipse.microprofile.rest.client.invokedMethod` as
       `<interface>.<method>`; no path, query, headers or payload; remove the payload, header and `geboorte` handling;
       unit tests for a BRP `POST` with a BSN body, a BAG call with an identifier in the path, a URL with a query string,

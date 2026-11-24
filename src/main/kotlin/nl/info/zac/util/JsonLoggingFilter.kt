@@ -4,7 +4,6 @@
  */
 package nl.info.zac.util
 
-import io.opentelemetry.api.trace.Span
 import jakarta.ws.rs.client.ClientRequestContext
 import jakarta.ws.rs.client.ClientRequestFilter
 import jakarta.ws.rs.client.ClientResponseContext
@@ -15,7 +14,6 @@ import nl.info.zac.log.Outcome
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.log.OutboundRestCall
 import java.lang.reflect.Method
-import java.util.UUID
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 
@@ -30,7 +28,6 @@ class JsonLoggingFilter : ClientRequestFilter, ClientResponseFilter {
         private val LOG_LEVEL = Level.FINE
 
         const val START_TIME_PROPERTY = "nl.info.zac.util.JsonLoggingFilter.startTime"
-        const val CORRELATION_ID_PROPERTY = "nl.info.zac.util.JsonLoggingFilter.correlationId"
 
         // The request property in which a MicroProfile Rest Client puts the client method that it invokes
         const val INVOKED_METHOD_PROPERTY = "org.eclipse.microprofile.rest.client.invokedMethod"
@@ -39,7 +36,6 @@ class JsonLoggingFilter : ClientRequestFilter, ClientResponseFilter {
     override fun filter(requestContext: ClientRequestContext) {
         if (LOG.isLoggable(LOG_LEVEL)) {
             requestContext.setProperty(START_TIME_PROPERTY, System.nanoTime())
-            requestContext.setProperty(CORRELATION_ID_PROPERTY, createCorrelationId())
         }
     }
 
@@ -49,7 +45,6 @@ class JsonLoggingFilter : ClientRequestFilter, ClientResponseFilter {
         LOG.log(
             LOG_LEVEL,
             OutboundRestCall(
-                correlationId = requestContext.getProperty(CORRELATION_ID_PROPERTY) as? String ?: createCorrelationId(),
                 method = requestContext.method,
                 host = requestContext.uri?.host,
                 operation = (requestContext.getProperty(INVOKED_METHOD_PROPERTY) as? Method)?.toOperation(),
@@ -59,9 +54,6 @@ class JsonLoggingFilter : ClientRequestFilter, ClientResponseFilter {
             )
         )
     }
-
-    private fun createCorrelationId() =
-        Span.current().spanContext.takeIf { it.isValid }?.spanId ?: UUID.randomUUID().toString()
 
     private fun Method.toOperation() = "${declaringClass.simpleName}.$name"
 

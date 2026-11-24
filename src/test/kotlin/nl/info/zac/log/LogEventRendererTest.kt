@@ -108,6 +108,24 @@ class LogEventRendererTest : BehaviorSpec({
         }
     }
 
+    context("Naming a log event") {
+        given("an event with a class of its own and an event that shares its class through a type") {
+            val fakeZaakAssigned = FakeZaakAssigned(zaakIdentificatie = "ZAAK-2026-0000000001", groupId = "fakeGroupId")
+            val genericEvent = GenericEvent(type = GenericEvent.Type.SMTP_AUTHENTICATION_DISABLED)
+
+            `when`("their event names are determined") {
+                val eventNames = listOf(fakeZaakAssigned, genericEvent).map(LogEventRenderer::eventName)
+
+                then(
+                    "the first is named after its class and the second after its type constant in the same style, " +
+                        "so that one field identifies every event"
+                ) {
+                    eventNames shouldBe listOf("FakeZaakAssigned", "SmtpAuthenticationDisabled")
+                }
+            }
+        }
+    }
+
     context("Writing an employee as text") {
         given("an employee") {
             val employee = Employee("fakeUsername")
