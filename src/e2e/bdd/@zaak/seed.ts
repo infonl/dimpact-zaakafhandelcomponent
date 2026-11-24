@@ -13,6 +13,8 @@ export const SEED = {
   cmmnDeelzaaktype: "Test zaaktype 3",
   /** A resultaat that both CMMN zaaktypes have, and that needs no besluit and no date. */
   resultaat: "Geweigerd",
+  /** A besluittype of the CMMN zaaktype that accepts documents of the informatieobjecttype "besluit". */
+  besluittype: "Besluit aansprakelijkstelling",
 };
 
 /** The person of the seed of the target. Skips the scenario when the target has no seed. */

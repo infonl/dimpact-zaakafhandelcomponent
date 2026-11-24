@@ -47,7 +47,17 @@ When(
     await expect(
       page.getByRole("textbox", { name: "E-mailadres" }),
     ).toHaveValue(seededPersoonOrSkip($testInfo).emailadres);
-    await page.getByRole("button", { name: "Starten" }).click();
+    // Starting the task sends the mail, stores it as a document and changes the status in Open Zaak, which can take
+    // longer than an expect waits, so the step waits for the answer of ZAC first.
+    await Promise.all([
+      page.waitForResponse(
+        (response) =>
+          new URL(response.url()).pathname.endsWith(
+            "/rest/planitems/doHumanTaskPlanItem",
+          ) && response.ok(),
+      ),
+      page.getByRole("button", { name: "Starten" }).click(),
+    ]);
     await expect(zaak.taak(AANVULLENDE_INFORMATIE)).toBeVisible();
   },
 );

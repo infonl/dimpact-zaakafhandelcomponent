@@ -26,6 +26,15 @@ export type NewZaak = {
   initiator?: { bsn: string };
 };
 
+export type NewDocument = {
+  titel: string;
+  /** The omschrijving of the informatieobjecttype, such as "besluit". */
+  informatieobjecttype: string;
+};
+
+/** Whether the search index of ZAC has the zaak as open or as afgesloten, as the lists of zaken filter on it. */
+export type ZaakInSearchIndex = "open" | "afgesloten";
+
 /**
  * The data of one scenario. `Given` steps make data exist through it, and later steps read back what the scenario
  * made. It hides the REST API of ZAC, the roles that may change the data, the lock that keeps workers apart while
@@ -54,19 +63,38 @@ export type TestData = {
   createZaak(zaak: NewZaak): Promise<RememberedZaak>;
   /** Finishes the intake of the zaak as ontvankelijk through the REST API as the behandelaar, so it is in behandeling. */
   finishIntake(zaak: RememberedZaak): Promise<void>;
+  /** Closes the zaak in behandeling with the resultaat through the REST API as the behandelaar. */
+  closeZaak(zaak: RememberedZaak, resultaat: string): Promise<void>;
+  /**
+   * Adds a small text document to the zaak through the REST API as the behandelaar, and remembers it. Makes its titel
+   * unique.
+   */
+  addDocument(zaak: RememberedZaak, document: NewDocument): Promise<void>;
+  /** The unique titel of the document that the scenario added with the titel. Fails the step when it added none. */
+  documentTitled(titel: string): string;
   /** Remembers a zaak that the scenario created, for example through the UI, so later steps can find it. */
   rememberZaak(zaak: RememberedZaak): void;
   /** The zaak that the scenario created last. Fails the step when the scenario created no zaak yet. */
   readonly zaak: RememberedZaak;
   /** The zaak that the scenario created with the omschrijving. Fails the step when it created no such zaak. */
   zaakDescribed(omschrijving: string): RememberedZaak;
-  /** Waits until the search index of ZAC has the zaak, so lists and werkvoorraden can show it. */
-  untilZaakIsIndexed(identificatie: string): Promise<void>;
+  /**
+   * Waits until the search index of ZAC has the zaak, so lists and werkvoorraden can show it. With a state, waits
+   * until the index has the zaak in that state, so the list of afgehandelde zaken shows it or no longer shows it.
+   */
+  untilZaakIsIndexed(
+    identificatie: string,
+    state?: ZaakInSearchIndex,
+  ): Promise<void>;
   /** Waits until the search index of ZAC has the taak of the zaak, so the takenlijsten can show it. */
   untilTaakIsIndexed(zaakIdentificatie: string, naam: string): Promise<void>;
 };
 
-async function isZaakInSearchIndex(api: ZacApi, identificatie: string) {
+async function isZaakInSearchIndex(
+  api: ZacApi,
+  identificatie: string,
+  state?: ZaakInSearchIndex,
+) {
   const { resultaten } = await dataOf(
     api.PUT("/rest/zoeken/list", {
       body: {
@@ -74,6 +102,8 @@ async function isZaakInSearchIndex(api: ZacApi, identificatie: string) {
         page: 0,
         rows: 10,
         zoeken: { ZAAK_IDENTIFICATIE: identificatie },
+        alleenOpenstaandeZaken: state === "open",
+        alleenAfgeslotenZaken: state === "afgesloten",
       },
     }),
   );
@@ -125,24 +155,13 @@ async function onlyGroepOf(api: ZacApi, role: Role) {
  */
 async function finishIntakeOf(api: ZacApi, identificatie: string) {
   await expect(async () => {
-    const zaak = await dataOf(
-      api.GET("/rest/zaken/zaak/id/{identificatie}", {
-        params: { path: { identificatie } },
-      }),
-    );
+    const zaak = await readZaak(api, identificatie);
     if (zaak.status?.naam === STATUS_IN_BEHANDELING) return;
-    const listeners = await dataOf(
-      api.GET("/rest/planitems/zaak/{uuid}/userEventListenerPlanItems", {
-        params: { path: { uuid: zaak.uuid } },
-      }),
+    const intakeAfronden = await userEventListenerOf(
+      api,
+      zaak,
+      "INTAKE_AFRONDEN",
     );
-    const intakeAfronden = listeners.find(
-      ({ userEventListenerActie }) =>
-        userEventListenerActie === "INTAKE_AFRONDEN",
-    );
-    if (!intakeAfronden) {
-      throw new Error(`The zaak ${identificatie} cannot finish its intake.`);
-    }
     await api.POST("/rest/planitems/doUserEventListenerPlanItem", {
       body: {
         zaakUuid: zaak.uuid,
@@ -152,6 +171,129 @@ async function finishIntakeOf(api: ZacApi, identificatie: string) {
       },
     });
   }).toPass();
+}
+
+/** As `finishIntakeOf`, each try reads the zaak again, because Open Zaak can refuse a status within the same second. */
+async function closeZaakOf(
+  api: ZacApi,
+  identificatie: string,
+  resultaat: string,
+) {
+  await expect(async () => {
+    const zaak = await readZaak(api, identificatie);
+    if (!zaak.isOpen) return;
+    const resultaattypes = await dataOf(
+      api.GET("/rest/zaken/resultaattypes/{zaaktypeUUID}", {
+        params: { path: { zaaktypeUUID: zaak.zaaktype.uuid } },
+      }),
+    );
+    const resultaattype = resultaattypes.find(({ naam }) => naam === resultaat);
+    if (!resultaattype) {
+      throw new Error(
+        `The zaaktype of zaak ${identificatie} has no resultaattype "${resultaat}".`,
+      );
+    }
+    const zaakAfhandelen = await userEventListenerOf(
+      api,
+      zaak,
+      "ZAAK_AFHANDELEN",
+    );
+    await api.POST("/rest/planitems/doUserEventListenerPlanItem", {
+      body: {
+        zaakUuid: zaak.uuid,
+        planItemInstanceId: zaakAfhandelen.id,
+        actie: "ZAAK_AFHANDELEN",
+        resultaattypeUuid: resultaattype.id,
+      },
+    });
+  }).toPass();
+}
+
+async function readZaak(api: ZacApi, identificatie: string) {
+  return dataOf(
+    api.GET("/rest/zaken/zaak/id/{identificatie}", {
+      params: { path: { identificatie } },
+    }),
+  );
+}
+
+async function userEventListenerOf(
+  api: ZacApi,
+  zaak: Schemas["RestZaak"],
+  actie: Schemas["UserEventListenerActie"],
+) {
+  const listeners = await dataOf(
+    api.GET("/rest/planitems/zaak/{uuid}/userEventListenerPlanItems", {
+      params: { path: { uuid: zaak.uuid } },
+    }),
+  );
+  const listener = listeners.find(
+    ({ userEventListenerActie }) => userEventListenerActie === actie,
+  );
+  if (!listener) {
+    throw new Error(`The zaak ${zaak.identificatie} has no action ${actie}.`);
+  }
+  return listener;
+}
+
+async function addDocumentTo(
+  api: ZacApi,
+  identificatie: string,
+  { titel, informatieobjecttype }: NewDocument,
+) {
+  const zaak = await readZaak(api, identificatie);
+  const informatieobjecttypes = await dataOf(
+    api.GET("/rest/informatieobjecten/informatieobjecttypes/zaak/{zaakUuid}", {
+      params: { path: { zaakUuid: zaak.uuid } },
+    }),
+  );
+  const type = informatieobjecttypes.find(
+    ({ omschrijving }) => omschrijving === informatieobjecttype,
+  );
+  if (!type) {
+    throw new Error(
+      `The zaak ${identificatie} allows no informatieobjecttype "${informatieobjecttype}".`,
+    );
+  }
+  const inhoud = `${titel}\n`;
+  const bestandsnaam = "besluitbrief.txt";
+  await dataOf(
+    api.POST(
+      "/rest/informatieobjecten/informatieobject/{zaakUuid}/{documentReferenceId}",
+      {
+        params: {
+          path: { zaakUuid: zaak.uuid, documentReferenceId: zaak.uuid },
+          query: { taakObject: false },
+        },
+        body: {
+          titel,
+          bestandsnaam,
+          formaat: "text/plain",
+          bestandsomvang: Buffer.byteLength(inhoud),
+          informatieobjectTypeUUID: type.uuid,
+          vertrouwelijkheidaanduiding: "OPENBAAR",
+          status: "DEFINITIEF",
+          creatiedatum: new Date().toISOString().slice(0, 10),
+          auteur: "E2E",
+          taal: "dut",
+        },
+        bodySerializer: (body) => {
+          const form = new FormData();
+          for (const [name, value] of Object.entries(body)) {
+            if (typeof value === "string" || typeof value === "number") {
+              form.append(name, String(value));
+            }
+          }
+          form.append(
+            "file",
+            new Blob([inhoud], { type: "text/plain" }),
+            bestandsnaam,
+          );
+          return form;
+        },
+      },
+    ),
+  );
 }
 
 /** ZAC accepts a person only by the temporary id that a search in the BRP gives, not by the BSN. */
@@ -183,6 +325,7 @@ export function createTestData({
   scenarioCode?: string;
 }): TestData {
   const zaken: RememberedZaak[] = [];
+  const documenten = new Map<string, string>();
   const groepen = new Map<Role, Promise<Schemas["RestGroup"]>>();
 
   async function ensureZaaktype(omschrijving: string, groep: string) {
@@ -245,6 +388,27 @@ export function createTestData({
       await finishIntakeOf(await apiAs("behandelaar"), identificatie);
     },
 
+    async closeZaak({ identificatie }, resultaat) {
+      await closeZaakOf(await apiAs("behandelaar"), identificatie, resultaat);
+    },
+
+    async addDocument({ identificatie }, { titel, informatieobjecttype }) {
+      const uniqueTitel = this.unique(titel);
+      await addDocumentTo(await apiAs("behandelaar"), identificatie, {
+        titel: uniqueTitel,
+        informatieobjecttype,
+      });
+      documenten.set(titel, uniqueTitel);
+    },
+
+    documentTitled(titel) {
+      const uniqueTitel = documenten.get(titel);
+      if (!uniqueTitel) {
+        throw new Error(`This scenario has not added a document "${titel}".`);
+      }
+      return uniqueTitel;
+    },
+
     rememberZaak(zaak) {
       zaken.push(zaak);
     },
@@ -267,11 +431,11 @@ export function createTestData({
       return zaak;
     },
 
-    async untilZaakIsIndexed(identificatie) {
+    async untilZaakIsIndexed(identificatie, state) {
       const api = await apiAs("behandelaar");
       await expect
-        .poll(() => isZaakInSearchIndex(api, identificatie), {
-          message: `The search index of ZAC has no zaak ${identificatie}.`,
+        .poll(() => isZaakInSearchIndex(api, identificatie, state), {
+          message: `The search index of ZAC has no ${state ? `${state} ` : ""}zaak ${identificatie}.`,
           timeout: SEARCH_INDEX_TIMEOUT_MILLISECONDS,
         })
         .toBe(true);
