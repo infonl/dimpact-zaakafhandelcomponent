@@ -37,6 +37,13 @@ const testDoublesSchema = z.object({
   bag: z.object({ searchText: z.string().min(1), adres: z.string().min(1) }),
   /** The REST API of the mail server that ZAC sends its mail to. */
   mail: z.object({ apiUrl: z.url() }),
+  /** The Objecten API that tells ZAC about new productaanvragen, and a document for their aanvraag. */
+  objecten: z.object({
+    apiUrl: z.url(),
+    token: z.string().min(1),
+    productaanvraagObjecttype: z.uuid(),
+    aanvraagdocument: z.object({ url: z.url(), titel: z.string().min(1) }),
+  }),
 });
 export type TestDoubles = z.infer<typeof testDoublesSchema>;
 
