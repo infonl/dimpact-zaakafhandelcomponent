@@ -20,7 +20,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **open-zaak**: 1.31.2
 - **open-object**: 4.3.0
 - **open-klant**: 2.19.2
-- **open-forms**: 4.0.7
+- **open-forms**: 4.0.8
 - **open-notificaties**: 1.17.0
 - **open-archiefbeheer**: 2.0.0
 - **pabc-migrations**: 2.1.0
