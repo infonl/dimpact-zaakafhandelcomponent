@@ -73,12 +73,14 @@ async function cmmnParametersFor(
       params: { path: { zaaktypeUUID: zaaktype.uuid } },
     }),
   );
-  const nietOntvankelijk = resultaattypes.find(
-    (resultaattype) => resultaattype.naam === NIET_ONTVANKELIJK_RESULTAATTYPE,
-  );
+  // No journey finishes an intake as niet ontvankelijk, so any resultaattype of a zaaktype without it will do.
+  const nietOntvankelijk =
+    resultaattypes.find(
+      ({ naam }) => naam === NIET_ONTVANKELIJK_RESULTAATTYPE,
+    ) ?? resultaattypes.at(0);
   if (!nietOntvankelijk) {
     throw new Error(
-      `The zaaktype "${zaaktype.omschrijving}" has no resultaattype "${NIET_ONTVANKELIJK_RESULTAATTYPE}".`,
+      `The zaaktype "${zaaktype.omschrijving}" has no resultaattype.`,
     );
   }
 
@@ -122,19 +124,49 @@ function withGemeenteAsDefaultAfzender(afzenders: ZaakAfzender[]) {
   );
 }
 
+function hasBrpDoelbindingen({ brpDoelbindingen }: ZaaktypeConfiguration) {
+  return Boolean(
+    brpDoelbindingen?.zoekWaarde &&
+    brpDoelbindingen.raadpleegWaarde &&
+    brpDoelbindingen.verwerkingregisterWaarde,
+  );
+}
+
+/** The first value that ZAC offers for each BRP doelbinding. The BRP of the journeys accepts every value. */
+async function brpDoelbindingenOf(api: ZacApi) {
+  const [zoekWaarde] = await dataOf(
+    api.GET("/rest/referentietabellen/brp-doelbinding-zoek-waarde"),
+  );
+  const [raadpleegWaarde] = await dataOf(
+    api.GET("/rest/referentietabellen/brp-doelbinding-raadpleeg-waarde"),
+  );
+  const [verwerkingregisterWaarde] = await dataOf(
+    api.GET("/rest/referentietabellen/brp-verwerkingregister-waarde"),
+  );
+  if (!zoekWaarde || !raadpleegWaarde || !verwerkingregisterWaarde) {
+    throw new Error(
+      "ZAC has no value for a BRP doelbinding in its referentietabellen.",
+    );
+  }
+  return { zoekWaarde, raadpleegWaarde, verwerkingregisterWaarde };
+}
+
 /**
  * Whether the zaakafhandelparameters already are what the journeys expect: valid, routing new zaken to the groep,
  * with the BRP and KVK koppelingen on, no automatic mail at the intake and at the end, and the gemeente as default
- * afzender.
+ * afzender. When ZAC sets the BRP doelbindingen per zaaktype, they also have these, because a beheerder cannot save
+ * the zaakafhandelparameters without them.
  */
 export function isSetUpFor(
   current: ZaaktypeConfiguration,
   groep: Pick<Groep, "id">,
+  { isBrpDoelbindingPerZaaktype }: { isBrpDoelbindingPerZaaktype: boolean },
 ) {
   const gemeente = current.zaakAfzenders?.find(
     (afzender) => afzender.mail === "GEMEENTE",
   );
   return (
+    (!isBrpDoelbindingPerZaaktype || hasBrpDoelbindingen(current)) &&
     current.isValide === true &&
     current.defaultGroepId === groep.id &&
     current.betrokkeneKoppelingen?.isBrpKoppelenEnabled === true &&
@@ -164,7 +196,12 @@ export async function setUpZaaktype(
       params: { path },
     }),
   );
-  if (isSetUpFor(current, groep)) return zaaktype;
+  const isBrpDoelbindingPerZaaktype = await dataOf(
+    api.GET("/rest/configuratie/brp/doelbinding-setup-enabled"),
+  );
+  if (isSetUpFor(current, groep, { isBrpDoelbindingPerZaaktype })) {
+    return zaaktype;
+  }
 
   await dataOf(
     api.PUT("/rest/zaakafhandelparameters/{zaaktypeUUID}", {
@@ -183,6 +220,9 @@ export async function setUpZaaktype(
           isBrpKoppelenEnabled: true,
           isKvkKoppelenEnabled: true,
         },
+        ...(isBrpDoelbindingPerZaaktype && !hasBrpDoelbindingen(current)
+          ? { brpDoelbindingen: await brpDoelbindingenOf(api) }
+          : {}),
       },
     }),
   );
