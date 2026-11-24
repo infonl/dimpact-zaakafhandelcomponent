@@ -96,12 +96,8 @@ Then(
 );
 
 When("I confirm the summary", async ({ page, testData }) => {
-  const { identificatie } = testData.zaak;
   await formioForm(page).submit("Confirm");
-  // The browser can abort a page load right after the last task of the process (net::ERR_ABORTED), so the step
-  // follows the link of the task to its zaak, as a behandelaar does.
-  await page.getByRole("link", { name: `${identificatie} openen` }).click();
-  await zaakPage(page).expectOpened(identificatie);
+  await zaakPage(page).open(testData.zaak.identificatie);
 });
 
 // The zaak page does not show the resultaat, so the step reads it from the REST API.

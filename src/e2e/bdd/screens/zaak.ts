@@ -26,8 +26,14 @@ export function zaakPage(page: Page) {
   }
 
   return {
+    /**
+     * Opens the zaak. The browser now and then aborts the page load right after a task form of a BPMN process is
+     * submitted (net::ERR_ABORTED), so it tries again until the page loads.
+     */
     async open(identificatie: string) {
-      await page.goto(`/zaken/${identificatie}`);
+      await expect(async () => {
+        await page.goto(`/zaken/${identificatie}`);
+      }).toPass({ timeout: 30_000 });
       await this.expectOpened(identificatie);
     },
 
