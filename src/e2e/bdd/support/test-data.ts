@@ -130,6 +130,8 @@ export type TestData = {
   ): Promise<void>;
   /** Waits until the inbox has a productaanvraag of the type, which reaches ZAC through Open Notificaties. */
   untilProductaanvraagIsInInbox(type: string): Promise<void>;
+  /** Waits until the inbox has no productaanvraag of the type, which does not depend on what the page has rendered. */
+  untilProductaanvraagIsNotInInbox(type: string): Promise<void>;
 };
 
 async function isProductaanvraagInInbox(api: ZacApi, type: string) {
@@ -595,6 +597,15 @@ export function createTestData({
           timeout: NOTIFICATION_TIMEOUT_MILLISECONDS,
         })
         .toBe(true);
+    },
+
+    async untilProductaanvraagIsNotInInbox(type) {
+      const api = await apiAs("coordinator");
+      await expect
+        .poll(() => isProductaanvraagInInbox(api, type), {
+          message: `The inbox of ZAC still has a productaanvraag of the type "${type}".`,
+        })
+        .toBe(false);
     },
   };
 }

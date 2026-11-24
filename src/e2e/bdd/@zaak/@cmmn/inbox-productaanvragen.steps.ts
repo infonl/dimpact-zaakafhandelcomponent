@@ -55,8 +55,10 @@ Then(
 Then(
   "the inbox productaanvragen no longer shows {string}",
   async ({ page, testData }, aanvraag: string) => {
+    const type = testData.unique(aanvraag);
+    await testData.untilProductaanvraagIsNotInInbox(type);
     const inbox = inboxProductaanvragen(page);
     await inbox.open();
-    await expect(inbox.productaanvraag(testData.unique(aanvraag))).toBeHidden();
+    await expect(inbox.productaanvraag(type)).toBeHidden();
   },
 );
