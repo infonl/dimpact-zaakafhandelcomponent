@@ -55,8 +55,8 @@
 
 ## 4. Fixes of the audit findings
 
-- [ ] 4.1 `JsonLoggingFilter`: log one `OutboundRestCall(correlationId, method, host, operation, status, outcome,
-      durationMs)` record at `FINE` from the response filter, with the span ID or a random UUID as correlation ID and
+- [ ] 4.1 `JsonLoggingFilter`: log one `OutboundRestCall(method, host, operation, status, outcome, durationMs)` record
+      at `FINE` from the response filter, without a correlation ID of its own, with
       the operation from the request property `org.eclipse.microprofile.rest.client.invokedMethod` as
       `<interface>.<method>`; no path, query, headers or payload; remove the payload, header and `geboorte` handling;
       unit tests for a BRP `POST` with a BSN body, a BAG call with an identifier in the path, a URL with a query string,

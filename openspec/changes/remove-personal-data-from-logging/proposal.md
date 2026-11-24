@@ -30,7 +30,7 @@ known findings and makes free-text logging impossible in the backend.
   `System.out`/`System.err` or call `printStackTrace()`. Detekt rules report the same errors in the IDE.
 - Fix the findings of the audit:
   - `JsonLoggingFilter` no longer logs paths, headers, query strings or payloads. Per outbound call with a response it
-    logs one record with a correlation ID (the span ID when tracing is enabled), the HTTP method, the host, the
+    logs one record with the HTTP method, the host, the
     invoked client operation (such as `PersonenApi.personen`), the status, the outcome and the duration.
   - `MailService`, `SendEmailDelegate` and `SendConfirmationEmailDelegate` no longer log recipient or sender email
     addresses or names in plain text, nor the mail subject. All three log the recipient as a `@Redacted` field, and

@@ -9,7 +9,6 @@ import nl.info.zac.log.Outcome
 
 @Suppress("LongParameterList")
 class OutboundRestCall(
-    val correlationId: String,
     val method: String,
     val host: String?,
     val operation: String?,

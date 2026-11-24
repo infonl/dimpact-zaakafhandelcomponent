@@ -97,8 +97,8 @@ are strings, so `durationMs` is the string `"84"`.
 `ZacLogger` keeps the class name as logger name, so the log categories of WildFly keep working. `java.util.logging.Level`
 may still be used, for example for a configurable level (`ZacLogger.log(level, event)`); `Logger` may not.
 
-Outbound REST calls are logged by `JsonLoggingFilter` as one `OutboundRestCall` record at `FINE`, with a correlation
-ID, the HTTP method, the host, the client operation (such as `PersonenApi.personen`), the status, the outcome and the
+Outbound REST calls are logged by `JsonLoggingFilter` as one `OutboundRestCall` record at `FINE`, with the HTTP
+method, the host, the client operation (such as `PersonenApi.personen`), the status, the outcome and the
 duration. It never logs the path, the query string, the headers or the body.
 
 A policy check that logs uses `assertPolicy(policy, LOG, PolicyDenied(action, zaakIdentificatie, Employee(username)))`.

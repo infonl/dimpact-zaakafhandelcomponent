@@ -6,6 +6,7 @@ package nl.info.zac.util
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.maps.shouldContainAll
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldMatch
@@ -86,7 +87,7 @@ class JsonLoggingFilterTest : BehaviorSpec({
                             "outcome" to "SUCCESS"
                         )
                         mdc.getValue("durationMs") shouldMatch Regex("[0-9]+")
-                        mdc.getValue("correlationId") shouldMatch Regex("[0-9a-f-]{36}")
+                        mdc.keys shouldNotContain "correlationId"
                         containsAnywhere("/haalcentraal") shouldBe false
                     }
                 }
@@ -165,12 +166,11 @@ class JsonLoggingFilterTest : BehaviorSpec({
             }
         }
 
-        given("FINE is enabled and a call without a URI, whose request was not given a correlation ID") {
+        given("FINE is enabled and a call without a URI") {
             val clientRequestContext = mockk<ClientRequestContext>()
             every { clientRequestContext.method } returns "GET"
             every { clientRequestContext.uri } returns null
             every { clientRequestContext.getProperty(JsonLoggingFilter.START_TIME_PROPERTY) } returns System.nanoTime()
-            every { clientRequestContext.getProperty(JsonLoggingFilter.CORRELATION_ID_PROPERTY) } returns null
             every { clientRequestContext.getProperty(JsonLoggingFilter.INVOKED_METHOD_PROPERTY) } returns null
 
             `when`("the response is filtered") {
@@ -179,11 +179,8 @@ class JsonLoggingFilterTest : BehaviorSpec({
                     logCapture.records
                 }
 
-                then("the call is logged with a new correlation ID and without a host") {
-                    with(records.single()) {
-                        mdc.getValue("correlationId") shouldMatch Regex("[0-9a-f-]{36}")
-                        mdc["host"] shouldBe "null"
-                    }
+                then("the call is logged without a host") {
+                    records.single().mdc["host"] shouldBe "null"
                 }
             }
         }
@@ -206,8 +203,11 @@ class JsonLoggingFilterTest : BehaviorSpec({
                     callFilter(clientRequestContext, createClientResponseContext(204))
                 }
 
-                then("the correlation ID is the span ID") {
-                    records.single().mdc["correlationId"] shouldBe "b7ad6b7169203331"
+                then("the call is found through the trace and span ID of the active span") {
+                    with(records.single().mdc) {
+                        get("traceId") shouldBe "0af7651916cd43dd8448eb211c80319c"
+                        get("spanId") shouldBe "b7ad6b7169203331"
+                    }
                 }
             }
         }

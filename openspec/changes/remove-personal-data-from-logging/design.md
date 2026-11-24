@@ -323,10 +323,10 @@ ZAC restarts; that only affects log correlation.
 
 ### 7. `JsonLoggingFilter` logs one record per outbound call, without payloads
 
-The request filter stores the start time and a correlation ID as properties of the `ClientRequestContext`; it logs
-nothing. The response filter logs one record at `FINE`:
-`OutboundRestCall(correlationId, method, host, operation, status, outcome, durationMs)`. The correlation ID is the
-`spanId` of the current span when tracing is enabled, and a random UUID otherwise. `outcome` is `SUCCESS` for a 2xx or
+The request filter stores the start time as a property of the `ClientRequestContext`; it logs nothing. The response
+filter logs one record at `FINE`: `OutboundRestCall(method, host, operation, status, outcome, durationMs)`. The record
+has no correlation ID of its own: there is one record per call, so nothing needs to be correlated, and the trace and
+span ID that `ZacLogger` adds identify the call when tracing is enabled. `outcome` is `SUCCESS` for a 2xx or
 3xx status and `FAILURE` otherwise. The masking of `geboorte` fields and the payload buffering are removed. The class
 keeps its name and its logger name, so existing log level configurations keep working.
 

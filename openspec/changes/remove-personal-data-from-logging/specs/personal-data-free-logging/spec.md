@@ -146,15 +146,15 @@ holds the WildFly masking filter, is not part of this check.
 - **THEN** the architecture test passes
 
 ### Requirement: Outbound REST calls are logged without payloads
-The backend SHALL log an outbound REST call that gets a response as one record with a correlation ID, the HTTP
-method, the host, the invoked client operation, the response status, the outcome and the duration. The correlation
-ID SHALL be the span ID of the active span when tracing is enabled, and a random UUID otherwise. The backend SHALL
+The backend SHALL log an outbound REST call that gets a response as one record with the HTTP method, the host, the
+invoked client operation, the response status, the outcome and the duration. The trace and span ID of the record
+identify the call when tracing is enabled; the record has no correlation ID of its own. The backend SHALL
 NOT log the path, the query string, the headers or the body of any outbound REST call, at any log level.
 
 #### Scenario: An outbound BRP call is logged
 - **WHEN** `FINE` logging is enabled for `JsonLoggingFilter` and ZAC sends a `POST` to
   `https://brp.example.com/haalcentraal/api/brp/personen` with a BSN in the body, and BRP answers `200`
-- **THEN** exactly one record is logged for that call, with a correlation ID, `method=POST`,
+- **THEN** exactly one record is logged for that call, with `method=POST`,
   `host=brp.example.com`, `operation=PersonenApi.personen`, `status=200`, `outcome=SUCCESS` and `durationMs`
 - **AND** the record does not contain the path, the body, the headers or the BSN
 
