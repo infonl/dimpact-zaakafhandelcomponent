@@ -9,5 +9,6 @@ import nl.info.zac.log.LogEvent
 
 class DetachedDocumentNotProcessed(
     val detachedDocumentId: Long,
-    val failureReason: DetachedDocumentBulkFailureReason
+    val failureReason: DetachedDocumentBulkFailureReason,
+    val errorType: String?
 ) : LogEvent("Ontkoppeld document kon niet worden verwerkt")

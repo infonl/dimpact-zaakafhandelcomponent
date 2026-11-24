@@ -280,7 +280,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
             enkelvoudigInformatieObjectLockService.readLock(documentUUID)
         } returns createEnkelvoudigInformatieObjectLock(username = "fakeUsername")
         every {
-            identityService.readUser(username = "fakeUsername", logContext = any())
+            identityService.readUser(username = "fakeUsername", context = any())
         } returns createUser(username = "fakeUsername", fullName = "fakeFullName")
 
         `when`("convert is called on the UUID of the enkelvoudig informatieobject") {

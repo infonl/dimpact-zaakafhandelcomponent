@@ -26,6 +26,8 @@ import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_UUID
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_IDENTIFICATIE
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
 import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createTaakRechten
 import nl.info.zac.policy.output.createTaakRechtenAllDeny
@@ -99,7 +101,11 @@ class RestTaskConverterTest : BehaviorSpec({
             every {
                 medewerkerConverter.convertUsername(
                     username = "fakeAssigneeId",
-                    logContext = "task 'fakeTaskId' of zaak 'fakeZaakIdentificatie'"
+                    context = IdentityLookupContext(
+                        source = IdentityLookupSource.TAAK,
+                        zaakIdentificatie = "fakeZaakIdentificatie",
+                        taakId = "fakeTaskId"
+                    )
                 )
             } returns createRestUser(username = "fakeAssigneeId")
 

@@ -7,8 +7,12 @@ package nl.info.client.or.shared.exception
 import nl.info.client.or.shared.model.ORValidationError
 import nl.info.zac.exception.InputValidationFailedException
 
+/**
+ * The message holds only the status, the error code and the name and code of each invalid field. Not the reasons, nor
+ * the title, detail and instance of the remote error: those can echo a rejected value, which can be personal data, and
+ * this message ends up in logs.
+ */
 class ORValidationErrorException(orValidationError: ORValidationError) : InputValidationFailedException(
-    message = "${orValidationError.title} [${orValidationError.status} ${orValidationError.code}] ${orValidationError.detail}: " +
-        "${orValidationError.fieldValidationErrors?.joinToString(", ") { error -> "${error.name} [${error.code}] ${error.reason}" }} " +
-        "(${orValidationError.instance})"
+    message = "${orValidationError.status} ${orValidationError.code}: " +
+        orValidationError.fieldValidationErrors.orEmpty().joinToString(", ") { "${it.name} [${it.code}]" }
 )

@@ -21,6 +21,8 @@ import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectUpdate
 import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.task.TaakVariabelenService
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.task.model.BpmnTaskFormData
@@ -170,7 +172,10 @@ class BpmnTaskFormRuntimeService @Inject constructor(
             group?.betrokkeneIdentificatie?.identificatie?.let {
                 identityService.readGroup(
                     groupId = it,
-                    logContext = "the default value of a form field for zaak '${zaak.identificatie}'"
+                    context = IdentityLookupContext(
+                        source = IdentityLookupSource.FORM_FIELD_DEFAULT_VALUE,
+                        zaakIdentificatie = zaak.identificatie
+                    )
                 ).name
             }
         }
@@ -180,7 +185,10 @@ class BpmnTaskFormRuntimeService @Inject constructor(
             behandelaar?.identificatienummer?.let {
                 identityService.readUser(
                     username = it,
-                    logContext = "the default value of a form field for zaak '${zaak.identificatie}'"
+                    context = IdentityLookupContext(
+                        source = IdentityLookupSource.FORM_FIELD_DEFAULT_VALUE,
+                        zaakIdentificatie = zaak.identificatie
+                    )
                 ).username
             }
         }

@@ -19,6 +19,8 @@ import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_UUID
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_IDENTIFICATIE
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
 import nl.info.zac.flowable.task.FlowableTaskService
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
@@ -123,7 +125,11 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
             every {
                 identityService.readUser(
                     username = "fakeAssigneeId",
-                    logContext = "task '$fakeTaskId' of zaak 'fakeZaakIdentificatie'"
+                    context = IdentityLookupContext(
+                        source = IdentityLookupSource.TAAK,
+                        zaakIdentificatie = "fakeZaakIdentificatie",
+                        taakId = fakeTaskId
+                    )
                 )
             } returns createUser(
                 username = "fakeAssigneeId",
@@ -134,7 +140,11 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
             every {
                 identityService.readGroup(
                     groupId = "fakeGroupId",
-                    logContext = "task '$fakeTaskId' of zaak 'fakeZaakIdentificatie'"
+                    context = IdentityLookupContext(
+                        source = IdentityLookupSource.TAAK,
+                        zaakIdentificatie = "fakeZaakIdentificatie",
+                        taakId = fakeTaskId
+                    )
                 )
             } returns createGroup(
                 id = "fakeGroupId",

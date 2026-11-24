@@ -26,6 +26,8 @@ import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentResult
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.document.detacheddocument.DetachedDocumentBulkService
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.SearchService
@@ -78,7 +80,9 @@ class DetachedDocumentRestService @Inject constructor(
             }
         } else {
             restDetachedDocumentResult.filterOntkoppeldDoor = with(userConverter) {
-                ontkoppeldDoor.convertUsernames(logContext = "the ontkoppeld door filter of the ontkoppelde documenten")
+                ontkoppeldDoor.convertUsernames(
+                    context = IdentityLookupContext(source = IdentityLookupSource.DETACHED_DOCUMENT_FILTER)
+                )
             }
         }
         return restDetachedDocumentResult

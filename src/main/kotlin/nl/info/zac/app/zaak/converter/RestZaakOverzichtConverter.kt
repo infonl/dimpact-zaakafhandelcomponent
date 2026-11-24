@@ -17,6 +17,8 @@ import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import nl.info.zac.app.zaak.model.RestZaakResultaat
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.readZaakAutorisatieGegevens
@@ -94,11 +96,14 @@ class RestZaakOverzichtConverter @Inject constructor(
         zaak: Zaak
     ): RestUser? = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
         ?.identificatienummer
-        ?.let { userConverter.convertUsername(username = it, logContext = "zaak '${zaak.identificatie}'") }
+        ?.let { userConverter.convertUsername(username = it, context = zaak.toIdentityLookupContext()) }
 
     private fun getGroupForZaak(
         zaak: Zaak
     ): RestGroup? = zgwApiService.findGroepForZaak(zaak)
         ?.betrokkeneIdentificatie
-        ?.let { groupConverter.convertGroupId(groupId = it.identificatie, logContext = "zaak '${zaak.identificatie}'") }
+        ?.let { groupConverter.convertGroupId(groupId = it.identificatie, context = zaak.toIdentityLookupContext()) }
+
+    private fun Zaak.toIdentityLookupContext() =
+        IdentityLookupContext(source = IdentityLookupSource.ZAAK, zaakIdentificatie = identificatie)
 }

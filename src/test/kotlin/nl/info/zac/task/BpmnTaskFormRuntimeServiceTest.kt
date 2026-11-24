@@ -430,7 +430,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
             medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeUsername")
         )
         every {
-            identityService.readUser(username = "fakeUsername", logContext = any())
+            identityService.readUser(username = "fakeUsername", context = any())
         } returns createUser(username = "fakeUsername")
 
         `when`("renderFormioFormulier is called") {

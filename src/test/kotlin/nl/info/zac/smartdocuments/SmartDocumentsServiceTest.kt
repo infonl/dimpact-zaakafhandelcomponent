@@ -7,12 +7,14 @@ package nl.info.zac.smartdocuments
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.comparables.shouldBeGreaterThanOrEqualTo
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
+import jakarta.ws.rs.ProcessingException
 import nl.info.client.smartdocuments.SmartDocumentsClient
 import nl.info.client.smartdocuments.model.createAttendedResponse
 import nl.info.client.smartdocuments.model.createSmartDocument
@@ -93,13 +95,56 @@ class SmartDocumentsServiceTest : BehaviorSpec({
                 }
             }
 
-            then("the document creation is logged with the fixed user name in use and without an employee") {
+            then(
+                "the document creation is logged as one successful record with its duration, with the fixed user " +
+                    "name in use and without an employee"
+            ) {
                 with(records.single()) {
-                    message shouldBe "SmartDocuments attended document creation started"
+                    message shouldBe "SmartDocuments attended document creation completed"
+                    mdc["outcome"] shouldBe "SUCCESS"
+                    mdc.getValue("durationMs").toLong() shouldBeGreaterThanOrEqualTo 0L
+                    mdc["errorType"] shouldBe "null"
                     mdc["isWizardAuthEnabled"] shouldBe "true"
                     mdc["isFixedUserName"] shouldBe "true"
                     mdc["employee"] shouldBe "null"
                     containsAnywhere(fixedUserName.get()) shouldBe false
+                }
+            }
+        }
+    }
+
+    given("SmartDocuments is enabled and the SmartDocuments call fails") {
+        val variables = Variables(outputFormats = listOf(OutputFormat("DOCX")), redirectMethod = "POST", redirectUrl = "url")
+        val failure = ProcessingException("fakeSmartDocumentsFailure")
+        every { smartDocumentsClient.get().attendedDeposit(any(), fixedUserName.get(), any()) } throws failure
+        val smartDocumentsService = SmartDocumentsService(
+            smartDocumentsClient = smartDocumentsClient,
+            enabled = Optional.of(true),
+            smartDocumentsURL = Optional.of(smartDocumentsURL),
+            authenticationToken = Optional.of(authenticationToken),
+            loggedInUserInstance = loggedInUserInstance,
+            fixedUserName = fixedUserName
+        )
+
+        `when`("the 'create document attended' method is called") {
+            lateinit var thrownException: ProcessingException
+            val records = LogCapture(SmartDocumentsService::class).use { logCapture ->
+                thrownException = shouldThrow<ProcessingException> {
+                    smartDocumentsService.createDocumentAttended(data = createData(), smartDocument = createSmartDocument(variables))
+                }
+                logCapture.records
+            }
+
+            then("the failure is thrown to the caller") {
+                thrownException shouldBe failure
+            }
+
+            then("the document creation is logged as one failed record with the error type, without the exception") {
+                with(records.single()) {
+                    mdc["outcome"] shouldBe "FAILURE"
+                    mdc["errorType"] shouldBe ProcessingException::class.java.name
+                    thrown shouldBe null
+                    containsAnywhere("fakeSmartDocumentsFailure") shouldBe false
                 }
             }
         }

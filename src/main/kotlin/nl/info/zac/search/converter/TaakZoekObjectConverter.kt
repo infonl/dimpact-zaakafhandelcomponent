@@ -16,6 +16,8 @@ import nl.info.zac.flowable.task.readZaakIdentificatie
 import nl.info.zac.flowable.task.readZaakUUID
 import nl.info.zac.flowable.task.readZaaktypeUUID
 import nl.info.zac.flowable.util.taakStatus
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.search.ReindexSupportService
@@ -76,7 +78,11 @@ class TaakZoekObjectConverter @Inject constructor(
         val zaakUUID = readZaakUUID(taskInfo)
         val zaaktype = ztcClientService.readZaaktype(readZaaktypeUUID(taskInfo))
         val zaakIdentificatie = readZaakIdentificatie(taskInfo)
-        val logContext = "task '$id' of zaak '$zaakIdentificatie'"
+        val identityLookupContext = IdentityLookupContext(
+            source = IdentityLookupSource.TAAK,
+            zaakIdentificatie = zaakIdentificatie,
+            taakId = id
+        )
         return TaakZoekObject(
             id = id,
             type = ZoekObjectType.TAAK.name
@@ -105,14 +111,14 @@ class TaakZoekObjectConverter @Inject constructor(
             taakData = readTaskData(taskInfo).entries.map { "${it.key}|${it.value}" }
             taakInformatie = readTaskInformation(taskInfo).entries.map { "${it.key}|${it.value}" }
             taskInfo.assignee?.let {
-                identityService.readUser(username = it, logContext = logContext).let { user ->
+                identityService.readUser(username = it, context = identityLookupContext).let { user ->
                     behandelaarNaam = user.getFullName()
                     behandelaarGebruikersnaam = user.username
                 }
                 isToegekend = true
             }
             extractGroupId(taskInfo.identityLinks)?.let {
-                identityService.readGroup(groupId = it, logContext = logContext).let { group ->
+                identityService.readGroup(groupId = it, context = identityLookupContext).let { group ->
                     groepID = group.name
                     groepNaam = group.description
                 }

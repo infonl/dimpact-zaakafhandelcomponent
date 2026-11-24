@@ -24,6 +24,8 @@ import nl.info.zac.app.signalering.model.RestSignaleringPageParameters
 import nl.info.zac.app.signalering.model.RestSignaleringTaskSummary
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
@@ -125,7 +127,10 @@ class SignaleringRestService @Inject constructor(
     ): List<RestSignaleringInstellingen> {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
         return SignaleringInstellingenZoekParameters(
-            identityService.readGroup(groupId = groupId, logContext = "listing the signaleringinstellingen of the group")
+            identityService.readGroup(
+                groupId = groupId,
+                context = IdentityLookupContext(source = IdentityLookupSource.SIGNALERINGINSTELLINGEN)
+            )
         )
             .let(signaleringService::listInstellingen)
             .let(restSignaleringInstellingenConverter::convert)
@@ -138,7 +143,10 @@ class SignaleringRestService @Inject constructor(
         restInstellingen: RestSignaleringInstellingen
     ): SignaleringInstellingen {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
-        return identityService.readGroup(groupId = groupId, logContext = "updating the signaleringinstellingen of the group")
+        return identityService.readGroup(
+            groupId = groupId,
+            context = IdentityLookupContext(source = IdentityLookupSource.SIGNALERINGINSTELLINGEN)
+        )
             .let { restSignaleringInstellingenConverter.convert(restInstellingen, it) }
             .let(signaleringService::createOrUpdateInstellingen)
     }
