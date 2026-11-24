@@ -55,9 +55,14 @@ internal object EmployeeKeycloakUserIds {
         employeeLookup
             ?.takeUnless { lookupInProgress.get() || isRecentlyMissed(username) }
             ?.let { lookup ->
-                synchronized(lookupLocks.computeIfAbsent(username) { Any() }) {
-                    keycloakUserIds[username]
-                        ?: if (isRecentlyMissed(username)) null else runLookup(username, lookup)
+                val lookupLock = lookupLocks.computeIfAbsent(username) { Any() }
+                try {
+                    synchronized(lookupLock) {
+                        keycloakUserIds[username]
+                            ?: if (isRecentlyMissed(username)) null else runLookup(username, lookup)
+                    }
+                } finally {
+                    lookupLocks.remove(username, lookupLock)
                 }
             }
 
@@ -73,10 +78,17 @@ internal object EmployeeKeycloakUserIds {
         } finally {
             lookupInProgress.set(false)
         }
-        keycloakUserId?.let { register(username, it) } ?: missedLookups.put(username, clock.instant())
+        keycloakUserId?.let { register(username, it) } ?: registerMissedLookup(username)
         return keycloakUserId
     }
 
-    private fun isRecentlyMissed(username: String) =
-        missedLookups[username]?.let { clock.instant() < it.plus(MISSED_LOOKUP_RETRY_DELAY) } ?: false
+    // Removes the expired misses first, so that usernames that Keycloak does not know do not pile up
+    private fun registerMissedLookup(username: String) {
+        missedLookups.entries.removeIf { (_, missedAt) -> !missedAt.isWithinRetryDelay() }
+        missedLookups[username] = clock.instant()
+    }
+
+    private fun Instant.isWithinRetryDelay() = clock.instant() < plus(MISSED_LOOKUP_RETRY_DELAY)
+
+    private fun isRecentlyMissed(username: String) = missedLookups[username]?.isWithinRetryDelay() ?: false
 }

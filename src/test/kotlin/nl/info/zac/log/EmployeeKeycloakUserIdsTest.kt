@@ -15,6 +15,13 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
+private fun internalMapSize(fieldName: String) =
+    EmployeeKeycloakUserIds::class.java.getDeclaredField(fieldName)
+        .apply { isAccessible = true }
+        .get(EmployeeKeycloakUserIds)
+        .let { it as Map<*, *> }
+        .size
+
 class EmployeeKeycloakUserIdsTest : BehaviorSpec({
     val startInstant = Instant.parse("2026-11-23T10:00:00Z")
 
@@ -123,6 +130,29 @@ class EmployeeKeycloakUserIdsTest : BehaviorSpec({
                 then("both threads get the found ID, and Keycloak is called only once") {
                     keycloakUserIds shouldBe listOf("fakeKeycloakUserId", "fakeKeycloakUserId")
                     lookupCount.get() shouldBe 1
+                }
+            }
+        }
+
+        given("a lookup that finds none of many unknown usernames") {
+            EmployeeKeycloakUserIds.useEmployeeLookup { null }
+
+            `when`("each username is resolved, and after 5 minutes one more username is resolved") {
+                EmployeeKeycloakUserIds.clock = clockAt(startInstant)
+                repeat(100) { EmployeeKeycloakUserIds.resolve(Employee("fakeUnknownUsername$it")) }
+                val missedLookupCountBefore = internalMapSize("missedLookups")
+                EmployeeKeycloakUserIds.clock = clockAt(startInstant.plus(Duration.ofMinutes(6)))
+                EmployeeKeycloakUserIds.resolve(Employee("fakeOtherUnknownUsername"))
+                val missedLookupCountAfter = internalMapSize("missedLookups")
+                val lookupLockCount = internalMapSize("lookupLocks")
+
+                then(
+                    "the expired misses are removed and no lookup lock is kept, so that unknown usernames do not " +
+                        "pile up in memory"
+                ) {
+                    missedLookupCountBefore shouldBe 100
+                    missedLookupCountAfter shouldBe 1
+                    lookupLockCount shouldBe 0
                 }
             }
         }

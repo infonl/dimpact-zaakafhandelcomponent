@@ -117,7 +117,7 @@ class IdentityService @Inject constructor(
         .searchByUsername(username, true)
         .map { it.toUser() }.firstOrNull()
         ?: run {
-            LOG.warning(UserNotFoundInKeycloak(employee = Employee(username), context = logContext))
+            LOG.warning(UserNotFoundInKeycloak(context = logContext))
             User(username)
         }
 

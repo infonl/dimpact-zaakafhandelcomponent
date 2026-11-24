@@ -227,10 +227,13 @@ class IdentityServiceTest : BehaviorSpec({
                     user.username shouldBe username
                 }
 
-                then("the miss is logged together with the task and zaak, without the username") {
+                then(
+                    "the miss is logged together with the task and zaak, without the username and without " +
+                        "looking up the Keycloak user ID of a user that Keycloak does not know"
+                ) {
                     logTexts.map { it.message } shouldBe listOf(
                         "User could not be found in Keycloak; returning the username only " +
-                            "[context=task 'fakeTaskId' of zaak 'fakeZaakIdentificatie', employee=unknown]"
+                            "[context=task 'fakeTaskId' of zaak 'fakeZaakIdentificatie']"
                     )
                 }
             }
