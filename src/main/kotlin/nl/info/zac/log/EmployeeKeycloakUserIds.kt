@@ -20,6 +20,7 @@ internal object EmployeeKeycloakUserIds {
 
     private val keycloakUserIds = ConcurrentHashMap<String, String>()
     private val missedLookups = ConcurrentHashMap<String, Instant>()
+    private val lookupLocks = ConcurrentHashMap<String, Any>()
     private val lookupInProgress = ThreadLocal.withInitial { false }
 
     @Volatile
@@ -43,14 +44,22 @@ internal object EmployeeKeycloakUserIds {
     fun reset() {
         keycloakUserIds.clear()
         missedLookups.clear()
+        lookupLocks.clear()
         employeeLookup = null
         clock = Clock.systemUTC()
     }
 
+    // One lookup per employee at a time: a thread that resolves the same employee meanwhile waits for its result,
+    // so that concurrent log records do not each call Keycloak, nor each wait for its timeout during an outage.
     private fun lookUp(username: String): String? =
         employeeLookup
             ?.takeUnless { lookupInProgress.get() || isRecentlyMissed(username) }
-            ?.let { runLookup(username, it) }
+            ?.let { lookup ->
+                synchronized(lookupLocks.computeIfAbsent(username) { Any() }) {
+                    keycloakUserIds[username]
+                        ?: if (isRecentlyMissed(username)) null else runLookup(username, lookup)
+                }
+            }
 
     // The lookup itself can log an event with an employee; that employee must not start a second lookup.
     // A lookup that fails never reaches the caller: the log record is then written with an unknown employee.
