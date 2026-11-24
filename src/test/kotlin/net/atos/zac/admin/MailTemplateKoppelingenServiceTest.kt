@@ -218,7 +218,7 @@ class MailTemplateKoppelingenServiceTest : BehaviorSpec({
         val uuidQuery = mockk<CriteriaQuery<UUID>>()
         val uuidRoot = mockk<Root<ZaaktypeMailtemplateParameters>>()
         val zaaktypeConfigurationPath = mockk<Path<Any>>()
-        val zaaktypeUuidPath = mockk<Path<Any>>()
+        val zaaktypeUuidPath = mockk<Path<UUID>>()
         val mailTemplatePath = mockk<Path<Any>>()
         val mailTemplateIdPath = mockk<Path<Long>>()
         val predicate = mockk<Predicate>()
@@ -227,11 +227,11 @@ class MailTemplateKoppelingenServiceTest : BehaviorSpec({
         every { criteriaBuilder.createQuery(UUID::class.java) } returns uuidQuery
         every { uuidQuery.from(ZaaktypeMailtemplateParameters::class.java) } returns uuidRoot
         every { uuidRoot.get<Any>("zaaktypeConfiguration") } returns zaaktypeConfigurationPath
-        every { zaaktypeConfigurationPath.get<Any>("zaaktypeUuid") } returns zaaktypeUuidPath
+        every { zaaktypeConfigurationPath.get<UUID>("zaaktypeUuid") } returns zaaktypeUuidPath
         every { uuidRoot.get<Any>("mailTemplate") } returns mailTemplatePath
         every { mailTemplatePath.get<Long>("id") } returns mailTemplateIdPath
         every { criteriaBuilder.equal(mailTemplateIdPath, mailTemplateId) } returns predicate
-        every { uuidQuery.select(any()) } returns uuidQuery
+        every { uuidQuery.select(zaaktypeUuidPath) } returns uuidQuery
         every { uuidQuery.distinct(true) } returns uuidQuery
         every { uuidQuery.where(predicate) } returns uuidQuery
         every { entityManager.createQuery(uuidQuery) } returns uuidTypedQuery
@@ -243,6 +243,7 @@ class MailTemplateKoppelingenServiceTest : BehaviorSpec({
             then("the distinct zaaktype UUIDs of the koppelingen of that template are returned") {
                 result shouldBe zaaktypeUuids
                 verify {
+                    uuidQuery.select(zaaktypeUuidPath)
                     uuidQuery.distinct(true)
                     uuidQuery.where(predicate)
                 }
