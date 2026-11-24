@@ -15,6 +15,7 @@ function reportWith(
     status: Outcome;
     project?: string;
     skippedBecause?: string;
+    serverErrors?: string[];
   }[],
   errors: { message: string }[] = [],
 ) {
@@ -31,13 +32,27 @@ function reportWith(
             title: "Intake",
             line: 3,
             specs: scenarios.map(
-              ({ title, status, project = "journeys", skippedBecause }) => ({
+              ({
+                title,
+                status,
+                project = "journeys",
+                skippedBecause,
+                serverErrors = [],
+              }) => ({
                 title,
                 tests: [
                   {
                     projectName: project,
                     status,
-                    results: [{ duration: 12_000 }],
+                    results: [
+                      {
+                        duration: 12_000,
+                        annotations: serverErrors.map((description) => ({
+                          type: "server-error",
+                          description,
+                        })),
+                      },
+                    ],
                     annotations: skippedBecause
                       ? [{ type: "skip", description: skippedBecause }]
                       : [],
@@ -72,6 +87,34 @@ test("given a failed and a flaky scenario, when the run is summarized, then it i
   expect(summary).toContain("❌ *0/2 passed*");
   expect(summary).toContain("*❌ Failed (1)*\n• Intake → fails");
   expect(summary).toContain("*🎲 Flaky (1)*\n• Intake → wavers");
+});
+
+test("given server errors of ZAC, when the run is summarized, then it counts them per cause and for each scenario that did not pass", () => {
+  const klanten = "Server response from Klanten: 500";
+  const summary = slackSummary(
+    reportWith([
+      {
+        title: "fails",
+        status: "unexpected",
+        serverErrors: [
+          `${klanten} (GET /rest/zaken/zaak/{uuid})`,
+          `${klanten} (GET /rest/zaken/zaak/id/{id})`,
+        ],
+      },
+      { title: "wavers", status: "flaky" },
+      {
+        title: "passes",
+        status: "expected",
+        serverErrors: ["HTTP 502 (GET /rest/taken)"],
+      },
+    ]),
+  );
+
+  expect(summary).toContain(`• Intake → fails — 2 × ${klanten}`);
+  expect(summary).toContain("• Intake → wavers — no server errors");
+  expect(summary).toContain(
+    `*⚠️ Server errors of ZAC during the run (3)*\n• 2 × ${klanten}\n• 1 × HTTP 502`,
+  );
 });
 
 test("given a skipped scenario, when the run is summarized, then it tells why, so a gap in the coverage of the target stays visible", () => {

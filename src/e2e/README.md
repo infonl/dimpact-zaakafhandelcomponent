@@ -126,6 +126,11 @@ such as `@slow` and `@timeout:N`, work too.
 ## Writing a journey
 
 - `Given` steps set up data through `testData`. `When` steps act through the UI. `Then` steps check the UI.
+- The client behind `testData` and `apiAs` sends a `GET` or `PUT` again when ZAC answers with a server error, so a
+  short failure of the environment does not stop the setup. It never repeats a `POST` or `PATCH`.
+  When ZAC forgot its session, for example because a new version was deployed, it gets a new one and goes on.
+- The annotations of a scenario list every server error that ZAC answered with, also when the scenario passed. The
+  Slack summary counts them, so a failure of the environment can be told from one of ZAC or the test.
 - A scenario makes sure that the data that it needs is present. It does not rely on another scenario or on data that
   someone set up by hand. For example, the step that names a zaaktype sets up its zaakafhandelparameters when they
   are not what the journeys expect yet.
