@@ -71,9 +71,7 @@ export class ZacFile<
     const maxFileSizeMB = this.maxFileSizeMB();
     if (maxFileSizeMB) return Promise.resolve(maxFileSizeMB);
 
-    return this.queryClient.fetchQuery(
-      this.configuratieService.readMaxFileSizeMB(),
-    );
+    return this.queryClient.query(this.configuratieService.readMaxFileSizeMB());
   });
 
   protected displayControl = this.formBuilder.control<string | null>(null);
