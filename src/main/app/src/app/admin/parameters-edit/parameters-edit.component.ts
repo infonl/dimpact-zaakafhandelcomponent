@@ -14,7 +14,6 @@ import {
   untracked,
   viewChild,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import {
   MatSidenavContainer,
@@ -24,7 +23,6 @@ import { MatStepperModule } from "@angular/material/stepper";
 import { ActivatedRoute } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
-import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { trackControl } from "../../shared/form/control-state";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
@@ -110,8 +108,11 @@ export class ParametersEditComponent
     GeneratedType<"RestZaaktypeConfiguration">
   >(inject(ActivatedRoute).snapshot.data["parameters"]);
 
-  protected readonly brpDoelbindingSetupEnabled = toSignal(
-    inject(ConfiguratieService).readBrpDoelbindingSetupEnabled(),
+  private readonly brpDoelbindingSetupEnabledQuery = injectQuery(() =>
+    this.configuratieService.readBrpDoelbindingSetupEnabled(),
+  );
+  protected readonly brpDoelbindingSetupEnabled = computed(() =>
+    this.brpDoelbindingSetupEnabledQuery.data(),
   );
 
   protected readonly form = signal<ZaaktypeConfigurationForm | null>(null);
