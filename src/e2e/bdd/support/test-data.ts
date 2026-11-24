@@ -102,8 +102,9 @@ export type TestData = {
     state?: ZaakInSearchIndex,
   ): Promise<void>;
   /**
-   * Waits until the search index of ZAC has the zaak with the status. Open Notificaties tells ZAC about the rollen of
-   * a new zaak before it tells about the first status, so ZAC then expects no more notifications about the new zaak.
+   * Waits until the search index of ZAC has the zaak with the status. A new zaak gets its first status after its
+   * rollen, so ZAC then usually has the notifications about those rollen. Open Notificaties does not keep the order
+   * of its notifications, so a late one is still possible.
    */
   untilZaakHasStatus(identificatie: string, status: string): Promise<void>;
   /** Waits until the search index of ZAC has the number of taken with the name of the zaak, so the takenlijsten can show them. */
