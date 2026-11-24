@@ -79,7 +79,7 @@ Om zaken te registreren en te behandelen maakt de applicatie gebruik van registr
 # Inrichting Algemeen
 
 ## Beheerinstellingen
-Het inrichten van de ZAC gaat via de beheermenu dat rechts in de werkbalk te openen is via het radar icoon. Het beheermenu bestaat 6 onderdelen, bij het openen van de beheerinstellingen is standaard ‘Inrichtingscheck’ geopend.
+Het inrichten van de ZAC gaat via de beheermenu dat rechts in de werkbalk te openen is via het tandwiel-icoon. Het beheermenu bestaat 6 onderdelen, bij het openen van de beheerinstellingen is standaard ‘Inrichtingscheck’ geopend.
 
 ![image](images/beheerinstellingen.png)
 
@@ -143,7 +143,7 @@ Bij het verzenden van een mail kan de behandelaar kiezen wat de afzender van de 
 Let op, de 'Van' afzender mailadressen kunnen in veel gevallen niet vrij gekozen worden. Steeds vaker is namelijk in het DNS bij een domeinnaam vastgelegd welke mailservers exclusief mail mogen versturen met een Van-adres wat op de bewuste domeinnaam eindigt. Als dergelijke mail dan door een andere mailserver wordt verstuurd dan wordt dat in de meeste gevallen geweigerd, het hangt af van de ontvangende mailserver of daar naar gekeken wordt maar meestal wel. Het gevolg daarvan is dat het 'Van' e-mailadres een domein moet hebben (bijv. @example.com) wat toegestaan wordt door de betreffende mailserver.
 
 ###### Mailafzender bewerken
-De mailafzenders kunnen in de zaps bij menukeuze 'Mailgegevens' ingesteld worden. Het e-mailadres van de gemeente, inclusief de daarbij weergegeven naam van de gemeente, is in een omgevingsvariabele ingesteld. Het e-mailadres van de medewerker wordt uit de gebruikersbeheer component opgehaald. Deze twee opties zijn altijd beschikbaar en hierbij kan voor beide een 'Antwoord aan' e-mailadres worden ingesteld. Aan deze opties kunnen mailafzenders worden toegevoegd, deze extra mailafzenders worden opgehaald uit een referentietabel.
+De mailafzenders kunnen in de ZAPs bij menukeuze 'Mailgegevens' ingesteld worden. Het e-mailadres van de gemeente, inclusief de daarbij weergegeven naam van de gemeente, is in een omgevingsvariabele ingesteld. Het e-mailadres van de medewerker wordt uit de gebruikersbeheer component opgehaald. Deze twee opties zijn altijd beschikbaar en hierbij kan voor beide een 'Antwoord aan' e-mailadres worden ingesteld. Aan deze opties kunnen mailafzenders worden toegevoegd, deze extra mailafzenders worden opgehaald uit een referentietabel.
 
 Stappen:
 1. In het Beheer-instellingen menu kies je ‘Zaakafhandelparameters’
@@ -219,10 +219,10 @@ Stappen:
 6. Klik op ‘Opslaan’ om de mailtemplate toe te voegen. Het template is daarna beschikbaar in het overzicht.
 
 ### Zaakafhandelparameters  
-De zaakafhandelparameters (hierna ‘zaps’) zijn bedoeld om een zaaktype dat in de ZAC gebruikt wordt in te richten.
+De zaakafhandelparameters (hierna ‘ZAPs’) zijn bedoeld om een zaaktype dat in de ZAC gebruikt wordt in te richten.
 
 #### Werking van de zaakafhandelparameters
-Bij het openen van de zaps worden de zaaktypen uit de zaaktypecatalogus getoond, in pagina's van 25 zaaktypen. Ook de oudere versies met een einde geldigheid worden opgehaald. Met de filters en de sortering boven de kolommen wordt in alle zaaktypen gezocht, niet alleen in de getoonde pagina. Met de knoppen onder de lijst ga je naar een volgende of vorige pagina. Vanuit het overzicht kan een zaaktype geopend worden om deze in te richten. Wijzigingen in een actief zaaktype zijn na het opslaan direct zichtbaar in de ZAC.
+Bij het openen van de ZAPs worden de zaaktypen uit de zaaktypecatalogus getoond, in pagina's van 25 zaaktypen. Ook de oudere versies met een einde geldigheid worden opgehaald. Met de filters en de sortering boven de kolommen wordt in alle zaaktypen gezocht, niet alleen in de getoonde pagina. Met de knoppen onder de lijst ga je naar een volgende of vorige pagina. Vanuit het overzicht kan een zaaktype geopend worden om deze in te richten. Wijzigingen in een actief zaaktype zijn na het opslaan direct zichtbaar in de ZAC.
 
 ### BPMN-procesdefinities
 
@@ -890,7 +890,7 @@ Zolang het onderliggende proces of de zaakbehandeling nog actief is, heet deze a
 # Inrichting zaakafhandel parameters (zaaktype)
 
 ## Inrichten van een zaaktype
-Om de zaps te benaderen ga je door op het radar icoon te klikken naar de Beheer-instellingen. Open in het menu de ‘Zaakafhandelparameters’. Het overzicht toont de zaaktypen in pagina's van 25, zie [Werking van de zaakafhandelparameters](#werking-van-de-zaakafhandelparameters). Het is mogelijk om in dit overzicht te filteren en sorteren.
+Om de ZAPs te benaderen ga je door op het tandwiel-icoon te klikken naar de Beheer-instellingen. Open in het menu de ‘Zaakafhandelparameters’. Het overzicht toont de zaaktypen in pagina's van 25, zie [Werking van de zaakafhandelparameters](#werking-van-de-zaakafhandelparameters). Het is mogelijk om in dit overzicht te filteren en sorteren.
 
 ![image](images/207916618-434d6cbc-d8f1-4522-aeec-7556d11b8e27.png)
 
@@ -912,7 +912,8 @@ Hier kies je het procesmodel van de zaaktypeversie: een CMMN-model of een BPMN-p
 
 Na de keuze van het procesmodel verschijnen de stappen die bij dat procesmodel horen:
 - Gegevens, Zaakbeëindig gegevens en Koppelingen verschijnen bij elk procesmodel.
-- Taakgegevens, Actiegegevens en Mailgegevens verschijnen alleen bij een CMMN-model.
+- Mailgegevens verschijnt bij elk CMMN-model.
+- Taakgegevens verschijnt bij een CMMN-model met taken, Actiegegevens bij een CMMN-model met acties.
 
 ![Zaakafhandelparameters met een CMMN-model](images/zaps_cmmn_cmmn.png)
 
@@ -1044,7 +1045,7 @@ SmartDocuments wordt gebruikt om Word-documenten te maken van sjablonen en elk S
 
 - Het documenttype deselecteren kan door het vinkje te verwijderen of in de dropdown "Geen documenttype" te selecteren.
 
-Klik op ‘Opslaan’ om de zaps voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
+Klik op ‘Opslaan’ om de ZAPs voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
 
 **LET OP: het kan tot 5 minuten duren voordat gewijzigde sjabloongroepnamen of sjabloonnamen in ZAC zichtbaar zijn.**
 
