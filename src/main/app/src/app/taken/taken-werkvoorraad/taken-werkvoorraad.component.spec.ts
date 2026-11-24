@@ -93,6 +93,12 @@ describe(TakenWerkvoorraadComponent.name, () => {
     fixture.detectChanges();
   });
 
+  it("names the filter of the zaak of a taak after its column, so that a screen reader user knows what it filters", () => {
+    expect(
+      screen.getByRole("textbox", { name: "zaak-identificatie" }),
+    ).toBeInTheDocument();
+  });
+
   describe("showAssignToMe", () => {
     it.each([
       ["user2", true],
