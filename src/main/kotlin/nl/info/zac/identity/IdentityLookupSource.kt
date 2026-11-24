@@ -1,0 +1,22 @@
+/*
+ * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+package nl.info.zac.identity
+
+enum class IdentityLookupSource {
+    DETACHED_DOCUMENT,
+    DETACHED_DOCUMENT_FILTER,
+    DOCUMENT_CREATION,
+    FORM_FIELD_DEFAULT_VALUE,
+    INFORMATIEOBJECT_LOCK,
+    MAIL_TEMPLATE,
+    NOTE,
+    SIGNALERING,
+    SIGNALERINGINSTELLINGEN,
+    TAAK,
+    TAAK_HISTORY,
+    WERKLIJST_ASSIGNMENT,
+    ZAAK,
+    ZAAK_ASSIGNMENT
+}

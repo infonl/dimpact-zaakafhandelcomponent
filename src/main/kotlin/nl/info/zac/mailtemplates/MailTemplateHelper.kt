@@ -28,6 +28,8 @@ import nl.info.zac.flowable.task.readZaakIdentificatie
 import nl.info.zac.flowable.task.readZaaktypeOmschrijving
 import nl.info.zac.identification.findRechtspersoonOrVestiging
 import nl.info.zac.identification.toIdentificatieType
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.getFullName
@@ -183,7 +185,7 @@ class MailTemplateHelper @Inject constructor(
                 taskInfo.identityLinks
                     .filter { IdentityLinkType.CANDIDATE == it.type }
                     .map { it.groupId }
-                    .map { identityService.readGroup(groupId = it, logContext = taskInfo.toLogContext()) }
+                    .map { identityService.readGroup(groupId = it, context = taskInfo.toIdentityLookupContext()) }
                     .map(Group::description)
                     .firstOrNull()
             )
@@ -192,7 +194,7 @@ class MailTemplateHelper @Inject constructor(
             resolvedTekst = replaceVariable(
                 targetString = resolvedTekst, MailTemplateVariables.TAAK_BEHANDELAAR_MEDEWERKER,
                 value = taskInfo.assignee?.let {
-                    identityService.readUser(username = it, logContext = taskInfo.toLogContext()).getFullName()
+                    identityService.readUser(username = it, context = taskInfo.toIdentityLookupContext()).getFullName()
                 }
             )
         }
@@ -398,4 +400,8 @@ class MailTemplateHelper @Inject constructor(
     }
 }
 
-private fun TaskInfo.toLogContext() = "task '$id' of zaak '${readZaakIdentificatie(this)}'"
+private fun TaskInfo.toIdentityLookupContext() = IdentityLookupContext(
+    source = IdentityLookupSource.MAIL_TEMPLATE,
+    zaakIdentificatie = readZaakIdentificatie(this),
+    taakId = id
+)

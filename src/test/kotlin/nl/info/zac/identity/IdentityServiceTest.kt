@@ -16,6 +16,8 @@ import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.model.createPabcGroupRepresentation
 import nl.info.test.org.keycloak.representations.idm.createGroupRepresentation
 import nl.info.test.org.keycloak.representations.idm.createUserRepresentation
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.identity.exception.GroupNotFoundException
 import nl.info.zac.identity.exception.UserNotFoundException
 import nl.info.zac.identity.exception.UserNotInGroupException
@@ -219,7 +221,11 @@ class IdentityServiceTest : BehaviorSpec({
                 val logTexts = captureLogTexts(IdentityService::class) {
                     user = identityService.readUser(
                         username = username,
-                        logContext = "task 'fakeTaskId' of zaak 'fakeZaakIdentificatie'"
+                        context = IdentityLookupContext(
+                            source = IdentityLookupSource.TAAK,
+                            zaakIdentificatie = "fakeZaakIdentificatie",
+                            taakId = "fakeTaskId"
+                        )
                     )
                 }
 
@@ -227,10 +233,14 @@ class IdentityServiceTest : BehaviorSpec({
                     user.username shouldBe username
                 }
 
-                then("the miss is logged together with the task and zaak, without the username") {
+                then(
+                    "the miss is logged together with the task and zaak, without the username and without " +
+                        "looking up the Keycloak user ID of a user that Keycloak does not know"
+                ) {
                     logTexts.map { it.message } shouldBe listOf(
                         "User could not be found in Keycloak; returning the username only " +
-                            "[context=task 'fakeTaskId' of zaak 'fakeZaakIdentificatie', employee=unknown]"
+                            "[informatieobjectIdentificatie=null, noteId=null, signaleringId=null, source=TAAK, " +
+                            "taakId=fakeTaskId, zaakIdentificatie=fakeZaakIdentificatie, zaakUuid=null]"
                     )
                 }
             }
@@ -265,7 +275,13 @@ class IdentityServiceTest : BehaviorSpec({
             `when`("the group is retrieved with the zaak that refers to it as log context") {
                 lateinit var group: Group
                 val logTexts = captureLogTexts(IdentityService::class) {
-                    group = identityService.readGroup(groupId = groupId, logContext = "zaak 'fakeZaakIdentificatie'")
+                    group = identityService.readGroup(
+                        groupId = groupId,
+                        context = IdentityLookupContext(
+                            source = IdentityLookupSource.ZAAK,
+                            zaakIdentificatie = "fakeZaakIdentificatie"
+                        )
+                    )
                 }
 
                 then("a placeholder group containing only the id is returned") {
@@ -275,7 +291,9 @@ class IdentityServiceTest : BehaviorSpec({
                 then("the miss is logged together with the zaak") {
                     logTexts.map { it.message } shouldBe listOf(
                         "Group could not be found in Keycloak; returning a placeholder " +
-                            "[context=zaak 'fakeZaakIdentificatie', groupId=$groupId]"
+                            "[groupId=$groupId, informatieobjectIdentificatie=null, noteId=null, " +
+                            "signaleringId=null, source=ZAAK, taakId=null, zaakIdentificatie=fakeZaakIdentificatie, " +
+                            "zaakUuid=null]"
                     )
                 }
             }
