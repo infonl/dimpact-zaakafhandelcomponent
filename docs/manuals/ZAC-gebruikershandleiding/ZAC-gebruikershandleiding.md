@@ -164,7 +164,7 @@ Deze handleiding beschrijft het gebruik van de Zaakafhandelcomponent (ZAC) voor 
 
 De ZAC is een applicatie waarmee zaken volledig behandeld kunnen worden, van registratie tot en met afhandeling. De applicatie bevat functionaliteit en procesflow voor medewerkers en wordt gebruikt in een moderne architectuur waarin het gebruik maakt van centrale registers en authentieke bronnen. De ZAC slaat daarbij geen gegevens over zaken, documenten, besluiten en basisregistraties als personen en bedrijven zelf op, maar gebruikt hiervoor altijd de bijbehorende bron.
 
-De behandeling van zaken wordt voor een deel bepaald door parameters die in de ZAC per zaaktype zijn ingesteld zoals de doorlooptijd van de zaak en de taken en standaard ingevulde waarden in bepaalde velden. Deze instellingen worden gedaan in de Zaakafhandel-parameters waar in deze handleiding soms naar verwezen wordt met de verkorte naam ‘zaps’.
+De behandeling van zaken wordt voor een deel bepaald door parameters die in de ZAC per zaaktype zijn ingesteld zoals de doorlooptijd van de zaak en de taken en standaard ingevulde waarden in bepaalde velden. Deze instellingen worden gedaan in de Zaakafhandel-parameters waar in deze handleiding soms naar verwezen wordt met de verkorte naam ‘ZAPs’.
 
 ## Indeling van ZAC
 
@@ -1157,13 +1157,13 @@ Het is bij het opmaken van het bericht mogelijk om gebruik te maken van variabel
 
 4 Voeg eventueel een bijlage aan de mail toe door deze te selecteren
 
-5 De fatale datum is de datum dat de taak uiterlijk moet zijn afgehandeld, deze is bepaald op basis van een instelling in de zaps en kan eventueel worden aangepast.
+5 De fatale datum is de datum dat de taak uiterlijk moet zijn afgehandeld, deze is bepaald op basis van een instelling in de ZAPs en kan eventueel worden aangepast.
 
 6 Als je de zaak wilt opschorten dan vink je deze optie aan. De streef- en fatale datum van de zaak worden dan opgeschort tot de datum die als fatale datum bij de taak is aangegeven (zie de vorige stap). Een zaak kan maar eenmaal opgeschort worden dus als dit al een keer gebeurd is dan is deze optie niet beschikbaar
 
 7 Kies de groep en/of de behandelaar aan wie de taak toegekend moet worden
 
-De groep is voor ingevuld op basis van een instelling in de zaps. Het is mogelijk om deze groep te wijzigen of om zelf een behandelaar te kiezen. Er kan alleen een behandelaar gekozen worden die bij de gekozen groep hoort.
+De groep is voor ingevuld op basis van een instelling in de ZAPs. Het is mogelijk om deze groep te wijzigen of om zelf een behandelaar te kiezen. Er kan alleen een behandelaar gekozen worden die bij de gekozen groep hoort.
 
 8 Klik op ‘Starten’ om de taak aan te maken
 
@@ -1195,7 +1195,7 @@ Deze taak is bedoeld om een advies over de zaak te vragen bij een interne advise
 
 3 Kies de groep en/of de behandelaar aan wie de taak toegekend moet worden
 
-De groep is voor ingevuld op basis van een instelling in de zaps. Het is mogelijk om deze groep te wijzigen of om zelf een behandelaar te kiezen. Er kan alleen een behandelaar gekozen worden die bij de gekozen groep hoort.
+De groep is voor ingevuld op basis van een instelling in de ZAPs. Het is mogelijk om deze groep te wijzigen of om zelf een behandelaar te kiezen. Er kan alleen een behandelaar gekozen worden die bij de gekozen groep hoort.
 
 4 Klik op ‘Starten’ om de taak aan te maken
 
@@ -1225,7 +1225,7 @@ Deze taak is bedoeld om een goedkeuring over de zaak te vragen bij een interne g
 
 3 Kies de groep en/of de behandelaar aan wie de taak toegekend moet worden
 
-De groep is voor ingevuld op basis van een instelling in de zaps. Het is mogelijk om deze groep te wijzigen of om zelf een behandelaar te kiezen. Er kan alleen een behandelaar gekozen worden die bij de gekozen groep hoort.
+De groep is voor ingevuld op basis van een instelling in de ZAPs. Het is mogelijk om deze groep te wijzigen of om zelf een behandelaar te kiezen. Er kan alleen een behandelaar gekozen worden die bij de gekozen groep hoort.
 
 4 Klik op ‘Starten’ om de taak aan te maken
 
@@ -1257,7 +1257,7 @@ Deze taak is bedoeld om een advies dat bij een externe adviseur is gevraagd vast
 
 3 Kies de groep en/of de behandelaar aan wie de taak toegekend moet worden.
 
-De groep is voor ingevuld op basis van een instelling in de zaps. Het is mogelijk om deze groep te wijzigen of om zelf een behandelaar te kiezen. Er kan alleen een behandelaar gekozen worden die bij de gekozen groep hoort.
+De groep is voor ingevuld op basis van een instelling in de ZAPs. Het is mogelijk om deze groep te wijzigen of om zelf een behandelaar te kiezen. Er kan alleen een behandelaar gekozen worden die bij de gekozen groep hoort.
 
 4 Klik op ‘Starten’ om de taak aan te maken
 
@@ -1298,7 +1298,7 @@ In de lijst van te verzenden documenten staan alleen documenten die:
 
 4 Kies de groep en/of de behandelaar aan wie de taak toegekend moet worden
 
-De groep is vooringevuld op basis van een instelling in de zaps. Het is mogelijk om deze groep te wijzigen of om zelf een behandelaar te kiezen. Er kan alleen een behandelaar gekozen worden die bij de gekozen groep hoort.
+De groep is vooringevuld op basis van een instelling in de ZAPs. Het is mogelijk om deze groep te wijzigen of om zelf een behandelaar te kiezen. Er kan alleen een behandelaar gekozen worden die bij de gekozen groep hoort.
 
 5 Klik op ‘Starten’ om de taak aan te maken
 
@@ -1793,7 +1793,7 @@ Daarnaast bevat de pagina een overzicht van alle zaken waar het BAG-object aan t
 
 **Zaakspecifiek geautoriseerde zaak** een zaak waartoe alleen een beperkte groep medewerkers toegang heeft. Zie [Zaak zaakspecifiek autoriseren](#zaak-zaakspecifiek-autoriseren).
 
-**Zaakafhandel-parameters** beheeronderdeel in de ZAC, afgekort als ‘zaps’, waarin per zaaktype aspecten van de zaakbehandeling ingesteld kunnen worden.
+**Zaakafhandel-parameters** beheeronderdeel in de ZAC, afgekort als ‘ZAPs’, waarin per zaaktype aspecten van de zaakbehandeling ingesteld kunnen worden.
 
 ## Indicaties
 
