@@ -27,9 +27,18 @@ SECRET_PARAMETERS = re.compile(
 )
 # The page in the trace needs these to look like the page of ZAC.
 KEPT_RESOURCES = (".css", ".js", ".mjs", ".svg", ".png", ".jpg", ".jpeg", ".gif", ".ico", ".webp", ".woff", ".woff2", ".ttf")
+# The name of a font in a trace does not tell that it is a font.
+FONT = re.compile(r'"mimeType":"(?:font/|application/(?:x-)?font)[^"]*"[^{}]*"_file":"([^"]+)"')
+# All frames of the film strip together are ten times as large as the rest of the report.
+MILLISECONDS_BETWEEN_FRAMES = 2000
 SOURCES = (".ts", ".js", ".feature")
-# Without a background of its own the report is unreadable in a browser that shows pages transparent.
-BACKGROUND = "<style>html{background-color:Canvas}</style>"
+# The older cucumber reports on the same GitHub Pages origin store a theme that the Playwright report does not know, and
+# then it shows its light colors on the dark page of the browser.
+THEME_GUARD = """<script>
+try {
+  if (!["dark-mode", "light-mode", "system"].includes(localStorage.theme)) localStorage.removeItem("theme");
+} catch {}
+</script>"""
 
 
 def redact(value):
@@ -72,14 +81,41 @@ def redact_lines(text, sessions):
     return "\n".join(lines) + "\n"
 
 
+def thin_film_strip(text, dropped_frames):
+    lines = []
+    kept_at = {}
+    for line in text.splitlines():
+        if '"screencast-frame"' in line:
+            event = json.loads(line)
+            if event.get("type") == "screencast-frame":
+                page = event.get("pageId")
+                if page in kept_at and event["timestamp"] - kept_at[page] < MILLISECONDS_BETWEEN_FRAMES:
+                    dropped_frames.add(event["file"])
+                    continue
+                kept_at[page] = event["timestamp"]
+        lines.append(line)
+    return "\n".join(lines) + "\n"
+
+
 def redact_trace(content, sessions):
     target = io.BytesIO()
+    dropped_frames = set()
+    fonts = set()
     with zipfile.ZipFile(io.BytesIO(content)) as source, zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as redacted:
-        for name in source.namelist():
+        # These come first, because they tell which frames are dropped and which files are fonts.
+        for name in sorted(source.namelist(), key=lambda name: not name.endswith((".trace", ".network"))):
+            if name in dropped_frames:
+                continue
             member = source.read(name)
             if name.endswith((".trace", ".network", ".stacks")):
-                redacted.writestr(name, redact_lines(member.decode(), sessions))
-            elif name.startswith("resources/") and name.lower().endswith(KEPT_RESOURCES) or name.endswith(SOURCES):
+                text = thin_film_strip(member.decode(), dropped_frames)
+                fonts.update(FONT.findall(text))
+                redacted.writestr(name, redact_lines(text, sessions))
+            elif (
+                name in fonts
+                or name.startswith(("resources/", "screencast/")) and name.lower().endswith(KEPT_RESOURCES)
+                or name.endswith(SOURCES)
+            ):
                 redacted.writestr(name, member)
     return target.getvalue()
 
@@ -106,7 +142,7 @@ def main(report_directory, sessions_directory):
     with open(index, encoding="utf-8") as report_file:
         page = report_file.read()
     with open(index, "w", encoding="utf-8") as report_file:
-        report_file.write(page.replace("</head>", f"{BACKGROUND}</head>", 1))
+        report_file.write(page.replace("</head>", f"{THEME_GUARD}</head>", 1))
     print(f"Redacted {traces} traces, with {len(sessions)} values of sessions.")
 
 

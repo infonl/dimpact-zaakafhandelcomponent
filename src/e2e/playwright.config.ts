@@ -11,6 +11,7 @@ const journeysDirectory = defineBddConfig({
   featuresRoot: "bdd",
   features: "bdd/**/*.feature",
   steps: ["bdd/**/*.steps.ts", "bdd/fixtures.ts"],
+  aiFix: { promptAttachment: true },
 });
 
 // A recording of a sign in holds a password.
@@ -40,13 +41,7 @@ export default defineConfig({
     timezoneId: "Europe/Amsterdam",
     ...(ENV.hasPublicReport
       ? {
-          // The video replaces the film strip of the trace, which is ten times as large.
-          trace: {
-            mode: "on",
-            screenshots: false,
-            snapshots: true,
-            sources: true,
-          },
+          trace: "on",
           screenshot: "on",
           video: "on",
         }
