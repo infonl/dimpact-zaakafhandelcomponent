@@ -71,6 +71,9 @@ Rules:
   `informatieobjectIdentificatie`, `groupId`, `employee` (or the role of the employee, such as `assignee`),
   `processDefinitionKey`, `caseDefinitionKey`, `outcome`, `durationMs`, `errorType`, `errorCode`. A unit test fails on a synonym such as
   `zaakId`, `uuid`, `user`, `username` or `userId`, and on a field named `event`.
+* Give a field a simple type: a string, number, boolean, UUID, URI, date, enum, `Employee` or a collection of these.
+  An object would be written with its `toString()`, which bypasses the `@Redacted` fields inside it, so a unit test
+  fails on a field of another type. Log the values you need as separate fields instead.
 * Log one record per operation: when several statements in one function or class describe the same operation, write
   one event when it ends, with its choices as fields. An operation with a start and an end has `outcome`
   (`SUCCESS` or `FAILURE`) and `durationMs`. A long-running operation that reports progress, such as a reindex, keeps
