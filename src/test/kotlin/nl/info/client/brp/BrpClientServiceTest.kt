@@ -5,7 +5,9 @@
 
 package nl.info.client.brp
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.comparables.shouldBeGreaterThanOrEqualTo
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -628,6 +630,86 @@ class BrpClientServiceTest : BehaviorSpec({
 
             then("the BRP query is not logged, because a record logged at level OFF would always pass") {
                 logRecords.filter { it.message == "PersonenApi.personen()" } shouldBe emptyList()
+            }
+        }
+    }
+    given("BRP protocollering enabled without the header names of doelbinding, verwerkingregister and origin OIN") {
+        val brpClientServiceWithoutHeaderNames = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = createBrpConfiguration(
+                headerNameDoelbinding = Optional.empty(),
+                headerNameVerwerking = Optional.empty(),
+                headerNameOriginOin = Optional.empty()
+            ),
+            zaaktypeConfigurationService = zaaktypeConfigurationService,
+            brpProtocolleringContext = BrpProtocolleringContext()
+        )
+        every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
+            persons = listOf(createPersoon(bsn = "999990019"))
+        )
+
+        `when`("a person is retrieved") {
+            val logRecords = LogCapture(BrpClientService::class).use { logCapture ->
+                brpClientServiceWithoutHeaderNames.retrievePersoon("999990019", null, "fakeTestUser")
+                logCapture.records
+            }
+
+            then("a warning that names the header is logged for each header that is not configured") {
+                logRecords
+                    .filter { it.message?.startsWith("BRP protocollering is enabled but a header is not configured") == true }
+                    .map { it.mdc["header"] } shouldContainExactly listOf("doelbinding", "verwerkingregister", "originOin")
+            }
+        }
+    }
+
+    given(
+        "BRP protocollering enabled with the header names configured, but without default values for " +
+            "doelbinding, verwerkingregister, origin OIN and the system user"
+    ) {
+        val brpClientServiceWithoutDefaultValues = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = createBrpConfiguration(
+                originOin = Optional.empty(),
+                doelbindingRaadpleegMetDefault = Optional.empty(),
+                verwerkingregisterDefault = Optional.empty(),
+                systemUser = Optional.empty()
+            ),
+            zaaktypeConfigurationService = zaaktypeConfigurationService,
+            brpProtocolleringContext = BrpProtocolleringContext()
+        )
+        every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
+            persons = listOf(createPersoon(bsn = "999990019"))
+        )
+
+        `when`("a person is retrieved without a zaaktype and without a username") {
+            val logRecords = LogCapture(BrpClientService::class).use { logCapture ->
+                brpClientServiceWithoutDefaultValues.retrievePersoon("999990019", null, "")
+                logCapture.records
+            }
+
+            then("a warning that names the header is logged for each header without a value") {
+                logRecords
+                    .filter { it.message?.startsWith("BRP protocollering value could not be determined") == true }
+                    .map { it.mdc["header"] } shouldContainExactly
+                    listOf("doelbinding", "verwerkingregister", "user", "originOin")
+            }
+        }
+    }
+
+    given("A person for a given BSN, BRP logging enabled at level INFO and a BRP Personen API that fails") {
+        every { zaaktypeConfigurationService.findConfiguration(zaaktypeUuid) } returns createZaaktypeCmmnConfiguration()
+        every { personenApi.personen(any<PersonenQuery>()) } throws NotFoundException("fakeNotFound")
+
+        `when`("the person is retrieved") {
+            val logRecords = LogCapture(BrpClientService::class).use { logCapture ->
+                shouldThrow<NotFoundException> {
+                    configuredBrpClientService.retrievePersoon("999990019", zaaktypeUuid, "fakeTestUser")
+                }
+                logCapture.records
+            }
+
+            then("the BRP query is logged with outcome FAILURE") {
+                logRecords.single { it.message == "PersonenApi.personen()" }.mdc["outcome"] shouldBe "FAILURE"
             }
         }
     }

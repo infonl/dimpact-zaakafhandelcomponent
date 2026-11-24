@@ -33,6 +33,7 @@ import nl.info.client.zgw.model.createOrganisatorischeEenheidIdentificatie
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolNietNatuurlijkPersoon
+import nl.info.client.zgw.model.createRolNietNatuurlijkPersoonForReads
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheidForReads
 import nl.info.client.zgw.model.createRolVestiging
 import nl.info.client.zgw.model.createVestigingIdentificatie
@@ -50,11 +51,13 @@ import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_OMSCHRI
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_IDENTIFICATIE
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.log.LogCapture
+import nl.info.zac.log.RolEvent
 import org.flowable.common.engine.api.scope.ScopeTypes
 import org.flowable.task.api.Task
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
+import java.util.logging.Level
 
 @Suppress("LargeClass")
 class MailTemplateHelperTest : BehaviorSpec({
@@ -353,6 +356,31 @@ class MailTemplateHelperTest : BehaviorSpec({
                         containsAnywhere("1970") shouldBe false
                         containsAnywhere("fakeGeboorteplaats") shouldBe false
                         containsAnywhere(bsn) shouldBe false
+                    }
+                }
+            }
+        }
+
+        given("A zaak with an initiator of role niet-natuurlijk persoon without an identificatie") {
+            val zaak = createZaak(
+                status = URI("https://example.com/fakeStatus"),
+                startDate = LocalDate.of(2021, 10, 12)
+            )
+            val rolNietNatuurlijkPersoon = createRolNietNatuurlijkPersoonForReads(nietNatuurlijkPersoonIdentificatie = null)
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns createZaakType()
+            every { configurationService.zaakTonenUrl(zaak.identificatie) } returns URI("https://example.com/fakeURL")
+            every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
+
+            `when`("the variables are resolved with a text containing a placeholder for the zaak initiator") {
+                val records = LogCapture(MailTemplateHelper::class).use { logCapture ->
+                    mailTemplateHelper.resolveZaakVariables("fakeText, {ZAAK_INITIATOR}", zaak, "userName")
+                    logCapture.records
+                }
+
+                then("the missing identificatie is logged as a warning with the UUID of the rol") {
+                    with(records.single { it.level == Level.WARNING }) {
+                        message shouldBe RolEvent.Type.INITIATOR_ROLE_WITHOUT_IDENTIFICATIE.description
+                        mdc["rolUuid"] shouldBe rolNietNatuurlijkPersoon.uuid.toString()
                     }
                 }
             }

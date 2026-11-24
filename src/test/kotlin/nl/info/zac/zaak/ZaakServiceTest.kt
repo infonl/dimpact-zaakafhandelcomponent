@@ -831,13 +831,16 @@ class ZaakServiceTest : BehaviorSpec({
             every { eventingService.send(capture(screenEventSlot)) } just runs
 
             `when`("the zaken are assigned to the group and the user") {
-                zaakService.assignZaken(
-                    zaakUUIDs = zaken.map { it.uuid },
-                    explanation = explanation,
-                    group = group,
-                    user = user,
-                    screenEventResourceId = screenEventResourceId
-                )
+                val records = LogCapture(ZaakService::class).use { logCapture ->
+                    zaakService.assignZaken(
+                        zaakUUIDs = zaken.map { it.uuid },
+                        explanation = explanation,
+                        group = group,
+                        user = user,
+                        screenEventResourceId = screenEventResourceId
+                    )
+                    logCapture.records
+                }
 
                 then("every zaak gets a groep rol and a behandelaar rol") {
                     zaken.forEach { verify(exactly = 1) { zrcClientService.updateRol(it, any(), explanation) } }
@@ -849,6 +852,14 @@ class ZaakServiceTest : BehaviorSpec({
                         opcode shouldBe Opcode.UPDATED
                         objectType shouldBe ScreenEventType.ZAKEN_VERDELEN
                         objectId.resource shouldBe screenEventResourceId
+                    }
+                }
+
+                and("the batch is logged with the number of zaken and the number of assigned zaken") {
+                    with(records.single { it.message == "Assigned zaken" }) {
+                        mdc["zaakCount"] shouldBe "2"
+                        mdc["assignedCount"] shouldBe "2"
+                        mdc["screenEventResourceId"] shouldBe screenEventResourceId
                     }
                 }
             }
@@ -1381,11 +1392,14 @@ class ZaakServiceTest : BehaviorSpec({
             every { eventingService.send(capture(screenEventSlot)) } just runs
 
             `when`("the zaken are released") {
-                zaakService.releaseZaken(
-                    zaakUUIDs = zaken.map { it.uuid },
-                    explanation = explanation,
-                    screenEventResourceId = screenEventResourceId
-                )
+                val records = LogCapture(ZaakService::class).use { logCapture ->
+                    zaakService.releaseZaken(
+                        zaakUUIDs = zaken.map { it.uuid },
+                        explanation = explanation,
+                        screenEventResourceId = screenEventResourceId
+                    )
+                    logCapture.records
+                }
 
                 then("every zaak loses its behandelaar rol while its groep is left untouched") {
                     zaken.forEach {
@@ -1402,6 +1416,13 @@ class ZaakServiceTest : BehaviorSpec({
                         opcode shouldBe Opcode.UPDATED
                         objectType shouldBe ScreenEventType.ZAKEN_VRIJGEVEN
                         objectId.resource shouldBe screenEventResourceId
+                    }
+                }
+
+                and("the batch is logged with the number of zaken") {
+                    with(records.single { it.message == "Released zaken" }) {
+                        mdc["zaakCount"] shouldBe "2"
+                        mdc["screenEventResourceId"] shouldBe screenEventResourceId
                     }
                 }
             }
