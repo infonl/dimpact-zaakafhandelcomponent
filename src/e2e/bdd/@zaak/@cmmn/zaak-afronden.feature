@@ -20,7 +20,7 @@ Feature: Zaak afronden
     Then the zaak shows the besluit with the document "E2E besluitbrief"
     When I close the zaak with the resultaat "Toegekend"
     Then the status is "Afgerond"
-    And the zaak appears in the list of afgehandelde zaken
+    And the zaak appears in the list of afgehandelde zaken with the resultaat "Toegekend"
 
   @recordmanager
   Scenario: A recordmanager reopens a closed zaak

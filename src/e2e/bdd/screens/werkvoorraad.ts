@@ -4,6 +4,20 @@
  */
 
 import { expect, type Page } from "@playwright/test";
+import type { Schemas } from "../support/zac-api";
+
+/** Waits for the answer of the search for the text, not of another search, such as the first one of the page. */
+function answerOfSearchFor(page: Page, text: string) {
+  return page.waitForResponse((response) => {
+    if (!new URL(response.url()).pathname.endsWith("/rest/zoeken/list")) {
+      return false;
+    }
+    const { zoeken } = response
+      .request()
+      .postDataJSON() as Schemas["RestZoekParameters"];
+    return response.ok() && Object.values(zoeken ?? {}).includes(text);
+  });
+}
 
 /** A list of zaken from the search index, such as the werkvoorraad. */
 function zakenLijst(page: Page, path: string) {
@@ -12,14 +26,9 @@ function zakenLijst(page: Page, path: string) {
     const zaaknummerFilter = page.getByRole("textbox", { name: "Zaaknummer" });
     await zaaknummerFilter.fill(identificatie);
     await Promise.all([
-      page.waitForResponse(
-        (response) =>
-          new URL(response.url()).pathname.endsWith("/rest/zoeken/list") &&
-          response.ok(),
-      ),
+      answerOfSearchFor(page, identificatie),
       zaaknummerFilter.press("Enter"),
     ]);
-    return page.getByRole("cell", { name: identificatie });
   }
 
   return {
@@ -27,12 +36,21 @@ function zakenLijst(page: Page, path: string) {
       await page.goto(path);
     },
 
+    /** The row of the zaak. The row of the filters can also hold the zaaknummer, but in a textbox, not in a cell. */
+    zaak(identificatie: string) {
+      return page
+        .getByRole("row")
+        .filter({ has: page.getByRole("cell", { name: identificatie }) });
+    },
+
     async expectZaak(identificatie: string) {
-      await expect(await filterOnZaaknummer(identificatie)).toBeVisible();
+      await filterOnZaaknummer(identificatie);
+      await expect(this.zaak(identificatie)).toBeVisible();
     },
 
     async expectNoZaak(identificatie: string) {
-      await expect(await filterOnZaaknummer(identificatie)).toBeHidden();
+      await filterOnZaaknummer(identificatie);
+      await expect(this.zaak(identificatie)).toBeHidden();
     },
   };
 }
