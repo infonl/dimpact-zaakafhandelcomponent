@@ -34,10 +34,11 @@ class ORValidationErrorExceptionTest : BehaviorSpec({
         `when`("the exception message is retrieved") {
             val exception = ORValidationErrorException(validationError)
 
-            then("The message contains all field errors joined by comma") {
-                exception.message shouldBe "Bad Request [400 invalid] Validation failed: " +
-                    "naam [required] This field is required, omschrijving [max_length] Value too long " +
-                    "(https://example.com/api/resource)"
+            then(
+                "the message contains the status, the error code and the name and code of each field error, but not " +
+                    "the reasons, title, detail and instance, which can echo a rejected value"
+            ) {
+                exception.message shouldBe "400 invalid: naam [required], omschrijving [max_length]"
             }
         }
     }
@@ -54,8 +55,8 @@ class ORValidationErrorExceptionTest : BehaviorSpec({
         `when`("the exception message is retrieved") {
             val exception = ORValidationErrorException(validationError)
 
-            then("The message renders null for the field errors and instance") {
-                exception.message shouldBe "Bad Request [400 invalid] Validation failed: null (null)"
+            then("the message contains the status and the error code without field errors") {
+                exception.message shouldBe "400 invalid: "
             }
         }
     }

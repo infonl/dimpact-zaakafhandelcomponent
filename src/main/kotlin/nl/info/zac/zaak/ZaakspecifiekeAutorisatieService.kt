@@ -21,6 +21,8 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.flowable.task.FlowableTaskService
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.User
 import nl.info.zac.search.IndexingService
@@ -331,7 +333,7 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
             if (zaakToewijzing.isGeautoriseerdeMedewerker(medewerkerId)) {
                 throw MedewerkerAlreadyZaakspecifiekGeautoriseerdException()
             }
-            identityService.readUser(username = medewerkerId, logContext = "zaak '${zaak.identificatie}'").also {
+            identityService.readUser(username = medewerkerId, context = zaak.toIdentityLookupContext()).also {
                 grantZaakspecifiekeAutorisatie(
                     zaak = zaak,
                     medewerker = it.toMedewerkerIdentificatie(),
@@ -400,8 +402,11 @@ class ZaakspecifiekeAutorisatieService @Inject constructor(
             flowableTaskService.listOpenTasksForZaak(zaak.uuid).mapNotNull { it.assignee }
 
     private fun readMedewerkerIdentificatie(medewerkerId: String, zaak: Zaak) =
-        identityService.readUser(username = medewerkerId, logContext = "zaak '${zaak.identificatie}'")
+        identityService.readUser(username = medewerkerId, context = zaak.toIdentityLookupContext())
             .toMedewerkerIdentificatie()
+
+    private fun Zaak.toIdentityLookupContext() =
+        IdentityLookupContext(source = IdentityLookupSource.ZAAK, zaakIdentificatie = identificatie)
 
     private fun User.toMedewerkerIdentificatie() = MedewerkerIdentificatie().apply {
         identificatie = this@toMedewerkerIdentificatie.username

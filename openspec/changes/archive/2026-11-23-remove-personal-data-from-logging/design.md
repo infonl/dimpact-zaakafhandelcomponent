@@ -128,7 +128,8 @@ MDC entry. The WildFly JSON formatter writes the MDC as a JSON object, so a reco
 `ZacLogger` puts the entries in the MDC (`org.jboss.logging.MDC`, which WildFly gives every deployment and which writes
 to the MDC of the JBoss LogManager) right before the JUL call and restores the previous MDC in a `finally` right
 after, so no entry leaks to another log record on the same thread. Besides the event fields it always writes `event`
-(the simple class name of the event) and, when a throwable is passed, `errorType` (the class name of the throwable).
+(the simple class name of the event, or for a shared event the name of its `type` constant in the
+same style) and, when a throwable is passed, `errorType` (the class name of the throwable).
 
 `ZacLogger` renders all fields of the event, including the resolution of `Employee` fields (decision 6), into a map
 before it puts anything into the MDC. Resolving an employee can write a log record of its own (`IdentityService` logs
@@ -183,7 +184,7 @@ the same package, also listed in `logging.md`. The first version:
 | Taak ID | `taakId` |
 | Informatieobject UUID / identificatie | `informatieobjectUuid` / `informatieobjectIdentificatie` |
 | Group ID | `groupId` |
-| Employee (Keycloak user ID, decision 6) | `employee`, or a role-specific name ending in `Employee`, such as `assigneeEmployee` |
+| Employee (Keycloak user ID, decision 6) | `employee`, or the role of the employee, such as `assignee` or `behandelaar`; the field type is always `Employee` |
 | Process / case definition key | `processDefinitionKey` / `caseDefinitionKey` |
 | Outcome of an operation | `outcome` (`SUCCESS` or `FAILURE`) |
 | Duration of an operation in milliseconds | `durationMs` |
@@ -288,9 +289,10 @@ companion object {
   companion objects outside CDI and must not depend on `IdentityService` (which itself logs through `ZacLogger`), so it
   receives the lookup as a function. Before that (very early startup logging) an unregistered `Employee` is written as
   `unknown`.
-- A failed or empty lookup is stored as a miss for 5 minutes. During that time an `Employee` for that username is
-  written as `unknown` without a new lookup; after it the next log line tries again. So during a Keycloak outage ZAC
-  calls Keycloak at most once per employee per 5 minutes, not once per log line. A lookup never throws to the caller:
+- An empty lookup is stored as a miss for 1 minute. During that time an `Employee` for that username is written as
+  `unknown` without a new lookup; after it the next log line tries again. A lookup that fails because Keycloak cannot
+  be reached makes ZAC log one warning and skip the lookups of all employees for 1 minute, so that during an outage
+  log lines do not wait for Keycloak one after another. A lookup never throws to the caller:
   the log line is written with `unknown`, and the business operation (such as assigning a zaak) never depends on it.
   This covers only the lookup for the log. The business operation keeps its own Keycloak calls and their behaviour:
   assigning a zaak still validates and reads the user and group through `IdentityService`
@@ -321,10 +323,10 @@ ZAC restarts; that only affects log correlation.
 
 ### 7. `JsonLoggingFilter` logs one record per outbound call, without payloads
 
-The request filter stores the start time and a correlation ID as properties of the `ClientRequestContext`; it logs
-nothing. The response filter logs one record at `FINE`:
-`OutboundRestCall(correlationId, method, host, operation, status, outcome, durationMs)`. The correlation ID is the
-`spanId` of the current span when tracing is enabled, and a random UUID otherwise. `outcome` is `SUCCESS` for a 2xx or
+The request filter stores the start time as a property of the `ClientRequestContext`; it logs nothing. The response
+filter logs one record at `FINE`: `OutboundRestCall(method, host, operation, status, outcome, durationMs)`. The record
+has no correlation ID of its own: there is one record per call, so nothing needs to be correlated, and the trace and
+span ID that `ZacLogger` adds identify the call when tracing is enabled. `outcome` is `SUCCESS` for a 2xx or
 3xx status and `FAILURE` otherwise. The masking of `geboorte` fields and the payload buffering are removed. The class
 keeps its name and its logger name, so existing log level configurations keep working.
 
@@ -484,7 +486,8 @@ become context disappear. A task of this change writes that ticket.
 
 - [Every log line changes format: the message is only the description, the details move to `mdc` fields] →
   Operators and alerting that match on exact texts must adapt. The descriptions keep the key words of the old
-  messages, and the release notes list the change and the field names.
+  messages. The PR description warns beheerders, and `logging.md` lists the field names. It is not a breaking
+  change of ZAC: the JSON format, the log levels and the logger names stay the same.
 - [An MDC entry leaks to a later record on the same thread] → `ZacLogger` restores the previous MDC in a `finally`;
   a unit test checks that the MDC is the same before and after a call, also when the JUL call throws.
 - [`org.jboss.logging.MDC` does not reach the WildFly JSON formatter] → The itest `LoggingTest` checks that a record

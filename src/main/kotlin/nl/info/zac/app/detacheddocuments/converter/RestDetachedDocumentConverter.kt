@@ -9,6 +9,8 @@ import nl.info.zac.app.detacheddocuments.model.RestDetachedDocument
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
@@ -39,7 +41,11 @@ class RestDetachedDocumentConverter @Inject constructor(
             bestandsnaam = detachedDocument.bestandsnaam,
             ontkoppeldDoor = userConverter.convertUsername(
                 username = detachedDocument.ontkoppeldDoor,
-                logContext = "ontkoppeld document '${detachedDocument.documentID}' of zaak '${detachedDocument.zaakID}'"
+                context = IdentityLookupContext(
+                    source = IdentityLookupSource.DETACHED_DOCUMENT,
+                    zaakIdentificatie = detachedDocument.zaakID,
+                    informatieobjectIdentificatie = detachedDocument.documentID
+                )
             ),
             ontkoppeldOp = detachedDocument.ontkoppeldOp,
             reden = detachedDocument.reden,
