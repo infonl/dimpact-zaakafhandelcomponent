@@ -108,6 +108,16 @@ jobs:
           publish_dir: ./site
           publish_branch: gh-pages # deploying to gh-pages branch
           keep_files: true # retains files that are not part of the current publish
+      # GitHub Pages builds the site after the deployment, so the link in Slack would not work yet. The query keeps its
+      # cache from answering with the page that did not exist before.
+      - name: Wait until the report is online
+        if: ${{ !cancelled() && steps.deploy.outcome == 'success' }}
+        continue-on-error: true
+        timeout-minutes: 10
+        env:
+          REPORT_URL: https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.report_path }}/index.html
+        run: |
+          until curl --silent --fail --output /dev/null "$REPORT_URL?attempt=$(date +%s)"; do sleep 15; done
       - name: Notify Slack
         if: ${{ !cancelled() }}
         uses: slackapi/slack-github-action@0bc3581177d9a0f8d555e07689384b376528e8fa # v4.1.0
