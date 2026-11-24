@@ -10,11 +10,12 @@ import { provideTranslateService } from "@ngx-translate/core";
 import { notifyManager } from "@tanstack/query-core";
 import { fireEvent, render, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { from, of, throwError } from "rxjs";
+import { of } from "rxjs";
 import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { sleep } from "../../../../../setupJest";
 import { UtilService } from "../../../core/service/util.service";
 import { FoutAfhandelingService } from "../../../fout-afhandeling/fout-afhandeling.service";
+import { LOAD_PER_VISIT } from "../../../shared/http/zac-query-client";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { BpmnService } from "../../bpmn.service";
 import { readFileContent } from "../file.helper";
@@ -40,6 +41,13 @@ const zipResponse = new HttpResponse({
   headers: new HttpHeaders({
     "Content-Disposition": 'attachment; filename="test-key-v2.zip"',
   }),
+});
+
+const downloadQuery = (queryFn: () => Promise<HttpResponse<Blob>>) => ({
+  queryKey: ["fakeDownloadQueryKey"],
+  queryFn,
+  ...LOAD_PER_VISIT,
+  retry: false,
 });
 
 const uploadedForm: GeneratedType<"RestBpmnProcessDefinitionForm"> = {
@@ -180,7 +188,9 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       deleteProcessDefinitionForm: jest
         .fn()
         .mockReturnValue(deleteProcessDefinitionFormMutation),
-      downloadProcessDefinition: jest.fn().mockReturnValue(of(zipResponse)),
+      downloadProcessDefinition: jest
+        .fn()
+        .mockReturnValue(downloadQuery(() => Promise.resolve(zipResponse))),
     };
     utilService = {
       openSnackbar: jest.fn(),
@@ -284,7 +294,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
 
       it("reports a failure of the request as any other", async () => {
         (bpmnService.downloadProcessDefinition as jest.Mock).mockReturnValue(
-          throwError(() => new Error("fakeDownloadFailure")),
+          downloadQuery(() => Promise.reject(new Error("fakeDownloadFailure"))),
         );
         await setup();
 
@@ -315,7 +325,9 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
 
     it("falls back to the process definition key when the response has no filename", async () => {
       (bpmnService.downloadProcessDefinition as jest.Mock).mockReturnValue(
-        of(new HttpResponse({ body: zipBlob })),
+        downloadQuery(() =>
+          Promise.resolve(new HttpResponse({ body: zipBlob })),
+        ),
       );
       await setup();
 
@@ -330,7 +342,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
 
     it("shows an error message and downloads nothing when the request fails", async () => {
       (bpmnService.downloadProcessDefinition as jest.Mock).mockReturnValue(
-        throwError(() => new Error("fakeDownloadFailure")),
+        downloadQuery(() => Promise.reject(new Error("fakeDownloadFailure"))),
       );
       await setup();
 
@@ -349,10 +361,11 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       try {
         let resolveDownload!: (response: HttpResponse<Blob>) => void;
         (bpmnService.downloadProcessDefinition as jest.Mock).mockReturnValue(
-          from(
-            new Promise<HttpResponse<Blob>>((resolve) => {
-              resolveDownload = resolve;
-            }),
+          downloadQuery(
+            () =>
+              new Promise<HttpResponse<Blob>>((resolve) => {
+                resolveDownload = resolve;
+              }),
           ),
         );
         await setup();

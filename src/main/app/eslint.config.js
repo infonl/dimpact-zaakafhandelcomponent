@@ -83,6 +83,33 @@ const restrictedImportPaths = [
 ];
 const restrictedSyntax = [noNgDeep, typedMatCellDefImport];
 
+const NO_DIRECT_HTTP_CLIENT_MESSAGE =
+  "Call the ZAC API through ZacQueryClient, so every request is cached, retried and its failure is reported.";
+const httpClientRestrictedImportPaths = [
+  {
+    name: "@angular/common/http",
+    importNames: ["HttpClient"],
+    message: NO_DIRECT_HTTP_CLIENT_MESSAGE,
+  },
+];
+const httpClientRestrictedImportPatterns = [
+  {
+    group: ["**/shared/http/http-client"],
+    importNames: ["HttpClient"],
+    message: NO_DIRECT_HTTP_CLIENT_MESSAGE,
+  },
+];
+// ZacQueryClient and the typed HttpClient under it are the transport itself.
+// The location service calls the external PDOK API and the translate loader reads static assets: neither is in the ZAC OpenAPI spec.
+const DIRECT_HTTP_CLIENT_ALLOWED = [
+  "src/app/shared/http/zac-query-client.ts",
+  "src/app/shared/http/http-client.ts",
+  "src/app/shared/location/location.service.ts",
+  "src/app/core/translate-loader.service.ts",
+  "src/app/app.config.ts",
+  "**/*.spec.ts",
+];
+
 const typeScriptLanguageOptions = {
   parserOptions: {
     project: "tsconfig.json",
@@ -139,8 +166,15 @@ module.exports = defineConfig(
       "no-restricted-imports": [
         "error",
         {
-          paths: [...restrictedImportPaths, ...dateTimeRestrictedImportPaths],
-          patterns: dateTimeRestrictedImportPatterns,
+          paths: [
+            ...restrictedImportPaths,
+            ...dateTimeRestrictedImportPaths,
+            ...httpClientRestrictedImportPaths,
+          ],
+          patterns: [
+            ...dateTimeRestrictedImportPatterns,
+            ...httpClientRestrictedImportPatterns,
+          ],
         },
       ],
       "no-restricted-properties": [
@@ -176,9 +210,27 @@ module.exports = defineConfig(
     },
   },
   {
+    files: DIRECT_HTTP_CLIENT_ALLOWED,
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [...restrictedImportPaths, ...dateTimeRestrictedImportPaths],
+          patterns: dateTimeRestrictedImportPatterns,
+        },
+      ],
+    },
+  },
+  {
     files: [DATE_TIME_MODULE],
     rules: {
-      "no-restricted-imports": ["error", { paths: restrictedImportPaths }],
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [...restrictedImportPaths, ...httpClientRestrictedImportPaths],
+          patterns: httpClientRestrictedImportPatterns,
+        },
+      ],
       "no-restricted-syntax": [
         "error",
         ...restrictedSyntax,

@@ -3,14 +3,19 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpResponse } from "@angular/common/http";
+import { HttpErrorResponse, HttpResponse } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
-import { Observable } from "rxjs";
+import {
+  QueryClient,
+  queryOptions,
+} from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
-import { HttpClient, PathParameters } from "../shared/http/http-client";
+import { PathParameters } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
-import { ZacQueryClient } from "../shared/http/zac-query-client";
+import {
+  LOAD_PER_VISIT,
+  ZacQueryClient,
+} from "../shared/http/zac-query-client";
 
 const PROCESS_DEFINITIONS_PATH = "/rest/bpmn-process-definitions";
 
@@ -18,7 +23,6 @@ const PROCESS_DEFINITIONS_PATH = "/rest/bpmn-process-definitions";
   providedIn: "root",
 })
 export class BpmnService {
-  private readonly httpClient = inject(HttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly utilService = inject(UtilService);
   private readonly queryClient = inject(QueryClient, { optional: true });
@@ -44,11 +48,11 @@ export class BpmnService {
   }
 
   /**
-   * Reads outside the query cache so that a failure is reported by whoever
-   * calls this, instead of by the generic error dialog as well.
+   * Each download hits the server, and a failure is reported by whoever
+   * fetches this, instead of by the generic error dialog as well.
    */
-  downloadProcessDefinition(key: string): Observable<HttpResponse<Blob>> {
-    return this.httpClient.GET(
+  downloadProcessDefinition(key: string) {
+    const { queryKey, queryFn } = this.zacQueryClient.GET(
       "/rest/bpmn-process-definitions/{key}/download",
       {
         path: { key },
@@ -59,7 +63,15 @@ export class BpmnService {
         "get"
       > &
         Record<string, unknown>,
-    ) as unknown as Observable<HttpResponse<Blob>>;
+    );
+
+    return queryOptions<HttpResponse<Blob>, HttpErrorResponse>({
+      queryKey,
+      queryFn: queryFn as unknown as () => Promise<HttpResponse<Blob>>,
+      ...LOAD_PER_VISIT,
+      retry: false,
+      meta: { reportErrors: false },
+    });
   }
 
   deleteProcessDefinition() {

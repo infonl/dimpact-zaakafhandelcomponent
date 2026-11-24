@@ -22,7 +22,6 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateService, provideTranslateService } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { waitFor } from "@testing-library/angular";
-import { of } from "rxjs";
 import { ConfiguratieService } from "src/app/configuratie/configuratie.service";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../../setupJest";
@@ -88,9 +87,12 @@ describe(ZacFile.name, () => {
     translateService = TestBed.inject(TranslateService);
 
     configuratieService = TestBed.inject(ConfiguratieService);
-    jest
-      .spyOn(configuratieService, "readMaxFileSizeMB")
-      .mockReturnValue(of(10));
+    jest.spyOn(configuratieService, "readMaxFileSizeMB").mockReturnValue(
+      fromPartial({
+        queryKey: ["/rest/configuratie/max-file-size-mb"],
+        queryFn: () => Promise.resolve(10),
+      }),
+    );
     jest
       .spyOn(configuratieService, "readAllowedFileTypesQuery")
       .mockReturnValue(
