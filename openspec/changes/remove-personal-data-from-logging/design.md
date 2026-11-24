@@ -184,7 +184,7 @@ the same package, also listed in `logging.md`. The first version:
 | Taak ID | `taakId` |
 | Informatieobject UUID / identificatie | `informatieobjectUuid` / `informatieobjectIdentificatie` |
 | Group ID | `groupId` |
-| Employee (Keycloak user ID, decision 6) | `employee`, or a role-specific name ending in `Employee`, such as `assigneeEmployee` |
+| Employee (Keycloak user ID, decision 6) | `employee`, or the role of the employee, such as `assignee` or `behandelaar`; the field type is always `Employee` |
 | Process / case definition key | `processDefinitionKey` / `caseDefinitionKey` |
 | Outcome of an operation | `outcome` (`SUCCESS` or `FAILURE`) |
 | Duration of an operation in milliseconds | `durationMs` |

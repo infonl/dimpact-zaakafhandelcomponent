@@ -55,8 +55,8 @@ A field of a `LogEvent` that names a shared concept SHALL use the standard field
 - **WHEN** a `LogEvent` has a field for a zaak, zaaktype, taak, informatieobject, group, employee, process or case
   definition, outcome, duration, error or trace
 - **THEN** the field is named `zaakUuid`, `zaakIdentificatie`, `zaaktypeUuid`, `taakId`, `informatieobjectUuid`,
-  `informatieobjectIdentificatie`, `groupId`, `employee` (or a name ending in `Employee`), `processDefinitionKey`,
-  `caseDefinitionKey`, `outcome`, `durationMs`, `errorType`, `errorCode`, `traceId` or `spanId`
+  `informatieobjectIdentificatie`, `groupId`, `employee` (or the role of the employee, such as `assignee`),
+  `processDefinitionKey`, `caseDefinitionKey`, `outcome`, `durationMs`, `errorType`, `errorCode`, `traceId` or `spanId`
 
 #### Scenario: The same zaak in two events
 - **WHEN** the backend logs a `MailSendCompleted` event and a `ZaakAssigned` event for the zaak with UUID

@@ -68,8 +68,8 @@ Rules:
   looks up no employee for 1 minute, so that an outage does not make log records wait for Keycloak.
 * Use the field names of [`LogFieldNames`](../../src/main/kotlin/nl/info/zac/log/LogFieldNames.kt) for shared
   concepts: `zaakUuid`, `zaakIdentificatie`, `zaaktypeUuid`, `taakId`, `informatieobjectUuid`,
-  `informatieobjectIdentificatie`, `groupId`, `employee` (or a name ending in `Employee`), `processDefinitionKey`,
-  `caseDefinitionKey`, `outcome`, `durationMs`, `errorType`, `errorCode`. A unit test fails on a synonym such as
+  `informatieobjectIdentificatie`, `groupId`, `employee` (or the role of the employee, such as `assignee`),
+  `processDefinitionKey`, `caseDefinitionKey`, `outcome`, `durationMs`, `errorType`, `errorCode`. A unit test fails on a synonym such as
   `zaakId`, `uuid`, `user`, `username` or `userId`, and on a field named `event`.
 * Log one record per operation: when several statements in one function or class describe the same operation, write
   one event when it ends, with its choices as fields. An operation with a start and an end has `outcome`
