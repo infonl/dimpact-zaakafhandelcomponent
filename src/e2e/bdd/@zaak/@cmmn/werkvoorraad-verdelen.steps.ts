@@ -163,13 +163,20 @@ Then(
   },
 );
 
-When("I assign the zaak to myself", async ({ page, testData }) => {
-  const { identificatie } = testData.zaak;
-  await testData.untilZaakIsIndexed(identificatie);
-  const werkvoorraad = zakenWerkvoorraad(page);
-  await werkvoorraad.filterOnZaaknummer(identificatie);
-  await werkvoorraad.assignToMe(identificatie);
-});
+When(
+  "I assign the zaak to myself",
+  async ({ page, testData, accountOfRole }) => {
+    const { identificatie } = testData.zaak;
+    await testData.untilZaakIsIndexed(identificatie);
+    const werkvoorraad = zakenWerkvoorraad(page);
+    await werkvoorraad.filterOnZaaknummer(identificatie);
+    await werkvoorraad.assignToMe(identificatie);
+    // The row shows the behandelaar only after ZAC has stored the assignment, which a next page load could abort.
+    await expect(werkvoorraad.zaak(identificatie)).toContainText(
+      accountOfRole("behandelaar").displayName,
+    );
+  },
+);
 
 Then(
   "the zaak shows me as behandelaar",
