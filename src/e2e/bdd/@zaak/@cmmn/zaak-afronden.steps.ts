@@ -37,8 +37,16 @@ When(
   "I record a besluit and link the document {string}",
   async ({ page, testData }, titel: string) => {
     await zaakPage(page).chooseFromMenu("Besluit vastleggen");
-    await page.getByRole("combobox", { name: "Besluit" }).click();
-    await page.getByRole("option", { name: SEED.besluittype }).click();
+    const besluittype = page.getByRole("option", { name: SEED.besluittype });
+    // The select ignores a click until ZAC has loaded the besluittypen.
+    await expect(async () => {
+      if (await besluittype.isVisible()) return;
+      await page
+        .getByRole("combobox", { name: "Besluit" })
+        .click({ timeout: 1_000 });
+      await expect(besluittype).toBeVisible({ timeout: 1_000 });
+    }).toPass({ timeout: 30_000 });
+    await besluittype.click();
     // The panel has no accessible name, and the documents of the zaak stay in the page behind it, inert.
     await page
       .getByRole("group")
