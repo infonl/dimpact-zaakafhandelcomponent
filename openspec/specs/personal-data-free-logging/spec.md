@@ -310,7 +310,7 @@ user ID cannot be determined, the log record SHALL write `unknown` for that empl
 - **WHEN** a productaanvraag assigns a new zaak to the employee `jjansen`, who has not logged in on that instance, the
   assignment itself succeeds, and Keycloak does not answer the lookup of the Keycloak user ID for the log
 - **THEN** the zaak is assigned and the log record contains `unknown` for the employee
-- **AND** the lookup waits no longer than the 2 second read timeout of the Keycloak admin client
+- **AND** the lookup waits no longer than the 2 second read timeout of the Keycloak admin client for the lookup
 
 #### Scenario: Keycloak cannot be reached for the assignment
 - **WHEN** a productaanvraag assigns a new zaak to an employee and Keycloak cannot be reached
