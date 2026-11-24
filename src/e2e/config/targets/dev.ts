@@ -5,9 +5,6 @@
 
 import type { Account, Target } from "./target";
 
-const NO_ZAAKTYPE_OF_OUR_OWN =
-  "the environment has no zaaktype for it that only the end-to-end tests use.";
-
 function account(
   username: string | undefined,
   password: string | undefined,
@@ -53,7 +50,7 @@ export const dev: Target = (environment) => {
       "Test zaaktype 2": "Zaaktype voor e2e testen",
       // This zaaktype allows itself as deelzaaktype.
       "Test zaaktype 3": "Zaaktype voor e2e testen",
-      "Test zaaktype 4": { missingBecause: NO_ZAAKTYPE_OF_OUR_OWN },
+      "Test zaaktype 4": "Zaaktype voor e2e testen zaakafhandelparameters",
       "BPMN test zaaktype 5": "Zaaktype voor BPMN e2e testen",
       // The zaaktype has zaken in the process with this key, and ZAC then does not change the key.
       e2eBpmnProces: "E2ETestProcessDefinition",
