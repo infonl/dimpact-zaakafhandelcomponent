@@ -65,7 +65,7 @@ class ZacLogger private constructor(private val logger: Logger) {
 
     private fun LogEvent.toMdcFields(throwable: Throwable?): Map<String, String> =
         buildMap {
-            put(LogFieldNames.EVENT, this@toMdcFields.javaClass.simpleName)
+            put(LogFieldNames.EVENT, LogEventRenderer.eventName(this@toMdcFields))
             putAll(LogEventRenderer.fields(this@toMdcFields, EmployeeKeycloakUserIds::resolve))
             throwable?.let { put(LogFieldNames.ERROR_TYPE, it.javaClass.name) }
             Span.current().spanContext.takeIf { it.isValid }?.let {

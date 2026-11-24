@@ -54,7 +54,8 @@ Rules:
 * Reuse an event before you add one. Events with the same fields share one class with a nested `Type` enum that holds
   the fixed descriptions, such as `GenericEvent` (no fields), `ZaakEvent`, `InformatieobjectEvent`, `ZaaktypeEvent`
   and `RolEvent` in `nl.info.zac.log`: add a constant to its `Type` instead of a new class. The record then has the
-  field `type` with the name of the constant.
+  field `type` with the name of the constant, and the field `event` with that name in the style of a class name,
+  such as `SmtpAuthenticationDisabled`, so that `event` alone identifies every event.
 * Pass the description as a literal. Never build it from values: values belong in fields. Start the description with
   the words of the message it replaces, so that people who search the logs still find it.
 * A value that is personal data and adds nothing to diagnosis is not logged at all. A value that must stay visible as a
@@ -86,8 +87,8 @@ the JSON formatter of WildFly writes:
         "traceId":"…","spanId":"…"}}
 ```
 
-`ZacLogger` always adds `event` (the class name of the event), `errorType` when a throwable is passed, and `traceId`
-and `spanId` of the active OpenTelemetry span when tracing is enabled. A `null` field is written as `null`. MDC values
+`ZacLogger` always adds `event` (the class name of the event, or the name of its `type` constant), `errorType` when a
+throwable is passed, and `traceId` and `spanId` of the active OpenTelemetry span when tracing is enabled. A `null` field is written as `null`. MDC values
 are strings, so `durationMs` is the string `"84"`.
 
 `ZacLogger` keeps the class name as logger name, so the log categories of WildFly keep working. `java.util.logging.Level`

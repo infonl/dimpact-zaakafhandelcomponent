@@ -128,7 +128,8 @@ MDC entry. The WildFly JSON formatter writes the MDC as a JSON object, so a reco
 `ZacLogger` puts the entries in the MDC (`org.jboss.logging.MDC`, which WildFly gives every deployment and which writes
 to the MDC of the JBoss LogManager) right before the JUL call and restores the previous MDC in a `finally` right
 after, so no entry leaks to another log record on the same thread. Besides the event fields it always writes `event`
-(the simple class name of the event) and, when a throwable is passed, `errorType` (the class name of the throwable).
+(the simple class name of the event, or for a shared event the name of its `type` constant in the
+same style) and, when a throwable is passed, `errorType` (the class name of the throwable).
 
 `ZacLogger` renders all fields of the event, including the resolution of `Employee` fields (decision 6), into a map
 before it puts anything into the MDC. Resolving an employee can write a log record of its own (`IdentityService` logs
@@ -485,7 +486,8 @@ become context disappear. A task of this change writes that ticket.
 
 - [Every log line changes format: the message is only the description, the details move to `mdc` fields] →
   Operators and alerting that match on exact texts must adapt. The descriptions keep the key words of the old
-  messages, and the release notes list the change and the field names.
+  messages. The PR description warns beheerders, and `logging.md` lists the field names. It is not a breaking
+  change of ZAC: the JSON format, the log levels and the logger names stay the same.
 - [An MDC entry leaks to a later record on the same thread] → `ZacLogger` restores the previous MDC in a `finally`;
   a unit test checks that the MDC is the same before and after a call, also when the JUL call throws.
 - [`org.jboss.logging.MDC` does not reach the WildFly JSON formatter] → The itest `LoggingTest` checks that a record
