@@ -35,6 +35,8 @@ export type SignInPage = z.infer<typeof signInPageSchema>;
 
 const testDoublesSchema = z.object({
   bag: z.object({ searchText: z.string().min(1), adres: z.string().min(1) }),
+  /** The REST API of the mail server that ZAC sends its mail to. */
+  mail: z.object({ apiUrl: z.url() }),
 });
 export type TestDoubles = z.infer<typeof testDoublesSchema>;
 

@@ -6,6 +6,7 @@
 import { expect } from "@playwright/test";
 import { Given, Then, When } from "../../fixtures";
 import { confirmDialog, findDialog } from "../../screens/dialog";
+import { chooseOption } from "../../screens/select";
 import { afgehandeldeZaken } from "../../screens/werkvoorraad";
 import { zaakPage } from "../../screens/zaak";
 import { dataOf } from "../../support/zac-api";
@@ -37,16 +38,7 @@ When(
   "I record a besluit and link the document {string}",
   async ({ page, testData }, titel: string) => {
     await zaakPage(page).chooseFromMenu("Besluit vastleggen");
-    const besluittype = page.getByRole("option", { name: SEED.besluittype });
-    // The select ignores a click until ZAC has loaded the besluittypen.
-    await expect(async () => {
-      if (await besluittype.isVisible()) return;
-      await page
-        .getByRole("combobox", { name: "Besluit" })
-        .click({ timeout: 1_000 });
-      await expect(besluittype).toBeVisible({ timeout: 1_000 });
-    }).toPass({ timeout: 30_000 });
-    await besluittype.click();
+    await chooseOption(page, "Besluit", SEED.besluittype);
     // The panel has no accessible name, and the documents of the zaak stay in the page behind it, inert.
     await page
       .getByRole("group")

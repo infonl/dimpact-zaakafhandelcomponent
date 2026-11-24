@@ -8,19 +8,32 @@ import path from "node:path";
 import type { Account, Target, UnknownZacUrl } from "./target";
 
 const REPOSITORY_ROOT = path.resolve(__dirname, "../../../..");
+// The host port of greenmail-api in scripts/kind/ports.json.
+const DEFAULT_GREENMAIL_API_PORT = "18083";
+
+function portsFileOf(clusterName: string) {
+  return path.join(REPOSITORY_ROOT, "build/kind", clusterName, "ports.env");
+}
+
+/** The ports that the cluster publishes on the host, or undefined when the cluster has no ports file. */
+function publishedPortsOf(clusterName: string) {
+  try {
+    return readFileSync(portsFileOf(clusterName), "utf8");
+  } catch {
+    return undefined;
+  }
+}
+
+function hostPort(ports: string | undefined, service: string) {
+  return new RegExp(`^HOST_PORT_${service}=(\\d+)$`, "m").exec(
+    ports ?? "",
+  )?.[1];
+}
 
 function zacUrlOfKindCluster(clusterName: string): string | UnknownZacUrl {
-  const portsFile = path.join(
-    REPOSITORY_ROOT,
-    "build/kind",
-    clusterName,
-    "ports.env",
-  );
-
-  let ports: string;
-  try {
-    ports = readFileSync(portsFile, "utf8");
-  } catch {
+  const portsFile = portsFileOf(clusterName);
+  const ports = publishedPortsOf(clusterName);
+  if (ports === undefined) {
     return {
       unknownBecause:
         `The kind cluster "${clusterName}" has no ports file at ${portsFile}. ` +
@@ -28,7 +41,7 @@ function zacUrlOfKindCluster(clusterName: string): string | UnknownZacUrl {
     };
   }
 
-  const zacPort = /^HOST_PORT_ZAC=(\d+)$/m.exec(ports)?.[1];
+  const zacPort = hostPort(ports, "ZAC");
   if (!zacPort) {
     return {
       unknownBecause:
@@ -37,6 +50,13 @@ function zacUrlOfKindCluster(clusterName: string): string | UnknownZacUrl {
     };
   }
   return `http://localhost:${zacPort}`;
+}
+
+function mailApiUrlOfKindCluster(clusterName: string) {
+  const port =
+    hostPort(publishedPortsOf(clusterName), "GREENMAIL_API") ??
+    DEFAULT_GREENMAIL_API_PORT;
+  return `http://localhost:${port}/api`;
 }
 
 // The Keycloak realm seed in scripts/kind/seed/keycloak gives every test user a password that equals the username.
@@ -67,6 +87,9 @@ export const kind: Target = (environment) => ({
   testDoubles: {
     // scripts/kind/seed/bag-wiremock only answers this search text.
     bag: { searchText: "fake search text", adres: "Dam 1, 1012JS Amsterdam" },
+    mail: {
+      apiUrl: mailApiUrlOfKindCluster(environment.KIND_CLUSTER_NAME ?? "zac"),
+    },
   },
   seed: {
     // The BRP test double knows this person, and scripts/kind/seed/openklant/1-setup-applicatie.sql gives it this

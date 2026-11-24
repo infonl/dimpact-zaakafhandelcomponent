@@ -84,6 +84,14 @@ export function zaakPage(page: Page) {
       return page.getByRole("row", { name: new RegExp(`^${naam} `) });
     },
 
+    /** The document in the list of documents of the zaak. */
+    document(titel: string) {
+      return page
+        .getByRole("row")
+        .filter({ hasText: titel })
+        .filter({ has: page.getByRole("link", { name: "Document bekijken" }) });
+    },
+
     /** The rows of the historie, the newest first. */
     async historie(): Promise<HistorieRegel[]> {
       const rows = (await tab("Historie")).getByRole("row");
