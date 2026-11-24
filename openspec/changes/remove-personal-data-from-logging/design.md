@@ -288,9 +288,10 @@ companion object {
   companion objects outside CDI and must not depend on `IdentityService` (which itself logs through `ZacLogger`), so it
   receives the lookup as a function. Before that (very early startup logging) an unregistered `Employee` is written as
   `unknown`.
-- A failed or empty lookup is stored as a miss for 5 minutes. During that time an `Employee` for that username is
-  written as `unknown` without a new lookup; after it the next log line tries again. So during a Keycloak outage ZAC
-  calls Keycloak at most once per employee per 5 minutes, not once per log line. A lookup never throws to the caller:
+- An empty lookup is stored as a miss for 1 minute. During that time an `Employee` for that username is written as
+  `unknown` without a new lookup; after it the next log line tries again. A lookup that fails because Keycloak cannot
+  be reached makes ZAC log one warning and skip the lookups of all employees for 1 minute, so that during an outage
+  log lines do not wait for Keycloak one after another. A lookup never throws to the caller:
   the log line is written with `unknown`, and the business operation (such as assigning a zaak) never depends on it.
   This covers only the lookup for the log. The business operation keeps its own Keycloak calls and their behaviour:
   assigning a zaak still validates and reads the user and group through `IdentityService`

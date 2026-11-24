@@ -84,19 +84,19 @@ class EmployeeKeycloakUserIdsTest : BehaviorSpec({
                 null
             }
 
-            `when`("the employee is resolved, again within 5 minutes, and again after 5 minutes") {
+            `when`("the employee is resolved, again within 1 minute, and again after 1 minute") {
                 EmployeeKeycloakUserIds.clock = clockAt(startInstant)
                 val firstKeycloakUserId = EmployeeKeycloakUserIds.resolve(Employee("fakeUsername"))
-                EmployeeKeycloakUserIds.clock = clockAt(startInstant.plus(Duration.ofMinutes(4)))
+                EmployeeKeycloakUserIds.clock = clockAt(startInstant.plus(Duration.ofSeconds(59)))
                 val secondKeycloakUserId = EmployeeKeycloakUserIds.resolve(Employee("fakeUsername"))
-                val lookupCountWithinFiveMinutes = lookupCount
-                EmployeeKeycloakUserIds.clock = clockAt(startInstant.plus(Duration.ofMinutes(5)))
+                val lookupCountWithinOneMinute = lookupCount
+                EmployeeKeycloakUserIds.clock = clockAt(startInstant.plus(Duration.ofMinutes(1)))
                 EmployeeKeycloakUserIds.resolve(Employee("fakeUsername"))
 
-                then("it is unknown, not looked up again within 5 minutes, and looked up again after them") {
+                then("it is unknown, not looked up again within 1 minute, and looked up again after it") {
                     firstKeycloakUserId shouldBe UNKNOWN_EMPLOYEE
                     secondKeycloakUserId shouldBe UNKNOWN_EMPLOYEE
-                    lookupCountWithinFiveMinutes shouldBe 1
+                    lookupCountWithinOneMinute shouldBe 1
                     lookupCount shouldBe 2
                 }
             }
@@ -137,11 +137,11 @@ class EmployeeKeycloakUserIdsTest : BehaviorSpec({
         given("a lookup that finds none of many unknown usernames") {
             EmployeeKeycloakUserIds.useEmployeeLookup { null }
 
-            `when`("each username is resolved, and after 5 minutes one more username is resolved") {
+            `when`("each username is resolved, and after 1 minute one more username is resolved") {
                 EmployeeKeycloakUserIds.clock = clockAt(startInstant)
                 repeat(100) { EmployeeKeycloakUserIds.resolve(Employee("fakeUnknownUsername$it")) }
                 val missedLookupCountBefore = internalMapSize("missedLookups")
-                EmployeeKeycloakUserIds.clock = clockAt(startInstant.plus(Duration.ofMinutes(6)))
+                EmployeeKeycloakUserIds.clock = clockAt(startInstant.plus(Duration.ofMinutes(2)))
                 EmployeeKeycloakUserIds.resolve(Employee("fakeOtherUnknownUsername"))
                 val missedLookupCountAfter = internalMapSize("missedLookups")
                 val lookupLockCount = internalMapSize("lookupLocks")
@@ -158,13 +158,43 @@ class EmployeeKeycloakUserIdsTest : BehaviorSpec({
         }
 
         given("a lookup that throws, as when Keycloak cannot be reached") {
-            EmployeeKeycloakUserIds.useEmployeeLookup { throw IllegalStateException("fakeKeycloakError") }
+            var lookupCount = 0
+            EmployeeKeycloakUserIds.useEmployeeLookup {
+                lookupCount++
+                error("fakeKeycloakError")
+            }
 
-            `when`("the employee is resolved") {
-                val keycloakUserId = EmployeeKeycloakUserIds.resolve(Employee("fakeUsername"))
+            `when`(
+                "an employee is resolved, two other employees within 1 minute, and one more employee after 1 minute"
+            ) {
+                lateinit var keycloakUserIds: List<String>
+                var lookupCountWithinOneMinute = 0
+                val records = LogCapture(EmployeeKeycloakUserIds::class).use { logCapture ->
+                    EmployeeKeycloakUserIds.clock = clockAt(startInstant)
+                    keycloakUserIds = listOf("fakeUsername1", "fakeUsername2").map {
+                        EmployeeKeycloakUserIds.resolve(Employee(it))
+                    } + EmployeeKeycloakUserIds.also {
+                        it.clock = clockAt(startInstant.plus(Duration.ofSeconds(59)))
+                    }.resolve(Employee("fakeUsername3"))
+                    lookupCountWithinOneMinute = lookupCount
+                    EmployeeKeycloakUserIds.clock = clockAt(startInstant.plus(Duration.ofMinutes(1)))
+                    EmployeeKeycloakUserIds.resolve(Employee("fakeUsername4"))
+                    logCapture.records
+                }
 
-                then("the employee is unknown and nothing is thrown to the caller") {
-                    keycloakUserId shouldBe UNKNOWN_EMPLOYEE
+                then("every employee is unknown and nothing is thrown to the caller") {
+                    keycloakUserIds shouldBe List(3) { UNKNOWN_EMPLOYEE }
+                }
+
+                then("Keycloak is not called for any employee within 1 minute after the failure, and again after it") {
+                    lookupCountWithinOneMinute shouldBe 1
+                    lookupCount shouldBe 2
+                }
+
+                then("one warning is logged per failure after the minute, not one per employee") {
+                    records.map { it.message } shouldBe List(2) {
+                        GenericEvent.Type.KEYCLOAK_UNREACHABLE_FOR_EMPLOYEE_LOOKUP.description
+                    }
                 }
             }
         }

@@ -82,7 +82,7 @@ keeps the content of those log lines.
   exact old messages need the new texts and field names. Log levels stay the same.
 - At most one extra Keycloak call per employee per ZAC instance, for employees who are logged but have not logged in
   on that instance (for example the behandelaar of a productaanvraag). When Keycloak does not know the employee or
-  cannot be reached, at most one call per employee per 5 minutes.
+  cannot be reached, no employee is looked up again for 1 minute.
 - The lookup uses a Keycloak admin client of its own with a connect and a read timeout of 2 seconds; the other
   Keycloak calls of ZAC keep the client without timeouts.
 - No REST API, database or frontend changes. `scripts/test-data` does not change.

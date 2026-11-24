@@ -12,6 +12,10 @@ class GenericEvent(
         EXCEPTION_RESPONSE_CONVERSION_FAILED("Failed to convert exception to JSON"),
         INITIATOR_KVK_ADDRESS_READ_FAILED("Could not read the KVK address of the initiator, so the mail is sent without it"),
         JOB_EVENT_HANDLING_FAILED("Asynchronous guard: handling a job event failed"),
+        KEYCLOAK_UNREACHABLE_FOR_EMPLOYEE_LOOKUP(
+            "Cannot connect to Keycloak to look up the Keycloak user ID of an employee; " +
+                "employees are logged as unknown for 1 minute"
+        ),
         JSON_READ_FAILED("JSON exception while reading from reader"),
         KVK_PROFIEL_READ_FAILED("Could not read the KVK profiel of the bedrijf, so its address is left out"),
         KVK_SEARCH_FAILED("Failed to search for company information using the KVK API"),

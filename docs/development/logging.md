@@ -62,8 +62,9 @@ Rules:
   recipient of a mail and the email address in the mail delegates.
 * An employee is an `Employee(username)` field. `ZacLogger` writes the Keycloak user ID of the employee (the `sub`
   claim), never the username, name or email address. It knows the ID of an employee who logged in on the instance,
-  and looks up any other employee once in Keycloak. A lookup that fails is written as `unknown` and is not repeated
-  for 5 minutes.
+  and looks up any other employee once in Keycloak. An employee that the lookup does not find is written as
+  `unknown` and not looked up again for 1 minute. When Keycloak cannot be reached, `ZacLogger` logs one warning and
+  looks up no employee for 1 minute, so that an outage does not make log records wait for Keycloak.
 * Use the field names of [`LogFieldNames`](../../src/main/kotlin/nl/info/zac/log/LogFieldNames.kt) for shared
   concepts: `zaakUuid`, `zaakIdentificatie`, `zaaktypeUuid`, `taakId`, `informatieobjectUuid`,
   `informatieobjectIdentificatie`, `groupId`, `employee` (or a name ending in `Employee`), `processDefinitionKey`,

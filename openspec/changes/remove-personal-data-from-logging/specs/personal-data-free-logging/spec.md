@@ -296,14 +296,15 @@ user ID cannot be determined, the log record SHALL write `unknown` for that empl
 - **THEN** the zaak is still assigned
 - **AND** the log record contains the zaak UUID, the group and `unknown` for the employee, and not the username
   `jjansen`
-- **AND** a log record for `jjansen` within 5 minutes writes `unknown` without calling Keycloak
-- **AND** the first log record for `jjansen` after 5 minutes calls Keycloak again
+- **AND** a log record for `jjansen` within 1 minute writes `unknown` without calling Keycloak
+- **AND** the first log record for `jjansen` after 1 minute calls Keycloak again
 
 #### Scenario: Keycloak does not answer the lookup for the log
 - **WHEN** a productaanvraag assigns a new zaak to the employee `jjansen`, who has not logged in on that instance, the
   assignment itself succeeds, and Keycloak does not answer the lookup of the Keycloak user ID for the log
 - **THEN** the zaak is assigned and the log record contains `unknown` for the employee
-- **AND** the lookup waits no longer than the 2 second read timeout of the Keycloak admin client for the lookup
+- **AND** ZAC logs one warning that it cannot connect to Keycloak for the lookup
+- **AND** a log record for any employee within 1 minute writes `unknown` without calling Keycloak
 
 #### Scenario: Keycloak cannot be reached for the assignment
 - **WHEN** a productaanvraag assigns a new zaak to an employee and Keycloak cannot be reached
