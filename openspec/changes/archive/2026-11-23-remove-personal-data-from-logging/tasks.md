@@ -31,8 +31,8 @@
       keycloakUserId)`, and a lookup that is called once per unknown username, stores a found ID for good and a miss
       for 5 minutes, and never throws;
       a thread-local guard renders an `Employee` as `unknown` without a lookup while a lookup runs
-- [x] 2.3 Give the Keycloak admin client in `KeycloakEmployeesAdminClientConfiguration` a connect and a read timeout
-      of 2 seconds
+- [x] 2.3 Give the employee lookup a Keycloak admin client of its own in `KeycloakEmployeesAdminClientConfiguration`,
+      with a connect and a read timeout of 2 seconds; the other Keycloak calls keep the client without timeouts
 - [x] 2.4 Add a CDI `@Startup` bean that passes `IdentityService.findKeycloakUserId` to `ZacLogger.useEmployeeLookup`;
       `ZacLogger` renders an `Employee` field as the resolved ID or `unknown`
 - [x] 2.5 Call `ZacLogger.registerEmployee` with the `sub` claim in `UserPrincipalFilter` before its log line

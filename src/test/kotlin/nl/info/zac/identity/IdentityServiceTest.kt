@@ -27,9 +27,11 @@ import org.keycloak.admin.client.resource.RealmResource
 
 class IdentityServiceTest : BehaviorSpec({
     val realmResource = mockk<RealmResource>()
+    val employeeLookupRealmResource = mockk<RealmResource>()
     val pabcClientService = mockk<PabcClientService>()
     val identityService = IdentityService(
         keycloakZacRealmResource = realmResource,
+        keycloakEmployeeLookupRealmResource = employeeLookupRealmResource,
         pabcClientService = pabcClientService
     )
 
@@ -642,10 +644,12 @@ class IdentityServiceTest : BehaviorSpec({
         }
     }
 
-    context("Finding the Keycloak user ID of a user") {
-        given("a user that Keycloak knows") {
+    context("Finding the Keycloak user ID of a user for a log record") {
+        given("a user that the Keycloak client for the employee lookup knows") {
             val userRepresentation = createUserRepresentation(username = "fakeUsername")
-            every { realmResource.users().searchByUsername("fakeUsername", true) } returns listOf(userRepresentation)
+            every {
+                employeeLookupRealmResource.users().searchByUsername("fakeUsername", true)
+            } returns listOf(userRepresentation)
 
             `when`("the Keycloak user ID is looked up") {
                 val keycloakUserId = identityService.findKeycloakUserId("fakeUsername")
@@ -656,8 +660,8 @@ class IdentityServiceTest : BehaviorSpec({
             }
         }
 
-        given("a user that Keycloak does not know") {
-            every { realmResource.users().searchByUsername("fakeUnknownUsername", true) } returns emptyList()
+        given("a user that the Keycloak client for the employee lookup does not know") {
+            every { employeeLookupRealmResource.users().searchByUsername("fakeUnknownUsername", true) } returns emptyList()
 
             `when`("the Keycloak user ID is looked up") {
                 val keycloakUserId = identityService.findKeycloakUserId("fakeUnknownUsername")
