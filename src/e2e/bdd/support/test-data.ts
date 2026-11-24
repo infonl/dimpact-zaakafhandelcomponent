@@ -101,6 +101,11 @@ export type TestData = {
     identificatie: string,
     state?: ZaakInSearchIndex,
   ): Promise<void>;
+  /**
+   * Waits until the search index of ZAC has the zaak with the status. Open Notificaties tells ZAC about the rollen of
+   * a new zaak before it tells about the first status, so ZAC then expects no more notifications about the new zaak.
+   */
+  untilZaakHasStatus(identificatie: string, status: string): Promise<void>;
   /** Waits until the search index of ZAC has the number of taken with the name of the zaak, so the takenlijsten can show them. */
   untilTaakIsIndexed(
     zaakIdentificatie: string,
@@ -124,6 +129,27 @@ async function isZaakInSearchIndex(
         alleenOpenstaandeZaken: state === "open",
         alleenAfgeslotenZaken: state === "afgesloten",
         alleenMijnZaken: state === "van de behandelaar",
+      },
+    }),
+  );
+  return (resultaten ?? []).some(
+    (zaak) => zaak.identificatie === identificatie,
+  );
+}
+
+async function isZaakWithStatusInSearchIndex(
+  api: ZacApi,
+  identificatie: string,
+  status: string,
+) {
+  const { resultaten } = await dataOf(
+    api.PUT("/rest/zoeken/list", {
+      body: {
+        type: "ZAAK",
+        page: 0,
+        rows: 10,
+        zoeken: { ZAAK_IDENTIFICATIE: identificatie },
+        filters: { ZAAK_STATUS: { values: [status] } },
       },
     }),
   );
@@ -491,6 +517,16 @@ export function createTestData({
       await expect
         .poll(() => isZaakInSearchIndex(api, identificatie, state), {
           message: `The search index of ZAC has no ${state ? `${state} ` : ""}zaak ${identificatie}.`,
+          timeout: SEARCH_INDEX_TIMEOUT_MILLISECONDS,
+        })
+        .toBe(true);
+    },
+
+    async untilZaakHasStatus(identificatie, status) {
+      const api = await apiAs("behandelaar");
+      await expect
+        .poll(() => isZaakWithStatusInSearchIndex(api, identificatie, status), {
+          message: `The search index of ZAC has no zaak ${identificatie} with the status "${status}".`,
           timeout: SEARCH_INDEX_TIMEOUT_MILLISECONDS,
         })
         .toBe(true);

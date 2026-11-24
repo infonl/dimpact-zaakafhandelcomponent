@@ -70,7 +70,9 @@ When("I open the taken werkvoorraad", async ({ page }) => {
 When("I select the {int} zaken", async ({ page, testData }, aantal: number) => {
   const werkvoorraad = zakenWerkvoorraad(page);
   for (const { identificatie } of testData.zaken) {
-    await testData.untilZaakIsIndexed(identificatie);
+    // The werkvoorraad takes any notification about a rol of a zaak as the end of its assignment, also a late one
+    // about the groep of a new zaak.
+    await testData.untilZaakHasStatus(identificatie, "Intake");
   }
   // The zaken of the scenario share the unique omschrijving, so the filter shows them and no others.
   await werkvoorraad.filterOnOmschrijving(testData.unique(OMSCHRIJVING));
