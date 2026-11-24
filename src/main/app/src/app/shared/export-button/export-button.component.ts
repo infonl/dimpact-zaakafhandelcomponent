@@ -26,14 +26,15 @@ export class ExportButtonComponent {
     input.required<GeneratedType<"RestZoekParameters">>();
   readonly filename = input.required<string>();
 
-  private readonly exportMutation = injectMutation(() =>
-    this.csvService.exportToCSV(),
+  private readonly exportMutation = injectMutation(
+    () => this.csvService.exportToCSV(),
+    {
+      onSuccess: (response) =>
+        this.utilService.downloadBlobResponse(response, this.filename()),
+    },
   );
 
   downloadExport() {
-    this.exportMutation.mutate(this.zoekParameters(), {
-      onSuccess: (response) =>
-        this.utilService.downloadBlobResponse(response, this.filename()),
-    });
+    this.exportMutation.mutate(this.zoekParameters());
   }
 }

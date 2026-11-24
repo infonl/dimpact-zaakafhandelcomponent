@@ -144,6 +144,23 @@ describe(ExportButtonComponent.name, () => {
     );
   });
 
+  it("still downloads the export when the button is destroyed while the export is running", async () => {
+    const user = userEvent.setup({ delay: null });
+
+    await user.click(exportButton());
+    await sleep();
+    const request = expectExportRequest();
+    fixture.destroy();
+
+    request.flush(blob);
+    await sleep();
+
+    expect(utilServiceMock.downloadBlobResponse).toHaveBeenCalledWith(
+      blob,
+      "fakeFilename",
+    );
+  });
+
   it("reports a failed export and downloads nothing", async () => {
     const user = userEvent.setup({ delay: null });
 
