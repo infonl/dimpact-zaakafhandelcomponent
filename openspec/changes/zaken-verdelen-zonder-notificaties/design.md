@@ -109,6 +109,14 @@ via `ztcClientService.findEigenschap` (`ZtcClientService.kt:455`, cached per zaa
 already accepts it) through a new optional parameter on `assignZaak(zaak, zaakAssignment, reason)`. Otherwise
 the behaviour is as today.
 
+`assignZaak` also passes the marking it already holds (`zaakToewijzing.isZaakspecifiekGeautoriseerd`) to
+`reindexZaakspecifiekeAutorisatieDependents` (`ZaakspecifiekeAutorisatieService.kt:370`), which now reads it
+again. That saves a call for single-zaak assignment too, without changing its behaviour.
+
+Indexing the zaak (`indexeerDirect` → `ZaakZoekObjectConverter.convert`, `ZaakZoekObjectConverter.kt:46-49`)
+still reads the marking through `zaakAutorisatieGegevens`. That converter is shared by all indexing, so changing
+it is not part of this story; the requirement is limited to the skip decision and the dependents reindex.
+
 - Rejected: reading the marking from Solr. The index can lag (PZ-12678 names this risk).
 - Rejected: `isZaakspecifiekAutoriseerbaar` as the check. It also needs the roltype, so a marked zaak whose
   zaaktype lacks that roltype would no longer be recognised and no longer skipped.
@@ -119,8 +127,9 @@ the behaviour is as today.
 `taken-werkvoorraad.component.ts:307` does. It subscribes:
 - `progressSubscription`: opcode `ANY`, objectType `ZAKEN_VERDELEN` or `ZAKEN_VRIJGEVEN`, per zaak ID. On
   `UPDATED` it updates the row as today.
-- `finalSubscription`: opcode `ANY` (the user-not-in-group path sends the final event as `SKIPPED`), the same
-  objectType, the `screenEventResourceId`.
+- `finalSubscription`: opcode `UPDATED`, the same objectType, the `screenEventResourceId`. ZAC always sends the
+  final event as `UPDATED` with the failed count, also on the user-not-in-group path (count `0`, which today
+  sends `ZAKEN_VERDELEN.skipped(id)` at `ZaakService.kt:140`), so the frontend never meets a missing detail.
 
 `BatchProcessService` gets an optional `onNotification(event)` on `finalSubscription`, called with the final
 event before `finally` (today the final listener calls only `finally`, `batch-process.service.ts:83-91`). The

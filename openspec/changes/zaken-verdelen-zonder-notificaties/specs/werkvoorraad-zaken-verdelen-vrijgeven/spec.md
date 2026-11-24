@@ -94,8 +94,9 @@ its row, on that event only.
 
 ### Requirement: The batch ends on ZAC's final event
 
-When ZAC has handled every zaak of a batch, it SHALL send one final `ZAKEN_VERDELEN` or `ZAKEN_VRIJGEVEN` event
-with the `screenEventResourceId` of the request as resource and the number of failed zaken as detail. The zaken
+When ZAC has handled every zaak of a batch, it SHALL send one final `ZAKEN_VERDELEN` or `ZAKEN_VRIJGEVEN`
+`UPDATED` event with the `screenEventResourceId` of the request as resource and the number of failed zaken as
+detail, also when it skipped every zaak. The zaken
 werkvoorraad SHALL send a `screenEventResourceId` with both requests and SHALL end the progress, commit the search
 index and reload the list without extra wait when the final event arrives.
 
@@ -171,13 +172,15 @@ or update a row from it during verdelen or vrijgeven.
 ### Requirement: Rights are determined once per zaaktype in a batch
 
 Within one verdelen or vrijgeven batch, ZAC SHALL ask the PABC which groups have the *behandelaar* rol for a
-zaaktype at most once per zaaktype, and SHALL NOT read the zaakeigenschappen of a zaak whose zaaktype defines no
-*zaakspecifiek geautoriseerd* eigenschap. Which zaken are skipped SHALL not change.
+zaaktype at most once per zaaktype. To decide whether a zaak is skipped or handed over, ZAC SHALL NOT read the
+zaakeigenschappen of a zaak whose zaaktype defines no *zaakspecifiek geautoriseerd* eigenschap. Which zaken are
+skipped SHALL not change. Indexing a changed zaak still reads its marking, as today.
 
 #### Scenario: Many zaken of the same zaaktype
 - **WHEN** an employee distributes 50 zaken of one zaaktype that defines no *zaakspecifiek geautoriseerd*
   eigenschap
-- **THEN** ZAC asks the PABC once for that zaaktype and reads no zaakeigenschappen
+- **THEN** ZAC asks the PABC once for that zaaktype
+- **AND** reads no zaakeigenschappen to decide whether a zaak is skipped or to reindex its taken and documenten
 
 #### Scenario: A zaaktype that can be zaakspecifiek geautoriseerd
 - **WHEN** a selection holds zaken of a zaaktype that defines the *zaakspecifiek geautoriseerd* eigenschap

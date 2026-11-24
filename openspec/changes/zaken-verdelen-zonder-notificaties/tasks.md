@@ -5,20 +5,23 @@
 - [ ] 1.2 `assignZaken` / `releaseZaken`: read and handle one zaak at a time; send `ZAKEN_VERDELEN` /
   `ZAKEN_VRIJGEVEN` `updated(zaak.uuid)` after `assignZaak` returns and `skipped(zaak.uuid)` wherever
   `ZAAK_ROLLEN.skipped(zaak)` is sent now (keep that send for now, design decision 5). In `isUserInGroup` send
-  `skipped(uuid)` per UUID without reading the zaken.
+  `skipped(uuid)` per UUID without reading the zaken, and the final event as `UPDATED` with count `0` instead of
+  `ZAKEN_VERDELEN.skipped(id)`.
 - [ ] 1.3 Catch any other exception per zaak, log it at `SEVERE` with the zaak UUID only, and continue. Move the
   group and user lookups of `ZaakAssignAndReleaseRestService` (`:67-79`) inside the batch's `try`. Send exactly
   one final event in `finally`, with as detail the number of zaken that got no per-zaak event.
 - [ ] 1.4 Per batch, in `assignZaken` and `releaseZaken`: call the PABC once per zaaktype (verdelen only); pass
   `isZaakspecifiekGeautoriseerd = false` through `assignZaak` to `readZaakToewijzing` for zaaktypes without the
-  `ZAAK_GEAUTORISEERD` eigenschap.
+  `ZAAK_GEAUTORISEERD` eigenschap. In `assignZaak`, pass `zaakToewijzing.isZaakspecifiekGeautoriseerd` to
+  `reindexZaakspecifiekeAutorisatieDependents` instead of reading it again.
 - [ ] 1.5 `ZaakServiceTest`: per-zaak `UPDATED` and `SKIPPED` events for verdelen and vrijgeven; an Open Zaak error
   and a read error on one zaak (replaces the test at `:1081`): the other zaken are processed, no per-zaak event
   for the failed one, the final event carries the failed count (`0` when all succeed); a failing group or user
   lookup and a failing group membership check each send one final event that counts every zaak as failed
   (also in `ZaakAssignAndReleaseRestServiceTest`); the PABC is called once
-  for two zaken of one zaaktype; no `listZaakeigenschappen` for a zaaktype without the eigenschap, and still for
-  one with it, for both verdelen and vrijgeven. Run `./gradlew test --tests "nl.info.zac.zaak.ZaakServiceTest"`.
+  for two zaken of one zaaktype; no `listZaakeigenschappen` for the skip decision or the dependents reindex for a
+  zaaktype without the eigenschap, and still for one with it, for both verdelen and vrijgeven; the user-not-in-group
+  path sends the final event as `UPDATED` with count `0`. Run `./gradlew test --tests "nl.info.zac.zaak.ZaakServiceTest"`.
 - [ ] 1.6 Itest in `ZaakRestServiceTest` ("Assigning zaken from the list", "Releasing zaken from the list"):
   listen for `ZAKEN_VERDELEN` / `ZAKEN_VRIJGEVEN` per zaak UUID and assert an `UPDATED` event per zaak plus the
   final event with failed count `0`. Add a case with a zaak UUID that does not exist in Open Zaak: the other
@@ -29,7 +32,7 @@
 ## 2. Frontend PR: the werkvoorraad follows ZAC
 
 - [ ] 2.1 `zaken-werkvoorraad.component.ts`: one `screenEventResourceId` per batch passed to both dialogs;
-  `progressSubscription` on `ZAKEN_VERDELEN` / `ZAKEN_VRIJGEVEN`; `finalSubscription` with opcode `ANY`; drop the
+  `progressSubscription` on `ZAKEN_VERDELEN` / `ZAKEN_VRIJGEVEN`; `finalSubscription` with opcode `UPDATED`; drop the
   up-front `notProcessed` marking for verdelen; reload without the 5 second delay.
 - [ ] 2.2 `BatchProcessService`: an optional `onNotification(event)` on `finalSubscription`, called before
   `finally`. In the werkvoorraad, read the failed count from the final event's `detail` there (not in `finally`,
