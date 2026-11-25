@@ -438,7 +438,16 @@ opa:
     pullPolicy: IfNotPresent
    # The settings below will be ignored when running as a sidecar (the zac values will be used instead), except for 'resources' and 'securityContext' which are always applied
   autoscaling:
+     # -- Scale the separate OPA Deployment with a HorizontalPodAutoscaler instead of a fixed number of `opa.replicas`. Has no effect when `opa.sidecar` is true.
     enabled: false
+     # -- Minimum number of OPA pods when `opa.autoscaling.enabled` is true
+    minReplicas: 1
+     # -- Maximum number of OPA pods when `opa.autoscaling.enabled` is true
+    maxReplicas: 5
+     # -- Average CPU utilization, as a percentage of `opa.resources.requests.cpu`, that the autoscaler aims for
+    targetCPUUtilizationPercentage: 80
+     # -- (int) Average memory utilization, as a percentage of `opa.resources.requests.memory`, that the autoscaler aims for. Not used when empty.
+    targetMemoryUtilizationPercentage: null
   replicas: 1
   resources:
     requests:
@@ -836,7 +845,16 @@ nginx:
     runAsNonRoot: true
     runAsUser: 101
   autoscaling:
+     # -- Scale the nginx Deployment with a HorizontalPodAutoscaler instead of a fixed number of `nginx.replicaCount`
     enabled: false
+     # -- Minimum number of nginx pods when `nginx.autoscaling.enabled` is true
+    minReplicas: 1
+     # -- Maximum number of nginx pods when `nginx.autoscaling.enabled` is true
+    maxReplicas: 5
+     # -- Average CPU utilization, as a percentage of `nginx.resources.requests.cpu`, that the autoscaler aims for
+    targetCPUUtilizationPercentage: 80
+     # -- (int) Average memory utilization, as a percentage of `nginx.resources.requests.memory`, that the autoscaler aims for. Not used when empty.
+    targetMemoryUtilizationPercentage: null
   livenessProbe:
     initialDelaySeconds: 60
     periodSeconds: 10

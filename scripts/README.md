@@ -8,6 +8,10 @@ Contains collections for the Bruno API client tool as well as scripts to update 
 ## [docker](docker)
 Build ZAC Docker image script. Used by our Gradle build file.
 
+## [helm](helm)
+List the Kubernetes versions to validate the ZAC Helm chart against, and render its manifests for them. See the
+[chart README](../charts/zac/README.md#validating-the-rendered-manifests).
+
 ## [kind](kind)
 Run the local ZAC development stack in a kind cluster, with its images, settings and seed data; started through
 `start-kind.sh`. See [Running ZAC locally on Kubernetes (kind)](../docs/development/installKind.md).

@@ -122,6 +122,27 @@ put it first on the `PATH` during the plugin install:
 PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" helm plugin install https://github.com/helm-unittest/helm-unittest.git --version v1.2.1 --verify=false
 ```
 
+### Validating the rendered manifests
+
+The Github workflow validates the rendered manifests of the chart in every pull request with
+[kubeconform](https://github.com/yannh/kubeconform). This catches a Kubernetes API that a cluster no longer
+serves, and fields that the API does not know. It validates against each Kubernetes version that
+`scripts/helm/kubernetes-versions.sh` lists: the latest stable release and the three minor versions before it, plus
+the version of the kind node image in `scripts/kind/kind-config.yaml`, which follows the next Dimpact PodiumD
+release. Renovate keeps the latest stable release in that script up to date.
+
+`scripts/helm/render-chart-manifests.sh` renders the chart for one Kubernetes version, with its default values and
+with all optional parts turned on (`tests/values/all-features.yaml`). To validate locally, install `kubeconform` and
+build the chart dependencies as above, then, for each listed version:
+
+```bash
+scripts/helm/kubernetes-versions.sh
+scripts/helm/render-chart-manifests.sh 1.35.8 build/helm-manifests
+kubeconform -strict -summary -kubernetes-version 1.35.8 -skip SolrCloud build/helm-manifests
+```
+
+When you add an optional part to the chart, turn it on in `tests/values/all-features.yaml` so that it is validated too.
+
 {{ template "chart.valuesSection" . }}
 
 {{ template "helm-docs.versionFooter" . }}

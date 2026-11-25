@@ -1,0 +1,7 @@
+{{- if and .Values.nginx.enabled .Values.nginx.autoscaling.enabled }}
+{{- include "zaakafhandelcomponent.horizontalPodAutoscaler" (dict
+  "name" (include "zaakafhandelcomponent.nginx.fullname" .)
+  "namespace" .Release.Namespace
+  "labels" (include "zaakafhandelcomponent.nginx.labels" .)
+  "autoscaling" .Values.nginx.autoscaling) }}
+{{- end }}
