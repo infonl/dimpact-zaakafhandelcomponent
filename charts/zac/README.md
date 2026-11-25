@@ -131,9 +131,11 @@ PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" helm plugin install https
 The Github workflow validates the rendered manifests of the chart in every pull request with
 [kubeconform](https://github.com/yannh/kubeconform). This catches a Kubernetes API that a cluster no longer
 serves, and fields that the API does not know. It validates against each Kubernetes version that
-`scripts/helm/kubernetes-versions.sh` lists: the latest stable release and the three minor versions before it, plus
-the version of the kind node image in `scripts/kind/kind-config.yaml`, which follows the next Dimpact PodiumD
-release. Renovate keeps the latest stable release in that script up to date.
+`scripts/helm/kubernetes-versions.sh` lists: the .0 release of the latest stable minor version and of the three
+minor versions before it, plus the exact version of the kind node image in `scripts/kind/kind-config.yaml`, which
+follows the next Dimpact PodiumD release. A patch release does not add or remove Kubernetes APIs, so the .0 release
+stands for its whole minor version. Renovate moves the latest stable minor version in that script to a new minor
+version.
 
 `scripts/helm/render-chart-manifests.sh` renders the chart for one Kubernetes version, with its default values and
 with all optional parts turned on (`tests/values/all-features.yaml`). To validate locally, install `kubeconform` and
