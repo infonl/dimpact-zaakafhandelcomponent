@@ -11,7 +11,7 @@ and a koppeling (ADR 0016), but its design wrongly assumed that `clearManagedCac
 ## What Changes
 
 - `MailTemplateService.updateMailtemplate` (also via `storeMailtemplate`) no longer calls
-  `clearManagedCache()`. It looks up the zaaktypes whose configuration links the template and call the existing
+  `clearManagedCache()`. It looks up the zaaktypes whose configuration links the template and calls the existing
   `ZaaktypeConfigurationService.evict(zaaktypeUuid)` for each, which clears at once and again after the transaction
   completes (ADR 0016).
 - Creating or deleting a template no longer clears the cache: a new template is in no koppeling, and the database
