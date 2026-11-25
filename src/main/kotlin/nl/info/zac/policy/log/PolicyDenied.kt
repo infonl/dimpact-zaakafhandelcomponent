@@ -4,11 +4,9 @@
  */
 package nl.info.zac.policy.log
 
-import nl.info.zac.log.Employee
 import nl.info.zac.log.LogEvent
 
 class PolicyDenied(
     val action: String,
-    val zaakIdentificatie: String?,
-    val employee: Employee
+    val zaakIdentificatie: String?
 ) : LogEvent("Policy denied")

@@ -7,7 +7,6 @@ package net.atos.zac.flowable.delegate
 
 import net.atos.zac.flowable.delegate.log.ZaakSuspending
 import nl.info.zac.flowable.FlowableHelper
-import nl.info.zac.log.Employee
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.policy.log.PolicyDenied
@@ -38,7 +37,7 @@ class SuspendZaakDelegate : AbstractDelegate() {
         assertPolicy(
             flowableHelper.policyService.readZaakRechten(zaak, loggedInUser).canOpschorten,
             LOG,
-            PolicyDenied(action = "suspendZaak", zaakIdentificatie = zaak.identificatie, employee = Employee(loggedInUser.username))
+            PolicyDenied(action = "suspendZaak", zaakIdentificatie = zaak.identificatie)
         )
 
         val numberOfDays = aantalDagen.resolveValueAsLong(execution)

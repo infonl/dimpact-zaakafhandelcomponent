@@ -30,6 +30,21 @@ class ZacLogger private constructor(private val logger: Logger) {
          * Sets the lookup of the Keycloak user ID of an employee who has not logged in on this ZAC instance.
          */
         fun useEmployeeLookup(lookup: (username: String) -> String?) = EmployeeKeycloakUserIds.useEmployeeLookup(lookup)
+
+        /**
+         * Runs [block] with the Keycloak user ID of the logged-in employee as [LogFieldNames.EMPLOYEE] in the MDC, so
+         * that every record written in the block has that field, without an event of its own naming the employee and
+         * without a lookup.
+         */
+        fun <T> withLoggedInEmployee(keycloakUserId: String, block: () -> T): T {
+            val previousKeycloakUserId = MDC.get(LogFieldNames.EMPLOYEE)
+            MDC.put(LogFieldNames.EMPLOYEE, keycloakUserId)
+            try {
+                return block()
+            } finally {
+                previousKeycloakUserId?.let { MDC.put(LogFieldNames.EMPLOYEE, it) } ?: MDC.remove(LogFieldNames.EMPLOYEE)
+            }
+        }
     }
 
     fun severe(logEvent: LogEvent, throwable: Throwable? = null) = log(Level.SEVERE, logEvent, throwable)
