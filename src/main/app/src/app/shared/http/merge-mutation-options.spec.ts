@@ -10,7 +10,7 @@ import {
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "../../../test-helpers";
-import { mergeMutationOptions } from "./merge-mutation-options";
+import { mergeMutationOptions, runLast } from "./merge-mutation-options";
 
 describe(mergeMutationOptions.name, () => {
   const mutationContext: MutationFunctionContext = {
@@ -181,5 +181,21 @@ describe(mergeMutationOptions.name, () => {
     );
 
     warn.mockRestore();
+  });
+
+  it("keeps a last step behind every layer, so a refresh follows what the layers do", async () => {
+    const calls: string[] = [];
+    const step = (name: string) => () => void calls.push(name);
+    const merged = mergeMutationOptions(
+      mergeMutationOptions(
+        { onSuccess: runLast(step("last")) },
+        { onSuccess: step("service") },
+      ),
+      { onSuccess: step("component") },
+    );
+
+    await merged.onSuccess?.(undefined, undefined, undefined, fromPartial({}));
+
+    expect(calls).toEqual(["service", "component", "last"]);
   });
 });
