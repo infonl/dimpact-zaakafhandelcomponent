@@ -10,9 +10,6 @@ autoscaling:
 
 opa:
   sidecar: false
-  autoscaling:
-    enabled: true
-    targetMemoryUtilizationPercentage: 80
 
 nginx:
   enabled: true

@@ -1,7 +1,0 @@
-{{- if and .Values.opa.enabled (not .Values.opa.sidecar) .Values.opa.autoscaling.enabled }}
-{{- include "zaakafhandelcomponent.horizontalPodAutoscaler" (dict
-  "name" (include "zaakafhandelcomponent.opa.fullname" .)
-  "namespace" .Release.Namespace
-  "labels" (include "zaakafhandelcomponent.opa.labels" .)
-  "autoscaling" .Values.opa.autoscaling) }}
-{{- end }}

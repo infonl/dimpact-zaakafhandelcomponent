@@ -8,7 +8,6 @@ templates:
   - templates/secret.yaml
   - templates/hpa.yaml
   - templates/opa-deployment.yaml
-  - templates/opa-hpa.yaml
   - templates/nginx-deployment.yaml
   - templates/nginx-hpa.yaml
   - templates/configmap-nginx.yaml
@@ -92,51 +91,25 @@ tests:
       - notExists:
           path: spec.metrics
         template: templates/hpa.yaml
-  - it: scales a separate OPA deployment with its own autoscaler when OPA autoscaling is enabled
+  - it: refuses OPA autoscaling for a separate OPA deployment, because ZAC deploys its policies only to the OPA replicas that run when ZAC starts
     set:
       opa.sidecar: false
       opa.autoscaling.enabled: true
-      opa.autoscaling.minReplicas: 2
-      opa.autoscaling.maxReplicas: 4
     asserts:
-      - notExists:
-          path: spec.replicas
+      - failedTemplate:
+          errorPattern: opa.autoscaling.enabled is no longer supported
         template: templates/opa-deployment.yaml
-      - isAPIVersion:
-          of: autoscaling/v2
-        template: templates/opa-hpa.yaml
-      - isKind:
-          of: HorizontalPodAutoscaler
-        template: templates/opa-hpa.yaml
-      - equal:
-          path: spec.scaleTargetRef.name
-          value: zac-zaakafhandelcomponent-opa
-        template: templates/opa-hpa.yaml
-      - equal:
-          path: spec.minReplicas
-          value: 2
-        template: templates/opa-hpa.yaml
-      - equal:
-          path: spec.maxReplicas
-          value: 4
-        template: templates/opa-hpa.yaml
-      - equal:
-          path: spec.metrics[0].resource
-          value:
-            name: cpu
-            target:
-              type: Utilization
-              averageUtilization: 80
-        template: templates/opa-hpa.yaml
-  - it: creates no OPA autoscaler when OPA runs as a sidecar, because OPA then scales with the ZAC pod
+  - it: ignores a leftover OPA autoscaling setting when OPA runs as a sidecar, because OPA then scales with the ZAC pod
     set:
       opa.sidecar: true
       opa.autoscaling.enabled: true
     asserts:
+      - notFailedTemplate: {}
+        template: templates/opa-deployment.yaml
       - hasDocuments:
           count: 0
-        template: templates/opa-hpa.yaml
-  - it: uses a fixed number of OPA replicas and no OPA autoscaler when OPA autoscaling is disabled
+        template: templates/opa-deployment.yaml
+  - it: uses the fixed number of OPA replicas for a separate OPA deployment
     set:
       opa.sidecar: false
       opa.replicas: 3
@@ -145,9 +118,6 @@ tests:
           path: spec.replicas
           value: 3
         template: templates/opa-deployment.yaml
-      - hasDocuments:
-          count: 0
-        template: templates/opa-hpa.yaml
   - it: scales the nginx deployment with its own autoscaler when nginx autoscaling is enabled
     set:
       nginx.enabled: true

@@ -437,17 +437,6 @@ opa:
     tag: "1.22.4-static@sha256:12cecac5a174368f7d3f09d3a19d040ebe0c91d576e520335ae7a985a26e39d3"
     pullPolicy: IfNotPresent
    # The settings below will be ignored when running as a sidecar (the zac values will be used instead), except for 'resources' and 'securityContext' which are always applied
-  autoscaling:
-     # -- Scale the separate OPA Deployment with a HorizontalPodAutoscaler instead of a fixed number of `opa.replicas`. Has no effect when `opa.sidecar` is true.
-    enabled: false
-     # -- Minimum number of OPA pods when `opa.autoscaling.enabled` is true
-    minReplicas: 1
-     # -- Maximum number of OPA pods when `opa.autoscaling.enabled` is true
-    maxReplicas: 5
-     # -- Average CPU utilization, as a percentage of `opa.resources.requests.cpu`, that the autoscaler aims for
-    targetCPUUtilizationPercentage: 80
-     # -- (int) Average memory utilization, as a percentage of `opa.resources.requests.memory`, that the autoscaler aims for. Not used when empty.
-    targetMemoryUtilizationPercentage: null
   replicas: 1
   resources:
     requests:
