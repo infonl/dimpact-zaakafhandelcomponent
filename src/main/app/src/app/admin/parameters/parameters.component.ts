@@ -98,6 +98,7 @@ export class ParametersComponent extends AdminComponent implements OnInit {
     ),
     placeholderData: keepPreviousData,
     staleTime: StaleTimes.Instant,
+    refetchOnWindowFocus: true,
   }));
   protected readonly loading = computed(() => this.parametersQuery.isPending());
   protected readonly hasNoParameters = computed(
