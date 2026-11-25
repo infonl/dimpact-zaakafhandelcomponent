@@ -356,11 +356,6 @@ When you add an optional part to the chart, turn it on in `tests/values/all-feat
 | office_converter.topologySpreadConstraints | list | `[]` |  |
 | office_converter.username | string | `""` | Office converter basic authentication user name. Required; the office converter rejects unauthenticated requests. |
 | opa.affinity | object | `{}` |  |
-| opa.autoscaling.enabled | bool | `false` | Scale the separate OPA Deployment with a HorizontalPodAutoscaler instead of a fixed number of `opa.replicas`. Has no effect when `opa.sidecar` is true. |
-| opa.autoscaling.maxReplicas | int | `5` | Maximum number of OPA pods when `opa.autoscaling.enabled` is true |
-| opa.autoscaling.minReplicas | int | `1` | Minimum number of OPA pods when `opa.autoscaling.enabled` is true |
-| opa.autoscaling.targetCPUUtilizationPercentage | int | `80` | Average CPU utilization, as a percentage of `opa.resources.requests.cpu`, that the autoscaler aims for |
-| opa.autoscaling.targetMemoryUtilizationPercentage | int | `nil` | Average memory utilization, as a percentage of `opa.resources.requests.memory`, that the autoscaler aims for. Not used when empty. |
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"docker.io/openpolicyagent/opa"` |  |
