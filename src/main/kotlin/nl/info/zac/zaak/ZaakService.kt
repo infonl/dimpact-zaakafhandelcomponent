@@ -519,7 +519,7 @@ class ZaakService @Inject constructor(
             if (!isInGroup) {
                 LOG.warning(
                     EmployeeNotInGroup(
-                        employee = Employee(user.username),
+                        assignee = Employee(user.username),
                         groupId = group.name,
                         zaakCount = zaakUUIDs.size,
                         screenEventResourceId = screenEventResourceId

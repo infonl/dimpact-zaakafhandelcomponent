@@ -4,7 +4,6 @@
  */
 package nl.info.zac.smartdocuments.log
 
-import nl.info.zac.log.Employee
 import nl.info.zac.log.LogEvent
 import nl.info.zac.log.Outcome
 
@@ -12,7 +11,6 @@ import nl.info.zac.log.Outcome
 class SmartDocumentsAttendedDepositCompleted(
     val isWizardAuthEnabled: Boolean,
     val isFixedUserName: Boolean,
-    val employee: Employee?,
     val outcome: Outcome,
     val durationMs: Long,
     val errorType: String?

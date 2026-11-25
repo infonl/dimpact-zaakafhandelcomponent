@@ -9,7 +9,6 @@ import net.atos.zac.flowable.delegate.log.ZaakNotSuspended
 import net.atos.zac.flowable.delegate.log.ZaakResuming
 import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.zac.flowable.FlowableHelper
-import nl.info.zac.log.Employee
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.policy.log.PolicyDenied
@@ -40,7 +39,7 @@ class ResumeZaakDelegate : AbstractDelegate() {
         assertPolicy(
             flowableHelper.policyService.readZaakRechten(zaak, loggedInUser).canHervatten,
             LOG,
-            PolicyDenied(action = "resumeZaak", zaakIdentificatie = zaak.identificatie, employee = Employee(loggedInUser.username))
+            PolicyDenied(action = "resumeZaak", zaakIdentificatie = zaak.identificatie)
         )
         assertPolicy(zaak.isOpgeschort(), LOG, ZaakNotSuspended(zaakIdentificatie = zaak.identificatie))
         val resumeReason = hervattenReden.resolveValueAsString(execution)

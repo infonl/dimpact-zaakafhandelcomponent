@@ -7,7 +7,6 @@ package net.atos.zac.flowable.delegate
 
 import net.atos.zac.flowable.delegate.log.ZaakExtending
 import nl.info.zac.flowable.FlowableHelper
-import nl.info.zac.log.Employee
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.policy.log.PolicyDenied
@@ -47,7 +46,7 @@ class ExtendZaakDelegate : AbstractDelegate() {
         assertPolicy(
             zaakRechten.canVerlengen,
             LOG,
-            PolicyDenied(action = "extendZaak", zaakIdentificatie = zaak.identificatie, employee = Employee(loggedInUser.username))
+            PolicyDenied(action = "extendZaak", zaakIdentificatie = zaak.identificatie)
         )
 
         val numberOfDays = aantalDagen.resolveValueAsInt(execution)
