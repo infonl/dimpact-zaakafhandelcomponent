@@ -33,10 +33,6 @@ const lastSteps = new WeakMap<
   { before: Callback | undefined; last: Callback }
 >();
 
-/**
- * Marks `last` as the step that stays behind every callback that
- * {@link mergeMutationOptions} layers on top of it later.
- */
 export function runLast<TArguments extends unknown[]>(
   last: (...args: TArguments) => unknown,
   before?: (...args: TArguments) => unknown,

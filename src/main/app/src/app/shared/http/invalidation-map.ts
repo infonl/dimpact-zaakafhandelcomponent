@@ -62,14 +62,12 @@ const documentAction = (
     : [search("/rest/informatieobjecten/informatieobjectenList")]),
 ];
 
-/** Searched in Solr, which shows a write only after its next commit. */
 const zaakLijsten = () => [
   search("/rest/zoeken/list"),
   search("/rest/signaleringen/zaken/{type}"),
   read("/rest/zaken/waarschuwing"),
 ];
 
-/** Searched in Solr, which shows a write only after its next commit. */
 const taakLijsten = () => [
   search("/rest/zoeken/list"),
   read("/rest/signaleringen/taken/{type}"),
@@ -88,7 +86,6 @@ const documentActionByPath = {
   }) => documentAction(parameters.path.uuid, parameters.query?.zaak),
 };
 
-/** What every write of the API changes; the compiler asks for a rule per write. */
 export const INVALIDATION_MAP: InvalidationMap = {
   "POST /rest/bag": { none: NOT_CLASSIFIED_YET },
   "DELETE /rest/bag": { none: NOT_CLASSIFIED_YET },
@@ -241,8 +238,10 @@ export const INVALIDATION_MAP: InvalidationMap = {
     markStale: taakLijsten,
   },
   "PATCH /rest/taken/toekennen/mij": {
-    refresh: ({ body }) => takenVanZaak(body?.zaakUuid),
-    markStale: taakLijsten,
+    markStale: ({ body }) => [
+      ...takenVanZaak(body?.zaakUuid),
+      ...taakLijsten(),
+    ],
   },
   "PATCH /rest/taken/lijst/toekennen/mij": {
     refresh: ({ body }) => takenVanZaak(body?.zaakUuid),
