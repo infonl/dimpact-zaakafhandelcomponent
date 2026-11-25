@@ -17,7 +17,6 @@ import nl.info.client.smartdocuments.model.document.SmartDocument
 import nl.info.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.documentcreation.model.DocumentCreationAttendedResponse
-import nl.info.zac.log.Employee
 import nl.info.zac.log.Outcome
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
@@ -118,7 +117,6 @@ class SmartDocumentsService @Inject constructor(
                 SmartDocumentsAttendedDepositCompleted(
                     isWizardAuthEnabled = isWizardAuthEnabled,
                     isFixedUserName = fixedUserName.isPresent,
-                    employee = if (isWizardAuthEnabled && !fixedUserName.isPresent) loggedInEmployee() else null,
                     outcome = outcome,
                     durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime),
                     errorType = errorType
@@ -167,9 +165,6 @@ class SmartDocumentsService @Inject constructor(
      * Determines the username to use for SmartDocuments requests: the configured fixed username if present,
      * or else the currently logged-in user's id.
      */
-    private fun loggedInEmployee() =
-        loggedInUserInstance.takeUnless { it.isUnsatisfied }?.get()?.username?.let(::Employee)
-
     private fun determineUserName(): String =
         fixedUserName.orElseGet {
             if (loggedInUserInstance.isUnsatisfied) {

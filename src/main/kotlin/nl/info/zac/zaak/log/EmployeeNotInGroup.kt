@@ -8,7 +8,7 @@ import nl.info.zac.log.Employee
 import nl.info.zac.log.LogEvent
 
 class EmployeeNotInGroup(
-    val employee: Employee,
+    val assignee: Employee,
     val groupId: String,
     val zaakCount: Int,
     val screenEventResourceId: String?

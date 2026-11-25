@@ -8,6 +8,7 @@ package nl.info.zac.smartdocuments
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.comparables.shouldBeGreaterThanOrEqualTo
+import io.kotest.matchers.maps.shouldNotContainKey
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -106,7 +107,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
                     mdc["errorType"] shouldBe "null"
                     mdc["isWizardAuthEnabled"] shouldBe "true"
                     mdc["isFixedUserName"] shouldBe "true"
-                    mdc["employee"] shouldBe "null"
+                    mdc shouldNotContainKey "employee"
                     containsAnywhere(fixedUserName.get()) shouldBe false
                 }
             }
@@ -158,7 +159,6 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         every {
             smartDocumentsClient.get().attendedDeposit(any(), loggedInUser.username, any())
         } returns attendedResponse
-        ZacLogger.registerEmployee(loggedInUser.username, "fakeSmartDocumentsKeycloakUserId")
 
         val smartDocumentsService = SmartDocumentsService(
             smartDocumentsClient = smartDocumentsClient,
@@ -169,21 +169,23 @@ class SmartDocumentsServiceTest : BehaviorSpec({
             fixedUserName = Optional.empty()
         )
 
-        `when`("the 'create document attended' method is called") {
+        `when`("the 'create document attended' method is called in a request of that employee") {
             val records = LogCapture(SmartDocumentsService::class).use { logCapture ->
-                smartDocumentsService.createDocumentAttended(
-                    data = createData(),
-                    smartDocument = createSmartDocument(
-                        Variables(outputFormats = listOf(OutputFormat("DOCX")), redirectMethod = "POST", redirectUrl = "url")
+                ZacLogger.withLoggedInEmployee("fakeKeycloakUserId") {
+                    smartDocumentsService.createDocumentAttended(
+                        data = createData(),
+                        smartDocument = createSmartDocument(
+                            Variables(outputFormats = listOf(OutputFormat("DOCX")), redirectMethod = "POST", redirectUrl = "url")
+                        )
                     )
-                )
+                }
                 logCapture.records
             }
 
-            then("the document creation is logged with the Keycloak user ID of the employee and not the username") {
+            then("the document creation is logged with the Keycloak user ID of the request and not the username") {
                 with(records.single()) {
                     mdc["isFixedUserName"] shouldBe "false"
-                    mdc["employee"] shouldBe "fakeSmartDocumentsKeycloakUserId"
+                    mdc["employee"] shouldBe "fakeKeycloakUserId"
                     containsAnywhere(loggedInUser.username) shouldBe false
                 }
             }
@@ -438,7 +440,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
             then("the document creation is logged without wizard authentication and without an employee") {
                 with(records.single()) {
                     mdc["isWizardAuthEnabled"] shouldBe "false"
-                    mdc["employee"] shouldBe "null"
+                    mdc shouldNotContainKey "employee"
                 }
             }
         }
