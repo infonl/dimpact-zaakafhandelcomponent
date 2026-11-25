@@ -11,8 +11,8 @@
       the given template.
 - [x] 2.2 In `MailTemplateServiceTest`, verify that `updateMailtemplate` calls `evict` for each linked zaaktype and never
       `clearManagedCache()`, and that creating or deleting a template evicts nothing.
-      That `evict` clears at once and again after the transaction (AC4) is already tested in
-      `ZaaktypeConfigurationServiceTest` ("its configuration is stored and evicted, ...").
+      For AC4, `ZaaktypeConfigurationServiceTest` already tests that `evict` clears at once and fires the event, and
+      that the observer clears. That the observer runs after the transaction relies on CDI (ADR 0016, Confirmation).
 - [x] 2.3 In the itest `ZaaktypeConfigurationRestServiceBpmnMailTest`, after the linked template was read, change its
       onderwerp via `PUT /beheer/mailtemplates/{id}` and check that the next read of the mail template of the zaak
       returns the new onderwerp. This also passes on main, so it guards against a regression; it cannot prove the race
