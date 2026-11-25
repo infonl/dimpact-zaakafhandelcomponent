@@ -10,7 +10,6 @@ import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
-import nl.info.zac.log.Employee
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.policy.log.PolicyDenied
@@ -47,7 +46,7 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
                 loggedInUser = loggedInUser
             ).canBehandelen,
             LOG,
-            PolicyDenied(action = "updateZaak", zaakIdentificatie = zaak.identificatie, employee = Employee(loggedInUser.username))
+            PolicyDenied(action = "updateZaak", zaakIdentificatie = zaak.identificatie)
         )
 
         val resultaattypeDescription = resultaattypeOmschrijving?.resolveValueAsString(execution)

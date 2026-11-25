@@ -9,7 +9,6 @@ import nl.info.zac.log.LogEvent
 
 @Suppress("LongParameterList")
 class UserLoggedIn(
-    val employee: Employee,
     val groupIds: Set<String>,
     val roles: Set<String>,
     val applicationRolesPerZaaktype: Map<String, Set<String>>,

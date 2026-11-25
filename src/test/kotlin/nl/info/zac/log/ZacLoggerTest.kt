@@ -273,4 +273,84 @@ class ZacLoggerTest : BehaviorSpec({
             }
         }
     }
+
+    context("Logging in a block of a logged-in employee") {
+        given("the Keycloak user ID of the logged-in employee") {
+            `when`("an event without an employee is logged in the block") {
+                lateinit var blockResult: String
+                val records = LogCapture(ZacLoggerTest::class).use { logCapture ->
+                    blockResult = ZacLogger.withLoggedInEmployee("fakeKeycloakUserId") {
+                        zacLogger.info(FakeZaakAssigned(zaakIdentificatie = "ZAAK-2026-0000000001", groupId = "test-group"))
+                        "fakeBlockResult"
+                    }
+                    logCapture.records
+                }
+                val mdcAfterBlock = MDC.getMap().toMap()
+
+                then("the record has the Keycloak user ID as employee and the block returns its result") {
+                    records.single().mdc shouldContainAll mapOf(
+                        "employee" to "fakeKeycloakUserId",
+                        "zaakIdentificatie" to "ZAAK-2026-0000000001"
+                    )
+                    blockResult shouldBe "fakeBlockResult"
+                }
+
+                and("the employee is removed from the MDC after the block") {
+                    mdcAfterBlock shouldNotContainKey "employee"
+                }
+            }
+
+            `when`("an event with an employee of its own is logged in the block, and then an event without one") {
+                ZacLogger.registerEmployee("fakeUsername", "fakeOtherKeycloakUserId")
+                val records = LogCapture(ZacLoggerTest::class).use { logCapture ->
+                    ZacLogger.withLoggedInEmployee("fakeKeycloakUserId") {
+                        zacLogger.info(FakeEmployeeAction(zaakUuid = zaakUuid, employee = Employee("fakeUsername")))
+                        zacLogger.info(FakeZaakAssigned(zaakIdentificatie = "ZAAK-2026-0000000001", groupId = "test-group"))
+                    }
+                    logCapture.records
+                }
+
+                then("the first record has the employee of the event and the second the logged-in employee") {
+                    records[0].mdc["employee"] shouldBe "fakeOtherKeycloakUserId"
+                    records[1].mdc["employee"] shouldBe "fakeKeycloakUserId"
+                }
+            }
+
+            `when`("the block throws") {
+                val illegalStateException = shouldThrow<IllegalStateException> {
+                    ZacLogger.withLoggedInEmployee("fakeKeycloakUserId") {
+                        throw IllegalStateException("fakeBlockError")
+                    }
+                }
+                val mdcAfterBlock = MDC.getMap().toMap()
+
+                then("the exception reaches the caller and the employee is removed from the MDC") {
+                    illegalStateException.message shouldBe "fakeBlockError"
+                    mdcAfterBlock shouldNotContainKey "employee"
+                }
+            }
+        }
+
+        given("an employee in the MDC before the block") {
+            `when`("an event is logged in a nested block of another logged-in employee") {
+                lateinit var employeeAfterInnerBlock: String
+                val records = LogCapture(ZacLoggerTest::class).use { logCapture ->
+                    ZacLogger.withLoggedInEmployee("fakeOuterKeycloakUserId") {
+                        ZacLogger.withLoggedInEmployee("fakeInnerKeycloakUserId") {
+                            zacLogger.info(FakeZaakAssigned(zaakIdentificatie = "ZAAK-2026-0000000001", groupId = "test-group"))
+                        }
+                        employeeAfterInnerBlock = MDC.get("employee") as String
+                    }
+                    logCapture.records
+                }
+                val mdcAfterOuterBlock = MDC.getMap().toMap()
+
+                then("the record has the inner employee and the previous employee is restored after the inner block") {
+                    records.single().mdc["employee"] shouldBe "fakeInnerKeycloakUserId"
+                    employeeAfterInnerBlock shouldBe "fakeOuterKeycloakUserId"
+                    mdcAfterOuterBlock shouldNotContainKey "employee"
+                }
+            }
+        }
+    }
 })

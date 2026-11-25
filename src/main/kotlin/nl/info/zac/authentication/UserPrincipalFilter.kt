@@ -58,6 +58,21 @@ constructor(
         servletRequest as HttpServletRequest
         servletResponse as HttpServletResponse
 
+        val keycloakUserId = (servletRequest.userPrincipal as? OidcPrincipal<*>)?.oidcSecurityContext?.token?.subject
+        if (keycloakUserId == null) {
+            handleRequest(servletRequest, servletResponse, filterChain)
+        } else {
+            ZacLogger.withLoggedInEmployee(keycloakUserId) {
+                handleRequest(servletRequest, servletResponse, filterChain)
+            }
+        }
+    }
+
+    private fun handleRequest(
+        servletRequest: HttpServletRequest,
+        servletResponse: HttpServletResponse,
+        filterChain: FilterChain
+    ) {
         servletRequest.userPrincipal?.let { userPrincipal ->
             val httpSession = servletRequest.getSession(true)
 
@@ -90,7 +105,6 @@ constructor(
         }
         LOG.info(
             UserLoggedIn(
-                employee = Employee(loggedInUser.username),
                 groupIds = loggedInUser.groupIds,
                 roles = loggedInUser.roles,
                 applicationRolesPerZaaktype = loggedInUser.applicationRolesPerZaaktype,
