@@ -26,6 +26,44 @@ function chain<TArguments extends unknown[]>(
   };
 }
 
+type Callback = (...args: never[]) => unknown;
+
+const lastSteps = new WeakMap<
+  Callback,
+  { before: Callback | undefined; last: Callback }
+>();
+
+/**
+ * Marks `last` as the step that stays behind every callback that
+ * {@link mergeMutationOptions} layers on top of it later.
+ */
+export function runLast<TArguments extends unknown[]>(
+  last: (...args: TArguments) => unknown,
+  before?: (...args: TArguments) => unknown,
+) {
+  const callback = async (...args: TArguments) => {
+    await before?.(...args);
+    await last(...args);
+  };
+  lastSteps.set(callback, { before, last });
+  return callback;
+}
+
+/** As {@link chain}, but a step marked by {@link runLast} in `first` stays last. */
+function chainBeforeLast<TArguments extends unknown[]>(
+  first: ((...args: TArguments) => unknown) | undefined,
+  second: ((...args: TArguments) => unknown) | undefined,
+) {
+  const steps = first && lastSteps.get(first);
+  if (!steps || !second) return chain(first, second);
+
+  type Step = (...args: TArguments) => unknown;
+  return runLast(
+    steps.last as Step,
+    chain(steps.before as Step | undefined, second),
+  );
+}
+
 /**
  * Layers the `meta` of the overrides on top of that of the mutation, so that
  * setting one key does not drop the others. A key both layers define can only
@@ -50,7 +88,7 @@ function mergeMeta(base: ZacMeta | undefined, overrides: ZacMeta | undefined) {
 
 /**
  * Layers `overrides` on top of `base` so that every mutation callback of both is
- * invoked, base first. Object spread would make the callbacks of `overrides`
+ * invoked, base first and a step marked by {@link runLast} at the end. Object spread would make the callbacks of `overrides`
  * replace those of `base`, which silently drops the error handling that
  * {@link ZacQueryClient} attaches to every mutation.
  */
@@ -108,7 +146,7 @@ export function mergeMutationOptions<
           }
         : (overridesOnMutate ?? baseOnMutate),
     onError: chain(base.onError, overrides.onError),
-    onSuccess: chain(base.onSuccess, overrides.onSuccess),
+    onSuccess: chainBeforeLast(base.onSuccess, overrides.onSuccess),
     onSettled: chain(base.onSettled, overrides.onSettled),
   };
 }

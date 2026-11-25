@@ -13,15 +13,18 @@ import {
 import {
   HttpTestingController,
   provideHttpClientTesting,
+  type TestRequest,
 } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { provideTranslateService } from "@ngx-translate/core";
 import type { MutationFunctionContext } from "@tanstack/angular-query-experimental";
-import { EMPTY, of } from "rxjs";
+import { EMPTY, lastValueFrom, of } from "rxjs";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { fromPartial } from "../../../test-helpers";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { mergeMutationOptions } from "./merge-mutation-options";
+import { runMutation } from "./run-mutation";
 import { ZacQueryClient } from "./zac-query-client";
 
 describe(ZacQueryClient.name, () => {
@@ -333,6 +336,50 @@ describe(ZacQueryClient.name, () => {
       request.flush({ totaal: 0 });
 
       await expect(response).resolves.toEqual({ totaal: 0 });
+    });
+  });
+
+  describe("the invalidation map", () => {
+    const list = ["/rest/zoeken/list", { page: 0 }];
+    const path = "/rest/taken/lijst/vrijgeven";
+    const isInvalidated = () =>
+      testQueryClient.getQueryState(list)?.isInvalidated;
+
+    async function release(answer: (request: TestRequest) => void) {
+      testQueryClient.setQueryData(list, "fakeData");
+      const staleInOnSuccess: unknown[] = [];
+      const released = lastValueFrom(
+        runMutation(
+          testQueryClient,
+          mergeMutationOptions(zacQueryClient.PUT(path), {
+            onSuccess: () => void staleInOnSuccess.push(isInvalidated()),
+          }),
+          fromPartial({}),
+        ),
+      ).catch(() => undefined);
+      await sleep();
+      answer(httpTestingController.expectOne(path));
+      await released;
+      return staleInOnSuccess;
+    }
+
+    it("is applied after a write that succeeds, once the callbacks of the callers have run", async () => {
+      const staleInOnSuccess = await release((request) => request.flush(null));
+
+      expect(staleInOnSuccess).toEqual([false]);
+      expect(isInvalidated()).toBe(true);
+    });
+
+    it("is not applied after a write that fails", async () => {
+      jest
+        .spyOn(foutAfhandelingService, "foutAfhandelen")
+        .mockReturnValue(EMPTY);
+
+      await release((request) =>
+        request.flush(null, { status: 400, statusText: "Bad Request" }),
+      );
+
+      expect(isInvalidated()).toBe(false);
     });
   });
 });
