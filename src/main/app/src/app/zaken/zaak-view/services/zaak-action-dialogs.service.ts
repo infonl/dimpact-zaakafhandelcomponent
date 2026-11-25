@@ -15,7 +15,6 @@ import { daysElapsedSince } from "../../../date-time";
 import { runMutation } from "../../../shared/http/run-mutation";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { toI18nKey } from "../../../shared/utils/i18n-key";
-import { TakenService } from "../../../taken/taken.service";
 import { IntakeAfrondenDialogComponent } from "../../intake-afronden-dialog/intake-afronden-dialog.component";
 import { ZaakAfhandelenDialogComponent } from "../../zaak-afhandelen-dialog/zaak-afhandelen-dialog.component";
 import { ZaakBrondatumZettenDialogComponent } from "../../zaak-brondatum-zetten-dialog/zaak-brondatum-zetten-dialog.component";
@@ -37,7 +36,6 @@ type PlanItem = GeneratedType<"RestPlanItem">;
 export class ZaakActionDialogsService {
   private readonly dialog = inject(MatDialog);
   private readonly queryClient = inject(QueryClient);
-  private readonly takenService = inject(TakenService);
   private readonly utilService = inject(UtilService);
   private readonly zaakDialogService = inject(ZaakDialogService);
   private readonly zaakafhandelParametersService = inject(
@@ -78,7 +76,6 @@ export class ZaakActionDialogsService {
             `msg.planitem.uitgevoerd.${planItem.userEventListenerActie}`,
           ),
         );
-        this.zakenService.invalidateZaak(zaak.uuid);
       },
     );
   }
@@ -135,10 +132,6 @@ export class ZaakActionDialogsService {
             ),
         )
         .afterClosed(),
-      (result) => {
-        if (!result) return;
-        void this.takenService.invalidateTakenVoorZaak(zaak.uuid);
-      },
     );
   }
 
@@ -155,10 +148,6 @@ export class ZaakActionDialogsService {
           ),
         )
         .afterClosed(),
-      (result) => {
-        if (!result) return;
-        void this.takenService.invalidateTakenVoorZaak(zaak.uuid);
-      },
     );
   }
 
@@ -171,8 +160,6 @@ export class ZaakActionDialogsService {
         .afterClosed(),
       (result) => {
         if (!result) return;
-        this.zakenService.invalidateZaak(zaak.uuid);
-        void this.takenService.invalidateTakenVoorZaak(zaak.uuid);
         this.utilService.openSnackbar("msg.zaak.afgesloten");
       },
     );
@@ -187,8 +174,6 @@ export class ZaakActionDialogsService {
         .afterClosed(),
       (result) => {
         if (!result) return;
-        this.zakenService.invalidateZaak(zaak.uuid);
-        void this.takenService.invalidateTakenVoorZaak(zaak.uuid);
         this.utilService.openSnackbar("msg.zaak.brondatum.gezet");
       },
     );

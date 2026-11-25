@@ -4,7 +4,6 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
 import { PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
@@ -16,7 +15,6 @@ import { GeneratedType } from "../shared/utils/generated-types";
 })
 export class ReferentieTabelService {
   private readonly zacQueryClient = inject(ZacQueryClient);
-  private readonly queryClient = inject(QueryClient, { optional: true });
   private readonly utilService = inject(UtilService);
 
   listReferentieTabellen() {
@@ -29,44 +27,8 @@ export class ReferentieTabelService {
     });
   }
 
-  private invalidateReferentieTabellen() {
-    return this.queryClient?.invalidateQueries({
-      queryKey: this.listReferentieTabellen().queryKey,
-    });
-  }
-
-  private invalidateReferentieTabel(id: number) {
-    return Promise.all([
-      this.invalidateReferentieTabellen(),
-      this.queryClient?.invalidateQueries({
-        queryKey: this.readReferentieTabel(id).queryKey,
-      }),
-    ]);
-  }
-
-  private readonly systemReferentieTabelQueries: Partial<
-    Record<string, () => { queryKey: readonly unknown[] }>
-  > = {
-    AFZENDER: () => this.listAfzenders(),
-    COMMUNICATIEKANAAL: () => this.listCommunicatiekanalen(),
-    SERVER_ERROR_ERROR_PAGINA_TEKST: () => this.listServerErrorTexts(),
-    BRP_DOELBINDING_ZOEK_WAARDE: () => this.listBrpSearchValues(),
-    BRP_DOELBINDING_RAADPLEEG_WAARDE: () => this.listBrpViewValues(),
-    BRP_VERWERKINGSREGISTER_WAARDE: () => this.listBrpProcessingValues(),
-  };
-
-  private invalidateSystemReferentieTabel(code?: string) {
-    const query = code ? this.systemReferentieTabelQueries[code] : undefined;
-    if (!query) return;
-    const [url] = query().queryKey;
-    return this.queryClient?.invalidateQueries({ queryKey: [url] });
-  }
-
   createReferentieTabelMutation() {
-    return mergeMutationOptions(
-      this.zacQueryClient.POST("/rest/referentietabellen"),
-      { onSuccess: () => void this.invalidateReferentieTabellen() },
-    );
+    return this.zacQueryClient.POST("/rest/referentietabellen");
   }
 
   readReferentieTabelByCode(code: string) {
@@ -97,8 +59,6 @@ export class ReferentieTabelService {
       }),
       {
         onSuccess: (_data, body) => {
-          void this.invalidateReferentieTabel(id);
-          void this.invalidateSystemReferentieTabel(referenceTable.code);
           const { key, args } = message(body);
           this.utilService.openSnackbar(key, args);
         },
@@ -184,7 +144,6 @@ export class ReferentieTabelService {
       ),
       {
         onSuccess: (_data, referenceTable) => {
-          void this.invalidateReferentieTabel(referenceTable.id ?? -1);
           this.utilService.openSnackbar("msg.tabel.verwijderen.uitgevoerd", {
             tabel: referenceTable.code,
           });

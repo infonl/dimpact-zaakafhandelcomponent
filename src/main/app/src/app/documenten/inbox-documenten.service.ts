@@ -4,7 +4,6 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
 import { PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
@@ -16,7 +15,6 @@ import { GeneratedType } from "../shared/utils/generated-types";
 })
 export class InboxDocumentenService {
   private readonly zacQueryClient = inject(ZacQueryClient);
-  private readonly queryClient = inject(QueryClient);
   private readonly utilService = inject(UtilService);
 
   list(body: PutBody<"/rest/inboxdocumenten">) {
@@ -33,9 +31,6 @@ export class InboxDocumentenService {
       ),
       {
         onSuccess: (result, inboxDocument) => {
-          void this.queryClient.invalidateQueries({
-            queryKey: ["/rest/inboxdocumenten"],
-          });
           this.utilService.openSnackbar(
             result?.isInformatieobjectDeleted === false
               ? "msg.document.verwijderen.inbox.niet-verwijderd"

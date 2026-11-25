@@ -5,12 +5,8 @@
 
 import { HttpErrorResponse } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
-import {
-  type CreateMutationOptions,
-  QueryClient,
-} from "@tanstack/angular-query-experimental";
+import { type CreateMutationOptions } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
-import { MailtemplateService } from "../mailtemplate/mailtemplate.service";
 import { PostBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
@@ -22,8 +18,6 @@ import { GeneratedType } from "../shared/utils/generated-types";
 export class MailtemplateBeheerService {
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly utilService = inject(UtilService);
-  private readonly mailtemplateService = inject(MailtemplateService);
-  private readonly queryClient = inject(QueryClient, { optional: true });
 
   readMailtemplateQuery(id: number) {
     return this.zacQueryClient.GET("/rest/beheer/mailtemplates/{id}", {
@@ -39,18 +33,6 @@ export class MailtemplateBeheerService {
     return this.zacQueryClient.GET("/rest/beheer/mailtemplates/koppelbaar");
   }
 
-  private invalidateMailtemplateLists() {
-    return Promise.all([
-      this.queryClient?.invalidateQueries({
-        queryKey: this.listMailtemplates().queryKey,
-      }),
-      this.queryClient?.invalidateQueries({
-        queryKey: this.listKoppelbareMailtemplates().queryKey,
-      }),
-      this.mailtemplateService.invalidateFoundMailtemplates(),
-    ]);
-  }
-
   deleteMailtemplate() {
     return mergeMutationOptions(
       this.zacQueryClient.DELETE(
@@ -59,7 +41,6 @@ export class MailtemplateBeheerService {
       ),
       {
         onSuccess: () => {
-          void this.invalidateMailtemplateLists();
           this.utilService.openSnackbar(
             "msg.mailtemplate.verwijderen.uitgevoerd",
           );
@@ -87,12 +68,6 @@ export class MailtemplateBeheerService {
 
     return mergeMutationOptions(save, {
       onSuccess: () => {
-        void this.invalidateMailtemplateLists();
-        if (id != null) {
-          void this.queryClient?.invalidateQueries({
-            queryKey: this.readMailtemplateQuery(id).queryKey,
-          });
-        }
         this.utilService.openSnackbar("msg.mailtemplate.opgeslagen");
       },
     });

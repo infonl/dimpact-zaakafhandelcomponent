@@ -89,9 +89,12 @@ export class TakenService {
     return mergeMutationOptions(
       this.zacQueryClient.PUT("/rest/taken/taakdata"),
       {
-        onSuccess: (_, taak) => {
+        onSuccess: () => {
           this.utilService.openSnackbar("msg.taak.opgeslagen");
-          void this.leaveTaak(taak);
+        },
+        // After the last `onSuccess` step, so that the page it returns to reads again.
+        onSettled: (_taak, error) => {
+          if (!error) void this.leaveTaak();
         },
       },
     );
@@ -101,17 +104,18 @@ export class TakenService {
     return mergeMutationOptions(
       this.zacQueryClient.PATCH("/rest/taken/complete"),
       {
-        onSuccess: (_, taak) => {
+        onSuccess: () => {
           this.utilService.openSnackbar("msg.taak.afgerond");
-          void this.leaveTaak(taak);
+        },
+        // After the last `onSuccess` step, so that the page it returns to reads again.
+        onSettled: (_taak, error) => {
+          if (!error) void this.leaveTaak();
         },
       },
     );
   }
 
-  private leaveTaak({ zaakUuid }: GeneratedType<"RestTask">) {
-    this.invalidateWerklijsten(zaakUuid);
-
+  private leaveTaak() {
     if (this.router.parseUrl(this.router.url).queryParams["bron"] === "email")
       return;
 
@@ -120,16 +124,6 @@ export class TakenService {
     return origin?.key
       ? navigateToBreadcrumb(origin, this.router)
       : this.router.navigateByUrl("/");
-  }
-
-  private invalidateWerklijsten(zaakUuid: string) {
-    void this.queryClient.invalidateQueries({
-      queryKey: ["/rest/zoeken/list"],
-    });
-    void this.queryClient.invalidateQueries({
-      queryKey: ["/rest/signaleringen/taken/{type}"],
-    });
-    void this.invalidateTakenVoorZaak(zaakUuid);
   }
 
   verdelenVanuitLijst() {

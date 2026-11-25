@@ -14,7 +14,10 @@ import {
 } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
 import { PatchBody } from "../shared/http/http-client";
-import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
+import {
+  mergeMutationOptions,
+  runLast,
+} from "../shared/http/merge-mutation-options";
 import {
   LOAD_PER_VISIT,
   StaleTimes,
@@ -84,7 +87,6 @@ export class ZakenService {
     });
   }
 
-  /** Refetches the historie even when the zaak itself comes back unchanged. */
   private zaakMutation<TError, TVariables, TOnMutateResult>(
     base: CreateMutationOptions<
       GeneratedType<"RestZaak">,
@@ -101,8 +103,6 @@ export class ZakenService {
           queryKey: this.readZaakQuery(zaak.uuid).queryKey,
         });
         this.cacheZaak(zaak);
-        this.invalidateZaak(zaak.uuid);
-        this.invalidateHistorie(zaak.uuid);
       },
     });
   }
@@ -148,6 +148,15 @@ export class ZakenService {
           variables: ZaakDetailsUpdateVariables,
           context: MutationFunctionContext,
         ) => patch.mutationFn!(toBody(variables), context),
+        onSuccess: runLast(
+          (
+            zaak: GeneratedType<"RestZaak">,
+            variables: ZaakDetailsUpdateVariables,
+            onMutateResult: void,
+            context: MutationFunctionContext,
+          ) =>
+            patch.onSuccess?.(zaak, toBody(variables), onMutateResult, context),
+        ),
         onError: (error, variables, onMutateResult, context) =>
           patch.onError?.(error, toBody(variables), onMutateResult, context),
       }),
@@ -349,46 +358,35 @@ export class ZakenService {
             "msg.zaakspecifiek-geautoriseerde-medewerker.toegevoegd",
             { medewerker: medewerker.naam },
           );
-          this.invalidateGeautoriseerdeMedewerkers(uuid);
         },
       },
     );
   }
 
   deleteZaakspecifiekGeautoriseerdeMedewerker(uuid: string) {
-    return mergeMutationOptions(
-      this.zacQueryClient.DELETE(
-        "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/{medewerkerId}",
-        ({
-          medewerkerId,
-          reden,
-        }: {
-          medewerkerId: string;
-          reden: string;
-          isLoggedInUser?: boolean;
-        }) => ({
-          parameters: { path: { uuid, medewerkerId } },
-          body: { reden },
-        }),
-      ),
-      {
-        onSuccess: (_data, { isLoggedInUser }) => {
-          if (!isLoggedInUser) this.invalidateGeautoriseerdeMedewerkers(uuid);
-        },
-      },
+    const remove = this.zacQueryClient.DELETE(
+      "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/{medewerkerId}",
+      ({
+        medewerkerId,
+        reden,
+      }: {
+        medewerkerId: string;
+        reden: string;
+        isLoggedInUser?: boolean;
+      }) => ({
+        parameters: { path: { uuid, medewerkerId } },
+        body: { reden },
+      }),
     );
-  }
 
-  private invalidateGeautoriseerdeMedewerkers(uuid: string) {
-    this.queryClient.invalidateQueries({
-      queryKey: [
-        "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten",
-      ],
-    });
-    this.queryClient.invalidateQueries({
-      queryKey: this.listGeautoriseerdeMedewerkersQuery(uuid).queryKey,
-    });
-    this.invalidateHistorie(uuid);
+    return {
+      ...remove,
+      // An employee who removes themselves may no longer read the zaak.
+      onSuccess: (
+        ...result: Parameters<NonNullable<typeof remove.onSuccess>>
+      ) =>
+        result[1].isLoggedInUser ? undefined : remove.onSuccess?.(...result),
+    };
   }
 
   listBetrokkenenVoorZaakQuery(uuid: string) {
@@ -407,11 +405,6 @@ export class ZakenService {
       select: (afzenders) => afzenders.map(withI18nKeySuffix),
       meta: { reportFailedRefetch: true },
     });
-  }
-
-  invalidateAfzenders() {
-    const [path] = this.listAfzendersVoorZaak("").queryKey;
-    return this.queryClient.invalidateQueries({ queryKey: [path] });
   }
 
   afbreken(uuid: string) {
@@ -458,8 +451,7 @@ export class ZakenService {
     return mergeMutationOptions(
       this.zacQueryClient.PUT("/rest/zaken/besluit"),
       {
-        onSuccess: (_besluit, { besluitUuid }) => {
-          this.invalidateBesluitHistorie(besluitUuid);
+        onSuccess: () => {
           this.utilService.openSnackbar("msg.besluit.gewijzigd");
         },
       },
@@ -470,8 +462,7 @@ export class ZakenService {
     return mergeMutationOptions(
       this.zacQueryClient.PUT("/rest/zaken/besluit/intrekken"),
       {
-        onSuccess: (_besluit, { besluitUuid }) => {
-          this.invalidateBesluitHistorie(besluitUuid);
+        onSuccess: () => {
           this.utilService.openSnackbar("msg.besluit.ingetrokken");
         },
       },
@@ -507,10 +498,8 @@ export class ZakenService {
     return mergeMutationOptions(
       this.zacQueryClient.PATCH("/rest/zaken/zaak/ontkoppel"),
       {
-        onSuccess: (_data, { zaakUuid }) => {
-          this.invalidateZaak(zaakUuid);
-          this.utilService.openSnackbar("msg.zaak.ontkoppelen.uitgevoerd");
-        },
+        onSuccess: () =>
+          this.utilService.openSnackbar("msg.zaak.ontkoppelen.uitgevoerd"),
       },
     );
   }

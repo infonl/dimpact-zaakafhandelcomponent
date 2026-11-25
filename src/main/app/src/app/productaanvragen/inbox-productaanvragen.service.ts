@@ -4,7 +4,6 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
 import { PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
@@ -16,7 +15,6 @@ import { ZacQueryClient } from "../shared/http/zac-query-client";
 export class InboxProductaanvragenService {
   private basepath = "/rest/inbox-productaanvragen";
   private readonly zacQueryClient = inject(ZacQueryClient);
-  private readonly queryClient = inject(QueryClient);
   private readonly utilService = inject(UtilService);
 
   list(body: PutBody<"/rest/inbox-productaanvragen">) {
@@ -31,9 +29,6 @@ export class InboxProductaanvragenService {
       ),
       {
         onSuccess: () => {
-          void this.queryClient.invalidateQueries({
-            queryKey: ["/rest/inbox-productaanvragen"],
-          });
           this.utilService.openSnackbar(
             "msg.inbox-productaanvraag.verwijderen.uitgevoerd",
           );

@@ -4,14 +4,10 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
-import { MailtemplateService } from "../mailtemplate/mailtemplate.service";
 import { PathParameters, PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
-import { ZakenService } from "../zaken/zaken.service";
-import { MailtemplateKoppelingService } from "./mailtemplate-koppeling.service";
 
 export type ZaakafhandelParametersListQuery = NonNullable<
   NonNullable<PathParameters<"/rest/zaakafhandelparameters", "get">>["query"]
@@ -23,12 +19,6 @@ export type ZaakafhandelParametersListQuery = NonNullable<
 export class ZaakafhandelParametersService {
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly utilService = inject(UtilService);
-  private readonly mailtemplateKoppelingService = inject(
-    MailtemplateKoppelingService,
-  );
-  private readonly mailtemplateService = inject(MailtemplateService);
-  private readonly zakenService = inject(ZakenService);
-  private readonly queryClient = inject(QueryClient, { optional: true });
 
   private readonly zaakafhandelParametersListUrl =
     "/rest/zaakafhandelparameters" as const;
@@ -92,21 +82,6 @@ export class ZaakafhandelParametersService {
       }),
       {
         onSuccess: () => {
-          void this.queryClient?.invalidateQueries({
-            queryKey: this.readZaakafhandelparameters(zaaktypeUUID).queryKey,
-          });
-          void this.invalidateZaakafhandelParametersList();
-          void this.queryClient?.invalidateQueries({
-            queryKey:
-              this.listZaakbeeindigRedenenForZaaktype(zaaktypeUUID).queryKey,
-          });
-          void this.queryClient?.invalidateQueries({
-            queryKey:
-              this.mailtemplateKoppelingService.listMailtemplateKoppelingen()
-                .queryKey,
-          });
-          void this.mailtemplateService.invalidateFoundMailtemplates();
-          void this.zakenService.invalidateAfzenders();
           this.utilService.openSnackbar(
             "msg.zaakafhandelparameters.opgeslagen",
           );

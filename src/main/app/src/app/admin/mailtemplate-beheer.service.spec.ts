@@ -17,7 +17,6 @@ import {
 import { testQueryClient } from "../../../setupJest";
 import { fromPartial, runMutationOnSuccess } from "../../test-helpers";
 import { UtilService } from "../core/service/util.service";
-import { MailtemplateService } from "../mailtemplate/mailtemplate.service";
 import { MailtemplateBeheerService } from "./mailtemplate-beheer.service";
 
 describe(MailtemplateBeheerService.name, () => {
@@ -107,25 +106,6 @@ describe(MailtemplateBeheerService.name, () => {
         queryKey: expect.arrayContaining(["/rest/beheer/mailtemplates/{id}"]),
       });
     });
-
-    it.each([
-      ["created", null],
-      ["updated", 1],
-    ])(
-      "makes zaken fetch their mailtemplate again after a template is %s, as it may be the default",
-      async (_, id) => {
-        const invalidateFoundMailtemplates = jest
-          .spyOn(
-            TestBed.inject(MailtemplateService),
-            "invalidateFoundMailtemplates",
-          )
-          .mockResolvedValue(undefined);
-
-        await runMutationOnSuccess(service.saveMailtemplate(id));
-
-        expect(invalidateFoundMailtemplates).toHaveBeenCalled();
-      },
-    );
   });
 
   describe("deleteMailtemplate", () => {
@@ -162,19 +142,6 @@ describe(MailtemplateBeheerService.name, () => {
       expect(invalidateQueries).toHaveBeenCalledWith({
         queryKey: service.listKoppelbareMailtemplates().queryKey,
       });
-    });
-
-    it("makes zaken fetch their mailtemplate again", async () => {
-      const invalidateFoundMailtemplates = jest
-        .spyOn(
-          TestBed.inject(MailtemplateService),
-          "invalidateFoundMailtemplates",
-        )
-        .mockResolvedValue(undefined);
-
-      await runMutationOnSuccess(service.deleteMailtemplate(), 1);
-
-      expect(invalidateFoundMailtemplates).toHaveBeenCalled();
     });
   });
 });

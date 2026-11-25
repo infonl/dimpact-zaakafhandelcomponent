@@ -71,11 +71,8 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   protected readonly zoekopdrachten = computed(
     () => this.zoekopdrachtenQuery.data() ?? [],
   );
-  private readonly deleteZoekopdrachtMutation = injectMutation(
-    () => this.gebruikersvoorkeurenService.deleteZoekOpdrachten(),
-    {
-      onSuccess: () => this.invalidateZoekopdrachten(),
-    },
+  private readonly deleteZoekopdrachtMutation = injectMutation(() =>
+    this.gebruikersvoorkeurenService.deleteZoekOpdrachten(),
   );
   private readonly removeZoekopdrachtActiefMutation = injectMutation(() =>
     this.gebruikersvoorkeurenService.removeZoekopdrachtActief(),
@@ -108,17 +105,12 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   }
 
   protected saveSearch() {
-    const dialogRef = this.dialog.open(ZoekopdrachtSaveDialogComponent, {
+    this.dialog.open(ZoekopdrachtSaveDialogComponent, {
       data: {
         zoekopdrachten: this.zoekopdrachten(),
         lijstID: this.werklijst(),
         zoekopdracht: this.zoekFilters(),
       },
-    });
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        void this.invalidateZoekopdrachten();
-      }
     });
   }
 
@@ -146,14 +138,6 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     } else {
       this.actieveFilters.set(this.heeftActieveFilters());
     }
-  }
-
-  private invalidateZoekopdrachten() {
-    return this.queryClient.invalidateQueries({
-      queryKey: this.gebruikersvoorkeurenService.listZoekOpdrachten(
-        this.werklijst(),
-      ).queryKey,
-    });
   }
 
   private applyZoekopdrachten(

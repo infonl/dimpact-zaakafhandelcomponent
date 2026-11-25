@@ -285,7 +285,6 @@ export class ZaakViewComponent
     {
       onSuccess: () => {
         this.utilService.openSnackbar("msg.bag-object.gekoppeld");
-        this.invalidateBagObjecten();
       },
     },
   );
@@ -535,23 +534,14 @@ export class ZaakViewComponent
 
   protected taakGestart() {
     this.sideActions.reset();
-    this.updateZaak();
   }
 
-  protected mailVerstuurd(mailVerstuurd: boolean) {
+  protected mailVerstuurd() {
     this.sideActions.reset();
-    if (!mailVerstuurd) return;
-    this.updateZaak();
   }
 
-  protected ontvangstBevestigd(ontvangstBevestigd: boolean) {
+  protected ontvangstBevestigd() {
     this.sideActions.reset();
-    if (!ontvangstBevestigd) return;
-    this.updateZaak();
-  }
-
-  protected documentToegevoegd() {
-    this.updateZaak();
   }
 
   protected documentCreated() {
@@ -561,17 +551,14 @@ export class ZaakViewComponent
 
   protected documentSent() {
     this.sideActions.reset();
-    this.updateZaak();
   }
 
   protected zaakLinked() {
     this.sideActions.reset();
-    this.updateZaak();
   }
 
   protected locationSelected() {
     this.sideActions.reset();
-    this.updateZaak();
   }
 
   protected startZaakOntkoppelenDialog(
@@ -596,11 +583,6 @@ export class ZaakViewComponent
     this.sideActions.open("actie.document.verplaatsen");
   }
 
-  protected updateDocumentList() {
-    this.zaakDocumentenComponent().updateDocumentList();
-    this.invalidateZaakHistorie();
-  }
-
   protected bagObjectVerwijderen(
     bagObjectGegevens: GeneratedType<"RestBagObjectGegevens">,
   ) {
@@ -619,7 +601,6 @@ export class ZaakViewComponent
         this.sideActions.clear();
         if (!result) return;
 
-        this.invalidateBagObjecten();
         this.utilService.openSnackbar("msg.bag-object.ontkoppelen.uitgevoerd", {
           omschrijving: bagObject?.omschrijving,
         });

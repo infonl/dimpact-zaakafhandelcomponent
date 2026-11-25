@@ -296,10 +296,6 @@ export class ZaakDocumentenComponent implements AfterViewInit {
     this.enkelvoudigInformatieObjecten.sort = this.docSort();
   }
 
-  updateDocumentList() {
-    return this.reloadDocumenten();
-  }
-
   private reloadDocumenten() {
     return this.queryClient.invalidateQueries({
       queryKey: [LIST_QUERY_KEY, { zaakUUID: this.zaakUuid() }],
@@ -376,24 +372,17 @@ export class ZaakDocumentenComponent implements AfterViewInit {
             { document: informatieobject.titel },
           );
         }
-        this.documentDialogService
-          .openOntkoppelDocument(melding, (reden) =>
-            runMutation(
-              this.queryClient,
-              this.zakenService.ontkoppelInformatieObject(informatieobject),
-              {
-                zaakUUID: this.zaak().uuid,
-                documentUUID: informatieobject.uuid!,
-                reden,
-              },
-            ),
-          )
-          .afterClosed()
-          .subscribe((result) => {
-            if (result) {
-              this.reloadDocumenten();
-            }
-          });
+        this.documentDialogService.openOntkoppelDocument(melding, (reden) =>
+          runMutation(
+            this.queryClient,
+            this.zakenService.ontkoppelInformatieObject(informatieobject),
+            {
+              zaakUUID: this.zaak().uuid,
+              documentUUID: informatieobject.uuid!,
+              reden,
+            },
+          ),
+        );
       });
   }
 
