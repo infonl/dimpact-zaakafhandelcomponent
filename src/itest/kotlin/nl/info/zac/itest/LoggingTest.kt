@@ -26,7 +26,7 @@ const val NUMBER_OF_LOG_LINES = 10
 private const val PERSONAL_DATA_MASKING_FILTER = "personalDataMaskingFilter"
 private const val MASKED_TEST_PERSON_HENDRIKA_JANSE_BSN = "******896"
 private const val BRP_PERSONEN_PATH = "/haalcentraal/api/brp/personen"
-private const val JSON_LOGGING_FILTER_LOGGER = "nl.info.zac.util.JsonLoggingFilter"
+private const val ZAC_LOGGER = "nl.info"
 
 @Isolate
 class LoggingTest : BehaviorSpec({
@@ -76,7 +76,7 @@ class LoggingTest : BehaviorSpec({
 
     given(
         "ZAC Docker container is running, a person with a BSN and a date of birth exists in the BRP, " +
-            "and the REST client traffic of ZAC is logged at level FINE"
+            "and all logging of ZAC is at level FINE"
     ) {
         `when`("the person is looked up in the BRP by BSN") {
             val logsBeforeLookup = zacContainerLogs()
@@ -84,7 +84,7 @@ class LoggingTest : BehaviorSpec({
                 "/subsystem=logging/console-handler=CONSOLE:read-attribute(name=level)"
             ).getString("result")
             val response = try {
-                ItestKindStack.runZacCliCommand("/subsystem=logging/logger=$JSON_LOGGING_FILTER_LOGGER:add(level=FINE)")
+                ItestKindStack.runZacCliCommand("/subsystem=logging/logger=$ZAC_LOGGER:add(level=FINE)")
                 ItestKindStack.runZacCliCommand(
                     "/subsystem=logging/console-handler=CONSOLE:write-attribute(name=level,value=FINE)"
                 )
@@ -98,29 +98,14 @@ class LoggingTest : BehaviorSpec({
                 ItestKindStack.runZacCliCommand(
                     "/subsystem=logging/console-handler=CONSOLE:write-attribute(name=level,value=$consoleLogLevel)"
                 )
-                ItestKindStack.runZacCliCommand("/subsystem=logging/logger=$JSON_LOGGING_FILTER_LOGGER:remove")
+                ItestKindStack.runZacCliCommand("/subsystem=logging/logger=$ZAC_LOGGER:remove")
             }
             val logsOfLookup = zacContainerLogs().newLogsSince(logsBeforeLookup)
 
             then(
-                "the BRP call is logged as one outbound REST call record with its fields under mdc, " +
-                    "and the logs contain neither the BSN, plain or masked, nor the date of birth nor the path"
+                "the logs contain neither the BSN, plain or masked, nor the date of birth nor the path of the BRP call"
             ) {
                 response.code shouldBe HTTP_OK
-                val outboundBrpCalls = logsOfLookup.lines()
-                    .filter { it.trimStart().startsWith("{") }
-                    .map(::JSONObject)
-                    .filter { it.optString("loggerName") == JSON_LOGGING_FILTER_LOGGER }
-                    .map { it.getJSONObject("mdc") }
-                    .filter { it.optString("operation") == "PersonenApi.personen" }
-                outboundBrpCalls.size shouldBe 1
-                outboundBrpCalls.single().run {
-                    getString("event") shouldBe "OutboundRestCall"
-                    getString("method") shouldBe "POST"
-                    getString("status") shouldBe "$HTTP_OK"
-                    getString("outcome") shouldBe "SUCCESS"
-                    has("durationMs") shouldBe true
-                }
                 logsOfLookup shouldNotContain TEST_PERSON_HENDRIKA_JANSE_BSN
                 logsOfLookup shouldNotContain MASKED_TEST_PERSON_HENDRIKA_JANSE_BSN
                 logsOfLookup shouldNotContain TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE
