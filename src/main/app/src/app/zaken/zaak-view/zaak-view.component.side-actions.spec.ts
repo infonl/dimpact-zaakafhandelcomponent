@@ -37,7 +37,6 @@ import { ZaakBetrokkeneListComponent } from "../zaak-betrokkenen-list/zaak-betro
 import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 import { ZaakProcessFlowComponent } from "../zaak-process-flow/zaak-process-flow.component";
-import { ZakenService } from "../zaken.service";
 import { ZaakSideActionService } from "./services/zaak-side-action.service";
 import { ZaakDetailsCardComponent } from "./zaak-details-card/zaak-details-card.component";
 import { ZaakInitiatorPanelComponent } from "./zaak-initiator-panel/zaak-initiator-panel.component";
@@ -54,7 +53,6 @@ describe(ZaakViewComponent.name, () => {
   let fixture: ComponentFixture<ZaakViewComponent>;
   let sideActions: ZaakSideActionService;
 
-  let zakenService: ZakenService;
   let bagService: BAGService;
   let bagObjectenQuery: ReturnType<
     typeof createQueryOptions<GeneratedType<"RestBagObjectGegevens">[]>
@@ -143,7 +141,6 @@ describe(ZaakViewComponent.name, () => {
       })
       .compileComponents();
 
-    zakenService = TestBed.inject(ZakenService);
     bagService = TestBed.inject(BAGService);
     bagObjectenQuery = {
       ...createQueryOptions<GeneratedType<"RestBagObjectGegevens">[]>([]),
@@ -222,10 +219,10 @@ describe(ZaakViewComponent.name, () => {
 
     const finishedActions = [
       ["taakGestart", () => fixture.componentInstance["taakGestart"]()],
-      ["mailVerstuurd", () => fixture.componentInstance["mailVerstuurd"](true)],
+      ["mailVerstuurd", () => fixture.componentInstance["mailVerstuurd"]()],
       [
         "ontvangstBevestigd",
-        () => fixture.componentInstance["ontvangstBevestigd"](true),
+        () => fixture.componentInstance["ontvangstBevestigd"](),
       ],
       ["documentCreated", () => fixture.componentInstance["documentCreated"]()],
       ["documentSent", () => fixture.componentInstance["documentSent"]()],
@@ -250,48 +247,6 @@ describe(ZaakViewComponent.name, () => {
         expect(sideActions.actiefPlanItem()).toBeNull();
       },
     );
-
-    it("does not refetch the zaak when the mail was not sent", () => {
-      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
-
-      fixture.componentInstance["mailVerstuurd"](false);
-
-      expect(closeSideNav).toHaveBeenCalled();
-      expect(invalidateSpy).not.toHaveBeenCalledWith({
-        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
-      });
-    });
-
-    it("does not refetch the zaak when the ontvangstbevestiging was not sent", () => {
-      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
-
-      fixture.componentInstance["ontvangstBevestigd"](false);
-
-      expect(closeSideNav).toHaveBeenCalled();
-      expect(invalidateSpy).not.toHaveBeenCalledWith({
-        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
-      });
-    });
-
-    it("refetches the zaak once a zaak has been linked to it or created from it", () => {
-      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
-
-      fixture.componentInstance["zaakLinked"]();
-
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
-      });
-    });
-
-    it("refetches the zaak once a taak has been started", () => {
-      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
-
-      fixture.componentInstance["taakGestart"]();
-
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
-      });
-    });
   });
 
   describe("panels the view switches to itself", () => {
@@ -414,33 +369,6 @@ describe(ZaakViewComponent.name, () => {
     });
   });
 
-  describe("updateDocumentList", () => {
-    it("reloads the documenten table and invalidates the zaak historie", () => {
-      mockActivatedRoute.data.next({ zaak });
-      fixture.detectChanges();
-      const reloadDocumenten = jest
-        .spyOn(
-          fixture.componentInstance.zaakDocumentenComponent(),
-          "updateDocumentList",
-        )
-        .mockResolvedValue(undefined);
-      const invalidateQueries = jest.spyOn(
-        testQueryClient,
-        "invalidateQueries",
-      );
-
-      fixture.componentInstance["updateDocumentList"]();
-
-      expect(reloadDocumenten).toHaveBeenCalled();
-      expect(invalidateQueries).toHaveBeenCalledWith(
-        {
-          queryKey: zakenService.listHistorieVoorZaakQuery(zaak.uuid).queryKey,
-        },
-        { cancelRefetch: false },
-      );
-    });
-  });
-
   describe("wiring between the zaak view and the details card", () => {
     const detailsCard = () =>
       fixture.debugElement.query(By.directive(ZaakDetailsCardComponent))
@@ -522,29 +450,6 @@ describe(ZaakViewComponent.name, () => {
         "fakeBagObjectOmschrijving",
         expect.any(Function),
       );
-    });
-
-    it("reloads the bag objecten once a bag object is ontkoppeld", async () => {
-      jest
-        .spyOn(TestBed.inject(ZaakDialogService), "openVerwijderBagObject")
-        .mockReturnValue(
-          fromPartial<MatDialogRef<RedenDialogFormComponent>>({
-            afterClosed: () => of(true),
-          }),
-        );
-      bagObjectenQuery.queryFn.mockClear();
-
-      detailsCard().bagObjectVerwijderen.emit(
-        fromPartial<GeneratedType<"RestBagObjectGegevens">>({
-          uuid: "fakeBagObjectGegevensUuid",
-          zaakobject: fromPartial<GeneratedType<"RestBagObject">>({
-            omschrijving: "fakeBagObjectOmschrijving",
-          }),
-        }),
-      );
-      await new Promise(requestAnimationFrame);
-
-      expect(bagObjectenQuery.queryFn).toHaveBeenCalled();
     });
   });
 

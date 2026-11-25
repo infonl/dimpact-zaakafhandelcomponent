@@ -77,7 +77,7 @@ export class HumanTaskDoComponent implements OnInit {
   }));
 
   protected readonly doHumanTaskPlanItemMutation = injectMutation(
-    () => this.planItemsService.doHumanTaskPlanItem(this.zaak().uuid),
+    () => this.planItemsService.doHumanTaskPlanItem(),
     { onSuccess: () => this.done.emit() },
   );
 

@@ -276,9 +276,8 @@ describe(ZaakBetrokkeneListComponent.name, () => {
       );
     });
 
-    it("shows a snackbar and invalidates the betrokkenen query on confirmation", () => {
+    it("confirms the ontkoppelen to the user", () => {
       jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of(true));
-      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
 
       component["deleteBetrokkene"](makeBetrokkene());
 
@@ -286,10 +285,6 @@ describe(ZaakBetrokkeneListComponent.name, () => {
         "msg.betrokkene.ontkoppelen.uitgevoerd",
         expect.anything(),
       );
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: zakenService.listBetrokkenenVoorZaakQuery(fakeZaak.uuid)
-          .queryKey,
-      });
     });
 
     it("leaves the cached zaak to the mutation, which answers with it", () => {

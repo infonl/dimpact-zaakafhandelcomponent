@@ -4,10 +4,7 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import {
-  QueryClient,
-  queryOptions,
-} from "@tanstack/angular-query-experimental";
+import { queryOptions } from "@tanstack/angular-query-experimental";
 import { PostBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
@@ -22,7 +19,6 @@ export interface TemplateMapping {
 @Injectable({ providedIn: "root" })
 export class SmartDocumentsService {
   private readonly zacQueryClient = inject(ZacQueryClient);
-  private readonly queryClient = inject(QueryClient);
 
   getAllSmartDocumentsTemplateGroups() {
     return this.zacQueryClient.GET(
@@ -65,17 +61,8 @@ export class SmartDocumentsService {
         ) =>
           store.mutationFn!(this.convertToApiFormat(templateGroups), context),
       },
-      {
-        onSuccess: () =>
-          void this.invalidateTemplatesMappingQuery(zaakafhandelUUID),
-      },
+      {},
     );
-  }
-
-  private invalidateTemplatesMappingQuery(zaakafhandelUUID: string) {
-    return this.queryClient.invalidateQueries({
-      queryKey: this.getTemplatesMappingQuery(zaakafhandelUUID).queryKey,
-    });
   }
 
   private convertToApiFormat(

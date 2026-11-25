@@ -43,7 +43,6 @@ import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/
 import { MenuItemType } from "../../shared/side-nav/menu-item/menu-item";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { TakenService } from "../../taken/taken.service";
 import { ZaakBetrokkeneListComponent } from "../zaak-betrokkenen-list/zaak-betrokkene-list.component";
 import { ZaakBrondatumZettenDialogComponent } from "../zaak-brondatum-zetten-dialog/zaak-brondatum-zetten-dialog.component";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
@@ -97,7 +96,6 @@ describe(ZaakViewComponent.name, () => {
   let humanTaskPlanItemsQuerySpy: jest.SpyInstance;
   let userEventListenerPlanItemsQuerySpy: jest.SpyInstance;
   let dialogRef: MatDialogRef<unknown>;
-  let takenService: TakenService;
   let websocketService: WebsocketService;
 
   const mockActivatedRoute = {
@@ -224,8 +222,6 @@ describe(ZaakViewComponent.name, () => {
     humanTaskPlanItemsQuerySpy = jest
       .spyOn(planItemsService, "listHumanTaskPlanItemsQuery")
       .mockReturnValue(planItemsQuery([]));
-
-    takenService = TestBed.inject(TakenService);
 
     jest.spyOn(KlantenService.prototype, "readPersoon").mockReturnValue(
       queryOptions({
@@ -662,7 +658,7 @@ describe(ZaakViewComponent.name, () => {
       );
     });
 
-    it("should update the zaak, reload the taken and show a snackbar when the dialog closes with a result", async () => {
+    it("should show a snackbar when the dialog closes with a result", async () => {
       mockActivatedRoute.data.next({ zaak: brondatumZettenZaak });
       const snackbarSpy = jest.spyOn(utilService, "openSnackbar");
       jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of(true));
@@ -672,16 +668,8 @@ describe(ZaakViewComponent.name, () => {
           title: "actie.zaak.brondatum-zetten",
         }),
       );
-      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
       await button.click();
 
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: zakenService.readZaakQuery(brondatumZettenZaak.uuid).queryKey,
-      });
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: takenService.listTakenVoorZaak(brondatumZettenZaak.uuid)
-          .queryKey,
-      });
       expect(snackbarSpy).toHaveBeenCalledWith("msg.zaak.brondatum.gezet");
     });
 

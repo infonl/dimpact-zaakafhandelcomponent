@@ -494,24 +494,6 @@ describe(ZoekopdrachtComponent.name, () => {
       });
     });
 
-    it("reloads the saved searches after one was saved", async () => {
-      await setup();
-      await loadZoekopdrachten();
-
-      dialogOpen.mockReturnValue(
-        fromPartial<MatDialogRef<ZoekopdrachtSaveDialogComponent>>({
-          afterClosed: () => of(true),
-        }),
-      );
-
-      await user.click(saveButton());
-      await loadZoekopdrachten([makeZoekopdracht({ naam: "Nieuw" })]);
-
-      await user.click(selectButton());
-
-      expect(screen.getByRole("menuitem", { name: /Nieuw/ })).toBeVisible();
-    });
-
     it("does not reload the saved searches when the dialog was cancelled", async () => {
       await setup();
       await loadZoekopdrachten();

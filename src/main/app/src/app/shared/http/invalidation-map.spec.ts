@@ -44,6 +44,16 @@ describe("INVALIDATION_MAP", () => {
     { path: { uuid } },
   ];
 
+  it("lists a document that is linked from an inbox in neither inbox", () => {
+    const inbox = ["/rest/inboxdocumenten", { page: 0 }];
+    const ontkoppeld = ["/rest/ontkoppeldedocumenten", { page: 0 }];
+    cached(inbox, ontkoppeld);
+
+    write("POST /rest/informatieobjecten/informatieobject/verplaats", {});
+
+    expect([inbox, ontkoppeld].map(isInvalidated)).toEqual([true, true]);
+  });
+
   it("refreshes the documents and historie of only the zaak of a deleted document", () => {
     cached(
       documentList(UUID),
@@ -81,6 +91,14 @@ describe("INVALIDATION_MAP", () => {
     expect(isInvalidated(document)).toBe(false);
   });
 
+  it("shows signed documents after a taak is completed", () => {
+    cached(documentList(UUID));
+
+    write("PATCH /rest/taken/complete", { body: { zaakUuid: UUID } });
+
+    expect(isInvalidated(documentList(UUID))).toBe(true);
+  });
+
   it("never reads the taak again, because that would overwrite its open form", () => {
     const taak = ["/rest/taken/{taskId}", { path: { taskId: "fakeTaskId" } }];
     cached(taak);
@@ -90,6 +108,60 @@ describe("INVALIDATION_MAP", () => {
     });
 
     expect(isInvalidated(taak)).toBe(false);
+  });
+
+  it("offers a saved zaaktype configuration when a zaak is created", () => {
+    const zaaktypen = ["/rest/zaaktypen"];
+    const zaaktype = [
+      "/rest/zaaktypen/{zaaktypeUuid}",
+      { path: { zaaktypeUuid: UUID } },
+    ];
+    cached(zaaktypen, zaaktype);
+
+    write("PUT /rest/zaakafhandelparameters/{zaaktypeUUID}", {
+      parameters: { path: { zaaktypeUUID: UUID } },
+    });
+
+    expect([zaaktypen, zaaktype].map(isInvalidated)).toEqual([true, true]);
+  });
+
+  it("offers an uploaded BPMN process as a procesmodel", () => {
+    const options = ["/rest/zaakafhandelparameters/process-definitions"];
+    cached(options);
+
+    write("POST /rest/bpmn-process-definitions", {});
+
+    expect(isInvalidated(options)).toBe(true);
+  });
+
+  it("offers a new afzender as reply-to, and new values by code", () => {
+    const replyTo = ["/rest/zaakafhandelparameters/replyTo"];
+    const byCode = [
+      "/rest/referentietabellen/code/{code}",
+      { path: { code: "AFZENDER" } },
+    ];
+    cached(replyTo, byCode);
+
+    write("PUT /rest/referentietabellen/{id}", {
+      parameters: { path: { id: 1 } },
+      body: { code: "AFZENDER" },
+    });
+
+    expect([replyTo, byCode].map(isInvalidated)).toEqual([true, true]);
+  });
+
+  it("removes a finished plan item from the menu", () => {
+    const planItems = [
+      "/rest/planitems/zaak/{uuid}/userEventListenerPlanItems",
+      { path: { uuid: UUID } },
+    ];
+    cached(planItems);
+
+    write("POST /rest/planitems/doUserEventListenerPlanItem", {
+      body: { zaakUuid: UUID },
+    });
+
+    expect(isInvalidated(planItems)).toBe(true);
   });
 
   it("marks searches stale without reading them, because Solr has not committed yet", () => {

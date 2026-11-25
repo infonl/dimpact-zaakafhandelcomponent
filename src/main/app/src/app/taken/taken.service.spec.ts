@@ -14,7 +14,11 @@ import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { fromPartial, runMutationOnSuccess } from "src/test-helpers";
+import {
+  fromPartial,
+  runMutationOnSettled,
+  runMutationOnSuccess,
+} from "src/test-helpers";
 import { testQueryClient } from "../../../setupJest";
 import { UtilService } from "../core/service/util.service";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
@@ -185,6 +189,11 @@ describe(TakenService.name, () => {
     let router: Router;
     const taak = fromPartial<GeneratedType<"RestTask">>({ zaakUuid: "zaak-1" });
 
+    async function succeed(options: ReturnType<TakenService["complete"]>) {
+      await runMutationOnSuccess(options, taak);
+      await runMutationOnSettled(options, null, taak);
+    }
+
     beforeEach(() => {
       jest
         .spyOn(TestBed.inject(UtilService), "openSnackbar")
@@ -202,7 +211,7 @@ describe(TakenService.name, () => {
         ],
       });
 
-      await runMutationOnSuccess(mutationOptions(service), taak);
+      await succeed(mutationOptions(service));
 
       expect(router.navigateByUrl).toHaveBeenCalledWith("/zaken/ZAAK-1");
     });
@@ -216,7 +225,7 @@ describe(TakenService.name, () => {
         ],
       });
 
-      await runMutationOnSuccess(mutationOptions(service), taak);
+      await succeed(mutationOptions(service));
 
       expect(router.navigateByUrl).toHaveBeenCalledWith("/");
     });
@@ -224,7 +233,7 @@ describe(TakenService.name, () => {
     it("goes to the dashboard when the navigation trail has no page before the taak", async () => {
       jest.spyOn(router, "url", "get").mockReturnValue("/taken/1");
 
-      await runMutationOnSuccess(mutationOptions(service), taak);
+      await succeed(mutationOptions(service));
 
       expect(router.navigateByUrl).toHaveBeenCalledWith("/");
     });
@@ -232,7 +241,7 @@ describe(TakenService.name, () => {
     it("stays on the taak when it was opened from an e-mail", async () => {
       jest.spyOn(router, "url", "get").mockReturnValue("/taken/1?bron=email");
 
-      await runMutationOnSuccess(mutationOptions(service), taak);
+      await succeed(mutationOptions(service));
 
       expect(router.navigateByUrl).not.toHaveBeenCalled();
     });
@@ -258,7 +267,7 @@ describe(TakenService.name, () => {
         return true;
       });
 
-      await runMutationOnSuccess(mutationOptions(service), taak);
+      await succeed(mutationOptions(service));
 
       expect(staleWhenLeaving).toEqual([true, true, true]);
     });

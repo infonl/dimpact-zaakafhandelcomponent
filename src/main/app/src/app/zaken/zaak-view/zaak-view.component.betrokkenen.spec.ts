@@ -495,7 +495,7 @@ describe(ZaakViewComponent.name, () => {
       });
     });
 
-    it("reloads the BAG-objecten after coupling an adres", async () => {
+    it("couples an adres to the zaak", async () => {
       const bagObject = fromPartial<GeneratedType<"RestBagObject">>({
         omschrijving: "fakeBagObjectOmschrijving",
       });
@@ -517,7 +517,6 @@ describe(ZaakViewComponent.name, () => {
         zaakUuid: zaak.uuid,
         zaakobject: bagObject,
       });
-      expect(bagObjectenQuery.queryFn).toHaveBeenCalled();
       expect(openSnackbar).toHaveBeenCalledWith("msg.bag-object.gekoppeld");
     });
   });

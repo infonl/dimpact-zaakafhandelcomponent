@@ -4,16 +4,13 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
-import { TakenService } from "../taken/taken.service";
 
 @Injectable({
   providedIn: "root",
 })
 export class PlanItemsService {
   private readonly zacQueryClient = inject(ZacQueryClient);
-  private readonly takenService = inject(TakenService);
 
   readHumanTaskPlanItem(planItemId: string) {
     return this.zacQueryClient.GET("/rest/planitems/humanTaskPlanItem/{id}", {
@@ -39,14 +36,8 @@ export class PlanItemsService {
     );
   }
 
-  doHumanTaskPlanItem(zaakUUID: string) {
-    return mergeMutationOptions(
-      this.zacQueryClient.POST("/rest/planitems/doHumanTaskPlanItem"),
-      {
-        onSuccess: () =>
-          void this.takenService.invalidateTakenVoorZaak(zaakUUID),
-      },
-    );
+  doHumanTaskPlanItem() {
+    return this.zacQueryClient.POST("/rest/planitems/doHumanTaskPlanItem");
   }
 
   doUserEventListenerPlanItem() {

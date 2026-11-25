@@ -112,7 +112,6 @@ export class ZaakBetrokkenenService {
           this.utilService.openSnackbar("msg.betrokkene.gekoppeld", {
             roltype: klantgegevens.betrokkeneRoltype.naam,
           });
-          this.invalidateBetrokkenen(zaak);
         },
       },
     );

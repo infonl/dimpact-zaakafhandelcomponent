@@ -143,11 +143,6 @@ export class ZaakBetrokkeneListComponent {
             "msg.betrokkene.ontkoppelen.uitgevoerd",
             { betrokkene: betrokkeneIdentificatie },
           );
-          this.queryClient.invalidateQueries({
-            queryKey: this.zakenService.listBetrokkenenVoorZaakQuery(
-              this.zaak().uuid,
-            ).queryKey,
-          });
         }
       });
   }

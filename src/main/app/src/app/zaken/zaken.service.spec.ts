@@ -307,45 +307,6 @@ describe(ZakenService.name, () => {
     });
   });
 
-  describe.each([
-    [
-      "updateBesluit",
-      () =>
-        runMutationOnSuccess(
-          service.updateBesluit(),
-          fromPartial<GeneratedType<"RestBesluitChangeData">>({
-            besluitUuid: "fakeBesluitUuid",
-          }),
-        ),
-    ],
-    [
-      "intrekkenBesluit",
-      () =>
-        runMutationOnSuccess(
-          service.intrekkenBesluit(),
-          fromPartial<GeneratedType<"RestBesluitWithdrawalData">>({
-            besluitUuid: "fakeBesluitUuid",
-          }),
-        ),
-    ],
-  ])("%s", (_name, runOnSuccess) => {
-    it("refreshes the historie of the besluit it changed, because the change adds a line to it", async () => {
-      const invalidateQueries = jest.spyOn(
-        testQueryClient,
-        "invalidateQueries",
-      );
-
-      await runOnSuccess();
-
-      expect(invalidateQueries).toHaveBeenCalledWith(
-        {
-          queryKey: service.listBesluitHistorie("fakeBesluitUuid").queryKey,
-        },
-        { cancelRefetch: false },
-      );
-    });
-  });
-
   describe("listBesluitHistorie", () => {
     it("opens the error dialog when a refetch fails, because the user waits on it after changing the besluit", () => {
       expect(service.listBesluitHistorie("fakeBesluitUuid").meta).toEqual({
@@ -438,14 +399,6 @@ describe(ZakenService.name, () => {
       reden: "fakeReden",
     };
 
-    it("refetches the zaak it unlinked from, because the server answers without it", async () => {
-      const invalidateZaak = jest.spyOn(service, "invalidateZaak");
-
-      await runMutationOnSuccess(service.ontkoppelZaak(), unlinkData);
-
-      expect(invalidateZaak).toHaveBeenCalledWith("fakeZaakUuid");
-    });
-
     it("confirms the unlinking", async () => {
       await runMutationOnSuccess(service.ontkoppelZaak(), unlinkData);
 
@@ -489,30 +442,6 @@ describe(ZakenService.name, () => {
       expect(httpRequest.request.method).toBe("DELETE");
       expect(httpRequest.request.body).toEqual({ reden: "fakeReden" });
       await request;
-    });
-
-    it("refreshes the medewerkers, the kandidaten and the historie of the zaak, because they all changed", async () => {
-      const invalidateQueries = jest.spyOn(
-        testQueryClient,
-        "invalidateQueries",
-      );
-      const invalidateHistorie = jest.spyOn(service, "invalidateHistorie");
-
-      await runMutationOnSuccess(
-        service.deleteZaakspecifiekGeautoriseerdeMedewerker("fakeZaakUuid"),
-        variables,
-      );
-
-      expect(invalidateQueries).toHaveBeenCalledWith({
-        queryKey:
-          service.listGeautoriseerdeMedewerkersQuery("fakeZaakUuid").queryKey,
-      });
-      expect(invalidateQueries).toHaveBeenCalledWith({
-        queryKey: [
-          "/rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/kandidaten",
-        ],
-      });
-      expect(invalidateHistorie).toHaveBeenCalledWith("fakeZaakUuid");
     });
 
     it("refreshes nothing after the logged-in user detaches themselves, because they may no longer read the zaak", async () => {
@@ -590,36 +519,6 @@ describe(ZakenService.name, () => {
 
       expect(testQueryClient.getQueryData(queryKey)).toBe(zaak);
     });
-
-    it("refetches the zaak after caching it, so a concurrent change that a cancelled refetch carried still shows", () => {
-      const cacheZaak = jest.spyOn(service, "cacheZaak");
-      const invalidateZaak = jest.spyOn(service, "invalidateZaak");
-
-      createMutation().onSuccess?.(
-        zaak,
-        fromPartial({}),
-        undefined,
-        fromPartial<MutationFunctionContext>({ client: testQueryClient }),
-      );
-
-      expect(invalidateZaak).toHaveBeenCalledWith("fakeZaakUuid1");
-      expect(cacheZaak.mock.invocationCallOrder[0]).toBeLessThan(
-        invalidateZaak.mock.invocationCallOrder[0],
-      );
-    });
-
-    it("refreshes the historie of that zaak, because the server accepted the change", () => {
-      const invalidateHistorie = jest.spyOn(service, "invalidateHistorie");
-
-      createMutation().onSuccess?.(
-        zaak,
-        fromPartial({}),
-        undefined,
-        fromPartial<MutationFunctionContext>({ client: testQueryClient }),
-      );
-
-      expect(invalidateHistorie).toHaveBeenCalledWith("fakeZaakUuid1");
-    });
   });
 
   describe("the afzenders of a zaak", () => {
@@ -662,38 +561,6 @@ describe(ZakenService.name, () => {
       await testQueryClient.query(options);
 
       httpTestingController.expectNone(afzendersUrl);
-    });
-
-    it("reads the afzenders of every zaak again after invalidateAfzenders, so that a changed zaaktype configuration reaches the forms", async () => {
-      const afzenderOptions = service.listAfzendersVoorZaak("fakeZaakUuid");
-      const otherAfzenderOptions =
-        service.listAfzendersVoorZaak("fakeOtherZaakUuid");
-      testQueryClient.setQueryData(afzenderOptions.queryKey, [afzender]);
-      testQueryClient.setQueryData(otherAfzenderOptions.queryKey, [afzender]);
-
-      await service.invalidateAfzenders();
-
-      expect(
-        testQueryClient.getQueryState(afzenderOptions.queryKey)?.isInvalidated,
-      ).toBe(true);
-      expect(
-        testQueryClient.getQueryState(otherAfzenderOptions.queryKey)
-          ?.isInvalidated,
-      ).toBe(true);
-    });
-
-    it("leaves the other reads of a zaak alone on invalidateAfzenders", async () => {
-      const zaakOptions = service.readZaakQuery("fakeZaakUuid");
-      testQueryClient.setQueryData(
-        zaakOptions.queryKey,
-        fromPartial<GeneratedType<"RestZaak">>({ uuid: "fakeZaakUuid" }),
-      );
-
-      await service.invalidateAfzenders();
-
-      expect(
-        testQueryClient.getQueryState(zaakOptions.queryKey)?.isInvalidated,
-      ).toBe(false);
     });
 
     it("opens the error dialog on a failed re-read, as opening a form is an action the user waits on", async () => {

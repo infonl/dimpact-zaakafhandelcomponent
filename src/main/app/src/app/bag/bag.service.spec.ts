@@ -58,63 +58,9 @@ describe(BAGService.name, () => {
       });
       request.flush(null);
     });
-
-    it("invalidates the historie of the zaak the bag object is coupled to, so every caller gets a fresh one", async () => {
-      const invalidateHistorie = jest.spyOn(zakenService, "invalidateHistorie");
-
-      const created = firstValueFrom(
-        runMutation(testQueryClient, service.create(), {
-          zaakUuid: "fakeZaakUuid",
-          zaakobject,
-        }),
-      );
-      await sleep();
-      httpTestingController.expectOne("/rest/bag").flush(null);
-      await created;
-
-      expect(invalidateHistorie).toHaveBeenCalledWith("fakeZaakUuid");
-    });
-
-    it("invalidates no historie when the request carries no zaak uuid, which the endpoint types allow", async () => {
-      const invalidateHistorie = jest.spyOn(zakenService, "invalidateHistorie");
-
-      const created = firstValueFrom(
-        runMutation(testQueryClient, service.create(), { zaakobject }),
-      );
-      await sleep();
-      httpTestingController.expectOne("/rest/bag").flush(null);
-      await created;
-
-      expect(invalidateHistorie).not.toHaveBeenCalled();
-    });
   });
 
   describe("delete", () => {
-    it("invalidates the historie of the zaak the bag object was coupled to, so every caller gets a fresh one", async () => {
-      const invalidateQueries = jest.spyOn(
-        testQueryClient,
-        "invalidateQueries",
-      );
-
-      const deleted = firstValueFrom(
-        runMutation(testQueryClient, service.delete(), {
-          uuid: "fakeBagObjectGegevensUuid",
-          zaakUuid: "fakeZaakUuid",
-          redenWijzigen: "fakeReden",
-        }),
-      );
-      await flushDelete();
-      await deleted;
-
-      expect(invalidateQueries).toHaveBeenCalledWith(
-        {
-          queryKey:
-            zakenService.listHistorieVoorZaakQuery("fakeZaakUuid").queryKey,
-        },
-        { cancelRefetch: false },
-      );
-    });
-
     it("invalidates no historie when the request carries no zaak uuid, which the endpoint types allow", async () => {
       const invalidateHistorie = jest.spyOn(zakenService, "invalidateHistorie");
 

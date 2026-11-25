@@ -168,19 +168,12 @@ describe(ZaakBetrokkenenService.name, () => {
       );
     });
 
-    it("caches the zaak and refreshes the historie once the server has accepted the coupling", async () => {
+    it("caches the zaak once the server has accepted the coupling", async () => {
       service.initiatorGeselecteerd(zaakZonderInitiator, initiator);
       (await pendingRequest("/rest/zaken/initiator")).flush(gekoppeldeZaak);
       await settle();
 
       expect(zakenService.cacheZaak).toHaveBeenCalledWith(gekoppeldeZaak);
-      expect(invalidateSpy).toHaveBeenCalledWith(
-        {
-          queryKey:
-            zakenService.listHistorieVoorZaakQuery("fakeZaakUuid").queryKey,
-        },
-        { cancelRefetch: false },
-      );
     });
 
     it("reports a failing coupling through the error handler, without announcing success", async () => {
@@ -344,20 +337,6 @@ describe(ZaakBetrokkenenService.name, () => {
         queryKey:
           zakenService.listBetrokkenenVoorZaakQuery("fakeZaakUuid").queryKey,
       });
-    });
-
-    it("refreshes the historie even though the zaak comes back exactly as it went in, because a rol is not part of it", async () => {
-      service.betrokkeneGeselecteerd(zaakMetInitiator, createKlantGegevens());
-      (await pendingRequest("/rest/zaken/betrokkene")).flush(zaakMetInitiator);
-      await settle();
-
-      expect(invalidateSpy).toHaveBeenCalledWith(
-        {
-          queryKey:
-            zakenService.listHistorieVoorZaakQuery("fakeZaakUuid").queryKey,
-        },
-        { cancelRefetch: false },
-      );
     });
 
     it("reports a failing coupling through the error handler, without announcing success", async () => {
