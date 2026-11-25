@@ -5,14 +5,15 @@
 #
 # Prints the Kubernetes versions to validate the ZAC Helm chart against, as `kubernetes_versions=<JSON array>`,
 # so that a GitHub workflow can append the output to $GITHUB_OUTPUT and use it as a matrix:
-# - the latest stable Kubernetes release and the three minor versions before it, the releases that the Kubernetes
-#   project supports;
-# - the Kubernetes version of the kind node image, which follows the next Dimpact PodiumD release, also when it is
-#   older than those.
+# - the .0 release of the latest stable minor version and of the three minor versions before it, the releases that
+#   the Kubernetes project supports. A patch release does not add or remove Kubernetes APIs, so the .0 release
+#   stands for its whole minor version;
+# - the exact Kubernetes version of the kind node image, which follows the next Dimpact PodiumD release.
 
 set -euo pipefail
 
-LATEST_STABLE_KUBERNETES_VERSION="v1.37.2" # latest stable Kubernetes version updated by renovate
+# Only the minor version is used. Renovate updates it to a new minor version only.
+LATEST_STABLE_KUBERNETES_VERSION="v1.37.0" # latest stable Kubernetes version updated by renovate
 OLDER_MINOR_VERSIONS=3
 
 repository_root="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -23,19 +24,13 @@ if [[ -z "$podiumd_version" ]]; then
   exit 1
 fi
 
-stable_version="${LATEST_STABLE_KUBERNETES_VERSION#v}"
-IFS=. read -r stable_major stable_minor _ <<< "$stable_version"
-podiumd_minor="$(cut -d. -f2 <<< "$podiumd_version")"
+IFS=. read -r stable_major stable_minor _ <<< "${LATEST_STABLE_KUBERNETES_VERSION#v}"
 
-versions=("$stable_version")
-for ((minor = stable_minor - 1; minor >= stable_minor - OLDER_MINOR_VERSIONS; minor--)); do
-  if [[ "$minor" -eq "$podiumd_minor" ]]; then
-    versions+=("$podiumd_version")
-  else
-    versions+=("$stable_major.$minor.0")
-  fi
+versions=()
+for ((minor = stable_minor; minor >= stable_minor - OLDER_MINOR_VERSIONS; minor--)); do
+  versions+=("$stable_major.$minor.0")
 done
-if [[ "$podiumd_minor" -lt "$((stable_minor - OLDER_MINOR_VERSIONS))" || "$podiumd_minor" -gt "$stable_minor" ]]; then
+if [[ ! " ${versions[*]} " =~ " $podiumd_version " ]]; then
   versions+=("$podiumd_version")
 fi
 

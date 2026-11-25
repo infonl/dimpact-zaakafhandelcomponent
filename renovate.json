@@ -855,6 +855,18 @@
       ]
     },
     {
+      "matchDepNames": [
+        "kubernetes-latest-stable"
+      ],
+      "matchUpdateTypes": [
+        "patch"
+      ],
+      "enabled": false,
+      "description": [
+        "The Helm chart is validated against the .0 release of each Kubernetes minor version, so a patch release changes nothing"
+      ]
+    },
+    {
       "matchPackageNames": [
         "kindest/node"
       ],
