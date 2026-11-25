@@ -32,6 +32,7 @@ import {
   keepPreviousData,
 } from "@tanstack/angular-query-experimental";
 import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
+import { StaleTimes } from "../../shared/http/zac-query-client";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
@@ -96,6 +97,7 @@ export class ParametersComponent extends AdminComponent implements OnInit {
       toZaaktypeConfigurationListQuery(this.filterParameters()),
     ),
     placeholderData: keepPreviousData,
+    staleTime: StaleTimes.Instant,
   }));
   protected readonly loading = computed(() => this.parametersQuery.isPending());
   protected readonly hasNoParameters = computed(
