@@ -2,7 +2,8 @@
 # SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-"""Fails when a file of the Playwright report holds a secret or a saved session, also inside the zip files in the report.
+"""Fails when a file of the Playwright report holds a secret, a saved session or a logged secret header, also inside the
+zip files in the report.
 
 The nightly report is public, so run this before anything publishes it.
 Usage: check-e2e-report-for-secrets.py <report directory> <directory with the saved sessions> <environment variable
@@ -23,6 +24,14 @@ from e2e_sessions import saved_session_values
 
 EMBEDDED_ZIP = re.compile(rb"data:application/zip;base64,([A-Za-z0-9+/=]+)")
 
+# The log of a failed API call. A session that a test renewed is not in the saved sessions. Scripts in a trace mention
+# these headers too, but not as an item of a list at the start of a line.
+ANSI_CODE = rb"(?:\x1b|\\+u001b)\[[0-9;]*m"
+LOGGED_HEADER = re.compile(
+    rb"(?i)(?:^|[\r\n]|\\+n)(?:[ \t]|" + ANSI_CODE + rb")*-[ \t]+(?:authorization|cookie|set-cookie):[ \t]*"
+    rb"(?!REDACTED|\s|\\+n)\S"
+)
+
 
 def spellings(secret):
     return {
@@ -38,7 +47,7 @@ def spellings(secret):
 
 
 def files_with_secret(name, content, secrets):
-    if any(secret in content for secret in secrets):
+    if any(secret in content for secret in secrets) or LOGGED_HEADER.search(content):
         yield name
     if content.startswith(b"PK"):
         with zipfile.ZipFile(io.BytesIO(content)) as archive:
@@ -62,7 +71,8 @@ def main(report_directory, sessions_directory, variables):
         with open(path, "rb") as file:
             leaks += files_with_secret(path, file.read(), secrets)
     if leaks:
-        sys.exit("The report holds a secret and must not be published:\n" + "\n".join(sorted(set(leaks))))
+        names = "\n".join(sorted(set(leaks)))
+        sys.exit(f"The report holds a secret or a logged secret header and must not be published:\n{names}")
     print(f"No secret in the {len(paths)} files of the report.")
 
 

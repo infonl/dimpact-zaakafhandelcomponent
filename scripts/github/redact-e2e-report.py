@@ -20,7 +20,7 @@ from e2e_sessions import saved_session_values
 REDACTED = "REDACTED"
 SECRET_HEADERS = {"authorization", "cookie", "set-cookie", "x-csrf-token", "x-xsrf-token"}
 # Playwright logs the headers of the requests of the steps as text.
-LOGGED_HEADER = re.compile(rf"(?im)^(\s*(?:[<>]\s*)?(?:{'|'.join(sorted(SECRET_HEADERS))})\s*:).*$")
+LOGGED_HEADER = re.compile(rf"(?im)^((?:\s|\x1b\[[0-9;]*m)*(?:[<>-]\s*)?(?:{'|'.join(sorted(SECRET_HEADERS))})\s*:).*$")
 SECRET_PARAMETERS = re.compile(
     r"(?i)([?&#](?:code|state|session_state|session_code|iss|execution|tab_id|client_data|id_token_hint|access_token)=)"
     r"[^&#\"'\s<>\\]+"

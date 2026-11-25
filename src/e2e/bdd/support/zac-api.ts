@@ -7,6 +7,7 @@ import type { APIRequestContext } from "@playwright/test";
 import { setTimeout as wait } from "node:timers/promises";
 import createClient, { type Client } from "openapi-fetch";
 import type { components, paths } from "../../generated/zac-openapi-types";
+import { withoutLoggedHeaders } from "./logged-headers";
 import type { ServerErrorResponse } from "./server-errors";
 
 export type ZacApi = Client<paths>;
@@ -41,12 +42,14 @@ export function zacApiClient(
         ? Buffer.from(await input.arrayBuffer())
         : undefined;
       const send = async () => {
-        const response = await request.fetch(input.url, {
-          method: input.method,
-          headers: Object.fromEntries(input.headers),
-          data,
-          maxRedirects: 0,
-        });
+        const response = await withoutLoggedHeaders(
+          request.fetch(input.url, {
+            method: input.method,
+            headers: Object.fromEntries(input.headers),
+            data,
+            maxRedirects: 0,
+          }),
+        );
         if (response.status() >= 500) {
           onServerError({
             method: input.method,
@@ -62,7 +65,7 @@ export function zacApiClient(
       // ZAC forgets its sessions when a new version is deployed, and then redirects to Keycloak before it handles the
       // request. Keycloak still knows the user, so a visit to ZAC gives a new session without a sign in.
       if (response.status() === 302) {
-        await request.get(baseUrl);
+        await withoutLoggedHeaders(request.get(baseUrl));
         response = await send();
       }
       if (REPEATABLE_METHODS.includes(input.method)) {

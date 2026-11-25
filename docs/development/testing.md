@@ -265,7 +265,7 @@ The [Playwright Tests](../../.github/workflows/run-e2e.yml) workflow runs them e
 Playwright report, with a trace, a video and screenshots of every scenario, on GitHub Pages and posts the result in
 Slack. That report is public. So the scenarios that sign in have no trace, `scripts/github/redact-e2e-report.py` removes
 the cookies, the tokens and the answers of the REST API from the other traces, and the workflow publishes nothing when
-the report still holds a password or a session.
+the redaction fails or the report still holds a password, a session or a logged cookie.
 
 ## GitHub Action Tests
 

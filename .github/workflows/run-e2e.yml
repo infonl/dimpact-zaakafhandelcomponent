@@ -74,12 +74,13 @@ jobs:
           cd src/e2e
           node reporting/summarize.ts reports/results.json "$GITHUB_OUTPUT" | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Redact the traces of the report
+        id: report-redaction
         if: ${{ !cancelled() }}
         run: python3 scripts/github/redact-e2e-report.py src/e2e/playwright-report src/e2e/.auth/dev
       # GitHub Pages and the artifacts of this repository are public.
       - name: Check that the report holds no secrets
         id: report-check
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.report-redaction.outcome == 'success' }}
         env:
           E2E_TEST_USER_1_PASSWORD: ${{ secrets.ZAC_E2E_TEST_USER_1_PASSWORD }}
           E2E_TEST_USER_2_PASSWORD: ${{ secrets.ZAC_E2E_TEST_USER_2_PASSWORD }}
