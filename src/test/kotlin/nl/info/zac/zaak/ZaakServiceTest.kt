@@ -7,6 +7,7 @@ package nl.info.zac.zaak
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.maps.shouldNotContainKey
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
@@ -62,7 +63,9 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
+import nl.info.zac.log.EmployeeKeycloakUserIds
 import nl.info.zac.log.LogCapture
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.time.ZacTime
@@ -1181,6 +1184,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { eventingService.send(capture(screenEventSlot)) } just runs
 
             `when`("the zaken are assigned to that group and user") {
+                ZacLogger.registerEmployee(user.username, "fakeAssigneeKeycloakUserId")
                 val records = LogCapture(ZaakService::class).use { logCapture ->
                     zaakService.assignZaken(
                         zaakUUIDs = zaken.map { it.uuid },
@@ -1191,9 +1195,15 @@ class ZaakServiceTest : BehaviorSpec({
                     )
                     logCapture.records
                 }
+                EmployeeKeycloakUserIds.reset()
 
-                then("the employee who is not in the group is logged without the username or the display name") {
+                then(
+                    "the assignee who is not in the group is logged by Keycloak user ID, " +
+                        "without the username or the display name"
+                ) {
                     with(records.single { it.mdc["event"] == "EmployeeNotInGroup" }) {
+                        mdc["assignee"] shouldBe "fakeAssigneeKeycloakUserId"
+                        mdc shouldNotContainKey "employee"
                         mdc["groupId"] shouldBe group.name
                         mdc["zaakCount"] shouldBe "2"
                         containsAnywhere(user.username) shouldBe false

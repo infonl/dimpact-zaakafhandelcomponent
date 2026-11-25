@@ -45,7 +45,7 @@ class UpdateZaakAssignmentDelegate : AbstractDelegate() {
         assertPolicy(
             zaakRechten.canToekennen,
             LOG,
-            PolicyDenied(action = "assignZaak", zaakIdentificatie = zaak.identificatie, employee = Employee(loggedInUser.username))
+            PolicyDenied(action = "assignZaak", zaakIdentificatie = zaak.identificatie)
         )
 
         val groupId = groepId.resolveValueAsString(execution)
