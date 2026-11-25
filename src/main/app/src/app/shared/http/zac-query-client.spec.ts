@@ -23,9 +23,13 @@ import { sleep, testQueryClient } from "../../../../setupJest";
 import { fromPartial } from "../../../test-helpers";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
+import { search } from "./invalidation";
+import { INVALIDATION_MAP } from "./invalidation-map";
 import { mergeMutationOptions } from "./merge-mutation-options";
 import { runMutation } from "./run-mutation";
 import { ZacQueryClient } from "./zac-query-client";
+
+type Mutable<Type> = { -readonly [Key in keyof Type]: Type[Key] };
 
 describe(ZacQueryClient.name, () => {
   let zacQueryClient: ZacQueryClient;
@@ -380,6 +384,73 @@ describe(ZacQueryClient.name, () => {
       );
 
       expect(isInvalidated()).toBe(false);
+    });
+
+    describe("with a rule that sets afterFailureToo", () => {
+      function ruleOf(rule: { awaitRefresh?: true }) {
+        jest.replaceProperty(
+          INVALIDATION_MAP as Mutable<typeof INVALIDATION_MAP>,
+          `PUT ${path}`,
+          {
+            afterFailureToo: true,
+            refresh: () => [search("/rest/zoeken/list")],
+            ...rule,
+          },
+        );
+      }
+
+      afterEach(() => {
+        jest.restoreAllMocks();
+      });
+
+      it("is applied after a write that succeeds", async () => {
+        ruleOf({});
+
+        await release((request) => request.flush(null));
+
+        expect(isInvalidated()).toBe(true);
+      });
+
+      it("is applied after a write that fails", async () => {
+        ruleOf({});
+        jest
+          .spyOn(foutAfhandelingService, "foutAfhandelen")
+          .mockReturnValue(EMPTY);
+
+        await release((request) =>
+          request.flush(null, { status: 400, statusText: "Bad Request" }),
+        );
+
+        expect(isInvalidated()).toBe(true);
+      });
+
+      it.each([
+        ["keeps the write pending until the refresh is done", true, false],
+        ["does not wait for the refresh", undefined, true],
+      ] as const)(
+        "%s when awaitRefresh is %s",
+        async (_description, awaitRefresh, isDoneBeforeRefresh) => {
+          ruleOf({ awaitRefresh });
+          let finishRefresh!: () => void;
+          jest
+            .spyOn(testQueryClient, "invalidateQueries")
+            .mockReturnValue(
+              new Promise((resolve) => (finishRefresh = resolve)),
+            );
+          let isDone = false;
+
+          const released = release((request) => request.flush(null)).then(
+            () => (isDone = true),
+          );
+          await sleep();
+          await sleep();
+          expect(isDone).toBe(isDoneBeforeRefresh);
+
+          finishRefresh();
+          await released;
+          expect(isDone).toBe(true);
+        },
+      );
     });
   });
 });

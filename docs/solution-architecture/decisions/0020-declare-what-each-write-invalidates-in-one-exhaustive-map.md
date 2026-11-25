@@ -36,7 +36,9 @@ Chosen option: "An exhaustive map on verb and path", because it is the only opti
 `INVALIDATION_MAP` has a rule for each `POST`, `PUT`, `PATCH` and `DELETE` in the OpenAPI spec:
 
 * `refresh` invalidates reads; those on screen are read again at once.
-* `markStale` invalidates reads without reading them, so the next visit reads them. It is for Solr searches.
+* `markStale` invalidates reads without reading them, so the next visit reads them. It is for Solr searches, and for
+  a read that the screen already updates itself. The lists of inbox documents, detached documents and product requests
+  are not in Solr. They use `refresh`, because a row that was handled must leave the list that is on screen.
 * `none` invalidates nothing and gives the reason.
 
 `ZacQueryClient` applies the rule as the last `onSuccess` step, after the callbacks of the service and the component.
