@@ -29,9 +29,8 @@ known findings and makes free-text logging impossible in the backend.
   (JUL `Logger`, SLF4J, JBoss Logging, Log4j, Commons Logging, kotlin-logging, `System.Logger`), print to
   `System.out`/`System.err` or call `printStackTrace()`. Detekt rules report the same errors in the IDE.
 - Fix the findings of the audit:
-  - `JsonLoggingFilter` no longer logs paths, headers, query strings or payloads. Per outbound call with a response it
-    logs one record with the HTTP method, the host, the
-    invoked client operation (such as `PersonenApi.personen`), the status, the outcome and the duration.
+  - `JsonLoggingFilter` is removed, so outbound REST calls are no longer logged: no paths, headers, query strings or
+    payloads. The OpenTelemetry traces show every outbound call.
   - `MailService`, `SendEmailDelegate` and `SendConfirmationEmailDelegate` no longer log recipient or sender email
     addresses or names in plain text, nor the mail subject. All three log the recipient as a `@Redacted` field, and
     none of them logs the sender. `MailService` logs one `MailSendCompleted` record per mail, with the outcome and the

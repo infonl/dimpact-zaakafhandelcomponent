@@ -145,39 +145,20 @@ holds the WildFly masking filter, is not part of this check.
 - **WHEN** all production classes log through `ZacLogger`
 - **THEN** the architecture test passes
 
-### Requirement: Outbound REST calls are logged without payloads
-The backend SHALL log an outbound REST call that gets a response as one record with the HTTP method, the host, the
-invoked client operation, the response status, the outcome and the duration. The trace and span ID of the record
-identify the call when tracing is enabled; the record has no correlation ID of its own. The backend SHALL
-NOT log the path, the query string, the headers or the body of any outbound REST call, at any log level.
+### Requirement: Outbound REST calls are not logged
+The backend SHALL NOT log outbound REST calls: not their path, query string, headers or body, nor a record per call,
+at any log level. Acceptance criterion 1 asks for the request/response logging to be removed and allows only a
+correlation ID when needed; the trace and span ID of OpenTelemetry already identify a call, so no record is needed.
 
-#### Scenario: An outbound BRP call is logged
-- **WHEN** `FINE` logging is enabled for `JsonLoggingFilter` and ZAC sends a `POST` to
+#### Scenario: An outbound BRP call is made
+- **WHEN** all logging of ZAC is at `FINE` and ZAC sends a `POST` to
   `https://brp.example.com/haalcentraal/api/brp/personen` with a BSN in the body, and BRP answers `200`
-- **THEN** exactly one record is logged for that call, with `method=POST`,
-  `host=brp.example.com`, `operation=PersonenApi.personen`, `status=200`, `outcome=SUCCESS` and `durationMs`
-- **AND** the record does not contain the path, the body, the headers or the BSN
+- **THEN** no log record contains the path, the body, the headers or the BSN of that call
 
-#### Scenario: An outbound call with an identifier in the path is logged
-- **WHEN** `FINE` logging is enabled for `JsonLoggingFilter` and ZAC sends a `GET` to
+#### Scenario: An outbound call with an identifier in the path is made
+- **WHEN** all logging of ZAC is at `FINE` and ZAC sends a `GET` to
   `https://bag.example.com/lvbag/individuelebevragingen/v2/adressen/0363200000123456`
-- **THEN** the record has `operation=AdresApi.bevraagAdressenMetNumId`
-- **AND** the record does not contain `0363200000123456`
-
-#### Scenario: An outbound call with a query string is logged
-- **WHEN** `FINE` logging is enabled for `JsonLoggingFilter` and ZAC sends a `GET` to
-  `https://klant.example.com/klantinteracties/api/v1/partijen?partijIdentificator__objectId=999993896`
-- **THEN** the record does not contain `999993896` or any other part of the path or the query string
-
-#### Scenario: An outbound call without a client operation is logged
-- **WHEN** `FINE` logging is enabled for `JsonLoggingFilter` and a REST client that is not a MicroProfile Rest Client
-  sends a request
-- **THEN** the record has the host and `operation=null`
-
-#### Scenario: An outbound call fails before a response
-- **WHEN** `FINE` logging is enabled for `JsonLoggingFilter` and the connection to the remote system is refused
-- **THEN** `JsonLoggingFilter` writes no record for that call
-- **AND** the exception reaches the caller, which logs or maps it as before
+- **THEN** no log record contains `0363200000123456`
 
 ### Requirement: BRP queries are logged without person data
 The backend SHALL log a BRP person query only with the type of the query. It SHALL NOT log the query parameters or
