@@ -104,9 +104,8 @@ are strings, so `durationMs` is the string `"84"`.
 `ZacLogger` keeps the class name as logger name, so the log categories of WildFly keep working. `java.util.logging.Level`
 may still be used, for example for a configurable level (`ZacLogger.log(level, event)`); `Logger` may not.
 
-Outbound REST calls are logged by `JsonLoggingFilter` as one `OutboundRestCall` record at `FINE`, with the HTTP
-method, the host, the client operation (such as `PersonenApi.personen`), the status, the outcome and the
-duration. It never logs the path, the query string, the headers or the body.
+Outbound REST calls are not logged: `JsonLoggingFilter`, which logged them, is removed. The OpenTelemetry traces show
+every outbound call with its method, host, status and duration.
 
 A policy check that logs uses `assertPolicy(policy, LOG, PolicyDenied(action, zaakIdentificatie, Employee(username)))`.
 
@@ -134,8 +133,7 @@ record.
 - `nl/info/client/{brp,kvk,klant,keycloak,zgw}` — external API client warnings and failures.
 - `nl/info/zac/notification`, `nl/info/zac/signalering`, `nl/info/zac/mail` — notification receipt,
   signalering cleanup/due-date emails, mail send outcomes.
-- `nl/info/zac/websocket` and `nl/info/zac/util` — websocket connection lifecycle and the outbound REST call
-  record (`JsonLoggingFilter`).
+- `nl/info/zac/websocket` — websocket connection lifecycle.
 
 ## Frontend
 
@@ -262,8 +260,8 @@ treated as personal data on its own.
   **Resolved for PZ-13151:** BSNs and IBANs are masked by the
   [WildFly logging filter](#masking-personal-data-in-the-wildfly-logging), and the filter masks every JSON field
   whose name contains `geboorte`.
-  **Resolved for PZ-12683:** it logs one `OutboundRestCall` record per call, without the path, the query string, the
-  headers or the body.
+  **Resolved for PZ-12683:** `JsonLoggingFilter` is removed, so outbound REST calls are no longer logged; the
+  OpenTelemetry traces show them.
 - [`nl/info/client/brp/BrpClientService.kt`](../../src/main/kotlin/nl/info/client/brp/BrpClientService.kt)
   (`queryPersonen`) — logs the full `PersonenQuery` request and `PersonenQueryResponse` via `toString()`,
   gated by a configurable log level. `queryPersonen` backs every BRP query variant: only the BSN-lookup
@@ -515,8 +513,8 @@ numeric ID. It cannot recognise a surname or a date of birth in plain text, so l
 those. The two log statements that wrote a surname together with a date of birth handle that combination at the source:
 
 * `BrpClientService.queryPersonen` logs only the query type of a BRP query, not the query and the response.
-* `JsonLoggingFilter` no longer logs payloads at all (PZ-12683), so ADR-0011's masking of `geboorte` fields in its
-  payloads no longer applies.
+* `JsonLoggingFilter` is removed (PZ-12683), so ADR-0011's masking of `geboorte` fields in its payloads no longer
+  applies.
 
 How it works:
 

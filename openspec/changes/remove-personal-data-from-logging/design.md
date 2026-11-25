@@ -18,7 +18,8 @@ change.
 Relevant current code:
 
 - `JsonLoggingFilter` (`nl/info/zac/util`) is a JAX-RS `@Provider` for every REST client. At `FINE` it logs the URL,
-  headers and payload of each request and response, and masks JSON fields that contain `geboorte`.
+  headers and payload of each request and response, and masks JSON fields that contain `geboorte`. This change
+  removes it (decision 7).
 - `BrpClientService.queryPersonen` already logs only the query type (PZ-13151).
 - `MailService.sendMail` logs `MailAdres.toString()` (`email (name)`). `SendEmailDelegate` and
   `SendConfirmationEmailDelegate` log the to and from addresses.
@@ -71,7 +72,7 @@ follow-up story (decision 12).
 - Log shipping changes. The JUL handlers and the JSON formatter of WildFly stay as they are.
 - Logging of exceptions thrown by third-party libraries or by WildFly itself.
 - KVK numbers and vestigingsnummers (marked "suspected" in the audit). They are not part of this story and stay in the
-  log lines. `JsonLoggingFilter` no longer logs paths, so KVK numbers in URLs are gone. The finding stays open in
+  log lines. `JsonLoggingFilter` is removed, so KVK numbers in URLs are gone. The finding stays open in
   `logging.md`.
 - Free text in exception messages and stack traces, of ZAC and of libraries. The WildFly masking filter masks BSNs and
   IBANs in them; the ADR names this as a known limitation, and a follow-up ticket covers an audit of exception messages.
@@ -328,36 +329,20 @@ ZAC restarts; that only affects log correlation.
 - Alternative: an Infinispan/JCache cache. ZAC has no cache on Keycloak users yet, and a cache across instances adds
   configuration for no gain: an instance resolves each employee at most once. Rejected.
 
-### 7. `JsonLoggingFilter` logs one record per outbound call, without payloads
+### 7. `JsonLoggingFilter` is removed
 
-The request filter stores the start time as a property of the `ClientRequestContext`; it logs nothing. The response
-filter logs one record at `FINE`: `OutboundRestCall(method, host, operation, status, outcome, durationMs)`. The record
-has no correlation ID of its own: there is one record per call, so nothing needs to be correlated, and the trace and
-span ID that `ZacLogger` adds identify the call when tracing is enabled. `outcome` is `SUCCESS` for a 2xx or
-3xx status and `FAILURE` otherwise. The masking of `geboorte` fields and the payload buffering are removed. The class
-keeps its name and its logger name, so existing log level configurations keep working.
-
-The record has no path. Acceptance criterion 1 asks for "only a non-traceable correlation ID", and a path can hold an
-identifier that leads to a person: the BAG `nummeraanduidingIdentificatie` (`AdresApi.bevraagAdressenMetNumId`) leads
-to an address, and the KVK number of an eenmanszaak is personal data. Instead, `operation` is the invoked client
-method as `<interface>.<method>`, such as `PersonenApi.personen`. The REST clients of ZAC are MicroProfile Rest
-Clients, which put that method in the request property `org.eclipse.microprofile.rest.client.invokedMethod`, except
-the Keycloak admin client, which `KeycloakEmployeesAdminClientConfiguration` builds with `KeycloakBuilder`. A request
-without that property (such as a call of the Keycloak admin client) is logged with its host and `operation=null`.
-The method,
-host and operation hold no personal data, and tell more for troubleshooting than a path full of identifiers.
-
-A call that fails before a response (connection refused, timeout) reaches no response filter and gets no record from
-`JsonLoggingFilter`. Today the request filter writes the URL before such a call; that record is lost. A filter cannot
-see a failure without a response, so the caller logs or maps that failure, as today (`RestExceptionMapper` maps a
-`ProcessingException`). The spec therefore requires a record only for a call that gets a response.
+Acceptance criterion 1 asks for the request/response logging of `JsonLoggingFilter` to be removed, and allows only a
+non-traceable correlation ID when that is needed for troubleshooting. It is not needed: every outbound call is a span
+in the OpenTelemetry traces, with its method, host, status and duration, and every log record carries the `traceId`
+and `spanId` of its span. `JsonLoggingFilter`, a JAX-RS `@Provider` for every REST client, is therefore removed, with
+its masking of `geboorte` fields and its payload buffering. Outbound REST calls are not logged at all; a call that
+fails is still logged or mapped by its caller, as today (`RestExceptionMapper` maps a `ProcessingException`).
 
 ADR-0011 decides that `JsonLoggingFilter` masks `geboorte` fields in the payloads it logs. That rule no longer
-applies, because it logs no payloads, so ADR-0021 supersedes ADR-0011 with the same filter decision, extended to the
-MDC fields and without the payload masking. `LoggingTest` (itest) now expects the masked BSN `******896` in the
-logged BRP payload; it is rewritten: with `FINE` enabled, a BRP lookup by BSN logs one `OutboundRestCall` record with
-method, host, operation, status and duration, and the logs contain neither the BSN (plain or masked) nor the date of
-birth.
+applies, so ADR-0021 supersedes ADR-0011 with the same filter decision, extended to the MDC fields and without the
+payload masking. `LoggingTest` (itest) now expects the masked BSN `******896` in the logged BRP payload; it is
+rewritten: with all logging of ZAC at `FINE`, the logs of a BRP lookup by BSN contain neither the BSN (plain or
+masked), nor the date of birth, nor the path of the BRP call.
 
 ### 8. Specific fixes
 
@@ -424,7 +409,7 @@ recipient in `MailService` and in the mail delegates).
 
 One record per operation: log statements in the same function or class that together describe one operation (its
 choices, intermediate steps and result) become one event, written when the operation ends, with `outcome` and
-`durationMs` where the operation has a start and an end. Examples are `JsonLoggingFilter` (decision 7),
+`durationMs` where the operation has a start and an end. Examples are
 `SendConfirmationEmailDelegate` and `UserPrincipalFilter` (decision 8). Records of separate operations, or of
 operations that run for minutes (the start, progress and end of a reindex), stay separate. Merging across classes or
 over a whole request is the wide event of the follow-up story (decision 12).
@@ -501,8 +486,8 @@ become context disappear. A task of this change writes that ticket.
   has its fields under `mdc`; the fallback is an `ExtLogRecord` with its own MDC (decision 2).
 - [Personal data in an MDC field passes the WildFly safety net] → `PersonalDataMaskingLogFilter` masks MDC values too,
   with a unit test and the itest.
-- [`JsonLoggingFilter` no longer logs the path of a call, nor any record for a call without a response] → The
-  operation names the endpoint, and the caller still logs or maps a connection failure.
+- [Outbound REST calls are no longer logged] → The OpenTelemetry traces show every outbound call, and the caller
+  still logs or maps a failed call.
 - [Merging records hides an intermediate step that was useful] → Each choice that was a separate record becomes a
   field (such as `emailSource`), so the information stays.
 - [About 300 call sites change in one go] → Migrate per package with the unit tests of that package green before the
