@@ -81,7 +81,7 @@
     "@angular/language-service": "22.3.0",
     "@eslint/js": "10.0.1",
     "@formio/core": "2.9.2",
-    "@testing-library/angular": "18.1.1",
+    "@testing-library/angular": "19.6.0",
     "@testing-library/dom": "10.4.2",
     "@testing-library/jest-dom": "8.0.0",
     "@testing-library/user-event": "14.6.13",
