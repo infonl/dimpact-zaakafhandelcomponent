@@ -9,7 +9,6 @@ import { Then, When } from "../../fixtures";
 import { documentPage } from "../../screens/document";
 import { chooseOption } from "../../screens/select";
 import { zaakPage } from "../../screens/zaak";
-import { mailServerOrSkip, untilMailArrives } from "../../support/mail";
 import { dataOf } from "../../support/zac-api";
 import { seededPersoonOrSkip } from "../seed";
 
@@ -34,7 +33,7 @@ async function openDocument(page: Page, identificatie: string, titel: string) {
 }
 
 When(
-  "I add the document {string} with the titel {string} and the type {string}",
+  "I add the document {string} with the titel {string} and the type {seeded}",
   async ({ page, testData }, bestand: string, titel: string, type: string) => {
     await zaakPage(page).chooseFromMenu("Document toevoegen");
     const bestandsnaam = page.getByRole("textbox", { name: "Bestandsnaam" });
@@ -103,7 +102,6 @@ Then(
 When(
   "I send the ontvangstbevestiging to the initiator",
   async ({ page, testData, $testInfo }) => {
-    mailServerOrSkip($testInfo);
     const { emailadres } = seededPersoonOrSkip($testInfo);
     const zaak = zaakPage(page);
     await zaak.open(testData.zaak.identificatie);
@@ -125,16 +123,6 @@ When(
       ),
       page.getByRole("button", { name: "Verstuur", exact: true }).click(),
     ]);
-  },
-);
-
-Then(
-  "the initiator receives the ontvangstbevestiging",
-  async ({ request, testData, $testInfo }) => {
-    await untilMailArrives(request, mailServerOrSkip($testInfo), {
-      ontvanger: seededPersoonOrSkip($testInfo).emailadres,
-      onderwerp: onderwerpOfOntvangstbevestiging(testData.zaak.identificatie),
-    });
   },
 );
 

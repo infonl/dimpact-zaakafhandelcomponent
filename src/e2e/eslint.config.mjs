@@ -7,10 +7,10 @@ import js from "@eslint/js";
 import playwright from "eslint-plugin-playwright";
 import tseslint from "typescript-eslint";
 
-// Only the playwright-bdd suite is linted. The cucumber-js suite is removed when its last feature is replaced.
 const journeyFiles = [
   "bdd/**/*.ts",
   "config/**/*.ts",
+  "reporting/**/*.ts",
   "setup/**/*.ts",
   "playwright.config.ts",
   "playwright.unit.config.ts",
@@ -35,7 +35,7 @@ export default tseslint.config(
     ],
     languageOptions: {
       parserOptions: {
-        project: "./tsconfig.playwright.json",
+        project: "./tsconfig.json",
         tsconfigRootDir: import.meta.dirname,
       },
     },

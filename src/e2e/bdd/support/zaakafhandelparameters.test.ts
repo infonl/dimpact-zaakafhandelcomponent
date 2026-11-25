@@ -63,6 +63,12 @@ test("given a ZAC that sets the BRP doelbindingen per zaaktype and zaakafhandelp
 const changes: [string, Partial<Schemas["RestZaaktypeConfiguration"]>][] = [
   ["are not valid", { isValide: false }],
   ["route new zaken to another groep", { defaultGroepId: "test-group-b" }],
+  [
+    "have a human task that is off",
+    {
+      humanTaskParameters: [{ actief: false }],
+    } as Partial<Schemas["RestZaaktypeConfiguration"]>,
+  ],
   ["send a mail at the intake", { intakeMail: "BESCHIKBAAR_AAN" }],
   ["send a mail at the end", { afrondenMail: "BESCHIKBAAR_AAN" }],
   [
