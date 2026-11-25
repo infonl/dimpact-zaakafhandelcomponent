@@ -15,7 +15,7 @@ The services of the local ZAC development stack on kind that have no upstream He
 | keycloak.hostname | string | `""` | the URL of Keycloak in the browser, which is also the issuer of the tokens; set by scripts/kind/up.sh |
 | keycloak.image | string | `"quay.io/keycloak/keycloak:26.8.2@sha256:7e66a96e4739239070aeaf72e4c5decf0f7f682cfc725b9f7ea2b336eaba38b3"` |  |
 | nginx.image | string | `"nginx/nginx-unprivileged:1.31.10@sha256:a3ee8631f59c109deead35eef91f428233151b50ed5ee433057f3a93ca570c2c"` |  |
-| officeConverter.image | string | `"gotenberg/gotenberg:9.10.0@sha256:2ce6fcd3f5019c82b0376065b9103d6d4938d34c1c06a39a8263a9fcf47a6f5b"` | keep in sync with the office converter of charts/zac |
+| officeConverter.image | string | `"gotenberg/gotenberg:9.10.1@sha256:7d04e465cc8f700871092c2871c04f1e70d86eb399c9887cbd86a4a809e873ce"` | keep in sync with the office converter of charts/zac |
 | officeConverter.username | string | `"zac"` |  |
 | opa.image | string | `"openpolicyagent/opa:1.22.4-static@sha256:12cecac5a174368f7d3f09d3a19d040ebe0c91d576e520335ae7a985a26e39d3"` | keep in sync with the OPA of charts/zac |
 | openarchiefbeheer.image | string | `"maykinmedia/open-archiefbeheer:2.0.0@sha256:e5217d748869c62d26393311c3cfdcaacf69d8dde80ca3bc172ff41f3885f0ff"` |  |
