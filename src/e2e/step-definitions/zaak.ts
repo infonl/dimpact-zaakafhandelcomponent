@@ -30,6 +30,7 @@ import {
   describeTestOrigin,
   describeTestOriginShort,
 } from "../utils/test-origin";
+import { BPMN_ZAAKTYPE_NAME, CMMN_ZAAKTYPE_NAME } from "../utils/zaaktypes";
 
 const ZAAK_NUMBER_REGEX = /ZAAK-\d{4}-\d+/;
 const ZAAK_DETAIL_URL_REGEX = /\/zaken\/ZAAK-\d{4}-\d+/;
@@ -140,13 +141,13 @@ When(
 
     await this.page.getByLabel("Taak toekennen aan groep").first().click();
     await this.page
-      .getByRole("option", { name: user2Profile.group })
+      .getByRole("option", { name: user2Profile.group, exact: true })
       .first()
       .click();
 
     await this.page.getByLabel("Taak toekennen aan medewerker").first().click();
     await this.page
-      .getByRole("option", { name: user2Profile.username })
+      .getByRole("option", { name: user2Profile.username, exact: true })
       .first()
       .click();
     await this.page.getByRole("button", { name: "Start" }).first().click();
@@ -209,13 +210,14 @@ When(
   ) {
     const bpmnZaakType: boolean = zaakType === "BPMN";
     const zaakTypeName: string = bpmnZaakType
-      ? "Zaaktype voor BPMN e2e testen"
-      : "Zaaktype voor e2e testen";
+      ? BPMN_ZAAKTYPE_NAME
+      : CMMN_ZAAKTYPE_NAME;
 
     await this.page.getByLabel("Zaak toevoegen").click();
     await chooseMaterialOption(
       this.page.getByRole("combobox", { name: "Zaaktype" }),
-      this.page.getByRole("option", { name: zaakTypeName }),
+      // Another zaaktype on the environment can have a name that starts with this one.
+      this.page.getByRole("option", { name: zaakTypeName, exact: true }),
     );
     await this.page.getByRole("button", { name: "Initiator koppelen" }).click();
     await this.page.getByLabel("BSN").click();

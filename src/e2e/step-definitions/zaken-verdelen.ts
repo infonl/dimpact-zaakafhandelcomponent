@@ -10,30 +10,39 @@ import { users } from "../support/worlds/users";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers } from "../utils/schemes";
 import { assignInDialog, releaseInDialog } from "../utils/verdelen-dialog";
+import {
+  e2eZaakRows,
+  expectAtLeastRows,
+  selectFirstRows,
+  selectFirstRowsWithBehandelaar,
+} from "../utils/werkvoorraad";
 
-const zaakCheckmarkTitle = "Selecteren";
 let _noOfZaken = 0;
 
 Given(
   "there are at least {int} zaken",
   async function (this: CustomWorld, noOfZaken: number) {
     _noOfZaken = noOfZaken;
-    const zaakCount = await this.page
-      .getByLabel(zaakCheckmarkTitle, { exact: true })
-      .count();
-    this.expect(zaakCount).toBeGreaterThanOrEqual(noOfZaken);
+    await expectAtLeastRows(e2eZaakRows(this.page), noOfZaken);
   },
 );
 
 When(
   "{string} selects that number of zaken",
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    for (let i = 0; i < _noOfZaken; i++) {
-      await this.page
-        .getByLabel(zaakCheckmarkTitle, { exact: true })
-        .first()
-        .setChecked(true);
-    }
+    await selectFirstRows(e2eZaakRows(this.page), _noOfZaken);
+  },
+);
+
+When(
+  "{string} selects that number of zaken that have a behandelaar",
+  { timeout: ONE_MINUTE_IN_MS },
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    await selectFirstRowsWithBehandelaar(
+      this.page,
+      e2eZaakRows(this.page),
+      _noOfZaken,
+    );
   },
 );
 

@@ -5,6 +5,7 @@
 
 import { Given, Then, When } from "@cucumber/cucumber";
 import { expect, type Locator, type Page } from "@playwright/test";
+import { readFile } from "node:fs/promises";
 import path from "path";
 import { z } from "zod";
 import {
@@ -584,19 +585,50 @@ function processDefinitionGroupRow(page: Page, name: string) {
     .filter({ has: page.getByText(name, { exact: true }) });
 }
 
+async function uploadProcessDefinition(
+  page: Page,
+  file: { name: string; mimeType: string; buffer: Buffer },
+) {
+  const fileChooserPromise = page.waitForEvent("filechooser");
+  await page.getByText("BPMN-procesdefinitie toevoegen").click();
+  const fileChooser = await fileChooserPromise;
+  await fileChooser.setFiles(file);
+}
+
 When(
   "{string} uploads the E2E test processdefinition",
-  { timeout: FORTY_SECONDS_IN_MS },
+  { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    const fileChooserPromise = this.page.waitForEvent("filechooser");
-    await this.page.getByText("BPMN-procesdefinitie toevoegen").click();
-    const fileChooser = await fileChooserPromise;
-    await fileChooser.setFiles(
+    const buffer = await readFile(
       path.join(__dirname, "../testdata", E2E_PROCESS_DEFINITION_BPMN_FILE),
     );
-    await expect(
-      processDefinitionGroupRow(this.page, E2E_PROCESS_DEFINITION_NAME),
-    ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
+    const mimeType = "application/xml";
+    const row = processDefinitionGroupRow(
+      this.page,
+      E2E_PROCESS_DEFINITION_NAME,
+    );
+
+    await uploadProcessDefinition(this.page, {
+      name: E2E_PROCESS_DEFINITION_BPMN_FILE,
+      mimeType,
+      buffer,
+    });
+    try {
+      await expect(row).toBeVisible({ timeout: TEN_SECONDS_IN_MS });
+    } catch {
+      // ZAC does not deploy a file that equals an earlier deployment with the same file name. When someone deployed
+      // another process under this key since then, that process stays the latest version and carries its own name.
+      // A new file name makes ZAC deploy this process as the latest version.
+      await uploadProcessDefinition(this.page, {
+        name: E2E_PROCESS_DEFINITION_BPMN_FILE.replace(
+          ".bpmn",
+          `-${Date.now()}.bpmn`,
+        ),
+        mimeType,
+        buffer,
+      });
+      await expect(row).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
+    }
   },
 );
 
