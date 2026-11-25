@@ -34,5 +34,8 @@ tracing:
   enabled: true
   endpoint: https://tempo.test.local:4317
 
+opentelemetry-collector:
+  enabled: true
+
 solr-operator:
   enabled: true
