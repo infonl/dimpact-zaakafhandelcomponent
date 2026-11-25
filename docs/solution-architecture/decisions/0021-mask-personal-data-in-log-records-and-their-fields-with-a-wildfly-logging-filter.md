@@ -49,8 +49,8 @@ combination:
 
 * `BrpClientService` logs only the query type of a BRP query, not the query and the response, because a query by
   surname and date of birth and a BRP person contain both.
-* `JsonLoggingFilter` logs one record per outbound REST call without its path, query string, headers and payloads, so
-  it no longer masks dates of birth in payloads.
+* Outbound REST calls are not logged, so no payload with a date of birth reaches the log: `JsonLoggingFilter`, which
+  logged them, is removed.
 
 WildFly only loads logging filters from a module of the server, not from a deployment. The build therefore compiles
 the filter in a source set of its own, packages it as the `nl.info.zac.logfilter` module, and adds that module to the
@@ -70,8 +70,8 @@ server before `configure-wildfly.cli` configures the filter.
 ### Confirmation
 
 The unit tests in `src/test/kotlin/nl/info/zac/logfilter` confirm what the filter masks, also in the MDC entries, and
-that it withholds the MDC entries when masking fails. The unit tests of `BrpClientService` and `JsonLoggingFilter`
-confirm that they do not log dates of birth. The integration test `LoggingTest` confirms, against the ZAC Docker
+that it withholds the MDC entries when masking fails. The unit tests of `BrpClientService` confirm that it does not log
+dates of birth. The integration test `LoggingTest` confirms, against the ZAC Docker
 image, that the console log handler uses the filter of the module, and that a BRP lookup by BSN logs neither the BSN
 nor the date of birth.
 
