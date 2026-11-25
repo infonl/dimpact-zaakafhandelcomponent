@@ -258,7 +258,17 @@ validation error code and the names of the invalid parameters.
 ### Requirement: Employees are identified by their Keycloak user ID
 When a log record identifies an employee, the backend SHALL use the Keycloak user ID of that employee (the `sub` claim
 of the access token). It SHALL NOT log the username, the name or the email address of an employee. When the Keycloak
-user ID cannot be determined, the log record SHALL write `unknown` for that employee.
+user ID cannot be determined, the log record SHALL write `unknown` for that employee. Every log record that is
+written while ZAC handles an HTTP request of a logged-in employee SHALL have the field `employee` with the Keycloak user
+ID of that employee, taken once per request from the access token, so that an event does not carry the logged-in
+employee itself.
+
+#### Scenario: Every log record of a request identifies the logged-in employee
+- **WHEN** an employee with Keycloak user ID `5f0c8f8e-6f0d-4c63-9d0e-2b8a1c3e4d5f` sends a request, and ZAC writes
+  several log records while handling it
+- **THEN** each of these records has `employee=5f0c8f8e-6f0d-4c63-9d0e-2b8a1c3e4d5f`
+- **AND** ZAC does not call Keycloak to determine it
+- **AND** a log record written after the request does not have that field
 
 #### Scenario: The Keycloak user ID of a logged-in employee is known without a Keycloak call
 - **WHEN** an employee with username `jjansen` has logged in on a ZAC instance, and a later log record on that
