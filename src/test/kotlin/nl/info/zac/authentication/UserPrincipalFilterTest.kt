@@ -7,6 +7,8 @@ package nl.info.zac.authentication
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldNotContain
+import io.kotest.matchers.maps.shouldNotContainKey
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -32,6 +34,7 @@ import nl.info.zac.log.EmployeeKeycloakUserIds
 import nl.info.zac.log.LogCapture
 import nl.info.zac.log.UNKNOWN_EMPLOYEE
 import nl.info.zac.policy.PolicyService
+import org.jboss.logging.MDC
 import org.jose4j.jwt.JwtClaims
 import org.wildfly.security.http.oidc.AccessToken
 import org.wildfly.security.http.oidc.OidcPrincipal
@@ -101,7 +104,8 @@ class UserPrincipalFilterTest : BehaviorSpec({
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
             every { httpServletRequest.getSession(true) } returns httpSession
             every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
-            every { filterChain.doFilter(any(), any()) } just runs
+            var mdcDuringFilterChain: Map<String, Any>? = null
+            every { filterChain.doFilter(any(), any()) } answers { mdcDuringFilterChain = MDC.getMap().toMap() }
 
             `when`("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
@@ -109,6 +113,10 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 then("filterChain is invoked; no invalidate; no PABC call triggered by this branch") {
                     verify(exactly = 1) { filterChain.doFilter(httpServletRequest, servletResponse) }
                     verify(exactly = 0) { httpSession.invalidate() }
+                }
+
+                and("the filter chain runs without an employee in the MDC, because the token has no subject") {
+                    mdcDuringFilterChain.shouldNotBeNull() shouldNotContainKey "employee"
                 }
             }
         }
@@ -146,7 +154,8 @@ class UserPrincipalFilterTest : BehaviorSpec({
             every { httpServletRequest.getSession(true) } returns httpSession andThen newHttpSession
             every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
             every { httpSession.invalidate() } just runs
-            every { filterChain.doFilter(any(), any()) } just runs
+            var employeeDuringFilterChain: String? = null
+            every { filterChain.doFilter(any(), any()) } answers { employeeDuringFilterChain = MDC.get("employee") as String? }
             every {
                 pabcClientService.getApplicationRoles(functionalRoles)
             } returns GetApplicationRolesResponse().apply {
@@ -164,6 +173,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
                     logCapture.records
                 }
+                val employeeAfterRequest = MDC.get("employee")
 
                 then("the existing HTTP session is invalidated and the user is added to a new HTTP session") {
                     verify(exactly = 1) {
@@ -179,7 +189,15 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 }
 
                 then(
-                    "one record is logged with the Keycloak user ID from the token and the previous employee, " +
+                    "the filter chain runs with the Keycloak user ID from the token subject as employee in the MDC, " +
+                        "and the MDC entry is removed after the request"
+                ) {
+                    employeeDuringFilterChain shouldBe "fakeKeycloakUserId"
+                    employeeAfterRequest shouldBe null
+                }
+
+                then(
+                    "one record is logged with the Keycloak user ID of the request and the previous employee, " +
                         "without the usernames"
                 ) {
                     with(records.single()) {

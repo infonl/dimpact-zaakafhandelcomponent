@@ -7,7 +7,6 @@ package net.atos.zac.flowable.delegate
 import net.atos.zac.flowable.delegate.log.ZaakMailSending
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.flowable.FlowableHelper
-import nl.info.zac.log.Employee
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.getBronnenFromZaak
@@ -55,7 +54,7 @@ class SendEmailDelegate : AbstractDelegate() {
                 loggedInUser
             ).canVersturenEmail,
             LOG,
-            PolicyDenied(action = "sendEmail", zaakIdentificatie = zaak.identificatie, employee = Employee(loggedInUser.username))
+            PolicyDenied(action = "sendEmail", zaakIdentificatie = zaak.identificatie)
         )
 
         val templateName = template.resolveValueAsString(execution)

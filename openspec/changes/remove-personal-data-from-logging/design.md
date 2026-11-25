@@ -256,11 +256,18 @@ keeps using `assertPolicy`, because it throws the same `PolicyException` today.
 
 ### 6. Employees are logged as the Keycloak user ID, resolved once per employee in a central place
 
-An event never holds a Keycloak user ID that the call site looked up itself. It holds an `Employee` field with the
-username:
+The logged-in employee is put on every log record of a request, once, at the top: `UserPrincipalFilter` runs the
+request inside `ZacLogger.withLoggedInEmployee(keycloakUserId)`, with the `sub` claim of the access token, which puts
+the field `employee` in the MDC for the duration of the request. Every record of that request then has it, without a
+Keycloak call, and an event does not carry the logged-in employee itself (`PolicyDenied`, `UserLoggedIn` and the
+SmartDocuments deposit have no employee field of their own). Code that runs outside an HTTP request, such as a
+websocket message, gives the employee in its event.
+
+For another employee than the logged-in one, an event never holds a Keycloak user ID that the call site looked up
+itself. It holds an `Employee` field with the username, named after the role of that employee:
 
 ```kotlin
-class PolicyDenied(val action: String, val zaakIdentificatie: String?, val employee: Employee) : LogEvent("Policy denied")
+class EmployeeNotInGroup(val assignee: Employee, val groupId: String) : LogEvent("Employee is not in the group")
 ```
 
 `Employee(username)` is a log field type in `nl.info.zac.log` whose `toString()` never returns the username.

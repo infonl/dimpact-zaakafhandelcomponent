@@ -44,7 +44,9 @@ only option that accepts no free text and still keeps each event next to the cod
   writes as a key under `mdc`, together with `event`, `errorType` (from a passed throwable), and `traceId` and
   `spanId` of the active OpenTelemetry span.
 * A field annotated with `@Redacted` is written as `*****`.
-* An `Employee` field is written as the Keycloak user ID of the employee. `ZacLogger` resolves it itself: from the
+* Every record of an HTTP request has the field `employee` with the Keycloak user ID of the logged-in employee, which
+  `UserPrincipalFilter` takes once per request from the access token.
+* An `Employee` field, for another employee, is written as the Keycloak user ID of the employee. `ZacLogger` resolves it itself: from the
   access token at login, or with one Keycloak lookup per employee for an employee who has not logged in on the
   instance. An employee that the lookup does not find is written as `unknown` and not looked up again for 1 minute.
   When Keycloak cannot be reached, `ZacLogger` logs one warning and looks up no employee for 1 minute.
