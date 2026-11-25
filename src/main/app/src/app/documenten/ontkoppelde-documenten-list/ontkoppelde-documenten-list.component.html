@@ -11,7 +11,6 @@
       actionLabel="actie.document.koppelen"
       source="ontkoppelde-documenten"
       [bulkDocuments]="selectedDocumentsToLink()"
-      (informationObjectLinked)="retriggerSearch()"
       (bulkLinkFinished)="linkFinished($event.notLinkedIds)"
     />
   </mat-drawer>

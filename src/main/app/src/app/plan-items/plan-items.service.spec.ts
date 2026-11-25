@@ -33,8 +33,6 @@ describe("PlanItemServiceService", () => {
     expect(service).toBeTruthy();
   });
 
-  describe("doHumanTaskPlanItem", () => {});
-
   describe("doUserEventListenerPlanItem", () => {
     it("posts the user event listener plan item", async () => {
       const userEventListenerData = fromPartial<

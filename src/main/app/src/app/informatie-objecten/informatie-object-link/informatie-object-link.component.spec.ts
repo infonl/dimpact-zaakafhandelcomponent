@@ -80,7 +80,6 @@ describe(InformatieObjectLinkComponent.name, () => {
   let fixture: ComponentFixture<InformatieObjectLinkComponent>;
   let httpTestingController: HttpTestingController;
   let sideNav: MatDrawer;
-  let informationObjectLinked: jest.Mock;
   let bulkLinkFinished: jest.Mock;
   let openSnackbar: jest.SpyInstance;
   let foutAfhandelen: jest.SpyInstance;
@@ -102,7 +101,6 @@ describe(InformatieObjectLinkComponent.name, () => {
     sideNav = fromPartial<MatDrawer>({
       close: jest.fn().mockResolvedValue(undefined),
     });
-    informationObjectLinked = jest.fn();
     bulkLinkFinished = jest.fn();
 
     const inputs = {
@@ -127,9 +125,6 @@ describe(InformatieObjectLinkComponent.name, () => {
     );
 
     fixture = renderedFixture;
-    fixture.componentInstance.informationObjectLinked.subscribe(
-      informationObjectLinked,
-    );
     fixture.componentInstance.bulkLinkFinished.subscribe(bulkLinkFinished);
     httpTestingController = TestBed.inject(HttpTestingController);
     openSnackbar = jest
@@ -423,7 +418,7 @@ describe(InformatieObjectLinkComponent.name, () => {
     request.flush(null);
   });
 
-  it("reports the link, closes the side nav and announces it once linked", async () => {
+  it("reports the link and closes the side nav once linked", async () => {
     await setup();
     await showKoppelbareZaken();
 
@@ -440,7 +435,6 @@ describe(InformatieObjectLinkComponent.name, () => {
       },
     );
     expect(sideNav.close).toHaveBeenCalled();
-    expect(informationObjectLinked).toHaveBeenCalled();
   });
 
   it("links an enkelvoudig informatieobject by its uuid", async () => {
@@ -475,7 +469,6 @@ describe(InformatieObjectLinkComponent.name, () => {
         case: "ZAAK-001",
       },
     );
-    expect(informationObjectLinked).toHaveBeenCalled();
   });
 
   it("routes a failed link through the error handler", async () => {
@@ -691,7 +684,6 @@ describe(InformatieObjectLinkComponent.name, () => {
       );
       expect(sideNav.close).toHaveBeenCalled();
       expect(bulkLinkFinished).toHaveBeenCalledWith({ notLinkedIds: [] });
-      expect(informationObjectLinked).not.toHaveBeenCalled();
     });
 
     it("signals which documents were not linked", async () => {

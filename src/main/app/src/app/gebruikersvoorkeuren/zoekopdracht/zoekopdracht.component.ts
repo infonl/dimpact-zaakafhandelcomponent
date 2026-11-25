@@ -23,7 +23,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslatePipe } from "@ngx-translate/core";
-import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { Subscription } from "rxjs";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { StaleTimes } from "../../shared/http/zac-query-client";
@@ -63,7 +63,6 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     GebruikersvoorkeurenService,
   );
   private readonly dialog = inject(MatDialog);
-  private readonly queryClient = inject(QueryClient);
   private readonly zoekopdrachtenQuery = injectQuery(() => ({
     ...this.gebruikersvoorkeurenService.listZoekOpdrachten(this.werklijst()),
     staleTime: StaleTimes.Instant,

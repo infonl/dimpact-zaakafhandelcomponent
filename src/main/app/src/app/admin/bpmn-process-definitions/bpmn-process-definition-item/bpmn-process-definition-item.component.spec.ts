@@ -108,7 +108,6 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     "openSnackbar" | "openSnackbarError" | "downloadBlobResponse"
   >;
   let foutAfhandelingService: Pick<FoutAfhandelingService, "foutAfhandelen">;
-  let bpmnFormListChanged: jest.Mock;
   let uploadProcessDefinitionFormMutation: ReturnType<
     typeof createMutationOptions<object, { filename: string; content: string }>
   >;
@@ -127,7 +126,6 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
   async function setup(processDefinition = baseProcessDefinition) {
     const rendered = await render(BpmnProcessDefinitionItemComponent, {
       inputs: { processDefinition },
-      on: { bpmnFormListChanged },
       imports: [NoopAnimationsModule],
       providers: [
         provideTranslateService(),
@@ -172,7 +170,6 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       .mockReturnValue(
         fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(false) }),
       );
-    bpmnFormListChanged = jest.fn();
     uploadProcessDefinitionFormMutation = createMutationOptions<
       object,
       { filename: string; content: string }
@@ -495,12 +492,9 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       "msg.bpmn.task-forms.upload.success",
       { namen: "test-form.json" },
     );
-
-    jest.runAllTimers();
-    expect(bpmnFormListChanged).toHaveBeenCalled();
   });
 
-  it("announces nothing and leaves the task form list as it is when the upload fails", async () => {
+  it("announces nothing when the upload fails", async () => {
     (readFileContent as jest.Mock).mockResolvedValue("{}");
     uploadProcessDefinitionFormMutation.mutationFn.mockRejectedValue(
       new Error("fakeUploadFailure"),
@@ -508,10 +502,9 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     await setup();
 
     await user.upload(fileInput(), new File(["{}"], "test-form.json"));
-    await sleep(450);
+    await sleep();
 
     expect(utilService.openSnackbar).not.toHaveBeenCalled();
-    expect(bpmnFormListChanged).not.toHaveBeenCalled();
   });
 
   it("lets the same task form be chosen again after uploading it", async () => {
@@ -554,9 +547,6 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       "msg.bpmn.task-forms.upload.success",
       { namen: "dropped-form.json" },
     );
-
-    jest.runAllTimers();
-    expect(bpmnFormListChanged).toHaveBeenCalled();
   });
 
   it("accepts a dropped task form whose extension is upper case", async () => {

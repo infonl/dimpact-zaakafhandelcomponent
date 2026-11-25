@@ -248,11 +248,8 @@ export class OntkoppeldeDocumentenListComponent
   private readonly documentsBeingDeleted = signal<
     GeneratedType<"RestDetachedDocument">[]
   >([]);
-  private readonly deleteMutation = injectMutation(
-    () => this.ontkoppeldeDocumentenService.delete(),
-    {
-      onSuccess: () => this.filterChange.emit(),
-    },
+  private readonly deleteMutation = injectMutation(() =>
+    this.ontkoppeldeDocumentenService.delete(),
   );
   // Reports from the options of the mutation, because those also run after the employee left the page.
   private readonly deleteOntkoppeldeDocumentenMutation = injectMutation(
@@ -545,10 +542,6 @@ export class OntkoppeldeDocumentenListComponent
   private reloadKeepingSelected(idsToKeep: number[], idsProcessed: number[]) {
     this.processedIds.update((ids) => new Set([...ids, ...idsProcessed]));
     this.idsToKeepSelected.set(new Set(idsToKeep));
-    this.filterChange.emit();
-  }
-
-  protected retriggerSearch() {
     this.filterChange.emit();
   }
 

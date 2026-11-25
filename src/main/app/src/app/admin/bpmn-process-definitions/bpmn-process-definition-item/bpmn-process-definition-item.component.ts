@@ -11,7 +11,6 @@ import {
   computed,
   inject,
   input,
-  output,
   signal,
   viewChild,
 } from "@angular/core";
@@ -77,8 +76,6 @@ import { extractAttachmentFilename, readFileContent } from "../file.helper";
 export class BpmnProcessDefinitionItemComponent {
   readonly processDefinition =
     input.required<GeneratedType<"RestBpmnProcessDefinition">>();
-
-  readonly bpmnFormListChanged = output<void>();
 
   protected readonly bpmnFormFileInput =
     viewChild.required<ElementRef>("bpmnFormFileInput");
@@ -203,9 +200,6 @@ export class BpmnProcessDefinitionItemComponent {
     });
     if (files.length >= this.missingForms().length) {
       this.forceHideWarning.set(true);
-      setTimeout(() => this.bpmnFormListChanged.emit(), 450);
-    } else {
-      this.bpmnFormListChanged.emit();
     }
   }
 
