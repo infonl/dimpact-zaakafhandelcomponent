@@ -55,12 +55,7 @@
 
 ## 4. Fixes of the audit findings
 
-- [ ] 4.1 `JsonLoggingFilter`: log one `OutboundRestCall(method, host, operation, status, outcome, durationMs)` record
-      at `FINE` from the response filter, without a correlation ID of its own, with
-      the operation from the request property `org.eclipse.microprofile.rest.client.invokedMethod` as
-      `<interface>.<method>`; no path, query, headers or payload; remove the payload, header and `geboorte` handling;
-      unit tests for a BRP `POST` with a BSN body, a BAG call with an identifier in the path, a URL with a query string,
-      a request without the invoked method, and with and without an active span
+- [ ] 4.1 Remove `JsonLoggingFilter`, its event and its unit tests, so outbound REST calls are no longer logged
 - [ ] 4.2 `MailService.sendMail`: log one `MailSendCompleted(zaakUuid, @Redacted recipient, outcome, durationMs,
       errorType)` record, at `FINE` on success and at `SEVERE` on failure with the class name of the exception as
       `errorType` but without the exception itself, and without the subject; unit tests that the recipient address and
@@ -141,7 +136,7 @@
 - [ ] 7.2 Update `docs/development/logging.md`: describe `ZacLogger`, `LogEvent`, `@Redacted`, the field vocabulary,
       the one-record-per-operation rule, `outcome`/`durationMs`/`errorType` and `traceId`/`spanId` as the only way to
       log, replace "Known inconsistencies", mark every finding fixed by this change as resolved (PZ-12683), and note
-      that `JsonLoggingFilter` no longer logs payloads; leave the KVK finding open
+      that `JsonLoggingFilter` is removed; leave the KVK finding open
 - [ ] 7.3 Update the `CLAUDE.md` logging bullet (lambda syntax) and `.claude/rules/kotlin.md` if they describe JUL
       logging
 
@@ -155,8 +150,8 @@
 - [ ] 8.1 Run `openspec validate remove-personal-data-from-logging --strict` and fix what it reports
 - [ ] 8.2 Run `./gradlew spotlessApply detektApply`, then `./gradlew detekt` and fix what it reports
 - [ ] 8.3 Run `./gradlew test` (including `ArchitectureTest`) until green
-- [ ] 8.4 Rewrite the BRP case of `LoggingTest`: with `FINE` enabled, a BRP lookup by BSN logs one `OutboundRestCall`
-      record with its fields under `mdc`, and the logs contain neither the BSN (plain or masked) nor the date of birth
+- [ ] 8.4 Rewrite the BRP case of `LoggingTest`: with all logging of ZAC at `FINE`, the logs of a BRP lookup by BSN
+      contain neither the BSN (plain or masked), nor the date of birth, nor the path of the BRP call
 - [ ] 8.5 Run `./gradlew itest` until green
 - [ ] 8.6 Smoke-test locally with `FINE` enabled: log in, open a zaak, send a mail, run a BRP query, and check the
       log output for usernames, email addresses and payloads
