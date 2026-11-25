@@ -217,36 +217,13 @@ describe(ZaakViewComponent.name, () => {
       );
     });
 
-    const finishedActions = [
-      ["taakGestart", () => fixture.componentInstance["taakGestart"]()],
-      ["mailVerstuurd", () => fixture.componentInstance["mailVerstuurd"]()],
-      [
-        "ontvangstBevestigd",
-        () => fixture.componentInstance["ontvangstBevestigd"](),
-      ],
-      ["documentCreated", () => fixture.componentInstance["documentCreated"]()],
-      ["documentSent", () => fixture.componentInstance["documentSent"]()],
-      ["zaakLinked", () => fixture.componentInstance["zaakLinked"]()],
-      [
-        "locationSelected",
-        () => fixture.componentInstance["locationSelected"](),
-      ],
-      [
-        "besluitVastgelegd",
-        () => fixture.componentInstance["besluitVastgelegd"](),
-      ],
-    ] as const;
+    it("closes the sidenav and forgets both the panel and the plan item on documentCreated", () => {
+      fixture.componentInstance["documentCreated"]();
 
-    it.each(finishedActions)(
-      "closes the sidenav and forgets both the panel and the plan item on %s",
-      (_name, runAction) => {
-        runAction();
-
-        expect(closeSideNav).toHaveBeenCalled();
-        expect(sideActions.activeAction()).toBeNull();
-        expect(sideActions.actiefPlanItem()).toBeNull();
-      },
-    );
+      expect(closeSideNav).toHaveBeenCalled();
+      expect(sideActions.activeAction()).toBeNull();
+      expect(sideActions.actiefPlanItem()).toBeNull();
+    });
   });
 
   describe("panels the view switches to itself", () => {

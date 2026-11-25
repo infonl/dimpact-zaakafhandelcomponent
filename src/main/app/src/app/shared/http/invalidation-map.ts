@@ -151,24 +151,31 @@ const geautoriseerdeMedewerkers = (uuid: string) => [
   read("/rest/zaken/zaak/{uuid}/historie", { path: { uuid } }),
 ];
 
-const zaakByPath = {
-  refresh: ({ parameters }: { parameters: { path: { uuid: string } } }) =>
-    zaak(parameters.path.uuid),
-  markStale: zaakLijsten,
-};
+const byPathUuid =
+  (targets: (uuid: string) => readonly ReadTarget[]) =>
+  ({ parameters }: { parameters: { path: { uuid: string } } }) =>
+    targets(parameters.path.uuid);
+
+const zaakByPath = { refresh: byPathUuid(zaak), markStale: zaakLijsten };
 
 const zaakProcesByPath = {
-  refresh: ({ parameters }: { parameters: { path: { uuid: string } } }) =>
-    zaakProces(parameters.path.uuid),
+  refresh: byPathUuid(zaakProces),
   markStale: zaakLijsten,
 };
 
 const opschortingByPath = {
-  refresh: ({ parameters }: { parameters: { path: { uuid: string } } }) => [
-    ...zaakProces(parameters.path.uuid),
-    opschorting(parameters.path.uuid),
-  ],
+  refresh: byPathUuid((uuid) => [...zaakProces(uuid), opschorting(uuid)]),
   markStale: zaakLijsten,
+};
+
+const besluitByBody = {
+  refresh: ({
+    body,
+    response,
+  }: {
+    body?: { besluitUuid?: OptionalId };
+    response?: { zaakUuid?: OptionalId };
+  }) => [...besluitHistorie(body?.besluitUuid), ...zaak(response?.zaakUuid)],
 };
 
 const betrokkenenByResponse = {
@@ -486,18 +493,8 @@ export const INVALIDATION_MAP: InvalidationMap = {
       ...documentenVanZaak(body?.zaakUuid),
     ],
   },
-  "PUT /rest/zaken/besluit": {
-    refresh: ({ body, response }) => [
-      ...besluitHistorie(body?.besluitUuid),
-      ...zaak(response?.zaakUuid),
-    ],
-  },
-  "PUT /rest/zaken/besluit/intrekken": {
-    refresh: ({ body, response }) => [
-      ...besluitHistorie(body?.besluitUuid),
-      ...zaak(response?.zaakUuid),
-    ],
-  },
+  "PUT /rest/zaken/besluit": besluitByBody,
+  "PUT /rest/zaken/besluit/intrekken": besluitByBody,
   "POST /rest/zaken/betrokkene": betrokkenenByResponse,
   "DELETE /rest/zaken/betrokkene/{uuid}": betrokkenenByResponse,
   "PUT /rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken": {
@@ -544,14 +541,11 @@ export const INVALIDATION_MAP: InvalidationMap = {
   "PATCH /rest/zaken/zaak/{uuid}/suspend": opschortingByPath,
   "PATCH /rest/zaken/zaak/{uuid}/verlenging": zaakProcesByPath,
   "POST /rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers": {
-    refresh: ({ parameters }) =>
-      geautoriseerdeMedewerkers(parameters.path.uuid),
+    refresh: byPathUuid(geautoriseerdeMedewerkers),
   },
+  // ZakenService skips this rule for an employee who removes themselves: the request does not say who is logged in
   "DELETE /rest/zaken/zaak/{uuid}/zaakspecifiek-geautoriseerde-medewerkers/{medewerkerId}":
-    {
-      refresh: ({ parameters }) =>
-        geautoriseerdeMedewerkers(parameters.path.uuid),
-    },
+    { refresh: byPathUuid(geautoriseerdeMedewerkers) },
   "PUT /rest/zaken/zaakinformatieobjecten/ontkoppel": {
     refresh: ({ body }) => [
       search("/rest/ontkoppeldedocumenten"),

@@ -532,43 +532,15 @@ export class ZaakViewComponent
     });
   }
 
-  protected taakGestart() {
-    this.sideActions.reset();
-  }
-
-  protected mailVerstuurd() {
-    this.sideActions.reset();
-  }
-
-  protected ontvangstBevestigd() {
-    this.sideActions.reset();
-  }
-
   protected documentCreated() {
     this.sideActions.reset();
     this.updateZaak();
-  }
-
-  protected documentSent() {
-    this.sideActions.reset();
-  }
-
-  protected zaakLinked() {
-    this.sideActions.reset();
-  }
-
-  protected locationSelected() {
-    this.sideActions.reset();
   }
 
   protected startZaakOntkoppelenDialog(
     gerelateerdeZaak: GeneratedType<"RestGerelateerdeZaak">,
   ) {
     this.dialogs.openZaakOntkoppelen(this.zaak, gerelateerdeZaak);
-  }
-
-  protected besluitVastgelegd() {
-    this.sideActions.reset();
   }
 
   protected besluitWijzigen($event: GeneratedType<"RestBesluit">) {

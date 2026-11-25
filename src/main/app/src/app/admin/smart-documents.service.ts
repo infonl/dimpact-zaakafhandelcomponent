@@ -4,9 +4,9 @@
  */
 
 import { inject, Injectable } from "@angular/core";
+import type { MutationFunctionContext } from "@tanstack/angular-query-experimental";
 import { queryOptions } from "@tanstack/angular-query-experimental";
 import { PostBody } from "../shared/http/http-client";
-import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
@@ -52,17 +52,13 @@ export class SmartDocumentsService {
       { path: { zaakafhandelUUID } },
     );
 
-    return mergeMutationOptions(
-      {
-        ...store,
-        mutationFn: (
-          templateGroups: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[],
-          context,
-        ) =>
-          store.mutationFn!(this.convertToApiFormat(templateGroups), context),
-      },
-      {},
-    );
+    return {
+      ...store,
+      mutationFn: (
+        templateGroups: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[],
+        context: MutationFunctionContext,
+      ) => store.mutationFn!(this.convertToApiFormat(templateGroups), context),
+    };
   }
 
   private convertToApiFormat(

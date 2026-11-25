@@ -189,10 +189,6 @@ export class BpmnProcessDefinitionsComponent
       });
   }
 
-  protected refreshDefinitions() {
-    void this.processDefinitionsQuery.refetch();
-  }
-
   protected asProcessDefinition(
     node: Node,
   ): GeneratedType<"RestBpmnProcessDefinition"> {
