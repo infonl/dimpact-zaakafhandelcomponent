@@ -274,6 +274,28 @@ class ZacLoggerTest : BehaviorSpec({
         }
     }
 
+    context("Logging in a block of a request") {
+        given("the ID of a request") {
+            `when`("an event is logged in the block") {
+                val records = LogCapture(ZacLoggerTest::class).use { logCapture ->
+                    ZacLogger.withRequestId("fakeRequestId") {
+                        zacLogger.info(FakeZaakAssigned(zaakIdentificatie = "ZAAK-2026-0000000001", groupId = "test-group"))
+                    }
+                    logCapture.records
+                }
+                val mdcAfterBlock = MDC.getMap().toMap()
+
+                then("the record has the request ID, so that it can be traced back to its request without tracing") {
+                    records.single().mdc["requestId"] shouldBe "fakeRequestId"
+                }
+
+                and("the request ID is removed from the MDC after the block") {
+                    mdcAfterBlock shouldNotContainKey "requestId"
+                }
+            }
+        }
+    }
+
     context("Logging in a block of a logged-in employee") {
         given("the Keycloak user ID of the logged-in employee") {
             `when`("an event without an employee is logged in the block") {
