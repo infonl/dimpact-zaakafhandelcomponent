@@ -427,14 +427,12 @@ describe(ZaakLinkComponent.name, () => {
 
   it("turns the loading indicator off when the panel closes during a search", async () => {
     await setup();
-    jest
-      .spyOn(ZoekenService.prototype, "findLinkableZaken")
-      .mockReturnValue(
-        fromPartial({
-          queryKey: ["koppelbare zaken die niet terugkomen"],
-          queryFn: () => new Promise(() => undefined),
-        }),
-      );
+    jest.spyOn(ZoekenService.prototype, "findLinkableZaken").mockReturnValue(
+      fromPartial({
+        queryKey: ["koppelbare zaken die niet terugkomen"],
+        queryFn: () => new Promise(() => undefined),
+      }),
+    );
     await chooseRelationType("DEELZAAK");
     await enterSearchCriterion();
     await clickSearch();

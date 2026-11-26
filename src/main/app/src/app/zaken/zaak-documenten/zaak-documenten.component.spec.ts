@@ -651,10 +651,7 @@ describe(ZaakDocumentenComponent.name, () => {
         );
         notifyListener(rendered.addListener, "ZAAK_INFORMATIEOBJECTEN");
         await settle();
-        await flushList([
-          { ...fakeDocument, versie: 2 },
-          fakeEditableDocument,
-        ]);
+        await flushList([{ ...fakeDocument, versie: 2 }, fakeEditableDocument]);
       }
 
       it("keeps it ticked", async () => {

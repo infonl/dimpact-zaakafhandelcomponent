@@ -214,9 +214,7 @@ describe(TakenMijnComponent.name, () => {
     await sleep();
 
     httpTestingController
-      .expectOne(
-        "/rest/gebruikersvoorkeuren/aantal-per-pagina/MIJN_TAKEN/25",
-      )
+      .expectOne("/rest/gebruikersvoorkeuren/aantal-per-pagina/MIJN_TAKEN/25")
       .flush(null);
     httpTestingController
       .match("/rest/zoeken/list")
