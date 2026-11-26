@@ -51,8 +51,10 @@ class MailSendCompleted(
 Rules:
 
 * Put each event in its own file in a `log` package next to the code that logs it, for example
-  `nl/info/zac/mail/log/MailSendCompleted.kt`. Name it after what happened, without an `Event` suffix. A shared class
-  (see the next rule) is the exception: it holds several events about one subject, so it is named after that subject
+  `nl/info/zac/mail/log/MailSendCompleted.kt`. Name it after what happened, in the past tense and without an `Event`
+  suffix: an event that is logged before an action names its start, such as `ZaakSuspensionStarted`, never an
+  activity in the `-ing` form such as `ZaakSuspensionStarted`, which a unit test rejects. A shared class (see the next rule)
+  is the exception to the suffix: it holds several events about one subject, so it is named after that subject
   with the suffix `Event`, such as `ZaakEvent`, and each of its `Type` constants is named after what happened.
 * Reuse an event before you add one. Events with the same fields share one class with a nested `Type` enum that holds
   the fixed descriptions, such as `GenericEvent` (no fields), `ZaakEvent`, `InformatieobjectEvent`, `ZaaktypeEvent`
@@ -290,7 +292,7 @@ treated as personal data on its own.
   contact details or, failing that, the initiator role's digital address, then logs it: `LOG.fine("Sending
   mail to '$toAddress' from '$fromAddress' for zaak ...")`. Since `toAddress` is a real citizen or company
   contact address resolved from Open Klant/ZGW data, this is confirmed personal data, not a placeholder.
-  **Resolved for PZ-12683:** it logs one `ConfirmationMailSending` record with the recipient as a `@Redacted` field and the
+  **Resolved for PZ-12683:** it logs one `ConfirmationMailRecipientDetermined` record with the recipient as a `@Redacted` field and the
   source of the address, without the sender.
 - [`nl/info/zac/app/exception/RestExceptionMapper.kt`](../../src/main/kotlin/nl/info/zac/app/exception/RestExceptionMapper.kt) —
   its `generateResponse`/`handleZgwValidationErrorException` paths log `exception.message`, and for

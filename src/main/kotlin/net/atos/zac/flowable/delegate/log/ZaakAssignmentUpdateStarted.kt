@@ -4,11 +4,11 @@
  */
 package net.atos.zac.flowable.delegate.log
 
+import nl.info.zac.log.Employee
 import nl.info.zac.log.LogEvent
-import nl.info.zac.log.Redacted
 
-class ZaakMailSending(
+class ZaakAssignmentUpdateStarted(
     val zaakIdentificatie: String?,
-    val templateName: String,
-    @Redacted val recipient: String
-) : LogEvent("Sending mail for zaak")
+    val groupId: String,
+    val assignee: Employee?
+) : LogEvent("Zaak assignment update started")

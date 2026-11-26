@@ -105,7 +105,7 @@ class SendEmailDelegateTest : BehaviorSpec({
 
             then("the mail is logged with the zaak, the template and the recipient masked, and without the sender") {
                 with(records.single()) {
-                    message shouldBe "Sending mail for zaak"
+                    message shouldBe "Zaak mail send started"
                     mdc["zaakIdentificatie"] shouldBe zaak.identificatie
                     mdc["templateName"] shouldBe templateName
                     mdc["recipient"] shouldBe REDACTED_VALUE

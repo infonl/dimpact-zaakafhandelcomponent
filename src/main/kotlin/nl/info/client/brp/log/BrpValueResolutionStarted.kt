@@ -7,7 +7,7 @@ package nl.info.client.brp.log
 import nl.info.zac.log.LogEvent
 import java.util.UUID
 
-class BrpValueResolving(
+class BrpValueResolutionStarted(
     val valueDescription: String,
     val zaaktypeUuid: UUID
-) : LogEvent("Resolving BRP value for zaaktype")
+) : LogEvent("BRP value resolution for zaaktype started")

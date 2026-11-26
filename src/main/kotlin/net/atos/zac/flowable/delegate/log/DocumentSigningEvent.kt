@@ -13,7 +13,7 @@ class DocumentSigningEvent(
 ) : LogEvent(type.description) {
     enum class Type(val description: String) {
         DOCUMENT_ALREADY_SIGNED("Document is already signed"),
-        DOCUMENT_SIGNING("Signing document"),
+        DOCUMENT_SIGNING_STARTED("Document signing started"),
         DOCUMENT_SIGNING_DENIED("Document signing denied")
     }
 }
