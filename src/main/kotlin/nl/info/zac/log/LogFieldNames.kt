@@ -18,6 +18,7 @@ object LogFieldNames {
     const val INFORMATIEOBJECT_IDENTIFICATIE = "informatieobjectIdentificatie"
     const val GROUP_ID = "groupId"
     const val EMPLOYEE = "employee"
+    const val REQUEST_ID = "requestId"
     const val PROCESS_DEFINITION_KEY = "processDefinitionKey"
     const val CASE_DEFINITION_KEY = "caseDefinitionKey"
     const val OUTCOME = "outcome"
