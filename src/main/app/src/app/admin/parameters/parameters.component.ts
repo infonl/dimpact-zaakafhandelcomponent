@@ -53,6 +53,9 @@ import {
   ZaakafhandelParametersSortColumn,
 } from "./zaakafhandel-parameters-list-parameters";
 
+const ZAAKTYPE_CONFIGURATIES_RESOURCE_ID: GeneratedType<"FixedScreenEventResourceId"> =
+  "zaaktype-configuraties";
+
 @Component({
   templateUrl: "./parameters.component.html",
   styleUrls: ["./parameters.component.less"],
@@ -125,7 +128,7 @@ export class ParametersComponent extends AdminComponent implements OnInit {
     const zaaktypeConfiguratiesListener = this.websocketService.addListener(
       "UPDATED",
       "ZAAKTYPE_CONFIGURATIES",
-      "zaaktype-configuraties",
+      ZAAKTYPE_CONFIGURATIES_RESOURCE_ID,
       () =>
         void this.zaakafhandelParametersService.invalidateZaakafhandelParametersList(),
     );
