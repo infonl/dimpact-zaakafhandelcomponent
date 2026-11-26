@@ -105,7 +105,7 @@
     "stylelint": "18.1.0",
     "ts-node": "10.9.2",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.73.0",
+    "typescript-eslint": "8.74.0",
     "woff2-encoder": "2.0.0"
   }
 }
