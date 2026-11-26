@@ -135,7 +135,7 @@ jobs:
       # The custom resources of the Solr operator have no schema in the Kubernetes catalog. Skipping them by kind,
       # instead of with -ignore-missing-schemas, keeps a removed Kubernetes API a failure.
       - name: Validate the rendered manifests against the Kubernetes API
-        uses: docker://ghcr.io/yannh/kubeconform:v0.8.0
+        uses: docker://ghcr.io/yannh/kubeconform:v0.8.0@sha256:faffaf43f95aa6425306e1ab8d6fcad72acb9049158f38e574c085ea1ec0f64e
         with:
           args: >-
             -strict -summary
