@@ -12,6 +12,7 @@
 [shard 1]
 
 # specs annotated with @Isolate
+nl.info.zac.itest.MailtemplateBeheerRestServiceProtectionTest
 nl.info.zac.itest.ZaakRestServiceTest
 nl.info.zac.itest.bpmn.ZaaktypeConfigurationRestServiceBpmnProcessDefinitionTest
 
