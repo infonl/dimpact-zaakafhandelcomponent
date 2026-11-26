@@ -20,6 +20,9 @@ import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
+import { ScreenEvent } from "../../core/websocket/model/screen-event";
+import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
+import { WebsocketService } from "../../core/websocket/websocket.service";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -55,6 +58,35 @@ const fakePage = (
     ...page,
   });
 
+type WebsocketCallback = Parameters<WebsocketService["addListener"]>[3];
+
+function mockWebsocketListener() {
+  const websocketService = TestBed.inject(WebsocketService);
+  const listener = fromPartial<WebsocketListener>({});
+  let zaaktypeConfiguratiesChanged: WebsocketCallback | undefined;
+  const addListener = jest
+    .spyOn(websocketService, "addListener")
+    .mockImplementation((_opcode, _objectType, _objectId, callback) => {
+      zaaktypeConfiguratiesChanged = callback;
+      return listener;
+    });
+  const removeListener = jest
+    .spyOn(websocketService, "removeListener")
+    .mockImplementation();
+  return {
+    listener,
+    addListener,
+    removeListener,
+    sendZaaktypeConfiguratiesEvent: () =>
+      zaaktypeConfiguratiesChanged?.(
+        new ScreenEvent("UPDATED", "ZAAKTYPE_CONFIGURATIES", {
+          resource: "zaaktype-configuraties",
+          detail: null,
+        }),
+      ),
+  };
+}
+
 const configureTestingModule = () =>
   TestBed.configureTestingModule({
     imports: [ParametersComponent, NoopAnimationsModule, MatNativeDateModule],
@@ -72,6 +104,7 @@ const configureTestingModule = () =>
 describe(ParametersComponent.name, () => {
   let fixture: ComponentFixture<ParametersComponent>;
   let httpTestingController: HttpTestingController;
+  let websocketMock: ReturnType<typeof mockWebsocketListener>;
 
   async function render() {
     httpTestingController = TestBed.inject(HttpTestingController);
@@ -120,9 +153,12 @@ describe(ParametersComponent.name, () => {
   beforeEach(async () => {
     await configureTestingModule();
     sessionStorage.clear();
+    websocketMock = mockWebsocketListener();
   });
 
   afterEach(() => {
+    // destroys the page while removeListener is still mocked
+    TestBed.resetTestingModule();
     jest.restoreAllMocks();
     focusManager.setFocused(undefined);
   });
@@ -192,7 +228,18 @@ describe(ParametersComponent.name, () => {
     expect(screen.getByText("Fake procesmodel")).toBeVisible();
   });
 
-  it("reads the configurations again when the beheerder comes back to the browser tab, so that a configuration that ZAC created meanwhile shows its procesmodel", async () => {
+  it("listens to the ZAAKTYPE_CONFIGURATIES screen event while the page is open", async () => {
+    await render();
+
+    expect(websocketMock.addListener).toHaveBeenCalledWith(
+      "UPDATED",
+      "ZAAKTYPE_CONFIGURATIES",
+      "zaaktype-configuraties",
+      expect.any(Function),
+    );
+  });
+
+  it("reads the configurations again when ZAC signals ZAAKTYPE_CONFIGURATIES, keeping the shown rows meanwhile, so that a configuration that ZAC created meanwhile shows its procesmodel", async () => {
     const zaaktypeConfigurationWithoutProcessDefinition = {
       ...fakeZaaktypeConfigurationOverzicht("Nieuwe versie"),
       processDefinition: undefined,
@@ -202,13 +249,46 @@ describe(ParametersComponent.name, () => {
       resultaten: [zaaktypeConfigurationWithoutProcessDefinition],
     });
 
-    focusManager.setFocused(false);
-    focusManager.setFocused(true);
-    await answer(await expectPageRequest(), {
+    websocketMock.sendZaaktypeConfiguratiesEvent();
+    const refreshRequest = await expectPageRequest();
+    fixture.detectChanges();
+
+    expect(
+      screen.getByRole("row", { name: /Nieuwe versie/ }),
+    ).not.toHaveTextContent("Fake procesmodel");
+
+    await answer(refreshRequest, {
       resultaten: [fakeZaaktypeConfigurationOverzicht("Nieuwe versie")],
     });
 
-    expect(screen.getByText("Fake procesmodel")).toBeVisible();
+    expect(
+      screen.getByRole("row", { name: /Nieuwe versie/ }),
+    ).toHaveTextContent("Fake procesmodel");
+  });
+
+  it("does not read the configurations again when the beheerder comes back to the browser tab", async () => {
+    await render();
+    await answer(await expectPageRequest(), {
+      resultaten: [fakeZaaktypeConfigurationOverzicht()],
+    });
+
+    focusManager.setFocused(false);
+    focusManager.setFocused(true);
+    await sleep();
+
+    httpTestingController.expectNone(
+      ({ url }) => url.split("?")[0] === "/rest/zaakafhandelparameters",
+    );
+  });
+
+  it("stops listening to the ZAAKTYPE_CONFIGURATIES screen event when the page is closed", async () => {
+    await render();
+
+    fixture.destroy();
+
+    expect(websocketMock.removeListener).toHaveBeenCalledWith(
+      websocketMock.listener,
+    );
   });
 
   it("reads the next page when the beheerder goes to the next page", async () => {
@@ -475,6 +555,7 @@ describe(`${ParametersComponent.name} on a second visit`, () => {
   it("shows the cached rows of the page it showed before", async () => {
     await configureTestingModule();
     sessionStorage.clear();
+    mockWebsocketListener();
     testQueryClient.setQueryData(
       TestBed.inject(ZaakafhandelParametersService).listZaakafhandelParameters(
         toZaaktypeConfigurationListQuery(

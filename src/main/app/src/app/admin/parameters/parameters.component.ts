@@ -6,6 +6,7 @@
 import {
   Component,
   computed,
+  DestroyRef,
   effect,
   inject,
   OnInit,
@@ -31,6 +32,7 @@ import {
   injectQuery,
   keepPreviousData,
 } from "@tanstack/angular-query-experimental";
+import { WebsocketService } from "../../core/websocket/websocket.service";
 import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { StaleTimes } from "../../shared/http/zac-query-client";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
@@ -50,6 +52,9 @@ import {
   ZaakafhandelParametersListParameters,
   ZaakafhandelParametersSortColumn,
 } from "./zaakafhandel-parameters-list-parameters";
+
+const ZAAKTYPE_CONFIGURATIES_RESOURCE_ID: GeneratedType<"FixedScreenEventResourceId"> =
+  "zaaktype-configuraties";
 
 @Component({
   templateUrl: "./parameters.component.html",
@@ -80,6 +85,8 @@ export class ParametersComponent extends AdminComponent implements OnInit {
   private readonly zaakafhandelParametersService = inject(
     ZaakafhandelParametersService,
   );
+  private readonly websocketService = inject(WebsocketService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
@@ -98,7 +105,6 @@ export class ParametersComponent extends AdminComponent implements OnInit {
     ),
     placeholderData: keepPreviousData,
     staleTime: StaleTimes.Instant,
-    refetchOnWindowFocus: true,
   }));
   protected readonly loading = computed(() => this.parametersQuery.isPending());
   protected readonly hasNoParameters = computed(
@@ -119,6 +125,16 @@ export class ParametersComponent extends AdminComponent implements OnInit {
 
   constructor() {
     super();
+    const zaaktypeConfiguratiesListener = this.websocketService.addListener(
+      "UPDATED",
+      "ZAAKTYPE_CONFIGURATIES",
+      ZAAKTYPE_CONFIGURATIES_RESOURCE_ID,
+      () =>
+        void this.zaakafhandelParametersService.invalidateZaakafhandelParametersList(),
+    );
+    this.destroyRef.onDestroy(() =>
+      this.websocketService.removeListener(zaaktypeConfiguratiesListener),
+    );
     effect(() => {
       this.parameters.data = [
         ...(this.parametersQuery.data()?.resultaten ?? []),

@@ -39,6 +39,7 @@ import nl.info.zac.signalering.model.SignaleringVerzondenZoekParameters
 import nl.info.zac.signalering.model.SignaleringZoekParameters
 import nl.info.zac.task.TaskService
 import nl.info.zac.websocket.event.ScreenEvent
+import nl.info.zac.websocket.event.ScreenEventType
 import java.net.URI
 import java.util.UUID
 
@@ -123,16 +124,70 @@ class NotificationReceiverTest : BehaviorSpec({
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
         every { zaaktypeConfigurationBeheerService.updateZaaktypeConfiguration(zaaktypeUri) } just runs
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
 
         `when`("notificatieReceive is called with the zaaktype create notificatie") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
 
             then(
-                "the zaaktype aanvraag service is invoked and a 'no content' response is returned"
+                """the zaaktype configuration is updated, after that the ZAAKTYPE_CONFIGURATIES screen event is sent,
+                and a 'no content' response is returned"""
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
-                verify(exactly = 1) {
+                verifyOrder {
                     zaaktypeConfigurationBeheerService.updateZaaktypeConfiguration(zaaktypeUri)
+                    eventingService.send(ScreenEventType.ZAAKTYPE_CONFIGURATIES.updated("zaaktype-configuraties"))
+                }
+            }
+        }
+    }
+
+    given("a request containing a authorization header and a zaaktype destroy notificatie") {
+        val notificatie = createNotificatie(
+            resource = Resource.ZAAKTYPE,
+            resourceUrl = URI("https://example.com/fakezaaktype/${UUID.randomUUID()}"),
+            action = Action.DELETE
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+
+        `when`("notificatieReceive is called with the zaaktype destroy notificatie") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            then(
+                "no zaaktype configuration is updated, no screen event is sent and a 'no content' response is returned"
+            ) {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 0) {
+                    zaaktypeConfigurationBeheerService.updateZaaktypeConfiguration(any())
+                    eventingService.send(any<ScreenEvent>())
+                }
+            }
+        }
+    }
+
+    given(
+        "a request containing a authorization header and a zaaktype update notificatie for a zaaktype that cannot be read"
+    ) {
+        val zaaktypeUri = URI("https://example.com/fakezaaktype/${UUID.randomUUID()}")
+        val notificatie = createNotificatie(
+            resource = Resource.ZAAKTYPE,
+            resourceUrl = zaaktypeUri,
+            action = Action.UPDATE
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+        every {
+            zaaktypeConfigurationBeheerService.updateZaaktypeConfiguration(zaaktypeUri)
+        } throws ServiceUnavailableException("fakeOpenZaakUnavailable")
+
+        `when`("notificatieReceive is called with the zaaktype update notificatie") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            then("no screen event is sent and a 'no content' response is returned") {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 0) {
+                    eventingService.send(any<ScreenEvent>())
                 }
             }
         }
@@ -154,11 +209,14 @@ class NotificationReceiverTest : BehaviorSpec({
 
             then(
                 """only that besluittype is removed from the ZTC caches, so that a changed einde geldigheid is not
-                kept in the cache, and a 'no content' response is returned"""
+                kept in the cache, no screen event is sent, and a 'no content' response is returned"""
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
                     ztcClientService.invalidateBesluittype(notificatie.resourceUrl, isDeleted = false)
+                }
+                verify(exactly = 0) {
+                    eventingService.send(any<ScreenEvent>())
                 }
             }
         }
@@ -201,16 +259,19 @@ class NotificationReceiverTest : BehaviorSpec({
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
         every { zaaktypeConfigurationBeheerService.updateZaaktypeConfiguration(zaaktypeUri) } just runs
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
 
-        `when`("notificatieReceive is called with the zaaktype create notificatie") {
+        `when`("notificatieReceive is called with the zaaktype update notificatie") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
 
             then(
-                "the zaaktype aanvraag service is invoked and a 'no content' response is returned"
+                """the zaaktype configuration is updated, after that the ZAAKTYPE_CONFIGURATIES screen event is sent,
+                and a 'no content' response is returned"""
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
-                verify(exactly = 1) {
+                verifyOrder {
                     zaaktypeConfigurationBeheerService.updateZaaktypeConfiguration(zaaktypeUri)
+                    eventingService.send(ScreenEventType.ZAAKTYPE_CONFIGURATIES.updated("zaaktype-configuraties"))
                 }
             }
         }
@@ -227,7 +288,7 @@ class NotificationReceiverTest : BehaviorSpec({
         )
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns null
 
-        `when`("notificatieReceive is called with the zaaktype create notificatie") {
+        `when`("notificatieReceive is called with the zaaktype update notificatie") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
 
             then(
