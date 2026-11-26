@@ -19,7 +19,7 @@ The Zaakafhandelparameters page lists the configurations of all zaaktype version
 
 ### D1. A screen event type for the list of zaaktype configurations
 
-`ScreenEventType` gets `ZAAKTYPE_CONFIGURATIES`, without an object of its own, like `ZAKEN_VERDELEN`. ZAC sends it with opcode `UPDATED` and the fixed id `zaaktype-configuraties`, through `ScreenEventType.updated(eventResourceId)`.
+`ScreenEventType` gets `ZAAKTYPE_CONFIGURATIES`, without an object of its own, like `ZAKEN_VERDELEN`. ZAC sends it with opcode `UPDATED` and the fixed id `zaaktype-configuraties`, through `ScreenEventType.updated(eventResourceId)`. The id is the backend constant `FixedScreenEventResourceId.ZAAKTYPE_CONFIGURATIES`, exposed as the OpenAPI schema `FixedScreenEventResourceId`, so the frontend subscribes with a generated type and a different id does not compile.
 
 The page shows all zaaktype versions at once and cannot know the UUID of a new version before it exists, so the event does not carry a zaaktype UUID.
 
@@ -31,7 +31,7 @@ The event is also sent for a concept version, and for an update that changes no 
 
 Mapping the `zaaktypen` channel in `ScreenEventType.getEvents` is not chosen: that event would also go out when `handleZaaktype` fails, and it would carry the UUID of the zaaktype version as its id.
 
-This follows [ADR 0008](../../../docs/solution-architecture/decisions/0008-update-the-ui-without-waiting-for-notifications-on-zac-initiated-changes.md): a change made by another system, here Open Zaak, reaches the UI through its notification.
+This follows [ADR 0008](../../../../docs/solution-architecture/decisions/0008-update-the-ui-without-waiting-for-notifications-on-zac-initiated-changes.md): a change made by another system, here Open Zaak, reaches the UI through its notification.
 
 ### D3. The page invalidates its list on the event
 
