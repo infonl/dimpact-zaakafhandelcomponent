@@ -223,7 +223,7 @@ export class ZaakDocumentenComponent implements AfterViewInit {
     signal<GeneratedType<"RestEnkelvoudigInformatieobject"> | null>(null);
   downloadAlsZipSelection = new SelectionModel<
     GeneratedType<"RestEnkelvoudigInformatieobject">
-  >(true, []);
+  >(true, [], true, (a, b) => a.uuid === b.uuid);
   protected readonly selectedDocuments = toSignal(
     this.downloadAlsZipSelection.changed.pipe(
       map(() => this.downloadAlsZipSelection.selected),
@@ -402,6 +402,12 @@ export class ZaakDocumentenComponent implements AfterViewInit {
     this.linkedDocumentsEnabled.set(enabled);
     this.downloadAlsZipSelection.clear();
     this.selectAll.set(false);
+  }
+
+  protected isSelectedForZip(
+    document: GeneratedType<"RestEnkelvoudigInformatieobject">,
+  ) {
+    return this.selectedDocuments().some(({ uuid }) => uuid === document.uuid);
   }
 
   updateSelected(document: GeneratedType<"RestEnkelvoudigInformatieobject">) {
