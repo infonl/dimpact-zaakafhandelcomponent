@@ -60,27 +60,28 @@ class SignaleringEventObserver @Inject constructor(
 
     private fun handle(event: SignaleringEvent<*>) {
         val signalering = buildSignalering(event) ?: run {
-            LOG.fine { event.toSignaleringEventHandled(SignaleringEventResult.NO_SIGNALERING) }
+            LOG.fine { event.toSignaleringEventHandled(result = SignaleringEventResult.NO_SIGNALERING, signalering = null) }
             return
         }
         if (!signaleringService.isNecessary(signalering, event.actor)) {
-            LOG.fine { event.toSignaleringEventHandled(SignaleringEventResult.UNNECESSARY) }
+            LOG.fine { event.toSignaleringEventHandled(result = SignaleringEventResult.UNNECESSARY, signalering = signalering) }
             return
         }
 
         val subscriptions = signaleringService.readInstellingen(signalering)
-        LOG.fine {
-            event.toSignaleringEventHandled(
-                result = SignaleringEventResult.SUBSCRIPTIONS_APPLIED,
-                isDashboard = subscriptions.isDashboard,
-                isMail = subscriptions.isMail
-            )
-        }
         if (subscriptions.isDashboard) {
             signaleringService.storeSignalering(signalering)
         }
         if (subscriptions.isMail) {
             signaleringService.sendSignalering(signalering)
+        }
+        LOG.fine {
+            event.toSignaleringEventHandled(
+                result = SignaleringEventResult.SUBSCRIPTIONS_APPLIED,
+                signalering = signalering,
+                isDashboard = subscriptions.isDashboard,
+                isMail = subscriptions.isMail
+            )
         }
     }
 
@@ -223,12 +224,15 @@ private fun RolMedewerker.toUsername() =
 
 private fun SignaleringEvent<*>.toSignaleringEventHandled(
     result: SignaleringEventResult,
+    signalering: Signalering?,
     isDashboard: Boolean = false,
     isMail: Boolean = false
 ) = SignaleringEventHandled(
     signaleringType = objectType,
     objectId = objectId.toString(),
     result = result,
+    subjecttype = signalering?.subjecttype,
+    subject = signalering?.subject,
     isDashboard = isDashboard,
     isMail = isMail
 )

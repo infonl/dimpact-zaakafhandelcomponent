@@ -5,6 +5,7 @@
 package nl.info.zac.search.log
 
 import nl.info.zac.log.LogEvent
+import nl.info.zac.log.Outcome
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 
 @Suppress("LongParameterList")
@@ -14,5 +15,8 @@ class ReindexingFinished(
     val totalCount: Int,
     val skippedCount: Int,
     val errorCount: Int,
-    val solrDocumentCount: Long?
-) : LogEvent("Reindexing finished")
+    val solrDocumentCount: Long?,
+    val durationMs: Long?
+) : LogEvent("Reindexing finished") {
+    val outcome = Outcome.SUCCESS
+}

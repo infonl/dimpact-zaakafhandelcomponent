@@ -22,6 +22,7 @@ import nl.info.client.zgw.ztc.log.ZtcCacheRefreshFailed
 import nl.info.client.zgw.ztc.log.ZtcCacheRefreshed
 import nl.info.client.zgw.ztc.log.ZtcCachesWritten
 import nl.info.client.zgw.ztc.log.ZtcRead
+import nl.info.client.zgw.ztc.log.ZtcReadOperation
 import nl.info.client.zgw.ztc.model.BesluittypeListParameters
 import nl.info.client.zgw.ztc.model.CatalogusListParameters
 import nl.info.client.zgw.ztc.model.EigenschapListParameters
@@ -170,7 +171,7 @@ class ZtcClientService @Inject constructor(
      * @return [ZaakType]. Never 'null'!
      */
     fun readZaaktype(zaaktypeUuid: UUID): ZaakType = uuidToZaakTypeCache.get(zaaktypeUuid) {
-        LOG.fine { ZtcRead(operation = "readZaaktype", parameters = listOf("$zaaktypeUuid")) }
+        LOG.fine { ZtcRead(operation = ZtcReadOperation.READ_ZAAKTYPE, parameters = listOf("$zaaktypeUuid")) }
         ztcClient.zaaktypeRead(zaaktypeUuid)
     }
 
@@ -181,7 +182,7 @@ class ZtcClientService @Inject constructor(
      * @return List of [ZaakType] instances
      */
     fun listZaaktypen(catalogusURI: URI): List<ZaakType> = uriToZaakTypeListCache.get(catalogusURI) {
-        LOG.fine { ZtcRead(operation = "listZaaktypen", parameters = listOf("$catalogusURI")) }
+        LOG.fine { ZtcRead(operation = ZtcReadOperation.LIST_ZAAKTYPEN, parameters = listOf("$catalogusURI")) }
         fetchZaaktypen(catalogusURI).onEach { zaaktype -> uuidToZaakTypeCache.put(zaaktype.url.extractUuid(), zaaktype) }
     }
 
@@ -207,7 +208,7 @@ class ZtcClientService @Inject constructor(
      * @return [StatusType]. Never 'null'!
      */
     fun readStatustype(statustypeUUID: UUID): StatusType = uuidToStatusTypeCache.get(statustypeUUID) {
-        LOG.fine { ZtcRead(operation = "readStatustype", parameters = listOf("$statustypeUUID")) }
+        LOG.fine { ZtcRead(operation = ZtcReadOperation.READ_STATUSTYPE, parameters = listOf("$statustypeUUID")) }
         ztcClient.statustypeRead(statustypeUUID)
     }
 
@@ -218,7 +219,7 @@ class ZtcClientService @Inject constructor(
      * @return list of [StatusType].
      */
     fun readStatustypen(zaaktypeURI: URI): List<StatusType> = uriToStatusTypeListCache.get(zaaktypeURI) {
-        LOG.fine { ZtcRead(operation = "readStatustypen", parameters = listOf("$zaaktypeURI")) }
+        LOG.fine { ZtcRead(operation = ZtcReadOperation.READ_STATUSTYPEN, parameters = listOf("$zaaktypeURI")) }
         ztcClient.statustypeList(StatustypeListParameters(zaaktypeURI)).singlePageResults
     }
 
@@ -230,7 +231,7 @@ class ZtcClientService @Inject constructor(
      */
     fun readZaaktypeInformatieobjecttypen(zaaktypeURI: URI): List<ZaakTypeInformatieObjectType> =
         uriToZaakTypeInformatieObjectTypeListCache.get(zaaktypeURI) {
-            LOG.fine { ZtcRead(operation = "readZaaktypeInformatieobjecttypen", parameters = listOf("$zaaktypeURI")) }
+            LOG.fine { ZtcRead(operation = ZtcReadOperation.READ_ZAAKTYPE_INFORMATIEOBJECTTYPEN, parameters = listOf("$zaaktypeURI")) }
             ztcClient.zaaktypeinformatieobjecttypeList(ZaaktypeInformatieobjecttypeListParameters(zaaktypeURI))
                 .singlePageResults
         }
@@ -243,7 +244,7 @@ class ZtcClientService @Inject constructor(
      */
     fun readInformatieobjecttypen(zaaktypeURI: URI): List<InformatieObjectType> =
         uriToInformatieObjectTypeListCache.get(zaaktypeURI) {
-            LOG.fine { ZtcRead(operation = "readInformatieobjecttypen", parameters = listOf("$zaaktypeURI")) }
+            LOG.fine { ZtcRead(operation = ZtcReadOperation.READ_INFORMATIEOBJECTTYPEN, parameters = listOf("$zaaktypeURI")) }
             readZaaktypeInformatieobjecttypen(zaaktypeURI)
                 .map { zaaktypeInformatieobjecttype -> readInformatieobjecttype(zaaktypeInformatieobjecttype.informatieobjecttype) }
         }
@@ -274,7 +275,7 @@ class ZtcClientService @Inject constructor(
      * @return [BesluitType]. Never 'null'!
      */
     fun readBesluittype(besluittypeUUID: UUID): BesluitType = uuidToBesluitTypeCache.get(besluittypeUUID) {
-        LOG.fine { ZtcRead(operation = "readBesluittype", parameters = listOf("$besluittypeUUID")) }
+        LOG.fine { ZtcRead(operation = ZtcReadOperation.READ_BESLUITTYPE, parameters = listOf("$besluittypeUUID")) }
         ztcClient.besluittypeRead(besluittypeUUID)
     }
 
@@ -285,7 +286,7 @@ class ZtcClientService @Inject constructor(
      * @return list of [BesluitType].
      */
     fun readBesluittypen(zaaktypeURI: URI): List<BesluitType> = uriToBesluitTypeListCache.get(zaaktypeURI) {
-        LOG.fine { ZtcRead(operation = "readBesluittypen", parameters = listOf("$zaaktypeURI")) }
+        LOG.fine { ZtcRead(operation = ZtcReadOperation.READ_BESLUITTYPEN, parameters = listOf("$zaaktypeURI")) }
         ztcClient.besluittypeList(BesluittypeListParameters(zaaktypeURI)).singlePageResults
     }
 
@@ -297,7 +298,7 @@ class ZtcClientService @Inject constructor(
      * @return [ResultaatType]. Never 'null'!
      */
     fun readResultaattype(resultaattypeUUID: UUID): ResultaatType = uuidToResultaatTypeCache.get(resultaattypeUUID) {
-        LOG.fine { ZtcRead(operation = "readResultaattype", parameters = listOf("$resultaattypeUUID")) }
+        LOG.fine { ZtcRead(operation = ZtcReadOperation.READ_RESULTAATTYPE, parameters = listOf("$resultaattypeUUID")) }
         ztcClient.resultaattypeRead(resultaattypeUUID)
     }
 
@@ -308,7 +309,7 @@ class ZtcClientService @Inject constructor(
      * @return list of [ResultaatType].
      */
     fun readResultaattypen(zaaktypeURI: URI): List<ResultaatType> = uriToResultaatTypeListCache.get(zaaktypeURI) {
-        LOG.fine { ZtcRead(operation = "readResultaattypen", parameters = listOf("$zaaktypeURI")) }
+        LOG.fine { ZtcRead(operation = ZtcReadOperation.READ_RESULTAATTYPEN, parameters = listOf("$zaaktypeURI")) }
         ztcClient.resultaattypeList(ResultaattypeListParameters(zaaktypeURI)).singlePageResults
     }
 
@@ -322,7 +323,7 @@ class ZtcClientService @Inject constructor(
      */
     fun findRoltypen(zaaktypeURI: URI, roltypeOmschrijving: String?): List<RolType> =
         uriOmschrijvingEnumToRolTypeCache.get("$zaaktypeURI$roltypeOmschrijving") {
-            LOG.fine { ZtcRead(operation = "findRoltypen", parameters = listOf("$zaaktypeURI", "$roltypeOmschrijving")) }
+            LOG.fine { ZtcRead(operation = ZtcReadOperation.FIND_ROLTYPEN, parameters = listOf("$zaaktypeURI", "$roltypeOmschrijving")) }
             ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI)).results().filter { rolType ->
                 // No query parameter is available for roltypeOmschrijving, so we filter here. See:
                 // https://github.com/open-zaak/open-zaak/issues/1933
@@ -340,7 +341,9 @@ class ZtcClientService @Inject constructor(
      */
     fun findRoltypen(zaaktypeURI: URI, omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum): List<RolType> =
         uriOmschrijvingGeneriekEnumToRolTypeCache.get("$zaaktypeURI$omschrijvingGeneriekEnum") {
-            LOG.fine { ZtcRead(operation = "findRoltypen", parameters = listOf("$zaaktypeURI", "$omschrijvingGeneriekEnum")) }
+            LOG.fine {
+                ZtcRead(operation = ZtcReadOperation.FIND_ROLTYPEN, parameters = listOf("$zaaktypeURI", "$omschrijvingGeneriekEnum"))
+            }
             ztcClient.roltypeListGeneriek(
                 RoltypeListGeneriekParameters(zaaktypeURI, omschrijvingGeneriekEnum)
             ).results()
@@ -362,7 +365,7 @@ class ZtcClientService @Inject constructor(
      * @return list of [RolType]s.
      */
     fun listRoltypen(): List<RolType> = rolTypeListCache.get(Caching.ZTC_ROLTYPE) {
-        LOG.fine { ZtcRead(operation = "listRoltypen", parameters = listOf()) }
+        LOG.fine { ZtcRead(operation = ZtcReadOperation.LIST_ROLTYPEN, parameters = listOf()) }
         ztcClient.roltypeList().results()
     }
 
@@ -374,7 +377,7 @@ class ZtcClientService @Inject constructor(
      * @return [RolType]. Never 'null'!
      */
     fun readRoltype(roltypeUUID: UUID): RolType = uuidToRolTypeCache.get(roltypeUUID) {
-        LOG.fine { ZtcRead(operation = "readRoltype", parameters = listOf("$roltypeUUID")) }
+        LOG.fine { ZtcRead(operation = ZtcReadOperation.READ_ROLTYPE, parameters = listOf("$roltypeUUID")) }
         ztcClient.roltypeRead(roltypeUUID)
     }
 
@@ -391,7 +394,9 @@ class ZtcClientService @Inject constructor(
      */
     fun readRoltype(zaaktypeURI: URI, omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum): RolType =
         uriOmschrijvingGeneriekEnumToRolTypeCache.get("$zaaktypeURI$omschrijvingGeneriekEnum") {
-            LOG.fine { ZtcRead(operation = "readRoltype", parameters = listOf("$zaaktypeURI", "$omschrijvingGeneriekEnum")) }
+            LOG.fine {
+                ZtcRead(operation = ZtcReadOperation.READ_ROLTYPE, parameters = listOf("$zaaktypeURI", "$omschrijvingGeneriekEnum"))
+            }
             ztcClient.roltypeListGeneriek(RoltypeListGeneriekParameters(zaaktypeURI, omschrijvingGeneriekEnum)).results()
         }.firstOrNull() ?: throw
             RoltypeNotFoundException(
@@ -438,7 +443,7 @@ class ZtcClientService @Inject constructor(
      */
     fun readInformatieobjecttype(informatieobjecttypeUUID: UUID): InformatieObjectType =
         uuidToInformatieObjectTypeCache.get(informatieobjecttypeUUID) {
-            LOG.fine { ZtcRead(operation = "readInformatieobjecttype", parameters = listOf("$informatieobjecttypeUUID")) }
+            LOG.fine { ZtcRead(operation = ZtcReadOperation.READ_INFORMATIEOBJECTTYPE, parameters = listOf("$informatieobjecttypeUUID")) }
             ztcClient.informatieObjectTypeRead(informatieobjecttypeUUID)
         }
 
@@ -447,7 +452,7 @@ class ZtcClientService @Inject constructor(
         status: EigenschapListParametersStatus = EigenschapListParametersStatus.DEFINITIEF
     ) =
         uriToEigenschappenCache.get(zaaktype) {
-            LOG.fine { ZtcRead(operation = "readEigenschappen", parameters = listOf("$zaaktype", "$status")) }
+            LOG.fine { ZtcRead(operation = ZtcReadOperation.READ_EIGENSCHAPPEN, parameters = listOf("$zaaktype", "$status")) }
             val response = ztcClient.eigenschapList(
                 EigenschapListParameters().apply {
                     this.zaaktype = zaaktype
