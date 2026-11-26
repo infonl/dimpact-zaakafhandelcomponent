@@ -15,7 +15,7 @@ class LogFieldNamesTest : BehaviorSpec({
     val synonymsOfStandardFieldNames = setOf(
         "zaakId", "zaakUUID", "zaakID", "zaakIdentification", "uuid", "user", "username", "userId", "userName",
         "medewerker", "behandelaarId", "groepId", "groupID", "taskId", "informatieobjectUUID", "duration",
-        "durationMillis", "exceptionType", "traceID", "spanID", "event"
+        "durationMillis", "exceptionType", "traceID", "spanID", "event", "requestID", "correlationId"
     )
 
     fun Class<*>.fieldsNamedAfterASynonym() =

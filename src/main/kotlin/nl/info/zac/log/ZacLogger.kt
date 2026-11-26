@@ -36,13 +36,22 @@ class ZacLogger private constructor(private val logger: Logger) {
          * that every record written in the block has that field, without an event of its own naming the employee and
          * without a lookup.
          */
-        fun <T> withLoggedInEmployee(keycloakUserId: String, block: () -> T): T {
-            val previousKeycloakUserId = MDC.get(LogFieldNames.EMPLOYEE)
-            MDC.put(LogFieldNames.EMPLOYEE, keycloakUserId)
+        fun <T> withLoggedInEmployee(keycloakUserId: String, block: () -> T): T =
+            withMdcEntry(LogFieldNames.EMPLOYEE, keycloakUserId, block)
+
+        /**
+         * Runs [block] with [requestId] as [LogFieldNames.REQUEST_ID] in the MDC, so that every record written in the
+         * block can be traced back to its request, also when tracing is disabled and no trace ID is written.
+         */
+        fun <T> withRequestId(requestId: String, block: () -> T): T = withMdcEntry(LogFieldNames.REQUEST_ID, requestId, block)
+
+        private fun <T> withMdcEntry(key: String, value: String, block: () -> T): T {
+            val previousValue = MDC.get(key)
+            MDC.put(key, value)
             try {
                 return block()
             } finally {
-                previousKeycloakUserId?.let { MDC.put(LogFieldNames.EMPLOYEE, it) } ?: MDC.remove(LogFieldNames.EMPLOYEE)
+                previousValue?.let { MDC.put(key, it) } ?: MDC.remove(key)
             }
         }
     }

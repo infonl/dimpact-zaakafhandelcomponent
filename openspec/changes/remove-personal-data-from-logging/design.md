@@ -227,6 +227,11 @@ when that span context is valid. When tracing is disabled the span context is in
 All records of one request can then be found through `traceId`, and a record leads to its trace in the tracing
 backend.
 
+Tracing is disabled by default (`tracing.enabled: false` in the Helm chart), so `traceId` alone cannot tie the records
+of a request together. `UserPrincipalFilter`, the first filter of every HTTP request, therefore runs the request inside
+`ZacLogger.withRequestId(...)` with a new random UUID, which puts the field `requestId` in the MDC for the whole
+request, with or without a logged-in employee and with or without tracing.
+
 ### 4. Enforcement: an ArchUnit rule, plus Detekt `ForbiddenImport` for early feedback
 
 The ArchUnit rules in `ArchitectureTest`: no class in `nl.info..` or `net.atos..` outside `nl.info.zac.log..` may
