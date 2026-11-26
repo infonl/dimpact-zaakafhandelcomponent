@@ -6,6 +6,7 @@
 import {
   Component,
   computed,
+  DestroyRef,
   effect,
   inject,
   OnInit,
@@ -30,7 +31,9 @@ import { TranslatePipe } from "@ngx-translate/core";
 import {
   injectQuery,
   keepPreviousData,
+  QueryClient,
 } from "@tanstack/angular-query-experimental";
+import { WebsocketService } from "../../core/websocket/websocket.service";
 import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { StaleTimes } from "../../shared/http/zac-query-client";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
@@ -98,7 +101,6 @@ export class ParametersComponent extends AdminComponent implements OnInit {
     ),
     placeholderData: keepPreviousData,
     staleTime: StaleTimes.Instant,
-    refetchOnWindowFocus: true,
   }));
   protected readonly loading = computed(() => this.parametersQuery.isPending());
   protected readonly hasNoParameters = computed(
@@ -119,6 +121,20 @@ export class ParametersComponent extends AdminComponent implements OnInit {
 
   constructor() {
     super();
+    const websocketService = inject(WebsocketService);
+    const queryClient = inject(QueryClient);
+    const zaaktypeConfiguratiesListener = websocketService.addListener(
+      "UPDATED",
+      "ZAAKTYPE_CONFIGURATIES",
+      "zaaktype-configuraties",
+      () =>
+        void queryClient.invalidateQueries({
+          queryKey: ["/rest/zaakafhandelparameters"],
+        }),
+    );
+    inject(DestroyRef).onDestroy(() =>
+      websocketService.removeListener(zaaktypeConfiguratiesListener),
+    );
     effect(() => {
       this.parameters.data = [
         ...(this.parametersQuery.data()?.resultaten ?? []),

@@ -78,6 +78,7 @@ class NotificationReceiver @Inject constructor(
     companion object {
         private val LOG = Logger.getLogger(NotificationReceiver::class.java.getName())
         private const val OBJECTTYPE_KENMERK = "objectType"
+        private const val ZAAKTYPE_CONFIGURATIES_EVENT_RESOURCE_ID = "zaaktype-configuraties"
     }
 
     @POST
@@ -391,6 +392,7 @@ class NotificationReceiver @Inject constructor(
         try {
             if (notification.action == Action.CREATE || notification.action == Action.UPDATE) {
                 zaaktypeConfigurationBeheerService.updateZaaktypeConfiguration(notification.resourceUrl)
+                eventingService.send(ScreenEventType.ZAAKTYPE_CONFIGURATIES.updated(ZAAKTYPE_CONFIGURATIES_EVENT_RESOURCE_ID))
             }
         } catch (exception: RuntimeException) {
             warning("zaaktype", notification, exception)
