@@ -124,8 +124,17 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
     effect(() => {
       const data = this.takenQuery.data();
       if (!data) return;
+      const expandedIds = new Set(
+        this.takenDataSource.data
+          .filter((row) => row.expanded)
+          .map((row) => row.data.id),
+      );
       const taken = [...data]
-        .map((value) => new ExpandableTableData(value))
+        .map((value) => {
+          const row = new ExpandableTableData(value);
+          row.expanded = expandedIds.has(value.id);
+          return row;
+        })
         .sort(
           (a, b) =>
             (a.data.fataledatum?.localeCompare(b.data.fataledatum ?? "") ||
@@ -136,6 +145,7 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
         );
       this.takenDataSource.data = taken;
       this.filterTakenOpStatus();
+      this.checkAllTakenExpanded();
     });
   }
 

@@ -308,6 +308,61 @@ describe(ZaakTakenComponent.name, () => {
       expect(collapseAllControl()).toBeVisible();
     });
 
+    describe("when the taken of the zaak change", () => {
+      async function updateTaken(taken: GeneratedType<"RestTask">[]) {
+        const [[, , , onZaakTakenUpdated]] = jest.mocked(
+          websocketService.addListener,
+        ).mock.calls;
+        onZaakTakenUpdated(fromPartial<ScreenEvent>({}));
+        await sleep();
+        await respondWithTaken(taken);
+        fixture.detectChanges();
+      }
+
+      it("keeps the expanded taak expanded", async () => {
+        await setup([
+          taak({ id: "eersteTaakId", naam: "eersteTaak" }),
+          taak({ id: "tweedeTaakId", naam: "tweedeTaak" }),
+        ]);
+        await user.click(rowOf("eersteTaak"));
+        fixture.detectChanges();
+
+        await updateTaken([
+          taak({
+            id: "eersteTaakId",
+            naam: "eersteTaak",
+            status: "NIET_TOEGEKEND",
+          }),
+          taak({ id: "tweedeTaakId", naam: "tweedeTaak" }),
+        ]);
+
+        expect(rowOf("eersteTaak")).toHaveAttribute("aria-expanded", "true");
+        expect(rowOf("tweedeTaak")).toHaveAttribute("aria-expanded", "false");
+      });
+
+      it("keeps every taak expanded after expand all, so the toggle matches the rows", async () => {
+        await setup([
+          taak({ id: "eersteTaakId", naam: "eersteTaak" }),
+          taak({ id: "tweedeTaakId", naam: "tweedeTaak" }),
+        ]);
+        await user.click(expandAllControl());
+        fixture.detectChanges();
+
+        await updateTaken([
+          taak({
+            id: "eersteTaakId",
+            naam: "eersteTaak",
+            status: "NIET_TOEGEKEND",
+          }),
+          taak({ id: "tweedeTaakId", naam: "tweedeTaak" }),
+        ]);
+
+        expect(rowOf("eersteTaak")).toHaveAttribute("aria-expanded", "true");
+        expect(rowOf("tweedeTaak")).toHaveAttribute("aria-expanded", "true");
+        expect(collapseAllControl()).toBeVisible();
+      });
+    });
+
     it("counts the afgeronde taken as well while those are shown", async () => {
       await setup([
         taak({ id: "eersteTaakId" }),
