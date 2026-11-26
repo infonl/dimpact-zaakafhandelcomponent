@@ -6,8 +6,8 @@ package net.atos.zac.flowable.delegate.log
 
 import nl.info.zac.log.LogEvent
 
-class ZaakExtending(
+class ZaakExtensionStarted(
     val zaakIdentificatie: String?,
     val activityName: String?,
     val numberOfDays: Int
-) : LogEvent("Extending zaak")
+) : LogEvent("Zaak extension started")

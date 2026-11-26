@@ -4,7 +4,7 @@
  */
 package net.atos.zac.flowable.delegate
 
-import net.atos.zac.flowable.delegate.log.ZaakMailSending
+import net.atos.zac.flowable.delegate.log.ZaakMailSendStarted
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.log.ZacLogger
@@ -75,7 +75,7 @@ class SendEmailDelegate : AbstractDelegate() {
             ?: throw IllegalArgumentException("Mail template '$templateName' not found")
 
         LOG.fine(
-            ZaakMailSending(zaakIdentificatie = zaak.identificatie, templateName = templateName, recipient = toAddress)
+            ZaakMailSendStarted(zaakIdentificatie = zaak.identificatie, templateName = templateName, recipient = toAddress)
         )
         flowableHelper.mailService.sendMail(
             mailGegevens = MailGegevens(

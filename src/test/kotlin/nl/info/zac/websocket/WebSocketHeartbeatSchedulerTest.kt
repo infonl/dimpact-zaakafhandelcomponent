@@ -33,7 +33,7 @@ class WebSocketHeartbeatSchedulerTest : BehaviorSpec({
 
             then("the starting of the scheduler is logged") {
                 records.single().message shouldBe
-                    GenericEvent.Type.WEB_SOCKET_HEARTBEAT_SCHEDULER_STARTING.description
+                    GenericEvent.Type.WEB_SOCKET_HEARTBEAT_SCHEDULER_STARTED.description
             }
         }
     }

@@ -5,9 +5,10 @@
 package net.atos.zac.flowable.delegate.log
 
 import nl.info.zac.log.LogEvent
+import java.time.ZonedDateTime
 
-class ZaakSuspending(
+class ZaakResumptionStarted(
     val zaakIdentificatie: String?,
     val activityName: String?,
-    val numberOfDays: Long
-) : LogEvent("Suspending zaak")
+    val resumeDate: ZonedDateTime?
+) : LogEvent("Zaak resumption started")
