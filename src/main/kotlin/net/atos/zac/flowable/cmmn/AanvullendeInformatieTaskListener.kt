@@ -5,7 +5,7 @@
 package net.atos.zac.flowable.cmmn
 
 import net.atos.zac.flowable.cmmn.log.AanvullendeInformatieTaskEvent
-import net.atos.zac.flowable.cmmn.log.ZaakStatusChanging
+import net.atos.zac.flowable.cmmn.log.ZaakStatusChangeStarted
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
 import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_INTAKE
@@ -104,7 +104,7 @@ class AanvullendeInformatieTaskListener : TaskListener {
 
     private fun updateZaakStatus(zaak: Zaak, statustypeOmschrijving: String) =
         withFlowableHelper { flowableHelper ->
-            LOG.info(ZaakStatusChanging(zaakUuid = zaak.uuid, statustypeOmschrijving = statustypeOmschrijving))
+            LOG.info(ZaakStatusChangeStarted(zaakUuid = zaak.uuid, statustypeOmschrijving = statustypeOmschrijving))
             flowableHelper.zgwApiService.createStatusForZaak(
                 zaak,
                 statustypeOmschrijving,

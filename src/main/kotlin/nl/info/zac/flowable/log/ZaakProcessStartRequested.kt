@@ -7,7 +7,7 @@ package nl.info.zac.flowable.log
 import nl.info.zac.log.LogEvent
 import java.util.UUID
 
-class ZaakProcessStarting(
+class ZaakProcessStartRequested(
     val zaakUuid: UUID,
     val processDefinitionKey: String
-) : LogEvent("Starting zaak using BPMN model")
+) : LogEvent("Start of the zaak with a BPMN model requested")

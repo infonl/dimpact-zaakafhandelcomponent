@@ -137,7 +137,7 @@ class ProductaanvraagService @Inject constructor(
     private fun handleProductaanvraagDimpactWithoutFailing(productaanvraagObjectUUID: UUID, productaanvraagObject: ModelObject) {
         LOG.info(
             ProductaanvraagObjectEvent(
-                type = ProductaanvraagObjectEvent.Type.PRODUCTAANVRAAG_DIMPACT_HANDLING,
+                type = ProductaanvraagObjectEvent.Type.PRODUCTAANVRAAG_DIMPACT_HANDLING_STARTED,
                 productaanvraagObjectUuid = productaanvraagObjectUUID
             )
         )
