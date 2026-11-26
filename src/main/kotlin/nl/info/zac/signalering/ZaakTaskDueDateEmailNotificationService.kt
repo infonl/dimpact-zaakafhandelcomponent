@@ -16,6 +16,7 @@ import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.gebruikersvoorkeuren.model.TabelInstellingen
+import nl.info.zac.log.Outcome
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.DatumVeld
@@ -24,7 +25,7 @@ import nl.info.zac.search.model.FilterWaarde
 import nl.info.zac.search.model.ZoekParameters
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
-import nl.info.zac.signalering.log.DueDateEmailNotificationsSent
+import nl.info.zac.signalering.log.DueDateEmailNotificationsCompleted
 import nl.info.zac.signalering.model.Signalering
 import nl.info.zac.signalering.model.SignaleringDetail
 import nl.info.zac.signalering.model.SignaleringSubject
@@ -38,6 +39,8 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.task.api.Task
 import java.util.UUID
+import java.util.concurrent.TimeUnit
+import java.util.logging.Level
 
 @ApplicationScoped
 @Transactional
@@ -70,27 +73,20 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
      * Sends e-mail notifications about tasks that are at or past their due date.
      * Typically run as part of a cron job.
      */
-    private fun sendTaskDueDateEmailNotifications() {
-        val signaleringVerzendInfo = SignaleringVerzendInfo()
-        signaleringVerzendInfo.fataledatumVerzonden += sendTaskDueDateNotifications()
-        deleteUnjustlySentTaskDueSignaleringen()
-        LOG.info(
-            DueDateEmailNotificationsSent(
-                subjecttype = SignaleringSubject.TAAK,
-                streefdatumWarningCount = null,
-                fataledatumWarningCount = signaleringVerzendInfo.fataledatumVerzonden
-            )
-        )
-    }
+    private fun sendTaskDueDateEmailNotifications() =
+        logDueDateEmailNotifications(SignaleringSubject.TAAK) { signaleringVerzendInfo ->
+            signaleringVerzendInfo.fataledatumVerzonden += sendTaskDueDateNotifications()
+            deleteUnjustlySentTaskDueSignaleringen()
+        }
 
     /**
      * Sends e-mail notifications about zaken that are approaching their target date or their
      * fatal date.
      * Typically run as part of a cron job.
      */
-    private fun sendZaakDueDateEmailNotifications() {
-        val signaleringVerzendInfo = SignaleringVerzendInfo()
-        ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
+    private fun sendZaakDueDateEmailNotifications() =
+        logDueDateEmailNotifications(SignaleringSubject.ZAAK) { signaleringVerzendInfo ->
+            ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
             .forEach { zaaktype ->
                 zaaktypeConfigurationService.findConfiguration(
                     zaaktype.url.extractUuid()
@@ -117,13 +113,37 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
                     }
                 }
             }
-        LOG.info(
-            DueDateEmailNotificationsSent(
-                subjecttype = SignaleringSubject.ZAAK,
-                streefdatumWarningCount = signaleringVerzendInfo.streefdatumVerzonden,
-                fataledatumWarningCount = signaleringVerzendInfo.fataledatumVerzonden
+        }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun logDueDateEmailNotifications(
+        subjecttype: SignaleringSubject,
+        send: (SignaleringVerzendInfo) -> Unit
+    ) {
+        val signaleringVerzendInfo = SignaleringVerzendInfo()
+        val startTime = System.nanoTime()
+        var outcome = Outcome.FAILURE
+        var errorType: String? = null
+        try {
+            send(signaleringVerzendInfo)
+            outcome = Outcome.SUCCESS
+        } catch (runtimeException: RuntimeException) {
+            errorType = runtimeException.javaClass.name
+            throw runtimeException
+        } finally {
+            LOG.log(
+                if (outcome == Outcome.SUCCESS) Level.INFO else Level.WARNING,
+                DueDateEmailNotificationsCompleted(
+                    subjecttype = subjecttype,
+                    streefdatumWarningCount = signaleringVerzendInfo.streefdatumVerzonden
+                        .takeIf { subjecttype == SignaleringSubject.ZAAK },
+                    fataledatumWarningCount = signaleringVerzendInfo.fataledatumVerzonden,
+                    outcome = outcome,
+                    durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime),
+                    errorType = errorType
+                )
             )
-        )
+        }
     }
 
     /**

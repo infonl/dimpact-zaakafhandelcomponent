@@ -8,10 +8,13 @@ import nl.info.zac.log.LogEvent
 import nl.info.zac.signalering.model.SignaleringSubject
 import nl.info.zac.signalering.model.SignaleringType
 
+@Suppress("LongParameterList")
 class SignaleringEventHandled(
     val signaleringType: SignaleringType.Type,
     val objectId: String,
     val result: SignaleringEventResult,
+    val subjecttype: SignaleringSubject?,
+    val subject: String?,
     val isDashboard: Boolean,
     val isMail: Boolean
 ) : LogEvent("Signalering event handled")

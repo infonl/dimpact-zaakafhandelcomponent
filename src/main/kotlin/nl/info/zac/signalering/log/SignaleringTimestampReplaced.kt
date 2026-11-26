@@ -14,5 +14,6 @@ class SignaleringTimestampReplaced(
     val signaleringType: SignaleringType.Type,
     val subjecttype: SignaleringSubject,
     val subject: String,
+    val previousTijdstip: ZonedDateTime?,
     val tijdstip: ZonedDateTime?
 ) : LogEvent("Replacing the timestamp of a stored signalering")

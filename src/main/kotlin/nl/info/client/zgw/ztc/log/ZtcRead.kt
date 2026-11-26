@@ -7,6 +7,6 @@ package nl.info.client.zgw.ztc.log
 import nl.info.zac.log.LogEvent
 
 class ZtcRead(
-    val operation: String,
+    val operation: ZtcReadOperation,
     val parameters: List<String>
 ) : LogEvent("OpenZaak ZTC read on a cache miss")
