@@ -75,7 +75,7 @@ export type TestData = {
     omschrijving: string,
     settings: { groep: string },
   ): Promise<void>;
-  /** Makes sure ZAC has the BPMN process with its forms. ZAC does not deploy the same process twice. */
+  /** Makes the BPMN process with its forms the latest version in ZAC. */
   ensureProcess(process: BpmnProcess): Promise<void>;
   /** Makes sure the zaaktype is handled by the BPMN process, and routes new zaken to the groep. */
   ensureBpmnZaaktype(

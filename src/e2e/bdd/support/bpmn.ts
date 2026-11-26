@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { ZacApi } from "./zac-api";
@@ -23,14 +24,26 @@ async function contentOf(file: string) {
   };
 }
 
-/** Deploys the process and its forms. ZAC keeps the deployed version when the BPMN file did not change. */
+/**
+ * Flowable ignores a deployment that equals the last one with the same filename, also when another file has deployed a
+ * newer version of the process since. A new filename makes it deploy again.
+ */
+function filenameOfNewDeployment(filename: string) {
+  const { name, ext } = path.parse(filename);
+  return `${name}-${randomUUID()}${ext}`;
+}
+
+/** Deploys the process and its forms as a new version, also when ZAC has the same version already. */
 export async function deployProcess(
   api: ZacApi,
   { idInFile, key, bpmnFile, formFiles }: BpmnProcess,
 ) {
   const { filename, content } = await contentOf(bpmnFile);
   await api.POST("/rest/bpmn-process-definitions", {
-    body: { filename, content: content.replaceAll(idInFile, key) },
+    body: {
+      filename: filenameOfNewDeployment(filename),
+      content: content.replaceAll(idInFile, key),
+    },
   });
   for (const formFile of formFiles) {
     await api.POST("/rest/bpmn-process-definitions/{key}/forms", {
