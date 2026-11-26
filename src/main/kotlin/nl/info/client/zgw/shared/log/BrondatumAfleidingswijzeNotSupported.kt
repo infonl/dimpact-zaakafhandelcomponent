@@ -11,4 +11,4 @@ class BrondatumAfleidingswijzeNotSupported(
     val brondatum: LocalDate?,
     val afleidingswijze: String?,
     val zaakIdentificatie: String?
-) : LogEvent("Failed to set brondatum for afleidingswijze brondatum")
+) : LogEvent("Brondatum afleidingswijze not supported")

@@ -16,12 +16,6 @@ import kotlin.time.Duration.Companion.seconds
 fun zacContainerLogs() = ItestKindStack.zacLogs()
 
 /**
- * A ZAC log record, written by the JSON formatter of WildFly, that a test expects: [description] names it in the
- * failure message, and [matches] checks the `message` and the `mdc` fields of one record.
- */
-class ExpectedLogRecord(val description: String, val matches: (JSONObject) -> Boolean)
-
-/**
  * ZAC's own startup already triggers a full `reindexAll()` when the Solr schema is not yet at
  * its latest version (e.g. a fresh Solr core, such as in CI). Asserting against the container's
  * entire accumulated log would then make these assertions pass regardless of whether the request
@@ -67,7 +61,8 @@ fun reindexingStarted(zoekObjectType: String) = ExpectedLogRecord("ReindexingSta
 fun reindexingFinished(zoekObjectType: String) = ExpectedLogRecord("ReindexingFinished for $zoekObjectType") {
     it.isEvent("ReindexingFinished") &&
         it.mdcField("objectType") == zoekObjectType &&
-        listOf("reindexedCount", "totalCount", "skippedCount", "errorCount").all(it::hasCount) &&
+        listOf("reindexedCount", "totalCount", "skippedCount", "errorCount", "durationMs").all(it::hasCount) &&
+        it.mdcField("outcome") == "SUCCESS" &&
         it.mdcField("solrDocumentCount")?.matches(COUNT_OR_NULL) == true
 }
 
