@@ -18,8 +18,7 @@
 </mat-toolbar>
 <mat-divider />
 
-<div class="notitie-body">
-  <div #scrollTarget></div>
+<div #noteBody class="notitie-body">
   @for (notitie of notities(); track notitie.id) {
     <mat-card class="notitie" appearance="outlined">
       <mat-card-header>

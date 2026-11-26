@@ -147,20 +147,24 @@ describe(NotitiesComponent.name, () => {
       expect(screen.getByText("fakeTekst2")).toBeInTheDocument();
     });
 
-    it("shows the most recently changed notitie first, after the notities without a change time", async () => {
+    it("shows the notities in the order they were added, the newest last, also when they were changed on the same day", async () => {
       await setup({
         notities: [
           notitie({
+            id: 3,
+            tekst: "fakeNieuwsteTekst",
+            tijdstipLaatsteWijziging: "2026-01-01T00:00:00Z",
+          }),
+          notitie({
             id: 1,
             tekst: "fakeOudsteTekst",
-            tijdstipLaatsteWijziging: "2026-01-01T10:00:00Z",
+            tijdstipLaatsteWijziging: "2026-03-01T00:00:00Z",
           }),
           notitie({
             id: 2,
-            tekst: "fakeNieuwsteTekst",
-            tijdstipLaatsteWijziging: "2026-03-01T10:00:00Z",
+            tekst: "fakeMiddelsteTekst",
+            tijdstipLaatsteWijziging: "2026-01-01T00:00:00Z",
           }),
-          notitie({ id: 3, tekst: "fakeTekstZonderTijdstip" }),
         ],
         notitieRechten,
       });
@@ -169,11 +173,7 @@ describe(NotitiesComponent.name, () => {
         screen
           .getAllByText(/^fake.*Tekst/)
           .map((element) => element.textContent?.trim()),
-      ).toEqual([
-        "fakeTekstZonderTijdstip",
-        "fakeNieuwsteTekst",
-        "fakeOudsteTekst",
-      ]);
+      ).toEqual(["fakeOudsteTekst", "fakeMiddelsteTekst", "fakeNieuwsteTekst"]);
     });
 
     it("offers to edit and to delete a notitie the user may edit", async () => {
@@ -202,16 +202,22 @@ describe(NotitiesComponent.name, () => {
     });
 
     describe("adding a notitie", () => {
-      let scrollIntoView: Element["scrollIntoView"] | undefined;
+      const originalScrollTo = Element.prototype.scrollTo;
+      const originalScrollIntoView = Element.prototype.scrollIntoView;
+      let scrollTo: jest.Mock;
+      let scrollIntoView: jest.Mock;
 
       beforeEach(() => {
-        scrollIntoView = Element.prototype.scrollIntoView;
-        Element.prototype.scrollIntoView = jest.fn();
+        scrollTo = jest.fn();
+        scrollIntoView = jest.fn();
+        Element.prototype.scrollTo = scrollTo;
+        Element.prototype.scrollIntoView = scrollIntoView;
       });
 
       afterEach(() => {
-        Element.prototype.scrollIntoView =
-          scrollIntoView as Element["scrollIntoView"];
+        Element.prototype.scrollTo = originalScrollTo;
+        Element.prototype.scrollIntoView = originalScrollIntoView;
+        jest.restoreAllMocks();
       });
 
       it("disables the send button while the field is empty", async () => {
@@ -222,7 +228,7 @@ describe(NotitiesComponent.name, () => {
         ).toBeDisabled();
       });
 
-      it("adds the notitie to the zaak in the name of the current user, shows it at the top and empties the field", async () => {
+      it("adds the notitie to the zaak in the name of the current user, shows it at the bottom and empties the field", async () => {
         const user = userEvent.setup();
         await setup({
           notities: [
@@ -260,13 +266,48 @@ describe(NotitiesComponent.name, () => {
           screen
             .getAllByText(/^fake.*Tekst$/)
             .map((element) => element.textContent?.trim()),
-        ).toEqual(["fakeNieuweTekst", "fakeBestaandeTekst"]);
+        ).toEqual(["fakeBestaandeTekst", "fakeNieuweTekst"]);
         expect(
           screen.getByRole("textbox", { name: "actie.notitie.aanmaken" }),
         ).toHaveValue("");
         expect(
           screen.getByRole("heading", { level: 3, name: "notities (2)" }),
         ).toBeInTheDocument();
+      });
+
+      it("scrolls only the notities to the bottom after adding a notitie, so the last notitie and the field to add one are in view and the side panel itself does not move", async () => {
+        jest
+          .spyOn(Element.prototype, "scrollHeight", "get")
+          .mockReturnValue(500);
+        const user = userEvent.setup();
+        await setup({ notitieRechten });
+
+        await user.type(
+          screen.getByRole("textbox", { name: "actie.notitie.aanmaken" }),
+          "fakeNieuweTekst",
+        );
+        fixture.detectChanges();
+        await user.click(screen.getByRole("button", { name: "actie.opslaan" }));
+        await sleep();
+        const request = httpTestingController.expectOne("/rest/notities");
+        await answerMutation(request, {
+          ...request.request.body,
+          id: 2,
+        });
+
+        const [scrolledElement] = scrollTo.mock.contexts as HTMLElement[];
+        expect(scrollTo).toHaveBeenCalledTimes(1);
+        expect(scrollTo).toHaveBeenCalledWith({ top: 500, behavior: "smooth" });
+        expect(scrolledElement).toContainElement(
+          screen.getByText("fakeNieuweTekst"),
+        );
+        expect(scrolledElement).toContainElement(
+          screen.getByRole("textbox", { name: "actie.notitie.aanmaken" }),
+        );
+        expect(scrolledElement).not.toContainElement(
+          screen.getByRole("heading", { level: 3 }),
+        );
+        expect(scrollIntoView).not.toHaveBeenCalled();
       });
     });
 
