@@ -132,7 +132,7 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
             .firstOrNull { it.zaaktypeOmschrijving != zaaktypeOmschrijving }
             ?.let {
                 LOG.info(
-                    ProductaanvraagtypeEvent(type = ProductaanvraagtypeEvent.Type.PRODUCTAANVRAAGTYPE_ALREADY_IN_USE, 
+                    ProductaanvraagtypeEvent.ProductaanvraagtypeAlreadyInUse(
                         productaanvraagType = productaanvraagtype,
                         zaaktypeOmschrijving = it.zaaktypeOmschrijving,
                         zaaktypeUuid = it.zaaktypeUuid
@@ -152,8 +152,7 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
         val zaaktype = ztcClientService.readZaaktype(zaaktypeUri)
         if (zaaktype.concept) {
             LOG.info(
-                ZaaktypeEvent(
-                    type = ZaaktypeEvent.Type.CONCEPT_ZAAKTYPE_IGNORED,
+                ZaaktypeEvent.ConceptZaaktypeIgnored(
                     zaaktypeOmschrijving = zaaktype.omschrijving,
                     zaaktypeUuid = zaaktypeUri.extractUuid()
                 )
@@ -167,7 +166,7 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
     fun upsertConfiguration(zaaktype: ZaakType) {
         val zaaktypeUuid = zaaktype.url.extractUuid()
         zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid)?.let { existingConfiguration ->
-            LOG.info(ZaaktypeEvent(type = ZaaktypeEvent.Type.EXISTING_ZAAKTYPE_CONFIGURATION_FOUND, zaaktypeUuid = zaaktypeUuid))
+            LOG.info(ZaaktypeEvent.ExistingZaaktypeConfigurationFound(zaaktypeUuid = zaaktypeUuid))
             existingConfiguration.apply {
                 zaaktypeOmschrijving = zaaktype.omschrijving
                 einddatumGeplandWaarschuwing = einddatumGeplandWaarschuwing.takeIf { zaaktype.isServicenormAvailable() }
@@ -179,8 +178,7 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
             zaaktype.omschrijving
         ) ?: run {
             LOG.info(
-                ZaaktypeEvent(
-                    type = ZaaktypeEvent.Type.ZAAKTYPE_WITHOUT_CONFIGURATION_IGNORED,
+                ZaaktypeEvent.ZaaktypeWithoutConfigurationIgnored(
                     zaaktypeOmschrijving = zaaktype.omschrijving,
                     zaaktypeUuid = zaaktypeUuid
                 )

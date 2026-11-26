@@ -13,6 +13,9 @@ sealed class InformatieobjectEvent(description: String, val informatieobjectUuid
     class DocumentMissingInOpenZaak(informatieobjectUuid: UUID) :
         InformatieobjectEvent("Document wel gevonden in de database, maar niet in OpenZaak", informatieobjectUuid)
 
+    class DocumentNotFound(informatieobjectUuid: UUID) :
+        InformatieobjectEvent("Document niet gevonden", informatieobjectUuid)
+
     class InboxDocumentNotFound(informatieobjectUuid: UUID) :
         InformatieobjectEvent("Inbox document not found", informatieobjectUuid)
 

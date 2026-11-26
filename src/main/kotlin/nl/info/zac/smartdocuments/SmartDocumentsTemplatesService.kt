@@ -96,7 +96,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
         restTemplateGroups: Set<RestMappedSmartDocumentsTemplateGroup>,
         zaaktypeUUID: UUID
     ) {
-        LOG.fine { ZaaktypeEvent(type = ZaaktypeEvent.Type.TEMPLATE_MAPPING_STORAGE_STARTED, zaaktypeUuid = zaaktypeUUID) }
+        LOG.fine { ZaaktypeEvent.TemplateMappingStorageStarted(zaaktypeUuid = zaaktypeUUID) }
 
         (
             zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)

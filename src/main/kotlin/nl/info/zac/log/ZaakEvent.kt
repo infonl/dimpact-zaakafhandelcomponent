@@ -9,6 +9,12 @@ import java.util.UUID
 sealed class ZaakEvent(description: String, val zaakUuid: UUID) : LogEvent(description) {
     class CaseOrProcessNotFound(zaakUuid: UUID) : ZaakEvent("Case or process not found for zaak", zaakUuid)
 
+    class DocumentCreationTokenUnknown(zaakUuid: UUID) :
+        ZaakEvent(
+            "Unknown or expired document creation token; storing the document as the functionele gebruiker",
+            zaakUuid
+        )
+
     class FlowableProcessDataDeleted(zaakUuid: UUID) : ZaakEvent("Deleted Flowable process data for zaak", zaakUuid)
 
     class MailPdfConversionFailed(zaakUuid: UUID) :
