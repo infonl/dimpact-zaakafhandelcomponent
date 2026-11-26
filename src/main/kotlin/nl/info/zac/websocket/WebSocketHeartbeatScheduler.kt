@@ -11,11 +11,11 @@ import jakarta.enterprise.context.Initialized
 import jakarta.enterprise.event.Observes
 import jakarta.inject.Inject
 import jakarta.websocket.Session
-import nl.info.zac.log.GenericEvent
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.websocket.log.WebSocketHeartbeatFailed
+import nl.info.zac.websocket.log.WebSocketHeartbeatSchedulerStarted
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.util.concurrent.Executors
@@ -43,7 +43,7 @@ class WebSocketHeartbeatScheduler @Inject constructor(
     // Nothing else in the application injects this bean, so without observing this event CDI would never have
     // a reason to create it and @PostConstruct would never run.
     fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) {
-        LOG.info(GenericEvent(type = GenericEvent.Type.WEB_SOCKET_HEARTBEAT_SCHEDULER_STARTED))
+        LOG.info(WebSocketHeartbeatSchedulerStarted)
     }
 
     @PostConstruct

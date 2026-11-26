@@ -170,12 +170,7 @@ class DetachedDocumentBulkService @Inject constructor(
             if (!webApplicationException.isNotFound()) {
                 throw webApplicationException
             }
-            LOG.info(
-                InformatieobjectEvent(
-                    type = InformatieobjectEvent.Type.DOCUMENT_MISSING_IN_OPEN_ZAAK,
-                    informatieobjectUuid = documentUUID
-                )
-            )
+            LOG.info(InformatieobjectEvent.DocumentMissingInOpenZaak(informatieobjectUuid = documentUUID))
             null
         }
 
