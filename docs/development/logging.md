@@ -98,8 +98,10 @@ the JSON formatter of WildFly writes:
 ```
 
 `ZacLogger` always adds `event` (the class name of the event, or the name of its `type` constant), `errorType` when a
-throwable is passed, and `traceId` and `spanId` of the active OpenTelemetry span when tracing is enabled. A `null` field is written as `null`. MDC values
-are strings, so `durationMs` is the string `"84"`.
+throwable is passed, and `traceId` and `spanId` of the active OpenTelemetry span when tracing is enabled. Every
+record of an HTTP request also has `requestId`, one ID per request that `UserPrincipalFilter` sets, so that the records
+of a request can be found together also when tracing is disabled, which is the default. A `null` field is written as
+`null`. MDC values are strings, so `durationMs` is the string `"84"`.
 
 `ZacLogger` keeps the class name as logger name, so the log categories of WildFly keep working. `java.util.logging.Level`
 may still be used, for example for a configurable level (`ZacLogger.log(level, event)`); `Logger` may not.

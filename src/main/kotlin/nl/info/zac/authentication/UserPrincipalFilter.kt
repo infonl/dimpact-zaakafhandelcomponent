@@ -28,6 +28,7 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext
+import java.util.UUID
 
 private data class ApplicationRoleMappings(
     val rolesPerZaaktype: Map<String, Set<String>>,
@@ -59,11 +60,13 @@ constructor(
         servletResponse as HttpServletResponse
 
         val keycloakUserId = (servletRequest.userPrincipal as? OidcPrincipal<*>)?.oidcSecurityContext?.token?.subject
-        if (keycloakUserId == null) {
-            handleRequest(servletRequest, servletResponse, filterChain)
-        } else {
-            ZacLogger.withLoggedInEmployee(keycloakUserId) {
+        ZacLogger.withRequestId(UUID.randomUUID().toString()) {
+            if (keycloakUserId == null) {
                 handleRequest(servletRequest, servletResponse, filterChain)
+            } else {
+                ZacLogger.withLoggedInEmployee(keycloakUserId) {
+                    handleRequest(servletRequest, servletResponse, filterChain)
+                }
             }
         }
     }
