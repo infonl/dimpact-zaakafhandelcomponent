@@ -92,6 +92,31 @@ describe("INVALIDATION_MAP", () => {
     expect(isInvalidated(taak)).toBe(false);
   });
 
+  it.each([
+    "PUT /rest/informatieobjecten/informatieobject/{uuid}",
+    "POST /rest/informatieobjecten/informatieobject/{uuid}/convert",
+    "POST /rest/informatieobjecten/informatieobject/{uuid}/onderteken",
+  ] as const)(
+    "refreshes the document and the documents and historie of its zaak after %s",
+    (endpoint) => {
+      const document = [
+        "/rest/informatieobjecten/informatieobject/{uuid}",
+        { path: { uuid: UUID } },
+      ];
+      cached(document, documentList(OTHER_UUID), historie(OTHER_UUID));
+
+      write(endpoint, {
+        parameters: { path: { uuid: UUID }, query: { zaak: OTHER_UUID } },
+      });
+
+      expect(
+        [document, documentList(OTHER_UUID), historie(OTHER_UUID)].map(
+          isInvalidated,
+        ),
+      ).toEqual([true, true, true]);
+    },
+  );
+
   it("marks searches stale without reading them, because Solr has not committed yet", () => {
     const client = new QueryClient();
     const invalidateQueries = jest.spyOn(client, "invalidateQueries");

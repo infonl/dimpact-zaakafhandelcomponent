@@ -164,6 +164,61 @@ describe(ZacQueryClient.name, () => {
 
       expect(foutAfhandelenSpy).not.toHaveBeenCalled();
     });
+    describe("with the invalidation map", () => {
+      const documentList = [
+        "/rest/informatieobjecten/informatieobjectenList",
+        { zaakUUID: "zaak-1", shouldIncludeGekoppeldeZaakDocumenten: false },
+      ];
+      const isInvalidated = () =>
+        testQueryClient.getQueryState(documentList)?.isInvalidated;
+
+      async function upload(answer: (request: TestRequest) => void) {
+        testQueryClient.setQueryData(documentList, "fakeData");
+        const uploaded = lastValueFrom(
+          runMutation(
+            testQueryClient,
+            zacQueryClient.POST_WITH_PROGRESS(path, parameters),
+            new FormData() as never,
+          ),
+        ).catch(() => undefined);
+        await sleep();
+        answer(httpTestingController.expectOne(url));
+        await uploaded;
+      }
+
+      afterEach(() => {
+        jest.restoreAllMocks();
+      });
+
+      it("refreshes the documents of the zaak after an upload that succeeds", async () => {
+        await upload((request) => request.flush({ uuid: "document-1" }));
+
+        expect(isInvalidated()).toBe(true);
+      });
+
+      it("applies a rule that sets afterFailureToo after an upload that fails, and still clears the global progress indicator", async () => {
+        jest.replaceProperty(
+          INVALIDATION_MAP as Mutable<typeof INVALIDATION_MAP>,
+          `POST ${path}`,
+          {
+            afterFailureToo: true,
+            refresh: () => [
+              search("/rest/informatieobjecten/informatieobjectenList"),
+            ],
+          },
+        );
+        jest
+          .spyOn(foutAfhandelingService, "foutAfhandelen")
+          .mockReturnValue(EMPTY);
+
+        await upload((request) =>
+          request.flush(null, { status: 400, statusText: "Bad Request" }),
+        );
+
+        expect(isInvalidated()).toBe(true);
+        expect(utilService.progress()).toBeNull();
+      });
+    });
   });
 
   describe("PUT_WITH_PROGRESS", () => {

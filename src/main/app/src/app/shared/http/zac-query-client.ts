@@ -193,6 +193,12 @@ export class ZacQueryClient {
         description: UPLOAD_PROGRESS_DESCRIPTION,
       });
 
+    const invalidation = this.invalidation<Path, Method, Body<Path, Method>>(
+      method,
+      url,
+      requestOf(args),
+    );
+
     return mutationOptions<
       Response<Path, Method>,
       HttpErrorResponse,
@@ -215,12 +221,17 @@ export class ZacQueryClient {
           ),
         );
       },
-      ...this.invalidation<Path, Method, Body<Path, Method>>(
-        method,
-        url,
-        requestOf(args),
-      ),
-      onSettled: () => this.utilService.setProgress(null),
+      ...invalidation,
+      onSettled: (response, error, body, onMutateResult, context) => {
+        this.utilService.setProgress(null);
+        return invalidation.onSettled?.(
+          response,
+          error,
+          body,
+          onMutateResult,
+          context,
+        );
+      },
       onError: this.reportError,
     });
   }
