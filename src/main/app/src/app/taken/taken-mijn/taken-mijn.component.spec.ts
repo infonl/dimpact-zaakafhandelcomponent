@@ -204,7 +204,7 @@ describe(TakenMijnComponent.name, () => {
     expect(columnHeaderNames()).toContain("naam");
   });
 
-  it("stores the new page size for this werklijst", async () => {
+  it("stores the new page size under Mijn taken, the werklijst it reads its page size from", async () => {
     await renderTakenMijn();
 
     await showTaken([]);
@@ -215,7 +215,7 @@ describe(TakenMijnComponent.name, () => {
 
     httpTestingController
       .expectOne(
-        "/rest/gebruikersvoorkeuren/aantal-per-pagina/WERKVOORRAAD_TAKEN/25",
+        "/rest/gebruikersvoorkeuren/aantal-per-pagina/MIJN_TAKEN/25",
       )
       .flush(null);
     httpTestingController

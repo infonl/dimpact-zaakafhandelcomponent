@@ -141,7 +141,7 @@ export class TakenMijnComponent
   }
 
   getWerklijst(): GeneratedType<"Werklijst"> {
-    return "WERKVOORRAAD_TAKEN";
+    return "MIJN_TAKEN";
   }
 
   resetColumns(): void {
