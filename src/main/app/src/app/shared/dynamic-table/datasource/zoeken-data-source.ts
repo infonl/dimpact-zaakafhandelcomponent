@@ -18,7 +18,6 @@ import {
 import { ZoekResultaat } from "../../../zoeken/model/zoek-resultaat";
 import { ZoekenService } from "../../../zoeken/zoeken.service";
 import { injectLastSuccessfulSearch } from "../../http/last-successful-search";
-import { StaleTimes, freshPerVisit } from "../../http/zac-query-client";
 import {
   SessionStorageUtil,
   WerklijstZoekParameter,
@@ -89,13 +88,10 @@ export abstract class ZoekenDataSource<
     null,
   );
 
-  private readonly staleTime = freshPerVisit(StaleTimes.Short);
-
   private readonly search = injectLastSuccessfulSearch({
     requested: this.requestedZoekParameters,
     query: (zoekParameters) => ({
       ...this.zoekenService.list(zoekParameters ?? getDefaultZoekParameters()),
-      staleTime: this.staleTime,
       enabled: zoekParameters !== null,
     }),
     onRevert: (zoekParameters) => {

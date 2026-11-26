@@ -241,30 +241,6 @@ describe(ZoekenDataSource.name, () => {
     expect(shown()).toEqual({ totalItems: 0, rows: 0, filters: 0 });
   });
 
-  it("searches again when the werklijst opens once more, also when the cache holds a recent result, so it shows changes made since the last visit", async () => {
-    const paginator = fromPartial<MatPaginator>({ pageIndex: 0, pageSize: 25 });
-    await respondWith(await showTable(paginator));
-
-    const searchOnReturn = await showTable(paginator);
-
-    expect(searchedFor(searchOnReturn).page).toBe(0);
-    await respondWith(searchOnReturn);
-  });
-
-  it("does not search again on the next sort or page with the parameters it searched within the same visit", async () => {
-    const paginator = fromPartial<MatPaginator>({ pageIndex: 0, pageSize: 25 });
-    await respondWith(await showTable(paginator));
-
-    paginator.pageIndex = 1;
-    dataSource.load();
-    await respondWith(await nextSearch());
-    paginator.pageIndex = 0;
-    dataSource.load();
-    await settle();
-
-    httpTestingController.expectNone(ZOEKEN_URL);
-  });
-
   it("searches again after a delay, also when the search parameters did not change, so a bulk action shows", async () => {
     await respondWith(
       await showTable(

@@ -81,13 +81,6 @@ describe(ZaakZoekenCardComponent.name, () => {
     await sleep();
   }
 
-  async function mountAgain() {
-    fixture = TestBed.createComponent(ZaakZoekenCardComponent);
-    fixture.componentRef.setInput("data", cardData);
-    fixture.detectChanges();
-    await sleep();
-  }
-
   async function respondWith(resultaat: ReturnType<typeof makeResultaat>) {
     const request = httpTestingController.expectOne("/rest/zoeken/list");
     request.flush(resultaat);
@@ -124,17 +117,6 @@ describe(ZaakZoekenCardComponent.name, () => {
     await respondWith(makeResultaat(25, 5));
 
     expect(screen.getByText(/of 25/)).toBeVisible();
-  });
-
-  it("searches again when the card opens once more, also when the cache holds a recent result, so a zaak released elsewhere disappears", async () => {
-    await setup();
-    await respondWith(makeResultaat(4));
-    fixture.destroy();
-
-    await mountAgain();
-    await respondWith(makeResultaat(3));
-
-    expect(screen.getAllByRole("row", { name: /ZAAK-FOUND/ })).toHaveLength(3);
   });
 
   it("renders the columns in display order", async () => {

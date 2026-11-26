@@ -8,7 +8,6 @@ import { inject, Injectable } from "@angular/core";
 import {
   type MutationFunctionContext,
   mutationOptions,
-  type Query,
   queryOptions,
 } from "@tanstack/angular-query-experimental";
 import type { PathsWithMethod } from "openapi-typescript-helpers";
@@ -63,22 +62,6 @@ export const LOAD_PER_VISIT = {
   staleTime: StaleTimes.Instant,
   gcTime: 0,
 } as const;
-
-/**
- * Refetches a result that was cached before the screen opened, and then keeps
- * each result for `staleTime`. Create one for each opened screen.
- */
-export function freshPerVisit(staleTime: StaleTimes) {
-  const dataUpdatedAtOnFirstUse = new Map<string, number>();
-  return ({ queryHash, state }: Pick<Query, "queryHash" | "state">) => {
-    if (!dataUpdatedAtOnFirstUse.has(queryHash)) {
-      dataUpdatedAtOnFirstUse.set(queryHash, state.dataUpdatedAt);
-    }
-    return state.dataUpdatedAt === dataUpdatedAtOnFirstUse.get(queryHash)
-      ? StaleTimes.Instant
-      : staleTime;
-  };
-}
 
 /** The request of a write whose parameters are known before its body. */
 const requestOf =
