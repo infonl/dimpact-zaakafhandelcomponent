@@ -31,13 +31,15 @@ The system SHALL keep the paths, HTTP verbs, path keys, request payloads, and re
 response of the list `GET /zaakafhandelparameters`, which the requirement "The configuration list carries only what
 the list page shows" defines. The generated OpenAPI specification SHALL NOT change, except that `defaultGroepId` of
 `RestZaaktypeConfiguration` is required and must not be blank, except the list item type of
-`GET /zaakafhandelparameters`, and except the value `ZAAKTYPE_CONFIGURATIES` of `ScreenEventType`.
+`GET /zaakafhandelparameters`, except the value `ZAAKTYPE_CONFIGURATIES` of `ScreenEventType`, and except the new
+schema `FixedScreenEventResourceId` with the value `zaaktype-configuraties`.
 
 #### Scenario: OpenAPI specification is unchanged apart from the required default groep
 - **WHEN** the OpenAPI specification is generated from the changed backend
 - **THEN** it is identical to the specification that was generated before the change, except that
   `RestZaaktypeConfiguration` lists `defaultGroepId` as required, that `GET /zaakafhandelparameters` returns
-  a list of `RestZaaktypeConfigurationOverzicht`, and that `ScreenEventType` has the value `ZAAKTYPE_CONFIGURATIES`
+  a list of `RestZaaktypeConfigurationOverzicht`, that `ScreenEventType` has the value `ZAAKTYPE_CONFIGURATIES`,
+  and that the new schema `FixedScreenEventResourceId` has the value `zaaktype-configuraties`
 
 #### Scenario: Shared fields round-trip through both resources
 - **GIVEN** a BPMN zaaktype configuration that was stored through `POST /zaaktype-bpmn-configuration`
