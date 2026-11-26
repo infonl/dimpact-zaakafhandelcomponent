@@ -36,6 +36,7 @@ import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
+import nl.info.zac.log.LogCapture
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.signalering.model.Signalering
 import nl.info.zac.signalering.model.SignaleringSubject
@@ -99,7 +100,22 @@ class SignaleringEventObserverTest : BehaviorSpec({
             }
 
             `when`("the event is handled") {
-                signaleringEventObserver.onFire(signaleringEvent)
+                val records = LogCapture(SignaleringEventObserver::class).use { logCapture ->
+                    signaleringEventObserver.onFire(signaleringEvent)
+                    logCapture.records
+                }
+
+                then("the handling is logged once the subscriptions are applied, with the zaak and without the medewerker") {
+                    with(records.single()) {
+                        message shouldBe "Signalering event handled"
+                        mdc["result"] shouldBe "SUBSCRIPTIONS_APPLIED"
+                        mdc["subjecttype"] shouldBe "ZAAK"
+                        mdc["subject"] shouldBe zaak.uuid.toString()
+                        mdc["isDashboard"] shouldBe "true"
+                        mdc["isMail"] shouldBe "false"
+                        containsAnywhere(user.username) shouldBe false
+                    }
+                }
 
                 then("the medewerker is signalled that the zaak is on their name") {
                     with(storedSignalering.captured) {
@@ -211,7 +227,17 @@ class SignaleringEventObserverTest : BehaviorSpec({
             every { zrcClientService.readRol(rolUri) } returns rolMedewerker
 
             `when`("the event is handled") {
-                signaleringEventObserver.onFire(signaleringEvent)
+                val records = LogCapture(SignaleringEventObserver::class).use { logCapture ->
+                    signaleringEventObserver.onFire(signaleringEvent)
+                    logCapture.records
+                }
+
+                then("the handling is logged without a signalering") {
+                    with(records.single()) {
+                        mdc["result"] shouldBe "NO_SIGNALERING"
+                        mdc["subject"] shouldBe "null"
+                    }
+                }
 
                 then("no signalering is created, because only a behandelaar gets a zaak on their name") {
                     verify(exactly = 0) {
@@ -245,7 +271,18 @@ class SignaleringEventObserverTest : BehaviorSpec({
             every { signaleringService.isNecessary(any(), user.username) } returns false
 
             `when`("the event is handled") {
-                signaleringEventObserver.onFire(signaleringEventByBehandelaar)
+                val records = LogCapture(SignaleringEventObserver::class).use { logCapture ->
+                    signaleringEventObserver.onFire(signaleringEventByBehandelaar)
+                    logCapture.records
+                }
+
+                then("the handling is logged as unnecessary, with the zaak and without the medewerker who caused it") {
+                    with(records.single()) {
+                        mdc["result"] shouldBe "UNNECESSARY"
+                        mdc["subject"] shouldBe zaak.uuid.toString()
+                        containsAnywhere(user.username) shouldBe false
+                    }
+                }
 
                 then("no signalering is stored or sent, because it is not necessary") {
                     verify(exactly = 0) {

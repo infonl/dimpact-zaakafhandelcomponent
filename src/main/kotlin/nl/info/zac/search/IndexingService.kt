@@ -18,6 +18,7 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.util.isOpen
+import nl.info.zac.log.Outcome
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.search.converter.DocumentZoekObjectConverter
 import nl.info.zac.search.converter.TaakZoekObjectConverter
@@ -32,6 +33,7 @@ import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
 
 /**
  * Public entry point for indexing/reindexing ZAC's Solr search index. The generic Solr/conversion
@@ -145,18 +147,32 @@ class IndexingService @Inject constructor(
     @Suppress("TooGenericExceptionCaught")
     fun reindexAll(objectTypes: Set<ZoekObjectType> = ZoekObjectType.entries.toSet()) {
         val orderedObjectTypes = objectTypes.sorted()
+        val startTime = System.nanoTime()
         LOG.info(CompleteReindexingStarted(objectTypes = orderedObjectTypes))
         val combinedObjectTypes = combinableObjectTypes(objectTypes)
-        if (combinedObjectTypes.isNotEmpty()) {
-            try {
-                reindexCombined(combinedObjectTypes)
-            } catch (exception: Exception) {
-                LOG.severe(ReindexingFailed(objectTypes = combinedObjectTypes), exception)
-            }
-        }
-        orderedObjectTypes.filterNot { it in combinedObjectTypes }.forEach(::reindexOrLogFailure)
-        LOG.info(CompleteReindexingFinished(objectTypes = orderedObjectTypes))
+        val isCombinedReindexSuccessful = combinedObjectTypes.isEmpty() || reindexCombinedOrLogFailure(combinedObjectTypes)
+        val isEveryOtherReindexSuccessful = orderedObjectTypes
+            .filterNot { it in combinedObjectTypes }
+            .map(::reindexOrLogFailure)
+            .all { it }
+        LOG.info(
+            CompleteReindexingFinished(
+                objectTypes = orderedObjectTypes,
+                outcome = if (isCombinedReindexSuccessful && isEveryOtherReindexSuccessful) Outcome.SUCCESS else Outcome.FAILURE,
+                durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime)
+            )
+        )
     }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun reindexCombinedOrLogFailure(objectTypes: Set<ZoekObjectType>): Boolean =
+        try {
+            reindexCombined(objectTypes)
+            true
+        } catch (exception: Exception) {
+            LOG.severe(ReindexingFailed(objectTypes = objectTypes), exception)
+            false
+        }
 
     /**
      * The subset of [objectTypes] that [reindexCombined] can reindex together: `ZAAK` together with
@@ -174,18 +190,19 @@ class IndexingService @Inject constructor(
 
     /**
      * Runs [reindex] for [objectType], logging (rather than propagating) any failure that escapes it, so
-     * that [reindexAll] continues with the remaining object types regardless.
+     * that [reindexAll] continues with the remaining object types regardless. Returns whether it succeeded.
      */
     @Suppress("TooGenericExceptionCaught")
-    private fun reindexOrLogFailure(objectType: ZoekObjectType) {
+    private fun reindexOrLogFailure(objectType: ZoekObjectType): Boolean =
         try {
             reindex(objectType)
+            true
         } catch (exception: Exception) {
             // catches more than IndexingException on purpose
             // an unguarded exception anywhere in reindex() must not abort the reindexing process
             LOG.severe(ReindexingFailed(objectTypes = listOf(objectType)), exception)
+            false
         }
-    }
 
     /**
      * Reindexes [objectTypes] (`ZAAK` together with `TAAK` and/or `DOCUMENT`) as one zaak-driven combined

@@ -37,6 +37,7 @@ import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.task.readZaakUUID
+import nl.info.zac.log.Outcome
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.Bronnen
@@ -48,7 +49,7 @@ import nl.info.zac.search.model.SorteerVeld
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.signalering.log.InvalidSignaleringFound
 import nl.info.zac.signalering.log.InvalidSignaleringenKept
-import nl.info.zac.signalering.log.OldSignaleringenDeleted
+import nl.info.zac.signalering.log.OldSignaleringenDeletionCompleted
 import nl.info.zac.signalering.log.SignaleringTimestampReplaced
 import nl.info.zac.signalering.log.SignaleringenListed
 import nl.info.zac.signalering.model.CheckedSignaleringen
@@ -72,6 +73,8 @@ import org.flowable.task.api.TaskInfo
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID
+import java.util.concurrent.TimeUnit
+import java.util.logging.Level
 import kotlin.concurrent.withLock
 
 @ApplicationScoped
@@ -174,6 +177,7 @@ class SignaleringService @Inject constructor(
                     signaleringType = type.type,
                     subjecttype = subjecttype,
                     subject = subject,
+                    previousTijdstip = tijdstip,
                     tijdstip = signalering.tijdstip
                 )
             )
@@ -203,6 +207,7 @@ class SignaleringService @Inject constructor(
      * @return the number of deleted signaleringen
      */
     @Transactional(REQUIRED)
+    @Suppress("TooGenericExceptionCaught")
     fun deleteOldSignaleringen(deleteOlderThanDays: Long): Int {
         val builder = entityManager.criteriaBuilder
         val query = builder.createCriteriaDelete(Signalering::class.java)
@@ -213,8 +218,25 @@ class SignaleringService @Inject constructor(
                 ZacTime.now().minusDays(deleteOlderThanDays)
             )
         )
-        return entityManager.createQuery(query).executeUpdate().also {
-            LOG.info(OldSignaleringenDeleted(olderThanDays = deleteOlderThanDays, deletedCount = it))
+        val startTime = System.nanoTime()
+        var deletedCount: Int? = null
+        var errorType: String? = null
+        try {
+            return entityManager.createQuery(query).executeUpdate().also { deletedCount = it }
+        } catch (runtimeException: RuntimeException) {
+            errorType = runtimeException.javaClass.name
+            throw runtimeException
+        } finally {
+            LOG.log(
+                if (deletedCount != null) Level.INFO else Level.WARNING,
+                OldSignaleringenDeletionCompleted(
+                    olderThanDays = deleteOlderThanDays,
+                    deletedCount = deletedCount,
+                    outcome = if (deletedCount != null) Outcome.SUCCESS else Outcome.FAILURE,
+                    durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime),
+                    errorType = errorType
+                )
+            )
         }
     }
 
