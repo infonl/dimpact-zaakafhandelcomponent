@@ -17,7 +17,7 @@ import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.log.ZaaktypeEvent
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
-import nl.info.zac.smartdocuments.log.InformatieobjecttypeMappingFetching
+import nl.info.zac.smartdocuments.log.InformatieobjecttypeMappingLookupStarted
 import nl.info.zac.smartdocuments.log.PersistedTemplateMappingRead
 import nl.info.zac.smartdocuments.log.TemplateMappingDeleted
 import nl.info.zac.smartdocuments.log.TemplateMappingSource
@@ -96,7 +96,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
         restTemplateGroups: Set<RestMappedSmartDocumentsTemplateGroup>,
         zaaktypeUUID: UUID
     ) {
-        LOG.fine { ZaaktypeEvent(type = ZaaktypeEvent.Type.TEMPLATE_MAPPING_STORING, zaaktypeUuid = zaaktypeUUID) }
+        LOG.fine { ZaaktypeEvent(type = ZaaktypeEvent.Type.TEMPLATE_MAPPING_STORAGE_STARTED, zaaktypeUuid = zaaktypeUUID) }
 
         (
             zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)
@@ -222,7 +222,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
         templateId: String
     ): UUID {
         LOG.fine {
-            InformatieobjecttypeMappingFetching(
+            InformatieobjecttypeMappingLookupStarted(
                 zaaktypeUuid = zaaktypeUUID,
                 templateGroupId = templateGroupId,
                 templateId = templateId

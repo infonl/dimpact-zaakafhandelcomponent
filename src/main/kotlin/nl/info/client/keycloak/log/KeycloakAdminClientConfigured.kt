@@ -6,8 +6,8 @@ package nl.info.client.keycloak.log
 
 import nl.info.zac.log.LogEvent
 
-class KeycloakAdminClientBuilding(
+class KeycloakAdminClientConfigured(
     val url: String,
     val realm: String,
     val clientId: String
-) : LogEvent("Building Keycloak admin client")
+) : LogEvent("Keycloak admin client configured")

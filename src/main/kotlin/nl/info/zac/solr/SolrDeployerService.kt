@@ -17,7 +17,7 @@ import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.solr.FieldType.STRING
 import nl.info.zac.solr.exception.SolrDeploymentException
 import nl.info.zac.solr.log.SolrCoreNotAvailable
-import nl.info.zac.solr.log.SolrCoreUpdating
+import nl.info.zac.solr.log.SolrCoreUpdateStarted
 import nl.info.zac.solr.log.SolrCoreVersionChecked
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -114,7 +114,7 @@ class SolrDeployerService @Inject constructor(
         )
 
     private fun apply(schemaUpdate: SolrSchemaUpdate) {
-        LOG.info(SolrCoreUpdating(solrCore = SOLR_CORE, version = schemaUpdate.versie))
+        LOG.info(SolrCoreUpdateStarted(solrCore = SOLR_CORE, version = schemaUpdate.versie))
         try {
             val schemaRequestUpdates = schemaUpdate.schemaUpdates + updateVersionField(schemaUpdate.versie)
             SchemaRequest.MultiUpdate(schemaRequestUpdates).process(solrClient)

@@ -12,7 +12,7 @@ import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.zac.flowable.FlowableHelper
-import nl.info.zac.flowable.bpmn.delegate.log.ConfirmationMailSending
+import nl.info.zac.flowable.bpmn.delegate.log.ConfirmationMailRecipientDetermined
 import nl.info.zac.flowable.bpmn.delegate.log.EmailSource
 import nl.info.zac.identification.IdentificatieType
 import nl.info.zac.identification.toIdentificatieType
@@ -101,7 +101,7 @@ class SendConfirmationEmailDelegate : AbstractDelegate() {
         emailSource: EmailSource,
         recipient: String?
     ) = LOG.fine(
-        ConfirmationMailSending(
+        ConfirmationMailRecipientDetermined(
             zaakIdentificatie = zaakIdentificatie,
             templateName = templateName,
             emailSource = emailSource,

@@ -46,7 +46,7 @@ class ProductaanvraagDocumentService @Inject constructor(
 
     fun pairAanvraagPDFWithZaak(productaanvraag: ProductaanvraagDimpact, zaakUrl: URI) {
         if (productaanvraag.pdf == null) {
-            LOG.warning(GenericEvent(type = GenericEvent.Type.AANVRAAG_PDF_MISSING))
+            LOG.warning(GenericEvent(type = GenericEvent.Type.AANVRAAG_PDF_NOT_FOUND))
             return
         }
         ZaakInformatieObjectRequest().apply {

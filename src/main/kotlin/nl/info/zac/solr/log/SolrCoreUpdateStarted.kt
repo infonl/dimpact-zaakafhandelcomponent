@@ -6,7 +6,7 @@ package nl.info.zac.solr.log
 
 import nl.info.zac.log.LogEvent
 
-class SolrCoreUpdating(
+class SolrCoreUpdateStarted(
     val solrCore: String,
     val version: Int
-) : LogEvent("Updating Solr core to version")
+) : LogEvent("Solr core update to version started")

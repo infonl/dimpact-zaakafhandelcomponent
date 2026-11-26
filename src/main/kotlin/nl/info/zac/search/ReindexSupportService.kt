@@ -210,7 +210,7 @@ class ReindexSupportService @Inject constructor(
      * deletes entities that reindexing will not get a chance to replace.
      */
     internal fun deleteExistingEntities(objectType: ZoekObjectType) {
-        LOG.info(ReindexEvent(type = ReindexEvent.Type.EXISTING_DOCUMENTS_DELETING, objectType = objectType))
+        LOG.info(ReindexEvent(type = ReindexEvent.Type.EXISTING_DOCUMENTS_DELETION_STARTED, objectType = objectType))
         removeEntitiesFromSolrIndex(objectType)
     }
 

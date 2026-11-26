@@ -480,7 +480,7 @@ class ProductaanvraagZaakServiceTest : BehaviorSpec({
                 }
 
                 and("the assignment is logged with the Keycloak user ID of the behandelaar and not the username") {
-                    with(records.single { it.message == "Assigning zaak" }) {
+                    with(records.single { it.message == "Zaak assignment started" }) {
                         mdc["zaakUuid"] shouldBe zaak.uuid.toString()
                         mdc["behandelaar"] shouldBe "fakeKeycloakUserId"
                         containsAnywhere("fakeBehandelaarId") shouldBe false
@@ -507,7 +507,7 @@ class ProductaanvraagZaakServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         zaakService.assignZaak(zaak = zaak, groupId = null, userName = "fakeBehandelaarId", reason = null)
                     }
-                    with(records.single { it.message == "Assigning zaak" }) {
+                    with(records.single { it.message == "Zaak assignment started" }) {
                         mdc["behandelaar"] shouldBe UNKNOWN_EMPLOYEE
                         containsAnywhere("fakeBehandelaarId") shouldBe false
                     }

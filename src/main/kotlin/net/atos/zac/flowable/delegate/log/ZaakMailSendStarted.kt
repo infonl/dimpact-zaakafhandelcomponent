@@ -2,14 +2,13 @@
  * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.flowable.bpmn.delegate.log
+package net.atos.zac.flowable.delegate.log
 
 import nl.info.zac.log.LogEvent
 import nl.info.zac.log.Redacted
 
-class ConfirmationMailSending(
+class ZaakMailSendStarted(
     val zaakIdentificatie: String?,
     val templateName: String,
-    val emailSource: EmailSource,
-    @Redacted val recipient: String?
-) : LogEvent("Sending confirmation mail")
+    @Redacted val recipient: String
+) : LogEvent("Zaak mail send started")
