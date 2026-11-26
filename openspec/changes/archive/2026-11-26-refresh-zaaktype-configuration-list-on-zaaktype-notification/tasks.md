@@ -23,4 +23,4 @@
 - [x] 4.1 Run `./gradlew spotlessApply detektApply detekt` and `./gradlew test --tests "nl.info.zac.notification.NotificationReceiverTest"`.
 - [x] 4.2 In `src/main/app`, run `npm run lint`, which also type-checks the specs with `ngc` (Jest does not type-check), and `npx ng test --test-path-patterns=src/app/admin/parameters/parameters.component.spec.ts`.
 - [x] 4.3 Run `./gradlew itest --tests "nl.info.zac.itest.NotificationZaaktypeCompletionParametersTest"`.
-- [ ] 4.4 In the local kind stack, keep the Zaakafhandelparameters page open, publish a new version of a configured zaaktype on the publish page of Open Zaak (the "Publiceren" button of the zaaktype) in another window, and check that the page shows the new version with its procesmodel without a reload or a focus change.
+- [x] 4.4 In the local kind stack, keep the Zaakafhandelparameters page open, publish a new version of a configured zaaktype on the publish page of Open Zaak (the "Publiceren" button of the zaaktype) in another window, and check that the page shows the new version with its procesmodel without a reload or a focus change.
