@@ -405,6 +405,47 @@ describe(ZaakLinkComponent.name, () => {
     expect(screen.queryByText("msg.loading")).toBeNull();
   });
 
+  it("searches again when the same criteria are searched once more, so it shows what changed since", async () => {
+    await setup();
+    const queryFn = jest.fn().mockResolvedValue({
+      resultaten: [makeFakeSearchResult()],
+      totaal: 1,
+    });
+    jest
+      .spyOn(ZoekenService.prototype, "findLinkableZaken")
+      .mockReturnValue(
+        fromPartial({ queryKey: ["koppelbare zaken"], queryFn }),
+      );
+
+    await chooseRelationType("DEELZAAK");
+    await enterSearchCriterion();
+    await clickSearch();
+    await clickSearch();
+
+    expect(queryFn).toHaveBeenCalledTimes(2);
+  });
+
+  it("turns the loading indicator off when the panel closes during a search", async () => {
+    await setup();
+    jest
+      .spyOn(ZoekenService.prototype, "findLinkableZaken")
+      .mockReturnValue(
+        fromPartial({
+          queryKey: ["koppelbare zaken die niet terugkomen"],
+          queryFn: () => new Promise(() => undefined),
+        }),
+      );
+    await chooseRelationType("DEELZAAK");
+    await enterSearchCriterion();
+    await clickSearch();
+    const setLoading = jest.mocked(TestBed.inject(UtilService).setLoading);
+    expect(setLoading).toHaveBeenLastCalledWith(true);
+
+    fixture.destroy();
+
+    expect(setLoading).toHaveBeenLastCalledWith(false);
+  });
+
   it("points out that only the first ten of many results are shown", async () => {
     await setup();
     findLinkableZaken(
