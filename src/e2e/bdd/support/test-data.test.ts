@@ -131,7 +131,7 @@ function testDataOfZaakThatAllows(informatieobjecttypen: string[]) {
   };
   const api = {
     GET: (path: string) => Promise.resolve({ data: responses[path] }),
-    POST: () => Promise.resolve({ data: {} }),
+    POST: () => Promise.resolve({ data: { uuid: "document-uuid" } }),
   } as unknown as ZacApi;
   return createTestData({
     apiAs: () => Promise.resolve(api),

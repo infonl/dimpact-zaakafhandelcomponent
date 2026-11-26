@@ -6,10 +6,11 @@
 import dotenv from "dotenv";
 import path from "node:path";
 import { z } from "zod";
+import { dev } from "./targets/dev";
 import { kind } from "./targets/kind";
 import { targetSettingsSchema, type Target } from "./targets/target";
 
-const TARGETS: Record<string, Target> = { kind };
+const TARGETS: Record<string, Target> = { dev, kind };
 const DEFAULT_TARGET = "kind";
 const ciSchema = z.stringbool().default(false);
 

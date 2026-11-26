@@ -11,7 +11,8 @@ commit:
   the stored configuration through the cache (`storeTemplatesMapping`, `deleteTemplateMapping`).
 - `MailTemplateKoppelingenService.storeMailtemplateKoppeling` and `MailTemplateKoppelingenService.delete`.
 
-`clearManagedCache`, `clearListCache` and `UtilRestService.clearCaches` run outside such a transaction. ZAC has no
+`clearListCache` and `UtilRestService.clearCaches` run outside such a transaction. `MailTemplateService` calls
+`clearManagedCache` inside one; PZ-13552 fixes that. ZAC has no
 after-commit pattern yet: it uses no `TransactionSynchronizationRegistry` and no transactional observer.
 
 ## Goals / Non-Goals
@@ -78,7 +79,7 @@ does not reach the caller. Clearing a Caffeine cache does not throw in practice.
 ### D5. Clearing by hand stays immediate
 
 `clearManagedCache` and `clearListCache` keep clearing the caches directly, once. A beheerder expects an empty cache
-when the request returns, and these functions do not run in a transaction that changes the configuration.
+when the request returns.
 
 ### D6. Record the pattern in an ADR
 

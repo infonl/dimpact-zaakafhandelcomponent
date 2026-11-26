@@ -13,7 +13,6 @@ src/generated
 wildfly-*
 .env*
 !.env.example
-src/e2e/ExportData/*
 src/main/app/.nvmrc
 bin
 node-compile-cache

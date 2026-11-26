@@ -58,7 +58,7 @@ The local stack must run ZAC with the test doubles:
 ```bash
 ./start-e2e-with-local-env.sh       # E2E journeys against ZAC in the local kind stack
 ./start-e2e-with-local-env.sh --ui  # ... in the Playwright UI; other arguments go to Playwright too
-./start-e2e-with-test-env.sh        # The cucumber-js suite against the TEST environment, until its features are replaced
+./start-e2e-with-test-env.sh        # ... against the TEST environment
 ```
 
 ### Local Kubernetes Stack (kind)

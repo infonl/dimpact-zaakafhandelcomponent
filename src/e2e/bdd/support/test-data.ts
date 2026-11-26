@@ -17,6 +17,8 @@ import { dataOf, type Schemas, type ZacApi } from "./zac-api";
 
 const SEARCH_INDEX_TIMEOUT_MILLISECONDS = 60_000;
 const NOTIFICATION_TIMEOUT_MILLISECONDS = 60_000;
+// Such a zaak goes from Open Formulieren through the Objecten API and Open Notificaties to ZAC.
+const ZAAK_FROM_OUTSIDE_TIMEOUT_MILLISECONDS = 180_000;
 const STATUS_IN_BEHANDELING = "In behandeling";
 
 export type RememberedZaak = {
@@ -73,7 +75,7 @@ export type TestData = {
     omschrijving: string,
     settings: { groep: string },
   ): Promise<void>;
-  /** Makes sure ZAC has the BPMN process with its forms. ZAC does not deploy the same process twice. */
+  /** Makes the BPMN process with its forms the latest version in ZAC. */
   ensureProcess(process: BpmnProcess): Promise<void>;
   /** Makes sure the zaaktype is handled by the BPMN process, and routes new zaken to the groep. */
   ensureBpmnZaaktype(
@@ -91,15 +93,17 @@ export type TestData = {
   closeZaak(zaak: RememberedZaak, resultaat: string): Promise<void>;
   /**
    * Adds a small text document to the zaak through the REST API as the behandelaar, and remembers it. Makes its titel
-   * unique.
+   * unique. Returns the uuid of the document.
    */
-  addDocument(zaak: RememberedZaak, document: NewDocument): Promise<void>;
+  addDocument(zaak: RememberedZaak, document: NewDocument): Promise<string>;
   /** Remembers a document that the scenario added, for example through the UI, with the unique titel it got. */
   rememberDocument(titel: string, uniqueTitel: string): void;
   /** The unique titel of the document that the scenario added with the titel. Fails the step when it added none. */
   documentTitled(titel: string): string;
   /** Starts the human task of the zaak for the groep, without a behandelaar, through the REST API as the behandelaar. */
   startTaak(zaak: RememberedZaak, taak: NewTaak): Promise<void>;
+  /** Waits until the search index of ZAC has a zaak with the text in its toelichting, and remembers that zaak. */
+  untilZaakWithToelichting(text: string): Promise<void>;
   /** Remembers a zaak that the scenario created, for example through the UI, so later steps can find it. */
   rememberZaak(zaak: RememberedZaak): void;
   /** The zaak that the scenario created last. Fails the step when the scenario created no zaak yet. */
@@ -164,6 +168,20 @@ async function isZaakInSearchIndex(
   return (resultaten ?? []).some(
     (zaak) => zaak.identificatie === identificatie,
   );
+}
+
+async function zakenWithToelichting(api: ZacApi, text: string) {
+  const { resultaten } = await dataOf(
+    api.PUT("/rest/zoeken/list", {
+      body: {
+        type: "ZAAK",
+        page: 0,
+        rows: 10,
+        zoeken: { ZAAK_TOELICHTING: text },
+      },
+    }),
+  );
+  return (resultaten ?? []).flatMap(({ identificatie }) => identificatie ?? []);
 }
 
 async function isZaakWithStatusInSearchIndex(
@@ -359,7 +377,7 @@ async function addDocumentTo(
   }
   const inhoud = `${titel}\n`;
   const bestandsnaam = "besluitbrief.txt";
-  await dataOf(
+  const { uuid } = await dataOf(
     api.POST(
       "/rest/informatieobjecten/informatieobject/{zaakUuid}/{documentReferenceId}",
       {
@@ -396,6 +414,9 @@ async function addDocumentTo(
       },
     ),
   );
+  if (!uuid)
+    throw new Error(`ZAC returned no uuid of the document "${titel}".`);
+  return uuid;
 }
 
 /** ZAC accepts a person only by the temporary id that a search in the BRP gives, not by the BSN. */
@@ -500,6 +521,18 @@ export function createTestData({
       return zaak;
     },
 
+    async untilZaakWithToelichting(text) {
+      const api = await apiAs("behandelaar");
+      await expect
+        .poll(() => zakenWithToelichting(api, text), {
+          message: `The search index has no zaak with "${text}" in its toelichting.`,
+          timeout: ZAAK_FROM_OUTSIDE_TIMEOUT_MILLISECONDS,
+        })
+        .toHaveLength(1);
+      const [identificatie] = await zakenWithToelichting(api, text);
+      this.rememberZaak({ identificatie });
+    },
+
     async finishIntake({ identificatie }) {
       await finishIntakeOf(await apiAs("behandelaar"), identificatie);
     },
@@ -510,11 +543,16 @@ export function createTestData({
 
     async addDocument({ identificatie }, { titel, informatieobjecttype }) {
       const uniqueTitel = this.unique(titel);
-      await addDocumentTo(await apiAs("behandelaar"), identificatie, {
-        titel: uniqueTitel,
-        informatieobjecttype,
-      });
+      const uuid = await addDocumentTo(
+        await apiAs("behandelaar"),
+        identificatie,
+        {
+          titel: uniqueTitel,
+          informatieobjecttype,
+        },
+      );
       this.rememberDocument(titel, uniqueTitel);
+      return uuid;
     },
 
     async startTaak({ identificatie }, taak) {

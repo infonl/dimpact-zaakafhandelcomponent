@@ -9,7 +9,6 @@ import type { Account, Target, UnknownZacUrl } from "./target";
 
 const REPOSITORY_ROOT = path.resolve(__dirname, "../../../..");
 // The host ports of greenmail-api and open-object in scripts/kind/ports.json.
-const DEFAULT_GREENMAIL_API_PORT = "18083";
 const DEFAULT_OPEN_OBJECT_PORT = "8010";
 
 function portsFileOf(clusterName: string) {
@@ -86,23 +85,15 @@ export const kind: Target = (environment) => ({
     signInButton: "Sign In",
     invalidCredentialsMessage: "Invalid username or password.",
   },
-  // The test doubles of './start-kind.sh -t', with the settings of scripts/kind/values/zac-e2e.yaml.
-  testDoubles: {
-    // scripts/kind/seed/bag-wiremock only answers this search text.
-    bag: { searchText: "fake search text", adres: "Dam 1, 1012JS Amsterdam" },
-    mail: {
-      apiUrl: `${urlOfService(environment.KIND_CLUSTER_NAME ?? "zac", "GREENMAIL_API", DEFAULT_GREENMAIL_API_PORT)}/api`,
-    },
-    // The object type and the token are in scripts/kind/seed/open-object, the document in scripts/kind/seed/openzaak.
-    objecten: {
-      apiUrl: `${urlOfService(environment.KIND_CLUSTER_NAME ?? "zac", "OPEN_OBJECT", DEFAULT_OPEN_OBJECT_PORT)}/api/v2`,
-      token: "fakeOpenFormulierenObjectsToken",
-      productaanvraagObjecttype: "021f685e-9482-4620-b157-34cd4003da6b",
-      aanvraagdocument: {
-        url: "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e",
-        titel: "Fake test document",
-      },
-    },
+  // scripts/kind/seed/bag-wiremock only answers this search text.
+  bag: { searchText: "fake search text", adres: "Dam 1, 1012JS Amsterdam" },
+  // The object type and the token are in scripts/kind/seed/open-object.
+  objecten: {
+    apiUrl: `${urlOfService(environment.KIND_CLUSTER_NAME ?? "zac", "OPEN_OBJECT", DEFAULT_OPEN_OBJECT_PORT)}/api/v2`,
+    token: "fakeOpenFormulierenObjectsToken",
+    productaanvraagObjecttype: "021f685e-9482-4620-b157-34cd4003da6b",
+    objecttypeVersion: 1,
+    documentenApiUrl: "http://openzaak.local:8000/documenten/api/v1",
   },
   seed: {
     // The BRP test double knows this person, and scripts/kind/seed/openklant/1-setup-applicatie.sql gives it this

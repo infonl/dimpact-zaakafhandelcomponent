@@ -13,6 +13,7 @@ import { MatNativeDateModule } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
+import { focusManager } from "@tanstack/angular-query-experimental";
 import { screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
@@ -123,6 +124,7 @@ describe(ParametersComponent.name, () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+    focusManager.setFocused(undefined);
   });
 
   it("shows the loading message while the first page is being read", async () => {
@@ -169,6 +171,44 @@ describe(ParametersComponent.name, () => {
     expect(
       within(row).getByRole("link", { name: "actie.bewerken" }),
     ).toHaveAttribute("href", "/admin/parameters/uuid-Fake-zaaktype");
+  });
+
+  it("reads the configurations again when the beheerder returns to the list, so that a configuration that ZAC created meanwhile shows its procesmodel", async () => {
+    const zaaktypeConfigurationWithoutProcessDefinition = {
+      ...fakeZaaktypeConfigurationOverzicht("Nieuwe versie"),
+      processDefinition: undefined,
+    };
+    await render();
+    await answer(await expectPageRequest(), {
+      resultaten: [zaaktypeConfigurationWithoutProcessDefinition],
+    });
+    fixture.destroy();
+
+    await render();
+    await answer(await expectPageRequest(), {
+      resultaten: [fakeZaaktypeConfigurationOverzicht("Nieuwe versie")],
+    });
+
+    expect(screen.getByText("Fake procesmodel")).toBeVisible();
+  });
+
+  it("reads the configurations again when the beheerder comes back to the browser tab, so that a configuration that ZAC created meanwhile shows its procesmodel", async () => {
+    const zaaktypeConfigurationWithoutProcessDefinition = {
+      ...fakeZaaktypeConfigurationOverzicht("Nieuwe versie"),
+      processDefinition: undefined,
+    };
+    await render();
+    await answer(await expectPageRequest(), {
+      resultaten: [zaaktypeConfigurationWithoutProcessDefinition],
+    });
+
+    focusManager.setFocused(false);
+    focusManager.setFocused(true);
+    await answer(await expectPageRequest(), {
+      resultaten: [fakeZaaktypeConfigurationOverzicht("Nieuwe versie")],
+    });
+
+    expect(screen.getByText("Fake procesmodel")).toBeVisible();
   });
 
   it("reads the next page when the beheerder goes to the next page", async () => {

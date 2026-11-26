@@ -11,12 +11,26 @@ import {
   objectenOrSkip,
   registerProductaanvraag,
 } from "../../support/objecten";
+import { SEED } from "../seed";
+
+const AANVRAAGDOCUMENT = "aanvraagdocument";
 
 Given(
   "a productaanvraag {string} of a type that ZAC does not know",
   async ({ request, testData, $testInfo }, aanvraag: string) => {
+    const objecten = objectenOrSkip($testInfo);
     const type = testData.unique(aanvraag);
-    await registerProductaanvraag(request, objectenOrSkip($testInfo), type);
+    const { naam } = await testData.groepOf("behandelaar");
+    const zaakWithDocument = await testData.createZaak({
+      zaaktype: SEED.cmmnZaaktype,
+      groep: naam,
+      omschrijving: "zaak met het aanvraagdocument",
+    });
+    const documentUuid = await testData.addDocument(zaakWithDocument, {
+      titel: AANVRAAGDOCUMENT,
+      informatieobjecttype: SEED.informatieobjecttype,
+    });
+    await registerProductaanvraag(request, objecten, { type, documentUuid });
     await testData.untilProductaanvraagIsInInbox(type);
   },
 );
@@ -46,9 +60,10 @@ When(
 
 Then(
   "the zaak shows the document of the productaanvraag",
-  async ({ page, $testInfo }) => {
-    const { aanvraagdocument } = objectenOrSkip($testInfo);
-    await expect(zaakPage(page).document(aanvraagdocument.titel)).toBeVisible();
+  async ({ page, testData }) => {
+    await expect(
+      zaakPage(page).document(testData.documentTitled(AANVRAAGDOCUMENT)),
+    ).toBeVisible();
   },
 );
 
