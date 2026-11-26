@@ -33,9 +33,10 @@ import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.getFullName
-import nl.info.zac.log.GenericEvent
 import nl.info.zac.log.RolEvent
 import nl.info.zac.log.ZacLogger
+import nl.info.zac.mailtemplates.log.InitiatorKvkAddressReadFailed
+import nl.info.zac.mailtemplates.log.UnsupportedNietNatuurlijkPersoonIdentificatie
 import nl.info.zac.mailtemplates.model.MailLink
 import nl.info.zac.mailtemplates.model.MailTemplateVariables
 import nl.info.zac.mailtemplates.model.MailTemplateVariables.Companion.ZAAKDATA_VARIABLE_PREFIX
@@ -281,7 +282,7 @@ class MailTemplateHelper @Inject constructor(
         userName: String
     ): String {
         val identificatie = initiatorRole.identificatienummer ?: run {
-            LOG.warning(RolEvent(type = RolEvent.Type.INITIATOR_ROLE_WITHOUT_IDENTIFICATIE, rolUuid = initiatorRole.uuid))
+            LOG.warning(RolEvent.InitiatorRoleWithoutIdentificatie(rolUuid = initiatorRole.uuid))
             return ""
         }
         return when (initiatorRole.betrokkeneType) {
@@ -308,7 +309,7 @@ class MailTemplateHelper @Inject constructor(
 
     private fun findResultaatItem(nietNatuurlijkPersoonIdentificatie: NietNatuurlijkPersoonIdentificatie) =
         if (nietNatuurlijkPersoonIdentificatie.toIdentificatieType() == null) {
-            LOG.warning(GenericEvent(type = GenericEvent.Type.UNSUPPORTED_NIET_NATUURLIJK_PERSOON_IDENTIFICATIE))
+            LOG.warning(UnsupportedNietNatuurlijkPersoonIdentificatie)
             null
         } else {
             kvkClientService.findRechtspersoonOrVestiging(nietNatuurlijkPersoonIdentificatie)
@@ -322,7 +323,7 @@ class MailTemplateHelper @Inject constructor(
         return replaceInitiatorVariables(
             resolvedText = resolvedTekst,
             name = initiatorPersoon.getNaam()?.getVolledigeNaam() ?: run {
-                LOG.warning(RolEvent(type = RolEvent.Type.INITIATOR_WITHOUT_NAME, rolUuid = rolUuid))
+                LOG.warning(RolEvent.InitiatorWithoutName(rolUuid = rolUuid))
                 REPLACEMENT_FOR_UNKNOWN_NAME
             },
             address = initiatorPersoon.toAddressString()
@@ -349,7 +350,7 @@ class MailTemplateHelper @Inject constructor(
         try {
             kvkClientService.findCorrespondentieadresOrBezoekadres(resultaatItem)?.toAddressString().orEmpty()
         } catch (runtimeException: RuntimeException) {
-            LOG.warning(GenericEvent(type = GenericEvent.Type.INITIATOR_KVK_ADDRESS_READ_FAILED), runtimeException)
+            LOG.warning(InitiatorKvkAddressReadFailed, runtimeException)
             ""
         }
 

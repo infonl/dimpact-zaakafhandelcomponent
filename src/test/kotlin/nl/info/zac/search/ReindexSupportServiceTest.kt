@@ -267,7 +267,7 @@ class ReindexSupportServiceTest : BehaviorSpec({
 
             then("the failure is logged") {
                 logRecords.any {
-                    it.message == "Error during indexing [objectType=${ZoekObjectType.ZAAK}, type=INDEXING_FAILED]" &&
+                    it.message == "Error during indexing [objectType=${ZoekObjectType.ZAAK}]" &&
                         it.thrown?.cause?.message == "fake failure"
                 } shouldBe true
             }

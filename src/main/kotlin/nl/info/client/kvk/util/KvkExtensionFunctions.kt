@@ -10,8 +10,8 @@ import jakarta.ws.rs.core.Response
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.basisprofiel.model.generated.Basisprofiel
 import nl.info.client.kvk.exception.KvkClientException
+import nl.info.client.kvk.log.KvkProfielReadFailed
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
-import nl.info.zac.log.GenericEvent
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.formatHuisnummer
 import nl.info.zac.util.joinNonBlank
@@ -60,7 +60,7 @@ fun Basisprofiel.findAdressen(): List<BasisprofielAdres>? =
     embedded?.eigenaar?.adressen?.takeUnless { it.isEmpty() } ?: embedded?.hoofdvestiging?.adressen
 
 private fun logKvkProfielFailure(level: Level, exception: RuntimeException): VestigingsprofielAdres? {
-    LOG.log(level, GenericEvent(type = GenericEvent.Type.KVK_PROFIEL_READ_FAILED), exception)
+    LOG.log(level, KvkProfielReadFailed, exception)
     return null
 }
 

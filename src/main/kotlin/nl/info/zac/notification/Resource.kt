@@ -49,7 +49,7 @@ enum class Resource(private val code: String) {
         override fun adaptFromJson(code: String): Resource? =
             entries.find { it.code == code }.also {
                 if (it == null) {
-                    LOG.warning(UnknownNotificationCode(type = UnknownNotificationCode.Type.UNKNOWN_RESOURCE_CODE, code = code))
+                    LOG.warning(UnknownNotificationCode.UnknownResourceCode(code = code))
                 }
             }
     }

@@ -32,7 +32,7 @@ enum class Action(private val code: String, private val alternativeCode: String?
         override fun adaptFromJson(code: String): Action? =
             entries.find { it.code == code || it.alternativeCode == code }.also {
                 if (it == null) {
-                    LOG.warning(UnknownNotificationCode(type = UnknownNotificationCode.Type.UNKNOWN_ACTION_CODE, code = code))
+                    LOG.warning(UnknownNotificationCode.UnknownActionCode(code = code))
                 }
             }
     }

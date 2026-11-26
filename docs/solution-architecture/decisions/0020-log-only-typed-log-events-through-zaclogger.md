@@ -39,7 +39,7 @@ only option that accepts no free text and still keeps each event next to the cod
 
 * Every log record of the production code is a subclass of `LogEvent` with a fixed description and typed fields,
   written through `ZacLogger` in `nl.info.zac.log`. `ZacLogger` keeps the class name as logger name. Events with
-  the same fields share one class whose nested `Type` enum holds the fixed descriptions.
+  the same fields share one sealed class with a nested subclass per event, which passes its fixed description.
 * `ZacLogger` writes the description as `message` and each field as an MDC entry, which the JSON formatter of WildFly
   writes as a key under `mdc`, together with `event`, `errorType` (from a passed throwable), and `traceId` and
   `spanId` of the active OpenTelemetry span.
@@ -84,14 +84,15 @@ field name.
 
 * Good, because no API accepts free text.
 * Good, because the fields are separate JSON keys without a new log formatter.
-* Bad, because it needs many small event classes, about 140 in total; events with the same fields share one class
-  with a nested `Type` enum that holds their fixed descriptions.
+* Bad, because it needs many small event classes, about 140 in total; events with the same fields share one sealed
+  class with a nested subclass per event.
 
 ### A `sealed` hierarchy of log events in one package
 
 * Good, because the compiler knows every event.
 * Bad, because Kotlin requires all subclasses of a sealed class in the same package and module, so all events would
   live in `nl.info.zac.log`, far from their domain, and nothing uses an exhaustive `when` over log events.
+  Instead, each group of events with the same fields is a sealed class of its own, next to the code that logs it.
 
 ### A logger that takes a message template with free text and fields
 

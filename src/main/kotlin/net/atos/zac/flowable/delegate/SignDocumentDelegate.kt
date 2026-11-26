@@ -69,7 +69,7 @@ class SignDocumentDelegate : AbstractDelegate() {
             assertPolicy(
                 flowableHelper.policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).canOndertekenen,
                 LOG,
-                DocumentSigningEvent(type = DocumentSigningEvent.Type.DOCUMENT_SIGNING_DENIED, 
+                DocumentSigningEvent.DocumentSigningDenied(
                     informatieobjectIdentificatie = enkelvoudigInformatieobject.identificatie,
                     zaakIdentificatie = zaak.identificatie
                 )
@@ -77,7 +77,7 @@ class SignDocumentDelegate : AbstractDelegate() {
 
             if (enkelvoudigInformatieobject.ondertekening?.datum != null) {
                 LOG.warning(
-                    DocumentSigningEvent(type = DocumentSigningEvent.Type.DOCUMENT_ALREADY_SIGNED, 
+                    DocumentSigningEvent.DocumentAlreadySigned(
                         informatieobjectIdentificatie = enkelvoudigInformatieobject.identificatie,
                         zaakIdentificatie = zaak.identificatie
                     )
@@ -86,7 +86,7 @@ class SignDocumentDelegate : AbstractDelegate() {
             }
 
             LOG.fine(
-                DocumentSigningEvent(type = DocumentSigningEvent.Type.DOCUMENT_SIGNING_STARTED, 
+                DocumentSigningEvent.DocumentSigningStarted(
                     informatieobjectIdentificatie = enkelvoudigInformatieobject.identificatie,
                     zaakIdentificatie = zaak.identificatie
                 )

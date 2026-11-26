@@ -20,6 +20,7 @@ import nl.info.client.zgw.ztc.exception.RoltypeNotFoundException
 import nl.info.client.zgw.ztc.log.BesluittypeReadFailed
 import nl.info.client.zgw.ztc.log.ZtcCacheRefreshFailed
 import nl.info.client.zgw.ztc.log.ZtcCacheRefreshed
+import nl.info.client.zgw.ztc.log.ZtcCachesWritten
 import nl.info.client.zgw.ztc.log.ZtcRead
 import nl.info.client.zgw.ztc.model.BesluittypeListParameters
 import nl.info.client.zgw.ztc.model.CatalogusListParameters
@@ -43,7 +44,6 @@ import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.client.zgw.ztc.model.generated.ZaakTypeInformatieObjectType
-import nl.info.zac.log.GenericEvent
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
@@ -512,7 +512,7 @@ class ZtcClientService @Inject constructor(
     private fun writeCaches(cacheWrites: List<() -> Unit>) =
         synchronized(cacheLock) {
             cacheWrites.forEach { it() }
-            LOG.info(GenericEvent(type = GenericEvent.Type.ZTC_CACHES_WRITTEN))
+            LOG.info(ZtcCachesWritten)
         }
 
     private fun <K : Any, V : Any> Cache<K, V>.putUnlessInvalidated(key: K, value: V) {

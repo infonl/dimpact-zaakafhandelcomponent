@@ -10,13 +10,13 @@ import jakarta.websocket.DecodeException
 import jakarta.websocket.Decoder
 import jakarta.websocket.EndpointConfig
 import nl.info.zac.event.Opcode
-import nl.info.zac.log.GenericEvent
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.websocket.SubscriptionType.DELETE_ALL
 import nl.info.zac.websocket.SubscriptionType.SubscriptionMessage
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.websocket.event.ScreenEventId
 import nl.info.zac.websocket.event.ScreenEventType
+import nl.info.zac.websocket.log.SubscriptionMessageUndecodable
 import java.io.StringReader
 
 /**
@@ -63,7 +63,7 @@ class WebSocketSubscriptionMessageDecoder : Decoder.Text<SubscriptionMessage> {
             Json.createReader(StringReader(jsonMessage)).use { it.readObject() }
             true
         } catch (jsonException: JsonException) {
-            LOG.warning(GenericEvent(type = GenericEvent.Type.SUBSCRIPTION_MESSAGE_UNDECODABLE), jsonException)
+            LOG.warning(SubscriptionMessageUndecodable, jsonException)
             false
         }
 }

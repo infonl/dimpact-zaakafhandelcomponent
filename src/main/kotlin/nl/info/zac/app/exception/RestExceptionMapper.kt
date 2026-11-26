@@ -29,6 +29,7 @@ import nl.info.client.zgw.zrc.exception.ZrcRuntimeException
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.exception.ZtcRuntimeException
 import nl.info.zac.app.exception.log.ExceptionMappedToResponse
+import nl.info.zac.app.exception.log.ExceptionResponseConversionFailed
 import nl.info.zac.app.exception.log.ZgwValidationFailed
 import nl.info.zac.configuration.exception.FileSizeException
 import nl.info.zac.exception.ErrorCode
@@ -50,7 +51,6 @@ import nl.info.zac.exception.NotSupportedException
 import nl.info.zac.exception.ServerErrorException
 import nl.info.zac.exception.ZacSetupException
 import nl.info.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
-import nl.info.zac.log.GenericEvent
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
@@ -335,7 +335,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             exceptionMessage?.let { errorJsonHashMap["exception"] = it }
             ObjectMapper().writeValueAsString(errorJsonHashMap)
         } catch (jsonProcessingException: JsonProcessingException) {
-            LOG.severe(GenericEvent(type = GenericEvent.Type.EXCEPTION_RESPONSE_CONVERSION_FAILED), jsonProcessingException)
+            LOG.severe(ExceptionResponseConversionFailed, jsonProcessingException)
             JSON_CONVERSION_ERROR_MESSAGE
         }
 }
