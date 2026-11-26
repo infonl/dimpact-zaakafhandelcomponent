@@ -5,7 +5,9 @@
 
 package nl.info.zac.signalering
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -23,6 +25,7 @@ import nl.info.zac.app.search.model.createZoekResultaatForZaakZoekObjecten
 import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.flowable.task.FlowableTaskService
+import nl.info.zac.log.LogCapture
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.signalering.model.SignaleringSubject
@@ -33,6 +36,7 @@ import nl.info.zac.signalering.model.createSignaleringInstellingen
 import org.flowable.task.api.Task
 import java.net.URI
 import java.util.UUID
+import java.util.logging.Level
 
 class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
     val signaleringService = mockk<SignaleringService>()
@@ -223,6 +227,30 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     signaleringService.sendSignalering(taakOpNaamVerlopenSignalering1)
                     signaleringService.createSignaleringVerzonden(taakOpNaamVerlopenSignalering1)
+                }
+            }
+        }
+    }
+
+    given("a catalogus whose zaaktypen cannot be listed") {
+        val defaultCatalogusURI = URI("https://example.com/catalogi/fakeCatalogus")
+        val runtimeException = RuntimeException("fakeMessage")
+        every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogusURI
+        every { ztcClientService.listZaaktypen(defaultCatalogusURI) } throws runtimeException
+
+        `when`("the send due date email notifications method is called") {
+            val records = LogCapture(ZaakTaskDueDateEmailNotificationService::class).use { logCapture ->
+                shouldThrow<RuntimeException> { zaakTaskDueDateEmailNotificationService.sendDueDateEmailNotifications() }
+                logCapture.records
+            }
+
+            then("the zaak notifications are logged as a warning with outcome FAILURE and the error type") {
+                with(records.single { it.mdc["event"] == "DueDateEmailNotificationsCompleted" }) {
+                    level shouldBe Level.WARNING
+                    mdc["subjecttype"] shouldBe "ZAAK"
+                    mdc["outcome"] shouldBe "FAILURE"
+                    mdc["errorType"] shouldBe RuntimeException::class.java.name
+                    mdc["durationMs"].shouldNotBeNull()
                 }
             }
         }

@@ -44,6 +44,7 @@ import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.common.params.CursorMarkParams
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
 
 internal sealed interface ConversionOutcome {
     data class Converted(val zoekObject: ZoekObject) : ConversionOutcome
@@ -90,6 +91,8 @@ class ReindexSupportService @Inject constructor(
     private val pageConversionDispatcher = dispatcher.limitedParallelism(PAGE_CONVERSION_PARALLELISM)
 
     private val solrClient: SolrClient = solrClientFactory.createSolrClient(IndexingService.SOLR_CORE)
+
+    private val reindexStartTimes = ConcurrentHashMap<ZoekObjectType, Long>()
 
     fun commit() {
         runTranslatingToIndexingException {
@@ -199,10 +202,16 @@ class ReindexSupportService @Inject constructor(
 
     /**
      * Builds the "Reindexing started" log message for [objectType], including the current Solr
-     * document count for that type (i.e. before any entities are removed or reindexed).
+     * document count for that type (i.e. before any entities are removed or reindexed), and keeps the start
+     * time, so that the finished or aborted message has the duration of the reindex.
      */
-    internal fun reindexStarted(objectType: ZoekObjectType) =
-        ReindexingStarted(objectType = objectType, solrDocumentCount = countInSolrIndex(objectType))
+    internal fun reindexStarted(objectType: ZoekObjectType): ReindexingStarted {
+        reindexStartTimes[objectType] = System.nanoTime()
+        return ReindexingStarted(objectType = objectType, solrDocumentCount = countInSolrIndex(objectType))
+    }
+
+    private fun reindexDurationMs(objectType: ZoekObjectType): Long? =
+        reindexStartTimes.remove(objectType)?.let { TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - it) }
 
     /**
      * Deletes the existing Solr documents of [objectType]. Only called once the total count for
@@ -235,9 +244,14 @@ class ReindexSupportService @Inject constructor(
                 totalCount = totalCount,
                 skippedCount = skippedCount,
                 errorCount = (totalCount - successCount - skippedCount).coerceAtLeast(0),
-                solrDocumentCount = countInSolrIndex(objectType)
+                solrDocumentCount = countInSolrIndex(objectType),
+                durationMs = reindexDurationMs(objectType)
             )
-        } ?: ReindexingAborted(objectType = objectType, solrDocumentCount = countInSolrIndex(objectType))
+        } ?: ReindexingAborted(
+            objectType = objectType,
+            solrDocumentCount = countInSolrIndex(objectType),
+            durationMs = reindexDurationMs(objectType)
+        )
 
     /**
      * Commits (when [summary] is non-null) and logs the "Reindexing finished" message for [objectType].
