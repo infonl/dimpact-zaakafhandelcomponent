@@ -7,8 +7,8 @@ package nl.info.zac.smartdocuments.log
 import nl.info.zac.log.LogEvent
 import java.util.UUID
 
-class InformatieobjecttypeMappingFetching(
+class InformatieobjecttypeMappingLookupStarted(
     val zaaktypeUuid: UUID,
     val templateGroupId: String,
     val templateId: String
-) : LogEvent("Fetching information object type UUID mapping")
+) : LogEvent("Information object type UUID mapping lookup started")

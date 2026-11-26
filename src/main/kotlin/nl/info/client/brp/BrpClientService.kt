@@ -14,7 +14,7 @@ import nl.info.client.brp.log.BrpProtocolleringHeaderNotConfigured
 import nl.info.client.brp.log.BrpProtocolleringValueNotDetermined
 import nl.info.client.brp.log.BrpValueNotAscii
 import nl.info.client.brp.log.BrpValueResolutionFailed
-import nl.info.client.brp.log.BrpValueResolving
+import nl.info.client.brp.log.BrpValueResolutionStarted
 import nl.info.client.brp.model.generated.PersonenQuery
 import nl.info.client.brp.model.generated.PersonenQueryResponse
 import nl.info.client.brp.model.generated.Persoon
@@ -263,7 +263,7 @@ class BrpClientService @Inject constructor(
         buildFunction: (resolvedValue: String?, ZaaktypeConfiguration) -> String?
     ): String? =
         zaaktypeUuid?.let {
-            LOG.fine { BrpValueResolving(valueDescription = valueDescription, zaaktypeUuid = it) }
+            LOG.fine { BrpValueResolutionStarted(valueDescription = valueDescription, zaaktypeUuid = it) }
             try {
                 it.resolveValueFromZaaktypeConfiguration(valueDescription, defaultValue, resolveFunction, buildFunction)
             } catch (webApplicationException: WebApplicationException) {

@@ -5,7 +5,7 @@
 
 package net.atos.zac.flowable.delegate
 
-import net.atos.zac.flowable.delegate.log.ZaakSuspending
+import net.atos.zac.flowable.delegate.log.ZaakSuspensionStarted
 import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.assertPolicy
@@ -42,7 +42,7 @@ class SuspendZaakDelegate : AbstractDelegate() {
 
         val numberOfDays = aantalDagen.resolveValueAsLong(execution)
         LOG.fine(
-            ZaakSuspending(
+            ZaakSuspensionStarted(
                 zaakIdentificatie = zaak.identificatie,
                 activityName = execution.currentActivityName,
                 numberOfDays = numberOfDays

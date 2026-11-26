@@ -4,11 +4,10 @@
  */
 package net.atos.zac.flowable.delegate.log
 
-import nl.info.zac.log.Employee
 import nl.info.zac.log.LogEvent
 
-class ZaakAssignmentUpdating(
+class ZaakSuspensionStarted(
     val zaakIdentificatie: String?,
-    val groupId: String,
-    val assignee: Employee?
-) : LogEvent("Updating zaak assignment")
+    val activityName: String?,
+    val numberOfDays: Long
+) : LogEvent("Zaak suspension started")

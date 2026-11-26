@@ -19,7 +19,7 @@ import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNameMissingExcep
 import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNotFoundException
 import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionMetadata
 import nl.info.zac.flowable.log.UnparseableModificationDate
-import nl.info.zac.flowable.log.ZaakProcessStarting
+import nl.info.zac.flowable.log.ZaakProcessStartRequested
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
@@ -198,7 +198,7 @@ class BpmnService @Inject constructor(
         zaakData: Map<String, Any>? = null
     ) {
         val zaaktypeUUID = zaaktype.url.extractUuid()
-        LOG.info(ZaakProcessStarting(zaakUuid = zaak.uuid, processDefinitionKey = processDefinitionKey))
+        LOG.info(ZaakProcessStartRequested(zaakUuid = zaak.uuid, processDefinitionKey = processDefinitionKey))
         val processInstanceBuilder = runtimeService.createProcessInstanceBuilder()
             .processDefinitionKey(processDefinitionKey)
             .businessKey(zaak.uuid.toString())

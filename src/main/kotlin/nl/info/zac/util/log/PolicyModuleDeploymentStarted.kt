@@ -6,6 +6,6 @@ package nl.info.zac.util.log
 
 import nl.info.zac.log.LogEvent
 
-class PolicyModuleDeploying(
+class PolicyModuleDeploymentStarted(
     val moduleId: String
-) : LogEvent("Deploying policy module")
+) : LogEvent("Policy module deployment started")

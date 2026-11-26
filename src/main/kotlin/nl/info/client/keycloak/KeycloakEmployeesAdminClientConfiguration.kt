@@ -9,7 +9,7 @@ import jakarta.enterprise.inject.Produces
 import jakarta.inject.Inject
 import jakarta.inject.Named
 import jakarta.inject.Singleton
-import nl.info.client.keycloak.log.KeycloakAdminClientBuilding
+import nl.info.client.keycloak.log.KeycloakAdminClientConfigured
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -51,7 +51,7 @@ class KeycloakEmployeesAdminClientConfiguration @Inject constructor(
     @Produces
     @Named("keycloakZacRealmResource")
     fun build(): RealmResource {
-        LOG.info(KeycloakAdminClientBuilding(url = keycloakUrl, realm = realmName, clientId = zacAdminClientId))
+        LOG.info(KeycloakAdminClientConfigured(url = keycloakUrl, realm = realmName, clientId = zacAdminClientId))
         return keycloakBuilder().build().realm(realmName)
     }
 

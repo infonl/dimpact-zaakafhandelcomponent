@@ -24,7 +24,7 @@ import nl.info.zac.log.Employee
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.productaanvraag.log.AanvraagPdfPairingFailed
 import nl.info.zac.productaanvraag.log.DefaultBehandelaarNotInGroup
-import nl.info.zac.productaanvraag.log.ZaakAssigning
+import nl.info.zac.productaanvraag.log.ZaakAssignmentStarted
 import nl.info.zac.productaanvraag.log.ZaakGroupNotConfigured
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Geometry
@@ -154,7 +154,7 @@ class ProductaanvraagZaakService @Inject constructor(
             )
         }
         if (groupId == null && behandelaarId == null) return
-        LOG.info(ZaakAssigning(zaakUuid = zaak.uuid, groupId = groupId, behandelaar = behandelaarId?.let(::Employee)))
+        LOG.info(ZaakAssignmentStarted(zaakUuid = zaak.uuid, groupId = groupId, behandelaar = behandelaarId?.let(::Employee)))
         zaakService.assignZaak(
             zaak = zaak,
             groupId = groupId,

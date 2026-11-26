@@ -46,7 +46,7 @@ import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.SorteerRichting
 import nl.info.zac.search.model.SorteerVeld
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
-import nl.info.zac.signalering.log.InvalidSignaleringDeleting
+import nl.info.zac.signalering.log.InvalidSignaleringFound
 import nl.info.zac.signalering.log.InvalidSignaleringenKept
 import nl.info.zac.signalering.log.OldSignaleringenDeleted
 import nl.info.zac.signalering.log.SignaleringTimestampReplaced
@@ -548,7 +548,7 @@ class SignaleringService @Inject constructor(
     fun deleteInvalidSignaleringen(invalidSignaleringen: List<InvalidSignalering>): Int {
         invalidSignaleringen.forEach {
             LOG.warning(
-                InvalidSignaleringDeleting(
+                InvalidSignaleringFound(
                     signaleringId = it.signalering.id,
                     signaleringType = it.signalering.type.type,
                     subjecttype = it.signalering.subjecttype,

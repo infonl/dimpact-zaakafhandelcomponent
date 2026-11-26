@@ -83,7 +83,7 @@ class CmmnService @Inject constructor(
         caseDefinitionKey: String,
         zaakData: Map<String, Any>? = null
     ) {
-        LOG.info(ZaakCaseEvent(type = ZaakCaseEvent.Type.ZAAK_CASE_STARTING, zaakUuid = zaak.uuid, caseDefinitionKey = caseDefinitionKey))
+        LOG.info(ZaakCaseEvent(type = ZaakCaseEvent.Type.ZAAK_CASE_START_REQUESTED, zaakUuid = zaak.uuid, caseDefinitionKey = caseDefinitionKey))
         try {
             val caseInstanceBuilder = cmmnRuntimeService.createCaseInstanceBuilder()
                 .caseDefinitionKey(caseDefinitionKey)

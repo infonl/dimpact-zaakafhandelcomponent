@@ -5,7 +5,7 @@
 
 package net.atos.zac.flowable.delegate
 
-import net.atos.zac.flowable.delegate.log.ZaakExtending
+import net.atos.zac.flowable.delegate.log.ZaakExtensionStarted
 import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.assertPolicy
@@ -51,7 +51,7 @@ class ExtendZaakDelegate : AbstractDelegate() {
 
         val numberOfDays = aantalDagen.resolveValueAsInt(execution)
         LOG.fine(
-            ZaakExtending(
+            ZaakExtensionStarted(
                 zaakIdentificatie = zaak.identificatie,
                 activityName = execution.currentActivityName,
                 numberOfDays = numberOfDays
