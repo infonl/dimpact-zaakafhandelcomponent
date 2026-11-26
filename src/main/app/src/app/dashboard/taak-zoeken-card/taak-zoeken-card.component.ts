@@ -37,6 +37,7 @@ import { TranslatePipe } from "@ngx-translate/core";
 import { hashKey } from "@tanstack/angular-query-experimental";
 import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
 import { injectLastSuccessfulSearch } from "../../shared/http/last-successful-search";
+import { freshPerVisit, StaleTimes } from "../../shared/http/zac-query-client";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -108,10 +109,13 @@ export class TaakZoekenCardComponent extends DashboardCardComponent<TaakZoekObje
     page: 0,
   });
 
+  private readonly staleTime = freshPerVisit(StaleTimes.Short);
+
   protected readonly search = injectLastSuccessfulSearch({
     requested: this.requestedZoekParameters,
     query: (zoekParameters) => ({
       ...this.zoekenService.list(zoekParameters),
+      staleTime: this.staleTime,
       refetchInterval: 60 * 1000,
     }),
   });
