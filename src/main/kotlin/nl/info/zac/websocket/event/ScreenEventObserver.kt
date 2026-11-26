@@ -11,11 +11,12 @@ import jakarta.enterprise.event.ObservesAsync
 import jakarta.inject.Inject
 import jakarta.inject.Named
 import nl.info.zac.event.AbstractEventObserver
-import nl.info.zac.log.GenericEvent
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.websocket.SessionRegistry
+import nl.info.zac.websocket.log.ScreenEventHandlingFailed
+import nl.info.zac.websocket.log.ScreenEventJsonConversionFailed
 import nl.info.zac.websocket.log.ScreenEventReceived
 
 /**
@@ -41,7 +42,7 @@ class ScreenEventObserver @Inject constructor(
             LOG.fine { ScreenEventReceived(opcode = event.opcode.toString(), screenEventType = event.objectType.toString()) }
             sendToWebsocketSubscribers(event)
         } catch (throwable: Throwable) {
-            LOG.warning(GenericEvent(type = GenericEvent.Type.SCREEN_EVENT_HANDLING_FAILED), throwable)
+            LOG.warning(ScreenEventHandlingFailed, throwable)
         }
     }
 
@@ -53,7 +54,7 @@ class ScreenEventObserver @Inject constructor(
                 subscribers.forEach { it.asyncRemote.sendText(json) }
             }
         } catch (jsonProcessingException: JsonProcessingException) {
-            LOG.warning(GenericEvent(type = GenericEvent.Type.SCREEN_EVENT_JSON_CONVERSION_FAILED), jsonProcessingException)
+            LOG.warning(ScreenEventJsonConversionFailed, jsonProcessingException)
         }
     }
 }

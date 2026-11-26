@@ -133,7 +133,7 @@ class ReindexSupportService @Inject constructor(
                 ?.let { ConversionOutcome.Converted(it) }
                 ?: ConversionOutcome.Skipped
         } catch (indexingException: IndexingException) {
-            LOG.warning(ReindexEvent(type = ReindexEvent.Type.INDEXING_FAILED, objectType = objectType), indexingException)
+            LOG.warning(ReindexEvent.IndexingFailed(objectType = objectType), indexingException)
             ConversionOutcome.Errored
         }
 
@@ -188,7 +188,7 @@ class ReindexSupportService @Inject constructor(
      * `IndexingService.reindexAll`).
      */
     private fun countInSolrIndex(objectType: ZoekObjectType): Long? =
-        continueOnExceptions(objectType, { ReindexEvent(type = ReindexEvent.Type.SOLR_DOCUMENT_COUNT_FAILED, it) }) {
+        continueOnExceptions(objectType, ReindexEvent::SolrDocumentCountFailed) {
             solrClient.query(
                 SolrQuery("*:*").apply {
                     addFilterQuery("type:$objectType")
@@ -210,7 +210,7 @@ class ReindexSupportService @Inject constructor(
      * deletes entities that reindexing will not get a chance to replace.
      */
     internal fun deleteExistingEntities(objectType: ZoekObjectType) {
-        LOG.info(ReindexEvent(type = ReindexEvent.Type.EXISTING_DOCUMENTS_DELETION_STARTED, objectType = objectType))
+        LOG.info(ReindexEvent.ExistingDocumentsDeletionStarted(objectType = objectType))
         removeEntitiesFromSolrIndex(objectType)
     }
 
@@ -338,7 +338,7 @@ class ReindexSupportService @Inject constructor(
             zrcClientService.listZakenUuids(zaakListParameters(ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS)).count()
         }
         if (numberOfZaken == null) {
-            LOG.warning(ReindexEvent(type = ReindexEvent.Type.REINDEX_COUNT_NOT_FOUND, objectType = ZoekObjectType.ZAAK))
+            LOG.warning(ReindexEvent.ReindexCountNotFound(objectType = ZoekObjectType.ZAAK))
             return null
         }
         deleteExistingEntities(ZoekObjectType.ZAAK)
@@ -379,7 +379,7 @@ class ReindexSupportService @Inject constructor(
             ).count()
         }
         if (numberOfInformatieobjecten == null) {
-            LOG.warning(ReindexEvent(type = ReindexEvent.Type.REINDEX_COUNT_NOT_FOUND, objectType = ZoekObjectType.DOCUMENT))
+            LOG.warning(ReindexEvent.ReindexCountNotFound(objectType = ZoekObjectType.DOCUMENT))
             return null
         }
         deleteExistingEntities(ZoekObjectType.DOCUMENT)
@@ -420,7 +420,7 @@ class ReindexSupportService @Inject constructor(
     internal fun reindexAllTaken(): ReindexSummary? {
         val numberOfTasks = continueOnExceptions(ZoekObjectType.TAAK) { flowableTaskService.countOpenTasks() }
         if (numberOfTasks == null) {
-            LOG.warning(ReindexEvent(type = ReindexEvent.Type.REINDEX_COUNT_NOT_FOUND, objectType = ZoekObjectType.TAAK))
+            LOG.warning(ReindexEvent.ReindexCountNotFound(objectType = ZoekObjectType.TAAK))
             return null
         }
         deleteExistingEntities(ZoekObjectType.TAAK)
@@ -471,7 +471,7 @@ class ReindexSupportService @Inject constructor(
 
     internal fun <T> continueOnExceptions(
         objectType: ZoekObjectType,
-        failureEvent: (ZoekObjectType) -> LogEvent = { ReindexEvent(type = ReindexEvent.Type.INDEXING_FAILED, it) },
+        failureEvent: (ZoekObjectType) -> LogEvent = ReindexEvent::IndexingFailed,
         fn: () -> T
     ): T? =
         try {

@@ -84,8 +84,7 @@ class CmmnService @Inject constructor(
         zaakData: Map<String, Any>? = null
     ) {
         LOG.info(
-            ZaakCaseEvent(
-                type = ZaakCaseEvent.Type.ZAAK_CASE_START_REQUESTED,
+            ZaakCaseEvent.ZaakCaseStartRequested(
                 zaakUuid = zaak.uuid,
                 caseDefinitionKey = caseDefinitionKey
             )
@@ -102,8 +101,7 @@ class CmmnService @Inject constructor(
             caseInstanceBuilder.start()
         } catch (_: FlowableObjectNotFoundException) {
             LOG.severe(
-                ZaakCaseEvent(
-                    type = ZaakCaseEvent.Type.CMMN_MODEL_NOT_FOUND,
+                ZaakCaseEvent.CmmnModelNotFound(
                     zaakUuid = zaak.uuid,
                     caseDefinitionKey = caseDefinitionKey
                 )
