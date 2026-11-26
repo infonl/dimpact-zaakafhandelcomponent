@@ -8,7 +8,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import java.util.UUID
 
-fun Zaak.isOpen() = archiefnominatie == null
+fun Zaak.isOpen() = einddatum == null
 
 fun Zaak.isOpgeschort() = opschorting != null && opschorting.getIndicatie()
 
