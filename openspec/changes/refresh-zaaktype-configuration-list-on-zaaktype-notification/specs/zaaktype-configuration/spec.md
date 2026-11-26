@@ -24,6 +24,29 @@ zaaktype, nor when handling the notification fails.
 
 ## MODIFIED Requirements
 
+### Requirement: The configuration REST contract stays unchanged
+
+The system SHALL keep the paths, HTTP verbs, path keys, request payloads, and response payloads of
+`/zaakafhandelparameters` and `/zaaktype-bpmn-configuration` exactly as they were before this change, except the
+response of the list `GET /zaakafhandelparameters`, which the requirement "The configuration list carries only what
+the list page shows" defines. The generated OpenAPI specification SHALL NOT change, except that `defaultGroepId` of
+`RestZaaktypeConfiguration` is required and must not be blank, except the list item type of
+`GET /zaakafhandelparameters`, and except the value `ZAAKTYPE_CONFIGURATIES` of `ScreenEventType`.
+
+#### Scenario: OpenAPI specification is unchanged apart from the required default groep
+- **WHEN** the OpenAPI specification is generated from the changed backend
+- **THEN** it is identical to the specification that was generated before the change, except that
+  `RestZaaktypeConfiguration` lists `defaultGroepId` as required, that `GET /zaakafhandelparameters` returns
+  a list of `RestZaaktypeConfigurationOverzicht`, and that `ScreenEventType` has the value `ZAAKTYPE_CONFIGURATIES`
+
+#### Scenario: Shared fields round-trip through both resources
+- **GIVEN** a BPMN zaaktype configuration that was stored through `POST /zaaktype-bpmn-configuration`
+- **WHEN** a client reads it through `GET /zaakafhandelparameters/{zaaktypeUuid}` and through
+  `GET /zaaktype-bpmn-configuration/{processDefinitionKey}`
+- **THEN** both responses contain the same values for groep, default behandelaar, productaanvraagtype,
+  SmartDocuments toggle, betrokkene koppelingen, BRP doelbindingen, niet-ontvankelijk resultaattype, and
+  zaakbeeindig parameters
+
 ### Requirement: The list page shows the configurations as they are now
 
 The Zaakafhandelparameters page SHALL read its list each time a beheerder opens the page. While the page is open,

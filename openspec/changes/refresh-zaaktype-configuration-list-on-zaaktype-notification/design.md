@@ -47,4 +47,4 @@ This follows [ADR 0008](../../../docs/solution-architecture/decisions/0008-updat
 
 - [An event is missed while the websocket is disconnected] → The websocket service invalidates every query when it reconnects, and the page reads its list each time it opens.
 - [Open Zaak sends no notification for some ways of publishing] → No event either; the page shows the version only when the ZTC list cache is cleared. Out of scope, see Non-Goals.
-- [Many zaaktype notifications in a short time, for example a catalogus import, make every open page read its list for each of them] → The backend builds the page from its caches; `slim-zaaktype-list-payloads` measured 10 ms for 211 zaaktypes. `invalidateQueries` cancels a running read of the query before it reads it again (`cancelRefetch: true` by default).
+- [Many zaaktype notifications in a short time, for example a catalogus import, make every open page read its list for each of them] → The backend builds the page from its caches; `slim-zaaktype-list-payloads` measured 10 ms for 211 zaaktypes.
