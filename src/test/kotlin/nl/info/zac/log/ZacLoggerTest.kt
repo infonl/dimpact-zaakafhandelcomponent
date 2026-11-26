@@ -220,6 +220,27 @@ class ZacLoggerTest : BehaviorSpec({
         }
     }
 
+    context("Naming a log event") {
+        given("an event that is a subclass of a sealed class of events with the same fields") {
+            `when`("it is logged") {
+                val records = LogCapture(ZacLoggerTest::class).use { logCapture ->
+                    zacLogger.info(FakeZaakEvent.FakeZaakReopened(zaakUuid = zaakUuid))
+                    logCapture.records
+                }
+
+                then(
+                    "the event is named after its subclass and has the fields of the sealed class, " +
+                        "so that one field identifies every event"
+                ) {
+                    records.single().mdc shouldBe mapOf(
+                        "event" to "FakeZaakReopened",
+                        "zaakUuid" to zaakUuid.toString()
+                    )
+                }
+            }
+        }
+    }
+
     context("Logging an event with an employee") {
         given("an employee who logged in on this ZAC instance") {
             var lookupCount = 0

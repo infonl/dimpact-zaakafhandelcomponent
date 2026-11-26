@@ -12,8 +12,8 @@ import io.mockk.mockk
 import io.mockk.verify
 import jakarta.websocket.RemoteEndpoint
 import jakarta.websocket.Session
-import nl.info.zac.log.GenericEvent
 import nl.info.zac.log.LogCapture
+import nl.info.zac.websocket.log.WebSocketHeartbeatSchedulerStarted
 import java.io.IOException
 
 class WebSocketHeartbeatSchedulerTest : BehaviorSpec({
@@ -33,7 +33,7 @@ class WebSocketHeartbeatSchedulerTest : BehaviorSpec({
 
             then("the starting of the scheduler is logged") {
                 records.single().message shouldBe
-                    GenericEvent.Type.WEB_SOCKET_HEARTBEAT_SCHEDULER_STARTED.description
+                    WebSocketHeartbeatSchedulerStarted.description
             }
         }
     }

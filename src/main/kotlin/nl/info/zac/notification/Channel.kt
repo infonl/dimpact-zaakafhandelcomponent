@@ -39,7 +39,7 @@ enum class Channel(private val code: String, val resourceType: Resource) {
         override fun adaptFromJson(code: String): Channel? =
             entries.find { it.code == code }.also {
                 if (it == null) {
-                    LOG.warning(UnknownNotificationCode(type = UnknownNotificationCode.Type.UNKNOWN_CHANNEL_CODE, code = code))
+                    LOG.warning(UnknownNotificationCode.UnknownChannelCode(code = code))
                 }
             }
     }

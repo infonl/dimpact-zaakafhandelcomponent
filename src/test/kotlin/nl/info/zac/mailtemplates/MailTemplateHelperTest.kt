@@ -51,7 +51,6 @@ import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_OMSCHRI
 import nl.info.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_IDENTIFICATIE
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.log.LogCapture
-import nl.info.zac.log.RolEvent
 import org.flowable.common.engine.api.scope.ScopeTypes
 import org.flowable.task.api.Task
 import java.net.URI
@@ -351,7 +350,7 @@ class MailTemplateHelperTest : BehaviorSpec({
                 }
 
                 and("the missing name is logged with the rol UUID, without the date or place of birth") {
-                    with(records.single { it.mdc["type"] == "INITIATOR_WITHOUT_NAME" }) {
+                    with(records.single { it.mdc["event"] == "InitiatorWithoutName" }) {
                         mdc["rolUuid"] shouldBe rolNietNatuurlijkPersoon.uuid.toString()
                         containsAnywhere("1970") shouldBe false
                         containsAnywhere("fakeGeboorteplaats") shouldBe false
@@ -379,7 +378,7 @@ class MailTemplateHelperTest : BehaviorSpec({
 
                 then("the missing identificatie is logged as a warning with the UUID of the rol") {
                     with(records.single { it.level == Level.WARNING }) {
-                        message shouldBe RolEvent.Type.INITIATOR_ROLE_WITHOUT_IDENTIFICATIE.description
+                        message shouldBe "Initiator role has no identificatie; cannot resolve initiator variables"
                         mdc["rolUuid"] shouldBe rolNietNatuurlijkPersoon.uuid.toString()
                     }
                 }

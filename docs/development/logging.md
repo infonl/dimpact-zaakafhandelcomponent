@@ -31,7 +31,7 @@ companion object {
 }
 
 LOG.fine(MailSendCompleted(zaakUuid = zaak.uuid, recipient = address, outcome = Outcome.SUCCESS, durationMs = 84))
-LOG.severe(ZaakEvent(type = ZaakEvent.Type.MAIL_PDF_CONVERSION_FAILED, zaakUuid = zaak.uuid), exception)
+LOG.severe(ZaakEvent.MailPdfConversionFailed(zaakUuid = zaak.uuid), exception)
 LOG.fine { ZakenAssigned(zaakCount = zaakUuids.size, assignedCount = assignedCount, screenEventResourceId = id) }
 // the event in braces is only created when FINE is enabled
 ```
@@ -53,14 +53,15 @@ Rules:
 * Put each event in its own file in a `log` package next to the code that logs it, for example
   `nl/info/zac/mail/log/MailSendCompleted.kt`. Name it after what happened, in the past tense and without an `Event`
   suffix: an event that is logged before an action names its start, such as `ZaakSuspensionStarted`, never an
-  activity in the `-ing` form such as `ZaakSuspending`. A shared class (see the next rule) is the exception to the
-  suffix: it holds several events about one subject, so it is named after that subject
-  with the suffix `Event`, such as `ZaakEvent`, and each of its `Type` constants is named after what happened.
-* Reuse an event before you add one. Events with the same fields share one class with a nested `Type` enum that holds
-  the fixed descriptions, such as `GenericEvent` (no fields), `ZaakEvent`, `InformatieobjectEvent`, `ZaaktypeEvent`
-  and `RolEvent` in `nl.info.zac.log`: add a constant to its `Type` instead of a new class. The record then has the
-  field `type` with the name of the constant, and the field `event` with that name in the style of a class name,
-  such as `SmtpAuthenticationDisabled`, so that `event` alone identifies every event.
+  activity in the `-ing` form such as `ZaakSuspending`. A sealed class (see the next rule) is the exception to the
+  suffix: it holds several events about one subject, so it is named after that subject with the suffix `Event`, such
+  as `ZaakEvent`, and each of its subclasses is named after what happened.
+* Reuse an event before you add one. Events with the same fields share one `sealed class` with a nested subclass per
+  event, such as `ZaakEvent`, `InformatieobjectEvent` and `RolEvent` in `nl.info.zac.log`: add a subclass instead of
+  a new class. Each subclass passes its fixed description and the shared fields to the sealed class. A field that only
+  some events have is a field of those subclasses only. The field `event` is the name of the subclass, such as
+  `MailPdfConversionFailed`, so that `event` alone identifies every event.
+* An event without fields is a `data object`, such as `SmtpAuthenticationDisabled`.
 * Pass the description as a literal. Never build it from values: values belong in fields. Start the description with
   the words of the message it replaces, so that people who search the logs still find it.
 * A value that is personal data and adds nothing to diagnosis is not logged at all. A value that must stay visible as a
@@ -99,11 +100,11 @@ the JSON formatter of WildFly writes:
         "traceId":"…","spanId":"…"}}
 ```
 
-`ZacLogger` always adds `event` (the class name of the event, or the name of its `type` constant), `errorType` when a
-throwable is passed, and `traceId` and `spanId` of the active OpenTelemetry span when tracing is enabled. Every
-record of an HTTP request also has `requestId`, one ID per request that `UserPrincipalFilter` sets, so that the records
-of a request can be found together also when tracing is disabled, which is the default. A `null` field is written as
-`null`. MDC values are strings, so `durationMs` is the string `"84"`.
+`ZacLogger` always adds `event` (the class name of the event, which for a subclass of a sealed class is the name of
+the subclass), `errorType` when a throwable is passed, and `traceId` and `spanId` of the active OpenTelemetry span
+when tracing is enabled. Every record of an HTTP request also has `requestId`, one ID per request that
+`UserPrincipalFilter` sets, so that the records of a request can be found together also when tracing is disabled,
+which is the default. A `null` field is written as `null`. MDC values are strings, so `durationMs` is the string `"84"`.
 
 `ZacLogger` keeps the class name as logger name, so the log categories of WildFly keep working. `java.util.logging.Level`
 may still be used, for example for a configurable level (`ZacLogger.log(level, event)`); `Logger` may not.

@@ -50,8 +50,7 @@ class WebSocketServerEndPoint @Inject constructor(
             session.userProperties[LOGGED_IN_USER_SESSION_ATTRIBUTE] = loggedInUser.username
             sessionRegistry.addSession(session)
             LOG.fine {
-                WebSocketSessionEvent(
-                    type = WebSocketSessionEvent.Type.WEB_SOCKET_OPENED,
+                WebSocketSessionEvent.WebSocketOpened(
                     employee = session.employee(),
                     sessionId = session.id
                 )
@@ -79,8 +78,7 @@ class WebSocketServerEndPoint @Inject constructor(
     @OnError
     fun log(session: Session, exception: Throwable) {
         LOG.info(
-            WebSocketSessionEvent(
-                type = WebSocketSessionEvent.Type.WEB_SOCKET_ERROR,
+            WebSocketSessionEvent.WebSocketError(
                 employee = session.employee(),
                 sessionId = session.id
             ),

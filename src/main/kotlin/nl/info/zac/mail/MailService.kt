@@ -30,11 +30,11 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.configuration.FileSizeConfiguration
 import nl.info.zac.identity.model.getFullName
-import nl.info.zac.log.GenericEvent
 import nl.info.zac.log.Outcome
 import nl.info.zac.log.ZaakEvent
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.mail.log.MailSendCompleted
+import nl.info.zac.mail.log.SmtpAuthenticationDisabled
 import nl.info.zac.mail.model.Attachment
 import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mail.model.MailAdres
@@ -176,7 +176,7 @@ class MailService @Inject constructor(
         //    - mail Transport below throws AuthenticationFailedException because of insufficient configuration
         if (!smtpUsername.isPresent) {
             mailSession.properties.setProperty(JAVAMAIL_SMTP_AUTH_KEY, "false")
-            LOG.warning(GenericEvent(type = GenericEvent.Type.SMTP_AUTHENTICATION_DISABLED))
+            LOG.warning(SmtpAuthenticationDisabled)
         }
     }
 
@@ -234,7 +234,7 @@ class MailService @Inject constructor(
         }
 
     private fun logPdfConversionFailure(zaak: Zaak, exception: Exception) =
-        LOG.severe(ZaakEvent(type = ZaakEvent.Type.MAIL_PDF_CONVERSION_FAILED, zaakUuid = zaak.uuid), exception)
+        LOG.severe(ZaakEvent.MailPdfConversionFailed(zaakUuid = zaak.uuid), exception)
 
     private fun Long.millisecondsUntilNow() = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - this)
 

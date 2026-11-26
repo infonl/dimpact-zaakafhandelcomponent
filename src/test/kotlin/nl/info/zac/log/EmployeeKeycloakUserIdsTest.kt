@@ -193,7 +193,7 @@ class EmployeeKeycloakUserIdsTest : BehaviorSpec({
 
                 then("one warning is logged per failure after the minute, not one per employee") {
                     records.map { it.message } shouldBe List(2) {
-                        GenericEvent.Type.KEYCLOAK_UNREACHABLE_FOR_EMPLOYEE_LOOKUP.description
+                        KeycloakUnreachableForEmployeeLookup.description
                     }
                 }
             }
