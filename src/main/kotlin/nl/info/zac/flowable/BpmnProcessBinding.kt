@@ -67,7 +67,7 @@ class BpmnProcessBinding @Inject constructor(
                 zaakVariabelenService.setUser(zaakUuid, it)
             } ?: zaakVariabelenService.removeUser(zaakUuid)
         } catch (caseOrProcessNotFoundException: CaseOrProcessNotFoundException) {
-            LOG.warning(ZaakEvent(type = ZaakEvent.Type.CASE_OR_PROCESS_NOT_FOUND, zaakUuid = zaakUuid), caseOrProcessNotFoundException)
+            LOG.warning(ZaakEvent.CaseOrProcessNotFound(zaakUuid = zaakUuid), caseOrProcessNotFoundException)
         }
     }
 

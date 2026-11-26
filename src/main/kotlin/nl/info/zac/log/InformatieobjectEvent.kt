@@ -13,6 +13,9 @@ sealed class InformatieobjectEvent(description: String, val informatieobjectUuid
     class DocumentMissingInOpenZaak(informatieobjectUuid: UUID) :
         InformatieobjectEvent("Document wel gevonden in de database, maar niet in OpenZaak", informatieobjectUuid)
 
+    class InboxDocumentNotFound(informatieobjectUuid: UUID) :
+        InformatieobjectEvent("Inbox document not found", informatieobjectUuid)
+
     class IncompleteDocumentDeletionStarted(informatieobjectUuid: UUID) :
         InformatieobjectEvent(
             "Deletion of a document started because uploading its content in parts failed",
