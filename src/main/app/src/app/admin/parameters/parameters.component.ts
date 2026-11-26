@@ -55,6 +55,7 @@ import {
   templateUrl: "./parameters.component.html",
   styleUrls: ["./parameters.component.less"],
   standalone: true,
+  host: { "(window:focus)": "refetchParameters()" },
   imports: [
     RouterLink,
     TranslatePipe,
@@ -98,7 +99,6 @@ export class ParametersComponent extends AdminComponent implements OnInit {
     ),
     placeholderData: keepPreviousData,
     staleTime: StaleTimes.Instant,
-    refetchOnWindowFocus: true,
   }));
   protected readonly loading = computed(() => this.parametersQuery.isPending());
   protected readonly hasNoParameters = computed(
@@ -140,6 +140,10 @@ export class ParametersComponent extends AdminComponent implements OnInit {
         untracked(() => this.updateFilterParameters({ page: lastPage }));
       }
     });
+  }
+
+  protected refetchParameters() {
+    void this.parametersQuery.refetch();
   }
 
   ngOnInit() {

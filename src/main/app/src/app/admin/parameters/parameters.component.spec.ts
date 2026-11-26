@@ -13,7 +13,6 @@ import { MatNativeDateModule } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
-import { focusManager } from "@tanstack/angular-query-experimental";
 import { screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
@@ -124,7 +123,6 @@ describe(ParametersComponent.name, () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
-    focusManager.setFocused(undefined);
   });
 
   it("shows the loading message while the first page is being read", async () => {
@@ -192,7 +190,7 @@ describe(ParametersComponent.name, () => {
     expect(screen.getByText("Fake procesmodel")).toBeVisible();
   });
 
-  it("reads the configurations again when the beheerder comes back to the browser tab, so that a configuration that ZAC created meanwhile shows its procesmodel", async () => {
+  it("reads the configurations again when the beheerder comes back to the browser window or tab, so that a configuration that ZAC created meanwhile shows its procesmodel", async () => {
     const zaaktypeConfigurationWithoutProcessDefinition = {
       ...fakeZaaktypeConfigurationOverzicht("Nieuwe versie"),
       processDefinition: undefined,
@@ -202,8 +200,7 @@ describe(ParametersComponent.name, () => {
       resultaten: [zaaktypeConfigurationWithoutProcessDefinition],
     });
 
-    focusManager.setFocused(false);
-    focusManager.setFocused(true);
+    window.dispatchEvent(new FocusEvent("focus"));
     await answer(await expectPageRequest(), {
       resultaten: [fakeZaaktypeConfigurationOverzicht("Nieuwe versie")],
     });
@@ -255,7 +252,6 @@ describe(ParametersComponent.name, () => {
   });
 
   it("shows the cached rows of a page while it reads that page again because the cache is stale", async () => {
-    const sixMinutesAgo = Date.now() - 6 * 60 * 1000;
     testQueryClient.setQueryData(
       TestBed.inject(ZaakafhandelParametersService).listZaakafhandelParameters(
         toZaaktypeConfigurationListQuery({
@@ -267,7 +263,6 @@ describe(ParametersComponent.name, () => {
         resultaten: [fakeZaaktypeConfigurationOverzicht("Bewaard zaaktype")],
         totaal: 30,
       }),
-      { updatedAt: sixMinutesAgo },
     );
     await render();
     await answer(await expectPageRequest(), {
