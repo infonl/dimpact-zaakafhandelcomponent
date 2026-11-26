@@ -1,5 +1,8 @@
 {{- if .Values.opa.enabled }}
 {{- if not .Values.opa.sidecar }}
+{{- if (.Values.opa.autoscaling).enabled }}
+{{- fail "opa.autoscaling.enabled is no longer supported: ZAC deploys its policies to OPA only when ZAC starts, so a replica that an autoscaler adds later has no policies. Remove opa.autoscaling and set a fixed opa.replicas, or run OPA as a sidecar (opa.sidecar: true), which scales with ZAC." }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -8,9 +11,7 @@ metadata:
   labels:
     {{- include "zaakafhandelcomponent.opa.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.opa.autoscaling.enabled }}
   replicas: {{ .Values.opa.replicas }}
-  {{- end }}
   selector:
     matchLabels:
       {{- include "zaakafhandelcomponent.opa.selectorLabels" . | nindent 6 }}

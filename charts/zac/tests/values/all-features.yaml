@@ -1,0 +1,38 @@
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+
+# Turns on the optional parts of the chart, so that a validation of the rendered manifests also covers the
+# templates that a default installation leaves out.
+
+autoscaling:
+  enabled: true
+  targetMemoryUtilizationPercentage: 80
+
+opa:
+  sidecar: false
+
+nginx:
+  enabled: true
+  autoscaling:
+    enabled: true
+    targetMemoryUtilizationPercentage: 80
+  api_proxy:
+    enabled: true
+
+ingress:
+  enabled: true
+
+smartDocuments:
+  enabled: true
+  url: https://smartdocuments.test.local
+  authentication: smartdocuments-token
+
+tracing:
+  enabled: true
+  endpoint: https://tempo.test.local:4317
+
+opentelemetry-collector:
+  enabled: true
+
+solr-operator:
+  enabled: true
