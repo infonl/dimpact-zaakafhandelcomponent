@@ -242,6 +242,7 @@ export class ZaakViewComponent
   private zaakRollenListener!: WebsocketListener;
   private zaakBesluitenListener!: WebsocketListener;
   private zaakTakenListener!: WebsocketListener;
+  private zaakInformatieobjectenListener!: WebsocketListener;
 
   readonly actionsSidenav = viewChild.required<MatSidenav>("actionsSidenav");
   readonly sideNavContainer =
@@ -337,6 +338,13 @@ export class ZaakViewComponent
         zaak.uuid,
         () => this.invalidatePlanItems(),
       );
+
+      this.zaakInformatieobjectenListener = this.websocketService.addListener(
+        "UPDATED",
+        "ZAAK_INFORMATIEOBJECTEN",
+        zaak.uuid,
+        () => this.invalidateZaakHistorie(),
+      );
     });
 
     effect(() => {
@@ -381,6 +389,7 @@ export class ZaakViewComponent
     this.websocketService.removeListener(this.zaakBesluitenListener);
     this.websocketService.removeListener(this.zaakRollenListener);
     this.websocketService.removeListener(this.zaakTakenListener);
+    this.websocketService.removeListener(this.zaakInformatieobjectenListener);
   }
 
   private invalidatePlanItems() {

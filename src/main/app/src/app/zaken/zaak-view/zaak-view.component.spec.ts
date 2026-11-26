@@ -983,4 +983,70 @@ describe(ZaakViewComponent.name, () => {
       );
     });
   });
+
+  describe("zaak informatieobjecten websocket listener", () => {
+    const listeners: {
+      listener: WebsocketListener;
+      callback: (event: ScreenEvent) => void;
+    }[] = [];
+
+    function announce(event: ScreenEvent) {
+      listeners.forEach(({ callback }) => callback(event));
+    }
+
+    beforeEach(() => {
+      listeners.length = 0;
+      jest
+        .spyOn(websocketService, "addListener")
+        .mockImplementation((_opcode, objectType, _objectId, callback) => {
+          const listener = fromPartial<WebsocketListener>({});
+          if (objectType === "ZAAK_INFORMATIEOBJECTEN") {
+            listeners.push({
+              listener,
+              callback: callback as (event: ScreenEvent) => void,
+            });
+          }
+          return listener;
+        });
+
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+    });
+
+    it("refreshes the historie, which lists the added, mailed and ontkoppelde documenten, also those of a colleague", () => {
+      const invalidateQueries = jest.spyOn(
+        testQueryClient,
+        "invalidateQueries",
+      );
+      // the zaak itself also refreshes the historie, once it has loaded
+      fixture.detectChanges();
+      TestBed.tick();
+      invalidateQueries.mockClear();
+
+      announce(
+        new ScreenEvent(
+          "UPDATED",
+          "ZAAK_INFORMATIEOBJECTEN",
+          new ScreenEventId(zaak.uuid),
+        ),
+      );
+
+      expect(invalidateQueries).toHaveBeenCalledWith(
+        {
+          queryKey: zakenService.listHistorieVoorZaakQuery(zaak.uuid).queryKey,
+        },
+        { cancelRefetch: false },
+      );
+    });
+
+    it("stops listening when the zaak closes", () => {
+      const removeListener = jest.spyOn(websocketService, "removeListener");
+
+      fixture.destroy();
+
+      listeners.forEach(({ listener }) =>
+        expect(removeListener).toHaveBeenCalledWith(listener),
+      );
+    });
+  });
 });
