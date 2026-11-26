@@ -19,7 +19,7 @@ The Zaakafhandelparameters page lists the configurations of all zaaktype version
 
 ### D1. A screen event type for the list of zaaktype configurations
 
-`ScreenEventType` gets `ZAAKTYPE_CONFIGURATIES`, without an object of its own, like `ZAKEN_VERDELEN`. ZAC sends it with opcode `UPDATED` and the fixed id `zaaktype-configuraties`, through `ScreenEventType.updated(eventResourceId)`.
+`ScreenEventType` gets `ZAAKTYPE_CONFIGURATIES`, without an object of its own, like `ZAKEN_VERDELEN`. ZAC sends it with opcode `UPDATED` and the fixed id `zaaktype-configuraties`, through `ScreenEventType.updated(eventResourceId)`. The id is the backend constant `FixedScreenEventResourceId.ZAAKTYPE_CONFIGURATIES`, exposed as the OpenAPI schema `FixedScreenEventResourceId`, so the frontend subscribes with a generated type and a different id does not compile.
 
 The page shows all zaaktype versions at once and cannot know the UUID of a new version before it exists, so the event does not carry a zaaktype UUID.
 

@@ -1,7 +1,7 @@
 ## 1. Backend
 
 - [x] 1.1 Add `ZAAKTYPE_CONFIGURATIES` to `ScreenEventType`, without an object of its own (design D1).
-- [x] 1.2 In `NotificationReceiver.handleZaaktype`, send `ScreenEventType.ZAAKTYPE_CONFIGURATIES.updated("zaaktype-configuraties")` after `updateZaaktypeConfiguration` returns, for `create` and `update` only (design D2).
+- [x] 1.2 In `NotificationReceiver.handleZaaktype`, send `ScreenEventType.ZAAKTYPE_CONFIGURATIES.updated(FixedScreenEventResourceId.ZAAKTYPE_CONFIGURATIES)` after `updateZaaktypeConfiguration` returns, for `create` and `update` only (design D2).
 - [x] 1.3 In `NotificationReceiverTest`, extend the existing `create` and `update` zaaktype tests: stub `eventingService.send(any<ScreenEvent>())` and check with `verifyOrder` that the event is sent after `updateZaaktypeConfiguration`. Without the stub these tests would keep passing while `handleZaaktype` catches the `MockKException`. Add tests that a `destroy` notification, a failing `updateZaaktypeConfiguration` and a notification about another resource send no `ZAAKTYPE_CONFIGURATIES` event (design D4).
 - [x] 1.4 Regenerate the OpenAPI spec (`./gradlew generateOpenApiSpec`).
 
