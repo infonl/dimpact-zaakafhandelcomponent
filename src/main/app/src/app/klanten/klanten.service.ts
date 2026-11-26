@@ -5,7 +5,7 @@
 
 import { inject, Injectable } from "@angular/core";
 import { PutBody } from "../shared/http/http-client";
-import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
 import { BetrokkeneIdentificatie } from "../zaken/model/betrokkeneIdentificatie";
 
 @Injectable({
@@ -132,7 +132,11 @@ export class KlantenService {
 
   /* istanbul ignore next */
   listBedrijven(body: PutBody<"/rest/klanten/bedrijven">) {
-    return this.zacQueryClient.PUT_QUERY("/rest/klanten/bedrijven", body);
+    // The backend answers a KVK failure with a foutmelding instead of an error status.
+    return {
+      ...this.zacQueryClient.PUT_QUERY("/rest/klanten/bedrijven", body),
+      staleTime: StaleTimes.Instant,
+    };
   }
 
   /* istanbul ignore next */
