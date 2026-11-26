@@ -54,5 +54,5 @@
       `npx ng test --test-path-patterns=backend-constant-translations` in `src/main/app`.
 - [x] 4.4 Run `KIND_PORT_OFFSET=2000 ./gradlew itest --tests "nl.info.zac.itest.MailtemplateBeheerRestServiceProtectionTest"
       --tests "nl.info.zac.itest.MailtemplateBeheerRestServiceTest"`.
-- [ ] 4.5 On the local kind stack, check on the admin screen that a system mail template has no delete button, that
+- [x] 4.5 On the local kind stack, check on the admin screen that a system mail template has no delete button, that
       its name, subject and body can still be stored, and that a new normal template can be created and deleted.
