@@ -4,7 +4,7 @@
  */
 package net.atos.zac.flowable.delegate
 
-import net.atos.zac.flowable.delegate.log.ZaakAssignmentUpdating
+import net.atos.zac.flowable.delegate.log.ZaakAssignmentUpdateStarted
 import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.log.Employee
 import nl.info.zac.log.ZacLogger
@@ -53,7 +53,7 @@ class UpdateZaakAssignmentDelegate : AbstractDelegate() {
         val reason = reden?.resolveValueAsString(execution)
 
         LOG.fine {
-            ZaakAssignmentUpdating(
+            ZaakAssignmentUpdateStarted(
                 zaakIdentificatie = zaak.identificatie,
                 groupId = groupId,
                 assignee = username?.let(::Employee)

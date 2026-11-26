@@ -2,12 +2,12 @@
  * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.flowable.delegate.log
+package net.atos.zac.flowable.cmmn.log
 
 import nl.info.zac.log.LogEvent
 import java.util.UUID
 
-class ZaakClosing(
+class ZaakStatusChangeStarted(
     val zaakUuid: UUID,
-    val resultaattypeOmschrijving: String
-) : LogEvent("Closing zaak")
+    val statustypeOmschrijving: String
+) : LogEvent("Zaak status change started")

@@ -362,8 +362,8 @@ masked), nor the date of birth, nor the path of the BRP call.
   (`MailConnectException`, `AuthenticationFailedException`, `SendFailedException`) already does. This is the example
   that proves the masking. The subject is not logged: it is resolved from the mail template variables or typed by
   the employee, so it can hold the name or address of a citizen or the name of an employee (`MailTemplateHelper`).
-- `SendEmailDelegate` logs `ZaakMailSending(zaakIdentificatie, templateName, @Redacted recipient)` right before it
-  sends the mail. `SendConfirmationEmailDelegate` logs one `ConfirmationMailSending(zaakIdentificatie, templateName,
+- `SendEmailDelegate` logs `ZaakMailSendStarted(zaakIdentificatie, templateName, @Redacted recipient)` right before it
+  sends the mail. `SendConfirmationEmailDelegate` logs one `ConfirmationMailRecipientDetermined(zaakIdentificatie, templateName,
   emailSource, @Redacted recipient: String?)` record per execution, with `emailSource` `ZAAK_CONTACT_DETAILS`,
   `INITIATOR` or `NONE`, instead of up to three `FINE` records ("using zaak-specific contact details", "using
   initiator email", "skipping", "sending"). With `NONE` it is the only record, `recipient` is `null` and no mail is
@@ -371,9 +371,9 @@ masked), nor the date of birth, nor the path of the BRP call.
   Acceptance criterion 3 asks for the email address of the recipient as a `@Redacted` field in these two delegates;
   acceptance criterion 6 asks to remove the to and from addresses from the free text of the `FINE` log line. Both
   hold: the recipient is a `@Redacted` field, so its value is never written, and the sender is not logged at all.
-- `UpdateZaakAssignmentDelegate` logs `ZaakAssignmentUpdating(zaakIdentificatie, groupId, assignee: Employee?)`
+- `UpdateZaakAssignmentDelegate` logs `ZaakAssignmentUpdateStarted(zaakIdentificatie, groupId, assignee: Employee?)`
   without the reason.
-- `ProductaanvraagZaakService` logs `ZaakAssigning(zaakUuid, groupId, behandelaar: Employee?)`.
+- `ProductaanvraagZaakService` logs `ZaakAssignmentStarted(zaakUuid, groupId, behandelaar: Employee?)`.
 - `ZaakService` logs the employee who is not in the expected group as an `Employee` field, without the display name.
 - `NotificationReceiver` logs the channel, the main resource URL, the resource, the resource URL, the action and the
   creation date of a notification, and not its `kenmerken`.

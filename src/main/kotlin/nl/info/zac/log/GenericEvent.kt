@@ -8,7 +8,7 @@ class GenericEvent(
     val type: Type
 ) : LogEvent(type.description) {
     enum class Type(val description: String) {
-        AANVRAAG_PDF_MISSING("No PDF found in productaanvraag to link to the zaak"),
+        AANVRAAG_PDF_NOT_FOUND("No PDF found in productaanvraag to link to the zaak"),
         EXCEPTION_RESPONSE_CONVERSION_FAILED("Failed to convert exception to JSON"),
         INITIATOR_KVK_ADDRESS_READ_FAILED("Could not read the KVK address of the initiator, so the mail is sent without it"),
         JOB_EVENT_HANDLING_FAILED("Asynchronous guard: handling a job event failed"),
@@ -27,7 +27,7 @@ class GenericEvent(
         SUBSCRIPTION_MESSAGE_UNDECODABLE("SubscriptionMessage cannot be decrypted"),
         TEST_NOTIFICATION_RECEIVED("Received test callback URL status notification"),
         UNSUPPORTED_NIET_NATUURLIJK_PERSOON_IDENTIFICATIE("Unsupported niet-natuurlijk persoon identificatie"),
-        WEB_SOCKET_HEARTBEAT_SCHEDULER_STARTING("WebSocket heartbeat scheduler starting"),
+        WEB_SOCKET_HEARTBEAT_SCHEDULER_STARTED("WebSocket heartbeat scheduler started"),
         ZTC_CACHE_REFRESHER_FAILED_UNEXPECTEDLY("Unexpected failure while refreshing the ZTC caches"),
         ZTC_CACHES_REFRESH_FAILED("Failed to refresh the ZTC caches"),
         ZTC_CACHES_REFRESH_STARTED("Started refreshing the ZTC caches"),

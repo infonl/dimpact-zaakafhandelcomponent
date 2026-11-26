@@ -14,7 +14,7 @@ class InformatieobjectEvent(
         DOCUMENT_CLEAN_UP_FAILED("Failed to delete document"),
         DOCUMENT_MISSING_IN_OPEN_ZAAK("Document wel gevonden in de database, maar niet in OpenZaak"),
         DOCUMENT_NOT_FOUND("Document niet gevonden"),
-        DOCUMENT_WITH_INCOMPLETE_CONTENT_DELETING("Deleting document because uploading its content in parts failed"),
+        INCOMPLETE_DOCUMENT_DELETION_STARTED("Deletion of a document started because uploading its content in parts failed"),
         INBOX_DOCUMENT_NOT_FOUND("Inbox document not found")
     }
 }

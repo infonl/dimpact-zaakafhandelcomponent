@@ -61,8 +61,8 @@
       `errorType` but without the exception itself, and without the subject; unit tests that the recipient address and
       a subject with a name do not appear in the record, for a sent and a failed mail, and for a `SendFailedException`
       with a nested `SMTPAddressFailedException` whose message holds the recipient address
-- [ ] 4.3 `SendEmailDelegate`: log `ZaakMailSending(zaakIdentificatie, templateName, @Redacted recipient)` without
-      the sender; `SendConfirmationEmailDelegate`: log one `ConfirmationMailSending(zaakIdentificatie, templateName,
+- [ ] 4.3 `SendEmailDelegate`: log `ZaakMailSendStarted(zaakIdentificatie, templateName, @Redacted recipient)` without
+      the sender; `SendConfirmationEmailDelegate`: log one `ConfirmationMailRecipientDetermined(zaakIdentificatie, templateName,
       emailSource, @Redacted recipient)` record per execution instead of up to three, with `emailSource=NONE` and
       `recipient=null` when no mail is sent; unit tests that the record has `recipient=*****` and contains neither the
       recipient nor the sender address

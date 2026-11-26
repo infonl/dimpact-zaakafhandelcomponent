@@ -43,7 +43,7 @@ class WebSocketHeartbeatScheduler @Inject constructor(
     // Nothing else in the application injects this bean, so without observing this event CDI would never have
     // a reason to create it and @PostConstruct would never run.
     fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) {
-        LOG.info(GenericEvent(type = GenericEvent.Type.WEB_SOCKET_HEARTBEAT_SCHEDULER_STARTING))
+        LOG.info(GenericEvent(type = GenericEvent.Type.WEB_SOCKET_HEARTBEAT_SCHEDULER_STARTED))
     }
 
     @PostConstruct

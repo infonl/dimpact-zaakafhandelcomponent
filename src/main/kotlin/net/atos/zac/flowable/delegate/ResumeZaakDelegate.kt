@@ -6,7 +6,7 @@
 package net.atos.zac.flowable.delegate
 
 import net.atos.zac.flowable.delegate.log.ZaakNotSuspended
-import net.atos.zac.flowable.delegate.log.ZaakResuming
+import net.atos.zac.flowable.delegate.log.ZaakResumptionStarted
 import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.log.ZacLogger
@@ -46,7 +46,7 @@ class ResumeZaakDelegate : AbstractDelegate() {
         val resumeDate = hervattenDatum?.resolveValueAsZonedDateTime(execution)
 
         LOG.fine(
-            ZaakResuming(
+            ZaakResumptionStarted(
                 zaakIdentificatie = zaak.identificatie,
                 activityName = execution.currentActivityName,
                 resumeDate = resumeDate

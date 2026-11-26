@@ -116,7 +116,7 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
 
             and("one record is logged with the zaak, the template, the email source and the recipient masked") {
                 with(records.single()) {
-                    message shouldBe "Sending confirmation mail"
+                    message shouldBe "Confirmation mail recipient determined"
                     mdc["zaakIdentificatie"] shouldBe zaak.identificatie
                     mdc["templateName"] shouldBe templateName
                     mdc["emailSource"] shouldBe "ZAAK_CONTACT_DETAILS"
