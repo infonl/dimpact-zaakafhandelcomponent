@@ -53,7 +53,7 @@ Rules:
 * Put each event in its own file in a `log` package next to the code that logs it, for example
   `nl/info/zac/mail/log/MailSendCompleted.kt`. Name it after what happened, in the past tense and without an `Event`
   suffix: an event that is logged before an action names its start, such as `ZaakSuspensionStarted`, never an
-  activity in the `-ing` form such as `ZaakSuspending`, which a unit test rejects. A shared class (see the next rule)
+  activity in the `-ing` form such as `ZaakSuspensionStarted`, which a unit test rejects. A shared class (see the next rule)
   is the exception to the suffix: it holds several events about one subject, so it is named after that subject
   with the suffix `Event`, such as `ZaakEvent`, and each of its `Type` constants is named after what happened.
 * Reuse an event before you add one. Events with the same fields share one class with a nested `Type` enum that holds
