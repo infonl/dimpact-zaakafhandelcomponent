@@ -129,5 +129,5 @@ The second code covers both directions of D4, because both convert between a nor
 - [A link is added between the check and the commit of a delete] → The foreign key still refuses the delete, with the
   500 of today. Two beheerders would have to do this at the same moment.
 - [The integration test changes a shared system mail template, and links a template to a shared zaaktype] → The test
-  restores the name, subject and body, and removes the link and the template afterwards, so that the tests that
-  compare the list of mail templates and koppelingen keep passing.
+  restores the name, subject and body, stores the zaaktype configuration again with its original links, and deletes
+  the template afterwards, so that the tests that compare the list of mail templates and koppelingen keep passing.

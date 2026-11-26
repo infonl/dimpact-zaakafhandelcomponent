@@ -37,10 +37,13 @@
       - `PUT` with a changed name, subject and body answers 200 with those changes; restore the original values
         afterwards;
       - `POST` with `defaultMailtemplate: true` answers 400 with the convert error code.
-- [ ] 3.3 In the same itest, create a normal mail template, link it to a zaaktype with
-      `PUT beheer/mailtemplatekoppeling`, and test that `DELETE` answers 400 with the in-use error code and the
-      template and the link still exist; then remove the link, and test that `DELETE` answers 204. Keep the existing
-      create-read-update-delete test of a normal template unchanged.
+- [ ] 3.3 In the same itest, create a normal mail template and link it to a zaaktype by storing the configuration of
+      that zaaktype with the template in `mailtemplateKoppelingen`, with `ZacClient.createZaaktypeBpmnConfiguration`
+      as in `ZaaktypeConfigurationRestServiceBpmnMailTest`; `PUT beheer/mailtemplatekoppeling` cannot create a link,
+      because it leaves the zaaktype configuration unset. Check that the link is stored, and test that `DELETE`
+      answers 400 with the in-use error code and the template and the link still exist. Then store the configuration
+      again with its original links, and test that `DELETE` answers 204. Keep the existing create-read-update-delete
+      test of a normal template unchanged.
 
 ## 4. Checks
 
