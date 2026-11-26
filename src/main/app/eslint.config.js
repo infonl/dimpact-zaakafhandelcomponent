@@ -94,7 +94,7 @@ const httpClientRestrictedImportPaths = [
 ];
 const httpClientRestrictedImportPatterns = [
   {
-    group: ["**/shared/http/http-client"],
+    group: ["**/http/http-client", "./http-client"],
     importNames: ["HttpClient"],
     message: NO_DIRECT_HTTP_CLIENT_MESSAGE,
   },
