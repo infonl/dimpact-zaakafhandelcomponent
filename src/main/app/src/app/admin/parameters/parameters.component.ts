@@ -83,6 +83,9 @@ export class ParametersComponent extends AdminComponent implements OnInit {
   private readonly zaakafhandelParametersService = inject(
     ZaakafhandelParametersService,
   );
+  private readonly websocketService = inject(WebsocketService);
+  private readonly queryClient = inject(QueryClient);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
@@ -121,19 +124,17 @@ export class ParametersComponent extends AdminComponent implements OnInit {
 
   constructor() {
     super();
-    const websocketService = inject(WebsocketService);
-    const queryClient = inject(QueryClient);
-    const zaaktypeConfiguratiesListener = websocketService.addListener(
+    const zaaktypeConfiguratiesListener = this.websocketService.addListener(
       "UPDATED",
       "ZAAKTYPE_CONFIGURATIES",
       "zaaktype-configuraties",
       () =>
-        void queryClient.invalidateQueries({
+        void this.queryClient.invalidateQueries({
           queryKey: ["/rest/zaakafhandelparameters"],
         }),
     );
-    inject(DestroyRef).onDestroy(() =>
-      websocketService.removeListener(zaaktypeConfiguratiesListener),
+    this.destroyRef.onDestroy(() =>
+      this.websocketService.removeListener(zaaktypeConfiguratiesListener),
     );
     effect(() => {
       this.parameters.data = [
