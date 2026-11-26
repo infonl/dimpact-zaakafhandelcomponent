@@ -301,7 +301,7 @@ class DocumentCreationRestService @Inject constructor(
             null
         } else {
             documentCreationUserStore.consumeUser(documentCreationToken) ?: run {
-                LOG.warning(ZaakEvent(type = ZaakEvent.Type.DOCUMENT_CREATION_TOKEN_UNKNOWN, zaakUuid = zaakUuid))
+                LOG.warning(ZaakEvent.DocumentCreationTokenUnknown(zaakUuid = zaakUuid))
                 null
             }
         }

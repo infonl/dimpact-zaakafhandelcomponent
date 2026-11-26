@@ -332,10 +332,7 @@ class RestInformatieobjectConverter @Inject constructor(
                     throw zgwErrorException
                 }
                 LOG.severe(
-                    InformatieobjectEvent(
-                        type = InformatieobjectEvent.Type.DOCUMENT_NOT_FOUND,
-                        informatieobjectUuid = enkelvoudigInformatieobjectUUID
-                    )
+                    InformatieobjectEvent.DocumentNotFound(informatieobjectUuid = enkelvoudigInformatieobjectUUID)
                 )
                 null
             }

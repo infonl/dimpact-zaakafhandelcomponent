@@ -63,8 +63,7 @@ class IdentificationService @Inject constructor(
             NIET_NATUURLIJK_PERSOON -> (betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)?.let {
                 it.toIdentificatieType() ?: run {
                     LOG.warning(
-                        RolEvent(
-                            type = RolEvent.Type.UNSUPPORTED_IDENTIFICATION_FIELDS,
+                        RolEvent.UnsupportedIdentificationFields(
                             betrokkeneType = betrokkeneType.toString(),
                             rolUuid = initiatorRole.uuid
                         )
@@ -76,8 +75,7 @@ class IdentificationService @Inject constructor(
             null -> null
             else -> {
                 LOG.warning(
-                    RolEvent(
-                        type = RolEvent.Type.UNSUPPORTED_BETROKKENE_TYPE,
+                    RolEvent.UnsupportedBetrokkeneType(
                         betrokkeneType = betrokkeneType.toString(),
                         rolUuid = initiatorRole.uuid
                     )

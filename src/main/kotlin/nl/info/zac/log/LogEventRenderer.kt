@@ -11,7 +11,6 @@ const val REDACTED_VALUE = "*****"
 const val UNKNOWN_EMPLOYEE = "unknown"
 
 private const val NULL_VALUE = "null"
-private const val TYPE_FIELD_NAME = "type"
 
 object LogEventRenderer {
     /**
@@ -26,20 +25,6 @@ object LogEventRenderer {
                 field.get(logEvent).renderValue(renderEmployee)
             }
         }
-
-    /**
-     * The name of [logEvent] for the `event` field: the name of its class, or, for an event that shares its class with
-     * other events through a nested `Type` enum, the name of its `type` constant in the same style, such as
-     * `SmtpAuthenticationDisabled` for `GenericEvent.Type.SMTP_AUTHENTICATION_DISABLED`.
-     */
-    fun eventName(logEvent: LogEvent): String =
-        logEvent.javaClass.eventFields()
-            .firstOrNull { it.name == TYPE_FIELD_NAME && it.type.isEnum }
-            ?.let { (it.get(logEvent) as Enum<*>).name.toPascalCase() }
-            ?: logEvent.javaClass.simpleName
-
-    private fun String.toPascalCase() =
-        lowercase().split('_').joinToString("") { word -> word.replaceFirstChar { it.uppercase() } }
 
     /**
      * The description and fields of [logEvent] as one text, for unit tests only. [ZacLogger] writes the fields as

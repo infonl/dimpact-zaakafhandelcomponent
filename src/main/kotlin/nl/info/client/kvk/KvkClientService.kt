@@ -8,12 +8,12 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import nl.info.client.kvk.basisprofiel.model.generated.Basisprofiel
 import nl.info.client.kvk.exception.KvkClientNoResultException
+import nl.info.client.kvk.log.KvkSearchFailed
 import nl.info.client.kvk.model.BedrijfType
 import nl.info.client.kvk.model.KvkSearchParameters
 import nl.info.client.kvk.vestigingsprofiel.model.generated.Vestiging
 import nl.info.client.kvk.zoeken.model.generated.Resultaat
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
-import nl.info.zac.log.GenericEvent
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -38,7 +38,7 @@ class KvkClientService @Inject constructor(
         } catch (_: KvkClientNoResultException) {
             // Nothing to report
         } catch (exception: RuntimeException) {
-            LOG.severe(GenericEvent(type = GenericEvent.Type.KVK_SEARCH_FAILED), exception)
+            LOG.severe(KvkSearchFailed, exception)
         }
         return Resultaat().apply {
             totaal = 0

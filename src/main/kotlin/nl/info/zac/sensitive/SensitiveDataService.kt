@@ -7,9 +7,9 @@ package nl.info.zac.sensitive
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import jakarta.enterprise.context.ApplicationScoped
-import nl.info.zac.log.GenericEvent
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.sensitive.log.SensitiveDataRemoved
+import nl.info.zac.sensitive.log.SensitiveStorageCleared
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
@@ -77,7 +77,7 @@ class SensitiveDataService {
     fun clearStorage(): String {
         dataToUuidStorage.invalidateAll()
         uuidToDataStorage.invalidateAll()
-        LOG.info(GenericEvent(type = GenericEvent.Type.SENSITIVE_STORAGE_CLEARED))
+        LOG.info(SensitiveStorageCleared)
         return "Storage cleared."
     }
 }

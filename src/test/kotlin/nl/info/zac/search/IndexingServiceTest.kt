@@ -1441,7 +1441,7 @@ class IndexingServiceTest : BehaviorSpec({
 
             then("the failure is logged instead of crashing the coroutine, and the object type is released") {
                 logRecords.any {
-                    it.message == "Unexpected failure while reindexing [type=REINDEXING_FAILED_UNEXPECTEDLY]" &&
+                    it.message == "Unexpected failure while reindexing" &&
                         it.thrown?.message == "fakeUnexpectedFailure"
                 } shouldBe true
 
@@ -1499,7 +1499,7 @@ class IndexingServiceTest : BehaviorSpec({
 
             then("the zaak's Solr indexing failure is logged instead of being thrown to the caller") {
                 logRecords.any {
-                    it.message == "Error during indexing [objectType=ZAAK, type=INDEXING_FAILED]" &&
+                    it.message == "Error during indexing [objectType=ZAAK]" &&
                         it.thrown?.cause?.message == "fake Solr failure"
                 } shouldBe true
             }
@@ -1544,7 +1544,7 @@ class IndexingServiceTest : BehaviorSpec({
 
             then("the unsupported zaakgeometrie failure is logged instead of being thrown to the caller") {
                 logRecords.any {
-                    it.message == "Error during indexing [objectType=ZAAK, type=INDEXING_FAILED]" &&
+                    it.message == "Error during indexing [objectType=ZAAK]" &&
                         it.thrown?.cause is ZaakGeometrieNotSupportedException
                 } shouldBe true
             }
@@ -1617,7 +1617,7 @@ class IndexingServiceTest : BehaviorSpec({
 
             then("the first document's Solr indexing failure is logged instead of being thrown to the caller") {
                 logRecords.any {
-                    it.message == "Error during indexing [objectType=DOCUMENT, type=INDEXING_FAILED]" &&
+                    it.message == "Error during indexing [objectType=DOCUMENT]" &&
                         it.thrown?.cause?.message == "fake Solr failure"
                 } shouldBe true
             }
@@ -1657,7 +1657,7 @@ class IndexingServiceTest : BehaviorSpec({
 
             then("the first taak's Solr indexing failure is logged instead of being thrown to the caller") {
                 logRecords.any {
-                    it.message == "Error during indexing [objectType=TAAK, type=INDEXING_FAILED]" &&
+                    it.message == "Error during indexing [objectType=TAAK]" &&
                         it.thrown?.cause?.message == "fake Solr failure"
                 } shouldBe true
             }
@@ -1728,7 +1728,7 @@ class IndexingServiceTest : BehaviorSpec({
 
             then("the failure is logged by the same backstop used by reindexAsync, instead of crashing the coroutine") {
                 logRecords.any {
-                    it.message == "Unexpected failure while reindexing [type=REINDEXING_FAILED_UNEXPECTEDLY]" &&
+                    it.message == "Unexpected failure while reindexing" &&
                         it.thrown?.message == "fake unexpected failure"
                 } shouldBe true
             }
@@ -1983,7 +1983,7 @@ class IndexingServiceTest : BehaviorSpec({
                     ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", succeedingZaak, any())
                 }
                 logRecords.any {
-                    it.message == "Error during indexing [objectType=ZAAK, type=INDEXING_FAILED]" &&
+                    it.message == "Error during indexing [objectType=ZAAK]" &&
                         it.thrown?.cause?.message == "fake read zaak failure"
                 } shouldBe true
             }
@@ -2024,7 +2024,7 @@ class IndexingServiceTest : BehaviorSpec({
                     ctx.solrClient.addBeans(listOf(zaakZoekObject))
                 }
                 logRecords.any {
-                    it.message == "Error during indexing [objectType=TAAK, type=INDEXING_FAILED]" &&
+                    it.message == "Error during indexing [objectType=TAAK]" &&
                         it.thrown?.cause?.message == "fake taak conversion failure"
                 } shouldBe true
             }
@@ -2072,7 +2072,7 @@ class IndexingServiceTest : BehaviorSpec({
                     ctx.solrClient.addBeans(listOf(zaakZoekObject))
                 }
                 logRecords.any {
-                    it.message == "Error during indexing [objectType=DOCUMENT, type=INDEXING_FAILED]" &&
+                    it.message == "Error during indexing [objectType=DOCUMENT]" &&
                         it.thrown?.cause?.message == "fake document conversion failure"
                 } shouldBe true
             }
@@ -2387,7 +2387,7 @@ class IndexingServiceTest : BehaviorSpec({
 
             then("ZAAK and DOCUMENT are still reindexed independently, and TAAK logs that it is still in progress") {
                 logRecords.map { it.message } shouldContain
-                    "Reindexing not started, still in progress [objectType=TAAK, type=REINDEXING_NOT_STARTED]"
+                    "Reindexing not started, still in progress [objectType=TAAK]"
                 logRecords.map { it.message } shouldContain
                     "Reindexing finished [errorCount=0, objectType=ZAAK, reindexedCount=0, skippedCount=0, solrDocumentCount=0, totalCount=0]"
                 logRecords.map { it.message } shouldContain

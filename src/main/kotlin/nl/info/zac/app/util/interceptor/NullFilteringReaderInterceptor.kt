@@ -13,7 +13,7 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.ext.Provider
 import jakarta.ws.rs.ext.ReaderInterceptor
 import jakarta.ws.rs.ext.ReaderInterceptorContext
-import nl.info.zac.log.GenericEvent
+import nl.info.zac.app.util.log.JsonReadFailed
 import nl.info.zac.log.ZacLogger
 import java.io.ByteArrayInputStream
 import java.nio.charset.StandardCharsets
@@ -48,7 +48,7 @@ class NullFilteringReaderInterceptor : ReaderInterceptor {
             context.inputStream = ByteArrayInputStream(filteredJsonString.toByteArray(StandardCharsets.UTF_8))
             context.proceed()
         } catch (jsonException: JsonException) {
-            LOG.warning(GenericEvent(type = GenericEvent.Type.JSON_READ_FAILED), jsonException)
+            LOG.warning(JsonReadFailed, jsonException)
             // If JSON parsing fails, let the original stream through for proper error handling
             context.inputStream = ByteArrayInputStream(jsonString.toByteArray(StandardCharsets.UTF_8))
             context.proceed()

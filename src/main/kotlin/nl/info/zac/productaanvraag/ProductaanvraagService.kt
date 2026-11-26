@@ -113,10 +113,7 @@ class ProductaanvraagService @Inject constructor(
 
     private fun logUnreadableProductaanvraagObject(productaanvraagObjectUUID: UUID, exception: RuntimeException): Nothing? {
         LOG.warning(
-            ProductaanvraagObjectEvent(
-                type = ProductaanvraagObjectEvent.Type.PRODUCTAANVRAAG_OBJECT_UNREADABLE,
-                productaanvraagObjectUuid = productaanvraagObjectUUID
-            ),
+            ProductaanvraagObjectEvent.ProductaanvraagObjectUnreadable(productaanvraagObjectUuid = productaanvraagObjectUUID),
             exception
         )
         return null
@@ -136,19 +133,13 @@ class ProductaanvraagService @Inject constructor(
 
     private fun handleProductaanvraagDimpactWithoutFailing(productaanvraagObjectUUID: UUID, productaanvraagObject: ModelObject) {
         LOG.info(
-            ProductaanvraagObjectEvent(
-                type = ProductaanvraagObjectEvent.Type.PRODUCTAANVRAAG_DIMPACT_HANDLING_STARTED,
-                productaanvraagObjectUuid = productaanvraagObjectUUID
-            )
+            ProductaanvraagObjectEvent.ProductaanvraagDimpactHandlingStarted(productaanvraagObjectUuid = productaanvraagObjectUUID)
         )
         try {
             handleProductaanvraagDimpact(productaanvraagObject)
         } catch (@Suppress("TooGenericExceptionCaught") runtimeException: RuntimeException) {
             LOG.warning(
-                ProductaanvraagObjectEvent(
-                    type = ProductaanvraagObjectEvent.Type.PRODUCTAANVRAAG_DIMPACT_HANDLING_FAILED,
-                    productaanvraagObjectUuid = productaanvraagObjectUUID
-                ),
+                ProductaanvraagObjectEvent.ProductaanvraagDimpactHandlingFailed(productaanvraagObjectUuid = productaanvraagObjectUUID),
                 runtimeException
             )
         }
@@ -201,7 +192,7 @@ class ProductaanvraagService @Inject constructor(
         }
         if (boundConfigurations.size > 1) {
             LOG.warning(
-                ProductaanvraagtypeEvent(type = ProductaanvraagtypeEvent.Type.MULTIPLE_ZAAKTYPE_CONFIGURATIONS_FOUND, 
+                ProductaanvraagtypeEvent.MultipleZaaktypeConfigurationsFound(
                     productaanvraagType = productaanvraagtype,
                     zaaktypeUuid = boundConfigurations.first().zaaktypeUuid,
                     zaaktypeOmschrijving = boundConfigurations.first().zaaktypeOmschrijving
@@ -242,10 +233,7 @@ class ProductaanvraagService @Inject constructor(
     private fun deleteInboxDocument(documentUUID: UUID) {
         val inboxDocument = inboxDocumentService.find(documentUUID) ?: run {
             LOG.warning(
-                InformatieobjectEvent(
-                    type = InformatieobjectEvent.Type.INBOX_DOCUMENT_NOT_FOUND,
-                    informatieobjectUuid = documentUUID
-                )
+                InformatieobjectEvent.InboxDocumentNotFound(informatieobjectUuid = documentUUID)
             )
             return
         }

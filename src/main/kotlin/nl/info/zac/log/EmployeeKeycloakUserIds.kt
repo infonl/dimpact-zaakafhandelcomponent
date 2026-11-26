@@ -92,7 +92,7 @@ internal object EmployeeKeycloakUserIds {
     private fun registerKeycloakUnreachable(exception: Exception) {
         val previouslyUnreachableAt = keycloakUnreachableAt.getAndSet(clock.instant())
         if (previouslyUnreachableAt?.isWithinRetryDelay() != true) {
-            LOG.warning(GenericEvent(type = GenericEvent.Type.KEYCLOAK_UNREACHABLE_FOR_EMPLOYEE_LOOKUP), exception)
+            LOG.warning(KeycloakUnreachableForEmployeeLookup, exception)
         }
     }
 

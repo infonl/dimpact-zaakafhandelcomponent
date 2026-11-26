@@ -159,10 +159,10 @@ class ZaakGedrevenReindexService @Inject constructor(
             null
         }
         if (requestedScope.shouldIncludeTaken && numberOfTasks == null) {
-            LOG.warning(ReindexEvent(type = ReindexEvent.Type.REINDEX_COUNT_NOT_FOUND, objectType = ZoekObjectType.TAAK))
+            LOG.warning(ReindexEvent.ReindexCountNotFound(objectType = ZoekObjectType.TAAK))
         }
         if (requestedScope.shouldIncludeDocumenten && numberOfInformatieobjecten == null) {
-            LOG.warning(ReindexEvent(type = ReindexEvent.Type.REINDEX_COUNT_NOT_FOUND, objectType = ZoekObjectType.DOCUMENT))
+            LOG.warning(ReindexEvent.ReindexCountNotFound(objectType = ZoekObjectType.DOCUMENT))
         }
         return TaakDocumentReindexPlan(
             numberOfTasks = numberOfTasks,
@@ -180,7 +180,7 @@ class ZaakGedrevenReindexService @Inject constructor(
      * means there is no zaak-driven pass for them to be part of.
      */
     private fun reindexFallback(scope: ReindexScope) {
-        LOG.warning(ReindexEvent(type = ReindexEvent.Type.REINDEX_COUNT_NOT_FOUND, objectType = ZoekObjectType.ZAAK))
+        LOG.warning(ReindexEvent.ReindexCountNotFound(objectType = ZoekObjectType.ZAAK))
         reindexSupportService.finishReindex(ZoekObjectType.ZAAK, null)
         if (scope.shouldIncludeTaken) {
             reindexSupportService.finishReindex(ZoekObjectType.TAAK, reindexSupportService.reindexAllTaken())
@@ -295,7 +295,7 @@ class ZaakGedrevenReindexService @Inject constructor(
                 Triple(zaak, reusingZaak, zaakZoekObjectConverter.convert(zaak, reusingZaak))
             }
         } catch (indexingException: IndexingException) {
-            LOG.warning(ReindexEvent(type = ReindexEvent.Type.INDEXING_FAILED, objectType = ZoekObjectType.ZAAK), indexingException)
+            LOG.warning(ReindexEvent.IndexingFailed(objectType = ZoekObjectType.ZAAK), indexingException)
             null
         }
         if (zaakConversion == null) {
@@ -344,7 +344,7 @@ class ZaakGedrevenReindexService @Inject constructor(
                 }
             )
         } catch (indexingException: IndexingException) {
-            LOG.warning(ReindexEvent(type = ReindexEvent.Type.INDEXING_FAILED, objectType = ZoekObjectType.TAAK), indexingException)
+            LOG.warning(ReindexEvent.IndexingFailed(objectType = ZoekObjectType.TAAK), indexingException)
             ConversionOutcome.Errored
         }
 
@@ -360,7 +360,7 @@ class ZaakGedrevenReindexService @Inject constructor(
                 }
             )
         } catch (indexingException: IndexingException) {
-            LOG.warning(ReindexEvent(type = ReindexEvent.Type.INDEXING_FAILED, objectType = ZoekObjectType.DOCUMENT), indexingException)
+            LOG.warning(ReindexEvent.IndexingFailed(objectType = ZoekObjectType.DOCUMENT), indexingException)
             ConversionOutcome.Errored
         }
 
