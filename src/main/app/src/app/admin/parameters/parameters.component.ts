@@ -31,7 +31,6 @@ import { TranslatePipe } from "@ngx-translate/core";
 import {
   injectQuery,
   keepPreviousData,
-  QueryClient,
 } from "@tanstack/angular-query-experimental";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell-def.directive";
@@ -84,7 +83,6 @@ export class ParametersComponent extends AdminComponent implements OnInit {
     ZaakafhandelParametersService,
   );
   private readonly websocketService = inject(WebsocketService);
-  private readonly queryClient = inject(QueryClient);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly sideNavContainer =
@@ -129,9 +127,7 @@ export class ParametersComponent extends AdminComponent implements OnInit {
       "ZAAKTYPE_CONFIGURATIES",
       "zaaktype-configuraties",
       () =>
-        void this.queryClient.invalidateQueries({
-          queryKey: ["/rest/zaakafhandelparameters"],
-        }),
+        void this.zaakafhandelParametersService.invalidateZaakafhandelParametersList(),
     );
     this.destroyRef.onDestroy(() =>
       this.websocketService.removeListener(zaaktypeConfiguratiesListener),
