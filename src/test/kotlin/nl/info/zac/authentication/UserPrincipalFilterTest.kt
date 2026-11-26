@@ -10,6 +10,7 @@ import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.maps.shouldNotContainKey
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldMatch
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
@@ -40,6 +41,8 @@ import org.wildfly.security.http.oidc.AccessToken
 import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext
 import org.wildfly.security.http.oidc.RefreshableOidcSecurityContext
+
+private val UUID_PATTERN = Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
 
 @Suppress("LargeClass")
 class UserPrincipalFilterTest : BehaviorSpec({
@@ -115,8 +118,9 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     verify(exactly = 0) { httpSession.invalidate() }
                 }
 
-                and("the filter chain runs without an employee in the MDC, because the token has no subject") {
+                and("the filter chain runs with a request ID but without an employee in the MDC, as the token has no subject") {
                     mdcDuringFilterChain.shouldNotBeNull() shouldNotContainKey "employee"
+                    mdcDuringFilterChain["requestId"].toString() shouldMatch UUID_PATTERN
                 }
             }
         }
@@ -155,7 +159,11 @@ class UserPrincipalFilterTest : BehaviorSpec({
             every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
             every { httpSession.invalidate() } just runs
             var employeeDuringFilterChain: String? = null
-            every { filterChain.doFilter(any(), any()) } answers { employeeDuringFilterChain = MDC.get("employee") as String? }
+            var requestIdDuringFilterChain: String? = null
+            every { filterChain.doFilter(any(), any()) } answers {
+                employeeDuringFilterChain = MDC.get("employee") as String?
+                requestIdDuringFilterChain = MDC.get("requestId") as String?
+            }
             every {
                 pabcClientService.getApplicationRoles(functionalRoles)
             } returns GetApplicationRolesResponse().apply {
@@ -174,6 +182,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     logCapture.records
                 }
                 val employeeAfterRequest = MDC.get("employee")
+                val requestIdAfterRequest = MDC.get("requestId")
 
                 then("the existing HTTP session is invalidated and the user is added to a new HTTP session") {
                     verify(exactly = 1) {
@@ -189,11 +198,14 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 }
 
                 then(
-                    "the filter chain runs with the Keycloak user ID from the token subject as employee in the MDC, " +
-                        "and the MDC entry is removed after the request"
+                    "the filter chain runs with the Keycloak user ID from the token subject as employee and a new " +
+                        "request ID in the MDC, which the login record also has, and both are removed after the request"
                 ) {
                     employeeDuringFilterChain shouldBe "fakeKeycloakUserId"
+                    requestIdDuringFilterChain.shouldNotBeNull() shouldMatch UUID_PATTERN
+                    records.single().mdc["requestId"] shouldBe requestIdDuringFilterChain
                     employeeAfterRequest shouldBe null
+                    requestIdAfterRequest shouldBe null
                 }
 
                 then(

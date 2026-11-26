@@ -126,6 +126,16 @@ span. When tracing is disabled, a log record SHALL have neither field.
 - **WHEN** tracing is disabled and the backend logs an event
 - **THEN** the record has no `traceId` and no `spanId` field
 
+### Requirement: Log records of a request carry its request ID
+Every log record that is written while ZAC handles an HTTP request SHALL have the field `requestId`: one ID, new for
+each request, that is the same on every record of that request, whether tracing is enabled or not. A log record
+written outside an HTTP request, such as by a scheduled job, SHALL have no `requestId`.
+
+#### Scenario: Several records of one request without tracing
+- **WHEN** tracing is disabled and ZAC writes several log records while it handles one HTTP request
+- **THEN** each of these records has the same `requestId`
+- **AND** the records of another request have another `requestId`
+
 ### Requirement: Logging outside ZacLogger fails the build
 The build SHALL fail when a production class outside the `nl.info.zac.log` package uses a logging API other than
 `ZacLogger`, writes to `System.out` or `System.err`, or calls `printStackTrace()`. The `logFilter` source set, which
