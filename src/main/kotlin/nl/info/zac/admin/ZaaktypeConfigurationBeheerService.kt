@@ -167,7 +167,7 @@ class ZaaktypeConfigurationBeheerService @Inject constructor(
     fun upsertConfiguration(zaaktype: ZaakType) {
         val zaaktypeUuid = zaaktype.url.extractUuid()
         zaaktypeConfigurationRepository.findByZaaktypeUuid(zaaktypeUuid)?.let { existingConfiguration ->
-            LOG.info(ZaaktypeEvent(type = ZaaktypeEvent.Type.ZAAKTYPE_CONFIGURATION_UPDATING, zaaktypeUuid = zaaktypeUuid))
+            LOG.info(ZaaktypeEvent(type = ZaaktypeEvent.Type.EXISTING_ZAAKTYPE_CONFIGURATION_FOUND, zaaktypeUuid = zaaktypeUuid))
             existingConfiguration.apply {
                 zaaktypeOmschrijving = zaaktype.omschrijving
                 einddatumGeplandWaarschuwing = einddatumGeplandWaarschuwing.takeIf { zaaktype.isServicenormAvailable() }

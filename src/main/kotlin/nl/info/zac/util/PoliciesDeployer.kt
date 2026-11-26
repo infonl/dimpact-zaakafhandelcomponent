@@ -10,7 +10,7 @@ import jakarta.enterprise.event.Observes
 import jakarta.inject.Inject
 import nl.info.client.opa.OpaAdminClient
 import nl.info.zac.log.ZacLogger
-import nl.info.zac.util.log.PolicyModuleDeploying
+import nl.info.zac.util.log.PolicyModuleDeploymentStarted
 import org.eclipse.microprofile.rest.client.inject.RestClient
 
 class PoliciesDeployer @Inject constructor(
@@ -30,7 +30,7 @@ class PoliciesDeployer @Inject constructor(
     private fun deployPolicy(policyFileName: String) {
         val policy = javaClass.classLoader.readResourceBytes("$POLICIES_FOLDER_NAME/$policyFileName").decodeToString()
         val moduleId = policyFileName.substringBefore(POLICIES_FILE_EXTENSION)
-        LOG.info(PolicyModuleDeploying(moduleId = moduleId))
+        LOG.info(PolicyModuleDeploymentStarted(moduleId = moduleId))
         opaAdminClient.policyUpdate(moduleId, policy)
     }
 }
