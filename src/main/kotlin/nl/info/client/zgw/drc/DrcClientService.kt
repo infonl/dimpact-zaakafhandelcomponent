@@ -230,10 +230,7 @@ class DrcClientService @Inject constructor(
      */
     private fun deleteDocumentWithIncompleteContent(documentUUID: UUID, lock: String) {
         LOG.warning(
-            InformatieobjectEvent(
-                type = InformatieobjectEvent.Type.INCOMPLETE_DOCUMENT_DELETION_STARTED,
-                informatieobjectUuid = documentUUID
-            )
+            InformatieobjectEvent.IncompleteDocumentDeletionStarted(informatieobjectUuid = documentUUID)
         )
         logFailureToCleanUp(documentUUID) {
             drcClient.enkelvoudigInformatieobjectUnlock(
@@ -249,34 +246,22 @@ class DrcClientService @Inject constructor(
             cleanUp()
         } catch (zgwRuntimeException: ZgwRuntimeException) {
             LOG.warning(
-                InformatieobjectEvent(
-                    type = InformatieobjectEvent.Type.DOCUMENT_CLEAN_UP_FAILED,
-                    informatieobjectUuid = documentUUID
-                ),
+                InformatieobjectEvent.DocumentCleanUpFailed(informatieobjectUuid = documentUUID),
                 zgwRuntimeException
             )
         } catch (zgwValidationErrorException: ZgwValidationErrorException) {
             LOG.warning(
-                InformatieobjectEvent(
-                    type = InformatieobjectEvent.Type.DOCUMENT_CLEAN_UP_FAILED,
-                    informatieobjectUuid = documentUUID
-                ),
+                InformatieobjectEvent.DocumentCleanUpFailed(informatieobjectUuid = documentUUID),
                 zgwValidationErrorException
             )
         } catch (webApplicationException: WebApplicationException) {
             LOG.warning(
-                InformatieobjectEvent(
-                    type = InformatieobjectEvent.Type.DOCUMENT_CLEAN_UP_FAILED,
-                    informatieobjectUuid = documentUUID
-                ),
+                InformatieobjectEvent.DocumentCleanUpFailed(informatieobjectUuid = documentUUID),
                 webApplicationException
             )
         } catch (processingException: ProcessingException) {
             LOG.warning(
-                InformatieobjectEvent(
-                    type = InformatieobjectEvent.Type.DOCUMENT_CLEAN_UP_FAILED,
-                    informatieobjectUuid = documentUUID
-                ),
+                InformatieobjectEvent.DocumentCleanUpFailed(informatieobjectUuid = documentUUID),
                 processingException
             )
         }

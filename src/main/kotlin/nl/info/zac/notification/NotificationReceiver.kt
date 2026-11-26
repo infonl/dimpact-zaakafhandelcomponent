@@ -29,12 +29,12 @@ import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.event.EventingService
 import nl.info.zac.flowable.ZaakProcessService
-import nl.info.zac.log.GenericEvent
 import nl.info.zac.log.ZaakEvent
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.notification.log.FormerBehandelaarSignaleringenDeleted
 import nl.info.zac.notification.log.NotificationHandlingFailed
 import nl.info.zac.notification.log.NotificationReceived
+import nl.info.zac.notification.log.TestNotificationReceived
 import nl.info.zac.notification.log.ZaakSignaleringenDeleted
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService
@@ -145,7 +145,7 @@ class NotificationReceiver @Inject constructor(
                 LOG.info(FormerBehandelaarSignaleringenDeleted(zaakUuid = zaakUUID, signaleringCount = it))
             }
         } catch (notFoundException: NotFoundException) {
-            LOG.fine(ZaakEvent(type = ZaakEvent.Type.ZAAK_OF_DELETED_ROL_NOT_FOUND, zaakUuid = zaakUUID), notFoundException)
+            LOG.fine(ZaakEvent.ZaakOfDeletedRolNotFound(zaakUuid = zaakUUID), notFoundException)
         }
     }
 
@@ -161,7 +161,7 @@ class NotificationReceiver @Inject constructor(
             if (notification.channel == Channel.ZAKEN && notification.resource == Resource.ZAAK && notification.action == Action.DELETE) {
                 notification.resourceUrl.extractUuid().let { zaakUUID ->
                     zaakProcessService.deleteInAllEngines(zaakUUID)
-                    LOG.info(ZaakEvent(type = ZaakEvent.Type.FLOWABLE_PROCESS_DATA_DELETED, zaakUuid = zaakUUID))
+                    LOG.info(ZaakEvent.FlowableProcessDataDeleted(zaakUuid = zaakUUID))
                 }
             }
         } catch (exception: RuntimeException) {
@@ -327,7 +327,7 @@ class NotificationReceiver @Inject constructor(
             zrcClientService.readZaakeigenschap(zaakUUID, notification.resourceUrl.extractUuid()).naam ==
                 ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
         } catch (exception: RuntimeException) {
-            LOG.warning(ZaakEvent(type = ZaakEvent.Type.ZAAKEIGENSCHAP_READ_FAILED, zaakUuid = zaakUUID), exception)
+            LOG.warning(ZaakEvent.ZaakeigenschapReadFailed(zaakUuid = zaakUUID), exception)
             true
         }
 
@@ -335,7 +335,7 @@ class NotificationReceiver @Inject constructor(
     private fun handleInboxDocuments(notification: Notification) {
         // Used by "Abonnementen" functionality in OpenNotificaties to check if callback URL is active
         if (notification.channel == Channel.TEST) {
-            LOG.info(GenericEvent(type = GenericEvent.Type.TEST_NOTIFICATION_RECEIVED))
+            LOG.info(TestNotificationReceived)
             return
         }
         try {

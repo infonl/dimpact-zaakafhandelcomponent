@@ -18,7 +18,6 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.util.isOpen
-import nl.info.zac.log.GenericEvent
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.search.converter.DocumentZoekObjectConverter
 import nl.info.zac.search.converter.TaakZoekObjectConverter
@@ -27,6 +26,7 @@ import nl.info.zac.search.log.CompleteReindexingFinished
 import nl.info.zac.search.log.CompleteReindexingStarted
 import nl.info.zac.search.log.ReindexEvent
 import nl.info.zac.search.log.ReindexingFailed
+import nl.info.zac.search.log.ReindexingFailedUnexpectedly
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
@@ -73,7 +73,7 @@ class IndexingService @Inject constructor(
      * that escapes a launched reindex since a fire-and-forget coroutine has no caller to propagate to.
      */
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        LOG.severe(GenericEvent(type = GenericEvent.Type.REINDEXING_FAILED_UNEXPECTEDLY), throwable)
+        LOG.severe(ReindexingFailedUnexpectedly, throwable)
     }
     private val coroutineScope = CoroutineScope(SupervisorJob() + dispatcher + exceptionHandler)
 
@@ -228,7 +228,7 @@ class IndexingService @Inject constructor(
      */
     fun reindexAsync(objectType: ZoekObjectType): Boolean {
         if (!reindexingViewfinder.add(objectType)) {
-            LOG.warning(ReindexEvent(type = ReindexEvent.Type.REINDEXING_NOT_STARTED, objectType = objectType))
+            LOG.warning(ReindexEvent.ReindexingNotStarted(objectType = objectType))
             return false
         }
         coroutineScope.launch {
@@ -243,7 +243,7 @@ class IndexingService @Inject constructor(
 
     fun reindex(objectType: ZoekObjectType) {
         if (!reindexingViewfinder.add(objectType)) {
-            LOG.warning(ReindexEvent(type = ReindexEvent.Type.REINDEXING_NOT_STARTED, objectType = objectType))
+            LOG.warning(ReindexEvent.ReindexingNotStarted(objectType = objectType))
             return
         }
         try {

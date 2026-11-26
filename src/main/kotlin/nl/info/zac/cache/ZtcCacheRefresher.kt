@@ -23,9 +23,11 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.authentication.runAsSystemUser
+import nl.info.zac.cache.log.ZtcCacheRefresherFailedUnexpectedly
+import nl.info.zac.cache.log.ZtcCachesRefreshFailed
 import nl.info.zac.cache.log.ZtcCachesRefreshFinished
+import nl.info.zac.cache.log.ZtcCachesRefreshStarted
 import nl.info.zac.configuration.ConfigurationService
-import nl.info.zac.log.GenericEvent
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -63,7 +65,7 @@ class ZtcCacheRefresher @Inject constructor(
     }
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        LOG.severe(GenericEvent(type = GenericEvent.Type.ZTC_CACHE_REFRESHER_FAILED_UNEXPECTEDLY), throwable)
+        LOG.severe(ZtcCacheRefresherFailedUnexpectedly, throwable)
     }
     private val coroutineScope = CoroutineScope(SupervisorJob() + dispatcher + exceptionHandler)
     private val refreshRequests = Channel<Unit>(Channel.CONFLATED)
@@ -102,14 +104,14 @@ class ZtcCacheRefresher @Inject constructor(
      */
     @Suppress("TooGenericExceptionCaught")
     private fun refreshCaches() {
-        LOG.info(GenericEvent(type = GenericEvent.Type.ZTC_CACHES_REFRESH_STARTED))
+        LOG.info(ZtcCachesRefreshStarted)
         try {
             val duration = measureTime {
                 runAsSystemUser { ztcClientService.refreshCaches(configurationService.readDefaultCatalogusURI()) }
             }
             LOG.info(ZtcCachesRefreshFinished(durationMs = duration.inWholeMilliseconds))
         } catch (throwable: Throwable) {
-            LOG.warning(GenericEvent(type = GenericEvent.Type.ZTC_CACHES_REFRESH_FAILED), throwable)
+            LOG.warning(ZtcCachesRefreshFailed, throwable)
         }
     }
 }

@@ -16,9 +16,9 @@ import io.mockk.verify
 import jakarta.websocket.RemoteEndpoint
 import jakarta.websocket.Session
 import nl.info.zac.event.Opcode
-import nl.info.zac.log.GenericEvent
 import nl.info.zac.log.LogCapture
 import nl.info.zac.websocket.SessionRegistry
+import nl.info.zac.websocket.log.ScreenEventJsonConversionFailed
 import java.util.logging.Level
 
 class ScreenEventObserverTest : BehaviorSpec({
@@ -128,7 +128,7 @@ class ScreenEventObserverTest : BehaviorSpec({
 
                 then("a warning with the exception is logged and nothing is thrown") {
                     with(records.single { it.level == Level.WARNING }) {
-                        message shouldBe GenericEvent.Type.SCREEN_EVENT_JSON_CONVERSION_FAILED.description
+                        message shouldBe ScreenEventJsonConversionFailed.description
                         thrown shouldBe jsonProcessingException
                     }
                 }

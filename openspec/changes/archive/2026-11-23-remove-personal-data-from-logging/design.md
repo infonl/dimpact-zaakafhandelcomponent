@@ -99,16 +99,18 @@ next to the code that logs them, in a `log` package of their domain, each in its
 ZAC require (for example `nl/info/zac/mail/log/MailSendCompleted.kt`). Generic events in `nl.info.zac.log` cover recurring shapes such as "operation
 failed for zaak".
 
-Events with the same fields share one class instead of one class each: the class has a nested `Type` enum whose
-constants carry the fixed description, and the description of the event is that of its type, such as
-`ZaakEvent(type = ZaakEvent.Type.FLOWABLE_PROCESS_DATA_DELETED, zaakUuid = ...)`. Shared events that span domains
-live in `nl.info.zac.log` (`GenericEvent` without fields, `ZaakEvent`, `InformatieobjectEvent`, `ZaaktypeEvent`,
-`RolEvent`); shared events of one domain live in its `log` package. The `type` field tells such events apart in the
-log.
+Events with the same fields share one sealed class instead of one top-level class each: the sealed class has a nested
+subclass per event, which passes its fixed description and the shared fields, such as
+`ZaakEvent.FlowableProcessDataDeleted(zaakUuid = ...)`. A field that only some events have is a field of those
+subclasses only. Sealed classes that span domains live in `nl.info.zac.log` (`ZaakEvent`, `InformatieobjectEvent`,
+`RolEvent`); those of one domain live in its `log` package. The name of the subclass tells such events apart in the
+log. An event without fields is a `data object` in the `log` package of its domain, such as
+`SmtpAuthenticationDisabled`.
 
 - Alternative: a `sealed` hierarchy, as `logging.md` suggests. Kotlin requires all subclasses of a sealed class in
   the same package and module, so about 200 event classes would end up in `nl.info.zac.log`, far from their domain.
-  Exhaustive `when` over log events has no use. Rejected.
+  Exhaustive `when` over log events has no use. Rejected. A sealed class per group of events with the same fields
+  is used instead.
 - Alternative: `ZacLogger.info(template: String, vararg fields)`. That still accepts free text. Rejected.
 
 The description is a constructor argument of `LogEvent`, so a subclass could still pass an interpolated string. The
@@ -129,8 +131,8 @@ MDC entry. The WildFly JSON formatter writes the MDC as a JSON object, so a reco
 `ZacLogger` puts the entries in the MDC (`org.jboss.logging.MDC`, which WildFly gives every deployment and which writes
 to the MDC of the JBoss LogManager) right before the JUL call and restores the previous MDC in a `finally` right
 after, so no entry leaks to another log record on the same thread. Besides the event fields it always writes `event`
-(the simple class name of the event, or for a shared event the name of its `type` constant in the
-same style) and, when a throwable is passed, `errorType` (the class name of the throwable).
+(the simple class name of the event, which for a subclass of a sealed class is the name of the
+subclass) and, when a throwable is passed, `errorType` (the class name of the throwable).
 
 `ZacLogger` renders all fields of the event, including the resolution of `Employee` fields (decision 6), into a map
 before it puts anything into the MDC. Resolving an employee can write a log record of its own (`IdentityService` logs

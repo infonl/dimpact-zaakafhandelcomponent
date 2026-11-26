@@ -8,11 +8,11 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.event.ObservesAsync
 import jakarta.inject.Inject
 import jakarta.inject.Named
-import nl.info.zac.log.GenericEvent
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.signalering.ZaakTaskDueDateEmailNotificationService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.log.JobEventHandlingFailed
 import nl.info.zac.util.log.JobEventReceived
 
 /**
@@ -37,7 +37,7 @@ class JobEventObserver @Inject constructor(
                 JobId.SIGNALERINGEN_JOB -> zaakTaskDueDateEmailNotificationService.sendDueDateEmailNotifications()
             }
         } catch (throwable: Throwable) {
-            LOG.severe(GenericEvent(type = GenericEvent.Type.JOB_EVENT_HANDLING_FAILED), throwable)
+            LOG.severe(JobEventHandlingFailed, throwable)
         }
     }
 }

@@ -15,8 +15,8 @@ import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraagRequest
-import nl.info.zac.log.GenericEvent
 import nl.info.zac.log.ZacLogger
+import nl.info.zac.productaanvraag.log.AanvraagPdfNotFound
 import nl.info.zac.productaanvraag.log.BijlagePairingFailed
 import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact
 import nl.info.zac.util.AllOpen
@@ -46,7 +46,7 @@ class ProductaanvraagDocumentService @Inject constructor(
 
     fun pairAanvraagPDFWithZaak(productaanvraag: ProductaanvraagDimpact, zaakUrl: URI) {
         if (productaanvraag.pdf == null) {
-            LOG.warning(GenericEvent(type = GenericEvent.Type.AANVRAAG_PDF_NOT_FOUND))
+            LOG.warning(AanvraagPdfNotFound)
             return
         }
         ZaakInformatieObjectRequest().apply {

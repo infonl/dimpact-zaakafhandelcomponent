@@ -7,13 +7,14 @@ package nl.info.zac.websocket.log
 import nl.info.zac.log.Employee
 import nl.info.zac.log.LogEvent
 
-class WebSocketSessionEvent(
-    val type: Type,
+sealed class WebSocketSessionEvent(
+    description: String,
     val employee: Employee?,
     val sessionId: String
-) : LogEvent(type.description) {
-    enum class Type(val description: String) {
-        WEB_SOCKET_ERROR("WebSocket error"),
-        WEB_SOCKET_OPENED("WebSocket open")
-    }
+) : LogEvent(description) {
+    class WebSocketError(employee: Employee?, sessionId: String) :
+        WebSocketSessionEvent("WebSocket error", employee, sessionId)
+
+    class WebSocketOpened(employee: Employee?, sessionId: String) :
+        WebSocketSessionEvent("WebSocket open", employee, sessionId)
 }
