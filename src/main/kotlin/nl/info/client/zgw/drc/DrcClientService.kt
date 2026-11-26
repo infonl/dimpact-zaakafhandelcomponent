@@ -231,7 +231,7 @@ class DrcClientService @Inject constructor(
     private fun deleteDocumentWithIncompleteContent(documentUUID: UUID, lock: String) {
         LOG.warning(
             InformatieobjectEvent(
-                type = InformatieobjectEvent.Type.DOCUMENT_WITH_INCOMPLETE_CONTENT_DELETING,
+                type = InformatieobjectEvent.Type.INCOMPLETE_DOCUMENT_DELETION_STARTED,
                 informatieobjectUuid = documentUUID
             )
         )

@@ -8,8 +8,8 @@ import nl.info.zac.log.Employee
 import nl.info.zac.log.LogEvent
 import java.util.UUID
 
-class ZaakAssigning(
+class ZaakAssignmentStarted(
     val zaakUuid: UUID,
     val groupId: String?,
     val behandelaar: Employee?
-) : LogEvent("Assigning zaak")
+) : LogEvent("Zaak assignment started")

@@ -8,10 +8,10 @@ import nl.info.zac.log.LogEvent
 import nl.info.zac.signalering.model.SignaleringSubject
 import nl.info.zac.signalering.model.SignaleringType
 
-class InvalidSignaleringDeleting(
+class InvalidSignaleringFound(
     val signaleringId: Long?,
     val signaleringType: SignaleringType.Type,
     val subjecttype: SignaleringSubject,
     val subject: String,
     val reason: String
-) : LogEvent("Deleting invalid signalering")
+) : LogEvent("Invalid signalering found; deleting it")

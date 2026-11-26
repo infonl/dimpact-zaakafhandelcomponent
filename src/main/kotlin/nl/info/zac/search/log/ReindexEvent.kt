@@ -12,7 +12,7 @@ class ReindexEvent(
     val objectType: ZoekObjectType
 ) : LogEvent(type.description) {
     enum class Type(val description: String) {
-        EXISTING_DOCUMENTS_DELETING("Deleting existing documents before reindexing"),
+        EXISTING_DOCUMENTS_DELETION_STARTED("Deletion of the existing documents before reindexing started"),
         INDEXING_FAILED("Error during indexing"),
         REINDEX_COUNT_NOT_FOUND("Cannot find the count; aborting reindexing"),
         REINDEXING_NOT_STARTED("Reindexing not started, still in progress"),

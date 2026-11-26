@@ -12,7 +12,7 @@ class ProductaanvraagObjectEvent(
     val productaanvraagObjectUuid: UUID
 ) : LogEvent(type.description) {
     enum class Type(val description: String) {
-        PRODUCTAANVRAAG_DIMPACT_HANDLING("Handle productaanvraag-Dimpact object"),
+        PRODUCTAANVRAAG_DIMPACT_HANDLING_STARTED("Handling of a productaanvraag-Dimpact object started"),
         PRODUCTAANVRAAG_DIMPACT_HANDLING_FAILED("Failed to handle productaanvraag-Dimpact object"),
         PRODUCTAANVRAAG_OBJECT_UNREADABLE("Unable to read the productaanvraag object")
     }

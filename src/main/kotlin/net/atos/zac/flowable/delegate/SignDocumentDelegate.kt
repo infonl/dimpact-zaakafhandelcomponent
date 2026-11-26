@@ -86,7 +86,7 @@ class SignDocumentDelegate : AbstractDelegate() {
             }
 
             LOG.fine(
-                DocumentSigningEvent(type = DocumentSigningEvent.Type.DOCUMENT_SIGNING, 
+                DocumentSigningEvent(type = DocumentSigningEvent.Type.DOCUMENT_SIGNING_STARTED, 
                     informatieobjectIdentificatie = enkelvoudigInformatieobject.identificatie,
                     zaakIdentificatie = zaak.identificatie
                 )

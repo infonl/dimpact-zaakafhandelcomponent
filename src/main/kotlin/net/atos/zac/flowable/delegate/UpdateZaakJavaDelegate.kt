@@ -4,8 +4,8 @@
  */
 package net.atos.zac.flowable.delegate
 
-import net.atos.zac.flowable.cmmn.log.ZaakStatusChanging
-import net.atos.zac.flowable.delegate.log.ZaakClosing
+import net.atos.zac.flowable.cmmn.log.ZaakStatusChangeStarted
+import net.atos.zac.flowable.delegate.log.ZaakClosureStarted
 import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.flowable.FlowableHelper
@@ -51,7 +51,7 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
 
         val resultaattypeDescription = resultaattypeOmschrijving?.resolveValueAsString(execution)
         if (resultaattypeDescription != null) {
-            LOG.fine(ZaakClosing(zaakUuid = zaak.uuid, resultaattypeOmschrijving = resultaattypeDescription))
+            LOG.fine(ZaakClosureStarted(zaakUuid = zaak.uuid, resultaattypeOmschrijving = resultaattypeDescription))
             try {
                 val resultaattype = flowableHelper.zgwApiService.getResultaatType(
                     zaak.zaaktype,
@@ -68,7 +68,7 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
             }
         } else {
             val statustypeOmschrijving = statustypeOmschrijving.resolveValueAsString(execution)
-            LOG.fine(ZaakStatusChanging(zaakUuid = zaak.uuid, statustypeOmschrijving = statustypeOmschrijving))
+            LOG.fine(ZaakStatusChangeStarted(zaakUuid = zaak.uuid, statustypeOmschrijving = statustypeOmschrijving))
             flowableHelper.zgwApiService.createStatusForZaak(zaak, statustypeOmschrijving, TOELICHTING)
         }
     }

@@ -1057,9 +1057,9 @@ class SignaleringServiceTest : BehaviorSpec({
             }
             and("a warning per signalering names the signalering and the reason, but not the user") {
                 warnings.map { it.message } shouldBe listOf(
-                    "Deleting invalid signalering [reason=the user is not the behandelaar of the zaak, signaleringId=1, " +
+                    "Invalid signalering found; deleting it [reason=the user is not the behandelaar of the zaak, signaleringId=1, " +
                         "signaleringType=ZAAK_OP_NAAM, subject=${zaak.uuid}, subjecttype=ZAAK]",
-                    "Deleting invalid signalering [reason=the user has no read rights on the zaak, signaleringId=2, " +
+                    "Invalid signalering found; deleting it [reason=the user has no read rights on the zaak, signaleringId=2, " +
                         "signaleringType=ZAAK_OP_NAAM, subject=${zaak.uuid}, subjecttype=ZAAK]"
                 )
             }

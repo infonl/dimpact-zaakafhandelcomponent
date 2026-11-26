@@ -102,7 +102,7 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
 
             and("the assignment is logged with the zaak, the group and the Keycloak user ID, without the reason and the username") {
                 with(records.single()) {
-                    message shouldBe "Updating zaak assignment"
+                    message shouldBe "Zaak assignment update started"
                     mdc["zaakIdentificatie"] shouldBe zaak.identificatie
                     mdc["groupId"] shouldBe groupId
                     mdc["assignee"] shouldBe "fakeKeycloakUserId"

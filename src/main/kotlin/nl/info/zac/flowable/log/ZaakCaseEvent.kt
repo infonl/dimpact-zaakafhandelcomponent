@@ -14,6 +14,6 @@ class ZaakCaseEvent(
 ) : LogEvent(type.description) {
     enum class Type(val description: String) {
         CMMN_MODEL_NOT_FOUND("CMMN model for zaak could not be found; zaak is not started"),
-        ZAAK_CASE_STARTING("Starting zaak using CMMN model")
+        ZAAK_CASE_START_REQUESTED("Start of the zaak with a CMMN model requested")
     }
 }

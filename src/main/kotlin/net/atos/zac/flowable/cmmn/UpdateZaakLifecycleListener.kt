@@ -4,7 +4,7 @@
  */
 package net.atos.zac.flowable.cmmn
 
-import net.atos.zac.flowable.cmmn.log.ZaakStatusChanging
+import net.atos.zac.flowable.cmmn.log.ZaakStatusChangeStarted
 import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.NoArgConstructor
@@ -50,7 +50,7 @@ class UpdateZaakLifecycleListener : PlanItemInstanceLifecycleListener {
     private fun updateZaak(planItemInstance: PlanItemInstance, statustypeOmschrijving: String) {
         val zaakUUID = FlowableHelper.getInstance().zaakVariabelenService.readZaakUUID(planItemInstance)
         val zaak = FlowableHelper.getInstance().zrcClientService.readZaak(zaakUUID)
-        LOG.info(ZaakStatusChanging(zaakUuid = zaakUUID, statustypeOmschrijving = statustypeOmschrijving))
+        LOG.info(ZaakStatusChangeStarted(zaakUuid = zaakUUID, statustypeOmschrijving = statustypeOmschrijving))
         FlowableHelper.getInstance().zgwApiService.createStatusForZaak(zaak, statustypeOmschrijving, STATUS_TOELICHTING)
     }
 }
