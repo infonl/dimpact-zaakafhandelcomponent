@@ -110,7 +110,7 @@ class DetachedDocumentBulkService @Inject constructor(
             LOG.logNotProcessed(id, DetachedDocumentBulkFailureReason.ALREADY_LINKED, illegalStateException)
             DetachedDocumentBulkFailureReason.ALREADY_LINKED
         } catch (_: PolicyException) {
-            LOG.fine { DetachedDocumentNotProcessed(id, DetachedDocumentBulkFailureReason.NO_RIGHTS, errorType = null) }
+            LOG.fine (DetachedDocumentNotProcessed(id, DetachedDocumentBulkFailureReason.NO_RIGHTS, errorType = null))
             DetachedDocumentBulkFailureReason.NO_RIGHTS
         } catch (zgwErrorException: ZgwErrorException) {
             LOG.logNotProcessed(id, DetachedDocumentBulkFailureReason.OPEN_ZAAK_ERROR, zgwErrorException)

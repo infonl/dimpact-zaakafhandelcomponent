@@ -6,7 +6,7 @@
       `@Redacted` fields, `null` for null values, fields of `LogEvent` and synthetic fields skipped; plus
       `render(event)` as `<description> [name=value, ...]` for tests
 - [x] 1.3 Add `ZacLogger` (`getLogger(KClass)`, `severe`/`warning`/`info`/`fine`/`log(level)` with an optional
-      throwable, a lazy `fine { }` overload, `isLoggable`), keeping the JUL logger name; it renders all fields
+      throwable, `isLoggable`), keeping the JUL logger name; it renders all fields
       (including `Employee` fields) into a map first, then writes the description as message and the fields plus
       `event`, `errorType` (from the throwable), `traceId` and `spanId` (from a valid `Span.current()`) as MDC entries
       through `org.jboss.logging.MDC`, restoring the previous MDC in a `finally`

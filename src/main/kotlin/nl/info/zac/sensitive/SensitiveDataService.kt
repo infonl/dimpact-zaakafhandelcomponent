@@ -39,7 +39,7 @@ class SensitiveDataService {
             .maximumSize(STORAGE_SIZE)
             .expireAfterAccess(EXPIRATION_TIME_HOURS, TimeUnit.HOURS)
             .removalListener { key: UUID?, value: String?, cause ->
-                LOG.fine { SensitiveDataRemoved(key = key, cause = cause.toString()) }
+                LOG.fine (SensitiveDataRemoved(key = key, cause = cause.toString()))
                 if (key != null && value != null) dataToUuidStorage.asMap().remove(value, key)
             }.build()
     }

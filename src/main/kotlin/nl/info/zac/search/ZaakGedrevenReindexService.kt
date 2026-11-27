@@ -91,16 +91,17 @@ class ZaakGedrevenReindexService @Inject constructor(
      * untouched for this run - neither deleted nor repopulated - and reported as aborted, the same way
      * [ReindexSupportService.reindexAllTaken]/[ReindexSupportService.reindexAllInformatieobjecten] abort
      * without touching existing data when their own count fails.
+     *
+     * @return `true` if every reindexed object type finished, `false` if any of them was aborted
      */
-    internal fun reindex(scope: ReindexScope) {
+    internal fun reindex(scope: ReindexScope): Boolean {
         LOG.info(reindexSupportService.reindexStarted(ZoekObjectType.ZAAK))
         if (scope.shouldIncludeTaken) LOG.info(reindexSupportService.reindexStarted(ZoekObjectType.TAAK))
         if (scope.shouldIncludeDocumenten) LOG.info(reindexSupportService.reindexStarted(ZoekObjectType.DOCUMENT))
 
         val numberOfZaken = reindexSupportService.continueOnExceptions(ZoekObjectType.ZAAK) { countZaken() }
         if (numberOfZaken == null) {
-            reindexFallback(scope)
-            return
+            return reindexFallback(scope)
         }
 
         val plan = determineTaakDocumentReindexPlan(scope)
@@ -118,28 +119,34 @@ class ZaakGedrevenReindexService @Inject constructor(
             alreadyIndexedInformatieobjectUUIDs
         )
 
-        reindexSupportService.finishReindex(
-            ZoekObjectType.ZAAK,
-            ReindexSummary(counts.zaakCounts.successCount, counts.zaakCounts.skippedCount, numberOfZaken)
-        )
-        if (scope.shouldIncludeTaken) {
+        return listOfNotNull(
             reindexSupportService.finishReindex(
-                ZoekObjectType.TAAK,
-                plan.numberOfTasks?.let {
-                    ReindexSummary(counts.takenCounts.successCount, counts.takenCounts.skippedCount, it.toInt())
-                }
-            )
-        }
-        if (scope.shouldIncludeDocumenten) {
-            reindexSupportService.finishReindex(
-                ZoekObjectType.DOCUMENT,
-                plan.numberOfInformatieobjecten?.let { total ->
-                    val documentenCounts = counts.documentenCounts +
-                        reindexInformatieobjectenOrphanSweep(total, alreadyIndexedInformatieobjectUUIDs)
-                    ReindexSummary(documentenCounts.successCount, documentenCounts.skippedCount, total)
-                }
-            )
-        }
+                ZoekObjectType.ZAAK,
+                ReindexSummary(counts.zaakCounts.successCount, counts.zaakCounts.skippedCount, numberOfZaken)
+            ),
+            if (scope.shouldIncludeTaken) {
+                reindexSupportService.finishReindex(
+                    ZoekObjectType.TAAK,
+                    plan.numberOfTasks?.let {
+                        ReindexSummary(counts.takenCounts.successCount, counts.takenCounts.skippedCount, it.toInt())
+                    }
+                )
+            } else {
+                null
+            },
+            if (scope.shouldIncludeDocumenten) {
+                reindexSupportService.finishReindex(
+                    ZoekObjectType.DOCUMENT,
+                    plan.numberOfInformatieobjecten?.let { total ->
+                        val documentenCounts = counts.documentenCounts +
+                            reindexInformatieobjectenOrphanSweep(total, alreadyIndexedInformatieobjectUUIDs)
+                        ReindexSummary(documentenCounts.successCount, documentenCounts.skippedCount, total)
+                    }
+                )
+            } else {
+                null
+            }
+        ).all { it }
     }
 
     /**
@@ -178,8 +185,10 @@ class ZaakGedrevenReindexService @Inject constructor(
      * Falls back to [ReindexSupportService.reindexAllTaken]/[ReindexSupportService.reindexAllInformatieobjecten]
      * for whichever of [scope]'s `TAAK`/`DOCUMENT` were requested, since the zaak count being unavailable
      * means there is no zaak-driven pass for them to be part of.
+     *
+     * @return always `false`, since `ZAAK` itself is aborted
      */
-    private fun reindexFallback(scope: ReindexScope) {
+    private fun reindexFallback(scope: ReindexScope): Boolean {
         LOG.warning(ReindexEvent.ReindexCountNotFound(objectType = ZoekObjectType.ZAAK))
         reindexSupportService.finishReindex(ZoekObjectType.ZAAK, null)
         if (scope.shouldIncludeTaken) {
@@ -188,6 +197,7 @@ class ZaakGedrevenReindexService @Inject constructor(
         if (scope.shouldIncludeDocumenten) {
             reindexSupportService.finishReindex(ZoekObjectType.DOCUMENT, reindexSupportService.reindexAllInformatieobjecten())
         }
+        return false
     }
 
     private fun countZaken(): Int =

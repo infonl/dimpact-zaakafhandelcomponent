@@ -49,19 +49,19 @@ class WebSocketServerEndPoint @Inject constructor(
         } else {
             session.userProperties[LOGGED_IN_USER_SESSION_ATTRIBUTE] = loggedInUser.username
             sessionRegistry.addSession(session)
-            LOG.fine {
+            LOG.fine (
                 WebSocketSessionEvent.WebSocketOpened(
                     employee = session.employee(),
                     sessionId = session.id
                 )
-            }
+            )
         }
     }
 
     @OnMessage
     fun processMessage(message: SubscriptionMessage?, session: Session) {
         if (message != null) {
-            LOG.fine {
+            LOG.fine (
                 WebSocketSubscription(
                     subscriptionType = message.subscriptionType.toString(),
                     // Not the object ID: for some screen events, such as SIGNALERINGEN, it is a username
@@ -70,7 +70,7 @@ class WebSocketServerEndPoint @Inject constructor(
                     employee = session.employee(),
                     sessionId = session.id
                 )
-            }
+            )
             message.register(sessionRegistry, session)
         }
     }
@@ -88,20 +88,20 @@ class WebSocketServerEndPoint @Inject constructor(
 
     @OnClose
     fun close(session: Session, reason: CloseReason) {
-        LOG.fine {
+        LOG.fine (
             WebSocketClosed(
                 closeCode = CloseReason.CloseCodes.getCloseCode(reason.closeCode.code).toString(),
                 employee = session.employee(),
                 sessionId = session.id
             )
-        }
+        )
         sessionRegistry.removeSession(session)
         // Prevent resource leaks by always processing a fictitious DELETE_ALL message when closing.
         processMessage(DELETE_ALL.message(), session)
     }
 
     private fun denyAccess(session: Session, reason: String) {
-        LOG.fine { WebSocketDenied(reason = reason, employee = session.employee(), sessionId = session.id) }
+        LOG.fine (WebSocketDenied(reason = reason, employee = session.employee(), sessionId = session.id))
         try {
             // According to the RFC, this close reason should be used if the other reasons are not applicable.
             session.close(CloseReason(VIOLATED_POLICY, reason))

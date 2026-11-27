@@ -58,13 +58,13 @@ class ProductaanvraagEmailService @Inject constructor(
                 extractBetrokkeneEmail(it)?.let { to ->
                     sendConfirmationOfReceiptMail(zaaktypeEmailParameters, to, zaak)
                 }
-            } ?: LOG.fine {
+            } ?: LOG.fine (
                 ConfirmationOfReceiptEmailSkipped(
                 zaakIdentificatie = zaak.identificatie,
                 zaaktypeUri = zaak.zaaktype,
                 skipReason = ConfirmationOfReceiptSkipReason.NO_EMAIL_ADDRESS
             )
-            }
+            )
         }
     }
 

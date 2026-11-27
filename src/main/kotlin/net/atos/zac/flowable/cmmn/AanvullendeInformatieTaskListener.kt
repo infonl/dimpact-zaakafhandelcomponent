@@ -36,13 +36,13 @@ class AanvullendeInformatieTaskListener : TaskListener {
     }
 
     override fun notify(delegateTask: DelegateTask) {
-        LOG.fine {
+        LOG.fine (
             AanvullendeInformatieTaskEvent(
                 taakId = delegateTask.id,
                 state = delegateTask.state,
                 eventName = delegateTask.eventName
             )
-        }
+        )
         with(delegateTask as TaskInfo) {
             when (delegateTask.eventName) {
                 BaseTaskListener.EVENTNAME_CREATE -> createdEvent(subScopeId)

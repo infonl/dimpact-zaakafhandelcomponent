@@ -31,7 +31,7 @@ class UserTaskCompletionListener : FlowableEventListener {
 
     private fun removeTaak(entityEvent: FlowableEntityEvent) {
         (entityEvent.entity as TaskEntity).let { task ->
-            LOG.fine {
+            LOG.fine (
                 UserTaskCompleted(
                     taakId = task.id,
                     taskName = task.name,
@@ -39,7 +39,7 @@ class UserTaskCompletionListener : FlowableEventListener {
                     processDefinitionId = task.processDefinitionId,
                     assignee = task.assignee?.let(::Employee)
                 )
-            }
+            )
             FlowableHelper.getInstance().indexeerService.removeTaak(task.id)
         }
     }

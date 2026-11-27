@@ -60,11 +60,11 @@ class SignaleringEventObserver @Inject constructor(
 
     private fun handle(event: SignaleringEvent<*>) {
         val signalering = buildSignalering(event) ?: run {
-            LOG.fine { event.toSignaleringEventHandled(result = SignaleringEventResult.NO_SIGNALERING, signalering = null) }
+            LOG.fine (event.toSignaleringEventHandled(result = SignaleringEventResult.NO_SIGNALERING, signalering = null))
             return
         }
         if (!signaleringService.isNecessary(signalering, event.actor)) {
-            LOG.fine { event.toSignaleringEventHandled(result = SignaleringEventResult.UNNECESSARY, signalering = signalering) }
+            LOG.fine (event.toSignaleringEventHandled(result = SignaleringEventResult.UNNECESSARY, signalering = signalering))
             return
         }
 
@@ -75,14 +75,14 @@ class SignaleringEventObserver @Inject constructor(
         if (subscriptions.isMail) {
             signaleringService.sendSignalering(signalering)
         }
-        LOG.fine {
+        LOG.fine (
             event.toSignaleringEventHandled(
                 result = SignaleringEventResult.SUBSCRIPTIONS_APPLIED,
                 signalering = signalering,
                 isDashboard = subscriptions.isDashboard,
                 isMail = subscriptions.isMail
             )
-        }
+        )
     }
 
     private fun buildSignalering(event: SignaleringEvent<*>): Signalering? =

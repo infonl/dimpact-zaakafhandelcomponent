@@ -96,7 +96,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
         restTemplateGroups: Set<RestMappedSmartDocumentsTemplateGroup>,
         zaaktypeUUID: UUID
     ) {
-        LOG.fine { ZaaktypeEvent.TemplateMappingStorageStarted(zaaktypeUuid = zaaktypeUUID) }
+        LOG.fine (ZaaktypeEvent.TemplateMappingStorageStarted(zaaktypeUuid = zaaktypeUUID))
 
         (
             zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)
@@ -173,14 +173,14 @@ class SmartDocumentsTemplatesService @Inject constructor(
      */
     private fun fetchPersistedMapping(zaaktypeUuid: UUID): Set<RestMappedSmartDocumentsTemplateGroup> =
         if (!smartDocumentsService.isEnabled()) {
-            LOG.fine { PersistedTemplateMappingRead(zaaktypeUuid, TemplateMappingSource.SMART_DOCUMENTS_DISABLED) }
+            LOG.fine (PersistedTemplateMappingRead(zaaktypeUuid, TemplateMappingSource.SMART_DOCUMENTS_DISABLED))
             emptySet()
         } else if (zaaktypeConfigurationService.findConfiguration(zaaktypeUuid) == null) {
             // A zaaktype configuration is only persisted after first save — return empty set rather than querying with a null id
-            LOG.fine { PersistedTemplateMappingRead(zaaktypeUuid, TemplateMappingSource.NO_ZAAKTYPE_CONFIGURATION) }
+            LOG.fine (PersistedTemplateMappingRead(zaaktypeUuid, TemplateMappingSource.NO_ZAAKTYPE_CONFIGURATION))
             emptySet()
         } else {
-            LOG.fine { PersistedTemplateMappingRead(zaaktypeUuid, TemplateMappingSource.PERSISTED_MAPPING) }
+            LOG.fine (PersistedTemplateMappingRead(zaaktypeUuid, TemplateMappingSource.PERSISTED_MAPPING))
             fetchTemplatesMapping(zaaktypeUuid)
         }
 
@@ -221,13 +221,13 @@ class SmartDocumentsTemplatesService @Inject constructor(
         templateGroupId: String,
         templateId: String
     ): UUID {
-        LOG.fine {
+        LOG.fine (
             InformatieobjecttypeMappingLookupStarted(
                 zaaktypeUuid = zaaktypeUUID,
                 templateGroupId = templateGroupId,
                 templateId = templateId
             )
-        }
+        )
 
         return entityManager.criteriaBuilder.let { builder ->
             builder.createQuery(UUID::class.java).let { criteriaQuery ->
