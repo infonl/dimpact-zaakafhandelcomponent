@@ -22,6 +22,10 @@ describe("the types of a rule", () => {
       // @ts-expect-error a rule without reads needs a reason
       "POST /rest/bag": { none: true },
     };
+    const withoutTargets: Partial<InvalidationMap> = {
+      // @ts-expect-error a rule without a reason needs a read to refresh or mark stale
+      "POST /rest/bag": {},
+    };
     const unknownEndpoint: Partial<InvalidationMap> = {
       // @ts-expect-error an endpoint that the API does not have
       "POST /rest/unknown": { none: "fakeReason" },
@@ -31,6 +35,11 @@ describe("the types of a rule", () => {
       "POST /rest/bag": { none: "fakeReason" },
     };
 
-    expect([withoutReason, unknownEndpoint, incomplete]).toHaveLength(3);
+    expect([
+      withoutReason,
+      withoutTargets,
+      unknownEndpoint,
+      incomplete,
+    ]).toHaveLength(4);
   });
 });

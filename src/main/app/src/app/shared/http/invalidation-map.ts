@@ -34,6 +34,9 @@ const documentenVanZaak = (zaakUUID: OptionalId) =>
   zaakUUID
     ? [
         search("/rest/informatieobjecten/informatieobjectenList", { zaakUUID }),
+        search("/rest/informatieobjecten/informatieobjectenList", {
+          shouldIncludeGekoppeldeZaakDocumenten: true,
+        }),
         read("/rest/zaken/zaak/{uuid}/historie", { path: { uuid: zaakUUID } }),
       ]
     : [];
@@ -84,6 +87,7 @@ const documentActionByPath = {
   }: {
     parameters: { path: { uuid: string }; query?: { zaak?: string | null } };
   }) => documentAction(parameters.path.uuid, parameters.query?.zaak),
+  markStale: () => [search("/rest/zoeken/list")],
 };
 
 export const INVALIDATION_MAP: InvalidationMap = {

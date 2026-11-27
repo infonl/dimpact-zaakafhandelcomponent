@@ -72,11 +72,12 @@ type NoInvalidation = {
 
 type AfterSuccess<Context> = {
   none?: never;
-  refresh?: Targets<Context>;
-  markStale?: Targets<Context>;
   afterFailureToo?: never;
   awaitRefresh?: never;
-};
+} & (
+  | { refresh: Targets<Context>; markStale?: Targets<Context> }
+  | { refresh?: never; markStale: Targets<Context> }
+);
 
 type AfterFailureToo<Context> = {
   none?: never;

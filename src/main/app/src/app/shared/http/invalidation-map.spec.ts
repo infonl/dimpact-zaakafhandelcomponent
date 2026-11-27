@@ -117,6 +117,40 @@ describe("INVALIDATION_MAP", () => {
     },
   );
 
+  it("refreshes the documents of every zaak that shows the documents of its related zaken, after a document of a zaak changes", () => {
+    const linkedDocumentList = [
+      "/rest/informatieobjecten/informatieobjectenList",
+      { zaakUUID: OTHER_UUID, shouldIncludeGekoppeldeZaakDocumenten: true },
+    ];
+    cached(linkedDocumentList, documentList(OTHER_UUID));
+
+    write("DELETE /rest/informatieobjecten/informatieobject/{uuid}", {
+      body: { zaakUuid: UUID },
+    });
+
+    expect(
+      [linkedDocumentList, documentList(OTHER_UUID)].map(isInvalidated),
+    ).toEqual([true, false]);
+  });
+
+  it.each([
+    "PUT /rest/informatieobjecten/informatieobject/{uuid}",
+    "POST /rest/informatieobjecten/informatieobject/{uuid}/convert",
+    "POST /rest/informatieobjecten/informatieobject/{uuid}/onderteken",
+  ] as const)(
+    "marks the search stale after %s, because the search shows the changed document",
+    (endpoint) => {
+      const searchResults = ["/rest/zoeken/list", { type: "DOCUMENT" }];
+      cached(searchResults);
+
+      write(endpoint, {
+        parameters: { path: { uuid: UUID }, query: { zaak: OTHER_UUID } },
+      });
+
+      expect(isInvalidated(searchResults)).toBe(true);
+    },
+  );
+
   it("marks searches stale without reading them, because Solr has not committed yet", () => {
     const client = new QueryClient();
     const invalidateQueries = jest.spyOn(client, "invalidateQueries");
