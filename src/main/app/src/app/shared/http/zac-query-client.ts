@@ -27,6 +27,15 @@ import type {
   UploadProgress,
 } from "./http-client";
 import { HttpClient, Response } from "./http-client";
+import {
+  applyRule,
+  type Rule,
+  type WriteEndpoint,
+  type WriteMethod,
+  type WriteRequest,
+} from "./invalidation";
+import { INVALIDATION_MAP } from "./invalidation-map";
+import { runLast } from "./merge-mutation-options";
 import { reportsErrors } from "./query-client";
 
 // From https://tanstack.com/query/latest/docs/framework/angular/guides/query-retries
@@ -54,6 +63,11 @@ export const LOAD_PER_VISIT = {
   gcTime: 0,
 } as const;
 
+/** The request of a write whose parameters are known before its body. */
+const requestOf =
+  <Parameters,>(args: [parameters?: Parameters]) =>
+  <Body,>(body: Body) => ({ parameters: args.at(0), body });
+
 @Injectable({
   providedIn: "root",
 })
@@ -78,6 +92,52 @@ export class ZacQueryClient {
     this.foutAfhandelingService.foutAfhandelen(error);
   };
 
+  /**
+   * The last `onSuccess` step, behind those of the service and the component:
+   * a service may first cancel the reads that the save overtook, which would
+   * also cancel a refresh.
+   */
+  private invalidation<
+    Path extends PathsWithMethod<Paths, Method>,
+    Method extends WriteMethod,
+    Variables,
+  >(
+    method: Method,
+    path: Path,
+    toRequest: (variables: Variables) => Partial<WriteRequest<Path, Method>>,
+  ) {
+    // the compiler cannot follow the verb and the path through the key of the map
+    const rule = INVALIDATION_MAP[
+      `${method.toUpperCase()} ${path as string}` as WriteEndpoint
+    ] as unknown as Rule<Path, Method>;
+    // an endpoint without parameters or a body has none to give
+    const toFullRequest = (variables: Variables) =>
+      toRequest(variables) as WriteRequest<Path, Method>;
+
+    if (rule.afterFailureToo) {
+      return {
+        onSettled: (
+          _response: Response<Path, Method> | undefined,
+          _error: unknown,
+          variables: Variables,
+          _onMutateResult: unknown,
+          { client }: MutationFunctionContext,
+        ) => applyRule(client, rule, toFullRequest(variables)),
+      };
+    }
+
+    return {
+      onSuccess: runLast(
+        (
+          response: Response<Path, Method>,
+          variables: Variables,
+          _onMutateResult: unknown,
+          { client }: MutationFunctionContext,
+        ) => applyRule(client, rule, { ...toFullRequest(variables), response }),
+      ),
+    };
+  }
+
   public GET<
     Path extends PathsWithMethod<Paths, Method>,
     Method extends Methods = "get",
@@ -98,28 +158,29 @@ export class ZacQueryClient {
    * indicator. Uploading a document of hundreds of megabytes otherwise leaves the user staring
    * at a spinner for minutes.
    */
-  public POST_WITH_PROGRESS<
-    Path extends PathsWithMethod<Paths, Method>,
-    Method extends Methods = "post",
-  >(url: Path, ...args: ArgsTuple<PathParameters<Path, Method>>) {
-    return this.mutationWithProgress<Path, Method>(url, args, (body) =>
-      this.httpClient.POST_WITH_PROGRESS<Path, Method>(url, body, ...args),
+  public POST_WITH_PROGRESS<Path extends PathsWithMethod<Paths, "post">>(
+    url: Path,
+    ...args: ArgsTuple<PathParameters<Path, "post">>
+  ) {
+    return this.mutationWithProgress<Path, "post">("post", url, args, (body) =>
+      this.httpClient.POST_WITH_PROGRESS<Path, "post">(url, body, ...args),
     );
   }
 
-  public PUT_WITH_PROGRESS<
-    Path extends PathsWithMethod<Paths, Method>,
-    Method extends Methods = "put",
-  >(url: Path, ...args: ArgsTuple<PathParameters<Path, Method>>) {
-    return this.mutationWithProgress<Path, Method>(url, args, (body) =>
-      this.httpClient.PUT_WITH_PROGRESS<Path, Method>(url, body, ...args),
+  public PUT_WITH_PROGRESS<Path extends PathsWithMethod<Paths, "put">>(
+    url: Path,
+    ...args: ArgsTuple<PathParameters<Path, "put">>
+  ) {
+    return this.mutationWithProgress<Path, "put">("put", url, args, (body) =>
+      this.httpClient.PUT_WITH_PROGRESS<Path, "put">(url, body, ...args),
     );
   }
 
   private mutationWithProgress<
     Path extends PathsWithMethod<Paths, Method>,
-    Method extends Methods,
+    Method extends WriteMethod,
   >(
+    method: Method,
     url: Path,
     args: ArgsTuple<PathParameters<Path, Method>>,
     request: (
@@ -131,6 +192,12 @@ export class ZacQueryClient {
         percentage,
         description: UPLOAD_PROGRESS_DESCRIPTION,
       });
+
+    const invalidation = this.invalidation<Path, Method, Body<Path, Method>>(
+      method,
+      url,
+      requestOf(args),
+    );
 
     return mutationOptions<
       Response<Path, Method>,
@@ -154,41 +221,61 @@ export class ZacQueryClient {
           ),
         );
       },
-      onSettled: () => this.utilService.setProgress(null),
+      ...invalidation,
+      onSettled: (response, error, body, onMutateResult, context) => {
+        this.utilService.setProgress(null);
+        return invalidation.onSettled?.(
+          response,
+          error,
+          body,
+          onMutateResult,
+          context,
+        );
+      },
       onError: this.reportError,
     });
   }
 
-  public POST<
-    Path extends PathsWithMethod<Paths, Method>,
-    Method extends Methods = "post",
-  >(url: Path, ...args: ArgsTuple<PathParameters<Path, Method>>) {
+  public POST<Path extends PathsWithMethod<Paths, "post">>(
+    url: Path,
+    ...args: ArgsTuple<PathParameters<Path, "post">>
+  ) {
     return mutationOptions<
-      Response<Path, Method>,
+      Response<Path, "post">,
       HttpErrorResponse,
-      PostBody<Path, Method>,
+      PostBody<Path, "post">,
       void
     >({
       mutationKey: [url, ...args],
-      mutationFn: (body: PostBody<Path, Method>) =>
-        lastValueFrom(this.httpClient.POST<Path, Method>(url, body, ...args)),
+      mutationFn: (body: PostBody<Path, "post">) =>
+        lastValueFrom(this.httpClient.POST<Path, "post">(url, body, ...args)),
+      ...this.invalidation<Path, "post", PostBody<Path, "post">>(
+        "post",
+        url,
+        requestOf(args),
+      ),
       onError: this.reportError,
     });
   }
 
-  public PUT<
-    Path extends PathsWithMethod<Paths, Method>,
-    Method extends Methods = "put",
-  >(url: Path, ...args: ArgsTuple<PathParameters<Path, Method>>) {
+  public PUT<Path extends PathsWithMethod<Paths, "put">>(
+    url: Path,
+    ...args: ArgsTuple<PathParameters<Path, "put">>
+  ) {
     return mutationOptions<
-      Response<Path, Method>,
+      Response<Path, "put">,
       HttpErrorResponse,
-      PutBody<Path, Method>,
+      PutBody<Path, "put">,
       void
     >({
       mutationKey: [url, ...args],
-      mutationFn: (body: PutBody<Path, Method>) =>
-        lastValueFrom(this.httpClient.PUT<Path, Method>(url, body, ...args)),
+      mutationFn: (body: PutBody<Path, "put">) =>
+        lastValueFrom(this.httpClient.PUT<Path, "put">(url, body, ...args)),
+      ...this.invalidation<Path, "put", PutBody<Path, "put">>(
+        "put",
+        url,
+        requestOf(args),
+      ),
       onError: this.reportError,
     });
   }
@@ -226,22 +313,21 @@ export class ZacQueryClient {
    * then the request body.
    */
   public DELETE<
-    Path extends PathsWithMethod<Paths, Method>,
-    Method extends Methods = "delete",
+    Path extends PathsWithMethod<Paths, "delete">,
     // an endpoint without a request body has no variables of its own, so it is
     // mutated without an argument rather than with an explicit `undefined`
-    Variables = [DeleteBody<Path, Method>] extends [undefined]
+    Variables = [DeleteBody<Path, "delete">] extends [undefined]
       ? void
-      : DeleteBody<Path, Method>,
+      : DeleteBody<Path, "delete">,
   >(
     url: Path,
     toRequest: (variables: Variables) => {
-      parameters?: PathParameters<Path, Method>;
-      body?: DeleteBody<Path, Method>;
-    } = (variables) => ({ body: variables as DeleteBody<Path, Method> }),
+      parameters?: PathParameters<Path, "delete">;
+      body?: DeleteBody<Path, "delete">;
+    } = (variables) => ({ body: variables as DeleteBody<Path, "delete"> }),
   ) {
     return mutationOptions<
-      Response<Path, Method>,
+      Response<Path, "delete">,
       HttpErrorResponse,
       Variables,
       void
@@ -251,31 +337,36 @@ export class ZacQueryClient {
         const { parameters, body } = toRequest(variables);
 
         return lastValueFrom(
-          this.httpClient.DELETE<Path, Method>(
+          this.httpClient.DELETE<Path, "delete">(
             url,
-            parameters as PathParameters<Path, Method>,
+            parameters as PathParameters<Path, "delete">,
             body,
           ),
         );
       },
+      ...this.invalidation<Path, "delete", Variables>("delete", url, toRequest),
       onError: this.reportError,
     });
   }
 
-  public PATCH<
-    Path extends PathsWithMethod<Paths, Method>,
-    Method extends Methods = "patch",
-  >(url: Path, ...args: ArgsTuple<PathParameters<Path, Method>>) {
-    // @ts-expect-error TS2590: Expression produces a union type that is too complex to represent
+  public PATCH<Path extends PathsWithMethod<Paths, "patch">>(
+    url: Path,
+    ...args: ArgsTuple<PathParameters<Path, "patch">>
+  ) {
     return mutationOptions<
-      Response<Path, Method>,
+      Response<Path, "patch">,
       HttpErrorResponse,
-      PatchBody<Path, Method>,
+      PatchBody<Path, "patch">,
       void
     >({
       mutationKey: [url, ...args],
-      mutationFn: (body: PatchBody<Path, Method>) =>
-        lastValueFrom(this.httpClient.PATCH<Path, Method>(url, body, ...args)),
+      mutationFn: (body: PatchBody<Path, "patch">) =>
+        lastValueFrom(this.httpClient.PATCH<Path, "patch">(url, body, ...args)),
+      ...this.invalidation<Path, "patch", PatchBody<Path, "patch">>(
+        "patch",
+        url,
+        requestOf(args),
+      ),
       onError: this.reportError,
     });
   }
