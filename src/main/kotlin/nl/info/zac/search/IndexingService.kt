@@ -34,6 +34,7 @@ import nl.info.zac.util.AllOpen
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
+import java.util.logging.Level
 
 /**
  * Public entry point for indexing/reindexing ZAC's Solr search index. The generic Solr/conversion
@@ -155,10 +156,12 @@ class IndexingService @Inject constructor(
             .filterNot { it in combinedObjectTypes }
             .map(::reindexOrLogFailure)
             .all { it }
-        LOG.info(
+        val isSuccessful = isCombinedReindexSuccessful && isEveryOtherReindexSuccessful
+        LOG.log(
+            if (isSuccessful) Level.INFO else Level.WARNING,
             CompleteReindexingFinished(
                 objectTypes = orderedObjectTypes,
-                outcome = if (isCombinedReindexSuccessful && isEveryOtherReindexSuccessful) Outcome.SUCCESS else Outcome.FAILURE,
+                outcome = if (isSuccessful) Outcome.SUCCESS else Outcome.FAILURE,
                 durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime)
             )
         )
