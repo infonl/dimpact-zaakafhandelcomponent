@@ -4,6 +4,7 @@
  */
 
 import { inject, Injectable } from "@angular/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
 import { PathParameters, PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
@@ -19,6 +20,7 @@ export type ZaakafhandelParametersListQuery = NonNullable<
 export class ZaakafhandelParametersService {
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly utilService = inject(UtilService);
+  private readonly queryClient = inject(QueryClient, { optional: true });
 
   private readonly zaakafhandelParametersListUrl =
     "/rest/zaakafhandelparameters" as const;
