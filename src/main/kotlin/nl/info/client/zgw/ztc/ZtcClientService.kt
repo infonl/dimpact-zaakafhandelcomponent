@@ -129,7 +129,7 @@ class ZtcClientService @Inject constructor(
             .expireAfterAccess(cacheExpirationSeconds, TimeUnit.SECONDS)
             .recordStats()
             .removalListener { key: K?, _: V?, cause ->
-                LOG.fine { CacheEntryRemoved(cacheName = name, key = key?.toString(), cause = cause.toString()) }
+                LOG.fine { CacheEntryRemoved(cacheName = name, key = key.toString(), cause = cause.toString()) }
             }.build()
 
         caches["ZTC $name"] = cache
