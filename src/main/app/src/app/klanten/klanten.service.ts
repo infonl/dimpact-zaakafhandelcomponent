@@ -132,10 +132,18 @@ export class KlantenService {
 
   /* istanbul ignore next */
   listBedrijven(body: PutBody<"/rest/klanten/bedrijven">) {
+    const query = this.zacQueryClient.PUT_QUERY(
+      "/rest/klanten/bedrijven",
+      body,
+    );
     // The backend answers a KVK failure with a foutmelding instead of an error status.
     return {
-      ...this.zacQueryClient.PUT_QUERY("/rest/klanten/bedrijven", body),
-      staleTime: StaleTimes.Instant,
+      ...query,
+      staleTime: ({
+        state,
+      }: {
+        state: { data?: { foutmelding?: string | null } };
+      }) => (state.data?.foutmelding ? StaleTimes.Instant : StaleTimes.Short),
     };
   }
 

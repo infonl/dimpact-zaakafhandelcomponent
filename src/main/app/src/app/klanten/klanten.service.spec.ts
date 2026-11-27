@@ -126,5 +126,29 @@ describe(KlantenService.name, () => {
 
       expect((await retry).resultaten).toEqual([{ naam: "fakeBedrijf" }]);
     });
+
+    it("answers the same criteria from the cache after a successful search, so the KVK is not asked twice", async () => {
+      const httpTestingController = TestBed.inject(HttpTestingController);
+      const zoekCriteria = { kvkNummer: "87654321" };
+
+      const firstSearch = testQueryClient.query(
+        service.listBedrijven(zoekCriteria),
+      );
+      await sleep();
+      httpTestingController
+        .expectOne("/rest/klanten/bedrijven")
+        .flush({ resultaten: [{ naam: "fakeBedrijf" }] });
+      await firstSearch;
+
+      const secondSearch = testQueryClient.query(
+        service.listBedrijven(zoekCriteria),
+      );
+      await sleep();
+      httpTestingController.expectNone("/rest/klanten/bedrijven");
+
+      expect((await secondSearch).resultaten).toEqual([
+        { naam: "fakeBedrijf" },
+      ]);
+    });
   });
 });
