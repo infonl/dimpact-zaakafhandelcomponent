@@ -23,7 +23,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslatePipe } from "@ngx-translate/core";
-import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { Subscription } from "rxjs";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { StaleTimes } from "../../shared/http/zac-query-client";
@@ -63,7 +63,6 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     GebruikersvoorkeurenService,
   );
   private readonly dialog = inject(MatDialog);
-  private readonly queryClient = inject(QueryClient);
   private readonly zoekopdrachtenQuery = injectQuery(() => ({
     ...this.gebruikersvoorkeurenService.listZoekOpdrachten(this.werklijst()),
     staleTime: StaleTimes.Instant,
@@ -71,11 +70,8 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   protected readonly zoekopdrachten = computed(
     () => this.zoekopdrachtenQuery.data() ?? [],
   );
-  private readonly deleteZoekopdrachtMutation = injectMutation(
-    () => this.gebruikersvoorkeurenService.deleteZoekOpdrachten(),
-    {
-      onSuccess: () => this.invalidateZoekopdrachten(),
-    },
+  private readonly deleteZoekopdrachtMutation = injectMutation(() =>
+    this.gebruikersvoorkeurenService.deleteZoekOpdrachten(),
   );
   private readonly removeZoekopdrachtActiefMutation = injectMutation(() =>
     this.gebruikersvoorkeurenService.removeZoekopdrachtActief(),
@@ -108,17 +104,12 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   }
 
   protected saveSearch() {
-    const dialogRef = this.dialog.open(ZoekopdrachtSaveDialogComponent, {
+    this.dialog.open(ZoekopdrachtSaveDialogComponent, {
       data: {
         zoekopdrachten: this.zoekopdrachten(),
         lijstID: this.werklijst(),
         zoekopdracht: this.zoekFilters(),
       },
-    });
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        void this.invalidateZoekopdrachten();
-      }
     });
   }
 
@@ -146,14 +137,6 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     } else {
       this.actieveFilters.set(this.heeftActieveFilters());
     }
-  }
-
-  private invalidateZoekopdrachten() {
-    return this.queryClient.invalidateQueries({
-      queryKey: this.gebruikersvoorkeurenService.listZoekOpdrachten(
-        this.werklijst(),
-      ).queryKey,
-    });
   }
 
   private applyZoekopdrachten(

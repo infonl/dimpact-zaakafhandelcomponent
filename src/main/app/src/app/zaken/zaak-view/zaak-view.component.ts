@@ -285,7 +285,6 @@ export class ZaakViewComponent
     {
       onSuccess: () => {
         this.utilService.openSnackbar("msg.bag-object.gekoppeld");
-        this.invalidateBagObjecten();
       },
     },
   );
@@ -533,43 +532,7 @@ export class ZaakViewComponent
     });
   }
 
-  protected taakGestart() {
-    this.sideActions.reset();
-    this.updateZaak();
-  }
-
-  protected mailVerstuurd(mailVerstuurd: boolean) {
-    this.sideActions.reset();
-    if (!mailVerstuurd) return;
-    this.updateZaak();
-  }
-
-  protected ontvangstBevestigd(ontvangstBevestigd: boolean) {
-    this.sideActions.reset();
-    if (!ontvangstBevestigd) return;
-    this.updateZaak();
-  }
-
-  protected documentToegevoegd() {
-    this.updateZaak();
-  }
-
   protected documentCreated() {
-    this.sideActions.reset();
-    this.updateZaak();
-  }
-
-  protected documentSent() {
-    this.sideActions.reset();
-    this.updateZaak();
-  }
-
-  protected zaakLinked() {
-    this.sideActions.reset();
-    this.updateZaak();
-  }
-
-  protected locationSelected() {
     this.sideActions.reset();
     this.updateZaak();
   }
@@ -578,10 +541,6 @@ export class ZaakViewComponent
     gerelateerdeZaak: GeneratedType<"RestGerelateerdeZaak">,
   ) {
     this.dialogs.openZaakOntkoppelen(this.zaak, gerelateerdeZaak);
-  }
-
-  protected besluitVastgelegd() {
-    this.sideActions.reset();
   }
 
   protected besluitWijzigen($event: GeneratedType<"RestBesluit">) {
@@ -594,11 +553,6 @@ export class ZaakViewComponent
   ) {
     this.documentToMove.set($event);
     this.sideActions.open("actie.document.verplaatsen");
-  }
-
-  protected updateDocumentList() {
-    this.zaakDocumentenComponent().updateDocumentList();
-    this.invalidateZaakHistorie();
   }
 
   protected bagObjectVerwijderen(
@@ -619,7 +573,6 @@ export class ZaakViewComponent
         this.sideActions.clear();
         if (!result) return;
 
-        this.invalidateBagObjecten();
         this.utilService.openSnackbar("msg.bag-object.ontkoppelen.uitgevoerd", {
           omschrijving: bagObject?.omschrijving,
         });

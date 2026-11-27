@@ -7,11 +7,10 @@ import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { provideTranslateService } from "@ngx-translate/core";
 import { sleep, testQueryClient } from "../../../setupJest";
-import { fromPartial, runMutationOnSuccess } from "../../test-helpers";
+import { fromPartial } from "../../test-helpers";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { PostBody } from "../shared/http/http-client";
 import { runMutation } from "../shared/http/run-mutation";
-import { TakenService } from "../taken/taken.service";
 import { PlanItemsService } from "./plan-items.service";
 
 describe("PlanItemServiceService", () => {
@@ -32,18 +31,6 @@ describe("PlanItemServiceService", () => {
 
   it("should be created", () => {
     expect(service).toBeTruthy();
-  });
-
-  describe("doHumanTaskPlanItem", () => {
-    it("invalidates the taken listing of the zaak after the human task is started", async () => {
-      const invalidateTakenVoorZaak = jest
-        .spyOn(TestBed.inject(TakenService), "invalidateTakenVoorZaak")
-        .mockResolvedValue(undefined);
-
-      await runMutationOnSuccess(service.doHumanTaskPlanItem("zaak-uuid-1"));
-
-      expect(invalidateTakenVoorZaak).toHaveBeenCalledWith("zaak-uuid-1");
-    });
   });
 
   describe("doUserEventListenerPlanItem", () => {

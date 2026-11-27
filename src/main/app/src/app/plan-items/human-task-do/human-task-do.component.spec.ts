@@ -33,7 +33,6 @@ import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.
 import { IdentityService } from "../../identity/identity.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { TakenService } from "../../taken/taken.service";
 import { HumanTaskDoComponent } from "./human-task-do.component";
 
 describe("HumanTaskDoComponent", () => {
@@ -538,24 +537,6 @@ describe("HumanTaskDoComponent", () => {
       await sleep();
 
       expect(doneSpy).toHaveBeenCalled();
-    });
-
-    it("should refetch the taken of the zaak when saving succeeds, so the new taak shows without waiting for a websocket event", async () => {
-      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
-
-      component["onFormSubmit"](component["form"]);
-      await sleep();
-
-      httpTestingController
-        .expectOne("/rest/planitems/doHumanTaskPlanItem")
-        .flush({});
-      await sleep();
-
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey:
-          TestBed.inject(TakenService).listTakenVoorZaak("fakeZaakUuid")
-            .queryKey,
-      });
     });
 
     it("should show an error message and not emit done when saving fails", async () => {

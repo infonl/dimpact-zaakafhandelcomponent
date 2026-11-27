@@ -356,7 +356,7 @@ export class InformatieObjectViewComponent
             ),
             undefined as never,
           ).subscribe({
-            next: () => this.herlaadInformatieObject(),
+            next: () => (this.volgtLaatsteVersie = true),
             // we only need to do this on error, because on success we get a new button
             error: () => {
               button.disabled = false;
@@ -384,7 +384,7 @@ export class InformatieObjectViewComponent
             ),
             undefined as never,
           ).subscribe({
-            next: () => this.herlaadInformatieObject(),
+            next: () => (this.volgtLaatsteVersie = true),
             // we only need to do this on error, because on success we get a new button
             error: () => {
               button.disabled = false;

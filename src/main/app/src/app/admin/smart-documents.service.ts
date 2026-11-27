@@ -4,12 +4,9 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import {
-  QueryClient,
-  queryOptions,
-} from "@tanstack/angular-query-experimental";
+import type { MutationFunctionContext } from "@tanstack/angular-query-experimental";
+import { queryOptions } from "@tanstack/angular-query-experimental";
 import { PostBody } from "../shared/http/http-client";
-import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
@@ -22,7 +19,6 @@ export interface TemplateMapping {
 @Injectable({ providedIn: "root" })
 export class SmartDocumentsService {
   private readonly zacQueryClient = inject(ZacQueryClient);
-  private readonly queryClient = inject(QueryClient);
 
   getAllSmartDocumentsTemplateGroups() {
     return this.zacQueryClient.GET(
@@ -56,26 +52,13 @@ export class SmartDocumentsService {
       { path: { zaakafhandelUUID } },
     );
 
-    return mergeMutationOptions(
-      {
-        ...store,
-        mutationFn: (
-          templateGroups: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[],
-          context,
-        ) =>
-          store.mutationFn!(this.convertToApiFormat(templateGroups), context),
-      },
-      {
-        onSuccess: () =>
-          void this.invalidateTemplatesMappingQuery(zaakafhandelUUID),
-      },
-    );
-  }
-
-  private invalidateTemplatesMappingQuery(zaakafhandelUUID: string) {
-    return this.queryClient.invalidateQueries({
-      queryKey: this.getTemplatesMappingQuery(zaakafhandelUUID).queryKey,
-    });
+    return {
+      ...store,
+      mutationFn: (
+        templateGroups: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[],
+        context: MutationFunctionContext,
+      ) => store.mutationFn!(this.convertToApiFormat(templateGroups), context),
+    };
   }
 
   private convertToApiFormat(

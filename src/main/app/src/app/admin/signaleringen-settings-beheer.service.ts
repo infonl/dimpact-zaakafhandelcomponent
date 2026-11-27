@@ -4,8 +4,6 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
-import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 
 @Injectable({
@@ -13,7 +11,6 @@ import { ZacQueryClient } from "../shared/http/zac-query-client";
 })
 export class SignaleringenSettingsBeheerService {
   private readonly zacQueryClient = inject(ZacQueryClient);
-  private readonly queryClient = inject(QueryClient);
 
   list(groupId: string) {
     return this.zacQueryClient.GET(
@@ -23,17 +20,9 @@ export class SignaleringenSettingsBeheerService {
   }
 
   put(groupId: string) {
-    return mergeMutationOptions(
-      this.zacQueryClient.PUT(
-        "/rest/signaleringen/group/{groupId}/instellingen",
-        { path: { groupId } },
-      ),
-      {
-        onSettled: () =>
-          this.queryClient.invalidateQueries({
-            queryKey: this.list(groupId).queryKey,
-          }),
-      },
+    return this.zacQueryClient.PUT(
+      "/rest/signaleringen/group/{groupId}/instellingen",
+      { path: { groupId } },
     );
   }
 }

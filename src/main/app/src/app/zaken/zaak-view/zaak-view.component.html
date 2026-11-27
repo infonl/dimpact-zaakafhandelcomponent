@@ -91,7 +91,7 @@
             <zac-case-location-edit
               [zaak]="zaak"
               [sideNav]="actionsSidenav"
-              (locatie)="locationSelected()"
+              (locatie)="sideActions.reset()"
             ></zac-case-location-edit>
           }
         }
@@ -109,7 +109,6 @@
             <zac-informatie-object-add
               [sideNav]="actionsSidenav"
               [zaakUuid]="zaak!.uuid"
-              (document)="documentToegevoegd()"
             ></zac-informatie-object-add>
           }
         }
@@ -118,14 +117,14 @@
             <zac-informatie-verzenden
               [sideNav]="actionsSidenav"
               [zaak]="zaak"
-              (documentSent)="documentSent()"
+              (documentSent)="sideActions.reset()"
             ></zac-informatie-verzenden>
           }
         }
         @if (activeAction === (sideActions.actiefPlanItem()?.naam ?? "none")) {
           @defer (on immediate) {
             <zac-human-task-do
-              (done)="taakGestart()"
+              (done)="sideActions.reset()"
               [sideNav]="actionsSidenav"
               [zaak]="zaak"
               [planItem]="sideActions.actiefPlanItem()"
@@ -135,7 +134,7 @@
         @if (activeAction === "actie.mail.versturen") {
           @defer (on immediate) {
             <zac-mail-create
-              (mailVerstuurd)="mailVerstuurd($event)"
+              (mailVerstuurd)="sideActions.reset()"
               [sideNav]="actionsSidenav"
               [zaak]="zaak"
             ></zac-mail-create>
@@ -144,7 +143,7 @@
         @if (activeAction === "actie.ontvangstbevestiging.versturen") {
           @defer (on immediate) {
             <zac-ontvangstbevestiging
-              (ontvangstBevestigd)="ontvangstBevestigd($event)"
+              (ontvangstBevestigd)="sideActions.reset()"
               [sideNav]="actionsSidenav"
               [zaak]="zaak"
             ></zac-ontvangstbevestiging>
@@ -153,7 +152,7 @@
         @if (activeAction === "actie.besluit.vastleggen") {
           @defer (on immediate) {
             <zac-besluit-create
-              (besluitVastgelegd)="besluitVastgelegd()"
+              (besluitVastgelegd)="sideActions.reset()"
               [sideNav]="actionsSidenav"
               [zaak]="zaak"
             ></zac-besluit-create>
@@ -162,7 +161,7 @@
         @if (activeAction === "actie.besluit.wijzigen") {
           @defer (on immediate) {
             <zac-besluit-edit
-              (besluitGewijzigd)="besluitVastgelegd()"
+              (besluitGewijzigd)="sideActions.reset()"
               [sideNav]="actionsSidenav"
               [besluit]="teWijzigenBesluit()!"
               [zaak]="zaak"
@@ -176,7 +175,6 @@
               [infoObject]="documentToMove()"
               [sideNav]="actionsSidenav"
               [source]="zaak.identificatie"
-              (informationObjectLinked)="updateDocumentList()"
             />
           }
         }
@@ -185,7 +183,7 @@
             <zac-zaak-link
               [zaak]="zaak"
               [sideNav]="actionsSidenav"
-              (zaakLinked)="zaakLinked()"
+              (zaakLinked)="sideActions.reset()"
             ></zac-zaak-link>
           }
         }

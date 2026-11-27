@@ -67,18 +67,10 @@ export class GebruikersvoorkeurenService {
   }
 
   updateAantalPerPagina(werklijst: GeneratedType<"Werklijst">, aantal: number) {
-    return mergeMutationOptions(
-      this.zacQueryClient.PUT(
-        "/rest/gebruikersvoorkeuren/aantal-per-pagina/{werklijst}/{aantal}",
-        {
-          path: { werklijst, aantal },
-        },
-      ),
+    return this.zacQueryClient.PUT(
+      "/rest/gebruikersvoorkeuren/aantal-per-pagina/{werklijst}/{aantal}",
       {
-        onSuccess: () =>
-          this.queryClient.invalidateQueries({
-            queryKey: this.readTabelGegevens(werklijst).queryKey,
-          }),
+        path: { werklijst, aantal },
       },
     );
   }

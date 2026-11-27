@@ -19,7 +19,6 @@ import { fromPartial } from "../../../../test-helpers";
 import { UtilService } from "../../../core/service/util.service";
 import { ActieOnmogelijkDialogComponent } from "../../../fout-afhandeling/dialog/actie-onmogelijk-dialog.component";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { TakenService } from "../../../taken/taken.service";
 import { IntakeAfrondenDialogComponent } from "../../intake-afronden-dialog/intake-afronden-dialog.component";
 import { ZaakAfhandelenDialogComponent } from "../../zaak-afhandelen-dialog/zaak-afhandelen-dialog.component";
 import { ZaakBrondatumZettenDialogComponent } from "../../zaak-brondatum-zetten-dialog/zaak-brondatum-zetten-dialog.component";
@@ -34,7 +33,6 @@ describe(ZaakActionDialogsService.name, () => {
   let service: ZaakActionDialogsService;
   let sideActions: ZaakSideActionService;
   let zakenService: ZakenService;
-  let takenService: TakenService;
   let invalidateSpy: jest.SpyInstance;
   let utilService: UtilService;
   let zaakDialogService: ZaakDialogService;
@@ -81,7 +79,6 @@ describe(ZaakActionDialogsService.name, () => {
     service = TestBed.inject(ZaakActionDialogsService);
     sideActions = TestBed.inject(ZaakSideActionService);
     zakenService = TestBed.inject(ZakenService);
-    takenService = TestBed.inject(TakenService);
     utilService = TestBed.inject(UtilService);
     zaakDialogService = TestBed.inject(ZaakDialogService);
     httpTestingController = TestBed.inject(HttpTestingController);
@@ -104,17 +101,11 @@ describe(ZaakActionDialogsService.name, () => {
       });
     });
 
-    it("refetches the zaak, refreshes the taken and reports success when confirmed", () => {
+    it("reports success when confirmed", () => {
       service.openAfsluiten(zaak);
 
       closedWith(true);
 
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
-      });
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: takenService.listTakenVoorZaak(zaak.uuid).queryKey,
-      });
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.zaak.afgesloten",
       );
@@ -183,19 +174,6 @@ describe(ZaakActionDialogsService.name, () => {
       expect(request.request.method).toBe("PATCH");
       expect(request.request.body).toEqual({
         zaakbeeindigRedenId: "fakeRedenId",
-      });
-    });
-
-    it("refreshes the taken when the dialog confirms", () => {
-      jest
-        .spyOn(zaakDialogService, "openAfbreken")
-        .mockReturnValue(dialogRefClosingWith());
-
-      service.openAfbreken(zaak);
-      closedWith(zaak);
-
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: takenService.listTakenVoorZaak(zaak.uuid).queryKey,
       });
     });
   });
@@ -325,19 +303,6 @@ describe(ZaakActionDialogsService.name, () => {
       expect(request.request.method).toBe("PATCH");
       expect(request.request.body).toEqual({ reden: "fakeReden" });
     });
-
-    it("refreshes the taken when the dialog confirms", () => {
-      jest
-        .spyOn(zaakDialogService, "openHeropenen")
-        .mockReturnValue(dialogRefClosingWith());
-
-      service.openHeropenen(zaak);
-      closedWith(zaak);
-
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: takenService.listTakenVoorZaak(zaak.uuid).queryKey,
-      });
-    });
   });
 
   describe("openBrondatumZetten", () => {
@@ -351,16 +316,10 @@ describe(ZaakActionDialogsService.name, () => {
       );
     });
 
-    it("refetches the zaak, refreshes the taken and reports success when confirmed", () => {
+    it("reports success when confirmed", () => {
       service.openBrondatumZetten(zaak);
       closedWith(true);
 
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
-      });
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: takenService.listTakenVoorZaak(zaak.uuid).queryKey,
-      });
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.zaak.brondatum.gezet",
       );
@@ -417,7 +376,7 @@ describe(ZaakActionDialogsService.name, () => {
       expect(utilService.openSnackbar).not.toHaveBeenCalled();
     });
 
-    it("reports the executed plan item and refetches the zaak otherwise", () => {
+    it("reports the executed plan item otherwise", () => {
       service.openPlanItemStarten(zaak, intakePlanItem);
 
       closedWith(true);
@@ -425,9 +384,6 @@ describe(ZaakActionDialogsService.name, () => {
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.planitem.uitgevoerd.intake-afronden",
       );
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
-      });
     });
   });
 

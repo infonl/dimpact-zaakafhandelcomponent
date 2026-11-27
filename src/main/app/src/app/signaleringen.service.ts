@@ -30,12 +30,6 @@ export class SignaleringenService {
     return this.zacQueryClient.GET("/rest/signaleringen/typen/dashboard");
   }
 
-  invalidateDashboardSignaleringTypen() {
-    return this.queryClient.invalidateQueries({
-      queryKey: this.listDashboardSignaleringTypen().queryKey,
-    });
-  }
-
   listZakenSignalering(
     type: GeneratedType<"Type">,
     body: PutBody<"/rest/signaleringen/zaken/{type}">,

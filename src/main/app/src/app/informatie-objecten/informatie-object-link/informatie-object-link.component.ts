@@ -84,7 +84,6 @@ export class InformatieObjectLinkComponent {
   readonly sideNav = input.required<MatDrawer>();
   readonly source = input.required<string>();
   readonly actionLabel = input.required<DocumentAction>();
-  readonly informationObjectLinked = output<void>();
   readonly bulkLinkFinished = output<{ notLinkedIds: number[] }>();
 
   protected readonly loading = signal(false);
@@ -250,7 +249,6 @@ export class InformatieObjectLinkComponent {
             case: row.identificatie,
           });
           this.close();
-          this.informationObjectLinked.emit();
         },
       },
     );

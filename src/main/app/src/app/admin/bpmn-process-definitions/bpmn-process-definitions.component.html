@@ -61,7 +61,6 @@
             <mat-nested-tree-node *matTreeNodeDef="let node" class="item">
               <zac-bpmn-process-definition-item
                 [processDefinition]="asProcessDefinition(node)"
-                (bpmnFormListChanged)="refreshDefinitions()"
               ></zac-bpmn-process-definition-item>
             </mat-nested-tree-node>
             <mat-nested-tree-node

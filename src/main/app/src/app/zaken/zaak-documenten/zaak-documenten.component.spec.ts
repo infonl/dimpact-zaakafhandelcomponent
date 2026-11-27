@@ -13,7 +13,7 @@ import { render, RenderResult, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { EMPTY, of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { sleep, testQueryClient } from "../../../../setupJest";
+import { sleep } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
@@ -546,42 +546,6 @@ describe(ZaakDocumentenComponent.name, () => {
     expect(
       screen.queryByRole("columnheader", { name: "zaak-identificatie" }),
     ).toBeNull();
-  });
-
-  it("reloads the documents on demand", async () => {
-    await setup();
-
-    fixture.componentInstance.updateDocumentList();
-    await settle();
-
-    httpTestingController.expectOne(LIST_URL).flush([fakeDocument]);
-    await settle();
-  });
-
-  it("reloads the documents of the zaak with and without related documents, but not those of another zaak", async () => {
-    await setup();
-    const withRelatedDocumentsKey = [
-      LIST_URL,
-      { zaakUUID: fakeZaak.uuid, shouldIncludeGekoppeldeZaakDocumenten: true },
-    ];
-    const otherZaakKey = [
-      LIST_URL,
-      { zaakUUID: "zaak-uuid-2", shouldIncludeGekoppeldeZaakDocumenten: false },
-    ];
-    testQueryClient.setQueryData(withRelatedDocumentsKey, [fakeDocument]);
-    testQueryClient.setQueryData(otherZaakKey, [fakeDocument]);
-
-    fixture.componentInstance.updateDocumentList();
-    await settle();
-    httpTestingController.expectOne(LIST_URL).flush([fakeDocument]);
-    await settle();
-
-    expect(
-      testQueryClient.getQueryState(withRelatedDocumentsKey)?.isInvalidated,
-    ).toBe(true);
-    expect(testQueryClient.getQueryState(otherZaakKey)?.isInvalidated).toBe(
-      false,
-    );
   });
 
   describe("selecting documents for a zip download", () => {

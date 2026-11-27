@@ -599,10 +599,6 @@ export class TaakViewComponent
     void this.actionsSidenav().open();
   }
 
-  updateZaakDocumentList() {
-    this.zaakDocumentenComponent()?.updateDocumentList();
-  }
-
   /**
    *  Zaak is nog niet geladen, beschikbare zaak-data uit de taak vast weergeven totdat de zaak is geladen
    */
