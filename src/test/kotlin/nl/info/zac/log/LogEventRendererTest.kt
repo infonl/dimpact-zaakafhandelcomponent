@@ -73,6 +73,22 @@ class LogEventRendererTest : BehaviorSpec({
             }
         }
 
+        given("an event with employees as map values inside a list, and as map keys") {
+            val fakeAssigneesPerGroup = FakeAssigneesPerGroup(
+                assigneesPerGroup = mapOf("fakeGroupId" to listOf(Employee("fakeUsername"))),
+                groupPerAssignee = mapOf(Employee("fakeUsername") to "fakeGroupId")
+            )
+
+            `when`("the fields are rendered with an employee renderer") {
+                val fields = LogEventRenderer.fields(fakeAssigneesPerGroup) { "fakeKeycloakUserId" }
+
+                then("every employee in the maps is written as the result of the renderer, not as its username") {
+                    fields["assigneesPerGroup"] shouldBe "{fakeGroupId=[fakeKeycloakUserId]}"
+                    fields["groupPerAssignee"] shouldBe "{fakeKeycloakUserId=fakeGroupId}"
+                }
+            }
+        }
+
         given("an event that inherits a field from an abstract event and has a list field") {
             val fakeDerivedEvent = FakeDerivedEvent(
                 zaakIdentificatie = "ZAAK-2026-0000000001",
