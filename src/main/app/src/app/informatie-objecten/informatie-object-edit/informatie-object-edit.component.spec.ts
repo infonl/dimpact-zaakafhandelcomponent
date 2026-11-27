@@ -24,8 +24,7 @@ import {
   provideTanStackQuery,
 } from "@tanstack/angular-query-experimental";
 import { screen } from "@testing-library/angular";
-import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -134,7 +133,10 @@ describe(InformatieObjectEditComponent.name, () => {
       mockInformatieObjectTypes,
     );
 
-    jest.spyOn(configuratieService, "listTalen").mockReturnValue(of(mockTalen));
+    jest.spyOn(configuratieService, "listTalen").mockReturnValue({
+      ...createQueryOptions(mockTalen),
+      queryKey: ["/rest/configuratie/talen"],
+    } as never);
 
     httpTestingController = TestBed.inject(HttpTestingController);
 

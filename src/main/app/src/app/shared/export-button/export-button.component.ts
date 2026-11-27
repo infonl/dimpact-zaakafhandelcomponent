@@ -9,6 +9,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { TranslatePipe } from "@ngx-translate/core";
 import { UtilService } from "../../core/service/util.service";
 import { CsvService } from "../../csv/csv.service";
+import { injectMutation } from "../http/inject-mutation";
 import { GeneratedType } from "../utils/generated-types";
 
 @Component({
@@ -25,9 +26,15 @@ export class ExportButtonComponent {
     input.required<GeneratedType<"RestZoekParameters">>();
   readonly filename = input.required<string>();
 
+  private readonly exportMutation = injectMutation(
+    () => this.csvService.exportToCSV(),
+    {
+      onSuccess: (response) =>
+        this.utilService.downloadBlobResponse(response, this.filename()),
+    },
+  );
+
   downloadExport() {
-    this.csvService.exportToCSV(this.zoekParameters()).subscribe((response) => {
-      this.utilService.downloadBlobResponse(response, this.filename());
-    });
+    this.exportMutation.mutate(this.zoekParameters());
   }
 }

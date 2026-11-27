@@ -82,6 +82,7 @@ E2E_TEST_USER_2_USERNAME=op://Dimpact/e2etestuser2/username
 E2E_TEST_USER_2_PASSWORD=op://Dimpact/e2etestuser2/password
 ZAC_URL=op://Dimpact/zaakafhandelcomponent-zac-dev/website
 OPEN_FORMS_URL=op://Dimpact/open-formulieren-zac-dev/website
+E2E_OBJECTEN_TOKEN="op://Dimpact/ZAC E2E tests - Objecten API token TEST/credential"
 
 # ---------------------------------------------------------------------------
 # Environment variables of the local kind stack only (see installKind.md)

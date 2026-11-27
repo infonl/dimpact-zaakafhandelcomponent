@@ -1,0 +1,111 @@
+{
+  "display": "form",
+  "name": "e2eMultipleFormItemsForm",
+  "title": "E2E MultipleFormItems Form",
+  "settings": {},
+  "components": [
+    {
+      "title": "Form page",
+      "label": "Form page",
+      "type": "panel",
+      "key": "form",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "title": "Approval",
+          "collapsible": false,
+          "key": "PL_ApprovedBy",
+          "type": "panel",
+          "label": "Panel",
+          "input": false,
+          "tableView": false,
+          "components": [
+            {
+              "label": "Group",
+              "type": "select",
+              "key": "AM_TeamBehandelaar_Groep",
+              "input": true,
+              "widget": "html5",
+              "validate": {
+                "required": true
+              },
+              "attributes": {
+                "ZAC_TYPE": "ZAC_groep"
+              },
+              "dataSrc": "custom",
+              "clearOnRefresh": true
+            },
+            {
+              "label": "User",
+              "type": "select",
+              "key": "AM_TeamBehandelaar_Medewerker",
+              "widget": "html5",
+              "input": true,
+              "validate": {
+                "required": true
+              },
+              "attributes": {
+                "ZAC_TYPE": "ZAC_medewerker"
+              },
+              "dataSrc": "custom",
+              "refreshOn": "AM_TeamBehandelaar_Groep",
+              "clearOnRefresh": true
+            }
+          ]
+        },
+        {
+          "title": "Result & Status",
+          "collapsible": false,
+          "key": "PL_Result_Status",
+          "type": "panel",
+          "label": "Panel",
+          "input": false,
+          "tableView": false,
+          "components": [
+            {
+              "label": "Select result",
+              "optionsLabelPosition": "right",
+              "key": "ZK_Result",
+              "widget": "html5",
+              "validate": {
+                "required": true,
+                "onlyAvailableItems": true
+              },
+              "attributes": {
+                "ZAC_TYPE": "ZAC_resultaat"
+              },
+              "type": "select",
+              "input": true,
+              "dataSrc": "custom"
+            },
+            {
+              "label": "Select status",
+              "optionsLabelPosition": "right",
+              "key": "ZK_Status",
+              "widget": "html5",
+              "validate": {
+                "required": true,
+                "onlyAvailableItems": true
+              },
+              "attributes": {
+                "ZAC_TYPE": "ZAC_status"
+              },
+              "type": "select",
+              "input": true,
+              "dataSrc": "custom"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Indienen",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

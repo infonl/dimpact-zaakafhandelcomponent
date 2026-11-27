@@ -48,7 +48,7 @@ Versiegeschiedenis:
   - [Zaakdata bekijken](#zaakdata-bekijken)
 - [Inrichting zaakafhandel parameters (zaaktype)](#inrichting-zaakafhandel-parameters-zaaktype)
   - [Inrichten van een zaaktype](#inrichten-van-een-zaaktype)
-    - [CMMN/BPMN](#cmmnbpmn)
+    - [Procesmodel](#procesmodel)
     - [Gegevens](#gegevens)
     - [Taakgegevens](#taakgegevens)
     - [Actiegegevens](#actiegegevens)
@@ -79,7 +79,7 @@ Om zaken te registreren en te behandelen maakt de applicatie gebruik van registr
 # Inrichting Algemeen
 
 ## Beheerinstellingen
-Het inrichten van de ZAC gaat via de beheermenu dat rechts in de werkbalk te openen is via het radar icoon. Het beheermenu bestaat 6 onderdelen, bij het openen van de beheerinstellingen is standaard ‘Inrichtingscheck’ geopend.
+Het inrichten van de ZAC gaat via de beheermenu dat rechts in de werkbalk te openen is via het tandwiel-icoon. Het beheermenu bestaat 6 onderdelen, bij het openen van de beheerinstellingen is standaard ‘Inrichtingscheck’ geopend.
 
 ![image](images/beheerinstellingen.png)
 
@@ -143,7 +143,7 @@ Bij het verzenden van een mail kan de behandelaar kiezen wat de afzender van de 
 Let op, de 'Van' afzender mailadressen kunnen in veel gevallen niet vrij gekozen worden. Steeds vaker is namelijk in het DNS bij een domeinnaam vastgelegd welke mailservers exclusief mail mogen versturen met een Van-adres wat op de bewuste domeinnaam eindigt. Als dergelijke mail dan door een andere mailserver wordt verstuurd dan wordt dat in de meeste gevallen geweigerd, het hangt af van de ontvangende mailserver of daar naar gekeken wordt maar meestal wel. Het gevolg daarvan is dat het 'Van' e-mailadres een domein moet hebben (bijv. @example.com) wat toegestaan wordt door de betreffende mailserver.
 
 ###### Mailafzender bewerken
-De mailafzenders kunnen in de zaps bij menukeuze 'Mailgegevens' ingesteld worden. Het e-mailadres van de gemeente, inclusief de daarbij weergegeven naam van de gemeente, is in een omgevingsvariabele ingesteld. Het e-mailadres van de medewerker wordt uit de gebruikersbeheer component opgehaald. Deze twee opties zijn altijd beschikbaar en hierbij kan voor beide een 'Antwoord aan' e-mailadres worden ingesteld. Aan deze opties kunnen mailafzenders worden toegevoegd, deze extra mailafzenders worden opgehaald uit een referentietabel.
+De mailafzenders kunnen in de ZAPs bij menukeuze 'Mailgegevens' ingesteld worden. Het e-mailadres van de gemeente, inclusief de daarbij weergegeven naam van de gemeente, is in een omgevingsvariabele ingesteld. Het e-mailadres van de medewerker wordt uit de gebruikersbeheer component opgehaald. Deze twee opties zijn altijd beschikbaar en hierbij kan voor beide een 'Antwoord aan' e-mailadres worden ingesteld. Aan deze opties kunnen mailafzenders worden toegevoegd, deze extra mailafzenders worden opgehaald uit een referentietabel.
 
 Stappen:
 1. In het Beheer-instellingen menu kies je ‘Zaakafhandelparameters’
@@ -219,10 +219,10 @@ Stappen:
 6. Klik op ‘Opslaan’ om de mailtemplate toe te voegen. Het template is daarna beschikbaar in het overzicht.
 
 ### Zaakafhandelparameters  
-De zaakafhandelparameters (hierna ‘zaps’) zijn bedoeld om een zaaktype dat in de ZAC gebruikt wordt in te richten.
+De zaakafhandelparameters (hierna ‘ZAPs’) zijn bedoeld om een zaaktype dat in de ZAC gebruikt wordt in te richten.
 
 #### Werking van de zaakafhandelparameters
-Bij het openen van de zaps worden de zaaktypen uit de zaaktypecatalogus getoond, in pagina's van 25 zaaktypen. Ook de oudere versies met een einde geldigheid worden opgehaald. Met de filters en de sortering boven de kolommen wordt in alle zaaktypen gezocht, niet alleen in de getoonde pagina. Met de knoppen onder de lijst ga je naar een volgende of vorige pagina. Vanuit het overzicht kan een zaaktype geopend worden om deze in te richten. Wijzigingen in een actief zaaktype zijn na het opslaan direct zichtbaar in de ZAC.
+Bij het openen van de ZAPs worden de zaaktypen uit de zaaktypecatalogus getoond, in pagina's van 25 zaaktypen. Ook de oudere versies met een einde geldigheid worden opgehaald. Met de filters en de sortering boven de kolommen wordt in alle zaaktypen gezocht, niet alleen in de getoonde pagina. Met de knoppen onder de lijst ga je naar een volgende of vorige pagina. Vanuit het overzicht kan een zaaktype geopend worden om deze in te richten. Wijzigingen in een actief zaaktype zijn na het opslaan direct zichtbaar in de ZAC.
 
 ### BPMN-procesdefinities
 
@@ -230,7 +230,7 @@ Voor het inrichten van BPMN-zaaktypes zijn verschillende definities nodig. Deze 
 
 ![image](images/zaps_BPMN_definities.png)
 
-- BPMN-procesdefinities - hier kunnen de met bijvoorbeeld Flowable aangemaakte proces definities toegevoegd worden. Deze zijn dan in de gegevens tab van de zaakafhandeldefinitie te kiezen.
+- BPMN-procesdefinities - hier kunnen de met bijvoorbeeld Flowable aangemaakte proces definities toegevoegd worden. Deze zijn dan in de stap [Procesmodel](#procesmodel) van de zaakafhandelparameters te kiezen.
 - Formulieren - door de procesdefinitie open te klappen is het mogelijk om de formulierdefinities te uploaden die bij de procesdefinitie horen.
 
 Als een procesdefinitie eenmaal gebruikt is kan deze niet meer worden verwijderd.
@@ -890,36 +890,45 @@ Zolang het onderliggende proces of de zaakbehandeling nog actief is, heet deze a
 # Inrichting zaakafhandel parameters (zaaktype)
 
 ## Inrichten van een zaaktype
-Om de zaps te benaderen ga je door op het radar icoon te klikken naar de Beheer-instellingen. Open in het menu de ‘Zaakafhandelparameters’. Alle zaaktypen worden opgehaald en het overzicht wordt geopend. Het is mogelijk om in dit overzicht te filteren en sorteren.
+Om de ZAPs te benaderen ga je door op het tandwiel-icoon te klikken naar de Beheer-instellingen. Open in het menu de ‘Zaakafhandelparameters’. Het overzicht toont de zaaktypen in pagina's van 25, zie [Werking van de zaakafhandelparameters](#werking-van-de-zaakafhandelparameters). Het is mogelijk om in dit overzicht te filteren en sorteren.
 
 ![image](images/207916618-434d6cbc-d8f1-4522-aeec-7556d11b8e27.png)
 
-!Klik op het bolletje links van het zaaktype kolom om snel te filteren op ongeldig, alle en niet geldig. Standaard staat dit op geldig!
+Boven de tabel staan twee schakelfilters:
+- Het icoon links van de kolom Zaaktype filtert op een volledige inrichting: er is een groep en een procesmodel gekozen, en bij een CMMN-model ook het resultaat voor ‘Zaak is niet ontvankelijk’. Een rood uitroepteken betekent dat de inrichting nog niet volledig is.
+- Het icoon in de kolom Geldig filtert op zaaktypeversies die vandaag geldig zijn.
+
+Klik op een schakelfilter om te wisselen tussen ja, nee en alle. Standaard staan beide filters op ja.
 
 Stappen:
 Klik in het overzicht op het oog icoon van het zaaktype dat je wilt inrichten
 
-Afhankelijk van het soort zaaktype BPMN of CMMN krijg je een aantal stappen die je moet inrichten, deze worden hier behandeld
+Afhankelijk van het gekozen procesmodel krijg je een aantal stappen die je moet inrichten, deze worden hier behandeld.
 
-### CMMN/BPMN
-Hier kies je het procesmodel van de zaaktypeversie: een CMMN-model of een BPMN-procesdefinitie. Zolang er nog geen zaken van deze versie zijn, kun je het procesmodel nog wijzigen, zie [Procesmodel wijzigen](#procesmodel-wijzigen).
+### Procesmodel
+Hier kies je het procesmodel van de zaaktypeversie: een CMMN-model of een BPMN-procesdefinitie.
 
-![Zaakafhandelparameters CMMN](images/zaps_cmmn.png)
+![Zaakafhandelparameters procesmodel](images/zaps_cmmn.png)
 
-Nadat je een keuze hebt gemaakt worden de bijbehorende tabbladen zichtbaar.
-###### CMMN
+Na de keuze van het procesmodel verschijnen de stappen die bij dat procesmodel horen:
+- Gegevens, Zaakbeëindig gegevens en Koppelingen verschijnen bij elk procesmodel.
+- Mailgegevens verschijnt bij elk CMMN-model.
+- Taakgegevens verschijnt bij een CMMN-model met taken, Actiegegevens bij een CMMN-model met acties.
 
-![Zaakafhandelparameters CMMN](images/zaps_cmmn_cmmn.png)
-###### BPMN
+![Zaakafhandelparameters met een CMMN-model](images/zaps_cmmn_cmmn.png)
 
-![Zaakafhandelparameters BPMN](images/zaps_cmmn_bpmn.png)
+Zolang er nog geen zaken van deze versie zijn, kun je het procesmodel nog wijzigen, zie [Procesmodel wijzigen](#procesmodel-wijzigen).
 
 #### Procesmodel wijzigen
 Het procesmodel geldt per versie van het zaaktype. Bovenaan de stap staat daarom de geldigheid van de zaaktypeversie die je inricht. Zo zie je in stap 4 hieronder of je de nieuwe versie inricht of de huidige.
 
-Zolang er nog geen zaken van een zaaktypeversie zijn, kun je een ander procesmodel kiezen: een andere BPMN-procesdefinitie, of een wissel tussen CMMN en BPMN. Onder het keuzeveld staat dan dat het procesmodel vastligt zodra de eerste zaak van deze versie is aangemaakt. Wissel je naar CMMN, dan richt je de taken en acties van het CMMN-model opnieuw in.
+Zolang er nog geen zaken van een zaaktypeversie zijn, kun je een ander procesmodel kiezen: een ander CMMN-model, een andere BPMN-procesdefinitie, of een wissel tussen CMMN en BPMN. Is het procesmodel opgeslagen, dan staat onder het keuzeveld dat het vastligt zodra de eerste zaak van deze versie is aangemaakt. Kies je een ander CMMN-model of wissel je naar CMMN, dan richt je de taken en acties van het CMMN-model opnieuw in.
 
-Zodra er een zaak van de zaaktypeversie bestaat, ligt het procesmodel vast. De stap legt dan uit dat je voor een ander procesmodel een nieuwe versie van het zaaktype nodig hebt. Wordt er een zaak aangemaakt terwijl je de inrichting nog aan het wijzigen bent, dan wordt bij het opslaan niets opgeslagen en toont de stap het vastgelegde procesmodel. Bestaande zaken lopen altijd verder met het procesmodel waarmee ze zijn gestart.
+![Procesmodel nog te wijzigen](images/zaps_cmmn_bpmn.png)
+
+Zodra er een zaak van de zaaktypeversie bestaat, ligt het procesmodel vast. De stap legt dan uit dat je voor een ander procesmodel een nieuwe versie van het zaaktype nodig hebt. Wordt er een zaak aangemaakt terwijl je de inrichting nog aan het wijzigen bent, dan wordt bij het opslaan niets opgeslagen en toont de stap het vastgelegde procesmodel. Bestaande zaken lopen verder met het procesmodel waarmee ze zijn gestart.
+
+![Procesmodel vastgelegd](images/zaps_procesmodel_vastgelegd.png)
 
 Een nieuwe versie van een zaaktype neemt bij publicatie de inrichting van de vorige versie over, ook het procesmodel, en is meteen te gebruiken. Om een zaaktype met zaken een ander procesmodel te geven, voorkom je dat er zaken met het oude procesmodel worden aangemaakt voordat je het nieuwe kiest:
 
@@ -931,21 +940,11 @@ Een nieuwe versie van een zaaktype neemt bij publicatie de inrichting van de vor
 
 
 ### Gegevens
-Na de keuze van een BPMN-zaaktype krijg je het "Gegevens" veld met de volgende invulvelden:
+De stap "Gegevens" is voor een CMMN-model en een BPMN-procesdefinitie gelijk. Bovenaan staan de gegevens van het zaaktype die je niet kunt wijzigen: Zaaktype, Doel, Identificatie, uuid en Zaakspecifiek autoriseerbaar (ja/nee). Daaronder staan de volgende invulvelden:
 
-- BPMN-procesdefinitie (v) | de keuzes die hier gemaakt kunnen worden zijn definities die zijn gekoppeld specifiek aan deze Zaakafhandel omgeving (zie, hoofdstuk BPMN definities)
-- Groep (v) |  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
-- Behandelaar |  de behandelaar die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de behandelaar waar een nieuwe zaak initieel op gezet wordt
-- Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden.
-
-![Zaakafhandelparameters gegevens BPMN](images/zaps_gegevens_bpmn.png)
-
-Na de keuze van een CMMN-zaaktype krijg je het volgende "Gegevens" veld met de volgende invulvelden:
-
-- CMMN-model (v)| het zaakafhandelmodel waarmee de zaak wordt afgehandeld
-- Groep (v)|  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
-- Behandelaar |  de behandelaar waar een nieuwe zaak na het aanmaken initieel op gezet wordt
-- Streefdatum waarschuwingsvenster | het aantal kalenderdagen voordat de streefdatum van de zaak wordt bereikt dat bepaalt:
+- Standaard behandelaarsgroep (v) | de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt. Je kiest uit de groepen die dit zaaktype mogen behandelen. Staat een eerder gekozen groep niet meer in die lijst, bijvoorbeeld omdat de groep is gedeactiveerd, dan is het veld leeg en kies je een nieuwe groep.
+- Standaard behandelaar | de behandelaar die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de behandelaar waar een nieuwe zaak initieel op gezet wordt. Je kiest uit de medewerkers van de standaard behandelaarsgroep.
+- Streefdatum waarschuwingsvenster | alleen bij een zaaktype met een servicenorm. Het aantal kalenderdagen (maximaal 31) voordat de streefdatum van de zaak wordt bereikt dat bepaalt:
   - wanneer zaken een waarschuwingsindicatie (rode driehoek) krijgen
   - wanneer de signalering ‘Mijn zaak nadert de streefdatum’ wordt verstuurd
   - wanneer een zaak in de dashboardkaart ‘Mijn binnenkort verlopende zaken’ verschijnt
@@ -953,7 +952,7 @@ Na de keuze van een CMMN-zaaktype krijg je het volgende "Gegevens" veld met de v
   - wanneer zaken een waarschuwingsindicatie (rode driehoek) krijgen
   - wanneer de signalering ‘Mijn zaak nadert de fatale datum’ wordt verstuurd
   - wanneer een zaak in de dashboardkaart ‘Mijn binnenkort verlopende zaken’ verschijnt
-- Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden.
+- Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden. Een productaanvraagtype mag maar bij één zaaktype voorkomen.
 
 ![image](images/zaps_gegevens.png)
 
@@ -966,9 +965,10 @@ Klik op een taak om de instellingen te openen. Iedere taak heeft standaard 3 ins
 - Formulierdefinitie (v) | welk formulier voor het taakbehandelformulier wordt gebruikt
 - Groep | de groep die standaard bij taaktoewijzing wordt ingevuld als een gebruiker de taak start
 - Doorlooptijd | bepaalt de fatale datum van de taak
-In sommige taakbehandelformulieren komen keuzelijsten voor waarvan de opties via een referentietabel aangepast kunnen worden. Welke referentietabel in dat taakbehandelformulier gebruikt wordt is dan te zien bij de instelling ‘Referentietabel voor ...’. Om de opties aan te passen kun je later naar de menukeuze ‘Referentietabellen’ gaan en daar de juiste tabel te kiezen, dit wordt elders in deze handleiding omschreven. Het is ook mogelijk om zelf een referentietabel aan te maken en deze in het taakbehandelformulier te gebruiken. Na het aanmaken van de tabel kan deze in de lijst bij de instelling ‘Referentietabel voor ...’ gekozen worden.
 
-![image](images/zaps_advies_intern.png)
+  In sommige taakbehandelformulieren komen keuzelijsten voor waarvan de opties via een referentietabel aangepast kunnen worden. Welke referentietabel in dat taakbehandelformulier gebruikt wordt is dan te zien bij de instelling ‘Referentietabel voor ...’. Om de opties aan te passen kun je later naar de menukeuze ‘Referentietabellen’ gaan en daar de juiste tabel te kiezen, dit wordt elders in deze handleiding omschreven. Het is ook mogelijk om zelf een referentietabel aan te maken en deze in het taakbehandelformulier te gebruiken. Na het aanmaken van de tabel kan deze in de lijst bij de instelling ‘Referentietabel voor ...’ gekozen worden.
+
+  ![image](images/zaps_advies_intern.png)
 
 ### Actiegegevens
 Bij de acties waarmee een gebruiker een fase afrondt is het mogelijk om een toelichting te tonen, denk aan een herinnering aan een belangrijke handeling die in die fase moet zijn uitgevoerd. Klik op een fase om de toelichting in het veld in te vullen.
@@ -976,10 +976,10 @@ Bij de acties waarmee een gebruiker een fase afrondt is het mogelijk om een toel
 ![image](images/zaps_actiegegevens.png)
 
 ### Mailgegevens
-Het volgende tabblad is ‘Mailgegevens’. Tijdens de zaakbehandeling gebruikt de ZAC een aantal e-mails dat verstuurd wordt, voornamelijk aan de klant. Sommige van deze mails worden verplicht verstuurd en anderen zijn optioneel. De beschikbare opties bij alle mails kunnen in 'Mailgegevens' ingesteld worden. 
+Het volgende tabblad is ‘Mailgegevens’. Tijdens de zaakbehandeling gebruikt de ZAC een aantal e-mails dat verstuurd wordt, voornamelijk aan de klant. Sommige van deze mails worden verplicht verstuurd en anderen zijn optioneel. De beschikbare opties bij alle mails kunnen in 'Mailgegevens' ingesteld worden. Deze stap verschijnt alleen bij een CMMN-model.
 - Voor de statusmails kan bepaald worden of deze beschikbaar zijn en wat de standaard geselecteerde keuze is:
-  - Statusmail intake fase (v) | bepaalt of bij het afronden van de fase ‘Intake’ de optie voor het versturen van een e-mail beschikbaar is en of deze standaard aangevinkt is
-  - Statusmail afronden fase (v) | bepaalt of bij het afronden van de fase ‘In behandeling’ de optie voor het versturen van een e-mail beschikbaar is en of deze standaard aangevinkt is
+  - Statusmail intake fase (v) | alleen als het CMMN-model de actie ‘Intake afronden’ heeft. Bepaalt of bij het afronden van de fase ‘Intake’ de optie voor het versturen van een e-mail beschikbaar is en of deze standaard aangevinkt is
+  - Statusmail afronden fase (v) | alleen als het CMMN-model de actie ‘Zaak afhandelen’ heeft. Bepaalt of bij het afronden van de fase ‘In behandeling’ de optie voor het versturen van een e-mail beschikbaar is en of deze standaard aangevinkt is
   
   ![image](images/zaps_mailgegevens.png)
 
@@ -989,13 +989,13 @@ Het volgende tabblad is ‘Mailgegevens’. Tijdens de zaakbehandeling gebruikt 
 
 **Mailtemplates** Iedere e-mail heeft een eigen template dat de standaard inhoud van het bericht en het onderwerp bepaalt. In dit overzicht stel je in welke e-mail welke mailtemplate gebruikt. Iedere e-mail heeft een standaard mailtemplate. Om deze te bekijken of te bewerken kun je later naar de menukeuze ‘Mailtemplates’ gaan. Het is ook mogelijk om zelf een mailtemplate aan te maken en deze in een van de e-mails te gebruiken. Na het aanmaken van de template kan deze in de lijst bij de instelling ‘mailtemplate’ gekozen worden. Open een e-mail door er op te klikken en stel bij iedere e-mail het gewenste template in.
 
-![image](images/zaps_mailgegevens-2.png)
+**Automatische ontvangstbevestiging** Als een zaak direct vanuit een productaanvraag wordt aangemaakt, bijvoorbeeld vanuit een formulier, en het e-mailadres van de initiator bekend is, kan hiervoor een automatische ontvangstbevestiging worden verstuurd vanuit ZAC. Op deze plek kan dit aan of uit worden gezet en gekozen worden voor:
 
-**Automatische ontvangsbevestiging** Als een zaak wordt aangemaakt via SmartDocuments waar een mailadres van de aanvrager bij is ingevuld kan hiervoor een automatische ontvangstbevestiging worden verstuurd vanuit ZAC. Op deze plek kan dit aan of uit worden gezet en gekozen worden voor:
+- De mailtemplate (Mailtemplate)
+- Het verzendadres (Mail van)
+- Het retouradres (Antwoord aan)
 
-- De mailtemplate
-- Het verzendadres
-- Het retouradres
+  ![image](images/zaps_mailgegevens-2.png)
 
 ### Zaakbeëindig gegevens
 In dit tabblad kan voor een aantal situaties waarin de zaak wordt beëindigd het resultaat dat de zaak krijgt bepaald worden. De mogelijke resultaten zijn ingesteld bij het zaaktype. Stel voor de volgende situaties het resultaat in:
@@ -1041,11 +1041,11 @@ SmartDocuments wordt gebruikt om Word-documenten te maken van sjablonen en elk S
 - Sjabloongroep uitvouwen
 - Documenttype selecteren
 
-![image](images/zaps_koppelingen.png)
+  ![image](images/zaps_koppelingen.png)
 
 - Het documenttype deselecteren kan door het vinkje te verwijderen of in de dropdown "Geen documenttype" te selecteren.
 
-Klik op ‘Opslaan’ om de zaps voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
+Klik op ‘Opslaan’ om de ZAPs voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
 
 **LET OP: het kan tot 5 minuten duren voordat gewijzigde sjabloongroepnamen of sjabloonnamen in ZAC zichtbaar zijn.**
 

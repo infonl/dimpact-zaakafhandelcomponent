@@ -8,6 +8,7 @@ package nl.info.zac.itest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
+import io.kotest.assertions.json.shouldNotContainJsonKey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -202,13 +203,20 @@ class ZaakRestServiceBrondatumAfleidingswijzeHoofdzaakArchiveTest : BehaviorSpec
                 code shouldBe HTTP_NO_CONTENT
             }
 
-            then("the deelzaak should be closed and have a result and einddatum should not be empty") {
+            then(
+                """
+                the deelzaak should be closed and have a result and an einddatum, while its archiefnominatie waits for
+                the hoofdzaak, because archiving is a separate process
+                """
+            ) {
                 zacClient.retrieveZaak(deelzaakUuid, RECORDMANAGER_1).let { response ->
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody.run {
+                        shouldContainJsonKeyValue("isOpen", false)
                         shouldContainJsonKey("resultaat")
+                        shouldNotContainJsonKey("archiefNominatie")
                     }
                     JSONObject(responseBody).run {
                         getString("einddatum") shouldNotBe ""

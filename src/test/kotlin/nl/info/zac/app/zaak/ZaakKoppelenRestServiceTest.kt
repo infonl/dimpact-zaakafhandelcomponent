@@ -87,11 +87,12 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
     given("A source zaak which is not linked and a target not linked zaak") {
         val sourceZaak = createZaak(
-            archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+            endDate = ZacTime.today()
         )
         val zaakZoekObject = createZaakZoekObject(
             type = ZAAK,
-            archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
+            archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
+            isAfgehandeld = true
         )
         val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
         val loggedInUser = createLoggedInUser()
@@ -233,7 +234,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         val sourceZaak = createZaak(archiefnominatie = null)
         val zaakZoekObject = createZaakZoekObject(
             type = ZAAK,
-            archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
+            archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
+            isAfgehandeld = true
         )
         val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
         val loggedInUser = createLoggedInUser()
@@ -287,7 +289,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
     given("A source zaak that is already related to a found zaak which is also closed") {
         val zaakZoekObject = createZaakZoekObject(
             type = ZAAK,
-            archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
+            archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
+            isAfgehandeld = true
         )
         val sourceZaak = createZaak(archiefnominatie = null).apply {
             addGerelateerdeZakenItem(
@@ -326,7 +329,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         val sourceZaak = createZaak(archiefnominatie = null)
         val zaakZoekObject = createZaakZoekObject(
             type = ZAAK,
-            archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
+            archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
+            isAfgehandeld = true
         )
         val loggedInUser = createLoggedInUser()
         val zaakType = createZaakType().apply {
@@ -366,6 +370,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         val zaakZoekObject = createZaakZoekObject(
             type = ZAAK,
             archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
+            isAfgehandeld = true,
             indicatie = ZaakIndicatie.DEELZAAK
         )
         val loggedInUser = createLoggedInUser()
@@ -921,11 +926,12 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
     context("Building search parameters for findLinkableZaken") {
         given("a linkable zaken search setup") {
             val sourceZaak = createZaak(
-                archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+                endDate = ZacTime.today()
             )
             val zaakZoekObject = createZaakZoekObject(
                 type = ZAAK,
-                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
+                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
+            isAfgehandeld = true
             )
             val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
             val loggedInUser = createLoggedInUser()

@@ -7,6 +7,8 @@ package nl.info.zac.itest
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.inspectors.forAtLeastOne
+import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.BEHEERDER_1
@@ -23,9 +25,11 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_VERSION_
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_VERSION_2_RESULTAATTYPE_GEWEIGERD_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_VERSION_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.ItestConfiguration.ZAC_WEBSOCKET_BASE_URI
 import nl.info.zac.itest.config.ZaaktypeConfigurationType.BPMN
 import nl.info.zac.itest.config.ZaaktypeConfigurationType.CMMN
 import nl.info.zac.itest.config.ZaaktypeConfigurationUnderTest
+import nl.info.zac.itest.util.WebSocketTestListener
 import nl.info.zac.itest.util.queryZacDatabase
 import okhttp3.Headers
 import org.json.JSONArray
@@ -185,9 +189,46 @@ class NotificationZaaktypeCompletionParametersTest : BehaviorSpec({
                 }.toString()
             )
             val productaanvraagtype = JSONObject(originalZaaktypeConfiguration).optString("productaanvraagtype")
+            val zaaktypeConfiguratiesWebSocketListener = WebSocketTestListener(
+                textToBeSentOnOpen = """
+                    {
+                        "subscriptionType": "CREATE",
+                        "event": {
+                            "opcode": "UPDATED",
+                            "objectType": "ZAAKTYPE_CONFIGURATIES",
+                            "objectId": {
+                                "resource": "zaaktype-configuraties"
+                            },
+                            "_key": "UPDATED;ZAAKTYPE_CONFIGURATIES;zaaktype-configuraties"
+                        }
+                    }
+                """.trimIndent()
+            )
+            itestHttpClient.connectNewWebSocket(
+                url = ZAC_WEBSOCKET_BASE_URI,
+                webSocketListener = zaaktypeConfiguratiesWebSocketListener,
+                testUser = BEHEERDER_1
+            )
 
             `when`("a notification is received that a second version of the zaaktype was published") {
-                sendZaaktypeCreatedNotification(zaaktypeConfigurationUnderTest.secondVersionZaaktypeUuid)
+                // resent until the websocket subscription, which ZAC creates asynchronously, receives the event
+                eventually(30.seconds) {
+                    sendZaaktypeCreatedNotification(zaaktypeConfigurationUnderTest.secondVersionZaaktypeUuid)
+                    zaaktypeConfiguratiesWebSocketListener.messagesReceived.size shouldBeGreaterThan 0
+                }
+
+                then(
+                    """the websocket subscribed to the ZAAKTYPE_CONFIGURATIES screen event receives it with opcode UPDATED
+                        and id zaaktype-configuraties"""
+                ) {
+                    zaaktypeConfiguratiesWebSocketListener.messagesReceived.forAtLeastOne {
+                        with(JSONObject(it)) {
+                            getString("opcode") shouldBe "UPDATED"
+                            getString("objectType") shouldBe "ZAAKTYPE_CONFIGURATIES"
+                            getJSONObject("objectId").getString("resource") shouldBe "zaaktype-configuraties"
+                        }
+                    }
+                }
 
                 then(
                     """the second version gets a copy of the configuration that stores the resultaattype omschrijvingen,

@@ -46,6 +46,7 @@ import nl.info.zac.signalering.model.SignaleringZoekParameters
 import nl.info.zac.task.TaskService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.websocket.event.FixedScreenEventResourceId
 import nl.info.zac.websocket.event.ScreenEventType
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.util.UUID
@@ -376,6 +377,7 @@ class NotificationReceiver @Inject constructor(
         try {
             if (notification.action == Action.CREATE || notification.action == Action.UPDATE) {
                 zaaktypeConfigurationBeheerService.updateZaaktypeConfiguration(notification.resourceUrl)
+                eventingService.send(ScreenEventType.ZAAKTYPE_CONFIGURATIES.updated(FixedScreenEventResourceId.ZAAKTYPE_CONFIGURATIES))
             }
         } catch (exception: RuntimeException) {
             warning("zaaktype", notification, exception)

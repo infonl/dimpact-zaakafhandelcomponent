@@ -14,14 +14,16 @@ The system SHALL keep the paths, HTTP verbs, path keys, request payloads, and re
 `/zaakafhandelparameters` and `/zaaktype-bpmn-configuration` exactly as they were before this change, except the
 response of the list `GET /zaakafhandelparameters`, which the requirement "The configuration list carries only what
 the list page shows" defines. The generated OpenAPI specification SHALL NOT change, except that `defaultGroepId` of
-`RestZaaktypeConfiguration` is required and must not be blank, and except the list item type of
-`GET /zaakafhandelparameters`.
+`RestZaaktypeConfiguration` is required and must not be blank, except the list item type of
+`GET /zaakafhandelparameters`, except the value `ZAAKTYPE_CONFIGURATIES` of `ScreenEventType`, and except the new
+schema `FixedScreenEventResourceId` with the value `zaaktype-configuraties`.
 
 #### Scenario: OpenAPI specification is unchanged apart from the required default groep
 - **WHEN** the OpenAPI specification is generated from the changed backend
 - **THEN** it is identical to the specification that was generated before the change, except that
-  `RestZaaktypeConfiguration` lists `defaultGroepId` as required, and that `GET /zaakafhandelparameters` returns
-  a list of `RestZaaktypeConfigurationOverzicht`
+  `RestZaaktypeConfiguration` lists `defaultGroepId` as required, that `GET /zaakafhandelparameters` returns
+  a list of `RestZaaktypeConfigurationOverzicht`, that `ScreenEventType` has the value `ZAAKTYPE_CONFIGURATIES`,
+  and that the new schema `FixedScreenEventResourceId` has the value `zaaktype-configuraties`
 
 #### Scenario: Shared fields round-trip through both resources
 - **GIVEN** a BPMN zaaktype configuration that was stored through `POST /zaaktype-bpmn-configuration`
@@ -218,3 +220,101 @@ beheren right. `GET /zaakafhandelparameters/{zaaktypeUuid}` SHALL keep returning
 - **WHEN** the page shows the list
 - **THEN** it shows the same rows, in the same order, as before this change, and each row links to the edit page of
   its zaaktype
+
+### Requirement: The list page shows the configurations as they are now
+
+The Zaakafhandelparameters page SHALL read its list each time a beheerder opens the page. While the page is open,
+it SHALL read its list again when it receives the `ZAAKTYPE_CONFIGURATIES` screen event, so that it shows a zaaktype
+version for which ZAC created a configuration in the meantime. The page SHALL NOT read its list again because its
+browser tab or window gets the focus. While the list is read again, the page SHALL keep showing the rows it read
+before.
+
+#### Scenario: A new zaaktype version shows when the beheerder opens the list again
+- **GIVEN** a beheerder who opened the Zaakafhandelparameters page
+- **AND** a new version of a zaaktype was published in Open Zaak afterwards, and ZAC created its configuration
+- **WHEN** the beheerder opens the page again
+- **THEN** the page shows the new version with the procesmodel it took over, and its row links to the edit page of
+  the new version
+
+#### Scenario: A new zaaktype version shows while the page is open
+- **GIVEN** a beheerder with the Zaakafhandelparameters page open
+- **WHEN** a new version of a zaaktype is published in Open Zaak, and ZAC creates its configuration and sends the
+  `ZAAKTYPE_CONFIGURATIES` screen event
+- **THEN** the page shows the new version with the procesmodel it took over, without a reload
+
+#### Scenario: The page does not read its list again on focus
+- **GIVEN** a beheerder with the Zaakafhandelparameters page open
+- **WHEN** the beheerder comes back to its browser tab or window
+- **THEN** the page does not read its list again
+
+### Requirement: ZAC signals a handled zaaktype notification to the open list page
+
+After ZAC has handled a `create` or `update` notification about a zaaktype, it SHALL send the screen event
+`ZAAKTYPE_CONFIGURATIES` with opcode `UPDATED` and id `zaaktype-configuraties`. ZAC SHALL send it only after the
+configuration change of that notification is committed. ZAC SHALL NOT send it for a `destroy` notification about a
+zaaktype, nor when handling the notification fails.
+
+#### Scenario: A published zaaktype version is signalled after its configuration is stored
+- **GIVEN** a zaaktype with a configuration in ZAC
+- **WHEN** ZAC handles the `update` notification about a new, published version of that zaaktype
+- **THEN** ZAC creates the configuration of the new version
+- **AND** ZAC sends the `ZAAKTYPE_CONFIGURATIES` screen event after that configuration is committed
+
+#### Scenario: A deleted zaaktype version is not signalled
+- **WHEN** ZAC handles a `destroy` notification about a zaaktype
+- **THEN** ZAC does not send the `ZAAKTYPE_CONFIGURATIES` screen event
+
+#### Scenario: A failed notification is not signalled
+- **GIVEN** an `update` notification about a zaaktype that ZAC cannot read from Open Zaak
+- **WHEN** ZAC handles the notification
+- **THEN** ZAC does not send the `ZAAKTYPE_CONFIGURATIES` screen event
+
+### Requirement: A changed mail template is used at once and a rolled-back one is not retained
+
+When a beheerder changes a mail template, the ZAC instance that stores the change SHALL clear its cached
+configuration of each zaaktype that links that template when the change is stored, and only those, at once. It SHALL
+clear them again after that transaction has completed, whether it commits or rolls back, including a read that is
+still loading at that moment.
+Clearing the zaaktype configuration cache by hand on the admin page SHALL invalidate it at once.
+
+#### Scenario: A changed mail template is used at once
+- **GIVEN** a zaak whose zaaktype configuration links a mail to a mail template, and whose configuration is cached
+- **WHEN** a beheerder changes the onderwerp of that mail template
+- **THEN** the next request for the mail template of that zaak returns the changed onderwerp
+
+#### Scenario: A read during the save does not keep the previous mail template
+- **GIVEN** a mail template change whose transaction has not committed yet
+- **WHEN** another request reads the configuration of a zaaktype that links the template before the commit, and so
+  caches the previous template
+- **THEN** that cached configuration is cleared after the commit, and the next read returns the changed template
+
+#### Scenario: A rolled-back mail template change is not retained
+- **GIVEN** a transaction that changes a mail template and then rolls back
+- **WHEN** a configuration that links the template was read inside that transaction, and so cached with the
+  uncommitted template
+- **THEN** that cached configuration is cleared after the rollback, and the next read returns the committed template
+- **AND** a request that read the configuration before the rollback MAY have received the uncommitted template
+
+#### Scenario: Clearing the cache by hand
+- **WHEN** a beheerder clears the zaaktype configuration cache on the admin page
+- **THEN** every cached configuration is invalidated at once, and no second clear is scheduled for after a transaction
+- **AND** a configuration that is still loading at that moment MAY be cached after the clear
+
+#### Scenario: Deleting a mail template leaves the cache alone
+- **GIVEN** a mail template that no zaaktype configuration links
+- **WHEN** a beheerder deletes it
+- **THEN** no cached zaaktype configuration is cleared, because no committed koppeling links that template
+- **AND** another ZAC instance that cached the template before its last koppeling was removed MAY still return it
+  until its cache entry expires or the cache is cleared by hand on it
+
+#### Scenario: A koppeling stored during the change is not covered
+- **GIVEN** a mail template change whose transaction has not committed yet
+- **WHEN** another transaction links the template to another zaaktype at the same moment, by a beheerder or by the
+  notification of a new zaaktype version
+- **THEN** that zaaktype MAY keep the previous template until its cache entry expires or the cache is cleared by hand
+
+#### Scenario: Another ZAC instance keeps its cache
+- **GIVEN** more than one ZAC instance, each with the configuration of a zaaktype that links a mail template cached
+- **WHEN** a beheerder changes that mail template on one instance
+- **THEN** only that instance clears its cache; the others MAY return the previous template until their cache entry
+  expires or the cache is cleared by hand on them

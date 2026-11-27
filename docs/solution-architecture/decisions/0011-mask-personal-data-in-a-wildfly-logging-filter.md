@@ -1,6 +1,6 @@
 ---
 status: superseded
-superseded-by: 0021
+superseded-by: 0022
 date: 2026-11-02
 decision-makers: Team Genève
 tags: [logging, privacy, gdpr, wildfly, backend]

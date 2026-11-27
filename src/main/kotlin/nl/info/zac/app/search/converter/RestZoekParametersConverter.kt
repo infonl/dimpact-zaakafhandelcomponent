@@ -41,7 +41,7 @@ class RestZoekParametersConverter @Inject constructor(
             zoekParameters.addFilterQuery(ZaakZoekObject.AFGEHANDELD_FIELD, BooleanUtils.FALSE)
         }
         if (restZoekParameters.isAlleenAfgeslotenZaken) {
-            zoekParameters.addFilterQuery(ZaakZoekObject.EINDSTATUS_FIELD, BooleanUtils.TRUE)
+            zoekParameters.addFilterQuery(ZaakZoekObject.AFGEHANDELD_FIELD, BooleanUtils.TRUE)
         }
         if (restZoekParameters.isAlleenMijnZaken) {
             zoekParameters.addFilterQuery(ZaakZoekObject.BEHANDELAAR_ID_FIELD, loggedInUserInstance.get().username)
