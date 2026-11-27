@@ -674,6 +674,21 @@ describe(ZaakDocumentenComponent.name, () => {
         expect(zipButton()).toBeDisabled();
       });
 
+      it("drops it from the zip when it is no longer listed, because it was ontkoppeld", async () => {
+        const rendered = await setup(fakeZaak, [
+          fakeDocument,
+          fakeEditableDocument,
+        ]);
+        await user.click(
+          within(documentRow("Test document")).getByRole("checkbox"),
+        );
+        notifyListener(rendered.addListener, "ZAAK_INFORMATIEOBJECTEN");
+        await settle();
+        await flushList([fakeEditableDocument]);
+
+        expect(zipButton()).toBeDisabled();
+      });
+
       it("puts it in the zip once when every document is selected", async () => {
         await selectThenRefreshWithChangedCopy();
 
