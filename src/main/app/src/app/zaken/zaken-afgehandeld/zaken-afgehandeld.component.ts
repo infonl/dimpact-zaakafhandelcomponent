@@ -47,7 +47,6 @@ import { StaticTextComponent } from "../../shared/static-text/static-text.compon
 import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
 import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filter/facet-filter.component";
 import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
-import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZoekenService } from "../../zoeken/zoeken.service";
@@ -152,10 +151,6 @@ export class ZakenAfgehandeldComponent
       [ZoekenColumn.INDICATIES, ColumnPickerValue.HIDDEN],
       [ZoekenColumn.URL, ColumnPickerValue.STICKY],
     ]);
-  }
-
-  getWerklijst(): GeneratedType<"Werklijst"> {
-    return "AFGEHANDELDE_ZAKEN";
   }
 
   ngAfterViewInit(): void {

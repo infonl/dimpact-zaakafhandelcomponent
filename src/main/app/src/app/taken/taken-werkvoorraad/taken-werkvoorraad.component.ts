@@ -282,10 +282,6 @@ export class TakenWerkvoorraadComponent
     return columns;
   }
 
-  override getWerklijst(): GeneratedType<"Werklijst"> {
-    return "WERKVOORRAAD_TAKEN";
-  }
-
   protected override paginatorChanged($event: PageEvent) {
     super.paginatorChanged($event);
     this.selection.clear();

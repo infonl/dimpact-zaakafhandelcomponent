@@ -560,10 +560,6 @@ export class OntkoppeldeDocumentenListComponent
     return user1?.username === user2?.username;
   };
 
-  getWerklijst(): GeneratedType<"Werklijst"> {
-    return "ONTKOPPELDE_DOCUMENTEN";
-  }
-
   ngOnDestroy() {
     // Make sure when returning to this component, the very first page is loaded
     this.listParameters.page = 0;

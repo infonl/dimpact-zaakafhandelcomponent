@@ -52,6 +52,7 @@ describe(TakenMijnComponent.name, () => {
         {
           provide: ActivatedRoute,
           useValue: fromPartial<ActivatedRoute>({
+            snapshot: { data: { werklijst: "MIJN_TAKEN" } },
             data: of({
               tabelGegevens: {
                 aantalPerPagina: 10,

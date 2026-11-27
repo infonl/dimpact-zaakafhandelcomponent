@@ -41,7 +41,6 @@ import { StaticTextComponent } from "../../shared/static-text/static-text.compon
 import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
 import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filter/facet-filter.component";
 import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
-import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { ZakenMijnDatasource } from "./zaken-mijn-datasource";
@@ -162,10 +161,6 @@ export class ZakenMijnComponent
 
   filtersChange() {
     this.dataSource.filtersChanged();
-  }
-
-  getWerklijst(): GeneratedType<"Werklijst"> {
-    return "MIJN_ZAKEN";
   }
 
   ngOnDestroy() {

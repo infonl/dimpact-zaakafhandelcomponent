@@ -75,6 +75,7 @@ describe(InboxDocumentenListComponent.name, () => {
           {
             provide: ActivatedRoute,
             useValue: fromPartial<ActivatedRoute>({
+              snapshot: { data: { werklijst: "INBOX_DOCUMENTEN" } },
               data: of({
                 tabelGegevens: {
                   aantalPerPagina: 10,

@@ -240,10 +240,6 @@ export class ZakenWerkvoorraadComponent
     return columns;
   }
 
-  override getWerklijst(): GeneratedType<"Werklijst"> {
-    return "WERKVOORRAAD_ZAKEN";
-  }
-
   ngAfterViewInit() {
     this.dataSource.setViewChilds(this.paginator(), this.sort());
     this.table().dataSource = this.dataSource;

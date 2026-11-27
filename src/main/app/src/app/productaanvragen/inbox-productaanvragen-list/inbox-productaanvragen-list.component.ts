@@ -286,10 +286,6 @@ export class InboxProductaanvragenListComponent
     };
   }
 
-  getWerklijst(): GeneratedType<"Werklijst"> {
-    return "INBOX_PRODUCTAANVRAGEN";
-  }
-
   protected updateActive(
     selectedRow: GeneratedType<"RestInboxProductaanvraag">,
   ) {

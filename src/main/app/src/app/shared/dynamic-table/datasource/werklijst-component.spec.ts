@@ -30,10 +30,6 @@ class ConcreteWerklijstComponent extends WerklijstComponent {
   constructor() {
     super();
   }
-
-  getWerklijst() {
-    return "TAKEN_MIJN" as GeneratedType<"Werklijst">;
-  }
 }
 
 const mockTabelGegevens: TabelGegevens = {
@@ -60,7 +56,10 @@ describe(WerklijstComponent.name, () => {
         provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: { data: of({ tabelGegevens: mockTabelGegevens }) },
+          useValue: {
+            snapshot: { data: { werklijst: "MIJN_TAKEN" } },
+            data: of({ tabelGegevens: mockTabelGegevens }),
+          },
         },
       ],
     }).compileComponents();
@@ -89,14 +88,14 @@ describe(WerklijstComponent.name, () => {
     );
   });
 
-  it("calls updateAantalPerPagina and updates aantalPerPagina when page size changes", () => {
+  it("stores the new page size under the werklijst of the route, the one it read its page size for", () => {
     const event: PageEvent = { pageIndex: 0, pageSize: 50, length: 100 };
 
     component["paginatorChanged"](event);
 
     expect(
       gebruikersvoorkeurenService.updateAantalPerPagina,
-    ).toHaveBeenCalledWith("TAKEN_MIJN", 50);
+    ).toHaveBeenCalledWith("MIJN_TAKEN", 50);
     expect(component["aantalPerPagina"]()).toBe(50);
   });
 
