@@ -99,5 +99,5 @@ class ProductaanvraagDocumentService @Inject constructor(
         }
 
     private fun logBijlagePairingFailure(bijlageURI: URI, zaakUrl: URI, exception: RuntimeException) =
-        LOG.warning(BijlagePairingFailed(bijlage = bijlageURI, zaakUrl = zaakUrl), exception)
+        LOG.warning(BijlagePairingFailed(bijlage = bijlageURI, zaakUri = zaakUrl), exception)
 }
