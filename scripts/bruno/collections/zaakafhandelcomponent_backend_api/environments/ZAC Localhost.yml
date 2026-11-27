@@ -2,6 +2,6 @@ variables:
   - name: baseUrl
     value: http://localhost:8080
   - name: keycloakBaseUrl
-    value: http://localhost:8081
+    value: http://keycloak.localhost:8081
   - name: keycloakClientSecret
-    value: keycloakZaakhandelcomponentClientSecret
+    value: keycloakZaakafhandelcomponentClientSecret

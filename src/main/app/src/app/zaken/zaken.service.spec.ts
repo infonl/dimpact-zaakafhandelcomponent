@@ -358,7 +358,7 @@ describe(ZakenService.name, () => {
     it("addresses the zaak by its uuid and sends the reden as the body", async () => {
       const request = service.deleteInitiator().mutationFn!(
         { zaakUuid: "fakeZaakUuid", reden: "fakeReden" },
-        fromPartial<MutationFunctionContext>({}),
+        fromPartial<MutationFunctionContext>({ client: testQueryClient }),
       );
       const httpRequest = httpTestingController.expectOne(
         "/rest/zaken/fakeZaakUuid/initiator",
@@ -374,7 +374,7 @@ describe(ZakenService.name, () => {
     it("addresses the zaak by its uuid and sends only the changed zaakgegevens with the reden", async () => {
       const request = service.updateZaak("fakeZaakUuid").mutationFn!(
         { zaak: { omschrijving: "fakeOmschrijving" }, reden: "fakeReden" },
-        fromPartial<MutationFunctionContext>({}),
+        fromPartial<MutationFunctionContext>({ client: testQueryClient }),
       );
       const httpRequest = httpTestingController.expectOne(
         "/rest/zaken/zaak/fakeZaakUuid",
@@ -392,7 +392,7 @@ describe(ZakenService.name, () => {
     it("sends the release of the behandelaar along with the zaakgegevens", async () => {
       const request = service.updateZaak("fakeZaakUuid").mutationFn!(
         { zaak: {}, reden: "fakeReden", isBehandelaarVrijgegeven: true },
-        fromPartial<MutationFunctionContext>({}),
+        fromPartial<MutationFunctionContext>({ client: testQueryClient }),
       );
       const httpRequest = httpTestingController.expectOne(
         "/rest/zaken/zaak/fakeZaakUuid",
@@ -423,7 +423,7 @@ describe(ZakenService.name, () => {
         fromPartial<GeneratedType<"RestZaak">>({ uuid: "fakeZaakUuid" }),
         fromPartial({}),
         undefined,
-        fromPartial<MutationFunctionContext>({}),
+        fromPartial<MutationFunctionContext>({ client: testQueryClient }),
       );
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(message);
@@ -459,7 +459,7 @@ describe(ZakenService.name, () => {
     it("addresses the rol by its uuid and sends the reden as the body", async () => {
       const request = service.deleteBetrokkene().mutationFn!(
         { rolUuid: "fakeRolUuid", reden: "fakeReden" },
-        fromPartial<MutationFunctionContext>({}),
+        fromPartial<MutationFunctionContext>({ client: testQueryClient }),
       );
       const httpRequest = httpTestingController.expectOne(
         "/rest/zaken/betrokkene/fakeRolUuid",
@@ -477,7 +477,10 @@ describe(ZakenService.name, () => {
     it("addresses the medewerker of the zaak and sends the reden as the body", async () => {
       const request = service.deleteZaakspecifiekGeautoriseerdeMedewerker(
         "fakeZaakUuid",
-      ).mutationFn!(variables, fromPartial<MutationFunctionContext>({}));
+      ).mutationFn!(
+        variables,
+        fromPartial<MutationFunctionContext>({ client: testQueryClient }),
+      );
       const httpRequest = httpTestingController.expectOne(
         "/rest/zaken/zaak/fakeZaakUuid/zaakspecifiek-geautoriseerde-medewerkers/fakeMedewerkerId",
       );
@@ -552,7 +555,7 @@ describe(ZakenService.name, () => {
         zaak,
         fromPartial({}),
         undefined,
-        fromPartial<MutationFunctionContext>({}),
+        fromPartial<MutationFunctionContext>({ client: testQueryClient }),
       );
 
       expect(cacheZaak).toHaveBeenCalledWith(zaak);
@@ -575,7 +578,7 @@ describe(ZakenService.name, () => {
         zaak,
         fromPartial({}),
         undefined,
-        fromPartial<MutationFunctionContext>({}),
+        fromPartial<MutationFunctionContext>({ client: testQueryClient }),
       );
       resolveRefetch(
         fromPartial<GeneratedType<"RestZaak">>({
@@ -596,7 +599,7 @@ describe(ZakenService.name, () => {
         zaak,
         fromPartial({}),
         undefined,
-        fromPartial<MutationFunctionContext>({}),
+        fromPartial<MutationFunctionContext>({ client: testQueryClient }),
       );
 
       expect(invalidateZaak).toHaveBeenCalledWith("fakeZaakUuid1");
@@ -612,7 +615,7 @@ describe(ZakenService.name, () => {
         zaak,
         fromPartial({}),
         undefined,
-        fromPartial<MutationFunctionContext>({}),
+        fromPartial<MutationFunctionContext>({ client: testQueryClient }),
       );
 
       expect(invalidateHistorie).toHaveBeenCalledWith("fakeZaakUuid1");

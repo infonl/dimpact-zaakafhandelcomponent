@@ -93,8 +93,8 @@ class RestZoekParametersConverterTest : BehaviorSpec({
             `when`("convert is called") {
                 val result = restZoekParametersConverter.convert(params)
 
-                then("a filter query for eindstatus is added") {
-                    result.getFilterQueries()["zaak_statusEindstatus"] shouldBe "true"
+                then("a filter query for AFGEHANDELD is added with value 'true'") {
+                    result.getFilterQueries()["zaak_afgehandeld"] shouldBe "true"
                 }
             }
         }

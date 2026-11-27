@@ -7,9 +7,11 @@ package nl.info.zac.util
 import jakarta.ws.rs.ApplicationPath
 import jakarta.ws.rs.core.Application
 import nl.info.zac.websocket.SubscriptionType.SubscriptionMessage
+import nl.info.zac.websocket.event.FixedScreenEventResourceId
 import nl.info.zac.websocket.event.ScreenEvent
 import org.eclipse.microprofile.openapi.annotations.Components
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType
 import org.eclipse.microprofile.openapi.annotations.info.Info
 import org.eclipse.microprofile.openapi.annotations.media.Schema
 
@@ -22,7 +24,12 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema
     components = Components(
         schemas = [
             Schema(name = "ScreenEvent", implementation = ScreenEvent::class),
-            Schema(name = "SubscriptionMessage", implementation = SubscriptionMessage::class)
+            Schema(name = "SubscriptionMessage", implementation = SubscriptionMessage::class),
+            Schema(
+                name = "FixedScreenEventResourceId",
+                type = SchemaType.STRING,
+                enumeration = [FixedScreenEventResourceId.ZAAKTYPE_CONFIGURATIES]
+            )
         ]
     )
 )

@@ -3,29 +3,28 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient } from "@angular/common/http";
+import { HttpErrorResponse } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
-import { Observable } from "rxjs";
-import { catchError } from "rxjs/operators";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { CreateMutationOptions } from "@tanstack/angular-query-experimental";
+import { PathParameters } from "../shared/http/http-client";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
   providedIn: "root",
 })
 export class CsvService {
-  private readonly http = inject(HttpClient);
-  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
+  private readonly zacQueryClient = inject(ZacQueryClient);
 
-  private basepath = "/rest/csv";
-
-  exportToCSV(
-    zoekParameters: GeneratedType<"RestZoekParameters">,
-  ): Observable<Blob> {
-    return this.http
-      .post(`${this.basepath}/export`, zoekParameters, { responseType: "blob" })
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  exportToCSV() {
+    return this.zacQueryClient.POST("/rest/csv/export", {
+      responseType: "blob",
+    } as PathParameters<"/rest/csv/export", "post"> &
+      Record<string, unknown>) as unknown as CreateMutationOptions<
+      Blob,
+      HttpErrorResponse,
+      GeneratedType<"RestZoekParameters">,
+      void
+    >;
   }
 }

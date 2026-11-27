@@ -434,11 +434,9 @@ opa:
     annotations: {}
   image:
     repository: docker.io/openpolicyagent/opa
-    tag: "1.22.4-static@sha256:12cecac5a174368f7d3f09d3a19d040ebe0c91d576e520335ae7a985a26e39d3"
+    tag: "1.23.0-static@sha256:5eda3af02ff7b2c5f12bbf893a5bdebfde3adb8d6338e7fcf1f37d90b819e88d"
     pullPolicy: IfNotPresent
    # The settings below will be ignored when running as a sidecar (the zac values will be used instead), except for 'resources' and 'securityContext' which are always applied
-  autoscaling:
-    enabled: false
   replicas: 1
   resources:
     requests:
@@ -722,7 +720,7 @@ office_converter:
    # url: ""
   image:
     repository: docker.io/gotenberg/gotenberg
-    tag: "9.9.3@sha256:9731688d1b6290e4c04d9a47dbd5fb29f92aa0076feb6592c5c777525892cd72"
+    tag: "9.10.2@sha256:daede2c52129da3b9eef655fdad5de0c0a978f1119bb1c459ee88388982b1b70"
     pullPolicy: IfNotPresent
   name: "office-converter"
   replicas: 1
@@ -788,7 +786,7 @@ opentelemetry-collector:
   image:
     repository: otel/opentelemetry-collector-contrib
     pullPolicy: IfNotPresent
-    tag: "0.165.0@sha256:e40d61f10c9a617cca1ffd1be4d7e2b3a4b0f0001798ff07e58cabe82e618cea"
+    tag: "0.166.0@sha256:3e18fe04181de50bdd72e23ad4a4d6214b54351e63d496f1c58127cc4541ad7f"
   presets:
     clusterMetrics:
       enabled: false
@@ -819,7 +817,7 @@ nginx:
   image:
     repository: docker.io/nginx/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.31.9@sha256:0255fc1dcc1d7b358aac20166543e52029fea577413edadb0912f5b928c7e312
+    tag: 1.31.10@sha256:a3ee8631f59c109deead35eef91f428233151b50ed5ee433057f3a93ca570c2c
   service:
     type: ClusterIP
     port: 80
@@ -836,7 +834,16 @@ nginx:
     runAsNonRoot: true
     runAsUser: 101
   autoscaling:
+     # -- Scale the nginx Deployment with a HorizontalPodAutoscaler instead of a fixed number of `nginx.replicaCount`
     enabled: false
+     # -- Minimum number of nginx pods when `nginx.autoscaling.enabled` is true
+    minReplicas: 1
+     # -- Maximum number of nginx pods when `nginx.autoscaling.enabled` is true
+    maxReplicas: 5
+     # -- Average CPU utilization, as a percentage of `nginx.resources.requests.cpu`, that the autoscaler aims for
+    targetCPUUtilizationPercentage: 80
+     # -- (int) Average memory utilization, as a percentage of `nginx.resources.requests.memory`, that the autoscaler aims for. Not used when empty.
+    targetMemoryUtilizationPercentage: null
   livenessProbe:
     initialDelaySeconds: 60
     periodSeconds: 10

@@ -15,7 +15,7 @@ Feature: Zaak aanmaken
     When I open the form to create a zaak
     And I choose the zaaktype "Test zaaktype 2"
     And I search the <initiator> with <zoekveld> "<zoekwaarde>" and select "<naam>" as initiator
-    And I search an address from the BAG stub and add it as BAG object
+    And I search an address in the BAG and add it as BAG object
     And I choose the communicatiekanaal "E-mail"
     And I enter the omschrijving "E2E zaak met <initiator>"
     And I create the zaak

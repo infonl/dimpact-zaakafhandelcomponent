@@ -19,7 +19,6 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -34,6 +33,7 @@ import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.ZaakRechten
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.IndexingService
+import nl.info.zac.time.ZacTime
 import nl.info.zac.websocket.event.ScreenEvent
 import nl.info.zac.websocket.event.ScreenEventType
 import nl.info.zac.zaak.model.RelatieType
@@ -294,7 +294,7 @@ class ZaakKoppelenServiceTest : BehaviorSpec({
             val zaakToLinkToType = createZaakType()
             val zaakToLinkTo = createZaak(
                 zaaktypeUri = zaakToLinkToType.url,
-                archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
+                endDate = ZacTime.today()
             )
             stubZaakToLinkTo(zaakToLinkTo, zaakToLinkToType)
 

@@ -158,9 +158,6 @@ The tests are in the `src/e2e` folder. Each feature file in `src/e2e/bdd` is a j
 from start to finish through the real UI. The [README of the e2e tests](../../src/e2e/README.md) describes how the
 suite is built, how it is configured and how to write a journey.
 
-The older cucumber-js suite in `src/e2e/features` is being replaced, feature by feature. See
-[The cucumber-js suite](#the-cucumber-js-suite).
-
 ### Running e2e tests locally
 
 The local e2e tests run against ZAC in the [kind stack](installKind.md). The browser of the tests runs on your
@@ -170,10 +167,12 @@ machine and uses the same `localhost` URLs of ZAC and Keycloak as your own brows
    you build first:
 
    ```sh
-   KIND_ZAC_VALUES=scripts/kind/values/zac-e2e.yaml ./start-kind.sh -b -t
+   KIND_ZAC_VALUES=scripts/kind/values/zac-e2e.yaml ./start-kind.sh -b -t -n
    ```
 
    `-t` starts the test doubles, such as the WireMock services for KVK and BAG. The values file makes ZAC call them.
+   `-n` starts Open Notificaties, which tells ZAC about changes in Open Zaak. ZAC needs it to update its search index,
+   for example when a zaak closes, and the werkvoorraad needs it to show the result of assigning or releasing zaken.
    `-l` uses an image that you built before, and `-z` the image of the registry (amd64 only).
 
 2. Run the e2e tests:
@@ -187,7 +186,7 @@ with `KIND_PORT_OFFSET` or `KIND_PORT_ZAC`, and they log in as the [local test u
 each role. For a cluster with another name, set `KIND_CLUSTER_NAME` for both scripts:
 
 ```sh
-KIND_CLUSTER_NAME=zac-e2e KIND_PORT_OFFSET=11000 KIND_ZAC_VALUES=scripts/kind/values/zac-e2e.yaml ./start-kind.sh -b -t
+KIND_CLUSTER_NAME=zac-e2e KIND_PORT_OFFSET=11000 KIND_ZAC_VALUES=scripts/kind/values/zac-e2e.yaml ./start-kind.sh -b -t -n
 KIND_CLUSTER_NAME=zac-e2e ./start-e2e-with-local-env.sh
 ```
 
@@ -248,19 +247,25 @@ Run this command in `src/e2e` to record against the local kind stack:
 npx playwright codegen http://localhost:8080
 ```
 
-### The cucumber-js suite
+### Running e2e tests against the TEST environment
 
-The cucumber-js suite in `src/e2e/features` runs against the INFO TEST environment (accessible for INFO developers
-only), because its features need the users, groups and zaaktypes of that environment. A feature of this suite is
-deleted when journeys of the playwright-bdd suite replace it.
+INFO developers can run the same tests against the TEST environment, with the accounts in 1Password:
 
 ```shell
 ./start-e2e-with-test-env.sh
-HEADLESS=true ./start-e2e-with-test-env.sh                 # without a browser window
-HEADLESS=true TAGS="@bpmn" ./start-e2e-with-test-env.sh    # only the features with this tag
+./start-e2e-with-test-env.sh --headed --grep "Intake"
 ```
 
-Its steps are in [src/e2e/step-definitions](../../src/e2e/step-definitions), one file per domain.
+The profile [dev](../../src/e2e/config/targets/dev.ts) holds how the environment names the zaaktypes, the groepen and
+the other data of the feature files, and what it does not have. The tests set up "Zaaktype voor e2e testen" through
+the REST API. They change no other zaaktype of this shared environment, and they do not delete the zaken that they
+create. A scenario that needs something the environment does not have is skipped, with the reason in the report.
+
+The [Playwright Tests](../../.github/workflows/run-e2e.yml) workflow runs them every weeknight. It publishes the
+Playwright report, with a trace, a video and screenshots of every scenario, on GitHub Pages and posts the result in
+Slack. That report is public. So the scenarios that sign in have no trace, `scripts/github/redact-e2e-report.py` removes
+the cookies, the tokens and the answers of the REST API from the other traces, and the workflow publishes nothing when
+the redaction fails or the report still holds a password, a session or a logged cookie.
 
 ## GitHub Action Tests
 

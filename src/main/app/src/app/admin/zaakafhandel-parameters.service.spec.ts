@@ -183,6 +183,33 @@ describe(ZaakafhandelParametersService.name, () => {
     });
   });
 
+  describe("invalidateZaakafhandelParametersList", () => {
+    it("makes every page of the overview of all zaaktypes read the parameters again, but not the configuration of a zaaktype", async () => {
+      const firstPage = service.listZaakafhandelParameters({
+        page: 0,
+        rows: 25,
+      }).queryKey;
+      const secondPage = service.listZaakafhandelParameters({
+        page: 1,
+        rows: 25,
+        isValide: true,
+      }).queryKey;
+      const configuration =
+        service.readZaakafhandelparameters("fakeZaaktypeUuid").queryKey;
+      for (const queryKey of [firstPage, secondPage, configuration]) {
+        testQueryClient.setQueryData(queryKey, fromPartial({}));
+      }
+
+      await service.invalidateZaakafhandelParametersList();
+
+      const isInvalidated = (queryKey: readonly unknown[]) =>
+        testQueryClient.getQueryState(queryKey)?.isInvalidated;
+      expect(isInvalidated(firstPage)).toBe(true);
+      expect(isInvalidated(secondPage)).toBe(true);
+      expect(isInvalidated(configuration)).toBe(false);
+    });
+  });
+
   describe("listZaakafhandelParameters", () => {
     it("reads one page of the parameters of the zaaktypes with the filters as query parameters", async () => {
       const page = fromPartial<

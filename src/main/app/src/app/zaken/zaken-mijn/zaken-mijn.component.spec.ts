@@ -15,6 +15,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { screen } from "@testing-library/angular";
 import { of } from "rxjs";
 import {
   expectedSearchFor,
@@ -61,6 +62,17 @@ describe(ZakenMijnComponent.name, () => {
     fixture = TestBed.createComponent(ZakenMijnComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+  });
+
+  describe("the filters of the columns", () => {
+    it.each(["zaak.identificatie", "omschrijving"])(
+      "name the text filter of the column %s after that column, so that a screen reader user knows what it filters",
+      (column) => {
+        expect(
+          screen.getByRole("textbox", { name: column }),
+        ).toBeInTheDocument();
+      },
+    );
   });
 
   describe("getWerklijst", () => {
