@@ -13,16 +13,23 @@ import {
 import {
   HttpTestingController,
   provideHttpClientTesting,
+  type TestRequest,
 } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { provideTranslateService } from "@ngx-translate/core";
 import type { MutationFunctionContext } from "@tanstack/angular-query-experimental";
-import { EMPTY, of } from "rxjs";
+import { EMPTY, lastValueFrom, of } from "rxjs";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { fromPartial } from "../../../test-helpers";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
+import { search } from "./invalidation";
+import { INVALIDATION_MAP } from "./invalidation-map";
 import { mergeMutationOptions } from "./merge-mutation-options";
+import { runMutation } from "./run-mutation";
 import { ZacQueryClient } from "./zac-query-client";
+
+type Mutable<Type> = { -readonly [Key in keyof Type]: Type[Key] };
 
 describe(ZacQueryClient.name, () => {
   let zacQueryClient: ZacQueryClient;
@@ -156,6 +163,61 @@ describe(ZacQueryClient.name, () => {
       );
 
       expect(foutAfhandelenSpy).not.toHaveBeenCalled();
+    });
+    describe("with the invalidation map", () => {
+      const documentList = [
+        "/rest/informatieobjecten/informatieobjectenList",
+        { zaakUUID: "zaak-1", shouldIncludeGekoppeldeZaakDocumenten: false },
+      ];
+      const isInvalidated = () =>
+        testQueryClient.getQueryState(documentList)?.isInvalidated;
+
+      async function upload(answer: (request: TestRequest) => void) {
+        testQueryClient.setQueryData(documentList, "fakeData");
+        const uploaded = lastValueFrom(
+          runMutation(
+            testQueryClient,
+            zacQueryClient.POST_WITH_PROGRESS(path, parameters),
+            new FormData() as never,
+          ),
+        ).catch(() => undefined);
+        await sleep();
+        answer(httpTestingController.expectOne(url));
+        await uploaded;
+      }
+
+      afterEach(() => {
+        jest.restoreAllMocks();
+      });
+
+      it("refreshes the documents of the zaak after an upload that succeeds", async () => {
+        await upload((request) => request.flush({ uuid: "document-1" }));
+
+        expect(isInvalidated()).toBe(true);
+      });
+
+      it("applies a rule that sets afterFailureToo after an upload that fails, and still clears the global progress indicator", async () => {
+        jest.replaceProperty(
+          INVALIDATION_MAP as Mutable<typeof INVALIDATION_MAP>,
+          `POST ${path}`,
+          {
+            afterFailureToo: true,
+            refresh: () => [
+              search("/rest/informatieobjecten/informatieobjectenList"),
+            ],
+          },
+        );
+        jest
+          .spyOn(foutAfhandelingService, "foutAfhandelen")
+          .mockReturnValue(EMPTY);
+
+        await upload((request) =>
+          request.flush(null, { status: 400, statusText: "Bad Request" }),
+        );
+
+        expect(isInvalidated()).toBe(true);
+        expect(utilService.progress()).toBeNull();
+      });
     });
   });
 
@@ -333,6 +395,117 @@ describe(ZacQueryClient.name, () => {
       request.flush({ totaal: 0 });
 
       await expect(response).resolves.toEqual({ totaal: 0 });
+    });
+  });
+
+  describe("the invalidation map", () => {
+    const list = ["/rest/zoeken/list", { page: 0 }];
+    const path = "/rest/taken/lijst/vrijgeven";
+    const isInvalidated = () =>
+      testQueryClient.getQueryState(list)?.isInvalidated;
+
+    async function release(answer: (request: TestRequest) => void) {
+      testQueryClient.setQueryData(list, "fakeData");
+      const staleInOnSuccess: unknown[] = [];
+      const released = lastValueFrom(
+        runMutation(
+          testQueryClient,
+          mergeMutationOptions(zacQueryClient.PUT(path), {
+            onSuccess: () => void staleInOnSuccess.push(isInvalidated()),
+          }),
+          fromPartial({}),
+        ),
+      ).catch(() => undefined);
+      await sleep();
+      answer(httpTestingController.expectOne(path));
+      await released;
+      return staleInOnSuccess;
+    }
+
+    it("is applied after a write that succeeds, once the callbacks of the callers have run", async () => {
+      const staleInOnSuccess = await release((request) => request.flush(null));
+
+      expect(staleInOnSuccess).toEqual([false]);
+      expect(isInvalidated()).toBe(true);
+    });
+
+    it("is not applied after a write that fails", async () => {
+      jest
+        .spyOn(foutAfhandelingService, "foutAfhandelen")
+        .mockReturnValue(EMPTY);
+
+      await release((request) =>
+        request.flush(null, { status: 400, statusText: "Bad Request" }),
+      );
+
+      expect(isInvalidated()).toBe(false);
+    });
+
+    describe("with a rule that sets afterFailureToo", () => {
+      function ruleOf(rule: { awaitRefresh?: true }) {
+        jest.replaceProperty(
+          INVALIDATION_MAP as Mutable<typeof INVALIDATION_MAP>,
+          `PUT ${path}`,
+          {
+            afterFailureToo: true,
+            refresh: () => [search("/rest/zoeken/list")],
+            ...rule,
+          },
+        );
+      }
+
+      afterEach(() => {
+        jest.restoreAllMocks();
+      });
+
+      it("is applied after a write that succeeds", async () => {
+        ruleOf({});
+
+        await release((request) => request.flush(null));
+
+        expect(isInvalidated()).toBe(true);
+      });
+
+      it("is applied after a write that fails", async () => {
+        ruleOf({});
+        jest
+          .spyOn(foutAfhandelingService, "foutAfhandelen")
+          .mockReturnValue(EMPTY);
+
+        await release((request) =>
+          request.flush(null, { status: 400, statusText: "Bad Request" }),
+        );
+
+        expect(isInvalidated()).toBe(true);
+      });
+
+      it.each([
+        ["keeps the write pending until the refresh is done", true, false],
+        ["does not wait for the refresh", undefined, true],
+      ] as const)(
+        "%s when awaitRefresh is %s",
+        async (_description, awaitRefresh, isDoneBeforeRefresh) => {
+          ruleOf({ awaitRefresh });
+          let finishRefresh!: () => void;
+          jest
+            .spyOn(testQueryClient, "invalidateQueries")
+            .mockReturnValue(
+              new Promise((resolve) => (finishRefresh = resolve)),
+            );
+          let isDone = false;
+
+          const released = release((request) => request.flush(null)).then(
+            () => (isDone = true),
+          );
+          await sleep();
+          await sleep();
+          expect(isDone).toBe(isDoneBeforeRefresh);
+
+          finishRefresh();
+          await released;
+          expect(isDone).toBe(true);
+        },
+      );
     });
   });
 });

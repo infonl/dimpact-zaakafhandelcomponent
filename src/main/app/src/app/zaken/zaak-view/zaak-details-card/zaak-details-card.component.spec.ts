@@ -114,6 +114,14 @@ describe(ZaakDetailsCardComponent.name, () => {
   });
 
   describe("card header", () => {
+    it("is a region named zaak, so that a screen reader user can tell its tabs from the tabs of a besluit", () => {
+      renderCard();
+
+      expect(
+        screen().getByRole("region", { name: "zaak" }),
+      ).toBeInTheDocument();
+    });
+
     it("names the zaak by its identificatie and zaaktype", () => {
       renderCard();
 

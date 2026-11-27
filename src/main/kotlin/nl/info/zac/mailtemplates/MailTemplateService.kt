@@ -8,6 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
+import nl.info.zac.admin.MailTemplateKoppelingenService
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.mailtemplates.exception.MailTemplateNotConfiguredException
 import nl.info.zac.mailtemplates.exception.MailTemplateNotFoundException
@@ -26,12 +27,12 @@ import nl.info.zac.util.validateObject
 @Suppress("TooManyFunctions")
 class MailTemplateService @Inject constructor(
     private val entityManager: EntityManager,
-    private val zaaktypeConfigurationService: ZaaktypeConfigurationService
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
+    private val mailTemplateKoppelingenService: MailTemplateKoppelingenService
 ) {
     fun delete(id: Long) {
         findMailtemplate(id)?.let {
             entityManager.remove(it)
-            zaaktypeConfigurationService.clearManagedCache()
         }
     }
 
@@ -101,7 +102,9 @@ class MailTemplateService @Inject constructor(
             this.isDefaultMailtemplate = mailTemplate.isDefaultMailtemplate
         }
 
-        return entityManager.merge(existingTemplate).also { zaaktypeConfigurationService.clearManagedCache() }
+        return entityManager.merge(existingTemplate).also {
+            mailTemplateKoppelingenService.listZaaktypeUuidsLinkedTo(id).forEach(zaaktypeConfigurationService::evict)
+        }
     }
 
     fun storeMailtemplate(mailTemplate: MailTemplate): MailTemplate {
@@ -109,7 +112,7 @@ class MailTemplateService @Inject constructor(
         return if (mailTemplate.id != 0L && findMailtemplate(mailTemplate.id) != null) {
             updateMailtemplate(mailTemplate.id, mailTemplate)
         } else {
-            createMailtemplate(mailTemplate).also { zaaktypeConfigurationService.clearManagedCache() }
+            createMailtemplate(mailTemplate)
         }
     }
 

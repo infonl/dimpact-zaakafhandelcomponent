@@ -125,7 +125,9 @@ export class InformatieObjectAddComponent {
     () => this.informatieObjectTypesQuery.data() ?? [],
   );
 
-  protected readonly talen = this.configuratieService.listTalen();
+  protected readonly talenQuery = injectQuery(() =>
+    this.configuratieService.listTalen(),
+  );
 
   protected readonly form = this.formBuilder.group({
     bestand: this.formBuilder.control<File | null>(null, []),

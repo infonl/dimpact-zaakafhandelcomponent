@@ -19,6 +19,7 @@ const validTarget: Target = (environment) => ({
     signInButton: "Inloggen",
     invalidCredentialsMessage: "Onjuiste gebruikersnaam of wachtwoord.",
   },
+  bag: { searchText: "Dam 1", adres: "Dam 1, 1012JS Amsterdam" },
   runsLiveScenarios: true,
 });
 

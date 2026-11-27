@@ -22,7 +22,7 @@ For some of these events the log level is configurable, for others it is not.
 ## Backend
 
 All backend logging goes through [`ZacLogger`](../../src/main/kotlin/nl/info/zac/log/ZacLogger.kt) in
-`nl.info.zac.log` ([ADR-0020](../solution-architecture/decisions/0020-log-only-typed-log-events-through-zaclogger.md)).
+`nl.info.zac.log` ([ADR-0021](../solution-architecture/decisions/0021-log-only-typed-log-events-through-zaclogger.md)).
 `ZacLogger` accepts no free text: every log statement is a typed `LogEvent`.
 
 ```kotlin

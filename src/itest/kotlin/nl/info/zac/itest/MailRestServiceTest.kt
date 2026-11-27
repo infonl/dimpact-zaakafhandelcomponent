@@ -36,6 +36,7 @@ import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import nl.info.zac.itest.util.todayInZac
 import okhttp3.Headers
 import org.json.JSONArray
+import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.net.URLEncoder
@@ -358,7 +359,7 @@ class MailRestServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_NO_CONTENT
             }
 
-            And("the mail-generated PDF document uses the supplied vertrouwelijkheidaanduiding instead of a hardcoded value") {
+            and("the mail-generated PDF document uses the supplied vertrouwelijkheidaanduiding instead of a hardcoded value") {
                 val informatieobjectenResponse = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/informatieobjecten/informatieobjectenList",
                     requestBodyAsString = """
@@ -421,6 +422,87 @@ class MailRestServiceTest : BehaviorSpec({
                     shouldContain(ZAAKTYPE_CMMN_TEST_2_DESCRIPTION)
                     shouldNotContain("{ZAAKDATA:")
                 }
+            }
+        }
+    }
+
+    given("A zaak of which no ontvangstbevestiging is sent and a behandelaar is logged in") {
+        val (_, zaakUuid) = zaakHelper.createZaak(
+            zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+            testUser = BEHEERDER_1
+        )
+        val receiverMail = "ontvangstbevestigingReceiverTest-$now@example.com"
+        val subject = "Ontvangstbevestiging $now"
+
+        fun readReceivedMails() = itestHttpClient.performGetRequest(
+            url = "$GREENMAIL_API_URI/user/$receiverMail/messages/",
+            testUser = BEHANDELAAR_1
+        ).let { response ->
+            response.code shouldBe HTTP_OK
+            JSONArray(response.bodyAsString)
+        }
+
+        fun sendAcknowledgmentReceiptMail() = itestHttpClient.performJSONPostRequest(
+            url = "$ZAC_API_URI/mail/acknowledge/$zaakUuid",
+            headers = Headers.headersOf("Content-Type", "application/json"),
+            requestBodyAsString = """{
+                "verzender": "sender@example.com",
+                "ontvanger": "$receiverMail",
+                "onderwerp": "$subject",
+                "body": "<p>Uw aanvraag is ontvangen</p>",
+                "bijlagen": "",
+                "shouldCreateDocumentFromMail": true,
+                "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
+            }
+            """.trimIndent(),
+            testUser = BEHANDELAAR_1
+        )
+
+        `when`("the ontvangstbevestiging is sent") {
+            val response = sendAcknowledgmentReceiptMail()
+
+            then("the response should be 'no-content'") {
+                response.code shouldBe HTTP_NO_CONTENT
+            }
+
+            and("the receiver receives the mail") {
+                val receivedMails = readReceivedMails()
+                receivedMails.length() shouldBe 1
+                with(receivedMails.getJSONObject(0)) {
+                    getString("subject") shouldBe subject
+                    getString("mimeMessage") shouldContain "Uw aanvraag is ontvangen"
+                }
+            }
+
+            and("the mail is added to the zaak as a PDF document") {
+                val informatieobjectenResponse = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/informatieobjecten/informatieobjectenList",
+                    requestBodyAsString = """
+                        {
+                            "zaakUUID": "$zaakUuid",
+                            "shouldIncludeGekoppeldeZaakDocumenten": false
+                        }
+                    """.trimIndent(),
+                    testUser = BEHANDELAAR_1
+                )
+                informatieobjectenResponse.code shouldBe HTTP_OK
+                with(JSONArray(informatieobjectenResponse.bodyAsString)) {
+                    length() shouldBe 1
+                    getJSONObject(0).getString("titel") shouldBe subject
+                    getJSONObject(0).getString("formaat") shouldBe "application/pdf"
+                }
+            }
+        }
+
+        `when`("the ontvangstbevestiging is sent a second time") {
+            val response = sendAcknowledgmentReceiptMail()
+
+            then("it is refused") {
+                response.code shouldBe HTTP_FORBIDDEN
+            }
+
+            and("the receiver does not receive a second mail") {
+                readReceivedMails().length() shouldBe 1
             }
         }
     }

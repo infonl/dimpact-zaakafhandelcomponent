@@ -4,6 +4,7 @@
  */
 
 import { expect, type Page } from "@playwright/test";
+import { findDialog } from "./dialog";
 
 /** A row of the historie of a zaak. ZAC cuts long values short and ends them with "...". */
 export type HistorieRegel = {
@@ -16,14 +17,23 @@ export type HistorieRegel = {
 
 /** The page of one zaak. */
 export function zaakPage(page: Page) {
+  // A besluit of the zaak has tabs with the same names, outside this region.
+  const zaak = page.getByRole("region", { name: "Zaak", exact: true });
+
   async function tab(name: string) {
-    await page.getByRole("tab", { name }).click();
-    return page.getByRole("tabpanel", { name });
+    await zaak.getByRole("tab", { name }).click();
+    return zaak.getByRole("tabpanel", { name });
   }
 
   return {
+    /**
+     * Opens the zaak. The browser now and then aborts the page load right after a task form of a BPMN process is
+     * submitted (net::ERR_ABORTED), so it tries again until the page loads.
+     */
     async open(identificatie: string) {
-      await page.goto(`/zaken/${identificatie}`);
+      await expect(async () => {
+        await page.goto(`/zaken/${identificatie}`);
+      }).toPass({ timeout: 30_000 });
       await this.expectOpened(identificatie);
     },
 
@@ -61,6 +71,16 @@ export function zaakPage(page: Page) {
         .click();
     },
 
+    /** Chooses "Zaak afhandelen" with the resultaat, and returns the dialog, which stays open when ZAC refuses. */
+    async afhandelen(resultaat: string) {
+      await this.chooseFromMenu("Zaak afhandelen");
+      const dialog = findDialog(page, "Zaak afhandelen");
+      await dialog.getByRole("combobox", { name: "Resultaat" }).click();
+      await page.getByRole("option", { name: resultaat }).click();
+      await dialog.getByRole("button", { name: "Afhandelen" }).click();
+      return dialog;
+    },
+
     indicatie(indicatie: string) {
       return page.getByRole("option", { name: indicatie });
     },
@@ -68,6 +88,14 @@ export function zaakPage(page: Page) {
     /** The task in the list of tasks of the zaak. */
     taak(naam: string) {
       return page.getByRole("row", { name: new RegExp(`^${naam} `) });
+    },
+
+    /** The document in the list of documents of the zaak. */
+    document(titel: string) {
+      return page
+        .getByRole("row")
+        .filter({ hasText: titel })
+        .filter({ has: page.getByRole("link", { name: "Document bekijken" }) });
     },
 
     /** The rows of the historie, the newest first. */

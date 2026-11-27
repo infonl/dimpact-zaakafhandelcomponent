@@ -86,5 +86,5 @@ keeps the content of those log lines.
   Keycloak calls of ZAC keep the client without timeouts.
 - No REST API, database or frontend changes. `scripts/test-data` does not change.
 - New ADR in `docs/solution-architecture/decisions`. The masking of `geboorte` fields in `JsonLoggingFilter` of
-  ADR-0011 no longer applies, because the filter no longer logs payloads, so ADR-0021 supersedes ADR-0011 with the
+  ADR-0011 no longer applies, because the filter no longer logs payloads, so ADR-0022 supersedes ADR-0011 with the
   same filter decision, extended to the MDC fields.

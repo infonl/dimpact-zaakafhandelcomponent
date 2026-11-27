@@ -11,7 +11,11 @@ const journeysDirectory = defineBddConfig({
   featuresRoot: "bdd",
   features: "bdd/**/*.feature",
   steps: ["bdd/**/*.steps.ts", "bdd/fixtures.ts"],
+  aiFix: { promptAttachment: true },
 });
+
+// A recording of a sign in holds a password.
+const recordingsOfSignIn = ENV.hasPublicReport ? { trace: "off" as const } : {};
 
 export default defineConfig({
   fullyParallel: true,
@@ -19,8 +23,8 @@ export default defineConfig({
   retries: ENV.runsInCi ? 1 : 0,
   failOnFlakyTests: ENV.runsInCi,
   workers: ENV.runsInCi ? 2 : 4,
-  timeout: 120_000,
-  expect: { timeout: 10_000 },
+  timeout: ENV.timeouts.testMilliseconds,
+  expect: { timeout: ENV.timeouts.expectMilliseconds },
   reporter: ENV.runsInCi
     ? [
         ["html", { open: "never" }],
@@ -35,22 +39,38 @@ export default defineConfig({
     baseURL: ENV.zacUrl,
     locale: "nl-NL",
     timezoneId: "Europe/Amsterdam",
-    trace: ENV.runsInCi ? "on-first-retry" : "on",
-    screenshot: "only-on-failure",
-    video: "retain-on-failure",
+    ...(ENV.hasPublicReport
+      ? {
+          trace: "on",
+          screenshot: "on",
+          video: "on",
+        }
+      : {
+          trace: ENV.runsInCi ? "on-first-retry" : "on",
+          screenshot: "only-on-failure",
+          video: "retain-on-failure",
+        }),
   },
   projects: [
     {
       name: "setup",
       testDir: "setup",
       testMatch: /.*\.setup\.ts/,
+      use: recordingsOfSignIn,
+    },
+    {
+      name: "login",
+      testDir: journeysDirectory,
+      dependencies: ["setup"],
+      grep: /@login/,
+      use: recordingsOfSignIn,
     },
     {
       name: "journeys",
       testDir: journeysDirectory,
       dependencies: ["setup"],
       // Live scenarios need the real external systems, which only some targets have.
-      grepInvert: ENV.runsLiveScenarios ? undefined : /@live-env-only/,
+      grepInvert: ENV.runsLiveScenarios ? /@login/ : /@login|@live-env-only/,
     },
   ],
 });

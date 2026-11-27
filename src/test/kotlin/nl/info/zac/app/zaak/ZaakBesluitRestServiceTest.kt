@@ -20,7 +20,6 @@ import nl.info.client.zgw.brc.model.createBesluit
 import nl.info.client.zgw.brc.model.generated.VervalredenEnum
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -172,7 +171,7 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
         }
 
         given("user has zaak behandelen permission but zaak is closed") {
-            val closedZaak = createZaak(archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN)
+            val closedZaak = createZaak(endDate = ZacTime.today())
             val closedZaakBesluit = createBesluit(
                 zaakUri = closedZaak.url,
                 url = URI("http://localhost/besluit/$besluitUUID")

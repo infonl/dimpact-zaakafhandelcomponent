@@ -16,7 +16,7 @@ request:
       placement: basic_auth_header
     scope: openid
     pkce:
-      disabled: true
+      disabled: false
     tokenConfig:
       id: credentials
       placement:

@@ -71,6 +71,7 @@
     <ng-container matColumnDef="zaakIdentificatie_filter">
       <th mat-header-cell *matHeaderCellDef>
         <zac-tekst-filter
+          label="zaak-identificatie"
           [value]="dataSource.zoekParameters.zoeken.TAAK_ZAAK_ID"
           (changed)="
             dataSource.zoekParameters.zoeken.TAAK_ZAAK_ID = $event;

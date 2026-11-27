@@ -3,42 +3,21 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { queryOptions } from "@tanstack/angular-query-experimental";
-import { Observable } from "rxjs";
-import { catchError, shareReplay } from "rxjs/operators";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
-import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
   providedIn: "root",
 })
 export class ConfiguratieService {
-  private readonly http = inject(HttpClient);
-  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
-
   private readonly zacQueryClient = inject(ZacQueryClient);
 
-  private readonly basepath = "/rest/configuratie";
-  private talen$?: Observable<GeneratedType<"RestTaal">[]>;
-  private maxFileSizeMB$?: Observable<number>;
-  private gemeenteCode$?: Observable<string>;
-  private gemeenteNaam$?: Observable<string>;
-  private pabcIntegration$?: Observable<boolean>;
-  private brpDoelbindingSetupEnabled$?: Observable<boolean>;
-
   listTalen() {
-    if (!this.talen$) {
-      this.talen$ = this.http
-        .get<GeneratedType<"RestTaal">[]>(`${this.basepath}/talen`)
-        .pipe(
-          catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-          shareReplay(1),
-        );
-    }
-    return this.talen$;
+    return queryOptions({
+      ...this.zacQueryClient.GET("/rest/configuratie/talen"),
+      staleTime: "static", // deploy-time configuration, never refetch or invalidate
+    });
   }
 
   readDefaultTaal() {
@@ -49,16 +28,11 @@ export class ConfiguratieService {
     });
   }
 
-  readMaxFileSizeMB(): Observable<number> {
-    if (!this.maxFileSizeMB$) {
-      this.maxFileSizeMB$ = this.http
-        .get<number>(`${this.basepath}/max-file-size-mb`)
-        .pipe(
-          catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-          shareReplay(1),
-        );
-    }
-    return this.maxFileSizeMB$;
+  readMaxFileSizeMB() {
+    return queryOptions({
+      ...this.zacQueryClient.GET("/rest/configuratie/max-file-size-mb"),
+      staleTime: "static", // deploy-time configuration, never refetch or invalidate
+    });
   }
 
   readAllowedFileTypesQuery() {
@@ -68,39 +42,19 @@ export class ConfiguratieService {
     });
   }
 
-  readGemeenteCode(): Observable<string> {
-    if (!this.gemeenteCode$) {
-      this.gemeenteCode$ = this.http
-        .get<string>(`${this.basepath}/gemeente/code`)
-        .pipe(
-          catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-          shareReplay(1),
-        );
-    }
-    return this.gemeenteCode$;
+  readGemeenteCode() {
+    return queryOptions({
+      ...this.zacQueryClient.GET("/rest/configuratie/gemeente/code"),
+      staleTime: "static", // deploy-time configuration, never refetch or invalidate
+    });
   }
 
-  readGemeenteNaam(): Observable<string> {
-    if (!this.gemeenteNaam$) {
-      this.gemeenteNaam$ = this.http
-        .get<string>(`${this.basepath}/gemeente`)
-        .pipe(
-          catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-          shareReplay(1),
-        );
-    }
-    return this.gemeenteNaam$;
-  }
-
-  readBrpDoelbindingSetupEnabled(): Observable<boolean> {
-    if (!this.brpDoelbindingSetupEnabled$) {
-      this.brpDoelbindingSetupEnabled$ = this.http
-        .get<boolean>(`${this.basepath}/brp/doelbinding-setup-enabled`)
-        .pipe(
-          catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-          shareReplay(1),
-        );
-    }
-    return this.brpDoelbindingSetupEnabled$;
+  readBrpDoelbindingSetupEnabled() {
+    return queryOptions({
+      ...this.zacQueryClient.GET(
+        "/rest/configuratie/brp/doelbinding-setup-enabled",
+      ),
+      staleTime: "static", // deploy-time configuration, never refetch or invalidate
+    });
   }
 }

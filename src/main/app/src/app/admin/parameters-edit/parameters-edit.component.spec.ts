@@ -9,7 +9,6 @@ import { ActivatedRoute, provideRouter } from "@angular/router";
 import { provideTranslateService } from "@ngx-translate/core";
 import { render, screen, waitFor, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { of } from "rxjs";
 import {
   createMutationOptions,
   createQueryOptions,
@@ -205,7 +204,10 @@ describe(ParametersEditComponent.name, () => {
         {
           provide: ConfiguratieService,
           useValue: fromPartial<ConfiguratieService>({
-            readBrpDoelbindingSetupEnabled: () => of(false),
+            readBrpDoelbindingSetupEnabled: () => ({
+              ...createQueryOptions(false),
+              queryKey: ["brpDoelbindingSetupEnabled"],
+            }),
           }),
         },
         {
