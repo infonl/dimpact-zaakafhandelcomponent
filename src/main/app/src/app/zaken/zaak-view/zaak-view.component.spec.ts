@@ -1077,9 +1077,10 @@ describe(ZaakViewComponent.name, () => {
     });
     fixture.detectChanges();
 
-    const removed = removeListener.mock.calls.map(
-      ([listener]) => registered.get(listener)!,
-    );
+    const removed = removeListener.mock.calls.flatMap(([listener]) => {
+      const registration = listener && registered.get(listener);
+      return registration ? [registration] : [];
+    });
     expect(new Set(removed.map(({ objectType }) => objectType))).toEqual(
       new Set([
         "ZAAK",
