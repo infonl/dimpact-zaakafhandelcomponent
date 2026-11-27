@@ -52,10 +52,12 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.NotSupportedException
+import nl.info.zac.log.LogCapture
 import nl.info.zac.time.ZacTime
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
+import java.util.logging.Level
 
 @Suppress("LargeClass")
 class ZgwApiServiceTest : BehaviorSpec({
@@ -343,6 +345,70 @@ class ZgwApiServiceTest : BehaviorSpec({
 
                 then("an exception should be thrown") {
                     exception.message shouldBe "More than one initiator role found for zaak with UUID: '${zaak.uuid}' (count: 2)"
+                }
+            }
+        }
+    }
+
+    context("Finding roles for a zaak whose zaaktype defines a roltype more than once") {
+        given("A zaaktype with two initiator roltypen, and an initiator role of the first one") {
+            val zaak = createZaak()
+            val firstInitiatorRolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR)
+            val initiatorRole = createRolNatuurlijkPersoon(zaakURI = zaak.url)
+            every {
+                ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
+            } returns listOf(firstInitiatorRolType, createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR))
+            every {
+                zrcClientService.listRollen(any<RolListParameters>())
+            } returns Results(listOf(initiatorRole), 1)
+
+            `when`("the initiator is requested") {
+                val records = LogCapture(ZgwApiService::class).use { logCapture ->
+                    zgwApiService.findInitiatorRoleForZaak(zaak) shouldBe initiatorRole
+                    logCapture.records
+                }
+
+                then("the role of the first roltype is returned, and a warning names the zaaktype") {
+                    with(records.single { it.mdc["event"] == "MultipleRoltypenForZaaktype" }) {
+                        level shouldBe Level.WARNING
+                        mdc["zaaktypeUri"] shouldBe zaak.zaaktype.toString()
+                        mdc["omschrijvingGeneriek"] shouldBe "initiator"
+                    }
+                }
+            }
+        }
+
+        given("A zaaktype with two behandelaar roltypen, and a behandelaar role of the first one") {
+            val zaak = createZaak()
+            val firstBehandelaarRolType = createRolType(
+                omschrijving = ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR,
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
+            )
+            val behandelaarRole = createRolMedewerker(zaakURI = zaak.url)
+            every {
+                ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+            } returns listOf(
+                firstBehandelaarRolType,
+                createRolType(
+                    omschrijving = ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR,
+                    omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
+                )
+            )
+            every {
+                zrcClientService.listRollen(any<RolListParameters>())
+            } returns Results(listOf(behandelaarRole), 1)
+
+            `when`("the behandelaar medewerker role is requested") {
+                val records = LogCapture(ZgwApiService::class).use { logCapture ->
+                    zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) shouldBe behandelaarRole
+                    logCapture.records
+                }
+
+                then("the role of the first roltype is returned, and a warning names the zaaktype") {
+                    with(records.single { it.mdc["event"] == "MultipleRoltypenForZaaktype" }) {
+                        level shouldBe Level.WARNING
+                        mdc["omschrijvingGeneriek"] shouldBe "behandelaar"
+                    }
                 }
             }
         }
