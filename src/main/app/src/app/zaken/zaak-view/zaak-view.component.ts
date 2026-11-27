@@ -32,7 +32,6 @@ import { BAGService } from "../../bag/bag.service";
 import { UtilService } from "../../core/service/util.service";
 import { isCausedByCurrentUser } from "../../core/websocket/is-caused-by-current-user";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
-import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { InformatieObjectAddComponent } from "../../informatie-objecten/informatie-object-add/informatie-object-add.component";
@@ -238,12 +237,6 @@ export class ZaakViewComponent
 
   viewInitialized = signal(false);
 
-  private zaakListener!: WebsocketListener;
-  private zaakRollenListener!: WebsocketListener;
-  private zaakBesluitenListener!: WebsocketListener;
-  private zaakTakenListener!: WebsocketListener;
-  private zaakInformatieobjectenListener!: WebsocketListener;
-
   readonly actionsSidenav = viewChild.required<MatSidenav>("actionsSidenav");
   readonly sideNavContainer =
     viewChild.required<MatSidenavContainer>("sideNavContainer");
@@ -296,55 +289,6 @@ export class ZaakViewComponent
       const zaak = data["zaak"] as GeneratedType<"RestZaak">;
       this.zakenService.cacheZaak(zaak);
       this.zaakUuid.set(zaak.uuid);
-
-      this.zaakListener = this.websocketService.addListener(
-        "ANY",
-        "ZAAK",
-        zaak.uuid,
-        (event) => {
-          void this.onZaakChanged(event).catch((error: unknown) =>
-            console.error("Websocket zaak listener error: ", error),
-          );
-        },
-      );
-
-      this.zaakRollenListener = this.websocketService.addListenerWithSnackbar(
-        "UPDATED",
-        "ZAAK_ROLLEN",
-        zaak.uuid,
-        () => {
-          this.betrokkenenService.invalidateBetrokkenen(this.zaak);
-          this.invalidateZaakHistorie();
-          this.queryClient.invalidateQueries({
-            queryKey: this.zakenService.listGeautoriseerdeMedewerkersQuery(
-              zaak.uuid,
-            ).queryKey,
-          });
-          this.updateZaak();
-        },
-      );
-
-      this.zaakBesluitenListener =
-        this.websocketService.addListenerWithSnackbar(
-          "UPDATED",
-          "ZAAK_BESLUITEN",
-          zaak.uuid,
-          () => this.loadBesluiten(),
-        );
-
-      this.zaakTakenListener = this.websocketService.addListener(
-        "UPDATED",
-        "ZAAK_TAKEN",
-        zaak.uuid,
-        () => this.invalidatePlanItems(),
-      );
-
-      this.zaakInformatieobjectenListener = this.websocketService.addListener(
-        "UPDATED",
-        "ZAAK_INFORMATIEOBJECTEN",
-        zaak.uuid,
-        () => this.invalidateZaakHistorie(),
-      );
     });
 
     effect(() => {
@@ -358,6 +302,55 @@ export class ZaakViewComponent
     effect((onCleanup) => {
       const zaakUuid = this.zaakUuid();
       if (!zaakUuid) return;
+      const zaakListener = this.websocketService.addListener(
+        "ANY",
+        "ZAAK",
+        zaakUuid,
+        (event) => {
+          void this.onZaakChanged(event).catch((error: unknown) =>
+            console.error("Websocket zaak listener error: ", error),
+          );
+        },
+      );
+
+      const zaakRollenListener = this.websocketService.addListenerWithSnackbar(
+        "UPDATED",
+        "ZAAK_ROLLEN",
+        zaakUuid,
+        () => {
+          this.betrokkenenService.invalidateBetrokkenen(this.zaak);
+          this.invalidateZaakHistorie();
+          this.queryClient.invalidateQueries({
+            queryKey:
+              this.zakenService.listGeautoriseerdeMedewerkersQuery(zaakUuid)
+                .queryKey,
+          });
+          this.updateZaak();
+        },
+      );
+
+      const zaakBesluitenListener =
+        this.websocketService.addListenerWithSnackbar(
+          "UPDATED",
+          "ZAAK_BESLUITEN",
+          zaakUuid,
+          () => this.loadBesluiten(),
+        );
+
+      const zaakTakenListener = this.websocketService.addListener(
+        "UPDATED",
+        "ZAAK_TAKEN",
+        zaakUuid,
+        () => this.invalidatePlanItems(),
+      );
+
+      const zaakInformatieobjectenListener = this.websocketService.addListener(
+        "UPDATED",
+        "ZAAK_INFORMATIEOBJECTEN",
+        zaakUuid,
+        () => this.invalidateZaakHistorie(),
+      );
+
       const notitiesListener = this.websocketService.addListener(
         "UPDATED",
         "ZAAK_NOTITIES",
@@ -367,7 +360,16 @@ export class ZaakViewComponent
             queryKey: this.notitieService.listNotities(zaakUuid).queryKey,
           }),
       );
-      onCleanup(() => this.websocketService.removeListener(notitiesListener));
+      onCleanup(() =>
+        [
+          zaakListener,
+          zaakRollenListener,
+          zaakBesluitenListener,
+          zaakTakenListener,
+          zaakInformatieobjectenListener,
+          notitiesListener,
+        ].forEach((listener) => this.websocketService.removeListener(listener)),
+      );
     });
 
     effect(() => {
@@ -385,11 +387,6 @@ export class ZaakViewComponent
   ngOnDestroy() {
     super.ngOnDestroy();
     ViewResourceUtil.actieveZaak = null;
-    this.websocketService.removeListener(this.zaakListener);
-    this.websocketService.removeListener(this.zaakBesluitenListener);
-    this.websocketService.removeListener(this.zaakRollenListener);
-    this.websocketService.removeListener(this.zaakTakenListener);
-    this.websocketService.removeListener(this.zaakInformatieobjectenListener);
   }
 
   private invalidatePlanItems() {

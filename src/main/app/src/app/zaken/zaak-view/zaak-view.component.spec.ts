@@ -1049,4 +1049,49 @@ describe(ZaakViewComponent.name, () => {
       );
     });
   });
+
+  it("stops listening to every event of a zaak when another zaak opens in the same view", () => {
+    const registered = new Map<
+      WebsocketListener,
+      { objectType: string; zaakUuid: string }
+    >();
+    const register = (
+      _opcode: unknown,
+      objectType: string,
+      zaakUuid: string,
+    ) => {
+      const listener = fromPartial<WebsocketListener>({});
+      registered.set(listener, { objectType, zaakUuid });
+      return listener;
+    };
+    jest.spyOn(websocketService, "addListener").mockImplementation(register);
+    jest
+      .spyOn(websocketService, "addListenerWithSnackbar")
+      .mockImplementation(register);
+    const removeListener = jest.spyOn(websocketService, "removeListener");
+    mockActivatedRoute.data.next({ zaak });
+    fixture.detectChanges();
+
+    mockActivatedRoute.data.next({
+      zaak: { ...zaak, uuid: "anotherZaakUuid" },
+    });
+    fixture.detectChanges();
+
+    const removed = removeListener.mock.calls.map(
+      ([listener]) => registered.get(listener)!,
+    );
+    expect(new Set(removed.map(({ objectType }) => objectType))).toEqual(
+      new Set([
+        "ZAAK",
+        "ZAAK_ROLLEN",
+        "ZAAK_BESLUITEN",
+        "ZAAK_TAKEN",
+        "ZAAK_INFORMATIEOBJECTEN",
+        "ZAAK_NOTITIES",
+      ]),
+    );
+    expect(removed.map(({ zaakUuid }) => zaakUuid)).not.toContain(
+      "anotherZaakUuid",
+    );
+  });
 });
