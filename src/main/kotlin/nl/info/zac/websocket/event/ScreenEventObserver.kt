@@ -39,7 +39,7 @@ class ScreenEventObserver @Inject constructor(
     override fun onFire(@ObservesAsync event: ScreenEvent) {
         try {
             // Not the object ID: for some screen events, such as SIGNALERINGEN, it is a username
-            LOG.fine { ScreenEventReceived(opcode = event.opcode.toString(), screenEventType = event.objectType.toString()) }
+            LOG.fine (ScreenEventReceived(opcode = event.opcode.toString(), screenEventType = event.objectType.toString()))
             sendToWebsocketSubscribers(event)
         } catch (throwable: Throwable) {
             LOG.warning(ScreenEventHandlingFailed, throwable)

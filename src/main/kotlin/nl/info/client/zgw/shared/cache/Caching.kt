@@ -41,6 +41,6 @@ interface Caching {
     }
 
     fun <K> removed(cache: String, key: K) {
-        LOG.fine { CacheEntryRemoved(cacheName = cache, key = key.toString()) }
+        LOG.fine (CacheEntryRemoved(cacheName = cache, key = key.toString()))
     }
 }

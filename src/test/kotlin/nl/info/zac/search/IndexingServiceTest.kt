@@ -1265,7 +1265,14 @@ class IndexingServiceTest : BehaviorSpec({
         } returns Results(emptyList(), 0)
 
         `when`("reindexAll is called with the default set of all object types") {
-            ctx.indexingService.reindexAll()
+            val logRecords = captureReindexLogTexts {
+                ctx.indexingService.reindexAll()
+            }
+
+            then("the complete reindexing process is reported as failed, since ZAAK was aborted") {
+                logRecords.last().message shouldBe
+                    "Complete reindexing process finished [objectTypes=[ZAAK, TAAK, DOCUMENT], outcome=FAILURE]"
+            }
 
             then("the remaining object types are still reindexed") {
                 verify(exactly = 1) {
@@ -2136,6 +2143,11 @@ class IndexingServiceTest : BehaviorSpec({
                 logRecords.map { it.message } shouldContain
                     "Reindexing aborted [objectType=TAAK, outcome=FAILURE, solrDocumentCount=0]"
             }
+
+            then("the complete reindexing process is reported as failed, since TAAK was aborted") {
+                logRecords.last().message shouldBe
+                    "Complete reindexing process finished [objectTypes=[ZAAK, TAAK], outcome=FAILURE]"
+            }
         }
     }
 
@@ -2388,13 +2400,18 @@ class IndexingServiceTest : BehaviorSpec({
                 ctx.indexingService.reindexAll()
             }
 
-            then("ZAAK and DOCUMENT are still reindexed independently, and TAAK logs that it is still in progress") {
+            then(
+                "ZAAK and DOCUMENT are still reindexed independently, TAAK logs that it is still in progress, " +
+                    "and the complete reindexing process succeeds, since the TAAK reindex in progress reports its own outcome"
+            ) {
                 logRecords.map { it.message } shouldContain
                     "Reindexing not started, still in progress [objectType=TAAK]"
                 logRecords.map { it.message } shouldContain
                     "Reindexing finished [errorCount=0, objectType=ZAAK, outcome=SUCCESS, reindexedCount=0, skippedCount=0, solrDocumentCount=0, totalCount=0]"
                 logRecords.map { it.message } shouldContain
                     "Reindexing finished [errorCount=0, objectType=DOCUMENT, outcome=SUCCESS, reindexedCount=0, skippedCount=0, solrDocumentCount=0, totalCount=0]"
+                logRecords.last().message shouldBe
+                    "Complete reindexing process finished [objectTypes=[ZAAK, TAAK, DOCUMENT], outcome=SUCCESS]"
 
                 // let the still-pending TAAK reindex launched above actually run, so it releases its
                 // viewfinder entry and does not leak into any other test relying on the
@@ -2403,6 +2420,67 @@ class IndexingServiceTest : BehaviorSpec({
             }
         }
     }
+
+    given("reindexAll() combining all object types while TAAK is already being reindexed and the DOCUMENT count fails") {
+        val ctx = setupContext()
+        val emptyDocumentList = SolrDocumentList()
+        val queryResponse = mockk<QueryResponse>()
+        every { queryResponse.results } returns emptyDocumentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
+
+        every { ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>()) } returns Results(emptyList(), 0)
+        every { ctx.flowableTaskService.countOpenTasks() } returns 0
+        every {
+            ctx.drcClientService.listEnkelvoudigInformatieObjecten(any<EnkelvoudigInformatieobjectListParameters>())
+        } throws RuntimeException("fake informatieobjecten count failure")
+        ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
+
+        `when`("reindexAll is called while TAAK is already reserved by another in-progress reindex") {
+            val logRecords = captureReindexLogTexts {
+                ctx.indexingService.reindexAll()
+            }
+
+            then("ZAAK is still reindexed, DOCUMENT is aborted, and the complete reindexing process is reported as failed") {
+                logRecords.map { it.message } shouldContain
+                    "Reindexing finished [errorCount=0, objectType=ZAAK, outcome=SUCCESS, reindexedCount=0, skippedCount=0, solrDocumentCount=0, totalCount=0]"
+                logRecords.map { it.message } shouldContain
+                    "Reindexing aborted [objectType=DOCUMENT, outcome=FAILURE, solrDocumentCount=0]"
+                logRecords.last().message shouldBe
+                    "Complete reindexing process finished [objectTypes=[ZAAK, TAAK, DOCUMENT], outcome=FAILURE]"
+
+                // let the still-pending TAAK reindex launched above actually run, so it releases its
+                // viewfinder entry and does not leak into any other test relying on the
+                // (companion-object-shared) viewfinder
+                ctx.testDispatcher.scheduler.advanceUntilIdle()
+            }
+        }
+    }
+
+    given("reindexAll() for TAAK only, where the taak count cannot be determined") {
+        val ctx = setupContext()
+        val emptyDocumentList = SolrDocumentList()
+        val queryResponse = mockk<QueryResponse>()
+        every { queryResponse.results } returns emptyDocumentList
+        every { ctx.solrClient.query(any()) } returns queryResponse
+
+        every { ctx.flowableTaskService.countOpenTasks() } throws RuntimeException("fake taak count failure")
+
+        `when`("reindexAll is called for TAAK") {
+            val logRecords = captureReindexLogTexts {
+                ctx.indexingService.reindexAll(setOf(ZoekObjectType.TAAK))
+            }
+
+            then("TAAK is aborted and the complete reindexing process is reported as failed") {
+                logRecords.map { it.message } shouldContain
+                    "Reindexing aborted [objectType=TAAK, outcome=FAILURE, solrDocumentCount=0]"
+                logRecords.last().message shouldBe
+                    "Complete reindexing process finished [objectTypes=[TAAK], outcome=FAILURE]"
+            }
+        }
+    }
+
     given("a zaak indexed on its own, without its taken or documenten") {
         val ctx = setupContext()
         val zaakUUID = UUID.randomUUID()

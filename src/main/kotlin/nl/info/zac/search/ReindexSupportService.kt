@@ -258,8 +258,10 @@ class ReindexSupportService @Inject constructor(
      * Shared by `IndexingService.reindexReserved` (a single independently reindexed object type) and
      * [ZaakGedrevenReindexService] (each object type covered by the zaak-driven combined pass), so both
      * report completion identically.
+     *
+     * @return `true` if the reindex of [objectType] finished, `false` if it was aborted
      */
-    internal fun finishReindex(objectType: ZoekObjectType, summary: ReindexSummary?) {
+    internal fun finishReindex(objectType: ZoekObjectType, summary: ReindexSummary?): Boolean {
         // only commit when reindexing was actually attempted: existing entities are only
         // deleted once the total count is known (see e.g. reindexAllZaken), so a null summary
         // means nothing was deleted either, and there is nothing to make visible
@@ -272,6 +274,7 @@ class ReindexSupportService @Inject constructor(
             continueOnExceptions(objectType) { commit() }
         }
         LOG.info(reindexFinished(objectType, summary))
+        return summary != null
     }
 
     internal fun addToSolrIndex(zoekObjecten: List<ZoekObject?>, performCommit: Boolean) {

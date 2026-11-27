@@ -63,7 +63,7 @@ class ZaaktypeConfigurationService @Inject constructor(
                 .expireAfterWrite(EXPIRATION_TIME_HOURS, TimeUnit.HOURS)
                 .recordStats()
                 .removalListener<K, V> { key, _, cause ->
-                    LOG.fine { CacheEntryRemoved(cacheName = name, key = key?.toString(), cause = cause.toString()) }
+                    LOG.fine (CacheEntryRemoved(cacheName = name, key = key?.toString(), cause = cause.toString()))
                 }
                 .build<K, V>()
                 .also { caches[name] = it }

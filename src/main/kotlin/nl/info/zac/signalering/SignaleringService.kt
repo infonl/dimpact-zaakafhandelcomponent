@@ -518,7 +518,7 @@ class SignaleringService @Inject constructor(
                         .slicePage(pageParameters.page, pageParameters.rows)
                 }
         }.also {
-            LOG.fine { SignaleringenListed(subjecttype = SignaleringSubject.ZAAK, signaleringType = signaleringsType) }
+            LOG.fine (SignaleringenListed(subjecttype = SignaleringSubject.ZAAK, signaleringType = signaleringsType))
         }
     }
 
@@ -667,7 +667,7 @@ class SignaleringService @Inject constructor(
                 taken.map { it.toRestSignaleringTaakSummary(it.id in zaakspecifiekGeautoriseerdeTaakIds) }
             }
             .also {
-                LOG.fine { SignaleringenListed(SignaleringSubject.TAAK, signaleringsType) }
+                LOG.fine (SignaleringenListed(SignaleringSubject.TAAK, signaleringsType))
             }
     }
 
@@ -684,7 +684,7 @@ class SignaleringService @Inject constructor(
             .map { drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(it.subject)) }
             .map(restInformatieobjectConverter::convertToRestEnkelvoudigInformatieobject)
             .also {
-                LOG.fine { SignaleringenListed(SignaleringSubject.DOCUMENT, signaleringsType) }
+                LOG.fine (SignaleringenListed(SignaleringSubject.DOCUMENT, signaleringsType))
             }
 
     private fun getDocument(documentUUID: String) =
