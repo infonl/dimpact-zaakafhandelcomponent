@@ -9,5 +9,5 @@ import java.net.URI
 
 class BijlagePairingFailed(
     val bijlage: URI,
-    val zaakUrl: URI
+    val zaakUri: URI
 ) : LogEvent("Failed to pair bijlage with zaak")
