@@ -51,6 +51,9 @@ object LogEventRenderer {
             is Employee -> renderEmployee(this)
             is Enum<*> -> name
             is Collection<*> -> joinToString(prefix = "[", postfix = "]") { it.renderValue(renderEmployee) }
+            is Map<*, *> -> entries.joinToString(prefix = "{", postfix = "}") {
+                "${it.key.renderValue(renderEmployee)}=${it.value.renderValue(renderEmployee)}"
+            }
             else -> toString()
         }
 }
