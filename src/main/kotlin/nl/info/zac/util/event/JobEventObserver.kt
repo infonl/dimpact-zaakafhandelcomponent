@@ -32,7 +32,7 @@ class JobEventObserver @Inject constructor(
     @Suppress("TooGenericExceptionCaught")
     fun onFire(@ObservesAsync event: JobEvent) {
         try {
-            LOG.fine { JobEventReceived(jobEvent = event.toString()) }
+            LOG.fine (JobEventReceived(jobEvent = event.toString()))
             when (event.objectId) {
                 JobId.SIGNALERINGEN_JOB -> zaakTaskDueDateEmailNotificationService.sendDueDateEmailNotifications()
             }

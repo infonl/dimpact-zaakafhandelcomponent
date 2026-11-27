@@ -65,13 +65,13 @@ class TaskService @Inject constructor(
             assignTasks(taskDistribution, loggedInUser, succesfullyAssignedTaskIds)
         } finally {
             indexingService.commit()
-            LOG.fine {
+            LOG.fine (
                 TakenAssigned(
                     taskCount = taskDistribution.taskIds.size,
                     assignedCount = succesfullyAssignedTaskIds.size,
                     screenEventResourceId = screenEventResourceId
                 )
-            }
+            )
             screenEventResourceId?.let {
                 eventingService.send(ScreenEventType.TAKEN_VERDELEN.updated(it))
             }
@@ -118,13 +118,13 @@ class TaskService @Inject constructor(
             releaseTasks(taskIds, reason, loggedInUser, releasedTaskIds)
         } finally {
             indexingService.commit()
-            LOG.fine {
+            LOG.fine (
                 TakenReleased(
                     taskCount = taskIds.size,
                     releasedCount = releasedTaskIds.size,
                     screenEventResourceId = screenEventResourceId
                 )
-            }
+            )
             screenEventResourceId?.let {
                 eventingService.send(ScreenEventType.TAKEN_VRIJGEVEN.updated(it))
             }

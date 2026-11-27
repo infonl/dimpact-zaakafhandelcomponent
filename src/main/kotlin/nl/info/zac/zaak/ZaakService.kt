@@ -149,13 +149,13 @@ class ZaakService @Inject constructor(
             .map(zrcClientService::readZaak)
             .count { assignZaakFromBatch(zaak = it, group = group, user = user, explanation = explanation) }
 
-        LOG.fine {
+        LOG.fine (
             ZakenAssigned(
                 zaakCount = zaakUUIDs.size,
                 assignedCount = numberOfAssignedZaken,
                 screenEventResourceId = screenEventResourceId
             )
-        }
+        )
 
         // if a screen event resource ID was specified, send an 'updated zaken_verdelen' screen event
         // with the job UUID so that it can be picked up by a client
@@ -296,7 +296,7 @@ class ZaakService @Inject constructor(
         zaakUUIDs
             .map(zrcClientService::readZaak)
             .forEach { releaseZaakFromBatch(it, explanation) }
-        LOG.fine { ZakenReleased(zaakCount = zaakUUIDs.size, screenEventResourceId = screenEventResourceId) }
+        LOG.fine (ZakenReleased(zaakCount = zaakUUIDs.size, screenEventResourceId = screenEventResourceId))
 
         // if a screen event resource ID was specified, send a screen event
         // with the job UUID so that it can be picked up by a client
@@ -401,7 +401,7 @@ class ZaakService @Inject constructor(
 
     private fun releaseZaakFromBatch(zaak: Zaak, explanation: String?) {
         if (!zaak.isOpen()) {
-            LOG.fine { ZaakSkipped(zaak.uuid, ZaakBatchOperation.RELEASE, ZaakSkipReason.NOT_OPEN) }
+            LOG.fine (ZaakSkipped(zaak.uuid, ZaakBatchOperation.RELEASE, ZaakSkipReason.NOT_OPEN))
             eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
             return
         }
@@ -535,7 +535,7 @@ class ZaakService @Inject constructor(
     private fun isZaakOpen(zaak: Zaak) =
         zaak.let {
             if (!it.isOpen()) {
-                LOG.fine { ZaakSkipped(zaak.uuid, ZaakBatchOperation.ASSIGN, ZaakSkipReason.NOT_OPEN) }
+                LOG.fine (ZaakSkipped(zaak.uuid, ZaakBatchOperation.ASSIGN, ZaakSkipReason.NOT_OPEN))
             }
             it.isOpen()
         }
