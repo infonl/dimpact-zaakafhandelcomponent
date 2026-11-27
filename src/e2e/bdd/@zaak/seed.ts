@@ -5,14 +5,29 @@
 
 import type { TestInfo } from "@playwright/test";
 import { ENV } from "../../config/env";
+import { nameInTarget } from "../_core/names";
 
-/** Data that the seed of the kind stack provides, which the zaak journeys use without naming it in a feature. */
+/** Data that the seed of the kind stack provides, as the target names it, which the zaak journeys use without naming it in a feature. */
 export const SEED = {
-  cmmnZaaktype: "Test zaaktype 2",
+  /** An informatieobjecttype of the CMMN zaaktype. */
+  get informatieobjecttype() {
+    return nameInTarget("besluit");
+  },
+  get cmmnZaaktype() {
+    return nameInTarget("Test zaaktype 2");
+  },
   /** A zaaktype that the CMMN zaaktype allows as the zaaktype of its deelzaken. */
-  cmmnDeelzaaktype: "Test zaaktype 3",
+  get cmmnDeelzaaktype() {
+    return nameInTarget("Test zaaktype 3");
+  },
   /** A resultaat that both CMMN zaaktypes have, and that needs no besluit and no date. */
-  resultaat: "Geweigerd",
+  get resultaat() {
+    return nameInTarget("Geweigerd");
+  },
+  /** A besluittype of the CMMN zaaktype that accepts documents of the informatieobjecttype "besluit". */
+  get besluittype() {
+    return nameInTarget("Besluit aansprakelijkstelling");
+  },
 };
 
 /** The person of the seed of the target. Skips the scenario when the target has no seed. */

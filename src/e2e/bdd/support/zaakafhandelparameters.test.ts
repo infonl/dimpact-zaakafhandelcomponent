@@ -25,13 +25,50 @@ function setUpConfiguration(): Schemas["RestZaaktypeConfiguration"] {
   } as Schemas["RestZaaktypeConfiguration"];
 }
 
+const brpDoelbindingen = {
+  zoekWaarde: "BRPACT-ZoekenAlgemeen",
+  raadpleegWaarde: "BRPACT-Totaal",
+  verwerkingregisterWaarde: "Algemeen",
+};
+
 test("given zaakafhandelparameters as the journeys expect them, when they are checked, then they are set up", () => {
-  expect(isSetUpFor(setUpConfiguration(), groep)).toBe(true);
+  expect(
+    isSetUpFor(setUpConfiguration(), groep, {
+      isBrpDoelbindingPerZaaktype: false,
+    }),
+  ).toBe(true);
+});
+
+test("given a ZAC that sets the BRP doelbindingen per zaaktype and zaakafhandelparameters with all of them, when they are checked, then they are set up", () => {
+  expect(
+    isSetUpFor({ ...setUpConfiguration(), brpDoelbindingen }, groep, {
+      isBrpDoelbindingPerZaaktype: true,
+    }),
+  ).toBe(true);
+});
+
+test("given a ZAC that sets the BRP doelbindingen per zaaktype and zaakafhandelparameters without one of them, when they are checked, then they are not set up, because a beheerder could not save them", () => {
+  expect(
+    isSetUpFor(
+      {
+        ...setUpConfiguration(),
+        brpDoelbindingen: { ...brpDoelbindingen, raadpleegWaarde: "" },
+      },
+      groep,
+      { isBrpDoelbindingPerZaaktype: true },
+    ),
+  ).toBe(false);
 });
 
 const changes: [string, Partial<Schemas["RestZaaktypeConfiguration"]>][] = [
   ["are not valid", { isValide: false }],
   ["route new zaken to another groep", { defaultGroepId: "test-group-b" }],
+  [
+    "have a human task that is off",
+    {
+      humanTaskParameters: [{ actief: false }],
+    } as Partial<Schemas["RestZaaktypeConfiguration"]>,
+  ],
   ["send a mail at the intake", { intakeMail: "BESCHIKBAAR_AAN" }],
   ["send a mail at the end", { afrondenMail: "BESCHIKBAAR_AAN" }],
   [
@@ -55,8 +92,10 @@ const changes: [string, Partial<Schemas["RestZaaktypeConfiguration"]>][] = [
 
 for (const [difference, change] of changes) {
   test(`given zaakafhandelparameters that ${difference}, when they are checked, then they are not set up`, () => {
-    expect(isSetUpFor({ ...setUpConfiguration(), ...change }, groep)).toBe(
-      false,
-    );
+    expect(
+      isSetUpFor({ ...setUpConfiguration(), ...change }, groep, {
+        isBrpDoelbindingPerZaaktype: false,
+      }),
+    ).toBe(false);
   });
 }

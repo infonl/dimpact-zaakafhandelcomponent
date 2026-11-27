@@ -1,0 +1,79 @@
+/*
+ * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+import { expect } from "@playwright/test";
+import { Given, Then, When } from "../../fixtures";
+import { inboxProductaanvragen } from "../../screens/inbox-productaanvragen";
+import { zaakPage } from "../../screens/zaak";
+import {
+  objectenOrSkip,
+  registerProductaanvraag,
+} from "../../support/objecten";
+import { SEED } from "../seed";
+
+const AANVRAAGDOCUMENT = "aanvraagdocument";
+
+Given(
+  "a productaanvraag {string} of a type that ZAC does not know",
+  async ({ request, testData, $testInfo }, aanvraag: string) => {
+    const objecten = objectenOrSkip($testInfo);
+    const type = testData.unique(aanvraag);
+    const { naam } = await testData.groepOf("behandelaar");
+    const zaakWithDocument = await testData.createZaak({
+      zaaktype: SEED.cmmnZaaktype,
+      groep: naam,
+      omschrijving: "zaak met het aanvraagdocument",
+    });
+    const documentUuid = await testData.addDocument(zaakWithDocument, {
+      titel: AANVRAAGDOCUMENT,
+      informatieobjecttype: SEED.informatieobjecttype,
+    });
+    await registerProductaanvraag(request, objecten, { type, documentUuid });
+    await testData.untilProductaanvraagIsInInbox(type);
+  },
+);
+
+When("I open the inbox productaanvragen", async ({ page }) => {
+  await inboxProductaanvragen(page).open();
+});
+
+Then(
+  "I see the productaanvraag {string}",
+  async ({ page, testData }, aanvraag: string) => {
+    await expect(
+      inboxProductaanvragen(page).productaanvraag(testData.unique(aanvraag)),
+    ).toBeVisible();
+  },
+);
+
+When(
+  "I start a zaak from the productaanvraag {string}",
+  async ({ page, testData }, aanvraag: string) => {
+    await inboxProductaanvragen(page).createZaakFrom(testData.unique(aanvraag));
+    await expect(
+      page.getByRole("heading", { name: "Zaak aanmaken", level: 1 }),
+    ).toBeVisible();
+  },
+);
+
+Then(
+  "the zaak shows the document of the productaanvraag",
+  async ({ page, testData }) => {
+    await expect(
+      zaakPage(page).document(testData.documentTitled(AANVRAAGDOCUMENT)),
+    ).toBeVisible();
+  },
+);
+
+Then(
+  "the inbox productaanvragen no longer shows {string}",
+  async ({ page, testData }, aanvraag: string) => {
+    const type = testData.unique(aanvraag);
+    await testData.untilProductaanvraagIsNotInInbox(type);
+    const inbox = inboxProductaanvragen(page);
+    await inbox.open();
+    await expect(inbox.productaanvraag(type)).toBeHidden();
+  },
+);

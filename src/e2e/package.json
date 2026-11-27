@@ -6,21 +6,15 @@
     "npm": "12.2.3"
   },
   "scripts": {
-    "e2e:run": "./node_modules/.bin/cucumber-js -p default",
-    "e2e:start": "npm ci --ignore-scripts && npx playwright install --with-deps && npm run e2e:run",
-    "e2e:generate:report": "node generate-report.mjs",
-    "e2e:extract:metrics": "node extract-metrics.mjs",
     "test": "bddgen && playwright test",
     "test:ui": "bddgen && playwright test --ui",
     "test:unit": "playwright test -c playwright.unit.config.ts",
     "lint": "eslint .",
-    "typecheck": "npm run generate:types:zac-openapi && tsc -p tsconfig.playwright.json",
+    "typecheck": "npm run generate:types:zac-openapi && tsc",
     "generate:types:zac-openapi": "openapi-typescript ../../build/generated/openapi/META-INF/openapi/openapi.json -o ./generated/zac-openapi-types.d.ts"
   },
   "private": true,
   "dependencies": {
-    "@cucumber/cucumber": "13.3.0",
-    "pdf-parse": "2.4.5",
     "zod": "4.6.7"
   },
   "devDependencies": {
@@ -30,18 +24,15 @@
     "dotenv": "18.0.10",
     "eslint": "10.15.0",
     "eslint-plugin-playwright": "2.12.2",
-    "multiple-cucumber-html-reporter": "4.6.0",
     "openapi-fetch": "0.17.0",
     "openapi-typescript": "7.13.0",
     "playwright-bdd": "9.2.1",
-    "ts-node": "10.9.2",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.73.0"
+    "typescript-eslint": "8.74.0"
   },
   "overrides": {
     "openapi-typescript": {
       "typescript": "$typescript"
     }
-  },
-  "cucumber.features": ["features/**/*.feature"]
+  }
 }

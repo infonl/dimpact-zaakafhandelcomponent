@@ -39,12 +39,12 @@ openarchiefbeheer:
   image: maykinmedia/open-archiefbeheer:2.0.0@sha256:e5217d748869c62d26393311c3cfdcaacf69d8dde80ca3bc172ff41f3885f0ff
 # no arm64 image: the arm64 build of Open Formulieren lacks static files that the form editor needs
 openforms:
-  image: openformulieren/open-forms:4.0.7@sha256:12c975259f37eb91973a722d1f4e3f0ccf09aa037c08ecbd200350efd4ed493a
+  image: openformulieren/open-forms:4.0.10@sha256:3b4985bc2e0934ae6976b269b4f673e4bf590bbafc5ada00fb836262cb100bdf
 vngSelectielijst:
   image: openzaak/vng-selectielijst:1.0.6@sha256:80c4c4f7b73889f1d8a816b8633cc4584961b6f8e4f21b7078df26ec4010f76d
 # the nginx of the upstream charts and the container that publishes the ports on the host
 nginx:
-  image: nginx/nginx-unprivileged:1.31.9@sha256:0255fc1dcc1d7b358aac20166543e52029fea577413edadb0912f5b928c7e312
+  image: nginx/nginx-unprivileged:1.31.10@sha256:a3ee8631f59c109deead35eef91f428233151b50ed5ee433057f3a93ca570c2c
 
 # -- one PostGIS server for the databases of every component
 postgres:
@@ -137,11 +137,11 @@ solr:
 
 opa:
   # -- keep in sync with the OPA of charts/zac
-  image: openpolicyagent/opa:1.22.4-static@sha256:12cecac5a174368f7d3f09d3a19d040ebe0c91d576e520335ae7a985a26e39d3
+  image: openpolicyagent/opa:1.23.0-static@sha256:5eda3af02ff7b2c5f12bbf893a5bdebfde3adb8d6338e7fcf1f37d90b819e88d
 
 officeConverter:
   # -- keep in sync with the office converter of charts/zac
-  image: gotenberg/gotenberg:9.9.3@sha256:9731688d1b6290e4c04d9a47dbd5fb29f92aa0076feb6592c5c777525892cd72
+  image: gotenberg/gotenberg:9.10.2@sha256:daede2c52129da3b9eef655fdad5de0c0a978f1119bb1c459ee88388982b1b70
   username: zac
 
 brpPersonenMock:

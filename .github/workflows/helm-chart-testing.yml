@@ -86,6 +86,63 @@ jobs:
             echo "needsbump=false" >> "$GITHUB_OUTPUT"
           fi
 
+  # The validation of the manifests runs on every pull request, also when the chart did not change, so that an
+  # update of the Kubernetes versions it validates against is tested too.
+  kubernetes-versions:
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+    outputs:
+      kubernetes_versions: ${{ steps.kubernetes-versions.outputs.kubernetes_versions }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: List the Kubernetes versions to validate the manifests against
+        id: kubernetes-versions
+        run: scripts/helm/kubernetes-versions.sh >> "$GITHUB_OUTPUT"
+
+  helm-validate-manifests:
+    name: helm-validate-manifests (Kubernetes ${{ matrix.kubernetes_version }})
+    runs-on: ubuntu-26.04
+    needs: kubernetes-versions
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        kubernetes_version: ${{ fromJSON(needs.kubernetes-versions.outputs.kubernetes_versions) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Helm
+        uses: azure/setup-helm@2f5e7bc67f1f9972ab16657bb795f36d8f04de0e # v5.1.0
+        with:
+          version: v4.3.2 # helm version updated by renovate
+
+      - name: Add repositories
+        run: |
+          helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+          helm repo add solr https://solr.apache.org/charts
+
+      - name: Render the manifests of the chart
+        # Inside the workspace, because the kubeconform container below only mounts the workspace.
+        run: |
+          helm dependency build charts/zac
+          scripts/helm/render-chart-manifests.sh "${{ matrix.kubernetes_version }}" build/helm-manifests
+
+      # The custom resources of the Solr operator have no schema in the Kubernetes catalog. Skipping them by kind,
+      # instead of with -ignore-missing-schemas, keeps a removed Kubernetes API a failure.
+      - name: Validate the rendered manifests against the Kubernetes API
+        uses: docker://ghcr.io/yannh/kubeconform:v0.8.0@sha256:faffaf43f95aa6425306e1ab8d6fcad72acb9049158f38e574c085ea1ec0f64e
+        with:
+          args: >-
+            -strict -summary
+            -kubernetes-version ${{ matrix.kubernetes_version }}
+            -skip SolrCloud
+            build/helm-manifests
+
   helm-test:
     runs-on: ubuntu-26.04
     needs: helm-lint
@@ -190,13 +247,15 @@ jobs:
   # for chart linting/testing/bumping/docs before merging.
   helm-status:
     runs-on: ubuntu-26.04
-    needs: [helm-lint, helm-test, helm-docs]
+    needs: [helm-lint, helm-test, helm-docs, kubernetes-versions, helm-validate-manifests]
     if: ${{ always() }}
     steps:
       - name: Aggregate helm check results
         run: |
           echo "helm-lint=${{ needs.helm-lint.result }} helm-test=${{ needs.helm-test.result }} helm-docs=${{ needs.helm-docs.result }}"
-          for result in "${{ needs.helm-lint.result }}" "${{ needs.helm-test.result }}" "${{ needs.helm-docs.result }}"; do
+          echo "kubernetes-versions=${{ needs.kubernetes-versions.result }} helm-validate-manifests=${{ needs.helm-validate-manifests.result }}"
+          for result in "${{ needs.helm-lint.result }}" "${{ needs.helm-test.result }}" "${{ needs.helm-docs.result }}" \
+            "${{ needs.kubernetes-versions.result }}" "${{ needs.helm-validate-manifests.result }}"; do
             case "$result" in
               success|skipped) ;;
               *) echo "::error::A required helm job did not succeed (result: $result)."; exit 1 ;;

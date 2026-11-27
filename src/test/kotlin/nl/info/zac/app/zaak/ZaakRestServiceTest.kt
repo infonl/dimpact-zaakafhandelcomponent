@@ -49,7 +49,6 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.exception.ZrcRuntimeException
 import nl.info.client.zgw.zrc.model.DeleteGeoJsonGeometry
 import nl.info.client.zgw.zrc.model.ZaakInformatieobjectListParameters
-import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimteRequest
@@ -293,7 +292,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaak = createZaak(zaaktypeUri = zaakType.url)
             val closedZaak = createZaak(
                 zaaktypeUri = zaakType.url,
-                archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
+                endDate = ZacTime.today()
             )
             val reden = "fakeReden"
             val resultaattypeUuid = UUID.randomUUID()
@@ -368,7 +367,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val resultaatUri = URI("https://example.com/resultaat/${UUID.randomUUID()}")
             val zaak = createZaak(
                 zaaktypeUri = zaakType.url,
-                archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN,
+                endDate = ZacTime.today(),
                 resultaat = resultaatUri
             )
             val reopenedZaak = createZaak(zaaktypeUri = zaakType.url)
@@ -1932,7 +1931,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaak = createZaak(zaaktypeUri = zaakType.url)
             val terminatedZaak = createZaak(
                 zaaktypeUri = zaakType.url,
-                archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
+                endDate = ZacTime.today()
             )
             val zaaktypeConfiguration = createZaaktypeCmmnConfiguration()
             val nietOntvankelijkResultaattypeUuid = UUID.randomUUID()
