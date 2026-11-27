@@ -120,26 +120,20 @@ class ZacLoggerTest : BehaviorSpec({
         }
 
         given("a logger for which FINE is disabled") {
-            var isEventCreated = false
             var isEmployeeLookedUp = false
             ZacLogger.useEmployeeLookup {
                 isEmployeeLookedUp = true
                 "fakeKeycloakUserId"
             }
 
-            `when`("an event is logged at FINE, directly and through a supplier") {
+            `when`("an event is logged at FINE") {
                 val records = LogCapture(ZacLoggerTest::class, Level.INFO).use { logCapture ->
                     zacLogger.fine(FakeEmployeeAction(zaakUuid = zaakUuid, employee = Employee("fakeUsername")))
-                    zacLogger.fine {
-                        isEventCreated = true
-                        FakeZaakAssigned(zaakIdentificatie = "ZAAK-2026-0000000001", groupId = "test-group")
-                    }
                     logCapture.records
                 }
 
-                then("no record is written, the supplier is not called and the employee is not looked up") {
+                then("no record is written and the employee is not looked up") {
                     records.shouldBeEmpty()
-                    isEventCreated shouldBe false
                     isEmployeeLookedUp shouldBe false
                 }
             }

@@ -263,7 +263,7 @@ class BrpClientService @Inject constructor(
         buildFunction: (resolvedValue: String?, ZaaktypeConfiguration) -> String?
     ): String? =
         zaaktypeUuid?.let {
-            LOG.fine { BrpValueResolutionStarted(valueDescription = valueDescription, zaaktypeUuid = it) }
+            LOG.fine (BrpValueResolutionStarted(valueDescription = valueDescription, zaaktypeUuid = it))
             try {
                 it.resolveValueFromZaaktypeConfiguration(valueDescription, defaultValue, resolveFunction, buildFunction)
             } catch (webApplicationException: WebApplicationException) {

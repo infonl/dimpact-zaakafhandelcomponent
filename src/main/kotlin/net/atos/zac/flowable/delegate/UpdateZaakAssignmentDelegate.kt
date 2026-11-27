@@ -52,13 +52,13 @@ class UpdateZaakAssignmentDelegate : AbstractDelegate() {
         val username = behandelaarGebruikersnaam?.resolveValueAsString(execution)
         val reason = reden?.resolveValueAsString(execution)
 
-        LOG.fine {
+        LOG.fine (
             ZaakAssignmentUpdateStarted(
                 zaakIdentificatie = zaak.identificatie,
                 groupId = groupId,
                 assignee = username?.let(::Employee)
             )
-        }
+        )
         flowableHelper.zaakService.assignZaak(zaak = zaak, groupId = groupId, userName = username, reason = reason)
     }
 }
